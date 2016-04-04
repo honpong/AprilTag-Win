@@ -39,9 +39,10 @@ static void cleanupSampleBuffer(void *h)
     CFRelease(h);
 }
 
-image_gray8 camera_data_from_CMSampleBufferRef(CMSampleBufferRef sampleBuffer)
+image_gray8 camera_data_from_CMSampleBufferRef(const sensor &source, CMSampleBufferRef sampleBuffer)
 {
     image_gray8 d;
+    d.source = &source;
     d.image_handle = std::unique_ptr<void, void(*)(void *)>((void *)CFRetain(sampleBuffer), cleanupSampleBuffer);
     if(!sampleBuffer) throw std::runtime_error("Null sample buffer");
     CMTime time = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
@@ -73,9 +74,10 @@ image_gray8 camera_data_from_CMSampleBufferRef(CMSampleBufferRef sampleBuffer)
     return std::move(d);
 }
 
-accelerometer_data accelerometer_data_from_CMAccelerometerData(CMAccelerometerData *accelerationData)
+accelerometer_data accelerometer_data_from_CMAccelerometerData(const sensor &source, CMAccelerometerData *accelerationData)
 {
     accelerometer_data d;
+    d.source = &source;
     d.timestamp = time_point_fromNSTimeInterval(accelerationData.timestamp);
     //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
     //it appears that accelerometer axes are flipped
@@ -85,9 +87,10 @@ accelerometer_data accelerometer_data_from_CMAccelerometerData(CMAccelerometerDa
     return d;
 }
 
-gyro_data gyro_data_from_CMGyroData(CMGyroData *gyroData)
+gyro_data gyro_data_from_CMGyroData(const sensor &source, CMGyroData *gyroData)
 {
     gyro_data d;
+    d.source = &source;
     d.timestamp = time_point_fromNSTimeInterval(gyroData.timestamp);
     d.angvel_rad__s[0] = (float)gyroData.rotationRate.x;
     d.angvel_rad__s[1] = (float)gyroData.rotationRate.y;

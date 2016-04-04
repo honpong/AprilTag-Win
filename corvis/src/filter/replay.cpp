@@ -124,6 +124,7 @@ void replay::setup_filter()
 image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle)
 {
     image_gray8 gray;
+    gray.source = &fusion.camera;
     gray.image = data;
     gray.width = width;
     gray.height = height;
@@ -152,6 +153,7 @@ image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data
 image_depth16 replay::parse_depth16(int width, int height, int stride, uint16_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle)
 {
     image_depth16 depth;
+    depth.source = &fusion.depth;
     depth.width = width;
     depth.height = height;
     depth.stride = stride;
@@ -307,6 +309,7 @@ void replay::start(string map_filename)
                 case packet_accelerometer:
                 {
                     accelerometer_data d;
+                    d.source = &fusion.accelerometer;
                     d.accel_m__s2[0] = ((float *)packet->data)[0];
                     d.accel_m__s2[1] = ((float *)packet->data)[1];
                     d.accel_m__s2[2] = ((float *)packet->data)[2];
@@ -320,6 +323,7 @@ void replay::start(string map_filename)
                 case packet_gyroscope:
                 {
                     gyro_data d;
+                    d.source = &fusion.gyro;
                     d.angvel_rad__s[0] = ((float *)packet->data)[0];
                     d.angvel_rad__s[1] = ((float *)packet->data)[1];
                     d.angvel_rad__s[2] = ((float *)packet->data)[2];
@@ -333,6 +337,7 @@ void replay::start(string map_filename)
                 case packet_imu:
                 {
                     accelerometer_data a;
+                    a.source = &fusion.accelerometer;
                     auto imu = (packet_imu_t *)packet;
                     a.accel_m__s2[0] = imu->a[0];
                     a.accel_m__s2[1] = imu->a[1];
@@ -340,6 +345,7 @@ void replay::start(string map_filename)
                     a.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
                     fusion.receive_accelerometer(std::move(a));
                     gyro_data g;
+                    g.source = &fusion.gyro;
                     g.angvel_rad__s[0] = imu->w[0];
                     g.angvel_rad__s[1] = imu->w[1];
                     g.angvel_rad__s[2] = imu->w[2];

@@ -172,14 +172,14 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     auto acc_fn = [this](accelerometer_data &&data)
     {
         if(!isSensorFusionRunning) return;
-        filter_accelerometer_measurement(&sfm, data.accel_m__s2, data.timestamp);
+        filter_accelerometer_measurement(&sfm, data);
         update_status();
     };
     
     auto gyr_fn = [this](gyro_data &&data)
     {
         if(!isSensorFusionRunning) return;
-        filter_gyroscope_measurement(&sfm, data.angvel_rad__s, data.timestamp);
+        filter_gyroscope_measurement(&sfm, data);
     };
     
     queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
@@ -197,6 +197,11 @@ void sensor_fusion::set_device(const device_parameters &dc)
 {
     device = dc;
     filter_initialize(&sfm, &device);
+    
+    camera.id = 0;
+    accelerometer.id = 1;
+    gyro.id = 2;
+    depth.id = 3;
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)

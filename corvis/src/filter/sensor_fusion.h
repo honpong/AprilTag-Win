@@ -19,6 +19,7 @@
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 #include "device_parameters.h"
 #include "filter.h"
+#include "sensor.h"
 
 class sensor_fusion
 {
@@ -207,6 +208,7 @@ public:
     filter sfm;
     device_parameters device;
     struct calibration calibration;
+    sensor camera, accelerometer, gyro, depth;
     
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
     transformation accel_to_camera_world_transform() const;

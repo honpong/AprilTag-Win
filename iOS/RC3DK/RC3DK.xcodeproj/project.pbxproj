@@ -85,6 +85,10 @@
 		38AEA3081B2789EF0091C4E7 /* calibration_defaults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */; };
 		38AEA30A1B278A260091C4E7 /* calibration_defaults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */; };
 		38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
+		397792861CB1BC1C0092462E /* sensor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 397792841CB1BC1C0092462E /* sensor.cpp */; };
+		397792871CB1BC1C0092462E /* sensor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 397792841CB1BC1C0092462E /* sensor.cpp */; };
+		397792881CB1BC1C0092462E /* sensor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 397792841CB1BC1C0092462E /* sensor.cpp */; };
+		397792891CB1BC1C0092462E /* sensor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 397792841CB1BC1C0092462E /* sensor.cpp */; };
 		D31EC5381A5F1E5B0003379A /* libzxing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D31EC5371A5F1E5B0003379A /* libzxing.a */; };
 		D31EC5391A5F1E9E0003379A /* libzxing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D31EC5371A5F1E5B0003379A /* libzxing.a */; };
 		D321AD3E1A323C17003AEA77 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD301A323BF7003AEA77 /* camera.cpp */; };
@@ -622,6 +626,8 @@
 		38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = calibration_defaults.cpp; sourceTree = "<group>"; };
 		38AEA3091B278A050091C4E7 /* calibration_defaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calibration_defaults.h; sourceTree = "<group>"; };
 		38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rotation_vector.cpp; sourceTree = "<group>"; };
+		397792841CB1BC1C0092462E /* sensor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sensor.cpp; sourceTree = "<group>"; };
+		397792851CB1BC1C0092462E /* sensor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sensor.h; sourceTree = "<group>"; };
 		B984DA46096BC831CC58B1DE /* RCVideoFrameDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoFrameDelegate.h; sourceTree = "<group>"; };
 		D31EC5371A5F1E5B0003379A /* libzxing.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libzxing.a; sourceTree = "<group>"; };
 		D321AD301A323BF7003AEA77 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
@@ -1170,6 +1176,8 @@
 			children = (
 				327B558618EB4F250001CCE1 /* cor_types.h */,
 				327B559018EB4F250001CCE1 /* packet.h */,
+				397792841CB1BC1C0092462E /* sensor.cpp */,
+				397792851CB1BC1C0092462E /* sensor.h */,
 				D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */,
 				D95EB1861AA5038600ADFC20 /* sensor_fusion_queue.h */,
 				D95409AE1AC1019200706A24 /* sensor_clock.cpp */,
@@ -1837,6 +1845,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				32036EA81ACB5C1B00FC0588 /* RCLicenseValidatorTests.m in Sources */,
+				397792881CB1BC1C0092462E /* sensor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1913,6 +1922,7 @@
 				327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */,
 				D91557FA1B87A21A006D2002 /* host.c in Sources */,
 				38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */,
+				397792861CB1BC1C0092462E /* sensor.cpp in Sources */,
 				D91558301B87A21A006D2002 /* sift.c in Sources */,
 				D915581B1B87A21A006D2002 /* mathop_sse2.c in Sources */,
 				D91558361B87A21A006D2002 /* stringop.c in Sources */,
@@ -1971,6 +1981,7 @@
 				D91558111B87A21A006D2002 /* lbp.c in Sources */,
 				D91557FF1B87A21A006D2002 /* ikmeans.c in Sources */,
 				D91557F31B87A21A006D2002 /* hikmeans.c in Sources */,
+				397792891CB1BC1C0092462E /* sensor.cpp in Sources */,
 				D91557FC1B87A21A006D2002 /* host.c in Sources */,
 				D35BF0E61ADD11DB00BF3CB0 /* MainViewController.m in Sources */,
 				D983B2AA1B1695D40013099E /* RCSensorData.mm in Sources */,
@@ -2049,6 +2060,7 @@
 				D91557871B87A15D006D2002 /* feature_descriptor.cpp in Sources */,
 				D3B4EADE1A1E7DE100BE0443 /* RCCalibration.mm in Sources */,
 				D33E9D2C1ADD14600085F35C /* RCVideoManager.m in Sources */,
+				397792871CB1BC1C0092462E /* sensor.cpp in Sources */,
 				D3B4EAE01A1E7DE100BE0443 /* scaled_mask.cpp in Sources */,
 				D321AD421A323C17003AEA77 /* stereo.cpp in Sources */,
 				D3588EF31A20C04000CA10E7 /* bp.cpp in Sources */,

@@ -15,6 +15,7 @@
     capture cp;
     
     bool isCapturing;
+    sensor accelerometer, gyro, camera;
 }
 @end
 
@@ -25,6 +26,10 @@
 	if(self = [super init])
 	{
         isCapturing = false;
+        
+        camera.id = 0;
+        accelerometer.id = 1;
+        gyro.id = 2;
 	}
 	return self;
 }
@@ -32,19 +37,19 @@
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
 {
     if(isCapturing)
-        cp.write_camera(camera_data_from_CMSampleBufferRef(sampleBuffer));
+        cp.write_camera(camera_data_from_CMSampleBufferRef(camera, sampleBuffer));
 }
 
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData
 {
     if(isCapturing)
-        cp.write_accelerometer(accelerometer_data_from_CMAccelerometerData(accelerationData));
+        cp.write_accelerometer(accelerometer_data_from_CMAccelerometerData(accelerometer, accelerationData));
 }
 
 - (void) receiveGyroData:(CMGyroData *)gyroData
 {
     if(isCapturing)
-        cp.write_gyro(gyro_data_from_CMGyroData(gyroData));
+        cp.write_gyro(gyro_data_from_CMGyroData(gyro, gyroData));
 }
 
 - (void)startCaptureWithPath:(NSString *)path

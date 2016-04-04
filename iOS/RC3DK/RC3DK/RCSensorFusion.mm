@@ -67,6 +67,7 @@
     RCSensorFusionConfidence lastConfidence;
     float lastProgress;
     NSString* licenseKey;
+    sensor accelerometer, gyro, camera;
 }
 
 - (void) setLicenseKey:(NSString*)licenseKey_
@@ -169,14 +170,14 @@
         auto acc_fn = [self](accelerometer_data &&data)
         {
             if(!isSensorFusionRunning) return;
-            filter_accelerometer_measurement(&_cor_setup->sfm, data.accel_m__s2, data.timestamp);
+            filter_accelerometer_measurement(&_cor_setup->sfm, data);
             [self sendStatus];
         };
 
         auto gyr_fn = [self](gyro_data &&data)
         {
             if(!isSensorFusionRunning) return;
-            filter_gyroscope_measurement(&_cor_setup->sfm, data.angvel_rad__s, data.timestamp);
+            filter_gyroscope_measurement(&_cor_setup->sfm, data);
         };
 
         queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::MINIMIZE_DROPS, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
@@ -192,6 +193,18 @@
         
         device_parameters dc = [RCCalibration getCalibrationData];
         _cor_setup = new filter_setup(&dc);
+        
+        camera.id = 0;
+        camera.measurement_variance = state_vision_feature::measurement_var;
+        camera.pose = transformation();
+        
+        accelerometer.id = 1;
+        accelerometer.measurement_variance = dc.imu.a_noise_var_m2__s4;
+        accelerometer.pose = dc.color.extrinsics_wrt_imu_m;
+        
+        gyro.id = 2;
+        gyro.measurement_variance = dc.imu.w_noise_var_rad2__s2;
+        gyro.pose = dc.color.extrinsics_wrt_imu_m;
     }
     
     return self;
@@ -568,7 +581,7 @@
         return;
     }
     try {
-        image_gray8 c(camera_data_from_CMSampleBufferRef(sampleBuffer));
+        image_gray8 c(camera_data_from_CMSampleBufferRef(camera, sampleBuffer));
         queue->receive_camera(std::move(c));
     } catch (std::runtime_error) {
         //do nothing - indicates the sample / image buffer was not valid.
@@ -578,13 +591,13 @@
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
 {
     if(!isSensorFusionRunning) return;
-    queue->receive_accelerometer(accelerometer_data_from_CMAccelerometerData(accelerationData));
+    queue->receive_accelerometer(accelerometer_data_from_CMAccelerometerData(accelerometer, accelerationData));
 }
 
 - (void) receiveGyroData:(CMGyroData *)gyroData
 {
     if(!isSensorFusionRunning) return;
-    queue->receive_gyro(gyro_data_from_CMGyroData(gyroData));
+    queue->receive_gyro(gyro_data_from_CMGyroData(gyro, gyroData));
 }
 
 #pragma mark - QR Code handling

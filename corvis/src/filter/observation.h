@@ -10,6 +10,7 @@
 #include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
 #include <memory>
+#include "../cor/sensor.h"
 
 extern "C" {
 #include "../cor/cor_types.h"
@@ -19,6 +20,7 @@ using namespace std;
 
 class observation {
 public:
+    const sensor &source;
     const int size;
     sensor_clock::time_point time_actual;
     sensor_clock::time_point time_apparent;
@@ -34,7 +36,7 @@ public:
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
     
-    observation(int _size, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): size(_size), time_actual(_time_actual), time_apparent(_time_apparent) {}
+    observation(const sensor &src, int _size, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): source(src), size(_size), time_actual(_time_actual), time_apparent(_time_apparent) {}
     virtual ~observation() {};
 };
 
@@ -50,7 +52,7 @@ public:
     virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }
     virtual f_t measurement_covariance(const int i) const { return m_cov[i]; }
-    observation_storage(sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation(_size, _time_actual, _time_apparent) {}
+    observation_storage(const sensor &src, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation(src, _size, _time_actual, _time_apparent) {}
 };
 
 class observation_vision_feature: public observation_storage<2> {
@@ -86,7 +88,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     void update_initializing();
 
-    observation_vision_feature(const state_vision &_state, const state_vision_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent, struct tracker &_tracker): observation_storage(_time_actual, _time_apparent), state(_state), intrinsics(_intrinsics), tracker(_tracker) {}
+    observation_vision_feature(const sensor &src, const state_vision &_state, const state_vision_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent, struct tracker &_tracker): observation_storage(src, _time_actual, _time_apparent), state(_state), intrinsics(_intrinsics), tracker(_tracker) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -98,7 +100,7 @@ public:
     f_t variance;
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
-    observation_spatial(sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(_time_actual, _time_apparent), variance(0.) {}
+    observation_spatial(const sensor &src, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(src, _time_actual, _time_apparent), variance(0.) {}
     void innovation_covariance_hook(const matrix &cov, int index);
 };
 
@@ -119,7 +121,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer(state_motion &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_accelerometer(const sensor &src, state_motion &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(src, _time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -147,7 +149,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_gyroscope(const state_motion_orientation &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_gyroscope(const sensor &src, const state_motion_orientation &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(src, _time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 };
 
 #define MAXOBSERVATIONSIZE 256

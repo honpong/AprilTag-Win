@@ -348,6 +348,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shu
 {
     if (format == rc_FORMAT_DEPTH16) {
         image_depth16 d;
+        d.source = &tracker->depth;
         d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
         d.image = (uint16_t *)image;
         d.width = width;
@@ -362,6 +363,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shu
             tracker->receive_image(std::move(d));
     } else if (format == rc_FORMAT_GRAY8) {
         image_gray8 d;
+        d.source = &tracker->camera;
         d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
         d.image = (uint8_t *)image;
         d.width = width;
@@ -381,6 +383,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shu
 void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2)
 {
     accelerometer_data d;
+    d.source = &tracker->accelerometer;
     d.accel_m__s2[0] = acceleration_m__s2.x;
     d.accel_m__s2[1] = acceleration_m__s2.y;
     d.accel_m__s2[2] = acceleration_m__s2.z;
@@ -394,6 +397,7 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_us, const r
 void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s)
 {
     gyro_data d;
+    d.source = &tracker->gyro;
     d.angvel_rad__s[0] = angular_velocity_rad__s.x;
     d.angvel_rad__s[1] = angular_velocity_rad__s.y;
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;

@@ -385,21 +385,21 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
     return f->a_variance;
 }
 
-void filter_accelerometer_measurement(struct filter *f, const float data[3], sensor_clock::time_point time)
+void filter_accelerometer_measurement(struct filter *f, const accelerometer_data &data)
 {
     auto start = std::chrono::steady_clock::now();
-    v3 meas_(data[0], data[1], data[2]);
+    v3 meas_(data.accel_m__s2[0], data.accel_m__s2[1], data.accel_m__s2[2]);
     v3 meas = f->a_alignment * meas_;
     v3 accel_delta = meas - f->last_accel_meas;
     f->last_accel_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return;
-    if(!check_packet_time(f, time, packet_accelerometer)) return;
+    if(!check_packet_time(f, data.timestamp, packet_accelerometer)) return;
     if(!f->ignore_lateness) {
         auto current = sensor_clock::now();
-        auto delta = current - time;
+        auto delta = current - data.timestamp;
         if(delta > max_inertial_delay) {
-            f->log->warn("Warning, dropped an old accel sample - timestamp {}, now {}", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            f->log->warn("Warning, dropped an old accel sample - timestamp {}, now {}", sensor_clock::tp_to_micros(data.timestamp), sensor_clock::tp_to_micros(current));
             return;
         }
     }
@@ -414,13 +414,13 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
         f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
     }
     
-    auto obs_a = std::make_unique<observation_accelerometer>(f->s, f->s.extrinsics, f->s.imu_intrinsics, time, time);
+    auto obs_a = std::make_unique<observation_accelerometer>(*data.source, f->s, f->s.extrinsics, f->s.imu_intrinsics, data.timestamp, data.timestamp);
     obs_a->meas = meas;
-    obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
+    obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, data.timestamp);
 
     f->observations.observations.push_back(std::move(obs_a));
 
-    process_observation_queue(f, time);
+    process_observation_queue(f, data.timestamp);
 
     if(!f->gravity_init) {
         f->gravity_init = true;
@@ -433,21 +433,21 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     f->accel_timer = stop-start;
 }
 
-void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time)
+void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
 {
     auto start = std::chrono::steady_clock::now();
-    v3 meas_(data[0], data[1], data[2]);
+    v3 meas_(data.angvel_rad__s[0], data.angvel_rad__s[1], data.angvel_rad__s[2]);
     v3 meas = f->w_alignment * meas_;
     v3 gyro_delta = meas - f->last_gyro_meas;
     f->last_gyro_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return;
-    if(!check_packet_time(f, time, packet_gyroscope)) return;
+    if(!check_packet_time(f, data.timestamp, packet_gyroscope)) return;
     if(!f->ignore_lateness) {
         auto current = sensor_clock::now();
-        auto delta = current - time;
+        auto delta = current - data.timestamp;
         if(delta > max_inertial_delay) {
-            f->log->warn("Warning, dropped an old gyro sample - timestamp {}, now {}", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            f->log->warn("Warning, dropped an old gyro sample - timestamp {}, now {}", sensor_clock::tp_to_micros(data.timestamp), sensor_clock::tp_to_micros(current));
             return;
         }
     }
@@ -462,7 +462,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
     }
 
-    auto obs_w = std::make_unique<observation_gyroscope>(f->s, f->s.extrinsics, f->s.imu_intrinsics, time, time);
+    auto obs_w = std::make_unique<observation_gyroscope>(*data.source, f->s, f->s.extrinsics, f->s.imu_intrinsics, data.timestamp, data.timestamp);
     obs_w->meas = meas;
     obs_w->variance = f->w_variance;
 
@@ -472,7 +472,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         f->gyro_stability.data(meas);
     }
 
-    process_observation_queue(f, time);
+    process_observation_queue(f, data.timestamp);
     auto stop = std::chrono::steady_clock::now();
     f->gyro_timer = stop-start;
 }
@@ -488,7 +488,7 @@ void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
             if(!g->status || g->status == group_initializing) continue;
             for(state_vision_feature *i : g->features.children) {
                 auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
-                auto obs = std::make_unique<observation_vision_feature>(f->s, f->s.camera_intrinsics, image.timestamp + extra_time, image.timestamp, f->track);
+                auto obs = std::make_unique<observation_vision_feature>(*image.source, f->s, f->s.camera_intrinsics, image.timestamp + extra_time, image.timestamp, f->track);
                 obs->state_group = g;
                 obs->feature = i;
                 obs->meas[0] = i->current[0];

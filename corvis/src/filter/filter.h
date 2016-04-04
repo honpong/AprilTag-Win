@@ -100,8 +100,8 @@ struct filter {
 
 bool filter_depth_measurement(struct filter *f, const image_depth16 & depth);
 bool filter_image_measurement(struct filter *f, const image_gray8 & image);
-void filter_accelerometer_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
-void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
+void filter_accelerometer_measurement(struct filter *f, const accelerometer_data &data);
+void filter_gyroscope_measurement(struct filter *f, const gyro_data &data);
 void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned);
 void filter_set_reference(struct filter *f);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);

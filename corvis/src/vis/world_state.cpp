@@ -494,7 +494,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
         auto id = n.first;
         auto node = n.second;
         if(!node.finished)
-            continue;
+            set_color(&map_node_vertex[idx], 255, 0, 255, 255);
         else if(node.loop_closed)
             set_color(&map_node_vertex[idx], 255, 0, 0, 255);
         else
@@ -502,7 +502,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
         v4 v1(node.position.T.x(), node.position.T.y(), node.position.T.z(), 0);
         set_position(&map_node_vertex[idx], v1[0], v1[1], v1[2]);
         for(uint64_t neighbor_id : node.neighbors) {
-            if(!map_nodes[neighbor_id].finished) continue;
+            if(!node.finished || !map_nodes[neighbor_id].finished) continue;
 
             if(node.loop_closed && map_nodes[neighbor_id].loop_closed)
                 set_color(&map_edge_vertex[nedges], 255, 0, 0, 255);

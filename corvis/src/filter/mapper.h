@@ -108,7 +108,6 @@ class mapper {
     void internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform, bool loop_closed);
     void set_special(uint64_t id, bool special);
     bool get_matches(uint64_t id, aligned_vector<map_match> &matches, int max, int suppression);
-    void set_node_transformation(uint64_t id, const transformation & G);
     transformation get_relative_transformation(uint64_t id1, uint64_t id2);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
     uint32_t project_feature(const descriptor & d);
@@ -131,6 +130,7 @@ class mapper {
 
     void update_feature_position(uint64_t node_id, uint64_t feature_id, const v4 &position_m, float depth_variance_m2);
     void node_finished(uint64_t node_id, const transformation & G);
+    void set_node_transformation(uint64_t id, const transformation & G);
 
     bool find_closure(int max, int suppression, transformation &offset);
 

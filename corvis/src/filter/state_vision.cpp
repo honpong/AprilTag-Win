@@ -275,6 +275,10 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                 best_group = g;
                 best_health = g->health;
             }
+            if(map_enabled) {
+                transformation G = transformation(Q.v, T.v)*invert(transformation(g->Qr.v, g->Tr.v));
+                map.set_node_transformation(g->id, G);
+            }
         }
     }
 

@@ -37,6 +37,11 @@ void fill_map_two_nodes(mapper & map, const transformation & g)
     map.node_finished(2, Gidentity);
     map.node_finished(3, Gidentity);
     map.node_finished(4, Gidentity);
+    // need 10 nodes of padding for find_closure to try a node
+    for(int i = 5; i < 5 + 10; i++) {
+        map.add_node(i);
+        map.node_finished(i, Gidentity);
+    }
 }
 
 TEST(Mapper, I)

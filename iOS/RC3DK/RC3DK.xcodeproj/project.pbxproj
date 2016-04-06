@@ -81,7 +81,6 @@
 		32DD2ACC1B200B1200B44447 /* world_state_render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2AC21B200B1200B44447 /* world_state_render.cpp */; };
 		32DD2ACD1B200E0200B44447 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
 		32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */; };
-		388998B41B26B0490077DAA7 /* calibration_json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json.cpp */; };
 		388998C51B26B1880077DAA7 /* calibration_json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json.cpp */; };
 		38AEA3081B2789EF0091C4E7 /* calibration_defaults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */; };
 		38AEA30A1B278A260091C4E7 /* calibration_defaults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */; };
@@ -351,6 +350,7 @@
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
 		D9CFC1061AD5ABFC00445A80 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
 		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };
+		EC0B427D1CB5962800974194 /* calibration_json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json.cpp */; };
 		EC2C6C4F1C45C318008C6793 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
@@ -762,6 +762,7 @@
 		D3C0EDF91A37B4DC00423EDE /* qr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qr.h; sourceTree = "<group>"; };
 		D3DE5D081A80E301000EF94D /* transformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = transformation.h; sourceTree = "<group>"; };
 		D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = device_parameters.cpp; sourceTree = "<group>"; };
+		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = camera_control_interface.h; path = ../../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D91557781B87A15D006D2002 /* dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dictionary.cpp; sourceTree = "<group>"; };
 		D91557791B87A15D006D2002 /* dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dictionary.h; sourceTree = "<group>"; };
 		D915577C1B87A15D006D2002 /* feature_descriptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = feature_descriptor.cpp; sourceTree = "<group>"; };
@@ -841,7 +842,6 @@
 		D91557D51B87A21A006D2002 /* svmdataset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = svmdataset.h; sourceTree = "<group>"; };
 		D91557D61B87A21A006D2002 /* vlad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vlad.c; sourceTree = "<group>"; };
 		D91557D71B87A21A006D2002 /* vlad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vlad.h; sourceTree = "<group>"; };
-		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = camera_control_interface.h; path = ../../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
 		D95409AE1AC1019200706A24 /* sensor_clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sensor_clock.cpp; path = platform/ios/sensor_clock.cpp; sourceTree = "<group>"; };
@@ -1844,6 +1844,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EC0B427D1CB5962800974194 /* calibration_json.cpp in Sources */,
 				328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */,
 				D91557E81B87A21A006D2002 /* generic.c in Sources */,
 				D91558151B87A21A006D2002 /* mathop.c in Sources */,

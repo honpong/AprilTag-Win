@@ -10,6 +10,7 @@
 #define __TRANSFORMATION_H
 
 #include "vec4.h"
+#include "matrix.h"
 #include "rotation_vector.h"
 #include "quaternion.h"
 
@@ -58,6 +59,57 @@ static inline transformation compose(const transformation & t1, const transforma
 static inline transformation operator*(const transformation &t1, const transformation & t2)
 {
     return compose(t1, t2);
+}
+
+static bool estimate_rigid_transformation(const std::vector<v4> & src, const std::vector<v4> & dst, transformation & transform)
+{
+    v4 center_src = v4::Zero();
+    v4 center_dst = v4::Zero();
+    if(src.size() != dst.size()) return false;
+    int N = src.size();
+
+    // calculate centroid
+    for(auto v : src)
+        center_src += v;
+    center_src = center_src / N;
+
+    for(auto v : dst)
+        center_dst += v;
+    center_dst = center_dst / N;
+
+    // remove centroid
+    matrix X(N, 3);
+    matrix Y(N, 3);
+    for(int i = 0; i < N; i++)
+        for(int j = 0; j < 3; j++)
+            X(i, j) = src[i][j] - center_src[j];
+    // transposed
+    for(int i = 0; i < N; i++)
+        for(int j = 0; j < 3; j++)
+            Y(i, j) = dst[i][j] - center_dst[j];
+
+    // compute rotation
+    matrix H(3, 3);
+    matrix_product(H, Y, X, true /*transpose Y*/);
+    // TODO: can incorporate weights here optionally, maybe use feature depth variance
+
+    matrix U(3,3), S(3,3), Vt(3,3);
+    if(!matrix_svd(H, U, S, Vt))
+        return false;
+
+    matrix R(3,3);
+    matrix_product(R, U, Vt);
+
+    m4 R_out = m4::Zero();
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < 3; j++)
+            R_out(i,j) = R(i,j);
+
+    // compute translation
+	v4 T = center_dst - R_out*center_src;
+    transform = transformation(R_out, T);
+
+    return true;
 }
 
 #endif

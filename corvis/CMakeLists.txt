@@ -65,6 +65,7 @@ if(YES)
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc
       test/test.cpp test/util.cpp
       test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
+      test/numerics/transformation.cpp
       test/filter/utils.cpp
       test/filter/state_vision.cpp
       test/filter/device_parameters.cpp

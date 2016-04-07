@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <vector>
 
-TEST(Transformation, EstimateRigid)
+TEST(Transformation, Estimate)
 {
     std::default_random_engine gen(100);
     std::uniform_real_distribution<float> r;
@@ -23,7 +23,7 @@ TEST(Transformation, EstimateRigid)
         }
 
         transformation estimate;
-        bool result = estimate_rigid_transformation(src, dst, estimate);
+        bool result = estimate_transformation(src, dst, estimate);
         EXPECT_TRUE(result);
         EXPECT_QUATERNION_NEAR(g.Q, estimate.Q, 0.001);
         EXPECT_V4_NEAR(g.T, estimate.T, std::max(g.T.norm()*0.001, F_T_EPS*4.));

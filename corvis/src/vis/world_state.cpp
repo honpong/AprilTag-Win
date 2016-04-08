@@ -507,12 +507,15 @@ void world_state::update_vertex_arrays(bool show_only_good)
             if(node.loop_closed && map_nodes[neighbor_id].loop_closed)
                 set_color(&map_edge_vertex[nedges], 255, 0, 0, 255);
             else
-                set_color(&map_edge_vertex[nedges], 255, 0, 255, 255);
+                set_color(&map_edge_vertex[nedges], 255, 0, 255, 50);
             set_position(&map_edge_vertex[nedges], v1[0], v1[1], v1[2]);
             nedges++;
 
             auto node2 = map_nodes[neighbor_id];
-            set_color(&map_edge_vertex[nedges], 255, 0, 255, 255);
+            if(node.loop_closed && map_nodes[neighbor_id].loop_closed)
+                set_color(&map_edge_vertex[nedges], 255, 0, 0, 255);
+            else
+                set_color(&map_edge_vertex[nedges], 255, 0, 255, 50);
             set_position(&map_edge_vertex[nedges], node2.position.T.x(), node2.position.T.y(), node2.position.T.z());
             nedges++;
         }

@@ -93,7 +93,7 @@ static bool estimate_transformation(const std::vector<v4> & src, const std::vect
     matrix_product(H, Y, X, true /*transpose Y*/);
     // TODO: can incorporate weights here optionally, maybe use feature depth variance
 
-    matrix U(3,3), S(3,3), Vt(3,3);
+    matrix U(3,3), S(1,3), Vt(3,3);
     if(!matrix_svd(H, U, S, Vt))
         return false;
 

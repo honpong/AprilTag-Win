@@ -175,6 +175,8 @@ void gui::start_glfw()
         glViewport(0, 0, width, height);
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         // Calculate layout
         int main_width = width, main_height = height;

@@ -100,8 +100,9 @@ class mapper {
     float tf_idf_score(const list<map_feature *> &hist1, const list<map_feature *> &hist2);
     void tf_idf_match(vector<float> &scores, const list<map_feature *> &histogram);
 
+    float refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const aligned_vector<match_pair> &neighbor_matches);
     int check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers);
-    int estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const aligned_list<match_pair> &matches, const aligned_list<match_pair> &neighbor_matches);
+    int estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const aligned_vector<match_pair> &matches, const aligned_vector<match_pair> &neighbor_matches);
     int brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max);
     void localize_neighbor_features(uint64_t id, aligned_list<local_feature> &features);
     void breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &));

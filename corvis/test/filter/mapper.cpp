@@ -3,7 +3,7 @@
 #include "corvis_dictionary.h"
 #include "util.h"
 
-void fill_map_two_nodes(mapper & map, const transformation & g)
+void fill_map_two_nodes(mapper & map, const transformation & g_feature, const transformation & g_node)
 {
     map.add_node(0);
     map.add_node(1);
@@ -29,18 +29,18 @@ void fill_map_two_nodes(mapper & map, const transformation & g)
             d.d[j] /= norm;
 
         map.add_feature(0, i, position, variance, d);
-        map.add_feature(4, i+corvis_num_centers, g*position, variance, d);
+        map.add_feature(4, i+corvis_num_centers, g_feature*position, variance, d);
     }
-    transformation Gidentity;
-    map.node_finished(0, Gidentity);
-    map.node_finished(1, Gidentity);
-    map.node_finished(2, Gidentity);
-    map.node_finished(3, Gidentity);
-    map.node_finished(4, Gidentity);
+    transformation g_identity;
+    map.node_finished(0, g_identity);
+    map.node_finished(1, g_identity);
+    map.node_finished(2, g_identity);
+    map.node_finished(3, g_identity);
+    map.node_finished(4, g_node);
     // need 10 nodes of padding for find_closure to try a node
     for(int i = 5; i < 5 + 10; i++) {
         map.add_node(i);
-        map.node_finished(i, Gidentity);
+        map.node_finished(i, g_identity);
     }
 }
 
@@ -48,7 +48,7 @@ TEST(Mapper, I)
 {
     mapper map;
     transformation g;
-    fill_map_two_nodes(map, g);
+    fill_map_two_nodes(map, g, transformation());
     int max = 20;
     int suppression = 2;
     transformation offset;
@@ -62,7 +62,7 @@ TEST(Mapper, T)
 {
     mapper map;
     transformation g(quaternion(), v4(0.1,1.2,0.3,0));
-    fill_map_two_nodes(map, g);
+    fill_map_two_nodes(map, g, transformation());
     int max = 20;
     int suppression = 2;
     transformation offset;
@@ -76,7 +76,7 @@ TEST(Mapper, Serialize)
 {
     mapper map;
     transformation g;
-    fill_map_two_nodes(map, g);
+    fill_map_two_nodes(map, g, transformation());
     std::string json;
     bool result = map.serialize(json);
     EXPECT_TRUE(result);

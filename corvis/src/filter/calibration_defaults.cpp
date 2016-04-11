@@ -663,6 +663,141 @@ static const char *CALIBRATION_DEFAULT_IPHONE6PLUS = R"(
 }
 )";
 
+//The 6S, 6S plus, and SE are not real - just copied
+static const char *CALIBRATION_DEFAULT_IPHONE6S = R"(
+{
+    "device": "iphone6s",
+    "calibrationVersion": 7,
+    "Fx": 548,
+    "Fy": 548,
+    "Cx": 319.5,
+    "Cy": 239.5,
+    "px": 0,
+    "py": 0,
+    "K0": 0.10000000149011612,
+    "K1": -0.15000000596046448,
+    "K2": 0,
+    "abias0": 0,
+    "abias1": 0,
+    "abias2": 0,
+    "wbias0": 0,
+    "wbias1": 0,
+    "wbias2": 0,
+    "Tc0": 0.014999999664723873,
+    "Tc1": 0.064999997615814209,
+    "Tc2": 0,
+    "Wc0": 2.2214415073394775,
+    "Wc1": -2.2214415073394775,
+    "Wc2": 0,
+    "abiasvar0": 0.0096039995551109314,
+    "abiasvar1": 0.0096039995551109314,
+    "abiasvar2": 0.0096039995551109314,
+    "wbiasvar0": 0.0076154354028403759,
+    "wbiasvar1": 0.0076154354028403759,
+    "wbiasvar2": 0.0076154354028403759,
+    "TcVar0": 9.9999999747524271e-07,
+    "TcVar1": 9.9999999747524271e-07,
+    "TcVar2": 1.000000013351432e-10,
+    "WcVar0": 9.9999999747524271e-07,
+    "WcVar1": 9.9999999747524271e-07,
+    "WcVar2": 9.9999999747524271e-07,
+    "wMeasVar": 1.3707783182326239e-05,
+    "aMeasVar": 0.00022821025049779564,
+    "imageWidth": 640,
+    "imageHeight": 480
+}
+)";
+
+//The 6S, 6S plus, and SE are not real - just copied
+static const char *CALIBRATION_DEFAULT_IPHONE6SPLUS = R"(
+{
+    "device": "iphone6splus",
+    "calibrationVersion": 7,
+    "Fx": 548,
+    "Fy": 548,
+    "Cx": 319.5,
+    "Cy": 239.5,
+    "px": 0,
+    "py": 0,
+    "K0": 0.10000000149011612,
+    "K1": -0.15000000596046448,
+    "K2": 0,
+    "abias0": 0,
+    "abias1": 0,
+    "abias2": 0,
+    "wbias0": 0,
+    "wbias1": 0,
+    "wbias2": 0,
+    "Tc0": 0.0080000003799796104,
+    "Tc1": 0.075000002980232239,
+    "Tc2": 0,
+    "Wc0": 2.2214415073394775,
+    "Wc1": -2.2214415073394775,
+    "Wc2": 0,
+    "abiasvar0": 0.0096039995551109314,
+    "abiasvar1": 0.0096039995551109314,
+    "abiasvar2": 0.0096039995551109314,
+    "wbiasvar0": 0.0076154354028403759,
+    "wbiasvar1": 0.0076154354028403759,
+    "wbiasvar2": 0.0076154354028403759,
+    "TcVar0": 9.9999999747524271e-07,
+    "TcVar1": 9.9999999747524271e-07,
+    "TcVar2": 1.000000013351432e-10,
+    "WcVar0": 9.9999999747524271e-07,
+    "WcVar1": 9.9999999747524271e-07,
+    "WcVar2": 9.9999999747524271e-07,
+    "wMeasVar": 1.3707783182326239e-05,
+    "aMeasVar": 0.00022821025049779564,
+    "imageWidth": 640,
+    "imageHeight": 480
+}
+)";
+
+//The 6S, 6S plus, and SE are not real - just copied
+static const char *CALIBRATION_DEFAULT_IPHONESE = R"(
+{
+    "device": "iphonese",
+    "calibrationVersion": 7,
+    "Fx": 547,
+    "Fy": 547,
+    "Cx": 319.5,
+    "Cy": 239.5,
+    "px": 0,
+    "py": 0,
+    "K0": 0.090000003576278687,
+    "K1": -0.15000000596046448,
+    "K2": 0,
+    "abias0": 0,
+    "abias1": 0,
+    "abias2": 0,
+    "wbias0": 0,
+    "wbias1": 0,
+    "wbias2": 0,
+    "Tc0": 0.014999999664723873,
+    "Tc1": 0.05000000074505806,
+    "Tc2": 0,
+    "Wc0": 2.2214415073394775,
+    "Wc1": -2.2214415073394775,
+    "Wc2": 0,
+    "abiasvar0": 0.0096039995551109314,
+    "abiasvar1": 0.0096039995551109314,
+    "abiasvar2": 0.0096039995551109314,
+    "wbiasvar0": 0.0076154354028403759,
+    "wbiasvar1": 0.0076154354028403759,
+    "wbiasvar2": 0.0076154354028403759,
+    "TcVar0": 9.9999999747524271e-07,
+    "TcVar1": 9.9999999747524271e-07,
+    "TcVar2": 1.000000013351432e-10,
+    "WcVar0": 9.9999999747524271e-07,
+    "WcVar1": 9.9999999747524271e-07,
+    "WcVar2": 9.9999999747524271e-07,
+    "wMeasVar": 1.3707783182326239e-05,
+    "aMeasVar": 0.00022821025049779564,
+    "imageWidth": 640,
+    "imageHeight": 480
+}
+)";
+
 static const char *CALIBRATION_DEFAULT_IPOD5 = R"(
 {
   "device": "ipodtouch",
@@ -768,6 +903,12 @@ const char *calibration_default_json_for_device_type(corvis_device_type device)
             return CALIBRATION_DEFAULT_IPHONE6PLUS;
     case DEVICE_TYPE_IPHONE6:
             return CALIBRATION_DEFAULT_IPHONE6;
+    case DEVICE_TYPE_IPHONE6SPLUS:
+            return CALIBRATION_DEFAULT_IPHONE6SPLUS;
+    case DEVICE_TYPE_IPHONE6S:
+            return CALIBRATION_DEFAULT_IPHONE6S;
+    case DEVICE_TYPE_IPHONESE:
+            return CALIBRATION_DEFAULT_IPHONESE;
     case DEVICE_TYPE_IPAD2:
             return CALIBRATION_DEFAULT_IPAD2;
     case DEVICE_TYPE_IPAD3:

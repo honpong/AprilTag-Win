@@ -14,6 +14,8 @@ typedef enum
     DeviceTypeUnknown, DeviceTypeiPhone4s, DeviceTypeiPhone5, DeviceTypeiPad2, DeviceTypeiPad3, DeviceTypeiPad4, DeviceTypeiPadMini, DeviceTypeiPod5,
     DeviceTypeiPhone5c, DeviceTypeiPhone5s,
     DeviceTypeiPhone6, DeviceTypeiPhone6Plus,
+    DeviceTypeiPhone6s, DeviceTypeiPhone6SPlus,
+    DeviceTypeiPhoneSE,
     DeviceTypeiPadAir, DeviceTypeiPadMiniRetina,
     DeviceTypeiPadAir2, DeviceTypeiPadMiniRetina2,
 } DeviceType;

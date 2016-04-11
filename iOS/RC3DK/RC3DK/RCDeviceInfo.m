@@ -48,6 +48,9 @@
     if ([platform isEqualToString:@"iPhone6,2"])    return DeviceTypeiPhone5s;
     if ([platform isEqualToString:@"iPhone7,1"])    return DeviceTypeiPhone6Plus;
     if ([platform isEqualToString:@"iPhone7,2"])    return DeviceTypeiPhone6;
+    if ([platform isEqualToString:@"iPhone8,1"])    return DeviceTypeiPhone6sPlus;
+    if ([platform isEqualToString:@"iPhone8,2"])    return DeviceTypeiPhone6s;
+    if ([platform isEqualToString:@"iPhone8,4"])    return DeviceTypeiPhoneSE;
 
     if ([platform isEqualToString:@"iPod1,1"])      return DeviceTypeUnknown; //iPod touch 1
     if ([platform isEqualToString:@"iPod2,1"])      return DeviceTypeUnknown; //iPod touch 2

@@ -510,6 +510,8 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
         device_parameters device;
         if (!calibration_deserialize(buffer, device))
             return false;
+        if (tracker->calibration.device_id != "") // prefer the XML device_id (which usually has the serial number)
+            device.device_id = tracker->calibration.device_id;
         tracker->set_device(device);
     }
     return true;

@@ -3,7 +3,14 @@
 #include "corvis_dictionary.h"
 #include "util.h"
 
-void fill_map_two_nodes(mapper & map, const transformation & g_feature, const transformation & g_node)
+void finish_second_node(mapper & map, const transformation & g_node)
+{
+    transformation g_identity;
+    map.node_finished(3, g_identity);
+    map.node_finished(4, g_node);
+}
+
+void fill_map_two_nodes(mapper & map, const transformation & g_feature)
 {
     map.add_node(0);
     map.add_node(1);
@@ -29,14 +36,14 @@ void fill_map_two_nodes(mapper & map, const transformation & g_feature, const tr
             d.d[j] /= norm;
 
         map.add_feature(0, i, position, variance, d);
-        map.add_feature(4, i+corvis_num_centers, g_feature*position, variance, d);
+        // to transform features to the second frame, we should use
+        // the inverse of the transform of the camera
+        map.add_feature(4, i+corvis_num_centers, invert(g_feature)*position, variance, d);
     }
     transformation g_identity;
     map.node_finished(0, g_identity);
     map.node_finished(1, g_identity);
     map.node_finished(2, g_identity);
-    map.node_finished(3, g_identity);
-    map.node_finished(4, g_node);
     // need 10 nodes of padding for find_closure to try a node
     for(int i = 5; i < 5 + 10; i++) {
         map.add_node(i);
@@ -44,39 +51,45 @@ void fill_map_two_nodes(mapper & map, const transformation & g_feature, const tr
     }
 }
 
-TEST(Mapper, I)
+void transformation_test(const transformation & g_second, const transformation & g_apparent)
 {
     mapper map;
-    transformation g;
-    fill_map_two_nodes(map, g, transformation());
+    fill_map_two_nodes(map, g_second);
     int max = 20;
     int suppression = 2;
     transformation offset;
-    bool result = map.find_closure(max, suppression, offset);
+    bool result;
+
+    // This should not find any closures
+    // We do this to make sure we find the closure 4-0 instead of 0-4
+    result = map.find_closure(max, suppression, offset);
+    EXPECT_FALSE(result);
+
+    finish_second_node(map, g_apparent);
+    result = map.find_closure(max, suppression, offset);
+
+    transformation expected = g_second*invert(g_apparent);
     EXPECT_TRUE(result);
-    EXPECT_QUATERNION_NEAR(g.Q, offset.Q, 4*F_T_EPS);
-    EXPECT_V4_NEAR(g.T, offset.T, 4*F_T_EPS);
+    EXPECT_QUATERNION_NEAR(expected.Q, offset.Q, 4*F_T_EPS);
+    EXPECT_V4_NEAR(expected.T, offset.T, 1e-5);
+}
+
+TEST(Mapper, I)
+{
+    transformation_test(transformation(), transformation());
 }
 
 TEST(Mapper, T)
 {
-    mapper map;
-    transformation g(quaternion(), v4(0.1,1.2,0.3,0));
-    fill_map_two_nodes(map, g, transformation());
-    int max = 20;
-    int suppression = 2;
-    transformation offset;
-    bool result = map.find_closure(max, suppression, offset);
-    EXPECT_TRUE(result);
-    EXPECT_QUATERNION_NEAR(g.Q, offset.Q, 4*F_T_EPS);
-    EXPECT_V4_NEAR(g.T, offset.T, 4*F_T_EPS);
+    transformation_test(transformation(quaternion(), v4(0.1,1.2,0.3,0)), transformation());
 }
 
 TEST(Mapper, Serialize)
 {
     mapper map;
     transformation g;
-    fill_map_two_nodes(map, g, transformation());
+    fill_map_two_nodes(map, g);
+    finish_second_node(map, g);
     std::string json;
     bool result = map.serialize(json);
     EXPECT_TRUE(result);

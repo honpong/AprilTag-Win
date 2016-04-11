@@ -642,7 +642,7 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
 
     int best_score = 0;
     v4 bestdT;
-    for(aligned_vector<match_pair>::iterator match = neighbor_matches.begin(); match != neighbor_matches.end(); ++match) {
+    for(aligned_vector<match_pair>::iterator match = matches.begin(); match != matches.end(); ++match) {
         v4 dT = match->first.position - match->second.position;
         int inliers = 0;
         v4 var = nodes[id2].transform.transform.T;

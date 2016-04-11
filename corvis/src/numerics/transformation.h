@@ -96,6 +96,10 @@ static bool estimate_transformation(const std::vector<v4> & src, const std::vect
     if(!matrix_svd(H, U, S, Vt))
         return false;
 
+    // all the same point, or colinear
+    if(S(0,0) < F_T_EPS*10 || S(0,1) / S(0,0) < F_T_EPS*10)
+        return false;
+
     matrix R(3,3);
     matrix_product(R, U, Vt);
     // If det(R) == -1, we have a flip instead of a rotation

@@ -56,3 +56,49 @@ TEST(Transformation, EstimateFlipTranslation)
     EXPECT_QUATERNION_NEAR(g.Q, estimate.Q, 0.001);
     EXPECT_V4_NEAR(g.T, estimate.T, std::max(g.T.norm()*0.001, F_T_EPS*4.));
 }
+
+TEST(Transformation, DegenerateLine)
+{
+    std::default_random_engine gen(200);
+    std::uniform_real_distribution<float> r;
+
+    std::vector<v4> src;
+    std::vector<v4> dst;
+    transformation g(normalize(quaternion(0.7, 0.6, 0.3, -0.2)), v4(-0.2,5.7,-4.2,0));
+    for(int test = 0; test < 100; test++) {
+        for(int i = 0; i < 10; i++) {
+            float scale = 0.02;
+            float point_scale = 2;
+            v4 position(i*point_scale + r(gen)*scale, i * point_scale + r(gen)*scale, i * point_scale + r(gen)*scale, 0);
+            v4 position2 = g*position;
+            src.push_back(position);
+            dst.push_back(position2);
+        }
+        transformation estimate;
+        bool result = estimate_transformation(src, dst, estimate);
+        EXPECT_FALSE(result);
+    }
+}
+
+TEST(Transformation, DegeneratePoint)
+{
+    std::default_random_engine gen(200);
+    std::uniform_real_distribution<float> r;
+
+    std::vector<v4> src;
+    std::vector<v4> dst;
+    for(int test = 0; test < 100; test++) {
+        float t_scale = 2;
+        float scale = F_T_EPS*1e3;
+        transformation g(normalize(quaternion(r(gen), r(gen), r(gen), r(gen))), v4(t_scale, t_scale, t_scale,0));
+        for(int i = 0; i < 10; i++) {
+            v4 position(r(gen)*scale, r(gen)*scale, r(gen)*scale, 0);
+            v4 position2 = g*position;
+            src.push_back(position);
+            dst.push_back(position2);
+        }
+        transformation estimate;
+        bool result = estimate_transformation(src, dst, estimate);
+        EXPECT_FALSE(result);
+    }
+}

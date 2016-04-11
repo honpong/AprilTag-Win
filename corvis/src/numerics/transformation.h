@@ -98,6 +98,14 @@ static bool estimate_transformation(const std::vector<v4> & src, const std::vect
 
     matrix R(3,3);
     matrix_product(R, U, Vt);
+    // If det(R) == -1, we have a flip instead of a rotation
+    if(matrix_3x3_determinant(R) < 0) {
+        // Vt(2,:) = -Vt(2,:)
+        Vt(2,0) = -Vt(2,0);
+        Vt(2,1) = -Vt(2,1);
+        Vt(2,2) = -Vt(2,2);
+        matrix_product(R, U, Vt);
+    }
 
     m4 R_out = m4::Zero();
     for(int i = 0; i < 3; i++)

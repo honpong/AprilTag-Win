@@ -83,7 +83,6 @@ static bool estimate_transformation(const std::vector<v4> & src, const std::vect
     for(int i = 0; i < N; i++)
         for(int j = 0; j < 3; j++)
             X(i, j) = src[i][j] - center_src[j];
-    // transposed
     for(int i = 0; i < N; i++)
         for(int j = 0; j < 3; j++)
             Y(i, j) = dst[i][j] - center_dst[j];

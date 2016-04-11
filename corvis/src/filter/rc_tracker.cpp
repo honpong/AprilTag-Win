@@ -478,8 +478,7 @@ const char *rc_getTimingStats(rc_Tracker *tracker)
 
 size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 {
-    device_parameters cal = {};
-    filter_get_device_parameters(&tracker->sfm, &cal);
+    device_parameters cal = tracker->get_device();
 
     std::string json;
     if (!calibration_serialize(cal, json))

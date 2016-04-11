@@ -204,6 +204,7 @@ device_parameters sensor_fusion::get_device() const
 {
     device_parameters cal = {};
     filter_get_device_parameters(&sfm, &cal);
+    cal.device_id = device.device_id;
     return cal;
 }
 

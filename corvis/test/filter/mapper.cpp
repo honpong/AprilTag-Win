@@ -84,6 +84,13 @@ TEST(Mapper, T)
     transformation_test(transformation(quaternion(), v4(0.1,1.2,0.3,0)), transformation());
 }
 
+TEST(Mapper, Drift)
+{
+    transformation g_second(quaternion(), v4(0.1,1.2,0.3,0));
+    transformation g_apparent(quaternion(), v4(0.5, -0.7, 4.3, 0));
+    transformation_test(g_second, g_apparent);
+}
+
 TEST(Mapper, Serialize)
 {
     mapper map;

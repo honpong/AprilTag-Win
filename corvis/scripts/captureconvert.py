@@ -195,11 +195,11 @@ if os.path.isfile(path + "CameraParameters.txt"):
             ds4_color_to_depth = map(lambda x: -x/1000., map(float,d_e_c[6:9]))
             depth_Wc = [0, 0, 0]
             depth_Tc = transform(depth_Wc, imu_to_ds4_color, ds4_color_to_depth)
-            cal['depth'] = dict(zip("imageWidth imageHeight Fx Fy Cx Cy Wc0 Wc1 Wc2 Tc0 Tc1 Tc2".split(), map(int,d_e_c[:2]) + map(float,d_e_c[2:6]) + depth_Wc + depth_Tc))
-            #print cal['depth']
+            if not 'depth' in cal:
+                cal['depth'] = dict(zip("imageWidth imageHeight Fx Fy Cx Cy Wc0 Wc1 Wc2 Tc0 Tc1 Tc2".split(), map(int,d_e_c[:2]) + map(float,d_e_c[2:6]) + depth_Wc + depth_Tc))
+                print "Added depth intrinsics and extrinsics to " + output_filename + ".json"
             with open(output_filename + ".json", 'w') as t:
                  t.write(json.dumps(cal, sort_keys=True, indent=4,separators=(',', ': ')))
-            print "Added depth intrinsics and extrinsics to " + output_filename + ".json"
 else:
     with open(path + "calibration.json", 'r') as f:
         with open(output_filename + ".json", 'w') as t:

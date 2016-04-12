@@ -208,6 +208,7 @@ void observation_vision_feature::predict()
     Xd = state.normalize_feature(uncal);
     norm_initial = state.undistort_feature(Xd);
     X0 = v4(norm_initial.x(), norm_initial.y(), 1., 0.);
+    feature->Xcamera = X0 * feature->v.depth();
 
     X = Rtot * X0 + Ttot * feature->v.invdepth();
 

@@ -46,6 +46,7 @@ private:
     image_gray8 parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle);
     bool find_reference_in_filename(const string &filename);
     bool load_reference_from_pose_file(const string &filename);
+    bool load_map(std::string filename);
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -65,7 +66,7 @@ public:
     void decimate_gyro(std::chrono::microseconds interval) { gyro_decimate = true; gyro_interval = interval; }
     void decimate_images(std::chrono::microseconds interval) { image_decimate = true; image_interval = interval; }
     void enable_intel() { fusion.queue->strategy = fusion_queue::latency_strategy::IMAGE_TRIGGER; fusion.sfm.ignore_lateness = true; }
-    void start();
+    void start(string map_filename = string());
     void stop();
     void toggle_pause() { is_paused = !is_paused; }
     void step() { is_paused = is_stepping = true; }
@@ -80,7 +81,6 @@ public:
     device_parameters get_device_parameters() const { return fusion.get_device(); }
     std::string get_timing_stats() { return fusion.get_timing_stats(); }
     void start_mapping() { fusion.start_mapping(); }
-    bool load_map(std::string filename);
     void save_map(string filename);
 };
 

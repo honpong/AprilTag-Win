@@ -143,9 +143,11 @@ image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data
     return gray;
 }
 
-void replay::start()
+void replay::start(string map_filename)
 {
     setup_filter();
+    if(!map_filename.empty())
+        load_map(map_filename);
     is_running = true;
     path_length = 0;
     length = 0;

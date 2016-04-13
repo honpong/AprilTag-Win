@@ -56,11 +56,6 @@ int main(int c, char **v)
         if(intel) rp.enable_intel();
         if(enable_map) rp.start_mapping();
 
-        if(!load_map.empty() && !rp.load_map(load_map)) {
-            cerr << filename << ": Loading map " << load_map << " failed!\n";
-            return 2;
-        }
-
         if(!rp.open(capture_file))
             return false;
 
@@ -81,11 +76,6 @@ int main(int c, char **v)
         if(!rp.set_reference_from_filename(capture_file) && !(enable_gui || calibrate)) {
             cerr << capture_file << ": unable to find a reference to measure against\n";
             return false;
-        }
-
-        if(!load_map.empty() && !rp.load_map(load_map)) {
-            cerr << filename << ": Loading map " << load_map << " failed!\n";
-            return 2;
         }
 
         return true;
@@ -125,7 +115,7 @@ int main(int c, char **v)
             if (!configure(rp, capture_file)) return false;
 
             std::cout << "Running  " << capture_file << std::endl;
-            rp.start();
+            rp.start(load_map);
             std::cout << "Finished " << capture_file << std::endl;
 
             res.length_cm.reference = 100*rp.get_reference_length();  res.path_length_cm.reference = 100*rp.get_reference_path_length();
@@ -144,7 +134,7 @@ int main(int c, char **v)
         return 2;
 
 #if defined(ANDROID)
-    rp.start();
+    rp.start(load_map);
 #else
     world_state ws;
     gui vis(&ws, show_main, show_video, show_depth, show_plots);
@@ -153,12 +143,12 @@ int main(int c, char **v)
     });
 
     if(enable_gui) { // The GUI must be on the main thread
-        std::thread replay_thread([&](void) { rp.start(); });
+        std::thread replay_thread([&](void) { rp.start(load_map); });
         vis.start(&rp);
         rp.stop();
         replay_thread.join();
     } else
-        rp.start();
+        rp.start(load_map);
 
     if(rendername && !offscreen_render_to_file(rendername, &ws)) {
         cerr << "Failed to render\n";

@@ -108,7 +108,7 @@ class mapper {
     void breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &));
     void internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform, bool loop_closed);
     void set_special(uint64_t id, bool special);
-    bool get_matches(uint64_t id, aligned_vector<map_match> &matches, int max, int suppression);
+    bool get_matches(uint64_t id, map_match &match, int max, int suppression);
     transformation get_relative_transformation(uint64_t id1, uint64_t id2);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
     uint32_t project_feature(const descriptor & d);

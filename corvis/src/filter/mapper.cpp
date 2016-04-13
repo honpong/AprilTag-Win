@@ -347,8 +347,9 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
     return 0;
 }
 
-bool mapper::get_matches(uint64_t id, aligned_vector<map_match> &matches, int max, int suppression)
+bool mapper::get_matches(uint64_t id, map_match & m, int max, int suppression)
 {
+    aligned_vector<map_match> matches;
     bool found = false;
     //rebuild the map relative to the current node
     for(auto n : nodes)
@@ -401,6 +402,7 @@ bool mapper::get_matches(uint64_t id, aligned_vector<map_match> &matches, int ma
                 tv.transform = matches[0].g;
                 internal_set_geometry(matches[0].from, matches[0].to, tv, true);
             }
+            m = matches[0];
         }
     }
     return found;
@@ -428,9 +430,8 @@ bool mapper::find_closure(int max, int suppression, transformation & offset)
         if(nodes[i].finished && !nodes[i].match_attempted && i + 10 < nodes.size()) {
             //log->info("searching for loop closure for {}", nodes[i].id);
             nodes[i].match_attempted = true;
-            aligned_vector<map_match> matches;
-            if(get_matches(nodes[i].id, matches, max, suppression)) {
-                map_match m = matches[0];
+            map_match m;
+            if(get_matches(nodes[i].id, m, max, suppression)) {
                 //log->info("Loop closure: match {} - {} {}", m.from, m.to, m.score);
                 //log->info() << m.g.T;
                 //transformation new_t = initial * map.get_relative_transformation(m.from, 0);

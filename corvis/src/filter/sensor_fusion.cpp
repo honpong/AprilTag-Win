@@ -89,11 +89,9 @@ void sensor_fusion::update_status()
                                                    }
                                                });
     }
-    
-    if(status_callback) {
-        if(threaded) std::async(std::launch::async, status_callback, s);
-        else status_callback(s);
-    }
+
+    if(status_callback)
+        status_callback(s);
 
     last_status = s;
 }
@@ -149,11 +147,8 @@ void sensor_fusion::update_data(image_gray8 &&image)
 
     d->features = get_features();
 
-    if(camera_callback) {
-        //if(threaded) std::async(std::launch::async, camera_callback, std::move(d), std::move(image));
-        //else
+    if(camera_callback)
         camera_callback(std::move(d), std::move(image));
-    }
 }
 
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)

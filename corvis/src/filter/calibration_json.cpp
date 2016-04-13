@@ -47,8 +47,10 @@ static void copy_json_to_camera(Value &json, calibration::camera &cam, Document:
                 cam.intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
             break;
         case 1:
-            cam.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
-            cam.intrinsics.w  = json[KEY_KW].GetDouble();
+            if (json.HasMember(KEY_KW)) {
+                cam.intrinsics.w  = json[KEY_KW].GetDouble();
+                cam.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
+            }
             break;
         default:
             cam.intrinsics.type = rc_CALIBRATION_TYPE_UNKNOWN;

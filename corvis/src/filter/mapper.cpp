@@ -406,6 +406,22 @@ bool mapper::get_matches(uint64_t id, aligned_vector<map_match> &matches, int ma
     return found;
 }
 
+void mapper::rebuild_map_from_node(int id)
+{
+    nodes[id].transform = transformation_variance();
+    nodes[id].transform.transform = nodes[id].global_transformation.transform;
+    breadth_first(id, 0, NULL);
+    int start_id = node_id_offset;
+    if(!unlinked)
+        start_id = 0;
+    for(int i = start_id; i < nodes.size(); i++) {
+        if(!nodes[i].finished) continue;
+        //log->info() << "setting " << i << " from " << nodes[i].global_transformation.transform;
+        //log->info() << "to " << nodes[i].transform.transform;
+        nodes[i].global_transformation = nodes[i].transform;
+    }
+}
+
 bool mapper::find_closure(int max, int suppression, transformation & offset)
 {
     for(int i = 0; i < nodes.size(); i++) {

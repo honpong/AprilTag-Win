@@ -112,6 +112,8 @@ class mapper {
     transformation get_relative_transformation(uint64_t id1, uint64_t id2);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
     uint32_t project_feature(const descriptor & d);
+    void rebuild_map_from_node(int id);
+
     bool unlinked;
     uint64_t node_id_offset{0};
     uint64_t feature_id_offset{0};

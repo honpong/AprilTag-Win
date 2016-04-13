@@ -4,7 +4,6 @@
 
 #include <random>
 #include <algorithm>
-#include <vector>
 
 TEST(Transformation, Estimate)
 {
@@ -13,8 +12,8 @@ TEST(Transformation, Estimate)
 
     for(int t = 0; t < 200; t++) {
         transformation g(normalize(quaternion(r(gen), r(gen), r(gen), r(gen))), v4(r(gen),r(gen),r(gen),0));
-        std::vector<v4> src;
-        std::vector<v4> dst;
+        aligned_vector<v4> src;
+        aligned_vector<v4> dst;
         for(int i = 0; i < 20; i++) {
             v4 position(r(gen), r(gen), r(gen), 0);
             v4 position2 = g*position;
@@ -39,8 +38,8 @@ TEST(Transformation, EstimateFlipTranslation)
     transformation g_second(quaternion(), v4(-0.1, -1.2, -0.3, 0));
     transformation g = g_second*invert(g_first);
 
-    std::vector<v4> src;
-    std::vector<v4> dst;
+    aligned_vector<v4> src;
+    aligned_vector<v4> dst;
     for(int i = 0; i < 30; i++) {
         v4 position(i, i % 4, 2, 0);
         position = g_first*position;
@@ -62,8 +61,8 @@ TEST(Transformation, DegenerateLine)
     std::default_random_engine gen(200);
     std::uniform_real_distribution<float> r;
 
-    std::vector<v4> src;
-    std::vector<v4> dst;
+    aligned_vector<v4> src;
+    aligned_vector<v4> dst;
     transformation g(normalize(quaternion(0.7, 0.6, 0.3, -0.2)), v4(-0.2,5.7,-4.2,0));
     for(int test = 0; test < 100; test++) {
         for(int i = 0; i < 10; i++) {
@@ -85,8 +84,8 @@ TEST(Transformation, DegeneratePoint)
     std::default_random_engine gen(200);
     std::uniform_real_distribution<float> r;
 
-    std::vector<v4> src;
-    std::vector<v4> dst;
+    aligned_vector<v4> src;
+    aligned_vector<v4> dst;
     for(int test = 0; test < 100; test++) {
         float t_scale = 2;
         float scale = F_T_EPS*1e3;

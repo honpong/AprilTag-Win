@@ -962,5 +962,6 @@ bool mapper::deserialize(const std::string &json, mapper & map)
     map.node_id_offset = max_node_id + 1;
     map.feature_id_offset = max_feature_id + 1;
     map.unlinked = true;
+    map.log->info("Loaded map with {} nodes and {} features", map.node_id_offset, map.feature_id_offset);
     return true;
 }

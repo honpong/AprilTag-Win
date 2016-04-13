@@ -395,14 +395,13 @@ bool mapper::get_matches(uint64_t id, map_match & m, int max, int suppression)
             // This sort makes sure the best fitting final
             // transformation is selected
             sort(matches.begin(), matches.end(), map_match_compare);
-            //internal_set_geometry(matches[0].from, matches[0].to, tv, true);
-            if(unlinked && matches[0].to < node_id_offset) {
-                unlinked = false;
-                transformation_variance tv;
-                tv.transform = matches[0].g;
-                internal_set_geometry(matches[0].from, matches[0].to, tv, true);
-            }
             m = matches[0];
+            transformation_variance tv;
+            tv.transform = m.g;
+            internal_set_geometry(m.from, m.to, tv, true);
+            if(unlinked && m.to < node_id_offset) {
+                unlinked = false;
+            }
         }
     }
     return found;
@@ -438,6 +437,7 @@ bool mapper::find_closure(int max, int suppression, transformation & offset)
                 transformation new_t = nodes[m.to].global_transformation.transform * invert(m.g);
                 transformation old_t = nodes[m.from].global_transformation.transform;
                 offset = new_t * invert(old_t);
+                rebuild_map_from_node(node_id_offset);
                 return true;
             }
         }

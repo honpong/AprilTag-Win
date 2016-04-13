@@ -277,7 +277,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
             }
             if(map_enabled) {
                 transformation G = transformation(Q.v, T.v)*invert(transformation(g->Qr.v, g->Tr.v));
-                map.set_node_transformation(g->id, G);
+                map.set_node_transformation(g->id, loop_offset*G);
             }
         }
     }
@@ -287,9 +287,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
         int max = 20;
         int suppression = 10;
         if(map.find_closure(max, suppression, offset)) {
-            loop_offset.T = loop_offset.T * (1. - lost_factor) + offset.T * lost_factor;
-            if(lost_factor > .1) lost_factor -= .1;
-            if(lost_factor < .1) lost_factor = .1;
+            loop_offset = offset*loop_offset;
             log->info() << "loop closed, offset: " << std::cref(loop_offset);
         }
     }
@@ -312,7 +310,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
         if(g->status == group_empty) {
             if(map_enabled) {
                 transformation G = transformation(Q.v, T.v)*invert(transformation(g->Qr.v, g->Tr.v));
-                this->map.node_finished(g->id, G);
+                this->map.node_finished(g->id, loop_offset*G);
             }
             delete g;
             return true;

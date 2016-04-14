@@ -756,14 +756,15 @@ void mapper::print_stats()
 
 void mapper::set_node_transformation(uint64_t id, const transformation & G)
 {
+    id += node_id_offset;
     nodes[id].global_transformation = transformation_variance();
     nodes[id].global_transformation.transform = G;
 }
 
 void mapper::node_finished(uint64_t id, const transformation & G)
 {
-    id += node_id_offset;
     set_node_transformation(id, G);
+    id += node_id_offset;
     nodes[id].finished = true;
     for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {
         uint64_t nid = edge->neighbor;

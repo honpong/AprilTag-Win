@@ -427,7 +427,9 @@ void mapper::rebuild_map_from_node(int id)
 bool mapper::find_closure(int max, int suppression, transformation & offset)
 {
     for(int i = 0; i < nodes.size(); i++) {
-        if(nodes[i].finished && !nodes[i].match_attempted && i + 10 < nodes.size()) {
+        // the first node (node_id_offset) must be finished since we
+        // rebuild the map relative to this node
+        if(nodes[node_id_offset].finished && nodes[i].finished && !nodes[i].match_attempted && i + 10 < nodes.size()) {
             //log->info("searching for loop closure for {}", nodes[i].id);
             nodes[i].match_attempted = true;
             map_match m;

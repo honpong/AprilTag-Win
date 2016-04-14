@@ -133,6 +133,10 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
         v.v = state[index];
     }
     
+    virtual void print_matrix_with_state_labels(matrix &state) {
+        fprintf(stderr, "feature[%" PRIu64 "]: ", id); state.row(index+0).print();
+    }
+
     virtual std::ostream &print_to(std::ostream & s) const
     {
         return s << "f" << id << ": " << v.v << "±" << std::sqrt(variance());

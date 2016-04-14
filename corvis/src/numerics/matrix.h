@@ -29,6 +29,7 @@ public:
     int get_stride() const { return stride; }
     int rows() const { return _rows; }
     int cols() const { return _cols; }
+    matrix row(const int r) { return matrix(data + r * stride, 1, _cols); }
     void resize(const int c) {assert(c <= stride && _rows == 1); _cols = c; }
     void resize(const int r, const int c) { assert(c <= stride && r <= maxrows); _rows = r; _cols = c; }
 #ifdef DEBUG
@@ -69,8 +70,6 @@ public:
     void print() const;
     void print_high() const;
     void print_diag() const;
-    
-    
     
     friend void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale);
     friend bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt);

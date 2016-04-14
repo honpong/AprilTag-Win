@@ -827,19 +827,30 @@ bool mapper::serialize(std::string &json)
     Value version(MAPPER_SERIALIZED_VERSION);
     map_json.AddMember(KEY_VERSION, version, allocator);
 
+    uint64_t id_map[nodes.size()];
+    uint64_t to = 0;
+    for(uint64_t from = 0; from < nodes.size(); from++) {
+        if(!nodes[from].finished) {
+            id_map[from] = nodes.size() + 1;
+            continue;
+        }
+        id_map[from] = to;
+        to++;
+    }
+
     Value nodes_json(kArrayType);
     for(int i = 0; i < nodes.size(); i++) {
         // Only write finished nodes, because geometry is not valid
         // otherwise
         if(!nodes[i].finished) continue;
         Value node_json(kObjectType);
-        node_json.AddMember(KEY_NODE_ID, nodes[i].id, allocator);
+        node_json.AddMember(KEY_NODE_ID, id_map[nodes[i].id], allocator);
 
         Value node_neighbors_json(kArrayType);
         for(list<map_edge>::iterator edge = nodes[i].edges.begin(); edge != nodes[i].edges.end(); ++edge) {
             uint64_t nid = edge->neighbor;
             if(!nodes[nid].finished) continue;
-            Value neighbor_id(nid);
+            Value neighbor_id(id_map[nid]);
             node_neighbors_json.PushBack(neighbor_id, allocator);
         }
         node_json.AddMember(KEY_NODE_NEIGHBORS, node_neighbors_json, allocator);

@@ -67,6 +67,7 @@ static bool estimate_transformation(const aligned_vector<v4> & src, const aligne
     v4 center_dst = v4::Zero();
     if(src.size() != dst.size()) return false;
     int N = src.size();
+    if(N < 3) return false;
 
     // calculate centroid
     for(auto v : src)

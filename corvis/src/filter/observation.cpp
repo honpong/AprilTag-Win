@@ -516,7 +516,7 @@ void observation_accelerometer::cache_jacobians()
         da_dTc = skew3(state.w.v) * skew3(state.w.v) + skew3(state.dw.v);
     }
     da_ddw = -skew3(state.Tc.v);
-    da_dw = -skew3(cross(state.w.v, state.Tc.v)) * -skew3(state.Tc.v);
+    da_dw = -skew3(cross(state.w.v, state.Tc.v)) - skew3(state.w.v) * skew3(state.Tc.v);
 }
 
 void observation_accelerometer::project_covariance(matrix &dst, const matrix &src)

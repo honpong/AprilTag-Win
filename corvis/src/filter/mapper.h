@@ -124,6 +124,7 @@ class mapper {
     ~mapper();
     void reset();
 
+    bool is_unlinked(uint64_t node_id) const { return (unlinked && node_id < node_id_offset); }
     void add_node(uint64_t node_id);
     void add_edge(uint64_t node_id1, uint64_t node_id2);
     // Descriptor must have a norm of 1

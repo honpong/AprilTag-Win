@@ -65,13 +65,14 @@ void world_state::observe_plot_item(sensor_clock::time_point timestamp, size_t i
     plot_lock.unlock();
 }
 
-void world_state::observe_map_node(sensor_clock::time_point timestamp, uint64_t node_id, bool finished, bool loop_closed, const transformation &position, vector<uint64_t> & neighbors, vector<Feature> & features)
+void world_state::observe_map_node(sensor_clock::time_point timestamp, uint64_t node_id, bool finished, bool loop_closed, bool unlinked, const transformation &position, vector<uint64_t> & neighbors, vector<Feature> & features)
 {
     display_lock.lock();
     MapNode n;
     n.id = node_id;
     n.finished = finished;
     n.loop_closed = loop_closed;
+    n.unlinked = unlinked;
     n.position = position;
     n.neighbors = neighbors;
     n.features = features;
@@ -181,7 +182,8 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
                 f.z = feature->position[2];
                 features.push_back(f);
             }
-            observe_map_node(d.timestamp, map_node.id, map_node.finished, loop_closed, map_node.global_transformation.transform, neighbors, features);
+            bool unlinked = f->s.map.is_unlinked(map_node.id);
+            observe_map_node(d.timestamp, map_node.id, map_node.finished, loop_closed, unlinked, map_node.global_transformation.transform, neighbors, features);
         }
     }
 
@@ -493,12 +495,16 @@ void world_state::update_vertex_arrays(bool show_only_good)
     for(auto n : map_nodes) {
         auto id = n.first;
         auto node = n.second;
+        int alpha = 255;
+        if(node.unlinked)
+            alpha = 50;
+
         if(!node.finished)
-            set_color(&map_node_vertex[idx], 255, 0, 255, 255);
+            set_color(&map_node_vertex[idx], 255, 0, 255, alpha);
         else if(node.loop_closed)
-            set_color(&map_node_vertex[idx], 255, 0, 0, 255);
+            set_color(&map_node_vertex[idx], 255, 0, 0, alpha);
         else
-            set_color(&map_node_vertex[idx], 255, 255, 0, 255);
+            set_color(&map_node_vertex[idx], 255, 255, 0, alpha);
         v4 v1(node.position.T.x(), node.position.T.y(), node.position.T.z(), 0);
         set_position(&map_node_vertex[idx], v1[0], v1[1], v1[2]);
         for(uint64_t neighbor_id : node.neighbors) {
@@ -507,7 +513,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
             if(node.loop_closed && map_nodes[neighbor_id].loop_closed)
                 set_color(&map_edge_vertex[nedges], 255, 0, 0, 255);
             else
-                set_color(&map_edge_vertex[nedges], 255, 0, 255, 50);
+                set_color(&map_edge_vertex[nedges], 255, 0, 255, alpha*0.2);
             set_position(&map_edge_vertex[nedges], v1[0], v1[1], v1[2]);
             nedges++;
 
@@ -515,7 +521,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
             if(node.loop_closed && map_nodes[neighbor_id].loop_closed)
                 set_color(&map_edge_vertex[nedges], 255, 0, 0, 255);
             else
-                set_color(&map_edge_vertex[nedges], 255, 0, 255, 50);
+                set_color(&map_edge_vertex[nedges], 255, 0, 255, alpha*0.2);
             set_position(&map_edge_vertex[nedges], node2.position.T.x(), node2.position.T.y(), node2.position.T.z());
             nedges++;
         }
@@ -525,7 +531,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
             if(node.loop_closed)
                 set_color(&map_feature_vertex[nfeatures], 255, 127, 127, 255);
             else
-                set_color(&map_feature_vertex[nfeatures], 0, 0, 255, 255);
+                set_color(&map_feature_vertex[nfeatures], 0, 0, 255, alpha);
             set_position(&map_feature_vertex[nfeatures], vertex[0], vertex[1], vertex[2]);
             nfeatures++;
         }

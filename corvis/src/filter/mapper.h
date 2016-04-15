@@ -103,7 +103,6 @@ class mapper {
     float refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const aligned_vector<match_pair> &neighbor_matches);
     int check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers);
     int estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const aligned_vector<match_pair> &matches, const aligned_vector<match_pair> &neighbor_matches);
-    int brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max);
     void localize_neighbor_features(uint64_t id, aligned_list<local_feature> &features);
     void breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &));
     void internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform, bool loop_closed);
@@ -112,6 +111,9 @@ class mapper {
     transformation get_relative_transformation(uint64_t id1, uint64_t id2);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
     uint32_t project_feature(const descriptor & d);
+    int pick_transformation_ransac(const aligned_vector<match_pair> &neighbor_matches,  transformation_variance & tv);
+    int ransac_transformation(uint64_t id1, uint64_t id2, transformation_variance &proposal);
+    int estimate_transform_with_inliers(const aligned_vector<match_pair> & matches, transformation_variance & tv);
     void rebuild_map_from_node(int id);
 
     bool unlinked;

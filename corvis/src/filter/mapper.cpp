@@ -287,14 +287,8 @@ void mapper::joint_histogram(int node, list<map_feature *> &histogram)
 void localize_features(map_node &node, aligned_list<local_feature> &features);
 void assign_matches(const aligned_list<local_feature> &f1, const aligned_list<local_feature> &f2, aligned_vector<match_pair> &matches, bool slow);
 
-int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max)
+int mapper::ransac_transformation(uint64_t id1, uint64_t id2, transformation_variance &trans)
 {
-    transformation R;
-    int best = 0;
-    int worst = 100000000;
-    f_t first_best, last_best;
-    bool running = false;
-    assert(max > min);
     //get all features for each group and its neighbors into the local frames
     aligned_list<local_feature> f1, f2;
     transformation Gw1 = nodes[id1].global_transformation.transform;
@@ -320,30 +314,21 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
     localize_neighbor_features(id2, f2);
     aligned_vector<match_pair> neighbor_matches;
     assign_matches(f1, f2, neighbor_matches, false);
-    if(neighbor_matches.size() < threshhold) return 0;
-    for(float theta = min; theta < max; theta += (max-min) / 200.) {
-        transformation R(rotation_vector(0., 0., theta), v4(0,0,0,0));
-        v4 dT;
-        int in = estimate_translation(id1, id2, dT, threshhold, R, matches, neighbor_matches);
-        if(in < worst) worst = in;
-        if(in > best) {
-            first_best = theta;
-            last_best = theta;
-            best = in;
-            running = true;
-        }
-        if(in == best && running) {
-            last_best = theta;
-        }
-        if(in < best) running = false;
+
+    int min_inliers = 3;
+    int best_inliers = 0;
+    transformation_variance proposal;
+    int inliers = pick_transformation_ransac(neighbor_matches, proposal);
+    if(inliers > best_inliers) {
+        trans = proposal;
+        best_inliers = inliers;
     }
-    if(best-worst >= threshhold) {
-        trans.transform = transformation(rotation_vector(0., 0., (first_best + last_best) / 2.), v4(0,0,0,0));
-        v4 dT;
-        estimate_translation(id1, id2, dT, threshhold, trans.transform, matches, neighbor_matches);
-        trans.transform.T = dT;
+    //log->info("check for matches {}, {} best_score {}", id1, id2, best_inliers);
+    if(best_inliers >= min_inliers) {
+        //log->info("got something {}, {} best_score {}", id1, id2, best_inliers);
+        best_inliers = estimate_transform_with_inliers(neighbor_matches, trans);
         trans.transform = invert(Gw1)*trans.transform*Gw2;
-        return best-worst;
+        return best_inliers-min_inliers;
     }
     return 0;
 }
@@ -371,7 +356,7 @@ bool mapper::get_matches(uint64_t id, map_match & m, int max, int suppression)
     for(int i = 0; i < matches.size(); ++i) {
         transformation_variance g;
         if(unlinked && matches[i].to < node_id_offset)
-            matches[i].score = brute_force_rotation(matches[i].from, matches[i].to, g, threshhold, -M_PI, M_PI);
+            matches[i].score = ransac_transformation(matches[i].from, matches[i].to, g);
         else
             matches[i].score = check_for_matches(id, matches[i].to, g, threshhold);
         matches[i].g = g.transform;
@@ -384,7 +369,7 @@ bool mapper::get_matches(uint64_t id, map_match & m, int max, int suppression)
 
             transformation_variance newT;
             newT.transform = matches[i].g;
-            int brute_score = brute_force_rotation(matches[0].from, matches[0].to, newT, threshhold, -M_PI/6., M_PI/6.);
+            int brute_score = ransac_transformation(matches[i].from, matches[i].to, newT);
             if(brute_score >= threshhold) {
                 found = true;
                 matches[i].g = newT.transform;
@@ -522,6 +507,155 @@ void assign_matches(const aligned_list<local_feature> &f1, const aligned_list<lo
         assign_matches_slow(f1, f2, matches);
 }
 
+bool generate_transformation(const match_pair &match1, const match_pair &match2, transformation_variance &trn, float threshold)
+{
+    v4 to = match2.first.position - match1.first.position;
+    v4 from = match2.second.position - match1.second.position;
+    // project to z = 0
+    from[2] = 0;
+    to[2] = 0;
+
+    if(from.norm() < F_T_EPS || to.norm() < F_T_EPS)
+        return false;
+
+    quaternion Q = rotation_between_two_vectors(from, to);
+    // alternatively:
+    // float theta = acos(v1.dot(v2) / v1.norm() / v2.norm());
+    // quaternion Q = to_quaternion(rotation_vector(0,0,theta));
+
+    // translate from the first position to zero, rotate, translate
+    // back to the second position
+    trn.transform = transformation(Q, match1.first.position - Q*match1.second.position);
+
+    // Reject transformations that do not align the second point to
+    // within the threshold
+    float dist = (trn.transform*match2.second.position - match2.first.position).norm(); 
+    //fprintf(stderr, "DIST %f\n", dist);
+    //std::cerr << "trn " << trn.transform << "\n";
+    if(dist*dist > threshold)
+        return false;
+
+    return true;
+}
+
+
+int get_inliers(const transformation_variance & proposal, const aligned_vector<match_pair> & matches, float threshold, bool inliers[])
+{
+    int num_inliers = 0, z = 0;
+    float mean_error = 0;
+    for(auto m : matches) {
+        float dist = (m.first.position - proposal.transform*m.second.position).norm();
+        if(dist*dist < threshold) {
+            mean_error += dist;
+            num_inliers++;
+            inliers[z] = true;
+        }
+        else
+            inliers[z] = false;
+        z++;
+    }
+    mean_error /= z;
+    //fprintf(stderr, "mean error %f\n", mean_error);
+    return num_inliers;
+}
+
+int count_inliers(const transformation_variance & proposal, const aligned_vector<match_pair> & matches, float threshold)
+{
+    bool inliers[matches.size()];
+    return get_inliers(proposal, matches, threshold, inliers);
+}
+
+#include <random>
+int mapper::pick_transformation_ransac(const aligned_vector<match_pair> &neighbor_matches,  transformation_variance & G)
+{
+    if(neighbor_matches.size() < 2) return 0;
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> first(0, neighbor_matches.size()-1);
+    std::uniform_int_distribution<> second(0, neighbor_matches.size()-2);
+
+    float meanstd = 0;
+    for(aligned_vector<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+        meanstd += sqrt(neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+    }
+    meanstd /= neighbor_matches.size();
+    float threshold = 3. * 3. * (2*meanstd*2*meanstd);
+    //log->info("pick_ransac meanvar: {}", meanstd*meanstd);
+
+    int best_inliers = 0;
+    // log(1 - 0.99) / log(1 - p_outlier^2)
+    // p_inlier = 0.5 (50%)
+    // = 16
+    // p_inlier = 0.25 (25%)
+    // = 71
+    for(int i = 0; i < std::max((int)neighbor_matches.size(), 71); i++) { /* TODO: adapt dynamically */
+        int i1 = first(gen);
+        int i2 = second(gen);
+        if(i1 == i2)
+            i2 = neighbor_matches.size()-2;
+
+        transformation_variance proposal;
+        //log->info("proposal is {} {}", i1, i2);
+        if(generate_transformation(neighbor_matches[i1], neighbor_matches[i2], proposal, threshold)) {
+            //log->info() << proposal.transform;
+            int inliers = count_inliers(proposal, neighbor_matches, threshold);
+            //log->info("inliers {}\n", inliers);
+            if(inliers > best_inliers) {
+                G = proposal;
+                best_inliers = inliers;
+            }
+            if(best_inliers > 8 && best_inliers > neighbor_matches.size()*0.7)
+                break;
+        }
+
+    }
+    //log->info("best {}\n", best_inliers);
+    return best_inliers;
+}
+
+int mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & matches, transformation_variance & tv)
+{
+    float meanstd = 0;
+    for(auto m : matches) {
+        meanstd += sqrt(m.first.feature->variance + m.second.feature->variance);
+    }
+    meanstd /= matches.size();
+    //log->info("estimate transform meanvar: {}", meanstd*meanstd);
+    float loose_threshold = 3. * 3. * (2*meanstd*2*meanstd);
+    float tight_threshold = 3. * 3. * (2*meanstd*2*meanstd);
+    bool inliers[matches.size()];
+    int num_inliers = get_inliers(tv, matches, loose_threshold, inliers);
+    //log->info("num loose inliers {}", num_inliers);
+    //log->info() << "old tv " << tv.transform;
+
+    aligned_vector<v4> from;
+    aligned_vector<v4> to;
+    for(int i = 0; i < matches.size(); i++) {
+        if(inliers[i]) {
+            from.push_back(matches[i].second.position);
+            to.push_back(matches[i].first.position);
+        }
+    }
+
+    transformation_variance estimate;
+    if(estimate_transformation(from, to, estimate.transform)) {
+        int new_inliers = count_inliers(estimate, matches, tight_threshold);
+        //log->info("new tight inliers {}", new_inliers);
+        //log->info() << "new tv " << estimate.transform;
+        //TODO: only do this when it is better, is it always better?
+        tv = estimate;
+        return new_inliers;
+    }
+    else {
+        log->info("ESTIMATE TRANSFORM FAILED, {} and {} points", from.size(), to.size());
+        //for(int i = 0; i < matches.size(); i++) {
+        //    log->info() << "from: " << from[i] << " to:\n" << to[i];
+        //}
+    }
+    return num_inliers;
+}
+
 float mapper::refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const aligned_vector<match_pair> &neighbor_matches)
 {
     //determine inliers and translation
@@ -582,26 +716,6 @@ float mapper::refine_transformation(const transformation_variance &base, transfo
     //    m4 dR = rodrigues(v4(0., 0., dtheta, 0.), NULL);
     //dR.transform.set_rotation(dR.transform.get_rotation() * rodrigues(dW, NULL));
     return resid;
-}
-
-//this just checks matches -- external bits need to make sure not to send it something too close
-bool generate_transformation(const match_pair &match1, const match_pair &match2, transformation_variance &trn)
-{
-    transformation center1, center2;
-    center1.T = -match1.first.position;
-    center2.T = -match1.second.position;
-    v4 v1 = center1*match2.first.position;
-    v4 v2 = center2*match2.second.position;
-    float d1 = v1.norm(),
-          d2 = v2.norm();
-    float thresh = 3. * sqrt(match1.first.feature->variance + match1.second.feature->variance + match2.first.feature->variance + match2.second.feature->variance);
-    if(fabs(d1-d2) > thresh) return false;
-
-    quaternion q = rotation_between_two_vectors(v2, v1);
-    transformation rotation(q, v4(0,0,0,0));
-    transformation aggregate = compose(invert(center1), compose(rotation, center2));
-    trn.transform = aggregate;
-    return true;
 }
 
 int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const aligned_vector<match_pair> &matches, const aligned_vector<match_pair> &neighbor_matches)

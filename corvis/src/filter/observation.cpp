@@ -494,8 +494,7 @@ void observation_accelerometer::predict()
     v4 pred_a = Rc * Rt * acc + state.a_bias.v;
     if(!state.orientation_only)
     {
-        //TODO: shouldn't these have an Rc (possible Rt) term?
-        pred_a += cross(state.w.v, cross(state.w.v, state.Tc.v)) + cross(state.dw.v, state.Tc.v);
+        pred_a -= cross(Rc * state.w.v, cross(Rc * state.w.v, state.Tc.v)) + cross(Rc * state.dw.v, state.Tc.v);
     }
     for(int i = 0; i < 3; ++i) {
         pred[i] = pred_a[i];
@@ -512,11 +511,11 @@ void observation_accelerometer::cache_jacobians()
     da_dQ = Rc * Rt * skew3(acc);
     if(state.estimate_camera_extrinsics)
     {
-        da_dQc = -skew3(Rc * Rt * acc);
-        da_dTc = skew3(state.w.v) * skew3(state.w.v) + skew3(state.dw.v);
+        da_dTc = -skew3(Rc * state.w.v) * skew3(Rc * state.w.v) - skew3(Rc * state.dw.v);
+        da_dQc = da_dTc * skew3(state.Tc.v) - skew3(da_dTc * state.Tc.v + Rc * Rt * acc);
     }
-    da_ddw = -skew3(state.Tc.v);
-    da_dw = -skew3(cross(state.w.v, state.Tc.v)) - skew3(state.w.v) * skew3(state.Tc.v);
+    da_ddw = skew3(state.Tc.v) * Rc;
+    da_dw = (skew3(cross(Rc * state.w.v, state.Tc.v)) + skew3(Rc * state.w.v) * skew3(state.Tc.v)) * Rc;
 }
 
 void observation_accelerometer::project_covariance(matrix &dst, const matrix &src)

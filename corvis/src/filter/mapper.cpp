@@ -428,20 +428,19 @@ bool mapper::find_closure(int max, int suppression, transformation & offset)
             nodes[i].match_attempted = true;
             map_match m;
             if(get_matches(nodes[i].id, m, max, suppression)) {
+                transformation old_t = nodes[m.from].global_transformation.transform;
+
                 transformation_variance tv;
                 tv.transform = m.g;
                 internal_set_geometry(m.from, m.to, tv, true);
                 if(unlinked && m.to < node_id_offset) {
                     unlinked = false;
                 }
-
-                //log->info("Loop closure: match {} - {} {}", m.from, m.to, m.score);
-                //log->info() << m.g.T;
-                //transformation new_t = initial * map.get_relative_transformation(m.from, 0);
-                transformation new_t = nodes[m.to].global_transformation.transform * invert(m.g);
-                transformation old_t = nodes[m.from].global_transformation.transform;
-                offset = new_t * invert(old_t);
                 rebuild_map_from_node(node_id_offset);
+
+                transformation new_t = nodes[m.from].global_transformation.transform;
+                offset = new_t * invert(old_t);
+                //log->info("add this to offset: {}", offset);
                 return true;
             }
         }

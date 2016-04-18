@@ -53,7 +53,7 @@ static inline v4 operator*(const transformation & t, const v4 & apply_to)
 
 static inline transformation compose(const transformation & t1, const transformation & t2)
 {
-    return transformation(t1.Q * t2.Q, t1.T + t1.Q * t2.T);
+    return transformation(normalize(t1.Q * t2.Q), t1.T + t1.Q * t2.T);
 }
 
 static inline transformation operator*(const transformation &t1, const transformation & t2)

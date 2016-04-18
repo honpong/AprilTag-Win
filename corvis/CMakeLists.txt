@@ -61,6 +61,16 @@ add_executable(rc_replay src/tools/rc_replay.cpp src/tracker/rc_replay.cpp)
 set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
 target_link_libraries(rc_replay tracker)
 
+if(ANDROID)
+    add_subdirectory(../ThirdParty/motionapi motionapi)
+
+    add_executable(rc_calibrate
+        src/tools/rc_calibrate.cpp
+    )
+    set_property(TARGET rc_calibrate PROPERTY CXX_STANDARD 14)
+    target_link_libraries(rc_calibrate motionapi tracker)
+endif()
+
 if(YES)
     enable_testing()
     set(spec_sources

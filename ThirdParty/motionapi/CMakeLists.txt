@@ -1,0 +1,5 @@
+add_library(motionapi INTERFACE)
+target_include_directories(motionapi INTERFACE include)
+if(ANDROID)
+  target_link_libraries(motionapi INTERFACE -L${CMAKE_CURRENT_SOURCE_DIR}/android/lib/x86/ -lmotionapi)
+endif()

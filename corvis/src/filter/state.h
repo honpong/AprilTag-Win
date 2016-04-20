@@ -20,6 +20,7 @@ extern "C" {
 #include <vector>
 #include <list>
 #include <iostream>
+#include <cmath>
 using namespace std;
 
 #define log_enabled 0 // Only used in state.h now
@@ -41,6 +42,10 @@ public:
     virtual void reset() = 0;
     virtual void remove() = 0;
     virtual void print() = 0;
+    virtual std::ostream &print_to(std::ostream & s) const = 0;
+    friend inline std::ostream & operator <<(std::ostream & s, const state_node &b) {
+        return b.print_to(s);
+    }
 };
 
 template<class T> class state_branch: public state_node {
@@ -92,6 +97,13 @@ public:
         n->remove();
     }
     
+    virtual std::ostream &print_to(std::ostream & s) const
+    {
+        int i = 0;
+        s << "{"; for(T c : children) { if (i++) s << ", "; c->print_to(s); } return s << "}";
+        return s;
+    }
+
     virtual void print()
     {
         for(T c : children)
@@ -124,7 +136,12 @@ public:
 #endif
         return statesize;
     }
-    
+
+    virtual std::ostream &print_to(std::ostream & s) const
+    {
+        s << "state: "; return state_branch<state_node*>::print_to(s);
+    }
+
     virtual void print()
     {
         fprintf(stderr, "State dump:\n");
@@ -313,6 +330,11 @@ public:
         v[2] = state[index+2];
     }
     
+    virtual std::ostream &print_to(std::ostream & s) const
+    {
+        return s << name << ": " << v.segment<3>(0) << "±" << variance().segment<3>(0).array().sqrt();
+    }
+
     virtual void print()
     {
         std::cerr << name << v << variance() << " (vector)\n";
@@ -363,6 +385,11 @@ public:
         v.z() = state[index+2];
     }
     
+    virtual std::ostream &print_to(std::ostream & s) const
+    {
+        return s << name << ": " << v << "±" << variance().segment<3>(0).array().sqrt();
+    }
+
     virtual void print()
     {
         cerr << name << v.raw_vector() << variance() << " (rot vec)\n";
@@ -413,6 +440,11 @@ public:
         v = to_quaternion(w) * v;
     }
     
+    virtual std::ostream &print_to(std::ostream & s) const
+    {
+        return s << name << ": " << v << "±" << variance().array().sqrt();
+    }
+
     virtual void print()
     {
         v4 data(v.w(), v.x(), v.y(), v.z());
@@ -463,6 +495,11 @@ class state_scalar: public state_leaf<f_t, 1> {
         v = state[index];
     }
     
+    virtual std::ostream &print_to(std::ostream & s) const
+    {
+        return s << name << ": " << v << "±" << std::sqrt(variance());
+    }
+
     virtual void print()
     {
         fprintf(stderr, "%s: %f %f (scalar)\n", name, v, variance());

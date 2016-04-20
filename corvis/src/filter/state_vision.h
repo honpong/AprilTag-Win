@@ -131,6 +131,11 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
         v.v = state[index];
     }
     
+    virtual std::ostream &print_to(std::ostream & s) const
+    {
+        return s << "f" << id << ": " << v.v << "±" << std::sqrt(variance());
+    }
+
     virtual void print() {
         fprintf(stderr, "feature %" PRIu64 "d %f %f\n", id, v.v, variance());
     }
@@ -163,6 +168,11 @@ class state_vision_group: public state_branch<state_node *> {
     //cached data
     m4 dQrp_s_dW;
     m4 dTrp_ddT, dTrp_dQ_s;
+
+    virtual std::ostream &print_to(std::ostream & s) const
+    {
+        s << "g" << id << " { "; return state_branch<state_node*>::print_to(s) << " } ";
+    }
 
     virtual void print() {
         fprintf(stderr, "group %" PRIu64 "d\n", id);

@@ -31,6 +31,7 @@ extern "C" {
 //This, or EIGEN_INITIALIZE_MATRICES_BY_NAN can be used to verify that we are initializing everything correctly
 //#define EIGEN_INITIALIZE_MATRICES_BY_ZERO
 
+#define EIGEN_DEFAULT_IO_FORMAT Eigen::IOFormat(Eigen::StreamPrecision, 0, " ", ";", "", "", "[", "]")
 #define EIGEN_DEFAULT_TO_ROW_MAJOR
 #include <initializer_list> // needed by "eigen_initializer_list.h"
 #define EIGEN_MATRIX_PLUGIN "eigen_initializer_list.h"

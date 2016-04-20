@@ -171,7 +171,7 @@ class state_vision_group: public state_branch<state_node *> {
 
     virtual std::ostream &print_to(std::ostream & s) const
     {
-        s << "g" << id << " { "; return state_branch<state_node*>::print_to(s) << " } ";
+        s << "g" << id << ": "; return state_branch<state_node*>::print_to(s);
     }
 
     virtual void print() {

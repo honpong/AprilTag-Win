@@ -442,7 +442,7 @@ public:
     
     virtual std::ostream &print_to(std::ostream & s) const
     {
-        return s << name << ": " << v << "±" << variance().array().sqrt();
+        return s << name << ": " << v << "±" << variance().segment<3>(0).array().sqrt();
     }
 
     virtual void print()

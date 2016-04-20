@@ -164,6 +164,10 @@ class state_vision_group: public state_branch<state_node *> {
     m4 dQrp_s_dW;
     m4 dTrp_ddT, dTrp_dQ_s;
 
+    virtual void print() {
+        fprintf(stderr, "group %" PRIu64 "d\n", id);
+    }
+
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

@@ -88,7 +88,7 @@ mapper::~mapper()
 
 void mapper::reset()
 {
-    log->info("Map reset");
+    log->debug("Map reset");
     for(int i = 0; i < (int)nodes.size(); i++) {
         for(map_feature * f : nodes[i].features)
             delete f;

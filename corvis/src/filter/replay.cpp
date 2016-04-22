@@ -267,7 +267,29 @@ void replay::start(string map_filename)
                 }
                 case packet_image_raw:
                 {
-                    fprintf(stderr, "FIXME: image_raw\n");
+                    packet_image_raw_t *ip = (packet_image_raw_t *)packet;
+                    if(image_decimate &&
+                       sensor_clock::micros_to_tp(ip->header.time) < last_image)
+                            break;
+
+                    if(ip->format == rc_FORMAT_GRAY8) {
+                        image_gray8 d = parse_gray8(ip->width, ip->height, ip->width, ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
+                        fusion.receive_image(std::move(d));
+                    }
+                    else if(ip->format == rc_FORMAT_DEPTH16) {
+                        if(!use_depth)
+                            break;
+
+                        image_depth16 d = parse_depth16(ip->width, ip->height, ip->stride, (uint16_t *)ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
+                        fusion.receive_image(std::move(d));
+                    }
+                    else {
+                        fprintf(stderr, "Error: Unsupported packet_image_raw format\n");
+                        break;
+                    }
+
+                    last_image += image_interval;
+                    is_stepping = false;
                     break;
 
                 }

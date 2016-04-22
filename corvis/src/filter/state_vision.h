@@ -136,10 +136,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
         return s << "f" << id << ": " << v.v << "±" << std::sqrt(variance());
     }
 
-    virtual void print() {
-        fprintf(stderr, "feature %" PRIu64 "d %f %f\n", id, v.v, variance());
-    }
-
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -172,10 +168,6 @@ class state_vision_group: public state_branch<state_node *> {
     virtual std::ostream &print_to(std::ostream & s) const
     {
         s << "g" << id << ": "; return state_branch<state_node*>::print_to(s);
-    }
-
-    virtual void print() {
-        fprintf(stderr, "group %" PRIu64 "d\n", id);
     }
 
 public:

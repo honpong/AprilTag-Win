@@ -41,7 +41,6 @@ public:
     virtual int remap_static(int i, covariance &cov) = 0;
     virtual void reset() = 0;
     virtual void remove() = 0;
-    virtual void print() = 0;
     virtual std::ostream &print_to(std::ostream & s) const = 0;
     friend inline std::ostream & operator <<(std::ostream & s, const state_node &b) {
         return b.print_to(s);
@@ -104,12 +103,6 @@ public:
         return s;
     }
 
-    virtual void print()
-    {
-        for(T c : children)
-            c->print();
-    }
-    
     list<T> children;
 };
 
@@ -142,12 +135,6 @@ public:
         s << "state: "; return state_branch<state_node*>::print_to(s);
     }
 
-    virtual void print()
-    {
-        fprintf(stderr, "State dump:\n");
-        state_branch::print();
-    }
-    
     virtual void reset() {
         cov.reset();
         state_branch<state_node *>::reset();
@@ -334,11 +321,6 @@ public:
     {
         return s << name << ": " << v.segment<3>(0) << "±" << variance().segment<3>(0).array().sqrt();
     }
-
-    virtual void print()
-    {
-        std::cerr << name << v << variance() << " (vector)\n";
-    }
 };
 
 class state_rotation_vector: public state_leaf<rotation_vector, 3> {
@@ -388,11 +370,6 @@ public:
     virtual std::ostream &print_to(std::ostream & s) const
     {
         return s << name << ": " << v << "±" << variance().segment<3>(0).array().sqrt();
-    }
-
-    virtual void print()
-    {
-        cerr << name << v.raw_vector() << variance() << " (rot vec)\n";
     }
 };
 
@@ -445,12 +422,6 @@ public:
         return s << name << ": " << v << "±" << variance().segment<3>(0).array().sqrt();
     }
 
-    virtual void print()
-    {
-        v4 data(v.w(), v.x(), v.y(), v.z());
-        std::cerr << name << data << " w(" << w << ") " << variance() << " (quaternion)\n";
-    }
-
 protected:
     rotation_vector w;
 };
@@ -498,11 +469,6 @@ class state_scalar: public state_leaf<f_t, 1> {
     virtual std::ostream &print_to(std::ostream & s) const
     {
         return s << name << ": " << v << "±" << std::sqrt(variance());
-    }
-
-    virtual void print()
-    {
-        fprintf(stderr, "%s: %f %f (scalar)\n", name, v, variance());
     }
 };
 

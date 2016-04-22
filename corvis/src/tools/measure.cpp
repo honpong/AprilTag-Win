@@ -73,7 +73,7 @@ int main(int c, char **v)
 
         if(zero_bias) rp.zero_biases();
 
-        if(!rp.set_reference_from_filename(capture_file) && !(enable_gui || calibrate)) {
+        if(!rp.set_reference_from_filename(capture_file) && benchmark) {
             cerr << capture_file << ": unable to find a reference to measure against\n";
             return false;
         }

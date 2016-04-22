@@ -44,6 +44,7 @@ private:
     std::chrono::microseconds image_interval {33333};
     sensor_clock::time_point last_accel, last_gyro, last_image;
     image_gray8 parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle);
+    image_depth16 parse_depth16(int width, int height, int stride, uint16_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle);
     bool find_reference_in_filename(const string &filename);
     bool load_reference_from_pose_file(const string &filename);
     bool load_map(std::string filename);

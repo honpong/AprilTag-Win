@@ -143,6 +143,35 @@ image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data
     return gray;
 }
 
+image_depth16 replay::parse_depth16(int width, int height, int stride, uint16_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle)
+{
+    image_depth16 depth;
+    depth.width = width;
+    depth.height = height;
+    depth.stride = stride;
+    depth.timestamp = sensor_clock::time_point(std::chrono::microseconds(time_us));
+    depth.exposure_time = std::chrono::microseconds(exposure_time_us);
+    depth.image = data;
+    if(qvga && width == 640 && height == 480)
+    {
+        depth.width = width / 2;
+        depth.height = height / 2;
+        depth.stride = width / 2 * 2;
+        for(int y = 0; y < depth.height; ++y) {
+            for(int x = 0; x < depth.width; ++x) {
+                uint16_t p1 = depth.image[(y * 2 * width) + (x * 2)];
+                uint16_t p2 = depth.image[((y * 2 + 1) * width) + (x * 2)];
+                uint16_t p3 = depth.image[(y * 2 * width) + (x * 2 + 1)];
+                uint16_t p4 = depth.image[((y * 2 + 1) * width) + (x * 2 + 1)];
+                int divisor = !!p1 + !!p2 + !!p3 + !!p4;
+                depth.image[depth.width * y + x] = (p1 + p2 + p3 + p4) / (divisor ? divisor : 1);
+            }
+        }
+    }
+    depth.image_handle = std::move(handle);
+    return depth;
+}
+
 void replay::start(string map_filename)
 {
     setup_filter();
@@ -224,32 +253,10 @@ void replay::start(string map_filename)
                     if(image_decimate && d.timestamp < last_image) break;
                     if(depth && ip->depth_height && ip->depth_width)
                     {
-                        image_depth16 depth;
-                        depth.width = ip->depth_width;
-                        depth.height = ip->depth_height;
-                        depth.stride = ip->depth_width * 2;
-                        depth.timestamp = d.timestamp;
-                        depth.exposure_time = d.exposure_time;
-                        depth.image = (uint16_t *)(ip->data + ip->width * ip->height);
-                        int width = depth.width;
-                        int height = depth.height;
-                        int stride = depth.stride;
-                        if(qvga && width == 640 && height == 480)
-                        {
-                            depth.width = width / 2;
-                            depth.height = height / 2;
-                            depth.stride = width / 2 * 2;
-                            for(int y = 0; y < depth.height; ++y) {
-                                for(int x = 0; x < depth.width; ++x) {
-                                    uint16_t p1 = depth.image[(y * 2 * width) + (x * 2)];
-                                    uint16_t p2 = depth.image[((y * 2 + 1) * width) + (x * 2)];
-                                    uint16_t p3 = depth.image[(y * 2 * width) + (x * 2 + 1)];
-                                    uint16_t p4 = depth.image[((y * 2 + 1) * width) + (x * 2 + 1)];
-                                    int divisor = !!p1 + !!p2 + !!p3 + !!p4;
-                                    depth.image[depth.width * y + x] = (p1 + p2 + p3 + p4) / (divisor ? divisor : 1);
-                                }
-                            }
-                        }
+                        auto dhandle = std::unique_ptr<void, void(*)(void *)>(malloc(header.bytes), free);
+                        auto depth_data = (uint16_t *)dhandle.get();
+                        memcpy(depth_data, ip->data + ip->width * ip->height, sizeof(uint16_t)*ip->depth_width*ip->depth_height);
+                        image_depth16 depth = parse_depth16(ip->depth_width, ip->depth_height, ip->depth_width*2, depth_data, ip->header.time, ip->exposure_time_us, std::move(dhandle));
                         fusion.receive_image(std::move(depth));
                     }
                     if(last_image == sensor_clock::time_point()) last_image = d.timestamp;

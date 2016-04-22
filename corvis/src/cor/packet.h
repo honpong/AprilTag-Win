@@ -8,8 +8,6 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "cor_types.h"
-#include "../filter/rc_tracker.h"
 
 #ifdef WIN32
 #pragma warning (push)
@@ -80,7 +78,7 @@ typedef struct {
     packet_header_t header;
     uint64_t exposure_time_us;
     uint16_t width, height, stride;
-    rc_ImageFormat format; // defined in rc_tracker.h
+    uint16_t format; // enum { Y8, Z16_mm };
     uint8_t data[];
 } packet_image_raw_t;
 
@@ -243,8 +241,6 @@ enum packet_plot_type {
     packet_plot_meas_w,
     packet_plot_unknown = 256
 };
-
-#include "cor_types.h"
 
 #ifdef WIN32
 #pragma warning (pop)

@@ -35,7 +35,7 @@ private:
     std::function<void (const filter *, image_gray8 &&)> camera_callback;
     std::function<void (float)> progress_callback;
     bool qvga {false};
-    bool depth {true};
+    bool use_depth {true};
     bool accel_decimate {false};
     bool gyro_decimate {false};
     bool image_decimate {false};
@@ -62,7 +62,7 @@ public:
     void set_camera_callback(std::function<void (const filter *, image_gray8)> camera_callback) { this->camera_callback = camera_callback; }
     void enable_realtime() { is_realtime = true; }
     void enable_qvga() { qvga = true; }
-    void disable_depth() { depth = false; }
+    void disable_depth() { use_depth = false; }
     void decimate_accel(std::chrono::microseconds interval) { accel_decimate = true; accel_interval = interval; }
     void decimate_gyro(std::chrono::microseconds interval) { gyro_decimate = true; gyro_interval = interval; }
     void decimate_images(std::chrono::microseconds interval) { image_decimate = true; image_interval = interval; }

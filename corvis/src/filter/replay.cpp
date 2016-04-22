@@ -251,7 +251,7 @@ void replay::start(string map_filename)
                     packet_image_with_depth_t *ip = (packet_image_with_depth_t *)packet;
                     image_gray8 d = parse_gray8(ip->width, ip->height, ip->width, ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
                     if(image_decimate && d.timestamp < last_image) break;
-                    if(depth && ip->depth_height && ip->depth_width)
+                    if(use_depth && ip->depth_height && ip->depth_width)
                     {
                         auto dhandle = std::unique_ptr<void, void(*)(void *)>(malloc(header.bytes), free);
                         auto depth_data = (uint16_t *)dhandle.get();

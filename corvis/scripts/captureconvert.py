@@ -8,10 +8,13 @@ import getopt
 import os.path
 import json
 
-camera_type = 1
 accel_type = 20
 gyro_type = 21
-image_with_depth_type = 28
+image_raw_type = 29
+
+# defined in rc_tracker.h
+rc_IMAGE_GRAY8 = 0
+rc_IMAGE_DEPTH16 = 1
 
 use_depth = True
 depth_time_offset = 0
@@ -27,7 +30,7 @@ except Exception as e:
     print sys.argv[0], "[--no-depth] [--depth-offset=<N>] <intel_folder> <output_filename>"
     sys.exit(1)
 
-def read_image_timestamps(filename):
+def read_image_timestamps(filename, image_type):
     #image is filename timestamp
     rows = []
     with open(filename, 'rb') as f:
@@ -38,7 +41,13 @@ def read_image_timestamps(filename):
                 (offset, length) = (0, None)
             else:
                 (filename, offset, length, timestamp) = row
-            rows.append([float(timestamp), image_with_depth_type, filename, int(offset) if offset else 0, int(length) if length else None])
+
+            row = [float(timestamp), image_raw_type, filename]
+            row.append(int(offset) if offset else 0)
+            row.append(int(length) if length else None)
+            row.append(image_type)
+
+            rows.append(row)
     return rows
 
 def read_csv_timestamps(filename, ptype):
@@ -68,16 +77,18 @@ def parse_pgm(f):
         assert h * w * b == len(d), "%d x %d %d bytes/pixel == %d bytes" % (h , w, b, len(d))
         return (w,h,b,d)
 
+fisheye_path = path + ('fisheye_offsets_timestamps.txt' if os.path.exists(path+'fisheye_offsets_timestamps.txt') else 'fisheye_timestamps.txt')
+depth_path = path + ('depth_offsets_timestamps.txt' if os.path.exists(path+'depth_offsets_timestamps.txt') else 'depth_timestamps.txt')
 raw = {
    'gyro':  read_csv_timestamps(path + 'gyro.txt', gyro_type),
    'accel': read_csv_timestamps(path + 'accel.txt', accel_type),
-   'fish':  read_image_timestamps(path + ('fisheye_offsets_timestamps.txt' if os.path.exists(path+'fisheye_offsets_timestamps.txt') else 'fisheye_timestamps.txt')),
-   'depth': read_image_timestamps(path + ('depth_offsets_timestamps.txt' if os.path.exists(path+'depth_offsets_timestamps.txt') else 'depth_timestamps.txt')) if use_depth else [],
+   'fish':  read_image_timestamps(fisheye_path, rc_IMAGE_GRAY8),
+   'depth': read_image_timestamps(depth_path, rc_IMAGE_DEPTH16) if use_depth else [],
    'color': read_image_timestamps(path + 'color_timestamps.txt') if False else [],
 }
 
 data = [];
-for t in ['gyro','accel', 'fish']:
+for t in ['gyro','accel', 'fish', 'depth']:
     data.extend(raw[t])
 data.sort()
 
@@ -85,13 +96,6 @@ if use_depth:
     if abs(raw['depth'][0][0] - raw['fish'][0][0]) > 100:
         depth_time_offset += raw['depth'][0][0] - raw['fish'][0][0]
         print "correcting for depth camera and fisheye not being on the same clock"
-    def depth_for_image(t):
-        t += depth_time_offset
-        best = raw['depth'][0]
-        for r in raw['depth']:
-            if abs(r[0] - t) < abs(r[0] - best[0]):
-                best = r
-        return best
 
 wrote_packets = defaultdict(int)
 wrote_bytes = 0
@@ -100,22 +104,21 @@ with open(output_filename, "wb") as f:
     for line in data:
         microseconds = int(line[0]*1e3)
         ptype = line[1]
-        if ptype == image_with_depth_type or ptype == camera_type:
+        if ptype == image_raw_type:
             got_image = True
         if not got_image:
             continue
         data = ""
-        if ptype == camera_type:
-            with open(path + line[2]) as fi:
-                data = fi.read()
-        elif ptype == image_with_depth_type:
-            (time, ptype, filename, offset, length) = line
+        if ptype == image_raw_type:
+            (time, ptype, filename, offset, length, image_type) = line
             w, h, b, d = read_pgm(path + filename, offset, length)
-            assert b == 1, "image should be 1 byte, not %d" % b
-            depth_image = depth_for_image(time)
-            dw, dh, db, dd = read_pgm(path + depth_image[2], depth_image[3], depth_image[4]) if use_depth else (0, 0, 0, '')
-            assert db == 2 or not use_depth, "depth should be 2 bytes, not %d" % db
-            data = pack('QHHHH', 0*33333333, w, h, dw, dh) + d + dd
+            if image_type == rc_IMAGE_GRAY8:
+                assert b == 1, "image should be 1 byte, not %d" % b
+            if image_type == rc_IMAGE_DEPTH16:
+                assert b == 2, "depth should be 2 bytes, not %d" % b
+                time += depth_time_offset
+            stride = b*w
+            data = pack('QHHHI', 0*33333333, w, h, stride, image_type) + d
         elif ptype == gyro_type:
             data = pack('fff', line[2], line[3], line[4])
         elif ptype == accel_type:

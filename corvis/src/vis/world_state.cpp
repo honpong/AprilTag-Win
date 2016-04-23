@@ -80,7 +80,7 @@ void world_state::observe_map_node(sensor_clock::time_point timestamp, uint64_t 
     display_lock.unlock();
 }
 
-void world_state::observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height)
+void world_state::observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height, int stride)
 {
     image_lock.lock();
     if(last_image.image && (width != last_image.width || height != last_image.height))
@@ -89,7 +89,8 @@ void world_state::observe_image(sensor_clock::time_point timestamp, uint8_t * im
     if(!last_image.image)
         last_image.image = (uint8_t *)malloc(sizeof(uint8_t)*width*height);
 
-    memcpy(last_image.image, image, sizeof(uint8_t)*width*height);
+    for(int i=0; i<height; i++)
+        memcpy(last_image.image + i*width, image + i*stride, sizeof(uint8_t)*width);
 
     last_image.width = width;
     last_image.height = height;
@@ -98,7 +99,7 @@ void world_state::observe_image(sensor_clock::time_point timestamp, uint8_t * im
 
 #define MAX_DEPTH 8191
 
-void world_state::observe_depth(sensor_clock::time_point timestamp, uint16_t * image, int width, int height)
+void world_state::observe_depth(sensor_clock::time_point timestamp, uint16_t *image, int width, int height, int stride)
 {
     depth_lock.lock();
     if(last_depth.image && (width != last_depth.width || height != last_depth.height))
@@ -106,12 +107,11 @@ void world_state::observe_depth(sensor_clock::time_point timestamp, uint16_t * i
     
     if(!last_depth.image)
         last_depth.image = (uint8_t *)malloc(sizeof(uint8_t)*width*height);
-    
-    for(int i = 0; i < width * height; ++i)
-    {
-        last_depth.image[i] = (image[i] == 0 || image[i] > MAX_DEPTH) ? 0 : 255 - (image[i] / 32);
-    }
-    
+
+    for(int i = 0; i < height; ++i)
+        for(int j = 0; j < width; ++j)
+            last_depth.image[width * i + j] = (image[stride/2 * i + j] == 0 || image[stride/2 * i + j] > MAX_DEPTH) ? 0 : 255 - (image[stride/2 * i + j] / 32);
+
     last_depth.width = width;
     last_depth.height = height;
     depth_lock.unlock();
@@ -158,11 +158,11 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
                             cx, cy, ctheta, good);
         }
     }
-    observe_image(d.timestamp, d.image, d.width, d.height);
+    observe_image(d.timestamp, d.image, d.width, d.height, d.stride);
 
     if(f->has_depth) {
         auto aligned_undistorted_depth = std::move(filter_aligned_distorted_depth_to_intrinsics(f, f->recent_depth));
-        observe_depth(f->recent_depth.timestamp, f->recent_depth.image, f->recent_depth.width, f->recent_depth.height);
+        observe_depth(f->recent_depth.timestamp, f->recent_depth.image, f->recent_depth.width, f->recent_depth.height, f->recent_depth.stride);
     }
 
     if(f->s.map_enabled) {

@@ -48,7 +48,7 @@ struct tracker {
         int full_patch = 2 * half_patch_width + 1;
         for(int py = 0; py < full_patch; ++py) {
             for(int px = 0; px <= full_patch; ++px) {
-                patch[py * full_patch + px] = im[x + px - half_patch_width + (y + py - half_patch_width) * width];
+                patch[py * full_patch + px] = im[x + px - half_patch_width + (y + py - half_patch_width) * stride];
             }
         }
     }

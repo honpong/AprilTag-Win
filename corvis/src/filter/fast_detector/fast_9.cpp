@@ -3030,7 +3030,7 @@ float inline fast_detector_9::score_match(const unsigned char *im1, const int x1
 
     float mean2 = sum2 / (float)area;
     
-    p1 = im1 + stride * (y1 - window) + x1;
+    p1 = im1 + patch_stride * (y1 - window) + x1;
     p2 = im2 + stride * (y2 - window) + x2;
     float top = 0, bottom1 = 0, bottom2 = 0;
     for(int dy = -window; dy <= window; ++dy, p1+=patch_stride, p2+=stride) {

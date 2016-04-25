@@ -93,12 +93,12 @@ void capture::write_image_raw(const sensor_clock::time_point & timestamp, const 
 
     ip->width = width;
     ip->height = height;
-    ip->stride = stride;
+    ip->stride = width*format_size;
     ip->exposure_time_us = std::chrono::duration_cast<std::chrono::microseconds>(exposure_time).count();
     ip->format = format;
     for(int y = 0 ; y < height; ++y)
     {
-        memcpy(ip->data + y * stride, image + y * stride, width*format_size);
+        memcpy(ip->data + y * width*format_size, image + y * stride, width*format_size);
     }
 
     write_packet(buf);

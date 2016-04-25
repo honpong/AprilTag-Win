@@ -118,7 +118,7 @@ with open(output_filename, "wb") as f:
                 assert b == 2, "depth should be 2 bytes, not %d" % b
                 time += depth_time_offset
             stride = b*w
-            data = pack('QHHHI', 0*33333333, w, h, stride, image_type) + d
+            data = pack('QHHHH', 0*33333333, w, h, stride, image_type) + d
         elif ptype == gyro_type:
             data = pack('fff', line[2], line[3], line[4])
         elif ptype == accel_type:

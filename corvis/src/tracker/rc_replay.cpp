@@ -15,6 +15,7 @@ enum packet_type {
     packet_gyroscope = 21,
     packet_filter_control = 25,
     packet_image_with_depth = 28,
+    packet_image_raw = 29,
 };
 
 typedef struct {
@@ -41,6 +42,14 @@ typedef struct {
     uint16_t depth_width, depth_height;
     uint8_t data[];
 } packet_image_with_depth_t;
+
+typedef struct {
+    packet_header_t header;
+    uint64_t exposure_time_us;
+    uint16_t width, height, stride;
+    uint16_t format;
+    uint8_t data[];
+} packet_image_raw_t;
 
 typedef struct {
     packet_header_t header;
@@ -186,6 +195,24 @@ bool replay::run()
                 if (trace) printf("rc_receiveImage(%lld, %lld, GRAY8, %dx%d);\n", packet->header.time, (uint64_t)33333, width, height);
                 rc_receiveImage(tracker, packet->header.time, 33333, rc_FORMAT_GRAY8,
                                 width, height, width, packet->data + 16, [](void *packet) { free(packet); }, phandle.release());
+            }   break;
+            case packet_image_raw: {
+                packet_image_raw_t *ip = (packet_image_raw_t *)packet;
+                if (ip->format == 0) {
+                    if (qvga && ip->width == 640 && ip->height == 480)
+                        scale_down_inplace_y8_by<2,2>(ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
+                    if (trace) printf("rc_receiveImage(%lld, %lld, GRAY8, %dx%d w/stride %d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height, ip->stride);
+                    rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
+                                    ip->width, ip->height, ip->stride, ip->data,
+                                    [](void *packet) { free(packet); }, phandle.release());
+                } else if (ip->format == 1) {
+                    if (qvga && ip->width == 640 && ip->height == 480)
+                        scale_down_inplace_z16_by<2,2>((uint16_t*)ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
+                    if (trace) printf("rc_receiveImage(%lld, %lld, DEPTH16, %dx%d w/stride %d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height, ip->stride);
+                    rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_DEPTH16,
+                                    ip->width, ip->height, ip->stride, ip->data,
+                                    [](void *packet) { free(packet); }, phandle.release());
+                }
             }   break;
             case packet_image_with_depth: {
                 packet_image_with_depth_t *ip = (packet_image_with_depth_t *)packet;

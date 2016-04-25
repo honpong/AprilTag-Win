@@ -129,6 +129,32 @@ void replay::enable_log_output(bool stream, rc_Timestamp period_us)
     }, stream, period_us, this);
 }
 
+template <int by_x, int by_y>
+static void scale_down_inplace_y8_by(uint8_t *image, int final_width, int final_height, int stride) {
+    for (int y=0; y<final_height; y++)
+        for (int x = 0; x <final_width; x++) {
+            int sum = 0; // FIXME: by_x * by_y / 2;
+            for (int i=0; i<by_y; i++)
+                for (int j=0; j<by_x; j++)
+                    sum += image[stride * (by_y*y + i) + by_x*x + j];
+            image[stride * y + x] = sum / (by_x * by_y);
+        }
+}
+
+template <int by_x, int by_y>
+static void scale_down_inplace_z16_by(uint16_t *image, int final_width, int final_height, int stride) {
+    for (int y=0; y<final_height; y++)
+        for (int x = 0; x <final_width; x++) {
+            int sum = 0, div = 0;
+            for (int i=0; i<by_y; i++)
+                for (int j=0; j<by_x; j++)
+                    if (auto v = image[stride/sizeof(uint16_t) * (by_y*y + i) + by_x*x + j]) {
+                        sum += v;
+                        div++;
+                    }
+            image[stride * y + x] = div ? sum / div : 0;
+        }
+}
 
 bool replay::run()
 {
@@ -163,59 +189,27 @@ bool replay::run()
             }   break;
             case packet_image_with_depth: {
                 packet_image_with_depth_t *ip = (packet_image_with_depth_t *)packet;
-                if(qvga) {
-                    uint16_t *depth_image_src = (uint16_t*)(ip->data + ip->width * ip->height);
-                    if (ip->width == 640 && ip->height == 480) {
-                        int width = ip->width, height = ip->height;
-                        uint8_t *image = ip->data;
-                        ip->width = width / 2;
-                        ip->height = height / 2;
-                        for(int y = 0; y < ip->height; ++y) {
-                            for(int x = 0; x < ip->width; ++x) {
-                                image[y * ip->width + x] =
-                                    (image[(y * 2 * width) + (x * 2)] +
-                                     image[((y * 2 + 1) * width) + (x * 2)] +
-                                     image[(y * 2 * width) + (x * 2 + 1)] +
-                                     image[((y * 2 + 1) * width) + (x * 2 + 1)]) / 4;
-                            }
-                        }
-                    }
-                    uint16_t *depth_image_dst = (uint16_t*)(ip->data + ip->width * ip->height);
-                    if(depth && ip->depth_width == 640 && ip->depth_height == 480) {
-                        int width = ip->depth_width, height = ip->depth_height;
-                        ip->depth_width = width / 2;
-                        ip->depth_height = height / 2;
-                        for(int y = 0; y < ip->depth_height; ++y) {
-                            for(int x = 0; x < ip->depth_width; ++x) {
-                                uint16_t p1 = depth_image_src[(y * 2 * width) + (x * 2)];
-                                uint16_t p2 = depth_image_src[((y * 2 + 1) * width) + (x * 2)];
-                                uint16_t p3 = depth_image_src[(y * 2 * width) + (x * 2 + 1)];
-                                uint16_t p4 = depth_image_src[((y * 2 + 1) * width) + (x * 2 + 1)];
-                                int divisor = !!p1 + !!p2 + !!p3 + !!p4;
-                                depth_image_dst[y * ip->depth_width + x] = (p1 + p2 + p3 + p4) / (divisor ? divisor : 1);
-                            }
-                        }
-                    } else {
-                        for(int y = 0; y < ip->depth_height; ++y)
-                            for(int x = 0; x < ip->depth_width; ++x)
-                                depth_image_dst[y * ip->depth_width + x] = depth_image_src[y * ip->depth_width + x];
-                    }
-                }
-                if(depth && ip->depth_height && ip->depth_width) {
-                    ip->header.user = 2; // ref count
-                    if (trace) printf("rc_receiveImage(%lld, %lld, DEPTH16, %dx%d);\n", packet->header.time, (uint64_t)0, ip->depth_width, ip->depth_height);
+                ip->header.user = 1; // ref count
+                if (depth && ip->depth_height && ip->depth_width) {
+                    ip->header.user++; // ref count
+                    uint16_t *depth_image = (uint16_t*)(ip->data + ip->width * ip->height);
+                    int depth_width = ip->depth_width, depth_height = ip->depth_height, depth_stride = sizeof(uint16_t) * ip->depth_width;
+                    if (qvga && depth_width == 640 && depth_height == 480)
+                        scale_down_inplace_z16_by<2,2>(depth_image, depth_width /= 2, depth_height /= 2, depth_stride);
+                    if (trace) printf("rc_receiveImage(%lld, %lld, DEPTH16, %dx%d);\n", packet->header.time, (uint64_t)0/*FIXME*/, depth_width, depth_height);
                     rc_receiveImage(tracker, ip->header.time, 0, rc_FORMAT_DEPTH16,
-                                    ip->depth_width, ip->depth_height, ip->depth_width*2, ip->data + ip->width * ip->height,
-                                    [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, phandle.release());
-                    if (trace) printf("rc_receiveImage(%lld, %lld, GRAY8, %dx%d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height);
-                    rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
-                                    ip->width, ip->height, ip->width, ip->data,
+                                    depth_width, depth_height, depth_stride, depth_image,
                                     [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, packet);
-                } else {
-                    if (trace) printf("rc_receiveImage(%lld, %lld, GRAY8, %dx%d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height);
+                }
+                {
+                    uint8_t *image = ip->data;
+                    int width = ip->width, height = ip->height, stride = ip->width;
+                    if (qvga && width == 640 && height == 480)
+                        scale_down_inplace_y8_by<2,2>(image, width /= 2, height /= 2, stride);
+                    if (trace) printf("rc_receiveImage(%lld, %lld, GRAY8, %dx%d);\n", packet->header.time, ip->exposure_time_us, width, height);
                     rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
-                                    ip->width, ip->height, ip->width, ip->data,
-                                    [](void *packet) { free(packet); }, phandle.release());
+                                    width, height, stride, image,
+                                    [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, phandle.release());
                 }
             }   break;
             case packet_accelerometer: {

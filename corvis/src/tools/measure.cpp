@@ -137,12 +137,14 @@ int main(int c, char **v)
     rp.start(load_map);
 #else
     world_state ws;
-    gui vis(&ws, show_main, show_video, show_depth, show_plots);
-    rp.set_camera_callback([&](const filter * f, image_gray8 &&d) {
-        ws.receive_camera(f, std::move(d));
-    });
+    if(enable_gui || rendername) {
+        rp.set_camera_callback([&](const filter * f, image_gray8 &&d) {
+            ws.receive_camera(f, std::move(d));
+        });
+    }
 
     if(enable_gui) { // The GUI must be on the main thread
+        gui vis(&ws, show_main, show_video, show_depth, show_plots);
         std::thread replay_thread([&](void) { rp.start(load_map); });
         vis.start(&rp);
         rp.stop();

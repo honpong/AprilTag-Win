@@ -647,6 +647,9 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
     int side_length = 41;
 
     int found_feats = 0;
+    f_t image_to_depth = 1;
+    if(f->has_depth)
+        image_to_depth = f_t(f->recent_depth.height)/image.height;
     for(int i = 0; i < (int)kp.size(); ++i) {
         feature_t kp_i = {kp[i].x, kp[i].y};
         int x = (int)kp[i].x;
@@ -661,7 +664,8 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
             if(f->has_depth) {
                 if (!aligned_undistorted_depth)
                     aligned_undistorted_depth = std::move(filter_aligned_depth_to_intrinsics(f, f->recent_depth));
-                depth_m = 0.001f * get_depth_for_point_mm(*aligned_undistorted_depth.get(), f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i))));
+
+                depth_m = 0.001f * get_depth_for_point_mm(*aligned_undistorted_depth.get(), image_to_depth*f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i))));
             }
             if(depth_m)
             {

@@ -100,6 +100,7 @@ struct rc_Tracker: public sensor_fusion
     std::vector<rc_Feature> gottenFeatures;
     std::vector<rc_Feature> dataFeatures;
     std::string timingStats;
+    capture output;
 };
 
 static void copy_features_from_sensor_fusion(std::vector<rc_Feature> &features, const std::vector<sensor_fusion::feature_point> &in_feats)
@@ -316,9 +317,8 @@ void rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 void rc_stopTracker(rc_Tracker * tracker)
 {
     tracker->stop();
-    if(tracker->output_enabled)
+    if(tracker->output.started())
         tracker->output.stop();
-    tracker->output_enabled = false;
 }
 
 void rc_startMapping(rc_Tracker *tracker)
@@ -355,9 +355,8 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shu
         d.timestamp = sensor_clock::micros_to_tp(time_us);
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
 
-        if(tracker->output_enabled) {
-            tracker->output.write_camera(d);
-        }
+        if(tracker->output.started())
+            tracker->output.write_camera(std::move(d));
         else
             tracker->receive_image(std::move(d));
     } else if (format == rc_FORMAT_GRAY8) {
@@ -370,9 +369,8 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shu
         d.timestamp = sensor_clock::micros_to_tp(time_us);
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
 
-        if(tracker->output_enabled) {
-            tracker->output.write_camera(d);
-        }
+        if(tracker->output.started())
+            tracker->output.write_camera(std::move(d));
         else
             tracker->receive_image(std::move(d));
     }
@@ -386,9 +384,8 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_us, const r
     d.accel_m__s2[1] = acceleration_m__s2.y;
     d.accel_m__s2[2] = acceleration_m__s2.z;
     d.timestamp = sensor_clock::micros_to_tp(time_us);
-    if(tracker->output_enabled) {
-        tracker->output.write_accelerometer(d);
-    }
+    if(tracker->output.started())
+        tracker->output.write_accelerometer(std::move(d));
     else
         tracker->receive_accelerometer(std::move(d));
 }
@@ -400,9 +397,8 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector 
     d.angvel_rad__s[1] = angular_velocity_rad__s.y;
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;
     d.timestamp = sensor_clock::micros_to_tp(time_us);
-    if(tracker->output_enabled) {
-        tracker->output.write_gyro(d);
-    }
+    if(tracker->output.started())
+        tracker->output.write_gyro(std::move(d));
     else
         tracker->receive_gyro(std::move(d));
 }
@@ -465,9 +461,9 @@ void rc_triggerLog(const rc_Tracker * tracker)
     tracker->trigger_log();
 }
 
-void rc_setOutputLog(rc_Tracker * tracker, const char *filename)
+bool rc_setOutputLog(rc_Tracker * tracker, const char *filename, rc_TrackerRunFlags run_flags)
 {
-    tracker->set_output_log(filename);
+    return tracker->output.start(filename, run_flags == rc_E_ASYNCRONOUS);
 }
 
 const char *rc_getTimingStats(rc_Tracker *tracker)

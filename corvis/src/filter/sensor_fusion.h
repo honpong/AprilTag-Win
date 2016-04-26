@@ -214,16 +214,6 @@ public:
     /** Immediately output a position via the log function */
     void trigger_log() const;
 
-    void set_output_log(const char * filename)
-    {
-        if(output.start(filename))
-            output_enabled = true;
-        else
-            fprintf(stderr, "Error opening %s for writing\n", filename);
-    }
-    bool output_enabled{false};
-    capture output;
-    
     std::string get_timing_stats() { return queue->get_stats(); };
 
     //public for now

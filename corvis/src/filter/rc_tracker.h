@@ -278,7 +278,7 @@ RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);
 /**
  If this is set, writes a log file in Realitycap's internal format to the filename specified
  */
-RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const char *filename);
+RCTRACKER_API bool rc_setOutputLog(rc_Tracker *tracker, const char *filename, rc_TrackerRunFlags run_flags);
 
 /**
     Yields a JSON string that represents the tracker's current a calibration data.

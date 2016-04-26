@@ -205,7 +205,7 @@ bool replay::run()
                     rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
                                     ip->width, ip->height, ip->stride, ip->data,
                                     [](void *packet) { free(packet); }, phandle.release());
-                } else if (ip->format == 1) {
+                } else if (depth && ip->format == 1) {
                     if (qvga && ip->width == 640 && ip->height == 480)
                         scale_down_inplace_z16_by<2,2>((uint16_t*)ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
                     if (trace) printf("rc_receiveImage(%lld, %lld, DEPTH16, %dx%d w/stride %d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height, ip->stride);

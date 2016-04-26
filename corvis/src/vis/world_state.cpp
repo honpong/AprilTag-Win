@@ -161,8 +161,11 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
     observe_image(d.timestamp, d.image, d.width, d.height, d.stride);
 
     if(f->has_depth) {
-        auto aligned_undistorted_depth = std::move(filter_aligned_distorted_depth_to_intrinsics(f, f->recent_depth));
         observe_depth(f->recent_depth.timestamp, f->recent_depth.image, f->recent_depth.width, f->recent_depth.height, f->recent_depth.stride);
+        /*
+        auto depth_overlay = std::move(filter_aligned_depth_overlay(f, f->recent_depth, d));
+        observe_depth(f->recent_depth.timestamp, depth_overlay->image, depth_overlay->width, depth_overlay->height, depth_overlay->stride);
+        */
     }
 
     if(f->s.map_enabled) {

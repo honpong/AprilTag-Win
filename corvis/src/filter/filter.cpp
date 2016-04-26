@@ -591,31 +591,25 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
     return std::move(aligned_depth);
 }
 
-std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(const struct filter *f, const image_depth16 &depth)
+std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter *f, const image_depth16 &depth, const image_gray8 & image)
 {
     std::unique_ptr<image_depth16> aligned_depth = filter_aligned_depth_to_intrinsics(f, depth);
 
-    auto aligned_distorted_depth = make_unique<image_depth16>(depth.width, depth.height, depth.stride, std::numeric_limits<uint16_t>::max());
+    auto aligned_distorted_depth = make_unique<image_depth16>(image.width, image.height, sizeof(uint16_t)*image.width, 0);
     auto out = aligned_distorted_depth->image;
     int width = aligned_distorted_depth->width, height = aligned_distorted_depth->height;
     int stride = aligned_distorted_depth->stride / sizeof(uint16_t);
-    for(int y_image = 0; y_image < depth.height; y_image++) {
-        for(int x_image = 0; x_image < depth.width; x_image++) {
+    // This assumes depth and image have the same aspect ratio
+    f_t image_to_depth = f_t(depth.height)/image.height;
+    for(int y_image = 0; y_image < image.height; y_image++) {
+        for(int x_image = 0; x_image < image.width; x_image++) {
             feature_t kp_i = {(f_t)x_image, (f_t)y_image};
-            feature_t kp_d = f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i)));
+            feature_t kp_d = image_to_depth*f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i)));
             uint16_t depth_mm = get_depth_for_point_mm(*aligned_depth.get(), kp_d);
-            int x = kp_d.x();
-            int y = kp_d.y();
-            if(x >= 0 && x < width && y >= 0 && y < height) {
-                out[y * stride + x] = std::min(out[y * stride + x], depth_mm);
-            }
+            out[y_image * width + x_image] = depth_mm;
         }
     }
 
-    for (int y = 0; y < height; y++)
-        for (int x = 0; x < width; x++)
-            if (out[y * stride + x] == std::numeric_limits<uint16_t>::max())
-                out[y * stride + x] = 0;
     return std::move(aligned_distorted_depth);
 }
 

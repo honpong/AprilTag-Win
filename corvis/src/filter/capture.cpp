@@ -42,19 +42,6 @@ void capture::write_packet(packet_t * p)
     packets_written++;
 }
 
-void capture::write_image_gray8(uint8_t * image, int width, int height, int stride, uint64_t timestamp)
-{
-    // 16 bytes for pgm header
-    packet_t *buf = packet_alloc(packet_camera, width*height+16, timestamp);
-
-    // TODO: For 1080 this could be a problem?
-    snprintf((char *)buf->data, 16, "P5 %4d %4d %d\n", width, height, 255);
-    unsigned char *outbase = buf->data + 16;
-    memcpy(outbase, image, width*height);
-    write_packet(buf);
-    free(buf);
-}
-
 void capture::write_accelerometer_data(const float data[3], uint64_t timestamp)
 {
     auto bytes = 3*sizeof(float);
@@ -72,12 +59,6 @@ void capture::write_gyroscope_data(const float data[3], uint64_t timestamp)
     write_packet(buf);
     free(buf);
 }
-
-void capture::write_image_gray8(const image_gray8 &data)
-{
-    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-    write_image_gray8(data.image, data.width, data.height, data.stride, micros);
-};
 
 void capture::write_image_raw(const sensor_clock::time_point & timestamp, const sensor_clock::duration & exposure_time, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
 {

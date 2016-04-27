@@ -13,23 +13,22 @@
 #include "../cor/packet.h"
 #include "../cor/sensor_data.h"
 
-packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
+packet_t *packet_alloc(enum packet_type type, uint32_t bytes_, uint64_t time)
 {
     //add 7 and mask to pad to 8-byte boundary
-    bytes = ((bytes + 7) & 0xfffffff8u);
-    //header
-    bytes += 16;
+    uint32_t bytes = ((bytes_ + 7) & 0xfffffff8u);
 
-    packet_t * ptr = (packet_t *)malloc(bytes);
+    packet_t * ptr = (packet_t *)malloc(sizeof(packet_header_t) + bytes);
     if(!ptr)
     {
         fprintf(stderr, "Capture failed: malloc returned null.\n");
         assert(0);
     }
     ptr->header.type = type;
-    ptr->header.bytes = bytes;
+    ptr->header.bytes = sizeof(packet_header_t) + bytes;
     ptr->header.time = time;
     ptr->header.user = 0;
+    memset(ptr->data + bytes_, 0, bytes - bytes_); // zero the padding
     return ptr;
 }
 

@@ -18,16 +18,19 @@ rc_IMAGE_DEPTH16 = 1
 
 use_depth = True
 depth_time_offset = 0
+wait_for_image = False
 try:
-    opts, (path, output_filename) = getopt.gnu_getopt(sys.argv[1:], "Do:", ["no-depth", "depth-offset="])
+    opts, (path, output_filename) = getopt.gnu_getopt(sys.argv[1:], "Do:", ["no-depth", "depth-offset=", "wait-for-image"])
     for o,v in opts:
         if o in ("-D", "--no-depth"):
             use_depth = False;
         elif o in ("-o", "--depth-offset"):
             depth_time_offset = float(v)
+        elif o in ("-w", "--wait-for-image"):
+            wait_for_image = True
 except Exception as e:
     print e
-    print sys.argv[0], "[--no-depth] [--depth-offset=<N>] <intel_folder> <output_filename>"
+    print sys.argv[0], "[--no-depth] [--depth-offset=<N>] [--wait-for-image] <intel_folder> <output_filename>"
     sys.exit(1)
 
 def read_chunk_info(filename):
@@ -126,7 +129,7 @@ with open(output_filename, "wb") as f:
         ptype = line[1]
         if ptype == image_raw_type:
             got_image = True
-        if not got_image:
+        if wait_for_image and not got_image:
             continue
         data = ""
         if ptype == image_raw_type:

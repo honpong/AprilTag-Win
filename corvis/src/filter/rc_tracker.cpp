@@ -122,7 +122,7 @@ static void copy_features_from_sensor_fusion(std::vector<rc_Feature> &features, 
     }
 }
 
-extern "C" rc_Tracker * rc_create()
+rc_Tracker * rc_create()
 {
     rc_Tracker * tracker = new rc_Tracker(false); //don't dispatch immediately - intel doesn't really make any data interleaving guarantees
     tracker->sfm.ignore_lateness = true; //and don't drop frames to keep up
@@ -130,12 +130,12 @@ extern "C" rc_Tracker * rc_create()
     return tracker;
 }
 
-extern "C" void rc_destroy(rc_Tracker * tracker)
+void rc_destroy(rc_Tracker * tracker)
 {
     delete tracker;
 }
 
-extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m)
+void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m)
 {
     if (initialPose_m)
         tracker->reset(sensor_clock::micros_to_tp(initialTime_us), rc_Pose_to_transformation(initialPose_m), false);

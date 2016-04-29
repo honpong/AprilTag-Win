@@ -392,7 +392,7 @@ f_t state_vision::get_distortion_factor(const feature_t &feat_u, feature_t *dkd_
         if (dkd_u_dk3) *dkd_u_dk3 = 0;
     } else {
         kd_u = f_t(1) + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
-        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = 0 * (k1.v + ru2 * (f_t(2) * k2.v + f_t(3) * k3.v * ru2)) * f_t(2) * std::sqrt(ru2) * feat_u / ru;
+        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = (f_t(2) * k1.v + f_t(4) * k2.v * ru2 + f_t(6) * k3.v * ru2 * ru2) * feat_u; //(f_t(2) * ru * k1.v + f_t(4) * k2.v * ru * ru2 + f_t(6) * k3.v *ru * ru2 * ru2) * feat_u / ru;
         if (dkd_u_dk1) *dkd_u_dk1 = ru2;
         if (dkd_u_dk2) *dkd_u_dk2 = ru2 * ru2;
         if (dkd_u_dk3) *dkd_u_dk3 = ru2 * ru2 * ru2;
@@ -423,7 +423,7 @@ f_t state_vision::get_undistortion_factor(const feature_t &feat_d, feature_t *dk
         ku_d = f_t(1) / kd_u;
         f_t ru = std::sqrt(ru2), dkd_u_dru = f_t(2) * ru * dkd_u_dru2;
         // dku_d_drd = d/rd (1/kd_u) = d/ru (1/kd_u) dru/drd = d/ru (1/kd_u) / (drd/dru) = d/ru (1/kd_u) / (d/ru (ru kd_u)) = -dkd_u_dru/kd_u/kd_u / (kd_u + ru dkd_u_dru)
-        if (dku_d_dfeat_d) *dku_d_dfeat_d = 0 * -dkd_u_dru/(kd_u * kd_u * (kd_u + ru * dkd_u_dru)) * feat_d / rd;
+        if (dku_d_dfeat_d) *dku_d_dfeat_d = -dkd_u_dru/(kd_u * kd_u * (kd_u + ru * dkd_u_dru)) * feat_d / rd;
         if (dku_d_dk1) *dku_d_dk1 = -(ru2            )/(kd_u*kd_u);
         if (dku_d_dk2) *dku_d_dk2 = -(ru2 * ru2      )/(kd_u*kd_u);
         if (dku_d_dk3) *dku_d_dk3 = -(ru2 * ru2 * ru2)/(kd_u*kd_u);

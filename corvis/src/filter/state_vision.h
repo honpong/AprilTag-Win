@@ -71,7 +71,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
 
     sensor_clock::time_point found_time;
 
-    descriptor descriptor;
+    struct descriptor descriptor;
     bool descriptor_valid{false};
 
     float last_variance;

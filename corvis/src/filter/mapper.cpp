@@ -940,7 +940,7 @@ bool mapper::serialize(std::string &json)
     Value version(MAPPER_SERIALIZED_VERSION);
     map_json.AddMember(KEY_VERSION, version, allocator);
 
-    uint64_t id_map[nodes.size()];
+    vector<uint64_t> id_map; id_map.resize(nodes.size());
     uint64_t to = 0;
     for(uint64_t from = 0; from < nodes.size(); from++) {
         if(!nodes[from].finished) {

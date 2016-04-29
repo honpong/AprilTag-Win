@@ -211,8 +211,10 @@ public:
     f_t lost_factor;
     bool loop_closed{false};
     
-    feature_t undistort_feature(const feature_t &feat_d, f_t *ku_d_ = nullptr, f_t *dku_d_drd = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;
-    feature_t distort_feature(const feature_t &feat_u, f_t *kd_u_ = nullptr, f_t *dkd_u_dru = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr) const;
+    feature_t undistort_feature(const feature_t &feat_d) const;
+    feature_t distort_feature(const feature_t &featu_u) const;
+    f_t get_undistortion_factor(const feature_t &feat_d, f_t *dku_d_drd = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;
+    f_t get_distortion_factor(const feature_t &feat_u, f_t *dkd_u_dru = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr) const;
     feature_t normalize_feature(const feature_t &feat) const;
     feature_t unnormalize_feature(const feature_t &feat) const;
     float median_depth_variance();

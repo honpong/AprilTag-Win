@@ -369,7 +369,18 @@ feature_t state_vision::unnormalize_feature(const feature_t &feat_n) const
     return (feat_n * focal_length.v + feature_t {center_x.v, center_y.v}) * image_height + f_t(.5) * image_size() - feature_t{.5,.5};
 }
 
-feature_t state_vision::distort_feature(const feature_t &feat_u, f_t *kd_u_, f_t *dkd_u_dru, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const
+feature_t state_vision::distort_feature(const feature_t &feat_u) const
+{
+    return feat_u * get_distortion_factor(feat_u);
+}
+
+feature_t state_vision::undistort_feature(const feature_t &feat_d) const
+{
+    return feat_d * get_undistortion_factor(feat_d);
+}
+
+//*****THIS should return dkd_u_dfeat_u not dkd_u_dru
+f_t state_vision::get_distortion_factor(const feature_t &feat_u, f_t *dkd_u_dru, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const
 {
     f_t kd_u, ru2, ru = std::sqrt(ru2 = feat_u.squaredNorm());
     if (fisheye) {
@@ -387,12 +398,10 @@ feature_t state_vision::distort_feature(const feature_t &feat_u, f_t *kd_u_, f_t
         if (dkd_u_dk2) *dkd_u_dk2 = ru2 * ru2;
         if (dkd_u_dk3) *dkd_u_dk3 = ru2 * ru2 * ru2;
     }
-    if (kd_u_) *kd_u_ = kd_u;
-
-    return feat_u * kd_u;
+    return kd_u;
 }
 
-feature_t state_vision::undistort_feature(const feature_t &feat_d, f_t *ku_d_, f_t *dku_d_drd, f_t *dku_d_dk1, f_t *dku_d_dk2, f_t *dku_d_dk3) const
+f_t state_vision::get_undistortion_factor(const feature_t &feat_d, f_t *dku_d_drd, f_t *dku_d_dk1, f_t *dku_d_dk2, f_t *dku_d_dk3) const
 {
     f_t ku_d, rd2 = feat_d.squaredNorm();
     if (fisheye) {
@@ -420,9 +429,7 @@ feature_t state_vision::undistort_feature(const feature_t &feat_d, f_t *ku_d_, f
         if (dku_d_dk2) *dku_d_dk2 = -(ru2 * ru2      )/(kd_u*kd_u);
         if (dku_d_dk3) *dku_d_dk3 = -(ru2 * ru2 * ru2)/(kd_u*kd_u);
     }
-    if (ku_d_) *ku_d_ = ku_d;
-
-    return feat_d * ku_d;
+    return ku_d;
 }
 
 float state_vision::median_depth_variance()

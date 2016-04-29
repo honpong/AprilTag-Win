@@ -245,9 +245,9 @@ void observation_vision_feature::cache_jacobians()
 
     f_t invZ = 1/X[2];
     feature_t Xu = {X[0]*invZ, X[1]*invZ};
-    f_t ru2, ru = sqrt(ru2=Xu.squaredNorm());
+    f_t ru = sqrt(Xu.squaredNorm());
     f_t kd_u, dkd_u_dru, dkd_u_dk1, dkd_u_dk2, dkd_u_dk3;
-    state.distort_feature(Xu, &kd_u, &dkd_u_dru, &dkd_u_dk1, &dkd_u_dk2, &dkd_u_dk3);
+    kd_u = state.get_distortion_factor(Xu, &dkd_u_dru, &dkd_u_dk1, &dkd_u_dk2, &dkd_u_dk3);
     // v2 xd = X/Xz * kd_u = Xu * kd_u
     // v2 dxd = dX/Xz * kd_u + Xu * dkd_u - Xu/Xz * dXz * kd_u = (dX/Xz - Xu/Xz * dXz) * kd_u + Xu * (dkd_u_dru * X.dX/ru + dkd_u_dw * dw)
     // v2 x = (xd * F + C) * height + height/2 - .5
@@ -269,7 +269,7 @@ void observation_vision_feature::cache_jacobians()
         if(state.estimate_camera_intrinsics) {
             f_t rd2, rd = sqrt(rd2=Xd.squaredNorm());
             f_t ku_d, dku_d_drd, dku_d_dk1, dku_d_dk2, dku_d_dk3;
-            /*X0 = */state.undistort_feature(Xd, &ku_d, &dku_d_drd, &dku_d_dk1, &dku_d_dk2, &dku_d_dk3);
+            ku_d = state.get_undistortion_factor(Xd, &dku_d_drd, &dku_d_dk1, &dku_d_dk2, &dku_d_dk3);
             v4 dX_dcx = Rtot * v4(ku_d  + dku_d_drd*Xd.x()*Xd.x()/rd,         dku_d_drd*Xd.x()*Xd.y()/rd, 0, 0) / -state.focal_length.v;
             v4 dX_dcy = Rtot * v4(        dku_d_drd*Xd.y()*Xd.x()/rd, ku_d  + dku_d_drd*Xd.y()*Xd.y()/rd, 0, 0) / -state.focal_length.v;
             v4 dX_dF  = Rtot * v4(X0[0] + dku_d_drd*Xd.x()       *rd, X0[1] + dku_d_drd*Xd.y()       *rd, 0, 0) / -state.focal_length.v;

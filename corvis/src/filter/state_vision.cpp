@@ -379,21 +379,20 @@ feature_t state_vision::undistort_feature(const feature_t &feat_d) const
     return feat_d * get_undistortion_factor(feat_d);
 }
 
-//*****THIS should return dkd_u_dfeat_u not dkd_u_dru
-f_t state_vision::get_distortion_factor(const feature_t &feat_u, f_t *dkd_u_dru, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const
+f_t state_vision::get_distortion_factor(const feature_t &feat_u, feature_t *dkd_u_dfeat_u, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const
 {
     f_t kd_u, ru2, ru = std::sqrt(ru2 = feat_u.squaredNorm());
     if (fisheye) {
         f_t w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
         if(ru < F_T_EPS) ru = F_T_EPS;
         kd_u = std::atan(f_t(2) * std::tan(w * f_t(.5)) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
-        if (dkd_u_dru) *dkd_u_dru = f_t(2) * std::tan(f_t(.5)*w) / (w + f_t(4) * ru * ru * w * std::tan(f_t(.5)*w) * std::tan(f_t(.5)*w));
+        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = f_t(2) * std::tan(f_t(.5)*w) / (w + f_t(4) * ru * ru * w * std::tan(f_t(.5)*w) * std::tan(f_t(.5)*w)) * feat_u / ru;
         if (dkd_u_dk1) *dkd_u_dk1 = f_t(2) * ru / (w * (f_t(1) + std::cos(w) + f_t(4) * ru * ru * (f_t(1) - std::cos(w)))) - kd_u / w;
         if (dkd_u_dk2) *dkd_u_dk2 = 0;
         if (dkd_u_dk3) *dkd_u_dk3 = 0;
     } else {
         kd_u = f_t(1) + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
-        if (dkd_u_dru) *dkd_u_dru = 0 * (k1.v + ru2 * (f_t(2) * k2.v + f_t(3) * k3.v * ru2)) * f_t(2) * std::sqrt(ru2);
+        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = 0 * (k1.v + ru2 * (f_t(2) * k2.v + f_t(3) * k3.v * ru2)) * f_t(2) * std::sqrt(ru2) * feat_u / ru;
         if (dkd_u_dk1) *dkd_u_dk1 = ru2;
         if (dkd_u_dk2) *dkd_u_dk2 = ru2 * ru2;
         if (dkd_u_dk3) *dkd_u_dk3 = ru2 * ru2 * ru2;
@@ -401,14 +400,14 @@ f_t state_vision::get_distortion_factor(const feature_t &feat_u, f_t *dkd_u_dru,
     return kd_u;
 }
 
-f_t state_vision::get_undistortion_factor(const feature_t &feat_d, f_t *dku_d_drd, f_t *dku_d_dk1, f_t *dku_d_dk2, f_t *dku_d_dk3) const
+f_t state_vision::get_undistortion_factor(const feature_t &feat_d, feature_t *dku_d_dfeat_d, f_t *dku_d_dk1, f_t *dku_d_dk2, f_t *dku_d_dk3) const
 {
-    f_t ku_d, rd2 = feat_d.squaredNorm();
+    f_t ku_d, rd2, rd = sqrt(rd2 = feat_d.squaredNorm());
     if (fisheye) {
-        f_t rd = std::sqrt(rd2), w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        f_t w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
         if(rd < F_T_EPS) rd = F_T_EPS;
         ku_d = std::tan(w * rd) / (f_t(2) * std::tan(f_t(.5)*w) * rd);
-        if (dku_d_drd) *dku_d_drd = f_t(2) * (rd * w / (std::cos(rd * w) * std::cos(rd * w) * (f_t(2) * rd * std::tan(w*f_t(.5)))) - ku_d);
+        if (dku_d_dfeat_d) *dku_d_dfeat_d = f_t(2) * (rd * w / (std::cos(rd * w) * std::cos(rd * w) * (f_t(2) * rd * std::tan(w*f_t(.5)))) - ku_d) * feat_d / rd;
         if (dku_d_dk1) *dku_d_dk1 = (f_t(2) * rd * std::sin(w) - std::sin(f_t(2) * rd * w)) / (f_t(8) * rd * (std::cos(rd * w) * std::cos(rd * w)) * (std::sin(w*f_t(.5)) * std::sin(w*f_t(.5))));
         if (dku_d_dk2) *dku_d_dk2 = 0;
         if (dku_d_dk3) *dku_d_dk3 = 0;
@@ -424,7 +423,7 @@ f_t state_vision::get_undistortion_factor(const feature_t &feat_d, f_t *dku_d_dr
         ku_d = f_t(1) / kd_u;
         f_t ru = std::sqrt(ru2), dkd_u_dru = f_t(2) * ru * dkd_u_dru2;
         // dku_d_drd = d/rd (1/kd_u) = d/ru (1/kd_u) dru/drd = d/ru (1/kd_u) / (drd/dru) = d/ru (1/kd_u) / (d/ru (ru kd_u)) = -dkd_u_dru/kd_u/kd_u / (kd_u + ru dkd_u_dru)
-        if (dku_d_drd) *dku_d_drd = 0 * -dkd_u_dru/(kd_u * kd_u * (kd_u + ru * dkd_u_dru));
+        if (dku_d_dfeat_d) *dku_d_dfeat_d = 0 * -dkd_u_dru/(kd_u * kd_u * (kd_u + ru * dkd_u_dru)) * feat_d / rd;
         if (dku_d_dk1) *dku_d_dk1 = -(ru2            )/(kd_u*kd_u);
         if (dku_d_dk2) *dku_d_dk2 = -(ru2 * ru2      )/(kd_u*kd_u);
         if (dku_d_dk3) *dku_d_dk3 = -(ru2 * ru2 * ru2)/(kd_u*kd_u);

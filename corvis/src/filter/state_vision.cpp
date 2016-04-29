@@ -82,8 +82,9 @@ state_vision_group::state_vision_group(uint64_t group_id): Tr("Tr"), Qr("Qr"), h
     children.push_back(&Qr);
     Tr.v = v4(0., 0., 0., 0.);
     Qr.v = quaternion();
-    Tr.set_initial_variance(0., 0., 0.);
-    Qr.set_initial_variance(0., 0., 0.);
+    f_t near_zero = F_T_EPS * 100;
+    Tr.set_initial_variance(near_zero, near_zero, near_zero);
+    Qr.set_initial_variance(near_zero, near_zero, near_zero);
     Tr.set_process_noise(ref_noise);
     Qr.set_process_noise(ref_noise);
 }

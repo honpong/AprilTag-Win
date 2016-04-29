@@ -298,7 +298,7 @@ bool calibration_serialize_xml(const calibration &cal, std::string &xml)
         imu->append_node(doc.allocate_node(node_element, "accel_bias_sigma",  xml_string(doc, sqrt(cal.imu.a_bias_var_m2__s4.maxCoeff()))));
     }
 
-    const struct { const transformation &transformation; const char *A_id, *B_id; } extrinsics[] = {
+    const struct { const transformation &trans; const char *A_id, *B_id; } extrinsics[] = {
         { cal.fisheye.extrinsics_wrt_imu_m, "100",  "0" },
         { cal.color.extrinsics_wrt_imu_m,   "100",  "1" },
         { cal.ir.extrinsics_wrt_imu_m,      "100",  "2" },
@@ -320,8 +320,8 @@ bool calibration_serialize_xml(const calibration &cal, std::string &xml)
         ext_cal->append_attribute(doc.allocate_attribute("is_cad", "1"));
 
         Eigen::Matrix<f_t,3,4> m;
-        m.block<3,1>(0,3) = e.transformation.T.block<3,1>(0,0);
-        m.block<3,3>(0,0) = to_rotation_matrix(e.transformation.Q).block<3,3>(0,0);
+        m.block<3,1>(0,3) = e.trans.T.block<3,1>(0,0);
+        m.block<3,3>(0,0) = to_rotation_matrix(e.trans.Q).block<3,3>(0,0);
         ext_cal->append_node(doc.allocate_node(node_element, "A_T_B", xml_string(doc, m)));
     }
 

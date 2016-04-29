@@ -968,7 +968,7 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.k3.v = cam.intrinsics.k3;
     f->s.fisheye = cam.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE;
 
-    f->s.g.set_initial_variance(1.e-5);
+    f->s.g.set_initial_variance(1.e-7);
     
     f->s.T.set_process_noise(0.);
     f->s.Q.set_process_noise(0.);
@@ -989,9 +989,9 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.k2.set_process_noise(1.e-9);
     f->s.k3.set_process_noise(1.e-9);
 
-    f->s.T.set_initial_variance(1.e-5); // to avoid not being positive definite
+    f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
-    f->s.Q.set_initial_variance(10., 10., 1.e-5); // to avoid not being positive definite
+    f->s.Q.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(10);
     f->s.dw.set_initial_variance(10); //observed range of variances in sequences is 1-6

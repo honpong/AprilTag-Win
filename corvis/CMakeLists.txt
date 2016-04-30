@@ -96,7 +96,7 @@ if(YES)
     )
     set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
     target_include_directories(spec_intel PRIVATE test ..)
-    target_link_libraries(spec_intel filter vis)
+    target_link_libraries(spec_intel filter)
     add_test(NAME spec_intel COMMAND spec_intel)
 
     if(BUILD_STEREO)

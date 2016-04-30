@@ -65,7 +65,7 @@ public:
 
 class stereo {
 public:
-    camera camera;
+    class camera camera;
     m4 F;
     m4 F_motion, F_eight_point;
     m4 dR;

@@ -229,7 +229,7 @@ public:
     //public for now
     filter sfm;
     device_parameters device;
-    calibration calibration;
+    struct calibration calibration;
     
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
     transformation accel_to_camera_world_transform() const;

@@ -18,7 +18,6 @@
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 #include "device_parameters.h"
-#include "capture.h"
 #include "filter.h"
 
 class sensor_fusion

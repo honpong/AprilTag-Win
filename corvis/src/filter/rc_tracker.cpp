@@ -9,6 +9,7 @@
 #include "rc_tracker.h"
 #include "sensor_fusion.h"
 #include "device_parameters.h"
+#include "capture.h"
 #include <fstream>
 
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)

@@ -484,13 +484,12 @@ void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
             if(!g->status || g->status == group_initializing) continue;
             for(state_vision_feature *i : g->features.children) {
                 auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
-                auto obs = std::make_unique<observation_vision_feature>(f->s, image.timestamp + extra_time, image.timestamp);
+                auto obs = std::make_unique<observation_vision_feature>(f->s, image.timestamp + extra_time, image.timestamp, f->track);
                 obs->state_group = g;
                 obs->feature = i;
                 obs->meas[0] = i->current[0];
                 obs->meas[1] = i->current[1];
                 obs->image = image.image;
-                obs->tracker = f->track;
                 obs->feature->dt = image.timestamp - obs->feature->last_seen;
                 obs->feature->last_seen = image.timestamp;
 

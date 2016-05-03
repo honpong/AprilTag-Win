@@ -64,7 +64,7 @@ class observation_vision_feature: public observation_storage<2> {
     m4 Rrt;
     v4 X0, X;
     const uint8_t *image;
-    struct tracker tracker;
+    struct tracker &tracker;
     m4 Rtot;
     v4 Ttot;
 
@@ -87,7 +87,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     void update_initializing();
 
-    observation_vision_feature(state_vision &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(_time_actual, _time_apparent), state(_state) {}
+    observation_vision_feature(state_vision &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent, struct tracker &_tracker): observation_storage(_time_actual, _time_apparent), state(_state), tracker(_tracker) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

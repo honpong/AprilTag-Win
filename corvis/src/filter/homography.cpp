@@ -116,13 +116,13 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
             Utmp(i, j) = U(i, j);
         }
     }
-    //float usign = (determinant3(Utmp) < 0.) ? 1. : -1.;
+    //float usign = (Utmp.block<3,3>(0,0).determinant() < 0.) ? 1. : -1.;
     
     v4 v1(U(0, 0), U(1, 0), U(2, 0), 0.);
     v4 v2(U(0, 1), U(1, 1), U(2, 1), 0.);
     v4 v3(U(0, 2), U(1, 2), U(2, 2), 0.);
     
-    if(determinant3(Utmp) < 0.)
+    if(Utmp.block<3,3>(0,0).determinant() < 0.)
     {
         v1 = -v1;
         v2 = -v2;

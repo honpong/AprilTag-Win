@@ -31,7 +31,7 @@ int main(int c, char **v) {
         return 1;
     }
 
-    const char *capture_filename = "/sdcard/save";
+    const char *capture_file = nullptr;
     const char *calibration_load = nullptr,
         *calibration_save = "/sdcard/config/calibration.json",
         *calibration_xml = "/sdcard/config/calibration.xml";
@@ -41,6 +41,7 @@ int main(int c, char **v) {
              if (strcmp(v[i], "--save") == 0 && i+1 < c) calibration_save = v[++i];
         else if (strcmp(v[i], "--load") == 0 && i+1 < c) calibration_load = v[++i];
         else if (strcmp(v[i], "--xml") == 0  && i+1 < c) calibration_xml  = v[++i];
+        else if (strcmp(v[i], "--capture") == 0  && i+1 < c) capture_file = v[++i];
         else goto usage;
 
     std::unique_ptr<rc_Tracker, decltype(rc_destroy)*> rc_{rc_create(), rc_destroy}; rc_Tracker *rc = rc_.get();
@@ -159,9 +160,12 @@ int main(int c, char **v) {
         s->percentage = percentage;
     }, &status);
 
-    if (0)
-        rc_setOutputLog(rc, capture_filename, rc_E_ASYNCRONOUS);
-    else
+    if (capture_file) {
+        printf("Recording to %s\n", capture_file); fflush(stdout);
+        rc_setOutputLog(rc, capture_file, rc_E_ASYNCRONOUS);
+        static struct status *s = &status;
+        signal(SIGINT, [](int) { s->done = true; s->cv_done.notify_all(); printf("Finishing...\n"); fflush(stdout); });
+    } else
         rc_startCalibration(rc, rc_E_ASYNCRONOUS);
 
     {
@@ -175,6 +179,10 @@ int main(int c, char **v) {
     }
 
     rc_stopTracker(rc);
+
+    std::string calibration_save_;
+    if (capture_file)
+        calibration_save = (calibration_save_ = capture_file + std::string(".json")).c_str();
 
     if (calibration_save) {
         const char *buffer = nullptr;

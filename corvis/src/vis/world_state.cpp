@@ -11,15 +11,6 @@ static const VertexData axis_data[] = {
     {{0, 0, .5}, {0, 0, 255, 255}},
 };
 
-static VertexData orientation_data[] = {
-    {{0, 0, 0}, {255, 0, 0, 255}},
-    {{.5, 0, 0}, {255, 0, 0, 255}},
-    {{0, 0, 0}, {0, 255, 0, 255}},
-    {{0, .5, 0}, {0, 255, 0, 255}},
-    {{0, 0, 0}, {0, 0, 255, 255}},
-    {{0, 0, .5}, {0, 0, 255, 255}},
-};
-
 static const std::size_t feature_ellipse_vertex_size = 30; // 15 segments
 static const std::size_t max_plot_samples = 1000;
 void world_state::render_plot(size_t plot_index, size_t key_index, std::function<void (plot&, size_t key_index)> render_callback)
@@ -325,6 +316,7 @@ world_state::world_state()
     build_grid_vertex_data();
     axis_vertex = axis_data;
     axis_vertex_num = 6;
+    memcpy(orientation_data, axis_data, sizeof(axis_data));
     orientation_vertex = orientation_data;
     orientation_vertex_num = 6;
     last_image.width = 0;

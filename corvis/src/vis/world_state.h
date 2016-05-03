@@ -69,6 +69,7 @@ private:
     void generate_feature_ellipse(const Feature & feat, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
 
     std::vector<plot> plots;
+    VertexData orientation_data[6];
 
 public:
     std::mutex image_lock;

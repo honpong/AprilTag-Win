@@ -4,31 +4,6 @@
 #include "util.h"
 #include "rotation_vector.h"
 
-const static m4 foo = {
-    {12.3, 0., -5., .001},
-    {1., 1., 1., 1.},
-    {-69., 1.e-4, 12.3e5, -1.11},
-    {.2, -8.8, -22.2, 0.01}
-};
-
-const static m4 bar = {
-    {123, 1., 5., -1.},
-    {.1, .88, -1123.1, 1.123},
-    {-69., 1.e4, -3.e5, -1.11},
-    {-3.4, .8, .2, 0.}
-};
-
-TEST(Matrix4, Determinant) {
-    m4 a = { {5., -2., 1., 0.}, {0., 3., -1., 0.}, {2., 0., 7., 0.}, {0., 0., 0., 0.} };
-    EXPECT_NEAR(determinant3(a), 103, F_T_EPS);
-    
-    m4 b = { {1, 2, 3, 0}, {0, -4, 1, 0}, {0, 3, -1, 0}, {0, 0, 0 ,0} };
-    EXPECT_NEAR(determinant3(b), 1, F_T_EPS);
-
-    EXPECT_NEAR(determinant3(foo), 15128654.998270018, 1e-7);
-    EXPECT_NEAR(determinant3(bar), 1349053797.5000024, 1e-5);
-}
-
 TEST(Vector4, Cross) {
     v4 vec(1.5, -.64, 4.1, 0.);
     v4 vec2(.08, 1.2, -.23, 0.);

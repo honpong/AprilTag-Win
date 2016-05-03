@@ -106,6 +106,9 @@ public:
     void observe_map_node(sensor_clock::time_point timestamp, uint64_t id, bool finished, bool loop_closed, bool is_unlinked, const transformation &T, std::vector<uint64_t> & neighbors, std::vector<Feature> & features);
     std::string get_feature_stats();
     float get_feature_lifetime();
+
+    void get_bounding_box(float min[3], float max[3]);
+
     void reset() {
         display_lock.lock();
         features.clear();

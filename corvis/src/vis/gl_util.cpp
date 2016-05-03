@@ -3,6 +3,26 @@
 
 #include <cmath>
 
+void build_orthographic_projection_matrix(float * projMatrix, float ratio, float * min, float * max)
+{
+    for(int i = 0; i < 16; i++) projMatrix[i] = 0;
+
+    // ratio is width / height
+    float dx = (max[0] - min[0]);
+    float dy = (max[1] - min[1]);
+    float dz = max[2] - min[2];
+    float scale = fmax(dx, dy*ratio);
+
+    projMatrix[0] = 2/scale;
+    projMatrix[5] = 2*ratio/scale;
+    projMatrix[10] = 2/dz;
+    projMatrix[12] = -(max[0] + min[0]) / scale;
+    projMatrix[13] = -(max[1] + min[1]) * ratio / scale;
+    projMatrix[14] = -(max[2] + min[2]) / dz;
+    projMatrix[15] = 1;
+
+}
+
 void build_projection_matrix(float * projMatrix, float fov, float ratio, float nearP, float farP)
 {
     float f = 1.0f / tan (fov * ((float)M_PI / 360.0f));

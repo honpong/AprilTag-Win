@@ -2,7 +2,7 @@
 #include "../filter/filter.h"
 #include "../cor/packet.h"
 
-static VertexData axis_data[] = {
+static const VertexData axis_data[] = {
     {{0, 0, 0}, {255, 0, 0, 255}},
     {{.5, 0, 0}, {255, 0, 0, 255}},
     {{0, 0, 0}, {0, 255, 0, 255}},

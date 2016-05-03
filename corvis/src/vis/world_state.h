@@ -76,7 +76,7 @@ public:
     std::mutex display_lock;
     std::mutex plot_lock;
     VertexData * grid_vertex;
-    VertexData * axis_vertex;
+    const VertexData * axis_vertex;
     VertexData * path_vertex;
     VertexData * feature_vertex;
     VertexData * orientation_vertex;

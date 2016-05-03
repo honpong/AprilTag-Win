@@ -1,3 +1,4 @@
+#include <string.h>
 #include "dictionary.h"
 
 using namespace std;

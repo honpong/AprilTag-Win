@@ -2,6 +2,7 @@
 
 #include "rc_tracker.h"
 #include "transformation.h"
+#include <string>
 
 struct calibration {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

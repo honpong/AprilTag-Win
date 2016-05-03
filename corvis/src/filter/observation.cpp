@@ -251,10 +251,13 @@ void observation_vision_feature::cache_jacobians()
     //dx_dX = height * focal_length * d(kd_u * Xu + center)_dX
     //= height * focal_length * (dkd_u_dX * Xu + kd_u * dXu_dX)
     //= height * focal_length * (dkd_u_dXu * dXu_dX * Xu + kd_u * dXu_dX)
-    //= height * focal_length * dXu_dx * (dkd_u_dXu * Xu + kd_u)
     v4 dx_dX, dy_dX;
-    dx_dX = state.image_height * state.focal_length.v * (dkd_u_dXu.x() * Xu.x() + kd_u) * v4(invZ, 0, -Xu[0] * invZ, 0);
-    dy_dX = state.image_height * state.focal_length.v * (dkd_u_dXu.y() * Xu.y() + kd_u) * v4(0, invZ, -Xu[1] * invZ, 0);
+    v4 dXu_dX[2];
+    dXu_dX[0] = v4(invZ, 0, -Xu[0] * invZ, 0);
+    dXu_dX[1] = v4(0, invZ, -Xu[1] * invZ, 0);
+    v4 dkd_u_dX = dkd_u_dXu[0] * dXu_dX[0] + dkd_u_dXu[1] * dXu_dX[1];
+    dx_dX = state.image_height * state.focal_length.v * (dkd_u_dX * Xu[0] + kd_u * dXu_dX[0]);
+    dy_dX = state.image_height * state.focal_length.v * (dkd_u_dX * Xu[1] + kd_u * dXu_dX[1]);
 
     v4 dX_dp = Ttot * feature->v.invdepth_jacobian();
     dx_dp = dx_dX.dot(dX_dp);
@@ -276,15 +279,15 @@ void observation_vision_feature::cache_jacobians()
             v4 dX_dk2 = Rtot * v4(Xd.x() * dku_d_dk2, Xd.y() * dku_d_dk2, 0, 0);
             v4 dX_dk3 = Rtot * v4(Xd.x() * dku_d_dk3, Xd.y() * dku_d_dk3, 0, 0);
 
-            dx_dF = state.image_height * norm_predicted.x() * kd_u + dx_dX.dot(dX_dF);
-            dy_dF = state.image_height * norm_predicted.y() * kd_u + dy_dX.dot(dX_dF);
+            dx_dF = state.image_height * Xu[0] * kd_u + dx_dX.dot(dX_dF);
+            dy_dF = state.image_height * Xu[1] * kd_u + dy_dX.dot(dX_dF);
 
-            dx_dk1 = state.image_height * (dkd_u_dk1 * state.focal_length.v * X[0]*invZ + kd_u * dx_dX.dot(dX_dk1));
-            dy_dk1 = state.image_height * (dkd_u_dk1 * state.focal_length.v * X[1]*invZ + kd_u * dy_dX.dot(dX_dk1));
-            dx_dk2 = state.image_height * (dkd_u_dk2 * state.focal_length.v * X[0]*invZ + kd_u * dx_dX.dot(dX_dk2));
-            dy_dk2 = state.image_height * (dkd_u_dk2 * state.focal_length.v * X[1]*invZ + kd_u * dy_dX.dot(dX_dk2));
-            dx_dk3 = state.image_height * (dkd_u_dk3 * state.focal_length.v * X[0]*invZ + kd_u * dx_dX.dot(dX_dk3));
-            dy_dk3 = state.image_height * (dkd_u_dk3 * state.focal_length.v * X[1]*invZ + kd_u * dy_dX.dot(dX_dk3));
+            dx_dk1 = state.image_height * state.focal_length.v * Xu[0] * dkd_u_dk1 + dx_dX.dot(dX_dk1);
+            dy_dk1 = state.image_height * state.focal_length.v * Xu[1] * dkd_u_dk1 + dy_dX.dot(dX_dk1);
+            dx_dk2 = state.image_height * state.focal_length.v * Xu[0] * dkd_u_dk2 + dx_dX.dot(dX_dk2);
+            dy_dk2 = state.image_height * state.focal_length.v * Xu[1] * dkd_u_dk2 + dy_dX.dot(dX_dk2);
+            dx_dk3 = state.image_height * state.focal_length.v * Xu[0] * dkd_u_dk3 + dx_dX.dot(dX_dk3);
+            dy_dk3 = state.image_height * state.focal_length.v * Xu[1] * dkd_u_dk3 + dy_dX.dot(dX_dk3);
 
             dx_dcx = state.image_height + dx_dX.dot(dX_dcx); dx_dcy =                      dx_dX.dot(dX_dcy);
             dy_dcx =                      dy_dX.dot(dX_dcx); dy_dcy = state.image_height + dy_dX.dot(dX_dcy);

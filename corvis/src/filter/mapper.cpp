@@ -539,10 +539,11 @@ bool generate_transformation(const match_pair &match1, const match_pair &match2,
 }
 
 
-int get_inliers(const transformation_variance & proposal, const aligned_vector<match_pair> & matches, float threshold, bool inliers[])
+static vector<bool> get_inliers(const transformation_variance & proposal, const aligned_vector<match_pair> & matches, float threshold)
 {
     int num_inliers = 0, z = 0;
     float mean_error = 0;
+    vector<bool> inliers; inliers.resize(matches.size());
     for(auto m : matches) {
         float dist = (m.first.position - proposal.transform*m.second.position).norm();
         if(dist*dist < threshold) {
@@ -556,13 +557,12 @@ int get_inliers(const transformation_variance & proposal, const aligned_vector<m
     }
     mean_error /= z;
     //fprintf(stderr, "mean error %f\n", mean_error);
-    return num_inliers;
+    return inliers;
 }
 
-int count_inliers(const transformation_variance & proposal, const aligned_vector<match_pair> & matches, float threshold)
+static size_t count_inliers(const transformation_variance & proposal, const aligned_vector<match_pair> & matches, float threshold)
 {
-    bool inliers[matches.size()];
-    return get_inliers(proposal, matches, threshold, inliers);
+    return get_inliers(proposal, matches, threshold).size();
 }
 
 #include <random>
@@ -599,7 +599,7 @@ int mapper::pick_transformation_ransac(const aligned_vector<match_pair> &neighbo
         //log->info("proposal is {} {}", i1, i2);
         if(generate_transformation(neighbor_matches[i1], neighbor_matches[i2], proposal, threshold)) {
             //log->info() << proposal.transform;
-            int inliers = count_inliers(proposal, neighbor_matches, threshold);
+            size_t inliers = count_inliers(proposal, neighbor_matches, threshold);
             //log->info("inliers {}\n", inliers);
             if(inliers > best_inliers) {
                 G = proposal;
@@ -624,8 +624,7 @@ int mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & m
     //log->info("estimate transform meanvar: {}", meanstd*meanstd);
     float loose_threshold = 3. * 3. * (2*meanstd*2*meanstd);
     float tight_threshold = 3. * 3. * (2*meanstd*2*meanstd);
-    bool inliers[matches.size()];
-    int num_inliers = get_inliers(tv, matches, loose_threshold, inliers);
+    vector<bool> inliers = get_inliers(tv, matches, loose_threshold);
     //log->info("num loose inliers {}", num_inliers);
     //log->info() << "old tv " << tv.transform;
 
@@ -640,7 +639,7 @@ int mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & m
 
     transformation_variance estimate;
     if(estimate_transformation(from, to, estimate.transform)) {
-        int new_inliers = count_inliers(estimate, matches, tight_threshold);
+        size_t new_inliers = count_inliers(estimate, matches, tight_threshold);
         //log->info("new tight inliers {}", new_inliers);
         //log->info() << "new tv " << estimate.transform;
         //TODO: only do this when it is better, is it always better?
@@ -653,7 +652,7 @@ int mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & m
         //    log->info() << "from: " << from[i] << " to:\n" << to[i];
         //}
     }
-    return num_inliers;
+    return (int)inliers.size();
 }
 
 float mapper::refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const aligned_vector<match_pair> &neighbor_matches)
@@ -941,7 +940,7 @@ bool mapper::serialize(std::string &json)
     Value version(MAPPER_SERIALIZED_VERSION);
     map_json.AddMember(KEY_VERSION, version, allocator);
 
-    uint64_t id_map[nodes.size()];
+    vector<uint64_t> id_map; id_map.resize(nodes.size());
     uint64_t to = 0;
     for(uint64_t from = 0; from < nodes.size(); from++) {
         if(!nodes[from].finished) {

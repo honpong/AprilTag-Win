@@ -55,7 +55,7 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
     glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 
     glfwSetErrorCallback(error_callback);
-    GLFWwindow* window = glfwCreateWindow(512, 512, "Offscreen Render", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(width, height, "Offscreen Render", NULL, NULL);
     if (!window)
     {
         fprintf(stderr, "Failed to create a window\n");

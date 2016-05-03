@@ -20,8 +20,8 @@ static VertexData orientation_data[] = {
     {{0, 0, .5}, {0, 0, 255, 255}},
 };
 
-static std::size_t feature_ellipse_vertex_size = 30; // 15 segments
-static std::size_t max_plot_samples = 1000;
+static const std::size_t feature_ellipse_vertex_size = 30; // 15 segments
+static const std::size_t max_plot_samples = 1000;
 void world_state::render_plot(size_t plot_index, size_t key_index, std::function<void (plot&, size_t key_index)> render_callback)
 {
     std::lock_guard<std::mutex> lock(plot_lock);

@@ -274,7 +274,7 @@ void observation_vision_feature::cache_jacobians()
             ku_d = state.get_undistortion_factor(Xd, &dku_d_dXd, &dku_d_dk1, &dku_d_dk2, &dku_d_dk3);
             v4 dX_dcx = Rtot * v4(ku_d  + dku_d_dXd.x()*Xd.x(),         dku_d_dXd.y()*Xd.x(), 0, 0) / -state.focal_length.v;
             v4 dX_dcy = Rtot * v4(        dku_d_dXd.x()*Xd.y(), ku_d  + dku_d_dXd.y()*Xd.y(), 0, 0) / -state.focal_length.v;
-            v4 dX_dF  = Rtot * v4(X0[0] + dku_d_dXd.x()       , X0[1] + dku_d_dXd.y()       , 0, 0) / -state.focal_length.v;
+            v4 dX_dF  = Rtot * v4(Xd.x(), Xd.y(), 0, 0) * (ku_d + dku_d_dXd.dot(Xd))                / -state.focal_length.v;
             v4 dX_dk1 = Rtot * v4(Xd.x() * dku_d_dk1, Xd.y() * dku_d_dk1, 0, 0);
             v4 dX_dk2 = Rtot * v4(Xd.x() * dku_d_dk2, Xd.y() * dku_d_dk2, 0, 0);
             v4 dX_dk3 = Rtot * v4(Xd.x() * dku_d_dk3, Xd.y() * dku_d_dk3, 0, 0);

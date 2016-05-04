@@ -405,8 +405,7 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
 
     if(fabs(accel_delta[0]) > max_accel_delta || fabs(accel_delta[1]) > max_accel_delta || fabs(accel_delta[2]) > max_accel_delta)
     {
-        f->log->warn("Rejecting an accel sample due to extreme jump {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
-        return;
+        f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
     }
     
     auto obs_a = std::make_unique<observation_accelerometer>(f->s, time, time);
@@ -454,8 +453,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
 
     if(fabs(gyro_delta[0]) > max_gyro_delta || fabs(gyro_delta[1]) > max_gyro_delta || fabs(gyro_delta[2]) > max_gyro_delta)
     {
-        f->log->warn("Rejecting a gyro sample due to extreme jump {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
-        return;
+        f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
     }
 
     auto obs_w = std::make_unique<observation_gyroscope>(f->s, time, time);

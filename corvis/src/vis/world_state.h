@@ -67,6 +67,7 @@ private:
     std::size_t map_feature_vertex_alloc = 1000;
     void build_grid_vertex_data();
     void generate_feature_ellipse(const Feature & feat, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
+    void update_current_timestamp(const sensor_clock::time_point & timestamp);
 
     std::vector<plot> plots;
     VertexData orientation_data[6];
@@ -76,6 +77,7 @@ public:
     std::mutex depth_lock;
     std::mutex display_lock;
     std::mutex plot_lock;
+    std::mutex time_lock;
     VertexData * grid_vertex;
     const VertexData * axis_vertex;
     VertexData * path_vertex;
@@ -109,6 +111,7 @@ public:
     float get_feature_lifetime();
 
     void get_bounding_box(float min[3], float max[3]);
+    uint64_t get_current_timestamp();
 
     void reset() {
         display_lock.lock();

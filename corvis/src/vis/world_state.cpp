@@ -131,9 +131,22 @@ static inline void compute_covariance_ellipse(state_vision_feature * feat, float
     ctheta = (float)theta; // rotate
 }
 
+uint64_t world_state::get_current_timestamp()
+{
+    std::lock_guard<std::mutex> lock(time_lock);
+    return sensor_clock::tp_to_micros(current_timestamp);
+}
+
+void world_state::update_current_timestamp(const sensor_clock::time_point & timestamp)
+{
+    std::lock_guard<std::mutex> lock(time_lock);
+    if(timestamp > current_timestamp)
+        current_timestamp = timestamp;
+}
+
 void world_state::receive_camera(const filter * f, image_gray8 &&d)
 {
-    current_timestamp = d.timestamp;
+    update_current_timestamp(d.timestamp);
     current_feature_timestamp = d.timestamp;
     for(auto feat : f->s.features) {
         if(feat->is_valid()) {
@@ -401,7 +414,9 @@ void world_state::update_vertex_arrays(bool show_only_good)
     /*
      * Build vertex arrays for feature and path data
      */
+    sensor_clock::time_point now = sensor_clock::micros_to_tp(get_current_timestamp());
     display_lock.lock();
+
     int idx;
 
     // reallocate if we now have more data than room for vertices
@@ -464,7 +479,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
     idx = 0;
     for(auto p : path)
     {
-        if (p.timestamp == current_timestamp) {
+        if (p.timestamp == now) {
             set_color(&path_vertex[idx], 0, 255, 0, 255);
             for(int i = 0; i < 6; i++) {
                 v4 vertex(axis_vertex[i].position[0],
@@ -628,8 +643,7 @@ void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t f
     display_lock.lock();
     if(timestamp > current_feature_timestamp)
         current_feature_timestamp = timestamp;
-    if(timestamp > current_timestamp)
-        current_timestamp = timestamp;
+    update_current_timestamp(timestamp);
     if(features.count(feature_id))
         f.times_seen = features[feature_id].times_seen+1;
     features[feature_id] = f;
@@ -644,8 +658,7 @@ void world_state::observe_position(sensor_clock::time_point timestamp, float x, 
     p.g = transformation(q, v4(x, y, z, 0));
     display_lock.lock();
     path.push_back(p);
-    if(timestamp > current_timestamp)
-        current_timestamp = timestamp;
+    update_current_timestamp(timestamp);
     display_lock.unlock();
 }
 

@@ -173,10 +173,9 @@ int main(int c, char **v)
                 world_state * ws = (world_state *)res.user_data;
                 std::string render_filename = render_filename_from_filename(filename, render_output, capture_file);
 
-                if(!offscreen_render_to_file(render_filename.c_str(), ws)) {
+                if(!offscreen_render_to_file(render_filename.c_str(), ws))
                     cerr << "Failed to render " << render_filename << "\n";
-                }
-                delete (world_state *)res.user_data;
+                delete ws;
             }
 
         });

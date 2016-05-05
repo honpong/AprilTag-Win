@@ -196,6 +196,11 @@ void replay::start(string map_filename)
         realtime_offset = std::chrono::microseconds(0);
 
     while (is_running) {
+        if(next_pause && next_pause <= header.time) {
+            fprintf(stderr, "Paused at %llu\n", header.time);
+            next_pause = 0;
+            is_paused = true;
+        }
         auto start_pause = sensor_clock::now();
         auto finish_pause = start_pause;
         while(is_paused  && !is_stepping && is_running) {

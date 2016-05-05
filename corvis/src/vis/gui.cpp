@@ -97,6 +97,7 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_D:        show_depth = !show_depth;
              break; case GLFW_KEY_M:        show_main = !show_main;
              break; case GLFW_KEY_P:        show_plots = !show_plots;
+             break; case GLFW_KEY_T:        fprintf(stderr, "Current time: %llu\n", state->get_current_timestamp());
              break; case GLFW_KEY_SLASH:    fprintf(stderr, R"(
 0-9   Switch Plots
 n     Next Plot
@@ -114,6 +115,8 @@ v     Toggle Video
 D     Toggle Depth
 m     Toggle (Main) 3D path view
 p     Toggle Plots
+
+t     Print current timestamp
 
 q     Quit
 ?     Help (this)

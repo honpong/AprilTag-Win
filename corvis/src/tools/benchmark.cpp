@@ -93,15 +93,13 @@ void benchmark_run(std::ostream &stream, const char *directory,
         results.back().ok = std::async(std::launch::async, measure_file, results.back().file.c_str(), std::ref(results.back().result));
         if ((++last - first) >= std::max<signed>(1, std::thread::hardware_concurrency())) {
           results[first].ok.wait();
-          auto finished = std::async(std::launch::deferred, measure_done, results[first].file.c_str(), std::ref(results[first].result));
-          finished.wait();
+          measure_done(results[first].file.c_str(), results[first].result);
           first++;
         }
     }
     while (first < last) {
         results[first].ok.wait();
-        auto finished = std::async(std::launch::deferred, measure_done, results[first].file.c_str(), std::ref(results[first].result));
-        finished.wait();
+        measure_done(results[first].file.c_str(), results[first].result);
         first++;
     }
 

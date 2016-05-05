@@ -6,6 +6,13 @@
 #include "benchmark.h"
 #include <iomanip>
 
+#ifdef WIN32
+#include <direct.h>
+#define mkdir(dir,mode) _mkdir(dir)
+#else
+#include <sys/stat.h>
+#endif
+
 std::string render_filename_from_filename(const char * benchmark_folder, const char * render_folder, const char * filename)
 {
     std::string render_filename(filename);
@@ -130,6 +137,9 @@ int main(int c, char **v)
 
         std::ofstream benchmark_ofstream;
         std::ostream &stream = benchmark_output ? benchmark_ofstream.open(benchmark_output), benchmark_ofstream : std::cout;
+
+        if (render_output)
+            mkdir(render_output, 0777);
 
         benchmark_run(stream, filename,
         [&](const char *capture_file, struct benchmark_result &res) -> bool {

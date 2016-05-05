@@ -145,17 +145,17 @@ int main(int c, char **v)
         [&](const char *capture_file, struct benchmark_result &res) -> bool {
             auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
 
-            res.user_data = nullptr;
-
             if (!configure(rp, capture_file)) return false;
 
             if(render_output) {
                 world_state * ws = new world_state();
                 res.user_data = ws;
-                rp.set_camera_callback([&](const filter * f, image_gray8 &&d) {
+                rp.set_camera_callback([ws](const filter * f, image_gray8 &&d) {
                     ws->receive_camera(f, std::move(d));
                 });
-            }
+            } else
+                res.user_data = nullptr;
+
 
             std::cout << "Running  " << capture_file << std::endl;
             rp.start(load_map);

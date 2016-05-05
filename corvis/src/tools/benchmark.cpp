@@ -73,7 +73,10 @@ struct measurement {
 #include <algorithm>
 #include <string.h>
 
-void benchmark_run(std::ostream &stream, const char *directory, std::function<bool (const char *capture_file, struct benchmark_result &result)> measure_file) {
+void benchmark_run(std::ostream &stream, const char *directory,
+        std::function<bool (const char *file, struct benchmark_result &result)> measure_file,
+        std::function<void (const char *file, struct benchmark_result &result)> measure_done)
+{
     std::vector<std::string> files;
     for_each_file(directory, [&files](const char *file) {
         if (0 == strstr(file, ".json") && 0 == strstr(file, ".pose"))
@@ -88,11 +91,19 @@ void benchmark_run(std::ostream &stream, const char *directory, std::function<bo
     for (auto &file : files) {
         results.push_back(benchmark_data { file.substr(strlen(directory) + 1), file });
         results.back().ok = std::async(std::launch::async, measure_file, results.back().file.c_str(), std::ref(results.back().result));
-        if ((++last - first) >= std::max<signed>(1, std::thread::hardware_concurrency()))
-          results[first++].ok.wait();
+        if ((++last - first) >= std::max<signed>(1, std::thread::hardware_concurrency())) {
+          results[first].ok.wait();
+          auto finished = std::async(std::launch::deferred, measure_done, results[first].file.c_str(), std::ref(results[first].result));
+          finished.wait();
+          first++;
+        }
     }
-    while (first < last)
-        results[first++].ok.wait();
+    while (first < last) {
+        results[first].ok.wait();
+        auto finished = std::async(std::launch::deferred, measure_done, results[first].file.c_str(), std::ref(results[first].result));
+        finished.wait();
+        first++;
+    }
 
     std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent;
 

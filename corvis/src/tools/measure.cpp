@@ -6,6 +6,14 @@
 #include "benchmark.h"
 #include <iomanip>
 
+std::string render_filename_from_filename(const char * benchmark_folder, const char * render_folder, const char * filename)
+{
+    std::string render_filename(filename);
+    render_filename = render_filename.substr(strlen(benchmark_folder) + 1);
+    std::replace(render_filename.begin(), render_filename.end(), '/', '_');
+    return std::string(render_folder) + "/" + render_filename + ".png";
+}
+
 int main(int c, char **v)
 {
     if (0) { usage:
@@ -20,7 +28,7 @@ int main(int c, char **v)
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     bool enable_map = false;
-    char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr;
+    char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
     char *pause_at = nullptr;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
@@ -44,6 +52,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--load") == 0 && i+1 < c) load = v[++i];
         else if (strcmp(v[i], "--benchmark") == 0) benchmark = true;
         else if (strcmp(v[i], "--benchmark-output") == 0 && i+1 < c) benchmark_output = v[++i];
+        else if (strcmp(v[i], "--render-output") == 0 && i+1 < c) render_output = v[++i];
         else if (strcmp(v[i], "--calibrate") == 0) calibrate = true;
         else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
         else goto usage;
@@ -122,10 +131,21 @@ int main(int c, char **v)
         std::ofstream benchmark_ofstream;
         std::ostream &stream = benchmark_output ? benchmark_ofstream.open(benchmark_output), benchmark_ofstream : std::cout;
 
-        benchmark_run(stream, filename, [&](const char *capture_file, struct benchmark_result &res) -> bool {
+        benchmark_run(stream, filename,
+        [&](const char *capture_file, struct benchmark_result &res) -> bool {
             auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
 
+            res.user_data = nullptr;
+
             if (!configure(rp, capture_file)) return false;
+
+            if(render_output) {
+                world_state * ws = new world_state();
+                res.user_data = ws;
+                rp.set_camera_callback([&](const filter * f, image_gray8 &&d) {
+                    ws->receive_camera(f, std::move(d));
+                });
+            }
 
             std::cout << "Running  " << capture_file << std::endl;
             rp.start(load_map);
@@ -137,6 +157,18 @@ int main(int c, char **v)
             print_results(rp, capture_file);
 
             return true;
+        },
+        [&](const char *capture_file, struct benchmark_result &res) -> void {
+            if(render_output && res.user_data) {
+                world_state * ws = (world_state *)res.user_data;
+                std::string render_filename = render_filename_from_filename(filename, render_output, capture_file);
+
+                if(!offscreen_render_to_file(render_filename.c_str(), ws)) {
+                    cerr << "Failed to render " << render_filename << "\n";
+                }
+                delete (world_state *)res.user_data;
+            }
+
         });
         return 0;
     }

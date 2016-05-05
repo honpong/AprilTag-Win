@@ -109,10 +109,10 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
 
     // If there's an error, display it
     if(error)
-        fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
+        fprintf(stderr, "%s: encoder error %d: %s\n", filename, error, lodepng_error_text(error));
 
     glfwDestroyWindow(window);
     glfwTerminate();
 
-    return true;
+    return !error;
 }

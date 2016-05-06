@@ -219,7 +219,6 @@ if os.path.isfile(path + "CameraParameters.txt"):
                         print "Color camera Tc", tf[3], tf[7], tf[11]
 
             #print "d_e_c", d_e_c
-            # g_accel_depth = g_accel_color * (g_color_depth)^-1
             # should be about [-0.058 0 0] on e6t
             ds4_color_to_depth = map(lambda x: -x/1000., map(float,d_e_c[6:9]))
             depth_Wc = [0, 0, 0]

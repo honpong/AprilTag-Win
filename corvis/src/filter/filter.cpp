@@ -524,9 +524,6 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
     int o_width = aligned_depth->width, o_height = aligned_depth->height, o_stride = aligned_depth->stride / sizeof(uint16_t);
     uint16_t *in =        depth .image, *out     = aligned_depth->image;
 
-    if (!(i_width == 320 && i_height == 240))
-        printf("Our hardcoded depth intrisics are no good!\n");
-
     float d_focal_length_x =  f->depth.intrinsics.f_x_px                                            / f->depth.intrinsics.height_px,
           d_focal_length_y =  f->depth.intrinsics.f_y_px                                            / f->depth.intrinsics.height_px,
           d_center_x       = (f->depth.intrinsics.c_x_px - f->depth.intrinsics.width_px  / 2. + .5) / f->depth.intrinsics.height_px,
@@ -544,7 +541,6 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
 
     transformation depth_to_color_m = invert(transformation(f->s.Qc.v,f->s.Tc.v)) * f->depth.extrinsics_wrt_imu_m;
     Eigen::Vector4f x_T_mm = (depth_to_color_m.T * 1000).cast<float>();
-    Eigen::Array4i one = {0,1,0,1}, ONE = {0,0,1,1};
 
     for (int y = 0; y < i_height; y++)
         for (int x = 0; x < i_width; x++) {
@@ -562,23 +558,16 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
             float oy = o_Fy * iy / iz + o_Cy;
             float oz = iz;
 
-            if (0) {
-                int X = (int)roundf(ox), Y = (int)roundf(oy), Z = (int)roundf(oz);
-                if (X >= 0 && X < o_width && Y >=0 && Y < o_height)
-                    if (Z < out[Y * o_stride + X])
-                        out[Y * o_stride + X] = Z;
-            } else {
-                // ceil() and -1s give the 4 closest grid points
-                auto X = static_cast<int>(std::ceil(ox)) - Eigen::Array4i{0,1,0,1};
-                auto Y = static_cast<int>(std::ceil(oy)) - Eigen::Array4i{0,0,1,1};
-                auto Z = static_cast<int>(roundf(oz));
-                auto I = Y * o_stride + X;
-                auto within = X >= 0 && X < o_width && Y >= 0 && Y < o_height;
-                if (within[0] && oz < static_cast<float>(out[I[0]])) out[I[0]] = static_cast<uint16_t>(oz);
-                if (within[1] && oz < static_cast<float>(out[I[1]])) out[I[1]] = static_cast<uint16_t>(oz);
-                if (within[2] && oz < static_cast<float>(out[I[2]])) out[I[2]] = static_cast<uint16_t>(oz);
-                if (within[3] && oz < static_cast<float>(out[I[3]])) out[I[3]] = static_cast<uint16_t>(oz);
-            }
+            // ceil() and -1s give the 4 closest grid points
+            auto X = static_cast<int>(std::ceil(ox)) - Eigen::Array4i{0,1,0,1};
+            auto Y = static_cast<int>(std::ceil(oy)) - Eigen::Array4i{0,0,1,1};
+            auto Z = static_cast<int>(roundf(oz));
+            auto I = Y * o_stride + X;
+            auto within = X >= 0 && X < o_width && Y >= 0 && Y < o_height;
+            if (within[0] && oz < static_cast<float>(out[I[0]])) out[I[0]] = static_cast<uint16_t>(oz);
+            if (within[1] && oz < static_cast<float>(out[I[1]])) out[I[1]] = static_cast<uint16_t>(oz);
+            if (within[2] && oz < static_cast<float>(out[I[2]])) out[I[2]] = static_cast<uint16_t>(oz);
+            if (within[3] && oz < static_cast<float>(out[I[3]])) out[I[3]] = static_cast<uint16_t>(oz);
         }
 
     for (int Y = 0; Y < o_height; Y++)

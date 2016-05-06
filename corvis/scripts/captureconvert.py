@@ -178,7 +178,7 @@ if os.path.isfile(path + "CameraParameters.txt"):
             if 'py' in cal:
                 del cal['py']
 
-            imu_to_ds4_color = [0.0095, 0, 0]
+            imu_to_ds4_color = [0.095, 0, 0]
             if os.path.isfile(path + "calibration.xml"):
                 import xml.etree.ElementTree as ET
                 tree = ET.parse(path + "calibration.xml")

@@ -226,6 +226,7 @@ if os.path.isfile(path + "CameraParameters.txt"):
             if not 'depth' in cal or not 'Tc0' in cal['depth']:
                 cal['depth'] = dict(zip("imageWidth imageHeight Fx Fy Cx Cy Wc0 Wc1 Wc2 Tc0 Tc1 Tc2".split(), map(int,d_e_c[:2]) + map(float,d_e_c[2:6]) + depth_Wc + depth_Tc))
                 print "Added depth intrinsics and extrinsics to " + output_filename + ".json"
+                print cal['depth']
             with open(output_filename + ".json", 'w') as t:
                  t.write(json.dumps(cal, sort_keys=True, indent=4,separators=(',', ': ')))
 else:

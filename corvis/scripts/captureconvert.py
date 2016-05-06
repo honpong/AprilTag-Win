@@ -220,7 +220,7 @@ if os.path.isfile(path + "CameraParameters.txt"):
 
             #print "d_e_c", d_e_c
             # should be about [-0.058 0 0] on e6t
-            ds4_color_to_depth = map(lambda x: -x/1000., map(float,d_e_c[6:9]))
+            ds4_color_to_depth = map(lambda x: x/1000., map(float,d_e_c[6:9]))
             depth_Wc = [0, 0, 0]
             depth_Tc = transform(depth_Wc, imu_to_ds4_color, ds4_color_to_depth)
             if not 'depth' in cal:

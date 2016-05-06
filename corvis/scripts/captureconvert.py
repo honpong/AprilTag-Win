@@ -209,15 +209,18 @@ if os.path.isfile(path + "CameraParameters.txt"):
                         tf = [float(a) for a in atb.translate(None, '[];,').split()]
                         (cal['Tc0'], cal['Tc1'], cal['Tc2']) = (tf[3], tf[7], tf[11])
                         (cal['Wc0'], cal['Wc1'], cal['Wc2']) = (0, 0, 0)
+                        # should be about [0.005 0 0] on e6t
                         print "Fisheye tc", tf[3], tf[7], tf[11]
                     if extrinsic.attrib["frame_B_id"] == ds4_color_index:
                         atb = extrinsic.find("A_T_B").text
                         tf = [float(a) for a in atb.translate(None, '[];,').split()]
                         imu_to_ds4_color = [tf[3], tf[7], tf[11]]
+                        # should be about [0.095 0 0] on e6t
                         print "Color camera Tc", tf[3], tf[7], tf[11]
 
             #print "d_e_c", d_e_c
             # g_accel_depth = g_accel_color * (g_color_depth)^-1
+            # should be about [-0.058 0 0] on e6t
             ds4_color_to_depth = map(lambda x: -x/1000., map(float,d_e_c[6:9]))
             depth_Wc = [0, 0, 0]
             depth_Tc = transform(depth_Wc, imu_to_ds4_color, ds4_color_to_depth)

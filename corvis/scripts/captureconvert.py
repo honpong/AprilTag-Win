@@ -186,7 +186,7 @@ if os.path.isfile(path + "CameraParameters.txt"):
                 fisheye_index = "0"
                 ds4_color_index = "3"
                 for camera in root.findall("camera/camera_model"):
-                    if camera.attrib["type"] == "calibu_fu_fv_u0_v0_k1_k2_k3" and camera.find("height").text == "180":
+                    if camera.attrib["type"] == "calibu_fu_fv_u0_v0_k1_k2_k3" and camera.find("height").text == "720":
                         ds4_color_index = camera.attrib["index"]
                         print "Found ds4 color at", ds4_color_index
                     if camera.attrib["type"] == "calibu_fu_fv_u0_v0_w":

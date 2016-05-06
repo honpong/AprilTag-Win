@@ -25,6 +25,7 @@ struct tpose_raw {
 struct tpose {
     tpose(const tpose_raw &r) : t(sensor_clock::ns100_to_tp(r.t_100ns)), G(to_quaternion(r.R), r.T_mm / 1000) {}
     tpose(sensor_clock::time_point t_) : t(t_) {}
+    tpose(const sensor_clock::time_point & t_, const transformation & G_) : t(t_), G(G_) {}
     sensor_clock::time_point t;
     transformation G;
     bool operator<(const struct tpose &tp) const {

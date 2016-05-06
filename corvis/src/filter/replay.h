@@ -77,6 +77,7 @@ public:
     uint64_t get_packets_dispatched() { return packets_dispatched; }
     double get_path_length() { return path_length; }
     double get_length() { return length; }
+    bool get_reference_pose(const sensor_clock::time_point & timestamp, tpose & pose_out);
     double get_reference_path_length() { return reference_path_length; }
     double get_reference_length() { return reference_length; }
     bool set_reference_from_filename(const string &filename);

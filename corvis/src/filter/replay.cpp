@@ -71,6 +71,13 @@ bool replay::set_calibration_from_filename(const char *filename)
     return true;
 }
 
+bool replay::get_reference_pose(const sensor_clock::time_point & timestamp, tpose & pose_out)
+{
+    if(!reference_seq) return false;
+    pose_out = reference_seq->get_pose(timestamp);
+    return true;
+}
+
 bool replay::set_reference_from_filename(const string &filename)
 {
     return load_reference_from_pose_file(filename + ".pose")

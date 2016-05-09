@@ -75,7 +75,7 @@ public:
     v4 sum, mean, M2;
     f_t maximum;
     v4 variance, stdev;
-    uint64_t count;
+    uint32_t count;
     stdev_vector(): sum(v4::Zero()), mean(v4::Zero()), M2(v4::Zero()), maximum(0.), variance(v4::Zero()), stdev(v4::Zero()), count(0) {}
     void data(const v4 &x) {
         ++count;
@@ -96,18 +96,18 @@ static inline std::ostream& operator<<(std::ostream &stream, const stdev_vector 
 class stdev_scalar
 {
 public:
-    double sum, mean, M2;
+    f_t sum, mean, M2;
     f_t maximum;
     f_t variance, stdev;
-    uint64_t count;
-    stdev_scalar(): sum(0.), mean(0.), M2(0.), maximum(0.), variance(0.), stdev(0.), count(0) {}
+    uint32_t count;
+    stdev_scalar(): sum(0), mean(0), M2(0), maximum(0), variance(0), stdev(0), count(0) {}
     void data(const f_t &x) {
         ++count;
-        double delta = x - mean;
-        mean = mean + delta / count;
+        f_t delta = x - mean;
+        mean = mean + delta / (f_t)count;
         M2 = M2 + delta * (x - mean);
         if(x > maximum) maximum = x;
-        variance = M2 / (count - 1);
+        variance = M2 / (f_t)(count - 1);
         stdev = sqrt(variance);
     }
 };

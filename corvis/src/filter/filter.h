@@ -24,9 +24,8 @@ struct filter {
     {
         //make sure all pointers are null
         mask = 0;
-        
+
         //these need to be initialized to defaults - everything else is handled in filter_initialize that is called every time
-        gravity_magnitude = 9.80665;
         ignore_lateness = false;
     }
     ~filter() {
@@ -51,7 +50,6 @@ struct filter {
     m4 a_alignment;
 
     bool gravity_init;
-    f_t gravity_magnitude;
 
     calibration::camera depth = {};
 

@@ -668,23 +668,23 @@ void world_state::get_bounding_box(float min[3], float max[3])
     min[0] = -1; min[1] = -1; min[2] = -1;
     max[0] =  1; max[1] =  1; max[2] =  1;
     for(auto p : path) {
-        min[0] = std::min(min[0], p.g.T.x());
-        min[1] = std::min(min[1], p.g.T.y());
-        min[2] = std::min(min[2], p.g.T.z());
-        max[0] = std::max(max[0], p.g.T.x());
-        max[1] = std::max(max[1], p.g.T.y());
-        max[2] = std::max(max[2], p.g.T.z());
+        min[0] = std::min(min[0], (float)p.g.T.x());
+        min[1] = std::min(min[1], (float)p.g.T.y());
+        min[2] = std::min(min[2], (float)p.g.T.z());
+        max[0] = std::max(max[0], (float)p.g.T.x());
+        max[1] = std::max(max[1], (float)p.g.T.y());
+        max[2] = std::max(max[2], (float)p.g.T.z());
     }
     for(auto const & item : features) {
         //auto feature_id = item.first;
         auto f = item.second;
         if(!f.good) continue;
 
-        min[0] = std::min(min[0], f.x);
-        min[1] = std::min(min[1], f.y);
-        min[2] = std::min(min[2], f.z);
-        max[0] = std::max(max[0], f.x);
-        max[1] = std::max(max[1], f.y);
-        max[2] = std::max(max[2], f.z);
+        min[0] = std::min(min[0], (float)f.x);
+        min[1] = std::min(min[1], (float)f.y);
+        min[2] = std::min(min[2], (float)f.z);
+        max[0] = std::max(max[0], (float)f.x);
+        max[1] = std::max(max[1], (float)f.y);
+        max[2] = std::max(max[2], (float)f.z);
     }
 }

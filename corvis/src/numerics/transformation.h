@@ -66,17 +66,17 @@ static bool estimate_transformation(const aligned_vector<v4> & src, const aligne
     v4 center_src = v4::Zero();
     v4 center_dst = v4::Zero();
     if(src.size() != dst.size()) return false;
-    int N = src.size();
+    int N = (int)src.size();
     if(N < 3) return false;
 
     // calculate centroid
     for(auto v : src)
         center_src += v;
-    center_src = center_src / N;
+    center_src = center_src / (f_t)N;
 
     for(auto v : dst)
         center_dst += v;
-    center_dst = center_dst / N;
+    center_dst = center_dst / (f_t)N;
 
     // remove centroid
     matrix X(N, 3);

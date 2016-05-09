@@ -121,7 +121,7 @@ void benchmark_run(std::ostream &stream, const char *directory,
         /**/ L = round(     L * 100) / 100;      PL = round(     PL * 100) / 100;
         base_L = round(base_L * 100) / 100; base_PL = round(base_PL * 100) / 100;
 
-        bool has_L = !isnan(r.length_cm.reference), has_PL = !isnan(r.path_length_cm.reference);
+        bool has_L = !std::isnan(r.length_cm.reference), has_PL = !std::isnan(r.path_length_cm.reference);
         if (!has_L)
             base_L = 0.;
         if (!has_PL)

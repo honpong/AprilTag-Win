@@ -50,8 +50,8 @@ public:
     f_t invdepth() { return exp(-v); }
     f_t invdepth_jacobian() { return -exp(-v); }
     f_t stdev_meters(f_t stdev) { return exp(v + stdev) - exp(v); }
-    void set_depth_meters(f_t initial_depth) { v = (initial_depth > 0.) ? log(initial_depth) : 0.; }
-    log_depth(): v(0.) {}
+    void set_depth_meters(f_t initial_depth) { v = (initial_depth > 0) ? log(initial_depth) : 0; }
+    log_depth(): v(0) {}
 };
 
 class state_vision_feature: public state_leaf<log_depth, 1> {

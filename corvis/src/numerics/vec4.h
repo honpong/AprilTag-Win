@@ -138,8 +138,8 @@ class v4_lowpass {
 public:
     v4 filtered;
     f_t constant;
-    v4_lowpass(f_t rate, f_t cutoff) { constant  = 1. / (1. + rate/cutoff); }
-    v4 sample(const v4 &data) { return filtered = filtered * (1. - constant) + data * constant; }
+    v4_lowpass(f_t rate, f_t cutoff) { constant  = 1 / (1 + rate/cutoff); }
+    v4 sample(const v4 &data) { return filtered = filtered * (1 - constant) + data * constant; }
 };
 
 inline static m4 skew3(const v4 &v)
@@ -162,9 +162,9 @@ inline static m3 skew3_eigen(const v3 &v)
 
 inline static v4 invskew3(const m4 &V)
 {
-    return v4(.5 * (V(2, 1) - V(1, 2)),
-              .5 * (V(0, 2) - V(2, 0)),
-              .5 * (V(1, 0) - V(0, 1)),
+    return v4((V(2, 1) - V(1, 2))/2,
+              (V(0, 2) - V(2, 0))/2,
+              (V(1, 0) - V(0, 1))/2,
               0);
 }
 

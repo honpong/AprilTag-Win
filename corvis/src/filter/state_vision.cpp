@@ -375,14 +375,14 @@ feature_t state_vision::distort_feature(const feature_t &feat_u, f_t *kd_u_, f_t
     if (fisheye) {
         f_t w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
         if(ru < F_T_EPS) ru = F_T_EPS;
-        kd_u = std::atan(f_t(2) * std::tan(w * f_t(.5)) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
-        if (dkd_u_dru) *dkd_u_dru = f_t(2) * std::tan(f_t(.5)*w) / (w + f_t(4) * ru * ru * w * std::tan(f_t(.5)*w) * std::tan(f_t(.5)*w));
-        if (dkd_u_dk1) *dkd_u_dk1 = f_t(2) * ru / (w * (f_t(1) + std::cos(w) + f_t(4) * ru * ru * (f_t(1) - std::cos(w)))) - kd_u / w;
+        kd_u = std::atan(2 * std::tan(w/2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
+        if (dkd_u_dru) *dkd_u_dru = 2 * std::tan(w/2) / (w + 4 * ru * ru * w * std::tan(w/2) * std::tan(w/2));
+        if (dkd_u_dk1) *dkd_u_dk1 = 2 * ru / (w * (1 + std::cos(w) + 4 * ru * ru * (1 - std::cos(w)))) - kd_u / w;
         if (dkd_u_dk2) *dkd_u_dk2 = 0;
         if (dkd_u_dk3) *dkd_u_dk3 = 0;
     } else {
-        kd_u = f_t(1) + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
-        if (dkd_u_dru) *dkd_u_dru = 0 * (k1.v + ru2 * (f_t(2) * k2.v + f_t(3) * k3.v * ru2)) * f_t(2) * std::sqrt(ru2);
+        kd_u = 1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
+        if (dkd_u_dru) *dkd_u_dru = 0 * (k1.v + ru2 * (2 * k2.v + 3 * k3.v * ru2)) * 2 * std::sqrt(ru2);
         if (dkd_u_dk1) *dkd_u_dk1 = ru2;
         if (dkd_u_dk2) *dkd_u_dk2 = ru2 * ru2;
         if (dkd_u_dk3) *dkd_u_dk3 = ru2 * ru2 * ru2;
@@ -398,22 +398,22 @@ feature_t state_vision::undistort_feature(const feature_t &feat_d, f_t *ku_d_, f
     if (fisheye) {
         f_t rd = std::sqrt(rd2), w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
         if(rd < F_T_EPS) rd = F_T_EPS;
-        ku_d = std::tan(w * rd) / (f_t(2) * std::tan(f_t(.5)*w) * rd);
-        if (dku_d_drd) *dku_d_drd = f_t(2) * (rd * w / (std::cos(rd * w) * std::cos(rd * w) * (f_t(2) * rd * std::tan(w*f_t(.5)))) - ku_d);
-        if (dku_d_dk1) *dku_d_dk1 = (f_t(2) * rd * std::sin(w) - std::sin(f_t(2) * rd * w)) / (f_t(8) * rd * (std::cos(rd * w) * std::cos(rd * w)) * (std::sin(w*f_t(.5)) * std::sin(w*f_t(.5))));
+        ku_d = std::tan(w * rd) / (2 * std::tan(w/2) * rd);
+        if (dku_d_drd) *dku_d_drd = 2 * (rd * w / (std::cos(rd * w) * std::cos(rd * w) * (2 * rd * std::tan(w/2))) - ku_d);
+        if (dku_d_dk1) *dku_d_dk1 = (2 * rd * std::sin(w) - std::sin(2 * rd * w)) / (8 * rd * (std::cos(rd * w) * std::cos(rd * w)) * (std::sin(w/2) * std::sin(w/2)));
         if (dku_d_dk2) *dku_d_dk2 = 0;
         if (dku_d_dk3) *dku_d_dk3 = 0;
     } else {
         f_t kd_u, ru2 = rd2, dkd_u_dru2;
         for (int i=0; i<4; i++) {
-           kd_u =  f_t(1) + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
-           dkd_u_dru2 = k1.v + f_t(2) * ru2 * (k2.v + f_t(3) * ru2 * k3.v);
+           kd_u =  1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
+           dkd_u_dru2 = k1.v + 2 * ru2 * (k2.v + 3 * ru2 * k3.v);
            // f(ru2) == ru2 * kd_u * kd_u - rd2 == 0;
            // ru2 -= f(ru2) / f'(ru2)
-           ru2 -= (ru2 * kd_u * kd_u - rd2) / (kd_u * (kd_u + f_t(2) * ru2 * dkd_u_dru2));
+           ru2 -= (ru2 * kd_u * kd_u - rd2) / (kd_u * (kd_u + 2 * ru2 * dkd_u_dru2));
         }
-        ku_d = f_t(1) / kd_u;
-        f_t ru = std::sqrt(ru2), dkd_u_dru = f_t(2) * ru * dkd_u_dru2;
+        ku_d = 1 / kd_u;
+        f_t ru = std::sqrt(ru2), dkd_u_dru = 2 * ru * dkd_u_dru2;
         // dku_d_drd = d/rd (1/kd_u) = d/ru (1/kd_u) dru/drd = d/ru (1/kd_u) / (drd/dru) = d/ru (1/kd_u) / (d/ru (ru kd_u)) = -dkd_u_dru/kd_u/kd_u / (kd_u + ru dkd_u_dru)
         if (dku_d_drd) *dku_d_drd = 0 * -dkd_u_dru/(kd_u * kd_u * (kd_u + ru * dkd_u_dru));
         if (dku_d_dk1) *dku_d_dk1 = -(ru2            )/(kd_u*kd_u);
@@ -427,7 +427,7 @@ feature_t state_vision::undistort_feature(const feature_t &feat_d, f_t *ku_d_, f
 
 float state_vision::median_depth_variance()
 {
-    float median_variance = 1.f;
+    float median_variance = 1;
 
     vector<state_vision_feature *> useful_feats;
     for(auto i: features) {
@@ -509,16 +509,16 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
     for(int i = 0; i < src.rows(); ++i) {
         const auto cov_w = w.from_row(src, i);
         const auto cov_dw = dw.from_row(src, i);
-        const v3 cov_dW = dt * (cov_w + f_t(.5) * dt * cov_dw);
+        const v3 cov_dW = dt * (cov_w + dt/2 * cov_dw);
         const auto scov_Q = Q.from_row(src, i);
         w.to_col(dst, i) = cov_w + dt * cov_dw;
         Q.to_col(dst, i) = scov_Q + dQp_s_dW.block<3,3>(0,0) * cov_dW;
         const auto cov_V = V.from_row(src, i);
         const auto cov_a = a.from_row(src, i);
         const auto cov_T = T.from_row(src, i);
-        T.to_col(dst, i) = cov_T + dt * (cov_V + f_t(.5) * dt * cov_a);
+        T.to_col(dst, i) = cov_T + dt * (cov_V + dt/2 * cov_a);
         V.to_col(dst, i) = cov_V + dt * cov_a;
-        const v3 cov_dT = dt * (cov_V + f_t(.5) * dt * cov_a);
+        const v3 cov_dT = dt * (cov_V + dt/2 * cov_a);
         for(state_vision_group *g : groups.children) {
             const auto cov_Tr = g->Tr.from_row(src, i);
             const auto scov_Qr = g->Qr.from_row(src, i);

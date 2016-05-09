@@ -10,7 +10,7 @@
 
 void state_motion_orientation::cache_jacobians(f_t dt)
 {
-    dW = (w.v + f_t(.5) * dt * dw.v) * dt;
+    dW = (w.v + dt/2 * dw.v) * dt;
     rotation_vector dW_(dW[0],dW[1],dW[2]); // FIXME: remove this
     m4 R = to_rotation_matrix(Q.v);
     JdW_s = to_spatial_jacobian(f_t(.5) * dW_);
@@ -25,7 +25,7 @@ void state_motion_orientation::project_motion_covariance(matrix &dst, const matr
         const auto cov_w = w.from_row(src, i);
         const auto cov_dw = dw.from_row(src, i);
         w.to_col(dst, i) = cov_w + dt * cov_dw;
-        const v3 cov_dW = (cov_w + f_t(.5) * dt * cov_dw) * dt;
+        const v3 cov_dW = (cov_w + dt/2 * cov_dw) * dt;
         Q.to_col(dst, i) = scov_Q + dQp_s_dW.block<3,3>(0,0) * cov_dW;
     }
 }
@@ -73,7 +73,7 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
         const auto cov_T = T.from_row(src, i);
         const auto cov_V = V.from_row(src, i);
         const auto cov_a = a.from_row(src, i);
-        T.to_col(dst, i) = cov_T + dt * (cov_V + f_t(.5) * dt * cov_a);
+        T.to_col(dst, i) = cov_T + dt * (cov_V + dt/2 * cov_a);
         V.to_col(dst, i) = cov_V + dt * cov_a;
     }
 }
@@ -84,7 +84,7 @@ void state_motion::cache_jacobians(f_t dt)
 
     if (orientation_only) return;
 
-    dT = dt * (V.v + f_t(.5) * dt * a.v);
+    dT = dt * (V.v + dt/2 * a.v);
 }
 
 void state_motion::remove_non_orientation_states()

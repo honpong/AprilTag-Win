@@ -350,10 +350,10 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 
 f_t observation_vision_feature::projection_residual(const v4 & X, const feature_t & found_undistorted)
 {
-    f_t invZ = 1./X[2];
+    f_t invZ = 1/X[2];
     v4 ippred = X * invZ; //in the image plane
 #ifdef DEBUG
-    if(fabs(ippred[2]-1.) > 1.e-7f || ippred[3] != 0.) {
+    if(fabs(ippred[2]-1) > 1.e-7f || ippred[3] != 0) {
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }
 #endif
@@ -389,14 +389,14 @@ void observation_vision_feature::update_initializing()
     f_t best_d2 = min_d2;
     for(int i = 0; i < 10; ++i) { //10 iterations = 1024 segments
         if(min_d2 < max_d2) {
-            max = (min + max) / 2.;
+            max = (min + max) / 2;
             max_d2 = projection_residual(X_inf + max * Ttot, bestkp_norm);
             if(min_d2 < best_d2) {
                 best_d2 = min_d2;
                 best = min;
             }
         } else {
-            min = (min + max) / 2.;
+            min = (min + max) / 2;
             min_d2 = projection_residual(X_inf + min * Ttot, bestkp_norm);
             if(max_d2 < best_d2) {
                 best_d2 = max_d2;
@@ -405,7 +405,7 @@ void observation_vision_feature::update_initializing()
         }
     }
     if(best > .01 && best < 10.) {
-        feature->v.set_depth_meters(1./best);
+        feature->v.set_depth_meters(1/best);
     }
     //repredict using triangulated depth
     predict();

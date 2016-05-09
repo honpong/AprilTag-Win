@@ -129,8 +129,8 @@ void sensor_fusion::update_data(image_gray8 &&image)
     camera_parameters cp;
     cp.fx = sfm.s.focal_length.v * sfm.s.image_height;
     cp.fy = sfm.s.focal_length.v * sfm.s.image_height;
-    cp.cx = sfm.s.center_x.v * sfm.s.image_height + sfm.s.image_width / 2. - .5;
-    cp.cy = sfm.s.center_y.v * sfm.s.image_height + sfm.s.image_height / 2. - .5;
+    cp.cx = sfm.s.center_x.v * sfm.s.image_height + (sfm.s.image_width - 1) / 2;
+    cp.cy = sfm.s.center_y.v * sfm.s.image_height + (sfm.s.image_height - 1) / 2;
     cp.skew = 0;
     cp.k1 = sfm.s.k1.v;
     cp.k2 = sfm.s.k2.v;

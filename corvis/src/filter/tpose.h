@@ -15,8 +15,8 @@ struct tpose_raw {
         t_100ns = std::stoull(line+=end, &end);
         for (int i=0; i<3; i++) {
             for (int j=0; j<3; j++)
-                R(i,j) = std::stod(line+=end, &end);
-            T_mm(i) = std::stod(line+=end, &end);
+                R(i,j) = (f_t)std::stod(line+=end, &end);
+            T_mm(i) = (f_t)std::stod(line+=end, &end);
         }
     }
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

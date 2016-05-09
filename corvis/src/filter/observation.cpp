@@ -353,7 +353,7 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const feature_
     f_t invZ = 1./X[2];
     v4 ippred = X * invZ; //in the image plane
 #ifdef DEBUG
-    if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
+    if(fabs(ippred[2]-1.) > 1.e-7f || ippred[3] != 0.) {
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }
 #endif
@@ -364,8 +364,8 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const feature_
 void observation_vision_feature::update_initializing()
 {
     if(feature->is_initialized()) return;
-    f_t min = 0.01; //infinity-ish (100m)
-    f_t max = 10.; //1/.10 for 10cm
+    f_t min = 0.01f; //infinity-ish (100m)
+    f_t max = 10; //1/.10 for 10cm
     f_t min_d2, max_d2;
     v4 X_inf = Rtot * X0;
     
@@ -464,7 +464,7 @@ void observation_vision_feature::compute_measurement_covariance()
 {
     inn_stdev[0].data(inn[0]);
     inn_stdev[1].data(inn[1]);
-    f_t ot = feature->outlier_thresh * feature->outlier_thresh * (state.image_height/240.)*(state.image_height/240.);
+    f_t ot = feature->outlier_thresh * feature->outlier_thresh * (state.image_height/240.f)*(state.image_height/240.f);
 
     f_t residual = inn[0]*inn[0] + inn[1]*inn[1];
     f_t badness = residual; //outlier_count <= 0  ? outlier_inn[i] : outlier_ess[i];

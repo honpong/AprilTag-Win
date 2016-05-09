@@ -272,7 +272,7 @@ protected:
     int size;
 };
 
-#define PERTURB_FACTOR 1.1
+#define PERTURB_FACTOR f_t(1.1)
 
 class state_vector: public state_leaf<v4, 3> {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;

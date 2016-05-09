@@ -42,10 +42,10 @@ public:
     bool start(const char *name, bool threaded);
     bool started() { return file.is_open(); }
     void stop();
-    void write_camera(const image_gray8&& x);
-    void write_camera(const image_depth16&& x);
-    void write_accelerometer(const accelerometer_data&& x);
-    void write_gyro(const gyro_data&& x);
+    void write_camera(image_gray8&& x);
+    void write_camera(image_depth16&& x);
+    void write_accelerometer(accelerometer_data&& x);
+    void write_gyro(gyro_data&& x);
     uint64_t get_bytes_written() { return bytes_written; }
     uint64_t get_packets_written() { return packets_written; }
     ~capture() { stop(); }

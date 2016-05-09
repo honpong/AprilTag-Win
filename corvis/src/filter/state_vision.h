@@ -208,7 +208,6 @@ public:
     bool map_enabled{false};
     mapper map;
     transformation loop_offset;
-    f_t lost_factor;
     bool loop_closed{false};
     
     feature_t undistort_feature(const feature_t &feat_d, f_t *ku_d_ = nullptr, f_t *dku_d_drd = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;

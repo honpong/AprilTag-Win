@@ -112,9 +112,6 @@ public:
     /** Stops the processing of video and inertial data. */
     void stop();
 
-    /** Forces the system to assume that it is lost and attempt to recover by recognizing a previously visited location. May not have any immediate effect, but the system will make best efforts to relocalize until it can. */
-    void attempt_relocalization();
-    
     /**
      Resets system, clearing all history and state, and sets initial pose and time.
      System will be stopped until one of the start_ functions is called.

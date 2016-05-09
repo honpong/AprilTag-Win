@@ -310,11 +310,6 @@ void sensor_fusion::reset(sensor_clock::time_point time, const transformation &i
     filter_set_origin(&sfm, initial_pose_m, false);
 }
 
-void sensor_fusion::attempt_relocalization()
-{
-    queue->dispatch_async([this]() { sfm.s.lost_factor = 1.; });
-}
-
 void sensor_fusion::start_mapping()
 {
     sfm.s.map.reset();

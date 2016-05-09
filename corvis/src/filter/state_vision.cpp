@@ -171,7 +171,7 @@ int state_vision_group::make_normal()
 state_vision::state_vision(covariance &c):
     state_motion(c),
     Tc("Tc"), Qc("Qc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"),
-    fisheye(false), feature_counter(0), group_counter(0), reference(nullptr), lost_factor(.1)
+    fisheye(false), feature_counter(0), group_counter(0), reference(nullptr)
 {
     reference = NULL;
     if(estimate_camera_intrinsics)
@@ -342,7 +342,6 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
         {
             map.add_edge(g->id, g->id-1);
             g->old_neighbors.push_back(g->id-1);
-            lost_factor = 1.;
         }
         for(state_vision_group *neighbor : groups.children) {
             map.add_edge(g->id, neighbor->id);

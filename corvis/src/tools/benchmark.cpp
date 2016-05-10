@@ -79,7 +79,7 @@ void benchmark_run(std::ostream &stream, const char *directory,
 {
     std::vector<std::string> files;
     for_each_file(directory, [&files](const char *file) {
-        if (0 == strstr(file, ".json") && 0 == strstr(file, ".pose"))
+        if (0 == strstr(file, ".json") && 0 == strstr(file, ".pose") && 0 == strstr(file, ".vicon"))
             files.push_back(file);
     });
     std::sort(files.begin(), files.end());

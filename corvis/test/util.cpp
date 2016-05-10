@@ -6,7 +6,7 @@
 {
     for(int i = 0; i < 4; ++i)
         for(int j = 0; j < 4; ++j)
-            if(fabs(a(i,j) - b(i,j)) > bounds)
+            if(!(fabs(a(i,j) - b(i,j)) <= bounds))
                 return ::testing::AssertionFailure()
                     << "The difference between\n"
                     <<  " " << a(i,j) << " = " << expr1 << "(" << i << "," << j << ")\n"
@@ -25,7 +25,7 @@
 {
     for(int i = 0; i < 3; ++i)
         for(int j = 0; j < 3; ++j)
-            if(fabs(a(i,j) - b(i,j)) > bounds)
+            if(!(fabs(a(i,j) - b(i,j)) <= bounds))
                 return ::testing::AssertionFailure()
                 << "The difference between\n"
                 <<  " " << a(i,j) << " = " << expr1 << "(" << i << "," << j << ")\n"
@@ -43,7 +43,7 @@
                                         const v4 &a, const v4 &b, const f_t bounds)
 {
     for(int i = 0; i < 4; ++i)
-        if(fabs(a[i] - b[i]) > bounds)
+        if(!(fabs(a[i] - b[i]) <= bounds))
             return ::testing::AssertionFailure()
                 << "The difference between\n"
                 <<  " " << a[i] << " = " << expr1 << "[" << i << "]\n"
@@ -61,7 +61,7 @@
                                         const v3 &a, const v3 &b, const f_t bounds)
 {
     for(int i = 0; i < 3; ++i)
-        if(fabs(a[i] - b[i]) > bounds)
+        if(!(fabs(a[i] - b[i]) <= bounds))
             return ::testing::AssertionFailure()
             << "The difference between\n"
             <<  " " << a[i] << " = " << expr1 << "[" << i << "]\n"
@@ -79,10 +79,10 @@
                                                 const quaternion &a, const quaternion &b, const f_t bounds)
 {
     const char *n = nullptr; f_t a_n, b_n;
-    if (fabs((a_n=a.w()) - (b_n=b.w())) > bounds) n = "w"; else
-    if (fabs((a_n=a.x()) - (b_n=b.x())) > bounds) n = "x"; else
-    if (fabs((a_n=a.y()) - (b_n=b.y())) > bounds) n = "y"; else
-    if (fabs((a_n=a.z()) - (b_n=b.z())) > bounds) n = "z"; else
+    if (!(fabs((a_n=a.w()) - (b_n=b.w())) <= bounds)) n = "w"; else
+    if (!(fabs((a_n=a.x()) - (b_n=b.x())) <= bounds)) n = "x"; else
+    if (!(fabs((a_n=a.y()) - (b_n=b.y())) <= bounds)) n = "y"; else
+    if (!(fabs((a_n=a.z()) - (b_n=b.z())) <= bounds)) n = "z"; else
     return ::testing::AssertionSuccess();
     return ::testing::AssertionFailure()
         << "The difference between\n"

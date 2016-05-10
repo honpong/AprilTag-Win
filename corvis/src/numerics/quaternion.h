@@ -149,11 +149,7 @@ static inline quaternion rotation_between_two_vectors_normalized(const v4 &a, co
 {
     quaternion res;
     f_t d = a.dot(b);
-    if( d >= 1) //the two vectors are aligned)
-    {
-        return quaternion();
-    }
-    else if(d < f_t(-1 + 1.e-6)) //the two vector are (nearly) opposite, pick an arbitrary orthogonal axis
+    if(d < f_t(-1 + 1.e-6)) //the two vector are (nearly) opposite, pick an arbitrary orthogonal axis
     {
         if(fabs(a[0]) > fabs(a[2])) //make sure we have a non-zero element
         {

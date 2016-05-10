@@ -23,8 +23,8 @@ TEST_F(StateVision, UndistortPolynomialIdentity)
     for (int i=0; i<1000; i++) {
         feature_t p = { normalized_coord(gen), normalized_coord(gen) },
                   distort_undistort_p = state.distort_feature(state.undistort_feature(p));
-        EXPECT_NEAR(p.x(), distort_undistort_p.x(), std::numeric_limits<float>::epsilon());
-        EXPECT_NEAR(p.y(), distort_undistort_p.y(), std::numeric_limits<float>::epsilon());
+        EXPECT_NEAR(p.x(), distort_undistort_p.x(), 2*std::numeric_limits<float>::epsilon());
+        EXPECT_NEAR(p.y(), distort_undistort_p.y(), 2*std::numeric_limits<float>::epsilon());
     }
 }
 
@@ -37,8 +37,8 @@ TEST_F(StateVision, UndistortPolynomialZero)
 
     feature_t p = {0, 0};
     feature_t undistort_p = state.undistort_feature(p);
-    EXPECT_NEAR(undistort_p.x(), 0., std::numeric_limits<float>::epsilon());
-    EXPECT_NEAR(undistort_p.y(), 0., std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(undistort_p.x(), 0., std::numeric_limits<f_t>::epsilon());
+    EXPECT_NEAR(undistort_p.y(), 0., std::numeric_limits<f_t>::epsilon());
 }
 
 TEST_F(StateVision, DistortPolynomialZero)
@@ -50,8 +50,8 @@ TEST_F(StateVision, DistortPolynomialZero)
 
     feature_t p = {0, 0};
     feature_t distort_p = state.distort_feature(p);
-    EXPECT_NEAR(distort_p.x(), 0., std::numeric_limits<float>::epsilon());
-    EXPECT_NEAR(distort_p.y(), 0., std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(distort_p.x(), 0., std::numeric_limits<f_t>::epsilon());
+    EXPECT_NEAR(distort_p.y(), 0., std::numeric_limits<f_t>::epsilon());
 }
 
 TEST_F(StateVision, UndistortFisheyeIdentity)
@@ -62,8 +62,8 @@ TEST_F(StateVision, UndistortFisheyeIdentity)
     for (int i=0; i<1000; i++) {
         feature_t p = { normalized_coord(gen), normalized_coord(gen) },
                   distort_undistort_p = state.distort_feature(state.undistort_feature(p));
-        EXPECT_NEAR(p.x(), distort_undistort_p.x(), std::numeric_limits<float>::epsilon());
-        EXPECT_NEAR(p.y(), distort_undistort_p.y(), std::numeric_limits<float>::epsilon());
+        EXPECT_NEAR(p.x(), distort_undistort_p.x(), 2*std::numeric_limits<f_t>::epsilon());
+        EXPECT_NEAR(p.y(), distort_undistort_p.y(), 2*std::numeric_limits<f_t>::epsilon());
     }
 
 }
@@ -75,8 +75,8 @@ TEST_F(StateVision, UndistortFisheyeZero)
 
     feature_t p = {0, 0};
     feature_t undistort_p = state.undistort_feature(p);
-    EXPECT_NEAR(undistort_p.x(), 0., std::numeric_limits<float>::epsilon());
-    EXPECT_NEAR(undistort_p.y(), 0., std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(undistort_p.x(), 0., std::numeric_limits<f_t>::epsilon());
+    EXPECT_NEAR(undistort_p.y(), 0., std::numeric_limits<f_t>::epsilon());
 }
 
 TEST_F(StateVision, DistortFisheyeZero)
@@ -86,8 +86,8 @@ TEST_F(StateVision, DistortFisheyeZero)
 
     feature_t p = {0, 0};
     feature_t distort_p = state.distort_feature(p);
-    EXPECT_NEAR(distort_p.x(), 0., std::numeric_limits<float>::epsilon());
-    EXPECT_NEAR(distort_p.y(), 0., std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(distort_p.x(), 0., std::numeric_limits<f_t>::epsilon());
+    EXPECT_NEAR(distort_p.y(), 0., std::numeric_limits<f_t>::epsilon());
 }
 
 TEST_F(StateVision, NormalizeIdentity)

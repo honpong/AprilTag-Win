@@ -105,7 +105,8 @@
         EXPECT_NEAR(fmod(B.norm(), 2*M_PI), 0, bounds)                 << "In " << expr1 << " " << expr2 << " where b = " << b;
     } else
         EXPECT_NEAR(fabs(A.normalized().dot(B.normalized())), 1, bounds) << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
-    EXPECT_NEAR(fmod((A-B).norm(), 2*M_PI), 0, bounds)                   << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
+    EXPECT_NEAR(sin((A-B).norm()), 0, bounds)                            << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
+    EXPECT_NEAR(cos((A-B).norm()), 1, bounds)                            << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
     return ::testing::AssertionSuccess();
 }
 

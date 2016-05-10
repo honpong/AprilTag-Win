@@ -8,6 +8,16 @@ TEST(TPose, LessThan)
     EXPECT_TRUE(tpose{sensor_clock::ns100_to_tp(24000)} < tpose{sensor_clock::ns100_to_tp(25000)});
 }
 
+TEST(TPose, Interpolate)
+{
+    using namespace std::chrono_literals;
+    sensor_clock::time_point t;
+    EXPECT_TRANSFORMATION_NEAR(transformation(quaternion(), v4(31,0,0,0)),
+                               tpose(t+3ms,
+                                     tpose{t+1ms, transformation(quaternion(), v4(11,0,0,0))},
+                                     tpose{t+9ms, transformation(quaternion(), v4(91,0,0,0))}).G, F_T_EPS);
+}
+
 TEST(TPose, Parses)
 {
     std::string data = "130777180477627115    0.08218356   -0.99205852   -0.09521491  207.50582886   -0.88409311   -0.11667039    0.45251244   36.77946472   -0.46002755    0.04698976   -0.88666040 -2555.18896484        0.1901\n";

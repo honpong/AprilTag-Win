@@ -46,6 +46,11 @@ struct tpose {
     tpose(const tpose_vicon &v) : t(sensor_clock::s_ns_to_tp(v.t_s, v.t_ns)), G(v.Q, v.T_m) {}
     tpose(sensor_clock::time_point t_) : t(t_) {}
     tpose(const sensor_clock::time_point & t_, const transformation & G_) : t(t_), G(G_) {}
+    tpose(const sensor_clock::time_point & t_, const tpose &tp0, const tpose &tp1) : t(t_) {
+        auto  t_t0 = std::chrono::duration_cast<std::chrono::duration<f_t>>(    t-tp0.t);
+        auto t1_t0 = std::chrono::duration_cast<std::chrono::duration<f_t>>(tp1.t-tp0.t);
+        G = t1_t0.count() < F_T_EPS ? tp0.G : transformation(t_t0.count() / t1_t0.count(), tp0.G, tp1.G);
+    }
     sensor_clock::time_point t;
     transformation G;
     bool operator<(const struct tpose &tp) const {

@@ -79,11 +79,15 @@ struct tpose_sequence {
         }
         return total_distance;
     }
-    tpose get_pose(sensor_clock::time_point t) {
+    bool get_pose(sensor_clock::time_point t, tpose &tp) {
         tpose pt {t};
-        auto i = std::lower_bound(tposes.begin(), tposes.end(), pt);
-        // FIXME: check for i+1 == tposes.end() then interpolate;
-        return *i;
+        if (tposes.empty() || pt < tposes.front())
+            return false;
+        auto i = std::lower_bound(tposes.begin(), tposes.end(), pt); // pt <= *i
+        if (i == tposes.end())
+            return false;
+        tp = tpose(t, i == tposes.begin() ? *i : *(i-1), *i);
+        return true;
     }
     bool load_from_file(const std::string &filename) {
         std::ifstream file(filename);

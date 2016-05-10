@@ -321,6 +321,7 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
 world_state::world_state()
 {
     path_vertex = (VertexData *)calloc(sizeof(VertexData), path_vertex_alloc);
+    path_gt_vertex = (VertexData *)calloc(sizeof(VertexData), path_gt_vertex_alloc);
     feature_vertex = (VertexData *)calloc(sizeof(VertexData), feature_vertex_alloc);
     feature_ellipse_vertex = (VertexData *)calloc(sizeof(VertexData), feature_ellipse_vertex_alloc);
     map_node_vertex = (VertexData *)calloc(sizeof(VertexData), map_node_vertex_alloc);
@@ -344,6 +345,8 @@ world_state::~world_state()
 {
     if(path_vertex)
         free(path_vertex);
+    if(path_gt_vertex)
+        free(path_gt_vertex);
     if(feature_vertex)
         free(feature_vertex);
     if(feature_ellipse_vertex)
@@ -445,6 +448,10 @@ void world_state::update_vertex_arrays(bool show_only_good)
     if(map_feature_vertex_alloc < map_features) {
         map_feature_vertex_alloc = map_features*2;
         map_feature_vertex = (VertexData *)realloc(map_feature_vertex, sizeof(VertexData)*map_feature_vertex_alloc);
+    }
+    if(path_gt_vertex_alloc < path_gt.size()) {
+        path_gt_vertex_alloc = path_gt.size()*2;
+        path_gt_vertex = (VertexData *)realloc(path_gt_vertex, sizeof(VertexData)*path_gt_vertex_alloc);
     }
     if(feature_ellipse_vertex_alloc < features.size()*feature_ellipse_vertex_size) {
         feature_ellipse_vertex_alloc = features.size()*feature_ellipse_vertex_size*2;
@@ -550,6 +557,14 @@ void world_state::update_vertex_arrays(bool show_only_good)
     map_node_vertex_num = idx;
     map_edge_vertex_num = nedges;
     map_feature_vertex_num = nfeatures;
+
+    for(auto p : path_gt)
+    {
+        set_color(&path_gt_vertex[idx], 206, 100, 178, 255); // path color
+        set_position(&path_gt_vertex[idx], (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
+        idx++;
+    }
+    path_gt_vertex_num = idx;
     display_lock.unlock();
 }
 
@@ -687,4 +702,15 @@ void world_state::get_bounding_box(float min[3], float max[3])
         max[1] = std::max(max[1], (float)f.y);
         max[2] = std::max(max[2], (float)f.z);
     }
+}
+
+void world_state::observe_position_gt(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz)
+{
+    Position p;
+    p.timestamp = timestamp;
+    quaternion q(qw, qx, qy, qz);
+    p.g = transformation(q, v4(x, y, z, 0));
+    display_lock.lock();
+    path_gt.push_back(p);
+    display_lock.unlock();
 }

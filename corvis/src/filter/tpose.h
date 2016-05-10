@@ -7,6 +7,25 @@
 #include "../cor/platform/sensor_clock.h"
 #include "../numerics/transformation.h"
 
+struct tpose_vicon {
+    uint64_t t_s, t_ns, seq_no; v4 T_m; quaternion Q;
+    tpose_vicon() : t_s(0), t_ns(0), seq_no(0), T_m(v4::Zero()), Q() {}
+    tpose_vicon(const char *line) : tpose_vicon() {
+        size_t end = 0;
+        // the +1s below skip the ',' delimiter
+        t_s = std::stoull(line+=end, &end);
+        t_ns = std::stoull(line+=end+1, &end);
+        seq_no = std::stoull(line+=end+1, &end);
+        for(int i=0; i<3; i++)
+            T_m(i) = std::stod(line+=end+1, &end);
+        Q.x() = std::stod(line+=end+1, &end);
+        Q.y() = std::stod(line+=end+1, &end);
+        Q.z() = std::stod(line+=end+1, &end);
+        Q.w() = std::stod(line+=end+1, &end);
+    }
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+};
+
 struct tpose_raw {
     uint64_t t_100ns; m4 R; v4 T_mm;
     tpose_raw() : t_100ns(0), R(m4::Identity()), T_mm(v4::Zero()) {}
@@ -24,6 +43,7 @@ struct tpose_raw {
 
 struct tpose {
     tpose(const tpose_raw &r) : t(sensor_clock::ns100_to_tp(r.t_100ns)), G(to_quaternion(r.R), r.T_mm / 1000) {}
+    tpose(const tpose_vicon &v) : t(sensor_clock::s_ns_to_tp(v.t_s, v.t_ns)), G(v.Q, v.T_m) {}
     tpose(sensor_clock::time_point t_) : t(t_) {}
     tpose(const sensor_clock::time_point & t_, const transformation & G_) : t(t_), G(G_) {}
     sensor_clock::time_point t;
@@ -36,6 +56,7 @@ struct tpose {
 
 struct tpose_sequence {
     aligned_vector<tpose> tposes;
+    bool use_vicon{false};
     f_t get_length() {
         return tposes.empty() ? 0 : (tposes.front().G.T - tposes.back().G.T).norm();
     }
@@ -60,6 +81,10 @@ struct tpose_sequence {
         return *i;
     }
     bool load_from_file(const std::string &filename) {
+        std::ifstream file(filename);
+
+        if(filename.find(".vicon") != std::string::npos)
+            use_vicon = true;
         return static_cast<bool>(std::ifstream(filename) >> *this);
     }
     friend inline std::istream &operator>>(std::istream &file, tpose_sequence &s);
@@ -69,10 +94,14 @@ struct tpose_sequence {
 inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {
     std::string line;
     for (int num = 1; std::getline(file, line); num++) {
+        if(s.use_vicon && num == 1) continue; // skip header row
         if (line.find("NA") != std::string::npos)
             continue;
         try {
-            s.tposes.emplace_back(tpose_raw(line.c_str()));
+            if(s.use_vicon)
+                s.tposes.emplace_back(tpose_vicon(line.c_str()));
+            else
+                s.tposes.emplace_back(tpose_raw(line.c_str()));
         } catch (const std::exception&) { // invalid_argument or out_of_range
             std::cerr << "error on line "<< num <<": " << line << "\n";
             file.setstate(std::ios_base::failbit);

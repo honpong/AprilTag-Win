@@ -59,6 +59,11 @@ struct tpose {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
+static inline std::ostream& operator<<(std::ostream &stream, const tpose &tp)
+{
+    return stream << "{" << tp.t.time_since_epoch().count() << ", " << tp.G << "}";
+}
+
 struct tpose_sequence {
     aligned_vector<tpose> tposes;
     bool use_vicon{false};

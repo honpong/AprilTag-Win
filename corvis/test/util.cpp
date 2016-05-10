@@ -110,3 +110,9 @@
     return ::testing::AssertionSuccess();
 }
 
+::testing::AssertionResult test_transformation_near(const char* expr1, const char* expr2, const char* bounds_expr,
+                                                    const transformation &a, const transformation &b, const f_t bounds)
+{
+    auto q = test_quaternion_rotation_near(expr1, expr2, bounds_expr, a.Q, b.Q, bounds) << ".Q's are equal";
+    return q ? (test_v4_near(expr1, expr2, bounds_expr, a.T, b.T, bounds) << ".T's are equal") : q;
+}

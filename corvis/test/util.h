@@ -4,6 +4,7 @@
 #include "gtest/gtest.h"
 #include "vec4.h"
 #include "quaternion.h"
+#include "transformation.h"
 
 #undef GTEST_DISALLOW_ASSIGN_
 #define GTEST_DISALLOW_ASSIGN_(type) public: EIGEN_MAKE_ALIGNED_OPERATOR_NEW void operator=(type const &)
@@ -56,5 +57,11 @@ test_quaternion_rotation_near(const char* expr1, const char* expr2, const char* 
 }
 
 #define EXPECT_QUATERNION_ROTATION_NEAR(a,b,bounds) EXPECT_PRED_FORMAT3(test_quaternion_rotation_near, a, b, bounds)
+
+::testing::AssertionResult
+test_transformation_near(const char* expr1, const char* expr2, const char* bounds_expr,
+                         const transformation &a, const transformation &b, const f_t bounds);
+
+#define EXPECT_TRANSFORMATION_NEAR(a,b,bounds) EXPECT_PRED_FORMAT3(test_transformation_near, a, b, bounds)
 
 #endif

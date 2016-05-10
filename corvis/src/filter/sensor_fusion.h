@@ -33,14 +33,6 @@ public:
         bool operator==(const struct status & other) { return run_state == other.run_state && error == other.error && confidence == other.confidence && progress == other.progress; }
     };
     
-    struct camera_parameters
-    {
-        f_t fx, fy;
-        f_t cx, cy;
-        f_t skew;
-        f_t k1, k2, k3;
-    };
-    
     struct feature_point
     {
         uint64_t id;
@@ -57,7 +49,6 @@ public:
         sensor_clock::time_point time;
         transformation transform;
         std::string origin_qr_code;
-        camera_parameters camera_intrinsics;
         f_t total_path_m;
         std::vector<feature_point> features;
     };

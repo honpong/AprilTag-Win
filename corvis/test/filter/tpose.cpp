@@ -15,8 +15,8 @@ TEST(TPose, Parses)
     EXPECT_NO_THROW(tpose_raw(data.c_str())) << "can parse tpose from string";
     tpose_raw tp(data.c_str());
     EXPECT_EQ(tp.t_100ns, 130777180477627115);
-    EXPECT_EQ(tp.R(0,1), -0.99205852);
-    EXPECT_EQ(tp.T_mm[2], -2555.18896484);
+    EXPECT_EQ(tp.R(0,1), (f_t)-0.99205852);
+    EXPECT_EQ(tp.T_mm[2], (f_t)-2555.18896484);
 }
 
 TEST(TPose, NA)

@@ -10,9 +10,10 @@ set_target_properties(pxcmd PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "$ENV{RSSDK_DIR}include"
 )
 
-add_library(RCTracker STATIC IMPORTED)
+add_library(RCTracker SHARED IMPORTED)
 set_target_properties(RCTracker PROPERTIES
-  IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/RCTracker/RCTracker.lib"
+  IMPORTED_IMPLIB   "${PROJECT_SOURCE_DIR}/RCTracker/RCTracker.lib"
+  IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/RCTracker/RCTracker.dll"
   INTERFACE_INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/RCTracker"
 )
 
@@ -61,7 +62,7 @@ target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
 
 add_custom_command(TARGET RCUtility POST_BUILD        # Adds a post-build event to RCUtility
     COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
-        "${PROJECT_SOURCE_DIR}/RCTracker/RCTracker.dll"      # <--this is in-file
+        $<TARGET_FILE:RCTracker>                      # <--this is in-file
         $<TARGET_FILE_DIR:RCUtility>)                 # <--this is out-file path
 
 add_custom_command(TARGET RCUtility POST_BUILD        # Adds a post-build event to RCUtility

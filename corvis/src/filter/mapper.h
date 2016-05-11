@@ -14,6 +14,7 @@
 #include "feature_descriptor.h"
 #include "dictionary.h"
 #include <spdlog/spdlog.h>
+#include "spdlog/sinks/null_sink.h"
 
 using namespace std;
 
@@ -151,7 +152,7 @@ class mapper {
     void dump_map(const char *filename);
     void print_stats();
 
-    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper", spdlog::sinks::stderr_sink_st::instance());
+    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper",  make_shared<spdlog::sinks::null_sink_st> ());
 };
 
 

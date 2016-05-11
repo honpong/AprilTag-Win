@@ -107,6 +107,9 @@ int main(int c, char **v)
             return false;
         }
 
+        rp.fusion.sfm.s.log = std::make_unique<spdlog::logger>("state", spdlog::sinks::stderr_sink_st::instance());
+        rp.fusion.sfm.s.map.log = std::make_unique<spdlog::logger>("mapper", spdlog::sinks::stderr_sink_st::instance());
+
         return true;
     };
 

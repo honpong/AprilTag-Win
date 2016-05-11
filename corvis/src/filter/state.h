@@ -16,6 +16,7 @@ extern "C" {
 #include "../numerics/covariance.h"
 #include "../cor/platform/sensor_clock.h"
 #include "spdlog/spdlog.h"
+#include "spdlog/sinks/null_sink.h"
 
 #include <vector>
 #include <list>
@@ -112,7 +113,7 @@ public:
 
     int statesize, maxstatesize;
     covariance &cov;
-    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", spdlog::sinks::stderr_sink_st::instance());
+    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", make_shared<spdlog::sinks::null_sink_st> ());
 
     int remap() {
 #ifdef TEST_POSDEF

@@ -21,6 +21,7 @@ class transformation {
         transformation(const quaternion & Q_, const v4 & T_) : Q(Q_), T(T_) {};
         transformation(const rotation_vector & v, const v4 & T_) : T(T_) { Q = to_quaternion(v); };
         transformation(const m4 & m, const v4 & T_) : T(T_) { Q = to_quaternion(m); };
+        transformation(f_t s, const transformation &G0, const transformation &G1) : T(G0.T + s * (G1.T-G0.T)), Q(s,G0.Q,G1.Q) {}
 
         quaternion Q;
         v4 T;

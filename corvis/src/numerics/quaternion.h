@@ -18,7 +18,8 @@ class quaternion {
 public:
     quaternion(): data(1, 0, 0, 0) {}
     quaternion(const f_t other0, const f_t other1, const f_t other2, const f_t other3): data(other0, other1, other2, other3) {}
-    
+    quaternion(f_t s, quaternion q0, quaternion q1);
+
     f_t w() const { return data[0]; }
     f_t x() const { return data[1]; }
     f_t y() const { return data[2]; }
@@ -57,6 +58,10 @@ static inline quaternion conjugate(const quaternion &q)
 static inline quaternion normalize(const quaternion &a) {
     f_t norm = 1 / sqrt(a.w() * a.w() + a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
     return quaternion(a.w() * norm, a.x() * norm, a.y() * norm, a.z() * norm);
+}
+
+inline quaternion::quaternion(f_t s, quaternion q0, quaternion q1) : data(q0.data + s * (q1.data - q0.data)) {
+    *this = normalize(*this);
 }
 
 //This is the same as the right jacobian of quaternion_rotate

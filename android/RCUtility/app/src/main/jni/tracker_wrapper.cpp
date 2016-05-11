@@ -314,7 +314,7 @@ extern "C"
         LOGD("setOutputLog");
         if (!tracker) return (JNI_FALSE);
         const char *cFilename = env->GetStringUTFChars(filename, 0);
-        rc_setOutputLog(tracker, cFilename, rc_E_SYNCRONOUS);
+        rc_setOutputLog(tracker, cFilename, rc_E_ASYNCRONOUS);
         env->ReleaseStringUTFChars(filename, cFilename);
         return (JNI_TRUE);
     }

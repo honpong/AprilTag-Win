@@ -289,7 +289,7 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
 
 void rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
-    tracker->start_calibration(run_flags == rc_E_ASYNCRONOUS);
+    tracker->start_calibration(run_flags == rc_E_ASYNCHRONOUS);
 }
 
 void rc_pauseAndResetPosition(rc_Tracker * tracker)
@@ -309,7 +309,7 @@ void rc_startBuffering(rc_Tracker * tracker)
 
 void rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
-    if (run_flags == rc_E_ASYNCRONOUS)
+    if (run_flags == rc_E_ASYNCHRONOUS)
         tracker->start_unstable(true);
     else
         tracker->start_offline();
@@ -464,7 +464,7 @@ void rc_triggerLog(const rc_Tracker * tracker)
 
 bool rc_setOutputLog(rc_Tracker * tracker, const char *filename, rc_TrackerRunFlags run_flags)
 {
-    return tracker->output.start(filename, run_flags == rc_E_ASYNCRONOUS);
+    return tracker->output.start(filename, run_flags == rc_E_ASYNCHRONOUS);
 }
 
 const char *rc_getTimingStats(rc_Tracker *tracker)

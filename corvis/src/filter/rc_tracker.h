@@ -191,9 +191,9 @@ RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback
 typedef enum rc_TrackerRunFlags
 {
     /** rc_Tracker should process data on the callers thread. */
-    rc_E_SYNCRONOUS = 0,
+    rc_E_SYNCHRONOUS = 0,
     /** rc_Tracker should process data on its own thread, returning immediately from all calls. */
-    rc_E_ASYNCRONOUS = 1,
+    rc_E_ASYNCHRONOUS = 1,
 } rc_TrackerRunFlags;
 
 RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);

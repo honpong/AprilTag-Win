@@ -167,8 +167,8 @@ static void scale_down_inplace_z16_by(uint16_t *image, int final_width, int fina
 
 bool replay::run()
 {
-    if (trace) printf("rc_startTracker(rc_E_SYNCRONOUS);\n");
-    rc_startTracker(tracker, rc_E_SYNCRONOUS);
+    if (trace) printf("rc_startTracker(rc_E_SYNCHRONOUS);\n");
+    rc_startTracker(tracker, rc_E_SYNCHRONOUS);
     const char *cal = nullptr;
     rc_getCalibration(tracker, &cal);
     if (trace) if (trace) printf("rc_getCalibration(\"%s\");\n", cal);
@@ -261,8 +261,8 @@ bool replay::run()
                 if(header.user == 1) { //start measuring
                     if (trace) printf("rc_setPose(rc_POSE_IDENTITY)\n");
                     rc_setPose(tracker, rc_POSE_IDENTITY);
-                    if (trace) printf("rc_startTracker(rc_E_SYNCRONOUS)\n");
-                    rc_startTracker(tracker, rc_E_SYNCRONOUS);
+                    if (trace) printf("rc_startTracker(rc_E_SYNCHRONOUS)\n");
+                    rc_startTracker(tracker, rc_E_SYNCHRONOUS);
                 }
             }   break;
         }

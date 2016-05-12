@@ -17,11 +17,11 @@ struct tpose_vicon {
         t_ns = std::stoull(line+=end+1, &end);
         seq_no = std::stoull(line+=end+1, &end);
         for(int i=0; i<3; i++)
-            T_m(i) = std::stod(line+=end+1, &end);
-        Q.x() = std::stod(line+=end+1, &end);
-        Q.y() = std::stod(line+=end+1, &end);
-        Q.z() = std::stod(line+=end+1, &end);
-        Q.w() = std::stod(line+=end+1, &end);
+            T_m(i) = (f_t)std::stod(line+=end+1, &end);
+        Q.x() = (f_t)std::stod(line+=end+1, &end);
+        Q.y() = (f_t)std::stod(line+=end+1, &end);
+        Q.z() = (f_t)std::stod(line+=end+1, &end);
+        Q.w() = (f_t)std::stod(line+=end+1, &end);
     }
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

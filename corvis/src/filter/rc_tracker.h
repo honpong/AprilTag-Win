@@ -182,7 +182,7 @@ RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose alig
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 /**
-  WARNING: These callbacks are syncronous with the the filter thread. Don't do significant work in them!
+  WARNING: These callbacks are synchronous with the the filter thread. Don't do significant work in them!
 */
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
@@ -217,7 +217,7 @@ RCTRACKER_API void rc_unpause(rc_Tracker *tracker);
  rc_receiveAccelerometer(...)
  rc_receiveGyro(...)
  // start the tracker and set the position
- rc_startTracker(tracker, rc_E_SYNCRONOUS);
+ rc_startTracker(tracker, rc_E_SYNCHRONOUS);
  rc_setPose(tracker, rc_POSE_IDENTITY);
  */
 RCTRACKER_API void rc_startBuffering(rc_Tracker *tracker);

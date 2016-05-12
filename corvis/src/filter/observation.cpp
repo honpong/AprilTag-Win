@@ -3,8 +3,8 @@
 #include "../numerics/kalman.h"
 #include "utils.h"
 
-stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];
-stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
+stdev<2> observation_vision_feature::stdev, observation_vision_feature::inn_stdev;
+stdev<3> observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
 
 int observation_queue::size()
 {
@@ -441,8 +441,7 @@ bool observation_vision_feature::measure()
     meas[1] = feature->current[1] = bestkp.y;
 
     if(valid) {
-        stdev[0].data(meas[0]);
-        stdev[1].data(meas[1]);
+        stdev.data(meas);
         if(!feature->is_initialized()) {
             update_initializing();
         }
@@ -462,8 +461,7 @@ bool observation_vision_feature::measure()
 
 void observation_vision_feature::compute_measurement_covariance()
 {
-    inn_stdev[0].data(inn[0]);
-    inn_stdev[1].data(inn[1]);
+    inn_stdev.data(inn);
     f_t ot = feature->outlier_thresh * feature->outlier_thresh * (state.image_height/240.f)*(state.image_height/240.f);
 
     f_t residual = inn[0]*inn[0] + inn[1]*inn[1];

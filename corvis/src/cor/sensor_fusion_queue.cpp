@@ -24,7 +24,7 @@ void sensor_queue<T, size>::reset()
     drop_late = 0;
     total_in = 0;
     total_out = 0;
-    stats = stdev_scalar();
+    stats = stdev<1>();
 #ifdef DEBUG
     hist = histogram{200};
 #endif
@@ -56,7 +56,7 @@ bool sensor_queue<T, size>::push(T&& x)
     if(last_in != sensor_clock::time_point())
     {
         sensor_clock::duration delta = time - last_in;
-        stats.data((f_t)delta.count());
+        stats.data(v<1>{(f_t)delta.count()});
 #ifdef DEBUG
         hist.data((unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(delta).count());
 #endif

@@ -58,7 +58,7 @@ class observation_vision_feature: public observation_storage<2> {
     f_t projection_residual(const v3 & X, const feature_t &found);
     const state_vision &state;
  public:
-    static stdev_scalar stdev[2], inn_stdev[2];
+    static stdev<2> stdev, inn_stdev;
     m3 Rrt;
     v3 X0, X;
     const uint8_t *image;
@@ -107,7 +107,7 @@ protected:
     m3 Rt, Rc, da_dQ, da_dw, da_ddw;
     m3 da_dQc, da_dTc;
  public:
-    static stdev_vector stdev, inn_stdev;
+    static stdev<3> stdev, inn_stdev;
     virtual void predict();
     virtual bool measure();
     virtual void compute_measurement_covariance() {
@@ -130,7 +130,7 @@ protected:
     m3 Rc;
     m3 dw_dQc;
  public:
-    static stdev_vector stdev, inn_stdev;
+    static stdev<3> stdev, inn_stdev;
     virtual void predict();
     virtual bool measure() {
         stdev.data(meas);

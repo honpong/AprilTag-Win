@@ -284,8 +284,8 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
     observe_plot_item(d.timestamp, p, "g-inn-mean_z", (float)observation_gyroscope::inn_stdev.mean[2]);
     p++;
 
-    observe_plot_item(d.timestamp, p, "v-inn-mean_x", (float)observation_vision_feature::inn_stdev[0].mean);
-    observe_plot_item(d.timestamp, p, "v-inn-mean_y", (float)observation_vision_feature::inn_stdev[1].mean);
+    observe_plot_item(d.timestamp, p, "v-inn-mean_x", (float)observation_vision_feature::inn_stdev.mean[0]);
+    observe_plot_item(d.timestamp, p, "v-inn-mean_y", (float)observation_vision_feature::inn_stdev.mean[1]);
     p++;
 
     if (f->observations.recent_a.get()) {

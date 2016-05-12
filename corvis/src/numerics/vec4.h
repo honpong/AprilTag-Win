@@ -64,52 +64,29 @@ static inline vFloat vFloat_from_v3(const v3 &other)
 }
 #endif
 
-class stdev_vector
+template <int N>
+class stdev
 {
 public:
-    v3 sum, mean, M2;
+    v<N> sum, mean, M2, variance, stdev_;
     f_t maximum;
-    v3 variance, stdev;
     uint32_t count;
-    stdev_vector(): sum(v3::Zero()), mean(v3::Zero()), M2(v3::Zero()), maximum(0.), variance(v3::Zero()), stdev(v3::Zero()), count(0) {}
-    void data(const v3 &x) {
+    stdev(): sum(v<N>::Zero()), mean(v<N>::Zero()), M2(v<N>::Zero()), maximum(0.), variance(v<N>::Zero()), stdev_(v<N>::Zero()), count(0) {}
+    void data(const v<N> &x) {
         ++count;
-        v3 delta = x - mean;
+        v<N> delta = x - mean;
         mean = mean + delta / (f_t)count;
         M2 = M2 + delta.cwiseProduct(x - mean);
         if(x.norm() > maximum) maximum = x.norm();
         variance = M2 / (f_t)(count - 1);
-        stdev = v3(sqrt(variance[0]), sqrt(variance[1]), sqrt(variance[2]));
+        stdev_ = variance.array().sqrt();
     }
 };
 
-static inline std::ostream& operator<<(std::ostream &stream, const stdev_vector &v)
+template<int N>
+static inline std::ostream& operator<<(std::ostream &stream, const stdev<N> &v)
 {
-    return stream << "mean is: " << v.mean << ", stdev is: " << v.stdev << ", maximum is: " << v.maximum << std::endl;
-}
-
-class stdev_scalar
-{
-public:
-    f_t sum, mean, M2;
-    f_t maximum;
-    f_t variance, stdev;
-    uint32_t count;
-    stdev_scalar(): sum(0), mean(0), M2(0), maximum(0), variance(0), stdev(0), count(0) {}
-    void data(const f_t &x) {
-        ++count;
-        f_t delta = x - mean;
-        mean = mean + delta / (f_t)count;
-        M2 = M2 + delta * (x - mean);
-        if(x > maximum) maximum = x;
-        variance = M2 / (f_t)(count - 1);
-        stdev = sqrt(variance);
-    }
-};
-
-static inline std::ostream& operator<<(std::ostream &stream, const stdev_scalar &s)
-{
-    return stream << "mean is: " << s.mean << ", stdev is: " << s.stdev << ", maximum is: " << s.maximum << std::endl;
+    return stream << "mean is: " << v.mean << ", stdev is: " << v.stdev_ << ", maximum is: " << v.maximum << std::endl;
 }
 
 class histogram

@@ -37,6 +37,8 @@ extern "C" {
 #define EIGEN_MATRIX_PLUGIN "eigen_initializer_list.h"
 #include <Eigen/Dense>
 
+template <int Rows = Eigen::Dynamic>                  using v = Eigen::Matrix<f_t, Rows, 1>;
+template <int Rows = Eigen::Dynamic, int Cols = Rows> using m = Eigen::Matrix<f_t, Rows, Cols>;
 typedef Eigen::Matrix<f_t, 4, 1> v4;
 typedef Eigen::Matrix<f_t, 3, 1> v3;
 typedef Eigen::Matrix<f_t, 4, 4> m4;

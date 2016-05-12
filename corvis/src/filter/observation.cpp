@@ -380,7 +380,7 @@ void observation_vision_feature::update_initializing()
         feature->status = feature_normal;
     }
     
-    feature_t bestkp = {meas[0], meas[1]};
+    feature_t bestkp = meas;
     feature_t bestkp_norm = state.undistort_feature(state.normalize_feature(bestkp));
 
     min_d2 = projection_residual(X_inf + min * Ttot, bestkp_norm);

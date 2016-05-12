@@ -42,10 +42,10 @@ template<int _size> class observation_storage: public observation {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:
-    Eigen::Matrix<f_t, _size, 1> m_cov, pred, inn;
-    Eigen::Matrix<f_t, _size, _size> pred_cov;
+    v<_size> m_cov, pred, inn;
+    m<_size> pred_cov;
 public:
-    Eigen::Matrix<f_t, _size, 1> meas;
+    v<_size> meas;
     virtual void set_prediction_covariance(const matrix &cov, const int index) { for(int i = 0; i < size; ++i) for(int j = 0; j < size; ++j) pred_cov(i, j) = cov(index + i, index + j); }
     virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }

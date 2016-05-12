@@ -11,6 +11,7 @@ struct StateVision : public ::testing::Test {
     std::default_random_engine gen;
     std::uniform_real_distribution<float> normalized_coord;
     StateVision() : state(c), normalized_coord(-1.1, 1.1) {}
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 };
 
 TEST_F(StateVision, UndistortPolynomialIdentity)

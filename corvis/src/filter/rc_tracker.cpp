@@ -89,7 +89,7 @@ static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionCon
             return rc_E_CONFIDENCE_LOW;
         case RCSensorFusionConfidenceNone:
         default:
-            return RC_E_CONFIDENCE_NONE;
+            return rc_E_CONFIDENCE_NONE;
     }
 }
 
@@ -428,7 +428,7 @@ rc_TrackerState rc_getState(const rc_Tracker *tracker)
 
 rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker)
 {
-    rc_TrackerConfidence confidence = RC_E_CONFIDENCE_NONE;
+    rc_TrackerConfidence confidence = rc_E_CONFIDENCE_NONE;
     if(tracker->sfm.run_state == rc_E_RUNNING)
     {
         if(tracker->sfm.detector_failed) confidence = rc_E_CONFIDENCE_LOW;

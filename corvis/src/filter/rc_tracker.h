@@ -75,7 +75,7 @@ typedef enum rc_TrackerError
 typedef enum rc_TrackerConfidence
 {
     /** rc_Tracker is not currently running (possibly due to failure). */
-    RC_E_CONFIDENCE_NONE = 0,
+    rc_E_CONFIDENCE_NONE = 0,
     /** The data has low confidence. This occurs if no visual features could be detected or tracked. */
     rc_E_CONFIDENCE_LOW = 1,
     /** The data has medium confidence. This occurs when rc_Tracker has recently been initialized, or has recovered from having few usable visual features, and continues until the user has moved sufficiently to produce reliable measurements. If the user moves too slowly or features are unreliable, this will not switch to rc_E_CONFIDENCE_HIGH, and measurements may be unreliable. */

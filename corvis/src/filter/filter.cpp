@@ -215,12 +215,12 @@ void update_static_calibration(struct filter *f)
 
 static void reset_stability(struct filter *f)
 {
-    f->accel_stability = stdev_vector();
-    f->gyro_stability = stdev_vector();
+    f->accel_stability = stdev<3>();
+    f->gyro_stability = stdev<3>();
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
 }
 
-sensor_clock::duration steady_time(struct filter *f, stdev_vector &stdev, const v3 &meas, f_t variance, f_t sigma, sensor_clock::time_point time, const v3 &orientation, bool use_orientation)
+sensor_clock::duration steady_time(struct filter *f, stdev<3> &stdev, const v3 &meas, f_t variance, f_t sigma, sensor_clock::time_point time, const v3 &orientation, bool use_orientation)
 {
     bool steady = false;
     if(stdev.count) {
@@ -880,14 +880,12 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 1;
     
-    observation_vision_feature::stdev[0] = stdev_scalar();
-    observation_vision_feature::stdev[1] = stdev_scalar();
-    observation_vision_feature::inn_stdev[0] = stdev_scalar();
-    observation_vision_feature::inn_stdev[1] = stdev_scalar();
-    observation_accelerometer::stdev = stdev_vector();
-    observation_accelerometer::inn_stdev = stdev_vector();
-    observation_gyroscope::stdev = stdev_vector();
-    observation_gyroscope::inn_stdev = stdev_vector();
+    observation_vision_feature::stdev = stdev<2>();
+    observation_vision_feature::inn_stdev = stdev<2>();
+    observation_accelerometer::stdev = stdev<3>();
+    observation_accelerometer::inn_stdev = stdev<3>();
+    observation_gyroscope::stdev = stdev<3>();
+    observation_gyroscope::inn_stdev = stdev<3>();
 
     f->last_time = sensor_clock::time_point(sensor_clock::duration(0));
     f->last_packet_time = sensor_clock::time_point(sensor_clock::duration(0));
@@ -906,8 +904,8 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->speed_warning = false;
     f->numeric_failed = false;
     f->speed_warning_time = sensor_clock::time_point(sensor_clock::duration(0));
-    f->gyro_stability = stdev_vector();
-    f->accel_stability = stdev_vector();
+    f->gyro_stability = stdev<3>();
+    f->accel_stability = stdev<3>();
     
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->calibration_bad = false;

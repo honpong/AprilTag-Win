@@ -62,7 +62,7 @@ struct filter {
     sensor_clock::time_point speed_warning_time;
     bool ignore_lateness;
     tracker track;
-    stdev_vector gyro_stability, accel_stability;
+    stdev<3> gyro_stability, accel_stability;
     sensor_clock::time_point stable_start;
     bool calibration_bad;
     

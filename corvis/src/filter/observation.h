@@ -42,10 +42,10 @@ template<int _size> class observation_storage: public observation {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:
-    Eigen::Matrix<f_t, _size, 1> m_cov, pred, inn;
-    Eigen::Matrix<f_t, _size, _size> pred_cov;
+    v<_size> m_cov, pred, inn;
+    m<_size> pred_cov;
 public:
-    Eigen::Matrix<f_t, _size, 1> meas;
+    v<_size> meas;
     virtual void set_prediction_covariance(const matrix &cov, const int index) { for(int i = 0; i < size; ++i) for(int j = 0; j < size; ++j) pred_cov(i, j) = cov(index + i, index + j); }
     virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }
@@ -58,7 +58,7 @@ class observation_vision_feature: public observation_storage<2> {
     f_t projection_residual(const v3 & X, const feature_t &found);
     const state_vision &state;
  public:
-    static stdev_scalar stdev[2], inn_stdev[2];
+    static stdev<2> stdev, inn_stdev;
     m3 Rrt;
     v3 X0, X;
     const uint8_t *image;
@@ -107,7 +107,7 @@ protected:
     m3 Rt, Rc, da_dQ, da_dw, da_ddw;
     m3 da_dQc, da_dTc;
  public:
-    static stdev_vector stdev, inn_stdev;
+    static stdev<3> stdev, inn_stdev;
     virtual void predict();
     virtual bool measure();
     virtual void compute_measurement_covariance() {
@@ -130,7 +130,7 @@ protected:
     m3 Rc;
     m3 dw_dQc;
  public:
-    static stdev_vector stdev, inn_stdev;
+    static stdev<3> stdev, inn_stdev;
     virtual void predict();
     virtual bool measure() {
         stdev.data(meas);

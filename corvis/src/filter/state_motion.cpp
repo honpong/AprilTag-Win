@@ -36,7 +36,7 @@ void state_motion_orientation::evolve_state(f_t dt)
     Q.v = Q.v * to_quaternion(dW_); // FIXME: use cached value?
     w.v = w.v + dw.v * dt;
 
-    static stdev_vector w_dev, dw_dev;
+    static stdev<3> w_dev, dw_dev;
     w_dev.data(w.v);
     dw_dev.data(dw.v);
 }
@@ -58,7 +58,7 @@ void state_motion::evolve_state(f_t dt)
     T.v = T.v + dT;
     V.v = V.v + dt * a.v;
 
-    static stdev_vector V_dev, a_dev;
+    static stdev<3> V_dev, a_dev;
     V_dev.data(V.v);
     a_dev.data(a.v);
 }

@@ -65,7 +65,7 @@ inline quaternion::quaternion(f_t s, const quaternion &q0, const quaternion &q1)
 }
 
 //This is the same as the right jacobian of quaternion_rotate
-static inline m4 to_rotation_matrix(const quaternion &q)
+static inline m3 to_rotation_matrix(const quaternion &q)
 {
     f_t
     xx = q.x()*q.x(),
@@ -77,24 +77,23 @@ static inline m4 to_rotation_matrix(const quaternion &q)
     xy = q.x()*q.y(),
     xz = q.x()*q.z(),
     yz = q.y()*q.z();
-
+    
     //Need explicit naming of return type to work around compiler bug
     //https://connect.microsoft.com/VisualStudio/Feedback/Details/1515546
-    return m4 {
-        {1 - 2 * (yy+zz),     2 * (xy-wz),     2 * (xz+wy), 0},
-        {    2 * (xy+wz), 1 - 2 * (xx+zz),     2 * (yz-wx), 0},
-        {    2 * (xz-wy),     2 * (yz+wx), 1 - 2 * (xx+yy), 0},
-        {    0,               0,               0,           1}
+    return m3 {
+        {1 - 2 * (yy+zz),     2 * (xy-wz),     2 * (xz+wy)},
+        {    2 * (xy+wz), 1 - 2 * (xx+zz),     2 * (yz-wx)},
+        {    2 * (xz-wy),     2 * (yz+wx), 1 - 2 * (xx+yy)}
     };
 }
 
 // Assumes q is unit
-static inline const v4 operator*(const quaternion &q, const v4 &v)
+static inline const v3 operator*(const quaternion &q, const v3 &v)
 {
     return to_rotation_matrix(q) * v;
 }
 
-static inline quaternion to_quaternion(const m4 &m)
+static inline quaternion to_quaternion(const m3 &m)
 {
     v4 tr;
     quaternion res;
@@ -144,13 +143,13 @@ static inline rotation_vector to_rotation_vector(const quaternion &q) {
     return rotation_vector(q.x() * scale, q.y() * scale, q.z() * scale); // 2 log(q)
 }
 
-static inline rotation_vector to_rotation_vector(const m4 &R)
+static inline rotation_vector to_rotation_vector(const m3 &R)
 {
     return to_rotation_vector(to_quaternion(R));
 }
 
 //Assumes a and b are already normalized
-static inline quaternion rotation_between_two_vectors_normalized(const v4 &a, const v4 &b)
+static inline quaternion rotation_between_two_vectors_normalized(const v3 &a, const v3 &b)
 {
     quaternion res;
     f_t d = a.dot(b);
@@ -165,18 +164,15 @@ static inline quaternion rotation_between_two_vectors_normalized(const v4 &a, co
     } else { // normal case
         f_t s = sqrt(2 * (1 + d));
 
-        v4 axis = cross(a, b);
+        v3 axis = a.cross(b);
         res = quaternion(s / 2, axis[0] / s, axis[1] / s, axis[2] / s);
     }
     return normalize(res);
 }
 
-static inline quaternion rotation_between_two_vectors(const v4 &a, const v4 &b)
+static inline quaternion rotation_between_two_vectors(const v3 &a, const v3 &b)
 {
-    //make sure the 3rd element is zero and normalize
-    v4 an(a[0], a[1], a[2], 0);
-    v4 bn(b[0], b[1], b[2], 0);
-    return rotation_between_two_vectors_normalized(an.normalized(), bn.normalized());
+    return rotation_between_two_vectors_normalized(a.normalized(), b.normalized());
 }
 
 #endif

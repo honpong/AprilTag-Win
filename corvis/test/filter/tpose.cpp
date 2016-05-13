@@ -12,10 +12,10 @@ TEST(TPose, Interpolate)
 {
     using namespace std::chrono_literals;
     sensor_clock::time_point t;
-    EXPECT_TRANSFORMATION_NEAR(transformation(quaternion(), v4(31,0,0,0)),
+    EXPECT_TRANSFORMATION_NEAR(transformation(quaternion(), v3(31,0,0)),
                                tpose(t+3ms,
-                                     tpose{t+1ms, transformation(quaternion(), v4(11,0,0,0))},
-                                     tpose{t+9ms, transformation(quaternion(), v4(91,0,0,0))}).G, F_T_EPS);
+                                     tpose{t+1ms, transformation(quaternion(), v3(11,0,0))},
+                                     tpose{t+9ms, transformation(quaternion(), v3(91,0,0))}).G, F_T_EPS);
 }
 
 TEST(TPose, Parses)
@@ -87,17 +87,17 @@ TEST(TPoseSequence, Interpolates)
     using namespace std::chrono_literals;
     sensor_clock::time_point t;
     tpose_sequence ts;
-    ts.tposes.emplace_back(t+100ms,transformation(quaternion(),v4(1,0,0,0)));
-    ts.tposes.emplace_back(t+200ms,transformation(quaternion(),v4(2,0,0,0)));
-    ts.tposes.emplace_back(t+300ms,transformation(quaternion(),v4(3,0,0,0)));
-    ts.tposes.emplace_back(t+400ms,transformation(quaternion(),v4(4,0,0,0)));
+    ts.tposes.emplace_back(t+100ms,transformation(quaternion(),v3(1,0,0)));
+    ts.tposes.emplace_back(t+200ms,transformation(quaternion(),v3(2,0,0)));
+    ts.tposes.emplace_back(t+300ms,transformation(quaternion(),v3(3,0,0)));
+    ts.tposes.emplace_back(t+400ms,transformation(quaternion(),v3(4,0,0)));
     tpose tp{t};
     EXPECT_FALSE(ts.get_pose(t-100ms, tp));
     EXPECT_FALSE(ts.get_pose(t+000ms, tp));
-    EXPECT_TRUE (ts.get_pose(t+100ms, tp)); EXPECT_TRUE(t+100ms == tp.t); EXPECT_V4_NEAR(v4(1,   0,0,0), tp.G.T, F_T_EPS);
-    EXPECT_TRUE (ts.get_pose(t+125ms, tp)); EXPECT_TRUE(t+125ms == tp.t); EXPECT_V4_NEAR(v4(1.25,0,0,0), tp.G.T, F_T_EPS);
-    EXPECT_TRUE (ts.get_pose(t+225ms, tp)); EXPECT_TRUE(t+225ms == tp.t); EXPECT_V4_NEAR(v4(2.25,0,0,0), tp.G.T, F_T_EPS);
-    EXPECT_TRUE (ts.get_pose(t+300ms, tp)); EXPECT_TRUE(t+300ms == tp.t); EXPECT_V4_NEAR(v4(3,   0,0,0), tp.G.T, F_T_EPS);
-    EXPECT_TRUE (ts.get_pose(t+400ms, tp)); EXPECT_TRUE(t+400ms == tp.t); EXPECT_V4_NEAR(v4(4,   0,0,0), tp.G.T, F_T_EPS);
+    EXPECT_TRUE (ts.get_pose(t+100ms, tp)); EXPECT_TRUE(t+100ms == tp.t); EXPECT_V3_NEAR(v3(1,   0,0), tp.G.T, F_T_EPS);
+    EXPECT_TRUE (ts.get_pose(t+125ms, tp)); EXPECT_TRUE(t+125ms == tp.t); EXPECT_V3_NEAR(v3(1.25,0,0), tp.G.T, F_T_EPS);
+    EXPECT_TRUE (ts.get_pose(t+225ms, tp)); EXPECT_TRUE(t+225ms == tp.t); EXPECT_V3_NEAR(v3(2.25,0,0), tp.G.T, F_T_EPS);
+    EXPECT_TRUE (ts.get_pose(t+300ms, tp)); EXPECT_TRUE(t+300ms == tp.t); EXPECT_V3_NEAR(v3(3,   0,0), tp.G.T, F_T_EPS);
+    EXPECT_TRUE (ts.get_pose(t+400ms, tp)); EXPECT_TRUE(t+400ms == tp.t); EXPECT_V3_NEAR(v3(4,   0,0), tp.G.T, F_T_EPS);
     EXPECT_FALSE(ts.get_pose(t+500ms, tp));
 }

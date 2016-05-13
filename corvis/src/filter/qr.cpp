@@ -154,7 +154,7 @@ bool qr_code_homography(const struct filter *f, struct qr_detection detection, f
         calibrated[c] = f->s.undistort_feature(f->s.normalize_feature(image_corners[c]));
     }
 
-    m4 Rq; v4 Tq;
+    m3 Rq; v3 Tq;
     if(homography_align_to_qr(calibrated, qr_size_m, detection.modules, Rq, Tq)) {
         T = transformation(Rq, Tq);
         return true;
@@ -208,7 +208,7 @@ void qr_benchmark::process_frame(const struct filter * f, const uint8_t * image,
                 transformation now_state_est = compose(origin_state, compose(origin_qr, invert(now_qr)));
 
                 quaternion dQ = now_state_est.Q * conjugate(now_state.Q);
-                v4 dT = now_state_est.T - dQ * now_state.T;
+                v3 dT = now_state_est.T - dQ * now_state.T;
                 cerr << "dR=" << to_rotation_matrix(dQ) << ";\n";
                 cerr << "dT=" << dT << ";\n";
                 cerr << "norm(dT)=" <<dT.norm() << endl;

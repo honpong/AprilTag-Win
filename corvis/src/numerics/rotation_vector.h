@@ -13,10 +13,10 @@
 
 class rotation_vector {
 public:
-    rotation_vector(): data(v4::Zero()) {}
-    rotation_vector(const f_t other0, const f_t other1, const f_t other2): data(other0, other1, other2, 0.) {}
+    rotation_vector(): data(v3::Zero()) {}
+    rotation_vector(const f_t other0, const f_t other1, const f_t other2): data(other0, other1, other2) {}
     
-    v4 raw_vector() const { return data; }
+    v3 raw_vector() const { return data; }
     
     f_t x() const { return data[0]; }
     f_t y() const { return data[1]; }
@@ -30,8 +30,8 @@ public:
     inline const rotation_vector operator*(f_t s) { return data = data * s; }
     inline const rotation_vector operator/(f_t s) { return data = data / s; }
 private:
-    rotation_vector(const v4 &v) : data(v) {}
-    v4 data;
+    rotation_vector(const v3 &v) : data(v) {}
+    v3 data;
 };
 
 static inline rotation_vector operator*(f_t s, rotation_vector &v) { return v * s; }
@@ -47,8 +47,9 @@ static inline bool operator==(const rotation_vector &a, const rotation_vector &b
     return a.x() == b.x() && a.y() == b.y() && a.z() == b.z();
 }
 
-m4  to_rotation_matrix(const rotation_vector &v); // e^\hat{v}
-m4 to_spatial_jacobian(const rotation_vector &v); // \unhat{(d e^\hat{ v})  e^\hat{-v}} == to_spatial_jacobian(v) dv
-m4    to_body_jacobian(const rotation_vector &v); // \unhat{   e^\hat{-v} d e^\hat{ v}} ==    to_body_jacobian(v) dv
+//TODO: move these here so that they can be inlined
+m3 to_rotation_matrix(const rotation_vector &v); // e^\hat{v}
+m3 to_spatial_jacobian(const rotation_vector &v); // \unhat{(d e^\hat{ v})  e^\hat{-v}} == to_spatial_jacobian(v) dv
+m3 to_body_jacobian(const rotation_vector &v); // \unhat{   e^\hat{-v} d e^\hat{ v}} ==    to_body_jacobian(v) dv
 
 #endif

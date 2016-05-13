@@ -4,11 +4,11 @@
 
 bool debug_eight_point_ransac = false;
 
-m4 eight_point_F(v4 p1[], v4 p2[], int npts)
+m3 eight_point_F(v3 p1[], v3 p2[], int npts)
 {
     // normalize points
-    v4 center1 = v4(0., 0., 0., 0.);
-    v4 center2 = v4(0., 0., 0., 0.);
+    v3 center1 = v3(0, 0, 0);
+    v3 center2 = v3(0, 0, 0);
     float norm1 = 0, norm2 = 0;
     for(int i = 0; i < npts; i++) {
         center1 += p1[i];
@@ -35,8 +35,8 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
 
     Eigen::Matrix<f_t, Eigen::Dynamic, 9> constraints(npts, 9);
     for(int i = 0; i < npts; i++) {
-        v4 p1n = (p1[i] - center1) * norm1;
-        v4 p2n = (p2[i] - center2) * norm2;
+        v3 p1n = (p1[i] - center1) * norm1;
+        v3 p2n = (p2[i] - center2) * norm2;
         constraints(i, 0) = p1n[0]*p2n[0];
         constraints(i, 1) = p1n[1]*p2n[0];
         constraints(i, 2) = p2n[0];
@@ -74,19 +74,13 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
       Fnorm = -Fnorm;
     F = F / Fnorm;
 
-    m4 estimatedF = m4::Zero();
-    for(int i = 0; i < 3; i++)
-      for(int j = 0; j < 3; j++)
-        estimatedF(i, j) = F(i,j);
-    estimatedF(3, 3) = 1;
-
-    return estimatedF;
+    return F;
 }
 
-extern bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb);
+extern bool line_line_intersect(v3 p1, v3 p2, v3 p3, v3 p4, v3 & pa, v3 & pb);
 
 // note, R,T is from p1 to p2, not from p2 to p1 (as in world coordinates)
-bool validate_RT(const m4 & R, const v4 & T, const v4 & p1, const v4 & p2)
+bool validate_RT(const m3 & R, const v3 & T, const v3 & p1, const v3 & p2)
 {
     // TODO: decide if I should use this or intersection
     // positive depth constraint
@@ -98,10 +92,10 @@ bool validate_RT(const m4 & R, const v4 & T, const v4 & p1, const v4 & p2)
      */
 
     // actual intersection
-    v4 o1 = T;
-    v4 o2 = v4(0,0,0,0);
-    v4 p12 = R*p1 + T;
-    v4 pa, pb;
+    v3 o1 = T;
+    v3 o2 = v3(0,0,0);
+    v3 p12 = R*p1 + T;
+    v3 pa, pb;
     bool success = line_line_intersect(o1, p12, o2, p2, pa, pb);
     if(!success) return false;
 
@@ -115,27 +109,25 @@ bool validate_RT(const m4 & R, const v4 & T, const v4 & p1, const v4 & p2)
     return true;
 }
 
-bool decompose_F(const m4 & F, float focal_length, float center_x, float center_y, const v4 & p1, const v4 & p2, m4 & R, v4 & T)
+bool decompose_F(const m3 & F, float focal_length, float center_x, float center_y, const v3 & p1, const v3 & p2, m3 & R, v3 & T)
 {
-    m4 Kinv = m4::Zero();
+    m3 Kinv = m3::Zero();
     Kinv(0, 0) = 1./focal_length;
     Kinv(1, 1) = 1./focal_length;
     Kinv(0, 2) = -center_x/focal_length;
     Kinv(1, 2) = -center_y/focal_length;
     Kinv(2, 2) = 1;
-    Kinv(3, 3) = 1;
 
-    m4 K = m4::Zero();
+    m3 K = m3::Zero();
     K(0, 0) = focal_length;
     K(1, 1) = focal_length;
     K(0, 2) = center_x;
     K(1, 2) = center_y;
     K(2, 2) = 1;
-    K(3, 3) = 1;
 
-    m4 E4 = K.transpose()*F*K;
-    v4 p1p = Kinv*p1;
-    v4 p2p = Kinv*p2;
+    m3 E4 = K.transpose()*F*K;
+    v3 p1p = Kinv*p1;
+    v3 p2p = Kinv*p2;
 
     m3 E;
 
@@ -179,9 +171,9 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
     }
 
     // T = u_3
-    m4 R1(m4::Identity()), R2(m4::Identity());
-    v4 T1 { U(0, 2), U(1,2), U(2,2), 0. };
-    v4 T2 = -T1;
+    m3 R1(m3::Identity()), R2(m3::Identity());
+    v3 T1 { U(0, 2), U(1,2), U(2,2) };
+    v3 T2 = -T1;
 
     auto temp = U * W * V.transpose();
     for(int row = 0; row < 3; row++)
@@ -228,13 +220,13 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
 }
 
 
-int compute_inliers(const v4 from [], const v4 to [], int nmatches, const m4 & F, float thresh, bool inliers [])
+int compute_inliers(const v3 from [], const v3 to [], int nmatches, const m3 & F, float thresh, bool inliers [])
 {
     int ninliers = 0;
     for(int i = 0; i < nmatches; i++) {
         // Sampson distance x2*F*x1 / (sum((Fx1).^2) + sum((F'x2).^2))
-        v4 el1 = F*from[i];
-        v4 el2 = F.transpose()*to[i];
+        v3 el1 = F*from[i];
+        v3 el2 = F.transpose()*to[i];
         float distance = to[i].dot(F*from[i]);
         distance = distance*distance;
         distance = distance / (el1[0]*el1[0] + el1[1]*el1[1] + el2[0]* el2[0] + el2[1]*el2[1]);
@@ -275,16 +267,16 @@ void choose_random(int k, int n, int * inds)
 }
 
 // F is from reference_pts to target_pts
-bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 & F)
+bool ransac_F(const vector<v3> & reference_pts, const vector<v3> target_pts, m3 & F)
 {
-    vector<v4> estimate_pts1;
-    vector<v4> estimate_pts2;
+    vector<v3> estimate_pts1;
+    vector<v3> estimate_pts2;
     const int npoints = (int)reference_pts.size();
     bool inliers[npoints];
     float sampson_thresh = 0.5;
 
     int iterations = 2000;
-    m4 bestF = F;
+    m3 bestF = F;
     int bestinliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, bestF, sampson_thresh, inliers);
 
     for(int i = 0; i < iterations; i++)
@@ -300,7 +292,7 @@ bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 
             estimate_pts1.push_back(reference_pts[points[m]]);
             estimate_pts2.push_back(target_pts[points[m]]);
         }
-        m4 currentF = eight_point_F(&estimate_pts1[0], &estimate_pts2[0], (int)estimate_pts1.size());
+        m3 currentF = eight_point_F(&estimate_pts1[0], &estimate_pts2[0], (int)estimate_pts1.size());
 
         // measure fitness
         int currentinliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, currentF, sampson_thresh, inliers);
@@ -337,7 +329,7 @@ bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 
 
 //TODO: estimate_F doesnt agree with eight point F. This is now correct for F corresponding to X2 = R * X1 + T
 
-m4 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame &target, m4 & dR, v4 & dT)
+m3 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame &target, m3 & dR, v3 & dT)
 {
     /*
     x1_w = R1 * x1 + T1
@@ -346,23 +338,22 @@ m4 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame
     R21 = R2^t * R1
     T21 = R2^t * (T1 - T2)
     */
-    m4 R1w = to_rotation_matrix(reference.W);
-    m4 R2w = to_rotation_matrix(target.W);
+    m3 R1w = to_rotation_matrix(reference.W);
+    m3 R2w = to_rotation_matrix(target.W);
     dR = R2w.transpose()*R1w;
     dT = R2w.transpose() * (reference.T - target.T);
 
     // E21 is 3x3
-    m4 E21 = skew3(dT) * dR;
+    m3 E21 = skew(dT) * dR;
 
-    m4 Kinv;
+    m3 Kinv = m3::Zero();
     Kinv(0, 0) = 1./g.focal_length;
     Kinv(1, 1) = 1./g.focal_length;
     Kinv(0, 2) = -g.center_x/g.focal_length;
     Kinv(1, 2) = -g.center_y/g.focal_length;
     Kinv(2, 2) = 1;
-    Kinv(3, 3) = 1;
 
-    m4 F21 = Kinv.transpose()*E21*Kinv;
+    m3 F21 = Kinv.transpose()*E21*Kinv;
 
     // for numerical conditioning
     // F = F / norm(F) / sign(F(3,3))

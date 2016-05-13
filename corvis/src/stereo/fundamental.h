@@ -9,10 +9,10 @@
 #include <vector>
 using namespace std;
 
-m4 eight_point_F(v4 p1[], v4 p2[], int npts);
-bool decompose_F(const m4 & F, float focal_length, float center_x, float center_y, const v4 & p1, const v4 & p2, m4 & R, v4 & T);
-int compute_inliers(const v4 from [], const v4 to [], int nmatches, const m4 & F, float thresh, bool inliers []);
-bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 & F);
-m4 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame &target, m4 & dR, v4 & dT);
+m3 eight_point_F(v3 p1[], v3 p2[], int npts);
+bool decompose_F(const m3 & F, float focal_length, float center_x, float center_y, const v3 & p1, const v3 & p2, m3 & R, v3 & T);
+int compute_inliers(const v3 from [], const v3 to [], int nmatches, const m3 & F, float thresh, bool inliers []);
+bool ransac_F(const vector<v3> & reference_pts, const vector<v3> target_pts, m3 & F);
+m3 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame &target, m3 & dR, v3 & dT);
 
 #endif

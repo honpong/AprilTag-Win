@@ -378,7 +378,7 @@ void replay::start(string map_filename)
     file.close();
 
     {
-        v4 T = fusion.get_transformation().T;
+        v3 T = fusion.get_transformation().T;
         std::lock_guard<std::mutex> en_guard(lengths_mutex);
         length = (float) T.norm();
         path_length = fusion.sfm.s.total_distance;

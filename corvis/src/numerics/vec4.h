@@ -48,43 +48,36 @@ template <typename T> using aligned_vector = std::vector<T, Eigen::aligned_alloc
 #include <list>
 template <typename T> using aligned_list = std::list<T, Eigen::aligned_allocator<T>>;
 
-static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
+static inline v3 v3_sqrt(const v3 &v) { return v3(sqrt(v[0]), sqrt(v[1]), sqrt(v[2])); }
 
 #ifdef __ACCELERATE__
-static inline v4 v4_from_vFloat(const vFloat &other)
+static inline v3 v3_from_vFloat(const vFloat &other)
 {
-    return v4(other[0], other[1], other[2], other[3]);
+    return v3(other[0], other[1], other[2]);
 }
 
-static inline vFloat vFloat_from_v4(const v4 &other)
+static inline vFloat vFloat_from_v3(const v3 &other)
 {
-    return (vFloat){(float)other[0], (float)other[1], (float)other[2], (float)other[3]};
+    return (vFloat){(float)other[0], (float)other[1], (float)other[2], 0};
 }
 #endif
-
-static inline v4 cross(const v4 &a, const v4 &b) {
-    return v4(a[1] * b[2] - a[2] * b[1],
-              a[2] * b[0] - a[0] * b[2],
-              a[0] * b[1] - a[1] * b[0],
-              0);
-}
 
 class stdev_vector
 {
 public:
-    v4 sum, mean, M2;
+    v3 sum, mean, M2;
     f_t maximum;
-    v4 variance, stdev;
+    v3 variance, stdev;
     uint32_t count;
-    stdev_vector(): sum(v4::Zero()), mean(v4::Zero()), M2(v4::Zero()), maximum(0.), variance(v4::Zero()), stdev(v4::Zero()), count(0) {}
-    void data(const v4 &x) {
+    stdev_vector(): sum(v3::Zero()), mean(v3::Zero()), M2(v3::Zero()), maximum(0.), variance(v3::Zero()), stdev(v3::Zero()), count(0) {}
+    void data(const v3 &x) {
         ++count;
-        v4 delta = x - mean;
+        v3 delta = x - mean;
         mean = mean + delta / (f_t)count;
         M2 = M2 + delta.cwiseProduct(x - mean);
         if(x.norm() > maximum) maximum = x.norm();
         variance = M2 / (f_t)(count - 1);
-        stdev = v4(sqrt(variance[0]), sqrt(variance[1]), sqrt(variance[2]), sqrt(variance[3]));
+        stdev = v3(sqrt(variance[0]), sqrt(variance[1]), sqrt(variance[2]));
     }
 };
 
@@ -134,24 +127,15 @@ static inline std::ostream& operator<<(std::ostream &stream, const histogram &h)
     return stream;
 }
 
-class v4_lowpass {
+class v3_lowpass {
 public:
-    v4 filtered;
+    v3 filtered;
     f_t constant;
-    v4_lowpass(f_t rate, f_t cutoff) { constant  = 1 / (1 + rate/cutoff); }
-    v4 sample(const v4 &data) { return filtered = filtered * (1 - constant) + data * constant; }
+    v3_lowpass(f_t rate, f_t cutoff) { constant  = 1 / (1 + rate/cutoff); }
+    v3 sample(const v3 &data) { return filtered = filtered * (1 - constant) + data * constant; }
 };
 
-inline static m4 skew3(const v4 &v)
-{
-    m4 V = m4::Zero();
-    V(1, 2) = -(V(2, 1) = v[0]);
-    V(2, 0) = -(V(0, 2) = v[1]);
-    V(0, 1) = -(V(1, 0) = v[2]);
-    return V;
-}
-
-inline static m3 skew3_eigen(const v3 &v)
+inline static m3 skew(const v3 &v)
 {
     m3 V = m3::Zero();
     V(1, 2) = -(V(2, 1) = v[0]);
@@ -160,12 +144,11 @@ inline static m3 skew3_eigen(const v3 &v)
     return V;
 }
 
-inline static v4 invskew3(const m4 &V)
+inline static v3 invskew(const m3 &V)
 {
-    return v4((V(2, 1) - V(1, 2))/2,
+    return v3((V(2, 1) - V(1, 2))/2,
               (V(0, 2) - V(2, 0))/2,
-              (V(1, 0) - V(0, 1))/2,
-              0);
+              (V(1, 0) - V(0, 1))/2);
 }
 
 #endif

@@ -8,8 +8,8 @@
 #include "../numerics/transformation.h"
 
 struct tpose_vicon {
-    uint64_t t_s, t_ns, seq_no; v4 T_m; quaternion Q;
-    tpose_vicon() : t_s(0), t_ns(0), seq_no(0), T_m(v4::Zero()), Q() {}
+    uint64_t t_s, t_ns, seq_no; v3 T_m; quaternion Q;
+    tpose_vicon() : t_s(0), t_ns(0), seq_no(0), T_m(v3::Zero()), Q() {}
     tpose_vicon(const char *line) : tpose_vicon() {
         size_t end = 0;
         // the +1s below skip the ',' delimiter
@@ -27,8 +27,8 @@ struct tpose_vicon {
 };
 
 struct tpose_raw {
-    uint64_t t_100ns; m4 R; v4 T_mm;
-    tpose_raw() : t_100ns(0), R(m4::Identity()), T_mm(v4::Zero()) {}
+    uint64_t t_100ns; m3 R; v3 T_mm;
+    tpose_raw() : t_100ns(0), R(m3::Identity()), T_mm(v3::Zero()) {}
     tpose_raw(const char *line) : tpose_raw() {
         size_t end = 0;
         t_100ns = std::stoull(line+=end, &end);
@@ -73,7 +73,7 @@ struct tpose_sequence {
     f_t get_path_length() {
         f_t total_distance = 0;
         if (!tposes.empty()) {
-            v4 last_position = tposes.front().G.T;
+            v3 last_position = tposes.front().G.T;
             for (auto &tp : tposes) {
                 f_t delta_T = (tp.G.T - last_position).norm();
                 if (delta_T > .01) {

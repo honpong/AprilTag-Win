@@ -132,13 +132,13 @@ void mapper::add_node(uint64_t id)
 }
 
 
-map_feature::map_feature(const uint64_t _id, const v4 &p, const float v, const uint32_t l, const descriptor & desc): id(_id), position(p), variance(v), label(l)
+map_feature::map_feature(const uint64_t _id, const v3 &p, const float v, const uint32_t l, const descriptor & desc): id(_id), position(p), variance(v), label(l)
 {
     Eigen::Map<const Eigen::VectorXf, Eigen::Unaligned> eigen_d(desc.d, descriptor_size, 1);
     dvec = Eigen::VectorXf(eigen_d);
 }
 
-bool map_node::add_feature(const uint64_t id, const v4 &pos, const float variance, const uint32_t label, const descriptor & d)
+bool map_node::add_feature(const uint64_t id, const v3 &pos, const float variance, const uint32_t label, const descriptor & d)
 {
     map_feature *feat = new map_feature(id, pos, variance, label, d);
     list<map_feature *>::iterator feature;
@@ -170,7 +170,7 @@ uint32_t mapper::project_feature(const descriptor & d)
     return feature_dictionary.quantize(d);
 }
 
-void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v4 &pos, float variance)
+void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v3 &pos, float variance)
 {
     groupid += node_id_offset;
     id += feature_id_offset;
@@ -182,7 +182,7 @@ void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v4 &po
     }
 }
 
-void mapper::add_feature(uint64_t groupid, uint64_t id, const v4 &pos, float variance, const descriptor & d)
+void mapper::add_feature(uint64_t groupid, uint64_t id, const v3 &pos, float variance, const descriptor & d)
 {
     groupid += node_id_offset;
     id += feature_id_offset;
@@ -509,8 +509,8 @@ void assign_matches(const aligned_list<local_feature> &f1, const aligned_list<lo
 
 bool generate_transformation(const match_pair &match1, const match_pair &match2, transformation_variance &trn, float threshold)
 {
-    v4 to = match2.first.position - match1.first.position;
-    v4 from = match2.second.position - match1.second.position;
+    v3 to = match2.first.position - match1.first.position;
+    v3 from = match2.second.position - match1.second.position;
     // project to z = 0
     from[2] = 0;
     to[2] = 0;
@@ -628,8 +628,8 @@ int mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & m
     //log->info("num loose inliers {}", num_inliers);
     //log->info() << "old tv " << tv.transform;
 
-    aligned_vector<v4> from;
-    aligned_vector<v4> to;
+    aligned_vector<v3> from;
+    aligned_vector<v3> to;
     for(int i = 0; i < matches.size(); i++) {
         if(inliers[i]) {
             from.push_back(matches[i].second.position);
@@ -658,7 +658,7 @@ int mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & m
 float mapper::refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const aligned_vector<match_pair> &neighbor_matches)
 {
     //determine inliers and translation
-    v4 total_dT(0., 0., 0., 0.);
+    v3 total_dT(0., 0., 0.);
     int inliers = 0;
     transformation_variance total = dT * base * dR;
     float resid = 1.e10;
@@ -670,8 +670,8 @@ float mapper::refine_transformation(const transformation_variance &base, transfo
     //log->info("meanvar: {}", meanstd*meanstd);
 
     for(aligned_vector<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
-        v4 local = transformation_apply(compose(total.transform, invert(base).transform), neighbor_match->second.position);
-        v4 error = neighbor_match->first.position - local;
+        v3 local = transformation_apply(compose(total.transform, invert(base).transform), neighbor_match->second.position);
+        v3 error = neighbor_match->first.position - local;
         resid = error.norm()*error.norm();
         //float threshhold = 3. * 3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
         float threshhold = 3. * 3. * (2*meanstd*2*meanstd);
@@ -687,22 +687,22 @@ float mapper::refine_transformation(const transformation_variance &base, transfo
     //TODO: Fix this
     //double total_theta;
     total = invert(dT * base * dR);
-    v4 total_rot;
+    v3 total_rot;
     inliers = 0;
     for(aligned_vector<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
-        v4 local = total.transform * neighbor_match->first.position;
-        v4 other = invert(base).transform * neighbor_match->second.position;
-        v4 error = local - other;
+        v3 local = total.transform * neighbor_match->first.position;
+        v3 other = invert(base).transform * neighbor_match->second.position;
+        v3 error = local - other;
         resid = error.norm()*error.norm();
         float threshhold = 3. * 3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
         if(resid < threshhold) {
             //now both are in the rotated frame of the other group. find relative rotation
-            v4 a = v4(other);
+            v3 a = v3(other);
             a[2] = 0.;
-            v4 b =v4 (local);
+            v3 b =v3 (local);
             b[2] = 0.;
             rotation_vector dW_rot = to_rotation_vector(rotation_between_two_vectors(a, b));
-            v4 dW = v4(dW_rot.x(), dW_rot.y(), dW_rot.z(), 0);
+            v3 dW = v3(dW_rot.x(), dW_rot.y(), dW_rot.z());
             //double norm_prod = sum(first * second) / (first.norm() * second.norm());
             //double theta = acos(norm_prod);
             //log->info("{}", theta);
@@ -711,13 +711,13 @@ float mapper::refine_transformation(const transformation_variance &base, transfo
         }
     }
     assert(inliers);
-    v4 dW = total_rot / inliers;
+    v3 dW = total_rot / inliers;
     //    m4 dR = rodrigues(v4(0., 0., dtheta, 0.), NULL);
     //dR.transform.set_rotation(dR.transform.get_rotation() * rodrigues(dW, NULL));
     return resid;
 }
 
-int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const aligned_vector<match_pair> &matches, const aligned_vector<match_pair> &neighbor_matches)
+int mapper::estimate_translation(uint64_t id1, uint64_t id2, v3 &result, int min_inliers, const transformation &pre_transform, const aligned_vector<match_pair> &matches, const aligned_vector<match_pair> &neighbor_matches)
 {
     float meanstd = 0;
     for(aligned_vector<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
@@ -727,14 +727,14 @@ int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min
     //log->info("meanvar: {}", meanstd*meanstd);
 
     int best_score = 0;
-    v4 bestdT;
+    v3 bestdT;
     for(aligned_vector<match_pair>::const_iterator match = neighbor_matches.begin(); match != neighbor_matches.end(); ++match) {
-        v4 dT = match->first.position - pre_transform * match->second.position;
+        v3 dT = match->first.position - pre_transform * match->second.position;
         int inliers = 0;
-        v4 total_dT = v4(0,0,0,0);
+        v3 total_dT = v3(0,0,0);
         for(aligned_vector<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
-            v4 thisdT = neighbor_match->first.position - pre_transform * neighbor_match->second.position;
-            v4 error = dT - thisdT;
+            v3 thisdT = neighbor_match->first.position - pre_transform * neighbor_match->second.position;
+            v3 error = dT - thisdT;
             float resid = error.norm()*error.norm();
             //3 sigma
             //float threshhold = 3.*3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
@@ -774,13 +774,13 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
     assign_matches(f1, f2, neighbor_matches, true);
 
     int best_score = 0;
-    v4 bestdT;
+    v3 bestdT;
     for(aligned_vector<match_pair>::iterator match = matches.begin(); match != matches.end(); ++match) {
-        v4 dT = match->first.position - match->second.position;
+        v3 dT = match->first.position - match->second.position;
         int inliers = 0;
-        v4 var = nodes[id2].transform.transform.T;
+        v3 var = nodes[id2].transform.transform.T;
         for(aligned_vector<match_pair>::iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
-            v4 error = neighbor_match->first.position - (neighbor_match->second.position + dT);
+            v3 error = neighbor_match->first.position - (neighbor_match->second.position + dT);
             float resid = error.norm()*error.norm();
             //3 sigma
             float threshhold = 3.*3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
@@ -890,7 +890,7 @@ void mapper::node_finished(uint64_t id, const transformation & G)
     }
 }
     
-transformation_variance rodrigues_variance(const v4 &W, const v4 &W_var, const v4 &T, const v4 &T_var)
+transformation_variance rodrigues_variance(const v3 &W, const v3 &W_var, const v3 &T, const v3 &T_var)
 {
     /*
     m4v4 dR_dW;
@@ -1058,7 +1058,7 @@ bool mapper::deserialize(const std::string &json, mapper & map)
 
             float variance = (float)features[j][KEY_FEATURE_VARIANCE].GetDouble();
 
-            v4 position;
+            v3 position;
             const Value & feature_position = features[j][KEY_FEATURE_POSITION];
             for(SizeType k = 0; k < feature_position.Size(); k++)
                 position[k] = (float)feature_position[k].GetDouble();

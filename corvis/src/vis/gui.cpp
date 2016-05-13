@@ -20,13 +20,16 @@ void gui::configure_view(int view_width, int view_height)
     if(scale < nearclip) nearclip = scale*0.75f;
     build_projection_matrix(projection_matrix, 60.0f, aspect, nearclip, farclip);
 
-    m4 R = to_rotation_matrix(arc.get_quaternion());
-    R(2, 3) = -scale; // Translate by -scale
-    for(int i = 0; i < 4; i++) {
-        for(int j = 0; j < 4; j++) {
+    m3 R = to_rotation_matrix(arc.get_quaternion());
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
             view_matrix[j * 4 + i] = (float)R(i, j);
         }
+        view_matrix[i * 4 + 3] = 0;
+        view_matrix[3 * 4 + i] = 0;
     }
+    view_matrix[3 * 4 + 2] = -scale;
+    view_matrix[15] = 1;
 }
 
 void gui::mouse_move(GLFWwindow * window, double x, double y)

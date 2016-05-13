@@ -106,7 +106,7 @@
     
     s.width = (int)CVPixelBufferGetWidth(pixelBuffer);
     s.height = (int)CVPixelBufferGetHeight(pixelBuffer);
-    v4 T = v4_from_vFloat(data.cameraTransformation.translation.vector);
+    v3 T = v3_from_vFloat(data.cameraTransformation.translation.vector);
     rotation_vector W = to_rotation_vector(quaternion(data.cameraTransformation.rotation.quaternionW, data.cameraTransformation.rotation.quaternionX, data.cameraTransformation.rotation.quaternionY, data.cameraTransformation.rotation.quaternionZ));
     s.focal_length = data.cameraParameters.focalLength;
     s.center_x = data.cameraParameters.opticalCenterX;
@@ -117,7 +117,7 @@
 
     list<stereo_feature> features;
     for (RCFeaturePoint *feature in data.featurePoints) {
-        features.push_back(stereo_feature(feature.id, v4(feature.x, feature.y, 0., 0.)));
+        features.push_back(stereo_feature(feature.id, v3(feature.x, feature.y, 0)));
     }
     mystereo.process_frame(s, T, W, pixel, features, final);
     
@@ -130,7 +130,7 @@
 
 - (RCPoint *) triangulatePoint:(CGPoint)point
 {
-    v4 world;
+    v3 world;
     bool success = mystereo.triangulate(point.x, point.y, world);
     if(!success)
         return NULL;
@@ -142,7 +142,7 @@
 
 - (RCPoint *) triangulatePointWithMesh:(CGPoint)point
 {
-    v4 world;
+    v3 world;
     bool success = mystereo.triangulate_mesh(point.x, point.y, world);
     if(!success)
         return NULL;

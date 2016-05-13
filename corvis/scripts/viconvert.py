@@ -41,7 +41,7 @@ def merge(accel,gyro):
             ai = ai + 1
     return tm, am, gm
 
-def convert_images(dirname, data):
+def convert_images(dirname, data, last_imu_timestamp):
     import os, errno
     try:
         os.mkdir(dirname, 0777)
@@ -49,6 +49,8 @@ def convert_images(dirname, data):
         if e.errno == errno.EEXIST and os.path.isdir(dirname):
             pass
     for t, n in data:
+        if t/1000 >= last_imu_timestamp:
+            break
         f = "{:s}_{:015.7f}.pgm".format(dirname, t/1000)
         try:
             os.unlink(f)
@@ -88,4 +90,4 @@ if __name__ == '__main__':
     write_csv("time.csv", tm)
     write_csv("accel.csv", am)
     write_csv("gyro.csv", gm)
-    convert_images("vifisheye", fe)
+    convert_images("vifisheye", fe, tm[-1][0])

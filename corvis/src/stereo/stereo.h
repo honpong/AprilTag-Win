@@ -13,7 +13,7 @@ struct stereo_match {
     float x, y;
     float score;
     float depth;
-    v4 point;
+    v3 point;
 };
 
 /*
@@ -34,20 +34,20 @@ enum stereo_orientation {
 
 class stereo_feature {
 public:
-    v4 current;
+    v3 current;
     uint64_t id;
-    stereo_feature(): current(v4::Zero()), id(0) {}
-    stereo_feature(const uint64_t &_id, const v4 &_current): current(_current), id(_id) {}
+    stereo_feature(): current(v3::Zero()), id(0) {}
+    stereo_feature(const uint64_t &_id, const v3 &_current): current(_current), id(_id) {}
 };
 
 class stereo_frame {
 public:
     uint8_t *image;
     bool *valid;
-    v4 T;
+    v3 T;
     rotation_vector W;
     list<stereo_feature> features;
-    stereo_frame(const uint8_t *_image, int width, int height, const v4 &_T, const rotation_vector &_W, const list<stereo_feature> &_features);
+    stereo_frame(const uint8_t *_image, int width, int height, const v3 &_T, const rotation_vector &_W, const list<stereo_feature> &_features);
     ~stereo_frame();
 };
 
@@ -66,20 +66,20 @@ public:
 class stereo {
 public:
     class camera camera;
-    m4 F;
-    m4 F_motion, F_eight_point;
-    m4 dR;
-    v4 dT;
+    m3 F;
+    m3 F_motion, F_eight_point;
+    m3 dR;
+    v3 dT;
     stereo_frame *target, *reference;
     stereo_mesh mesh;
-    m4 Rw; // set in transform_to_reference
-    v4 Tw;
+    m3 Rw; // set in transform_to_reference
+    v3 Tw;
     enum stereo_orientation orientation;
 
-    void process_frame(const class camera &c, const v4 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final);
-    bool triangulate(int reference_x, int reference_y, v4 & intersection, struct stereo_match * match = NULL) const;
+    void process_frame(const class camera &c, const v3 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final);
+    bool triangulate(int reference_x, int reference_y, v3 & intersection, struct stereo_match * match = NULL) const;
     bool triangulate_top_n(int reference_x, int reference_y, int n, vector<struct stereo_match> & matches) const;
-    bool triangulate_mesh(int x, int y, v4 & intersection) const;
+    bool triangulate_mesh(int x, int y, v3 & intersection) const;
 
     bool preprocess(bool use_eight_point=false, void(*progress_callback)(float)=NULL);
     bool preprocess_mesh(void(*progress_callback)(float));
@@ -94,13 +94,13 @@ public:
     ~stereo() { if(target) delete target; if(reference) delete reference; }
 protected:
     bool find_and_triangulate_top_n(int reference_x, int reference_y, int width, int height, int n, vector<struct stereo_match> & matches) const;
-    bool triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v4 & intersection, float & depth, float & error) const;
+    bool triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v3 & intersection, float & depth, float & error) const;
     void undistort_frames();
     void undistort_features(list<stereo_feature> & features);
 
     // Computes a fundamental matrix between reference and target and stores it in F.
-    bool preprocess_internal(const stereo_frame &reference, stereo_frame & target, m4 &F, bool use_eight_point, void(*progress_callback)(float), float progress_start, float progress_end);
-    bool reestimate_F(const stereo_frame & reference, const stereo_frame & target, m4 & F, m4 & R, v4 & T, void(*progress_callback)(float), float progress_start, float progress_end);
+    bool preprocess_internal(const stereo_frame &reference, stereo_frame & target, m3 &F, bool use_eight_point, void(*progress_callback)(float), float progress_start, float progress_end);
+    bool reestimate_F(const stereo_frame & reference, const stereo_frame & target, m3 & F, m3 & R, v3 & T, void(*progress_callback)(float), float progress_start, float progress_end);
 
 private:
     char debug_basename[1024];
@@ -111,6 +111,6 @@ private:
     void write_debug_info();
 };
 
-bool line_endpoints(v4 line, int width, int height, float endpoints[4]);
+bool line_endpoints(v3 line, int width, int height, float endpoints[4]);
 
 #endif

@@ -6,16 +6,15 @@ f_t estimate_kr(f_t x, f_t y, f_t k1, f_t k2, f_t k3)
     f_t kr = 1. + r2 * (k1 + r2 * (k2 + r2 * k3));
     return kr;
 }
-v4 camera::project_image_point(f_t x, f_t y) const
+v3 camera::project_image_point(f_t x, f_t y) const
 {
-    return v4((x - center_x)/focal_length, (y - center_y)/focal_length, 1, 1);
+    return v3((x - center_x)/focal_length, (y - center_y)/focal_length, 1);
 }
 
-v4 camera::calibrate_image_point(f_t x, f_t y) const
+v3 camera::calibrate_image_point(f_t x, f_t y) const
 {
     feature_t undistorted = undistort_image_point(x, y);
-    v4 calibrated_point = project_image_point(undistorted.x(), undistorted.y());
-    return calibrated_point;
+    return project_image_point(undistorted.x(), undistorted.y());
 }
 
 feature_t camera::undistort_image_point(f_t x, f_t y) const

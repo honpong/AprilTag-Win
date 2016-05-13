@@ -60,7 +60,7 @@
 
 - (void) getOpenGLMatrix:(float[16])matrix
 {
-    m4 rot = to_rotation_matrix(q);
+    m3 rot = to_rotation_matrix(q);
     //transpose for OpenGL
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
@@ -71,20 +71,20 @@
 
 - (RCPoint *)transformPoint:(RCPoint *)point
 {
-    m4 R = to_rotation_matrix(q);
-    v4 rotated = R * v4_from_vFloat(point.vector);
+    m3 R = to_rotation_matrix(q);
+    v3 rotated = R * v3_from_vFloat(point.vector);
     //TODO: account for standard deviation of rotation in addition to that of the point
-    v4 stdev = (R * v4_from_vFloat(point.standardDeviation)).transpose() * R.transpose();
-    return [[RCPoint alloc] initWithVector:vFloat_from_v4(rotated) withStandardDeviation:vFloat_from_v4(stdev)];
+    v3 stdev = (R * v3_from_vFloat(point.standardDeviation)).transpose() * R.transpose();
+    return [[RCPoint alloc] initWithVector:vFloat_from_v3(rotated) withStandardDeviation:vFloat_from_v3(stdev)];
 }
 
 - (RCTranslation *)transformTranslation:(RCTranslation *)translation
 {
-    m4 R = to_rotation_matrix(q);
-    v4 rotated = R * v4_from_vFloat(translation.vector);
+    m3 R = to_rotation_matrix(q);
+    v3 rotated = R * v3_from_vFloat(translation.vector);
     //TODO: account for standard deviation of rotation in addition to that of the point
-    v4 stdev = (R * v4_from_vFloat(translation.standardDeviation)).transpose() * R.transpose();
-    return [[RCTranslation alloc] initWithVector:vFloat_from_v4(rotated) withStandardDeviation:vFloat_from_v4(stdev)];
+    v3 stdev = (R * v3_from_vFloat(translation.standardDeviation)).transpose() * R.transpose();
+    return [[RCTranslation alloc] initWithVector:vFloat_from_v3(rotated) withStandardDeviation:vFloat_from_v3(stdev)];
 }
 
 - (RCRotation *)getInverse
@@ -102,8 +102,8 @@
 
 - (RCRotation *)flipAxis:(int)axis
 {
-    m4 R = to_rotation_matrix(q);
-    m4 flip = m4::Identity();
+    m3 R = to_rotation_matrix(q);
+    m3 flip = m3::Identity();
     flip(axis, axis) = -1;
     quaternion res = to_quaternion(flip * R * flip);
     return [[RCRotation alloc] initWithQuaternionW:(float)res.w() withX:(float)res.x() withY:(float)res.y() withZ:(float)res.z()];

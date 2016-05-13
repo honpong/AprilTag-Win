@@ -22,7 +22,7 @@ void fill_map_two_nodes(mapper & map, const transformation & g_first, const tran
     for(int i = 0; i < corvis_num_centers; i++) {
         const float variance = 0.1*0.1;
         descriptor d;
-        v4 position(i, i % 4, 2, 0);
+        v3 position(i, i % 4, 2);
         memcpy(d.d, corvis_centers + corvis_dimension*i, corvis_dimension*sizeof(float));
 
         float norm = 0;
@@ -70,7 +70,7 @@ void transformation_test(const transformation & g_first, const transformation & 
     transformation expected = g_second*invert(g_apparent);
     EXPECT_TRUE(result);
     EXPECT_QUATERNION_NEAR(expected.Q, offset.Q, 4*F_T_EPS);
-    EXPECT_V4_NEAR(expected.T, offset.T, 1e-5);
+    EXPECT_V3_NEAR(expected.T, offset.T, 1e-5);
 }
 
 TEST(Mapper, I)
@@ -80,14 +80,14 @@ TEST(Mapper, I)
 
 TEST(Mapper, T)
 {
-    transformation_test(transformation(), transformation(quaternion(), v4(0.1,1.2,0.3,0)), transformation());
+    transformation_test(transformation(), transformation(quaternion(), v3(0.1,1.2,0.3)), transformation());
 }
 
 TEST(Mapper, Drift)
 {
-    transformation g_first(quaternion(), v4(-0.8,-0.2,0.5,0));
-    transformation g_second(quaternion(), v4(0.1,1.2,0.3,0));
-    transformation g_apparent(quaternion(), v4(0.5, -0.7, 4.3, 0));
+    transformation g_first(quaternion(), v3(-0.8,-0.2,0.5));
+    transformation g_second(quaternion(), v3(0.1,1.2,0.3));
+    transformation g_apparent(quaternion(), v3(0.5, -0.7, 4.3));
     transformation_test(g_first, g_second, g_apparent);
 }
 

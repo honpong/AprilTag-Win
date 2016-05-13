@@ -50,9 +50,9 @@ protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void evolve_state(f_t dt);
     virtual void cache_jacobians(f_t dt);
-    m4 Rt;
-    v4 dW;
-    m4 JdW_s, dQp_s_dW;
+    m3 Rt;
+    v3 dW;
+    m3 JdW_s, dQp_s_dW;
 private:
     f_t gravity_magnitude = (f_t)9.80665;
 };
@@ -66,7 +66,7 @@ public:
     state_vector a;
 
     float total_distance = 0;
-    v4 last_position = v4::Zero();
+    v3 last_position = v3::Zero();
 
     state_motion(covariance &c): state_motion_orientation(c), T("T"), V("V"), a("a")
     {
@@ -86,9 +86,9 @@ public:
     
     void reset_position()
     {
-        T.v = v4::Zero();
+        T.v = v3::Zero();
         total_distance = 0.;
-        last_position = v4::Zero();
+        last_position = v3::Zero();
     }
 
     virtual void enable_orientation_only();
@@ -103,7 +103,7 @@ protected:
     virtual void evolve_state(f_t dt);
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void cache_jacobians(f_t dt);
-    v4 dT;
+    v3 dT;
 };
 
 #endif /* defined(__RC3DK__state_motion__) */

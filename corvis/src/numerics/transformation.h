@@ -17,14 +17,14 @@
 class transformation {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-        transformation(): Q(quaternion()), T(v4(0,0,0,0)) {};
-        transformation(const quaternion & Q_, const v4 & T_) : Q(Q_), T(T_) {};
-        transformation(const rotation_vector & v, const v4 & T_) : T(T_) { Q = to_quaternion(v); };
-        transformation(const m4 & m, const v4 & T_) : T(T_) { Q = to_quaternion(m); };
+        transformation(): Q(quaternion()), T(v3(0,0,0)) {};
+        transformation(const quaternion & Q_, const v3 & T_) : Q(Q_), T(T_) {};
+        transformation(const rotation_vector & v, const v3 & T_) : T(T_) { Q = to_quaternion(v); };
+        transformation(const m3 & m, const v3 & T_) : T(T_) { Q = to_quaternion(m); };
         transformation(f_t s, const transformation &G0, const transformation &G1) : T(G0.T + s * (G1.T-G0.T)), Q(s,G0.Q,G1.Q) {}
 
         quaternion Q;
-        v4 T;
+        v3 T;
 };
 
 static inline std::ostream& operator<<(std::ostream &stream, const transformation &t)
@@ -42,12 +42,12 @@ static inline transformation invert(const transformation & t)
     return transformation(conjugate(t.Q), conjugate(t.Q) * -t.T);
 }
 
-static inline v4 transformation_apply(const transformation & t, const v4 & apply_to)
+static inline v3 transformation_apply(const transformation & t, const v3 & apply_to)
 {
     return t.Q * apply_to + t.T;
 }
 
-static inline v4 operator*(const transformation & t, const v4 & apply_to)
+static inline v3 operator*(const transformation & t, const v3 & apply_to)
 {
     return transformation_apply(t, apply_to);
 }
@@ -62,10 +62,10 @@ static inline transformation operator*(const transformation &t1, const transform
     return compose(t1, t2);
 }
 
-static bool estimate_transformation(const aligned_vector<v4> & src, const aligned_vector<v4> & dst, transformation & transform)
+static bool estimate_transformation(const aligned_vector<v3> & src, const aligned_vector<v3> & dst, transformation & transform)
 {
-    v4 center_src = v4::Zero();
-    v4 center_dst = v4::Zero();
+    v3 center_src = v3::Zero();
+    v3 center_dst = v3::Zero();
     if(src.size() != dst.size()) return false;
     int N = (int)src.size();
     if(N < 3) return false;
@@ -113,13 +113,13 @@ static bool estimate_transformation(const aligned_vector<v4> & src, const aligne
         matrix_product(R, U, Vt);
     }
 
-    m4 R_out = m4::Zero();
+    m3 R_out = m3::Zero();
     for(int i = 0; i < 3; i++)
         for(int j = 0; j < 3; j++)
             R_out(i,j) = R(i,j);
 
     // compute translation
-	v4 T = center_dst - R_out*center_src;
+	v3 T = center_dst - R_out*center_src;
     transform = transformation(R_out, T);
 
     return true;

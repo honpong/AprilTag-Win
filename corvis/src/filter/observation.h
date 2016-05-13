@@ -42,14 +42,12 @@ template<int _size> class observation_storage: public observation {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:
-    f_t m_cov[_size];
-    f_t pred[_size];
-    f_t inn[_size];
-    f_t pred_cov[_size][_size];
+    Eigen::Matrix<f_t, _size, 1> m_cov, pred, inn;
+    Eigen::Matrix<f_t, _size, _size> pred_cov;
 public:
-    f_t meas[_size];
-    virtual void set_prediction_covariance(const matrix &cov, const int index) { for(int i = 0; i < size; ++i) for(int j = 0; j < size; ++j) pred_cov[i][j] = cov(index + i, index + j); }
-    virtual void compute_innovation() { for(int i = 0; i < size; ++i) inn[i] = meas[i] - pred[i]; }
+    Eigen::Matrix<f_t, _size, 1> meas;
+    virtual void set_prediction_covariance(const matrix &cov, const int index) { for(int i = 0; i < size; ++i) for(int j = 0; j < size; ++j) pred_cov(i, j) = cov(index + i, index + j); }
+    virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }
     virtual f_t measurement_covariance(const int i) const { return m_cov[i]; }
     observation_storage(sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation(_size, _time_actual, _time_apparent) {}
@@ -57,19 +55,19 @@ public:
 
 class observation_vision_feature: public observation_storage<2> {
  private:
-    f_t projection_residual(const v4 & X, const feature_t &found);
+    f_t projection_residual(const v3 & X, const feature_t &found);
     const state_vision &state;
  public:
     static stdev_scalar stdev[2], inn_stdev[2];
-    m4 Rrt;
-    v4 X0, X;
+    m3 Rrt;
+    v3 X0, X;
     const uint8_t *image;
     struct tracker tracker;
-    m4 Rtot;
-    v4 Ttot;
+    m3 Rtot;
+    v3 Ttot;
 
     f_t dx_dp, dy_dp;
-    v4 dx_dQr, dy_dQr, dx_dTr, dy_dTr;
+    v3 dx_dQr, dy_dQr, dx_dTr, dy_dTr;
 
     f_t dx_dF, dy_dF;
     f_t dx_dw, dy_dw, dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dk3, dy_dk3, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
@@ -106,14 +104,14 @@ public:
 class observation_accelerometer: public observation_spatial {
 protected:
     state_vision &state;
-    m4 Rt, Rc, da_dQ, da_dw, da_ddw;
-    m4 da_dQc, da_dTc;
+    m3 Rt, Rc, da_dQ, da_dw, da_ddw;
+    m3 da_dQc, da_dTc;
  public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();
     virtual bool measure();
     virtual void compute_measurement_covariance() {
-        inn_stdev.data(v4(inn[0], inn[1], inn[2], 0.));
+        inn_stdev.data(inn);
         observation_spatial::compute_measurement_covariance();
     }
     virtual void cache_jacobians();
@@ -129,17 +127,17 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:
     const state_vision &state;
-    m4 Rc;
-    m4 dw_dQc;
+    m3 Rc;
+    m3 dw_dQc;
  public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();
     virtual bool measure() {
-        stdev.data(v4(meas[0], meas[1], meas[2], 0.));
+        stdev.data(meas);
         return observation_spatial::measure();
     }
     virtual void compute_measurement_covariance() { 
-        inn_stdev.data(v4(inn[0], inn[1], inn[2], 0.));
+        inn_stdev.data(inn);
         observation_spatial::compute_measurement_covariance();
     }
     virtual void cache_jacobians();

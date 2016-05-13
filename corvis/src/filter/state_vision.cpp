@@ -13,7 +13,7 @@ f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 
-state_vision_feature::state_vision_feature(uint64_t feature_id, const feature_t & initial_): state_leaf("feature"), initial(initial_.x(), initial_.y(), 1, 0), current(initial)
+state_vision_feature::state_vision_feature(uint64_t feature_id, const feature_t & initial_): state_leaf("feature"), initial(initial_), current(initial_)
 {
     id = feature_id;
     set_initial_variance(initial_var);
@@ -80,7 +80,7 @@ state_vision_group::state_vision_group(uint64_t group_id): Tr("Tr"), Qr("Qr"), h
     Qr.dynamic = true;
     children.push_back(&Tr);
     children.push_back(&Qr);
-    Tr.v = v4(0., 0., 0., 0.);
+    Tr.v = v3(0, 0, 0);
     Qr.v = quaternion();
     f_t near_zero = F_T_EPS * 100;
     Tr.set_initial_variance(near_zero, near_zero, near_zero);
@@ -495,9 +495,9 @@ void state_vision::cache_jacobians(f_t dt)
     state_motion::cache_jacobians(dt);
 
     for(state_vision_group *g : groups.children) {
-        m4 Rr = to_rotation_matrix(g->Qr.v);
+        m3 Rr = to_rotation_matrix(g->Qr.v);
         g->dTrp_ddT = to_rotation_matrix(g->Qr.v * conjugate(Q.v));
-        m4 xRrRtdT = skew3(g->dTrp_ddT * dT);
+        m3 xRrRtdT = skew(g->dTrp_ddT * dT);
         g->dTrp_dQ_s   = xRrRtdT;
         g->dQrp_s_dW = Rr * JdW_s;
     }

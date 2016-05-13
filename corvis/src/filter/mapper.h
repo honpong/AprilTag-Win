@@ -36,11 +36,11 @@ struct map_feature {
     uint64_t id;
     // map_feature position is the position relative to a camera with
     // one of images axes oriented to match gravity (world z axis)
-    v4 position;
+    v3 position;
     float variance;
     uint32_t label;
     Eigen::VectorXf dvec;
-    map_feature(const uint64_t id, const v4 &p, const float v, const uint32_t l, const descriptor & d);
+    map_feature(const uint64_t id, const v3 &p, const float v, const uint32_t l, const descriptor & d);
 };
 
 struct map_node {
@@ -53,7 +53,7 @@ struct map_node {
     map_edge &get_add_neighbor(uint64_t neighbor);
     int terms;
     list<map_feature *> features; //sorted by label
-    bool add_feature(const uint64_t id, const v4 &p, const float v, const uint32_t l, const descriptor & d);
+    bool add_feature(const uint64_t id, const v3 &p, const float v, const uint32_t l, const descriptor & d);
 
     transformation_variance global_transformation;
 
@@ -75,7 +75,7 @@ struct map_match {
 
 struct local_feature {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    v4 position;
+    v3 position;
     map_feature *feature;
 };
 
@@ -103,7 +103,7 @@ class mapper {
 
     float refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const aligned_vector<match_pair> &neighbor_matches);
     int check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers);
-    int estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const aligned_vector<match_pair> &matches, const aligned_vector<match_pair> &neighbor_matches);
+    int estimate_translation(uint64_t id1, uint64_t id2, v3 &result, int min_inliers, const transformation &pre_transform, const aligned_vector<match_pair> &matches, const aligned_vector<match_pair> &neighbor_matches);
     void localize_neighbor_features(uint64_t id, aligned_list<local_feature> &features);
     void breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &));
     void internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform, bool loop_closed);
@@ -131,11 +131,11 @@ class mapper {
     void add_node(uint64_t node_id);
     void add_edge(uint64_t node_id1, uint64_t node_id2);
     // Descriptor must have a norm of 1
-    void add_feature(uint64_t node_id, uint64_t feature_id, const v4 & position_m, float depth_variance_m2, const descriptor & feature_descriptor);
+    void add_feature(uint64_t node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2, const descriptor & feature_descriptor);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; };
 
-    void update_feature_position(uint64_t node_id, uint64_t feature_id, const v4 &position_m, float depth_variance_m2);
+    void update_feature_position(uint64_t node_id, uint64_t feature_id, const v3 &position_m, float depth_variance_m2);
     void node_finished(uint64_t node_id, const transformation & G);
     void set_node_transformation(uint64_t id, const transformation & G);
 

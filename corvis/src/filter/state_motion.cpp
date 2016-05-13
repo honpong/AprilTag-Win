@@ -12,7 +12,7 @@ void state_motion_orientation::cache_jacobians(f_t dt)
 {
     dW = (w.v + dt/2 * dw.v) * dt;
     rotation_vector dW_(dW[0],dW[1],dW[2]); // FIXME: remove this
-    m4 R = to_rotation_matrix(Q.v);
+    m3 R = to_rotation_matrix(Q.v);
     JdW_s = to_spatial_jacobian(f_t(.5) * dW_);
     dQp_s_dW = R * JdW_s;
     Rt = R.transpose();  // FIXME: remove this?

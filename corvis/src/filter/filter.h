@@ -46,8 +46,8 @@ struct filter {
     f_t w_variance;
     f_t a_variance;
 
-    m4 w_alignment;
-    m4 a_alignment;
+    m3 w_alignment;
+    m3 a_alignment;
 
     bool gravity_init;
 
@@ -55,7 +55,7 @@ struct filter {
 
     sensor_clock::time_point want_start;
     bool got_accelerometer, got_gyroscope, got_image;
-    v4 last_gyro_meas, last_accel_meas;
+    v3 last_gyro_meas, last_accel_meas;
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;
@@ -87,7 +87,7 @@ struct filter {
     transformation origin;
     bool origin_gravity_aligned;
 
-    v4 a_bias_start, w_bias_start; //for tracking calibration progress
+    v3 a_bias_start, w_bias_start; //for tracking calibration progress
     
     observation_queue observations;
     

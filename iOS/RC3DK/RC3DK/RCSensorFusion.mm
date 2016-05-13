@@ -486,7 +486,7 @@
     struct filter *f = &(_cor_setup->sfm);
     
     if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
-    RCTranslation* translation = [[RCTranslation alloc] initWithVector:vFloat_from_v4(f->s.T.v) withStandardDeviation:vFloat_from_v4(v4_sqrt(f->s.T.variance()))];
+    RCTranslation* translation = [[RCTranslation alloc] initWithVector:vFloat_from_v3(f->s.T.v) withStandardDeviation:vFloat_from_v3(v3_sqrt(f->s.T.variance()))];
     RCRotation* rotation = [[RCRotation alloc] initWithQuaternionW:(float)f->s.Q.v.w() withX:(float)f->s.Q.v.x() withY:(float)f->s.Q.v.y() withZ:(float)f->s.Q.v.z()];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
     

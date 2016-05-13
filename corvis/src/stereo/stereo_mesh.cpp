@@ -18,26 +18,26 @@ bool compare_inddist(struct inddist i1, struct inddist i2)
     return i1.distance < i2.distance;
 }
 
-bool ray_triangle_intersect(const v4 & p, const v4 & d, const v4 & v0, const v4 & v1, const v4 & v2, v4 & intersection) {
+bool ray_triangle_intersect(const v3 & p, const v3 & d, const v3 & v0, const v3 & v1, const v3 & v2, v3 & intersection) {
 	float t,u,v;
-    intersection = v4(0,0,0,0);
+    intersection = v3(0,0,0);
     
-    v4 e1 = v1 - v0;
-    v4 e2 = v2 - v0;
-    v4 h = cross(d, e2);
+    v3 e1 = v1 - v0;
+    v3 e2 = v2 - v0;
+    v3 h = d.cross(e2);
     float a = e1.dot(h);
 
 	if (a > -0.00001 && a < 0.00001)
 		return false;
 
 	float f = 1/a;
-    v4 s = p - v0;
+    v3 s = p - v0;
 	u = f * s.dot(h);
 
 	if (u < 0.0 || u > 1.0)
 		return false;
 
-    v4 q = cross(s, e1);
+    v3 q = s.cross(e1);
 	v = f * d.dot(q);
 
 	if (v < 0.0 || u + v > 1.0)
@@ -57,9 +57,9 @@ bool ray_triangle_intersect(const v4 & p, const v4 & d, const v4 & v0, const v4 
     return false;
 }
 
-bool point_mesh_intersect(const stereo_mesh & mesh, const v4 & p0, const v4 & d, v4 & intersection)
+bool point_mesh_intersect(const stereo_mesh & mesh, const v3 & p0, const v3 & d, v3 & intersection)
 {
-    v4 points[3];
+    v3 points[3];
     for(int i = 0; i < mesh.triangles.size(); i++) {
         stereo_triangle t = mesh.triangles[i];
         points[0] = mesh.vertices[t.vertices[0]];
@@ -74,27 +74,27 @@ bool point_mesh_intersect(const stereo_mesh & mesh, const v4 & p0, const v4 & d,
     return false;
 }
 
-bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &g, int x, int y, v4 & intersection)
+bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &g, int x, int y, v3 & intersection)
 {
     vector<struct inddist> distances;
 
-    m4 R = to_rotation_matrix(g.reference->W);
-    v4 T = g.reference->T;
+    m3 R = to_rotation_matrix(g.reference->W);
+    v3 T = g.reference->T;
 
     // Get calibrated camera2 point
-    v4 calibrated_point = g.camera.calibrate_image_point(x, y);
+    v3 calibrated_point = g.camera.calibrate_image_point(x, y);
     if(debug_triangulate_mesh) {
         cerr << "calibrated_point: " << calibrated_point;
     }
 
     // Rotate the point into the world reference frame and translate
     // back to the origin
-    v4 line_direction = R*calibrated_point;
+    v3 line_direction = R*calibrated_point;
     // line_direction is no longer in homogeneous coordinates
     line_direction[3] = 0;
     line_direction = line_direction.normalized();
-    v4 world_point = R*calibrated_point + T;
-    v4 o2 = T;
+    v3 world_point = R*calibrated_point + T;
+    v3 o2 = T;
     if(debug_triangulate_mesh) {
         fprintf(stderr, "Line direction, world_point, o2: ");
         cerr << line_direction << world_point << o2;
@@ -113,7 +113,7 @@ void stereo_mesh_remove_vertex(stereo_mesh & mesh, int ind)
     mesh.match_scores.erase(mesh.match_scores.begin() + ind);
 }
 
-int stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, f_t x2, f_t y2, v4 world, float correspondence_score)
+int stereo_mesh_add_vertex(stereo_mesh & mesh, f_t x, f_t y, f_t x2, f_t y2, v3 world, float correspondence_score)
 {
     image_coordinate imcoord;
     imcoord.x = x;
@@ -147,24 +147,23 @@ void stereo_mesh_write_correspondences(const char * filename, const stereo_mesh 
 void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & mesh, const stereo & g, int degrees, const char * texturename)
 {
     // Calculate rotation
-    m4 R;
+    m3 R;
     float radians = degrees*M_PI/180;
-    R(0, 0) = cos(radians); R(0, 1) = -sin(radians); R(0, 2) = 0; R(0, 3) = 0;
-    R(1, 0) = sin(radians); R(1, 1) = cos(radians); R(1, 2) = 0; R(1, 3) = 0;
-    R(2, 0) = 0; R(2, 1) = 0; R(2, 2) = 1; R(2, 3) = 0;
-    R(3, 0) = 0; R(3, 1) = 0; R(3, 2) = 0; R(3, 3) = 1;
+    R(0, 0) = cos(radians); R(0, 1) = -sin(radians); R(0, 2) = 0;
+    R(1, 0) = sin(radians); R(1, 1) = cos(radians); R(1, 2) = 0;
+    R(2, 0) = 0; R(2, 1) = 0; R(2, 2) = 1;
 
     // Transform center point to rotated pixel coordinates
     // rotate around width/2 height/2
-    v4 image_midpoint = v4(g.camera.width/2, g.camera.height/2., 0, 0);
-    v4 image_midpoint_rotated = image_midpoint;
+    v3 image_midpoint = v3(g.camera.width/2, g.camera.height/2., 0);
+    v3 image_midpoint_rotated = image_midpoint;
     bool is_landscape = degrees == 0 || degrees == 180;
     if(!is_landscape) {
         image_midpoint_rotated[0] = image_midpoint[1];
         image_midpoint_rotated[1] = image_midpoint[0];
     }
 
-    v4 image_center = v4(g.camera.center_x, g.camera.center_y, 0, 0);
+    v3 image_center = v3(g.camera.center_x, g.camera.center_y, 0);
 
     image_center = R*(image_center - image_midpoint) + image_midpoint_rotated;
 
@@ -180,22 +179,21 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
     fprintf(vertices, "\"k2\": %g,\n", g.camera.k2);
     fprintf(vertices, "\"k3\": %g,\n", g.camera.k3);
 
-    m4 Rr = g.Rw*R.transpose(); // Rotation to world frame including undoing camera rotation
+    m3 Rr = g.Rw*R.transpose(); // Rotation to world frame including undoing camera rotation
     fprintf(vertices, "\"world\": { ");
-    fprintf(vertices, "\"R\" : [[%g, %g, %g, %g], \n", Rr(0, 0), Rr(0, 1), Rr(0, 2), Rr(0, 3));
-    fprintf(vertices, "         [%g, %g, %g, %g], \n", Rr(1, 0), Rr(1, 1), Rr(1, 2), Rr(1, 3));
-    fprintf(vertices, "         [%g, %g, %g, %g], \n", Rr(2, 0), Rr(2, 1), Rr(2, 2), Rr(2, 3));
-    fprintf(vertices, "         [%g, %g, %g, %g]],\n", Rr(3, 0), Rr(3, 1), Rr(3, 2), Rr(3, 3));
-    fprintf(vertices, "\"T\": [%g, %g, %g, %g] }, \n", g.Tw[0], g.Tw[1], g.Tw[2], g.Tw[3]);
+    fprintf(vertices, "\"R\" : [[%g, %g, %g], \n", Rr(0, 0), Rr(0, 1), Rr(0, 2));
+    fprintf(vertices, "         [%g, %g, %g], \n", Rr(1, 0), Rr(1, 1), Rr(1, 2));
+    fprintf(vertices, "         [%g, %g, %g], \n", Rr(2, 0), Rr(2, 1), Rr(2, 2));
+    fprintf(vertices, "\"T\": [%g, %g, %g] }, \n", g.Tw[0], g.Tw[1], g.Tw[2]);
 
-    v4 gravity = Rr.transpose()*v4(0,0,-1,0);
-    fprintf(vertices, "\"gravity\": [%g, %g, %g, %g], \n", gravity[0], gravity[1], gravity[2], gravity[3]);
+    v3 gravity = Rr.transpose()*v3(0,0,-1);
+    fprintf(vertices, "\"gravity\": [%g, %g, %g], \n", gravity[0], gravity[1], gravity[2]);
 
     fprintf(vertices, "\"vertices\" : [\n");
     for(int i = 0; i < mesh.vertices.size(); i++)
     {
-        v4 vertex = R*mesh.vertices[i]; // world coordinates are centered at 0,0
-        v4 imvertex = v4(mesh.vertices_image[i].x, mesh.vertices_image[i].y, 0, 0);
+        v3 vertex = R*mesh.vertices[i]; // world coordinates are centered at 0,0
+        v3 imvertex = v3(mesh.vertices_image[i].x, mesh.vertices_image[i].y, 0);
         imvertex = R*(imvertex - image_midpoint) + image_midpoint_rotated;
         fprintf(vertices, "[%f, %f, %f, %f, %f, %f]", vertex[0], vertex[1], vertex[2], imvertex[0], imvertex[1], mesh.match_scores[i]);
         if(i == mesh.vertices.size()-1)
@@ -245,7 +243,7 @@ void stereo_mesh_write(const char * filename, const stereo_mesh & mesh, const ch
 
     for(int i = 0; i < mesh.vertices.size(); i++)
     {
-        v4 vertex = mesh.vertices[i];
+        v3 vertex = mesh.vertices[i];
         image_coordinate imvertex = mesh.vertices_image[i];
         fprintf(vertices, "%f %f %f %f %f %f\n", vertex[0], vertex[1], vertex[2], imvertex.x, imvertex.y, mesh.match_scores[i]);
     }
@@ -266,12 +264,12 @@ bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_tria
 {
     // triangles that are less than 10 degrees from the viewing angle will be filtered
     const float dot_thresh = cos(M_PI/2 - 10/180. * M_PI);
-    m4 R = to_rotation_matrix(g.reference->W);
+    m3 R = to_rotation_matrix(g.reference->W);
  
-    v4 v0 = mesh.vertices[t.vertices[0]];
-    v4 v1 = mesh.vertices[t.vertices[1]];
-    v4 v2 = mesh.vertices[t.vertices[2]];
-    v4 normal = cross(v1 - v0, v2 - v0);
+    v3 v0 = mesh.vertices[t.vertices[0]];
+    v3 v1 = mesh.vertices[t.vertices[1]];
+    v3 v2 = mesh.vertices[t.vertices[2]];
+    v3 normal = (v1 - v0).cross(v2 - v0);
     normal = normal.normalized();
     
     for(int v = 0; v < 3; v++) {
@@ -279,11 +277,11 @@ bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_tria
         float y = mesh.vertices_image[t.vertices[v]].y;
         
         // Get calibrated camera2 point
-        v4 calibrated_point = g.camera.calibrate_image_point(x, y);
+        v3 calibrated_point = g.camera.calibrate_image_point(x, y);
         
         // Rotate the direction into the world reference frame and translate
         // back to the origin
-        v4 line_direction = R*calibrated_point;
+        v3 line_direction = R*calibrated_point;
         // line_direction is no longer in homogeneous coordinates
         line_direction[3] = 0;
         line_direction = line_direction.normalized();
@@ -448,8 +446,8 @@ double pairwise_cost(int pix1, int pix2, int i, int j)
     if(depth1 == 0 || depth2 == 0)
         return PAIRWISE_LAMBDA*exp(-PAIRWISE_BETA * PSI_U*10);
 
-    v4 point1 = stereo_grid_matches[pix1][i].point;
-    v4 point2 = stereo_grid_matches[pix2][j].point;
+    v3 point1 = stereo_grid_matches[pix1][i].point;
+    v3 point2 = stereo_grid_matches[pix2][j].point;
     float dist = (point1 - point2).norm();
 
     xy p1 = stereo_grid_locations[pix1];
@@ -709,7 +707,7 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, 
 
     vector<xy> points;
     bool success;
-    v4 intersection;
+    v3 intersection;
 
     xy pt;
     for(int row = 1; row < g.camera.height; row++)
@@ -780,7 +778,7 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, 
 void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*progress_callback)(float), float progress_start, float progress_end)
 {
     bool success;
-    v4 intersection;
+    v3 intersection;
     struct stereo_match match;
 
     for(int row = 0; row < g.camera.height; row += step) {
@@ -801,7 +799,7 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*
 void stereo_mesh_add_features(stereo_mesh & mesh, const stereo &g, int maxvertices, void (*progress_callback)(float), float progress_start, float progress_end)
 {
     bool success;
-    v4 intersection;
+    v3 intersection;
 
     fast_detector_9 fast;
     fast.init(640, 480, 640, 7, 3);

@@ -154,7 +154,7 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
             bool good = stdev / feat->v.depth() < .02;
             float cx, cy, ctheta;
             compute_covariance_ellipse(feat, cx, cy, ctheta);
-            v4 world = feat->world;
+            v3 world = feat->world;
 
             observe_feature(d.timestamp, feat->id,
                             (float)world[0], (float)world[1], (float)world[2],
@@ -489,10 +489,9 @@ void world_state::update_vertex_arrays(bool show_only_good)
         if (p.timestamp == now) {
             set_color(&path_vertex[idx], 0, 255, 0, 255);
             for(int i = 0; i < 6; i++) {
-                v4 vertex(axis_vertex[i].position[0],
+                v3 vertex(axis_vertex[i].position[0],
                           axis_vertex[i].position[1],
-                          axis_vertex[i].position[2],
-                          0);
+                          axis_vertex[i].position[2]);
                 vertex = transformation_apply(p.g, vertex);
                 orientation_data[i].position[0] = (float)vertex[0];
                 orientation_data[i].position[1] = (float)vertex[1];
@@ -522,7 +521,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
             set_color(&map_node_vertex[idx], 255, 0, 0, alpha);
         else
             set_color(&map_node_vertex[idx], 255, 255, 0, alpha);
-        v4 v1(node.position.T.x(), node.position.T.y(), node.position.T.z(), 0);
+        v3 v1(node.position.T);
         set_position(&map_node_vertex[idx], v1[0], v1[1], v1[2]);
         for(uint64_t neighbor_id : node.neighbors) {
             if(!node.finished || !map_nodes[neighbor_id].finished) continue;
@@ -543,7 +542,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
             nedges++;
         }
         for(Feature f : node.features) {
-            v4 vertex(f.x, f.y, f.z, 0);
+            v3 vertex(f.x, f.y, f.z);
             vertex = transformation_apply(node.position, vertex);
             if(node.loop_closed)
                 set_color(&map_feature_vertex[nfeatures], 255, 127, 127, 255);
@@ -670,7 +669,7 @@ void world_state::observe_position(sensor_clock::time_point timestamp, float x, 
     Position p;
     p.timestamp = timestamp;
     quaternion q(qw, qx, qy, qz);
-    p.g = transformation(q, v4(x, y, z, 0));
+    p.g = transformation(q, v3(x, y, z));
     display_lock.lock();
     path.push_back(p);
     update_current_timestamp(timestamp);
@@ -709,7 +708,7 @@ void world_state::observe_position_gt(sensor_clock::time_point timestamp, float 
     Position p;
     p.timestamp = timestamp;
     quaternion q(qw, qx, qy, qz);
-    p.g = transformation(q, v4(x, y, z, 0));
+    p.g = transformation(q, v3(x, y, z));
     display_lock.lock();
     path_gt.push_back(p);
     display_lock.unlock();

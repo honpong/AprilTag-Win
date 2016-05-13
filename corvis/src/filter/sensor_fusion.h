@@ -210,10 +210,10 @@ public:
     
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
     transformation accel_to_camera_world_transform() const;
-    v4 accel_to_camera_position(const v4& x) const;
-    v4 camera_to_accel_position(const v4& x) const;
+    v3 accel_to_camera_position(const v3& x) const;
+    v3 camera_to_accel_position(const v3& x) const;
     transformation accel_to_camera_transformation(const transformation &x) const;
-    v4 filter_to_external_position(const v4& x) const;
+    v3 filter_to_external_position(const v3& x) const;
     
     //Gets the current transformation, moving from filter-internal to external coordinates
     //Adjusts for camera vs accel centered and QR offset

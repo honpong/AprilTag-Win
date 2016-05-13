@@ -14,7 +14,7 @@
 
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 {
-    m4 R = to_rotation_matrix(g.Q);
+    m3 R = to_rotation_matrix(g.Q);
     for(int i = 0; i < 3; i++) {
         for(int j = 0; j < 3; j++) {
             p[i * 4 + j] = (float)R(i, j);
@@ -26,7 +26,7 @@ static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 static transformation rc_Pose_to_transformation(const rc_Pose p)
 {
     transformation g;
-    m4 R = m4::Zero();
+    m3 R = m3::Zero();
     for(int i = 0; i < 3; i++) {
         for(int j = 0; j < 3; j++) {
             R(i,j) = p[i * 4 + j];

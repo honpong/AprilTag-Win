@@ -87,7 +87,7 @@ if __name__ == '__main__':
     tm, am, gm = merge(read_imu("accel.txt"),
                        read_imu("gyro.txt"))
     fe = read_images("fisheye_timestamps.txt")
-    write_csv("time.csv", tm)
-    write_csv("accel.csv", am)
-    write_csv("gyro.csv", gm)
     convert_images("vifisheye", fe, tm[-1][0])
+    write_csv("vifisheye/timestamp.txt", tm)
+    write_csv("vifisheye/accel.txt", am)
+    write_csv("vifisheye/gyro.txt", gm)

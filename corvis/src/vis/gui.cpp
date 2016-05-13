@@ -20,16 +20,10 @@ void gui::configure_view(int view_width, int view_height)
     if(scale < nearclip) nearclip = scale*0.75f;
     build_projection_matrix(projection_matrix, 60.0f, aspect, nearclip, farclip);
 
-    m3 R = to_rotation_matrix(arc.get_quaternion());
-    for(int i = 0; i < 3; i++) {
-        for(int j = 0; j < 3; j++) {
-            view_matrix[j * 4 + i] = (float)R(i, j);
-        }
-        view_matrix[i * 4 + 3] = 0;
-        view_matrix[3 * 4 + i] = 0;
-    }
-    view_matrix[3 * 4 + 2] = -scale;
-    view_matrix[15] = 1;
+    view_matrix.block<3,3>(0,0) = to_rotation_matrix(arc.get_quaternion()).cast<float>();
+    view_matrix.block<3,1>(0,3) = v3(0,0,-scale);
+    view_matrix.block<1,3>(3,0) = v3::Zero();
+    view_matrix(3,3) = 1;
 }
 
 void gui::mouse_move(GLFWwindow * window, double x, double y)
@@ -240,7 +234,7 @@ void gui::start_glfw()
         if(show_main) {
             glViewport(0, 0, main_width, main_height);
             configure_view(main_width, main_height);
-            world_state_render(state, view_matrix, projection_matrix);
+            world_state_render(state, view_matrix.data(), projection_matrix);
         }
         if(show_video) {
             // y coordinate is 0 = bottom, height = top (opengl)

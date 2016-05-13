@@ -6,7 +6,7 @@
 {
     for(int i = 0; i < 4; ++i)
         for(int j = 0; j < 4; ++j)
-            if(fabs(a(i,j) - b(i,j)) > bounds)
+            if(!(fabs(a(i,j) - b(i,j)) <= bounds))
                 return ::testing::AssertionFailure()
                     << "The difference between\n"
                     <<  " " << a(i,j) << " = " << expr1 << "(" << i << "," << j << ")\n"
@@ -25,7 +25,7 @@
 {
     for(int i = 0; i < 3; ++i)
         for(int j = 0; j < 3; ++j)
-            if(fabs(a(i,j) - b(i,j)) > bounds)
+            if(!(fabs(a(i,j) - b(i,j)) <= bounds))
                 return ::testing::AssertionFailure()
                 << "The difference between\n"
                 <<  " " << a(i,j) << " = " << expr1 << "(" << i << "," << j << ")\n"
@@ -43,7 +43,7 @@
                                         const v4 &a, const v4 &b, const f_t bounds)
 {
     for(int i = 0; i < 4; ++i)
-        if(fabs(a[i] - b[i]) > bounds)
+        if(!(fabs(a[i] - b[i]) <= bounds))
             return ::testing::AssertionFailure()
                 << "The difference between\n"
                 <<  " " << a[i] << " = " << expr1 << "[" << i << "]\n"
@@ -61,7 +61,7 @@
                                         const v3 &a, const v3 &b, const f_t bounds)
 {
     for(int i = 0; i < 3; ++i)
-        if(fabs(a[i] - b[i]) > bounds)
+        if(!(fabs(a[i] - b[i]) <= bounds))
             return ::testing::AssertionFailure()
             << "The difference between\n"
             <<  " " << a[i] << " = " << expr1 << "[" << i << "]\n"
@@ -79,10 +79,10 @@
                                                 const quaternion &a, const quaternion &b, const f_t bounds)
 {
     const char *n = nullptr; f_t a_n, b_n;
-    if (fabs((a_n=a.w()) - (b_n=b.w())) > bounds) n = "w"; else
-    if (fabs((a_n=a.x()) - (b_n=b.x())) > bounds) n = "x"; else
-    if (fabs((a_n=a.y()) - (b_n=b.y())) > bounds) n = "y"; else
-    if (fabs((a_n=a.z()) - (b_n=b.z())) > bounds) n = "z"; else
+    if (!(fabs((a_n=a.w()) - (b_n=b.w())) <= bounds)) n = "w"; else
+    if (!(fabs((a_n=a.x()) - (b_n=b.x())) <= bounds)) n = "x"; else
+    if (!(fabs((a_n=a.y()) - (b_n=b.y())) <= bounds)) n = "y"; else
+    if (!(fabs((a_n=a.z()) - (b_n=b.z())) <= bounds)) n = "z"; else
     return ::testing::AssertionSuccess();
     return ::testing::AssertionFailure()
         << "The difference between\n"
@@ -105,7 +105,14 @@
         EXPECT_NEAR(fmod(B.norm(), 2*M_PI), 0, bounds)                 << "In " << expr1 << " " << expr2 << " where b = " << b;
     } else
         EXPECT_NEAR(fabs(A.normalized().dot(B.normalized())), 1, bounds) << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
-    EXPECT_NEAR(fmod((A-B).norm(), 2*M_PI), 0, bounds)                   << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
+    EXPECT_NEAR(sin((A-B).norm()), 0, bounds)                            << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
+    EXPECT_NEAR(cos((A-B).norm()), 1, bounds)                            << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
     return ::testing::AssertionSuccess();
 }
 
+::testing::AssertionResult test_transformation_near(const char* expr1, const char* expr2, const char* bounds_expr,
+                                                    const transformation &a, const transformation &b, const f_t bounds)
+{
+    auto q = test_quaternion_rotation_near(expr1, expr2, bounds_expr, a.Q, b.Q, bounds) << ".Q's are equal";
+    return q ? (test_v3_near(expr1, expr2, bounds_expr, a.T, b.T, bounds) << ".T's are equal") : q;
+}

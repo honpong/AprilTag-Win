@@ -37,84 +37,56 @@ extern "C" {
 #define EIGEN_MATRIX_PLUGIN "eigen_initializer_list.h"
 #include <Eigen/Dense>
 
+template <int Rows = Eigen::Dynamic>                  using v = Eigen::Matrix<f_t, Rows, 1>;
+template <int Rows = Eigen::Dynamic, int Cols = Rows> using m = Eigen::Matrix<f_t, Rows, Cols>;
 typedef Eigen::Matrix<f_t, 4, 1> v4;
 typedef Eigen::Matrix<f_t, 3, 1> v3;
 typedef Eigen::Matrix<f_t, 4, 4> m4;
 typedef Eigen::Matrix<f_t, 3, 3> m3;
 typedef Eigen::Matrix<f_t, 2, 1> v2, feature_t;
 
-#include <Eigen/StdVector>
+#include <vector>
 template <typename T> using aligned_vector = std::vector<T, Eigen::aligned_allocator<T>>;
-#include <Eigen/StdList>
+#include <list>
 template <typename T> using aligned_list = std::list<T, Eigen::aligned_allocator<T>>;
 
-static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
+static inline v3 v3_sqrt(const v3 &v) { return v3(sqrt(v[0]), sqrt(v[1]), sqrt(v[2])); }
 
 #ifdef __ACCELERATE__
-static inline v4 v4_from_vFloat(const vFloat &other)
+static inline v3 v3_from_vFloat(const vFloat &other)
 {
-    return v4(other[0], other[1], other[2], other[3]);
+    return v3(other[0], other[1], other[2]);
 }
 
-static inline vFloat vFloat_from_v4(const v4 &other)
+static inline vFloat vFloat_from_v3(const v3 &other)
 {
-    return (vFloat){(float)other[0], (float)other[1], (float)other[2], (float)other[3]};
+    return (vFloat){(float)other[0], (float)other[1], (float)other[2], 0};
 }
 #endif
 
-static inline v4 cross(const v4 &a, const v4 &b) {
-    return v4(a[1] * b[2] - a[2] * b[1],
-              a[2] * b[0] - a[0] * b[2],
-              a[0] * b[1] - a[1] * b[0],
-              0);
-}
-
-class stdev_vector
+template <int N>
+class stdev
 {
 public:
-    v4 sum, mean, M2;
+    v<N> sum, mean, M2, variance, stdev_;
     f_t maximum;
-    v4 variance, stdev;
-    uint64_t count;
-    stdev_vector(): sum(v4::Zero()), mean(v4::Zero()), M2(v4::Zero()), maximum(0.), variance(v4::Zero()), stdev(v4::Zero()), count(0) {}
-    void data(const v4 &x) {
+    uint32_t count;
+    stdev(): sum(v<N>::Zero()), mean(v<N>::Zero()), M2(v<N>::Zero()), maximum(0.), variance(v<N>::Zero()), stdev_(v<N>::Zero()), count(0) {}
+    void data(const v<N> &x) {
         ++count;
-        v4 delta = x - mean;
+        v<N> delta = x - mean;
         mean = mean + delta / (f_t)count;
         M2 = M2 + delta.cwiseProduct(x - mean);
         if(x.norm() > maximum) maximum = x.norm();
         variance = M2 / (f_t)(count - 1);
-        stdev = v4(sqrt(variance[0]), sqrt(variance[1]), sqrt(variance[2]), sqrt(variance[3]));
+        stdev_ = variance.array().sqrt();
     }
 };
 
-static inline std::ostream& operator<<(std::ostream &stream, const stdev_vector &v)
+template<int N>
+static inline std::ostream& operator<<(std::ostream &stream, const stdev<N> &v)
 {
-    return stream << "mean is: " << v.mean << ", stdev is: " << v.stdev << ", maximum is: " << v.maximum << std::endl;
-}
-
-class stdev_scalar
-{
-public:
-    double sum, mean, M2;
-    f_t maximum;
-    f_t variance, stdev;
-    uint64_t count;
-    stdev_scalar(): sum(0.), mean(0.), M2(0.), maximum(0.), variance(0.), stdev(0.), count(0) {}
-    void data(const f_t &x) {
-        ++count;
-        double delta = x - mean;
-        mean = mean + delta / count;
-        M2 = M2 + delta * (x - mean);
-        if(x > maximum) maximum = x;
-        variance = M2 / (count - 1);
-        stdev = sqrt(variance);
-    }
-};
-
-static inline std::ostream& operator<<(std::ostream &stream, const stdev_scalar &s)
-{
-    return stream << "mean is: " << s.mean << ", stdev is: " << s.stdev << ", maximum is: " << s.maximum << std::endl;
+    return stream << "mean is: " << v.mean << ", stdev is: " << v.stdev_ << ", maximum is: " << v.maximum << std::endl;
 }
 
 class histogram
@@ -134,24 +106,15 @@ static inline std::ostream& operator<<(std::ostream &stream, const histogram &h)
     return stream;
 }
 
-class v4_lowpass {
+class v3_lowpass {
 public:
-    v4 filtered;
+    v3 filtered;
     f_t constant;
-    v4_lowpass(f_t rate, f_t cutoff) { constant  = 1. / (1. + rate/cutoff); }
-    v4 sample(const v4 &data) { return filtered = filtered * (1. - constant) + data * constant; }
+    v3_lowpass(f_t rate, f_t cutoff) { constant  = 1 / (1 + rate/cutoff); }
+    v3 sample(const v3 &data) { return filtered = filtered * (1 - constant) + data * constant; }
 };
 
-inline static m4 skew3(const v4 &v)
-{
-    m4 V = m4::Zero();
-    V(1, 2) = -(V(2, 1) = v[0]);
-    V(2, 0) = -(V(0, 2) = v[1]);
-    V(0, 1) = -(V(1, 0) = v[2]);
-    return V;
-}
-
-inline static m3 skew3_eigen(const v3 &v)
+inline static m3 skew(const v3 &v)
 {
     m3 V = m3::Zero();
     V(1, 2) = -(V(2, 1) = v[0]);
@@ -160,24 +123,11 @@ inline static m3 skew3_eigen(const v3 &v)
     return V;
 }
 
-inline static v4 invskew3(const m4 &V)
+inline static v3 invskew(const m3 &V)
 {
-    return v4(.5 * (V(2, 1) - V(1, 2)),
-              .5 * (V(0, 2) - V(2, 0)),
-              .5 * (V(1, 0) - V(0, 1)),
-              0);
-}
-
-inline static f_t determinant_minor(const m4 &m, const int a, const int b)
-{
-    return (m(1, a) * m(2, b) - m(1, b) * m(2, a));
-}
-
-inline static f_t determinant3(const m4 &m)
-{
-    return m(0, 0) * determinant_minor(m, 1, 2)
-    - m(0, 1) * determinant_minor(m, 0, 2)
-    + m(0, 2) * determinant_minor(m, 0, 1);
+    return v3((V(2, 1) - V(1, 2))/2,
+              (V(0, 2) - V(2, 0))/2,
+              (V(1, 0) - V(0, 1))/2);
 }
 
 #endif

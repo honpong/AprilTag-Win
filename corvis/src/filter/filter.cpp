@@ -129,7 +129,7 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
 void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
 {
     if(f->run_state != RCSensorFusionRunStateRunning) return;
-    m4
+    m3
         R = to_rotation_matrix(f->s.Q.v),
         Rt = R.transpose();
 
@@ -199,7 +199,7 @@ static bool check_packet_time(struct filter *f, sensor_clock::time_point t, int 
 void update_static_calibration(struct filter *f)
 {
     if(f->accel_stability.count < calibration_converge_samples) return;
-    v4 var = f->accel_stability.variance;
+    v3 var = f->accel_stability.variance;
     f->a_variance = (var[0] + var[1] + var[2]) / 3.;
     var = f->gyro_stability.variance;
     f->w_variance = (var[0] + var[1] + var[2]) / 3.;
@@ -215,12 +215,12 @@ void update_static_calibration(struct filter *f)
 
 static void reset_stability(struct filter *f)
 {
-    f->accel_stability = stdev_vector();
-    f->gyro_stability = stdev_vector();
+    f->accel_stability = stdev<3>();
+    f->gyro_stability = stdev<3>();
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
 }
 
-sensor_clock::duration steady_time(struct filter *f, stdev_vector &stdev, const v4 &meas, f_t variance, f_t sigma, sensor_clock::time_point time, const v4 &orientation, bool use_orientation)
+sensor_clock::duration steady_time(struct filter *f, stdev<3> &stdev, const v3 &meas, f_t variance, f_t sigma, sensor_clock::time_point time, const v3 &orientation, bool use_orientation)
 {
     bool steady = false;
     if(stdev.count) {
@@ -240,7 +240,7 @@ sensor_clock::duration steady_time(struct filter *f, stdev_vector &stdev, const 
     }
     if(!stdev.count && use_orientation) {
         if(!f->s.orientation_initialized) return sensor_clock::duration(0);
-        v4 local_up = to_rotation_matrix(f->s.Q.v).transpose() * v4(0., 0., 1., 0.);
+        v3 local_up = to_rotation_matrix(f->s.Q.v).transpose() * v3(0, 0, 1);
         //face up -> (0, 0, 1)
         //portrait -> (1, 0, 0)
         //landscape -> (0, 1, 0)
@@ -276,7 +276,7 @@ static float get_bias_convergence(const struct filter *f, int dir)
     return max_pct;
 }
 
-static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &meas, sensor_clock::time_point time)
+static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &meas, sensor_clock::time_point time)
 {
     if(!f->s.orientation_initialized) return accelerometer_inertial_var; //first measurement is not used, so this doesn't actually matter
     switch(f->run_state)
@@ -289,7 +289,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
         case RCSensorFusionRunStateInertialOnly:
             return accelerometer_inertial_var;
         case RCSensorFusionRunStateStaticCalibration:
-            if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time, v4(0., 0., 1., 0.), true) > min_steady_time)
+            if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time, v3(0, 0, 1), true) > min_steady_time)
             {
                 f->s.enable_bias_estimation();
                 //base this on # samples instead of variance because we are also estimating a, w variance here
@@ -313,7 +313,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
             }
         case RCSensorFusionRunStatePortraitCalibration:
         {
-            if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(1, 0, 0, 0), true) > min_steady_time)
+            if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v3(1, 0, 0), true) > min_steady_time)
             {
                 f->s.enable_bias_estimation();
                 if(get_bias_convergence(f, 1) >= 1.)
@@ -336,7 +336,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
         }
         case RCSensorFusionRunStateLandscapeCalibration:
         {
-            if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(0, 1, 0, 0), true) > min_steady_time)
+            if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v3(0, 1, 0), true) > min_steady_time)
             {
                 f->s.enable_bias_estimation();
                 if(get_bias_convergence(f, 0) >= 1.)
@@ -357,7 +357,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
         }
         case RCSensorFusionRunStateSteadyInitialization:
         {
-            auto steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(), false);
+            auto steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v3(), false);
             if(steady > min_steady_time)
             {
                 f->s.enable_bias_estimation();
@@ -382,9 +382,9 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
 
 void filter_accelerometer_measurement(struct filter *f, const float data[3], sensor_clock::time_point time)
 {
-    v4 meas_(data[0], data[1], data[2], 0.);
-    v4 meas = f->a_alignment * meas_;
-    v4 accel_delta = meas - f->last_accel_meas;
+    v3 meas_(data[0], data[1], data[2]);
+    v3 meas = f->a_alignment * meas_;
+    v3 accel_delta = meas - f->last_accel_meas;
     f->last_accel_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return;
@@ -405,8 +405,7 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
 
     if(fabs(accel_delta[0]) > max_accel_delta || fabs(accel_delta[1]) > max_accel_delta || fabs(accel_delta[2]) > max_accel_delta)
     {
-        f->log->warn("Rejecting an accel sample due to extreme jump {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
-        return;
+        f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
     }
     
     auto obs_a = std::make_unique<observation_accelerometer>(f->s, time, time);
@@ -431,9 +430,9 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
 
 void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time)
 {
-    v4 meas_(data[0], data[1], data[2], 0.);
-    v4 meas = f->w_alignment * meas_;
-    v4 gyro_delta = meas - f->last_gyro_meas;
+    v3 meas_(data[0], data[1], data[2]);
+    v3 meas = f->w_alignment * meas_;
+    v3 gyro_delta = meas - f->last_gyro_meas;
     f->last_gyro_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return;
@@ -454,8 +453,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
 
     if(fabs(gyro_delta[0]) > max_gyro_delta || fabs(gyro_delta[1]) > max_gyro_delta || fabs(gyro_delta[2]) > max_gyro_delta)
     {
-        f->log->warn("Rejecting a gyro sample due to extreme jump {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
-        return;
+        f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
     }
 
     auto obs_w = std::make_unique<observation_gyroscope>(f->s, time, time);
@@ -525,9 +523,6 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
     int o_width = aligned_depth->width, o_height = aligned_depth->height, o_stride = aligned_depth->stride / sizeof(uint16_t);
     uint16_t *in =        depth .image, *out     = aligned_depth->image;
 
-    if (!(i_width == 320 && i_height == 240))
-        printf("Our hardcoded depth intrisics are no good!\n");
-
     float d_focal_length_x =  f->depth.intrinsics.f_x_px                                            / f->depth.intrinsics.height_px,
           d_focal_length_y =  f->depth.intrinsics.f_y_px                                            / f->depth.intrinsics.height_px,
           d_center_x       = (f->depth.intrinsics.c_x_px - f->depth.intrinsics.width_px  / 2. + .5) / f->depth.intrinsics.height_px,
@@ -544,8 +539,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
           o_Fy = f->s.focal_length.v * o_height;
 
     transformation depth_to_color_m = invert(transformation(f->s.Qc.v,f->s.Tc.v)) * f->depth.extrinsics_wrt_imu_m;
-    Eigen::Vector4f x_T_mm = (depth_to_color_m.T * 1000).cast<float>();
-    Eigen::Array4i one = {0,1,0,1}, ONE = {0,0,1,1};
+    auto x_T_mm = (depth_to_color_m.T * 1000).cast<float>();
 
     for (int y = 0; y < i_height; y++)
         for (int x = 0; x < i_width; x++) {
@@ -563,23 +557,16 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
             float oy = o_Fy * iy / iz + o_Cy;
             float oz = iz;
 
-            if (0) {
-                int X = (int)roundf(ox), Y = (int)roundf(oy), Z = (int)roundf(oz);
-                if (X >= 0 && X < o_width && Y >=0 && Y < o_height)
-                    if (Z < out[Y * o_stride + X])
-                        out[Y * o_stride + X] = Z;
-            } else {
-                // ceil() and -1s give the 4 closest grid points
-                auto X = static_cast<int>(std::ceil(ox)) - Eigen::Array4i{0,1,0,1};
-                auto Y = static_cast<int>(std::ceil(oy)) - Eigen::Array4i{0,0,1,1};
-                auto Z = static_cast<int>(roundf(oz));
-                auto I = Y * o_stride + X;
-                auto within = X >= 0 && X < o_width && Y >= 0 && Y < o_height;
-                if (within[0] && oz < static_cast<float>(out[I[0]])) out[I[0]] = static_cast<uint16_t>(oz);
-                if (within[1] && oz < static_cast<float>(out[I[1]])) out[I[1]] = static_cast<uint16_t>(oz);
-                if (within[2] && oz < static_cast<float>(out[I[2]])) out[I[2]] = static_cast<uint16_t>(oz);
-                if (within[3] && oz < static_cast<float>(out[I[3]])) out[I[3]] = static_cast<uint16_t>(oz);
-            }
+            // ceil() and -1s give the 4 closest grid points
+            auto X = static_cast<int>(std::ceil(ox)) - Eigen::Array4i{0,1,0,1};
+            auto Y = static_cast<int>(std::ceil(oy)) - Eigen::Array4i{0,0,1,1};
+            auto Z = static_cast<int>(roundf(oz));
+            auto I = Y * o_stride + X;
+            auto within = X >= 0 && X < o_width && Y >= 0 && Y < o_height;
+            if (within[0] && oz < static_cast<float>(out[I[0]])) out[I[0]] = static_cast<uint16_t>(oz);
+            if (within[1] && oz < static_cast<float>(out[I[1]])) out[I[1]] = static_cast<uint16_t>(oz);
+            if (within[2] && oz < static_cast<float>(out[I[2]])) out[I[2]] = static_cast<uint16_t>(oz);
+            if (within[3] && oz < static_cast<float>(out[I[3]])) out[I[3]] = static_cast<uint16_t>(oz);
         }
 
     for (int Y = 0; Y < o_height; Y++)
@@ -690,8 +677,8 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
 void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned)
 {
     if(gravity_aligned) {
-        v4 z_old(0., 0., 1., 0.);
-        v4 z_new = origin.Q * z_old;
+        v3 z_old(0, 0, 1);
+        v3 z_new = origin.Q * z_old;
         quaternion Qd = rotation_between_two_vectors_normalized(z_new, z_old);
         f->origin.Q = Qd * origin.Q;
     } else f->origin.Q = origin.Q;
@@ -870,11 +857,11 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->w_variance = imu.w_noise_var_rad2__s2;
     f->a_variance = imu.a_noise_var_m2__s4;
 
-    f->a_alignment = m4::Identity();
+    f->a_alignment = m3::Identity();
     if (imu.a_alignment != m3::Zero())
         f->a_alignment.block<3,3>(0,0) = imu.a_alignment;
 
-    f->w_alignment = m4::Identity();
+    f->w_alignment = m3::Identity();
     if (imu.w_alignment != m3::Zero())
         f->w_alignment.block<3,3>(0,0) = imu.w_alignment;
 
@@ -892,14 +879,12 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 1;
     
-    observation_vision_feature::stdev[0] = stdev_scalar();
-    observation_vision_feature::stdev[1] = stdev_scalar();
-    observation_vision_feature::inn_stdev[0] = stdev_scalar();
-    observation_vision_feature::inn_stdev[1] = stdev_scalar();
-    observation_accelerometer::stdev = stdev_vector();
-    observation_accelerometer::inn_stdev = stdev_vector();
-    observation_gyroscope::stdev = stdev_vector();
-    observation_gyroscope::inn_stdev = stdev_vector();
+    observation_vision_feature::stdev = stdev<2>();
+    observation_vision_feature::inn_stdev = stdev<2>();
+    observation_accelerometer::stdev = stdev<3>();
+    observation_accelerometer::inn_stdev = stdev<3>();
+    observation_gyroscope::stdev = stdev<3>();
+    observation_gyroscope::inn_stdev = stdev<3>();
 
     f->last_time = sensor_clock::time_point(sensor_clock::duration(0));
     f->last_packet_time = sensor_clock::time_point(sensor_clock::duration(0));
@@ -918,8 +903,8 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->speed_warning = false;
     f->numeric_failed = false;
     f->speed_warning_time = sensor_clock::time_point(sensor_clock::duration(0));
-    f->gyro_stability = stdev_vector();
-    f->accel_stability = stdev_vector();
+    f->gyro_stability = stdev<3>();
+    f->accel_stability = stdev<3>();
     
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->calibration_bad = false;
@@ -941,18 +926,18 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.reset();
     f->s.maxstatesize = MAXSTATESIZE;
 
-    f->s.Tc.v = v4(cam.extrinsics_wrt_imu_m.T[0], cam.extrinsics_wrt_imu_m.T[1], cam.extrinsics_wrt_imu_m.T[2], 0.);
+    f->s.Tc.v = v3(cam.extrinsics_wrt_imu_m.T[0], cam.extrinsics_wrt_imu_m.T[1], cam.extrinsics_wrt_imu_m.T[2]);
     f->s.Qc.v = cam.extrinsics_wrt_imu_m.Q;
 
     f->s.Qc.set_initial_variance(cam.extrinsics_var_wrt_imu_m.W[0], cam.extrinsics_var_wrt_imu_m.W[1], cam.extrinsics_var_wrt_imu_m.W[2]);
     f->s.Tc.set_initial_variance(cam.extrinsics_var_wrt_imu_m.T[0], cam.extrinsics_var_wrt_imu_m.T[1], cam.extrinsics_var_wrt_imu_m.T[2]);
 
-    f->s.a_bias.v = v4(imu.a_bias_m__s2[0], imu.a_bias_m__s2[1], imu.a_bias_m__s2[2], 0.);
+    f->s.a_bias.v = v3(imu.a_bias_m__s2[0], imu.a_bias_m__s2[1], imu.a_bias_m__s2[2]);
     f_t tmp[3];
     //TODO: figure out how much drift we need to worry about between runs
     for(int i = 0; i < 3; ++i) tmp[i] = imu.a_bias_var_m2__s4[i] < min_a_bias_var ? min_a_bias_var : imu.a_bias_var_m2__s4[i];
     f->s.a_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
-    f->s.w_bias.v = v4(imu.w_bias_rad__s[0], imu.w_bias_rad__s[1], imu.w_bias_rad__s[2], 0.);
+    f->s.w_bias.v = v3(imu.w_bias_rad__s[0], imu.w_bias_rad__s[1], imu.w_bias_rad__s[2]);
     for(int i = 0; i < 3; ++i) tmp[i] = imu.w_bias_var_rad2__s2[i] < min_w_bias_var ? min_w_bias_var : imu.w_bias_var_rad2__s2[i];
     f->s.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
 

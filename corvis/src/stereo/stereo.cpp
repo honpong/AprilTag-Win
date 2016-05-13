@@ -25,7 +25,7 @@ void write_image(const char * path, uint8_t * image, int width, int height)
     fclose(f);
 }
 
-bool line_endpoints(v4 line, int width, int height, float endpoints[4])
+bool line_endpoints(v3 line, int width, int height, float endpoints[4])
 {
     float a = line[0], b = line[1], c = line[2];
     float intersect_y, intersect_x;
@@ -219,9 +219,9 @@ bool track_line(uint8_t * im1, bool * im1valid, uint8_t * im2,  bool * im2valid,
 }
 
 // From http://paulbourke.net/geometry/pointlineplane/lineline.c
-bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
+bool line_line_intersect(v3 p1, v3 p2, v3 p3, v3 p4, v3 & pa, v3 & pb)
 {
-    v4 p13,p43,p21;
+    v3 p13,p43,p21;
     double d1343,d4321,d1321,d4343,d2121;
     double numer,denom;
 
@@ -266,10 +266,10 @@ bool compare_score(const stereo_match & m1, const stereo_match & m2)
 
 bool stereo::find_and_triangulate_top_n(int reference_x, int reference_y, int width, int height, int n, vector<struct stereo_match> & matches) const
 {
-    v4 p1 = v4(reference_x, reference_y, 1, 0);
+    v3 p1 = v3(reference_x, reference_y, 1);
 
     // p2 should lie on this line
-    v4 l1 = F*p1;
+    v3 l1 = F*p1;
 
     bool success = false;
     float endpoints[4];
@@ -297,7 +297,7 @@ bool stereo::find_and_triangulate_top_n(int reference_x, int reference_y, int wi
         no_match.score = maximum_match_score;
         no_match.x = reference_x;
         no_match.y = reference_y;
-        no_match.point = v4(0,0,0,0);
+        no_match.point = v3(0,0,0);
         no_match.depth = 0;
         matches.push_back(no_match);
     }
@@ -306,12 +306,12 @@ bool stereo::find_and_triangulate_top_n(int reference_x, int reference_y, int wi
 }
 
 // F is from reference to target
-bool find_correspondence(const stereo_frame & reference, const stereo_frame & target, const m4 &F, int reference_x, int reference_y, int width, int height, struct stereo_match & match)
+bool find_correspondence(const stereo_frame & reference, const stereo_frame & target, const m3 &F, int reference_x, int reference_y, int width, int height, struct stereo_match & match)
 {
-    v4 p1 = v4(reference_x, reference_y, 1, 0);
+    v3 p1 = v3(reference_x, reference_y, 1);
 
     // p2 should lie on this line
-    v4 l1 = F*p1;
+    v3 l1 = F*p1;
 
     // ground truth sanity check
     // Normalize the line equation so that distances can be computed
@@ -340,10 +340,10 @@ bool find_correspondence(const stereo_frame & reference, const stereo_frame & ta
     return success;
 }
 
-bool estimate_F_eight_point(const stereo_frame & reference, const stereo_frame & target, m4 & F)
+bool estimate_F_eight_point(const stereo_frame & reference, const stereo_frame & target, m3 & F)
 {
-    vector<v4> reference_pts;
-    vector<v4> target_pts;
+    vector<v3> reference_pts;
+    vector<v3> target_pts;
 
     // This assumes reference->features and target->features are sorted by id
     for(list<stereo_feature>::const_iterator s1iter = reference.features.begin(); s1iter != reference.features.end(); ++s1iter) {
@@ -366,7 +366,7 @@ bool estimate_F_eight_point(const stereo_frame & reference, const stereo_frame &
     return true;
 }
 
-bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & target, m4 & F, m4 & R, v4 & T, void(*progress_callback)(float), float progress_start, float progress_end)
+bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & target, m3 & F, m3 & R, v3 & T, void(*progress_callback)(float), float progress_start, float progress_end)
 {
     // Detect and describe
     int noctaves = -1;
@@ -379,13 +379,13 @@ bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & t
     // Match
     vector<sift_match> matches = ubc_match(reference_keypoints, target_keypoints, progress_callback, progress_start + 2*step_progress, progress_start + 2.8*step_progress);
 
-    vector<v4> reference_correspondences;
-    vector<v4> target_correspondences;
+    vector<v3> reference_correspondences;
+    vector<v3> target_correspondences;
     for(int m = 0; m < matches.size(); m++) {
         feature_t p1 = reference_keypoints[matches[m].i1].pt;
         feature_t p2 = target_keypoints[matches[m].i2].pt;
-        reference_correspondences.push_back(v4(p1.x(), p1.y(), 1, 0));
-        target_correspondences.push_back(v4(p2.x(), p2.y(), 1, 0));
+        reference_correspondences.push_back(v3(p1.x(), p1.y(), 1));
+        target_correspondences.push_back(v3(p2.x(), p2.y(), 1));
     }
 
     // Estimate F
@@ -395,7 +395,7 @@ bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & t
     float sampson_thresh = 0.5;
 
     compute_inliers(&reference_correspondences[0], &target_correspondences[0], npoints, F, sampson_thresh, inliers);
-    v4 p1, p2;
+    v3 p1, p2;
     bool valid = false;
     for(int i = 0; i < npoints; i++) {
         if(inliers[i]) {
@@ -420,13 +420,13 @@ bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & t
 }
 
 // Triangulates a point in the world reference frame from two views
-bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v4 & intersection, float & depth, float & error) const
+bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v3 & intersection, float & depth, float & error) const
 {
-    v4 o1_transformed, o2_transformed;
-    v4 pa, pb;
+    v3 o1_transformed, o2_transformed;
+    v3 pa, pb;
     bool success;
 
-    v4 p1_calibrated, p2_calibrated;
+    v3 p1_calibrated, p2_calibrated;
     if(enable_distortion_correction) {
         p1_calibrated = camera.project_image_point(reference_x, reference_y);
         p2_calibrated = camera.project_image_point(target_x, target_y);
@@ -436,11 +436,11 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
         p2_calibrated = camera.calibrate_image_point(target_x, target_y);
     }
 
-    m4 R1w = to_rotation_matrix(reference.W);
-    m4 R2w = to_rotation_matrix(target.W);
+    m3 R1w = to_rotation_matrix(reference.W);
+    m3 R2w = to_rotation_matrix(target.W);
 
-    v4 p1_cal_transformed = R1w*p1_calibrated + reference.T;
-    v4 p2_cal_transformed = R2w*p2_calibrated + target.T;
+    v3 p1_cal_transformed = R1w*p1_calibrated + reference.T;
+    v3 p2_cal_transformed = R2w*p2_calibrated + target.T;
     o1_transformed = reference.T;
     o2_transformed = target.T;
 
@@ -454,8 +454,8 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
     }
 
     error = (pa - pb).norm();
-    v4 cam1_intersect = R1w.transpose() * (pa - reference.T);
-    v4 cam2_intersect = R2w.transpose() * (pb - target.T);
+    v3 cam1_intersect = R1w.transpose() * (pa - reference.T);
+    v3 cam2_intersect = R2w.transpose() * (pb - target.T);
     if(debug_triangulate)
         fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
 
@@ -476,7 +476,7 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
     return true;
 }
 
-bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 &F, bool use_eight_point, void(*progress_callback)(float), float progress_start, float progress_end)
+bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m3 &F, bool use_eight_point, void(*progress_callback)(float), float progress_start, float progress_end)
 {
     bool success = true;
     used_eight_point = use_eight_point;
@@ -487,15 +487,15 @@ bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 
     // estimate_F_eight_point uses common tracked features between the two frames
         success = estimate_F_eight_point(from, to, F);
 
-    m4 R_eight_point;
-    v4 T_eight_point;
+    m3 R_eight_point;
+    v3 T_eight_point;
     F = F_motion;
     bool valid = reestimate_F(from, to, F_eight_point, R_eight_point, T_eight_point, progress_callback, progress_start, progress_end);
     if(valid) {
         F = F_eight_point;
         if(enable_eight_point_motion) {
-            m4 Rto = R_eight_point.transpose();
-            v4 Tto = -R_eight_point.transpose()*T_eight_point;
+            m3 Rto = R_eight_point.transpose();
+            v3 Tto = -R_eight_point.transpose()*T_eight_point;
             to.W = to_rotation_vector(Rto);
             to.T = Tto * (to.T).norm(); // keep the magnitude of T
         }
@@ -526,7 +526,7 @@ void stereo::transform_to_reference(const stereo_frame * transform_to)
     reference->W = to_rotation_vector(toQ * to_quaternion(reference->W));
 }
 
-bool stereo::triangulate_mesh(int reference_x, int reference_y, v4 & intersection) const
+bool stereo::triangulate_mesh(int reference_x, int reference_y, v3 & intersection) const
 {
     if(!reference || !target)
         return false;
@@ -546,7 +546,7 @@ bool stereo::triangulate_top_n(int reference_x, int reference_y, int n, vector<s
     return ok;
 }
 
-bool stereo::triangulate(int reference_x, int reference_y, v4 & intersection, struct stereo_match * match) const
+bool stereo::triangulate(int reference_x, int reference_y, v3 & intersection, struct stereo_match * match) const
 {
     if(!reference || !target)
         return false;
@@ -585,7 +585,7 @@ int intersection_length(list<stereo_feature> &l1, list<stereo_feature> &l2)
     return len;
 }
 
-void stereo::process_frame(const class camera &g, const v4 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final)
+void stereo::process_frame(const class camera &g, const v3 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final)
 {
     camera = g;
 
@@ -694,7 +694,7 @@ void stereo::undistort_features(list<stereo_feature> & features)
     for(list<stereo_feature>::iterator fiter = features.begin(); fiter != features.end(); ++fiter) {
         stereo_feature f = *fiter;
         feature_t undistorted = camera.undistort_image_point(f.current[0], f.current[1]);
-        fiter->current = v4(undistorted.x(), undistorted.y(), 1, 0);
+        fiter->current = v3(undistorted.x(), undistorted.y(), 1);
     }
 }
 
@@ -716,14 +716,14 @@ void stereo::undistort_frames()
 
 }
 
-void m4_file_print(FILE * fp, const char * name, m4 M)
+void m3_file_print(FILE * fp, const char * name, m3 M)
 {
     fprintf(fp, "%s = [", name);
-    for(int r=0; r<4; r++) {
-        for(int c=0; c<4; c++) {
+    for(int r=0; r<3; r++) {
+        for(int c=0; c<3; c++) {
             fprintf(fp, " %g ", M(r, c));
         }
-        if(r == 3)
+        if(r == 2)
             fprintf(fp, "];\n");
         else
             fprintf(fp, ";\n");
@@ -731,9 +731,9 @@ void m4_file_print(FILE * fp, const char * name, m4 M)
 
 }
 
-void v4_file_print(FILE * fp, const char * name, v4 V)
+void v3_file_print(FILE * fp, const char * name, v3 V)
 {
-    fprintf(fp, "%s = [%g; %g; %g; %g];\n", name, V[0], V[1], V[2], V[3]);
+    fprintf(fp, "%s = [%g; %g; %g];\n", name, V[0], V[1], V[2]);
 }
 
 void stereo::write_debug_info()
@@ -750,15 +750,15 @@ void stereo::write_debug_info()
     fprintf(debug_info, "width = %d;\n", camera.width);
     fprintf(debug_info, "height = %d;\n", camera.height);
 
-    m4 Rtarget = to_rotation_matrix(target->W);
-    m4 Rreference = to_rotation_matrix(reference->W);
-    m4_file_print(debug_info, "Rtarget", Rtarget);
-    m4_file_print(debug_info, "Rreference", Rreference);
-    v4_file_print(debug_info, "Ttarget", target->T);
-    v4_file_print(debug_info, "Treference", reference->T);
+    m3 Rtarget = to_rotation_matrix(target->W);
+    m3 Rreference = to_rotation_matrix(reference->W);
+    m3_file_print(debug_info, "Rtarget", Rtarget);
+    m3_file_print(debug_info, "Rreference", Rreference);
+    v3_file_print(debug_info, "Ttarget", target->T);
+    v3_file_print(debug_info, "Treference", reference->T);
 
-    m4_file_print(debug_info, "dR", dR);
-    v4_file_print(debug_info, "dT", dT);
+    m3_file_print(debug_info, "dR", dR);
+    v3_file_print(debug_info, "dT", dT);
     fprintf(debug_info, "enable_jitter = %d;\n", enable_jitter);
     fprintf(debug_info, "enable_distortion_correction = %d;\n", enable_distortion_correction);
 
@@ -768,14 +768,14 @@ void stereo::write_debug_info()
     fprintf(debug_info, "k1 = %g;\n", camera.k1);
     fprintf(debug_info, "k2 = %g;\n", camera.k2);
     fprintf(debug_info, "k3 = %g;\n", camera.k3);
-    m4_file_print(debug_info, "F", F);
-    m4_file_print(debug_info, "F_motion", F_motion);
-    m4_file_print(debug_info, "F_eight_point", F_eight_point);
+    m3_file_print(debug_info, "F", F);
+    m3_file_print(debug_info, "F_motion", F_motion);
+    m3_file_print(debug_info, "F_eight_point", F_eight_point);
 
     fclose(debug_info);
 }
 
-stereo_frame::stereo_frame(const uint8_t *_image, int width, int height, const v4 &_T, const rotation_vector &_W, const list<stereo_feature > &_features): T(_T), W(_W), features(_features)
+stereo_frame::stereo_frame(const uint8_t *_image, int width, int height, const v3 &_T, const rotation_vector &_W, const list<stereo_feature > &_features): T(_T), W(_W), features(_features)
 {
     image = new uint8_t[width * height];
     valid = new bool [width * height];

@@ -15,6 +15,7 @@
 #include <GLFW/glfw3.h>
 #endif
 
+void build_orthographic_projection_matrix(float * projMatrix, float ratio, float * min, float * max);
 void build_projection_matrix(float * projMatrix, float fov, float ratio, float nearP, float farP);
 void print_shader_info_log(GLuint obj);
 void print_program_info_log(GLuint obj);

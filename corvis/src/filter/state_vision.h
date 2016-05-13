@@ -50,20 +50,20 @@ public:
     f_t invdepth() { return exp(-v); }
     f_t invdepth_jacobian() { return -exp(-v); }
     f_t stdev_meters(f_t stdev) { return exp(v + stdev) - exp(v); }
-    void set_depth_meters(f_t initial_depth) { v = (initial_depth > 0.) ? log(initial_depth) : 0.; }
-    log_depth(): v(0.) {}
+    void set_depth_meters(f_t initial_depth) { v = (initial_depth > 0) ? log(initial_depth) : 0; }
+    log_depth(): v(0) {}
 };
 
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
     f_t outlier = 0;
-    v4 initial;
-    v4 current;
+    v2 initial;
+    v2 current;
     f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
     uint64_t id;
     uint64_t groupid;
-    v4 world = v4(0, 0, 0, 0);
-    v4 Xcamera = v4(0, 0, 0, 0);
+    v3 world = v3(0, 0, 0);
+    v3 Xcamera = v3(0, 0, 0);
     feature_t image_velocity = {0,0};
     sensor_clock::duration dt = sensor_clock::duration(0);
     sensor_clock::duration last_dt = sensor_clock::duration(0);
@@ -162,8 +162,8 @@ class state_vision_group: public state_branch<state_node *> {
     static f_t min_feats;
     
     //cached data
-    m4 dQrp_s_dW;
-    m4 dTrp_ddT, dTrp_dQ_s;
+    m3 dQrp_s_dW;
+    m3 dTrp_ddT, dTrp_dQ_s;
 
     virtual std::ostream &print_to(std::ostream & s) const
     {
@@ -202,13 +202,12 @@ public:
     state_vision_group *reference;
 
     uint64_t last_reference{0};
-    v4 last_Tr;
+    v3 last_Tr;
     rotation_vector last_Wr;
 
     bool map_enabled{false};
     mapper map;
     transformation loop_offset;
-    f_t lost_factor;
     bool loop_closed{false};
     
     feature_t undistort_feature(const feature_t &feat_d) const;

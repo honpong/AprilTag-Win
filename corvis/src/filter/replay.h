@@ -31,6 +31,7 @@ private:
     std::atomic<bool> is_running{false};
     std::atomic<bool> is_paused{false};
     std::atomic<bool> is_stepping{false};
+    std::atomic<uint64_t> next_pause{0};
     bool is_realtime = false;
     std::function<void (const filter *, image_gray8 &&)> camera_callback;
     std::function<void (float)> progress_callback;
@@ -70,11 +71,13 @@ public:
     void start(string map_filename = string());
     void stop();
     void toggle_pause() { is_paused = !is_paused; }
+    void set_pause(uint64_t timestamp) { next_pause = timestamp; }
     void step() { is_paused = is_stepping = true; }
     uint64_t get_bytes_dispatched() { return bytes_dispatched; }
     uint64_t get_packets_dispatched() { return packets_dispatched; }
     double get_path_length() { return path_length; }
     double get_length() { return length; }
+    bool get_reference_pose(const sensor_clock::time_point & timestamp, tpose & pose_out);
     double get_reference_path_length() { return reference_path_length; }
     double get_reference_length() { return reference_length; }
     bool set_reference_from_filename(const string &filename);

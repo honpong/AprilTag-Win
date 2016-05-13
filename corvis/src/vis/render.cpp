@@ -89,7 +89,7 @@ void render::gl_init()
     program = p;
 }
 
-void render::draw_array(VertexData * data, int number, int gl_type)
+void render::draw_array(const VertexData * data, int number, int gl_type)
 {
     // Draw the frame
 	glVertexAttribPointer(vertex_loc, 3, GL_FLOAT, 0, sizeof(VertexData), &data[0].position);

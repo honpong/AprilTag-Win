@@ -13,46 +13,30 @@
 #include "../cor/packet.h"
 #include "../cor/sensor_data.h"
 
-packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
+packet_t *packet_alloc(enum packet_type type, uint32_t bytes_, uint64_t time)
 {
     //add 7 and mask to pad to 8-byte boundary
-    bytes = ((bytes + 7) & 0xfffffff8u);
-    //header
-    bytes += 16;
+    uint32_t bytes = ((bytes_ + 7) & 0xfffffff8u);
 
-    packet_t * ptr = (packet_t *)malloc(bytes);
+    packet_t * ptr = (packet_t *)malloc(sizeof(packet_header_t) + bytes);
     if(!ptr)
     {
         fprintf(stderr, "Capture failed: malloc returned null.\n");
         assert(0);
     }
     ptr->header.type = type;
-    ptr->header.bytes = bytes;
+    ptr->header.bytes = sizeof(packet_header_t) + bytes;
     ptr->header.time = time;
     ptr->header.user = 0;
+    memset(ptr->data + bytes_, 0, bytes - bytes_); // zero the padding
     return ptr;
 }
 
 void capture::write_packet(packet_t * p)
 {
-    write_lock.lock();
     file.write((const char *)p, p->header.bytes);
-    write_lock.unlock();
     bytes_written += p->header.bytes;
     packets_written++;
-}
-
-void capture::write_image_gray8(uint8_t * image, int width, int height, int stride, uint64_t timestamp)
-{
-    // 16 bytes for pgm header
-    packet_t *buf = packet_alloc(packet_camera, width*height+16, timestamp);
-
-    // TODO: For 1080 this could be a problem?
-    snprintf((char *)buf->data, 16, "P5 %4d %4d %d\n", width, height, 255);
-    unsigned char *outbase = buf->data + 16;
-    memcpy(outbase, image, width*height);
-    write_packet(buf);
-    free(buf);
 }
 
 void capture::write_accelerometer_data(const float data[3], uint64_t timestamp)
@@ -72,12 +56,6 @@ void capture::write_gyroscope_data(const float data[3], uint64_t timestamp)
     write_packet(buf);
     free(buf);
 }
-
-void capture::write_image_gray8(const image_gray8 &data)
-{
-    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-    write_image_gray8(data.image, data.width, data.height, data.stride, micros);
-};
 
 void capture::write_image_raw(const sensor_clock::time_point & timestamp, const sensor_clock::duration & exposure_time, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
 {
@@ -105,41 +83,86 @@ void capture::write_image_raw(const sensor_clock::time_point & timestamp, const 
     free(buf);
 }
 
-void capture::write_camera(const image_gray8 &data)
+void capture::write_camera(image_gray8 &&data)
 {
-    write_image_raw(data.timestamp, data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_GRAY8);
+    process(std::move([this, data=std::move(data)]() {
+        write_image_raw(data.timestamp, data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_GRAY8);
+    }));
 }
 
-void capture::write_camera(const image_depth16 &data)
+void capture::write_camera(image_depth16 &&data)
 {
-    write_image_raw(data.timestamp, data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_DEPTH16);
+    process(std::move([this, data=std::move(data)]() {
+        write_image_raw(data.timestamp, data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_DEPTH16);
+    }));
 }
 
-void capture::write_accelerometer(const accelerometer_data &data)
+void capture::write_accelerometer(accelerometer_data &&data)
 {
-    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-    write_accelerometer_data(data.accel_m__s2, micros);
+    process(std::move([this, data=std::move(data)]() {
+        auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+        write_accelerometer_data(data.accel_m__s2, micros);
+    }));
 }
 
-void capture::write_gyro(const gyro_data &data)
+void capture::write_gyro(gyro_data &&data)
 {
-    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-    write_gyroscope_data(data.angvel_rad__s, micros);
+    process(std::move([this, data=std::move(data)]() {
+        auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+        write_gyroscope_data(data.angvel_rad__s, micros);
+    }));
 }
 
-bool capture::start(const char *name)
+void capture::process(std::function<void()> &&write) {
+    if (threaded) {
+        {
+            std::lock_guard<std::mutex> queue_lock(queue_mutex);
+            queue.push(std::move(write));
+        }
+        cv.notify_one();
+    } else {
+        write();
+    }
+}
+
+bool capture::start(const char *name, bool threaded)
 {
     file.open(name, std::ios::binary);
-    if(file.bad())
-    {
-        std::cerr << "Couldn't open file " << name << " for writing.\n";
+    if(!file.is_open())
         return false;
-    }
+    if ((this->threaded = threaded))
+        thread = std::thread([this]() {
+            while(file.is_open()) {
+                std::unique_lock<std::mutex> queue_lock(queue_mutex);
+                cv.wait(queue_lock);
+                while (!queue.empty()) {
+                    std::function<void()> write;
+                    std::swap(write, queue.front());
+                    queue.pop();
+                    queue_lock.unlock();
+                    write();
+                    queue_lock.lock();
+                }
+            }
+        });
     return true;
 }
 
 void capture::stop()
 {
-    file.flush();
-    file.close();
+    if (file.is_open()) {
+        if (threaded) {
+            {
+                std::lock_guard<std::mutex> queue_lock(queue_mutex);
+                while (!queue.empty()) {
+                    queue.front()();
+                    queue.pop();
+                }
+                file.close();
+            }
+            cv.notify_one();
+            thread.join();
+        } else
+            file.close();
+    }
 }

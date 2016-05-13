@@ -144,7 +144,7 @@ bool TrackerManager::StartCalibration()
 void TrackerManager::SetOutputLog(const std::wstring filename)
 {
     std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    rc_setOutputLog(_tracker, converter.to_bytes(filename).c_str());
+    rc_setOutputLog(_tracker, converter.to_bytes(filename).c_str(), rc_E_SYNCRONOUS);
 }
 
 bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)

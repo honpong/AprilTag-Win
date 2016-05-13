@@ -189,7 +189,7 @@ bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
             m4 m = m4::Zero();
             m.block<3,4>(0,0) = extrinsic.assert_m<3,4>("A_T_B");
             if (t)
-                *t = transformation(m, m.block<4,1>(0,3));
+                *t = transformation(m.block<3,3>(0,0), m.block<3,1>(0,3));
         }
         if (node *geo_ = root->first_node("geo_location")) {
             checked_node geo(geo_);

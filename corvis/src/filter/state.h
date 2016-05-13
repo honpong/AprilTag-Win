@@ -16,6 +16,7 @@ extern "C" {
 #include "../numerics/covariance.h"
 #include "../cor/platform/sensor_clock.h"
 #include "spdlog/spdlog.h"
+#include "spdlog/sinks/null_sink.h"
 
 #include <vector>
 #include <list>
@@ -112,7 +113,7 @@ public:
 
     int statesize, maxstatesize;
     covariance &cov;
-    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", spdlog::sinks::stderr_sink_st::instance());
+    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", make_shared<spdlog::sinks::null_sink_st> ());
 
     int remap() {
 #ifdef TEST_POSDEF
@@ -272,9 +273,9 @@ protected:
     int size;
 };
 
-#define PERTURB_FACTOR 1.1
+#define PERTURB_FACTOR f_t(1.1)
 
-class state_vector: public state_leaf<v4, 3> {
+class state_vector: public state_leaf<v3, 3> {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
     state_vector(const char *_name): state_leaf(_name) { reset(); }
@@ -290,7 +291,7 @@ public:
     
     void reset() {
         index = -1;
-        v = v4::Zero();
+        v = v3::Zero();
     }
     
     void perturb_variance() {
@@ -300,9 +301,9 @@ public:
         cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
-    v4 variance() const {
-        if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], 0.);
-        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.);
+    v3 variance() const {
+        if(index < 0) return v3(initial_variance[0], initial_variance[1], initial_variance[2]);
+        return v3((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2));
     }
     
     void copy_state_to_array(matrix &state) {
@@ -350,9 +351,9 @@ public:
         cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
-    v4 variance() const {
-        if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], 0.);
-        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.);
+    v3 variance() const {
+        if(index < 0) return v3(initial_variance[0], initial_variance[1], initial_variance[2]);
+        return v3((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2));
     }
     
     void copy_state_to_array(matrix &state) {

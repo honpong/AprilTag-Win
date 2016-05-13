@@ -2,7 +2,7 @@
 #include "../filter/filter.h"
 #include "../cor/packet.h"
 
-static VertexData axis_data[] = {
+static const VertexData axis_data[] = {
     {{0, 0, 0}, {255, 0, 0, 255}},
     {{.5, 0, 0}, {255, 0, 0, 255}},
     {{0, 0, 0}, {0, 255, 0, 255}},
@@ -11,17 +11,8 @@ static VertexData axis_data[] = {
     {{0, 0, .5}, {0, 0, 255, 255}},
 };
 
-static VertexData orientation_data[] = {
-    {{0, 0, 0}, {255, 0, 0, 255}},
-    {{.5, 0, 0}, {255, 0, 0, 255}},
-    {{0, 0, 0}, {0, 255, 0, 255}},
-    {{0, .5, 0}, {0, 255, 0, 255}},
-    {{0, 0, 0}, {0, 0, 255, 255}},
-    {{0, 0, .5}, {0, 0, 255, 255}},
-};
-
-static std::size_t feature_ellipse_vertex_size = 30; // 15 segments
-static std::size_t max_plot_samples = 1000;
+static const std::size_t feature_ellipse_vertex_size = 30; // 15 segments
+static const std::size_t max_plot_samples = 1000;
 void world_state::render_plot(size_t plot_index, size_t key_index, std::function<void (plot&, size_t key_index)> render_callback)
 {
     std::lock_guard<std::mutex> lock(plot_lock);
@@ -140,9 +131,22 @@ static inline void compute_covariance_ellipse(state_vision_feature * feat, float
     ctheta = (float)theta; // rotate
 }
 
+uint64_t world_state::get_current_timestamp()
+{
+    std::lock_guard<std::mutex> lock(time_lock);
+    return sensor_clock::tp_to_micros(current_timestamp);
+}
+
+void world_state::update_current_timestamp(const sensor_clock::time_point & timestamp)
+{
+    std::lock_guard<std::mutex> lock(time_lock);
+    if(timestamp > current_timestamp)
+        current_timestamp = timestamp;
+}
+
 void world_state::receive_camera(const filter * f, image_gray8 &&d)
 {
-    current_timestamp = d.timestamp;
+    update_current_timestamp(d.timestamp);
     current_feature_timestamp = d.timestamp;
     for(auto feat : f->s.features) {
         if(feat->is_valid()) {
@@ -150,7 +154,7 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
             bool good = stdev / feat->v.depth() < .02;
             float cx, cy, ctheta;
             compute_covariance_ellipse(feat, cx, cy, ctheta);
-            v4 world = feat->world;
+            v3 world = feat->world;
 
             observe_feature(d.timestamp, feat->id,
                             (float)world[0], (float)world[1], (float)world[2],
@@ -210,41 +214,41 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
     }
     p++;
 
-#ifdef estimate_camera_intrinsics
-    if (f->s.fisheye)
-        observe_plot_item(d.timestamp, p, "kw", (float)f->s.k1.v);
-    else {
-        observe_plot_item(d.timestamp, p, "k1", (float)f->s.k1.v);
-        observe_plot_item(d.timestamp, p, "k2", (float)f->s.k2.v);
-        observe_plot_item(d.timestamp, p, "k3", (float)f->s.k3.v);
+    if (f->s.estimate_camera_intrinsics) {
+        if (f->s.fisheye)
+            observe_plot_item(d.timestamp, p, "kw", (float)f->s.k1.v);
+        else {
+            observe_plot_item(d.timestamp, p, "k1", (float)f->s.k1.v);
+            observe_plot_item(d.timestamp, p, "k2", (float)f->s.k2.v);
+            observe_plot_item(d.timestamp, p, "k3", (float)f->s.k3.v);
+        }
+        p++;
+
+        observe_plot_item(d.timestamp, p, "F", (float)(f->s.focal_length.v * f->s.image_height));
+        p++;
+
+        observe_plot_item(d.timestamp, p, "C_x", (float)(f->s.center_x.v * f->s.image_height + f->s.image_width  / 2. - .5));
+        observe_plot_item(d.timestamp, p, "C_y", (float)(f->s.center_y.v * f->s.image_height + f->s.image_height / 2. - .5));
+        p++;
     }
-    p++;
 
-    observe_plot_item(d.timestamp, p, "F", (float)(f->s.focal_length.v * f->s.image_height));
-    p++;
+    if (f->s.estimate_camera_extrinsics) {
+        observe_plot_item(d.timestamp, p, "Tc_x", (float)f->s.Tc.v[0]);
+        observe_plot_item(d.timestamp, p, "Tc_y", (float)f->s.Tc.v[1]);
+        observe_plot_item(d.timestamp, p, "Tc_z", (float)f->s.Tc.v[2]);
+        p++;
 
-    observe_plot_item(d.timestamp, p, "C_x", (float)(f->s.center_x.v * f->s.image_height + f->s.image_width  / 2. - .5));
-    observe_plot_item(d.timestamp, p, "C_y", (float)(f->s.center_y.v * f->s.image_height + f->s.image_height / 2. - .5));
-    p++;
-#endif
+        observe_plot_item(d.timestamp, p, "Tvar_x", (float)f->s.T.variance()[0]);
+        observe_plot_item(d.timestamp, p, "Tvar_y", (float)f->s.T.variance()[1]);
+        observe_plot_item(d.timestamp, p, "Tvar_z", (float)f->s.T.variance()[2]);
+        p++;
 
-#ifdef estimate_camera_extrinsics
-    observe_plot_item(d.timestamp, p, "Tc_x", (float)f->s.Tc.v[0]);
-    observe_plot_item(d.timestamp, p, "Tc_y", (float)f->s.Tc.v[1]);
-    observe_plot_item(d.timestamp, p, "Tc_z", (float)f->s.Tc.v[2]);
-    p++;
+        observe_plot_item(d.timestamp, p, "Wc_x", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[0]);
+        observe_plot_item(d.timestamp, p, "Wc_y", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[1]);
+        observe_plot_item(d.timestamp, p, "Wc_z", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[2]);
+        p++;
+    }
 
-    observe_plot_item(d.timestamp, p, "Tvar_x", (float)f->s.T.variance()[0]);
-    observe_plot_item(d.timestamp, p, "Tvar_y", (float)f->s.T.variance()[1]);
-    observe_plot_item(d.timestamp, p, "Tvar_z", (float)f->s.T.variance()[2]);
-    p++;
-
-    observe_plot_item(d.timestamp, p, "Wc_x", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[0]);
-    observe_plot_item(d.timestamp, p, "Wc_y", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[1]);
-    observe_plot_item(d.timestamp, p, "Wc_z", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[2]);
-    p++;
-#endif
-    
     observe_plot_item(d.timestamp, p, "T_x", (float)f->s.T.v[0]);
     observe_plot_item(d.timestamp, p, "T_y", (float)f->s.T.v[1]);
     observe_plot_item(d.timestamp, p, "T_z", (float)f->s.T.v[2]);
@@ -280,8 +284,8 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
     observe_plot_item(d.timestamp, p, "g-inn-mean_z", (float)observation_gyroscope::inn_stdev.mean[2]);
     p++;
 
-    observe_plot_item(d.timestamp, p, "v-inn-mean_x", (float)observation_vision_feature::inn_stdev[0].mean);
-    observe_plot_item(d.timestamp, p, "v-inn-mean_y", (float)observation_vision_feature::inn_stdev[1].mean);
+    observe_plot_item(d.timestamp, p, "v-inn-mean_x", (float)observation_vision_feature::inn_stdev.mean[0]);
+    observe_plot_item(d.timestamp, p, "v-inn-mean_y", (float)observation_vision_feature::inn_stdev.mean[1]);
     p++;
 
     if (f->observations.recent_a.get()) {
@@ -317,6 +321,7 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
 world_state::world_state()
 {
     path_vertex = (VertexData *)calloc(sizeof(VertexData), path_vertex_alloc);
+    path_gt_vertex = (VertexData *)calloc(sizeof(VertexData), path_gt_vertex_alloc);
     feature_vertex = (VertexData *)calloc(sizeof(VertexData), feature_vertex_alloc);
     feature_ellipse_vertex = (VertexData *)calloc(sizeof(VertexData), feature_ellipse_vertex_alloc);
     map_node_vertex = (VertexData *)calloc(sizeof(VertexData), map_node_vertex_alloc);
@@ -325,6 +330,7 @@ world_state::world_state()
     build_grid_vertex_data();
     axis_vertex = axis_data;
     axis_vertex_num = 6;
+    memcpy(orientation_data, axis_data, sizeof(axis_data));
     orientation_vertex = orientation_data;
     orientation_vertex_num = 6;
     last_image.width = 0;
@@ -339,6 +345,8 @@ world_state::~world_state()
 {
     if(path_vertex)
         free(path_vertex);
+    if(path_gt_vertex)
+        free(path_gt_vertex);
     if(feature_vertex)
         free(feature_vertex);
     if(feature_ellipse_vertex)
@@ -409,7 +417,9 @@ void world_state::update_vertex_arrays(bool show_only_good)
     /*
      * Build vertex arrays for feature and path data
      */
+    sensor_clock::time_point now = sensor_clock::micros_to_tp(get_current_timestamp());
     display_lock.lock();
+
     int idx;
 
     // reallocate if we now have more data than room for vertices
@@ -438,6 +448,10 @@ void world_state::update_vertex_arrays(bool show_only_good)
     if(map_feature_vertex_alloc < map_features) {
         map_feature_vertex_alloc = map_features*2;
         map_feature_vertex = (VertexData *)realloc(map_feature_vertex, sizeof(VertexData)*map_feature_vertex_alloc);
+    }
+    if(path_gt_vertex_alloc < path_gt.size()) {
+        path_gt_vertex_alloc = path_gt.size()*2;
+        path_gt_vertex = (VertexData *)realloc(path_gt_vertex, sizeof(VertexData)*path_gt_vertex_alloc);
     }
     if(feature_ellipse_vertex_alloc < features.size()*feature_ellipse_vertex_size) {
         feature_ellipse_vertex_alloc = features.size()*feature_ellipse_vertex_size*2;
@@ -472,13 +486,12 @@ void world_state::update_vertex_arrays(bool show_only_good)
     idx = 0;
     for(auto p : path)
     {
-        if (p.timestamp == current_timestamp) {
+        if (p.timestamp == now) {
             set_color(&path_vertex[idx], 0, 255, 0, 255);
             for(int i = 0; i < 6; i++) {
-                v4 vertex(axis_vertex[i].position[0],
+                v3 vertex(axis_vertex[i].position[0],
                           axis_vertex[i].position[1],
-                          axis_vertex[i].position[2],
-                          0);
+                          axis_vertex[i].position[2]);
                 vertex = transformation_apply(p.g, vertex);
                 orientation_data[i].position[0] = (float)vertex[0];
                 orientation_data[i].position[1] = (float)vertex[1];
@@ -508,7 +521,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
             set_color(&map_node_vertex[idx], 255, 0, 0, alpha);
         else
             set_color(&map_node_vertex[idx], 255, 255, 0, alpha);
-        v4 v1(node.position.T.x(), node.position.T.y(), node.position.T.z(), 0);
+        v3 v1(node.position.T);
         set_position(&map_node_vertex[idx], v1[0], v1[1], v1[2]);
         for(uint64_t neighbor_id : node.neighbors) {
             if(!node.finished || !map_nodes[neighbor_id].finished) continue;
@@ -529,7 +542,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
             nedges++;
         }
         for(Feature f : node.features) {
-            v4 vertex(f.x, f.y, f.z, 0);
+            v3 vertex(f.x, f.y, f.z);
             vertex = transformation_apply(node.position, vertex);
             if(node.loop_closed)
                 set_color(&map_feature_vertex[nfeatures], 255, 127, 127, 255);
@@ -543,6 +556,14 @@ void world_state::update_vertex_arrays(bool show_only_good)
     map_node_vertex_num = idx;
     map_edge_vertex_num = nedges;
     map_feature_vertex_num = nfeatures;
+
+    for(auto p : path_gt)
+    {
+        set_color(&path_gt_vertex[idx], 206, 100, 178, 255); // path color
+        set_position(&path_gt_vertex[idx], (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
+        idx++;
+    }
+    path_gt_vertex_num = idx;
     display_lock.unlock();
 }
 
@@ -636,8 +657,7 @@ void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t f
     display_lock.lock();
     if(timestamp > current_feature_timestamp)
         current_feature_timestamp = timestamp;
-    if(timestamp > current_timestamp)
-        current_timestamp = timestamp;
+    update_current_timestamp(timestamp);
     if(features.count(feature_id))
         f.times_seen = features[feature_id].times_seen+1;
     features[feature_id] = f;
@@ -649,10 +669,47 @@ void world_state::observe_position(sensor_clock::time_point timestamp, float x, 
     Position p;
     p.timestamp = timestamp;
     quaternion q(qw, qx, qy, qz);
-    p.g = transformation(q, v4(x, y, z, 0));
+    p.g = transformation(q, v3(x, y, z));
     display_lock.lock();
     path.push_back(p);
-    if(timestamp > current_timestamp)
-        current_timestamp = timestamp;
+    update_current_timestamp(timestamp);
+    display_lock.unlock();
+}
+
+void world_state::get_bounding_box(float min[3], float max[3])
+{
+    // in meters
+    min[0] = -1; min[1] = -1; min[2] = -1;
+    max[0] =  1; max[1] =  1; max[2] =  1;
+    for(auto p : path) {
+        min[0] = std::min(min[0], (float)p.g.T.x());
+        min[1] = std::min(min[1], (float)p.g.T.y());
+        min[2] = std::min(min[2], (float)p.g.T.z());
+        max[0] = std::max(max[0], (float)p.g.T.x());
+        max[1] = std::max(max[1], (float)p.g.T.y());
+        max[2] = std::max(max[2], (float)p.g.T.z());
+    }
+    for(auto const & item : features) {
+        //auto feature_id = item.first;
+        auto f = item.second;
+        if(!f.good) continue;
+
+        min[0] = std::min(min[0], (float)f.x);
+        min[1] = std::min(min[1], (float)f.y);
+        min[2] = std::min(min[2], (float)f.z);
+        max[0] = std::max(max[0], (float)f.x);
+        max[1] = std::max(max[1], (float)f.y);
+        max[2] = std::max(max[2], (float)f.z);
+    }
+}
+
+void world_state::observe_position_gt(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz)
+{
+    Position p;
+    p.timestamp = timestamp;
+    quaternion q(qw, qx, qy, qz);
+    p.g = transformation(q, v3(x, y, z));
+    display_lock.lock();
+    path_gt.push_back(p);
     display_lock.unlock();
 }

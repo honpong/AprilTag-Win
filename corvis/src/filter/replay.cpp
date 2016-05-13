@@ -71,10 +71,16 @@ bool replay::set_calibration_from_filename(const char *filename)
     return true;
 }
 
+bool replay::get_reference_pose(const sensor_clock::time_point & timestamp, tpose & pose_out)
+{
+    return reference_seq && reference_seq->get_pose(timestamp, pose_out);
+}
+
 bool replay::set_reference_from_filename(const string &filename)
 {
-    return load_reference_from_pose_file(filename + ".pose")
-        || find_reference_in_filename(filename);
+    return load_reference_from_pose_file(filename + ".pose") ||
+           load_reference_from_pose_file(filename + ".vicon") ||
+           find_reference_in_filename(filename);
 }
 
 bool replay::load_reference_from_pose_file(const string &filename)
@@ -196,6 +202,11 @@ void replay::start(string map_filename)
         realtime_offset = std::chrono::microseconds(0);
 
     while (is_running) {
+        if(next_pause && next_pause <= header.time) {
+            fprintf(stderr, "Paused at %llu\n", header.time);
+            next_pause = 0;
+            is_paused = true;
+        }
         auto start_pause = sensor_clock::now();
         auto finish_pause = start_pause;
         while(is_paused  && !is_stepping && is_running) {
@@ -367,7 +378,7 @@ void replay::start(string map_filename)
     file.close();
 
     {
-        v4 T = fusion.get_transformation().T;
+        v3 T = fusion.get_transformation().T;
         std::lock_guard<std::mutex> en_guard(lengths_mutex);
         length = (float) T.norm();
         path_length = fusion.sfm.s.total_distance;

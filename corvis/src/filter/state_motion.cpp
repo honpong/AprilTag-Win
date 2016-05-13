@@ -10,9 +10,9 @@
 
 void state_motion_orientation::cache_jacobians(f_t dt)
 {
-    dW = (w.v + f_t(.5) * dt * dw.v) * dt;
+    dW = (w.v + dt/2 * dw.v) * dt;
     rotation_vector dW_(dW[0],dW[1],dW[2]); // FIXME: remove this
-    m4 R = to_rotation_matrix(Q.v);
+    m3 R = to_rotation_matrix(Q.v);
     JdW_s = to_spatial_jacobian(f_t(.5) * dW_);
     dQp_s_dW = R * JdW_s;
     Rt = R.transpose();  // FIXME: remove this?
@@ -25,7 +25,7 @@ void state_motion_orientation::project_motion_covariance(matrix &dst, const matr
         const auto cov_w = w.from_row(src, i);
         const auto cov_dw = dw.from_row(src, i);
         w.to_col(dst, i) = cov_w + dt * cov_dw;
-        const v3 cov_dW = (cov_w + f_t(.5) * dt * cov_dw) * dt;
+        const v3 cov_dW = (cov_w + dt/2 * cov_dw) * dt;
         Q.to_col(dst, i) = scov_Q + dQp_s_dW.block<3,3>(0,0) * cov_dW;
     }
 }
@@ -36,7 +36,7 @@ void state_motion_orientation::evolve_state(f_t dt)
     Q.v = Q.v * to_quaternion(dW_); // FIXME: use cached value?
     w.v = w.v + dw.v * dt;
 
-    static stdev_vector w_dev, dw_dev;
+    static stdev<3> w_dev, dw_dev;
     w_dev.data(w.v);
     dw_dev.data(dw.v);
 }
@@ -46,7 +46,7 @@ void state_motion_orientation::compute_gravity(double latitude, double altitude)
     //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
     double sin_lat = sin(latitude/180. * M_PI);
     double sin_2lat = sin(2*latitude/180. * M_PI);
-    g.v = gravity_magnitude = 9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude;
+    g.v = gravity_magnitude = (f_t)(9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude);
 }
 
 void state_motion::evolve_state(f_t dt)
@@ -58,7 +58,7 @@ void state_motion::evolve_state(f_t dt)
     T.v = T.v + dT;
     V.v = V.v + dt * a.v;
 
-    static stdev_vector V_dev, a_dev;
+    static stdev<3> V_dev, a_dev;
     V_dev.data(V.v);
     a_dev.data(a.v);
 }
@@ -73,7 +73,7 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
         const auto cov_T = T.from_row(src, i);
         const auto cov_V = V.from_row(src, i);
         const auto cov_a = a.from_row(src, i);
-        T.to_col(dst, i) = cov_T + dt * (cov_V + f_t(.5) * dt * cov_a);
+        T.to_col(dst, i) = cov_T + dt * (cov_V + dt/2 * cov_a);
         V.to_col(dst, i) = cov_V + dt * cov_a;
     }
 }
@@ -84,7 +84,7 @@ void state_motion::cache_jacobians(f_t dt)
 
     if (orientation_only) return;
 
-    dT = dt * (V.v + f_t(.5) * dt * a.v);
+    dT = dt * (V.v + dt/2 * a.v);
 }
 
 void state_motion::remove_non_orientation_states()

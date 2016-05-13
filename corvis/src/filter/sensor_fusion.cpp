@@ -21,7 +21,7 @@ void sensor_fusion::set_transformation(const transformation &pose_m)
     sfm.origin = compose(pose_m, invert(transformation(sfm.s.Q.v, sfm.s.T.v)));
 }
 
-v4 sensor_fusion::filter_to_external_position(const v4& x) const
+v3 sensor_fusion::filter_to_external_position(const v3& x) const
 {
     return transformation_apply(compose(sfm.origin, sfm.s.loop_offset), x);
 }
@@ -109,7 +109,7 @@ std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
             p.y = i->current[1];
             p.original_depth = i->v.depth();
             p.stdev = i->v.stdev_meters(sqrt(i->variance()));
-            v4 ext_pos = filter_to_external_position(i->world);
+            v3 ext_pos = filter_to_external_position(i->world);
             p.worldx = ext_pos[0];
             p.worldy = ext_pos[1];
             p.worldz = ext_pos[2];
@@ -126,16 +126,6 @@ void sensor_fusion::update_data(image_gray8 &&image)
     
     //perform these operations synchronously in the calling (filter) thread
     d->total_path_m = sfm.s.total_distance;
-    camera_parameters cp;
-    cp.fx = sfm.s.focal_length.v * sfm.s.image_height;
-    cp.fy = sfm.s.focal_length.v * sfm.s.image_height;
-    cp.cx = sfm.s.center_x.v * sfm.s.image_height + sfm.s.image_width / 2. - .5;
-    cp.cy = sfm.s.center_y.v * sfm.s.image_height + sfm.s.image_height / 2. - .5;
-    cp.skew = 0;
-    cp.k1 = sfm.s.k1.v;
-    cp.k2 = sfm.s.k2.v;
-    cp.k3 = sfm.s.k3.v;
-    d->camera_intrinsics = cp;
 #ifdef ENABLE_QR
     if(sfm.qr.valid)
     {
@@ -310,11 +300,6 @@ void sensor_fusion::reset(sensor_clock::time_point time, const transformation &i
     filter_set_origin(&sfm, initial_pose_m, false);
 }
 
-void sensor_fusion::attempt_relocalization()
-{
-    queue->dispatch_async([this]() { sfm.s.lost_factor = 1.; });
-}
-
 void sensor_fusion::start_mapping()
 {
     sfm.s.map.reset();
@@ -397,8 +382,8 @@ void sensor_fusion::trigger_log() const
 
     transformation transform = get_transformation();
     
-    m4 R = to_rotation_matrix(transform.Q);
-    v4 T = transform.T;
+    m3 R = to_rotation_matrix(transform.Q);
+    v3 T = transform.T;
 
     std::stringstream s(std::stringstream::out);
     s << sfm.last_time.time_since_epoch().count() << " " << " " <<

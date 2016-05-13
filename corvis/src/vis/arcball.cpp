@@ -7,8 +7,8 @@ void arcball::reset()
 
 void arcball::rotate_quaternion_with_delta(float dx, float dy)
 {
-    v4 up(0,1,0,0);
-    v4 right(-1,0,0,0);
+    v3 up(0,1,0);
+    v3 right(-1,0,0);
 
     // up and right now rotation_vectors
     up = conjugate(q)*up*dx*radians_per_pixel;
@@ -42,7 +42,7 @@ void arcball::start_view_rotation(float rotation)
 
 void arcball::continue_view_rotation(float rotation)
 {
-    v4 axis(0, 0, -1, 0);
+    v3 axis(0, 0, -1);
     axis = conjugate(q)*axis;
 
     float delta = rotation - last_view_rotation;

@@ -168,7 +168,7 @@ TEST(CalibrationXML, Print)
     calibration cal = {};
     cal.device_id = "hello";
 
-    cal.depth.extrinsics_wrt_imu_m = transformation(rotation_vector(M_PI/M_SQRT2,-M_PI/M_SQRT2,0), v4(3,4.7,5,0));
+    cal.depth.extrinsics_wrt_imu_m = transformation(rotation_vector(M_PI/M_SQRT2,-M_PI/M_SQRT2,0), v3(3,4.7,5));
     cal.depth.intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
     cal.depth.intrinsics.f_x_px = 400;
     cal.depth.intrinsics.f_y_px = 404;
@@ -176,7 +176,7 @@ TEST(CalibrationXML, Print)
     cal.depth.intrinsics.c_y_px = 240.2;
     cal.depth.name = "depth";
 
-    cal.fisheye.extrinsics_wrt_imu_m = transformation(rotation_vector(0,-M_PI/M_SQRT2,0), v4(4,3.5,7,0));
+    cal.fisheye.extrinsics_wrt_imu_m = transformation(rotation_vector(0,-M_PI/M_SQRT2,0), v3(4,3.5,7));
     cal.fisheye.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
     cal.fisheye.intrinsics.f_x_px = 410;
     cal.fisheye.intrinsics.f_y_px = 414;
@@ -193,7 +193,7 @@ TEST(CalibrationXML, Print)
 
     EXPECT_EQ(cal.device_id, "hello");
     EXPECT_QUATERNION_NEAR(cal.depth.extrinsics_wrt_imu_m.Q, to_quaternion(rotation_vector(M_PI/M_SQRT2,-M_PI/M_SQRT2,0)), 0);
-    EXPECT_V4_NEAR(        cal.depth.extrinsics_wrt_imu_m.T, v4(3,4.7,5,0), 0);
+    EXPECT_V3_NEAR(        cal.depth.extrinsics_wrt_imu_m.T, v3(3,4.7,5), 0);
     EXPECT_EQ(cal.depth.intrinsics.type, rc_CALIBRATION_TYPE_UNDISTORTED);
     EXPECT_EQ(cal.depth.intrinsics.f_x_px, 400);
     EXPECT_EQ(cal.depth.intrinsics.f_y_px, 404);
@@ -202,7 +202,7 @@ TEST(CalibrationXML, Print)
     EXPECT_EQ(cal.depth.name, "depth");
 
     EXPECT_QUATERNION_NEAR(cal.fisheye.extrinsics_wrt_imu_m.Q, to_quaternion(rotation_vector(M_PI/M_SQRT2,-M_PI/M_SQRT2,0)), 0);
-    EXPECT_V4_NEAR(        cal.fisheye.extrinsics_wrt_imu_m.T, v4(3,4.7,5,0), 0);
+    EXPECT_V3_NEAR(        cal.fisheye.extrinsics_wrt_imu_m.T, v3(3,4.7,5), 0);
     EXPECT_EQ(cal.fisheye.intrinsics.type, rc_CALIBRATION_TYPE_FISHEYE);
     EXPECT_EQ(cal.fisheye.intrinsics.f_x_px, 410);
     EXPECT_EQ(cal.fisheye.intrinsics.f_y_px, 414);

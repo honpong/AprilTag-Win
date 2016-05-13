@@ -182,7 +182,7 @@ RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose alig
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 /**
-  WARNING: These callbacks are syncronous with the the filter thread. Don't do significant work in them!
+  WARNING: These callbacks are synchronous with the the filter thread. Don't do significant work in them!
 */
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
@@ -191,9 +191,9 @@ RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback
 typedef enum rc_TrackerRunFlags
 {
     /** rc_Tracker should process data on the callers thread. */
-    rc_E_SYNCRONOUS = 0,
+    rc_E_SYNCHRONOUS = 0,
     /** rc_Tracker should process data on its own thread, returning immediately from all calls. */
-    rc_E_ASYNCRONOUS = 1,
+    rc_E_ASYNCHRONOUS = 1,
 } rc_TrackerRunFlags;
 
 RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
@@ -217,7 +217,7 @@ RCTRACKER_API void rc_unpause(rc_Tracker *tracker);
  rc_receiveAccelerometer(...)
  rc_receiveGyro(...)
  // start the tracker and set the position
- rc_startTracker(tracker, rc_E_SYNCRONOUS);
+ rc_startTracker(tracker, rc_E_SYNCHRONOUS);
  rc_setPose(tracker, rc_POSE_IDENTITY);
  */
 RCTRACKER_API void rc_startBuffering(rc_Tracker *tracker);
@@ -278,7 +278,7 @@ RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);
 /**
  If this is set, writes a log file in Realitycap's internal format to the filename specified
  */
-RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const char *filename);
+RCTRACKER_API bool rc_setOutputLog(rc_Tracker *tracker, const char *filename, rc_TrackerRunFlags run_flags);
 
 /**
     Yields a JSON string that represents the tracker's current a calibration data.

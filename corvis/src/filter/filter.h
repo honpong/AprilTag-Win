@@ -24,9 +24,8 @@ struct filter {
     {
         //make sure all pointers are null
         mask = 0;
-        
+
         //these need to be initialized to defaults - everything else is handled in filter_initialize that is called every time
-        gravity_magnitude = 9.80665;
         ignore_lateness = false;
     }
     ~filter() {
@@ -47,24 +46,23 @@ struct filter {
     f_t w_variance;
     f_t a_variance;
 
-    m4 w_alignment;
-    m4 a_alignment;
+    m3 w_alignment;
+    m3 a_alignment;
 
     bool gravity_init;
-    f_t gravity_magnitude;
 
     calibration::camera depth = {};
 
     sensor_clock::time_point want_start;
     bool got_accelerometer, got_gyroscope, got_image;
-    v4 last_gyro_meas, last_accel_meas;
+    v3 last_gyro_meas, last_accel_meas;
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;
     sensor_clock::time_point speed_warning_time;
     bool ignore_lateness;
     tracker track;
-    stdev_vector gyro_stability, accel_stability;
+    stdev<3> gyro_stability, accel_stability;
     sensor_clock::time_point stable_start;
     bool calibration_bad;
     
@@ -89,7 +87,7 @@ struct filter {
     transformation origin;
     bool origin_gravity_aligned;
 
-    v4 a_bias_start, w_bias_start; //for tracking calibration progress
+    v3 a_bias_start, w_bias_start; //for tracking calibration progress
     
     observation_queue observations;
     

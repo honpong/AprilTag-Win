@@ -39,7 +39,7 @@ public:
     uint64_t drop_late = 0;
     uint64_t total_in = 0;
     uint64_t total_out = 0;
-    stdev_scalar stats;
+    stdev<1> stats;
 #ifdef DEBUG
     histogram hist{200};
 #endif

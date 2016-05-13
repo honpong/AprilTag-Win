@@ -18,7 +18,6 @@
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 #include "device_parameters.h"
-#include "capture.h"
 #include "filter.h"
 
 class sensor_fusion
@@ -32,14 +31,6 @@ public:
         RCSensorFusionConfidence confidence{ RCSensorFusionConfidenceNone };
         f_t progress{ 0 };
         bool operator==(const struct status & other) { return run_state == other.run_state && error == other.error && confidence == other.confidence && progress == other.progress; }
-    };
-    
-    struct camera_parameters
-    {
-        f_t fx, fy;
-        f_t cx, cy;
-        f_t skew;
-        f_t k1, k2, k3;
     };
     
     struct feature_point
@@ -58,7 +49,6 @@ public:
         sensor_clock::time_point time;
         transformation transform;
         std::string origin_qr_code;
-        camera_parameters camera_intrinsics;
         f_t total_path_m;
         std::vector<feature_point> features;
     };
@@ -113,9 +103,6 @@ public:
     /** Stops the processing of video and inertial data. */
     void stop();
 
-    /** Forces the system to assume that it is lost and attempt to recover by recognizing a previously visited location. May not have any immediate effect, but the system will make best efforts to relocalize until it can. */
-    void attempt_relocalization();
-    
     /**
      Resets system, clearing all history and state, and sets initial pose and time.
      System will be stopped until one of the start_ functions is called.
@@ -214,16 +201,6 @@ public:
     /** Immediately output a position via the log function */
     void trigger_log() const;
 
-    void set_output_log(const char * filename)
-    {
-        if(output.start(filename))
-            output_enabled = true;
-        else
-            fprintf(stderr, "Error opening %s for writing\n", filename);
-    }
-    bool output_enabled{false};
-    capture output;
-    
     std::string get_timing_stats() { return queue->get_stats(); };
 
     //public for now
@@ -233,10 +210,10 @@ public:
     
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
     transformation accel_to_camera_world_transform() const;
-    v4 accel_to_camera_position(const v4& x) const;
-    v4 camera_to_accel_position(const v4& x) const;
+    v3 accel_to_camera_position(const v3& x) const;
+    v3 camera_to_accel_position(const v3& x) const;
     transformation accel_to_camera_transformation(const transformation &x) const;
-    v4 filter_to_external_position(const v4& x) const;
+    v3 filter_to_external_position(const v3& x) const;
     
     //Gets the current transformation, moving from filter-internal to external coordinates
     //Adjusts for camera vs accel centered and QR offset

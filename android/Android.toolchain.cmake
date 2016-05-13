@@ -22,14 +22,16 @@ if (NOT CMAKE_C_COMPILER_EXTERNAL_TOOLCHAIN AND NOT CMAKE_C_COMPILER_TARGET) # W
   set(ANDROID_TOOLCHAIN_MACHINE_NAME "${CMAKE_SYSTEM_PROCESSOR}-linux-android" CACHE INTERNAL "Toolchain target")
 
   set(ANDROID_TOOLCHAIN_ROOT "${CMAKE_BINARY_DIR}/toolchain" CACHE PATH "Toolchain root")
-  if (NOT EXISTS "${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
-    file(REMOVE_RECURSE "${ANDROID_TOOLCHAIN_ROOT}")
-    execute_process(COMMAND "${ANDROID_NDK_ROOT}/build/tools/make-standalone-toolchain.sh"
-                            --platform=${ANDROID_PLATFORM} --arch=${ANDROID_ARCH} --llvm-version=3.6 --stl=libcxx
-                            --install-dir="${ANDROID_TOOLCHAIN_ROOT}")
+  foreach (llvm --use-llvm --llvm-version=3.6)
     if (NOT EXISTS "${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
-      message(FATAL_ERROR "Failed to build the toolchain: ${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
+      file(REMOVE_RECURSE "${ANDROID_TOOLCHAIN_ROOT}")
+      execute_process(COMMAND "${ANDROID_NDK_ROOT}/build/tools/make-standalone-toolchain.sh"
+                              --platform=${ANDROID_PLATFORM} --arch=${ANDROID_ARCH} ${llvm} --stl=libcxx
+                              --install-dir="${ANDROID_TOOLCHAIN_ROOT}")
     endif()
+  endforeach()
+  if (NOT EXISTS "${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
+    message(FATAL_ERROR "Failed to build the toolchain: ${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
   endif()
 
   set(CMAKE_C_COMPILER   "${ANDROID_TOOLCHAIN_ROOT}/bin/${ANDROID_TOOLCHAIN_MACHINE_NAME}-clang"   CACHE PATH "C")

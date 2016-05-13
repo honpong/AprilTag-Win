@@ -15,7 +15,7 @@ public:
     void gl_init();
     void start_render(float * view_matrix, float * projection_matrix);
     void gl_destroy();
-    void draw_array(VertexData * data, int number, int gl_type);
+    void draw_array(const VertexData * data, int number, int gl_type);
 };
 
 #endif

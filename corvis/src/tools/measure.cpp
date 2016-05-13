@@ -6,10 +6,25 @@
 #include "benchmark.h"
 #include <iomanip>
 
+#ifdef WIN32
+#include <direct.h>
+#define mkdir(dir,mode) _mkdir(dir)
+#else
+#include <sys/stat.h>
+#endif
+
+std::string render_filename_from_filename(const char * benchmark_folder, const char * render_folder, const char * filename)
+{
+    std::string render_filename(filename);
+    render_filename = render_filename.substr(strlen(benchmark_folder) + 1);
+    std::replace(render_filename.begin(), render_filename.end(), '/', '_');
+    return std::string(render_folder) + "/" + render_filename + ".png";
+}
+
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--intel] [--realtime] [--pause] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
+        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--intel] [--realtime] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
         cerr << "       " << v[0] << " [--qvga] [--drop-depth] [--intel] --benchmark <directory>\n";
         return 1;
     }
@@ -20,7 +35,8 @@ int main(int c, char **v)
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     bool enable_map = false;
-    char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr;
+    char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
+    char *pause_at = nullptr;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
@@ -32,6 +48,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--no-video") == 0) show_video = false;
         else if (strcmp(v[i], "--no-main")  == 0) show_main  = false;
         else if (strcmp(v[i], "--pause")  == 0) start_paused  = true;
+        else if (strcmp(v[i], "--pause-at")  == 0 && i+1 < c) pause_at = v[++i];
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
         else if (strcmp(v[i], "--qvga") == 0) qvga = true;
         else if (strcmp(v[i], "--drop-depth") == 0) depth = false;
@@ -42,6 +59,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--load") == 0 && i+1 < c) load = v[++i];
         else if (strcmp(v[i], "--benchmark") == 0) benchmark = true;
         else if (strcmp(v[i], "--benchmark-output") == 0 && i+1 < c) benchmark_output = v[++i];
+        else if (strcmp(v[i], "--render-output") == 0 && i+1 < c) render_output = v[++i];
         else if (strcmp(v[i], "--calibrate") == 0) calibrate = true;
         else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
         else goto usage;
@@ -58,6 +76,17 @@ int main(int c, char **v)
 
         if(!rp.open(capture_file))
             return false;
+
+        if(pause_at) {
+            uint64_t pause_time = 0;
+            try {
+                pause_time = stoull(string(pause_at));
+            } catch (...) {
+                cerr << "invalid timestamp: " << pause_at << "\n";
+                return false;
+            }
+            rp.set_pause(pause_time);
+        }
 
         if (load) {
           if(!rp.load_calibration(load)) {
@@ -77,6 +106,9 @@ int main(int c, char **v)
             cerr << capture_file << ": unable to find a reference to measure against\n";
             return false;
         }
+
+        rp.fusion.sfm.s.log = std::make_unique<spdlog::logger>("state", spdlog::sinks::stderr_sink_st::instance());
+        rp.fusion.sfm.s.map.log = std::make_unique<spdlog::logger>("mapper", spdlog::sinks::stderr_sink_st::instance());
 
         return true;
     };
@@ -109,10 +141,27 @@ int main(int c, char **v)
         std::ofstream benchmark_ofstream;
         std::ostream &stream = benchmark_output ? benchmark_ofstream.open(benchmark_output), benchmark_ofstream : std::cout;
 
-        benchmark_run(stream, filename, [&](const char *capture_file, struct benchmark_result &res) -> bool {
+        if (render_output)
+            mkdir(render_output, 0777);
+
+        benchmark_run(stream, filename,
+        [&](const char *capture_file, struct benchmark_result &res) -> bool {
             auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
 
             if (!configure(rp, capture_file)) return false;
+
+            if(render_output) {
+                world_state * ws = new world_state();
+                res.user_data = ws;
+                rp.set_camera_callback([ws,&rp](const filter * f, image_gray8 &&d) {
+                    tpose P(d.timestamp);
+                    if(rp.get_reference_pose(d.timestamp, P))
+                        ws->observe_position_gt(P.t, P.G.T.x(), P.G.T.y(), P.G.T.z(), P.G.Q.w(), P.G.Q.x(), P.G.Q.y(), P.G.Q.z());
+                    ws->receive_camera(f, std::move(d));
+                });
+            } else
+                res.user_data = nullptr;
+
 
             std::cout << "Running  " << capture_file << std::endl;
             rp.start(load_map);
@@ -124,6 +173,17 @@ int main(int c, char **v)
             print_results(rp, capture_file);
 
             return true;
+        },
+        [&](const char *capture_file, struct benchmark_result &res) -> void {
+            if(render_output && res.user_data) {
+                world_state * ws = (world_state *)res.user_data;
+                std::string render_filename = render_filename_from_filename(filename, render_output, capture_file);
+
+                if(!offscreen_render_to_file(render_filename.c_str(), ws))
+                    cerr << "Failed to render " << render_filename << "\n";
+                delete ws;
+            }
+
         });
         return 0;
     }
@@ -139,6 +199,9 @@ int main(int c, char **v)
     world_state ws;
     if(enable_gui || rendername) {
         rp.set_camera_callback([&](const filter * f, image_gray8 &&d) {
+            tpose P(d.timestamp);
+            if(rp.get_reference_pose(d.timestamp, P))
+                ws.observe_position_gt(P.t, P.G.T.x(), P.G.T.y(), P.G.T.z(), P.G.Q.w(), P.G.Q.x(), P.G.Q.y(), P.G.Q.z());
             ws.receive_camera(f, std::move(d));
         });
     }

@@ -27,7 +27,7 @@ private:
     };
 
     float projection_matrix[16]; // 4x4
-    float view_matrix[16]; // 4x4
+    Eigen::Matrix<float,4,4,Eigen::ColMajor> view_matrix;
 
     void start_glfw();
     void init_gl();

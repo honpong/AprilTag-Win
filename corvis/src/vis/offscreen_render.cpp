@@ -24,16 +24,11 @@ static GLfloat modelview_matrix[16] = {
     0.0f, 0.0f, 0.0f, 1.0f
 };
 
-void configure_view()
+void configure_view(float min[3], float max[3])
 {
     glViewport(0, 0, width, height);
     float aspect = 1.f*width/height;
-    build_projection_matrix(projection_matrix, 60.0f, aspect, 1.0f, 30.0f);
-
-    /* Set the camera position */
-    modelview_matrix[12]  = 0.0f;
-    modelview_matrix[13]  = 0.0f;
-    modelview_matrix[14]  = -5.0f;
+    build_orthographic_projection_matrix(projection_matrix, aspect, min, max);
 }
 
 static void error_callback(int error, const char* description)
@@ -55,7 +50,7 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
     glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 
     glfwSetErrorCallback(error_callback);
-    GLFWwindow* window = glfwCreateWindow(512, 512, "Offscreen Render", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(width, height, "Offscreen Render", NULL, NULL);
     if (!window)
     {
         fprintf(stderr, "Failed to create a window\n");
@@ -74,7 +69,14 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
     world_state_render_init();
 
     // Draw call
-    configure_view();
+    float min[3], max[3];
+    float border_factor = 1.1;
+    world->get_bounding_box(min, max);
+    for(int i = 0; i < 3; i++) {
+        min[i] *= border_factor;
+        max[i] *= border_factor;
+    }
+    configure_view(min, max);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0, 0, 0, 0);                   // background color
 
@@ -107,10 +109,10 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
 
     // If there's an error, display it
     if(error)
-        fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
+        fprintf(stderr, "%s: encoder error %d: %s\n", filename, error, lodepng_error_text(error));
 
     glfwDestroyWindow(window);
     glfwTerminate();
 
-    return true;
+    return !error;
 }

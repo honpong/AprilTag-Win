@@ -12,6 +12,15 @@
 using namespace rapidjson;
 using namespace std;
 
+static bool require_key(const Value &json, const char * KEY)
+{
+    if(!json.HasMember(KEY)) {
+        fprintf(stderr, "Error: Required key %s not found\n", KEY);
+        return false;
+    }
+    return true;
+}
+
 static void copy_json_to_camera(Value &json, calibration::camera &cam, Document::AllocatorType& a);
 static void copy_json_to_imu(Value &json, struct calibration::imu &imu, Document::AllocatorType& a);
 static void copy_json_to_calibration(Value &json, calibration_json &cal, Document::AllocatorType& a)
@@ -47,7 +56,7 @@ static void copy_json_to_camera(Value &json, calibration::camera &cam, Document:
                 cam.intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
             break;
         case 1:
-            if (json.HasMember(KEY_KW)) {
+            if (require_key(json, KEY_KW)) {
                 cam.intrinsics.w  = json[KEY_KW].GetDouble();
                 cam.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
             }
@@ -57,10 +66,10 @@ static void copy_json_to_camera(Value &json, calibration::camera &cam, Document:
             break;
     }
 
-    if (json.HasMember(KEY_TC0) && json.HasMember(KEY_TC1) && json.HasMember(KEY_TC2))
-        cam.extrinsics_wrt_imu_m.T = v4(json[KEY_TC0].GetDouble(), json[KEY_TC1].GetDouble(), json[KEY_TC2].GetDouble(), 0);
+    if (require_key(json, KEY_TC0) && require_key(json, KEY_TC1) && require_key(json, KEY_TC2))
+        cam.extrinsics_wrt_imu_m.T = v3(json[KEY_TC0].GetDouble(), json[KEY_TC1].GetDouble(), json[KEY_TC2].GetDouble());
 
-    if (json.HasMember(KEY_WC0) && json.HasMember(KEY_WC1) && json.HasMember(KEY_WC2))
+    if (require_key(json, KEY_WC0) && require_key(json, KEY_WC1) && require_key(json, KEY_WC2))
         cam.extrinsics_wrt_imu_m.Q = to_quaternion(rotation_vector(json[KEY_WC0].GetDouble(), json[KEY_WC1].GetDouble(), json[KEY_WC2].GetDouble()));
 
     if (json.HasMember(KEY_TCVAR0) && json.HasMember(KEY_TCVAR1) && json.HasMember(KEY_TCVAR2))

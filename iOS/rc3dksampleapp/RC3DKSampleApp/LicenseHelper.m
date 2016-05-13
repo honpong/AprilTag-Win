@@ -7,6 +7,7 @@
 //
 
 #import "LicenseHelper.h"
+#import <UIKit/UIKit.h>
 
 @implementation LicenseHelper
 

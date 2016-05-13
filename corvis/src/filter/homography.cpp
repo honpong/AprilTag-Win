@@ -49,15 +49,15 @@ static void homography_set_correspondence(Eigen::Matrix<f_t, 8, 9> &X, int n, fl
 
 /* Positive depth check adapted from essentialDiscrete.m
  */
-bool homography_check_solution(const m4 &R, const v4 &T, const feature_t p1[4], const feature_t p2[4])
+bool homography_check_solution(const m3 &R, const v3 &T, const feature_t p1[4], const feature_t p2[4])
 {
     int nvalid = 0;
     for(int i = 0; i < 4; i++)
     {
-        v4 x1 = v4(p1[i].x(), p1[i].y(), 1, 0);
-        v4 x2 = v4(p2[i].x(), p2[i].y(), 1, 0);
-        m4 skew_Rx1 = skew3(R*x1);
-        m4 skew_x2 = skew3(x2);
+        v3 x1 = v3(p1[i].x(), p1[i].y(), 1);
+        v3 x2 = v3(p2[i].x(), p2[i].y(), 1);
+        m3 skew_Rx1 = skew(R*x1);
+        m3 skew_x2 = skew(x2);
         float alpha1 = (float)(-(skew_x2*T).dot(skew_x2*R*x1)/pow((skew_x2*T).norm(), 2));
         float alpha2 =  (float)((skew_Rx1*x2).dot(skew_Rx1*T)/pow((skew_Rx1*x2).norm(), 2));
         //fprintf(stderr, "alpha1 %f alpha2 %f\n", alpha1, alpha2);
@@ -93,14 +93,14 @@ m3 homography_estimate_from_constraints(const Eigen::Matrix<f_t, 8, 9> &X)
     return Hest;
 }
 
-void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
+void homography_factorize(const m3 &H, m3 Rs[4], v3 Ts[4], v3 Ns[4])
 {
     matrix U(3, 3);
     matrix S(1, 3);
     matrix Vt(3, 3);
     //Matlab: [u,s,v] = svd(H'*H);
-    m4 HtH = H.transpose() * H;
-    matrix HtH_tmp(HtH.data(), 3, 3, 4, 4);
+    m3 HtH = H.transpose() * H;
+    matrix HtH_tmp(HtH.data(), 3, 3);
     matrix_svd(HtH_tmp, U, S, Vt);
     
     //Matlab: s1 = s(1,1); s2 = s(2,2); s3 = s(3,3); - ignore, just use S(1)
@@ -108,7 +108,7 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
     //Matlab: if det(u) < 0 u = -u; end;
     //    v1 = u(:,1); v2 = u(:,2); v3 = u(:,3);
     
-    m4 Utmp;
+    m3 Utmp;
     for(int i = 0; i < 3; ++i)
     {
         for(int j = 0; j < 3; ++j)
@@ -116,54 +116,54 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
             Utmp(i, j) = U(i, j);
         }
     }
-    //float usign = (determinant3(Utmp) < 0.) ? 1. : -1.;
+    //float usign = (Utmp.block<3,3>(0,0).determinant() < 0.) ? 1. : -1.;
     
-    v4 v1(U(0, 0), U(1, 0), U(2, 0), 0.);
-    v4 v2(U(0, 1), U(1, 1), U(2, 1), 0.);
-    v4 v3(U(0, 2), U(1, 2), U(2, 2), 0.);
+    v3 w1(U(0, 0), U(1, 0), U(2, 0));
+    v3 w2(U(0, 1), U(1, 1), U(2, 1));
+    v3 w3(U(0, 2), U(1, 2), U(2, 2));
     
-    if(determinant3(Utmp) < 0.)
+    if(Utmp.determinant() < 0)
     {
-        v1 = -v1;
-        v2 = -v2;
-        v3 = -v3;
+        w1 = -w1;
+        w2 = -w2;
+        w3 = -w3;
     }
     
     //Matlab: u1 = (v1*sqrt(1-s3) + v3*sqrt(s1 -1))/sqrt(s1 - s3);
-    v4 u1 = (v1 * sqrt(1 - S[2]) + v3 * sqrt(S[0] - 1)) / sqrt(S[0] - S[2]);
+    v3 u1 = (w1 * sqrt(1 - S[2]) + w3 * sqrt(S[0] - 1)) / sqrt(S[0] - S[2]);
     
     //Matlab: u2 = (v1*sqrt(1-s3) - v3*sqrt(s1 -1))/sqrt(s1 - s3);
-    v4 u2 = (v1 * sqrt(1 - S[2]) - v3 * sqrt(S[0] - 1)) / sqrt(S[0] - S[2]);
+    v3 u2 = (w1 * sqrt(1 - S[2]) - w3 * sqrt(S[0] - 1)) / sqrt(S[0] - S[2]);
     
     //Matlab: U1 = [v2, u1, skew(v2)*u1];
-    m4 Ut = m4::Zero();
-    Ut.row(0) = v2;
+    m3 Ut = m3::Zero();
+    Ut.row(0) = w2;
     Ut.row(1) = u1;
-    Ut.row(2) = skew3(v2) * u1;
-    m4 U1 = Ut.transpose();
+    Ut.row(2) = skew(w2) * u1;
+    m3 U1 = Ut.transpose();
     
     //Matlab: U2 = [v2, u2, skew(v2)*u2];
-    Ut.row(0) = v2;
+    Ut.row(0) = w2;
     Ut.row(1) = u2;
-    Ut.row(2) = skew3(v2) * u2;
-    m4 U2 = Ut.transpose();
+    Ut.row(2) = skew(w2) * u2;
+    m3 U2 = Ut.transpose();
     
     //Matlab: W1 = [H*v2, H*u1, skew(H*v2)*H*u1];
-    Ut.row(0) = H * v2;
+    Ut.row(0) = H * w2;
     Ut.row(1) = H * u1;
-    Ut.row(2) = skew3(H * v2) * H * u1;
-    m4 W1 = Ut.transpose();
+    Ut.row(2) = skew(H * w2) * H * u1;
+    m3 W1 = Ut.transpose();
     
     //Matlab: W2 = [H*v2, H*u2, skew(H*v2)*H*u2];
-    Ut.row(0) = H * v2;
+    Ut.row(0) = H * w2;
     Ut.row(1) = H * u2;
-    Ut.row(2) = skew3(H * v2) * H * u2;
-    m4 W2 = Ut.transpose();
+    Ut.row(2) = skew(H * w2) * H * u2;
+    m3 W2 = Ut.transpose();
     
     //Matlab: N1 = skew(v2)*u1;
-    v4 N1 = skew3(v2) * u1;
+    v3 N1 = skew(w2) * u1;
     //Matlab: N2 = skew(v2)*u2;
-    v4 N2 = skew3(v2) * u2;
+    v3 N2 = skew(w2) * u2;
     
     /* Matlab:
      Sol(:,:,1) = [W1*U1', (H - W1*U1')*N1, N1];
@@ -175,15 +175,6 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
     Rs[1] = W2 * U2.transpose();
     Rs[2] = W1 * U1.transpose();
     Rs[3] = W2 * U2.transpose();
-    
-    for(int i = 0; i < 4; ++i)
-    {
-        for(int j = 0; j < 3; ++j)
-        {
-            Rs[i](3, j) = 0.;
-        }
-        Rs[i](3, 3) = 1.;
-    }
     
     Ts[0] = (H - Rs[0]) * N1;
     Ts[1] = (H - Rs[1]) * N2;
@@ -217,24 +208,23 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
 // HR = H - R
 //
 // T = HR3
-homography_decomposition homography_decompose_direct(const m4 & H)
+homography_decomposition homography_decompose_direct(const m3 & H)
 {
     homography_decomposition d;
-    d.N = v4(0, 0, 1, 0);
+    d.N = v3(0, 0, 1);
 
-    v4 r0(H(0, 0), H(1, 0), H(2, 0), 0);
-    v4 r1(H(0, 1), H(1, 1), H(2, 1), 0);
-    v4 r2 = cross(r0, r1);
-    m4 Rt;
+    v3 r0(H(0, 0), H(1, 0), H(2, 0));
+    v3 r1(H(0, 1), H(1, 1), H(2, 1));
+    v3 r2 = r0.cross(r1);
+    m3 Rt;
     Rt.row(0) = r0;
     Rt.row(1) = r1;
     Rt.row(2) = r2;
-    Rt.row(3) = v4(0, 0, 0, 1);
     // since we constructed R with each row corresponding to a column
     // from the derivation, we need to transpose it
     d.R = Rt.transpose();
 
-    d.T = v4(H(0, 2) - d.R(0, 2), H(1, 2) - d.R(1, 2), H(2, 2) - d.R(2, 2), 0);
+    d.T = v3(H(0, 2) - d.R(0, 2), H(1, 2) - d.R(1, 2), H(2, 2) - d.R(2, 2));
 
     return d;
 }
@@ -248,7 +238,7 @@ void print_decomposition(const homography_decomposition & d)
     */
 }
 
-vector<homography_decomposition> homography_positive_depth(const feature_t p1[4], const feature_t p2[4], const m4 & H, const m4 Rs[4], const v4 Ts[4], const v4 Ns[4])
+vector<homography_decomposition> homography_positive_depth(const feature_t p1[4], const feature_t p2[4], const m3 & H, const m3 Rs[4], const v3 Ts[4], const v3 Ns[4])
 {
     vector<homography_decomposition> results;
     for(int i = 0; i < 4; ++i)
@@ -263,12 +253,12 @@ vector<homography_decomposition> homography_positive_depth(const feature_t p1[4]
     return results;
 }
 
-bool homography_should_flip_sign(const m4 & H, const feature_t p1[4], const feature_t p2[4])
+bool homography_should_flip_sign(const m3 & H, const feature_t p1[4], const feature_t p2[4])
 {
     int poscount = 0;
     for(int i = 0; i < 4; i++) {
-        v4 x1(p1[i].x(), p1[i].y(), 1, 0);
-        v4 x2(p2[i].x(), p2[i].y(), 1, 0);
+        v3 x1(p1[i].x(), p1[i].y(), 1);
+        v3 x2(p2[i].x(), p2[i].y(), 1);
         if(x2.dot(H*x1) >= 0)
             poscount++;
         else
@@ -279,7 +269,7 @@ bool homography_should_flip_sign(const m4 & H, const feature_t p1[4], const feat
 }
 
 //Based on Matlab from http://cs.gmu.edu/%7Ekosecka/examples-code/homography2Motion.m
-m4 homography_compute(const feature_t p1[4], const feature_t p2[4])
+m3 homography_compute(const feature_t p1[4], const feature_t p2[4])
 {
     Eigen::Matrix<f_t, 8, 9> X;
     
@@ -295,18 +285,17 @@ m4 homography_compute(const feature_t p1[4], const feature_t p2[4])
         //Note: Since we choose X1, this should never be degenerate
         homography_set_correspondence(X, c, p1[c].x(), p1[c].y(), p2[c].x(), p2[c].y());
     }
-    m4 H = m4::Identity();
-    H.block(0, 0, 3, 3) = homography_estimate_from_constraints(X);
+    m3 H = homography_estimate_from_constraints(X);
     if(homography_should_flip_sign(H, p1, p2))
         H = -H;
 
     return H;
 }
 
-vector<homography_decomposition> homography_decompose(const feature_t p1[4], const feature_t p2[4], const m4 & H)
+vector<homography_decomposition> homography_decompose(const feature_t p1[4], const feature_t p2[4], const m3 & H)
 {
-    m4 Rs[4];
-    v4 Ts[4], Ns[4];
+    m3 Rs[4];
+    v3 Ts[4], Ns[4];
     homography_factorize(H, Rs, Ts, Ns);
     return homography_positive_depth(p1, p2, H, Rs, Ts, Ns);
 }
@@ -344,7 +333,7 @@ bool homography_align_qr_ideal(const feature_t p2[4], float qr_size_m, bool use_
     feature_t p1[4];
     fill_ideal_points(p1, qr_size_m, use_markers, modules);
 
-    m4 H = homography_compute(p1, p2);
+    m3 H = homography_compute(p1, p2);
 
 #if USE_EASY_DECOMPOSITION
 
@@ -375,22 +364,22 @@ bool homography_align_qr_ideal(const feature_t p2[4], float qr_size_m, bool use_
 #endif
 }
 
-void compose_with(m4 & R, v4 & T, const m4 & withR, const v4 & withT)
+void compose_with(m3 & R, v3 & T, const m3 & withR, const v3 & withT)
 {
     T = R*withT + T;
     R = R*withR;
 }
 
-void homography_ideal_to_qr(m4 & R, v4 & T)
+void homography_ideal_to_qr(m3 & R, v3 & T)
 {
     // Riq = 180 degree rotation around X axis
-    m4 Riq = m4::Identity();
+    m3 Riq = m3::Identity();
     Riq(1, 1) = -1; Riq(2, 2) = -1;
-    v4 Tiq = v4(0, 0, 1, 0);
+    v3 Tiq = v3(0, 0, 1);
     compose_with(R, T, Riq, Tiq);
 }
 
-bool homography_align_to_qr(const feature_t p2[4], float qr_size_m, int modules, m4 & R, v4 & T)
+bool homography_align_to_qr(const feature_t p2[4], float qr_size_m, int modules, m3 & R, v3 & T)
 {
     homography_decomposition result;
     bool use_markers = true;

@@ -9,11 +9,12 @@
 #include "rc_tracker.h"
 #include "sensor_fusion.h"
 #include "device_parameters.h"
+#include "capture.h"
 #include <fstream>
 
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 {
-    m4 R = to_rotation_matrix(g.Q);
+    m3 R = to_rotation_matrix(g.Q);
     for(int i = 0; i < 3; i++) {
         for(int j = 0; j < 3; j++) {
             p[i * 4 + j] = (float)R(i, j);
@@ -25,7 +26,7 @@ static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 static transformation rc_Pose_to_transformation(const rc_Pose p)
 {
     transformation g;
-    m4 R = m4::Zero();
+    m3 R = m3::Zero();
     for(int i = 0; i < 3; i++) {
         for(int j = 0; j < 3; j++) {
             R(i,j) = p[i * 4 + j];
@@ -100,6 +101,7 @@ struct rc_Tracker: public sensor_fusion
     std::vector<rc_Feature> gottenFeatures;
     std::vector<rc_Feature> dataFeatures;
     std::string timingStats;
+    capture output;
 };
 
 static void copy_features_from_sensor_fusion(std::vector<rc_Feature> &features, const std::vector<sensor_fusion::feature_point> &in_feats)
@@ -121,7 +123,7 @@ static void copy_features_from_sensor_fusion(std::vector<rc_Feature> &features, 
     }
 }
 
-extern "C" rc_Tracker * rc_create()
+rc_Tracker * rc_create()
 {
     rc_Tracker * tracker = new rc_Tracker(false); //don't dispatch immediately - intel doesn't really make any data interleaving guarantees
     tracker->sfm.ignore_lateness = true; //and don't drop frames to keep up
@@ -129,12 +131,12 @@ extern "C" rc_Tracker * rc_create()
     return tracker;
 }
 
-extern "C" void rc_destroy(rc_Tracker * tracker)
+void rc_destroy(rc_Tracker * tracker)
 {
     delete tracker;
 }
 
-extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m)
+void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m)
 {
     if (initialPose_m)
         tracker->reset(sensor_clock::micros_to_tp(initialTime_us), rc_Pose_to_transformation(initialPose_m), false);
@@ -287,7 +289,7 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
 
 void rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
-    tracker->start_calibration(run_flags == rc_E_ASYNCRONOUS);
+    tracker->start_calibration(run_flags == rc_E_ASYNCHRONOUS);
 }
 
 void rc_pauseAndResetPosition(rc_Tracker * tracker)
@@ -307,7 +309,7 @@ void rc_startBuffering(rc_Tracker * tracker)
 
 void rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
-    if (run_flags == rc_E_ASYNCRONOUS)
+    if (run_flags == rc_E_ASYNCHRONOUS)
         tracker->start_unstable(true);
     else
         tracker->start_offline();
@@ -316,9 +318,8 @@ void rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 void rc_stopTracker(rc_Tracker * tracker)
 {
     tracker->stop();
-    if(tracker->output_enabled)
+    if(tracker->output.started())
         tracker->output.stop();
-    tracker->output_enabled = false;
 }
 
 void rc_startMapping(rc_Tracker *tracker)
@@ -355,9 +356,8 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shu
         d.timestamp = sensor_clock::micros_to_tp(time_us);
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
 
-        if(tracker->output_enabled) {
-            tracker->output.write_camera(d);
-        }
+        if(tracker->output.started())
+            tracker->output.write_camera(std::move(d));
         else
             tracker->receive_image(std::move(d));
     } else if (format == rc_FORMAT_GRAY8) {
@@ -370,9 +370,8 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shu
         d.timestamp = sensor_clock::micros_to_tp(time_us);
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
 
-        if(tracker->output_enabled) {
-            tracker->output.write_camera(d);
-        }
+        if(tracker->output.started())
+            tracker->output.write_camera(std::move(d));
         else
             tracker->receive_image(std::move(d));
     }
@@ -386,9 +385,8 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_us, const r
     d.accel_m__s2[1] = acceleration_m__s2.y;
     d.accel_m__s2[2] = acceleration_m__s2.z;
     d.timestamp = sensor_clock::micros_to_tp(time_us);
-    if(tracker->output_enabled) {
-        tracker->output.write_accelerometer(d);
-    }
+    if(tracker->output.started())
+        tracker->output.write_accelerometer(std::move(d));
     else
         tracker->receive_accelerometer(std::move(d));
 }
@@ -400,9 +398,8 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector 
     d.angvel_rad__s[1] = angular_velocity_rad__s.y;
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;
     d.timestamp = sensor_clock::micros_to_tp(time_us);
-    if(tracker->output_enabled) {
-        tracker->output.write_gyro(d);
-    }
+    if(tracker->output.started())
+        tracker->output.write_gyro(std::move(d));
     else
         tracker->receive_gyro(std::move(d));
 }
@@ -465,9 +462,9 @@ void rc_triggerLog(const rc_Tracker * tracker)
     tracker->trigger_log();
 }
 
-void rc_setOutputLog(rc_Tracker * tracker, const char *filename)
+bool rc_setOutputLog(rc_Tracker * tracker, const char *filename, rc_TrackerRunFlags run_flags)
 {
-    tracker->set_output_log(filename);
+    return tracker->output.start(filename, run_flags == rc_E_ASYNCHRONOUS);
 }
 
 const char *rc_getTimingStats(rc_Tracker *tracker)

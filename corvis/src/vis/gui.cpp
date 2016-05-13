@@ -20,13 +20,10 @@ void gui::configure_view(int view_width, int view_height)
     if(scale < nearclip) nearclip = scale*0.75f;
     build_projection_matrix(projection_matrix, 60.0f, aspect, nearclip, farclip);
 
-    m4 R = to_rotation_matrix(arc.get_quaternion());
-    R(2, 3) = -scale; // Translate by -scale
-    for(int i = 0; i < 4; i++) {
-        for(int j = 0; j < 4; j++) {
-            view_matrix[j * 4 + i] = (float)R(i, j);
-        }
-    }
+    view_matrix.block<3,3>(0,0) = to_rotation_matrix(arc.get_quaternion()).cast<float>();
+    view_matrix.block<3,1>(0,3) = v3(0,0,-scale);
+    view_matrix.block<1,3>(3,0) = v3::Zero();
+    view_matrix(3,3) = 1;
 }
 
 void gui::mouse_move(GLFWwindow * window, double x, double y)
@@ -97,6 +94,7 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_D:        show_depth = !show_depth;
              break; case GLFW_KEY_M:        show_main = !show_main;
              break; case GLFW_KEY_P:        show_plots = !show_plots;
+             break; case GLFW_KEY_T:        fprintf(stderr, "Current time: %llu\n", state->get_current_timestamp());
              break; case GLFW_KEY_SLASH:    fprintf(stderr, R"(
 0-9   Switch Plots
 n     Next Plot
@@ -114,6 +112,8 @@ v     Toggle Video
 D     Toggle Depth
 m     Toggle (Main) 3D path view
 p     Toggle Plots
+
+t     Print current timestamp
 
 q     Quit
 ?     Help (this)
@@ -234,7 +234,7 @@ void gui::start_glfw()
         if(show_main) {
             glViewport(0, 0, main_width, main_height);
             configure_view(main_width, main_height);
-            world_state_render(state, view_matrix, projection_matrix);
+            world_state_render(state, view_matrix.data(), projection_matrix);
         }
         if(show_video) {
             // y coordinate is 0 = bottom, height = top (opengl)

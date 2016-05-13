@@ -52,7 +52,7 @@
     if (isCapturing)
         return;
 
-    cp.start([path UTF8String]);
+    cp.start([path UTF8String], false);
     isCapturing = true;
 }
 

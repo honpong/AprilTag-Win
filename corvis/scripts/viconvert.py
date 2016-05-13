@@ -6,7 +6,7 @@ def merge(accel,gyro):
     ai, gi = 0, 0
     while ai < len(accel) and gi < len(gyro):
         a, g = accel[ai], gyro[gi]
-        if accel[ai][0] <= gyro[gi][0]:
+        if accel[ai][0] < gyro[gi][0]:
             if gi > 0:
                 g, a, G = gyro[gi-1], accel[ai], gyro[gi]
                 tm.append((a[0]/1000,0))
@@ -17,7 +17,7 @@ def merge(accel,gyro):
                            g[2] + (a[0]-g[0])/(G[0]-g[0]) * (G[2] - g[2]),
                            g[3] + (a[0]-g[0])/(G[0]-g[0]) * (G[3] - g[3])))
             ai = ai + 1
-        else:
+        elif accel[ai][0] > gyro[gi][0]:
             if ai > 0:
                 a, g, A = accel[ai-1], gyro[gi], accel[ai]
                 tm.append((g[0]/1000,0))
@@ -28,6 +28,17 @@ def merge(accel,gyro):
                            g[2],
                            g[3]))
             gi = gi + 1
+        else:
+            a, g = gyro[gi], accel[ai]
+            tm.append((g[0]/1000,0))
+            am.append((a[1],
+                       a[2],
+                       a[3]))
+            gm.append((g[1],
+                       g[2],
+                       g[3]))
+            gi = gi + 1
+            ai = ai + 1
     return tm, am, gm
 
 def convert_images(dirname, data):

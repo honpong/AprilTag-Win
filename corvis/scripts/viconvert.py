@@ -9,7 +9,7 @@ def merge(accel,gyro):
         if accel[ai][0] <= gyro[gi][0]:
             if gi > 0:
                 g, a, G = gyro[gi-1], accel[ai], gyro[gi]
-                tm.append((a[0]/1000000,0))
+                tm.append((a[0]/1000,0))
                 am.append((a[1],
                            a[2],
                            a[3]))
@@ -20,7 +20,7 @@ def merge(accel,gyro):
         else:
             if ai > 0:
                 a, g, A = accel[ai-1], gyro[gi], accel[ai]
-                tm.append((g[0]/1000000,0))
+                tm.append((g[0]/1000,0))
                 am.append((a[1] + (g[0]-a[0])/(A[0]-a[0]) * (A[1] - a[1]),
                            a[2] + (g[0]-a[0])/(A[0]-a[0]) * (A[2] - a[2]),
                            a[3] + (g[0]-a[0])/(A[0]-a[0]) * (A[3] - a[3])))
@@ -38,7 +38,7 @@ def convert_images(dirname, data):
         if e.errno == errno.EEXIST and os.path.isdir(dirname):
             pass
     for t, n in data:
-        f = "{:s}_{:.17f}.pgm".format(dirname, t/1000000)
+        f = "{:s}_{:015.7f}.pgm".format(dirname, t/1000)
         try:
             os.unlink(f)
         except:

@@ -8,13 +8,13 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        std::cerr << "Usage: " << v[0] << " [--drop-depth] [--qvga] [--output-poses] [--output-status] [--output-log] [--output-summary] [--output-trace] <logfile>..\n";
+        std::cerr << "Usage: " << v[0] << " [--drop-depth] [--qvga] [--output-poses] [--output-status] [--output-log] [--output-summary] [--output-trace] [--pause] <logfile>..\n";
         return 1;
     }
 
     rc::replay rp;
 
-    int filenames = 0; bool summary = false;
+    int filenames = 0; bool summary = false; bool pause = false;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-') v[1+filenames++] = v[i];
         else if (strcmp(v[i], "--drop-depth") == 0) rp.disable_depth();
@@ -24,6 +24,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--output-status") == 0) rp.enable_status_output();
         else if (strcmp(v[i], "--output-log") == 0) rp.enable_log_output(0, 333333);
         else if (strcmp(v[i], "--output-summary") == 0) summary = true;
+        else if (strcmp(v[i], "--pause") == 0) pause = true;
         else goto usage;
 
     if (!filenames)
@@ -32,6 +33,12 @@ int main(int c, char **v)
     for (int i=0; i<filenames; i++) {
         char *filename = v[1+i];
         if (i) rp.reset();
+
+        if (pause) {
+            printf("Paused, press enter to start\n");
+            getchar();
+            printf("Running\n");
+        }
 
         if (!rp.open(filename) || !rp.run()) {
             std::cerr << "error replaying " << filename << "\n";

@@ -6,10 +6,10 @@ def merge(accel,gyro):
     ai, gi = 0, 0
     while ai < len(accel) and gi < len(gyro):
         a, g = accel[ai], gyro[gi]
-        if accel[ai][0] <= gyro[gi][0]:
+        if accel[ai][0] < gyro[gi][0]:
             if gi > 0:
                 g, a, G = gyro[gi-1], accel[ai], gyro[gi]
-                tm.append((a[0]/1000000,0))
+                tm.append((a[0]/1000,0))
                 am.append((a[1],
                            a[2],
                            a[3]))
@@ -17,10 +17,10 @@ def merge(accel,gyro):
                            g[2] + (a[0]-g[0])/(G[0]-g[0]) * (G[2] - g[2]),
                            g[3] + (a[0]-g[0])/(G[0]-g[0]) * (G[3] - g[3])))
             ai = ai + 1
-        else:
+        elif accel[ai][0] > gyro[gi][0]:
             if ai > 0:
                 a, g, A = accel[ai-1], gyro[gi], accel[ai]
-                tm.append((g[0]/1000000,0))
+                tm.append((g[0]/1000,0))
                 am.append((a[1] + (g[0]-a[0])/(A[0]-a[0]) * (A[1] - a[1]),
                            a[2] + (g[0]-a[0])/(A[0]-a[0]) * (A[2] - a[2]),
                            a[3] + (g[0]-a[0])/(A[0]-a[0]) * (A[3] - a[3])))
@@ -28,9 +28,20 @@ def merge(accel,gyro):
                            g[2],
                            g[3]))
             gi = gi + 1
+        else:
+            a, g = gyro[gi], accel[ai]
+            tm.append((g[0]/1000,0))
+            am.append((a[1],
+                       a[2],
+                       a[3]))
+            gm.append((g[1],
+                       g[2],
+                       g[3]))
+            gi = gi + 1
+            ai = ai + 1
     return tm, am, gm
 
-def convert_images(dirname, data):
+def convert_images(dirname, data, last_imu_timestamp):
     import os, errno
     try:
         os.mkdir(dirname, 0777)
@@ -38,7 +49,9 @@ def convert_images(dirname, data):
         if e.errno == errno.EEXIST and os.path.isdir(dirname):
             pass
     for t, n in data:
-        f = "{:s}_{:.17f}.pgm".format(dirname, t/1000000)
+        if t/1000 >= last_imu_timestamp:
+            break
+        f = "{:s}_{:015.7f}.pgm".format(dirname, t/1000)
         try:
             os.unlink(f)
         except:
@@ -74,7 +87,7 @@ if __name__ == '__main__':
     tm, am, gm = merge(read_imu("accel.txt"),
                        read_imu("gyro.txt"))
     fe = read_images("fisheye_timestamps.txt")
-    write_csv("time.csv", tm)
-    write_csv("accel.csv", am)
-    write_csv("gyro.csv", gm)
-    convert_images("vifisheye", fe)
+    convert_images("vifisheye", fe, tm[-1][0])
+    write_csv("vifisheye/timestamp.txt", tm)
+    write_csv("vifisheye/accel.txt", am)
+    write_csv("vifisheye/gyro.txt", gm)

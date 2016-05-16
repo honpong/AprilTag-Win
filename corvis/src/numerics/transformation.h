@@ -17,11 +17,11 @@
 class transformation {
     public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-        transformation(): Q(quaternion()), T(v3(0,0,0)) {};
+        transformation(): Q(quaternion::Identity()), T(v3(0,0,0)) {};
         transformation(const quaternion & Q_, const v3 & T_) : Q(Q_), T(T_) {};
         transformation(const rotation_vector & v, const v3 & T_) : T(T_) { Q = to_quaternion(v); };
         transformation(const m3 & m, const v3 & T_) : T(T_) { Q = to_quaternion(m); };
-        transformation(f_t s, const transformation &G0, const transformation &G1) : T(G0.T + s * (G1.T-G0.T)), Q(s,G0.Q,G1.Q) {}
+        transformation(f_t s, const transformation &G0, const transformation &G1) : T(G0.T + s * (G1.T-G0.T)), Q(G0.Q.slerp(s, G1.Q)) {}
 
         quaternion Q;
         v3 T;
@@ -34,7 +34,7 @@ static inline std::ostream& operator<<(std::ostream &stream, const transformatio
 
 static inline transformation invert(const transformation & t)
 {
-    return transformation(conjugate(t.Q), conjugate(t.Q) * -t.T);
+    return transformation(t.Q.conjugate(), t.Q.conjugate() * -t.T);
 }
 
 static inline v3 transformation_apply(const transformation & t, const v3 & apply_to)
@@ -49,7 +49,7 @@ static inline v3 operator*(const transformation & t, const v3 & apply_to)
 
 static inline transformation compose(const transformation & t1, const transformation & t2)
 {
-    return transformation(normalize(t1.Q * t2.Q), t1.T + t1.Q * t2.T);
+    return transformation((t1.Q * t2.Q).normalized(), t1.T + t1.Q * t2.T);
 }
 
 static inline transformation operator*(const transformation &t1, const transformation & t2)

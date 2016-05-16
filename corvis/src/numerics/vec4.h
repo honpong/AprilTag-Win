@@ -44,6 +44,7 @@ typedef Eigen::Matrix<f_t, 3, 1> v3;
 typedef Eigen::Matrix<f_t, 4, 4> m4;
 typedef Eigen::Matrix<f_t, 3, 3> m3;
 typedef Eigen::Matrix<f_t, 2, 1> v2, feature_t;
+typedef Eigen::Quaternion<f_t> quaternion;
 
 #include <vector>
 template <typename T> using aligned_vector = std::vector<T, Eigen::aligned_allocator<T>>;

@@ -9,7 +9,7 @@
 
 struct tpose_vicon {
     uint64_t t_s, t_ns, seq_no; v3 T_m; quaternion Q;
-    tpose_vicon() : t_s(0), t_ns(0), seq_no(0), T_m(v3::Zero()), Q() {}
+    tpose_vicon() : t_s(0), t_ns(0), seq_no(0), T_m(v3::Zero()), Q(quaternion::Identity()) {}
     tpose_vicon(const char *line) : tpose_vicon() {
         size_t end = 0;
         // the +1s below skip the ',' delimiter

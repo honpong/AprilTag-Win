@@ -11,7 +11,7 @@ TEST(Transformation, Estimate)
     std::uniform_real_distribution<float> r;
 
     for(int t = 0; t < 200; t++) {
-        transformation g(normalize(quaternion(r(gen), r(gen), r(gen), r(gen))), v3(r(gen),r(gen),r(gen)));
+        transformation g(quaternion(r(gen), r(gen), r(gen), r(gen)).normalized(), v3(r(gen),r(gen),r(gen)));
         aligned_vector<v3> src;
         aligned_vector<v3> dst;
         for(int i = 0; i < 20; i++) {
@@ -34,8 +34,8 @@ TEST(Transformation, EstimateFlipTranslation)
     // Coordinates found from a mapper test. Produces an SVD when
     // estimating that (on mac) is a flip around Z rather than a
     // rotation
-    transformation g_first(quaternion(), v3(-0.5,0.7,-4.3));
-    transformation g_second(quaternion(), v3(-0.1, -1.2, -0.3));
+    transformation g_first(quaternion::Identity(), v3(-0.5,0.7,-4.3));
+    transformation g_second(quaternion::Identity(), v3(-0.1, -1.2, -0.3));
     transformation g = g_second*invert(g_first);
 
     aligned_vector<v3> src;
@@ -63,7 +63,7 @@ TEST(Transformation, DegenerateLine)
 
     aligned_vector<v3> src;
     aligned_vector<v3> dst;
-    transformation g(normalize(quaternion(0.7, 0.6, 0.3, -0.2)), v3(-0.2,5.7,-4.2));
+    transformation g(quaternion(0.7, 0.6, 0.3, -0.2).normalized(), v3(-0.2,5.7,-4.2));
     for(int test = 0; test < 100; test++) {
         for(int i = 0; i < 10; i++) {
             float scale = 0.02;
@@ -89,7 +89,7 @@ TEST(Transformation, DegeneratePoint)
     for(int test = 0; test < 100; test++) {
         float t_scale = 2;
         float scale = F_T_EPS*1e3;
-        transformation g(normalize(quaternion(r(gen), r(gen), r(gen), r(gen))), v3(t_scale, t_scale, t_scale));
+        transformation g(quaternion(r(gen), r(gen), r(gen), r(gen)).normalized(), v3(t_scale, t_scale, t_scale));
         for(int i = 0; i < 10; i++) {
             v3 position(r(gen)*scale, r(gen)*scale, r(gen)*scale);
             v3 position2 = g*position;

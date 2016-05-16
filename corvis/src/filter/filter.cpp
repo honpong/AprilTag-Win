@@ -423,7 +423,7 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
         f->gravity_init = true;
         if(!f->origin_gravity_aligned)
         {
-            f->origin.Q = f->origin.Q * conjugate(f->s.initial_orientation);
+            f->origin.Q = f->origin.Q * f->s.initial_orientation.conjugate();
         }
     }
 }

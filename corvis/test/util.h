@@ -1,10 +1,10 @@
 #ifndef __UTIL_H
 #define __UTIL_H
 
-#include "gtest/gtest.h"
 #include "vec4.h"
 #include "quaternion.h"
 #include "transformation.h"
+#include "gtest/gtest.h"
 
 #undef GTEST_DISALLOW_ASSIGN_
 #define GTEST_DISALLOW_ASSIGN_(type) public: EIGEN_MAKE_ALIGNED_OPERATOR_NEW void operator=(type const &)

@@ -32,11 +32,6 @@ static inline std::ostream& operator<<(std::ostream &stream, const transformatio
     return stream << t.Q << ", " << t.T; 
 }
 
-static inline bool operator==(const transformation & a, const transformation &b)
-{
-    return a.T == b.T && a.Q == b.Q;
-}
-
 static inline transformation invert(const transformation & t)
 {
     return transformation(conjugate(t.Q), conjugate(t.Q) * -t.T);

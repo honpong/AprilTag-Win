@@ -100,7 +100,9 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     
     void reset() {
         index = -1;
-        v.set_depth_meters(1.);
+        set_initial_variance(initial_var);
+        v.set_depth_meters(initial_depth_meters);
+        set_process_noise(initial_process_noise);
     }
     
     inline f_t from_row(const matrix &c, const int i) const

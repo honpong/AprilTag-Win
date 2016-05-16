@@ -16,9 +16,7 @@ f_t state_vision_feature::max_variance;
 state_vision_feature::state_vision_feature(uint64_t feature_id, const feature_t & initial_): state_leaf("feature"), initial(initial_), current(initial_)
 {
     id = feature_id;
-    set_initial_variance(initial_var);
-    v.set_depth_meters(initial_depth_meters);
-    set_process_noise(initial_process_noise);
+    reset();
 }
 
 void state_vision_feature::dropping_group()
@@ -52,8 +50,7 @@ bool state_vision_feature::force_initialize()
 {
     if(status == feature_initializing) {
         //not ready yet, so reset
-        v.set_depth_meters(initial_depth_meters);
-        (*cov)(index, index) = initial_var;
+        reset();
         status = feature_normal;
         return true;
     } else if(status == feature_ready) {

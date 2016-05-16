@@ -623,9 +623,6 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
     state_vision_group *g = f->s.add_group(image.timestamp);
     std::unique_ptr<image_depth16> aligned_undistorted_depth;
 
-    float radius = 16;
-    int side_length = 41;
-
     int found_feats = 0;
     f_t image_to_depth = 1;
     if(f->has_depth)
@@ -637,8 +634,6 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
         if(f->track.is_trackable(x, y) && f->mask->test(x, y)) {
             f->mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(kp_i);
-            //descriptor_compute(camera.image, camera.width, camera.height, camera.stride, x, y, side_length, radius, d);
-            //feat->descriptor = d;
 
             float depth_m = 0;
             if(f->has_depth) {

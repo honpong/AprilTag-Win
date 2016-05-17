@@ -54,7 +54,7 @@ void observation_queue::compute_measurement_covariance(matrix &m_cov)
     }
 }
 
-void observation_queue::compute_prediction_covariance(const state &s, int meas_size)
+void observation_queue::compute_prediction_covariance(const state_root &s, int meas_size)
 {
     //project state cov onto measurement to get cov(meas, state)
     // matrix_product(LC, lp, A, false, false);
@@ -105,7 +105,7 @@ void observation_queue::compute_innovation_covariance(const matrix &m_cov)
     }
 }
 
-bool observation_queue::update_state_and_covariance(state &s, const matrix &inn)
+bool observation_queue::update_state_and_covariance(state_root &s, const matrix &inn)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(res_cov)) { fprintf(stderr, "observation covariance matrix not positive definite before computing gain!\n"); }
@@ -130,7 +130,7 @@ bool observation_queue::update_state_and_covariance(state &s, const matrix &inn)
 observation_queue::observation_queue(): LC((f_t*)LC_storage, MAXOBSERVATIONSIZE, MAXSTATESIZE, MAXOBSERVATIONSIZE, MAXSTATESIZE), K((f_t*)K_storage, MAXSTATESIZE, MAXOBSERVATIONSIZE, MAXSTATESIZE, MAXOBSERVATIONSIZE), res_cov((f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE)
  {}
 
-bool observation_queue::process(state &s, sensor_clock::time_point time)
+bool observation_queue::process(state_root &s, sensor_clock::time_point time)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(s.cov.cov)) fprintf(stderr, "not pos def when starting process_observation_queue\n");
@@ -168,11 +168,6 @@ bool observation_queue::process(state &s, sensor_clock::time_point time)
         cache_recent(std::move(o));
 
     observations.clear();
-    f_t delta_T = (s.T.v - s.last_position).norm();
-    if(delta_T > .01) {
-        s.total_distance += (float)delta_T;
-        s.last_position = s.T.v;
-    }
 #ifdef TEST_POSDEF
     if(!test_posdef(s.cov.cov)) {fprintf(stderr, "not pos def when finishing process observation queue\n"); assert(0);}
 #endif

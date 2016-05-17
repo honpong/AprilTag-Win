@@ -178,6 +178,11 @@ void process_observation_queue(struct filter *f, sensor_clock::time_point time)
         f->numeric_failed = true;
         f->calibration_bad = true;
     }
+    f_t delta_T = (f->s.T.v - f->s.last_position).norm();
+    if(delta_T > .01) {
+        f->s.total_distance += (float)delta_T;
+        f->s.last_position = f->s.T.v;
+    }
 }
 
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)

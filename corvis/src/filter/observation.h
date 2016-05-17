@@ -104,7 +104,7 @@ public:
 
 class observation_accelerometer: public observation_spatial {
 protected:
-    state_vision &state;
+    state_motion &state;
     const state_extrinsics &extrinsics;
     const state_imu_intrinsics &intrinsics;
     m3 Rt, Rc, da_dQ, da_dw, da_ddw;
@@ -119,7 +119,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer(state_vision &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_accelerometer(state_motion &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -129,7 +129,7 @@ class observation_gyroscope: public observation_spatial {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:
-    const state_vision &state;
+    const state_motion_orientation &state;
     const state_extrinsics &extrinsics;
     const state_imu_intrinsics &intrinsics;
     m3 Rc;
@@ -147,7 +147,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_gyroscope(const state_vision &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_gyroscope(const state_motion_orientation &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 };
 
 #define MAXOBSERVATIONSIZE 256
@@ -157,7 +157,7 @@ class observation_queue {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     observation_queue();
-    bool process(state &s, sensor_clock::time_point time);
+    bool process(state_root &s, sensor_clock::time_point time);
     vector<unique_ptr<observation>> observations;
 
     // keep the most recent measurement of a given type around for plotting, etc
@@ -179,10 +179,10 @@ protected:
     void measure_and_prune();
     void compute_innovation(matrix &inn);
     void compute_measurement_covariance(matrix &m_cov);
-    void compute_prediction_covariance(const state &s, int meas_size);
+    void compute_prediction_covariance(const state_root &s, int meas_size);
     void compute_innovation_covariance(const matrix &m_cov);
-    int remove_invalid_measurements(const state &s, int orig_size, matrix &inn);
-    bool update_state_and_covariance(state &s, const matrix &inn);
+    int remove_invalid_measurements(const state_root &s, int orig_size, matrix &inn);
+    bool update_state_and_covariance(state_root &s, const matrix &inn);
     matrix LC;
     matrix K;
     matrix res_cov;

@@ -29,7 +29,7 @@ def merge(accel,gyro):
                            g[3]))
             gi = gi + 1
         else:
-            a, g = gyro[gi], accel[ai]
+            g, a = gyro[gi], accel[ai]
             tm.append((g[0]/1000,0))
             am.append((a[1],
                        a[2],

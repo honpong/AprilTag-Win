@@ -382,7 +382,7 @@ void sensor_fusion::trigger_log() const
 
     transformation transform = get_transformation();
     
-    m3 R = to_rotation_matrix(transform.Q);
+    m3 R = transform.Q.toRotationMatrix();
     v3 T = transform.T;
 
     std::stringstream s(std::stringstream::out);

@@ -517,7 +517,7 @@ void stereo::transform_to_reference(const stereo_frame * transform_to)
     Rw = to_rotation_matrix(transform_to->W);
     Tw = transform_to->T;
 
-    quaternion toQ = conjugate(to_quaternion(transform_to->W));
+    quaternion toQ = to_quaternion(transform_to->W).conjugate();
 
     target->T = toQ * (target->T - transform_to->T);
     target->W = to_rotation_vector(toQ * to_quaternion(target->W));

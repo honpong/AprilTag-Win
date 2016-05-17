@@ -33,7 +33,7 @@ static void test_rotation(const v3 &vec)
     EXPECT_V3_NEAR(vec, rotmat.transpose() * (rotmat * vec), 4*F_T_EPS) << "R'Rv = v";
 
     quaternion quat = to_quaternion(rvec);
-    EXPECT_M3_NEAR(to_rotation_matrix(quat), to_rotation_matrix(rvec), 4*F_T_EPS) << "rot_mat(rotvec_to_quat(v)) = rodrigues(v)";
+    EXPECT_M3_NEAR(quat.toRotationMatrix(), to_rotation_matrix(rvec), 4*F_T_EPS) << "rot_mat(rotvec_to_quat(v)) = rodrigues(v)";
     quaternion qinv = to_quaternion(rotmat);
     EXPECT_QUATERNION_ROTATION_NEAR(quat, qinv, 2*F_T_EPS) << "q = to_quaternion(to_rotation_matrix(q))";
 

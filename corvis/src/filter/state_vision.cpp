@@ -78,7 +78,7 @@ state_vision_group::state_vision_group(uint64_t group_id): Tr("Tr"), Qr("Qr"), h
     children.push_back(&Tr);
     children.push_back(&Qr);
     Tr.v = v3(0, 0, 0);
-    Qr.v = quaternion();
+    Qr.v = quaternion::Identity();
     f_t near_zero = F_T_EPS * 100;
     Tr.set_initial_variance(near_zero, near_zero, near_zero);
     Qr.set_initial_variance(near_zero, near_zero, near_zero);
@@ -498,8 +498,8 @@ void state_vision::cache_jacobians(f_t dt)
     state_motion::cache_jacobians(dt);
 
     for(state_vision_group *g : groups.children) {
-        m3 Rr = to_rotation_matrix(g->Qr.v);
-        g->dTrp_ddT = to_rotation_matrix(g->Qr.v * conjugate(Q.v));
+        m3 Rr = g->Qr.v.toRotationMatrix();
+        g->dTrp_ddT = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
         m3 xRrRtdT = skew(g->dTrp_ddT * dT);
         g->dTrp_dQ_s   = xRrRtdT;
         g->dQrp_s_dW = Rr * JdW_s;

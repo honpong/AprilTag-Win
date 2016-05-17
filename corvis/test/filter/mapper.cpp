@@ -80,14 +80,14 @@ TEST(Mapper, I)
 
 TEST(Mapper, T)
 {
-    transformation_test(transformation(), transformation(quaternion(), v3(0.1,1.2,0.3)), transformation());
+    transformation_test(transformation(), transformation(quaternion::Identity(), v3(0.1,1.2,0.3)), transformation());
 }
 
 TEST(Mapper, Drift)
 {
-    transformation g_first(quaternion(), v3(-0.8,-0.2,0.5));
-    transformation g_second(quaternion(), v3(0.1,1.2,0.3));
-    transformation g_apparent(quaternion(), v3(0.5, -0.7, 4.3));
+    transformation g_first(quaternion::Identity(), v3(-0.8,-0.2,0.5));
+    transformation g_second(quaternion::Identity(), v3(0.1,1.2,0.3));
+    transformation g_apparent(quaternion::Identity(), v3(0.5, -0.7, 4.3));
     transformation_test(g_first, g_second, g_apparent);
 }
 

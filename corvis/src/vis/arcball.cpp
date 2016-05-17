@@ -2,7 +2,7 @@
 
 void arcball::reset()
 {
-    q = quaternion();
+    q = quaternion::Identity();
 }
 
 void arcball::rotate_quaternion_with_delta(float dx, float dy)
@@ -11,8 +11,8 @@ void arcball::rotate_quaternion_with_delta(float dx, float dy)
     v3 right(-1,0,0);
 
     // up and right now rotation_vectors
-    up = conjugate(q)*up*dx*radians_per_pixel;
-    right = conjugate(q)*right*dy*radians_per_pixel;
+    up = q.conjugate()*up*dx*radians_per_pixel;
+    right = q.conjugate()*right*dy*radians_per_pixel;
 
     quaternion dqx = to_quaternion(rotation_vector(up[0], up[1], up[2]));
     quaternion dqy = to_quaternion(rotation_vector(right[0], right[1], right[2]));
@@ -43,7 +43,7 @@ void arcball::start_view_rotation(float rotation)
 void arcball::continue_view_rotation(float rotation)
 {
     v3 axis(0, 0, -1);
-    axis = conjugate(q)*axis;
+    axis = q.conjugate()*axis;
 
     float delta = rotation - last_view_rotation;
     // axis is now a rotation vector

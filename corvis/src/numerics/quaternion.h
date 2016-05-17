@@ -14,83 +14,9 @@
 #include "rotation.h"
 #include "rotation_vector.h"
 
-class quaternion {
-public:
-    quaternion(): data(1, 0, 0, 0) {}
-    quaternion(const f_t other0, const f_t other1, const f_t other2, const f_t other3): data(other0, other1, other2, other3) {}
-    quaternion(f_t s, const quaternion &q0, const quaternion &q1);
-
-    f_t w() const { return data[0]; }
-    f_t x() const { return data[1]; }
-    f_t y() const { return data[2]; }
-    f_t z() const { return data[3]; }
-    f_t &w() { return data[0]; }
-    f_t &x() { return data[1]; }
-    f_t &y() { return data[2]; }
-    f_t &z() { return data[3]; }
-
-    const quaternion operator*(const quaternion &q) const {
-        return quaternion(w() * q.w() - x() * q.x() - y() * q.y() - z() * q.z(),
-                          x() * q.w() + w() * q.x() - z() * q.y() + y() * q.z(),
-                          y() * q.w() + z() * q.x() + w() * q.y() - x() * q.z(),
-                          z() * q.w() - y() * q.x() + x() * q.y() + w() * q.z());
-    }
-
-private:
-    v4 data;
-};
-
 static inline std::ostream& operator<<(std::ostream &stream, const quaternion &q)
 {
     return stream << "[" << q.w() << ", (" << q.x() << ", " << q.y() << ", " << q.z() << ")]";
-}
-
-static inline bool operator==(const quaternion &a, const quaternion &b)
-{
-    return a.w() == b.w() && a.x() == b.x() && a.y() == b.y() && a.z() == b.z();
-}
-
-static inline quaternion conjugate(const quaternion &q)
-{
-    return quaternion(q.w(), -q.x(), -q.y(), -q.z());
-}
-
-static inline quaternion normalize(const quaternion &a) {
-    f_t norm = 1 / sqrt(a.w() * a.w() + a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
-    return quaternion(a.w() * norm, a.x() * norm, a.y() * norm, a.z() * norm);
-}
-
-inline quaternion::quaternion(f_t s, const quaternion &q0, const quaternion &q1) : data(q0.data + s * (q1.data - q0.data)) {
-    *this = normalize(*this);
-}
-
-//This is the same as the right jacobian of quaternion_rotate
-static inline m3 to_rotation_matrix(const quaternion &q)
-{
-    f_t
-    xx = q.x()*q.x(),
-    yy = q.y()*q.y(),
-    zz = q.z()*q.z(),
-    wx = q.w()*q.x(),
-    wy = q.w()*q.y(),
-    wz = q.w()*q.z(),
-    xy = q.x()*q.y(),
-    xz = q.x()*q.z(),
-    yz = q.y()*q.z();
-    
-    //Need explicit naming of return type to work around compiler bug
-    //https://connect.microsoft.com/VisualStudio/Feedback/Details/1515546
-    return m3 {
-        {1 - 2 * (yy+zz),     2 * (xy-wz),     2 * (xz+wy)},
-        {    2 * (xy+wz), 1 - 2 * (xx+zz),     2 * (yz-wx)},
-        {    2 * (xz-wy),     2 * (yz+wx), 1 - 2 * (xx+yy)}
-    };
-}
-
-// Assumes q is unit
-static inline const v3 operator*(const quaternion &q, const v3 &v)
-{
-    return to_rotation_matrix(q) * v;
 }
 
 static inline quaternion to_quaternion(const m3 &m)
@@ -127,7 +53,7 @@ static inline quaternion to_quaternion(const m3 &m)
         res.y() = (m(1, 2) + m(2, 1)) / s;
         res.z() = s/4;
     }
-    return normalize(res);
+    return res.normalized();
 }
 
 static inline quaternion to_quaternion(const rotation_vector &v) {
@@ -167,7 +93,7 @@ static inline quaternion rotation_between_two_vectors_normalized(const v3 &a, co
         v3 axis = a.cross(b);
         res = quaternion(s / 2, axis[0] / s, axis[1] / s, axis[2] / s);
     }
-    return normalize(res);
+    return res.normalized();
 }
 
 static inline quaternion rotation_between_two_vectors(const v3 &a, const v3 &b)

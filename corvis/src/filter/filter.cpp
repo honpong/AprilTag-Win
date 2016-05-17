@@ -980,9 +980,9 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.center_x.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);
     f->s.center_y.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);
 
-    f->s.k1.set_initial_variance(f->s.fisheye ? .1*.1 : 2.e-4);
-    f->s.k2.set_initial_variance(f->s.fisheye ? .1*.1 : 2.e-4);
-    f->s.k3.set_initial_variance(f->s.fisheye ? .1*.1 : 2.e-4);
+    f->s.k1.set_initial_variance(f->s.fisheye ? .01*.01 : 2.e-4);
+    f->s.k2.set_initial_variance(f->s.fisheye ? .01*.01 : 2.e-4);
+    f->s.k3.set_initial_variance(f->s.fisheye ? .01*.01 : 2.e-4);
     
     f->s.image_width = cam.intrinsics.width_px;
     f->s.image_height = cam.intrinsics.height_px;

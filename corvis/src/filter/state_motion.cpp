@@ -161,3 +161,41 @@ void state_motion::enable_bias_estimation()
     imu.intrinsics.enable_bias_estimation();
     remap();
 }
+
+void state_motion::copy_from(const state_motion &other)
+{
+    reset();
+
+    if(other.orientation_only) enable_orientation_only();
+    else disable_orientation_only();
+
+    //remap done. structure should match other. now reset content
+
+    Q = other.Q;
+    w = other.w;
+    dw = other.dw;
+    ddw = other.ddw;
+    imu.intrinsics.w_bias = other.imu.intrinsics.w_bias;
+    imu.intrinsics.a_bias = other.imu.intrinsics.a_bias;
+    disable_bias_estimation();
+    g = other.g;
+    T = other.T;
+    V = other.V;
+    a = other.a;
+    da = other.da;
+
+    f_t * temp_cov = cov.cov.data;
+    f_t * temp_p_noise = cov.process_noise.data;
+    cov.cov.data = other.cov.cov.data;
+    cov.cov.resize(other.cov.size(), other.cov.size());
+    cov.process_noise.data = other.cov.process_noise.data;
+    cov.process_noise.resize(other.cov.size());
+
+    orientation_initialized = other.orientation_initialized;
+    current_time = other.current_time;
+
+    remap();
+
+    cov.cov_scratch.data = temp_cov;
+    cov.process_scratch.data = temp_p_noise;
+}

@@ -127,6 +127,8 @@ public:
     virtual void disable_orientation_only();
     virtual void enable_bias_estimation();
     virtual void disable_bias_estimation();
+
+    void copy_from(const state_motion & other);
 protected:
     bool orientation_only = false;
     virtual void add_non_orientation_states();

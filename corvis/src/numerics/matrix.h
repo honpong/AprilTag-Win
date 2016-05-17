@@ -90,6 +90,7 @@ public:
     friend bool test_posdef(const matrix &m);
     
     friend class covariance;
+    friend class state_motion;
 };
 
 matrix &matrix_dereference(matrix *m);

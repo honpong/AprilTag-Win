@@ -15,7 +15,7 @@
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    filter(): s(cov)
+    filter(): s(cov), mini_state(mini_cov)
     {
         //these need to be initialized to defaults - everything else is handled in filter_initialize that is called every time
         ignore_lateness = false;
@@ -28,8 +28,10 @@ struct filter {
     sensor_clock::time_point last_packet_time;
     int last_packet_type;
     state s;
+    state_motion mini_state;
     
     covariance cov;
+    covariance mini_cov;
     std::unique_ptr<spdlog::logger> &log = s.log;
 
     //TODOMSM

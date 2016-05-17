@@ -130,7 +130,7 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
 {
     if(f->run_state != RCSensorFusionRunStateRunning) return;
     m3
-        R = to_rotation_matrix(f->s.Q.v),
+        R = f->s.Q.v.toRotationMatrix(),
         Rt = R.transpose();
 
     bool old_speedfail = f->speed_failed;
@@ -240,7 +240,7 @@ sensor_clock::duration steady_time(struct filter *f, stdev<3> &stdev, const v3 &
     }
     if(!stdev.count && use_orientation) {
         if(!f->s.orientation_initialized) return sensor_clock::duration(0);
-        v3 local_up = to_rotation_matrix(f->s.Q.v).transpose() * v3(0, 0, 1);
+        v3 local_up = f->s.Q.v.conjugate() * v3(0, 0, 1);
         //face up -> (0, 0, 1)
         //portrait -> (1, 0, 0)
         //landscape -> (0, 1, 0)

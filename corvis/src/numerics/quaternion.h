@@ -19,29 +19,6 @@ static inline std::ostream& operator<<(std::ostream &stream, const quaternion &q
     return stream << "[" << q.w() << ", (" << q.x() << ", " << q.y() << ", " << q.z() << ")]";
 }
 
-//This is the same as the right jacobian of quaternion_rotate
-static inline m3 to_rotation_matrix(const quaternion &q)
-{
-    f_t
-    xx = q.x()*q.x(),
-    yy = q.y()*q.y(),
-    zz = q.z()*q.z(),
-    wx = q.w()*q.x(),
-    wy = q.w()*q.y(),
-    wz = q.w()*q.z(),
-    xy = q.x()*q.y(),
-    xz = q.x()*q.z(),
-    yz = q.y()*q.z();
-    
-    //Need explicit naming of return type to work around compiler bug
-    //https://connect.microsoft.com/VisualStudio/Feedback/Details/1515546
-    return m3 {
-        {1 - 2 * (yy+zz),     2 * (xy-wz),     2 * (xz+wy)},
-        {    2 * (xy+wz), 1 - 2 * (xx+zz),     2 * (yz-wx)},
-        {    2 * (xz-wy),     2 * (yz+wx), 1 - 2 * (xx+yy)}
-    };
-}
-
 static inline quaternion to_quaternion(const m3 &m)
 {
     v4 tr;

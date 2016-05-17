@@ -320,8 +320,8 @@ bool calibration_serialize_xml(const calibration &cal, std::string &xml)
         ext_cal->append_attribute(doc.allocate_attribute("is_cad", "1"));
 
         Eigen::Matrix<f_t,3,4> m;
-        m.block<3,1>(0,3) = e.trans.T.block<3,1>(0,0);
-        m.block<3,3>(0,0) = to_rotation_matrix(e.trans.Q).block<3,3>(0,0);
+        m.block<3,1>(0,3) = e.trans.T;
+        m.block<3,3>(0,0) = e.trans.Q.toRotationMatrix();
         ext_cal->append_node(doc.allocate_node(node_element, "A_T_B", xml_string(doc, m)));
     }
 

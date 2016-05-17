@@ -14,7 +14,7 @@
 
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 {
-    m3 R = to_rotation_matrix(g.Q);
+    m3 R = g.Q.toRotationMatrix();
     for(int i = 0; i < 3; i++) {
         for(int j = 0; j < 3; j++) {
             p[i * 4 + j] = (float)R(i, j);

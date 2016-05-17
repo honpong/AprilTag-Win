@@ -498,8 +498,8 @@ void state_vision::cache_jacobians(f_t dt)
     state_motion::cache_jacobians(dt);
 
     for(state_vision_group *g : groups.children) {
-        m3 Rr = to_rotation_matrix(g->Qr.v);
-        g->dTrp_ddT = to_rotation_matrix(g->Qr.v * Q.v.conjugate());
+        m3 Rr = g->Qr.v.toRotationMatrix();
+        g->dTrp_ddT = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
         m3 xRrRtdT = skew(g->dTrp_ddT * dT);
         g->dTrp_dQ_s   = xRrRtdT;
         g->dQrp_s_dW = Rr * JdW_s;

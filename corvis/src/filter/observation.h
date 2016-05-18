@@ -61,7 +61,7 @@ class observation_vision_feature: public observation_storage<2> {
     const state_vision &state;
     const state_vision_intrinsics &intrinsics;
  public:
-    static stdev<2> stdev, inn_stdev;
+    static stdev<2> meas_stdev, inn_stdev;
     m3 Rrt;
     v3 X0, X;
     const uint8_t *image;
@@ -112,7 +112,7 @@ protected:
     m3 Rt, Rc, da_dQ, da_dw, da_ddw;
     m3 da_dQc, da_dTc;
  public:
-    static stdev<3> stdev, inn_stdev;
+    static stdev<3> meas_stdev, inn_stdev;
     virtual void predict();
     virtual bool measure();
     virtual void compute_measurement_covariance() {
@@ -137,10 +137,10 @@ protected:
     m3 Rc;
     m3 dw_dQc;
  public:
-    static stdev<3> stdev, inn_stdev;
+    static stdev<3> meas_stdev, inn_stdev;
     virtual void predict();
     virtual bool measure() {
-        stdev.data(meas);
+        meas_stdev.data(meas);
         return observation_spatial::measure();
     }
     virtual void compute_measurement_covariance() { 

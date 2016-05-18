@@ -3,8 +3,8 @@
 #include "../numerics/kalman.h"
 #include "utils.h"
 
-stdev<2> observation_vision_feature::stdev, observation_vision_feature::inn_stdev;
-stdev<3> observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
+stdev<2> observation_vision_feature::meas_stdev, observation_vision_feature::inn_stdev;
+stdev<3> observation_accelerometer::meas_stdev, observation_accelerometer::inn_stdev, observation_gyroscope::meas_stdev, observation_gyroscope::inn_stdev;
 
 int observation_queue::size()
 {
@@ -438,7 +438,7 @@ bool observation_vision_feature::measure()
     meas[1] = feature->current[1] = bestkp.y;
 
     if(valid) {
-        stdev.data(meas);
+        meas_stdev.data(meas);
         if(!feature->is_initialized()) {
             update_initializing();
         }
@@ -556,7 +556,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
 
 bool observation_accelerometer::measure()
 {
-    stdev.data(meas);
+    meas_stdev.data(meas);
     if(!state.orientation_initialized)
     {
         state.initial_orientation = initial_orientation_from_gravity(extrinsics.Qc.v * meas);

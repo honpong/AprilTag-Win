@@ -886,11 +886,11 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 1;
     
-    observation_vision_feature::stdev = stdev<2>();
+    observation_vision_feature::meas_stdev = stdev<2>();
     observation_vision_feature::inn_stdev = stdev<2>();
-    observation_accelerometer::stdev = stdev<3>();
+    observation_accelerometer::meas_stdev = stdev<3>();
     observation_accelerometer::inn_stdev = stdev<3>();
-    observation_gyroscope::stdev = stdev<3>();
+    observation_gyroscope::meas_stdev = stdev<3>();
     observation_gyroscope::inn_stdev = stdev<3>();
 
     f->last_time = sensor_clock::time_point(sensor_clock::duration(0));

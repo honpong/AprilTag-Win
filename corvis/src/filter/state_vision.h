@@ -54,6 +54,38 @@ public:
     log_depth(): v(0) {}
 };
 
+class state_vision_intrinsics: public state_branch<state_node *>
+{
+public:
+    state_scalar focal_length;
+    state_scalar center_x, center_y;
+    state_scalar k1, k2, k3;
+    bool fisheye;
+    bool estimate;
+    int image_width, image_height;
+
+    state_vision_intrinsics(bool _estimate): focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), fisheye(false), estimate(_estimate)
+    {
+        if(estimate)
+        {
+            children.push_back(&focal_length);
+            children.push_back(&center_x);
+            children.push_back(&center_y);
+            children.push_back(&k1);
+            children.push_back(&k2);
+            children.push_back(&k3);
+        }
+    }
+    
+    feature_t image_size() const { return feature_t {(f_t)image_width, (f_t)image_height}; }
+    feature_t undistort_feature(const feature_t &feat_d) const;
+    feature_t distort_feature(const feature_t &featu_u) const;
+    f_t get_undistortion_factor(const feature_t &feat_d, feature_t *dku_d_dfeat_d = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;
+    f_t get_distortion_factor(const feature_t &feat_u, feature_t *dkd_u_dfeat_u = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr) const;
+    feature_t normalize_feature(const feature_t &feat) const;
+    feature_t unnormalize_feature(const feature_t &feat) const;
+};
+
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
     f_t outlier = 0;
@@ -183,18 +215,11 @@ public:
 class state_vision: public state_motion {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    state_vector Tc;
-    state_quaternion Qc;
-    state_scalar focal_length;
-    state_scalar center_x, center_y;
-    state_scalar k1, k2, k3;
-    int image_width, image_height;
-    feature_t image_size() const { return feature_t {(f_t)image_width, (f_t)image_height}; }
-    bool fisheye = false;
+    state_extrinsics extrinsics;
+    state_vision_intrinsics camera_intrinsics;
+    
     uint64_t feature_counter;
     uint64_t group_counter;
-    bool estimate_camera_intrinsics{false};
-    bool estimate_camera_extrinsics{false};
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
@@ -216,12 +241,6 @@ public:
     transformation loop_offset;
     bool loop_closed{false};
     
-    feature_t undistort_feature(const feature_t &feat_d) const;
-    feature_t distort_feature(const feature_t &featu_u) const;
-    f_t get_undistortion_factor(const feature_t &feat_d, feature_t *dku_d_dfeat_d = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;
-    f_t get_distortion_factor(const feature_t &feat_u, feature_t *dkd_u_dfeat_u = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr) const;
-    feature_t normalize_feature(const feature_t &feat) const;
-    feature_t unnormalize_feature(const feature_t &feat) const;
     float median_depth_variance();
     
     virtual void reset();

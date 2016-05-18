@@ -57,6 +57,7 @@ class observation_vision_feature: public observation_storage<2> {
  private:
     f_t projection_residual(const v3 & X, const feature_t &found);
     const state_vision &state;
+    const state_vision_intrinsics &intrinsics;
  public:
     static stdev<2> stdev, inn_stdev;
     m3 Rrt;
@@ -85,7 +86,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     void update_initializing();
 
-    observation_vision_feature(state_vision &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent, struct tracker &_tracker): observation_storage(_time_actual, _time_apparent), state(_state), tracker(_tracker) {}
+    observation_vision_feature(const state_vision &_state, const state_vision_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent, struct tracker &_tracker): observation_storage(_time_actual, _time_apparent), state(_state), intrinsics(_intrinsics), tracker(_tracker) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -104,6 +105,8 @@ public:
 class observation_accelerometer: public observation_spatial {
 protected:
     state_vision &state;
+    const state_extrinsics &extrinsics;
+    const state_imu_intrinsics &intrinsics;
     m3 Rt, Rc, da_dQ, da_dw, da_ddw;
     m3 da_dQc, da_dTc;
  public:
@@ -116,7 +119,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer(state_vision &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
+    observation_accelerometer(state_vision &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -127,6 +130,8 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:
     const state_vision &state;
+    const state_extrinsics &extrinsics;
+    const state_imu_intrinsics &intrinsics;
     m3 Rc;
     m3 dw_dQc;
  public:
@@ -142,7 +147,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_gyroscope(state_vision &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
+    observation_gyroscope(const state_vision &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 };
 
 #define MAXOBSERVATIONSIZE 256

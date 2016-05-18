@@ -208,9 +208,9 @@ void update_static_calibration(struct filter *f)
     if(f->a_variance < .005) f->a_variance = .005;
     //TODO: get rid of this (figure out how to deal with quantized sensor data)
     //this updates even the one dof that can't converge in the filter for this orientation (since we were static)
-    f->s.w_bias.v = f->gyro_stability.mean;
-    f->s.w_bias.set_initial_variance(f->gyro_stability.variance[0], f->gyro_stability.variance[1], f->gyro_stability.variance[2]); //Even though the one dof won't have converged in the filter, we know that this is a good value (average across stable meas).
-    f->s.w_bias.reset_covariance(f->s.cov);
+    f->s.imu_intrinsics.w_bias.v = f->gyro_stability.mean;
+    f->s.imu_intrinsics.w_bias.set_initial_variance(f->gyro_stability.variance[0], f->gyro_stability.variance[1], f->gyro_stability.variance[2]); //Even though the one dof won't have converged in the filter, we know that this is a good value (average across stable meas).
+    f->s.imu_intrinsics.w_bias.reset_covariance(f->s.cov);
 }
 
 static void reset_stability(struct filter *f)
@@ -254,10 +254,10 @@ sensor_clock::duration steady_time(struct filter *f, stdev<3> &stdev, const v3 &
 
 static void print_calibration(struct filter *f)
 {
-    f->log->trace() << "w bias is: "     << f->s.w_bias.v[0]          << ", " << f->s.w_bias.v[1]          << ", " << f->s.w_bias.v[2];
-    f->log->trace() << "w bias var is: " << f->s.w_bias.variance()[0] << ", " << f->s.w_bias.variance()[1] << ", " << f->s.w_bias.variance()[2];
-    f->log->trace() << "a bias is: "     << f->s.a_bias.v[0]          << ", " << f->s.a_bias.v[1]          << ", " << f->s.a_bias.v[2];
-    f->log->trace() << "a bias var is: " << f->s.a_bias.variance()[0] << ", " << f->s.a_bias.variance()[1] << ", " << f->s.a_bias.variance()[2];
+    f->log->trace() << "w bias is: "     << f->s.imu_intrinsics.w_bias.v[0]          << ", " << f->s.imu_intrinsics.w_bias.v[1]          << ", " << f->s.imu_intrinsics.w_bias.v[2];
+    f->log->trace() << "w bias var is: " << f->s.imu_intrinsics.w_bias.variance()[0] << ", " << f->s.imu_intrinsics.w_bias.variance()[1] << ", " << f->s.imu_intrinsics.w_bias.variance()[2];
+    f->log->trace() << "a bias is: "     << f->s.imu_intrinsics.a_bias.v[0]          << ", " << f->s.imu_intrinsics.a_bias.v[1]          << ", " << f->s.imu_intrinsics.a_bias.v[2];
+    f->log->trace() << "a bias var is: " << f->s.imu_intrinsics.a_bias.variance()[0] << ", " << f->s.imu_intrinsics.a_bias.variance()[1] << ", " << f->s.imu_intrinsics.a_bias.variance()[2];
 }
 
 static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
@@ -267,7 +267,7 @@ static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 
 static float get_bias_convergence(const struct filter *f, int dir)
 {
-    float max_pct = (float)var_bounds_to_std_percent(f->s.a_bias.variance()[dir], f->a_bias_start[dir], min_a_bias_var);
+    float max_pct = (float)var_bounds_to_std_percent(f->s.imu_intrinsics.a_bias.variance()[dir], f->a_bias_start[dir], min_a_bias_var);
     float pct = (float)f->accel_stability.count / (float)calibration_converge_samples;
     if(f->last_time - f->stable_start < min_steady_time) pct = 0.f;
     if(pct > max_pct) max_pct = pct;
@@ -297,8 +297,8 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
                 {
                     update_static_calibration(f);
                     f->run_state = RCSensorFusionRunStatePortraitCalibration;
-                    f->a_bias_start = f->s.a_bias.variance();
-                    f->w_bias_start = f->s.w_bias.variance();
+                    f->a_bias_start = f->s.imu_intrinsics.a_bias.variance();
+                    f->w_bias_start = f->s.imu_intrinsics.w_bias.variance();
                     reset_stability(f);
                     f->s.disable_bias_estimation();
                     f->log->trace("When finishing static calibration:");
@@ -319,8 +319,8 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
                 if(get_bias_convergence(f, 1) >= 1.)
                 {
                     f->run_state = RCSensorFusionRunStateLandscapeCalibration;
-                    f->a_bias_start = f->s.a_bias.variance();
-                    f->w_bias_start = f->s.w_bias.variance();
+                    f->a_bias_start = f->s.imu_intrinsics.a_bias.variance();
+                    f->w_bias_start = f->s.imu_intrinsics.w_bias.variance();
                     reset_stability(f);
                     f->s.disable_bias_estimation();
                     f->log->trace("When finishing portrait calibration:");
@@ -409,7 +409,7 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
         f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
     }
     
-    auto obs_a = std::make_unique<observation_accelerometer>(f->s, time, time);
+    auto obs_a = std::make_unique<observation_accelerometer>(f->s, f->s.extrinsics, f->s.imu_intrinsics, time, time);
     obs_a->meas = meas;
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
 
@@ -457,7 +457,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
     }
 
-    auto obs_w = std::make_unique<observation_gyroscope>(f->s, time, time);
+    auto obs_w = std::make_unique<observation_gyroscope>(f->s, f->s.extrinsics, f->s.imu_intrinsics, time, time);
     obs_w->meas = meas;
     obs_w->variance = f->w_variance;
 
@@ -483,7 +483,7 @@ void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
             if(!g->status || g->status == group_initializing) continue;
             for(state_vision_feature *i : g->features.children) {
                 auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
-                auto obs = std::make_unique<observation_vision_feature>(f->s, image.timestamp + extra_time, image.timestamp, f->track);
+                auto obs = std::make_unique<observation_vision_feature>(f->s, f->s.camera_intrinsics, image.timestamp + extra_time, image.timestamp, f->track);
                 obs->state_group = g;
                 obs->feature = i;
                 obs->meas[0] = i->current[0];
@@ -534,12 +534,12 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
           i_Fx = d_focal_length_x * i_height,
           i_Fy = d_focal_length_y * i_height;
 
-    float o_Cx = f->s.center_x.v     * o_height + (o_width  - 1) / 2.,
-          o_Cy = f->s.center_y.v     * o_height + (o_height - 1) / 2.,
-          o_Fx = f->s.focal_length.v * o_height,
-          o_Fy = f->s.focal_length.v * o_height;
+    float o_Cx = f->s.camera_intrinsics.center_x.v     * o_height + (o_width  - 1) / 2.,
+          o_Cy = f->s.camera_intrinsics.center_y.v     * o_height + (o_height - 1) / 2.,
+          o_Fx = f->s.camera_intrinsics.focal_length.v * o_height,
+          o_Fy = f->s.camera_intrinsics.focal_length.v * o_height;
 
-    transformation depth_to_color_m = invert(transformation(f->s.Qc.v,f->s.Tc.v)) * f->depth.extrinsics_wrt_imu_m;
+    transformation depth_to_color_m = invert(transformation(f->s.extrinsics.Qc.v,f->s.extrinsics.Tc.v)) * f->depth.extrinsics_wrt_imu_m;
     auto x_T_mm = (depth_to_color_m.T * 1000).cast<float>();
 
     for (int y = 0; y < i_height; y++)
@@ -591,7 +591,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
     for(int y_image = 0; y_image < image.height; y_image++) {
         for(int x_image = 0; x_image < image.width; x_image++) {
             feature_t kp_i = {(f_t)x_image, (f_t)y_image};
-            feature_t kp_d = image_to_depth*f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i)));
+            feature_t kp_d = image_to_depth*f->s.camera_intrinsics.unnormalize_feature(f->s.camera_intrinsics.undistort_feature(f->s.camera_intrinsics.normalize_feature(kp_i)));
             uint16_t depth_mm = get_depth_for_point_mm(*aligned_depth.get(), kp_d);
             out[y_image * width + x_image] = depth_mm;
         }
@@ -641,7 +641,7 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
                 if (!aligned_undistorted_depth)
                     aligned_undistorted_depth = std::move(filter_aligned_depth_to_intrinsics(f, f->recent_depth));
 
-                depth_m = 0.001f * get_depth_for_point_mm(*aligned_undistorted_depth.get(), image_to_depth*f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i))));
+                depth_m = 0.001f * get_depth_for_point_mm(*aligned_undistorted_depth.get(), image_to_depth*f->s.camera_intrinsics.unnormalize_feature(f->s.camera_intrinsics.undistort_feature(f->s.camera_intrinsics.normalize_feature(kp_i))));
             }
             if(depth_m)
             {
@@ -739,8 +739,8 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     f->track.height = image.height;
     f->track.stride = image.stride;
     f->track.init();
-    f->s.image_width = image.width;
-    f->s.image_height = image.height;
+    f->s.camera_intrinsics.image_width = image.width;
+    f->s.camera_intrinsics.image_height = image.height;
     
     if(!f->ignore_lateness) {
         /*thread_info_data_t thinfo;
@@ -928,31 +928,31 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.reset();
     f->s.maxstatesize = MAXSTATESIZE;
 
-    f->s.Tc.v = v3(cam.extrinsics_wrt_imu_m.T[0], cam.extrinsics_wrt_imu_m.T[1], cam.extrinsics_wrt_imu_m.T[2]);
-    f->s.Qc.v = cam.extrinsics_wrt_imu_m.Q;
+    f->s.extrinsics.Tc.v = v3(cam.extrinsics_wrt_imu_m.T[0], cam.extrinsics_wrt_imu_m.T[1], cam.extrinsics_wrt_imu_m.T[2]);
+    f->s.extrinsics.Qc.v = cam.extrinsics_wrt_imu_m.Q;
 
-    f->s.Qc.set_initial_variance(cam.extrinsics_var_wrt_imu_m.W[0], cam.extrinsics_var_wrt_imu_m.W[1], cam.extrinsics_var_wrt_imu_m.W[2]);
-    f->s.Tc.set_initial_variance(cam.extrinsics_var_wrt_imu_m.T[0], cam.extrinsics_var_wrt_imu_m.T[1], cam.extrinsics_var_wrt_imu_m.T[2]);
+    f->s.extrinsics.Qc.set_initial_variance(cam.extrinsics_var_wrt_imu_m.W[0], cam.extrinsics_var_wrt_imu_m.W[1], cam.extrinsics_var_wrt_imu_m.W[2]);
+    f->s.extrinsics.Tc.set_initial_variance(cam.extrinsics_var_wrt_imu_m.T[0], cam.extrinsics_var_wrt_imu_m.T[1], cam.extrinsics_var_wrt_imu_m.T[2]);
 
-    f->s.a_bias.v = v3(imu.a_bias_m__s2[0], imu.a_bias_m__s2[1], imu.a_bias_m__s2[2]);
+    f->s.imu_intrinsics.a_bias.v = v3(imu.a_bias_m__s2[0], imu.a_bias_m__s2[1], imu.a_bias_m__s2[2]);
     f_t tmp[3];
     //TODO: figure out how much drift we need to worry about between runs
     for(int i = 0; i < 3; ++i) tmp[i] = imu.a_bias_var_m2__s4[i] < min_a_bias_var ? min_a_bias_var : imu.a_bias_var_m2__s4[i];
-    f->s.a_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
-    f->s.w_bias.v = v3(imu.w_bias_rad__s[0], imu.w_bias_rad__s[1], imu.w_bias_rad__s[2]);
+    f->s.imu_intrinsics.a_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
+    f->s.imu_intrinsics.w_bias.v = v3(imu.w_bias_rad__s[0], imu.w_bias_rad__s[1], imu.w_bias_rad__s[2]);
     for(int i = 0; i < 3; ++i) tmp[i] = imu.w_bias_var_rad2__s2[i] < min_w_bias_var ? min_w_bias_var : imu.w_bias_var_rad2__s2[i];
-    f->s.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
+    f->s.imu_intrinsics.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
 
-    f->s.focal_length.v = (cam.intrinsics.f_x_px + cam.intrinsics.f_y_px) / 2 / cam.intrinsics.height_px;
-    f->s.center_x.v = (cam.intrinsics.c_x_px - cam.intrinsics.width_px / 2. + .5) / cam.intrinsics.height_px;
-    f->s.center_y.v = (cam.intrinsics.c_y_px - cam.intrinsics.height_px / 2. + .5) / cam.intrinsics.height_px;
+    f->s.camera_intrinsics.focal_length.v = (cam.intrinsics.f_x_px + cam.intrinsics.f_y_px) / 2 / cam.intrinsics.height_px;
+    f->s.camera_intrinsics.center_x.v = (cam.intrinsics.c_x_px - cam.intrinsics.width_px / 2. + .5) / cam.intrinsics.height_px;
+    f->s.camera_intrinsics.center_y.v = (cam.intrinsics.c_y_px - cam.intrinsics.height_px / 2. + .5) / cam.intrinsics.height_px;
     if (cam.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE)
-        f->s.k1.v = cam.intrinsics.w;
+        f->s.camera_intrinsics.k1.v = cam.intrinsics.w;
     else
-        f->s.k1.v = cam.intrinsics.k1;
-    f->s.k2.v = cam.intrinsics.k2;
-    f->s.k3.v = cam.intrinsics.k3;
-    f->s.fisheye = cam.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE;
+        f->s.camera_intrinsics.k1.v = cam.intrinsics.k1;
+    f->s.camera_intrinsics.k2.v = cam.intrinsics.k2;
+    f->s.camera_intrinsics.k3.v = cam.intrinsics.k3;
+    f->s.camera_intrinsics.fisheye = cam.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE;
 
     f->s.g.set_initial_variance(1.e-7);
     
@@ -963,17 +963,17 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.dw.set_process_noise(35. * 35.); // this stabilizes dw.stdev around 5-6
     f->s.a.set_process_noise(.6*.6);
     f->s.g.set_process_noise(1.e-30);
-    f->s.Qc.set_process_noise(1.e-30);
-    f->s.Tc.set_process_noise(1.e-30);
-    f->s.a_bias.set_process_noise(1.e-10);
-    f->s.w_bias.set_process_noise(1.e-12);
+    f->s.extrinsics.Qc.set_process_noise(1.e-30);
+    f->s.extrinsics.Tc.set_process_noise(1.e-30);
+    f->s.imu_intrinsics.a_bias.set_process_noise(1.e-10);
+    f->s.imu_intrinsics.w_bias.set_process_noise(1.e-12);
     //TODO: check this process noise
-    f->s.focal_length.set_process_noise(1.e-5 / cam.intrinsics.height_px / cam.intrinsics.height_px);
-    f->s.center_x.set_process_noise(1.e-5 / cam.intrinsics.height_px / cam.intrinsics.height_px);
-    f->s.center_y.set_process_noise(1.e-5 / cam.intrinsics.height_px / cam.intrinsics.height_px);
-    f->s.k1.set_process_noise(1.e-9);
-    f->s.k2.set_process_noise(1.e-9);
-    f->s.k3.set_process_noise(1.e-9);
+    f->s.camera_intrinsics.focal_length.set_process_noise(1.e-5 / cam.intrinsics.height_px / cam.intrinsics.height_px);
+    f->s.camera_intrinsics.center_x.set_process_noise(1.e-5 / cam.intrinsics.height_px / cam.intrinsics.height_px);
+    f->s.camera_intrinsics.center_y.set_process_noise(1.e-5 / cam.intrinsics.height_px / cam.intrinsics.height_px);
+    f->s.camera_intrinsics.k1.set_process_noise(1.e-9);
+    f->s.camera_intrinsics.k2.set_process_noise(1.e-9);
+    f->s.camera_intrinsics.k3.set_process_noise(1.e-9);
 
     f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
@@ -983,16 +983,16 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.dw.set_initial_variance(10); //observed range of variances in sequences is 1-6
     f->s.a.set_initial_variance(10);
 
-    f->s.focal_length.set_initial_variance(10. / cam.intrinsics.height_px / cam.intrinsics.height_px);
-    f->s.center_x.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);
-    f->s.center_y.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);
+    f->s.camera_intrinsics.focal_length.set_initial_variance(10. / cam.intrinsics.height_px / cam.intrinsics.height_px);
+    f->s.camera_intrinsics.center_x.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);
+    f->s.camera_intrinsics.center_y.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);
 
-    f->s.k1.set_initial_variance(f->s.fisheye ? .1*.1 : 2.e-4);
-    f->s.k2.set_initial_variance(f->s.fisheye ? .1*.1 : 2.e-4);
-    f->s.k3.set_initial_variance(f->s.fisheye ? .1*.1 : 2.e-4);
+    f->s.camera_intrinsics.k1.set_initial_variance(f->s.camera_intrinsics.fisheye ? .1*.1 : 2.e-4);
+    f->s.camera_intrinsics.k2.set_initial_variance(f->s.camera_intrinsics.fisheye ? .1*.1 : 2.e-4);
+    f->s.camera_intrinsics.k3.set_initial_variance(f->s.camera_intrinsics.fisheye ? .1*.1 : 2.e-4);
     
-    f->s.image_width = cam.intrinsics.width_px;
-    f->s.image_height = cam.intrinsics.height_px;
+    f->s.camera_intrinsics.image_width = cam.intrinsics.width_px;
+    f->s.camera_intrinsics.image_height = cam.intrinsics.height_px;
     
     f->track.width = cam.intrinsics.width_px;
     f->track.height = cam.intrinsics.height_px;
@@ -1021,32 +1021,32 @@ void filter_get_device_parameters(const struct filter *f, device_parameters *dev
     device->depth = f->depth;
 
     device->version = CALIBRATION_VERSION;
-    cam.intrinsics.width_px  = f->s.image_width;
-    cam.intrinsics.height_px = f->s.image_height;
-    cam.intrinsics.f_x_px = f->s.focal_length.v * f->s.image_height;
-    cam.intrinsics.f_y_px = f->s.focal_length.v * f->s.image_height;
-    cam.intrinsics.c_x_px = f->s.center_x.v * f->s.image_height + f->s.image_width / 2. - .5;
-    cam.intrinsics.c_y_px = f->s.center_y.v * f->s.image_height + f->s.image_height / 2. - .5;
+    cam.intrinsics.width_px  = f->s.camera_intrinsics.image_width;
+    cam.intrinsics.height_px = f->s.camera_intrinsics.image_height;
+    cam.intrinsics.f_x_px = f->s.camera_intrinsics.focal_length.v * f->s.camera_intrinsics.image_height;
+    cam.intrinsics.f_y_px = f->s.camera_intrinsics.focal_length.v * f->s.camera_intrinsics.image_height;
+    cam.intrinsics.c_x_px = f->s.camera_intrinsics.center_x.v * f->s.camera_intrinsics.image_height + f->s.camera_intrinsics.image_width / 2. - .5;
+    cam.intrinsics.c_y_px = f->s.camera_intrinsics.center_y.v * f->s.camera_intrinsics.image_height + f->s.camera_intrinsics.image_height / 2. - .5;
 
-    if (f->s.fisheye) {
+    if (f->s.camera_intrinsics.fisheye) {
         cam.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
-        cam.intrinsics.w = f->s.k1.v;
+        cam.intrinsics.w = f->s.camera_intrinsics.k1.v;
     } else {
         cam.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
-        cam.intrinsics.k1 = f->s.k1.v;
-        cam.intrinsics.k2 = f->s.k2.v;
-        cam.intrinsics.k3 = f->s.k3.v;
+        cam.intrinsics.k1 = f->s.camera_intrinsics.k1.v;
+        cam.intrinsics.k2 = f->s.camera_intrinsics.k2.v;
+        cam.intrinsics.k3 = f->s.camera_intrinsics.k3.v;
     }
 
-    cam.extrinsics_wrt_imu_m.Q = f->s.Qc.v;
-    cam.extrinsics_wrt_imu_m.T = f->s.Tc.v;
-    cam.extrinsics_var_wrt_imu_m.W = f->s.Qc.variance();
-    cam.extrinsics_var_wrt_imu_m.T = f->s.Tc.variance();
+    cam.extrinsics_wrt_imu_m.Q = f->s.extrinsics.Qc.v;
+    cam.extrinsics_wrt_imu_m.T = f->s.extrinsics.Tc.v;
+    cam.extrinsics_var_wrt_imu_m.W = f->s.extrinsics.Qc.variance();
+    cam.extrinsics_var_wrt_imu_m.T = f->s.extrinsics.Tc.variance();
 
-    imu.a_bias_m__s2         = f->s.a_bias.v;
-    imu.w_bias_rad__s        = f->s.w_bias.v;
-    imu.a_bias_var_m2__s4    = f->s.a_bias.variance();
-    imu.w_bias_var_rad2__s2  = f->s.w_bias.variance();
+    imu.a_bias_m__s2         = f->s.imu_intrinsics.a_bias.v;
+    imu.w_bias_rad__s        = f->s.imu_intrinsics.w_bias.v;
+    imu.a_bias_var_m2__s4    = f->s.imu_intrinsics.a_bias.variance();
+    imu.w_bias_var_rad2__s2  = f->s.imu_intrinsics.w_bias.variance();
     imu.w_noise_var_rad2__s2 = f->w_variance;
     imu.a_noise_var_m2__s4   = f->a_variance;
     imu.a_alignment          = f->a_alignment;
@@ -1098,8 +1098,8 @@ int filter_get_features(const struct filter *f, struct feature_info *features, i
 void filter_start_static_calibration(struct filter *f)
 {
     reset_stability(f);
-    f->a_bias_start = f->s.a_bias.variance();
-    f->w_bias_start = f->s.w_bias.variance();
+    f->a_bias_start = f->s.imu_intrinsics.a_bias.variance();
+    f->w_bias_start = f->s.imu_intrinsics.w_bias.variance();
     f->run_state = RCSensorFusionRunStateStaticCalibration;
 }
 

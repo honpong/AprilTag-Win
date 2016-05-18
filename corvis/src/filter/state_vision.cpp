@@ -167,23 +167,12 @@ int state_vision_group::make_normal()
 
 state_vision::state_vision(covariance &c):
     state_motion(c),
-    Tc("Tc"), Qc("Qc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"),
-    fisheye(false), feature_counter(0), group_counter(0), reference(nullptr)
+    extrinsics(false), camera_intrinsics(false),
+    feature_counter(0), group_counter(0), reference(nullptr)
 {
     reference = NULL;
-    if(estimate_camera_intrinsics)
-    {
-        children.push_back(&focal_length);
-        children.push_back(&center_x);
-        children.push_back(&center_y);
-        children.push_back(&k1);
-        children.push_back(&k2);
-        children.push_back(&k3);
-    }
-    if(estimate_camera_extrinsics) {
-        children.push_back(&Tc);
-        children.push_back(&Qc);
-    }
+    children.push_back(&extrinsics);
+    children.push_back(&camera_intrinsics);
     children.push_back(&groups);
 }
 
@@ -355,27 +344,27 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
     return g;
 }
 
-feature_t state_vision::normalize_feature(const feature_t &feat) const
+feature_t state_vision_intrinsics::normalize_feature(const feature_t &feat) const
 {
     return (((feat - f_t(.5) * image_size()) + feature_t{.5,.5}) / image_height - feature_t {center_x.v, center_y.v}) / focal_length.v;
 }
 
-feature_t state_vision::unnormalize_feature(const feature_t &feat_n) const
+feature_t state_vision_intrinsics::unnormalize_feature(const feature_t &feat_n) const
 {
     return (feat_n * focal_length.v + feature_t {center_x.v, center_y.v}) * image_height + f_t(.5) * image_size() - feature_t{.5,.5};
 }
 
-feature_t state_vision::distort_feature(const feature_t &feat_u) const
+feature_t state_vision_intrinsics::distort_feature(const feature_t &feat_u) const
 {
     return feat_u * get_distortion_factor(feat_u);
 }
 
-feature_t state_vision::undistort_feature(const feature_t &feat_d) const
+feature_t state_vision_intrinsics::undistort_feature(const feature_t &feat_d) const
 {
     return feat_d * get_undistortion_factor(feat_d);
 }
 
-f_t state_vision::get_distortion_factor(const feature_t &feat_u, feature_t *dkd_u_dfeat_u, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const
+f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, feature_t *dkd_u_dfeat_u, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const
 {
     f_t kd_u, ru2, ru = std::sqrt(ru2 = feat_u.squaredNorm());
     if (fisheye) {
@@ -396,7 +385,7 @@ f_t state_vision::get_distortion_factor(const feature_t &feat_u, feature_t *dkd_
     return kd_u;
 }
 
-f_t state_vision::get_undistortion_factor(const feature_t &feat_d, feature_t *dku_d_dfeat_d, f_t *dku_d_dk1, f_t *dku_d_dk2, f_t *dku_d_dk3) const
+f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, feature_t *dku_d_dfeat_d, f_t *dku_d_dk1, f_t *dku_d_dk2, f_t *dku_d_dk3) const
 {
     f_t ku_d, rd2, rd = sqrt(rd2 = feat_d.squaredNorm());
     if (fisheye) {
@@ -446,19 +435,8 @@ float state_vision::median_depth_variance()
 
 void state_vision::remove_non_orientation_states()
 {
-    if(estimate_camera_extrinsics) {
-        remove_child(&Tc);
-        remove_child(&Qc);
-    }
-    if(estimate_camera_intrinsics)
-    {
-        remove_child(&focal_length);
-        remove_child(&center_x);
-        remove_child(&center_y);
-        remove_child(&k1);
-        remove_child(&k2);
-        remove_child(&k3);
-    }
+    remove_child(&extrinsics);
+    remove_child(&camera_intrinsics);
     remove_child(&groups);
     state_motion::remove_non_orientation_states();
 }
@@ -467,19 +445,8 @@ void state_vision::add_non_orientation_states()
 {
     state_motion::add_non_orientation_states();
 
-    if(estimate_camera_extrinsics) {
-        children.push_back(&Tc);
-        children.push_back(&Qc);
-    }
-    if(estimate_camera_intrinsics)
-    {
-        children.push_back(&focal_length);
-        children.push_back(&center_x);
-        children.push_back(&center_y);
-        children.push_back(&k1);
-        children.push_back(&k2);
-        children.push_back(&k3);
-    }
+    children.push_back(&extrinsics);
+    children.push_back(&camera_intrinsics);
     children.push_back(&groups);
 }
 

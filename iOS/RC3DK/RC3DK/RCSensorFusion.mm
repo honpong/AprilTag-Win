@@ -492,7 +492,7 @@
     
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
     
-    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:(float)f->s.focal_length.v * f->s.image_height withOpticalCenterX:(float)f->s.center_x.v * f->s.image_height + f->s.image_width / 2. - .5 withOpticalCenterY:(float)f->s.center_y.v * f->s.image_height + f->s.image_height / 2. - .5 withRadialSecondDegree:(float)f->s.k1.v withRadialFourthDegree:(float)f->s.k2.v];
+    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:(float)f->s.camera_intrinsics.focal_length.v * f->s.camera_intrinsics.image_height withOpticalCenterX:(float)f->s.camera_intrinsics.center_x.v * f->s.camera_intrinsics.image_height + f->s.camera_intrinsics.image_width / 2. - .5 withOpticalCenterY:(float)f->s.camera_intrinsics.center_y.v * f->s.camera_intrinsics.image_height + f->s.camera_intrinsics.image_height / 2. - .5 withRadialSecondDegree:(float)f->s.camera_intrinsics.k1.v withRadialFourthDegree:(float)f->s.camera_intrinsics.k2.v];
 
     RCRotation* originRotation = [[RCRotation alloc] initWithQuaternionW:(float)f->origin.Q.w() withX:(float)f->origin.Q.x() withY:(float)f->origin.Q.y() withZ:(float)f->origin.Q.z()];
     RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:(float)f->origin.T[0] withY:(float)f->origin.T[1] withZ:(float)f->origin.T[2]];

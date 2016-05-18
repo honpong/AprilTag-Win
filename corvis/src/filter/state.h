@@ -500,4 +500,21 @@ class state_scalar: public state_leaf<f_t, 1> {
     }
 };
 
+class state_extrinsics: public state_branch<state_node *>
+{
+public:
+    state_vector Tc { "Tc" };
+    state_quaternion Qc { "Qc" };
+    bool estimate;
+    
+    state_extrinsics(bool _estimate): estimate(_estimate)
+    {
+        if(estimate)
+        {
+            children.push_back(&Tc);
+            children.push_back(&Qc);
+        }
+    }
+};
+
 #endif

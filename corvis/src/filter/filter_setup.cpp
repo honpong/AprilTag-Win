@@ -61,30 +61,30 @@ device_parameters filter_setup::get_device_parameters()
 {
     auto &cam = device.color;
     auto &imu = device.imu;
-    if (sfm.s.fisheye) {
+    if (sfm.s.camera_intrinsics.fisheye) {
         cam.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
-        cam.intrinsics.w = sfm.s.k1.v;
+        cam.intrinsics.w = sfm.s.camera_intrinsics.k1.v;
         cam.intrinsics.k2 = 0;
         cam.intrinsics.k3 = 0;
     } else {
         cam.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
-        cam.intrinsics.k1 = sfm.s.k1.v;
-        cam.intrinsics.k2 = sfm.s.k2.v;
-        cam.intrinsics.k3 = sfm.s.k3.v;
+        cam.intrinsics.k1 = sfm.s.camera_intrinsics.k1.v;
+        cam.intrinsics.k2 = sfm.s.camera_intrinsics.k2.v;
+        cam.intrinsics.k3 = sfm.s.camera_intrinsics.k3.v;
     }
-    cam.intrinsics.f_x_px = cam.intrinsics.f_y_px = (sfm.s.focal_length.v * sfm.s.image_height);
-    cam.intrinsics.c_x_px = (sfm.s.center_x.v * sfm.s.image_height + sfm.s.image_width  / 2. - .5);
-    cam.intrinsics.c_y_px = (sfm.s.center_y.v * sfm.s.image_height + sfm.s.image_height / 2. - .5);
+    cam.intrinsics.f_x_px = cam.intrinsics.f_y_px = (sfm.s.camera_intrinsics.focal_length.v * sfm.s.camera_intrinsics.image_height);
+    cam.intrinsics.c_x_px = (sfm.s.camera_intrinsics.center_x.v * sfm.s.camera_intrinsics.image_height + sfm.s.camera_intrinsics.image_width  / 2. - .5);
+    cam.intrinsics.c_y_px = (sfm.s.camera_intrinsics.center_y.v * sfm.s.camera_intrinsics.image_height + sfm.s.camera_intrinsics.image_height / 2. - .5);
 
-    cam.extrinsics_wrt_imu_m.T     = sfm.s.Tc.v;
-    cam.extrinsics_var_wrt_imu_m.T = sfm.s.Tc.variance();
-    cam.extrinsics_wrt_imu_m.Q     = sfm.s.Qc.v;
-    cam.extrinsics_var_wrt_imu_m.W = sfm.s.Qc.variance();
+    cam.extrinsics_wrt_imu_m.T     = sfm.s.extrinsics.Tc.v;
+    cam.extrinsics_var_wrt_imu_m.T = sfm.s.extrinsics.Tc.variance();
+    cam.extrinsics_wrt_imu_m.Q     = sfm.s.extrinsics.Qc.v;
+    cam.extrinsics_var_wrt_imu_m.W = sfm.s.extrinsics.Qc.variance();
 
-    imu.a_bias_m__s2         = sfm.s.a_bias.v;
-    imu.a_bias_var_m2__s4    = sfm.s.a_bias.variance();
-    imu.w_bias_rad__s        = sfm.s.w_bias.v;
-    imu.w_bias_var_rad2__s2  = sfm.s.w_bias.variance();
+    imu.a_bias_m__s2         = sfm.s.imu_intrinsics.a_bias.v;
+    imu.a_bias_var_m2__s4    = sfm.s.imu_intrinsics.a_bias.variance();
+    imu.w_bias_rad__s        = sfm.s.imu_intrinsics.w_bias.v;
+    imu.w_bias_var_rad2__s2  = sfm.s.imu_intrinsics.w_bias.variance();
     imu.a_noise_var_m2__s4   = sfm.a_variance;
     imu.w_noise_var_rad2__s2 = sfm.w_variance;
     return device;

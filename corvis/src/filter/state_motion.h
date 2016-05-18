@@ -12,24 +12,35 @@
 #include <iostream>
 #include "state.h"
 
+class state_imu_intrinsics: public state_branch<state_node *>
+{
+public:
+    state_vector w_bias {"w_bias"};
+    state_vector a_bias {"a_bias"};
+
+    state_imu_intrinsics()
+    {
+        children.push_back(&w_bias);
+        children.push_back(&a_bias);
+    }
+};
+
 class state_motion_orientation: public state_root {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
     state_quaternion Q;
     state_vector w;
     state_vector dw;
-    state_vector w_bias;
-    state_vector a_bias;
+    state_imu_intrinsics imu_intrinsics;
     state_scalar g;
     
-    state_motion_orientation(covariance &c): state_root(c), Q("Q"), w("w"), dw("dw"), w_bias("w_bias"), a_bias("a_bias"), g("g") {
+    state_motion_orientation(covariance &c): state_root(c), Q("Q"), w("w"), dw("dw"), g("g") {
         Q.dynamic = true;
         w.dynamic = true;
         children.push_back(&Q);
         children.push_back(&w);
         children.push_back(&dw);
-        children.push_back(&w_bias);
-        children.push_back(&a_bias);
+        children.push_back(&imu_intrinsics);
         //children.push_back(&g);
         g.v = gravity_magnitude;
     }

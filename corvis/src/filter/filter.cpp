@@ -409,12 +409,9 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     }
     
     auto obs_a = std::make_unique<observation_accelerometer>(f->s, time, time);
-    
-    for(int i = 0; i < 3; ++i) {
-        obs_a->meas[i] = meas[i];
-    }
-    
+    obs_a->meas = meas;
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
+
     f->observations.observations.push_back(std::move(obs_a));
 
     process_observation_queue(f, time);
@@ -457,9 +454,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
     }
 
     auto obs_w = std::make_unique<observation_gyroscope>(f->s, time, time);
-    for(int i = 0; i < 3; ++i) {
-        obs_w->meas[i] = meas[i];
-    }
+    obs_w->meas = meas;
     obs_w->variance = f->w_variance;
 
     f->observations.observations.push_back(std::move(obs_w));
@@ -854,11 +849,11 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
 
     f->a_alignment = m3::Identity();
     if (imu.a_alignment != m3::Zero())
-        f->a_alignment.block<3,3>(0,0) = imu.a_alignment;
+        f->a_alignment = imu.a_alignment;
 
     f->w_alignment = m3::Identity();
     if (imu.w_alignment != m3::Zero())
-        f->w_alignment.block<3,3>(0,0) = imu.w_alignment;
+        f->w_alignment = imu.w_alignment;
 
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;
@@ -1033,17 +1028,17 @@ void filter_get_device_parameters(const struct filter *f, device_parameters *dev
 
     cam.extrinsics_wrt_imu_m.Q = f->s.Qc.v;
     cam.extrinsics_wrt_imu_m.T = f->s.Tc.v;
-    cam.extrinsics_var_wrt_imu_m.W = f->s.Qc.variance().segment<3>(0);
-    cam.extrinsics_var_wrt_imu_m.T = f->s.Tc.variance().segment<3>(0);
+    cam.extrinsics_var_wrt_imu_m.W = f->s.Qc.variance();
+    cam.extrinsics_var_wrt_imu_m.T = f->s.Tc.variance();
 
-    imu.a_bias_m__s2         = f->s.a_bias.v.segment<3>(0);
-    imu.w_bias_rad__s        = f->s.w_bias.v.segment<3>(0);
-    imu.a_bias_var_m2__s4    = f->s.a_bias.variance().segment<3>(0);
-    imu.w_bias_var_rad2__s2  = f->s.w_bias.variance().segment<3>(0);
+    imu.a_bias_m__s2         = f->s.a_bias.v;
+    imu.w_bias_rad__s        = f->s.w_bias.v;
+    imu.a_bias_var_m2__s4    = f->s.a_bias.variance();
+    imu.w_bias_var_rad2__s2  = f->s.w_bias.variance();
     imu.w_noise_var_rad2__s2 = f->w_variance;
     imu.a_noise_var_m2__s4   = f->a_variance;
-    imu.a_alignment          = f->a_alignment.block<3,3>(0,0);
-    imu.w_alignment          = f->w_alignment.block<3,3>(0,0);
+    imu.a_alignment          = f->a_alignment;
+    imu.w_alignment          = f->w_alignment;
 }
 
 float filter_converged(const struct filter *f)

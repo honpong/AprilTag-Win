@@ -514,7 +514,7 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         const v3 cov_dW = dt * (cov_w + dt/2 * cov_dw);
         const auto scov_Q = Q.from_row(src, i);
         w.to_col(dst, i) = cov_w + dt * cov_dw;
-        Q.to_col(dst, i) = scov_Q + dQp_s_dW.block<3,3>(0,0) * cov_dW;
+        Q.to_col(dst, i) = scov_Q + dQp_s_dW * cov_dW;
         const auto cov_V = V.from_row(src, i);
         const auto cov_a = a.from_row(src, i);
         const auto cov_T = T.from_row(src, i);
@@ -524,8 +524,8 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         for(state_vision_group *g : groups.children) {
             const auto cov_Tr = g->Tr.from_row(src, i);
             const auto scov_Qr = g->Qr.from_row(src, i);
-            g->Tr.to_col(dst, i) = cov_Tr + g->dTrp_dQ_s.block<3,3>(0,0) * (scov_Q - scov_Qr) + g->dTrp_ddT.block<3,3>(0,0) * cov_dT;
-            g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW.block<3,3>(0,0) * cov_dW;
+            g->Tr.to_col(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
+            g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
         }
     }
     //Previously we called state_motion::project_covariance here, but this is inlined into the above for faster performance

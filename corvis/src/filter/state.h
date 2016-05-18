@@ -320,7 +320,7 @@ public:
     
     virtual std::ostream &print_to(std::ostream & s) const
     {
-        return s << name << ": " << v.segment<3>(0) << "±" << variance().segment<3>(0).array().sqrt();
+        return s << name << ": " << v << "±" << variance().array().sqrt();
     }
 };
 
@@ -370,7 +370,7 @@ public:
     
     virtual std::ostream &print_to(std::ostream & s) const
     {
-        return s << name << ": " << v << "±" << variance().segment<3>(0).array().sqrt();
+        return s << name << ": " << v << "±" << variance().array().sqrt();
     }
 };
 
@@ -402,9 +402,9 @@ public:
         cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
-    v4 variance() const {
-        if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], 0);
-        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0);
+    v3 variance() const {
+        if(index < 0) return v3(initial_variance[0], initial_variance[1], initial_variance[2]);
+        return v3((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2));
     }
     
     void copy_state_to_array(matrix &state) {
@@ -420,7 +420,7 @@ public:
     
     virtual std::ostream &print_to(std::ostream & s) const
     {
-        return s << name << ": " << v << "±" << variance().segment<3>(0).array().sqrt();
+        return s << name << ": " << v << "±" << variance().array().sqrt();
     }
 
 protected:

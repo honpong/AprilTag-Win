@@ -26,7 +26,7 @@ void state_motion_orientation::project_motion_covariance(matrix &dst, const matr
         const auto cov_dw = dw.from_row(src, i);
         w.to_col(dst, i) = cov_w + dt * cov_dw;
         const v3 cov_dW = (cov_w + dt/2 * cov_dw) * dt;
-        Q.to_col(dst, i) = scov_Q + dQp_s_dW.block<3,3>(0,0) * cov_dW;
+        Q.to_col(dst, i) = scov_Q + dQp_s_dW * cov_dW;
     }
 }
 

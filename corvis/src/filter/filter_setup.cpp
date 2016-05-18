@@ -77,14 +77,14 @@ device_parameters filter_setup::get_device_parameters()
     cam.intrinsics.c_y_px = (sfm.s.center_y.v * sfm.s.image_height + sfm.s.image_height / 2. - .5);
 
     cam.extrinsics_wrt_imu_m.T     = sfm.s.Tc.v;
-    cam.extrinsics_var_wrt_imu_m.T = sfm.s.Tc.variance().segment<3>(0);
+    cam.extrinsics_var_wrt_imu_m.T = sfm.s.Tc.variance();
     cam.extrinsics_wrt_imu_m.Q     = sfm.s.Qc.v;
-    cam.extrinsics_var_wrt_imu_m.W = sfm.s.Qc.variance().segment<3>(0);
+    cam.extrinsics_var_wrt_imu_m.W = sfm.s.Qc.variance();
 
-    imu.a_bias_m__s2         = sfm.s.a_bias.v.segment<3>(0);
-    imu.a_bias_var_m2__s4    = sfm.s.a_bias.variance().segment<3>(0);
-    imu.w_bias_rad__s        = sfm.s.w_bias.v.segment<3>(0);
-    imu.w_bias_var_rad2__s2  = sfm.s.w_bias.variance().segment<3>(0);
+    imu.a_bias_m__s2         = sfm.s.a_bias.v;
+    imu.a_bias_var_m2__s4    = sfm.s.a_bias.variance();
+    imu.w_bias_rad__s        = sfm.s.w_bias.v;
+    imu.w_bias_var_rad2__s2  = sfm.s.w_bias.variance();
     imu.a_noise_var_m2__s4   = sfm.a_variance;
     imu.w_noise_var_rad2__s2 = sfm.w_variance;
     return device;

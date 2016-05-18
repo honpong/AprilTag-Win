@@ -88,7 +88,6 @@ public:
     {
         for(T c : children)
             c->remove();
-        children.clear();
     }
     
     void remove_child(const T n)

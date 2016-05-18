@@ -18,6 +18,7 @@ void world_state_render_video_teardown();
 bool world_state_render_depth_init();
 void world_state_render_depth(world_state * world, int viewport_width, int viewport_height);
 bool world_state_render_depth_get_size(world_state * world, int *video_width, int *video_height);
+void world_state_render_depth_on_video(world_state * world, int viewport_width, int viewport_height);
 void world_state_render_depth_teardown();
 bool world_state_render_plot_init();
 void world_state_render_plot(world_state * world, size_t plot_index, size_t key_index, int viewport_width, int viewport_height);

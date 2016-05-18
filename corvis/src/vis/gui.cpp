@@ -20,7 +20,7 @@ void gui::configure_view(int view_width, int view_height)
     if(scale < nearclip) nearclip = scale*0.75f;
     build_projection_matrix(projection_matrix, 60.0f, aspect, nearclip, farclip);
 
-    view_matrix.block<3,3>(0,0) = to_rotation_matrix(arc.get_quaternion()).cast<float>();
+    view_matrix.block<3,3>(0,0) = arc.get_quaternion().cast<float>().toRotationMatrix();
     view_matrix.block<3,1>(0,3) = v3(0,0,-scale);
     view_matrix.block<1,3>(3,0) = v3::Zero();
     view_matrix(3,3) = 1;

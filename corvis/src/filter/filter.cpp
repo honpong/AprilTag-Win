@@ -130,7 +130,7 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
 {
     if(f->run_state != RCSensorFusionRunStateRunning) return;
     m3
-        R = to_rotation_matrix(f->s.Q.v),
+        R = f->s.Q.v.toRotationMatrix(),
         Rt = R.transpose();
 
     bool old_speedfail = f->speed_failed;
@@ -245,7 +245,7 @@ sensor_clock::duration steady_time(struct filter *f, stdev<3> &stdev, const v3 &
     }
     if(!stdev.count && use_orientation) {
         if(!f->s.orientation_initialized) return sensor_clock::duration(0);
-        v3 local_up = to_rotation_matrix(f->s.Q.v).transpose() * v3(0, 0, 1);
+        v3 local_up = f->s.Q.v.conjugate() * v3(0, 0, 1);
         //face up -> (0, 0, 1)
         //portrait -> (1, 0, 0)
         //landscape -> (0, 1, 0)
@@ -426,7 +426,7 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
         f->gravity_init = true;
         if(!f->origin_gravity_aligned)
         {
-            f->origin.Q = f->origin.Q * conjugate(f->s.initial_orientation);
+            f->origin.Q = f->origin.Q * f->s.initial_orientation.conjugate();
         }
     }
     auto stop = std::chrono::steady_clock::now();
@@ -992,9 +992,9 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.camera_intrinsics.center_x.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);
     f->s.camera_intrinsics.center_y.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);
 
-    f->s.camera_intrinsics.k1.set_initial_variance(f->s.camera_intrinsics.fisheye ? .1*.1 : 2.e-4);
-    f->s.camera_intrinsics.k2.set_initial_variance(f->s.camera_intrinsics.fisheye ? .1*.1 : 2.e-4);
-    f->s.camera_intrinsics.k3.set_initial_variance(f->s.camera_intrinsics.fisheye ? .1*.1 : 2.e-4);
+    f->s.camera_intrinsics.k1.set_initial_variance(f->s.camera_intrinsics.fisheye ? .01*.01 : 2.e-4);
+    f->s.camera_intrinsics.k2.set_initial_variance(f->s.camera_intrinsics.fisheye ? .01*.01 : 2.e-4);
+    f->s.camera_intrinsics.k3.set_initial_variance(f->s.camera_intrinsics.fisheye ? .01*.01 : 2.e-4);
     
     f->s.camera_intrinsics.image_width = cam.intrinsics.width_px;
     f->s.camera_intrinsics.image_height = cam.intrinsics.height_px;

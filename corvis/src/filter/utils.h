@@ -16,8 +16,8 @@ static inline quaternion initial_orientation_from_gravity_facing(const v3 &gravi
         {
             v3 a = (zt / len).cross(facing.normalized());
             f_t d =  (zt / len).dot(facing.normalized()), s = sqrt(2*(1 + d));
-            quaternion dq = a.norm() > F_T_EPS ? normalize(quaternion(s/2, a[0]/s, a[1]/s, a[2]/s))
-                                               : d > 0 ? quaternion() : quaternion(0,0,0,1);
+            quaternion dq = a.norm() > F_T_EPS ? quaternion(s/2, a[0]/s, a[1]/s, a[2]/s).normalized()
+                                               : d > 0 ? quaternion::Identity() : quaternion(0,0,0,1);
             q = dq * q;
         }
     return q;

@@ -408,7 +408,7 @@ public:
 
     void reset() {
         index = -1;
-        v = quaternion(1., 0., 0., 0.);
+        v = quaternion::Identity();
         w = rotation_vector(0,0,0);
     }
     

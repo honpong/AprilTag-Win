@@ -193,8 +193,8 @@ void observation_vision_feature::innovation_covariance_hook(const matrix &cov, i
 
 void observation_vision_feature::predict()
 {
-    m3 Rr = to_rotation_matrix(state_group->Qr.v);
-    m3 R = to_rotation_matrix(state.Q.v);
+    m3 Rr = state_group->Qr.v.toRotationMatrix();
+    m3 R = state.Q.v.toRotationMatrix();
     Rrt = Rr.transpose();
     Rtot = Rrt;
     Ttot = Rrt * ( - state_group->Tr.v);
@@ -479,8 +479,8 @@ void observation_vision_feature::compute_measurement_covariance()
 
 void observation_accelerometer::predict()
 {
-    Rt = to_rotation_matrix(state.Q.v).transpose();
-    Rc = to_rotation_matrix(extrinsics.Qc.v);
+    Rt = state.Q.v.conjugate().toRotationMatrix();
+    Rc = extrinsics.Qc.v.toRotationMatrix();
     v3 acc = v3(0, 0, state.g.v);
     if(!state.orientation_only)
     {
@@ -568,7 +568,7 @@ bool observation_accelerometer::measure()
 
 void observation_gyroscope::predict()
 {
-    Rc = to_rotation_matrix(extrinsics.Qc.v);
+    Rc = extrinsics.Qc.v.toRotationMatrix();
     pred = intrinsics.w_bias.v + Rc * state.w.v;
     // w = w_bias + Qc * w;
     // dw = dw_bias + Qc * dw + (dQc Qc^-1) Qc * w;

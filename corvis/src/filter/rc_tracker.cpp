@@ -18,6 +18,24 @@ const char *rc_version()
     return rc_build_;
 }
 
+std::unique_ptr<spdlog::logger> trace_log = std::make_unique<spdlog::logger>("rc_trace", make_shared<spdlog::sinks::null_sink_st> ());
+static const bool trace = false;
+
+void rc_trace(const rc_Pose p)
+{
+    trace_log->info("{} {} {} {}; {} {} {} {}; {} {} {} {}", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11]);;
+}
+
+void rc_trace(const rc_CameraIntrinsics c)
+{
+    trace_log->info("camera type {} w,h {} {} fx,fy {} {} cx,cy {} {} d[3] {} {} {}",
+            c.type,
+            c.width_px, c.height_px,
+            c.f_x_px, c.f_y_px,
+            c.c_x_px, c.c_y_px,
+            c.distortion[0], c.distortion[1], c.distortion[2]);
+}
+
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 {
     m3 R = g.Q.toRotationMatrix();
@@ -133,17 +151,20 @@ rc_Tracker * rc_create()
 {
     rc_Tracker * tracker = new rc_Tracker(false); //don't dispatch immediately - intel doesn't really make any data interleaving guarantees
     tracker->sfm.ignore_lateness = true; //and don't drop frames to keep up
+    if(trace) trace_log->info("rc_create");
 
     return tracker;
 }
 
 void rc_destroy(rc_Tracker * tracker)
 {
+    if(trace) trace_log->info("rc_destroy");
     delete tracker;
 }
 
 void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m)
 {
+    if(trace) trace_log->info("rc_reset {}", initialTime_us);
     if (initialPose_m)
         tracker->reset(sensor_clock::micros_to_tp(initialTime_us), rc_Pose_to_transformation(initialPose_m), false);
     else
@@ -155,6 +176,11 @@ void rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Pose 
 {
     //TODO: extrinsics
     //TODO: camera_id
+    if(trace) {
+        trace_log->info("rc_configureCamera {}", camera_id);
+        rc_trace(extrinsics_wrt_origin_m);
+        rc_trace(*intrinsics);
+    }
     // Make this given camera the current camera
     calibration::camera *cam =
         (intrinsics->format == rc_FORMAT_GRAY8)   ? &tracker->device.color :
@@ -184,6 +210,13 @@ bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_Pose extrin
         transformation_to_rc_Pose(cam->extrinsics_wrt_imu_m, extrinsics_wrt_accel_m);
     if (cam && intrinsics)
         *intrinsics = cam->intrinsics;
+
+    if(trace) {
+        trace_log->info("rc_describeCamera {}", camera_id);
+        rc_trace(extrinsics_wrt_accel_m);
+        rc_trace(*intrinsics);
+    }
+
     return true;
     */
 }
@@ -192,6 +225,11 @@ void rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
 {
     //TODO: multi-sensor
     //TODO: extrinsics
+    if(trace) {
+        trace_log->info("rc_configureAccelerometer noise {}", intrinsics->noiseVariance_m2__s4);
+        rc_trace(extrinsics_wrt_origin_m);
+        rc_trace(intrinsics->alignment_and_bias_m__s2);
+    }
     Eigen::Map<const Eigen::Matrix<float,3,4>>    a_alignment_bias_m__s2(intrinsics->alignment_and_bias_m__s2);
     tracker->device.imu.a_alignment        = tracker->calibration.imu.a_alignment        = a_alignment_bias_m__s2.block<3,3>(0,0).cast<f_t>();
     tracker->device.imu.a_bias_m__s2       = tracker->calibration.imu.a_bias_m__s2       = a_alignment_bias_m__s2.block<3,1>(0,3).cast<f_t>();
@@ -202,6 +240,11 @@ void rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Pose
 {
     //TODO: multi-sensor
     //TODO: extrinsics
+    if(trace) {
+        trace_log->info("rc_configureGyroscope noise {}", intrinsics->noiseVariance_rad2__s2);
+        rc_trace(extrinsics_wrt_origin_m);
+        rc_trace(intrinsics->alignment_and_bias_rad__s);
+    }
     Eigen::Map<const Eigen::Matrix<float,3,4>> w_alignment_bias_rad__s(intrinsics->alignment_and_bias_rad__s);
     tracker->device.imu.w_alignment          = tracker->calibration.imu.w_alignment          = w_alignment_bias_rad__s.block<3,3>(0,0).cast<f_t>();;
     tracker->device.imu.w_bias_rad__s        = tracker->calibration.imu.w_bias_rad__s        = w_alignment_bias_rad__s.block<3,1>(0,3).cast<f_t>();;
@@ -210,6 +253,7 @@ void rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Pose
 
 void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double longitude_deg, double altitude_m)
 {
+    if(trace) trace_log->info("rc_configureLocation {} {} {}", latitude_deg, longitude_deg, altitude_m);
     tracker->set_location(latitude_deg, longitude_deg, altitude_m);
 }
 
@@ -262,6 +306,10 @@ RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback
     tracker->sfm.s.log->set_level(rc_sink->level(maximum_log_level));
     tracker->sfm.s.map.log = std::make_unique<spdlog::logger>("rc_tracker", rc_sink);
     tracker->sfm.s.map.log->set_level(rc_sink->level(maximum_log_level));
+    if(trace) {
+        trace_log = std::make_unique<spdlog::logger>("rc_trace", rc_sink);
+        trace_log->set_pattern("%n: %v");
+    }
 }
 
 RCTRACKER_API void rc_debug(rc_Tracker *tracker, rc_MessageLevel log_level, const char *msg)
@@ -278,6 +326,7 @@ RCTRACKER_API void rc_debug(rc_Tracker *tracker, rc_MessageLevel log_level, cons
 
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)
 {
+    if(trace) trace_log->info("rc_setDataCallback");
     if(callback) tracker->camera_callback = [callback, handle, tracker](std::unique_ptr<sensor_fusion::data> d, image_gray8 &&cam) {
         uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d->time.time_since_epoch()).count();
 
@@ -291,6 +340,7 @@ RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callb
 
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle)
 {
+    if(trace) trace_log->info("rc_setStatusCallback");
     if(callback) tracker->status_callback = [callback, handle](sensor_fusion::status s) {
         callback(handle, tracker_state_from_run_state(s.run_state), tracker_error_from_error(s.error), tracker_confidence_from_confidence(s.confidence), static_cast<float>(s.progress));
     };
@@ -298,26 +348,31 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
 
 void rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
+    if(trace) trace_log->info("rc_startCalibration {}", run_flags);
     tracker->start_calibration(run_flags == rc_E_ASYNCHRONOUS);
 }
 
 void rc_pauseAndResetPosition(rc_Tracker * tracker)
 {
+    if(trace) trace_log->info("rc_pauseAndResetPosition");
     tracker->pause_and_reset_position();
 }
 
 void rc_unpause(rc_Tracker *tracker)
 {
+    if(trace) trace_log->info("rc_unpause");
     tracker->unpause();
 }
 
 void rc_startBuffering(rc_Tracker * tracker)
 {
+    if(trace) trace_log->info("rc_startBuffering");
     tracker->start_buffering();
 }
 
 void rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
+    if(trace) trace_log->info("rc_startTracker");
     if (run_flags == rc_E_ASYNCHRONOUS)
         tracker->start_unstable(true);
     else
@@ -326,6 +381,7 @@ void rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 
 void rc_stopTracker(rc_Tracker * tracker)
 {
+    if(trace) trace_log->info("rc_stopTracker");
     tracker->stop();
     if(tracker->output.started())
         tracker->output.stop();
@@ -333,21 +389,25 @@ void rc_stopTracker(rc_Tracker * tracker)
 
 void rc_startMapping(rc_Tracker *tracker)
 {
+    if(trace) trace_log->info("rc_startMapping");
     tracker->start_mapping();
 }
 
 void rc_stopMapping(rc_Tracker *tracker)
 {
+    if(trace) trace_log->info("rc_stopMapping");
     tracker->stop_mapping();
 }
 
 bool rc_loadMap(rc_Tracker *tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle)
 {
+    if(trace) trace_log->info("rc_loadMap");
     return tracker->load_map(read, handle);
 }
 
 void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, const void *buffer, size_t length), void *handle)
 {
+    if(trace) trace_log->info("rc_saveMap");
     tracker->save_map(write, handle);
 }
 
@@ -355,6 +415,22 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
                      int width, int height, int stride, const void *image,
                      void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
+    if(trace) {
+        int pixel1 = -1;
+        int pixel2 = -1;
+        int pixel3 = -1;
+        if(format == rc_FORMAT_DEPTH16) {
+            pixel1 = ((uint16_t*)image)[width/2 + width * height/2 - 1];
+            pixel2 = ((uint16_t*)image)[width/2 + width * height/2    ];
+            pixel3 = ((uint16_t*)image)[width/2 + width * height/2 + 1];
+        }
+        else {
+            pixel1 = ((uint8_t*)image)[width/2 + width * height/2 - 1];
+            pixel2 = ((uint8_t*)image)[width/2 + width * height/2    ];
+            pixel3 = ((uint8_t*)image)[width/2 + width * height/2 + 1];
+        }
+        trace_log->info("rc_receiveImage t,s,f {} {} {} w,h,s {} {} {} px {} {} {}", time_us, shutter_time_us, format, width, height, stride, pixel1, pixel2, pixel3);
+    }
     if (format == rc_FORMAT_DEPTH16) {
         image_depth16 d;
         d.source = tracker->sfm.depths[camera_id].get();
@@ -391,6 +467,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
 
 void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, const rc_Vector acceleration_m__s2)
 {
+    if(trace) trace_log->info("rc_receiveAccelerometer {}: {} {} {}", time_us, acceleration_m__s2.x, acceleration_m__s2.y, acceleration_m__s2.z);
     accelerometer_data d;
     d.source = tracker->sfm.accelerometers[accelerometer_id].get();
     d.accel_m__s2[0] = acceleration_m__s2.x;
@@ -405,6 +482,7 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, r
 
 void rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s)
 {
+    if(trace) trace_log->info("rc_receiveGyro {}: {} {} {}", time_us, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
     gyro_data d;
     d.source = tracker->sfm.gyros[gyroscope_id].get();
     d.angvel_rad__s[0] = angular_velocity_rad__s.x;
@@ -419,16 +497,23 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
 
 void rc_getPose(const rc_Tracker * tracker, rc_Pose pose_m)
 {
+    if(trace) trace_log->info("rc_getPose");
     transformation_to_rc_Pose(tracker->get_transformation(), pose_m);
+    if(trace) rc_trace(pose_m);
 }
 
 void rc_setPose(rc_Tracker * tracker, const rc_Pose pose_m)
 {
+    if(trace) {
+        trace_log->info("rc_setPose");
+        rc_trace(pose_m);
+    }
     tracker->set_transformation(rc_Pose_to_transformation(pose_m));
 }
 
 int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)
 {
+    if(trace) trace_log->info("rc_getFeatures");
     copy_features_from_sensor_fusion(tracker->gottenFeatures, tracker->get_features());
     *features_px = tracker->gottenFeatures.data();
     return tracker->gottenFeatures.size();
@@ -436,11 +521,13 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)
 
 rc_TrackerState rc_getState(const rc_Tracker *tracker)
 {
+    if(trace) trace_log->info("rc_getState");
     return tracker_state_from_run_state(tracker->sfm.run_state);
 }
 
 rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker)
 {
+    if(trace) trace_log->info("rc_getConfidence");
     rc_TrackerConfidence confidence = rc_E_CONFIDENCE_NONE;
     if(tracker->sfm.run_state == RCSensorFusionRunStateRunning)
     {
@@ -453,6 +540,7 @@ rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker)
 
 rc_TrackerError rc_getError(const rc_Tracker *tracker)
 {
+    if(trace) trace_log->info("rc_getError");
     rc_TrackerError error = rc_E_ERROR_NONE;
     if(tracker->sfm.numeric_failed) error = rc_E_ERROR_OTHER;
     else if(tracker->sfm.speed_failed) error = rc_E_ERROR_SPEED;
@@ -462,32 +550,38 @@ rc_TrackerError rc_getError(const rc_Tracker *tracker)
 
 float rc_getProgress(const rc_Tracker *tracker)
 {
+    if(trace) trace_log->info("rc_getProgress");
     return filter_converged(&tracker->sfm);
 }
 
 void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_us, void *handle)
 {
+    if(trace) trace_log->info("rc_setLog");
     tracker->set_log_function(log, stream, std::chrono::duration_cast<sensor_clock::duration>(std::chrono::microseconds(period_us)), handle);
 }
 
 void rc_triggerLog(const rc_Tracker * tracker)
 {
+    if(trace) trace_log->info("rc_triggerLog");
     tracker->trigger_log();
 }
 
 bool rc_setOutputLog(rc_Tracker * tracker, const char *filename, rc_TrackerRunFlags run_flags)
 {
+    if(trace) trace_log->info("rc_setOutputLog");
     return tracker->output.start(filename, run_flags == rc_E_ASYNCHRONOUS);
 }
 
 const char *rc_getTimingStats(rc_Tracker *tracker)
 {
+    if(trace) trace_log->info("rc_getTimingStats");
     tracker->timingStats = tracker->get_timing_stats();
     return tracker->timingStats.c_str();
 }
 
 size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 {
+    if(trace) trace_log->info("rc_getCalibration");
     device_parameters cal = tracker->get_device();
 
     std::string json;
@@ -500,6 +594,7 @@ size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 
 bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
 {
+    if(trace) trace_log->info("rc_setCalibration {}", buffer);
     std::string str(buffer);
     if (str.find("<") != std::string::npos && (str.find("{") == std::string::npos || str.find("<") < str.find("{"))) {
         struct calibration multi_camera_calibration;

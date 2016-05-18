@@ -94,6 +94,7 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_D:        show_depth = !show_depth;
              break; case GLFW_KEY_M:        show_main = !show_main;
              break; case GLFW_KEY_P:        show_plots = !show_plots;
+             break; case GLFW_KEY_O:        show_depth_on_video = !show_depth_on_video;
              break; case GLFW_KEY_T:        fprintf(stderr, "Current time: %llu\n", state->get_current_timestamp());
              break; case GLFW_KEY_SLASH:    fprintf(stderr, R"(
 0-9   Switch Plots
@@ -112,6 +113,7 @@ v     Toggle Video
 D     Toggle Depth
 m     Toggle (Main) 3D path view
 p     Toggle Plots
+o     Toggle Depth to Video overlay
 
 t     Print current timestamp
 
@@ -227,6 +229,8 @@ void gui::start_glfw()
         if(show_main && (show_video || show_plots || show_depth))
             main_width = width - max(max(video_width, plots_width), depth_width);
 
+        state->generate_depth_overlay = show_depth_on_video;
+
         // Update data
         state->update_vertex_arrays();
 
@@ -244,7 +248,11 @@ void gui::start_glfw()
         if(show_depth) {
             // y coordinate is 0 = bottom, height = top (opengl)
             glViewport(width - depth_width, video_height, depth_width, depth_height);
-            world_state_render_depth(state, depth_width, depth_height);
+
+            if (show_depth_on_video)
+                world_state_render_depth_on_video(state, depth_width, depth_height);
+            else
+                world_state_render_depth(state, depth_width, depth_height);
         }
         if(show_plots) {
             // y coordinate is 0 = bottom, height = top (opengl)
@@ -268,7 +276,8 @@ void gui::start(replay * rp)
 
 gui::gui(world_state * world, bool show_main_, bool show_video_, bool show_depth_, bool show_plots_)
     : state(world), scale(initial_scale), width(640), height(480),
-      show_main(show_main_), show_video(show_video_), show_depth(show_depth_), show_plots(show_plots_)
+      show_main(show_main_), show_video(show_video_), show_depth(show_depth_), show_plots(show_plots_),
+      show_depth_on_video(false)
 {
     static_gui = this;
 }

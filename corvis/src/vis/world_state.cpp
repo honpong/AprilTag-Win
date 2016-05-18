@@ -108,6 +108,38 @@ void world_state::observe_depth(sensor_clock::time_point timestamp, uint16_t *im
     depth_lock.unlock();
 }
 
+void world_state::observe_depth_overlay_image(sensor_clock::time_point timestamp, uint16_t *aligned_depth, int width, int height, int stride)
+{
+    depth_lock.lock();
+    image_lock.lock();
+
+    if (last_depth_overlay_image.image && (width != last_depth_overlay_image.width || height != last_depth_overlay_image.height))
+        last_depth_overlay_image.image = (uint8_t *)realloc(last_depth_overlay_image.image, sizeof(uint8_t)*width*height);
+
+    if (!last_depth_overlay_image.image)
+        last_depth_overlay_image.image = (uint8_t *)malloc(sizeof(uint8_t)*width*height);
+
+    if (last_image.image) {
+        for (int i = 0, p = 0; i < height; ++i) {
+            for (int j = 0; j < width; ++j, ++p) {
+                const auto z = aligned_depth[stride / 2 * i + j];
+                if (0 < z && z <= MAX_DEPTH) {
+                    last_depth_overlay_image.image[p] = 255 - (z / 32);
+                }
+                else {
+                    last_depth_overlay_image.image[p] = last_image.image[p];
+                }
+            }
+        }
+    }
+
+    last_depth_overlay_image.width = width;
+    last_depth_overlay_image.height = height;
+
+    image_lock.unlock();
+    depth_lock.unlock();
+}
+
 static inline void compute_covariance_ellipse(state_vision_feature * feat, float & cx, float & cy, float & ctheta)
 {
     //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
@@ -166,10 +198,11 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
 
     if(f->has_depth) {
         observe_depth(f->recent_depth.timestamp, f->recent_depth.image, f->recent_depth.width, f->recent_depth.height, f->recent_depth.stride);
-        /*
-        auto depth_overlay = std::move(filter_aligned_depth_overlay(f, f->recent_depth, d));
-        observe_depth(f->recent_depth.timestamp, depth_overlay->image, depth_overlay->width, depth_overlay->height, depth_overlay->stride);
-        */
+
+        if (generate_depth_overlay){
+            auto depth_overlay = std::move(filter_aligned_depth_overlay(f, f->recent_depth, d));
+            observe_depth_overlay_image(depth_overlay->timestamp, depth_overlay->image, depth_overlay->width, depth_overlay->height, depth_overlay->stride);
+        }
     }
 
     if(f->s.map_enabled) {
@@ -348,6 +381,10 @@ world_state::world_state()
     last_depth.width = 0;
     last_depth.height = 0;
     last_depth.image = NULL;
+    generate_depth_overlay = false;
+    last_depth_overlay_image.width = 0;
+    last_depth_overlay_image.height = 0;
+    last_depth_overlay_image.image = NULL;
 }
 
 world_state::~world_state()

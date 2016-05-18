@@ -60,7 +60,7 @@ private:
 
     // Display related
     GLFWwindow * main_window;
-    bool show_main, show_video, show_depth, show_plots;
+    bool show_main, show_video, show_depth, show_plots, show_depth_on_video;
 
     replay * replay_control;
 

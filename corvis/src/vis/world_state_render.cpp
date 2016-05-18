@@ -81,6 +81,15 @@ void world_state_render_depth(world_state * world, int viewport_width, int viewp
     world->display_lock.unlock();
 }
 
+void world_state_render_depth_on_video(world_state * world, int viewport_width, int viewport_height)
+{
+    world->display_lock.lock();
+    world->depth_lock.lock();
+    frame_render.render(world->last_depth_overlay_image.image, world->last_depth_overlay_image.width, world->last_depth_overlay_image.height, viewport_width, viewport_height, true);
+    world->depth_lock.unlock();
+    world->display_lock.unlock();
+}
+
 bool world_state_render_depth_get_size(world_state * world, int *width, int *height)
 {
     world->depth_lock.lock();

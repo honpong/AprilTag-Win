@@ -4,6 +4,7 @@
 #include <regex>
 #include <sstream>
 #include <memory>
+#include <cstring>
 #include <cstdint>
 
 using namespace rc;

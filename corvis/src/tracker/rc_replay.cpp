@@ -1,10 +1,10 @@
 //  Copyright (c) 2015 RealityCap. All rights reserved.
 #include "rc_replay.h"
-#include <inttypes.h>
+#include <cinttypes>
 #include <regex>
 #include <sstream>
 #include <memory>
-#include <stdint.h>
+#include <cstdint>
 
 using namespace rc;
 

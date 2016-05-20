@@ -106,6 +106,8 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     struct descriptor descriptor;
     bool descriptor_valid{false};
 
+    bool depth_measured{false};
+
     float last_variance;
 
     static f_t initial_depth_meters;

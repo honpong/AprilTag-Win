@@ -654,6 +654,7 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
                 float std_pct = get_stdev_pct_for_depth(depth_m);
                 feat->set_initial_variance(std_pct * std_pct); // assumes log depth
                 feat->status = feature_normal;
+                feat->depth_measured = true;
             }
             
             f->track.add_track(image.image, x, y, feat->patch);

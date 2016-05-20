@@ -118,7 +118,7 @@ int main(int c, char **v) {
         std::mutex m;
         std::condition_variable cv_done;
         std::atomic<bool> done {false};
-        rc_TrackerConfidence confidence {RC_E_CONFIDENCE_NONE};
+        rc_TrackerConfidence confidence {rc_E_CONFIDENCE_NONE};
         rc_TrackerError error {rc_E_ERROR_NONE};
         rc_TrackerState state {(rc_TrackerState)-1};
         int percentage {-1};
@@ -138,7 +138,7 @@ int main(int c, char **v) {
 
         if (s->confidence != confidence)
             switch(confidence) {
-                break; case RC_E_CONFIDENCE_NONE:   printf("No confidence.\n");    fflush(stdout);
+                break; case rc_E_CONFIDENCE_NONE:   printf("No confidence.\n");    fflush(stdout);
                 break; case rc_E_CONFIDENCE_LOW:    printf("Low confidence\n");    fflush(stdout);
                 break; case rc_E_CONFIDENCE_MEDIUM: printf("Medium confidence\n"); fflush(stdout);
                 break; case rc_E_CONFIDENCE_HIGH:   printf("High confidence\n");   fflush(stdout);
@@ -162,11 +162,11 @@ int main(int c, char **v) {
 
     if (capture_file) {
         printf("Recording to %s\n", capture_file); fflush(stdout);
-        rc_setOutputLog(rc, capture_file, rc_E_ASYNCRONOUS);
+        rc_setOutputLog(rc, capture_file, rc_E_ASYNCHRONOUS);
         static struct status *s = &status;
         signal(SIGINT, [](int) { s->done = true; s->cv_done.notify_all(); printf("Finishing...\n"); fflush(stdout); });
     } else
-        rc_startCalibration(rc, rc_E_ASYNCRONOUS);
+        rc_startCalibration(rc, rc_E_ASYNCHRONOUS);
 
     {
         rc::sensor_listener sl(rc);

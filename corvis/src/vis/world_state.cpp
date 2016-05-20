@@ -191,7 +191,7 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
             observe_feature(d.timestamp, feat->id,
                             (float)world[0], (float)world[1], (float)world[2],
                             (float)feat->current[0], (float)feat->current[1],
-                            cx, cy, ctheta, good);
+                            cx, cy, ctheta, good, feat->depth_measured);
         }
     }
     observe_image(d.timestamp, d.image, d.width, d.height, d.stride);
@@ -659,6 +659,17 @@ void world_state::build_grid_vertex_data()
     }
 }
 
+int world_state::get_feature_depth_measurements()
+{
+    int depth_measurements = 0;
+    display_lock.lock();
+    for(auto f : features)
+        if(f.second.depth_measured)
+            depth_measurements++;
+    display_lock.unlock();
+    return depth_measurements;
+}
+
 float world_state::get_feature_lifetime()
 {
     float average_times_seen = 0;
@@ -679,14 +690,16 @@ std::string world_state::get_feature_stats()
     os.precision(2);
     os << fixed;
     float average_times_seen = get_feature_lifetime();
+    int depth_initialized = get_feature_depth_measurements();
     display_lock.lock();
     os << "Features seen: " << features.size() << " ";
     display_lock.unlock();
     os << "with an average life of " << average_times_seen << " frames" << std::endl;
+    os << "Features initialized with depth: " << depth_initialized << std::endl;
     return os.str();
 }
 
-void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float ctheta, bool good)
+void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float ctheta, bool good, bool depth_measured)
 {
     Feature f;
     f.x = x;
@@ -700,6 +713,7 @@ void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t f
     f.last_seen = timestamp;
     f.good = good;
     f.times_seen = 1;
+    f.depth_measured = depth_measured;
     display_lock.lock();
     if(timestamp > current_feature_timestamp)
         current_feature_timestamp = timestamp;

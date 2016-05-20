@@ -108,8 +108,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
 
     bool depth_measured{false};
 
-    float last_variance;
-
     static f_t initial_depth_meters;
     static f_t initial_var;
     static f_t initial_process_noise;

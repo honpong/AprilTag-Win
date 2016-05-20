@@ -31,6 +31,15 @@ using namespace std;
 #define MINSTATESIZE 96
 #define MAXGROUPS 8
 
+class state_leaf_base {
+public:
+    state_leaf_base(const char *name_, int index_, int size_) : name(name_), index(index_), size(size_) {}
+    const char *name;
+protected:
+    int index;
+    int size;
+};
+
 class state_node {
 public:
     state_node(): dynamic(false) {}
@@ -207,15 +216,13 @@ protected:
     sensor_clock::time_point current_time;
 };
 
-template <class T, int _size> class state_leaf: public state_node {
+template <class T, int _size> class state_leaf: public state_leaf_base, public state_node {
  public:
-    state_leaf(const char *_name): name(_name), index(-1), size(_size) {}
+    state_leaf(const char *_name) : state_leaf_base(_name, -1, _size) {}
 
     T v;
     
     covariance *cov;
-    
-    const char *name;
     
     void set_process_noise(f_t x)
     {
@@ -272,10 +279,8 @@ template <class T, int _size> class state_leaf: public state_node {
 
     void remove() { index = -1; }
 protected:
-    int index;
     f_t process_noise[_size];
     f_t initial_variance[_size];
-    int size;
 };
 
 #define PERTURB_FACTOR f_t(1.1)

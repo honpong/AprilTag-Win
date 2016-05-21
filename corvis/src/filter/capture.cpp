@@ -114,6 +114,8 @@ void capture::write_gyro(gyro_data &&data)
 }
 
 void capture::process(std::function<void()> &&write) {
+    if (!started_)
+        return;
     if (threaded) {
         {
             std::lock_guard<std::mutex> queue_lock(queue_mutex);
@@ -127,13 +129,17 @@ void capture::process(std::function<void()> &&write) {
 
 bool capture::start(const char *name, bool threaded)
 {
+    if (started_)
+        return false;
     file.open(name, std::ios::binary);
     if(!file.is_open())
         return false;
+    started_ = true;
+    stopping = false;
     if ((this->threaded = threaded))
         thread = std::thread([this]() {
-            while(file.is_open()) {
-                std::unique_lock<std::mutex> queue_lock(queue_mutex);
+            std::unique_lock<std::mutex> queue_lock(queue_mutex);
+            while (!stopping) {
                 cv.wait(queue_lock);
                 while (!queue.empty()) {
                     std::function<void()> write;
@@ -150,19 +156,13 @@ bool capture::start(const char *name, bool threaded)
 
 void capture::stop()
 {
-    if (file.is_open()) {
-        if (threaded) {
-            {
-                std::lock_guard<std::mutex> queue_lock(queue_mutex);
-                while (!queue.empty()) {
-                    queue.front()();
-                    queue.pop();
-                }
-                file.close();
-            }
-            cv.notify_one();
-            thread.join();
-        } else
-            file.close();
+    if (!started_)
+        return;
+    if (threaded) {
+        started_ = false;
+        stopping = true;
+        cv.notify_one();
+        thread.join();
     }
+    file.close();
 }

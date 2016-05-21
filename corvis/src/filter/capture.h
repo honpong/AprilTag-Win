@@ -25,6 +25,7 @@ private:
     std::ofstream file;
     std::atomic<uint64_t> packets_written{0};
     std::atomic<uint64_t> bytes_written{0};
+    std::atomic<bool> stopping, started_ {false};
     std::mutex queue_mutex;
     std::thread thread;
     std::queue<std::function<void()>> queue;
@@ -40,7 +41,7 @@ private:
 
 public:
     bool start(const char *name, bool threaded);
-    bool started() { return file.is_open(); }
+    bool started() { return started_; }
     void stop();
     void write_camera(image_gray8&& x);
     void write_camera(image_depth16&& x);

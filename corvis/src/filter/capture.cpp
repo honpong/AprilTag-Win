@@ -138,7 +138,7 @@ bool capture::start(const char *name, bool threaded)
     if ((this->threaded = threaded))
         thread = std::thread([this]() {
             std::unique_lock<std::mutex> queue_lock(queue_mutex);
-            while (!started_) {
+            while (!started_ || !queue.empty()) {
                 cv.wait(queue_lock);
                 while (!queue.empty()) {
                     std::function<void()> write;

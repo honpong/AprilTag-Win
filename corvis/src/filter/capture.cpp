@@ -158,8 +158,8 @@ void capture::stop()
 {
     if (!started_)
         return;
+    started_ = false;
     if (threaded) {
-        started_ = false;
         stopping = true;
         cv.notify_one();
         thread.join();

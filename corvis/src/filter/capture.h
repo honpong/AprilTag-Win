@@ -25,7 +25,7 @@ private:
     std::ofstream file;
     std::atomic<uint64_t> packets_written{0};
     std::atomic<uint64_t> bytes_written{0};
-    std::atomic<bool> stopping, started_ {false};
+    std::atomic<bool> started_ {false};
     std::mutex queue_mutex;
     std::thread thread;
     std::queue<std::function<void()>> queue;

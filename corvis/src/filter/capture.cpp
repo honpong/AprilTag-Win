@@ -135,11 +135,10 @@ bool capture::start(const char *name, bool threaded)
     if(!file.is_open())
         return false;
     started_ = true;
-    stopping = false;
     if ((this->threaded = threaded))
         thread = std::thread([this]() {
             std::unique_lock<std::mutex> queue_lock(queue_mutex);
-            while (!stopping) {
+            while (!started_) {
                 cv.wait(queue_lock);
                 while (!queue.empty()) {
                     std::function<void()> write;
@@ -160,7 +159,6 @@ void capture::stop()
         return;
     started_ = false;
     if (threaded) {
-        stopping = true;
         cv.notify_one();
         thread.join();
     }

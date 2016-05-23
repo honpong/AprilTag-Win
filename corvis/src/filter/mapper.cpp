@@ -711,7 +711,7 @@ float mapper::refine_transformation(const transformation_variance &base, transfo
         }
     }
     assert(inliers);
-    v3 dW = total_rot / inliers;
+    //v3 dW = total_rot / inliers;
     //    m4 dR = rodrigues(v4(0., 0., dtheta, 0.), NULL);
     //dR.transform.set_rotation(dR.transform.get_rotation() * rodrigues(dW, NULL));
     return resid;

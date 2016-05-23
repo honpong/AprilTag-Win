@@ -72,7 +72,7 @@ public:
     v<N> sum, mean, M2, variance, stdev_;
     f_t maximum;
     uint32_t count;
-    stdev(): sum(v<N>::Zero()), mean(v<N>::Zero()), M2(v<N>::Zero()), maximum(0.), variance(v<N>::Zero()), stdev_(v<N>::Zero()), count(0) {}
+    stdev(): sum(v<N>::Zero()), mean(v<N>::Zero()), M2(v<N>::Zero()), variance(v<N>::Zero()), stdev_(v<N>::Zero()), maximum(0.), count(0) {}
     void data(const v<N> &x) {
         ++count;
         v<N> delta = x - mean;

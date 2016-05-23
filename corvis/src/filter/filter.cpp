@@ -129,9 +129,6 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
 void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
 {
     if(f->run_state != RCSensorFusionRunStateRunning) return;
-    m3
-        R = f->s.Q.v.toRotationMatrix(),
-        Rt = R.transpose();
 
     bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
@@ -566,7 +563,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
             // ceil() and -1s give the 4 closest grid points
             auto X = static_cast<int>(std::ceil(ox)) - Eigen::Array4i{0,1,0,1};
             auto Y = static_cast<int>(std::ceil(oy)) - Eigen::Array4i{0,0,1,1};
-            auto Z = static_cast<int>(roundf(oz));
+            //auto Z = static_cast<int>(roundf(oz));
             auto I = Y * o_stride + X;
             auto within = X >= 0 && X < o_width && Y >= 0 && Y < o_height;
             if (within[0] && oz < static_cast<float>(out[I[0]])) out[I[0]] = static_cast<uint16_t>(oz);
@@ -589,8 +586,6 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
 
     auto aligned_distorted_depth = make_unique<image_depth16>(image.width, image.height, sizeof(uint16_t)*image.width, 0);
     auto out = aligned_distorted_depth->image;
-    int width = aligned_distorted_depth->width, height = aligned_distorted_depth->height;
-    int stride = aligned_distorted_depth->stride / sizeof(uint16_t);
     // This assumes depth and image have the same aspect ratio
     f_t image_to_depth = f_t(depth.height)/image.height;
     for(int y_image = 0; y_image < image.height; y_image++) {
@@ -598,7 +593,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
             feature_t kp_i = {(f_t)x_image, (f_t)y_image};
             feature_t kp_d = image_to_depth*f->s.camera_intrinsics.unnormalize_feature(f->s.camera_intrinsics.undistort_feature(f->s.camera_intrinsics.normalize_feature(kp_i)));
             uint16_t depth_mm = get_depth_for_point_mm(*aligned_depth.get(), kp_d);
-            out[y_image * width + x_image] = depth_mm;
+            out[y_image * aligned_distorted_depth->stride + x_image] = depth_mm;
         }
     }
 

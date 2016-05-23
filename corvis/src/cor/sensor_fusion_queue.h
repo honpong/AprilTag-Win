@@ -129,10 +129,10 @@ private:
     std::function<void(accelerometer_data &&)> accel_receiver;
     std::function<void(gyro_data &&)> gyro_receiver;
     
+    sensor_queue<image_gray8, 6> camera_queue;
+    sensor_queue<image_depth16, 6> depth_queue;
     sensor_queue<accelerometer_data, 64> accel_queue;
     sensor_queue<gyro_data, 64> gyro_queue;
-    sensor_queue<image_depth16, 6> depth_queue;
-    sensor_queue<image_gray8, 6> camera_queue;
     std::function<void()> control_func;
     bool active;
     bool wait_for_camera;

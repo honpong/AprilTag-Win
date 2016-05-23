@@ -248,6 +248,9 @@ const std::array<rc_MessageLevel, 10> rc_callback_sink_st::rc_levels = {
 
 RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback callback, void *handle, rc_MessageLevel maximum_log_level)
 {
+    if(maximum_log_level > rc_MESSAGE_WARN)
+        maximum_log_level = rc_MESSAGE_WARN;
+
     auto rc_sink = std::make_shared<rc_callback_sink_st>(callback, handle);
     tracker->sfm.s.log = std::make_unique<spdlog::logger>("rc_tracker", rc_sink);
     tracker->sfm.s.log->set_level(rc_sink->level(maximum_log_level));

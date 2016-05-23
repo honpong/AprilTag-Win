@@ -17,6 +17,7 @@
 #include <queue>
 #include <thread>
 #include <mutex>
+#include <future>
 #include <condition_variable>
 
 class capture
@@ -28,11 +29,11 @@ private:
     std::atomic<bool> started_ {false};
     std::mutex queue_mutex;
     std::thread thread;
-    std::queue<std::function<void()>> queue;
+    std::queue<std::packaged_task<void()>> queue;
     std::condition_variable cv;
     bool threaded = false;
 
-    void process(std::function<void()> &&write);
+    void process(std::packaged_task<void()> &&write);
     void write_packet(packet_t * p);
     void write_accelerometer_data(const float data[3], uint64_t timestamp);
     void write_gyroscope_data(const float data[3], uint64_t timestamp);

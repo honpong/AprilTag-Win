@@ -2,6 +2,7 @@
 import sys
 import csv
 import os.path
+import numpy
 if len(sys.argv) != 4:
     print "Usage:", sys.argv[0], "<vicon.log> <capture_folder> <shifted_vicon.log>"
     sys.exit(1)
@@ -10,6 +11,20 @@ vicon_file = sys.argv[1]
 accel_file = os.path.join(sys.argv[2], "accel.txt")
 gyro_file = os.path.join(sys.argv[2], "gyro.txt")
 vicon_output_file = sys.argv[3]
+vicon_to_camera__m = numpy.array([0.065, 0.035, -0.095])
+
+def quaternion_to_rotation_matrix(x, y, z, w):
+    R = numpy.zeros([3,3])
+    R[0][0] = 1 - 2 * (y*y + z*z)
+    R[0][1] = 2 * (x*y - w*z)
+    R[0][2] = 2 * (x*z + w*y)
+    R[1][0] = 2 * (x*y + w*z)
+    R[1][1] = 1 - 2 * (x*x + z*z)
+    R[1][2] = 2 * (y*z - w*x)
+    R[2][0] = 2 * (x*z - w*y)
+    R[2][1] = 2 * (y*z + w*x)
+    R[2][2] = 1 - 2 * (x*x + y*y)
+    return R
 
 def read_csv_floats(filename, header=False):
     #accel is timestamp_us, x, y, z
@@ -102,6 +117,13 @@ def write_offset_vicon(original_filename, output_filename, offset_s, offset_ns):
                     row_ns += 1e9
                 row[0] = str(int(row_s))
                 row[1] = str(int(row_ns))
+                T = numpy.array([float(row[3]), float(row[4]), float(row[5])])
+                R = quaternion_to_rotation_matrix(float(row[6]), float(row[7]),
+                        float(row[8]), float(row[9]))
+                T = T + numpy.dot(R, vicon_to_camera__m)
+                row[3] = str(T[0])
+                row[4] = str(T[1])
+                row[5] = str(T[2])
                 writer.writerow(row)
 
 write_offset_vicon(vicon_file, vicon_output_file, vicon_to_imu_s, vicon_to_imu_ns)

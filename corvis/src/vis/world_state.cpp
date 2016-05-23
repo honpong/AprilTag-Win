@@ -200,7 +200,7 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
         observe_depth(f->recent_depth.timestamp, f->recent_depth.image, f->recent_depth.width, f->recent_depth.height, f->recent_depth.stride);
 
         if (generate_depth_overlay){
-            auto depth_overlay = std::move(filter_aligned_depth_overlay(f, f->recent_depth, d));
+            auto depth_overlay = filter_aligned_depth_overlay(f, f->recent_depth, d);
             observe_depth_overlay_image(depth_overlay->timestamp, depth_overlay->image, depth_overlay->width, depth_overlay->height, depth_overlay->stride);
         }
     }

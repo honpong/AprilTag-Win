@@ -577,7 +577,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
             if (out[Y * o_stride + X] == std::numeric_limits<uint16_t>::max())
                 out[Y * o_stride + X] = 0;
 
-    return std::move(aligned_depth);
+    return aligned_depth;
 }
 
 std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter *f, const image_depth16 &depth, const image_gray8 & image)
@@ -597,7 +597,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
         }
     }
 
-    return std::move(aligned_distorted_depth);
+    return aligned_distorted_depth;
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
@@ -639,7 +639,7 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
             float depth_m = 0;
             if(f->has_depth) {
                 if (!aligned_undistorted_depth)
-                    aligned_undistorted_depth = std::move(filter_aligned_depth_to_intrinsics(f, f->recent_depth));
+                    aligned_undistorted_depth = filter_aligned_depth_to_intrinsics(f, f->recent_depth);
 
                 depth_m = 0.001f * get_depth_for_point_mm(*aligned_undistorted_depth.get(), image_to_depth*f->s.camera_intrinsics.unnormalize_feature(f->s.camera_intrinsics.undistort_feature(f->s.camera_intrinsics.normalize_feature(kp_i))));
             }

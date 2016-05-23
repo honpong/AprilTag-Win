@@ -137,31 +137,31 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     f->speed_failed = false;
     f_t speed = f->s.V.v.norm();
     if(speed > 3.) { //1.4m/s is normal walking speed
-        if (!old_speedfail) f->log->warn("Velocity {} m/s exceeds max bound", speed);
+        if (!old_speedfail) f->log->info("Velocity {} m/s exceeds max bound", speed);
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(speed > 2.) {
-        if (!f->speed_warning) f->log->warn("High velocity ({} m/s) warning", speed);
+        if (!f->speed_warning) f->log->info("High velocity ({} m/s)", speed);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t accel = f->s.a.v.norm();
     if(accel > 9.8) { //1g would saturate sensor anyway
-        if (!old_speedfail) f->log->warn("Acceleration exceeds max bound");
+        if (!old_speedfail) f->log->info("Acceleration exceeds max bound");
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(accel > 5.) { //max in mine is 6.
-        if (!f->speed_warning) f->log->warn("High acceleration ({} m/s^2) warning", accel);
+        if (!f->speed_warning) f->log->info("High acceleration ({} m/s^2)", accel);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t ang_vel = f->s.w.v.norm();
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
-        if (!old_speedfail) f->log->warn("Angular velocity exceeds max bound");
+        if (!old_speedfail) f->log->info("Angular velocity exceeds max bound");
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(ang_vel > 2.) { // max in mine is 1.6
-        if (!f->speed_warning) f->log->warn("High angular velocity warning");
+        if (!f->speed_warning) f->log->info("High angular velocity");
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
@@ -819,7 +819,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
         }
         filter_add_features(f, image, space);
         if(f->s.features.size() < state_vision_group::min_feats) {
-            f->log->warn("detector failure: only {} features after add", f->s.features.size());
+            f->log->info("detector failure: only {} features after add", f->s.features.size());
             f->detector_failed = true;
             f->calibration_bad = true;
             if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) f->s.enable_orientation_only();

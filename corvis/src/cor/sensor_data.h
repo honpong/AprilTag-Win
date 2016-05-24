@@ -32,29 +32,37 @@ public:
     image_data(): image_handle(nullptr, nullptr), image(nullptr), width(0), height(0), stride(0) { }
     image_data(image_data<camera_type, data_type>&& other) = default;
     image_data &operator=(image_data<camera_type, data_type>&& other) = default;
-    image_data(int image_width, int image_height, int image_stride) :
-        image_handle(nullptr, nullptr), image(nullptr), width(image_width), height(image_height), stride(image_stride) {
-            assert(stride % sizeof(data_type) == 0);
-            if(height && stride) {
-                image = (data_type *)malloc(stride*height);
-                image_handle = std::unique_ptr<void, void(*)(void *)>(image, [](void * image_ptr) {
-                            free(image_ptr);
-                        });
-            }
+    
+    image_data(int image_width, int image_height) :
+    image_handle(malloc(image_width * image_height * sizeof(data_type)), free), image((data_type *)image_handle.get()), width(image_width), height(image_height), stride(image_width * sizeof(data_type))
+    {
+        assert(height && stride);
     }
-    image_data(int image_width, int image_height, int image_stride, data_type initial_value) :
-        image_data(image_width, image_height, image_stride) {
-            for (int y=0; y<height; y++)
-                std::fill_n(image + y*stride/sizeof(data_type), width, initial_value);
+    
+    image_data(int image_width, int image_height, data_type initial_value): image_data(image_width, image_height)
+    {
+        std::fill_n(image, width * height, initial_value);
     }
-    image_data(const image_data<camera_type, data_type> &other) :
-        image_data(other.width, other.height, other.stride) {
-            timestamp = other.timestamp;
-            exposure_time = other.exposure_time;
-            if(height && stride) {
-                memcpy(image, other.image, stride*height);
-            }
+    
+    image_data<camera_type, data_type> make_copy() const
+    {
+        assert(height && stride);
+        image_data<camera_type, data_type> res;
+        res.source = source;
+        res.timestamp = timestamp;
+        res.width = width;
+        res.height = height;
+        res.stride = stride;
+        res.image = (data_type *)malloc(stride*height);
+        if(height && stride)
+        {
+            res.image_handle = std::unique_ptr<void, void(*)(void *)>(res.image, free);
+            memcpy(res.image, image, stride*height);
+        }
+        return res;
     }
+    
+    image_data(const image_data<camera_type, data_type> &other) = delete;
     image_data &operator=(const image_data<camera_type, data_type>& other) = delete;
 
     sensor_clock::duration exposure_time;

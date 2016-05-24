@@ -518,9 +518,9 @@ static float get_stdev_pct_for_depth(float depth_m)
 std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct filter *f, const image_depth16 &depth)
 {
     if (f->depth.intrinsics.type == rc_CALIBRATION_TYPE_UNKNOWN)
-        return std::make_unique<image_depth16>(std::move(depth));
+        return std::make_unique<image_depth16>(depth.make_copy());
 
-    auto aligned_depth = make_unique<image_depth16>(depth.width, depth.height, depth.stride, std::numeric_limits<uint16_t>::max());
+    auto aligned_depth = make_unique<image_depth16>(depth.width, depth.height, std::numeric_limits<uint16_t>::max());
 
     int i_width =         depth .width, i_height =         depth .height, i_stride =         depth .stride / sizeof(uint16_t);
     int o_width = aligned_depth->width, o_height = aligned_depth->height, o_stride = aligned_depth->stride / sizeof(uint16_t);
@@ -584,7 +584,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
 {
     std::unique_ptr<image_depth16> aligned_depth = filter_aligned_depth_to_intrinsics(f, depth);
 
-    auto aligned_distorted_depth = make_unique<image_depth16>(image.width, image.height, sizeof(uint16_t)*image.width, 0);
+    auto aligned_distorted_depth = make_unique<image_depth16>(image.width, image.height, 0);
     auto out = aligned_distorted_depth->image;
     // This assumes depth and image have the same aspect ratio
     f_t image_to_depth = f_t(depth.height)/image.height;
@@ -690,7 +690,7 @@ void filter_set_reference(struct filter *f)
 
 bool filter_depth_measurement(struct filter *f, const image_depth16 & depth)
 {
-    f->recent_depth = image_depth16(depth);
+    f->recent_depth = depth.make_copy();
     f->has_depth = true;
     return true;
 }

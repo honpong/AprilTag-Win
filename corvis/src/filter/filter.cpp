@@ -586,6 +586,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
 
     auto aligned_distorted_depth = make_unique<image_depth16>(image.width, image.height, 0);
     auto out = aligned_distorted_depth->image;
+    int out_stride = aligned_distorted_depth->stride / sizeof(*out);
     // This assumes depth and image have the same aspect ratio
     f_t image_to_depth = f_t(depth.height)/image.height;
     for(int y_image = 0; y_image < image.height; y_image++) {
@@ -593,7 +594,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
             feature_t kp_i = {(f_t)x_image, (f_t)y_image};
             feature_t kp_d = image_to_depth*f->s.camera_intrinsics.unnormalize_feature(f->s.camera_intrinsics.undistort_feature(f->s.camera_intrinsics.normalize_feature(kp_i)));
             uint16_t depth_mm = get_depth_for_point_mm(*aligned_depth.get(), kp_d);
-            out[y_image * aligned_distorted_depth->stride + x_image] = depth_mm;
+            out[y_image * out_stride + x_image] = depth_mm;
         }
     }
 

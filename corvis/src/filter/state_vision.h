@@ -131,7 +131,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     unsigned char patch[(tracker::half_patch_width * 2 + 1) * (tracker::half_patch_width * 2 + 1)];
     
     void reset() {
-        index = -1;
         set_initial_variance(initial_var);
         v.set_depth_meters(initial_depth_meters);
         set_process_noise(initial_process_noise);

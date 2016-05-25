@@ -32,6 +32,19 @@ The main interface to the library can be found in
 
     ```
 
+### Ubuntu (16.04)
+
+1. Install MKL (and optionally ICC)
+2. Install build dependencies
+
+    apt-get install cmake gcc g++ libgl1-mesa-dev libxcursor-dev libxinerama-dev libxrender-dev libxrandr-dev
+
+3. Build with
+
+    ```sh
+    make -C corvis
+    ```
+
 ### Ubuntu (14.04)
 
 1. Install MKL (and optionally ICC)
@@ -94,6 +107,26 @@ The main interface to the library can be found in
     .\windows\build.ps1
 
     ```
+
+### Android (command line tools only)
+
+1. Install NDK (r10e or r11c) and MKL
+2.
+   ```sh
+
+   mkdir corvis/build
+   cd    corvis/build
+   cmake -DCMAKE_BUILD_TYPE=Release \
+         -DCMAKE_TOOLCHAIN_FILE=Android.toolchain.cmake \
+         -DANDROID_ARCH=x86 \
+         -DANDROID_PLATFORM=android-21 \
+         -DANDROID_NDK_ROOT=$(echo ~/Library/Android/ndk) \
+         -DMKLROOT=$(echo ~/Library/Android/mkl) \
+         ../../android
+   make
+
+   ```
+3. If cmake fails, wipe the build directory completely when trying again
 
 ### Android
 

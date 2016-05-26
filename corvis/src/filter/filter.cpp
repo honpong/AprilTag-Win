@@ -937,13 +937,9 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.extrinsics.Tc.set_initial_variance(cam.extrinsics_var_wrt_imu_m.T[0], cam.extrinsics_var_wrt_imu_m.T[1], cam.extrinsics_var_wrt_imu_m.T[2]);
 
     f->s.imu_intrinsics.a_bias.v = v3(imu.a_bias_m__s2[0], imu.a_bias_m__s2[1], imu.a_bias_m__s2[2]);
-    f_t tmp[3];
-    //TODO: figure out how much drift we need to worry about between runs
-    for(int i = 0; i < 3; ++i) tmp[i] = imu.a_bias_var_m2__s4[i] < min_a_bias_var ? min_a_bias_var : imu.a_bias_var_m2__s4[i];
-    f->s.imu_intrinsics.a_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
+    f->s.imu_intrinsics.a_bias.set_initial_variance(imu.a_bias_var_m2__s4[0], imu.a_bias_var_m2__s4[1], imu.a_bias_var_m2__s4[2]);
     f->s.imu_intrinsics.w_bias.v = v3(imu.w_bias_rad__s[0], imu.w_bias_rad__s[1], imu.w_bias_rad__s[2]);
-    for(int i = 0; i < 3; ++i) tmp[i] = imu.w_bias_var_rad2__s2[i] < min_w_bias_var ? min_w_bias_var : imu.w_bias_var_rad2__s2[i];
-    f->s.imu_intrinsics.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
+    f->s.imu_intrinsics.w_bias.set_initial_variance(imu.w_bias_var_rad2__s2[0], imu.w_bias_var_rad2__s2[1], imu.w_bias_var_rad2__s2[2]);
 
     f->s.camera_intrinsics.focal_length.v = (cam.intrinsics.f_x_px + cam.intrinsics.f_y_px) / 2 / cam.intrinsics.height_px;
     f->s.camera_intrinsics.center_x.v = (cam.intrinsics.c_x_px - cam.intrinsics.width_px / 2. + .5) / cam.intrinsics.height_px;

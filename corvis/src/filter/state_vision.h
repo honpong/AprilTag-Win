@@ -221,7 +221,6 @@ public:
     uint64_t group_counter;
 
     state_branch<state_vision_group *> groups;
-    list<state_vision_feature *> features;
     
     state_vision(covariance &c);
     ~state_vision();

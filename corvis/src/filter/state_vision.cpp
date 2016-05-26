@@ -89,8 +89,10 @@ state_vision_group::state_vision_group(uint64_t group_id): Tr("Tr"), Qr("Qr"), h
 
 void state_vision_group::make_empty()
 {
-    for(state_vision_feature *f : features.children)
+    for(state_vision_feature *f : features.children) {
         f->dropping_group();
+        delete f;
+    }
     features.children.clear();
     status = group_empty;
 }
@@ -98,7 +100,11 @@ void state_vision_group::make_empty()
 int state_vision_group::process_features(const image_gray8 &image, mapper & map, bool map_enabled)
 {
     features.children.remove_if([&](state_vision_feature *f) {
-        return f->should_drop();
+        if(f->should_drop()) {
+            delete f;
+            return true;
+        } else
+            return false;
     });
 
     if(map_enabled) {
@@ -179,12 +185,11 @@ state_vision::state_vision(covariance &c):
 
 void state_vision::clear_features_and_groups()
 {
-    for(state_vision_group *g : groups.children)
+    for(state_vision_group *g : groups.children) {
+        g->make_empty();
         delete g;
+    }
     groups.children.clear();
-    for(state_vision_feature *i : features)
-        delete i;
-    features.clear();
 }
 
 state_vision::~state_vision()
@@ -206,18 +211,20 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
     int total_feats = 0;
     int outliers = 0;
     int track_fail = 0;
-    for(state_vision_feature *i : features) {
-        if(i->current[0] == INFINITY) {
-            // Drop tracking failures
-            ++track_fail;
-            if(i->is_good()) ++useful_drops;
-            i->drop();
-        } else {
-            // Drop outliers
-            if(i->status == feature_normal) ++total_feats;
-            if(i->outlier > i->outlier_reject) {
-                i->status = feature_empty;
-                ++outliers;
+    for(auto *g : groups.children) {
+        for(state_vision_feature *i : g->features.children) {
+            if(i->current[0] == INFINITY) {
+                // Drop tracking failures
+                ++track_fail;
+                if(i->is_good()) ++useful_drops;
+                i->drop();
+            } else {
+                // Drop outliers
+                if(i->status == feature_normal) ++total_feats;
+                if(i->outlier > i->outlier_reject) {
+                    i->status = feature_empty;
+                    ++outliers;
+                }
             }
         }
     }
@@ -285,15 +292,6 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
         reference = best_group;
     }
 
-    //clean up dropped features and groups
-    features.remove_if([&](state_vision_feature *i) {
-        if(i->should_drop()) {
-            delete i;
-            return true;
-        } else
-            return false;
-    });
-
     groups.children.remove_if([this](state_vision_group *g) {
         if(g->status == group_empty) {
             if(map_enabled) {
@@ -315,8 +313,6 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
 state_vision_feature * state_vision::add_feature(const feature_t & initial)
 {
     state_vision_feature *f = new state_vision_feature(feature_counter++, initial);
-    features.push_back(f);
-    //allfeatures.push_back(f);
     return f;
 }
 
@@ -422,8 +418,10 @@ float state_vision::median_depth_variance()
     float median_variance = 1;
 
     vector<state_vision_feature *> useful_feats;
-    for(auto i: features) {
-        if(i->is_initialized()) useful_feats.push_back(i);
+    for(auto g: groups.children) {
+        for(auto i: g->features.children) {
+            if(i->is_initialized()) useful_feats.push_back(i);
+        }
     }
 
     if(useful_feats.size()) {

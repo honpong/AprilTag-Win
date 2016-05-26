@@ -180,18 +180,20 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
 {
     update_current_timestamp(d.timestamp);
     current_feature_timestamp = d.timestamp;
-    for(auto feat : f->s.features) {
-        if(feat->is_valid()) {
-            float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
-            bool good = stdev / feat->v.depth() < .02;
-            float cx, cy, ctheta;
-            compute_covariance_ellipse(feat, cx, cy, ctheta);
-            v3 world = feat->world;
+    for(auto g : f->s.groups.children) {
+        for(auto feat : g->features.children) {
+            if(feat->is_valid()) {
+                float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
+                bool good = stdev / feat->v.depth() < .02;
+                float cx, cy, ctheta;
+                compute_covariance_ellipse(feat, cx, cy, ctheta);
+                v3 world = feat->world;
 
-            observe_feature(d.timestamp, feat->id,
-                            (float)world[0], (float)world[1], (float)world[2],
-                            (float)feat->current[0], (float)feat->current[1],
-                            cx, cy, ctheta, good, feat->depth_measured);
+                observe_feature(d.timestamp, feat->id,
+                                (float)world[0], (float)world[1], (float)world[2],
+                                (float)feat->current[0], (float)feat->current[1],
+                                cx, cy, ctheta, good, feat->depth_measured);
+            }
         }
     }
     observe_image(d.timestamp, d.image, d.width, d.height, d.stride);

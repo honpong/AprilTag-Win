@@ -476,29 +476,24 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
 
 void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
 {
-    size_t feats_used = f->s.features.size();
-
     if(f->run_state != RCSensorFusionRunStateRunning) return;
 
-    if(feats_used) {
-        for(state_vision_group *g : f->s.groups.children) {
-            if(!g->status || g->status == group_initializing) continue;
-            for(state_vision_feature *i : g->features.children) {
-                auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
-                auto obs = std::make_unique<observation_vision_feature>(*image.source, f->s, f->s.camera_intrinsics, image.timestamp + extra_time, image.timestamp, f->track);
-                obs->state_group = g;
-                obs->feature = i;
-                obs->meas[0] = i->current[0];
-                obs->meas[1] = i->current[1];
-                obs->image = image.image;
-                obs->feature->dt = image.timestamp - obs->feature->last_seen;
-                obs->feature->last_seen = image.timestamp;
+    for(state_vision_group *g : f->s.groups.children) {
+        if(!g->status || g->status == group_initializing) continue;
+        for(state_vision_feature *i : g->features.children) {
+            auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
+            auto obs = std::make_unique<observation_vision_feature>(*image.source, f->s, f->s.camera_intrinsics, image.timestamp + extra_time, image.timestamp, f->track);
+            obs->state_group = g;
+            obs->feature = i;
+            obs->meas[0] = i->current[0];
+            obs->meas[1] = i->current[1];
+            obs->image = image.image;
+            obs->feature->dt = image.timestamp - obs->feature->last_seen;
+            obs->feature->last_seen = image.timestamp;
 
-                f->observations.observations.push_back(std::move(obs));
-            }
+            f->observations.observations.push_back(std::move(obs));
         }
     }
-    //TODO: implement feature_single ?
 }
 
 static uint16_t get_depth_for_point_mm(const image_depth16 &depth, const feature_t & p)
@@ -602,7 +597,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static void filter_add_features(struct filter *f, const image_gray8 & image, size_t newfeats)
+static int filter_add_features(struct filter *f, const image_gray8 & image, size_t newfeats)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
@@ -611,8 +606,10 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
     // existing features are located
     if(!f->mask) f->mask = new scaled_mask(image.width, image.height);
     f->mask->initialize();
-    for(state_vision_feature *i : f->s.features) {
-        f->mask->clear((int)i->current[0], (int)i->current[1]);
+    for(auto g : f->s.groups.children) {
+        for(auto i : g->features.children) {
+            f->mask->clear((int)i->current[0], (int)i->current[1]);
+        }
     }
 
     // Run detector
@@ -621,7 +618,7 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
     // Check that the detected features don't collide with the mask
     // and add them to the filter
     if(kp.size() < newfeats) newfeats = kp.size();
-    if(newfeats < state_vision_group::min_feats) return;
+    if(newfeats < state_vision_group::min_feats) return 0;
     state_vision_group *g = f->s.add_group(image.timestamp);
     std::unique_ptr<image_depth16> aligned_undistorted_depth;
 
@@ -670,6 +667,7 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after adding features");
 #endif
+    return found_feats;
 }
 
 void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned)
@@ -813,9 +811,9 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
             if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
 #endif
         }
-        filter_add_features(f, image, space);
-        if(f->s.features.size() < state_vision_group::min_feats) {
-            f->log->info("detector failure: only {} features after add", f->s.features.size());
+        int detected_features = filter_add_features(f, image, space);
+        if(detected_features < state_vision_group::min_feats) {
+            f->log->info("detector failure: only {} features detected", detected_features);
             f->detector_failed = true;
             f->calibration_bad = true;
             if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) f->s.enable_orientation_only();
@@ -1079,16 +1077,18 @@ bool filter_is_steady(const struct filter *f)
 int filter_get_features(const struct filter *f, struct feature_info *features, int max)
 {
     int index = 0;
-    for(state_vision_feature *i : f->s.features) {
-        if(index >= max) break;
-        features[index].id = i->id;
-        features[index].x = (float)i->current[0];
-        features[index].y = (float)i->current[1];
-        features[index].wx = (float)i->world[0];
-        features[index].wy = (float)i->world[1];
-        features[index].wz = (float)i->world[2];
-        features[index].stdev = (float)i->v.stdev_meters(sqrt(i->variance()));
-        ++index;
+    for(auto g : f->s.groups.children) {
+        for(auto i : g->features.children) {
+            if(index >= max) break;
+            features[index].id = i->id;
+            features[index].x = (float)i->current[0];
+            features[index].y = (float)i->current[1];
+            features[index].wx = (float)i->world[0];
+            features[index].wy = (float)i->world[1];
+            features[index].wz = (float)i->world[2];
+            features[index].stdev = (float)i->v.stdev_meters(sqrt(i->variance()));
+            ++index;
+        }
     }
     return index;
 }

@@ -99,22 +99,22 @@ void sensor_fusion::update_status()
 std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
 {
     std::vector<feature_point> features;
-    features.reserve(sfm.s.features.size());
-    for(auto i: sfm.s.features)
-    {
-        if(i->is_valid()) {
-            feature_point p;
-            p.id = i->id;
-            p.x = i->current[0];
-            p.y = i->current[1];
-            p.original_depth = i->v.depth();
-            p.stdev = i->v.stdev_meters(sqrt(i->variance()));
-            v3 ext_pos = filter_to_external_position(i->world);
-            p.worldx = ext_pos[0];
-            p.worldy = ext_pos[1];
-            p.worldz = ext_pos[2];
-            p.initialized = i->is_initialized();
-            features.push_back(p);
+    for(auto g: sfm.s.groups.children) {
+        for(auto i: g->features.children) {
+            if(i->is_valid()) {
+                feature_point p;
+                p.id = i->id;
+                p.x = i->current[0];
+                p.y = i->current[1];
+                p.original_depth = i->v.depth();
+                p.stdev = i->v.stdev_meters(sqrt(i->variance()));
+                v3 ext_pos = filter_to_external_position(i->world);
+                p.worldx = ext_pos[0];
+                p.worldy = ext_pos[1];
+                p.worldz = ext_pos[2];
+                p.initialized = i->is_initialized();
+                features.push_back(p);
+            }
         }
     }
     return features;

@@ -173,10 +173,10 @@ void benchmark_run(std::ostream &stream, const char *directory,
     std::sort(primary_errors_percent.begin(), primary_errors_percent.end());
     for(auto &pe : primary_errors_percent) if (pe < 50) { pe_le50.n++; pe_le50.sum += pe; }
     pe_le50.mean = pe_le50.sum / pe_le50.n;
-    pe_le50.median = primary_errors_percent[pe_le50.n/2];
+    pe_le50.median = primary_errors_percent[primary_errors_percent.size()/2];
 
     stream << std::fixed << std::setprecision(2);
-    stream << "Mean of " << pe_le50.n << " primary errors that are less than 50% is " << pe_le50.mean << "% and the median is " << pe_le50.median << "%\n";
+    stream << "Mean of " << pe_le50.n << " primary errors that are less than 50% is " << pe_le50.mean << "% and the median of all errors is " << pe_le50.median << "%\n";
 
     int score = 0;
     for (size_t i=0; i < pri_hist.bins.size(); i++)

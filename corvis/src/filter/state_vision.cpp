@@ -205,6 +205,15 @@ void state_vision::reset()
     state_motion::reset();
 }
 
+int state_vision::feature_count()
+{
+    int count = 0;
+    for(auto *g : groups.children)
+        count += g->features.children.size();
+
+    return count;
+}
+
 int state_vision::process_features(const image_gray8 &image, sensor_clock::time_point time)
 {
     int useful_drops = 0;

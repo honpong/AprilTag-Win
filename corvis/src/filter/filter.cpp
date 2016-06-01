@@ -812,8 +812,9 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
 #endif
         }
         int detected_features = filter_add_features(f, image, space);
-        if(detected_features < state_vision_group::min_feats) {
-            f->log->info("detector failure: only {} features detected", detected_features);
+        int active_features = f->s.feature_count();
+        if(active_features < state_vision_group::min_feats) {
+            f->log->info("detector failure: only {} features after add", active_features);
             f->detector_failed = true;
             f->calibration_bad = true;
             if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) f->s.enable_orientation_only();

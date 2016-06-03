@@ -37,7 +37,7 @@ The main interface to the library can be found in
 1. Install MKL (and optionally ICC)
 2. Install build dependencies
 
-    apt-get install cmake gcc g++ libgl1-mesa-dev libxcursor-dev libxinerama-dev libxrender-dev libxrandr-dev
+    apt-get install cmake gcc g++ libboost-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev libxrender-dev libxrandr-dev
 
 3. Build with
 

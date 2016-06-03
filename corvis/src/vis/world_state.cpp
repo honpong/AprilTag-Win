@@ -181,6 +181,7 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
     update_current_timestamp(d.timestamp);
     current_feature_timestamp = d.timestamp;
     transformation G = f->s.loop_offset*transformation(f->s.Q.v, f->s.T.v);;
+    transformation Ginv = invert(G);
 
     for(auto g : f->s.groups.children) {
         for(auto feat : g->features.children) {
@@ -190,9 +191,14 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
                 float cx, cy, ctheta;
                 compute_covariance_ellipse(feat, cx, cy, ctheta);
 
+                v3 X_c = Ginv*feat->world;
+                feature_t x_camera(X_c[0]/X_c[2], X_c[1]/X_c[2]);
+                x_camera = f->s.camera_intrinsics.unnormalize_feature(f->s.camera_intrinsics.distort_feature(x_camera));
+
                 observe_feature(d.timestamp, feat->id,
                                 (float)feat->world[0], (float)feat->world[1], (float)feat->world[2],
                                 (float)feat->current[0], (float)feat->current[1],
+                                (float)x_camera[0], (float)x_camera[1],
                                 cx, cy, ctheta, good, feat->depth_measured);
             }
         }
@@ -367,6 +373,7 @@ world_state::world_state()
     path_gt_vertex = (VertexData *)calloc(sizeof(VertexData), path_gt_vertex_alloc);
     feature_vertex = (VertexData *)calloc(sizeof(VertexData), feature_vertex_alloc);
     feature_ellipse_vertex = (VertexData *)calloc(sizeof(VertexData), feature_ellipse_vertex_alloc);
+    feature_projection_vertex = (VertexData *)calloc(sizeof(VertexData), feature_projection_vertex_alloc);
     map_node_vertex = (VertexData *)calloc(sizeof(VertexData), map_node_vertex_alloc);
     map_edge_vertex = (VertexData *)calloc(sizeof(VertexData), map_edge_vertex_alloc);
     map_feature_vertex = (VertexData *)calloc(sizeof(VertexData), map_feature_vertex_alloc);
@@ -398,6 +405,8 @@ world_state::~world_state()
         free(feature_vertex);
     if(feature_ellipse_vertex)
         free(feature_ellipse_vertex);
+    if(feature_projection_vertex)
+        free(feature_projection_vertex);
     if(grid_vertex)
         free(grid_vertex);
     if(map_node_vertex)
@@ -505,7 +514,14 @@ void world_state::update_vertex_arrays(bool show_only_good)
         feature_ellipse_vertex = (VertexData *)realloc(feature_ellipse_vertex, sizeof(VertexData)*feature_ellipse_vertex_alloc);
     }
 
+    if(feature_projection_vertex_alloc < features.size()) {
+        feature_projection_vertex_alloc = features.size()*2;
+        feature_projection_vertex = (VertexData *)realloc(feature_projection_vertex, sizeof(VertexData)*feature_projection_vertex_alloc);
+    }
+
     feature_ellipse_vertex_num = 0;
+    feature_projection_vertex_num = 0;
+    int pidx = 0;
     idx = 0;
     for(auto const & item : features) {
         //auto feature_id = item.first;
@@ -514,10 +530,16 @@ void world_state::update_vertex_arrays(bool show_only_good)
             if(f.good) {
                 generate_feature_ellipse(f, 88, 247, 98, 255);
                 set_color(&feature_vertex[idx], 88, 247, 98, 255);
+
+                set_position(&feature_projection_vertex[pidx], f.projected_x, f.projected_y, 0);
+                set_color(&feature_projection_vertex[pidx++], 88, 247, 98, 255);
             }
             else {
                 generate_feature_ellipse(f, 247, 88, 98, 255);
                 set_color(&feature_vertex[idx], 247, 88, 98, 255);
+
+                set_position(&feature_projection_vertex[pidx], f.projected_x, f.projected_y, 0);
+                set_color(&feature_projection_vertex[pidx++], 247, 88, 98, 255);
             }
         }
         else {
@@ -529,6 +551,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
         idx++;
     }
     feature_vertex_num = idx;
+    feature_projection_vertex_num = pidx;
 
     idx = 0;
     for(auto p : path)
@@ -700,7 +723,7 @@ std::string world_state::get_feature_stats()
     return os.str();
 }
 
-void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float ctheta, bool good, bool depth_measured)
+void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float projected_x, float projected_y, float cx, float cy, float ctheta, bool good, bool depth_measured)
 {
     Feature f;
     f.x = x;
@@ -708,6 +731,8 @@ void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t f
     f.z = z;
     f.image_x = image_x;
     f.image_y = image_y;
+    f.projected_x = projected_x;
+    f.projected_y = projected_y;
     f.cx = cx;
     f.cy = cy;
     f.ctheta = ctheta;

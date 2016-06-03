@@ -7,6 +7,7 @@ add_compile_options(-fvisibility=hidden)
 # Match the options used by default in android-ndk-*/toolchains/*-clang3.6/setup.mk
 add_compile_options(-ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -fno-omit-frame-pointer)
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-pie")
 
 add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 

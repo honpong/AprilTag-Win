@@ -180,6 +180,8 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
 {
     update_current_timestamp(d.timestamp);
     current_feature_timestamp = d.timestamp;
+    transformation G = f->s.loop_offset*transformation(f->s.Q.v, f->s.T.v);;
+
     for(auto g : f->s.groups.children) {
         for(auto feat : g->features.children) {
             if(feat->is_valid()) {
@@ -228,8 +230,6 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
         }
     }
 
-    transformation world(f->s.Q.v, f->s.T.v);
-    transformation G = f->s.loop_offset*world;
     observe_position(d.timestamp, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z());
 
     int p = 0;

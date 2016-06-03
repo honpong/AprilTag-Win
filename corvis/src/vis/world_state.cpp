@@ -187,10 +187,9 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
                 bool good = stdev / feat->v.depth() < .02;
                 float cx, cy, ctheta;
                 compute_covariance_ellipse(feat, cx, cy, ctheta);
-                v3 world = feat->world;
 
                 observe_feature(d.timestamp, feat->id,
-                                (float)world[0], (float)world[1], (float)world[2],
+                                (float)feat->world[0], (float)feat->world[1], (float)feat->world[2],
                                 (float)feat->current[0], (float)feat->current[1],
                                 cx, cy, ctheta, good, feat->depth_measured);
             }

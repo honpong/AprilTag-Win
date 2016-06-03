@@ -448,8 +448,8 @@ static inline void ellipse_segment(VertexData * v, const Feature & feat, float p
     x = x_out;
     y = y_out;
 
-    x += feat.image_x;
-    y += feat.image_y;
+    x += feat.projected_x;
+    y += feat.projected_y;
     set_position(v, x, y, 0);
 }
 
@@ -531,14 +531,14 @@ void world_state::update_vertex_arrays(bool show_only_good)
                 generate_feature_ellipse(f, 88, 247, 98, 255);
                 set_color(&feature_vertex[idx], 88, 247, 98, 255);
 
-                set_position(&feature_projection_vertex[pidx], f.projected_x, f.projected_y, 0);
+                set_position(&feature_projection_vertex[pidx], f.image_x, f.image_y, 0);
                 set_color(&feature_projection_vertex[pidx++], 88, 247, 98, 255);
             }
             else {
                 generate_feature_ellipse(f, 247, 88, 98, 255);
                 set_color(&feature_vertex[idx], 247, 88, 98, 255);
 
-                set_position(&feature_projection_vertex[pidx], f.projected_x, f.projected_y, 0);
+                set_position(&feature_projection_vertex[pidx], f.image_x, f.image_y, 0);
                 set_color(&feature_projection_vertex[pidx++], 247, 88, 98, 255);
             }
         }

@@ -20,6 +20,7 @@ typedef struct _feature {
     sensor_clock::time_point last_seen;
     int times_seen;
     float image_x, image_y;
+    float projected_x, projected_y;
     float cx, cy, ctheta;
     bool good;
     bool depth_measured;
@@ -65,6 +66,7 @@ private:
     std::size_t path_gt_vertex_alloc = 1000;
     std::size_t feature_vertex_alloc = 1000;
     std::size_t feature_ellipse_vertex_alloc = 1000;
+    std::size_t feature_projection_vertex_alloc = 1000;
     std::size_t map_node_vertex_alloc = 1000;
     std::size_t map_edge_vertex_alloc = 1000;
     std::size_t map_feature_vertex_alloc = 1000;
@@ -88,6 +90,7 @@ public:
     VertexData * feature_vertex;
     VertexData * orientation_vertex;
     VertexData * feature_ellipse_vertex;
+    VertexData * feature_projection_vertex;
     VertexData * map_node_vertex;
     VertexData * map_edge_vertex;
     VertexData * map_feature_vertex;
@@ -96,6 +99,7 @@ public:
     ImageData last_depth_overlay_image;
     int grid_vertex_num, axis_vertex_num, path_vertex_num, path_gt_vertex_num, feature_vertex_num, orientation_vertex_num;
     int feature_ellipse_vertex_num;
+    int feature_projection_vertex_num;
     int map_node_vertex_num, map_edge_vertex_num, map_feature_vertex_num;
     bool generate_depth_overlay;
 
@@ -107,7 +111,7 @@ public:
     size_t change_plot_key(size_t plot_index, size_t key_index);
 
     void receive_camera(const filter * f, image_gray8 &&data);
-    void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float cxy, bool good, bool depth_measured);
+    void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float projected_x, float projected_y, float cx, float cy, float cxy, bool good, bool depth_measured);
     void observe_position(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_position_gt(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_plot_item(sensor_clock::time_point timestamp, size_t plot_index, std::string plot_name, float value);

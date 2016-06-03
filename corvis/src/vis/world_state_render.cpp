@@ -48,6 +48,7 @@ void world_state_render_video(world_state * world, int viewport_width, int viewp
 #endif
     glLineWidth(2.0f);
     frame_render.draw_overlay(world->feature_ellipse_vertex, world->feature_ellipse_vertex_num, GL_LINES, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
+    frame_render.draw_overlay(world->feature_projection_vertex, world->feature_projection_vertex_num, GL_POINTS, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
     world->image_lock.unlock();
     world->display_lock.unlock();
 }

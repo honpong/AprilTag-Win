@@ -22,11 +22,11 @@ header_size = 16
 header_str = f.read(header_size)
 while header_str != "":
   (pbytes, ptype, user, ptime) = unpack('IHHQ', header_str)
+  packet_str = packet_types[ptype]
   if ptype == 1:
     ptime += 16667
   if args.verbose:
-      print pbytes, ptype, user, float(ptime)/1e6,
-  packets[ptype].append(int(ptime))
+      print packet_str, pbytes, ptype, user, float(ptime)/1e6,
   data = f.read(pbytes-header_size)
   if ptype == 20 or ptype == 21:
       # packets are padded to 8 byte boundary
@@ -36,18 +36,24 @@ while header_str != "":
   if ptype == 29:
       (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
       type_str = format_types[camera_format]
+      packet_str += "_" + type_str
       if args.verbose:
           camera_str = "%s (%d) %dx%d, %d stride, %d exposure" % (type_str, camera_format, width, height, stride, exposure)
           print "\t", camera_str
+  if packet_str == "":
+      packet_str = str(ptype)
+  packets[packet_str].append(int(ptime))
   header_str = f.read(header_size)
 
 f.close()
 
 for packet_type in packets:
-  print "type:", packet_types[packet_type], "number:", len(packets[packet_type])
   deltas = numpy.array(packets[packet_type][1:]) - numpy.array(packets[packet_type][:-1])
   mean_delta = numpy.mean(deltas)
-  print "rate (hz):", 1/(mean_delta/1e6), "mean dt (us):", mean_delta, "std dt (us):", numpy.std(deltas)
+  print packet_type, len(packets[packet_type]), "packets"
+  print "\tRate:", 1/(mean_delta/1e6), "hz"
+  print "\tmean dt (us):", mean_delta
+  print "\tstd dt (us):", numpy.std(deltas)
   exceptions = numpy.flatnonzero(numpy.logical_or(deltas > mean_delta*1.05, deltas < mean_delta*0.95))
   print len(exceptions), "samples are more than 5% from mean"
   if args.exceptions:

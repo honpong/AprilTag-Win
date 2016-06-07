@@ -159,7 +159,8 @@ class observation_queue {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     observation_queue();
-    bool process(state_root &s, sensor_clock::time_point time);
+    void preprocess(state_root &s, sensor_clock::time_point time);
+    bool process(state_root &s);
     vector<unique_ptr<observation>> observations;
 
     // keep the most recent measurement of a given type around for plotting, etc

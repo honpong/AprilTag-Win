@@ -171,7 +171,8 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
 void process_observation_queue(struct filter *f, sensor_clock::time_point time)
 {
     f->last_time = time;
-    if(!f->observations.process(f->s, time)) {
+    f->observations.preprocess(f->s, time);
+    if(!f->observations.process(f->s)) {
         f->numeric_failed = true;
         f->calibration_bad = true;
     }

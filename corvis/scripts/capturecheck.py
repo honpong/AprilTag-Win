@@ -5,6 +5,7 @@ import numpy
 import argparse
 
 packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 29:"image_raw"})
+format_types = defaultdict(str, {0:"Y8", 1:"Z16_mm"})
 
 parser = argparse.ArgumentParser(description='Check a capture file.')
 parser.add_argument("-v", "--verbose", action='store_true',
@@ -26,7 +27,18 @@ while header_str != "":
   if args.verbose:
       print pbytes, ptype, user, float(ptime)/1e6,
   packets[ptype].append(int(ptime))
-  junk = f.read(pbytes-header_size)
+  data = f.read(pbytes-header_size)
+  if ptype == 20 or ptype == 21:
+      # packets are padded to 8 byte boundary
+      (x, y, z) = unpack('fff', data[:12])
+      if args.verbose:
+          print "\t", x, y, z
+  if ptype == 29:
+      (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
+      type_str = format_types[camera_format]
+      if args.verbose:
+          camera_str = "%s (%d) %dx%d, %d stride, %d exposure" % (type_str, camera_format, width, height, stride, exposure)
+          print "\t", camera_str
   header_str = f.read(header_size)
 
 f.close()

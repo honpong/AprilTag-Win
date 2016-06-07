@@ -48,15 +48,17 @@ while header_str != "":
 f.close()
 
 for packet_type in packets:
-  deltas = numpy.array(packets[packet_type][1:]) - numpy.array(packets[packet_type][:-1])
+  timestamps = numpy.array(packets[packet_type])
+  deltas = timestamps[1:] - timestamps[:-1]
   mean_delta = numpy.mean(deltas)
   print packet_type, len(packets[packet_type]), "packets"
   print "\tRate:", 1/(mean_delta/1e6), "hz"
   print "\tmean dt (us):", mean_delta
   print "\tstd dt (us):", numpy.std(deltas)
+  print "\tlength (s):", (numpy.max(timestamps) - numpy.min(timestamps))/1e6
   exceptions = numpy.flatnonzero(numpy.logical_or(deltas > mean_delta*1.05, deltas < mean_delta*0.95))
   print len(exceptions), "samples are more than 5% from mean"
   if args.exceptions:
       for e in exceptions:
-          print "Exception: t t+1 delta", packets[packet_type][e], packets[packet_type][e+1], deltas[e]
+          print "Exception: t t+1 delta", timestamps[e], timestamps[e+1], deltas[e]
   print ""

@@ -4,6 +4,8 @@ from collections import defaultdict
 import numpy
 import argparse
 
+packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 29:"image_raw"})
+
 parser = argparse.ArgumentParser(description='Check a capture file.')
 parser.add_argument("-e", "--exceptions", action='store_true',
         help="Print details when sample dt is more than 5%% away from the mean")
@@ -27,7 +29,7 @@ while header_str != "":
 f.close()
 
 for packet_type in packets:
-  print "type:", packet_type, "number:", len(packets[packet_type])
+  print "type:", packet_types[packet_type], "number:", len(packets[packet_type])
   deltas = numpy.array(packets[packet_type][1:]) - numpy.array(packets[packet_type][:-1])
   mean_delta = numpy.mean(deltas)
   print "rate (hz):", 1/(mean_delta/1e6), "mean dt (us):", mean_delta, "std dt (us):", numpy.std(deltas)

@@ -43,10 +43,10 @@ private:
 public:
     fast_tracker() {};
     fast_tracker(const intrinsics params) {};
-    std::vector<point> detect(const image &image, int number_desired);
-    std::vector<point> track(const image &image,
-                             const std::vector<point> &features,
-                             const std::vector<std::vector<point> > &predictions);
+    std::vector<point> &detect(const image &image, int number_desired);
+    std::vector<point> &track(const image &image,
+                              const std::vector<point> &features,
+                              const std::vector<std::vector<point>> &predictions);
     void drop_features(const std::vector<uint64_t>cfeature_ids);
 };
 

@@ -32,13 +32,15 @@ struct tracker {
         float focal_length_y_px;
     } intrinsics;
 
+    std::vector<point> feature_points;
+
     /*
      @param image The image to use for feature detection
      @param number_desired The desired number of features, function can return less or more
 
      Returns a vector of tracker_point detections, with higher scored points being preferred
      */
-    virtual std::vector<point> detect(const image &image, int number_desired) = 0;
+    virtual std::vector<point> &detect(const image &image, int number_desired) = 0;
 
     /*
      @param current_image The image to track in
@@ -47,9 +49,9 @@ struct tracker {
 
      Returns a vector of tracker_point tracks. Dropped features are not included. Tracks with high scores should be considered more accurate
      */
-    virtual std::vector<point> track(const image &current_image,
-                                     const std::vector<point> &features,
-                                     const std::vector<std::vector<point>> &predictions) = 0;
+    virtual std::vector<point> &track(const image &current_image,
+                                      const std::vector<point> &features,
+                                      const std::vector<std::vector<point>> &predictions) = 0;
 
     /*
      @param feature_ids A vector of feature ids which are no longer tracked. Free any internal storage related to them.

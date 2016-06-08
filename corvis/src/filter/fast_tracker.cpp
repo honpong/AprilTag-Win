@@ -14,7 +14,7 @@ static constexpr float radius = 5.5f;
 static constexpr float min_match = 0.2f*0.2f;
 static constexpr float good_match = 0.65f*0.65f;
 
-vector<tracker::point> fast_tracker::detect(const image & image, int number_desired)
+vector<tracker::point> &fast_tracker::detect(const image & image, int number_desired)
 {
     scaled_mask mask(image.width_px, image.height_px);
     mask.initialize();
@@ -23,7 +23,7 @@ vector<tracker::point> fast_tracker::detect(const image & image, int number_desi
 
     fast.init(image.width_px, image.height_px, image.width_px, full_patch_width, half_patch_width);
 
-    vector<point> detections;
+    feature_points.clear();
     vector<xy> & fast_detections = fast.detect(image.image, &mask, number_desired, detect_threshold, 0, 0, image.width_px, image.height_px);
     for(int i = 0; i < fast_detections.size(); i++) {
         auto d = fast_detections[i];
@@ -34,16 +34,16 @@ vector<tracker::point> fast_tracker::detect(const image & image, int number_desi
         p.score = d.score;
         p.id = next_id++;
         features.insert(pair<uint64_t, feature>(p.id, feature(d.x, d.y, image.image, image.width_px)));
-        detections.push_back(p);
+        feature_points.push_back(p);
     }
-    return detections;
+    return feature_points;
 }
 
-vector<tracker::point> fast_tracker::track(const image &current_image,
-                                           const vector<point> &current_features,
-                                           const vector<vector<point>> &predictions)
+vector<tracker::point> &fast_tracker::track(const image &current_image,
+                                            const vector<point> &current_features,
+                                            const vector<vector<point>> &predictions)
 {
-    vector<point> tracked_points;
+    feature_points.clear();
 
     for(int i = 0; i < current_features.size(); i++) {
         feature &f = features.at(current_features[i].id);
@@ -82,11 +82,11 @@ vector<tracker::point> fast_tracker::track(const image &current_image,
             p.score = bestkp.score;
             f.x = p.x;
             f.y = p.y;
-            tracked_points.push_back(p);
+            feature_points.push_back(p);
         }
     }
 
-    return tracked_points;
+    return feature_points;
 }
 
 void fast_tracker::drop_features(const vector<uint64_t> feature_ids)

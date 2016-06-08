@@ -7,11 +7,19 @@
 
 #include <map>
 
-const static int half_patch_width = 3;
-const static int full_patch_width = half_patch_width * 2 + 1;
-
 class fast_tracker : public tracker
 {
+    static constexpr int half_patch_width = 3;
+    static constexpr int full_patch_width = half_patch_width * 2 + 1;
+
+    bool is_trackable(int x, int y, int width, int height)
+    {
+        return (x > half_patch_width &&
+                y > half_patch_width &&
+                x < width-1-half_patch_width &&
+                y < height-1-half_patch_width);
+    }
+
     struct feature
     {
         feature(int _x, int _y, const uint8_t * im, int width) : x(_x), y(_y)

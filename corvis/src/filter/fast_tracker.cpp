@@ -8,19 +8,11 @@ extern "C" {
 
 using namespace std;
 
-const int track_threshold = 5;
-const int detect_threshold = 15;
-const float radius = 5.5f;
-const float min_match = 0.2f*0.2f;
-const float good_match = 0.65f*0.65f;
-
-bool is_trackable(int x, int y, int width, int height)
-{
-    return (x > half_patch_width &&
-            y > half_patch_width &&
-            x < width-1-half_patch_width &&
-            y < height-1-half_patch_width);
-}
+static constexpr int track_threshold = 5;
+static constexpr int detect_threshold = 15;
+static constexpr float radius = 5.5f;
+static constexpr float min_match = 0.2f*0.2f;
+static constexpr float good_match = 0.65f*0.65f;
 
 vector<tracker::point> fast_tracker::detect(const image & image, int number_desired)
 {

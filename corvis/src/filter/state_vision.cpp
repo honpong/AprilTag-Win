@@ -433,20 +433,13 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
 
 void state_vision::update_feature_tracks()
 {
-    // TODO: add previous image
-    // TODO: add gyro measurements
-    // TODO: get time
-    int64_t current_time_us;
     tracker_image current_image;
     current_image.image = image;
     current_image.width_px = camera_intrinsics.image_width;
     current_image.height_px = camera_intrinsics.image_height;
-    current_image.time_us = current_time_us;
-    tracker_image previous_image = current_image;
 
     std::vector<tracker_point> current_points;
     std::vector<std::vector<tracker_point>> predictions;
-    std::vector<gyro_measurement> gyro_measurements;
     std::map<uint64_t, state_vision_feature *> id_to_state;
     std::map<uint64_t, bool> valid_features;
 
@@ -489,7 +482,7 @@ void state_vision::update_feature_tracks()
     }
     std::vector<tracker_point> tracks;
     if(current_points.size() > 0) {
-        tracks = tracker.track(previous_image, current_image, gyro_measurements, current_points, predictions);
+        tracks = tracker.track(current_image, current_points, predictions);
     }
 
     // Update valid features

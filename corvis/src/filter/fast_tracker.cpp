@@ -48,11 +48,9 @@ vector<tracker_point> FastTracker::detect(const tracker_image & image, int numbe
     return detections;
 }
 
-vector<tracker_point> FastTracker::track(const tracker_image & previous_image,
-        const tracker_image & current_image,
-        const vector<gyro_measurement> & gyro_measurements,
-        const vector<tracker_point> & current_features,
-        const vector<vector<tracker_point> > & predictions)
+vector<tracker_point> FastTracker::track(const tracker_image & current_image,
+                                         const vector<tracker_point> & current_features,
+                                         const vector<vector<tracker_point> > & predictions)
 {
     vector<tracker_point> tracked_points;
 

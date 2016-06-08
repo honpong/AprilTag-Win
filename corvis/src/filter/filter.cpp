@@ -625,7 +625,6 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
     timage.image = image.image;
     timage.width_px = image.width;
     timage.height_px = image.height;
-    timage.time_us = std::chrono::duration_cast<std::chrono::microseconds>(image.timestamp.time_since_epoch()).count();
     vector<tracker_point> kp = f->s.tracker.detect(timage, (int)newfeats);
 
     // Check that the detected features don't collide with the mask
@@ -1026,9 +1025,6 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     tracker_camera_params.center_y_px = cam.intrinsics.c_y_px;
     tracker_camera_params.focal_length_x_px = cam.intrinsics.c_x_px;
     tracker_camera_params.focal_length_y_px = cam.intrinsics.c_y_px; // Filter assumes this is the same
-    tracker_camera_params.K[0] = cam.intrinsics.k1;
-    tracker_camera_params.K[1] = cam.intrinsics.k2;
-    tracker_camera_params.K[2] = cam.intrinsics.k3;
     f->s.tracker = FastTracker(tracker_camera_params);
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);

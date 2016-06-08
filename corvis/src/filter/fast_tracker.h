@@ -37,12 +37,10 @@ public:
     FastTracker() {};
     FastTracker(const camera_parameters params) {};
     std::vector<tracker_point> detect(const tracker_image & image, int number_desired);
-    std::vector<tracker_point> track(const tracker_image & previous_image,
-            const tracker_image & current_image,
-            const std::vector<gyro_measurement> & gyro_measurements,
-            const std::vector<tracker_point> & features,
-            const std::vector<std::vector<tracker_point> > & predictions);
-    void drop_features(const std::vector<uint64_t> feature_ids);
+    std::vector<tracker_point> track(const tracker_image & current_image,
+                                     const std::vector<tracker_point> & features,
+                                     const std::vector<std::vector<tracker_point> > & predictions);
+    void drop_features(const std::vector<uint64_t>cfeature_ids);
 };
 
 #endif

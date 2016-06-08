@@ -183,9 +183,9 @@ public:
         //    for(int j = i + 1; j < dynamic_statesize; ++j)
         //        cov(i, j) = cov(j, i);
 
-        //cov += diag(R)*dt
+        //cov += diag(R)*dt^2
         for(int i = 0; i < cov.size(); ++i)
-            cov(i, i) += cov.process_noise[i] * dt;
+            cov(i, i) += cov.process_noise[i] * dt * dt;
     }
 
     void time_update(sensor_clock::time_point time)

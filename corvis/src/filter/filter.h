@@ -6,7 +6,6 @@
 #include "device_parameters.h"
 #include "calibration_xml.h"
 #include "feature_info.h"
-#include "tracker.h"
 #include "fast_tracker.h"
 #include "scaled_mask.h"
 #include "../numerics/transformation.h"

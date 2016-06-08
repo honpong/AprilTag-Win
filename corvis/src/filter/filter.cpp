@@ -417,7 +417,16 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
 
     f->observations.observations.push_back(std::move(obs_a));
 
+    if(show_tuning) fprintf(stderr, "accelerometer:\n");
     process_observation_queue(f, data.timestamp);
+    if(show_tuning) {
+        cerr << " actual innov stdev is:\n" <<
+        observation_accelerometer::inn_stdev <<
+        " signal stdev is:\n" <<
+        observation_accelerometer::meas_stdev <<
+        " bias is:\n" <<
+        f->s.imu_intrinsics.a_bias.v << f->s.imu_intrinsics.a_bias.variance();
+    }
 
     if(!f->gravity_init) {
         f->gravity_init = true;
@@ -469,7 +478,17 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
         f->gyro_stability.data(meas);
     }
 
+    if(show_tuning) fprintf(stderr, "gyroscope:\n");
     process_observation_queue(f, data.timestamp);
+    if(show_tuning) {
+        cerr << " actual innov stdev is:\n" <<
+        observation_gyroscope::inn_stdev <<
+        " signal stdev is:\n" <<
+        observation_gyroscope::meas_stdev <<
+        " bias is:\n" <<
+        f->s.imu_intrinsics.w_bias.v << f->s.imu_intrinsics.w_bias.variance();
+    }
+
     auto stop = std::chrono::steady_clock::now();
     f->gyro_timer = stop-start;
 }
@@ -788,7 +807,14 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
 
     filter_setup_next_frame(f, image);
 
+    if(show_tuning) {
+        fprintf(stderr, "vision:\n");
+    }
     process_observation_queue(f, time);
+    if(show_tuning) {
+        fprintf(stderr, " actual innov stdev is:\n");
+        cerr << observation_vision_feature::inn_stdev;
+    }
 
     int features_used = f->s.process_features(image, time);
     if(!features_used)

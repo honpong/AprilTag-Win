@@ -621,11 +621,11 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
 
     // Run detector
     vector<uint64_t> unused_ids;
-    tracker_image timage;
+    tracker::image timage;
     timage.image = image.image;
     timage.width_px = image.width;
     timage.height_px = image.height;
-    vector<tracker_point> kp = f->s.tracker.detect(timage, (int)newfeats);
+    vector<tracker::point> kp = f->s.tracker.detect(timage, (int)newfeats);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
@@ -1013,19 +1013,19 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.camera_intrinsics.image_width = cam.intrinsics.width_px;
     f->s.camera_intrinsics.image_height = cam.intrinsics.height_px;
     
-    camera_parameters tracker_camera_params;
+    tracker::intrinsics tracker_intrinsics;
     //TODO: On replay these parameters don't match with --qvga
     //(calibration has different resolution than images)
     //TODO: stride?
-    tracker_camera_params.image_width_px = cam.intrinsics.width_px;
-    tracker_camera_params.image_height_px = cam.intrinsics.height_px;
+    tracker_intrinsics.width_px = cam.intrinsics.width_px;
+    tracker_intrinsics.height_px = cam.intrinsics.height_px;
 
     cam.intrinsics.c_x_px = f->s.camera_intrinsics.center_x.v * f->s.camera_intrinsics.image_height + f->s.camera_intrinsics.image_width / 2. - .5;
-    tracker_camera_params.center_x_px = cam.intrinsics.c_x_px;
-    tracker_camera_params.center_y_px = cam.intrinsics.c_y_px;
-    tracker_camera_params.focal_length_x_px = cam.intrinsics.c_x_px;
-    tracker_camera_params.focal_length_y_px = cam.intrinsics.c_y_px; // Filter assumes this is the same
-    f->s.tracker = FastTracker(tracker_camera_params);
+    tracker_intrinsics.center_x_px = cam.intrinsics.c_x_px;
+    tracker_intrinsics.center_y_px = cam.intrinsics.c_y_px;
+    tracker_intrinsics.focal_length_x_px = cam.intrinsics.c_x_px;
+    tracker_intrinsics.focal_length_y_px = cam.intrinsics.c_y_px; // Filter assumes this is the same
+    f->s.tracker = fast_tracker(tracker_intrinsics);
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);
 #endif

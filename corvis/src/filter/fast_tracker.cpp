@@ -22,7 +22,7 @@ bool is_trackable(int x, int y, int width, int height)
             y < height-1-half_patch_width);
 }
 
-vector<tracker_point> FastTracker::detect(const tracker_image & image, int number_desired)
+vector<tracker::point> fast_tracker::detect(const image & image, int number_desired)
 {
     scaled_mask mask(image.width_px, image.height_px);
     mask.initialize();
@@ -31,31 +31,30 @@ vector<tracker_point> FastTracker::detect(const tracker_image & image, int numbe
 
     fast.init(image.width_px, image.height_px, image.width_px, full_patch_width, half_patch_width);
 
-    vector<tracker_point> detections;
+    vector<point> detections;
     vector<xy> & fast_detections = fast.detect(image.image, &mask, number_desired, detect_threshold, 0, 0, image.width_px, image.height_px);
     for(int i = 0; i < fast_detections.size(); i++) {
         auto d = fast_detections[i];
         if(!is_trackable(d.x, d.y, image.width_px, image.height_px)) continue;
-        tracker_point p;
+        point p;
         p.x = d.x;
         p.y = d.y;
         p.score = d.score;
         p.id = next_id++;
-        features.insert(pair<uint64_t, FastFeature>(p.id, 
-                    FastFeature(d.x, d.y, image.image, image.width_px)));
+        features.insert(pair<uint64_t, feature>(p.id, feature(d.x, d.y, image.image, image.width_px)));
         detections.push_back(p);
     }
     return detections;
 }
 
-vector<tracker_point> FastTracker::track(const tracker_image & current_image,
-                                         const vector<tracker_point> & current_features,
-                                         const vector<vector<tracker_point> > & predictions)
+vector<tracker::point> fast_tracker::track(const image &current_image,
+                                           const vector<point> &current_features,
+                                           const vector<vector<point>> &predictions)
 {
-    vector<tracker_point> tracked_points;
+    vector<point> tracked_points;
 
     for(int i = 0; i < current_features.size(); i++) {
-        FastFeature & f = features.at(current_features[i].id);
+        feature &f = features.at(current_features[i].id);
 
         xy bestkp = fast.track(f.patch, current_image.image,
                 half_patch_width, half_patch_width,
@@ -84,7 +83,7 @@ vector<tracker_point> FastTracker::track(const tracker_image & current_image,
         bool valid = bestkp.x != INFINITY;
     
         if(valid) {
-            tracker_point p;
+            point p;
             p.x = bestkp.x;
             p.y = bestkp.y;
             p.id = current_features[i].id;
@@ -98,7 +97,7 @@ vector<tracker_point> FastTracker::track(const tracker_image & current_image,
     return tracked_points;
 }
 
-void FastTracker::drop_features(const vector<uint64_t> feature_ids)
+void fast_tracker::drop_features(const vector<uint64_t> feature_ids)
 {
     for(auto fid : feature_ids)
         features.erase(fid);

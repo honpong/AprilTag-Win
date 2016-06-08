@@ -433,20 +433,20 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
 
 void state_vision::update_feature_tracks()
 {
-    tracker_image current_image;
+    tracker::image current_image;
     current_image.image = image;
     current_image.width_px = camera_intrinsics.image_width;
     current_image.height_px = camera_intrinsics.image_height;
 
-    std::vector<tracker_point> current_points;
-    std::vector<std::vector<tracker_point>> predictions;
+    std::vector<tracker::point> current_points;
+    std::vector<std::vector<tracker::point>> predictions;
     std::map<uint64_t, state_vision_feature *> id_to_state;
     std::map<uint64_t, bool> valid_features;
 
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children) {
-            tracker_point p;
+            tracker::point p;
             p.id = feature->tracker_id;
             p.x = feature->current[0];
             p.y = feature->current[1];
@@ -455,8 +455,8 @@ void state_vision::update_feature_tracks()
             id_to_state[feature->tracker_id] = feature;
             valid_features[feature->tracker_id] = false;
 
-            std::vector<tracker_point> point_predictions;
-            tracker_point prediction;
+            std::vector<tracker::point> point_predictions;
+            tracker::point prediction;
             prediction.id = feature->tracker_id;
             prediction.score = 0;
 
@@ -480,7 +480,7 @@ void state_vision::update_feature_tracks()
             feature->last_dt = feature->dt;
         }
     }
-    std::vector<tracker_point> tracks;
+    std::vector<tracker::point> tracks;
     if(current_points.size() > 0) {
         tracks = tracker.track(current_image, current_points, predictions);
     }

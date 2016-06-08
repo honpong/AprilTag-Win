@@ -217,7 +217,7 @@ public:
     state_extrinsics extrinsics;
     state_vision_intrinsics camera_intrinsics;
     uint8_t * image;
-    FastTracker tracker;
+    fast_tracker tracker;
     uint64_t feature_counter;
     uint64_t group_counter;
 

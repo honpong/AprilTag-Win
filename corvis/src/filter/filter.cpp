@@ -484,8 +484,6 @@ void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
 {
     if(f->run_state != RCSensorFusionRunStateRunning) return;
 
-    f->s.image = image.image;
-
     for(state_vision_group *g : f->s.groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *i : g->features.children) {
@@ -810,7 +808,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     filter_setup_next_frame(f, image);
 
     preprocess_observation_queue(f, time);
-    f->s.update_feature_tracks();
+    f->s.update_feature_tracks(image);
     process_observation_queue(f);
 
     int features_used = f->s.process_features(image, time);

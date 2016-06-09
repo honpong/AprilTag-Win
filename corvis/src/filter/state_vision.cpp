@@ -431,12 +431,13 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
     return ku_d;
 }
 
-void state_vision::update_feature_tracks()
+void state_vision::update_feature_tracks(const image_gray8 &image)
 {
     tracker::image current_image;
-    current_image.image = image;
-    current_image.width_px = camera_intrinsics.image_width;
-    current_image.height_px = camera_intrinsics.image_height;
+    current_image.image = image.image;
+    current_image.width_px = image.width;
+    current_image.height_px = image.height;
+    current_image.stride_px = image.stride;
 
     std::vector<tracker::point> current_points;
     std::vector<std::vector<tracker::point>> predictions;

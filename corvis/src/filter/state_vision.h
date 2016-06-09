@@ -216,7 +216,6 @@ class state_vision: public state_motion {
 public:
     state_extrinsics extrinsics;
     state_vision_intrinsics camera_intrinsics;
-    uint8_t * image;
     fast_tracker tracker;
     uint64_t feature_counter;
     uint64_t group_counter;
@@ -240,7 +239,7 @@ public:
     transformation loop_offset;
     bool loop_closed{false};
     
-    void update_feature_tracks();
+    void update_feature_tracks(const image_gray8 &image);
     float median_depth_variance();
     
     virtual void reset();

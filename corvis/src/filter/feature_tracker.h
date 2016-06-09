@@ -11,7 +11,7 @@ struct tracker {
     } point;
 
     typedef struct {
-        uint8_t * image;
+        const uint8_t *image;
         int width_px;
         int height_px;
         int stride_px;

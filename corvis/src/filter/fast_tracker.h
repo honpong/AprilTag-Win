@@ -2,16 +2,13 @@
 #define __FAST_TRACKER_H__
 
 #include "tracker.h"
-
+#include "fast_constants.h"
 #include "fast_detector/fast.h"
 
 #include <map>
 
 class fast_tracker : public tracker
 {
-    static constexpr int half_patch_width = 3;
-    static constexpr int full_patch_width = half_patch_width * 2 + 1;
-
     bool is_trackable(int x, int y, int width, int height)
     {
         return (x > half_patch_width &&

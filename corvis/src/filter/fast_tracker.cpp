@@ -1,4 +1,5 @@
 #include "fast_tracker.h"
+#include "fast_constants.h"
 
 #include "scaled_mask.h"
 
@@ -7,12 +8,6 @@ extern "C" {
 }
 
 using namespace std;
-
-static constexpr int track_threshold = 5;
-static constexpr int detect_threshold = 15;
-static constexpr float radius = 5.5f;
-static constexpr float min_match = 0.2f*0.2f;
-static constexpr float good_match = 0.65f*0.65f;
 
 vector<tracker::point> &fast_tracker::detect(const image &image, int number_desired)
 {
@@ -24,7 +19,7 @@ vector<tracker::point> &fast_tracker::detect(const image &image, int number_desi
     fast.init(image.width_px, image.height_px, image.stride_px, full_patch_width, half_patch_width);
 
     feature_points.clear();
-    vector<xy> & fast_detections = fast.detect(image.image, &mask, number_desired, detect_threshold, 0, 0, image.width_px, image.height_px);
+    vector<xy> & fast_detections = fast.detect(image.image, &mask, number_desired, fast_detect_threshold, 0, 0, image.width_px, image.height_px);
     for(int i = 0; i < fast_detections.size(); i++) {
         auto d = fast_detections[i];
         if(!is_trackable(d.x, d.y, image.width_px, image.height_px)) continue;
@@ -44,25 +39,25 @@ vector<tracker::point> &fast_tracker::track(const image &image, const vector<poi
 
         xy bestkp = fast.track(f.patch, image.image,
                 half_patch_width, half_patch_width,
-                f.x + f.dx, f.y + f.dy, radius,
-                track_threshold, min_match);
+                f.x + f.dx, f.y + f.dy, fast_track_radius,
+                fast_track_threshold, fast_min_match);
 
         // Not a good enough match, try the filter prediction
-        if(bestkp.score < good_match) {
+        if(bestkp.score < fast_good_match) {
             xy bestkp2 = fast.track(f.patch, image.image,
                     half_patch_width, half_patch_width,
-                    pred.x, pred.y, radius,
-                    track_threshold, bestkp.score);
+                    pred.x, pred.y, fast_track_radius,
+                    fast_track_threshold, bestkp.score);
             if(bestkp2.score > bestkp.score)
                 bestkp = bestkp2;
         }
 
         // Still no match? Guess that we haven't moved at all
-        if(bestkp.score < min_match) {
+        if(bestkp.score < fast_min_match) {
             xy bestkp2 = fast.track(f.patch, image.image,
                     half_patch_width, half_patch_width,
                     f.x, f.y, 5.5,
-                    track_threshold, bestkp.score);
+                    fast_track_threshold, bestkp.score);
             if(bestkp2.score > bestkp.score)
                 bestkp = bestkp2;
         }

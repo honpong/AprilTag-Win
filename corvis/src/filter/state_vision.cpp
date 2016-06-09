@@ -439,7 +439,6 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
     current_image.height_px = image.height;
     current_image.stride_px = image.stride;
 
-    std::vector<tracker::point> current_points;
     std::vector<tracker::point> predictions;
     std::map<uint64_t, state_vision_feature *> id_to_state;
     std::map<uint64_t, bool> valid_features;
@@ -447,12 +446,6 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children) {
-            tracker::point p;
-            p.id = feature->tracker_id;
-            p.x = feature->current[0];
-            p.y = feature->current[1];
-            p.score = 0;
-            current_points.push_back(p);
             id_to_state[feature->tracker_id] = feature;
             valid_features[feature->tracker_id] = false;
 
@@ -466,7 +459,7 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
     }
 
     // Update valid features
-    for(auto p : tracker.track(current_image, current_points, predictions)) {
+    for(auto p : tracker.track(current_image, predictions)) {
         state_vision_feature * feature = id_to_state[p.id];
         valid_features[p.id] = true;
         feature->current[0] = p.x;

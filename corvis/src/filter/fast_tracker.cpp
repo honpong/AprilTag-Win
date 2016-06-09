@@ -39,14 +39,12 @@ vector<tracker::point> &fast_tracker::detect(const image & image, int number_des
     return feature_points;
 }
 
-vector<tracker::point> &fast_tracker::track(const image &current_image,
-                                            const vector<point> &current_features,
-                                            const vector<point> &predictions)
+vector<tracker::point> &fast_tracker::track(const image &current_image, const vector<point> &predictions)
 {
     feature_points.clear();
 
-    for(int i = 0; i < current_features.size(); i++) {
-        feature &f = feature_map.at(current_features[i].id);
+    for(auto &pred : predictions) {
+        feature &f = feature_map.at(pred.id);
 
         xy bestkp = fast.track(f.patch, current_image.image,
                 half_patch_width, half_patch_width,
@@ -57,7 +55,7 @@ vector<tracker::point> &fast_tracker::track(const image &current_image,
         if(bestkp.score < good_match) {
             xy bestkp2 = fast.track(f.patch, current_image.image,
                     half_patch_width, half_patch_width,
-                    predictions[i].x, predictions[i].y, radius,
+                    pred.x, pred.y, radius,
                     track_threshold, bestkp.score);
             if(bestkp2.score > bestkp.score)
                 bestkp = bestkp2;
@@ -78,7 +76,7 @@ vector<tracker::point> &fast_tracker::track(const image &current_image,
             point p;
             p.x = bestkp.x;
             p.y = bestkp.y;
-            p.id = current_features[i].id;
+            p.id = pred.id;
             p.score = bestkp.score;
             f.dx = p.x - f.x;
             f.dy = p.y - f.y;

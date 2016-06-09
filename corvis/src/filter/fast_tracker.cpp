@@ -42,14 +42,14 @@ vector<tracker::point> &fast_tracker::track(const image &image, const vector<poi
     for(auto &pred : predictions) {
         feature &f = feature_map.at(pred.id);
 
-        xy bestkp = fast.track(f.patch, current_image.image,
+        xy bestkp = fast.track(f.patch, image.image,
                 half_patch_width, half_patch_width,
                 f.x + f.dx, f.y + f.dy, radius,
                 track_threshold, min_match);
 
         // Not a good enough match, try the filter prediction
         if(bestkp.score < good_match) {
-            xy bestkp2 = fast.track(f.patch, current_image.image,
+            xy bestkp2 = fast.track(f.patch, image.image,
                     half_patch_width, half_patch_width,
                     pred.x, pred.y, radius,
                     track_threshold, bestkp.score);
@@ -59,7 +59,7 @@ vector<tracker::point> &fast_tracker::track(const image &image, const vector<poi
 
         // Still no match? Guess that we haven't moved at all
         if(bestkp.score < min_match) {
-            xy bestkp2 = fast.track(f.patch, current_image.image,
+            xy bestkp2 = fast.track(f.patch, image.image,
                     half_patch_width, half_patch_width,
                     f.x, f.y, 5.5,
                     track_threshold, bestkp.score);

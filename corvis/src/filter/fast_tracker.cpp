@@ -18,7 +18,7 @@ vector<tracker::point> &fast_tracker::detect(const image & image, int number_des
 {
     scaled_mask mask(image.width_px, image.height_px);
     mask.initialize();
-    for(auto const & kv : features)
+    for(auto const & kv : feature_map)
         mask.clear(kv.second.x, kv.second.y);
 
     fast.init(image.width_px, image.height_px, image.stride_px, full_patch_width, half_patch_width);
@@ -33,7 +33,7 @@ vector<tracker::point> &fast_tracker::detect(const image & image, int number_des
         p.y = d.y;
         p.score = d.score;
         p.id = next_id++;
-        features.emplace_hint(feature_map.end(), p.id, feature(d.x, d.y, image.image, image.width_px));
+        feature_map.emplace_hint(feature_map.end(), p.id, feature(d.x, d.y, image.image, image.width_px));
         feature_points.push_back(p);
     }
     return feature_points;
@@ -46,7 +46,7 @@ vector<tracker::point> &fast_tracker::track(const image &current_image,
     feature_points.clear();
 
     for(int i = 0; i < current_features.size(); i++) {
-        feature &f = features.at(current_features[i].id);
+        feature &f = feature_map.at(current_features[i].id);
 
         xy bestkp = fast.track(f.patch, current_image.image,
                 half_patch_width, half_patch_width,
@@ -92,5 +92,5 @@ vector<tracker::point> &fast_tracker::track(const image &current_image,
 void fast_tracker::drop_features(const vector<uint64_t> feature_ids)
 {
     for(auto fid : feature_ids)
-        features.erase(fid);
+        feature_map.erase(fid);
 }

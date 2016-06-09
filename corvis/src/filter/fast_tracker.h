@@ -36,7 +36,7 @@ class fast_tracker : public tracker
 
 
 private:
-    std::map<uint64_t, feature> features;
+    std::map<uint64_t, feature> feature_map;
     fast_detector_9 fast;
     uint64_t next_id = 0;
 

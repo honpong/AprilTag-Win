@@ -1,7 +1,7 @@
 #ifndef __FAST_TRACKER_H__
 #define __FAST_TRACKER_H__
 
-#include "feature_tracker.h"
+#include "tracker.h"
 
 #include "fast_detector/fast.h"
 

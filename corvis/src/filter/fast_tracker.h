@@ -22,11 +22,11 @@ class fast_tracker : public tracker
 
     struct feature
     {
-        feature(int _x, int _y, const uint8_t * im, int width) : x(_x), y(_y)
+        feature(int _x, int _y, const uint8_t * im, int stride) : x(_x), y(_y)
         {
             for(int py = 0; py < full_patch_width; ++py) {
                 for(int px = 0; px <= full_patch_width; ++px) {
-                    patch[py * full_patch_width + px] = im[(int)x + px - half_patch_width + ((int)y + py - half_patch_width) * width];
+                    patch[py * full_patch_width + px] = im[(int)x + px - half_patch_width + ((int)y + py - half_patch_width) * stride];
                 }
             }
         }

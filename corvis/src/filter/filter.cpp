@@ -625,6 +625,7 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
     timage.image = image.image;
     timage.width_px = image.width;
     timage.height_px = image.height;
+    timage.stride_px = image.stride;
     vector<tracker::point> kp = f->s.tracker.detect(timage, (int)newfeats);
 
     // Check that the detected features don't collide with the mask
@@ -1016,10 +1017,8 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     tracker::intrinsics tracker_intrinsics;
     //TODO: On replay these parameters don't match with --qvga
     //(calibration has different resolution than images)
-    //TODO: stride?
     tracker_intrinsics.width_px = cam.intrinsics.width_px;
     tracker_intrinsics.height_px = cam.intrinsics.height_px;
-
     cam.intrinsics.c_x_px = f->s.camera_intrinsics.center_x.v * f->s.camera_intrinsics.image_height + f->s.camera_intrinsics.image_width / 2. - .5;
     tracker_intrinsics.center_x_px = cam.intrinsics.c_x_px;
     tracker_intrinsics.center_y_px = cam.intrinsics.c_y_px;

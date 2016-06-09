@@ -21,7 +21,7 @@ vector<tracker::point> &fast_tracker::detect(const image & image, int number_des
     for(auto const & kv : features)
         mask.clear(kv.second.x, kv.second.y);
 
-    fast.init(image.width_px, image.height_px, image.width_px, full_patch_width, half_patch_width);
+    fast.init(image.width_px, image.height_px, image.stride_px, full_patch_width, half_patch_width);
 
     feature_points.clear();
     vector<xy> & fast_detections = fast.detect(image.image, &mask, number_desired, detect_threshold, 0, 0, image.width_px, image.height_px);
@@ -33,7 +33,7 @@ vector<tracker::point> &fast_tracker::detect(const image & image, int number_des
         p.y = d.y;
         p.score = d.score;
         p.id = next_id++;
-        features.insert(pair<uint64_t, feature>(p.id, feature(d.x, d.y, image.image, image.width_px)));
+        features.insert(pair<uint64_t, feature>(p.id, feature(d.x, d.y, image.image, image.stride_px)));
         feature_points.push_back(p);
     }
     return feature_points;

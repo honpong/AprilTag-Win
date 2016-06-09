@@ -14,6 +14,7 @@ struct tracker {
         uint8_t * image;
         int width_px;
         int height_px;
+        int stride_px;
     } image;
 
     /**

@@ -147,7 +147,7 @@ add_library(filter STATIC
   filter/mapper.cpp
   filter/dictionary.h
   filter/dictionary.cpp
-  filter/feature_tracker.h
+  filter/tracker.h
   filter/fast_tracker.h
   filter/fast_tracker.cpp
 )

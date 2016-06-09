@@ -14,7 +14,7 @@ static constexpr float radius = 5.5f;
 static constexpr float min_match = 0.2f*0.2f;
 static constexpr float good_match = 0.65f*0.65f;
 
-vector<tracker::point> &fast_tracker::detect(const image & image, int number_desired)
+vector<tracker::point> &fast_tracker::detect(const image &image, int number_desired)
 {
     scaled_mask mask(image.width_px, image.height_px);
     mask.initialize();
@@ -35,7 +35,7 @@ vector<tracker::point> &fast_tracker::detect(const image & image, int number_des
     return feature_points;
 }
 
-vector<tracker::point> &fast_tracker::track(const image &current_image, const vector<point> &predictions)
+vector<tracker::point> &fast_tracker::track(const image &image, const vector<point> &predictions)
 {
     feature_points.clear();
 

@@ -4,18 +4,18 @@
 #include <vector>
 
 struct tracker {
-    typedef struct {
+    struct point {
         uint64_t id;
         float x, y;
         float score; // scores are > 0, higher scores are better detections / tracks
-    } point;
+    };
 
-    typedef struct {
+    struct image {
         const uint8_t *image;
         int width_px;
         int height_px;
         int stride_px;
-    } image;
+    };
 
     /**
        image_width_px Image width in pixels

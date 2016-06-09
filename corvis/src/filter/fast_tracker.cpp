@@ -33,7 +33,7 @@ vector<tracker::point> &fast_tracker::detect(const image & image, int number_des
         p.y = d.y;
         p.score = d.score;
         p.id = next_id++;
-        feature_map.emplace_hint(feature_map.end(), p.id, feature(d.x, d.y, image.image, image.width_px));
+        feature_map.emplace_hint(feature_map.end(), p.id, feature(d.x, d.y, image.image, image.stride_px));
         feature_points.push_back(p);
     }
     return feature_points;

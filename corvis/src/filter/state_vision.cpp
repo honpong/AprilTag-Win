@@ -481,13 +481,9 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
             feature->last_dt = feature->dt;
         }
     }
-    std::vector<tracker::point> tracks;
-    if(current_points.size() > 0) {
-        tracks = tracker.track(current_image, current_points, predictions);
-    }
 
     // Update valid features
-    for(auto p : tracks) {
+    for(auto p : tracker.track(current_image, current_points, predictions)) {
         state_vision_feature * feature = id_to_state[p.id];
         valid_features[p.id] = true;
         feature->image_velocity[0]  = p.x - (float)feature->current[0];

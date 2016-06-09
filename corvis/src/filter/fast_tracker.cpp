@@ -41,7 +41,7 @@ vector<tracker::point> &fast_tracker::detect(const image & image, int number_des
 
 vector<tracker::point> &fast_tracker::track(const image &current_image,
                                             const vector<point> &current_features,
-                                            const vector<vector<point>> &predictions)
+                                            const vector<point> &predictions)
 {
     feature_points.clear();
 
@@ -50,14 +50,14 @@ vector<tracker::point> &fast_tracker::track(const image &current_image,
 
         xy bestkp = fast.track(f.patch, current_image.image,
                 half_patch_width, half_patch_width,
-                predictions[i][0].x, predictions[i][0].y, radius,
+                f.x + f.dx, f.y + f.dy, radius,
                 track_threshold, min_match);
 
         // Not a good enough match, try the filter prediction
         if(bestkp.score < good_match) {
             xy bestkp2 = fast.track(f.patch, current_image.image,
                     half_patch_width, half_patch_width,
-                    predictions[i][1].x, predictions[i][1].y, radius,
+                    predictions[i].x, predictions[i].y, radius,
                     track_threshold, bestkp.score);
             if(bestkp2.score > bestkp.score)
                 bestkp = bestkp2;
@@ -67,19 +67,21 @@ vector<tracker::point> &fast_tracker::track(const image &current_image,
         if(bestkp.score < min_match) {
             xy bestkp2 = fast.track(f.patch, current_image.image,
                     half_patch_width, half_patch_width,
-                    predictions[i][2].x, predictions[i][2].y, 5.5,
+                    f.x, f.y, 5.5,
                     track_threshold, bestkp.score);
             if(bestkp2.score > bestkp.score)
                 bestkp = bestkp2;
         }
         bool valid = bestkp.x != INFINITY;
-    
+
         if(valid) {
             point p;
             p.x = bestkp.x;
             p.y = bestkp.y;
             p.id = current_features[i].id;
             p.score = bestkp.score;
+            f.dx = p.x - f.x;
+            f.dy = p.y - f.y;
             f.x = p.x;
             f.y = p.y;
             feature_points.push_back(p);

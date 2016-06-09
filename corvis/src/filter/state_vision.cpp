@@ -440,7 +440,7 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
     current_image.stride_px = image.stride;
 
     std::vector<tracker::point> current_points;
-    std::vector<std::vector<tracker::point>> predictions;
+    std::vector<tracker::point> predictions;
     std::map<uint64_t, state_vision_feature *> id_to_state;
     std::map<uint64_t, bool> valid_features;
 
@@ -456,29 +456,12 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
             id_to_state[feature->tracker_id] = feature;
             valid_features[feature->tracker_id] = false;
 
-            std::vector<tracker::point> point_predictions;
             tracker::point prediction;
             prediction.id = feature->tracker_id;
             prediction.score = 0;
-
-            float ratio = 1.f;
-            if(feature->last_dt.count())
-                ratio = (float)feature->dt.count() / feature->last_dt.count();
-
-            prediction.x = (float)feature->current[0] + feature->image_velocity.x()*ratio;
-            prediction.y = (float)feature->current[1] + feature->image_velocity.y()*ratio;
-            point_predictions.push_back(prediction);
-
             prediction.x = (float)feature->prediction.x();
             prediction.y = (float)feature->prediction.y();
-            point_predictions.push_back(prediction);
-
-            prediction.x = (float)feature->current[0];
-            prediction.y = (float)feature->current[1];
-            point_predictions.push_back(prediction);
-            predictions.push_back(point_predictions);
-
-            feature->last_dt = feature->dt;
+            predictions.push_back(prediction);
         }
     }
 
@@ -486,8 +469,6 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
     for(auto p : tracker.track(current_image, current_points, predictions)) {
         state_vision_feature * feature = id_to_state[p.id];
         valid_features[p.id] = true;
-        feature->image_velocity[0]  = p.x - (float)feature->current[0];
-        feature->image_velocity[1]  = p.y - (float)feature->current[1];
         feature->current[0] = p.x;
         feature->current[1] = p.y;
     }
@@ -496,8 +477,6 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
     for(std::pair<uint64_t, bool> valid : valid_features) {
         if(!valid.second) {
             state_vision_feature * feature = id_to_state[valid.first];
-            feature->image_velocity[0] = 0;
-            feature->image_velocity[1] = 0;
             feature->current[0] = INFINITY;
             feature->current[1] = INFINITY;
         }

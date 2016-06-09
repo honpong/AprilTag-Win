@@ -493,8 +493,6 @@ void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
             obs->feature = i;
             obs->meas[0] = i->current[0];
             obs->meas[1] = i->current[1];
-            obs->feature->dt = image.timestamp - obs->feature->last_seen;
-            obs->feature->last_seen = image.timestamp;
 
             f->observations.observations.push_back(std::move(obs));
         }
@@ -670,8 +668,6 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
             
             g->features.children.push_back(feat);
             feat->groupid = g->id;
-            feat->found_time = image.timestamp;
-            feat->last_seen = feat->found_time;
             feat->tracker_id = kp[i].id;
             
             found_feats++;

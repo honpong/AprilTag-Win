@@ -22,7 +22,7 @@ class fast_tracker : public tracker
 
     struct feature
     {
-        feature(int _x, int _y, const uint8_t * im, int stride) : x(_x), y(_y)
+        feature(int _x, int _y, const uint8_t * im, int stride) : x(_x), y(_y), dx(0), dy(0)
         {
             for(int py = 0; py < full_patch_width; ++py) {
                 for(int px = 0; px <= full_patch_width; ++px) {
@@ -32,6 +32,7 @@ class fast_tracker : public tracker
         }
         uint8_t patch[full_patch_width*full_patch_width];
         float x, y;
+        float dx, dy;
     };
 
 
@@ -46,7 +47,7 @@ public:
     std::vector<point> &detect(const image &image, int number_desired);
     std::vector<point> &track(const image &image,
                               const std::vector<point> &features,
-                              const std::vector<std::vector<point>> &predictions);
+                              const std::vector<point> &predictions);
     void drop_features(const std::vector<uint64_t> &feature_ids);
 };
 

@@ -52,7 +52,7 @@ struct tracker {
      */
     virtual std::vector<point> &track(const image &current_image,
                                       const std::vector<point> &features,
-                                      const std::vector<std::vector<point>> &predictions) = 0;
+                                      const std::vector<point> &predictions) = 0;
 
     /*
      @param feature_ids A vector of feature ids which are no longer tracked. Free any internal storage related to them.

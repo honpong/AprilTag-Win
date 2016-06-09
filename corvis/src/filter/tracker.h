@@ -8,6 +8,7 @@ struct tracker {
         uint64_t id;
         float x, y;
         float score; // scores are > 0, higher scores are better detections / tracks
+        point(uint64_t id_, float x_, float y_, float score_) : id(id_), x(x_), y(y_), score(score_) {}
     };
 
     struct image {

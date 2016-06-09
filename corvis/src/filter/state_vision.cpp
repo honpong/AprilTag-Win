@@ -448,13 +448,7 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
         for(state_vision_feature *feature : g->features.children) {
             id_to_state[feature->tracker_id] = feature;
             valid_features[feature->tracker_id] = false;
-
-            tracker::point prediction;
-            prediction.id = feature->tracker_id;
-            prediction.score = 0;
-            prediction.x = (float)feature->prediction.x();
-            prediction.y = (float)feature->prediction.y();
-            predictions.push_back(prediction);
+            predictions.emplace_back(feature->tracker_id, (float)feature->prediction.x(), (float)feature->prediction.y(), 0);
         }
     }
 

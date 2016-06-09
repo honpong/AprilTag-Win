@@ -28,13 +28,9 @@ vector<tracker::point> &fast_tracker::detect(const image & image, int number_des
     for(int i = 0; i < fast_detections.size(); i++) {
         auto d = fast_detections[i];
         if(!is_trackable(d.x, d.y, image.width_px, image.height_px)) continue;
-        point p;
-        p.x = d.x;
-        p.y = d.y;
-        p.score = d.score;
-        p.id = next_id++;
-        feature_map.emplace_hint(feature_map.end(), p.id, feature(d.x, d.y, image.image, image.stride_px));
-        feature_points.push_back(p);
+        auto id = next_id++;
+        feature_map.emplace_hint(feature_map.end(), id, feature(d.x, d.y, image.image, image.stride_px));
+        feature_points.emplace_back(id, d.x, d.y, d.score);
     }
     return feature_points;
 }
@@ -73,16 +69,11 @@ vector<tracker::point> &fast_tracker::track(const image &current_image, const ve
         bool valid = bestkp.x != INFINITY;
 
         if(valid) {
-            point p;
-            p.x = bestkp.x;
-            p.y = bestkp.y;
-            p.id = pred.id;
-            p.score = bestkp.score;
-            f.dx = p.x - f.x;
-            f.dy = p.y - f.y;
-            f.x = p.x;
-            f.y = p.y;
-            feature_points.push_back(p);
+            feature_points.emplace_back(pred.id, bestkp.x,bestkp.y, bestkp.score);
+            f.dx = bestkp.x - f.x;
+            f.dy = bestkp.y - f.y;
+            f.x = bestkp.x;
+            f.y = bestkp.y;
         }
     }
 

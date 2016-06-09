@@ -47,7 +47,7 @@ public:
     std::vector<point> &track(const image &image,
                               const std::vector<point> &features,
                               const std::vector<std::vector<point>> &predictions);
-    void drop_features(const std::vector<uint64_t>cfeature_ids);
+    void drop_features(const std::vector<uint64_t> &feature_ids);
 };
 
 #endif

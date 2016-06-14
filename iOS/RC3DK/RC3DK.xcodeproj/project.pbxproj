@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		08C980A61D1016120073A870 /* fast_tracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08C980A41D1016120073A870 /* fast_tracker.cpp */; };
+		08C980A71D1016240073A870 /* fast_tracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 08C980A41D1016120073A870 /* fast_tracker.cpp */; };
 		32036E961ACB2A5700FC0588 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54DF18EB4CC90001CCE1 /* libRC3DK.a */; };
 		32036EA41ACB452000FC0588 /* RCLicenseValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 32036EA31ACB452000FC0588 /* RCLicenseValidator.m */; };
 		32036EA51ACB452000FC0588 /* RCLicenseValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 32036EA31ACB452000FC0588 /* RCLicenseValidator.m */; };
@@ -455,6 +457,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		08C980A41D1016120073A870 /* fast_tracker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_tracker.cpp; sourceTree = "<group>"; };
+		08C980A51D1016120073A870 /* fast_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast_tracker.h; sourceTree = "<group>"; };
 		32036E901ACB2A5700FC0588 /* RC3DK Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RC3DK Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32036E931ACB2A5700FC0588 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		32036EA21ACB452000FC0588 /* RCLicenseValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLicenseValidator.h; sourceTree = "<group>"; };
@@ -1189,6 +1193,8 @@
 		327B559C18EB4F3A0001CCE1 /* filter */ = {
 			isa = PBXGroup;
 			children = (
+				08C980A41D1016120073A870 /* fast_tracker.cpp */,
+				08C980A51D1016120073A870 /* fast_tracker.h */,
 				D91557781B87A15D006D2002 /* dictionary.cpp */,
 				D91557791B87A15D006D2002 /* dictionary.h */,
 				D915577C1B87A15D006D2002 /* feature_descriptor.cpp */,
@@ -1897,6 +1903,7 @@
 				327B557318EB4DC20001CCE1 /* RCPoint.m in Sources */,
 				D91557861B87A15D006D2002 /* feature_descriptor.cpp in Sources */,
 				D91558181B87A21A006D2002 /* mathop_avx.c in Sources */,
+				08C980A61D1016120073A870 /* fast_tracker.cpp in Sources */,
 				327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */,
 				327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */,
 				D91557F11B87A21A006D2002 /* hikmeans.c in Sources */,
@@ -2124,6 +2131,7 @@
 				D91558281B87A21A006D2002 /* random.c in Sources */,
 				D3B4EB291A1E7DE100BE0443 /* RCCameraParameters.m in Sources */,
 				D33E9D281ADD14600085F35C /* RCAVSessionManager.m in Sources */,
+				08C980A71D1016240073A870 /* fast_tracker.cpp in Sources */,
 				D3B4EB2A1A1E7DE100BE0443 /* RCRotation.mm in Sources */,
 				D3B4EB2F1A1E7DE100BE0443 /* RCAFHTTPRequestOperation.m in Sources */,
 				D3B4EB351A1E7DE100BE0443 /* RCScalar.m in Sources */,

@@ -194,6 +194,7 @@
         device_parameters dc = [RCCalibration getCalibrationData];
         _cor_setup = new filter_setup(&dc);
         
+        /*
         camera.id = 0;
         camera.measurement_variance = state_vision_feature::measurement_var;
         camera.pose = transformation();
@@ -205,6 +206,7 @@
         gyro.id = 2;
         gyro.measurement_variance = dc.imu.w_noise_var_rad2__s2;
         gyro.pose = dc.color.extrinsics_wrt_imu_m;
+         */
     }
     
     return self;

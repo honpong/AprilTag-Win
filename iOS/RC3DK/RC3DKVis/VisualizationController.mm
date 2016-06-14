@@ -195,7 +195,7 @@
             float depth = p.originalDepth.scalar;
             float stddev = p.originalDepth.standardDeviation;
             bool good = stddev / depth < .02;
-            state.observe_feature(sensor_clock::micros_to_tp(data.timestamp), p.id, x, y, z, p.x, p.y, 0, 0, 0,good);
+            state.observe_feature(sensor_clock::micros_to_tp(data.timestamp), p.id, x, y, z, p.x, p.y, p.x, p.y, 0, 0, 0,good, false);
         }
     }
     RCRotation * R = data.transformation.rotation;

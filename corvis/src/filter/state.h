@@ -46,7 +46,8 @@ public:
     virtual ~state_node() {};
     bool dynamic;
     virtual void copy_state_to_array(matrix &state) = 0;
-    virtual void print_matrix_with_state_labels(matrix &state) = 0;
+    virtual void print_matrix_with_state_labels_dynamic(matrix &state) = 0;
+    virtual void print_matrix_with_state_labels_static(matrix &state) = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
     virtual int remap_dynamic(int i, covariance &cov) = 0;
     virtual int remap_static(int i, covariance &cov) = 0;
@@ -75,11 +76,16 @@ public:
             c->copy_state_from_array(state);
     }
 
-    virtual void print_matrix_with_state_labels(matrix &state) {
+    virtual void print_matrix_with_state_labels_dynamic(matrix &state) {
         for(T c : children)
-            c->print_matrix_with_state_labels(state);
+            c->print_matrix_with_state_labels_dynamic(state);
     }
 
+    virtual void print_matrix_with_state_labels_static(matrix &state) {
+        for(T c : children)
+            c->print_matrix_with_state_labels_static(state);
+    }
+    
     int remap_dynamic(int i, covariance &cov) {
         int start = i;
         for(T c : children)
@@ -144,6 +150,11 @@ public:
 #endif
         return statesize;
     }
+    
+    void print_matrix_with_state_labels(matrix &state) {
+        print_matrix_with_state_labels_dynamic(state);
+        print_matrix_with_state_labels_static(state);
+    }
 
     virtual std::ostream &print_to(std::ostream & s) const
     {
@@ -183,9 +194,9 @@ public:
         //    for(int j = i + 1; j < dynamic_statesize; ++j)
         //        cov(i, j) = cov(j, i);
 
-        //cov += diag(R)*dt
+        //cov += diag(R)*dt^2
         for(int i = 0; i < cov.size(); ++i)
-            cov(i, i) += cov.process_noise[i] * dt;
+            cov(i, i) += cov.process_noise[i] * dt * dt;
     }
 
     void time_update(sensor_clock::time_point time)
@@ -333,7 +344,15 @@ public:
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
 
-    virtual void print_matrix_with_state_labels(matrix &state) {
+    virtual void print_matrix_with_state_labels_static(matrix &state) {
+        if(dynamic) return;
+        fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
+        fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
+        fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
+    }
+    
+    virtual void print_matrix_with_state_labels_dynamic(matrix &state) {
+        if(!dynamic) return;
         fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
         fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
         fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
@@ -389,7 +408,15 @@ public:
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
 
-    virtual void print_matrix_with_state_labels(matrix &state) {
+    virtual void print_matrix_with_state_labels_static(matrix &state) {
+        if(dynamic) return;
+        fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
+        fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
+        fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
+    }
+    
+    virtual void print_matrix_with_state_labels_dynamic(matrix &state) {
+        if(!dynamic) return;
         fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
         fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
         fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
@@ -445,7 +472,15 @@ public:
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
     
-    virtual void print_matrix_with_state_labels(matrix &state) {
+    virtual void print_matrix_with_state_labels_static(matrix &state) {
+        if(dynamic) return;
+        fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
+        fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
+        fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
+    }
+    
+    virtual void print_matrix_with_state_labels_dynamic(matrix &state) {
+        if(!dynamic) return;
         fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
         fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
         fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
@@ -500,7 +535,13 @@ class state_scalar: public state_leaf<f_t, 1> {
         return s << name << ": " << v << "±" << std::sqrt(variance());
     }
     
-    virtual void print_matrix_with_state_labels(matrix &state) {
+    virtual void print_matrix_with_state_labels_static(matrix &state) {
+        if(dynamic) return;
+        fprintf(stderr, "%s: ", name); state.row(index).print();
+    }
+    
+    virtual void print_matrix_with_state_labels_dynamic(matrix &state) {
+        if(!dynamic) return;
         fprintf(stderr, "%s: ", name); state.row(index).print();
     }
 };

@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#include "../../../shared_corvis_3dk/camera_control_interface.h"
+#include "camera_control_interface.h"
 
 camera_control_interface::camera_control_interface(): platform_ptr(NULL)
 {

@@ -12,7 +12,7 @@
 #include "qr.h"
 #endif
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
-#include "../../../shared_corvis_3dk/camera_control_interface.h"
+#include "camera_control_interface.h"
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/sensor_data.h"
 #include "spdlog/spdlog.h"

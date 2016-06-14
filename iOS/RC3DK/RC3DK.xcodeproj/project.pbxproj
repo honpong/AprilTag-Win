@@ -771,7 +771,7 @@
 		D3C0EDF91A37B4DC00423EDE /* qr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qr.h; sourceTree = "<group>"; };
 		D3DE5D081A80E301000EF94D /* transformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = transformation.h; sourceTree = "<group>"; };
 		D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = device_parameters.cpp; sourceTree = "<group>"; };
-		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = camera_control_interface.h; path = ../../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = camera_control_interface.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D91557781B87A15D006D2002 /* dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dictionary.cpp; sourceTree = "<group>"; };
 		D91557791B87A15D006D2002 /* dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dictionary.h; sourceTree = "<group>"; };
 		D915577C1B87A15D006D2002 /* feature_descriptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = feature_descriptor.cpp; sourceTree = "<group>"; };
@@ -1166,7 +1166,6 @@
 			isa = PBXGroup;
 			children = (
 				D915578C1B87A21A006D2002 /* vl */,
-				D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */,
 				327B558418EB4F250001CCE1 /* cor */,
 				327B559C18EB4F3A0001CCE1 /* filter */,
 				327B55C718EB4F430001CCE1 /* numerics */,
@@ -1193,6 +1192,7 @@
 		327B559C18EB4F3A0001CCE1 /* filter */ = {
 			isa = PBXGroup;
 			children = (
+				D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */,
 				08C980A41D1016120073A870 /* fast_tracker.cpp */,
 				08C980A51D1016120073A870 /* fast_tracker.h */,
 				D91557781B87A15D006D2002 /* dictionary.cpp */,

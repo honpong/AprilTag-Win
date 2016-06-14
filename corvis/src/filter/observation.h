@@ -7,7 +7,6 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-#include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
 #include <memory>
 #include "../cor/sensor.h"
@@ -64,8 +63,6 @@ class observation_vision_feature: public observation_storage<2> {
     static stdev<2> meas_stdev, inn_stdev;
     m3 Rrt;
     v3 X0, X;
-    const uint8_t *image;
-    struct tracker &tracker;
     m3 Rtot;
     v3 Ttot;
 
@@ -88,7 +85,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     void update_initializing();
 
-    observation_vision_feature(const sensor &src, const state_vision &_state, const state_vision_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent, struct tracker &_tracker): observation_storage(src, _time_actual, _time_apparent), state(_state), intrinsics(_intrinsics), tracker(_tracker) {}
+    observation_vision_feature(const sensor &src, const state_vision &_state, const state_vision_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(src, _time_actual, _time_apparent), state(_state), intrinsics(_intrinsics) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -159,7 +156,8 @@ class observation_queue {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     observation_queue();
-    bool process(state_root &s, sensor_clock::time_point time);
+    void preprocess(state_root &s, sensor_clock::time_point time);
+    bool process(state_root &s);
     vector<unique_ptr<observation>> observations;
 
     // keep the most recent measurement of a given type around for plotting, etc

@@ -1,57 +1,62 @@
-#ifndef __TRACKER_H
-#define __TRACKER_H
+#ifndef __FEATURE_TRACKER_H__
+#define __FEATURE_TRACKER_H__
 
-#include "fast_detector/fast.h"
-#include "scaled_mask.h"
-
-extern "C" {
-#include "../cor/cor_types.h"
-}
+#include <vector>
 
 struct tracker {
-    int width;
-    int height;
-    int stride;
-    const static int half_patch_width = 3;
-    fast_detector_9 fast;
-    int track_threshold = 5;
-    int detect_threshold = 15;
-    float radius = 5.5f;
-    float min_match = 0.2f*0.2f;
-    float good_match = 0.65f*0.65f;
-    
-    void init()
-    {
-        fast.init(width, height, stride, half_patch_width * 2 + 1, half_patch_width);
-    }
-    
-    xy track(const uint8_t * im1, const uint8_t * im2, float predx, float predy, float radius, float min_score)
-    {
-        return fast.track(im1, im2, half_patch_width, half_patch_width, predx, predy, radius, track_threshold, min_score);
-    }
-    
-    vector<xy> &detect(const unsigned char *im, const scaled_mask *mask, int number_wanted, int winx, int winy, int winwidth, int winheight)
-    {
-        return fast.detect(im, mask, number_wanted, detect_threshold, winx, winy, winwidth, winheight);
-    }
+    struct point {
+        uint64_t id;
+        float x, y;
+        float score; // scores are > 0, higher scores are better detections / tracks
+        point(uint64_t id_, float x_, float y_, float score_) : id(id_), x(x_), y(y_), score(score_) {}
+    };
 
-    bool is_trackable(int x, int y)
-    {
-        return (x > half_patch_width &&
-                y > half_patch_width &&
-                x < width-1-half_patch_width &&
-                y < height-1-half_patch_width);
-    }
+    struct image {
+        const uint8_t *image;
+        int width_px;
+        int height_px;
+        int stride_px;
+    };
 
-    void add_track(const unsigned char *im, int x, int y, unsigned char *patch)
-    {
-        int full_patch = 2 * half_patch_width + 1;
-        for(int py = 0; py < full_patch; ++py) {
-            for(int px = 0; px <= full_patch; ++px) {
-                patch[py * full_patch + px] = im[x + px - half_patch_width + (y + py - half_patch_width) * stride];
-            }
-        }
-    }
+    /**
+       image_width_px Image width in pixels
+       image_height_px Image height in pixels
+       center_x_px Horizontal principal point of camera in pixels
+       center_y_px Horizontal principal point of camera in pixels
+       focal_length_px Focal length of camera in pixels
+    */
+    typedef struct {
+        int width_px;
+        int height_px;
+        float center_x_px;
+        float center_y_px;
+        float focal_length_x_px;
+        float focal_length_y_px;
+    } intrinsics;
+
+    std::vector<point> feature_points;
+
+    /*
+     @param image The image to use for feature detection
+     @param number_desired The desired number of features, function can return less or more
+
+     Returns a vector of tracker_point detections, with higher scored points being preferred
+     */
+    virtual std::vector<point> &detect(const image &image, int number_desired) = 0;
+
+    /*
+     @param current_image The image to track in
+     @param features The points in the previous image
+     @param predictions The predicted location in the current image
+
+     Returns a vector of tracker_point tracks. Dropped features are not included. Tracks with high scores should be considered more accurate
+     */
+    virtual std::vector<point> &track(const image &image, const std::vector<point> &predictions) = 0;
+
+    /*
+     @param feature_ids A vector of feature ids which are no longer tracked. Free any internal storage related to them.
+     */
+    virtual void drop_features(const std::vector<uint64_t> &feature_ids) = 0;
 };
 
 #endif

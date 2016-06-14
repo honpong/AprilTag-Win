@@ -15,7 +15,7 @@ extern "C" {
 #include <list>
 #include "state.h"
 #include "state_motion.h"
-#include "tracker.h"
+#include "fast_tracker.h"
 #include "../cor/platform/sensor_clock.h"
 #include "feature_descriptor.h"
 #include "mapper.h"
@@ -91,17 +91,13 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     f_t outlier = 0;
     v2 initial;
     v2 current;
+    v2 prediction;
     f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
     uint64_t id;
     uint64_t groupid;
+    uint64_t tracker_id;
     v3 world = v3(0, 0, 0);
     v3 Xcamera = v3(0, 0, 0);
-    feature_t image_velocity = {0,0};
-    sensor_clock::duration dt = sensor_clock::duration(0);
-    sensor_clock::duration last_dt = sensor_clock::duration(0);
-    sensor_clock::time_point last_seen;
-
-    sensor_clock::time_point found_time;
 
     struct descriptor descriptor;
     bool descriptor_valid{false};
@@ -127,8 +123,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     bool force_initialize();
 //private:
     enum feature_flag status = feature_initializing;
-    
-    unsigned char patch[(tracker::half_patch_width * 2 + 1) * (tracker::half_patch_width * 2 + 1)];
     
     void reset() {
         set_initial_variance(initial_var);
@@ -222,7 +216,7 @@ class state_vision: public state_motion {
 public:
     state_extrinsics extrinsics;
     state_vision_intrinsics camera_intrinsics;
-    
+    fast_tracker tracker;
     uint64_t feature_counter;
     uint64_t group_counter;
 
@@ -245,6 +239,7 @@ public:
     transformation loop_offset;
     bool loop_closed{false};
     
+    void update_feature_tracks(const image_gray8 &image);
     float median_depth_variance();
     
     virtual void reset();

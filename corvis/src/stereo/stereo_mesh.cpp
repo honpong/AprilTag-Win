@@ -795,7 +795,6 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*
     }
 }
 
-#include "../filter/tracker.h"
 void stereo_mesh_add_features(stereo_mesh & mesh, const stereo &g, int maxvertices, void (*progress_callback)(float), float progress_start, float progress_end)
 {
     bool success;

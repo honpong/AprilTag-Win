@@ -168,10 +168,15 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     //f->log->trace("{} [{} {} {}] [{} {} {}]", time, output[0], output[1], output[2], output[3], output[4], output[5]);
 }
 
-void process_observation_queue(struct filter *f, sensor_clock::time_point time)
+void preprocess_observation_queue(struct filter *f, sensor_clock::time_point time)
 {
     f->last_time = time;
-    if(!f->observations.process(f->s, time)) {
+    f->observations.preprocess(f->s, time);
+}
+
+void process_observation_queue(struct filter *f)
+{
+    if(!f->observations.process(f->s)) {
         f->numeric_failed = true;
         f->calibration_bad = true;
     }
@@ -418,7 +423,8 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
     f->observations.observations.push_back(std::move(obs_a));
 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
-    process_observation_queue(f, data.timestamp);
+    preprocess_observation_queue(f, data.timestamp);
+    process_observation_queue(f);
     if(show_tuning) {
         cerr << " actual innov stdev is:\n" <<
         observation_accelerometer::inn_stdev <<
@@ -479,7 +485,8 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
     }
 
     if(show_tuning) fprintf(stderr, "gyroscope:\n");
-    process_observation_queue(f, data.timestamp);
+    preprocess_observation_queue(f, data.timestamp);
+    process_observation_queue(f);
     if(show_tuning) {
         cerr << " actual innov stdev is:\n" <<
         observation_gyroscope::inn_stdev <<
@@ -501,14 +508,11 @@ void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *i : g->features.children) {
             auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
-            auto obs = std::make_unique<observation_vision_feature>(*image.source, f->s, f->s.camera_intrinsics, image.timestamp + extra_time, image.timestamp, f->track);
+            auto obs = std::make_unique<observation_vision_feature>(*image.source, f->s, f->s.camera_intrinsics, image.timestamp + extra_time, image.timestamp);
             obs->state_group = g;
             obs->feature = i;
             obs->meas[0] = i->current[0];
             obs->meas[1] = i->current[1];
-            obs->image = image.image;
-            obs->feature->dt = image.timestamp - obs->feature->last_seen;
-            obs->feature->last_seen = image.timestamp;
 
             f->observations.observations.push_back(std::move(obs));
         }
@@ -632,24 +636,37 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
     }
 
     // Run detector
-    vector<xy> &kp = f->track.detect(image.image, f->mask, (int)newfeats, 0, 0, image.width, image.height);
+    vector<uint64_t> unused_ids;
+    tracker::image timage;
+    timage.image = image.image;
+    timage.width_px = image.width;
+    timage.height_px = image.height;
+    timage.stride_px = image.stride;
+    vector<tracker::point> kp = f->s.tracker.detect(timage, (int)newfeats);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
     if(kp.size() < newfeats) newfeats = kp.size();
-    if(newfeats < state_vision_group::min_feats) return 0;
+    if(newfeats < state_vision_group::min_feats) {
+        for(int i = 0; i < (int)kp.size(); ++i)
+            unused_ids.push_back(kp[i].id);
+        f->s.tracker.drop_features(unused_ids);
+        return 0;
+    }
+
     state_vision_group *g = f->s.add_group(image.timestamp);
     std::unique_ptr<image_depth16> aligned_undistorted_depth;
 
     int found_feats = 0;
+    int i;
     f_t image_to_depth = 1;
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth.height)/image.height;
-    for(int i = 0; i < (int)kp.size(); ++i) {
+    for(i = 0; i < (int)kp.size(); ++i) {
         feature_t kp_i = {kp[i].x, kp[i].y};
         int x = (int)kp[i].x;
         int y = (int)kp[i].y;
-        if(f->track.is_trackable(x, y) && f->mask->test(x, y)) {
+        if(f->mask->test(x, y)) {
             f->mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(kp_i);
 
@@ -669,17 +686,20 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
                 feat->depth_measured = true;
             }
             
-            f->track.add_track(image.image, x, y, feat->patch);
-
             g->features.children.push_back(feat);
             feat->groupid = g->id;
-            feat->found_time = image.timestamp;
-            feat->last_seen = feat->found_time;
+            feat->tracker_id = kp[i].id;
             
             found_feats++;
             if(found_feats == newfeats) break;
         }
+        else
+            unused_ids.push_back(kp[i].id);
     }
+    for(i = i+1; i < (int)kp.size(); ++i)
+        unused_ids.push_back(kp[i].id);
+    f->s.tracker.drop_features(unused_ids);
+
     g->status = group_initializing;
     g->make_normal();
     f->s.remap();
@@ -754,10 +774,6 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization && f->run_state != RCSensorFusionRunStateSteadyInitialization) return true; //frame was "processed" so that callbacks still get called
     
-    f->track.width = image.width;
-    f->track.height = image.height;
-    f->track.stride = image.stride;
-    f->track.init();
     f->s.camera_intrinsics.image_width = image.width;
     f->s.camera_intrinsics.image_height = image.height;
     
@@ -810,7 +826,9 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     if(show_tuning) {
         fprintf(stderr, "vision:\n");
     }
-    process_observation_queue(f, time);
+    preprocess_observation_queue(f, time);
+    f->s.update_feature_tracks(image);
+    process_observation_queue(f);
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
         cerr << observation_vision_feature::inn_stdev;
@@ -1017,10 +1035,17 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.camera_intrinsics.image_width = cam.intrinsics.width_px;
     f->s.camera_intrinsics.image_height = cam.intrinsics.height_px;
     
-    f->track.width = cam.intrinsics.width_px;
-    f->track.height = cam.intrinsics.height_px;
-    f->track.stride = f->track.width;
-    f->track.init();
+    tracker::intrinsics tracker_intrinsics;
+    //TODO: On replay these parameters don't match with --qvga
+    //(calibration has different resolution than images)
+    tracker_intrinsics.width_px = cam.intrinsics.width_px;
+    tracker_intrinsics.height_px = cam.intrinsics.height_px;
+    cam.intrinsics.c_x_px = f->s.camera_intrinsics.center_x.v * f->s.camera_intrinsics.image_height + f->s.camera_intrinsics.image_width / 2. - .5;
+    tracker_intrinsics.center_x_px = cam.intrinsics.c_x_px;
+    tracker_intrinsics.center_y_px = cam.intrinsics.c_y_px;
+    tracker_intrinsics.focal_length_x_px = cam.intrinsics.c_x_px;
+    tracker_intrinsics.focal_length_y_px = cam.intrinsics.c_y_px; // Filter assumes this is the same
+    f->s.tracker = fast_tracker(tracker_intrinsics);
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);
 #endif

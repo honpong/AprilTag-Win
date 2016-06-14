@@ -638,7 +638,6 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
     }
 
     // Run detector
-    vector<uint64_t> unused_ids;
     tracker::image timage;
     timage.image = image.image;
     timage.width_px = image.width;
@@ -646,13 +645,12 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
     timage.stride_px = image.stride;
     vector<tracker::point> kp = f->s.tracker.detect(timage, (int)newfeats);
 
-    // Check that the detected features don't collide with the mask
-    // and add them to the filter
-    if(kp.size() < newfeats) newfeats = kp.size();
+    if(kp.size() < newfeats) newfeats = kp.size(); // even if they returned more, we only want newfeats features
+
+    // give up if we didn't get enough features
     if(newfeats < state_vision_group::min_feats) {
-        for(int i = 0; i < (int)kp.size(); ++i)
-            unused_ids.push_back(kp[i].id);
-        f->s.tracker.drop_features(unused_ids);
+        for(const auto &p : kp)
+            f->s.tracker.drop_feature(p.id);
         return 0;
     }
 
@@ -696,11 +694,10 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
             if(found_feats == newfeats) break;
         }
         else
-            unused_ids.push_back(kp[i].id);
+            f->s.tracker.drop_feature(kp[i].id);
     }
     for(i = i+1; i < (int)kp.size(); ++i)
-        unused_ids.push_back(kp[i].id);
-    f->s.tracker.drop_features(unused_ids);
+        f->s.tracker.drop_feature(kp[i].id);
 
     g->status = group_initializing;
     g->make_normal();

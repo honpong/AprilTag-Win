@@ -216,8 +216,6 @@ int state_vision::feature_count()
 
 int state_vision::process_features(const image_gray8 &image, sensor_clock::time_point time)
 {
-    std::vector<uint64_t> dropped_features;
-
     int useful_drops = 0;
     int total_feats = 0;
     int outliers = 0;
@@ -238,7 +236,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                 }
             }
             if(i->should_drop())
-                dropped_features.push_back(i->tracker_id);
+                tracker.drop_feature(i->tracker_id);
         }
     }
 
@@ -268,7 +266,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                 }
             }
             for(state_vision_feature *i : g->features.children)
-                dropped_features.push_back(i->tracker_id);
+                tracker.drop_feature(i->tracker_id);
             g->make_empty();
         }
 
@@ -320,8 +318,6 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
             return false;
         }
     });
-
-    tracker.drop_features(dropped_features);
 
     remap();
 

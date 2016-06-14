@@ -75,8 +75,7 @@ vector<tracker::point> &fast_tracker::track(const image &image, const vector<poi
     return feature_points;
 }
 
-void fast_tracker::drop_features(const vector<uint64_t> &feature_ids)
+void fast_tracker::drop_feature(uint64_t feature_id)
 {
-    for(auto fid : feature_ids)
-        feature_map.erase(fid);
+    feature_map.erase(feature_id);
 }

@@ -1126,25 +1126,6 @@ bool filter_is_steady(const struct filter *f)
         f->s.w.v.norm() < .1;
 }
 
-int filter_get_features(const struct filter *f, struct feature_info *features, int max)
-{
-    int index = 0;
-    for(auto g : f->s.groups.children) {
-        for(auto i : g->features.children) {
-            if(index >= max) break;
-            features[index].id = i->id;
-            features[index].x = (float)i->current[0];
-            features[index].y = (float)i->current[1];
-            features[index].wx = (float)i->world[0];
-            features[index].wy = (float)i->world[1];
-            features[index].wz = (float)i->world[2];
-            features[index].stdev = (float)i->v.stdev_meters(sqrt(i->variance()));
-            ++index;
-        }
-    }
-    return index;
-}
-
 void filter_start_static_calibration(struct filter *f)
 {
     reset_stability(f);

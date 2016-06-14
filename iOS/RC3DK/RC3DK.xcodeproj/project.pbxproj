@@ -567,7 +567,6 @@
 		327B55A318EB4F3A0001CCE1 /* fast_9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_9.cpp; sourceTree = "<group>"; };
 		327B55A418EB4F3A0001CCE1 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		327B55A518EB4F3A0001CCE1 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
-		327B55A618EB4F3A0001CCE1 /* feature_info.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = feature_info.h; sourceTree = "<group>"; };
 		327B55A718EB4F3A0001CCE1 /* filter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter.cpp; sourceTree = "<group>"; };
 		327B55A818EB4F3A0001CCE1 /* filter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = filter.h; sourceTree = "<group>"; };
 		327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_setup.cpp; sourceTree = "<group>"; };
@@ -1205,7 +1204,6 @@
 				D33E61E01ADE632900569C82 /* capture.cpp */,
 				327B559D18EB4F3A0001CCE1 /* device_parameters.h */,
 				D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */,
-				327B55A618EB4F3A0001CCE1 /* feature_info.h */,
 				D953126D1A15AE63004D6068 /* homography.cpp */,
 				D953126E1A15AE63004D6068 /* homography.h */,
 				327B55A718EB4F3A0001CCE1 /* filter.cpp */,

@@ -5,7 +5,6 @@
 #include "observation.h"
 #include "device_parameters.h"
 #include "calibration_xml.h"
-#include "feature_info.h"
 #include "fast_tracker.h"
 #include "scaled_mask.h"
 #include "../numerics/transformation.h"
@@ -118,7 +117,6 @@ void filter_get_device_parameters(const struct filter *f, device_parameters *dev
 extern "C" void filter_initialize(struct filter *f, device_parameters *device);
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
-int filter_get_features(const struct filter *f, struct feature_info *features, int max);
 
 std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct filter *f, const image_depth16 &depth);
 std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter *f, const image_depth16 &depth, const image_gray8 & image);

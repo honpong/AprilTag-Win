@@ -867,7 +867,7 @@
 		D992CC3C1AD5C46A00AA2259 /* replay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = replay.h; sourceTree = "<group>"; };
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
 		D9CCDC7D192E887F00A41329 /* scaled_mask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scaled_mask.h; sourceTree = "<group>"; };
-		D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorFusionInternals.h; path = ../../../shared_corvis_3dk/RCSensorFusionInternals.h; sourceTree = "<group>"; };
+		D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionInternals.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1110,7 +1110,6 @@
 				327B555C18EB4DC20001CCE1 /* RCScalar.m */,
 				327B555F18EB4DC20001CCE1 /* RCSensorFusionData.h */,
 				327B556018EB4DC20001CCE1 /* RCSensorFusionData.m */,
-				D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */,
 				327B556118EB4DC20001CCE1 /* RCSensorFusionStatus.h */,
 				327B556218EB4DC20001CCE1 /* RCSensorFusionStatus.m */,
 				327B556318EB4DC20001CCE1 /* RCTransformation.h */,
@@ -1192,6 +1191,7 @@
 		327B559C18EB4F3A0001CCE1 /* filter */ = {
 			isa = PBXGroup;
 			children = (
+				D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */,
 				D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */,
 				08C980A41D1016120073A870 /* fast_tracker.cpp */,
 				08C980A51D1016120073A870 /* fast_tracker.h */,

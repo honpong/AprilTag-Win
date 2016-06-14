@@ -11,7 +11,7 @@
 #ifdef ENABLE_QR
 #include "qr.h"
 #endif
-#include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
+#include "RCSensorFusionInternals.h"
 #include "camera_control_interface.h"
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/sensor_data.h"

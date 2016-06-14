@@ -536,14 +536,15 @@
 - (NSArray*) getFeaturesArray
 {
     struct filter *f = &(_cor_setup->sfm);
-    NSMutableArray* array = [[NSMutableArray alloc] initWithCapacity:f->s.features.size()];
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        state_vision_feature *i = *fiter;
-        if(i->is_valid()) {
-            f_t stdev = i->v.stdev_meters(sqrt(i->variance()));
-            
-            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:(float)i->current[0] withY:(float)i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:(float)i->v.depth() withStdDev:(float)stdev] withWorldPoint:[[RCPoint alloc]initWithX:(float)i->world[0] withY:(float)i->world[1] withZ:(float)i->world[2]] withInitialized:i->is_initialized()];
-            [array addObject:feature];
+    NSMutableArray* array = [[NSMutableArray alloc] init];
+    for(auto g : f->s.groups.children) {
+        for(auto i : g->features.children) {
+            if(i->is_valid()) {
+                f_t stdev = i->v.stdev_meters(sqrt(i->variance()));
+
+                RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:(float)i->current[0] withY:(float)i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:(float)i->v.depth() withStdDev:(float)stdev] withWorldPoint:[[RCPoint alloc]initWithX:(float)i->world[0] withY:(float)i->world[1] withZ:(float)i->world[2]] withInitialized:i->is_initialized()];
+                [array addObject:feature];
+            }
         }
     }
     return array;

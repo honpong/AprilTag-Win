@@ -197,11 +197,6 @@ void sensor_fusion::set_device(const device_parameters &dc)
 {
     device = dc;
     filter_initialize(&sfm, &device);
-    
-    camera.id = 0;
-    accelerometer.id = 1;
-    gyro.id = 2;
-    depth.id = 3;
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)

@@ -208,8 +208,7 @@ public:
     filter sfm;
     device_parameters device;
     struct calibration calibration;
-    sensor camera, accelerometer, gyro, depth;
-    
+
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
     transformation accel_to_camera_world_transform() const;
     v3 accel_to_camera_position(const v3& x) const;

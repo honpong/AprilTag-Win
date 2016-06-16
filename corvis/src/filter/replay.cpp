@@ -124,7 +124,6 @@ void replay::setup_filter()
 image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle)
 {
     image_gray8 gray;
-    gray.source = &fusion.camera;
     gray.image = data;
     gray.width = width;
     gray.height = height;
@@ -153,7 +152,6 @@ image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data
 image_depth16 replay::parse_depth16(int width, int height, int stride, uint16_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle)
 {
     image_depth16 depth;
-    depth.source = &fusion.depth;
     depth.width = width;
     depth.height = height;
     depth.stride = stride;
@@ -251,6 +249,7 @@ void replay::start(string map_filename)
                     //pgm header is "P5 x y"
                     parse.ignore(3, ' ') >> width >> height;
                     image_gray8 d = parse_gray8(width, height, width, packet->data + 16, packet->header.time, 33333, std::move(phandle));
+                    d.source = fusion.sfm.cameras[0].get();
                     if(image_decimate && d.timestamp < last_image) break;
                     if(last_image == sensor_clock::time_point()) last_image = d.timestamp;
                     last_image += image_interval;
@@ -263,6 +262,7 @@ void replay::start(string map_filename)
                 {
                     packet_image_with_depth_t *ip = (packet_image_with_depth_t *)packet;
                     image_gray8 d = parse_gray8(ip->width, ip->height, ip->width, ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
+                    d.source = fusion.sfm.cameras[0].get();
                     if(image_decimate && d.timestamp < last_image) break;
                     if(use_depth && ip->depth_height && ip->depth_width)
                     {
@@ -270,6 +270,8 @@ void replay::start(string map_filename)
                         auto depth_data = (uint16_t *)dhandle.get();
                         memcpy(depth_data, ip->data + ip->width * ip->height, sizeof(uint16_t)*ip->depth_width*ip->depth_height);
                         image_depth16 depth = parse_depth16(ip->depth_width, ip->depth_height, ip->depth_width*2, depth_data, ip->header.time, ip->exposure_time_us, std::move(dhandle));
+                        depth.source = fusion.sfm.depths[0].get();
+
                         fusion.receive_image(std::move(depth));
                     }
                     if(last_image == sensor_clock::time_point()) last_image = d.timestamp;
@@ -287,6 +289,7 @@ void replay::start(string map_filename)
 
                     if(ip->format == rc_FORMAT_GRAY8) {
                         image_gray8 d = parse_gray8(ip->width, ip->height, ip->width, ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
+                        d.source = fusion.sfm.cameras[0].get();
                         fusion.receive_image(std::move(d));
                     }
                     else if(ip->format == rc_FORMAT_DEPTH16) {
@@ -294,6 +297,7 @@ void replay::start(string map_filename)
                             break;
 
                         image_depth16 d = parse_depth16(ip->width, ip->height, ip->stride, (uint16_t *)ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
+                        d.source = fusion.sfm.depths[0].get();
                         fusion.receive_image(std::move(d));
                     }
                     else {
@@ -309,7 +313,7 @@ void replay::start(string map_filename)
                 case packet_accelerometer:
                 {
                     accelerometer_data d;
-                    d.source = &fusion.accelerometer;
+                    d.source = fusion.sfm.accelerometers[0].get();
                     d.accel_m__s2[0] = ((float *)packet->data)[0];
                     d.accel_m__s2[1] = ((float *)packet->data)[1];
                     d.accel_m__s2[2] = ((float *)packet->data)[2];
@@ -323,7 +327,7 @@ void replay::start(string map_filename)
                 case packet_gyroscope:
                 {
                     gyro_data d;
-                    d.source = &fusion.gyro;
+                    d.source = fusion.sfm.gyros[0].get();
                     d.angvel_rad__s[0] = ((float *)packet->data)[0];
                     d.angvel_rad__s[1] = ((float *)packet->data)[1];
                     d.angvel_rad__s[2] = ((float *)packet->data)[2];
@@ -337,7 +341,7 @@ void replay::start(string map_filename)
                 case packet_imu:
                 {
                     accelerometer_data a;
-                    a.source = &fusion.accelerometer;
+                    a.source = fusion.sfm.accelerometers[0].get();
                     auto imu = (packet_imu_t *)packet;
                     a.accel_m__s2[0] = imu->a[0];
                     a.accel_m__s2[1] = imu->a[1];
@@ -345,7 +349,7 @@ void replay::start(string map_filename)
                     a.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
                     fusion.receive_accelerometer(std::move(a));
                     gyro_data g;
-                    g.source = &fusion.gyro;
+                    g.source = fusion.sfm.gyros[0].get();
                     g.angvel_rad__s[0] = imu->w[0];
                     g.angvel_rad__s[1] = imu->w[1];
                     g.angvel_rad__s[2] = imu->w[2];

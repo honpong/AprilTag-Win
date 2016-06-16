@@ -432,12 +432,10 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
     preprocess_observation_queue(f, data.timestamp);
     process_observation_queue(f);
     if(show_tuning) {
-        cerr << " actual innov stdev is:\n" <<
-        observation_accelerometer::inn_stdev <<
-        " signal stdev is:\n" <<
-        observation_accelerometer::meas_stdev <<
-        " bias is:\n" <<
-        f->s.imu_intrinsics.a_bias.v << f->s.imu_intrinsics.a_bias.variance();
+        for (auto &a : f->accelerometers)
+            cerr << " actual innov stdev is:\n" << a->inn_stdev <<
+                    " signal stdev is:\n"       << a->meas_stdev << " bias is:\n" <<
+                f->s.imu_intrinsics.a_bias.v << f->s.imu_intrinsics.a_bias.variance();
     }
 
     if(!f->gravity_init) {
@@ -494,12 +492,11 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
     preprocess_observation_queue(f, data.timestamp);
     process_observation_queue(f);
     if(show_tuning) {
-        cerr << " actual innov stdev is:\n" <<
-        observation_gyroscope::inn_stdev <<
-        " signal stdev is:\n" <<
-        observation_gyroscope::meas_stdev <<
-        " bias is:\n" <<
-        f->s.imu_intrinsics.w_bias.v << f->s.imu_intrinsics.w_bias.variance();
+        for (auto &g : f->gyros)
+            cerr << " actual innov stdev is:\n" <<
+                g->inn_stdev << " signal stdev is:\n" <<
+                g->meas_stdev << " bias is:\n" <<
+                f->s.imu_intrinsics.w_bias.v << f->s.imu_intrinsics.w_bias.variance();
     }
 
     auto stop = std::chrono::steady_clock::now();
@@ -822,8 +819,8 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     f->s.update_feature_tracks(image);
     process_observation_queue(f);
     if(show_tuning) {
-        fprintf(stderr, " actual innov stdev is:\n");
-        cerr << observation_vision_feature::inn_stdev;
+        for (auto &c : f->cameras)
+            cerr << " actual innov stdev is:\n" << c->inn_stdev << "\n";
     }
 
     int features_used = f->s.process_features(image, time);
@@ -917,13 +914,11 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 1;
-    
-    observation_vision_feature::meas_stdev = stdev<2>();
-    observation_vision_feature::inn_stdev = stdev<2>();
-    observation_accelerometer::meas_stdev = stdev<3>();
-    observation_accelerometer::inn_stdev = stdev<3>();
-    observation_gyroscope::meas_stdev = stdev<3>();
-    observation_gyroscope::inn_stdev = stdev<3>();
+
+    for (auto &g : f->gyros)          g->init();
+    for (auto &a : f->accelerometers) a->init();
+    for (auto &c : f->cameras)        c->init();
+    for (auto &d : f->depths)         d->init();
 
     f->last_time = sensor_clock::time_point(sensor_clock::duration(0));
     f->last_packet_time = sensor_clock::time_point(sensor_clock::duration(0));

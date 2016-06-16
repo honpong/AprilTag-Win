@@ -16,7 +16,16 @@
 class sensor
 {
 public:
-    int id;
+    const int id;
+};
+
+template<int size_>
+struct sensor_storage : sensor {
+    stdev<size_> meas_stdev, inn_stdev;
+    void init() {
+        meas_stdev = stdev<size_>();
+        inn_stdev = stdev<size_>();
+    }
 };
 
 #endif /* sensor_h */

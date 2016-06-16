@@ -314,19 +314,25 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
     observe_plot_item(d.timestamp, p, "var-abias_z", (float)f->s.imu_intrinsics.a_bias.variance()[2]);
     p++;
 
-    observe_plot_item(d.timestamp, p, "a-inn-mean_x", (float)observation_accelerometer::inn_stdev.mean[0]);
-    observe_plot_item(d.timestamp, p, "a-inn-mean_y", (float)observation_accelerometer::inn_stdev.mean[1]);
-    observe_plot_item(d.timestamp, p, "a-inn-mean_z", (float)observation_accelerometer::inn_stdev.mean[2]);
-    p++;
+    for (const auto &a : f->accelerometers) {
+        observe_plot_item(d.timestamp, p, "a-inn-mean_x", (float)a->inn_stdev.mean[0]);
+        observe_plot_item(d.timestamp, p, "a-inn-mean_y", (float)a->inn_stdev.mean[1]);
+        observe_plot_item(d.timestamp, p, "a-inn-mean_z", (float)a->inn_stdev.mean[2]);
+        p++;
+    }
 
-    observe_plot_item(d.timestamp, p, "g-inn-mean_x", (float)observation_gyroscope::inn_stdev.mean[0]);
-    observe_plot_item(d.timestamp, p, "g-inn-mean_y", (float)observation_gyroscope::inn_stdev.mean[1]);
-    observe_plot_item(d.timestamp, p, "g-inn-mean_z", (float)observation_gyroscope::inn_stdev.mean[2]);
-    p++;
+    for (const auto &g : f->gyros) {
+        observe_plot_item(d.timestamp, p, "g-inn-mean_x", (float)g->inn_stdev.mean[0]);
+        observe_plot_item(d.timestamp, p, "g-inn-mean_y", (float)g->inn_stdev.mean[1]);
+        observe_plot_item(d.timestamp, p, "g-inn-mean_z", (float)g->inn_stdev.mean[2]);
+        p++;
+    }
 
-    observe_plot_item(d.timestamp, p, "v-inn-mean_x", (float)observation_vision_feature::inn_stdev.mean[0]);
-    observe_plot_item(d.timestamp, p, "v-inn-mean_y", (float)observation_vision_feature::inn_stdev.mean[1]);
-    p++;
+    for (const auto &c : f->cameras) {
+        observe_plot_item(d.timestamp, p, "v-inn-mean_x", (float)c->inn_stdev.mean[0]);
+        observe_plot_item(d.timestamp, p, "v-inn-mean_y", (float)c->inn_stdev.mean[1]);
+        p++;
+    }
 
     if (f->observations.recent_a.get()) {
         observe_plot_item(d.timestamp, p, "a-inn_x", (float)f->observations.recent_a->innovation(0));

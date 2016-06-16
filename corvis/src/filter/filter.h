@@ -82,7 +82,11 @@ struct filter {
     camera_control_interface camera_control;
     image_depth16 recent_depth;
     bool has_depth;
-    
+
+    std::vector<std::unique_ptr<sensor_storage<2>>> cameras;
+    std::vector<std::unique_ptr<sensor_storage<6>>> depths;
+    std::vector<std::unique_ptr<sensor_storage<3>>> accelerometers, gyros;
+
     std::chrono::duration<float, milli> accel_timer, gyro_timer, image_timer;
 };
 

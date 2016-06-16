@@ -2,6 +2,7 @@
 #define __FEATURE_TRACKER_H__
 
 #include <vector>
+#include <cstdint>
 
 struct tracker {
     struct point {

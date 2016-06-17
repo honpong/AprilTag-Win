@@ -641,12 +641,12 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
     timage.width_px = image.width;
     timage.height_px = image.height;
     timage.stride_px = image.stride;
-    vector<tracker::point> &kp = f->s.tracker->detect(timage, f->s.features, (int)newfeats);
+    vector<tracker::point> &kp = f->s.feature_tracker->detect(timage, f->s.features, (int)newfeats);
 
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
         for(const auto &p : kp)
-            f->s.tracker->drop_feature(p.id);
+            f->s.feature_tracker->drop_feature(p.id);
         return 0;
     }
 
@@ -688,7 +688,7 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
         }
     }
     for(i = i+1; i < (int)kp.size(); ++i)
-        f->s.tracker->drop_feature(kp[i].id);
+        f->s.feature_tracker->drop_feature(kp[i].id);
 
     g->status = group_initializing;
     g->make_normal();
@@ -1020,9 +1020,9 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.camera_intrinsics.image_height = cam.intrinsics.height_px;
 
     if (1)
-        f->s.tracker = std::make_unique<fast_tracker>();
+        f->s.feature_tracker = std::make_unique<fast_tracker>();
     else
-        f->s.tracker = std::make_unique<ipp_tracker>();
+        f->s.feature_tracker = std::make_unique<ipp_tracker>();
 
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);

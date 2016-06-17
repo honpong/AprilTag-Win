@@ -535,6 +535,7 @@ bool observation_accelerometer::measure()
     src_data.meas_stdev.data(meas);
     if(!state.orientation_initialized)
     {
+        //TODOMSM - need to attach this to the right frame
         state.initial_orientation = initial_orientation_from_gravity(extrinsics.Qc.v * meas);
         state.Q.v = state.initial_orientation;
         state.orientation_initialized = true;

@@ -233,6 +233,7 @@ static void reset_stability(struct filter *f)
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
 }
 
+//TODOMSM - this could be done per-sensor, or just using a single accelerometer (simpler), which should be fine
 sensor_clock::duration steady_time(struct filter *f, stdev<3> &stdev, const v3 &meas, f_t variance, f_t sigma, sensor_clock::time_point time, const v3 &orientation, bool use_orientation)
 {
     bool steady = false;
@@ -278,6 +279,7 @@ static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
     return current < end ? 1.f : (float) ((log(begin) - log(current)) / (log(begin) - log(end))); //log here seems to give smoother progress
 }
 
+//TODOMSM - this should check all sensors and return the least converged one
 static float get_bias_convergence(const struct filter *f, int dir)
 {
     float max_pct = (float)var_bounds_to_std_percent(f->s.imu_intrinsics.a_bias.variance()[dir], f->a_bias_start[dir], min_a_bias_var);
@@ -289,6 +291,7 @@ static float get_bias_convergence(const struct filter *f, int dir)
     return max_pct;
 }
 
+//TODOMSM - this should be per-sensor
 static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &meas, sensor_clock::time_point time)
 {
     if(!f->s.orientation_initialized) return accelerometer_inertial_var; //first measurement is not used, so this doesn't actually matter
@@ -622,7 +625,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
     return aligned_distorted_depth;
 }
 
-//features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
+//TODO: features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
 static int filter_add_features(struct filter *f, const image_gray8 & image, size_t newfeats)
 {
 #ifdef TEST_POSDEF
@@ -832,6 +835,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
         f->median_depth_variance = 1.;
     }
 
+    //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
     if(space >= f->min_group_add) {

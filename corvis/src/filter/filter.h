@@ -34,9 +34,11 @@ struct filter {
     covariance cov;
     std::unique_ptr<spdlog::logger> &log = s.log;
 
+    //TODOMSM
     f_t w_variance;
     f_t a_variance;
 
+    //TODOMSM
     m3 w_alignment;
     m3 a_alignment;
 
@@ -45,14 +47,14 @@ struct filter {
     calibration::camera depth = {};
 
     sensor_clock::time_point want_start;
-    bool got_accelerometer, got_gyroscope, got_image;
-    v3 last_gyro_meas, last_accel_meas;
+    bool got_accelerometer, got_gyroscope, got_image; //TODOMSM - if we expect, and want to wait for all sensors, this should be per-sensor
+    v3 last_gyro_meas, last_accel_meas; //TODOMSM - per-sensor
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;
     sensor_clock::time_point speed_warning_time;
     bool ignore_lateness;
-    stdev<3> gyro_stability, accel_stability;
+    stdev<3> gyro_stability, accel_stability; //TODOMSM - either just first sensor or per-sensor
     sensor_clock::time_point stable_start;
     bool calibration_bad;
     
@@ -75,18 +77,20 @@ struct filter {
     transformation origin;
     bool origin_gravity_aligned;
 
+    //TODOMSM - per sensor
     v3 a_bias_start, w_bias_start; //for tracking calibration progress
     
     observation_queue observations;
     
-    camera_control_interface camera_control;
-    image_depth16 recent_depth;
-    bool has_depth;
+    camera_control_interface camera_control; //TODOMSM - per camera, but possibly deprecate
+    image_depth16 recent_depth; //TODOMSM - per depth
+    bool has_depth; //TODOMSM - per depth
 
     std::vector<std::unique_ptr<sensor_storage<2>>> cameras;
     std::vector<std::unique_ptr<sensor_storage<6>>> depths;
     std::vector<std::unique_ptr<sensor_storage<3>>> accelerometers, gyros;
 
+    //TODOMSM - per sensor
     std::chrono::duration<float, milli> accel_timer, gyro_timer, image_timer;
 };
 

@@ -33,13 +33,6 @@ typedef enum rc_ImageFormat {
     rc_FORMAT_DEPTH16,
 } rc_ImageFormat;
 
-typedef enum rc_CameraId {
-    rc_CAMERA_ID_FISHEYE,
-    rc_CAMERA_ID_COLOR,
-    rc_CAMERA_ID_IR,
-    rc_CAMERA_ID_DEPTH,
-} rc_CameraId;
-
 typedef enum rc_TrackerState
 {
     /** rc_Tracker is inactive. */
@@ -96,6 +89,17 @@ typedef struct rc_Vector {
  [R20 R21 R22 T2]
  */
 typedef float rc_Pose[12];
+
+typedef struct {
+    rc_Pose alignment_and_bias_m__s2;
+    float noiseVariance_m2__s4;
+} rc_AccelerometerIntrinsics;
+
+typedef struct {
+    rc_Pose alignment_and_bias_rad__s;
+    float noiseVariance_rad2__s2;
+} rc_GyroscopeIntrinsics;
+
 static const rc_Pose rc_POSE_IDENTITY = { 1.f, 0.f, 0.f, 0.f,
                                           0.f, 1.f, 0.f, 0.f,
                                           0.f, 0.f, 1.f, 0.f };
@@ -104,6 +108,8 @@ static const rc_Pose rc_POSE_IDENTITY = { 1.f, 0.f, 0.f, 0.f,
  Timestamp, in microseconds
  */
 typedef int64_t rc_Timestamp;
+
+typedef uint16_t rc_Sensor;
 
 typedef struct rc_Feature
 {
@@ -149,6 +155,7 @@ typedef enum rc_CalibrationType {
 } rc_CalibrationType;
 
 /**
+ @param format Image format
  @param width_px Image width in pixels
  @param height_px Image height in pixels
  @param f_x_px Focal length of camera in pixels
@@ -160,6 +167,7 @@ typedef enum rc_CalibrationType {
  */
 typedef struct rc_CameraIntrinsics {
     rc_CalibrationType type;
+    rc_ImageFormat format;
     uint32_t width_px, height_px;
     double f_x_px, f_y_px;
     double c_x_px, c_y_px;
@@ -176,10 +184,10 @@ typedef struct rc_CameraIntrinsics {
  @param extrinsics_wrt_accel_m Transformation from the Camera frame to the Accelerometer frame in meters (may be NULL)
  @param intrinsics Camera Intrinsics (may be NULL)
  */
-RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_CameraId camera_id,       rc_Pose extrinsics_wrt_accel_m,       rc_CameraIntrinsics *intrinsics);
-RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_CameraId camera_id, const rc_Pose extrinsics_wrt_accel_m, const rc_CameraIntrinsics *intrinsics);
-RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose alignment_and_bias_m__s2, float noiseVariance_m2__s4);
-RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose alignment_and_bias_rad__s, float noiseVariance_rad2__s2);
+RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id,       rc_Pose extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics);
+RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Pose extrinsics_wrt_origin_m, const rc_CameraIntrinsics *intrinsics);
+RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Pose extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics * intrinsics);
+RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Pose extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics * intrinsics);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 /**
@@ -238,9 +246,9 @@ RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
  @param completion_callback Function to be called when the frame has been processed and image data is no longer needed. image must remain valid (even after receiveImage has returned) until this function is called.
  @param callback_handle An opaque pointer that will be passed to completion_callback when the frame has been processed and image data is no longer needed.
  */
-RCTRACKER_API void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shutter_time_us, rc_ImageFormat format, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
-RCTRACKER_API void rc_receiveAccelerometer(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
-RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
+RCTRACKER_API void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
+RCTRACKER_API void rc_receiveAccelerometer(rc_Tracker *tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
+RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
 
 /**
  @param tracker The active rc_Tracker instance

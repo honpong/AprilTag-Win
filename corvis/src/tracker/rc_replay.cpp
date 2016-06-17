@@ -194,7 +194,7 @@ bool replay::run()
                 std::stringstream parse(tmp);
                 int width, height; parse.ignore(3, ' ') >> width >> height; //pgm header is "P5 x y"
                 if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", GRAY8, %dx%d);\n", packet->header.time, (uint64_t)33333, width, height);
-                rc_receiveImage(tracker, packet->header.time, 33333, rc_FORMAT_GRAY8,
+                rc_receiveImage(tracker, 0, packet->header.time, 33333,
                                 width, height, width, packet->data + 16, [](void *packet) { free(packet); }, phandle.release());
             }   break;
             case packet_image_raw: {
@@ -203,14 +203,14 @@ bool replay::run()
                     if (qvga && ip->width == 640 && ip->height == 480)
                         scale_down_inplace_y8_by<2,2>(ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
                     if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", GRAY8, %dx%d w/stride %d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height, ip->stride);
-                    rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
+                    rc_receiveImage(tracker, 0, ip->header.time, ip->exposure_time_us,
                                     ip->width, ip->height, ip->stride, ip->data,
                                     [](void *packet) { free(packet); }, phandle.release());
                 } else if (depth && ip->format == 1) {
                     if (qvga && ip->width == 640 && ip->height == 480)
                         scale_down_inplace_z16_by<2,2>((uint16_t*)ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
                     if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", DEPTH16, %dx%d w/stride %d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height, ip->stride);
-                    rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_DEPTH16,
+                    rc_receiveImage(tracker, 1, ip->header.time, ip->exposure_time_us,
                                     ip->width, ip->height, ip->stride, ip->data,
                                     [](void *packet) { free(packet); }, phandle.release());
                 }
@@ -225,7 +225,7 @@ bool replay::run()
                     if (qvga && depth_width == 640 && depth_height == 480)
                         scale_down_inplace_z16_by<2,2>(depth_image, depth_width /= 2, depth_height /= 2, depth_stride);
                     if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", DEPTH16, %dx%d);\n", packet->header.time, (uint64_t)0/*FIXME*/, depth_width, depth_height);
-                    rc_receiveImage(tracker, ip->header.time, 0, rc_FORMAT_DEPTH16,
+                    rc_receiveImage(tracker, 1, ip->header.time, 0,
                                     depth_width, depth_height, depth_stride, depth_image,
                                     [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, packet);
                 }
@@ -235,7 +235,7 @@ bool replay::run()
                     if (qvga && width == 640 && height == 480)
                         scale_down_inplace_y8_by<2,2>(image, width /= 2, height /= 2, stride);
                     if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", GRAY8, %dx%d);\n", packet->header.time, ip->exposure_time_us, width, height);
-                    rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
+                    rc_receiveImage(tracker, 0, ip->header.time, ip->exposure_time_us,
                                     width, height, stride, image,
                                     [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, phandle.release());
                 }
@@ -243,20 +243,20 @@ bool replay::run()
             case packet_accelerometer: {
                 const rc_Vector acceleration_m__s2 = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
                 if (trace) printf("rc_receiveAccelerometer(%" PRId64 ", %.9g, %.9g, %.9g);\n", packet->header.time, acceleration_m__s2.x, acceleration_m__s2.y, acceleration_m__s2.z);
-                rc_receiveAccelerometer(tracker, packet->header.time, acceleration_m__s2);
+                rc_receiveAccelerometer(tracker, 0, packet->header.time, acceleration_m__s2);
             }   break;
             case packet_gyroscope: {
                 const rc_Vector angular_velocity_rad__s = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
                 if (trace) printf("rc_receiveGyro(%" PRId64 ", %.9g, %.9g, %.9g);\n", packet->header.time, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
-                rc_receiveGyro(tracker, packet->header.time, angular_velocity_rad__s);
+                rc_receiveGyro(tracker, 0, packet->header.time, angular_velocity_rad__s);
             }   break;
             case packet_imu: {
                 auto imu = (packet_imu_t *)packet;
                 const rc_Vector acceleration_m__s2 = { imu->a[0], imu->a[1], imu->a[2] }, angular_velocity_rad__s = { imu->w[0], imu->w[1], imu->w[2] };
                 if (trace) printf("rc_receiveAccelerometer(%" PRId64 ", %.9g, %.9g, %.9g);\n", packet->header.time, acceleration_m__s2.x, acceleration_m__s2.y, acceleration_m__s2.z);
-                rc_receiveAccelerometer(tracker, packet->header.time, acceleration_m__s2);
+                rc_receiveAccelerometer(tracker, 0, packet->header.time, acceleration_m__s2);
                 if (trace) printf("rc_receiveGyro(%" PRId64 ", %.9g, %.9g, %.9g);\n", packet->header.time, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
-                rc_receiveGyro(tracker, packet->header.time, angular_velocity_rad__s);
+                rc_receiveGyro(tracker, 0, packet->header.time, angular_velocity_rad__s);
             }   break;
             case packet_filter_control: {
                 if(header.user == 1) { //start measuring

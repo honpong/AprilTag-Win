@@ -95,7 +95,7 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_M:        show_main = !show_main;
              break; case GLFW_KEY_P:        show_plots = !show_plots;
              break; case GLFW_KEY_O:        show_depth_on_video = !show_depth_on_video;
-             break; case GLFW_KEY_T:        fprintf(stderr, "Current time: %llu\n", state->get_current_timestamp());
+             break; case GLFW_KEY_T:        fprintf(stderr, "Current time: %" PRIu64 "\n", state->get_current_timestamp());
              break; case GLFW_KEY_SLASH:    fprintf(stderr, R"(
 0-9   Switch Plots
 n     Next Plot

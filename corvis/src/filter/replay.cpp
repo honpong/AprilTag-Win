@@ -205,7 +205,7 @@ void replay::start(string map_filename)
 
     while (is_running) {
         if(next_pause && next_pause <= header.time) {
-            fprintf(stderr, "Paused at %llu\n", header.time);
+            fprintf(stderr, "Paused at %" PRIu64 "\n", header.time);
             next_pause = 0;
             is_paused = true;
         }

@@ -816,7 +816,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
             f->log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
-        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - 1) {
+        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - f->s.fake_statesize - 1) {
             ++f->s.maxstatesize;
             f->log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
@@ -973,7 +973,7 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->observations.observations.clear();
 
     f->s.reset();
-    f->s.maxstatesize = MAXSTATESIZE;
+    f->s.maxstatesize = MAXSTATESIZE - f->s.fake_statesize;
 
     f->s.extrinsics.Tc.v = v3(cam.extrinsics_wrt_imu_m.T[0], cam.extrinsics_wrt_imu_m.T[1], cam.extrinsics_wrt_imu_m.T[2]);
     f->s.extrinsics.Qc.v = cam.extrinsics_wrt_imu_m.Q;

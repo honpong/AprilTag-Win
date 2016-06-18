@@ -132,39 +132,45 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     
     inline f_t from_row(const matrix &c, const int i) const
     {
-        return index >= 0 ? c(i, index) : 0;
+        if(index < 0) return 0;
+        if(index >= c.cols())
+        {
+            if((type == node_type::fake) && (i == index)) return initial_covariance(0, 0);
+            else return 0;
+        }
+        if((i < 0) || (i >= c.rows())) return 0;
+        else return c(i, index);
     }
 
     inline f_t &to_col(matrix &c, const int j) const
     {
         static f_t scratch;
-        return index >= 0 ? c(index, j) : scratch;
+        if((index < 0) || (index >= c.rows())) return scratch;
+        else return c(index, j);
     }
     
     void perturb_variance() {
+        if(index < 0 || index >= cov->size()) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
     }
     
     f_t variance() const {
-        if(index < 0) return initial_variance[0];
+        if(index < 0 || index >= cov->size()) return initial_covariance(0, 0);
         return (*cov)(index, index);
     }
     
     void copy_state_to_array(matrix &state) {
+        if(index < 0 || index >= state.cols()) return;
         state[index] = v.v;
     }
     
     virtual void copy_state_from_array(matrix &state) {
+        if(index < 0 || index >= state.cols()) return;
         v.v = state[index];
     }
     
-    virtual void print_matrix_with_state_labels_dynamic(matrix &state) {
-        if(!dynamic) return;
-        fprintf(stderr, "feature[%" PRIu64 "]: ", id); state.row(index+0).print();
-    }
-
-    virtual void print_matrix_with_state_labels_static(matrix &state) {
-        if(dynamic) return;
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
+        if(type != nt) return;
         fprintf(stderr, "feature[%" PRIu64 "]: ", id); state.row(index+0).print();
     }
 

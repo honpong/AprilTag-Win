@@ -74,8 +74,8 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
 state_vision_group::state_vision_group(uint64_t group_id): Tr("Tr"), Qr("Qr"), health(0), status(group_initializing)
 {
     id = group_id;
-    Tr.dynamic = true;
-    Qr.dynamic = true;
+    Tr.type = state_node::node_type::dynamic;
+    Qr.type = state_node::node_type::dynamic;
     children.push_back(&Tr);
     children.push_back(&Qr);
     Tr.v = v3(0, 0, 0);

@@ -35,8 +35,8 @@ public:
     state_scalar g;
     
     state_motion_orientation(covariance &c): state_root(c), Q("Q"), w("w"), dw("dw"), g("g") {
-        Q.dynamic = true;
-        w.dynamic = true;
+        Q.type = state_node::node_type::dynamic;
+        w.type = state_node::node_type::dynamic;
         children.push_back(&Q);
         children.push_back(&w);
         children.push_back(&dw);
@@ -81,8 +81,8 @@ public:
 
     state_motion(covariance &c): state_motion_orientation(c), T("T"), V("V"), a("a")
     {
-        T.dynamic = true;
-        V.dynamic = true;
+        T.type = state_node::node_type::dynamic;
+        V.type = state_node::node_type::dynamic;
         children.push_back(&T);
         children.push_back(&V);
         children.push_back(&a);

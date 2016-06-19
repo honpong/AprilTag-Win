@@ -1003,8 +1003,8 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.Q.set_process_noise(0.);
     f->s.V.set_process_noise(0.);
     f->s.w.set_process_noise(0.);
-    f->s.dw.set_process_noise(530. * 530.); // this stabilizes dw.stdev around 5-6
-    f->s.a.set_process_noise(8.*8.);
+    f->s.dw.set_process_noise(0);
+    f->s.a.set_process_noise(0);
     f->s.g.set_process_noise(1.e-30);
     f->s.extrinsics.Qc.set_process_noise(1.e-30);
     f->s.extrinsics.Tc.set_process_noise(1.e-30);
@@ -1023,8 +1023,10 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.Q.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(10);
-    f->s.dw.set_initial_variance(10); //observed range of variances in sequences is 1-6
+    f->s.dw.set_initial_variance(10);
+    f->s.ddw.set_initial_variance(530*530);
     f->s.a.set_initial_variance(10);
+    f->s.da.set_initial_variance(8*8);
 
     f->s.camera_intrinsics.focal_length.set_initial_variance(10. / cam.intrinsics.height_px / cam.intrinsics.height_px);
     f->s.camera_intrinsics.center_x.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);

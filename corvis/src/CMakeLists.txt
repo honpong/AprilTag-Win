@@ -167,7 +167,8 @@ add_library(filter STATIC
 target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include ../../ThirdParty/rapidxml)
 target_include_directories(filter PUBLIC ../../ThirdParty/spdlog/include)
-target_link_libraries(filter numerics cor vlfeat)
+target_link_libraries(filter PRIVATE vlfeat)
+target_link_libraries(filter PUBLIC numerics cor)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
 add_library(tracker SHARED filter/rc_tracker.cpp)

@@ -5,7 +5,6 @@
 #include "observation.h"
 #include "device_parameters.h"
 #include "calibration_xml.h"
-#include "fast_tracker.h"
 #include "../numerics/transformation.h"
 #ifdef ENABLE_QR
 #include "qr.h"

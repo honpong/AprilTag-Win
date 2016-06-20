@@ -52,6 +52,8 @@ struct tracker {
      @param feature_ids A vector of feature ids which are no longer tracked. Free any internal storage related to them.
      */
     virtual void drop_feature(uint64_t feature_id) = 0;
+
+    virtual ~tracker() {}
 };
 
 #endif

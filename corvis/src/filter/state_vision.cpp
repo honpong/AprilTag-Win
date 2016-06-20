@@ -3,6 +3,7 @@
 // All Rights Reserved.
 
 #include "state_vision.h"
+#include "fast_tracker.h"
 #include "../numerics/transformation.h"
 
 f_t state_vision_feature::initial_depth_meters;
@@ -236,7 +237,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                 }
             }
             if(i->should_drop())
-                tracker.drop_feature(i->tracker_id);
+                tracker->drop_feature(i->tracker_id);
         }
     }
 
@@ -266,7 +267,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                 }
             }
             for(state_vision_feature *i : g->features.children)
-                tracker.drop_feature(i->tracker_id);
+                tracker->drop_feature(i->tracker_id);
             g->make_empty();
         }
 
@@ -451,7 +452,7 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
 
     int i=0;
     if (predictions.size())
-        for(const auto &p : tracker.track(current_image, predictions)) {
+        for(const auto &p : tracker->track(current_image, predictions)) {
             state_vision_feature * feature = id_to_state[p.id];
             feature->current.x() = p.found ? p.x : INFINITY;
             feature->current.y() = p.found ? p.y : INFINITY;

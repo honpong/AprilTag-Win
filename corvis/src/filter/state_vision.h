@@ -15,7 +15,7 @@ extern "C" {
 #include <list>
 #include "state.h"
 #include "state_motion.h"
-#include "fast_tracker.h"
+#include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
 #include "feature_descriptor.h"
 #include "mapper.h"
@@ -218,7 +218,7 @@ public:
     state_vision_intrinsics camera_intrinsics;
     std::vector<tracker::point> features; // reuasable storage passed to tracker->detect()
     std::vector<tracker::prediction> predictions; // reuasable storage passed to and returned from tracker->track()
-    fast_tracker tracker;
+    std::unique_ptr<tracker> tracker;
     uint64_t feature_counter;
     uint64_t group_counter;
 

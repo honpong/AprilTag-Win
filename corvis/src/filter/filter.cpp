@@ -18,6 +18,7 @@
 #include "observation.h"
 #include "filter.h"
 #include <memory>
+#include "fast_tracker.h"
 
 const static sensor_clock::duration max_camera_delay = std::chrono::microseconds(200000); //We drop a frame if it arrives at least this late
 const static sensor_clock::duration max_inertial_delay = std::chrono::microseconds(100000); //We drop inertial data if it arrives at least this late
@@ -639,12 +640,12 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
     timage.width_px = image.width;
     timage.height_px = image.height;
     timage.stride_px = image.stride;
-    vector<tracker::point> &kp = f->s.tracker.detect(timage, f->s.features, (int)newfeats);
+    vector<tracker::point> &kp = f->s.tracker->detect(timage, f->s.features, (int)newfeats);
 
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
         for(const auto &p : kp)
-            f->s.tracker.drop_feature(p.id);
+            f->s.tracker->drop_feature(p.id);
         return 0;
     }
 
@@ -686,7 +687,7 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
         }
     }
     for(i = i+1; i < (int)kp.size(); ++i)
-        f->s.tracker.drop_feature(kp[i].id);
+        f->s.tracker->drop_feature(kp[i].id);
 
     g->status = group_initializing;
     g->make_normal();
@@ -1016,6 +1017,8 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     
     f->s.camera_intrinsics.image_width = cam.intrinsics.width_px;
     f->s.camera_intrinsics.image_height = cam.intrinsics.height_px;
+
+    f->s.tracker = std::make_unique<fast_tracker>();
 
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);

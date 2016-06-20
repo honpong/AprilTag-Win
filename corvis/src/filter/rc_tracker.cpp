@@ -21,12 +21,12 @@ const char *rc_version()
 std::unique_ptr<spdlog::logger> trace_log = std::make_unique<spdlog::logger>("rc_trace", make_shared<spdlog::sinks::null_sink_st> ());
 static const bool trace = false;
 
-void rc_trace(const rc_Pose p)
+static void rc_trace(const rc_Pose p)
 {
     trace_log->info("{} {} {} {}; {} {} {} {}; {} {} {} {}", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11]);;
 }
 
-void rc_trace(const rc_CameraIntrinsics c)
+static void rc_trace(const rc_CameraIntrinsics c)
 {
     trace_log->info("camera type {} w,h {} {} fx,fy {} {} cx,cy {} {} d[3] {} {} {}",
             c.type,

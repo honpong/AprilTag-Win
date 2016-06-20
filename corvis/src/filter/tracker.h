@@ -14,6 +14,13 @@ struct tracker {
         point(uint64_t id_, float x_, float y_, float score_) : id(id_), x(x_), y(y_), score(score_) {}
     };
 
+    struct prediction : public point {
+        bool found;
+        float prev_x, prev_y;
+        prediction(uint64_t id_, float prev_x_, float prev_y_, float pred_x_, float pred_y_)
+            : point(id_, pred_x_, pred_y_, 0), found(false), prev_x(prev_x_), prev_y(prev_y_) {}
+    };
+
     struct image {
         const uint8_t *image;
         int width_px;
@@ -51,12 +58,11 @@ struct tracker {
 
     /*
      @param current_image The image to track in
-     @param features The points in the previous image
-     @param predictions The predicted location in the current image
+     @param predictions The current and predicted locations in the current image
 
-     Returns a vector of tracker_point tracks. Dropped features are not included. Tracks with high scores should be considered more accurate
+     Returns the same vector of predictions as given but with found and score set
      */
-    virtual std::vector<point> &track(const image &image, const std::vector<point> &predictions) = 0;
+    virtual std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions) = 0;
 
     /*
      @param feature_ids A vector of feature ids which are no longer tracked. Free any internal storage related to them.

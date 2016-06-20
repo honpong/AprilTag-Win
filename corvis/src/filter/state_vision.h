@@ -217,6 +217,7 @@ public:
     state_extrinsics extrinsics;
     state_vision_intrinsics camera_intrinsics;
     std::vector<tracker::point> features; // reuasable storage passed to tracker->detect()
+    std::vector<tracker::prediction> predictions; // reuasable storage passed to and returned from tracker->track()
     fast_tracker tracker;
     uint64_t feature_counter;
     uint64_t group_counter;

@@ -246,7 +246,7 @@ RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
  @param completion_callback Function to be called when the frame has been processed and image data is no longer needed. image must remain valid (even after receiveImage has returned) until this function is called.
  @param callback_handle An opaque pointer that will be passed to completion_callback when the frame has been processed and image data is no longer needed.
  */
-RCTRACKER_API void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
+RCTRACKER_API void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
 RCTRACKER_API void rc_receiveAccelerometer(rc_Tracker *tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
 RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
 

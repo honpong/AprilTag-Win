@@ -194,23 +194,23 @@ bool replay::run()
                 std::stringstream parse(tmp);
                 int width, height; parse.ignore(3, ' ') >> width >> height; //pgm header is "P5 x y"
                 if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", GRAY8, %dx%d);\n", packet->header.time, (uint64_t)33333, width, height);
-                rc_receiveImage(tracker, 0, packet->header.time, 33333,
+                rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, packet->header.time, 33333,
                                 width, height, width, packet->data + 16, [](void *packet) { free(packet); }, phandle.release());
             }   break;
             case packet_image_raw: {
                 packet_image_raw_t *ip = (packet_image_raw_t *)packet;
-                if (ip->format == 0) {
+                if (ip->format == rc_FORMAT_GRAY8) {
                     if (qvga && ip->width == 640 && ip->height == 480)
                         scale_down_inplace_y8_by<2,2>(ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
                     if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", GRAY8, %dx%d w/stride %d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height, ip->stride);
-                    rc_receiveImage(tracker, 0, ip->header.time, ip->exposure_time_us,
+                    rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
                                     ip->width, ip->height, ip->stride, ip->data,
                                     [](void *packet) { free(packet); }, phandle.release());
-                } else if (depth && ip->format == 1) {
+                } else if (depth && ip->format == rc_FORMAT_DEPTH16) {
                     if (qvga && ip->width == 640 && ip->height == 480)
                         scale_down_inplace_z16_by<2,2>((uint16_t*)ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
                     if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", DEPTH16, %dx%d w/stride %d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height, ip->stride);
-                    rc_receiveImage(tracker, 1, ip->header.time, ip->exposure_time_us,
+                    rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_DEPTH16, ip->header.time, ip->exposure_time_us,
                                     ip->width, ip->height, ip->stride, ip->data,
                                     [](void *packet) { free(packet); }, phandle.release());
                 }
@@ -225,7 +225,7 @@ bool replay::run()
                     if (qvga && depth_width == 640 && depth_height == 480)
                         scale_down_inplace_z16_by<2,2>(depth_image, depth_width /= 2, depth_height /= 2, depth_stride);
                     if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", DEPTH16, %dx%d);\n", packet->header.time, (uint64_t)0/*FIXME*/, depth_width, depth_height);
-                    rc_receiveImage(tracker, 1, ip->header.time, 0,
+                    rc_receiveImage(tracker, 0, rc_FORMAT_DEPTH16, ip->header.time, 0,
                                     depth_width, depth_height, depth_stride, depth_image,
                                     [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, packet);
                 }
@@ -235,7 +235,7 @@ bool replay::run()
                     if (qvga && width == 640 && height == 480)
                         scale_down_inplace_y8_by<2,2>(image, width /= 2, height /= 2, stride);
                     if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", GRAY8, %dx%d);\n", packet->header.time, ip->exposure_time_us, width, height);
-                    rc_receiveImage(tracker, 0, ip->header.time, ip->exposure_time_us,
+                    rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
                                     width, height, stride, image,
                                     [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, phandle.release());
                 }

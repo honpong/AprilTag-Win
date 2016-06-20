@@ -351,13 +351,13 @@ void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, const void *bu
     tracker->save_map(write, handle);
 }
 
-void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_Timestamp time_us, rc_Timestamp shutter_time_us,
+void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us,
                      int width, int height, int stride, const void *image,
                      void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
-    if (camera_id == 1) { // TODO: get the actual camera
+    if (format == rc_FORMAT_DEPTH16) {
         image_depth16 d;
-        d.source = tracker->sfm.depths[0].get();
+        d.source = tracker->sfm.depths[camera_id].get();
         d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
         d.image = (uint16_t *)image;
         d.width = width;
@@ -370,9 +370,9 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_Timestamp time
             tracker->output.write_camera(camera_id, std::move(d));
         else
             tracker->receive_image(std::move(d));
-    } else if (camera_id == 0) { // TODO: get the actual camera
+    } else if (format == rc_FORMAT_GRAY8) {
         image_gray8 d;
-        d.source = tracker->sfm.cameras[0].get();
+        d.source = tracker->sfm.cameras[camera_id].get();
         d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
         d.image = (uint8_t *)image;
         d.width = width;

@@ -289,7 +289,7 @@ void replay::start(string map_filename)
 
                     if(ip->format == rc_FORMAT_GRAY8) {
                         image_gray8 d = parse_gray8(ip->width, ip->height, ip->width, ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
-                        d.source = fusion.sfm.cameras[0].get();
+                        d.source = fusion.sfm.cameras[header.sensor_id].get();
                         fusion.receive_image(std::move(d));
                     }
                     else if(ip->format == rc_FORMAT_DEPTH16) {
@@ -297,7 +297,7 @@ void replay::start(string map_filename)
                             break;
 
                         image_depth16 d = parse_depth16(ip->width, ip->height, ip->stride, (uint16_t *)ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
-                        d.source = fusion.sfm.depths[0].get();
+                        d.source = fusion.sfm.depths[header.sensor_id].get();
                         fusion.receive_image(std::move(d));
                     }
                     else {

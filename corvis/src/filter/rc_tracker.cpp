@@ -226,7 +226,7 @@ void rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
     //TODO: multi-sensor
     //TODO: extrinsics
     if(trace) {
-        trace_log->info("rc_configureAccelerometer noise {}", intrinsics->noiseVariance_m2__s4);
+        trace_log->info("rc_configureAccelerometer {} noise {}", accel_id, intrinsics->noiseVariance_m2__s4);
         rc_trace(extrinsics_wrt_origin_m);
         rc_trace(intrinsics->alignment_and_bias_m__s2);
     }
@@ -241,7 +241,7 @@ void rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Pose
     //TODO: multi-sensor
     //TODO: extrinsics
     if(trace) {
-        trace_log->info("rc_configureGyroscope noise {}", intrinsics->noiseVariance_rad2__s2);
+        trace_log->info("rc_configureGyroscope {} noise {}", gyro_id, intrinsics->noiseVariance_rad2__s2);
         rc_trace(extrinsics_wrt_origin_m);
         rc_trace(intrinsics->alignment_and_bias_rad__s);
     }
@@ -429,7 +429,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
             pixel2 = ((uint8_t*)image)[width/2 + width * height/2    ];
             pixel3 = ((uint8_t*)image)[width/2 + width * height/2 + 1];
         }
-        trace_log->info("rc_receiveImage t,s,f {} {} {} w,h,s {} {} {} px {} {} {}", time_us, shutter_time_us, format, width, height, stride, pixel1, pixel2, pixel3);
+        trace_log->info("rc_receiveImage id,t,s,f {} {} {} {} w,h,s {} {} {} px {} {} {}", camera_id, time_us, shutter_time_us, format, width, height, stride, pixel1, pixel2, pixel3);
     }
     if (format == rc_FORMAT_DEPTH16) {
         image_depth16 d;
@@ -467,7 +467,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
 
 void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, const rc_Vector acceleration_m__s2)
 {
-    if(trace) trace_log->info("rc_receiveAccelerometer {}: {} {} {}", time_us, acceleration_m__s2.x, acceleration_m__s2.y, acceleration_m__s2.z);
+    if(trace) trace_log->info("rc_receiveAccelerometer {} {}: {} {} {}", accelerometer_id, time_us, acceleration_m__s2.x, acceleration_m__s2.y, acceleration_m__s2.z);
     accelerometer_data d;
     d.source = tracker->sfm.accelerometers[accelerometer_id].get();
     d.accel_m__s2[0] = acceleration_m__s2.x;
@@ -482,7 +482,7 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, r
 
 void rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s)
 {
-    if(trace) trace_log->info("rc_receiveGyro {}: {} {} {}", time_us, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
+    if(trace) trace_log->info("rc_receiveGyro {} {}: {} {} {}", gyroscope_id, time_us, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
     gyro_data d;
     d.source = tracker->sfm.gyros[gyroscope_id].get();
     d.angvel_rad__s[0] = angular_velocity_rad__s.x;

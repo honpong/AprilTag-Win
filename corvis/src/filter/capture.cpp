@@ -39,7 +39,7 @@ void capture::write_packet(packet_t * p)
     packets_written++;
 }
 
-void capture::write_accelerometer_data(const float data[3], uint64_t timestamp)
+void capture::write_accelerometer_data(uint64_t timestamp, const float data[3])
 {
     auto bytes = 3*sizeof(float);
     packet_t *buf = packet_alloc(packet_accelerometer, bytes, timestamp);
@@ -48,7 +48,7 @@ void capture::write_accelerometer_data(const float data[3], uint64_t timestamp)
     free(buf);
 }
 
-void capture::write_gyroscope_data(const float data[3], uint64_t timestamp)
+void capture::write_gyroscope_data(uint64_t timestamp, const float data[3])
 {
     auto bytes = 3*sizeof(float);
     packet_t *buf = packet_alloc(packet_gyroscope, bytes, timestamp);

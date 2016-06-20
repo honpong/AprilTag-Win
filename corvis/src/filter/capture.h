@@ -35,8 +35,8 @@ private:
 
     void process(std::packaged_task<void()> &&write);
     void write_packet(packet_t * p);
-    void write_accelerometer_data(const float data[3], uint64_t timestamp);
-    void write_gyroscope_data(const float data[3], uint64_t timestamp);
+    void write_accelerometer_data(uint64_t timestamp, const float data[3]);
+    void write_gyroscope_data(uint64_t timestamp, const float data[3]);
     void write_image_raw(const sensor_clock::time_point & timestamp, const sensor_clock::duration & exposure_time,
             const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format);
 

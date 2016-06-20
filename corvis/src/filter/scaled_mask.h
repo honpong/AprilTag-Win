@@ -21,7 +21,7 @@ public:
     // mask shift of 3 is 8x8 pixel blocks
     scaled_mask(int _width, int _height, int mask_shift = 3);
     ~scaled_mask();
-protected:
+    //protected:
     int scaled_width, scaled_height, mask_shift;
     //TODO: should this be a bitfield instead of bytes?
     uint8_t *mask;

@@ -171,6 +171,18 @@ target_link_libraries(filter PRIVATE vlfeat)
 target_link_libraries(filter PUBLIC numerics cor)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
+find_intel_root(IPP)
+if (IPPROOT)
+    target_include_directories(filter PUBLIC SYSTEM "${IPPROOT}/include")
+    target_link_libraries(filter PRIVATE
+        "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippcv${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippi${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ipps${CMAKE_STATIC_LIBRARY_SUFFIX}"
+       #"${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippvm${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippcore${CMAKE_STATIC_LIBRARY_SUFFIX}"
+    )
+endif()
+
 add_library(tracker SHARED filter/rc_tracker.cpp)
 set_target_properties(tracker PROPERTIES CXX_STANDARD 14)
 target_link_libraries(tracker filter)

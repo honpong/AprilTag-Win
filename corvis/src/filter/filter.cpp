@@ -19,6 +19,7 @@
 #include "filter.h"
 #include <memory>
 #include "fast_tracker.h"
+#include "ipp_tracker.h"
 
 const static sensor_clock::duration max_camera_delay = std::chrono::microseconds(200000); //We drop a frame if it arrives at least this late
 const static sensor_clock::duration max_inertial_delay = std::chrono::microseconds(100000); //We drop inertial data if it arrives at least this late
@@ -1018,7 +1019,10 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.camera_intrinsics.image_width = cam.intrinsics.width_px;
     f->s.camera_intrinsics.image_height = cam.intrinsics.height_px;
 
-    f->s.tracker = std::make_unique<fast_tracker>();
+    if (1)
+        f->s.tracker = std::make_unique<fast_tracker>();
+    else
+        f->s.tracker = std::make_unique<ipp_tracker>();
 
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);

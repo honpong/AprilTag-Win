@@ -6,7 +6,6 @@
 #include "device_parameters.h"
 #include "calibration_xml.h"
 #include "fast_tracker.h"
-#include "scaled_mask.h"
 #include "../numerics/transformation.h"
 #ifdef ENABLE_QR
 #include "qr.h"
@@ -21,14 +20,8 @@ struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     filter(): s(cov)
     {
-        //make sure all pointers are null
-        mask = 0;
-
         //these need to be initialized to defaults - everything else is handled in filter_initialize that is called every time
         ignore_lateness = false;
-    }
-    ~filter() {
-        if(mask) delete mask;
     }
     RCSensorFusionRunState run_state;
     int min_group_add;
@@ -68,8 +61,6 @@ struct filter {
     float median_depth_variance;
     bool has_converged;
 
-    scaled_mask *mask;
-    
     sensor_clock::duration mindelta;
     bool valid_delta;
     sensor_clock::time_point last_arrival;

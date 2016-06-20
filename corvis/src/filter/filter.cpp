@@ -627,15 +627,11 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
 #endif
-    // Filter out features which we already have by masking where
-    // existing features are located
-    if(!f->mask) f->mask = new scaled_mask(image.width, image.height);
-    f->mask->initialize();
-    for(auto g : f->s.groups.children) {
-        for(auto i : g->features.children) {
-            f->mask->clear((int)i->current[0], (int)i->current[1]);
-        }
-    }
+    f->s.features.clear();
+    f->s.features.reserve(f->s.feature_count());
+    for(auto g : f->s.groups.children)
+        for(auto i : g->features.children)
+            f->s.features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
 
     // Run detector
     tracker::image timage;
@@ -643,12 +639,10 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
     timage.width_px = image.width;
     timage.height_px = image.height;
     timage.stride_px = image.stride;
-    vector<tracker::point> kp = f->s.tracker.detect(timage, (int)newfeats);
-
-    if(kp.size() < newfeats) newfeats = kp.size(); // even if they returned more, we only want newfeats features
+    vector<tracker::point> &kp = f->s.tracker.detect(timage, f->s.features, (int)newfeats);
 
     // give up if we didn't get enough features
-    if(newfeats < state_vision_group::min_feats) {
+    if(kp.size() < state_vision_group::min_feats) {
         for(const auto &p : kp)
             f->s.tracker.drop_feature(p.id);
         return 0;
@@ -664,10 +658,7 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
         image_to_depth = f_t(f->recent_depth.height)/image.height;
     for(i = 0; i < (int)kp.size(); ++i) {
         feature_t kp_i = {kp[i].x, kp[i].y};
-        int x = (int)kp[i].x;
-        int y = (int)kp[i].y;
-        if(f->mask->test(x, y)) {
-            f->mask->clear(x, y);
+        {
             state_vision_feature *feat = f->s.add_feature(kp_i);
 
             float depth_m = 0;
@@ -693,8 +684,6 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
             found_feats++;
             if(found_feats == newfeats) break;
         }
-        else
-            f->s.tracker.drop_feature(kp[i].id);
     }
     for(i = i+1; i < (int)kp.size(); ++i)
         f->s.tracker.drop_feature(kp[i].id);
@@ -960,12 +949,6 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     
     f->last_arrival = sensor_clock::time_point(sensor_clock::duration(0));
     f->active_time = sensor_clock::time_point(sensor_clock::duration(0));
-    
-    if(f->mask)
-    {
-        delete f->mask;
-        f->mask = 0;
-    }
     
     f->observations.observations.clear();
 

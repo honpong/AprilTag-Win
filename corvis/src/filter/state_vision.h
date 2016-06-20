@@ -216,6 +216,7 @@ class state_vision: public state_motion {
 public:
     state_extrinsics extrinsics;
     state_vision_intrinsics camera_intrinsics;
+    std::vector<tracker::point> features; // reuasable storage passed to tracker->detect()
     fast_tracker tracker;
     uint64_t feature_counter;
     uint64_t group_counter;

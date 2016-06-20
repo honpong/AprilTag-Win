@@ -1,31 +1,33 @@
 #include "fast_tracker.h"
 #include "fast_constants.h"
 
-#include "scaled_mask.h"
-
 extern "C" {
 #include "../cor/cor_types.h"
 }
 
 using namespace std;
 
-vector<tracker::point> &fast_tracker::detect(const image &image, int number_desired)
+vector<tracker::point> &fast_tracker::detect(const image &image, const std::vector<point> &features, int number_desired)
 {
-    scaled_mask mask(image.width_px, image.height_px);
-    mask.initialize();
-    for(auto const & kv : feature_map)
-        mask.clear(kv.second.x, kv.second.y);
+    if (!mask)
+        mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
+    mask->initialize();
+    for (auto &f : features)
+        mask->clear((int)f.x, (int)f.y);
 
     fast.init(image.width_px, image.height_px, image.stride_px, full_patch_width, half_patch_width);
 
     feature_points.clear();
-    vector<xy> & fast_detections = fast.detect(image.image, &mask, number_desired, fast_detect_threshold, 0, 0, image.width_px, image.height_px);
-    for(int i = 0; i < fast_detections.size(); i++) {
-        auto d = fast_detections[i];
-        if(!is_trackable(d.x, d.y, image.width_px, image.height_px)) continue;
+    feature_points.reserve(number_desired);
+    for(const auto &d : fast.detect(image.image, mask.get(), number_desired, fast_detect_threshold, 0, 0, image.width_px, image.height_px)) {
+        if(!is_trackable(d.x, d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
+            continue;
+        mask->clear((int)d.x, (int)d.y);
         auto id = next_id++;
         feature_map.emplace_hint(feature_map.end(), id, feature(d.x, d.y, image.image, image.stride_px));
         feature_points.emplace_back(id, d.x, d.y, d.score);
+        if (feature_points.size() == number_desired)
+            break;
     }
     return feature_points;
 }

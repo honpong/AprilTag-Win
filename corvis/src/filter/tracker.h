@@ -4,6 +4,8 @@
 #include <vector>
 #include <cstdint>
 
+#include "scaled_mask.h"
+
 struct tracker {
     struct point {
         uint64_t id;
@@ -35,15 +37,17 @@ struct tracker {
         float focal_length_y_px;
     } intrinsics;
 
+    std::unique_ptr<scaled_mask> mask;
+
     std::vector<point> feature_points;
-
     /*
-     @param image The image to use for feature detection
-     @param number_desired The desired number of features, function can return less or more
+     @param image  The image to use for feature detection
+     @param number_desired  The desired number of features, function can return less or more
+     @param features  Currently tracked features
 
-     Returns a vector of tracker_point detections, with higher scored points being preferred
+     Returns a reference to a vector (using feature_points above for storage) of newly detected features with higher scored points being preferred
      */
-    virtual std::vector<point> &detect(const image &image, int number_desired) = 0;
+    virtual std::vector<point> &detect(const image &image, const std::vector<point> &features, int number_desired) = 0;
 
     /*
      @param current_image The image to track in

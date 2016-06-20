@@ -391,9 +391,8 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
 
 void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, const rc_Vector acceleration_m__s2)
 {
-    // TODO: multiple trackers
     accelerometer_data d;
-    d.source = tracker->sfm.accelerometers[0].get();
+    d.source = tracker->sfm.accelerometers[accelerometer_id].get();
     d.accel_m__s2[0] = acceleration_m__s2.x;
     d.accel_m__s2[1] = acceleration_m__s2.y;
     d.accel_m__s2[2] = acceleration_m__s2.z;
@@ -406,9 +405,8 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, r
 
 void rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s)
 {
-    // TODO: multiple gyros
     gyro_data d;
-    d.source = tracker->sfm.gyros[0].get();
+    d.source = tracker->sfm.gyros[gyroscope_id].get();
     d.angvel_rad__s[0] = angular_velocity_rad__s.x;
     d.angvel_rad__s[1] = angular_velocity_rad__s.y;
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;

@@ -367,7 +367,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_Timestamp time
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
 
         if(tracker->output.started())
-            tracker->output.write_camera(std::move(d));
+            tracker->output.write_camera(camera_id, std::move(d));
         else
             tracker->receive_image(std::move(d));
     } else if (camera_id == 0) { // TODO: get the actual camera
@@ -382,7 +382,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_Timestamp time
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
 
         if(tracker->output.started())
-            tracker->output.write_camera(std::move(d));
+            tracker->output.write_camera(camera_id, std::move(d));
         else
             tracker->receive_image(std::move(d));
     }
@@ -399,7 +399,7 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, r
     d.accel_m__s2[2] = acceleration_m__s2.z;
     d.timestamp = sensor_clock::micros_to_tp(time_us);
     if(tracker->output.started())
-        tracker->output.write_accelerometer(std::move(d));
+        tracker->output.write_accelerometer(accelerometer_id, std::move(d));
     else
         tracker->receive_accelerometer(std::move(d));
 }
@@ -414,7 +414,7 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;
     d.timestamp = sensor_clock::micros_to_tp(time_us);
     if(tracker->output.started())
-        tracker->output.write_gyro(std::move(d));
+        tracker->output.write_gyro(gyroscope_id, std::move(d));
     else
         tracker->receive_gyro(std::move(d));
 }

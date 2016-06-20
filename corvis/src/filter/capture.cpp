@@ -13,7 +13,7 @@
 #include "../cor/packet.h"
 #include "../cor/sensor_data.h"
 
-packet_t *packet_alloc(enum packet_type type, uint32_t bytes_, uint64_t time)
+packet_t *packet_alloc(enum packet_type type, uint32_t bytes_, uint16_t sensor_id, uint64_t time)
 {
     //add 7 and mask to pad to 8-byte boundary
     uint32_t bytes = ((bytes_ + 7) & 0xfffffff8u);
@@ -27,7 +27,7 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes_, uint64_t time)
     ptr->header.type = type;
     ptr->header.bytes = sizeof(packet_header_t) + bytes;
     ptr->header.time = time;
-    ptr->header.user = 0;
+    ptr->header.user = sensor_id;
     memset(ptr->data + bytes_, 0, bytes - bytes_); // zero the padding
     return ptr;
 }
@@ -39,32 +39,32 @@ void capture::write_packet(packet_t * p)
     packets_written++;
 }
 
-void capture::write_accelerometer_data(uint64_t timestamp, const float data[3])
+void capture::write_accelerometer_data(uint16_t sensor_id, uint64_t timestamp, const float data[3])
 {
     auto bytes = 3*sizeof(float);
-    packet_t *buf = packet_alloc(packet_accelerometer, bytes, timestamp);
+    packet_t *buf = packet_alloc(packet_accelerometer, bytes, sensor_id, timestamp);
     memcpy(buf->data, data, bytes);
     write_packet(buf);
     free(buf);
 }
 
-void capture::write_gyroscope_data(uint64_t timestamp, const float data[3])
+void capture::write_gyroscope_data(uint16_t sensor_id, uint64_t timestamp, const float data[3])
 {
     auto bytes = 3*sizeof(float);
-    packet_t *buf = packet_alloc(packet_gyroscope, bytes, timestamp);
+    packet_t *buf = packet_alloc(packet_gyroscope, bytes, sensor_id, timestamp);
     memcpy(buf->data, data, bytes);
     write_packet(buf);
     free(buf);
 }
 
-void capture::write_image_raw(uint64_t timestamp, const sensor_clock::duration & exposure_time, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
+void capture::write_image_raw(uint16_t sensor_id, uint64_t timestamp, const sensor_clock::duration & exposure_time, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
 {
     int format_size = sizeof(uint8_t);
     if(format == rc_FORMAT_DEPTH16)
         format_size = sizeof(uint16_t);
 
     auto bytes = 16 + width * height * format_size;
-    packet_t *buf = packet_alloc(packet_image_raw, bytes, timestamp);
+    packet_t *buf = packet_alloc(packet_image_raw, bytes, sensor_id, timestamp);
     packet_image_raw_t *ip = (packet_image_raw_t *)buf;
 
 
@@ -82,31 +82,31 @@ void capture::write_image_raw(uint64_t timestamp, const sensor_clock::duration &
     free(buf);
 }
 
-void capture::write_camera(image_gray8 &&data)
+void capture::write_camera(uint16_t sensor_id, image_gray8 &&data)
 {
-    process(std::packaged_task<void()>([this, data=std::move(data)]() {
-        write_image_raw(sensor_clock::tp_to_micros(data.timestamp), data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_GRAY8);
+    process(std::packaged_task<void()>([this, sensor_id, data=std::move(data)]() {
+        write_image_raw(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_GRAY8);
     }));
 }
 
-void capture::write_camera(image_depth16 &&data)
+void capture::write_camera(uint16_t sensor_id, image_depth16 &&data)
 {
-    process(std::packaged_task<void()>([this, data=std::move(data)]() {
-        write_image_raw(sensor_clock::tp_to_micros(data.timestamp), data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_DEPTH16);
+    process(std::packaged_task<void()>([this, sensor_id, data=std::move(data)]() {
+        write_image_raw(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_DEPTH16);
     }));
 }
 
-void capture::write_accelerometer(accelerometer_data &&data)
+void capture::write_accelerometer(uint16_t sensor_id, accelerometer_data &&data)
 {
-    process(std::packaged_task<void()>([this, data=std::move(data)]() {
-        write_accelerometer_data(sensor_clock::tp_to_micros(data.timestamp), data.accel_m__s2);
+    process(std::packaged_task<void()>([this, sensor_id, data=std::move(data)]() {
+        write_accelerometer_data(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.accel_m__s2);
     }));
 }
 
-void capture::write_gyro(gyro_data &&data)
+void capture::write_gyro(uint16_t sensor_id, gyro_data &&data)
 {
-    process(std::packaged_task<void()>([this, data=std::move(data)]() {
-        write_gyroscope_data(sensor_clock::tp_to_micros(data.timestamp), data.angvel_rad__s);
+    process(std::packaged_task<void()>([this, sensor_id, data=std::move(data)]() {
+        write_gyroscope_data(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.angvel_rad__s);
     }));
 }
 

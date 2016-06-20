@@ -38,8 +38,7 @@ private:
     uint64_t next_id = 0;
 
 public:
-    fast_tracker() {};
-    fast_tracker(const intrinsics params) {};
+    fast_tracker() {}
     std::vector<point> &detect(const image &image, const std::vector<point> &features, int number_desired);
     std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions);
     void drop_feature(uint64_t feature_id);

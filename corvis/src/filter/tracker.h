@@ -28,22 +28,6 @@ struct tracker {
         int stride_px;
     };
 
-    /**
-       image_width_px Image width in pixels
-       image_height_px Image height in pixels
-       center_x_px Horizontal principal point of camera in pixels
-       center_y_px Horizontal principal point of camera in pixels
-       focal_length_px Focal length of camera in pixels
-    */
-    typedef struct {
-        int width_px;
-        int height_px;
-        float center_x_px;
-        float center_y_px;
-        float focal_length_x_px;
-        float focal_length_y_px;
-    } intrinsics;
-
     std::unique_ptr<scaled_mask> mask;
 
     std::vector<point> feature_points;

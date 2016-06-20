@@ -1016,18 +1016,7 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     
     f->s.camera_intrinsics.image_width = cam.intrinsics.width_px;
     f->s.camera_intrinsics.image_height = cam.intrinsics.height_px;
-    
-    tracker::intrinsics tracker_intrinsics;
-    //TODO: On replay these parameters don't match with --qvga
-    //(calibration has different resolution than images)
-    tracker_intrinsics.width_px = cam.intrinsics.width_px;
-    tracker_intrinsics.height_px = cam.intrinsics.height_px;
-    cam.intrinsics.c_x_px = f->s.camera_intrinsics.center_x.v * f->s.camera_intrinsics.image_height + f->s.camera_intrinsics.image_width / 2. - .5;
-    tracker_intrinsics.center_x_px = cam.intrinsics.c_x_px;
-    tracker_intrinsics.center_y_px = cam.intrinsics.c_y_px;
-    tracker_intrinsics.focal_length_x_px = cam.intrinsics.c_x_px;
-    tracker_intrinsics.focal_length_y_px = cam.intrinsics.c_y_px; // Filter assumes this is the same
-    f->s.tracker = fast_tracker(tracker_intrinsics);
+
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);
 #endif

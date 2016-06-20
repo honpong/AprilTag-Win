@@ -57,15 +57,14 @@ void capture::write_gyroscope_data(uint64_t timestamp, const float data[3])
     free(buf);
 }
 
-void capture::write_image_raw(const sensor_clock::time_point & timestamp, const sensor_clock::duration & exposure_time, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
+void capture::write_image_raw(uint64_t timestamp, const sensor_clock::duration & exposure_time, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
 {
     int format_size = sizeof(uint8_t);
     if(format == rc_FORMAT_DEPTH16)
         format_size = sizeof(uint16_t);
 
     auto bytes = 16 + width * height * format_size;
-    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(timestamp.time_since_epoch()).count();
-    packet_t *buf = packet_alloc(packet_image_raw, bytes, micros);
+    packet_t *buf = packet_alloc(packet_image_raw, bytes, timestamp);
     packet_image_raw_t *ip = (packet_image_raw_t *)buf;
 
 
@@ -86,30 +85,28 @@ void capture::write_image_raw(const sensor_clock::time_point & timestamp, const 
 void capture::write_camera(image_gray8 &&data)
 {
     process(std::packaged_task<void()>([this, data=std::move(data)]() {
-        write_image_raw(data.timestamp, data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_GRAY8);
+        write_image_raw(sensor_clock::tp_to_micros(data.timestamp), data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_GRAY8);
     }));
 }
 
 void capture::write_camera(image_depth16 &&data)
 {
     process(std::packaged_task<void()>([this, data=std::move(data)]() {
-        write_image_raw(data.timestamp, data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_DEPTH16);
+        write_image_raw(sensor_clock::tp_to_micros(data.timestamp), data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_DEPTH16);
     }));
 }
 
 void capture::write_accelerometer(accelerometer_data &&data)
 {
     process(std::packaged_task<void()>([this, data=std::move(data)]() {
-        auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-        write_accelerometer_data(data.accel_m__s2, micros);
+        write_accelerometer_data(sensor_clock::tp_to_micros(data.timestamp), data.accel_m__s2);
     }));
 }
 
 void capture::write_gyro(gyro_data &&data)
 {
     process(std::packaged_task<void()>([this, data=std::move(data)]() {
-        auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-        write_gyroscope_data(data.angvel_rad__s, micros);
+        write_gyroscope_data(sensor_clock::tp_to_micros(data.timestamp), data.angvel_rad__s);
     }));
 }
 

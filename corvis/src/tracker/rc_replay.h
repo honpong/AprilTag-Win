@@ -14,7 +14,6 @@ private:
     std::ifstream file;
     bool depth {true};
     bool qvga {false};
-    bool trace {false};
     double length_m {0}, reference_length_m {NAN};
     bool find_reference_in_filename(const std::string &filename);
     bool set_calibration_from_filename(const std::string &fn);
@@ -29,7 +28,6 @@ public:
     bool run();
     void disable_depth() { depth = false; }
     void enable_qvga() { qvga = true; }
-    void enable_trace_output() { trace = true; }
     double get_length() { return length_m; }
     double get_reference_length() { return reference_length_m; }
     void enable_pose_output();

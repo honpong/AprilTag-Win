@@ -29,24 +29,24 @@ header_str = f.read(header_size)
 prev_packet_str = ""
 warnings = defaultdict(list)
 while header_str != "":
-  (pbytes, ptype, user, ptime) = unpack('IHHQ', header_str)
-  packet_str = packet_types[ptype]
+  (pbytes, ptype, sensor_id, ptime) = unpack('IHHQ', header_str)
+  packet_str = packet_types[ptype] + "_" + str(sensor_id)
   if ptype == 1:
     ptime += 16667
   if args.verbose:
-      print packet_str, pbytes, ptype, user, float(ptime)/1e6,
+      print packet_str, pbytes, ptype, sensor_id, float(ptime)/1e6,
   data = f.read(pbytes-header_size)
   if ptype == accel_type or ptype == gyro_type:
       # packets are padded to 8 byte boundary
       (x, y, z) = unpack('fff', data[:12])
       if args.verbose:
-          print "\t", x, y, z
+          print "\t", ptype, sensor_id, x, y, z
   if ptype == image_raw_type:
       (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
       type_str = format_types[camera_format]
       packet_str += "_" + type_str
       if args.verbose:
-          camera_str = "%s (%d) %dx%d, %d stride, %d exposure" % (type_str, camera_format, width, height, stride, exposure)
+          camera_str = "%s %d (%d) %dx%d, %d stride, %d exposure" % (type_str, sensor_id, camera_format, width, height, stride, exposure)
           print "\t", camera_str
   if packet_str == "":
       packet_str = str(ptype)

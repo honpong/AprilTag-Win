@@ -52,7 +52,7 @@ enum packet_type {
 typedef struct {
     uint32_t bytes; //size of packet including header
     uint16_t type;  //id of packet
-    uint16_t user;  //packet-defined data
+    uint16_t sensor_id;  //id of sensor
     uint64_t time;  //time in microseconds
 } packet_header_t;
 

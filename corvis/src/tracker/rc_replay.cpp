@@ -22,7 +22,7 @@ enum packet_type {
 typedef struct {
     uint32_t bytes; //size of packet including header
     uint16_t type;  //id of packet
-    uint16_t user;  //packet-defined data
+    uint16_t sensor_id;  //id of sensor
     uint64_t time;  //time in microseconds
 } packet_header_t;
 
@@ -217,9 +217,9 @@ bool replay::run()
             }   break;
             case packet_image_with_depth: {
                 packet_image_with_depth_t *ip = (packet_image_with_depth_t *)packet;
-                ip->header.user = 1; // ref count
+                ip->header.sensor_id = 1; // ref count
                 if (depth && ip->depth_height && ip->depth_width) {
-                    ip->header.user++; // ref count
+                    ip->header.sensor_id++; // ref count
                     uint16_t *depth_image = (uint16_t*)(ip->data + ip->width * ip->height);
                     int depth_width = ip->depth_width, depth_height = ip->depth_height, depth_stride = sizeof(uint16_t) * ip->depth_width;
                     if (qvga && depth_width == 640 && depth_height == 480)
@@ -227,7 +227,7 @@ bool replay::run()
                     if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", DEPTH16, %dx%d);\n", packet->header.time, (uint64_t)0/*FIXME*/, depth_width, depth_height);
                     rc_receiveImage(tracker, 1, ip->header.time, 0,
                                     depth_width, depth_height, depth_stride, depth_image,
-                                    [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, packet);
+                                    [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, packet);
                 }
                 {
                     uint8_t *image = ip->data;
@@ -237,7 +237,7 @@ bool replay::run()
                     if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", GRAY8, %dx%d);\n", packet->header.time, ip->exposure_time_us, width, height);
                     rc_receiveImage(tracker, 0, ip->header.time, ip->exposure_time_us,
                                     width, height, stride, image,
-                                    [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, phandle.release());
+                                    [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, phandle.release());
                 }
             }   break;
             case packet_accelerometer: {
@@ -259,7 +259,7 @@ bool replay::run()
                 rc_receiveGyro(tracker, 0, packet->header.time, angular_velocity_rad__s);
             }   break;
             case packet_filter_control: {
-                if(header.user == 1) { //start measuring
+                if(header.sensor_id == 1) { //start measuring
                     if (trace) printf("rc_setPose(rc_POSE_IDENTITY)\n");
                     rc_setPose(tracker, rc_POSE_IDENTITY);
                     if (trace) printf("rc_startTracker(rc_E_SYNCHRONOUS)\n");

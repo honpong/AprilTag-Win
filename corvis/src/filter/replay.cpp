@@ -359,7 +359,10 @@ void replay::start(string map_filename)
                 }
                 case packet_filter_control:
                 {
-                    if(header.user == 1)
+                    // this legacy packet used a field in the header
+                    // (which was renamed header.sensor_id) to control
+                    // when measurement should be started
+                    if(header.sensor_id == 1)
                     {
                         //start measuring
                         fusion.queue->dispatch_sync([this] { filter_set_reference(&fusion.sfm); });

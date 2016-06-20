@@ -39,9 +39,9 @@ private:
 
 public:
     fast_tracker() {}
-    std::vector<point> &detect(const image &image, const std::vector<point> &features, int number_desired);
-    std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions);
-    void drop_feature(uint64_t feature_id);
+    virtual std::vector<point> &detect(const image &image, const std::vector<point> &features, int number_desired) override;
+    virtual std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions) override;
+    virtual void drop_feature(uint64_t feature_id) override;
 };
 
 #endif

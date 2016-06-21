@@ -18,6 +18,8 @@
 #include "observation.h"
 #include "filter.h"
 #include <memory>
+#include "fast_tracker.h"
+#include "ipp_tracker.h"
 
 const static sensor_clock::duration max_camera_delay = std::chrono::microseconds(200000); //We drop a frame if it arrives at least this late
 const static sensor_clock::duration max_inertial_delay = std::chrono::microseconds(100000); //We drop inertial data if it arrives at least this late
@@ -627,32 +629,24 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
 #endif
-    // Filter out features which we already have by masking where
-    // existing features are located
-    if(!f->mask) f->mask = new scaled_mask(image.width, image.height);
-    f->mask->initialize();
-    for(auto g : f->s.groups.children) {
-        for(auto i : g->features.children) {
-            f->mask->clear((int)i->current[0], (int)i->current[1]);
-        }
-    }
+    f->s.features.clear();
+    f->s.features.reserve(f->s.feature_count());
+    for(auto g : f->s.groups.children)
+        for(auto i : g->features.children)
+            f->s.features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
 
     // Run detector
-    vector<uint64_t> unused_ids;
     tracker::image timage;
     timage.image = image.image;
     timage.width_px = image.width;
     timage.height_px = image.height;
     timage.stride_px = image.stride;
-    vector<tracker::point> kp = f->s.tracker.detect(timage, (int)newfeats);
+    vector<tracker::point> &kp = f->s.tracker->detect(timage, f->s.features, (int)newfeats);
 
-    // Check that the detected features don't collide with the mask
-    // and add them to the filter
-    if(kp.size() < newfeats) newfeats = kp.size();
-    if(newfeats < state_vision_group::min_feats) {
-        for(int i = 0; i < (int)kp.size(); ++i)
-            unused_ids.push_back(kp[i].id);
-        f->s.tracker.drop_features(unused_ids);
+    // give up if we didn't get enough features
+    if(kp.size() < state_vision_group::min_feats) {
+        for(const auto &p : kp)
+            f->s.tracker->drop_feature(p.id);
         return 0;
     }
 
@@ -666,10 +660,7 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
         image_to_depth = f_t(f->recent_depth.height)/image.height;
     for(i = 0; i < (int)kp.size(); ++i) {
         feature_t kp_i = {kp[i].x, kp[i].y};
-        int x = (int)kp[i].x;
-        int y = (int)kp[i].y;
-        if(f->mask->test(x, y)) {
-            f->mask->clear(x, y);
+        {
             state_vision_feature *feat = f->s.add_feature(kp_i);
 
             float depth_m = 0;
@@ -695,12 +686,9 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
             found_feats++;
             if(found_feats == newfeats) break;
         }
-        else
-            unused_ids.push_back(kp[i].id);
     }
     for(i = i+1; i < (int)kp.size(); ++i)
-        unused_ids.push_back(kp[i].id);
-    f->s.tracker.drop_features(unused_ids);
+        f->s.tracker->drop_feature(kp[i].id);
 
     g->status = group_initializing;
     g->make_normal();
@@ -964,12 +952,6 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->last_arrival = sensor_clock::time_point(sensor_clock::duration(0));
     f->active_time = sensor_clock::time_point(sensor_clock::duration(0));
     
-    if(f->mask)
-    {
-        delete f->mask;
-        f->mask = 0;
-    }
-    
     f->observations.observations.clear();
 
     f->s.reset();
@@ -1036,18 +1018,12 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     
     f->s.camera_intrinsics.image_width = cam.intrinsics.width_px;
     f->s.camera_intrinsics.image_height = cam.intrinsics.height_px;
-    
-    tracker::intrinsics tracker_intrinsics;
-    //TODO: On replay these parameters don't match with --qvga
-    //(calibration has different resolution than images)
-    tracker_intrinsics.width_px = cam.intrinsics.width_px;
-    tracker_intrinsics.height_px = cam.intrinsics.height_px;
-    cam.intrinsics.c_x_px = f->s.camera_intrinsics.center_x.v * f->s.camera_intrinsics.image_height + f->s.camera_intrinsics.image_width / 2. - .5;
-    tracker_intrinsics.center_x_px = cam.intrinsics.c_x_px;
-    tracker_intrinsics.center_y_px = cam.intrinsics.c_y_px;
-    tracker_intrinsics.focal_length_x_px = cam.intrinsics.c_x_px;
-    tracker_intrinsics.focal_length_y_px = cam.intrinsics.c_y_px; // Filter assumes this is the same
-    f->s.tracker = fast_tracker(tracker_intrinsics);
+
+    if (1)
+        f->s.tracker = std::make_unique<fast_tracker>();
+    else
+        f->s.tracker = std::make_unique<ipp_tracker>();
+
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);
 #endif

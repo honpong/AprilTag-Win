@@ -71,32 +71,45 @@ if(WIN32)
   target_include_directories(numerics PRIVATE "$ENV{RSSDK_DIR}include")
 endif()
 
-if(NOT APPLE OR CMAKE_CXX_COMPILER_ID STREQUAL Intel OR MKLROOT)
-    if (NOT MKLROOT)
-        file(GLOB MKLLOCS $ENV{MKLROOT}
-            "/opt/intel/mkl"
-            "C:/Program Files (x86)/Intel/Composer XE 2015/mkl"
-            "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl"
-            "C:/Program Files/Intel/Composer XE 2015/mkl"
+function(find_intel_root TYPE) # [REQUIRED]
+    set(VAR ${TYPE}ROOT)
+    string(TOLOWER ${TYPE} type)
+    if (NOT ${VAR})
+        file(GLOB INTEL_LOCS $ENV{${VAR}}
+            "/opt/intel/${type}"
+            "C:/Program Files (x86)/Intel/Composer XE 2015/${type}"
+            "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/${type}"
+            "C:/Program Files/Intel/Composer XE 2015/${type}"
         )
-        list(LENGTH MKLLOCS MKL_SUPPORTED)
-        if (NOT MKL_SUPPORTED)
-            message(FATAL_ERROR "MKL not found: Pass -DMKLROOT= to cmake or set environment variable MKLROOT=")
+        list(LENGTH INTEL_LOCS SUPPORTED)
+        if (NOT SUPPORTED)
+            if (ARGV1)
+                set(ARGV1 FATAL_ERROR)
+            endif()
+            message(${ARGV1} "${TYPE} not found: Pass -D${VAR}= to cmake or set environment variable ${VAR}=")
         else()
-            list(GET MKLLOCS 0 MKLROOT)
-            message(STATUS "MKL found at ${MKLROOT}")
+            list(GET INTEL_LOCS 0 ${VAR})
+            message(STATUS "${TYPE} found at ${${VAR}}")
         endif()
     endif()
-    set(MKLROOT "${MKLROOT}" CACHE STRING "MKL root directory.")
+    set(${VAR} "${${VAR}}" CACHE STRING "${TYPE} root directory.")
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
       if (APPLE)
-        set(MKL_ARCH "")
+        set(INTEL_ARCH "")
       else()
-        set(MKL_ARCH intel64/)
+        set(INTEL_ARCH intel64/)
       endif()
+    elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+      set(INTEL_ARCH ia32/)
+    endif()
+    set(INTEL_ARCH ${INTEL_ARCH} CACHE STRING "Subdirectroy below intel/${TYPE}/lib/")
+endfunction()
+
+if(NOT APPLE OR CMAKE_CXX_COMPILER_ID STREQUAL Intel OR MKLROOT)
+    find_intel_root(MKL REQUIRED)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
       set(MKL_INTEL_SUFFIX _lp64)
     elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-      set(MKL_ARCH ia32/)
       if (WIN32)
         set(MKL_INTEL_SUFFIX _c)
       elseif(ANDROID)
@@ -106,16 +119,16 @@ if(NOT APPLE OR CMAKE_CXX_COMPILER_ID STREQUAL Intel OR MKLROOT)
     target_include_directories(numerics PRIVATE SYSTEM "${MKLROOT}/include")
     if (ANDROID)
     target_link_libraries(numerics PRIVATE -Wl,--whole-archive)
-    target_link_libraries(numerics PRIVATE "${MKLROOT}/lib/${MKL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_compat${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    target_link_libraries(numerics PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_compat${CMAKE_STATIC_LIBRARY_SUFFIX}")
     target_link_libraries(numerics PRIVATE -Wl,--no-whole-archive)
     endif (ANDROID)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL Clang OR CMAKE_CXX_COMPILER_ID STREQUAL GNU)
     target_link_libraries(numerics PRIVATE -Wl,--start-group)
     endif ()
-    target_link_libraries(numerics PRIVATE "${MKLROOT}/lib/${MKL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_intel${MKL_INTEL_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    target_link_libraries(numerics PRIVATE "${MKLROOT}/lib/${MKL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_core${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    target_link_libraries(numerics PRIVATE "${MKLROOT}/lib/${MKL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_sequential${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    target_link_libraries(numerics PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_intel${MKL_INTEL_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    target_link_libraries(numerics PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_core${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    target_link_libraries(numerics PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_sequential${CMAKE_STATIC_LIBRARY_SUFFIX}")
     if (CMAKE_CXX_COMPILER_ID STREQUAL Clang OR CMAKE_CXX_COMPILER_ID STREQUAL GNU)
     target_link_libraries(numerics PRIVATE -Wl,--end-group)
     endif ()
@@ -154,8 +167,21 @@ add_library(filter STATIC
 target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include ../../ThirdParty/rapidxml)
 target_include_directories(filter PUBLIC ../../ThirdParty/spdlog/include)
-target_link_libraries(filter numerics cor vlfeat)
+target_link_libraries(filter PRIVATE vlfeat)
+target_link_libraries(filter PUBLIC numerics cor)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
+
+find_intel_root(IPP)
+if (IPPROOT)
+    target_include_directories(filter PUBLIC SYSTEM "${IPPROOT}/include")
+    target_link_libraries(filter PRIVATE
+        "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippcv${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippi${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ipps${CMAKE_STATIC_LIBRARY_SUFFIX}"
+       #"${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippvm${CMAKE_STATIC_LIBRARY_SUFFIX}"
+        "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippcore${CMAKE_STATIC_LIBRARY_SUFFIX}"
+    )
+endif()
 
 add_library(tracker SHARED filter/rc_tracker.cpp)
 set_target_properties(tracker PROPERTIES CXX_STANDARD 14)

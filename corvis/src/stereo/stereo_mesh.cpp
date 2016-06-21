@@ -1,6 +1,7 @@
 #include "stereo_mesh.h"
 #include "stereo.h"
-#include "../filter/filter.h"
+#include "../filter/fast_detector/fast.h"
+#include <iostream>
 
 bool debug_triangulate_mesh = false;
 bool debug_mrf = false;
@@ -84,7 +85,7 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &g, int x, i
     // Get calibrated camera2 point
     v3 calibrated_point = g.camera.calibrate_image_point(x, y);
     if(debug_triangulate_mesh) {
-        cerr << "calibrated_point: " << calibrated_point;
+        std::cerr << "calibrated_point: " << calibrated_point;
     }
 
     // Rotate the point into the world reference frame and translate
@@ -97,7 +98,7 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &g, int x, i
     v3 o2 = T;
     if(debug_triangulate_mesh) {
         fprintf(stderr, "Line direction, world_point, o2: ");
-        cerr << line_direction << world_point << o2;
+        std::cerr << line_direction << world_point << o2;
     }
 
     bool success = point_mesh_intersect(mesh, o2, line_direction, intersection);

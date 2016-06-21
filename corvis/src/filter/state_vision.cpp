@@ -3,6 +3,7 @@
 // All Rights Reserved.
 
 #include "state_vision.h"
+#include "fast_tracker.h"
 #include "../numerics/transformation.h"
 
 f_t state_vision_feature::initial_depth_meters;
@@ -216,8 +217,6 @@ int state_vision::feature_count()
 
 int state_vision::process_features(const image_gray8 &image, sensor_clock::time_point time)
 {
-    std::vector<uint64_t> dropped_features;
-
     int useful_drops = 0;
     int total_feats = 0;
     int outliers = 0;
@@ -238,7 +237,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                 }
             }
             if(i->should_drop())
-                dropped_features.push_back(i->tracker_id);
+                tracker->drop_feature(i->tracker_id);
         }
     }
 
@@ -268,7 +267,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                 }
             }
             for(state_vision_feature *i : g->features.children)
-                dropped_features.push_back(i->tracker_id);
+                tracker->drop_feature(i->tracker_id);
             g->make_empty();
         }
 
@@ -320,8 +319,6 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
             return false;
         }
     });
-
-    tracker.drop_features(dropped_features);
 
     remap();
 
@@ -439,35 +436,27 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
     current_image.height_px = image.height;
     current_image.stride_px = image.stride;
 
-    std::vector<tracker::point> predictions;
+    predictions.clear();
+    predictions.reserve(feature_count());
     std::map<uint64_t, state_vision_feature *> id_to_state;
-    std::map<uint64_t, bool> valid_features;
 
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children) {
             id_to_state[feature->tracker_id] = feature;
-            valid_features[feature->tracker_id] = false;
-            predictions.emplace_back(feature->tracker_id, (float)feature->prediction.x(), (float)feature->prediction.y(), 0);
+            predictions.emplace_back(feature->tracker_id,
+                                     (float)feature->current.x(), (float)feature->current.y(),
+                                     (float)feature->prediction.x(), (float)feature->prediction.y());
         }
     }
 
-    // Update valid features
-    for(auto p : tracker.track(current_image, predictions)) {
-        state_vision_feature * feature = id_to_state[p.id];
-        valid_features[p.id] = true;
-        feature->current[0] = p.x;
-        feature->current[1] = p.y;
-    }
-
-    // Update invalid features
-    for(std::pair<uint64_t, bool> valid : valid_features) {
-        if(!valid.second) {
-            state_vision_feature * feature = id_to_state[valid.first];
-            feature->current[0] = INFINITY;
-            feature->current[1] = INFINITY;
+    int i=0;
+    if (predictions.size())
+        for(const auto &p : tracker->track(current_image, predictions)) {
+            state_vision_feature * feature = id_to_state[p.id];
+            feature->current.x() = p.found ? p.x : INFINITY;
+            feature->current.y() = p.found ? p.y : INFINITY;
         }
-    }
 }
 
 float state_vision::median_depth_variance()

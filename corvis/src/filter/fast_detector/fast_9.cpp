@@ -14,7 +14,7 @@ vector<xy> &fast_detector_9::detect(const unsigned char *im, const scaled_mask *
 {
     int need = number_wanted * 8;
     features.clear();
-    features.reserve(need);
+    features.reserve(need+1);
     int x, y, x1, y1, x2, y2;
 
     int bstart = bthresh;

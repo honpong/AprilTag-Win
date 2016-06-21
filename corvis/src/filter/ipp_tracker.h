@@ -211,7 +211,7 @@ public:
             }
             check(ippiOpticalFlowPyrLK_8u_C1R(prev.pyramid.pyramid, next.pyramid.pyramid,
                                               prev.points.data(), next.points.data(), statuses.data(), errors.data(), predictions.size(),
-                                              win_size/*<= win_size above*/, ipp_image_pyramid::levels, max_iterations, threshold, state));
+                                              win_size/*<= win_size above*/, ipp_image_pyramid::levels-1, max_iterations, threshold, state));
         }
         size_t found=0;
         for (size_t i = 0; i < predictions.size(); i++) {

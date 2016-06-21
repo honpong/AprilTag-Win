@@ -185,16 +185,18 @@ public:
         ippsFree(state_buffer); state_buffer = nullptr;
     };
     ipp_tracker() {
-        IppiSize roi_size {full_patch_width, full_patch_width};
-        {
-            int state_size = 0;
-            check(ippiOpticalFlowPyrLKGetSize(win_size, roi_size, ipp8u, ippAlgHintFast, &state_size));
-            state_buffer = ippsMalloc_8u(state_size);
-        }
-        check(ippiOpticalFlowPyrLKInit_8u_C1R(&state, roi_size, win_size, ippAlgHintFast, state_buffer));
     };
 
     virtual std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions) override {
+        if(!state_buffer) {
+            IppiSize roi_size {image.width_px, image.height_px};
+            {
+                int state_size = 0;
+                check(ippiOpticalFlowPyrLKGetSize(win_size, roi_size, ipp8u, ippAlgHintFast, &state_size));
+                state_buffer = ippsMalloc_8u(state_size);
+            }
+            check(ippiOpticalFlowPyrLKInit_8u_C1R(&state, roi_size, win_size, ippAlgHintFast, state_buffer));
+        }
         prev.points.resize(predictions.size());
         next.points.resize(predictions.size());
         statuses.resize(predictions.size());

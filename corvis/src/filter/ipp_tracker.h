@@ -215,7 +215,7 @@ public:
         }
         size_t found=0;
         for (size_t i = 0; i < predictions.size(); i++) {
-            if (statuses[i] == ipp_image_pyramid::levels) {
+            if (statuses[i] < ipp_image_pyramid::levels) {
                 predictions[i].x = next.points[i].x;
                 predictions[i].y = next.points[i].y;
                 predictions[i].score = errors[i];

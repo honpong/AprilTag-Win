@@ -55,6 +55,7 @@ for packet_type in packets:
   print "\tRate:", 1/(mean_delta/1e6), "hz"
   print "\tmean dt (us):", mean_delta
   print "\tstd dt (us):", numpy.std(deltas)
+  print "\tstart (s) finish (s):", numpy.min(timestamps)/1e6, numpy.max(timestamps)/1e6
   print "\tlength (s):", (numpy.max(timestamps) - numpy.min(timestamps))/1e6
   exceptions = numpy.flatnonzero(numpy.logical_or(deltas > mean_delta*1.05, deltas < mean_delta*0.95))
   print len(exceptions), "samples are more than 5% from mean"

@@ -150,10 +150,8 @@ public:
         // FIXME: use correct size of scores[] and corners[] which is [offset, roi_size)
         for (int y=0; y<mask.scaled_height; y++)
             for (int x=0; x<mask.scaled_width; x++)
-                if (mask.mask[y * mask.scaled_width + x] == 0) {
+                if (mask.mask[y * mask.scaled_width + x] == 0)
                     std::memset(&corners[y*corners_step + x], 0, sizeof(*corners)*(1<<mask.mask_shift));
-                    std::memset(&scores[y*scores_step + x], 0, sizeof(*scores)*(1<<mask.mask_shift));
-                }
 
         corner_vec.resize(num_corners);
         if (num_corners) // When num_corners == 0, corner_vec.data() == NULL and IPP doesn't like that.

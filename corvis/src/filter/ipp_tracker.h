@@ -219,7 +219,9 @@ public:
                 predictions[i].x = next.points[i].x;
                 predictions[i].y = next.points[i].y;
                 predictions[i].score = errors[i];
-                predictions[i].found = true; found++;
+                if(errors[i] < 10) {
+                    predictions[i].found = true; found++;
+                }
             }
         }
         std::swap(prev, next);

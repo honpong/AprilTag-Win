@@ -43,7 +43,6 @@ class ipp_image_pyramid {
         IppiSize roi_size = {width, height};
         float rate = 2;
         std::array<Ipp16s, 3> kernel = {1,2,1};
-        int step = 0;
 
         {
             int pyramid_size, buffer_size;

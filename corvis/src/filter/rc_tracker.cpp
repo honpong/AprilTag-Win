@@ -436,7 +436,7 @@ rc_TrackerState rc_getState(const rc_Tracker *tracker)
 rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker)
 {
     rc_TrackerConfidence confidence = rc_E_CONFIDENCE_NONE;
-    if(tracker->sfm.run_state == rc_E_RUNNING)
+    if(tracker->sfm.run_state == RCSensorFusionRunStateRunning)
     {
         if(tracker->sfm.detector_failed) confidence = rc_E_CONFIDENCE_LOW;
         else if(tracker->sfm.has_converged) confidence = rc_E_CONFIDENCE_HIGH;

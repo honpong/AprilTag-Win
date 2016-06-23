@@ -16,6 +16,10 @@ parser.add_argument("capture_filename")
 
 args = parser.parse_args()
 
+accel_type = 20
+gyro_type = 21
+image_raw_type = 29
+
 packets = defaultdict(list)
 f = open(args.capture_filename)
 header_size = 16
@@ -28,12 +32,12 @@ while header_str != "":
   if args.verbose:
       print packet_str, pbytes, ptype, user, float(ptime)/1e6,
   data = f.read(pbytes-header_size)
-  if ptype == 20 or ptype == 21:
+  if ptype == accel_type or ptype == gyro_type:
       # packets are padded to 8 byte boundary
       (x, y, z) = unpack('fff', data[:12])
       if args.verbose:
           print "\t", x, y, z
-  if ptype == 29:
+  if ptype == image_raw_type:
       (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
       type_str = format_types[camera_format]
       packet_str += "_" + type_str

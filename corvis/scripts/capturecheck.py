@@ -52,11 +52,31 @@ while header_str != "":
       packet_str = str(ptype)
   packets[packet_str].append(int(ptime))
   if not (ptype == accel_type or ptype == gyro_type) and prev_packet_str == packet_str:
-      warnings[packet_str].append(int(ptime))
+      warnings[packet_str].append((int(last_time), int(ptime)))
+  last_time = ptime
   prev_packet_str = packet_str
   header_str = f.read(header_size)
 
 f.close()
+
+def compress_warnings(warning_list):
+    output_list = []
+    i = 0
+    current_list = []
+    while i < len(warning_list)-1:
+        print warning_list[i], i
+        adjacent = warning_list[i][1] == warning_list[i+1][0]
+        current_list.append(warning_list[i][0])
+        if not adjacent:
+            current_list.append(warning_list[i][1])
+            output_list.append(current_list)
+            current_list = []
+        i += 1
+    if len(current_list):
+        current_list.append(warning_list[i][0])
+        current_list.append(warning_list[i][1])
+        output_list.append(current_list)
+    return output_list
 
 for packet_type in packets:
   timestamps = numpy.array(packets[packet_type])
@@ -76,6 +96,7 @@ for packet_type in packets:
       for e in exceptions:
           print "Exception: t t+1 delta", timestamps[e], timestamps[e+1], deltas[e]
   if args.warnings:
-      for w in warnings[packet_type]:
-          print "Warning: t", w
+      compressed_warnings = compress_warnings(warnings[packet_type])
+      for w in compressed_warnings:
+          print "Warning: ", len(w), "images at timestamps:", w
   print ""

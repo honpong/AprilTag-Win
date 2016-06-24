@@ -1024,9 +1024,9 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(10);
     f->s.dw.set_initial_variance(10);
-    f->s.ddw.set_initial_variance(530*530);
+    f->s.ddw.set_initial_variance(466*466);
     f->s.a.set_initial_variance(10);
-    f->s.da.set_initial_variance(8*8);
+    f->s.da.set_initial_variance(9*9);
 
     f->s.camera_intrinsics.focal_length.set_initial_variance(10. / cam.intrinsics.height_px / cam.intrinsics.height_px);
     f->s.camera_intrinsics.center_x.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);

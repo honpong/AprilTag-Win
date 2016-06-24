@@ -20,7 +20,8 @@ void state_motion_orientation::cache_jacobians(f_t dt)
 
 void state_motion_orientation::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
-    for(int i = 0; i < src.rows(); ++i) {
+    //NOTE: Any changes here must also be reflected in state_vision:project_motion_covariance
+    for(int i = 0; i < dst.cols(); ++i) {
         const auto scov_Q = Q.from_row(src, i);
         const auto cov_w = w.from_row(src, i);
         const auto cov_dw = dw.from_row(src, i);
@@ -69,7 +70,8 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
 
     if (orientation_only) return;
 
-    for(int i = 0; i < src.rows(); ++i) {
+    //NOTE: Any changes here must also be reflected in state_vision:project_motion_covariance
+    for(int i = 0; i < dst.cols(); ++i) {
         const auto cov_T = T.from_row(src, i);
         const auto cov_V = V.from_row(src, i);
         const auto cov_a = a.from_row(src, i);

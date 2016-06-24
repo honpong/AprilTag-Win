@@ -531,7 +531,7 @@ void state_vision::cache_jacobians(f_t dt)
 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
-    for(int i = 0; i < src.rows(); ++i) {
+    for(int i = 0; i < dst.cols(); ++i) {
         const auto cov_w = w.from_row(src, i);
         const auto cov_dw = dw.from_row(src, i);
         const v3 cov_dW = dt * (cov_w + dt/2 * cov_dw);

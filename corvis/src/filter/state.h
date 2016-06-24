@@ -187,7 +187,8 @@ public:
                 cov(i, j) = cov(j, i) = tmp(i, j);
 
         //compute the UL matrix
-        project_motion_covariance(cov.cov, tmp, dt);
+        matrix ul(cov.cov, 0, 0, dynamic_statesize, dynamic_statesize);
+        project_motion_covariance(ul, tmp, dt);
 
         //enforce symmetry
         //for(int i = 0; i < dynamic_statesize; ++i)

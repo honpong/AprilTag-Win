@@ -3,7 +3,7 @@
 #include "rc_tracker.h"
 #include "calibration_xml.h"
 
-#define CALIBRATION_VERSION 8
+#define CALIBRATION_VERSION_LEGACY 8
 
 struct calibration_json {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

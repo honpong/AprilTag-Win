@@ -124,7 +124,7 @@ static void copy_calibration_to_json(const calibration_json &cal, Value &json, D
     Value name(kStringType);
     name.SetString(cal.device_id.c_str(), a);
     json.AddMember(KEY_DEVICE_NAME, name, a);
-    json.AddMember(KEY_CALIBRATION_VERSION, CALIBRATION_VERSION, a);
+    json.AddMember(KEY_CALIBRATION_VERSION, CALIBRATION_VERSION_LEGACY, a);
 
     copy_imu_to_json(cal.imu, json, a);
     copy_camera_to_json(cal.color, json, a);

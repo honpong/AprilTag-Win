@@ -1051,7 +1051,7 @@ void filter_get_device_parameters(const struct filter *f, device_parameters *dev
 
     device->depth = f->depth;
 
-    device->version = CALIBRATION_VERSION;
+    device->version = CALIBRATION_VERSION_LEGACY;
     cam.intrinsics.width_px  = f->s.camera_intrinsics.image_width;
     cam.intrinsics.height_px = f->s.camera_intrinsics.image_height;
     cam.intrinsics.f_x_px = f->s.camera_intrinsics.focal_length.v * f->s.camera_intrinsics.image_height;

@@ -10,7 +10,7 @@ TEST(device_parameters_tests, get_parameters_for_device)
 {
     device_parameters cal;
     get_parameters_for_device(DEVICE_TYPE_GIGABYTES11, &cal);
-    EXPECT_EQ(cal.version, CALIBRATION_VERSION);
+    EXPECT_EQ(cal.version, CALIBRATION_VERSION_LEGACY);
 }
 
 TEST(device_parameters_tests, device_set_resolution)

@@ -91,13 +91,17 @@ typedef struct rc_Vector {
 typedef float rc_Pose[12];
 
 typedef struct {
-    rc_Pose alignment_and_bias_m__s2;
-    float noiseVariance_m2__s4;
+    rc_Pose scale_and_alignment;
+    rc_Vector bias_m__s2;
+    rc_Vector bias_variance_m2__s4;
+    float measurement_variance_m2__s4;
 } rc_AccelerometerIntrinsics;
 
 typedef struct {
-    rc_Pose alignment_and_bias_rad__s;
-    float noiseVariance_rad2__s2;
+    rc_Pose scale_and_alignment;
+    rc_Vector bias_rad__s;
+    rc_Vector bias_variance_rad2__s2;
+    float measurement_variance_rad2__s2;
 } rc_GyroscopeIntrinsics;
 
 static const rc_Pose rc_POSE_IDENTITY = { 1.f, 0.f, 0.f, 0.f,
@@ -178,16 +182,23 @@ typedef struct rc_CameraIntrinsics {
     };
 } rc_CameraIntrinsics;
 
+typedef struct rc_Extrinsics {
+    rc_Vector T;
+    rc_Vector W;
+    rc_Vector T_variance;
+    rc_Vector W_variance;
+} rc_Extrinsics;
+
 /**
  @param tracker The active rc_Tracker instance
  @param camera_id Refers to one of a specific supported predefined set
  @param extrinsics_wrt_accel_m Transformation from the Camera frame to the Accelerometer frame in meters (may be NULL)
  @param intrinsics Camera Intrinsics (may be NULL)
  */
-RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id,       rc_Pose extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics);
-RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Pose extrinsics_wrt_origin_m, const rc_CameraIntrinsics *intrinsics);
-RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Pose extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics * intrinsics);
-RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Pose extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics * intrinsics);
+RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id,       rc_Extrinsics extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics);
+RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Extrinsics extrinsics_wrt_origin_m, const rc_CameraIntrinsics *intrinsics);
+RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics * intrinsics);
+RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extrinsics extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics * intrinsics);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 /**

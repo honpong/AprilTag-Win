@@ -21,8 +21,8 @@ static bool require_key(const Value &json, const char * KEY)
     return true;
 }
 
-static void copy_json_to_camera(Value &json, calibration::camera &cam, Document::AllocatorType& a);
-static void copy_json_to_imu(Value &json, struct calibration::imu &imu, Document::AllocatorType& a);
+static void copy_json_to_camera(Value &json, calibration_xml::camera &cam, Document::AllocatorType& a);
+static void copy_json_to_imu(Value &json, struct calibration_xml::imu &imu, Document::AllocatorType& a);
 static void copy_json_to_calibration(Value &json, calibration_json &cal, Document::AllocatorType& a)
 {
     cal = calibration_json{};
@@ -36,7 +36,7 @@ static void copy_json_to_calibration(Value &json, calibration_json &cal, Documen
         copy_json_to_camera(json[KEY_DEPTH], cal.depth, a);
 }
 
-static void copy_json_to_camera(Value &json, calibration::camera &cam, Document::AllocatorType& a)
+static void copy_json_to_camera(Value &json, calibration_xml::camera &cam, Document::AllocatorType& a)
 {
     if (json.HasMember(KEY_IMAGE_WIDTH))  cam.intrinsics.width_px  = json[KEY_IMAGE_WIDTH].GetInt();
     if (json.HasMember(KEY_IMAGE_HEIGHT)) cam.intrinsics.height_px = json[KEY_IMAGE_HEIGHT].GetInt();
@@ -80,7 +80,7 @@ static void copy_json_to_camera(Value &json, calibration::camera &cam, Document:
 
 }
 
-static void copy_json_to_imu(Value &json, struct calibration::imu &imu, Document::AllocatorType& a)
+static void copy_json_to_imu(Value &json, struct calibration_xml::imu &imu, Document::AllocatorType& a)
 {
     if (json.HasMember(KEY_ABIAS0) && json.HasMember(KEY_ABIAS1) && json.HasMember(KEY_ABIAS2))
         imu.a_bias_m__s2 = v3(json[KEY_ABIAS0].GetDouble(),
@@ -117,8 +117,8 @@ static void copy_json_to_imu(Value &json, struct calibration::imu &imu, Document
             imu.w_alignment(i) = json[KEY_GYRO_TRANSFORM][i].GetDouble();
 }
 
-static void copy_camera_to_json(const calibration::camera &cam, Value &json, Document::AllocatorType& a);
-static void copy_imu_to_json(const struct calibration::imu &imu, Value &json, Document::AllocatorType& a);
+static void copy_camera_to_json(const calibration_xml::camera &cam, Value &json, Document::AllocatorType& a);
+static void copy_imu_to_json(const struct calibration_xml::imu &imu, Value &json, Document::AllocatorType& a);
 static void copy_calibration_to_json(const calibration_json &cal, Value &json, Document::AllocatorType& a)
 {
     Value name(kStringType);
@@ -135,7 +135,7 @@ static void copy_calibration_to_json(const calibration_json &cal, Value &json, D
     }
 }
 
-static void copy_camera_to_json(const calibration::camera &cam, Value &json, Document::AllocatorType& a)
+static void copy_camera_to_json(const calibration_xml::camera &cam, Value &json, Document::AllocatorType& a)
 {
     json.AddMember(KEY_IMAGE_WIDTH, cam.intrinsics.width_px, a);
     json.AddMember(KEY_IMAGE_HEIGHT, cam.intrinsics.height_px, a);
@@ -169,7 +169,7 @@ static void copy_camera_to_json(const calibration::camera &cam, Value &json, Doc
     json.AddMember(KEY_TCVAR2, cam.extrinsics_var_wrt_imu_m.T[2], a);
 }
 
-static void copy_imu_to_json(const struct calibration::imu &imu, Value &json, Document::AllocatorType& a)
+static void copy_imu_to_json(const struct calibration_xml::imu &imu, Value &json, Document::AllocatorType& a)
 {
     json.AddMember(KEY_ABIAS0, imu.a_bias_m__s2[0], a);
     json.AddMember(KEY_ABIAS1, imu.a_bias_m__s2[1], a);

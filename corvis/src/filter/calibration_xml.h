@@ -4,7 +4,7 @@
 #include "transformation.h"
 #include <string>
 
-struct calibration {
+struct calibration_xml {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     std::string device_id;
     struct camera {
@@ -28,5 +28,5 @@ struct calibration {
     } geo_location;
 };
 
-bool calibration_serialize_xml(const calibration &cal, std::string &xml);
-bool calibration_deserialize_xml(const std::string &xml, calibration &cal);
+bool calibration_serialize_xml(const calibration_xml &cal, std::string &xml);
+bool calibration_deserialize_xml(const std::string &xml, calibration_xml &cal);

@@ -9,8 +9,8 @@ struct calibration_json {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     int version;
     std::string device_id;
-    struct calibration::imu imu;
-    struct calibration::camera color, depth;
+    struct calibration_xml::imu imu;
+    struct calibration_xml::camera color, depth;
 };
 
 bool calibration_serialize(const calibration_json &cal, std::string &jsonString);

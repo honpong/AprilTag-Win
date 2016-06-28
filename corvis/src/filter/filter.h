@@ -44,7 +44,7 @@ struct filter {
 
     bool gravity_init;
 
-    calibration::camera depth = {};
+    calibration_xml::camera depth = {};
 
     sensor_clock::time_point want_start;
     bool got_accelerometer, got_gyroscope, got_image; //TODOMSM - if we expect, and want to wait for all sensors, this should be per-sensor

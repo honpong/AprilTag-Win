@@ -116,7 +116,7 @@ TEST(CalibrationXML, Parse)
   </geo_location>
 </rig>
 )";
-    calibration cal;
+    calibration_xml cal;
     ASSERT_TRUE(calibration_deserialize_xml(xml, cal));
 
     EXPECT_EQ(cal.imu.w_bias_rad__s[1], 23);
@@ -147,7 +147,7 @@ TEST(CalibrationXML, Parse)
 
     std::string tmp;
     EXPECT_TRUE(calibration_serialize_xml(cal, tmp));
-    calibration cal2;
+    calibration_xml cal2;
     EXPECT_TRUE(calibration_deserialize_xml(tmp, cal2));
 
     EXPECT_NEAR(cal2.imu.w_bias_rad__s[1],        23,                              (std::numeric_limits<f_t>::epsilon()));
@@ -165,7 +165,7 @@ TEST(CalibrationXML, Parse)
 TEST(CalibrationXML, Print)
 {
     return;
-    calibration cal = {};
+    calibration_xml cal = {};
     cal.device_id = "hello";
 
     cal.depth.extrinsics_wrt_imu_m = transformation(rotation_vector(M_PI/M_SQRT2,-M_PI/M_SQRT2,0), v3(3,4.7,5));
@@ -188,7 +188,7 @@ TEST(CalibrationXML, Print)
     std::string xml;
     EXPECT_TRUE(calibration_serialize_xml(cal, xml));
     std::cout << xml << "\n";
-    calibration out;
+    calibration_xml out;
     EXPECT_TRUE(calibration_deserialize_xml(xml, out));
 
     EXPECT_EQ(cal.device_id, "hello");

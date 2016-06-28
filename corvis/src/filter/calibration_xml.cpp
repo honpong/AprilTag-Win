@@ -45,7 +45,7 @@ class checked_xml_node {
 };
 }
 
-static struct calibration::camera *camera_from_index(calibration &cal, int index) {
+static struct calibration_xml::camera *camera_from_index(calibration_xml &cal, int index) {
     switch (index) {
         case 0: return &cal.fisheye;
         case 1: return &cal.color;
@@ -57,7 +57,7 @@ static struct calibration::camera *camera_from_index(calibration &cal, int index
     }
 }
 
-static struct calibration::frame *frame_from_index(calibration &cal, int index) {
+static struct calibration_xml::frame *frame_from_index(calibration_xml &cal, int index) {
     switch (index) {
         case 41: return &cal.unity;
         case 42: return &cal.opengl;
@@ -74,9 +74,9 @@ typedef xml_node<char> node;
 typedef xml_attribute<char> atrribute;
 typedef checked_xml_node<char> checked_node;
 
-bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
+bool calibration_deserialize_xml(const std::string &xml, calibration_xml &cal)
 {
-    cal = calibration {};
+    cal = calibration_xml {};
     document doc; // needs to be valid in catch
     try {
         doc.parse<
@@ -97,7 +97,7 @@ bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
         for (node *camera = root->first_node("camera"); camera; camera = camera->next_sibling("camera"))
             for (node *camera_model_ = camera->first_node("camera_model"); camera_model_; camera_model_ = camera_model_->next_sibling("camera_model")) {
                 checked_node camera_model(camera_model_);
-                struct calibration::camera *c = camera_from_index(cal, std::atoi(camera_model.assert_attribute("index")->value()));
+                struct calibration_xml::camera *c = camera_from_index(cal, std::atoi(camera_model.assert_attribute("index")->value()));
                 if (!c)
                     continue;
                 c->name = camera_model.assert_attribute("name")->value();
@@ -174,12 +174,12 @@ bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
                 if (B_id == 40) // DEVICE
                     t = &cal.device_wrt_imu_m;
                 else {
-                    struct calibration::camera *c = camera_from_index(cal, B_id);
+                    struct calibration_xml::camera *c = camera_from_index(cal, B_id);
                     if (c)
                         t = &c->extrinsics_wrt_imu_m;
                 }
             } else if (A_id == 40) { // DEVICE
-                struct calibration::frame *f = frame_from_index(cal, B_id);
+                struct calibration_xml::frame *f = frame_from_index(cal, B_id);
                 if (f)
                     t = &f->wrt_device_m;
             } else {
@@ -223,14 +223,14 @@ static char *xml_string(document &doc, double x)
     return doc.allocate_string(s.str().c_str());
 }
 
-bool calibration_serialize_xml(const calibration &cal, std::string &xml)
+bool calibration_serialize_xml(const calibration_xml &cal, std::string &xml)
 {
     document doc;
     node *root; doc.append_node(root = doc.allocate_node(node_element, "rig"));
     root->append_node(doc.allocate_node(node_element, "device_id", cal.device_id.c_str()));
 
     int index = 0;
-    for (const calibration::camera *c : {&cal.fisheye, &cal.color, &cal.ir, &cal.depth}) {
+    for (const calibration_xml::camera *c : {&cal.fisheye, &cal.color, &cal.ir, &cal.depth}) {
         const char *type =
             c->intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE     ? "calibu_fu_fv_u0_v0_w" :
             c->intrinsics.type == rc_CALIBRATION_TYPE_POLYNOMIAL3 ? "calibu_fu_fv_u0_v0_k1_k2_k3" :

@@ -182,7 +182,7 @@ void rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Pose 
         rc_trace(*intrinsics);
     }
     // Make this given camera the current camera
-    calibration::camera *cam =
+    calibration_xml::camera *cam =
         (intrinsics->format == rc_FORMAT_GRAY8)   ? &tracker->device.color :
         (intrinsics->format == rc_FORMAT_DEPTH16) ? &tracker->device.depth : nullptr;
     if (cam && extrinsics_wrt_origin_m)
@@ -197,7 +197,7 @@ bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_Pose extrin
     return false;
     /*
     // When you query a currently configure camera, you get the info from the current 'device' struct
-    const calibration::camera *cam =
+    const calibration_xml::camera *cam =
         (camera_id == rc_CAMERA_ID_DEPTH   && tracker->device.depth.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN) ? &tracker->device.depth :
         (camera_id == rc_CAMERA_ID_COLOR   && tracker->device.color.intrinsics.type != rc_CALIBRATION_TYPE_FISHEYE) ||
         (camera_id == rc_CAMERA_ID_FISHEYE && tracker->device.color.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE) ? &tracker->device.color :
@@ -597,7 +597,7 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
     if(trace) trace_log->info("rc_setCalibration {}", buffer);
     std::string str(buffer);
     if (str.find("<") != std::string::npos && (str.find("{") == std::string::npos || str.find("<") < str.find("{"))) {
-        struct calibration multi_camera_calibration;
+        struct calibration_xml multi_camera_calibration;
         if (!calibration_deserialize_xml(str, multi_camera_calibration))
             return false;
         // Store the multi-camera calibration for rc_describeCamera() and in case we want to write it back out

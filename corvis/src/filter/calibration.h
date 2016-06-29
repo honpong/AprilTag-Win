@@ -9,7 +9,6 @@
 template<class T> class sensor_calibration {
     public:
         std::string name;
-        uint64_t id;
         rc_Extrinsics extrinsics;
         T intrinsics;
         sensor_calibration(rc_Extrinsics _extrinsics, T _intrinsics) : extrinsics(_extrinsics), intrinsics(_intrinsics) {};

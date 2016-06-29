@@ -179,7 +179,7 @@ typedef struct rc_CameraIntrinsics {
     double f_x_px, f_y_px;
     double c_x_px, c_y_px;
     union {
-        double distortion[5];
+        double distortion[3];
         struct { double k1,k2,k3; };
         double w;
     };

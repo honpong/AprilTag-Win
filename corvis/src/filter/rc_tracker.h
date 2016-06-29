@@ -78,7 +78,10 @@ typedef enum rc_TrackerConfidence
 } rc_TrackerConfidence;
 
 typedef struct rc_Vector {
-    float x,y,z;
+    union {
+        struct { float x,y,z; };
+        float v[3];
+    };
 } rc_Vector;
 
 /**

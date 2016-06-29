@@ -51,14 +51,6 @@ sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu
     return sensor_calibration_imu(extrinsics, intrinsics);
 }
 
-v3 bound_variance(const v3 & variance)
-{
-    v3 min_variance(1e-11, 1e-11, 1e-11);
-    v3 max_variance(1e-9, 1e-6, 1e-6);
-
-    return variance.array().min(max_variance.array()).max(min_variance.array());
-}
-
 sensor_calibration_camera calibration_convert_camera(const struct calibration_xml::camera & legacy_camera)
 {
     rc_Extrinsics extrinsics({0});

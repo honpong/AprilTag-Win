@@ -2,6 +2,7 @@
 #include "rc_tracker.h"
 #include "sensor_fusion.h"
 #include "capture.h"
+#include "calibration.h"
 #include <fstream>
 
 #define RC_STR_(x) #x
@@ -609,29 +610,29 @@ size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
 {
     if(trace) trace_log->info("rc_setCalibration {}", buffer);
-    std::string str(buffer);
-    if (str.find("<") != std::string::npos && (str.find("{") == std::string::npos || str.find("<") < str.find("{"))) {
-        struct calibration_xml multi_camera_calibration;
-        if (!calibration_deserialize_xml(str, multi_camera_calibration))
-            return false;
-        // Store the multi-camera calibration for rc_describeCamera() and in case we want to write it back out
-        tracker->calibration = multi_camera_calibration;
-        // Pick the imu,depth,color combo from multi-camera calibration defaulting to fisheye if it's available
-        calibration_json device;
-        device.device_id = multi_camera_calibration.device_id;
-        device.depth = multi_camera_calibration.depth;
-        device.color = multi_camera_calibration.fisheye.intrinsics.type ?
-            multi_camera_calibration.fisheye :
-            multi_camera_calibration.color;
-        device.imu   = multi_camera_calibration.imu;
-        tracker->set_calibration(device);
-    } else {
-        calibration_json device;
-        if (!calibration_deserialize(buffer, device))
-            return false;
-        if (tracker->calibration.device_id != "") // prefer the XML device_id (which usually has the serial number)
-            device.device_id = tracker->calibration.device_id;
-        tracker->set_calibration(device);
+    calibration cal;
+    if(!calibration_deserialize(buffer, cal))
+        return false;
+
+    tracker->sfm.cameras.clear();
+    tracker->sfm.depths.clear();
+    tracker->sfm.accelerometers.clear();
+    tracker->sfm.gyros.clear();
+
+    int id = 0;
+    for(auto imu : cal.imus) {
+        rc_configureAccelerometer(tracker, id, &imu.extrinsics, &imu.intrinsics.accelerometer);
+        rc_configureGyroscope(tracker, id, &imu.extrinsics, &imu.intrinsics.gyroscope);
+        id++;
     }
+
+    id = 0;
+    for(auto camera : cal.cameras)
+        rc_configureCamera(tracker, id++, &camera.extrinsics, &camera.intrinsics);
+
+    id = 0;
+    for(auto depth : cal.depths)
+        rc_configureCamera(tracker, id++, &depth.extrinsics, &depth.intrinsics);
+
     return true;
 }

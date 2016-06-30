@@ -59,6 +59,17 @@ bool replay::load_calibration(std::string filename)
     return true;
 }
 
+bool replay::save_calibration(std::string filename)
+{
+    std::string json;
+    if (calibration_serialize(get_device_parameters(), json)) {
+        std::ofstream out(filename);
+        if(!out) return false;
+        out << json;
+    }
+    return true;
+}
+
 bool replay::set_calibration_from_filename(const char *filename)
 {
     string fn(filename), json;

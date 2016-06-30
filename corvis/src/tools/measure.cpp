@@ -1,5 +1,4 @@
 #include "../filter/replay.h"
-#include "../filter/calibration_json.h"
 #include "../vis/world_state.h"
 #include "../vis/offscreen_render.h"
 #include "../vis/gui.h"
@@ -113,15 +112,7 @@ int main(int c, char **v)
         return true;
     };
 
-    auto update_calibration = [](replay &rp, const std::string &file) {
-        std::string json;
-        if (calibration_serialize(rp.get_device_parameters(), json)) {
-            std::ofstream out(file);
-            out << json;
-        }
-    };
-
-    auto print_results = [&calibrate, &update_calibration](replay &rp, const char *capture_file) {
+    auto print_results = [&calibrate](replay &rp, const char *capture_file) {
         std::cout << std::fixed << std::setprecision(2);
         std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
         std::cout << "Computed  Straight-line length is " << 100*rp.get_length()           << " cm, total path length " << 100*rp.get_path_length()           << " cm\n";
@@ -131,7 +122,7 @@ int main(int c, char **v)
         else if (rp.fusion.sfm.speed_failed)     std::cout << "Too fast, not updating calibration\n";
         else if (rp.fusion.sfm.numeric_failed)   std::cout << "Numeric error, not updating calibration\n";
         else if (rp.fusion.sfm.calibration_bad)  std::cout << "Bad calibration, not updating calibration\n";
-        else if (calibrate) { update_calibration(rp, rp.calibration_file); std::cout << "Updating " << rp.calibration_file << "\n"; }
+        else if (calibrate) { rp.save_calibration(rp.calibration_file); std::cout << "Updating " << rp.calibration_file << "\n"; }
         else                                     std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
@@ -227,7 +218,7 @@ int main(int c, char **v)
     }
 
     if (save)
-        update_calibration(rp, save);
+        rp.save_calibration(save);
 
     print_results(rp, filename);
     return 0;

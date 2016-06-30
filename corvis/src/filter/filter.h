@@ -3,8 +3,7 @@
 
 #include "state_vision.h"
 #include "observation.h"
-#include "device_parameters.h"
-#include "calibration_xml.h"
+#include "calibration_json.h"
 #include "../numerics/transformation.h"
 #ifdef ENABLE_QR
 #include "qr.h"
@@ -110,9 +109,9 @@ void filter_start_qr_detection(struct filter *f, const std::string& data, float 
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
 #endif
-void filter_get_device_parameters(const struct filter *f, device_parameters *device);
+void filter_get_calibration(const struct filter *f, calibration_json *calibration);
 
-extern "C" void filter_initialize(struct filter *f, device_parameters *device);
+extern "C" void filter_initialize(struct filter *f, calibration_json *calibration);
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
 

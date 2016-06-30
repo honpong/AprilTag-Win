@@ -17,7 +17,6 @@
 #include "../cor/sensor_fusion_queue.h"
 #include "RCSensorFusionInternals.h"
 #include "camera_control_interface.h"
-#include "device_parameters.h"
 #include "filter.h"
 #include "sensor.h"
 
@@ -59,8 +58,8 @@ public:
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
     
-    device_parameters get_device() const;
-    void set_device(const device_parameters &dc);
+    calibration_json get_calibration() const;
+    void set_calibration(const calibration_json &dc);
     
     /** Sets the current location of the device.
      
@@ -206,7 +205,7 @@ public:
 
     //public for now
     filter sfm;
-    device_parameters device;
+    calibration_json device;
     struct calibration_xml calibration;
 
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates

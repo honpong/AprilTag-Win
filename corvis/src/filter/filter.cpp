@@ -883,7 +883,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
 }
 
 //This should be called every time we want to initialize or reset the filter
-extern "C" void filter_initialize(struct filter *f, device_parameters *device)
+extern "C" void filter_initialize(struct filter *f, calibration_json *device)
 {
     auto &imu = device->imu;
     auto &cam = device->color;
@@ -1044,7 +1044,7 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.remap();
 }
 
-void filter_get_device_parameters(const struct filter *f, device_parameters *device)
+void filter_get_calibration(const struct filter *f, calibration_json *device)
 {
     auto &cam = device->color;
     auto &imu = device->imu;

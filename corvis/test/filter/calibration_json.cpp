@@ -11,7 +11,7 @@ using namespace std;
 
 TEST(calibration_json, SerializeDeserialize)
 {
-    device_parameters cal, calDeserialized;
+    calibration_json cal, calDeserialized;
     EXPECT_TRUE(calibration_load_defaults(DEVICE_TYPE_UNKNOWN, cal));
 
     try
@@ -35,7 +35,7 @@ TEST(calibration_json, SerializeDeserialize)
 
 TEST(calibration_json, DeserializeCalibration)
 {
-    device_parameters calDeserialized;
+    calibration_json calDeserialized;
 
     try
     {
@@ -59,3 +59,20 @@ TEST(calibration_json, calibration_deserialize)
     EXPECT_FLOAT_EQ(calOutput.imu.a_alignment(7), 0.6);
     EXPECT_EQ("test", calOutput.device_id);
 }
+
+TEST(calibration_json, get_parameters_for_device)
+{
+    calibration_json cal;
+    get_parameters_for_device(DEVICE_TYPE_GIGABYTES11, &cal);
+    EXPECT_EQ(cal.version, CALIBRATION_VERSION_LEGACY);
+}
+
+TEST(calibration_json, device_set_resolution)
+{
+    calibration_json cal;
+    device_set_resolution(&cal, 96, 69);
+
+    EXPECT_EQ(96, cal.color.intrinsics.width_px);
+    EXPECT_EQ(69, cal.color.intrinsics.height_px);
+}
+

@@ -10,7 +10,6 @@
 #include <string.h>
 #include <regex>
 #include "calibration_json.h"
-#include "device_parameters.h"
 #include "../cor/packet.h"
 
 bool replay::open(const char *name)
@@ -31,14 +30,14 @@ bool replay::open(const char *name)
 
 void replay::zero_biases()
 {
-    auto device = fusion.get_device();
+    auto cal = fusion.get_calibration();
     for(int i = 0; i < 3; i++) {
-        device.imu.a_bias_m__s2[i] = 0;
-        device.imu.w_bias_rad__s[i] = 0;
-        device.imu.a_bias_var_m2__s4[i] = 1e-3;
-        device.imu.w_bias_var_rad2__s2[i] = 1e-4;
+        cal.imu.a_bias_m__s2[i] = 0;
+        cal.imu.w_bias_rad__s[i] = 0;
+        cal.imu.a_bias_var_m2__s4[i] = 1e-3;
+        cal.imu.w_bias_var_rad2__s2[i] = 1e-4;
     }
-    fusion.set_device(device);
+    fusion.set_calibration(cal);
 
 }
 
@@ -50,19 +49,19 @@ bool replay::load_calibration(std::string filename)
 
     string json((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
 
-    device_parameters dc;
+    calibration_json dc;
     if(!calibration_deserialize(json, dc))
         return false;
 
     calibration_file = filename;
-    fusion.set_device(dc);
+    fusion.set_calibration(dc);
     return true;
 }
 
 bool replay::save_calibration(std::string filename)
 {
     std::string json;
-    if (calibration_serialize(get_device_parameters(), json)) {
+    if (calibration_serialize(get_calibration(), json)) {
         std::ofstream out(filename);
         if(!out) return false;
         out << json;

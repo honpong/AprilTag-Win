@@ -83,7 +83,7 @@ public:
     double get_reference_length() { return reference_length; }
     bool set_reference_from_filename(const string &filename);
     void zero_biases();
-    device_parameters get_device_parameters() const { return fusion.get_device(); }
+    calibration_json get_calibration() const { return fusion.get_calibration(); }
     std::string get_timing_stats() { return fusion.get_timing_stats(); }
     void start_mapping() { fusion.start_mapping(); }
     void save_map(string filename);

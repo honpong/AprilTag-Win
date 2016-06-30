@@ -1,7 +1,6 @@
 #define RCTRACKER_API_EXPORTS
 #include "rc_tracker.h"
 #include "sensor_fusion.h"
-#include "device_parameters.h"
 #include "capture.h"
 #include <fstream>
 
@@ -597,7 +596,7 @@ const char *rc_getTimingStats(rc_Tracker *tracker)
 size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 {
     if(trace) trace_log->info("rc_getCalibration");
-    device_parameters cal = tracker->get_device();
+    calibration_json cal = tracker->get_calibration();
 
     std::string json;
     if (!calibration_serialize(cal, json))
@@ -618,21 +617,21 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
         // Store the multi-camera calibration for rc_describeCamera() and in case we want to write it back out
         tracker->calibration = multi_camera_calibration;
         // Pick the imu,depth,color combo from multi-camera calibration defaulting to fisheye if it's available
-        device_parameters device;
+        calibration_json device;
         device.device_id = multi_camera_calibration.device_id;
         device.depth = multi_camera_calibration.depth;
         device.color = multi_camera_calibration.fisheye.intrinsics.type ?
             multi_camera_calibration.fisheye :
             multi_camera_calibration.color;
         device.imu   = multi_camera_calibration.imu;
-        tracker->set_device(device);
+        tracker->set_calibration(device);
     } else {
-        device_parameters device;
+        calibration_json device;
         if (!calibration_deserialize(buffer, device))
             return false;
         if (tracker->calibration.device_id != "") // prefer the XML device_id (which usually has the serial number)
             device.device_id = tracker->calibration.device_id;
-        tracker->set_device(device);
+        tracker->set_calibration(device);
     }
     return true;
 }

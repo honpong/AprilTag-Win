@@ -23,12 +23,12 @@ std::string render_filename_from_filename(const char * benchmark_folder, const c
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--intel] [--realtime] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
-        cerr << "       " << v[0] << " [--qvga] [--drop-depth] [--intel] --benchmark <directory>\n";
+        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--realtime] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
+        cerr << "       " << v[0] << " [--qvga] [--drop-depth] --benchmark <directory>\n";
         return 1;
     }
 
-    bool realtime = false, start_paused = false, benchmark = false, intel = false, calibrate = false, zero_bias = false;
+    bool realtime = false, start_paused = false, benchmark = false, calibrate = false, zero_bias = false;
     const char *save = nullptr, *load = nullptr;
     std::string save_map, load_map;
     bool qvga = false, depth = true;
@@ -40,7 +40,6 @@ int main(int c, char **v)
         if      (v[i][0] != '-' && !filename) filename = v[i];
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
         else if (strcmp(v[i], "--realtime") == 0) realtime = true;
-        else if (strcmp(v[i], "--intel") == 0) intel = true;
         else if (strcmp(v[i], "--no-realtime") == 0) realtime = false;
         else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;
         else if (strcmp(v[i], "--no-depth") == 0) show_depth = false;
@@ -70,7 +69,6 @@ int main(int c, char **v)
         if(qvga) rp.enable_qvga();
         if(!depth) rp.disable_depth();
         if(realtime) rp.enable_realtime();
-        if(intel) rp.enable_intel();
         if(enable_map) rp.start_mapping();
 
         if(!rp.open(capture_file))
@@ -106,9 +104,6 @@ int main(int c, char **v)
             return false;
         }
 
-        rp.fusion.sfm.s.log = std::make_unique<spdlog::logger>("state", spdlog::sinks::stderr_sink_st::instance());
-        rp.fusion.sfm.s.map.log = std::make_unique<spdlog::logger>("mapper", spdlog::sinks::stderr_sink_st::instance());
-
         return true;
     };
 
@@ -117,13 +112,12 @@ int main(int c, char **v)
         std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
         std::cout << "Computed  Straight-line length is " << 100*rp.get_length()           << " cm, total path length " << 100*rp.get_path_length()           << " cm\n";
         std::cout << "Dispatched " << rp.get_packets_dispatched() << " packets " << rp.get_bytes_dispatched()/1.e6 << " Mbytes\n";
-        if      (rp.fusion.sfm.detector_failed)  std::cout << "Detector failed, not updating calibration\n";
-        else if (rp.fusion.sfm.tracker_failed)   std::cout << "Tracker failed, not updating calibration\n";
-        else if (rp.fusion.sfm.speed_failed)     std::cout << "Too fast, not updating calibration\n";
-        else if (rp.fusion.sfm.numeric_failed)   std::cout << "Numeric error, not updating calibration\n";
-        else if (rp.fusion.sfm.calibration_bad)  std::cout << "Bad calibration, not updating calibration\n";
-        else if (calibrate) { rp.save_calibration(rp.calibration_file); std::cout << "Updating " << rp.calibration_file << "\n"; }
-        else                                     std::cout << "Respected " << rp.calibration_file << "\n";
+        if(rc_getConfidence(rp.tracker) >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
+            std::cout << "Updating " << rp.calibration_file << "\n";
+            rp.save_calibration(rp.calibration_file);
+        }
+        else
+            std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
     if (benchmark) {

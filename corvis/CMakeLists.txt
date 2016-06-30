@@ -46,7 +46,7 @@ add_executable(measure
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 
-target_link_libraries(measure filter)
+target_link_libraries(measure tracker)
 if(ENABLE_VISGL)
     target_link_libraries(measure vis)
 endif()

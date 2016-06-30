@@ -21,6 +21,11 @@ const char *rc_version()
 std::unique_ptr<spdlog::logger> trace_log = std::make_unique<spdlog::logger>("rc_trace", make_shared<spdlog::sinks::null_sink_st> ());
 static const bool trace = false;
 
+static void rc_trace(const rc_Extrinsics e)
+{
+    trace_log->info("{} {} {} var({} {} {});\n {} {} {} (var {} {} {})", e.T.x, e.T.y, e.T.z, e.T_variance.x, e.T_variance.z, e.T_variance.z, e.W.x, e.W.y, e.W.z, e.W_variance.x, e.W_variance.y, e.W_variance.z);
+}
+
 static void rc_trace(const rc_Vector p)
 {
     trace_log->info("{} {} {}", p.x, p.y, p.z);
@@ -50,6 +55,11 @@ static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
         }
         p[i * 4 + 3] = (float)g.T[i];
     }
+}
+
+static transformation rc_Extrinsics_to_transformation(const rc_Extrinsics e)
+{
+    return transformation(rotation_vector(e.W.x, e.W.y, e.W.z), v3(e.T.x, e.T.y, e.T.z));
 }
 
 static transformation rc_Pose_to_transformation(const rc_Pose p)
@@ -177,13 +187,13 @@ void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose i
 }
 
 
-void rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Pose extrinsics_wrt_origin_m, const rc_CameraIntrinsics *intrinsics)
+void rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_CameraIntrinsics * intrinsics)
 {
     //TODO: extrinsics
     //TODO: camera_id
     if(trace) {
         trace_log->info("rc_configureCamera {}", camera_id);
-        rc_trace(extrinsics_wrt_origin_m);
+        rc_trace(*extrinsics_wrt_origin_m);
         rc_trace(*intrinsics);
     }
     // Make this given camera the current camera
@@ -191,12 +201,12 @@ void rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Pose 
         (intrinsics->format == rc_FORMAT_GRAY8)   ? &tracker->device.color :
         (intrinsics->format == rc_FORMAT_DEPTH16) ? &tracker->device.depth : nullptr;
     if (cam && extrinsics_wrt_origin_m)
-        cam->extrinsics_wrt_imu_m = rc_Pose_to_transformation(extrinsics_wrt_origin_m);
+        cam->extrinsics_wrt_imu_m = rc_Extrinsics_to_transformation(*extrinsics_wrt_origin_m);
     if (cam && intrinsics)
         cam->intrinsics = *intrinsics;
 }
 
-bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_Pose extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics)
+bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_Extrinsics * extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics)
 {
     // TODO: camera id
     return false;
@@ -226,13 +236,13 @@ bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_Pose extrin
     */
 }
 
-void rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Pose extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics * intrinsics)
+void rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics * intrinsics)
 {
     //TODO: multi-sensor
     //TODO: extrinsics
     if(trace) {
         trace_log->info("rc_configureAccelerometer {} noise {}", accel_id, intrinsics->measurement_variance_m2__s4);
-        rc_trace(extrinsics_wrt_origin_m);
+        rc_trace(*extrinsics_wrt_origin_m);
         rc_trace(intrinsics->scale_and_alignment);
     }
     Eigen::Map<const Eigen::Matrix<float,3,4>>    a_alignment_bias_m__s2(intrinsics->scale_and_alignment);
@@ -241,13 +251,13 @@ void rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
     tracker->device.imu.a_noise_var_m2__s4 = tracker->calibration.imu.a_noise_var_m2__s4 = intrinsics->measurement_variance_m2__s4;
 }
 
-void rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Pose extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics * intrinsics)
+void rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics * intrinsics)
 {
     //TODO: multi-sensor
     //TODO: extrinsics
     if(trace) {
         trace_log->info("rc_configureGyroscope {} noise {}", gyro_id, intrinsics->measurement_variance_rad2__s2);
-        rc_trace(extrinsics_wrt_origin_m);
+        rc_trace(*extrinsics_wrt_origin_m);
         rc_trace(intrinsics->scale_and_alignment);
     }
     Eigen::Map<const Eigen::Matrix<float,3,4>> w_alignment_bias_rad__s(intrinsics->scale_and_alignment);

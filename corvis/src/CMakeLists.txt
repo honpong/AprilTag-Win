@@ -173,6 +173,7 @@ set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
 find_intel_root(IPP)
 if (IPPROOT)
+    target_compile_definitions(filter PRIVATE HAVE_IPP)
     target_include_directories(filter PUBLIC SYSTEM "${IPPROOT}/include")
     target_link_libraries(filter PRIVATE
         "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippcv${CMAKE_STATIC_LIBRARY_SUFFIX}"

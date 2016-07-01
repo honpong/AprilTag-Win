@@ -153,7 +153,7 @@ bool observation_queue::process(state_root &s)
     if(meas_size) {
         matrix inn(1, meas_size);
         matrix m_cov(1, meas_size);
-        LC.resize(meas_size, statesize);
+        LC.resize(meas_size, statesize + s.fake_statesize);
         res_cov.resize(meas_size, meas_size);
 
         //TODO: implement o->time_apparent != o->time_actual
@@ -161,6 +161,7 @@ bool observation_queue::process(state_root &s)
         compute_measurement_covariance(m_cov);
         compute_prediction_covariance(s, meas_size);
         compute_innovation_covariance(m_cov);
+        LC.resize(meas_size, statesize);
         success = update_state_and_covariance(s, inn);
     } else if(orig_meas_size && orig_meas_size != 3) {
         //s.log->warn("In Kalman update, original measurement size was {}, ended up with 0 measurements!\n", orig_meas_size);

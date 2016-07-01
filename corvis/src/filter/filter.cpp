@@ -806,7 +806,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
             f->log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
-        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - 1) {
+        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - f->s.fake_statesize - 1) {
             ++f->s.maxstatesize;
             f->log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
@@ -957,7 +957,7 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->observations.observations.clear();
 
     f->s.reset();
-    f->s.maxstatesize = MAXSTATESIZE;
+    f->s.maxstatesize = MAXSTATESIZE - f->s.fake_statesize;
 
     f->s.extrinsics.Tc.v = v3(cam.extrinsics_wrt_imu_m.T[0], cam.extrinsics_wrt_imu_m.T[1], cam.extrinsics_wrt_imu_m.T[2]);
     f->s.extrinsics.Qc.v = cam.extrinsics_wrt_imu_m.Q;
@@ -987,8 +987,8 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.Q.set_process_noise(0.);
     f->s.V.set_process_noise(0.);
     f->s.w.set_process_noise(0.);
-    f->s.dw.set_process_noise(530. * 530.); // this stabilizes dw.stdev around 5-6
-    f->s.a.set_process_noise(8.*8.);
+    f->s.dw.set_process_noise(0);
+    f->s.a.set_process_noise(0);
     f->s.g.set_process_noise(1.e-30);
     f->s.extrinsics.Qc.set_process_noise(1.e-30);
     f->s.extrinsics.Tc.set_process_noise(1.e-30);
@@ -1007,8 +1007,10 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     f->s.Q.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(10);
-    f->s.dw.set_initial_variance(10); //observed range of variances in sequences is 1-6
+    f->s.dw.set_initial_variance(10);
+    f->s.ddw.set_initial_variance(466*466);
     f->s.a.set_initial_variance(10);
+    f->s.da.set_initial_variance(9*9);
 
     f->s.camera_intrinsics.focal_length.set_initial_variance(10. / cam.intrinsics.height_px / cam.intrinsics.height_px);
     f->s.camera_intrinsics.center_x.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);

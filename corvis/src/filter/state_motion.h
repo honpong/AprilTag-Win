@@ -31,15 +31,19 @@ public:
     state_quaternion Q;
     state_vector w;
     state_vector dw;
+    state_vector ddw;
     state_imu_intrinsics imu_intrinsics;
     state_scalar g;
     
-    state_motion_orientation(covariance &c): state_root(c), Q("Q"), w("w"), dw("dw"), g("g") {
-        Q.dynamic = true;
-        w.dynamic = true;
+    state_motion_orientation(covariance &c): state_root(c), Q("Q"), w("w"), dw("dw"), ddw("ddw"), g("g") {
+        Q.type = state_node::node_type::dynamic;
+        w.type = state_node::node_type::dynamic;
+        dw.type = state_node::node_type::dynamic;
+        ddw.type = state_node::node_type::fake;
         children.push_back(&Q);
         children.push_back(&w);
         children.push_back(&dw);
+        children.push_back(&ddw);
         children.push_back(&imu_intrinsics);
         //children.push_back(&g);
         g.v = gravity_magnitude;
@@ -75,17 +79,21 @@ public:
     state_vector T;
     state_vector V;
     state_vector a;
+    state_vector da;
 
     float total_distance = 0;
     v3 last_position = v3::Zero();
 
-    state_motion(covariance &c): state_motion_orientation(c), T("T"), V("V"), a("a")
+    state_motion(covariance &c): state_motion_orientation(c), T("T"), V("V"), a("a"), da("da")
     {
-        T.dynamic = true;
-        V.dynamic = true;
+        T.type = state_node::node_type::dynamic;
+        V.type = state_node::node_type::dynamic;
+        a.type = state_node::node_type::dynamic;
+        da.type = state_node::node_type::fake;
         children.push_back(&T);
         children.push_back(&V);
         children.push_back(&a);
+        children.push_back(&da);
     }
     
     virtual void reset()

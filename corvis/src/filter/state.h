@@ -42,15 +42,13 @@ protected:
 
 class state_node {
 public:
-    state_node(): dynamic(false) {}
+    state_node(): type(node_type::regular) {}
     virtual ~state_node() {};
-    bool dynamic;
+    enum class node_type { dynamic, regular, fake } type;
     virtual void copy_state_to_array(matrix &state) = 0;
-    virtual void print_matrix_with_state_labels_dynamic(matrix &state) = 0;
-    virtual void print_matrix_with_state_labels_static(matrix &state) = 0;
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
-    virtual int remap_dynamic(int i, covariance &cov) = 0;
-    virtual int remap_static(int i, covariance &cov) = 0;
+    virtual int remap(int i, covariance &cov, node_type nt) = 0;
     virtual void reset() = 0;
     virtual void remove() = 0;
     virtual std::ostream &print_to(std::ostream & s) const = 0;
@@ -60,8 +58,6 @@ public:
 };
 
 template<class T> class state_branch: public state_node {
-protected:
-    int dynamic_statesize;
 public:
     //for some reason i need this typename qualifier, including without the typedef
     typedef typename list<T>::iterator iterator;
@@ -76,27 +72,14 @@ public:
             c->copy_state_from_array(state);
     }
 
-    virtual void print_matrix_with_state_labels_dynamic(matrix &state) {
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
         for(T c : children)
-            c->print_matrix_with_state_labels_dynamic(state);
-    }
-
-    virtual void print_matrix_with_state_labels_static(matrix &state) {
-        for(T c : children)
-            c->print_matrix_with_state_labels_static(state);
+            c->print_matrix_with_state_labels(state, nt);
     }
     
-    int remap_dynamic(int i, covariance &cov) {
-        int start = i;
+    int remap(int i, covariance &cov, node_type nt) {
         for(T c : children)
-            i = c->remap_dynamic(i, cov);
-        dynamic_statesize = i - start;
-        return i;
-    }
-    
-    int remap_static(int i, covariance &cov) {
-        for(T c : children)
-            i = c->remap_static(i, cov);
+            i = c->remap(i, cov, nt);
         return i;
     }
 
@@ -131,7 +114,7 @@ class state_root: public state_branch<state_node *> {
 public:
     state_root(covariance &c): cov(c), current_time(sensor_clock::micros_to_tp(0)) {}
 
-    int statesize, maxstatesize;
+    int statesize, maxstatesize, dynamic_statesize, fake_statesize;
     covariance &cov;
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", make_shared<spdlog::sinks::null_sink_st> ());
 
@@ -139,8 +122,9 @@ public:
 #ifdef TEST_POSDEF
         if(cov.size() && !test_posdef(cov.cov)) log->error("not pos def at beginning of remap");
 #endif
-        dynamic_statesize = state_branch<state_node *>::remap_dynamic(0, cov);
-        statesize = state_branch<state_node *>::remap_static(dynamic_statesize, cov);
+        dynamic_statesize = state_branch<state_node *>::remap(0, cov, node_type::dynamic);
+        statesize = state_branch<state_node *>::remap(dynamic_statesize, cov, node_type::regular);
+        fake_statesize = state_branch<state_node *>::remap(statesize, cov, node_type::fake) - statesize;
         cov.remap(statesize);
 #ifdef TEST_POSDEF
         if(!test_posdef(cov.cov)) {
@@ -152,8 +136,9 @@ public:
     }
     
     void print_matrix_with_state_labels(matrix &state) {
-        print_matrix_with_state_labels_dynamic(state);
-        print_matrix_with_state_labels_static(state);
+        if(state.rows() >= dynamic_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::dynamic);
+        if(state.rows() >= statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::regular);
+        if(state.rows() >= statesize + fake_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::fake);
     }
 
     virtual std::ostream &print_to(std::ostream & s) const
@@ -177,7 +162,7 @@ public:
     {
         cache_jacobians(dt);
 
-        matrix tmp(dynamic_statesize, cov.size());
+        matrix tmp(dynamic_statesize, cov.size() + fake_statesize);
 
         project_motion_covariance(tmp, cov.cov, dt);
 
@@ -187,7 +172,8 @@ public:
                 cov(i, j) = cov(j, i) = tmp(i, j);
 
         //compute the UL matrix
-        project_motion_covariance(cov.cov, tmp, dt);
+        matrix ul(cov.cov, 0, 0, dynamic_statesize, dynamic_statesize);
+        project_motion_covariance(ul, tmp, dt);
 
         //enforce symmetry
         //for(int i = 0; i < dynamic_statesize; ++i)
@@ -242,27 +228,23 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
     
     void set_initial_variance(f_t x)
     {
-        for(int i = 0; i < size; ++i) initial_variance[i] = x;
+        for(int i = 0; i < size; ++i)
+            for(int j = 0; j < size; ++j)
+                initial_covariance(i, j) = (i==j) ? x : 0;
     }
-
-    int remap_leaf(int i, covariance &c) {
-        if(index < 0)
-            c.add(i, size, process_noise, initial_variance);
-        else
-            c.reindex(i, index, size);
+    
+    int remap(int i, covariance &c, enum node_type nt) {
+        if(nt != type) return i;
+        if(type != node_type::fake)
+        {
+            if(index < 0)
+                c.add(i, process_noise, initial_covariance);
+            else
+                c.reindex(i, index, size);
+        }
         index = i;
         this->cov = &c;
         return i + size;
-    }
-
-    int remap_dynamic(int i, covariance &c) {
-        if(dynamic) return remap_leaf(i, c);
-        else return i;
-    }
-
-    int remap_static(int i, covariance &c) {
-        if(!dynamic) return remap_leaf(i, c);
-        else return i;
     }
 
     void reset_covariance(covariance &covariance_m) {
@@ -271,27 +253,36 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
                 for(int j = 0; j < covariance_m.size(); ++j) {
                     covariance_m(index + i, j) = covariance_m(j, index + i) = 0.;
                 }
-                covariance_m(index + i, index + i) = initial_variance[i];
+                for(int j = 0; j < size; ++j) {
+                    covariance_m(index + i, index + j) = initial_covariance(i, j);
+                }
             }
         }
     }
-
+    
     inline const Eigen::Map< const Eigen::Matrix<f_t, _size, 1>, Eigen::Unaligned, Eigen::OuterStride<> > from_row(const matrix &c, int i) const
     {
-        static const f_t zero[_size] = {};
-        return { index >=0 ? &c(i,index) : &zero[0], Eigen::OuterStride<>(index >= 0 ? c.get_stride() : 1) };
+        static const f_t zero[_size] = { 0 };
+        if(index < 0) return { &zero[0], Eigen::OuterStride<>(1) };
+        if(index >= c.cols()) {
+            if((type == node_type::fake) && (i - index >= 0) && (i - index < _size)) return { &initial_covariance(i - index, 0), Eigen::OuterStride<>(_size) };
+            else return { &zero[0], Eigen::OuterStride<>(1) };
+        }
+        if((i < 0) || (i >= c.rows())) return { &zero[0] , Eigen::OuterStride<>(1) };
+        return { &c(i,index), Eigen::OuterStride<>(c.get_stride()) };
     }
 
     inline Eigen::Map< Eigen::Matrix<f_t, _size, 1>, Eigen::Unaligned, Eigen::InnerStride<> > to_col(matrix &c, int j) const
     {
         static f_t scratch[_size];
-        return { index>=0 ? &c(index,j) : &scratch[0], Eigen::InnerStride<>(index >= 0 ? c.get_stride() : 1) };
+        if((index < 0) || (index >= c.rows())) return { &scratch[0], Eigen::InnerStride<>(1) };
+        else return { &c(index,j), Eigen::InnerStride<>(c.get_stride()) };
     }
 
     void remove() { index = -1; }
 protected:
     f_t process_noise[_size];
-    f_t initial_variance[_size];
+    m<_size, _size> initial_covariance;
 };
 
 #define PERTURB_FACTOR f_t(1.1)
@@ -305,9 +296,10 @@ public:
     
     void set_initial_variance(f_t x, f_t y, f_t z)
     {
-        initial_variance[0] = x;
-        initial_variance[1] = y;
-        initial_variance[2] = z;
+        initial_covariance.setZero();
+        initial_covariance(0, 0) = x;
+        initial_covariance(1, 1) = y;
+        initial_covariance(2, 2) = z;
     }
     
     void reset() {
@@ -316,24 +308,26 @@ public:
     }
     
     void perturb_variance() {
-        if(index < 0) return;
+        if(index < 0 || index >= cov->size()) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
         cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
         cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
     v3 variance() const {
-        if(index < 0) return v3(initial_variance[0], initial_variance[1], initial_variance[2]);
+        if(index < 0 || index >= cov->size()) return v3(initial_covariance(0, 0), initial_covariance(1, 1), initial_covariance(2, 2));
         return v3((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2));
     }
     
     void copy_state_to_array(matrix &state) {
+        if(index < 0 || index >= state.cols()) return;
         state[index] = v[0];
         state[index+1] = v[1];
         state[index+2] = v[2];
     }
     
     virtual void copy_state_from_array(matrix &state) {
+        if(index < 0 || index >= state.cols()) return;
         v[0] = state[index+0];
         v[1] = state[index+1];
         v[2] = state[index+2];
@@ -344,15 +338,8 @@ public:
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
 
-    virtual void print_matrix_with_state_labels_static(matrix &state) {
-        if(dynamic) return;
-        fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
-        fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
-        fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
-    }
-    
-    virtual void print_matrix_with_state_labels_dynamic(matrix &state) {
-        if(!dynamic) return;
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
+        if(type != nt) return;
         fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
         fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
         fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
@@ -368,9 +355,10 @@ public:
     
     void set_initial_variance(f_t x, f_t y, f_t z)
     {
-        initial_variance[0] = x;
-        initial_variance[1] = y;
-        initial_variance[2] = z;
+        initial_covariance.setZero();
+        initial_covariance(0, 0) = x;
+        initial_covariance(1, 1) = y;
+        initial_covariance(2, 2) = z;
     }
     
     void reset() {
@@ -380,24 +368,26 @@ public:
     }
     
     void perturb_variance() {
-        if(index < 0) return;
+        if(index < 0 || index >= cov->size()) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
         cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
         cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
     v3 variance() const {
-        if(index < 0) return v3(initial_variance[0], initial_variance[1], initial_variance[2]);
+        if(index < 0 || index > cov->size()) return v3(initial_covariance(0, 0), initial_covariance(1, 1), initial_covariance(2, 2));
         return v3((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2));
     }
     
     void copy_state_to_array(matrix &state) {
+        if(index < 0 || index >= state.cols()) return;
         state[index] = v.x();
         state[index+1] = v.y();
         state[index+2] = v.z();
     }
     
     virtual void copy_state_from_array(matrix &state) {
+        if(index < 0 || index >= state.cols()) return;
         v.x() = state[index+0];
         v.y() = state[index+1];
         v.z() = state[index+2];
@@ -408,15 +398,8 @@ public:
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
 
-    virtual void print_matrix_with_state_labels_static(matrix &state) {
-        if(dynamic) return;
-        fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
-        fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
-        fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
-    }
-    
-    virtual void print_matrix_with_state_labels_dynamic(matrix &state) {
-        if(!dynamic) return;
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
+        if(type != nt) return;
         fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
         fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
         fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
@@ -433,9 +416,10 @@ public:
     
     void set_initial_variance(f_t x, f_t y, f_t z)
     {
-        initial_variance[0] = x;
-        initial_variance[1] = y;
-        initial_variance[2] = z;
+        initial_covariance.setZero();
+        initial_covariance(0, 0) = x;
+        initial_covariance(1, 1) = y;
+        initial_covariance(2, 2) = z;
     }
 
     void reset() {
@@ -445,24 +429,26 @@ public:
     }
     
     void perturb_variance() {
-        if(index < 0) return;
+        if(index < 0 || index >= cov->size()) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
         cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
         cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
     v3 variance() const {
-        if(index < 0) return v3(initial_variance[0], initial_variance[1], initial_variance[2]);
+        if(index < 0 || index > cov->size()) return v3(initial_covariance(0, 0), initial_covariance(1, 1), initial_covariance(2, 2));
         return v3((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2));
     }
     
     void copy_state_to_array(matrix &state) {
+        if(index < 0 || index >= state.cols()) return;
         state[index+0] = 0;
         state[index+1] = 0;
         state[index+2] = 0;
     }
     
     virtual void copy_state_from_array(matrix &state) {
+        if(index < 0 || index >= state.cols()) return;
         w = rotation_vector(state[index+0], state[index+1], state[index+2]);
         v = to_quaternion(w) * v;
     }
@@ -472,20 +458,13 @@ public:
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
     
-    virtual void print_matrix_with_state_labels_static(matrix &state) {
-        if(dynamic) return;
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
+        if(type != nt) return;
         fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
         fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
         fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
     }
     
-    virtual void print_matrix_with_state_labels_dynamic(matrix &state) {
-        if(!dynamic) return;
-        fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
-        fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
-        fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
-    }
-
 protected:
     rotation_vector w;
 };
@@ -503,30 +482,40 @@ class state_scalar: public state_leaf<f_t, 1> {
     
     inline f_t from_row(const matrix &c, const int i) const
     {
-        return index >= 0 ? c(i, index) : 0;
+        if(index < 0) return 0;
+        if(index >= c.cols())
+        {
+            if((type == node_type::fake) && (i == index)) return initial_covariance(0, 0);
+            else return 0;
+        }
+        if((i < 0) || (i >= c.rows())) return 0;
+        else return c(i, index);
     }
 
     inline f_t &to_col(matrix &c, const int j) const
     {
         static f_t scratch;
-        return index >= 0 ? c(index, j) : scratch;
+        if((index < 0) || (index >= c.rows())) return scratch;
+        else return c(index, j);
     }
     
     void perturb_variance() {
-        if(index < 0) return;
+        if(index < 0 || index >= cov->size()) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
     }
 
     f_t variance() const {
-        if(index < 0) return initial_variance[0];
+        if(index < 0) return initial_covariance(0, 0);
         return (*cov)(index, index);
     }
     
     void copy_state_to_array(matrix &state) {
+        if(index < 0 || index >= state.cols()) return;
         state[index] = v;
     }
     
     virtual void copy_state_from_array(matrix &state) {
+        if(index < 0 || index >= state.cols()) return;
         v = state[index];
     }
     
@@ -535,13 +524,8 @@ class state_scalar: public state_leaf<f_t, 1> {
         return s << name << ": " << v << "±" << std::sqrt(variance());
     }
     
-    virtual void print_matrix_with_state_labels_static(matrix &state) {
-        if(dynamic) return;
-        fprintf(stderr, "%s: ", name); state.row(index).print();
-    }
-    
-    virtual void print_matrix_with_state_labels_dynamic(matrix &state) {
-        if(!dynamic) return;
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
+        if(type != nt) return;
         fprintf(stderr, "%s: ", name); state.row(index).print();
     }
 };

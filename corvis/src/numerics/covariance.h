@@ -54,16 +54,19 @@ public:
         }
     }
     
-    void add(int newindex, int size, f_t * p_noise, f_t * initial_variance)
+    template<int _size>
+    void add(int newindex, f_t * p_noise, const m<_size, _size> &initial_covariance)
     {
         int oldsize = cov.rows();
-        process_noise.resize(oldsize + size);
-        cov.resize(oldsize + size, oldsize + size);
+        process_noise.resize(oldsize + _size);
+        cov.resize(oldsize + _size, oldsize + _size);
 
-        for(int j = 0; j < size; ++j) {
-            process_noise[oldsize+j] = p_noise[j];
-            cov(oldsize+j, oldsize+j) = initial_variance[j];
-            map[newindex+j] = -(oldsize+j);
+        for(int i = 0; i < _size; ++i) {
+            process_noise[oldsize+i] = p_noise[i];
+            map[newindex+i] = -(oldsize+i);
+            for(int j = 0; j < _size; ++j) {
+                cov(oldsize+i, oldsize+j) = initial_covariance(i, j);
+            }
         }
     }
     

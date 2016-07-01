@@ -75,8 +75,8 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
 state_vision_group::state_vision_group(uint64_t group_id): Tr("Tr"), Qr("Qr"), health(0), status(group_initializing)
 {
     id = group_id;
-    Tr.dynamic = true;
-    Qr.dynamic = true;
+    Tr.type = state_node::node_type::dynamic;
+    Qr.type = state_node::node_type::dynamic;
     children.push_back(&Tr);
     children.push_back(&Qr);
     Tr.v = v3(0, 0, 0);
@@ -520,19 +520,23 @@ void state_vision::cache_jacobians(f_t dt)
 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
-    for(int i = 0; i < src.rows(); ++i) {
+    for(int i = 0; i < dst.cols(); ++i) {
         const auto cov_w = w.from_row(src, i);
         const auto cov_dw = dw.from_row(src, i);
-        const v3 cov_dW = dt * (cov_w + dt/2 * cov_dw);
+        const auto cov_ddw = ddw.from_row(src, i);
+        const v3 cov_dW = dt * (cov_w + dt/2 * (cov_dw + dt/3 * cov_ddw));
         const auto scov_Q = Q.from_row(src, i);
-        w.to_col(dst, i) = cov_w + dt * cov_dw;
+        w.to_col(dst, i) = cov_w + dt * (cov_dw + dt/2 * cov_ddw);
+        dw.to_col(dst, i) = cov_dw + dt * cov_ddw;
         Q.to_col(dst, i) = scov_Q + dQp_s_dW * cov_dW;
         const auto cov_V = V.from_row(src, i);
         const auto cov_a = a.from_row(src, i);
         const auto cov_T = T.from_row(src, i);
-        T.to_col(dst, i) = cov_T + dt * (cov_V + dt/2 * cov_a);
-        V.to_col(dst, i) = cov_V + dt * cov_a;
-        const v3 cov_dT = dt * (cov_V + dt/2 * cov_a);
+        const auto cov_da = da.from_row(src, i);
+        const v3 cov_dT = dt * (cov_V + dt/2 * (cov_a + dt/3 * cov_da));
+        T.to_col(dst, i) = cov_T + cov_dT;
+        V.to_col(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
+        a.to_col(dst, i) = cov_a + dt * cov_da;
         for(state_vision_group *g : groups.children) {
             const auto cov_Tr = g->Tr.from_row(src, i);
             const auto scov_Qr = g->Qr.from_row(src, i);

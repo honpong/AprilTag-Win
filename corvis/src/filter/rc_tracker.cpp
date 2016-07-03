@@ -361,7 +361,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shu
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
 
         if(tracker->output.started())
-            tracker->output.write_camera(std::move(d));
+            tracker->output.write_camera(d.make_copy());
         else
             tracker->receive_image(std::move(d));
     } else if (format == rc_FORMAT_GRAY8) {
@@ -376,7 +376,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shu
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
 
         if(tracker->output.started())
-            tracker->output.write_camera(std::move(d));
+            tracker->output.write_camera(d.make_copy());
         else
             tracker->receive_image(std::move(d));
     }

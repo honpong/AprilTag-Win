@@ -1,8 +1,12 @@
 #include "rc_tracker.h"
 #include "rc_sensor_listener.h"
 
+#include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <iterator>
+#include <atomic>
+#include <signal.h>
 
 static bool read_file(const std::string name, std::string &contents)
 {

@@ -61,7 +61,8 @@ add_executable(rc_replay src/tools/rc_replay.cpp src/tracker/rc_replay.cpp)
 set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
 target_link_libraries(rc_replay tracker)
 
-if(ANDROID)
+if(MMSD_ALLOY_ROOT)
+    set(MMSD_ALLOY_ROOT ${MMSD_ALLOY_ROOT} CACHE PATH "")
     add_subdirectory(../ThirdParty/motionapi motionapi)
 
     add_executable(rc_calibrate

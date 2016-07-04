@@ -31,7 +31,7 @@ static bool write_file(const std::string name, const char *contents)
 
 int main(int c, char **v) {
     if (0) { usage:
-        std::cerr << "Usage: " << v[0] << " [--xml <calibration.xml>] [(--save | --load) <calibration-json>]\n";
+        std::cerr << "Usage: " << v[0] << " [--id=<n>] [--xml <calibration.xml>] [(--save | --load) <calibration-json>]\n";
         return 1;
     }
 
@@ -40,11 +40,13 @@ int main(int c, char **v) {
         *calibration_save = "/sdcard/config/calibration.json",
         *calibration_xml = "/sdcard/config/calibration.xml";
     bool drop_depth = false;
+    int device_id = 0;
 
     for (int i=1; i<c; i++)
              if (strcmp(v[i], "--save") == 0 && i+1 < c) calibration_save = v[++i];
         else if (strcmp(v[i], "--load") == 0 && i+1 < c) calibration_load = v[++i];
         else if (strcmp(v[i], "--xml") == 0  && i+1 < c) calibration_xml  = v[++i];
+        else if (strcmp(v[i], "--id") == 0  && i+1 < c) device_id  = atoi(v[++i]);
         else if (strcmp(v[i], "--capture") == 0  && i+1 < c) capture_file = v[++i];
         else goto usage;
 
@@ -179,7 +181,7 @@ int main(int c, char **v) {
         rc_startCalibration(rc, rc_E_ASYNCHRONOUS);
 
     {
-        rc::sensor_listener sl(rc);
+        rc::sensor_listener sl(rc, device_id);
         if (!sl) {
             fprintf(stderr, "unable to connect to the motionservice\n");
             return 1;

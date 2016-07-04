@@ -2,54 +2,75 @@
 
 #include "rc_tracker.h"
 #include "MotionAPI.h"
+#include "MotionDeviceDescriptor.h"
 
 namespace rc {
-    struct sensor_listener : protected motion::MotionListner
+    struct sensor_listener : protected motion::MotionDeviceListner
     {
         rc_Tracker *rc;
         motion::MotionDevice *md;
 
+        static class motion_device_initializer {
+            motion_device_initializer() {
+                for (auto &d : motion::motionDevices)
+                    motion::MotionDeviceManager::instance()->AddMotionDeviceDescriptor(d);
+            }
+        } mdi_;
       public:
         operator bool() { return !!md; }
-        sensor_listener(rc_Tracker *rc_) : rc(rc_) {
-            md = motion::getMotionDeviceManagerInstance()->connect(this);
-            if (!md) return;
-            md->SetIMUCallbackBufferDepth(1);
-            md->SetFisheyeBufferDepth(20);
-            //md->SetAntiFlickerRate();
-            //md->SetExposureLimits(float ExposureSecMin, float ExposureSecMax, float GainMin, float GainMax);
-            md->StartData(MOTION_COMPONENT_ACCEL|MOTION_COMPONENT_GYRO|MOTION_COMPONENT_FISHEYE|MOTION_COMPONENT_DEPTH);
-            md->StartTimestamps(MOTION_COMPONENT_DEPTH); // FIXME
+        sensor_listener(rc_Tracker *rc_, int instance) : rc(rc_) {
+            md = motion::MotionDeviceManager::instance()->connect(this, instance); if (!md) return;
+
+            motion::MotionProfile profile = {};
+            profile.imuBufferDepth = 1;
+            profile.fisheyeBufferDepth = 20;
+            profile.syncIMU = false;
+
+            profile.gyro.enable = true;
+            profile.gyro.fps = motion::MotionProfile::Gyro::FPS_200;
+            profile.gyro.range = motion::MotionProfile::Gyro::RANGE_1000;
+
+            profile.accel.enable = true;
+            profile.accel.fps = motion::MotionProfile::Accel::FPS_125;
+            profile.accel.range = motion::MotionProfile::Accel::RANGE_4;
+
+            profile.fisheye.enable = true;
+            profile.fisheye.fps = motion::MotionProfile::Fisheye::FPS_30;
+
+            profile.depth.enable = false;
+
+            int ret = md->start(profile);
+
         }
         ~sensor_listener() {
             if (!md) return;
-            md->StopTimestamps();
-            md->StopData();
-            motion::getMotionDeviceManagerInstance()->disconnect(md);
+            md->stop();
+            motion::MotionDeviceManager::instance()->disconnect(md);
         }
 
       protected:
-        void sensorCallback(motion::SensorFrame* frame, uint32_t numFrames)
+        void sensorCallback(motion::MotionSensorFrame *frame, int numFrames)
         {
             for (int i=0; i< numFrames; i++)
-                switch(frame[i].type) {
-                    case motion::MOTION_SENSOR_GYRO:  rc_receiveGyro         (rc, frame[i].timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
-                    case motion::MOTION_SENSOR_ACCEL: rc_receiveAccelerometer(rc, frame[i].timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
+                switch(frame[i].header.type) {
+                    case motion::MOTION_SOURCE_GYRO:  rc_receiveGyro         (rc, frame[i].header.timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
+                    case motion::MOTION_SOURCE_ACCEL: rc_receiveAccelerometer(rc, frame[i].header.timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
                 }
         }
 
-        void fisheyeCallback(int slot, uint64_t timestamp)
+        void fisheyeCallback(motion::MotionFisheyeFrame *f)
         {
-            motion::FisheyeFrame *f = md->GetFisheyeFrameDescriptor(slot);
-            struct ctx { motion::MotionDevice *md; int slot; };
-            rc_receiveImage(rc, f->timestamp/1000, f->frameExposureNs/1000, rc_FORMAT_GRAY8, // NOTE: f->timestamp == timestamp
-                            f->frameWidth, f->frameHeight, f->frameStrideInBytes, f->frameData,
-                            [](void*ctx_){ auto ctx = (struct ctx*)ctx_; ctx->md->ReturnFisheyeBuffer(ctx->slot); delete ctx; }, (void*)new ctx{md, slot});
+            struct ctx { motion::MotionDevice *md; motion::MotionFisheyeFrame *f; };
+            rc_receiveImage(rc, f->header.timestamp/1000, f->exposure/1000, rc_FORMAT_GRAY8,
+                            f->width, f->height, f->stride, f->data,
+                            [](void*ctx_){ auto ctx = (struct ctx*)ctx_; ctx->md->returnFisheyeBuffer(ctx->f); delete ctx; },
+                            (void*)new ctx{md, f});
         }
 
-        void timestampCallback(uint32_t source, uint32_t frame_num, uint64_t timestamp_ns)
+        void timestampCallback(motion::MotionTimestampFrame *ts)
         {
-            //std::cout << "source = " << source << " frame_num " << frame_num << " timestamp_ns "  << timestamp_ns << "\n";
         }
+
+        void notifyCallback(uint32_t status, uint8_t *buf, uint32_t size) {}
     };
 }

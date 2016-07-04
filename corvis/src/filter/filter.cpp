@@ -495,7 +495,7 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
     preprocess_observation_queue(f, data.timestamp);
     process_observation_queue(f);
     if(show_tuning) {
-        for (auto &g : f->gyros)
+        for (auto &g : f->gyroscopes)
             cerr << " actual innov stdev is:\n" <<
                 g->inn_stdev << " signal stdev is:\n" <<
                 g->meas_stdev << " bias is:\n" <<
@@ -919,7 +919,7 @@ extern "C" void filter_initialize(struct filter *f, calibration_json *device)
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 1;
 
-    for (auto &g : f->gyros)          g->init();
+    for (auto &g : f->gyroscopes)     g->init();
     for (auto &a : f->accelerometers) a->init();
     for (auto &c : f->cameras)        c->init();
     for (auto &d : f->depths)         d->init();

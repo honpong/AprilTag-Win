@@ -499,7 +499,7 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
 {
     if(trace) trace_log->info("rc_receiveGyro {} {}: {} {} {}", gyroscope_id, time_us, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
     gyro_data d;
-    d.source = tracker->sfm.gyros[gyroscope_id].get();
+    d.source = tracker->sfm.gyroscopes[gyroscope_id].get();
     d.angvel_rad__s[0] = angular_velocity_rad__s.x;
     d.angvel_rad__s[1] = angular_velocity_rad__s.y;
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;
@@ -617,7 +617,7 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
     tracker->sfm.cameras.clear();
     tracker->sfm.depths.clear();
     tracker->sfm.accelerometers.clear();
-    tracker->sfm.gyros.clear();
+    tracker->sfm.gyroscopes.clear();
 
     int id = 0;
     for(auto imu : cal.imus) {

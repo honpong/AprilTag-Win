@@ -321,7 +321,7 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
         p++;
     }
 
-    for (const auto &g : f->gyros) {
+    for (const auto &g : f->gyroscopes) {
         observe_plot_item(d.timestamp, p, "g-inn-mean_x", (float)g->inn_stdev.mean[0]);
         observe_plot_item(d.timestamp, p, "g-inn-mean_y", (float)g->inn_stdev.mean[1]);
         observe_plot_item(d.timestamp, p, "g-inn-mean_z", (float)g->inn_stdev.mean[2]);

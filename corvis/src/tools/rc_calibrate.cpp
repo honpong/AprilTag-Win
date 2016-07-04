@@ -93,9 +93,9 @@ int main(int c, char **v) {
   "wbiasvar0": 0.00001,
   "wbiasvar1": 0.00001,
   "wbiasvar2": 0.00001,
-  "Tc0": 0,
-  "Tc1": 0,
-  "Tc2": 0,
+  "Tc0": 0.00685,
+  "Tc1": 0.00229,
+  "Tc2": 0.0,
   "Wc0": 0,
   "Wc1": 0,
   "Wc2": 0,
@@ -107,11 +107,23 @@ int main(int c, char **v) {
   "WcVar2": 1e-6,
   "wMeasVar": 0.00001,
   "aMeasVar": 0.0004,
+  "imageWidth": 640,
+  "imageHeight": 480,
+  "Fx": 260,
+  "Fy": 260,
+  "Cx": 320,
+  "Cy": 240,
+  "Kw": 0.90,
+  "distortionModel": 1,
   "accelerometerTransform": [
-    1,0,0, 0,-1,0, 0,0,-1
+     0.0, 1.0, 0.0,
+    -1.0, 0.0, 0.0,
+     0.0, 0.0, 1.0
   ],
   "gyroscopeTransform": [
-    1,0,0, 0,-1,0, 0,0,-1
+     0.0, 1.0, 0.0,
+    -1.0, 0.0, 0.0,
+     0.0, 0.0, 1.0
   ]
 }
 )")) {

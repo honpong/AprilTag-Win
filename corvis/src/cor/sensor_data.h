@@ -73,7 +73,7 @@ public:
 };
 
 typedef image_data<rc_FORMAT_GRAY8, uint8_t, 2> image_gray8;
-typedef image_data<rc_FORMAT_DEPTH16, uint16_t, 6> image_depth16;
+typedef image_data<rc_FORMAT_DEPTH16, uint16_t, 1> image_depth16;
 
 class accelerometer_data: public sensor_data<3>
 {

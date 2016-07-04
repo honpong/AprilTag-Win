@@ -46,6 +46,11 @@ static void rc_trace(const rc_CameraIntrinsics c)
             c.distortion[0], c.distortion[1], c.distortion[2]);
 }
 
+static v3 rc_vector_to_v3(const rc_Vector v)
+{
+    return v3(v.v[0], v.v[1], v.v[2]);
+}
+
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 {
     m3 R = g.Q.toRotationMatrix();
@@ -186,24 +191,56 @@ void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose i
         tracker->reset(sensor_clock::micros_to_tp(initialTime_us), transformation(), true);
 }
 
-
-void rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_CameraIntrinsics * intrinsics)
+bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_CameraIntrinsics * intrinsics)
 {
-    //TODO: extrinsics
-    //TODO: camera_id
-    if(trace) {
+    // TODO: intrinsics
+    if(trace)
         trace_log->info("rc_configureCamera {}", camera_id);
+
+    if(!extrinsics_wrt_origin_m || !intrinsics) return false;
+
+    if(trace) {
         rc_trace(*extrinsics_wrt_origin_m);
         rc_trace(*intrinsics);
     }
-    // Make this given camera the current camera
-    calibration_xml::camera *cam =
-        (intrinsics->format == rc_FORMAT_GRAY8)   ? &tracker->device.color :
-        (intrinsics->format == rc_FORMAT_DEPTH16) ? &tracker->device.depth : nullptr;
-    if (cam && extrinsics_wrt_origin_m)
-        cam->extrinsics_wrt_imu_m = rc_Extrinsics_to_transformation(*extrinsics_wrt_origin_m);
-    if (cam && intrinsics)
-        cam->intrinsics = *intrinsics;
+
+    if(intrinsics->format == rc_FORMAT_GRAY8) {
+        if(camera_id > tracker->sfm.cameras.size()) return false;
+        if(camera_id == tracker->sfm.cameras.size()) {
+            // new camera
+            if(trace) trace_log->info(" configuring new camera");
+            auto new_camera = std::make_unique<sensor_camera>(camera_id);
+            tracker->sfm.cameras.push_back(std::move(new_camera));
+        }
+
+        tracker->sfm.cameras[camera_id]->extrinsics = rc_Extrinsics_to_transformation(*extrinsics_wrt_origin_m);
+
+        tracker->device.color.intrinsics = *intrinsics;
+        tracker->device.color.extrinsics_wrt_imu_m = rc_Extrinsics_to_transformation(*extrinsics_wrt_origin_m);
+        tracker->device.color.extrinsics_var_wrt_imu_m.T = rc_vector_to_v3(extrinsics_wrt_origin_m->T_variance);
+        tracker->device.color.extrinsics_var_wrt_imu_m.W = rc_vector_to_v3(extrinsics_wrt_origin_m->W_variance);
+
+        return true;
+    }
+    else if(intrinsics->format == rc_FORMAT_DEPTH16) {
+        if(camera_id > tracker->sfm.depths.size()) return false;
+        if(camera_id == tracker->sfm.depths.size()) {
+            // new depth camera
+            if(trace) trace_log->info(" configuring new camera");
+            auto new_camera = std::make_unique<sensor_depth>(camera_id);
+            tracker->sfm.depths.push_back(std::move(new_camera));
+        }
+
+        tracker->sfm.depths[camera_id]->extrinsics = rc_Extrinsics_to_transformation(*extrinsics_wrt_origin_m);
+
+        tracker->device.depth.intrinsics = *intrinsics;
+        tracker->device.depth.extrinsics_wrt_imu_m = rc_Extrinsics_to_transformation(*extrinsics_wrt_origin_m);
+        tracker->device.color.extrinsics_var_wrt_imu_m.T = rc_vector_to_v3(extrinsics_wrt_origin_m->T_variance);
+        tracker->device.color.extrinsics_var_wrt_imu_m.W = rc_vector_to_v3(extrinsics_wrt_origin_m->W_variance);
+
+        return true;
+    }
+    return false;
 }
 
 bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_Extrinsics * extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics)
@@ -236,34 +273,70 @@ bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_Extrinsics 
     */
 }
 
-void rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics * intrinsics)
+bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics * intrinsics)
 {
     //TODO: multi-sensor
     //TODO: extrinsics
-    if(trace) {
+    //TODO: intrinics
+    if(trace)
         trace_log->info("rc_configureAccelerometer {} noise {}", accel_id, intrinsics->measurement_variance_m2__s4);
+
+    if(!extrinsics_wrt_origin_m || !intrinsics) return false;
+
+    if(trace) {
         rc_trace(*extrinsics_wrt_origin_m);
         rc_trace(intrinsics->scale_and_alignment);
     }
-    Eigen::Map<const Eigen::Matrix<float,3,4>>    a_alignment_bias_m__s2(intrinsics->scale_and_alignment);
-    tracker->device.imu.a_alignment        = tracker->calibration.imu.a_alignment        = a_alignment_bias_m__s2.block<3,3>(0,0).cast<f_t>();
-    tracker->device.imu.a_bias_m__s2       = tracker->calibration.imu.a_bias_m__s2       = a_alignment_bias_m__s2.block<3,1>(0,3).cast<f_t>();
+
+    if(accel_id > tracker->sfm.accelerometers.size()) return false;
+    if(accel_id == tracker->sfm.accelerometers.size()) {
+        // new depth camera
+        if(trace) trace_log->info(" configuring new accel");
+        auto new_accel = std::make_unique<sensor_accelerometer>(accel_id);
+        tracker->sfm.accelerometers.push_back(std::move(new_accel));
+    }
+
+    tracker->sfm.accelerometers[accel_id]->extrinsics = rc_Extrinsics_to_transformation(*extrinsics_wrt_origin_m);
+
+    Eigen::Map<const Eigen::Matrix<float,3,4>>    a_alignment(intrinsics->scale_and_alignment);
+    tracker->device.imu.a_alignment        = tracker->calibration.imu.a_alignment        = a_alignment.block<3,3>(0,0).cast<f_t>();
+    tracker->device.imu.a_bias_m__s2       = tracker->calibration.imu.a_bias_m__s2       = rc_vector_to_v3(intrinsics->bias_m__s2);
+    tracker->device.imu.a_bias_var_m2__s4  = tracker->calibration.imu.a_bias_var_m2__s4  = rc_vector_to_v3(intrinsics->bias_variance_m2__s4);
     tracker->device.imu.a_noise_var_m2__s4 = tracker->calibration.imu.a_noise_var_m2__s4 = intrinsics->measurement_variance_m2__s4;
+    return true;
 }
 
-void rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics * intrinsics)
+bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics * intrinsics)
 {
     //TODO: multi-sensor
     //TODO: extrinsics
-    if(trace) {
+    //TODO: intrinics
+    if(trace)
         trace_log->info("rc_configureGyroscope {} noise {}", gyro_id, intrinsics->measurement_variance_rad2__s2);
+
+    if(!extrinsics_wrt_origin_m || !intrinsics) return false;
+
+    if(trace) {
         rc_trace(*extrinsics_wrt_origin_m);
         rc_trace(intrinsics->scale_and_alignment);
     }
-    Eigen::Map<const Eigen::Matrix<float,3,4>> w_alignment_bias_rad__s(intrinsics->scale_and_alignment);
-    tracker->device.imu.w_alignment          = tracker->calibration.imu.w_alignment          = w_alignment_bias_rad__s.block<3,3>(0,0).cast<f_t>();;
-    tracker->device.imu.w_bias_rad__s        = tracker->calibration.imu.w_bias_rad__s        = w_alignment_bias_rad__s.block<3,1>(0,3).cast<f_t>();;
+
+    if(gyro_id > tracker->sfm.gyroscopes.size()) return false;
+    if(gyro_id == tracker->sfm.gyroscopes.size()) {
+        // new depth camera
+        if(trace) trace_log->info(" configuring new gyro");
+        auto new_gyro = std::make_unique<sensor_gyroscope>(gyro_id);
+        tracker->sfm.gyroscopes.push_back(std::move(new_gyro));
+    }
+
+    tracker->sfm.gyroscopes[gyro_id]->extrinsics = rc_Extrinsics_to_transformation(*extrinsics_wrt_origin_m);
+
+    Eigen::Map<const Eigen::Matrix<float,3,4>> w_alignment(intrinsics->scale_and_alignment);
+    tracker->device.imu.w_alignment          = tracker->calibration.imu.w_alignment          = w_alignment.block<3,3>(0,0).cast<f_t>();;
+    tracker->device.imu.w_bias_rad__s        = tracker->calibration.imu.w_bias_rad__s        = rc_vector_to_v3(intrinsics->bias_rad__s);
+    tracker->device.imu.w_bias_var_rad2__s2  = tracker->calibration.imu.w_bias_var_rad2__s2  = rc_vector_to_v3(intrinsics->bias_variance_rad2__s2);
     tracker->device.imu.w_noise_var_rad2__s2 = tracker->calibration.imu.w_noise_var_rad2__s2 = intrinsics->measurement_variance_rad2__s2;
+    return true;
 }
 
 void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double longitude_deg, double altitude_m)

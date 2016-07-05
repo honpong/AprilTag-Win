@@ -72,15 +72,16 @@ sensor_calibration_camera calibration_convert_camera(const struct calibration_xm
 
 bool calibration_convert(const calibration_json &cal, calibration &cal_output)
 {
-    //TODO: gigabyte calibrations don't have depth camera information,
-    //make them and check.
     cal_output.version = CALIBRATION_VERSION;
     cal_output.device_id = cal.device_id;
     cal_output.device_type = "legacy";
     if(cal.color.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN)
         cal_output.cameras.push_back(calibration_convert_camera(cal.color));
-    if(cal.depth.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN)
-        cal_output.depths.push_back(calibration_convert_camera(cal.depth));
+
+    //TODO: Warning, this always creates a default depth camera
+    sensor_calibration_depth depth_cam = calibration_convert_camera(cal.depth);
+    depth_cam.intrinsics.format = rc_FORMAT_DEPTH16;
+    cal_output.depths.push_back(depth_cam);
 
     if(!cal_output.cameras.size()) return false;
 

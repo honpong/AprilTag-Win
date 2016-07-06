@@ -250,6 +250,9 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
 
 bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat format, rc_Extrinsics *extrinsics_wrt_origin_m, rc_CameraIntrinsics *intrinsics)
 {
+    if(trace)
+        trace_log->info("rc_describeCamera {}", camera_id);
+
     if(format == rc_FORMAT_GRAY8 && camera_id < tracker->sfm.cameras.size()) {
         if (extrinsics_wrt_origin_m)
             *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(tracker->sfm.cameras[camera_id]->extrinsics);
@@ -264,7 +267,6 @@ bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat
         return false;
 
     if(trace) {
-        trace_log->info("rc_describeCamera {}", camera_id);
         rc_trace(*extrinsics_wrt_origin_m);
         rc_trace(*intrinsics);
     }

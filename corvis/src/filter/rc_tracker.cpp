@@ -18,6 +18,9 @@ const char *rc_version()
     return rc_build_;
 }
 
+template <class T, int N> Eigen::Map<const Eigen::Matrix<T, N, 1>, Eigen::Unaligned> rc_map(const T (&a)[N]) { return a; }
+template <class T, int N> Eigen::Map<Eigen::Matrix<T, N, 1>, Eigen::Unaligned> rc_map(T (&a)[N]) { return a; }
+
 std::unique_ptr<spdlog::logger> trace_log = std::make_unique<spdlog::logger>("rc_trace", make_shared<spdlog::sinks::null_sink_st> ());
 static const bool trace = false;
 
@@ -46,11 +49,6 @@ static void rc_trace(const rc_CameraIntrinsics c)
             c.distortion[0], c.distortion[1], c.distortion[2]);
 }
 
-static v3 rc_vector_to_v3(const rc_Vector v)
-{
-    return v3(v.v[0], v.v[1], v.v[2]);
-}
-
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 {
     m3 R = g.Q.toRotationMatrix();
@@ -66,8 +64,8 @@ static struct sensor::extrinsics rc_Extrinsics_to_sensor_extrinsics(const rc_Ext
 {
     struct sensor::extrinsics extrinsics;
     extrinsics.mean = transformation(rotation_vector(e.W.x, e.W.y, e.W.z), v3(e.T.x, e.T.y, e.T.z));
-    extrinsics.variance.Q = rc_vector_to_v3(e.W_variance);
-    extrinsics.variance.T = rc_vector_to_v3(e.T_variance);
+    extrinsics.variance.Q = rc_map(e.W_variance.v);
+    extrinsics.variance.T = rc_map(e.T_variance.v);
     return extrinsics;
 }
 
@@ -306,8 +304,8 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
 
     Eigen::Map<const Eigen::Matrix<float,3,4>>    a_alignment(intrinsics->scale_and_alignment);
     tracker->device.imu.a_alignment        = tracker->calibration.imu.a_alignment        = a_alignment.block<3,3>(0,0).cast<f_t>();
-    tracker->device.imu.a_bias_m__s2       = tracker->calibration.imu.a_bias_m__s2       = rc_vector_to_v3(intrinsics->bias_m__s2);
-    tracker->device.imu.a_bias_var_m2__s4  = tracker->calibration.imu.a_bias_var_m2__s4  = rc_vector_to_v3(intrinsics->bias_variance_m2__s4);
+    tracker->device.imu.a_bias_m__s2       = tracker->calibration.imu.a_bias_m__s2       = rc_map(intrinsics->bias_m__s2.v);
+    tracker->device.imu.a_bias_var_m2__s4  = tracker->calibration.imu.a_bias_var_m2__s4  = rc_map(intrinsics->bias_variance_m2__s4.v);
     tracker->device.imu.a_noise_var_m2__s4 = tracker->calibration.imu.a_noise_var_m2__s4 = intrinsics->measurement_variance_m2__s4;
     return true;
 }
@@ -339,8 +337,8 @@ bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extr
 
     Eigen::Map<const Eigen::Matrix<float,3,4>> w_alignment(intrinsics->scale_and_alignment);
     tracker->device.imu.w_alignment          = tracker->calibration.imu.w_alignment          = w_alignment.block<3,3>(0,0).cast<f_t>();;
-    tracker->device.imu.w_bias_rad__s        = tracker->calibration.imu.w_bias_rad__s        = rc_vector_to_v3(intrinsics->bias_rad__s);
-    tracker->device.imu.w_bias_var_rad2__s2  = tracker->calibration.imu.w_bias_var_rad2__s2  = rc_vector_to_v3(intrinsics->bias_variance_rad2__s2);
+    tracker->device.imu.w_bias_rad__s        = tracker->calibration.imu.w_bias_rad__s        = rc_map(intrinsics->bias_rad__s.v);
+    tracker->device.imu.w_bias_var_rad2__s2  = tracker->calibration.imu.w_bias_var_rad2__s2  = rc_map(intrinsics->bias_variance_rad2__s2.v);
     tracker->device.imu.w_noise_var_rad2__s2 = tracker->calibration.imu.w_noise_var_rad2__s2 = intrinsics->measurement_variance_rad2__s2;
     return true;
 }

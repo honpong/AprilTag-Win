@@ -23,14 +23,14 @@ class sensor_data
 {
 public:
     sensor_clock::time_point timestamp;
-    sensor_storage<size_> *source;
 };
 
-template<rc_ImageFormat camera_type, class data_type, int size_>
+template<class sensor_data_type, rc_ImageFormat camera_type, class data_type, int size_>
 class image_data: public sensor_data<size_>
 {
 public:
-    typedef image_data<camera_type, data_type, size_> image_data_type;
+    typedef image_data<sensor_data_type, camera_type, data_type, size_> image_data_type;
+    sensor_data_type *source;
     image_data(): image_handle(nullptr, nullptr), image(nullptr), width(0), height(0), stride(0) { }
     image_data(image_data_type&& other) = default;
     image_data &operator=(image_data_type&& other) = default;
@@ -73,12 +73,13 @@ public:
     int width, height, stride;
 };
 
-typedef image_data<rc_FORMAT_GRAY8, uint8_t, 2> image_gray8;
-typedef image_data<rc_FORMAT_DEPTH16, uint16_t, 1> image_depth16;
+typedef image_data<sensor_grey, rc_FORMAT_GRAY8, uint8_t, 2> image_gray8;
+typedef image_data<sensor_depth, rc_FORMAT_DEPTH16, uint16_t, 1> image_depth16;
 
 class accelerometer_data: public sensor_data<3>
 {
 public:
+    sensor_accelerometer *source;
     float accel_m__s2[3];
     accelerometer_data() {};
     
@@ -92,6 +93,7 @@ public:
 class gyro_data: public sensor_data<3>
 {
 public:
+    sensor_gyroscope *source;
     float angvel_rad__s[3];
     gyro_data() {}
     

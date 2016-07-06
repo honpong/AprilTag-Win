@@ -80,7 +80,6 @@ bool calibration_convert(const calibration_json &cal, calibration &cal_output)
 
     //TODO: Warning, this always creates a default depth camera
     sensor_calibration_depth depth_cam = calibration_convert_camera(cal.depth);
-    depth_cam.intrinsics.format = rc_FORMAT_DEPTH16;
     cal_output.depths.push_back(depth_cam);
 
     if(!cal_output.cameras.size()) return false;

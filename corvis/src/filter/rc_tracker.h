@@ -174,7 +174,6 @@ typedef enum rc_CalibrationType {
  */
 typedef struct rc_CameraIntrinsics {
     rc_CalibrationType type;
-    rc_ImageFormat format;
     uint32_t width_px, height_px;
     double f_x_px, f_y_px;
     double c_x_px, c_y_px;
@@ -198,8 +197,8 @@ typedef struct rc_Extrinsics {
  @param extrinsics_wrt_accel_m Transformation from the Camera frame to the Accelerometer frame in meters (may be NULL)
  @param intrinsics Camera Intrinsics (may be NULL)
  */
-RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id,       rc_Extrinsics * extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics);
-RCTRACKER_API bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_CameraIntrinsics *intrinsics);
+RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat format,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics);
+RCTRACKER_API bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_CameraIntrinsics *intrinsics);
 RCTRACKER_API bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics * intrinsics);
 RCTRACKER_API bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics * intrinsics);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);

@@ -203,7 +203,7 @@ void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose i
         tracker->reset(sensor_clock::micros_to_tp(initialTime_us), transformation(), true);
 }
 
-bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_CameraIntrinsics * intrinsics)
+bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_CameraIntrinsics * intrinsics)
 {
     // TODO: intrinsics
     if(trace)
@@ -216,7 +216,7 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Extri
         rc_trace(*intrinsics);
     }
 
-    if(intrinsics->format == rc_FORMAT_GRAY8) {
+    if (format == rc_FORMAT_GRAY8) {
         if(camera_id > tracker->sfm.cameras.size()) return false;
         if(camera_id == tracker->sfm.cameras.size()) {
             // new camera
@@ -235,7 +235,7 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Extri
 
         return true;
     }
-    else if(intrinsics->format == rc_FORMAT_DEPTH16) {
+    else if(format == rc_FORMAT_DEPTH16) {
         if(camera_id > tracker->sfm.depths.size()) return false;
         if(camera_id == tracker->sfm.depths.size()) {
             // new depth camera
@@ -257,14 +257,14 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Extri
     return false;
 }
 
-bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_Extrinsics * extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics)
+bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat format, rc_Extrinsics *extrinsics_wrt_origin_m, rc_CameraIntrinsics *intrinsics)
 {
-    if(intrinsics->format == rc_FORMAT_GRAY8 && camera_id < tracker->sfm.cameras.size()) {
+    if(format == rc_FORMAT_GRAY8 && camera_id < tracker->sfm.cameras.size()) {
         if (extrinsics_wrt_origin_m)
             *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(tracker->sfm.cameras[camera_id]->extrinsics);
         if (intrinsics)
             *intrinsics = tracker->sfm.cameras[camera_id]->intrinsics;
-    } else if (intrinsics->format == rc_FORMAT_DEPTH16 && camera_id < tracker->sfm.depths.size()) {
+    } else if (format == rc_FORMAT_DEPTH16 && camera_id < tracker->sfm.depths.size()) {
         if (extrinsics_wrt_origin_m)
             *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(tracker->sfm.depths[camera_id]->extrinsics);
         if (intrinsics)
@@ -713,11 +713,11 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
 
     id = 0;
     for(auto camera : cal.cameras)
-        rc_configureCamera(tracker, id++, &camera.extrinsics, &camera.intrinsics);
+        rc_configureCamera(tracker, id++, rc_FORMAT_GRAY8, &camera.extrinsics, &camera.intrinsics);
 
     id = 0;
     for(auto depth : cal.depths)
-        rc_configureCamera(tracker, id++, &depth.extrinsics, &depth.intrinsics);
+        rc_configureCamera(tracker, id++, rc_FORMAT_DEPTH16, &depth.extrinsics, &depth.intrinsics);
 
     return true;
 }

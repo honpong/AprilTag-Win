@@ -36,17 +36,15 @@ sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu
     rc_Extrinsics extrinsics({0});
     imu_intrinsics intrinsics({0}); 
 
-    m3_to_rc_pose(legacy_imu.a_alignment, intrinsics.accelerometer.scale_and_alignment);
-    v3_to_rc_vector(legacy_imu.a_bias_m__s2, intrinsics.accelerometer.bias_m__s2);
-    v3_to_rc_vector(legacy_imu.a_bias_var_m2__s4, intrinsics.accelerometer.bias_variance_m2__s4);
+    m_map(intrinsics.accelerometer.scale_and_alignment.v)  = legacy_imu.a_alignment;
+    v_map(intrinsics.accelerometer.bias_m__s2.v)           = legacy_imu.a_bias_m__s2;
+    v_map(intrinsics.accelerometer.bias_variance_m2__s4.v) = legacy_imu.a_bias_var_m2__s4;
+    intrinsics.accelerometer.measurement_variance_m2__s4   = legacy_imu.a_noise_var_m2__s4;
 
-    intrinsics.accelerometer.measurement_variance_m2__s4 = legacy_imu.a_noise_var_m2__s4;
-
-    m3_to_rc_pose(legacy_imu.w_alignment, intrinsics.gyroscope.scale_and_alignment);
-    v3_to_rc_vector(legacy_imu.w_bias_rad__s, intrinsics.gyroscope.bias_rad__s);
-    v3_to_rc_vector(legacy_imu.w_bias_var_rad2__s2, intrinsics.gyroscope.bias_variance_rad2__s2);
-
-    intrinsics.gyroscope.measurement_variance_rad2__s2 = legacy_imu.w_noise_var_rad2__s2;
+    m_map(intrinsics.gyroscope.scale_and_alignment.v)    = legacy_imu.w_alignment;
+    v_map(intrinsics.gyroscope.bias_rad__s.v)            = legacy_imu.w_bias_rad__s;
+    v_map(intrinsics.gyroscope.bias_variance_rad2__s2.v) = legacy_imu.w_bias_var_rad2__s2;
+    intrinsics.gyroscope.measurement_variance_rad2__s2   = legacy_imu.w_noise_var_rad2__s2;
 
     return sensor_calibration_imu(extrinsics, intrinsics);
 }

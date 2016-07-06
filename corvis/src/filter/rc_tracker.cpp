@@ -207,9 +207,8 @@ void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose i
 
 bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_CameraIntrinsics * intrinsics)
 {
-    // TODO: intrinsics
     if(trace)
-        trace_log->info("rc_configureCamera {}", camera_id);
+        trace_log->info("rc_configureCamera {} format {}", camera_id, format);
 
     if(!extrinsics_wrt_origin_m || !intrinsics) return false;
 

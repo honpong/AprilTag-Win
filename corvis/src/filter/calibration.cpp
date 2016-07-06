@@ -14,22 +14,6 @@
 using namespace rapidjson;
 using namespace std;
 
-void v3_to_rc_vector(const v3 & input, rc_Vector & output)
-{
-    for(int i = 0; i < 3; i++) output.v[i] = input[i];
-}
-
-void m3_to_rc_pose(const m3 & input, rc_Pose & output)
-{
-    for(int r = 0; r < 3; r++)
-        for(int c = 0; c < 4; c++) {
-            if(c == 3)
-                output[r*4+c] = 0;
-            else
-                output[r*4+c] = input(r,c);
-        }
-}
-
 sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu & legacy_imu)
 {
     // In legacy files, extrinsics are always identity for imu
@@ -52,9 +36,8 @@ sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu
 sensor_calibration_camera calibration_convert_camera(const struct calibration_xml::camera & legacy_camera)
 {
     rc_Extrinsics extrinsics({0});
-    v3_to_rc_vector(legacy_camera.extrinsics_wrt_imu_m.T, extrinsics.T);
-    rotation_vector rv = to_rotation_vector(legacy_camera.extrinsics_wrt_imu_m.Q);
-    v3_to_rc_vector(rv.raw_vector(), extrinsics.W);
+    v_map(extrinsics.T.v)          = legacy_camera.extrinsics_wrt_imu_m.T;
+    v_map(extrinsics.W.v)          = to_rotation_vector(legacy_camera.extrinsics_wrt_imu_m.Q).raw_vector();
     
     // All new_test_suite sequences are 1e-7 or 1e-6, but some
     // e6t calibrations in particular are uninitialized random
@@ -62,8 +45,8 @@ sensor_calibration_camera calibration_convert_camera(const struct calibration_xm
     // more tightly (since all version < 8 calibrations are on the
     // same plane)
     v3 default_variance(1e-7, 1e-7, 1e-10);
-    v3_to_rc_vector(default_variance, extrinsics.T_variance);
-    v3_to_rc_vector(default_variance, extrinsics.W_variance);
+    v_map(extrinsics.T_variance.v) = default_variance;
+    v_map(extrinsics.W_variance.v) = default_variance;
 
     return sensor_calibration_camera(extrinsics, legacy_camera.intrinsics);
 }

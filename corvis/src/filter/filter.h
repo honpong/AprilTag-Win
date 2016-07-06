@@ -39,7 +39,6 @@ struct filter {
     bool gravity_init;
 
     sensor_clock::time_point want_start;
-    bool got_accelerometer, got_gyroscope, got_image; //TODOMSM - if we expect, and want to wait for all sensors, this should be per-sensor
     v3 last_gyro_meas, last_accel_meas; //TODOMSM - per-sensor
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
@@ -82,6 +81,9 @@ struct filter {
     std::vector<std::unique_ptr<sensor_depth>> depths;
     std::vector<std::unique_ptr<sensor_accelerometer>> accelerometers;
     std::vector<std::unique_ptr<sensor_gyroscope>> gyroscopes;
+
+    bool got_any_gyroscopes() {     for (auto &gyro : gyroscopes) if (gyro.got) return true; return false;}
+    bool got_any_accelerometers() { for (auto &accel : accelerometers) if (accle.got) return true; return false; }
 
     //TODOMSM - per sensor
     std::chrono::duration<float, milli> accel_timer, gyro_timer, image_timer;

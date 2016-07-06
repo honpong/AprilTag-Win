@@ -414,11 +414,11 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
             return;
         }
     }
-    if(!f->got_accelerometer) { //skip first packet - has been crap from gyro
-        f->got_accelerometer = true;
+    if(!accelerometer.got) { //skip first packet - has been crap from gyro
+        accelerometer.got = true;
         return;
     }
-    if(!f->got_gyroscope) return;
+    if (!f->got_any_gyroscopes()) return;
 
     if(fabs(accel_delta[0]) > max_accel_delta || fabs(accel_delta[1]) > max_accel_delta || fabs(accel_delta[2]) > max_accel_delta)
     {
@@ -470,8 +470,8 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
             return;
         }
     }
-    if(!f->got_gyroscope) { //skip the first piece of data as it seems to be crap
-        f->got_gyroscope = true;
+    if(!gyroscope->got) { //skip the first piece of data as it seems to be crap
+        gyroscope->got = true;
         return;
     }
     if(!f->gravity_init) return;
@@ -737,7 +737,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!check_packet_time(f, time, packet_camera)) return false;
-    if(!f->got_accelerometer || !f->got_gyroscope) return false;
+    if(!f->got_any_accelerometers() || !f->got_any_gyroscopes()) return false;
     
 #ifdef ENABLE_QR
     if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
@@ -752,7 +752,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
         f->qr_bench.process_frame(f, image.image, image.width, image.height);
 #endif
     
-    f->got_image = true;
+    camera->got = true;
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;
         bool inertial_converged = (f->s.Q.variance()[0] < dynamic_W_thresh_variance && f->s.Q.variance()[1] < dynamic_W_thresh_variance);
@@ -918,10 +918,7 @@ extern "C" void filter_initialize(struct filter *f)
     f->gravity_init = false;
     f->want_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->run_state = RCSensorFusionRunStateInactive;
-    f->got_accelerometer = false;
-    f->got_gyroscope = false;
-    f->got_image = false;
-    
+
     f->detector_failed = false;
     f->tracker_failed = false;
     f->tracker_warned = false;

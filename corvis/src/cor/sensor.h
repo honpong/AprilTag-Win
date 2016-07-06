@@ -19,6 +19,7 @@ struct sensor
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     const int id;
     const std::string name;
+    bool got = false;
     struct extrinsics {
         transformation mean;
         struct transformation_variance { v3 Q = v3::Zero(), T = v3::Zero(); } variance;
@@ -32,6 +33,7 @@ public:
     stdev<size_> meas_stdev, inn_stdev;
     using sensor::sensor;
     void init() {
+        got = false;
         meas_stdev = stdev<size_>();
         inn_stdev = stdev<size_>();
     }

@@ -91,7 +91,7 @@ typedef struct rc_Vector {
  [R10 R11 R12 T1]
  [R20 R21 R22 T2]
  */
-typedef float rc_Pose[12];
+typedef struct { float v[3][4]; } rc_Pose;
 
 typedef struct { float v[3][3]; } rc_Matrix;
 
@@ -109,9 +109,16 @@ typedef struct {
     float measurement_variance_rad2__s2;
 } rc_GyroscopeIntrinsics;
 
-static const rc_Pose rc_POSE_IDENTITY = { 1.f, 0.f, 0.f, 0.f,
-                                          0.f, 1.f, 0.f, 0.f,
-                                          0.f, 0.f, 1.f, 0.f };
+static const rc_Pose rc_POSE_IDENTITY = {
+    {{ 1.f, 0.f, 0.f, 0.f },
+     { 0.f, 1.f, 0.f, 0.f },
+     { 0.f, 0.f, 1.f, 0.f }}
+};
+static const rc_Matrix rc_MATRIX_IDENTITY = {
+    {{1.f, 0.f, 0.f},
+     {0.f, 1.f, 0.f},
+     {0.f, 0.f, 1.f}}
+};;
 
 /**
  Timestamp, in microseconds
@@ -154,7 +161,7 @@ RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
  System will be stopped until one of the rc_start_ functions is called.
  @param initialPose_m is deprecated, always pass the identity and use rc_setPose() after convergence
  */
-RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m);
+RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, const rc_Pose *initialPose_m);
 
 typedef enum rc_CalibrationType {
     rc_CALIBRATION_TYPE_UNKNOWN,     // rd = ???
@@ -275,7 +282,7 @@ RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Tim
  is rc_E_CONFIDENCE_MEDIUM or better rc_E_CONFIDENCE_HIGH.
  */
 RCTRACKER_API void rc_setPose(rc_Tracker *tracker, const rc_Pose pose_m);
-RCTRACKER_API void rc_getPose(const rc_Tracker *tracker, rc_Pose pose_m);
+RCTRACKER_API rc_Pose rc_getPose(const rc_Tracker *tracker);
 RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Feature **features_px);
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);

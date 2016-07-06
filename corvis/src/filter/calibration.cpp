@@ -243,26 +243,6 @@ bool copy_json_to_rc_vector(Value & json, rc_Vector & v)
     return true;
 }
 
-bool copy_json_to_rc_pose(Value & json, rc_Pose & pose)
-{
-    // supports 3x3 and 3x4
-    if(!json.IsArray() || (json.Size() != 9 && json.Size() != 12)) {
-        fprintf(stderr, "Error: problem converting to an rc_Pose\n");
-        return false;
-    }
-
-    int max_cols = json.Size() == 9 ? 3 : 4;
-    for(int r = 0; r < 3; r++) {
-        for(int c = 0; c < 4; c++) {
-            if(c == max_cols)
-                pose[r*4 + c] = 0;
-            else
-                pose[r*4 + c] = json[r*max_cols + c].GetDouble();
-        }
-    }
-    return true;
-}
-
 bool copy_json_to_extrinsics(Value & json, rc_Extrinsics & extrinsics)
 {
     if(!json.IsObject()) {

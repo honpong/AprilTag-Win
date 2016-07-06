@@ -38,7 +38,10 @@ static void rc_trace(const rc_Matrix p)
 
 static void rc_trace(const rc_Pose p)
 {
-    trace_log->info("{} {} {} {}; {} {} {} {}; {} {} {} {}", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11]);;
+    trace_log->info("{} {} {} {}; {} {} {} {}; {} {} {} {}",
+                    p.v[0][0], p.v[0][1], p.v[0][2], p.v[0][3],
+                    p.v[1][0], p.v[1][1], p.v[1][2], p.v[1][3],
+                    p.v[2][0], p.v[2][1], p.v[2][2], p.v[2][3]);
 }
 
 static void rc_trace(const rc_CameraIntrinsics c)
@@ -51,15 +54,12 @@ static void rc_trace(const rc_CameraIntrinsics c)
             c.distortion[0], c.distortion[1], c.distortion[2]);
 }
 
-static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
+static rc_Pose to_rc_Pose(const transformation &g)
 {
-    m3 R = g.Q.toRotationMatrix();
-    for(int i = 0; i < 3; i++) {
-        for(int j = 0; j < 3; j++) {
-            p[i * 4 + j] = (float)R(i, j);
-        }
-        p[i * 4 + 3] = (float)g.T[i];
-    }
+    rc_Pose p;
+    m_map(p.v).block<3,3>(0,0) = g.Q.toRotationMatrix().cast<float>();
+    m_map(p.v).block<3,1>(0,3) = g.T.cast<float>();
+    return p;
 }
 
 static struct sensor::extrinsics rc_Extrinsics_to_sensor_extrinsics(const rc_Extrinsics e)
@@ -81,18 +81,11 @@ static rc_Extrinsics rc_Extrinsics_from_sensor_extrinsics(struct sensor::extrins
     return extrinsics;
 }
 
-static transformation rc_Pose_to_transformation(const rc_Pose p)
+static transformation to_transformation(const rc_Pose p)
 {
-    transformation g;
-    m3 R = m3::Zero();
-    for(int i = 0; i < 3; i++) {
-        for(int j = 0; j < 3; j++) {
-            R(i,j) = p[i * 4 + j];
-        }
-        g.T[i] = p[i * 4 + 3];
-    }
-    g.Q = to_quaternion(R);
-    return g;
+    m3 R = m_map(p.v).block<3,3>(0,0).cast<f_t>();
+    v3 T = m_map(p.v).block<3,1>(0,3).cast<f_t>();
+    return transformation(to_quaternion(R),T);
 }
 
 static rc_TrackerState tracker_state_from_run_state(RCSensorFusionRunState run_state)
@@ -196,11 +189,11 @@ void rc_destroy(rc_Tracker * tracker)
     delete tracker;
 }
 
-void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m)
+void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose *initialPose_m)
 {
     if(trace) trace_log->info("rc_reset {}", initialTime_us);
     if (initialPose_m)
-        tracker->reset(sensor_clock::micros_to_tp(initialTime_us), rc_Pose_to_transformation(initialPose_m), false);
+        tracker->reset(sensor_clock::micros_to_tp(initialTime_us), to_transformation(*initialPose_m), false);
     else
         tracker->reset(sensor_clock::micros_to_tp(initialTime_us), transformation(), true);
 }
@@ -448,10 +441,8 @@ RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callb
     if(callback) tracker->camera_callback = [callback, handle, tracker](std::unique_ptr<sensor_fusion::data> d, image_gray8 &&cam) {
         uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d->time.time_since_epoch()).count();
 
-        rc_Pose p;
-        transformation_to_rc_Pose(d->transform, p);
         copy_features_from_sensor_fusion(tracker->dataFeatures, d->features);
-        callback(handle, micros, p, tracker->dataFeatures.data(), tracker->dataFeatures.size());
+        callback(handle, micros, to_rc_Pose(d->transform), tracker->dataFeatures.data(), tracker->dataFeatures.size());
     };
     else tracker->camera_callback = nullptr;
 }
@@ -613,11 +604,12 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
         tracker->receive_gyro(std::move(d));
 }
 
-void rc_getPose(const rc_Tracker * tracker, rc_Pose pose_m)
+rc_Pose rc_getPose(const rc_Tracker * tracker)
 {
     if(trace) trace_log->info("rc_getPose");
-    transformation_to_rc_Pose(tracker->get_transformation(), pose_m);
+    rc_Pose pose_m = to_rc_Pose(tracker->get_transformation());
     if(trace) rc_trace(pose_m);
+    return pose_m;
 }
 
 void rc_setPose(rc_Tracker * tracker, const rc_Pose pose_m)
@@ -626,7 +618,7 @@ void rc_setPose(rc_Tracker * tracker, const rc_Pose pose_m)
         trace_log->info("rc_setPose");
         rc_trace(pose_m);
     }
-    tracker->set_transformation(rc_Pose_to_transformation(pose_m));
+    tracker->set_transformation(to_transformation(pose_m));
 }
 
 int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)

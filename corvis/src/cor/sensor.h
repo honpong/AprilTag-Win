@@ -41,16 +41,18 @@ struct sensor_camera {
     struct rc_CameraIntrinsics intrinsics = {};
 };
 
-class sensor_grey : public sensor_storage<2>, public sensor_camera {
+struct sensor_grey : public sensor_storage<2>, public sensor_camera {
     using sensor_storage<2>::sensor_storage;
 };
-class sensor_depth : public sensor_storage<1>, public sensor_camera {
+struct sensor_depth : public sensor_storage<1>, public sensor_camera {
     using sensor_storage<1>::sensor_storage;
 };
-class sensor_accelerometer : public sensor_storage<3> {
+struct sensor_accelerometer : public sensor_storage<3> {
+    rc_AccelerometerIntrinsics intrinsics;
     using sensor_storage<3>::sensor_storage;
 };
-class sensor_gyroscope : public sensor_storage<3> {
+struct sensor_gyroscope : public sensor_storage<3> {
+    rc_GyroscopeIntrinsics intrinsics;
     using sensor_storage<3>::sensor_storage;
 };
 

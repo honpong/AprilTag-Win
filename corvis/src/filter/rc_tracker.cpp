@@ -277,14 +277,11 @@ bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat
         rc_trace(*extrinsics_wrt_origin_m);
         rc_trace(*intrinsics);
     }
-
     return true;
 }
 
-bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics * intrinsics)
+bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics *intrinsics)
 {
-    //TODO: multi-sensor
-    //TODO: extrinsics
     //TODO: intrinics
     if(trace)
         trace_log->info("rc_configureAccelerometer {} noise {}", accel_id, intrinsics->measurement_variance_m2__s4);
@@ -304,7 +301,10 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
         tracker->sfm.accelerometers.push_back(std::move(new_accel));
     }
 
-    tracker->sfm.accelerometers[accel_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
+    if (extrinsics_wrt_origin_m)
+        tracker->sfm.accelerometers[accel_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
+    if (intrinsics)
+        tracker->sfm.accelerometers[accel_id]->intrinsics = *intrinsics;
 
     Eigen::Map<const Eigen::Matrix<float,3,4>>    a_alignment(intrinsics->scale_and_alignment);
     tracker->device.imu.a_alignment        = tracker->calibration.imu.a_alignment        = a_alignment.block<3,3>(0,0).cast<f_t>();
@@ -314,10 +314,30 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
     return true;
 }
 
+bool rc_describeAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, rc_Extrinsics *extrinsics_wrt_origin_m, rc_AccelerometerIntrinsics *intrinsics)
+{
+    if(accel_id >= tracker->sfm.accelerometers.size())
+        return false;
+
+    if (extrinsics_wrt_origin_m)
+        *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(tracker->sfm.accelerometers[accel_id]->extrinsics);
+
+    if (intrinsics)
+        *intrinsics = tracker->sfm.accelerometers[accel_id]->intrinsics;
+
+    if(trace) {
+        trace_log->info("rc_describeAccelerometer {} noise {}", accel_id, intrinsics->measurement_variance_m2__s4);
+
+        if (extrinsics_wrt_origin_m)
+            rc_trace(*extrinsics_wrt_origin_m);
+        if (intrinsics)
+            rc_trace(intrinsics->scale_and_alignment);
+    }
+    return true;
+}
+
 bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics * intrinsics)
 {
-    //TODO: multi-sensor
-    //TODO: extrinsics
     //TODO: intrinics
     if(trace)
         trace_log->info("rc_configureGyroscope {} noise {}", gyro_id, intrinsics->measurement_variance_rad2__s2);
@@ -344,6 +364,28 @@ bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extr
     tracker->device.imu.w_bias_rad__s        = tracker->calibration.imu.w_bias_rad__s        = rc_map(intrinsics->bias_rad__s.v);
     tracker->device.imu.w_bias_var_rad2__s2  = tracker->calibration.imu.w_bias_var_rad2__s2  = rc_map(intrinsics->bias_variance_rad2__s2.v);
     tracker->device.imu.w_noise_var_rad2__s2 = tracker->calibration.imu.w_noise_var_rad2__s2 = intrinsics->measurement_variance_rad2__s2;
+    return true;
+}
+
+bool rc_describeGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Extrinsics *extrinsics_wrt_origin_m, rc_GyroscopeIntrinsics *intrinsics)
+{
+    if(gyro_id >= tracker->sfm.gyroscopes.size())
+        return false;
+
+    if (extrinsics_wrt_origin_m)
+        *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(tracker->sfm.gyroscopes[gyro_id]->extrinsics);
+
+    if (intrinsics)
+        *intrinsics = tracker->sfm.gyroscopes[gyro_id]->intrinsics;
+
+    if(trace) {
+        trace_log->info("rc_describeGyroscope {} noise {}", gyro_id, intrinsics->measurement_variance_rad2__s2);
+
+        if (extrinsics_wrt_origin_m)
+            rc_trace(*extrinsics_wrt_origin_m);
+        if (intrinsics)
+            rc_trace(intrinsics->scale_and_alignment);
+    }
     return true;
 }
 
@@ -681,8 +723,24 @@ const char *rc_getTimingStats(rc_Tracker *tracker)
 
 size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 {
-    if(trace) trace_log->info("rc_getCalibration");
-    calibration_json cal = tracker->get_calibration();
+    calibration cal;
+
+    size_t size = std::min(tracker->sfm.accelerometers.size(), tracker->sfm.gyroscopes.size());
+    int id;
+    cal.imus.resize(size);
+    for (id = 0; id < size; id++) {
+        rc_describeGyroscope(tracker, id, &cal.imus[id].extrinsics, &cal.imus[id].intrinsics.gyroscope);
+        rc_describeAccelerometer(tracker, id, &cal.imus[id].extrinsics, &cal.imus[id].intrinsics.accelerometer);
+    }
+    cal.imus.resize(id);
+
+    cal.cameras.resize(tracker->sfm.cameras.size());
+    for (auto &c : cal.cameras)
+        rc_describeCamera(tracker, id, rc_FORMAT_GRAY8, &c.extrinsics, &c.intrinsics);
+
+    cal.depths.resize(tracker->sfm.depths.size());
+    for (auto &c : cal.cameras)
+        rc_describeCamera(tracker, id, rc_FORMAT_DEPTH16, &c.extrinsics, &c.intrinsics);
 
     std::string json;
     if (!calibration_serialize(cal, json))

@@ -196,7 +196,7 @@ calibration_json sensor_fusion::get_calibration() const
 void sensor_fusion::set_calibration(const calibration_json &dc)
 {
     device = dc;
-    filter_initialize(&sfm, &device);
+    filter_initialize(&sfm);
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)
@@ -212,7 +212,7 @@ void sensor_fusion::start_calibration(bool thread)
     buffering = false;
     isSensorFusionRunning = true;
     isProcessingVideo = false;
-    filter_initialize(&sfm, &device);
+    filter_initialize(&sfm);
     filter_start_static_calibration(&sfm);
     if(threaded) queue->start_async(false);
     else queue->start_singlethreaded(false);
@@ -224,7 +224,7 @@ void sensor_fusion::start(bool thread)
     buffering = false;
     isSensorFusionRunning = true;
     isProcessingVideo = true;
-    filter_initialize(&sfm, &device);
+    filter_initialize(&sfm);
     filter_start_hold_steady(&sfm);
     if(threaded) queue->start_async(true);
     else queue->start_singlethreaded(true);
@@ -236,7 +236,7 @@ void sensor_fusion::start_unstable(bool thread)
     buffering = false;
     isSensorFusionRunning = true;
     isProcessingVideo = true;
-    filter_initialize(&sfm, &device);
+    filter_initialize(&sfm);
     filter_start_dynamic(&sfm);
     if(threaded) queue->start_async(true);
     else queue->start_singlethreaded(true);
@@ -265,9 +265,7 @@ void sensor_fusion::start_offline()
     threaded = false;
     buffering = false;
     sfm.ignore_lateness = true;
-    // TODO: Note that we call filter initialize, and this can change
-    // device_parameters (specifically a_bias_var and w_bias_var)
-    filter_initialize(&sfm, &device);
+    filter_initialize(&sfm);
     filter_start_dynamic(&sfm);
     isSensorFusionRunning = true;
     isProcessingVideo = true;
@@ -286,7 +284,7 @@ void sensor_fusion::flush_and_reset()
 {
     stop();
     queue->reset();
-    filter_initialize(&sfm, &device);
+    filter_initialize(&sfm);
     sfm.camera_control.focus_unlock();
     sfm.camera_control.release_platform_specific_object();
 }

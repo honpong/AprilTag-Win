@@ -112,7 +112,7 @@ void filter_start_qr_benchmark(struct filter *f, float dimension);
 #endif
 void filter_get_calibration(const struct filter *f, calibration_json *calibration);
 
-extern "C" void filter_initialize(struct filter *f, calibration_json *calibration);
+extern "C" void filter_initialize(struct filter *f);
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
 

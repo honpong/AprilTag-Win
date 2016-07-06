@@ -230,11 +230,6 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
         tracker->sfm.cameras[camera_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
         tracker->sfm.cameras[camera_id]->intrinsics = *intrinsics;
 
-        tracker->device.color.intrinsics = *intrinsics;
-        tracker->device.color.extrinsics_wrt_imu_m = tracker->sfm.cameras[camera_id]->extrinsics.mean;
-        tracker->device.color.extrinsics_var_wrt_imu_m.T = tracker->sfm.cameras[camera_id]->extrinsics.variance.T;
-        tracker->device.color.extrinsics_var_wrt_imu_m.W = tracker->sfm.cameras[camera_id]->extrinsics.variance.Q;
-
         return true;
     }
     else if(format == rc_FORMAT_DEPTH16) {
@@ -248,11 +243,6 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
 
         tracker->sfm.depths[camera_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
         tracker->sfm.depths[camera_id]->intrinsics = *intrinsics;
-
-        tracker->device.depth.intrinsics = *intrinsics;
-        tracker->device.depth.extrinsics_wrt_imu_m = tracker->sfm.depths[camera_id]->extrinsics.mean;
-        tracker->device.depth.extrinsics_var_wrt_imu_m.T = tracker->sfm.depths[camera_id]->extrinsics.variance.T;
-        tracker->device.depth.extrinsics_var_wrt_imu_m.W = tracker->sfm.depths[camera_id]->extrinsics.variance.Q;
 
         return true;
     }
@@ -308,10 +298,6 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
     if (intrinsics)
         tracker->sfm.accelerometers[accel_id]->intrinsics = *intrinsics;
 
-    tracker->device.imu.a_alignment        = tracker->calibration.imu.a_alignment        = m_map(intrinsics->scale_and_alignment.v);
-    tracker->device.imu.a_bias_m__s2       = tracker->calibration.imu.a_bias_m__s2       = v_map(intrinsics->bias_m__s2.v);
-    tracker->device.imu.a_bias_var_m2__s4  = tracker->calibration.imu.a_bias_var_m2__s4  = v_map(intrinsics->bias_variance_m2__s4.v);
-    tracker->device.imu.a_noise_var_m2__s4 = tracker->calibration.imu.a_noise_var_m2__s4 = intrinsics->measurement_variance_m2__s4;
     return true;
 }
 
@@ -360,10 +346,6 @@ bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extr
 
     tracker->sfm.gyroscopes[gyro_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
 
-    tracker->device.imu.w_alignment          = tracker->calibration.imu.w_alignment          = m_map(intrinsics->scale_and_alignment.v);
-    tracker->device.imu.w_bias_rad__s        = tracker->calibration.imu.w_bias_rad__s        = v_map(intrinsics->bias_rad__s.v);
-    tracker->device.imu.w_bias_var_rad2__s2  = tracker->calibration.imu.w_bias_var_rad2__s2  = v_map(intrinsics->bias_variance_rad2__s2.v);
-    tracker->device.imu.w_noise_var_rad2__s2 = tracker->calibration.imu.w_noise_var_rad2__s2 = intrinsics->measurement_variance_rad2__s2;
     return true;
 }
 

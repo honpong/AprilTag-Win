@@ -241,8 +241,8 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Extri
 
         tracker->device.depth.intrinsics = *intrinsics;
         tracker->device.depth.extrinsics_wrt_imu_m = tracker->sfm.depths[camera_id]->extrinsics.mean;
-        tracker->device.color.extrinsics_var_wrt_imu_m.T = tracker->sfm.depths[camera_id]->extrinsics.variance.T;
-        tracker->device.color.extrinsics_var_wrt_imu_m.W = tracker->sfm.depths[camera_id]->extrinsics.variance.Q;
+        tracker->device.depth.extrinsics_var_wrt_imu_m.T = tracker->sfm.depths[camera_id]->extrinsics.variance.T;
+        tracker->device.depth.extrinsics_var_wrt_imu_m.W = tracker->sfm.depths[camera_id]->extrinsics.variance.Q;
 
         return true;
     }

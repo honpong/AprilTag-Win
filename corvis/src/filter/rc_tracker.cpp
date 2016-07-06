@@ -325,7 +325,6 @@ bool rc_describeAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, rc_Extrin
 
 bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics * intrinsics)
 {
-    //TODO: intrinics
     if(trace)
         trace_log->info("rc_configureGyroscope {} noise {}", gyro_id, intrinsics->measurement_variance_rad2__s2);
 
@@ -345,6 +344,7 @@ bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extr
     }
 
     tracker->sfm.gyroscopes[gyro_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
+    tracker->sfm.gyroscopes[gyro_id]->intrinsics = *intrinsics;
 
     return true;
 }

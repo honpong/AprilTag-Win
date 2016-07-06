@@ -38,16 +38,8 @@ sensor_calibration_camera calibration_convert_camera(const struct calibration_xm
     rc_Extrinsics extrinsics({0});
     v_map(extrinsics.T.v)          = legacy_camera.extrinsics_wrt_imu_m.T;
     v_map(extrinsics.W.v)          = to_rotation_vector(legacy_camera.extrinsics_wrt_imu_m.Q).raw_vector();
-    
-    // All new_test_suite sequences are 1e-7 or 1e-6, but some
-    // e6t calibrations in particular are uninitialized random
-    // numbers. Just set a default for conversions with z constrained
-    // more tightly (since all version < 8 calibrations are on the
-    // same plane)
-    v3 default_variance(1e-7, 1e-7, 1e-10);
-    v_map(extrinsics.T_variance.v) = default_variance;
-    v_map(extrinsics.W_variance.v) = default_variance;
-
+    v_map(extrinsics.T_variance.v) = legacy_camera.extrinsics_var_wrt_imu_m.T;
+    v_map(extrinsics.W_variance.v) = legacy_camera.extrinsics_var_wrt_imu_m.W;
     return sensor_calibration_camera(extrinsics, legacy_camera.intrinsics);
 }
 

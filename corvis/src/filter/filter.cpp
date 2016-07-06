@@ -470,8 +470,8 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
             return;
         }
     }
-    if(!gyroscope->got) { //skip the first piece of data as it seems to be crap
-        gyroscope->got = true;
+    if(!gyroscope.got) { //skip the first piece of data as it seems to be crap
+        gyroscope.got = true;
         return;
     }
     if(!f->gravity_init) return;
@@ -752,7 +752,8 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
         f->qr_bench.process_frame(f, image.image, image.width, image.height);
 #endif
     
-    camera->got = true;
+    camera.got = true;
+
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;
         bool inertial_converged = (f->s.Q.variance()[0] < dynamic_W_thresh_variance && f->s.Q.variance()[1] < dynamic_W_thresh_variance);

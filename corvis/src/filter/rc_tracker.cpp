@@ -54,6 +54,24 @@ static void rc_trace(const rc_CameraIntrinsics c)
             c.distortion[0], c.distortion[1], c.distortion[2]);
 }
 
+static void rc_trace(rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride, const void *image) {
+    int pixel1 = -1;
+    int pixel2 = -1;
+    int pixel3 = -1;
+    if(format == rc_FORMAT_DEPTH16) {
+        pixel1 = ((uint16_t*)image)[width/2 + width * height/2 - 1];
+        pixel2 = ((uint16_t*)image)[width/2 + width * height/2    ];
+        pixel3 = ((uint16_t*)image)[width/2 + width * height/2 + 1];
+    }
+    else {
+        pixel1 = ((uint8_t*)image)[width/2 + width * height/2 - 1];
+        pixel2 = ((uint8_t*)image)[width/2 + width * height/2    ];
+        pixel3 = ((uint8_t*)image)[width/2 + width * height/2 + 1];
+    }
+    trace_log->info("rc_receiveImage id,t,s,f {} {} {} {} w,h,s {} {} {} px {} {} {}", camera_id, time_us, shutter_time_us, format, width, height, stride, pixel1, pixel2, pixel3);
+}
+
+
 static rc_Pose to_rc_Pose(const transformation &g)
 {
     rc_Pose p;
@@ -200,8 +218,7 @@ void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose *
 
 bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_CameraIntrinsics * intrinsics)
 {
-    if(trace)
-        trace_log->info("rc_configureCamera {} format {}", camera_id, format);
+    if(trace) trace_log->info("rc_configureCamera {} format {}", camera_id, format);
 
     if(!extrinsics_wrt_origin_m || !intrinsics) return false;
 
@@ -524,22 +541,9 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
                      int width, int height, int stride, const void *image,
                      void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
-    if(trace) {
-        int pixel1 = -1;
-        int pixel2 = -1;
-        int pixel3 = -1;
-        if(format == rc_FORMAT_DEPTH16) {
-            pixel1 = ((uint16_t*)image)[width/2 + width * height/2 - 1];
-            pixel2 = ((uint16_t*)image)[width/2 + width * height/2    ];
-            pixel3 = ((uint16_t*)image)[width/2 + width * height/2 + 1];
-        }
-        else {
-            pixel1 = ((uint8_t*)image)[width/2 + width * height/2 - 1];
-            pixel2 = ((uint8_t*)image)[width/2 + width * height/2    ];
-            pixel3 = ((uint8_t*)image)[width/2 + width * height/2 + 1];
-        }
-        trace_log->info("rc_receiveImage id,t,s,f {} {} {} {} w,h,s {} {} {} px {} {} {}", camera_id, time_us, shutter_time_us, format, width, height, stride, pixel1, pixel2, pixel3);
-    }
+    if(trace)
+        rc_trace(camera_id, format, time_us, shutter_time_us, width, height, stride, image);
+
     if (format == rc_FORMAT_DEPTH16 && camera_id < tracker->sfm.depths.size()) {
         image_depth16 d;
         d.source = tracker->sfm.depths[camera_id].get();

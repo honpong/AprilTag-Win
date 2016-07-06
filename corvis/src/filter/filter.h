@@ -82,8 +82,8 @@ struct filter {
     std::vector<std::unique_ptr<sensor_accelerometer>> accelerometers;
     std::vector<std::unique_ptr<sensor_gyroscope>> gyroscopes;
 
-    bool got_any_gyroscopes() {     for (auto &gyro : gyroscopes) if (gyro.got) return true; return false;}
-    bool got_any_accelerometers() { for (auto &accel : accelerometers) if (accle.got) return true; return false; }
+    bool got_any_gyroscopes()     const { for (const auto &gyro  :     gyroscopes) if (gyro->got)  return true; return false;}
+    bool got_any_accelerometers() const { for (const auto &accel : accelerometers) if (accel->got) return true; return false; }
 
     //TODOMSM - per sensor
     std::chrono::duration<float, milli> accel_timer, gyro_timer, image_timer;

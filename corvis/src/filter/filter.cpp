@@ -399,7 +399,8 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
 void filter_accelerometer_measurement(struct filter *f, const accelerometer_data &data)
 {
     auto start = std::chrono::steady_clock::now();
-    v3 meas = m_map(data.source->intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2);
+    struct sensor_accelerometer &accelerometer = *data.source;
+    v3 meas = m_map(accelerometer.intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2);
     v3 accel_delta = meas - f->last_accel_meas;
     f->last_accel_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
@@ -454,7 +455,8 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
 void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
 {
     auto start = std::chrono::steady_clock::now();
-    v3 meas = m_map(data.source->intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s);
+    struct sensor_gyroscope &gyroscope = *data.source;
+    v3 meas = m_map(gyroscope.intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s);
     v3 gyro_delta = meas - f->last_gyro_meas;
     f->last_gyro_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
@@ -729,6 +731,7 @@ bool filter_depth_measurement(struct filter *f, const image_depth16 & depth)
 bool filter_image_measurement(struct filter *f, const image_gray8 & image)
 {
     auto start = std::chrono::steady_clock::now();
+    sensor_grey &camera = *image.source;
 
     sensor_clock::time_point time = image.timestamp;
 

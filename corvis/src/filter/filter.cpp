@@ -399,7 +399,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
 void filter_accelerometer_measurement(struct filter *f, const accelerometer_data &data)
 {
     auto start = std::chrono::steady_clock::now();
-    v3 meas_(data.accel_m__s2[0], data.accel_m__s2[1], data.accel_m__s2[2]);
+    v3 meas_(data.acceleration_m__s2[0], data.acceleration_m__s2[1], data.acceleration_m__s2[2]);
     v3 meas = f->a_alignment * meas_;
     v3 accel_delta = meas - f->last_accel_meas;
     f->last_accel_meas = meas;
@@ -455,7 +455,7 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
 void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
 {
     auto start = std::chrono::steady_clock::now();
-    v3 meas_(data.angvel_rad__s[0], data.angvel_rad__s[1], data.angvel_rad__s[2]);
+    v3 meas_(data.angular_velocity_rad__s[0], data.angular_velocity_rad__s[1], data.angular_velocity_rad__s[2]);
     v3 meas = f->w_alignment * meas_;
     v3 gyro_delta = meas - f->last_gyro_meas;
     f->last_gyro_meas = meas;

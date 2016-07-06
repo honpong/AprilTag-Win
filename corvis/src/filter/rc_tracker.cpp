@@ -590,9 +590,7 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, r
         return;
     accelerometer_data d;
     d.source = tracker->sfm.accelerometers[accelerometer_id].get();
-    d.accel_m__s2[0] = acceleration_m__s2.x;
-    d.accel_m__s2[1] = acceleration_m__s2.y;
-    d.accel_m__s2[2] = acceleration_m__s2.z;
+    v_map(d.acceleration_m__s2) = v_map(acceleration_m__s2.v).cast<float>();
     d.timestamp = sensor_clock::micros_to_tp(time_us);
     if(tracker->output.started())
         tracker->output.write_accelerometer(accelerometer_id, std::move(d));
@@ -607,9 +605,7 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
         return;
     gyro_data d;
     d.source = tracker->sfm.gyroscopes[gyroscope_id].get();
-    d.angvel_rad__s[0] = angular_velocity_rad__s.x;
-    d.angvel_rad__s[1] = angular_velocity_rad__s.y;
-    d.angvel_rad__s[2] = angular_velocity_rad__s.z;
+    v_map(d.angular_velocity_rad__s) = v_map(angular_velocity_rad__s.v).cast<float>();
     d.timestamp = sensor_clock::micros_to_tp(time_us);
     if(tracker->output.started())
         tracker->output.write_gyro(gyroscope_id, std::move(d));

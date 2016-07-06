@@ -98,14 +98,14 @@ void capture::write_camera(uint16_t sensor_id, image_depth16 &&data)
 void capture::write_accelerometer(uint16_t sensor_id, accelerometer_data &&data)
 {
     process(std::packaged_task<void()>([this, sensor_id, data=std::move(data)]() {
-        write_accelerometer_data(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.accel_m__s2);
+        write_accelerometer_data(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.acceleration_m__s2);
     }));
 }
 
 void capture::write_gyro(uint16_t sensor_id, gyro_data &&data)
 {
     process(std::packaged_task<void()>([this, sensor_id, data=std::move(data)]() {
-        write_gyroscope_data(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.angvel_rad__s);
+        write_gyroscope_data(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.angular_velocity_rad__s);
     }));
 }
 

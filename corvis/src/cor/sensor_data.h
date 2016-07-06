@@ -80,7 +80,7 @@ class accelerometer_data: public sensor_data<3>
 {
 public:
     sensor_accelerometer *source;
-    float accel_m__s2[3];
+    float acceleration_m__s2[3];
     accelerometer_data() {};
     
     accelerometer_data(const accelerometer_data& other) = default;
@@ -94,7 +94,7 @@ class gyro_data: public sensor_data<3>
 {
 public:
     sensor_gyroscope *source;
-    float angvel_rad__s[3];
+    float angular_velocity_rad__s[3];
     gyro_data() {}
     
     gyro_data(const gyro_data& other) = default;

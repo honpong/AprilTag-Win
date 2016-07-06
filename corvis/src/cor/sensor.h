@@ -12,30 +12,46 @@
 #include "../numerics/vec4.h"
 #include "../numerics/quaternion.h"
 #include "../numerics/transformation.h"
+#include "../filter/rc_tracker.h"
 
-class sensor
+struct sensor
 {
-public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     const int id;
     const std::string name;
+    struct extrinsics {
+        transformation mean;
+        struct transformation_variance { v3 Q = v3::Zero(), T = v3::Zero(); } variance;
+    } extrinsics;
     sensor(int _id, std::string _name = "") : id(_id), name(_name) {}
-    transformation extrinsics;
 };
 
 template<int size_> class sensor_storage : public sensor
 {
 public:
     stdev<size_> meas_stdev, inn_stdev;
-    sensor_storage(int id, std::string name = "") : sensor(id, name) {}
+    using sensor::sensor;
     void init() {
         meas_stdev = stdev<size_>();
         inn_stdev = stdev<size_>();
     }
 };
 
-typedef sensor_storage<2> sensor_camera;
-typedef sensor_storage<1> sensor_depth;
-typedef sensor_storage<3> sensor_accelerometer;
-typedef sensor_storage<3> sensor_gyroscope;
+struct sensor_camera {
+    struct rc_CameraIntrinsics intrinsics = {};
+};
+
+class sensor_grey : public sensor_storage<2>, public sensor_camera {
+    using sensor_storage<2>::sensor_storage;
+};
+class sensor_depth : public sensor_storage<1>, public sensor_camera {
+    using sensor_storage<1>::sensor_storage;
+};
+class sensor_accelerometer : public sensor_storage<3> {
+    using sensor_storage<3>::sensor_storage;
+};
+class sensor_gyroscope : public sensor_storage<3> {
+    using sensor_storage<3>::sensor_storage;
+};
 
 #endif /* sensor_h */

@@ -706,21 +706,19 @@ size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
     calibration cal;
 
     size_t size = std::min(tracker->sfm.accelerometers.size(), tracker->sfm.gyroscopes.size());
-    int id;
     cal.imus.resize(size);
-    for (id = 0; id < size; id++) {
+    for (int id = 0; id < size; id++) {
         rc_describeGyroscope(tracker, id, &cal.imus[id].extrinsics, &cal.imus[id].intrinsics.gyroscope);
         rc_describeAccelerometer(tracker, id, &cal.imus[id].extrinsics, &cal.imus[id].intrinsics.accelerometer);
     }
-    cal.imus.resize(id);
 
     cal.cameras.resize(tracker->sfm.cameras.size());
-    for (auto &c : cal.cameras)
-        rc_describeCamera(tracker, id, rc_FORMAT_GRAY8, &c.extrinsics, &c.intrinsics);
+    for (int id = 0; id < tracker->sfm.cameras.size(); id++)
+        rc_describeCamera(tracker, id, rc_FORMAT_GRAY8, &cal.cameras[id].extrinsics, &cal.cameras[id].intrinsics);
 
     cal.depths.resize(tracker->sfm.depths.size());
-    for (auto &c : cal.cameras)
-        rc_describeCamera(tracker, id, rc_FORMAT_DEPTH16, &c.extrinsics, &c.intrinsics);
+    for (int id = 0; id < tracker->sfm.depths.size(); id++)
+        rc_describeCamera(tracker, id, rc_FORMAT_DEPTH16, &cal.depths[id].extrinsics, &cal.depths[id].intrinsics);
 
     std::string json;
     if (!calibration_serialize(cal, json))

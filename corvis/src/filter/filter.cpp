@@ -399,8 +399,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
 void filter_accelerometer_measurement(struct filter *f, const accelerometer_data &data)
 {
     auto start = std::chrono::steady_clock::now();
-    v3 meas_(data.acceleration_m__s2[0], data.acceleration_m__s2[1], data.acceleration_m__s2[2]);
-    v3 meas = f->a_alignment * meas_;
+    v3 meas = m_map(data.source->intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2);
     v3 accel_delta = meas - f->last_accel_meas;
     f->last_accel_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
@@ -455,8 +454,7 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
 void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
 {
     auto start = std::chrono::steady_clock::now();
-    v3 meas_(data.angular_velocity_rad__s[0], data.angular_velocity_rad__s[1], data.angular_velocity_rad__s[2]);
-    v3 meas = f->w_alignment * meas_;
+    v3 meas = m_map(data.source->intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s);
     v3 gyro_delta = meas - f->last_gyro_meas;
     f->last_gyro_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
@@ -956,9 +954,6 @@ extern "C" void filter_initialize(struct filter *f)
     f->w_variance = gyro.measurement_variance_rad2__s2;
     f->a_variance = accel.measurement_variance_m2__s4;
 
-    f->a_alignment = m_map(accel.scale_and_alignment.v);
-    f->w_alignment = m_map(gyro.scale_and_alignment.v);
-
     f->s.extrinsics.Tc.v = cam_extrinsics.mean.T;
     f->s.extrinsics.Qc.v = cam_extrinsics.mean.Q;
 
@@ -1082,8 +1077,6 @@ void filter_get_calibration(const struct filter *f, calibration_json *device)
     imu.w_bias_var_rad2__s2  = f->s.imu_intrinsics.w_bias.variance();
     imu.w_noise_var_rad2__s2 = f->w_variance;
     imu.a_noise_var_m2__s4   = f->a_variance;
-    imu.a_alignment          = f->a_alignment;
-    imu.w_alignment          = f->w_alignment;
 }
 
 float filter_converged(const struct filter *f)

@@ -36,10 +36,6 @@ struct filter {
     f_t w_variance;
     f_t a_variance;
 
-    //TODOMSM
-    m3 w_alignment;
-    m3 a_alignment;
-
     bool gravity_init;
 
     sensor_clock::time_point want_start;

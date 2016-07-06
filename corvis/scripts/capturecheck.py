@@ -78,7 +78,7 @@ def compress_warnings(warning_list):
         output_list.append(current_list)
     return output_list
 
-for packet_type in packets:
+for packet_type in sorted(packets.keys()):
   timestamps = numpy.array(packets[packet_type])
   deltas = timestamps[1:] - timestamps[:-1]
   mean_delta = numpy.mean(deltas)

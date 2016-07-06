@@ -292,10 +292,8 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
         tracker->sfm.accelerometers.push_back(std::move(new_accel));
     }
 
-    if (extrinsics_wrt_origin_m)
-        tracker->sfm.accelerometers[accel_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
-    if (intrinsics)
-        tracker->sfm.accelerometers[accel_id]->intrinsics = *intrinsics;
+    tracker->sfm.accelerometers[accel_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
+    tracker->sfm.accelerometers[accel_id]->intrinsics = *intrinsics;
 
     return true;
 }

@@ -30,9 +30,10 @@ template<rc_ImageFormat camera_type, class data_type, int size_>
 class image_data: public sensor_data<size_>
 {
 public:
+    typedef image_data<camera_type, data_type, size_> image_data_type;
     image_data(): image_handle(nullptr, nullptr), image(nullptr), width(0), height(0), stride(0) { }
-    image_data(image_data<camera_type, data_type, size_>&& other) = default;
-    image_data &operator=(image_data<camera_type, data_type, size_>&& other) = default;
+    image_data(image_data_type&& other) = default;
+    image_data &operator=(image_data_type&& other) = default;
     
     image_data(int image_width, int image_height) :
     image_handle(malloc(image_width * image_height * sizeof(data_type)), free), image((data_type *)image_handle.get()), width(image_width), height(image_height), stride(image_width * sizeof(data_type))
@@ -45,10 +46,10 @@ public:
         std::fill_n(image, width * height, initial_value);
     }
     
-    image_data<camera_type, data_type, size_> make_copy() const
+    image_data_type make_copy() const
     {
         assert(height && stride);
-        image_data<camera_type, data_type, size_> res;
+        image_data_type res;
         res.source = this->source;
         res.timestamp = this->timestamp;
         res.width = width;
@@ -63,8 +64,8 @@ public:
         return res;
     }
     
-    image_data(const image_data<camera_type, data_type, size_> &other) = delete;
-    image_data &operator=(const image_data<camera_type, data_type, size_>& other) = delete;
+    image_data(const image_data_type &other) = delete;
+    image_data &operator=(const image_data_type& other) = delete;
 
     sensor_clock::duration exposure_time;
     std::unique_ptr<void, void(*)(void *)> image_handle;

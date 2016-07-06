@@ -3,7 +3,6 @@
 
 #include "state_vision.h"
 #include "observation.h"
-#include "calibration_json.h"
 #include "../numerics/transformation.h"
 #ifdef ENABLE_QR
 #include "qr.h"
@@ -42,8 +41,6 @@ struct filter {
     m3 a_alignment;
 
     bool gravity_init;
-
-    calibration_xml::camera depth = {};
 
     sensor_clock::time_point want_start;
     bool got_accelerometer, got_gyroscope, got_image; //TODOMSM - if we expect, and want to wait for all sensors, this should be per-sensor
@@ -110,7 +107,6 @@ void filter_start_qr_detection(struct filter *f, const std::string& data, float 
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
 #endif
-void filter_get_calibration(const struct filter *f, calibration_json *calibration);
 
 extern "C" void filter_initialize(struct filter *f);
 float filter_converged(const struct filter *f);

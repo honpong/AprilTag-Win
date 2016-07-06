@@ -1045,12 +1045,13 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.remap();
 }
 
+#include "calibration_json.h"
 void filter_get_calibration(const struct filter *f, calibration_json *device)
 {
     auto &cam = device->color;
     auto &imu = device->imu;
 
-    device->depth = f->depth;
+//    device->depth = f->depth;
 
     device->version = CALIBRATION_VERSION_LEGACY;
     cam.intrinsics.width_px  = f->s.camera_intrinsics.image_width;

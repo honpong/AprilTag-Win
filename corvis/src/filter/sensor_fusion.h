@@ -58,9 +58,6 @@ public:
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
     
-    calibration_json get_calibration() const;
-    void set_calibration(const calibration_json &dc);
-    
     /** Sets the current location of the device.
      
      The device's current location (including altitude) is used to account for differences in gravity across the earth. If location is unavailable, results may be less accurate. This should be called before starting sensor fusion or calibration.
@@ -205,8 +202,6 @@ public:
 
     //public for now
     filter sfm;
-    calibration_json device;
-    struct calibration_xml calibration;
 
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
     transformation accel_to_camera_world_transform() const;

@@ -9,7 +9,6 @@
 
 #include <string.h>
 #include <regex>
-#include "calibration_json.h"
 #include "../cor/packet.h"
 
 template <int by_x, int by_y>

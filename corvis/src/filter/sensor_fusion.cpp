@@ -185,20 +185,6 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
 }
 
-calibration_json sensor_fusion::get_calibration() const
-{
-    calibration_json cal = {};
-    filter_get_calibration(&sfm, &cal);
-    cal.device_id = device.device_id;
-    return cal;
-}
-
-void sensor_fusion::set_calibration(const calibration_json &dc)
-{
-    device = dc;
-    filter_initialize(&sfm);
-}
-
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)
 {
     queue->dispatch_async([this, latitude_degrees, altitude_meters]{

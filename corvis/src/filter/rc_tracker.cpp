@@ -69,6 +69,16 @@ static struct sensor::extrinsics rc_Extrinsics_to_sensor_extrinsics(const rc_Ext
     return extrinsics;
 }
 
+static rc_Extrinsics rc_Extrinsics_from_sensor_extrinsics(struct sensor::extrinsics e)
+{
+    rc_Extrinsics extrinsics = {};
+    rc_map(extrinsics.W.v) = to_rotation_vector(e.mean.Q).raw_vector();
+    rc_map(extrinsics.T.v) = e.mean.T;
+    rc_map(extrinsics.W_variance.v) = e.variance.Q;
+    rc_map(extrinsics.T_variance.v) = e.variance.T;
+    return extrinsics;
+}
+
 static transformation rc_Pose_to_transformation(const rc_Pose p)
 {
     transformation g;
@@ -249,32 +259,26 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, const rc_Extri
 
 bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_Extrinsics * extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics)
 {
-    // TODO: camera id
-    return false;
-    /*
-    // When you query a currently configure camera, you get the info from the current 'device' struct
-    const calibration_xml::camera *cam =
-        (camera_id == rc_CAMERA_ID_DEPTH   && tracker->device.depth.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN) ? &tracker->device.depth :
-        (camera_id == rc_CAMERA_ID_COLOR   && tracker->device.color.intrinsics.type != rc_CALIBRATION_TYPE_FISHEYE) ||
-        (camera_id == rc_CAMERA_ID_FISHEYE && tracker->device.color.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE) ? &tracker->device.color :
-    // When you query a currently unused camera, you get the data from the milti-camera calibration struct
-         camera_id == rc_CAMERA_ID_FISHEYE ? &tracker->calibration.fisheye :
-         camera_id == rc_CAMERA_ID_COLOR   ? &tracker->calibration.color :
-         camera_id == rc_CAMERA_ID_DEPTH   ? &tracker->calibration.depth :
-         camera_id == rc_CAMERA_ID_IR      ? &tracker->calibration.ir : nullptr;
-    if (cam && extrinsics_wrt_accel_m)
-        transformation_to_rc_Pose(cam->extrinsics_wrt_imu_m, extrinsics_wrt_accel_m);
-    if (cam && intrinsics)
-        *intrinsics = cam->intrinsics;
+    if(intrinsics->format == rc_FORMAT_GRAY8 && camera_id < tracker->sfm.cameras.size()) {
+        if (extrinsics_wrt_origin_m)
+            *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(tracker->sfm.cameras[camera_id]->extrinsics);
+        if (intrinsics)
+            *intrinsics = tracker->sfm.cameras[camera_id]->intrinsics;
+    } else if (intrinsics->format == rc_FORMAT_DEPTH16 && camera_id < tracker->sfm.depths.size()) {
+        if (extrinsics_wrt_origin_m)
+            *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(tracker->sfm.depths[camera_id]->extrinsics);
+        if (intrinsics)
+            *intrinsics = tracker->sfm.depths[camera_id]->intrinsics;
+    } else
+        return false;
 
     if(trace) {
         trace_log->info("rc_describeCamera {}", camera_id);
-        rc_trace(extrinsics_wrt_accel_m);
+        rc_trace(*extrinsics_wrt_origin_m);
         rc_trace(*intrinsics);
     }
 
     return true;
-    */
 }
 
 bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics * intrinsics)

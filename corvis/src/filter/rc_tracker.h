@@ -93,15 +93,17 @@ typedef struct rc_Vector {
  */
 typedef float rc_Pose[12];
 
+typedef struct { float v[3][3]; } rc_Matrix;
+
 typedef struct {
-    rc_Pose scale_and_alignment;
+    rc_Matrix scale_and_alignment;
     rc_Vector bias_m__s2;
     rc_Vector bias_variance_m2__s4;
     float measurement_variance_m2__s4;
 } rc_AccelerometerIntrinsics;
 
 typedef struct {
-    rc_Pose scale_and_alignment;
+    rc_Matrix scale_and_alignment;
     rc_Vector bias_rad__s;
     rc_Vector bias_variance_rad2__s2;
     float measurement_variance_rad2__s2;

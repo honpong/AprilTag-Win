@@ -134,7 +134,7 @@ void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, Document
         Value scale_and_alignment(kArrayType);
         for(int r = 0; r < 3; r++)
             for(int c = 0; c < 3; c++)
-                scale_and_alignment.PushBack(imu.intrinsics.accelerometer.scale_and_alignment[r*4+c], a);
+                scale_and_alignment.PushBack(imu.intrinsics.accelerometer.scale_and_alignment.v[r][c], a);
         accelerometer.AddMember(KEY_IMU_SCALE_AND_ALIGNMENT, scale_and_alignment, a);
 
         Value bias(kArrayType);
@@ -154,7 +154,7 @@ void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, Document
         Value scale_and_alignment(kArrayType);
         for(int r = 0; r < 3; r++)
             for(int c = 0; c < 3; c++)
-                scale_and_alignment.PushBack(imu.intrinsics.gyroscope.scale_and_alignment[r*4+c], a);
+                scale_and_alignment.PushBack(imu.intrinsics.gyroscope.scale_and_alignment.v[r][c], a);
         gyroscope.AddMember(KEY_IMU_SCALE_AND_ALIGNMENT, scale_and_alignment, a);
 
         Value bias(kArrayType);
@@ -215,6 +215,19 @@ static bool require_keys(const Value &json, std::vector<const char *> keys)
     for(const auto & key : keys)
         if(!require_key(json, key))
             return false;
+    return true;
+}
+
+bool copy_json_to_rc_matrix(Value & json, rc_Matrix & m)
+{
+    if(!json.IsArray() || json.Size() != 9) {
+        fprintf(stderr, "Error: problem converting to an rc_Vector\n");
+        return false;
+    }
+    for(int r = 0; r < 3; r++)
+        for(int c = 0; c < 3; c++)
+            m.v[r][c] = json[r*3+c].GetDouble();
+
     return true;
 }
 
@@ -279,7 +292,7 @@ bool copy_json_to_gyroscope(Value & json, rc_GyroscopeIntrinsics & gyroscope)
                 KEY_IMU_BIAS_VARIANCE, KEY_IMU_NOISE_VARIANCE}))
         return false;
 
-    if(!copy_json_to_rc_pose(json[KEY_IMU_SCALE_AND_ALIGNMENT], gyroscope.scale_and_alignment) ||
+    if(!copy_json_to_rc_matrix(json[KEY_IMU_SCALE_AND_ALIGNMENT], gyroscope.scale_and_alignment) ||
        !copy_json_to_rc_vector(json[KEY_IMU_BIAS], gyroscope.bias_rad__s) ||
        !copy_json_to_rc_vector(json[KEY_IMU_BIAS_VARIANCE], gyroscope.bias_variance_rad2__s2))
         return false;
@@ -304,7 +317,7 @@ bool copy_json_to_accelerometer(Value & json, rc_AccelerometerIntrinsics & accel
                 KEY_IMU_BIAS_VARIANCE, KEY_IMU_NOISE_VARIANCE}))
         return false;
 
-    if(!copy_json_to_rc_pose(json[KEY_IMU_SCALE_AND_ALIGNMENT], accelerometer.scale_and_alignment) ||
+    if(!copy_json_to_rc_matrix(json[KEY_IMU_SCALE_AND_ALIGNMENT], accelerometer.scale_and_alignment) ||
        !copy_json_to_rc_vector(json[KEY_IMU_BIAS], accelerometer.bias_m__s2) ||
        !copy_json_to_rc_vector(json[KEY_IMU_BIAS_VARIANCE], accelerometer.bias_variance_m2__s4))
         return false;

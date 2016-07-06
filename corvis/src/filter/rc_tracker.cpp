@@ -31,6 +31,11 @@ static void rc_trace(const rc_Vector p)
     trace_log->info("{} {} {}", p.x, p.y, p.z);
 }
 
+static void rc_trace(const rc_Matrix p)
+{
+    trace_log->info("{} {} {} {}; {} {} {} {}; {} {} {} {}", p.v[0][0], p.v[0][1], p.v[0][2],  p.v[1][0], p.v[1][1], p.v[1][2],  p.v[2][0], p.v[2][1], p.v[2][2]);
+}
+
 static void rc_trace(const rc_Pose p)
 {
     trace_log->info("{} {} {} {}; {} {} {} {}; {} {} {} {}", p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8], p[9], p[10], p[11]);;
@@ -303,8 +308,7 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
     if (intrinsics)
         tracker->sfm.accelerometers[accel_id]->intrinsics = *intrinsics;
 
-    Eigen::Map<const Eigen::Matrix<float,3,4>>    a_alignment(intrinsics->scale_and_alignment);
-    tracker->device.imu.a_alignment        = tracker->calibration.imu.a_alignment        = a_alignment.block<3,3>(0,0).cast<f_t>();
+    tracker->device.imu.a_alignment        = tracker->calibration.imu.a_alignment        = m_map(intrinsics->scale_and_alignment.v);
     tracker->device.imu.a_bias_m__s2       = tracker->calibration.imu.a_bias_m__s2       = v_map(intrinsics->bias_m__s2.v);
     tracker->device.imu.a_bias_var_m2__s4  = tracker->calibration.imu.a_bias_var_m2__s4  = v_map(intrinsics->bias_variance_m2__s4.v);
     tracker->device.imu.a_noise_var_m2__s4 = tracker->calibration.imu.a_noise_var_m2__s4 = intrinsics->measurement_variance_m2__s4;
@@ -356,8 +360,7 @@ bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extr
 
     tracker->sfm.gyroscopes[gyro_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
 
-    Eigen::Map<const Eigen::Matrix<float,3,4>> w_alignment(intrinsics->scale_and_alignment);
-    tracker->device.imu.w_alignment          = tracker->calibration.imu.w_alignment          = w_alignment.block<3,3>(0,0).cast<f_t>();;
+    tracker->device.imu.w_alignment          = tracker->calibration.imu.w_alignment          = m_map(intrinsics->scale_and_alignment.v);
     tracker->device.imu.w_bias_rad__s        = tracker->calibration.imu.w_bias_rad__s        = v_map(intrinsics->bias_rad__s.v);
     tracker->device.imu.w_bias_var_rad2__s2  = tracker->calibration.imu.w_bias_var_rad2__s2  = v_map(intrinsics->bias_variance_rad2__s2.v);
     tracker->device.imu.w_noise_var_rad2__s2 = tracker->calibration.imu.w_noise_var_rad2__s2 = intrinsics->measurement_variance_rad2__s2;

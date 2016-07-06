@@ -68,16 +68,22 @@ bool replay::open(const char *name)
 
 void replay::zero_biases()
 {
-    auto fusion = (sensor_fusion *)tracker;
-    auto cal = fusion->get_calibration();
-    for(int i = 0; i < 3; i++) {
-        cal.imu.a_bias_m__s2[i] = 0;
-        cal.imu.w_bias_rad__s[i] = 0;
-        cal.imu.a_bias_var_m2__s4[i] = 1e-3;
-        cal.imu.w_bias_var_rad2__s2[i] = 1e-4;
+    for (rc_Sensor id = 0; true; id++) {
+        rc_AccelerometerIntrinsics intrinsics;
+        if (!rc_describeAccelerometer(tracker, id, nullptr, &intrinsics))
+            break;
+        for (auto &b : intrinsics.bias_m__s2.v) b = 0;
+        for (auto &b : intrinsics.bias_variance_m2__s4.v) b = 1e-3;
+        rc_configureAccelerometer(tracker, id, nullptr, &intrinsics);
     }
-    fusion->set_calibration(cal);
-
+    for (rc_Sensor id = 0; true; id++) {
+        rc_GyroscopeIntrinsics intrinsics;
+        if (!rc_describeGyroscope(tracker, id, nullptr, &intrinsics))
+            break;
+        for (auto &b : intrinsics.bias_rad__s.v) b = 0;
+        for (auto &b : intrinsics.bias_variance_rad2__s2.v) b = 1e-4;
+        rc_configureGyroscope(tracker, id, nullptr, &intrinsics);
+    }
 }
 
 bool replay::load_calibration(std::string filename)

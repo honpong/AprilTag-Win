@@ -33,7 +33,7 @@ static void rc_trace(const rc_Vector p)
 
 static void rc_trace(const rc_Matrix p)
 {
-    trace_log->info("{} {} {} {}; {} {} {} {}; {} {} {} {}", p.v[0][0], p.v[0][1], p.v[0][2],  p.v[1][0], p.v[1][1], p.v[1][2],  p.v[2][0], p.v[2][1], p.v[2][2]);
+    trace_log->info("{} {} {}; {} {} {}; {} {} {}", p.v[0][0], p.v[0][1], p.v[0][2],  p.v[1][0], p.v[1][1], p.v[1][2],  p.v[2][0], p.v[2][1], p.v[2][2]);
 }
 
 static void rc_trace(const rc_Pose p)

@@ -5,17 +5,16 @@
 #include "MotionDeviceDescriptor.h"
 
 namespace rc {
+    static struct motion_device_initializer {
+        motion_device_initializer() {
+            for (auto &d : motion::motionDevices)
+                motion::MotionDeviceManager::instance()->AddMotionDeviceDescriptor(d);
+        }
+    } mdi_;
     struct sensor_listener : protected motion::MotionDeviceListner
     {
         rc_Tracker *rc;
         motion::MotionDevice *md;
-
-        static class motion_device_initializer {
-            motion_device_initializer() {
-                for (auto &d : motion::motionDevices)
-                    motion::MotionDeviceManager::instance()->AddMotionDeviceDescriptor(d);
-            }
-        } mdi_;
       public:
         operator bool() { return !!md; }
         sensor_listener(rc_Tracker *rc_, int instance) : rc(rc_) {

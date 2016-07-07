@@ -188,6 +188,13 @@ add_library(tracker SHARED filter/rc_tracker.cpp)
 set_target_properties(tracker PROPERTIES CXX_STANDARD 14)
 target_link_libraries(tracker filter)
 target_include_directories(tracker PUBLIC tracker)
+if (RC_VERSION)
+  set(RC_VERSION ${RC_VERSION} CACHE STRING "RC Tracker Release Numeric Version")
+  target_compile_definitions(tracker PRIVATE RC_VERSION=${RC_VERSION})
+endif()
+exec_program(git ARGS describe --match "intel_v*" HEAD OUTPUT_VARIABLE GIT_DESCRIPTION)
+target_compile_definitions(tracker PRIVATE RC_BUILD=${GIT_DESCRIPTION})
+
 
 if(ENABLE_QR)
 add_library(qr STATIC

@@ -1,16 +1,22 @@
-//
-//  rc_tracker.cpp
-//
-//  Created by Eagle Jones on 1/29/15.
-//  Copyright (c) 2015 Realitycap. All rights reserved.
-//
-
 #define RCTRACKER_API_EXPORTS
 #include "rc_tracker.h"
 #include "sensor_fusion.h"
 #include "device_parameters.h"
 #include "capture.h"
 #include <fstream>
+
+#define RC_STR_(x) #x
+#define RC_STR(x) RC_STR_(x)
+RCTRACKER_API const char *rc_copyright_ = "COPYRIGHT: Intel(r) RealSense(tm)";
+RCTRACKER_API const char *rc_build_     = "BUILD: "   RC_STR(RC_BUILD);
+#ifdef RC_VERSION
+RCTRACKER_API const char *rc_version_   = "VERSION: " RC_STR(RC_VERSION);
+#endif
+
+const char *rc_version()
+{
+    return rc_build_;
+}
 
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 {

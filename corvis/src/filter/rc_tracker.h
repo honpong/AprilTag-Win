@@ -130,6 +130,7 @@ typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, c
 
 typedef struct rc_Tracker rc_Tracker;
 
+RCTRACKER_API const char *rc_version();
 RCTRACKER_API rc_Tracker * rc_create();
 RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
 

@@ -68,20 +68,22 @@ bool replay::open(const char *name)
 void replay::zero_biases()
 {
     for (rc_Sensor id = 0; true; id++) {
+        rc_Extrinsics extrinsics;
         rc_AccelerometerIntrinsics intrinsics;
-        if (!rc_describeAccelerometer(tracker, id, nullptr, &intrinsics))
+        if (!rc_describeAccelerometer(tracker, id, &extrinsics, &intrinsics))
             break;
         for (auto &b : intrinsics.bias_m__s2.v) b = 0;
         for (auto &b : intrinsics.bias_variance_m2__s4.v) b = 1e-3;
         rc_configureAccelerometer(tracker, id, nullptr, &intrinsics);
     }
     for (rc_Sensor id = 0; true; id++) {
+        rc_Extrinsics extrinsics;
         rc_GyroscopeIntrinsics intrinsics;
-        if (!rc_describeGyroscope(tracker, id, nullptr, &intrinsics))
+        if (!rc_describeGyroscope(tracker, id, &extrinsics, &intrinsics))
             break;
         for (auto &b : intrinsics.bias_rad__s.v) b = 0;
         for (auto &b : intrinsics.bias_variance_rad2__s2.v) b = 1e-4;
-        rc_configureGyroscope(tracker, id, nullptr, &intrinsics);
+        rc_configureGyroscope(tracker, id, &extrinsics, &intrinsics);
     }
 }
 

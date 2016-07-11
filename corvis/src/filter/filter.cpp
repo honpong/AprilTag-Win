@@ -942,7 +942,6 @@ extern "C" void filter_initialize(struct filter *f)
     f->observations.observations.clear();
 
     f->s.reset();
-    f->s.maxstatesize = MAXSTATESIZE - f->s.fake_statesize;
 
     // TODOMSM: remove these in favor of treating everything on a
     // per-sensor basis
@@ -1039,6 +1038,8 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.statesize = 0;
     f->s.enable_orientation_only();
     f->s.remap();
+    // f->s.fake_statesize is set by calling remap
+    f->s.maxstatesize = MAXSTATESIZE - f->s.fake_statesize;
 }
 
 #include "calibration_json.h"

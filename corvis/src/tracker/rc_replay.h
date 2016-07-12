@@ -30,6 +30,7 @@ public:
     void enable_qvga() { qvga = true; }
     double get_length() { return length_m; }
     double get_reference_length() { return reference_length_m; }
+    const char * get_version() { return rc_version(); }
     void enable_pose_output();
     void enable_status_output();
     void enable_log_output(bool stream, rc_Timestamp period_us);

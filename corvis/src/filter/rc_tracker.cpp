@@ -13,13 +13,14 @@ RCTRACKER_API const char *rc_build_     = "BUILD: "   RC_STR(RC_BUILD);
 RCTRACKER_API const char *rc_version_   = "VERSION: " RC_STR(RC_VERSION);
 #endif
 
-const char *rc_version()
-{
-    return rc_build_;
-}
-
 std::unique_ptr<spdlog::logger> trace_log = std::make_unique<spdlog::logger>("rc_trace", make_shared<spdlog::sinks::null_sink_st> ());
 static const bool trace = false;
+
+const char *rc_version()
+{
+    if(trace) trace_log->info("rc_version: {}", rc_build_);
+    return rc_build_;
+}
 
 static void rc_trace(const rc_Extrinsics e)
 {

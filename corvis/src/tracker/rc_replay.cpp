@@ -190,8 +190,11 @@ bool replay::run()
                 char tmp[17]; memcpy(tmp, packet->data, 16); tmp[16] = 0;
                 std::stringstream parse(tmp);
                 int width, height; parse.ignore(3, ' ') >> width >> height; //pgm header is "P5 x y"
+                int stride = width;
+                if (qvga && width == 640 && height == 480)
+                    scale_down_inplace_y8_by<2,2>(packet->data + 16, width /= 2, height /= 2, stride);
                 rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, packet->header.time, 33333,
-                                width, height, width, packet->data + 16, [](void *packet) { free(packet); }, phandle.release());
+                                width, height, stride, packet->data + 16, [](void *packet) { free(packet); }, phandle.release());
             }   break;
             case packet_image_raw: {
                 packet_image_raw_t *ip = (packet_image_raw_t *)packet;

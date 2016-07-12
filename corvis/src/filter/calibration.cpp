@@ -52,8 +52,16 @@ bool calibration_convert(const calibration_json &cal, calibration &cal_output)
         cal_output.cameras.push_back(calibration_convert_camera(cal.color));
 
     //TODO: Warning, this always creates a default depth camera
-    sensor_calibration_depth depth_cam = calibration_convert_camera(cal.depth);
-    cal_output.depths.push_back(depth_cam);
+    if(cal.depth.intrinsics.type == rc_CALIBRATION_TYPE_UNKNOWN) {
+        sensor_calibration_depth depth_cam = calibration_convert_camera(cal.color);
+        depth_cam.intrinsics = cal.depth.intrinsics;
+        depth_cam.intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
+        cal_output.depths.push_back(depth_cam);
+    }
+    else {
+        sensor_calibration_depth depth_cam = calibration_convert_camera(cal.depth);
+        cal_output.depths.push_back(depth_cam);
+    }
 
     if(!cal_output.cameras.size()) return false;
 

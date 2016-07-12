@@ -542,9 +542,9 @@ static float get_stdev_pct_for_depth(float depth_m)
 std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct filter *f, const image_depth16 &depth)
 {
     assert(f->depths.size() > 0);
-    auto intrinsics = f->depths[0]->intrinsics;
-    auto extrinsics = f->depths[0]->extrinsics.mean;
-    if (intrinsics.type == rc_CALIBRATION_TYPE_UNKNOWN)
+    const auto & intrinsics = f->depths[0]->intrinsics;
+    const auto & extrinsics = f->depths[0]->extrinsics.mean;
+    if (intrinsics.type == rc_CALIBRATION_TYPE_UNDISTORTED && extrinsics == f->cameras[0]->extrinsics.mean)
         return std::make_unique<image_depth16>(depth.make_copy());
 
     auto aligned_depth = make_unique<image_depth16>(depth.width, depth.height, std::numeric_limits<uint16_t>::max());

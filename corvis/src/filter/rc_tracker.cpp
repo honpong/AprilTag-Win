@@ -538,7 +538,7 @@ void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, const void *bu
     tracker->save_map(write, handle);
 }
 
-void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us,
+bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us,
                      int width, int height, int stride, const void *image,
                      void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
@@ -576,14 +576,18 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
         else
             tracker->receive_image(std::move(d));
     }
+    else
+        return false;
+
     tracker->trigger_log();
+    return true;
 }
 
-void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, const rc_Vector acceleration_m__s2)
+bool rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, const rc_Vector acceleration_m__s2)
 {
     if(trace) trace_log->info("rc_receiveAccelerometer {} {}: {} {} {}", accelerometer_id, time_us, acceleration_m__s2.x, acceleration_m__s2.y, acceleration_m__s2.z);
     if (accelerometer_id >= tracker->sfm.accelerometers.size())
-        return;
+        return false;
     accelerometer_data d;
     d.source = tracker->sfm.accelerometers[accelerometer_id].get();
     v_map(d.acceleration_m__s2) = v_map(acceleration_m__s2.v).cast<float>();
@@ -592,13 +596,14 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, r
         tracker->output.write_accelerometer(accelerometer_id, std::move(d));
     else
         tracker->receive_accelerometer(std::move(d));
+    return true;
 }
 
-void rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s)
+bool rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s)
 {
     if(trace) trace_log->info("rc_receiveGyro {} {}: {} {} {}", gyroscope_id, time_us, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
     if (gyroscope_id >= tracker->sfm.gyroscopes.size())
-        return;
+        return false;
     gyro_data d;
     d.source = tracker->sfm.gyroscopes[gyroscope_id].get();
     v_map(d.angular_velocity_rad__s) = v_map(angular_velocity_rad__s.v).cast<float>();
@@ -607,6 +612,7 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
         tracker->output.write_gyro(gyroscope_id, std::move(d));
     else
         tracker->receive_gyro(std::move(d));
+    return true;
 }
 
 rc_Pose rc_getPose(const rc_Tracker * tracker)

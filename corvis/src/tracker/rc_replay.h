@@ -21,7 +21,12 @@ private:
 
 public:
     rc_Tracker *tracker;
-    replay() { tracker = rc_create(); }
+    replay() {
+        tracker = rc_create();
+        rc_setMessageCallback(tracker, [](void *handle, rc_MessageLevel message_level, const char * message, size_t len) {
+                std::cerr << message;
+            }, nullptr, rc_MESSAGE_ERROR);
+    }
     ~replay() { rc_destroy(tracker); tracker = nullptr; }
     void reset() { rc_reset(tracker, 0, nullptr); }
     bool open(const char *name);

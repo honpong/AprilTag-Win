@@ -70,8 +70,10 @@ static void copy_json_to_camera(Value &json, calibration_xml::camera &cam, Docum
     if (require_key(json, KEY_TC0) && require_key(json, KEY_TC1) && require_key(json, KEY_TC2))
         cam.extrinsics_wrt_imu_m.T = v3(json[KEY_TC0].GetDouble(), json[KEY_TC1].GetDouble(), json[KEY_TC2].GetDouble());
 
-    if (require_key(json, KEY_WC0) && require_key(json, KEY_WC1) && require_key(json, KEY_WC2))
+    if (require_key(json, KEY_WC0) && require_key(json, KEY_WC1) && require_key(json, KEY_WC2)) {
         cam.extrinsics_wrt_imu_m.Q = to_quaternion(rotation_vector(json[KEY_WC0].GetDouble(), json[KEY_WC1].GetDouble(), json[KEY_WC2].GetDouble()));
+        cam.extrinsics_wrt_imu_W   = rotation_vector(json[KEY_WC0].GetDouble(), json[KEY_WC1].GetDouble(), json[KEY_WC2].GetDouble());
+    }
 
     if (json.HasMember(KEY_TCVAR0) && json.HasMember(KEY_TCVAR1) && json.HasMember(KEY_TCVAR2))
         cam.extrinsics_var_wrt_imu_m.T = v3(json[KEY_TCVAR0].GetDouble(), json[KEY_TCVAR1].GetDouble(), json[KEY_TCVAR2].GetDouble());

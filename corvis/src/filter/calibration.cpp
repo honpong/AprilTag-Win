@@ -37,7 +37,7 @@ sensor_calibration_camera calibration_convert_camera(const struct calibration_xm
 {
     rc_Extrinsics extrinsics({0});
     v_map(extrinsics.T.v)          = legacy_camera.extrinsics_wrt_imu_m.T;
-    v_map(extrinsics.W.v)          = to_rotation_vector(legacy_camera.extrinsics_wrt_imu_m.Q).raw_vector();
+    v_map(extrinsics.W.v)          = legacy_camera.extrinsics_wrt_imu_W.raw_vector();
     v_map(extrinsics.T_variance.v) = legacy_camera.extrinsics_var_wrt_imu_m.T;
     v_map(extrinsics.W_variance.v) = legacy_camera.extrinsics_var_wrt_imu_m.W;
     return sensor_calibration_camera(extrinsics, legacy_camera.intrinsics);

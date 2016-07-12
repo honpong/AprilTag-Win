@@ -10,6 +10,7 @@ struct calibration_xml {
     struct camera {
         std::string name;
         transformation extrinsics_wrt_imu_m;
+        rotation_vector extrinsics_wrt_imu_W;
         struct transformation_var { v3 W, T; } extrinsics_var_wrt_imu_m;
         rc_CameraIntrinsics intrinsics;
     } fisheye, color, depth, ir;

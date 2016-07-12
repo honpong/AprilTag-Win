@@ -6,6 +6,7 @@
 #include <memory>
 #include <cstring>
 #include <cstdint>
+#include <set>
 
 using namespace rc;
 
@@ -167,6 +168,9 @@ static void scale_down_inplace_z16_by(uint16_t *image, int final_width, int fina
 
 bool replay::run()
 {
+    typedef std::pair<std::string, int> data_pair;
+    std::set<data_pair> unconfigured_data;
+
     rc_startTracker(tracker, rc_E_SYNCHRONOUS);
 
     while (file.peek() != EOF) {
@@ -191,23 +195,26 @@ bool replay::run()
                 int stride = width;
                 if (qvga && width == 640 && height == 480)
                     scale_down_inplace_y8_by<2,2>(packet->data + 16, width /= 2, height /= 2, stride);
-                rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, packet->header.time, 33333,
-                                width, height, stride, packet->data + 16, [](void *packet) { free(packet); }, phandle.release());
+                if(!rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, packet->header.time, 33333,
+                                    width, height, stride, packet->data + 16, [](void *packet) { free(packet); }, phandle.release()))
+                    unconfigured_data.insert(data_pair("camera", 0));
             }   break;
             case packet_image_raw: {
                 packet_image_raw_t *ip = (packet_image_raw_t *)packet;
                 if (ip->format == rc_FORMAT_GRAY8) {
                     if (qvga && ip->width == 640 && ip->height == 480)
                         scale_down_inplace_y8_by<2,2>(ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
-                    rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
+                    if(!rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
                                     ip->width, ip->height, ip->stride, ip->data,
-                                    [](void *packet) { free(packet); }, phandle.release());
+                                    [](void *packet) { free(packet); }, phandle.release()))
+                        unconfigured_data.insert(data_pair("camera", packet->header.sensor_id));
                 } else if (depth && ip->format == rc_FORMAT_DEPTH16) {
                     if (qvga && ip->width == 640 && ip->height == 480)
                         scale_down_inplace_z16_by<2,2>((uint16_t*)ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
-                    rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_DEPTH16, ip->header.time, ip->exposure_time_us,
+                    if(!rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_DEPTH16, ip->header.time, ip->exposure_time_us,
                                     ip->width, ip->height, ip->stride, ip->data,
-                                    [](void *packet) { free(packet); }, phandle.release());
+                                    [](void *packet) { free(packet); }, phandle.release()))
+                        unconfigured_data.insert(data_pair("depth", packet->header.sensor_id));
                 }
             }   break;
             case packet_image_with_depth: {
@@ -219,33 +226,39 @@ bool replay::run()
                     int depth_width = ip->depth_width, depth_height = ip->depth_height, depth_stride = sizeof(uint16_t) * ip->depth_width;
                     if (qvga && depth_width == 640 && depth_height == 480)
                         scale_down_inplace_z16_by<2,2>(depth_image, depth_width /= 2, depth_height /= 2, depth_stride);
-                    rc_receiveImage(tracker, 0, rc_FORMAT_DEPTH16, ip->header.time, 0,
+                    if(!rc_receiveImage(tracker, 0, rc_FORMAT_DEPTH16, ip->header.time, 0,
                                     depth_width, depth_height, depth_stride, depth_image,
-                                    [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, packet);
+                                    [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, packet))
+                        unconfigured_data.insert(data_pair("depth", 0));
                 }
                 {
                     uint8_t *image = ip->data;
                     int width = ip->width, height = ip->height, stride = ip->width;
                     if (qvga && width == 640 && height == 480)
                         scale_down_inplace_y8_by<2,2>(image, width /= 2, height /= 2, stride);
-                    rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
+                    if(!rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
                                     width, height, stride, image,
-                                    [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, phandle.release());
+                                    [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, phandle.release()))
+                        unconfigured_data.insert(data_pair("camera", 0));
                 }
             }   break;
             case packet_accelerometer: {
                 const rc_Vector acceleration_m__s2 = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
-                rc_receiveAccelerometer(tracker, packet->header.sensor_id, packet->header.time, acceleration_m__s2);
+                if(!rc_receiveAccelerometer(tracker, packet->header.sensor_id, packet->header.time, acceleration_m__s2))
+                    unconfigured_data.insert(data_pair("accelerometer", packet->header.sensor_id));
             }   break;
             case packet_gyroscope: {
                 const rc_Vector angular_velocity_rad__s = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
-                rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s);
+                if(!rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s))
+                    unconfigured_data.insert(data_pair("gyroscope", packet->header.sensor_id));
             }   break;
             case packet_imu: {
                 auto imu = (packet_imu_t *)packet;
                 const rc_Vector acceleration_m__s2 = { imu->a[0], imu->a[1], imu->a[2] }, angular_velocity_rad__s = { imu->w[0], imu->w[1], imu->w[2] };
-                rc_receiveAccelerometer(tracker, packet->header.sensor_id, packet->header.time, acceleration_m__s2);
-                rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s);
+                if(!rc_receiveAccelerometer(tracker, packet->header.sensor_id, packet->header.time, acceleration_m__s2))
+                    unconfigured_data.insert(data_pair("accelerometer", packet->header.sensor_id));
+                if(!rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s))
+                    unconfigured_data.insert(data_pair("gyroscope", packet->header.sensor_id));
             }   break;
             case packet_filter_control: {
                 if(header.sensor_id == 1) { //start measuring
@@ -262,6 +275,9 @@ bool replay::run()
 
     rc_stopTracker(tracker);
     file.close();
+    if(unconfigured_data.size())
+        for(auto & data : unconfigured_data)
+            std::cerr << "Warning: Received data for " << data.first << " id " << data.second << " before it was configured\n";
 
     return file.eof() && !file.fail();
 }

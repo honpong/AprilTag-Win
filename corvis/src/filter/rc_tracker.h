@@ -287,16 +287,38 @@ RCTRACKER_API void rc_startTracker(rc_Tracker *tracker, rc_TrackerRunFlags run_f
 RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
 
 /**
+ Receive data, either for procesing (default) or capture (if rc_setOutputLog has been called)
+ */
+
+/*
  @param tracker The active rc_Tracker instance
+ @param camera_id The id of the camera
+ @param format The image format of the camera. This determines if the camera is treated as depth or grayscale
  @param time_us Timestamp (in microseconds) when capture of this frame began
  @param shutter_time_us Exposure time (in microseconds). For rolling shutter, this should be the time such that exposure line l takes place at time_us + l/height * shutter_time_us. For global shutter, specify the exposure time, so that the middle of the exposure will be time_us + shutter_time_us / 2.
+ @param width The width in pixels of the image
+ @param height The height in pixels of the image
  @param stride Number of bytes in each line
  @param image Image data.
  @param completion_callback Function to be called when the frame has been processed and image data is no longer needed. image must remain valid (even after receiveImage has returned) until this function is called.
  @param callback_handle An opaque pointer that will be passed to completion_callback when the frame has been processed and image data is no longer needed.
  */
 RCTRACKER_API void rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
+
+/*
+ @param tracker The active rc_Tracker instance
+ @param accelerometer_id The id of the accelerometer
+ @param time_us Timestamp (in microseconds) corresponding to the middle of the IMU data integration time
+ @param acceleration_m__s2 Vector of measured acceleration in meters/second^2
+ */
 RCTRACKER_API void rc_receiveAccelerometer(rc_Tracker *tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
+
+/*
+ @param tracker The active rc_Tracker instance
+ @param accelerometer_id The id of the gyroscope
+ @param time_us Timestamp (in microseconds) corresponding to the middle of the IMU data integration time
+ @param angular_velocity_rad__s Vector of measured angular velocity in radians/second
+ */
 RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
 
 /**

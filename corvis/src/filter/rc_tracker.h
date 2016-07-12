@@ -207,17 +207,36 @@ typedef struct rc_Extrinsics {
 } rc_Extrinsics;
 
 /**
+ Configure or describe a camera or depth camera. When configuring, extrinsics and intrinsics must be set.
  @param tracker The active rc_Tracker instance
- @param camera_id Refers to one of a specific supported predefined set
- @param extrinsics_wrt_accel_m Transformation from the Camera frame to the Accelerometer frame in meters (may be NULL)
- @param intrinsics Camera Intrinsics (may be NULL)
+ @param camera_id The id of the camera to configure/describe. Camera ids start at 0 and must be sequential.
+ @param format Image format controls if you are configuring a camera or depth camera. Depth cameras have their own set of ids starting at 0
+ @param extrinsics_wrt_origin_m The transformation from the camera to the origin
+ @param intrinsics The intrinsics of the camera
  */
 RCTRACKER_API bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_CameraIntrinsics *intrinsics);
 RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat format,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics);
+
+/**
+ Configure or describe an accelerometer. When configuring, extrinsics and intrinsics must be set.
+ @param tracker The active rc_Tracker instance
+ @param accel_id The id of the accelerometer to configure/describe. Accelerometer ids start at 0 and must be sequential. A gyroscope must be configured for every configured accelerometer.
+ @param extrinsics_wrt_origin_m The transformation from the accelerometer to the origin
+ @param intrinsics The intrinsics of the accelerometer
+ */
 RCTRACKER_API bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics *intrinsics);
 RCTRACKER_API bool rc_describeAccelerometer( rc_Tracker *tracker, rc_Sensor accel_id,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_AccelerometerIntrinsics *intrinsics);
+
+/**
+ Configure or describe an gyroscope. When configuring, extrinsics and intrinsics must be set.
+ @param tracker The active rc_Tracker instance
+ @param accel_id The id of the accelerometer to configure/describe. Gyroscope ids start at 0 and must be sequential. An accelerometer must be configured for every configured gyroscope.
+ @param extrinsics_wrt_origin_m The transformation from the gyroscope to the origin
+ @param intrinsics The intrinsics of the gyroscope
+ */
 RCTRACKER_API bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics *intrinsics);
 RCTRACKER_API bool rc_describeGyroscope( rc_Tracker *tracker, rc_Sensor gyro_id,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_GyroscopeIntrinsics *intrinsics);
+
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 /**

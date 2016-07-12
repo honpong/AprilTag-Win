@@ -168,8 +168,6 @@ static void scale_down_inplace_z16_by(uint16_t *image, int final_width, int fina
 bool replay::run()
 {
     rc_startTracker(tracker, rc_E_SYNCHRONOUS);
-    const char *cal = nullptr;
-    rc_getCalibration(tracker, &cal);
 
     while (file.peek() != EOF) {
         packet_header_t header;

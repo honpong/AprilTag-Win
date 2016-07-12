@@ -193,6 +193,12 @@ typedef struct rc_CameraIntrinsics {
     };
 } rc_CameraIntrinsics;
 
+/**
+ @param T Translation to the origin
+ @param W Rotation vector specifying the rotation to the origin
+ @param T_variance Variance for the translation
+ @param W_variance Variance for the rotation vector
+ */
 typedef struct rc_Extrinsics {
     rc_Vector T;
     rc_Vector W;

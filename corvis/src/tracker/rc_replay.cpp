@@ -6,6 +6,7 @@
 #include <memory>
 #include <cstring>
 #include <cstdint>
+#include <set>
 
 using namespace rc;
 
@@ -22,7 +23,7 @@ enum packet_type {
 typedef struct {
     uint32_t bytes; //size of packet including header
     uint16_t type;  //id of packet
-    uint16_t user;  //packet-defined data
+    uint16_t sensor_id;  //id of sensor
     uint64_t time;  //time in microseconds
 } packet_header_t;
 
@@ -100,7 +101,6 @@ bool replay::set_calibration_from_filename(const std::string &fn)
         if(!read_file(path + "calibration.json", calibration))
             return false;
     }
-    if (trace) if (trace) printf("rc_setCalibration(\"%s\");\n", calibration.c_str());
     return rc_setCalibration(tracker, calibration.c_str());
 }
 
@@ -123,7 +123,7 @@ bool replay::find_reference_in_filename(const std::string &filename)
 void replay::enable_pose_output()
 {
     rc_setDataCallback(tracker, [](void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count) {
-        std::cout << time; for(int i=0; i<12; i++) std::cout << " " << pose[i]; std::cout << " " << feature_count << "\n";
+        std::cout << time; for(int r=0; r<3; r++) for(int c=0; c<4; c++) std::cout << " " << pose.v[r][c]; std::cout << " " << feature_count << "\n";
     }, this);
 }
 void replay::enable_status_output()
@@ -168,11 +168,10 @@ static void scale_down_inplace_z16_by(uint16_t *image, int final_width, int fina
 
 bool replay::run()
 {
-    if (trace) printf("rc_startTracker(rc_E_SYNCHRONOUS);\n");
+    typedef std::pair<std::string, int> data_pair;
+    std::set<data_pair> unconfigured_data;
+
     rc_startTracker(tracker, rc_E_SYNCHRONOUS);
-    const char *cal = nullptr;
-    rc_getCalibration(tracker, &cal);
-    if (trace) if (trace) printf("rc_getCalibration(\"%s\");\n", cal);
 
     while (file.peek() != EOF) {
         packet_header_t header;
@@ -193,93 +192,92 @@ bool replay::run()
                 char tmp[17]; memcpy(tmp, packet->data, 16); tmp[16] = 0;
                 std::stringstream parse(tmp);
                 int width, height; parse.ignore(3, ' ') >> width >> height; //pgm header is "P5 x y"
-                if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", GRAY8, %dx%d);\n", packet->header.time, (uint64_t)33333, width, height);
-                rc_receiveImage(tracker, packet->header.time, 33333, rc_FORMAT_GRAY8,
-                                width, height, width, packet->data + 16, [](void *packet) { free(packet); }, phandle.release());
+                int stride = width;
+                if (qvga && width == 640 && height == 480)
+                    scale_down_inplace_y8_by<2,2>(packet->data + 16, width /= 2, height /= 2, stride);
+                if(!rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, packet->header.time, 33333,
+                                    width, height, stride, packet->data + 16, [](void *packet) { free(packet); }, phandle.release()))
+                    unconfigured_data.insert(data_pair("camera", 0));
             }   break;
             case packet_image_raw: {
                 packet_image_raw_t *ip = (packet_image_raw_t *)packet;
-                if (ip->format == 0) {
+                if (ip->format == rc_FORMAT_GRAY8) {
                     if (qvga && ip->width == 640 && ip->height == 480)
                         scale_down_inplace_y8_by<2,2>(ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
-                    if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", GRAY8, %dx%d w/stride %d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height, ip->stride);
-                    rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
+                    if(!rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
                                     ip->width, ip->height, ip->stride, ip->data,
-                                    [](void *packet) { free(packet); }, phandle.release());
-                } else if (depth && ip->format == 1) {
+                                    [](void *packet) { free(packet); }, phandle.release()))
+                        unconfigured_data.insert(data_pair("camera", packet->header.sensor_id));
+                } else if (depth && ip->format == rc_FORMAT_DEPTH16) {
                     if (qvga && ip->width == 640 && ip->height == 480)
                         scale_down_inplace_z16_by<2,2>((uint16_t*)ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
-                    if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", DEPTH16, %dx%d w/stride %d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height, ip->stride);
-                    rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_DEPTH16,
+                    if(!rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_DEPTH16, ip->header.time, ip->exposure_time_us,
                                     ip->width, ip->height, ip->stride, ip->data,
-                                    [](void *packet) { free(packet); }, phandle.release());
+                                    [](void *packet) { free(packet); }, phandle.release()))
+                        unconfigured_data.insert(data_pair("depth", packet->header.sensor_id));
                 }
             }   break;
             case packet_image_with_depth: {
                 packet_image_with_depth_t *ip = (packet_image_with_depth_t *)packet;
-                ip->header.user = 1; // ref count
+                ip->header.sensor_id = 1; // ref count
                 if (depth && ip->depth_height && ip->depth_width) {
-                    ip->header.user++; // ref count
+                    ip->header.sensor_id++; // ref count
                     uint16_t *depth_image = (uint16_t*)(ip->data + ip->width * ip->height);
                     int depth_width = ip->depth_width, depth_height = ip->depth_height, depth_stride = sizeof(uint16_t) * ip->depth_width;
                     if (qvga && depth_width == 640 && depth_height == 480)
                         scale_down_inplace_z16_by<2,2>(depth_image, depth_width /= 2, depth_height /= 2, depth_stride);
-                    if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", DEPTH16, %dx%d);\n", packet->header.time, (uint64_t)0/*FIXME*/, depth_width, depth_height);
-                    rc_receiveImage(tracker, ip->header.time, 0, rc_FORMAT_DEPTH16,
+                    if(!rc_receiveImage(tracker, 0, rc_FORMAT_DEPTH16, ip->header.time, 0,
                                     depth_width, depth_height, depth_stride, depth_image,
-                                    [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, packet);
+                                    [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, packet))
+                        unconfigured_data.insert(data_pair("depth", 0));
                 }
                 {
                     uint8_t *image = ip->data;
                     int width = ip->width, height = ip->height, stride = ip->width;
                     if (qvga && width == 640 && height == 480)
                         scale_down_inplace_y8_by<2,2>(image, width /= 2, height /= 2, stride);
-                    if (trace) printf("rc_receiveImage(%" PRId64 ", %" PRId64 ", GRAY8, %dx%d);\n", packet->header.time, ip->exposure_time_us, width, height);
-                    rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
+                    if(!rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
                                     width, height, stride, image,
-                                    [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, phandle.release());
+                                    [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, phandle.release()))
+                        unconfigured_data.insert(data_pair("camera", 0));
                 }
             }   break;
             case packet_accelerometer: {
                 const rc_Vector acceleration_m__s2 = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
-                if (trace) printf("rc_receiveAccelerometer(%" PRId64 ", %.9g, %.9g, %.9g);\n", packet->header.time, acceleration_m__s2.x, acceleration_m__s2.y, acceleration_m__s2.z);
-                rc_receiveAccelerometer(tracker, packet->header.time, acceleration_m__s2);
+                if(!rc_receiveAccelerometer(tracker, packet->header.sensor_id, packet->header.time, acceleration_m__s2))
+                    unconfigured_data.insert(data_pair("accelerometer", packet->header.sensor_id));
             }   break;
             case packet_gyroscope: {
                 const rc_Vector angular_velocity_rad__s = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
-                if (trace) printf("rc_receiveGyro(%" PRId64 ", %.9g, %.9g, %.9g);\n", packet->header.time, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
-                rc_receiveGyro(tracker, packet->header.time, angular_velocity_rad__s);
+                if(!rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s))
+                    unconfigured_data.insert(data_pair("gyroscope", packet->header.sensor_id));
             }   break;
             case packet_imu: {
                 auto imu = (packet_imu_t *)packet;
                 const rc_Vector acceleration_m__s2 = { imu->a[0], imu->a[1], imu->a[2] }, angular_velocity_rad__s = { imu->w[0], imu->w[1], imu->w[2] };
-                if (trace) printf("rc_receiveAccelerometer(%" PRId64 ", %.9g, %.9g, %.9g);\n", packet->header.time, acceleration_m__s2.x, acceleration_m__s2.y, acceleration_m__s2.z);
-                rc_receiveAccelerometer(tracker, packet->header.time, acceleration_m__s2);
-                if (trace) printf("rc_receiveGyro(%" PRId64 ", %.9g, %.9g, %.9g);\n", packet->header.time, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
-                rc_receiveGyro(tracker, packet->header.time, angular_velocity_rad__s);
+                if(!rc_receiveAccelerometer(tracker, packet->header.sensor_id, packet->header.time, acceleration_m__s2))
+                    unconfigured_data.insert(data_pair("accelerometer", packet->header.sensor_id));
+                if(!rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s))
+                    unconfigured_data.insert(data_pair("gyroscope", packet->header.sensor_id));
             }   break;
             case packet_filter_control: {
-                if(header.user == 1) { //start measuring
-                    if (trace) printf("rc_setPose(rc_POSE_IDENTITY)\n");
+                if(header.sensor_id == 1) { //start measuring
                     rc_setPose(tracker, rc_POSE_IDENTITY);
-                    if (trace) printf("rc_startTracker(rc_E_SYNCHRONOUS)\n");
                     rc_startTracker(tracker, rc_E_SYNCHRONOUS);
                 }
             }   break;
         }
-        rc_Pose endPose_m;
-        rc_getPose(tracker, endPose_m);
-        if (trace) printf("rc_getPose([3]=%.9f, [7]=%.9f, [11]=%.9f);\n", endPose_m[3], endPose_m[7], endPose_m[11]);
+        rc_Pose endPose_m = rc_getPose(tracker);
     }
 
-    rc_Pose endPose_m;
-    rc_getPose(tracker, endPose_m);
-    if (trace) printf("rc_getPose([3]=%.9f, [7]=%.9f, [11]=%.9f);\n", endPose_m[3], endPose_m[7], endPose_m[11]);
-    length_m = sqrtf(endPose_m[3]*endPose_m[3] + endPose_m[7]*endPose_m[7] + endPose_m[11]*endPose_m[11]);
+    rc_Pose endPose_m = rc_getPose(tracker);
+    length_m = sqrtf(endPose_m.v[0][3]*endPose_m.v[0][3] + endPose_m.v[1][3]*endPose_m.v[1][3] + endPose_m.v[2][3]*endPose_m.v[2][3]);
 
-    if (trace) printf("rc_stopTracker();\n");
     rc_stopTracker(tracker);
     file.close();
+    if(unconfigured_data.size())
+        for(auto & data : unconfigured_data)
+            std::cerr << "Warning: Received data for " << data.first << " id " << data.second << " before it was configured\n";
 
     return file.eof() && !file.fail();
 }

@@ -3,8 +3,6 @@
 
 #include "state_vision.h"
 #include "observation.h"
-#include "device_parameters.h"
-#include "calibration_xml.h"
 #include "../numerics/transformation.h"
 #ifdef ENABLE_QR
 #include "qr.h"
@@ -34,25 +32,20 @@ struct filter {
     covariance cov;
     std::unique_ptr<spdlog::logger> &log = s.log;
 
+    //TODOMSM
     f_t w_variance;
     f_t a_variance;
 
-    m3 w_alignment;
-    m3 a_alignment;
-
     bool gravity_init;
 
-    calibration::camera depth = {};
-
     sensor_clock::time_point want_start;
-    bool got_accelerometer, got_gyroscope, got_image;
-    v3 last_gyro_meas, last_accel_meas;
+    v3 last_gyro_meas, last_accel_meas; //TODOMSM - per-sensor
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;
     sensor_clock::time_point speed_warning_time;
     bool ignore_lateness;
-    stdev<3> gyro_stability, accel_stability;
+    stdev<3> gyro_stability, accel_stability; //TODOMSM - either just first sensor or per-sensor
     sensor_clock::time_point stable_start;
     bool calibration_bad;
     
@@ -75,14 +68,24 @@ struct filter {
     transformation origin;
     bool origin_gravity_aligned;
 
+    //TODOMSM - per sensor
     v3 a_bias_start, w_bias_start; //for tracking calibration progress
     
     observation_queue observations;
     
-    camera_control_interface camera_control;
-    image_depth16 recent_depth;
-    bool has_depth;
-    
+    camera_control_interface camera_control; //TODOMSM - per camera, but possibly deprecate
+    image_depth16 recent_depth; //TODOMSM - per depth
+    bool has_depth; //TODOMSM - per depth
+
+    std::vector<std::unique_ptr<sensor_grey>> cameras;
+    std::vector<std::unique_ptr<sensor_depth>> depths;
+    std::vector<std::unique_ptr<sensor_accelerometer>> accelerometers;
+    std::vector<std::unique_ptr<sensor_gyroscope>> gyroscopes;
+
+    bool got_any_gyroscopes()     const { for (const auto &gyro  :     gyroscopes) if (gyro->got)  return true; return false;}
+    bool got_any_accelerometers() const { for (const auto &accel : accelerometers) if (accel->got) return true; return false; }
+
+    //TODOMSM - per sensor
     std::chrono::duration<float, milli> accel_timer, gyro_timer, image_timer;
 };
 
@@ -102,9 +105,8 @@ void filter_start_qr_detection(struct filter *f, const std::string& data, float 
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
 #endif
-void filter_get_device_parameters(const struct filter *f, device_parameters *device);
 
-extern "C" void filter_initialize(struct filter *f, device_parameters *device);
+extern "C" void filter_initialize(struct filter *f);
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
 

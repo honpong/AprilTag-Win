@@ -51,6 +51,11 @@ template <typename T> using aligned_vector = std::vector<T, Eigen::aligned_alloc
 #include <list>
 template <typename T> using aligned_list = std::list<T, Eigen::aligned_allocator<T>>;
 
+template <class T, int R, int C> Eigen::Map<const Eigen::Matrix<T, R, C>, Eigen::Unaligned> m_map(const T (&a)[R][C]) { return &a[0][0]; }
+template <class T, int R, int C> Eigen::Map<Eigen::Matrix<T, R, C>, Eigen::Unaligned> m_map(T (&a)[R][C]) { return &a[0][0]; }
+template <class T, int N> Eigen::Map<const Eigen::Matrix<T, N, 1>, Eigen::Unaligned> v_map(const T (&a)[N]) { return a; }
+template <class T, int N> Eigen::Map<Eigen::Matrix<T, N, 1>, Eigen::Unaligned> v_map(T (&a)[N]) { return a; }
+
 static inline v3 v3_sqrt(const v3 &v) { return v3(sqrt(v[0]), sqrt(v[1]), sqrt(v[2])); }
 
 #ifdef __ACCELERATE__

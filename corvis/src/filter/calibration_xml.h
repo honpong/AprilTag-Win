@@ -4,12 +4,13 @@
 #include "transformation.h"
 #include <string>
 
-struct calibration {
+struct calibration_xml {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     std::string device_id;
     struct camera {
         std::string name;
         transformation extrinsics_wrt_imu_m;
+        rotation_vector extrinsics_wrt_imu_W;
         struct transformation_var { v3 W, T; } extrinsics_var_wrt_imu_m;
         rc_CameraIntrinsics intrinsics;
     } fisheye, color, depth, ir;
@@ -28,5 +29,5 @@ struct calibration {
     } geo_location;
 };
 
-bool calibration_serialize_xml(const calibration &cal, std::string &xml);
-bool calibration_deserialize_xml(const std::string &xml, calibration &cal);
+bool calibration_serialize_xml(const calibration_xml &cal, std::string &xml);
+bool calibration_deserialize_xml(const std::string &xml, calibration_xml &cal);

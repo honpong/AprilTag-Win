@@ -17,7 +17,6 @@
 #include "../cor/sensor_fusion_queue.h"
 #include "RCSensorFusionInternals.h"
 #include "camera_control_interface.h"
-#include "device_parameters.h"
 #include "filter.h"
 #include "sensor.h"
 
@@ -58,9 +57,6 @@ public:
     std::function<void(status)> status_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
-    
-    device_parameters get_device() const;
-    void set_device(const device_parameters &dc);
     
     /** Sets the current location of the device.
      
@@ -206,10 +202,7 @@ public:
 
     //public for now
     filter sfm;
-    device_parameters device;
-    struct calibration calibration;
-    sensor camera, accelerometer, gyro, depth;
-    
+
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
     transformation accel_to_camera_world_transform() const;
     v3 accel_to_camera_position(const v3& x) const;

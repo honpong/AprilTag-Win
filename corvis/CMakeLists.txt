@@ -46,7 +46,7 @@ add_executable(measure
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 
-target_link_libraries(measure filter)
+target_link_libraries(measure tracker)
 if(ENABLE_VISGL)
     target_link_libraries(measure vis)
 endif()
@@ -67,7 +67,6 @@ if(YES)
       test/numerics/transformation.cpp
       test/filter/utils.cpp
       test/filter/state_vision.cpp
-      test/filter/device_parameters.cpp
       test/filter/calibration_json.cpp
       test/filter/calibration_xml.cpp
       test/filter/tpose.cpp

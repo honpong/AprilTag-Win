@@ -937,6 +937,6 @@ bool calibration_load_defaults(const corvis_device_type deviceType, calibration_
 {
     std::string defaultJson(calibration_default_json_for_device_type(deviceType));
     bool result = calibration_deserialize(defaultJson, cal);
-    if (result) cal.version = CALIBRATION_VERSION; // need this here to override possibly outdated value in default JSON
+    if (result) cal.version = CALIBRATION_VERSION_LEGACY; // need this here to override possibly outdated value in default JSON
     return result;
 }

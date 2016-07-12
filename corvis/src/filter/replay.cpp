@@ -9,9 +9,45 @@
 
 #include <string.h>
 #include <regex>
-#include "calibration_json.h"
-#include "device_parameters.h"
 #include "../cor/packet.h"
+
+template <int by_x, int by_y>
+static void scale_down_inplace_y8_by(uint8_t *image, int final_width, int final_height, int stride) {
+    for (int y=0; y<final_height; y++)
+        for (int x = 0; x <final_width; x++) {
+            int sum = 0; // FIXME: by_x * by_y / 2;
+            for (int i=0; i<by_y; i++)
+                for (int j=0; j<by_x; j++)
+                    sum += image[stride * (by_y*y + i) + by_x*x + j];
+            image[stride * y + x] = sum / (by_x * by_y);
+        }
+}
+
+template <int by_x, int by_y>
+static void scale_down_inplace_z16_by(uint16_t *image, int final_width, int final_height, int stride) {
+    for (int y=0; y<final_height; y++)
+        for (int x = 0; x <final_width; x++) {
+            int sum = 0, div = 0;
+            for (int i=0; i<by_y; i++)
+                for (int j=0; j<by_x; j++)
+                    if (auto v = image[stride/sizeof(uint16_t) * (by_y*y + i) + by_x*x + j]) {
+                        sum += v;
+                        div++;
+                    }
+            image[stride * y + x] = div ? sum / div : 0;
+        }
+}
+
+void log_to_stderr(void *handle, rc_MessageLevel message_level, const char * message, size_t len)
+{
+    std::cerr << message;
+}
+
+replay::replay(bool start_paused): is_paused(start_paused)
+{
+    tracker = rc_create();
+    rc_setMessageCallback(tracker, log_to_stderr, nullptr, rc_MESSAGE_INFO);
+}
 
 bool replay::open(const char *name)
 {
@@ -31,15 +67,24 @@ bool replay::open(const char *name)
 
 void replay::zero_biases()
 {
-    auto device = fusion.get_device();
-    for(int i = 0; i < 3; i++) {
-        device.imu.a_bias_m__s2[i] = 0;
-        device.imu.w_bias_rad__s[i] = 0;
-        device.imu.a_bias_var_m2__s4[i] = 1e-3;
-        device.imu.w_bias_var_rad2__s2[i] = 1e-4;
+    for (rc_Sensor id = 0; true; id++) {
+        rc_Extrinsics extrinsics;
+        rc_AccelerometerIntrinsics intrinsics;
+        if (!rc_describeAccelerometer(tracker, id, &extrinsics, &intrinsics))
+            break;
+        for (auto &b : intrinsics.bias_m__s2.v) b = 0;
+        for (auto &b : intrinsics.bias_variance_m2__s4.v) b = 1e-3;
+        rc_configureAccelerometer(tracker, id, nullptr, &intrinsics);
     }
-    fusion.set_device(device);
-
+    for (rc_Sensor id = 0; true; id++) {
+        rc_Extrinsics extrinsics;
+        rc_GyroscopeIntrinsics intrinsics;
+        if (!rc_describeGyroscope(tracker, id, &extrinsics, &intrinsics))
+            break;
+        for (auto &b : intrinsics.bias_rad__s.v) b = 0;
+        for (auto &b : intrinsics.bias_variance_rad2__s2.v) b = 1e-4;
+        rc_configureGyroscope(tracker, id, &extrinsics, &intrinsics);
+    }
 }
 
 bool replay::load_calibration(std::string filename)
@@ -50,12 +95,23 @@ bool replay::load_calibration(std::string filename)
 
     string json((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
 
-    device_parameters dc;
-    if(!calibration_deserialize(json, dc))
+    if(!rc_setCalibration(tracker, json.c_str()))
         return false;
 
     calibration_file = filename;
-    fusion.set_device(dc);
+    return true;
+}
+
+bool replay::save_calibration(std::string filename)
+{
+    const char * buffer = nullptr;
+    size_t bytes = rc_getCalibration(tracker, &buffer);
+
+    std::string json(buffer, bytes);
+    std::ofstream out(filename);
+    if(!out) return false;
+    out << json;
+
     return true;
 }
 
@@ -113,71 +169,13 @@ void replay::setup_filter()
 {
     if(camera_callback)
     {
-        fusion.camera_callback = [this](std::unique_ptr<sensor_fusion::data> data, image_gray8 &&image)
+        auto fusion = (sensor_fusion *)tracker; 
+        fusion->camera_callback = [this, fusion](std::unique_ptr<sensor_fusion::data> data, image_gray8 &&image)
         {
-            camera_callback(&fusion.sfm, std::move(image));
+            camera_callback(&fusion->sfm, std::move(image));
         };
     }
-    fusion.start_offline();
-}
-
-image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle)
-{
-    image_gray8 gray;
-    gray.source = &fusion.camera;
-    gray.image = data;
-    gray.width = width;
-    gray.height = height;
-    gray.stride = stride;
-    if(qvga && width == 640 && height == 480)
-    {
-        gray.width = width / 2;
-        gray.height = height / 2;
-        gray.stride = stride / 2;
-        for(int y = 0; y < gray.height; ++y) {
-            for(int x = 0; x < gray.width; ++x) {
-                gray.image[y * gray.stride + x] =
-                (gray.image[(y * 2 * width) + (x * 2)] +
-                 gray.image[((y * 2 + 1) * width) + (x * 2)] +
-                 gray.image[(y * 2 * width) + (x * 2 + 1)] +
-                 gray.image[((y * 2 + 1) * width) + (x * 2 + 1)]) / 4;
-            }
-        }
-    }
-    gray.exposure_time = std::chrono::microseconds(exposure_time_us);
-    gray.timestamp = sensor_clock::time_point(std::chrono::microseconds(time_us));
-    gray.image_handle = std::move(handle);
-    return gray;
-}
-
-image_depth16 replay::parse_depth16(int width, int height, int stride, uint16_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle)
-{
-    image_depth16 depth;
-    depth.source = &fusion.depth;
-    depth.width = width;
-    depth.height = height;
-    depth.stride = stride;
-    depth.timestamp = sensor_clock::time_point(std::chrono::microseconds(time_us));
-    depth.exposure_time = std::chrono::microseconds(exposure_time_us);
-    depth.image = data;
-    if(qvga && width == 640 && height == 480)
-    {
-        depth.width = width / 2;
-        depth.height = height / 2;
-        depth.stride = width / 2 * 2;
-        for(int y = 0; y < depth.height; ++y) {
-            for(int x = 0; x < depth.width; ++x) {
-                uint16_t p1 = depth.image[(y * 2 * width) + (x * 2)];
-                uint16_t p2 = depth.image[((y * 2 + 1) * width) + (x * 2)];
-                uint16_t p3 = depth.image[(y * 2 * width) + (x * 2 + 1)];
-                uint16_t p4 = depth.image[((y * 2 + 1) * width) + (x * 2 + 1)];
-                int divisor = !!p1 + !!p2 + !!p3 + !!p4;
-                depth.image[depth.width * y + x] = (p1 + p2 + p3 + p4) / (divisor ? divisor : 1);
-            }
-        }
-    }
-    depth.image_handle = std::move(handle);
-    return depth;
+    rc_startTracker(tracker, rc_E_SYNCHRONOUS);
 }
 
 void replay::start(string map_filename)
@@ -228,7 +226,8 @@ void replay::start(string map_filename)
         }
         else
         {
-            auto timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time)) + realtime_offset;
+            auto data_timestamp = sensor_clock::micros_to_tp(header.time);
+            auto timestamp = data_timestamp + realtime_offset;
             now = sensor_clock::now();
             if(is_realtime && timestamp - now > std::chrono::seconds(1)) {
                 auto gap = std::chrono::duration_cast<std::chrono::microseconds>(timestamp - now);
@@ -243,63 +242,84 @@ void replay::start(string map_filename)
             {
                 case packet_camera:
                 {
-                    int width, height;
+                    int width, height, stride;
                     char tmp[17];
                     memcpy(tmp, packet->data, 16);
                     tmp[16] = 0;
                     std::stringstream parse(tmp);
                     //pgm header is "P5 x y"
                     parse.ignore(3, ' ') >> width >> height;
-                    image_gray8 d = parse_gray8(width, height, width, packet->data + 16, packet->header.time, 33333, std::move(phandle));
-                    if(image_decimate && d.timestamp < last_image) break;
-                    if(last_image == sensor_clock::time_point()) last_image = d.timestamp;
+                    stride = width;
+
+                    packet_camera_t *ip = (packet_camera_t *)packet;
+                    if (qvga && width == 640 && height == 480)
+                        scale_down_inplace_y8_by<2,2>(ip->data + 16, width /= 2, height /= 2, stride);
+
+                    if(image_decimate && data_timestamp < last_image) break;
+                    if(last_image == sensor_clock::time_point()) last_image = data_timestamp;
                     last_image += image_interval;
 
-                    fusion.receive_image(std::move(d));
+                    rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, ip->header.time, 33333,
+                                    width, height, stride, ip->data + 16,
+                                    [](void *packet) { free(packet); }, phandle.release());
+
                     is_stepping = false;
                     break;
                 }
                 case packet_image_with_depth:
                 {
                     packet_image_with_depth_t *ip = (packet_image_with_depth_t *)packet;
-                    image_gray8 d = parse_gray8(ip->width, ip->height, ip->width, ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
-                    if(image_decimate && d.timestamp < last_image) break;
-                    if(use_depth && ip->depth_height && ip->depth_width)
-                    {
-                        auto dhandle = std::unique_ptr<void, void(*)(void *)>(malloc(header.bytes), free);
-                        auto depth_data = (uint16_t *)dhandle.get();
-                        memcpy(depth_data, ip->data + ip->width * ip->height, sizeof(uint16_t)*ip->depth_width*ip->depth_height);
-                        image_depth16 depth = parse_depth16(ip->depth_width, ip->depth_height, ip->depth_width*2, depth_data, ip->header.time, ip->exposure_time_us, std::move(dhandle));
-                        fusion.receive_image(std::move(depth));
+
+                    if(image_decimate && data_timestamp < last_image) break;
+
+                    ip->header.sensor_id = 1; // ref count
+                    if (use_depth && ip->depth_height && ip->depth_width) {
+                        ip->header.sensor_id++; // ref count
+                        uint16_t *depth_image = (uint16_t*)(ip->data + ip->width * ip->height);
+                        int depth_width = ip->depth_width, depth_height = ip->depth_height, depth_stride = sizeof(uint16_t) * ip->depth_width;
+                        if (qvga && depth_width == 640 && depth_height == 480)
+                            scale_down_inplace_z16_by<2,2>(depth_image, depth_width /= 2, depth_height /= 2, depth_stride);
+                        rc_receiveImage(tracker, 0, rc_FORMAT_DEPTH16, ip->header.time, 0,
+                                        depth_width, depth_height, depth_stride, depth_image,
+                                        [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, packet);
                     }
-                    if(last_image == sensor_clock::time_point()) last_image = d.timestamp;
+
+                    uint8_t *image = ip->data;
+                    int width = ip->width, height = ip->height, stride = ip->width;
+                    if (qvga && width == 640 && height == 480)
+                        scale_down_inplace_y8_by<2,2>(image, width /= 2, height /= 2, stride);
+
+                    if(last_image == sensor_clock::time_point()) last_image = data_timestamp;
                     last_image += image_interval;
-                    fusion.receive_image(std::move(d));
+
+                    rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
+                                    width, height, stride, image,
+                                    [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, phandle.release());
+
                     is_stepping = false;
                     break;
                 }
                 case packet_image_raw:
                 {
                     packet_image_raw_t *ip = (packet_image_raw_t *)packet;
-                    if(image_decimate &&
-                       sensor_clock::micros_to_tp(ip->header.time) < last_image)
-                            break;
 
-                    if(ip->format == rc_FORMAT_GRAY8) {
-                        image_gray8 d = parse_gray8(ip->width, ip->height, ip->width, ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
-                        fusion.receive_image(std::move(d));
-                    }
-                    else if(ip->format == rc_FORMAT_DEPTH16) {
-                        if(!use_depth)
-                            break;
+                    if(image_decimate && data_timestamp < last_image) break;
 
-                        image_depth16 d = parse_depth16(ip->width, ip->height, ip->stride, (uint16_t *)ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
-                        fusion.receive_image(std::move(d));
+                    if (ip->format == rc_FORMAT_GRAY8) {
+                        if (qvga && ip->width == 640 && ip->height == 480)
+                            scale_down_inplace_y8_by<2,2>(ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
+                        rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
+                                        ip->width, ip->height, ip->stride, ip->data,
+                                        [](void *packet) { free(packet); }, phandle.release());
                     }
-                    else {
-                        fprintf(stderr, "Error: Unsupported packet_image_raw format\n");
-                        break;
+                    else if (use_depth && ip->format == rc_FORMAT_DEPTH16) {
+                        if (qvga && ip->width == 640 && ip->height == 480)
+                        scale_down_inplace_z16_by<2,2>((uint16_t*)ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
+                        rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_DEPTH16, ip->header.time, ip->exposure_time_us,
+                                        ip->width, ip->height, ip->stride, ip->data,
+                                        [](void *packet) { free(packet); }, phandle.release());
                     }
+
 
                     last_image += image_interval;
                     is_stepping = false;
@@ -308,57 +328,44 @@ void replay::start(string map_filename)
                 }
                 case packet_accelerometer:
                 {
-                    accelerometer_data d;
-                    d.source = &fusion.accelerometer;
-                    d.accel_m__s2[0] = ((float *)packet->data)[0];
-                    d.accel_m__s2[1] = ((float *)packet->data)[1];
-                    d.accel_m__s2[2] = ((float *)packet->data)[2];
-                    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    if(accel_decimate && d.timestamp < last_accel) break;
-                    if(last_accel == sensor_clock::time_point()) last_accel = d.timestamp;
+                    const rc_Vector acceleration_m__s2 = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
+
+                    if(accel_decimate && data_timestamp < last_accel) break;
+                    if(last_accel == sensor_clock::time_point()) last_accel = sensor_clock::micros_to_tp(header.time);
                     last_accel += accel_interval;
-                    fusion.receive_accelerometer(std::move(d));
+
+                    rc_receiveAccelerometer(tracker, packet->header.sensor_id, packet->header.time, acceleration_m__s2);
                     break;
                 }
                 case packet_gyroscope:
                 {
-                    gyro_data d;
-                    d.source = &fusion.gyro;
-                    d.angvel_rad__s[0] = ((float *)packet->data)[0];
-                    d.angvel_rad__s[1] = ((float *)packet->data)[1];
-                    d.angvel_rad__s[2] = ((float *)packet->data)[2];
-                    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    if(gyro_decimate && d.timestamp < last_gyro) break;
-                    if(last_gyro == sensor_clock::time_point()) last_gyro = d.timestamp;
+                    const rc_Vector angular_velocity_rad__s = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
+
+                    if(gyro_decimate && data_timestamp < last_gyro) break;
+                    if(last_gyro == sensor_clock::time_point()) last_gyro = sensor_clock::micros_to_tp(header.time);
                     last_gyro += gyro_interval;
-                    fusion.receive_gyro(std::move(d));
+
+                    rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s);
                     break;
                 }
                 case packet_imu:
                 {
-                    accelerometer_data a;
-                    a.source = &fusion.accelerometer;
                     auto imu = (packet_imu_t *)packet;
-                    a.accel_m__s2[0] = imu->a[0];
-                    a.accel_m__s2[1] = imu->a[1];
-                    a.accel_m__s2[2] = imu->a[2];
-                    a.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    fusion.receive_accelerometer(std::move(a));
-                    gyro_data g;
-                    g.source = &fusion.gyro;
-                    g.angvel_rad__s[0] = imu->w[0];
-                    g.angvel_rad__s[1] = imu->w[1];
-                    g.angvel_rad__s[2] = imu->w[2];
-                    g.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    fusion.receive_gyro(std::move(g));
+                    const rc_Vector acceleration_m__s2 = { imu->a[0], imu->a[1], imu->a[2] }, angular_velocity_rad__s = { imu->w[0], imu->w[1], imu->w[2] };
+                    rc_receiveAccelerometer(tracker, packet->header.sensor_id, packet->header.time, acceleration_m__s2);
+                    rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s);
+
                     break;
                 }
                 case packet_filter_control:
                 {
-                    if(header.user == 1)
+                    // this legacy packet used a field in the header
+                    // (which was renamed header.sensor_id) to control
+                    // when measurement should be started
+                    if(header.sensor_id == 1)
                     {
-                        //start measuring
-                        fusion.queue->dispatch_sync([this] { filter_set_reference(&fusion.sfm); });
+                        rc_setPose(tracker, rc_POSE_IDENTITY);
+                        rc_startTracker(tracker, rc_E_SYNCHRONOUS);
                     }
                 }
             }
@@ -379,15 +386,16 @@ void replay::start(string map_filename)
         file.read((char *)&header, 16);
         if(file.bad() || file.eof()) is_running = false;
     }
-    fusion.stop();
+    rc_stopTracker(tracker);
     
     file.close();
 
     {
-        v3 T = fusion.get_transformation().T;
+        auto fusion = (sensor_fusion *)tracker;
+        v3 T = fusion->get_transformation().T;
         std::lock_guard<std::mutex> en_guard(lengths_mutex);
         length = (float) T.norm();
-        path_length = fusion.sfm.s.total_distance;
+        path_length = fusion->sfm.s.total_distance;
     }
 }
 
@@ -420,7 +428,7 @@ bool replay::load_map(string filename)
     s.json = std::string((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
     s.position = 0;
 
-    if(!fusion.load_map(load_map_callback, &s))
+    if(!rc_loadMap(tracker, load_map_callback, &s))
         return false;
 
     return true;
@@ -435,5 +443,5 @@ void save_map_callback(void *handle, const void *buffer, size_t length)
 void replay::save_map(string filename)
 {
     std::ofstream out(filename);
-    fusion.save_map(save_map_callback, &out);
+    rc_saveMap(tracker, save_map_callback, &out);
 }

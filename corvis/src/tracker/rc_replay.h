@@ -14,7 +14,6 @@ private:
     std::ifstream file;
     bool depth {true};
     bool qvga {false};
-    bool trace {false};
     double length_m {0}, reference_length_m {NAN};
     bool find_reference_in_filename(const std::string &filename);
     bool set_calibration_from_filename(const std::string &fn);
@@ -22,16 +21,21 @@ private:
 
 public:
     rc_Tracker *tracker;
-    replay() { tracker = rc_create(); }
+    replay() {
+        tracker = rc_create();
+        rc_setMessageCallback(tracker, [](void *handle, rc_MessageLevel message_level, const char * message, size_t len) {
+                std::cerr << message;
+            }, nullptr, rc_MESSAGE_ERROR);
+    }
     ~replay() { rc_destroy(tracker); tracker = nullptr; }
-    void reset() { rc_reset(tracker, 0, rc_POSE_IDENTITY); }
+    void reset() { rc_reset(tracker, 0, nullptr); }
     bool open(const char *name);
     bool run();
     void disable_depth() { depth = false; }
     void enable_qvga() { qvga = true; }
-    void enable_trace_output() { trace = true; }
     double get_length() { return length_m; }
     double get_reference_length() { return reference_length_m; }
+    const char * get_version() { return rc_version(); }
     void enable_pose_output();
     void enable_status_output();
     void enable_log_output(bool stream, rc_Timestamp period_us);

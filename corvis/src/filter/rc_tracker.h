@@ -33,13 +33,6 @@ typedef enum rc_ImageFormat {
     rc_FORMAT_DEPTH16,
 } rc_ImageFormat;
 
-typedef enum rc_CameraId {
-    rc_CAMERA_ID_FISHEYE,
-    rc_CAMERA_ID_COLOR,
-    rc_CAMERA_ID_IR,
-    rc_CAMERA_ID_DEPTH,
-} rc_CameraId;
-
 typedef enum rc_TrackerState
 {
     /** rc_Tracker is inactive. */
@@ -85,7 +78,10 @@ typedef enum rc_TrackerConfidence
 } rc_TrackerConfidence;
 
 typedef struct rc_Vector {
-    float x,y,z;
+    union {
+        struct { float x,y,z; };
+        float v[3];
+    };
 } rc_Vector;
 
 /**
@@ -95,15 +91,41 @@ typedef struct rc_Vector {
  [R10 R11 R12 T1]
  [R20 R21 R22 T2]
  */
-typedef float rc_Pose[12];
-static const rc_Pose rc_POSE_IDENTITY = { 1.f, 0.f, 0.f, 0.f,
-                                          0.f, 1.f, 0.f, 0.f,
-                                          0.f, 0.f, 1.f, 0.f };
+typedef struct { float v[3][4]; } rc_Pose;
+
+typedef struct { float v[3][3]; } rc_Matrix;
+
+typedef struct {
+    rc_Matrix scale_and_alignment;
+    rc_Vector bias_m__s2;
+    rc_Vector bias_variance_m2__s4;
+    float measurement_variance_m2__s4;
+} rc_AccelerometerIntrinsics;
+
+typedef struct {
+    rc_Matrix scale_and_alignment;
+    rc_Vector bias_rad__s;
+    rc_Vector bias_variance_rad2__s2;
+    float measurement_variance_rad2__s2;
+} rc_GyroscopeIntrinsics;
+
+static const rc_Pose rc_POSE_IDENTITY = {
+    {{ 1.f, 0.f, 0.f, 0.f },
+     { 0.f, 1.f, 0.f, 0.f },
+     { 0.f, 0.f, 1.f, 0.f }}
+};
+static const rc_Matrix rc_MATRIX_IDENTITY = {
+    {{1.f, 0.f, 0.f},
+     {0.f, 1.f, 0.f},
+     {0.f, 0.f, 1.f}}
+};;
 
 /**
  Timestamp, in microseconds
  */
 typedef int64_t rc_Timestamp;
+
+typedef uint16_t rc_Sensor;
 
 typedef struct rc_Feature
 {
@@ -139,7 +161,7 @@ RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
  System will be stopped until one of the rc_start_ functions is called.
  @param initialPose_m is deprecated, always pass the identity and use rc_setPose() after convergence
  */
-RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m);
+RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, const rc_Pose *initialPose_m);
 
 typedef enum rc_CalibrationType {
     rc_CALIBRATION_TYPE_UNKNOWN,     // rd = ???
@@ -149,6 +171,7 @@ typedef enum rc_CalibrationType {
 } rc_CalibrationType;
 
 /**
+ @param format Image format
  @param width_px Image width in pixels
  @param height_px Image height in pixels
  @param f_x_px Focal length of camera in pixels
@@ -164,22 +187,56 @@ typedef struct rc_CameraIntrinsics {
     double f_x_px, f_y_px;
     double c_x_px, c_y_px;
     union {
-        double distortion[5];
+        double distortion[3];
         struct { double k1,k2,k3; };
         double w;
     };
 } rc_CameraIntrinsics;
 
 /**
- @param tracker The active rc_Tracker instance
- @param camera_id Refers to one of a specific supported predefined set
- @param extrinsics_wrt_accel_m Transformation from the Camera frame to the Accelerometer frame in meters (may be NULL)
- @param intrinsics Camera Intrinsics (may be NULL)
+ @param T Translation to the origin
+ @param W Rotation vector specifying the rotation to the origin
+ @param T_variance Variance for the translation
+ @param W_variance Variance for the rotation vector
  */
-RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_CameraId camera_id,       rc_Pose extrinsics_wrt_accel_m,       rc_CameraIntrinsics *intrinsics);
-RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_CameraId camera_id, const rc_Pose extrinsics_wrt_accel_m, const rc_CameraIntrinsics *intrinsics);
-RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose alignment_and_bias_m__s2, float noiseVariance_m2__s4);
-RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose alignment_and_bias_rad__s, float noiseVariance_rad2__s2);
+typedef struct rc_Extrinsics {
+    rc_Vector T;
+    rc_Vector W;
+    rc_Vector T_variance;
+    rc_Vector W_variance;
+} rc_Extrinsics;
+
+/**
+ Configure or describe a camera or depth camera. When configuring, extrinsics and intrinsics must be set.
+ @param tracker The active rc_Tracker instance
+ @param camera_id The id of the camera to configure/describe. Camera ids start at 0 and must be sequential.
+ @param format Image format controls if you are configuring a camera or depth camera. Depth cameras have their own set of ids starting at 0
+ @param extrinsics_wrt_origin_m The transformation from the camera to the origin
+ @param intrinsics The intrinsics of the camera
+ */
+RCTRACKER_API bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_CameraIntrinsics *intrinsics);
+RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat format,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics);
+
+/**
+ Configure or describe an accelerometer. When configuring, extrinsics and intrinsics must be set.
+ @param tracker The active rc_Tracker instance
+ @param accel_id The id of the accelerometer to configure/describe. Accelerometer ids start at 0 and must be sequential. A gyroscope must be configured for every configured accelerometer.
+ @param extrinsics_wrt_origin_m The transformation from the accelerometer to the origin
+ @param intrinsics The intrinsics of the accelerometer
+ */
+RCTRACKER_API bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics *intrinsics);
+RCTRACKER_API bool rc_describeAccelerometer( rc_Tracker *tracker, rc_Sensor accel_id,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_AccelerometerIntrinsics *intrinsics);
+
+/**
+ Configure or describe an gyroscope. When configuring, extrinsics and intrinsics must be set.
+ @param tracker The active rc_Tracker instance
+ @param accel_id The id of the accelerometer to configure/describe. Gyroscope ids start at 0 and must be sequential. An accelerometer must be configured for every configured gyroscope.
+ @param extrinsics_wrt_origin_m The transformation from the gyroscope to the origin
+ @param intrinsics The intrinsics of the gyroscope
+ */
+RCTRACKER_API bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics *intrinsics);
+RCTRACKER_API bool rc_describeGyroscope( rc_Tracker *tracker, rc_Sensor gyro_id,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_GyroscopeIntrinsics *intrinsics);
+
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 /**
@@ -230,17 +287,39 @@ RCTRACKER_API void rc_startTracker(rc_Tracker *tracker, rc_TrackerRunFlags run_f
 RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
 
 /**
+ Receive data, either for procesing (default) or capture (if rc_setOutputLog has been called). Returns false if data is passed for a sensor which has not yet been configured.
+ */
+
+/*
  @param tracker The active rc_Tracker instance
+ @param camera_id The id of the camera
+ @param format The image format of the camera. This determines if the camera is treated as depth or grayscale
  @param time_us Timestamp (in microseconds) when capture of this frame began
  @param shutter_time_us Exposure time (in microseconds). For rolling shutter, this should be the time such that exposure line l takes place at time_us + l/height * shutter_time_us. For global shutter, specify the exposure time, so that the middle of the exposure will be time_us + shutter_time_us / 2.
+ @param width The width in pixels of the image
+ @param height The height in pixels of the image
  @param stride Number of bytes in each line
  @param image Image data.
  @param completion_callback Function to be called when the frame has been processed and image data is no longer needed. image must remain valid (even after receiveImage has returned) until this function is called.
  @param callback_handle An opaque pointer that will be passed to completion_callback when the frame has been processed and image data is no longer needed.
  */
-RCTRACKER_API void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shutter_time_us, rc_ImageFormat format, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
-RCTRACKER_API void rc_receiveAccelerometer(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
-RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
+RCTRACKER_API bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
+
+/*
+ @param tracker The active rc_Tracker instance
+ @param accelerometer_id The id of the accelerometer
+ @param time_us Timestamp (in microseconds) corresponding to the middle of the IMU data integration time
+ @param acceleration_m__s2 Vector of measured acceleration in meters/second^2
+ */
+RCTRACKER_API bool rc_receiveAccelerometer(rc_Tracker *tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
+
+/*
+ @param tracker The active rc_Tracker instance
+ @param accelerometer_id The id of the gyroscope
+ @param time_us Timestamp (in microseconds) corresponding to the middle of the IMU data integration time
+ @param angular_velocity_rad__s Vector of measured angular velocity in radians/second
+ */
+RCTRACKER_API bool rc_receiveGyro(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
 
 /**
  @param tracker The active rc_Tracker instance
@@ -250,7 +329,7 @@ RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Timestamp time_us, con
  is rc_E_CONFIDENCE_MEDIUM or better rc_E_CONFIDENCE_HIGH.
  */
 RCTRACKER_API void rc_setPose(rc_Tracker *tracker, const rc_Pose pose_m);
-RCTRACKER_API void rc_getPose(const rc_Tracker *tracker, rc_Pose pose_m);
+RCTRACKER_API rc_Pose rc_getPose(const rc_Tracker *tracker);
 RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Feature **features_px);
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);

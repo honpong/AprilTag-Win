@@ -18,20 +18,22 @@
 #include <algorithm>
 #include "../cor/sensor.h"
 
+template<int size_>
 class sensor_data
 {
 public:
-    const sensor *source;
     sensor_clock::time_point timestamp;
 };
 
-template<rc_ImageFormat camera_type, class data_type>
-class image_data: public sensor_data
+template<class sensor_data_type, rc_ImageFormat camera_type, class data_type, int size_>
+class image_data: public sensor_data<size_>
 {
 public:
+    typedef image_data<sensor_data_type, camera_type, data_type, size_> image_data_type;
+    sensor_data_type *source;
     image_data(): image_handle(nullptr, nullptr), image(nullptr), width(0), height(0), stride(0) { }
-    image_data(image_data<camera_type, data_type>&& other) = default;
-    image_data &operator=(image_data<camera_type, data_type>&& other) = default;
+    image_data(image_data_type&& other) = default;
+    image_data &operator=(image_data_type&& other) = default;
     
     image_data(int image_width, int image_height) :
     image_handle(malloc(image_width * image_height * sizeof(data_type)), free), image((data_type *)image_handle.get()), width(image_width), height(image_height), stride(image_width * sizeof(data_type))
@@ -44,12 +46,12 @@ public:
         std::fill_n(image, width * height, initial_value);
     }
     
-    image_data<camera_type, data_type> make_copy() const
+    image_data_type make_copy() const
     {
         assert(height && stride);
-        image_data<camera_type, data_type> res;
-        res.source = source;
-        res.timestamp = timestamp;
+        image_data_type res;
+        res.source = this->source;
+        res.timestamp = this->timestamp;
         res.width = width;
         res.height = height;
         res.stride = stride;
@@ -62,8 +64,8 @@ public:
         return res;
     }
     
-    image_data(const image_data<camera_type, data_type> &other) = delete;
-    image_data &operator=(const image_data<camera_type, data_type>& other) = delete;
+    image_data(const image_data_type &other) = delete;
+    image_data &operator=(const image_data_type& other) = delete;
 
     sensor_clock::duration exposure_time;
     std::unique_ptr<void, void(*)(void *)> image_handle;
@@ -71,13 +73,14 @@ public:
     int width, height, stride;
 };
 
-typedef image_data<rc_FORMAT_GRAY8, uint8_t> image_gray8;
-typedef image_data<rc_FORMAT_DEPTH16, uint16_t> image_depth16;
+typedef image_data<sensor_grey, rc_FORMAT_GRAY8, uint8_t, 2> image_gray8;
+typedef image_data<sensor_depth, rc_FORMAT_DEPTH16, uint16_t, 1> image_depth16;
 
-class accelerometer_data: public sensor_data
+class accelerometer_data: public sensor_data<3>
 {
 public:
-    float accel_m__s2[3];
+    sensor_accelerometer *source;
+    float acceleration_m__s2[3];
     accelerometer_data() {};
     
     accelerometer_data(const accelerometer_data& other) = default;
@@ -87,10 +90,11 @@ public:
     accelerometer_data &operator=(accelerometer_data&& other) = default;
 };
 
-class gyro_data: public sensor_data
+class gyro_data: public sensor_data<3>
 {
 public:
-    float angvel_rad__s[3];
+    sensor_gyroscope *source;
+    float angular_velocity_rad__s[3];
     gyro_data() {}
     
     gyro_data(const gyro_data& other) = default;

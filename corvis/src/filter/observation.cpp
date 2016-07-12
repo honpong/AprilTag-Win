@@ -2,9 +2,6 @@
 #include "../numerics/kalman.h"
 #include "utils.h"
 
-stdev<2> observation_vision_feature::meas_stdev, observation_vision_feature::inn_stdev;
-stdev<3> observation_accelerometer::meas_stdev, observation_accelerometer::inn_stdev, observation_gyroscope::meas_stdev, observation_gyroscope::inn_stdev;
-
 int observation_queue::size()
 {
     int size = 0;
@@ -419,7 +416,7 @@ bool observation_vision_feature::measure()
     bool valid = meas[0] != INFINITY;
 
     if(valid) {
-        meas_stdev.data(meas);
+        src_data.meas_stdev.data(meas);
         if(!feature->is_initialized()) {
             update_initializing();
         }
@@ -437,7 +434,7 @@ bool observation_vision_feature::measure()
 
 void observation_vision_feature::compute_measurement_covariance()
 {
-    inn_stdev.data(inn);
+    src_data.inn_stdev.data(inn);
     f_t ot = feature->outlier_thresh * feature->outlier_thresh * (intrinsics.image_height/240.f)*(intrinsics.image_height/240.f);
 
     f_t residual = inn[0]*inn[0] + inn[1]*inn[1];
@@ -535,9 +532,10 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
 
 bool observation_accelerometer::measure()
 {
-    meas_stdev.data(meas);
+    src_data.meas_stdev.data(meas);
     if(!state.orientation_initialized)
     {
+        //TODOMSM - need to attach this to the right frame
         state.initial_orientation = initial_orientation_from_gravity(extrinsics.Qc.v * meas);
         state.Q.v = state.initial_orientation;
         state.orientation_initialized = true;

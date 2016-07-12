@@ -1,4 +1,5 @@
 #include "calibration_json.h"
+#include "calibration_defaults.h"
 #include "json_keys.h"
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
@@ -21,8 +22,8 @@ static bool require_key(const Value &json, const char * KEY)
     return true;
 }
 
-static void copy_json_to_camera(Value &json, calibration::camera &cam, Document::AllocatorType& a);
-static void copy_json_to_imu(Value &json, struct calibration::imu &imu, Document::AllocatorType& a);
+static void copy_json_to_camera(Value &json, calibration_xml::camera &cam, Document::AllocatorType& a);
+static void copy_json_to_imu(Value &json, struct calibration_xml::imu &imu, Document::AllocatorType& a);
 static void copy_json_to_calibration(Value &json, calibration_json &cal, Document::AllocatorType& a)
 {
     cal = calibration_json{};
@@ -36,7 +37,7 @@ static void copy_json_to_calibration(Value &json, calibration_json &cal, Documen
         copy_json_to_camera(json[KEY_DEPTH], cal.depth, a);
 }
 
-static void copy_json_to_camera(Value &json, calibration::camera &cam, Document::AllocatorType& a)
+static void copy_json_to_camera(Value &json, calibration_xml::camera &cam, Document::AllocatorType& a)
 {
     if (json.HasMember(KEY_IMAGE_WIDTH))  cam.intrinsics.width_px  = json[KEY_IMAGE_WIDTH].GetInt();
     if (json.HasMember(KEY_IMAGE_HEIGHT)) cam.intrinsics.height_px = json[KEY_IMAGE_HEIGHT].GetInt();
@@ -69,8 +70,10 @@ static void copy_json_to_camera(Value &json, calibration::camera &cam, Document:
     if (require_key(json, KEY_TC0) && require_key(json, KEY_TC1) && require_key(json, KEY_TC2))
         cam.extrinsics_wrt_imu_m.T = v3(json[KEY_TC0].GetDouble(), json[KEY_TC1].GetDouble(), json[KEY_TC2].GetDouble());
 
-    if (require_key(json, KEY_WC0) && require_key(json, KEY_WC1) && require_key(json, KEY_WC2))
+    if (require_key(json, KEY_WC0) && require_key(json, KEY_WC1) && require_key(json, KEY_WC2)) {
         cam.extrinsics_wrt_imu_m.Q = to_quaternion(rotation_vector(json[KEY_WC0].GetDouble(), json[KEY_WC1].GetDouble(), json[KEY_WC2].GetDouble()));
+        cam.extrinsics_wrt_imu_W   = rotation_vector(json[KEY_WC0].GetDouble(), json[KEY_WC1].GetDouble(), json[KEY_WC2].GetDouble());
+    }
 
     if (json.HasMember(KEY_TCVAR0) && json.HasMember(KEY_TCVAR1) && json.HasMember(KEY_TCVAR2))
         cam.extrinsics_var_wrt_imu_m.T = v3(json[KEY_TCVAR0].GetDouble(), json[KEY_TCVAR1].GetDouble(), json[KEY_TCVAR2].GetDouble());
@@ -80,7 +83,7 @@ static void copy_json_to_camera(Value &json, calibration::camera &cam, Document:
 
 }
 
-static void copy_json_to_imu(Value &json, struct calibration::imu &imu, Document::AllocatorType& a)
+static void copy_json_to_imu(Value &json, struct calibration_xml::imu &imu, Document::AllocatorType& a)
 {
     if (json.HasMember(KEY_ABIAS0) && json.HasMember(KEY_ABIAS1) && json.HasMember(KEY_ABIAS2))
         imu.a_bias_m__s2 = v3(json[KEY_ABIAS0].GetDouble(),
@@ -117,14 +120,14 @@ static void copy_json_to_imu(Value &json, struct calibration::imu &imu, Document
             imu.w_alignment(i) = json[KEY_GYRO_TRANSFORM][i].GetDouble();
 }
 
-static void copy_camera_to_json(const calibration::camera &cam, Value &json, Document::AllocatorType& a);
-static void copy_imu_to_json(const struct calibration::imu &imu, Value &json, Document::AllocatorType& a);
+static void copy_camera_to_json(const calibration_xml::camera &cam, Value &json, Document::AllocatorType& a);
+static void copy_imu_to_json(const struct calibration_xml::imu &imu, Value &json, Document::AllocatorType& a);
 static void copy_calibration_to_json(const calibration_json &cal, Value &json, Document::AllocatorType& a)
 {
     Value name(kStringType);
     name.SetString(cal.device_id.c_str(), a);
     json.AddMember(KEY_DEVICE_NAME, name, a);
-    json.AddMember(KEY_CALIBRATION_VERSION, CALIBRATION_VERSION, a);
+    json.AddMember(KEY_CALIBRATION_VERSION, CALIBRATION_VERSION_LEGACY, a);
 
     copy_imu_to_json(cal.imu, json, a);
     copy_camera_to_json(cal.color, json, a);
@@ -135,7 +138,7 @@ static void copy_calibration_to_json(const calibration_json &cal, Value &json, D
     }
 }
 
-static void copy_camera_to_json(const calibration::camera &cam, Value &json, Document::AllocatorType& a)
+static void copy_camera_to_json(const calibration_xml::camera &cam, Value &json, Document::AllocatorType& a)
 {
     json.AddMember(KEY_IMAGE_WIDTH, cam.intrinsics.width_px, a);
     json.AddMember(KEY_IMAGE_HEIGHT, cam.intrinsics.height_px, a);
@@ -169,7 +172,7 @@ static void copy_camera_to_json(const calibration::camera &cam, Value &json, Doc
     json.AddMember(KEY_TCVAR2, cam.extrinsics_var_wrt_imu_m.T[2], a);
 }
 
-static void copy_imu_to_json(const struct calibration::imu &imu, Value &json, Document::AllocatorType& a)
+static void copy_imu_to_json(const struct calibration_xml::imu &imu, Value &json, Document::AllocatorType& a)
 {
     json.AddMember(KEY_ABIAS0, imu.a_bias_m__s2[0], a);
     json.AddMember(KEY_ABIAS1, imu.a_bias_m__s2[1], a);
@@ -223,4 +226,25 @@ bool calibration_deserialize(const std::string &jsonString, calibration_json &ca
     }
     copy_json_to_calibration(json, cal, json.GetAllocator());
     return true;
+}
+
+void device_set_resolution(calibration_json *dc, int image_width, int image_height)
+{
+    auto &in = dc->color.intrinsics;
+    int max_old_dim = in.width_px > in.height_px ? in.width_px : in.height_px;
+    int max_new_dim = image_width > image_height ? image_width : image_height;
+
+    in.width_px = image_width;
+    in.height_px = image_height;
+    in.c_x_px = (in.width_px - 1)/2.f;
+    in.c_x_px = (in.height_px - 1)/2.f;
+    // Scale the focal length depending on the resolution
+    in.f_x_px = in.f_x_px * max_new_dim / max_old_dim;
+    in.f_y_px = in.f_x_px;
+}
+
+// TODO: should this go away?
+bool get_parameters_for_device(corvis_device_type type, calibration_json *dc)
+{
+    return calibration_load_defaults(type, *dc);
 }

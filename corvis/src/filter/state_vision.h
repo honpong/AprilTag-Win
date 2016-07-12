@@ -220,6 +220,7 @@ public:
 class state_vision: public state_motion {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
+    //TODOMSM
     state_extrinsics extrinsics;
     state_vision_intrinsics camera_intrinsics;
     std::vector<tracker::point> features; // reuasable storage passed to tracker->detect()

@@ -557,7 +557,7 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
 
         if(tracker->output.started())
-            tracker->output.write_camera(camera_id, std::move(d));
+            tracker->output.write_camera(camera_id, d.make_copy());
         else
             tracker->receive_image(std::move(d));
     } else if (format == rc_FORMAT_GRAY8 && camera_id < tracker->sfm.cameras.size()) {
@@ -572,7 +572,7 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
 
         if(tracker->output.started())
-            tracker->output.write_camera(camera_id, std::move(d));
+            tracker->output.write_camera(camera_id, d.make_copy());
         else
             tracker->receive_image(std::move(d));
     }

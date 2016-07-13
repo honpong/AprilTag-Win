@@ -1,0 +1,6 @@
+add_library(motionapi INTERFACE)
+target_include_directories(motionapi INTERFACE ${MMSD_ALLOY_ROOT}/common/include)
+find_library(MOTION_HAL motionHAL)
+find_library(MOTION_INFRA infra)
+find_library(MOTION_SLIMAPI slimAPI)
+target_link_libraries(motionapi INTERFACE ${MOTION_SLIMAPI} ${MOTION_HAL} ${MOTION_INFRA})

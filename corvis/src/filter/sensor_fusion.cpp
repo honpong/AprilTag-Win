@@ -318,6 +318,8 @@ bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t l
 
 void sensor_fusion::receive_image(image_gray8 &&data)
 {
+    if(data.source->id != 0) return;
+
     //Adjust image timestamps to be in middle of exposure period
     data.timestamp += data.exposure_time / 2;
     if(buffering)
@@ -331,6 +333,8 @@ void sensor_fusion::receive_image(image_gray8 &&data)
 
 void sensor_fusion::receive_image(image_depth16 &&data)
 {
+    if(data.source->id != 0) return;
+
     //TODO: Verify time adjustments here
     //Adjust image timestamps to be in middle of exposure period
     data.timestamp += data.exposure_time / 2;
@@ -345,11 +349,15 @@ void sensor_fusion::receive_image(image_depth16 &&data)
 
 void sensor_fusion::receive_accelerometer(accelerometer_data &&data)
 {
+    if(data.source->id != 0) return;
+
     queue->receive_accelerometer(std::move(data));
 }
 
 void sensor_fusion::receive_gyro(gyro_data &&data)
 {
+    if(data.source->id != 0) return;
+
     queue->receive_gyro(std::move(data));
 }
 

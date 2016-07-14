@@ -53,7 +53,7 @@ int main(int c, char **v) {
     std::unique_ptr<rc_Tracker, decltype(rc_destroy)*> rc_{rc_create(), rc_destroy}; rc_Tracker *rc = rc_.get();
 
     struct camera_info {
-        rc_Pose extrinsics_wrt_accel_m;
+        rc_Extrinsics extrinsics_wrt_accel_m;
         rc_CameraIntrinsics intrinsics;
     } fisheye = {}, color = {}, depth = {};
 
@@ -61,9 +61,10 @@ int main(int c, char **v) {
         std::string cal;
         if (!read_file(calibration_xml, cal)) { std::cerr << calibration_xml << ": error loading file\n"; return 1; }
         if (!rc_setCalibration(rc, cal.c_str())) { std::cerr << calibration_xml << ": error parsing file\n"; return 1; }
-        rc_describeCamera(rc, rc_CAMERA_ID_FISHEYE, fisheye.extrinsics_wrt_accel_m, &fisheye.intrinsics);
-        rc_describeCamera(rc, rc_CAMERA_ID_COLOR,     color.extrinsics_wrt_accel_m,   &color.intrinsics);
-        rc_describeCamera(rc, rc_CAMERA_ID_DEPTH,     depth.extrinsics_wrt_accel_m,   &depth.intrinsics);
+
+        rc_describeCamera(rc, 0, rc_FORMAT_GRAY8, &fisheye.extrinsics_wrt_accel_m, &fisheye.intrinsics);
+        rc_describeCamera(rc, 1, rc_FORMAT_GRAY8,   &color.extrinsics_wrt_accel_m,   &color.intrinsics);
+        rc_describeCamera(rc, 0, rc_FORMAT_DEPTH16, &depth.extrinsics_wrt_accel_m,   &depth.intrinsics);
     }
 
     if (calibration_load) {
@@ -131,12 +132,13 @@ int main(int c, char **v) {
             return 1;
         }
     }
+
     if (color.intrinsics.type)
-        rc_configureCamera(rc, rc_CAMERA_ID_COLOR,     color.extrinsics_wrt_accel_m,   &color.intrinsics);
-    if (fisheye.intrinsics.type)
-        rc_configureCamera(rc, rc_CAMERA_ID_FISHEYE, fisheye.extrinsics_wrt_accel_m, &fisheye.intrinsics);
+        rc_configureCamera(rc, 0, rc_FORMAT_GRAY8,   &color.extrinsics_wrt_accel_m,   &color.intrinsics);
+    else if (fisheye.intrinsics.type)
+        rc_configureCamera(rc, 0, rc_FORMAT_GRAY8, &fisheye.extrinsics_wrt_accel_m, &fisheye.intrinsics);
     if (depth.intrinsics.type)
-        rc_configureCamera(rc, rc_CAMERA_ID_DEPTH,     depth.extrinsics_wrt_accel_m,   &depth.intrinsics);
+        rc_configureCamera(rc, 0, rc_FORMAT_DEPTH16, &depth.extrinsics_wrt_accel_m,   &depth.intrinsics);
 
     struct status {
         std::mutex m;

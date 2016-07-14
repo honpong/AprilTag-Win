@@ -50,17 +50,19 @@ namespace rc {
       protected:
         void sensorCallback(motion::MotionSensorFrame *frame, int numFrames)
         {
+            int sensor_id = 0;
             for (int i=0; i< numFrames; i++)
                 switch(frame[i].header.type) {
-                    case motion::MOTION_SOURCE_GYRO:  rc_receiveGyro         (rc, frame[i].header.timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
-                    case motion::MOTION_SOURCE_ACCEL: rc_receiveAccelerometer(rc, frame[i].header.timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
+                    case motion::MOTION_SOURCE_GYRO:  rc_receiveGyro         (rc, sensor_id, frame[i].header.timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
+                    case motion::MOTION_SOURCE_ACCEL: rc_receiveAccelerometer(rc, sensor_id, frame[i].header.timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
                 }
         }
 
         void fisheyeCallback(motion::MotionFisheyeFrame *f)
         {
+            int sensor_id = 0;
             struct ctx { motion::MotionDevice *md; motion::MotionFisheyeFrame *f; };
-            rc_receiveImage(rc, f->header.timestamp/1000, f->exposure/1000, rc_FORMAT_GRAY8,
+            rc_receiveImage(rc, sensor_id, rc_FORMAT_GRAY8, f->header.timestamp/1000, f->exposure/1000,
                             f->width, f->height, f->stride, f->data,
                             [](void*ctx_){ auto ctx = (struct ctx*)ctx_; ctx->md->returnFisheyeBuffer(ctx->f); delete ctx; },
                             (void*)new ctx{md, f});

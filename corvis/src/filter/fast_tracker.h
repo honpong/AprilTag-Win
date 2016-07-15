@@ -22,7 +22,7 @@ class fast_tracker : public tracker
         feature(int x, int y, const uint8_t * im, int stride) : dx(0), dy(0)
         {
             for(int py = 0; py < full_patch_width; ++py) {
-                for(int px = 0; px <= full_patch_width; ++px) {
+                for(int px = 0; px < full_patch_width; ++px) {
                     patch[py * full_patch_width + px] = im[(int)x + px - half_patch_width + ((int)y + py - half_patch_width) * stride];
                 }
             }

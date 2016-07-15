@@ -21,8 +21,11 @@ namespace rc {
         sensor_listener(rc_Tracker *rc_, int base_sensor_id, int motion_instance) : rc(rc_),
             accel_id(base_sensor_id), gyro_id(base_sensor_id), camera_id(base_sensor_id) {
             md = motion::MotionDeviceManager::instance()->connect(this, motion_instance); if (!md) return;
-
+        }
+        template <typename ForwardIt>
+        static void start(ForwardIt begin, ForwardIt end) {
             motion::MotionProfile profile = {};
+
             profile.imuBufferDepth = 1;
             profile.fisheyeBufferDepth = 20;
             profile.syncIMU = false;
@@ -40,8 +43,11 @@ namespace rc {
 
             profile.depth.enable = false;
 
-            int ret = md->start(profile);
+            for(ForwardIt it = begin; it != end; ++it)
+                (*it)->md->start(profile);
 
+            for(ForwardIt it = begin; it != end; ++it)
+                (*it)->md->startFisheyeCamera();
         }
         ~sensor_listener() {
             if (!md) return;

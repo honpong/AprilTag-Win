@@ -27,6 +27,8 @@ static bool write_file(const std::string name, const char *contents)
 #include <cstdlib>
 #include <cmath>
 #include <iostream>
+#include <set>
+#include <vector>
 #include <condition_variable>
 
 int main(int c, char **v) {
@@ -40,15 +42,18 @@ int main(int c, char **v) {
         *calibration_save = "/sdcard/config/calibration.json",
         *calibration_xml = "/sdcard/config/calibration.xml";
     bool drop_depth = false;
-    int device_id = 0;
+    std::set<int> device_ids;
 
     for (int i=1; i<c; i++)
              if (strcmp(v[i], "--save") == 0 && i+1 < c) calibration_save = v[++i];
         else if (strcmp(v[i], "--load") == 0 && i+1 < c) calibration_load = v[++i];
         else if (strcmp(v[i], "--xml") == 0  && i+1 < c) calibration_xml  = v[++i];
-        else if (strcmp(v[i], "--id") == 0  && i+1 < c) device_id  = atoi(v[++i]);
+        else if (strcmp(v[i], "--id") == 0  && i+1 < c) device_ids.insert(atoi(v[++i]));
         else if (strcmp(v[i], "--capture") == 0  && i+1 < c) capture_file = v[++i];
         else goto usage;
+
+    if (device_ids.size() == 0)
+        device_ids.insert(0);
 
     std::unique_ptr<rc_Tracker, decltype(rc_destroy)*> rc_{rc_create(), rc_destroy}; rc_Tracker *rc = rc_.get();
 
@@ -195,11 +200,17 @@ int main(int c, char **v) {
         rc_startCalibration(rc, rc_E_ASYNCHRONOUS);
 
     {
-        rc::sensor_listener sl(rc, 0, device_id);
-        if (!sl) {
-            fprintf(stderr, "unable to connect to the motionservice\n");
-            return 1;
+        std::vector<std::unique_ptr<rc::sensor_listener>> listeners;
+        int offset = 0;
+        for (int device_id : device_ids) {
+            auto sl = std::make_unique<rc::sensor_listener>(rc, offset++, device_id);
+            if (!sl) {
+                fprintf(stderr, "unable to connect to the motionservice %d\n", device_id);
+                return 1;
+            }
+            listeners.push_back(std::move(sl));
         }
+        rc::sensor_listener::start(listeners.begin(), listeners.end());
         std::unique_lock<std::mutex> lock(status.m);
         status.cv_done.wait(lock, [&status]() -> bool { return status.done; });
     }

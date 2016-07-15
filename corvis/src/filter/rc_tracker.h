@@ -28,11 +28,6 @@ extern "C" {
 #  define RCTRACKER_API __attribute__ ((visibility("default")))
 #endif
 
-typedef enum rc_ImageFormat {
-    rc_FORMAT_GRAY8,
-    rc_FORMAT_DEPTH16,
-} rc_ImageFormat;
-
 typedef enum rc_TrackerState
 {
     /** rc_Tracker is inactive. */
@@ -95,20 +90,6 @@ typedef struct { float v[3][4]; } rc_Pose;
 
 typedef struct { float v[3][3]; } rc_Matrix;
 
-typedef struct {
-    rc_Matrix scale_and_alignment;
-    rc_Vector bias_m__s2;
-    rc_Vector bias_variance_m2__s4;
-    float measurement_variance_m2__s4;
-} rc_AccelerometerIntrinsics;
-
-typedef struct {
-    rc_Matrix scale_and_alignment;
-    rc_Vector bias_rad__s;
-    rc_Vector bias_variance_rad2__s2;
-    float measurement_variance_rad2__s2;
-} rc_GyroscopeIntrinsics;
-
 static const rc_Pose rc_POSE_IDENTITY = {
     {{ 1.f, 0.f, 0.f, 0.f },
      { 0.f, 1.f, 0.f, 0.f },
@@ -163,6 +144,11 @@ RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
  */
 RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, const rc_Pose *initialPose_m);
 
+typedef enum rc_ImageFormat {
+    rc_FORMAT_GRAY8,
+    rc_FORMAT_DEPTH16,
+} rc_ImageFormat;
+
 typedef enum rc_CalibrationType {
     rc_CALIBRATION_TYPE_UNKNOWN,     // rd = ???
     rc_CALIBRATION_TYPE_FISHEYE,     // rd = arctan(2 * ru * tan(w / 2)) / w
@@ -192,6 +178,20 @@ typedef struct rc_CameraIntrinsics {
         double w;
     };
 } rc_CameraIntrinsics;
+
+typedef struct {
+    rc_Matrix scale_and_alignment;
+    rc_Vector bias_m__s2;
+    rc_Vector bias_variance_m2__s4;
+    float measurement_variance_m2__s4;
+} rc_AccelerometerIntrinsics;
+
+typedef struct {
+    rc_Matrix scale_and_alignment;
+    rc_Vector bias_rad__s;
+    rc_Vector bias_variance_rad2__s2;
+    float measurement_variance_rad2__s2;
+} rc_GyroscopeIntrinsics;
 
 /**
  @param T Translation to the origin

@@ -5,133 +5,40 @@
 //  Copyright (c) 2015 Realitycap. All rights reserved.
 //
 
+#include "../filter/rc_tracker.h"
 #include "sensor_fusion_queue.h"
 #include <cassert>
+#include <memory>
+#include <algorithm>
 
-template<typename T, int size>
-sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv): period(0), mutex(mx), cond(cnd), active(actv), readpos(0), writepos(0), count(0)
-{
+#define MAX_SENSORS 100
+inline std::ostream & operator <<(std::ostream & s, const std::vector<sensor_data> &v) {
+    for(int i = 0; i < v.size(); i++)
+        s << v[i].time_us << ":" << v[i].type << " ";
+    return s;
 }
 
-template<typename T, int size>
-void sensor_queue<T, size>::reset()
-{
-    period = std::chrono::duration<double, std::micro>(0);
-    last_in = sensor_clock::time_point();
-    last_out = sensor_clock::time_point();
-    
-    drop_full = 0;
-    drop_late = 0;
-    total_in = 0;
-    total_out = 0;
-    stats = stdev<1>();
-#ifdef DEBUG
-    hist = histogram{200};
-#endif
-    
-    for(int i = 0; i < size; ++i)
-    {
-        storage[i] = T();
-    }
-    
-    readpos = 0;
-    writepos = 0;
-    count = 0;
+bool compare_sensor_data(const sensor_data &d1, const sensor_data &d2) {
+    if(d1.time_us == d2.time_us)
+        return d1.type > d2.type;
+    return d1.time_us > d2.time_us;
 }
 
-template<typename T, int size>
-bool sensor_queue<T, size>::push(T&& x)
-{
-    std::unique_lock<std::mutex> lock(mutex);
-    if(!active)
-    {
-        lock.unlock();
-        return false;
-    }
-    
-    sensor_clock::time_point time = x.timestamp;
-#ifdef DEBUG
-    assert(time >= last_in);
-#endif
-    if(last_in != sensor_clock::time_point())
-    {
-        sensor_clock::duration delta = time - last_in;
-        stats.data(v<1>{(f_t)delta.count()});
-#ifdef DEBUG
-        hist.data((unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(delta).count());
-#endif
-        if(period == std::chrono::duration<double, std::micro>(0)) period = delta;
-        else
-        {
-            const float alpha = .1f;
-            period = alpha * delta + (1.f - alpha) * period;
-        }
-    }
-    last_in = time;
-
-    ++total_in;
-
-    if(count == size) {
-        pop(lock);
-        ++drop_full;
-    }
-
-    storage[writepos] = std::move(x);
-    writepos = (writepos + 1) % size;
-    ++count;
-    
-    lock.unlock();
-    cond.notify_one();
-    return true;
-}
-
-template<typename T, int size>
-sensor_clock::time_point sensor_queue<T, size>::get_next_time(const std::unique_lock<std::mutex> &lock, sensor_clock::time_point last_global_dispatched)
-{
-    while(count && (storage[readpos].timestamp < last_global_dispatched || storage[readpos].timestamp <= last_out)) {
-        pop(lock);
-        ++drop_late;
-    }
-    return count ? storage[readpos].timestamp : sensor_clock::time_point();
-}
-
-template<typename T, int size>
-T sensor_queue<T, size>::pop(const std::unique_lock<std::mutex> &lock)
-{
-#ifdef DEBUG
-    assert(count);
-#endif
-
-    last_out = storage[readpos].timestamp;
-    --count;
-    ++total_out;
-
-    int oldpos = readpos;
-    readpos = (readpos + 1) % size;
-    return std::move(storage[oldpos]);
-}
-
-fusion_queue::fusion_queue(const std::function<void(image_gray8 &&)> &camera_func,
-                           const std::function<void(image_depth16 &&)> &depth_func,
-                           const std::function<void(accelerometer_data &&)> &accelerometer_func,
-                           const std::function<void(gyro_data &&)> &gyro_func,
+fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> &data_func,
                            latency_strategy s,
-                           sensor_clock::duration max_jitter):
+                           sensor_clock::duration max_latency):
                 strategy(s),
-                camera_receiver(camera_func),
-                depth_receiver(depth_func),
-                accel_receiver(accelerometer_func),
-                gyro_receiver(gyro_func),
-                camera_queue(mutex, cond, active),
-                depth_queue(mutex, cond, active),
-                accel_queue(mutex, cond, active),
-                gyro_queue(mutex, cond, active),
+                data_receiver(data_func),
                 control_func(nullptr),
                 active(false),
-                wait_for_camera(true),
                 singlethreaded(false),
-                jitter(max_jitter)
+                latency(max_latency)
 {
+}
+
+void fusion_queue::require_sensor(rc_SensorType type, rc_Sensor id)
+{
+    required_sensors.push_back(id + type*MAX_SENSORS);
 }
 
 void fusion_queue::reset()
@@ -140,10 +47,6 @@ void fusion_queue::reset()
     wait_until_finished();
     thread = std::thread();
 
-    accel_queue.reset();
-    gyro_queue.reset();
-    depth_queue.reset();
-    camera_queue.reset();
     control_func = nullptr;
     active = false;
     last_dispatched = sensor_clock::time_point();
@@ -157,49 +60,29 @@ fusion_queue::~fusion_queue()
 
 std::string fusion_queue::get_stats()
 {
-    std::ostringstream os;
-    os << "Camera: " << camera_queue.get_stats();
-    os << "Depth: " << depth_queue.get_stats();
-    os << "Accel: " << accel_queue.get_stats();
-    os << "Gyro: " << gyro_queue.get_stats();
-    os << "Queue latency: " << queue_latency;
-    return os.str();
+    std::string stats;
+    
+    return stats;
 }
 
-void fusion_queue::receive_depth(image_depth16&& x)
+void fusion_queue::receive_sensor_data(sensor_data && x)
 {
-    depth_queue.push(std::move(x));
-    if(singlethreaded) dispatch_singlethread(false);
-}
-
-void fusion_queue::receive_camera(image_gray8&& x)
-{
-    camera_queue.push(std::move(x));
-    if(singlethreaded) dispatch_singlethread(false);
-}
-
-void fusion_queue::receive_accelerometer(accelerometer_data&& x)
-{
-    accel_queue.push(std::move(x));
-    if(singlethreaded) dispatch_singlethread(false);
-}
-
-void fusion_queue::receive_gyro(gyro_data&& x)
-{
-    gyro_queue.push(std::move(x));
+    uint64_t id = x.id + MAX_SENSORS*x.type;
+    push_queue(id, std::move(x));
+    cond.notify_one();
     if(singlethreaded) dispatch_singlethread(false);
 }
 
 void fusion_queue::dispatch_sync(std::function<void()> fn)
 {
-    std::unique_lock<std::mutex> lock(mutex);
+    std::unique_lock<std::mutex> lock(control_lock);
     fn();
     lock.unlock();
 }
 
 void fusion_queue::dispatch_async(std::function<void()> fn)
 {
-    std::unique_lock<std::mutex> lock(mutex);
+    std::unique_lock<std::mutex> lock(control_lock);
     control_func = fn;
     lock.unlock();
     if(singlethreaded) dispatch_singlethread(false);
@@ -207,26 +90,24 @@ void fusion_queue::dispatch_async(std::function<void()> fn)
 
 void fusion_queue::start_buffering()
 {
-    std::unique_lock<std::mutex> lock(mutex);
+    std::unique_lock<std::mutex> lock(control_lock);
     active = true;
     lock.unlock();
 }
 
-void fusion_queue::start_async(bool expect_camera)
+void fusion_queue::start_async()
 {
-    wait_for_camera = expect_camera;
     if(!thread.joinable())
     {
         thread = std::thread(&fusion_queue::runloop, this);
     }
 }
 
-void fusion_queue::start_sync(bool expect_camera)
+void fusion_queue::start_sync()
 {
-    wait_for_camera = expect_camera;
     if(!thread.joinable())
     {
-        std::unique_lock<std::mutex> lock(mutex);
+        std::unique_lock<std::mutex> lock(control_lock);
         thread = std::thread(&fusion_queue::runloop, this);
         while(!active)
         {
@@ -235,9 +116,8 @@ void fusion_queue::start_sync(bool expect_camera)
     }
 }
 
-void fusion_queue::start_singlethreaded(bool expect_camera)
+void fusion_queue::start_singlethreaded()
 {
-    wait_for_camera = expect_camera;
     singlethreaded = true;
     active = true;
     dispatch_singlethread(false); //dispatch any waiting data in case we were buffering
@@ -245,7 +125,7 @@ void fusion_queue::start_singlethreaded(bool expect_camera)
 
 void fusion_queue::stop_immediately()
 {
-    std::unique_lock<std::mutex> lock(mutex);
+    std::unique_lock<std::mutex> lock(control_lock);
     active = false;
     lock.unlock();
     cond.notify_one();
@@ -259,13 +139,13 @@ void fusion_queue::stop_async()
         dispatch_singlethread(true);
 #ifdef DEBUG
         std::cerr << get_stats();
-        //std::cerr << gyro_queue.hist;
+        //std::cerr << gyro_queue->hist;
 #endif
     }
     stop_immediately();
 }
 
-void fusion_queue::stop_sync()
+void fusion_queue::stop()
 {
     stop_async();
     if(!singlethreaded) wait_until_finished();
@@ -286,7 +166,7 @@ bool fusion_queue::run_control()
 
 void fusion_queue::runloop()
 {
-    std::unique_lock<std::mutex> lock(mutex);
+    std::unique_lock<std::mutex> lock(control_lock);
     active = true;
     //If we were launched synchronously, wake up the launcher
     lock.unlock();
@@ -304,211 +184,103 @@ void fusion_queue::runloop()
     while (dispatch_next(lock, true));
 #ifdef DEBUG
     std::cerr << get_stats();
-    //std::cerr << gyro_queue.hist;
 #endif
     lock.unlock();
 }
 
-sensor_clock::time_point fusion_queue::global_latest_received() const
+void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
 {
-    if(depth_queue.last_in >= camera_queue.last_in && depth_queue.last_in >= gyro_queue.last_in && camera_queue.last_in >= accel_queue.last_in) return depth_queue.last_in;
-    else if(camera_queue.last_in >= gyro_queue.last_in && camera_queue.last_in >= accel_queue.last_in) return camera_queue.last_in;
-    else if(accel_queue.last_in >= gyro_queue.last_in) return accel_queue.last_in;
-    return gyro_queue.last_in;
+    std::lock_guard<std::mutex> data_guard(data_lock);
+    total_in++;
+    if(latest_seen.find(global_id) != latest_seen.end() && latest_seen[global_id] > sensor_clock::micros_to_tp(x.time_us)) {
+        //drop_late++;
+        return;
+    }
+
+    latest_seen[global_id] = sensor_clock::micros_to_tp(x.time_us);
+    queue.push_back(std::move(x));
+    if(strategy != latency_strategy::FIFO)
+        std::push_heap(queue.begin(), queue.end(), compare_sensor_data);
+
+    if(queue_count.find(global_id) == queue_count.end())
+        queue_count[global_id] = 1;
+    else
+        queue_count[global_id]++;
 }
 
-bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
+sensor_data fusion_queue::pop_queue()
 {
-    // TODO: Note that we do not handle depth data here, so if it is
-    // too far behind we may potentially drop it (by dispatching later
-    // camera / imu samples first). This is even true in
-    // ELIMINATE_DROPS, since we do not know we have a depth camera to
-    // wait for
-    if(strategy == latency_strategy::ELIMINATE_LATENCY) return true; //always dispatch if we are eliminating latency
-    
-    if(depth_queue.full() || camera_queue.full() || accel_queue.full() || gyro_queue.full()) return true;
-
-    if(strategy == latency_strategy::ELIMINATE_DROPS)
-    {
-        if(camera_queue.empty() || accel_queue.empty() || gyro_queue.empty())
-            return false;
-        return true;
+    if(strategy == latency_strategy::FIFO) {
+        sensor_data data = std::move(queue.front());
+        queue.pop_front();
+        last_dispatched = sensor_clock::micros_to_tp(data.time_us);
+        return std::move(data);
     }
-
-    // if we are constructed with IMAGE_TRIGGER, but started without
-    // wait_for_camera, we may not get camera data (e.g. when
-    // calibrating) and should switch to MINIMIZE_DROPS
-    latency_strategy dispatch_strategy = strategy;
-    if(dispatch_strategy == latency_strategy::IMAGE_TRIGGER && !wait_for_camera)
-        dispatch_strategy = latency_strategy::MINIMIZE_DROPS;
-
-    if(dispatch_strategy == latency_strategy::IMAGE_TRIGGER)
-    {
-        if(camera_queue.empty()) return false;
-        else return true;
+    else {
+        std::pop_heap(queue.begin(), queue.end(), compare_sensor_data);
+        sensor_data data = std::move(queue.back());
+        queue.pop_back();
+        last_dispatched = sensor_clock::micros_to_tp(data.time_us);
+        return std::move(data);
     }
+}
 
-    bool camera_expected = camera_queue.last_out == sensor_clock::time_point() ||
-                           time > camera_queue.last_out + camera_queue.period - std::chrono::milliseconds(1);
-    bool accel_expected  = accel_queue.last_out == sensor_clock::time_point() ||
-                           time > accel_queue.last_out + accel_queue.period - std::chrono::milliseconds(1);
-    bool gyro_expected   = gyro_queue.last_out == sensor_clock::time_point() ||
-                           time > gyro_queue.last_out + gyro_queue.period - std::chrono::milliseconds(1);
-
-    bool camera_late = sensor_clock::time_point() != camera_queue.last_out &&
-                       global_latest_received()   >= camera_queue.last_out + camera_queue.period + jitter;
-    bool accel_late  = sensor_clock::time_point() !=  accel_queue.last_out &&
-                       global_latest_received()   >=  accel_queue.last_out +  accel_queue.period + jitter;
-    bool gyro_late   = sensor_clock::time_point() !=   gyro_queue.last_out &&
-                       global_latest_received()   >=   gyro_queue.last_out +   gyro_queue.period + jitter;
-
-    // The idea of this is to start with the assumption that we are ok
-    // to dispatch and invalidate it based on queue status and the
-    // latency_strategy.
-    //
-    // If all queues have something in them we are always safe to
-    // dispatch the oldest. If a queue is empty, we will usually only
-    // dispatch if the expected item in that queue is late.
-    //
-    // In MINIMIZE_DROPS we wait for expected data to arrive, but can
-    // drop data if other data arrives with a timestamp that is
-    // earlier than its _expected time (see above).
-    //
-    // In BALANCED mode we try to minimize drops of camera packets by
-    // waiting for a camera packet before dispatching IMU data. We can
-    // still drop IMU data if it comes in later than the camera packet
-    //
-    // In all other modes, we wait for a sample to show up in a queue
-    // unless we have seen data that suggests it is "late" (last_out +
-    // period + jitter)
-    if(dispatch_strategy == latency_strategy::BALANCED) {
-        if(wait_for_camera && camera_expected && camera_queue.empty())
+bool fusion_queue::all_have_data()
+{
+    if(queue.empty()) return false;
+    for(const auto & id : required_sensors) {
+        const auto qc = queue_count.find(id);
+        if(qc == queue_count.end() || qc->second == 0) {
             return false;
-
-        if(accel_expected && accel_queue.empty()) {
-            if(wait_for_camera && camera_queue.empty())
-                return false;
-            if(!accel_late)
-                return false;
         }
-
-        if(gyro_expected && gyro_queue.empty()) {
-            if(wait_for_camera && camera_queue.empty())
-                return false;
-            if(!gyro_late)
-                return false;
-        }
-        return true;
-    }
-    else if (dispatch_strategy == latency_strategy::MINIMIZE_LATENCY) {
-        if(wait_for_camera && camera_expected && camera_queue.empty()  && !camera_late)
-            return false;
-        if(accel_expected && accel_queue.empty() && !accel_late)
-            return false;
-        if(gyro_expected && gyro_queue.empty() && !gyro_late)
-            return false;
-
-        return true;
-    }
-    else { // if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) {
-        if(wait_for_camera && camera_expected && camera_queue.empty())
-            return false;
-        if(accel_expected && accel_queue.empty())
-            return false;
-        if(gyro_expected && gyro_queue.empty())
-            return false;
-
-        return true;
     }
 
     return true;
 }
 
+bool fusion_queue::ok_to_dispatch()
+{
+    if(strategy == latency_strategy::FIFO)
+        return true;
+    else if(strategy == latency_strategy::DYNAMIC_LATENCY) {
+//        if(last_in != sensor_clock::time_point() && last_in + latency > now)
+//            return true;
+        return false;
+    }
+    else if(strategy == latency_strategy::ELIMINATE_DROPS)
+        return all_have_data();
+
+    return false;
+}
+
 bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
 {
-    sensor_clock::time_point camera_time = camera_queue.get_next_time(lock, last_dispatched);
-    sensor_clock::time_point depth_time = depth_queue.get_next_time(lock, last_dispatched);
-    sensor_clock::time_point accel_time = accel_queue.get_next_time(lock, last_dispatched);
-    sensor_clock::time_point gyro_time = gyro_queue.get_next_time(lock, last_dispatched);
-    
-    if(!depth_queue.empty() && (camera_queue.empty() || depth_time <= camera_time) && (accel_queue.empty() || depth_time <= accel_time) && (gyro_queue.empty() || depth_time <= gyro_time))
-    {
-        if(!force && !ok_to_dispatch(depth_time)) return false;
+    std::lock_guard<std::mutex> data_guard(data_lock);
 
-        image_depth16 data = depth_queue.pop(lock);
-#ifdef DEBUG
-        assert(data.timestamp >= last_dispatched);
-#endif
-        last_dispatched = data.timestamp;
-        queue_latency.data({(f_t)(global_latest_received() - last_dispatched).count()});
-        lock.unlock();
-        depth_receiver(std::move(data));
-        lock.lock();
-    }
-    else if(!camera_queue.empty() && (accel_queue.empty() || camera_time <= accel_time) && (gyro_queue.empty() || camera_time <= gyro_time))
-    {
-        if(!force && !ok_to_dispatch(camera_time)) return false;
+    if(queue.empty()) return false;
 
-        image_gray8 data = camera_queue.pop(lock);
-#ifdef DEBUG
-        assert(data.timestamp >= last_dispatched);
-#endif
-        last_dispatched = data.timestamp;
-        queue_latency.data({(f_t)(global_latest_received() - last_dispatched).count()});
-        lock.unlock();
-        camera_receiver(std::move(data));
-        
-        /* In camera_receiver:
-         receiver.process_camera(data);
-         sensor_fusion_data = receiver.get_sensor_fusion_data();
-         async([] {
-            caller.sensor_fusion_did_update(data.image_handle, sensor_fusion_data);
-            if(!keeping_image) caller.release_image_handle(data.image_handle);
-         });
-        
-         this should be dispatched asynchronously
-         implement it delegate style
-         The call to release the platform specific image handle should be independent of the callback for two cases:
-         1. Processed frame, but didn't update state (dropped)
-         2. Need to hang on the the frame in order to do something (for example, run detector)
-         */
-        lock.lock();
-    }
-    else if(!accel_queue.empty() && (gyro_queue.empty() || accel_time <= gyro_time))
-    {
-        if(!force && !ok_to_dispatch(accel_time)) return false;
-        
-        accelerometer_data data = accel_queue.pop(lock);
-#ifdef DEBUG
-        assert(data.timestamp >= last_dispatched);
-#endif
-        last_dispatched = data.timestamp;
-        queue_latency.data({(f_t)(global_latest_received() - last_dispatched).count()});
-        lock.unlock();
-        accel_receiver(std::move(data));
-        lock.lock();
-    }
-    else if(!gyro_queue.empty())
-    {
-        if(!force && !ok_to_dispatch(gyro_time)) return false;
+    if(!force && !ok_to_dispatch()) return false;
 
-        gyro_data data = gyro_queue.pop(lock);
-#ifdef DEBUG
-        assert(data.timestamp >= last_dispatched);
-#endif
-        last_dispatched = data.timestamp;
-        queue_latency.data({(f_t)(global_latest_received() - last_dispatched).count()});
-        lock.unlock();
-        gyro_receiver(std::move(data));
-        lock.lock();
-    }
-    else return false;
+    sensor_data data = pop_queue();
+
+    lock.unlock();
+    uint64_t id = data.id + data.type*MAX_SENSORS;
+    data_receiver(std::move(data));
+    queue_count[id]--;
+    if(dispatch_count.find(id) == dispatch_count.end())
+        dispatch_count[id] = 1;
+    else
+        dispatch_count[id]++;
+    total_out++;
+            
+    lock.lock();
+
     return true;
 }
 
 void fusion_queue::dispatch_singlethread(bool force)
 {
-    std::unique_lock<std::mutex> lock(mutex);
+    std::unique_lock<std::mutex> lock(control_lock);
     while(dispatch_next(lock, force)); //always be greedy - could have multiple pieces of data buffered
     lock.unlock();
 }

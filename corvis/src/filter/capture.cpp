@@ -56,7 +56,7 @@ void capture::write_gyroscope_data(uint16_t sensor_id, uint64_t timestamp, const
     free(buf);
 }
 
-void capture::write_image_raw(uint16_t sensor_id, uint64_t timestamp, const sensor_clock::duration & exposure_time, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
+void capture::write_image_raw(uint16_t sensor_id, uint64_t timestamp, uint64_t exposure_time, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
 {
     int format_size = sizeof(uint8_t);
     if(format == rc_FORMAT_DEPTH16)
@@ -70,7 +70,7 @@ void capture::write_image_raw(uint16_t sensor_id, uint64_t timestamp, const sens
     ip->width = width;
     ip->height = height;
     ip->stride = width*format_size;
-    ip->exposure_time_us = std::chrono::duration_cast<std::chrono::microseconds>(exposure_time).count();
+    ip->exposure_time_us = exposure_time;
     ip->format = format;
     for(int y = 0 ; y < height; ++y)
     {
@@ -81,32 +81,30 @@ void capture::write_image_raw(uint16_t sensor_id, uint64_t timestamp, const sens
     free(buf);
 }
 
-void capture::write_camera(uint16_t sensor_id, image_gray8 &&data)
+void capture::write_camera(uint16_t sensor_id, std::unique_ptr<sensor_data> data)
 {
-    process(std::packaged_task<void()>([this, sensor_id, data=std::move(data)]() {
-        write_image_raw(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_GRAY8);
-    }));
+    if(data->type == rc_SENSOR_TYPE_IMAGE)
+        process(std::packaged_task<void()>(std::bind([this, sensor_id](std::unique_ptr<sensor_data> & data) {
+            write_image_raw(sensor_id, data->time_us, data->image.shutter_time_us, (uint8_t *)data->image.image, data->image.width, data->image.height, data->image.stride, rc_FORMAT_GRAY8);
+        }, std::move(data))));
+    else
+        process(std::packaged_task<void()>(std::bind([this, sensor_id](std::unique_ptr<sensor_data> & data) {
+            write_image_raw(sensor_id, data->time_us, data->depth.shutter_time_us, (uint8_t *)data->depth.image, data->depth.width, data->depth.height, data->depth.stride, rc_FORMAT_DEPTH16);
+        }, std::move(data))));
 }
 
-void capture::write_camera(uint16_t sensor_id, image_depth16 &&data)
+void capture::write_accelerometer(uint16_t sensor_id, std::unique_ptr<sensor_data> data)
 {
-    process(std::packaged_task<void()>([this, sensor_id, data=std::move(data)]() {
-        write_image_raw(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.exposure_time, (uint8_t *)data.image, data.width, data.height, data.stride, rc_FORMAT_DEPTH16);
-    }));
+    process(std::packaged_task<void()>(std::bind([this, sensor_id](std::unique_ptr<sensor_data> & data) {
+        write_accelerometer_data(sensor_id, data->time_us, data->acceleration_m__s2.v);
+    }, std::move(data))));
 }
 
-void capture::write_accelerometer(uint16_t sensor_id, accelerometer_data &&data)
+void capture::write_gyro(uint16_t sensor_id, std::unique_ptr<sensor_data> data)
 {
-    process(std::packaged_task<void()>([this, sensor_id, data=std::move(data)]() {
-        write_accelerometer_data(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.acceleration_m__s2);
-    }));
-}
-
-void capture::write_gyro(uint16_t sensor_id, gyro_data &&data)
-{
-    process(std::packaged_task<void()>([this, sensor_id, data=std::move(data)]() {
-        write_gyroscope_data(sensor_id, sensor_clock::tp_to_micros(data.timestamp), data.angular_velocity_rad__s);
-    }));
+    process(std::packaged_task<void()>(std::bind([this, sensor_id](std::unique_ptr<sensor_data> & data) {
+        write_gyroscope_data(sensor_id, data->time_us, data->angular_velocity_rad__s.v);
+    }, std::move(data))));
 }
 
 void capture::process(std::packaged_task<void()> &&write) {

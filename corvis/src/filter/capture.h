@@ -37,17 +37,16 @@ private:
     void write_packet(packet_t * p);
     void write_accelerometer_data(uint16_t sensor_id, uint64_t timestamp, const float data[3]);
     void write_gyroscope_data(uint16_t sensor_id, uint64_t timestamp, const float data[3]);
-    void write_image_raw(uint16_t sensor_id, uint64_t timestamp, const sensor_clock::duration & exposure_time,
+    void write_image_raw(uint16_t sensor_id, uint64_t timestamp, uint64_t exposure_time,
             const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format);
 
 public:
     bool start(const char *name, bool threaded);
     bool started() { return started_; }
     void stop();
-    void write_camera(uint16_t sensor_id, image_gray8&& x);
-    void write_camera(uint16_t sensor_id, image_depth16&& x);
-    void write_accelerometer(uint16_t sensor_id, accelerometer_data&& x);
-    void write_gyro(uint16_t sensor_id, gyro_data&& x);
+    void write_camera(uint16_t sensor_id, std::unique_ptr<sensor_data> x);
+    void write_accelerometer(uint16_t sensor_id, std::unique_ptr<sensor_data> x);
+    void write_gyro(uint16_t sensor_id, std::unique_ptr<sensor_data> x);
     uint64_t get_bytes_written() { return bytes_written; }
     uint64_t get_packets_written() { return packets_written; }
     ~capture() { stop(); }

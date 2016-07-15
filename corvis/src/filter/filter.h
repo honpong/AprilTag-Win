@@ -12,6 +12,7 @@
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/sensor_data.h"
 #include "spdlog/spdlog.h"
+#include "rc_compat.h"
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -69,7 +70,7 @@ struct filter {
     observation_queue observations;
     
     camera_control_interface camera_control; //TODOMSM - per camera, but possibly deprecate
-    image_depth16 recent_depth; //TODOMSM - per depth
+    std::unique_ptr<sensor_data> recent_depth; //TODOMSM - per depth
     bool has_depth; //TODOMSM - per depth
 
     std::vector<std::unique_ptr<sensor_grey>> cameras;
@@ -84,10 +85,10 @@ struct filter {
     std::chrono::duration<float, milli> accel_timer, gyro_timer, image_timer;
 };
 
-bool filter_depth_measurement(struct filter *f, const image_depth16 & depth);
-bool filter_image_measurement(struct filter *f, const image_gray8 & image);
-bool filter_accelerometer_measurement(struct filter *f, const accelerometer_data &data);
-bool filter_gyroscope_measurement(struct filter *f, const gyro_data &data);
+bool filter_depth_measurement(struct filter *f, const sensor_data & data);
+bool filter_image_measurement(struct filter *f, const sensor_data & data);
+bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
+bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
@@ -104,7 +105,7 @@ extern "C" void filter_initialize(struct filter *f);
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
 
-std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct filter *f, const image_depth16 &depth);
-std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter *f, const image_depth16 &depth, const image_gray8 & image);
+std::unique_ptr<sensor_data> filter_aligned_depth_to_intrinsics(const struct filter *f, const sensor_data & depth);
+//std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter *f, const image_depth16 &depth, const image_gray8 & image);
 
 #endif

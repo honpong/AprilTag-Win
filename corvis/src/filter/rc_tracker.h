@@ -103,10 +103,10 @@ typedef uint16_t rc_Sensor;
 
 typedef enum rc_SensorType
 {
-    rc_SENSOR_TYPE_ACCELEROMETER = 0,
-    rc_SENSOR_TYPE_GYROSCOPE = 1,
-    rc_SENSOR_TYPE_IMAGE = 2,
-    rc_SENSOR_TYPE_DEPTH = 3,
+    rc_SENSOR_TYPE_GYROSCOPE = 0,
+    rc_SENSOR_TYPE_ACCELEROMETER = 1,
+    rc_SENSOR_TYPE_DEPTH = 2,
+    rc_SENSOR_TYPE_IMAGE = 3,
 } rc_SensorType;
 
 typedef struct rc_Feature

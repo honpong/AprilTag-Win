@@ -43,7 +43,7 @@ public:
         bool initialized;
     };
     
-    std::function<void(const rc_Data *)> data_callback;
+    std::function<void(const sensor_data *)> data_callback;
     std::function<void(status)> status_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
@@ -97,28 +97,11 @@ public:
      */
     void reset(sensor_clock::time_point time);
     
-    /** Once sensor fusion has started, video frames should be passed
-     in as they are received from the camera. The camera is implied
-     by the image format. image_gray8 is a an rgb or fisheye camera
-     in grayscale, and image_depth16 is a depth image.
-     @param data The image data
+    /** Once sensor fusion has started, all data is passed via
+     * std::move through receive_data
+     @param data The image/depth/gyro/accelerometer data
      */
-    void receive_image(image_gray8 &&data);
-    void receive_image(image_depth16 &&data);
-    
-    /** Once sensor fusion has started, acceleration data should be passed in as it's received from the accelerometer.
-     @param x Acceleration along the x axis, in m/s^2
-     @param y Acceleration along the y axis, in m/s^2
-     @param z Acceleration along the z axis, in m/s^2
-     */
-    void receive_accelerometer(accelerometer_data &&data);
-    
-    /** Once sensor fusion has started, angular velocity data should be passed in as it's received from the gyro.
-     @param x Angular velocity around the x axis, in rad/s
-     @param y Angular velocity around the y axis, in rad/s
-     @param z Angular velocity around the z axis, in rad/s
-     */
-    void receive_gyro(gyro_data &&data);
+    void receive_data(sensor_data && data);
     
     void start_mapping();
     void stop_mapping();
@@ -167,6 +150,7 @@ public:
     //void stop_qr_detection();
     
     std::string get_timing_stats() { return queue->get_stats(); };
+    std::unique_ptr<fusion_queue> queue;
 
     //public for now
     filter sfm;
@@ -180,10 +164,8 @@ private:
     friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere
     RCSensorFusionErrorCode get_error();
     void update_status();
-    void update_data(const rc_Data * data);
-    void update_image_data(image_gray8 &&data);
+    void update_data(const sensor_data * data);
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning, processingVideoRequested;
-    std::unique_ptr<fusion_queue> queue;
     status last_status;
     bool threaded;
     

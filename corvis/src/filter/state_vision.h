@@ -198,7 +198,7 @@ class state_vision_group: public state_branch<state_node *> {
     state_vision_group(const state_vision_group &other);
     state_vision_group(uint64_t group_id);
     void make_empty();
-    int process_features(const image_gray8 &image, mapper & map, bool map_enabled);
+    int process_features(const rc_ImageData &image, mapper & map, bool map_enabled);
     int make_reference();
     int make_normal();
     static f_t ref_noise;
@@ -241,7 +241,7 @@ public:
     
     state_vision(covariance &c);
     ~state_vision();
-    int process_features(const image_gray8 &image, sensor_clock::time_point time);
+    int process_features(const rc_ImageData &image, sensor_clock::time_point time);
     state_vision_feature *add_feature(const feature_t & initial);
     state_vision_group *add_group(sensor_clock::time_point time);
     transformation get_transformation() const;
@@ -253,7 +253,7 @@ public:
     transformation loop_offset;
     bool loop_closed{false};
     
-    void update_feature_tracks(const image_gray8 &image);
+    void update_feature_tracks(const rc_ImageData &image);
     float median_depth_variance();
     
     virtual void reset();

@@ -132,12 +132,6 @@ void replay::enable_status_output()
         std::cerr << "state = " << state << " error = " << error << " confidence = " << confidence << " progress = " << progress << "\n";
     }, this);
 }
-void replay::enable_log_output(bool stream, rc_Timestamp period_us)
-{
-    rc_setLog(tracker, [](void *handle, const char *buffer_utf8, size_t length) {
-        std::cerr << buffer_utf8 << "\n";
-    }, stream, period_us, this);
-}
 
 template <int by_x, int by_y>
 static void scale_down_inplace_y8_by(uint8_t *image, int final_width, int final_height, int stride) {

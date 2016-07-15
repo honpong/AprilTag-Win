@@ -360,28 +360,3 @@ void sensor_fusion::receive_gyro(gyro_data &&data)
 
     queue->receive_gyro(std::move(data));
 }
-
-static sensor_clock::time_point last_log;
-
-// TODO: call trigger_log when we update position if stream is enabled
-// or if period has expired (the SOW also mentions a trigger condition
-// I think?)
-void sensor_fusion::trigger_log() const
-{
-    if(!log_function) return;
-
-    last_log = sfm.last_time;
-
-    transformation transform = get_transformation();
-    
-    m3 R = transform.Q.toRotationMatrix();
-    v3 T = transform.T;
-
-    std::stringstream s(std::stringstream::out);
-    s << sfm.last_time.time_since_epoch().count() << " " << " " <<
-            R(0, 0) << " " << R(0, 1) << " " << R(0, 2) << " " << T(0) << " " <<
-            R(1, 0) << " " << R(1, 1) << " " << R(1, 2) << " " << T(1) << " " <<
-            R(2, 0) << " " << R(2, 1) << " " << R(2, 2) << " " << T(2);
-
-    log_function(log_handle, s.str().c_str(), s.str().length());
-}

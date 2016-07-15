@@ -579,7 +579,6 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
     else
         return false;
 
-    tracker->trigger_log();
     return true;
 }
 
@@ -673,18 +672,6 @@ float rc_getProgress(const rc_Tracker *tracker)
 {
     if(trace) trace_log->info("rc_getProgress");
     return filter_converged(&tracker->sfm);
-}
-
-void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_us, void *handle)
-{
-    if(trace) trace_log->info("rc_setLog");
-    tracker->set_log_function(log, stream, std::chrono::duration_cast<sensor_clock::duration>(std::chrono::microseconds(period_us)), handle);
-}
-
-void rc_triggerLog(const rc_Tracker * tracker)
-{
-    if(trace) trace_log->info("rc_triggerLog");
-    tracker->trigger_log();
 }
 
 bool rc_setOutputLog(rc_Tracker * tracker, const char *filename, rc_TrackerRunFlags run_flags)

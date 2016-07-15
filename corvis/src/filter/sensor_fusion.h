@@ -175,29 +175,6 @@ public:
      */
     //void stop_qr_detection();
     
-    /** Sets the log function to log the position periodically
-
-        @param log The function to call with output should take:
-            void * handle - any data the callback will need
-            char * buffer_utf8 - The data which is to be written, in the format of http://vision.in.tum.de/data/datasets/rgbd-dataset/file_formats
-            size_t length - how many bytes to be written
-
-        @param stream - If true, log every calculated output pose
-        @param period - If non-zero, log each calculated pose when it has been period or more since the last pose was logged
-        @param handle - A void * that will be passed to the logging function each time
-    */
-
-    void set_log_function(std::function<void (void *, const char *, size_t)> log, bool stream, sensor_clock::duration period, void * handle)
-    {
-        log_stream = stream;
-        log_period = period;
-        log_handle = handle;
-        log_function = log;
-    };
-
-    /** Immediately output a position via the log function */
-    void trigger_log() const;
-
     std::string get_timing_stats() { return queue->get_stats(); };
 
     //public for now
@@ -229,11 +206,7 @@ private:
     
     void flush_and_reset();
 
-    std::function<void (void *, const char *, size_t)> log_function;
-    void * log_handle;
-    bool log_stream;
     bool buffering = true;
-    sensor_clock::duration log_period;
 };
 
 #endif /* defined(__RC3DK__sensor_fusion__) */

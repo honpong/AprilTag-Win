@@ -38,7 +38,6 @@ public:
     const char * get_version() { return rc_version(); }
     void enable_pose_output();
     void enable_status_output();
-    void enable_log_output(bool stream, rc_Timestamp period_us);
 };
 
 };

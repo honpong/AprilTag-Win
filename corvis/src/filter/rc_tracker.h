@@ -337,20 +337,6 @@ RCTRACKER_API rc_TrackerError rc_getError(const rc_Tracker *tracker);
 RCTRACKER_API float rc_getProgress(const rc_Tracker *tracker);
 
 /**
- @param tracker The active rc_Tracker instance
- @param log The function to call with output
- @param stream If true, log every calculated output pose
- @param period_us If non-zero, log each calculated pose when it has been period_us microseconds or more since the last pose was logged
- @param handle Token to pass to log callback
- */
-RCTRACKER_API void rc_setLog(rc_Tracker *tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_us, void *handle);
-
-/**
- Immediately outputs the last calculated pose
- */
-RCTRACKER_API void rc_triggerLog(const rc_Tracker *tracker);
-
-/**
  Returns a string with statistics on sensor timing
  */
 RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);

@@ -4,6 +4,8 @@ set(PACKAGE_NAME "corvis")
 
 project(${PACKAGE_NAME} C CXX)
 
+list(APPEND CMAKE_PREFIX_PATH ../cmake)
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL Clang AND EXISTS /usr/include/c++/v1)
   include_directories(BEFORE SYSTEM /usr/include/c++/v1)
   link_libraries(c++)
@@ -58,15 +60,13 @@ add_executable(rc_replay src/tools/rc_replay.cpp src/tracker/rc_replay.cpp)
 set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
 target_link_libraries(rc_replay tracker)
 
-if(MMSD_ALLOY_ROOT)
-    set(MMSD_ALLOY_ROOT ${MMSD_ALLOY_ROOT} CACHE PATH "")
-    add_subdirectory(../ThirdParty/motionapi motionapi)
-
+find_package(alloy)
+if (TARGET alloy)
     add_executable(rc_calibrate
         src/tools/rc_calibrate.cpp
     )
     set_property(TARGET rc_calibrate PROPERTY CXX_STANDARD 14)
-    target_link_libraries(rc_calibrate motionapi tracker)
+    target_link_libraries(rc_calibrate alloy tracker)
 endif()
 
 if(YES)

@@ -15,10 +15,12 @@ namespace rc {
     {
         rc_Tracker *rc;
         motion::MotionDevice *md;
+        rc_Sensor accel_id, gyro_id, camera_id;
       public:
         operator bool() { return !!md; }
-        sensor_listener(rc_Tracker *rc_, int instance) : rc(rc_) {
-            md = motion::MotionDeviceManager::instance()->connect(this, instance); if (!md) return;
+        sensor_listener(rc_Tracker *rc_, int base_sensor_id, int motion_instance) : rc(rc_),
+            accel_id(base_sensor_id), gyro_id(base_sensor_id), camera_id(base_sensor_id) {
+            md = motion::MotionDeviceManager::instance()->connect(this, motion_instance); if (!md) return;
 
             motion::MotionProfile profile = {};
             profile.imuBufferDepth = 1;
@@ -50,19 +52,17 @@ namespace rc {
       protected:
         void sensorCallback(motion::MotionSensorFrame *frame, int numFrames)
         {
-            int sensor_id = 0;
             for (int i=0; i< numFrames; i++)
                 switch(frame[i].header.type) {
-                    case motion::MOTION_SOURCE_GYRO:  rc_receiveGyro         (rc, sensor_id, frame[i].header.timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
-                    case motion::MOTION_SOURCE_ACCEL: rc_receiveAccelerometer(rc, sensor_id, frame[i].header.timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
+                    case motion::MOTION_SOURCE_GYRO:  rc_receiveGyro         (rc, gyro_id,  frame[i].header.timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
+                    case motion::MOTION_SOURCE_ACCEL: rc_receiveAccelerometer(rc, accel_id, frame[i].header.timestamp/1000, rc_Vector{frame[i].x, frame[i].y, frame[i].z}); break;
                 }
         }
 
         void fisheyeCallback(motion::MotionFisheyeFrame *f)
         {
-            int sensor_id = 0;
             struct ctx { motion::MotionDevice *md; motion::MotionFisheyeFrame *f; };
-            rc_receiveImage(rc, sensor_id, rc_FORMAT_GRAY8, f->header.timestamp/1000, f->exposure/1000,
+            rc_receiveImage(rc, camera_id, rc_FORMAT_GRAY8, f->header.timestamp/1000, f->exposure/1000,
                             f->width, f->height, f->stride, f->data,
                             [](void*ctx_){ auto ctx = (struct ctx*)ctx_; ctx->md->returnFisheyeBuffer(ctx->f); delete ctx; },
                             (void*)new ctx{md, f});

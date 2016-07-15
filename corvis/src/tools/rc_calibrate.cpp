@@ -195,7 +195,7 @@ int main(int c, char **v) {
         rc_startCalibration(rc, rc_E_ASYNCHRONOUS);
 
     {
-        rc::sensor_listener sl(rc, device_id);
+        rc::sensor_listener sl(rc, 0, device_id);
         if (!sl) {
             fprintf(stderr, "unable to connect to the motionservice\n");
             return 1;

@@ -887,6 +887,7 @@ extern "C" void filter_initialize(struct filter *f)
     //changing these two doesn't affect much.
     f->min_group_add = 16;
     f->max_group_add = 40;
+    f->has_depth = false;
 
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;

@@ -1,6 +1,7 @@
 #include "rc_tracker.h"
 #include "rc_sensor_listener.h"
 
+#include <sys/stat.h>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -37,10 +38,11 @@ int main(int c, char **v) {
         return 1;
     }
 
+    auto if_exist = [](const char *d, const char *f=nullptr) -> const char * { struct stat st; return stat(d,&st) != 0 ? nullptr : f ? f : d; };
     const char *capture_file = nullptr;
     const char *calibration_load = nullptr,
-        *calibration_save = "/sdcard/config/calibration.json",
-        *calibration_xml = "/sdcard/config/calibration.xml";
+        *calibration_save = if_exist("/sdcard/config", "/sdcard/config/calibration.json"),
+        *calibration_xml = if_exist("/sdcard/config/calibration.xml");
     bool drop_depth = false;
     std::set<int> device_ids;
 

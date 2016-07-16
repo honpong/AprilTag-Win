@@ -60,7 +60,7 @@ add_executable(rc_replay src/tools/rc_replay.cpp src/tracker/rc_replay.cpp)
 set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
 target_link_libraries(rc_replay tracker)
 
-find_package(alloy)
+find_package(alloy QUIET)
 if (TARGET alloy)
     add_executable(rc_calibrate
         src/tools/rc_calibrate.cpp

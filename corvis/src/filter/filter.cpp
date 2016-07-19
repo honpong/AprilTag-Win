@@ -431,14 +431,15 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
 
     f->observations.observations.push_back(std::move(obs_a));
 
-    if(show_tuning) fprintf(stderr, "accelerometer:\n");
+    if(show_tuning) fprintf(stderr, "\naccelerometer:\n");
     preprocess_observation_queue(f, data.timestamp);
     process_observation_queue(f);
     if(show_tuning) {
-        for (auto &a : f->accelerometers)
-            cerr << " actual innov stdev is:\n" << a->inn_stdev <<
-                    " signal stdev is:\n"       << a->meas_stdev << " bias is:\n" <<
-                f->s.imu_intrinsics.a_bias.v << f->s.imu_intrinsics.a_bias.variance();
+        cerr << " meas   " << meas << "\n"
+             << " innov  " << accelerometer.inn_stdev
+             << " signal "       << accelerometer.meas_stdev
+            // FIXME: these should be for this accelerometer->
+             << " bias is: " << f->s.imu_intrinsics.a_bias.v << " stdev is: " << f->s.imu_intrinsics.a_bias.variance().array().sqrt() << "\n";
     }
 
     if(!f->gravity_init) {
@@ -491,15 +492,15 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
         f->gyro_stability.data(meas);
     }
 
-    if(show_tuning) fprintf(stderr, "gyroscope:\n");
+    if(show_tuning) fprintf(stderr, "\ngyroscope:\n");
     preprocess_observation_queue(f, data.timestamp);
     process_observation_queue(f);
     if(show_tuning) {
-        for (auto &g : f->gyroscopes)
-            cerr << " actual innov stdev is:\n" <<
-                g->inn_stdev << " signal stdev is:\n" <<
-                g->meas_stdev << " bias is:\n" <<
-                f->s.imu_intrinsics.w_bias.v << f->s.imu_intrinsics.w_bias.variance();
+        cerr << " meas   " << meas << "\n"
+             << " innov  " << gyroscope.inn_stdev
+             << " signal " << gyroscope.meas_stdev
+            // FIXME: these should be for this gyroscope->
+             << " bias " << f->s.imu_intrinsics.w_bias.v << " stdev is: " << f->s.imu_intrinsics.w_bias.variance().array().sqrt() << "\n";
     }
 
     auto stop = std::chrono::steady_clock::now();
@@ -821,14 +822,14 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     filter_setup_next_frame(f, image);
 
     if(show_tuning) {
-        fprintf(stderr, "vision:\n");
+        fprintf(stderr, "\nvision:\n");
     }
     preprocess_observation_queue(f, time);
     f->s.update_feature_tracks(image);
     process_observation_queue(f);
     if(show_tuning) {
         for (auto &c : f->cameras)
-            cerr << " actual innov stdev is:\n" << c->inn_stdev << "\n";
+            cerr << " innov  " << c->inn_stdev << "\n";
     }
 
     int features_used = f->s.process_features(image, time);

@@ -100,6 +100,8 @@ void state_motion::remove_non_orientation_states()
     V.reset();
     remove_child(&a);
     a.reset();
+    remove_child(&da);
+    da.reset();
 }
 
 void state_motion::add_non_orientation_states()
@@ -107,6 +109,7 @@ void state_motion::add_non_orientation_states()
     children.push_back(&T);
     children.push_back(&V);
     children.push_back(&a);
+    children.push_back(&da);
 }
 
 void state_motion::enable_orientation_only()

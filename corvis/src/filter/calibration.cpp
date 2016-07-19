@@ -441,7 +441,7 @@ bool copy_json_to_calibration(Value & json, calibration & cal)
 
     cal.device_id = json[KEY_DEVICE_ID].GetString();
     cal.device_type = json[KEY_DEVICE_TYPE].GetString();
-    cal.version = json[KEY_DEVICE_TYPE].GetInt();
+    cal.version = json[KEY_VERSION].GetInt();
     if(!copy_json_to_cameras(json[KEY_CAMERAS], cal.cameras))
         return false;
 

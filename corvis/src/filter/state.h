@@ -46,7 +46,7 @@ public:
     virtual ~state_node() {};
     enum class node_type { dynamic, regular, fake } type;
     virtual void copy_state_to_array(matrix &state) = 0;
-    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) = 0;
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
     virtual int remap(int i, covariance &cov, node_type nt) = 0;
     virtual void reset() = 0;
@@ -72,7 +72,7 @@ public:
             c->copy_state_from_array(state);
     }
 
-    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         for(T c : children)
             c->print_matrix_with_state_labels(state, nt);
     }
@@ -135,7 +135,7 @@ public:
         return statesize;
     }
     
-    void print_matrix_with_state_labels(matrix &state) {
+    void print_matrix_with_state_labels(matrix &state) const {
         if(state.rows() >= dynamic_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::dynamic);
         if(state.rows() >= statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::regular);
         if(state.rows() >= statesize + fake_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::fake);
@@ -338,7 +338,7 @@ public:
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
 
-    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         if(type != nt) return;
         fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
         fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
@@ -398,7 +398,7 @@ public:
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
 
-    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         if(type != nt) return;
         fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
         fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
@@ -458,7 +458,7 @@ public:
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
     
-    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         if(type != nt) return;
         fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
         fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
@@ -524,7 +524,7 @@ class state_scalar: public state_leaf<f_t, 1> {
         return s << name << ": " << v << "±" << std::sqrt(variance());
     }
     
-    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         if(type != nt) return;
         fprintf(stderr, "%s: ", name); state.row(index).print();
     }

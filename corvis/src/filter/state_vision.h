@@ -169,7 +169,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
         v.v = state[index];
     }
     
-    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) {
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         if(type != nt) return;
         fprintf(stderr, "feature[%" PRIu64 "]: ", id); state.row(index+0).print();
     }

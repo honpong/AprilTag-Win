@@ -43,6 +43,7 @@ while header_str != "":
           print "\t", ptype, sensor_id, x, y, z
   if ptype == image_raw_type:
       (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
+      ptime += exposure/2
       type_str = format_types[camera_format]
       packet_str += "_" + type_str
       if args.verbose:

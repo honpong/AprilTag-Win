@@ -14,6 +14,8 @@ parser.add_argument("-e", "--exceptions", action='store_true',
         help="Print details when sample dt is more than 5%% away from the mean")
 parser.add_argument("-w", "--warnings", action='store_true',
         help="Print details when multiple image frames arrive without an imu frame in between")
+parser.add_argument("-x", "--exposure_warnings", action='store_true',
+        help="Print details when exposure times are less than 1ms or greater than 50ms")
 parser.add_argument("capture_filename")
 
 args = parser.parse_args()
@@ -28,6 +30,7 @@ header_size = 16
 header_str = f.read(header_size)
 prev_packet_str = ""
 warnings = defaultdict(list)
+exposure_warnings = defaultdict(list)
 while header_str != "":
   (pbytes, ptype, sensor_id, ptime) = unpack('IHHQ', header_str)
   packet_str = packet_types[ptype] + "_" + str(sensor_id)
@@ -43,12 +46,14 @@ while header_str != "":
           print "\t", ptype, sensor_id, x, y, z
   if ptype == image_raw_type:
       (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
-      ptime += exposure/2
       type_str = format_types[camera_format]
       packet_str += "_" + type_str
       if args.verbose:
           camera_str = "%s %d (%d) %dx%d, %d stride, %d exposure" % (type_str, sensor_id, camera_format, width, height, stride, exposure)
           print "\t", camera_str
+      if exposure < 1000 or exposure > 50000:
+          exposure_warnings[packet_str].append((ptime, exposure))
+      ptime += exposure/2
   if packet_str == "":
       packet_str = str(ptype)
   packets[packet_str].append(int(ptime))
@@ -93,6 +98,8 @@ for packet_type in sorted(packets.keys()):
   print len(exceptions), "samples are more than 5% from mean"
   if len(warnings[packet_type]):
       print len(warnings[packet_type]), "latency warnings"
+  if len(exposure_warnings[packet_type]):
+      print len(exposure_warnings[packet_type]), "exposure warnings"
   if args.exceptions:
       for e in exceptions:
           print "Exception: t t+1 delta", timestamps[e], timestamps[e+1], deltas[e]
@@ -100,4 +107,7 @@ for packet_type in sorted(packets.keys()):
       compressed_warnings = compress_warnings(warnings[packet_type])
       for w in compressed_warnings:
           print "Warning: ", len(w), "images at timestamps:", w
+  if args.exposure_warnings:
+      for w in exposure_warnings[packet_type]:
+          print "Warning: Image at", w[0], "had exposure of", w[1], "microseconds"
   print ""

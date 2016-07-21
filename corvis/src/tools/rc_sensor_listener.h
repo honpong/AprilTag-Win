@@ -68,8 +68,9 @@ namespace rc {
         void fisheyeCallback(motion::MotionFisheyeFrame *f)
         {
             struct ctx { motion::MotionDevice *md; motion::MotionFisheyeFrame *f; };
+            auto exposure_us = std::max<uint64_t>(0, f->exposure*1000); /* ms to us */
             rc_receiveImage(rc, camera_id, rc_FORMAT_GRAY8,
-                            f->header.timestamp/1000 /* ns to us */ - std::max<uint64_t>(0,f->exposure)*1000/2 /* ms to us */, f->exposure*1000 /* ms to us */,
+                            f->header.timestamp/1000 /* ns to us */ - exposure_us/2, exposure_us/2,
                             f->width, f->height, f->stride, f->data,
                             [](void*ctx_){ auto ctx = (struct ctx*)ctx_; ctx->md->returnFisheyeBuffer(ctx->f); delete ctx; },
                             (void*)new ctx{md, f});

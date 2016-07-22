@@ -23,6 +23,7 @@ args = parser.parse_args()
 accel_type = 20
 gyro_type = 21
 image_raw_type = 29
+got_types = defaultdict(int)
 
 packets = defaultdict(list)
 f = open(args.capture_filename)
@@ -33,6 +34,7 @@ warnings = defaultdict(list)
 exposure_warnings = defaultdict(list)
 while header_str != "":
   (pbytes, ptype, sensor_id, ptime) = unpack('IHHQ', header_str)
+  got_types[ptype] += 1
   packet_str = packet_types[ptype] + "_" + str(sensor_id)
   if ptype == 1:
     ptime += 16667
@@ -111,3 +113,10 @@ for packet_type in sorted(packets.keys()):
       for w in exposure_warnings[packet_type]:
           print "Warning: Image at", w[0], "had exposure of", w[1], "microseconds"
   print ""
+
+if got_types[accel_type] == 0:
+    print "Error: Never received any accelerometer data"
+if got_types[gyro_type] == 0:
+    print "Error: Never received any gyro data"
+if got_types[image_raw_type] == 0:
+    print "Error: Never received any image data"

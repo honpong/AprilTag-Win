@@ -52,7 +52,7 @@ replay::replay(bool start_paused): is_paused(start_paused)
 bool replay::open(const char *name)
 {
     file.open(name, ios::binary);
-    if(file.bad())
+    if(!file.is_open())
     {
         cerr << "Couldn't open file " << name << " for reading.\n";
         return false;

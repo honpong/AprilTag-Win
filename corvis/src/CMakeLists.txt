@@ -191,7 +191,7 @@ if (RC_VERSION)
   set(RC_VERSION ${RC_VERSION} CACHE STRING "RC Tracker Release Numeric Version")
   target_compile_definitions(tracker PRIVATE RC_VERSION=${RC_VERSION})
 endif()
-exec_program(git ARGS describe --match "intel_v*" HEAD OUTPUT_VARIABLE GIT_DESCRIPTION)
+exec_program(git ARGS describe --tags --match "intel_v*" HEAD OUTPUT_VARIABLE GIT_DESCRIPTION)
 target_compile_definitions(tracker PRIVATE RC_BUILD=${GIT_DESCRIPTION})
 
 

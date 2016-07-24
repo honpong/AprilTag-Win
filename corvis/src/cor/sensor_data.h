@@ -52,6 +52,7 @@ public:
         image_data_type res;
         res.source = this->source;
         res.timestamp = this->timestamp;
+        res.exposure_time = this->exposure_time;
         res.width = width;
         res.height = height;
         res.stride = stride;

@@ -949,14 +949,16 @@ extern "C" void filter_initialize(struct filter *f)
     assert(f->cameras.size() && f->accelerometers.size() && f->gyroscopes.size());
     auto cam_extrinsics = f->cameras[0]->extrinsics;
     auto cam_intrinsics = f->cameras[0]->intrinsics;
+    auto imu_extrinsics = f->accelerometers[0]->extrinsics;
     auto accel = f->accelerometers[0]->intrinsics; 
-    auto gyro = f->gyroscopes[0]->intrinsics; 
+    auto gyro = f->gyroscopes[0]->intrinsics;
 
     f->w_variance = gyro.measurement_variance_rad2__s2;
     f->a_variance = accel.measurement_variance_m2__s4;
 
-    f->s.extrinsics.Tc.v = cam_extrinsics.mean.T;
-    f->s.extrinsics.Qc.v = cam_extrinsics.mean.Q;
+    transformation camera_wrt_imu = cam_extrinsics.mean*invert(imu_extrinsics.mean);
+    f->s.extrinsics.Tc.v = camera_wrt_imu.T;
+    f->s.extrinsics.Qc.v = camera_wrt_imu.Q;
 
     f->s.extrinsics.Qc.set_initial_variance(cam_extrinsics.variance.Q[0], cam_extrinsics.variance.Q[1], cam_extrinsics.variance.Q[2]);
     f->s.extrinsics.Tc.set_initial_variance(cam_extrinsics.variance.T[0], cam_extrinsics.variance.T[1], cam_extrinsics.variance.T[2]);

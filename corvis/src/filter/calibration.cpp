@@ -43,6 +43,21 @@ sensor_calibration_camera calibration_convert_camera(const struct calibration_xm
     return sensor_calibration_camera(extrinsics, legacy_camera.intrinsics);
 }
 
+void calibration_convert_to_camera_origin(rc_Extrinsics & camera_to_body, rc_Extrinsics & imu_to_body)
+{
+    transformation camera_to_imu(rotation_vector(camera_to_body.W.x, camera_to_body.W.y, camera_to_body.W.z),
+                                 v_map(camera_to_body.T.v));
+    auto imu_to_camera = invert(camera_to_imu);
+
+    imu_to_body = camera_to_body;
+    v_map(imu_to_body.T.v) = imu_to_camera.T;
+    v_map(imu_to_body.W.v) = to_rotation_vector(imu_to_camera.Q).raw_vector();
+
+    camera_to_body = rc_Extrinsics({0});
+    camera_to_body.T_variance = imu_to_body.T_variance;
+    camera_to_body.W_variance = imu_to_body.W_variance;
+}
+
 bool calibration_convert(const calibration_json &cal, calibration &cal_output)
 {
     cal_output.version = CALIBRATION_VERSION;
@@ -51,9 +66,15 @@ bool calibration_convert(const calibration_json &cal, calibration &cal_output)
     if(cal.color.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN)
         cal_output.cameras.push_back(calibration_convert_camera(cal.color));
 
+    if(!cal_output.cameras.size()) return false;
+
+    cal_output.imus.push_back(calibration_convert_imu(cal.imu));
+
+    calibration_convert_to_camera_origin(cal_output.cameras[0].extrinsics, cal_output.imus[0].extrinsics);
+
     //TODO: Warning, this always creates a default depth camera
     if(cal.depth.intrinsics.type == rc_CALIBRATION_TYPE_UNKNOWN) {
-        sensor_calibration_depth depth_cam = calibration_convert_camera(cal.color);
+        sensor_calibration_depth depth_cam = cal_output.cameras[0];
         depth_cam.intrinsics = cal.depth.intrinsics;
         depth_cam.intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
         cal_output.depths.push_back(depth_cam);
@@ -62,10 +83,6 @@ bool calibration_convert(const calibration_json &cal, calibration &cal_output)
         sensor_calibration_depth depth_cam = calibration_convert_camera(cal.depth);
         cal_output.depths.push_back(depth_cam);
     }
-
-    if(!cal_output.cameras.size()) return false;
-
-    cal_output.imus.push_back(calibration_convert_imu(cal.imu));
 
     return true;
 }

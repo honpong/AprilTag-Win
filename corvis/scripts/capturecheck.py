@@ -3,6 +3,7 @@ from struct import *
 from collections import defaultdict
 import numpy
 import argparse
+from math import sqrt
 
 packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 29:"image_raw"})
 format_types = defaultdict(str, {0:"Y8", 1:"Z16_mm"})
@@ -45,7 +46,7 @@ while header_str != "":
       # packets are padded to 8 byte boundary
       (x, y, z) = unpack('fff', data[:12])
       if args.verbose:
-          print "\t", ptype, sensor_id, x, y, z
+          print "\t", ptype, sensor_id, x, y, z, sqrt(x*x + y*y + z*z)
   if ptype == image_raw_type:
       (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
       type_str = format_types[camera_format]

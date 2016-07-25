@@ -4,19 +4,20 @@
 #include "quaternion.h"
 #include "utils.h"
 
-static void check_initial_orientation_from_gravity(const v3 &gravity, const v3 &facing)
+static void check_initial_orientation_from_gravity(const v3 &world_up,     const v3 &body_up,
+                                                   const v3 &world_facing, const v3 &body_forward)
 {
-    v3 camera(0,0,1), z(0,0,1), facing_perp(-facing[1], facing[0], 0);
-    quaternion q = initial_orientation_from_gravity_facing(gravity, facing);
+    quaternion q = initial_orientation_from_gravity_facing(world_up,     body_up,
+                                                           world_facing, body_forward);
 
-    // gravity should point in the z direction
-    EXPECT_V3_NEAR((q * gravity).normalized(), z, 4*F_T_EPS);
+    // the rotation should align body_up exactly with world_up
+    EXPECT_V3_NEAR((q * body_up).normalized(), world_up, 6*F_T_EPS);
 
-    // the camera should be aligned with facing
-    EXPECT_GE((q * camera).dot(facing), 0);
+    // The rotation should align body_forward in the general direction we should be facing
+    EXPECT_GE((q * body_forward).dot(world_facing), 0);
 
-    // and have no conponent in the facing_perp direction
-    EXPECT_NEAR((q * camera).dot(facing_perp), 0, 4*F_T_EPS);
+    // such that is not no conponent in the third world direction
+    EXPECT_NEAR((q * body_forward).dot(world_up.cross(world_facing)), 0, 6*F_T_EPS);
 }
 
 TEST(Filter, InitialOrientation)
@@ -51,5 +52,5 @@ TEST(Filter, InitialOrientation)
 
     for (f_t (&g)[3] : gravities)
         for (int i=0; i<10; i++)
-            check_initial_orientation_from_gravity(v3(g[0],g[1],g[2]), v3(cos(i*2*M_PI/10), sin(i*2*M_PI/10), 0));
+            check_initial_orientation_from_gravity(v3(0,0,1), v3(g[0],g[1],g[2]), v3(0,1,0), v3(cos(i*2*M_PI/10), sin(i*2*M_PI/10), 0));
 }

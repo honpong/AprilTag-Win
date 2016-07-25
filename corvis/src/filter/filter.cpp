@@ -254,7 +254,7 @@ sensor_clock::duration steady_time(struct filter *f, stdev<3> &stdev, const v3 &
     }
     if(!stdev.count && use_orientation) {
         if(!f->s.orientation_initialized) return sensor_clock::duration(0);
-        v3 local_up = f->s.Q.v.conjugate() * v3(0, 0, 1);
+        v3 local_up = f->s.Q.v.conjugate() * f->s.world_up;
         //face up -> (0, 0, 1)
         //portrait -> (1, 0, 0)
         //landscape -> (0, 1, 0)
@@ -708,7 +708,7 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
 void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned)
 {
     if(gravity_aligned) {
-        v3 z_old(0, 0, 1);
+        v3 z_old = f->s.world_up;
         v3 z_new = origin.Q * z_old;
         quaternion Qd = rotation_between_two_vectors_normalized(z_new, z_old);
         f->origin.Q = Qd * origin.Q;
@@ -757,12 +757,13 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
 
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;
-        bool inertial_converged = (f->s.Q.variance()[0] < dynamic_W_thresh_variance && f->s.Q.variance()[1] < dynamic_W_thresh_variance);
+        v3 non_up_var = f->s.Q.variance() - f->s.world_up * f->s.world_up.dot(f->s.Q.variance());
+        bool inertial_converged = non_up_var[0] < dynamic_W_thresh_variance && non_up_var[1] < dynamic_W_thresh_variance && non_up_var[2] < dynamic_W_thresh_variance;
         if(inertial_converged) {
             if(inertial_converged) {
                 f->log->debug("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
             } else {
-                f->log->warn("Inertial did not converge {}, {}", f->s.Q.variance()[0], f->s.Q.variance()[1]);
+                f->log->warn("Inertial did not converge {}", non_up_var);
             }
         } else return true;
     }

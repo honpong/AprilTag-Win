@@ -213,6 +213,8 @@ typedef struct rc_Extrinsics {
  @param format Image format controls if you are configuring a camera or depth camera. Depth cameras have their own set of ids starting at 0
  @param extrinsics_wrt_origin_m The transformation from the camera to the origin
  @param intrinsics The intrinsics of the camera
+
+ Must be called before rc_startTracker().
  */
 RCTRACKER_API bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_CameraIntrinsics *intrinsics);
 RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat format,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics);
@@ -223,6 +225,8 @@ RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, 
  @param accel_id The id of the accelerometer to configure/describe. Accelerometer ids start at 0 and must be sequential. A gyroscope must be configured for every configured accelerometer.
  @param extrinsics_wrt_origin_m The transformation from the accelerometer to the origin
  @param intrinsics The intrinsics of the accelerometer
+
+ Must be called before rc_startTracker().
  */
 RCTRACKER_API bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics *intrinsics);
 RCTRACKER_API bool rc_describeAccelerometer( rc_Tracker *tracker, rc_Sensor accel_id,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_AccelerometerIntrinsics *intrinsics);
@@ -233,11 +237,38 @@ RCTRACKER_API bool rc_describeAccelerometer( rc_Tracker *tracker, rc_Sensor acce
  @param accel_id The id of the accelerometer to configure/describe. Gyroscope ids start at 0 and must be sequential. An accelerometer must be configured for every configured gyroscope.
  @param extrinsics_wrt_origin_m The transformation from the gyroscope to the origin
  @param intrinsics The intrinsics of the gyroscope
+
+ Must be called before rc_startTracker().
  */
 RCTRACKER_API bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics *intrinsics);
 RCTRACKER_API bool rc_describeGyroscope( rc_Tracker *tracker, rc_Sensor gyro_id,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_GyroscopeIntrinsics *intrinsics);
 
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
+
+/**
+ World coordinates are defined to be the gravity aligned right handed
+ frame coincident with the device and oriented such that the device
+ initially looks, modulo elevation, in a known direction
+ (world_initial_forward).  rc_getPose() maps points from in the body
+ fixed reference frame to the world frame defined by this function.
+ The extrinsics of rc_configureAccelerometer(),
+ rc_configureGyroscope() and rc_configureCamera() all define
+ transformations from sensor coordinates to the body fixed reference
+ frame.
+
+ @param world_up defines the world up direction.  By default this is
+ [0,0,1], i.e. Z is always up.
+ @param world_initial_forward will be the initial projection to the
+ ground plane of body_forward.  By default this is [0,1,0], i.e. the
+ world coordinates are oriented such that the device initially faces
+ down the Y axis.
+ @param body_forward this defines the "front" of the device. In the
+ single camera case, this usually is the direction the camera faces.
+
+ Must be called before rc_startTracker().
+ */
+RCTRACKER_API void rc_configureWorld(rc_Tracker *tracker, const rc_Vector  world_up, const rc_Vector  world_initial_forward, const rc_Vector  body_forward);
+RCTRACKER_API void rc_describeWorld( rc_Tracker *tracker,       rc_Vector *world_up,       rc_Vector *world_initial_forward,       rc_Vector *body_forward);
 
 /**
   WARNING: These callbacks are synchronous with the the filter thread. Don't do significant work in them!

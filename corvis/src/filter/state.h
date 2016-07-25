@@ -118,6 +118,8 @@ public:
     covariance &cov;
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", make_shared<spdlog::sinks::null_sink_st> ());
 
+    v3 world_up = {0,0,1}, world_initial_forward = {0,1,0}, body_forward = {0,0,1}; // defines our world coordinates
+
     int remap() {
 #ifdef TEST_POSDEF
         if(cov.size() && !test_posdef(cov.cov)) log->error("not pos def at beginning of remap");

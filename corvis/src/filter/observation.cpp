@@ -476,7 +476,7 @@ void observation_accelerometer::predict()
 {
     Rt = state.Q.v.conjugate().toRotationMatrix();
     Ra = extrinsics.Q.v.toRotationMatrix();
-    v3 acc = v3(0, 0, state.g.v);
+    v3 acc = state.world_up * state.g.v;
     if(!state.orientation_only)
     {
         acc += state.a.v;
@@ -491,7 +491,7 @@ void observation_accelerometer::predict()
 
 void observation_accelerometer::cache_jacobians()
 {
-    v3 acc = v3(0, 0, state.g.v);
+    v3 acc = state.world_up * state.g.v;
     if(!state.orientation_only)
     {
         acc += state.a.v;
@@ -556,8 +556,8 @@ bool observation_accelerometer::measure()
     src_data.meas_stdev.data(meas);
     if(!state.orientation_initialized)
     {
-        //TODOMSM - need to attach this to the right frame
-        state.initial_orientation = initial_orientation_from_gravity(extrinsics.Q.v * meas);
+        state.initial_orientation = initial_orientation_from_gravity_facing(state.world_up, extrinsics.Q.v * meas,
+                                                                            state.world_initial_forward, state.body_forward);
         state.Q.v = state.initial_orientation;
         state.orientation_initialized = true;
         return false;

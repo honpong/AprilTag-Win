@@ -3,28 +3,22 @@
 
 #include "../numerics/quaternion.h"
 #include "../numerics/vec4.h"
-
-static inline quaternion initial_orientation_from_gravity_facing(const v3 &gravity, const v3 &facing)
+static inline quaternion initial_orientation_from_gravity_facing(const v3 &world_up,     const v3 &body_up,
+                                                                 const v3 &world_facing, const v3 &body_forward)
 {
-    v3 z(0, 0, 1);
-    quaternion q = rotation_between_two_vectors(gravity, z);
-    v3 zt = q * z;
-    //project the transformed z vector onto the x-y plane
-    zt[2] = 0;
+    quaternion q = rotation_between_two_vectors(body_up, world_up);
+    v3 zt = q * body_forward;
+    zt -= world_up * zt.dot(world_up); // remove the component of zt in the world_up direction
     f_t len = zt.norm();
     if(len > 1.e-6) // otherwise we're looking straight up or down, so don't make any changes
         {
-            v3 a = (zt / len).cross(facing.normalized());
-            f_t d =  (zt / len).dot(facing.normalized()), s = sqrt(2*(1 + d));
+            v3 a = (zt / len).cross(world_facing.normalized());
+            f_t d =  (zt / len).dot(world_facing.normalized()), s = sqrt(2*(1 + d));
             quaternion dq = a.norm() > F_T_EPS ? quaternion(s/2, a[0]/s, a[1]/s, a[2]/s).normalized()
                                                : d > 0 ? quaternion::Identity() : quaternion(0,0,0,1);
             q = dq * q;
         }
     return q;
-}
-
-static inline quaternion initial_orientation_from_gravity(const v3 &gravity) {
-    return initial_orientation_from_gravity_facing(gravity, v3(0,1,0)); // camera faces +y
 }
 
 #endif//__UTILS_H__

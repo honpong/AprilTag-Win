@@ -842,7 +842,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     }
 
     //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
-    int space = f->s.maxstatesize - f->s.statesize - 6;
+    int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
     if(space >= f->min_group_add) {
         if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
@@ -1041,8 +1041,7 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.statesize = 0;
     f->s.enable_orientation_only();
     f->s.remap();
-    // f->s.fake_statesize is set by calling remap
-    f->s.maxstatesize = MAXSTATESIZE - f->s.fake_statesize;
+    f->s.maxstatesize = MAXSTATESIZE;
 }
 
 #include "calibration_json.h"

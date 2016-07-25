@@ -12,18 +12,19 @@
 
 transformation sensor_fusion::get_transformation() const
 {
-    transformation filter_transform(sfm.s.Q.v, sfm.s.T.v);
-    return compose(sfm.origin, compose(sfm.s.loop_offset, filter_transform));
+    return sfm.origin*sfm.s.get_transformation();
 }
 
 void sensor_fusion::set_transformation(const transformation &pose_m)
 {
-    sfm.origin = compose(pose_m, invert(transformation(sfm.s.Q.v, sfm.s.T.v)));
+    sfm.origin = pose_m*invert(sfm.s.get_transformation());
 }
 
-v3 sensor_fusion::filter_to_external_position(const v3& x) const
+v3 sensor_fusion::feature_to_external_position(const v3& x) const
 {
-    return transformation_apply(compose(sfm.origin, sfm.s.loop_offset), x);
+    // feature positions are reported in world coordinates without
+    // loop offset, so we can't use get_transformation() here
+    return sfm.origin*sfm.s.loop_offset*x;
 }
 
 RCSensorFusionErrorCode sensor_fusion::get_error()
@@ -108,7 +109,7 @@ std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
                 p.y = i->current[1];
                 p.original_depth = i->v.depth();
                 p.stdev = i->v.stdev_meters(sqrt(i->variance()));
-                v3 ext_pos = filter_to_external_position(i->world);
+                v3 ext_pos = feature_to_external_position(i->world);
                 p.worldx = ext_pos[0];
                 p.worldy = ext_pos[1];
                 p.worldz = ext_pos[2];

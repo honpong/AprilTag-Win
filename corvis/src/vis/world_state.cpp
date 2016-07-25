@@ -180,7 +180,7 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
 {
     update_current_timestamp(d.timestamp);
     current_feature_timestamp = d.timestamp;
-    transformation G = f->s.loop_offset*transformation(f->s.Q.v, f->s.T.v);;
+    transformation G = f->s.get_transformation();
     transformation Ginv = invert(G);
 
     for(auto g : f->s.groups.children) {

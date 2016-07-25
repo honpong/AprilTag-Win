@@ -180,7 +180,7 @@ public:
     //public for now
     filter sfm;
 
-    v3 filter_to_external_position(const v3& x) const;
+    v3 feature_to_external_position(const v3& x) const;
     
     //Gets the current transformation, moving from filter-internal to external coordinates
     //Adjusts for camera vs accel centered and QR offset

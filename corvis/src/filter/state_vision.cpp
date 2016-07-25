@@ -215,6 +215,11 @@ int state_vision::feature_count()
     return count;
 }
 
+transformation state_vision::get_transformation() const
+{
+    return loop_offset*transformation(Q.v, T.v);
+}
+
 int state_vision::process_features(const image_gray8 &image, sensor_clock::time_point time)
 {
     int useful_drops = 0;
@@ -286,8 +291,8 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                 best_health = g->health;
             }
             if(map_enabled) {
-                transformation G = transformation(Q.v, T.v)*invert(transformation(g->Qr.v, g->Tr.v));
-                map.set_node_transformation(g->id, loop_offset*G);
+                transformation G = get_transformation()*invert(transformation(g->Qr.v, g->Tr.v));
+                map.set_node_transformation(g->id, G);
             }
         }
     }
@@ -310,8 +315,8 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
     groups.children.remove_if([this](state_vision_group *g) {
         if(g->status == group_empty) {
             if(map_enabled) {
-                transformation G = transformation(Q.v, T.v)*invert(transformation(g->Qr.v, g->Tr.v));
-                this->map.node_finished(g->id, loop_offset*G);
+                transformation G = get_transformation()*invert(transformation(g->Qr.v, g->Tr.v));
+                this->map.node_finished(g->id, G);
             }
             delete g;
             return true;

@@ -236,6 +236,7 @@ public:
     int process_features(const image_gray8 &image, sensor_clock::time_point time);
     state_vision_feature *add_feature(const feature_t & initial);
     state_vision_group *add_group(sensor_clock::time_point time);
+    transformation get_transformation() const;
 
     state_vision_group *reference;
 

@@ -208,7 +208,7 @@ void observation_vision_feature::predict()
 
     X = Rtot * X0 + Ttot * feature->v.invdepth();
 
-    feature->world = R * Rrt * (X0 * feature->v.depth() - state_group->Tr.v) + state.T.v;
+    feature->body = Rrt * (X0 * feature->v.depth() - state_group->Tr.v);
     v3 ippred = X / X[2]; //in the image plane
 #ifdef DEBUG
     if(fabs(ippred[2]-1.) > 1.e-7) {

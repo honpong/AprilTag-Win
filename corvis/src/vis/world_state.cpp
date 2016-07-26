@@ -181,7 +181,6 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
     update_current_timestamp(d.timestamp);
     current_feature_timestamp = d.timestamp;
     transformation G = f->s.get_transformation();
-    transformation Ginv = invert(G);
 
     for(auto g : f->s.groups.children) {
         for(auto feat : g->features.children) {
@@ -191,14 +190,11 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
                 float cx, cy, ctheta;
                 compute_covariance_ellipse(feat, cx, cy, ctheta);
 
-                v3 X_c = Ginv*feat->world;
-                feature_t x_camera(X_c[0]/X_c[2], X_c[1]/X_c[2]);
-                x_camera = f->s.camera_intrinsics.unnormalize_feature(f->s.camera_intrinsics.distort_feature(x_camera));
-
+                v3 world = G * feat->body;
                 observe_feature(d.timestamp, feat->id,
-                                (float)feat->world[0], (float)feat->world[1], (float)feat->world[2],
+                                (float)world[0], (float)world[1], (float)world[2],
                                 (float)feat->current[0], (float)feat->current[1],
-                                (float)x_camera[0], (float)x_camera[1],
+                                (float)feat->prediction[0], (float)feat->prediction[1],
                                 cx, cy, ctheta, good, feat->depth_measured);
             }
         }

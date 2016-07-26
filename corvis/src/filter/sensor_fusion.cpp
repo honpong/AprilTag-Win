@@ -20,13 +20,6 @@ void sensor_fusion::set_transformation(const transformation &pose_m)
     sfm.origin = pose_m*invert(sfm.s.get_transformation());
 }
 
-v3 sensor_fusion::feature_to_external_position(const v3& x) const
-{
-    // feature positions are reported in world coordinates without
-    // loop offset, so we can't use get_transformation() here
-    return sfm.origin*sfm.s.loop_offset*x;
-}
-
 RCSensorFusionErrorCode sensor_fusion::get_error()
 {
     RCSensorFusionErrorCode error = RCSensorFusionErrorCodeNone;
@@ -99,6 +92,7 @@ void sensor_fusion::update_status()
 
 std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
 {
+    transformation G = get_transformation();
     std::vector<feature_point> features;
     for(auto g: sfm.s.groups.children) {
         for(auto i: g->features.children) {
@@ -109,7 +103,7 @@ std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
                 p.y = i->current[1];
                 p.original_depth = i->v.depth();
                 p.stdev = i->v.stdev_meters(sqrt(i->variance()));
-                v3 ext_pos = feature_to_external_position(i->world);
+                v3 ext_pos = G * i->body;
                 p.worldx = ext_pos[0];
                 p.worldy = ext_pos[1];
                 p.worldz = ext_pos[2];

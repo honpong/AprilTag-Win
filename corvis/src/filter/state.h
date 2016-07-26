@@ -533,16 +533,16 @@ class state_scalar: public state_leaf<f_t, 1> {
 class state_extrinsics: public state_branch<state_node *>
 {
 public:
-    state_vector Tc { "Tc" };
-    state_quaternion Qc { "Qc" };
+    state_quaternion Q;
+    state_vector T;
     bool estimate;
-    
-    state_extrinsics(bool _estimate): estimate(_estimate)
+
+    state_extrinsics(const char *Qx, const char *Tx, bool _estimate): T(Tx), Q(Qx), estimate(_estimate)
     {
         if(estimate)
         {
-            children.push_back(&Tc);
-            children.push_back(&Qc);
+            children.push_back(&T);
+            children.push_back(&Q);
         }
     }
 };

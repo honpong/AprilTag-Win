@@ -30,8 +30,10 @@ public:
 
 struct state_imu: public state_branch<state_node *> {
     state_imu_intrinsics intrinsics;
-    state_imu() {
+    state_extrinsics extrinsics;
+    state_imu() : extrinsics("Qa", "Ta", false) {
         children.push_back(&intrinsics);
+        children.push_back(&extrinsics);
     }
 };
 

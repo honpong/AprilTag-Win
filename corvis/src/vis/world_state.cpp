@@ -268,15 +268,15 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
         p++;
     }
 
-    if (f->s.extrinsics.estimate) {
-        observe_plot_item(d.timestamp, p, "Tc_x", (float)f->s.extrinsics.Tc.v[0]);
-        observe_plot_item(d.timestamp, p, "Tc_y", (float)f->s.extrinsics.Tc.v[1]);
-        observe_plot_item(d.timestamp, p, "Tc_z", (float)f->s.extrinsics.Tc.v[2]);
+    if (f->s.camera_extrinsics.estimate) {
+        observe_plot_item(d.timestamp, p, "Tc_x", (float)f->s.camera_extrinsics.T.v[0]);
+        observe_plot_item(d.timestamp, p, "Tc_y", (float)f->s.camera_extrinsics.T.v[1]);
+        observe_plot_item(d.timestamp, p, "Tc_z", (float)f->s.camera_extrinsics.T.v[2]);
         p++;
 
-        observe_plot_item(d.timestamp, p, "Wc_x", (float)to_rotation_vector(f->s.extrinsics.Qc.v).raw_vector()[0]);
-        observe_plot_item(d.timestamp, p, "Wc_y", (float)to_rotation_vector(f->s.extrinsics.Qc.v).raw_vector()[1]);
-        observe_plot_item(d.timestamp, p, "Wc_z", (float)to_rotation_vector(f->s.extrinsics.Qc.v).raw_vector()[2]);
+        observe_plot_item(d.timestamp, p, "Wc_x", (float)to_rotation_vector(f->s.camera_extrinsics.Q.v).raw_vector()[0]);
+        observe_plot_item(d.timestamp, p, "Wc_y", (float)to_rotation_vector(f->s.camera_extrinsics.Q.v).raw_vector()[1]);
+        observe_plot_item(d.timestamp, p, "Wc_z", (float)to_rotation_vector(f->s.camera_extrinsics.Q.v).raw_vector()[2]);
         p++;
     }
 

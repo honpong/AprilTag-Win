@@ -194,21 +194,21 @@ void observation_vision_feature::innovation_covariance_hook(const matrix &cov, i
 
 void observation_vision_feature::predict()
 {
-    m3 Rr = state_group->Qr.v.toRotationMatrix();
-    m3 R = state.Q.v.toRotationMatrix();
-    Rrt = Rr.transpose();
-    Rtot = Rrt;
-    Ttot = Rrt * ( - state_group->Tr.v);
+    Rrt = state_group->Qr.v.toRotationMatrix().transpose();
+    Rct = extrinsics.Q.v.toRotationMatrix().transpose();
+    m3 Rb = Rrt * Rct.transpose();
+    v3 Tb = Rrt * (extrinsics.T.v - state_group->Tr.v);
+    Rtot = Rct * Rb;
+    Ttot = Rct * (Tb - extrinsics.T.v);
 
     feature_t uncal = { feature->initial[0], feature->initial[1] };
     Xd = intrinsics.normalize_feature(uncal);
     norm_initial = intrinsics.undistort_feature(Xd);
     X0 = v3(norm_initial.x(), norm_initial.y(), 1);
     feature->Xcamera = X0 * feature->v.depth();
+    feature->body = Rb * feature->Xcamera + Tb;
 
     X = Rtot * X0 + Ttot * feature->v.invdepth();
-
-    feature->body = Rrt * (X0 * feature->v.depth() - state_group->Tr.v);
     v3 ippred = X / X[2]; //in the image plane
 #ifdef DEBUG
     if(fabs(ippred[2]-1.) > 1.e-7) {
@@ -233,10 +233,16 @@ void observation_vision_feature::cache_jacobians()
     // v4 X = Rtot * X0 + Ttot / depth
     // v4 dX = dRtot * X0 + Rtot * dX0 + dTtot / depth - Tot / depth / depth ddepth
 
+    // d RtotX0 = (Rtot X0)^ Rct Rrt scov_Rr + RtotX0^ (I - Rtot) Rct scov_Rc +  + Rct Rrt Rc dX0;
+    // d Ttot = Ttot^ Rct cov_Rc + Rct * (-Rrt cov_Rr^ * (Tc - Tr) + Rrt * (cov_Tc - cov_Tr) - cov_Tc);
+
     v3 RtotX0 = Rtot * X0;
-    m3 dRtotX0_dQr = skew(RtotX0) * Rrt;
-    m3 dTtot_dQr = skew(Ttot) * Rrt;
-    m3 dTtot_dTr = -Rrt;
+    m3 dRtotX0_dQr = skew(RtotX0) * Rct * Rrt;
+    m3 dRtotX0_dQc = skew(RtotX0) * Rct * (m3::Identity() - Rrt);
+    m3 dTtot_dQr = Rtot * (Rct * skew(extrinsics.T.v - state_group->Tr.v));
+    m3 dTtot_dQc = skew(Ttot) * Rct;
+    m3 dTtot_dTc = -Rct * (m3::Identity() - Rrt);
+    m3 dTtot_dTr = -Rct * Rrt;
 
     f_t invZ = 1/X[2];
     feature_t Xu = {X[0]*invZ, X[1]*invZ};
@@ -291,6 +297,10 @@ void observation_vision_feature::cache_jacobians()
         dx_dTr = dx_dX.transpose() * dTtot_dTr * invrho;
         dy_dQr = dy_dX.transpose() * (dRtotX0_dQr + dTtot_dQr * invrho);
         dy_dTr = dy_dX.transpose() * dTtot_dTr * invrho;
+        dx_dQc = dx_dX.transpose() * (dRtotX0_dQc + dTtot_dQc * invrho);
+        dx_dTc = dx_dX.transpose() * dTtot_dTc * invrho;
+        dy_dQc = dy_dX.transpose() * (dRtotX0_dQc + dTtot_dQc * invrho);
+        dy_dTc = dy_dX.transpose() * dTtot_dTc * invrho;
     }
 }
 
@@ -308,14 +318,23 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             const f_t cov_feat = feature->from_row(src, j);
             const auto scov_Qr = state_group->Qr.from_row(src, j);
             const auto cov_Tr = state_group->Tr.from_row(src, j);
-
             dst(0, j) = dx_dp * cov_feat +
                 dx_dQr.dot(scov_Qr) +
                 dx_dTr.dot(cov_Tr);
-
             dst(1, j) = dy_dp * cov_feat +
                 dy_dQr.dot(scov_Qr) +
                 dy_dTr.dot(cov_Tr);
+
+            if (extrinsics.estimate) {
+                const auto scov_Qc = extrinsics.Q.from_row(src, j);
+                const auto cov_Tc = extrinsics.T.from_row(src, j);
+                dst(0, j) +=
+                    dx_dQc.dot(scov_Qc) +
+                    dx_dTc.dot(cov_Tc);
+                dst(1, j) +=
+                    dy_dQc.dot(scov_Qc) +
+                    dy_dTc.dot(cov_Tc);
+            }
 
             if(intrinsics.estimate) {
                 f_t cov_F = intrinsics.focal_length.from_row(src, j);
@@ -456,17 +475,18 @@ void observation_vision_feature::compute_measurement_covariance()
 void observation_accelerometer::predict()
 {
     Rt = state.Q.v.conjugate().toRotationMatrix();
-    Rc = extrinsics.Qc.v.toRotationMatrix();
+    Ra = extrinsics.Q.v.toRotationMatrix();
     v3 acc = v3(0, 0, state.g.v);
     if(!state.orientation_only)
     {
         acc += state.a.v;
     }
-    pred = Rc * Rt * acc + intrinsics.a_bias.v;
+    xcc = Rt * acc;
     if(!state.orientation_only)
     {
-        pred -= (Rc * state.w.v).cross((Rc * state.w.v).cross(extrinsics.Tc.v)) + (Rc * state.dw.v).cross(extrinsics.Tc.v);
+        xcc += state.w.v.cross(state.w.v.cross(extrinsics.T.v)) + state.dw.v.cross(extrinsics.T.v);
     }
+    pred = Ra.transpose() * xcc + intrinsics.a_bias.v;
 }
 
 void observation_accelerometer::cache_jacobians()
@@ -476,14 +496,15 @@ void observation_accelerometer::cache_jacobians()
     {
         acc += state.a.v;
     }
-    da_dQ = Rc * Rt * skew(acc);
+    da_dacc = Ra.transpose() * Rt;
+    da_dQ = Ra.transpose() * Rt * skew(acc);
     if(extrinsics.estimate)
     {
-        da_dTc = -skew(Rc * state.w.v) * skew(Rc * state.w.v) - skew(Rc * state.dw.v);
-        da_dQc = da_dTc * skew(extrinsics.Tc.v) - skew(da_dTc * extrinsics.Tc.v + Rc * Rt * acc);
+        da_dTa = Ra.transpose() * (skew(state.w.v) * skew(state.w.v) + skew(state.dw.v));
+        da_dQa = Ra.transpose() * skew(xcc);
     }
-    da_ddw = skew(extrinsics.Tc.v) * Rc;
-    da_dw = (skew((Rc * state.w.v).cross(extrinsics.Tc.v)) + skew(Rc * state.w.v) * skew(extrinsics.Tc.v)) * Rc;
+    da_ddw = Ra.transpose() * skew(-extrinsics.T.v);
+    da_dw = Ra.transpose() * (skew(extrinsics.T.v.cross(state.w.v)) - skew(state.w.v) * skew(extrinsics.T.v));
 }
 
 void observation_accelerometer::project_covariance(matrix &dst, const matrix &src)
@@ -504,11 +525,11 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
                 da_dQ * scov_Q +
                 da_dw * cov_w +
                 da_ddw * cov_dw +
-                Rc * Rt * (cov_a + v3(0, 0, cov_g));
+                da_dacc * (cov_a + v3(0, 0, cov_g));
             if(extrinsics.estimate) {
-                const auto scov_Qc = extrinsics.Qc.from_row(src, j);
-                const auto cov_Tc = extrinsics.Tc.from_row(src, j);
-                res += da_dQc * scov_Qc + da_dTc * cov_Tc;
+                const auto scov_Qa = extrinsics.Q.from_row(src, j);
+                const auto cov_Ta = extrinsics.T.from_row(src, j);
+                res += da_dQa * scov_Qa + da_dTa * cov_Ta;
             }
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];
@@ -520,8 +541,8 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
             const auto scov_Q = state.Q.from_row(src, j);
             v3 res = (state.imu.intrinsics.estimate_bias ? cov_a_bias : v3::Zero()) + da_dQ * scov_Q;
             if(extrinsics.estimate) {
-                const auto scov_Qc = extrinsics.Qc.from_row(src, j);
-                res += da_dQc * scov_Qc;
+                const auto scov_Qa = extrinsics.Q.from_row(src, j);
+                res += da_dQa * scov_Qa;
             }
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];
@@ -536,7 +557,7 @@ bool observation_accelerometer::measure()
     if(!state.orientation_initialized)
     {
         //TODOMSM - need to attach this to the right frame
-        state.initial_orientation = initial_orientation_from_gravity(extrinsics.Qc.v.inverse() * meas);
+        state.initial_orientation = initial_orientation_from_gravity(extrinsics.Q.v * meas);
         state.Q.v = state.initial_orientation;
         state.orientation_initialized = true;
         return false;
@@ -545,17 +566,14 @@ bool observation_accelerometer::measure()
 
 void observation_gyroscope::predict()
 {
-    Rc = extrinsics.Qc.v.toRotationMatrix();
-    pred = intrinsics.w_bias.v + Rc * state.w.v;
-    // w = w_bias + Qc * w;
-    // dw = dw_bias + Qc * dw + (dQc Qc^-1) Qc * w;
-    // dw = dw_bias + Qc * dw - skew3(Qc * w) * unskew3(dQc Qc^-1);
+    Rw = extrinsics.Q.v.toRotationMatrix();
+    pred = intrinsics.w_bias.v + Rw.transpose() * state.w.v;
 }
 
 void observation_gyroscope::cache_jacobians()
 {
     if(extrinsics.estimate) {
-        dw_dQc = - skew(Rc * state.w.v);
+        dw_dQw = Rw.transpose() * skew(state.w.v);
     }
 }
 
@@ -566,10 +584,10 @@ void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
         const auto cov_w = state.w.from_row(src, j);
         const auto cov_wbias = intrinsics.w_bias.from_row(src, j);
         v3 res = cov_wbias +
-            Rc * cov_w;
+            Rw.transpose() * cov_w;
         if(extrinsics.estimate) {
-            v3 scov_Qc = extrinsics.Qc.from_row(src, j);
-            res += dw_dQc * scov_Qc;
+            v3 scov_Qw = extrinsics.Q.from_row(src, j);
+            res += dw_dQw * scov_Qw;
         }
         for(int i = 0; i < 3; ++i) {
             dst(i, j) = res[i];

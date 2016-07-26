@@ -425,7 +425,7 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
         f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
     }
     
-    auto obs_a = std::make_unique<observation_accelerometer>(*data.source, f->s, f->s.extrinsics, f->s.imu.intrinsics, data.timestamp, data.timestamp);
+    auto obs_a = std::make_unique<observation_accelerometer>(*data.source, f->s, f->s.imu.extrinsics, f->s.imu.intrinsics, data.timestamp, data.timestamp);
     obs_a->meas = meas;
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, data.timestamp);
 
@@ -482,7 +482,7 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
         f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
     }
 
-    auto obs_w = std::make_unique<observation_gyroscope>(*data.source, f->s, f->s.extrinsics, f->s.imu.intrinsics, data.timestamp, data.timestamp);
+    auto obs_w = std::make_unique<observation_gyroscope>(*data.source, f->s, f->s.imu.extrinsics, f->s.imu.intrinsics, data.timestamp, data.timestamp);
     obs_w->meas = meas;
     obs_w->variance = f->w_variance;
 
@@ -515,7 +515,7 @@ void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *i : g->features.children) {
             auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
-            auto obs = std::make_unique<observation_vision_feature>(*image.source, f->s, f->s.camera_intrinsics, image.timestamp + extra_time, image.timestamp);
+            auto obs = std::make_unique<observation_vision_feature>(*image.source, f->s, f->s.camera_extrinsics, f->s.camera_intrinsics, image.timestamp + extra_time, image.timestamp);
             obs->state_group = g;
             obs->feature = i;
             obs->meas[0] = i->current[0];
@@ -569,7 +569,7 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
           o_Fx = f->s.camera_intrinsics.focal_length.v * o_height,
           o_Fy = f->s.camera_intrinsics.focal_length.v * o_height;
 
-    transformation depth_to_color_m = invert(transformation(f->s.extrinsics.Qc.v,f->s.extrinsics.Tc.v)) * extrinsics;
+    transformation depth_to_color_m = invert(transformation(f->s.camera_extrinsics.Q.v,f->s.camera_extrinsics.T.v)) * extrinsics;
     auto x_T_mm = (depth_to_color_m.T * 1000).cast<float>();
 
     for (int y = 0; y < i_height; y++)
@@ -950,18 +950,23 @@ extern "C" void filter_initialize(struct filter *f)
     auto cam_extrinsics = f->cameras[0]->extrinsics;
     auto cam_intrinsics = f->cameras[0]->intrinsics;
     auto imu_extrinsics = f->accelerometers[0]->extrinsics;
-    auto accel = f->accelerometers[0]->intrinsics; 
+    auto accel = f->accelerometers[0]->intrinsics;
     auto gyro = f->gyroscopes[0]->intrinsics;
 
     f->w_variance = gyro.measurement_variance_rad2__s2;
     f->a_variance = accel.measurement_variance_m2__s4;
 
-    transformation camera_wrt_imu = cam_extrinsics.mean*invert(imu_extrinsics.mean);
-    f->s.extrinsics.Tc.v = camera_wrt_imu.T;
-    f->s.extrinsics.Qc.v = camera_wrt_imu.Q;
+    f->s.camera_extrinsics.T.v = cam_extrinsics.mean.T;
+    f->s.camera_extrinsics.Q.v = cam_extrinsics.mean.Q;
 
-    f->s.extrinsics.Qc.set_initial_variance(cam_extrinsics.variance.Q[0], cam_extrinsics.variance.Q[1], cam_extrinsics.variance.Q[2]);
-    f->s.extrinsics.Tc.set_initial_variance(cam_extrinsics.variance.T[0], cam_extrinsics.variance.T[1], cam_extrinsics.variance.T[2]);
+    f->s.camera_extrinsics.Q.set_initial_variance(cam_extrinsics.variance.Q[0], cam_extrinsics.variance.Q[1], cam_extrinsics.variance.Q[2]);
+    f->s.camera_extrinsics.T.set_initial_variance(cam_extrinsics.variance.T[0], cam_extrinsics.variance.T[1], cam_extrinsics.variance.T[2]);
+
+    f->s.imu.extrinsics.Q.v = imu_extrinsics.mean.Q;
+    f->s.imu.extrinsics.T.v = imu_extrinsics.mean.T;
+
+    f->s.imu.extrinsics.Q.set_initial_variance(imu_extrinsics.variance.Q[0], imu_extrinsics.variance.Q[1], imu_extrinsics.variance.Q[2]);
+    f->s.imu.extrinsics.T.set_initial_variance(imu_extrinsics.variance.T[0], imu_extrinsics.variance.T[1], imu_extrinsics.variance.T[2]);
 
     f->s.imu.intrinsics.a_bias.v = v_map(accel.bias_m__s2.v);
     f->s.imu.intrinsics.a_bias.set_initial_variance(accel.bias_variance_m2__s4.x, accel.bias_variance_m2__s4.y, accel.bias_variance_m2__s4.z);
@@ -988,8 +993,11 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.dw.set_process_noise(0);
     f->s.a.set_process_noise(0);
     f->s.g.set_process_noise(1.e-30);
-    f->s.extrinsics.Qc.set_process_noise(1.e-30);
-    f->s.extrinsics.Tc.set_process_noise(1.e-30);
+
+    f->s.camera_extrinsics.Q.set_process_noise(1.e-30);
+    f->s.camera_extrinsics.T.set_process_noise(1.e-30);
+    f->s.imu.extrinsics.Q.set_process_noise(1.e-30);
+    f->s.imu.extrinsics.T.set_process_noise(1.e-30);
     f->s.imu.intrinsics.a_bias.set_process_noise(2.3e-8);
     f->s.imu.intrinsics.w_bias.set_process_noise(2.3e-10);
     //TODO: check this process noise
@@ -1070,10 +1078,13 @@ void filter_get_calibration(const struct filter *f, calibration_json *device)
         cam.intrinsics.k3 = f->s.camera_intrinsics.k3.v;
     }
 
-    cam.extrinsics_wrt_imu_m.Q = f->s.extrinsics.Qc.v;
-    cam.extrinsics_wrt_imu_m.T = f->s.extrinsics.Tc.v;
-    cam.extrinsics_var_wrt_imu_m.W = f->s.extrinsics.Qc.variance();
-    cam.extrinsics_var_wrt_imu_m.T = f->s.extrinsics.Tc.variance();
+    transformation camera_wrt_imu = invert(transformation(f->s.imu.extrinsics.Q.v, f->s.imu.extrinsics.T.v))
+                                  * transformation(f->s.camera_extrinsics.Q.v, f->s.camera_extrinsics.T.v);
+    cam.extrinsics_wrt_imu_m.Q = camera_wrt_imu.Q;
+    cam.extrinsics_wrt_imu_m.T = camera_wrt_imu.T;
+    // FIXME: this is obviously wrong, but this function is unused and should go away soon
+    cam.extrinsics_var_wrt_imu_m.W = f->s.imu.extrinsics.Q.variance() + f->s.camera_extrinsics.Q.variance();
+    cam.extrinsics_var_wrt_imu_m.T = f->s.imu.extrinsics.T.variance() + f->s.camera_extrinsics.T.variance();
 
     imu.a_bias_m__s2         = f->s.imu.intrinsics.a_bias.v;
     imu.w_bias_rad__s        = f->s.imu.intrinsics.w_bias.v;

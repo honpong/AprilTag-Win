@@ -175,11 +175,11 @@ int state_vision_group::make_normal()
 
 state_vision::state_vision(covariance &c):
     state_motion(c),
-    extrinsics(false), camera_intrinsics(false),
+    camera_extrinsics("Qc", "Tc", false), camera_intrinsics(false),
     feature_counter(0), group_counter(0), reference(nullptr)
 {
     reference = NULL;
-    children.push_back(&extrinsics);
+    //children.push_back(&camera_extrinsics);
     children.push_back(&camera_intrinsics);
     children.push_back(&groups);
 }
@@ -485,7 +485,7 @@ float state_vision::median_depth_variance()
 
 void state_vision::remove_non_orientation_states()
 {
-    remove_child(&extrinsics);
+    //remove_child(&camera_extrinsics);
     remove_child(&camera_intrinsics);
     remove_child(&groups);
     state_motion::remove_non_orientation_states();
@@ -495,7 +495,7 @@ void state_vision::add_non_orientation_states()
 {
     state_motion::add_non_orientation_states();
 
-    children.push_back(&extrinsics);
+    //children.push_back(&camera_extrinsics);
     children.push_back(&camera_intrinsics);
     children.push_back(&groups);
 }

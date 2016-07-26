@@ -14,6 +14,7 @@
 
 class state_imu_intrinsics: public state_branch<state_node *>
 {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 public:
     state_vector w_bias {"w_bias"};
     state_vector a_bias {"a_bias"};
@@ -29,8 +30,9 @@ public:
 };
 
 struct state_imu: public state_branch<state_node *> {
-    state_imu_intrinsics intrinsics;
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     state_extrinsics extrinsics;
+    state_imu_intrinsics intrinsics;
     state_imu() : extrinsics("Qa", "Ta", false) {
         children.push_back(&intrinsics);
         children.push_back(&extrinsics);

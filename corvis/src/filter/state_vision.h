@@ -240,10 +240,6 @@ public:
 
     state_vision_group *reference;
 
-    uint64_t last_reference{0};
-    v3 last_Tr;
-    rotation_vector last_Wr;
-
     bool map_enabled{false};
     mapper map;
     transformation loop_offset;

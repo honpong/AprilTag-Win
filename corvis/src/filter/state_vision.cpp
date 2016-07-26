@@ -175,12 +175,10 @@ int state_vision_group::make_normal()
 
 state_vision::state_vision(covariance &c):
     state_motion(c),
-    camera_extrinsics("Qc", "Tc", false), camera_intrinsics(false),
     feature_counter(0), group_counter(0), reference(nullptr)
 {
     reference = NULL;
-    //children.push_back(&camera_extrinsics);
-    children.push_back(&camera_intrinsics);
+    children.push_back(&camera);
     children.push_back(&groups);
 }
 
@@ -242,7 +240,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                 }
             }
             if(i->should_drop())
-                feature_tracker->drop_feature(i->tracker_id);
+                camera.feature_tracker->drop_feature(i->tracker_id);
         }
     }
 
@@ -272,7 +270,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                 }
             }
             for(state_vision_feature *i : g->features.children)
-                feature_tracker->drop_feature(i->tracker_id);
+                camera.feature_tracker->drop_feature(i->tracker_id);
             g->make_empty();
         }
 
@@ -457,7 +455,7 @@ void state_vision::update_feature_tracks(const image_gray8 &image)
 
     int i=0;
     if (predictions.size())
-        for(const auto &p : feature_tracker->track(current_image, predictions)) {
+        for(const auto &p : camera.feature_tracker->track(current_image, predictions)) {
             state_vision_feature * feature = id_to_state[p.id];
             feature->current.x() = p.found ? p.x : INFINITY;
             feature->current.y() = p.found ? p.y : INFINITY;
@@ -485,8 +483,7 @@ float state_vision::median_depth_variance()
 
 void state_vision::remove_non_orientation_states()
 {
-    //remove_child(&camera_extrinsics);
-    remove_child(&camera_intrinsics);
+    remove_child(&camera);
     remove_child(&groups);
     state_motion::remove_non_orientation_states();
 }
@@ -494,9 +491,7 @@ void state_vision::remove_non_orientation_states()
 void state_vision::add_non_orientation_states()
 {
     state_motion::add_non_orientation_states();
-
-    //children.push_back(&camera_extrinsics);
-    children.push_back(&camera_intrinsics);
+    children.push_back(&camera);
     children.push_back(&groups);
 }
 

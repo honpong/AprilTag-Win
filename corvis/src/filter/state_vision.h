@@ -217,15 +217,23 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
+struct state_camera: state_branch<state_node*> {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    state_extrinsics extrinsics;
+    state_vision_intrinsics intrinsics;
+    std::unique_ptr<tracker> feature_tracker;
+    state_camera() : extrinsics("Qc", "Tc", false), intrinsics(false) {
+        //children.push_back(&extrinsics);
+        children.push_back(&intrinsics);
+    }
+};
+
 class state_vision: public state_motion {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    //TODOMSM
-    state_extrinsics camera_extrinsics;
-    state_vision_intrinsics camera_intrinsics;
+    state_camera camera;
     std::vector<tracker::point> features; // reuasable storage passed to tracker->detect()
     std::vector<tracker::prediction> predictions; // reuasable storage passed to and returned from tracker->track()
-    std::unique_ptr<tracker> feature_tracker;
     uint64_t feature_counter;
     uint64_t group_counter;
 

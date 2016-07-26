@@ -151,7 +151,7 @@ bool qr_code_homography(const struct filter *f, struct qr_detection detection, f
     image_corners[2] = detection.lower_right;
     image_corners[3] = detection.upper_right;
     for(int c = 0; c < 4; c++) {
-        calibrated[c] = f->s.camera_intrinsics.undistort_feature(f->s.camera_intrinsics.normalize_feature(image_corners[c]));
+        calibrated[c] = f->s.camera.intrinsics.undistort_feature(f->s.camera.intrinsics.normalize_feature(image_corners[c]));
     }
 
     m3 Rq; v3 Tq;

@@ -250,33 +250,33 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
     }
     p++;
 
-    if (f->s.camera_intrinsics.estimate) {
-        if (f->s.camera_intrinsics.fisheye)
-            observe_plot_item(d.timestamp, p, "kw", (float)f->s.camera_intrinsics.k1.v);
+    if (f->s.camera.intrinsics.estimate) {
+        if (f->s.camera.intrinsics.fisheye)
+            observe_plot_item(d.timestamp, p, "kw", (float)f->s.camera.intrinsics.k1.v);
         else {
-            observe_plot_item(d.timestamp, p, "k1", (float)f->s.camera_intrinsics.k1.v);
-            observe_plot_item(d.timestamp, p, "k2", (float)f->s.camera_intrinsics.k2.v);
-            observe_plot_item(d.timestamp, p, "k3", (float)f->s.camera_intrinsics.k3.v);
+            observe_plot_item(d.timestamp, p, "k1", (float)f->s.camera.intrinsics.k1.v);
+            observe_plot_item(d.timestamp, p, "k2", (float)f->s.camera.intrinsics.k2.v);
+            observe_plot_item(d.timestamp, p, "k3", (float)f->s.camera.intrinsics.k3.v);
         }
         p++;
 
-        observe_plot_item(d.timestamp, p, "F", (float)(f->s.camera_intrinsics.focal_length.v * f->s.camera_intrinsics.image_height));
+        observe_plot_item(d.timestamp, p, "F", (float)(f->s.camera.intrinsics.focal_length.v * f->s.camera.intrinsics.image_height));
         p++;
 
-        observe_plot_item(d.timestamp, p, "C_x", (float)(f->s.camera_intrinsics.center_x.v * f->s.camera_intrinsics.image_height + f->s.camera_intrinsics.image_width  / 2. - .5));
-        observe_plot_item(d.timestamp, p, "C_y", (float)(f->s.camera_intrinsics.center_y.v * f->s.camera_intrinsics.image_height + f->s.camera_intrinsics.image_height / 2. - .5));
+        observe_plot_item(d.timestamp, p, "C_x", (float)(f->s.camera.intrinsics.center_x.v * f->s.camera.intrinsics.image_height + f->s.camera.intrinsics.image_width  / 2. - .5));
+        observe_plot_item(d.timestamp, p, "C_y", (float)(f->s.camera.intrinsics.center_y.v * f->s.camera.intrinsics.image_height + f->s.camera.intrinsics.image_height / 2. - .5));
         p++;
     }
 
-    if (f->s.camera_extrinsics.estimate) {
-        observe_plot_item(d.timestamp, p, "Tc_x", (float)f->s.camera_extrinsics.T.v[0]);
-        observe_plot_item(d.timestamp, p, "Tc_y", (float)f->s.camera_extrinsics.T.v[1]);
-        observe_plot_item(d.timestamp, p, "Tc_z", (float)f->s.camera_extrinsics.T.v[2]);
+    if (f->s.camera.extrinsics.estimate) {
+        observe_plot_item(d.timestamp, p, "Tc_x", (float)f->s.camera.extrinsics.T.v[0]);
+        observe_plot_item(d.timestamp, p, "Tc_y", (float)f->s.camera.extrinsics.T.v[1]);
+        observe_plot_item(d.timestamp, p, "Tc_z", (float)f->s.camera.extrinsics.T.v[2]);
         p++;
 
-        observe_plot_item(d.timestamp, p, "Wc_x", (float)to_rotation_vector(f->s.camera_extrinsics.Q.v).raw_vector()[0]);
-        observe_plot_item(d.timestamp, p, "Wc_y", (float)to_rotation_vector(f->s.camera_extrinsics.Q.v).raw_vector()[1]);
-        observe_plot_item(d.timestamp, p, "Wc_z", (float)to_rotation_vector(f->s.camera_extrinsics.Q.v).raw_vector()[2]);
+        observe_plot_item(d.timestamp, p, "Wc_x", (float)to_rotation_vector(f->s.camera.extrinsics.Q.v).raw_vector()[0]);
+        observe_plot_item(d.timestamp, p, "Wc_y", (float)to_rotation_vector(f->s.camera.extrinsics.Q.v).raw_vector()[1]);
+        observe_plot_item(d.timestamp, p, "Wc_z", (float)to_rotation_vector(f->s.camera.extrinsics.Q.v).raw_vector()[2]);
         p++;
     }
 

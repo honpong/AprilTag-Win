@@ -555,7 +555,7 @@ void observation_gyroscope::predict()
 void observation_gyroscope::cache_jacobians()
 {
     if(extrinsics.estimate) {
-        dw_dQc = - skew(Rc * intrinsics.w_bias.v);
+        dw_dQc = - skew(Rc * state.w.v);
     }
 }
 

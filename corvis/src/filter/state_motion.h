@@ -23,6 +23,16 @@ public:
         children.push_back(&w_bias);
         children.push_back(&a_bias);
     }
+    bool estimate_bias = true;
+    void enable_bias_estimation();
+    void disable_bias_estimation();
+};
+
+struct state_imu: public state_branch<state_node *> {
+    state_imu_intrinsics intrinsics;
+    state_imu() {
+        children.push_back(&intrinsics);
+    }
 };
 
 class state_motion_orientation: public state_root {
@@ -32,7 +42,7 @@ public:
     state_vector w;
     state_vector dw;
     state_vector ddw;
-    state_imu_intrinsics imu_intrinsics;
+    state_imu imu;
     state_scalar g;
     
     state_motion_orientation(covariance &c): state_root(c), Q("Q"), w("w"), dw("dw"), ddw("ddw"), g("g") {
@@ -44,7 +54,7 @@ public:
         children.push_back(&w);
         children.push_back(&dw);
         children.push_back(&ddw);
-        children.push_back(&imu_intrinsics);
+        children.push_back(&imu);
         //children.push_back(&g);
         g.v = gravity_magnitude;
     }
@@ -115,7 +125,6 @@ public:
     virtual void enable_bias_estimation();
     virtual void disable_bias_estimation();
 protected:
-    bool estimate_bias = true;;
     bool orientation_only = false;
     virtual void add_non_orientation_states();
     virtual void remove_non_orientation_states();

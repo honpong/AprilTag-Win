@@ -221,9 +221,9 @@ void update_static_calibration(struct filter *f)
     //TODO: get rid of this (figure out how to deal with quantized sensor data)
 #endif
     //this updates even the one dof that can't converge in the filter for this orientation (since we were static)
-    f->s.imu_intrinsics.w_bias.v = f->gyro_stability.mean;
-    f->s.imu_intrinsics.w_bias.set_initial_variance(f->gyro_stability.variance[0], f->gyro_stability.variance[1], f->gyro_stability.variance[2]); //Even though the one dof won't have converged in the filter, we know that this is a good value (average across stable meas).
-    f->s.imu_intrinsics.w_bias.reset_covariance(f->s.cov);
+    f->s.imu.intrinsics.w_bias.v = f->gyro_stability.mean;
+    f->s.imu.intrinsics.w_bias.set_initial_variance(f->gyro_stability.variance[0], f->gyro_stability.variance[1], f->gyro_stability.variance[2]); //Even though the one dof won't have converged in the filter, we know that this is a good value (average across stable meas).
+    f->s.imu.intrinsics.w_bias.reset_covariance(f->s.cov);
 }
 
 static void reset_stability(struct filter *f)
@@ -268,10 +268,10 @@ sensor_clock::duration steady_time(struct filter *f, stdev<3> &stdev, const v3 &
 
 static void print_calibration(struct filter *f)
 {
-    f->log->trace() << "w bias is: "     << f->s.imu_intrinsics.w_bias.v[0]          << ", " << f->s.imu_intrinsics.w_bias.v[1]          << ", " << f->s.imu_intrinsics.w_bias.v[2];
-    f->log->trace() << "w bias var is: " << f->s.imu_intrinsics.w_bias.variance()[0] << ", " << f->s.imu_intrinsics.w_bias.variance()[1] << ", " << f->s.imu_intrinsics.w_bias.variance()[2];
-    f->log->trace() << "a bias is: "     << f->s.imu_intrinsics.a_bias.v[0]          << ", " << f->s.imu_intrinsics.a_bias.v[1]          << ", " << f->s.imu_intrinsics.a_bias.v[2];
-    f->log->trace() << "a bias var is: " << f->s.imu_intrinsics.a_bias.variance()[0] << ", " << f->s.imu_intrinsics.a_bias.variance()[1] << ", " << f->s.imu_intrinsics.a_bias.variance()[2];
+    f->log->trace() << "w bias is: "     << f->s.imu.intrinsics.w_bias.v[0]          << ", " << f->s.imu.intrinsics.w_bias.v[1]          << ", " << f->s.imu.intrinsics.w_bias.v[2];
+    f->log->trace() << "w bias var is: " << f->s.imu.intrinsics.w_bias.variance()[0] << ", " << f->s.imu.intrinsics.w_bias.variance()[1] << ", " << f->s.imu.intrinsics.w_bias.variance()[2];
+    f->log->trace() << "a bias is: "     << f->s.imu.intrinsics.a_bias.v[0]          << ", " << f->s.imu.intrinsics.a_bias.v[1]          << ", " << f->s.imu.intrinsics.a_bias.v[2];
+    f->log->trace() << "a bias var is: " << f->s.imu.intrinsics.a_bias.variance()[0] << ", " << f->s.imu.intrinsics.a_bias.variance()[1] << ", " << f->s.imu.intrinsics.a_bias.variance()[2];
 }
 
 static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
@@ -282,7 +282,7 @@ static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 //TODOMSM - this should check all sensors and return the least converged one
 static float get_bias_convergence(const struct filter *f, int dir)
 {
-    float max_pct = (float)var_bounds_to_std_percent(f->s.imu_intrinsics.a_bias.variance()[dir], f->a_bias_start[dir], min_a_bias_var);
+    float max_pct = (float)var_bounds_to_std_percent(f->s.imu.intrinsics.a_bias.variance()[dir], f->a_bias_start[dir], min_a_bias_var);
     float pct = (float)f->accel_stability.count / (float)calibration_converge_samples;
     if(f->last_time - f->stable_start < min_steady_time) pct = 0.f;
     if(pct > max_pct) max_pct = pct;
@@ -313,8 +313,8 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
                 {
                     update_static_calibration(f);
                     f->run_state = RCSensorFusionRunStatePortraitCalibration;
-                    f->a_bias_start = f->s.imu_intrinsics.a_bias.variance();
-                    f->w_bias_start = f->s.imu_intrinsics.w_bias.variance();
+                    f->a_bias_start = f->s.imu.intrinsics.a_bias.variance();
+                    f->w_bias_start = f->s.imu.intrinsics.w_bias.variance();
                     reset_stability(f);
                     f->s.disable_bias_estimation();
                     f->log->trace("When finishing static calibration:");
@@ -335,8 +335,8 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
                 if(get_bias_convergence(f, 1) >= 1.)
                 {
                     f->run_state = RCSensorFusionRunStateLandscapeCalibration;
-                    f->a_bias_start = f->s.imu_intrinsics.a_bias.variance();
-                    f->w_bias_start = f->s.imu_intrinsics.w_bias.variance();
+                    f->a_bias_start = f->s.imu.intrinsics.a_bias.variance();
+                    f->w_bias_start = f->s.imu.intrinsics.w_bias.variance();
                     reset_stability(f);
                     f->s.disable_bias_estimation();
                     f->log->trace("When finishing portrait calibration:");
@@ -425,7 +425,7 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
         f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
     }
     
-    auto obs_a = std::make_unique<observation_accelerometer>(*data.source, f->s, f->s.extrinsics, f->s.imu_intrinsics, data.timestamp, data.timestamp);
+    auto obs_a = std::make_unique<observation_accelerometer>(*data.source, f->s, f->s.extrinsics, f->s.imu.intrinsics, data.timestamp, data.timestamp);
     obs_a->meas = meas;
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, data.timestamp);
 
@@ -439,7 +439,7 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
              << " innov  " << accelerometer.inn_stdev
              << " signal "       << accelerometer.meas_stdev
             // FIXME: these should be for this accelerometer->
-             << " bias is: " << f->s.imu_intrinsics.a_bias.v << " stdev is: " << f->s.imu_intrinsics.a_bias.variance().array().sqrt() << "\n";
+             << " bias is: " << f->s.imu.intrinsics.a_bias.v << " stdev is: " << f->s.imu.intrinsics.a_bias.variance().array().sqrt() << "\n";
     }
 
     if(!f->gravity_init) {
@@ -482,7 +482,7 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
         f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
     }
 
-    auto obs_w = std::make_unique<observation_gyroscope>(*data.source, f->s, f->s.extrinsics, f->s.imu_intrinsics, data.timestamp, data.timestamp);
+    auto obs_w = std::make_unique<observation_gyroscope>(*data.source, f->s, f->s.extrinsics, f->s.imu.intrinsics, data.timestamp, data.timestamp);
     obs_w->meas = meas;
     obs_w->variance = f->w_variance;
 
@@ -500,7 +500,7 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
              << " innov  " << gyroscope.inn_stdev
              << " signal " << gyroscope.meas_stdev
             // FIXME: these should be for this gyroscope->
-             << " bias " << f->s.imu_intrinsics.w_bias.v << " stdev is: " << f->s.imu_intrinsics.w_bias.variance().array().sqrt() << "\n";
+             << " bias " << f->s.imu.intrinsics.w_bias.v << " stdev is: " << f->s.imu.intrinsics.w_bias.variance().array().sqrt() << "\n";
     }
 
     auto stop = std::chrono::steady_clock::now();
@@ -963,10 +963,10 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.extrinsics.Qc.set_initial_variance(cam_extrinsics.variance.Q[0], cam_extrinsics.variance.Q[1], cam_extrinsics.variance.Q[2]);
     f->s.extrinsics.Tc.set_initial_variance(cam_extrinsics.variance.T[0], cam_extrinsics.variance.T[1], cam_extrinsics.variance.T[2]);
 
-    f->s.imu_intrinsics.a_bias.v = v_map(accel.bias_m__s2.v);
-    f->s.imu_intrinsics.a_bias.set_initial_variance(accel.bias_variance_m2__s4.x, accel.bias_variance_m2__s4.y, accel.bias_variance_m2__s4.z);
-    f->s.imu_intrinsics.w_bias.v = v_map(gyro.bias_rad__s.v);
-    f->s.imu_intrinsics.w_bias.set_initial_variance(gyro.bias_variance_rad2__s2.x, gyro.bias_variance_rad2__s2.y, gyro.bias_variance_rad2__s2.z);
+    f->s.imu.intrinsics.a_bias.v = v_map(accel.bias_m__s2.v);
+    f->s.imu.intrinsics.a_bias.set_initial_variance(accel.bias_variance_m2__s4.x, accel.bias_variance_m2__s4.y, accel.bias_variance_m2__s4.z);
+    f->s.imu.intrinsics.w_bias.v = v_map(gyro.bias_rad__s.v);
+    f->s.imu.intrinsics.w_bias.set_initial_variance(gyro.bias_variance_rad2__s2.x, gyro.bias_variance_rad2__s2.y, gyro.bias_variance_rad2__s2.z);
 
     f->s.camera_intrinsics.focal_length.v = (cam_intrinsics.f_x_px + cam_intrinsics.f_y_px) / 2 / cam_intrinsics.height_px;
     f->s.camera_intrinsics.center_x.v = (cam_intrinsics.c_x_px - cam_intrinsics.width_px / 2. + .5) / cam_intrinsics.height_px;
@@ -990,8 +990,8 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.g.set_process_noise(1.e-30);
     f->s.extrinsics.Qc.set_process_noise(1.e-30);
     f->s.extrinsics.Tc.set_process_noise(1.e-30);
-    f->s.imu_intrinsics.a_bias.set_process_noise(2.3e-8);
-    f->s.imu_intrinsics.w_bias.set_process_noise(2.3e-10);
+    f->s.imu.intrinsics.a_bias.set_process_noise(2.3e-8);
+    f->s.imu.intrinsics.w_bias.set_process_noise(2.3e-10);
     //TODO: check this process noise
     f->s.camera_intrinsics.focal_length.set_process_noise(2.3e-3 / cam_intrinsics.height_px / cam_intrinsics.height_px);
     f->s.camera_intrinsics.center_x.set_process_noise(2.3e-3 / cam_intrinsics.height_px / cam_intrinsics.height_px);
@@ -1075,10 +1075,10 @@ void filter_get_calibration(const struct filter *f, calibration_json *device)
     cam.extrinsics_var_wrt_imu_m.W = f->s.extrinsics.Qc.variance();
     cam.extrinsics_var_wrt_imu_m.T = f->s.extrinsics.Tc.variance();
 
-    imu.a_bias_m__s2         = f->s.imu_intrinsics.a_bias.v;
-    imu.w_bias_rad__s        = f->s.imu_intrinsics.w_bias.v;
-    imu.a_bias_var_m2__s4    = f->s.imu_intrinsics.a_bias.variance();
-    imu.w_bias_var_rad2__s2  = f->s.imu_intrinsics.w_bias.variance();
+    imu.a_bias_m__s2         = f->s.imu.intrinsics.a_bias.v;
+    imu.w_bias_rad__s        = f->s.imu.intrinsics.w_bias.v;
+    imu.a_bias_var_m2__s4    = f->s.imu.intrinsics.a_bias.variance();
+    imu.w_bias_var_rad2__s2  = f->s.imu.intrinsics.w_bias.variance();
     imu.w_noise_var_rad2__s2 = f->w_variance;
     imu.a_noise_var_m2__s4   = f->a_variance;
 }
@@ -1111,8 +1111,8 @@ bool filter_is_steady(const struct filter *f)
 void filter_start_static_calibration(struct filter *f)
 {
     reset_stability(f);
-    f->a_bias_start = f->s.imu_intrinsics.a_bias.variance();
-    f->w_bias_start = f->s.imu_intrinsics.w_bias.variance();
+    f->a_bias_start = f->s.imu.intrinsics.a_bias.variance();
+    f->w_bias_start = f->s.imu.intrinsics.w_bias.variance();
     f->run_state = RCSensorFusionRunStateStaticCalibration;
 }
 

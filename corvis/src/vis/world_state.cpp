@@ -290,24 +290,24 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
     observe_plot_item(d.timestamp, p, "Tvar_z", (float)f->s.T.variance()[2]);
     p++;
 
-    observe_plot_item(d.timestamp, p, "wbias_x", (float)f->s.imu_intrinsics.w_bias.v[0]);
-    observe_plot_item(d.timestamp, p, "wbias_y", (float)f->s.imu_intrinsics.w_bias.v[1]);
-    observe_plot_item(d.timestamp, p, "wbias_z", (float)f->s.imu_intrinsics.w_bias.v[2]);
+    observe_plot_item(d.timestamp, p, "wbias_x", (float)f->s.imu.intrinsics.w_bias.v[0]);
+    observe_plot_item(d.timestamp, p, "wbias_y", (float)f->s.imu.intrinsics.w_bias.v[1]);
+    observe_plot_item(d.timestamp, p, "wbias_z", (float)f->s.imu.intrinsics.w_bias.v[2]);
     p++;
 
-    observe_plot_item(d.timestamp, p, "var-wbias_x", (float)f->s.imu_intrinsics.w_bias.variance()[0]);
-    observe_plot_item(d.timestamp, p, "var-wbias_y", (float)f->s.imu_intrinsics.w_bias.variance()[1]);
-    observe_plot_item(d.timestamp, p, "var-wbias_z", (float)f->s.imu_intrinsics.w_bias.variance()[2]);
+    observe_plot_item(d.timestamp, p, "var-wbias_x", (float)f->s.imu.intrinsics.w_bias.variance()[0]);
+    observe_plot_item(d.timestamp, p, "var-wbias_y", (float)f->s.imu.intrinsics.w_bias.variance()[1]);
+    observe_plot_item(d.timestamp, p, "var-wbias_z", (float)f->s.imu.intrinsics.w_bias.variance()[2]);
     p++;
 
-    observe_plot_item(d.timestamp, p, "abias_x", (float)f->s.imu_intrinsics.a_bias.v[0]);
-    observe_plot_item(d.timestamp, p, "abias_y", (float)f->s.imu_intrinsics.a_bias.v[1]);
-    observe_plot_item(d.timestamp, p, "abias_z", (float)f->s.imu_intrinsics.a_bias.v[2]);
+    observe_plot_item(d.timestamp, p, "abias_x", (float)f->s.imu.intrinsics.a_bias.v[0]);
+    observe_plot_item(d.timestamp, p, "abias_y", (float)f->s.imu.intrinsics.a_bias.v[1]);
+    observe_plot_item(d.timestamp, p, "abias_z", (float)f->s.imu.intrinsics.a_bias.v[2]);
     p++;
 
-    observe_plot_item(d.timestamp, p, "var-abias_x", (float)f->s.imu_intrinsics.a_bias.variance()[0]);
-    observe_plot_item(d.timestamp, p, "var-abias_y", (float)f->s.imu_intrinsics.a_bias.variance()[1]);
-    observe_plot_item(d.timestamp, p, "var-abias_z", (float)f->s.imu_intrinsics.a_bias.variance()[2]);
+    observe_plot_item(d.timestamp, p, "var-abias_x", (float)f->s.imu.intrinsics.a_bias.variance()[0]);
+    observe_plot_item(d.timestamp, p, "var-abias_y", (float)f->s.imu.intrinsics.a_bias.variance()[1]);
+    observe_plot_item(d.timestamp, p, "var-abias_z", (float)f->s.imu.intrinsics.a_bias.variance()[2]);
     p++;
 
     for (const auto &a : f->accelerometers) {

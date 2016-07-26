@@ -518,7 +518,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
         for(int j = 0; j < dst.cols(); ++j) {
             const v3 cov_a_bias = intrinsics.a_bias.from_row(src, j);
             const auto scov_Q = state.Q.from_row(src, j);
-            v3 res = (state.estimate_bias ? cov_a_bias : v3::Zero()) + da_dQ * scov_Q;
+            v3 res = (state.imu.intrinsics.estimate_bias ? cov_a_bias : v3::Zero()) + da_dQ * scov_Q;
             if(extrinsics.estimate) {
                 const auto scov_Qc = extrinsics.Qc.from_row(src, j);
                 res += da_dQc * scov_Qc;

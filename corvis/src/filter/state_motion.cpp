@@ -130,20 +130,32 @@ void state_motion::disable_orientation_only()
     //remap implicit in enable_bias_estimation
 }
 
-void state_motion::disable_bias_estimation()
+void state_imu_intrinsics::disable_bias_estimation()
 {
     if(!estimate_bias) return;
     estimate_bias = false;
-    imu_intrinsics.a_bias.set_initial_variance(imu_intrinsics.a_bias.variance()[0], imu_intrinsics.a_bias.variance()[1], imu_intrinsics.a_bias.variance()[2]);
-    imu_intrinsics.w_bias.set_initial_variance(imu_intrinsics.w_bias.variance()[0], imu_intrinsics.w_bias.variance()[1], imu_intrinsics.w_bias.variance()[2]);
-    remove_child(&imu_intrinsics);
+    a_bias.set_initial_variance(a_bias.variance()[0], a_bias.variance()[1], a_bias.variance()[2]);
+    w_bias.set_initial_variance(w_bias.variance()[0], w_bias.variance()[1], w_bias.variance()[2]);
+    remove_child(&a_bias);
+    remove_child(&w_bias);
+}
+
+void state_motion::disable_bias_estimation()
+{
+    imu.intrinsics.disable_bias_estimation();
     remap();
+}
+
+void state_imu_intrinsics::enable_bias_estimation()
+{
+    if(estimate_bias) return;
+    estimate_bias = true;
+    children.push_back(&w_bias);
+    children.push_back(&a_bias);
 }
 
 void state_motion::enable_bias_estimation()
 {
-    if(estimate_bias) return;
-    estimate_bias = true;
-    children.push_back(&imu_intrinsics);
+    imu.intrinsics.enable_bias_estimation();
     remap();
 }

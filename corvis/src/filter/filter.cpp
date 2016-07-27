@@ -758,6 +758,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;
         bool inertial_converged = (f->s.Q.variance()[0] < dynamic_W_thresh_variance && f->s.Q.variance()[1] < dynamic_W_thresh_variance);
+        f->last_time = time;
         if(inertial_converged) {
             if(inertial_converged) {
                 f->log->debug("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());

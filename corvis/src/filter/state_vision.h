@@ -96,7 +96,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     uint64_t id;
     uint64_t groupid;
     uint64_t tracker_id;
-    v3 world = v3(0, 0, 0);
+    v3 body = v3(0, 0, 0);
     v3 Xcamera = v3(0, 0, 0);
 
     struct descriptor descriptor;
@@ -217,15 +217,23 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
+struct state_camera: state_branch<state_node*> {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    state_extrinsics extrinsics;
+    state_vision_intrinsics intrinsics;
+    std::unique_ptr<tracker> feature_tracker;
+    state_camera() : extrinsics("Qc", "Tc", false), intrinsics(false) {
+        //children.push_back(&extrinsics);
+        children.push_back(&intrinsics);
+    }
+};
+
 class state_vision: public state_motion {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    //TODOMSM
-    state_extrinsics extrinsics;
-    state_vision_intrinsics camera_intrinsics;
+    state_camera camera;
     std::vector<tracker::point> features; // reuasable storage passed to tracker->detect()
     std::vector<tracker::prediction> predictions; // reuasable storage passed to and returned from tracker->track()
-    std::unique_ptr<tracker> feature_tracker;
     uint64_t feature_counter;
     uint64_t group_counter;
 
@@ -236,12 +244,9 @@ public:
     int process_features(const image_gray8 &image, sensor_clock::time_point time);
     state_vision_feature *add_feature(const feature_t & initial);
     state_vision_group *add_group(sensor_clock::time_point time);
+    transformation get_transformation() const;
 
     state_vision_group *reference;
-
-    uint64_t last_reference{0};
-    v3 last_Tr;
-    rotation_vector last_Wr;
 
     bool map_enabled{false};
     mapper map;

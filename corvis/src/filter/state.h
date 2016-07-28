@@ -118,6 +118,8 @@ public:
     covariance &cov;
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", make_shared<spdlog::sinks::null_sink_st> ());
 
+    v3 world_up = {0,0,1}, world_initial_forward = {0,1,0}, body_forward = {0,0,1}; // defines our world coordinates
+
     int remap() {
 #ifdef TEST_POSDEF
         if(cov.size() && !test_posdef(cov.cov)) log->error("not pos def at beginning of remap");
@@ -533,16 +535,16 @@ class state_scalar: public state_leaf<f_t, 1> {
 class state_extrinsics: public state_branch<state_node *>
 {
 public:
-    state_vector Tc { "Tc" };
-    state_quaternion Qc { "Qc" };
+    state_quaternion Q;
+    state_vector T;
     bool estimate;
-    
-    state_extrinsics(bool _estimate): estimate(_estimate)
+
+    state_extrinsics(const char *Qx, const char *Tx, bool _estimate): T(Tx), Q(Qx), estimate(_estimate)
     {
         if(estimate)
         {
-            children.push_back(&Tc);
-            children.push_back(&Qc);
+            children.push_back(&T);
+            children.push_back(&Q);
         }
     }
 };

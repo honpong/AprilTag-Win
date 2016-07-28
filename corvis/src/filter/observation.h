@@ -60,14 +60,16 @@ class observation_vision_feature: public observation_storage<2> {
     f_t projection_residual(const v3 & X, const feature_t &found);
     const state_vision &state;
     const state_vision_intrinsics &intrinsics;
+    const state_extrinsics &extrinsics;
  public:
-    m3 Rrt;
+    m3 Rrt, Rct;
     v3 X0, X;
     m3 Rtot;
     v3 Ttot;
 
     f_t dx_dp, dy_dp;
     v3 dx_dQr, dy_dQr, dx_dTr, dy_dTr;
+    v3 dx_dQc, dy_dQc, dx_dTc, dy_dTc;
 
     f_t dx_dF, dy_dF;
     f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dk3, dy_dk3, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
@@ -85,7 +87,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     void update_initializing();
 
-    observation_vision_feature(sensor_grey &src, const state_vision &_state, const state_vision_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(src, _time_actual, _time_apparent), state(_state), intrinsics(_intrinsics) {}
+    observation_vision_feature(sensor_grey &src, const state_vision &_state, const state_extrinsics &_extrinsics, const state_vision_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(src, _time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -106,8 +108,9 @@ protected:
     state_motion &state;
     const state_extrinsics &extrinsics;
     const state_imu_intrinsics &intrinsics;
-    m3 Rt, Rc, da_dQ, da_dw, da_ddw;
-    m3 da_dQc, da_dTc;
+    v3 xcc;
+    m3 Rt, Ra, da_dQ, da_dw, da_ddw, da_dacc;
+    m3 da_dQa, da_dTa;
  public:
     virtual void predict();
     virtual bool measure();
@@ -130,8 +133,8 @@ protected:
     const state_motion_orientation &state;
     const state_extrinsics &extrinsics;
     const state_imu_intrinsics &intrinsics;
-    m3 Rc;
-    m3 dw_dQc;
+    m3 Rw;
+    m3 dw_dQw;
  public:
     virtual void predict();
     virtual bool measure() {

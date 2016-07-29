@@ -239,8 +239,8 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
         if(nt != type) return i;
         if(type != node_type::fake)
         {
-            if(index < 0)
-                c.add(i, process_noise, initial_covariance);
+            if (index < 0)
+                c.add<_size>(i, process_noise, initial_covariance);
             else
                 c.reindex(i, index, size);
         }

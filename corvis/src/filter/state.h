@@ -235,7 +235,7 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
                 initial_covariance(i, j) = (i==j) ? x : 0;
     }
     
-    int remap(int i, covariance &c, enum node_type nt) {
+    int remap(int i, covariance &c, node_type nt) {
         if(nt != type) return i;
         if(type != node_type::fake)
         {

@@ -50,14 +50,14 @@ int main(int c, char **v)
 
     constexpr float fourty = 40*M_PI/180;
     rc_Pose r_b_from_fe = rc_Pose {{
-            {  0, std::cos( fourty),  std::sin( fourty),  0.160668/2 }, // (FE-FE)/2
-            {  1,         0,                   0,         0.0256     }, // FE above center
-            {  0, std::sin( fourty), -std::cos( fourty), -0.01216    },
+            {  0, std::cos( fourty),  std::sin( fourty),  0.160668f/2 }, // (FE-FE)/2
+            {  1,         0,                   0,         0.0256f     }, // FE above center
+            {  0, std::sin( fourty), -std::cos( fourty), -0.01216f    },
     }};
     rc_Pose l_b_from_fe = rc_Pose {{
-            {  0, std::cos(-fourty),  std::sin(-fourty), -0.160668/2 }, // (FE-FE)/2
-            {  1,         0,                   0,         0.0256     }, // FE above center
-            {  0, std::sin(-fourty), -std::cos(-fourty), -0.01216    },
+            {  0, std::cos(-fourty),  std::sin(-fourty), -0.160668f/2 }, // (FE-FE)/2
+            {  1,         0,                   0,         0.0256f     }, // FE above center
+            {  0, std::sin(-fourty), -std::cos(-fourty), -0.01216f    },
     }};
 
     std::string r_json; if (!read_file(r_file, r_json)) { std::cerr << "Error reading " << r_file << "\n"; return 1; }

@@ -58,9 +58,8 @@ void sensor_fusion::update_status()
     // queue actions related to failures before queuing callbacks to the sdk client.
     if(s.error == RCSensorFusionErrorCodeOther)
     {
-        //Sensor fusion has already been reset by get_error, but it could have gotten random data inbetween, so do full reset
-        if(threaded) std::async(std::launch::async, [this] { flush_and_reset(); });
-        else flush_and_reset();
+        sfm.log->error("Numerical error; filter reset.");
+        filter_initialize(&sfm);
     }
     else if(last_status.run_state == RCSensorFusionRunStateStaticCalibration && s.run_state == RCSensorFusionRunStateInactive && s.error == RCSensorFusionErrorCodeNone)
     {

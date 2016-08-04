@@ -34,7 +34,7 @@ static bool write_file(const std::string name, const char *contents)
 
 int main(int c, char **v) {
     if (0) { usage:
-        std::cerr << "Usage: " << v[0] << " [--id=<n>] [--xml <calibration.xml>] [(--save | --load) <calibration-json>]\n";
+        std::cerr << "Usage: " << v[0] << " [(--id=<n>)...] [(--save | --load) <calibration-json>] [--xml <calibration.xml>] [--capture <file>]\n";
         return 1;
     }
 

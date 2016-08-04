@@ -43,17 +43,8 @@ public:
         bool initialized;
     };
     
-    struct data
-    {
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-        sensor_clock::time_point time;
-        transformation transform;
-        std::string origin_qr_code;
-        f_t total_path_m;
-        std::vector<feature_point> features;
-    };
-    
-    std::function<void(std::unique_ptr<data>, image_gray8 &&)> camera_callback;
+    std::function<void(image_gray8 &&)> camera_callback;
+    std::function<void()> data_callback;
     std::function<void(status)> status_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
@@ -191,7 +182,8 @@ private:
     friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere
     RCSensorFusionErrorCode get_error();
     void update_status();
-    void update_data(image_gray8 &&data);
+    void update_data();
+    void update_image_data(image_gray8 &&data);
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning, processingVideoRequested;
     std::unique_ptr<fusion_queue> queue;
     status last_status;

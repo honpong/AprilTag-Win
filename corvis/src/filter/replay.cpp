@@ -170,7 +170,7 @@ void replay::setup_filter()
     if(camera_callback)
     {
         auto fusion = (sensor_fusion *)tracker; 
-        fusion->camera_callback = [this, fusion](std::unique_ptr<sensor_fusion::data> data, image_gray8 &&image)
+        fusion->camera_callback = [this, fusion](image_gray8 &&image)
         {
             camera_callback(&fusion->sfm, std::move(image));
         };

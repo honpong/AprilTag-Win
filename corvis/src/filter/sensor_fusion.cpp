@@ -114,25 +114,10 @@ std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
     return features;
 }
 
-void sensor_fusion::update_data(image_gray8 &&image)
+void sensor_fusion::update_data()
 {
-    auto d = std::make_unique<data>();
-    
-    //perform these operations synchronously in the calling (filter) thread
-    d->total_path_m = sfm.s.total_distance;
-#ifdef ENABLE_QR
-    if(sfm.qr.valid)
-    {
-        d->origin_qr_code = sfm.qr.data;
-    }
-#endif
-    d->transform = get_transformation();
-    d->time = sfm.last_time;
-
-    d->features = get_features();
-
-    if(camera_callback)
-        camera_callback(std::move(d), std::move(image));
+    if(data_callback)
+        data_callback();
 }
 
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
@@ -147,13 +132,17 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         } else if(isProcessingVideo) {
             docallback = filter_image_measurement(&sfm, data);
             update_status();
-            if(docallback) update_data(std::move(data));
+            if(docallback)
+                update_data();
         } else {
             //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
             docallback =  sfm.gravity_init;
             update_status();
-            if(docallback) update_data(std::move(data));
+            if(docallback)
+                update_data();
         }
+        if(camera_callback)
+            camera_callback(std::move(data));
     };
 
     auto depth_fn = [this](image_depth16 &&data)

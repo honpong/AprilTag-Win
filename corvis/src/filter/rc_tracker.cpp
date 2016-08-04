@@ -470,13 +470,13 @@ RCTRACKER_API void rc_debug(rc_Tracker *tracker, rc_MessageLevel log_level, cons
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)
 {
     if(trace) trace_log->info("rc_setDataCallback");
-    if(callback) tracker->camera_callback = [callback, handle, tracker](std::unique_ptr<sensor_fusion::data> d, image_gray8 &&cam) {
-        uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d->time.time_since_epoch()).count();
-
-        copy_features_from_sensor_fusion(tracker->dataFeatures, d->features);
-        callback(handle, micros, to_rc_Pose(d->transform), tracker->dataFeatures.data(), tracker->dataFeatures.size());
+    if(callback) tracker->data_callback = [callback, handle, tracker]() {
+        uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(tracker->sfm.last_time.time_since_epoch()).count();
+        std::vector<sensor_fusion::feature_point> features = tracker->get_features();
+        copy_features_from_sensor_fusion(tracker->dataFeatures, features);
+        callback(handle, micros, to_rc_Pose(tracker->get_transformation()), tracker->dataFeatures.data(), tracker->dataFeatures.size());
     };
-    else tracker->camera_callback = nullptr;
+    else tracker->data_callback = nullptr;
 }
 
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle)

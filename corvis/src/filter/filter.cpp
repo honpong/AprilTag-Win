@@ -396,7 +396,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
     return f->a_variance;
 }
 
-void filter_accelerometer_measurement(struct filter *f, const accelerometer_data &data)
+bool filter_accelerometer_measurement(struct filter *f, const accelerometer_data &data)
 {
     auto start = std::chrono::steady_clock::now();
     struct sensor_accelerometer &accelerometer = *data.source;
@@ -404,21 +404,21 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
     v3 accel_delta = meas - f->last_accel_meas;
     f->last_accel_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
-    if(f->run_state == RCSensorFusionRunStateInactive) return;
-    if(!check_packet_time(f, data.timestamp, packet_accelerometer)) return;
+    if(f->run_state == RCSensorFusionRunStateInactive) return false;
+    if(!check_packet_time(f, data.timestamp, packet_accelerometer)) return false;
     if(!f->ignore_lateness) {
         auto current = sensor_clock::now();
         auto delta = current - data.timestamp;
         if(delta > max_inertial_delay) {
             f->log->warn("Warning, dropped an old accel sample - timestamp {}, now {}", sensor_clock::tp_to_micros(data.timestamp), sensor_clock::tp_to_micros(current));
-            return;
+            return false;
         }
     }
     if(!accelerometer.got) { //skip first packet - has been crap from gyro
         accelerometer.got = true;
-        return;
+        return false;
     }
-    if (!f->got_any_gyroscopes()) return;
+    if (!f->got_any_gyroscopes()) return false;
 
     if(fabs(accel_delta[0]) > max_accel_delta || fabs(accel_delta[1]) > max_accel_delta || fabs(accel_delta[2]) > max_accel_delta)
     {
@@ -451,9 +451,10 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
     }
     auto stop = std::chrono::steady_clock::now();
     f->accel_timer = stop-start;
+    return true;
 }
 
-void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
+bool filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
 {
     auto start = std::chrono::steady_clock::now();
     struct sensor_gyroscope &gyroscope = *data.source;
@@ -461,21 +462,21 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
     v3 gyro_delta = meas - f->last_gyro_meas;
     f->last_gyro_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
-    if(f->run_state == RCSensorFusionRunStateInactive) return;
-    if(!check_packet_time(f, data.timestamp, packet_gyroscope)) return;
+    if(f->run_state == RCSensorFusionRunStateInactive) return false;
+    if(!check_packet_time(f, data.timestamp, packet_gyroscope)) return false;
     if(!f->ignore_lateness) {
         auto current = sensor_clock::now();
         auto delta = current - data.timestamp;
         if(delta > max_inertial_delay) {
             f->log->warn("Warning, dropped an old gyro sample - timestamp {}, now {}", sensor_clock::tp_to_micros(data.timestamp), sensor_clock::tp_to_micros(current));
-            return;
+            return false;
         }
     }
     if(!gyroscope.got) { //skip the first piece of data as it seems to be crap
         gyroscope.got = true;
-        return;
+        return false;
     }
-    if(!f->gravity_init) return;
+    if(!f->gravity_init) return false;
 
     if(fabs(gyro_delta[0]) > max_gyro_delta || fabs(gyro_delta[1]) > max_gyro_delta || fabs(gyro_delta[2]) > max_gyro_delta)
     {
@@ -505,6 +506,7 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
 
     auto stop = std::chrono::steady_clock::now();
     f->gyro_timer = stop-start;
+    return true;
 }
 
 void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
@@ -726,7 +728,7 @@ bool filter_depth_measurement(struct filter *f, const image_depth16 & depth)
 {
     f->recent_depth = depth.make_copy();
     f->has_depth = true;
-    return true;
+    return false;
 }
 
 bool filter_image_measurement(struct filter *f, const image_gray8 & image)

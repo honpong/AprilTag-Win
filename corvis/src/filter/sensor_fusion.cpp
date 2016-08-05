@@ -263,13 +263,12 @@ void sensor_fusion::flush_and_reset()
     sfm.camera_control.release_platform_specific_object();
 }
 
-void sensor_fusion::reset(sensor_clock::time_point time, const transformation &initial_pose_m, bool origin_gravity_aligned)
+void sensor_fusion::reset(sensor_clock::time_point time)
 {
     flush_and_reset();
     sfm.last_time = time;
     sfm.s.time_update(time); //This initial time update doesn't actually do anything - just sets current time, but it will cause the first measurement to run a time_update relative to this
-    sfm.origin_gravity_aligned = origin_gravity_aligned;
-    filter_set_origin(&sfm, initial_pose_m, false);
+    sfm.origin_gravity_aligned = true;
 }
 
 void sensor_fusion::start_mapping()

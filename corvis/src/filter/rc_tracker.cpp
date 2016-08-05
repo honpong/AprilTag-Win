@@ -208,10 +208,10 @@ void rc_destroy(rc_Tracker * tracker)
     delete tracker;
 }
 
-void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us)
+void rc_reset(rc_Tracker * tracker, rc_Timestamp initial_time_us)
 {
-    if(trace) trace_log->info("rc_reset {}", initialTime_us);
-    tracker->reset(sensor_clock::micros_to_tp(initialTime_us));
+    if(trace) trace_log->info("rc_reset {}", initial_time_us);
+    tracker->reset(sensor_clock::micros_to_tp(initial_time_us));
 }
 
 bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_CameraIntrinsics * intrinsics)

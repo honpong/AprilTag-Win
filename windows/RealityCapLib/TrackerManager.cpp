@@ -30,7 +30,9 @@ RealityCap::TrackerManager::~TrackerManager()
 
 static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
 {
-    ((TrackerManager *)handle)->UpdateData(time, pose, features, feature_count);
+    auto self = (TrackerManager *)handle;
+    rc_Feature *features = nullptr; int feature_count = rc_getFeatures(self->_tracker, &features);
+    self->UpdateData(time, rc_getPose(self->_tracker), features, feature_count);
 }
 
 static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress)

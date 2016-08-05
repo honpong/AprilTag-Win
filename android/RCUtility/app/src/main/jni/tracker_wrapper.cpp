@@ -116,9 +116,12 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
     if (!wasOriginallyAttached) javaVM->DetachCurrentThread();
 }
 
-static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
+static void data_callback(void *handle, rc_Timestamp time, rc_SensorType type, rc_Sensor id)
 {
-    render_data.update_data(time, pose, features, feature_count);
+    if (rc_SensorType == rc_SENSOR_TYPE_IMAGE && id == 0) {
+        rc_Feature *features = nullptr; int feature_count = rc_getFeatures(tracker, &feature_count);
+        render_data.update_data(time, pose, features, feature_count);
+    }
 
     JNIEnv *env;
 
@@ -136,6 +139,7 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
     env->CallVoidMethod(dataUpdateObj, dataUpdate_setTimestamp, (long) time);
     if (RunExceptionCheck(env)) return;
 
+    rc_Pose pose = rc_getPose(tracker);
     env->CallVoidMethod(dataUpdateObj, dataUpdate_setPose, pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], pose[6], pose[7], pose[8], pose[9], pose[10], pose[11]);
     if (RunExceptionCheck(env)) return;
 

@@ -108,6 +108,14 @@ typedef int64_t rc_Timestamp;
 
 typedef uint16_t rc_Sensor;
 
+typedef enum rc_SensorType
+{
+    rc_SENSOR_TYPE_ACCELEROMETER = 0,
+    rc_SENSOR_TYPE_GYROSCOPE = 1,
+    rc_SENSOR_TYPE_IMAGE = 2,
+    rc_SENSOR_TYPE_DEPTH = 3,
+} rc_SensorType;
+
 typedef struct rc_Feature
 {
     uint64_t id;
@@ -127,7 +135,10 @@ typedef enum rc_MessageLevel
     rc_MESSAGE_TRACE = 5, /* everything */
 } rc_MessageLevel;
 
-typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
+/**
+  The callbacks are called synchronously with the filter thread
+ */
+typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time_us, rc_SensorType type, rc_Sensor sensor_id);
 typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
 typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, const char * message, size_t len);
 
@@ -357,6 +368,7 @@ RCTRACKER_API bool rc_receiveGyro(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Tim
  Immediately after a call rc_getPose() will return pose_m.  For best
  results, call this once the tracker has converged and the confidence
  is rc_E_CONFIDENCE_MEDIUM or better rc_E_CONFIDENCE_HIGH.
+ The following functions should should only be called from one of the callbacks.
  */
 RCTRACKER_API void rc_setPose(rc_Tracker *tracker, const rc_Pose pose_m);
 RCTRACKER_API rc_Pose rc_getPose(const rc_Tracker *tracker);

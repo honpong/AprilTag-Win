@@ -169,7 +169,6 @@ struct rc_Tracker: public sensor_fusion
     std::unique_ptr<image_depth16> last_depth;
     std::string jsonString;
     std::vector<rc_Feature> gottenFeatures;
-    std::vector<rc_Feature> dataFeatures;
     std::string timingStats;
     capture output;
 };
@@ -467,11 +466,9 @@ RCTRACKER_API void rc_debug(rc_Tracker *tracker, rc_MessageLevel log_level, cons
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)
 {
     if(trace) trace_log->info("rc_setDataCallback");
-    if(callback) tracker->data_callback = [callback, handle, tracker]() {
+    if(callback) tracker->data_callback = [callback, handle, tracker](rc_SensorType type, rc_Sensor id) {
         uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(tracker->sfm.last_time.time_since_epoch()).count();
-        std::vector<sensor_fusion::feature_point> features = tracker->get_features();
-        copy_features_from_sensor_fusion(tracker->dataFeatures, features);
-        callback(handle, micros, to_rc_Pose(tracker->get_transformation()), tracker->dataFeatures.data(), tracker->dataFeatures.size());
+        callback(handle, micros, type, id);
     };
     else tracker->data_callback = nullptr;
 }
@@ -647,7 +644,7 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)
 {
     if(trace) trace_log->info("rc_getFeatures");
     copy_features_from_sensor_fusion(tracker->gottenFeatures, tracker->get_features());
-    *features_px = tracker->gottenFeatures.data();
+    if (features_px) *features_px = tracker->gottenFeatures.data();
     return tracker->gottenFeatures.size();
 }
 

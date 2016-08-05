@@ -91,15 +91,15 @@ typedef struct { float v[3][4]; } rc_Pose;
 typedef struct { float v[3][3]; } rc_Matrix;
 
 static const rc_Pose rc_POSE_IDENTITY = {
-    {{ 1.f, 0.f, 0.f, 0.f },
-     { 0.f, 1.f, 0.f, 0.f },
-     { 0.f, 0.f, 1.f, 0.f }}
+    {{ 1, 0, 0,  0 },
+     { 0, 1, 0,  0 },
+     { 0, 0, 1,  0 }}
 };
 static const rc_Matrix rc_MATRIX_IDENTITY = {
-    {{1.f, 0.f, 0.f},
-     {0.f, 1.f, 0.f},
-     {0.f, 0.f, 1.f}}
-};;
+    {{1, 0, 0},
+     {0, 1, 0},
+     {0, 0, 1}},
+};
 
 /**
  Timestamp, in microseconds

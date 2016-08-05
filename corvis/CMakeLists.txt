@@ -86,7 +86,6 @@ if(YES)
       test/filter/utils.cpp
       test/filter/state_vision.cpp
       test/filter/calibration_json.cpp
-      test/filter/calibration_xml.cpp
       test/filter/tpose.cpp
       test/filter/dictionary.cpp
       test/filter/mapper.cpp

@@ -148,7 +148,6 @@ add_library(filter STATIC
   filter/calibration.h
   filter/calibration.cpp
   filter/calibration_json.cpp
-  filter/calibration_xml.cpp
   filter/calibration_defaults.cpp
   filter/sensor_fusion.cpp
   filter/capture.cpp
@@ -164,7 +163,7 @@ add_library(filter STATIC
   filter/fast_tracker.cpp
 )
 target_include_directories(filter PUBLIC filter)
-target_include_directories(filter PRIVATE rapidjson/include ../../ThirdParty/rapidxml)
+target_include_directories(filter PRIVATE rapidjson/include)
 target_include_directories(filter PUBLIC ../../ThirdParty/spdlog/include)
 target_link_libraries(filter PRIVATE vlfeat)
 target_link_libraries(filter PUBLIC numerics cor)

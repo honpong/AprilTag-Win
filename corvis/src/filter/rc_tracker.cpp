@@ -39,10 +39,7 @@ static void rc_trace(const rc_Matrix p)
 
 static void rc_trace(const rc_Pose p)
 {
-    trace_log->info("{} {} {} {}; {} {} {} {}; {} {} {} {}",
-                    p.v[0][0], p.v[0][1], p.v[0][2], p.v[0][3],
-                    p.v[1][0], p.v[1][1], p.v[1][2], p.v[1][3],
-                    p.v[2][0], p.v[2][1], p.v[2][2], p.v[2][3]);
+    trace_log->info("{} {} {} {}; {} {} {}", p.Q.w, p.Q.x, p.Q.y, p.Q.z, p.T.x, p.T.y, p.T.z);
 }
 
 static void rc_trace(const rc_CameraIntrinsics c)
@@ -76,8 +73,8 @@ static void rc_trace(rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp ti
 static rc_Pose to_rc_Pose(const transformation &g)
 {
     rc_Pose p;
-    m_map(p.v).block<3,3>(0,0) = g.Q.toRotationMatrix().cast<float>();
-    m_map(p.v).block<3,1>(0,3) = g.T.cast<float>();
+    v_map(p.Q.v) = g.Q.coeffs().cast<float>();
+    v_map(p.T.v) = g.T.cast<float>();
     return p;
 }
 
@@ -102,9 +99,8 @@ static rc_Extrinsics rc_Extrinsics_from_sensor_extrinsics(struct sensor::extrins
 
 static transformation to_transformation(const rc_Pose p)
 {
-    m3 R = m_map(p.v).block<3,3>(0,0).cast<f_t>();
-    v3 T = m_map(p.v).block<3,1>(0,3).cast<f_t>();
-    return transformation(to_quaternion(R),T);
+    return transformation(quaternion(v_map(p.Q.v).cast<f_t>()),
+                          v_map(p.T.v).cast<f_t>());
 }
 
 static rc_TrackerState tracker_state_from_run_state(RCSensorFusionRunState run_state)

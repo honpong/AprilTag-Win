@@ -354,19 +354,13 @@ extern "C"
         gOffsetZ = depth_to_color_z_mm;
 
         const rc_Pose depth_to_color_mm = { // g_cd
-            1, 0, 0, depth_to_color_x_mm / 1000,
-            0, 1, 0, depth_to_color_y_mm / 1000,
-            0, 0, 1, depth_to_color_z_mm / 1000,
+            {1, 0, 0, 0}, { depth_to_color_x_mm / 1000, depth_to_color_y_mm / 1000, depth_to_color_z_mm / 1000 },
         };
         const rc_Pose color_to_imu_m = { // g_ac
-            0, -1, 0, 0,
-            -1, 0, 0, 0,
-            0, 0, -1, 0,
+            {0, -M_SQRT1_2, M_SQRT1_2, 0}, {0,0,0},
         };
         const rc_Pose depth_to_imu_m = { // g_ad = g_ac * (g_cd)^-1
-            0, -1, 0, depth_to_color_y_mm / 1000,
-            -1, 0, 0, depth_to_color_x_mm / 1000,
-            0, 0, -1, depth_to_color_z_mm / 1000,
+            {0, -M_SQRT1_2, M_SQRT1_2, 0}, {depth_to_color_y_mm / 1000, depth_to_color_x_mm / 1000, depth_to_color_z_mm / 1000},
         };
 
         rc_configureCamera(tracker, rc_CAMERA_ID_COLOR, color_to_imu_m, &gRGBIntrinsics);

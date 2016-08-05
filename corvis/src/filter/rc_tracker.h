@@ -72,28 +72,14 @@ typedef enum rc_TrackerConfidence
     rc_E_CONFIDENCE_HIGH = 3
 } rc_TrackerConfidence;
 
-typedef struct rc_Vector {
-    union {
-        struct { float x,y,z; };
-        float v[3];
-    };
-} rc_Vector;
-
-/**
- Flat array of 12 floats, corresponding to 3x4 transformation matrix in row-major order:
- 
- [R00 R01 R02 T0]
- [R10 R11 R12 T1]
- [R20 R21 R22 T2]
- */
-typedef struct { float v[3][4]; } rc_Pose;
-
+typedef union { struct { float x,y,z;   }; float v[3]; } rc_Vector;
+typedef union { struct { float x,y,z,w; }; float v[4]; } rc_Quaternion;
+typedef struct { rc_Quaternion Q; rc_Vector T; } rc_Pose;
 typedef struct { float v[3][3]; } rc_Matrix;
 
 static const rc_Pose rc_POSE_IDENTITY = {
-    {{ 1, 0, 0,  0 },
-     { 0, 1, 0,  0 },
-     { 0, 0, 1,  0 }}
+    {1,0,0,0},
+    {0,0,0},
 };
 static const rc_Matrix rc_MATRIX_IDENTITY = {
     {{1, 0, 0},

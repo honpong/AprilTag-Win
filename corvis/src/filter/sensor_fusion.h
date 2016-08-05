@@ -87,7 +87,8 @@ public:
     
     void start_buffering();
     void start_offline();
-    
+    bool started();
+
     /** Stops the processing of video and inertial data. */
     void stop();
 

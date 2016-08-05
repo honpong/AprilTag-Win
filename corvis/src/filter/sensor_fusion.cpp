@@ -241,6 +241,11 @@ void sensor_fusion::start_offline()
     queue->start_singlethreaded(true);
 }
 
+bool sensor_fusion::started()
+{
+    return isSensorFusionRunning;
+}
+
 void sensor_fusion::stop()
 {
     queue->stop_sync();

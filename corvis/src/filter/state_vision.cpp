@@ -498,9 +498,9 @@ void state_vision::add_non_orientation_states()
 void state_vision::evolve_state(f_t dt)
 {
     for(state_vision_group *g : groups.children) {
-        g->Tr.v = g->Tr.v + g->dTrp_ddT * dT;
+        g->Tr.v += g->dTrp_ddT * dT;
         rotation_vector dWr(dW[0], dW[1], dW[2]);
-        g->Qr.v = g->Qr.v * to_quaternion(dWr); // FIXME: cache this?
+        g->Qr.v *= to_quaternion(dWr); // FIXME: cache this?
     }
     state_motion::evolve_state(dt);
 }

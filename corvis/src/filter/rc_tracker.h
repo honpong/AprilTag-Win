@@ -75,6 +75,8 @@ typedef enum rc_TrackerConfidence
 typedef union { struct { float x,y,z;   }; float v[3]; } rc_Vector;
 typedef union { struct { float x,y,z,w; }; float v[4]; } rc_Quaternion;
 typedef struct { rc_Quaternion Q; rc_Vector T; } rc_Pose;
+typedef struct { rc_Vector Q; rc_Vector T; } rc_PoseVelocity; // Q is the spatial (not body) velocity and T the derivative of rc_Pose's T
+typedef struct { rc_Vector Q; rc_Vector T; } rc_PoseAcceleration; // derivative of rc_PoseVelocity
 typedef struct { float v[3][3]; } rc_Matrix;
 
 static const rc_Pose rc_POSE_IDENTITY = {
@@ -245,7 +247,7 @@ RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg
  World coordinates are defined to be the gravity aligned right handed
  frame coincident with the device and oriented such that the device
  initially looks, modulo elevation, in a known direction
- (world_initial_forward).  rc_getPose() maps points from in the body
+ (world_initial_forward).  rc_getPose() maps points from the body
  fixed reference frame to the world frame defined by this function.
  The extrinsics of rc_configureAccelerometer(),
  rc_configureGyroscope() and rc_configureCamera() all define
@@ -357,7 +359,12 @@ RCTRACKER_API bool rc_receiveGyro(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Tim
  The following functions should should only be called from one of the callbacks.
  */
 RCTRACKER_API void rc_setPose(rc_Tracker *tracker, const rc_Pose pose_m);
-RCTRACKER_API rc_Pose rc_getPose(const rc_Tracker *tracker);
+/**
+ @param tracker The active rc_Tracker instance
+ @param velocity Velocity (rad/s, m/s), the rotation components in in body fixed coordinates, the translational is in world coordinates (may be NULL)
+ @param acceleration Position (rad/s/s, m/s/s) these are the derivatives of the velocities (may be NULL)
+*/
+RCTRACKER_API rc_Pose rc_getPose(const rc_Tracker *tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a);
 RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Feature **features_px);
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);

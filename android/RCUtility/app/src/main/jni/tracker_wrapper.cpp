@@ -139,7 +139,7 @@ static void data_callback(void *handle, rc_Timestamp time, rc_SensorType type, r
     env->CallVoidMethod(dataUpdateObj, dataUpdate_setTimestamp, (long) time);
     if (RunExceptionCheck(env)) return;
 
-    rc_Pose pose = rc_getPose(tracker);
+    rc_Pose pose = rc_getPose(tracker, nullptr, nullptr);
     env->CallVoidMethod(dataUpdateObj, dataUpdate_setPose, pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], pose[6], pose[7], pose[8], pose[9], pose[10], pose[11]);
     if (RunExceptionCheck(env)) return;
 

@@ -32,7 +32,7 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
 {
     auto self = (TrackerManager *)handle;
     rc_Feature *features = nullptr; int feature_count = rc_getFeatures(self->_tracker, &features);
-    self->UpdateData(time, rc_getPose(self->_tracker), features, feature_count);
+    self->UpdateData(time, rc_getPose(self->_tracker, nullptr, nullptr), features, feature_count);
 }
 
 static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress)

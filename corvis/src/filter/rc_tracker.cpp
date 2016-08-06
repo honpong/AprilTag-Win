@@ -619,10 +619,16 @@ bool rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
     return true;
 }
 
-rc_Pose rc_getPose(const rc_Tracker * tracker)
+rc_Pose rc_getPose(const rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a)
 {
     if(trace) trace_log->info("rc_getPose");
-    rc_Pose pose_m = to_rc_Pose(tracker->get_transformation());
+    transformation total = tracker->sfm.origin * tracker->sfm.s.loop_offset;
+    if (v) v_map(v->Q.v) = total.Q * tracker->sfm.s.Q.v * tracker->sfm.s.w.v; // we use body rotational velocity, but we export spatial
+    if (a) v_map(a->Q.v) = total.Q * tracker->sfm.s.Q.v * tracker->sfm.s.dw.v;
+    if (v) v_map(v->T.v) = total.Q * tracker->sfm.s.V.v;
+    if (a) v_map(a->T.v) = total.Q * tracker->sfm.s.a.v;
+    rc_Pose pose_m = to_rc_Pose(total * transformation(tracker->sfm.s.Q.v, tracker->sfm.s.T.v));
+    // assert(pose_m == tracker->get_transformation()); // FIXME: this depends on the specific implementation of ->get_transformation()
     if(trace) rc_trace(pose_m);
     return pose_m;
 }

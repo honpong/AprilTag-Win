@@ -89,6 +89,7 @@ if(YES)
       test/filter/tpose.cpp
       test/filter/dictionary.cpp
       test/filter/mapper.cpp
+      test/filter/fast_tracker.cpp
       test/cor/sensor_fusion_queue.cpp
     )
     if(ENABLE_QR)

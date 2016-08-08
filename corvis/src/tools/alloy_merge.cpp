@@ -7,6 +7,7 @@
 static rc_Pose to_rc_Pose(const transformation &g)
 {
     rc_Pose p;
+    m_map(p.R.v) = g.Q.toRotationMatrix().cast<float>();
     v_map(p.Q.v) = g.Q.coeffs().cast<float>();
     v_map(p.T.v) = g.T.cast<float>();
     return p;
@@ -14,8 +15,8 @@ static rc_Pose to_rc_Pose(const transformation &g)
 
 static transformation to_transformation(const rc_Pose p)
 {
-    return transformation(quaternion(v_map(p.Q.v).cast<f_t>()),
-                          v_map(p.T.v).cast<f_t>());
+    quaternion Q(v_map(p.Q.v).cast<f_t>()); m3 R = m_map(p.R.v).cast<f_t>(); v3 T = v_map(p.T.v).cast<f_t>();
+    return std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1) ? transformation(R, T) : transformation(Q, T);
 }
 
 static rc_Extrinsics operator*(rc_Pose a, rc_Extrinsics b)

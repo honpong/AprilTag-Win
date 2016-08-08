@@ -39,7 +39,14 @@ static void rc_trace(const rc_Matrix p)
 
 static void rc_trace(const rc_Pose p)
 {
-    trace_log->info("{} {} {} {}; {} {} {}", p.Q.w, p.Q.x, p.Q.y, p.Q.z, p.T.x, p.T.y, p.T.z);
+    quaternion Q(v_map(p.Q.v).cast<f_t>()); m3 R = m_map(p.R.v).cast<f_t>(); v3 T = v_map(p.T.v).cast<f_t>();
+    if (std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1))
+        trace_log->info("{} {} {}  {}; {} {} {}  {}; {} {} {}  {}",
+                        p.R.v[0][0], p.R.v[0][1], p.R.v[0][2], p.T.v[0],
+                        p.R.v[1][0], p.R.v[1][1], p.R.v[1][2], p.T.v[1],
+                        p.R.v[2][0], p.R.v[2][1], p.R.v[2][2], p.T.v[2]);
+    else
+        trace_log->info("{} {} {} {}; {} {} {}", p.Q.w, p.Q.x, p.Q.y, p.Q.z, p.T.x, p.T.y, p.T.z);
 }
 
 static void rc_trace(const rc_CameraIntrinsics c)
@@ -73,6 +80,7 @@ static void rc_trace(rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp ti
 static rc_Pose to_rc_Pose(const transformation &g)
 {
     rc_Pose p;
+    m_map(p.R.v) = g.Q.toRotationMatrix().cast<float>();
     v_map(p.Q.v) = g.Q.coeffs().cast<float>();
     v_map(p.T.v) = g.T.cast<float>();
     return p;
@@ -99,8 +107,8 @@ static rc_Extrinsics rc_Extrinsics_from_sensor_extrinsics(struct sensor::extrins
 
 static transformation to_transformation(const rc_Pose p)
 {
-    return transformation(quaternion(v_map(p.Q.v).cast<f_t>()),
-                          v_map(p.T.v).cast<f_t>());
+    quaternion Q(v_map(p.Q.v).cast<f_t>()); m3 R = m_map(p.R.v).cast<f_t>(); v3 T = v_map(p.T.v).cast<f_t>();
+    return std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1) ? transformation(R, T) : transformation(Q, T);
 }
 
 static rc_TrackerState tracker_state_from_run_state(RCSensorFusionRunState run_state)
@@ -623,8 +631,8 @@ rc_Pose rc_getPose(const rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAccele
 {
     if(trace) trace_log->info("rc_getPose");
     transformation total = tracker->sfm.origin * tracker->sfm.s.loop_offset;
-    if (v) v_map(v->Q.v) = total.Q * tracker->sfm.s.Q.v * tracker->sfm.s.w.v; // we use body rotational velocity, but we export spatial
-    if (a) v_map(a->Q.v) = total.Q * tracker->sfm.s.Q.v * tracker->sfm.s.dw.v;
+    if (v) v_map(v->W.v) = total.Q * tracker->sfm.s.Q.v * tracker->sfm.s.w.v; // we use body rotational velocity, but we export spatial
+    if (a) v_map(a->W.v) = total.Q * tracker->sfm.s.Q.v * tracker->sfm.s.dw.v;
     if (v) v_map(v->T.v) = total.Q * tracker->sfm.s.V.v;
     if (a) v_map(a->T.v) = total.Q * tracker->sfm.s.a.v;
     rc_Pose pose_m = to_rc_Pose(total * transformation(tracker->sfm.s.Q.v, tracker->sfm.s.T.v));

@@ -1,23 +1,6 @@
 #include "gtest/gtest.h"
 #include "fast_tracker.h"
 
-/*
-public:
-    fast_tracker() {}
-    virtual ~fast_tracker() {}
-    virtual std::vector<point> &detect(const image &image, const std::vector<point> &features, int number_desired) override;
-    virtual std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions) override;
-    virtual void drop_feature(uint64_t feature_id) override;
-};
-
-    struct image {
-        const uint8_t *image;
-        int width_px;
-        int height_px;
-        int stride_px;
-    };
-
-*/
 void draw_box(uint8_t * image, int width, int height, int stride, int ul_x, int ul_y, int box_width, int box_height)
 {
     for(int y = ul_y; y < ul_y + box_height; y++) {

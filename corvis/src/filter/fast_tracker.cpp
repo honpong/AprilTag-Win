@@ -35,7 +35,9 @@ vector<tracker::point> &fast_tracker::detect(const image &image, const std::vect
 vector<tracker::prediction> &fast_tracker::track(const image &image, vector<prediction> &predictions)
 {
     for(auto &pred : predictions) {
-        feature &f = feature_map.at(pred.id);
+        auto f_iter = feature_map.find(pred.id);
+        if(f_iter == feature_map.end()) continue;
+        feature &f = f_iter->second;
 
         xy bestkp = fast.track(f.patch, image.image,
                 half_patch_width, half_patch_width,

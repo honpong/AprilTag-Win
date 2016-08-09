@@ -554,14 +554,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
 bool observation_accelerometer::measure()
 {
     src_data.meas_stdev.data(meas);
-    if(!state.orientation_initialized)
-    {
-        state.initial_orientation = initial_orientation_from_gravity_facing(state.world_up, extrinsics.Q.v * meas,
-                                                                            state.world_initial_forward, state.body_forward);
-        state.Q.v = state.initial_orientation;
-        state.orientation_initialized = true;
-        return false;
-    } else return observation_spatial::measure();
+    return observation_spatial::measure();
 }
 
 void observation_gyroscope::predict()

@@ -10,6 +10,7 @@
 #include <assert.h>
 #include "state_vision.h"
 #include "../numerics/vec4.h"
+#include "utils.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
@@ -424,7 +425,25 @@ bool filter_accelerometer_measurement(struct filter *f, const accelerometer_data
     {
         f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
     }
-    
+
+    if(!f->gravity_init) {
+        f->gravity_init = true;
+
+        if(!f->s.orientation_initialized)
+        {
+            f->s.initial_orientation = initial_orientation_from_gravity_facing(f->s.world_up, f->s.imu.extrinsics.Q.v * meas,
+                                                                               f->s.world_initial_forward, f->s.body_forward);
+            f->s.Q.v = f->s.initial_orientation;
+            f->s.orientation_initialized = true;
+        }
+        if(!f->origin_gravity_aligned)
+        {
+            f->origin.Q = f->origin.Q * f->s.initial_orientation.conjugate();
+        }
+        preprocess_observation_queue(f, data.timestamp);
+        return true;
+    }
+
     auto obs_a = std::make_unique<observation_accelerometer>(*data.source, f->s, f->s.imu.extrinsics, f->s.imu.intrinsics, data.timestamp, data.timestamp);
     obs_a->meas = meas;
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, data.timestamp);
@@ -442,13 +461,6 @@ bool filter_accelerometer_measurement(struct filter *f, const accelerometer_data
              << " bias is: " << f->s.imu.intrinsics.a_bias.v << " stdev is: " << f->s.imu.intrinsics.a_bias.variance().array().sqrt() << "\n";
     }
 
-    if(!f->gravity_init) {
-        f->gravity_init = true;
-        if(!f->origin_gravity_aligned)
-        {
-            f->origin.Q = f->origin.Q * f->s.initial_orientation.conjugate();
-        }
-    }
     auto stop = std::chrono::steady_clock::now();
     f->accel_timer = stop-start;
     return true;

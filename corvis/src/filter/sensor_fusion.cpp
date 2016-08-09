@@ -17,7 +17,7 @@ transformation sensor_fusion::get_transformation() const
 
 void sensor_fusion::set_transformation(const transformation &pose_m)
 {
-    sfm.origin_gravity_aligned = false;
+    sfm.origin_set = true;
     sfm.origin = pose_m*invert(sfm.s.get_transformation());
 }
 
@@ -269,7 +269,7 @@ void sensor_fusion::reset(sensor_clock::time_point time)
     flush_and_reset();
     sfm.last_time = time;
     sfm.s.time_update(time); //This initial time update doesn't actually do anything - just sets current time, but it will cause the first measurement to run a time_update relative to this
-    sfm.origin_gravity_aligned = true;
+    sfm.origin_set = false;
 }
 
 void sensor_fusion::start_mapping()

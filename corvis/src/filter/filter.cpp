@@ -431,7 +431,7 @@ bool filter_accelerometer_measurement(struct filter *f, const accelerometer_data
                                                                            f->s.world_initial_forward, f->s.body_forward);
         f->s.Q.v = f->s.initial_orientation;
         f->s.orientation_initialized = true;
-        if(!f->origin_gravity_aligned)
+        if(f->origin_set)
         {
             f->origin.Q = f->origin.Q * f->s.initial_orientation.conjugate();
         }
@@ -738,7 +738,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
         f->qr.process_frame(f, image.image, image.width, image.height);
         if(f->qr.valid)
         {
-            filter_set_qr_origin(f, f->qr.origin, f->origin_gravity_aligned);
+            filter_set_qr_origin(f, f->qr.origin, f->qr_origin_gravity_aligned);
         }
     }
     if(f->qr_bench.enabled)
@@ -1031,13 +1031,14 @@ extern "C" void filter_initialize(struct filter *f)
 
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);
+    f->qr_origin_gravity_aligned = true;
 #endif
     f->max_velocity = 0.;
     f->median_depth_variance = 1.;
     f->has_converged = false;
     
     f->origin = transformation();
-    f->origin_gravity_aligned = true;
+    f->origin_set = false;
     
     f->s.statesize = 0;
     f->s.enable_orientation_only();
@@ -1152,7 +1153,7 @@ void filter_set_qr_origin(struct filter *f, const transformation &origin, bool g
 
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity)
 {
-    f->origin_gravity_aligned = use_gravity;
+    f->qr_origin_gravity_aligned = use_gravity;
     f->qr.start(data, dimension);
     f->last_qr_time = sensor_clock::micros_to_tp(0);
 }

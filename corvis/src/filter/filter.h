@@ -61,10 +61,11 @@ struct filter {
     qr_detector qr;
     sensor_clock::time_point last_qr_time;
     qr_benchmark qr_bench;
+    bool qr_origin_gravity_aligned;
 #endif
     
     transformation origin;
-    bool origin_gravity_aligned;
+    bool origin_set;
 
     //TODOMSM - per sensor
     v3 a_bias_start, w_bias_start; //for tracking calibration progress

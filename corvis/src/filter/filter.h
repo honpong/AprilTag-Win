@@ -92,7 +92,6 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image);
 bool filter_accelerometer_measurement(struct filter *f, const accelerometer_data &data);
 bool filter_gyroscope_measurement(struct filter *f, const gyro_data &data);
 void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned);
-void filter_set_reference(struct filter *f);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);

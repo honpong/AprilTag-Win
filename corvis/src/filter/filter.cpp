@@ -725,12 +725,6 @@ void filter_set_origin(struct filter *f, const transformation &origin, bool grav
     f->origin.T = origin.T;
 }
 
-void filter_set_reference(struct filter *f)
-{
-    filter_set_origin(f, transformation(f->s.Q.v, f->s.T.v), true);
-    //f->s.reset_position();
-}
-
 bool filter_depth_measurement(struct filter *f, const image_depth16 & depth)
 {
     f->recent_depth = depth.make_copy();

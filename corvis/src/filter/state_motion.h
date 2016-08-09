@@ -73,7 +73,6 @@ public:
     void compute_gravity(double latitude, double altitude);
 
     bool orientation_initialized = false;
-    quaternion initial_orientation;
 
 protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);

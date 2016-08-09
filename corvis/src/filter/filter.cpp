@@ -427,14 +427,12 @@ bool filter_accelerometer_measurement(struct filter *f, const accelerometer_data
     }
 
     if(!f->s.orientation_initialized) {
-        f->s.initial_orientation = initial_orientation_from_gravity_facing(f->s.world_up, f->s.imu.extrinsics.Q.v * meas,
-                                                                           f->s.world_initial_forward, f->s.body_forward);
-        f->s.Q.v = f->s.initial_orientation;
         f->s.orientation_initialized = true;
+        f->s.Q.v = initial_orientation_from_gravity_facing(f->s.world_up, f->s.imu.extrinsics.Q.v * meas,
+                                                           f->s.world_initial_forward, f->s.body_forward);
         if(f->origin_set)
-        {
-            f->origin.Q = f->origin.Q * f->s.initial_orientation.conjugate();
-        }
+            f->origin.Q = f->origin.Q * f->s.Q.v.conjugate();
+
         preprocess_observation_queue(f, data.timestamp);
         return true;
     }

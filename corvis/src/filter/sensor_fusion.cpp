@@ -136,7 +136,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
                 update_data();
         } else {
             //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
-            docallback =  sfm.gravity_init;
+            docallback = sfm.s.orientation_initialized;
             update_status();
             if(docallback)
                 update_data();

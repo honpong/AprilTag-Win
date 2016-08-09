@@ -426,16 +426,11 @@ bool filter_accelerometer_measurement(struct filter *f, const accelerometer_data
         f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
     }
 
-    if(!f->gravity_init) {
-        f->gravity_init = true;
-
-        if(!f->s.orientation_initialized)
-        {
-            f->s.initial_orientation = initial_orientation_from_gravity_facing(f->s.world_up, f->s.imu.extrinsics.Q.v * meas,
-                                                                               f->s.world_initial_forward, f->s.body_forward);
-            f->s.Q.v = f->s.initial_orientation;
-            f->s.orientation_initialized = true;
-        }
+    if(!f->s.orientation_initialized) {
+        f->s.initial_orientation = initial_orientation_from_gravity_facing(f->s.world_up, f->s.imu.extrinsics.Q.v * meas,
+                                                                           f->s.world_initial_forward, f->s.body_forward);
+        f->s.Q.v = f->s.initial_orientation;
+        f->s.orientation_initialized = true;
         if(!f->origin_gravity_aligned)
         {
             f->origin.Q = f->origin.Q * f->s.initial_orientation.conjugate();
@@ -488,7 +483,7 @@ bool filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
         gyroscope.got = true;
         return false;
     }
-    if(!f->gravity_init) return false;
+    if(!f->s.orientation_initialized) return false;
 
     if(fabs(gyro_delta[0]) > max_gyro_delta || fabs(gyro_delta[1]) > max_gyro_delta || fabs(gyro_delta[2]) > max_gyro_delta)
     {
@@ -933,7 +928,6 @@ extern "C" void filter_initialize(struct filter *f)
     f->last_time = sensor_clock::time_point(sensor_clock::duration(0));
     f->last_packet_time = sensor_clock::time_point(sensor_clock::duration(0));
     f->last_packet_type = 0;
-    f->gravity_init = false;
     f->want_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->run_state = RCSensorFusionRunStateInactive;
 

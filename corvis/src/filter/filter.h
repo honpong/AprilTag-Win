@@ -36,8 +36,6 @@ struct filter {
     f_t w_variance;
     f_t a_variance;
 
-    bool gravity_init;
-
     sensor_clock::time_point want_start;
     v3 last_gyro_meas, last_accel_meas; //TODOMSM - per-sensor
     bool detector_failed, tracker_failed, tracker_warned;

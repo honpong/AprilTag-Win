@@ -17,6 +17,7 @@ transformation sensor_fusion::get_transformation() const
 
 void sensor_fusion::set_transformation(const transformation &pose_m)
 {
+    sfm.origin_gravity_aligned = false;
     sfm.origin = pose_m*invert(sfm.s.get_transformation());
 }
 

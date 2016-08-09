@@ -714,17 +714,6 @@ static int filter_add_features(struct filter *f, const image_gray8 & image, size
     return found_feats;
 }
 
-void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned)
-{
-    if(gravity_aligned) {
-        v3 z_old = f->s.world_up;
-        v3 z_new = origin.Q * z_old;
-        quaternion Qd = rotation_between_two_vectors_normalized(z_new, z_old);
-        f->origin.Q = Qd * origin.Q;
-    } else f->origin.Q = origin.Q;
-    f->origin.T = origin.T;
-}
-
 bool filter_depth_measurement(struct filter *f, const image_depth16 & depth)
 {
     f->recent_depth = depth.make_copy();
@@ -749,7 +738,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
         f->qr.process_frame(f, image.image, image.width, image.height);
         if(f->qr.valid)
         {
-            filter_set_origin(f, f->qr.origin, f->origin_gravity_aligned);
+            filter_set_qr_origin(f, f->qr.origin, f->origin_gravity_aligned);
         }
     }
     if(f->qr_bench.enabled)
@@ -1150,6 +1139,17 @@ void filter_start_inertial_only(struct filter *f)
 }
 
 #ifdef ENABLE_QR
+void filter_set_qr_origin(struct filter *f, const transformation &origin, bool gravity_aligned)
+{
+    if(gravity_aligned) {
+        v3 z_old = f->s.world_up;
+        v3 z_new = origin.Q * z_old;
+        quaternion Qd = rotation_between_two_vectors_normalized(z_new, z_old);
+        f->origin.Q = Qd * origin.Q;
+    } else f->origin.Q = origin.Q;
+    f->origin.T = origin.T;
+}
+
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity)
 {
     f->origin_gravity_aligned = use_gravity;

@@ -91,7 +91,6 @@ bool filter_depth_measurement(struct filter *f, const image_depth16 & depth);
 bool filter_image_measurement(struct filter *f, const image_gray8 & image);
 bool filter_accelerometer_measurement(struct filter *f, const accelerometer_data &data);
 bool filter_gyroscope_measurement(struct filter *f, const gyro_data &data);
-void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
@@ -101,6 +100,7 @@ void filter_start_inertial_only(struct filter *f);
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
+void filter_set_qr_origin(struct filter *f, const transformation &origin, bool gravity_aligned);
 #endif
 
 extern "C" void filter_initialize(struct filter *f);

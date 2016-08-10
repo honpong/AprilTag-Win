@@ -118,10 +118,10 @@ std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
     return features;
 }
 
-void sensor_fusion::update_data()
+void sensor_fusion::update_data(rc_SensorType type, rc_Sensor id)
 {
     if(data_callback)
-        data_callback();
+        data_callback(type, id);
 }
 
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
@@ -137,13 +137,13 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
             docallback = filter_image_measurement(&sfm, data);
             update_status();
             if(docallback)
-                update_data();
+                update_data(rc_SENSOR_TYPE_IMAGE, data.source->id);
         } else {
             //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
             docallback = sfm.s.orientation_initialized;
             update_status();
             if(docallback)
-                update_data();
+                update_data(rc_SENSOR_TYPE_IMAGE, data.source->id);
         }
         if(camera_callback)
             camera_callback(std::move(data));
@@ -153,20 +153,23 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     {
         if(!isSensorFusionRunning) return;
         //TODO: should I call update_status here?
-        filter_depth_measurement(&sfm, data);
+        if (filter_depth_measurement(&sfm, data))
+            update_data(rc_SENSOR_TYPE_DEPTH, data.source->id);
     };
     
     auto acc_fn = [this](accelerometer_data &&data)
     {
         if(!isSensorFusionRunning) return;
-        filter_accelerometer_measurement(&sfm, data);
+        if (filter_accelerometer_measurement(&sfm, data))
+            update_data(rc_SENSOR_TYPE_ACCELEROMETER, data.source->id);
         update_status();
     };
     
     auto gyr_fn = [this](gyro_data &&data)
     {
         if(!isSensorFusionRunning) return;
-        filter_gyroscope_measurement(&sfm, data);
+        if (filter_gyroscope_measurement(&sfm, data))
+            update_data(rc_SENSOR_TYPE_GYROSCOPE, data.source->id);
     };
     
     queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000

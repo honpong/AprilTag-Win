@@ -72,28 +72,16 @@ typedef enum rc_TrackerConfidence
     rc_E_CONFIDENCE_HIGH = 3
 } rc_TrackerConfidence;
 
-typedef struct rc_Vector {
-    union {
-        struct { float x,y,z; };
-        float v[3];
-    };
-} rc_Vector;
-
-/**
- Flat array of 12 floats, corresponding to 3x4 transformation matrix in row-major order:
- 
- [R00 R01 R02 T0]
- [R10 R11 R12 T1]
- [R20 R21 R22 T2]
- */
-typedef struct { float v[3][4]; } rc_Pose;
-
 typedef struct { float v[3][3]; } rc_Matrix;
+typedef union { struct { float x,y,z;   }; float v[3]; } rc_Vector;
+typedef union { struct { float x,y,z,w; }; float v[4]; } rc_Quaternion;
+typedef struct { rc_Quaternion Q; rc_Matrix R; rc_Vector T; } rc_Pose; // both Q and R are always output, the closer to 1 of |Q| and |R| is used for input
+typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVelocity; // Q is the spatial (not body) velocity and T the derivative of rc_Pose's T
+typedef struct { rc_Vector W; rc_Vector T; } rc_PoseAcceleration; // derivative of rc_PoseVelocity
 
 static const rc_Pose rc_POSE_IDENTITY = {
-    {{ 1, 0, 0,  0 },
-     { 0, 1, 0,  0 },
-     { 0, 0, 1,  0 }}
+    {1,0,0,0},
+    {0,0,0},
 };
 static const rc_Matrix rc_MATRIX_IDENTITY = {
     {{1, 0, 0},
@@ -107,6 +95,14 @@ static const rc_Matrix rc_MATRIX_IDENTITY = {
 typedef int64_t rc_Timestamp;
 
 typedef uint16_t rc_Sensor;
+
+typedef enum rc_SensorType
+{
+    rc_SENSOR_TYPE_ACCELEROMETER = 0,
+    rc_SENSOR_TYPE_GYROSCOPE = 1,
+    rc_SENSOR_TYPE_IMAGE = 2,
+    rc_SENSOR_TYPE_DEPTH = 3,
+} rc_SensorType;
 
 typedef struct rc_Feature
 {
@@ -127,7 +123,10 @@ typedef enum rc_MessageLevel
     rc_MESSAGE_TRACE = 5, /* everything */
 } rc_MessageLevel;
 
-typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
+/**
+  The callbacks are called synchronously with the filter thread
+ */
+typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time_us, rc_SensorType type, rc_Sensor sensor_id);
 typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
 typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, const char * message, size_t len);
 
@@ -248,7 +247,7 @@ RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg
  World coordinates are defined to be the gravity aligned right handed
  frame coincident with the device and oriented such that the device
  initially looks, modulo elevation, in a known direction
- (world_initial_forward).  rc_getPose() maps points from in the body
+ (world_initial_forward).  rc_getPose() maps points from the body
  fixed reference frame to the world frame defined by this function.
  The extrinsics of rc_configureAccelerometer(),
  rc_configureGyroscope() and rc_configureCamera() all define
@@ -357,9 +356,15 @@ RCTRACKER_API bool rc_receiveGyro(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Tim
  Immediately after a call rc_getPose() will return pose_m.  For best
  results, call this once the tracker has converged and the confidence
  is rc_E_CONFIDENCE_MEDIUM or better rc_E_CONFIDENCE_HIGH.
+ The following functions should should only be called from one of the callbacks.
  */
 RCTRACKER_API void rc_setPose(rc_Tracker *tracker, const rc_Pose pose_m);
-RCTRACKER_API rc_Pose rc_getPose(const rc_Tracker *tracker);
+/**
+ @param tracker The active rc_Tracker instance
+ @param velocity Velocity (rad/s, m/s), the rotation components in in body fixed coordinates, the translational is in world coordinates (may be NULL)
+ @param acceleration Position (rad/s/s, m/s/s) these are the derivatives of the velocities (may be NULL)
+*/
+RCTRACKER_API rc_Pose rc_getPose(const rc_Tracker *tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a);
 RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Feature **features_px);
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);

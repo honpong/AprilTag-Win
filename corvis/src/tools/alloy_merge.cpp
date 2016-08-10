@@ -7,16 +7,16 @@
 static rc_Pose to_rc_Pose(const transformation &g)
 {
     rc_Pose p;
-    m_map(p.v).block<3,3>(0,0) = g.Q.toRotationMatrix().cast<float>();
-    m_map(p.v).block<3,1>(0,3) = g.T.cast<float>();
+    m_map(p.R.v) = g.Q.toRotationMatrix().cast<float>();
+    v_map(p.Q.v) = g.Q.coeffs().cast<float>();
+    v_map(p.T.v) = g.T.cast<float>();
     return p;
 }
 
 static transformation to_transformation(const rc_Pose p)
 {
-    m3 R = m_map(p.v).block<3,3>(0,0).cast<f_t>();
-    v3 T = m_map(p.v).block<3,1>(0,3).cast<f_t>();
-    return transformation(to_quaternion(R),T);
+    quaternion Q(v_map(p.Q.v).cast<f_t>()); m3 R = m_map(p.R.v).cast<f_t>(); v3 T = v_map(p.T.v).cast<f_t>();
+    return std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1) ? transformation(R, T) : transformation(Q, T);
 }
 
 static rc_Extrinsics operator*(rc_Pose a, rc_Extrinsics b)
@@ -48,17 +48,9 @@ int main(int c, char **v)
 
     const char *r_file = v[1], *l_file = v[2];
 
-    constexpr float fourty = 40*M_PI/180;
-    rc_Pose r_b_from_fe = rc_Pose {{
-            {  0, std::cos( fourty),  std::sin( fourty),  0.160668f/2 }, // (FE-FE)/2
-            {  1,         0,                   0,         0.0256f     }, // FE above center
-            {  0, std::sin( fourty), -std::cos( fourty), -0.01216f    },
-    }};
-    rc_Pose l_b_from_fe = rc_Pose {{
-            {  0, std::cos(-fourty),  std::sin(-fourty), -0.160668f/2 }, // (FE-FE)/2
-            {  1,         0,                   0,         0.0256f     }, // FE above center
-            {  0, std::sin(-fourty), -std::cos(-fourty), -0.01216f    },
-    }};
+    const float fourty = 40*M_PI/180, S = std::sin(fourty) / M_SQRT2, C = std::cos(fourty) / M_SQRT2;
+    rc_Pose r_b_from_fe = {{ S, C, C, S}, { 0.160668f/2, 0.0256f, -0.01216f}};
+    rc_Pose l_b_from_fe = {{-S, C, C,-S}, {-0.160668f/2, 0.0256f, -0.01216f}};
 
     std::string r_json; if (!read_file(r_file, r_json)) { std::cerr << "Error reading " << r_file << "\n"; return 1; }
     std::string l_json; if (!read_file(l_file, l_json)) { std::cerr << "Error reading " << l_file << "\n"; return 1; }

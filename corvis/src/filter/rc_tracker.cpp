@@ -39,10 +39,14 @@ static void rc_trace(const rc_Matrix p)
 
 static void rc_trace(const rc_Pose p)
 {
-    trace_log->info("{} {} {} {}; {} {} {} {}; {} {} {} {}",
-                    p.v[0][0], p.v[0][1], p.v[0][2], p.v[0][3],
-                    p.v[1][0], p.v[1][1], p.v[1][2], p.v[1][3],
-                    p.v[2][0], p.v[2][1], p.v[2][2], p.v[2][3]);
+    quaternion Q(v_map(p.Q.v).cast<f_t>()); m3 R = m_map(p.R.v).cast<f_t>(); v3 T = v_map(p.T.v).cast<f_t>();
+    if (std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1))
+        trace_log->info("{} {} {}  {}; {} {} {}  {}; {} {} {}  {}",
+                        p.R.v[0][0], p.R.v[0][1], p.R.v[0][2], p.T.v[0],
+                        p.R.v[1][0], p.R.v[1][1], p.R.v[1][2], p.T.v[1],
+                        p.R.v[2][0], p.R.v[2][1], p.R.v[2][2], p.T.v[2]);
+    else
+        trace_log->info("{} {} {} {}; {} {} {}", p.Q.w, p.Q.x, p.Q.y, p.Q.z, p.T.x, p.T.y, p.T.z);
 }
 
 static void rc_trace(const rc_CameraIntrinsics c)
@@ -76,8 +80,9 @@ static void rc_trace(rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp ti
 static rc_Pose to_rc_Pose(const transformation &g)
 {
     rc_Pose p;
-    m_map(p.v).block<3,3>(0,0) = g.Q.toRotationMatrix().cast<float>();
-    m_map(p.v).block<3,1>(0,3) = g.T.cast<float>();
+    m_map(p.R.v) = g.Q.toRotationMatrix().cast<float>();
+    v_map(p.Q.v) = g.Q.coeffs().cast<float>();
+    v_map(p.T.v) = g.T.cast<float>();
     return p;
 }
 
@@ -102,9 +107,8 @@ static rc_Extrinsics rc_Extrinsics_from_sensor_extrinsics(struct sensor::extrins
 
 static transformation to_transformation(const rc_Pose p)
 {
-    m3 R = m_map(p.v).block<3,3>(0,0).cast<f_t>();
-    v3 T = m_map(p.v).block<3,1>(0,3).cast<f_t>();
-    return transformation(to_quaternion(R),T);
+    quaternion Q(v_map(p.Q.v).cast<f_t>()); m3 R = m_map(p.R.v).cast<f_t>(); v3 T = v_map(p.T.v).cast<f_t>();
+    return std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1) ? transformation(R, T) : transformation(Q, T);
 }
 
 static rc_TrackerState tracker_state_from_run_state(RCSensorFusionRunState run_state)
@@ -169,7 +173,6 @@ struct rc_Tracker: public sensor_fusion
     std::unique_ptr<image_depth16> last_depth;
     std::string jsonString;
     std::vector<rc_Feature> gottenFeatures;
-    std::vector<rc_Feature> dataFeatures;
     std::string timingStats;
     capture output;
 };
@@ -467,11 +470,9 @@ RCTRACKER_API void rc_debug(rc_Tracker *tracker, rc_MessageLevel log_level, cons
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)
 {
     if(trace) trace_log->info("rc_setDataCallback");
-    if(callback) tracker->data_callback = [callback, handle, tracker]() {
+    if(callback) tracker->data_callback = [callback, handle, tracker](rc_SensorType type, rc_Sensor id) {
         uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(tracker->sfm.last_time.time_since_epoch()).count();
-        std::vector<sensor_fusion::feature_point> features = tracker->get_features();
-        copy_features_from_sensor_fusion(tracker->dataFeatures, features);
-        callback(handle, micros, to_rc_Pose(tracker->get_transformation()), tracker->dataFeatures.data(), tracker->dataFeatures.size());
+        callback(handle, micros, type, id);
     };
     else tracker->data_callback = nullptr;
 }
@@ -626,10 +627,16 @@ bool rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
     return true;
 }
 
-rc_Pose rc_getPose(const rc_Tracker * tracker)
+rc_Pose rc_getPose(const rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a)
 {
     if(trace) trace_log->info("rc_getPose");
-    rc_Pose pose_m = to_rc_Pose(tracker->get_transformation());
+    transformation total = tracker->sfm.origin * tracker->sfm.s.loop_offset;
+    if (v) v_map(v->W.v) = total.Q * tracker->sfm.s.Q.v * tracker->sfm.s.w.v; // we use body rotational velocity, but we export spatial
+    if (a) v_map(a->W.v) = total.Q * tracker->sfm.s.Q.v * tracker->sfm.s.dw.v;
+    if (v) v_map(v->T.v) = total.Q * tracker->sfm.s.V.v;
+    if (a) v_map(a->T.v) = total.Q * tracker->sfm.s.a.v;
+    rc_Pose pose_m = to_rc_Pose(total * transformation(tracker->sfm.s.Q.v, tracker->sfm.s.T.v));
+    // assert(pose_m == tracker->get_transformation()); // FIXME: this depends on the specific implementation of ->get_transformation()
     if(trace) rc_trace(pose_m);
     return pose_m;
 }
@@ -647,7 +654,7 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)
 {
     if(trace) trace_log->info("rc_getFeatures");
     copy_features_from_sensor_fusion(tracker->gottenFeatures, tracker->get_features());
-    *features_px = tracker->gottenFeatures.data();
+    if (features_px) *features_px = tracker->gottenFeatures.data();
     return tracker->gottenFeatures.size();
 }
 

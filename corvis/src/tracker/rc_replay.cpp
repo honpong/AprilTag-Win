@@ -122,8 +122,9 @@ bool replay::find_reference_in_filename(const std::string &filename)
 
 void replay::enable_pose_output()
 {
-    rc_setDataCallback(tracker, [](void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count) {
-        std::cout << time; for(int r=0; r<3; r++) for(int c=0; c<4; c++) std::cout << " " << pose.v[r][c]; std::cout << " " << feature_count << "\n";
+    rc_setDataCallback(tracker, [](void *handle, rc_Timestamp time, rc_SensorType type, rc_Sensor id) {
+        rc_Pose pose = rc_getPose(static_cast<replay*>(handle)->tracker, nullptr, nullptr);
+        std::cout << time; for(int c=0; c<4; c++) std::cout << " " << pose.Q.v[c]; for(int c=0; c<3; c++) std::cout << " " << pose.T.v[c]; std::cout << "\n";
     }, this);
 }
 void replay::enable_status_output()
@@ -261,11 +262,11 @@ bool replay::run()
                 }
             }   break;
         }
-        rc_Pose endPose_m = rc_getPose(tracker);
+        rc_Pose endPose_m = rc_getPose(tracker,nullptr,nullptr);
     }
 
-    rc_Pose endPose_m = rc_getPose(tracker);
-    length_m = sqrtf(endPose_m.v[0][3]*endPose_m.v[0][3] + endPose_m.v[1][3]*endPose_m.v[1][3] + endPose_m.v[2][3]*endPose_m.v[2][3]);
+    rc_Pose endPose_m = rc_getPose(tracker,nullptr,nullptr);
+    length_m = sqrtf(endPose_m.T.x*endPose_m.T.x + endPose_m.T.y*endPose_m.T.y + endPose_m.T.z*endPose_m.T.z);
 
     rc_stopTracker(tracker);
     file.close();

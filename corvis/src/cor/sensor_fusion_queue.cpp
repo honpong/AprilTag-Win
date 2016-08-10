@@ -350,18 +350,29 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
     bool accel_late = global_latest_received() >= accel_queue.last_out + accel_queue.period + jitter;
     bool gyro_late = global_latest_received() >= gyro_queue.last_out + gyro_queue.period + jitter;
 
-    //We test the proposed queue against itself, but immediately green light it because queue won't be empty anyway
+    // The idea of this is to start with the assumption that we are ok
+    // to dispatch and invalidate it based on queue status and the
+    // latency_strategy.
+    //
+    // If all queues have something in them we are always safe to
+    // dispatch the oldest. If a queue is empty, we will usually only
+    // dispatch if the expected item in that queue is late.
+    //
+    // In MINIMIZE_DROPS we wait for expected data to arrive, but can
+    // drop data if other data arrives with a timestamp that is
+    // earlier than its _expected time (see above).
+    //
+    // In BALANCED mode we try to minimize drops of camera packets by
+    // waiting for a camera packet before dispatching IMU data. We can
+    // still drop IMU data if it comes in later than the camera packet
+    //
+    // In all other modes, we wait for a sample to show up in a queue
+    // unless we have seen data that suggests it is "late" (last_out +
+    // period + jitter)
     if(camera_queue.empty() && wait_for_camera)
     {
-        /*
-         Camera gets special treatment because:
-         -A dropped inertial sample is less critical than a dropped camera frame
-         -Camera processing is most expensive, so we should always start it as soon as we can
-         However, we can't go too far, because it turns out that camera latency (including offset) is not significantly longer than gyro/accel latency in iOS
-         */
         if(camera_queue.last_out == sensor_clock::time_point() || camera_expected)
         {
-            //If we are in balanced mode, camera gets special treatment to be like minimize_drops
             if(dispatch_strategy == latency_strategy::BALANCED || dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
             if(!camera_late) return false;
         }
@@ -372,18 +383,18 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
         if(accel_queue.last_out == sensor_clock::time_point() || accel_expected)
         {
             if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
-            if(dispatch_strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, we wait longer, as long as we aren't blocking a camera frame, otherwise fall through to minimize latency
+            if(dispatch_strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false;
             if(!accel_late) return false;
         }
     }
     
     if(gyro_queue.empty())
     {
-        if(gyro_queue.last_out == sensor_clock::time_point() || gyro_expected) //OK to dispatch if it's far enough ahead of when we expect the other
+        if(gyro_queue.last_out == sensor_clock::time_point() || gyro_expected)
         {
             if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
-            if(dispatch_strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, if we aren't holding up a camera frame, wait
-            if(!gyro_late) return false; //Otherwise (balanced and minimize latency) wait as long as we aren't likely to be late and dropped
+            if(dispatch_strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false;
+            if(!gyro_late) return false;
         }
     }
     

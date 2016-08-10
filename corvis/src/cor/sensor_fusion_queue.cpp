@@ -372,27 +372,36 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
     // In all other modes, we wait for a sample to show up in a queue
     // unless we have seen data that suggests it is "late" (last_out +
     // period + jitter)
-    if(camera_queue.empty() && wait_for_camera && camera_expected)
-    {
-        if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
-        if(dispatch_strategy == latency_strategy::BALANCED) return false;
-        if(!camera_late) return false;
+    if(dispatch_strategy == latency_strategy::BALANCED) {
+        if(wait_for_camera && camera_expected && camera_queue.empty())
+            return false;
+
+        if(accel_expected && accel_queue.empty()) {
+            if(wait_for_camera && camera_queue.empty())
+                return false;
+            if(!accel_late)
+                return false;
+        }
+
+        if(gyro_expected && gyro_queue.empty()) {
+            if(wait_for_camera && camera_queue.empty())
+                return false;
+            if(!gyro_late)
+                return false;
+        }
+        return true;
+    }
+    else { // if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) {
+        if(wait_for_camera && camera_expected && camera_queue.empty())
+            return false;
+        if(accel_expected && accel_queue.empty())
+            return false;
+        if(gyro_expected && gyro_queue.empty())
+            return false;
+
+        return true;
     }
 
-    if(accel_queue.empty() && accel_expected)
-    {
-        if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
-        if(dispatch_strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false;
-        if(!accel_late) return false;
-    }
-    
-    if(gyro_queue.empty() && gyro_expected)
-    {
-        if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
-        if(dispatch_strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false;
-        if(!gyro_late) return false;
-    }
-    
     return true;
 }
 

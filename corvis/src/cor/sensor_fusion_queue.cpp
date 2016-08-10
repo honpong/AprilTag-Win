@@ -316,7 +316,14 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
     if(strategy == latency_strategy::ELIMINATE_LATENCY) return true; //always dispatch if we are eliminating latency
     
     if(depth_queue.full() || camera_queue.full() || accel_queue.full() || gyro_queue.full()) return true;
-    
+
+    if(strategy == latency_strategy::ELIMINATE_DROPS)
+    {
+        if(camera_queue.empty() || accel_queue.empty() || gyro_queue.empty())
+            return false;
+        return true;
+    }
+
     // if we are constructed with IMAGE_TRIGGER, but started without
     // wait_for_camera, we may not get camera data (e.g. when
     // calibrating) and should switch to MINIMIZE_DROPS
@@ -348,7 +355,6 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
          -Camera processing is most expensive, so we should always start it as soon as we can
          However, we can't go too far, because it turns out that camera latency (including offset) is not significantly longer than gyro/accel latency in iOS
          */
-        if(dispatch_strategy == latency_strategy::ELIMINATE_DROPS) return false;
         if(camera_queue.last_out == sensor_clock::time_point() || camera_expected)
         {
             //If we are in balanced mode, camera gets special treatment to be like minimize_drops
@@ -361,7 +367,6 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 
     if(accel_queue.empty())
     {
-        if(dispatch_strategy == latency_strategy::ELIMINATE_DROPS) return false;
         if(accel_queue.last_out == sensor_clock::time_point() || accel_expected)
         {
             if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
@@ -372,7 +377,6 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
     
     if(gyro_queue.empty())
     {
-        if(dispatch_strategy == latency_strategy::ELIMINATE_DROPS) return false;
         if(gyro_queue.last_out == sensor_clock::time_point() || gyro_expected) //OK to dispatch if it's far enough ahead of when we expect the other
         {
             if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;

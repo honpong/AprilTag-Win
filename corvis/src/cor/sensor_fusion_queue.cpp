@@ -342,9 +342,12 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
         else return true;
     }
 
-    bool camera_expected = time > camera_queue.last_out + camera_queue.period - std::chrono::milliseconds(1);
-    bool accel_expected = time > accel_queue.last_out + accel_queue.period - std::chrono::milliseconds(1);
-    bool gyro_expected = time > gyro_queue.last_out + gyro_queue.period - std::chrono::milliseconds(1);
+    bool camera_expected = camera_queue.last_out == sensor_clock::time_point() ||
+                           time > camera_queue.last_out + camera_queue.period - std::chrono::milliseconds(1);
+    bool accel_expected  = accel_queue.last_out == sensor_clock::time_point() ||
+                           time > accel_queue.last_out + accel_queue.period - std::chrono::milliseconds(1);
+    bool gyro_expected   = gyro_queue.last_out == sensor_clock::time_point() ||
+                           time > gyro_queue.last_out + gyro_queue.period - std::chrono::milliseconds(1);
 
     bool camera_late = global_latest_received() >= camera_queue.last_out + camera_queue.period + jitter;
     bool accel_late = global_latest_received() >= accel_queue.last_out + accel_queue.period + jitter;
@@ -371,7 +374,7 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
     // period + jitter)
     if(camera_queue.empty() && wait_for_camera)
     {
-        if(camera_queue.last_out == sensor_clock::time_point() || camera_expected)
+        if(camera_expected)
         {
             if(dispatch_strategy == latency_strategy::BALANCED || dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
             if(!camera_late) return false;
@@ -380,7 +383,7 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 
     if(accel_queue.empty())
     {
-        if(accel_queue.last_out == sensor_clock::time_point() || accel_expected)
+        if(accel_expected)
         {
             if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
             if(dispatch_strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false;
@@ -390,7 +393,7 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
     
     if(gyro_queue.empty())
     {
-        if(gyro_queue.last_out == sensor_clock::time_point() || gyro_expected)
+        if(gyro_expected)
         {
             if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
             if(dispatch_strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false;

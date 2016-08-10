@@ -27,6 +27,8 @@ image_raw_type = 29
 got_types = defaultdict(int)
 
 packets = defaultdict(list)
+latencies = defaultdict(list)
+latest_received = None
 f = open(args.capture_filename)
 header_size = 16
 header_str = f.read(header_size)
@@ -59,6 +61,9 @@ while header_str != "":
       ptime += exposure/2
   if packet_str == "":
       packet_str = str(ptype)
+  if not latest_received or latest_received < ptime:
+      latest_received = ptime
+  latencies[packet_str].append(latest_received - ptime)
   packets[packet_str].append(ptime)
   if not (ptype == accel_type or ptype == gyro_type) and prev_packet_str == packet_str:
       warnings[packet_str].append(last_time, ptime)
@@ -89,12 +94,14 @@ def compress_warnings(warning_list):
 
 for packet_type in sorted(packets.keys()):
   timestamps = numpy.array(packets[packet_type])
+  platencies = numpy.array(latencies[packet_type])
   deltas = timestamps[1:] - timestamps[:-1]
   mean_delta = numpy.mean(deltas)
   print packet_type, len(packets[packet_type]), "packets"
   print "\tRate:", 1/(mean_delta/1e6), "hz"
   print "\tmean dt (us):", mean_delta
   print "\tstd dt (us):", numpy.std(deltas)
+  print "\trelative latency (us): min %.3f, %.3f mean, %.3f max, %.3f std" % (numpy.min(platencies), numpy.mean(platencies), numpy.max(platencies), numpy.std(platencies))
   print "\tstart (s) finish (s):", numpy.min(timestamps)/1e6, numpy.max(timestamps)/1e6
   print "\tlength (s):", (numpy.max(timestamps) - numpy.min(timestamps))/1e6
   exceptions = numpy.flatnonzero(numpy.logical_or(deltas > mean_delta*1.05, deltas < mean_delta*0.95))

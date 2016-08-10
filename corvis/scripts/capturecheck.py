@@ -59,9 +59,9 @@ while header_str != "":
       ptime += exposure/2
   if packet_str == "":
       packet_str = str(ptype)
-  packets[packet_str].append(int(ptime))
+  packets[packet_str].append(ptime)
   if not (ptype == accel_type or ptype == gyro_type) and prev_packet_str == packet_str:
-      warnings[packet_str].append((int(last_time), int(ptime)))
+      warnings[packet_str].append(last_time, ptime)
   last_time = ptime
   prev_packet_str = packet_str
   header_str = f.read(header_size)

@@ -313,6 +313,11 @@ sensor_clock::time_point fusion_queue::global_latest_received() const
 
 bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 {
+    // TODO: Note that we do not handle depth data here, so if it is
+    // too far behind we may potentially drop it (by dispatching later
+    // camera / imu samples first). This is even true in
+    // ELIMINATE_DROPS, since we do not know we have a depth camera to
+    // wait for
     if(strategy == latency_strategy::ELIMINATE_LATENCY) return true; //always dispatch if we are eliminating latency
     
     if(depth_queue.full() || camera_queue.full() || accel_queue.full() || gyro_queue.full()) return true;
@@ -331,7 +336,6 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
     if(dispatch_strategy == latency_strategy::IMAGE_TRIGGER && !wait_for_camera)
         dispatch_strategy = latency_strategy::MINIMIZE_DROPS;
 
-    // TODO: figure out what to do here with a depth queue
     if(dispatch_strategy == latency_strategy::IMAGE_TRIGGER)
     {
         if(camera_queue.empty()) return false;
@@ -362,8 +366,6 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
             if(!camera_late) return false;
         }
     }
-
-    //We don't wait for depth data. TODO: if depth latency is high we will never use depth. Should check this.
 
     if(accel_queue.empty())
     {

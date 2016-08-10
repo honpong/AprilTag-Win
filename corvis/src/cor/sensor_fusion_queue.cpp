@@ -317,8 +317,15 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
     
     if(depth_queue.full() || camera_queue.full() || accel_queue.full() || gyro_queue.full()) return true;
     
+    // if we are constructed with IMAGE_TRIGGER, but started without
+    // wait_for_camera, we may not get camera data (e.g. when
+    // calibrating) and should switch to MINIMIZE_DROPS
+    latency_strategy dispatch_strategy = strategy;
+    if(dispatch_strategy == latency_strategy::IMAGE_TRIGGER && !wait_for_camera)
+        dispatch_strategy = latency_strategy::MINIMIZE_DROPS;
+
     // TODO: figure out what to do here with a depth queue
-    if(strategy == latency_strategy::IMAGE_TRIGGER && wait_for_camera) //if we aren't waiting for camera, then IMAGE_TRIGGER behaves like MINIMIZE_DROPS
+    if(dispatch_strategy == latency_strategy::IMAGE_TRIGGER)
     {
         if(camera_queue.empty()) return false;
         else return true;
@@ -341,11 +348,11 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
          -Camera processing is most expensive, so we should always start it as soon as we can
          However, we can't go too far, because it turns out that camera latency (including offset) is not significantly longer than gyro/accel latency in iOS
          */
-        if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
+        if(dispatch_strategy == latency_strategy::ELIMINATE_DROPS) return false;
         if(camera_queue.last_out == sensor_clock::time_point() || camera_expected)
         {
             //If we are in balanced mode, camera gets special treatment to be like minimize_drops
-            if(strategy == latency_strategy::BALANCED || strategy == latency_strategy::MINIMIZE_DROPS) return false;
+            if(dispatch_strategy == latency_strategy::BALANCED || dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
             if(!camera_late) return false;
         }
     }
@@ -354,22 +361,22 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 
     if(accel_queue.empty())
     {
-        if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
+        if(dispatch_strategy == latency_strategy::ELIMINATE_DROPS) return false;
         if(accel_queue.last_out == sensor_clock::time_point() || accel_expected)
         {
-            if(strategy == latency_strategy::MINIMIZE_DROPS || strategy == latency_strategy::IMAGE_TRIGGER) return false;
-            if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, we wait longer, as long as we aren't blocking a camera frame, otherwise fall through to minimize latency
+            if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
+            if(dispatch_strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, we wait longer, as long as we aren't blocking a camera frame, otherwise fall through to minimize latency
             if(!accel_late) return false;
         }
     }
     
     if(gyro_queue.empty())
     {
-        if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
+        if(dispatch_strategy == latency_strategy::ELIMINATE_DROPS) return false;
         if(gyro_queue.last_out == sensor_clock::time_point() || gyro_expected) //OK to dispatch if it's far enough ahead of when we expect the other
         {
-            if(strategy == latency_strategy::MINIMIZE_DROPS || strategy == latency_strategy::IMAGE_TRIGGER) return false;
-            if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, if we aren't holding up a camera frame, wait
+            if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) return false;
+            if(dispatch_strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, if we aren't holding up a camera frame, wait
             if(!gyro_late) return false; //Otherwise (balanced and minimize latency) wait as long as we aren't likely to be late and dropped
         }
     }

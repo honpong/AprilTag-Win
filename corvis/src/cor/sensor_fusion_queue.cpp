@@ -324,6 +324,14 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
         else return true;
     }
 
+    bool camera_expected = time > camera_queue.last_out + camera_queue.period - std::chrono::milliseconds(1);
+    bool accel_expected = time > accel_queue.last_out + accel_queue.period - std::chrono::milliseconds(1);
+    bool gyro_expected = time > gyro_queue.last_out + gyro_queue.period - std::chrono::milliseconds(1);
+
+    bool camera_late = global_latest_received() >= camera_queue.last_out + camera_queue.period + jitter;
+    bool accel_late = global_latest_received() >= accel_queue.last_out + accel_queue.period + jitter;
+    bool gyro_late = global_latest_received() >= gyro_queue.last_out + gyro_queue.period + jitter;
+
     //We test the proposed queue against itself, but immediately green light it because queue won't be empty anyway
     if(camera_queue.empty() && wait_for_camera)
     {
@@ -334,11 +342,11 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
          However, we can't go too far, because it turns out that camera latency (including offset) is not significantly longer than gyro/accel latency in iOS
          */
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
-        if(camera_queue.last_out == sensor_clock::time_point() || time > camera_queue.last_out + camera_queue.period - std::chrono::milliseconds(1))
+        if(camera_queue.last_out == sensor_clock::time_point() || camera_expected)
         {
             //If we are in balanced mode, camera gets special treatment to be like minimize_drops
             if(strategy == latency_strategy::BALANCED || strategy == latency_strategy::MINIMIZE_DROPS) return false;
-            if(global_latest_received() < camera_queue.last_out + camera_queue.period + jitter) return false;
+            if(!camera_late) return false;
         }
     }
 
@@ -347,22 +355,22 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
     if(accel_queue.empty())
     {
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
-        if(accel_queue.last_out == sensor_clock::time_point() || time > accel_queue.last_out + accel_queue.period - std::chrono::milliseconds(1))
+        if(accel_queue.last_out == sensor_clock::time_point() || accel_expected)
         {
             if(strategy == latency_strategy::MINIMIZE_DROPS || strategy == latency_strategy::IMAGE_TRIGGER) return false;
             if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, we wait longer, as long as we aren't blocking a camera frame, otherwise fall through to minimize latency
-            if(global_latest_received() < accel_queue.last_out + accel_queue.period + jitter) return false;
+            if(!accel_late) return false;
         }
     }
     
     if(gyro_queue.empty())
     {
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
-        if(gyro_queue.last_out == sensor_clock::time_point() || time > gyro_queue.last_out + gyro_queue.period - std::chrono::milliseconds(1)) //OK to dispatch if it's far enough ahead of when we expect the other
+        if(gyro_queue.last_out == sensor_clock::time_point() || gyro_expected) //OK to dispatch if it's far enough ahead of when we expect the other
         {
             if(strategy == latency_strategy::MINIMIZE_DROPS || strategy == latency_strategy::IMAGE_TRIGGER) return false;
             if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, if we aren't holding up a camera frame, wait
-            if(global_latest_received() < gyro_queue.last_out + gyro_queue.period + jitter) return false; //Otherwise (balanced and minimize latency) wait as long as we aren't likely to be late and dropped
+            if(!gyro_late) return false; //Otherwise (balanced and minimize latency) wait as long as we aren't likely to be late and dropped
         }
     }
     

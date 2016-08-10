@@ -6,13 +6,14 @@ packets = defaultdict(list)
 
 import sys
 
-if len(sys.argv) < 3:
-  print "Usage:", sys.argv[0], "<capture file> <starttime> <output file>"
+if len(sys.argv) < 4:
+  print "Usage:", sys.argv[0], "<capture file> <starttime> <endtime> <output file>"
   sys.exit(1)
 
 filename = sys.argv[1]
 starttime = sys.argv[2]
-outfilename = sys.argv[3]
+endtime = sys.argv[3]
+outfilename = sys.argv[4]
 
 f = open(filename)
 fout = open(outfilename, "wb")
@@ -29,6 +30,8 @@ while header_str != "":
   if float(ptime) > float(starttime):
       fout.write(header_str)
       fout.write(data)
+  if float(ptime) > float(endtime):
+      break
   header_str = f.read(header_size)
 
 f.close()

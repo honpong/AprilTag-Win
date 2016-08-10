@@ -362,7 +362,7 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
         {
             if(strategy == latency_strategy::MINIMIZE_DROPS || strategy == latency_strategy::IMAGE_TRIGGER) return false;
             if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, if we aren't holding up a camera frame, wait
-            if(global_latest_received() < accel_queue.last_out + accel_queue.period + jitter) return false; //Otherwise (balanced and minimize latency) wait as long as we aren't likely to be late and dropped
+            if(global_latest_received() < gyro_queue.last_out + gyro_queue.period + jitter) return false; //Otherwise (balanced and minimize latency) wait as long as we aren't likely to be late and dropped
         }
     }
     

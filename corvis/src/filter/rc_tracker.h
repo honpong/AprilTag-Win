@@ -75,18 +75,22 @@ typedef enum rc_TrackerConfidence
 typedef struct { float v[3][3]; } rc_Matrix;
 typedef union { struct { float x,y,z;   }; float v[3]; } rc_Vector;
 typedef union { struct { float x,y,z,w; }; float v[4]; } rc_Quaternion;
-typedef struct { rc_Quaternion Q; rc_Matrix R; rc_Vector T; } rc_Pose; // both Q and R are always output, the closer to 1 of |Q| and |R| is used for input
+typedef struct { rc_Quaternion Q; rc_Vector T; rc_Matrix R; } rc_Pose; // both Q and R are always output, the closer to 1 of |Q| and |R| is used for input
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVelocity; // Q is the spatial (not body) velocity and T the derivative of rc_Pose's T
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseAcceleration; // derivative of rc_PoseVelocity
 
-static const rc_Pose rc_POSE_IDENTITY = {
-    {1,0,0,0},
-    {0,0,0},
-};
 static const rc_Matrix rc_MATRIX_IDENTITY = {
     {{1, 0, 0},
      {0, 1, 0},
      {0, 0, 1}},
+};
+static const rc_Quaternion rc_QUATERNION_IDENTITY = {
+    {0,0,0,1},
+};
+static const rc_Pose rc_POSE_IDENTITY = {
+    rc_QUATERNION_IDENTITY,
+    {{0,0,0}},
+    rc_MATRIX_IDENTITY,
 };
 
 /**

@@ -12,7 +12,7 @@ template<class T> class sensor_calibration {
         rc_Extrinsics extrinsics;
         T intrinsics;
         sensor_calibration(rc_Extrinsics _extrinsics, T _intrinsics) : extrinsics(_extrinsics), intrinsics(_intrinsics) {};
-        sensor_calibration() : extrinsics({0}), intrinsics(T()) {};
+        sensor_calibration() : extrinsics({}), intrinsics(T()) {};
 };
 
 typedef sensor_calibration<rc_CameraIntrinsics> sensor_calibration_camera;

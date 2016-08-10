@@ -17,8 +17,8 @@ using namespace std;
 sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu & legacy_imu)
 {
     // In legacy files, extrinsics are always identity for imu
-    rc_Extrinsics extrinsics = {0};
-    imu_intrinsics intrinsics = {0};
+    rc_Extrinsics extrinsics = {};
+    imu_intrinsics intrinsics = {};
 
     m_map(intrinsics.accelerometer.scale_and_alignment.v)  = legacy_imu.a_alignment;
     v_map(intrinsics.accelerometer.bias_m__s2.v)           = legacy_imu.a_bias_m__s2;
@@ -35,7 +35,7 @@ sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu
 
 sensor_calibration_camera calibration_convert_camera(const struct calibration_xml::camera & legacy_camera)
 {
-    rc_Extrinsics extrinsics = {0};
+    rc_Extrinsics extrinsics = {};
     v_map(extrinsics.T.v)          = legacy_camera.extrinsics_wrt_imu_m.T;
     v_map(extrinsics.W.v)          = legacy_camera.extrinsics_wrt_imu_W.raw_vector();
     v_map(extrinsics.T_variance.v) = legacy_camera.extrinsics_var_wrt_imu_m.T;
@@ -53,7 +53,7 @@ void calibration_convert_to_camera_origin(rc_Extrinsics & camera_to_body, rc_Ext
     v_map(imu_to_body.T.v) = imu_to_camera.T;
     v_map(imu_to_body.W.v) = to_rotation_vector(imu_to_camera.Q).raw_vector();
 
-    camera_to_body = {0};
+    camera_to_body = {};
     camera_to_body.T_variance = imu_to_body.T_variance;
     camera_to_body.W_variance = imu_to_body.W_variance;
 }
@@ -500,7 +500,7 @@ bool calibration_deserialize(const std::string &jsonString, calibration &cal)
         return false;
     }
 
-    cal = {0};
+    cal = {};
     if(version < 10) {
         calibration_json legacy_calibration;
         bool success = calibration_deserialize(jsonString, legacy_calibration);

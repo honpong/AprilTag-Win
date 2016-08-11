@@ -24,6 +24,7 @@ cmake_dependent_option(ENABLE_STEREO "Enable Stereo" ON APPLE OFF)
 cmake_dependent_option(ENABLE_VISGL "Enable GL Visualizations" ON UNIX ON WIN32 OFF)
 cmake_dependent_option(ENABLE_MGL "Enable MathGL (used for plots in measure)" ON "ENABLE_VISGL" OFF)
 cmake_dependent_option(ENABLE_QR "Enable QR Code localization" ON APPLE OFF)
+option(ENABLE_SOURCES "Enable installation of source code examples" ON)
 
 # A few hints for the BOOST_ROOT to help find_package(Boost)
 execute_process(COMMAND brew --prefix OUTPUT_VARIABLE BREW_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -54,6 +55,7 @@ add_executable(rc_replay src/tools/rc_replay.cpp src/tracker/rc_replay.cpp)
 set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
 target_link_libraries(rc_replay tracker)
 install(TARGETS rc_replay RUNTIME DESTINATION bin COMPONENT example-binaries)
+if(ENABLE_SOURCES)
 install(FILES
   src/tools/rc_replay.cpp
   RENAME main.cpp
@@ -66,6 +68,7 @@ install(FILES
   DESTINATION src/rc_replay
   COMPONENT example-sources
 )
+endif()
 
 add_executable(alloy_merge src/tools/alloy_merge.cpp)
 set_property(TARGET alloy_merge PROPERTY CXX_STANDARD 14)

@@ -238,3 +238,43 @@ TEST(ThreadedDispatch, DropLate)
     q->stop_sync();
 }
 
+TEST(SensorFusionQueue, SameTime)
+{
+    int camrcv = 0;
+    int deprcv = 0;
+    int gyrrcv = 0;
+    int accrcv = 0;
+    sensor_clock::time_point last_time;
+
+    auto camf = [&last_time, &camrcv](image_gray8 &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; ++camrcv; };
+    auto depthf = [&last_time, &deprcv](image_depth16 &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; ++deprcv; };
+    auto accf = [&last_time, &accrcv](accelerometer_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; ++accrcv; };
+    auto gyrf = [&last_time, &gyrrcv](gyro_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; ++gyrrcv; };
+
+    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(camf, depthf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
+
+    q->start_sync(true);
+
+    gyro_data g;
+    g.timestamp = sensor_clock::time_point(std::chrono::microseconds(5000));
+    q->receive_gyro(std::move(g));
+
+    accelerometer_data a;
+    a.timestamp = sensor_clock::time_point(std::chrono::microseconds(5000));
+    q->receive_accelerometer(std::move(a));
+
+    image_depth16 d;
+    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(5000));
+    q->receive_depth(std::move(d));
+
+    image_gray8 c;
+    c.timestamp = sensor_clock::time_point(std::chrono::microseconds(5000));
+    q->receive_camera(std::move(c));
+
+    q->stop_sync();
+
+    EXPECT_EQ(camrcv, 1);
+    EXPECT_EQ(deprcv, 1);
+    EXPECT_EQ(gyrrcv, 1);
+    EXPECT_EQ(accrcv, 1);
+}

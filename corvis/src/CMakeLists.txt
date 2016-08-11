@@ -50,7 +50,7 @@ set_property(TARGET numerics PROPERTY CXX_STANDARD 11)
 function(find_intel_root TYPE) # [REQUIRED]
     set(VAR ${TYPE}ROOT)
     string(TOLOWER ${TYPE} type)
-    if (NOT ${VAR})
+    if (NOT ${VAR} AND "${${VAR}}" STREQUAL "") # Allow False to disable
         file(GLOB INTEL_LOCS $ENV{${VAR}}
             "/opt/intel/${type}"
             "C:/Program Files (x86)/Intel/Composer XE 2015/${type}"

@@ -27,11 +27,11 @@ cmake_dependent_option(ENABLE_QR "Enable QR Code localization" ON APPLE OFF)
 option(ENABLE_SOURCES "Enable installation of source code examples" ON)
 
 # A few hints for the BOOST_ROOT to help find_package(Boost)
-execute_process(COMMAND brew --prefix OUTPUT_VARIABLE BREW_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
-if (BREW_PREFIX)
-  file(GLOB _PREFIX ${BREW_PREFIX} /opt/local)
-  set(BOOST_ROOT ${_PREFIX})
-endif (BREW_PREFIX)
+if (APPLE)
+  execute_process(COMMAND brew --prefix OUTPUT_VARIABLE BREW_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
+  file(GLOB BREW_PREFIX ${BREW_PREFIX} /opt/local)
+  list(APPEND CMAKE_PREFIX_PATH ${BREW_PREFIX})
+endif (APPLE)
 
 add_subdirectory(src)
 

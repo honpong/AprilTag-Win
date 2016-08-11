@@ -1,4 +1,3 @@
-set(CMAKE_SKIP_INSTALL_RULES 1) # Avoids warning w/mgl-static and EXCLUDE_FROM_ALL
 if(ENABLE_MGL)
     add_subdirectory(../../ThirdParty/mathgl mathgl)
 endif()

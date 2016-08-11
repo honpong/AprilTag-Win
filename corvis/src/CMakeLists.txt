@@ -209,7 +209,6 @@ endif()
 
 if(ENABLE_STEREO)
     add_subdirectory(../../ThirdParty/qhull qhull)
-    get_directory_property(qhull_STATIC DIRECTORY ../../ThirdParty/qhull DEFINITION qhull_STATIC)
 
     add_library(stereo STATIC
       stereo/stereo.cpp
@@ -218,7 +217,7 @@ if(ENABLE_STEREO)
       stereo/fundamental.cpp
       stereo/stereo_features.cpp
     )
-    target_link_libraries(stereo PUBLIC filter PRIVATE DAI ${qhull_STATIC} vlfeat)
+    target_link_libraries(stereo PUBLIC filter PRIVATE DAI qhull vlfeat)
     target_include_directories(stereo PUBLIC stereo)
     set_property(TARGET stereo PROPERTY CXX_STANDARD 14)
 endif()

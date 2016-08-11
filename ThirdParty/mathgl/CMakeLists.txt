@@ -11,10 +11,12 @@ set(enable-opengl OFF CACHE BOOL "")
 set(enable-mpi OFF CACHE BOOL "")
 set(enable-zlib OFF CACHE BOOL "")
 set(enable-all-widgets OFF CACHE BOOL "")
+set(enable-static OFF CACHE BOOL "")
+set(enable-examples OFF CACHE BOOL "")
+set(enable-headers OFF CACHE BOOL "")
 add_subdirectory(mathgl)
 set_target_properties(mgl PROPERTIES MACOSX_RPATH ON)
 target_include_directories(mgl INTERFACE mathgl/include $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/mathgl/include>)
-set_target_properties(mgl_example mgl-static PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
 target_compile_options(mgl PUBLIC    $<$<CXX_COMPILER_ID:Intel>: -diag-disable=3180> # unrecognized OpenMP #pragma
                                      $<$<CXX_COMPILER_ID:Clang>: -Wno-deprecated-register>
                                      $<$<CXX_COMPILER_ID:AppleClang>: -Wno-deprecated-register>)

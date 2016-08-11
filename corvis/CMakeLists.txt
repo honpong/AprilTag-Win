@@ -51,6 +51,7 @@ add_executable(measure
   src/tools/for_each_file.cpp
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
+install(TARGETS measure RUNTIME DESTINATION bin COMPONENT alloy)
 
 target_link_libraries(measure tracker)
 target_link_libraries(measure vis)
@@ -62,6 +63,19 @@ endif()
 add_executable(rc_replay src/tools/rc_replay.cpp src/tracker/rc_replay.cpp)
 set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
 target_link_libraries(rc_replay tracker)
+install(TARGETS rc_replay RUNTIME DESTINATION bin COMPONENT example-binaries)
+install(FILES
+  src/tools/rc_replay.cpp
+  RENAME main.cpp
+  DESTINATION src/rc_replay
+  COMPONENT example-sources
+)
+install(FILES
+  src/tracker/rc_replay.h
+  src/tracker/rc_replay.cpp
+  DESTINATION src/rc_replay
+  COMPONENT example-sources
+)
 
 add_executable(alloy_merge src/tools/alloy_merge.cpp)
 set_property(TARGET alloy_merge PROPERTY CXX_STANDARD 14)
@@ -69,11 +83,15 @@ target_link_libraries(alloy_merge tracker)
 
 find_package(alloy QUIET)
 if (TARGET alloy)
+    install(TARGETS alloy_merge RUNTIME DESTINATION bin COMPONENT alloy)
+
     add_executable(rc_calibrate
         src/tools/rc_calibrate.cpp
     )
     set_property(TARGET rc_calibrate PROPERTY CXX_STANDARD 14)
     target_link_libraries(rc_calibrate alloy tracker)
+    install(TARGETS rc_calibrate RUNTIME DESTINATION bin COMPONENT alloy)
+
 endif()
 
 if(YES)

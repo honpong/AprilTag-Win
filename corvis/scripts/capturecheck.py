@@ -66,7 +66,7 @@ while header_str != "":
   latencies[packet_str].append(latest_received - ptime)
   packets[packet_str].append(ptime)
   if not (ptype == accel_type or ptype == gyro_type) and prev_packet_str == packet_str:
-      warnings[packet_str].append(last_time, ptime)
+      warnings[packet_str].append((last_time, ptime))
   last_time = ptime
   prev_packet_str = packet_str
   header_str = f.read(header_size)

@@ -208,13 +208,8 @@ set_property(TARGET vis PROPERTY CXX_STANDARD 14)
 endif()
 
 if(ENABLE_STEREO)
-    add_subdirectory(qhull)
-    foreach(qvar qhull_TARGETS qhull_STATIC qhull_SHARED qhull_SHAREDP)
-      get_directory_property(${qvar} DIRECTORY qhull DEFINITION ${qvar})
-    endforeach(qvar)
-    set_target_properties(${qhull_TARGETS} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
-    set_target_properties(${qhull_SHARED} ${qhull_SHAREDP} PROPERTIES MACOSX_RPATH ON) # Avoid pointless warning
-    target_include_directories(${qhull_STATIC} PUBLIC qhull/src/libqhull)
+    add_subdirectory(../../ThirdParty/qhull qhull)
+    get_directory_property(qhull_STATIC DIRECTORY ../../ThirdParty/qhull DEFINITION qhull_STATIC)
 
     add_library(stereo STATIC
       stereo/stereo.cpp

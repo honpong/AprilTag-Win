@@ -44,6 +44,7 @@ endif (BREW_PREFIX)
 
 add_subdirectory(src)
 
+if(ENABLE_VISGL)
 add_executable(measure
   src/tools/measure.cpp
   src/tools/benchmark.cpp
@@ -52,8 +53,7 @@ add_executable(measure
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 
 target_link_libraries(measure tracker)
-if(ENABLE_VISGL)
-    target_link_libraries(measure vis)
+target_link_libraries(measure vis)
 endif()
 if(ENABLE_MGL)
     target_link_libraries(measure mgl)

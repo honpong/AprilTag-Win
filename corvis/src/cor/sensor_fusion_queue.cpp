@@ -313,59 +313,95 @@ sensor_clock::time_point fusion_queue::global_latest_received() const
 
 bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 {
+    // TODO: Note that we do not handle depth data here, so if it is
+    // too far behind we may potentially drop it (by dispatching later
+    // camera / imu samples first). This is even true in
+    // ELIMINATE_DROPS, since we do not know we have a depth camera to
+    // wait for
     if(strategy == latency_strategy::ELIMINATE_LATENCY) return true; //always dispatch if we are eliminating latency
     
     if(depth_queue.full() || camera_queue.full() || accel_queue.full() || gyro_queue.full()) return true;
-    
-    // TODO: figure out what to do here with a depth queue
-    if(strategy == latency_strategy::IMAGE_TRIGGER && wait_for_camera) //if we aren't waiting for camera, then IMAGE_TRIGGER behaves like MINIMIZE_DROPS
+
+    if(strategy == latency_strategy::ELIMINATE_DROPS)
+    {
+        if(camera_queue.empty() || accel_queue.empty() || gyro_queue.empty())
+            return false;
+        return true;
+    }
+
+    // if we are constructed with IMAGE_TRIGGER, but started without
+    // wait_for_camera, we may not get camera data (e.g. when
+    // calibrating) and should switch to MINIMIZE_DROPS
+    latency_strategy dispatch_strategy = strategy;
+    if(dispatch_strategy == latency_strategy::IMAGE_TRIGGER && !wait_for_camera)
+        dispatch_strategy = latency_strategy::MINIMIZE_DROPS;
+
+    if(dispatch_strategy == latency_strategy::IMAGE_TRIGGER)
     {
         if(camera_queue.empty()) return false;
         else return true;
     }
 
-    //We test the proposed queue against itself, but immediately green light it because queue won't be empty anyway
-    if(camera_queue.empty() && wait_for_camera)
-    {
-        /*
-         Camera gets special treatment because:
-         -A dropped inertial sample is less critical than a dropped camera frame
-         -Camera processing is most expensive, so we should always start it as soon as we can
-         However, we can't go too far, because it turns out that camera latency (including offset) is not significantly longer than gyro/accel latency in iOS
-         */
-        if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
-        if(camera_queue.last_out == sensor_clock::time_point() || time > camera_queue.last_out + camera_queue.period - std::chrono::milliseconds(1))
-        {
-            //If we are in balanced mode, camera gets special treatment to be like minimize_drops
-            if(strategy == latency_strategy::BALANCED || strategy == latency_strategy::MINIMIZE_DROPS) return false;
-            if(global_latest_received() < camera_queue.last_out + camera_queue.period + jitter) return false;
+    bool camera_expected = camera_queue.last_out == sensor_clock::time_point() ||
+                           time > camera_queue.last_out + camera_queue.period - std::chrono::milliseconds(1);
+    bool accel_expected  = accel_queue.last_out == sensor_clock::time_point() ||
+                           time > accel_queue.last_out + accel_queue.period - std::chrono::milliseconds(1);
+    bool gyro_expected   = gyro_queue.last_out == sensor_clock::time_point() ||
+                           time > gyro_queue.last_out + gyro_queue.period - std::chrono::milliseconds(1);
+
+    bool camera_late = global_latest_received() >= camera_queue.last_out + camera_queue.period + jitter;
+    bool accel_late = global_latest_received() >= accel_queue.last_out + accel_queue.period + jitter;
+    bool gyro_late = global_latest_received() >= gyro_queue.last_out + gyro_queue.period + jitter;
+
+    // The idea of this is to start with the assumption that we are ok
+    // to dispatch and invalidate it based on queue status and the
+    // latency_strategy.
+    //
+    // If all queues have something in them we are always safe to
+    // dispatch the oldest. If a queue is empty, we will usually only
+    // dispatch if the expected item in that queue is late.
+    //
+    // In MINIMIZE_DROPS we wait for expected data to arrive, but can
+    // drop data if other data arrives with a timestamp that is
+    // earlier than its _expected time (see above).
+    //
+    // In BALANCED mode we try to minimize drops of camera packets by
+    // waiting for a camera packet before dispatching IMU data. We can
+    // still drop IMU data if it comes in later than the camera packet
+    //
+    // In all other modes, we wait for a sample to show up in a queue
+    // unless we have seen data that suggests it is "late" (last_out +
+    // period + jitter)
+    if(dispatch_strategy == latency_strategy::BALANCED) {
+        if(wait_for_camera && camera_expected && camera_queue.empty())
+            return false;
+
+        if(accel_expected && accel_queue.empty()) {
+            if(wait_for_camera && camera_queue.empty())
+                return false;
+            if(!accel_late)
+                return false;
         }
+
+        if(gyro_expected && gyro_queue.empty()) {
+            if(wait_for_camera && camera_queue.empty())
+                return false;
+            if(!gyro_late)
+                return false;
+        }
+        return true;
+    }
+    else { // if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) {
+        if(wait_for_camera && camera_expected && camera_queue.empty())
+            return false;
+        if(accel_expected && accel_queue.empty())
+            return false;
+        if(gyro_expected && gyro_queue.empty())
+            return false;
+
+        return true;
     }
 
-    //We don't wait for depth data. TODO: if depth latency is high we will never use depth. Should check this.
-
-    if(accel_queue.empty())
-    {
-        if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
-        if(accel_queue.last_out == sensor_clock::time_point() || time > accel_queue.last_out + accel_queue.period - std::chrono::milliseconds(1))
-        {
-            if(strategy == latency_strategy::MINIMIZE_DROPS || strategy == latency_strategy::IMAGE_TRIGGER) return false;
-            if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, we wait longer, as long as we aren't blocking a camera frame, otherwise fall through to minimize latency
-            if(global_latest_received() < accel_queue.last_out + accel_queue.period + jitter) return false;
-        }
-    }
-    
-    if(gyro_queue.empty())
-    {
-        if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
-        if(gyro_queue.last_out == sensor_clock::time_point() || time > gyro_queue.last_out + gyro_queue.period - std::chrono::milliseconds(1)) //OK to dispatch if it's far enough ahead of when we expect the other
-        {
-            if(strategy == latency_strategy::MINIMIZE_DROPS || strategy == latency_strategy::IMAGE_TRIGGER) return false;
-            if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, if we aren't holding up a camera frame, wait
-            if(global_latest_received() < gyro_queue.last_out + gyro_queue.period + jitter) return false; //Otherwise (balanced and minimize latency) wait as long as we aren't likely to be late and dropped
-        }
-    }
-    
     return true;
 }
 

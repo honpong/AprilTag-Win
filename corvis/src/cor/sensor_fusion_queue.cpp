@@ -391,6 +391,16 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
         }
         return true;
     }
+    else if (dispatch_strategy == latency_strategy::MINIMIZE_LATENCY) {
+        if(wait_for_camera && camera_expected && camera_queue.empty()  && !camera_late)
+            return false;
+        if(accel_expected && accel_queue.empty() && !accel_late)
+            return false;
+        if(gyro_expected && gyro_queue.empty() && !gyro_late)
+            return false;
+
+        return true;
+    }
     else { // if(dispatch_strategy == latency_strategy::MINIMIZE_DROPS) {
         if(wait_for_camera && camera_expected && camera_queue.empty())
             return false;

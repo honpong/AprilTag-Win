@@ -1,23 +1,5 @@
-set(CMAKE_SKIP_INSTALL_RULES 1) # Avoids warning w/mgl-static and EXCLUDE_FROM_ALL
 if(ENABLE_MGL)
-    set(enable-rvalue ON CACHE BOOL "")
-    set(enable-lgpl ON CACHE BOOL "")
-    set(enable-png OFF CACHE BOOL "")
-    set(enable-openmp OFF CACHE BOOL "")
-    set(enable-pthread OFF CACHE BOOL "")
-    set(enable-opengl OFF CACHE BOOL "")
-    set(enable-mpi OFF CACHE BOOL "")
-    set(enable-zlib OFF CACHE BOOL "")
-    set(enable-all-widgets OFF CACHE BOOL "")
-    add_subdirectory(mathgl)
-    set_target_properties(mgl PROPERTIES MACOSX_RPATH ON)
-    target_include_directories(mgl INTERFACE mathgl/include $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/mathgl/include>)
-    set_target_properties(mgl_example mgl-static PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
-    target_compile_options(mgl PUBLIC    $<$<CXX_COMPILER_ID:Intel>: -diag-disable=3180> # unrecognized OpenMP #pragma
-                                         $<$<CXX_COMPILER_ID:Clang>: -Wno-deprecated-register>
-                                         $<$<CXX_COMPILER_ID:AppleClang>: -Wno-deprecated-register>)
-    target_compile_options(mgl PRIVATE   $<$<CXX_COMPILER_ID:Clang>: -Wno-deprecated-declarations>) # internal to mathgl which requires cmake < 3.0 which didn't have AppleCLang
-    target_compile_options(mgl INTERFACE $<$<CXX_COMPILER_ID:AppleClang>: -Wno-return-type-c-linkage -Wno-parentheses-equality>)
+    add_subdirectory(../../ThirdParty/mathgl mathgl)
 endif()
 
 if(ENABLE_VISGL)
@@ -54,9 +36,6 @@ add_library(cor STATIC ${COR_SOURCES})
 target_link_libraries(cor numerics)
 target_include_directories(cor PUBLIC cor)
 set_property(TARGET cor PROPERTY CXX_STANDARD 11)
-if(WIN32)
-    target_include_directories(cor PRIVATE "$ENV{RSSDK_DIR}include")
-endif()
 
 add_library(numerics STATIC
   numerics/rotation_vector.cpp
@@ -71,7 +50,7 @@ set_property(TARGET numerics PROPERTY CXX_STANDARD 11)
 function(find_intel_root TYPE) # [REQUIRED]
     set(VAR ${TYPE}ROOT)
     string(TOLOWER ${TYPE} type)
-    if (NOT ${VAR})
+    if (NOT ${VAR} AND "${${VAR}}" STREQUAL "") # Allow False to disable
         file(GLOB INTEL_LOCS $ENV{${VAR}}
             "/opt/intel/${type}"
             "C:/Program Files (x86)/Intel/Composer XE 2015/${type}"
@@ -102,8 +81,8 @@ function(find_intel_root TYPE) # [REQUIRED]
     set(INTEL_ARCH ${INTEL_ARCH} CACHE STRING "Subdirectroy below intel/${TYPE}/lib/")
 endfunction()
 
-if(NOT APPLE OR CMAKE_CXX_COMPILER_ID STREQUAL Intel OR MKLROOT)
-    find_intel_root(MKL REQUIRED)
+find_intel_root(MKL $<$<NOT:APPLE>:REQUIRED>)
+if(MKLROOT)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
       set(MKL_INTEL_SUFFIX _lp64)
     elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -132,8 +111,12 @@ if(NOT APPLE OR CMAKE_CXX_COMPILER_ID STREQUAL Intel OR MKLROOT)
     if (NOT ANDROID AND (CMAKE_CXX_COMPILER_ID STREQUAL Clang OR CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL Intel))
       target_link_libraries(numerics PRIVATE -ldl -lpthread)
     endif()
-else()
+    target_compile_options(numerics PRIVATE -DHAVE_MKL)
+elseif(APPLE)
     target_link_libraries(numerics PUBLIC "-framework Accelerate")
+    message(STATUS "MKL not found, using Accelerate")
+else()
+    mesage(FATAL_ERROR "Unabled to find MKL or Accelerate.  Please add support for detecting CBLAS/LAPACKe")
 endif()
 
 add_library(filter STATIC
@@ -192,7 +175,8 @@ if (RC_VERSION)
 endif()
 exec_program(git ARGS describe --tags --match "intel_v*" HEAD OUTPUT_VARIABLE GIT_DESCRIPTION)
 target_compile_definitions(tracker PRIVATE RC_BUILD=${GIT_DESCRIPTION})
-
+install(TARGETS tracker LIBRARY DESTINATION lib ARCHIVE DESTINATION lib COMPONENT tracker)
+install(FILES filter/rc_tracker.h DESTINATION include COMPONENT tracker)
 
 if(ENABLE_QR)
 add_library(qr STATIC
@@ -225,13 +209,7 @@ set_property(TARGET vis PROPERTY CXX_STANDARD 14)
 endif()
 
 if(ENABLE_STEREO)
-    add_subdirectory(qhull)
-    foreach(qvar qhull_TARGETS qhull_STATIC qhull_SHARED qhull_SHAREDP)
-      get_directory_property(${qvar} DIRECTORY qhull DEFINITION ${qvar})
-    endforeach(qvar)
-    set_target_properties(${qhull_TARGETS} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
-    set_target_properties(${qhull_SHARED} ${qhull_SHAREDP} PROPERTIES MACOSX_RPATH ON) # Avoid pointless warning
-    target_include_directories(${qhull_STATIC} PUBLIC qhull/src/libqhull)
+    add_subdirectory(../../ThirdParty/qhull qhull)
 
     add_library(stereo STATIC
       stereo/stereo.cpp
@@ -240,7 +218,7 @@ if(ENABLE_STEREO)
       stereo/fundamental.cpp
       stereo/stereo_features.cpp
     )
-    target_link_libraries(stereo PUBLIC filter PRIVATE DAI ${qhull_STATIC} vlfeat)
+    target_link_libraries(stereo PUBLIC filter PRIVATE DAI qhull vlfeat)
     target_include_directories(stereo PUBLIC stereo)
     set_property(TARGET stereo PROPERTY CXX_STANDARD 14)
 endif()

@@ -11,49 +11,53 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL Clang AND EXISTS /usr/include/c++/v1)
   link_libraries(c++)
 endif()
 
+if (MSVC)
+else ()
+  add_compile_options(-ffunction-sections)
+  add_compile_options(-fstack-protector-strong)
+  add_compile_options(-fvisibility=hidden)
+endif ()
+
 find_package(alloy QUIET)
 if (TARGET alloy)
-    add_compile_options(-march=atom -mfpmath=sse)
-elseif(WIN32 OR ANDROID)
-else()
-    add_compile_options(-march=native -mfpmath=sse)
-endif()
+  add_compile_options(-march=atom -mfpmath=sse)
+elseif (WIN32)
+elseif (ANDROID)
+  set(CMAKE_POSITION_INDEPENDENT_CODE True)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-pie")
+  # Match the options used by default in android-ndk-*/toolchains/*-clang3.6/setup.mk
+  add_compile_options(-no-canonical-prefixes -funwind-tables -fno-omit-frame-pointer)
+else (APPLE)
+  add_compile_options(-march=native -mfpmath=sse)
+endif ()
 
-set(ENABLE_STEREO true)
-set(ENABLE_MGL true)
-set(ENABLE_VISGL true)
-set(ENABLE_QR true)
-if(WIN32)
-    set(ENABLE_STEREO false)
-    set(ENABLE_MGL false)
-    set(ENABLE_VISGL true)
-    set(ENABLE_QR false)
-elseif(ANDROID)
-    set(ENABLE_STEREO false)
-    set(ENABLE_MGL false)
-    set(ENABLE_VISGL false)
-    set(ENABLE_QR false)
-endif()
+include(CMakeDependentOption)
+cmake_dependent_option(ENABLE_STEREO "Enable Stereo" ON APPLE OFF)
+cmake_dependent_option(ENABLE_VISGL "Enable GL Visualizations" OFF ANDROID ON UNIX ON WIN32 OFF)
+cmake_dependent_option(ENABLE_MGL "Enable MathGL (used for plots in measure)" ON "ENABLE_VISGL" OFF)
+cmake_dependent_option(ENABLE_QR "Enable QR Code localization" ON APPLE OFF)
+option(ENABLE_SOURCES "Enable installation of source code examples" ON)
 
 # A few hints for the BOOST_ROOT to help find_package(Boost)
-execute_process(COMMAND brew --prefix OUTPUT_VARIABLE BREW_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
-if (BREW_PREFIX)
-  file(GLOB _PREFIX ${BREW_PREFIX} /opt/local)
-  set(BOOST_ROOT ${_PREFIX})
-endif (BREW_PREFIX)
+if (APPLE)
+  execute_process(COMMAND brew --prefix OUTPUT_VARIABLE BREW_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
+  file(GLOB BREW_PREFIX ${BREW_PREFIX} /opt/local)
+  list(APPEND CMAKE_PREFIX_PATH ${BREW_PREFIX})
+endif (APPLE)
 
 add_subdirectory(src)
 
+if(ENABLE_VISGL)
 add_executable(measure
   src/tools/measure.cpp
   src/tools/benchmark.cpp
   src/tools/for_each_file.cpp
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
+install(TARGETS measure RUNTIME DESTINATION bin COMPONENT alloy)
 
 target_link_libraries(measure tracker)
-if(ENABLE_VISGL)
-    target_link_libraries(measure vis)
+target_link_libraries(measure vis)
 endif()
 if(ENABLE_MGL)
     target_link_libraries(measure mgl)
@@ -62,6 +66,21 @@ endif()
 add_executable(rc_replay src/tools/rc_replay.cpp src/tracker/rc_replay.cpp)
 set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
 target_link_libraries(rc_replay tracker)
+install(TARGETS rc_replay RUNTIME DESTINATION bin COMPONENT example-binaries)
+if(ENABLE_SOURCES)
+install(FILES
+  src/tools/rc_replay.cpp
+  RENAME main.cpp
+  DESTINATION src/rc_replay
+  COMPONENT example-sources
+)
+install(FILES
+  src/tracker/rc_replay.h
+  src/tracker/rc_replay.cpp
+  DESTINATION src/rc_replay
+  COMPONENT example-sources
+)
+endif()
 
 add_executable(alloy_merge src/tools/alloy_merge.cpp)
 set_property(TARGET alloy_merge PROPERTY CXX_STANDARD 14)
@@ -69,14 +88,18 @@ target_link_libraries(alloy_merge tracker)
 
 find_package(alloy QUIET)
 if (TARGET alloy)
+    install(TARGETS alloy_merge RUNTIME DESTINATION bin COMPONENT alloy)
+
     add_executable(rc_calibrate
         src/tools/rc_calibrate.cpp
     )
     set_property(TARGET rc_calibrate PROPERTY CXX_STANDARD 14)
     target_link_libraries(rc_calibrate alloy tracker)
+    install(TARGETS rc_calibrate RUNTIME DESTINATION bin COMPONENT alloy)
+
 endif()
 
-if(YES)
+if(YES AND NOT ANDROID)
     enable_testing()
     set(spec_sources
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc
@@ -127,3 +150,11 @@ if(YES)
         add_test(NAME spec_plus COMMAND spec_plus)
     endif()
 endif()
+
+set(CPACK_PACKAGE_NAME "tracker")
+set(CPACK_GENERATOR "ZIP")
+if (NOT RC_VERSION)
+    string(TIMESTAMP RC_VERSION "%Y-%m-%d")
+endif()
+set(CPACK_PACKAGE_VERSION ${RC_VERSION})
+include(CPack)

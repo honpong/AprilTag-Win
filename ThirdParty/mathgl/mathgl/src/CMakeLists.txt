@@ -41,17 +41,25 @@ endif(MGL_HAVE_OPENGL)
 include(GenerateExportHeader)
 add_compiler_export_flags()
 add_library(mgl SHARED ${mgl_src} ${mgl_hdr})
-add_library(mgl-static STATIC ${mgl_src} ${mgl_hdr})
+if(enable-static)
+	add_library(mgl-static STATIC ${mgl_src} ${mgl_hdr})
+endif(enable-static)
 set_target_properties(mgl PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-set_target_properties(mgl-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
-target_compile_definitions(mgl-static PUBLIC MGL_STATIC_DEFINE)
+if(enable-static)
+	set_target_properties(mgl-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
+	target_compile_definitions(mgl-static PUBLIC MGL_STATIC_DEFINE)
+endif(enable-static)
 generate_export_header(mgl EXPORT_FILE_NAME ../include/mgl2/dllexport.h)
 
 if(enable-mgl2)
 	set_target_properties(mgl PROPERTIES OUTPUT_NAME "mgl2")
-	set_target_properties(mgl-static PROPERTIES OUTPUT_NAME "mgl2")
+	if(enable-static)
+		set_target_properties(mgl-static PROPERTIES OUTPUT_NAME "mgl2")
+	endif(enable-static)
 else(enable-mgl2)
-	set_target_properties(mgl-static PROPERTIES OUTPUT_NAME "mgl")
+	if(enable-static)
+		set_target_properties(mgl-static PROPERTIES OUTPUT_NAME "mgl")
+	endif(enable-static)
 endif(enable-mgl2)
 
 # if(MGL_HAVE_LTDL)
@@ -146,11 +154,17 @@ if(M_LIB)
 	target_link_libraries(mgl ${M_LIB})
 endif(M_LIB)
 
+if(enable-static)
+	set(MGL_STATIC mgl-static)
+endif(enable-static)
+
 set_target_properties(mgl PROPERTIES SOVERSION ${MathGL_SOVERSION})
 install(
-	TARGETS mgl mgl-static
+	TARGETS mgl ${MGL_STATIC}
 	RUNTIME DESTINATION bin
 	ARCHIVE DESTINATION ${MGL_LIB_INSTALL_DIR}
 	LIBRARY DESTINATION ${MGL_LIB_INSTALL_DIR}
 )
-install(FILES ${MathGL_BINARY_DIR}/include/mgl2/dllexport.h DESTINATION ${MGL_INCLUDE_PATH})
+if(enable-headers)
+	install(FILES ${MathGL_BINARY_DIR}/include/mgl2/dllexport.h DESTINATION ${MGL_INCLUDE_PATH})
+endif(enable-headers)

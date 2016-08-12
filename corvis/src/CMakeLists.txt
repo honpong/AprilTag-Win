@@ -175,7 +175,7 @@ if (RC_VERSION)
 endif()
 exec_program(git ARGS describe --tags --match "intel_v*" HEAD OUTPUT_VARIABLE GIT_DESCRIPTION)
 target_compile_definitions(tracker PRIVATE RC_BUILD=${GIT_DESCRIPTION})
-install(TARGETS tracker LIBRARY DESTINATION lib COMPONENT tracker)
+install(TARGETS tracker LIBRARY DESTINATION lib ARCHIVE DESTINATION lib COMPONENT tracker)
 install(FILES filter/rc_tracker.h DESTINATION include COMPONENT tracker)
 
 if(ENABLE_QR)

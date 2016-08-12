@@ -15,16 +15,14 @@
 #include <alloca.h>
 #endif
 
-#if defined(__APPLE__) && !defined(__INTEL_COMPILER)
+#ifdef HAVE_MKL
+#include <mkl.h>
+#elif defined(__APPLE__)
 #include <Accelerate/Accelerate.h>
 #define lapack_int __CLPK_integer
-#else // __APPLE__
-#if defined(WIN32) || defined(ANDROID) || defined(__linux__) || defined(__INTEL_COMPILER)
-#include <mkl.h>
-#else // WIN32
+#else
 #include <cblas.h>
 #include <lapacke.h>
-#endif
 #endif
 
 #ifdef F_T_IS_DOUBLE

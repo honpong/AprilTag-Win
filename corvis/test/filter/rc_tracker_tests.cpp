@@ -8,6 +8,39 @@
 
 using namespace std;
 
+void count_errors(void *handle, rc_MessageLevel message_level, const char * message, size_t len)
+{
+    int * error_count = (int *)handle;
+    (*error_count)++;
+}
+
+TEST(rc_tracker_tests, rc_receiveImageBadPtr)
+{
+    rc_Tracker *tracker = rc_create();
+    int error_count = 0;
+    rc_setMessageCallback(tracker, count_errors, &error_count, rc_MESSAGE_ERROR);
+    EXPECT_FALSE(rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, 0, 0, 640, 480, 640, nullptr, nullptr, nullptr));
+    rc_destroy(tracker);
+    EXPECT_EQ(error_count, 1);
+}
+
+TEST(rc_tracker_tests, rc_receiveImageBadDimensions)
+{
+    rc_Tracker *tracker = rc_create();
+    int error_count = 0;
+    uint8_t image[64*64];
+    rc_setMessageCallback(tracker, count_errors, &error_count, rc_MESSAGE_ERROR);
+    EXPECT_FALSE(rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, 0, 0,   0,  64,  64, image, nullptr, nullptr));
+    EXPECT_FALSE(rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, 0, 0, -64,  64,  64, image, nullptr, nullptr));
+    EXPECT_FALSE(rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, 0, 0,  64,   0,  64, image, nullptr, nullptr));
+    EXPECT_FALSE(rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, 0, 0,  64, -64,  64, image, nullptr, nullptr));
+    EXPECT_FALSE(rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, 0, 0,  64,  64,   0, image, nullptr, nullptr));
+    EXPECT_FALSE(rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, 0, 0,  64,  64, -64, image, nullptr, nullptr));
+    EXPECT_FALSE(rc_receiveImage(tracker, 0, rc_FORMAT_GRAY8, 0, 0,  64,  64,  64, image, nullptr, nullptr));
+    rc_destroy(tracker);
+    EXPECT_EQ(error_count, 6);
+}
+
 TEST(rc_tracker_tests, rc_setCalibration)
 {
     calibration_json calInput = {};

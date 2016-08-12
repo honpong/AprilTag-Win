@@ -22,12 +22,12 @@ struct tracker {
             : point(id_, pred_x_, pred_y_, 0), found(false), prev_x(prev_x_), prev_y(prev_y_) {}
     };
 
-    struct image {
+    typedef struct {
         const uint8_t *image;
         int width_px;
         int height_px;
         int stride_px;
-    };
+    } image;
 
     std::unique_ptr<scaled_mask> mask;
 

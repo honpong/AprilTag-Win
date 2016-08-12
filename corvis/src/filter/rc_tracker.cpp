@@ -562,7 +562,7 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
         tracker->sfm.log->error("Null image provided with sensor id {} format {} time {} shutter {} width {} height {} stride {}", camera_id, format, time_us, shutter_time_us, width, height, stride);
         return false;
     }
-    if(width <= 0 || height <= 0 || stride <= 0) {
+    if(width <= 0 || height <= 0 || stride < width * (format == rc_FORMAT_DEPTH16 ? 2 : 1)) {
         tracker->sfm.log->error("Incorrectly configured image sensor id {} format {} time {} shutter {} width {} height {} stride {}", camera_id, format, time_us, shutter_time_us, width, height, stride);
         return false;
     }

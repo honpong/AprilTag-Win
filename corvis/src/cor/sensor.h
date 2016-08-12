@@ -21,6 +21,7 @@ struct sensor
     const std::string name;
     bool got = false;
     struct extrinsics {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
         transformation mean;
         struct transformation_variance { v3 Q = v3::Zero(), T = v3::Zero(); } variance;
     } extrinsics;

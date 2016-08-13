@@ -36,7 +36,7 @@ cmake_dependent_option(ENABLE_STEREO "Enable Stereo" ON APPLE OFF)
 cmake_dependent_option(ENABLE_VISGL "Enable GL Visualizations" OFF ANDROID ON UNIX ON WIN32 OFF)
 cmake_dependent_option(ENABLE_MGL "Enable MathGL (used for plots in measure)" ON "ENABLE_VISGL" OFF)
 cmake_dependent_option(ENABLE_QR "Enable QR Code localization" ON APPLE OFF)
-option(ENABLE_SOURCES "Enable installation of source code examples" ON)
+option(ENABLE_SOURCES "Enable installation of source code examples" OFF)
 
 # A few hints for the BOOST_ROOT to help find_package(Boost)
 if (APPLE)

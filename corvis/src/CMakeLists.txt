@@ -173,8 +173,15 @@ if (RC_VERSION)
   set(RC_VERSION ${RC_VERSION} CACHE STRING "RC Tracker Release Numeric Version")
   target_compile_definitions(tracker PRIVATE RC_VERSION=${RC_VERSION})
 endif()
-exec_program(git ARGS describe --tags --match "intel_v*" HEAD OUTPUT_VARIABLE GIT_DESCRIPTION)
-target_compile_definitions(tracker PRIVATE RC_BUILD=${GIT_DESCRIPTION})
+if (NOT RC_BUILD)
+  execute_process(COMMAND git describe --tags --match intel_v\* HEAD
+    WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
+    OUTPUT_VARIABLE RC_BUILD RESULT_VARIABLE GIT_RETURN OUTPUT_STRIP_TRAILING_WHITESPACE)
+  if (NOT GIT_RETURN EQUAL 0)
+    message(FATAL_ERROR "install git OR pass -DRC_BUILD=<build-string>")
+  endif()
+endif()
+target_compile_definitions(tracker PRIVATE RC_BUILD="${RC_BUILD}")
 install(TARGETS tracker LIBRARY DESTINATION lib ARCHIVE DESTINATION lib COMPONENT tracker)
 install(FILES filter/rc_tracker.h DESTINATION include COMPONENT tracker)
 

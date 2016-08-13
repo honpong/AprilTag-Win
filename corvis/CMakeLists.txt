@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.2.2 FATAL_ERROR)
 
-set(PACKAGE_NAME "corvis")
-
-project(${PACKAGE_NAME} C CXX)
+project(corvis C CXX)
 
 list(APPEND CMAKE_PREFIX_PATH ../cmake)
 

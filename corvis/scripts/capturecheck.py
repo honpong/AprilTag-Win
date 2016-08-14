@@ -53,12 +53,12 @@ while header_str != "":
       (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
       type_str = format_types[camera_format]
       packet_str += "_" + type_str
-      if args.verbose:
-          camera_str = "%s %d (%d) %dx%d, %d stride, %d exposure" % (type_str, sensor_id, camera_format, width, height, stride, exposure)
-          print "\t", camera_str
       if exposure < 1000 or exposure > 50000:
           exposure_warnings[packet_str].append((ptime, exposure))
       ptime += exposure/2
+      if args.verbose:
+          camera_str = "%s %d (%d) %dx%d, %d stride, %d exposure, %d adjusted time" % (type_str, sensor_id, camera_format, width, height, stride, exposure, ptime)
+          print "\t", camera_str
   if packet_str == "":
       packet_str = str(ptype)
   if not latest_received or latest_received < ptime:

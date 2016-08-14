@@ -62,7 +62,7 @@ void sensor_fusion::update_status()
         sfm.log->error("Numerical error; filter reset.");
         transformation last_transform = get_transformation();
         filter_initialize(&sfm);
-        set_transformation(last_transform);
+        filter_set_origin(&sfm, last_transform, true);
         filter_start_dynamic(&sfm);
     }
     else if(last_status.run_state == RCSensorFusionRunStateStaticCalibration && s.run_state == RCSensorFusionRunStateInactive && s.error == RCSensorFusionErrorCodeNone)

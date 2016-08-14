@@ -1137,8 +1137,7 @@ void filter_start_inertial_only(struct filter *f)
     f->s.enable_orientation_only();
 }
 
-#ifdef ENABLE_QR
-void filter_set_qr_origin(struct filter *f, const transformation &origin, bool gravity_aligned)
+void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned)
 {
     if(gravity_aligned) {
         v3 z_old = f->s.world_up;
@@ -1147,8 +1146,10 @@ void filter_set_qr_origin(struct filter *f, const transformation &origin, bool g
         f->origin.Q = Qd * origin.Q;
     } else f->origin.Q = origin.Q;
     f->origin.T = origin.T;
+    f->origin_set = true;
 }
 
+#ifdef ENABLE_QR
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity)
 {
     f->qr_origin_gravity_aligned = use_gravity;

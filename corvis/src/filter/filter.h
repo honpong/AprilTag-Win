@@ -101,8 +101,8 @@ void filter_start_inertial_only(struct filter *f);
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
-void filter_set_qr_origin(struct filter *f, const transformation &origin, bool gravity_aligned);
 #endif
+void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned);
 
 extern "C" void filter_initialize(struct filter *f);
 float filter_converged(const struct filter *f);

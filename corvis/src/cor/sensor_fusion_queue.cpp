@@ -349,9 +349,12 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
     bool gyro_expected   = gyro_queue.last_out == sensor_clock::time_point() ||
                            time > gyro_queue.last_out + gyro_queue.period - std::chrono::milliseconds(1);
 
-    bool camera_late = global_latest_received() >= camera_queue.last_out + camera_queue.period + jitter;
-    bool accel_late = global_latest_received() >= accel_queue.last_out + accel_queue.period + jitter;
-    bool gyro_late = global_latest_received() >= gyro_queue.last_out + gyro_queue.period + jitter;
+    bool camera_late = sensor_clock::time_point() != camera_queue.last_out &&
+                       global_latest_received()   >= camera_queue.last_out + camera_queue.period + jitter;
+    bool accel_late  = sensor_clock::time_point() !=  accel_queue.last_out &&
+                       global_latest_received()   >=  accel_queue.last_out +  accel_queue.period + jitter;
+    bool gyro_late   = sensor_clock::time_point() !=   gyro_queue.last_out &&
+                       global_latest_received()   >=   gyro_queue.last_out +   gyro_queue.period + jitter;
 
     // The idea of this is to start with the assumption that we are ok
     // to dispatch and invalidate it based on queue status and the

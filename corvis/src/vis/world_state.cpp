@@ -1,6 +1,5 @@
 #include "world_state.h"
 #include "../filter/filter.h"
-#include "../cor/packet.h"
 
 static const VertexData axis_data[] = {
     {{0, 0, 0}, {255, 0, 0, 255}},

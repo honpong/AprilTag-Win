@@ -39,7 +39,7 @@ static void error_callback(int error, const char* description)
 bool offscreen_render_to_file(const char * filename, world_state * world)
 {
     world->update_vertex_arrays();
-    fprintf(stderr, "Rendering %d path nodes and %d features\n", world->path_vertex_num, world->feature_vertex_num);
+    fprintf(stderr, "Rendering %lu path nodes and %lu features\n", world->path_vertex.size(), world->feature_vertex.size());
 
 
     if (!glfwInit()) {

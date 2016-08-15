@@ -371,20 +371,11 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
 
 world_state::world_state()
 {
-    path_vertex = (VertexData *)calloc(sizeof(VertexData), path_vertex_alloc);
-    path_gt_vertex = (VertexData *)calloc(sizeof(VertexData), path_gt_vertex_alloc);
-    feature_vertex = (VertexData *)calloc(sizeof(VertexData), feature_vertex_alloc);
-    feature_ellipse_vertex = (VertexData *)calloc(sizeof(VertexData), feature_ellipse_vertex_alloc);
-    feature_projection_vertex = (VertexData *)calloc(sizeof(VertexData), feature_projection_vertex_alloc);
-    map_node_vertex = (VertexData *)calloc(sizeof(VertexData), map_node_vertex_alloc);
-    map_edge_vertex = (VertexData *)calloc(sizeof(VertexData), map_edge_vertex_alloc);
-    map_feature_vertex = (VertexData *)calloc(sizeof(VertexData), map_feature_vertex_alloc);
     build_grid_vertex_data();
-    axis_vertex = axis_data;
-    axis_vertex_num = 6;
-    memcpy(orientation_data, axis_data, sizeof(axis_data));
-    orientation_vertex = orientation_data;
-    orientation_vertex_num = 6;
+    for(int i = 0; i < 6; i++)
+        axis_vertex.push_back(axis_data[i]);
+    for(int i = 0; i < 6; i++)
+        orientation_vertex.push_back(axis_data[i]);
     last_image.width = 0;
     last_image.height = 0;
     last_image.image = NULL;
@@ -399,28 +390,6 @@ world_state::world_state()
 
 world_state::~world_state()
 {
-    if(path_vertex)
-        free(path_vertex);
-    if(path_gt_vertex)
-        free(path_gt_vertex);
-    if(feature_vertex)
-        free(feature_vertex);
-    if(feature_ellipse_vertex)
-        free(feature_ellipse_vertex);
-    if(feature_projection_vertex)
-        free(feature_projection_vertex);
-    if(grid_vertex)
-        free(grid_vertex);
-    if(map_node_vertex)
-        free(map_node_vertex);
-    if(map_edge_vertex)
-        free(map_edge_vertex);
-    if(map_feature_vertex)
-        free(map_feature_vertex);
-    if(last_image.image)
-        free(last_image.image);
-    if(last_depth.image)
-        free(last_depth.image);
 }
 
 static inline void set_position(VertexData * vertex, float x, float y, float z)
@@ -460,14 +429,14 @@ void world_state::generate_feature_ellipse(const Feature & feat, unsigned char r
     int ellipse_segments = feature_ellipse_vertex_size/2;
     for(int i = 0; i < ellipse_segments; i++)
     {
-        VertexData * v1 = &feature_ellipse_vertex[feature_ellipse_vertex_num + i*2];
-        VertexData * v2 = &feature_ellipse_vertex[feature_ellipse_vertex_num + i*2+1];
-        set_color(v1, r, g, b, alpha);
-        set_color(v2, r, g, b, alpha);
-        ellipse_segment(v1, feat, (float)i/ellipse_segments);
-        ellipse_segment(v2, feat, (float)(i+1)/ellipse_segments);
+        VertexData v1, v2;
+        set_color(&v1, r, g, b, alpha);
+        set_color(&v2, r, g, b, alpha);
+        ellipse_segment(&v1, feat, (float)i/ellipse_segments);
+        ellipse_segment(&v2, feat, (float)(i+1)/ellipse_segments);
+        feature_ellipse_vertex.push_back(v1);
+        feature_ellipse_vertex.push_back(v2);
     }
-    feature_ellipse_vertex_num += feature_ellipse_vertex_size;
 }
 
 void world_state::update_vertex_arrays(bool show_only_good)
@@ -478,108 +447,64 @@ void world_state::update_vertex_arrays(bool show_only_good)
     sensor_clock::time_point now = sensor_clock::micros_to_tp(get_current_timestamp());
     display_lock.lock();
 
-    int idx;
-
-    // reallocate if we now have more data than room for vertices
-    if(feature_vertex_alloc < features.size()) {
-        feature_vertex_alloc = features.size()*2;
-        feature_vertex = (VertexData *)realloc(feature_vertex, sizeof(VertexData)*feature_vertex_alloc);
-    }
-    if(path_vertex_alloc < path.size()) {
-        path_vertex_alloc = path.size()*2;
-        path_vertex = (VertexData *)realloc(path_vertex, sizeof(VertexData)*path_vertex_alloc);
-    }
-    if(map_node_vertex_alloc < map_nodes.size()) {
-        map_node_vertex_alloc = map_nodes.size()*2;
-        map_node_vertex = (VertexData *)realloc(map_node_vertex, sizeof(VertexData)*map_node_vertex_alloc);
-    }
-    int map_edges = 0;
-    for(auto node : map_nodes)
-        map_edges += node.second.neighbors.size()*2;
-    if(map_edge_vertex_alloc < map_edges) {
-        map_edge_vertex_alloc = map_edges*2;
-        map_edge_vertex = (VertexData *)realloc(map_edge_vertex, sizeof(VertexData)*map_edge_vertex_alloc);
-    }
-    int map_features = 0;
-    for(auto node : map_nodes)
-        map_features += node.second.features.size();
-    if(map_feature_vertex_alloc < map_features) {
-        map_feature_vertex_alloc = map_features*2;
-        map_feature_vertex = (VertexData *)realloc(map_feature_vertex, sizeof(VertexData)*map_feature_vertex_alloc);
-    }
-    if(path_gt_vertex_alloc < path_gt.size()) {
-        path_gt_vertex_alloc = path_gt.size()*2;
-        path_gt_vertex = (VertexData *)realloc(path_gt_vertex, sizeof(VertexData)*path_gt_vertex_alloc);
-    }
-    if(feature_ellipse_vertex_alloc < features.size()*feature_ellipse_vertex_size) {
-        feature_ellipse_vertex_alloc = features.size()*feature_ellipse_vertex_size*2;
-        feature_ellipse_vertex = (VertexData *)realloc(feature_ellipse_vertex, sizeof(VertexData)*feature_ellipse_vertex_alloc);
-    }
-
-    if(feature_projection_vertex_alloc < features.size()) {
-        feature_projection_vertex_alloc = features.size()*2;
-        feature_projection_vertex = (VertexData *)realloc(feature_projection_vertex, sizeof(VertexData)*feature_projection_vertex_alloc);
-    }
-
-    feature_ellipse_vertex_num = 0;
-    feature_projection_vertex_num = 0;
-    int pidx = 0;
-    idx = 0;
+    feature_vertex.clear();
+    feature_projection_vertex.clear();
+    feature_ellipse_vertex.clear();
     for(auto const & item : features) {
         //auto feature_id = item.first;
         auto f = item.second;
+        VertexData v, vp;
         if (f.last_seen == current_feature_timestamp) {
             if(f.good) {
                 generate_feature_ellipse(f, 88, 247, 98, 255);
-                set_color(&feature_vertex[idx], 88, 247, 98, 255);
+                set_color(&v, 88, 247, 98, 255);
 
-                set_position(&feature_projection_vertex[pidx], f.image_x, f.image_y, 0);
-                set_color(&feature_projection_vertex[pidx++], 88, 247, 98, 255);
+                set_position(&vp, f.image_x, f.image_y, 0);
+                set_color(&vp, 88, 247, 98, 255);
             }
             else {
                 generate_feature_ellipse(f, 247, 88, 98, 255);
-                set_color(&feature_vertex[idx], 247, 88, 98, 255);
+                set_color(&v, 247, 88, 98, 255);
 
-                set_position(&feature_projection_vertex[pidx], f.image_x, f.image_y, 0);
-                set_color(&feature_projection_vertex[pidx++], 247, 88, 98, 255);
+                set_position(&vp, f.image_x, f.image_y, 0);
+                set_color(&vp, 247, 88, 98, 255);
             }
         }
         else {
             if (show_only_good && !f.good)
                 continue;
-            set_color(&feature_vertex[idx], 255, 255, 255, 255);
+            set_color(&v, 255, 255, 255, 255);
         }
-        set_position(&feature_vertex[idx], f.x, f.y, f.z);
-        idx++;
+        set_position(&v, f.x, f.y, f.z);
+        feature_vertex.push_back(v);
+        feature_projection_vertex.push_back(vp);
     }
-    feature_vertex_num = idx;
-    feature_projection_vertex_num = pidx;
 
-    idx = 0;
+    path_vertex.clear();
     for(auto p : path)
     {
+        VertexData v;
         if (p.timestamp == now) {
-            set_color(&path_vertex[idx], 0, 255, 0, 255);
+            set_color(&v, 0, 255, 0, 255);
             for(int i = 0; i < 6; i++) {
                 v3 vertex(axis_vertex[i].position[0],
                           axis_vertex[i].position[1],
                           axis_vertex[i].position[2]);
                 vertex = transformation_apply(p.g, vertex);
-                orientation_data[i].position[0] = (float)vertex[0];
-                orientation_data[i].position[1] = (float)vertex[1];
-                orientation_data[i].position[2] = (float)vertex[2];
+                orientation_vertex[i].position[0] = (float)vertex[0];
+                orientation_vertex[i].position[1] = (float)vertex[1];
+                orientation_vertex[i].position[2] = (float)vertex[2];
             }
         }
         else
-            set_color(&path_vertex[idx], 0, 178, 206, 255); // path color
-        set_position(&path_vertex[idx], (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
-        idx++;
+            set_color(&v, 0, 178, 206, 255); // path color
+        set_position(&v, (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
+        path_vertex.push_back(v);
     }
-    path_vertex_num = idx;
 
-    idx = 0;
-    int nedges = 0;
-    int nfeatures = 0;
+    map_node_vertex.clear();
+    map_edge_vertex.clear();
+    map_feature_vertex.clear();
     for(auto n : map_nodes) {
         auto id = n.first;
         auto node = n.second;
@@ -587,101 +512,117 @@ void world_state::update_vertex_arrays(bool show_only_good)
         if(node.unlinked)
             alpha = 50;
 
+        VertexData v;
         if(!node.finished)
-            set_color(&map_node_vertex[idx], 255, 0, 255, alpha);
+            set_color(&v, 255, 0, 255, alpha);
         else if(node.loop_closed)
-            set_color(&map_node_vertex[idx], 255, 0, 0, alpha);
+            set_color(&v, 255, 0, 0, alpha);
         else
-            set_color(&map_node_vertex[idx], 255, 255, 0, alpha);
+            set_color(&v, 255, 255, 0, alpha);
         v3 v1(node.position.T);
-        set_position(&map_node_vertex[idx], v1[0], v1[1], v1[2]);
+        set_position(&v, v1[0], v1[1], v1[2]);
+        map_node_vertex.push_back(v);
         for(uint64_t neighbor_id : node.neighbors) {
             if(!node.finished || !map_nodes[neighbor_id].finished) continue;
 
+            VertexData ve;
             if(node.loop_closed && map_nodes[neighbor_id].loop_closed)
-                set_color(&map_edge_vertex[nedges], 255, 0, 0, 255);
+                set_color(&ve, 255, 0, 0, 255);
             else
-                set_color(&map_edge_vertex[nedges], 255, 0, 255, alpha*0.2);
-            set_position(&map_edge_vertex[nedges], v1[0], v1[1], v1[2]);
-            nedges++;
+                set_color(&ve, 255, 0, 255, alpha*0.2);
+            set_position(&ve, v1[0], v1[1], v1[2]);
+            map_edge_vertex.push_back(ve);
 
             auto node2 = map_nodes[neighbor_id];
             if(node.loop_closed && map_nodes[neighbor_id].loop_closed)
-                set_color(&map_edge_vertex[nedges], 255, 0, 0, 255);
+                set_color(&ve, 255, 0, 0, 255);
             else
-                set_color(&map_edge_vertex[nedges], 255, 0, 255, alpha*0.2);
-            set_position(&map_edge_vertex[nedges], node2.position.T.x(), node2.position.T.y(), node2.position.T.z());
-            nedges++;
+                set_color(&ve, 255, 0, 255, alpha*0.2);
+            set_position(&ve, node2.position.T.x(), node2.position.T.y(), node2.position.T.z());
+            map_edge_vertex.push_back(ve);
         }
         for(Feature f : node.features) {
+            VertexData vf;
             v3 vertex(f.x, f.y, f.z);
             vertex = transformation_apply(node.position, vertex);
             if(node.loop_closed)
-                set_color(&map_feature_vertex[nfeatures], 255, 127, 127, 255);
+                set_color(&vf, 255, 127, 127, 255);
             else
-                set_color(&map_feature_vertex[nfeatures], 0, 0, 255, alpha);
-            set_position(&map_feature_vertex[nfeatures], vertex[0], vertex[1], vertex[2]);
-            nfeatures++;
+                set_color(&vf, 0, 0, 255, alpha);
+            set_position(&vf, vertex[0], vertex[1], vertex[2]);
+            map_feature_vertex.push_back(vf);
         }
-        idx++;
     }
-    map_node_vertex_num = idx;
-    map_edge_vertex_num = nedges;
-    map_feature_vertex_num = nfeatures;
 
     for(auto p : path_gt)
     {
-        set_color(&path_gt_vertex[idx], 206, 100, 178, 255); // path color
-        set_position(&path_gt_vertex[idx], (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
-        idx++;
+        VertexData v;
+        set_color(&v, 206, 100, 178, 255); // path color
+        set_position(&v, (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
+        path_gt_vertex.push_back(v);
     }
-    path_gt_vertex_num = idx;
     display_lock.unlock();
 }
 
 void world_state::build_grid_vertex_data()
 {
     float scale = 1; /* meter */
-    grid_vertex_num = 21*16; /* -10 to 10 with 16 each iteration */
-    grid_vertex = (VertexData *)calloc(sizeof(VertexData), grid_vertex_num);
+    grid_vertex.clear();
     /* Grid */
     int idx = 0;
     unsigned char gridColor[4] = {122, 126, 146, 255};
     for(float x = -10*scale; x < 11*scale; x += scale)
     {
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], x, -10*scale, 0);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], x, 10*scale, 0);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], -10*scale, x, 0);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], 10*scale, x, 0);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], -0, -10*scale, 0);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], -0, 10*scale, 0);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], -10*scale, -0, 0);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], 10*scale, -0, 0);
+        VertexData v;
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, x, -10*scale, 0);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, x, 10*scale, 0);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, -10*scale, x, 0);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, 10*scale, x, 0);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, -0, -10*scale, 0);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, -0, 10*scale, 0);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, -10*scale, -0, 0);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, 10*scale, -0, 0);
+        grid_vertex.push_back(v);
 
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], 0, -.1f*scale, x);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], 0, .1f*scale, x);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], -.1f*scale, 0, x);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], .1f*scale, 0, x);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], 0, -.1f*scale, -x);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], 0, .1f*scale, -x);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], -.1f*scale, 0, -x);
-        set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], .1f*scale, 0, -x);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, 0, -.1f*scale, x);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, 0, .1f*scale, x);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, -.1f*scale, 0, x);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, .1f*scale, 0, x);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, 0, -.1f*scale, -x);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, 0, .1f*scale, -x);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, -.1f*scale, 0, -x);
+        grid_vertex.push_back(v);
+        set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
+        set_position(&v, .1f*scale, 0, -x);
+        grid_vertex.push_back(v);
     }
 }
 

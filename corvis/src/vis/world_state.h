@@ -62,20 +62,11 @@ private:
     std::vector<Position, Eigen::aligned_allocator<Position> > path_gt;
     sensor_clock::time_point current_feature_timestamp;
     sensor_clock::time_point current_timestamp;
-    std::size_t path_vertex_alloc = 1000;
-    std::size_t path_gt_vertex_alloc = 1000;
-    std::size_t feature_vertex_alloc = 1000;
-    std::size_t feature_ellipse_vertex_alloc = 1000;
-    std::size_t feature_projection_vertex_alloc = 1000;
-    std::size_t map_node_vertex_alloc = 1000;
-    std::size_t map_edge_vertex_alloc = 1000;
-    std::size_t map_feature_vertex_alloc = 1000;
     void build_grid_vertex_data();
     void generate_feature_ellipse(const Feature & feat, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
     void update_current_timestamp(const sensor_clock::time_point & timestamp);
 
     std::vector<plot> plots;
-    VertexData orientation_data[6];
 
 public:
     std::mutex image_lock;
@@ -83,24 +74,20 @@ public:
     std::mutex display_lock;
     std::mutex plot_lock;
     std::mutex time_lock;
-    VertexData * grid_vertex;
-    const VertexData * axis_vertex;
-    VertexData * path_vertex;
-    VertexData * path_gt_vertex;
-    VertexData * feature_vertex;
-    VertexData * orientation_vertex;
-    VertexData * feature_ellipse_vertex;
-    VertexData * feature_projection_vertex;
-    VertexData * map_node_vertex;
-    VertexData * map_edge_vertex;
-    VertexData * map_feature_vertex;
+    std::vector<VertexData> grid_vertex;
+    std::vector<VertexData> axis_vertex;
+    std::vector<VertexData> path_vertex;
+    std::vector<VertexData> path_gt_vertex;
+    std::vector<VertexData> feature_vertex;
+    std::vector<VertexData> orientation_vertex;
+    std::vector<VertexData> feature_ellipse_vertex;
+    std::vector<VertexData> feature_projection_vertex;
+    std::vector<VertexData> map_node_vertex;
+    std::vector<VertexData> map_edge_vertex;
+    std::vector<VertexData> map_feature_vertex;
     ImageData last_image;
     ImageData last_depth;
     ImageData last_depth_overlay_image;
-    int grid_vertex_num, axis_vertex_num, path_vertex_num, path_gt_vertex_num, feature_vertex_num, orientation_vertex_num;
-    int feature_ellipse_vertex_num;
-    int feature_projection_vertex_num;
-    int map_node_vertex_num, map_edge_vertex_num, map_feature_vertex_num;
     bool generate_depth_overlay;
 
     world_state();

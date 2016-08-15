@@ -47,8 +47,8 @@ void world_state_render_video(world_state * world, int viewport_width, int viewp
     glPointSize(3.0f);
 #endif
     glLineWidth(2.0f);
-    frame_render.draw_overlay(world->feature_ellipse_vertex, world->feature_ellipse_vertex_num, GL_LINES, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
-    frame_render.draw_overlay(world->feature_projection_vertex, world->feature_projection_vertex_num, GL_POINTS, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
+    frame_render.draw_overlay(&world->feature_ellipse_vertex[0], world->feature_ellipse_vertex.size(), GL_LINES, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
+    frame_render.draw_overlay(&world->feature_projection_vertex[0], world->feature_projection_vertex.size(), GL_POINTS, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
     world->image_lock.unlock();
     world->display_lock.unlock();
 }
@@ -110,24 +110,24 @@ void world_state_render(world_state * world, float * view_matrix, float * projec
     glPointSize(3.0f);
 #endif
     glLineWidth(2.0f);
-    render.draw_array(world->grid_vertex, world->grid_vertex_num, GL_LINES);
+    render.draw_array(&world->grid_vertex[0], world->grid_vertex.size(), GL_LINES);
     glLineWidth(4.0f);
-    render.draw_array(world->axis_vertex, world->axis_vertex_num, GL_LINES);
-    render.draw_array(world->orientation_vertex, world->orientation_vertex_num, GL_LINES);
-    render.draw_array(world->feature_vertex, world->feature_vertex_num, GL_POINTS);
-    render.draw_array(world->path_vertex, world->path_vertex_num, GL_POINTS);
-    render.draw_array(world->path_gt_vertex, world->path_gt_vertex_num, GL_POINTS);
+    render.draw_array(&world->axis_vertex[0], world->axis_vertex.size(), GL_LINES);
+    render.draw_array(&world->orientation_vertex[0], world->orientation_vertex.size(), GL_LINES);
+    render.draw_array(&world->feature_vertex[0], world->feature_vertex.size(), GL_POINTS);
+    render.draw_array(&world->path_vertex[0], world->path_vertex.size(), GL_POINTS);
+    render.draw_array(&world->path_gt_vertex[0], world->path_gt_vertex.size(), GL_POINTS);
 
 #if !(TARGET_OS_IPHONE)
     glPointSize(10.0f);
 #endif
-    render.draw_array(world->map_node_vertex, world->map_node_vertex_num, GL_POINTS);
+    render.draw_array(&world->map_node_vertex[0], world->map_node_vertex.size(), GL_POINTS);
     glLineWidth(4.0f);
-    render.draw_array(world->map_edge_vertex, world->map_edge_vertex_num, GL_LINES);
+    render.draw_array(&world->map_edge_vertex[0], world->map_edge_vertex.size(), GL_LINES);
 #if !(TARGET_OS_IPHONE)
     glPointSize(5.0f);
 #endif
-    render.draw_array(world->map_feature_vertex, world->map_feature_vertex_num, GL_POINTS);
+    render.draw_array(&world->map_feature_vertex[0], world->map_feature_vertex.size(), GL_POINTS);
 
     world->display_lock.unlock();
 }

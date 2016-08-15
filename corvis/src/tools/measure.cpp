@@ -141,7 +141,7 @@ int main(int c, char **v)
                 rp.set_camera_callback([ws,&rp](const filter * f, image_gray8 &&d) {
                     tpose P(d.timestamp);
                     if(rp.get_reference_pose(d.timestamp, P))
-                        ws->observe_position_gt(P.t, P.G.T.x(), P.G.T.y(), P.G.T.z(), P.G.Q.w(), P.G.Q.x(), P.G.Q.y(), P.G.Q.z());
+                        ws->observe_position_gt(sensor_clock::tp_to_micros(P.t), P.G.T.x(), P.G.T.y(), P.G.T.z(), P.G.Q.w(), P.G.Q.x(), P.G.Q.y(), P.G.Q.z());
                     ws->receive_camera(f, std::move(d));
                 });
             } else
@@ -186,7 +186,7 @@ int main(int c, char **v)
         rp.set_camera_callback([&](const filter * f, image_gray8 &&d) {
             tpose P(d.timestamp);
             if(rp.get_reference_pose(d.timestamp, P))
-                ws.observe_position_gt(P.t, P.G.T.x(), P.G.T.y(), P.G.T.z(), P.G.Q.w(), P.G.Q.x(), P.G.Q.y(), P.G.Q.z());
+                ws.observe_position_gt(sensor_clock::tp_to_micros(P.t), P.G.T.x(), P.G.T.y(), P.G.T.z(), P.G.Q.w(), P.G.Q.x(), P.G.Q.y(), P.G.Q.z());
             ws.receive_camera(f, std::move(d));
         });
     }

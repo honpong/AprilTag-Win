@@ -179,7 +179,7 @@ static void create_plot(world_state * state, size_t plot_index, size_t key_index
             //    continue;
 
             for(auto data : kvi->second) {
-                sensor_clock::time_point t = data.first;
+                sensor_clock::time_point t = sensor_clock::micros_to_tp(data.first);
                 if(t < mint) mint = t;
                 if(t > maxt) maxt = t;
 
@@ -201,7 +201,7 @@ static void create_plot(world_state * state, size_t plot_index, size_t key_index
 
             int j = 0;
             for(auto data : p) {
-                float seconds = std::chrono::duration_cast<std::chrono::duration<float>>(data.first - mint).count();
+                float seconds = std::chrono::duration_cast<std::chrono::duration<float>>(sensor_clock::micros_to_tp(data.first) - mint).count();
                 data_x.a[j] = seconds;
 
                 float val = data.second;

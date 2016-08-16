@@ -1,5 +1,6 @@
 #include "world_state.h"
 #include "../filter/filter.h"
+#include "../filter/rc_tracker.h"
 
 static const VertexData axis_data[] = {
     {{0, 0, 0}, {255, 0, 0, 255}},
@@ -200,6 +201,23 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
     update_current_timestamp(timestamp_us);
     current_feature_timestamp = timestamp_us;
     transformation G = f->origin*f->s.get_transformation();
+
+    for(const auto & s : f->accelerometers) {
+        observe_sensor(rc_SENSOR_TYPE_ACCELEROMETER, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
+                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
+    }
+    for(const auto & s : f->gyroscopes) {
+        observe_sensor(rc_SENSOR_TYPE_GYROSCOPE, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
+                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
+    }
+    for(const auto & s : f->cameras) {
+        observe_sensor(rc_SENSOR_TYPE_IMAGE, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
+                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
+    }
+    for(const auto & s : f->depths) {
+        observe_sensor(rc_SENSOR_TYPE_DEPTH, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
+                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
+    }
 
     for(auto g : f->s.groups.children) {
         for(auto feat : g->features.children) {

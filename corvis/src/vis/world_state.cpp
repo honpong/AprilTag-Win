@@ -436,6 +436,13 @@ static inline void set_position(VertexData * vertex, float x, float y, float z)
     vertex->position[2] = z;
 }
 
+static inline void set_position(VertexData * vertex, const v3 & v)
+{
+    vertex->position[0] = v[0];
+    vertex->position[1] = v[1];
+    vertex->position[2] = v[2];
+}
+
 static inline void set_color(VertexData * vertex, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha)
 {
     vertex->color[0] = r;

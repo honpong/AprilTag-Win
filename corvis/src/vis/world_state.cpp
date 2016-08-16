@@ -75,6 +75,20 @@ void world_state::observe_sensor(int sensor_type, uint16_t sensor_id, float x, f
     display_lock.unlock();
 }
 
+void world_state::observe_world(float world_up_x, float world_up_y, float world_up_z,
+                   float world_forward_x, float world_forward_y, float world_forward_z,
+                   float body_forward_x, float body_forward_y, float body_forward_z)
+{
+    display_lock.lock();
+    if(up[0] != world_up_x || up[1] != world_up_y || up[2] != world_up_z) {
+        up[0] = world_up_x;
+        up[1] = world_up_y;
+        up[2] = world_up_z;
+        build_grid_vertex_data();
+    }
+    display_lock.unlock();
+}
+
 void world_state::observe_map_node(uint64_t timestamp, uint64_t node_id, bool finished, bool loop_closed, bool unlinked, const transformation &position, vector<uint64_t> & neighbors, vector<Feature> & features)
 {
     display_lock.lock();
@@ -218,6 +232,10 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
         observe_sensor(rc_SENSOR_TYPE_DEPTH, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
                       s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
     }
+
+    observe_world(f->s.world_up[0], f->s.world_up[1], f->s.world_up[2],
+                  f->s.world_initial_forward[0], f->s.world_initial_forward[1], f->s.world_initial_forward[2],
+                  f->s.body_forward[0], f->s.body_forward[1], f->s.body_forward[2]);
 
     for(auto g : f->s.groups.children) {
         for(auto feat : g->features.children) {

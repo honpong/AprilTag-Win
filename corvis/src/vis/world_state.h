@@ -105,6 +105,9 @@ public:
 
     void receive_camera(const filter * f, image_gray8 &&data);
     void observe_sensor(int sensor_type, uint16_t sensor_id, float x, float y, float z, float qw, float qx, float qy, float qz);
+    void observe_world(float world_up_x, float world_up_y, float world_up_z,
+                       float world_forward_x, float world_forward_y, float world_forward_z,
+                       float body_forward_x, float body_forward_y, float body_forward_z);
     void observe_feature(uint64_t timestamp_us, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float projected_x, float projected_y, float cx, float cy, float cxy, bool good, bool depth_measured);
     void observe_position(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_position_gt(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);

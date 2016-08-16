@@ -615,7 +615,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
             uint16_t sensor_id = s.first;
             transformation g = current_position*s.second.extrinsics;
             VertexData v;
-            set_color(&v, 255, 255, 255, 255);
+            set_indexed_color(&v, sensor_type);
             set_position(&v, (float)g.T.x(), (float)g.T.y(), (float)g.T.z());
             sensor_vertex.push_back(v);
 

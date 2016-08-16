@@ -11,6 +11,13 @@ gui * gui::static_gui;
 
 const static float initial_scale = 5;
 
+v3 gui::get_view_translation()
+{
+    v3 d_view = (scale/600.)*(translation_finish - translation_start);
+    d_view[1] *= -1; // switch from image coordinates to opengl coordinates
+    return d_view;
+}
+
 void gui::configure_view(int view_width, int view_height)
 {
     float aspect = 1.f*view_width/view_height;
@@ -21,7 +28,9 @@ void gui::configure_view(int view_width, int view_height)
     build_projection_matrix(projection_matrix, 60.0f, aspect, nearclip, farclip);
 
     view_matrix.block<3,3>(0,0) = arc.get_quaternion().cast<float>().toRotationMatrix();
-    view_matrix.block<3,1>(0,3) = v3(0,0,-scale);
+    view_matrix.block<3,1>(0,3) = v3(0,0,-scale) + translation_m;
+    if(is_translating)
+        view_matrix.block<3,1>(0,3) += get_view_translation();
     view_matrix.block<1,3>(3,0) = v3::Zero();
     view_matrix(3,3) = 1;
 }
@@ -30,6 +39,8 @@ void gui::mouse_move(GLFWwindow * window, double x, double y)
 {
     if(is_rotating)
         arc.continue_rotation((float)x, (float)y);
+    if(is_translating)
+        translation_finish = v3((float)x, (float)y, 0);
 }
 
 void gui::mouse(GLFWwindow * window, int button, int action, int mods)
@@ -42,6 +53,17 @@ void gui::mouse(GLFWwindow * window, int button, int action, int mods)
     }
     else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         is_rotating = false;
+    }
+
+    if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+        translation_start = v3((float)x, (float)y, 0);
+        translation_finish = translation_start;
+        is_translating = true;
+    }
+    else if(button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+        translation_finish = v3((float)x, (float)y, 0);
+        translation_m += get_view_translation();
+        is_translating = false;
     }
 }
 

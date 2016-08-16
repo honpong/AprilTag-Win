@@ -57,6 +57,11 @@ private:
     // Mouse related
     arcball arc;
     bool is_rotating{false};
+    v3 translation_m;
+    v3 translation_start;
+    v3 translation_finish;
+    bool is_translating{false};
+    v3 get_view_translation();
 
     // Display related
     GLFWwindow * main_window;

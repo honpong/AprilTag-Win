@@ -65,6 +65,15 @@ void world_state::observe_plot_item(uint64_t timestamp, size_t index, std::strin
     plot_lock.unlock();
 }
 
+void world_state::observe_sensor(int sensor_type, uint16_t sensor_id, float x, float y, float z, float qw, float qx, float qy, float qz)
+{
+    display_lock.lock();
+    Sensor s;
+    s.extrinsics = transformation(quaternion(qw,qx,qy,qz), v3(x,y,z));
+    sensors[sensor_type][sensor_id] = s;
+    display_lock.unlock();
+}
+
 void world_state::observe_map_node(uint64_t timestamp, uint64_t node_id, bool finished, bool loop_closed, bool unlinked, const transformation &position, vector<uint64_t> & neighbors, vector<Feature> & features)
 {
     display_lock.lock();
@@ -497,6 +506,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
     }
 
     path_vertex.clear();
+    transformation current_position;
     for(auto p : path)
     {
         VertexData v;
@@ -506,6 +516,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
                 v3 vertex(axis_vertex[i].position[0],
                           axis_vertex[i].position[1],
                           axis_vertex[i].position[2]);
+                current_position = p.g;
                 vertex = transformation_apply(p.g, vertex);
                 orientation_vertex[i].position[0] = (float)vertex[0];
                 orientation_vertex[i].position[1] = (float)vertex[1];
@@ -576,6 +587,32 @@ void world_state::update_vertex_arrays(bool show_only_good)
         set_color(&v, 206, 100, 178, 255); // path color
         set_position(&v, (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
         path_gt_vertex.push_back(v);
+    }
+
+    sensor_vertex.clear();
+    sensor_axis_vertex.clear();
+    for(auto st : sensors) {
+        int sensor_type = st.first;
+        for(auto s : st.second) {
+            uint16_t sensor_id = s.first;
+            transformation g = current_position*s.second.extrinsics;
+            VertexData v;
+            set_color(&v, 255, 255, 255, 255);
+            set_position(&v, (float)g.T.x(), (float)g.T.y(), (float)g.T.z());
+            sensor_vertex.push_back(v);
+
+            for(int i = 0; i < 6; i++) {
+                VertexData va;
+                v3 vertex(0.25*axis_vertex[i].position[0],
+                          0.25*axis_vertex[i].position[1],
+                          0.25*axis_vertex[i].position[2]);
+                vertex = g*vertex;
+                set_position(&va, vertex[0], vertex[1], vertex[2]);
+                set_color(&va, axis_vertex[i].color[0], axis_vertex[i].color[1], axis_vertex[i].color[2], axis_vertex[i].color[3]);
+                sensor_axis_vertex.push_back(va);
+            }
+
+        }
     }
     display_lock.unlock();
 }

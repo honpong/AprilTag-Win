@@ -44,6 +44,10 @@ typedef struct _mapnode {
     std::vector<Feature> features;
 } MapNode;
 
+typedef struct _sensor {
+    transformation extrinsics;
+} Sensor;
+
 struct filter;
 
 typedef std::pair<uint64_t, float> plot_item;
@@ -54,6 +58,7 @@ class world_state
 public:
     typedef std::map<std::string, plot_data> plot;
 private:
+    std::map<int, std::map<uint16_t, Sensor, std::less<uint16_t>, Eigen::aligned_allocator<std::pair<const uint16_t, Sensor> > > > sensors;
     std::map<uint64_t, MapNode> map_nodes;
     std::map<uint64_t, Feature> features;
     std::vector<Position, Eigen::aligned_allocator<Position> > path;
@@ -83,6 +88,8 @@ public:
     std::vector<VertexData> map_node_vertex;
     std::vector<VertexData> map_edge_vertex;
     std::vector<VertexData> map_feature_vertex;
+    std::vector<VertexData> sensor_vertex;
+    std::vector<VertexData> sensor_axis_vertex;
     ImageData last_image;
     ImageData last_depth;
     ImageData last_depth_overlay_image;
@@ -96,6 +103,7 @@ public:
     size_t change_plot_key(size_t plot_index, size_t key_index);
 
     void receive_camera(const filter * f, image_gray8 &&data);
+    void observe_sensor(int sensor_type, uint16_t sensor_id, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_feature(uint64_t timestamp_us, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float projected_x, float projected_y, float cx, float cy, float cxy, bool good, bool depth_measured);
     void observe_position(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_position_gt(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);

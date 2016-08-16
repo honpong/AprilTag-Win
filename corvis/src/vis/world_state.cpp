@@ -10,6 +10,16 @@ static const VertexData axis_data[] = {
     {{0, 0, .5}, {0, 0, 255, 255}},
 };
 
+static const unsigned char indexed_colors[][4] = {
+    {255,   0,   0, 255},
+    {  0, 255,   0, 255},
+    {  0,   0, 255, 255},
+    {  0, 255, 255, 255},
+    {255,   0, 255, 255},
+    {255, 255,   0, 255},
+    {255, 255, 255, 255},
+};
+
 static const std::size_t feature_ellipse_vertex_size = 30; // 15 segments
 static const std::size_t max_plot_samples = 1000;
 void world_state::render_plot(size_t plot_index, size_t key_index, std::function<void (plot&, size_t key_index)> render_callback)
@@ -405,6 +415,12 @@ static inline void set_color(VertexData * vertex, unsigned char r, unsigned char
     vertex->color[1] = g;
     vertex->color[2] = b;
     vertex->color[3] = alpha;
+}
+
+static inline void set_indexed_color(VertexData * vertex, int index)
+{
+    int ci = index % sizeof(indexed_colors);
+    set_color(vertex, indexed_colors[ci][0], indexed_colors[ci][1], indexed_colors[ci][2], indexed_colors[ci][3]);
 }
 
 static inline void ellipse_segment(VertexData * v, const Feature & feat, float percent)

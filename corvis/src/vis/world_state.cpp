@@ -644,6 +644,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
 
 void world_state::build_grid_vertex_data()
 {
+    quaternion Q = rotation_between_two_vectors(v3(0,0,1), v3(up[0], up[1], up[2]));
     float scale = 1; /* meter */
     grid_vertex.clear();
     /* Grid */
@@ -653,53 +654,53 @@ void world_state::build_grid_vertex_data()
     {
         VertexData v;
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, x, -10*scale, 0);
+        set_position(&v, Q*v3(x, -10*scale, 0));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, x, 10*scale, 0);
+        set_position(&v, Q*v3(x, 10*scale, 0));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, -10*scale, x, 0);
+        set_position(&v, Q*v3(-10*scale, x, 0));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, 10*scale, x, 0);
+        set_position(&v, Q*v3(10*scale, x, 0));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, -0, -10*scale, 0);
+        set_position(&v, Q*v3(-0, -10*scale, 0));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, -0, 10*scale, 0);
+        set_position(&v, Q*v3(-0, 10*scale, 0));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, -10*scale, -0, 0);
+        set_position(&v, Q*v3(-10*scale, -0, 0));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, 10*scale, -0, 0);
+        set_position(&v, Q*v3(10*scale, -0, 0));
         grid_vertex.push_back(v);
 
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, 0, -.1f*scale, x);
+        set_position(&v, Q*v3(0, -.1f*scale, x));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, 0, .1f*scale, x);
+        set_position(&v, Q*v3(0, .1f*scale, x));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, -.1f*scale, 0, x);
+        set_position(&v, Q*v3(-.1f*scale, 0, x));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, .1f*scale, 0, x);
+        set_position(&v, Q*v3(.1f*scale, 0, x));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, 0, -.1f*scale, -x);
+        set_position(&v, Q*v3(0, -.1f*scale, -x));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, 0, .1f*scale, -x);
+        set_position(&v, Q*v3(0, .1f*scale, -x));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, -.1f*scale, 0, -x);
+        set_position(&v, Q*v3(-.1f*scale, 0, -x));
         grid_vertex.push_back(v);
         set_color(&v, gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&v, .1f*scale, 0, -x);
+        set_position(&v, Q*v3(.1f*scale, 0, -x));
         grid_vertex.push_back(v);
     }
 }

@@ -94,6 +94,7 @@ public:
     ImageData last_depth;
     ImageData last_depth_overlay_image;
     bool generate_depth_overlay;
+    float up[3] = {0,0,1};
 
     world_state();
     ~world_state();

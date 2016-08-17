@@ -6,8 +6,6 @@
 #include <list>
 #include <mutex>
 #include "../numerics/transformation.h"
-#include "../cor/platform/sensor_clock.h"
-#include "../cor/packet.h"
 #include "../cor/sensor_data.h"
 
 typedef struct _VertexData {
@@ -17,7 +15,7 @@ typedef struct _VertexData {
 
 typedef struct _feature {
     float x, y, z;
-    sensor_clock::time_point last_seen;
+    uint64_t last_seen;
     int times_seen;
     float image_x, image_y;
     float projected_x, projected_y;
@@ -28,7 +26,7 @@ typedef struct _feature {
 
 typedef struct _position {
     transformation g;
-    sensor_clock::time_point timestamp;
+    uint64_t timestamp;
 } Position;
 
 typedef struct _ImageData {
@@ -46,9 +44,13 @@ typedef struct _mapnode {
     std::vector<Feature> features;
 } MapNode;
 
+typedef struct _sensor {
+    transformation extrinsics;
+} Sensor;
+
 struct filter;
 
-typedef std::pair<sensor_clock::time_point, float> plot_item;
+typedef std::pair<uint64_t, float> plot_item;
 typedef std::list<plot_item > plot_data;
 
 class world_state
@@ -56,26 +58,18 @@ class world_state
 public:
     typedef std::map<std::string, plot_data> plot;
 private:
+    std::map<int, std::map<uint16_t, Sensor, std::less<uint16_t>, Eigen::aligned_allocator<std::pair<const uint16_t, Sensor> > > > sensors;
     std::map<uint64_t, MapNode> map_nodes;
     std::map<uint64_t, Feature> features;
     std::vector<Position, Eigen::aligned_allocator<Position> > path;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_gt;
-    sensor_clock::time_point current_feature_timestamp;
-    sensor_clock::time_point current_timestamp;
-    std::size_t path_vertex_alloc = 1000;
-    std::size_t path_gt_vertex_alloc = 1000;
-    std::size_t feature_vertex_alloc = 1000;
-    std::size_t feature_ellipse_vertex_alloc = 1000;
-    std::size_t feature_projection_vertex_alloc = 1000;
-    std::size_t map_node_vertex_alloc = 1000;
-    std::size_t map_edge_vertex_alloc = 1000;
-    std::size_t map_feature_vertex_alloc = 1000;
+    uint64_t current_feature_timestamp;
+    uint64_t current_timestamp;
     void build_grid_vertex_data();
     void generate_feature_ellipse(const Feature & feat, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
-    void update_current_timestamp(const sensor_clock::time_point & timestamp);
+    void update_current_timestamp(const uint64_t & timestamp);
 
     std::vector<plot> plots;
-    VertexData orientation_data[6];
 
 public:
     std::mutex image_lock;
@@ -83,25 +77,24 @@ public:
     std::mutex display_lock;
     std::mutex plot_lock;
     std::mutex time_lock;
-    VertexData * grid_vertex;
-    const VertexData * axis_vertex;
-    VertexData * path_vertex;
-    VertexData * path_gt_vertex;
-    VertexData * feature_vertex;
-    VertexData * orientation_vertex;
-    VertexData * feature_ellipse_vertex;
-    VertexData * feature_projection_vertex;
-    VertexData * map_node_vertex;
-    VertexData * map_edge_vertex;
-    VertexData * map_feature_vertex;
+    std::vector<VertexData> grid_vertex;
+    std::vector<VertexData> axis_vertex;
+    std::vector<VertexData> path_vertex;
+    std::vector<VertexData> path_gt_vertex;
+    std::vector<VertexData> feature_vertex;
+    std::vector<VertexData> orientation_vertex;
+    std::vector<VertexData> feature_ellipse_vertex;
+    std::vector<VertexData> feature_projection_vertex;
+    std::vector<VertexData> map_node_vertex;
+    std::vector<VertexData> map_edge_vertex;
+    std::vector<VertexData> map_feature_vertex;
+    std::vector<VertexData> sensor_vertex;
+    std::vector<VertexData> sensor_axis_vertex;
     ImageData last_image;
     ImageData last_depth;
     ImageData last_depth_overlay_image;
-    int grid_vertex_num, axis_vertex_num, path_vertex_num, path_gt_vertex_num, feature_vertex_num, orientation_vertex_num;
-    int feature_ellipse_vertex_num;
-    int feature_projection_vertex_num;
-    int map_node_vertex_num, map_edge_vertex_num, map_feature_vertex_num;
     bool generate_depth_overlay;
+    float up[3] = {0,0,1};
 
     world_state();
     ~world_state();
@@ -111,14 +104,18 @@ public:
     size_t change_plot_key(size_t plot_index, size_t key_index);
 
     void receive_camera(const filter * f, image_gray8 &&data);
-    void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float projected_x, float projected_y, float cx, float cy, float cxy, bool good, bool depth_measured);
-    void observe_position(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
-    void observe_position_gt(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
-    void observe_plot_item(sensor_clock::time_point timestamp, size_t plot_index, std::string plot_name, float value);
-    void observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height, int stride);
-    void observe_depth(sensor_clock::time_point timestamp, uint16_t * image, int width, int height, int stride);
-    void observe_depth_overlay_image(sensor_clock::time_point timestamp, uint16_t * aligned_depth, int width, int height, int stride);
-    void observe_map_node(sensor_clock::time_point timestamp, uint64_t id, bool finished, bool loop_closed, bool is_unlinked, const transformation &T, std::vector<uint64_t> & neighbors, std::vector<Feature> & features);
+    void observe_sensor(int sensor_type, uint16_t sensor_id, float x, float y, float z, float qw, float qx, float qy, float qz);
+    void observe_world(float world_up_x, float world_up_y, float world_up_z,
+                       float world_forward_x, float world_forward_y, float world_forward_z,
+                       float body_forward_x, float body_forward_y, float body_forward_z);
+    void observe_feature(uint64_t timestamp_us, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float projected_x, float projected_y, float cx, float cy, float cxy, bool good, bool depth_measured);
+    void observe_position(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
+    void observe_position_gt(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
+    void observe_plot_item(uint64_t timestamp_us, size_t plot_index, std::string plot_name, float value);
+    void observe_image(uint64_t timestamp_us, uint8_t * image, int width, int height, int stride);
+    void observe_depth(uint64_t timestamp_us, uint16_t * image, int width, int height, int stride);
+    void observe_depth_overlay_image(uint64_t timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
+    void observe_map_node(uint64_t timestamp_us, uint64_t id, bool finished, bool loop_closed, bool is_unlinked, const transformation &T, std::vector<uint64_t> & neighbors, std::vector<Feature> & features);
     std::string get_feature_stats();
     float get_feature_lifetime();
     int get_feature_depth_measurements();
@@ -130,8 +127,8 @@ public:
         display_lock.lock();
         features.clear();
         path.clear();
-        current_timestamp = sensor_clock::time_point(sensor_clock::duration(0));
-        current_feature_timestamp = sensor_clock::time_point(sensor_clock::duration(0));
+        current_timestamp = 0;
+        current_feature_timestamp = 0;
         display_lock.unlock();
 
         plot_lock.lock();

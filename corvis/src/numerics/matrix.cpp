@@ -113,19 +113,14 @@ bool matrix_invert(matrix &m)
 {
     char uplo = 'U';
     lapack_int * ipiv = walloca(lapack_int, m.stride);
-    //just make a work array as big as the input
-    //TODO: call ssytrf_ with lwork = -1 -- returns optimal size as work[0] ? wtf?
-    lapack_int ign = -1;
-    const char *name = "DSYTRF";
-    const char *tp = "U";
-    lapack_int ispec = 1;
     lapack_int n = m._cols;
     lapack_int lda = m.stride;
-    lapack_int lwork = m.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
-    if(lwork < 1) lwork = m.stride*4;
-    lapack_int * work = walloca(lapack_int, lwork);
+    lapack_int lwork = -1;
     lapack_int info;
-    LAPACK_(sytrf)(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &lwork, &info);
+    f_t work_[1] = {}, *work = work_;
+    LAPACK_(sytrf)(&uplo, &n, m.data, &lda, ipiv, work, &lwork, &info);
+    work = walloca(f_t, work[0]);
+    LAPACK_(sytrf)(&uplo, &n, m.data, &lda, ipiv, work, &lwork, &info);
     if(info) {
 #ifdef DEBUG
         fprintf(stderr, "matrix_invert: ssytrf failed: %d\n", (int)info);
@@ -155,18 +150,13 @@ bool matrix_solve_syt(matrix &A, matrix &B)
 {
     char uplo = 'U';
     lapack_int * ipiv = walloca(lapack_int, A.stride);
-    //just make a work array as big as the input
-    //TODO: call ssytrf_ with lwork = -1 -- returns optimal size as work[0] ? wtf?
-    lapack_int ign = -1;
-    const char *name = "DSYTRF";
-    const char *tp = "U";
-    lapack_int ispec = 1;
     lapack_int n = A._cols;
     lapack_int lda = A.stride;
-    lapack_int lwork = A.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
-    if(lwork < 1) lwork = A.stride*4;
-    f_t * work = walloca(f_t, lwork);
+    lapack_int lwork = -1;
     lapack_int info;
+    f_t work_[1] = {}, *work = work_;
+    LAPACK_(sytrf)(&uplo, &n, A.data, &lda, ipiv, work, &lwork, &info);
+    work = walloca(f_t, work[0]);
     LAPACK_(sytrf)(&uplo, &n, A.data, &lda, ipiv, work, &lwork, &info);
     if(info) {
 #ifdef DEBUG

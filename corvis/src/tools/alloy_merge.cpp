@@ -6,9 +6,8 @@
 
 static rc_Extrinsics operator*(rc_Pose a, rc_Extrinsics b)
 {
-    transformation a_b = to_transformation(a) * transformation(rotation_vector(b.W.x, b.W.y, b.W.z), v_map(b.T.v));
-    v_map(b.W.v) = to_rotation_vector(a_b.Q).raw_vector();
-    v_map(b.T.v) = a_b.T;
+    transformation a_b = to_transformation(a) * to_transformation(b.pose_m);
+    b.pose_m = to_rc_Pose(a_b);
     return b; // b = a * b
 }
 

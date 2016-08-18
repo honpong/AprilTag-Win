@@ -21,18 +21,17 @@ static transformation to_transformation(const rc_Pose p)
 static struct sensor::extrinsics rc_Extrinsics_to_sensor_extrinsics(const rc_Extrinsics e)
 {
     struct sensor::extrinsics extrinsics;
-    extrinsics.mean = transformation(rotation_vector(e.W.x, e.W.y, e.W.z), v3(e.T.x, e.T.y, e.T.z));
-    extrinsics.variance.Q = v_map(e.W_variance.v);
-    extrinsics.variance.T = v_map(e.T_variance.v);
+    extrinsics.mean = to_transformation(e.pose_m);
+    extrinsics.variance.Q = v_map(e.variance_m2.W.v);
+    extrinsics.variance.T = v_map(e.variance_m2.T.v);
     return extrinsics;
 }
 
 static rc_Extrinsics rc_Extrinsics_from_sensor_extrinsics(struct sensor::extrinsics e)
 {
     rc_Extrinsics extrinsics = {};
-    v_map(extrinsics.W.v) = to_rotation_vector(e.mean.Q).raw_vector();
-    v_map(extrinsics.T.v) = e.mean.T;
-    v_map(extrinsics.W_variance.v) = e.variance.Q;
-    v_map(extrinsics.T_variance.v) = e.variance.T;
+    extrinsics.pose_m = to_rc_Pose(e.mean);
+    v_map(extrinsics.variance_m2.W.v) = e.variance.Q;
+    v_map(extrinsics.variance_m2.T.v) = e.variance.T;
     return extrinsics;
 }

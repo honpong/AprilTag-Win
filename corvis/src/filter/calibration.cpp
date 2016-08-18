@@ -9,6 +9,8 @@
 
 #include "calibration_keys.h"
 
+#include "rc_compat.h"
+
 #include <iostream>
 
 using namespace rapidjson;
@@ -36,26 +38,22 @@ sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu
 sensor_calibration_camera calibration_convert_camera(const struct calibration_xml::camera & legacy_camera)
 {
     rc_Extrinsics extrinsics = {};
-    v_map(extrinsics.T.v)          = legacy_camera.extrinsics_wrt_imu_m.T;
-    v_map(extrinsics.W.v)          = legacy_camera.extrinsics_wrt_imu_W.raw_vector();
-    v_map(extrinsics.T_variance.v) = legacy_camera.extrinsics_var_wrt_imu_m.T;
-    v_map(extrinsics.W_variance.v) = legacy_camera.extrinsics_var_wrt_imu_m.W;
+    extrinsics.pose_m = to_rc_Pose(legacy_camera.extrinsics_wrt_imu_m);
+    v_map(extrinsics.variance_m2.T.v) = legacy_camera.extrinsics_var_wrt_imu_m.T;
+    v_map(extrinsics.variance_m2.W.v) = legacy_camera.extrinsics_var_wrt_imu_m.W;
     return sensor_calibration_camera(extrinsics, legacy_camera.intrinsics);
 }
 
 void calibration_convert_to_camera_origin(rc_Extrinsics & camera_to_body, rc_Extrinsics & imu_to_body)
 {
-    transformation camera_to_imu(rotation_vector(camera_to_body.W.x, camera_to_body.W.y, camera_to_body.W.z),
-                                 v_map(camera_to_body.T.v));
+    transformation camera_to_imu(to_transformation(camera_to_body.pose_m));
     auto imu_to_camera = invert(camera_to_imu);
 
-    imu_to_body = camera_to_body;
-    v_map(imu_to_body.T.v) = imu_to_camera.T;
-    v_map(imu_to_body.W.v) = to_rotation_vector(imu_to_camera.Q).raw_vector();
+    imu_to_body.pose_m = to_rc_Pose(imu_to_camera);
+    imu_to_body.variance_m2 = camera_to_body.variance_m2; // FIXME
 
-    camera_to_body = {};
-    camera_to_body.T_variance = imu_to_body.T_variance;
-    camera_to_body.W_variance = imu_to_body.W_variance;
+    camera_to_body.pose_m = rc_POSE_IDENTITY;
+    camera_to_body.variance_m2 = imu_to_body.variance_m2; // FIXME
 }
 
 bool calibration_convert(const calibration_json &cal, calibration &cal_output)
@@ -96,10 +94,13 @@ void rc_vector_to_json_array(const rc_Vector & v, const char * key, Value & json
 
 void copy_extrinsics_to_json(const rc_Extrinsics & extrinsics, Value & json, Document::AllocatorType& a)
 {
-    rc_vector_to_json_array(extrinsics.T, KEY_EXTRINSICS_T, json, a);
-    rc_vector_to_json_array(extrinsics.T_variance, KEY_EXTRINSICS_T_VARIANCE, json, a);
-    rc_vector_to_json_array(extrinsics.W, KEY_EXTRINSICS_W, json, a);
-    rc_vector_to_json_array(extrinsics.W_variance, KEY_EXTRINSICS_W_VARIANCE, json, a);
+    transformation pose = to_transformation(extrinsics.pose_m);
+    rc_Vector W; v_map(W.v) = to_rotation_vector(pose.Q).raw_vector();
+    rc_Vector T; v_map(T.v) = pose.T;
+    rc_vector_to_json_array(T, KEY_EXTRINSICS_T, json, a);
+    rc_vector_to_json_array(extrinsics.variance_m2.T, KEY_EXTRINSICS_T_VARIANCE, json, a);
+    rc_vector_to_json_array(W, KEY_EXTRINSICS_W, json, a);
+    rc_vector_to_json_array(extrinsics.variance_m2.W, KEY_EXTRINSICS_W_VARIANCE, json, a);
 }
 
 void copy_camera_to_json(const sensor_calibration_camera & camera, Value & cameras, Document::AllocatorType& a)
@@ -278,11 +279,14 @@ bool copy_json_to_extrinsics(Value & json, rc_Extrinsics & extrinsics)
                 KEY_EXTRINSICS_T_VARIANCE, KEY_EXTRINSICS_W_VARIANCE}))
         return false;
 
-    if(!copy_json_to_rc_vector(json[KEY_EXTRINSICS_T], extrinsics.T) ||
-       !copy_json_to_rc_vector(json[KEY_EXTRINSICS_W], extrinsics.W) ||
-       !copy_json_to_rc_vector(json[KEY_EXTRINSICS_T_VARIANCE], extrinsics.T_variance) ||
-       !copy_json_to_rc_vector(json[KEY_EXTRINSICS_W_VARIANCE], extrinsics.W_variance))
+    rc_Vector W, T; // FIXME the JSON should use Q, T
+    if(!copy_json_to_rc_vector(json[KEY_EXTRINSICS_T], T) ||
+       !copy_json_to_rc_vector(json[KEY_EXTRINSICS_W], W) ||
+       !copy_json_to_rc_vector(json[KEY_EXTRINSICS_T_VARIANCE], extrinsics.variance_m2.T) ||
+       !copy_json_to_rc_vector(json[KEY_EXTRINSICS_W_VARIANCE], extrinsics.variance_m2.W))
         return false;
+
+    extrinsics.pose_m = to_rc_Pose(transformation(to_quaternion(rotation_vector(W.x,W.y,W.z)), v_map(T.v)));
 
     return true;
 }

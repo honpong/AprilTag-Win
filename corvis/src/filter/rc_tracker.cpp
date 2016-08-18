@@ -23,11 +23,6 @@ const char *rc_version()
     return rc_build_;
 }
 
-static void rc_trace(const rc_Extrinsics e)
-{
-    trace_log->info("{} {} {} var({} {} {});\n {} {} {} (var {} {} {})", e.T.x, e.T.y, e.T.z, e.T_variance.x, e.T_variance.z, e.T_variance.z, e.W.x, e.W.y, e.W.z, e.W_variance.x, e.W_variance.y, e.W_variance.z);
-}
-
 static void rc_trace(const rc_Vector p)
 {
     trace_log->info("{} {} {}", p.x, p.y, p.z);
@@ -48,6 +43,12 @@ static void rc_trace(const rc_Pose p)
                         p.R.v[2][0], p.R.v[2][1], p.R.v[2][2], p.T.v[2]);
     else
         trace_log->info("{} {} {} {}; {} {} {}", p.Q.w, p.Q.x, p.Q.y, p.Q.z, p.T.x, p.T.y, p.T.z);
+}
+
+static void rc_trace(const rc_Extrinsics e)
+{
+    rc_trace(e.pose_m); // FIXME: make rc_Pose, rc_Vector, rc_Matrix types you can serialize natively to spdlog, then all of this can be cleaned up
+    trace_log->info("var({} {} {}; {} {} {})", e.variance_m2.W.x, e.variance_m2.W.y, e.variance_m2.W.z, e.variance_m2.T.x, e.variance_m2.T.y, e.variance_m2.T.z);
 }
 
 static void rc_trace(const rc_CameraIntrinsics c)

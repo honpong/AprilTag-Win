@@ -49,7 +49,7 @@ while header_str != "":
       (x, y, z) = unpack('fff', data[:12])
       if args.verbose:
           print "\t", ptype, sensor_id, x, y, z, sqrt(x*x + y*y + z*z)
-  if ptype == image_raw_type:
+  elif ptype == image_raw_type:
       (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
       type_str = format_types[camera_format]
       packet_str += "_" + type_str
@@ -59,6 +59,9 @@ while header_str != "":
       if args.verbose:
           camera_str = "%s %d (%d) %dx%d, %d stride, %d exposure, %d adjusted time" % (type_str, sensor_id, camera_format, width, height, stride, exposure, ptime)
           print "\t", camera_str
+  else:
+      if args.verbose:
+          print ""
   if packet_str == "":
       packet_str = str(ptype)
   if not latest_received or latest_received < ptime:

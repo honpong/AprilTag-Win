@@ -119,7 +119,7 @@ bool matrix_invert(matrix &m)
     lapack_int info;
     f_t work_[1] = {}, *work = work_;
     LAPACK_(sytrf)(&uplo, &n, m.data, &lda, ipiv, work, &lwork, &info);
-    work = walloca(f_t, work[0]);
+    work = walloca(f_t, (size_t)work[0]);
     LAPACK_(sytrf)(&uplo, &n, m.data, &lda, ipiv, work, &lwork, &info);
     if(info) {
 #ifdef DEBUG
@@ -156,7 +156,7 @@ bool matrix_solve_syt(matrix &A, matrix &B)
     lapack_int info;
     f_t work_[1] = {}, *work = work_;
     LAPACK_(sytrf)(&uplo, &n, A.data, &lda, ipiv, work, &lwork, &info);
-    work = walloca(f_t, work[0]);
+    work = walloca(f_t, (size_t)work[0]);
     LAPACK_(sytrf)(&uplo, &n, A.data, &lda, ipiv, work, &lwork, &info);
     if(info) {
 #ifdef DEBUG

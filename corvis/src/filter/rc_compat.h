@@ -27,7 +27,7 @@ static struct sensor::extrinsics rc_Extrinsics_to_sensor_extrinsics(const rc_Ext
     return extrinsics;
 }
 
-static rc_Extrinsics rc_Extrinsics_from_sensor_extrinsics(struct sensor::extrinsics e)
+static rc_Extrinsics rc_Extrinsics_from_sensor_extrinsics(const struct sensor::extrinsics &e)
 {
     rc_Extrinsics extrinsics = {};
     extrinsics.pose_m = to_rc_Pose(e.mean);

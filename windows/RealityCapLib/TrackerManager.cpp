@@ -40,7 +40,7 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
     ((TrackerManager *)handle)->UpdateStatus(state, error, confidence, progress);
 }
 
-const rc_Pose camera_pose = {{0, -M_SQRT1_2, M_SQRT1_2, 0}, {0,0,0}};
+const rc_Pose camera_pose = {{0, 0, -M_SQRT1_2, M_SQRT1_2}, {0,0,0}};
 
 void TrackerManager::ConfigureCameraIntrinsics()
 {

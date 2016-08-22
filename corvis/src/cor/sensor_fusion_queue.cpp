@@ -46,6 +46,7 @@ void fusion_queue::reset()
     stop_immediately();
     wait_until_finished();
     thread = std::thread();
+    clear();
 
     control_func = nullptr;
     active = false;
@@ -162,6 +163,17 @@ bool fusion_queue::run_control()
     control_func();
     control_func = nullptr;
     return true;
+}
+
+void fusion_queue::clear()
+{
+    std::lock_guard<std::mutex> data_guard(data_lock);
+    queue.clear();
+    queue_count.clear();
+    dispatch_count.clear();
+    latest_seen.clear();
+    total_in = 0;
+    total_out = 0;
 }
 
 void fusion_queue::runloop()

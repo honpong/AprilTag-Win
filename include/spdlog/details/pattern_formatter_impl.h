@@ -8,6 +8,7 @@
 #include <spdlog/formatter.h>
 #include <spdlog/details/log_msg.h>
 #include <spdlog/details/os.h>
+#include <spdlog/fmt/fmt.h>
 
 #include <chrono>
 #include <ctime>
@@ -38,7 +39,7 @@ class name_formatter :public flag_formatter
 {
     void format(details::log_msg& msg, const std::tm&) override
     {
-        msg.formatted << msg.logger_name;
+        msg.formatted << *msg.logger_name;
     }
 };
 }
@@ -434,7 +435,7 @@ class full_formatter :public flag_formatter
 #endif
 
 #ifndef SPDLOG_NO_NAME
-        msg.formatted << '[' << msg.logger_name << "] ";
+        msg.formatted << '[' << *msg.logger_name << "] ";
 #endif
 
         msg.formatted << '[' << level::to_str(msg.level) << "] ";
@@ -612,13 +613,17 @@ inline void spdlog::pattern_formatter::format(details::log_msg& msg)
 {
     try
     {
+#ifndef SPDLOG_NO_DATETIME
         auto tm_time = details::os::localtime(log_clock::to_time_t(msg.time));
+#else
+        std::tm tm_time;
+#endif
         for (auto &f : _formatters)
         {
             f->format(msg, tm_time);
         }
         //write eol
-        msg.formatted << details::os::eol();
+        msg.formatted.write(details::os::eol, details::os::eol_size);
     }
     catch(const fmt::FormatError& e)
     {

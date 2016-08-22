@@ -8,6 +8,7 @@ void prepare_logdir()
 #else
     auto rv = system("rm -f logs/*");
 #endif
+    (void)rv;
 }
 
 
@@ -40,6 +41,5 @@ std::size_t get_filesize(const std::string& filename)
     if (!ifs)
         throw std::runtime_error("Failed open file ");
 
-    return ifs.tellg();
+    return static_cast<std::size_t>(ifs.tellg());
 }
-

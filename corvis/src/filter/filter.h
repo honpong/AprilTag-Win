@@ -73,6 +73,7 @@ struct filter {
     v3 a_bias_start, w_bias_start; //for tracking calibration progress
     
     observation_queue observations;
+    observation_queue mini_observations;
     
     camera_control_interface camera_control; //TODOMSM - per camera, but possibly deprecate
     image_depth16 recent_depth; //TODOMSM - per depth

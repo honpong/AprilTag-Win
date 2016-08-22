@@ -968,6 +968,7 @@ extern "C" void filter_initialize(struct filter *f)
     f->active_time = sensor_clock::time_point(sensor_clock::duration(0));
     
     f->observations.observations.clear();
+    f->mini_observations.observations.clear();
 
     f->s.reset();
 

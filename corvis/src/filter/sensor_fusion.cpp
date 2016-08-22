@@ -135,6 +135,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         {
         } else if(isProcessingVideo) {
             docallback = filter_image_measurement(&sfm, data);
+            sfm.last_image = std::move(data);
             update_status();
             if(docallback)
                 update_data(rc_SENSOR_TYPE_IMAGE, data.source->id);

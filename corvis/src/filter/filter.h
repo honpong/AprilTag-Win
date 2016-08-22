@@ -76,6 +76,8 @@ struct filter {
     image_depth16 recent_depth; //TODOMSM - per depth
     bool has_depth; //TODOMSM - per depth
 
+    image_gray8 last_image;
+
     std::vector<std::unique_ptr<sensor_grey>> cameras;
     std::vector<std::unique_ptr<sensor_depth>> depths;
     std::vector<std::unique_ptr<sensor_accelerometer>> accelerometers;

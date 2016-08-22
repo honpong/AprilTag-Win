@@ -174,6 +174,40 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     //f->log->trace("{} [{} {} {}] [{} {} {}]", time, output[0], output[1], output[2], output[3], output[4], output[5]);
 }
 
+void filter_mini_process_observation_queue(struct filter * f, const sensor_clock::time_point & time)
+{
+    f->mini_observations.preprocess(f->mini_state, time);
+    if(!f->mini_observations.process(f->mini_state)) {
+        fprintf(stderr, "mini state observation failed\n");
+    }
+}
+
+void filter_mini_accelerometer_measurement(struct filter * f, const accelerometer_data &data)
+{
+    struct sensor_accelerometer &accelerometer = *data.source;
+    v3 meas = m_map(accelerometer.intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2);
+
+    auto obs_a = std::make_unique<observation_accelerometer>(*data.source, f->mini_state, f->s.imu.extrinsics, f->s.imu.intrinsics, data.timestamp, data.timestamp);
+    obs_a->meas = meas;
+    obs_a->variance = f->a_variance;
+
+    f->mini_observations.observations.push_back(std::move(obs_a));
+    filter_mini_process_observation_queue(f, data.timestamp);
+}
+
+void filter_mini_gyroscope_measurement(struct filter * f, const gyro_data &data)
+{
+    struct sensor_gyroscope &gyroscope = *data.source;
+    v3 meas = m_map(gyroscope.intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s);
+
+    auto obs_w = std::make_unique<observation_gyroscope>(*data.source, f->mini_state, f->s.imu.extrinsics, f->s.imu.intrinsics, data.timestamp, data.timestamp);
+    obs_w->meas = meas;
+    obs_w->variance = f->w_variance;
+
+    f->mini_observations.observations.push_back(std::move(obs_w));
+    filter_mini_process_observation_queue(f, data.timestamp);
+}
+
 void preprocess_observation_queue(struct filter *f, sensor_clock::time_point time)
 {
     f->last_time = time;

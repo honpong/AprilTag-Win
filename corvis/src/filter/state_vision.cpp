@@ -520,7 +520,9 @@ void state_vision::cache_jacobians(f_t dt)
 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
+    //Previously we called state_motion::project_covariance here, but this is inlined into the above for faster performance
     for(int i = 0; i < dst.cols(); ++i) {
+        // This should match state_motion_orientation::project_covariance
         const auto cov_w = w.from_row(src, i);
         const auto cov_dw = dw.from_row(src, i);
         const auto cov_ddw = ddw.from_row(src, i);
@@ -529,6 +531,7 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         w.to_col(dst, i) = cov_w + dt * (cov_dw + dt/2 * cov_ddw);
         dw.to_col(dst, i) = cov_dw + dt * cov_ddw;
         Q.to_col(dst, i) = scov_Q + dQp_s_dW * cov_dW;
+        // This should match state_motion::project_covariance
         const auto cov_V = V.from_row(src, i);
         const auto cov_a = a.from_row(src, i);
         const auto cov_T = T.from_row(src, i);
@@ -544,7 +547,6 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
             g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
         }
     }
-    //Previously we called state_motion::project_covariance here, but this is inlined into the above for faster performance
 }
 
 bool state_vision::load_map(std::string map_json)

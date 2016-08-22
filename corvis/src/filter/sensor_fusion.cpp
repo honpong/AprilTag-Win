@@ -146,8 +146,6 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
             if(docallback)
                 update_data(rc_SENSOR_TYPE_IMAGE, data.source->id);
         }
-        if(camera_callback)
-            camera_callback(std::move(data));
     };
 
     auto depth_fn = [this](image_depth16 &&data)

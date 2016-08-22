@@ -43,7 +43,6 @@ public:
         bool initialized;
     };
     
-    std::function<void(image_gray8 &&)> camera_callback;
     std::function<void(rc_SensorType type, rc_Sensor id)> data_callback;
     std::function<void(status)> status_callback;
     

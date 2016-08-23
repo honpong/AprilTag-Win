@@ -5,6 +5,7 @@
 #include "state_vision.h"
 #include "fast_tracker.h"
 #include "../numerics/transformation.h"
+#include <spdlog/fmt/ostr.h> // must be included to use our operator<<
 
 f_t state_vision_feature::initial_depth_meters;
 f_t state_vision_feature::initial_var;
@@ -301,7 +302,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
         int suppression = 10;
         if(map.find_closure(max, suppression, offset)) {
             loop_offset = offset*loop_offset;
-            log->info() << "loop closed, offset: " << std::cref(loop_offset);
+            log->info("loop closed, offset: {}", loop_offset);
         }
     }
 

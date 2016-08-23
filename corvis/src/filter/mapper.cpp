@@ -397,8 +397,8 @@ void mapper::rebuild_map_from_node(int id)
         start_id = 0;
     for(int i = start_id; i < nodes.size(); i++) {
         if(!nodes[i].finished) continue;
-        //log->info() << "setting " << i << " from " << nodes[i].global_transformation.transform;
-        //log->info() << "to " << nodes[i].transform.transform;
+        //log->info("setting {} from {} ",i, nodes[i].global_transformation.transform);
+        //log->info("to {}", nodes[i].transform.transform);
         nodes[i].global_transformation = nodes[i].transform;
     }
 }
@@ -600,7 +600,7 @@ int mapper::pick_transformation_ransac(const aligned_vector<match_pair> &neighbo
         if(generate_transformation(neighbor_matches[i1], neighbor_matches[i2], proposal, threshold)) {
             //log->info() << proposal.transform;
             size_t inliers = count_inliers(proposal, neighbor_matches, threshold);
-            //log->info("inliers {}\n", inliers);
+            //log->info("inliers {}", inliers);
             if(inliers > best_inliers) {
                 G = proposal;
                 best_inliers = inliers;
@@ -626,7 +626,7 @@ int mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & m
     float tight_threshold = 3. * 3. * (2*meanstd*2*meanstd);
     vector<bool> inliers = get_inliers(tv, matches, loose_threshold);
     //log->info("num loose inliers {}", num_inliers);
-    //log->info() << "old tv " << tv.transform;
+    //log->info("old tv {}", tv.transform);
 
     aligned_vector<v3> from;
     aligned_vector<v3> to;
@@ -641,7 +641,7 @@ int mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & m
     if(estimate_transformation(from, to, estimate.transform)) {
         size_t new_inliers = count_inliers(estimate, matches, tight_threshold);
         //log->info("new tight inliers {}", new_inliers);
-        //log->info() << "new tv " << estimate.transform;
+        //log->info("new tv {}", estimate.transform);
         //TODO: only do this when it is better, is it always better?
         tv = estimate;
         return new_inliers;
@@ -649,7 +649,7 @@ int mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & m
     else {
         log->info("ESTIMATE TRANSFORM FAILED, {} and {} points", from.size(), to.size());
         //for(int i = 0; i < matches.size(); i++) {
-        //    log->info() << "from: " << from[i] << " to:\n" << to[i];
+        //    log->info("from: {} to: {}", from[i], to[i]);
         //}
     }
     return (int)inliers.size();

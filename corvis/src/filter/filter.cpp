@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <spdlog/fmt/ostr.h> // must be included to use our operator<<
 #include "state_vision.h"
 #include "../numerics/vec4.h"
 #include "utils.h"
@@ -269,10 +270,10 @@ sensor_clock::duration steady_time(struct filter *f, stdev<3> &stdev, const v3 &
 
 static void print_calibration(struct filter *f)
 {
-    f->log->trace() << "w bias is: "     << f->s.imu.intrinsics.w_bias.v[0]          << ", " << f->s.imu.intrinsics.w_bias.v[1]          << ", " << f->s.imu.intrinsics.w_bias.v[2];
-    f->log->trace() << "w bias var is: " << f->s.imu.intrinsics.w_bias.variance()[0] << ", " << f->s.imu.intrinsics.w_bias.variance()[1] << ", " << f->s.imu.intrinsics.w_bias.variance()[2];
-    f->log->trace() << "a bias is: "     << f->s.imu.intrinsics.a_bias.v[0]          << ", " << f->s.imu.intrinsics.a_bias.v[1]          << ", " << f->s.imu.intrinsics.a_bias.v[2];
-    f->log->trace() << "a bias var is: " << f->s.imu.intrinsics.a_bias.variance()[0] << ", " << f->s.imu.intrinsics.a_bias.variance()[1] << ", " << f->s.imu.intrinsics.a_bias.variance()[2];
+    f->log->trace("w bias is: {}, {}, {}",     f->s.imu.intrinsics.w_bias.v[0],          f->s.imu.intrinsics.w_bias.v[1],          f->s.imu.intrinsics.w_bias.v[2]);
+    f->log->trace("w bias var is: {}, {}, {}", f->s.imu.intrinsics.w_bias.variance()[0], f->s.imu.intrinsics.w_bias.variance()[1], f->s.imu.intrinsics.w_bias.variance()[2]);
+    f->log->trace("a bias is: {}, {}, {}",     f->s.imu.intrinsics.a_bias.v[0],          f->s.imu.intrinsics.a_bias.v[1],          f->s.imu.intrinsics.a_bias.v[2]);
+    f->log->trace("a bias var is: {}, {}, {}", f->s.imu.intrinsics.a_bias.variance()[0], f->s.imu.intrinsics.a_bias.variance()[1], f->s.imu.intrinsics.a_bias.variance()[2]);
 }
 
 static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)

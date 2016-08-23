@@ -372,7 +372,7 @@ class rc_callback_sink_st : public spdlog::sinks::base_sink < spdlog::details::n
 private:
     void *handle;
     void (*callback)(void *, rc_MessageLevel, const char *, size_t);
-    static const std::array<rc_MessageLevel, 10> rc_levels;
+    static const std::array<rc_MessageLevel, 7> rc_levels;
     static_assert(sizeof(spdlog::level::level_names)/sizeof(*spdlog::level::level_names) == rc_levels.max_size(), "rc_levels is consistent with spdlog::level::level_enum");
 
 public:
@@ -393,17 +393,14 @@ protected:
     void flush() override {}
 };
 
-const std::array<rc_MessageLevel, 10> rc_callback_sink_st::rc_levels = {
+const std::array<rc_MessageLevel, 7> rc_callback_sink_st::rc_levels = {
     rc_MESSAGE_TRACE, // trace    = 0,
     rc_MESSAGE_DEBUG, // debug    = 1,
     rc_MESSAGE_INFO,  // info     = 2,
-    rc_MESSAGE_WARN,  // notice   = 3,
-    rc_MESSAGE_WARN,  // warn     = 4,
-    rc_MESSAGE_ERROR, // err      = 5,
-    rc_MESSAGE_ERROR, // critical = 6,
-    rc_MESSAGE_ERROR, // alert    = 7,
-    rc_MESSAGE_ERROR, // emerg    = 8,
-    rc_MESSAGE_NONE,  // off      = 9
+    rc_MESSAGE_WARN,  // warn     = 3,
+    rc_MESSAGE_ERROR, // err      = 4,
+    rc_MESSAGE_ERROR, // critical = 5,
+    rc_MESSAGE_NONE,  // off      = 6
 };
 
 RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback callback, void *handle, rc_MessageLevel maximum_log_level)

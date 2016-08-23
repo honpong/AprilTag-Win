@@ -1,6 +1,6 @@
 #include "world_state.h"
-#include "../filter/filter.h"
 #include "../filter/rc_tracker.h"
+#include "../filter/sensor_fusion.h"
 
 static const VertexData axis_data[] = {
     {{0, 0, 0}, {255, 0, 0, 255}},
@@ -209,9 +209,12 @@ void world_state::update_current_timestamp(const uint64_t & timestamp)
         current_timestamp = timestamp;
 }
 
-void world_state::receive_camera(const filter * f, image_gray8 &&d)
+void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
 {
-    uint64_t timestamp_us = sensor_clock::tp_to_micros(d.timestamp);
+    if(data->type != rc_SENSOR_TYPE_IMAGE) return;
+    const struct filter * f = &((sensor_fusion *)tracker)->sfm;
+
+    uint64_t timestamp_us = data->time_us;
     update_current_timestamp(timestamp_us);
     current_feature_timestamp = timestamp_us;
     transformation G = f->origin*f->s.get_transformation();
@@ -254,15 +257,17 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
             }
         }
     }
-    observe_image(timestamp_us, d.image, d.width, d.height, d.stride);
+    observe_image(timestamp_us, (uint8_t *)data->image.image, data->image.width, data->image.height, data->image.stride);
 
     if(f->has_depth) {
         observe_depth(sensor_clock::tp_to_micros(f->recent_depth.timestamp), f->recent_depth.image, f->recent_depth.width, f->recent_depth.height, f->recent_depth.stride);
 
+#if 0
         if (generate_depth_overlay){
             auto depth_overlay = filter_aligned_depth_overlay(f, f->recent_depth, d);
             observe_depth_overlay_image(sensor_clock::tp_to_micros(depth_overlay->timestamp), depth_overlay->image, depth_overlay->width, depth_overlay->height, depth_overlay->stride);
         }
+#endif
     }
 
     if(f->s.map_enabled) {

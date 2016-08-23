@@ -167,13 +167,11 @@ bool replay::find_reference_in_filename(const string &filename)
 
 void replay::setup_filter()
 {
-    if(camera_callback)
+    if(data_callback)
     {
         rc_setDataCallback(tracker, [](void *handle, rc_Tracker * tracker, const rc_Data * data) {
             replay * this_replay = (replay *)handle;
-            auto fusion = (sensor_fusion *)tracker;
-            if(data->type == rc_SENSOR_TYPE_IMAGE)
-                this_replay->camera_callback(&fusion->sfm, std::move(fusion->sfm.last_image));
+            this_replay->data_callback(tracker, data);
         }, this);
     }
     rc_startTracker(tracker, rc_E_SYNCHRONOUS);

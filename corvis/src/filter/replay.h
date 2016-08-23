@@ -34,7 +34,7 @@ private:
     std::atomic<bool> is_stepping{false};
     std::atomic<uint64_t> next_pause{0};
     bool is_realtime = false;
-    std::function<void (const filter *, image_gray8 &&)> camera_callback;
+    std::function<void (rc_Tracker *, const rc_Data *)> data_callback;
     std::function<void (float)> progress_callback;
     bool qvga {false};
     bool use_depth {true};
@@ -61,7 +61,7 @@ public:
     bool set_calibration_from_filename(const char *filename);
     void setup_filter();
     void set_progress_callback(std::function<void (float)> progress_callback) { this->progress_callback = progress_callback; }
-    void set_camera_callback(std::function<void (const filter *, image_gray8)> camera_callback) { this->camera_callback = camera_callback; }
+    void set_data_callback(std::function<void (rc_Tracker *, const rc_Data *)> data_callback) { this->data_callback = data_callback; }
     void enable_realtime() { is_realtime = true; }
     void enable_qvga() { qvga = true; }
     void disable_depth() { use_depth = false; }

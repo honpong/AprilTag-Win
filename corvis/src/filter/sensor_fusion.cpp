@@ -149,8 +149,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
             callback_data.image.height = data.height;
             callback_data.image.stride = data.stride;
             callback_data.image.format = rc_FORMAT_GRAY8;
-            sfm.last_image = std::move(data);
-            callback_data.image.image = sfm.last_image.image;
+            callback_data.image.image = data.image;
 
             update_data(&callback_data);
         }

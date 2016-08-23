@@ -48,7 +48,8 @@ typedef struct _sensor {
     transformation extrinsics;
 } Sensor;
 
-struct filter;
+struct rc_Tracker;
+struct rc_Data;
 
 typedef std::pair<uint64_t, float> plot_item;
 typedef std::list<plot_item > plot_data;
@@ -103,7 +104,7 @@ public:
     size_t change_plot(size_t plot_index);
     size_t change_plot_key(size_t plot_index, size_t key_index);
 
-    void receive_camera(const filter * f, image_gray8 &&data);
+    void rc_data_callback(rc_Tracker * tracker, const rc_Data * data);
     void observe_sensor(int sensor_type, uint16_t sensor_id, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_world(float world_up_x, float world_up_y, float world_up_z,
                        float world_forward_x, float world_forward_y, float world_forward_z,

@@ -204,20 +204,22 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
 {
     std::lock_guard<std::mutex> data_guard(data_lock);
     total_in++;
-    if(latest_seen.find(global_id) != latest_seen.end() && latest_seen[global_id] > sensor_clock::micros_to_tp(x.time_us)) {
-        //drop_late++;
-        return;
+    auto timestamp = sensor_clock::micros_to_tp(x.time_us);
+    auto inserted = latest_seen.emplace(global_id, timestamp);
+    if (!inserted.second) { // if already a timestamp there
+        if (inserted.first->second < timestamp) {
+            inserted.first->second = timestamp;
+        } else {
+            //drop_late++;
+            return;
+        }
     }
 
-    latest_seen[global_id] = sensor_clock::micros_to_tp(x.time_us);
     queue.push_back(std::move(x));
     if(strategy != latency_strategy::FIFO)
         std::push_heap(queue.begin(), queue.end(), compare_sensor_data);
 
-    if(queue_count.find(global_id) == queue_count.end())
-        queue_count[global_id] = 1;
-    else
-        queue_count[global_id]++;
+    queue_count.emplace(global_id, 0).first->second++;
 }
 
 sensor_data fusion_queue::pop_queue()
@@ -279,10 +281,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     uint64_t id = data.id + data.type*MAX_SENSORS;
     data_receiver(std::move(data));
     queue_count[id]--;
-    if(dispatch_count.find(id) == dispatch_count.end())
-        dispatch_count[id] = 1;
-    else
-        dispatch_count[id]++;
+    dispatch_count.emplace(id, 0).first->second++;
     total_out++;
             
     lock.lock();

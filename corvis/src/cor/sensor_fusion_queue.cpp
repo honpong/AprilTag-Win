@@ -70,8 +70,8 @@ void fusion_queue::receive_sensor_data(sensor_data && x)
 {
     uint64_t id = x.id + MAX_SENSORS*x.type;
     push_queue(id, std::move(x));
-    cond.notify_one();
     if(singlethreaded) dispatch_singlethread(false);
+    else cond.notify_one();
 }
 
 void fusion_queue::dispatch_sync(std::function<void()> fn)

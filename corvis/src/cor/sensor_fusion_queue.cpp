@@ -11,7 +11,7 @@
 #include <memory>
 #include <algorithm>
 
-#define MAX_SENSORS 100
+#define MAX_SENSORS 64
 inline std::ostream & operator <<(std::ostream & s, const std::vector<sensor_data> &v) {
     for(int i = 0; i < v.size(); i++)
         s << v[i].time_us << ":" << v[i].type << " ";

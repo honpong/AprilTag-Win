@@ -122,9 +122,9 @@ bool replay::find_reference_in_filename(const std::string &filename)
 
 void replay::enable_pose_output()
 {
-    rc_setDataCallback(tracker, [](void *handle, rc_Timestamp time, rc_SensorType type, rc_Sensor id) {
-        rc_Pose pose = rc_getPose(static_cast<replay*>(handle)->tracker, nullptr, nullptr);
-        std::cout << time; for(int c=0; c<4; c++) std::cout << " " << pose.Q.v[c]; for(int c=0; c<3; c++) std::cout << " " << pose.T.v[c]; std::cout << "\n";
+    rc_setDataCallback(tracker, [](void *handle, rc_Tracker * tracker, const rc_Data * data) {
+        rc_Pose pose = rc_getPose(tracker, nullptr, nullptr);
+        std::cout << data->time_us; for(int c=0; c<4; c++) std::cout << " " << pose.Q.v[c]; for(int c=0; c<3; c++) std::cout << " " << pose.T.v[c]; std::cout << "\n";
     }, this);
 }
 void replay::enable_status_output()

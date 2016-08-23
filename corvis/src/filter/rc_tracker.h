@@ -128,14 +128,40 @@ typedef enum rc_MessageLevel
     rc_MESSAGE_TRACE = 5, /* everything */
 } rc_MessageLevel;
 
+typedef enum rc_ImageFormat {
+    rc_FORMAT_GRAY8,
+    rc_FORMAT_DEPTH16,
+} rc_ImageFormat;
+
+typedef struct rc_ImageData
+{
+    rc_Timestamp shutter_time_us;
+    int width, height, stride;
+    rc_ImageFormat format;
+    const void *image;
+} rc_ImageData;
+
+typedef struct rc_Data
+{
+    rc_Sensor id;
+    rc_SensorType type;
+    rc_Timestamp time_us;
+    union {
+        rc_ImageData image;
+        rc_ImageData depth;
+        rc_Vector angular_velocity_rad__s;
+        rc_Vector acceleration_m__s2;
+    };
+} rc_Data;
+
+typedef struct rc_Tracker rc_Tracker;
+
 /**
   The callbacks are called synchronously with the filter thread
  */
-typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time_us, rc_SensorType type, rc_Sensor sensor_id);
+typedef void(*rc_DataCallback)(void *handle, rc_Tracker * tracker, const rc_Data * data);
 typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
 typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, const char * message, size_t len);
-
-typedef struct rc_Tracker rc_Tracker;
 
 RCTRACKER_API const char *rc_version();
 RCTRACKER_API rc_Tracker * rc_create();
@@ -146,11 +172,6 @@ RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
  System will be stopped until one of the rc_start*() functions is called.
  */
 RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initial_time_us);
-
-typedef enum rc_ImageFormat {
-    rc_FORMAT_GRAY8,
-    rc_FORMAT_DEPTH16,
-} rc_ImageFormat;
 
 typedef enum rc_CalibrationType {
     rc_CALIBRATION_TYPE_UNKNOWN,     // rd = ???

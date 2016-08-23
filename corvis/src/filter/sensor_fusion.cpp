@@ -118,10 +118,10 @@ std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
     return features;
 }
 
-void sensor_fusion::update_data(rc_SensorType type, rc_Sensor id)
+void sensor_fusion::update_data(const rc_Data * data)
 {
     if(data_callback)
-        data_callback(type, id);
+        data_callback(data);
 }
 
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
@@ -130,45 +130,82 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     isProcessingVideo = false;
     auto cam_fn = [this](image_gray8 &&data)
     {
+        if(!isSensorFusionRunning) return;
+
         bool docallback = true;
-        if(!isSensorFusionRunning)
-        {
-        } else if(isProcessingVideo) {
+        if(isProcessingVideo)
             docallback = filter_image_measurement(&sfm, data);
-            sfm.last_image = std::move(data);
-            update_status();
-            if(docallback)
-                update_data(rc_SENSOR_TYPE_IMAGE, data.source->id);
-        } else {
+        else
             //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
             docallback = sfm.s.orientation_initialized;
-            update_status();
-            if(docallback)
-                update_data(rc_SENSOR_TYPE_IMAGE, data.source->id);
+
+        update_status();
+        if(docallback) {
+            rc_Data callback_data;
+            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
+            callback_data.type = rc_SENSOR_TYPE_IMAGE;
+            callback_data.id = data.source->id;
+            callback_data.image.width = data.width;
+            callback_data.image.height = data.height;
+            callback_data.image.stride = data.stride;
+            callback_data.image.format = rc_FORMAT_GRAY8;
+            sfm.last_image = std::move(data);
+            callback_data.image.image = sfm.last_image.image;
+
+            update_data(&callback_data);
         }
     };
 
     auto depth_fn = [this](image_depth16 &&data)
     {
         if(!isSensorFusionRunning) return;
-        //TODO: should I call update_status here?
-        if (filter_depth_measurement(&sfm, data))
-            update_data(rc_SENSOR_TYPE_DEPTH, data.source->id);
+
+        update_status();
+        if (filter_depth_measurement(&sfm, data)) {
+            rc_Data callback_data;
+            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
+            callback_data.type = rc_SENSOR_TYPE_DEPTH;
+            callback_data.id = data.source->id;
+            callback_data.depth.width = data.width;
+            callback_data.depth.height = data.height;
+            callback_data.depth.stride = data.stride;
+            callback_data.depth.format = rc_FORMAT_DEPTH16;
+            callback_data.depth.image = data.image;
+
+            update_data(&callback_data);
+        }
     };
     
     auto acc_fn = [this](accelerometer_data &&data)
     {
         if(!isSensorFusionRunning) return;
-        if (filter_accelerometer_measurement(&sfm, data))
-            update_data(rc_SENSOR_TYPE_ACCELEROMETER, data.source->id);
+
         update_status();
+        if (filter_accelerometer_measurement(&sfm, data)) {
+            rc_Data callback_data;
+            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
+            callback_data.type = rc_SENSOR_TYPE_ACCELEROMETER;
+            callback_data.id = data.source->id;
+            v_map(callback_data.acceleration_m__s2.v) = v_map(data.acceleration_m__s2);
+
+            update_data(&callback_data);
+        }
     };
     
     auto gyr_fn = [this](gyro_data &&data)
     {
         if(!isSensorFusionRunning) return;
-        if (filter_gyroscope_measurement(&sfm, data))
-            update_data(rc_SENSOR_TYPE_GYROSCOPE, data.source->id);
+
+        update_status();
+        if (filter_gyroscope_measurement(&sfm, data)) {
+            rc_Data callback_data;
+            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
+            callback_data.type = rc_SENSOR_TYPE_GYROSCOPE;
+            callback_data.id = data.source->id;
+            v_map(callback_data.angular_velocity_rad__s.v) = v_map(data.angular_velocity_rad__s);
+
+            update_data(&callback_data);
+        }
     };
     
     queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000

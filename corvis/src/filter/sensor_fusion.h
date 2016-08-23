@@ -43,7 +43,7 @@ public:
         bool initialized;
     };
     
-    std::function<void(rc_SensorType type, rc_Sensor id)> data_callback;
+    std::function<void(const rc_Data *)> data_callback;
     std::function<void(status)> status_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
@@ -182,7 +182,7 @@ private:
     friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere
     RCSensorFusionErrorCode get_error();
     void update_status();
-    void update_data(rc_SensorType type, rc_Sensor id);
+    void update_data(const rc_Data * data);
     void update_image_data(image_gray8 &&data);
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning, processingVideoRequested;
     std::unique_ptr<fusion_queue> queue;

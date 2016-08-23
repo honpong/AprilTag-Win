@@ -169,10 +169,10 @@ void replay::setup_filter()
 {
     if(camera_callback)
     {
-        rc_setDataCallback(tracker, [](void *handle, rc_Timestamp time_us, rc_SensorType type, rc_Sensor sensor_id) {
+        rc_setDataCallback(tracker, [](void *handle, rc_Tracker * tracker, const rc_Data * data) {
             replay * this_replay = (replay *)handle;
-            auto fusion = (sensor_fusion *)this_replay->tracker;
-            if(type == rc_SENSOR_TYPE_IMAGE)
+            auto fusion = (sensor_fusion *)tracker;
+            if(data->type == rc_SENSOR_TYPE_IMAGE)
                 this_replay->camera_callback(&fusion->sfm, std::move(fusion->sfm.last_image));
         }, this);
     }

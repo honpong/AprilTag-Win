@@ -434,9 +434,8 @@ RCTRACKER_API void rc_debug(rc_Tracker *tracker, rc_MessageLevel log_level, cons
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)
 {
     if(trace) trace_log->info("rc_setDataCallback");
-    if(callback) tracker->data_callback = [callback, handle, tracker](rc_SensorType type, rc_Sensor id) {
-        uint64_t micros = sensor_clock::tp_to_micros(tracker->sfm.last_time);
-        callback(handle, micros, type, id);
+    if(callback) tracker->data_callback = [callback, handle, tracker](const rc_Data * data) {
+        callback(handle, tracker, data);
     };
     else tracker->data_callback = nullptr;
 }

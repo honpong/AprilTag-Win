@@ -979,15 +979,15 @@ bool mapper::serialize(std::string &json)
             node_feature_json.AddMember(KEY_FEATURE_VARIANCE, fvariance, allocator);
 
             Value fposition(kArrayType);
-            fposition.PushBack(Value(f->position[0]), allocator);
-            fposition.PushBack(Value(f->position[1]), allocator);
-            fposition.PushBack(Value(f->position[2]), allocator);
-            fposition.PushBack(Value(f->position[3]), allocator);
+            fposition.PushBack(f->position[0], allocator);
+            fposition.PushBack(f->position[1], allocator);
+            fposition.PushBack(f->position[2], allocator);
+            fposition.PushBack(f->position[3], allocator);
             node_feature_json.AddMember(KEY_FEATURE_POSITION, fposition, allocator);
 
             Value fdescriptor(kArrayType);
             for(int j = 0; j < descriptor_size; j++)
-                fdescriptor.PushBack(Value((double)f->dvec(j)), allocator);
+                fdescriptor.PushBack(f->dvec(j), allocator);
             node_feature_json.AddMember(KEY_FEATURE_DESCRIPTOR, fdescriptor, allocator);
 
             node_features_json.PushBack(node_feature_json, allocator);

@@ -35,7 +35,7 @@ endif()
 add_library(cor STATIC ${COR_SOURCES})
 target_link_libraries(cor numerics)
 target_include_directories(cor PUBLIC cor)
-set_property(TARGET cor PROPERTY CXX_STANDARD 11)
+set_property(TARGET cor PROPERTY CXX_STANDARD 14)
 
 add_library(numerics STATIC
   numerics/rotation_vector.cpp
@@ -45,7 +45,7 @@ add_library(numerics STATIC
 target_include_directories(numerics SYSTEM PUBLIC eigen)
 target_include_directories(numerics PUBLIC numerics)
 
-set_property(TARGET numerics PROPERTY CXX_STANDARD 11)
+set_property(TARGET numerics PROPERTY CXX_STANDARD 14)
 
 function(find_intel_root TYPE) # [REQUIRED]
     set(VAR ${TYPE}ROOT)

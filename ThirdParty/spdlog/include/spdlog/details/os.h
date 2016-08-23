@@ -10,24 +10,38 @@
 #include <ctime>
 #include <functional>
 #include <string>
+#include <stdio.h>
+#include <string.h>
+#include <sys/stat.h>
+
 
 #ifdef _WIN32
-# ifndef WIN32_LEAN_AND_MEAN
-#  define WIN32_LEAN_AND_MEAN
-# endif
-# include <windows.h>
+
+#ifndef NOMINMAX
+#define NOMINMAX //prevent windows redefining min/max
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
 
 #ifdef __MINGW32__
 #include <share.h>
 #endif
 
+#include <sys/types.h>
+
 #elif __linux__
+
 #include <sys/syscall.h> //Use gettid() syscall under linux to get thread id
-#include <sys/stat.h>
 #include <unistd.h>
 #include <chrono>
+
 #else
+
 #include <thread>
+
 #endif
 
 namespace spdlog
@@ -107,65 +121,110 @@ inline bool operator!=(const std::tm& tm1, const std::tm& tm2)
     return !(tm1 == tm2);
 }
 
+// eol definition
+#if !defined (SPDLOG_EOL)
 #ifdef _WIN32
-inline const char* eol()
-{
-    return "\r\n";
-}
+#define SPDLOG_EOL "\r\n"
 #else
-constexpr inline const char* eol()
-{
-    return "\n";
-}
+#define SPDLOG_EOL "\n"
+#endif
 #endif
 
-#ifdef _WIN32
-inline unsigned short eol_size()
-{
-    return 2;
-}
-#else
-constexpr inline unsigned short eol_size()
-{
-    return 1;
-}
-#endif
+SPDLOG_CONSTEXPR static const char* eol = SPDLOG_EOL;
+SPDLOG_CONSTEXPR static int eol_size = sizeof(SPDLOG_EOL) - 1;
+
+
 
 //fopen_s on non windows for writing
-inline int fopen_s(FILE** fp, const std::string& filename, const char* mode)
+inline int fopen_s(FILE** fp, const filename_t& filename, const filename_t& mode)
 {
 #ifdef _WIN32
-    *fp = _fsopen((filename.c_str()), mode, _SH_DENYWR);
+#ifdef SPDLOG_WCHAR_FILENAMES
+    *fp = _wfsopen((filename.c_str()), mode.c_str(), _SH_DENYWR);
+#else
+    *fp = _fsopen((filename.c_str()), mode.c_str(), _SH_DENYWR);
+#endif
     return *fp == nullptr;
 #else
-    *fp = fopen((filename.c_str()), mode);
+    *fp = fopen((filename.c_str()), mode.c_str());
     return *fp == nullptr;
 #endif
+}
 
+inline int remove(const filename_t &filename)
+{
+#if defined(_WIN32) && defined(SPDLOG_WCHAR_FILENAMES)
+    return _wremove(filename.c_str());
+#else
+    return std::remove(filename.c_str());
+#endif
+}
+
+inline int rename(const filename_t& filename1, const filename_t& filename2)
+{
+#if defined(_WIN32) && defined(SPDLOG_WCHAR_FILENAMES)
+    return _wrename(filename1.c_str(), filename2.c_str());
+#else
+    return std::rename(filename1.c_str(), filename2.c_str());
+#endif
 }
 
 
 //Return if file exists
-inline bool file_exists(const std::string& filename)
+inline bool file_exists(const filename_t& filename)
 {
 #ifdef _WIN32
+#ifdef SPDLOG_WCHAR_FILENAMES
+    auto attribs = GetFileAttributesW(filename.c_str());
+#else
     auto attribs = GetFileAttributesA(filename.c_str());
+#endif
     return (attribs != INVALID_FILE_ATTRIBUTES && !(attribs & FILE_ATTRIBUTE_DIRECTORY));
-#elif __linux__
+#else //common linux/unix all have the stat system call
     struct stat buffer;
     return (stat (filename.c_str(), &buffer) == 0);
-#else
-    auto *file = fopen(filename.c_str(), "r");
-    if (file != nullptr)
-    {
-        fclose(file);
-        return true;
-    }
-    return false;
+#endif
+}
 
+
+
+
+//Return file size according to open FILE* object
+inline size_t filesize(FILE *f)
+{
+	if (f == nullptr)
+		throw spdlog_ex("Failed getting file size. fd is null");
+#ifdef _WIN32
+	int fd = _fileno(f);
+#if _WIN64 //64 bits		
+	struct _stat64 st;	
+	if (_fstat64(fd, &st) == 0)
+		return st.st_size;
+			
+#else //windows 32 bits		
+	struct _stat st;
+	if (_fstat(fd, &st) == 0)
+		return st.st_size;
 #endif
 
+#else // unix
+	int fd = fileno(f);
+	//64 bits(but not in osx, where fstat64 is deprecated)
+	#if !defined(__APPLE__) && (defined(__x86_64__) || defined(__ppc64__)) 
+	struct stat64 st;
+	if (fstat64(fd, &st) == 0)
+		return st.st_size;	
+#else // unix 32 bits or osx	
+	struct stat st;
+	if (fstat(fd, &st) == 0)
+		return st.st_size;	
+#endif
+#endif
+	throw spdlog_ex("Failed getting file size from fd", errno);
 }
+
+
+
 
 //Return utc offset in minutes or throw spdlog_ex on failure
 inline int utc_minutes_offset(const std::tm& tm = details::os::localtime())
@@ -180,7 +239,7 @@ inline int utc_minutes_offset(const std::tm& tm = details::os::localtime())
     auto rv = GetDynamicTimeZoneInformation(&tzinfo);
 #endif
     if (rv == TIME_ZONE_ID_INVALID)
-        throw spdlog::spdlog_ex("Failed getting timezone info. Last error: " + GetLastError());
+        throw spdlog::spdlog_ex("Failed getting timezone info. ", errno);
 
     int offset = -tzinfo.Bias;
     if (tm.tm_isdst)
@@ -208,6 +267,47 @@ inline size_t thread_id()
     return static_cast<size_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));
 #endif
 
+}
+
+
+// wchar support for windows file names (SPDLOG_WCHAR_FILENAMES must be defined)
+#if defined(_WIN32) && defined(SPDLOG_WCHAR_FILENAMES)
+#define SPDLOG_FILENAME_T(s) L ## s
+inline std::string filename_to_str(const filename_t& filename)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> c;
+    return c.to_bytes(filename);
+}
+#else
+#define SPDLOG_FILENAME_T(s) s
+inline std::string filename_to_str(const filename_t& filename)
+{
+    return filename;
+}
+#endif
+
+
+// Return errno string (thread safe)
+inline std::string errno_str(int err_num)
+{
+    char buf[256];
+    SPDLOG_CONSTEXPR auto buf_size = sizeof(buf);
+
+#ifdef _WIN32
+    if(strerror_s(buf, buf_size, err_num) == 0)
+        return std::string(buf);
+    else
+        return "Unkown error";
+
+#elif defined(__APPLE__) || ((_POSIX_C_SOURCE >= 200112L) && ! _GNU_SOURCE) // posix version        
+    if (strerror_r(err_num, buf, buf_size) == 0)
+        return std::string(buf);
+    else
+        return "Unkown error";
+
+#else  // gnu version (might not use the given buf, so its retval pointer must be used)
+    return std::string(strerror_r(err_num, buf, buf_size));
+#endif
 }
 
 } //os

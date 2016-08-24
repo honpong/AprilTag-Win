@@ -61,12 +61,16 @@ public:
         memcpy(res.image, image, stride*height);
         return res;
     }
-    
+
+#if WIN32
+    image_data(const image_data_type &other) { *this = std::move(other.make_copy()); } // FIXME: this allows std::packaged_task()'s construction (by copying)
+#else
     image_data(const image_data_type &other) = delete;
+#endif
     image_data &operator=(const image_data_type& other) = delete;
 
     sensor_clock::duration exposure_time;
-    std::unique_ptr<void, void(*)(void *)> image_handle;
+    std::unique_ptr<void, void(*)(void *)> image_handle{nullptr, free};
     data_type *image;
     int width, height, stride;
 };

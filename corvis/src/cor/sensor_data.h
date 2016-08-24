@@ -57,11 +57,8 @@ public:
         res.height = height;
         res.stride = stride;
         res.image = (data_type *)malloc(stride*height);
-        if(height && stride)
-        {
-            res.image_handle = std::unique_ptr<void, void(*)(void *)>(res.image, free);
-            memcpy(res.image, image, stride*height);
-        }
+        res.image_handle = std::unique_ptr<void, void(*)(void *)>(res.image, free);
+        memcpy(res.image, image, stride*height);
         return res;
     }
     

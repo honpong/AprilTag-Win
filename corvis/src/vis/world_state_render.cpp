@@ -1,3 +1,4 @@
+#define NOMINMAX // Tell windows.h to avoid defining min/max
 #include "world_state_render.h"
 
 #include <stdio.h>
@@ -148,10 +149,6 @@ void world_state_render_plot_teardown()
     plot_render.gl_destroy();
 }
 
-#ifdef WIN32
-static void create_plot(world_state * state, size_t plot_index, size_t key_index, uint8_t *plot_frame, int plot_width, int plot_height) {}
-#else // !WIN32
-
 #if TARGET_OS_IPHONE
 static void create_plot(world_state * state, size_t plot_index, size_t key_index, uint8_t *plot_frame, int plot_width, int plot_height) {}
 #else // !TARGET_OS_IPHONE
@@ -231,7 +228,6 @@ static void create_plot(world_state * state, size_t plot_index, size_t key_index
         //    fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
     });
 }
-#endif //WIN32
 #endif //TARGET_OS_IPHONE
 
 void world_state_render_plot(world_state * world, size_t plot_index, size_t key_index, int viewport_width, int viewport_height)

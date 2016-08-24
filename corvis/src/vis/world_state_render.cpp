@@ -149,9 +149,9 @@ void world_state_render_plot_teardown()
     plot_render.gl_destroy();
 }
 
-#if TARGET_OS_IPHONE
+#ifndef HAVE_MGL
 static void create_plot(world_state * state, size_t plot_index, size_t key_index, uint8_t *plot_frame, int plot_width, int plot_height) {}
-#else // !TARGET_OS_IPHONE
+#else // HAVE_MGL
 
 #include "lodepng.h"
 #define _MSC_VER 1900 // Force mathgl to avoid C99's typeof
@@ -228,7 +228,7 @@ static void create_plot(world_state * state, size_t plot_index, size_t key_index
         //    fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
     });
 }
-#endif //TARGET_OS_IPHONE
+#endif //HAVE_MGL
 
 void world_state_render_plot(world_state * world, size_t plot_index, size_t key_index, int viewport_width, int viewport_height)
 {

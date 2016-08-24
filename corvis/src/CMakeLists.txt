@@ -1,7 +1,3 @@
-if(ENABLE_MGL)
-    add_subdirectory(../../ThirdParty/mathgl mathgl)
-endif()
-
 if(ENABLE_VISGL)
 set(GLFW_INSTALL OFF CACHE BOOL "")
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
@@ -235,7 +231,9 @@ add_library(vis STATIC
 )
 target_link_libraries(vis PRIVATE glad glfw PUBLIC filter)
 if(ENABLE_MGL)
+    add_subdirectory(../../ThirdParty/mathgl mathgl)
     target_link_libraries(vis PRIVATE mgl)
+    target_compile_definitions(vis PRIVATE HAVE_MGL)
 endif()
 target_link_libraries(vis PRIVATE ${GLFW_LIBRARIES})
 set_property(TARGET vis PROPERTY CXX_STANDARD 14)

@@ -239,6 +239,12 @@ target_link_libraries(vis PRIVATE ${GLFW_LIBRARIES})
 set_property(TARGET vis PROPERTY CXX_STANDARD 14)
 endif()
 
+find_package(Boost)
+if(NOT Boost_FOUND)
+    message(STATUS "Boost not found; stereo disabled")
+    set(ENABLE_STEREO False)
+endif()
+
 if(ENABLE_STEREO)
     add_subdirectory(../../ThirdParty/qhull qhull)
 
@@ -260,7 +266,6 @@ target_include_directories(vlfeat INTERFACE vlfeat-0.9.18/vl)
 set_target_properties(filter cor numerics vlfeat PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if(ENABLE_STEREO)
-    find_package(Boost REQUIRED)
     foreach(f alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp daialg.cpp properties.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
       list(APPEND DAI_FILES "libDAI-0.3.1/src/${f}")
     endforeach(f)

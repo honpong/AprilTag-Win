@@ -631,6 +631,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         }
     }
 
+    path_gt_vertex.clear();
     for(auto p : path_gt)
     {
         VertexData v;

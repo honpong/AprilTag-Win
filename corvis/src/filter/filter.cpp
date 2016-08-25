@@ -717,7 +717,7 @@ bool filter_depth_measurement(struct filter *f, const image_depth16 & depth)
 {
     f->recent_depth = depth.make_copy();
     f->has_depth = true;
-    return false;
+    return true;
 }
 
 bool filter_image_measurement(struct filter *f, const image_gray8 & image)

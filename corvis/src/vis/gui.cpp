@@ -2,6 +2,8 @@
 #include <alloca.h>
 #endif
 #include <limits>
+#include <thread>
+#include <chrono>
 #include "gui.h"
 gui * gui::static_gui;
 
@@ -41,10 +43,13 @@ void gui::mouse_move(GLFWwindow * window, double x, double y)
         arc.continue_rotation((float)x, (float)y);
     if(is_translating)
         translation_finish = v3((float)x, (float)y, 0);
+    if(is_rotating || is_translating)
+        dirty = true;
 }
 
 void gui::mouse(GLFWwindow * window, int button, int action, int mods)
 {
+    dirty = true;
     double x, y;
     glfwGetCursorPos(window, &x, &y);
     if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
@@ -69,6 +74,7 @@ void gui::mouse(GLFWwindow * window, int button, int action, int mods)
 
 void gui::scroll(GLFWwindow * window, double xoffset, double yoffset)
 {
+    dirty = true;
     scale *= (1 + (float)yoffset*.05f);
 }
 
@@ -96,6 +102,7 @@ void gui::write_frame()
 
 void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
+    dirty = true;
     if (action == GLFW_PRESS) {
         switch (key) {
              break; case GLFW_KEY_0: case GLFW_KEY_1: case GLFW_KEY_2: case GLFW_KEY_3:
@@ -193,14 +200,15 @@ void gui::start_glfw()
 
     //fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
 
+    int last_width = width;
+    int last_height = height;
     while (!glfwWindowShouldClose(main_window) && !quit)
     {
         glfwGetFramebufferSize(main_window, &width, &height);
-        glViewport(0, 0, width, height);
-        glEnable(GL_DEPTH_TEST);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        if(width != last_width || height != last_height)
+            dirty = true;
+        last_width = width;
+        last_height = height;
 
         // Calculate layout
         int main_width = width, main_height = height;
@@ -254,34 +262,44 @@ void gui::start_glfw()
         state->generate_depth_overlay = show_depth_on_video;
 
         // Update data
-        state->update_vertex_arrays();
+        bool updated = state->update_vertex_arrays();
 
         // Draw
-        if(show_main) {
-            glViewport(0, 0, main_width, main_height);
-            configure_view(main_width, main_height);
-            world_state_render(state, view_matrix.data(), projection_matrix);
-        }
-        if(show_video) {
-            // y coordinate is 0 = bottom, height = top (opengl)
-            glViewport(width - video_width, 0, video_width, video_height);
-            world_state_render_video(state, video_width, video_height);
-        }
-        if(show_depth) {
-            // y coordinate is 0 = bottom, height = top (opengl)
-            glViewport(width - depth_width, video_height, depth_width, depth_height);
+        if(updated || dirty) {
+            glViewport(0, 0, width, height);
+            glEnable(GL_DEPTH_TEST);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            if(show_main) {
+                glViewport(0, 0, main_width, main_height);
+                configure_view(main_width, main_height);
+                world_state_render(state, view_matrix.data(), projection_matrix);
+            }
+            if(show_video) {
+                // y coordinate is 0 = bottom, height = top (opengl)
+                glViewport(width - video_width, 0, video_width, video_height);
+                world_state_render_video(state, video_width, video_height);
+            }
+            if(show_depth) {
+                // y coordinate is 0 = bottom, height = top (opengl)
+                glViewport(width - depth_width, video_height, depth_width, depth_height);
 
-            if (show_depth_on_video)
-                world_state_render_depth_on_video(state, depth_width, depth_height);
-            else
-                world_state_render_depth(state, depth_width, depth_height);
+                if (show_depth_on_video)
+                    world_state_render_depth_on_video(state, depth_width, depth_height);
+                else
+                    world_state_render_depth(state, depth_width, depth_height);
+            }
+            if(show_plots) {
+                // y coordinate is 0 = bottom, height = top (opengl)
+                glViewport(width - plots_width, video_height + depth_height, plots_width, plots_height);
+                world_state_render_plot(state, current_plot, current_plot_key, plots_width, plots_height);
+            }
+            glfwSwapBuffers(main_window);
+            dirty = false;
         }
-        if(show_plots) {
-            // y coordinate is 0 = bottom, height = top (opengl)
-            glViewport(width - plots_width, video_height + depth_height, plots_width, plots_height);
-            world_state_render_plot(state, current_plot, current_plot_key, plots_width, plots_height);
-        }
-        glfwSwapBuffers(main_window);
+        else
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         glfwPollEvents();
     }
     glfwDestroyWindow(main_window);

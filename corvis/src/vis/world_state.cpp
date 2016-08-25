@@ -512,13 +512,15 @@ void world_state::generate_feature_ellipse(const Feature & feat, unsigned char r
     }
 }
 
-void world_state::update_vertex_arrays(bool show_only_good)
+bool world_state::update_vertex_arrays(bool show_only_good)
 {
     /*
      * Build vertex arrays for feature and path data
      */
     uint64_t now = get_current_timestamp();
-    display_lock.lock();
+    std::lock_guard<std::mutex> lock(display_lock);
+    if(!dirty)
+        return false;
 
     feature_vertex.clear();
     feature_projection_vertex.clear();
@@ -662,7 +664,8 @@ void world_state::update_vertex_arrays(bool show_only_good)
 
         }
     }
-    display_lock.unlock();
+    dirty = false;
+    return true;
 }
 
 void world_state::build_grid_vertex_data()
@@ -804,6 +807,7 @@ void world_state::observe_position(uint64_t timestamp, float x, float y, float z
     display_lock.lock();
     path.push_back(p);
     update_current_timestamp(timestamp);
+    dirty = true;
     display_lock.unlock();
 }
 

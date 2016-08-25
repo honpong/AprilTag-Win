@@ -71,6 +71,7 @@ private:
     void update_current_timestamp(const uint64_t & timestamp);
 
     std::vector<plot> plots;
+    bool dirty{true};
 
 public:
     std::mutex image_lock;
@@ -99,7 +100,7 @@ public:
 
     world_state();
     ~world_state();
-    void update_vertex_arrays(bool show_only_good=true);
+    bool update_vertex_arrays(bool show_only_good=true);
     void render_plot(size_t plot_index, size_t key_index, std::function<void (plot&, size_t key_index)> render_callback);
     size_t change_plot(size_t plot_index);
     size_t change_plot_key(size_t plot_index, size_t key_index);

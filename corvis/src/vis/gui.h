@@ -62,6 +62,7 @@ private:
     v3 translation_finish;
     bool is_translating{false};
     v3 get_view_translation();
+    std::atomic<bool> dirty{true};
 
     // Display related
     GLFWwindow * main_window;

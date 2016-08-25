@@ -139,6 +139,8 @@ typedef struct rc_ImageData
     int width, height, stride;
     rc_ImageFormat format;
     const void *image;
+    void (*release)(void *handle);
+    void *handle;
 } rc_ImageData;
 
 typedef struct rc_Data

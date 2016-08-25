@@ -150,6 +150,8 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
             callback_data.image.stride = data.stride;
             callback_data.image.format = rc_FORMAT_GRAY8;
             callback_data.image.image = data.image;
+            callback_data.image.release = data.image_handle.get_deleter();
+            callback_data.image.handle = data.image_handle.get();
 
             update_data(&callback_data);
         }

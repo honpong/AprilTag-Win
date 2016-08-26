@@ -12,167 +12,80 @@ The main interface to the library can be found in
 
 ## Building
 
-### OS X
+```sh
 
+git clone https://github.intel.com/sensorfusion/sensorfusion rc
+mkdir rc/build
+cd rc/build
+cmake ..
+cmake --build .
 
-1. Optionally install MKL and/or ICC
-2. Install homebrew dependencies
+```
 
-    ```sh
+### BLAS/LAPACKe
 
-    brew install cmake boost
+Install MKL (as this is what we release with) and point `cmake` to MKL
+with `-DMKLROOT=/opt/intel/mkl`.
 
-    ```
+When running on ARM, where MKL is not available, install BLAS/LAPACKe:
 
-3. Build with
+```sh
 
-    ```sh
+apt-get install libblas-dev liblapack-dev liblapacke-dev # Ubuntu
 
-    make -C corvis
+```
 
-    ```
+To disable MKL auto-detection pass `-DMKLROOT=False` to `cmake`.
 
-### Ubuntu (16.04)
+### Visualization
 
-1. Install MKL (and optionally ICC)
-2. Install build dependencies
+Pass `-DENABLE_VISGL=True` to `cmake` to enable the visualizer
+`measure` and on Linux, install its dependencies with:
 
-    apt-get install cmake gcc g++ libboost-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev libxrender-dev libxrandr-dev
+```sh
 
-3. Build with
+apt-get install libgl1-mesa-dev libxcursor-dev libxinerama-dev libxrender-dev libxrandr-dev # Ubuntu
+dnf install boost-devel libXcursor-devel libXinerama-devel libXrender-devel libXrandr-devel # Fedora
 
-    ```sh
-    make -C corvis
-    ```
+```
 
 ### Ubuntu (14.04)
 
-1. Install MKL (and optionally ICC)
-2. Enable repo for a recent build of cmake
+0. Clang 3.6 is required on trusty, so install it
+
+   ```sh
+   apt-get install clang-3.6 libc++-dev
+   ```
+
+   and then pass the following to `cmake` to enable it.
+
+   `-DCMAKE_CXX_COMPILER=clang++-3.6 -DCMAKE_C_COMPILER=clang-3.6`
+
+1. Build `cmake` from source, or enable the following repo for a recent build
 
     ```sh
-    
+
     sudo add-apt-repository ppa:george-edison55/cmake-3.x
     sudo apt-get update
-    
-    ```
-    
-3. Install build dependencies
-
-    ```sh
-
-    apt-get install cmake clang-3.6 libc++-dev libboost-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev libxrender-dev libxrandr-dev
 
     ```
-
-4. Build with
-
-    ```sh
-
-    mkdir -p corvis/bin
-    cd corvis/bin
-    cmake .. -DCMAKE_CXX_COMPILER=clang++-3.6 -DCMAKE_C_COMPILER=clang-3.6
-    make
-
-    ```
-
-### Fedora (23)
-
-1. Install Intel MKL (and optionally ICC)
-2. Install system packages
-
-    ```sh
-
-    dnf install cmake clang boost-devel libXcursor-devel libXinerama-devel libXrender-devel libXrandr-devel
-
-    ```
-
-3. Build with
-
-    ```sh
-
-    make -C corvis
-
-    ```
-
-### Windows
-
-1. Install Intel MKL (and optionally ICC)
-2. Install RSSDK
-3. Install cmake https://cmake.org/
-4. Build with
-
-    ```powershell
-
-    .\windows\build.ps1
-
-    ```
-
-### Android (command line tools only)
-
-1. Install NDK (r10e or r11c) and MKL
-2.
-   ```sh
-
-   mkdir corvis/build
-   cd    corvis/build
-   cmake -DCMAKE_BUILD_TYPE=Release \
-         -DCMAKE_TOOLCHAIN_FILE=Android.toolchain.cmake \
-         -DANDROID_ARCH=x86 \
-         -DANDROID_PLATFORM=android-21 \
-         -DANDROID_NDK_ROOT=$(echo ~/Library/Android/ndk) \
-         -DMKLROOT=$(echo ~/Library/Android/mkl) \
-         ../../android
-   make
-
-   ```
-3. If cmake fails, wipe the build directory completely when trying again
 
 ### Android
 
-1. Install NDK (r10e), SDK, MKL
-2. Create `android/RCUtility/local.properties` with following adjusted for your setup
+  Pass the following to `cmake`.
 
-    ```ini
-
-    sdk.dir=/opt/Android/sdk
-    ndk.dir=/opt/Android/ndk
-    mkl.dir=/opt/intel/mkl
-
-    ```
-
-3. Build every permutation
-
-    ```sh
-
-    cd android/RCUtility
-    ./gradlew build
-
-    ```
-
-    or just the x86 Release version
-
-    ```sh
-
-    ./gradlew assembleRc86Release
-
-    ```
-
-    or to install just the x86_64 Relwithdebinfo version
-
-    ```sh
-
-    ./gradlew installRc64Relwithdebinfo
-
-    ```
+   - `-DCMAKE_TOOLCHAIN_FILE=../android/Android.toolchain.cmake`,
+   - `-DANDROID_NDK_ROOT=<path-to-the-ndk>`
+   - `-DANDROID_PLATFORM=android-21`
+   - `-DANDROID_ARCH=<x86_64|x86>`
 
 ## Running
 
 To load a captured sequence and print out poses using a minimal
 wrapper around the [official interface](corvis/src/filter/rc_tracker.h).
 
-    ./corvis/bin/rc_replay --output-summary --output-poses path/to/capture/file
+    ./corvis/rc_replay --output-summary --output-poses path/to/capture/file
 
 To see a rendering of the data while the program runs try
 
-    ./corvis/bin/measure --realtime path/to/capture/file
+    ./corvis/measure --realtime path/to/capture/file

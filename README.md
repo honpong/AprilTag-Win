@@ -45,7 +45,7 @@ Pass `-DENABLE_VISGL=True` to `cmake` to enable the visualizer
 ```sh
 
 apt-get install libgl1-mesa-dev libxcursor-dev libxinerama-dev libxrender-dev libxrandr-dev # Ubuntu
-dnf install boost-devel libXcursor-devel libXinerama-devel libXrender-devel libXrandr-devel # Fedora
+dnf install libXcursor-devel libXinerama-devel libXrender-devel libXrandr-devel # Fedora
 
 ```
 

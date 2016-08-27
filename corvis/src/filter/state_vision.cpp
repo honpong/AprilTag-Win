@@ -384,7 +384,7 @@ f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, feat
 {
     f_t kd_u, ru2, ru = std::sqrt(ru2 = feat_u.squaredNorm());
     if (fisheye) {
-        f_t w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        f_t w = k1.v;
         if(ru < F_T_EPS) ru = F_T_EPS;
         kd_u = std::atan(2 * std::tan(w/2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
         if (dkd_u_dfeat_u) *dkd_u_dfeat_u = 2 * std::tan(w/2) / (w + 4 * ru * ru * w * std::tan(w/2) * std::tan(w/2)) * feat_u / ru;
@@ -405,7 +405,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
 {
     f_t ku_d, rd2, rd = sqrt(rd2 = feat_d.squaredNorm());
     if (fisheye) {
-        f_t w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        f_t w = k1.v;
         if(rd < F_T_EPS) rd = F_T_EPS;
         ku_d = std::tan(w * rd) / (2 * std::tan(w/2) * rd);
         if (dku_d_dfeat_d) *dku_d_dfeat_d = 2 * (rd * w / (std::cos(rd * w) * std::cos(rd * w) * (2 * rd * std::tan(w/2))) - ku_d) * feat_d / rd;

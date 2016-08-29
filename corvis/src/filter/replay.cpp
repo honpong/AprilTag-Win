@@ -34,7 +34,7 @@ static void scale_down_inplace_z16_by(uint16_t *image, int final_width, int fina
                         sum += v;
                         div++;
                     }
-            image[stride * y + x] = div ? sum / div : 0;
+            image[stride/sizeof(uint16_t) * y + x] = div ? sum / div : 0;
         }
 }
 

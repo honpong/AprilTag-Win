@@ -12,17 +12,31 @@ The main interface to the library can be found in
 
 ## Building
 
+After installing [CMake](https://cmake.org/) and MKL (see below) the
+following should prepare the build directory on Ubuntu 16.04, Fedora
+24, Windows (VS 2015 Update 3), and OS X.  Ubuntu 14.04 and Android
+require additional options to `cmake` (again see below).
+
 ```sh
 
 git clone https://github.intel.com/sensorfusion/sensorfusion rc
 mkdir rc/build
 cd rc/build
 cmake ..
-cmake --build .
 
 ```
 
-### BLAS/LAPACKe
+If the above fails, be sure to wipe the build directory before trying
+again; if it works, then you can build in Visual Studio or at the
+command line with:
+
+```sh
+
+cmake --build . --config Release
+
+```
+
+### MKL (BLAS / LAPACKe)
 
 Install MKL (as this is what we release with) and point `cmake` to MKL
 with `-DMKLROOT=/opt/intel/mkl`.
@@ -54,7 +68,9 @@ dnf install libXcursor-devel libXinerama-devel libXrender-devel libXrandr-devel 
 0. Clang 3.6 is required on trusty, so install it
 
    ```sh
+
    apt-get install clang-3.6 libc++-dev
+
    ```
 
    and then pass the following to `cmake` to enable it.

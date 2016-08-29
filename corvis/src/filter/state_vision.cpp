@@ -302,7 +302,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
         int suppression = 10;
         if(map.find_closure(max, suppression, offset)) {
             loop_offset = offset*loop_offset;
-            log->info("loop closed, offset: {}", loop_offset);
+            log->info("loop closed, offset: {}", std::cref(loop_offset));
         }
     }
 

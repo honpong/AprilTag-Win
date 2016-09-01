@@ -243,7 +243,6 @@ endif()
 file(GLOB LIBVLFEAT_FILES "vlfeat-0.9.18/vl/*.c")
 add_library(vlfeat STATIC ${LIBVLFEAT_FILES})
 target_include_directories(vlfeat INTERFACE vlfeat-0.9.18/vl)
-target_compile_options(vlfeat PRIVATE $<$<BOOL:MSVC>:/wd4244>)
 set_target_properties(filter cor numerics vlfeat PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if(ENABLE_STEREO)

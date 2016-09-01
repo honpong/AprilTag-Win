@@ -212,6 +212,7 @@ add_library(vis STATIC
 target_link_libraries(vis PRIVATE glad glfw PUBLIC filter)
 if(ENABLE_MGL)
     add_subdirectory(../../ThirdParty/mathgl mathgl)
+    target_compile_options(mgl PRIVATE $<$<BOOL:${MSVC}>:/wd4244 /wd4190 /wd4800>)
     target_link_libraries(vis PRIVATE mgl)
     target_compile_definitions(vis PRIVATE HAVE_MGL)
 endif()

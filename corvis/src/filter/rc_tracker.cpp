@@ -136,7 +136,7 @@ static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionCon
 
 struct rc_Tracker: public sensor_fusion
 {
-    rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch ? fusion_queue::latency_strategy::MINIMIZE_LATENCY : fusion_queue::latency_strategy::IMAGE_TRIGGER) {}
+    rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
     std::unique_ptr<image_depth16> last_depth;
     std::string jsonString;
     std::vector<rc_Feature> gottenFeatures;
@@ -165,8 +165,8 @@ static void copy_features_from_sensor_fusion(std::vector<rc_Feature> &features, 
 
 rc_Tracker * rc_create()
 {
-    rc_Tracker * tracker = new rc_Tracker(false); //don't dispatch immediately - intel doesn't really make any data interleaving guarantees
-    tracker->sfm.ignore_lateness = true; //and don't drop frames to keep up
+    rc_Tracker * tracker = new rc_Tracker();
+    tracker->sfm.ignore_lateness = true; //Don't drop frames to keep up
     if(trace) trace_log->info("rc_create");
 
     return tracker;

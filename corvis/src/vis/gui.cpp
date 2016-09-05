@@ -298,8 +298,7 @@ void gui::start_glfw()
             glfwSwapBuffers(main_window);
             dirty = false;
         }
-        else
-            std::this_thread::sleep_for(std::chrono::milliseconds(5));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5));
         glfwPollEvents();
     }
     glfwDestroyWindow(main_window);

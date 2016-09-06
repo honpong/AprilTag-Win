@@ -391,9 +391,9 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
             vector<Feature> features;
             for(auto feature : map_node.features) {
                 Feature f;
-                f.x = feature->position[0];
-                f.y = feature->position[1];
-                f.z = feature->position[2];
+                f.feature.world.x = feature->position[0];
+                f.feature.world.y = feature->position[1];
+                f.feature.world.z = feature->position[2];
                 features.push_back(f);
             }
             bool unlinked = f->s.map.is_unlinked(map_node.id);
@@ -422,14 +422,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
 
             for(int i = 0; i < nfeatures; i++) {
                 const rc_Feature & f = features[i];
-                bool good = f.stdev / f.depth < 0.02;
-                float cx, cy, ctheta;
-                compute_covariance_ellipse(f.innovation_variance_x, f.innovation_variance_y, f.innovation_variance_xy, cx, cy, ctheta);
-                observe_feature(timestamp_us, f.id,
-                                (float)f.world.x, (float)f.world.y, (float)f.world.z,
-                                (float)f.image_x, (float)f.image_y,
-                                (float)f.image_prediction_x, (float)f.image_prediction_y,
-                                cx, cy, ctheta, good, f.depth_measured);
+                observe_feature(timestamp_us, features[i]);
             }
             observe_image(timestamp_us, (uint8_t *)data->image.image, data->image.width, data->image.height, data->image.stride);
 
@@ -527,8 +520,8 @@ static inline void ellipse_segment(VertexData * v, const Feature & feat, float p
     x = x_out;
     y = y_out;
 
-    x += feat.projected_x;
-    y += feat.projected_y;
+    x += feat.feature.image_prediction_x;
+    y += feat.feature.image_prediction_y;
     set_position(v, x, y, 0);
 }
 
@@ -569,14 +562,14 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                 generate_feature_ellipse(f, 88, 247, 98, 255);
                 set_color(&v, 88, 247, 98, 255);
 
-                set_position(&vp, f.image_x, f.image_y, 0);
+                set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
                 set_color(&vp, 88, 247, 98, 255);
             }
             else {
                 generate_feature_ellipse(f, 247, 88, 98, 255);
                 set_color(&v, 247, 88, 98, 255);
 
-                set_position(&vp, f.image_x, f.image_y, 0);
+                set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
                 set_color(&vp, 247, 88, 98, 255);
             }
         }
@@ -585,7 +578,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                 continue;
             set_color(&v, 255, 255, 255, 255);
         }
-        set_position(&v, f.x, f.y, f.z);
+        set_position(&v, f.feature.world.x, f.feature.world.y, f.feature.world.z);
         feature_vertex.push_back(v);
         feature_projection_vertex.push_back(vp);
     }
@@ -655,7 +648,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         }
         for(Feature f : node.features) {
             VertexData vf;
-            v3 vertex(f.x, f.y, f.z);
+            v3 vertex(f.feature.world.x, f.feature.world.y, f.feature.world.z);
             vertex = transformation_apply(node.position, vertex);
             if(node.loop_closed)
                 set_color(&vf, 255, 127, 127, 255);
@@ -772,7 +765,7 @@ int world_state::get_feature_depth_measurements()
     int depth_measurements = 0;
     display_lock.lock();
     for(auto f : features)
-        if(f.second.depth_measured)
+        if(f.second.feature.depth_measured)
             depth_measurements++;
     display_lock.unlock();
     return depth_measurements;
@@ -807,30 +800,26 @@ std::string world_state::get_feature_stats()
     return os.str();
 }
 
-void world_state::observe_feature(uint64_t timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float projected_x, float projected_y, float cx, float cy, float ctheta, bool good, bool depth_measured)
+void world_state::observe_feature(uint64_t timestamp, const rc_Feature & feature)
 {
+    float cx, cy, ctheta;
+    compute_covariance_ellipse(feature.innovation_variance_x, feature.innovation_variance_y, feature.innovation_variance_xy, cx, cy, ctheta);
     Feature f;
-    f.x = x;
-    f.y = y;
-    f.z = z;
-    f.image_x = image_x;
-    f.image_y = image_y;
-    f.projected_x = projected_x;
-    f.projected_y = projected_y;
+    f.feature = feature;
     f.cx = cx;
     f.cy = cy;
     f.ctheta = ctheta;
     f.last_seen = timestamp;
-    f.good = good;
     f.times_seen = 1;
-    f.depth_measured = depth_measured;
+    f.good = feature.stdev / feature.depth < 0.02;;
+
     display_lock.lock();
     if(timestamp > current_feature_timestamp)
         current_feature_timestamp = timestamp;
     update_current_timestamp(timestamp);
-    if(features.count(feature_id))
-        f.times_seen = features[feature_id].times_seen+1;
-    features[feature_id] = f;
+    if(features.count(feature.id))
+        f.times_seen = features[feature.id].times_seen+1;
+    features[feature.id] = f;
     display_lock.unlock();
 }
 
@@ -873,12 +862,12 @@ void world_state::get_bounding_box(float min[3], float max[3])
         auto f = item.second;
         if(!f.good) continue;
 
-        min[0] = std::min(min[0], (float)f.x);
-        min[1] = std::min(min[1], (float)f.y);
-        min[2] = std::min(min[2], (float)f.z);
-        max[0] = std::max(max[0], (float)f.x);
-        max[1] = std::max(max[1], (float)f.y);
-        max[2] = std::max(max[2], (float)f.z);
+        min[0] = std::min(min[0], (float)f.feature.world.x);
+        min[1] = std::min(min[1], (float)f.feature.world.y);
+        min[2] = std::min(min[2], (float)f.feature.world.z);
+        max[0] = std::max(max[0], (float)f.feature.world.x);
+        max[1] = std::max(max[1], (float)f.feature.world.y);
+        max[2] = std::max(max[2], (float)f.feature.world.z);
     }
 }
 

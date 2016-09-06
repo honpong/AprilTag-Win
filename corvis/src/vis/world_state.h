@@ -7,6 +7,7 @@
 #include <mutex>
 #include "../numerics/transformation.h"
 #include "../cor/sensor_data.h"
+#include "rc_tracker.h"
 
 typedef struct _VertexData {
     float position[3];
@@ -14,14 +15,11 @@ typedef struct _VertexData {
 } VertexData;
 
 typedef struct _feature {
-    float x, y, z;
+    rc_Feature feature;
     uint64_t last_seen;
     int times_seen;
-    float image_x, image_y;
-    float projected_x, projected_y;
     float cx, cy, ctheta;
     bool good;
-    bool depth_measured;
 } Feature;
 
 typedef struct _position {
@@ -113,7 +111,7 @@ public:
     void observe_world(float world_up_x, float world_up_y, float world_up_z,
                        float world_forward_x, float world_forward_y, float world_forward_z,
                        float body_forward_x, float body_forward_y, float body_forward_z);
-    void observe_feature(uint64_t timestamp_us, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float projected_x, float projected_y, float cx, float cy, float cxy, bool good, bool depth_measured);
+    void observe_feature(uint64_t timestamp, const rc_Feature & feature);
     void observe_position(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_position_gt(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_plot_item(uint64_t timestamp_us, size_t plot_index, std::string plot_name, float value);

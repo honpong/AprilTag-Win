@@ -82,6 +82,10 @@ void gui::scroll(GLFWwindow * window, double xoffset, double yoffset)
     dirty = true;
     if (is_main_selected)
         scale *= (1 + (float)yoffset*.05f);
+    if (is_plot_selected) {
+        plot_scale *= (1 + (float)yoffset*.05f);
+        state->max_plot_history_us = plot_scale * 30e6;
+    }
 }
 
 #include "lodepng.h"

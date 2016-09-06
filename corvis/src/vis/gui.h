@@ -50,6 +50,8 @@ private:
     float scale;
     int width, height;
 
+    float plot_scale = 1;
+
     std::atomic<size_t> current_plot{0};
     std::atomic<size_t> current_plot_key{(size_t)-1};
     std::atomic<bool> quit{false};

@@ -175,6 +175,8 @@ void state_motion::copy_from(const state_motion &other)
     w = other.w;
     dw = other.dw;
     ddw = other.ddw;
+    imu.extrinsics.Q = other.imu.extrinsics.Q;
+    imu.extrinsics.T = other.imu.extrinsics.T;
     imu.intrinsics.w_bias = other.imu.intrinsics.w_bias;
     imu.intrinsics.a_bias = other.imu.intrinsics.a_bias;
     disable_bias_estimation();

@@ -69,6 +69,9 @@ private:
     void build_grid_vertex_data();
     void generate_feature_ellipse(const Feature & feat, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
     void update_current_timestamp(const uint64_t & timestamp);
+    void update_plots(rc_Tracker * tracker, const rc_Data * data);
+    void update_sensors(rc_Tracker * tracker, const rc_Data * data);
+    void update_map(rc_Tracker * tracker, const rc_Data * data);
 
     std::vector<plot> plots;
     bool dirty{true};
@@ -115,7 +118,7 @@ public:
     void observe_position_gt(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_plot_item(uint64_t timestamp_us, size_t plot_index, std::string plot_name, float value);
     void observe_image(uint64_t timestamp_us, uint8_t * image, int width, int height, int stride);
-    void observe_depth(uint64_t timestamp_us, uint16_t * image, int width, int height, int stride);
+    void observe_depth(uint64_t timestamp_us, const uint16_t * image, int width, int height, int stride);
     void observe_depth_overlay_image(uint64_t timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
     void observe_map_node(uint64_t timestamp_us, uint64_t id, bool finished, bool loop_closed, bool is_unlinked, const transformation &T, std::vector<uint64_t> & neighbors, std::vector<Feature> & features);
     std::string get_feature_stats();

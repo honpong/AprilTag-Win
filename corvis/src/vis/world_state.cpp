@@ -1,6 +1,7 @@
 #include "world_state.h"
 #include "../filter/rc_tracker.h"
 #include "../filter/sensor_fusion.h"
+#include "../filter/rc_compat.h"
 
 static const VertexData axis_data[] = {
     {{0, 0, 0}, {255, 0, 0, 255}},
@@ -123,7 +124,7 @@ void world_state::observe_image(uint64_t timestamp, uint8_t * image, int width, 
 
 #define MAX_DEPTH 8191
 
-void world_state::observe_depth(uint64_t timestamp, uint16_t *image, int width, int height, int stride)
+void world_state::observe_depth(uint64_t timestamp, const uint16_t *image, int width, int height, int stride)
 {
     depth_lock.lock();
     if(last_depth.image && (width != last_depth.width || height != last_depth.height))
@@ -209,90 +210,10 @@ void world_state::update_current_timestamp(const uint64_t & timestamp)
         current_timestamp = timestamp;
 }
 
-void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
+void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
 {
-    if(data->type != rc_SENSOR_TYPE_IMAGE) return;
     const struct filter * f = &((sensor_fusion *)tracker)->sfm;
-
     uint64_t timestamp_us = data->time_us;
-    update_current_timestamp(timestamp_us);
-    current_feature_timestamp = timestamp_us;
-    transformation G = f->origin*f->s.get_transformation();
-
-    for(const auto & s : f->accelerometers) {
-        observe_sensor(rc_SENSOR_TYPE_ACCELEROMETER, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
-                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
-    }
-    for(const auto & s : f->gyroscopes) {
-        observe_sensor(rc_SENSOR_TYPE_GYROSCOPE, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
-                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
-    }
-    for(const auto & s : f->cameras) {
-        observe_sensor(rc_SENSOR_TYPE_IMAGE, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
-                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
-    }
-    for(const auto & s : f->depths) {
-        observe_sensor(rc_SENSOR_TYPE_DEPTH, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
-                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
-    }
-
-    observe_world(f->s.world_up[0], f->s.world_up[1], f->s.world_up[2],
-                  f->s.world_initial_forward[0], f->s.world_initial_forward[1], f->s.world_initial_forward[2],
-                  f->s.body_forward[0], f->s.body_forward[1], f->s.body_forward[2]);
-
-    for(auto g : f->s.groups.children) {
-        for(auto feat : g->features.children) {
-            if(feat->is_valid()) {
-                float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
-                bool good = stdev / feat->v.depth() < .02;
-                float cx, cy, ctheta;
-                compute_covariance_ellipse(feat, cx, cy, ctheta);
-
-                v3 world = G * feat->body;
-                observe_feature(timestamp_us, feat->id,
-                                (float)world[0], (float)world[1], (float)world[2],
-                                (float)feat->current[0], (float)feat->current[1],
-                                (float)feat->prediction[0], (float)feat->prediction[1],
-                                cx, cy, ctheta, good, feat->depth_measured);
-            }
-        }
-    }
-    observe_image(timestamp_us, (uint8_t *)data->image.image, data->image.width, data->image.height, data->image.stride);
-
-    if(f->has_depth) {
-        observe_depth(sensor_clock::tp_to_micros(f->recent_depth.timestamp), f->recent_depth.image, f->recent_depth.width, f->recent_depth.height, f->recent_depth.stride);
-
-#if 0
-        if (generate_depth_overlay){
-            auto depth_overlay = filter_aligned_depth_overlay(f, f->recent_depth, d);
-            observe_depth_overlay_image(sensor_clock::tp_to_micros(depth_overlay->timestamp), depth_overlay->image, depth_overlay->width, depth_overlay->height, depth_overlay->stride);
-        }
-#endif
-    }
-
-    if(f->s.map_enabled) {
-        for(auto map_node : f->s.map.get_nodes()) {
-            bool loop_closed = false;
-            vector<uint64_t> neighbors;
-            for(auto edge : map_node.edges) {
-                neighbors.push_back(edge.neighbor);
-                if(edge.loop_closure)
-                    loop_closed = true;
-            }
-            vector<Feature> features;
-            for(auto feature : map_node.features) {
-                Feature f;
-                f.x = feature->position[0];
-                f.y = feature->position[1];
-                f.z = feature->position[2];
-                features.push_back(f);
-            }
-            bool unlinked = f->s.map.is_unlinked(map_node.id);
-            observe_map_node(timestamp_us, map_node.id, map_node.finished, loop_closed, unlinked, map_node.global_transformation.transform, neighbors, features);
-        }
-    }
-
-    observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z());
 
     int p = 0;
 
@@ -427,6 +348,125 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
 
     observe_plot_item(timestamp_us, p, "image timer", f->image_timer.count());
     p++;
+}
+
+void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)
+{
+    const struct filter * f = &((sensor_fusion *)tracker)->sfm;
+    uint64_t timestamp_us = data->time_us;
+
+    for(const auto & s : f->accelerometers) {
+        observe_sensor(rc_SENSOR_TYPE_ACCELEROMETER, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
+                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
+    }
+    for(const auto & s : f->gyroscopes) {
+        observe_sensor(rc_SENSOR_TYPE_GYROSCOPE, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
+                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
+    }
+    for(const auto & s : f->cameras) {
+        observe_sensor(rc_SENSOR_TYPE_IMAGE, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
+                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
+    }
+    for(const auto & s : f->depths) {
+        observe_sensor(rc_SENSOR_TYPE_DEPTH, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
+                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
+    }
+
+    observe_world(f->s.world_up[0], f->s.world_up[1], f->s.world_up[2],
+                  f->s.world_initial_forward[0], f->s.world_initial_forward[1], f->s.world_initial_forward[2],
+                  f->s.body_forward[0], f->s.body_forward[1], f->s.body_forward[2]);
+}
+
+void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
+{
+    const struct filter * f = &((sensor_fusion *)tracker)->sfm;
+    uint64_t timestamp_us = data->time_us;
+
+    if(f->s.map_enabled) {
+        for(auto map_node : f->s.map.get_nodes()) {
+            bool loop_closed = false;
+            vector<uint64_t> neighbors;
+            for(auto edge : map_node.edges) {
+                neighbors.push_back(edge.neighbor);
+                if(edge.loop_closure)
+                    loop_closed = true;
+            }
+            vector<Feature> features;
+            for(auto feature : map_node.features) {
+                Feature f;
+                f.x = feature->position[0];
+                f.y = feature->position[1];
+                f.z = feature->position[2];
+                features.push_back(f);
+            }
+            bool unlinked = f->s.map.is_unlinked(map_node.id);
+            observe_map_node(timestamp_us, map_node.id, map_node.finished, loop_closed, unlinked, map_node.global_transformation.transform, neighbors, features);
+        }
+    }
+}
+
+void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
+{
+    const struct filter * f = &((sensor_fusion *)tracker)->sfm;
+    uint64_t timestamp_us = data->time_us;
+
+    update_current_timestamp(timestamp_us);
+    rc_Pose pose = rc_getPose(tracker, nullptr, nullptr);
+    transformation G = to_transformation(pose);
+
+    switch(data->type) {
+        case rc_SENSOR_TYPE_IMAGE:
+
+            current_feature_timestamp = timestamp_us;
+
+            for(auto g : f->s.groups.children) {
+                for(auto feat : g->features.children) {
+                    if(feat->is_valid()) {
+                        float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
+                        bool good = stdev / feat->v.depth() < .02;
+                        float cx, cy, ctheta;
+                        compute_covariance_ellipse(feat, cx, cy, ctheta);
+
+                        v3 world = G * feat->body;
+                        observe_feature(timestamp_us, feat->id,
+                                        (float)world[0], (float)world[1], (float)world[2],
+                                        (float)feat->current[0], (float)feat->current[1],
+                                        (float)feat->prediction[0], (float)feat->prediction[1],
+                                        cx, cy, ctheta, good, feat->depth_measured);
+                    }
+                }
+            }
+            observe_image(timestamp_us, (uint8_t *)data->image.image, data->image.width, data->image.height, data->image.stride);
+
+            // Map update is slow and loop closure checks only happen
+            // on images, so only update on image updates
+            update_map(tracker, data);
+
+            break;
+
+        case rc_SENSOR_TYPE_DEPTH:
+
+            if(f->has_depth) {
+                observe_depth(timestamp_us, (const uint16_t *)data->depth.image, data->depth.width, data->depth.height, data->depth.stride);
+
+#if 0
+                if (generate_depth_overlay){
+                    auto depth_overlay = filter_aligned_depth_overlay(f, f->recent_depth, d);
+                    observe_depth_overlay_image(sensor_clock::tp_to_micros(depth_overlay->timestamp), depth_overlay->image, depth_overlay->width, depth_overlay->height, depth_overlay->stride);
+                }
+#endif
+            }
+            break;
+
+        case rc_SENSOR_TYPE_ACCELEROMETER:
+        case rc_SENSOR_TYPE_GYROSCOPE:
+        default:
+            break;
+    }
+
+    observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z());
+    update_sensors(tracker, data);
+    update_plots(tracker, data);
 }
 
 world_state::world_state()

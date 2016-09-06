@@ -38,27 +38,29 @@ void world_state_render_video_teardown()
     frame_render.gl_destroy();
 }
 
-void world_state_render_video(world_state * world, int viewport_width, int viewport_height)
+void world_state_render_video(world_state * world, rc_Sensor id, int viewport_width, int viewport_height)
 {
     world->display_lock.lock();
     world->image_lock.lock();
-    frame_render.render(world->last_image.image, world->last_image.width, world->last_image.height, viewport_width, viewport_height, true);
+    const auto & c = world->cameras[id];
+    frame_render.render(c.image.image, c.image.width, c.image.height, viewport_width, viewport_height, true);
 #if TARGET_OS_IPHONE
 #else
     glPointSize(3.0f);
 #endif
     glLineWidth(2.0f);
-    frame_render.draw_overlay(&world->feature_ellipse_vertex[0], world->feature_ellipse_vertex.size(), GL_LINES, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
-    frame_render.draw_overlay(&world->feature_projection_vertex[0], world->feature_projection_vertex.size(), GL_POINTS, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
+    frame_render.draw_overlay(&c.feature_ellipse_vertex[0], c.feature_ellipse_vertex.size(), GL_LINES, c.image.width, c.image.height, viewport_width, viewport_height);
+    frame_render.draw_overlay(&c.feature_projection_vertex[0], c.feature_projection_vertex.size(), GL_POINTS, c.image.width, c.image.height, viewport_width, viewport_height);
     world->image_lock.unlock();
     world->display_lock.unlock();
 }
 
-bool world_state_render_video_get_size(world_state * world, int *width, int *height)
+bool world_state_render_video_get_size(world_state * world, rc_Sensor id, int *width, int *height)
 {
+    if(id >= world->cameras.size()) return false;
     world->image_lock.lock();
-    *width = world->last_image.width;
-    *height = world->last_image.height;
+    *width = world->cameras[id].image.width;
+    *height = world->cameras[id].image.height;
     world->image_lock.unlock();
     return *width && *height;
 }
@@ -74,29 +76,30 @@ void world_state_render_depth_teardown()
     depth_render.gl_destroy();
 }
 
-void world_state_render_depth(world_state * world, int viewport_width, int viewport_height)
+void world_state_render_depth(world_state * world, rc_Sensor id, int viewport_width, int viewport_height)
 {
     world->display_lock.lock();
     world->depth_lock.lock();
-    depth_render.render(world->last_depth.image, world->last_depth.width, world->last_depth.height, viewport_width, viewport_height, true);
+    depth_render.render(world->depths[id].image, world->depths[id].width, world->depths[id].height, viewport_width, viewport_height, true);
     world->depth_lock.unlock();
     world->display_lock.unlock();
 }
 
-void world_state_render_depth_on_video(world_state * world, int viewport_width, int viewport_height)
+void world_state_render_depth_on_video(world_state * world, rc_Sensor id, int viewport_width, int viewport_height)
 {
     world->display_lock.lock();
     world->depth_lock.lock();
-    frame_render.render(world->last_depth_overlay_image.image, world->last_depth_overlay_image.width, world->last_depth_overlay_image.height, viewport_width, viewport_height, true);
+    frame_render.render(world->depths[id].image, world->depths[id].width, world->depths[id].height, viewport_width, viewport_height, true);
     world->depth_lock.unlock();
     world->display_lock.unlock();
 }
 
-bool world_state_render_depth_get_size(world_state * world, int *width, int *height)
+bool world_state_render_depth_get_size(world_state * world, rc_Sensor id, int *width, int *height)
 {
+    if(id >= world->depths.size()) return false;
     world->depth_lock.lock();
-    *width = world->last_depth.width;
-    *height = world->last_depth.height;
+    *width = world->depths[id].width;
+    *height =  world->depths[id].height;
     world->depth_lock.unlock();
     return *width && *height;
 }

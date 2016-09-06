@@ -103,45 +103,56 @@ void world_state::observe_map_node(uint64_t timestamp, uint64_t node_id, bool fi
     display_lock.unlock();
 }
 
-void world_state::observe_image(uint64_t timestamp, uint8_t * image, int width, int height, int stride)
+static void update_image_size(const rc_ImageData & src, ImageData & dst)
+{
+    if(dst.image && (src.width != dst.width || src.height != dst.height))
+        dst.image = (uint8_t *)realloc(dst.image, sizeof(uint8_t)*src.width*src.height);
+
+    if(!dst.image)
+        dst.image = (uint8_t *)malloc(sizeof(uint8_t)*src.width*src.height);
+    dst.width = src.width;
+    dst.height = src.height;
+}
+
+void world_state::observe_image(uint64_t timestamp, rc_Sensor camera_id, const rc_ImageData & data)
 {
     image_lock.lock();
-    if(last_image.image && (width != last_image.width || height != last_image.height))
-        last_image.image = (uint8_t *)realloc(last_image.image, sizeof(uint8_t)*width*height);
+    if(cameras.size() < camera_id+1)
+        cameras.resize(camera_id+1);
 
-    if(!last_image.image)
-        last_image.image = (uint8_t *)malloc(sizeof(uint8_t)*width*height);
+    ImageData & image = cameras[camera_id].image;
+    update_image_size(data, image);
 
-    for(int i=0; i<height; i++)
-        memcpy(last_image.image + i*width, image + i*stride, sizeof(uint8_t)*width);
+    for(int i=0; i<data.height; i++)
+        memcpy(image.image + i*data.width, (uint8_t *)data.image + i*data.stride, sizeof(uint8_t)*data.width);
 
-    last_image.width = width;
-    last_image.height = height;
+
     image_lock.unlock();
 }
 
 #define MAX_DEPTH 8191
 
-void world_state::observe_depth(uint64_t timestamp, const uint16_t *image, int width, int height, int stride)
+void world_state::observe_depth(uint64_t timestamp, rc_Sensor camera_id, const rc_ImageData & data)
 {
     depth_lock.lock();
-    if(last_depth.image && (width != last_depth.width || height != last_depth.height))
-        last_depth.image = (uint8_t *)realloc(last_depth.image, sizeof(uint8_t)*width*height);
-    
-    if(!last_depth.image)
-        last_depth.image = (uint8_t *)malloc(sizeof(uint8_t)*width*height);
 
-    for(int i = 0; i < height; ++i)
-        for(int j = 0; j < width; ++j)
-            last_depth.image[width * i + j] = (image[stride/2 * i + j] == 0 || image[stride/2 * i + j] > MAX_DEPTH) ? 0 : 255 - (image[stride/2 * i + j] / 32);
+    if(depths.size() < camera_id+1)
+        depths.resize(camera_id+1);
 
-    last_depth.width = width;
-    last_depth.height = height;
+    ImageData & image = depths[camera_id];
+    update_image_size(data, image);
+
+    const uint16_t * src = (const uint16_t *) data.image;
+    for(int i = 0; i < data.height; ++i)
+        for(int j = 0; j < data.width; ++j)
+            image.image[image.width * i + j] = (src[data.stride/2 * i + j] == 0 || src[data.stride/2 * i + j] > MAX_DEPTH) ? 0 : 255 - (src[data.stride/2 * i + j] / 32);
+
     depth_lock.unlock();
 }
 
 void world_state::observe_depth_overlay_image(uint64_t timestamp, uint16_t *aligned_depth, int width, int height, int stride)
 {
+    /*
     depth_lock.lock();
     image_lock.lock();
 
@@ -170,6 +181,7 @@ void world_state::observe_depth_overlay_image(uint64_t timestamp, uint16_t *alig
 
     image_lock.unlock();
     depth_lock.unlock();
+    */
 }
 
 static inline void compute_covariance_ellipse(float x, float y, float xy, float & cx, float & cy, float & ctheta)
@@ -420,9 +432,9 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
 
             for(int i = 0; i < nfeatures; i++) {
                 const rc_Feature & f = features[i];
-                observe_feature(timestamp_us, features[i]);
+                observe_feature(timestamp_us, data->id, features[i]);
             }
-            observe_image(timestamp_us, (uint8_t *)data->image.image, data->image.width, data->image.height, data->image.stride);
+            observe_image(timestamp_us, data->id, data->image);
 
             // Map update is slow and loop closure checks only happen
             // on images, so only update on image updates
@@ -433,7 +445,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
         case rc_SENSOR_TYPE_DEPTH:
 
             if(f->has_depth) {
-                observe_depth(timestamp_us, (const uint16_t *)data->depth.image, data->depth.width, data->depth.height, data->depth.stride);
+                observe_depth(timestamp_us, data->id, data->depth);
 
 #if 0
                 if (generate_depth_overlay){
@@ -462,16 +474,12 @@ world_state::world_state()
         axis_vertex.push_back(axis_data[i]);
     for(int i = 0; i < 6; i++)
         orientation_vertex.push_back(axis_data[i]);
-    last_image.width = 0;
-    last_image.height = 0;
-    last_image.image = NULL;
-    last_depth.width = 0;
-    last_depth.height = 0;
-    last_depth.image = NULL;
+    /*
     generate_depth_overlay = false;
     last_depth_overlay_image.width = 0;
     last_depth_overlay_image.height = 0;
     last_depth_overlay_image.image = NULL;
+    */
 }
 
 world_state::~world_state()
@@ -523,7 +531,7 @@ static inline void ellipse_segment(VertexData * v, const Feature & feat, float p
     set_position(v, x, y, 0);
 }
 
-void world_state::generate_feature_ellipse(const Feature & feat, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha)
+void world_state::generate_feature_ellipse(const Feature & feat, std::vector<VertexData> & feature_ellipse_vertex, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha)
 {
     int ellipse_segments = feature_ellipse_vertex_size/2;
     for(int i = 0; i < ellipse_segments; i++)
@@ -549,22 +557,25 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         return false;
 
     feature_vertex.clear();
-    feature_projection_vertex.clear();
-    feature_ellipse_vertex.clear();
+    for(auto & c : cameras) {
+        c.feature_projection_vertex.clear();
+        c.feature_ellipse_vertex.clear();
+    }
+
     for(auto const & item : features) {
         //auto feature_id = item.first;
         auto f = item.second;
         VertexData v, vp;
         if (f.last_seen == current_feature_timestamp) {
             if(f.good) {
-                generate_feature_ellipse(f, 88, 247, 98, 255);
+                generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 88, 247, 98, 255);
                 set_color(&v, 88, 247, 98, 255);
 
                 set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
                 set_color(&vp, 88, 247, 98, 255);
             }
             else {
-                generate_feature_ellipse(f, 247, 88, 98, 255);
+                generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 247, 88, 98, 255);
                 set_color(&v, 247, 88, 98, 255);
 
                 set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
@@ -578,7 +589,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         }
         set_position(&v, f.feature.world.x, f.feature.world.y, f.feature.world.z);
         feature_vertex.push_back(v);
-        feature_projection_vertex.push_back(vp);
+        cameras[f.camera_id].feature_projection_vertex.push_back(vp);
     }
 
     path_vertex.clear();
@@ -798,7 +809,7 @@ std::string world_state::get_feature_stats()
     return os.str();
 }
 
-void world_state::observe_feature(uint64_t timestamp, const rc_Feature & feature)
+void world_state::observe_feature(uint64_t timestamp, rc_Sensor camera_id, const rc_Feature & feature)
 {
     float cx, cy, ctheta;
     compute_covariance_ellipse(feature.innovation_variance_x, feature.innovation_variance_y, feature.innovation_variance_xy, cx, cy, ctheta);
@@ -810,6 +821,7 @@ void world_state::observe_feature(uint64_t timestamp, const rc_Feature & feature
     f.last_seen = timestamp;
     f.times_seen = 1;
     f.good = feature.stdev / feature.depth < 0.02;;
+    f.camera_id = camera_id;
 
     display_lock.lock();
     if(timestamp > current_feature_timestamp)

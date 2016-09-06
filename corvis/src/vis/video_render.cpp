@@ -178,7 +178,7 @@ static void calculate_scale(int width, int height, int viewport_width, int viewp
         scale_x *= ((float)width/height)*viewport_height/viewport_width;
 }
 
-void video_render::render(uint8_t * image, int width, int height, int viewport_width, int viewport_height, bool luminance)
+void video_render::render(const uint8_t * image, int width, int height, int viewport_width, int viewport_height, bool luminance)
 {
     float scale_x, scale_y;
     calculate_scale(width, height, viewport_width, viewport_height, scale_x, scale_y);
@@ -236,7 +236,7 @@ void video_render::render(uint8_t * image, int width, int height, int viewport_w
     glDisable(GL_TEXTURE_2D);
 }
 
-void video_render::draw_overlay(VertexData * data, int number, int gl_type, int width, int height, int viewport_width, int viewport_height)
+void video_render::draw_overlay(const VertexData * data, int number, int gl_type, int width, int height, int viewport_width, int viewport_height)
 {
     float scale_x, scale_y;
     calculate_scale(width, height, viewport_width, viewport_height, scale_x, scale_y);

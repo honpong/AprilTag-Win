@@ -21,9 +21,9 @@ private:
 
 public:
     void gl_init();
-    void render(uint8_t * frame, int width, int height, int viewport_width, int viewport_height, bool luminance);
+    void render(const uint8_t * frame, int width, int height, int viewport_width, int viewport_height, bool luminance);
     void gl_destroy();
-    void draw_overlay(VertexData * data, int number, int gl_type, int width, int height, int viewport_width, int viewport_height);
+    void draw_overlay(const VertexData * data, int number, int gl_type, int width, int height, int viewport_width, int viewport_height);
 };
 
 #endif

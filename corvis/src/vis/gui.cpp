@@ -93,13 +93,14 @@ void gui::scroll(GLFWwindow * window, double xoffset, double yoffset)
 void gui::write_frame()
 {
     state->image_lock.lock();
-    const int W = state->last_image.width;
-    const int H = state->last_image.height;
+    const ImageData & src = state->cameras[current_camera].image;
+    const int W = src.width;
+    const int H = src.height;
     auto image = (uint8_t*)alloca(W*H*4);
     for(int i = 0; i < W*H; i++) {
-        image[i*4 + 0] = state->last_image.image[i];
-        image[i*4 + 1] = state->last_image.image[i];
-        image[i*4 + 2] = state->last_image.image[i];
+        image[i*4 + 0] = src.image[i];
+        image[i*4 + 1] = src.image[i];
+        image[i*4 + 2] = src.image[i];
         image[i*4 + 3] = 255;
     }
 
@@ -130,8 +131,11 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_S:        if (replay_control) replay_control->step();
              break; case GLFW_KEY_Q:        if (replay_control) replay_control->stop(); quit = true;
              break; case GLFW_KEY_F:        write_frame();
-             break; case GLFW_KEY_V:        show_video = !show_video;
-             break; case GLFW_KEY_D:        show_depth = !show_depth;
+             // video or depth are not shown when they are not yet
+             // configured, so current_camera = state->cameras.size()
+             // is equivalent to show_video = false;
+             break; case GLFW_KEY_V:        current_camera++; if(current_camera > state->cameras.size()) current_camera = 0;
+             break; case GLFW_KEY_D:        current_depth++; if(current_depth > state->depths.size()) current_depth = 0;
              break; case GLFW_KEY_M:        show_main = !show_main;
              break; case GLFW_KEY_P:        show_plots = !show_plots;
              break; case GLFW_KEY_O:        show_depth_on_video = !show_depth_on_video;
@@ -233,8 +237,8 @@ void gui::start_glfw()
         int video_frame_width = 0, video_frame_height = 0;
         int depth_frame_width = 0, depth_frame_height = 0;
 
-        bool show_video = this->show_video && world_state_render_video_get_size(state, &video_frame_width, &video_frame_height);
-        bool show_depth = this->show_depth && world_state_render_depth_get_size(state, &depth_frame_width, &depth_frame_height);
+        bool show_video = this->show_video && world_state_render_video_get_size(state, current_camera, &video_frame_width, &video_frame_height);
+        bool show_depth = this->show_depth && world_state_render_depth_get_size(state, current_depth, &depth_frame_width, &depth_frame_height);
 
         float right_column_percent = show_main ? .5f : 1.f;
         float video_ratio = show_video ? 1.f : 0.f;
@@ -274,7 +278,7 @@ void gui::start_glfw()
         if(show_main && (show_video || show_plots || show_depth))
             main_width = width - max(max(video_width, plots_width), depth_width);
 
-        state->generate_depth_overlay = show_depth_on_video;
+        //state->generate_depth_overlay = show_depth_on_video;
 
         // Update data
         bool updated = state->update_vertex_arrays();
@@ -300,7 +304,7 @@ void gui::start_glfw()
             if(show_video) {
                 // y coordinate is 0 = bottom, height = top (opengl)
                 glViewport(width - video_width, 0, video_width, video_height);
-                world_state_render_video(state, video_width, video_height);
+                world_state_render_video(state, current_camera, video_width, video_height);
                 in_video = [&](auto x, auto y) { x *= screen_to_pixel_x;
                                                  y *= screen_to_pixel_y;
                                                  return width - video_width <        x &&        x < width
@@ -312,9 +316,9 @@ void gui::start_glfw()
                 // y coordinate is 0 = bottom, height = top (opengl)
                 glViewport(width - depth_width, video_height, depth_width, depth_height);
                 if (show_depth_on_video)
-                    world_state_render_depth_on_video(state, depth_width, depth_height);
+                    world_state_render_depth_on_video(state, current_depth, depth_width, depth_height);
                 else
-                    world_state_render_depth(state, depth_width, depth_height);
+                    world_state_render_depth(state, current_depth, depth_width, depth_height);
                 in_depth = [&](auto x, auto y) { x *= screen_to_pixel_x;
                                                  y *= screen_to_pixel_y;
                                                  return width - depth_width <        x &&        x < width

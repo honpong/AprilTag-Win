@@ -6,7 +6,6 @@
 #include <list>
 #include <mutex>
 #include "../numerics/transformation.h"
-#include "../cor/sensor_data.h"
 #include "rc_tracker.h"
 
 typedef struct _VertexData {

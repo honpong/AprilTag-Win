@@ -167,7 +167,7 @@ static void create_plot(world_state * state, size_t plot_index, size_t key_index
         gr.Alpha(false);
         gr.Clf('w');
         gr.SubPlot(1,1,0,"T");
-        sensor_clock::time_point mint = sensor_clock::time_point::max(), maxt = sensor_clock::time_point::min();
+        uint64_t mint = std::numeric_limits<uint64_t>::max(), maxt = std::numeric_limits<uint64_t>::min();
         float miny = std::numeric_limits<float>::max(), maxy = std::numeric_limits<float>::min();
         std::string names;
         const char *colors[] = {"r","g","b"};
@@ -181,7 +181,7 @@ static void create_plot(world_state * state, size_t plot_index, size_t key_index
             //    continue;
 
             for(auto data : kvi->second) {
-                sensor_clock::time_point t = sensor_clock::micros_to_tp(data.first);
+                uint64_t t = data.first;
                 if(t < mint) mint = t;
                 if(t > maxt) maxt = t;
 
@@ -203,14 +203,14 @@ static void create_plot(world_state * state, size_t plot_index, size_t key_index
 
             int j = 0;
             for(auto data : p) {
-                float seconds = std::chrono::duration_cast<std::chrono::duration<float>>(sensor_clock::micros_to_tp(data.first) - mint).count();
+                float seconds = (data.first - mint)/1.0e6;
                 data_x.a[j] = seconds;
 
                 float val = data.second;
                 data_y.a[j++] = val;
             }
 
-            gr.SetRange('x', 0, std::chrono::duration_cast<std::chrono::duration<float>>(maxt - mint).count());
+            gr.SetRange('x', 0, (maxt - mint)/1.0e6);
             gr.SetRange('y', miny, maxy);
             gr.Plot(data_x, data_y, colors[key_index == (size_t)-1 ? i%3 : key_index % 3]);
         }

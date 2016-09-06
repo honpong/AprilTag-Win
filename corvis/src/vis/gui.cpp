@@ -55,6 +55,11 @@ void gui::mouse(GLFWwindow * window, int button, int action, int mods)
     if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         arc.start_rotation((float)x, (float)y);
         is_rotating = true;
+
+        is_main_selected  = in_main(x,y);
+        is_plot_selected  = in_plots(x,y);
+        is_depth_selected = in_depth(x,y);
+        is_video_selected = in_video(x,y);
     }
     else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         is_rotating = false;
@@ -75,7 +80,8 @@ void gui::mouse(GLFWwindow * window, int button, int action, int mods)
 void gui::scroll(GLFWwindow * window, double xoffset, double yoffset)
 {
     dirty = true;
-    scale *= (1 + (float)yoffset*.05f);
+    if (is_main_selected)
+        scale *= (1 + (float)yoffset*.05f);
 }
 
 #include "lodepng.h"
@@ -275,26 +281,41 @@ void gui::start_glfw()
                 glViewport(0, 0, main_width, main_height);
                 configure_view(main_width, main_height);
                 world_state_render(state, view_matrix.data(), projection_matrix);
-            }
+                in_main = [&](auto x, auto y) { return 0 <        x &&        x < main_width
+                                                &&     0 < height-y && height-y < main_height; };
+            } else
+                in_main = [&](auto x, auto y) { return false; };
+
             if(show_video) {
                 // y coordinate is 0 = bottom, height = top (opengl)
                 glViewport(width - video_width, 0, video_width, video_height);
                 world_state_render_video(state, video_width, video_height);
-            }
+                in_video = [&](auto x, auto y) { return width - video_width <        x &&        x < width
+                                                 &&     0                   < height-y && height-y < video_height; };
+            } else
+                in_video = [&](auto x, auto y) { return false; };
+
             if(show_depth) {
                 // y coordinate is 0 = bottom, height = top (opengl)
                 glViewport(width - depth_width, video_height, depth_width, depth_height);
-
                 if (show_depth_on_video)
                     world_state_render_depth_on_video(state, depth_width, depth_height);
                 else
                     world_state_render_depth(state, depth_width, depth_height);
-            }
+                in_depth = [&](auto x, auto y) { return width - depth_width <        x &&        x < width
+                                                 &&     video_height        < height-y && height-y < video_height + depth_height; };
+            } else
+                in_depth = [&](auto x, auto y) { return false; };
+
             if(show_plots) {
                 // y coordinate is 0 = bottom, height = top (opengl)
                 glViewport(width - plots_width, video_height + depth_height, plots_width, plots_height);
                 world_state_render_plot(state, current_plot, current_plot_key, plots_width, plots_height);
-            }
+                in_plots = [&](auto x, auto y) { return width        - plots_width  <        x &&        x < width
+                                                 &&     video_height + depth_height < height-y && height-y < video_height + depth_height + plots_height; };
+            } else
+                in_plots = [&](auto x, auto y) { return false; };
+
             glfwSwapBuffers(main_window);
             dirty = false;
         }

@@ -139,7 +139,7 @@ struct rc_Tracker: public sensor_fusion
     rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
     std::unique_ptr<image_depth16> last_depth;
     std::string jsonString;
-    std::vector<rc_Feature> gottenFeatures;
+    std::vector<std::vector<rc_Feature> > stored_features;
     std::string timingStats;
     capture output;
 };
@@ -621,12 +621,15 @@ void rc_setPose(rc_Tracker * tracker, const rc_Pose pose_m)
     tracker->set_transformation(to_transformation(pose_m));
 }
 
-int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)
+int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **features_px)
 {
-    if(trace) trace_log->info("rc_getFeatures");
-    copy_features_from_sensor_fusion(tracker->gottenFeatures, tracker->get_features());
-    if (features_px) *features_px = tracker->gottenFeatures.data();
-    return tracker->gottenFeatures.size();
+    if(trace) trace_log->info("rc_getFeatures for camera {}", camera_id);
+    if(camera_id > tracker->sfm.cameras.size()) return 0;
+    tracker->stored_features.resize(tracker->sfm.cameras.size());
+
+    copy_features_from_sensor_fusion(tracker->stored_features[camera_id], tracker->get_features());
+    if (features_px) *features_px = tracker->stored_features[camera_id].data();
+    return tracker->stored_features[camera_id].size();
 }
 
 rc_TrackerState rc_getState(const rc_Tracker *tracker)

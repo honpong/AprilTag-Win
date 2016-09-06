@@ -114,8 +114,12 @@ typedef struct rc_Feature
     uint64_t id;
     rc_Vector world;
     float image_x, image_y;
+    float image_prediction_x, image_prediction_y;
     bool initialized;
+    float depth;
     float stdev;
+    float innovation_variance_x, innovation_variance_y, innovation_variance_xy;
+    bool depth_measured;
 } rc_Feature;
 
 typedef enum rc_MessageLevel

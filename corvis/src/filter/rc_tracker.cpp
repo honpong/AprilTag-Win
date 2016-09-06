@@ -144,25 +144,6 @@ struct rc_Tracker: public sensor_fusion
     capture output;
 };
 
-static void copy_features_from_sensor_fusion(std::vector<rc_Feature> &features, const std::vector<sensor_fusion::feature_point> &in_feats)
-{
-    features.clear();
-    features.reserve(in_feats.size());
-    for (auto fp : in_feats)
-    {
-        rc_Feature feat;
-        feat.image_x = static_cast<decltype(feat.image_x)>(fp.x);
-        feat.image_y = static_cast<decltype(feat.image_y)>(fp.y);
-        feat.world.x = static_cast<decltype(feat.world.x)>(fp.worldx);
-        feat.world.y = static_cast<decltype(feat.world.y)>(fp.worldy);
-        feat.world.z = static_cast<decltype(feat.world.z)>(fp.worldz);
-        feat.stdev   = static_cast<decltype(feat.stdev)>(fp.stdev);
-        feat.id = fp.id;
-        feat.initialized = fp.initialized;
-        features.push_back(feat);
-    }
-}
-
 rc_Tracker * rc_create()
 {
     rc_Tracker * tracker = new rc_Tracker();
@@ -627,9 +608,36 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
     if(camera_id > tracker->sfm.cameras.size()) return 0;
     tracker->stored_features.resize(tracker->sfm.cameras.size());
 
-    copy_features_from_sensor_fusion(tracker->stored_features[camera_id], tracker->get_features());
-    if (features_px) *features_px = tracker->stored_features[camera_id].data();
-    return tracker->stored_features[camera_id].size();
+    std::vector<rc_Feature> & features = tracker->stored_features[camera_id];
+    features.clear();
+    transformation G = tracker->get_transformation();
+    for(auto g: tracker->sfm.s.groups.children) {
+        for(auto i: g->features.children) {
+            if(i->is_valid()) {
+                rc_Feature feat;
+                feat.id = i->id;
+                feat.image_x = static_cast<decltype(feat.image_x)>(i->current[0]);
+                feat.image_y = static_cast<decltype(feat.image_y)>(i->current[1]);
+                feat.image_prediction_x = static_cast<decltype(feat.image_prediction_x)>(i->prediction[0]);
+                feat.image_prediction_y = static_cast<decltype(feat.image_prediction_y)>(i->prediction[1]);
+                v3 ext_pos = G * i->body;
+                feat.world.x = static_cast<decltype(feat.world.x)>(ext_pos[0]);
+                feat.world.y = static_cast<decltype(feat.world.y)>(ext_pos[1]);
+                feat.world.z = static_cast<decltype(feat.world.z)>(ext_pos[2]);
+                feat.stdev   = static_cast<decltype(feat.stdev)>(i->v.stdev_meters(sqrt(i->variance())));
+                feat.innovation_variance_x = i->innovation_variance_x;
+                feat.innovation_variance_y = i->innovation_variance_y;
+                feat.innovation_variance_xy = i->innovation_variance_xy;
+                feat.depth_measured = i->depth_measured;
+                feat.initialized =  i->is_initialized();
+                feat.depth = i->v.depth();
+                features.push_back(feat);
+            }
+        }
+    }
+
+    if (features_px) *features_px = features.data();
+    return features.size();
 }
 
 rc_TrackerState rc_getState(const rc_Tracker *tracker)

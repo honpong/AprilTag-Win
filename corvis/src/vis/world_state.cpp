@@ -174,14 +174,11 @@ void world_state::observe_depth_overlay_image(uint64_t timestamp, uint16_t *alig
     depth_lock.unlock();
 }
 
-static inline void compute_covariance_ellipse(state_vision_feature * feat, float & cx, float & cy, float & ctheta)
+static inline void compute_covariance_ellipse(float x, float y, float xy, float & cx, float & cy, float & ctheta)
 {
     //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
     const static float chi_square_95 = 5.991f;
 
-    float x = (float)feat->innovation_variance_x;
-    float y = (float)feat->innovation_variance_y;
-    float xy = (float)feat->innovation_variance_xy;
     float tau = 0;
     if(xy != 0.f)
         tau = (y - x) / xy / 2.f;
@@ -417,31 +414,29 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
     switch(data->type) {
         case rc_SENSOR_TYPE_IMAGE:
 
+            {
             current_feature_timestamp = timestamp_us;
 
-            for(auto g : f->s.groups.children) {
-                for(auto feat : g->features.children) {
-                    if(feat->is_valid()) {
-                        float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
-                        bool good = stdev / feat->v.depth() < .02;
-                        float cx, cy, ctheta;
-                        compute_covariance_ellipse(feat, cx, cy, ctheta);
+            rc_Feature * features;
+            int nfeatures = rc_getFeatures(tracker, data->id, &features);
 
-                        v3 world = G * feat->body;
-                        observe_feature(timestamp_us, feat->id,
-                                        (float)world[0], (float)world[1], (float)world[2],
-                                        (float)feat->current[0], (float)feat->current[1],
-                                        (float)feat->prediction[0], (float)feat->prediction[1],
-                                        cx, cy, ctheta, good, feat->depth_measured);
-                    }
-                }
+            for(int i = 0; i < nfeatures; i++) {
+                const rc_Feature & f = features[i];
+                bool good = f.stdev / f.depth < 0.02;
+                float cx, cy, ctheta;
+                compute_covariance_ellipse(f.innovation_variance_x, f.innovation_variance_y, f.innovation_variance_xy, cx, cy, ctheta);
+                observe_feature(timestamp_us, f.id,
+                                (float)f.world.x, (float)f.world.y, (float)f.world.z,
+                                (float)f.image_x, (float)f.image_y,
+                                (float)f.image_prediction_x, (float)f.image_prediction_y,
+                                cx, cy, ctheta, good, f.depth_measured);
             }
             observe_image(timestamp_us, (uint8_t *)data->image.image, data->image.width, data->image.height, data->image.stride);
 
             // Map update is slow and loop closure checks only happen
             // on images, so only update on image updates
             update_map(tracker, data);
-
+            }
             break;
 
         case rc_SENSOR_TYPE_DEPTH:

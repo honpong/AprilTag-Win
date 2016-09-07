@@ -203,14 +203,14 @@ static void create_plot(world_state * state, size_t plot_index, size_t key_index
 
             int j = 0;
             for(auto data : p) {
-                float seconds = (data.first - mint)/1.0e6;
+                float seconds = -((maxt - data.first)/1.0e6);
                 data_x.a[j] = seconds;
 
                 float val = data.second;
                 data_y.a[j++] = val;
             }
 
-            gr.SetRange('x', 0, (maxt - mint)/1.0e6);
+            gr.SetRange('x', -(state->max_plot_history_us/1.0e6), 0);
             gr.SetRange('y', miny, maxy);
             gr.Plot(data_x, data_y, colors[key_index == (size_t)-1 ? i%3 : key_index % 3]);
         }

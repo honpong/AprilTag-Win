@@ -22,7 +22,6 @@ static const unsigned char indexed_colors[][4] = {
 };
 
 static const std::size_t feature_ellipse_vertex_size = 30; // 15 segments
-static const uint64_t max_plot_history_us = 30e6;
 void world_state::render_plot(size_t plot_index, size_t key_index, std::function<void (plot&, size_t key_index)> render_callback)
 {
     std::lock_guard<std::mutex> lock(plot_lock);

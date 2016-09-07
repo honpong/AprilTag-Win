@@ -98,6 +98,8 @@ public:
     bool generate_depth_overlay;
     float up[3] = {0,0,1};
 
+    uint64_t max_plot_history_us = 30e6;
+
     world_state();
     ~world_state();
     bool update_vertex_arrays(bool show_only_good=true);

@@ -84,6 +84,7 @@ void gui::scroll(GLFWwindow * window, double xoffset, double yoffset)
         scale *= (1 + (float)yoffset*.05f);
     if (is_plot_selected) {
         plot_scale *= (1 + (float)yoffset*.05f);
+        plot_scale = max(plot_scale, 0.01f/30);
         state->max_plot_history_us = plot_scale * 30e6;
     }
 }

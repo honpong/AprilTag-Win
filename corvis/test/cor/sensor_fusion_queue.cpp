@@ -5,24 +5,31 @@
 TEST(SensorFusionQueue, Reorder)
 {
     sensor_clock::time_point last_time;
+    sensor_clock::time_point this_gyro;
+    sensor_clock::time_point this_accel;
     auto camf = [&last_time](image_gray8 &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     auto depthf = [&last_time](image_depth16 &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     auto accf = [&last_time](accelerometer_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     auto gyrf = [&last_time](gyro_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
+    auto fast_accf = [&this_accel](const accelerometer_data &x) { EXPECT_EQ(x.timestamp, this_accel); };
+    auto fast_gyrf = [&this_gyro](const gyro_data &x) { EXPECT_GE(x.timestamp, this_gyro); };
     
-    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(camf, depthf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
+    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(camf, depthf, accf, gyrf, fast_accf, fast_gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
     
     q->start_sync(true);
 
     gyro_data g;
     g.timestamp = sensor_clock::time_point(std::chrono::microseconds(0));
+    this_gyro = g.timestamp;
     q->receive_gyro(std::move(g));
 
     g.timestamp = sensor_clock::time_point(std::chrono::microseconds(10000));
+    this_gyro = g.timestamp;
     q->receive_gyro(std::move(g));
 
     accelerometer_data a;
     a.timestamp = sensor_clock::time_point(std::chrono::microseconds(8000));
+    this_accel = a.timestamp;
     q->receive_accelerometer(std::move(a));
 
     image_depth16 d;
@@ -34,24 +41,31 @@ TEST(SensorFusionQueue, Reorder)
     q->receive_camera(std::move(c));
 
     a.timestamp = sensor_clock::time_point(std::chrono::microseconds(18000));
+    this_accel = a.timestamp;
     q->receive_accelerometer(std::move(a));
 
     g.timestamp = sensor_clock::time_point(std::chrono::microseconds(20000));
+    this_gyro = g.timestamp;
     q->receive_gyro(std::move(g));
     
     g.timestamp = sensor_clock::time_point(std::chrono::microseconds(30000));
+    this_gyro = g.timestamp;
     q->receive_gyro(std::move(g));
 
     a.timestamp = sensor_clock::time_point(std::chrono::microseconds(28000));
+    this_accel = a.timestamp;
     q->receive_accelerometer(std::move(a));
 
     a.timestamp = sensor_clock::time_point(std::chrono::microseconds(38000));
+    this_accel = a.timestamp;
     q->receive_accelerometer(std::move(a));
     
     g.timestamp = sensor_clock::time_point(std::chrono::microseconds(40000));
+    this_gyro = g.timestamp;
     q->receive_gyro(std::move(g));
 
     a.timestamp = sensor_clock::time_point(std::chrono::microseconds(48000));
+    this_accel = a.timestamp;
     q->receive_accelerometer(std::move(a));
     
     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(38000));
@@ -61,6 +75,7 @@ TEST(SensorFusionQueue, Reorder)
     q->receive_camera(std::move(c));
     
     g.timestamp = sensor_clock::time_point(std::chrono::microseconds(50000));
+    this_gyro = g.timestamp;
     q->receive_gyro(std::move(g));
     
     q->stop_sync();
@@ -92,12 +107,17 @@ TEST(SensorFusionQueue, Threading)
     int gyrrcv = 0;
     int accrcv = 0;
     
+    int fast_accrcv = 0;
+    int fast_gyrrcv = 0;
+    
     auto camf = [&last_cam_time, &camrcv](image_gray8 &&x) { EXPECT_GE(x.timestamp, last_cam_time); last_cam_time = x.timestamp; ++camrcv; };
     auto depthf = [&last_dep_time, &deprcv](image_depth16 &&x) { EXPECT_GE(x.timestamp, last_dep_time); last_dep_time = x.timestamp; ++deprcv; };
     auto accf = [&last_acc_time, &accrcv](accelerometer_data &&x) { EXPECT_GE(x.timestamp, last_acc_time); last_acc_time = x.timestamp; ++accrcv; };
     auto gyrf = [&last_gyr_time, &gyrrcv](gyro_data &&x) { EXPECT_GE(x.timestamp, last_gyr_time); last_gyr_time = x.timestamp; ++gyrrcv; };
+    auto fast_accf = [&fast_accrcv](const accelerometer_data &x) { ++fast_accrcv; };
+    auto fast_gyrf = [&fast_gyrrcv](const gyro_data &x) { ++fast_gyrrcv; };
 
-    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(camf, depthf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, jitter);
+    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(camf, depthf, accf, gyrf, fast_accf, fast_gyrf, fusion_queue::latency_strategy::BALANCED, jitter);
 
     auto start = sensor_clock::now();
     
@@ -165,6 +185,8 @@ TEST(SensorFusionQueue, Threading)
     gyrothread.join();
     accelthread.join();
     q->stop_sync();
+    EXPECT_EQ(fast_accrcv, accsent);
+    EXPECT_EQ(fast_gyrrcv, gyrsent);
 }
 
 TEST(ThreadedDispatch, DropLate)
@@ -174,8 +196,10 @@ TEST(ThreadedDispatch, DropLate)
     auto depthf = [&last_time](image_depth16 &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     auto accf = [&last_time](accelerometer_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, sensor_clock::time_point(std::chrono::microseconds(17000))); };
     auto gyrf = [&last_time](gyro_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, sensor_clock::time_point(std::chrono::microseconds(30000))); };
+    auto fast_accf = [&last_time](const accelerometer_data &x) { };
+    auto fast_gyrf = [&last_time](const gyro_data &x) { };
     
-    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(camf, depthf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
+    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(camf, depthf, accf, gyrf, fast_accf, fast_gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
     
     q->start_sync(true);
     
@@ -250,8 +274,10 @@ TEST(SensorFusionQueue, SameTime)
     auto depthf = [&last_time, &deprcv](image_depth16 &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; ++deprcv; };
     auto accf = [&last_time, &accrcv](accelerometer_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; ++accrcv; };
     auto gyrf = [&last_time, &gyrrcv](gyro_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; ++gyrrcv; };
+    auto fast_accf = [](const accelerometer_data &x) { };
+    auto fast_gyrf = [](const gyro_data &x) { };
 
-    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(camf, depthf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
+    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(camf, depthf, accf, gyrf, fast_accf, fast_gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
 
     q->start_sync(true);
 

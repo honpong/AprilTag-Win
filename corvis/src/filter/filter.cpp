@@ -187,6 +187,8 @@ void filter_mini_accelerometer_measurement(struct filter * f, const acceleromete
     struct sensor_accelerometer &accelerometer = *data.source;
     v3 meas = m_map(accelerometer.intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2);
 
+    //TODO: if out of order, project forward in time
+    
     auto obs_a = std::make_unique<observation_accelerometer>(*data.source, f->mini_state, f->mini_state.imu.extrinsics, f->mini_state.imu.intrinsics, data.timestamp, data.timestamp);
     obs_a->meas = meas;
     obs_a->variance = f->a_variance;
@@ -200,6 +202,8 @@ void filter_mini_gyroscope_measurement(struct filter * f, const gyro_data &data)
     struct sensor_gyroscope &gyroscope = *data.source;
     v3 meas = m_map(gyroscope.intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s);
 
+    //TODO: if out of order, project forward in time
+    
     auto obs_w = std::make_unique<observation_gyroscope>(*data.source, f->mini_state, f->mini_state.imu.extrinsics, f->mini_state.imu.intrinsics, data.timestamp, data.timestamp);
     obs_w->meas = meas;
     obs_w->variance = f->w_variance;

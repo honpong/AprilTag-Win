@@ -109,7 +109,12 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 
         bool docallback = true;
         if(isProcessingVideo)
+        {
             docallback = filter_image_measurement(&sfm, data);
+            //TODO: locking on mini state
+            sfm.mini_state.copy_from(sfm.s);
+            queue->dispatch_buffered_to_fast_path();
+        }
         else
             //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
             docallback = sfm.s.orientation_initialized;
@@ -188,7 +193,35 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         }
     };
     
-    queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
+    auto fast_gyr_fn = [this](const gyro_data &data)
+    {
+        if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
+        filter_mini_gyroscope_measurement(&sfm, data);
+        rc_Data callback_data;
+        callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
+        callback_data.type = rc_SENSOR_TYPE_GYROSCOPE;
+        callback_data.path = rc_DATA_PATH_FAST;
+        callback_data.id = data.source->id;
+        v_map(callback_data.angular_velocity_rad__s.v) = v_map(data.angular_velocity_rad__s);
+            
+        update_data(&callback_data);
+    };
+
+    auto fast_acc_fn = [this](const accelerometer_data &data)
+    {
+        if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
+        filter_mini_accelerometer_measurement(&sfm, data);
+        rc_Data callback_data;
+        callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
+        callback_data.type = rc_SENSOR_TYPE_ACCELEROMETER;
+        callback_data.path = rc_DATA_PATH_FAST;
+        callback_data.id = data.source->id;
+        v_map(callback_data.acceleration_m__s2.v) = v_map(data.acceleration_m__s2);
+        
+        update_data(&callback_data);
+    };
+
+    queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, fast_acc_fn, fast_gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)

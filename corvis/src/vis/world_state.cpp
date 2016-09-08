@@ -662,10 +662,10 @@ bool world_state::update_vertex_arrays(bool show_only_good)
     {
         VertexData v;
         set_color(&v, 255, 206, 100, 255); // path color
-        set_position(&v, (float)p.g.T.x()+.001, (float)p.g.T.y(), (float)p.g.T.z());
+        set_position(&v, (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
         path_mini_vertex.push_back(v);
     }
-
+    
     path_gt_vertex.clear();
     for(auto p : path_gt)
     {

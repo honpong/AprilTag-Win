@@ -87,6 +87,8 @@ public:
                  const std::function<void(image_depth16 &&)> &depth_func,
                  const std::function<void(accelerometer_data &&)> &accelerometer_func,
                  const std::function<void(gyro_data &&)> &gyro_func,
+                 const std::function<void(const accelerometer_data &)> &fast_accelerometer_func,
+                 const std::function<void(const gyro_data &)> &fast_gyro_func,
                  latency_strategy s,
                  sensor_clock::duration max_jitter);
     ~fusion_queue();
@@ -108,7 +110,9 @@ public:
     void receive_gyro(gyro_data&& x);
     void dispatch_sync(std::function<void()> fn);
     void dispatch_async(std::function<void()> fn);
-
+    
+    void dispatch_buffered_to_fast_path();
+    
     latency_strategy strategy;
 
 private:
@@ -128,6 +132,8 @@ private:
     std::function<void(image_depth16 &&)> depth_receiver;
     std::function<void(accelerometer_data &&)> accel_receiver;
     std::function<void(gyro_data &&)> gyro_receiver;
+    std::function<void(const accelerometer_data &)> fast_accel_receiver;
+    std::function<void(const gyro_data &)> fast_gyro_receiver;
     
     sensor_queue<image_gray8, 6> camera_queue;
     sensor_queue<image_depth16, 6> depth_queue;

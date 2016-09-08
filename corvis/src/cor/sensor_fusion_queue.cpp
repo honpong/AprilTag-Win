@@ -115,6 +115,8 @@ fusion_queue::fusion_queue(const std::function<void(image_gray8 &&)> &camera_fun
                            const std::function<void(image_depth16 &&)> &depth_func,
                            const std::function<void(accelerometer_data &&)> &accelerometer_func,
                            const std::function<void(gyro_data &&)> &gyro_func,
+                           const std::function<void(const accelerometer_data &)> &fast_accelerometer_func,
+                           const std::function<void(const gyro_data &)> &fast_gyro_func,
                            latency_strategy s,
                            sensor_clock::duration max_jitter):
                 strategy(s),
@@ -122,6 +124,8 @@ fusion_queue::fusion_queue(const std::function<void(image_gray8 &&)> &camera_fun
                 depth_receiver(depth_func),
                 accel_receiver(accelerometer_func),
                 gyro_receiver(gyro_func),
+                fast_accel_receiver(fast_accelerometer_func),
+                fast_gyro_receiver(fast_gyro_func),
                 camera_queue(mutex, cond, active),
                 depth_queue(mutex, cond, active),
                 accel_queue(mutex, cond, active),
@@ -174,12 +178,14 @@ void fusion_queue::receive_camera(image_gray8&& x)
 
 void fusion_queue::receive_accelerometer(accelerometer_data&& x)
 {
+    fast_accel_receiver(x); //Locking handled by receiver
     accel_queue.push(std::move(x));
     if(singlethreaded) dispatch_singlethread(false);
 }
 
 void fusion_queue::receive_gyro(gyro_data&& x)
 {
+    fast_gyro_receiver(x); //Locking handled by receiver
     gyro_queue.push(std::move(x));
     if(singlethreaded) dispatch_singlethread(false);
 }
@@ -501,5 +507,10 @@ void fusion_queue::dispatch_singlethread(bool force)
     std::unique_lock<std::mutex> lock(mutex);
     while(dispatch_next(lock, force)); //always be greedy - could have multiple pieces of data buffered
     lock.unlock();
+}
+
+void fusion_queue::dispatch_buffered_to_fast_path()
+{
+    //TODO: implement dispatching of all buffered data to the fast path
 }
 

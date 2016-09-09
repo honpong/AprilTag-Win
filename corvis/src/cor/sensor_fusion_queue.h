@@ -23,14 +23,119 @@ template<typename T, int size>
 class sensor_queue
 {
 public:
-    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv);
-    void reset();
-    bool empty() const { return count == 0; }
-    bool full() const { return count == size; }
-    bool push(T&& x); //Doesn't block. Returns false if the queue is full or data arrived out of order
-    T pop(const std::unique_lock<std::mutex> &lock); // assumes the lock is already held
-    sensor_clock::time_point get_next_time(const std::unique_lock<std::mutex> &lock, sensor_clock::time_point last_global_dispatched);
+    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv): period(0), mutex(mx), cond(cnd), active(actv), readpos(0), writepos(0), count(0)
+    {
+    }
+    
+    void reset()
+    {
+        period = std::chrono::duration<double, std::micro>(0);
+        last_in = sensor_clock::time_point();
+        last_out = sensor_clock::time_point();
+        
+        drop_full = 0;
+        drop_late = 0;
+        total_in = 0;
+        total_out = 0;
+        stats = stdev<1>();
+#ifdef DEBUG
+        hist = histogram{200};
+#endif
+        
+        for(int i = 0; i < size; ++i)
+        {
+            storage[i] = T();
+        }
+        
+        readpos = 0;
+        writepos = 0;
+        count = 0;
+    }
+    
+    bool push(T&& x)
+    {
+        std::unique_lock<std::mutex> lock(mutex);
+        if(!active)
+        {
+            lock.unlock();
+            return false;
+        }
+        
+        sensor_clock::time_point time = x.timestamp;
+#ifdef DEBUG
+        assert(time >= last_in);
+#endif
+        if(last_in != sensor_clock::time_point())
+        {
+            sensor_clock::duration delta = time - last_in;
+            stats.data(v<1>{(f_t)delta.count()});
+#ifdef DEBUG
+            hist.data((unsigned int)std::chrono::duration_cast<std::chrono::milliseconds>(delta).count());
+#endif
+            if(period == std::chrono::duration<double, std::micro>(0)) period = delta;
+            else
+            {
+                const float alpha = .1f;
+                period = alpha * delta + (1.f - alpha) * period;
+            }
+        }
+        last_in = time;
+        
+        ++total_in;
+        
+        if(count == size) {
+            pop(lock);
+            ++drop_full;
+        }
+        
+        storage[writepos] = std::move(x);
+        writepos = (writepos + 1) % size;
+        ++count;
+        
+        lock.unlock();
+        cond.notify_one();
+        return true;
+    }
+    
+    sensor_clock::time_point get_next_time(const std::unique_lock<std::mutex> &lock, sensor_clock::time_point last_global_dispatched)
+    {
+        while(count && (storage[readpos].timestamp < last_global_dispatched || storage[readpos].timestamp <= last_out)) {
+            pop(lock);
+            ++drop_late;
+        }
+        return count ? storage[readpos].timestamp : sensor_clock::time_point();
+    }
+    
+    const T * peek_next(const T * current, const std::unique_lock<std::mutex> &lock)
+    {
+        if(count == 0) return nullptr;
+        if(current == nullptr) return &storage[readpos];
+        int index = current - &(storage[0]);
+        int used = index - readpos;
+        if(used < 0) used += size;
+        if(used + 1 >= count) return nullptr;
+        return &storage[(index + 1) % size];
+    }
 
+    T pop(const std::unique_lock<std::mutex> &lock)
+    {
+#ifdef DEBUG
+        assert(count);
+#endif
+        
+        last_out = storage[readpos].timestamp;
+        --count;
+        ++total_out;
+        
+        int oldpos = readpos;
+        readpos = (readpos + 1) % size;
+        return std::move(storage[oldpos]);
+    }
+    
+    bool empty() const { return count == 0; }
+
+    bool full() const { return count == size; }
+    
     std::chrono::duration<double, std::micro> period;
     sensor_clock::time_point last_in;
     sensor_clock::time_point last_out;

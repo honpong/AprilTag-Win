@@ -304,3 +304,50 @@ TEST(SensorFusionQueue, SameTime)
     EXPECT_EQ(gyrrcv, 1);
     EXPECT_EQ(accrcv, 1);
 }
+
+TEST(SensorQueue, Iterate)
+{
+    std::mutex mx;
+    std::condition_variable cnd;
+    bool active = true;
+    accelerometer_data x;
+    const accelerometer_data *d = nullptr;
+    sensor_queue<accelerometer_data, 10> queue(mx, cnd, active);
+
+    std::unique_lock<std::mutex> lock(mx);
+    EXPECT_EQ(queue.peek_next(d, lock), nullptr);
+    lock.unlock();
+    for(int i = 0; i < 10; ++i)
+    {
+        x.timestamp = sensor_clock::time_point(std::chrono::microseconds(i));
+        queue.push(std::move(x));
+    }
+    lock.lock();
+    for(int i = 0; i < 10; ++i)
+    {
+        d = queue.peek_next(d, lock);
+        EXPECT_EQ(d->timestamp.time_since_epoch().count(), i);
+    }
+    EXPECT_EQ(d = queue.peek_next(d, lock), nullptr);
+    
+    EXPECT_EQ(queue.pop(lock).timestamp.time_since_epoch().count(), 0);
+    EXPECT_EQ(queue.pop(lock).timestamp.time_since_epoch().count(), 1);
+    lock.unlock();
+    x.timestamp = sensor_clock::time_point(std::chrono::microseconds(10));
+    queue.push(std::move(x));
+    x.timestamp = sensor_clock::time_point(std::chrono::microseconds(11));
+    queue.push(std::move(x));
+    
+    lock.lock();
+    for(int i = 2; i < 12; ++i)
+    {
+        d = queue.peek_next(d, lock);
+        EXPECT_EQ(d->timestamp.time_since_epoch().count(), i);
+    }
+    EXPECT_EQ(queue.peek_next(d, lock), nullptr);
+    for(int i = 2; i < 12; ++i)
+    {
+        EXPECT_EQ(queue.pop(lock).timestamp.time_since_epoch().count(), i);
+    }
+    lock.unlock();
+}

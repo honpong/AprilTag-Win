@@ -465,7 +465,23 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
             break;
 
         case rc_SENSOR_TYPE_ACCELEROMETER:
+            {
+            int p = get_plot_by_name("ameas" + std::to_string(data->id));
+            observe_plot_item(timestamp_us, p, "ameas_x", (float)data->acceleration_m__s2.x);
+            observe_plot_item(timestamp_us, p, "ameas_y", (float)data->acceleration_m__s2.y);
+            observe_plot_item(timestamp_us, p, "ameas_z", (float)data->acceleration_m__s2.z);
+            }
+            break;
+
+
         case rc_SENSOR_TYPE_GYROSCOPE:
+            {
+            int p = get_plot_by_name("wmeas" + std::to_string(data->id));
+            observe_plot_item(timestamp_us, p, "wmeas_x", (float)data->angular_velocity_rad__s.x);
+            observe_plot_item(timestamp_us, p, "wmeas_y", (float)data->angular_velocity_rad__s.y);
+            observe_plot_item(timestamp_us, p, "wmeas_z", (float)data->angular_velocity_rad__s.z);
+            }
+
         default:
             break;
     }

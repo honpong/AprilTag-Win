@@ -119,6 +119,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
             rc_Data callback_data;
             callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
             callback_data.type = rc_SENSOR_TYPE_IMAGE;
+            callback_data.path = rc_DATA_PATH_SLOW;
             callback_data.id = data.source->id;
             callback_data.image.width = data.width;
             callback_data.image.height = data.height;
@@ -141,6 +142,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
             rc_Data callback_data;
             callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
             callback_data.type = rc_SENSOR_TYPE_DEPTH;
+            callback_data.path = rc_DATA_PATH_SLOW;
             callback_data.id = data.source->id;
             callback_data.depth.width = data.width;
             callback_data.depth.height = data.height;
@@ -161,6 +163,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
             rc_Data callback_data;
             callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
             callback_data.type = rc_SENSOR_TYPE_ACCELEROMETER;
+            callback_data.path = rc_DATA_PATH_SLOW;
             callback_data.id = data.source->id;
             v_map(callback_data.acceleration_m__s2.v) = v_map(data.acceleration_m__s2);
 
@@ -177,6 +180,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
             rc_Data callback_data;
             callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
             callback_data.type = rc_SENSOR_TYPE_GYROSCOPE;
+            callback_data.path = rc_DATA_PATH_SLOW;
             callback_data.id = data.source->id;
             v_map(callback_data.angular_velocity_rad__s.v) = v_map(data.angular_velocity_rad__s);
 

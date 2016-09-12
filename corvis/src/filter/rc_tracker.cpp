@@ -579,15 +579,16 @@ bool rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
     return true;
 }
 
-rc_Pose rc_getPose(const rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a)
+rc_Pose rc_getPose(const rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path)
 {
-    if(trace) trace_log->info("rc_getPose");
-    transformation total = tracker->sfm.origin * tracker->sfm.s.loop_offset;
-    if (v) v_map(v->W.v) = total.Q * tracker->sfm.s.Q.v * tracker->sfm.s.w.v; // we use body rotational velocity, but we export spatial
-    if (a) v_map(a->W.v) = total.Q * tracker->sfm.s.Q.v * tracker->sfm.s.dw.v;
-    if (v) v_map(v->T.v) = total.Q * tracker->sfm.s.V.v;
-    if (a) v_map(a->T.v) = total.Q * tracker->sfm.s.a.v;
-    rc_Pose pose_m = to_rc_Pose(total * transformation(tracker->sfm.s.Q.v, tracker->sfm.s.T.v));
+    if(trace) trace_log->info(path == rc_DATA_PATH_FAST ? "rc_getFastPose" : "rc_getPose");
+    const state_motion &s = path == rc_DATA_PATH_FAST ? tracker->sfm.mini_state : tracker->sfm.s;
+    transformation total = tracker->sfm.origin * s.loop_offset;
+    if (v) v_map(v->W.v) = total.Q * s.Q.v * s.w.v; // we use body rotational velocity, but we export spatial
+    if (a) v_map(a->W.v) = total.Q * s.Q.v * s.dw.v;
+    if (v) v_map(v->T.v) = total.Q * s.V.v;
+    if (a) v_map(a->T.v) = total.Q * s.a.v;
+    rc_Pose pose_m = to_rc_Pose(total * transformation(s.Q.v, s.T.v));
     // assert(pose_m == tracker->get_transformation()); // FIXME: this depends on the specific implementation of ->get_transformation()
     if(trace) rc_trace(pose_m);
     return pose_m;

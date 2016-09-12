@@ -109,6 +109,12 @@ typedef enum rc_SensorType
     rc_SENSOR_TYPE_DEPTH = 3,
 } rc_SensorType;
 
+typedef enum rc_DataPath
+{
+    rc_DATA_PATH_SLOW = 0,
+    rc_DATA_PATH_FAST = 1,
+} rc_DataPath;
+
 typedef struct rc_Feature
 {
     uint64_t id;
@@ -152,6 +158,7 @@ typedef struct rc_Data
     rc_Sensor id;
     rc_SensorType type;
     rc_Timestamp time_us;
+    rc_DataPath path;
     union {
         rc_ImageData image;
         rc_ImageData depth;
@@ -394,7 +401,7 @@ RCTRACKER_API void rc_setPose(rc_Tracker *tracker, const rc_Pose pose_m);
  @param velocity Velocity (rad/s, m/s), the rotation components in in body fixed coordinates, the translational is in world coordinates (may be NULL)
  @param acceleration Position (rad/s/s, m/s/s) these are the derivatives of the velocities (may be NULL)
 */
-RCTRACKER_API rc_Pose rc_getPose(const rc_Tracker *tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a);
+RCTRACKER_API rc_Pose rc_getPose(const rc_Tracker *tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path);
 RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Sensor camera_id, rc_Feature **features_px);
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);

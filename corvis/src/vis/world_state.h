@@ -60,6 +60,7 @@ private:
     std::map<uint64_t, MapNode> map_nodes;
     std::map<uint64_t, Feature> features;
     std::vector<Position, Eigen::aligned_allocator<Position> > path;
+    std::vector<Position, Eigen::aligned_allocator<Position> > path_mini;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_gt;
     uint64_t current_feature_timestamp;
     uint64_t current_timestamp;
@@ -82,6 +83,7 @@ public:
     std::vector<VertexData> grid_vertex;
     std::vector<VertexData> axis_vertex;
     std::vector<VertexData> path_vertex;
+    std::vector<VertexData> path_mini_vertex;
     std::vector<VertexData> path_gt_vertex;
     std::vector<VertexData> feature_vertex;
     std::vector<VertexData> orientation_vertex;
@@ -113,7 +115,7 @@ public:
                        float world_forward_x, float world_forward_y, float world_forward_z,
                        float body_forward_x, float body_forward_y, float body_forward_z);
     void observe_feature(uint64_t timestamp, const rc_Feature & feature);
-    void observe_position(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
+    void observe_position(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz, bool fast);
     void observe_position_gt(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_plot_item(uint64_t timestamp_us, size_t plot_index, std::string plot_name, float value);
     void observe_image(uint64_t timestamp_us, uint8_t * image, int width, int height, int stride);

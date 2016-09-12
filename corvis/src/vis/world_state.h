@@ -31,6 +31,7 @@ typedef struct _position {
 typedef struct _ImageData {
     uint8_t * image;
     int width, height;
+    uint64_t timestamp;
 } ImageData;
 
 typedef struct _mapnode {

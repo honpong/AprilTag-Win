@@ -129,6 +129,7 @@ void world_state::observe_image(uint64_t timestamp, rc_Sensor camera_id, const r
         cameras.resize(camera_id+1);
 
     ImageData & image = cameras[camera_id].image;
+    image.timestamp = timestamp;
     update_image_size(data, image);
 
     for(int i=0; i<data.height; i++)
@@ -433,8 +434,6 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
         case rc_SENSOR_TYPE_IMAGE:
 
             {
-            current_feature_timestamp = timestamp_us;
-
             rc_Feature * features;
             int nfeatures = rc_getFeatures(tracker, data->id, &features);
 
@@ -590,7 +589,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         //auto feature_id = item.first;
         auto f = item.second;
         VertexData v, vp;
-        if (f.last_seen == current_feature_timestamp) {
+        if (f.last_seen == cameras[f.camera_id].image.timestamp) {
             if(f.good) {
                 generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 88, 247, 98, 255);
                 set_color(&v, 88, 247, 98, 255);

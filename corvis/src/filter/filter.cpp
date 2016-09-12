@@ -400,6 +400,8 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
 
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 {
+    if(data.id != 0) return true;
+
     auto start = std::chrono::steady_clock::now();
     auto timestamp = sensor_clock::micros_to_tp(data.time_us);
     auto &accelerometer = *f->accelerometers[data.id];
@@ -463,6 +465,8 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
 {
+    if(data.id != 0) return true;
+
     auto start = std::chrono::steady_clock::now();
     auto timestamp = sensor_clock::micros_to_tp(data.time_us);
     auto &gyroscope = *f->gyroscopes[data.id];
@@ -731,6 +735,8 @@ static int filter_add_features(struct filter *f, sensor_clock::time_point timest
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 {
+    if(data.id != 0) return true;
+
     f->recent_depth = data.make_copy();
     const uint16_t * d1 = (uint16_t *)data.depth.image;
     const uint16_t * d2 = (uint16_t *)f->recent_depth->depth.image;
@@ -746,6 +752,8 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 
 bool filter_image_measurement(struct filter *f, const sensor_data & data)
 {
+    if(data.id != 0) return true;
+
     auto start = std::chrono::steady_clock::now();
     auto & camera = *f->cameras[data.id];
 

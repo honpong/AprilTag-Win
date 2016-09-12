@@ -298,8 +298,6 @@ bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t l
 
 void sensor_fusion::receive_data(sensor_data && data)
 {
-    if(data.id != 0) return;
-
     queue->receive_sensor_data(std::move(data));
     //TODO: Fix buffering
 }

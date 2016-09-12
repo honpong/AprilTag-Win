@@ -147,7 +147,6 @@ struct rc_Tracker: public sensor_fusion
 rc_Tracker * rc_create()
 {
     rc_Tracker * tracker = new rc_Tracker();
-    tracker->sfm.ignore_lateness = true; //Don't drop frames to keep up
     if(trace) trace_log->info("rc_create");
 
     return tracker;

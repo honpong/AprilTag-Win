@@ -15,11 +15,7 @@
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    filter(): s(cov)
-    {
-        //these need to be initialized to defaults - everything else is handled in filter_initialize that is called every time
-        ignore_lateness = false;
-    }
+    filter(): s(cov) {}
     RCSensorFusionRunState run_state;
     int min_group_add;
     int max_group_add;
@@ -42,7 +38,7 @@ struct filter {
     bool speed_failed, speed_warning;
     bool numeric_failed;
     sensor_clock::time_point speed_warning_time;
-    bool ignore_lateness;
+    bool ignore_lateness = true;
     stdev<3> gyro_stability, accel_stability; //TODOMSM - either just first sensor or per-sensor
     sensor_clock::time_point stable_start;
     bool calibration_bad;

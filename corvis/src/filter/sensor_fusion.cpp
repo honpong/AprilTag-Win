@@ -254,7 +254,6 @@ void sensor_fusion::start_offline()
 {
     threaded = false;
     buffering = false;
-    sfm.ignore_lateness = true;
     filter_initialize(&sfm);
     filter_start_dynamic(&sfm);
     isSensorFusionRunning = true;

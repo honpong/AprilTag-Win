@@ -597,6 +597,8 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
 
     std::vector<rc_Feature> & features = tracker->stored_features[camera_id];
     features.clear();
+
+    if(camera_id == 0) {
     transformation G = tracker->get_transformation();
     for(auto g: tracker->sfm.s.groups.children) {
         for(auto i: g->features.children) {
@@ -621,6 +623,7 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
                 features.push_back(feat);
             }
         }
+    }
     }
 
     if (features_px) *features_px = features.data();

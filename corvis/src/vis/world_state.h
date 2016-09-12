@@ -2,6 +2,7 @@
 #define __CORVIS_WORLD_STATE_H__
 
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <list>
 #include <mutex>
@@ -62,6 +63,7 @@ public:
 
     typedef std::map<std::string, plot_data> plot;
 private:
+    std::unordered_map<std::string, size_t> plots_by_name;
     std::map<int, std::map<uint16_t, Sensor, std::less<uint16_t>, Eigen::aligned_allocator<std::pair<const uint16_t, Sensor> > > > sensors;
     std::map<uint64_t, MapNode> map_nodes;
     std::map<uint64_t, Feature> features;
@@ -76,6 +78,8 @@ private:
     void update_plots(rc_Tracker * tracker, const rc_Data * data);
     void update_sensors(rc_Tracker * tracker, const rc_Data * data);
     void update_map(rc_Tracker * tracker, const rc_Data * data);
+
+    size_t get_plot_by_name(std::string plot_name);
 
     std::vector<plot> plots;
     bool dirty{true};

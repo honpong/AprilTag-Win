@@ -52,6 +52,14 @@ size_t world_state::change_plot_key(size_t plot_index, size_t key_index)
     return (size_t)-1;
 }
 
+size_t world_state::get_plot_by_name(std::string plot_name)
+{
+    std::lock_guard<std::mutex> lock(plot_lock);
+    auto inserted = plots_by_name.emplace(plot_name, plots_by_name.size());
+
+    return inserted.first->second;
+}
+
 void world_state::observe_plot_item(uint64_t timestamp, size_t index, std::string name, float value)
 {
     plot_lock.lock();
@@ -222,23 +230,24 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     const struct filter * f = &((sensor_fusion *)tracker)->sfm;
     uint64_t timestamp_us = data->time_us;
 
-    int p = 0;
+    int p;
 
+    p = get_plot_by_name("accel");
     if (f->observations.recent_a.get()) {
         observe_plot_item(timestamp_us, p, "a_x", (float)f->observations.recent_a->meas[0]);
         observe_plot_item(timestamp_us, p, "a_y", (float)f->observations.recent_a->meas[1]);
         observe_plot_item(timestamp_us, p, "a_z", (float)f->observations.recent_a->meas[2]);
     }
-    p++;
 
+    p = get_plot_by_name("gyro");
     if (f->observations.recent_g.get()) {
         observe_plot_item(timestamp_us, p, "g_x", (float)f->observations.recent_g->meas[0]);
         observe_plot_item(timestamp_us, p, "g_y", (float)f->observations.recent_g->meas[1]);
         observe_plot_item(timestamp_us, p, "g_z", (float)f->observations.recent_g->meas[2]);
     }
-    p++;
 
     if (f->s.camera.intrinsics.estimate) {
+        p = get_plot_by_name("distortion");
         if (f->s.camera.intrinsics.fisheye)
             observe_plot_item(timestamp_us, p, "kw", (float)f->s.camera.intrinsics.k1.v);
         else {
@@ -246,115 +255,114 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
             observe_plot_item(timestamp_us, p, "k2", (float)f->s.camera.intrinsics.k2.v);
             observe_plot_item(timestamp_us, p, "k3", (float)f->s.camera.intrinsics.k3.v);
         }
-        p++;
 
+        p = get_plot_by_name("focal");
         observe_plot_item(timestamp_us, p, "F", (float)(f->s.camera.intrinsics.focal_length.v * f->s.camera.intrinsics.image_height));
-        p++;
 
+        p = get_plot_by_name("center");
         observe_plot_item(timestamp_us, p, "C_x", (float)(f->s.camera.intrinsics.center_x.v * f->s.camera.intrinsics.image_height + f->s.camera.intrinsics.image_width  / 2. - .5));
         observe_plot_item(timestamp_us, p, "C_y", (float)(f->s.camera.intrinsics.center_y.v * f->s.camera.intrinsics.image_height + f->s.camera.intrinsics.image_height / 2. - .5));
-        p++;
     }
 
     if (f->s.camera.extrinsics.estimate) {
+        p = get_plot_by_name("extrinsics_T");
         observe_plot_item(timestamp_us, p, "Tc_x", (float)f->s.camera.extrinsics.T.v[0]);
         observe_plot_item(timestamp_us, p, "Tc_y", (float)f->s.camera.extrinsics.T.v[1]);
         observe_plot_item(timestamp_us, p, "Tc_z", (float)f->s.camera.extrinsics.T.v[2]);
-        p++;
 
+        p = get_plot_by_name("extrinsics_W");
         observe_plot_item(timestamp_us, p, "Wc_x", (float)to_rotation_vector(f->s.camera.extrinsics.Q.v).raw_vector()[0]);
         observe_plot_item(timestamp_us, p, "Wc_y", (float)to_rotation_vector(f->s.camera.extrinsics.Q.v).raw_vector()[1]);
         observe_plot_item(timestamp_us, p, "Wc_z", (float)to_rotation_vector(f->s.camera.extrinsics.Q.v).raw_vector()[2]);
-        p++;
     }
 
+    p = get_plot_by_name("translation");
     observe_plot_item(timestamp_us, p, "T_x", (float)f->s.T.v[0]);
     observe_plot_item(timestamp_us, p, "T_y", (float)f->s.T.v[1]);
     observe_plot_item(timestamp_us, p, "T_z", (float)f->s.T.v[2]);
-    p++;
 
+    p = get_plot_by_name("translation var");
     observe_plot_item(timestamp_us, p, "Tvar_x", (float)f->s.T.variance()[0]);
     observe_plot_item(timestamp_us, p, "Tvar_y", (float)f->s.T.variance()[1]);
     observe_plot_item(timestamp_us, p, "Tvar_z", (float)f->s.T.variance()[2]);
-    p++;
 
+    p = get_plot_by_name("gyro bias");
     observe_plot_item(timestamp_us, p, "wbias_x", (float)f->s.imu.intrinsics.w_bias.v[0]);
     observe_plot_item(timestamp_us, p, "wbias_y", (float)f->s.imu.intrinsics.w_bias.v[1]);
     observe_plot_item(timestamp_us, p, "wbias_z", (float)f->s.imu.intrinsics.w_bias.v[2]);
-    p++;
 
+    p = get_plot_by_name("gyro bias var");
     observe_plot_item(timestamp_us, p, "var-wbias_x", (float)f->s.imu.intrinsics.w_bias.variance()[0]);
     observe_plot_item(timestamp_us, p, "var-wbias_y", (float)f->s.imu.intrinsics.w_bias.variance()[1]);
     observe_plot_item(timestamp_us, p, "var-wbias_z", (float)f->s.imu.intrinsics.w_bias.variance()[2]);
-    p++;
 
+    p = get_plot_by_name("accel bias");
     observe_plot_item(timestamp_us, p, "abias_x", (float)f->s.imu.intrinsics.a_bias.v[0]);
     observe_plot_item(timestamp_us, p, "abias_y", (float)f->s.imu.intrinsics.a_bias.v[1]);
     observe_plot_item(timestamp_us, p, "abias_z", (float)f->s.imu.intrinsics.a_bias.v[2]);
-    p++;
 
+    p = get_plot_by_name("accel bias var");
     observe_plot_item(timestamp_us, p, "var-abias_x", (float)f->s.imu.intrinsics.a_bias.variance()[0]);
     observe_plot_item(timestamp_us, p, "var-abias_y", (float)f->s.imu.intrinsics.a_bias.variance()[1]);
     observe_plot_item(timestamp_us, p, "var-abias_z", (float)f->s.imu.intrinsics.a_bias.variance()[2]);
-    p++;
 
     for (const auto &a : f->accelerometers) {
+        p = get_plot_by_name("accel inn" + std::to_string(a->id));
         observe_plot_item(timestamp_us, p, "a-inn-mean_x", (float)a->inn_stdev.mean[0]);
         observe_plot_item(timestamp_us, p, "a-inn-mean_y", (float)a->inn_stdev.mean[1]);
         observe_plot_item(timestamp_us, p, "a-inn-mean_z", (float)a->inn_stdev.mean[2]);
-        p++;
     }
 
     for (const auto &g : f->gyroscopes) {
+        p = get_plot_by_name("gyro inn" + std::to_string(g->id));
         observe_plot_item(timestamp_us, p, "g-inn-mean_x", (float)g->inn_stdev.mean[0]);
         observe_plot_item(timestamp_us, p, "g-inn-mean_y", (float)g->inn_stdev.mean[1]);
         observe_plot_item(timestamp_us, p, "g-inn-mean_z", (float)g->inn_stdev.mean[2]);
-        p++;
     }
 
     for (const auto &c : f->cameras) {
+        p = get_plot_by_name("vinn" + std::to_string(c->id));
         observe_plot_item(timestamp_us, p, "v-inn-mean_x", (float)c->inn_stdev.mean[0]);
         observe_plot_item(timestamp_us, p, "v-inn-mean_y", (float)c->inn_stdev.mean[1]);
-        p++;
     }
 
     if (f->observations.recent_a.get()) {
+        p = get_plot_by_name("ainn");
         observe_plot_item(timestamp_us, p, "a-inn_x", (float)f->observations.recent_a->innovation(0));
         observe_plot_item(timestamp_us, p, "a-inn_y", (float)f->observations.recent_a->innovation(1));
         observe_plot_item(timestamp_us, p, "a-inn_z", (float)f->observations.recent_a->innovation(2));
     }
-    p++;
 
     if (f->observations.recent_g.get()) {
+        p = get_plot_by_name("ginn");
         observe_plot_item(timestamp_us, p, "g-inn_x", (float)f->observations.recent_g->innovation(0));
         observe_plot_item(timestamp_us, p, "g-inn_y", (float)f->observations.recent_g->innovation(1));
         observe_plot_item(timestamp_us, p, "g-inn_z", (float)f->observations.recent_g->innovation(2));
     }
-    p++;
 
+    p = get_plot_by_name("fmap x");
     for (auto &of : f->observations.recent_f_map)
       observe_plot_item(timestamp_us,  p, "v-inn_x " + std::to_string(of.first), (float)of.second->innovation(0));
-    p++;
 
+    p = get_plot_by_name("fmap y");
     for (auto &of : f->observations.recent_f_map)
       observe_plot_item(timestamp_us,  p, "v-inn_y " + std::to_string(of.first), (float)of.second->innovation(1));
-    p++;
 
+    p = get_plot_by_name("fmap r");
     for (auto &of : f->observations.recent_f_map)
       observe_plot_item(timestamp_us, p, "v-inn_r " + std::to_string(of.first), (float)hypot(of.second->innovation(0), of.second->innovation(1)));
-    p++;
 
+    p = get_plot_by_name("median depth var");
     observe_plot_item(timestamp_us, p, "median-depth-var", (float)f->median_depth_variance);
-    p++;
     
+    p = get_plot_by_name("acc timer");
     observe_plot_item(timestamp_us, p, "accel timer", f->accel_timer.count());
-    p++;
 
+    p = get_plot_by_name("gyro timer");
     observe_plot_item(timestamp_us, p, "gyro timer", f->gyro_timer.count());
-    p++;
 
+    p = get_plot_by_name("image timer");
     observe_plot_item(timestamp_us, p, "image timer", f->image_timer.count());
-    p++;
 }
 
 void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)

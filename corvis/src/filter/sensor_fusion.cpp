@@ -117,7 +117,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         update_status();
         if(docallback) {
             rc_Data callback_data;
-            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
+            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp - data.exposure_time / 2);
             callback_data.type = rc_SENSOR_TYPE_IMAGE;
             callback_data.id = data.source->id;
             callback_data.image.shutter_time_us = std::chrono::duration_cast<std::chrono::microseconds>(data.exposure_time).count();
@@ -140,7 +140,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         update_status();
         if (filter_depth_measurement(&sfm, data)) {
             rc_Data callback_data;
-            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
+            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp - data.exposure_time / 2);
             callback_data.type = rc_SENSOR_TYPE_DEPTH;
             callback_data.id = data.source->id;
             callback_data.depth.shutter_time_us = std::chrono::duration_cast<std::chrono::microseconds>(data.exposure_time).count();

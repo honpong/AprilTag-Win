@@ -250,7 +250,6 @@ public:
 
     bool map_enabled{false};
     mapper map;
-    transformation loop_offset;
     bool loop_closed{false};
     
     void update_feature_tracks(const image_gray8 &image);

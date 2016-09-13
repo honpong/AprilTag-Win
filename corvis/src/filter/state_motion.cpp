@@ -195,6 +195,7 @@ void state_motion::copy_from(const state_motion &other)
 
     orientation_initialized = other.orientation_initialized;
     current_time = other.current_time;
+    loop_offset = other.loop_offset;
 
     remap();
 

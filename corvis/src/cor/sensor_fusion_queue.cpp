@@ -324,7 +324,7 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 
     if(strategy == latency_strategy::ELIMINATE_DROPS)
     {
-        if(camera_queue.empty() || accel_queue.empty() || gyro_queue.empty())
+        if((wait_for_camera && camera_queue.empty()) || accel_queue.empty() || gyro_queue.empty())
             return false;
         return true;
     }

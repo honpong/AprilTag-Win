@@ -21,7 +21,44 @@
 #include <unordered_map>
 #include <deque>
 
-struct sensor_data;
+class sensor_stats
+{
+public:
+    uint64_t last_in{0};
+    uint64_t in{0};
+    uint64_t out{0};
+    uint64_t dropped{0};
+    uint64_t period{0};
+
+    bool expected(uint64_t now_us, uint64_t jitter_us) {
+        if(in == 0) return true;
+
+        return last_in + period > now_us - jitter_us;
+    }
+
+    bool late(uint64_t now_us, uint64_t jitter_us) {
+        if(in == 0) return false;
+
+        return last_in + period > now_us + jitter_us;
+    }
+
+    void receive(uint64_t timestamp) {
+        if(in > 0) {
+            uint64_t delta = timestamp - last_in;
+            period = period*(1-0.1) + delta*0.1;
+        }
+        last_in = timestamp;
+        in++;
+    }
+
+    void dispatch() { out++; }
+    void drop() { dropped++; }
+
+    std::string to_string() const {
+        return std::to_string(in) + " in, " + std::to_string(out) + " out, " + std::to_string(dropped) + " dropped, " + std::to_string(period) + " period (us)";
+    }
+};
+
 /*
  Intention is that this fusion queue outputs a causal stream of data:
  A measurement with timestamp t is *complete* at that time, and all measurements are delivered in order relative to these timestamps
@@ -65,10 +102,6 @@ public:
     uint64_t total_out{0};
 
 private:
-    int cameras{0};
-    int depths{0};
-    int accelerometers{0};
-    int gyroscopes{0};
     void clear();
     void stop_async();
     void stop_immediately();
@@ -95,6 +128,7 @@ private:
     std::unordered_map<uint64_t, uint64_t> queue_count;
     std::unordered_map<uint64_t, uint64_t> dispatch_count;
     std::unordered_map<uint64_t, sensor_clock::time_point> latest_seen;
+    std::unordered_map<uint64_t, sensor_stats> stats;
     std::vector<uint64_t> required_sensors;
     std::deque<sensor_data> queue;
 

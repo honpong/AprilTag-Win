@@ -59,11 +59,34 @@ fusion_queue::~fusion_queue()
     wait_until_finished();
 }
 
+std::string id_string(uint64_t global_id)
+{
+    int type = global_id / MAX_SENSORS;
+    std::string type_string = "UNKNOWN";
+    switch(type) {
+        case rc_SENSOR_TYPE_IMAGE: type_string = "Camera"; break;
+        case rc_SENSOR_TYPE_DEPTH: type_string = "Depth"; break;
+        case rc_SENSOR_TYPE_ACCELEROMETER: type_string = "Accelerometer"; break;
+        case rc_SENSOR_TYPE_GYROSCOPE: type_string = "Gyroscope"; break;
+    }
+    int id = global_id - type * MAX_SENSORS;
+    return type_string + std::to_string(id);
+}
+
 std::string fusion_queue::get_stats()
 {
-    std::string stats;
+    std::string statstr;
+    std::vector<uint64_t> keys;
+    for(auto kv : stats) {
+        keys.push_back(kv.first);
+    }
+    std::sort(keys.begin(), keys.end());
+
+    for(auto k : keys) {
+        statstr += id_string(k) + " " + stats[k].to_string() + "\n";
+    }
     
-    return stats;
+    return statstr;
 }
 
 void fusion_queue::receive_sensor_data(sensor_data && x)
@@ -204,13 +227,16 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
 {
     std::lock_guard<std::mutex> data_guard(data_lock);
     total_in++;
+    auto s = stats.emplace(global_id, sensor_stats{});
+    s.first->second.receive(x.time_us);
+
     auto timestamp = sensor_clock::micros_to_tp(x.time_us);
     auto inserted = latest_seen.emplace(global_id, timestamp);
     if (!inserted.second) { // if already a timestamp there
         if (inserted.first->second < timestamp) {
             inserted.first->second = timestamp;
         } else {
-            //drop_late++;
+            s.first->second.drop();
             return;
         }
     }
@@ -277,8 +303,10 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
 
     sensor_data data = pop_queue();
 
-    lock.unlock();
     uint64_t id = data.id + data.type*MAX_SENSORS;
+    stats[id].dispatch();
+
+    lock.unlock();
     data_receiver(std::move(data));
     queue_count[id]--;
     dispatch_count.emplace(id, 0).first->second++;

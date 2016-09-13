@@ -579,9 +579,11 @@ bool rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
     return true;
 }
 
-rc_Pose rc_getPose(const rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path)
+rc_Pose rc_getPose(rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path)
 {
     if(trace) trace_log->info(path == rc_DATA_PATH_FAST ? "rc_getFastPose" : "rc_getPose");
+    std::unique_lock<std::mutex> lock(tracker->sfm.mini_mutex, std::defer_lock);
+    if(path == rc_DATA_PATH_FAST) lock.lock();
     const state_motion &s = path == rc_DATA_PATH_FAST ? tracker->sfm.mini_state : tracker->sfm.s;
     transformation total = tracker->sfm.origin * s.loop_offset;
     if (v) v_map(v->W.v) = total.Q * s.Q.v * s.w.v; // we use body rotational velocity, but we export spatial

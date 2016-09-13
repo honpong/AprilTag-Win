@@ -111,9 +111,9 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         if(isProcessingVideo)
         {
             docallback = filter_image_measurement(&sfm, data);
-            //TODO: locking on mini state
             sfm.catchup_state.copy_from(sfm.s);
             queue->dispatch_buffered_to_fast_path();
+            std::lock_guard<std::mutex>(sfm.mini_mutex);
             sfm.mini_state.copy_from(sfm.catchup_state);
         }
         else

@@ -401,7 +401,7 @@ RCTRACKER_API void rc_setPose(rc_Tracker *tracker, const rc_Pose pose_m);
  @param velocity Velocity (rad/s, m/s), the rotation components in in body fixed coordinates, the translational is in world coordinates (may be NULL)
  @param acceleration Position (rad/s/s, m/s/s) these are the derivatives of the velocities (may be NULL)
 */
-RCTRACKER_API rc_Pose rc_getPose(const rc_Tracker *tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path);
+RCTRACKER_API rc_Pose rc_getPose(rc_Tracker *tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path);
 RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Sensor camera_id, rc_Feature **features_px);
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);

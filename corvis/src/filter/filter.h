@@ -29,6 +29,7 @@ struct filter {
     int last_packet_type;
     state s;
     state_motion mini_state, catchup_state;
+    std::mutex mini_mutex;
     
     covariance cov;
     covariance mini_cov, catchup_cov;

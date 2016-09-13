@@ -163,9 +163,9 @@ private:
     std::condition_variable &cond;
     const bool &active;
     
-    int readpos;
-    int writepos;
-    std::atomic<int> count;
+    int readpos { 0 };
+    int writepos { 0 };
+    std::atomic<int> count { 0 };
 };
 
 /*
@@ -194,6 +194,8 @@ public:
                  const std::function<void(gyro_data &&)> &gyro_func,
                  const std::function<void(const accelerometer_data &)> &fast_accelerometer_func,
                  const std::function<void(const gyro_data &)> &fast_gyro_func,
+                 const std::function<void(const accelerometer_data &)> &catchup_accelerometer_func,
+                 const std::function<void(const gyro_data &)> &catchup_gyro_func,
                  latency_strategy s,
                  sensor_clock::duration max_jitter);
     ~fusion_queue();
@@ -239,6 +241,8 @@ private:
     std::function<void(gyro_data &&)> gyro_receiver;
     std::function<void(const accelerometer_data &)> fast_accel_receiver;
     std::function<void(const gyro_data &)> fast_gyro_receiver;
+    std::function<void(const accelerometer_data &)> catchup_accel_receiver;
+    std::function<void(const gyro_data &)> catchup_gyro_receiver;
     
     sensor_queue<image_gray8, 6> camera_queue;
     sensor_queue<image_depth16, 6> depth_queue;

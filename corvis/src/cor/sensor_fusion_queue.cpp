@@ -14,6 +14,8 @@ fusion_queue::fusion_queue(const std::function<void(image_gray8 &&)> &camera_fun
                            const std::function<void(gyro_data &&)> &gyro_func,
                            const std::function<void(const accelerometer_data &)> &fast_accelerometer_func,
                            const std::function<void(const gyro_data &)> &fast_gyro_func,
+                           const std::function<void(const accelerometer_data &)> &catchup_accelerometer_func,
+                           const std::function<void(const gyro_data &)> &catchup_gyro_func,
                            latency_strategy s,
                            sensor_clock::duration max_jitter):
                 strategy(s),
@@ -23,6 +25,8 @@ fusion_queue::fusion_queue(const std::function<void(image_gray8 &&)> &camera_fun
                 gyro_receiver(gyro_func),
                 fast_accel_receiver(fast_accelerometer_func),
                 fast_gyro_receiver(fast_gyro_func),
+                catchup_accel_receiver(catchup_accelerometer_func),
+                catchup_gyro_receiver(catchup_gyro_func),
                 camera_queue(mutex, cond, active),
                 depth_queue(mutex, cond, active),
                 accel_queue(mutex, cond, active),
@@ -408,6 +412,27 @@ void fusion_queue::dispatch_singlethread(bool force)
 
 void fusion_queue::dispatch_buffered_to_fast_path()
 {
-    //TODO: implement dispatching of all buffered data to the fast path
+    std::unique_lock<std::mutex> lock(mutex);
+    const accelerometer_data *a = accel_queue.peek_next(nullptr, lock);
+    const gyro_data *g = gyro_queue.peek_next(nullptr, lock);
+    while(g || a)
+    {
+        if(a)
+        {
+            if(!g || a->timestamp <= g->timestamp)
+            {
+                catchup_accel_receiver(*a);
+                a = accel_queue.peek_next(a, lock);
+            }
+        }
+        if(g)
+        {
+            if(!a || g->timestamp <= a->timestamp)
+            {
+                catchup_gyro_receiver(*g);
+                g = gyro_queue.peek_next(g, lock);
+            }
+        }
+    }
 }
 

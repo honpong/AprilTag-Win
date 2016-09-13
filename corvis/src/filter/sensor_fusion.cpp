@@ -112,8 +112,9 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         {
             docallback = filter_image_measurement(&sfm, data);
             //TODO: locking on mini state
-            sfm.mini_state.copy_from(sfm.s);
+            sfm.catchup_state.copy_from(sfm.s);
             queue->dispatch_buffered_to_fast_path();
+            sfm.mini_state.copy_from(sfm.catchup_state);
         }
         else
             //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
@@ -196,7 +197,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     auto fast_gyr_fn = [this](const gyro_data &data)
     {
         if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
-        filter_mini_gyroscope_measurement(&sfm, data);
+        filter_mini_gyroscope_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data);
         rc_Data callback_data;
         callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
         callback_data.type = rc_SENSOR_TYPE_GYROSCOPE;
@@ -210,7 +211,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     auto fast_acc_fn = [this](const accelerometer_data &data)
     {
         if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
-        filter_mini_accelerometer_measurement(&sfm, data);
+        filter_mini_accelerometer_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data);
         rc_Data callback_data;
         callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
         callback_data.type = rc_SENSOR_TYPE_ACCELEROMETER;
@@ -220,8 +221,20 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         
         update_data(&callback_data);
     };
+    
+    auto catchup_gyr_fn = [this](const gyro_data &data)
+    {
+        if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
+        filter_mini_gyroscope_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
+    };
 
-    queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, fast_acc_fn, fast_gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
+    auto catchup_acc_fn = [this](const accelerometer_data &data)
+    {
+        if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
+        filter_mini_accelerometer_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
+    };
+
+    queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, fast_acc_fn, fast_gyr_fn, catchup_acc_fn, catchup_gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)

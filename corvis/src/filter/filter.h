@@ -15,7 +15,7 @@
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    filter(): s(cov), mini_state(mini_cov)
+    filter(): s(cov), mini_state(mini_cov), catchup_state(catchup_cov)
     {
         //these need to be initialized to defaults - everything else is handled in filter_initialize that is called every time
         ignore_lateness = false;
@@ -28,10 +28,10 @@ struct filter {
     sensor_clock::time_point last_packet_time;
     int last_packet_type;
     state s;
-    state_motion mini_state;
+    state_motion mini_state, catchup_state;
     
     covariance cov;
-    covariance mini_cov;
+    covariance mini_cov, catchup_cov;
     std::unique_ptr<spdlog::logger> &log = s.log;
 
     //TODOMSM
@@ -73,7 +73,7 @@ struct filter {
     v3 a_bias_start, w_bias_start; //for tracking calibration progress
     
     observation_queue observations;
-    observation_queue mini_observations;
+    observation_queue mini_observations, catchup_observations;
     
     camera_control_interface camera_control; //TODOMSM - per camera, but possibly deprecate
     image_depth16 recent_depth; //TODOMSM - per depth
@@ -95,8 +95,8 @@ bool filter_depth_measurement(struct filter *f, const image_depth16 & depth);
 bool filter_image_measurement(struct filter *f, const image_gray8 & image);
 bool filter_accelerometer_measurement(struct filter *f, const accelerometer_data &data);
 bool filter_gyroscope_measurement(struct filter *f, const gyro_data &data);
-void filter_mini_accelerometer_measurement(struct filter *f, const accelerometer_data &data);
-void filter_mini_gyroscope_measurement(struct filter *f, const gyro_data &data);
+void filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const accelerometer_data &data);
+void filter_mini_gyroscope_measurement(struct filter * f, observation_queue &queue, state_motion &state, const gyro_data &data);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);

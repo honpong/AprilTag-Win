@@ -18,7 +18,7 @@ inline std::ostream & operator <<(std::ostream & s, const std::vector<sensor_dat
     return s;
 }
 
-bool compare_sensor_data(const sensor_data &d1, const sensor_data &d2) {
+static bool compare_sensor_data(const sensor_data &d1, const sensor_data &d2) {
     if(d1.time_us == d2.time_us)
         return d1.type > d2.type;
     return d1.time_us > d2.time_us;

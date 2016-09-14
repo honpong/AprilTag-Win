@@ -738,14 +738,6 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
     if(data.id != 0) return true;
 
     f->recent_depth = data.make_copy();
-    const uint16_t * d1 = (uint16_t *)data.depth.image;
-    const uint16_t * d2 = (uint16_t *)f->recent_depth->depth.image;
-    bool good = true;
-    for(int y = 0; y < data.depth.height; y++)
-        for(int x = 0; x < data.depth.width; x++) {
-            if(d1[y*data.depth.width + x] != d2[y*data.depth.width + x])
-                good = false;
-        }
     f->has_depth = true;
     return true;
 }

@@ -67,20 +67,20 @@ public:
             assert(image.height && image.stride);
             void * res_image = malloc(image.stride*image.height);
             memcpy(res_image, image.image, image.stride*image.height);
-            return std::unique_ptr<sensor_data>(new sensor_data(time_us, type, id,
+            return std::make_unique<sensor_data>(time_us, type, id,
                       image.shutter_time_us, image.width, image.height, image.stride, image.format,
                       res_image, [](void * handle) {
                         free(handle);
-                      }, res_image));
+                      }, res_image);
             }
             break;
 
         case rc_SENSOR_TYPE_ACCELEROMETER:
-            return std::unique_ptr<sensor_data>(new sensor_data(time_us, type, id, acceleration_m__s2));
+            return std::make_unique<sensor_data>(time_us, type, id, acceleration_m__s2);
             break;
 
         case rc_SENSOR_TYPE_GYROSCOPE:
-            return std::unique_ptr<sensor_data>(new sensor_data(time_us, type, id, angular_velocity_rad__s));
+            return std::make_unique<sensor_data>(time_us, type, id, angular_velocity_rad__s);
             break;
         }
     }

@@ -66,8 +66,8 @@ std::string id_string(uint64_t global_id)
     switch(type) {
         case rc_SENSOR_TYPE_IMAGE: type_string = "Camera"; break;
         case rc_SENSOR_TYPE_DEPTH: type_string = "Depth"; break;
-        case rc_SENSOR_TYPE_ACCELEROMETER: type_string = "Accelerometer"; break;
-        case rc_SENSOR_TYPE_GYROSCOPE: type_string = "Gyroscope"; break;
+        case rc_SENSOR_TYPE_ACCELEROMETER: type_string = "Accel"; break;
+        case rc_SENSOR_TYPE_GYROSCOPE: type_string = "Gyro"; break;
     }
     int id = global_id - type * MAX_SENSORS;
     return type_string + std::to_string(id);
@@ -83,7 +83,7 @@ std::string fusion_queue::get_stats()
     std::sort(keys.begin(), keys.end());
 
     for(auto k : keys) {
-        statstr += id_string(k) + " " + stats[k].to_string() + "\n";
+        statstr += id_string(k) + "\t" + stats[k].to_string() + "\n";
     }
     
     return statstr;

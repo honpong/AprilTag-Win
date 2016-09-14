@@ -65,8 +65,8 @@ public:
 
     std::string to_string() const {
         std::ostringstream os;
-        os << in << " in, " << out << " out, " << dropped << " dropped, " << period << " period (us)\n";
-        os << "\ttiming stats: " << "mean " << var.mean << ", stdev " << var.stdev_ << ", max " << var.maximum;
+        os << in << " in, " << out << " out, " << dropped << " dropped\t" << period << "us period ";
+        os << "(" << "mean " << var.mean[0] << ", stdev " << var.stdev_[0] << ", max " << var.maximum << ")";
         return os.str();
 
     }

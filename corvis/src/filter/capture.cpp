@@ -38,39 +38,39 @@ void capture::write_packet(packet_t * p)
     packets_written++;
 }
 
-void capture::write_accelerometer_data(uint16_t sensor_id, uint64_t timestamp, const float data[3])
+void capture::write_accelerometer_data(uint16_t sensor_id, uint64_t timestamp_us, const float data[3])
 {
     uint32_t bytes = 3*sizeof(float);
-    packet_t *buf = packet_alloc(packet_accelerometer, bytes, sensor_id, timestamp);
+    packet_t *buf = packet_alloc(packet_accelerometer, bytes, sensor_id, timestamp_us);
     memcpy(buf->data, data, bytes);
     write_packet(buf);
     free(buf);
 }
 
-void capture::write_gyroscope_data(uint16_t sensor_id, uint64_t timestamp, const float data[3])
+void capture::write_gyroscope_data(uint16_t sensor_id, uint64_t timestamp_us, const float data[3])
 {
     uint32_t bytes = 3*sizeof(float);
-    packet_t *buf = packet_alloc(packet_gyroscope, bytes, sensor_id, timestamp);
+    packet_t *buf = packet_alloc(packet_gyroscope, bytes, sensor_id, timestamp_us);
     memcpy(buf->data, data, bytes);
     write_packet(buf);
     free(buf);
 }
 
-void capture::write_image_raw(uint16_t sensor_id, uint64_t timestamp, uint64_t exposure_time, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
+void capture::write_image_raw(uint16_t sensor_id, uint64_t timestamp_us, uint64_t exposure_time_us, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
 {
     int format_size = sizeof(uint8_t);
     if(format == rc_FORMAT_DEPTH16)
         format_size = sizeof(uint16_t);
 
     auto bytes = 16 + width * height * format_size;
-    packet_t *buf = packet_alloc(packet_image_raw, bytes, sensor_id, timestamp);
+    packet_t *buf = packet_alloc(packet_image_raw, bytes, sensor_id, timestamp_us);
     packet_image_raw_t *ip = (packet_image_raw_t *)buf;
 
 
     ip->width = width;
     ip->height = height;
     ip->stride = width*format_size;
-    ip->exposure_time_us = exposure_time;
+    ip->exposure_time_us = exposure_time_us;
     ip->format = format;
     for(int y = 0 ; y < height; ++y)
     {

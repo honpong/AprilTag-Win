@@ -29,6 +29,10 @@ public:
     uint64_t out{0};
     uint64_t dropped{0};
     uint64_t period{0};
+    stdev<1> var{};
+#ifdef DEBUG
+    histogram hist{200};
+#endif
 
     bool expected(uint64_t now_us, uint64_t jitter_us) {
         if(in == 0) return true;
@@ -45,6 +49,11 @@ public:
     void receive(uint64_t timestamp) {
         if(in > 0) {
             uint64_t delta = timestamp - last_in;
+            var.data(v<1>{(f_t)delta});
+#ifdef DEBUG
+            hist.data(delta);
+#endif
+
             period = period*(1-0.1) + delta*0.1;
         }
         last_in = timestamp;
@@ -55,7 +64,11 @@ public:
     void drop() { dropped++; }
 
     std::string to_string() const {
-        return std::to_string(in) + " in, " + std::to_string(out) + " out, " + std::to_string(dropped) + " dropped, " + std::to_string(period) + " period (us)";
+        std::ostringstream os;
+        os << in << " in, " << out << " out, " << dropped << " dropped, " << period << " period (us)\n";
+        os << "\ttiming stats: " << "mean " << var.mean << ", stdev " << var.stdev_ << ", max " << var.maximum;
+        return os.str();
+
     }
 };
 

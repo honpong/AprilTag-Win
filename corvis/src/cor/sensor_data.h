@@ -60,7 +60,10 @@ public:
 
     std::unique_ptr<sensor_data> make_copy() const
     {
-        if(type == rc_SENSOR_TYPE_IMAGE || type == rc_SENSOR_TYPE_DEPTH) {
+        switch(type) {
+        case rc_SENSOR_TYPE_IMAGE:
+        case rc_SENSOR_TYPE_DEPTH:
+            {
             assert(image.height && image.stride);
             void * res_image = malloc(image.stride*image.height);
             memcpy(res_image, image.image, image.stride*image.height);
@@ -69,16 +72,16 @@ public:
                       res_image, [](void * handle) {
                         free(handle);
                       }, res_image));
-        }
-        else if(type == rc_SENSOR_TYPE_ACCELEROMETER) {
+            }
+            break;
+
+        case rc_SENSOR_TYPE_ACCELEROMETER:
             return std::unique_ptr<sensor_data>(new sensor_data(time_us, type, id, acceleration_m__s2));
-        }
-        else if(type == rc_SENSOR_TYPE_GYROSCOPE) {
+            break;
+
+        case rc_SENSOR_TYPE_GYROSCOPE:
             return std::unique_ptr<sensor_data>(new sensor_data(time_us, type, id, angular_velocity_rad__s));
-        }
-        else {
-            assert(0 && "Tried to make a copy of an unknown type");
-            exit(1);
+            break;
         }
     }
 };

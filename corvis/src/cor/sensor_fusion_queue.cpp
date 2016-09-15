@@ -248,6 +248,9 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
 
 uint64_t fusion_queue::next_timestamp()
 {
+    // the front of the queue has the earliest pushed item (in the
+    // case of FIFO) or the max heap item (in all other latency
+    // strategies)
     return queue.front().time_us;
 }
 

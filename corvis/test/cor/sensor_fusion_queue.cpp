@@ -5,10 +5,10 @@
 std::unique_ptr<fusion_queue> setup_queue(std::function<void(sensor_data && x)> dataf, fusion_queue::latency_strategy strategy, sensor_clock::duration latency)
 {
     std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(dataf, strategy,latency);
-    q->require_sensor(rc_SENSOR_TYPE_IMAGE, 0);
-    q->require_sensor(rc_SENSOR_TYPE_DEPTH, 0);
-    q->require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, 0);
-    q->require_sensor(rc_SENSOR_TYPE_GYROSCOPE, 0);
+    q->require_sensor(rc_SENSOR_TYPE_IMAGE, 0, 0);
+    q->require_sensor(rc_SENSOR_TYPE_DEPTH, 0, 0);
+    q->require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, 0, 0);
+    q->require_sensor(rc_SENSOR_TYPE_GYROSCOPE, 0, 0);
 
     return q;
 }
@@ -242,7 +242,7 @@ TEST(ThreadedDispatch, DropLate)
              EXPECT_NE(x.time_us, 30000);
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(5000));
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_LATENCY, std::chrono::microseconds(5000));
     
     q->start_sync();
     

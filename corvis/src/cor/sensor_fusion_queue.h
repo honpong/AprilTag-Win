@@ -24,32 +24,47 @@
 class sensor_stats
 {
 public:
+    sensor_stats(uint64_t maximum_latency_us) :
+        max_latency_us(maximum_latency_us) {};
+
+    uint64_t max_latency_us;
     uint64_t last_in{0};
     uint64_t in{0};
+    uint64_t in_queue{0};
     uint64_t out{0};
     uint64_t dropped{0};
     uint64_t period{0};
     stdev<1> var{};
+    stdev<1> latency{};
 #ifdef DEBUG
     histogram hist{200};
 #endif
 
-    bool expected(uint64_t now_us, uint64_t jitter_us) {
-        if(in == 0) return true;
+    bool expected(uint64_t time_us) {
+        if(in < 2) return true;
 
-        return last_in + period > now_us - jitter_us;
+        return time_us > last_in + period - 1000;
     }
 
-    bool late(uint64_t now_us, uint64_t jitter_us) {
-        if(in == 0) return false;
+    bool late_dynamic_latency(uint64_t now_us) {
+        if(in < 2) return false;
 
-        return last_in + period > now_us + jitter_us;
+        return now_us > last_in + period + latency.mean[0] + latency.stdev_[0]*3;
     }
 
-    void receive(uint64_t timestamp) {
-        if(in > 0) {
+    bool late_fixed_latency(uint64_t now_us) {
+        if(in < 2) return false;
+
+        return now_us > last_in + period + max_latency_us;
+    }
+
+    void receive(uint64_t now, uint64_t timestamp) {
+        in_queue++;
+        if(in > 0 && timestamp >= last_in) {
             uint64_t delta = timestamp - last_in;
+            if(period == 0) period = delta;
             var.data(v<1>{(f_t)delta});
+            latency.data(v<1>{(f_t)(now - timestamp)});
 #ifdef DEBUG
             hist.data(delta);
 #endif
@@ -60,13 +75,14 @@ public:
         in++;
     }
 
-    void dispatch() { out++; }
+    void dispatch() { out++; in_queue--; }
     void drop() { dropped++; }
 
     std::string to_string() const {
         std::ostringstream os;
         os << in << " in, " << out << " out, " << dropped << " dropped\t" << period << "us period ";
         os << "(" << "mean " << var.mean[0] << ", stdev " << var.stdev_[0] << ", max " << var.maximum << ")";
+        os << "\n\tLatency: " << "mean " << latency.mean[0] << ", stdev " << latency.stdev_[0] << ", max " << latency.maximum;
         return os.str();
 
     }
@@ -84,7 +100,7 @@ public:
     {
         FIFO, //pass data through the queue without any modification
         MINIMIZE_LATENCY, //minimize latency
-        DYNAMIC_LATENCY, //start with high latency and dynamically adjust as sensor data arrives
+        DYNAMIC_LATENCY, //estimate relative latency and use it to determine drops
         ELIMINATE_DROPS //we always wait until the data in the other queues is ready
     };
 
@@ -101,7 +117,7 @@ public:
     void start_buffering();
     void stop();
 
-    void require_sensor(rc_SensorType type, rc_Sensor id);
+    void require_sensor(rc_SensorType type, rc_Sensor id, uint64_t max_latency_us);
 
     void receive_sensor_data(sensor_data &&);
     void dispatch_sync(std::function<void()> fn);
@@ -113,6 +129,7 @@ public:
 
     uint64_t total_in{0};
     uint64_t total_out{0};
+    uint64_t newest_received_us{0};
 
 private:
     void clear();
@@ -127,7 +144,7 @@ private:
     void dispatch_buffer();
     void push_queue(uint64_t global_id, sensor_data &&);
     sensor_data pop_queue();
-
+    uint64_t next_timestamp();
 
     bool all_have_data();
 
@@ -138,9 +155,6 @@ private:
     
     std::function<void(sensor_data &&)> data_receiver;
     
-    std::unordered_map<uint64_t, uint64_t> queue_count;
-    std::unordered_map<uint64_t, uint64_t> dispatch_count;
-    std::unordered_map<uint64_t, sensor_clock::time_point> latest_seen;
     std::unordered_map<uint64_t, sensor_stats> stats;
     std::vector<uint64_t> required_sensors;
     std::deque<sensor_data> queue;

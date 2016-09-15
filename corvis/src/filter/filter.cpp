@@ -720,6 +720,41 @@ bool filter_depth_measurement(struct filter *f, const image_depth16 & depth)
     return true;
 }
 
+void filter_detect_features(struct filter *f, const image_gray8 &image)
+{
+    //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
+    int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize - 6;
+    if(space > f->max_group_add) space = f->max_group_add;
+    if(space >= f->min_group_add) {
+        if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
+#ifdef TEST_POSDEF
+            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
+#endif
+            f->s.disable_orientation_only();
+#ifdef TEST_POSDEF
+            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
+#endif
+        }
+        int detected_features = filter_add_features(f, image, space);
+        int active_features = f->s.feature_count();
+        if(active_features < state_vision_group::min_feats) {
+            f->log->info("detector failure: only {} features after add", active_features);
+            f->detector_failed = true;
+            f->calibration_bad = true;
+            if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) f->s.enable_orientation_only();
+        } else {
+            //don't go active until we can successfully add features
+            if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
+                f->run_state = RCSensorFusionRunStateRunning;
+                f->log->trace("When moving from steady init to running:");
+                print_calibration(f);
+                f->active_time = image.timestamp;
+            }
+            f->detector_failed = false;
+        }
+    }
+}
+
 bool filter_image_measurement(struct filter *f, const image_gray8 & image)
 {
     auto start = std::chrono::steady_clock::now();
@@ -833,41 +868,9 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
         f->max_velocity = 0.;
         f->median_depth_variance = 1.;
     }
-
-    //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
-    int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize - 6;
-    if(space > f->max_group_add) space = f->max_group_add;
-    if(space >= f->min_group_add) {
-        if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-#ifdef TEST_POSDEF
-            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
-#endif
-            f->s.disable_orientation_only();
-#ifdef TEST_POSDEF
-            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
-#endif
-        }
-        int detected_features = filter_add_features(f, image, space);
-        int active_features = f->s.feature_count();
-        if(active_features < state_vision_group::min_feats) {
-            f->log->info("detector failure: only {} features after add", active_features);
-            f->detector_failed = true;
-            f->calibration_bad = true;
-            if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) f->s.enable_orientation_only();
-        } else {
-            //don't go active until we can successfully add features
-            if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-                f->run_state = RCSensorFusionRunStateRunning;
-                f->log->trace("When moving from steady init to running:");
-                print_calibration(f);
-                f->active_time = time;
-            }
-            f->detector_failed = false;
-        }
-    }
-
+    
     f->median_depth_variance = f->s.median_depth_variance();
-
+    
     float velocity = (float)f->s.V.v.norm();
     if(velocity > f->max_velocity) f->max_velocity = velocity;
     
@@ -877,6 +880,9 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     
     auto stop = std::chrono::steady_clock::now();
     f->image_timer = stop-start;
+    
+    //do it async if we are running normally, but synchronously if we are orientation only (doesn't make a difference for mini state, and need features in order to initialize)
+    filter_detect_features(f)
 
     return true;
 }

@@ -132,6 +132,7 @@ public:
     uint64_t newest_received_us{0};
 
 private:
+    stdev<1> queue_latency{};
     void clear();
     void stop_async();
     void stop_immediately();

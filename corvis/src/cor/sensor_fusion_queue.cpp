@@ -88,6 +88,8 @@ std::string fusion_queue::get_stats()
     for(auto k : keys) {
         statstr << id_string(k) << "\t" + stats.find(k)->second.to_string() << "\n";
     }
+
+    statstr << "Queue latency: " << queue_latency << "\n";
     
     return statstr.str();
 }
@@ -310,6 +312,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
 
     uint64_t id = data.id + data.type*MAX_SENSORS;
     stats.find(id)->second.dispatch();
+    queue_latency.data({(f_t)(newest_received_us - data.time_us)});
 
     lock.unlock();
     data_receiver(std::move(data));

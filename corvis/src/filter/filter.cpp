@@ -1085,6 +1085,8 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.enable_orientation_only();
     f->s.remap();
     f->s.maxstatesize = MAXSTATESIZE;
+
+    f->mini_state.copy_from(f->s);
 }
 
 #include "calibration_json.h"

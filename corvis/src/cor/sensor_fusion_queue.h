@@ -114,7 +114,7 @@ public:
     void start_async();
     void start_sync();
     void start_singlethreaded();
-    void start_buffering();
+    void start_buffering(uint64_t buffer_time_us);
     void stop();
 
     void require_sensor(rc_SensorType type, rc_Sensor id, uint64_t max_latency_us);
@@ -167,6 +167,7 @@ private:
     sensor_clock::time_point last_dispatched;
     
     uint64_t max_latency_us;
+    uint64_t buffer_time_us{0};
 };
 
 #endif /* defined(__sensor_fusion_queue__) */

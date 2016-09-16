@@ -98,7 +98,7 @@ void fusion_queue::receive_sensor_data(sensor_data && x)
 {
     uint64_t id = x.id + MAX_SENSORS*x.type;
     push_queue(id, std::move(x));
-    if(singlethreaded) dispatch_singlethread(false);
+    if(singlethreaded || buffer_time_us) dispatch_singlethread(false);
     else cond.notify_one();
 }
 
@@ -117,10 +117,11 @@ void fusion_queue::dispatch_async(std::function<void()> fn)
     if(singlethreaded) dispatch_singlethread(false);
 }
 
-void fusion_queue::start_buffering()
+void fusion_queue::start_buffering(uint64_t buffer_time)
 {
     std::unique_lock<std::mutex> lock(control_lock);
     active = true;
+    buffer_time_us = buffer_time;
     lock.unlock();
 }
 
@@ -149,6 +150,7 @@ void fusion_queue::start_singlethreaded()
 {
     singlethreaded = true;
     active = true;
+    buffer_time_us = 0;
     dispatch_singlethread(false); //dispatch any waiting data in case we were buffering
 }
 
@@ -206,6 +208,7 @@ void fusion_queue::runloop()
 {
     std::unique_lock<std::mutex> lock(control_lock);
     active = true;
+    buffer_time_us = 0;
     //If we were launched synchronously, wake up the launcher
     lock.unlock();
     cond.notify_one();
@@ -309,6 +312,17 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     std::lock_guard<std::mutex> data_guard(data_lock);
 
     if(queue.empty()) return false;
+
+    if(buffer_time_us) {
+        uint64_t next_time_us = next_timestamp();
+        while(newest_received_us - next_time_us > buffer_time_us) {
+            sensor_data dropped = pop_queue();
+            uint64_t id = dropped.id + dropped.type*MAX_SENSORS;
+            stats.find(id)->second.drop();
+            next_time_us = next_timestamp();
+        }
+        return false;
+    }
 
     if(!force && !ok_to_dispatch()) return false;
 

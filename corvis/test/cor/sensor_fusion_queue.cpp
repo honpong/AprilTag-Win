@@ -423,3 +423,106 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
     EXPECT_EQ(gyrrcv, 5);
     EXPECT_EQ(accrcv, 5);
 }
+
+TEST(SensorFusionQueue, BufferNoDispatch)
+{
+    int camrcv = 0;
+    int deprcv = 0;
+    int gyrrcv = 0;
+    int accrcv = 0;
+    uint64_t buffer_time_us = 50e3;
+    uint64_t start_time_us = 1e6;
+    uint64_t last_time_us = 0;
+    uint64_t extra_time_us = 100e3;
+
+    auto dataf = [&last_time_us, &start_time_us, &buffer_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv](sensor_data && x) {
+        EXPECT_GE(x.time_us, last_time_us);
+        last_time_us = x.time_us;
+        switch(x.type) {
+            case rc_SENSOR_TYPE_IMAGE: ++camrcv; break;
+            case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
+            case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
+            case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
+        }
+    };
+
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+
+    q->start_buffering(buffer_time_us);
+
+    uint64_t time_us;
+    for(time_us = 0; time_us < start_time_us; time_us += 2000) {
+        q->receive_sensor_data(std::move(gyro_for_time(time_us)));
+        q->receive_sensor_data(std::move(accel_for_time(time_us)));
+        q->receive_sensor_data(std::move(gray8_for_time(time_us)));
+        q->receive_sensor_data(std::move(depth16_for_time(time_us)));
+    }
+
+    q->stop();
+
+    EXPECT_EQ(camrcv, 0);
+    EXPECT_EQ(deprcv, 0);
+    EXPECT_EQ(gyrrcv, 0);
+    EXPECT_EQ(accrcv, 0);
+}
+
+TEST(SensorFusionQueue, Buffering)
+{
+    int camrcv = 0;
+    int deprcv = 0;
+    int gyrrcv = 0;
+    int accrcv = 0;
+    uint64_t buffer_time_us = 50e3;
+    uint64_t start_time_us = 1e6;
+    uint64_t last_time_us = 0;
+    uint64_t extra_time_us = 100e3;
+
+    auto dataf = [&last_time_us, &start_time_us, &buffer_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv](sensor_data && x) {
+        EXPECT_GE(x.time_us, start_time_us - buffer_time_us);
+        EXPECT_GE(x.time_us, last_time_us);
+        last_time_us = x.time_us;
+        switch(x.type) {
+            case rc_SENSOR_TYPE_IMAGE: ++camrcv; break;
+            case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
+            case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
+            case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
+        }
+    };
+
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+
+    q->start_buffering(buffer_time_us);
+
+    uint64_t time_us;
+    int packets = 0;
+    for(time_us = 0; time_us <= start_time_us; time_us += 2000) {
+        q->receive_sensor_data(std::move(gyro_for_time(time_us)));
+        q->receive_sensor_data(std::move(accel_for_time(time_us)));
+        q->receive_sensor_data(std::move(gray8_for_time(time_us)));
+        q->receive_sensor_data(std::move(depth16_for_time(time_us)));
+        if(time_us >= start_time_us - buffer_time_us) {
+            packets++;
+        }
+    }
+
+    // give the buffer time to catch up
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    q->start_sync();
+    // give the queue time to start 
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    for(; time_us < start_time_us + extra_time_us; time_us += 2000) {
+        q->receive_sensor_data(std::move(gyro_for_time(time_us)));
+        q->receive_sensor_data(std::move(accel_for_time(time_us)));
+        q->receive_sensor_data(std::move(gray8_for_time(time_us)));
+        q->receive_sensor_data(std::move(depth16_for_time(time_us)));
+        packets++;
+    }
+
+    q->stop();
+
+    EXPECT_EQ(camrcv, packets);
+    EXPECT_EQ(deprcv, packets);
+    EXPECT_EQ(gyrrcv, packets);
+    EXPECT_EQ(accrcv, packets);
+}

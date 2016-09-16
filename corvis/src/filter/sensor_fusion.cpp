@@ -220,7 +220,7 @@ void sensor_fusion::unpause()
 void sensor_fusion::start_buffering()
 {
     buffering = true;
-    queue->start_buffering();
+    queue->start_buffering(200000); // 200ms
 }
 
 void sensor_fusion::start_offline()

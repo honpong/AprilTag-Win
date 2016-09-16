@@ -193,7 +193,8 @@ void filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     obs_a->meas = meas;
     obs_a->variance = f->a_variance;
 
-    if(&state == &f->mini_state) std::lock_guard<std::mutex>(f->mini_mutex);
+    std::unique_lock<std::mutex> lock(f->mini_mutex, std::defer_lock);
+    if(&state == &f->mini_state) lock.lock();
     queue.observations.push_back(std::move(obs_a));
     filter_mini_process_observation_queue(f, queue, state, data.timestamp);
 }
@@ -209,7 +210,8 @@ void filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
     obs_w->meas = meas;
     obs_w->variance = f->w_variance;
 
-    if(&state == &f->mini_state) std::lock_guard<std::mutex>(f->mini_mutex);
+    std::unique_lock<std::mutex> lock(f->mini_mutex, std::defer_lock);
+    if(&state == &f->mini_state) lock.lock();
     queue.observations.push_back(std::move(obs_w));
     filter_mini_process_observation_queue(f, queue, state, data.timestamp);
 }

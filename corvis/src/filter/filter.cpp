@@ -193,7 +193,7 @@ void filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     obs_a->meas = meas;
     obs_a->variance = f->a_variance;
 
-    std::lock_guard<std::mutex>(f->mini_mutex);
+    if(&state == &f->mini_state) std::lock_guard<std::mutex>(f->mini_mutex);
     queue.observations.push_back(std::move(obs_a));
     filter_mini_process_observation_queue(f, queue, state, data.timestamp);
 }
@@ -205,12 +205,12 @@ void filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
 
     //TODO: if out of order, project forward in time
     
-    auto obs_w = std::make_unique<observation_gyroscope>(*data.source, f->mini_state, f->mini_state.imu.extrinsics, f->mini_state.imu.intrinsics, data.timestamp, data.timestamp);
+    auto obs_w = std::make_unique<observation_gyroscope>(*data.source, state, state.imu.extrinsics, state.imu.intrinsics, data.timestamp, data.timestamp);
     obs_w->meas = meas;
     obs_w->variance = f->w_variance;
 
-    std::lock_guard<std::mutex>(f->mini_mutex);
-    f->mini_observations.observations.push_back(std::move(obs_w));
+    if(&state == &f->mini_state) std::lock_guard<std::mutex>(f->mini_mutex);
+    queue.observations.push_back(std::move(obs_w));
     filter_mini_process_observation_queue(f, queue, state, data.timestamp);
 }
 
@@ -975,6 +975,7 @@ extern "C" void filter_initialize(struct filter *f)
     
     f->observations.observations.clear();
     f->mini_observations.observations.clear();
+    f->catchup_observations.observations.clear();
 
     f->s.reset();
 
@@ -1087,6 +1088,7 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.maxstatesize = MAXSTATESIZE;
 
     f->mini_state.copy_from(f->s);
+    f->catchup_state.copy_from(f->s);
 }
 
 #include "calibration_json.h"

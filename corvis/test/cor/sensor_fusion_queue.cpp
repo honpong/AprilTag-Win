@@ -56,7 +56,7 @@ TEST(SensorFusionQueue, Reorder)
 
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
     
-    q->start_sync();
+    q->start(true);
 
     q->receive_sensor_data(std::move(gyro_for_time(0)));
 
@@ -148,7 +148,7 @@ TEST(SensorFusionQueue, Threading)
 
     auto start = sensor_clock::now();
     
-    q->start_async();
+    q->start(true);
     
     std::thread camthread([&q, start, camera_interval, cam_latency, &camsent, thread_time]{
         auto now = sensor_clock::now();
@@ -218,7 +218,7 @@ TEST(SensorFusionQueue, DropOrder)
 
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
     
-    q->start_sync();
+    q->start(true);
     
     q->receive_sensor_data(std::move(gyro_for_time(0)));
     
@@ -244,7 +244,7 @@ TEST(ThreadedDispatch, DropLate)
 
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_LATENCY, 5000);
     
-    q->start_sync();
+    q->start(true);
     
     q->receive_sensor_data(std::move(gyro_for_time(0)));
 
@@ -306,7 +306,7 @@ TEST(SensorFusionQueue, SameTime)
 
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
 
-    q->start_sync();
+    q->start(true);
 
     q->receive_sensor_data(std::move(gyro_for_time(5000)));
 
@@ -346,7 +346,7 @@ TEST(SensorFusionQueue, FIFO)
 
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::FIFO, 5000);
 
-    q->start_singlethreaded();
+    q->start(false);
 
     q->receive_sensor_data(std::move(gyro_for_time(times[0])));
 
@@ -392,7 +392,7 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
 
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
 
-    q->start_sync();
+    q->start(true);
 
     q->receive_sensor_data(std::move(gyro_for_time(5000)));
     q->receive_sensor_data(std::move(gyro_for_time(6000)));
@@ -507,7 +507,7 @@ TEST(SensorFusionQueue, Buffering)
 
     // give the buffer time to catch up
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    q->start_sync();
+    q->start(true);
     // give the queue time to start 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 

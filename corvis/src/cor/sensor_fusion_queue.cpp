@@ -118,33 +118,23 @@ void fusion_queue::start_buffering(uint64_t buffer_time)
     lock.unlock();
 }
 
-void fusion_queue::start_async()
+void fusion_queue::start(bool threaded)
 {
-    if(!thread.joinable())
-    {
-        thread = std::thread(&fusion_queue::runloop, this);
-    }
-}
-
-void fusion_queue::start_sync()
-{
-    if(!thread.joinable())
-    {
-        std::unique_lock<std::mutex> lock(control_lock);
-        thread = std::thread(&fusion_queue::runloop, this);
-        while(!active)
-        {
-            cond.wait(lock);
+    singlethreaded = !threaded;
+    if(threaded) {
+        if(!thread.joinable()) {
+            std::unique_lock<std::mutex> lock(control_lock);
+            thread = std::thread(&fusion_queue::runloop, this);
+            while(!active) {
+                cond.wait(lock);
+            }
         }
     }
-}
-
-void fusion_queue::start_singlethreaded()
-{
-    singlethreaded = true;
-    active = true;
-    buffer_time_us = 0;
-    dispatch_singlethread(false); //dispatch any waiting data in case we were buffering
+    else {
+        active = true;
+        buffer_time_us = 0;
+        dispatch_singlethread(false); //dispatch any waiting data in case we were buffering
+   }
 }
 
 void fusion_queue::stop_immediately()

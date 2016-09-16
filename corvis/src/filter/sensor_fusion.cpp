@@ -177,8 +177,7 @@ void sensor_fusion::start_calibration(bool thread)
     isProcessingVideo = false;
     filter_initialize(&sfm);
     filter_start_static_calibration(&sfm);
-    if(threaded) queue->start_async();
-    else queue->start_singlethreaded();
+    queue->start(threaded);
 }
 
 void sensor_fusion::start(bool thread)
@@ -189,8 +188,7 @@ void sensor_fusion::start(bool thread)
     isProcessingVideo = true;
     filter_initialize(&sfm);
     filter_start_hold_steady(&sfm);
-    if(threaded) queue->start_async();
-    else queue->start_singlethreaded();
+    queue->start(threaded);
 }
 
 void sensor_fusion::start_unstable(bool thread)
@@ -201,8 +199,7 @@ void sensor_fusion::start_unstable(bool thread)
     isProcessingVideo = true;
     filter_initialize(&sfm);
     filter_start_dynamic(&sfm);
-    if(threaded) queue->start_async();
-    else queue->start_singlethreaded();
+    queue->start(thread);
 }
 
 void sensor_fusion::pause_and_reset_position()
@@ -231,7 +228,7 @@ void sensor_fusion::start_offline()
     filter_start_dynamic(&sfm);
     isSensorFusionRunning = true;
     isProcessingVideo = true;
-    queue->start_singlethreaded();
+    queue->start(false);
 }
 
 bool sensor_fusion::started()

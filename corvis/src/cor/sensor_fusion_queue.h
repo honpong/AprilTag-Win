@@ -141,7 +141,6 @@ private:
     bool ok_to_dispatch();
     bool dispatch_next(std::unique_lock<std::mutex> &lock, bool force);
     void dispatch_singlethread(bool force);
-    void dispatch_buffer();
     void push_queue(uint64_t global_id, sensor_data &&);
     sensor_data pop_queue();
     uint64_t next_timestamp();

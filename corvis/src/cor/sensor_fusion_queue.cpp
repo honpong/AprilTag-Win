@@ -102,13 +102,6 @@ void fusion_queue::receive_sensor_data(sensor_data && x)
     else cond.notify_one();
 }
 
-void fusion_queue::dispatch_sync(std::function<void()> fn)
-{
-    std::unique_lock<std::mutex> lock(control_lock);
-    fn();
-    lock.unlock();
-}
-
 void fusion_queue::dispatch_async(std::function<void()> fn)
 {
     std::unique_lock<std::mutex> lock(control_lock);

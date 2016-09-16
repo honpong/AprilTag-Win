@@ -120,7 +120,6 @@ public:
     void require_sensor(rc_SensorType type, rc_Sensor id, uint64_t max_latency_us);
 
     void receive_sensor_data(sensor_data &&);
-    void dispatch_sync(std::function<void()> fn);
     void dispatch_async(std::function<void()> fn);
 
     std::string get_stats();

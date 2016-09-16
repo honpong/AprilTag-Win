@@ -159,7 +159,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     }
     };
     
-    queue = std::make_unique<fusion_queue>(data_fn, strategy, std::chrono::milliseconds(500));
+    queue = std::make_unique<fusion_queue>(data_fn, strategy, 0.5e6);
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)

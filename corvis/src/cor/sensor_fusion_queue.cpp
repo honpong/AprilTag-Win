@@ -26,13 +26,13 @@ static bool compare_sensor_data(const sensor_data &d1, const sensor_data &d2) {
 
 fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> &data_func,
                            latency_strategy s,
-                           sensor_clock::duration max_latency):
+                           uint64_t maximum_latency_us):
                 strategy(s),
                 data_receiver(data_func),
                 control_func(nullptr),
                 active(false),
                 singlethreaded(false),
-                latency(max_latency)
+                max_latency_us(maximum_latency_us)
 {
 }
 
@@ -274,6 +274,7 @@ sensor_data fusion_queue::pop_queue()
 bool fusion_queue::ok_to_dispatch()
 {
     uint64_t next_time_us = next_timestamp();
+    if(newest_received_us - next_time_us > max_latency_us) return true;
     for(const auto & id : required_sensors) {
         const auto stat = stats.find(id);
         if(stat == stats.end()) return false;

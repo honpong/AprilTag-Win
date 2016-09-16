@@ -2,9 +2,9 @@
 #include "sensor_fusion_queue.h"
 #include "util.h"
 
-std::unique_ptr<fusion_queue> setup_queue(std::function<void(sensor_data && x)> dataf, fusion_queue::latency_strategy strategy, sensor_clock::duration latency)
+std::unique_ptr<fusion_queue> setup_queue(std::function<void(sensor_data && x)> dataf, fusion_queue::latency_strategy strategy, uint64_t max_latency_us)
 {
-    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(dataf, strategy,latency);
+    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(dataf, strategy, max_latency_us);
     q->require_sensor(rc_SENSOR_TYPE_IMAGE, 0, 0);
     q->require_sensor(rc_SENSOR_TYPE_DEPTH, 0, 0);
     q->require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, 0, 0);
@@ -54,7 +54,7 @@ TEST(SensorFusionQueue, Reorder)
         last_time = x.time_us;
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(5000));
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
     
     q->start_sync();
 
@@ -105,7 +105,7 @@ TEST(SensorFusionQueue, Threading)
     auto thread_time = std::chrono::microseconds(100000);
     const sensor_clock::duration camera_interval = std::chrono::microseconds(66);
     const sensor_clock::duration inertial_interval = std::chrono::microseconds(20);
-    const sensor_clock::duration jitter = std::chrono::microseconds(10);
+    const uint64_t jitter_us = 10;
     const sensor_clock::duration cam_latency = std::chrono::microseconds(10);
     const sensor_clock::duration in_latency = std::chrono::microseconds(2);
     
@@ -144,7 +144,7 @@ TEST(SensorFusionQueue, Threading)
         }
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, jitter);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, jitter_us);
 
     auto start = sensor_clock::now();
     
@@ -216,7 +216,7 @@ TEST(SensorFusionQueue, DropOrder)
              EXPECT_NE(x.time_us, 4000);
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(5000));
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
     
     q->start_sync();
     
@@ -242,7 +242,7 @@ TEST(ThreadedDispatch, DropLate)
              EXPECT_NE(x.time_us, 30000);
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_LATENCY, std::chrono::microseconds(5000));
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_LATENCY, 5000);
     
     q->start_sync();
     
@@ -304,7 +304,7 @@ TEST(SensorFusionQueue, SameTime)
         }
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(5000));
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
 
     q->start_sync();
 
@@ -344,7 +344,7 @@ TEST(SensorFusionQueue, FIFO)
         }
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::FIFO, std::chrono::microseconds(5000));
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::FIFO, 5000);
 
     q->start_singlethreaded();
 

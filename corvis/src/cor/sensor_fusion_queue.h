@@ -106,7 +106,7 @@ public:
 
     fusion_queue(const std::function<void(sensor_data &&)> &receive_func,
                  latency_strategy s,
-                 sensor_clock::duration initial_latency);
+                 uint64_t max_latency_us);
     ~fusion_queue();
     
     void reset();
@@ -166,7 +166,7 @@ private:
     
     sensor_clock::time_point last_dispatched;
     
-    sensor_clock::duration latency;
+    uint64_t max_latency_us;
 };
 
 #endif /* defined(__sensor_fusion_queue__) */

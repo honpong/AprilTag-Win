@@ -369,3 +369,57 @@ TEST(SensorFusionQueue, FIFO)
     EXPECT_EQ(gyrrcv, 1);
     EXPECT_EQ(accrcv, 1);
 }
+
+
+TEST(SensorFusionQueue, MaxLatencyDispatch)
+{
+    int camrcv = 0;
+    int deprcv = 0;
+    int gyrrcv = 0;
+    int accrcv = 0;
+    uint64_t last_time = 0;
+
+    auto dataf = [&last_time, &camrcv, &deprcv, &accrcv, &gyrrcv](sensor_data && x) {
+        EXPECT_GE(x.time_us, last_time);
+        last_time = x.time_us;
+        switch(x.type) {
+            case rc_SENSOR_TYPE_IMAGE: ++camrcv; break;
+            case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
+            case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
+            case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
+        }
+    };
+
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+
+    q->start_sync();
+
+    q->receive_sensor_data(std::move(gyro_for_time(5000)));
+    q->receive_sensor_data(std::move(gyro_for_time(6000)));
+    q->receive_sensor_data(std::move(gyro_for_time(7000)));
+    q->receive_sensor_data(std::move(gyro_for_time(8000)));
+    q->receive_sensor_data(std::move(gyro_for_time(9000)));
+
+    q->receive_sensor_data(std::move(accel_for_time(5000)));
+    q->receive_sensor_data(std::move(accel_for_time(6000)));
+    q->receive_sensor_data(std::move(accel_for_time(7000)));
+    q->receive_sensor_data(std::move(accel_for_time(8000)));
+    q->receive_sensor_data(std::move(accel_for_time(9000)));
+
+    q->receive_sensor_data(std::move(gray8_for_time(5000)));
+    // we should dispatch here due to max latency of 5ms
+    q->receive_sensor_data(std::move(gray8_for_time(10001)));
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    // we should drop this, since we will have already dispatched t =
+    // 5000
+    q->receive_sensor_data(std::move(depth16_for_time(4000)));
+
+    q->stop();
+
+    EXPECT_EQ(camrcv, 2);
+    EXPECT_EQ(deprcv, 0);
+    EXPECT_EQ(gyrrcv, 5);
+    EXPECT_EQ(accrcv, 5);
+}

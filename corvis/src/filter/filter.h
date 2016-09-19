@@ -16,10 +16,7 @@
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     filter(): s(cov), mini_state(mini_cov), catchup_state(catchup_cov)
-    {
-        //these need to be initialized to defaults - everything else is handled in filter_initialize that is called every time
-        ignore_lateness = false;
-    }
+    { }
     RCSensorFusionRunState run_state;
     int min_group_add;
     int max_group_add;
@@ -45,7 +42,7 @@ struct filter {
     bool speed_failed, speed_warning;
     bool numeric_failed;
     sensor_clock::time_point speed_warning_time;
-    bool ignore_lateness;
+    bool ignore_lateness = true;
     stdev<3> gyro_stability, accel_stability; //TODOMSM - either just first sensor or per-sensor
     sensor_clock::time_point stable_start;
     bool calibration_bad;
@@ -89,7 +86,7 @@ struct filter {
     bool got_any_accelerometers() const { for (const auto &accel : accelerometers) if (accel->got) return true; return false; }
 
     //TODOMSM - per sensor
-    std::chrono::duration<float, milli> accel_timer, gyro_timer, image_timer;
+    std::chrono::duration<float, milli> accel_timer, gyro_timer, track_timer, detect_timer;
 };
 
 bool filter_depth_measurement(struct filter *f, const image_depth16 & depth);

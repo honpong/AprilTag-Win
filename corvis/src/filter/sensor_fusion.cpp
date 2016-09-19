@@ -123,10 +123,11 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         update_status();
         if(docallback) {
             rc_Data callback_data;
-            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
+            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp - data.exposure_time / 2);
             callback_data.type = rc_SENSOR_TYPE_IMAGE;
             callback_data.path = rc_DATA_PATH_SLOW;
             callback_data.id = data.source->id;
+            callback_data.image.shutter_time_us = std::chrono::duration_cast<std::chrono::microseconds>(data.exposure_time).count();
             callback_data.image.width = data.width;
             callback_data.image.height = data.height;
             callback_data.image.stride = data.stride;
@@ -146,10 +147,11 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         update_status();
         if (filter_depth_measurement(&sfm, data)) {
             rc_Data callback_data;
-            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
+            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp - data.exposure_time / 2);
             callback_data.type = rc_SENSOR_TYPE_DEPTH;
             callback_data.path = rc_DATA_PATH_SLOW;
             callback_data.id = data.source->id;
+            callback_data.depth.shutter_time_us = std::chrono::duration_cast<std::chrono::microseconds>(data.exposure_time).count();
             callback_data.depth.width = data.width;
             callback_data.depth.height = data.height;
             callback_data.depth.stride = data.stride;
@@ -302,7 +304,6 @@ void sensor_fusion::start_offline()
 {
     threaded = false;
     buffering = false;
-    sfm.ignore_lateness = true;
     filter_initialize(&sfm);
     filter_start_dynamic(&sfm);
     isSensorFusionRunning = true;

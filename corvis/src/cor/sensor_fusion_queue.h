@@ -230,6 +230,7 @@ private:
     void dispatch_singlethread(bool force);
     void dispatch_buffer();
     sensor_clock::time_point global_latest_received() const;
+    stdev<1> queue_latency;
 
     std::mutex mutex;
     std::condition_variable cond;

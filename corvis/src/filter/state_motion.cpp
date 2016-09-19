@@ -38,10 +38,6 @@ void state_motion_orientation::evolve_state(f_t dt)
     rotation_vector dW_(dW[0], dW[1], dW[2]); // FIXME: remove this!
     Q.v *= to_quaternion(dW_); // FIXME: use cached value?
     w.v += dw.v * dt;
-
-    static stdev<3> w_dev, dw_dev;
-    w_dev.data(w.v);
-    dw_dev.data(dw.v);
 }
 
 void state_motion_orientation::compute_gravity(double latitude, double altitude)
@@ -60,10 +56,6 @@ void state_motion::evolve_state(f_t dt)
 
     T.v += dT;
     V.v += dt * a.v;
-
-    static stdev<3> V_dev, a_dev;
-    V_dev.data(V.v);
-    a_dev.data(a.v);
 }
 
 void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)

@@ -62,7 +62,13 @@ fusion_queue::~fusion_queue()
 
 std::string fusion_queue::get_stats()
 {
-    return "Camera: " + camera_queue.get_stats() + "Depth:" + depth_queue.get_stats() + "Accel: " + accel_queue.get_stats() + "Gyro: " + gyro_queue.get_stats();
+    std::ostringstream os;
+    os << "Camera: " << camera_queue.get_stats();
+    os << "Depth: " << depth_queue.get_stats();
+    os << "Accel: " << accel_queue.get_stats();
+    os << "Gyro: " << gyro_queue.get_stats();
+    os << "Queue latency: " << queue_latency;
+    return os.str();
 }
 
 void fusion_queue::receive_depth(image_depth16&& x)
@@ -341,6 +347,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
         assert(data.timestamp >= last_dispatched);
 #endif
         last_dispatched = data.timestamp;
+        queue_latency.data({(f_t)(global_latest_received() - last_dispatched).count()});
         lock.unlock();
         depth_receiver(std::move(data));
         lock.lock();
@@ -354,6 +361,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
         assert(data.timestamp >= last_dispatched);
 #endif
         last_dispatched = data.timestamp;
+        queue_latency.data({(f_t)(global_latest_received() - last_dispatched).count()});
         lock.unlock();
         camera_receiver(std::move(data));
         
@@ -382,6 +390,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
         assert(data.timestamp >= last_dispatched);
 #endif
         last_dispatched = data.timestamp;
+        queue_latency.data({(f_t)(global_latest_received() - last_dispatched).count()});
         lock.unlock();
         accel_receiver(std::move(data));
         lock.lock();
@@ -395,6 +404,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
         assert(data.timestamp >= last_dispatched);
 #endif
         last_dispatched = data.timestamp;
+        queue_latency.data({(f_t)(global_latest_received() - last_dispatched).count()});
         lock.unlock();
         gyro_receiver(std::move(data));
         lock.lock();

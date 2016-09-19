@@ -40,24 +40,22 @@ public:
 #endif
 
     bool expected(uint64_t time_us) {
-        if(in < 2) return true;
+        if(!last_in) return true;
         if(last_in > time_us) return false;
 
-        return f_t(time_us - last_in) > std::max(f_t(0), period.mean[0] - period.stdev_[0]*3);
+        return !period.valid() || f_t(time_us - last_in) > std::max(f_t(0), period.mean[0] - period.stdev_[0]*3);
     }
 
     bool late_dynamic_latency(uint64_t now_us) {
-        if(in < 2) return false;
         if(last_in > now_us) return false;
 
-        return f_t(now_us - last_in) > period.mean[0] + latency.mean[0] + latency.stdev_[0]*3;
+        return period.valid() && latency.valid() && f_t(now_us - last_in) > period.mean[0] + latency.mean[0] + latency.stdev_[0]*3;
     }
 
     bool late_fixed_latency(uint64_t now_us) {
-        if(in < 2) return false;
         if(last_in > now_us) return false;
 
-        return f_t(now_us - last_in) > period.mean[0] + max_latency_us;
+        return period.valid() && f_t(now_us - last_in) > period.mean[0] + max_latency_us;
     }
 
     void receive(uint64_t now, uint64_t timestamp) {

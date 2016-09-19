@@ -205,7 +205,7 @@ void state_vision::reset()
     state_motion::reset();
 }
 
-int state_vision::feature_count()
+int state_vision::feature_count() const
 {
     int count = 0;
     for(auto *g : groups.children)

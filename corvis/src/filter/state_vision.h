@@ -258,7 +258,7 @@ public:
     
     virtual void reset();
     bool load_map(std::string json);
-    int feature_count();
+    int feature_count() const;
 
 protected:
     virtual void add_non_orientation_states();

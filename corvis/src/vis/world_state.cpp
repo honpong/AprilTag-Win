@@ -356,6 +356,9 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     p = get_plot_by_name("median depth var");
     observe_plot_item(timestamp_us, p, "median-depth-var", (float)f->median_depth_variance);
     
+    observe_plot_item(timestamp_us, p, "feature count", (float)f->s.feature_count());
+    p++;
+
     p = get_plot_by_name("acc timer");
     observe_plot_item(timestamp_us, p, "accel timer", f->accel_timer.count());
 

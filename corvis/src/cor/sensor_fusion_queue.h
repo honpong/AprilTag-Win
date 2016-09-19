@@ -59,7 +59,6 @@ public:
     }
 
     void receive(uint64_t now, uint64_t timestamp) {
-        in_queue++;
         if(in > 0 && timestamp >= last_in) {
             uint64_t delta = timestamp - last_in;
             if(period == 0) period = delta;
@@ -71,10 +70,12 @@ public:
 
             period = period*(1-0.1) + delta*0.1;
         }
-        last_in = timestamp;
         in++;
+        if(timestamp >= last_in)
+            last_in = timestamp;
     }
 
+    void push() { in_queue++; }
     void dispatch() { out++; in_queue--; }
     void drop() { dropped++; }
 

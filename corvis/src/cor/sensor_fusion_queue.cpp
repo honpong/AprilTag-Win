@@ -216,8 +216,10 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
 {
     std::lock_guard<std::mutex> data_guard(data_lock);
     total_in++;
-    auto s = stats.emplace(global_id, sensor_stats{0});
     newest_received_us = std::max<uint64_t>(x.time_us, newest_received_us);
+
+    auto s = stats.emplace(global_id, sensor_stats{0});
+    s.first->second.receive(newest_received_us, x.time_us);
 
     auto timestamp = sensor_clock::micros_to_tp(x.time_us);
     if(strategy != latency_strategy::FIFO &&
@@ -226,7 +228,7 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
         return;
     }
 
-    s.first->second.receive(newest_received_us, x.time_us);
+    s.first->second.push();
     queue.push_back(std::move(x));
     if(strategy != latency_strategy::FIFO)
         std::push_heap(queue.begin(), queue.end(), compare_sensor_data);

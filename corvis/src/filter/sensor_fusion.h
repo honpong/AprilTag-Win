@@ -16,7 +16,6 @@
 #include "../cor/sensor_data.h"
 #include "../cor/sensor_fusion_queue.h"
 #include "RCSensorFusionInternals.h"
-#include "camera_control_interface.h"
 #include "filter.h"
 #include "sensor.h"
 
@@ -67,8 +66,6 @@ public:
     /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
      
      This method should be called when you are ready to begin receiving sensor fusion updates and the user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receive_image, receive_accelerometer, and receive_gyro respectively. Full processing will not begin until the user has held the device steady for a brief initialization period (this occurs concurrently with focusing the camera). The device does not need to be perfectly still; minor shake from the device being held in hand is acceptable. If the user moves during this time, the timer will start again. The progress of this timer is provided as a float between 0 and 1 in sensor_fusion_status.progress.
-     
-     @param device The camera_control_interface to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.
      */
     void start(bool threaded);
     
@@ -76,7 +73,6 @@ public:
      
      This method may be called when you are ready to begin receiving sensor fusion updates and the user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receive_image, receive_accelerometer, and receive_gyro respectively. It is strongly recommended to call start_sensor_fusion rather than this function, unless it is absolutely impossible for the device to be held steady while initializing (for example, in a moving vehicle). There will be a delay after calling this function before video processing begins, while the camera is focused and sensor fusion is initialized.
      
-     @param device The camera_control_interface to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.
      @note It is strongly recommended to call start_sensor_fusion rather than this function
      */
     void start_unstable(bool threaded);

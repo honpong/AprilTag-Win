@@ -72,19 +72,6 @@ void sensor_fusion::update_status()
     }
     
     if((s.error == RCSensorFusionErrorCodeVision && s.run_state != RCSensorFusionRunStateRunning)) {
-        //refocus if either we tried to detect and failed, or if we've recently moved during initialization
-        isProcessingVideo = false;
-        processingVideoRequested = true;
-        
-        // Request a refocus
-        //TODO: is it possible for *this to become invalid before this is called?
-        sfm.camera_control.focus_once_and_lock([this](uint64_t timestamp, float position)
-                                               {
-                                                   if(processingVideoRequested && !isProcessingVideo) {
-                                                       isProcessingVideo = true;
-                                                       processingVideoRequested = false;
-                                                   }
-                                               });
     }
 
     if(status_callback)
@@ -249,8 +236,6 @@ void sensor_fusion::flush_and_reset()
     stop();
     queue->reset();
     filter_initialize(&sfm);
-    sfm.camera_control.focus_unlock();
-    sfm.camera_control.release_platform_specific_object();
 }
 
 void sensor_fusion::reset(sensor_clock::time_point time)

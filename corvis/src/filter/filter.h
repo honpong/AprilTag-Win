@@ -8,7 +8,6 @@
 #include "qr.h"
 #endif
 #include "RCSensorFusionInternals.h"
-#include "camera_control_interface.h"
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/sensor_data.h"
 #include "spdlog/spdlog.h"
@@ -69,7 +68,6 @@ struct filter {
     
     observation_queue observations;
     
-    camera_control_interface camera_control; //TODOMSM - per camera, but possibly deprecate
     std::unique_ptr<sensor_data> recent_depth; //TODOMSM - per depth
     bool has_depth; //TODOMSM - per depth
 

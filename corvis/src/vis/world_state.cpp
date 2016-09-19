@@ -341,7 +341,10 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     observe_plot_item(timestamp_us, p, "gyro timer", f->gyro_timer.count());
     p++;
 
-    observe_plot_item(timestamp_us, p, "image timer", f->image_timer.count());
+    observe_plot_item(timestamp_us, p, "track timer", f->track_timer.count());
+    p++;
+
+    observe_plot_item(timestamp_us, p, "detect timer", f->detect_timer.count());
     p++;
 }
 

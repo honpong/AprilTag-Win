@@ -1,5 +1,4 @@
 #include "calibration_json.h"
-#include "calibration_defaults.h"
 #include "json_keys.h"
 #include "rapidjson/document.h"
 #include "rapidjson/prettywriter.h"
@@ -226,25 +225,4 @@ bool calibration_deserialize(const std::string &jsonString, calibration_json &ca
     }
     copy_json_to_calibration(json, cal, json.GetAllocator());
     return true;
-}
-
-void device_set_resolution(calibration_json *dc, int image_width, int image_height)
-{
-    auto &in = dc->color.intrinsics;
-    int max_old_dim = in.width_px > in.height_px ? in.width_px : in.height_px;
-    int max_new_dim = image_width > image_height ? image_width : image_height;
-
-    in.width_px = image_width;
-    in.height_px = image_height;
-    in.c_x_px = (in.width_px - 1)/2.f;
-    in.c_x_px = (in.height_px - 1)/2.f;
-    // Scale the focal length depending on the resolution
-    in.f_x_px = in.f_x_px * max_new_dim / max_old_dim;
-    in.f_y_px = in.f_x_px;
-}
-
-// TODO: should this go away?
-bool get_parameters_for_device(corvis_device_type type, calibration_json *dc)
-{
-    return calibration_load_defaults(type, *dc);
 }

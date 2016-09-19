@@ -133,7 +133,6 @@ add_library(filter STATIC
   filter/calibration.h
   filter/calibration.cpp
   filter/calibration_json.cpp
-  filter/calibration_defaults.cpp
   filter/sensor_fusion.cpp
   filter/capture.cpp
   filter/replay.cpp

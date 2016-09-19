@@ -744,6 +744,7 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 
 void filter_detect_features(struct filter *f, const sensor_data &image)
 {
+    auto start = std::chrono::steady_clock::now();
     //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
     int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
@@ -775,6 +776,8 @@ void filter_detect_features(struct filter *f, const sensor_data &image)
             f->detector_failed = false;
         }
     }
+    auto stop = std::chrono::steady_clock::now();
+    f->detect_timer = stop-start;
 }
 
 bool filter_image_measurement(struct filter *f, const sensor_data & data)
@@ -903,7 +906,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     filter_update_outputs(f, time);
     
     auto stop = std::chrono::steady_clock::now();
-    f->image_timer = stop-start;
+    f->track_timer = stop-start;
     
     //do it async if we are running normally, but synchronously if we are orientation only (doesn't make a difference for mini state, and need features in order to initialize)
     filter_detect_features(f, data);

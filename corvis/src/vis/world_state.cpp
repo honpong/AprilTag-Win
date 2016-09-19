@@ -346,6 +346,12 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
 
     observe_plot_item(timestamp_us, p, "detect timer", f->detect_timer.count());
     p++;
+
+    observe_plot_item(timestamp_us, p, "mini accel timer", f->mini_accel_timer.count());
+    p++;
+    
+    observe_plot_item(timestamp_us, p, "mini gyro timer", f->mini_gyro_timer.count());
+    p++;
 }
 
 void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)

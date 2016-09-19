@@ -184,6 +184,8 @@ void filter_mini_process_observation_queue(struct filter * f, observation_queue 
 
 void filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const accelerometer_data &data)
 {
+    auto start = std::chrono::steady_clock::now();
+
     struct sensor_accelerometer &accelerometer = *data.source;
     v3 meas = m_map(accelerometer.intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2);
 
@@ -197,10 +199,15 @@ void filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     if(&state == &f->mini_state) lock.lock();
     queue.observations.push_back(std::move(obs_a));
     filter_mini_process_observation_queue(f, queue, state, data.timestamp);
+    
+    auto stop = std::chrono::steady_clock::now();
+    f->mini_accel_timer = stop-start;
 }
 
 void filter_mini_gyroscope_measurement(struct filter * f, observation_queue &queue, state_motion &state, const gyro_data &data)
 {
+    auto start = std::chrono::steady_clock::now();
+    
     struct sensor_gyroscope &gyroscope = *data.source;
     v3 meas = m_map(gyroscope.intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s);
 
@@ -214,6 +221,9 @@ void filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
     if(&state == &f->mini_state) lock.lock();
     queue.observations.push_back(std::move(obs_w));
     filter_mini_process_observation_queue(f, queue, state, data.timestamp);
+    auto stop = std::chrono::steady_clock::now();
+    f->mini_gyro_timer = stop-start;
+
 }
 
 void preprocess_observation_queue(struct filter *f, sensor_clock::time_point time)

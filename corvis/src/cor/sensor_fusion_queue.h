@@ -40,7 +40,7 @@ public:
 #endif
 
     bool expected(uint64_t time_us) {
-        if(!last_in) return true;
+        if(!last_in) return false;
         if(last_in > time_us) return false;
 
         return !period.valid() || f_t(time_us - last_in) > std::max(f_t(0), period.mean[0] - period.stdev_[0]*3);

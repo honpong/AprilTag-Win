@@ -33,8 +33,7 @@ public:
     uint64_t in_queue{0};
     uint64_t out{0};
     uint64_t dropped{0};
-    uint64_t period{0};
-    stdev<1> var{};
+    stdev<1> period{};
     stdev<1> latency{};
 #ifdef DEBUG
     histogram hist{200};
@@ -42,33 +41,33 @@ public:
 
     bool expected(uint64_t time_us) {
         if(in < 2) return true;
+        if(last_in > time_us) return false;
 
-        return time_us > last_in + period - 1000;
+        return f_t(time_us - last_in) > std::max(f_t(0), period.mean[0] - period.stdev_[0]*3);
     }
 
     bool late_dynamic_latency(uint64_t now_us) {
         if(in < 2) return false;
+        if(last_in > now_us) return false;
 
-        return now_us > last_in + period + latency.mean[0] + latency.stdev_[0]*3;
+        return f_t(now_us - last_in) > period.mean[0] + latency.mean[0] + latency.stdev_[0]*3;
     }
 
     bool late_fixed_latency(uint64_t now_us) {
         if(in < 2) return false;
+        if(last_in > now_us) return false;
 
-        return now_us > last_in + period + max_latency_us;
+        return f_t(now_us - last_in) > period.mean[0] + max_latency_us;
     }
 
     void receive(uint64_t now, uint64_t timestamp) {
         if(in > 0 && timestamp >= last_in) {
             uint64_t delta = timestamp - last_in;
-            if(period == 0) period = delta;
-            var.data(v<1>{(f_t)delta});
+            period.data(v<1>{(f_t)delta});
             latency.data(v<1>{(f_t)(now - timestamp)});
 #ifdef DEBUG
             hist.data(delta);
 #endif
-
-            period = period*(1-0.1) + delta*0.1;
         }
         in++;
         if(timestamp >= last_in)
@@ -82,7 +81,7 @@ public:
     std::string to_string() const {
         std::ostringstream os;
         os << in << " in, " << out << " out, " << dropped << " dropped\t" << period << "us period ";
-        os << "(" << "mean " << var.mean[0] << ", stdev " << var.stdev_[0] << ", max " << var.maximum << ")";
+        os << "(" << "mean " << period.mean[0] << ", stdev " << period.stdev_[0] << ", max " << period.maximum << ")";
         os << "\n\tLatency: " << "mean " << latency.mean[0] << ", stdev " << latency.stdev_[0] << ", max " << latency.maximum;
         return os.str();
 

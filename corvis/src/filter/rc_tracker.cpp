@@ -137,7 +137,7 @@ static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionCon
 
 struct rc_Tracker: public sensor_fusion
 {
-    rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
+    rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::DYNAMIC_LATENCY) {}
     std::string jsonString;
     std::vector<std::vector<rc_Feature> > stored_features;
     std::string timingStats;
@@ -182,7 +182,7 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
             if(trace) trace_log->info(" configuring new camera");
             auto new_camera = std::make_unique<sensor_grey>(camera_id);
             tracker->sfm.cameras.push_back(std::move(new_camera));
-            tracker->queue->require_sensor(rc_SENSOR_TYPE_IMAGE, camera_id, 25000);
+            tracker->queue->require_sensor(rc_SENSOR_TYPE_IMAGE, camera_id, std::chrono::milliseconds(25));
         }
 
         tracker->sfm.cameras[camera_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
@@ -197,7 +197,7 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
             if(trace) trace_log->info(" configuring new camera");
             auto new_camera = std::make_unique<sensor_depth>(camera_id);
             tracker->sfm.depths.push_back(std::move(new_camera));
-            tracker->queue->require_sensor(rc_SENSOR_TYPE_DEPTH, camera_id, 25000);
+            tracker->queue->require_sensor(rc_SENSOR_TYPE_DEPTH, camera_id, std::chrono::milliseconds(25));
         }
 
         tracker->sfm.depths[camera_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
@@ -251,7 +251,7 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
         if(trace) trace_log->info(" configuring new accel");
         auto new_accel = std::make_unique<sensor_accelerometer>(accel_id);
         tracker->sfm.accelerometers.push_back(std::move(new_accel));
-        tracker->queue->require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, 10000);
+        tracker->queue->require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, std::chrono::milliseconds(10));
     }
 
     tracker->sfm.accelerometers[accel_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
@@ -298,7 +298,7 @@ bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extr
     if(gyro_id == tracker->sfm.gyroscopes.size()) {
         // new depth camera
         if(trace) trace_log->info(" configuring new gyro");
-        tracker->queue->require_sensor(rc_SENSOR_TYPE_GYROSCOPE, gyro_id, 10000);
+        tracker->queue->require_sensor(rc_SENSOR_TYPE_GYROSCOPE, gyro_id, std::chrono::milliseconds(10));
         auto new_gyro = std::make_unique<sensor_gyroscope>(gyro_id);
         tracker->sfm.gyroscopes.push_back(std::move(new_gyro));
     }
@@ -514,7 +514,7 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
         return false;
     }
     if (format == rc_FORMAT_DEPTH16 && camera_id < tracker->sfm.depths.size()) {
-        sensor_data data(time_us + shutter_time_us / 2, rc_SENSOR_TYPE_DEPTH, camera_id,
+        sensor_data data(time_us, rc_SENSOR_TYPE_DEPTH, camera_id,
                 shutter_time_us, width, height, stride, rc_FORMAT_DEPTH16, image, completion_callback, callback_handle);
 
         if(tracker->output.started())
@@ -522,7 +522,7 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
         if (tracker->started())
             tracker->receive_data(std::move(data));
     } else if (format == rc_FORMAT_GRAY8 && camera_id < tracker->sfm.cameras.size()) {
-        sensor_data data(time_us + shutter_time_us / 2, rc_SENSOR_TYPE_IMAGE, camera_id,
+        sensor_data data(time_us, rc_SENSOR_TYPE_IMAGE, camera_id,
                 shutter_time_us, width, height, stride, rc_FORMAT_GRAY8, image, completion_callback, callback_handle);
 
         if(tracker->output.started())

@@ -24,11 +24,11 @@
 class sensor_stats
 {
 public:
-    sensor_stats(uint64_t maximum_latency_us) :
-        max_latency_us(maximum_latency_us) {};
+    sensor_stats(sensor_clock::duration maximum_latency) :
+        max_latency(maximum_latency) {};
 
-    uint64_t max_latency_us;
-    uint64_t last_in{0};
+    sensor_clock::duration max_latency;
+    sensor_clock::time_point last_in{};
     uint64_t in{0};
     uint64_t in_queue{0};
     uint64_t out{0};
@@ -39,32 +39,32 @@ public:
     histogram hist{200};
 #endif
 
-    bool expected(uint64_t time_us) {
-        if(!last_in) return false;
-        if(last_in > time_us) return false;
+    bool expected(const sensor_clock::time_point & time) {
+        if(!in) return false;
+        if(last_in > time) return false;
 
-        return !period.valid() || f_t(time_us - last_in) > std::max(f_t(0), period.mean[0] - period.stdev_[0]*3);
+        return !period.valid() || time - last_in > std::chrono::microseconds(uint64_t(std::max(f_t(0), period.mean[0] - period.stdev_[0]*3)));
     }
 
-    bool late_dynamic_latency(uint64_t now_us) {
-        if(last_in > now_us) return false;
+    bool late_dynamic_latency(const sensor_clock::time_point & now) {
+        if(last_in > now) return false;
 
-        return period.valid() && latency.valid() && f_t(now_us - last_in) > period.mean[0] + latency.mean[0] + latency.stdev_[0]*3;
+        return period.valid() && latency.valid() && now - last_in > std::chrono::microseconds(uint64_t(period.mean[0] + latency.mean[0] + latency.stdev_[0]*3));
     }
 
-    bool late_fixed_latency(uint64_t now_us) {
-        if(last_in > now_us) return false;
+    bool late_fixed_latency(const sensor_clock::time_point & now) {
+        if(last_in > now) return false;
 
-        return period.valid() && f_t(now_us - last_in) > period.mean[0] + max_latency_us;
+        return period.valid() && now - last_in > std::chrono::microseconds(uint64_t(period.mean[0])) + max_latency;
     }
 
-    void receive(uint64_t now, uint64_t timestamp) {
+    void receive(const sensor_clock::time_point & now, const sensor_clock::time_point & timestamp) {
         if(in > 0 && timestamp >= last_in) {
-            uint64_t delta = timestamp - last_in;
-            period.data(v<1>{(f_t)delta});
-            latency.data(v<1>{(f_t)(now - timestamp)});
+            sensor_clock::duration delta = timestamp - last_in;
+            period.data(v<1>{(f_t)delta.count()});
+            latency.data(v<1>{(f_t)(now - timestamp).count()});
 #ifdef DEBUG
-            hist.data(delta);
+            hist.data(delta.count());
 #endif
         }
         in++;
@@ -104,17 +104,17 @@ public:
 
     fusion_queue(const std::function<void(sensor_data &&)> &receive_func,
                  latency_strategy s,
-                 uint64_t max_latency_us);
+                 sensor_clock::duration max_latency);
     ~fusion_queue();
     
     void reset();
 
     void start(bool threaded);
-    void start_buffering(uint64_t buffer_time_us);
+    void start_buffering(sensor_clock::duration buffer_time);
 
     void stop();
 
-    void require_sensor(rc_SensorType type, rc_Sensor id, uint64_t max_latency_us);
+    void require_sensor(rc_SensorType type, rc_Sensor id, sensor_clock::duration max_latency);
 
     void receive_sensor_data(sensor_data &&);
     void dispatch_async(std::function<void()> fn);
@@ -125,7 +125,7 @@ public:
 
     uint64_t total_in{0};
     uint64_t total_out{0};
-    uint64_t newest_received_us{0};
+    sensor_clock::time_point newest_received{};
 
 private:
     stdev<1> queue_latency{};
@@ -140,7 +140,7 @@ private:
     void dispatch_singlethread(bool force);
     void push_queue(uint64_t global_id, sensor_data &&);
     sensor_data pop_queue();
-    uint64_t next_timestamp();
+    sensor_clock::time_point next_timestamp();
 
     bool all_have_data();
 
@@ -161,8 +161,9 @@ private:
     
     sensor_clock::time_point last_dispatched;
     
-    uint64_t max_latency_us;
-    uint64_t buffer_time_us{0};
+    sensor_clock::duration max_latency;
+    sensor_clock::duration buffer_time{};
+    bool buffering{false};
 };
 
 #endif /* defined(__sensor_fusion_queue__) */

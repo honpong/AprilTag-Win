@@ -14,33 +14,33 @@
 #define MAX_SENSORS 64
 inline std::ostream & operator <<(std::ostream & s, const std::vector<sensor_data> &v) {
     for(int i = 0; i < v.size(); i++)
-        s << v[i].time_us << ":" << v[i].type << " ";
+        s << sensor_clock::tp_to_micros(v[i].timestamp) << ":" << v[i].type << " ";
     return s;
 }
 
 static bool compare_sensor_data(const sensor_data &d1, const sensor_data &d2) {
-    if(d1.time_us == d2.time_us)
+    if(d1.timestamp == d2.timestamp)
         return d1.type > d2.type;
-    return d1.time_us > d2.time_us;
+    return d1.timestamp > d2.timestamp;
 }
 
 fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> &data_func,
                            latency_strategy s,
-                           uint64_t maximum_latency_us):
+                           sensor_clock::duration maximum_latency):
                 strategy(s),
                 data_receiver(data_func),
                 control_func(nullptr),
                 active(false),
                 singlethreaded(false),
-                max_latency_us(maximum_latency_us)
+                max_latency(maximum_latency)
 {
 }
 
-void fusion_queue::require_sensor(rc_SensorType type, rc_Sensor id, uint64_t max_latency_us)
+void fusion_queue::require_sensor(rc_SensorType type, rc_Sensor id, sensor_clock::duration max_latency)
 {
     uint64_t global_id = id + type*MAX_SENSORS;
     required_sensors.push_back(global_id);
-    auto s = stats.emplace(global_id, sensor_stats{max_latency_us});
+    auto s = stats.emplace(global_id, sensor_stats{max_latency});
 }
 
 void fusion_queue::reset()
@@ -98,7 +98,7 @@ void fusion_queue::receive_sensor_data(sensor_data && x)
 {
     uint64_t id = x.id + MAX_SENSORS*x.type;
     push_queue(id, std::move(x));
-    if(singlethreaded || buffer_time_us) dispatch_singlethread(false);
+    if(singlethreaded || buffering) dispatch_singlethread(false);
     else cond.notify_one();
 }
 
@@ -110,11 +110,12 @@ void fusion_queue::dispatch_async(std::function<void()> fn)
     if(singlethreaded) dispatch_singlethread(false);
 }
 
-void fusion_queue::start_buffering(uint64_t buffer_time)
+void fusion_queue::start_buffering(sensor_clock::duration _buffer_time)
 {
     std::unique_lock<std::mutex> lock(control_lock);
     active = true;
-    buffer_time_us = buffer_time;
+    buffer_time = _buffer_time;
+    buffering = true;
     lock.unlock();
 }
 
@@ -132,7 +133,7 @@ void fusion_queue::start(bool threaded)
     }
     else {
         active = true;
-        buffer_time_us = 0;
+        buffer_time = {};
         dispatch_singlethread(false); //dispatch any waiting data in case we were buffering
    }
 }
@@ -191,7 +192,8 @@ void fusion_queue::runloop()
 {
     std::unique_lock<std::mutex> lock(control_lock);
     active = true;
-    buffer_time_us = 0;
+    buffering = false;
+    buffer_time = {};
     //If we were launched synchronously, wake up the launcher
     lock.unlock();
     cond.notify_one();
@@ -216,14 +218,14 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
 {
     std::lock_guard<std::mutex> data_guard(data_lock);
     total_in++;
-    newest_received_us = std::max<uint64_t>(x.time_us, newest_received_us);
+    newest_received = std::max(x.timestamp, newest_received);
 
-    auto s = stats.emplace(global_id, sensor_stats{0});
-    s.first->second.receive(newest_received_us, x.time_us);
+    auto s = stats.emplace(global_id, sensor_stats{std::chrono::microseconds(0)});
+    s.first->second.receive(newest_received, x.timestamp);
 
-    auto timestamp = sensor_clock::micros_to_tp(x.time_us);
+    auto timestamp = x.timestamp;
     if(strategy != latency_strategy::FIFO &&
-        (timestamp < last_dispatched || x.time_us < s.first->second.last_in)) {
+        (timestamp < last_dispatched || x.timestamp < s.first->second.last_in)) {
         s.first->second.drop();
         return;
     }
@@ -234,12 +236,12 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
         std::push_heap(queue.begin(), queue.end(), compare_sensor_data);
 }
 
-uint64_t fusion_queue::next_timestamp()
+sensor_clock::time_point fusion_queue::next_timestamp()
 {
     // the front of the queue has the earliest pushed item (in the
     // case of FIFO) or the max heap item (in all other latency
     // strategies)
-    return queue.front().time_us;
+    return queue.front().timestamp;
 }
 
 sensor_data fusion_queue::pop_queue()
@@ -247,22 +249,22 @@ sensor_data fusion_queue::pop_queue()
     if(strategy == latency_strategy::FIFO) {
         sensor_data data = std::move(queue.front());
         queue.pop_front();
-        last_dispatched = sensor_clock::micros_to_tp(data.time_us);
+        last_dispatched = data.timestamp;
         return std::move(data);
     }
     else {
         std::pop_heap(queue.begin(), queue.end(), compare_sensor_data);
         sensor_data data = std::move(queue.back());
         queue.pop_back();
-        last_dispatched = sensor_clock::micros_to_tp(data.time_us);
+        last_dispatched = data.timestamp;
         return std::move(data);
     }
 }
 
 bool fusion_queue::ok_to_dispatch()
 {
-    uint64_t next_time_us = next_timestamp();
-    if(newest_received_us - next_time_us > max_latency_us) return true;
+    sensor_clock::time_point next_time = next_timestamp();
+    if(newest_received - next_time > max_latency) return true;
     for(const auto & id : required_sensors) {
         const auto stat = stats.find(id);
         if(stat == stats.end()) return false;
@@ -274,12 +276,12 @@ bool fusion_queue::ok_to_dispatch()
             break;
 
         case latency_strategy::MINIMIZE_LATENCY:
-            if(s.expected(next_time_us) && !s.late_fixed_latency(newest_received_us))
+            if(s.expected(next_time) && !s.late_fixed_latency(newest_received))
                 return false;
             break;
 
         case latency_strategy::DYNAMIC_LATENCY:
-            if(s.expected(next_time_us) && !s.late_dynamic_latency(newest_received_us))
+            if(s.expected(next_time) && !s.late_dynamic_latency(newest_received))
                 return false;
             break;
 
@@ -298,13 +300,13 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
 
     if(queue.empty()) return false;
 
-    if(buffer_time_us) {
-        uint64_t next_time_us = next_timestamp();
-        while(newest_received_us - next_time_us > buffer_time_us) {
+    if(buffering) {
+        sensor_clock::time_point next_time = next_timestamp();
+        while(newest_received - next_time > buffer_time) {
             sensor_data dropped = pop_queue();
             uint64_t id = dropped.id + dropped.type*MAX_SENSORS;
             stats.find(id)->second.drop();
-            next_time_us = next_timestamp();
+            next_time = next_timestamp();
         }
         return false;
     }
@@ -315,7 +317,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
 
     uint64_t id = data.id + data.type*MAX_SENSORS;
     stats.find(id)->second.dispatch();
-    queue_latency.data({(f_t)(newest_received_us - data.time_us)});
+    queue_latency.data({f_t((newest_received - data.timestamp).count())});
 
     lock.unlock();
     data_receiver(std::move(data));

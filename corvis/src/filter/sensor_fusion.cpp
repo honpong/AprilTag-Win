@@ -107,7 +107,6 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 
         update_status();
         if(docallback) {
-            data.time_us = data.time_us - data.image.shutter_time_us/2;
             update_data(&data);
         }
         }
@@ -119,7 +118,6 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 
         update_status();
         if (filter_depth_measurement(&sfm, data)) {
-            data.time_us = data.time_us - data.depth.shutter_time_us/2;
             update_data(&data);
         }
 
@@ -146,7 +144,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     }
     };
     
-    queue = std::make_unique<fusion_queue>(data_fn, strategy, 0.5e6);
+    queue = std::make_unique<fusion_queue>(data_fn, strategy, std::chrono::milliseconds(500));
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)
@@ -204,7 +202,7 @@ void sensor_fusion::unpause()
 void sensor_fusion::start_buffering()
 {
     buffering = true;
-    queue->start_buffering(200000); // 200ms
+    queue->start_buffering(std::chrono::milliseconds(200));
 }
 
 void sensor_fusion::start_offline()

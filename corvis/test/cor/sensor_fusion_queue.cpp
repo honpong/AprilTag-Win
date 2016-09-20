@@ -4,11 +4,11 @@
 
 std::unique_ptr<fusion_queue> setup_queue(std::function<void(sensor_data && x)> dataf, fusion_queue::latency_strategy strategy, uint64_t max_latency_us)
 {
-    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(dataf, strategy, max_latency_us);
-    q->require_sensor(rc_SENSOR_TYPE_IMAGE, 0, 0);
-    q->require_sensor(rc_SENSOR_TYPE_DEPTH, 0, 0);
-    q->require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, 0, 0);
-    q->require_sensor(rc_SENSOR_TYPE_GYROSCOPE, 0, 0);
+    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(dataf, strategy, std::chrono::microseconds(max_latency_us));
+    q->require_sensor(rc_SENSOR_TYPE_IMAGE, 0, std::chrono::microseconds(0));
+    q->require_sensor(rc_SENSOR_TYPE_DEPTH, 0, std::chrono::microseconds(0));
+    q->require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, 0, std::chrono::microseconds(0));
+    q->require_sensor(rc_SENSOR_TYPE_GYROSCOPE, 0, std::chrono::microseconds(0));
 
     return q;
 }
@@ -448,7 +448,7 @@ TEST(SensorFusionQueue, BufferNoDispatch)
 
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
 
-    q->start_buffering(buffer_time_us);
+    q->start_buffering(std::chrono::microseconds(buffer_time_us));
 
     uint64_t time_us;
     for(time_us = 0; time_us < start_time_us; time_us += 2000) {
@@ -491,7 +491,7 @@ TEST(SensorFusionQueue, Buffering)
 
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
 
-    q->start_buffering(buffer_time_us);
+    q->start_buffering(std::chrono::microseconds(buffer_time_us));
 
     uint64_t time_us;
     int packets = 0;

@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "../filter/rc_tracker.h"
+#include "platform/sensor_clock.h"
 
 class sensor_data : public rc_Data
 {
@@ -20,6 +21,8 @@ private:
     std::unique_ptr<void, void(*)(void *)> image_handle{nullptr, nullptr};
 
 public:
+    sensor_clock::time_point timestamp;
+
     sensor_data(sensor_data&& other) = default;
     sensor_data &operator=(sensor_data&& other) = default;
 
@@ -28,7 +31,8 @@ public:
 
     sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
                 rc_Timestamp shutter_time_us, int width, int height, int stride, rc_ImageFormat format, const void * image_ptr,
-                void (*release)(void * handle), void * handle)
+                void (*release)(void * handle), void * handle) :
+        timestamp(sensor_clock::micros_to_tp(timestamp_us + shutter_time_us / 2))
     {
         assert(sensor_type == rc_SENSOR_TYPE_IMAGE || sensor_type == rc_SENSOR_TYPE_DEPTH);
         id = sensor_id;
@@ -46,7 +50,8 @@ public:
     }
 
     sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
-                rc_Vector data)
+                rc_Vector data) :
+        timestamp(sensor_clock::micros_to_tp(timestamp_us))
     {
         assert(sensor_type == rc_SENSOR_TYPE_ACCELEROMETER || sensor_type == rc_SENSOR_TYPE_GYROSCOPE);
         id = sensor_id;

@@ -403,7 +403,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
     if(data.id != 0) return true;
 
     auto start = std::chrono::steady_clock::now();
-    auto timestamp = sensor_clock::micros_to_tp(data.time_us);
+    auto timestamp = data.timestamp;
     auto &accelerometer = *f->accelerometers[data.id];
     v3 meas = m_map(accelerometer.intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2.v);
     v3 accel_delta = meas - f->last_accel_meas;
@@ -415,7 +415,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
         auto current = sensor_clock::now();
         auto delta = current - timestamp;
         if(delta > max_inertial_delay) {
-            f->log->warn("Warning, dropped an old accel sample - timestamp {}, now {}", data.time_us, sensor_clock::tp_to_micros(current));
+            f->log->warn("Warning, dropped an old accel sample - timestamp {}, now {}", sensor_clock::tp_to_micros(timestamp), sensor_clock::tp_to_micros(current));
             return false;
         }
     }
@@ -468,7 +468,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
     if(data.id != 0) return true;
 
     auto start = std::chrono::steady_clock::now();
-    auto timestamp = sensor_clock::micros_to_tp(data.time_us);
+    auto timestamp = data.timestamp;
     auto &gyroscope = *f->gyroscopes[data.id];
     v3 meas = m_map(gyroscope.intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s.v);
     v3 gyro_delta = meas - f->last_gyro_meas;
@@ -526,7 +526,7 @@ void filter_setup_next_frame(struct filter *f, const sensor_data &data)
     if(f->run_state != RCSensorFusionRunStateRunning) return;
 
     auto & camera = *f->cameras[data.id];
-    auto timestamp = sensor_clock::micros_to_tp(data.time_us);
+    auto timestamp = data.timestamp;
 
     for(state_vision_group *g : f->s.groups.children) {
         if(!g->status || g->status == group_initializing) continue;
@@ -749,7 +749,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     auto start = std::chrono::steady_clock::now();
     auto & camera = *f->cameras[data.id];
 
-    sensor_clock::time_point time = sensor_clock::micros_to_tp(data.time_us);
+    sensor_clock::time_point time = data.timestamp;
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!check_packet_time(f, time, packet_camera)) return false;

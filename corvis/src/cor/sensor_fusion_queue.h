@@ -32,7 +32,8 @@ public:
     uint64_t in{0};
     uint64_t in_queue{0};
     uint64_t out{0};
-    uint64_t dropped{0};
+    uint64_t out_of_order{0};
+    stdev<1> late{};
     stdev<1> period{};
     stdev<1> latency{};
 #ifdef DEBUG
@@ -74,13 +75,18 @@ public:
 
     void push() { in_queue++; }
     void dispatch() { out++; in_queue--; }
-    void drop() { dropped++; }
+    void drop_out_of_order() { out_of_order++; }
+    void drop_buffered() { /*unbuffered++;*/ }
+    void drop_late(const sensor_clock::time_point & now) {
+        late.data(v<1>{(f_t)((now - last_in).count())});
+    }
 
     std::string to_string() const {
         std::ostringstream os;
-        os << in << " in, " << out << " out, " << dropped << " dropped\n";
+        os << in << " in, " << out << " out, " << late.count << " late " << out_of_order << " out of order\n";
         if (period.count)  os << "\tperiod(us):  " << period;
         if (latency.count) os << "\tlatency(us): " << latency;
+        if (late.count)    os << "\tlate(us):    " << late;
         return os.str();
 
     }

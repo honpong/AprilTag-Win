@@ -223,11 +223,15 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
     auto s = stats.emplace(global_id, sensor_stats{std::chrono::microseconds(0)});
     s.first->second.receive(newest_received, x.timestamp);
 
-    auto timestamp = x.timestamp;
-    if(strategy != latency_strategy::FIFO &&
-        (timestamp < last_dispatched || x.timestamp < s.first->second.last_in)) {
-        s.first->second.drop();
-        return;
+    if(strategy != latency_strategy::FIFO) {
+        if (x.timestamp < last_dispatched) {
+            s.first->second.drop_late(newest_received);
+            return;
+        }
+        if (x.timestamp < s.first->second.last_in) {
+            s.first->second.drop_out_of_order();
+            return;
+        }
     }
 
     s.first->second.push();
@@ -305,7 +309,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
         while(newest_received - next_time > buffer_time) {
             sensor_data dropped = pop_queue();
             uint64_t id = dropped.id + dropped.type*MAX_SENSORS;
-            stats.find(id)->second.drop();
+            stats.find(id)->second.drop_buffered();
             next_time = next_timestamp();
         }
         return false;

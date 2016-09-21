@@ -10,6 +10,7 @@
 #define __RC3DK__sensor_data__
 
 #include <memory>
+#include <string.h>
 #include <stdlib.h>
 #include <assert.h>
 #include "../filter/rc_tracker.h"

@@ -68,13 +68,12 @@ public:
     {
         switch(type) {
         case rc_SENSOR_TYPE_IMAGE:
-        case rc_SENSOR_TYPE_DEPTH:
-            {
+        case rc_SENSOR_TYPE_DEPTH: {
             assert(image.height && image.stride);
             void * res_image = malloc(image.stride*image.height);
             memcpy(res_image, image.image, image.stride*image.height);
             return std::make_unique<sensor_data>(time_us, type, id, image.shutter_time_us, image.width, image.height, image.stride, image.format, res_image, free, res_image);
-            break;
+        }   break;
 
         case rc_SENSOR_TYPE_ACCELEROMETER:
             return std::make_unique<sensor_data>(time_us, type, id, acceleration_m__s2);

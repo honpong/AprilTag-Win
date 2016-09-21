@@ -12,9 +12,11 @@
 #include <algorithm>
 
 #define MAX_SENSORS 64
-inline std::ostream & operator <<(std::ostream & s, const std::vector<sensor_data> &v) {
-    for(int i = 0; i < v.size(); i++)
-        s << sensor_clock::tp_to_micros(v[i].timestamp) << ":" << v[i].type << " ";
+
+template <typename Stream>
+inline Stream &operator <<(Stream &s, const std::deque<sensor_data> &v) {
+    for(auto &d: v)
+        s << std::chrono::duration_cast<std::chrono::microseconds>(d.timestamp-v.front().timestamp).count() << ":" << d.type << " ";
     return s;
 }
 

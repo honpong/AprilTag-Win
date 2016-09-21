@@ -78,9 +78,9 @@ public:
 
     std::string to_string() const {
         std::ostringstream os;
-        os << in << " in, " << out << " out, " << dropped << " dropped\t" << period << "us period ";
-        os << "(" << "mean " << period.mean[0] << ", stdev " << period.stdev_[0] << ", max " << period.maximum << ")";
-        os << "\n\tLatency: " << "mean " << latency.mean[0] << ", stdev " << latency.stdev_[0] << ", max " << latency.maximum;
+        os << in << " in, " << out << " out, " << dropped << " dropped\n";
+        if (period.count)  os << "\tperiod(us):  " << period;
+        if (latency.count) os << "\tlatency(us): " << latency;
         return os.str();
 
     }

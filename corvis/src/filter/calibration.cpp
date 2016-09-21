@@ -70,15 +70,9 @@ bool calibration_convert(const calibration_json &cal, calibration &cal_output)
 
     calibration_convert_to_camera_origin(cal_output.cameras[0].extrinsics, cal_output.imus[0].extrinsics);
 
-    //TODO: Warning, this always creates a default depth camera
-    if(cal.depth.intrinsics.type == rc_CALIBRATION_TYPE_UNKNOWN) {
-        sensor_calibration_depth depth_cam = cal_output.cameras[0];
-        depth_cam.intrinsics = cal.depth.intrinsics;
-        depth_cam.intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
-        cal_output.depths.push_back(depth_cam);
-    }
-    else {
+    if(cal.depth.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN) {
         sensor_calibration_depth depth_cam = calibration_convert_camera(cal.depth);
+        depth_cam.extrinsics = cal_output.cameras[0].extrinsics;
         cal_output.depths.push_back(depth_cam);
     }
 

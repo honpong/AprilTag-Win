@@ -99,7 +99,7 @@ void state_vision_group::make_empty()
     status = group_empty;
 }
 
-int state_vision_group::process_features(const image_gray8 &image, mapper & map, bool map_enabled)
+int state_vision_group::process_features(const rc_ImageData &image, mapper & map, bool map_enabled)
 {
     features.children.remove_if([&](state_vision_feature *f) {
         if(f->should_drop()) {
@@ -127,7 +127,7 @@ int state_vision_group::process_features(const image_gray8 &image, mapper & map,
                     radius = 4.f;
                 }
                 //log->info("feature {} good radius {}", f->id, radius);
-                if(descriptor_compute(image.image, image.width, image.height, image.stride,
+                if(descriptor_compute((uint8_t*)image.image, image.width, image.height, image.stride,
                                       static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
                                       f->descriptor)) {
                     f->descriptor_valid = true;
@@ -219,7 +219,7 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
-int state_vision::process_features(const image_gray8 &image, sensor_clock::time_point time)
+int state_vision::process_features(const rc_ImageData &image, sensor_clock::time_point time)
 {
     int useful_drops = 0;
     int total_feats = 0;
@@ -432,10 +432,10 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
     return ku_d;
 }
 
-void state_vision::update_feature_tracks(const image_gray8 &image)
+void state_vision::update_feature_tracks(const rc_ImageData &image)
 {
     tracker::image current_image;
-    current_image.image = image.image;
+    current_image.image = (uint8_t *)image.image;
     current_image.width_px = image.width;
     current_image.height_px = image.height;
     current_image.stride_px = image.stride;

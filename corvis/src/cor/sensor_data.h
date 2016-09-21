@@ -11,99 +11,84 @@
 
 #include <memory>
 #include <stdlib.h>
-#include <string.h>
 #include <assert.h>
-#include "platform/sensor_clock.h"
 #include "../filter/rc_tracker.h"
-#include <algorithm>
-#include "../cor/sensor.h"
+#include "platform/sensor_clock.h"
 
-template<int size_>
-class sensor_data
+class sensor_data : public rc_Data
 {
+private:
+    std::unique_ptr<void, void(*)(void *)> image_handle{nullptr, nullptr};
+
 public:
     sensor_clock::time_point timestamp;
+
+    sensor_data(sensor_data&& other) = default;
+    sensor_data &operator=(sensor_data&& other) = default;
+
+    sensor_data(const sensor_data &other) = delete;
+    sensor_data &operator=(const sensor_data& other) = delete;
+
+    sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
+                rc_Timestamp shutter_time_us, int width, int height, int stride, rc_ImageFormat format, const void * image_ptr,
+                void (*release)(void * handle), void * handle) :
+        timestamp(sensor_clock::micros_to_tp(timestamp_us + shutter_time_us / 2))
+    {
+        assert(sensor_type == rc_SENSOR_TYPE_IMAGE || sensor_type == rc_SENSOR_TYPE_DEPTH);
+        id = sensor_id;
+        type = sensor_type;
+        time_us = timestamp_us;
+        image.shutter_time_us = shutter_time_us;
+        image.width = width;
+        image.height = height;
+        image.stride = stride;
+        image.format = format;
+        image.image = image_ptr;
+        image.release = release;
+        image.handle = handle;
+        image_handle = std::unique_ptr<void, void(*)(void *)>(handle, release);
+    }
+
+    sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
+                rc_Vector data) :
+        timestamp(sensor_clock::micros_to_tp(timestamp_us))
+    {
+        assert(sensor_type == rc_SENSOR_TYPE_ACCELEROMETER || sensor_type == rc_SENSOR_TYPE_GYROSCOPE);
+        id = sensor_id;
+        type = sensor_type;
+        time_us = timestamp_us;
+        if(sensor_type == rc_SENSOR_TYPE_ACCELEROMETER)
+            acceleration_m__s2 = data;
+        else
+            angular_velocity_rad__s = data;
+    }
+
+    std::unique_ptr<sensor_data> make_copy() const
+    {
+        switch(type) {
+        case rc_SENSOR_TYPE_IMAGE:
+        case rc_SENSOR_TYPE_DEPTH:
+            {
+            assert(image.height && image.stride);
+            void * res_image = malloc(image.stride*image.height);
+            memcpy(res_image, image.image, image.stride*image.height);
+            return std::make_unique<sensor_data>(time_us, type, id,
+                      image.shutter_time_us, image.width, image.height, image.stride, image.format,
+                      res_image, [](void * handle) {
+                        free(handle);
+                      }, res_image);
+            }
+            break;
+
+        case rc_SENSOR_TYPE_ACCELEROMETER:
+            return std::make_unique<sensor_data>(time_us, type, id, acceleration_m__s2);
+            break;
+
+        case rc_SENSOR_TYPE_GYROSCOPE:
+            return std::make_unique<sensor_data>(time_us, type, id, angular_velocity_rad__s);
+            break;
+        }
+    }
 };
 
-template<class sensor_data_type, rc_ImageFormat camera_type, class data_type, int size_>
-class image_data: public sensor_data<size_>
-{
-public:
-    typedef image_data<sensor_data_type, camera_type, data_type, size_> image_data_type;
-    sensor_data_type *source;
-    image_data(): image_handle(nullptr, nullptr), image(nullptr), width(0), height(0), stride(0) { }
-    image_data(image_data_type&& other) = default;
-    image_data &operator=(image_data_type&& other) = default;
-    
-    image_data(int image_width, int image_height) :
-    image_handle(malloc(image_width * image_height * sizeof(data_type)), free), image((data_type *)image_handle.get()), width(image_width), height(image_height), stride(image_width * sizeof(data_type))
-    {
-        assert(height && stride);
-    }
-    
-    image_data(int image_width, int image_height, data_type initial_value): image_data(image_width, image_height)
-    {
-        std::fill_n(image, width * height, initial_value);
-    }
-    
-    image_data_type make_copy() const
-    {
-        assert(height && stride);
-        image_data_type res;
-        res.source = this->source;
-        res.timestamp = this->timestamp;
-        res.exposure_time = this->exposure_time;
-        res.width = width;
-        res.height = height;
-        res.stride = stride;
-        res.image = (data_type *)malloc(stride*height);
-        res.image_handle = std::unique_ptr<void, void(*)(void *)>(res.image, free);
-        memcpy(res.image, image, stride*height);
-        return res;
-    }
-
-#if WIN32
-    image_data(const image_data_type &other) { *this = std::move(other.make_copy()); } // FIXME: this allows std::packaged_task()'s construction (by copying)
-#else
-    image_data(const image_data_type &other) = delete;
 #endif
-    image_data &operator=(const image_data_type& other) = delete;
-
-    sensor_clock::duration exposure_time;
-    std::unique_ptr<void, void(*)(void *)> image_handle{nullptr, free};
-    data_type *image;
-    int width, height, stride;
-};
-
-typedef image_data<sensor_grey, rc_FORMAT_GRAY8, uint8_t, 2> image_gray8;
-typedef image_data<sensor_depth, rc_FORMAT_DEPTH16, uint16_t, 1> image_depth16;
-
-class accelerometer_data: public sensor_data<3>
-{
-public:
-    sensor_accelerometer *source;
-    float acceleration_m__s2[3];
-    accelerometer_data() {};
-    
-    accelerometer_data(const accelerometer_data& other) = default;
-    accelerometer_data &operator=(const accelerometer_data&) = delete;
-    
-    accelerometer_data(accelerometer_data&& other) = default;
-    accelerometer_data &operator=(accelerometer_data&& other) = default;
-};
-
-class gyro_data: public sensor_data<3>
-{
-public:
-    sensor_gyroscope *source;
-    float angular_velocity_rad__s[3];
-    gyro_data() {}
-    
-    gyro_data(const gyro_data& other) = default;
-    gyro_data &operator=(const gyro_data&) = delete;
-    
-    gyro_data(gyro_data&& other) = default;
-    gyro_data &operator=(gyro_data&& other) = default;
-};
-
-#endif /* defined(__RC3DK__sensor_data__) */

@@ -128,12 +128,10 @@ add_library(filter STATIC
   filter/observation.cpp
   filter/fast_detector/fast_9.cpp
   filter/scaled_mask.cpp
-  filter/camera_control_interface_dummy.cpp
   filter/calibration_keys.h
   filter/calibration.h
   filter/calibration.cpp
   filter/calibration_json.cpp
-  filter/calibration_defaults.cpp
   filter/sensor_fusion.cpp
   filter/capture.cpp
   filter/replay.cpp

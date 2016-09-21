@@ -72,19 +72,6 @@ void sensor_fusion::update_status()
     }
     
     if((s.error == RCSensorFusionErrorCodeVision && s.run_state != RCSensorFusionRunStateRunning)) {
-        //refocus if either we tried to detect and failed, or if we've recently moved during initialization
-        isProcessingVideo = false;
-        processingVideoRequested = true;
-        
-        // Request a refocus
-        //TODO: is it possible for *this to become invalid before this is called?
-        sfm.camera_control.focus_once_and_lock([this](uint64_t timestamp, float position)
-                                               {
-                                                   if(processingVideoRequested && !isProcessingVideo) {
-                                                       isProcessingVideo = true;
-                                                       processingVideoRequested = false;
-                                                   }
-                                               });
     }
 
     if(status_callback)
@@ -93,7 +80,7 @@ void sensor_fusion::update_status()
     last_status = s;
 }
 
-void sensor_fusion::update_data(const rc_Data * data)
+void sensor_fusion::update_data(const sensor_data * data)
 {
     if(data_callback)
         data_callback(data);
@@ -103,8 +90,12 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 {
     isSensorFusionRunning = false;
     isProcessingVideo = false;
-    auto cam_fn = [this](image_gray8 &&data)
+    auto data_fn = [this](sensor_data && data)
     {
+
+    switch(data.type) {
+    case rc_SENSOR_TYPE_IMAGE:
+        {
         if(!isSensorFusionRunning) return;
 
         bool docallback = true;
@@ -116,77 +107,44 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 
         update_status();
         if(docallback) {
-            rc_Data callback_data;
-            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp - data.exposure_time / 2);
-            callback_data.type = rc_SENSOR_TYPE_IMAGE;
-            callback_data.id = data.source->id;
-            callback_data.image.shutter_time_us = std::chrono::duration_cast<std::chrono::microseconds>(data.exposure_time).count();
-            callback_data.image.width = data.width;
-            callback_data.image.height = data.height;
-            callback_data.image.stride = data.stride;
-            callback_data.image.format = rc_FORMAT_GRAY8;
-            callback_data.image.image = data.image;
-            callback_data.image.release = data.image_handle.get_deleter();
-            callback_data.image.handle = data.image_handle.get();
-
-            update_data(&callback_data);
+            update_data(&data);
         }
-    };
+        }
+        break;
 
-    auto depth_fn = [this](image_depth16 &&data)
-    {
+
+    case rc_SENSOR_TYPE_DEPTH:
         if(!isSensorFusionRunning) return;
 
         update_status();
         if (filter_depth_measurement(&sfm, data)) {
-            rc_Data callback_data;
-            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp - data.exposure_time / 2);
-            callback_data.type = rc_SENSOR_TYPE_DEPTH;
-            callback_data.id = data.source->id;
-            callback_data.depth.shutter_time_us = std::chrono::duration_cast<std::chrono::microseconds>(data.exposure_time).count();
-            callback_data.depth.width = data.width;
-            callback_data.depth.height = data.height;
-            callback_data.depth.stride = data.stride;
-            callback_data.depth.format = rc_FORMAT_DEPTH16;
-            callback_data.depth.image = data.image;
-
-            update_data(&callback_data);
+            update_data(&data);
         }
-    };
+
+        break;
     
-    auto acc_fn = [this](accelerometer_data &&data)
-    {
+    case rc_SENSOR_TYPE_ACCELEROMETER:
+
         if(!isSensorFusionRunning) return;
 
         update_status();
         if (filter_accelerometer_measurement(&sfm, data)) {
-            rc_Data callback_data;
-            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
-            callback_data.type = rc_SENSOR_TYPE_ACCELEROMETER;
-            callback_data.id = data.source->id;
-            v_map(callback_data.acceleration_m__s2.v) = v_map(data.acceleration_m__s2);
-
-            update_data(&callback_data);
+            update_data(&data);
         }
-    };
-    
-    auto gyr_fn = [this](gyro_data &&data)
-    {
+        break;
+
+    case rc_SENSOR_TYPE_GYROSCOPE:
         if(!isSensorFusionRunning) return;
 
         update_status();
         if (filter_gyroscope_measurement(&sfm, data)) {
-            rc_Data callback_data;
-            callback_data.time_us = sensor_clock::tp_to_micros(data.timestamp);
-            callback_data.type = rc_SENSOR_TYPE_GYROSCOPE;
-            callback_data.id = data.source->id;
-            v_map(callback_data.angular_velocity_rad__s.v) = v_map(data.angular_velocity_rad__s);
-
-            update_data(&callback_data);
+            update_data(&data);
         }
+        break;
+    }
     };
     
-    queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
+    queue = std::make_unique<fusion_queue>(data_fn, strategy, std::chrono::milliseconds(500));
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)
@@ -204,8 +162,7 @@ void sensor_fusion::start_calibration(bool thread)
     isProcessingVideo = false;
     filter_initialize(&sfm);
     filter_start_static_calibration(&sfm);
-    if(threaded) queue->start_async(false);
-    else queue->start_singlethreaded(false);
+    queue->start(threaded);
 }
 
 void sensor_fusion::start(bool thread)
@@ -216,8 +173,7 @@ void sensor_fusion::start(bool thread)
     isProcessingVideo = true;
     filter_initialize(&sfm);
     filter_start_hold_steady(&sfm);
-    if(threaded) queue->start_async(true);
-    else queue->start_singlethreaded(true);
+    queue->start(threaded);
 }
 
 void sensor_fusion::start_unstable(bool thread)
@@ -228,8 +184,7 @@ void sensor_fusion::start_unstable(bool thread)
     isProcessingVideo = true;
     filter_initialize(&sfm);
     filter_start_dynamic(&sfm);
-    if(threaded) queue->start_async(true);
-    else queue->start_singlethreaded(true);
+    queue->start(thread);
 }
 
 void sensor_fusion::pause_and_reset_position()
@@ -247,7 +202,7 @@ void sensor_fusion::unpause()
 void sensor_fusion::start_buffering()
 {
     buffering = true;
-    queue->start_buffering();
+    queue->start_buffering(std::chrono::milliseconds(200));
 }
 
 void sensor_fusion::start_offline()
@@ -258,7 +213,7 @@ void sensor_fusion::start_offline()
     filter_start_dynamic(&sfm);
     isSensorFusionRunning = true;
     isProcessingVideo = true;
-    queue->start_singlethreaded(true);
+    queue->start(false);
 }
 
 bool sensor_fusion::started()
@@ -268,7 +223,7 @@ bool sensor_fusion::started()
 
 void sensor_fusion::stop()
 {
-    queue->stop_sync();
+    queue->stop();
     isSensorFusionRunning = false;
     isProcessingVideo = false;
     processingVideoRequested = false;
@@ -279,8 +234,6 @@ void sensor_fusion::flush_and_reset()
     stop();
     queue->reset();
     filter_initialize(&sfm);
-    sfm.camera_control.focus_unlock();
-    sfm.camera_control.release_platform_specific_object();
 }
 
 void sensor_fusion::reset(sensor_clock::time_point time)
@@ -323,47 +276,8 @@ bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t l
     return sfm.s.map.deserialize(json, sfm.s.map);
 }
 
-void sensor_fusion::receive_image(image_gray8 &&data)
+void sensor_fusion::receive_data(sensor_data && data)
 {
-    if(data.source->id != 0) return;
-
-    //Adjust image timestamps to be in middle of exposure period
-    data.timestamp += data.exposure_time / 2;
-    if(buffering)
-    {
-        image_gray8 temp(std::move(data));
-        queue->receive_camera(std::move(temp));
-    } else {
-        queue->receive_camera(std::move(data));
-    }
-}
-
-void sensor_fusion::receive_image(image_depth16 &&data)
-{
-    if(data.source->id != 0) return;
-
-    //TODO: Verify time adjustments here
-    //Adjust image timestamps to be in middle of exposure period
-    data.timestamp += data.exposure_time / 2;
-    if(buffering)
-    {
-        image_depth16 temp(std::move(data));
-        queue->receive_depth(std::move(temp));
-    } else {
-        queue->receive_depth(std::move(data));
-    }
-}
-
-void sensor_fusion::receive_accelerometer(accelerometer_data &&data)
-{
-    if(data.source->id != 0) return;
-
-    queue->receive_accelerometer(std::move(data));
-}
-
-void sensor_fusion::receive_gyro(gyro_data &&data)
-{
-    if(data.source->id != 0) return;
-
-    queue->receive_gyro(std::move(data));
+    queue->receive_sensor_data(std::move(data));
+    //TODO: Fix buffering
 }

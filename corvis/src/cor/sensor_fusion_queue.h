@@ -18,130 +18,152 @@
 #include "../numerics/vec4.h"
 #include <iostream>
 #include <string>
+#include <unordered_map>
+#include <deque>
 
-template<typename T, int size>
-class sensor_queue
+class sensor_stats
 {
 public:
-    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv);
-    void reset();
-    bool empty() const { return count == 0; }
-    bool full() const { return count == size; }
-    bool push(T&& x); //Doesn't block. Returns false if the queue is full or data arrived out of order
-    T pop(const std::unique_lock<std::mutex> &lock); // assumes the lock is already held
-    sensor_clock::time_point get_next_time(const std::unique_lock<std::mutex> &lock, sensor_clock::time_point last_global_dispatched);
+    sensor_stats(sensor_clock::duration maximum_latency) :
+        max_latency(maximum_latency) {};
 
-    std::chrono::duration<double, std::micro> period;
-    sensor_clock::time_point last_in;
-    sensor_clock::time_point last_out;
-    
-    uint64_t drop_full = 0;
-    uint64_t drop_late = 0;
-    uint64_t total_in = 0;
-    uint64_t total_out = 0;
-    stdev<1> stats;
+    sensor_clock::duration max_latency;
+    sensor_clock::time_point last_in{};
+    uint64_t in{0};
+    uint64_t in_queue{0};
+    uint64_t out{0};
+    uint64_t dropped{0};
+    stdev<1> period{};
+    stdev<1> latency{};
 #ifdef DEBUG
     histogram hist{200};
 #endif
 
-    std::string get_stats()
-    {
-        std::ostringstream os;
-        os << "period (moving average) " << period.count() << " total in " << total_in << " total out " << total_out << " drop full " << drop_full << " drop late " << drop_late << " timing " << stats;
-        return os.str();
-    }
-    
-private:
-    std::array<T, size> storage;
+    bool expected(const sensor_clock::time_point & time) {
+        if(!in) return false;
+        if(last_in > time) return false;
 
-    std::mutex &mutex;
-    std::condition_variable &cond;
-    const bool &active;
-    
-    int readpos;
-    int writepos;
-    std::atomic<int> count;
+        return !period.valid() || time - last_in > std::chrono::microseconds(uint64_t(std::max(f_t(0), period.mean[0] - period.stdev_[0]*3)));
+    }
+
+    bool late_dynamic_latency(const sensor_clock::time_point & now) {
+        if(last_in > now) return false;
+
+        return period.valid() && latency.valid() && now - last_in > std::chrono::microseconds(uint64_t(period.mean[0] + latency.mean[0] + latency.stdev_[0]*3));
+    }
+
+    bool late_fixed_latency(const sensor_clock::time_point & now) {
+        if(last_in > now) return false;
+
+        return period.valid() && now - last_in > std::chrono::microseconds(uint64_t(period.mean[0])) + max_latency;
+    }
+
+    void receive(const sensor_clock::time_point & now, const sensor_clock::time_point & timestamp) {
+        if(in > 0 && timestamp >= last_in) {
+            sensor_clock::duration delta = timestamp - last_in;
+            period.data(v<1>{(f_t)delta.count()});
+            latency.data(v<1>{(f_t)(now - timestamp).count()});
+#ifdef DEBUG
+            hist.data(delta.count());
+#endif
+        }
+        in++;
+        if(timestamp >= last_in)
+            last_in = timestamp;
+    }
+
+    void push() { in_queue++; }
+    void dispatch() { out++; in_queue--; }
+    void drop() { dropped++; }
+
+    std::string to_string() const {
+        std::ostringstream os;
+        os << in << " in, " << out << " out, " << dropped << " dropped\n";
+        if (period.count)  os << "\tperiod(us):  " << period;
+        if (latency.count) os << "\tlatency(us): " << latency;
+        return os.str();
+
+    }
 };
 
 /*
  Intention is that this fusion queue outputs a causal stream of data:
  A measurement with timestamp t is *complete* at that time, and all measurements are delivered in order relative to these timestamps
- For camera, if global shutter, t should be the middle of the integration period
- If rolling shutter, t should be the end of the integration period.
+ For cameras or depth cameras, t should be the middle of the integration period
  */
 class fusion_queue
 {
 public:
     enum class latency_strategy
     {
-        ELIMINATE_LATENCY, //Immediate dispatch. Not recommended. May fail entirely depending on relative latencies as all data from one sensor is dropped.
-        MINIMIZE_LATENCY, //Only wait if we are less than 1 ms before or less than jitter ms after the expected arrival of future data. Generally results in 10-20% dropped data
-        IMAGE_TRIGGER, //buffer data until we get an image, then process everything befoer that image. if we don't expect images, then behave like minimize drops
-        BALANCED, //Blends strategy of minimize drops when we aren't blocking vision processing and minimize latency when we are blocking vision. Generally low rate, <5% of dropped data.
-        MINIMIZE_DROPS, //we'll only drop if something arrives earlier than expected. Almost never drops
+        FIFO, //pass data through the queue without any modification
+        MINIMIZE_LATENCY, //minimize latency
+        DYNAMIC_LATENCY, //estimate relative latency and use it to determine drops
         ELIMINATE_DROPS //we always wait until the data in the other queues is ready
-        //Both minimize_drops and eliminate_drops may exhibit spurious drops due to different latencies in startup time of sensors. Since they wait for future data to show up, if that other data stream hasn't started yet, then the other buffers can fill up and drop due to being full.
     };
 
-    fusion_queue(const std::function<void(image_gray8 &&)> &camera_func,
-                 const std::function<void(image_depth16 &&)> &depth_func,
-                 const std::function<void(accelerometer_data &&)> &accelerometer_func,
-                 const std::function<void(gyro_data &&)> &gyro_func,
+    fusion_queue(const std::function<void(sensor_data &&)> &receive_func,
                  latency_strategy s,
-                 sensor_clock::duration max_jitter);
+                 sensor_clock::duration max_latency);
     ~fusion_queue();
     
     void reset();
-    void start_async(bool expect_camera);
-    void start_sync(bool expect_camera);
-    void start_singlethreaded(bool expect_camera);
-    void start_buffering();
-    void stop_immediately();
-    void stop_async();
-    void stop_sync();
-    void wait_until_finished();
-    std::string get_stats();
 
-    void receive_camera(image_gray8&& x);
-    void receive_depth(image_depth16&& x);
-    void receive_accelerometer(accelerometer_data&& x);
-    void receive_gyro(gyro_data&& x);
-    void dispatch_sync(std::function<void()> fn);
+    void start(bool threaded);
+    void start_buffering(sensor_clock::duration buffer_time);
+
+    void stop();
+
+    void require_sensor(rc_SensorType type, rc_Sensor id, sensor_clock::duration max_latency);
+
+    void receive_sensor_data(sensor_data &&);
     void dispatch_async(std::function<void()> fn);
+
+    std::string get_stats();
 
     latency_strategy strategy;
 
+    uint64_t total_in{0};
+    uint64_t total_out{0};
+    sensor_clock::time_point newest_received{};
+
 private:
+    stdev<1> queue_latency{};
+    void clear();
+    void stop_async();
+    void stop_immediately();
+    void wait_until_finished();
     void runloop();
     bool run_control();
-    bool ok_to_dispatch(sensor_clock::time_point time);
+    bool ok_to_dispatch();
     bool dispatch_next(std::unique_lock<std::mutex> &lock, bool force);
     void dispatch_singlethread(bool force);
-    void dispatch_buffer();
-    sensor_clock::time_point global_latest_received() const;
-    stdev<1> queue_latency;
+    void push_queue(uint64_t global_id, sensor_data &&);
+    sensor_data pop_queue();
+    sensor_clock::time_point next_timestamp();
 
-    std::mutex mutex;
+    bool all_have_data();
+
+    std::mutex data_lock;
+    std::mutex control_lock;
     std::condition_variable cond;
     std::thread thread;
     
-    std::function<void(image_gray8 &&)> camera_receiver;
-    std::function<void(image_depth16 &&)> depth_receiver;
-    std::function<void(accelerometer_data &&)> accel_receiver;
-    std::function<void(gyro_data &&)> gyro_receiver;
+    std::function<void(sensor_data &&)> data_receiver;
     
-    sensor_queue<image_gray8, 6> camera_queue;
-    sensor_queue<image_depth16, 6> depth_queue;
-    sensor_queue<accelerometer_data, 64> accel_queue;
-    sensor_queue<gyro_data, 64> gyro_queue;
+    std::unordered_map<uint64_t, sensor_stats> stats;
+    std::vector<uint64_t> required_sensors;
+    std::deque<sensor_data> queue;
+
     std::function<void()> control_func;
     bool active;
-    bool wait_for_camera;
     bool singlethreaded;
     
     sensor_clock::time_point last_dispatched;
     
-    sensor_clock::duration jitter;
+    sensor_clock::duration max_latency;
+    sensor_clock::duration buffer_time{};
+    bool buffering{false};
 };
 
 #endif /* defined(__sensor_fusion_queue__) */

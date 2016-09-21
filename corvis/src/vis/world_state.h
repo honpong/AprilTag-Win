@@ -2,6 +2,7 @@
 #define __CORVIS_WORLD_STATE_H__
 
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <list>
 #include <mutex>
@@ -19,6 +20,7 @@ typedef struct _feature {
     int times_seen;
     float cx, cy, ctheta;
     bool good;
+    rc_Sensor camera_id;
 } Feature;
 
 typedef struct _position {
@@ -29,6 +31,7 @@ typedef struct _position {
 typedef struct _ImageData {
     uint8_t * image;
     int width, height;
+    uint64_t timestamp;
 } ImageData;
 
 typedef struct _mapnode {
@@ -45,17 +48,23 @@ typedef struct _sensor {
     transformation extrinsics;
 } Sensor;
 
-struct rc_Tracker;
-struct rc_Data;
-
 typedef std::pair<uint64_t, float> plot_item;
 typedef std::list<plot_item > plot_data;
 
 class world_state
 {
 public:
+    class overlay_data
+    {
+    public:
+        std::vector<VertexData> feature_ellipse_vertex;
+        std::vector<VertexData> feature_projection_vertex;
+        ImageData image;
+    };
+
     typedef std::map<std::string, plot_data> plot;
 private:
+    std::unordered_map<std::string, size_t> plots_by_name;
     std::map<int, std::map<uint16_t, Sensor, std::less<uint16_t>, Eigen::aligned_allocator<std::pair<const uint16_t, Sensor> > > > sensors;
     std::map<uint64_t, MapNode> map_nodes;
     std::map<uint64_t, Feature> features;
@@ -64,11 +73,14 @@ private:
     uint64_t current_feature_timestamp;
     uint64_t current_timestamp;
     void build_grid_vertex_data();
-    void generate_feature_ellipse(const Feature & feat, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
+    void generate_feature_ellipse(const Feature & feat, std::vector<VertexData> & feature_ellipse_vertex, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
+
     void update_current_timestamp(const uint64_t & timestamp);
     void update_plots(rc_Tracker * tracker, const rc_Data * data);
     void update_sensors(rc_Tracker * tracker, const rc_Data * data);
     void update_map(rc_Tracker * tracker, const rc_Data * data);
+
+    size_t get_plot_by_name(std::string plot_name);
 
     std::vector<plot> plots;
     bool dirty{true};
@@ -85,17 +97,13 @@ public:
     std::vector<VertexData> path_gt_vertex;
     std::vector<VertexData> feature_vertex;
     std::vector<VertexData> orientation_vertex;
-    std::vector<VertexData> feature_ellipse_vertex;
-    std::vector<VertexData> feature_projection_vertex;
     std::vector<VertexData> map_node_vertex;
     std::vector<VertexData> map_edge_vertex;
     std::vector<VertexData> map_feature_vertex;
     std::vector<VertexData> sensor_vertex;
     std::vector<VertexData> sensor_axis_vertex;
-    ImageData last_image;
-    ImageData last_depth;
-    ImageData last_depth_overlay_image;
-    bool generate_depth_overlay;
+    std::vector<overlay_data> cameras;
+    std::vector<ImageData> depths;
     float up[3] = {0,0,1};
 
     uint64_t max_plot_history_us = 30e6;
@@ -112,12 +120,12 @@ public:
     void observe_world(float world_up_x, float world_up_y, float world_up_z,
                        float world_forward_x, float world_forward_y, float world_forward_z,
                        float body_forward_x, float body_forward_y, float body_forward_z);
-    void observe_feature(uint64_t timestamp, const rc_Feature & feature);
+    void observe_feature(uint64_t timestamp, rc_Sensor camera_id, const rc_Feature & feature);
     void observe_position(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_position_gt(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_plot_item(uint64_t timestamp_us, size_t plot_index, std::string plot_name, float value);
-    void observe_image(uint64_t timestamp_us, uint8_t * image, int width, int height, int stride);
-    void observe_depth(uint64_t timestamp_us, const uint16_t * image, int width, int height, int stride);
+    void observe_image(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data);
+    void observe_depth(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data);
     void observe_depth_overlay_image(uint64_t timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
     void observe_map_node(uint64_t timestamp_us, uint64_t id, bool finished, bool loop_closed, bool is_unlinked, const transformation &T, std::vector<uint64_t> & neighbors, std::vector<Feature> & features);
     std::string get_feature_stats();

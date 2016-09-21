@@ -10,6 +10,9 @@ into an estimate of the rotation and translation of the device itself.
 The main interface to the library can be found in
 [rc_tracker.h](corvis/src/filter/rc_tracker.h).
 
+An overview of the algorithm can be found in
+[docs/OVERVIEW.md](docs/OVERVIEW.md)
+
 ## Building
 
 After installing [CMake](https://cmake.org/) and MKL (see below) the

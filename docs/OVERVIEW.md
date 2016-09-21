@@ -1,6 +1,6 @@
 # Table of Contents
 
-1. [Definitions](#definitions)
+1. [Overview](#overview)
 1. [Kalman Filter](#kalman-filter)
 1. [Vision Features](#vision-features)
     1. [Vision Features and Filter Update Overview](#vision-features-filter-update)
@@ -13,26 +13,30 @@
     1. [Sparse EKF calculations](#state-sparse-ekf)
         1. [Sparse matrix multiply](#state-sparse-mul)
 
-<a name="definitions">
-# Definitions
+<a name="overview">
+# Overview
 In the below description, various terms are in **bold** that
 correspond to terminology used in the algorithm and software.
 
-The algorithm for 6DoF inputs sensors data (motion cameras, IMU gyro
-and accelerometer). Features are **detected** at (x,y) locations in
-the images and then **tracked** frame to frame, only detecting new
-features if the code is no longer able to track existing ones. The
-combination of the (x,y) location of these image features and the
-incoming gyro and accelerometer data make up the "measurements".
+The algorithm takes sensors data (image, gyroscope, accelerometer,
+and optionally depth data) and attempts to estimate the
+**pose** of the device. This pose is composed of a rotation and a
+translation, and optionally an instantaneous velocity and
+acceleration.
 
-The algorithm also maintains **state** which it is
-modeling/estimating. This state can't always be observed directly, but
-it can be estimated based on Newtonian motion equations that allow the
-state as well as estimated uncertainty with the model to **evolve**
-with time. For example, position in the 3D world evolves or changes
-with time based on computed velocity and acceleration. This state
-includes the position and orientation of the drone or user's head
-which is the final desired output from the 6DoF algorithm.
+Features are **detected** at (x,y) locations in the images and then
+**tracked** frame to frame, only detecting new features if the code is
+no longer able to track existing ones. The combination of the (x,y)
+location of these image features and the incoming gyro and
+accelerometer data make up the **measurements**.
+
+The algorithm maintains an estimate of the **state**. This state
+can't always be observed directly, but it can be estimated based on
+Newtonian motion equations that allow the state as well as estimated
+uncertainty with the model to **evolve** with time. For example,
+position in the 3D world evolves or changes with time based on
+computed velocity and acceleration. This state includes the pose which
+is the final desired output from the 6DoF algorithm.
 
 New incoming measurements can (via a lot of math) provide updates to
 the model/estimate. Combining and weighting of new measurement data
@@ -45,27 +49,7 @@ based on that model, a **prediction** is made by **projecting** the
 incoming measurement should be based on the model. The difference
 between the prediction and measurement is the **innovation**. This
 innovation and the covariance of the model and measurement is used to
-then update the model. This model is also referred to as the filter.
-
-Incoming data can at times have data points that are completely out of
-sync with what's being modeled. Examples of these **outliers**, which
-are generally vision features, could include:
-
-- Vision feature located in a moving object rather than the background
-  scene.
-- A foreground and background object appearing to intersect in the
-  image and thus forming a feature which then appears to move/crawl in
-  the image as the viewpoint changes and this "intersection" moves.
-
-Identifying and quickly throwing out outlier data is critical to
-maintaining the robustness of the filter. A technique called **1pt
-RANSAC** is being added which randomly picks a single state variable
-(always a vision feature?), runs it through the filter and checks to
-see which state agrees (inliers) and which state disagrees (outliers)
-based on some threshold. "Agreement" is already provided by the
-covariance matrix. Since it's possible the one point was itself an
-outlier, this is repeated a few times since the risk of picking say 3
-outliers in a row, especially ones that all agree, is remote.
+update the model. This model is also referred to as the **filter**.
 
 <a name="kalman-filter">
 # Kalman Filter
@@ -82,8 +66,8 @@ can be measured. A measurement is then taken and the predicted and
 actual measurements and their uncertainties are combined to come up
 with a better estimation of the state and covariance of the
 model/filter. This process is repeated for every new measurement
-resulting in a more refined model. The KF is known to be the best
-estimate of a linear system with Gaussian noise.
+resulting in a more refined model. The Kalman filter is known to be
+the best estimate of a linear system with Gaussian noise.
 
 The Kalman Filter assumes a linear model. To account for non-linear
 models, which 6DoF requires, the Extended Kalman Filter (EKF) is used.
@@ -175,18 +159,36 @@ cloud around X2). This also gives us a better estimate for the camera
 pose denoted by the small red cloud around V1. This process continues
 to iterate and refine both feature locations and camera pose.
 
+Tracked features can at times be completely out of sync with what's
+being modeled. Examples of these **outliers** include:
+
+- Vision feature located in a moving object rather than the static
+  (rigid) scene.
+- A foreground and background object appearing to intersect in the
+  image and thus forming a feature which then appears to move/crawl in
+  the image as the viewpoint changes and this **occlusion** moves.
+
+Identifying and quickly throwing out outlier data is critical to
+maintaining the robustness of the filter. A technique called **1pt
+RANSAC** is being considered which randomly picks a single state variable
+(always a vision feature?), runs it through the filter and checks to
+see which state agrees (inliers) and which state disagrees (outliers)
+based on some threshold. "Agreement" is already provided by the
+covariance matrix. Since it's possible the one point was itself an
+outlier, this is repeated a few times since the risk of picking say 3
+outliers in a row, especially ones that all agree, is remote.
+
 <a name="vision-features-ekf">
 ## Vision Features and EKF Code Flow Overview
 
-The below diagram shows the RC 6DoF code flow for vision features and
-how this ties into the EKF. The code flow is sequential and follows
-the numbering shown. However, the diagram shows that from a dependency
-perspective, 2 of the 3 parts of tracking could actually be done
-earlier. It also shows step "9: Compute Prediction Covariance" could
-most likely be done before tracking since tracking is all about
-getting a new vision measurement. The dependency tracking will become
-important as we look to accelerate functions by exploiting parallel
-execution.
+The below diagram shows the flow for vision features and how this ties
+into the EKF. The code flow is sequential and follows the numbering
+shown. However, the diagram shows that from a dependency perspective,
+2 of the 3 parts of tracking could actually be done earlier. It also
+shows step "9: Compute Prediction Covariance" could most likely be
+done before tracking since tracking is all about getting a new vision
+measurement. The dependency tracking will become important as we look
+to accelerate functions by exploiting parallel execution.
 
 Steps 1-12 are the path from getting a new vision image frame to when
 that image frame can result in an update to the camera pose.

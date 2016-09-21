@@ -92,7 +92,7 @@ public:
 template<int N>
 static inline std::ostream& operator<<(std::ostream &stream, const stdev<N> &v)
 {
-    return stream << "mean is: " << v.mean << ", stdev is: " << v.stdev_ << ", max is: " << v.max << std::endl;
+    return stream << "mean is: " << v.mean << ", stdev is: " << v.stdev_ << ", max is: " << v.max;
 }
 
 class histogram

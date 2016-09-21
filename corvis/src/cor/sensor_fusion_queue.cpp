@@ -89,8 +89,8 @@ std::string fusion_queue::get_stats()
         statstr << id_string(k) << "\t" + stats.find(k)->second.to_string() << "\n";
     }
 
-    statstr << "Queue latency: " << queue_latency << "\n";
-    
+    statstr << "Queue latency: " << queue_latency << "\n\n";
+
     return statstr.str();
 }
 

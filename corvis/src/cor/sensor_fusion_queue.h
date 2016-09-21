@@ -84,9 +84,9 @@ public:
     std::string to_string() const {
         std::ostringstream os;
         os << in << " in, " << out << " out, " << late.count << " late " << out_of_order << " out of order\n";
-        if (period.count)  os << "\tperiod(us):  " << period;
-        if (latency.count) os << "\tlatency(us): " << latency;
-        if (late.count)    os << "\tlate(us):    " << late;
+        if (period.count)  os << "\tperiod(us):  " << period  << "\n";
+        if (latency.count) os << "\tlatency(us): " << latency << "\n";
+        if (late.count)    os << "\tlate(us):    " << late    << "\n";
         return os.str();
 
     }

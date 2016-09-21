@@ -73,12 +73,7 @@ public:
             assert(image.height && image.stride);
             void * res_image = malloc(image.stride*image.height);
             memcpy(res_image, image.image, image.stride*image.height);
-            return std::make_unique<sensor_data>(time_us, type, id,
-                      image.shutter_time_us, image.width, image.height, image.stride, image.format,
-                      res_image, [](void * handle) {
-                        free(handle);
-                      }, res_image);
-            }
+            return std::make_unique<sensor_data>(time_us, type, id, image.shutter_time_us, image.width, image.height, image.stride, image.format, res_image, free, res_image);
             break;
 
         case rc_SENSOR_TYPE_ACCELEROMETER:

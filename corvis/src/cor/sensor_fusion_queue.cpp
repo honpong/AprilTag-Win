@@ -14,9 +14,13 @@
 #define MAX_SENSORS 64
 
 template <typename Stream>
-inline Stream &operator <<(Stream &s, const std::deque<sensor_data> &v) {
+inline Stream &operator <<(Stream &s, const std::deque<sensor_data> &q) {
+    struct tt { sensor_clock::time_point time_us; rc_SensorType type; };
+    std::vector<struct tt> v(q.size());
+    std::transform(q.begin(), q.end(), v.begin(), [](const auto &d) { return tt{ d.timestamp, d.type }; });
+    std::sort(v.begin(), v.end(), [](const auto &a, const auto &b) { return a.time_us < b.time_us; });
     for(auto &d: v)
-        s << std::chrono::duration_cast<std::chrono::microseconds>(d.timestamp-v.front().timestamp).count() << ":" << d.type << " ";
+        s << std::chrono::duration_cast<std::chrono::microseconds>(d.time_us-v.front().time_us).count() << ":" << d.type << " ";
     return s;
 }
 

@@ -754,7 +754,12 @@ void filter_detect_features(struct filter *f, const sensor_data &image)
     int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
     if(space >= f->min_group_add) {
-        if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
+        const vector<tracker::point> & kp = filter_start_detection(f, image.image, space);
+        int detected_features = filter_add_detected_features(f, image.timestamp, kp, space, image.image.height);
+        int active_features = f->s.feature_count();
+
+        if((f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) &&
+            active_features >= state_vision_group::min_feats) {
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
 #endif
@@ -762,24 +767,17 @@ void filter_detect_features(struct filter *f, const sensor_data &image)
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
 #endif
+            f->run_state = RCSensorFusionRunStateRunning;
+            f->log->trace("When moving from steady init to running:");
+            print_calibration(f);
+            f->active_time = image.timestamp;
         }
-        const vector<tracker::point> & kp = filter_start_detection(f, image.image, space);
-        int detected_features = filter_add_detected_features(f, image.timestamp, kp, space, image.image.height);
 
-        int active_features = f->s.feature_count();
         if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);
             f->detector_failed = true;
             f->calibration_bad = true;
-            if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) f->s.enable_orientation_only();
         } else {
-            //don't go active until we can successfully add features
-            if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-                f->run_state = RCSensorFusionRunStateRunning;
-                f->log->trace("When moving from steady init to running:");
-                print_calibration(f);
-                f->active_time = image.timestamp;
-            }
             f->detector_failed = false;
         }
     }

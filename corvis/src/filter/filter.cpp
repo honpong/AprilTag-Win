@@ -765,12 +765,9 @@ void filter_detect_features(struct filter *f, const sensor_data &image)
     auto start = std::chrono::steady_clock::now();
     //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
     const vector<tracker::point> & kp = filter_start_detection(f, image.image);
-    int space = filter_available_space(f);
-    int detected_features = filter_add_detected_features(f, image.timestamp, kp, space, image.image.height);
-    int active_features = f->s.feature_count();
 
     if((f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) &&
-        active_features >= state_vision_group::min_feats) {
+        kp.size() >= state_vision_group::min_feats) {
 #ifdef TEST_POSDEF
         if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
 #endif
@@ -784,6 +781,9 @@ void filter_detect_features(struct filter *f, const sensor_data &image)
         f->active_time = image.timestamp;
     }
 
+    int space = filter_available_space(f);
+    int detected_features = filter_add_detected_features(f, image.timestamp, kp, space, image.image.height);
+    int active_features = f->s.feature_count();
     if(active_features < state_vision_group::min_feats) {
         f->log->info("detector failure: only {} features after add", active_features);
         f->detector_failed = true;

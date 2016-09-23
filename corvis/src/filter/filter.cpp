@@ -657,26 +657,8 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
 }
 */
 
-//TODO: features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static int filter_add_features(struct filter *f, sensor_clock::time_point timestamp, const rc_ImageData & image, size_t newfeats)
+static int filter_add_detected_features(struct filter * f, sensor_clock::time_point timestamp, const std::vector<tracker::point> & kp, size_t newfeats, int image_height)
 {
-#ifdef TEST_POSDEF
-    if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
-#endif
-    f->s.features.clear();
-    f->s.features.reserve(f->s.feature_count());
-    for(auto g : f->s.groups.children)
-        for(auto i : g->features.children)
-            f->s.features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
-
-    // Run detector
-    tracker::image timage;
-    timage.image = (uint8_t *)image.image;
-    timage.width_px = image.width;
-    timage.height_px = image.height;
-    timage.stride_px = image.stride;
-    vector<tracker::point> &kp = f->s.camera.feature_tracker->detect(timage, f->s.features, (int)newfeats);
-
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
         for(const auto &p : kp)
@@ -691,7 +673,7 @@ static int filter_add_features(struct filter *f, sensor_clock::time_point timest
     int i;
     f_t image_to_depth = 1;
     if(f->has_depth)
-        image_to_depth = f_t(f->recent_depth->image.height)/image.height;
+        image_to_depth = f_t(f->recent_depth->image.height)/image_height;
     for(i = 0; i < (int)kp.size(); ++i) {
         feature_t kp_i = {kp[i].x, kp[i].y};
         {
@@ -733,6 +715,29 @@ static int filter_add_features(struct filter *f, sensor_clock::time_point timest
     return found_feats;
 }
 
+//TODO: features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
+static vector<tracker::point> & filter_start_detection(struct filter *f, const rc_ImageData & image, size_t newfeats)
+{
+#ifdef TEST_POSDEF
+    if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
+#endif
+    f->s.features.clear();
+    f->s.features.reserve(f->s.feature_count());
+    for(auto g : f->s.groups.children)
+        for(auto i : g->features.children)
+            f->s.features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
+
+    // Run detector
+    tracker::image timage;
+    timage.image = (uint8_t *)image.image;
+    timage.width_px = image.width;
+    timage.height_px = image.height;
+    timage.stride_px = image.stride;
+    vector<tracker::point> &kp = f->s.camera.feature_tracker->detect(timage, f->s.features, (int)newfeats);
+
+    return kp;
+}
+
 bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 {
     if(data.id != 0) return true;
@@ -758,7 +763,9 @@ void filter_detect_features(struct filter *f, const sensor_data &image)
             if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
 #endif
         }
-        int detected_features = filter_add_features(f, image.timestamp, image.image, space);
+        const vector<tracker::point> & kp = filter_start_detection(f, image.image, space);
+        int detected_features = filter_add_detected_features(f, image.timestamp, kp, space, image.image.height);
+
         int active_features = f->s.feature_count();
         if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);

@@ -49,8 +49,8 @@ void world_state_render_video(world_state * world, rc_Sensor id, int viewport_wi
     glPointSize(3.0f);
 #endif
     glLineWidth(2.0f);
-    frame_render.draw_overlay(&c.feature_ellipse_vertex[0], c.feature_ellipse_vertex.size(), GL_LINES, c.image.width, c.image.height, viewport_width, viewport_height);
-    frame_render.draw_overlay(&c.feature_projection_vertex[0], c.feature_projection_vertex.size(), GL_POINTS, c.image.width, c.image.height, viewport_width, viewport_height);
+    frame_render.draw_overlay(c.feature_ellipse_vertex.data(), c.feature_ellipse_vertex.size(), GL_LINES, c.image.width, c.image.height, viewport_width, viewport_height);
+    frame_render.draw_overlay(c.feature_projection_vertex.data(), c.feature_projection_vertex.size(), GL_POINTS, c.image.width, c.image.height, viewport_width, viewport_height);
     world->image_lock.unlock();
     world->display_lock.unlock();
 }
@@ -114,29 +114,29 @@ void world_state_render(world_state * world, float * view_matrix, float * projec
     glPointSize(3.0f);
 #endif
     glLineWidth(2.0f);
-    render.draw_array(&world->grid_vertex[0], world->grid_vertex.size(), GL_LINES);
+    render.draw_array(world->grid_vertex.data(), world->grid_vertex.size(), GL_LINES);
     glLineWidth(4.0f);
-    render.draw_array(&world->axis_vertex[0], world->axis_vertex.size(), GL_LINES);
-    render.draw_array(&world->orientation_vertex[0], world->orientation_vertex.size(), GL_LINES);
-    render.draw_array(&world->feature_vertex[0], world->feature_vertex.size(), GL_POINTS);
-    render.draw_array(&world->path_vertex[0], world->path_vertex.size(), GL_POINTS);
-    render.draw_array(&world->path_gt_vertex[0], world->path_gt_vertex.size(), GL_POINTS);
+    render.draw_array(world->axis_vertex.data(), world->axis_vertex.size(), GL_LINES);
+    render.draw_array(world->orientation_vertex.data(), world->orientation_vertex.size(), GL_LINES);
+    render.draw_array(world->feature_vertex.data(), world->feature_vertex.size(), GL_POINTS);
+    render.draw_array(world->path_vertex.data(), world->path_vertex.size(), GL_POINTS);
+    render.draw_array(world->path_gt_vertex.data(), world->path_gt_vertex.size(), GL_POINTS);
 
     glLineWidth(2.0f);
-    render.draw_array(&world->sensor_axis_vertex[0], world->sensor_axis_vertex.size(), GL_LINES);
+    render.draw_array(world->sensor_axis_vertex.data(), world->sensor_axis_vertex.size(), GL_LINES);
     glPointSize(8.0f);
-    render.draw_array(&world->sensor_vertex[0], world->sensor_vertex.size(), GL_POINTS);
+    render.draw_array(world->sensor_vertex.data(), world->sensor_vertex.size(), GL_POINTS);
 
 #if !(TARGET_OS_IPHONE)
     glPointSize(10.0f);
 #endif
-    render.draw_array(&world->map_node_vertex[0], world->map_node_vertex.size(), GL_POINTS);
+    render.draw_array(world->map_node_vertex.data(), world->map_node_vertex.size(), GL_POINTS);
     glLineWidth(4.0f);
-    render.draw_array(&world->map_edge_vertex[0], world->map_edge_vertex.size(), GL_LINES);
+    render.draw_array(world->map_edge_vertex.data(), world->map_edge_vertex.size(), GL_LINES);
 #if !(TARGET_OS_IPHONE)
     glPointSize(5.0f);
 #endif
-    render.draw_array(&world->map_feature_vertex[0], world->map_feature_vertex.size(), GL_POINTS);
+    render.draw_array(world->map_feature_vertex.data(), world->map_feature_vertex.size(), GL_POINTS);
 
     world->display_lock.unlock();
 }

@@ -61,9 +61,9 @@ private:
     // Mouse related
     arcball arc;
     bool is_rotating{false};
-    v3 translation_m;
-    v3 translation_start;
-    v3 translation_finish;
+    v3 translation_m{0,0,0};
+    v3 translation_start{0,0,0};
+    v3 translation_finish{0,0,0};
     bool is_translating{false};
     v3 get_view_translation();
     std::atomic<bool> dirty{true};

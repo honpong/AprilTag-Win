@@ -21,8 +21,6 @@ struct filter {
     int max_group_add;
     
     sensor_clock::time_point last_time;
-    sensor_clock::time_point last_packet_time;
-    int last_packet_type;
     state s;
     
     covariance cov;

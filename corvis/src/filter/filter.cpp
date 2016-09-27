@@ -198,17 +198,6 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude)
     assert(f); f->s.compute_gravity(latitude, altitude);
 }
 
-static bool check_packet_time(struct filter *f, sensor_clock::time_point t, int type)
-{
-    if(t < f->last_packet_time) {
-        f->log->warn("Warning: received packets out of order: {} at {} came first, then {} at {}. delta {}", f->last_packet_type, sensor_clock::tp_to_micros(f->last_packet_time), type, sensor_clock::tp_to_micros(t), (long long)std::chrono::duration_cast<std::chrono::microseconds>(f->last_packet_time - t).count());
-        return false;
-    }
-    f->last_packet_time = t;
-    f->last_packet_type = type;
-    return true;
-}
-
 void update_static_calibration(struct filter *f)
 {
     if(f->accel_stability.count < calibration_converge_samples) return;
@@ -410,7 +399,6 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
     f->last_accel_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
-    if(!check_packet_time(f, timestamp, packet_accelerometer)) return false;
     if(!f->ignore_lateness) {
         auto current = sensor_clock::now();
         auto delta = current - timestamp;
@@ -475,7 +463,6 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
     f->last_gyro_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
-    if(!check_packet_time(f, timestamp, packet_gyroscope)) return false;
     if(!f->ignore_lateness) {
         auto current = sensor_clock::now();
         auto delta = current - timestamp;
@@ -752,7 +739,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     sensor_clock::time_point time = data.timestamp;
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
-    if(!check_packet_time(f, time, packet_camera)) return false;
     if(!f->got_any_accelerometers() || !f->got_any_gyroscopes()) return false;
     
 #ifdef ENABLE_QR

@@ -372,7 +372,6 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
 void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)
 {
     const struct filter * f = &((sensor_fusion *)tracker)->sfm;
-    uint64_t timestamp_us = data->time_us;
 
     for(const auto & s : f->accelerometers) {
         observe_sensor(rc_SENSOR_TYPE_ACCELEROMETER, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
@@ -440,10 +439,8 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
             rc_Feature * features;
             int nfeatures = rc_getFeatures(tracker, data->id, &features);
 
-            for(int i = 0; i < nfeatures; i++) {
-                const rc_Feature & f = features[i];
+            for(int i = 0; i < nfeatures; i++)
                 observe_feature(timestamp_us, data->id, features[i]);
-            }
             observe_image(timestamp_us, data->id, data->image);
 
             // Map update is slow and loop closure checks only happen
@@ -738,7 +735,6 @@ void world_state::build_grid_vertex_data()
     float scale = 1; /* meter */
     grid_vertex.clear();
     /* Grid */
-    int idx = 0;
     unsigned char gridColor[4] = {122, 126, 146, 255};
     for(float x = -10*scale; x < 11*scale; x += scale)
     {

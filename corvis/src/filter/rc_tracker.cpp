@@ -518,7 +518,7 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
                 shutter_time_us, width, height, stride, rc_FORMAT_DEPTH16, image, completion_callback, callback_handle);
 
         if(tracker->output.started())
-            tracker->output.write_camera(camera_id, data.make_copy());
+            tracker->output.push(data.make_copy());
         if (tracker->started())
             tracker->receive_data(std::move(data));
     } else if (format == rc_FORMAT_GRAY8 && camera_id < tracker->sfm.cameras.size()) {
@@ -526,7 +526,7 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
                 shutter_time_us, width, height, stride, rc_FORMAT_GRAY8, image, completion_callback, callback_handle);
 
         if(tracker->output.started())
-            tracker->output.write_camera(camera_id, data.make_copy());
+            tracker->output.push(data.make_copy());
         if (tracker->started())
             tracker->receive_data(std::move(data));
     }
@@ -545,7 +545,7 @@ bool rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, r
     sensor_data data(time_us, rc_SENSOR_TYPE_ACCELEROMETER, accelerometer_id, acceleration_m__s2);
 
     if(tracker->output.started())
-        tracker->output.write_accelerometer(accelerometer_id, data.make_copy());
+        tracker->output.push(data.make_copy());
     if (tracker->started())
         tracker->receive_data(std::move(data));
     return true;
@@ -560,7 +560,7 @@ bool rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
     sensor_data data(time_us, rc_SENSOR_TYPE_GYROSCOPE, gyroscope_id, angular_velocity_rad__s);
 
     if(tracker->output.started())
-        tracker->output.write_gyro(gyroscope_id, data.make_copy());
+        tracker->output.push(data.make_copy());
     if (tracker->started())
         tracker->receive_data(std::move(data));
     return true;

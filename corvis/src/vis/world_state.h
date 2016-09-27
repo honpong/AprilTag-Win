@@ -70,8 +70,8 @@ private:
     std::map<uint64_t, Feature> features;
     std::vector<Position, Eigen::aligned_allocator<Position> > path;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_gt;
-    uint64_t current_feature_timestamp;
-    uint64_t current_timestamp;
+    uint64_t current_feature_timestamp{0};
+    uint64_t current_timestamp{0};
     void build_grid_vertex_data();
     void generate_feature_ellipse(const Feature & feat, std::vector<VertexData> & feature_ellipse_vertex, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
 

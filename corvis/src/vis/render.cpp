@@ -91,6 +91,8 @@ void render::gl_init()
 
 void render::draw_array(const VertexData * data, int number, int gl_type)
 {
+    if (!number) return;
+
     // Draw the frame
 	glVertexAttribPointer(vertex_loc, 3, GL_FLOAT, 0, sizeof(VertexData), &data[0].position);
 	glEnableVertexAttribArray(vertex_loc);

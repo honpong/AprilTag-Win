@@ -81,43 +81,39 @@ void capture::write_image_raw(uint16_t sensor_id, uint64_t timestamp_us, uint64_
     free(buf);
 }
 
-void capture::write_camera(uint16_t sensor_id, std::unique_ptr<sensor_data> data)
+void capture::write(std::unique_ptr<sensor_data> data)
 {
-    if(data->type == rc_SENSOR_TYPE_IMAGE)
-        process(std::packaged_task<void()>(std::bind([this, sensor_id](std::unique_ptr<sensor_data> & data) {
-            write_image_raw(sensor_id, data->time_us, data->image.shutter_time_us, (uint8_t *)data->image.image, data->image.width, data->image.height, data->image.stride, rc_FORMAT_GRAY8);
-        }, std::move(data))));
-    else
-        process(std::packaged_task<void()>(std::bind([this, sensor_id](std::unique_ptr<sensor_data> & data) {
-            write_image_raw(sensor_id, data->time_us, data->depth.shutter_time_us, (uint8_t *)data->depth.image, data->depth.width, data->depth.height, data->depth.stride, rc_FORMAT_DEPTH16);
-        }, std::move(data))));
+    switch(data->type) {
+        case rc_SENSOR_TYPE_IMAGE:
+            write_image_raw(data->id, data->time_us, data->image.shutter_time_us, (uint8_t *)data->image.image, data->image.width, data->image.height, data->image.stride, rc_FORMAT_GRAY8);
+            break;
+
+        case rc_SENSOR_TYPE_DEPTH:
+            write_image_raw(data->id, data->time_us, data->depth.shutter_time_us, (uint8_t *)data->depth.image, data->depth.width, data->depth.height, data->depth.stride, rc_FORMAT_DEPTH16);
+            break;
+
+        case rc_SENSOR_TYPE_ACCELEROMETER:
+            write_accelerometer_data(data->id, data->time_us, data->acceleration_m__s2.v);
+            break;
+
+        case rc_SENSOR_TYPE_GYROSCOPE:
+            write_gyroscope_data(data->id, data->time_us, data->angular_velocity_rad__s.v);
+            break;
+    }
 }
 
-void capture::write_accelerometer(uint16_t sensor_id, std::unique_ptr<sensor_data> data)
+void capture::push(std::unique_ptr<sensor_data> data)
 {
-    process(std::packaged_task<void()>(std::bind([this, sensor_id](std::unique_ptr<sensor_data> & data) {
-        write_accelerometer_data(sensor_id, data->time_us, data->acceleration_m__s2.v);
-    }, std::move(data))));
-}
-
-void capture::write_gyro(uint16_t sensor_id, std::unique_ptr<sensor_data> data)
-{
-    process(std::packaged_task<void()>(std::bind([this, sensor_id](std::unique_ptr<sensor_data> & data) {
-        write_gyroscope_data(sensor_id, data->time_us, data->angular_velocity_rad__s.v);
-    }, std::move(data))));
-}
-
-void capture::process(std::packaged_task<void()> &&write) {
     if (!started_)
         return;
     if (threaded) {
         {
             std::lock_guard<std::mutex> queue_lock(queue_mutex);
-            queue.push(std::move(write));
+            queue.push(std::move(data));
         }
         cv.notify_one();
     } else {
-        write();
+        write(std::move(data));
     }
 }
 
@@ -135,11 +131,11 @@ bool capture::start(const char *name, bool threaded)
             while (started_ || !queue.empty()) {
                 cv.wait(queue_lock);
                 while (!queue.empty()) {
-                    std::packaged_task<void()> write;
-                    std::swap(write, queue.front());
+                    std::unique_ptr<sensor_data> data;
+                    std::swap(data, queue.front());
                     queue.pop();
                     queue_lock.unlock();
-                    write();
+                    write(std::move(data));
                     queue_lock.lock();
                 }
             }

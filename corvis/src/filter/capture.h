@@ -29,7 +29,7 @@ private:
     std::atomic<bool> started_ {false};
     std::mutex queue_mutex;
     std::thread thread;
-    std::queue<std::packaged_task<void()>> queue;
+    std::queue<std::unique_ptr<sensor_data> > queue;
     std::condition_variable cv;
     bool threaded = false;
 
@@ -39,14 +39,13 @@ private:
     void write_gyroscope_data(uint16_t sensor_id, uint64_t timestamp_us, const float data[3]);
     void write_image_raw(uint16_t sensor_id, uint64_t timestamp_us, uint64_t exposure_time_us,
             const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format);
+    void write(std::unique_ptr<sensor_data> data);
 
 public:
     bool start(const char *name, bool threaded);
     bool started() { return started_; }
     void stop();
-    void write_camera(uint16_t sensor_id, std::unique_ptr<sensor_data> x);
-    void write_accelerometer(uint16_t sensor_id, std::unique_ptr<sensor_data> x);
-    void write_gyro(uint16_t sensor_id, std::unique_ptr<sensor_data> x);
+    void push(std::unique_ptr<sensor_data> data);
     uint64_t get_bytes_written() { return bytes_written; }
     uint64_t get_packets_written() { return packets_written; }
     ~capture() { stop(); }

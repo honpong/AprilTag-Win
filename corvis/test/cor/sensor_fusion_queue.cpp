@@ -324,53 +324,6 @@ TEST(SensorFusionQueue, SameTime)
     EXPECT_EQ(accrcv, 1);
 }
 
-TEST(SensorFusionQueue, FIFO)
-{
-    int camrcv = 0;
-    int deprcv = 0;
-    int gyrrcv = 0;
-    int accrcv = 0;
-    uint64_t times[] = {2000, 3000, 1000, 2000, 3000, 4000, 800};
-    int i = 0;
-
-    auto dataf = [&times, &i, &camrcv, &deprcv, &accrcv, &gyrrcv](sensor_data && x) {
-        EXPECT_EQ(x.time_us, times[i]);
-        i++;
-        switch(x.type) {
-            case rc_SENSOR_TYPE_IMAGE: ++camrcv; break;
-            case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
-            case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
-            case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
-        }
-    };
-
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::FIFO, 5000);
-
-    q->start(false);
-
-    q->receive_sensor_data(std::move(gyro_for_time(times[0])));
-
-    q->receive_sensor_data(std::move(accel_for_time(times[1])));
-
-    q->receive_sensor_data(std::move(gray8_for_time(times[2])));
-
-    q->receive_sensor_data(std::move(gray8_for_time(times[3])));
-
-    q->receive_sensor_data(std::move(gray8_for_time(times[4])));
-
-    q->receive_sensor_data(std::move(gray8_for_time(times[5])));
-
-    q->receive_sensor_data(std::move(depth16_for_time(times[6])));
-
-    q->stop();
-
-    EXPECT_EQ(camrcv, 4);
-    EXPECT_EQ(deprcv, 1);
-    EXPECT_EQ(gyrrcv, 1);
-    EXPECT_EQ(accrcv, 1);
-}
-
-
 TEST(SensorFusionQueue, MaxLatencyDispatch)
 {
     int camrcv = 0;

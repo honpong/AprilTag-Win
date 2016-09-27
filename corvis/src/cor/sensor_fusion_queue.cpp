@@ -228,46 +228,34 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
     auto s = stats.emplace(global_id, sensor_stats{std::chrono::microseconds(0)});
     s.first->second.receive(newest_received, x.timestamp);
 
-    if(strategy != latency_strategy::FIFO) {
-        if (x.timestamp < last_dispatched) {
-            s.first->second.drop_late(newest_received);
-            return;
-        }
-        if (x.timestamp < s.first->second.last_in) {
-            s.first->second.drop_out_of_order();
-            return;
-        }
+    if (x.timestamp < last_dispatched) {
+        s.first->second.drop_late(newest_received);
+        return;
+    }
+    if (x.timestamp < s.first->second.last_in) {
+        s.first->second.drop_out_of_order();
+        return;
     }
 
     s.first->second.push();
     queue.push_back(std::move(x));
-    if(strategy != latency_strategy::FIFO)
-        std::push_heap(queue.begin(), queue.end(), compare_sensor_data);
+    std::push_heap(queue.begin(), queue.end(), compare_sensor_data);
 }
 
 sensor_clock::time_point fusion_queue::next_timestamp()
 {
-    // the front of the queue has the earliest pushed item (in the
-    // case of FIFO) or the max heap item (in all other latency
+    // the front of the queue has the max heap item (in all latency
     // strategies)
     return queue.front().timestamp;
 }
 
 sensor_data fusion_queue::pop_queue()
 {
-    if(strategy == latency_strategy::FIFO) {
-        sensor_data data = std::move(queue.front());
-        queue.pop_front();
-        last_dispatched = data.timestamp;
-        return std::move(data);
-    }
-    else {
-        std::pop_heap(queue.begin(), queue.end(), compare_sensor_data);
-        sensor_data data = std::move(queue.back());
-        queue.pop_back();
-        last_dispatched = data.timestamp;
-        return std::move(data);
-    }
+    std::pop_heap(queue.begin(), queue.end(), compare_sensor_data);
+    sensor_data data = std::move(queue.back());
+    queue.pop_back();
+    last_dispatched = data.timestamp;
+    return std::move(data);
 }
 
 bool fusion_queue::ok_to_dispatch()
@@ -279,11 +267,6 @@ bool fusion_queue::ok_to_dispatch()
         if(stat == stats.end()) return false;
         auto & s = stat->second;
         switch(strategy) {
-
-        case latency_strategy::FIFO:
-            return true;
-            break;
-
         case latency_strategy::MINIMIZE_LATENCY:
             if(s.expected(next_time) && !s.late_fixed_latency(newest_received))
                 return false;

@@ -102,7 +102,6 @@ class fusion_queue
 public:
     enum class latency_strategy
     {
-        FIFO, //pass data through the queue without any modification
         MINIMIZE_LATENCY, //minimize latency
         DYNAMIC_LATENCY, //estimate relative latency and use it to determine drops
         ELIMINATE_DROPS //we always wait until the data in the other queues is ready

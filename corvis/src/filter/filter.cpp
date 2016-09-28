@@ -919,8 +919,6 @@ extern "C" void filter_initialize(struct filter *f)
     for (auto &d : f->depths)         d->init();
 
     f->last_time = sensor_clock::time_point(sensor_clock::duration(0));
-    f->last_packet_time = sensor_clock::time_point(sensor_clock::duration(0));
-    f->last_packet_type = 0;
     f->want_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->run_state = RCSensorFusionRunStateInactive;
 

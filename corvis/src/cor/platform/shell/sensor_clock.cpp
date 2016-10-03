@@ -65,7 +65,7 @@ sensor_clock::time_point sensor_clock::now() noexcept
 
 sensor_clock::time_point sensor_clock::now() noexcept
 {
-    auto now_ts = std::chrono::system_clock::now();
+    auto now_ts = std::chrono::steady_clock::now();
     return micros_to_tp(std::chrono::duration_cast<std::chrono::microseconds>(now_ts.time_since_epoch()).count());
 }
 

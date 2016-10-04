@@ -188,19 +188,13 @@ void state_motion::copy_from(const state_motion &other)
     world_initial_forward = other.world_initial_forward;
     body_forward = other.body_forward;
 
-    f_t * temp_cov = cov.cov.data;
-    f_t * temp_p_noise = cov.process_noise.data;
-    cov.cov.data = other.cov.cov.data;
+    std::swap(cov.cov.data, other.cov.cov.data);
     cov.cov.resize(other.cov.size(), other.cov.size());
-    cov.process_noise.data = other.cov.process_noise.data;
+    std::swap(cov.process_noise.data, other.cov.process_noise.data);
     cov.process_noise.resize(other.cov.size());
-
-    orientation_initialized = other.orientation_initialized;
-    current_time = other.current_time;
-    loop_offset = other.loop_offset;
 
     remap();
 
-    cov.cov_scratch.data = temp_cov;
-    cov.process_scratch.data = temp_p_noise;
+    std::swap(cov.cov_scratch.data,     other.cov.cov.data);
+    std::swap(cov.process_scratch.data, other.cov.process_noise.data);
 }

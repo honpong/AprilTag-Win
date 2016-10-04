@@ -159,22 +159,30 @@ void state_motion::copy_from(const state_motion &other)
     if(other.orientation_only) enable_orientation_only();
     else disable_orientation_only();
 
+    disable_bias_estimation();
+
     //remap done. structure should match other. now reset content
 
     Q = other.Q;
     w = other.w;
     dw = other.dw;
     ddw = other.ddw;
-    imu.extrinsics.Q = other.imu.extrinsics.Q;
-    imu.extrinsics.T = other.imu.extrinsics.T;
-    imu.intrinsics.w_bias = other.imu.intrinsics.w_bias;
-    imu.intrinsics.a_bias = other.imu.intrinsics.a_bias;
-    disable_bias_estimation();
+
     g = other.g;
     T = other.T;
     V = other.V;
     a = other.a;
     da = other.da;
+
+    imu.extrinsics.Q = other.imu.extrinsics.Q;
+    imu.extrinsics.T = other.imu.extrinsics.T;
+
+    imu.intrinsics.w_bias = other.imu.intrinsics.w_bias;
+    imu.intrinsics.a_bias = other.imu.intrinsics.a_bias;
+
+    orientation_initialized = other.orientation_initialized;
+    current_time = other.current_time;
+    loop_offset = other.loop_offset;
 
     f_t * temp_cov = cov.cov.data;
     f_t * temp_p_noise = cov.process_noise.data;

@@ -154,14 +154,15 @@ void state_motion::enable_bias_estimation(bool remap_)
 
 void state_motion::copy_from(const state_motion &other)
 {
-    reset();
+    reset(); // index = -1, i.e. unmap all states
 
+    // This has a pointless (but empty due to the reset()) remap() as we will be remap()'ing below
     if(other.orientation_only) enable_orientation_only();
     else disable_orientation_only();
 
     disable_bias_estimation();
 
-    //remap done. structure should match other. now reset content
+    // remaps done. structure should match other. now reset content
 
     Q = other.Q;
     w = other.w;
@@ -180,6 +181,8 @@ void state_motion::copy_from(const state_motion &other)
     imu.intrinsics.w_bias = other.imu.intrinsics.w_bias;
     imu.intrinsics.a_bias = other.imu.intrinsics.a_bias;
 
+    // copy state_root
+
     orientation_initialized = other.orientation_initialized;
     current_time = other.current_time;
     loop_offset = other.loop_offset;
@@ -188,13 +191,16 @@ void state_motion::copy_from(const state_motion &other)
     world_initial_forward = other.world_initial_forward;
     body_forward = other.body_forward;
 
+    // copy covariance
+
     std::swap(cov.cov.data, other.cov.cov.data);
     cov.cov.resize(other.cov.size(), other.cov.size());
     std::swap(cov.process_noise.data, other.cov.process_noise.data);
     cov.process_noise.resize(other.cov.size());
 
-    remap();
+    remap(); // swaps cov/cov_scratch and process_noise/process_scratch and uses indicies/map[] to copy from the scratches
 
+    // to swap other back we need to swap with the scratches due to the swap in remap()
     std::swap(cov.cov_scratch.data,     other.cov.cov.data);
     std::swap(cov.process_scratch.data, other.cov.process_noise.data);
 }

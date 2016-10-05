@@ -376,7 +376,6 @@ public:
     void reset() {
         index = -1;
         v = rotation_vector(0., 0., 0.);
-        size = 3;
     }
     
     void perturb_variance() {

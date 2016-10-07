@@ -296,7 +296,7 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         if(type == nt)
             for (int i=0; i<_size; i++) {
-                fprintf(stderr, "%s[%d]: ", name, i); state.row(index+i).print();
+                fprintf(stderr, "%s[%d]: ", name, i); if (index < 0) fprintf(stderr, "unmapped\n"); else state.row(index+i).print();
             }
     }
 protected:

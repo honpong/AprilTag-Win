@@ -128,8 +128,8 @@ void state_imu_intrinsics::disable_bias_estimation()
 {
     if(!estimate_bias) return;
     estimate_bias = false;
-    a_bias.set_initial_variance(a_bias.variance()[0], a_bias.variance()[1], a_bias.variance()[2]);
-    w_bias.set_initial_variance(w_bias.variance()[0], w_bias.variance()[1], w_bias.variance()[2]);
+    a_bias.save_initial_variance();
+    w_bias.save_initial_variance();
     remove_child(&a_bias);
     remove_child(&w_bias);
 }

@@ -236,6 +236,14 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
             for(int j = 0; j < size; ++j)
                 initial_covariance(i, j) = (i==j) ? x : 0;
     }
+
+    void save_initial_variance()
+    {
+        if (index >= 0 && cov)
+            for(int i = 0; i < size; ++i)
+                for(int j = 0; j < size; ++j)
+                    initial_covariance(i, j) = (*cov)(index + i, index + i);
+    }
     
     int remap(int i, covariance &c, node_type nt) {
         if(nt != type) return i;

@@ -126,12 +126,13 @@ public:
         last_position = v3::Zero();
     }
 
-    virtual void enable_orientation_only();
-    virtual void disable_orientation_only();
-    virtual void enable_bias_estimation();
-    virtual void disable_bias_estimation();
+    virtual void enable_orientation_only(bool remap_ = true);
+    virtual void disable_orientation_only(bool remap_ = true);
+    virtual void enable_bias_estimation(bool remap_ = true);
+    virtual void disable_bias_estimation(bool remap_ = true);
 
     void copy_from(const state_motion & other);
+
 protected:
     bool orientation_only = false;
     virtual void add_non_orientation_states();

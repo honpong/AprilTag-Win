@@ -292,6 +292,13 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
     }
 
     void remove() { index = -1; }
+
+    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
+        if(type == nt)
+            for (int i=0; i<_size; i++) {
+                fprintf(stderr, "%s[%d]: ", name, i); state.row(index+i).print();
+            }
+    }
 protected:
     f_t process_noise[_size];
     m<_size, _size> initial_covariance;
@@ -349,13 +356,6 @@ public:
     {
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
-
-    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
-        if(type != nt) return;
-        fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
-        fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
-        fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
-    }
 };
 
 class state_rotation_vector: public state_leaf<rotation_vector, 3> {
@@ -407,13 +407,6 @@ public:
     virtual std::ostream &print_to(std::ostream & s) const
     {
         return s << name << ": " << v << "±" << variance().array().sqrt();
-    }
-
-    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
-        if(type != nt) return;
-        fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
-        fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
-        fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
     }
 };
 
@@ -467,13 +460,6 @@ public:
     virtual std::ostream &print_to(std::ostream & s) const
     {
         return s << name << ": " << v << "±" << variance().array().sqrt();
-    }
-    
-    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
-        if(type != nt) return;
-        fprintf(stderr, "%s[0]: ", name); state.row(index+0).print();
-        fprintf(stderr, "%s[1]: ", name); state.row(index+1).print();
-        fprintf(stderr, "%s[2]: ", name); state.row(index+2).print();
     }
     
 protected:
@@ -533,11 +519,6 @@ class state_scalar: public state_leaf<f_t, 1> {
     virtual std::ostream &print_to(std::ostream & s) const
     {
         return s << name << ": " << v << "±" << std::sqrt(variance());
-    }
-    
-    virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
-        if(type != nt) return;
-        fprintf(stderr, "%s: ", name); state.row(index).print();
     }
 };
 

@@ -1147,7 +1147,7 @@ extern "C" void filter_initialize(struct filter *f)
     f->origin_set = false;
     
     f->s.statesize = 0;
-    f->s.enable_orientation_only();
+    f->s.enable_orientation_only(false);
     f->s.remap();
     f->s.maxstatesize = MAXSTATESIZE;
 

@@ -943,6 +943,8 @@ extern "C" void filter_initialize(struct filter *f)
     
     f->observations.observations.clear();
 
+    f->s.reset();
+
     // TODOMSM: remove these in favor of treating everything on a
     // per-sensor basis
     assert(f->cameras.size() && f->accelerometers.size() && f->gyroscopes.size());
@@ -1046,8 +1048,9 @@ extern "C" void filter_initialize(struct filter *f)
     f->origin = transformation();
     f->origin_set = false;
     
-    f->s.reset(); // we can reset() now that the initial_variances are setup
+    f->s.statesize = 0;
     f->s.enable_orientation_only();
+    f->s.remap();
     f->s.maxstatesize = MAXSTATESIZE;
 }
 

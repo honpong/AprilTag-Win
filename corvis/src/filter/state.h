@@ -152,8 +152,6 @@ public:
         cov.reset();
         state_branch<state_node *>::reset();
         current_time = sensor_clock::micros_to_tp(0);
-
-        remap();
     }
     
     void evolve(f_t dt)

@@ -239,7 +239,18 @@ if(ENABLE_STEREO)
     set_property(TARGET stereo PROPERTY CXX_STANDARD 14)
 endif()
 
-file(GLOB LIBVLFEAT_FILES "vlfeat-0.9.18/vl/*.c")
+set(LIBVLFEAT_FILES
+   vlfeat-0.9.18/vl/generic.c
+   vlfeat-0.9.18/vl/host.c
+   vlfeat-0.9.18/vl/gmm.c
+   vlfeat-0.9.18/vl/mathop.c
+   vlfeat-0.9.18/vl/random.c
+   vlfeat-0.9.18/vl/vlad.c
+   vlfeat-0.9.18/vl/kmeans.c
+   vlfeat-0.9.18/vl/kdtree.c
+   vlfeat-0.9.18/vl/liop.c
+   vlfeat-0.9.18/vl/imopv.c
+)
 add_library(vlfeat STATIC ${LIBVLFEAT_FILES})
 target_include_directories(vlfeat INTERFACE vlfeat-0.9.18/vl)
 target_compile_options(vlfeat PRIVATE $<$<BOOL:${MSVC}>:/wd4244>)

@@ -809,9 +809,8 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
 
 }
 
-void mapper::dump_map(const char *filename)
+void mapper::dump_map(FILE *group_graph)
 {
-    FILE *group_graph = fopen(filename, "wt");
     fprintf(group_graph, "graph G {\nedge[len=2];\n");
     for(unsigned int node = 0; node < nodes.size(); ++node) {
         for(list<map_edge>::iterator edge = nodes[node].edges.begin(); edge != nodes[node].edges.end(); ++edge) {
@@ -824,7 +823,6 @@ void mapper::dump_map(const char *filename)
         }
     }
     fprintf(group_graph, "}\n");
-    fclose(group_graph);
 }
 
 void mapper::breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &)) {

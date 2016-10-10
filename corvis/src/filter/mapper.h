@@ -149,7 +149,7 @@ class mapper {
     static bool deserialize(const std::string &json, mapper & map);
 
     // Debugging
-    void dump_map(const char *filename);
+    void dump_map(FILE *file);
     void print_stats();
 
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper",  make_shared<spdlog::sinks::null_sink_st> ());

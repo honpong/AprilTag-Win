@@ -1,5 +1,7 @@
 #include <string.h>
 #include "dictionary.h"
+#include <fstream>
+#include <iostream>
 
 using namespace std;
 
@@ -7,22 +9,16 @@ dictionary::dictionary(string filename)
 {
     kmeans = vl_kmeans_new(VL_TYPE_FLOAT, VlDistanceL2);
 
-    // load centers
-    FILE * f = fopen(filename.c_str(), "rb");
-    if(!f) {
+    std::ifstream f(filename, std::ofstream::in | std::ofstream::binary);
+    if (!f.is_open()) {
         fprintf(stderr, "Could not open %s for reading\n", filename.c_str());
         return;
     }
 
-    fread(&dimension, sizeof(dimension), 1, f);
-    fread(&num_centers, sizeof(num_centers), 1, f);
-
+    f.read((char*)&dimension, sizeof(dimension));
+    f.read((char*)&num_centers, sizeof(dimension));
     float *centers = new float[dimension*num_centers];
-    fread(centers, sizeof(float), dimension*num_centers, f);
-
-    fclose(f);
-
-    // set centers
+    f.read((char*)centers, dimension*num_centers*sizeof(float));
     vl_kmeans_set_centers(kmeans, centers, dimension, num_centers);
     delete[] centers;
 }
@@ -56,47 +52,43 @@ dictionary::~dictionary()
     vl_kmeans_delete(kmeans);
 }
 
-void dictionary::write(string filename)
+void dictionary::write(std::string filename)
 {
-    FILE * f = fopen(filename.c_str(), "wb");
-    if(!f) {
-        fprintf(stderr, "Could not open %s for writing\n", filename.c_str());
+    std::ofstream f(filename, std::ofstream::out | std::ofstream::binary);
+    if (!f.is_open()) {
+        std::cerr << "Could not open " << filename << " for writing\n";
+        return;
     }
 
-    fwrite(&dimension, sizeof(dimension), 1, f);
-    fwrite(&num_centers, sizeof(num_centers), 1, f);
-    fwrite(vl_kmeans_get_centers(kmeans), sizeof(float), dimension*num_centers, f);
-
-    fclose(f);
+    f.write((char*)&dimension, sizeof(dimension));
+    f.write((char*)&num_centers, sizeof(dimension));
+    f.write((char*)vl_kmeans_get_centers(kmeans), dimension*num_centers*sizeof(float));
 }
 
 void dictionary::write_header(std::string basename)
 {
-    string filename = basename + "_dictionary.h";
-    FILE *f = fopen(filename.c_str(), "wt");
-    if(!f) {
-        fprintf(stderr, "Could not open %s for writing\n", filename.c_str());
+    std::ofstream f(basename + "_dictionary.h", std::ofstream::out | std::ofstream::binary);
+    if(!f.is_open()) {
+        std::cerr << "Could not open " << basename << "_dictionary.h for writing\n";
+        return;
     }
-    
-    fprintf(f, "#ifndef %s_dictionary_h\n", basename.c_str());
-    fprintf(f, "#define %s_dictionary_h\n\n", basename.c_str());
-    
-    fprintf(f, "#define %s_dimension %d\n", basename.c_str(), dimension);
-    fprintf(f, "#define %s_num_centers %d\n", basename.c_str(), num_centers);
-    fprintf(f, "const static float %s_centers[%s_dimension * %s_num_centers] {\n", basename.c_str(), basename.c_str(), basename.c_str());
-    
+
+    f << "#ifndef " << basename << "_dictionary_h\n";
+    f << "#define " << basename << "_dictionary_h\n";
+
+    f << "#define " << basename << "_dimension " << dimension << "\n";
+    f << "#define " << basename << "_num_centers " << num_centers << "\n";
+    f << "const static float " << basename << "_centers[" << basename << "_dimension * " << basename << "_num_centers] {\n";
+
     float *centers = (float *)vl_kmeans_get_centers(kmeans);
     for(int c = 0; c < num_centers; ++c) {
-        for(int d = 0; d < dimension; ++d) {
-            fprintf(f, "%f, ", centers[c * dimension + d]);
-        }
-        fprintf(f, "\n");
+        for(int d = 0; d < dimension; ++d)
+            f << centers[c * dimension + d] << ", ";
+        f << "\n";
     }
-    
-    fprintf(f, "};\n\n");
-    
-    fprintf(f, "#endif //%s_dictionary_h\n", basename.c_str());
-    fclose(f);
+
+    f << "};\n\n";
+    f << "#endif//" << basename << "_dictionary_h\n";
 }
 
 uint32_t dictionary::quantize(const descriptor & d)

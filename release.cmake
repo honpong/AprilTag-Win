@@ -31,6 +31,11 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "^(android-x32)$")
 else()
 endif()
 
+if (CMAKE_SYSTEM_NAME MATCHES "^(trusty)$")
+  set(RELEASE_EXTRA ${RELEASE_EXTRA} -DCMAKE_C_COMPILER=clang-3.6)
+  set(RELEASE_EXTRA ${RELEASE_EXTRA} -DCMAKE_CXX_COMPILER=clang++-3.6)
+endif()
+
 if (CMAKE_SYSTEM_NAME MATCHES "^(joule|alloy)$")
   add_compile_options(-march=corei7 -mfpmath=sse)
 endif()

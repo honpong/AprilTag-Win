@@ -663,8 +663,16 @@ static int filter_add_detected_features(struct filter * f, sensor_clock::time_po
     if(kp.size() < state_vision_group::min_feats) {
         for(const auto &p : kp)
             f->s.camera.feature_tracker->drop_feature(p.id);
+        int active_features = f->s.feature_count();
+        if(active_features < state_vision_group::min_feats) {
+            f->log->info("detector failure: only {} features after add", active_features);
+            f->detector_failed = true;
+            f->calibration_bad = true;
+        }
         return 0;
     }
+
+    f->detector_failed = false;
 
     state_vision_group *g = f->s.add_group(timestamp);
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
@@ -769,40 +777,10 @@ void filter_detect_features(struct filter *f, const sensor_data &image)
     f->s.camera.detection_future = std::async(std::launch::async,
                                    filter_start_detection, f, image.image);
 
-    //auto detection_future = f->s.camera.last_detection.get_future();
-    if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-        auto & detection = f->s.camera.detection_future.get();
-        //TODO: replace with a pass-through
-        if(detection.size() >= state_vision_group::min_feats) {
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
-#endif
-        f->s.disable_orientation_only();
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
-#endif
-        f->run_state = RCSensorFusionRunStateRunning;
-        f->log->trace("When moving from steady init to running:");
-        print_calibration(f);
-        f->active_time = image.timestamp;
-        }
-        f->s.camera.detection_future = std::async(std::launch::async,
-                                       filter_start_detection, f, image.image);
-        //f->s.camera.detection_future = std::async(std::launch::async,[&detection](const vector<tracker::point> && d) { return std::move(d);});
-    }
-
     if(f->s.camera.detection_future.valid()) {
         const auto & kp = f->s.camera.detection_future.get();
-    int space = filter_available_space(f);
-    int detected_features = filter_add_detected_features(f, f->s.camera.last_detection_timestamp, kp, space, image.image.height);
-    int active_features = f->s.feature_count();
-    if(active_features < state_vision_group::min_feats) {
-        f->log->info("detector failure: only {} features after add", active_features);
-        f->detector_failed = true;
-        f->calibration_bad = true;
-    } else {
-        f->detector_failed = false;
-    }
+        int space = filter_available_space(f);
+        filter_add_detected_features(f, f->s.camera.last_detection_timestamp, kp, space, image.image.height);
     }
     auto stop = std::chrono::steady_clock::now();
     f->detect_timer = stop-start;
@@ -937,7 +915,32 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     f->track_timer = stop-start;
     
     //do it async if we are running normally, but synchronously if we are orientation only (doesn't make a difference for mini state, and need features in order to initialize)
-    filter_detect_features(f, data);
+    int space = filter_available_space(f);
+    if(space >= f->min_group_add)
+    {
+        
+        if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
+            auto & detection = filter_start_detection(f, data.image);
+            if(detection.size() >= state_vision_group::min_feats) {
+#ifdef TEST_POSDEF
+                if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
+#endif
+                f->s.disable_orientation_only();
+#ifdef TEST_POSDEF
+                if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
+#endif
+                f->run_state = RCSensorFusionRunStateRunning;
+                f->log->trace("When moving from steady init to running:");
+                print_calibration(f);
+                f->active_time = data.timestamp;
+                filter_add_detected_features(f, f->s.camera.last_detection_timestamp, detection, space, data.image.height);
+            }
+        } else {
+        
+            //f->detecting_features = true;
+            filter_detect_features(f, data);
+        }
+    }
 
     return true;
 }

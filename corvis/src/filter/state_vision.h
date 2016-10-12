@@ -251,6 +251,7 @@ public:
     int process_features(const rc_ImageData &image, sensor_clock::time_point time);
     state_vision_feature *add_feature(const feature_t & initial);
     state_vision_group *add_group(sensor_clock::time_point time);
+    void remove_group(state_vision_group *g);
     transformation get_transformation() const;
 
     state_vision_group *reference;

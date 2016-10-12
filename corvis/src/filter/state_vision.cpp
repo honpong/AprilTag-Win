@@ -311,18 +311,12 @@ int state_vision::process_features(const rc_ImageData &image, sensor_clock::time
         reference = best_group;
     }
 
-    groups.children.remove_if([this](state_vision_group *g) {
-        if(g->status == group_empty) {
-            if(map_enabled) {
-                transformation G = get_transformation()*invert(transformation(g->Qr.v, g->Tr.v));
-                this->map.node_finished(g->id, G);
-            }
-            delete g;
-            return true;
-        } else {
-            return false;
-        }
-    });
+    for(auto i = groups.children.begin(); i != groups.children.end();)
+    {
+        auto g = *i;
+        ++i;
+        if(g->status == group_empty) remove_group(g);
+    }
 
     remap();
 
@@ -358,6 +352,16 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
     if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after propagating group\n");
 #endif
     return g;
+}
+
+void state_vision::remove_group(state_vision_group *g)
+{
+    if(map_enabled) {
+        transformation G = get_transformation()*invert(transformation(g->Qr.v, g->Tr.v));
+        this->map.node_finished(g->id, G);
+    }
+    groups.remove_child(g);
+    delete g;
 }
 
 feature_t state_vision_intrinsics::normalize_feature(const feature_t &feat) const

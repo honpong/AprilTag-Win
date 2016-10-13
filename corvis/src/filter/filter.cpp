@@ -657,10 +657,12 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
 }
 */
 
-static int filter_add_detected_features(struct filter * f, sensor_clock::time_point timestamp, const std::vector<tracker::point> & kp, size_t newfeats, int image_height)
+static int filter_add_detected_features(struct filter * f, state_vision_group *g, sensor_clock::time_point timestamp, const std::vector<tracker::point> & kp, size_t newfeats, int image_height)
 {
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
+        f->s.remove_group(g);
+        f->s.remap();
         for(const auto &p : kp)
             f->s.camera.feature_tracker->drop_feature(p.id);
         int active_features = f->s.feature_count();
@@ -674,7 +676,6 @@ static int filter_add_detected_features(struct filter * f, sensor_clock::time_po
 
     f->detector_failed = false;
 
-    state_vision_group *g = f->s.add_group(timestamp);
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
 
     int found_feats = 0;
@@ -725,7 +726,7 @@ static int filter_add_detected_features(struct filter * f, sensor_clock::time_po
 
 static int filter_available_space(struct filter *f)
 {
-    int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize - 6;
+    int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize;
     if(space > f->max_group_add) space = f->max_group_add;
     return space;
 }
@@ -768,7 +769,7 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 
 static vector<tracker::point> & detection_noop(std::vector<tracker::point> & d) { return d; }
 
-void filter_detect_features(struct filter *f, const sensor_data &image)
+void filter_detect_features(struct filter *f, state_vision_group *g, const sensor_data &image)
 {
     auto start = std::chrono::steady_clock::now();
     //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
@@ -780,7 +781,10 @@ void filter_detect_features(struct filter *f, const sensor_data &image)
     if(f->s.camera.detection_future.valid()) {
         const auto & kp = f->s.camera.detection_future.get();
         int space = filter_available_space(f);
-        filter_add_detected_features(f, f->s.camera.last_detection_timestamp, kp, space, image.image.height);
+        filter_add_detected_features(f, g, f->s.camera.last_detection_timestamp, kp, space, image.image.height);
+    } else {
+        f->s.remove_group(g);
+        f->s.remap();
     }
     auto stop = std::chrono::steady_clock::now();
     f->detect_timer = stop-start;
@@ -918,8 +922,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     int space = filter_available_space(f);
     if(space >= f->min_group_add)
     {
-        
         if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
+            f->s.camera.last_detection_timestamp = data.timestamp;
             auto & detection = filter_start_detection(f, data.image);
             if(detection.size() >= state_vision_group::min_feats) {
 #ifdef TEST_POSDEF
@@ -933,12 +937,13 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
                 f->active_time = data.timestamp;
-                filter_add_detected_features(f, f->s.camera.last_detection_timestamp, detection, space, data.image.height);
+                state_vision_group *g = f->s.add_group(data.timestamp);
+                filter_add_detected_features(f, g, f->s.camera.last_detection_timestamp, detection, space, data.image.height);
             }
         } else {
-        
             //f->detecting_features = true;
-            filter_detect_features(f, data);
+            state_vision_group *g = f->s.add_group(data.timestamp);
+            filter_detect_features(f, g, data);
         }
     }
 

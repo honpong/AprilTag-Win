@@ -160,7 +160,8 @@ void state_motion::copy_from(const state_motion &other)
     if(other.orientation_only) enable_orientation_only();
     else disable_orientation_only();
 
-    disable_bias_estimation();
+    if(other.imu.intrinsics.estimate_bias) imu.intrinsics.enable_bias_estimation();
+    else imu.intrinsics.disable_bias_estimation();
 
     // remaps done. structure should match other. now reset content
 

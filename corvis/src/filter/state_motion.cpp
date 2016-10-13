@@ -154,8 +154,6 @@ void state_motion::enable_bias_estimation(bool remap_)
 
 void state_motion::copy_from(const state_motion &other)
 {
-    reset(); // index = -1, i.e. unmap all states
-
     if(other.orientation_only) enable_orientation_only(false);
     else                       disable_orientation_only(false);
 

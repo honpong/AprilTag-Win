@@ -156,12 +156,11 @@ void state_motion::copy_from(const state_motion &other)
 {
     reset(); // index = -1, i.e. unmap all states
 
-    // This has a pointless (but empty due to the reset()) remap() as we will be remap()'ing below
-    if(other.orientation_only) enable_orientation_only();
-    else disable_orientation_only();
+    if(other.orientation_only) enable_orientation_only(false);
+    else                       disable_orientation_only(false);
 
-    if(other.imu.intrinsics.estimate_bias) imu.intrinsics.enable_bias_estimation();
-    else imu.intrinsics.disable_bias_estimation();
+    if(other.imu.intrinsics.estimate_bias) enable_bias_estimation(false);
+    else                                   disable_bias_estimation(false);
 
     // remaps done. structure should match other. now reset content
 

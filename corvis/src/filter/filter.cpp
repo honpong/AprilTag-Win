@@ -769,7 +769,7 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 
 static vector<tracker::point> & detection_noop(std::vector<tracker::point> & d) { return d; }
 
-void filter_detect_features(struct filter *f, state_vision_group *g, const sensor_data &image)
+void filter_detect_features(struct filter *f, state_vision_group *g, sensor_data &&image)
 {
     auto start = std::chrono::steady_clock::now();
     //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
@@ -786,6 +786,7 @@ void filter_detect_features(struct filter *f, state_vision_group *g, const senso
         f->s.remove_group(g);
         f->s.remap();
     }
+    f->detecting_group = nullptr;
     auto stop = std::chrono::steady_clock::now();
     f->detect_timer = stop-start;
 }
@@ -941,9 +942,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 filter_add_detected_features(f, g, f->s.camera.last_detection_timestamp, detection, space, data.image.height);
             }
         } else {
-            //f->detecting_features = true;
-            state_vision_group *g = f->s.add_group(data.timestamp);
-            filter_detect_features(f, g, data);
+            f->detecting_group = f->s.add_group(data.timestamp);
         }
     }
 
@@ -995,6 +994,8 @@ extern "C" void filter_initialize(struct filter *f)
     
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->calibration_bad = false;
+    
+    f->detecting_group = nullptr;
     
     f->mindelta = std::chrono::microseconds(0);
     f->valid_delta = false;

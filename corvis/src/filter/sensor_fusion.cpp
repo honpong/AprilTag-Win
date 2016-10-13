@@ -109,6 +109,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         if(docallback) {
             update_data(&data);
         }
+        if(sfm.detecting_group) filter_detect_features(&sfm, sfm.detecting_group, std::move(data));
         }
         break;
 
@@ -120,7 +121,6 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         if (filter_depth_measurement(&sfm, data)) {
             update_data(&data);
         }
-
         break;
     
     case rc_SENSOR_TYPE_ACCELEROMETER:

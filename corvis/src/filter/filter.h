@@ -46,6 +46,7 @@ struct filter {
     float max_velocity;
     float median_depth_variance;
     bool has_converged;
+    state_vision_group *detecting_group;
 
     sensor_clock::duration mindelta;
     bool valid_delta;
@@ -85,6 +86,7 @@ struct filter {
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data);
 bool filter_image_measurement(struct filter *f, const sensor_data & data);
+void filter_detect_features(struct filter *f, state_vision_group *g, sensor_data &&image);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);

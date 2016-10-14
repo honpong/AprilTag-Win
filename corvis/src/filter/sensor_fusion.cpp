@@ -109,7 +109,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         if(docallback) {
             update_data(&data);
         }
-        if(sfm.detecting_group) filter_detect_features(&sfm, sfm.detecting_group, std::move(data));
+        if(sfm.detecting_group) sfm.s.camera.detection_future = std::async(std::launch::async, filter_start_detection, &sfm, std::move(data));
         }
         break;
 

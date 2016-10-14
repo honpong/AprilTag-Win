@@ -732,11 +732,12 @@ static int filter_available_feature_space(struct filter *f)
     return space;
 }
 
-//TODO: features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static const vector<tracker::point> & filter_start_detection(struct filter *f, const rc_ImageData & image, int space, sensor_clock::time_point timestamp)
+const vector<tracker::point> & filter_start_detection(struct filter *f, const sensor_data &data)
 {
     auto start = std::chrono::steady_clock::now();
-    f->s.camera.last_detection_timestamp = timestamp;
+    int space = filter_available_feature_space(f);
+    const rc_ImageData image = data.image;
+    f->s.camera.last_detection_timestamp = data.timestamp;
     f->s.features.clear();
     f->s.features.reserve(f->s.feature_count());
     for(auto g : f->s.groups.children)
@@ -764,18 +765,6 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
     f->recent_depth = data.make_copy();
     f->has_depth = true;
     return true;
-}
-
-static vector<tracker::point> & detection_noop(std::vector<tracker::point> & d) { return d; }
-
-void filter_detect_features(struct filter *f, state_vision_group *g, sensor_data &&image)
-{
-    //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
-    //TODO: bundle timestamp with future?
-    int space = filter_available_feature_space(f);
-
-    f->s.camera.detection_future = std::async(std::launch::async, filter_start_detection, f, image.image, space, image.timestamp);
-    f->s.camera.detection_future.wait();
 }
 
 bool filter_image_measurement(struct filter *f, const sensor_data & data)
@@ -921,12 +910,13 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     auto stop = std::chrono::steady_clock::now();
     f->track_timer = stop-start;
     
+    //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
     //do it async if we are running normally, but synchronously if we are orientation only (doesn't make a difference for mini state, and need features in order to initialize)
     int space = filter_available_feature_space(f);
     if(space >= f->min_group_add)
     {
         if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-            auto & detection = filter_start_detection(f, data.image, space, data.timestamp);
+            auto & detection = filter_start_detection(f, data);
             if(detection.size() >= state_vision_group::min_feats) {
 #ifdef TEST_POSDEF
                 if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");

@@ -44,6 +44,7 @@ struct filter {
     float max_velocity;
     float median_depth_variance;
     bool has_converged;
+    state_vision_group *detecting_group;
 
     sensor_clock::duration mindelta;
     bool valid_delta;
@@ -78,11 +79,12 @@ struct filter {
     bool got_any_accelerometers() const { for (const auto &accel : accelerometers) if (accel->got) return true; return false; }
 
     //TODOMSM - per sensor
-    std::chrono::duration<float, milli> accel_timer, gyro_timer, image_timer;
+    std::chrono::duration<float, milli> accel_timer, gyro_timer, track_timer, detect_timer;
 };
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data);
 bool filter_image_measurement(struct filter *f, const sensor_data & data);
+const vector<tracker::point> & filter_start_detection(struct filter *f, const sensor_data &data);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);

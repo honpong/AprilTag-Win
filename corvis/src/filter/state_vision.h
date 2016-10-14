@@ -13,6 +13,7 @@ extern "C" {
 #include "../numerics/matrix.h"
 #include <vector>
 #include <list>
+#include <future>
 #include "state.h"
 #include "state_motion.h"
 #include "tracker.h"
@@ -222,7 +223,12 @@ struct state_camera: state_branch<state_node*> {
     state_extrinsics extrinsics;
     state_vision_intrinsics intrinsics;
     std::unique_ptr<tracker> feature_tracker;
+
+    std::future<const std::vector<tracker::point> & > detection_future;
+    sensor_clock::time_point last_detection_timestamp;
+
     state_camera() : extrinsics("Qc", "Tc", false), intrinsics(false) {
+        //last_detection.set_value(empty_detection);
         //children.push_back(&extrinsics);
         children.push_back(&intrinsics);
     }
@@ -244,6 +250,7 @@ public:
     int process_features(const rc_ImageData &image, sensor_clock::time_point time);
     state_vision_feature *add_feature(const feature_t & initial);
     state_vision_group *add_group(sensor_clock::time_point time);
+    void remove_group(state_vision_group *g);
     transformation get_transformation() const;
 
     state_vision_group *reference;

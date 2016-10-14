@@ -365,8 +365,11 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     p = get_plot_by_name("gyro timer");
     observe_plot_item(timestamp_us, p, "gyro timer", f->gyro_timer.count());
 
-    p = get_plot_by_name("image timer");
-    observe_plot_item(timestamp_us, p, "image timer", f->image_timer.count());
+    p = get_plot_by_name("track timer");
+    observe_plot_item(timestamp_us, p, "track timer", f->track_timer.count());
+
+    p = get_plot_by_name("detect timer");
+    observe_plot_item(timestamp_us, p, "detect timer", f->detect_timer.count());
 }
 
 void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)

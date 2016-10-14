@@ -644,41 +644,32 @@ std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter 
 }
 */
 
-//TODO: features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static int filter_add_features(struct filter *f, sensor_clock::time_point timestamp, const rc_ImageData & image, size_t newfeats)
+static int filter_add_detected_features(struct filter * f, state_vision_group *g, sensor_clock::time_point timestamp, const std::vector<tracker::point> & kp, size_t newfeats, int image_height)
 {
-#ifdef TEST_POSDEF
-    if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
-#endif
-    f->s.features.clear();
-    f->s.features.reserve(f->s.feature_count());
-    for(auto g : f->s.groups.children)
-        for(auto i : g->features.children)
-            f->s.features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
-
-    // Run detector
-    tracker::image timage;
-    timage.image = (uint8_t *)image.image;
-    timage.width_px = image.width;
-    timage.height_px = image.height;
-    timage.stride_px = image.stride;
-    vector<tracker::point> &kp = f->s.camera.feature_tracker->detect(timage, f->s.features, (int)newfeats);
-
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
+        f->s.remove_group(g);
+        f->s.remap();
         for(const auto &p : kp)
             f->s.camera.feature_tracker->drop_feature(p.id);
+        int active_features = f->s.feature_count();
+        if(active_features < state_vision_group::min_feats) {
+            f->log->info("detector failure: only {} features after add", active_features);
+            f->detector_failed = true;
+            f->calibration_bad = true;
+        }
         return 0;
     }
 
-    state_vision_group *g = f->s.add_group(timestamp);
+    f->detector_failed = false;
+
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
 
     int found_feats = 0;
     int i;
     f_t image_to_depth = 1;
     if(f->has_depth)
-        image_to_depth = f_t(f->recent_depth->image.height)/image.height;
+        image_to_depth = f_t(f->recent_depth->image.height)/image_height;
     for(i = 0; i < (int)kp.size(); ++i) {
         feature_t kp_i = {kp[i].x, kp[i].y};
         {
@@ -718,6 +709,40 @@ static int filter_add_features(struct filter *f, sensor_clock::time_point timest
     if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after adding features");
 #endif
     return found_feats;
+}
+
+static int filter_available_feature_space(struct filter *f)
+{
+    int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize;
+    if(!f->detecting_group) space -= 6;
+    if(space > f->max_group_add) space = f->max_group_add;
+    return space;
+}
+
+const vector<tracker::point> & filter_start_detection(struct filter *f, const sensor_data &data)
+{
+    auto start = std::chrono::steady_clock::now();
+    int space = filter_available_feature_space(f);
+    const rc_ImageData image = data.image;
+    f->s.camera.last_detection_timestamp = data.timestamp;
+    f->s.features.clear();
+    f->s.features.reserve(f->s.feature_count());
+    for(auto g : f->s.groups.children)
+        for(auto i : g->features.children)
+            f->s.features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
+
+    // Run detector
+    tracker::image timage;
+    timage.image = (uint8_t *)image.image;
+    timage.width_px = image.width;
+    timage.height_px = image.height;
+    timage.stride_px = image.stride;
+    vector<tracker::point> &kp = f->s.camera.feature_tracker->detect(timage, f->s.features, space);
+
+    auto stop = std::chrono::steady_clock::now();
+    f->detect_timer = stop-start;
+
+    return kp;
 }
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data)
@@ -821,6 +846,21 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         }
     }
 
+    if(f->detecting_group)
+    {
+#ifdef TEST_POSDEF
+        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
+#endif
+        if(f->s.camera.detection_future.valid()) {
+            const auto & kp = f->s.camera.detection_future.get();
+            int space = filter_available_feature_space(f);
+            filter_add_detected_features(f, f->detecting_group, f->s.camera.last_detection_timestamp, kp, space, data.image.height);
+        } else {
+            f->s.remove_group(f->detecting_group);
+            f->s.remap();
+        }
+        f->detecting_group = nullptr;
+    }
 
     filter_setup_next_frame(f, data);
 
@@ -843,41 +883,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         f->max_velocity = 0.;
         f->median_depth_variance = 1.;
     }
-
-    //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
-    int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize - 6;
-    if(space > f->max_group_add) space = f->max_group_add;
-    if(space >= f->min_group_add) {
-        if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-#ifdef TEST_POSDEF
-            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
-#endif
-            f->s.disable_orientation_only();
-#ifdef TEST_POSDEF
-            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
-#endif
-        }
-        int detected_features = filter_add_features(f, time, data.image, space);
-        int active_features = f->s.feature_count();
-        if(active_features < state_vision_group::min_feats) {
-            f->log->info("detector failure: only {} features after add", active_features);
-            f->detector_failed = true;
-            f->calibration_bad = true;
-            if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) f->s.enable_orientation_only();
-        } else {
-            //don't go active until we can successfully add features
-            if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-                f->run_state = RCSensorFusionRunStateRunning;
-                f->log->trace("When moving from steady init to running:");
-                print_calibration(f);
-                f->active_time = time;
-            }
-            f->detector_failed = false;
-        }
-    }
-
+    
     f->median_depth_variance = f->s.median_depth_variance();
-
+    
     float velocity = (float)f->s.V.v.norm();
     if(velocity > f->max_velocity) f->max_velocity = velocity;
     
@@ -886,7 +894,37 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     filter_update_outputs(f, time);
     
     auto stop = std::chrono::steady_clock::now();
-    f->image_timer = stop-start;
+    f->track_timer = stop-start;
+    
+    //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
+    //do it async if we are running normally, but synchronously if we are orientation only (doesn't make a difference for mini state, and need features in order to initialize)
+    int space = filter_available_feature_space(f);
+    if(space >= f->min_group_add)
+    {
+        if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
+            auto & detection = filter_start_detection(f, data);
+            if(detection.size() >= state_vision_group::min_feats) {
+#ifdef TEST_POSDEF
+                if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
+#endif
+                f->s.disable_orientation_only();
+#ifdef TEST_POSDEF
+                if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
+#endif
+                f->run_state = RCSensorFusionRunStateRunning;
+                f->log->trace("When moving from steady init to running:");
+                print_calibration(f);
+                f->active_time = data.timestamp;
+                state_vision_group *g = f->s.add_group(data.timestamp);
+                filter_add_detected_features(f, g, f->s.camera.last_detection_timestamp, detection, space, data.image.height);
+            }
+        } else {
+#ifdef TEST_POSDEF
+            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
+#endif
+            f->detecting_group = f->s.add_group(data.timestamp);
+        }
+    }
 
     return true;
 }
@@ -934,6 +972,8 @@ extern "C" void filter_initialize(struct filter *f)
     
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->calibration_bad = false;
+    
+    f->detecting_group = nullptr;
     
     f->mindelta = std::chrono::microseconds(0);
     f->valid_delta = false;

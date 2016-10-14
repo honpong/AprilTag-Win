@@ -724,23 +724,19 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
     return found_feats;
 }
 
-static int filter_available_space(struct filter *f)
+static int filter_available_feature_space(struct filter *f)
 {
     int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize;
+    if(!f->detecting_group) space -= 6;
     if(space > f->max_group_add) space = f->max_group_add;
     return space;
 }
 
 //TODO: features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static const vector<tracker::point> & filter_start_detection(struct filter *f, const rc_ImageData & image, sensor_clock::time_point timestamp)
+static const vector<tracker::point> & filter_start_detection(struct filter *f, const rc_ImageData & image, int space, sensor_clock::time_point timestamp)
 {
     auto start = std::chrono::steady_clock::now();
     f->s.camera.last_detection_timestamp = timestamp;
-
-    int space = filter_available_space(f);
-    if(space < f->min_group_add)
-        return f->s.camera.empty_detection;
-
     f->s.features.clear();
     f->s.features.reserve(f->s.feature_count());
     for(auto g : f->s.groups.children)
@@ -776,7 +772,9 @@ void filter_detect_features(struct filter *f, state_vision_group *g, sensor_data
 {
     //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
     //TODO: bundle timestamp with future?
-    f->s.camera.detection_future = std::async(std::launch::async, filter_start_detection, f, image.image, image.timestamp);
+    int space = filter_available_feature_space(f);
+
+    f->s.camera.detection_future = std::async(std::launch::async, filter_start_detection, f, image.image, space, image.timestamp);
 
     if(f->detecting_group)
     {
@@ -785,7 +783,7 @@ void filter_detect_features(struct filter *f, state_vision_group *g, sensor_data
 #endif
         if(f->s.camera.detection_future.valid()) {
             const auto & kp = f->s.camera.detection_future.get();
-            int space = filter_available_space(f);
+            int space = filter_available_feature_space(f);
             filter_add_detected_features(f, f->detecting_group, f->s.camera.last_detection_timestamp, kp, space, image.image.height);
         } else {
             f->s.remove_group(f->detecting_group);
@@ -925,11 +923,11 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     f->track_timer = stop-start;
     
     //do it async if we are running normally, but synchronously if we are orientation only (doesn't make a difference for mini state, and need features in order to initialize)
-    int space = filter_available_space(f);
+    int space = filter_available_feature_space(f);
     if(space >= f->min_group_add)
     {
         if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-            auto & detection = filter_start_detection(f, data.image, data.timestamp);
+            auto & detection = filter_start_detection(f, data.image, space, data.timestamp);
             if(detection.size() >= state_vision_group::min_feats) {
 #ifdef TEST_POSDEF
                 if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");

@@ -224,7 +224,6 @@ struct state_camera: state_branch<state_node*> {
     state_vision_intrinsics intrinsics;
     std::unique_ptr<tracker> feature_tracker;
 
-    std::vector<tracker::point> empty_detection;
     std::future<const std::vector<tracker::point> & > detection_future;
     sensor_clock::time_point last_detection_timestamp;
 

@@ -732,15 +732,15 @@ static int filter_available_space(struct filter *f)
 }
 
 //TODO: features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static const vector<tracker::point> & filter_start_detection(struct filter *f, const rc_ImageData & image)
+static const vector<tracker::point> & filter_start_detection(struct filter *f, const rc_ImageData & image, sensor_clock::time_point timestamp)
 {
+    auto start = std::chrono::steady_clock::now();
+    f->s.camera.last_detection_timestamp = timestamp;
+
     int space = filter_available_space(f);
     if(space < f->min_group_add)
         return f->s.camera.empty_detection;
 
-#ifdef TEST_POSDEF
-    if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
-#endif
     f->s.features.clear();
     f->s.features.reserve(f->s.feature_count());
     for(auto g : f->s.groups.children)
@@ -754,6 +754,9 @@ static const vector<tracker::point> & filter_start_detection(struct filter *f, c
     timage.height_px = image.height;
     timage.stride_px = image.stride;
     vector<tracker::point> &kp = f->s.camera.feature_tracker->detect(timage, f->s.features, space);
+
+    auto stop = std::chrono::steady_clock::now();
+    f->detect_timer = stop-start;
 
     return kp;
 }
@@ -771,24 +774,26 @@ static vector<tracker::point> & detection_noop(std::vector<tracker::point> & d) 
 
 void filter_detect_features(struct filter *f, state_vision_group *g, sensor_data &&image)
 {
-    auto start = std::chrono::steady_clock::now();
     //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
     //TODO: bundle timestamp with future?
-    f->s.camera.last_detection_timestamp = image.timestamp;
-    f->s.camera.detection_future = std::async(std::launch::async,
-                                   filter_start_detection, f, image.image);
+    f->s.camera.detection_future = std::async(std::launch::async, filter_start_detection, f, image.image, image.timestamp);
 
-    if(f->s.camera.detection_future.valid()) {
-        const auto & kp = f->s.camera.detection_future.get();
-        int space = filter_available_space(f);
-        filter_add_detected_features(f, g, f->s.camera.last_detection_timestamp, kp, space, image.image.height);
-    } else {
-        f->s.remove_group(g);
-        f->s.remap();
+    if(f->detecting_group)
+    {
+#ifdef TEST_POSDEF
+        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
+#endif
+        if(f->s.camera.detection_future.valid()) {
+            const auto & kp = f->s.camera.detection_future.get();
+            int space = filter_available_space(f);
+            filter_add_detected_features(f, f->detecting_group, f->s.camera.last_detection_timestamp, kp, space, image.image.height);
+        } else {
+            f->s.remove_group(f->detecting_group);
+            f->s.remap();
+        }
+        f->detecting_group = nullptr;
     }
-    f->detecting_group = nullptr;
-    auto stop = std::chrono::steady_clock::now();
-    f->detect_timer = stop-start;
+
 }
 
 bool filter_image_measurement(struct filter *f, const sensor_data & data)
@@ -924,8 +929,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(space >= f->min_group_add)
     {
         if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-            f->s.camera.last_detection_timestamp = data.timestamp;
-            auto & detection = filter_start_detection(f, data.image);
+            auto & detection = filter_start_detection(f, data.image, data.timestamp);
             if(detection.size() >= state_vision_group::min_feats) {
 #ifdef TEST_POSDEF
                 if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
@@ -942,6 +946,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 filter_add_detected_features(f, g, f->s.camera.last_detection_timestamp, detection, space, data.image.height);
             }
         } else {
+#ifdef TEST_POSDEF
+            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
+#endif
             f->detecting_group = f->s.add_group(data.timestamp);
         }
     }

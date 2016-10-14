@@ -775,23 +775,7 @@ void filter_detect_features(struct filter *f, state_vision_group *g, sensor_data
     int space = filter_available_feature_space(f);
 
     f->s.camera.detection_future = std::async(std::launch::async, filter_start_detection, f, image.image, space, image.timestamp);
-
-    if(f->detecting_group)
-    {
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
-#endif
-        if(f->s.camera.detection_future.valid()) {
-            const auto & kp = f->s.camera.detection_future.get();
-            int space = filter_available_feature_space(f);
-            filter_add_detected_features(f, f->detecting_group, f->s.camera.last_detection_timestamp, kp, space, image.image.height);
-        } else {
-            f->s.remove_group(f->detecting_group);
-            f->s.remap();
-        }
-        f->detecting_group = nullptr;
-    }
-
+    f->s.camera.detection_future.wait();
 }
 
 bool filter_image_measurement(struct filter *f, const sensor_data & data)
@@ -887,6 +871,21 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         }
     }
 
+    if(f->detecting_group)
+    {
+#ifdef TEST_POSDEF
+        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
+#endif
+        if(f->s.camera.detection_future.valid()) {
+            const auto & kp = f->s.camera.detection_future.get();
+            int space = filter_available_feature_space(f);
+            filter_add_detected_features(f, f->detecting_group, f->s.camera.last_detection_timestamp, kp, space, data.image.height);
+        } else {
+            f->s.remove_group(f->detecting_group);
+            f->s.remap();
+        }
+        f->detecting_group = nullptr;
+    }
 
     filter_setup_next_frame(f, data);
 

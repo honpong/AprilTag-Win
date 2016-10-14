@@ -86,7 +86,7 @@ struct filter {
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data);
 bool filter_image_measurement(struct filter *f, const sensor_data & data);
-const vector<tracker::point> & filter_start_detection(struct filter *f, const sensor_data &data);
+const vector<tracker::point> &filter_detect(struct filter *f, const sensor_data &data);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);

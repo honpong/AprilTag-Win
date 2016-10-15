@@ -736,7 +736,7 @@ const vector<tracker::point> & filter_detect(struct filter *f, const sensor_data
 {
     auto start = std::chrono::steady_clock::now();
     int space = filter_available_feature_space(f);
-    const rc_ImageData image = data.image;
+    const rc_ImageData &image = data.image;
     f->s.camera.last_detection_timestamp = data.timestamp;
     f->s.features.clear();
     f->s.features.reserve(f->s.feature_count());

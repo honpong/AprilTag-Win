@@ -99,7 +99,7 @@ TEST(SensorFusionQueue, Reorder)
 
 TEST(SensorFusionQueue, FastCatchup)
 {
-    const uint64_t jitter_us = 10;
+    const uint64_t jitter_us = 500000;
 
     int camrcv = 0;
     int deprcv = 0;

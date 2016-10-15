@@ -269,7 +269,7 @@ sensor_data fusion_queue::pop_queue()
 bool fusion_queue::ok_to_dispatch()
 {
     sensor_clock::time_point next_time = next_timestamp();
-    if(strategy != latency_strategy::ELIMINATE_DROPS && newest_received - next_time > max_latency) return true;
+    if(newest_received - next_time > max_latency) return true;
     for(const auto & id : required_sensors) {
         const auto stat = stats.find(id);
         if(stat == stats.end()) return false;

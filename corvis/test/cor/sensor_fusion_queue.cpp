@@ -2,9 +2,9 @@
 #include "sensor_fusion_queue.h"
 #include "util.h"
 
-std::unique_ptr<fusion_queue> setup_queue(std::function<void(sensor_data && x)> dataf, fusion_queue::latency_strategy strategy, uint64_t max_latency_us)
+std::unique_ptr<fusion_queue> setup_queue(std::function<void(sensor_data && x)> dataf, std::function<void(const sensor_data & x, bool catchup)> fast_dataf, fusion_queue::latency_strategy strategy, uint64_t max_latency_us)
 {
-    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(dataf, strategy, std::chrono::microseconds(max_latency_us));
+    std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(dataf, fast_dataf, strategy, std::chrono::microseconds(max_latency_us));
     q->require_sensor(rc_SENSOR_TYPE_IMAGE, 0, std::chrono::microseconds(0));
     q->require_sensor(rc_SENSOR_TYPE_DEPTH, 0, std::chrono::microseconds(0));
     q->require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, 0, std::chrono::microseconds(0));
@@ -54,7 +54,9 @@ TEST(SensorFusionQueue, Reorder)
         last_time = x.time_us;
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto fast_dataf = [](const sensor_data & x, bool catchup) { };
+
+    auto q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
     
     q->start(true);
 
@@ -93,6 +95,131 @@ TEST(SensorFusionQueue, Reorder)
     ASSERT_EQ(q->total_out, 15);
 }
 
+#include <iostream>
+
+TEST(SensorFusionQueue, FastCatchup)
+{
+    const uint64_t jitter_us = 10;
+
+    int camrcv = 0;
+    int deprcv = 0;
+    int gyrrcv = 0;
+    int accrcv = 0;
+    int fast_accrcv = 0;
+    int fast_gyrrcv = 0;
+    int catchup_accrcv = 0;
+    int catchup_gyrrcv = 0;
+    
+    std::unique_ptr<fusion_queue> q;
+    
+    auto dataf = [&camrcv, &deprcv, &accrcv, &gyrrcv, &q](sensor_data && x) {
+        switch(x.type) {
+            case rc_SENSOR_TYPE_IMAGE:
+                q->dispatch_buffered_to_fast_path();
+                ++camrcv;
+                break;
+            case rc_SENSOR_TYPE_DEPTH:
+                ++deprcv;
+                break;
+            case rc_SENSOR_TYPE_ACCELEROMETER:
+                ++accrcv;
+                break;
+            case rc_SENSOR_TYPE_GYROSCOPE:
+                ++gyrrcv;
+                break;
+        }
+    };
+    
+    auto fast_dataf = [&fast_accrcv, &fast_gyrrcv, &catchup_accrcv, &catchup_gyrrcv](const sensor_data &x, bool catchup)
+    {
+        switch(x.type) {
+            case rc_SENSOR_TYPE_ACCELEROMETER:
+                if(catchup) ++catchup_accrcv;
+                else ++fast_accrcv;
+                break;
+            case rc_SENSOR_TYPE_GYROSCOPE:
+                if(catchup) ++catchup_gyrrcv;
+                else ++fast_gyrrcv;
+                break;
+            default:
+                break;
+        }
+    };
+    
+    q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, jitter_us);
+
+
+    q->start(false);
+    
+    q->receive_sensor_data(gyro_for_time(0));
+    
+    q->receive_sensor_data(gyro_for_time(10000));
+    
+    q->receive_sensor_data(accel_for_time(8000));
+    
+    q->receive_sensor_data(depth16_for_time(5000));
+    
+    EXPECT_EQ(0, deprcv);
+    EXPECT_EQ(0, camrcv);
+    EXPECT_EQ(0, accrcv);
+    EXPECT_EQ(0, gyrrcv);
+    EXPECT_EQ(0, catchup_accrcv);
+    EXPECT_EQ(0, catchup_gyrrcv);
+    EXPECT_EQ(1, fast_accrcv);
+    EXPECT_EQ(2, fast_gyrrcv);
+    
+    q->receive_sensor_data(gray8_for_time(5000));
+    
+    EXPECT_EQ(1, deprcv);
+    EXPECT_EQ(0, camrcv);
+    EXPECT_EQ(0, accrcv);
+    EXPECT_EQ(1, gyrrcv);
+    EXPECT_EQ(0, catchup_accrcv);
+    EXPECT_EQ(0, catchup_gyrrcv);
+    EXPECT_EQ(1, fast_accrcv);
+    EXPECT_EQ(2, fast_gyrrcv);
+    
+    q->receive_sensor_data(accel_for_time(18000));
+    
+    q->receive_sensor_data(gyro_for_time(20000));
+
+    q->receive_sensor_data(gyro_for_time(30000));
+
+    q->receive_sensor_data(accel_for_time(28000));
+    
+    q->receive_sensor_data(accel_for_time(38000));
+
+    q->receive_sensor_data(gyro_for_time(40000));
+    
+    q->receive_sensor_data(accel_for_time(48000));
+    
+    q->receive_sensor_data(depth16_for_time(38000));
+    
+    EXPECT_EQ(1, deprcv);
+    EXPECT_EQ(1, camrcv);
+    EXPECT_EQ(0, accrcv);
+    EXPECT_EQ(1, gyrrcv);
+    EXPECT_EQ(5, catchup_accrcv);
+    EXPECT_EQ(4, catchup_gyrrcv);
+    EXPECT_EQ(5, fast_accrcv);
+    EXPECT_EQ(5, fast_gyrrcv);
+    
+    q->receive_sensor_data(gray8_for_time(38000));
+    
+    EXPECT_EQ(2, deprcv);
+    EXPECT_EQ(1, camrcv);
+    EXPECT_EQ(4, accrcv);
+    EXPECT_EQ(4, gyrrcv);
+    EXPECT_EQ(5, catchup_accrcv);
+    EXPECT_EQ(4, catchup_gyrrcv);
+    EXPECT_EQ(5, fast_accrcv);
+    EXPECT_EQ(5, fast_gyrrcv);
+    
+    q->receive_sensor_data(gyro_for_time(50000));
+    
+    q->stop();
+}
+
 TEST(SensorFusionQueue, Threading)
 {
     uint64_t last_cam_time = 0;
@@ -118,12 +245,17 @@ TEST(SensorFusionQueue, Threading)
     int deprcv = 0;
     int gyrrcv = 0;
     int accrcv = 0;
+    int fast_accrcv = 0;
+    int fast_gyrrcv = 0;
+
+    std::unique_ptr<fusion_queue> q;
     
-    auto dataf = [&last_cam_time, &last_dep_time, &last_acc_time, &last_gyr_time, &camrcv, &deprcv, &accrcv, &gyrrcv](sensor_data && x) {
+    auto dataf = [&last_cam_time, &last_dep_time, &last_acc_time, &last_gyr_time, &camrcv, &deprcv, &accrcv, &gyrrcv, &q](sensor_data && x) {
         switch(x.type) {
             case rc_SENSOR_TYPE_IMAGE:
                 EXPECT_GE(x.time_us, last_cam_time);
                 last_cam_time = x.time_us;
+                q->dispatch_buffered_to_fast_path();
                 ++camrcv;
                 break;
             case rc_SENSOR_TYPE_DEPTH:
@@ -143,8 +275,23 @@ TEST(SensorFusionQueue, Threading)
                 break;
         }
     };
+    
+    auto fast_dataf = [&fast_accrcv, &fast_gyrrcv](const sensor_data &x, bool catchup)
+    {
+        if(catchup) return;
+        switch(x.type) {
+            case rc_SENSOR_TYPE_ACCELEROMETER:
+                ++fast_accrcv;
+                break;
+            case rc_SENSOR_TYPE_GYROSCOPE:
+                ++fast_gyrrcv;
+                break;
+            default:
+                break;
+        }
+    };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, jitter_us);
+    q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, jitter_us);
 
     auto start = sensor_clock::now();
     
@@ -204,6 +351,8 @@ TEST(SensorFusionQueue, Threading)
     gyrothread.join();
     accelthread.join();
     q->stop();
+    EXPECT_EQ(fast_accrcv, accsent);
+    EXPECT_EQ(fast_gyrrcv, gyrsent);
 }
 
 TEST(SensorFusionQueue, DropOrder)
@@ -216,7 +365,9 @@ TEST(SensorFusionQueue, DropOrder)
              EXPECT_NE(x.time_us, 4000);
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto fast_dataf = [](const sensor_data &x, bool catchup) {};
+
+    auto q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
     
     q->start(true);
     
@@ -242,7 +393,9 @@ TEST(ThreadedDispatch, DropLate)
              EXPECT_NE(x.time_us, 30000);
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_LATENCY, 5000);
+    auto fast_dataf = [](const sensor_data &x, bool catchup) {};
+
+    auto q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::MINIMIZE_LATENCY, 5000);
     
     q->start(true);
     
@@ -303,8 +456,10 @@ TEST(SensorFusionQueue, SameTime)
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
         }
     };
+    
+    auto fast_dataf = [](const sensor_data &x, bool catchup) {};
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
 
     q->start(true);
 
@@ -342,8 +497,10 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
         }
     };
+    
+    auto fast_dataf = [](const sensor_data &x, bool catchup) {};
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
 
     q->start(true);
 
@@ -398,8 +555,10 @@ TEST(SensorFusionQueue, BufferNoDispatch)
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
         }
     };
+    
+    auto fast_dataf = [](const sensor_data &x, bool catchup) {};
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
 
     q->start_buffering(std::chrono::microseconds(buffer_time_us));
 
@@ -442,7 +601,9 @@ TEST(SensorFusionQueue, Buffering)
         }
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto fast_dataf = [](const sensor_data &x, bool catchup) {};
+
+    auto q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
 
     q->start_buffering(std::chrono::microseconds(buffer_time_us));
 

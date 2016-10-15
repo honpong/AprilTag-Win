@@ -15,15 +15,19 @@
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    filter(): s(cov) {}
+    filter(): s(cov), mini_state(mini_cov), catchup_state(catchup_cov)
+    { }
     RCSensorFusionRunState run_state;
     int min_group_add;
     int max_group_add;
     
     sensor_clock::time_point last_time;
     state s;
+    state_motion mini_state, catchup_state;
+    std::mutex mini_mutex;
     
     covariance cov;
+    covariance mini_cov, catchup_cov;
     std::unique_ptr<spdlog::logger> &log = s.log;
 
     //TODOMSM
@@ -66,6 +70,7 @@ struct filter {
     v3 a_bias_start, w_bias_start; //for tracking calibration progress
     
     observation_queue observations;
+    observation_queue mini_observations, catchup_observations;
     
     std::unique_ptr<sensor_data> recent_depth; //TODOMSM - per depth
     bool has_depth; //TODOMSM - per depth
@@ -79,7 +84,7 @@ struct filter {
     bool got_any_accelerometers() const { for (const auto &accel : accelerometers) if (accel->got) return true; return false; }
 
     //TODOMSM - per sensor
-    std::chrono::duration<float, milli> accel_timer, gyro_timer, track_timer, detect_timer;
+    std::chrono::duration<float, milli> accel_timer, gyro_timer, track_timer, detect_timer, mini_accel_timer, mini_gyro_timer;
 };
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data);
@@ -87,6 +92,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data);
 const vector<tracker::point> & filter_start_detection(struct filter *f, const sensor_data &data);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
+bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data);
+bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);

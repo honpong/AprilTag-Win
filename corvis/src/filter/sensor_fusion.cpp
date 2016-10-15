@@ -92,59 +92,77 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     isProcessingVideo = false;
     auto data_fn = [this](sensor_data && data)
     {
-
-    switch(data.type) {
-    case rc_SENSOR_TYPE_IMAGE:
-        {
-        if(!isSensorFusionRunning) return;
-
-        bool docallback = true;
-        if(isProcessingVideo)
-            docallback = filter_image_measurement(&sfm, data);
-        else
-            //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
-            docallback = sfm.s.orientation_initialized;
-
-        update_status();
-        if(docallback) {
-            update_data(&data);
+        switch(data.type) {
+            case rc_SENSOR_TYPE_IMAGE:
+            {
+                
+                bool docallback = true;
+                if(isProcessingVideo)
+                {
+                    docallback = filter_image_measurement(&sfm, data);
+                    sfm.catchup_state.copy_from(sfm.s);
+                    queue->dispatch_buffered_to_fast_path();
+                    std::lock_guard<std::mutex> lock(sfm.mini_mutex);
+                    sfm.mini_state.copy_from(sfm.catchup_state);
+                }
+                else
+                    //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
+                    docallback = sfm.s.orientation_initialized;
+                
+                update_status();
+                if(docallback) {
+                    update_data(&data);
+                }
+                if(sfm.detecting_group) sfm.s.camera.detection_future = std::async(std::launch::async, filter_start_detection, &sfm, std::move(data));
+            }
+                break;
+                
+                
+            case rc_SENSOR_TYPE_DEPTH:
+                update_status();
+                if (filter_depth_measurement(&sfm, data)) {
+                    update_data(&data);
+                }
+                break;
+                
+            case rc_SENSOR_TYPE_ACCELEROMETER:
+                if(!isSensorFusionRunning) return;
+                update_status();
+                if (filter_accelerometer_measurement(&sfm, data)) {
+                    update_data(&data);
+                }
+                break;
+                
+            case rc_SENSOR_TYPE_GYROSCOPE:
+                update_status();
+                if (filter_gyroscope_measurement(&sfm, data)) {
+                    update_data(&data);
+                }
+                break;
         }
-        if(sfm.detecting_group) sfm.s.camera.detection_future = std::async(std::launch::async, filter_start_detection, &sfm, std::move(data));
-        }
-        break;
-
-
-    case rc_SENSOR_TYPE_DEPTH:
-        if(!isSensorFusionRunning) return;
-
-        update_status();
-        if (filter_depth_measurement(&sfm, data)) {
-            update_data(&data);
-        }
-        break;
-    
-    case rc_SENSOR_TYPE_ACCELEROMETER:
-
-        if(!isSensorFusionRunning) return;
-
-        update_status();
-        if (filter_accelerometer_measurement(&sfm, data)) {
-            update_data(&data);
-        }
-        break;
-
-    case rc_SENSOR_TYPE_GYROSCOPE:
-        if(!isSensorFusionRunning) return;
-
-        update_status();
-        if (filter_gyroscope_measurement(&sfm, data)) {
-            update_data(&data);
-        }
-        break;
-    }
     };
     
-    queue = std::make_unique<fusion_queue>(data_fn, strategy, std::chrono::milliseconds(500));
+    auto fast_data_fn =[this](const sensor_data &data, bool catchup)
+    {
+        if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
+        switch(data.type) {
+            case rc_SENSOR_TYPE_ACCELEROMETER:
+                if(catchup) filter_mini_accelerometer_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
+                else if(filter_mini_accelerometer_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
+                    update_data(&data);
+                break;
+                
+            case rc_SENSOR_TYPE_GYROSCOPE:
+                if(catchup) filter_mini_gyroscope_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
+                else if(filter_mini_gyroscope_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
+                    update_data(&data);
+                break;
+            default:
+                break;
+        }
+    };
+    
+    queue = std::make_unique<fusion_queue>(data_fn, fast_data_fn, strategy, std::chrono::milliseconds(500));
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)

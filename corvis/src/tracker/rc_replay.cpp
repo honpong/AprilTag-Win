@@ -123,7 +123,8 @@ bool replay::find_reference_in_filename(const std::string &filename)
 void replay::enable_pose_output()
 {
     rc_setDataCallback(tracker, [](void *handle, rc_Tracker * tracker, const rc_Data * data) {
-        rc_Pose pose = rc_getPose(tracker, nullptr, nullptr);
+        if (data->path != rc_DATA_PATH_SLOW) return;
+        rc_Pose pose = rc_getPose(tracker, nullptr, nullptr, data->path);
         std::cout << data->time_us; for(int c=0; c<4; c++) std::cout << " " << pose.Q.v[c]; for(int c=0; c<3; c++) std::cout << " " << pose.T.v[c]; std::cout << "\n";
     }, this);
 }
@@ -262,10 +263,10 @@ bool replay::run()
                 }
             }   break;
         }
-        rc_Pose endPose_m = rc_getPose(tracker,nullptr,nullptr);
+        rc_Pose endPose_m = rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);
     }
 
-    rc_Pose endPose_m = rc_getPose(tracker,nullptr,nullptr);
+    rc_Pose endPose_m = rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);
     length_m = sqrtf(endPose_m.T.x*endPose_m.T.x + endPose_m.T.y*endPose_m.T.y + endPose_m.T.z*endPose_m.T.z);
 
     rc_stopTracker(tracker);

@@ -106,22 +106,20 @@ void state_motion::add_non_orientation_states()
     children.push_back(&da);
 }
 
-void state_motion::enable_orientation_only()
+void state_motion::enable_orientation_only(bool remap_)
 {
     if(orientation_only) return;
     orientation_only = true;
     remove_non_orientation_states();
-    disable_bias_estimation();
-    //remap implicit in disable_bias_estimation
+    disable_bias_estimation(remap_);
 }
 
-void state_motion::disable_orientation_only()
+void state_motion::disable_orientation_only(bool remap_)
 {
     if(!orientation_only) return;
     orientation_only = false;
     add_non_orientation_states();
-    enable_bias_estimation();
-    //remap implicit in enable_bias_estimation
+    enable_bias_estimation(remap_);
 }
 
 void state_imu_intrinsics::disable_bias_estimation()
@@ -134,10 +132,10 @@ void state_imu_intrinsics::disable_bias_estimation()
     remove_child(&w_bias);
 }
 
-void state_motion::disable_bias_estimation()
+void state_motion::disable_bias_estimation(bool remap_)
 {
     imu.intrinsics.disable_bias_estimation();
-    remap();
+    if (remap_) remap();
 }
 
 void state_imu_intrinsics::enable_bias_estimation()
@@ -148,8 +146,59 @@ void state_imu_intrinsics::enable_bias_estimation()
     children.push_back(&a_bias);
 }
 
-void state_motion::enable_bias_estimation()
+void state_motion::enable_bias_estimation(bool remap_)
 {
     imu.intrinsics.enable_bias_estimation();
-    remap();
+    if (remap_) remap();
+}
+
+void state_motion::copy_from(const state_motion &other)
+{
+    if(other.orientation_only) enable_orientation_only(false);
+    else                       disable_orientation_only(false);
+
+    if(other.imu.intrinsics.estimate_bias) enable_bias_estimation(false);
+    else                                   disable_bias_estimation(false);
+
+    // remaps done. structure should match other. now reset content
+
+    Q = other.Q;
+    w = other.w;
+    dw = other.dw;
+    ddw = other.ddw;
+
+    g = other.g;
+    T = other.T;
+    V = other.V;
+    a = other.a;
+    da = other.da;
+
+    imu.extrinsics.Q = other.imu.extrinsics.Q;
+    imu.extrinsics.T = other.imu.extrinsics.T;
+
+    imu.intrinsics.w_bias = other.imu.intrinsics.w_bias;
+    imu.intrinsics.a_bias = other.imu.intrinsics.a_bias;
+
+    // copy state_root
+
+    orientation_initialized = other.orientation_initialized;
+    current_time = other.current_time;
+    loop_offset = other.loop_offset;
+
+    world_up = other.world_up;
+    world_initial_forward = other.world_initial_forward;
+    body_forward = other.body_forward;
+
+    // copy covariance
+
+    std::swap(cov.cov.data, other.cov.cov.data);
+    cov.cov.resize(other.cov.size(), other.cov.size());
+    std::swap(cov.process_noise.data, other.cov.process_noise.data);
+    cov.process_noise.resize(other.cov.size());
+
+    remap(); // swaps cov/cov_scratch and process_noise/process_scratch and uses indicies/map[] to copy from the scratches
+
+    // to swap other back we need to swap with the scratches due to the swap in remap()
+    std::swap(cov.cov_scratch.data,     other.cov.cov.data);
+    std::swap(cov.process_scratch.data, other.cov.process_noise.data);
 }

@@ -370,6 +370,12 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
 
     p = get_plot_by_name("detect timer");
     observe_plot_item(timestamp_us, p, "detect timer", f->detect_timer.count());
+
+    p = get_plot_by_name("mini accel timer");
+    observe_plot_item(timestamp_us, p, "mini accel timer", f->mini_accel_timer.count());
+
+    p = get_plot_by_name("mini gyro timer");
+    observe_plot_item(timestamp_us, p, "mini gyro timer", f->mini_gyro_timer.count());
 }
 
 void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)
@@ -432,7 +438,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
     uint64_t timestamp_us = data->time_us;
 
     update_current_timestamp(timestamp_us);
-    rc_Pose pose = rc_getPose(tracker, nullptr, nullptr);
+    rc_Pose pose = rc_getPose(tracker, nullptr, nullptr, data->path);
     transformation G = to_transformation(pose);
 
     switch(data->type) {
@@ -488,7 +494,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
             break;
     }
 
-    observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z());
+    observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z(), data->path == rc_DATA_PATH_FAST);
     update_sensors(tracker, data);
     update_plots(tracker, data);
 }
@@ -694,6 +700,15 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         }
     }
 
+    path_mini_vertex.clear();
+    for(auto p : path_mini)
+    {
+        VertexData v;
+        set_color(&v, 255, 206, 100, 255); // path color
+        set_position(&v, (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
+        path_mini_vertex.push_back(v);
+    }
+    
     path_gt_vertex.clear();
     for(auto p : path_gt)
     {
@@ -858,14 +873,17 @@ void world_state::observe_feature(uint64_t timestamp, rc_Sensor camera_id, const
     display_lock.unlock();
 }
 
-void world_state::observe_position(uint64_t timestamp, float x, float y, float z, float qw, float qx, float qy, float qz)
+void world_state::observe_position(uint64_t timestamp, float x, float y, float z, float qw, float qx, float qy, float qz, bool fast)
 {
     Position p;
     p.timestamp = timestamp;
     quaternion q(qw, qx, qy, qz);
     p.g = transformation(q, v3(x, y, z));
     display_lock.lock();
-    path.push_back(p);
+    if (fast)
+        path_mini.push_back(p);
+    else
+        path.push_back(p);
     update_current_timestamp(timestamp);
     dirty = true;
     display_lock.unlock();
@@ -877,6 +895,14 @@ void world_state::get_bounding_box(float min[3], float max[3])
     min[0] = -1; min[1] = -1; min[2] = -1;
     max[0] =  1; max[1] =  1; max[2] =  1;
     for(auto p : path) {
+        min[0] = std::min(min[0], (float)p.g.T.x());
+        min[1] = std::min(min[1], (float)p.g.T.y());
+        min[2] = std::min(min[2], (float)p.g.T.z());
+        max[0] = std::max(max[0], (float)p.g.T.x());
+        max[1] = std::max(max[1], (float)p.g.T.y());
+        max[2] = std::max(max[2], (float)p.g.T.z());
+    }
+    for(auto p : path_mini) {
         min[0] = std::min(min[0], (float)p.g.T.x());
         min[1] = std::min(min[1], (float)p.g.T.y());
         min[2] = std::min(min[2], (float)p.g.T.z());

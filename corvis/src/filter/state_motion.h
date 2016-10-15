@@ -11,6 +11,7 @@
 
 #include <iostream>
 #include "state.h"
+#include "transformation.h"
 
 class state_imu_intrinsics: public state_branch<state_node *>
 {
@@ -95,6 +96,8 @@ public:
     state_vector da;
 
     float total_distance = 0;
+    transformation loop_offset;
+
     v3 last_position = v3::Zero();
 
     state_motion(covariance &c): state_motion_orientation(c), T("T"), V("V"), a("a"), da("da")
@@ -123,10 +126,13 @@ public:
         last_position = v3::Zero();
     }
 
-    virtual void enable_orientation_only();
-    virtual void disable_orientation_only();
-    virtual void enable_bias_estimation();
-    virtual void disable_bias_estimation();
+    virtual void enable_orientation_only(bool remap_ = true);
+    virtual void disable_orientation_only(bool remap_ = true);
+    virtual void enable_bias_estimation(bool remap_ = true);
+    virtual void disable_bias_estimation(bool remap_ = true);
+
+    void copy_from(const state_motion & other);
+
 protected:
     bool orientation_only = false;
     virtual void add_non_orientation_states();

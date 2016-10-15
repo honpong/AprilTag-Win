@@ -36,6 +36,7 @@ public:
     stdev<1> late{};
     stdev<1> period{};
     stdev<1> latency{};
+
 #ifdef DEBUG
     histogram hist{200};
 #endif
@@ -108,6 +109,7 @@ public:
     };
 
     fusion_queue(const std::function<void(sensor_data &&)> &receive_func,
+                 const std::function<void(const sensor_data &, bool)> &fast_receive_func,
                  latency_strategy s,
                  sensor_clock::duration max_latency);
     ~fusion_queue();
@@ -126,6 +128,8 @@ public:
 
     std::string get_stats();
 
+    void dispatch_buffered_to_fast_path();
+    
     latency_strategy strategy;
 
     uint64_t total_in{0};
@@ -149,12 +153,13 @@ private:
 
     bool all_have_data();
 
-    std::mutex data_lock;
-    std::mutex control_lock;
+    std::mutex data_mutex;
+    std::mutex control_mutex;
     std::condition_variable cond;
     std::thread thread;
     
     std::function<void(sensor_data &&)> data_receiver;
+    std::function<void(const sensor_data &, bool)> fast_data_receiver;
     
     std::unordered_map<uint64_t, sensor_stats> stats;
     std::vector<uint64_t> required_sensors;

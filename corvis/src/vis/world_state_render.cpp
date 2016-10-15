@@ -121,6 +121,7 @@ void world_state_render(world_state * world, float * view_matrix, float * projec
     render.draw_array(world->feature_vertex.data(), world->feature_vertex.size(), GL_POINTS);
     render.draw_array(world->path_vertex.data(), world->path_vertex.size(), GL_POINTS);
     render.draw_array(world->path_gt_vertex.data(), world->path_gt_vertex.size(), GL_POINTS);
+    render.draw_array(world->path_mini_vertex.data(), world->path_mini_vertex.size(), GL_POINTS);
 
     glLineWidth(2.0f);
     render.draw_array(world->sensor_axis_vertex.data(), world->sensor_axis_vertex.size(), GL_LINES);

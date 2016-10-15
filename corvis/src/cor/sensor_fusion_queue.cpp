@@ -31,10 +31,12 @@ static bool compare_sensor_data(const sensor_data &d1, const sensor_data &d2) {
 }
 
 fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> &data_func,
+                           const std::function<void(const sensor_data &, bool)> &fast_data_func,
                            latency_strategy s,
                            sensor_clock::duration maximum_latency):
                 strategy(s),
                 data_receiver(data_func),
+                fast_data_receiver(fast_data_func),
                 control_func(nullptr),
                 active(false),
                 singlethreaded(false),
@@ -101,6 +103,12 @@ std::string fusion_queue::get_stats()
 
 void fusion_queue::receive_sensor_data(sensor_data && x)
 {
+    if(x.type == rc_SENSOR_TYPE_GYROSCOPE || x.type == rc_SENSOR_TYPE_ACCELEROMETER)
+    {
+        x.path = rc_DATA_PATH_FAST;
+        fast_data_receiver(x, false);
+    }
+    x.path = rc_DATA_PATH_SLOW;
     uint64_t id = x.id + MAX_SENSORS*x.type;
     push_queue(id, std::move(x));
     if(singlethreaded || buffering) dispatch_singlethread(false);
@@ -109,7 +117,7 @@ void fusion_queue::receive_sensor_data(sensor_data && x)
 
 void fusion_queue::dispatch_async(std::function<void()> fn)
 {
-    std::unique_lock<std::mutex> lock(control_lock);
+    std::unique_lock<std::mutex> lock(control_mutex);
     control_func = fn;
     lock.unlock();
     if(singlethreaded) dispatch_singlethread(false);
@@ -117,7 +125,7 @@ void fusion_queue::dispatch_async(std::function<void()> fn)
 
 void fusion_queue::start_buffering(sensor_clock::duration _buffer_time)
 {
-    std::unique_lock<std::mutex> lock(control_lock);
+    std::unique_lock<std::mutex> lock(control_mutex);
     active = true;
     buffer_time = _buffer_time;
     buffering = true;
@@ -129,7 +137,7 @@ void fusion_queue::start(bool threaded)
     singlethreaded = !threaded;
     if(threaded) {
         if(!thread.joinable()) {
-            std::unique_lock<std::mutex> lock(control_lock);
+            std::unique_lock<std::mutex> lock(control_mutex);
             thread = std::thread(&fusion_queue::runloop, this);
             while(!active) {
                 cond.wait(lock);
@@ -145,7 +153,7 @@ void fusion_queue::start(bool threaded)
 
 void fusion_queue::stop_immediately()
 {
-    std::unique_lock<std::mutex> lock(control_lock);
+    std::unique_lock<std::mutex> lock(control_mutex);
     active = false;
     lock.unlock();
     cond.notify_one();
@@ -186,7 +194,7 @@ bool fusion_queue::run_control()
 
 void fusion_queue::clear()
 {
-    std::lock_guard<std::mutex> data_guard(data_lock);
+    std::lock_guard<std::mutex> data_guard(data_mutex);
     queue.clear();
     stats.clear();
     total_in = 0;
@@ -195,7 +203,7 @@ void fusion_queue::clear()
 
 void fusion_queue::runloop()
 {
-    std::unique_lock<std::mutex> lock(control_lock);
+    std::unique_lock<std::mutex> lock(control_mutex);
     active = true;
     buffering = false;
     buffer_time = {};
@@ -221,7 +229,7 @@ void fusion_queue::runloop()
 
 void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
 {
-    std::lock_guard<std::mutex> data_guard(data_lock);
+    std::lock_guard<std::mutex> data_guard(data_mutex);
     total_in++;
     newest_received = std::max(x.timestamp, newest_received);
 
@@ -255,13 +263,13 @@ sensor_data fusion_queue::pop_queue()
     sensor_data data = std::move(queue.back());
     queue.pop_back();
     last_dispatched = data.timestamp;
-    return std::move(data);
+    return data;
 }
 
 bool fusion_queue::ok_to_dispatch()
 {
     sensor_clock::time_point next_time = next_timestamp();
-    if(newest_received - next_time > max_latency) return true;
+    if(strategy != latency_strategy::ELIMINATE_DROPS && newest_received - next_time > max_latency) return true;
     for(const auto & id : required_sensors) {
         const auto stat = stats.find(id);
         if(stat == stats.end()) return false;
@@ -286,9 +294,9 @@ bool fusion_queue::ok_to_dispatch()
     return true;
 }
 
-bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
+bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &control_lock, bool force)
 {
-    std::lock_guard<std::mutex> data_guard(data_lock);
+    std::unique_lock<std::mutex> data_lock(data_mutex);
 
     if(queue.empty()) return false;
 
@@ -306,24 +314,44 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     if(!force && !ok_to_dispatch()) return false;
 
     sensor_data data = pop_queue();
+    
+    data_lock.unlock();
 
     uint64_t id = data.id + data.type*MAX_SENSORS;
     stats.find(id)->second.dispatch();
     queue_latency.data({f_t((newest_received - data.timestamp).count())});
 
-    lock.unlock();
+    control_lock.unlock();
+    data.path = rc_DATA_PATH_SLOW;
     data_receiver(std::move(data));
     total_out++;
             
-    lock.lock();
+    control_lock.lock();
 
     return true;
 }
 
 void fusion_queue::dispatch_singlethread(bool force)
 {
-    std::unique_lock<std::mutex> lock(control_lock);
+    std::unique_lock<std::mutex> lock(control_mutex);
     while(dispatch_next(lock, force)); //always be greedy - could have multiple pieces of data buffered
     lock.unlock();
+}
+
+void fusion_queue::dispatch_buffered_to_fast_path()
+{
+    std::unique_lock<std::mutex> lock(data_mutex);
+    std::sort_heap(queue.begin(), queue.end(), compare_sensor_data);
+
+    for(auto &x : queue)
+    {
+        if(x.type == rc_SENSOR_TYPE_ACCELEROMETER || x.type == rc_SENSOR_TYPE_GYROSCOPE)
+        {
+            x.path = rc_DATA_PATH_FAST;
+            fast_data_receiver(x, true);
+        }
+    }
+    
+    std::make_heap(queue.begin(), queue.end(), compare_sensor_data);
 }
 

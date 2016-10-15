@@ -174,6 +174,63 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     //f->log->trace("{} [{} {} {}] [{} {} {}]", time, output[0], output[1], output[2], output[3], output[4], output[5]);
 }
 
+void filter_mini_process_observation_queue(struct filter * f, observation_queue &queue, state_root &state, const sensor_clock::time_point & time)
+{
+    queue.preprocess(state, time);
+    if(!queue.process(state)) {
+        f->log->error("mini state observation failed\n");
+    }
+}
+
+bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data)
+{
+    if(data.id != 0) return true;
+
+    auto start = std::chrono::steady_clock::now();
+    auto &accelerometer = *f->accelerometers[data.id];
+    v3 meas = m_map(accelerometer.intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2.v);
+
+    //TODO: if out of order, project forward in time
+    
+    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, state, state.imu.extrinsics, state.imu.intrinsics, data.timestamp, data.timestamp);
+    obs_a->meas = meas;
+    obs_a->variance = f->a_variance;
+
+    std::unique_lock<std::mutex> lock(f->mini_mutex, std::defer_lock);
+    if(&state == &f->mini_state) lock.lock();
+    queue.observations.push_back(std::move(obs_a));
+    filter_mini_process_observation_queue(f, queue, state, data.timestamp);
+    
+    auto stop = std::chrono::steady_clock::now();
+    f->mini_accel_timer = stop-start;
+    return true;
+}
+
+bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data)
+{
+    if(data.id != 0) return true;
+
+    auto start = std::chrono::steady_clock::now();
+    
+    auto &gyroscope = *f->gyroscopes[data.id];
+    v3 meas = m_map(gyroscope.intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s.v);
+
+    //TODO: if out of order, project forward in time
+    
+    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, state, state.imu.extrinsics, state.imu.intrinsics, data.timestamp, data.timestamp);
+    obs_w->meas = meas;
+    obs_w->variance = f->w_variance;
+
+    std::unique_lock<std::mutex> lock(f->mini_mutex, std::defer_lock);
+    if(&state == &f->mini_state) lock.lock();
+    queue.observations.push_back(std::move(obs_w));
+    filter_mini_process_observation_queue(f, queue, state, data.timestamp);
+    auto stop = std::chrono::steady_clock::now();
+    f->mini_gyro_timer = stop-start;
+
+    return true;
+}
+
 void preprocess_observation_queue(struct filter *f, sensor_clock::time_point time)
 {
     f->last_time = time;
@@ -925,7 +982,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             f->detecting_group = f->s.add_group(data.timestamp);
         }
     }
-
     return true;
 }
 
@@ -982,6 +1038,8 @@ extern "C" void filter_initialize(struct filter *f)
     f->active_time = sensor_clock::time_point(sensor_clock::duration(0));
     
     f->observations.observations.clear();
+    f->mini_observations.observations.clear();
+    f->catchup_observations.observations.clear();
 
     f->s.reset();
 
@@ -1092,6 +1150,9 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.enable_orientation_only();
     f->s.remap();
     f->s.maxstatesize = MAXSTATESIZE;
+
+    f->mini_state.copy_from(f->s);
+    f->catchup_state.copy_from(f->s);
 }
 
 #include "calibration_json.h"

@@ -150,13 +150,14 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 void sensor_fusion::queue_receive_data_fast(sensor_data &data, bool catchup)
 {
         if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
+        data.path = rc_DATA_PATH_FAST;
         switch(data.type) {
             case rc_SENSOR_TYPE_ACCELEROMETER:
                 if(catchup) filter_mini_accelerometer_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
                 else if(filter_mini_accelerometer_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
                     update_data(&data);
                 break;
-                
+
             case rc_SENSOR_TYPE_GYROSCOPE:
                 if(catchup) filter_mini_gyroscope_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
                 else if(filter_mini_gyroscope_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
@@ -165,6 +166,7 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data, bool catchup)
             default:
                 break;
         }
+        data.path = rc_DATA_PATH_SLOW;
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)

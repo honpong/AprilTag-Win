@@ -103,8 +103,7 @@ std::string fusion_queue::get_stats()
 
 void fusion_queue::receive_sensor_data(sensor_data && x)
 {
-    if(x.type == rc_SENSOR_TYPE_GYROSCOPE || x.type == rc_SENSOR_TYPE_ACCELEROMETER)
-        fast_data_receiver(x, false);
+    fast_data_receiver(x, false);
     uint64_t id = x.id + MAX_SENSORS*x.type;
     push_queue(id, std::move(x));
     if(singlethreaded || buffering) dispatch_singlethread(false);
@@ -339,8 +338,7 @@ void fusion_queue::dispatch_buffered_to_fast_path()
     std::sort_heap(queue.begin(), queue.end(), compare_sensor_data);
 
     for(auto &x : queue)
-        if(x.type == rc_SENSOR_TYPE_ACCELEROMETER || x.type == rc_SENSOR_TYPE_GYROSCOPE)
-            fast_data_receiver(x, true);
+        fast_data_receiver(x, true);
 
     std::make_heap(queue.begin(), queue.end(), compare_sensor_data);
 }

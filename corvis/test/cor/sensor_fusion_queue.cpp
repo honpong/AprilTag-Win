@@ -99,7 +99,7 @@ TEST(SensorFusionQueue, Reorder)
 
 TEST(SensorFusionQueue, FastCatchup)
 {
-    const uint64_t jitter_us = 500000;
+    const uint64_t maximum_latency_us = 500000;
 
     int camrcv = 0;
     int deprcv = 0;
@@ -146,7 +146,7 @@ TEST(SensorFusionQueue, FastCatchup)
         }
     };
     
-    q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, jitter_us);
+    q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, maximum_latency_us);
 
 
     q->start(false);
@@ -232,7 +232,7 @@ TEST(SensorFusionQueue, Threading)
     auto thread_time = std::chrono::microseconds(100000);
     const sensor_clock::duration camera_interval = std::chrono::microseconds(66);
     const sensor_clock::duration inertial_interval = std::chrono::microseconds(20);
-    const uint64_t jitter_us = 10;
+    const uint64_t maximum_latency_us = 10;
     const sensor_clock::duration cam_latency = std::chrono::microseconds(10);
     const sensor_clock::duration in_latency = std::chrono::microseconds(2);
     
@@ -291,7 +291,7 @@ TEST(SensorFusionQueue, Threading)
         }
     };
 
-    q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, jitter_us);
+    q = setup_queue(dataf, fast_dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, maximum_latency_us);
 
     auto start = sensor_clock::now();
     

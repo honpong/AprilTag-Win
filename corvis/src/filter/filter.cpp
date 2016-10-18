@@ -174,12 +174,14 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     //f->log->trace("{} [{} {} {}] [{} {} {}]", time, output[0], output[1], output[2], output[3], output[4], output[5]);
 }
 
-void filter_mini_process_observation_queue(struct filter * f, observation_queue &queue, state_root &state, const sensor_clock::time_point & time)
+static bool filter_mini_process_observation_queue(struct filter * f, observation_queue &queue, state_root &state, const sensor_clock::time_point & time)
 {
     queue.preprocess(state, time);
     if(!queue.process(state)) {
         f->log->error("mini state observation failed\n");
+        return false;
     }
+    return true;
 }
 
 bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data)
@@ -199,11 +201,10 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     std::unique_lock<std::mutex> lock(f->mini_mutex, std::defer_lock);
     if(&state == &f->mini_state) lock.lock();
     queue.observations.push_back(std::move(obs_a));
-    filter_mini_process_observation_queue(f, queue, state, data.timestamp);
-    
+    bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
     auto stop = std::chrono::steady_clock::now();
     f->mini_accel_timer = stop-start;
-    return true;
+    return ok;
 }
 
 bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data)
@@ -224,11 +225,12 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
     std::unique_lock<std::mutex> lock(f->mini_mutex, std::defer_lock);
     if(&state == &f->mini_state) lock.lock();
     queue.observations.push_back(std::move(obs_w));
-    filter_mini_process_observation_queue(f, queue, state, data.timestamp);
+    bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
+
     auto stop = std::chrono::steady_clock::now();
     f->mini_gyro_timer = stop-start;
 
-    return true;
+    return ok;
 }
 
 void preprocess_observation_queue(struct filter *f, sensor_clock::time_point time)

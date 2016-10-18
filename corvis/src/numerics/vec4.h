@@ -76,7 +76,7 @@ class stdev
 public:
     v<N> sum, max, mean, M2, variance, stdev_;
     uint32_t count;
-    stdev(): sum(v<N>::Zero()), mean(v<N>::Zero()), M2(v<N>::Zero()), variance(v<N>::Zero()), stdev_(v<N>::Zero()), max(0.), count(0) {}
+    stdev(): sum(v<N>::Zero()), mean(v<N>::Zero()), M2(v<N>::Zero()), variance(v<N>::Zero()), stdev_(v<N>::Zero()), max(v<N>::Zero()), count(0) {}
     bool valid() { return count >= 2; }
     void data(const v<N> &x) {
         ++count;

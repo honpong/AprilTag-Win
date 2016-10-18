@@ -97,76 +97,68 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 
 void sensor_fusion::queue_receive_data(sensor_data &&data)
 {
-        switch(data.type) {
-            case rc_SENSOR_TYPE_IMAGE:
-            {
-                
-                bool docallback = true;
-                if(isProcessingVideo)
-                {
-                    docallback = filter_image_measurement(&sfm, data);
-                    sfm.catchup_state.copy_from(sfm.s);
-                    queue.dispatch_buffered_to_fast_path();
-                    std::lock_guard<std::mutex> lock(sfm.mini_mutex);
-                    sfm.mini_state.copy_from(sfm.catchup_state);
-                }
-                else
-                    //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
-                    docallback = sfm.s.orientation_initialized;
-                
-                update_status();
-                if(docallback) {
-                    update_data(&data);
-                }
-                if(sfm.detecting_group) sfm.s.camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred, filter_detect, &sfm, std::move(data));
-            }
-                break;
-                
-                
-            case rc_SENSOR_TYPE_DEPTH:
-                update_status();
-                if (filter_depth_measurement(&sfm, data)) {
-                    update_data(&data);
-                }
-                break;
-                
-            case rc_SENSOR_TYPE_ACCELEROMETER:
-                if(!isSensorFusionRunning) return;
-                update_status();
-                if (filter_accelerometer_measurement(&sfm, data)) {
-                    update_data(&data);
-                }
-                break;
-                
-            case rc_SENSOR_TYPE_GYROSCOPE:
-                update_status();
-                if (filter_gyroscope_measurement(&sfm, data)) {
-                    update_data(&data);
-                }
-                break;
-        }
+    switch(data.type) {
+        case rc_SENSOR_TYPE_IMAGE: {
+            bool docallback = true;
+            if(isProcessingVideo) {
+                docallback = filter_image_measurement(&sfm, data);
+                sfm.catchup_state.copy_from(sfm.s);
+                queue.dispatch_buffered_to_fast_path();
+                std::lock_guard<std::mutex> lock(sfm.mini_mutex);
+                sfm.mini_state.copy_from(sfm.catchup_state);
+            } else
+                //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
+                docallback = sfm.s.orientation_initialized;
+
+            update_status();
+            if(docallback)
+                update_data(&data);
+
+            if(sfm.detecting_group)
+                sfm.s.camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred, filter_detect, &sfm, std::move(data));
+        } break;
+
+        case rc_SENSOR_TYPE_DEPTH: {
+            update_status();
+            if (filter_depth_measurement(&sfm, data))
+                update_data(&data);
+        } break;
+
+        case rc_SENSOR_TYPE_ACCELEROMETER: {
+            if(!isSensorFusionRunning) return;
+            update_status();
+            if (filter_accelerometer_measurement(&sfm, data))
+                update_data(&data);
+        } break;
+
+        case rc_SENSOR_TYPE_GYROSCOPE: {
+            update_status();
+            if (filter_gyroscope_measurement(&sfm, data))
+                update_data(&data);
+        } break;
+    }
 }
-    
+
 void sensor_fusion::queue_receive_data_fast(sensor_data &data, bool catchup)
 {
-        if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
-        data.path = rc_DATA_PATH_FAST;
-        switch(data.type) {
-            case rc_SENSOR_TYPE_ACCELEROMETER:
-                if(catchup) filter_mini_accelerometer_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
-                else if(filter_mini_accelerometer_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
-                    update_data(&data);
-                break;
+    if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
+    data.path = rc_DATA_PATH_FAST;
+    switch(data.type) {
+        case rc_SENSOR_TYPE_ACCELEROMETER: {
+            if(catchup) filter_mini_accelerometer_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
+            else if(filter_mini_accelerometer_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
+                update_data(&data);
+        } break;
 
-            case rc_SENSOR_TYPE_GYROSCOPE:
-                if(catchup) filter_mini_gyroscope_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
-                else if(filter_mini_gyroscope_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
-                    update_data(&data);
-                break;
-            default:
-                break;
-        }
-        data.path = rc_DATA_PATH_SLOW;
+        case rc_SENSOR_TYPE_GYROSCOPE: {
+            if(catchup) filter_mini_gyroscope_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
+            else if(filter_mini_gyroscope_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
+                update_data(&data);
+        } break;
+        default:
+            break;
+    }
+    data.path = rc_DATA_PATH_SLOW;
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)

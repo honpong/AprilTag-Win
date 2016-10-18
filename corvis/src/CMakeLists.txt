@@ -148,6 +148,7 @@ add_library(filter STATIC
 target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include)
 target_include_directories(filter PUBLIC ../../ThirdParty/spdlog/include)
+target_compile_definitions(filter PUBLIC SPDLOG_NO_DATETIME SPDLOG_NO_THREAD_ID)
 target_link_libraries(filter PRIVATE vlfeat)
 target_link_libraries(filter PUBLIC numerics cor)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)

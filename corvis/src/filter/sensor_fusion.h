@@ -148,7 +148,7 @@ public:
     std::string get_timing_stats() { return queue.get_stats(); };
     fusion_queue queue;
     void queue_receive_data(sensor_data &&data);
-    void queue_receive_data_fast(sensor_data &data, bool catchup);
+    void queue_receive_data_fast(sensor_data &data);
 
     //public for now
     filter sfm;

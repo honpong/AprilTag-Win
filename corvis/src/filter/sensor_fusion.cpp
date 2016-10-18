@@ -103,7 +103,11 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 docallback = filter_image_measurement(&sfm, data);
                 sfm.catchup_state.copy_from(sfm.s);
                 queue.dispatch_buffered([this](sensor_data &data) {
-                    queue_receive_data_fast(data, true);
+                    switch(data.type) {
+                        case rc_SENSOR_TYPE_ACCELEROMETER: filter_mini_accelerometer_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data); break;
+                        case rc_SENSOR_TYPE_GYROSCOPE:     filter_mini_gyroscope_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data); break;
+                        default: break;
+                    }
                 });
                 std::lock_guard<std::mutex> lock(sfm.mini_mutex);
                 sfm.mini_state.copy_from(sfm.catchup_state);
@@ -140,20 +144,18 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
     }
 }
 
-void sensor_fusion::queue_receive_data_fast(sensor_data &data, bool catchup)
+void sensor_fusion::queue_receive_data_fast(sensor_data &data)
 {
     if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
     data.path = rc_DATA_PATH_FAST;
     switch(data.type) {
         case rc_SENSOR_TYPE_ACCELEROMETER: {
-            if(catchup) filter_mini_accelerometer_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
-            else if(filter_mini_accelerometer_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
+            if(filter_mini_accelerometer_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
                 update_data(&data);
         } break;
 
         case rc_SENSOR_TYPE_GYROSCOPE: {
-            if(catchup) filter_mini_gyroscope_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
-            else if(filter_mini_gyroscope_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
+            if(filter_mini_gyroscope_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
                 update_data(&data);
         } break;
         default:
@@ -293,6 +295,6 @@ bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t l
 
 void sensor_fusion::receive_data(sensor_data && data)
 {
-    queue_receive_data_fast(data, false);
+    queue_receive_data_fast(data);
     queue.receive_sensor_data(std::move(data));
 }

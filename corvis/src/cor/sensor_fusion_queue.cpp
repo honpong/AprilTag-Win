@@ -333,6 +333,7 @@ void fusion_queue::dispatch_buffered(std::function<void(sensor_data &)> receive_
 {
     std::unique_lock<std::mutex> lock(data_mutex);
     std::sort_heap(queue.begin(), queue.end(), compare_sensor_data);
+    std::reverse(queue.begin(), queue.end()); // can't just call sort_heap with inverted comparison due to heap invariant
 
     for(auto &x : queue)
         receive_func(x);

@@ -108,8 +108,8 @@ public:
         ELIMINATE_DROPS //we always wait until the data in the other queues is ready
     };
 
-    fusion_queue(const std::function<void(sensor_data &&)> &receive_func,
-                 const std::function<void(const sensor_data &, bool)> &fast_receive_func,
+    fusion_queue(std::function<void(sensor_data &&)> receive_func,
+                 std::function<void(sensor_data &, bool)> fast_receive_func,
                  latency_strategy s,
                  sensor_clock::duration max_latency);
     ~fusion_queue();
@@ -159,7 +159,7 @@ private:
     std::thread thread;
     
     std::function<void(sensor_data &&)> data_receiver;
-    std::function<void(const sensor_data &, bool)> fast_data_receiver;
+    std::function<void(sensor_data &, bool)> fast_data_receiver;
     
     std::unordered_map<uint64_t, sensor_stats> stats;
     std::vector<uint64_t> required_sensors;

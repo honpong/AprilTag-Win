@@ -30,8 +30,8 @@ static bool compare_sensor_data(const sensor_data &d1, const sensor_data &d2) {
     return d1.timestamp > d2.timestamp;
 }
 
-fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> &data_func,
-                           const std::function<void(const sensor_data &, bool)> &fast_data_func,
+fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> data_func,
+                           const std::function<void(sensor_data &, bool)> fast_data_func,
                            latency_strategy s,
                            sensor_clock::duration maximum_latency):
                 strategy(s),

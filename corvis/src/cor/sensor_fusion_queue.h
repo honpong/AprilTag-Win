@@ -109,7 +109,6 @@ public:
     };
 
     fusion_queue(std::function<void(sensor_data &&)> receive_func,
-                 std::function<void(sensor_data &, bool)> fast_receive_func,
                  latency_strategy s,
                  sensor_clock::duration max_latency);
     ~fusion_queue();
@@ -128,8 +127,8 @@ public:
 
     std::string get_stats();
 
-    void dispatch_buffered_to_fast_path();
-    
+    void dispatch_buffered(std::function<void(sensor_data &)> receive_func);
+
     latency_strategy strategy;
 
     uint64_t total_in{0};

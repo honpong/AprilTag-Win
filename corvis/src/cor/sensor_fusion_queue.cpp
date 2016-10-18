@@ -31,12 +31,10 @@ static bool compare_sensor_data(const sensor_data &d1, const sensor_data &d2) {
 }
 
 fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> data_func,
-                           const std::function<void(sensor_data &, bool)> fast_data_func,
                            latency_strategy s,
                            sensor_clock::duration maximum_latency):
                 strategy(s),
                 data_receiver(data_func),
-                fast_data_receiver(fast_data_func),
                 control_func(nullptr),
                 active(false),
                 singlethreaded(false),
@@ -103,7 +101,6 @@ std::string fusion_queue::get_stats()
 
 void fusion_queue::receive_sensor_data(sensor_data && x)
 {
-    fast_data_receiver(x, false);
     uint64_t id = x.id + MAX_SENSORS*x.type;
     push_queue(id, std::move(x));
     if(singlethreaded || buffering) dispatch_singlethread(false);
@@ -332,13 +329,13 @@ void fusion_queue::dispatch_singlethread(bool force)
     lock.unlock();
 }
 
-void fusion_queue::dispatch_buffered_to_fast_path()
+void fusion_queue::dispatch_buffered(std::function<void(sensor_data &)> receive_func)
 {
     std::unique_lock<std::mutex> lock(data_mutex);
     std::sort_heap(queue.begin(), queue.end(), compare_sensor_data);
 
     for(auto &x : queue)
-        fast_data_receiver(x, true);
+        receive_func(x);
 
     std::make_heap(queue.begin(), queue.end(), compare_sensor_data);
 }

@@ -90,7 +90,6 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     : isSensorFusionRunning(false),
       isProcessingVideo(false),
       queue([this](sensor_data &&data) { queue_receive_data(std::move(data)); },
-            [this](sensor_data &data, bool catchup) { queue_receive_data_fast(data, catchup); },
             strategy, std::chrono::milliseconds(500))
 {
 }
@@ -103,7 +102,9 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             if(isProcessingVideo) {
                 docallback = filter_image_measurement(&sfm, data);
                 sfm.catchup_state.copy_from(sfm.s);
-                queue.dispatch_buffered_to_fast_path();
+                queue.dispatch_buffered([this](sensor_data &data) {
+                    queue_receive_data_fast(data, true);
+                });
                 std::lock_guard<std::mutex> lock(sfm.mini_mutex);
                 sfm.mini_state.copy_from(sfm.catchup_state);
             } else
@@ -292,5 +293,6 @@ bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t l
 
 void sensor_fusion::receive_data(sensor_data && data)
 {
+    queue_receive_data_fast(data, false);
     queue.receive_sensor_data(std::move(data));
 }

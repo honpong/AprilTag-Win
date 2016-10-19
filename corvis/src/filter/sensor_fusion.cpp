@@ -87,87 +87,86 @@ void sensor_fusion::update_data(const sensor_data * data)
 }
 
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
+    : isSensorFusionRunning(false),
+      isProcessingVideo(false),
+      queue([this](sensor_data &&data) { queue_receive_data(std::move(data)); },
+            strategy, std::chrono::milliseconds(500))
 {
-    isSensorFusionRunning = false;
-    isProcessingVideo = false;
-    auto data_fn = [this](sensor_data && data)
-    {
-        switch(data.type) {
-            case rc_SENSOR_TYPE_IMAGE:
-            {
-                
-                bool docallback = true;
-                if(isProcessingVideo)
-                {
-                    docallback = filter_image_measurement(&sfm, data);
-                    sfm.catchup_state.copy_from(sfm.s);
-                    queue->dispatch_buffered_to_fast_path();
-                    std::lock_guard<std::mutex> lock(sfm.mini_mutex);
-                    sfm.mini_state.copy_from(sfm.catchup_state);
-                }
-                else
-                    //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
-                    docallback = sfm.s.orientation_initialized;
-                
-                update_status();
-                if(docallback) {
-                    update_data(&data);
-                }
-                if(sfm.detecting_group) sfm.s.camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred, filter_detect, &sfm, std::move(data));
-            }
-                break;
-                
-                
-            case rc_SENSOR_TYPE_DEPTH:
-                update_status();
-                if (filter_depth_measurement(&sfm, data)) {
-                    update_data(&data);
-                }
-                break;
-                
-            case rc_SENSOR_TYPE_ACCELEROMETER:
-                if(!isSensorFusionRunning) return;
-                update_status();
-                if (filter_accelerometer_measurement(&sfm, data)) {
-                    update_data(&data);
-                }
-                break;
-                
-            case rc_SENSOR_TYPE_GYROSCOPE:
-                update_status();
-                if (filter_gyroscope_measurement(&sfm, data)) {
-                    update_data(&data);
-                }
-                break;
-        }
-    };
-    
-    auto fast_data_fn =[this](const sensor_data &data, bool catchup)
-    {
-        if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
-        switch(data.type) {
-            case rc_SENSOR_TYPE_ACCELEROMETER:
-                if(catchup) filter_mini_accelerometer_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
-                else if(filter_mini_accelerometer_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
-                    update_data(&data);
-                break;
-                
-            case rc_SENSOR_TYPE_GYROSCOPE:
-                if(catchup) filter_mini_gyroscope_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data);
-                else if(filter_mini_gyroscope_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
-                    update_data(&data);
-                break;
-            default:
-                break;
-        }
-    };
-    
-    queue = std::make_unique<fusion_queue>(data_fn, fast_data_fn, strategy, std::chrono::milliseconds(500));
+}
+
+void sensor_fusion::queue_receive_data(sensor_data &&data)
+{
+    switch(data.type) {
+        case rc_SENSOR_TYPE_IMAGE: {
+            bool docallback = true;
+            if(isProcessingVideo) {
+                docallback = filter_image_measurement(&sfm, data);
+                sfm.catchup_state.copy_from(sfm.s);
+                queue.dispatch_buffered([this](sensor_data &data) {
+                    switch(data.type) {
+                        case rc_SENSOR_TYPE_ACCELEROMETER: filter_mini_accelerometer_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data); break;
+                        case rc_SENSOR_TYPE_GYROSCOPE:     filter_mini_gyroscope_measurement(&sfm, sfm.catchup_observations, sfm.catchup_state, data); break;
+                        default: break;
+                    }
+                });
+                std::lock_guard<std::mutex> lock(sfm.mini_mutex);
+                sfm.mini_state.copy_from(sfm.catchup_state);
+            } else
+                //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
+                docallback = sfm.s.orientation_initialized;
+
+            update_status();
+            if(docallback)
+                update_data(&data);
+
+            if(sfm.detecting_group)
+                sfm.s.camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred, filter_detect, &sfm, std::move(data));
+        } break;
+
+        case rc_SENSOR_TYPE_DEPTH: {
+            update_status();
+            if (filter_depth_measurement(&sfm, data))
+                update_data(&data);
+        } break;
+
+        case rc_SENSOR_TYPE_ACCELEROMETER: {
+            if(!isSensorFusionRunning) return;
+            update_status();
+            if (filter_accelerometer_measurement(&sfm, data))
+                update_data(&data);
+        } break;
+
+        case rc_SENSOR_TYPE_GYROSCOPE: {
+            update_status();
+            if (filter_gyroscope_measurement(&sfm, data))
+                update_data(&data);
+        } break;
+    }
+}
+
+void sensor_fusion::queue_receive_data_fast(sensor_data &data)
+{
+    if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
+    data.path = rc_DATA_PATH_FAST;
+    switch(data.type) {
+        case rc_SENSOR_TYPE_ACCELEROMETER: {
+            if(filter_mini_accelerometer_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
+                update_data(&data);
+        } break;
+
+        case rc_SENSOR_TYPE_GYROSCOPE: {
+            if(filter_mini_gyroscope_measurement(&sfm, sfm.mini_observations, sfm.mini_state, data))
+                update_data(&data);
+        } break;
+        default:
+            break;
+    }
+    data.path = rc_DATA_PATH_SLOW;
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)
 {
-    queue->dispatch_async([this, latitude_degrees, altitude_meters]{
+    queue.dispatch_async([this, latitude_degrees, altitude_meters]{
         filter_compute_gravity(&sfm, latitude_degrees, altitude_meters);
     });
 }
@@ -180,7 +179,7 @@ void sensor_fusion::start_calibration(bool thread)
     isProcessingVideo = false;
     filter_initialize(&sfm);
     filter_start_static_calibration(&sfm);
-    queue->start(threaded);
+    queue.start(threaded);
 }
 
 void sensor_fusion::start(bool thread)
@@ -191,7 +190,7 @@ void sensor_fusion::start(bool thread)
     isProcessingVideo = true;
     filter_initialize(&sfm);
     filter_start_hold_steady(&sfm);
-    queue->start(threaded);
+    queue.start(threaded);
 }
 
 void sensor_fusion::start_unstable(bool thread)
@@ -202,25 +201,25 @@ void sensor_fusion::start_unstable(bool thread)
     isProcessingVideo = true;
     filter_initialize(&sfm);
     filter_start_dynamic(&sfm);
-    queue->start(thread);
+    queue.start(thread);
 }
 
 void sensor_fusion::pause_and_reset_position()
 {
     isProcessingVideo = false;
-    queue->dispatch_async([this]() { filter_start_inertial_only(&sfm); });
+    queue.dispatch_async([this]() { filter_start_inertial_only(&sfm); });
 }
 
 void sensor_fusion::unpause()
 {
     isProcessingVideo = true;
-    queue->dispatch_async([this]() { filter_start_dynamic(&sfm); });
+    queue.dispatch_async([this]() { filter_start_dynamic(&sfm); });
 }
 
 void sensor_fusion::start_buffering()
 {
     buffering = true;
-    queue->start_buffering(std::chrono::milliseconds(200));
+    queue.start_buffering(std::chrono::milliseconds(200));
 }
 
 void sensor_fusion::start_offline()
@@ -231,7 +230,7 @@ void sensor_fusion::start_offline()
     filter_start_dynamic(&sfm);
     isSensorFusionRunning = true;
     isProcessingVideo = true;
-    queue->start(false);
+    queue.start(false);
 }
 
 bool sensor_fusion::started()
@@ -241,7 +240,7 @@ bool sensor_fusion::started()
 
 void sensor_fusion::stop()
 {
-    queue->stop();
+    queue.stop();
     isSensorFusionRunning = false;
     isProcessingVideo = false;
     processingVideoRequested = false;
@@ -250,7 +249,7 @@ void sensor_fusion::stop()
 void sensor_fusion::flush_and_reset()
 {
     stop();
-    queue->reset();
+    queue.reset();
     filter_initialize(&sfm);
 }
 
@@ -296,5 +295,6 @@ bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t l
 
 void sensor_fusion::receive_data(sensor_data && data)
 {
-    queue->receive_sensor_data(std::move(data));
+    queue_receive_data_fast(data);
+    queue.receive_sensor_data(std::move(data));
 }

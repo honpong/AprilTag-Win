@@ -145,8 +145,10 @@ public:
      */
     //void stop_qr_detection();
     
-    std::string get_timing_stats() { return queue->get_stats(); };
-    std::unique_ptr<fusion_queue> queue;
+    std::string get_timing_stats() { return queue.get_stats(); };
+    fusion_queue queue;
+    void queue_receive_data(sensor_data &&data);
+    void queue_receive_data_fast(sensor_data &data);
 
     //public for now
     filter sfm;

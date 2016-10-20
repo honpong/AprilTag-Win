@@ -59,9 +59,6 @@ public:
 
 template<class T> class state_branch: public state_node {
 public:
-    //for some reason i need this typename qualifier, including without the typedef
-    typedef typename list<T>::iterator iterator;
-
     void copy_state_to_array(matrix &state) {
         for(T c : children)
             c->copy_state_to_array(state);

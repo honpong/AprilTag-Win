@@ -320,7 +320,7 @@ typedef enum rc_TrackerRunFlags
     rc_E_ASYNCHRONOUS = 1,
 } rc_TrackerRunFlags;
 
-RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
+RCTRACKER_API bool rc_startCalibration(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
 
 /**
  Resets position and pauses the tracker. While paused, the tracker will continue processing inertial measurements and updating orientation. When rc_unpause is called, the tracker will start up again very quickly.
@@ -344,12 +344,12 @@ RCTRACKER_API void rc_unpause(rc_Tracker *tracker);
  rc_startTracker(tracker, rc_E_SYNCHRONOUS);
  rc_setPose(tracker, rc_POSE_IDENTITY);
  */
-RCTRACKER_API void rc_startBuffering(rc_Tracker *tracker);
+RCTRACKER_API bool rc_startBuffering(rc_Tracker *tracker);
 
 /**
  Starts the tracker.
  */
-RCTRACKER_API void rc_startTracker(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
+RCTRACKER_API bool rc_startTracker(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
 RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
 
 /**

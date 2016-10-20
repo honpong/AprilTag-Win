@@ -438,10 +438,12 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
     };
 }
 
-void rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
+bool rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
     if(trace) trace_log->info("rc_startCalibration {}", run_flags);
+    if(!tracker->sfm.accelerometers.size() || !tracker->sfm.gyroscopes.size()) return false;
     tracker->start_calibration(run_flags == rc_E_ASYNCHRONOUS);
+    return true;
 }
 
 void rc_pauseAndResetPosition(rc_Tracker * tracker)
@@ -456,19 +458,23 @@ void rc_unpause(rc_Tracker *tracker)
     tracker->unpause();
 }
 
-void rc_startBuffering(rc_Tracker * tracker)
+bool rc_startBuffering(rc_Tracker * tracker)
 {
     if(trace) trace_log->info("rc_startBuffering");
+    if(!is_configured(tracker)) return false;
     tracker->start_buffering();
+    return true;
 }
 
-void rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
+bool rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
     if(trace) trace_log->info("rc_startTracker");
+    if(!is_configured(tracker)) return false;
     if (run_flags == rc_E_ASYNCHRONOUS)
         tracker->start_unstable(true);
     else
         tracker->start_offline();
+    return true;
 }
 
 void rc_stopTracker(rc_Tracker * tracker)

@@ -144,6 +144,11 @@ struct rc_Tracker: public sensor_fusion
     capture output;
 };
 
+static bool is_configured(const rc_Tracker * tracker)
+{
+    return tracker->sfm.cameras.size() && tracker->sfm.accelerometers.size() && tracker->sfm.gyroscopes.size();
+}
+
 rc_Tracker * rc_create()
 {
     rc_Tracker * tracker = new rc_Tracker();
@@ -161,6 +166,7 @@ void rc_destroy(rc_Tracker * tracker)
 void rc_reset(rc_Tracker * tracker, rc_Timestamp initial_time_us)
 {
     if(trace) trace_log->info("rc_reset {}", initial_time_us);
+    if(!is_configured(tracker)) return;
     tracker->reset(sensor_clock::micros_to_tp(initial_time_us));
 }
 

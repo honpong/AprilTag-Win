@@ -24,6 +24,13 @@ TEST(rc_tracker_tests, rc_receiveImageBadPtr)
     EXPECT_EQ(error_count, 1);
 }
 
+TEST(rc_tracker_tests, rc_createAndReset)
+{
+    rc_Tracker *tracker = rc_create();
+    rc_reset(tracker, 0);
+    rc_destroy(tracker);
+}
+
 TEST(rc_tracker_tests, rc_receiveImageBadDimensions)
 {
     rc_Tracker *tracker = rc_create();

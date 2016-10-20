@@ -110,7 +110,4 @@ extern "C" void filter_initialize(struct filter *f);
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
 
-std::unique_ptr<sensor_data> filter_aligned_depth_to_intrinsics(const struct filter *f, const sensor_data & depth);
-//std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter *f, const image_depth16 &depth, const image_gray8 & image);
-
 #endif

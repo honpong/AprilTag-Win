@@ -606,7 +606,7 @@ static float get_stdev_pct_for_depth(float depth_m)
     return 0.0023638192164147698f + (0.0015072367800769945f + 0.00044245048102432134f * depth_m) * depth_m;
 }
 
-std::unique_ptr<sensor_data> filter_aligned_depth_to_intrinsics(const struct filter *f, const sensor_data & depth)
+static std::unique_ptr<sensor_data> filter_aligned_depth_to_intrinsics(const struct filter *f, const sensor_data & depth)
 {
     assert(f->depths.size() > 0);
     const auto & intrinsics = f->depths[0]->intrinsics;
@@ -681,7 +681,7 @@ std::unique_ptr<sensor_data> filter_aligned_depth_to_intrinsics(const struct fil
 }
 
 /*
-std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter *f, const image_depth16 &depth, const image_gray8 & image)
+static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter *f, const image_depth16 &depth, const image_gray8 & image)
 {
     std::unique_ptr<image_depth16> aligned_depth = filter_aligned_depth_to_intrinsics(f, depth);
 

@@ -25,8 +25,6 @@
 #include "ipp_tracker.h"
 #endif
 
-const static sensor_clock::duration max_camera_delay = std::chrono::microseconds(200000); //We drop a frame if it arrives at least this late
-const static sensor_clock::duration max_inertial_delay = std::chrono::microseconds(100000); //We drop inertial data if it arrives at least this late
 const static sensor_clock::duration min_steady_time = std::chrono::microseconds(100000); //time held steady before we start treating it as steady
 const static sensor_clock::duration steady_converge_time = std::chrono::microseconds(200000); //time that user needs to hold steady (us)
 const static int calibration_converge_samples = 200; //number of accelerometer readings needed to converge in calibration mode
@@ -458,14 +456,6 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
     f->last_accel_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
-    if(!f->ignore_lateness) {
-        auto current = sensor_clock::now();
-        auto delta = current - timestamp;
-        if(delta > max_inertial_delay) {
-            f->log->warn("Warning, dropped an old accel sample - timestamp {}, now {}", sensor_clock::tp_to_micros(timestamp), sensor_clock::tp_to_micros(current));
-            return false;
-        }
-    }
     if(!accelerometer.got) { //skip first packet - has been crap from gyro
         accelerometer.got = true;
         return false;
@@ -522,14 +512,6 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
     f->last_gyro_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
-    if(!f->ignore_lateness) {
-        auto current = sensor_clock::now();
-        auto delta = current - timestamp;
-        if(delta > max_inertial_delay) {
-            f->log->warn("Warning, dropped an old gyro sample - timestamp {}, now {}", sensor_clock::tp_to_micros(timestamp), sensor_clock::tp_to_micros(current));
-            return false;
-        }
-    }
     if(!gyroscope.got) { //skip the first piece of data as it seems to be crap
         gyroscope.got = true;
         return false;
@@ -862,49 +844,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     f->s.camera.intrinsics.image_width = data.image.width;
     f->s.camera.intrinsics.image_height = data.image.height;
     
-    if(!f->ignore_lateness) {
-        /*thread_info_data_t thinfo;
-        mach_msg_type_number_t thinfo_count;
-        kern_return_t kr = thread_info(mach_thread_self(), THREAD_BASIC_INFO, thinfo, &thinfo_count);
-        float cpu = ((thread_basic_info_t)thinfo)->cpu_usage / (float)TH_USAGE_SCALE;
-        f->log->info("cpu usage is {}", cpu);*/
-        
-        auto current = sensor_clock::now();
-        auto delta = current - time;
-        if(delta > max_camera_delay) {
-            f->log->warn("Warning, dropped an old video frame - timestamp {}, now {}", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
-            return false;
-        }
-        if(!f->valid_delta) {
-            f->mindelta = delta;
-            f->valid_delta = true;
-        }
-        if(delta < f->mindelta) {
-            f->mindelta = delta;
-        }
-        auto lateness = delta - f->mindelta;
-        auto period = time - f->last_arrival;
-        f->last_arrival = time;
-        
-        if(lateness > period * 2) {
-            f->log->warn("old max_state_size was {}", f->s.maxstatesize);
-            f->s.maxstatesize = f->s.statesize - 1;
-            if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            f->log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
-            f->log->warn("dropping a frame!");
-            return false;
-        }
-        if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
-            f->s.maxstatesize = f->s.statesize - 1;
-            if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            f->log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
-        }
-        if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - f->s.fake_statesize - 1) {
-            ++f->s.maxstatesize;
-            f->log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
-        }
-    }
-
     if(f->detecting_group)
     {
 #ifdef TEST_POSDEF
@@ -973,7 +912,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->run_state = RCSensorFusionRunStateRunning;
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
-                f->active_time = data.timestamp;
                 state_vision_group *g = f->s.add_group(data.timestamp);
                 filter_add_detected_features(f, g, f->s.camera.last_detection_timestamp, detection, space, data.image.height);
             }
@@ -1033,12 +971,7 @@ extern "C" void filter_initialize(struct filter *f)
     
     f->detecting_group = nullptr;
     
-    f->mindelta = std::chrono::microseconds(0);
-    f->valid_delta = false;
-    
-    f->last_arrival = sensor_clock::time_point(sensor_clock::duration(0));
-    f->active_time = sensor_clock::time_point(sensor_clock::duration(0));
-    
+
     f->observations.observations.clear();
     f->mini_observations.observations.clear();
     f->catchup_observations.observations.clear();

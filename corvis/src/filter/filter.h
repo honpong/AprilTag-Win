@@ -40,7 +40,6 @@ struct filter {
     bool speed_failed, speed_warning;
     bool numeric_failed;
     sensor_clock::time_point speed_warning_time;
-    bool ignore_lateness = true;
     stdev<3> gyro_stability, accel_stability; //TODOMSM - either just first sensor or per-sensor
     sensor_clock::time_point stable_start;
     bool calibration_bad;
@@ -50,12 +49,6 @@ struct filter {
     bool has_converged;
     state_vision_group *detecting_group;
 
-    sensor_clock::duration mindelta;
-    bool valid_delta;
-    sensor_clock::time_point last_arrival;
-    
-    sensor_clock::time_point active_time;
-    
 #ifdef ENABLE_QR
     qr_detector qr;
     sensor_clock::time_point last_qr_time;

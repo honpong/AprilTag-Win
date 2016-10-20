@@ -14,6 +14,31 @@ void count_errors(void *handle, rc_MessageLevel message_level, const char * mess
     (*error_count)++;
 }
 
+rc_Tracker * create_default()
+{
+    rc_Tracker * tracker = rc_create();
+    EXPECT_FALSE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
+
+    rc_Extrinsics identity;
+    identity.pose_m = rc_POSE_IDENTITY;
+    identity.variance_m2 = {{1e-7f, 1e-7f, 1e-7f}, {1e-7f, 1.e-7f, 1.e-7f}};
+
+    rc_AccelerometerIntrinsics accelerometer_intrinsics = {};
+    EXPECT_TRUE(rc_configureAccelerometer(tracker, 0, &identity, &accelerometer_intrinsics));
+
+    EXPECT_FALSE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
+
+    rc_GyroscopeIntrinsics gyroscope_intrinsics = {};
+    EXPECT_TRUE(rc_configureGyroscope(tracker, 0, &identity, &gyroscope_intrinsics));
+
+    EXPECT_FALSE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
+
+    rc_CameraIntrinsics camera_intrinsics = {};
+    EXPECT_TRUE(rc_configureCamera(tracker, 0, rc_FORMAT_GRAY8, &identity, &camera_intrinsics));
+
+    return tracker;
+}
+
 TEST(rc_tracker_tests, rc_receiveImageBadPtr)
 {
     rc_Tracker *tracker = rc_create();
@@ -40,28 +65,20 @@ TEST(rc_tracker_tests, rc_startUnconfigured)
 
 TEST(rc_tracker_tests, rc_progressiveConfigure)
 {
-    rc_Tracker * tracker = rc_create();
-    EXPECT_FALSE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
-
-    rc_Extrinsics identity;
-    identity.pose_m = rc_POSE_IDENTITY;
-    identity.variance_m2 = {{1e-7f, 1e-7f, 1e-7f}, {1e-7f, 1.e-7f, 1.e-7f}};
-
-    rc_AccelerometerIntrinsics accelerometer_intrinsics = {};
-    EXPECT_TRUE(rc_configureAccelerometer(tracker, 0, &identity, &accelerometer_intrinsics));
-
-    EXPECT_FALSE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
-
-    rc_GyroscopeIntrinsics gyroscope_intrinsics = {};
-    EXPECT_TRUE(rc_configureGyroscope(tracker, 0, &identity, &gyroscope_intrinsics));
-
-    EXPECT_FALSE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
-
-    rc_CameraIntrinsics camera_intrinsics = {};
-    EXPECT_TRUE(rc_configureCamera(tracker, 0, rc_FORMAT_GRAY8, &identity, &camera_intrinsics));
+    rc_Tracker * tracker = create_default();
 
     EXPECT_TRUE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
+    rc_destroy(tracker);
 }
+
+TEST(rc_tracker_tests, rc_startStopReset)
+{
+    rc_Tracker * tracker = create_default();
+    rc_stopTracker(tracker);
+    rc_reset(tracker, 0);
+    rc_destroy(tracker);
+}
+
 
 TEST(rc_tracker_tests, rc_receiveImageBadDimensions)
 {

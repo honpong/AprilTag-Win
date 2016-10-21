@@ -977,32 +977,15 @@ extern "C" void filter_initialize(struct filter *f)
 
     // TODOMSM: remove these in favor of treating everything on a
     // per-sensor basis
-    assert(f->cameras.size() && f->accelerometers.size() && f->gyroscopes.size());
+    assert(f->cameras.size());
     auto cam_extrinsics = f->cameras[0]->extrinsics;
     auto cam_intrinsics = f->cameras[0]->intrinsics;
-    auto imu_extrinsics = f->accelerometers[0]->extrinsics;
-    auto accel = f->accelerometers[0]->intrinsics;
-    auto gyro = f->gyroscopes[0]->intrinsics;
-
-    f->w_variance = gyro.measurement_variance_rad2__s2;
-    f->a_variance = accel.measurement_variance_m2__s4;
 
     f->s.camera.extrinsics.T.v = cam_extrinsics.mean.T;
     f->s.camera.extrinsics.Q.v = cam_extrinsics.mean.Q;
 
     f->s.camera.extrinsics.Q.set_initial_variance(cam_extrinsics.variance.Q[0], cam_extrinsics.variance.Q[1], cam_extrinsics.variance.Q[2]);
     f->s.camera.extrinsics.T.set_initial_variance(cam_extrinsics.variance.T[0], cam_extrinsics.variance.T[1], cam_extrinsics.variance.T[2]);
-
-    f->s.imu.extrinsics.Q.v = imu_extrinsics.mean.Q;
-    f->s.imu.extrinsics.T.v = imu_extrinsics.mean.T;
-
-    f->s.imu.extrinsics.Q.set_initial_variance(imu_extrinsics.variance.Q[0], imu_extrinsics.variance.Q[1], imu_extrinsics.variance.Q[2]);
-    f->s.imu.extrinsics.T.set_initial_variance(imu_extrinsics.variance.T[0], imu_extrinsics.variance.T[1], imu_extrinsics.variance.T[2]);
-
-    f->s.imu.intrinsics.a_bias.v = v_map(accel.bias_m__s2.v);
-    f->s.imu.intrinsics.a_bias.set_initial_variance(accel.bias_variance_m2__s4.x, accel.bias_variance_m2__s4.y, accel.bias_variance_m2__s4.z);
-    f->s.imu.intrinsics.w_bias.v = v_map(gyro.bias_rad__s.v);
-    f->s.imu.intrinsics.w_bias.set_initial_variance(gyro.bias_variance_rad2__s2.x, gyro.bias_variance_rad2__s2.y, gyro.bias_variance_rad2__s2.z);
 
     f->s.camera.intrinsics.focal_length.v = (cam_intrinsics.f_x_px + cam_intrinsics.f_y_px) / 2 / cam_intrinsics.height_px;
     f->s.camera.intrinsics.center_x.v = (cam_intrinsics.c_x_px - cam_intrinsics.width_px / 2. + .5) / cam_intrinsics.height_px;
@@ -1015,22 +998,8 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.camera.intrinsics.k3.v = cam_intrinsics.k3;
     f->s.camera.intrinsics.fisheye = cam_intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE;
 
-    f->s.g.set_initial_variance(1.e-7);
-    
-    f->s.T.set_process_noise(0.);
-    f->s.Q.set_process_noise(0.);
-    f->s.V.set_process_noise(0.);
-    f->s.w.set_process_noise(0.);
-    f->s.dw.set_process_noise(0);
-    f->s.a.set_process_noise(0);
-    f->s.g.set_process_noise(1.e-30);
-
     f->s.camera.extrinsics.Q.set_process_noise(1.e-30);
     f->s.camera.extrinsics.T.set_process_noise(1.e-30);
-    f->s.imu.extrinsics.Q.set_process_noise(1.e-30);
-    f->s.imu.extrinsics.T.set_process_noise(1.e-30);
-    f->s.imu.intrinsics.a_bias.set_process_noise(2.3e-8);
-    f->s.imu.intrinsics.w_bias.set_process_noise(2.3e-10);
     //TODO: check this process noise
     f->s.camera.intrinsics.focal_length.set_process_noise(2.3e-3 / cam_intrinsics.height_px / cam_intrinsics.height_px);
     f->s.camera.intrinsics.center_x.set_process_noise(2.3e-3 / cam_intrinsics.height_px / cam_intrinsics.height_px);
@@ -1038,16 +1007,6 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.camera.intrinsics.k1.set_process_noise(2.3e-7);
     f->s.camera.intrinsics.k2.set_process_noise(2.3e-7);
     f->s.camera.intrinsics.k3.set_process_noise(2.3e-7);
-
-    f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
-    //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
-    f->s.Q.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
-    f->s.V.set_initial_variance(1. * 1.);
-    f->s.w.set_initial_variance(10);
-    f->s.dw.set_initial_variance(10);
-    f->s.ddw.set_initial_variance(466*466);
-    f->s.a.set_initial_variance(10);
-    f->s.da.set_initial_variance(9*9);
 
     f->s.camera.intrinsics.focal_length.set_initial_variance(10. / cam_intrinsics.height_px / cam_intrinsics.height_px);
     f->s.camera.intrinsics.center_x.set_initial_variance(2. / cam_intrinsics.height_px / cam_intrinsics.height_px);
@@ -1066,6 +1025,49 @@ extern "C" void filter_initialize(struct filter *f)
     else
         f->s.camera.feature_tracker = std::make_unique<ipp_tracker>();
 #endif
+
+    assert(f->accelerometers.size() && f->gyroscopes.size());
+    auto imu_extrinsics = f->accelerometers[0]->extrinsics;
+    auto accel = f->accelerometers[0]->intrinsics;
+    auto gyro = f->gyroscopes[0]->intrinsics;
+
+    f->w_variance = gyro.measurement_variance_rad2__s2;
+    f->a_variance = accel.measurement_variance_m2__s4;
+
+    f->s.imu.intrinsics.w_bias.v = v_map(gyro.bias_rad__s.v);
+    f->s.imu.intrinsics.w_bias.set_initial_variance(gyro.bias_variance_rad2__s2.x, gyro.bias_variance_rad2__s2.y, gyro.bias_variance_rad2__s2.z);
+
+    f->s.imu.intrinsics.a_bias.v = v_map(accel.bias_m__s2.v);
+    f->s.imu.intrinsics.a_bias.set_initial_variance(accel.bias_variance_m2__s4.x, accel.bias_variance_m2__s4.y, accel.bias_variance_m2__s4.z);
+
+    f->s.imu.extrinsics.Q.v = imu_extrinsics.mean.Q;
+    f->s.imu.extrinsics.T.v = imu_extrinsics.mean.T;
+    f->s.imu.extrinsics.Q.set_initial_variance(imu_extrinsics.variance.Q[0], imu_extrinsics.variance.Q[1], imu_extrinsics.variance.Q[2]);
+    f->s.imu.extrinsics.T.set_initial_variance(imu_extrinsics.variance.T[0], imu_extrinsics.variance.T[1], imu_extrinsics.variance.T[2]);
+
+    f->s.imu.extrinsics.Q.set_process_noise(1.e-30);
+    f->s.imu.extrinsics.T.set_process_noise(1.e-30);
+    f->s.imu.intrinsics.a_bias.set_process_noise(2.3e-8);
+    f->s.imu.intrinsics.w_bias.set_process_noise(2.3e-10);
+
+    f->s.T.set_process_noise(0.);
+    f->s.Q.set_process_noise(0.);
+    f->s.V.set_process_noise(0.);
+    f->s.w.set_process_noise(0.);
+    f->s.dw.set_process_noise(0);
+    f->s.a.set_process_noise(0);
+    f->s.g.set_process_noise(1.e-30);
+
+    f->s.g.set_initial_variance(1.e-7);
+    f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
+    //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
+    f->s.Q.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
+    f->s.V.set_initial_variance(1. * 1.);
+    f->s.w.set_initial_variance(10);
+    f->s.dw.set_initial_variance(10);
+    f->s.ddw.set_initial_variance(466*466);
+    f->s.a.set_initial_variance(10);
+    f->s.da.set_initial_variance(9*9);
 
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);

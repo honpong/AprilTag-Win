@@ -258,6 +258,11 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
         tracker->queue.require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, std::chrono::microseconds(600));
         auto new_accel = std::make_unique<sensor_accelerometer>(accel_id);
         tracker->sfm.accelerometers.push_back(std::move(new_accel));
+        if (accel_id == tracker->sfm.s.imus.children.size()) {
+            tracker->sfm.s.imus.children.emplace_back(std::make_unique<state_imu>());
+            tracker->sfm.mini->state.imus.children.emplace_back(std::make_unique<state_imu>());
+            tracker->sfm.catchup->state.imus.children.emplace_back(std::make_unique<state_imu>());
+        }
     }
 
     tracker->sfm.accelerometers[accel_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
@@ -307,6 +312,11 @@ bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extr
         tracker->queue.require_sensor(rc_SENSOR_TYPE_GYROSCOPE, gyro_id, std::chrono::microseconds(600));
         auto new_gyro = std::make_unique<sensor_gyroscope>(gyro_id);
         tracker->sfm.gyroscopes.push_back(std::move(new_gyro));
+        if (gyro_id == tracker->sfm.s.imus.children.size()) {
+            tracker->sfm.s.imus.children.emplace_back(std::make_unique<state_imu>());
+            tracker->sfm.mini->state.imus.children.emplace_back(std::make_unique<state_imu>());
+            tracker->sfm.catchup->state.imus.children.emplace_back(std::make_unique<state_imu>());
+        }
     }
 
     tracker->sfm.gyroscopes[gyro_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);

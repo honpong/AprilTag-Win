@@ -287,25 +287,30 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     observe_plot_item(timestamp_us, p, "Tvar_y", (float)f->s.T.variance()[1]);
     observe_plot_item(timestamp_us, p, "Tvar_z", (float)f->s.T.variance()[2]);
 
-    p = get_plot_by_name("gyro bias");
-    observe_plot_item(timestamp_us, p, "wbias_x", (float)f->s.imu.intrinsics.w_bias.v[0]);
-    observe_plot_item(timestamp_us, p, "wbias_y", (float)f->s.imu.intrinsics.w_bias.v[1]);
-    observe_plot_item(timestamp_us, p, "wbias_z", (float)f->s.imu.intrinsics.w_bias.v[2]);
-
-    p = get_plot_by_name("gyro bias var");
-    observe_plot_item(timestamp_us, p, "var-wbias_x", (float)f->s.imu.intrinsics.w_bias.variance()[0]);
-    observe_plot_item(timestamp_us, p, "var-wbias_y", (float)f->s.imu.intrinsics.w_bias.variance()[1]);
-    observe_plot_item(timestamp_us, p, "var-wbias_z", (float)f->s.imu.intrinsics.w_bias.variance()[2]);
-
-    p = get_plot_by_name("accel bias");
-    observe_plot_item(timestamp_us, p, "abias_x", (float)f->s.imu.intrinsics.a_bias.v[0]);
-    observe_plot_item(timestamp_us, p, "abias_y", (float)f->s.imu.intrinsics.a_bias.v[1]);
-    observe_plot_item(timestamp_us, p, "abias_z", (float)f->s.imu.intrinsics.a_bias.v[2]);
-
-    p = get_plot_by_name("accel bias var");
-    observe_plot_item(timestamp_us, p, "var-abias_x", (float)f->s.imu.intrinsics.a_bias.variance()[0]);
-    observe_plot_item(timestamp_us, p, "var-abias_y", (float)f->s.imu.intrinsics.a_bias.variance()[1]);
-    observe_plot_item(timestamp_us, p, "var-abias_z", (float)f->s.imu.intrinsics.a_bias.variance()[2]);
+    for (size_t i=0; i<f->s.imus.children.size(); i++) { const auto &imu = f->s.imus.children[i];
+        p = get_plot_by_name("gyro bias" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "wbias_x" + std::to_string(i), (float)imu->intrinsics.w_bias.v[0]);
+        observe_plot_item(timestamp_us, p, "wbias_y" + std::to_string(i), (float)imu->intrinsics.w_bias.v[1]);
+        observe_plot_item(timestamp_us, p, "wbias_z" + std::to_string(i), (float)imu->intrinsics.w_bias.v[2]);
+    }
+    for (size_t i=0; i<f->s.imus.children.size(); i++) { const auto &imu = f->s.imus.children[i];
+        p = get_plot_by_name("gyro bias var" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "var-wbias_x" + std::to_string(i), (float)imu->intrinsics.w_bias.variance()[0]);
+        observe_plot_item(timestamp_us, p, "var-wbias_y" + std::to_string(i), (float)imu->intrinsics.w_bias.variance()[1]);
+        observe_plot_item(timestamp_us, p, "var-wbias_z" + std::to_string(i), (float)imu->intrinsics.w_bias.variance()[2]);
+    }
+    for (size_t i=0; i<f->s.imus.children.size(); i++) { const auto &imu = f->s.imus.children[i];
+        p = get_plot_by_name("accel bias" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "abias_x" + std::to_string(i), (float)imu->intrinsics.a_bias.v[0]);
+        observe_plot_item(timestamp_us, p, "abias_y" + std::to_string(i), (float)imu->intrinsics.a_bias.v[1]);
+        observe_plot_item(timestamp_us, p, "abias_z" + std::to_string(i), (float)imu->intrinsics.a_bias.v[2]);
+    }
+    for (size_t i=0; i<f->s.imus.children.size(); i++) { const auto &imu = f->s.imus.children[i];
+        p = get_plot_by_name("accel bias var" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "var-abias_x" + std::to_string(i), (float)imu->intrinsics.a_bias.variance()[0]);
+        observe_plot_item(timestamp_us, p, "var-abias_y" + std::to_string(i), (float)imu->intrinsics.a_bias.variance()[1]);
+        observe_plot_item(timestamp_us, p, "var-abias_z" + std::to_string(i), (float)imu->intrinsics.a_bias.variance()[2]);
+    }
 
     for (const auto &a : f->accelerometers) {
         p = get_plot_by_name("accel inn" + std::to_string(a->id));

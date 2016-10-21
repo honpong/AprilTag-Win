@@ -184,15 +184,17 @@ static bool filter_mini_process_observation_queue(struct filter * f, observation
 
 bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data)
 {
-    if(data.id != 0) return true;
+    if(data.id >= f->accelerometers.size() || data.id >= f->s.imus.children.size())
+        return false;
 
     auto start = std::chrono::steady_clock::now();
     auto &accelerometer = *f->accelerometers[data.id];
+    auto &imu = *state.imus.children[data.id];
     v3 meas = m_map(accelerometer.intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2.v);
 
     //TODO: if out of order, project forward in time
     
-    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, state, state.imu.extrinsics, state.imu.intrinsics, data.timestamp, data.timestamp);
+    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, state, imu.extrinsics, imu.intrinsics, data.timestamp, data.timestamp);
     obs_a->meas = meas;
     obs_a->variance = accelerometer.measurement_variance;
 
@@ -207,16 +209,18 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
 
 bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data)
 {
-    if(data.id != 0) return true;
+    if(data.id >= f->gyroscopes.size() || data.id >= f->s.imus.children.size())
+        return false;
 
     auto start = std::chrono::steady_clock::now();
     
     auto &gyroscope = *f->gyroscopes[data.id];
+    auto &imu = *state.imus.children[data.id];
     v3 meas = m_map(gyroscope.intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s.v);
 
     //TODO: if out of order, project forward in time
     
-    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, state, state.imu.extrinsics, state.imu.intrinsics, data.timestamp, data.timestamp);
+    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, state, imu.extrinsics, imu.intrinsics, data.timestamp, data.timestamp);
     obs_w->meas = meas;
     obs_w->variance = gyroscope.measurement_variance;
 
@@ -314,10 +318,12 @@ sensor_clock::duration steady_time(struct filter *f, stdev<3> &stdev, const v3 &
 
 static void print_calibration(struct filter *f)
 {
-    f->log->trace("w bias is: {}, {}, {}",     f->s.imu.intrinsics.w_bias.v[0],          f->s.imu.intrinsics.w_bias.v[1],          f->s.imu.intrinsics.w_bias.v[2]);
-    f->log->trace("w bias var is: {}, {}, {}", f->s.imu.intrinsics.w_bias.variance()[0], f->s.imu.intrinsics.w_bias.variance()[1], f->s.imu.intrinsics.w_bias.variance()[2]);
-    f->log->trace("a bias is: {}, {}, {}",     f->s.imu.intrinsics.a_bias.v[0],          f->s.imu.intrinsics.a_bias.v[1],          f->s.imu.intrinsics.a_bias.v[2]);
-    f->log->trace("a bias var is: {}, {}, {}", f->s.imu.intrinsics.a_bias.variance()[0], f->s.imu.intrinsics.a_bias.variance()[1], f->s.imu.intrinsics.a_bias.variance()[2]);
+    for (const auto &imu : f->s.imus.children) {
+        f->log->trace("w bias is: {}, {}, {}",     imu->intrinsics.w_bias.v[0],          imu->intrinsics.w_bias.v[1],          imu->intrinsics.w_bias.v[2]);
+        f->log->trace("w bias var is: {}, {}, {}", imu->intrinsics.w_bias.variance()[0], imu->intrinsics.w_bias.variance()[1], imu->intrinsics.w_bias.variance()[2]);
+        f->log->trace("a bias is: {}, {}, {}",     imu->intrinsics.a_bias.v[0],          imu->intrinsics.a_bias.v[1],          imu->intrinsics.a_bias.v[2]);
+        f->log->trace("a bias var is: {}, {}, {}", imu->intrinsics.a_bias.variance()[0], imu->intrinsics.a_bias.variance()[1], imu->intrinsics.a_bias.variance()[2]);
+    }
 }
 
 static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
@@ -444,12 +450,14 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, state_imu 
 
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 {
-    if(data.id != 0) return true;
+    if(data.id >= f->accelerometers.size() || data.id >= f->s.imus.children.size())
+        return false;
 
     auto start = std::chrono::steady_clock::now();
     auto timestamp = data.timestamp;
     auto &accelerometer = *f->accelerometers[data.id];
     auto &gyroscope     = *f->gyroscopes[data.id];
+    auto &imu = *f->s.imus.children[data.id];
     v3 meas = m_map(accelerometer.intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2.v);
     v3 accel_delta = meas - f->last_accel_meas;
     f->last_accel_meas = meas;
@@ -468,7 +476,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 
     if(!f->s.orientation_initialized) {
         f->s.orientation_initialized = true;
-        f->s.Q.v = initial_orientation_from_gravity_facing(f->s.world.up, f->s.imu.extrinsics.Q.v * meas,
+        f->s.Q.v = initial_orientation_from_gravity_facing(f->s.world.up, imu.extrinsics.Q.v * meas,
                                                            f->s.world.initial_forward, f->s.body_forward);
         if(f->origin_set)
             f->origin.Q = f->origin.Q * f->s.Q.v.conjugate();
@@ -477,9 +485,9 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
         return true;
     }
 
-    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, f->s, f->s.imu.extrinsics, f->s.imu.intrinsics, timestamp, timestamp);
+    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, f->s, imu.extrinsics, imu.intrinsics, timestamp, timestamp);
     obs_a->meas = meas;
-    obs_a->variance = get_accelerometer_variance_for_run_state(f, f->s.imu, accelerometer, gyroscope, meas, timestamp);
+    obs_a->variance = get_accelerometer_variance_for_run_state(f, imu, accelerometer, gyroscope, meas, timestamp);
 
     f->observations.observations.push_back(std::move(obs_a));
 
@@ -491,7 +499,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
              << " innov  " << accelerometer.inn_stdev
              << " signal "       << accelerometer.meas_stdev
             // FIXME: these should be for this accelerometer->
-             << " bias is: " << f->s.imu.intrinsics.a_bias.v << " stdev is: " << f->s.imu.intrinsics.a_bias.variance().array().sqrt() << "\n";
+             << " bias is: " << imu.intrinsics.a_bias.v << " stdev is: " << imu.intrinsics.a_bias.variance().array().sqrt() << "\n";
     }
 
     auto stop = std::chrono::steady_clock::now();
@@ -501,11 +509,13 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
 {
-    if(data.id != 0) return true;
+    if(data.id >= f->gyroscopes.size() || data.id >= f->s.imus.children.size())
+        return false;
 
     auto start = std::chrono::steady_clock::now();
     auto timestamp = data.timestamp;
     auto &gyroscope = *f->gyroscopes[data.id];
+    auto &imu = *std::next(f->s.imus.children.begin(), data.id)->get();
     v3 meas = m_map(gyroscope.intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s.v);
     v3 gyro_delta = meas - f->last_gyro_meas;
     f->last_gyro_meas = meas;
@@ -522,7 +532,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
         f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
     }
 
-    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, f->s, f->s.imu.extrinsics, f->s.imu.intrinsics, timestamp, timestamp);
+    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, f->s, imu.extrinsics, imu.intrinsics, timestamp, timestamp);
     obs_w->meas = meas;
     obs_w->variance = gyroscope.measurement_variance;
 
@@ -539,7 +549,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
              << " innov  " << gyroscope.inn_stdev
              << " signal " << gyroscope.meas_stdev
             // FIXME: these should be for this gyroscope->
-             << " bias " << f->s.imu.intrinsics.w_bias.v << " stdev is: " << f->s.imu.intrinsics.w_bias.variance().array().sqrt() << "\n";
+             << " bias " << imu.intrinsics.w_bias.v << " stdev is: " << imu.intrinsics.w_bias.variance().array().sqrt() << "\n";
     }
 
     auto stop = std::chrono::steady_clock::now();
@@ -1023,26 +1033,38 @@ extern "C" void filter_initialize(struct filter *f)
         f->s.camera.feature_tracker = std::make_unique<ipp_tracker>();
 #endif
 
-    assert(f->accelerometers.size() && f->gyroscopes.size());
-    auto imu_extrinsics = f->accelerometers[0]->extrinsics;
-    auto accel = f->accelerometers[0]->intrinsics;
-    auto gyro = f->gyroscopes[0]->intrinsics;
+    for (size_t i = 0; i < f->s.imus.children.size() && i < f->gyroscopes.size(); i++) {
+        auto &imu = *f->s.imus.children[i];
+        const auto &gyro = *f->gyroscopes[i];
+        imu.intrinsics.w_bias.v = v_map(gyro.intrinsics.bias_rad__s.v);
+        imu.intrinsics.w_bias.set_initial_variance(v_map(gyro.intrinsics.bias_variance_rad2__s2.v));
 
-    f->s.imu.intrinsics.w_bias.v = v_map(gyro.bias_rad__s.v);
-    f->s.imu.intrinsics.w_bias.set_initial_variance(v_map(gyro.bias_variance_rad2__s2.v));
+        imu.extrinsics.Q.v = gyro.extrinsics.mean.Q;
+        imu.extrinsics.T.v = gyro.extrinsics.mean.T;
 
-    f->s.imu.intrinsics.a_bias.v = v_map(accel.bias_m__s2.v);
-    f->s.imu.intrinsics.a_bias.set_initial_variance(v_map(accel.bias_variance_m2__s4.v));
+        imu.extrinsics.Q.set_initial_variance(gyro.extrinsics.variance.Q);
+        imu.extrinsics.T.set_initial_variance(gyro.extrinsics.variance.T);
+    }
 
-    f->s.imu.extrinsics.Q.v = imu_extrinsics.mean.Q;
-    f->s.imu.extrinsics.T.v = imu_extrinsics.mean.T;
-    f->s.imu.extrinsics.Q.set_initial_variance(imu_extrinsics.variance.Q);
-    f->s.imu.extrinsics.T.set_initial_variance(imu_extrinsics.variance.T);
+    for (size_t i = 0; i < f->s.imus.children.size() && i < f->accelerometers.size(); i++) {
+        auto &imu = *f->s.imus.children[i];
+        const auto &accel = *f->accelerometers[i];
+        imu.intrinsics.a_bias.v = v_map(accel.intrinsics.bias_m__s2.v);
+        imu.intrinsics.a_bias.set_initial_variance(v_map(accel.intrinsics.bias_variance_m2__s4.v));
 
-    f->s.imu.extrinsics.Q.set_process_noise(1.e-30);
-    f->s.imu.extrinsics.T.set_process_noise(1.e-30);
-    f->s.imu.intrinsics.a_bias.set_process_noise(2.3e-8);
-    f->s.imu.intrinsics.w_bias.set_process_noise(2.3e-10);
+        imu.extrinsics.Q.v = accel.extrinsics.mean.Q;
+        imu.extrinsics.T.v = accel.extrinsics.mean.T;
+
+        imu.extrinsics.Q.set_initial_variance(accel.extrinsics.variance.Q);
+        imu.extrinsics.T.set_initial_variance(accel.extrinsics.variance.T);
+    }
+
+    for (const auto &imu : f->s.imus.children) {
+        imu->intrinsics.w_bias.set_process_noise(2.3e-10);
+        imu->intrinsics.a_bias.set_process_noise(2.3e-8);
+        imu->extrinsics.Q.set_process_noise(1.e-30);
+        imu->extrinsics.T.set_process_noise(1.e-30);
+    }
 
     f->s.T.set_process_noise(0.);
     f->s.Q.set_process_noise(0.);
@@ -1121,16 +1143,17 @@ void filter_deinitialize(const struct filter *f)
         camera_sensor.extrinsics.variance.T = camera_state.extrinsics.T.variance();
     }
 
-    {
-        const state_imu &imu = f->s.imu;
-        sensor_gyroscope     &gyro  = *f->gyroscopes[0];
+    for (size_t i = 0; i < f->s.imus.children.size() && i < f->gyroscopes.size(); i++) {
+        const state_imu &imu = *f->s.imus.children[i];
+        sensor_gyroscope &gyro  = *f->gyroscopes[i];
+
         v_map(gyro.intrinsics.bias_rad__s.v)            = imu.intrinsics.w_bias.v;
         v_map(gyro.intrinsics.bias_variance_rad2__s2.v) = imu.intrinsics.w_bias.variance();
     }
 
-    {
-        const state_imu &imu = f->s.imu;
-        sensor_accelerometer &accel = *f->accelerometers[0];
+    for (size_t i = 0; i < f->s.imus.children.size() && i < f->gyroscopes.size(); i++) {
+        const state_imu &imu = *f->s.imus.children[i];
+        sensor_accelerometer &accel = *f->accelerometers[i];
         struct sensor::extrinsics &imu_extrinsics = accel.extrinsics;
 
         v_map(accel.intrinsics.bias_m__s2.v)            = imu.intrinsics.a_bias.v;
@@ -1145,7 +1168,10 @@ void filter_deinitialize(const struct filter *f)
 
 float filter_converged(const struct filter *f)
 {
-    const state_imu &imu = f->s.imu; sensor_accelerometer &a = *f->accelerometers[0].get();
+    // FIXME: remove the hardcoded use of the first IMU
+    if (f->s.imus.children.size() < 1 || f->accelerometers.size() < 1)
+        return 0;
+    const auto &imu = *f->s.imus.children[0]; const auto &a = *f->accelerometers[0];
     if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
         if(f->stable_start == sensor_clock::micros_to_tp(0)) return 0.;
         float progress = (f->last_time - f->stable_start) / std::chrono::duration_cast<std::chrono::duration<float>>(steady_converge_time);
@@ -1172,8 +1198,8 @@ bool filter_is_steady(const struct filter *f)
 void filter_start_static_calibration(struct filter *f)
 {
     reset_stability(f);
-    for (auto &g : f->gyroscopes)     g->start_variance = f->s.imu.intrinsics.a_bias.variance(); // FIXME: multiple IMUs
-    for (auto &a : f->accelerometers) a->start_variance = f->s.imu.intrinsics.w_bias.variance();
+    { auto i = f->s.imus.children.begin(); for (auto &g : f->gyroscopes)     { auto &imu = *i; g->start_variance = imu->intrinsics.w_bias.variance(); i++; } }
+    { auto i = f->s.imus.children.begin(); for (auto &a : f->accelerometers) { auto &imu = *i; a->start_variance = imu->intrinsics.a_bias.variance(); i++; } }
     f->run_state = RCSensorFusionRunStateStaticCalibration;
 }
 

@@ -48,14 +48,15 @@ public:
     state_vector    dw { "dw", dynamic };
     state_vector   ddw {"ddw", fake };
     state_scalar     g { "g",  constant };
-    state_imu imu;
+
+    state_branch<std::unique_ptr<state_imu>, std::vector<std::unique_ptr<state_imu>>> imus;
 
     state_motion_orientation(covariance &c): state_root(c) {
         children.push_back(&Q);
         children.push_back(&w);
         children.push_back(&dw);
         children.push_back(&ddw);
-        children.push_back(&imu);
+        children.push_back(&imus);
         //children.push_back(&g);
         g.v = gravity_magnitude;
     }

@@ -45,7 +45,7 @@ public:
         if(!in) return false;
         if(last_in > time) return false;
 
-        return !period.valid() || time - last_in > std::chrono::microseconds(uint64_t(std::max(f_t(0), period.mean[0] - period.stdev_[0]*3)));
+        return !period.count || time - last_in > std::chrono::microseconds(uint64_t(std::max(f_t(0), period.min[0])));
     }
 
     bool late_dynamic_latency(const sensor_clock::time_point & now) {

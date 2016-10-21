@@ -22,7 +22,6 @@ extern "C" {
 #include <list>
 #include <iostream>
 #include <cmath>
-using namespace std;
 
 #define log_enabled 0 // Only used in state.h now
 #define show_tuning 0
@@ -104,7 +103,7 @@ public:
         return s;
     }
 
-    list<T> children;
+    std::list<T> children;
 };
 
 class state_root: public state_branch<state_node *> {
@@ -113,7 +112,7 @@ public:
 
     int statesize, maxstatesize, dynamic_statesize, fake_statesize;
     covariance &cov;
-    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", make_shared<spdlog::sinks::null_sink_st> ());
+    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", std::make_shared<spdlog::sinks::null_sink_st> ());
 
     v3 world_up = {0,0,1}, world_initial_forward = {0,1,0}, body_forward = {0,0,1}; // defines our world coordinates
 

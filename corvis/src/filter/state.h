@@ -59,34 +59,34 @@ public:
 template<class T> class state_branch: public state_node {
 public:
     void copy_state_to_array(matrix &state) {
-        for(T c : children)
+        for(const auto &c : children)
             c->copy_state_to_array(state);
     }
 
     virtual void copy_state_from_array(matrix &state) {
-        for(T c : children)
+        for(auto &c : children)
             c->copy_state_from_array(state);
     }
 
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
-        for(T c : children)
+        for(const auto &c : children)
             c->print_matrix_with_state_labels(state, nt);
     }
     
     int remap(int i, covariance &cov, node_type nt) {
-        for(T c : children)
+        for(auto &c : children)
             i = c->remap(i, cov, nt);
         return i;
     }
 
     virtual void reset() {
-        for(T c : children)
+        for(auto &c : children)
             c->reset();
     }
     
     virtual void remove()
     {
-        for(T c : children)
+        for(auto &c : children)
             c->remove();
     }
     
@@ -99,7 +99,7 @@ public:
     virtual std::ostream &print_to(std::ostream & s) const
     {
         int i = 0;
-        s << "{"; for(T c : children) { if (i++) s << ", "; c->print_to(s); } return s << "}";
+        s << "{"; for(const auto &c : children) { if (i++) s << ", "; c->print_to(s); } return s << "}";
         return s;
     }
 

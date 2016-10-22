@@ -382,7 +382,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
             if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v3(1, 0, 0), true) > min_steady_time)
             {
                 f->s.enable_bias_estimation();
-                if(get_bias_convergence(f, 1) >= 1.)
+                if(get_bias_convergence(f, 0) >= 1.)
                 {
                     f->run_state = RCSensorFusionRunStateLandscapeCalibration;
                     f->a_bias_start = f->s.imu.intrinsics.a_bias.variance();
@@ -405,7 +405,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
             if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v3(0, 1, 0), true) > min_steady_time)
             {
                 f->s.enable_bias_estimation();
-                if(get_bias_convergence(f, 0) >= 1.)
+                if(get_bias_convergence(f, 1) >= 1.)
                 {
                     f->run_state = RCSensorFusionRunStateInactive;
                     reset_stability(f);

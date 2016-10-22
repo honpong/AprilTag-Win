@@ -272,7 +272,6 @@ protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void cache_jacobians(f_t dt);
 private:
-    void project_new_group_covariance(const state_vision_group &vision_group);
     void clear_features_and_groups();
 };
 

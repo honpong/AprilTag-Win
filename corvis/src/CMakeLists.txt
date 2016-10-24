@@ -275,13 +275,13 @@ endif() # WIN32
 
 if(ENABLE_QR)
     file(GLOB_RECURSE LIBZXING_FILES
-        "libzxing-cpp/zxing/*.cpp"
-        "libzxing-cpp/bigint/*.cpp"
+        "../../ThirdParty/libzxing-cpp/zxing/*.cpp"
+        "../../ThirdParty/libzxing-cpp/bigint/*.cpp"
     )
     add_library(libzxing STATIC ${LIBZXING_FILES})
     target_compile_definitions(libzxing PRIVATE NO_ICONV)
     target_include_directories(libzxing
-      PUBLIC libzxing-cpp
+      PUBLIC ../../ThirdParty/libzxing-cpp
     )
 endif()
 

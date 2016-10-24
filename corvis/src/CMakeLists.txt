@@ -148,7 +148,7 @@ add_library(filter STATIC
   filter/fast_tracker.cpp
 )
 target_include_directories(filter PUBLIC filter)
-target_include_directories(filter PRIVATE rapidjson/include)
+target_include_directories(filter PRIVATE ../../ThirdParty/rapidjson/include)
 target_include_directories(filter PUBLIC ../../ThirdParty/spdlog/include)
 target_compile_definitions(filter PUBLIC SPDLOG_NO_DATETIME SPDLOG_NO_THREAD_ID)
 target_link_libraries(filter PRIVATE vlfeat)

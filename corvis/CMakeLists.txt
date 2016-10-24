@@ -117,7 +117,8 @@ endif()
 if(YES AND NOT ANDROID)
     enable_testing()
     set(spec_sources
-      ../gtest/gtest_main.cc ../gtest/gtest-all.cc
+      ../ThirdParty/googletest/gtest/gtest_main.cc
+      ../ThirdParty/googletest/gtest/gtest-all.cc
       test/test.cpp test/util.cpp
       test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
       test/numerics/transformation.cpp
@@ -135,7 +136,7 @@ if(YES AND NOT ANDROID)
     endif()
     add_executable(spec ${spec_sources})
     set_property(TARGET spec PROPERTY CXX_STANDARD 14)
-    target_include_directories(spec PRIVATE test ..)
+    target_include_directories(spec PRIVATE test ../ThirdParty/googletest/)
     target_include_directories(spec PRIVATE ../ThirdParty/spdlog/include/)
     target_link_libraries(spec filter)
     if(ENABLE_QR)
@@ -144,23 +145,25 @@ if(YES AND NOT ANDROID)
     add_test(NAME spec COMMAND spec)
 
     add_executable(spec_intel
-      ../gtest/gtest_main.cc ../gtest/gtest-all.cc
+      ../ThirdParty/googletest/gtest/gtest_main.cc
+      ../ThirdParty/googletest/gtest/gtest-all.cc
       src/filter/rc_tracker.cpp
       test/filter/rc_tracker_tests.cpp
     )
     set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
-    target_include_directories(spec_intel PRIVATE test ..)
+    target_include_directories(spec_intel PRIVATE test ../ThirdParty/googletest/)
     target_link_libraries(spec_intel filter)
     add_test(NAME spec_intel COMMAND spec_intel)
 
     if(BUILD_STEREO)
         add_executable(spec_plus
-          ../gtest/gtest_main.cc ../gtest/gtest-all.cc
+          ../ThirdParty/googletest/gtest/gtest_main.cc
+          ../ThirdParty/googletest/gtest/gtest-all.cc
           test/test.cpp test/util.cpp
           test/stereo/stereo.cpp
         )
         set_property(TARGET spec_plus PROPERTY CXX_STANDARD 14)
-        target_include_directories(spec_plus PRIVATE test ..)
+        target_include_directories(spec_plus PRIVATE test ../ThirdParty/googletest/)
         target_link_libraries(spec_plus filter stereo)
         add_test(NAME spec_plus COMMAND spec_plus)
     endif()

@@ -7,7 +7,7 @@
 //
 
 #include "homography.h"
-#include "../numerics/matrix.h"
+#include "matrix.h"
 
 /*
  [0       0       0       -x1      -y1     -1       x1y2    y1y2    y2 ]

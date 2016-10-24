@@ -1,8 +1,8 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include "../numerics/quaternion.h"
-#include "../numerics/vec4.h"
+#include "quaternion.h"
+#include "vec4.h"
 static inline quaternion initial_orientation_from_gravity_facing(const v3 &world_up,     const v3 &body_up,
                                                                  const v3 &world_facing, const v3 &body_forward)
 {

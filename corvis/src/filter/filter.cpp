@@ -10,13 +10,13 @@
 #include <assert.h>
 #include <spdlog/fmt/ostr.h> // must be included to use our operator<<
 #include "state_vision.h"
-#include "../numerics/vec4.h"
+#include "vec4.h"
 #include "utils.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
-#include "../numerics/kalman.h"
-#include "../numerics/matrix.h"
+#include "kalman.h"
+#include "matrix.h"
 #include "observation.h"
 #include "filter.h"
 #include <memory>

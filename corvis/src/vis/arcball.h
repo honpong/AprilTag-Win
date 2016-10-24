@@ -1,8 +1,8 @@
 #ifndef __CORVIS_ARCBALL__
 #define __CORVIS_ARCBALL__
 
-#include "../numerics/vec4.h"
-#include "../numerics/quaternion.h"
+#include "vec4.h"
+#include "quaternion.h"
 
 class arcball
 {

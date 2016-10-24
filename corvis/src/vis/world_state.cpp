@@ -1,6 +1,6 @@
 #include "world_state.h"
-#include "../filter/sensor_fusion.h"
-#include "../filter/rc_compat.h"
+#include "sensor_fusion.h"
+#include "rc_compat.h"
 
 static const VertexData axis_data[] = {
     {{0, 0, 0}, {255, 0, 0, 255}},

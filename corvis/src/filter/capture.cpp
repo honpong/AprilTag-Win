@@ -9,8 +9,8 @@
 
 #include <assert.h>
 #include <string.h>
-#include "../cor/packet.h"
-#include "../cor/sensor_data.h"
+#include "packet.h"
+#include "sensor_data.h"
 
 packet_t *packet_alloc(enum packet_type type, uint32_t bytes_, uint16_t sensor_id, uint64_t time)
 {

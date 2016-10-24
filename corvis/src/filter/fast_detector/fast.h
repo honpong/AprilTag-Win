@@ -2,7 +2,7 @@
 #define FAST_H
 
 #include <vector>
-#include "../scaled_mask.h"
+#include "scaled_mask.h"
 using namespace std;
 
 typedef struct { float x, y, score, reserved; } xy; 

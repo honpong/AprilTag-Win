@@ -7,8 +7,8 @@
 #ifndef __QR_H__
 #define __QR_H__
 
-#include "../cor/cor_types.h"
-#include "../numerics/transformation.h"
+#include "cor_types.h"
+#include "transformation.h"
 
 #include <vector>
 #include <string>

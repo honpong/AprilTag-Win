@@ -6,8 +6,8 @@
 #include <list>
 using namespace std;
 
-#include "../numerics/vec4.h"
-#include "../numerics/rotation_vector.h"
+#include "vec4.h"
+#include "rotation_vector.h"
 
 struct stereo_match {
     float x, y;

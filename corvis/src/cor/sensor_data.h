@@ -13,7 +13,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "../filter/rc_tracker.h"
+#include "rc_tracker.h"
 #include "platform/sensor_clock.h"
 
 class sensor_data : public rc_Data

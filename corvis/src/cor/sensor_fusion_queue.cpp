@@ -5,7 +5,7 @@
 //  Copyright (c) 2015 Realitycap. All rights reserved.
 //
 
-#include "../filter/rc_tracker.h"
+#include "rc_tracker.h"
 #include "sensor_fusion_queue.h"
 #include <cassert>
 #include <memory>

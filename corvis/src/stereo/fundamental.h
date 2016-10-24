@@ -1,8 +1,8 @@
 #ifndef __FUNDAMENTAL_H
 #define __FUNDAMENTAL_H
 
-#include "../cor/cor_types.h"
-#include "../numerics/vec4.h"
+#include "cor_types.h"
+#include "vec4.h"
 #include "camera.h"
 #include "stereo.h"
 

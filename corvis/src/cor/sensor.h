@@ -9,10 +9,10 @@
 #ifndef sensor_h
 #define sensor_h
 
-#include "../numerics/vec4.h"
-#include "../numerics/quaternion.h"
-#include "../numerics/transformation.h"
-#include "../filter/rc_tracker.h"
+#include "vec4.h"
+#include "quaternion.h"
+#include "transformation.h"
+#include "rc_tracker.h"
 
 struct sensor
 {

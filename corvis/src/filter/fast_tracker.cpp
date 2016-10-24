@@ -2,7 +2,7 @@
 #include "fast_constants.h"
 
 extern "C" {
-#include "../cor/cor_types.h"
+#include "cor_types.h"
 }
 
 using namespace std;

@@ -4,7 +4,7 @@
 #include "sensor_fusion.h"
 #include "capture.h"
 #include "calibration.h"
-#include "../cor/sensor_data.h"
+#include "sensor_data.h"
 #include <fstream>
 
 #define RC_STR_(x) #x

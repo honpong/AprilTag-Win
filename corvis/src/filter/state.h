@@ -6,15 +6,15 @@
 #define __STATE_H
 
 extern "C" {
-#include "../cor/cor_types.h"
-#include "../cor/packet.h"
+#include "cor_types.h"
+#include "packet.h"
 }
-#include "../numerics/vec4.h"
-#include "../numerics/matrix.h"
-#include "../numerics/quaternion.h"
-#include "../numerics/rotation_vector.h"
-#include "../numerics/covariance.h"
-#include "../cor/platform/sensor_clock.h"
+#include "vec4.h"
+#include "matrix.h"
+#include "quaternion.h"
+#include "rotation_vector.h"
+#include "covariance.h"
+#include "platform/sensor_clock.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/null_sink.h"
 

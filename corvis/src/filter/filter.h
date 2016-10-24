@@ -3,13 +3,13 @@
 
 #include "state_vision.h"
 #include "observation.h"
-#include "../numerics/transformation.h"
+#include "transformation.h"
 #ifdef ENABLE_QR
 #include "qr.h"
 #endif
 #include "RCSensorFusionInternals.h"
-#include "../cor/platform/sensor_clock.h"
-#include "../cor/sensor_data.h"
+#include "platform/sensor_clock.h"
+#include "sensor_data.h"
 #include "spdlog/spdlog.h"
 #include "rc_compat.h"
 

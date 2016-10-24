@@ -31,6 +31,7 @@ endif()
 add_library(cor STATIC ${COR_SOURCES})
 target_link_libraries(cor numerics)
 target_include_directories(cor PUBLIC cor)
+target_include_directories(cor PRIVATE filter)
 set_property(TARGET cor PROPERTY CXX_STANDARD 14)
 
 add_library(numerics STATIC
@@ -40,6 +41,7 @@ add_library(numerics STATIC
 )
 target_include_directories(numerics SYSTEM PUBLIC eigen)
 target_include_directories(numerics PUBLIC numerics)
+target_include_directories(numerics PRIVATE cor)
 
 set_property(TARGET numerics PROPERTY CXX_STANDARD 14)
 
@@ -216,6 +218,7 @@ if(ENABLE_MGL)
     target_compile_definitions(vis PRIVATE HAVE_MGL)
 endif()
 target_link_libraries(vis PRIVATE ${GLFW_LIBRARIES})
+target_include_directories(vis PUBLIC vis)
 set_property(TARGET vis PROPERTY CXX_STANDARD 14)
 endif()
 

@@ -4,7 +4,7 @@
 
 #include "state_vision.h"
 #include "fast_tracker.h"
-#include "../numerics/transformation.h"
+#include "transformation.h"
 #include <spdlog/fmt/ostr.h> // must be included to use our operator<<
 
 f_t state_vision_feature::initial_depth_meters;

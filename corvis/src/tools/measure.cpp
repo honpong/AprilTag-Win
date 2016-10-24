@@ -1,7 +1,7 @@
-#include "../filter/replay.h"
-#include "../vis/world_state.h"
-#include "../vis/offscreen_render.h"
-#include "../vis/gui.h"
+#include "replay.h"
+#include "world_state.h"
+#include "offscreen_render.h"
+#include "gui.h"
 #include "benchmark.h"
 #include <iomanip>
 

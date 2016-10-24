@@ -10,8 +10,8 @@
 
 #include <iostream>
 #include <fstream>
-#include "../cor/sensor_data.h"
-#include "../cor/packet.h"
+#include "sensor_data.h"
+#include "packet.h"
 #include <thread>
 #include <atomic>
 #include <queue>

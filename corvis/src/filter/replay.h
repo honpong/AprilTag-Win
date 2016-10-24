@@ -13,7 +13,7 @@
 #include <atomic>
 #include <memory>
 #include <functional>
-#include "../cor/packet.h"
+#include "packet.h"
 #include "tpose.h"
 #include "rc_tracker.h"
 #include "sensor_fusion.h"

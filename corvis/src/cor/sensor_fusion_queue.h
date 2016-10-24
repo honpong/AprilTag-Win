@@ -15,7 +15,7 @@
 #include <condition_variable>
 #include "sensor_data.h"
 #include "platform/sensor_clock.h"
-#include "../numerics/vec4.h"
+#include "vec4.h"
 #include <iostream>
 #include <string>
 #include <unordered_map>

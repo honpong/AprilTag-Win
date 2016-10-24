@@ -1,5 +1,5 @@
 #include "observation.h"
-#include "../numerics/kalman.h"
+#include "kalman.h"
 #include "utils.h"
 
 int observation_queue::size()

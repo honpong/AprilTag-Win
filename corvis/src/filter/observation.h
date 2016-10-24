@@ -2,17 +2,17 @@
 #define __OBSERVATION_H
 
 #include "state_vision.h"
-#include "../numerics/matrix.h"
-#include "../numerics/vec4.h"
+#include "matrix.h"
+#include "vec4.h"
 #include <vector>
 #include <map>
 #include <algorithm>
-#include "../cor/platform/sensor_clock.h"
+#include "platform/sensor_clock.h"
 #include <memory>
-#include "../cor/sensor.h"
+#include "sensor.h"
 
 extern "C" {
-#include "../cor/cor_types.h"
+#include "cor_types.h"
 }
 
 using namespace std;

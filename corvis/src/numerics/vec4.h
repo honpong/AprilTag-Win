@@ -7,7 +7,7 @@
 #define __vec4_H
 
 extern "C" {
-#include "../cor/cor_types.h"
+#include "cor_types.h"
 #include <stdio.h>
 #include <inttypes.h>
 }

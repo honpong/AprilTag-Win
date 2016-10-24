@@ -2,7 +2,7 @@
 #include "fundamental.h"
 #include "stereo_features.h"
 #include "stereo_mesh.h"
-#include "../filter/filter.h"
+#include "filter.h"
 
 bool debug_triangulate = false;
 // if enabled, adds a 3 pixel jitter in all directions to correspondence

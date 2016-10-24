@@ -9,7 +9,7 @@
 
 #include <string.h>
 #include <regex>
-#include "../cor/packet.h"
+#include "packet.h"
 
 template <int by_x, int by_y>
 static void scale_down_inplace_y8_by(uint8_t *image, int final_width, int final_height, int stride) {

@@ -12,8 +12,8 @@
 #include <vector>
 using namespace std;
 
-#include "../cor/cor_types.h"
-#include "../numerics/vec4.h"
+#include "cor_types.h"
+#include "vec4.h"
 
 typedef struct _homography_decomposition {
     m3 R;

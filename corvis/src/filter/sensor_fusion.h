@@ -11,10 +11,10 @@
 
 #include <string>
 #include <vector>
-#include "../numerics/transformation.h"
-#include "../cor/platform/sensor_clock.h"
-#include "../cor/sensor_data.h"
-#include "../cor/sensor_fusion_queue.h"
+#include "transformation.h"
+#include "platform/sensor_clock.h"
+#include "sensor_data.h"
+#include "sensor_fusion_queue.h"
 #include "RCSensorFusionInternals.h"
 #include "filter.h"
 #include "sensor.h"

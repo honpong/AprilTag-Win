@@ -9,8 +9,8 @@
 #include <vector>
 #include <stdbool.h>
 
-#include "../numerics/transformation.h"
-#include "../numerics/vec4.h"
+#include "transformation.h"
+#include "vec4.h"
 #include "feature_descriptor.h"
 #include "dictionary.h"
 #include <spdlog/spdlog.h>

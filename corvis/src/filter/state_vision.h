@@ -6,21 +6,21 @@
 #define __MODEL_H
 
 extern "C" {
-#include "../cor/cor_types.h"
-#include "../cor/packet.h"
+#include "cor_types.h"
+#include "packet.h"
 }
-#include "../numerics/vec4.h"
-#include "../numerics/matrix.h"
+#include "vec4.h"
+#include "matrix.h"
 #include <vector>
 #include <list>
 #include <future>
 #include "state.h"
 #include "state_motion.h"
 #include "tracker.h"
-#include "../cor/platform/sensor_clock.h"
+#include "platform/sensor_clock.h"
 #include "feature_descriptor.h"
 #include "mapper.h"
-#include "../cor/sensor_data.h"
+#include "sensor_data.h"
 
 using namespace std;
 

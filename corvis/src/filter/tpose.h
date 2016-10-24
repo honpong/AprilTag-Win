@@ -4,8 +4,8 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
-#include "../cor/platform/sensor_clock.h"
-#include "../numerics/transformation.h"
+#include "platform/sensor_clock.h"
+#include "transformation.h"
 
 struct tpose_vicon {
     uint64_t t_s, t_ns, seq_no; v3 T_m; quaternion Q;

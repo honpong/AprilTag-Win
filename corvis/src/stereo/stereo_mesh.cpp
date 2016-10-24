@@ -1,6 +1,6 @@
 #include "stereo_mesh.h"
 #include "stereo.h"
-#include "../filter/fast_detector/fast.h"
+#include "fast_detector/fast.h"
 #include <iostream>
 
 bool debug_triangulate_mesh = false;

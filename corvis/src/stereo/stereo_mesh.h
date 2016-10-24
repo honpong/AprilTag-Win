@@ -1,8 +1,8 @@
 #ifndef __STEREO_MESH_H
 #define __STEREO_MESH_H
 
-#include "../numerics/vec4.h"
-#include "../numerics/matrix.h"
+#include "vec4.h"
+#include "matrix.h"
 
 #include <vector>
 using namespace std;

@@ -108,7 +108,7 @@ if(ENABLE_MGL)
     target_link_libraries_copied(measure PRIVATE mgl)
 endif()
 
-target_link_libraries(measure PRIVATE glad glfw PUBLIC filter)
+target_link_libraries(measure PRIVATE glad glfw PUBLIC tracker)
 if(ENABLE_MGL)
     add_subdirectory(../ThirdParty/mathgl mathgl)
     target_compile_options(mgl PRIVATE $<$<BOOL:${MSVC}>:/wd4244 /wd4190 /wd4800>)
@@ -158,39 +158,36 @@ if(YES AND NOT ANDROID)
       ../ThirdParty/googletest/gtest/gtest_main.cc
       ../ThirdParty/googletest/gtest/gtest-all.cc
       test/test.cpp test/util.cpp
-      test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
-      test/numerics/transformation.cpp
-      test/filter/utils.cpp
-      test/filter/state_vision.cpp
-      test/filter/calibration_json.cpp
-      test/filter/tpose.cpp
-      test/filter/dictionary.cpp
-      test/filter/mapper.cpp
-      test/filter/fast_tracker.cpp
-      test/cor/sensor_fusion_queue.cpp
+      test/tracker/vec4.cpp test/tracker/rotation_vector.cpp test/tracker/quaternion.cpp
+      test/tracker/transformation.cpp
+      test/tracker/utils.cpp
+      test/tracker/state_vision.cpp
+      test/tracker/calibration_json.cpp
+      test/tracker/tpose.cpp
+      test/tracker/dictionary.cpp
+      test/tracker/mapper.cpp
+      test/tracker/fast_tracker.cpp
+      test/tracker/sensor_fusion_queue.cpp
     )
     if(ENABLE_QR)
-        set(spec_sources ${spec_sources} test/filter/homography.cpp)
+        set(spec_sources ${spec_sources} test/tracker/homography.cpp)
     endif()
     add_executable(spec ${spec_sources})
     set_property(TARGET spec PROPERTY CXX_STANDARD 14)
     target_include_directories(spec PRIVATE test ../ThirdParty/googletest/)
     target_include_directories(spec PRIVATE ../ThirdParty/spdlog/include/)
-    target_link_libraries(spec filter)
-    if(ENABLE_QR)
-       target_link_libraries(spec qr)
-    endif()
+    target_link_libraries(spec tracker)
     add_test(NAME spec COMMAND spec)
 
     add_executable(spec_intel
       ../ThirdParty/googletest/gtest/gtest_main.cc
       ../ThirdParty/googletest/gtest/gtest-all.cc
-      src/filter/rc_tracker.cpp
-      test/filter/rc_tracker_tests.cpp
+      test/tracker/rc_tracker_tests.cpp
     )
     set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
-    target_include_directories(spec_intel PRIVATE test ../ThirdParty/googletest/)
-    target_link_libraries(spec_intel filter)
+    target_include_directories(spec_intel PRIVATE test
+        ../ThirdParty/googletest/ ${TRACKER_PRIVATE_INCLUDES})
+    target_link_libraries(spec_intel tracker)
     add_test(NAME spec_intel COMMAND spec_intel)
 
     if(BUILD_STEREO)
@@ -202,7 +199,7 @@ if(YES AND NOT ANDROID)
         )
         set_property(TARGET spec_plus PROPERTY CXX_STANDARD 14)
         target_include_directories(spec_plus PRIVATE test ../ThirdParty/googletest/)
-        target_link_libraries(spec_plus filter stereo)
+        target_link_libraries(spec_plus tracker stereo)
         add_test(NAME spec_plus COMMAND spec_plus)
     endif()
 endif()

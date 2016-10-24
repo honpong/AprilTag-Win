@@ -39,7 +39,7 @@ add_library(numerics STATIC
   numerics/matrix.cpp
   numerics/kalman.cpp
 )
-target_include_directories(numerics SYSTEM PUBLIC eigen)
+target_include_directories(numerics SYSTEM PUBLIC ../../ThirdParty/eigen)
 target_include_directories(numerics PUBLIC numerics)
 target_include_directories(numerics PRIVATE cor)
 

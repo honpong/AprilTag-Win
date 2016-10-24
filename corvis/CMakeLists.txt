@@ -78,20 +78,15 @@ target_link_libraries(measure PUBLIC vis)
   endif()
 endif()
 
-add_executable(rc_replay src/tools/rc_replay.cpp src/tracker/rc_replay.cpp)
+add_executable(rc_replay src/rc_replay/rc_replay.cpp src/rc_replay/main.cpp)
 set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
 target_link_libraries_copied(rc_replay tracker)
 install(TARGETS rc_replay RUNTIME DESTINATION bin COMPONENT example-binaries)
 if(ENABLE_SOURCES)
 install(FILES
-  src/tools/rc_replay.cpp
-  RENAME main.cpp
-  DESTINATION src/rc_replay
-  COMPONENT example-sources
-)
-install(FILES
-  src/tracker/rc_replay.h
-  src/tracker/rc_replay.cpp
+  src/rc_replay/main.cpp
+  src/rc_replay/rc_replay.h
+  src/rc_replay/rc_replay.cpp
   DESTINATION src/rc_replay
   COMPONENT example-sources
 )

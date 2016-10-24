@@ -685,7 +685,7 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 }
 */
 
-static int filter_add_detected_features(struct filter * f, state_vision_group *g, sensor_clock::time_point timestamp, const std::vector<tracker::point> & kp, size_t newfeats, int image_height)
+static int filter_add_detected_features(struct filter * f, state_vision_group *g, const std::vector<tracker::point> & kp, size_t newfeats, int image_height)
 {
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
@@ -765,7 +765,6 @@ const vector<tracker::point> & filter_detect(struct filter *f, const sensor_data
     auto start = std::chrono::steady_clock::now();
     int space = filter_available_feature_space(f);
     const rc_ImageData &image = data.image;
-    f->s.camera.last_detection_timestamp = data.timestamp;
     f->s.features.clear();
     f->s.features.reserve(f->s.feature_count());
     for(auto g : f->s.groups.children)
@@ -852,7 +851,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         if(f->s.camera.detection_future.valid()) {
             const auto & kp = f->s.camera.detection_future.get();
             int space = filter_available_feature_space(f);
-            filter_add_detected_features(f, f->detecting_group, f->s.camera.last_detection_timestamp, kp, space, data.image.height);
+            filter_add_detected_features(f, f->detecting_group, kp, space, data.image.height);
         } else {
             f->s.remove_group(f->detecting_group);
             f->s.remap();
@@ -913,7 +912,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
                 state_vision_group *g = f->s.add_group(data.timestamp);
-                filter_add_detected_features(f, g, f->s.camera.last_detection_timestamp, detection, space, data.image.height);
+                filter_add_detected_features(f, g, detection, space, data.image.height);
             }
         } else {
 #ifdef TEST_POSDEF

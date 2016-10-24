@@ -96,6 +96,8 @@ add_executable(measure
   src/measure/gl_util.cpp
   src/measure/render.cpp
   src/measure/video_render.cpp
+
+  src/tracker/rc_tracker.cpp
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 install(TARGETS measure RUNTIME DESTINATION bin COMPONENT alloy)
@@ -103,12 +105,12 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo"
     target_compile_options(measure PRIVATE -DDEBUG=1)
 endif()
 
-target_link_libraries_copied(measure PUBLIC tracker)
+target_link_libraries_copied(measure PUBLIC trackeri)
 if(ENABLE_MGL)
     target_link_libraries_copied(measure PRIVATE mgl)
 endif()
 
-target_link_libraries(measure PRIVATE glad glfw PUBLIC tracker)
+target_link_libraries(measure PRIVATE glad glfw PUBLIC trackeri)
 if(ENABLE_MGL)
     add_subdirectory(../ThirdParty/mathgl mathgl)
     target_compile_options(mgl PRIVATE $<$<BOOL:${MSVC}>:/wd4244 /wd4190 /wd4800>)
@@ -135,9 +137,9 @@ install(FILES
 )
 endif()
 
-add_executable(alloy_merge src/tools/alloy_merge.cpp)
+add_executable(alloy_merge src/tools/alloy_merge.cpp src/tracker/rc_tracker.cpp)
 set_property(TARGET alloy_merge PROPERTY CXX_STANDARD 14)
-target_link_libraries(alloy_merge tracker)
+target_link_libraries(alloy_merge trackeri)
 
 find_package(alloy QUIET)
 if (TARGET alloy)
@@ -147,7 +149,7 @@ if (TARGET alloy)
         src/tools/rc_calibrate.cpp
     )
     set_property(TARGET rc_calibrate PROPERTY CXX_STANDARD 14)
-    target_link_libraries(rc_calibrate alloy tracker)
+    target_link_libraries(rc_calibrate alloy trackeri)
     install(TARGETS rc_calibrate RUNTIME DESTINATION bin COMPONENT alloy)
 
 endif()
@@ -176,18 +178,19 @@ if(YES AND NOT ANDROID)
     set_property(TARGET spec PROPERTY CXX_STANDARD 14)
     target_include_directories(spec PRIVATE test ../ThirdParty/googletest/)
     target_include_directories(spec PRIVATE ../ThirdParty/spdlog/include/)
-    target_link_libraries(spec tracker)
+    target_link_libraries(spec trackeri)
     add_test(NAME spec COMMAND spec)
 
     add_executable(spec_intel
       ../ThirdParty/googletest/gtest/gtest_main.cc
       ../ThirdParty/googletest/gtest/gtest-all.cc
+      src/tracker/rc_tracker.cpp
       test/tracker/rc_tracker_tests.cpp
     )
     set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
     target_include_directories(spec_intel PRIVATE test
         ../ThirdParty/googletest/ ${TRACKER_PRIVATE_INCLUDES})
-    target_link_libraries(spec_intel tracker)
+    target_link_libraries(spec_intel trackeri)
     add_test(NAME spec_intel COMMAND spec_intel)
 
     if(BUILD_STEREO)
@@ -199,7 +202,7 @@ if(YES AND NOT ANDROID)
         )
         set_property(TARGET spec_plus PROPERTY CXX_STANDARD 14)
         target_include_directories(spec_plus PRIVATE test ../ThirdParty/googletest/)
-        target_link_libraries(spec_plus tracker stereo)
+        target_link_libraries(spec_plus trackeri stereo)
         add_test(NAME spec_plus COMMAND spec_plus)
     endif()
 endif()

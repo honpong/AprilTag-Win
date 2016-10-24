@@ -25,7 +25,6 @@ set(TRACKER_SOURCES
     tracker/tracker.h
     tracker/fast_tracker.h
     tracker/fast_tracker.cpp
-    tracker/rc_tracker.cpp
 )
 if(WIN32)
     set(TRACKER_SOURCES ${TRACKER_SOURCES}
@@ -43,19 +42,27 @@ if(ENABLE_QR)
     )
 endif()
 
-add_library(tracker STATIC ${TRACKER_SOURCES})
+add_library(trackeri STATIC ${TRACKER_SOURCES})
 
+add_library(tracker SHARED
+    tracker/rc_tracker.h
+    tracker/rc_tracker.cpp)
+target_link_libraries(tracker PRIVATE trackeri)
+target_include_directories(tracker PUBLIC tracker)
 set_property(TARGET tracker PROPERTY CXX_STANDARD 14)
 
-target_include_directories(tracker PUBLIC
+
+set_property(TARGET trackeri PROPERTY CXX_STANDARD 14)
+
+target_include_directories(trackeri PUBLIC
     tracker
     ../../ThirdParty/rapidjson/include
     ../../ThirdParty/spdlog/include
     ../../ThirdParty/eigen
 )
-target_compile_definitions(tracker PUBLIC SPDLOG_NO_DATETIME SPDLOG_NO_THREAD_ID)
+target_compile_definitions(trackeri PUBLIC SPDLOG_NO_DATETIME SPDLOG_NO_THREAD_ID)
 
-target_link_libraries(tracker PRIVATE vlfeat)
+target_link_libraries(trackeri PRIVATE vlfeat)
 
 function(find_intel_root TYPE) # [REQUIRED]
     set(VAR ${TYPE}ROOT)
@@ -102,34 +109,34 @@ if(MKLROOT)
         set(MKL_INTEL_SUFFIX "")
       endif()
     endif()
-    target_include_directories(tracker PRIVATE SYSTEM "${MKLROOT}/include")
+    target_include_directories(trackeri PRIVATE SYSTEM "${MKLROOT}/include")
     if (ANDROID)
-    target_link_libraries(tracker PRIVATE -Wl,--whole-archive)
-    target_link_libraries(tracker PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_compat${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    target_link_libraries(tracker PRIVATE -Wl,--no-whole-archive)
+    target_link_libraries(trackeri PRIVATE -Wl,--whole-archive)
+    target_link_libraries(trackeri PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_compat${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    target_link_libraries(trackeri PRIVATE -Wl,--no-whole-archive)
     endif (ANDROID)
 
     if (CMAKE_CXX_COMPILER_ID STREQUAL Clang OR CMAKE_CXX_COMPILER_ID STREQUAL GNU)
-    target_link_libraries(tracker PRIVATE -Wl,--start-group)
+    target_link_libraries(trackeri PRIVATE -Wl,--start-group)
     endif ()
-    target_link_libraries(tracker PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_intel${MKL_INTEL_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    target_link_libraries(tracker PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_core${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    target_link_libraries(tracker PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_sequential${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    target_link_libraries(trackeri PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_intel${MKL_INTEL_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    target_link_libraries(trackeri PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_core${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    target_link_libraries(trackeri PRIVATE "${MKLROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_sequential${CMAKE_STATIC_LIBRARY_SUFFIX}")
     if (CMAKE_CXX_COMPILER_ID STREQUAL Clang OR CMAKE_CXX_COMPILER_ID STREQUAL GNU)
-    target_link_libraries(tracker PRIVATE -Wl,--end-group)
+    target_link_libraries(trackeri PRIVATE -Wl,--end-group)
     endif ()
     if (NOT ANDROID AND (CMAKE_CXX_COMPILER_ID STREQUAL Clang OR CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL Intel))
-      target_link_libraries(tracker PRIVATE -ldl -lpthread)
+      target_link_libraries(trackeri PRIVATE -ldl -lpthread)
     endif()
-    target_compile_options(tracker PRIVATE -DHAVE_MKL)
+    target_compile_options(trackeri PRIVATE -DHAVE_MKL)
 elseif(APPLE)
-    target_link_libraries(tracker PUBLIC "-framework Accelerate")
+    target_link_libraries(trackeri PUBLIC "-framework Accelerate")
     message(STATUS "MKL not found, using Accelerate")
 else()
     find_package(lapacke)
     if (TARGET lapacke)
         message(STATUS "MKL not found, using LAPACKe")
-        target_link_libraries(tracker PRIVATE lapacke)
+        target_link_libraries(trackeri PRIVATE lapacke)
     else()
         message(FATAL_ERROR "Specify -DMKLROOT=, or 'apt-get install libblas-dev liblapack-dev liblapacke-dev'")
     endif()
@@ -137,9 +144,9 @@ endif()
 
 find_intel_root(IPP)
 if (IPPROOT)
-    target_compile_definitions(tracker PRIVATE HAVE_IPP)
-    target_include_directories(tracker PUBLIC SYSTEM "${IPPROOT}/include")
-    target_link_libraries(tracker PRIVATE
+    target_compile_definitions(trackeri PRIVATE HAVE_IPP)
+    target_include_directories(trackeri PUBLIC SYSTEM "${IPPROOT}/include")
+    target_link_libraries(trackeri PRIVATE
         "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippcv${CMAKE_STATIC_LIBRARY_SUFFIX}"
         "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippi${CMAKE_STATIC_LIBRARY_SUFFIX}"
         "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ipps${CMAKE_STATIC_LIBRARY_SUFFIX}"
@@ -149,7 +156,7 @@ if (IPPROOT)
 endif()
 
 if (RC_VERSION)
-  set(RC_VERSION ${RC_VERSION} CACHE STRING "RC Tracker Release Numeric Version")
+  set(RC_VERSION ${RC_VERSION} CACHE STRING "RC tracker Release Numeric Version")
   target_compile_definitions(tracker PRIVATE RC_VERSION=${RC_VERSION})
 endif()
 if (NOT RC_BUILD)
@@ -175,7 +182,7 @@ if(ENABLE_QR)
       PUBLIC ../../ThirdParty/libzxing-cpp
     )
 
-    target_link_libraries(tracker PRIVATE libzxing)
+    target_link_libraries(trackeri PRIVATE libzxing)
 endif()
 
 find_package(Boost)
@@ -195,7 +202,7 @@ if(ENABLE_STEREO)
       stereo/stereo_features.cpp
     )
 
-    target_link_libraries(stereo PUBLIC tracker PRIVATE DAI qhull vlfeat)
+    target_link_libraries(stereo PUBLIC trackeri PRIVATE DAI qhull vlfeat)
     target_include_directories(stereo PUBLIC stereo)
     set_property(TARGET stereo PROPERTY CXX_STANDARD 14)
 endif()
@@ -215,7 +222,7 @@ set(LIBVLFEAT_FILES
 add_library(vlfeat STATIC ${LIBVLFEAT_FILES})
 target_include_directories(vlfeat INTERFACE ../../ThirdParty/vlfeat-0.9.18/vl)
 target_compile_options(vlfeat PRIVATE $<$<BOOL:${MSVC}>:/wd4244>)
-set_target_properties(tracker vlfeat PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(trackeri vlfeat PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if(ENABLE_STEREO)
     foreach(f alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp daialg.cpp properties.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
@@ -231,5 +238,5 @@ if(ENABLE_STEREO)
 endif() # WIN32
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
-    target_compile_options(tracker PRIVATE -DDEBUG=1)
+    target_compile_options(trackeri PRIVATE -DDEBUG=1)
 endif()

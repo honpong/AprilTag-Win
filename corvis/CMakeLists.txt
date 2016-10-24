@@ -63,20 +63,63 @@ endif (APPLE)
 add_subdirectory(src)
 
 if(ENABLE_VISGL)
+
+set(GLFW_INSTALL OFF CACHE BOOL "")
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
+add_subdirectory(src/glfw)
+if(NOT WIN32)
+    target_compile_options(glfw PRIVATE $<$<CXX_COMPILER_ID:AppleClang>: -Wno-deprecated-declarations>)
+endif()
+target_include_directories(glfw INTERFACE src/glfw/include)
+
+add_library(glad STATIC
+  src/glfw/deps/glad.c
+)
+target_compile_options(glad PRIVATE $<$<C_COMPILER_ID:MSVC>:/wd4996>)
+target_include_directories(glad
+  PUBLIC src/glfw/deps
+)
+
 add_executable(measure
-  src/tools/measure.cpp
-  src/tools/benchmark.cpp
-  src/tools/for_each_file.cpp
+  src/measure/measure.cpp
+  src/measure/benchmark.cpp
+  src/measure/for_each_file.cpp
+
+  src/measure/world_state.cpp
+  src/measure/world_state_render.cpp
+  src/measure/arcball.cpp
+  src/measure/offscreen_render.cpp
+  src/measure/gui.cpp
+  src/measure/lodepng.cpp
+  src/measure/gl_util.cpp
+  src/measure/render.cpp
+  src/measure/video_render.cpp
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 install(TARGETS measure RUNTIME DESTINATION bin COMPONENT alloy)
+if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
+    target_compile_options(measure PRIVATE -DDEBUG=1)
+endif()
 
 target_link_libraries_copied(measure PUBLIC tracker)
-target_link_libraries(measure PUBLIC vis)
-  if(ENABLE_MGL)
+if(ENABLE_MGL)
     target_link_libraries_copied(measure PRIVATE mgl)
-  endif()
 endif()
+
+target_link_libraries(measure PRIVATE glad glfw PUBLIC filter)
+if(ENABLE_MGL)
+    add_subdirectory(../ThirdParty/mathgl mathgl)
+    target_compile_options(mgl PRIVATE $<$<BOOL:${MSVC}>:/wd4244 /wd4190 /wd4800>)
+    target_link_libraries(measure PRIVATE mgl)
+    target_compile_definitions(measure PRIVATE HAVE_MGL)
+endif()
+target_link_libraries(measure PRIVATE ${GLFW_LIBRARIES})
+target_include_directories(measure PUBLIC measure)
+set_property(TARGET measure PROPERTY CXX_STANDARD 14)
+
+endif() # VISGL
 
 add_executable(rc_replay src/rc_replay/rc_replay.cpp src/rc_replay/main.cpp)
 set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)

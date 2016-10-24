@@ -1,23 +1,3 @@
-if(ENABLE_VISGL)
-set(GLFW_INSTALL OFF CACHE BOOL "")
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
-add_subdirectory(glfw)
-if(NOT WIN32)
-    target_compile_options(glfw PRIVATE $<$<CXX_COMPILER_ID:AppleClang>: -Wno-deprecated-declarations>)
-endif()
-target_include_directories(glfw INTERFACE glfw/include)
-
-add_library(glad STATIC
-  glfw/deps/glad.c
-)
-target_compile_options(glad PRIVATE $<$<C_COMPILER_ID:MSVC>:/wd4996>)
-target_include_directories(glad
-  PUBLIC glfw/deps
-)
-endif()
-
 set(COR_SOURCES cor/sensor_fusion_queue.cpp)
 if(WIN32)
     set(COR_SOURCES ${COR_SOURCES}
@@ -198,30 +178,6 @@ target_link_libraries(qr PRIVATE filter libzxing)
 set_property(TARGET qr PROPERTY CXX_STANDARD 14)
 endif()
 
-if(ENABLE_VISGL)
-add_library(vis STATIC
-  vis/world_state.cpp
-  vis/world_state_render.cpp
-  vis/arcball.cpp
-  vis/offscreen_render.cpp
-  vis/gui.cpp
-  vis/lodepng.cpp
-  vis/gl_util.cpp
-  vis/render.cpp
-  vis/video_render.cpp
-)
-target_link_libraries(vis PRIVATE glad glfw PUBLIC filter)
-if(ENABLE_MGL)
-    add_subdirectory(../../ThirdParty/mathgl mathgl)
-    target_compile_options(mgl PRIVATE $<$<BOOL:${MSVC}>:/wd4244 /wd4190 /wd4800>)
-    target_link_libraries(vis PRIVATE mgl)
-    target_compile_definitions(vis PRIVATE HAVE_MGL)
-endif()
-target_link_libraries(vis PRIVATE ${GLFW_LIBRARIES})
-target_include_directories(vis PUBLIC vis)
-set_property(TARGET vis PROPERTY CXX_STANDARD 14)
-endif()
-
 find_package(Boost)
 if(NOT Boost_FOUND)
     message(STATUS "Boost not found; stereo disabled")
@@ -292,7 +248,4 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo"
     endif()
     target_compile_options(cor PRIVATE -DDEBUG=1)
     target_compile_options(numerics PRIVATE -DDEBUG=1)
-    if(ENABLE_VISGL)
-    target_compile_options(vis PRIVATE -DDEBUG=1)
-    endif()
 endif()

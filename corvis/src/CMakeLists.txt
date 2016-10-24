@@ -262,11 +262,11 @@ set_target_properties(filter cor numerics vlfeat PROPERTIES POSITION_INDEPENDENT
 
 if(ENABLE_STEREO)
     foreach(f alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp daialg.cpp properties.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
-      list(APPEND DAI_FILES "libDAI-0.3.1/src/${f}")
+      list(APPEND DAI_FILES "../../ThirdParty/libDAI-0.3.1/src/${f}")
     endforeach(f)
     add_library(DAI STATIC ${DAI_FILES})
     target_include_directories(DAI PUBLIC
-      libDAI-0.3.1/include
+      ../../ThirdParty/libDAI-0.3.1/include
       "${Boost_INCLUDE_DIRS}"
     )
     # -DMACOSX forces libDAI to include boost using <boost/tr1/*>

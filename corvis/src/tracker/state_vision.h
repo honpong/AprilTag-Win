@@ -111,7 +111,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t initial_depth_meters;
     static f_t initial_var;
     static f_t initial_process_noise;
-    static f_t measurement_var;
     static f_t outlier_thresh;
     static f_t outlier_reject;
     static f_t max_variance;

@@ -35,17 +35,12 @@ struct filter {
 
     std::unique_ptr<spdlog::logger> &log = s.log;
 
-    //TODOMSM
-    f_t w_variance;
-    f_t a_variance;
-
     sensor_clock::time_point want_start;
     v3 last_gyro_meas, last_accel_meas; //TODOMSM - per-sensor
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;
     sensor_clock::time_point speed_warning_time;
-    stdev<3> gyro_stability, accel_stability; //TODOMSM - either just first sensor or per-sensor
     sensor_clock::time_point stable_start;
     bool calibration_bad;
     
@@ -64,9 +59,6 @@ struct filter {
     transformation origin;
     bool origin_set;
 
-    //TODOMSM - per sensor
-    v3 a_bias_start, w_bias_start; //for tracking calibration progress
-    
     std::unique_ptr<sensor_data> recent_depth; //TODOMSM - per depth
     bool has_depth; //TODOMSM - per depth
 

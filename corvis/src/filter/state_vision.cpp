@@ -15,10 +15,9 @@ f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 
-state_vision_feature::state_vision_feature(uint64_t feature_id, const feature_t & initial_): state_leaf("feature"), initial(initial_), current(initial_)
+state_vision_feature::state_vision_feature(uint64_t feature_id, const feature_t & initial_):
+    state_leaf("feature"), id(feature_id), initial(initial_), current(initial_)
 {
-    id = feature_id;
-    index = -1;
     reset();
 }
 

@@ -19,7 +19,6 @@ using namespace std;
 
 class observation {
 public:
-    const sensor &source;
     const int size;
     sensor_clock::time_point time_actual;
     sensor_clock::time_point time_apparent;
@@ -35,7 +34,7 @@ public:
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
     
-    observation(sensor &src, int _size, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): source(src), size(_size), time_actual(_time_actual), time_apparent(_time_apparent) {}
+    observation(sensor &src, int _size, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): size(_size), time_actual(_time_actual), time_apparent(_time_apparent) {}
     virtual ~observation() {};
 };
 
@@ -47,12 +46,12 @@ protected:
     m<_size> pred_cov;
 public:
     v<_size> meas;
-    sensor_storage<_size> &src_data;
+    sensor_storage<_size> &source;
     virtual void set_prediction_covariance(const matrix &cov, const int index) { for(int i = 0; i < size; ++i) for(int j = 0; j < size; ++j) pred_cov(i, j) = cov(index + i, index + j); }
     virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }
     virtual f_t measurement_covariance(const int i) const { return m_cov[i]; }
-    observation_storage(sensor_storage<_size> &src, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation(src, _size, _time_actual, _time_apparent), src_data(src) {}
+    observation_storage(sensor_storage<_size> &src, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation(src, _size, _time_actual, _time_apparent), source(src) {}
 };
 
 class observation_vision_feature: public observation_storage<2> {
@@ -115,7 +114,7 @@ protected:
     virtual void predict();
     virtual bool measure();
     virtual void compute_measurement_covariance() {
-        src_data.inn_stdev.data(inn);
+        source.inn_stdev.data(inn);
         observation_spatial::compute_measurement_covariance();
     }
     virtual void cache_jacobians();
@@ -138,11 +137,11 @@ protected:
  public:
     virtual void predict();
     virtual bool measure() {
-        src_data.meas_stdev.data(meas);
+        source.meas_stdev.data(meas);
         return observation_spatial::measure();
     }
     virtual void compute_measurement_covariance() { 
-        src_data.inn_stdev.data(inn);
+        source.inn_stdev.data(inn);
         observation_spatial::compute_measurement_covariance();
     }
     virtual void cache_jacobians();

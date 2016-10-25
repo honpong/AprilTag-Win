@@ -435,7 +435,7 @@ bool observation_vision_feature::measure()
     bool valid = meas[0] != INFINITY;
 
     if(valid) {
-        src_data.meas_stdev.data(meas);
+        source.meas_stdev.data(meas);
         if(!feature->is_initialized()) {
             update_initializing();
         }
@@ -453,7 +453,7 @@ bool observation_vision_feature::measure()
 
 void observation_vision_feature::compute_measurement_covariance()
 {
-    src_data.inn_stdev.data(inn);
+    source.inn_stdev.data(inn);
     f_t ot = feature->outlier_thresh * feature->outlier_thresh * (intrinsics.image_height/240.f)*(intrinsics.image_height/240.f);
 
     f_t residual = inn[0]*inn[0] + inn[1]*inn[1];
@@ -553,7 +553,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
 
 bool observation_accelerometer::measure()
 {
-    src_data.meas_stdev.data(meas);
+    source.meas_stdev.data(meas);
     return observation_spatial::measure();
 }
 

@@ -231,13 +231,13 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
     return ok;
 }
 
-void preprocess_observation_queue(struct filter *f, sensor_clock::time_point time)
+static void preprocess_observation_queue(struct filter *f, sensor_clock::time_point time)
 {
     f->last_time = time;
     f->observations.preprocess(f->s, time);
 }
 
-void process_observation_queue(struct filter *f)
+static void process_observation_queue(struct filter *f)
 {
     if(!f->observations.process(f->s)) {
         f->numeric_failed = true;

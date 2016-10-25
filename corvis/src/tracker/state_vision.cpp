@@ -14,8 +14,8 @@ f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 
-state_vision_feature::state_vision_feature(uint64_t feature_id, const feature_t & initial_):
-    state_leaf("feature", constant), id(feature_id), initial(initial_), current(initial_)
+state_vision_feature::state_vision_feature(state_vision_group &group_, uint64_t feature_id, const feature_t &initial_):
+    state_leaf("feature", constant), group(group_), id(feature_id), initial(initial_), current(initial_)
 {
     reset();
 }
@@ -319,10 +319,9 @@ int state_vision::process_features(const rc_ImageData &image, sensor_clock::time
     return total_health;
 }
 
-state_vision_feature * state_vision::add_feature(const feature_t & initial)
+state_vision_feature * state_vision::add_feature(state_vision_group &group, const feature_t &initial)
 {
-    state_vision_feature *f = new state_vision_feature(feature_counter++, initial);
-    return f;
+    return new state_vision_feature(group, feature_counter++, initial);
 }
 
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)

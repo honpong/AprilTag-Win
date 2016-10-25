@@ -716,7 +716,7 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
     for(i = 0; i < (int)kp.size(); ++i) {
         feature_t kp_i = {kp[i].x, kp[i].y};
         {
-            state_vision_feature *feat = f->s.add_feature(kp_i);
+            state_vision_feature *feat = f->s.add_feature(*g, kp_i);
 
             float depth_m = 0;
             if(f->has_depth) {
@@ -735,7 +735,6 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
             }
             
             g->features.children.push_back(feat);
-            feat->groupid = g->id;
             feat->tracker_id = kp[i].id;
             
             found_feats++;

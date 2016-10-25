@@ -99,6 +99,8 @@ public:
     feature_t unnormalize_feature(const feature_t &feat) const;
 };
 
+class state_vision_group;
+
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
     f_t outlier = 0;
@@ -107,8 +109,8 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     v2 prediction;
     f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
     uint64_t id;
-    uint64_t groupid;
     uint64_t tracker_id;
+    state_vision_group &group;
     v3 body = v3(0, 0, 0);
 
     struct descriptor descriptor;
@@ -123,7 +125,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t outlier_reject;
     static f_t max_variance;
 
-    state_vision_feature(uint64_t feature_id, const feature_t & initial);
+    state_vision_feature(state_vision_group &group, uint64_t feature_id, const feature_t &initial);
     bool should_drop() const;
     bool is_valid() const;
     bool is_good() const;
@@ -255,7 +257,7 @@ public:
     state_vision(covariance &c);
     ~state_vision();
     int process_features(const rc_ImageData &image, sensor_clock::time_point time);
-    state_vision_feature *add_feature(const feature_t & initial);
+    state_vision_feature *add_feature(state_vision_group &group, const feature_t & initial);
     state_vision_group *add_group(sensor_clock::time_point time);
     void remove_group(state_vision_group *g);
     transformation get_transformation() const;

@@ -270,7 +270,7 @@ void update_static_calibration(struct filter *f)
 #endif
     //this updates even the one dof that can't converge in the filter for this orientation (since we were static)
     f->s.imu.intrinsics.w_bias.v = f->gyro_stability.mean;
-    f->s.imu.intrinsics.w_bias.set_initial_variance(f->gyro_stability.variance[0], f->gyro_stability.variance[1], f->gyro_stability.variance[2]); //Even though the one dof won't have converged in the filter, we know that this is a good value (average across stable meas).
+    f->s.imu.intrinsics.w_bias.set_initial_variance(f->gyro_stability.variance); //Even though the one dof won't have converged in the filter, we know that this is a good value (average across stable meas).
     f->s.imu.intrinsics.w_bias.reset_covariance(f->s.cov);
 }
 
@@ -984,8 +984,8 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.camera.extrinsics.T.v = cam_extrinsics.mean.T;
     f->s.camera.extrinsics.Q.v = cam_extrinsics.mean.Q;
 
-    f->s.camera.extrinsics.Q.set_initial_variance(cam_extrinsics.variance.Q[0], cam_extrinsics.variance.Q[1], cam_extrinsics.variance.Q[2]);
-    f->s.camera.extrinsics.T.set_initial_variance(cam_extrinsics.variance.T[0], cam_extrinsics.variance.T[1], cam_extrinsics.variance.T[2]);
+    f->s.camera.extrinsics.Q.set_initial_variance(cam_extrinsics.variance.Q);
+    f->s.camera.extrinsics.T.set_initial_variance(cam_extrinsics.variance.T);
 
     f->s.camera.intrinsics.focal_length.v = (cam_intrinsics.f_x_px + cam_intrinsics.f_y_px) / 2 / cam_intrinsics.height_px;
     f->s.camera.intrinsics.center_x.v = (cam_intrinsics.c_x_px - cam_intrinsics.width_px / 2. + .5) / cam_intrinsics.height_px;
@@ -1035,15 +1035,15 @@ extern "C" void filter_initialize(struct filter *f)
     f->a_variance = accel.measurement_variance_m2__s4;
 
     f->s.imu.intrinsics.w_bias.v = v_map(gyro.bias_rad__s.v);
-    f->s.imu.intrinsics.w_bias.set_initial_variance(gyro.bias_variance_rad2__s2.x, gyro.bias_variance_rad2__s2.y, gyro.bias_variance_rad2__s2.z);
+    f->s.imu.intrinsics.w_bias.set_initial_variance(v_map(gyro.bias_variance_rad2__s2.v));
 
     f->s.imu.intrinsics.a_bias.v = v_map(accel.bias_m__s2.v);
-    f->s.imu.intrinsics.a_bias.set_initial_variance(accel.bias_variance_m2__s4.x, accel.bias_variance_m2__s4.y, accel.bias_variance_m2__s4.z);
+    f->s.imu.intrinsics.a_bias.set_initial_variance(v_map(accel.bias_variance_m2__s4.v));
 
     f->s.imu.extrinsics.Q.v = imu_extrinsics.mean.Q;
     f->s.imu.extrinsics.T.v = imu_extrinsics.mean.T;
-    f->s.imu.extrinsics.Q.set_initial_variance(imu_extrinsics.variance.Q[0], imu_extrinsics.variance.Q[1], imu_extrinsics.variance.Q[2]);
-    f->s.imu.extrinsics.T.set_initial_variance(imu_extrinsics.variance.T[0], imu_extrinsics.variance.T[1], imu_extrinsics.variance.T[2]);
+    f->s.imu.extrinsics.Q.set_initial_variance(imu_extrinsics.variance.Q);
+    f->s.imu.extrinsics.T.set_initial_variance(imu_extrinsics.variance.T);
 
     f->s.imu.extrinsics.Q.set_process_noise(1.e-30);
     f->s.imu.extrinsics.T.set_process_noise(1.e-30);
@@ -1061,7 +1061,7 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.g.set_initial_variance(1.e-7);
     f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
-    f->s.Q.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
+    f->s.Q.set_initial_variance({10., 10., 1.e-7}); // to avoid not being positive definite
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(10);
     f->s.dw.set_initial_variance(10);

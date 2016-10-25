@@ -307,12 +307,10 @@ public:
 
     using state_leaf::set_initial_variance;
     
-    void set_initial_variance(f_t x, f_t y, f_t z)
+    void set_initial_variance(v3 v)
     {
         initial_covariance.setZero();
-        initial_covariance(0, 0) = x;
-        initial_covariance(1, 1) = y;
-        initial_covariance(2, 2) = z;
+        initial_covariance.diagonal() = v;
     }
     
     void reset() {
@@ -359,12 +357,10 @@ public:
 
     using state_leaf::set_initial_variance;
     
-    void set_initial_variance(f_t x, f_t y, f_t z)
+    void set_initial_variance(v3 v)
     {
         initial_covariance.setZero();
-        initial_covariance(0, 0) = x;
-        initial_covariance(1, 1) = y;
-        initial_covariance(2, 2) = z;
+        initial_covariance.diagonal() = v;
     }
     
     void reset() {
@@ -412,12 +408,10 @@ public:
     
     using state_leaf::set_initial_variance;
     
-    void set_initial_variance(f_t x, f_t y, f_t z)
+    void set_initial_variance(v3 v)
     {
         initial_covariance.setZero();
-        initial_covariance(0, 0) = x;
-        initial_covariance(1, 1) = y;
-        initial_covariance(2, 2) = z;
+        initial_covariance.diagonal() = v;
     }
 
     void reset() {

@@ -1137,9 +1137,9 @@ float filter_converged(const struct filter *f)
         if(progress >= .99f) return 0.99f; //If focus takes a long time, we won't know how long it will take
         return progress;
     } else if(f->run_state == RCSensorFusionRunStatePortraitCalibration) {
-        return get_bias_convergence(f, 1);
-    } else if(f->run_state == RCSensorFusionRunStateLandscapeCalibration) {
         return get_bias_convergence(f, 0);
+    } else if(f->run_state == RCSensorFusionRunStateLandscapeCalibration) {
+        return get_bias_convergence(f, 1);
     } else if(f->run_state == RCSensorFusionRunStateStaticCalibration) {
         return fmin(f->accel_stability.count / (float)calibration_converge_samples, get_bias_convergence(f, 2));
     } else if(f->run_state == RCSensorFusionRunStateRunning || f->run_state == RCSensorFusionRunStateDynamicInitialization) { // TODO: proper progress for dynamic init, if needed.

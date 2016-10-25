@@ -227,7 +227,6 @@ struct state_camera: state_branch<state_node*> {
     std::future<const std::vector<tracker::point> & > detection_future;
 
     state_camera() : extrinsics("Qc", "Tc", false), intrinsics(false) {
-        //last_detection.set_value(empty_detection);
         //children.push_back(&extrinsics);
         children.push_back(&intrinsics);
     }

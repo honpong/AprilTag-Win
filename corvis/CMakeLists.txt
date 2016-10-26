@@ -63,20 +63,65 @@ endif (APPLE)
 add_subdirectory(src)
 
 if(ENABLE_VISGL)
+
+set(GLFW_INSTALL OFF CACHE BOOL "")
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
+add_subdirectory(src/glfw)
+if(NOT WIN32)
+    target_compile_options(glfw PRIVATE $<$<CXX_COMPILER_ID:AppleClang>: -Wno-deprecated-declarations>)
+endif()
+target_include_directories(glfw INTERFACE src/glfw/include)
+
+add_library(glad STATIC
+  src/glfw/deps/glad.c
+)
+target_compile_options(glad PRIVATE $<$<C_COMPILER_ID:MSVC>:/wd4996>)
+target_include_directories(glad
+  PUBLIC src/glfw/deps
+)
+
 add_executable(measure
-  src/tools/measure.cpp
-  src/tools/benchmark.cpp
-  src/tools/for_each_file.cpp
+  src/measure/measure.cpp
+  src/measure/benchmark.cpp
+  src/measure/for_each_file.cpp
+
+  src/measure/world_state.cpp
+  src/measure/world_state_render.cpp
+  src/measure/arcball.cpp
+  src/measure/offscreen_render.cpp
+  src/measure/gui.cpp
+  src/measure/lodepng.cpp
+  src/measure/gl_util.cpp
+  src/measure/render.cpp
+  src/measure/video_render.cpp
+
+  src/tracker/rc_tracker.cpp
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 install(TARGETS measure RUNTIME DESTINATION bin COMPONENT alloy)
-
-target_link_libraries_copied(measure PUBLIC tracker)
-target_link_libraries(measure PUBLIC vis)
-  if(ENABLE_MGL)
-    target_link_libraries_copied(measure PRIVATE mgl)
-  endif()
+if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
+    target_compile_options(measure PRIVATE -DDEBUG=1)
 endif()
+
+target_link_libraries_copied(measure PUBLIC trackeri)
+if(ENABLE_MGL)
+    target_link_libraries_copied(measure PRIVATE mgl)
+endif()
+
+target_link_libraries(measure PRIVATE glad glfw PUBLIC trackeri)
+if(ENABLE_MGL)
+    add_subdirectory(../ThirdParty/mathgl mathgl)
+    target_compile_options(mgl PRIVATE $<$<BOOL:${MSVC}>:/wd4244 /wd4190 /wd4800>)
+    target_link_libraries(measure PRIVATE mgl)
+    target_compile_definitions(measure PRIVATE HAVE_MGL)
+endif()
+target_link_libraries(measure PRIVATE ${GLFW_LIBRARIES})
+target_include_directories(measure PUBLIC measure)
+set_property(TARGET measure PROPERTY CXX_STANDARD 14)
+
+endif() # VISGL
 
 add_executable(rc_replay src/rc_replay/rc_replay.cpp src/rc_replay/main.cpp)
 set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
@@ -92,9 +137,9 @@ install(FILES
 )
 endif()
 
-add_executable(alloy_merge src/tools/alloy_merge.cpp)
+add_executable(alloy_merge src/tools/alloy_merge.cpp src/tracker/rc_tracker.cpp)
 set_property(TARGET alloy_merge PROPERTY CXX_STANDARD 14)
-target_link_libraries(alloy_merge tracker)
+target_link_libraries(alloy_merge trackeri)
 
 find_package(alloy QUIET)
 if (TARGET alloy)
@@ -104,7 +149,7 @@ if (TARGET alloy)
         src/tools/rc_calibrate.cpp
     )
     set_property(TARGET rc_calibrate PROPERTY CXX_STANDARD 14)
-    target_link_libraries(rc_calibrate alloy tracker)
+    target_link_libraries(rc_calibrate alloy trackeri)
     install(TARGETS rc_calibrate RUNTIME DESTINATION bin COMPONENT alloy)
 
 endif()
@@ -115,39 +160,37 @@ if(YES AND NOT ANDROID)
       ../ThirdParty/googletest/gtest/gtest_main.cc
       ../ThirdParty/googletest/gtest/gtest-all.cc
       test/test.cpp test/util.cpp
-      test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
-      test/numerics/transformation.cpp
-      test/filter/utils.cpp
-      test/filter/state_vision.cpp
-      test/filter/calibration_json.cpp
-      test/filter/tpose.cpp
-      test/filter/dictionary.cpp
-      test/filter/mapper.cpp
-      test/filter/fast_tracker.cpp
-      test/cor/sensor_fusion_queue.cpp
+      test/tracker/vec4.cpp test/tracker/rotation_vector.cpp test/tracker/quaternion.cpp
+      test/tracker/transformation.cpp
+      test/tracker/utils.cpp
+      test/tracker/state_vision.cpp
+      test/tracker/calibration_json.cpp
+      test/tracker/tpose.cpp
+      test/tracker/dictionary.cpp
+      test/tracker/mapper.cpp
+      test/tracker/fast_tracker.cpp
+      test/tracker/sensor_fusion_queue.cpp
     )
     if(ENABLE_QR)
-        set(spec_sources ${spec_sources} test/filter/homography.cpp)
+        set(spec_sources ${spec_sources} test/tracker/homography.cpp)
     endif()
     add_executable(spec ${spec_sources})
     set_property(TARGET spec PROPERTY CXX_STANDARD 14)
     target_include_directories(spec PRIVATE test ../ThirdParty/googletest/)
     target_include_directories(spec PRIVATE ../ThirdParty/spdlog/include/)
-    target_link_libraries(spec filter)
-    if(ENABLE_QR)
-       target_link_libraries(spec qr)
-    endif()
+    target_link_libraries(spec trackeri)
     add_test(NAME spec COMMAND spec)
 
     add_executable(spec_intel
       ../ThirdParty/googletest/gtest/gtest_main.cc
       ../ThirdParty/googletest/gtest/gtest-all.cc
-      src/filter/rc_tracker.cpp
-      test/filter/rc_tracker_tests.cpp
+      src/tracker/rc_tracker.cpp
+      test/tracker/rc_tracker_tests.cpp
     )
     set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
-    target_include_directories(spec_intel PRIVATE test ../ThirdParty/googletest/)
-    target_link_libraries(spec_intel filter)
+    target_include_directories(spec_intel PRIVATE test
+        ../ThirdParty/googletest/ ${TRACKER_PRIVATE_INCLUDES})
+    target_link_libraries(spec_intel trackeri)
     add_test(NAME spec_intel COMMAND spec_intel)
 
     if(BUILD_STEREO)
@@ -159,7 +202,7 @@ if(YES AND NOT ANDROID)
         )
         set_property(TARGET spec_plus PROPERTY CXX_STANDARD 14)
         target_include_directories(spec_plus PRIVATE test ../ThirdParty/googletest/)
-        target_link_libraries(spec_plus filter stereo)
+        target_link_libraries(spec_plus trackeri stereo)
         add_test(NAME spec_plus COMMAND spec_plus)
     endif()
 endif()

@@ -105,9 +105,9 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo"
     target_compile_options(measure PRIVATE -DDEBUG=1)
 endif()
 
-target_link_libraries_copied(measure PUBLIC trackeri)
+target_link_libraries(measure PUBLIC trackeri)
 if(ENABLE_MGL)
-    target_link_libraries_copied(measure PRIVATE mgl)
+    target_link_libraries(measure PRIVATE mgl)
 endif()
 
 target_link_libraries(measure PRIVATE glad glfw PUBLIC trackeri)

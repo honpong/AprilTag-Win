@@ -145,7 +145,7 @@ endif()
 find_intel_root(IPP)
 if (IPPROOT)
     target_compile_definitions(trackeri PRIVATE HAVE_IPP)
-    target_include_directories(trackeri PUBLIC SYSTEM "${IPPROOT}/include")
+    target_include_directories(trackeri SYSTEM PUBLIC "${IPPROOT}/include")
     target_link_libraries(trackeri PRIVATE
         "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippcv${CMAKE_STATIC_LIBRARY_SUFFIX}"
         "${IPPROOT}/lib/${INTEL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}ippi${CMAKE_STATIC_LIBRARY_SUFFIX}"

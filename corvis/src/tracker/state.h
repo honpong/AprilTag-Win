@@ -264,21 +264,23 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
     
     inline const Eigen::Map< const Eigen::Matrix<f_t, _size, 1>, Eigen::Unaligned, Eigen::OuterStride<> > from_row(const matrix &c, int i) const
     {
+        typedef decltype(from_row(c,i)) map;
         static const f_t zero[_size] = { 0 };
-        if(index < 0) return { &zero[0], Eigen::OuterStride<>(1) };
+        if(index < 0)                                                                return map { &zero[0],                          Eigen::OuterStride<>(1) };
         if(index >= c.cols()) {
-            if((type == node_type::fake) && (i - index >= 0) && (i - index < _size)) return { &initial_covariance(i - index, 0), Eigen::OuterStride<>(_size) };
-            else return { &zero[0], Eigen::OuterStride<>(1) };
+            if((type == node_type::fake) && (i - index >= 0) && (i - index < _size)) return map { &initial_covariance(i - index, 0), Eigen::OuterStride<>(_size) };
+            else                                                                     return map { &zero[0],                          Eigen::OuterStride<>(1) };
         }
-        if((i < 0) || (i >= c.rows())) return { &zero[0] , Eigen::OuterStride<>(1) };
-        return { &c(i,index), Eigen::OuterStride<>(c.get_stride()) };
+        if((i < 0) || (i >= c.rows()))                                               return map { &zero[0] ,                         Eigen::OuterStride<>(1) };
+        else                                                                         return map { &c(i,index),                       Eigen::OuterStride<>(c.get_stride()) };
     }
 
     inline Eigen::Map< Eigen::Matrix<f_t, _size, 1>, Eigen::Unaligned, Eigen::InnerStride<> > to_col(matrix &c, int j) const
     {
+        typedef decltype(to_col(c,j)) map;
         static f_t scratch[_size];
-        if((index < 0) || (index >= c.rows())) return { &scratch[0], Eigen::InnerStride<>(1) };
-        else return { &c(index,j), Eigen::InnerStride<>(c.get_stride()) };
+        if((index < 0) || (index >= c.rows())) return map { &scratch[0], Eigen::InnerStride<>(1) };
+        else                                   return map { &c(index,j), Eigen::InnerStride<>(c.get_stride()) };
     }
 
     void remove() { index = -1; }

@@ -15,15 +15,7 @@
 #include <alloca.h>
 #endif
 
-#ifdef HAVE_MKL
-#include <mkl.h>
-#elif defined(__APPLE__)
-#include <Accelerate/Accelerate.h>
-#define lapack_int __CLPK_integer
-#else
-#include <cblas.h>
-#include <lapacke.h>
-#endif
+#include <Eigen/Cholesky>
 
 #ifdef F_T_IS_DOUBLE
 #define F_T_TYPE(prefix,func,suffix) prefix ## d ## func ## suffix
@@ -84,126 +76,30 @@ void matrix::print_diag() const
 
 void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale)
 {
-    int d1, d2, d3, d4;
-    if(trans1) {
-        d1 = A._cols;
-        d2 = A._rows;
-    } else {
-        d1 = A._rows;
-        d2 = A._cols;
-    }
-    if(trans2) {
-        d3 = B._cols;
-        d4 = B._rows;
-    } else {
-        d3 = B._rows;
-        d4 = B._cols;
-    }
-    assert(d2 == d3);
-    assert(res._rows == d1);
-    assert(res._cols == d4);
-    cblas_(gemm)(CblasRowMajor, trans1?CblasTrans:CblasNoTrans, trans2?CblasTrans:CblasNoTrans,
-                 res._rows, res._cols, A._cols,
-                 scale, A.data, A.stride,
-                 B.data, B.stride,
-                 dst_scale, res.data, res.stride);
-}
-
-//returns lower triangular (by my conventions) cholesky matrix
-bool matrix_cholesky(matrix &A)
-{
-    //test_cholesky(A);
-    //A.print();
-    char uplo = 'U';
-    lapack_int info;
-    lapack_int n = A._cols;
-    lapack_int lda = A.stride;
-    LAPACK_(potrf)(&uplo, &n, A.data, &lda, &info);
-    if(info) {
-#ifdef DEBUG
-        fprintf(stderr, "cholesky: potrf failed: %d\n", (int)info);
-        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
-#endif
-        return false;
-    }
-    //potrf only computes upper fortran (so really lower) triangle
-    //clear out any leftover data in the upper part of A
-    for(int i = 0; i < A._rows; ++i) {
-        for(int j = i + 1; j < A._rows; ++j) {
-            A(i, j) = 0.;
-        }
-    }
-    return true;
+    assert(dst_scale == 1); // a limitation of Eigen's GEMM detection
+    if(!trans1 && !trans2)
+        res.map().noalias() += scale*A.map()             * B.map();
+    else if(trans1 && !trans2)
+        res.map().noalias() += scale*A.map().transpose() * B.map();
+    else if(!trans1 && trans2)
+        res.map().noalias() += scale*A.map()             * B.map().transpose();
+    else
+        res.map().noalias() += scale*A.map().transpose() * B.map().transpose();
 }
 
 f_t matrix_check_condition(matrix &A)
 {
-    f_t anorm = 0.;
-    
-    matrix tmp(A._rows, A._cols);
-
-    for(int i = 0; i < A._rows; ++i)
-    {
-        f_t sum = 0.;
-        for(int j = 0; j < A._cols; ++j)
-        {
-            sum += A(i, j);
-            tmp(i, j) = A(i, j);
-        }
-        if(sum > anorm) anorm = sum;
-    }
-    
-    char uplo = 'U';
-    lapack_int info;
-    lapack_int n = tmp._cols;
-    lapack_int lda = tmp.stride;
-    LAPACK_(potrf)(&uplo, &n, tmp.data, &lda, &info);
-    f_t rcond = 1.;
-    if(info) {
-#ifdef DEBUG
-        fprintf(stderr, "check_condition: potrf failed: %d\n", (int)info);
-        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
-#endif
-        return 0.;
-    }
-    
-    lapack_int *iwork = walloca(lapack_int, n);
-    f_t *work = walloca(f_t, 3*n);
-    LAPACK_(pocon)(&uplo, &n, tmp.data, &lda, &anorm, &rcond, work, iwork, &info);
-    if(info) {
-#ifdef DEBUG
-        fprintf(stderr, "check_condition: pocon failed: %d\n", (int)info);
-        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
-#endif
-        return 0.;
-    }
-    return rcond;
+    return A.map().llt().rcond();
 }
 
 bool matrix_solve(matrix &A, matrix &B)
 {
-    char uplo = 'U';
-    lapack_int info;
-    lapack_int n = A._cols;
-    lapack_int lda = A.stride;
-    LAPACK_(potrf)(&uplo, &n, A.data, &lda, &info);
-    if(info) {
-#ifdef DEBUG
-        fprintf(stderr, "solve: spotrf failed: %d\n", (int)info);
-        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
-#endif
-        return false; //could return matrix_solve_syt here instead
-    }
-    lapack_int nrhs = B._rows;
-    lapack_int ldb = B.stride;
-    LAPACK_(potrs)(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
-    if(info) {
-#ifdef DEBUG
-        fprintf(stderr, "solve: spotrs failed: %d\n", (int)info);
-        fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
-#endif
+    Eigen::LLT<Eigen::Matrix<f_t,Eigen::Dynamic,Eigen::Dynamic>> llt(A.map());
+    if (llt.info() == Eigen::NumericalIssue)
         return false;
-    }
+    Eigen::Map<Eigen::Matrix<f_t,Eigen::Dynamic,Eigen::Dynamic,Eigen::ColMajor>,Eigen::Unaligned,Eigen::OuterStride<>>
+        Bt(B.data, B.cols(), B.rows(),Eigen::OuterStride<>(B.get_stride()));
+    llt.solveInPlace(Bt);
     return true;
 }
 
@@ -220,29 +116,8 @@ void matrix_transpose(matrix &dst, const matrix &src)
 //need to put this test around every operation that affects cov. (possibly with #defines, google test?)
 bool test_posdef(const matrix &m)
 {
-    matrix tmp(m._rows, m._cols);
-    bool ret = true;
-    for(int i = 0; i < m._rows; ++i)
-    {
-        if(m(i, i) < 0.) {
-            fprintf(stderr, "negative diagonal element: %d is %e\n", i, m(i, i));
-            ret = false;
-        }
-        tmp(i, i) = m(i, i);
-        for(int j = i + 1; j < m._cols; ++j)
-        {
-            if(m(i, j) != m(j, i)) {
-                fprintf(stderr, "not symmetric: m(%d, %d) = %e; m(%d, %d) = %e\n", i, j, m(i, j), j, i, m(j, i));
-                ret = false;
-            }
-            tmp(i, j) = tmp(j, i) = m(i, j);
-        }
-    }
-    if(ret) ret = matrix_cholesky(tmp);
-    if(!ret)
-    {
-        m.print();
+    f_t norm = (m.map() - m.map().transpose()).norm();
+    if(norm > F_T_EPS)
         return false;
-    }
-    return ret;
+    return m.map().llt().info() != Eigen::NumericalIssue;
 }

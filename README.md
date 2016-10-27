@@ -57,6 +57,10 @@ apt-get install libblas-dev liblapack-dev liblapacke-dev # Ubuntu
 
 To disable MKL auto-detection pass `-DMKLROOT=False` to `cmake`.
 
+To disable LAPACKe auto-detection pass `-DCMAKE_DISABLE_FIND_PACKAGE_lapacke=True` to `cmake`.
+
+If both MKL and LAPACKe are disabled, the system will fallback to using Eigen.
+
 ### Visualization
 
 Pass `-DENABLE_VISGL=True` to `cmake` to enable the visualizer

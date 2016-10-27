@@ -5,7 +5,7 @@ project(corvis C CXX)
 list(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR}/../cmake)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL Clang AND EXISTS /usr/include/c++/v1)
-  include_directories(BEFORE SYSTEM /usr/include/c++/v1)
+  include_directories(SYSTEM BEFORE /usr/include/c++/v1)
   link_libraries(c++)
 endif()
 

@@ -54,8 +54,8 @@ set_property(TARGET tracker PROPERTY CXX_STANDARD 14)
 
 set_property(TARGET trackeri PROPERTY CXX_STANDARD 14)
 
-target_include_directories(trackeri PUBLIC
-    tracker
+target_include_directories(trackeri PUBLIC tracker)
+target_include_directories(trackeri SYSTEM PUBLIC
     ../../ThirdParty/rapidjson/include
     ../../ThirdParty/spdlog/include
     ../../ThirdParty/eigen

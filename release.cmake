@@ -41,7 +41,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "^(trusty)$")
 endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "^(joule|alloy)$")
-  add_compile_options(-march=corei7 -mfpmath=sse)
+  set(RELEASE_EXTRA ${RELEASE_EXTRA}
+    "-DCMAKE_C_FLAGS=-march=corei7 -mfpmath=sse"
+    "-DCMAKE_C_FLAGS=-march=corei7 -mfpmath=sse")
 endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "^(darwin|joule|alloy|trusty|xenial|ostro)$")

@@ -149,7 +149,7 @@ if (TARGET alloy)
         src/tools/rc_calibrate.cpp
     )
     set_property(TARGET rc_calibrate PROPERTY CXX_STANDARD 14)
-    target_link_libraries(rc_calibrate alloy trackeri)
+    target_link_libraries(rc_calibrate alloy tracker)
     install(TARGETS rc_calibrate RUNTIME DESTINATION bin COMPONENT alloy)
 
 endif()

@@ -22,6 +22,10 @@ if(CMAKE_SYSTEM_NAME MATCHES "^(android-x32|android-x64)$")
     -DANDROID_NDK_ROOT=${ANDROID_NDK_ROOT}
     -DMKLROOT=${MKLROOT}
   )
+elseif (MKLROOT)
+  set(RELEASE_EXTRA ${RELEASE_EXTRA}
+    -DMKLROOT=${MKLROOT}
+  )
 endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "^(android-x64)$")

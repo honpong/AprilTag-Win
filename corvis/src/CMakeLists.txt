@@ -76,6 +76,9 @@ function(find_intel_root TYPE) # [REQUIRED]
         )
         list(LENGTH INTEL_LOCS SUPPORTED)
         if (NOT SUPPORTED)
+            # ARGV1 is option argument REQUIRED
+            # If ARGV1 is not set message() will be of default type
+            # "Important information" intead of a fatal error.
             if (ARGV1)
                 set(ARGV1 FATAL_ERROR)
             endif()

@@ -437,7 +437,6 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
     const struct filter * f = &((sensor_fusion *)tracker)->sfm;
     uint64_t timestamp_us = data->time_us;
 
-    update_current_timestamp(timestamp_us);
     rc_Pose pose = rc_getPose(tracker, nullptr, nullptr, data->path);
     transformation G = to_transformation(pose);
 
@@ -866,7 +865,6 @@ void world_state::observe_feature(uint64_t timestamp, rc_Sensor camera_id, const
     display_lock.lock();
     if(timestamp > current_feature_timestamp)
         current_feature_timestamp = timestamp;
-    update_current_timestamp(timestamp);
     if(features.count(feature.id))
         f.times_seen = features[feature.id].times_seen+1;
     features[feature.id] = f;
@@ -882,9 +880,10 @@ void world_state::observe_position(uint64_t timestamp, float x, float y, float z
     display_lock.lock();
     if (fast)
         path_mini.push_back(p);
-    else
+    else {
         path.push_back(p);
-    update_current_timestamp(timestamp);
+        update_current_timestamp(timestamp);
+    }
     dirty = true;
     display_lock.unlock();
 }

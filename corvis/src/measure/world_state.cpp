@@ -399,8 +399,8 @@ void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)
                       s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
     }
 
-    observe_world(f->s.world_up[0], f->s.world_up[1], f->s.world_up[2],
-                  f->s.world_initial_forward[0], f->s.world_initial_forward[1], f->s.world_initial_forward[2],
+    observe_world(f->s.world.up[0], f->s.world.up[1], f->s.world.up[2],
+                  f->s.world.initial_forward[0], f->s.world.initial_forward[1], f->s.world.initial_forward[2],
                   f->s.body_forward[0], f->s.body_forward[1], f->s.body_forward[2]);
 }
 

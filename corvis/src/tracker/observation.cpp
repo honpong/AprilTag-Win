@@ -476,7 +476,7 @@ void observation_accelerometer::predict()
 {
     Rt = state.Q.v.conjugate().toRotationMatrix();
     Ra = extrinsics.Q.v.toRotationMatrix();
-    v3 acc = state.world_up * state.g.v;
+    v3 acc = state.world.up * state.g.v;
     if(!state.orientation_only)
     {
         acc += state.a.v;
@@ -491,7 +491,7 @@ void observation_accelerometer::predict()
 
 void observation_accelerometer::cache_jacobians()
 {
-    v3 acc = state.world_up * state.g.v;
+    v3 acc = state.world.up * state.g.v;
     if(!state.orientation_only)
     {
         acc += state.a.v;

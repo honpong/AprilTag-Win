@@ -185,8 +185,7 @@ void state_motion::copy_from(const state_motion &other)
     current_time = other.current_time;
     loop_offset = other.loop_offset;
 
-    world_up = other.world_up;
-    world_initial_forward = other.world_initial_forward;
+    world.up_initial_forward_left = other.world.up_initial_forward_left;
     body_forward = other.body_forward;
 
     // copy covariance

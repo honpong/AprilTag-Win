@@ -302,7 +302,7 @@ sensor_clock::duration steady_time(struct filter *f, stdev<3> &stdev, const v3 &
     }
     if(!stdev.count && use_orientation) {
         if(!f->s.orientation_initialized) return sensor_clock::duration(0);
-        v3 local_up = f->s.Q.v.conjugate() * f->s.world_up;
+        v3 local_up = f->s.Q.v.conjugate() * f->s.world.up;
         //face up -> (0, 0, 1)
         //portrait -> (1, 0, 0)
         //landscape -> (0, 1, 0)
@@ -469,8 +469,8 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 
     if(!f->s.orientation_initialized) {
         f->s.orientation_initialized = true;
-        f->s.Q.v = initial_orientation_from_gravity_facing(f->s.world_up, f->s.imu.extrinsics.Q.v * meas,
-                                                           f->s.world_initial_forward, f->s.body_forward);
+        f->s.Q.v = initial_orientation_from_gravity_facing(f->s.world.up, f->s.imu.extrinsics.Q.v * meas,
+                                                           f->s.world.initial_forward, f->s.body_forward);
         if(f->origin_set)
             f->origin.Q = f->origin.Q * f->s.Q.v.conjugate();
 
@@ -822,7 +822,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;
         f->last_time = time;
-        v3 non_up_var = f->s.Q.variance() - f->s.world_up * f->s.world_up.dot(f->s.Q.variance());
+        v3 non_up_var = f->s.Q.variance() - f->s.world.up * f->s.world.up.dot(f->s.Q.variance());
         bool inertial_converged = non_up_var[0] < dynamic_W_thresh_variance && non_up_var[1] < dynamic_W_thresh_variance && non_up_var[2] < dynamic_W_thresh_variance;
         if(inertial_converged) {
             if(inertial_converged) {
@@ -1060,12 +1060,10 @@ extern "C" void filter_initialize(struct filter *f)
 
     f->s.g.set_initial_variance(1.e-7);
     f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
-    m3 FxU_F_U;
-    FxU_F_U.col(0) = f->s.world_initial_forward.cross(f->s.world_up);
-    FxU_F_U.col(1) = f->s.world_initial_forward;
-    FxU_F_U.col(2) = f->s.world_up;
     // FIXME: set_initial_variance should support passing the full covariance if we want to support "odd" world coordinates
-    f->s.Q.set_initial_variance((FxU_F_U * v3{10,10,1e-7}.asDiagonal() * FxU_F_U.transpose()).diagonal()); // to avoid not being positive definite
+    f->s.Q.set_initial_variance((f->s.world.up_initial_forward_left.transpose()
+                                 * v3{1e-7,10,10}.asDiagonal() * // to avoid not being positive definite
+                                 f->s.world.up_initial_forward_left).diagonal());
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(10);
     f->s.dw.set_initial_variance(10);
@@ -1189,7 +1187,7 @@ void filter_start_inertial_only(struct filter *f)
 void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned)
 {
     if(gravity_aligned) {
-        v3 z_old = f->s.world_up;
+        v3 z_old = f->s.world.up;
         v3 z_new = origin.Q * z_old;
         quaternion Qd = rotation_between_two_vectors_normalized(z_new, z_old);
         f->origin.Q = Qd * origin.Q;

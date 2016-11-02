@@ -345,15 +345,16 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
 
 void rc_configureWorld(rc_Tracker *tracker, const rc_Vector world_up, const rc_Vector world_initial_forward, const rc_Vector body_forward)
 {
-    tracker->sfm.s.world_up              = v_map(world_up.v).normalized();
-    tracker->sfm.s.world_initial_forward = v_map(world_initial_forward.v).normalized();
+    tracker->sfm.s.world.up              = v_map(world_up.v).normalized();
+    tracker->sfm.s.world.initial_forward = v_map(world_initial_forward.v).normalized();
+    tracker->sfm.s.world.initial_left    = tracker->sfm.s.world.up.cross(tracker->sfm.s.world.initial_forward);
     tracker->sfm.s.body_forward          = v_map(body_forward.v).normalized();
 }
 
 void rc_describeWorld(rc_Tracker *tracker, rc_Vector *world_up, rc_Vector *world_initial_forward, rc_Vector *body_forward)
 {
-    v_map(world_up->v)              = tracker->sfm.s.world_up;
-    v_map(world_initial_forward->v) = tracker->sfm.s.world_initial_forward;
+    v_map(world_up->v)              = tracker->sfm.s.world.up;
+    v_map(world_initial_forward->v) = tracker->sfm.s.world.initial_forward;
     v_map(body_forward->v)          = tracker->sfm.s.body_forward;
 }
 

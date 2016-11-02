@@ -114,7 +114,8 @@ public:
     covariance &cov;
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", std::make_shared<spdlog::sinks::null_sink_st> ());
 
-    v3 world_up = {0,0,1}, world_initial_forward = {0,1,0}, body_forward = {0,0,1}; // defines our world coordinates
+    union { struct { v3 up, initial_forward, initial_left; }; m3 up_initial_forward_left; } world = {{ {0,0,1}, {0,1,0}, {-1,0,0} }};
+    v3 body_forward = {0,0,1};
 
     int remap() {
 #ifdef TEST_POSDEF

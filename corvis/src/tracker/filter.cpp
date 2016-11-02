@@ -1060,8 +1060,12 @@ extern "C" void filter_initialize(struct filter *f)
 
     f->s.g.set_initial_variance(1.e-7);
     f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
-    //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
-    f->s.Q.set_initial_variance({10., 10., 1.e-7}); // to avoid not being positive definite
+    m3 FxU_F_U;
+    FxU_F_U.col(0) = f->s.world_initial_forward.cross(f->s.world_up);
+    FxU_F_U.col(1) = f->s.world_initial_forward;
+    FxU_F_U.col(2) = f->s.world_up;
+    // FIXME: set_initial_variance should support passing the full covariance if we want to support "odd" world coordinates
+    f->s.Q.set_initial_variance((FxU_F_U * v3{10,10,1e-7}.asDiagonal() * FxU_F_U.transpose()).diagonal()); // to avoid not being positive definite
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(10);
     f->s.dw.set_initial_variance(10);

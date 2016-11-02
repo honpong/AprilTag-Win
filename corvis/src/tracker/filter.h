@@ -30,7 +30,7 @@ struct filter {
         observation_queue observations;
         covariance cov;
         state_motion state {cov};
-    } _mini[2], &mini=_mini[0], &catchup = _mini[1];
+    } _mini[2], *mini = &_mini[0], *catchup = &_mini[1];
     std::mutex mini_mutex;
 
     std::unique_ptr<spdlog::logger> &log = s.log;

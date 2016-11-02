@@ -584,7 +584,7 @@ rc_Pose rc_getPose(rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration
     if(trace) trace_log->info(path == rc_DATA_PATH_FAST ? "rc_getFastPose" : "rc_getPose");
     std::unique_lock<std::mutex> lock(tracker->sfm.mini_mutex, std::defer_lock);
     if(path == rc_DATA_PATH_FAST) lock.lock();
-    const state_motion &s = path == rc_DATA_PATH_FAST ? tracker->sfm.mini.state : tracker->sfm.s;
+    const state_motion &s = path == rc_DATA_PATH_FAST ? tracker->sfm.mini->state : tracker->sfm.s;
     transformation total = tracker->sfm.origin * s.loop_offset;
     if (v) v_map(v->W.v) = total.Q * s.Q.v * s.w.v; // we use body rotational velocity, but we export spatial
     if (a) v_map(a->W.v) = total.Q * s.Q.v * s.dw.v;

@@ -15,19 +15,24 @@
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    filter(): s(cov), mini_state(mini_cov), catchup_state(catchup_cov)
-    { }
+    filter() { }
     RCSensorFusionRunState run_state;
     int min_group_add;
     int max_group_add;
     
     sensor_clock::time_point last_time;
-    state s;
-    state_motion mini_state, catchup_state;
-    std::mutex mini_mutex;
-    
+
+    observation_queue observations;
     covariance cov;
-    covariance mini_cov, catchup_cov;
+    state s{cov};
+
+    struct {
+        observation_queue observations;
+        covariance cov;
+        state_motion state {cov};
+    } _mini[2], &mini=_mini[0], &catchup = _mini[1];
+    std::mutex mini_mutex;
+
     std::unique_ptr<spdlog::logger> &log = s.log;
 
     //TODOMSM
@@ -61,9 +66,6 @@ struct filter {
 
     //TODOMSM - per sensor
     v3 a_bias_start, w_bias_start; //for tracking calibration progress
-    
-    observation_queue observations;
-    observation_queue mini_observations, catchup_observations;
     
     std::unique_ptr<sensor_data> recent_depth; //TODOMSM - per depth
     bool has_depth; //TODOMSM - per depth

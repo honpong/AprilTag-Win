@@ -197,7 +197,7 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     obs_a->variance = f->a_variance;
 
     std::unique_lock<std::mutex> lock(f->mini_mutex, std::defer_lock);
-    if(&state == &f->mini_state) lock.lock();
+    if(&state == &f->mini.state) lock.lock();
     queue.observations.push_back(std::move(obs_a));
     bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
     auto stop = std::chrono::steady_clock::now();
@@ -221,7 +221,7 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
     obs_w->variance = f->w_variance;
 
     std::unique_lock<std::mutex> lock(f->mini_mutex, std::defer_lock);
-    if(&state == &f->mini_state) lock.lock();
+    if(&state == &f->mini.state) lock.lock();
     queue.observations.push_back(std::move(obs_w));
     bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
 
@@ -970,8 +970,8 @@ extern "C" void filter_initialize(struct filter *f)
     
 
     f->observations.observations.clear();
-    f->mini_observations.observations.clear();
-    f->catchup_observations.observations.clear();
+    f->mini.observations.observations.clear();
+    f->catchup.observations.observations.clear();
 
     f->s.reset();
 
@@ -1087,8 +1087,8 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.remap();
     f->s.maxstatesize = MAXSTATESIZE;
 
-    f->mini_state.copy_from(f->s);
-    f->catchup_state.copy_from(f->s);
+    f->mini.state.copy_from(f->s);
+    f->catchup.state.copy_from(f->s);
 }
 
 #include "calibration_json.h"

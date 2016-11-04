@@ -8,7 +8,7 @@ accelerometer, gyro, greyscale camera, and optionally a depth camera
 into an estimate of the rotation and translation of the device itself.
 
 The main interface to the library can be found in
-[rc_tracker.h](corvis/src/filter/rc_tracker.h).
+[rc_tracker.h](corvis/src/tracker/rc_tracker.h).
 
 An overview of the algorithm can be found in
 [docs/OVERVIEW.md](docs/OVERVIEW.md)
@@ -101,7 +101,7 @@ dnf install libXcursor-devel libXinerama-devel libXrender-devel libXrandr-devel 
 ## Running
 
 To load a captured sequence and print out poses using a minimal
-wrapper around the [official interface](corvis/src/filter/rc_tracker.h).
+wrapper around the [official interface](corvis/src/tracker/rc_tracker.h).
 
     ./corvis/rc_replay --output-summary --output-poses path/to/capture/file
 

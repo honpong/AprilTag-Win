@@ -131,11 +131,10 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_S:        if (replay_control) replay_control->step();
              break; case GLFW_KEY_Q:        if (replay_control) replay_control->stop(); quit = true;
              break; case GLFW_KEY_F:        write_frame();
-             // video or depth are not shown when they are not yet
-             // configured, so current_camera = state->cameras.size()
-             // is equivalent to show_video = false;
-             break; case GLFW_KEY_V:        current_camera++; if(current_camera > state->cameras.size()) current_camera = 0;
-             break; case GLFW_KEY_D:        current_depth++; if(current_depth > state->depths.size()) current_depth = 0;
+             break; case GLFW_KEY_V:        if (!(mods & GLFW_MOD_SHIFT)) show_video = !show_video;
+                                            else                          current_camera = 1+current_camera < state->cameras.size() ? 1+current_camera : 0;
+             break; case GLFW_KEY_D:        if (!(mods & GLFW_MOD_SHIFT)) show_depth = !show_depth;
+                                            else                          current_depth  = 1+current_depth  < state->depths.size()  ? 1+current_depth  : 0;
              break; case GLFW_KEY_M:        show_main = !show_main;
              break; case GLFW_KEY_P:        show_plots = !show_plots;
              break; case GLFW_KEY_O:        show_depth_on_video = !show_depth_on_video;
@@ -153,8 +152,10 @@ ESC   Show all plot lines
 SPC   Pause
 s     Step
 
+V     Next Video
+D     Next Depth
 v     Toggle Video
-D     Toggle Depth
+d     Toggle Depth
 m     Toggle (Main) 3D path view
 p     Toggle Plots
 o     Toggle Depth to Video overlay

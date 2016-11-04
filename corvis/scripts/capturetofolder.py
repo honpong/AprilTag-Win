@@ -39,7 +39,7 @@ def camera_to_pgm_header(width, height, max_val):
 rc_IMAGE_GRAY8 = 0
 rc_IMAGE_DEPTH16 = 1
 
-f = open(capture_filename)
+f = open(capture_filename, "rb")
 header_size = 16
 header_str = f.read(header_size)
 frame_number = 0

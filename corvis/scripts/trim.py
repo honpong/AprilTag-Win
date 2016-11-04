@@ -15,7 +15,7 @@ starttime = sys.argv[2]
 endtime = sys.argv[3]
 outfilename = sys.argv[4]
 
-f = open(filename)
+f = open(filename, "rb")
 fout = open(outfilename, "wb")
 
 header_size = 16

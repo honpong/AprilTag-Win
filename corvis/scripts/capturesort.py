@@ -11,7 +11,7 @@ src = sys.argv[1]
 dst = sys.argv[2] if len(sys.argv) > 2 else None
 
 def capture_packets(filename):
-    with open(filename) as f:
+    with open(filename, "rb") as f:
         while True:
           header = f.read(16)
           if header == "": break
@@ -21,7 +21,7 @@ def capture_packets(filename):
 packets = list(capture_packets(src))
 
 if dst is not None:
-  with open(dst, "w") as d:
+  with open(dst, "wb") as d:
     for p in sorted(packets, None, lambda p: p['time']):
         d.write(p['header'])
         d.write(p['data'])

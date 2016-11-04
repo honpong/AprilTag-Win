@@ -8,20 +8,20 @@
 #include "matrix.h"
 #include <string.h>
 
-bool kalman_compute_gain(matrix &gain, const matrix &LC, const matrix &inn_cov)
+bool kalman_compute_gain(matrix &gain, const matrix &LC, const matrix &inn_cov, matrix &tmp)
 {
     //K = CL' * inv(res_cov)
     //K * res_cov = CL'
     //Lapack uses column-major ordering, so we feed it CL' and get K directly, in the form X * A = B' rather than A' * X = B
     gain.resize(LC.cols(), LC.rows());
     matrix_transpose(gain, LC);
-    matrix factor(inn_cov.rows(), inn_cov.cols());
+    tmp.resize(inn_cov.rows(), inn_cov.cols());
     for(int i = 0; i < inn_cov.rows(); ++i) {
         for(int j = 0; j < inn_cov.cols(); ++j) {
-            factor(i, j) = inn_cov(i, j);
+            tmp(i, j) = inn_cov(i, j);
         }
     }
-    return matrix_solve(factor, gain);
+    return matrix_solve(tmp, gain);
 }
 
 void kalman_update_state(matrix &state, const matrix &gain, const matrix &inn)

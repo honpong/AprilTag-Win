@@ -155,7 +155,7 @@ static_assert(MAXOBSERVATIONSIZE > MAXSTATESIZE*2, "MAXOBSERVATIONSIZE isn't big
 class observation_queue {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    observation_queue();
+    observation_queue() {}
     void preprocess(state_root &s, sensor_clock::time_point time);
     bool process(state_root &s);
     vector<unique_ptr<observation>> observations;
@@ -184,15 +184,25 @@ protected:
     void compute_innovation_covariance(const matrix &m_cov);
     int remove_invalid_measurements(const state_root &s, int orig_size, matrix &inn);
     bool update_state_and_covariance(state_root &s, const matrix &inn);
-    matrix LC;
-    matrix K;
-    matrix res_cov;
-    static bool observation_comp_actual(const unique_ptr<observation> &p1, const unique_ptr<observation> &p2) { return p1->time_actual < p2->time_actual; }
-    static bool observation_comp_apparent(const unique_ptr <observation> &p1, const unique_ptr<observation> &p2) { return p1->time_apparent < p2->time_apparent; }
-    
+
+    matrix state   {(f_t*)  state_storage,                  1,       MAXSTATESIZE,                  1,       MAXSTATESIZE };
+    matrix inn     {(f_t*)    inn_storage,                  1, MAXOBSERVATIONSIZE,                  1, MAXOBSERVATIONSIZE };
+    matrix m_cov   {(f_t*)  m_cov_storage,                  1, MAXOBSERVATIONSIZE,                  1, MAXOBSERVATIONSIZE };
+    matrix LC      {(f_t*)     LC_storage, MAXOBSERVATIONSIZE,       MAXSTATESIZE, MAXOBSERVATIONSIZE,       MAXSTATESIZE };
+    matrix K       {(f_t*)      K_storage, MAXSTATESIZE,       MAXOBSERVATIONSIZE,       MAXSTATESIZE, MAXOBSERVATIONSIZE };
+    matrix res_cov {(f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE };
+    matrix res_tmp {(f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE };
+
+    f_t state_storage[MAXSTATESIZE];
+    f_t inn_storage[MAXOBSERVATIONSIZE];
+    f_t m_cov_storage[MAXOBSERVATIONSIZE];
     f_t LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
     f_t K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
     f_t res_cov_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
+    f_t res_tmp_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
+
+    static bool observation_comp_actual(const unique_ptr<observation> &p1, const unique_ptr<observation> &p2) { return p1->time_actual < p2->time_actual; }
+    static bool observation_comp_apparent(const unique_ptr <observation> &p1, const unique_ptr<observation> &p2) { return p1->time_apparent < p2->time_apparent; }
 };
 
 //some object should have functions to evolve the mean and covariance

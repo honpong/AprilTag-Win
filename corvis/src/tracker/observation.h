@@ -193,13 +193,13 @@ protected:
     matrix res_cov {(f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE };
     matrix res_tmp {(f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE };
 
-    f_t state_storage[MAXSTATESIZE];
-    f_t inn_storage[MAXOBSERVATIONSIZE];
-    f_t m_cov_storage[MAXOBSERVATIONSIZE];
-    f_t LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
-    f_t K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
-    f_t res_cov_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
-    f_t res_tmp_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
+    alignas(64) f_t state_storage[MAXSTATESIZE];
+    alignas(64) f_t inn_storage[MAXOBSERVATIONSIZE];
+    alignas(64) f_t m_cov_storage[MAXOBSERVATIONSIZE];
+    alignas(64) f_t LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
+    alignas(64) f_t K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
+    alignas(64) f_t res_cov_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
+    alignas(64) f_t res_tmp_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
 
     static bool observation_comp_actual(const unique_ptr<observation> &p1, const unique_ptr<observation> &p2) { return p1->time_actual < p2->time_actual; }
     static bool observation_comp_apparent(const unique_ptr <observation> &p1, const unique_ptr<observation> &p2) { return p1->time_apparent < p2->time_apparent; }

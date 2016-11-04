@@ -18,9 +18,9 @@
 class covariance
 {
 protected:
-    f_t cov_storage[2][MAXSTATESIZE*MAXSTATESIZE];
-    f_t p_cov_storage[2][MAXSTATESIZE];
-    int map[MAXSTATESIZE];
+    alignas(64) f_t cov_storage[2][MAXSTATESIZE*MAXSTATESIZE];
+    alignas(64) f_t p_cov_storage[2][MAXSTATESIZE];
+    alignas(64) int map[MAXSTATESIZE];
 
 public:
     covariance(): cov(cov_storage[0], 0, 0, MAXSTATESIZE, MAXSTATESIZE), cov_scratch(cov_storage[1], 0, 0, MAXSTATESIZE, MAXSTATESIZE), process_noise((f_t *)p_cov_storage[0], 1, 0, 1, MAXSTATESIZE), process_scratch((f_t*)p_cov_storage[1], 1, 0, 1, MAXSTATESIZE) {}

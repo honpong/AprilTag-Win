@@ -114,7 +114,8 @@ public:
     covariance &cov;
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", std::make_shared<spdlog::sinks::null_sink_st> ());
 
-    union { struct { v3 up, initial_forward, initial_left; }; m3 up_initial_forward_left; } world = {{ {0,0,1}, {0,1,0}, {-1,0,0} }};
+    struct world { v3 up{0,0,1}, initial_forward{0,1,0}, initial_left{-1,0,0}; } world;
+    Eigen::Map<m3> world_up_initial_forward_left{world.up.data()};
     v3 body_forward = {0,0,1};
 
     int remap() {

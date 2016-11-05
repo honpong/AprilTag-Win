@@ -1061,9 +1061,9 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.g.set_initial_variance(1.e-7);
     f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
     // FIXME: set_initial_variance should support passing the full covariance if we want to support "odd" world coordinates
-    f->s.Q.set_initial_variance((f->s.world.up_initial_forward_left.transpose()
+    f->s.Q.set_initial_variance((f->s.world_up_initial_forward_left.transpose()
                                  * v3{1e-7,10,10}.asDiagonal() * // to avoid not being positive definite
-                                 f->s.world.up_initial_forward_left).diagonal());
+                                 f->s.world_up_initial_forward_left).diagonal());
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(10);
     f->s.dw.set_initial_variance(10);

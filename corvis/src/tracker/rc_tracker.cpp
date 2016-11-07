@@ -515,6 +515,8 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
                      int width, int height, int stride, const void *image,
                      void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
+    std::unique_ptr<void, void(*)(void *)> image_handle(callback_handle, completion_callback);
+
     if(trace)
         rc_trace(camera_id, format, time_us, shutter_time_us, width, height, stride, image);
 
@@ -528,7 +530,7 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
     }
     if (format == rc_FORMAT_DEPTH16 && camera_id < tracker->sfm.depths.size()) {
         sensor_data data(time_us, rc_SENSOR_TYPE_DEPTH, camera_id,
-                shutter_time_us, width, height, stride, rc_FORMAT_DEPTH16, image, completion_callback, callback_handle);
+                shutter_time_us, width, height, stride, rc_FORMAT_DEPTH16, image, std::move(image_handle));
 
         if(tracker->output.started())
             tracker->output.push(data.make_copy());
@@ -536,7 +538,7 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
             tracker->receive_data(std::move(data));
     } else if (format == rc_FORMAT_GRAY8 && camera_id < tracker->sfm.cameras.size()) {
         sensor_data data(time_us, rc_SENSOR_TYPE_IMAGE, camera_id,
-                shutter_time_us, width, height, stride, rc_FORMAT_GRAY8, image, completion_callback, callback_handle);
+                shutter_time_us, width, height, stride, rc_FORMAT_GRAY8, image, std::move(image_handle));
 
         if(tracker->output.started())
             tracker->output.push(data.make_copy());

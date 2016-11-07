@@ -15,20 +15,22 @@ std::unique_ptr<fusion_queue> setup_queue(std::function<void(sensor_data && x)> 
 
 sensor_data depth16_for_time(uint64_t timestamp_us)
 {
+    std::unique_ptr<void, void(*)(void *)> nothing{nullptr, nullptr};
     sensor_data d(timestamp_us, rc_SENSOR_TYPE_DEPTH, 0 /* id */,
                 0 /*rc_Timestamp shutter_time_us */,
                 0, 0, 0, /*int width, int height, int stride,*/
-                rc_FORMAT_DEPTH16, nullptr, nullptr, nullptr);
+                rc_FORMAT_DEPTH16, nullptr, std::move(nothing));
 
     return d;
 }
 
 sensor_data gray8_for_time(uint64_t timestamp_us)
 {
+    std::unique_ptr<void, void(*)(void *)> nothing{nullptr, nullptr};
     sensor_data d(timestamp_us, rc_SENSOR_TYPE_IMAGE, 0 /* id */,
                 0 /*rc_Timestamp shutter_time_us */,
                 0, 0, 0, /*int width, int height, int stride,*/
-                rc_FORMAT_GRAY8, nullptr, nullptr, nullptr);
+                rc_FORMAT_GRAY8, nullptr, std::move(nothing));
     return d;
 }
 

@@ -32,8 +32,8 @@ public:
 
     sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
                 rc_Timestamp shutter_time_us, int width, int height, int stride, rc_ImageFormat format, const void * image_ptr,
-                void (*release)(void * handle), void * handle) :
-        timestamp(sensor_clock::micros_to_tp(timestamp_us + shutter_time_us / 2))
+                std::unique_ptr<void, void(*)(void *)> handle) :
+        timestamp(sensor_clock::micros_to_tp(timestamp_us + shutter_time_us / 2)), image_handle(std::move(handle))
     {
         assert(sensor_type == rc_SENSOR_TYPE_IMAGE || sensor_type == rc_SENSOR_TYPE_DEPTH);
         id = sensor_id;
@@ -45,9 +45,8 @@ public:
         image.stride = stride;
         image.format = format;
         image.image = image_ptr;
-        image.release = release;
-        image.handle = handle;
-        image_handle = std::unique_ptr<void, void(*)(void *)>(handle, release);
+        image.handle = image_handle.get();
+        image.release = image_handle.get_deleter();
     }
 
     sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
@@ -69,9 +68,9 @@ public:
         switch(type) {
         case rc_SENSOR_TYPE_IMAGE:
         case rc_SENSOR_TYPE_DEPTH: {
-            void * res_image = malloc(image.stride*image.height);
-            memcpy(res_image, image.image, image.stride*image.height);
-            return std::make_unique<sensor_data>(time_us, type, id, image.shutter_time_us, image.width, image.height, image.stride, image.format, res_image, free, res_image);
+            std::unique_ptr<void, void(*)(void *)> im_handle(malloc(image.stride*image.height), free);
+            memcpy(im_handle.get(), image.image, image.stride*image.height);
+            return std::make_unique<sensor_data>(time_us, type, id, image.shutter_time_us, image.width, image.height, image.stride, image.format, im_handle.get(), std::move(im_handle));
         }   break;
 
         case rc_SENSOR_TYPE_ACCELEROMETER:

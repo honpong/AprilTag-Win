@@ -7,6 +7,13 @@ list(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR}/../cmake)
 if (CMAKE_CXX_COMPILER_ID STREQUAL Clang AND EXISTS /usr/include/c++/v1)
   include_directories(SYSTEM BEFORE /usr/include/c++/v1)
   link_libraries(c++)
+  list(APPEND CMAKE_REQUIRED_LIBRARIES c++)
+endif()
+
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("int main(int c, char **v){return 0;}" UNWIND_UNNEEDED FAIL_REGEX Unwind)
+if (NOT UNWIND_UNNEEDED)
+  link_libraries(unwind)
 endif()
 
 # SDL (Security Development Lifecycle) Requirements

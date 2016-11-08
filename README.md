@@ -13,6 +13,9 @@ The main interface to the library can be found in
 An overview of the algorithm can be found in
 [docs/OVERVIEW.md](docs/OVERVIEW.md)
 
+A guide to contributing can be found in
+[docs/CONTRIBUTING.md](docs/CONTRIBUTING.md)
+
 ## Building
 
 After installing [CMake](https://cmake.org/) and MKL (see below) the

@@ -42,8 +42,8 @@ endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "^(joule|alloy)$")
   set(RELEASE_EXTRA ${RELEASE_EXTRA}
-    "-DCMAKE_C_FLAGS=-march=corei7 -mfpmath=sse"
-    "-DCMAKE_C_FLAGS=-march=corei7 -mfpmath=sse")
+      "-DCMAKE_C_FLAGS=-march=silvermont -mfpmath=sse"
+      "-DCMAKE_CXX_FLAGS=-march=silvermont -mfpmath=sse")
 endif()
 
 if (CMAKE_SYSTEM_NAME MATCHES "^(darwin|joule|alloy|trusty|xenial|ostro)$")

@@ -38,7 +38,7 @@ endmacro()
 
 find_package(alloy QUIET)
 if (TARGET alloy)
-  add_compile_options(-march=atom -mfpmath=sse)
+  add_compile_options(-march=silvermont -mfpmath=sse)
 elseif (WIN32)
 elseif (ANDROID)
   # Match the options used by default in android-ndk-*/toolchains/*-clang3.6/setup.mk

@@ -43,7 +43,7 @@ elseif (WIN32)
 elseif (ANDROID)
   # Match the options used by default in android-ndk-*/toolchains/*-clang3.6/setup.mk
   add_compile_options(-no-canonical-prefixes -funwind-tables -fno-omit-frame-pointer)
-else (APPLE)
+elseif (APPLE)
   add_compile_options(-march=native -mfpmath=sse)
 endif ()
 

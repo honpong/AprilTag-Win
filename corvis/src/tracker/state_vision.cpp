@@ -411,7 +411,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
         f_t w = k1.v;
         if(rd < F_T_EPS) rd = F_T_EPS;
         ku_d = std::tan(w * rd) / (2 * std::tan(w/2) * rd);
-        if (dku_d_dfeat_d) *dku_d_dfeat_d = 2 * (rd * w / (std::cos(rd * w) * std::cos(rd * w) * (2 * rd * std::tan(w/2))) - ku_d) * feat_d / rd;
+        if (dku_d_dfeat_d) *dku_d_dfeat_d = (rd * w / (std::cos(rd * w) * std::cos(rd * w) * (2 * rd * std::tan(w/2))) - ku_d) / rd * feat_d / rd;
         if (dku_d_dk1) *dku_d_dk1 = (2 * rd * std::sin(w) - std::sin(2 * rd * w)) / (8 * rd * (std::cos(rd * w) * std::cos(rd * w)) * (std::sin(w/2) * std::sin(w/2)));
         if (dku_d_dk2) *dku_d_dk2 = 0;
         if (dku_d_dk3) *dku_d_dk3 = 0;

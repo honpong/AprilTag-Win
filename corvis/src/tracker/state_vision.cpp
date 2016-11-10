@@ -390,8 +390,8 @@ f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, feat
         f_t w = k1.v;
         if(ru < F_T_EPS) ru = F_T_EPS;
         kd_u = std::atan(2 * std::tan(w/2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
-        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = 2 * std::tan(w/2) / (w + 4 * ru * ru * w * std::tan(w/2) * std::tan(w/2)) * feat_u / ru;
-        if (dkd_u_dk1) *dkd_u_dk1 = 2 * ru / (w * (1 + std::cos(w) + 4 * ru * ru * (1 - std::cos(w)))) - kd_u / w;
+        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = (2 * std::tan(w/2) / (w + 4 * ru * ru * w * std::tan(w/2) * std::tan(w/2)) - kd_u) / ru * feat_u / ru;
+        if (dkd_u_dk1) *dkd_u_dk1 = (2 / (1 + std::cos(w) + 4 * ru * ru * (1 - std::cos(w))) - kd_u) / w;
         if (dkd_u_dk2) *dkd_u_dk2 = 0;
         if (dkd_u_dk3) *dkd_u_dk3 = 0;
     } else {

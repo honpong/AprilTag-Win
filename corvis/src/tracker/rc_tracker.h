@@ -367,7 +367,7 @@ RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
  @param stride Number of bytes in each line
  @param image Image data.
  @param completion_callback Function to be called when the frame has been processed and image data is no longer needed. image must remain valid (even after receiveImage has returned) until this function is called.
- @param callback_handle An opaque pointer that will be passed to completion_callback when the frame has been processed and image data is no longer needed.
+ @param callback_handle An opaque pointer that will be passed to completion_callback when the frame has been processed and image data is no longer needed. Note: callback_handle must not be null, or completion_callback will not be called.
  */
 RCTRACKER_API bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
 

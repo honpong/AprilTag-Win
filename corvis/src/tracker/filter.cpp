@@ -1085,51 +1085,62 @@ extern "C" void filter_initialize(struct filter *f)
     f->catchup->state.copy_from(f->s);
 }
 
-#include "calibration_json.h"
-void filter_get_calibration(const struct filter *f, calibration_json *device)
+void filter_deinitialize(const struct filter *f)
 {
-    auto &cam = device->color;
-    auto &imu = device->imu;
+    {
+        const state_camera &camera_state = f->s.camera;
+        sensor_grey &camera_sensor = *f->cameras[0];
 
-//    device->depth = f->depth;
+        camera_sensor.intrinsics.width_px  = camera_state.intrinsics.image_width;
+        camera_sensor.intrinsics.height_px = camera_state.intrinsics.image_height;
+        camera_sensor.intrinsics.f_x_px    = camera_state.intrinsics.focal_length.v * camera_state.intrinsics.image_height;
+        camera_sensor.intrinsics.f_y_px    = camera_state.intrinsics.focal_length.v * camera_state.intrinsics.image_height;
+        camera_sensor.intrinsics.c_x_px    = camera_state.intrinsics.center_x.v * camera_state.intrinsics.image_height + camera_state.intrinsics.image_width / 2. - .5;
+        camera_sensor.intrinsics.c_y_px    = camera_state.intrinsics.center_y.v * camera_state.intrinsics.image_height + camera_state.intrinsics.image_height / 2. - .5;
 
-    device->version = CALIBRATION_VERSION_LEGACY;
-    cam.intrinsics.width_px  = f->s.camera.intrinsics.image_width;
-    cam.intrinsics.height_px = f->s.camera.intrinsics.image_height;
-    cam.intrinsics.f_x_px = f->s.camera.intrinsics.focal_length.v * f->s.camera.intrinsics.image_height;
-    cam.intrinsics.f_y_px = f->s.camera.intrinsics.focal_length.v * f->s.camera.intrinsics.image_height;
-    cam.intrinsics.c_x_px = f->s.camera.intrinsics.center_x.v * f->s.camera.intrinsics.image_height + f->s.camera.intrinsics.image_width / 2. - .5;
-    cam.intrinsics.c_y_px = f->s.camera.intrinsics.center_y.v * f->s.camera.intrinsics.image_height + f->s.camera.intrinsics.image_height / 2. - .5;
+        switch((camera_sensor.intrinsics.type = camera_state.intrinsics.type)) {
+        case rc_CALIBRATION_TYPE_FISHEYE:
+            camera_sensor.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
+            camera_sensor.intrinsics.w = camera_state.intrinsics.k1.v;
+            break;
+        case rc_CALIBRATION_TYPE_POLYNOMIAL3:
+            camera_sensor.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
+            camera_sensor.intrinsics.k1 = camera_state.intrinsics.k1.v;
+            camera_sensor.intrinsics.k2 = camera_state.intrinsics.k2.v;
+            camera_sensor.intrinsics.k3 = camera_state.intrinsics.k3.v;
+            break;
+        default:
+        case rc_CALIBRATION_TYPE_UNKNOWN:
+        case rc_CALIBRATION_TYPE_UNDISTORTED:
+            break;
+        }
 
-    switch(cam.intrinsics.type = f->s.camera.intrinsics.type) {
-    case rc_CALIBRATION_TYPE_FISHEYE:
-        cam.intrinsics.w = f->s.camera.intrinsics.k1.v;
-        break;
-    case rc_CALIBRATION_TYPE_POLYNOMIAL3:
-        cam.intrinsics.k1 = f->s.camera.intrinsics.k1.v;
-        cam.intrinsics.k2 = f->s.camera.intrinsics.k2.v;
-        cam.intrinsics.k3 = f->s.camera.intrinsics.k3.v;
-        break;
-    default:
-    case rc_CALIBRATION_TYPE_UNKNOWN:
-    case rc_CALIBRATION_TYPE_UNDISTORTED:
-        break;
+        camera_sensor.extrinsics.mean.T = camera_state.extrinsics.T.v;
+        camera_sensor.extrinsics.mean.Q = camera_state.extrinsics.Q.v;
+        camera_sensor.extrinsics.variance.Q = camera_state.extrinsics.Q.variance();
+        camera_sensor.extrinsics.variance.T = camera_state.extrinsics.T.variance();
     }
 
-    transformation camera_wrt_imu = invert(transformation(f->s.imu.extrinsics.Q.v, f->s.imu.extrinsics.T.v))
-                                  * transformation(f->s.camera.extrinsics.Q.v, f->s.camera.extrinsics.T.v);
-    cam.extrinsics_wrt_imu_m.Q = camera_wrt_imu.Q;
-    cam.extrinsics_wrt_imu_m.T = camera_wrt_imu.T;
-    // FIXME: this is obviously wrong, but this function is unused and should go away soon
-    cam.extrinsics_var_wrt_imu_m.W = f->s.imu.extrinsics.Q.variance() + f->s.camera.extrinsics.Q.variance();
-    cam.extrinsics_var_wrt_imu_m.T = f->s.imu.extrinsics.T.variance() + f->s.camera.extrinsics.T.variance();
+    {
+        const state_imu &imu = f->s.imu;
+        sensor_gyroscope     &gyro  = *f->gyroscopes[0];
+        v_map(gyro.intrinsics.bias_rad__s.v)            = imu.intrinsics.w_bias.v;
+        v_map(gyro.intrinsics.bias_variance_rad2__s2.v) = imu.intrinsics.w_bias.variance();
+    }
 
-    imu.a_bias_m__s2         = f->s.imu.intrinsics.a_bias.v;
-    imu.w_bias_rad__s        = f->s.imu.intrinsics.w_bias.v;
-    imu.a_bias_var_m2__s4    = f->s.imu.intrinsics.a_bias.variance();
-    imu.w_bias_var_rad2__s2  = f->s.imu.intrinsics.w_bias.variance();
-    imu.w_noise_var_rad2__s2 = f->gyroscopes[0]->measurement_variance;
-    imu.a_noise_var_m2__s4   = f->accelerometers[0]->measurement_variance;
+    {
+        const state_imu &imu = f->s.imu;
+        sensor_accelerometer &accel = *f->accelerometers[0];
+        struct sensor::extrinsics &imu_extrinsics = accel.extrinsics;
+
+        v_map(accel.intrinsics.bias_m__s2.v)            = imu.intrinsics.a_bias.v;
+        v_map(accel.intrinsics.bias_variance_m2__s4.v)  = imu.intrinsics.a_bias.variance();
+
+        imu_extrinsics.mean.T =     imu.extrinsics.T.v;
+        imu_extrinsics.mean.Q =     imu.extrinsics.Q.v;
+        imu_extrinsics.variance.Q = imu.extrinsics.Q.variance();
+        imu_extrinsics.variance.T = imu.extrinsics.T.variance();
+    }
 }
 
 float filter_converged(const struct filter *f)

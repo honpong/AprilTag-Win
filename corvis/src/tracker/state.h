@@ -51,7 +51,7 @@ public:
     }
 };
 
-template<class T> class state_branch: public state_node {
+template<typename T, typename List = std::list<T>> class state_branch: public state_node {
 public:
     void copy_state_to_array(matrix &state) {
         for(const auto &c : children)
@@ -98,7 +98,7 @@ public:
         return s;
     }
 
-    std::list<T> children;
+    List children;
 };
 
 class state_root: public state_branch<state_node *> {

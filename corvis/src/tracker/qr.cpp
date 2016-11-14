@@ -6,7 +6,6 @@
 //  Adapted from /cpp/cli/src/main.cpp
 
 #include "qr.h"
-#include "filter.h"
 
 #ifndef WIN32
 #include <zxing/Result.h>
@@ -81,7 +80,7 @@ vector<Ref<Result> > detect_qr(const char * image, int width, int height) {
     return results;
 }
 
-bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detection & d)
+static bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detection & d)
 {
     vector<Ref<Result> > results = detect_qr((const char *)image, width, height);
     if(results.size() > 0) {
@@ -109,7 +108,7 @@ bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detec
 }
 
 #else // if WIN32
-bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detection & d)
+static bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detection & d)
 {
 	return false;
 }
@@ -141,7 +140,7 @@ bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detec
  * We want zaxis new = zaxis old, so we will find an Rd that aligns them, and set Rq = Rq * Rd
  */
 
-bool qr_code_homography(const struct filter *f, struct qr_detection detection, float qr_size_m, transformation & T)
+static bool qr_code_homography(const std::function<feature_t(feature_t)> calibrate, struct qr_detection detection, float qr_size_m, transformation & T)
 {
     feature_t image_corners[4];
     feature_t calibrated[4];
@@ -150,9 +149,8 @@ bool qr_code_homography(const struct filter *f, struct qr_detection detection, f
     image_corners[1] = detection.lower_left;
     image_corners[2] = detection.lower_right;
     image_corners[3] = detection.upper_right;
-    for(int c = 0; c < 4; c++) {
-        calibrated[c] = f->s.camera.intrinsics.undistort_feature(f->s.camera.intrinsics.normalize_feature(image_corners[c]));
-    }
+    for(int c = 0; c < 4; c++)
+        calibrated[c] = calibrate(image_corners[c]);
 
     m3 Rq; v3 Tq;
     if(homography_align_to_qr(calibrated, qr_size_m, detection.modules, Rq, Tq)) {
@@ -162,25 +160,23 @@ bool qr_code_homography(const struct filter *f, struct qr_detection detection, f
     return false;
 }
 
-bool qr_code_origin(const struct filter *f, struct qr_detection detection, float qr_size_m, transformation & origin)
+static bool qr_code_origin(const transformation &world, const std::function<feature_t(feature_t)> calibrate, struct qr_detection detection, float qr_size_m, transformation & origin)
 {
     transformation qr;
-    if(qr_code_homography(f, detection, qr_size_m, qr)) {
-        transformation world = transformation(f->s.Q.v, f->s.T.v);
-        transformation world_qr = compose(world, qr);
-        origin = invert(world_qr);
+    if(qr_code_homography(calibrate, detection, qr_size_m, qr)) {
+        origin = invert(compose(world, qr));
         return true;
     }
     else
         return false;
 }
 
-void qr_detector::process_frame(const struct filter * f, const uint8_t * image, int width, int height)
+void qr_detector::process_frame(const transformation &world, const std::function<feature_t(feature_t)> calibrate, const uint8_t * image, int width, int height)
 {
     qr_detection d;
     if(qr_detect_one(image, width, height, d)) {
         if(data.empty() || (d.data == data)) {
-            if(qr_code_origin(f, d, size_m, origin)) {
+            if(qr_code_origin(world, calibrate, d, size_m, origin)) {
                 data = d.data;
                 running = false;
                 valid = true;
@@ -189,21 +185,21 @@ void qr_detector::process_frame(const struct filter * f, const uint8_t * image, 
     }
 }
 
-void qr_benchmark::process_frame(const struct filter * f, const uint8_t * image, int width, int height)
+void qr_benchmark::process_frame(const transformation &world, const std::function<feature_t(feature_t)> calibrate, const uint8_t * image, int width, int height)
 {
     qr_detection d;
     transformation t_qr;
     if(qr_detect_one(image, width, height, d)) {
-        if(qr_code_homography(f, d, size_m, t_qr)) {
+        if(qr_code_homography(calibrate, d, size_m, t_qr)) {
             if(!origin_valid) {
                 origin_valid = true;
 
                 origin_qr = t_qr;
-                origin_state = transformation(f->s.Q.v, f->s.T.v);
+                origin_state = world;
             }
             else {
                 transformation now_qr = t_qr;
-                transformation now_state = transformation(f->s.Q.v, f->s.T.v);
+                transformation now_state = world;
 
                 transformation now_state_est = compose(origin_state, compose(origin_qr, invert(now_qr)));
 

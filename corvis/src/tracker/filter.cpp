@@ -803,20 +803,22 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!f->got_any_accelerometers() || !f->got_any_gyroscopes()) return false;
-    
+
 #ifdef ENABLE_QR
-    if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
-        f->last_qr_time = time;
-        f->qr.process_frame(f, data.image.image, data.image.width, data.image.height);
-        if(f->qr.valid)
-        {
-            filter_set_qr_origin(f, f->qr.origin, f->qr_origin_gravity_aligned);
+    if (f->qr.running || f->qr_bench.enabled) {
+        transformation world(f->s.Q.v, f->s.T.v);
+        auto calibrate = [f](feature_t un) { return f->s.camera.intrinsics.undistort_feature(f->s.camera.intrinsics.normalize_feature(un)); };
+        if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
+            f->last_qr_time = time;
+            f->qr.process_frame(world, calibrate, data.image.image, data.image.width, data.image.height);
+            if(f->qr.valid)
+                filter_set_qr_origin(f, f->qr.origin, f->qr_origin_gravity_aligned);
         }
+        if(f->qr_bench.enabled)
+            f->qr_bench.process_frame(f, data.image.image, data.image.width, data.image.height);
     }
-    if(f->qr_bench.enabled)
-        f->qr_bench.process_frame(f, data.image.image, data.image.width, data.image.height);
 #endif
-    
+
     camera.got = true;
 
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {

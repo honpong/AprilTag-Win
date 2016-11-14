@@ -7,11 +7,11 @@
 #ifndef __QR_H__
 #define __QR_H__
 
-#include "cor_types.h"
 #include "transformation.h"
 
 #include <vector>
 #include <string>
+#include <functional>
 
 using namespace std;
 
@@ -23,11 +23,6 @@ struct qr_detection {
     int modules;
     string data;
 };
-
-bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detection & detection);
-
-bool qr_code_homography(const struct filter *f, struct qr_detection detection, float qr_size_m, transformation & qr);
-bool qr_code_origin(const struct filter *f, struct qr_detection detection, float qr_size_m, transformation & origin);
 
 class qr_detector {
 public:
@@ -49,7 +44,7 @@ public:
     }
 
     void stop() { running = false; }
-    void process_frame(const struct filter * f, const uint8_t * image, int width, int height);
+    void process_frame(const transformation &world, const std::function<feature_t(feature_t)> calibrate, const uint8_t * image, int width, int height);
 };
 
 class qr_benchmark {
@@ -63,7 +58,7 @@ public:
 
     qr_benchmark() : enabled(false), origin_valid(false) {};
     void start(float dimension) { size_m = dimension; enabled = true; };
-    void process_frame(const struct filter * f, const uint8_t * image, int width, int height);
+    void process_frame(const transformation &world, const std::function<feature_t(feature_t)> calibrate, const uint8_t * image, int width, int height);
 };
 
 #endif

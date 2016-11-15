@@ -41,17 +41,19 @@ def merge(accel,gyro):
             ai = ai + 1
     return tm, am, gm
 
-def convert_images(dirname, data, last_imu_timestamp):
+def ensure_dir(dirname):
     import os, errno
     try:
         os.mkdir(dirname, 0777)
     except OSError as e:
         if e.errno == errno.EEXIST and os.path.isdir(dirname):
             pass
+
+def convert_images(dirname, sensor_id, data, last_imu_timestamp):
     for t, n in data:
         if t/1000 >= last_imu_timestamp:
             break
-        f = "{:s}_{:015.7f}.pgm".format(dirname, t/1000)
+        f = "{:s}_{:d}_{:015.7f}.pgm".format(dirname, sensor_id, t/1000)
         try:
             os.unlink(f)
         except:
@@ -86,8 +88,15 @@ if __name__ == '__main__':
     os.chdir(sys.argv[1])
     tm, am, gm = merge(read_imu("accel.txt"),
                        read_imu("gyro.txt"))
-    fe = read_images("fisheye_timestamps.txt")
-    convert_images("vifisheye", fe, tm[-1][0])
+    ensure_dir("vifisheye")
+    if os.path.isfile("fisheye_0_timestamps.txt"):
+        fe0 = read_images("fisheye_0_timestamps.txt")
+        convert_images("vifisheye", 0, fe0, tm[-1][0])
+        fe1 = read_images("fisheye_1_timestamps.txt")
+        convert_images("vifisheye", 1, fe1, tm[-1][0])
+    else:
+        fe = read_images("fisheye_timestamps.txt")
+        convert_images("vifisheye", fe, tm[-1][0])
     write_csv("vifisheye/timestamp.txt", tm)
     write_csv("vifisheye/accel.txt", am)
     write_csv("vifisheye/gyro.txt", gm)

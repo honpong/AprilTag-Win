@@ -3,6 +3,7 @@ from struct import unpack
 import sys
 import os, os.path
 import errno
+from collections import defaultdict
 
 def ensure_path(path):
     try:
@@ -17,12 +18,21 @@ image_raw_type = 29
 
 capture_filename = sys.argv[1]
 output_folder = sys.argv[2]
-fisheye_folder = os.path.join(output_folder, "fisheye")
+frame_name = "fisheye"
+depth_name = "depth"
 depth_folder = os.path.join(output_folder, "depth")
 
 ensure_path(output_folder)
-ensure_path(fisheye_folder)
-fisheye_file = open(os.path.join(output_folder, "fisheye_timestamps.txt"), "w")
+old_fe_folder = os.path.join(output_folder, "fisheye")
+old_fe_timestamps = os.path.join(output_folder, "fisheye_timestamps.txt")
+if os.path.exists(old_fe_folder):
+    try:
+        os.rmdir(old_fe_folder)
+    except OSError as exception:
+        os.remove(old_fe_folder)
+if(os.path.exists(old_fe_timestamps)):
+    os.remove(old_fe_timestamps)
+
 accel_file = open(os.path.join(output_folder, "accel.txt"), "w")
 gyro_file = open(os.path.join(output_folder, "gyro.txt"), "w")
 
@@ -42,10 +52,13 @@ rc_IMAGE_DEPTH16 = 1
 f = open(capture_filename, "rb")
 header_size = 16
 header_str = f.read(header_size)
-frame_number = 0
+frame_numbers = defaultdict(int)
+frame_file_handles = {}
 depth_frame_number = 0
+depth_frame_file_handles = {}
+
 while header_str != "":
-    (pbytes, ptype, user, ptime) = unpack('IHHQ', header_str)
+    (pbytes, ptype, sensor_id, ptime) = unpack('IHHQ', header_str)
     data = f.read(pbytes-header_size)
     if ptype == accel_type or ptype == gyro_type:
         # packets are padded to 8 byte boundary
@@ -58,12 +71,15 @@ while header_str != "":
         (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
         ptime += exposure//2
         if camera_format == rc_IMAGE_GRAY8:
-            image_filename = "fisheye/image_%06d.pgm" % frame_number
+            if sensor_id not in frame_file_handles:
+                frame_file_handles[sensor_id] = open(os.path.join(output_folder, "%s_%d_timestamps.txt" % (frame_name, sensor_id)), "w")
+                ensure_path(os.path.join(output_folder, "%s_%d" % (frame_name, sensor_id)))
+            image_filename = "%s_%d/image_%06d.pgm" % (frame_name, sensor_id, frame_numbers[sensor_id])
             line = camera_to_str(ptime, image_filename)
             pgm_header = camera_to_pgm_header(width, height, 255)
             frame_data = data[16:]
-            fisheye_file.write(line)
-            frame_number += 1
+            frame_file_handles[sensor_id].write(line)
+            frame_numbers[sensor_id] += 1
         elif camera_format == rc_IMAGE_DEPTH16:
             if depth_frame_number == 0:
                 ensure_path(depth_folder)
@@ -83,7 +99,10 @@ while header_str != "":
 
 f.close()
 
-fisheye_file.close()
+# link old fisheye to fisheye_0
+os.symlink("fisheye_0", os.path.join(output_folder, "fisheye"));
+os.symlink("fisheye_0_timestamps.txt", os.path.join(output_folder, "fisheye_timestamps.txt"));
+
 accel_file.close()
 gyro_file.close()
 if depth_frame_number:

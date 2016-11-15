@@ -198,8 +198,7 @@ void observation_vision_feature::predict()
     Rtot = Rct * Rb;
     Ttot = Rct * (Tb - extrinsics.T.v);
 
-    feature_t uncal = { feature->initial[0], feature->initial[1] };
-    Xd = intrinsics.normalize_feature(uncal);
+    Xd = intrinsics.normalize_feature(feature->initial);
     norm_initial = intrinsics.undistort_feature(Xd);
     X0 = v3(norm_initial.x(), norm_initial.y(), 1);
     feature->Xcamera = X0 * feature->v.depth();

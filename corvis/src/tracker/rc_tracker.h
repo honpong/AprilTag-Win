@@ -318,7 +318,20 @@ typedef enum rc_TrackerRunFlags
     rc_RUN_SYNCHRONOUS  = 0,
     /** rc_Tracker should process data on its own thread, returning immediately from all calls. */
     rc_RUN_ASYNCHRONOUS = 1,
+    /** rc_Tracker should process IMU without waiting for image data. */
+    rc_RUN_FAST_PATH = 2,
+    rc_RUN_NO_FAST_PATH = 0,
 } rc_TrackerRunFlags;
+
+#if __cplusplus >= 201103L
+}
+#include <type_traits>
+constexpr rc_TrackerRunFlags operator|(rc_TrackerRunFlags x, rc_TrackerRunFlags y) {
+    return static_cast<rc_TrackerRunFlags>(static_cast<typename std::underlying_type<rc_TrackerRunFlags>::type>(x) |
+                                           static_cast<typename std::underlying_type<rc_TrackerRunFlags>::type>(y));
+}
+extern "C" {
+#endif
 
 RCTRACKER_API bool rc_startCalibration(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
 

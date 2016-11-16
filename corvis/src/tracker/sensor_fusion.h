@@ -75,13 +75,13 @@ public:
      
      @note It is strongly recommended to call start_sensor_fusion rather than this function
      */
-    void start_unstable(bool threaded);
+    void start_unstable(bool threaded, bool fast_path);
 
     void pause_and_reset_position();
     void unpause();
     
     void start_buffering();
-    void start_offline();
+    void start_offline(bool fast_path = false);
     bool started();
 
     /** Stops the processing of video and inertial data. */
@@ -166,7 +166,8 @@ private:
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning, processingVideoRequested;
     status last_status;
     bool threaded;
-    
+    bool fast_path = false;
+
     void flush_and_reset();
 
     bool buffering = true;

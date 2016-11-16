@@ -38,6 +38,7 @@ private:
     std::function<void (float)> progress_callback;
     bool qvga {false};
     bool use_depth {true};
+    bool fast_path {false};
     bool accel_decimate {false};
     bool gyro_decimate {false};
     bool image_decimate {false};
@@ -65,6 +66,7 @@ public:
     void enable_realtime() { is_realtime = true; }
     void enable_qvga() { qvga = true; }
     void disable_depth() { use_depth = false; }
+    void enable_fast_path() { fast_path = true; }
     void decimate_accel(std::chrono::microseconds interval) { accel_decimate = true; accel_interval = interval; }
     void decimate_gyro(std::chrono::microseconds interval) { gyro_decimate = true; gyro_interval = interval; }
     void decimate_images(std::chrono::microseconds interval) { image_decimate = true; image_interval = interval; }

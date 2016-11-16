@@ -23,12 +23,12 @@ std::string render_filename_from_filename(const char * benchmark_folder, const c
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--realtime] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
+        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--realtime] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-fast-path] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
         cerr << "       " << v[0] << " [--qvga] [--drop-depth] --benchmark <directory>\n";
         return 1;
     }
 
-    bool realtime = false, start_paused = false, benchmark = false, calibrate = false, zero_bias = false;
+    bool realtime = false, start_paused = false, benchmark = false, calibrate = false, zero_bias = false, fast_path = true;
     const char *save = nullptr, *load = nullptr;
     std::string save_map, load_map;
     bool qvga = false, depth = true;
@@ -41,6 +41,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
         else if (strcmp(v[i], "--realtime") == 0) realtime = true;
         else if (strcmp(v[i], "--no-realtime") == 0) realtime = false;
+        else if (strcmp(v[i], "--no-fast-path")  == 0) fast_path  = false;
         else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;
         else if (strcmp(v[i], "--no-depth") == 0) show_depth = false;
         else if (strcmp(v[i], "--no-video") == 0) show_video = false;
@@ -70,6 +71,7 @@ int main(int c, char **v)
         if(!depth) rp.disable_depth();
         if(realtime) rp.enable_realtime();
         if(enable_map) rp.start_mapping();
+        if(fast_path) rp.enable_fast_path();
 
         if(!rp.open(capture_file))
             return false;

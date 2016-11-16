@@ -472,9 +472,9 @@ bool rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
     if(trace) trace_log->info("rc_startTracker");
     if(!is_configured(tracker)) return false;
     if (run_flags & rc_RUN_ASYNCHRONOUS)
-        tracker->start_unstable(true);
+        tracker->start_unstable(true, run_flags & rc_RUN_FAST_PATH);
     else
-        tracker->start_offline();
+        tracker->start_offline(run_flags & rc_RUN_FAST_PATH);
     return true;
 }
 

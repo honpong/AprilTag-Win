@@ -99,21 +99,24 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
     switch(data.type) {
         case rc_SENSOR_TYPE_IMAGE: {
             bool docallback = true;
-            if(isProcessingVideo) {
+            if(isProcessingVideo)
                 docallback = filter_image_measurement(&sfm, data);
+            else
+                //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
+                docallback = sfm.s.orientation_initialized;
+
+            if (isProcessingVideo && fast_path) {
                 sfm.catchup->state.copy_from(sfm.s);
                 queue.dispatch_buffered([this](sensor_data &data) {
-                    switch(data.type) {
+                        switch(data.type) {
                         case rc_SENSOR_TYPE_ACCELEROMETER: filter_mini_accelerometer_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
                         case rc_SENSOR_TYPE_GYROSCOPE:     filter_mini_gyroscope_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
                         default: break;
-                    }
-                });
+                        }
+                    });
                 std::lock_guard<std::mutex> lock(sfm.mini_mutex);
                 std::swap(sfm.mini, sfm.catchup);
-            } else
-                //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
-                docallback = sfm.s.orientation_initialized;
+            }
 
             update_status();
             if(docallback)
@@ -146,7 +149,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
 void sensor_fusion::queue_receive_data_fast(sensor_data &data)
 {
-    if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning) return;
+    if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning || !fast_path) return;
     data.path = rc_DATA_PATH_FAST;
     switch(data.type) {
         case rc_SENSOR_TYPE_ACCELEROMETER: {
@@ -175,6 +178,7 @@ void sensor_fusion::start_calibration(bool thread)
 {
     threaded = thread;
     buffering = false;
+    fast_path = false;
     isSensorFusionRunning = true;
     isProcessingVideo = false;
     filter_initialize(&sfm);
@@ -186,6 +190,7 @@ void sensor_fusion::start(bool thread)
 {
     threaded = thread;
     buffering = false;
+    fast_path = false;
     isSensorFusionRunning = true;
     isProcessingVideo = true;
     filter_initialize(&sfm);
@@ -193,10 +198,11 @@ void sensor_fusion::start(bool thread)
     queue.start(threaded);
 }
 
-void sensor_fusion::start_unstable(bool thread)
+void sensor_fusion::start_unstable(bool thread, bool fast_path_)
 {
     threaded = thread;
     buffering = false;
+    fast_path = fast_path_;
     isSensorFusionRunning = true;
     isProcessingVideo = true;
     filter_initialize(&sfm);
@@ -222,10 +228,11 @@ void sensor_fusion::start_buffering()
     queue.start_buffering(std::chrono::milliseconds(200));
 }
 
-void sensor_fusion::start_offline()
+void sensor_fusion::start_offline(bool fast_path_)
 {
     threaded = false;
     buffering = false;
+    fast_path = fast_path_;
     filter_initialize(&sfm);
     filter_start_dynamic(&sfm);
     isSensorFusionRunning = true;

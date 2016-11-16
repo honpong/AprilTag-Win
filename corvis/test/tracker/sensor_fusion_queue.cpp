@@ -56,7 +56,7 @@ TEST(SensorFusionQueue, Reorder)
         last_time = x.time_us;
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
     
     q->start(true);
 
@@ -134,7 +134,7 @@ TEST(SensorFusionQueue, FastCatchup)
         }
     };
     
-    q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, maximum_latency_us);
+    q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, maximum_latency_us);
 
 
     q->start(false);
@@ -254,7 +254,7 @@ TEST(SensorFusionQueue, Threading)
         }
     };
     
-    q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, maximum_latency_us);
+    q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, maximum_latency_us);
 
     auto start = sensor_clock::now();
     
@@ -326,7 +326,7 @@ TEST(SensorFusionQueue, DropOrder)
              EXPECT_NE(x.time_us, 4000);
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
     
     q->start(true);
     
@@ -414,7 +414,7 @@ TEST(SensorFusionQueue, SameTime)
         }
     };
     
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
 
     q->start(true);
 
@@ -453,7 +453,7 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
         }
     };
     
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
 
     q->start(true);
 
@@ -509,7 +509,7 @@ TEST(SensorFusionQueue, BufferNoDispatch)
         }
     };
     
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
 
     q->start_buffering(std::chrono::microseconds(buffer_time_us));
 
@@ -552,7 +552,7 @@ TEST(SensorFusionQueue, Buffering)
         }
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
 
     q->start_buffering(std::chrono::microseconds(buffer_time_us));
 

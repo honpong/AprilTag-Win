@@ -998,7 +998,7 @@ extern "C" void filter_initialize(struct filter *f)
         f->s.camera.intrinsics.k1.v = cam_intrinsics.k1;
     f->s.camera.intrinsics.k2.v = cam_intrinsics.k2;
     f->s.camera.intrinsics.k3.v = cam_intrinsics.k3;
-    f->s.camera.intrinsics.fisheye = cam_intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE;
+    f->s.camera.intrinsics.type = cam_intrinsics.type;
 
     f->s.camera.extrinsics.Q.set_process_noise(1.e-30);
     f->s.camera.extrinsics.T.set_process_noise(1.e-30);
@@ -1014,9 +1014,9 @@ extern "C" void filter_initialize(struct filter *f)
     f->s.camera.intrinsics.center_x.set_initial_variance(2. / cam_intrinsics.height_px / cam_intrinsics.height_px);
     f->s.camera.intrinsics.center_y.set_initial_variance(2. / cam_intrinsics.height_px / cam_intrinsics.height_px);
 
-    f->s.camera.intrinsics.k1.set_initial_variance(f->s.camera.intrinsics.fisheye ? .01*.01 : 2.e-4);
-    f->s.camera.intrinsics.k2.set_initial_variance(f->s.camera.intrinsics.fisheye ? .01*.01 : 2.e-4);
-    f->s.camera.intrinsics.k3.set_initial_variance(f->s.camera.intrinsics.fisheye ? .01*.01 : 2.e-4);
+    f->s.camera.intrinsics.k1.set_initial_variance(f->s.camera.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
+    f->s.camera.intrinsics.k2.set_initial_variance(f->s.camera.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
+    f->s.camera.intrinsics.k3.set_initial_variance(f->s.camera.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
     
     f->s.camera.intrinsics.image_width = cam_intrinsics.width_px;
     f->s.camera.intrinsics.image_height = cam_intrinsics.height_px;
@@ -1109,14 +1109,19 @@ void filter_get_calibration(const struct filter *f, calibration_json *device)
     cam.intrinsics.c_x_px = f->s.camera.intrinsics.center_x.v * f->s.camera.intrinsics.image_height + f->s.camera.intrinsics.image_width / 2. - .5;
     cam.intrinsics.c_y_px = f->s.camera.intrinsics.center_y.v * f->s.camera.intrinsics.image_height + f->s.camera.intrinsics.image_height / 2. - .5;
 
-    if (f->s.camera.intrinsics.fisheye) {
-        cam.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
+    switch(cam.intrinsics.type = f->s.camera.intrinsics.type) {
+    case rc_CALIBRATION_TYPE_FISHEYE:
         cam.intrinsics.w = f->s.camera.intrinsics.k1.v;
-    } else {
-        cam.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
+        break;
+    case rc_CALIBRATION_TYPE_POLYNOMIAL3:
         cam.intrinsics.k1 = f->s.camera.intrinsics.k1.v;
         cam.intrinsics.k2 = f->s.camera.intrinsics.k2.v;
         cam.intrinsics.k3 = f->s.camera.intrinsics.k3.v;
+        break;
+    default:
+    case rc_CALIBRATION_TYPE_UNKNOWN:
+    case rc_CALIBRATION_TYPE_UNDISTORTED:
+        break;
     }
 
     transformation camera_wrt_imu = invert(transformation(f->s.imu.extrinsics.Q.v, f->s.imu.extrinsics.T.v))

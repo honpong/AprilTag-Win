@@ -16,7 +16,7 @@ struct StateVision : public ::testing::Test {
 
 TEST_F(StateVision, UndistortPolynomialIdentity)
 {
-    state.camera.intrinsics.fisheye = false;
+    state.camera.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
     state.camera.intrinsics.k1.v = -0.00959507;
     state.camera.intrinsics.k2.v = 0.008005806;
     state.camera.intrinsics.k3.v = 0.000281827;
@@ -31,7 +31,7 @@ TEST_F(StateVision, UndistortPolynomialIdentity)
 
 TEST_F(StateVision, UndistortPolynomialZero)
 {
-    state.camera.intrinsics.fisheye = false;
+    state.camera.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
     state.camera.intrinsics.k1.v = -0.00959507;
     state.camera.intrinsics.k2.v = 0.008005806;
     state.camera.intrinsics.k3.v = 0.000281827;
@@ -44,7 +44,7 @@ TEST_F(StateVision, UndistortPolynomialZero)
 
 TEST_F(StateVision, DistortPolynomialZero)
 {
-    state.camera.intrinsics.fisheye = false;
+    state.camera.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
     state.camera.intrinsics.k1.v = -0.00959507;
     state.camera.intrinsics.k2.v = 0.008005806;
     state.camera.intrinsics.k3.v = 0.000281827;
@@ -57,7 +57,7 @@ TEST_F(StateVision, DistortPolynomialZero)
 
 TEST_F(StateVision, UndistortFisheyeIdentity)
 {
-    state.camera.intrinsics.fisheye = true;
+    state.camera.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
     state.camera.intrinsics.k1.v = 0.95;
 
     for (int i=0; i<1000; i++) {
@@ -71,7 +71,7 @@ TEST_F(StateVision, UndistortFisheyeIdentity)
 
 TEST_F(StateVision, UndistortFisheyeZero)
 {
-    state.camera.intrinsics.fisheye = true;
+    state.camera.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
     state.camera.intrinsics.k1.v = 0.95;
 
     feature_t p = {0, 0};
@@ -82,7 +82,7 @@ TEST_F(StateVision, UndistortFisheyeZero)
 
 TEST_F(StateVision, DistortFisheyeZero)
 {
-    state.camera.intrinsics.fisheye = true;
+    state.camera.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
     state.camera.intrinsics.k1.v = 0.95;
 
     feature_t p = {0, 0};

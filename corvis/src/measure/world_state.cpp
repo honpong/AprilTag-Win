@@ -249,9 +249,9 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
 
     if (f->s.camera.intrinsics.estimate) {
         p = get_plot_by_name("distortion");
-        if (f->s.camera.intrinsics.fisheye)
+        if (f->s.camera.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE)
             observe_plot_item(timestamp_us, p, "kw", (float)f->s.camera.intrinsics.k1.v);
-        else {
+        else if (f->s.camera.intrinsics.type == rc_CALIBRATION_TYPE_POLYNOMIAL3) {
             observe_plot_item(timestamp_us, p, "k1", (float)f->s.camera.intrinsics.k1.v);
             observe_plot_item(timestamp_us, p, "k2", (float)f->s.camera.intrinsics.k2.v);
             observe_plot_item(timestamp_us, p, "k3", (float)f->s.camera.intrinsics.k3.v);

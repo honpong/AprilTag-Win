@@ -61,11 +61,11 @@ public:
     state_scalar focal_length;
     state_scalar center_x, center_y;
     state_scalar k1, k2, k3;
-    bool fisheye;
+    rc_CalibrationType type {rc_CALIBRATION_TYPE_UNKNOWN};
     bool estimate;
     int image_width, image_height;
 
-    state_vision_intrinsics(bool _estimate): focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), fisheye(false), estimate(_estimate)
+    state_vision_intrinsics(bool _estimate): focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), estimate(_estimate)
     {
         if(estimate)
         {

@@ -386,7 +386,17 @@ feature_t state_vision_intrinsics::undistort_feature(const feature_t &feat_d) co
 f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, feature_t *dkd_u_dfeat_u, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const
 {
     f_t kd_u, ru2, ru = std::sqrt(ru2 = feat_u.squaredNorm());
-    if (fisheye) {
+    switch (type) {
+    default:
+    case rc_CALIBRATION_TYPE_UNKNOWN:
+    case rc_CALIBRATION_TYPE_UNDISTORTED:
+        kd_u = 1;
+        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = 0 * feat_u;
+        if (dkd_u_dk1) *dkd_u_dk1 = 0;
+        if (dkd_u_dk2) *dkd_u_dk2 = 0;
+        if (dkd_u_dk3) *dkd_u_dk3 = 0;
+        break;
+    case rc_CALIBRATION_TYPE_FISHEYE: {
         f_t w = k1.v;
         if(ru < F_T_EPS) ru = F_T_EPS;
         kd_u = std::atan(2 * std::tan(w/2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
@@ -394,12 +404,14 @@ f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, feat
         if (dkd_u_dk1) *dkd_u_dk1 = (2 / (1 + std::cos(w) + 4 * ru * ru * (1 - std::cos(w))) - kd_u) / w;
         if (dkd_u_dk2) *dkd_u_dk2 = 0;
         if (dkd_u_dk3) *dkd_u_dk3 = 0;
-    } else {
+    }   break;
+    case rc_CALIBRATION_TYPE_POLYNOMIAL3: {
         kd_u = f_t(1) + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
         if (dkd_u_dfeat_u) *dkd_u_dfeat_u = (k1.v + ru2 * (2 * k2.v + 3 * k3.v * ru2)) * 2 * feat_u;
         if (dkd_u_dk1) *dkd_u_dk1 = ru2;
         if (dkd_u_dk2) *dkd_u_dk2 = ru2 * ru2;
         if (dkd_u_dk3) *dkd_u_dk3 = ru2 * ru2 * ru2;
+    }   break;
     }
     return kd_u;
 }
@@ -407,7 +419,17 @@ f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, feat
 f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, feature_t *dku_d_dfeat_d, f_t *dku_d_dk1, f_t *dku_d_dk2, f_t *dku_d_dk3) const
 {
     f_t ku_d, rd2, rd = sqrt(rd2 = feat_d.squaredNorm());
-    if (fisheye) {
+    switch (type) {
+    default:
+    case rc_CALIBRATION_TYPE_UNKNOWN:
+    case rc_CALIBRATION_TYPE_UNDISTORTED:
+        ku_d = 1;
+        if (dku_d_dfeat_d) *dku_d_dfeat_d = 0 * feat_d;
+        if (dku_d_dk1) *dku_d_dk1 = 0;
+        if (dku_d_dk2) *dku_d_dk2 = 0;
+        if (dku_d_dk3) *dku_d_dk3 = 0;
+        break;
+    case rc_CALIBRATION_TYPE_FISHEYE: {
         f_t w = k1.v;
         if(rd < F_T_EPS) rd = F_T_EPS;
         ku_d = std::tan(w * rd) / (2 * std::tan(w/2) * rd);
@@ -415,7 +437,8 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
         if (dku_d_dk1) *dku_d_dk1 = (2 * rd * std::sin(w) - std::sin(2 * rd * w)) / (8 * rd * (std::cos(rd * w) * std::cos(rd * w)) * (std::sin(w/2) * std::sin(w/2)));
         if (dku_d_dk2) *dku_d_dk2 = 0;
         if (dku_d_dk3) *dku_d_dk3 = 0;
-    } else {
+    }   break;
+    case rc_CALIBRATION_TYPE_POLYNOMIAL3: {
         f_t kd_u, ru2 = rd2, dkd_u_dru2;
         for (int i=0; i<4; i++) {
            kd_u =  1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
@@ -431,6 +454,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
         if (dku_d_dk1) *dku_d_dk1 = -(ru2            )/(kd_u*kd_u);
         if (dku_d_dk2) *dku_d_dk2 = -(ru2 * ru2      )/(kd_u*kd_u);
         if (dku_d_dk3) *dku_d_dk3 = -(ru2 * ru2 * ru2)/(kd_u*kd_u);
+    }   break;
     }
     return ku_d;
 }

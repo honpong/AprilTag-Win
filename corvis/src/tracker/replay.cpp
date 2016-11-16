@@ -174,7 +174,7 @@ void replay::setup_filter()
             this_replay->data_callback(tracker, data);
         }, this);
     }
-    rc_startTracker(tracker, rc_E_SYNCHRONOUS);
+    rc_startTracker(tracker, rc_RUN_SYNCHRONOUS);
 }
 
 void replay::start(string map_filename)
@@ -364,7 +364,7 @@ void replay::start(string map_filename)
                     if(header.sensor_id == 1)
                     {
                         rc_setPose(tracker, rc_POSE_IDENTITY);
-                        rc_startTracker(tracker, rc_E_SYNCHRONOUS);
+                        rc_startTracker(tracker, rc_RUN_SYNCHRONOUS);
                     }
                 }
             }

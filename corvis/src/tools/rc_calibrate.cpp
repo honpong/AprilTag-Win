@@ -183,11 +183,11 @@ int main(int c, char **v) {
 
     if (capture_file) {
         printf("Recording to %s\n", capture_file); fflush(stdout);
-        rc_setOutputLog(rc, capture_file, rc_E_ASYNCHRONOUS);
+        rc_setOutputLog(rc, capture_file, rc_RUN_ASYNCHRONOUS);
         static struct status *s = &status;
         signal(SIGINT, [](int) { s->done = true; s->cv_done.notify_all(); printf("Finishing...\n"); fflush(stdout); });
     } else
-        rc_startCalibration(rc, rc_E_ASYNCHRONOUS);
+        rc_startCalibration(rc, rc_RUN_ASYNCHRONOUS);
 
     {
         std::vector<std::unique_ptr<rc::sensor_listener>> listeners;

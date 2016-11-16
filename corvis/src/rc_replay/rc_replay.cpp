@@ -167,7 +167,7 @@ bool replay::run()
     typedef std::pair<std::string, int> data_pair;
     std::set<data_pair> unconfigured_data;
 
-    rc_startTracker(tracker, rc_E_SYNCHRONOUS);
+    rc_startTracker(tracker, rc_RUN_SYNCHRONOUS);
 
     while (file.peek() != EOF) {
         packet_header_t header;
@@ -259,7 +259,7 @@ bool replay::run()
             case packet_filter_control: {
                 if(header.sensor_id == 1) { //start measuring
                     rc_setPose(tracker, rc_POSE_IDENTITY);
-                    rc_startTracker(tracker, rc_E_SYNCHRONOUS);
+                    rc_startTracker(tracker, rc_RUN_SYNCHRONOUS);
                 }
             }   break;
         }

@@ -245,7 +245,7 @@ extern "C"
         LOGD("startTracker");
         if (!tracker) return (JNI_FALSE);
 
-        rc_startTracker(tracker, rc_E_ASYNCHRONOUS);
+        rc_startTracker(tracker, rc_RUN_ASYNCHRONOUS);
 
         return (JNI_TRUE);
     }
@@ -263,7 +263,7 @@ extern "C"
         LOGD("startCalibration");
         if (!tracker) return (JNI_FALSE);
 
-        rc_startCalibration(tracker, rc_E_ASYNCHRONOUS);
+        rc_startCalibration(tracker, rc_RUN_ASYNCHRONOUS);
 
         return (JNI_TRUE);
     }
@@ -318,7 +318,7 @@ extern "C"
         LOGD("setOutputLog");
         if (!tracker) return (JNI_FALSE);
         const char *cFilename = env->GetStringUTFChars(filename, 0);
-        rc_setOutputLog(tracker, cFilename, rc_E_ASYNCHRONOUS);
+        rc_setOutputLog(tracker, cFilename, rc_RUN_ASYNCHRONOUS);
         env->ReleaseStringUTFChars(filename, cFilename);
         return (JNI_TRUE);
     }

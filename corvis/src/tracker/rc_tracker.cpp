@@ -443,7 +443,7 @@ bool rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
     if(trace) trace_log->info("rc_startCalibration {}", run_flags);
     if(!tracker->sfm.accelerometers.size() || !tracker->sfm.gyroscopes.size()) return false;
-    tracker->start_calibration(run_flags == rc_E_ASYNCHRONOUS);
+    tracker->start_calibration(run_flags & rc_RUN_ASYNCHRONOUS);
     return true;
 }
 
@@ -471,7 +471,7 @@ bool rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
     if(trace) trace_log->info("rc_startTracker");
     if(!is_configured(tracker)) return false;
-    if (run_flags == rc_E_ASYNCHRONOUS)
+    if (run_flags & rc_RUN_ASYNCHRONOUS)
         tracker->start_unstable(true);
     else
         tracker->start_offline();
@@ -686,7 +686,7 @@ float rc_getProgress(const rc_Tracker *tracker)
 bool rc_setOutputLog(rc_Tracker * tracker, const char *filename, rc_TrackerRunFlags run_flags)
 {
     if(trace) trace_log->info("rc_setOutputLog");
-    return tracker->output.start(filename, run_flags == rc_E_ASYNCHRONOUS);
+    return tracker->output.start(filename, run_flags & rc_RUN_ASYNCHRONOUS);
 }
 
 const char *rc_getTimingStats(rc_Tracker *tracker)

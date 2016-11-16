@@ -17,7 +17,7 @@ void count_errors(void *handle, rc_MessageLevel message_level, const char * mess
 rc_Tracker * create_default()
 {
     rc_Tracker * tracker = rc_create();
-    EXPECT_FALSE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
+    EXPECT_FALSE(rc_startTracker(tracker, rc_RUN_ASYNCHRONOUS));
 
     rc_Extrinsics identity;
     identity.pose_m = rc_POSE_IDENTITY;
@@ -26,12 +26,12 @@ rc_Tracker * create_default()
     rc_AccelerometerIntrinsics accelerometer_intrinsics = {};
     EXPECT_TRUE(rc_configureAccelerometer(tracker, 0, &identity, &accelerometer_intrinsics));
 
-    EXPECT_FALSE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
+    EXPECT_FALSE(rc_startTracker(tracker, rc_RUN_ASYNCHRONOUS));
 
     rc_GyroscopeIntrinsics gyroscope_intrinsics = {};
     EXPECT_TRUE(rc_configureGyroscope(tracker, 0, &identity, &gyroscope_intrinsics));
 
-    EXPECT_FALSE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
+    EXPECT_FALSE(rc_startTracker(tracker, rc_RUN_ASYNCHRONOUS));
 
     rc_CameraIntrinsics camera_intrinsics = {};
     EXPECT_TRUE(rc_configureCamera(tracker, 0, rc_FORMAT_GRAY8, &identity, &camera_intrinsics));
@@ -59,7 +59,7 @@ TEST(rc_tracker_tests, rc_createAndReset)
 TEST(rc_tracker_tests, rc_startUnconfigured)
 {
     rc_Tracker * tracker = rc_create();
-    EXPECT_FALSE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
+    EXPECT_FALSE(rc_startTracker(tracker, rc_RUN_ASYNCHRONOUS));
     rc_destroy(tracker);
 }
 
@@ -67,7 +67,7 @@ TEST(rc_tracker_tests, rc_progressiveConfigure)
 {
     rc_Tracker * tracker = create_default();
 
-    EXPECT_TRUE(rc_startTracker(tracker, rc_E_ASYNCHRONOUS));
+    EXPECT_TRUE(rc_startTracker(tracker, rc_RUN_ASYNCHRONOUS));
     rc_destroy(tracker);
 }
 

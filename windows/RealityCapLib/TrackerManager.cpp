@@ -113,7 +113,7 @@ bool TrackerManager::Start()
     
     rc_setStatusCallback(_tracker, status_callback, this);
     rc_setDataCallback(_tracker, data_callback, this);
-    rc_startTracker(_tracker, rc_E_SYNCHRONOUS);
+    rc_startTracker(_tracker, rc_RUN_SYNCHRONOUS);
 
     _isRunning = true;
 
@@ -134,7 +134,7 @@ bool TrackerManager::StartCalibration()
 
 //    rc_setStatusCallback(_tracker, status_callback, this);
 //    rc_setDataCallback(_tracker, data_callback, this);
-    rc_startCalibration(_tracker, rc_E_SYNCHRONOUS);
+    rc_startCalibration(_tracker, rc_RUN_SYNCHRONOUS);
 
     _isRunning = true;
 
@@ -144,7 +144,7 @@ bool TrackerManager::StartCalibration()
 void TrackerManager::SetOutputLog(const std::wstring filename)
 {
     std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    rc_setOutputLog(_tracker, converter.to_bytes(filename).c_str(), rc_E_SYNCHRONOUS);
+    rc_setOutputLog(_tracker, converter.to_bytes(filename).c_str(), rc_RUN_SYNCHRONOUS);
 }
 
 bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)
@@ -171,7 +171,7 @@ bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)
 
     rc_setStatusCallback(_tracker, status_callback, this);
     rc_setDataCallback(_tracker, data_callback, this);
-    rc_startTracker(_tracker, rc_E_SYNCHRONOUS);
+    rc_startTracker(_tracker, rc_RUN_SYNCHRONOUS);
 
     if (!StartPlayback(filename.c_str(), realtime)) {
         rc_stopTracker(_tracker);

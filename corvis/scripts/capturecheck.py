@@ -23,6 +23,7 @@ args = parser.parse_args()
 
 accel_type = 20
 gyro_type = 21
+image_with_depth = 28
 image_raw_type = 29
 got_types = defaultdict(int)
 
@@ -129,5 +130,5 @@ if got_types[accel_type] == 0:
     print "Error: Never received any accelerometer data"
 if got_types[gyro_type] == 0:
     print "Error: Never received any gyro data"
-if got_types[image_raw_type] == 0:
+if got_types[image_raw_type] == 0 and got_types[image_with_depth] == 0:
     print "Error: Never received any image data"

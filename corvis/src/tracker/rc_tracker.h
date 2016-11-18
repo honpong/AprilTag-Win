@@ -323,7 +323,7 @@ typedef enum rc_TrackerRunFlags
     rc_RUN_NO_FAST_PATH = 0,
 } rc_TrackerRunFlags;
 
-#if __cplusplus >= 201103L
+#if __cplusplus
 }
 #include <type_traits>
 constexpr rc_TrackerRunFlags operator|(rc_TrackerRunFlags x, rc_TrackerRunFlags y) {

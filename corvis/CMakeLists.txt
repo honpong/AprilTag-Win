@@ -103,8 +103,6 @@ add_executable(measure
   src/measure/gl_util.cpp
   src/measure/render.cpp
   src/measure/video_render.cpp
-
-  src/tracker/rc_tracker.cpp
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 install(TARGETS measure RUNTIME DESTINATION bin COMPONENT alloy)
@@ -112,7 +110,7 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo"
     target_compile_options(measure PRIVATE -DDEBUG=1)
 endif()
 
-target_link_libraries(measure PUBLIC trackeri)
+target_link_libraries(measure PUBLIC tracker trackeri)
 if(ENABLE_MGL)
     target_link_libraries(measure PRIVATE mgl)
 endif()
@@ -144,9 +142,9 @@ install(FILES
 )
 endif()
 
-add_executable(alloy_merge src/tools/alloy_merge.cpp src/tracker/rc_tracker.cpp)
+add_executable(alloy_merge src/tools/alloy_merge.cpp)
 set_property(TARGET alloy_merge PROPERTY CXX_STANDARD 14)
-target_link_libraries(alloy_merge trackeri)
+target_link_libraries(alloy_merge tracker trackeri) # trackeri for private includes though we really link with tracker
 
 find_package(alloy QUIET)
 if (TARGET alloy)
@@ -191,13 +189,12 @@ if(YES AND NOT ANDROID)
     add_executable(spec_intel
       ../ThirdParty/googletest/gtest/gtest_main.cc
       ../ThirdParty/googletest/gtest/gtest-all.cc
-      src/tracker/rc_tracker.cpp
       test/tracker/rc_tracker_tests.cpp
     )
     set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
     target_include_directories(spec_intel PRIVATE test
         ../ThirdParty/googletest/ ${TRACKER_PRIVATE_INCLUDES})
-    target_link_libraries(spec_intel trackeri)
+    target_link_libraries(spec_intel tracker trackeri)
     add_test(NAME spec_intel COMMAND spec_intel)
 
     if(BUILD_STEREO)

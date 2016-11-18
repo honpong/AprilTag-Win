@@ -69,7 +69,7 @@ fusion_queue::~fusion_queue()
 
 std::string id_string(uint64_t global_id)
 {
-    int type = global_id / MAX_SENSORS, id = global_id % MAX_SENSORS;
+    uint64_t type = global_id / MAX_SENSORS, id = global_id % MAX_SENSORS;
     std::string type_string = "UNKNOWN";
     switch(type) {
         case rc_SENSOR_TYPE_IMAGE: type_string = "Camera"; break;

@@ -471,11 +471,7 @@ void observation_accelerometer::predict()
 {
     Rt = state.Q.v.conjugate().toRotationMatrix();
     Ra = extrinsics.Q.v.toRotationMatrix();
-    v3 acc = state.world.up * state.g.v;
-    if(!state.orientation_only)
-    {
-        acc += state.a.v;
-    }
+    v3 acc = state.world.up * state.g.v + state.a.v;
     xcc = Rt * acc;
     if(!state.orientation_only)
     {
@@ -486,11 +482,7 @@ void observation_accelerometer::predict()
 
 void observation_accelerometer::cache_jacobians()
 {
-    v3 acc = state.world.up * state.g.v;
-    if(!state.orientation_only)
-    {
-        acc += state.a.v;
-    }
+    v3 acc = state.world.up * state.g.v + state.a.v;
     da_dacc = Ra.transpose() * Rt;
     da_dQ = Ra.transpose() * Rt * skew(acc);
     if(extrinsics.estimate)
@@ -498,50 +490,40 @@ void observation_accelerometer::cache_jacobians()
         da_dTa = Ra.transpose() * (skew(state.w.v) * skew(state.w.v) + skew(state.dw.v));
         da_dQa = Ra.transpose() * skew(xcc);
     }
-    da_ddw = Ra.transpose() * skew(-extrinsics.T.v);
-    da_dw = Ra.transpose() * (skew(extrinsics.T.v.cross(state.w.v)) - skew(state.w.v) * skew(extrinsics.T.v));
+    if (!state.orientation_only) {
+        da_ddw = Ra.transpose() * skew(-extrinsics.T.v);
+        da_dw = Ra.transpose() * (skew(extrinsics.T.v.cross(state.w.v)) - skew(state.w.v) * skew(extrinsics.T.v));
+    } else {
+        da_ddw = m3::Zero();
+        da_dw = m3::Zero();
+        da_dTa = m3::Zero(); // FIXME: remove extrinsics.T from the state when orientation_only
+    }
 }
 
 void observation_accelerometer::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
     assert(dst.cols() == src.rows());
-    if(!state.orientation_only)
-    {
-        for(int j = 0; j < dst.cols(); ++j) {
-            const auto cov_a_bias = intrinsics.a_bias.from_row(src, j);
-            const auto scov_Q = state.Q.from_row(src, j);
-            const auto cov_a = state.a.from_row(src, j);
-            const auto cov_w = state.w.from_row(src, j);
-            const auto cov_dw = state.dw.from_row(src, j);
-            f_t cov_g = state.g.from_row(src, j);
-            v3 res =
-                cov_a_bias +
-                da_dQ * scov_Q +
-                da_dw * cov_w +
-                da_ddw * cov_dw +
-                da_dacc * (cov_a + v3(0, 0, cov_g));
-            if(extrinsics.estimate) {
-                const auto scov_Qa = extrinsics.Q.from_row(src, j);
-                const auto cov_Ta = extrinsics.T.from_row(src, j);
-                res += da_dQa * scov_Qa + da_dTa * cov_Ta;
-            }
-            for(int i = 0; i < 3; ++i) {
-                dst(i, j) = res[i];
-            }
+    for(int j = 0; j < dst.cols(); ++j) {
+        const auto cov_a_bias = intrinsics.a_bias.from_row(src, j);
+        const auto scov_Q = state.Q.from_row(src, j);
+        const auto cov_a = state.a.from_row(src, j);
+        const auto cov_w = state.w.from_row(src, j);
+        const auto cov_dw = state.dw.from_row(src, j);
+        f_t cov_g = state.g.from_row(src, j);
+        v3 res =
+            cov_a_bias +
+            da_dQ * scov_Q +
+            da_dw * cov_w +
+            da_ddw * cov_dw +
+            da_dacc * (cov_a + v3(0, 0, cov_g));
+        if(extrinsics.estimate) {
+            const auto scov_Qa = extrinsics.Q.from_row(src, j);
+            const auto cov_Ta = extrinsics.T.from_row(src, j);
+            res += da_dQa * scov_Qa + da_dTa * cov_Ta;
         }
-    } else {
-        for(int j = 0; j < dst.cols(); ++j) {
-            const v3 cov_a_bias = intrinsics.a_bias.from_row(src, j);
-            const auto scov_Q = state.Q.from_row(src, j);
-            v3 res = cov_a_bias + da_dQ * scov_Q;
-            if(extrinsics.estimate) {
-                const auto scov_Qa = extrinsics.Q.from_row(src, j);
-                res += da_dQa * scov_Qa;
-            }
-            for(int i = 0; i < 3; ++i) {
-                dst(i, j) = res[i];
-            }
+        for(int i = 0; i < 3; ++i) {
+            dst(i, j) = res[i];
         }
     }
 }

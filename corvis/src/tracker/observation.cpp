@@ -184,10 +184,10 @@ void observation_vision_feature::innovation_covariance_hook(const matrix &cov, i
 
 void observation_vision_feature::predict()
 {
-    Rrt = state_group->Qr.v.toRotationMatrix().transpose();
+    Rrt = feature->group.Qr.v.toRotationMatrix().transpose();
     Rct = extrinsics.Q.v.toRotationMatrix().transpose();
     m3 Rb = Rrt * Rct.transpose();
-    v3 Tb = Rrt * (extrinsics.T.v - state_group->Tr.v);
+    v3 Tb = Rrt * (extrinsics.T.v - feature->group.Tr.v);
     Rtot = Rct * Rb;
     Ttot = Rct * (Tb - extrinsics.T.v);
 
@@ -227,7 +227,7 @@ void observation_vision_feature::cache_jacobians()
     v3 RtotX0 = Rtot * X0;
     m3 dRtotX0_dQr = skew(RtotX0) * Rct * Rrt;
     m3 dRtotX0_dQc = skew(RtotX0) * Rct * (m3::Identity() - Rrt);
-    m3 dTtot_dQr = Rtot * (Rct * skew(extrinsics.T.v - state_group->Tr.v));
+    m3 dTtot_dQr = Rtot * (Rct * skew(extrinsics.T.v - feature->group.Tr.v));
     m3 dTtot_dQc = skew(Ttot) * Rct;
     m3 dTtot_dTc = -Rct * (m3::Identity() - Rrt);
     m3 dTtot_dTr = -Rct * Rrt;
@@ -297,15 +297,15 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 
     if(!feature->is_initialized()) {
         for(int j = 0; j < dst.cols(); ++j) {
-            const auto scov_Qr = state_group->Qr.from_row(src, j);
+            const auto scov_Qr = feature->group.Qr.from_row(src, j);
             dst(0, j) = dx_dQr.dot(scov_Qr);
             dst(1, j) = dy_dQr.dot(scov_Qr);
         }
     } else {
         for(int j = 0; j < dst.cols(); ++j) {
             const f_t cov_feat = feature->from_row(src, j);
-            const auto scov_Qr = state_group->Qr.from_row(src, j);
-            const auto cov_Tr = state_group->Tr.from_row(src, j);
+            const auto scov_Qr = feature->group.Qr.from_row(src, j);
+            const auto cov_Tr = feature->group.Tr.from_row(src, j);
             dst(0, j) = dx_dp * cov_feat +
                 dx_dQr.dot(scov_Qr) +
                 dx_dTr.dot(cov_Tr);

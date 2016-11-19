@@ -26,10 +26,6 @@ extern "C" {
 #define log_enabled 0 // Only used in state.h now
 #define show_tuning 0
 
-//minstatesize = base (38) + 2xref (12) + full group(40) + min group (6) = 96
-#define MINSTATESIZE 96
-#define MAXGROUPS 8
-
 class state_leaf_base {
 public:
     state_leaf_base(const char *name_, int index_, int size_) : name(name_), index(index_), size(size_) {}

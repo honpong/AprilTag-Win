@@ -29,6 +29,7 @@ private:
     double path_length{0}; double reference_path_length{NAN};
     double length{0}; double reference_length{NAN};
     std::unique_ptr<tpose_sequence> reference_seq;
+    std::atomic<bool> should_reset{false};
     std::atomic<bool> is_running{false};
     std::atomic<bool> is_paused{false};
     std::atomic<bool> is_stepping{false};
@@ -72,6 +73,7 @@ public:
     void decimate_images(std::chrono::microseconds interval) { image_decimate = true; image_interval = interval; }
     void start(string map_filename = string());
     void stop();
+    void reset() { should_reset = true; }
     void toggle_pause() { is_paused = !is_paused; }
     void set_pause(uint64_t timestamp) { next_pause = timestamp; }
     void step() { is_paused = is_stepping = true; }

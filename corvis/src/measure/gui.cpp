@@ -130,6 +130,7 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_SPACE:    if (replay_control) replay_control->toggle_pause();
              break; case GLFW_KEY_S:        if (replay_control) replay_control->step();
              break; case GLFW_KEY_Q:        if (replay_control) replay_control->stop(); quit = true;
+             break; case GLFW_KEY_R:        if (replay_control) replay_control->reset();
              break; case GLFW_KEY_F:        write_frame();
              break; case GLFW_KEY_V:        if (!(mods & GLFW_MOD_SHIFT)) show_video = !show_video;
                                             else                          current_camera = 1+current_camera < state->cameras.size() ? 1+current_camera : 0;
@@ -151,6 +152,7 @@ ESC   Show all plot lines
 =     Zoom out
 SPC   Pause
 s     Step
+r     Reset (i.e. Stop/Start)
 
 V     Next Video
 D     Next Depth

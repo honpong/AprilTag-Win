@@ -214,6 +214,13 @@ void replay::start(string map_filename)
         }
         realtime_offset += finish_pause - start_pause;
 
+        if (should_reset.exchange(false)) {
+            fprintf(stderr, "Resetting...");
+            rc_stopTracker(tracker);
+            rc_startTracker(tracker, rc_RUN_SYNCHRONOUS | (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
+            fprintf(stderr, "done\n");
+        }
+
         auto phandle = std::unique_ptr<void, void(*)(void *)>(malloc(header.bytes), free);
         auto packet = (packet_t *)phandle.get();
         packet->header = header;

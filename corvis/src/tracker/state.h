@@ -42,7 +42,7 @@ protected:
 class state_node {
 public:
     virtual ~state_node() {}
-    enum node_type { dynamic, regular, fake };
+    enum node_type { dynamic, constant, fake };
     virtual void copy_state_to_array(matrix &state) = 0;
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
@@ -122,7 +122,7 @@ public:
         if(cov.size() && !test_posdef(cov.cov)) log->error("not pos def at beginning of remap");
 #endif
         dynamic_statesize = state_branch<state_node *>::remap(0, cov, node_type::dynamic);
-        statesize = state_branch<state_node *>::remap(dynamic_statesize, cov, node_type::regular);
+        statesize = state_branch<state_node *>::remap(dynamic_statesize, cov, node_type::constant);
         fake_statesize = state_branch<state_node *>::remap(statesize, cov, node_type::fake) - statesize;
         cov.remap(statesize);
 #ifdef TEST_POSDEF
@@ -136,7 +136,7 @@ public:
     
     void print_matrix_with_state_labels(matrix &state) const {
         if(state.rows() >= dynamic_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::dynamic);
-        if(state.rows() >= statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::regular);
+        if(state.rows() >= statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::constant);
         if(state.rows() >= statesize + fake_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::fake);
     }
 

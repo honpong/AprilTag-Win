@@ -41,9 +41,8 @@ protected:
 
 class state_node {
 public:
-    state_node(): type(node_type::regular) {}
-    virtual ~state_node() {};
-    enum class node_type { dynamic, regular, fake } type;
+    virtual ~state_node() {}
+    enum node_type { dynamic, regular, fake };
     virtual void copy_state_to_array(matrix &state) = 0;
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
@@ -215,6 +214,7 @@ protected:
 
 template <class T, int _size> class state_leaf: public state_leaf_base, public state_node {
  public:
+    node_type type;
     state_leaf(const char *_name) : state_leaf_base(_name, -1, _size) {}
 
     T v;

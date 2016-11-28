@@ -215,7 +215,7 @@ protected:
 template <class T, int _size> class state_leaf: public state_leaf_base, public state_node {
  public:
     node_type type;
-    state_leaf(const char *_name) : state_leaf_base(_name, -1, _size) {}
+    state_leaf(const char *_name, node_type nt) : state_leaf_base(_name, -1, _size), type(nt) {}
 
     T v;
     
@@ -305,7 +305,7 @@ protected:
 class state_vector: public state_leaf<v3, 3> {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    state_vector(const char *_name): state_leaf(_name) { reset(); }
+    state_vector(const char *_name, node_type nt): state_leaf(_name, nt) { reset(); }
 
     using state_leaf::set_initial_variance;
     
@@ -355,7 +355,7 @@ public:
 class state_rotation_vector: public state_leaf<rotation_vector, 3> {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    state_rotation_vector(const char *_name): state_leaf(_name) { reset(); }
+    state_rotation_vector(const char *_name, node_type nt): state_leaf(_name, nt) { reset(); }
 
     using state_leaf::set_initial_variance;
     
@@ -406,7 +406,7 @@ class state_quaternion: public state_leaf<quaternion, 3>
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    state_quaternion(const char *_name): state_leaf(_name) { reset(); }
+    state_quaternion(const char *_name, node_type nt): state_leaf(_name, nt) { reset(); }
     
     using state_leaf::set_initial_variance;
     
@@ -458,7 +458,7 @@ protected:
 
 class state_scalar: public state_leaf<f_t, 1> {
  public:
-    state_scalar(const char *_name): state_leaf(_name) { reset(); }
+    state_scalar(const char *_name, node_type nt): state_leaf(_name, nt) { reset(); }
 
     f_t *raw_array() { return &v; }
 
@@ -519,7 +519,7 @@ public:
     state_vector T;
     bool estimate;
 
-    state_extrinsics(const char *Qx, const char *Tx, bool _estimate): T(Tx), Q(Qx), estimate(_estimate)
+    state_extrinsics(const char *Qx, const char *Tx, bool _estimate) : T(Tx, constant), Q(Qx, constant), estimate(_estimate)
     {
         if(estimate)
         {

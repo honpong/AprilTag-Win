@@ -17,8 +17,8 @@ class state_imu_intrinsics: public state_branch<state_node *>
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 public:
-    state_vector w_bias {"w_bias"};
-    state_vector a_bias {"a_bias"};
+    state_vector w_bias {"w_bias", constant};
+    state_vector a_bias {"a_bias", constant};
 
     state_imu_intrinsics()
     {
@@ -43,18 +43,14 @@ struct state_imu: public state_branch<state_node *> {
 class state_motion_orientation: public state_root {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    state_quaternion Q;
-    state_vector w;
-    state_vector dw;
-    state_vector ddw;
+    state_quaternion Q { "Q",  dynamic };
+    state_vector     w { "w",  dynamic };
+    state_vector    dw { "dw", dynamic };
+    state_vector   ddw {"ddw", fake };
+    state_scalar     g { "g",  constant };
     state_imu imu;
-    state_scalar g;
-    
-    state_motion_orientation(covariance &c): state_root(c), Q("Q"), w("w"), dw("dw"), ddw("ddw"), g("g") {
-        Q.type = state_node::node_type::dynamic;
-        w.type = state_node::node_type::dynamic;
-        dw.type = state_node::node_type::dynamic;
-        ddw.type = state_node::node_type::fake;
+
+    state_motion_orientation(covariance &c): state_root(c) {
         children.push_back(&Q);
         children.push_back(&w);
         children.push_back(&dw);
@@ -90,22 +86,17 @@ class state_motion: public state_motion_orientation {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     friend class observation_accelerometer;
 public:
-    state_vector T;
-    state_vector V;
-    state_vector a;
-    state_vector da;
+    state_vector  T {  "T", dynamic };
+    state_vector  V {  "V", dynamic };
+    state_vector  a {  "a", dynamic };
+    state_vector da { "da", fake };
 
     float total_distance = 0;
     transformation loop_offset;
 
     v3 last_position = v3::Zero();
 
-    state_motion(covariance &c): state_motion_orientation(c), T("T"), V("V"), a("a"), da("da")
-    {
-        T.type = state_node::node_type::dynamic;
-        V.type = state_node::node_type::dynamic;
-        a.type = state_node::node_type::dynamic;
-        da.type = state_node::node_type::fake;
+    state_motion(covariance &c): state_motion_orientation(c) {
         children.push_back(&T);
         children.push_back(&V);
         children.push_back(&a);

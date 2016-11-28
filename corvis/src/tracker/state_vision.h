@@ -58,14 +58,17 @@ public:
 class state_vision_intrinsics: public state_branch<state_node *>
 {
 public:
-    state_scalar focal_length;
-    state_scalar center_x, center_y;
-    state_scalar k1, k2, k3;
+    state_scalar focal_length { "focal_length", constant };
+    state_scalar center_x { "center_x", constant };
+    state_scalar center_y { "center_y", constant };
+    state_scalar k1 { "k1", constant };
+    state_scalar k2 { "k2", constant };
+    state_scalar k3 { "k3", constant };
     rc_CalibrationType type {rc_CALIBRATION_TYPE_UNKNOWN};
     bool estimate;
     int image_width, image_height;
 
-    state_vision_intrinsics(bool _estimate): focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), estimate(_estimate)
+    state_vision_intrinsics(bool _estimate): estimate(_estimate)
     {
         if(estimate)
         {
@@ -113,7 +116,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t outlier_reject;
     static f_t max_variance;
 
-    state_vision_feature(): state_leaf("feature") {};
     state_vision_feature(uint64_t feature_id, const feature_t & initial);
     bool should_drop() const;
     bool is_valid() const;
@@ -186,8 +188,8 @@ public:
 
 class state_vision_group: public state_branch<state_node *> {
  public:
-    state_vector Tr;
-    state_quaternion Qr;
+    state_vector     Tr { "Tr", dynamic};
+    state_quaternion Qr { "Qr", dynamic};
 
     state_branch<state_vision_feature *> features;
     list<uint64_t> neighbors;

@@ -248,6 +248,7 @@ bool sensor_fusion::started()
 void sensor_fusion::stop()
 {
     queue.stop();
+    filter_deinitialize(&sfm);
     isSensorFusionRunning = false;
     isProcessingVideo = false;
     processingVideoRequested = false;

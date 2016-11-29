@@ -1107,7 +1107,7 @@ void filter_initialize(struct filter *f)
     f->catchup->state.copy_from(f->s);
 }
 
-void filter_deinitialize(const struct filter *f)
+void filter_deinitialize(struct filter *f)
 {
     {
         const state_camera &camera_state = f->s.camera;

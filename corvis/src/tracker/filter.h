@@ -94,6 +94,7 @@ void filter_start_qr_benchmark(struct filter *f, float dimension);
 void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned);
 
 void filter_initialize(struct filter *f);
+void filter_deinitialize(struct filter *f);
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
 

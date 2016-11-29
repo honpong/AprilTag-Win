@@ -574,7 +574,6 @@ void filter_setup_next_frame(struct filter *f, const sensor_data &data)
             auto obs = std::make_unique<observation_vision_feature>(camera, f->s, f->s.camera.extrinsics, f->s.camera.intrinsics, timestamp + extra_time, timestamp);
             obs->state_group = g;
             obs->feature = i;
-            obs->meas = i->current;
             f->observations.observations.push_back(std::move(obs));
         }
     }

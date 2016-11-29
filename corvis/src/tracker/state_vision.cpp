@@ -10,7 +10,6 @@
 f_t state_vision_feature::initial_depth_meters;
 f_t state_vision_feature::initial_var;
 f_t state_vision_feature::initial_process_noise;
-f_t state_vision_feature::measurement_var;
 f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;

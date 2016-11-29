@@ -31,12 +31,16 @@ struct sensor
 template<int size_> class sensor_storage : public sensor
 {
 public:
-    stdev<size_> meas_stdev, inn_stdev;
+    stdev<size_> meas_stdev, inn_stdev, stability;
+    v<size_> start_variance;
+    f_t measurement_variance;
     using sensor::sensor;
-    void init() {
+    void init_with_variance(f_t variance) {
         got = false;
         meas_stdev = stdev<size_>();
         inn_stdev = stdev<size_>();
+        stability = stdev<size_>();
+        measurement_variance = variance;
     }
 };
 

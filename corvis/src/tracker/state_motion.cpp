@@ -134,7 +134,8 @@ void state_imu_intrinsics::disable_bias_estimation()
 
 void state_motion::disable_bias_estimation(bool remap_)
 {
-    imu.intrinsics.disable_bias_estimation();
+    for (auto &imu : imus.children)
+        imu->intrinsics.disable_bias_estimation();
     if (remap_) remap();
 }
 
@@ -148,7 +149,8 @@ void state_imu_intrinsics::enable_bias_estimation()
 
 void state_motion::enable_bias_estimation(bool remap_)
 {
-    imu.intrinsics.enable_bias_estimation();
+    for (auto &imu : imus.children)
+        imu->intrinsics.enable_bias_estimation();
     if (remap_) remap();
 }
 
@@ -157,8 +159,21 @@ void state_motion::copy_from(const state_motion &other)
     if(other.orientation_only) enable_orientation_only(false);
     else                       disable_orientation_only(false);
 
-    if(other.imu.intrinsics.estimate_bias) enable_bias_estimation(false);
-    else                                   disable_bias_estimation(false);
+    auto i = other.imus.children.begin();
+    for (auto &imu : imus.children) {
+        auto &other_imu = *i;
+
+        if(other_imu->intrinsics.estimate_bias) imu->intrinsics.enable_bias_estimation();
+        else                                    imu->intrinsics.disable_bias_estimation();
+
+        imu->extrinsics.Q = other_imu->extrinsics.Q;
+        imu->extrinsics.T = other_imu->extrinsics.T;
+
+        imu->intrinsics.w_bias = other_imu->intrinsics.w_bias;
+        imu->intrinsics.a_bias = other_imu->intrinsics.a_bias;
+
+        ++i;
+    }
 
     // remaps done. structure should match other. now reset content
 
@@ -172,12 +187,6 @@ void state_motion::copy_from(const state_motion &other)
     V = other.V;
     a = other.a;
     da = other.da;
-
-    imu.extrinsics.Q = other.imu.extrinsics.Q;
-    imu.extrinsics.T = other.imu.extrinsics.T;
-
-    imu.intrinsics.w_bias = other.imu.intrinsics.w_bias;
-    imu.intrinsics.a_bias = other.imu.intrinsics.a_bias;
 
     // copy state_root
 

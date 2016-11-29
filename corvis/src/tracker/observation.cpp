@@ -388,7 +388,7 @@ void observation_vision_feature::update_initializing()
     v3 delta = (X_inf_proj - X_0_proj);
     f_t normalized_distance_to_px = intrinsics.focal_length.v * intrinsics.image_height;
     f_t pixelvar = delta.dot(delta) * normalized_distance_to_px * normalized_distance_to_px;
-    if(pixelvar > 5. * 5. * state_vision_feature::measurement_var) { //tells us if we have enough baseline
+    if(pixelvar > 5. * 5. * source.measurement_variance) { //tells us if we have enough baseline
         feature->status = feature_normal;
     }
     
@@ -455,13 +455,13 @@ void observation_vision_feature::compute_measurement_covariance()
     f_t residual = inn[0]*inn[0] + inn[1]*inn[1];
     f_t badness = residual; //outlier_count <= 0  ? outlier_inn[i] : outlier_ess[i];
     f_t robust_mc;
-    f_t thresh = feature->measurement_var * ot;
+    f_t thresh = source.measurement_variance * ot;
     if(badness > thresh) {
         f_t ratio = sqrt(badness / thresh);
-        robust_mc = ratio * feature->measurement_var;
+        robust_mc = ratio * source.measurement_variance;
         feature->outlier += ratio;
     } else {
-        robust_mc = feature->measurement_var;
+        robust_mc =         source.measurement_variance;
         feature->outlier = 0.;
     }
     m_cov[0] = robust_mc;

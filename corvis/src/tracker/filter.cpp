@@ -933,7 +933,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 }
 
 //This should be called every time we want to initialize or reset the filter
-extern "C" void filter_initialize(struct filter *f)
+void filter_initialize(struct filter *f)
 {
     //changing these two doesn't affect much.
     f->min_group_add = 16;

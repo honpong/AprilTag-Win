@@ -425,8 +425,7 @@ void observation_vision_feature::update_initializing()
 
 bool observation_vision_feature::measure()
 {
-    meas[0] = feature->current[0];
-    meas[1] = feature->current[1];
+    meas = feature->current;
 
     bool valid = meas[0] != INFINITY;
 

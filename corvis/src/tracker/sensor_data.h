@@ -39,6 +39,7 @@ public:
         id = sensor_id;
         type = sensor_type;
         time_us = timestamp_us;
+        path = rc_DATA_PATH_SLOW;
         image.shutter_time_us = shutter_time_us;
         image.width = width;
         image.height = height;

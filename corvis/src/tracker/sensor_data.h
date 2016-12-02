@@ -33,6 +33,7 @@ public:
     sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
                 rc_Timestamp shutter_time_us, int width, int height, int stride, rc_ImageFormat format, const void * image_ptr,
                 std::unique_ptr<void, void(*)(void *)> handle) :
+        rc_Data({}),
         timestamp(sensor_clock::micros_to_tp(timestamp_us + shutter_time_us / 2)), image_handle(std::move(handle))
     {
         assert(sensor_type == rc_SENSOR_TYPE_IMAGE || sensor_type == rc_SENSOR_TYPE_DEPTH);
@@ -52,6 +53,7 @@ public:
 
     sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
                 rc_Vector data) :
+        rc_Data({}),
         timestamp(sensor_clock::micros_to_tp(timestamp_us))
     {
         assert(sensor_type == rc_SENSOR_TYPE_ACCELEROMETER || sensor_type == rc_SENSOR_TYPE_GYROSCOPE);

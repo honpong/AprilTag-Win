@@ -446,14 +446,14 @@ _vl_x86cpu_info_init (VlX86CpuInfo *self)
 {
   vl_int32 info [4] ;
   int max_func = 0 ;
-  //_vl_cpuid(info, 0) ;
+  _vl_cpuid(info, 0) ;
   max_func = info[0] ;
   self->vendor.words[0] = info[1] ;
   self->vendor.words[1] = info[3] ;
   self->vendor.words[2] = info[2] ;
 
   if (max_func >= 1) {
-    //_vl_cpuid(info, 1) ;
+    _vl_cpuid(info, 1) ;
     self->hasMMX   = info[3] & (1 << 23) ;
     self->hasSSE   = info[3] & (1 << 25) ;
     self->hasSSE2  = info[3] & (1 << 26) ;

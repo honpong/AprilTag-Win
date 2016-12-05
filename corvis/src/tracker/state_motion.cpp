@@ -52,8 +52,6 @@ void state_motion::evolve_state(f_t dt)
 {
     state_motion_orientation::evolve_state(dt);
 
-    if (orientation_only) return;
-
     T.v += dT;
     V.v += dt * a.v;
 }
@@ -61,8 +59,6 @@ void state_motion::evolve_state(f_t dt)
 void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
     state_motion_orientation::project_motion_covariance(dst, src, dt);
-
-    if (orientation_only) return;
 
     //NOTE: Any changes here must also be reflected in state_vision:project_motion_covariance
     for(int i = 0; i < dst.cols(); ++i) {
@@ -80,8 +76,6 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
 void state_motion::cache_jacobians(f_t dt)
 {
     state_motion_orientation::cache_jacobians(dt);
-
-    if (orientation_only) return;
 
     dT = dt * (V.v + dt/2 * a.v);
 }

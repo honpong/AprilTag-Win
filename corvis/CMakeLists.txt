@@ -28,7 +28,6 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Intel|GNU|Clang")
   add_compile_options(-ffunction-sections)
   add_compile_options(-fstack-protector-strong)
   add_compile_options(-Wformat -Wformat-security)
-  add_compile_options(-fvisibility=hidden)
 endif ()
 
 macro(target_link_libraries_copied target)

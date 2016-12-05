@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.3) # CMP0063
 set(TRACKER_SOURCES
     tracker/sensor_fusion_queue.cpp
     tracker/rotation_vector.cpp
@@ -49,10 +50,11 @@ add_library(tracker SHARED
     tracker/rc_tracker.cpp)
 target_link_libraries(tracker PRIVATE trackeri)
 target_include_directories(tracker PUBLIC tracker)
-set_property(TARGET tracker PROPERTY CXX_STANDARD 14)
-
-
-set_property(TARGET trackeri PROPERTY CXX_STANDARD 14)
+cmake_policy(VERSION 3.3)
+set_property(TARGET tracker trackeri PROPERTY   C_VISIBILITY_PRESET hidden)
+set_property(TARGET tracker trackeri PROPERTY CXX_VISIBILITY_PRESET hidden)
+set_property(TARGET tracker trackeri PROPERTY     VISIBILITY_INLINES_HIDDEN True)
+set_property(TARGET tracker trackeri PROPERTY CXX_STANDARD 14)
 
 target_include_directories(trackeri PUBLIC tracker)
 target_include_directories(trackeri SYSTEM PUBLIC

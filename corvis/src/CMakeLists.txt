@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.3) # CMP0063
+file(GLOB TRACKERI_HEADERS tracker/*.h)
 set(TRACKER_SOURCES
     tracker/sensor_fusion_queue.cpp
     tracker/rotation_vector.cpp
@@ -10,22 +11,16 @@ set(TRACKER_SOURCES
     tracker/observation.cpp
     tracker/fast_detector/fast_9.cpp
     tracker/scaled_mask.cpp
-    tracker/calibration_keys.h
-    tracker/calibration.h
     tracker/calibration.cpp
     tracker/calibration_json.cpp
     tracker/sensor_fusion.cpp
     tracker/capture.cpp
     tracker/replay.cpp
-    tracker/feature_descriptor.h
     tracker/feature_descriptor.cpp
-    tracker/mapper.h
     tracker/mapper.cpp
-    tracker/dictionary.h
     tracker/dictionary.cpp
-    tracker/tracker.h
-    tracker/fast_tracker.h
     tracker/fast_tracker.cpp
+    ${TRACKERI_HEADERS}
 )
 if(WIN32)
     set(TRACKER_SOURCES ${TRACKER_SOURCES}

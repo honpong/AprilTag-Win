@@ -648,8 +648,8 @@ static std::unique_ptr<sensor_data> filter_aligned_depth_to_intrinsics(const str
             float oz = iz;
 
             // ceil() and -1s give the 4 closest grid points
-            auto X = static_cast<int>(std::ceil(ox)) - Eigen::Array4i{0,1,0,1};
-            auto Y = static_cast<int>(std::ceil(oy)) - Eigen::Array4i{0,0,1,1};
+            Eigen::Array4i X = static_cast<int>(std::ceil(ox)) - Eigen::Array4i{0,1,0,1};
+            Eigen::Array4i Y = static_cast<int>(std::ceil(oy)) - Eigen::Array4i{0,0,1,1};
             //auto Z = static_cast<int>(roundf(oz));
             auto I = Y * o_stride + X;
             auto within = X >= 0 && X < o_width && Y >= 0 && Y < o_height;

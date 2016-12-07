@@ -8,6 +8,7 @@ import yaml
 import csv
 import sys
 import math
+import re
 from os import path
 
 accel_type = 20
@@ -25,24 +26,23 @@ except Exception as e:
     print(sys.argv[0], "<MAV_folder> <output_filename>")
     sys.exit(1)
 
+
 def load_body(base):
     with open(base + "/body.yaml") as f:
         return yaml.safe_load(f)
 
-def load_sensor(base):
-    with open(base + "/sensor.yaml") as f:
-        return yaml.safe_load(f)
+class mav_sensor(object):
+    def __init__(self,base):
+        with open(base + "/sensor.yaml") as f:
+            self.meta = yaml.safe_load(f)
 
-def load_imu_data(base):
-    with open(base + "/data.csv") as f:
-        header = f.readline()
-        return [(t_ns,wx,wy,wz,ax,ay,az) for (t_ns,wx,wy,wz,ax,ay,az) in csv.reader(f)]
-
-def load_cam_data(base):
-    for i in itertools.count():
+        self.data = []
         with open(base + "/data.csv") as f:
-            header = f.readline()
-            return [(t_ns,base + "/data/" + filename) for (t_ns,filename) in csv.reader(f)]
+            header = f.readline().rstrip('\n')
+            assert header[0] == "#", "data not csv with a header starting with #"
+            keys = re.split(r"\s*,\s*", header[1:])
+            for values in csv.reader(f):
+                self.data.append(dict(zip(keys,values)))
 
 def compute_extrinsics(m):
     assert m['rows'] == 4 and m['cols'] == 4
@@ -67,7 +67,8 @@ for i in itertools.count():
     imu = input_dir + "/imu"+str(i)
     if not path.exists(imu):
         break
-    s = load_sensor(imu)
+    sensor = mav_sensor(imu)
+    s = sensor.meta
     cal['imus'].append({
         'accelerometer': {
             'noise_variance': s[    'gyroscope_noise_density'] * s[    'gyroscope_noise_density'] * s['rate_hz'],
@@ -83,15 +84,16 @@ for i in itertools.count():
         },
         'extrinsics': compute_extrinsics(s['T_BS']),
     })
-    for (t_ns,wx,wy,wz,ax,ay,az) in load_imu_data(imu):
-        data.append({ 'ptype':gyro_type, 'id':i, 'time_ns':int(t_ns), 'w':tuple(map(float,(wx,wy,wz))) })
-        data.append({ 'ptype':accel_type,'id':i, 'time_ns':int(t_ns), 'a':tuple(map(float,(ax,ay,az))) })
+    for d in sensor.data:
+        data.append({ 'ptype':gyro_type,  'id':i, 'time_ns':int(d['timestamp [ns]']), 'w':tuple(map(float,(d['w_RS_S_x [rad s^-1]'], d['w_RS_S_y [rad s^-1]'], d['w_RS_S_z [rad s^-1]']))) })
+        data.append({ 'ptype':accel_type, 'id':i, 'time_ns':int(d['timestamp [ns]']), 'a':tuple(map(float,(d['a_RS_S_x [m s^-2]'],   d['a_RS_S_y [m s^-2]'],   d['a_RS_S_z [m s^-2]']  ))) })
 
 for i in itertools.count():
     cam = input_dir + "/cam"+str(i)
     if not path.exists(cam):
         break
-    s = load_sensor(cam)
+    sensor = mav_sensor(cam)
+    s = sensor.meta
     cal['cameras'].append({
         'focal_length_px': [s['intrinsics'][0],s['intrinsics'][1]],
         'center_px': [s['intrinsics'][2],s['intrinsics'][3]],
@@ -99,8 +101,8 @@ for i in itertools.count():
         'distortion': { 'pinhole': { 'type': 'polynomial', 'k': s['distortion_coefficients'][0:3]  } }[s['camera_model']],
         'extrinsics': compute_extrinsics(s['T_BS']),
     })
-    for (t_ns,name) in load_cam_data(cam):
-        data.append({ 'ptype':image_raw_type,'id':i, 'time_ns':int(t_ns), 'name': name, 'rate_hz': float(s['rate_hz']) })
+    for d in sensor.data:
+        data.append({ 'ptype':image_raw_type,'id':i, 'time_ns':int(d['timestamp [ns]']), 'name': cam + '/data/' + d['filename'], 'rate_hz': float(s['rate_hz']) })
 
 
 with open(output_filename + ".json", "w") as f:

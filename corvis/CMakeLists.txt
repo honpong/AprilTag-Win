@@ -143,7 +143,8 @@ endif()
 
 add_executable(alloy_merge src/tools/alloy_merge.cpp)
 set_property(TARGET alloy_merge PROPERTY CXX_STANDARD 14)
-target_link_libraries(alloy_merge tracker trackeri) # trackeri for private includes though we really link with tracker
+target_include_directories(alloy_merge PRIVATE src/tracker ../ThirdParty/Eigen)
+target_link_libraries(alloy_merge tracker)
 
 find_package(alloy QUIET)
 if (TARGET alloy)

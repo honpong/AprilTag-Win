@@ -57,22 +57,18 @@ void observation_queue::compute_prediction_covariance(const state_root &s, int m
     int statesize = s.cov.size();
     int index = 0;
     for(auto &o : observations) {
-        if(o->size) {
-            matrix dst(LC, index, 0, o->size, statesize);
-            o->cache_jacobians();
-            o->project_covariance(dst, s.cov.cov);
-            index += o->size;
-        }
+        matrix dst(LC, index, 0, o->size, statesize);
+        o->cache_jacobians();
+        o->project_covariance(dst, s.cov.cov);
+        index += o->size;
     }
     
     //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas)
     index = 0;
     for(auto &o : observations) {
-        if(o->size) {
-            matrix dst(res_cov, index, 0, o->size, meas_size);
-            o->project_covariance(dst, LC);
-            index += o->size;
-        }
+        matrix dst(res_cov, index, 0, o->size, meas_size);
+        o->project_covariance(dst, LC);
+        index += o->size;
     }
     
     //enforce symmetry
@@ -84,7 +80,7 @@ void observation_queue::compute_prediction_covariance(const state_root &s, int m
     
     index = 0;
     for(auto &o : observations) {
-        if(o->size) o->set_prediction_covariance(res_cov, index);
+        o->set_prediction_covariance(res_cov, index);
         index += o->size;
     }
 }

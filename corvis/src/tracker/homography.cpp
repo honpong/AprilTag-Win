@@ -7,7 +7,6 @@
 //
 
 #include "homography.h"
-#include "matrix.h"
 
 /*
  [0       0       0       -x1      -y1     -1       x1y2    y1y2    y2 ]
@@ -92,37 +91,20 @@ m3 homography_estimate_from_constraints(const Eigen::Matrix<f_t, 8, 9> &X)
     Hest /= svdh.singularValues()[1];
     return Hest;
 }
-
 void homography_factorize(const m3 &H, m3 Rs[4], v3 Ts[4], v3 Ns[4])
 {
-    matrix U(3, 3);
-    matrix S(1, 3);
-    matrix Vt(3, 3);
     //Matlab: [u,s,v] = svd(H'*H);
-    m3 HtH = H.transpose() * H;
-    matrix HtH_tmp(HtH.data(), 3, 3);
-    matrix_svd(HtH_tmp, U, S, Vt);
-    
+    Eigen::JacobiSVD<m3> svd(H.transpose() * H, Eigen::ComputeFullU);
+    m3 U = svd.matrixU();
+    v3 S = svd.singularValues();
     //Matlab: s1 = s(1,1); s2 = s(2,2); s3 = s(3,3); - ignore, just use S(1)
     
     //Matlab: if det(u) < 0 u = -u; end;
     //    v1 = u(:,1); v2 = u(:,2); v3 = u(:,3);
     
-    m3 Utmp;
-    for(int i = 0; i < 3; ++i)
-    {
-        for(int j = 0; j < 3; ++j)
-        {
-            Utmp(i, j) = U(i, j);
-        }
-    }
     //float usign = (Utmp.block<3,3>(0,0).determinant() < 0.) ? 1. : -1.;
-    
-    v3 w1(U(0, 0), U(1, 0), U(2, 0));
-    v3 w2(U(0, 1), U(1, 1), U(2, 1));
-    v3 w3(U(0, 2), U(1, 2), U(2, 2));
-    
-    if(Utmp.determinant() < 0)
+    v3 w1 = U.col(0), w2 = U.col(1), w3 = U.col(2);
+    if(U.determinant() < 0)
     {
         w1 = -w1;
         w2 = -w2;

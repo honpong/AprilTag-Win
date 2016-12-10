@@ -5,10 +5,8 @@
 #ifndef __MODEL_H
 #define __MODEL_H
 
-extern "C" {
 #include "cor_types.h"
 #include "packet.h"
-}
 #include "vec4.h"
 #include "matrix.h"
 #include <vector>

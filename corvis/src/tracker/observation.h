@@ -11,9 +11,7 @@
 #include <memory>
 #include "sensor.h"
 
-extern "C" {
 #include "cor_types.h"
-}
 
 using namespace std;
 

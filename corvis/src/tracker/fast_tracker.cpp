@@ -1,9 +1,7 @@
 #include "fast_tracker.h"
 #include "fast_constants.h"
 
-extern "C" {
 #include "cor_types.h"
-}
 
 using namespace std;
 

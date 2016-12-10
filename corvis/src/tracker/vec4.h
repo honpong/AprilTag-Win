@@ -6,11 +6,9 @@
 #ifndef __vec4_H
 #define __vec4_H
 
-extern "C" {
 #include "cor_types.h"
 #include <stdio.h>
 #include <inttypes.h>
-}
 
 #include <ostream>
 #include <vector>

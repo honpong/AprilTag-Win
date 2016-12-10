@@ -5,10 +5,8 @@
 #ifndef __STATE_H
 #define __STATE_H
 
-extern "C" {
 #include "cor_types.h"
 #include "packet.h"
-}
 #include "vec4.h"
 #include "matrix.h"
 #include "quaternion.h"

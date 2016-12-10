@@ -181,7 +181,6 @@ if(YES AND NOT ANDROID)
     add_executable(spec ${spec_sources})
     set_property(TARGET spec PROPERTY CXX_STANDARD 14)
     target_include_directories(spec PRIVATE test ../ThirdParty/googletest/)
-    target_include_directories(spec PRIVATE ../ThirdParty/spdlog/include/)
     target_link_libraries(spec trackeri)
     add_test(NAME spec COMMAND spec)
 

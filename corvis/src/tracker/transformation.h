@@ -10,7 +10,6 @@
 #define __TRANSFORMATION_H
 
 #include "vec4.h"
-#include "matrix.h"
 #include "rotation_vector.h"
 #include "quaternion.h"
 
@@ -79,8 +78,8 @@ static bool estimate_transformation(const aligned_vector<v3> & src, const aligne
     center_dst = center_dst / (f_t)N;
 
     // remove centroid
-    matrix X(N, 3);
-    matrix Y(N, 3);
+    Eigen::Matrix<f_t, Eigen::Dynamic, 3> X(N, 3);
+    Eigen::Matrix<f_t, Eigen::Dynamic, 3> Y(N, 3);
     for(int i = 0; i < N; i++)
         for(int j = 0; j < 3; j++)
             X(i, j) = src[i][j] - center_src[j];
@@ -88,38 +87,27 @@ static bool estimate_transformation(const aligned_vector<v3> & src, const aligne
         for(int j = 0; j < 3; j++)
             Y(i, j) = dst[i][j] - center_dst[j];
 
-    // compute rotation
-    matrix H(3, 3);
-    matrix_product(H, Y, X, true /*transpose Y*/);
     // TODO: can incorporate weights here optionally, maybe use feature depth variance
 
-    matrix U(3,3), S(1,3), Vt(3,3);
-    if(!matrix_svd(H, U, S, Vt))
-        return false;
+    Eigen::JacobiSVD<m3> svd(Y.transpose() * X, Eigen::ComputeFullU | Eigen::ComputeFullV); // SVD the rotation
+    m3 U = svd.matrixU(), Vt = svd.matrixV().transpose();
+    v3 S = svd.singularValues();
 
     // all the same point, or colinear
-    if(S(0,0) < F_T_EPS*10 || S(0,1) / S(0,0) < F_T_EPS*10)
+    if(S(0) < F_T_EPS*10 || S(1) / S(0) < F_T_EPS*10)
         return false;
 
-    matrix R(3,3);
-    matrix_product(R, U, Vt);
+    m3 R = U * Vt;
     // If det(R) == -1, we have a flip instead of a rotation
-    if(matrix_3x3_determinant(R) < 0) {
+    if(R.determinant() < 0) {
         // Vt(2,:) = -Vt(2,:)
         Vt(2,0) = -Vt(2,0);
         Vt(2,1) = -Vt(2,1);
         Vt(2,2) = -Vt(2,2);
-        matrix_product(R, U, Vt);
+        R = U * Vt;
     }
 
-    m3 R_out = m3::Zero();
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-            R_out(i,j) = R(i,j);
-
-    // compute translation
-	v3 T = center_dst - R_out*center_src;
-    transform = transformation(R_out, T);
+    transform = transformation(R, center_dst - R*center_src);
 
     return true;
 }

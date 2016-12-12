@@ -19,5 +19,5 @@ TEST(Quaternion, Rotation)
     v3 v(-1.5, 1.6, -.2); quaternion w(0, v[0], v[1], v[2]);
     quaternion rotv = rotq * w * rotq.conjugate(); v3 rotw(rotv.x(), rotv.y(),rotv.z());
     EXPECT_V3_NEAR(rotq * v, rotw, F_T_EPS*3) << "rotq * v == unqaternion(rotq * quaternion(v) * conjugate(rotq))";
-    EXPECT_V3_NEAR(rotq * v, rotq.toRotationMatrix() * v, F_T_EPS*2);
+    EXPECT_V3_NEAR(rotq * v, rotq.toRotationMatrix() * v, F_T_EPS*4);
 }

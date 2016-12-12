@@ -7,11 +7,7 @@
 #define __vec4_H
 
 #include "cor_types.h"
-#include <stdio.h>
-#include <inttypes.h>
 
-#include <ostream>
-#include <vector>
 
 //Don't use GPL-licensed pieces of eigen
 #define EIGEN_MPL2_ONLY
@@ -53,32 +49,6 @@ template <typename T, int R, int C> Eigen::Map<const Eigen::Matrix<T, R, C>, Eig
 template <typename T, int R, int C> Eigen::Map<      Eigen::Matrix<T, R, C>, Eigen::Unaligned> m_map(      T (&a)[R][C]) { return decltype(m_map(a)) { &a[0][0] }; }
 template <typename T, int N>        Eigen::Map<const Eigen::Matrix<T, N, 1>, Eigen::Unaligned> v_map(const T (&a)[N])    { return decltype(v_map(a)) { &a[0] }; }
 template <typename T, int N>        Eigen::Map<      Eigen::Matrix<T, N, 1>, Eigen::Unaligned> v_map(      T (&a)[N])    { return decltype(v_map(a)) { &a[0] }; }
-
-template <int N>
-class stdev
-{
-public:
-    v<N> sum, min, max, mean, M2, variance, stdev_;
-    uint32_t count;
-    stdev(): sum(v<N>::Zero()), mean(v<N>::Zero()), M2(v<N>::Zero()), variance(v<N>::Zero()), stdev_(v<N>::Zero()), min(1/v<N>::Zero().array()), max(v<N>::Zero()), count(0) {}
-    bool valid() { return count >= 2; }
-    void data(const v<N> &x) {
-        ++count;
-        v<N> delta = x - mean;
-        mean = mean + delta / (f_t)count;
-        M2 = M2 + delta.cwiseProduct(x - mean);
-        if(x.norm() > max.norm()) max = x;
-        if(x.norm() < min.norm()) min = x;
-        variance = M2 / (f_t)(count - 1);
-        stdev_ = variance.array().sqrt();
-    }
-};
-
-template<int N>
-static inline std::ostream& operator<<(std::ostream &stream, const stdev<N> &v)
-{
-    return stream << " min is " << v.min << " mean is: " << v.mean << ", stdev is: " << v.stdev_ << ", max is: " << v.max;
-}
 
 inline static m3 skew(const v3 &v)
 {

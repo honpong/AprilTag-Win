@@ -20,6 +20,7 @@
 #include <string>
 #include <unordered_map>
 #include <deque>
+#include "stdev.h"
 #ifdef DEBUG
 #include "histogram.h"
 #endif

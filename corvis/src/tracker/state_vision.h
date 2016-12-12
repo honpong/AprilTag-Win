@@ -12,6 +12,7 @@
 #include <vector>
 #include <list>
 #include <future>
+#include <cinttypes>
 #include "state.h"
 #include "state_motion.h"
 #include "tracker.h"

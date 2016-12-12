@@ -10,6 +10,7 @@
 #define sensor_h
 
 #include "vec4.h"
+#include "stdev.h"
 #include "quaternion.h"
 #include "transformation.h"
 #include "rc_tracker.h"

@@ -980,7 +980,6 @@ bool mapper::serialize(std::string &json)
             fposition.PushBack(f->position[0], allocator);
             fposition.PushBack(f->position[1], allocator);
             fposition.PushBack(f->position[2], allocator);
-            fposition.PushBack(f->position[3], allocator);
             node_feature_json.AddMember(KEY_FEATURE_POSITION, fposition, allocator);
 
             Value fdescriptor(kArrayType);
@@ -996,7 +995,6 @@ bool mapper::serialize(std::string &json)
         translation_json.PushBack(nodes[i].global_transformation.transform.T[0], allocator);
         translation_json.PushBack(nodes[i].global_transformation.transform.T[1], allocator);
         translation_json.PushBack(nodes[i].global_transformation.transform.T[2], allocator);
-        translation_json.PushBack(nodes[i].global_transformation.transform.T[3], allocator);
         node_json.AddMember(KEY_NODE_TRANSLATION, translation_json, allocator);
 
         Value rotation_json(kArrayType);
@@ -1056,9 +1054,9 @@ bool mapper::deserialize(const std::string &json, mapper & map)
 
             float variance = (float)features[j][KEY_FEATURE_VARIANCE].GetDouble();
 
-            v3 position;
+            v3 position = v3::Zero();
             const Value & feature_position = features[j][KEY_FEATURE_POSITION];
-            for(SizeType k = 0; k < feature_position.Size(); k++)
+            for(SizeType k = 0; k < position.size() && k < feature_position.Size(); k++)
                 position[k] = (float)feature_position[k].GetDouble();
 
             const Value & desc = features[j][KEY_FEATURE_DESCRIPTOR];
@@ -1072,7 +1070,7 @@ bool mapper::deserialize(const std::string &json, mapper & map)
 
         transformation G;
         const Value & translation = nodes[i][KEY_NODE_TRANSLATION];
-        for(SizeType j = 0; j < translation.Size(); j++) {
+        for(SizeType j = 0; j < G.T.size() && j < translation.Size(); j++) {
             G.T[j] = (float)translation[j].GetDouble();
         }
 

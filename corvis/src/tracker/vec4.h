@@ -54,20 +54,6 @@ template <typename T, int R, int C> Eigen::Map<      Eigen::Matrix<T, R, C>, Eig
 template <typename T, int N>        Eigen::Map<const Eigen::Matrix<T, N, 1>, Eigen::Unaligned> v_map(const T (&a)[N])    { return decltype(v_map(a)) { &a[0] }; }
 template <typename T, int N>        Eigen::Map<      Eigen::Matrix<T, N, 1>, Eigen::Unaligned> v_map(      T (&a)[N])    { return decltype(v_map(a)) { &a[0] }; }
 
-static inline v3 v3_sqrt(const v3 &v) { return v3(sqrt(v[0]), sqrt(v[1]), sqrt(v[2])); }
-
-#ifdef __ACCELERATE__
-static inline v3 v3_from_vFloat(const vFloat &other)
-{
-    return v3(other[0], other[1], other[2]);
-}
-
-static inline vFloat vFloat_from_v3(const v3 &other)
-{
-    return (vFloat){(float)other[0], (float)other[1], (float)other[2], 0};
-}
-#endif
-
 template <int N>
 class stdev
 {
@@ -110,14 +96,6 @@ static inline std::ostream& operator<<(std::ostream &stream, const histogram &h)
     }
     return stream;
 }
-
-class v3_lowpass {
-public:
-    v3 filtered;
-    f_t constant;
-    v3_lowpass(f_t rate, f_t cutoff) { constant  = 1 / (1 + rate/cutoff); }
-    v3 sample(const v3 &data) { return filtered = filtered * (1 - constant) + data * constant; }
-};
 
 inline static m3 skew(const v3 &v)
 {

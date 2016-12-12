@@ -20,6 +20,9 @@
 #include <string>
 #include <unordered_map>
 #include <deque>
+#ifdef DEBUG
+#include "histogram.h"
+#endif
 
 class sensor_stats
 {

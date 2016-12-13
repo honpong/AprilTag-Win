@@ -1,6 +1,8 @@
 #ifndef __CORVIS_ARCBALL__
 #define __CORVIS_ARCBALL__
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "vec4.h"
 #include "quaternion.h"
 

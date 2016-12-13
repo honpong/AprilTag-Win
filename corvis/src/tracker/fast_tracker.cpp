@@ -52,16 +52,6 @@ vector<tracker::prediction> &fast_tracker::track(const image &image, vector<pred
                 bestkp = bestkp2;
         }
 
-        // Still no match? Guess that we haven't moved at all
-        if(bestkp.score < fast_min_match) {
-            xy bestkp2 = fast.track(f.patch, image.image,
-                    half_patch_width, half_patch_width,
-                    pred.prev_x, pred.prev_y, fast_track_radius,
-                    fast_track_threshold, bestkp.score);
-            if(bestkp2.score > bestkp.score)
-                bestkp = bestkp2;
-        }
-
         if(bestkp.x != INFINITY) {
             f.dx = bestkp.x - pred.prev_x;
             f.dy = bestkp.y - pred.prev_y;

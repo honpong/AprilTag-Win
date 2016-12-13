@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "stereo_mesh.h"
 #include "stereo.h"
 #include "fast_detector/fast.h"

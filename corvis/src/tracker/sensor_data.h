@@ -84,6 +84,8 @@ public:
             return std::make_unique<sensor_data>(time_us, type, id, angular_velocity_rad__s);
             break;
         }
+        assert(0 && "sensor_data::make_copy() unsupported data type.");
+        return std::make_unique<sensor_data>(time_us, type, id, rc_Vector());
     }
 };
 

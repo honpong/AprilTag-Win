@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "state_motion.h"
 
 void state_motion_orientation::cache_jacobians(f_t dt)

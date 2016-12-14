@@ -8,50 +8,49 @@
 #include "matrix.h"
 #include <string.h>
 
-bool kalman_compute_gain(matrix &gain, const matrix &LC, const matrix &inn_cov, matrix &tmp)
+bool kalman_compute_gain(matrix &K, const matrix &HP, const matrix &S, matrix &tmp)
 {
-    //K = CL' * inv(res_cov)
-    //K * res_cov = CL'
-    //Lapack uses column-major ordering, so we feed it CL' and get K directly, in the form X * A = B' rather than A' * X = B
-    gain.resize(LC.cols(), LC.rows());
-    gain.map() = LC.map().transpose();
-    tmp.resize(inn_cov.rows(), inn_cov.cols());
-    tmp.map() = inn_cov.map();
-    return matrix_solve(tmp, gain);
+    //K = P * H' * inv(S)
+    //Lapack uses column-major ordering, so we feed it PH' and get K directly, in the form X * A = B' rather than A' * X = B
+    K.resize(HP.cols(), HP.rows());
+    K.map() = HP.map().transpose();
+    tmp.resize(S.rows(), S.cols());
+    tmp.map() = S.map();
+    return matrix_solve(tmp, K); // K = K inv(tmp), tmp is destroyed
 }
 
-void kalman_update_state(matrix &state, const matrix &gain, const matrix &inn)
+void kalman_update_state(matrix &state, const matrix &K, const matrix &inn)
 {
     //state.T += innov.T * K.T
-    matrix_product(state, inn, gain, false, true, 1.0);
+    matrix_product(state, inn, K, false, true, 1.0);
 }
 
-void kalman_update_covariance(matrix &cov, const matrix &gain, const matrix &LC)
+void kalman_update_covariance(matrix &P, const matrix &K, const matrix &HP)
 {
-    //cov -= KHP
-    matrix_product(cov, gain, LC, false, false, 1.0, -1.0);
+    //P -= KHP
+    matrix_product(P, K, HP, false, false, 1.0, -1.0);
     //enforce symmetry
-    for(int i = 0; i < cov.rows(); ++i) {
-        for(int j = i + 1; j < cov.cols(); ++j) {
-            cov(i, j) = cov(j, i) = (cov(i, j) + cov(j, i)) * f_t(.5);
+    for(int i = 0; i < P.rows(); ++i) {
+        for(int j = i + 1; j < P.cols(); ++j) {
+            P(i, j) = P(j, i) = (P(i, j) + P(j, i)) * f_t(.5);
         }
     }
 }
 
-void kalman_update_covariance_robust(matrix &cov, const matrix &gain, const matrix &LC, const matrix inn_cov)
+void kalman_update_covariance_robust(matrix &P, const matrix &K, const matrix &HP, const matrix &S)
 {
-    matrix KLCterm(cov.rows(), cov.cols());
-    matrix_product(KLCterm, gain, LC);
-    matrix KS(gain.rows(), inn_cov.cols());
+    matrix KHP(P.rows(), P.cols());
+    matrix_product(KHP, K, HP);
+    matrix KS(K.rows(), S.cols());
     //Could optimize this to use dsymm rather than dgemm
-    matrix_product(KS, gain, inn_cov);
-    matrix KSK(cov.rows(), cov.cols());
-    matrix_product(KSK, KS, gain, false, true);
-    for(int i = 0; i < cov.rows(); ++i) {
+    matrix_product(KS, K, S);
+    matrix KSKt(P.rows(), P.cols());
+    matrix_product(KSKt, KS, K, false, true);
+    for(int i = 0; i < P.rows(); ++i) {
         for(int j = 0; j < i; ++j) {
-            cov(i, j) = cov(j, i) = cov(i, j) - ((KLCterm(i, j) + KLCterm(j, i)) - KSK(i, j));
+            P(i, j) = P(j, i) = P(i, j) - ((KHP(i, j) + KHP(j, i)) - KSKt(i, j));
         }
-        cov(i, i) = cov(i, i) - ((KLCterm(i, i) + KLCterm(i, i)) - KSK(i, i));
+        P(i, i) = P(i, i) - ((KHP(i, i) + KHP(i, i)) - KSKt(i, i));
     }
 }
 

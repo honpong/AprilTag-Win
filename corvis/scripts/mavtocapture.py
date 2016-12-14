@@ -38,7 +38,7 @@ class mav_sensor(object):
 
         self.data = []
         with open(base + "/data.csv") as f:
-            header = f.readline().rstrip('\n')
+            header = f.readline().rstrip()
             assert header[0] == "#", "data not csv with a header starting with #"
             keys = re.split(r"\s*,\s*", header[1:])
             for values in csv.reader(f):

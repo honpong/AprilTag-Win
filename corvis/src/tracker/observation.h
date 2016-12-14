@@ -186,7 +186,7 @@ protected:
     matrix state   {(f_t*)  state_storage,                  1,       MAXSTATESIZE,                  1,       MAXSTATESIZE };
     matrix inn     {(f_t*)    inn_storage,                  1, MAXOBSERVATIONSIZE,                  1, MAXOBSERVATIONSIZE };
     matrix m_cov   {(f_t*)  m_cov_storage,                  1, MAXOBSERVATIONSIZE,                  1, MAXOBSERVATIONSIZE };
-    matrix LC      {(f_t*)     LC_storage, MAXOBSERVATIONSIZE,       MAXSTATESIZE, MAXOBSERVATIONSIZE,       MAXSTATESIZE };
+    matrix HP      {(f_t*)     HP_storage, MAXOBSERVATIONSIZE,       MAXSTATESIZE, MAXOBSERVATIONSIZE,       MAXSTATESIZE };
     matrix K       {(f_t*)      K_storage, MAXSTATESIZE,       MAXOBSERVATIONSIZE,       MAXSTATESIZE, MAXOBSERVATIONSIZE };
     matrix res_cov {(f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE };
     matrix res_tmp {(f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE };
@@ -194,7 +194,7 @@ protected:
     alignas(64) f_t state_storage[MAXSTATESIZE];
     alignas(64) f_t inn_storage[MAXOBSERVATIONSIZE];
     alignas(64) f_t m_cov_storage[MAXOBSERVATIONSIZE];
-    alignas(64) f_t LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
+    alignas(64) f_t HP_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
     alignas(64) f_t K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
     alignas(64) f_t res_cov_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
     alignas(64) f_t res_tmp_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];

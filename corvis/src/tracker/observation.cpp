@@ -52,22 +52,19 @@ void observation_queue::compute_measurement_covariance(matrix &m_cov)
 
 void observation_queue::compute_prediction_covariance(const state_root &s, int meas_size)
 {
-    //project state cov onto measurement to get cov(meas, state)
-    // matrix_product(LC, lp, A, false, false);
     int statesize = s.cov.size();
     int index = 0;
     for(auto &o : observations) {
-        matrix dst(LC, index, 0, o->size, statesize);
+        matrix dst(HP, index, 0, o->size, statesize);
         o->cache_jacobians();
-        o->project_covariance(dst, s.cov.cov);
+        o->project_covariance(dst, s.cov.cov); // HP = H * P'
         index += o->size;
     }
     
-    //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas)
     index = 0;
     for(auto &o : observations) {
         matrix dst(res_cov, index, 0, o->size, meas_size);
-        o->project_covariance(dst, LC);
+        o->project_covariance(dst, HP); // res_cov = H * (H * P')' = H * P * H'
         index += o->size;
     }
     
@@ -104,15 +101,15 @@ bool observation_queue::update_state_and_covariance(state_root &s, const matrix 
     f_t rcond = matrix_check_condition(res_cov);
     if(rcond < .001) { fprintf(stderr, "observation covariance matrix not well-conditioned before computing gain! rcond = %e\n", rcond);}
 #endif
-    if(kalman_compute_gain(K, LC, res_cov, res_tmp))
+    if(kalman_compute_gain(K, HP, res_cov, res_tmp))
     {
         state.resize(1, s.cov.size());
         s.copy_state_to_array(state);
         kalman_update_state(state, K, inn);
         s.copy_state_from_array(state);
-        kalman_update_covariance(s.cov.cov, K, LC);
+        kalman_update_covariance(s.cov.cov, K, HP);
         //Robust update is not needed and is much slower
-        //kalman_update_covariance_robust(s.cov.cov, K, LC, res_cov);
+        //kalman_update_covariance_robust(s.cov.cov, K, HP, res_cov);
         return true;
     } else {
         return false;
@@ -143,7 +140,7 @@ bool observation_queue::process(state_root &s)
     if(meas_size) {
         inn.resize(1, meas_size);
         m_cov.resize(1, meas_size);
-        LC.resize(meas_size, statesize + s.fake_statesize);
+        HP.resize(meas_size, statesize + s.fake_statesize);
         res_cov.resize(meas_size, meas_size);
 
         //TODO: implement o->time_apparent != o->time_actual
@@ -151,7 +148,7 @@ bool observation_queue::process(state_root &s)
         compute_measurement_covariance(m_cov);
         compute_prediction_covariance(s, meas_size);
         compute_innovation_covariance(m_cov);
-        LC.resize(meas_size, statesize);
+        HP.resize(meas_size, statesize);
         success = update_state_and_covariance(s, inn);
     } else if(orig_meas_size && orig_meas_size != 3) {
         //s.log->warn("In Kalman update, original measurement size was {}, ended up with 0 measurements!\n", orig_meas_size);

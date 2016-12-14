@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 from PIL import Image
 from struct import pack
 from collections import defaultdict

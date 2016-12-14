@@ -106,9 +106,59 @@ for i in itertools.count():
     for d in sensor.data:
         data.append({ 'ptype':image_raw_type,'id':i, 'time_ns':int(d['timestamp [ns]']), 'name': cam + '/data/' + d['filename'], 'rate_hz': float(s['rate_hz']) })
 
+groundtruth = []
+for i in itertools.count():
+    gte = input_dir + "/state_groundtruth_estimate"+str(i)
+    if not path.exists(gte):
+        break
+    sensor = mav_sensor(gte)
+
+    cal['imus'][i]['accelerometer']['bias'] = list(float(sensor.data[0][x]) for x in ('b_a_RS_S_x [m s^-2]',  'b_a_RS_S_y [m s^-2]',  'b_a_RS_S_z [m s^-2]'  ))
+    cal['imus'][i]['gyroscope'    ]['bias'] = list(float(sensor.data[0][x]) for x in ('b_w_RS_S_x [rad s^-1]','b_w_RS_S_y [rad s^-1]','b_w_RS_S_z [rad s^-1]'))
+
+    #FIXME transform by the given extrinsics
+    for d in sensor.data:
+        groundtruth.append({
+            'time_us': int(int(d['timestamp'])/1000),
+            'Q': list(float(d[x]) for x in ('q_RS_w []', 'q_RS_x []', 'q_RS_y []', 'q_RS_z []')),
+            'T_m': list(float(d[x]) for x in ('p_RS_R_x [m]', 'p_RS_R_y [m]', 'p_RS_R_z [m]')),
+        })
+
+vicon = []
+for i in itertools.count():
+    vic = input_dir + "/vicon"+str(i)
+    if not path.exists(vic):
+        break
+    sensor = mav_sensor(vic)
+    #FIXME transform by the given extrinsics
+    for d in sensor.data:
+        vicon.append({
+            'time_us': int(int(d['timestamp [ns]'])/1000),
+            'Q': list(float(d[x]) for x in ('q_RS_w []', 'q_RS_x []', 'q_RS_y []', 'q_RS_z []')),
+            'T_m': list(float(d[x]) for x in ('p_RS_R_x [m]', 'p_RS_R_y [m]', 'p_RS_R_z [m]')),
+        })
+
+leica = []
+for i in itertools.count():
+    lei = input_dir + "/leica"+str(i)
+    if not path.exists(lei):
+        break
+    sensor = mav_sensor(lei)
+    #FIXME transform by the given extrinsics
+    for d in sensor.data:
+        leica.append({
+            'time_us': int(int(d['timestamp [ns]'])/1000),
+            'Q': [1,0,0,0],
+            'T_m': list(float(d[x]) for x in ('p_RS_R_x [m]', 'p_RS_R_y [m]', 'p_RS_R_z [m]')),
+        })
 
 with open(output_filename + ".json", "w") as f:
   json.dump(cal, f, sort_keys=True,indent=4)
+
+if len(vicon) or len(groundtruth) or len(leica):
+    with open(output_filename + ".vicon", "w") as f:
+        for p in vicon if vicon else groundtruth if groundtruth else leica:
+            f.write(' '.join(map(str,(0, 1000*p['time_us'], 0, *p['T_m'], *p['Q'][1:4], p['Q'][0]))) + "\n")
 
 wrote_packets = defaultdict(int)
 wrote_bytes = 0

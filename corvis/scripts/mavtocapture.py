@@ -72,14 +72,16 @@ for i in itertools.count():
     cal['imus'].append({
         'accelerometer': {
             'noise_variance': s[    'gyroscope_noise_density'] * s[    'gyroscope_noise_density'] * s['rate_hz'],
+            'noise_variance': 0.005,
             'bias': [0,0,0],
-            'bias_variance': [.02, .02, .02] ,
+            'bias_variance': [1e-3, 1e-3, 1e-3] ,
             'scale_and_alignment': [ 1,0,0, 0,1,0, 0,0,1 ],
         },
         'gyroscope':     {
             'noise_variance': s['accelerometer_noise_density'] * s['accelerometer_noise_density'] * s['rate_hz'],
+            'noise_variance': 0.0002,
             'bias': [0,0,0],
-            'bias_variance': [1e-6,1e-6,1e-6],
+            'bias_variance': [1e-5, 1e-5, 1e-5],
             'scale_and_alignment': [ 1,0,0, 0,1,0, 0,0,1 ],
         },
         'extrinsics': compute_extrinsics(s['T_BS']),

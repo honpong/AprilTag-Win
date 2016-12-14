@@ -103,16 +103,6 @@ bool matrix_solve(matrix &A, matrix &B)
     return true;
 }
 
-void matrix_transpose(matrix &dst, const matrix &src)
-{
-    assert(dst._cols == src._rows && dst._rows == src._cols);
-    for(int i = 0; i < dst._rows; ++i) {
-        for(int j = 0; j < dst._cols; ++j) {
-            dst(i, j) = src(j, i);
-        }
-    }
-}
-
 //need to put this test around every operation that affects cov. (possibly with #defines, google test?)
 bool test_posdef(const matrix &m)
 {

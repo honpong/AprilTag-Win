@@ -419,9 +419,12 @@ struct stream_position
 size_t load_map_callback(void * handle, void *buffer, size_t length)
 {
     struct stream_position * stream = (struct stream_position *)handle;
-    size_t chars = stream->json.copy((char *)buffer, length, stream->position);
-    stream->position += chars;
-    return chars;
+  
+    const auto substr = stream->json.substr(stream->position, length);
+    memcpy(buffer, substr.c_str(), substr.size());
+    stream->position += substr.size();
+    
+    return substr.size();
 }
 
 bool replay::load_map(string filename)

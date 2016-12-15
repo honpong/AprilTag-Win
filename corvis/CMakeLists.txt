@@ -32,6 +32,10 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Intel|GNU|Clang")
   add_compile_options(-fvisibility-inlines-hidden)
 endif ()
 
+if(MSVC)
+  add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
+endif()
+
 macro(target_link_libraries_copied target)
   target_link_libraries(${target} ${ARGN})
   if (MSVC)

@@ -5,8 +5,8 @@
 #include "rotation_vector.h"
 
 TEST(Vector3, Cross) {
-    v3 vec(1.5, -.64, 4.1);
-    v3 vec2(.08, 1.2, -.23);
+    v3 vec(1.5f, -.64f, 4.1f);
+    v3 vec2(.08f, 1.2f, -.23f);
     EXPECT_V3_NEAR(vec.cross(vec2), skew(vec) * vec2, F_T_EPS) << "a x b = skew(a) * b";
     EXPECT_V3_NEAR(vec.cross(vec2), skew(vec2).transpose() * vec, F_T_EPS) << "a x b = skew(b)^T * a";
 }
@@ -38,7 +38,7 @@ static void test_rotation(const v3 &vec)
     EXPECT_QUATERNION_ROTATION_NEAR(quat, qinv, 2*F_T_EPS) << "q = to_quaternion(to_rotation_matrix(q))";
 
     {
-        const v3 lvec(1.5, -.64, 4.1);
+        const v3 lvec(1.5f, -.64f, 4.1f);
         v3 vrot = quat * lvec;
         EXPECT_V3_NEAR(vrot, rotation_between_two_vectors(lvec, vrot) * lvec, 20*F_T_EPS)
             << "q * vec = rotation_between_two_vectors(vec, quaternion_rotation(q, vec)) * vec";
@@ -53,7 +53,7 @@ static void test_rotation(const v3 &vec)
 
 
 TEST(Matrix3, Rotation) {
-    v3 rotvec(.55, -1.2, -.15);
+    v3 rotvec(.55f, -1.2f, -.15f);
     
     {
         SCOPED_TRACE("identity matrix = 0 rotation vector");
@@ -71,12 +71,12 @@ TEST(Matrix3, Rotation) {
     }
     {
         SCOPED_TRACE("+pi vector");
-        test_rotation(v3(0, M_PI, 0));
-        test_rotation(v3(0, M_PI-.1, 0));
+        test_rotation(v3(0, f_t(M_PI), 0));
+        test_rotation(v3(0, f_t(M_PI-.1), 0));
     }
     {
         SCOPED_TRACE("-pi vector");
-        test_rotation(v3(0, 0, -M_PI));
+        test_rotation(v3(0, 0, f_t(-M_PI)));
     }
     {
         SCOPED_TRACE("pi-offaxis vector");

@@ -11,22 +11,7 @@
 #include "matrix.h"
 #include <math.h>
 
-#ifndef WIN32
-#include <alloca.h>
-#endif
-
 #include <Eigen/Cholesky>
-
-#ifdef F_T_IS_DOUBLE
-#define F_T_TYPE(prefix,func,suffix) prefix ## d ## func ## suffix
-#else
-#define F_T_TYPE(prefix,func,suffix) prefix ## s ## func ## suffix
-#endif
-
-#define LAPACK_(func) F_T_TYPE(      ,func, _)
-#define cblas_(func)  F_T_TYPE(cblas_,func,  )
-
-#define walloca(t,n) (t*)alloca(sizeof(t)*(n))
 
 #include <stdio.h>
 

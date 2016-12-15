@@ -68,7 +68,6 @@ public:
 
     Eigen::Map<Eigen::Matrix<f_t, Eigen::Dynamic, Eigen::Dynamic>, Eigen::Unaligned, Eigen::OuterStride<>> map() const { return decltype(map()) { data, _rows, _cols, Eigen::OuterStride<>(stride) }; }
 
-    bool is_symmetric(f_t eps) const;
     void print() const;
     void print_high() const;
     void print_diag() const;

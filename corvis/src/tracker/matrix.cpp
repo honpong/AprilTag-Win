@@ -15,16 +15,6 @@
 
 #include <stdio.h>
 
-bool matrix::is_symmetric(f_t eps = 1.e-5) const
-{
-    for(int i = 0; i < _rows; ++i) {
-        for(int j = i; j < _cols; ++j) {
-            if(fabs((*this)(i,j) - (*this)(j,i)) > eps) return false;
-        }
-    }
-    return true;
-}
-
 void matrix::print() const
 {
     for(int i = 0; i < _rows; ++i) {

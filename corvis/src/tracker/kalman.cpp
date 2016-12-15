@@ -14,13 +14,9 @@ bool kalman_compute_gain(matrix &gain, const matrix &LC, const matrix &inn_cov, 
     //K * res_cov = CL'
     //Lapack uses column-major ordering, so we feed it CL' and get K directly, in the form X * A = B' rather than A' * X = B
     gain.resize(LC.cols(), LC.rows());
-    matrix_transpose(gain, LC);
+    gain.map() = LC.map().transpose();
     tmp.resize(inn_cov.rows(), inn_cov.cols());
-    for(int i = 0; i < inn_cov.rows(); ++i) {
-        for(int j = 0; j < inn_cov.cols(); ++j) {
-            tmp(i, j) = inn_cov(i, j);
-        }
-    }
+    tmp.map() = inn_cov.map();
     return matrix_solve(tmp, gain);
 }
 

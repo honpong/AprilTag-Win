@@ -168,6 +168,7 @@ if(YES AND NOT ANDROID)
       test/test.cpp test/util.cpp
       test/tracker/vec4.cpp test/tracker/rotation_vector.cpp test/tracker/quaternion.cpp
       test/tracker/transformation.cpp
+      test/tracker/matrix.cpp
       test/tracker/utils.cpp
       test/tracker/state_vision.cpp
       test/tracker/calibration_json.cpp

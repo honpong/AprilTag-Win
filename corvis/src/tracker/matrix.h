@@ -68,50 +68,22 @@ public:
 
     Eigen::Map<Eigen::Matrix<f_t, Eigen::Dynamic, Eigen::Dynamic>, Eigen::Unaligned, Eigen::OuterStride<>> map() const { return decltype(map()) { data, _rows, _cols, Eigen::OuterStride<>(stride) }; }
 
-    bool is_symmetric(f_t eps) const;
     void print() const;
     void print_high() const;
     void print_diag() const;
-    
+
     friend void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale);
-    friend bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt);
-    friend bool matrix_invert(matrix &m);
-    friend void matrix_transpose(matrix &dst, const matrix &src);
-    friend void matrix_negate(matrix & A);
-    friend bool matrix_cholesky(matrix &A);
-    friend void test_cholesky(matrix &A);
     friend f_t matrix_check_condition(matrix &A);
-    friend bool matrix_is_symmetric(matrix &m);
     friend bool matrix_solve(matrix &A, matrix &B);
-    friend bool matrix_solve_svd(matrix &A, matrix &B);
-    friend bool matrix_solve_syt(matrix &A, matrix &B);
-    friend bool matrix_solve_extra(matrix &A, matrix &B);
-    friend bool matrix_solve_refine(matrix &A, matrix &B);
-    friend f_t matrix_3x3_determinant(const matrix & A);
-    
     friend bool test_posdef(const matrix &m);
-    
+
     friend class covariance;
     friend class state_motion;
 };
 
-matrix &matrix_dereference(matrix *m);
-
 void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1 = false, bool trans2 = false, const f_t dst_scale = 0.0, const f_t scale = 1.0);
-bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt);
-bool matrix_invert(matrix &m);
-void matrix_transpose(matrix &dst, const matrix &src);
-void matrix_negate(matrix & A);
-bool matrix_cholesky(matrix &A);
 f_t matrix_check_condition(matrix &A);
-bool matrix_is_symmetric(matrix &m);
 bool matrix_solve(matrix &A, matrix &B);
-bool matrix_solve_svd(matrix &A, matrix &B);
-bool matrix_solve_syt(matrix &A, matrix &B);
-bool matrix_solve_extra(matrix &A, matrix &B);
-bool matrix_solve_refine(matrix &A, matrix &B);
-f_t matrix_3x3_determinant(const matrix & A);
-
 bool test_posdef(const matrix &m);
 
 #ifdef DEBUG

@@ -18,7 +18,7 @@ vector<tracker::point> &fast_tracker::detect(const image &image, const std::vect
     feature_points.clear();
     feature_points.reserve(number_desired);
     for(const auto &d : fast.detect(image.image, mask.get(), number_desired, fast_detect_threshold, 0, 0, image.width_px, image.height_px)) {
-        if(!is_trackable(d.x, d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
+        if(!is_trackable((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
             continue;
         mask->clear((int)d.x, (int)d.y);
         auto id = next_id++;

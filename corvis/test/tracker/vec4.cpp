@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "gtest/gtest.h"
 #include "vec4.h"
 #include "quaternion.h"

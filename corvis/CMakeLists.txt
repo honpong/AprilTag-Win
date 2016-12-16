@@ -29,7 +29,7 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Intel|GNU|Clang")
   add_compile_options(-fstack-protector-strong)
   add_compile_options(-Wformat -Wformat-security)
   add_compile_options(-fvisibility=hidden)
-  add_compile_options(-fvisibility-inlines-hidden)
+  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>)
 endif ()
 
 if(MSVC)

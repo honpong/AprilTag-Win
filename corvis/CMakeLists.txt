@@ -57,6 +57,7 @@ elseif (ANDROID)
   add_compile_options(-no-canonical-prefixes -funwind-tables -fno-omit-frame-pointer)
 elseif (APPLE)
   add_compile_options(-march=native -mfpmath=sse)
+  set(CMAKE_STRIP "/usr/bin/strip -ru")
 endif ()
 
 option(ENABLE_STEREO "Enable Stereo" OFF)

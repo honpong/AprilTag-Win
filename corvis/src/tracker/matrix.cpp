@@ -72,9 +72,7 @@ bool matrix_solve(matrix &A, matrix &B)
     Eigen::LLT<Eigen::Matrix<f_t,Eigen::Dynamic,Eigen::Dynamic>> llt(A.map());
     if (llt.info() == Eigen::NumericalIssue)
         return false;
-    Eigen::Map<Eigen::Matrix<f_t,Eigen::Dynamic,Eigen::Dynamic,Eigen::ColMajor>,Eigen::Unaligned,Eigen::OuterStride<>>
-        Bt(B.data, B.cols(), B.rows(),Eigen::OuterStride<>(B.get_stride()));
-    llt.solveInPlace(Bt);
+    llt.solveInPlace(B.map().transpose());
     return true;
 }
 

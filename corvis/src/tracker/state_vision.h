@@ -100,6 +100,7 @@ public:
 };
 
 class state_vision_group;
+class state_camera;
 
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
@@ -200,6 +201,7 @@ class state_vision_group: public state_branch<state_node *> {
     state_vector     Tr { "Tr", dynamic};
     state_quaternion Qr { "Qr", dynamic};
 
+    state_camera &camera;
     state_branch<state_vision_feature *> features;
     list<uint64_t> neighbors;
     list<uint64_t> old_neighbors;
@@ -208,7 +210,7 @@ class state_vision_group: public state_branch<state_node *> {
     uint64_t id;
 
     state_vision_group(const state_vision_group &other);
-    state_vision_group(uint64_t group_id);
+    state_vision_group(state_camera &camera, uint64_t group_id);
     void make_empty();
     int process_features(const rc_ImageData &image, mapper & map, bool map_enabled);
     int make_reference();
@@ -256,7 +258,7 @@ public:
     ~state_vision();
     int process_features(const rc_ImageData &image);
     state_vision_feature *add_feature(state_vision_group &group, const feature_t & initial);
-    state_vision_group *add_group();
+    state_vision_group *add_group(state_camera &camera);
     void remove_group(state_vision_group *g);
     transformation get_transformation() const;
 

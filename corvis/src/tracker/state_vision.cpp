@@ -64,14 +64,14 @@ bool state_vision_feature::force_initialize()
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
 
-state_vision_group::state_vision_group(const state_vision_group &other): Tr(other.Tr), Qr(other.Qr), features(other.features), health(other.health), status(other.status)
+state_vision_group::state_vision_group(const state_vision_group &other): Tr(other.Tr), Qr(other.Qr), camera(other.camera), features(other.features), health(other.health), status(other.status)
 {
     assert(status == group_normal); //only intended for use at initialization
     children.push_back(&Tr);
     children.push_back(&Qr);
 }
 
-state_vision_group::state_vision_group(uint64_t group_id): health(0), status(group_initializing)
+state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): camera(camera_), health(0), status(group_initializing)
 {
     id = group_id;
     children.push_back(&Tr);
@@ -315,9 +315,9 @@ state_vision_feature * state_vision::add_feature(state_vision_group &group, cons
     return new state_vision_feature(group, feature_counter++, initial);
 }
 
-state_vision_group * state_vision::add_group()
+state_vision_group * state_vision::add_group(state_camera &camera)
 {
-    state_vision_group *g = new state_vision_group(group_counter++);
+    state_vision_group *g = new state_vision_group(camera, group_counter++);
     if(map_enabled) {
         map.add_node(g->id);
         if(groups.children.empty() && g->id != 0)

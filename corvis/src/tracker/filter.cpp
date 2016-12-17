@@ -913,14 +913,14 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->run_state = RCSensorFusionRunStateRunning;
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
-                state_vision_group *g = f->s.add_group();
+                state_vision_group *g = f->s.add_group(f->s.camera);
                 filter_add_detected_features(f, g, detection, space, data.image.height);
             }
         } else {
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
 #endif
-            f->detecting_group = f->s.add_group();
+            f->detecting_group = f->s.add_group(f->s.camera);
         }
     }
     return true;

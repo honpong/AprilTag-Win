@@ -24,15 +24,6 @@
 #define log_enabled 0 // Only used in state.h now
 #define show_tuning 0
 
-class state_leaf_base {
-public:
-    state_leaf_base(const char *name_, int index_, int size_) : name(name_), index(index_), size(size_) {}
-    const char *name;
-protected:
-    int index;
-    int size;
-};
-
 class state_node {
 public:
     virtual ~state_node() {}
@@ -47,6 +38,16 @@ public:
     friend inline std::ostream & operator <<(std::ostream & s, const state_node &b) {
         return b.print_to(s);
     }
+};
+
+class state_leaf_base {
+public:
+    state_leaf_base(const char *name_, state_node::node_type type_, int index_, int size_) : type(type_), name(name_), index(index_), size(size_) {}
+    const char *name;
+protected:
+    state_node::node_type type;
+    int index;
+    int size;
 };
 
 template<typename T, typename List = std::list<T>> class state_branch: public state_node {
@@ -208,8 +209,7 @@ protected:
 
 template <class T, int _size> class state_leaf: public state_leaf_base, public state_node {
  public:
-    node_type type;
-    state_leaf(const char *_name, node_type nt) : state_leaf_base(_name, -1, _size), type(nt) {}
+    state_leaf(const char *_name, node_type nt) : state_leaf_base(_name, nt, -1, _size) {}
 
     T v;
     

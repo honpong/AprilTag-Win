@@ -115,7 +115,7 @@ int state_vision_group::process_features(const rc_ImageData &image, mapper & map
 
             bool good = stdev / f->v.depth() < .05f;
             if(good && f->descriptor_valid)
-                map.update_feature_position(id, f->id, f->Xcamera, variance_meters);
+                map.update_feature_position(id, f->id, f->body, variance_meters);
             if(good && !f->descriptor_valid) {
                 float scale = static_cast<float>(f->v.depth());
                 float radius = 32.f/scale * (image.width / 320.f);
@@ -127,7 +127,7 @@ int state_vision_group::process_features(const rc_ImageData &image, mapper & map
                                       static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
                                       f->descriptor)) {
                     f->descriptor_valid = true;
-                    map.add_feature(id, f->id, f->Xcamera, variance_meters, f->descriptor);
+                    map.add_feature(id, f->id, f->body, variance_meters, f->descriptor);
                 }
             }
         }

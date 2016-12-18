@@ -110,7 +110,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     uint64_t groupid;
     uint64_t tracker_id;
     v3 body = v3(0, 0, 0);
-    v3 Xcamera = v3(0, 0, 0);
 
     struct descriptor descriptor;
     bool descriptor_valid{false};

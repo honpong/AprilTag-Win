@@ -194,8 +194,7 @@ void observation_vision_feature::predict()
     Xd = intrinsics.normalize_feature(feature->initial);
     norm_initial = intrinsics.undistort_feature(Xd);
     X0 = v3(norm_initial.x(), norm_initial.y(), 1);
-    feature->Xcamera = X0 * feature->v.depth();
-    feature->body = Rb * feature->Xcamera + Tb;
+    feature->body = Rb * X0 * feature->v.depth() + Tb;
 
     X = Rtot * X0 + Ttot * feature->v.invdepth();
     v3 ippred = X / X[2]; //in the image plane

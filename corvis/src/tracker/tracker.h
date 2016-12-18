@@ -32,6 +32,8 @@ struct tracker {
     std::unique_ptr<scaled_mask> mask;
 
     std::vector<point> feature_points;
+    std::vector<point> current_features; // reuasable storage passed to detect()
+    std::vector<prediction> predictions; // reuasable storage passed to and returned from track()
     /*
      @param image  The image to use for feature detection
      @param number_desired  The desired number of features, function can return less or more
@@ -39,7 +41,7 @@ struct tracker {
 
      Returns a reference to a vector (using feature_points above for storage) of newly detected features with higher scored points being preferred
      */
-    virtual std::vector<point> &detect(const image &image, const std::vector<point> &features, int number_desired) = 0;
+    virtual std::vector<point> &detect(const image &image, const std::vector<point> &current_features, int number_desired) = 0;
 
     /*
      @param current_image The image to track in

@@ -763,11 +763,11 @@ const vector<tracker::point> & filter_detect(struct filter *f, const sensor_data
     auto start = std::chrono::steady_clock::now();
     int space = filter_available_feature_space(f);
     const rc_ImageData &image = data.image;
-    f->s.features.clear();
-    f->s.features.reserve(f->s.feature_count());
+    f->s.camera.feature_tracker->current_features.clear();
+    f->s.camera.feature_tracker->current_features.reserve(f->s.feature_count());
     for(auto g : f->s.groups.children)
         for(auto i : g->features.children)
-            f->s.features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
+            f->s.camera.feature_tracker->current_features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
 
     // Run detector
     tracker::image timage;
@@ -775,7 +775,7 @@ const vector<tracker::point> & filter_detect(struct filter *f, const sensor_data
     timage.width_px = image.width;
     timage.height_px = image.height;
     timage.stride_px = image.stride;
-    vector<tracker::point> &kp = f->s.camera.feature_tracker->detect(timage, f->s.features, space);
+    vector<tracker::point> &kp = f->s.camera.feature_tracker->detect(timage, f->s.camera.feature_tracker->current_features, space);
 
     auto stop = std::chrono::steady_clock::now();
     f->detect_timer = stop-start;

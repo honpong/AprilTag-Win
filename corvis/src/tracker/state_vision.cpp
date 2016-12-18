@@ -463,23 +463,23 @@ void state_vision::update_feature_tracks(const rc_ImageData &image)
     current_image.height_px = image.height;
     current_image.stride_px = image.stride;
 
-    predictions.clear();
-    predictions.reserve(feature_count());
     std::map<uint64_t, state_vision_feature *> id_to_state;
 
+    camera.feature_tracker->predictions.clear();
+    camera.feature_tracker->predictions.reserve(feature_count());
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children) {
             id_to_state[feature->tracker_id] = feature;
-            predictions.emplace_back(feature->tracker_id,
-                                     (float)feature->current.x(), (float)feature->current.y(),
-                                     (float)feature->prediction.x(), (float)feature->prediction.y());
+            camera.feature_tracker->predictions.emplace_back(feature->tracker_id,
+                                                            (float)feature->current.x(), (float)feature->current.y(),
+                                                            (float)feature->prediction.x(), (float)feature->prediction.y());
         }
     }
 
     int i=0;
-    if (predictions.size())
-        for(const auto &p : camera.feature_tracker->track(current_image, predictions)) {
+    if (camera.feature_tracker->predictions.size())
+        for(const auto &p : camera.feature_tracker->track(current_image, camera.feature_tracker->predictions)) {
             state_vision_feature * feature = id_to_state[p.id];
             feature->current.x() = p.found ? p.x : INFINITY;
             feature->current.y() = p.found ? p.y : INFINITY;

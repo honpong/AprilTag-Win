@@ -556,8 +556,6 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
 
 void filter_setup_next_frame(struct filter *f, const sensor_data &data)
 {
-    if(f->run_state != RCSensorFusionRunStateRunning) return;
-
     auto & camera = *f->cameras[data.id];
     auto timestamp = data.timestamp;
 
@@ -861,7 +859,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         f->detecting_group = nullptr;
     }
 
-    filter_setup_next_frame(f, data);
+    if(f->run_state == RCSensorFusionRunStateRunning)
+        filter_setup_next_frame(f, data); // put current features into observation queue as potential things to measure
 
     if(show_tuning) {
         fprintf(stderr, "\nvision:\n");

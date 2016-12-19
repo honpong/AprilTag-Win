@@ -68,13 +68,6 @@ void observation_queue::compute_prediction_covariance(const state_root &s, int m
         index += o->size;
     }
     
-    //enforce symmetry
-    for(int i = 0; i < res_cov.rows(); ++i) {
-        for(int j = i + 1; j < res_cov.cols(); ++j) {
-            res_cov(i, j) = res_cov(j, i);
-        }
-    }
-    
     index = 0;
     for(auto &o : observations) {
         o->set_prediction_covariance(res_cov, index);
@@ -97,7 +90,6 @@ void observation_queue::compute_innovation_covariance(const matrix &m_cov)
 bool observation_queue::update_state_and_covariance(state_root &s, const matrix &inn)
 {
 #ifdef TEST_POSDEF
-    if(!test_posdef(res_cov)) { fprintf(stderr, "observation covariance matrix not positive definite before computing gain!\n"); }
     f_t rcond = matrix_check_condition(res_cov);
     if(rcond < .001) { fprintf(stderr, "observation covariance matrix not well-conditioned before computing gain! rcond = %e\n", rcond);}
 #endif

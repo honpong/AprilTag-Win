@@ -441,9 +441,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, state_imu 
             }
         }
     }
-#ifdef DEBUG
     assert(0); //should never fall through to here;
-#endif
     return accelerometer.measurement_variance;
 }
 

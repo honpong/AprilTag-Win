@@ -183,9 +183,9 @@ public:
         project_motion_covariance(tmp, cov.cov, dt);
 
         //fill in the UR and LL matrices
-        for(int i = 0; i < dynamic_statesize; ++i)
-            for(int j = dynamic_statesize; j < cov.size(); ++j)
-                cov(i, j) = cov(j, i) = tmp(i, j);
+        cov.cov.map().block(0,dynamic_statesize, dynamic_statesize,cov.size()-dynamic_statesize) /*UR*/
+            = cov.cov.map().block(dynamic_statesize,0, cov.size()-dynamic_statesize, dynamic_statesize).transpose() /*LL'*/
+            = tmp.map().block(0,dynamic_statesize, dynamic_statesize,cov.size()-dynamic_statesize);
 
         //compute the UL matrix
         matrix ul(cov.cov, 0, 0, dynamic_statesize, dynamic_statesize);

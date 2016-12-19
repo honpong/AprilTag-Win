@@ -264,7 +264,6 @@ public:
 
     bool map_enabled{false};
     mapper map;
-    bool loop_closed{false};
     
     void update_feature_tracks(const rc_ImageData &image);
     float median_depth_variance();

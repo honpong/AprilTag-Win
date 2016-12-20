@@ -212,7 +212,7 @@ class state_vision_group: public state_branch<state_node *> {
     state_vision_group(const state_vision_group &other);
     state_vision_group(state_camera &camera, uint64_t group_id);
     void make_empty();
-    int process_features(const rc_ImageData &image, mapper & map, bool map_enabled);
+    int process_features(const rc_ImageData &image, mapper *map);
     int make_reference();
     int make_normal();
     static f_t ref_noise;
@@ -256,20 +256,16 @@ public:
     
     state_vision(covariance &c);
     ~state_vision();
-    int process_features(const rc_ImageData &image);
+    int process_features(const rc_ImageData &image, mapper *map);
     state_vision_feature *add_feature(state_vision_group &group, const feature_t & initial);
-    state_vision_group *add_group(state_camera &camera);
-    void remove_group(state_vision_group *g);
+    state_vision_group *add_group(state_camera &camera, mapper *map);
+    void remove_group(state_vision_group *g, mapper *map);
     transformation get_transformation() const;
 
-    bool map_enabled{false};
-    mapper map;
-    
     void update_feature_tracks(const rc_ImageData &image);
     float median_depth_variance();
     
     virtual void reset();
-    bool load_map(std::string json);
     int feature_count() const;
 
 protected:

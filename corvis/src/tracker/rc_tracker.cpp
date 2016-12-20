@@ -412,8 +412,10 @@ RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback
     auto rc_sink = std::make_shared<rc_callback_sink_st>(callback, handle);
     tracker->sfm.s.log = std::make_unique<spdlog::logger>("rc_tracker", rc_sink);
     tracker->sfm.s.log->set_level(rc_sink->level(maximum_log_level));
-    tracker->sfm.s.map.log = std::make_unique<spdlog::logger>("rc_tracker", rc_sink);
-    tracker->sfm.s.map.log->set_level(rc_sink->level(maximum_log_level));
+    if (tracker->sfm.map) {
+        tracker->sfm.map->log = std::make_unique<spdlog::logger>("rc_tracker", rc_sink);
+        tracker->sfm.map->log->set_level(rc_sink->level(maximum_log_level));
+    }
     if(trace) {
         trace_log = std::make_unique<spdlog::logger>("rc_trace", rc_sink);
         trace_log->set_pattern("%n: %v");

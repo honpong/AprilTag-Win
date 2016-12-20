@@ -12,6 +12,7 @@
 #include "sensor_data.h"
 #include "spdlog/spdlog.h"
 #include "rc_compat.h"
+#include "mapper.h"
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -47,6 +48,8 @@ struct filter {
     float median_depth_variance;
     bool has_converged;
     state_vision_group *detecting_group;
+
+    std::unique_ptr<mapper> map;
 
 #ifdef ENABLE_QR
     qr_detector qr;

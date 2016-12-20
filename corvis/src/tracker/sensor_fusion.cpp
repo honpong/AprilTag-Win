@@ -271,26 +271,27 @@ void sensor_fusion::reset(sensor_clock::time_point time)
 
 void sensor_fusion::start_mapping()
 {
-    sfm.s.map.reset();
-    sfm.s.map_enabled = true;
+    if (!sfm.map)
+        sfm.map = std::make_unique<mapper>();
+    sfm.map->reset();
 }
 
 void sensor_fusion::stop_mapping()
 {
-    sfm.s.map_enabled = false;
+    sfm.map = nullptr;
 }
 
 void sensor_fusion::save_map(void (*write)(void *handle, const void *buffer, size_t length), void *handle)
 {
     std::string json;
-    if(sfm.s.map_enabled && sfm.s.map.serialize(json)) {
+    if(sfm.map && sfm.map->serialize(json))
         write(handle, json.c_str(), json.length());
-    }
 }
 
 bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t length), void *handle)
 {
-    if(!sfm.s.map_enabled) return false;
+    if(!sfm.map)
+        return false;
 
     std::string json;
     char buffer[1024];
@@ -298,7 +299,8 @@ bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t l
     while((bytes_read = read(handle, buffer, 1024)) != 0) {
         json.append(buffer, bytes_read);
     }
-    return sfm.s.map.deserialize(json, sfm.s.map);
+
+    return mapper::deserialize(json, *sfm.map);
 }
 
 void sensor_fusion::receive_data(sensor_data && data)

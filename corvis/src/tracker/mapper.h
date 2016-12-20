@@ -153,6 +153,8 @@ class mapper {
     void print_stats();
 
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper",  make_shared<spdlog::sinks::null_sink_st> ());
+
+    bool enabled = false;
 };
 
 

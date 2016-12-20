@@ -422,8 +422,8 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
     const struct filter * f = &((sensor_fusion *)tracker)->sfm;
     uint64_t timestamp_us = data->time_us;
 
-    if(f->s.map_enabled) {
-        for(auto map_node : f->s.map.get_nodes()) {
+    if(f->map) {
+        for(auto map_node : f->map->get_nodes()) {
             bool loop_closed = false;
             vector<uint64_t> neighbors;
             for(auto edge : map_node.edges) {
@@ -439,7 +439,7 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
                 f.feature.world.z = feature->position[2];
                 features.push_back(f);
             }
-            bool unlinked = f->s.map.is_unlinked(map_node.id);
+            bool unlinked = f->map->is_unlinked(map_node.id);
             observe_map_node(timestamp_us, map_node.id, map_node.finished, loop_closed, unlinked, map_node.global_transformation.transform, neighbors, features);
         }
     }

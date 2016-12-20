@@ -95,7 +95,7 @@ void state_vision_group::make_empty()
     status = group_empty;
 }
 
-int state_vision_group::process_features(const rc_ImageData &image, mapper & map, bool map_enabled)
+int state_vision_group::process_features(const rc_ImageData &image, mapper *map)
 {
     features.children.remove_if([&](state_vision_feature *f) {
         if(f->should_drop()) {
@@ -105,7 +105,7 @@ int state_vision_group::process_features(const rc_ImageData &image, mapper & map
             return false;
     });
 
-    if(map_enabled) {
+    if(map) {
         for(auto f : features.children) {
             float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
             float variance_meters = stdev*stdev;
@@ -115,7 +115,7 @@ int state_vision_group::process_features(const rc_ImageData &image, mapper & map
 
             bool good = stdev / f->v.depth() < .05f;
             if(good && f->descriptor_valid)
-                map.update_feature_position(id, f->id, f->body, variance_meters);
+                map->update_feature_position(id, f->id, f->body, variance_meters);
             if(good && !f->descriptor_valid) {
                 float scale = static_cast<float>(f->v.depth());
                 float radius = 32.f/scale * (image.width / 320.f);
@@ -127,7 +127,7 @@ int state_vision_group::process_features(const rc_ImageData &image, mapper & map
                                       static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
                                       f->descriptor)) {
                     f->descriptor_valid = true;
-                    map.add_feature(id, f->id, f->body, variance_meters, f->descriptor);
+                    map->add_feature(id, f->id, f->body, variance_meters, f->descriptor);
                 }
             }
         }
@@ -195,7 +195,6 @@ state_vision::~state_vision()
 void state_vision::reset()
 {
     clear_features_and_groups();
-    map.reset();
     state_motion::reset();
 }
 
@@ -213,7 +212,7 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
-int state_vision::process_features(const rc_ImageData &image)
+int state_vision::process_features(const rc_ImageData &image, mapper *map)
 {
     int useful_drops = 0;
     int total_feats = 0;
@@ -251,7 +250,7 @@ int state_vision::process_features(const rc_ImageData &image)
     for(state_vision_group *g : groups.children) {
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
-        int health = g->process_features(image, map, map_enabled);
+        int health = g->process_features(image, map);
 
         if(g->status && g->status != group_initializing)
             total_health += health;
@@ -278,18 +277,18 @@ int state_vision::process_features(const rc_ImageData &image)
                 best_group = g;
                 best_health = g->health;
             }
-            if(map_enabled) {
+            if(map) {
                 transformation G = get_transformation()*invert(transformation(g->Qr.v, g->Tr.v));
-                map.set_node_transformation(g->id, G);
+                map->set_node_transformation(g->id, G);
             }
         }
     }
 
-    if(map_enabled) {
+    if(map) {
         transformation offset;
         int max = 20;
         int suppression = 10;
-        if(map.find_closure(max, suppression, offset)) {
+        if(map->find_closure(max, suppression, offset)) {
             loop_offset = offset*loop_offset;
             log->info("loop closed, offset: {}", std::cref(loop_offset));
         }
@@ -302,7 +301,7 @@ int state_vision::process_features(const rc_ImageData &image)
     {
         auto g = *i;
         ++i;
-        if(g->status == group_empty) remove_group(g);
+        if(g->status == group_empty) remove_group(g, map);
     }
 
     remap();
@@ -315,18 +314,18 @@ state_vision_feature * state_vision::add_feature(state_vision_group &group, cons
     return new state_vision_feature(group, feature_counter++, initial);
 }
 
-state_vision_group * state_vision::add_group(state_camera &camera)
+state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
 {
     state_vision_group *g = new state_vision_group(camera, group_counter++);
-    if(map_enabled) {
-        map.add_node(g->id);
+    if(map) {
+        map->add_node(g->id);
         if(groups.children.empty() && g->id != 0)
         {
-            map.add_edge(g->id, g->id-1);
+            map->add_edge(g->id, g->id-1);
             g->old_neighbors.push_back(g->id-1);
         }
         for(state_vision_group *neighbor : groups.children) {
-            map.add_edge(g->id, neighbor->id);
+            map->add_edge(g->id, neighbor->id);
 
             g->old_neighbors.push_back(neighbor->id);
             neighbor->neighbors.push_back(g->id);
@@ -340,11 +339,11 @@ state_vision_group * state_vision::add_group(state_camera &camera)
     return g;
 }
 
-void state_vision::remove_group(state_vision_group *g)
+void state_vision::remove_group(state_vision_group *g, mapper *map)
 {
-    if(map_enabled) {
+    if(map) {
         transformation G = get_transformation()*invert(transformation(g->Qr.v, g->Tr.v));
-        this->map.node_finished(g->id, G);
+        map->node_finished(g->id, G);
     }
     groups.remove_child(g);
     delete g;
@@ -562,12 +561,4 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
             g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
         }
     }
-}
-
-bool state_vision::load_map(std::string map_json)
-{
-    if(map_enabled) {
-        return mapper::deserialize(map_json, map);
-    }
-    return false;
 }

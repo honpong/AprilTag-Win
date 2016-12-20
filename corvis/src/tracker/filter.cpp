@@ -688,7 +688,7 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
 {
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
-        f->s.remove_group(g);
+        f->s.remove_group(g, f->map.get());
         f->s.remap();
         for(const auto &p : kp)
             f->s.camera.feature_tracker->drop_feature(p.id);
@@ -854,7 +854,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             int space = filter_available_feature_space(f);
             filter_add_detected_features(f, f->detecting_group, kp, space, data.image.height);
         } else {
-            f->s.remove_group(f->detecting_group);
+            f->s.remove_group(f->detecting_group, f->map.get());
             f->s.remap();
         }
         f->detecting_group = nullptr;
@@ -874,7 +874,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             cerr << " innov  " << c->inn_stdev << "\n";
     }
 
-    int features_used = f->s.process_features(data.image);
+    int features_used = f->s.process_features(data.image, f->map.get());
     if(!features_used)
     {
         //Lost all features - reset convergence
@@ -913,14 +913,14 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->run_state = RCSensorFusionRunStateRunning;
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
-                state_vision_group *g = f->s.add_group(f->s.camera);
+                state_vision_group *g = f->s.add_group(f->s.camera, f->map.get());
                 filter_add_detected_features(f, g, detection, space, data.image.height);
             }
         } else {
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
 #endif
-            f->detecting_group = f->s.add_group(f->s.camera);
+            f->detecting_group = f->s.add_group(f->s.camera, f->map.get());
         }
     }
     return true;
@@ -975,6 +975,7 @@ void filter_initialize(struct filter *f)
     f->catchup->observations.observations.clear();
 
     f->s.reset();
+    if (f->map) f->map->reset();
 
     // TODOMSM: remove these in favor of treating everything on a
     // per-sensor basis

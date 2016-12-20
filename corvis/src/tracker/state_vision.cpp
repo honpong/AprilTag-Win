@@ -174,7 +174,7 @@ state_vision::state_vision(covariance &c):
     state_motion(c),
     feature_counter(0), group_counter(0), reference(nullptr)
 {
-    reference = NULL;
+    reference = nullptr;
     children.push_back(&camera);
     children.push_back(&groups);
 }
@@ -196,7 +196,7 @@ state_vision::~state_vision()
 void state_vision::reset()
 {
     clear_features_and_groups();
-    reference = NULL;
+    reference = nullptr;
     map.reset();
     state_motion::reset();
 }
@@ -263,7 +263,7 @@ int state_vision::process_features(const rc_ImageData &image, sensor_clock::time
         if(!health) {
             if(map_enabled) {
                 if(g->status == group_reference) {
-                    reference = 0;
+                    reference = nullptr;
                 }
             }
             for(state_vision_feature *i : g->features.children)

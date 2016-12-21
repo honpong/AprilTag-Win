@@ -175,7 +175,6 @@ protected:
     void compute_measurement_covariance(matrix &m_cov);
     void compute_prediction_covariance(const state_root &s, int meas_size);
     void compute_innovation_covariance(const matrix &m_cov);
-    int remove_invalid_measurements(const state_root &s, int orig_size, matrix &inn);
     bool update_state_and_covariance(state_root &s, const matrix &inn);
 
     matrix state   {(f_t*)  state_storage,                  1,       MAXSTATESIZE,                  1,       MAXSTATESIZE };

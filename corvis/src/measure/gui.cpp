@@ -297,23 +297,23 @@ void gui::start_glfw()
                 glViewport(0, 0, main_width, main_height);
                 configure_view(main_width, main_height);
                 world_state_render(state, view_matrix.data(), projection_matrix);
-                in_main = [&](auto x, auto y) { x *= screen_to_pixel_x;
-                                                y *= screen_to_pixel_y;
-                                                return 0 <        x &&        x < main_width
-                                                &&     0 < height-y && height-y < main_height; };
+                in_main = [&](double x, double y) { x *= screen_to_pixel_x;
+                                                    y *= screen_to_pixel_y;
+                                                    return 0 <        x &&        x < main_width
+                                                    &&     0 < height-y && height-y < main_height; };
             } else
-                in_main = [&](auto x, auto y) { return false; };
+                in_main = [&](double x, double y) { return false; };
 
             if(show_video) {
                 // y coordinate is 0 = bottom, height = top (opengl)
                 glViewport(width - video_width, 0, video_width, video_height);
                 world_state_render_video(state, current_camera, video_width, video_height);
-                in_video = [&](auto x, auto y) { x *= screen_to_pixel_x;
-                                                 y *= screen_to_pixel_y;
-                                                 return width - video_width <        x &&        x < width
-                                                 &&     0                   < height-y && height-y < video_height; };
+                in_video = [&](double x, double y) { x *= screen_to_pixel_x;
+                                                     y *= screen_to_pixel_y;
+                                                     return width - video_width <        x &&        x < width
+                                                     &&     0                   < height-y && height-y < video_height; };
             } else
-                in_video = [&](auto x, auto y) { return false; };
+                in_video = [&](double x, double y) { return false; };
 
             if(show_depth) {
                 // y coordinate is 0 = bottom, height = top (opengl)
@@ -322,23 +322,23 @@ void gui::start_glfw()
                     world_state_render_depth_on_video(state, current_depth, depth_width, depth_height);
                 else
                     world_state_render_depth(state, current_depth, depth_width, depth_height);
-                in_depth = [&](auto x, auto y) { x *= screen_to_pixel_x;
-                                                 y *= screen_to_pixel_y;
-                                                 return width - depth_width <        x &&        x < width
-                                                 &&     video_height        < height-y && height-y < video_height + depth_height; };
+                in_depth = [&](double x, double y) { x *= screen_to_pixel_x;
+                                                     y *= screen_to_pixel_y;
+                                                     return width - depth_width <        x &&        x < width
+                                                     &&     video_height        < height-y && height-y < video_height + depth_height; };
             } else
-                in_depth = [&](auto x, auto y) { return false; };
+                in_depth = [&](double x, double y) { return false; };
 
             if(show_plots) {
                 // y coordinate is 0 = bottom, height = top (opengl)
                 glViewport(width - plots_width, video_height + depth_height, plots_width, plots_height);
                 world_state_render_plot(state, current_plot, current_plot_key, plots_width, plots_height);
-                in_plots = [&](auto x, auto y) { x *= screen_to_pixel_x;
-                                                 y *= screen_to_pixel_y;
-                                                 return width        - plots_width  <        x &&        x < width
-                                                 &&     video_height + depth_height < height-y && height-y < video_height + depth_height + plots_height; };
+                in_plots = [&](double x, double y) { x *= screen_to_pixel_x;
+                                                     y *= screen_to_pixel_y;
+                                                     return width        - plots_width  <        x &&        x < width
+                                                     &&     video_height + depth_height < height-y && height-y < video_height + depth_height + plots_height; };
             } else
-                in_plots = [&](auto x, auto y) { return false; };
+                in_plots = [&](double x, double y) { return false; };
 
             glfwSwapBuffers(main_window);
             dirty = false;

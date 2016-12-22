@@ -873,7 +873,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             cerr << " innov  " << c->inn_stdev << "\n";
     }
 
-    int features_used = f->s.process_features(data.image, time);
+    int features_used = f->s.process_features(data.image);
     if(!features_used)
     {
         //Lost all features - reset convergence
@@ -912,14 +912,14 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->run_state = RCSensorFusionRunStateRunning;
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
-                state_vision_group *g = f->s.add_group(data.timestamp);
+                state_vision_group *g = f->s.add_group();
                 filter_add_detected_features(f, g, detection, space, data.image.height);
             }
         } else {
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
 #endif
-            f->detecting_group = f->s.add_group(data.timestamp);
+            f->detecting_group = f->s.add_group();
         }
     }
     return true;

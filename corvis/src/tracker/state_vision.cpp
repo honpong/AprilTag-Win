@@ -215,7 +215,7 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
-int state_vision::process_features(const rc_ImageData &image, sensor_clock::time_point time)
+int state_vision::process_features(const rc_ImageData &image)
 {
     int useful_drops = 0;
     int total_feats = 0;
@@ -324,7 +324,7 @@ state_vision_feature * state_vision::add_feature(state_vision_group &group, cons
     return new state_vision_feature(group, feature_counter++, initial);
 }
 
-state_vision_group * state_vision::add_group(sensor_clock::time_point time)
+state_vision_group * state_vision::add_group()
 {
     state_vision_group *g = new state_vision_group(group_counter++);
     if(map_enabled) {

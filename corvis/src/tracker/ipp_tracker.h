@@ -237,7 +237,7 @@ public:
         IppiSize roi_size = {image.width_px, image.height_px};
         std::vector<IppiCornerFastN> &corner_vec = fast.detect(image, IppiPoint{0,0}, roi_size, *mask);
 
-        auto by_score = [](const auto &a, const auto &b){ return a.score > b.score; };
+        auto by_score = [](const point &a, const point &b){ return a.score > b.score; };
 
         feature_points.clear();
         feature_points.reserve(number_desired+1/*see below*/);

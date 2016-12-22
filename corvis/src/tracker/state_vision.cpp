@@ -341,10 +341,8 @@ state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
 
 void state_vision::remove_group(state_vision_group *g, mapper *map)
 {
-    if(map) {
-        transformation G = get_transformation()*invert(transformation(g->Qr.v, g->Tr.v));
-        map->node_finished(g->id, G);
-    }
+    if (map)
+        map->node_finished(g->id);
     groups.remove_child(g);
     delete g;
 }

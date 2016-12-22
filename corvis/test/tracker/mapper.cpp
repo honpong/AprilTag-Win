@@ -5,7 +5,8 @@
 
 void finish_second_node(mapper & map, const transformation & g_node)
 {
-    map.node_finished(4, g_node);
+    map.set_node_transformation(4, g_node);
+    map.node_finished(4);
 }
 
 void fill_map_two_nodes(mapper & map, const transformation & g_first, const transformation & g_feature)
@@ -38,14 +39,15 @@ void fill_map_two_nodes(mapper & map, const transformation & g_first, const tran
         map.add_feature(0, i, invert(g_first)*position, variance, d);
         map.add_feature(4, i+corvis_num_centers, invert(g_feature)*position, variance, d);
     }
-    map.node_finished(0, g_first);
-    map.node_finished(1, g_first);
-    map.node_finished(2, g_first);
-    map.node_finished(3, g_first);
+    map.set_node_transformation(0, g_first); map.node_finished(0);
+    map.set_node_transformation(1, g_first); map.node_finished(1);
+    map.set_node_transformation(2, g_first); map.node_finished(2);
+    map.set_node_transformation(3, g_first); map.node_finished(3);
     // need 10 nodes of padding for find_closure to try a node
     for(int i = 5; i < 5 + 10; i++) {
         map.add_node(i);
-        map.node_finished(i, g_first);
+        map.set_node_transformation(i, g_first);
+        map.node_finished(i);
     }
 }
 

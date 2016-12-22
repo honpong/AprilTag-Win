@@ -136,7 +136,7 @@ class mapper {
     const aligned_vector<map_node> & get_nodes() const { return nodes; };
 
     void update_feature_position(uint64_t node_id, uint64_t feature_id, const v3 &position_m, float depth_variance_m2);
-    void node_finished(uint64_t node_id, const transformation & G);
+    void node_finished(uint64_t node_id);
     void set_node_transformation(uint64_t id, const transformation & G);
 
     bool find_closure(int max, int suppression, transformation &offset);

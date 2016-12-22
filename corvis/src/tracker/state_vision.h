@@ -260,8 +260,6 @@ public:
     void remove_group(state_vision_group *g);
     transformation get_transformation() const;
 
-    state_vision_group *reference;
-
     bool map_enabled{false};
     mapper map;
     

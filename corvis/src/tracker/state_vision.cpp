@@ -95,7 +95,7 @@ void state_vision_group::make_empty()
     status = group_empty;
 }
 
-int state_vision_group::process_features(const rc_ImageData &image, mapper *map)
+int state_vision_group::process_features()
 {
     features.children.remove_if([&](state_vision_feature *f) {
         if(f->should_drop()) {
@@ -104,34 +104,6 @@ int state_vision_group::process_features(const rc_ImageData &image, mapper *map)
         } else
             return false;
     });
-
-    if(map) {
-        for(auto f : features.children) {
-            float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
-            float variance_meters = stdev*stdev;
-            const float measurement_var = 1.e-3f*1.e-3f;
-            if(variance_meters < measurement_var)
-                variance_meters = measurement_var;
-
-            bool good = stdev / f->v.depth() < .05f;
-            if(good && f->descriptor_valid)
-                map->update_feature_position(id, f->id, f->body, variance_meters);
-            if(good && !f->descriptor_valid) {
-                float scale = static_cast<float>(f->v.depth());
-                float radius = 32.f/scale * (image.width / 320.f);
-                if(radius < 4.f) {
-                    radius = 4.f;
-                }
-                //log->info("feature {} good radius {}", f->id, radius);
-                if(descriptor_compute((uint8_t*)image.image, image.width, image.height, image.stride,
-                                      static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
-                                      f->descriptor)) {
-                    f->descriptor_valid = true;
-                    map->add_feature(id, f->id, f->body, variance_meters, f->descriptor);
-                }
-            }
-        }
-    }
 
     health = features.children.size();
     if(health < min_feats)
@@ -250,7 +222,7 @@ int state_vision::process_features(const rc_ImageData &image, mapper *map)
     for(state_vision_group *g : groups.children) {
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
-        int health = g->process_features(image, map);
+        int health = g->process_features();
 
         if(g->status && g->status != group_initializing)
             total_health += health;
@@ -277,20 +249,6 @@ int state_vision::process_features(const rc_ImageData &image, mapper *map)
                 best_group = g;
                 best_health = g->health;
             }
-            if(map) {
-                transformation G = get_transformation()*invert(transformation(g->Qr.v, g->Tr.v));
-                map->set_node_transformation(g->id, G);
-            }
-        }
-    }
-
-    if(map) {
-        transformation offset;
-        int max = 20;
-        int suppression = 10;
-        if(map->find_closure(max, suppression, offset)) {
-            loop_offset = offset*loop_offset;
-            log->info("loop closed, offset: {}", std::cref(loop_offset));
         }
     }
 
@@ -306,7 +264,55 @@ int state_vision::process_features(const rc_ImageData &image, mapper *map)
 
     remap();
 
+    update_map(image, map);
+
     return total_health;
+}
+
+void state_vision::update_map(const rc_ImageData &image, mapper *map)
+{
+    if (!map) return;
+
+    {
+        for (state_vision_group *g : groups.children) {
+            if (g->status == group_normal)
+                map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
+
+            for (state_vision_feature *f : g->features.children) {
+                float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
+                float variance_meters = stdev*stdev;
+                const float measurement_var = 1.e-3f*1.e-3f;
+                if (variance_meters < measurement_var)
+                    variance_meters = measurement_var;
+
+                bool good = stdev / f->v.depth() < .05f;
+                if (good && f->descriptor_valid)
+                    map->update_feature_position(g->id, f->id, f->body, variance_meters);
+                if (good && !f->descriptor_valid) {
+                    float scale = static_cast<float>(f->v.depth());
+                    float radius = 32.f/scale * (image.width / 320.f);
+                    if(radius < 4.f) {
+                        radius = 4.f;
+                    }
+                    //log->info("feature {} good radius {}", f->id, radius);
+                    if (descriptor_compute((uint8_t*)image.image, image.width, image.height, image.stride,
+                                           static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
+                                           f->descriptor)) {
+                        f->descriptor_valid = true;
+                        map->add_feature(g->id, f->id, f->body, variance_meters, f->descriptor);
+                    }
+                }
+            }
+        }
+    }
+
+    transformation offset;
+    int max = 20;
+    int suppression = 10;
+    if (map->find_closure(max, suppression, offset)) {
+        loop_offset = offset*loop_offset;
+        log->info("loop closed, offset: {}", std::cref(loop_offset));
+    }
 }
 
 state_vision_feature * state_vision::add_feature(state_vision_group &group, const feature_t &initial)

@@ -18,7 +18,7 @@ void observation_queue::predict()
 
 void observation_queue::measure_and_prune()
 {
-    observations.erase(remove_if(observations.begin(), observations.end(), [this](auto &o) {
+    observations.erase(remove_if(observations.begin(), observations.end(), [this](std::unique_ptr<observation> &o) {
        bool ok = o->measure();
        if (!ok)
            this->cache_recent(std::move(o));

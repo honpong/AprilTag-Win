@@ -122,7 +122,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             if(docallback)
                 update_data(&data);
 
-            if(sfm.detecting_group)
+            if(sfm.s.camera.detecting_group)
                 sfm.s.camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred, filter_detect, &sfm, std::move(data));
         } break;
 

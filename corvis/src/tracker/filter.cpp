@@ -559,7 +559,7 @@ void filter_setup_next_frame(struct filter *f, const sensor_data &data)
     auto & camera = *f->cameras[data.id];
     auto timestamp = data.timestamp;
 
-    for(state_vision_group *g : f->s.groups.children) {
+    for(state_vision_group *g : f->s.camera.groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *i : g->features.children) {
             //FIXME: this is wrong since we have already compensated
@@ -688,11 +688,11 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
 {
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
-        f->s.remove_group(g, f->map.get());
+        f->s.camera.remove_group(g, f->map.get());
         f->s.remap();
         for(const auto &p : kp)
             f->s.camera.feature_tracker->drop_feature(p.id);
-        int active_features = f->s.feature_count();
+        int active_features = f->s.camera.feature_count();
         if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);
             f->detector_failed = true;
@@ -753,7 +753,7 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
 static int filter_available_feature_space(struct filter *f)
 {
     int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize;
-    if(!f->detecting_group) space -= 6;
+    if(!f->s.camera.detecting_group) space -= 6;
     if(space > f->max_group_add) space = f->max_group_add;
     return space;
 }
@@ -765,8 +765,8 @@ const vector<tracker::point> & filter_detect(struct filter *f, const sensor_data
     int space = filter_available_feature_space(f);
     const rc_ImageData &image = data.image;
     f->s.camera.feature_tracker->current_features.clear();
-    f->s.camera.feature_tracker->current_features.reserve(f->s.feature_count());
-    for(auto g : f->s.groups.children)
+    f->s.camera.feature_tracker->current_features.reserve(f->s.camera.feature_count());
+    for(auto g : f->s.camera.groups.children)
         for(auto i : g->features.children)
             f->s.camera.feature_tracker->current_features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
 
@@ -844,7 +844,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     f->s.camera.intrinsics.image_width = data.image.width;
     f->s.camera.intrinsics.image_height = data.image.height;
     
-    if(f->detecting_group)
+    if(f->s.camera.detecting_group)
     {
 #ifdef TEST_POSDEF
         if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
@@ -852,12 +852,12 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         if(f->s.camera.detection_future.valid()) {
             const auto & kp = f->s.camera.detection_future.get();
             int space = filter_available_feature_space(f);
-            filter_add_detected_features(f, f->detecting_group, kp, space, data.image.height);
+            filter_add_detected_features(f, f->s.camera.detecting_group, kp, space, data.image.height);
         } else {
-            f->s.remove_group(f->detecting_group, f->map.get());
+            f->s.camera.remove_group(f->s.camera.detecting_group, f->map.get());
             f->s.remap();
         }
-        f->detecting_group = nullptr;
+        f->s.camera.detecting_group = nullptr;
     }
 
     if(f->run_state == RCSensorFusionRunStateRunning)
@@ -866,9 +866,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(show_tuning) {
         fprintf(stderr, "\nvision:\n");
     }
-    preprocess_observation_queue(f, time);
-    f->s.update_feature_tracks(data.image);
-    process_observation_queue(f);
+    preprocess_observation_queue(f, time); // time update filter, then predict locations of current features in the observation queue
+    f->s.camera.update_feature_tracks(data.image); // track the current features near their predicted locations
+    process_observation_queue(f); // update state and covariance based on current location of tracked features
     if(show_tuning) {
         for (auto &c : f->cameras)
             cerr << " innov  " << c->inn_stdev << "\n";
@@ -920,7 +920,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
 #endif
-            f->detecting_group = f->s.add_group(f->s.camera, f->map.get());
+            f->s.camera.detecting_group = f->s.add_group(f->s.camera, f->map.get());
         }
     }
     return true;
@@ -967,9 +967,6 @@ void filter_initialize(struct filter *f)
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->calibration_bad = false;
     
-    f->detecting_group = nullptr;
-    
-
     f->observations.observations.clear();
     f->mini->observations.observations.clear();
     f->catchup->observations.observations.clear();

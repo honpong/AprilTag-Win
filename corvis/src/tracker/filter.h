@@ -47,7 +47,6 @@ struct filter {
     float max_velocity;
     float median_depth_variance;
     bool has_converged;
-    state_vision_group *detecting_group;
 
     std::unique_ptr<mapper> map;
 

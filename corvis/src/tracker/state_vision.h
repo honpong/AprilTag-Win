@@ -239,9 +239,20 @@ struct state_camera: state_branch<state_node*> {
 
     std::future<const std::vector<tracker::point> & > detection_future;
 
+    state_branch<state_vision_group *> groups;
+    void update_feature_tracks(const rc_ImageData &image);
+    void clear_features_and_groups();
+    int feature_count() const;
+    int process_features(mapper *map, spdlog::logger &log);
+    void remove_group(state_vision_group *g, mapper *map);
+
+    state_vision_group *detecting_group = nullptr; // FIXME on reset
+
     state_camera() : extrinsics("Qc", "Tc", false), intrinsics(false) {
+        reset();
         //children.push_back(&extrinsics);
         children.push_back(&intrinsics);
+        children.push_back(&groups);
     }
 };
 
@@ -252,23 +263,18 @@ public:
     uint64_t feature_counter;
     uint64_t group_counter;
 
-    state_branch<state_vision_group *> groups;
-    
     state_vision(covariance &c);
     ~state_vision();
     int process_features(const rc_ImageData &image, mapper *map);
     state_vision_feature *add_feature(state_vision_group &group, const feature_t & initial);
     state_vision_group *add_group(state_camera &camera, mapper *map);
-    void remove_group(state_vision_group *g, mapper *map);
     transformation get_transformation() const;
 
     void update_map(const rc_ImageData &image, mapper *map);
 
-    void update_feature_tracks(const rc_ImageData &image);
     float median_depth_variance();
     
     virtual void reset();
-    int feature_count() const;
 
 protected:
     virtual void add_non_orientation_states();
@@ -276,8 +282,6 @@ protected:
     virtual void evolve_state(f_t dt);
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void cache_jacobians(f_t dt);
-private:
-    void clear_features_and_groups();
 };
 
 typedef state_vision state;

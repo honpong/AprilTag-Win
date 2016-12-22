@@ -630,7 +630,7 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
 
     if(camera_id == 0) {
     transformation G = tracker->get_transformation();
-    for(auto g: tracker->sfm.s.groups.children) {
+    for(auto g: tracker->sfm.s.camera.groups.children) {
         for(auto i: g->features.children) {
             if(i->is_valid()) {
                 rc_Feature feat;

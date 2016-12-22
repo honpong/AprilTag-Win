@@ -147,10 +147,9 @@ state_vision::state_vision(covariance &c):
     feature_counter(0), group_counter(0)
 {
     children.push_back(&camera);
-    children.push_back(&groups);
 }
 
-void state_vision::clear_features_and_groups()
+void state_camera::clear_features_and_groups()
 {
     for(state_vision_group *g : groups.children) {
         g->make_empty();
@@ -161,16 +160,17 @@ void state_vision::clear_features_and_groups()
 
 state_vision::~state_vision()
 {
-    clear_features_and_groups();
+    camera.clear_features_and_groups();
 }
 
 void state_vision::reset()
 {
-    clear_features_and_groups();
+    camera.clear_features_and_groups();
+    camera.detecting_group = nullptr;
     state_motion::reset();
 }
 
-int state_vision::feature_count() const
+int state_camera::feature_count() const
 {
     int count = 0;
     for(auto *g : groups.children)
@@ -184,7 +184,7 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
-int state_vision::process_features(const rc_ImageData &image, mapper *map)
+int state_camera::process_features(mapper *map, spdlog::logger &log)
 {
     int useful_drops = 0;
     int total_feats = 0;
@@ -206,11 +206,11 @@ int state_vision::process_features(const rc_ImageData &image, mapper *map)
                 }
             }
             if(i->should_drop())
-                camera.feature_tracker->drop_feature(i->tracker_id);
+                feature_tracker->drop_feature(i->tracker_id);
         }
     }
 
-    if(track_fail && !total_feats) log->warn("Tracker failed! {} features dropped.", track_fail);
+    if(track_fail && !total_feats) log.warn("Tracker failed! {} features dropped.", track_fail);
     //    log.warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);
 
     int total_health = 0;
@@ -231,7 +231,7 @@ int state_vision::process_features(const rc_ImageData &image, mapper *map)
         // This sets group_empty (even if group_reference)
         if(!health) {
             for(state_vision_feature *i : g->features.children)
-                camera.feature_tracker->drop_feature(i->tracker_id);
+                feature_tracker->drop_feature(i->tracker_id);
             g->make_empty();
         }
 
@@ -262,11 +262,15 @@ int state_vision::process_features(const rc_ImageData &image, mapper *map)
         if(g->status == group_empty) remove_group(g, map);
     }
 
-    remap();
-
-    update_map(image, map);
-
     return total_health;
+}
+
+int state_vision::process_features(const rc_ImageData &image, mapper *map)
+{
+    int health = camera.process_features(map, *log);
+    remap();
+    update_map(image, map);
+    return health;
 }
 
 void state_vision::update_map(const rc_ImageData &image, mapper *map)
@@ -274,7 +278,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
     if (!map) return;
 
     {
-        for (state_vision_group *g : groups.children) {
+        for (state_vision_group *g : camera.groups.children) {
             if (g->status == group_normal)
                 map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
 
@@ -325,19 +329,19 @@ state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
     state_vision_group *g = new state_vision_group(camera, group_counter++);
     if(map) {
         map->add_node(g->id);
-        if(groups.children.empty() && g->id != 0)
+        if(camera.groups.children.empty() && g->id != 0) // FIXME: what if the other camera has groups?
         {
             map->add_edge(g->id, g->id-1);
             g->old_neighbors.push_back(g->id-1);
         }
-        for(state_vision_group *neighbor : groups.children) {
+        for(state_vision_group *neighbor : camera.groups.children) {
             map->add_edge(g->id, neighbor->id);
 
             g->old_neighbors.push_back(neighbor->id);
             neighbor->neighbors.push_back(g->id);
         }
     }
-    groups.children.push_back(g);
+    camera.groups.children.push_back(g);
     remap();
 #ifdef TEST_POSDEF
     if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after propagating group\n");
@@ -345,7 +349,7 @@ state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
     return g;
 }
 
-void state_vision::remove_group(state_vision_group *g, mapper *map)
+void state_camera::remove_group(state_vision_group *g, mapper *map)
 {
     if (map)
         map->node_finished(g->id);
@@ -449,7 +453,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
     return ku_d;
 }
 
-void state_vision::update_feature_tracks(const rc_ImageData &image)
+void state_camera::update_feature_tracks(const rc_ImageData &image)
 {
     tracker::image current_image;
     current_image.image = (uint8_t *)image.image;
@@ -459,21 +463,21 @@ void state_vision::update_feature_tracks(const rc_ImageData &image)
 
     std::map<uint64_t, state_vision_feature *> id_to_state;
 
-    camera.feature_tracker->predictions.clear();
-    camera.feature_tracker->predictions.reserve(feature_count());
+    feature_tracker->predictions.clear();
+    feature_tracker->predictions.reserve(feature_count());
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children) {
             id_to_state[feature->tracker_id] = feature;
-            camera.feature_tracker->predictions.emplace_back(feature->tracker_id,
-                                                            (float)feature->current.x(), (float)feature->current.y(),
-                                                            (float)feature->prediction.x(), (float)feature->prediction.y());
+            feature_tracker->predictions.emplace_back(feature->tracker_id,
+                                                      (float)feature->current.x(), (float)feature->current.y(),
+                                                      (float)feature->prediction.x(), (float)feature->prediction.y());
         }
     }
 
     int i=0;
-    if (camera.feature_tracker->predictions.size())
-        for(const auto &p : camera.feature_tracker->track(current_image, camera.feature_tracker->predictions)) {
+    if (feature_tracker->predictions.size())
+        for(const auto &p : feature_tracker->track(current_image, feature_tracker->predictions)) {
             state_vision_feature * feature = id_to_state[p.id];
             feature->current.x() = p.found ? p.x : INFINITY;
             feature->current.y() = p.found ? p.y : INFINITY;
@@ -485,7 +489,7 @@ float state_vision::median_depth_variance()
     float median_variance = 1;
 
     vector<state_vision_feature *> useful_feats;
-    for(auto g: groups.children) {
+    for(auto g: camera.groups.children) {
         for(auto i: g->features.children) {
             if(i->is_initialized()) useful_feats.push_back(i);
         }
@@ -502,7 +506,6 @@ float state_vision::median_depth_variance()
 void state_vision::remove_non_orientation_states()
 {
     remove_child(&camera);
-    remove_child(&groups);
     state_motion::remove_non_orientation_states();
 }
 
@@ -510,12 +513,11 @@ void state_vision::add_non_orientation_states()
 {
     state_motion::add_non_orientation_states();
     children.push_back(&camera);
-    children.push_back(&groups);
 }
 
 void state_vision::evolve_state(f_t dt)
 {
-    for(state_vision_group *g : groups.children) {
+    for(state_vision_group *g : camera.groups.children) {
         g->Tr.v += g->dTrp_ddT * dT;
         rotation_vector dWr(dW[0], dW[1], dW[2]);
         g->Qr.v *= to_quaternion(dWr); // FIXME: cache this?
@@ -527,7 +529,7 @@ void state_vision::cache_jacobians(f_t dt)
 {
     state_motion::cache_jacobians(dt);
 
-    for(state_vision_group *g : groups.children) {
+    for(state_vision_group *g : camera.groups.children) {
         m3 Rr = g->Qr.v.toRotationMatrix();
         g->dTrp_ddT = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
         m3 xRrRtdT = skew(g->dTrp_ddT * dT);
@@ -558,7 +560,7 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         T.to_col(dst, i) = cov_T + cov_dT;
         V.to_col(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
         a.to_col(dst, i) = cov_a + dt * cov_da;
-        for(state_vision_group *g : groups.children) {
+        for(state_vision_group *g : camera.groups.children) {
             const auto cov_Tr = g->Tr.from_row(src, i);
             const auto scov_Qr = g->Qr.from_row(src, i);
             g->Tr.to_col(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;

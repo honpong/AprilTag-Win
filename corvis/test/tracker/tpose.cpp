@@ -10,12 +10,12 @@ TEST(TPose, LessThan)
 
 TEST(TPose, Interpolate)
 {
-    using namespace std::chrono_literals;
+    using namespace std::chrono;
     sensor_clock::time_point t;
     EXPECT_TRANSFORMATION_NEAR(transformation(quaternion::Identity(), v3(31,0,0)),
-                               tpose(t+3ms,
-                                     tpose{t+1ms, transformation(quaternion::Identity(), v3(11,0,0))},
-                                     tpose{t+9ms, transformation(quaternion::Identity(), v3(91,0,0))}).G, F_T_EPS);
+                               tpose(t+milliseconds(3),
+                                     tpose{t+milliseconds(1), transformation(quaternion::Identity(), v3(11,0,0))},
+                                     tpose{t+milliseconds(9), transformation(quaternion::Identity(), v3(91,0,0))}).G, F_T_EPS);
 }
 
 TEST(TPose, Parses)
@@ -84,20 +84,20 @@ TEST(TPoseSequence, DISABLED_FailsToParse) // noisy, so disabled
 
 TEST(TPoseSequence, Interpolates)
 {
-    using namespace std::chrono_literals;
+    using namespace std::chrono;
     sensor_clock::time_point t;
     tpose_sequence ts;
-    ts.tposes.emplace_back(t+100ms,transformation(quaternion::Identity(),v3(1,0,0)));
-    ts.tposes.emplace_back(t+200ms,transformation(quaternion::Identity(),v3(2,0,0)));
-    ts.tposes.emplace_back(t+300ms,transformation(quaternion::Identity(),v3(3,0,0)));
-    ts.tposes.emplace_back(t+400ms,transformation(quaternion::Identity(),v3(4,0,0)));
+    ts.tposes.emplace_back(t+milliseconds(100),transformation(quaternion::Identity(),v3(1,0,0)));
+    ts.tposes.emplace_back(t+milliseconds(200),transformation(quaternion::Identity(),v3(2,0,0)));
+    ts.tposes.emplace_back(t+milliseconds(300),transformation(quaternion::Identity(),v3(3,0,0)));
+    ts.tposes.emplace_back(t+milliseconds(400),transformation(quaternion::Identity(),v3(4,0,0)));
     tpose tp{t};
-    EXPECT_FALSE(ts.get_pose(t-100ms, tp));
-    EXPECT_FALSE(ts.get_pose(t+000ms, tp));
-    EXPECT_TRUE (ts.get_pose(t+100ms, tp)); EXPECT_TRUE(t+100ms == tp.t); EXPECT_V3_NEAR(v3(1,   0,0), tp.G.T, F_T_EPS);
-    EXPECT_TRUE (ts.get_pose(t+125ms, tp)); EXPECT_TRUE(t+125ms == tp.t); EXPECT_V3_NEAR(v3(1.25,0,0), tp.G.T, F_T_EPS);
-    EXPECT_TRUE (ts.get_pose(t+225ms, tp)); EXPECT_TRUE(t+225ms == tp.t); EXPECT_V3_NEAR(v3(2.25,0,0), tp.G.T, F_T_EPS);
-    EXPECT_TRUE (ts.get_pose(t+300ms, tp)); EXPECT_TRUE(t+300ms == tp.t); EXPECT_V3_NEAR(v3(3,   0,0), tp.G.T, F_T_EPS);
-    EXPECT_TRUE (ts.get_pose(t+400ms, tp)); EXPECT_TRUE(t+400ms == tp.t); EXPECT_V3_NEAR(v3(4,   0,0), tp.G.T, F_T_EPS);
-    EXPECT_FALSE(ts.get_pose(t+500ms, tp));
+    EXPECT_FALSE(ts.get_pose(t-milliseconds(100), tp));
+    EXPECT_FALSE(ts.get_pose(t+milliseconds(0), tp));
+    EXPECT_TRUE (ts.get_pose(t+milliseconds(100), tp)); EXPECT_TRUE(t+milliseconds(100) == tp.t); EXPECT_V3_NEAR(v3(1,   0,0), tp.G.T, F_T_EPS);
+    EXPECT_TRUE (ts.get_pose(t+milliseconds(125), tp)); EXPECT_TRUE(t+milliseconds(125) == tp.t); EXPECT_V3_NEAR(v3(1.25,0,0), tp.G.T, F_T_EPS);
+    EXPECT_TRUE (ts.get_pose(t+milliseconds(225), tp)); EXPECT_TRUE(t+milliseconds(225) == tp.t); EXPECT_V3_NEAR(v3(2.25,0,0), tp.G.T, F_T_EPS);
+    EXPECT_TRUE (ts.get_pose(t+milliseconds(300), tp)); EXPECT_TRUE(t+milliseconds(300) == tp.t); EXPECT_V3_NEAR(v3(3,   0,0), tp.G.T, F_T_EPS);
+    EXPECT_TRUE (ts.get_pose(t+milliseconds(400), tp)); EXPECT_TRUE(t+milliseconds(400) == tp.t); EXPECT_V3_NEAR(v3(4,   0,0), tp.G.T, F_T_EPS);
+    EXPECT_FALSE(ts.get_pose(t+milliseconds(500), tp));
 }

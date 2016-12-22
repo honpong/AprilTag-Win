@@ -17,8 +17,8 @@ template <typename Stream>
 inline Stream &operator <<(Stream &s, const std::deque<sensor_data> &q) {
     struct tt { sensor_clock::time_point time_us; rc_SensorType type; rc_Sensor id; };
     std::vector<struct tt> v(q.size());
-    std::transform(q.begin(), q.end(), v.begin(), [](const auto &d) { return tt{ d.timestamp, d.type, d.id }; });
-    std::sort(v.begin(), v.end(), [](const auto &a, const auto &b) { return a.time_us < b.time_us; });
+    std::transform(q.begin(), q.end(), v.begin(), [](const sensor_data &d) { return tt{ d.timestamp, d.type, d.id }; });
+    std::sort(v.begin(), v.end(), [](const sensor_data &a, const sensor_data &b) { return a.time_us < b.time_us; });
     for(auto &d: v)
         s << std::chrono::duration_cast<std::chrono::microseconds>(d.time_us-v.front().time_us).count() << ":" << std::hex << d.id*16+d.type << std::dec << " ";
     return s;

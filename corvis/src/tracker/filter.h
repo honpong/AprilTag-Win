@@ -36,7 +36,6 @@ struct filter {
     std::unique_ptr<spdlog::logger> &log = s.log;
 
     sensor_clock::time_point want_start;
-    v3 last_gyro_meas, last_accel_meas; //TODOMSM - per-sensor
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;

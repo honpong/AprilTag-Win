@@ -247,34 +247,38 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
         observe_plot_item(timestamp_us, p, "g_z", (float)f->observations.recent_g->meas[2]);
     }
 
-    if (f->s.camera.intrinsics.estimate) {
+    for (size_t i=0; i<f->s.cameras.children.size(); i++) {
+        const auto &camera = *f->s.cameras.children[i];
+        if (!camera.intrinsics.estimate) continue;
         p = get_plot_by_name("distortion");
-        if (f->s.camera.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE)
-            observe_plot_item(timestamp_us, p, "kw", (float)f->s.camera.intrinsics.k1.v);
-        else if (f->s.camera.intrinsics.type == rc_CALIBRATION_TYPE_POLYNOMIAL3) {
-            observe_plot_item(timestamp_us, p, "k1", (float)f->s.camera.intrinsics.k1.v);
-            observe_plot_item(timestamp_us, p, "k2", (float)f->s.camera.intrinsics.k2.v);
-            observe_plot_item(timestamp_us, p, "k3", (float)f->s.camera.intrinsics.k3.v);
+        if (camera.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE)
+            observe_plot_item(timestamp_us, p, "w" + std::to_string(i), (float)camera.intrinsics.k1.v);
+        else if (camera.intrinsics.type == rc_CALIBRATION_TYPE_POLYNOMIAL3) {
+            observe_plot_item(timestamp_us, p, "k1-" + std::to_string(i), (float)camera.intrinsics.k1.v);
+            observe_plot_item(timestamp_us, p, "k2-" + std::to_string(i), (float)camera.intrinsics.k2.v);
+            observe_plot_item(timestamp_us, p, "k3-" + std::to_string(i), (float)camera.intrinsics.k3.v);
         }
 
         p = get_plot_by_name("focal");
-        observe_plot_item(timestamp_us, p, "F", (float)(f->s.camera.intrinsics.focal_length.v * f->s.camera.intrinsics.image_height));
+        observe_plot_item(timestamp_us, p, "F" + std::to_string(i), (float)(camera.intrinsics.focal_length.v * camera.intrinsics.image_height));
 
         p = get_plot_by_name("center");
-        observe_plot_item(timestamp_us, p, "C_x", (float)(f->s.camera.intrinsics.center_x.v * f->s.camera.intrinsics.image_height + f->s.camera.intrinsics.image_width  / 2. - .5));
-        observe_plot_item(timestamp_us, p, "C_y", (float)(f->s.camera.intrinsics.center_y.v * f->s.camera.intrinsics.image_height + f->s.camera.intrinsics.image_height / 2. - .5));
+        observe_plot_item(timestamp_us, p, "C_x" + std::to_string(i), (float)(camera.intrinsics.center_x.v * camera.intrinsics.image_height + camera.intrinsics.image_width  / 2. - .5));
+        observe_plot_item(timestamp_us, p, "C_y" + std::to_string(i), (float)(camera.intrinsics.center_y.v * camera.intrinsics.image_height + camera.intrinsics.image_height / 2. - .5));
     }
 
-    if (f->s.camera.extrinsics.estimate) {
-        p = get_plot_by_name("extrinsics_T");
-        observe_plot_item(timestamp_us, p, "Tc_x", (float)f->s.camera.extrinsics.T.v[0]);
-        observe_plot_item(timestamp_us, p, "Tc_y", (float)f->s.camera.extrinsics.T.v[1]);
-        observe_plot_item(timestamp_us, p, "Tc_z", (float)f->s.camera.extrinsics.T.v[2]);
+    for (size_t i=0; i<f->s.cameras.children.size(); i++) {
+        const auto &camera = *f->s.cameras.children[i];
+        if (!camera.extrinsics.estimate) continue;
+        p = get_plot_by_name("extrinsics_T" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "Tc_x", (float)camera.extrinsics.T.v[0]);
+        observe_plot_item(timestamp_us, p, "Tc_y", (float)camera.extrinsics.T.v[1]);
+        observe_plot_item(timestamp_us, p, "Tc_z", (float)camera.extrinsics.T.v[2]);
 
-        p = get_plot_by_name("extrinsics_W");
-        observe_plot_item(timestamp_us, p, "Wc_x", (float)to_rotation_vector(f->s.camera.extrinsics.Q.v).raw_vector()[0]);
-        observe_plot_item(timestamp_us, p, "Wc_y", (float)to_rotation_vector(f->s.camera.extrinsics.Q.v).raw_vector()[1]);
-        observe_plot_item(timestamp_us, p, "Wc_z", (float)to_rotation_vector(f->s.camera.extrinsics.Q.v).raw_vector()[2]);
+        p = get_plot_by_name("extrinsics_W" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "Wc_x", (float)to_rotation_vector(camera.extrinsics.Q.v).raw_vector()[0]);
+        observe_plot_item(timestamp_us, p, "Wc_y", (float)to_rotation_vector(camera.extrinsics.Q.v).raw_vector()[1]);
+        observe_plot_item(timestamp_us, p, "Wc_z", (float)to_rotation_vector(camera.extrinsics.Q.v).raw_vector()[2]);
     }
 
     p = get_plot_by_name("translation");
@@ -362,9 +366,12 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     observe_plot_item(timestamp_us, p, "median-depth-var", (float)f->median_depth_variance);
 
     p = get_plot_by_name("counts");
-    observe_plot_item(timestamp_us, p, "feature-count", (float)f->s.camera.feature_count());
     observe_plot_item(timestamp_us, p, "state-size", (float)f->s.statesize);
-    observe_plot_item(timestamp_us, p, "group-states", (float)f->s.camera.groups.children.size() * 6);
+    for (size_t i=0; i<f->s.cameras.children.size(); i++) {
+        const auto &camera = *f->s.cameras.children[i];
+        observe_plot_item(timestamp_us, p, "feature-count" + std::to_string(i), (float)camera.feature_count());
+        observe_plot_item(timestamp_us, p, "group-states" + std::to_string(i), (float)camera.groups.children.size() * 6);
+    }
 
     p = get_plot_by_name("acc timer");
     for (size_t i=0; i<f->accelerometers.size(); i++) {

@@ -146,7 +146,7 @@ state_vision::state_vision(covariance &c):
     state_motion(c),
     feature_counter(0), group_counter(0)
 {
-    children.push_back(&camera);
+    children.push_back(&cameras);
 }
 
 void state_camera::clear_features_and_groups()
@@ -160,13 +160,16 @@ void state_camera::clear_features_and_groups()
 
 state_vision::~state_vision()
 {
-    camera.clear_features_and_groups();
+    for (auto &camera : cameras.children)
+        camera->clear_features_and_groups();
 }
 
 void state_vision::reset()
 {
-    camera.clear_features_and_groups();
-    camera.detecting_group = nullptr;
+    for (auto &camera : cameras.children) {
+        camera->clear_features_and_groups();
+        camera->detecting_group = nullptr; // FIXME: does this leak?
+    }
     state_motion::reset();
 }
 
@@ -265,7 +268,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     return total_health;
 }
 
-int state_vision::process_features(const rc_ImageData &image, mapper *map)
+int state_vision::process_features(state_camera &camera, const rc_ImageData &image, mapper *map)
 {
     int health = camera.process_features(map, *log);
     remap();
@@ -277,8 +280,8 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
 {
     if (!map) return;
 
-    {
-        for (state_vision_group *g : camera.groups.children) {
+    for (auto &camera : cameras.children) {
+        for (auto &g : camera->groups.children) {
             if (g->status == group_normal)
                 map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
 
@@ -334,7 +337,7 @@ state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
             map->add_edge(g->id, g->id-1);
             g->old_neighbors.push_back(g->id-1);
         }
-        for(state_vision_group *neighbor : camera.groups.children) {
+        for(auto &neighbor : camera.groups.children) {
             map->add_edge(g->id, neighbor->id);
 
             g->old_neighbors.push_back(neighbor->id);
@@ -489,11 +492,11 @@ float state_vision::median_depth_variance()
     float median_variance = 1;
 
     vector<state_vision_feature *> useful_feats;
-    for(auto g: camera.groups.children) {
-        for(auto i: g->features.children) {
-            if(i->is_initialized()) useful_feats.push_back(i);
-        }
-    }
+    for (auto &c : cameras.children)
+        for(auto &g: c->groups.children)
+            for(auto i: g->features.children)
+                if(i->is_initialized())
+                    useful_feats.push_back(i);
 
     if(useful_feats.size()) {
         sort(useful_feats.begin(), useful_feats.end(), [](state_vision_feature *a, state_vision_feature *b) { return a->variance() < b->variance(); });
@@ -505,23 +508,24 @@ float state_vision::median_depth_variance()
 
 void state_vision::remove_non_orientation_states()
 {
-    remove_child(&camera);
+    remove_child(&cameras);
     state_motion::remove_non_orientation_states();
 }
 
 void state_vision::add_non_orientation_states()
 {
     state_motion::add_non_orientation_states();
-    children.push_back(&camera);
+    children.push_back(&cameras);
 }
 
 void state_vision::evolve_state(f_t dt)
 {
-    for(state_vision_group *g : camera.groups.children) {
-        g->Tr.v += g->dTrp_ddT * dT;
-        rotation_vector dWr(dW[0], dW[1], dW[2]);
-        g->Qr.v *= to_quaternion(dWr); // FIXME: cache this?
-    }
+    for (auto &c : cameras.children)
+        for(auto &g : c->groups.children) {
+            g->Tr.v += g->dTrp_ddT * dT;
+            rotation_vector dWr(dW[0], dW[1], dW[2]);
+            g->Qr.v *= to_quaternion(dWr); // FIXME: cache this?
+        }
     state_motion::evolve_state(dt);
 }
 
@@ -529,13 +533,15 @@ void state_vision::cache_jacobians(f_t dt)
 {
     state_motion::cache_jacobians(dt);
 
-    for(state_vision_group *g : camera.groups.children) {
-        m3 Rr = g->Qr.v.toRotationMatrix();
-        g->dTrp_ddT = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
-        m3 xRrRtdT = skew(g->dTrp_ddT * dT);
-        g->dTrp_dQ_s   = xRrRtdT;
-        g->dQrp_s_dW = Rr * JdW_s;
-    }
+    for (auto &c : cameras.children)
+        for(auto &g : c->groups.children) {
+            m3 Rr = g->Qr.v.toRotationMatrix();
+            g->dTrp_ddT = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
+            m3 xRrRtdT = skew(g->dTrp_ddT * dT);
+            g->dTrp_dQ_s   = xRrRtdT;
+            g->dQrp_s_dW = Rr * JdW_s;
+        }
+
 }
 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
@@ -560,11 +566,12 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         T.to_col(dst, i) = cov_T + cov_dT;
         V.to_col(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
         a.to_col(dst, i) = cov_a + dt * cov_da;
-        for(state_vision_group *g : camera.groups.children) {
-            const auto cov_Tr = g->Tr.from_row(src, i);
-            const auto scov_Qr = g->Qr.from_row(src, i);
-            g->Tr.to_col(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
-            g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
-        }
+        for (auto &c : cameras.children)
+            for(auto &g : c->groups.children) {
+                const auto cov_Tr = g->Tr.from_row(src, i);
+                const auto scov_Qr = g->Qr.from_row(src, i);
+                g->Tr.to_col(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
+                g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
+            }
     }
 }

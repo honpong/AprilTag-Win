@@ -259,13 +259,14 @@ struct state_camera: state_branch<state_node*> {
 class state_vision: public state_motion {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    state_camera camera;
+    state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
+
     uint64_t feature_counter;
     uint64_t group_counter;
 
     state_vision(covariance &c);
     ~state_vision();
-    int process_features(const rc_ImageData &image, mapper *map);
+    int process_features(state_camera &camera, const rc_ImageData &image, mapper *map);
     state_vision_feature *add_feature(state_vision_group &group, const feature_t & initial);
     state_vision_group *add_group(state_camera &camera, mapper *map);
     transformation get_transformation() const;

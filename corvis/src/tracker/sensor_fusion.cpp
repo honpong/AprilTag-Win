@@ -122,8 +122,9 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             if(docallback)
                 update_data(&data);
 
-            if(sfm.s.camera.detecting_group)
-                sfm.s.camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred, filter_detect, &sfm, std::move(data));
+            if (data.id < sfm.s.cameras.children.size())
+                if(sfm.s.cameras.children[data.id]->detecting_group)
+                    sfm.s.cameras.children[data.id]->detection_future = std::async(threaded ? std::launch::async : std::launch::deferred, filter_detect, &sfm, std::move(data));
         } break;
 
         case rc_SENSOR_TYPE_DEPTH: {

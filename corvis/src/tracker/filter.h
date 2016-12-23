@@ -68,9 +68,6 @@ struct filter {
 
     bool got_any_gyroscopes()     const { for (const auto &gyro  :     gyroscopes) if (gyro->got)  return true; return false;}
     bool got_any_accelerometers() const { for (const auto &accel : accelerometers) if (accel->got) return true; return false; }
-
-    //TODOMSM - per sensor
-    std::chrono::duration<float, milli> accel_timer, gyro_timer, track_timer, detect_timer, mini_accel_timer, mini_gyro_timer;
 };
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data);

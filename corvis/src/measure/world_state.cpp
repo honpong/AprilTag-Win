@@ -367,22 +367,28 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     observe_plot_item(timestamp_us, p, "group-states", (float)f->s.groups.children.size() * 6);
 
     p = get_plot_by_name("acc timer");
-    observe_plot_item(timestamp_us, p, "accel timer", f->accel_timer.count());
+    for (size_t i=0; i<f->accelerometers.size(); i++) {
+        observe_plot_item(timestamp_us, p, "accel timer " + std::to_string(i), f->accelerometers[i]->timer.count());
+        observe_plot_item(timestamp_us, p, "mini accel timer " + std::to_string(i), f->accelerometers[i]->mini_timer.count());
+    }
 
     p = get_plot_by_name("gyro timer");
-    observe_plot_item(timestamp_us, p, "gyro timer", f->gyro_timer.count());
+    for (size_t i=0; i<f->gyroscopes.size(); i++) {
+        observe_plot_item(timestamp_us, p, "gyro timer " + std::to_string(i), f->gyroscopes[i]->timer.count());
+        observe_plot_item(timestamp_us, p, "mini gyro timer " + std::to_string(i), f->gyroscopes[i]->mini_timer.count());
+    }
+
+    p = get_plot_by_name("image timer");
+    for (size_t i=0; i<f->cameras.size(); i++)
+        observe_plot_item(timestamp_us, p, "image timer " + std::to_string(i), f->cameras[i]->timer.count());
 
     p = get_plot_by_name("track timer");
-    observe_plot_item(timestamp_us, p, "track timer", f->track_timer.count());
+    for (size_t i=0; i<f->cameras.size(); i++)
+        observe_plot_item(timestamp_us, p, "track timer " + std::to_string(i), f->cameras[i]->track_timer.count());
 
     p = get_plot_by_name("detect timer");
-    observe_plot_item(timestamp_us, p, "detect timer", f->detect_timer.count());
-
-    p = get_plot_by_name("mini accel timer");
-    observe_plot_item(timestamp_us, p, "mini accel timer", f->mini_accel_timer.count());
-
-    p = get_plot_by_name("mini gyro timer");
-    observe_plot_item(timestamp_us, p, "mini gyro timer", f->mini_gyro_timer.count());
+    for (size_t i=0; i<f->cameras.size(); i++)
+        observe_plot_item(timestamp_us, p, "detect timer " + std::to_string(i), f->cameras[i]->detect_timer.count());
 }
 
 void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)

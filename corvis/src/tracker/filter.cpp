@@ -202,7 +202,7 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     queue.observations.push_back(std::move(obs_a));
     bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
     auto stop = std::chrono::steady_clock::now();
-    f->mini_accel_timer = stop-start;
+    accelerometer.timer = stop-start;
     return ok;
 }
 
@@ -229,7 +229,7 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
     bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
 
     auto stop = std::chrono::steady_clock::now();
-    f->mini_gyro_timer = stop-start;
+    gyroscope.mini_timer = stop-start;
 
     return ok;
 }
@@ -500,7 +500,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
     }
 
     auto stop = std::chrono::steady_clock::now();
-    f->accel_timer = stop-start;
+    accelerometer.timer = stop-start;
     return true;
 }
 
@@ -550,7 +550,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
     }
 
     auto stop = std::chrono::steady_clock::now();
-    f->gyro_timer = stop-start;
+    gyroscope.timer = stop-start;
     return true;
 }
 
@@ -760,6 +760,7 @@ static int filter_available_feature_space(struct filter *f)
 
 const vector<tracker::point> & filter_detect(struct filter *f, const sensor_data &data)
 {
+    sensor_grey &camera_sensor = *f->cameras[data.id];
     auto start = std::chrono::steady_clock::now();
     int space = filter_available_feature_space(f);
     const rc_ImageData &image = data.image;
@@ -778,7 +779,7 @@ const vector<tracker::point> & filter_detect(struct filter *f, const sensor_data
     vector<tracker::point> &kp = f->s.camera.feature_tracker->detect(timage, f->s.camera.feature_tracker->current_features, space);
 
     auto stop = std::chrono::steady_clock::now();
-    f->detect_timer = stop-start;
+    camera_sensor.detect_timer = stop-start;
 
     return kp;
 }
@@ -892,7 +893,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     filter_update_outputs(f, time);
     
     auto stop = std::chrono::steady_clock::now();
-    f->track_timer = stop-start;
+    camera.track_timer = stop-start;
     
     //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
     //do it async if we are running normally, but synchronously if we are orientation only (doesn't make a difference for mini state, and need features in order to initialize)

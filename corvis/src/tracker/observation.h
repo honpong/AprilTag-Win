@@ -55,7 +55,6 @@ public:
 class observation_vision_feature: public observation_storage<2> {
  private:
     f_t projection_residual(const v3 & X, const feature_t &found);
-    const state_vision &state;
     const state_vision_intrinsics &intrinsics;
     const state_extrinsics &extrinsics;
  public:
@@ -83,7 +82,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     void update_initializing();
 
-    observation_vision_feature(sensor_grey &src, const state_vision &_state, const state_extrinsics &_extrinsics, const state_vision_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(src, _time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_vision_feature(sensor_grey &src, const state_extrinsics &_extrinsics, const state_vision_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(src, _time_actual, _time_apparent), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

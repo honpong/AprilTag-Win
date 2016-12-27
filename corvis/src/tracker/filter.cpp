@@ -568,7 +568,7 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
             //for exposure time
             auto extra_time = std::chrono::microseconds(0);
             //auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
-            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, f->s, camera_state.extrinsics, camera_state.intrinsics, timestamp + extra_time, timestamp);
+            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state.extrinsics, camera_state.intrinsics, timestamp + extra_time, timestamp);
             obs->feature = i;
             f->observations.observations.push_back(std::move(obs));
         }

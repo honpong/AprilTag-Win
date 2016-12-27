@@ -18,9 +18,6 @@ using namespace std;
 class observation {
 public:
     const int size;
-    sensor_clock::time_point time_actual;
-    sensor_clock::time_point time_apparent;
-
     virtual void predict() = 0;
     virtual void compute_innovation() = 0;
     virtual void compute_measurement_covariance() = 0;
@@ -32,7 +29,7 @@ public:
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
     
-    observation(sensor &src, int _size, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): size(_size), time_actual(_time_actual), time_apparent(_time_apparent) {}
+    observation(sensor &src, int _size): size(_size) {}
     virtual ~observation() {};
 };
 
@@ -49,7 +46,7 @@ public:
     virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }
     virtual f_t measurement_covariance(const int i) const { return m_cov[i]; }
-    observation_storage(sensor_storage<_size> &src, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation(src, _size, _time_actual, _time_apparent), source(src) {}
+    observation_storage(sensor_storage<_size> &src): observation(src, _size), source(src) {}
 };
 
 class observation_vision_feature: public observation_storage<2> {
@@ -82,7 +79,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     void update_initializing();
 
-    observation_vision_feature(sensor_grey &src, const state_extrinsics &_extrinsics, const state_vision_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(src, _time_actual, _time_apparent), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_vision_feature(sensor_grey &src, const state_extrinsics &_extrinsics, const state_vision_intrinsics &_intrinsics): observation_storage(src), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -94,7 +91,7 @@ public:
     f_t variance;
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
-    observation_spatial(sensor_storage<3> &src, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(src, _time_actual, _time_apparent), variance(0.) {}
+    observation_spatial(sensor_storage<3> &src): observation_storage(src), variance(0.) {}
     void innovation_covariance_hook(const matrix &cov, int index);
 };
 
@@ -115,7 +112,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer(sensor_accelerometer &src, state_motion &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(src, _time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_accelerometer(sensor_accelerometer &src, state_motion &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics): observation_spatial(src), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -142,7 +139,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(src, _time_actual, _time_apparent), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics): observation_spatial(src), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 };
 
 #define MAXOBSERVATIONSIZE 256
@@ -196,9 +193,6 @@ protected:
     alignas(64) f_t K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
     alignas(64) f_t res_cov_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
     alignas(64) f_t res_tmp_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
-
-    static bool observation_comp_actual(const unique_ptr<observation> &p1, const unique_ptr<observation> &p2) { return p1->time_actual < p2->time_actual; }
-    static bool observation_comp_apparent(const unique_ptr <observation> &p1, const unique_ptr<observation> &p2) { return p1->time_apparent < p2->time_apparent; }
 };
 
 //some object should have functions to evolve the mean and covariance

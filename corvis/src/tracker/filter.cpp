@@ -193,7 +193,7 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
 
     //TODO: if out of order, project forward in time
     
-    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, state, imu.extrinsics, imu.intrinsics, data.timestamp, data.timestamp);
+    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, state, imu.extrinsics, imu.intrinsics);
     obs_a->meas = meas;
     obs_a->variance = accelerometer.measurement_variance;
 
@@ -219,7 +219,7 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
 
     //TODO: if out of order, project forward in time
     
-    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, state, imu.extrinsics, imu.intrinsics, data.timestamp, data.timestamp);
+    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, state, imu.extrinsics, imu.intrinsics);
     obs_w->meas = meas;
     obs_w->variance = gyroscope.measurement_variance;
 
@@ -482,7 +482,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
         return true;
     }
 
-    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, f->s, imu.extrinsics, imu.intrinsics, timestamp, timestamp);
+    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, f->s, imu.extrinsics, imu.intrinsics);
     obs_a->meas = meas;
     obs_a->variance = get_accelerometer_variance_for_run_state(f, imu, accelerometer, gyroscope, meas, timestamp);
 
@@ -529,7 +529,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
         f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
     }
 
-    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, f->s, imu.extrinsics, imu.intrinsics, timestamp, timestamp);
+    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, f->s, imu.extrinsics, imu.intrinsics);
     obs_w->meas = meas;
     obs_w->variance = gyroscope.measurement_variance;
 
@@ -564,11 +564,7 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
     for(state_vision_group *g : camera_state.groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *i : g->features.children) {
-            //FIXME: this is wrong since we have already compensated
-            //for exposure time
-            auto extra_time = std::chrono::microseconds(0);
-            //auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
-            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state.extrinsics, camera_state.intrinsics, timestamp + extra_time, timestamp);
+            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state.extrinsics, camera_state.intrinsics);
             obs->feature = i;
             f->observations.observations.push_back(std::move(obs));
         }

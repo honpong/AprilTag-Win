@@ -123,8 +123,6 @@ void observation_queue::preprocess(state_root &s, sensor_clock::time_point time)
 #endif
     s.time_update(time);
 
-    stable_sort(observations.begin(), observations.end(), observation_comp_apparent);
-
     predict();
 }
 
@@ -143,7 +141,6 @@ bool observation_queue::process(state_root &s)
         HP.resize(meas_size, statesize + s.fake_statesize);
         res_cov.resize(meas_size, meas_size);
 
-        //TODO: implement o->time_apparent != o->time_actual
         compute_innovation(inn);
         compute_measurement_covariance(m_cov);
         compute_prediction_covariance(s, meas_size);

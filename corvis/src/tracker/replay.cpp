@@ -174,7 +174,7 @@ void replay::setup_filter()
             this_replay->data_callback(tracker, data);
         }, this);
     }
-    rc_startTracker(tracker, rc_RUN_SYNCHRONOUS | (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
+    rc_startTracker(tracker, (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) | (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
 }
 
 void replay::start(string map_filename)
@@ -217,7 +217,7 @@ void replay::start(string map_filename)
         if (should_reset.exchange(false)) {
             fprintf(stderr, "Resetting...");
             rc_stopTracker(tracker);
-            rc_startTracker(tracker, rc_RUN_SYNCHRONOUS | (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
+            rc_startTracker(tracker, (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) | (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
             fprintf(stderr, "done\n");
         }
 
@@ -371,7 +371,7 @@ void replay::start(string map_filename)
                     if(header.sensor_id == 1)
                     {
                         rc_setPose(tracker, rc_POSE_IDENTITY);
-                        rc_startTracker(tracker, rc_RUN_SYNCHRONOUS | (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
+                        rc_startTracker(tracker, (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) | (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
                     }
                 }
             }

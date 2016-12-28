@@ -38,6 +38,7 @@ private:
     std::function<void (rc_Tracker *, const rc_Data *)> data_callback;
     std::function<void (float)> progress_callback;
     bool qvga {false};
+    bool async {false};
     bool use_depth {true};
     bool fast_path {false};
     bool accel_decimate {false};
@@ -65,6 +66,7 @@ public:
     void set_progress_callback(std::function<void (float)> progress_callback) { this->progress_callback = progress_callback; }
     void set_data_callback(std::function<void (rc_Tracker *, const rc_Data *)> data_callback) { this->data_callback = data_callback; }
     void enable_realtime() { is_realtime = true; }
+    void enable_async() { async = is_realtime = true; }
     void enable_qvga() { qvga = true; }
     void disable_depth() { use_depth = false; }
     void enable_fast_path() { fast_path = true; }

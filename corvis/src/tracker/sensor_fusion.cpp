@@ -107,14 +107,21 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
             if (isProcessingVideo && fast_path) {
                 sfm.catchup->state.copy_from(sfm.s);
-                queue.dispatch_buffered([this](sensor_data &data) {
+                std::unique_lock<std::recursive_mutex> mini_lock(sfm.mini_mutex);
+                // hold the mini_mutex while we manipulate the mini
+                // state *and* while we manipulate the queue during
+                // catchup so that dispatch_buffered is sure to notice
+                // any new data we get while we are doing the filter
+                // updates on the catchup state
+                queue.dispatch_buffered([this,&mini_lock](sensor_data &data) {
+                        mini_lock.unlock();
                         switch(data.type) {
                         case rc_SENSOR_TYPE_ACCELEROMETER: filter_mini_accelerometer_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
                         case rc_SENSOR_TYPE_GYROSCOPE:     filter_mini_gyroscope_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
                         default: break;
                         }
+                        mini_lock.lock();
                     });
-                std::lock_guard<std::mutex> lock(sfm.mini_mutex);
                 std::swap(sfm.mini, sfm.catchup);
             }
 
@@ -306,6 +313,11 @@ bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t l
 
 void sensor_fusion::receive_data(sensor_data && data)
 {
+    std::unique_lock<std::recursive_mutex> mini_lock(sfm.mini_mutex);
+    // hold the mini_mutex while we manipulate the mini state *and*
+    // while we push data onto the queue so that catchup either
+    // updates the mini state before we do or notices that we pushed
+    // new data in.
     queue_receive_data_fast(data);
     queue.receive_sensor_data(std::move(data));
 }

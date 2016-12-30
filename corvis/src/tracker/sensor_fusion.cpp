@@ -106,6 +106,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 docallback = sfm.s.orientation_initialized;
 
             if (isProcessingVideo && fast_path) {
+                auto start = std::chrono::steady_clock::now();
                 sfm.catchup->state.copy_from(sfm.s);
                 std::unique_lock<std::recursive_mutex> mini_lock(sfm.mini_mutex);
                 // hold the mini_mutex while we manipulate the mini
@@ -122,6 +123,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                         }
                         mini_lock.lock();
                     });
+                auto stop = std::chrono::steady_clock::now();
+                queue.catchup_stats.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
                 std::swap(sfm.mini, sfm.catchup);
             }
 
@@ -131,7 +134,14 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
             if (data.id < sfm.s.cameras.children.size())
                 if(sfm.s.cameras.children[data.id]->detecting_group)
-                    sfm.s.cameras.children[data.id]->detection_future = std::async(threaded ? std::launch::async : std::launch::deferred, filter_detect, &sfm, std::move(data));
+                    sfm.s.cameras.children[data.id]->detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
+                        [this] (struct filter *f, const sensor_data &data) -> const vector<tracker::point> & {
+                            auto start = std::chrono::steady_clock::now();
+                            const vector<tracker::point> & res = filter_detect(&sfm, std::move(data));
+                            auto stop = std::chrono::steady_clock::now();
+                            queue.stats.find(data.id + data.type * MAX_SENSORS)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+                            return res;
+                        }, &sfm, std::move(data));
         } break;
 
         case rc_SENSOR_TYPE_DEPTH: {
@@ -161,13 +171,19 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data)
     data.path = rc_DATA_PATH_FAST;
     switch(data.type) {
         case rc_SENSOR_TYPE_ACCELEROMETER: {
+            auto start = std::chrono::steady_clock::now();
             if(filter_mini_accelerometer_measurement(&sfm, sfm.mini->observations, sfm.mini->state, data))
                 update_data(&data);
+            auto stop = std::chrono::steady_clock::now();
+            queue.stats.find(data.id + data.type * MAX_SENSORS)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
         } break;
 
         case rc_SENSOR_TYPE_GYROSCOPE: {
+            auto start = std::chrono::steady_clock::now();
             if(filter_mini_gyroscope_measurement(&sfm, sfm.mini->observations, sfm.mini->state, data))
                 update_data(&data);
+            auto stop = std::chrono::steady_clock::now();
+            queue.stats.find(data.id + data.type * MAX_SENSORS)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
         } break;
         default:
             break;

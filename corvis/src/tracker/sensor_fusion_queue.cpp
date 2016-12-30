@@ -114,6 +114,8 @@ std::string fusion_queue::get_stats()
     for(auto k : keys) {
         statstr << id_string(k) << "\t" + stats.find(k)->second.to_string() << "\n";
     }
+    
+    statstr << "Catchup time(us): " << catchup_stats << "\n\n";
 
     statstr << "Queue latency: " << queue_latency << "\n\n";
 
@@ -341,7 +343,12 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &control_lock, boo
     queue_latency.data({f_t((newest_received - data.timestamp).count())});
 
     control_lock.unlock();
+    
+    auto start = std::chrono::steady_clock::now();
     data_receiver(std::move(data));
+    auto stop = std::chrono::steady_clock::now();
+    stats.find(id)->second.measure.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    
     total_out++;
             
     control_lock.lock();

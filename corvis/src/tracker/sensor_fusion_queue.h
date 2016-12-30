@@ -24,6 +24,8 @@
 #include "histogram.h"
 #endif
 
+#define MAX_SENSORS 64
+
 class sensor_stats
 {
 public:
@@ -40,6 +42,8 @@ public:
     stdev<1> late{};
     stdev<1> period{};
     stdev<1> latency{};
+    stdev<1> measure{};
+    stdev<1> bg{};
 
 #ifdef DEBUG
     histogram hist{200};
@@ -93,6 +97,8 @@ public:
         if (period.count)  os << "\tperiod(us):  " << period  << "\n";
         if (latency.count) os << "\tlatency(us): " << latency << "\n";
         if (late.count)    os << "\tlate(us):    " << late    << "\n";
+        if (measure.count) os << "\tmeasure(us): " << measure << "\n";
+        if (bg.count)      os << "\tbg(us):      " << bg      << "\n";
         return os.str();
 
     }
@@ -229,6 +235,8 @@ public:
     uint64_t total_in{0};
     uint64_t total_out{0};
     sensor_clock::time_point newest_received{};
+    std::unordered_map<uint64_t, sensor_stats> stats;
+    stdev<1> catchup_stats {};
 
 private:
     stdev<1> queue_latency{};
@@ -255,7 +263,6 @@ private:
     std::function<void(sensor_data &&)> data_receiver;
     std::function<void(sensor_data &, bool)> fast_data_receiver;
     
-    std::unordered_map<uint64_t, sensor_stats> stats;
     std::vector<uint64_t> required_sensors;
     sorted_ring_buffer<sensor_data, 256> queue;
 

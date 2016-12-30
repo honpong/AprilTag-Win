@@ -321,3 +321,9 @@ void sensor_fusion::receive_data(sensor_data && data)
     queue_receive_data_fast(data);
     queue.receive_sensor_data(std::move(data));
 }
+
+std::string sensor_fusion::get_timing_stats()
+{
+     return queue.get_stats() + filter_get_stats(&sfm);
+}
+

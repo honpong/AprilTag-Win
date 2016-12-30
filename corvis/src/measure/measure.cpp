@@ -221,5 +221,6 @@ int main(int c, char **v)
         rp.save_calibration(save);
 
     print_results(rp, filename);
+    std::cout << rc_getTimingStats(rp.tracker);
     return 0;
 }

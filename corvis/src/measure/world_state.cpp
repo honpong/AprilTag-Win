@@ -413,27 +413,23 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
 
     p = get_plot_by_name("acc timer");
     for (size_t i=0; i<f->accelerometers.size(); i++) {
-        observe_plot_item(timestamp_us, p, "accel timer " + std::to_string(i), f->accelerometers[i]->timer.count());
-        observe_plot_item(timestamp_us, p, "mini accel timer " + std::to_string(i), f->accelerometers[i]->mini_timer.count());
+        observe_plot_item(timestamp_us, p, "accel timer " + std::to_string(i), f->accelerometers[i]->measure_time_stats.last[0]);
+        observe_plot_item(timestamp_us, p, "mini accel timer " + std::to_string(i), f->accelerometers[i]->other_time_stats.last[0]);
     }
 
     p = get_plot_by_name("gyro timer");
     for (size_t i=0; i<f->gyroscopes.size(); i++) {
-        observe_plot_item(timestamp_us, p, "gyro timer " + std::to_string(i), f->gyroscopes[i]->timer.count());
-        observe_plot_item(timestamp_us, p, "mini gyro timer " + std::to_string(i), f->gyroscopes[i]->mini_timer.count());
+        observe_plot_item(timestamp_us, p, "gyro timer " + std::to_string(i), f->gyroscopes[i]->measure_time_stats.last[0]);
+        observe_plot_item(timestamp_us, p, "mini gyro timer " + std::to_string(i), f->gyroscopes[i]->other_time_stats.last[0]);
     }
 
     p = get_plot_by_name("image timer");
     for (size_t i=0; i<f->cameras.size(); i++)
-        observe_plot_item(timestamp_us, p, "image timer " + std::to_string(i), f->cameras[i]->timer.count());
-
-    p = get_plot_by_name("track timer");
-    for (size_t i=0; i<f->cameras.size(); i++)
-        observe_plot_item(timestamp_us, p, "track timer " + std::to_string(i), f->cameras[i]->track_timer.count());
+        observe_plot_item(timestamp_us, p, "image timer " + std::to_string(i), f->cameras[i]->measure_time_stats.last[0]);
 
     p = get_plot_by_name("detect timer");
     for (size_t i=0; i<f->cameras.size(); i++)
-        observe_plot_item(timestamp_us, p, "detect timer " + std::to_string(i), f->cameras[i]->detect_timer.count());
+        observe_plot_item(timestamp_us, p, "detect timer " + std::to_string(i), f->cameras[i]->other_time_stats.last[0]);
 }
 
 void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)

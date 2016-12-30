@@ -145,7 +145,7 @@ public:
      */
     //void stop_qr_detection();
     
-    std::string get_timing_stats() { return queue.get_stats(); };
+    std::string get_timing_stats();
     fusion_queue queue;
     void queue_receive_data(sensor_data &&data);
     void queue_receive_data_fast(sensor_data &data);

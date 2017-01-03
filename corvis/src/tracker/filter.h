@@ -12,6 +12,7 @@
 #include "sensor_data.h"
 #include "spdlog/spdlog.h"
 #include "rc_compat.h"
+#include "mapper.h"
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -36,7 +37,6 @@ struct filter {
     std::unique_ptr<spdlog::logger> &log = s.log;
 
     sensor_clock::time_point want_start;
-    v3 last_gyro_meas, last_accel_meas; //TODOMSM - per-sensor
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;
@@ -47,7 +47,8 @@ struct filter {
     float max_velocity;
     float median_depth_variance;
     bool has_converged;
-    state_vision_group *detecting_group;
+
+    std::unique_ptr<mapper> map;
 
 #ifdef ENABLE_QR
     qr_detector qr;
@@ -69,9 +70,6 @@ struct filter {
 
     bool got_any_gyroscopes()     const { for (const auto &gyro  :     gyroscopes) if (gyro->got)  return true; return false;}
     bool got_any_accelerometers() const { for (const auto &accel : accelerometers) if (accel->got) return true; return false; }
-
-    //TODOMSM - per sensor
-    std::chrono::duration<float, milli> accel_timer, gyro_timer, track_timer, detect_timer, mini_accel_timer, mini_gyro_timer;
 };
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data);

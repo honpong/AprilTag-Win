@@ -100,6 +100,7 @@ public:
 };
 
 class state_vision_group;
+class state_camera;
 
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
@@ -200,6 +201,7 @@ class state_vision_group: public state_branch<state_node *> {
     state_vector     Tr { "Tr", dynamic};
     state_quaternion Qr { "Qr", dynamic};
 
+    state_camera &camera;
     state_branch<state_vision_feature *> features;
     list<uint64_t> neighbors;
     list<uint64_t> old_neighbors;
@@ -208,9 +210,9 @@ class state_vision_group: public state_branch<state_node *> {
     uint64_t id;
 
     state_vision_group(const state_vision_group &other);
-    state_vision_group(uint64_t group_id);
+    state_vision_group(state_camera &camera, uint64_t group_id);
     void make_empty();
-    int process_features(const rc_ImageData &image, mapper & map, bool map_enabled);
+    int process_features();
     int make_reference();
     int make_normal();
     static f_t ref_noise;
@@ -237,38 +239,43 @@ struct state_camera: state_branch<state_node*> {
 
     std::future<const std::vector<tracker::point> & > detection_future;
 
+    state_branch<state_vision_group *> groups;
+    void update_feature_tracks(const rc_ImageData &image);
+    void clear_features_and_groups();
+    int feature_count() const;
+    int process_features(mapper *map, spdlog::logger &log);
+    void remove_group(state_vision_group *g, mapper *map);
+
+    state_vision_group *detecting_group = nullptr; // FIXME on reset
+
     state_camera() : extrinsics("Qc", "Tc", false), intrinsics(false) {
+        reset();
         //children.push_back(&extrinsics);
         children.push_back(&intrinsics);
+        children.push_back(&groups);
     }
 };
 
 class state_vision: public state_motion {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    state_camera camera;
+    state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
+
     uint64_t feature_counter;
     uint64_t group_counter;
 
-    state_branch<state_vision_group *> groups;
-    
     state_vision(covariance &c);
     ~state_vision();
-    int process_features(const rc_ImageData &image);
+    int process_features(state_camera &camera, const rc_ImageData &image, mapper *map);
     state_vision_feature *add_feature(state_vision_group &group, const feature_t & initial);
-    state_vision_group *add_group();
-    void remove_group(state_vision_group *g);
+    state_vision_group *add_group(state_camera &camera, mapper *map);
     transformation get_transformation() const;
 
-    bool map_enabled{false};
-    mapper map;
-    
-    void update_feature_tracks(const rc_ImageData &image);
+    void update_map(const rc_ImageData &image, mapper *map);
+
     float median_depth_variance();
     
     virtual void reset();
-    bool load_map(std::string json);
-    int feature_count() const;
 
 protected:
     virtual void add_non_orientation_states();
@@ -276,8 +283,6 @@ protected:
     virtual void evolve_state(f_t dt);
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void cache_jacobians(f_t dt);
-private:
-    void clear_features_and_groups();
 };
 
 typedef state_vision state;

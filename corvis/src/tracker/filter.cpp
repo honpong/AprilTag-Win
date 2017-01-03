@@ -202,7 +202,7 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     queue.observations.push_back(std::move(obs_a));
     bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
     auto stop = std::chrono::steady_clock::now();
-    f->mini_accel_timer = stop-start;
+    accelerometer.timer = stop-start;
     return ok;
 }
 
@@ -229,7 +229,7 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
     bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
 
     auto stop = std::chrono::steady_clock::now();
-    f->mini_gyro_timer = stop-start;
+    gyroscope.mini_timer = stop-start;
 
     return ok;
 }
@@ -456,8 +456,8 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
     auto &gyroscope     = *f->gyroscopes[data.id];
     auto &imu = *f->s.imus.children[data.id];
     v3 meas = m_map(accelerometer.intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2.v);
-    v3 accel_delta = meas - f->last_accel_meas;
-    f->last_accel_meas = meas;
+    v3 accel_delta = meas - accelerometer.last_meas;
+    accelerometer.last_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!accelerometer.got) { //skip first packet - has been crap from gyro
@@ -500,7 +500,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
     }
 
     auto stop = std::chrono::steady_clock::now();
-    f->accel_timer = stop-start;
+    accelerometer.timer = stop-start;
     return true;
 }
 
@@ -514,8 +514,8 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
     auto &gyroscope = *f->gyroscopes[data.id];
     auto &imu = *std::next(f->s.imus.children.begin(), data.id)->get();
     v3 meas = m_map(gyroscope.intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s.v);
-    v3 gyro_delta = meas - f->last_gyro_meas;
-    f->last_gyro_meas = meas;
+    v3 gyro_delta = meas - gyroscope.last_meas;
+    gyroscope.last_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!gyroscope.got) { //skip the first piece of data as it seems to be crap
@@ -550,23 +550,25 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
     }
 
     auto stop = std::chrono::steady_clock::now();
-    f->gyro_timer = stop-start;
+    gyroscope.timer = stop-start;
     return true;
 }
 
-void filter_setup_next_frame(struct filter *f, const sensor_data &data)
+static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
 {
-    auto & camera = *f->cameras[data.id];
+    auto &camera_sensor = *f->cameras[data.id];
+    auto &camera_state = *f->s.cameras.children[data.id];
+
     auto timestamp = data.timestamp;
 
-    for(state_vision_group *g : f->s.groups.children) {
+    for(state_vision_group *g : camera_state.groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *i : g->features.children) {
             //FIXME: this is wrong since we have already compensated
             //for exposure time
             auto extra_time = std::chrono::microseconds(0);
             //auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
-            auto obs = std::make_unique<observation_vision_feature>(camera, f->s, f->s.camera.extrinsics, f->s.camera.intrinsics, timestamp + extra_time, timestamp);
+            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, f->s, camera_state.extrinsics, camera_state.intrinsics, timestamp + extra_time, timestamp);
             obs->feature = i;
             f->observations.observations.push_back(std::move(obs));
         }
@@ -587,14 +589,12 @@ static float get_stdev_pct_for_depth(float depth_m)
     return 0.0023638192164147698f + (0.0015072367800769945f + 0.00044245048102432134f * depth_m) * depth_m;
 }
 
-static std::unique_ptr<sensor_data> filter_aligned_depth_to_intrinsics(const struct filter *f, const sensor_data & depth)
+static std::unique_ptr<sensor_data> filter_aligned_depth_to_camera(const sensor_data &depth, const sensor_depth &depth_sensor, state_camera &camera_state, sensor_grey &camera_sensor)
 {
-    assert(f->depths.size() > 0);
-    const auto & intrinsics = f->depths[0]->intrinsics;
-    const auto & extrinsics = f->depths[0]->extrinsics.mean;
-    if (intrinsics.type == rc_CALIBRATION_TYPE_UNDISTORTED && extrinsics == f->cameras[0]->extrinsics.mean) {
+    const auto &intrinsics = depth_sensor.intrinsics;
+    const auto &extrinsics = depth_sensor.extrinsics.mean;
+    if (intrinsics.type == rc_CALIBRATION_TYPE_UNDISTORTED && extrinsics == camera_sensor.extrinsics.mean)
         return depth.make_copy();
-    }
 
     auto aligned_depth = depth.make_copy();
 
@@ -617,12 +617,12 @@ static std::unique_ptr<sensor_data> filter_aligned_depth_to_intrinsics(const str
           i_Fx = d_focal_length_x * i_height,
           i_Fy = d_focal_length_y * i_height;
 
-    float o_Cx = f->s.camera.intrinsics.center_x.v     * o_height + (o_width  - 1) / 2.,
-          o_Cy = f->s.camera.intrinsics.center_y.v     * o_height + (o_height - 1) / 2.,
-          o_Fx = f->s.camera.intrinsics.focal_length.v * o_height,
-          o_Fy = f->s.camera.intrinsics.focal_length.v * o_height;
+    float o_Cx = camera_state.intrinsics.center_x.v     * o_height + (o_width  - 1) / 2.,
+          o_Cy = camera_state.intrinsics.center_y.v     * o_height + (o_height - 1) / 2.,
+          o_Fx = camera_state.intrinsics.focal_length.v * o_height,
+          o_Fy = camera_state.intrinsics.focal_length.v * o_height;
 
-    transformation depth_to_color_m = invert(transformation(f->s.camera.extrinsics.Q.v,f->s.camera.extrinsics.T.v)) * extrinsics;
+    transformation depth_to_color_m = invert(transformation(camera_state.extrinsics.Q.v,camera_state.extrinsics.T.v)) * extrinsics;
     auto x_T_mm = (depth_to_color_m.T * 1000).cast<float>();
 
     for (int y = 0; y < i_height; y++)
@@ -664,7 +664,9 @@ static std::unique_ptr<sensor_data> filter_aligned_depth_to_intrinsics(const str
 /*
 static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter *f, const image_depth16 &depth, const image_gray8 & image)
 {
-    std::unique_ptr<image_depth16> aligned_depth = filter_aligned_depth_to_intrinsics(f, depth);
+    state_camera &grey = f->s.cameras[image.id];
+    sensor_depth &depth_sensor = f->depths[depth.id];
+    std::unique_ptr<image_depth16> aligned_depth = filter_aligned_depth_to_camera(depth, depth_sensor, grey, grey_sensor);
 
     auto aligned_distorted_depth = make_unique<image_depth16>(image.width, image.height, 0);
     auto out = aligned_distorted_depth->image;
@@ -674,7 +676,7 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
     for(int y_image = 0; y_image < image.height; y_image++) {
         for(int x_image = 0; x_image < image.width; x_image++) {
             feature_t kp_i = {(f_t)x_image, (f_t)y_image};
-            feature_t kp_d = image_to_depth*f->s.camera.intrinsics.unnormalize_feature(f->s.camera.intrinsics.undistort_feature(f->s.camera.intrinsics.normalize_feature(kp_i)));
+            feature_t kp_d = image_to_depth*grey.intrinsics.unnormalize_feature(grey.intrinsics.undistort_feature(grey.intrinsics.normalize_feature(kp_i)));
             uint16_t depth_mm = get_depth_for_point_mm(*aligned_depth.get(), kp_d);
             out[y_image * out_stride + x_image] = depth_mm;
         }
@@ -684,15 +686,16 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 }
 */
 
-static int filter_add_detected_features(struct filter * f, state_vision_group *g, const std::vector<tracker::point> & kp, size_t newfeats, int image_height)
+static int filter_add_detected_features(struct filter * f, state_vision_group *g, sensor_grey &camera_sensor, const std::vector<tracker::point> &kp, size_t newfeats, int image_height)
 {
+    state_camera &camera = g->camera;
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
-        f->s.remove_group(g);
+        camera.remove_group(g, f->map.get());
         f->s.remap();
         for(const auto &p : kp)
-            f->s.camera.feature_tracker->drop_feature(p.id);
-        int active_features = f->s.feature_count();
+            camera.feature_tracker->drop_feature(p.id);
+        int active_features = camera.feature_count();
         if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);
             f->detector_failed = true;
@@ -718,9 +721,9 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
             float depth_m = 0;
             if(f->has_depth) {
                 if (!aligned_undistorted_depth)
-                    aligned_undistorted_depth = filter_aligned_depth_to_intrinsics(f, *f->recent_depth);
+                    aligned_undistorted_depth = filter_aligned_depth_to_camera(*f->recent_depth, *f->depths[f->recent_depth->id], camera, camera_sensor);
 
-                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*f->s.camera.intrinsics.unnormalize_feature(f->s.camera.intrinsics.undistort_feature(f->s.camera.intrinsics.normalize_feature(kp_i))));
+                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature(kp_i))));
             }
             if(depth_m)
             {
@@ -739,7 +742,7 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
         }
     }
     for(i = i+1; i < (int)kp.size(); ++i)
-        f->s.camera.feature_tracker->drop_feature(kp[i].id);
+        camera.feature_tracker->drop_feature(kp[i].id);
 
     g->status = group_initializing;
     g->make_normal();
@@ -750,24 +753,34 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
     return found_feats;
 }
 
-static int filter_available_feature_space(struct filter *f)
+static int filter_available_feature_space(struct filter *f, state_camera &camera)
 {
     int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize;
-    if(!f->detecting_group) space -= 6;
-    if(space > f->max_group_add) space = f->max_group_add;
+    int empty = 0;
+    for (auto &c : f->s.cameras.children) {
+        if (c->detecting_group)
+            space -= 6;
+        empty += c->groups.children.size() == 0;
+    }
+    if (empty)
+        space /= empty;
+    if(space > f->max_group_add)
+        space = f->max_group_add;
     return space;
 }
 
 const vector<tracker::point> & filter_detect(struct filter *f, const sensor_data &data)
 {
+    sensor_grey &camera_sensor = *f->cameras[data.id];
+    state_camera &camera = *f->s.cameras.children[data.id];
     auto start = std::chrono::steady_clock::now();
-    int space = filter_available_feature_space(f);
+    int space = filter_available_feature_space(f, camera);
     const rc_ImageData &image = data.image;
-    f->s.camera.feature_tracker->current_features.clear();
-    f->s.camera.feature_tracker->current_features.reserve(f->s.feature_count());
-    for(auto g : f->s.groups.children)
+    camera.feature_tracker->current_features.clear();
+    camera.feature_tracker->current_features.reserve(camera.feature_count());
+    for(auto g : camera.groups.children)
         for(auto i : g->features.children)
-            f->s.camera.feature_tracker->current_features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
+            camera.feature_tracker->current_features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
 
     // Run detector
     tracker::image timage;
@@ -775,10 +788,10 @@ const vector<tracker::point> & filter_detect(struct filter *f, const sensor_data
     timage.width_px = image.width;
     timage.height_px = image.height;
     timage.stride_px = image.stride;
-    vector<tracker::point> &kp = f->s.camera.feature_tracker->detect(timage, f->s.camera.feature_tracker->current_features, space);
+    vector<tracker::point> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->current_features, space);
 
     auto stop = std::chrono::steady_clock::now();
-    f->detect_timer = stop-start;
+    camera_sensor.detect_timer = stop-start;
 
     return kp;
 }
@@ -794,10 +807,13 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 
 bool filter_image_measurement(struct filter *f, const sensor_data & data)
 {
-    if(data.id != 0) return true;
+    if(data.id >= f->cameras.size() || data.id >= f->s.cameras.children.size())
+        return false;
 
     auto start = std::chrono::steady_clock::now();
-    auto & camera = *f->cameras[data.id];
+
+    auto &camera_sensor = *f->cameras[data.id];
+    auto &camera_state = *f->s.cameras.children[data.id];
 
     sensor_clock::time_point time = data.timestamp;
 
@@ -807,7 +823,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 #ifdef ENABLE_QR
     if (f->qr.running || f->qr_bench.enabled) {
         transformation world(f->s.Q.v, f->s.T.v);
-        auto calibrate = [f](feature_t un) { return f->s.camera.intrinsics.undistort_feature(f->s.camera.intrinsics.normalize_feature(un)); };
+        auto calibrate = [&](feature_t un) { return camera_state.intrinsics.undistort_feature(camera_state.intrinsics.normalize_feature(un)); };
         if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
             f->last_qr_time = time;
             f->qr.process_frame(world, calibrate, data.image.image, data.image.width, data.image.height);
@@ -819,7 +835,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
 #endif
 
-    camera.got = true;
+    camera_sensor.got = true;
 
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;
@@ -839,24 +855,24 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         if(time - f->stable_start < steady_converge_time) return true;
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization && f->run_state != RCSensorFusionRunStateSteadyInitialization) return true; //frame was "processed" so that callbacks still get called
+
+    camera_state.intrinsics.image_width = data.image.width;
+    camera_state.intrinsics.image_height = data.image.height;
     
-    f->s.camera.intrinsics.image_width = data.image.width;
-    f->s.camera.intrinsics.image_height = data.image.height;
-    
-    if(f->detecting_group)
+    if(camera_state.detecting_group)
     {
 #ifdef TEST_POSDEF
         if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
 #endif
-        if(f->s.camera.detection_future.valid()) {
-            const auto & kp = f->s.camera.detection_future.get();
-            int space = filter_available_feature_space(f);
-            filter_add_detected_features(f, f->detecting_group, kp, space, data.image.height);
+        if(camera_state.detection_future.valid()) {
+            const auto & kp = camera_state.detection_future.get();
+            int space = filter_available_feature_space(f, camera_state);
+            filter_add_detected_features(f, camera_state.detecting_group, camera_sensor, kp, space, data.image.height);
         } else {
-            f->s.remove_group(f->detecting_group);
+            camera_state.remove_group(camera_state.detecting_group, f->map.get());
             f->s.remap();
         }
-        f->detecting_group = nullptr;
+        camera_state.detecting_group = nullptr;
     }
 
     if(f->run_state == RCSensorFusionRunStateRunning)
@@ -865,15 +881,15 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(show_tuning) {
         fprintf(stderr, "\nvision:\n");
     }
-    preprocess_observation_queue(f, time);
-    f->s.update_feature_tracks(data.image);
-    process_observation_queue(f);
+    preprocess_observation_queue(f, time); // time update filter, then predict locations of current features in the observation queue
+    camera_state.update_feature_tracks(data.image); // track the current features near their predicted locations
+    process_observation_queue(f); // update state and covariance based on current location of tracked features
     if(show_tuning) {
         for (auto &c : f->cameras)
             cerr << " innov  " << c->inn_stdev << "\n";
     }
 
-    int features_used = f->s.process_features(data.image);
+    int features_used = f->s.process_features(camera_state, data.image, f->map.get());
     if(!features_used)
     {
         //Lost all features - reset convergence
@@ -892,11 +908,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     filter_update_outputs(f, time);
     
     auto stop = std::chrono::steady_clock::now();
-    f->track_timer = stop-start;
+    camera_sensor.track_timer = stop-start;
     
-    //TODOMSM - need to track number of features per-image and either always add to both, or always add to the one with fewer, or some other compromise...
-    //do it async if we are running normally, but synchronously if we are orientation only (doesn't make a difference for mini state, and need features in order to initialize)
-    int space = filter_available_feature_space(f);
+    int space = filter_available_feature_space(f, camera_state);
     if(space >= f->min_group_add)
     {
         if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
@@ -912,14 +926,14 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->run_state = RCSensorFusionRunStateRunning;
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
-                state_vision_group *g = f->s.add_group();
-                filter_add_detected_features(f, g, detection, space, data.image.height);
+                state_vision_group *g = f->s.add_group(camera_state, f->map.get());
+                filter_add_detected_features(f, g, camera_sensor, detection, space, data.image.height);
             }
         } else {
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
 #endif
-            f->detecting_group = f->s.add_group();
+            camera_state.detecting_group = f->s.add_group(camera_state, f->map.get());
         }
     }
     return true;
@@ -930,7 +944,7 @@ void filter_initialize(struct filter *f)
 {
     //changing these two doesn't affect much.
     f->min_group_add = 16;
-    f->max_group_add = 40;
+    f->max_group_add = std::max<int>(40 / f->cameras.size(), f->min_group_add);
     f->has_depth = false;
 
 #ifdef INITIAL_DEPTH
@@ -966,65 +980,62 @@ void filter_initialize(struct filter *f)
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->calibration_bad = false;
     
-    f->detecting_group = nullptr;
-    
-
     f->observations.observations.clear();
     f->mini->observations.observations.clear();
     f->catchup->observations.observations.clear();
 
     f->s.reset();
+    if (f->map) f->map->reset();
 
-    // TODOMSM: remove these in favor of treating everything on a
-    // per-sensor basis
-    assert(f->cameras.size());
-    auto cam_extrinsics = f->cameras[0]->extrinsics;
-    auto cam_intrinsics = f->cameras[0]->intrinsics;
+    for (int i=0; i<f->s.cameras.children.size() && i<f->cameras.size(); i++) {
+        state_camera &camera_state = *f->s.cameras.children[i];
+        sensor_grey &camera_sensor = *f->cameras[i];
 
-    f->s.camera.extrinsics.T.v = cam_extrinsics.mean.T;
-    f->s.camera.extrinsics.Q.v = cam_extrinsics.mean.Q;
+        camera_state.extrinsics.T.v = camera_sensor.extrinsics.mean.T;
+        camera_state.extrinsics.Q.v = camera_sensor.extrinsics.mean.Q;
 
-    f->s.camera.extrinsics.Q.set_initial_variance(cam_extrinsics.variance.Q);
-    f->s.camera.extrinsics.T.set_initial_variance(cam_extrinsics.variance.T);
+        camera_state.extrinsics.Q.set_initial_variance(camera_sensor.extrinsics.variance.Q);
+        camera_state.extrinsics.T.set_initial_variance(camera_sensor.extrinsics.variance.T);
 
-    f->s.camera.intrinsics.focal_length.v = (cam_intrinsics.f_x_px + cam_intrinsics.f_y_px) / 2 / cam_intrinsics.height_px;
-    f->s.camera.intrinsics.center_x.v = (cam_intrinsics.c_x_px - cam_intrinsics.width_px / 2. + .5) / cam_intrinsics.height_px;
-    f->s.camera.intrinsics.center_y.v = (cam_intrinsics.c_y_px - cam_intrinsics.height_px / 2. + .5) / cam_intrinsics.height_px;
-    if (cam_intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE)
-        f->s.camera.intrinsics.k1.v = cam_intrinsics.w;
-    else
-        f->s.camera.intrinsics.k1.v = cam_intrinsics.k1;
-    f->s.camera.intrinsics.k2.v = cam_intrinsics.k2;
-    f->s.camera.intrinsics.k3.v = cam_intrinsics.k3;
-    f->s.camera.intrinsics.type = cam_intrinsics.type;
+        camera_state.intrinsics.focal_length.v = (camera_sensor.intrinsics.f_x_px + camera_sensor.intrinsics.f_y_px)   / 2        / camera_sensor.intrinsics.height_px;
+        camera_state.intrinsics.center_x.v     = (camera_sensor.intrinsics.c_x_px - camera_sensor.intrinsics.width_px  / 2. + .5) / camera_sensor.intrinsics.height_px;
+        camera_state.intrinsics.center_y.v     = (camera_sensor.intrinsics.c_y_px - camera_sensor.intrinsics.height_px / 2. + .5) / camera_sensor.intrinsics.height_px;
+        if (camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE)
+            camera_state.intrinsics.k1.v = camera_sensor.intrinsics.w;
+        else
+            camera_state.intrinsics.k1.v = camera_sensor.intrinsics.k1;
+        camera_state.intrinsics.k2.v = camera_sensor.intrinsics.k2;
+        camera_state.intrinsics.k3.v = camera_sensor.intrinsics.k3;
+        camera_state.intrinsics.type = camera_sensor.intrinsics.type;
 
-    f->s.camera.extrinsics.Q.set_process_noise(1.e-30);
-    f->s.camera.extrinsics.T.set_process_noise(1.e-30);
-    //TODO: check this process noise
-    f->s.camera.intrinsics.focal_length.set_process_noise(2.3e-3 / cam_intrinsics.height_px / cam_intrinsics.height_px);
-    f->s.camera.intrinsics.center_x.set_process_noise(2.3e-3 / cam_intrinsics.height_px / cam_intrinsics.height_px);
-    f->s.camera.intrinsics.center_y.set_process_noise(2.3e-3 / cam_intrinsics.height_px / cam_intrinsics.height_px);
-    f->s.camera.intrinsics.k1.set_process_noise(2.3e-7);
-    f->s.camera.intrinsics.k2.set_process_noise(2.3e-7);
-    f->s.camera.intrinsics.k3.set_process_noise(2.3e-7);
+        camera_state.extrinsics.Q.set_process_noise(1.e-30);
+        camera_state.extrinsics.T.set_process_noise(1.e-30);
 
-    f->s.camera.intrinsics.focal_length.set_initial_variance(10. / cam_intrinsics.height_px / cam_intrinsics.height_px);
-    f->s.camera.intrinsics.center_x.set_initial_variance(2. / cam_intrinsics.height_px / cam_intrinsics.height_px);
-    f->s.camera.intrinsics.center_y.set_initial_variance(2. / cam_intrinsics.height_px / cam_intrinsics.height_px);
+        camera_state.intrinsics.focal_length.set_process_noise(2.3e-3 / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
+        camera_state.intrinsics.center_x.set_process_noise(    2.3e-3 / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
+        camera_state.intrinsics.center_y.set_process_noise(    2.3e-3 / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
+        camera_state.intrinsics.k1.set_process_noise(2.3e-7);
+        camera_state.intrinsics.k2.set_process_noise(2.3e-7);
+        camera_state.intrinsics.k3.set_process_noise(2.3e-7);
 
-    f->s.camera.intrinsics.k1.set_initial_variance(f->s.camera.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
-    f->s.camera.intrinsics.k2.set_initial_variance(f->s.camera.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
-    f->s.camera.intrinsics.k3.set_initial_variance(f->s.camera.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
-    
-    f->s.camera.intrinsics.image_width = cam_intrinsics.width_px;
-    f->s.camera.intrinsics.image_height = cam_intrinsics.height_px;
+        camera_state.intrinsics.focal_length.set_initial_variance(10. / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
+        camera_state.intrinsics.center_x.set_initial_variance(     2. / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
+        camera_state.intrinsics.center_y.set_initial_variance(     2. / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
 
-    if (1)
-        f->s.camera.feature_tracker = std::make_unique<fast_tracker>();
+        camera_state.intrinsics.k1.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
+        camera_state.intrinsics.k2.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
+        camera_state.intrinsics.k3.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
+
+        camera_state.intrinsics.image_width  = camera_sensor.intrinsics.width_px;
+        camera_state.intrinsics.image_height = camera_sensor.intrinsics.height_px;
+
+        if (1)
+            camera_state.feature_tracker = std::make_unique<fast_tracker>();
 #ifdef HAVE_IPP
-    else
-        f->s.camera.feature_tracker = std::make_unique<ipp_tracker>();
+        else
+            camera_state.feature_tracker = std::make_unique<ipp_tracker>();
 #endif
+    }
 
     for (size_t i = 0; i < f->s.imus.children.size() && i < f->gyroscopes.size(); i++) {
         auto &imu = *f->s.imus.children[i];
@@ -1102,9 +1113,9 @@ void filter_initialize(struct filter *f)
 
 void filter_deinitialize(struct filter *f)
 {
-    {
-        const state_camera &camera_state = f->s.camera;
-        sensor_grey &camera_sensor = *f->cameras[0];
+    for (size_t i = 0; i < f->s.cameras.children.size() && i < f->cameras.size(); i++) {
+        const state_camera &camera_state = *f->s.cameras.children[i];
+        sensor_grey &camera_sensor = *f->cameras[i];
 
         camera_sensor.intrinsics.width_px  = camera_state.intrinsics.image_width;
         camera_sensor.intrinsics.height_px = camera_state.intrinsics.image_height;

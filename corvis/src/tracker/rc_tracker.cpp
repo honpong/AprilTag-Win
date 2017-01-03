@@ -185,10 +185,12 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
         if(camera_id > tracker->sfm.cameras.size()) return false;
         if(camera_id == tracker->sfm.cameras.size()) {
             // new camera
-            if(trace) trace_log->info(" configuring new camera");
+            if(trace) trace_log->info(" configuring new grey camera");
             auto new_camera = std::make_unique<sensor_grey>(camera_id);
             tracker->sfm.cameras.push_back(std::move(new_camera));
             tracker->queue.require_sensor(rc_SENSOR_TYPE_IMAGE, camera_id, std::chrono::milliseconds(15));
+            if (camera_id == tracker->sfm.s.cameras.children.size())
+                tracker->sfm.s.cameras.children.emplace_back(std::make_unique<state_camera>());
         }
 
         tracker->sfm.cameras[camera_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
@@ -412,8 +414,10 @@ RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback
     auto rc_sink = std::make_shared<rc_callback_sink_st>(callback, handle);
     tracker->sfm.s.log = std::make_unique<spdlog::logger>("rc_tracker", rc_sink);
     tracker->sfm.s.log->set_level(rc_sink->level(maximum_log_level));
-    tracker->sfm.s.map.log = std::make_unique<spdlog::logger>("rc_tracker", rc_sink);
-    tracker->sfm.s.map.log->set_level(rc_sink->level(maximum_log_level));
+    if (tracker->sfm.map) {
+        tracker->sfm.map->log = std::make_unique<spdlog::logger>("rc_tracker", rc_sink);
+        tracker->sfm.map->log->set_level(rc_sink->level(maximum_log_level));
+    }
     if(trace) {
         trace_log = std::make_unique<spdlog::logger>("rc_trace", rc_sink);
         trace_log->set_pattern("%n: %v");
@@ -626,11 +630,11 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
     std::vector<rc_Feature> & features = tracker->stored_features[camera_id];
     features.clear();
 
-    if(camera_id == 0) {
-    transformation G = tracker->get_transformation();
-    for(auto g: tracker->sfm.s.groups.children) {
-        for(auto i: g->features.children) {
-            if(i->is_valid()) {
+    if(camera_id < tracker->sfm.s.cameras.children.size()) {
+        transformation G = tracker->get_transformation();
+        for(auto &g: tracker->sfm.s.cameras.children[camera_id]->groups.children) {
+            for(auto &i: g->features.children) {
+                if(!i->is_valid()) continue;
                 rc_Feature feat;
                 feat.id = i->id;
                 feat.image_x = static_cast<decltype(feat.image_x)>(i->current[0]);
@@ -651,7 +655,6 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
                 features.push_back(feat);
             }
         }
-    }
     }
 
     if (features_px) *features_px = features.data();

@@ -64,14 +64,14 @@ bool state_vision_feature::force_initialize()
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
 
-state_vision_group::state_vision_group(const state_vision_group &other): Tr(other.Tr), Qr(other.Qr), features(other.features), health(other.health), status(other.status)
+state_vision_group::state_vision_group(const state_vision_group &other): Tr(other.Tr), Qr(other.Qr), camera(other.camera), features(other.features), health(other.health), status(other.status)
 {
     assert(status == group_normal); //only intended for use at initialization
     children.push_back(&Tr);
     children.push_back(&Qr);
 }
 
-state_vision_group::state_vision_group(uint64_t group_id): health(0), status(group_initializing)
+state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): camera(camera_), health(0), status(group_initializing)
 {
     id = group_id;
     children.push_back(&Tr);
@@ -95,7 +95,7 @@ void state_vision_group::make_empty()
     status = group_empty;
 }
 
-int state_vision_group::process_features(const rc_ImageData &image, mapper & map, bool map_enabled)
+int state_vision_group::process_features()
 {
     features.children.remove_if([&](state_vision_feature *f) {
         if(f->should_drop()) {
@@ -104,34 +104,6 @@ int state_vision_group::process_features(const rc_ImageData &image, mapper & map
         } else
             return false;
     });
-
-    if(map_enabled) {
-        for(auto f : features.children) {
-            float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
-            float variance_meters = stdev*stdev;
-            const float measurement_var = 1.e-3f*1.e-3f;
-            if(variance_meters < measurement_var)
-                variance_meters = measurement_var;
-
-            bool good = stdev / f->v.depth() < .05f;
-            if(good && f->descriptor_valid)
-                map.update_feature_position(id, f->id, f->body, variance_meters);
-            if(good && !f->descriptor_valid) {
-                float scale = static_cast<float>(f->v.depth());
-                float radius = 32.f/scale * (image.width / 320.f);
-                if(radius < 4.f) {
-                    radius = 4.f;
-                }
-                //log->info("feature {} good radius {}", f->id, radius);
-                if(descriptor_compute((uint8_t*)image.image, image.width, image.height, image.stride,
-                                      static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
-                                      f->descriptor)) {
-                    f->descriptor_valid = true;
-                    map.add_feature(id, f->id, f->body, variance_meters, f->descriptor);
-                }
-            }
-        }
-    }
 
     health = features.children.size();
     if(health < min_feats)
@@ -174,11 +146,10 @@ state_vision::state_vision(covariance &c):
     state_motion(c),
     feature_counter(0), group_counter(0)
 {
-    children.push_back(&camera);
-    children.push_back(&groups);
+    children.push_back(&cameras);
 }
 
-void state_vision::clear_features_and_groups()
+void state_camera::clear_features_and_groups()
 {
     for(state_vision_group *g : groups.children) {
         g->make_empty();
@@ -189,17 +160,20 @@ void state_vision::clear_features_and_groups()
 
 state_vision::~state_vision()
 {
-    clear_features_and_groups();
+    for (auto &camera : cameras.children)
+        camera->clear_features_and_groups();
 }
 
 void state_vision::reset()
 {
-    clear_features_and_groups();
-    map.reset();
+    for (auto &camera : cameras.children) {
+        camera->clear_features_and_groups();
+        camera->detecting_group = nullptr; // FIXME: does this leak?
+    }
     state_motion::reset();
 }
 
-int state_vision::feature_count() const
+int state_camera::feature_count() const
 {
     int count = 0;
     for(auto *g : groups.children)
@@ -213,7 +187,7 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
-int state_vision::process_features(const rc_ImageData &image)
+int state_camera::process_features(mapper *map, spdlog::logger &log)
 {
     int useful_drops = 0;
     int total_feats = 0;
@@ -235,11 +209,11 @@ int state_vision::process_features(const rc_ImageData &image)
                 }
             }
             if(i->should_drop())
-                camera.feature_tracker->drop_feature(i->tracker_id);
+                feature_tracker->drop_feature(i->tracker_id);
         }
     }
 
-    if(track_fail && !total_feats) log->warn("Tracker failed! {} features dropped.", track_fail);
+    if(track_fail && !total_feats) log.warn("Tracker failed! {} features dropped.", track_fail);
     //    log.warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);
 
     int total_health = 0;
@@ -251,7 +225,7 @@ int state_vision::process_features(const rc_ImageData &image)
     for(state_vision_group *g : groups.children) {
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
-        int health = g->process_features(image, map, map_enabled);
+        int health = g->process_features();
 
         if(g->status && g->status != group_initializing)
             total_health += health;
@@ -260,7 +234,7 @@ int state_vision::process_features(const rc_ImageData &image)
         // This sets group_empty (even if group_reference)
         if(!health) {
             for(state_vision_feature *i : g->features.children)
-                camera.feature_tracker->drop_feature(i->tracker_id);
+                feature_tracker->drop_feature(i->tracker_id);
             g->make_empty();
         }
 
@@ -278,20 +252,6 @@ int state_vision::process_features(const rc_ImageData &image)
                 best_group = g;
                 best_health = g->health;
             }
-            if(map_enabled) {
-                transformation G = get_transformation()*invert(transformation(g->Qr.v, g->Tr.v));
-                map.set_node_transformation(g->id, G);
-            }
-        }
-    }
-
-    if(map_enabled) {
-        transformation offset;
-        int max = 20;
-        int suppression = 10;
-        if(map.find_closure(max, suppression, offset)) {
-            loop_offset = offset*loop_offset;
-            log->info("loop closed, offset: {}", std::cref(loop_offset));
         }
     }
 
@@ -302,12 +262,64 @@ int state_vision::process_features(const rc_ImageData &image)
     {
         auto g = *i;
         ++i;
-        if(g->status == group_empty) remove_group(g);
+        if(g->status == group_empty) remove_group(g, map);
     }
 
-    remap();
-
     return total_health;
+}
+
+int state_vision::process_features(state_camera &camera, const rc_ImageData &image, mapper *map)
+{
+    int health = camera.process_features(map, *log);
+    remap();
+    update_map(image, map);
+    return health;
+}
+
+void state_vision::update_map(const rc_ImageData &image, mapper *map)
+{
+    if (!map) return;
+
+    for (auto &camera : cameras.children) {
+        for (auto &g : camera->groups.children) {
+            if (g->status == group_normal)
+                map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
+
+            for (state_vision_feature *f : g->features.children) {
+                float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
+                float variance_meters = stdev*stdev;
+                const float measurement_var = 1.e-3f*1.e-3f;
+                if (variance_meters < measurement_var)
+                    variance_meters = measurement_var;
+
+                bool good = stdev / f->v.depth() < .05f;
+                if (good && f->descriptor_valid)
+                    map->update_feature_position(g->id, f->id, f->body, variance_meters);
+                if (good && !f->descriptor_valid) {
+                    float scale = static_cast<float>(f->v.depth());
+                    float radius = 32.f/scale * (image.width / 320.f);
+                    if(radius < 4.f) {
+                        radius = 4.f;
+                    }
+                    //log->info("feature {} good radius {}", f->id, radius);
+                    if (descriptor_compute((uint8_t*)image.image, image.width, image.height, image.stride,
+                                           static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
+                                           f->descriptor)) {
+                        f->descriptor_valid = true;
+                        map->add_feature(g->id, f->id, f->body, variance_meters, f->descriptor);
+                    }
+                }
+            }
+        }
+    }
+
+    transformation offset;
+    int max = 20;
+    int suppression = 10;
+    if (map->find_closure(max, suppression, offset)) {
+        loop_offset = offset*loop_offset;
+        log->info("loop closed, offset: {}", std::cref(loop_offset));
+    }
 }
 
 state_vision_feature * state_vision::add_feature(state_vision_group &group, const feature_t &initial)
@@ -315,24 +327,24 @@ state_vision_feature * state_vision::add_feature(state_vision_group &group, cons
     return new state_vision_feature(group, feature_counter++, initial);
 }
 
-state_vision_group * state_vision::add_group()
+state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
 {
-    state_vision_group *g = new state_vision_group(group_counter++);
-    if(map_enabled) {
-        map.add_node(g->id);
-        if(groups.children.empty() && g->id != 0)
+    state_vision_group *g = new state_vision_group(camera, group_counter++);
+    if(map) {
+        map->add_node(g->id);
+        if(camera.groups.children.empty() && g->id != 0) // FIXME: what if the other camera has groups?
         {
-            map.add_edge(g->id, g->id-1);
+            map->add_edge(g->id, g->id-1);
             g->old_neighbors.push_back(g->id-1);
         }
-        for(state_vision_group *neighbor : groups.children) {
-            map.add_edge(g->id, neighbor->id);
+        for(auto &neighbor : camera.groups.children) {
+            map->add_edge(g->id, neighbor->id);
 
             g->old_neighbors.push_back(neighbor->id);
             neighbor->neighbors.push_back(g->id);
         }
     }
-    groups.children.push_back(g);
+    camera.groups.children.push_back(g);
     remap();
 #ifdef TEST_POSDEF
     if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after propagating group\n");
@@ -340,12 +352,10 @@ state_vision_group * state_vision::add_group()
     return g;
 }
 
-void state_vision::remove_group(state_vision_group *g)
+void state_camera::remove_group(state_vision_group *g, mapper *map)
 {
-    if(map_enabled) {
-        transformation G = get_transformation()*invert(transformation(g->Qr.v, g->Tr.v));
-        this->map.node_finished(g->id, G);
-    }
+    if (map)
+        map->node_finished(g->id);
     groups.remove_child(g);
     delete g;
 }
@@ -446,7 +456,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
     return ku_d;
 }
 
-void state_vision::update_feature_tracks(const rc_ImageData &image)
+void state_camera::update_feature_tracks(const rc_ImageData &image)
 {
     tracker::image current_image;
     current_image.image = (uint8_t *)image.image;
@@ -456,21 +466,21 @@ void state_vision::update_feature_tracks(const rc_ImageData &image)
 
     std::map<uint64_t, state_vision_feature *> id_to_state;
 
-    camera.feature_tracker->predictions.clear();
-    camera.feature_tracker->predictions.reserve(feature_count());
+    feature_tracker->predictions.clear();
+    feature_tracker->predictions.reserve(feature_count());
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children) {
             id_to_state[feature->tracker_id] = feature;
-            camera.feature_tracker->predictions.emplace_back(feature->tracker_id,
-                                                            (float)feature->current.x(), (float)feature->current.y(),
-                                                            (float)feature->prediction.x(), (float)feature->prediction.y());
+            feature_tracker->predictions.emplace_back(feature->tracker_id,
+                                                      (float)feature->current.x(), (float)feature->current.y(),
+                                                      (float)feature->prediction.x(), (float)feature->prediction.y());
         }
     }
 
     int i=0;
-    if (camera.feature_tracker->predictions.size())
-        for(const auto &p : camera.feature_tracker->track(current_image, camera.feature_tracker->predictions)) {
+    if (feature_tracker->predictions.size())
+        for(const auto &p : feature_tracker->track(current_image, feature_tracker->predictions)) {
             state_vision_feature * feature = id_to_state[p.id];
             feature->current.x() = p.found ? p.x : INFINITY;
             feature->current.y() = p.found ? p.y : INFINITY;
@@ -482,11 +492,11 @@ float state_vision::median_depth_variance()
     float median_variance = 1;
 
     vector<state_vision_feature *> useful_feats;
-    for(auto g: groups.children) {
-        for(auto i: g->features.children) {
-            if(i->is_initialized()) useful_feats.push_back(i);
-        }
-    }
+    for (auto &c : cameras.children)
+        for(auto &g: c->groups.children)
+            for(auto i: g->features.children)
+                if(i->is_initialized())
+                    useful_feats.push_back(i);
 
     if(useful_feats.size()) {
         sort(useful_feats.begin(), useful_feats.end(), [](state_vision_feature *a, state_vision_feature *b) { return a->variance() < b->variance(); });
@@ -498,25 +508,24 @@ float state_vision::median_depth_variance()
 
 void state_vision::remove_non_orientation_states()
 {
-    remove_child(&camera);
-    remove_child(&groups);
+    remove_child(&cameras);
     state_motion::remove_non_orientation_states();
 }
 
 void state_vision::add_non_orientation_states()
 {
     state_motion::add_non_orientation_states();
-    children.push_back(&camera);
-    children.push_back(&groups);
+    children.push_back(&cameras);
 }
 
 void state_vision::evolve_state(f_t dt)
 {
-    for(state_vision_group *g : groups.children) {
-        g->Tr.v += g->dTrp_ddT * dT;
-        rotation_vector dWr(dW[0], dW[1], dW[2]);
-        g->Qr.v *= to_quaternion(dWr); // FIXME: cache this?
-    }
+    for (auto &c : cameras.children)
+        for(auto &g : c->groups.children) {
+            g->Tr.v += g->dTrp_ddT * dT;
+            rotation_vector dWr(dW[0], dW[1], dW[2]);
+            g->Qr.v *= to_quaternion(dWr); // FIXME: cache this?
+        }
     state_motion::evolve_state(dt);
 }
 
@@ -524,13 +533,15 @@ void state_vision::cache_jacobians(f_t dt)
 {
     state_motion::cache_jacobians(dt);
 
-    for(state_vision_group *g : groups.children) {
-        m3 Rr = g->Qr.v.toRotationMatrix();
-        g->dTrp_ddT = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
-        m3 xRrRtdT = skew(g->dTrp_ddT * dT);
-        g->dTrp_dQ_s   = xRrRtdT;
-        g->dQrp_s_dW = Rr * JdW_s;
-    }
+    for (auto &c : cameras.children)
+        for(auto &g : c->groups.children) {
+            m3 Rr = g->Qr.v.toRotationMatrix();
+            g->dTrp_ddT = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
+            m3 xRrRtdT = skew(g->dTrp_ddT * dT);
+            g->dTrp_dQ_s   = xRrRtdT;
+            g->dQrp_s_dW = Rr * JdW_s;
+        }
+
 }
 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
@@ -555,19 +566,12 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         T.to_col(dst, i) = cov_T + cov_dT;
         V.to_col(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
         a.to_col(dst, i) = cov_a + dt * cov_da;
-        for(state_vision_group *g : groups.children) {
-            const auto cov_Tr = g->Tr.from_row(src, i);
-            const auto scov_Qr = g->Qr.from_row(src, i);
-            g->Tr.to_col(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
-            g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
-        }
+        for (auto &c : cameras.children)
+            for(auto &g : c->groups.children) {
+                const auto cov_Tr = g->Tr.from_row(src, i);
+                const auto scov_Qr = g->Qr.from_row(src, i);
+                g->Tr.to_col(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
+                g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
+            }
     }
-}
-
-bool state_vision::load_map(std::string map_json)
-{
-    if(map_enabled) {
-        return mapper::deserialize(map_json, map);
-    }
-    return false;
 }

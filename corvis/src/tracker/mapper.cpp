@@ -872,9 +872,8 @@ void mapper::set_node_transformation(uint64_t id, const transformation & G)
     nodes[id].global_transformation.transform = G;
 }
 
-void mapper::node_finished(uint64_t id, const transformation & G)
+void mapper::node_finished(uint64_t id)
 {
-    set_node_transformation(id, G);
     id += node_id_offset;
     nodes[id].finished = true;
     for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {
@@ -1080,7 +1079,8 @@ bool mapper::deserialize(const std::string &json, mapper & map)
         G.Q.y() = (float)rotation[2].GetDouble();
         G.Q.z() = (float)rotation[3].GetDouble();
 
-        map.node_finished(node_id, G);
+        map.set_node_transformation(node_id, G);
+        map.node_finished(node_id);
         map.nodes[node_id].match_attempted = true;
     }
     map.node_id_offset = max_node_id + 1;

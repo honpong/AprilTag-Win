@@ -268,17 +268,31 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     }
 
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {
-        const auto &camera = *f->s.cameras.children[i];
-        if (!camera.extrinsics.estimate) continue;
-        p = get_plot_by_name("extrinsics_T" + std::to_string(i));
-        observe_plot_item(timestamp_us, p, "Tc_x", (float)camera.extrinsics.T.v[0]);
-        observe_plot_item(timestamp_us, p, "Tc_y", (float)camera.extrinsics.T.v[1]);
-        observe_plot_item(timestamp_us, p, "Tc_z", (float)camera.extrinsics.T.v[2]);
+        const auto &extrinsics = f->s.cameras.children[i]->extrinsics;
+        if (!extrinsics.estimate) continue;
+        p = get_plot_by_name("extrinsics_Tc" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "Tc" + std::to_string(i) + "_x", (float)extrinsics.T.v[0]);
+        observe_plot_item(timestamp_us, p, "Tc" + std::to_string(i) + "_y", (float)extrinsics.T.v[1]);
+        observe_plot_item(timestamp_us, p, "Tc" + std::to_string(i) + "_z", (float)extrinsics.T.v[2]);
 
-        p = get_plot_by_name("extrinsics_W" + std::to_string(i));
-        observe_plot_item(timestamp_us, p, "Wc_x", (float)to_rotation_vector(camera.extrinsics.Q.v).raw_vector()[0]);
-        observe_plot_item(timestamp_us, p, "Wc_y", (float)to_rotation_vector(camera.extrinsics.Q.v).raw_vector()[1]);
-        observe_plot_item(timestamp_us, p, "Wc_z", (float)to_rotation_vector(camera.extrinsics.Q.v).raw_vector()[2]);
+        p = get_plot_by_name("extrinsics_Wc" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "Wc" + std::to_string(i) + "_x", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[0]);
+        observe_plot_item(timestamp_us, p, "Wc" + std::to_string(i) + "_y", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[1]);
+        observe_plot_item(timestamp_us, p, "Wc" + std::to_string(i) + "_z", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[2]);
+    }
+
+    for (size_t i=0; i<f->s.imus.children.size(); i++) {
+        const auto &extrinsics = f->s.imus.children[i]->extrinsics;
+        if (!extrinsics.estimate) continue;
+        p = get_plot_by_name("extrinsics_Ta" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "Ta" + std::to_string(i) + "_x", (float)extrinsics.T.v[0]);
+        observe_plot_item(timestamp_us, p, "Ta" + std::to_string(i) + "_y", (float)extrinsics.T.v[1]);
+        observe_plot_item(timestamp_us, p, "Ta" + std::to_string(i) + "_z", (float)extrinsics.T.v[2]);
+
+        p = get_plot_by_name("extrinsics_Wa" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "Wa" + std::to_string(i) + "_x", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[0]);
+        observe_plot_item(timestamp_us, p, "Wa" + std::to_string(i) + "_y", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[1]);
+        observe_plot_item(timestamp_us, p, "Wa" + std::to_string(i) + "_z", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[2]);
     }
 
     p = get_plot_by_name("translation");

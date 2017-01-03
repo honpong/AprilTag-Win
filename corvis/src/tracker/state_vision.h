@@ -250,7 +250,7 @@ struct state_camera: state_branch<state_node*> {
 
     state_camera() : extrinsics("Qc", "Tc", false), intrinsics(false) {
         reset();
-        //children.push_back(&extrinsics);
+        children.push_back(&extrinsics);
         children.push_back(&intrinsics);
         children.push_back(&groups);
     }

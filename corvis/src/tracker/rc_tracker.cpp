@@ -137,7 +137,7 @@ static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionCon
 
 struct rc_Tracker: public sensor_fusion
 {
-    rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
+    rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::MINIMIZE_DROPS) {}
     std::string jsonString;
     std::vector<std::vector<rc_Feature> > stored_features;
     std::string timingStats;

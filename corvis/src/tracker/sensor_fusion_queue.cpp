@@ -277,8 +277,13 @@ bool fusion_queue::ok_to_dispatch()
                 return false;
             break;
 
-        case latency_strategy::ELIMINATE_DROPS:
-            if(s.in_queue == 0)
+        case latency_strategy::MINIMIZE_DROPS:
+            // We are ok to dispatch unless we have seen at least one
+            // of these, but none currently in the queue. This
+            // eliminates drops, except for the first item of each
+            // type, which we do not wait for to allow
+            // autoconfiguration
+            if(s.in && s.in_queue == 0)
                 return false;
             break;
         }

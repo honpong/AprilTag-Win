@@ -56,7 +56,7 @@ TEST(SensorFusionQueue, Reorder)
         last_time = x.time_us;
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
     
     q->start(true);
 
@@ -134,27 +134,29 @@ TEST(SensorFusionQueue, FastCatchup)
         }
     };
     
-    q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, maximum_latency_us);
+    q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, maximum_latency_us);
 
 
     q->start(false);
     
     q->receive_sensor_data(gyro_for_time(0));
     
-    q->receive_sensor_data(gyro_for_time(10000));
-    
-    q->receive_sensor_data(accel_for_time(8000));
-    
+    EXPECT_EQ(1, gyrrcv);
+
     q->receive_sensor_data(depth16_for_time(5000));
+
+    q->receive_sensor_data(gray8_for_time(5000));
+
+    q->receive_sensor_data(accel_for_time(8000));
     
     EXPECT_EQ(0, deprcv);
     EXPECT_EQ(0, camrcv);
     EXPECT_EQ(0, accrcv);
-    EXPECT_EQ(0, gyrrcv);
+    EXPECT_EQ(1, gyrrcv);
     EXPECT_EQ(0, catchup_accrcv);
     EXPECT_EQ(0, catchup_gyrrcv);
     
-    q->receive_sensor_data(gray8_for_time(5000));
+    q->receive_sensor_data(gyro_for_time(10000));
     
     EXPECT_EQ(1, deprcv);
     EXPECT_EQ(0, camrcv);
@@ -254,7 +256,7 @@ TEST(SensorFusionQueue, Threading)
         }
     };
     
-    q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, maximum_latency_us);
+    q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, maximum_latency_us);
 
     auto start = sensor_clock::now();
     
@@ -326,7 +328,7 @@ TEST(SensorFusionQueue, DropOrder)
              EXPECT_NE(x.time_us, 4000);
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
     
     q->start(true);
     
@@ -414,7 +416,7 @@ TEST(SensorFusionQueue, SameTime)
         }
     };
     
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
 
     q->start(true);
 
@@ -453,23 +455,24 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
         }
     };
     
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
 
     q->start(true);
 
     q->receive_sensor_data(std::move(gyro_for_time(5000)));
+    q->receive_sensor_data(std::move(accel_for_time(5000)));
+    q->receive_sensor_data(std::move(gray8_for_time(5000)));
+
     q->receive_sensor_data(std::move(gyro_for_time(6000)));
     q->receive_sensor_data(std::move(gyro_for_time(7000)));
     q->receive_sensor_data(std::move(gyro_for_time(8000)));
     q->receive_sensor_data(std::move(gyro_for_time(9000)));
 
-    q->receive_sensor_data(std::move(accel_for_time(5000)));
     q->receive_sensor_data(std::move(accel_for_time(6000)));
     q->receive_sensor_data(std::move(accel_for_time(7000)));
     q->receive_sensor_data(std::move(accel_for_time(8000)));
     q->receive_sensor_data(std::move(accel_for_time(9000)));
 
-    q->receive_sensor_data(std::move(gray8_for_time(5000)));
     // we should dispatch here due to max latency of 5ms
     q->receive_sensor_data(std::move(gray8_for_time(10001)));
 
@@ -509,7 +512,7 @@ TEST(SensorFusionQueue, BufferNoDispatch)
         }
     };
     
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
 
     q->start_buffering(std::chrono::microseconds(buffer_time_us));
 
@@ -552,7 +555,7 @@ TEST(SensorFusionQueue, Buffering)
         }
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::ELIMINATE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
 
     q->start_buffering(std::chrono::microseconds(buffer_time_us));
 

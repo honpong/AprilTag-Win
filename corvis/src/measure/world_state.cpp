@@ -383,12 +383,28 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     p = get_plot_by_name("median depth var");
     observe_plot_item(timestamp_us, p, "median-depth-var", (float)f->median_depth_variance);
 
-    p = get_plot_by_name("counts");
-    observe_plot_item(timestamp_us, p, "state-size", (float)f->s.statesize);
+    p = get_plot_by_name("state-size");
+    observe_plot_item(timestamp_us, p, "state size", (float)f->s.statesize);
+    int group_storage = 0;
+    int feature_storage = 0;
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {
         const auto &camera = *f->s.cameras.children[i];
-        observe_plot_item(timestamp_us, p, "feature-count" + std::to_string(i), (float)camera.feature_count());
-        observe_plot_item(timestamp_us, p, "group-states" + std::to_string(i), (float)camera.groups.children.size() * 6);
+        group_storage += camera.groups.children.size() * 6;
+        feature_storage += camera.feature_count();
+    }
+    observe_plot_item(timestamp_us, p, "groups", (float)group_storage);
+    observe_plot_item(timestamp_us, p, "feats", (float)feature_storage);
+
+    p = get_plot_by_name("feature counts");
+    for (size_t i=0; i<f->s.cameras.children.size(); i++) {
+        const auto &camera = *f->s.cameras.children[i];
+        observe_plot_item(timestamp_us, p, "feats" + std::to_string(i), (float)camera.feature_count());
+    }
+
+    p = get_plot_by_name("group counts");
+    for (size_t i=0; i<f->s.cameras.children.size(); i++) {
+        const auto &camera = *f->s.cameras.children[i];
+        observe_plot_item(timestamp_us, p, "groups" + std::to_string(i), (float)camera.groups.children.size());
     }
 
     p = get_plot_by_name("acc timer");

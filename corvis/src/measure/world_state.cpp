@@ -473,6 +473,10 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
 
     rc_Pose pose = rc_getPose(tracker, nullptr, nullptr, data->path);
     transformation G = to_transformation(pose);
+    observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z(), data->path == rc_DATA_PATH_FAST);
+    update_sensors(tracker, data);
+
+    if(data->path == rc_DATA_PATH_FAST) return;
 
     switch(data->type) {
         case rc_SENSOR_TYPE_IMAGE:
@@ -527,8 +531,6 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
             break;
     }
 
-    observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z(), data->path == rc_DATA_PATH_FAST);
-    update_sensors(tracker, data);
     update_plots(tracker, data);
 }
 

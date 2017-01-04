@@ -233,18 +233,20 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
 
     int p;
 
-    p = get_plot_by_name("accel");
     if (f->observations.recent_a.get()) {
-        observe_plot_item(timestamp_us, p, "a_x", (float)f->observations.recent_a->meas[0]);
-        observe_plot_item(timestamp_us, p, "a_y", (float)f->observations.recent_a->meas[1]);
-        observe_plot_item(timestamp_us, p, "a_z", (float)f->observations.recent_a->meas[2]);
+        auto id = std::to_string(f->observations.recent_a->source.id);
+        p = get_plot_by_name("accel obs " + id);
+        observe_plot_item(timestamp_us, p, "a_x" + id, (float)f->observations.recent_a->meas[0]);
+        observe_plot_item(timestamp_us, p, "a_y" + id, (float)f->observations.recent_a->meas[1]);
+        observe_plot_item(timestamp_us, p, "a_z" + id, (float)f->observations.recent_a->meas[2]);
     }
 
-    p = get_plot_by_name("gyro");
     if (f->observations.recent_g.get()) {
-        observe_plot_item(timestamp_us, p, "g_x", (float)f->observations.recent_g->meas[0]);
-        observe_plot_item(timestamp_us, p, "g_y", (float)f->observations.recent_g->meas[1]);
-        observe_plot_item(timestamp_us, p, "g_z", (float)f->observations.recent_g->meas[2]);
+        auto id = std::to_string(f->observations.recent_g->source.id);
+        p = get_plot_by_name("gyro obs " + id);
+        observe_plot_item(timestamp_us, p, "g_x" + id, (float)f->observations.recent_g->meas[0]);
+        observe_plot_item(timestamp_us, p, "g_y" + id, (float)f->observations.recent_g->meas[1]);
+        observe_plot_item(timestamp_us, p, "g_z" + id, (float)f->observations.recent_g->meas[2]);
     }
 
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {
@@ -351,17 +353,19 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     }
 
     if (f->observations.recent_a.get()) {
-        p = get_plot_by_name("ainn");
-        observe_plot_item(timestamp_us, p, "a-inn_x", (float)f->observations.recent_a->innovation(0));
-        observe_plot_item(timestamp_us, p, "a-inn_y", (float)f->observations.recent_a->innovation(1));
-        observe_plot_item(timestamp_us, p, "a-inn_z", (float)f->observations.recent_a->innovation(2));
+        auto id = std::to_string(f->observations.recent_a->source.id);
+        p = get_plot_by_name("a obs inn" + id);
+        observe_plot_item(timestamp_us, p, "a-inn_x" + id, (float)f->observations.recent_a->innovation(0));
+        observe_plot_item(timestamp_us, p, "a-inn_y" + id, (float)f->observations.recent_a->innovation(1));
+        observe_plot_item(timestamp_us, p, "a-inn_z" + id, (float)f->observations.recent_a->innovation(2));
     }
 
     if (f->observations.recent_g.get()) {
-        p = get_plot_by_name("ginn");
-        observe_plot_item(timestamp_us, p, "g-inn_x", (float)f->observations.recent_g->innovation(0));
-        observe_plot_item(timestamp_us, p, "g-inn_y", (float)f->observations.recent_g->innovation(1));
-        observe_plot_item(timestamp_us, p, "g-inn_z", (float)f->observations.recent_g->innovation(2));
+        auto id = std::to_string(f->observations.recent_g->source.id);
+        p = get_plot_by_name("g obs inn" + id);
+        observe_plot_item(timestamp_us, p, "g-inn_x" + id, (float)f->observations.recent_g->innovation(0));
+        observe_plot_item(timestamp_us, p, "g-inn_y" + id, (float)f->observations.recent_g->innovation(1));
+        observe_plot_item(timestamp_us, p, "g-inn_z" + id, (float)f->observations.recent_g->innovation(2));
     }
 
     p = get_plot_by_name("fmap x");

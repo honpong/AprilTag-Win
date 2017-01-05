@@ -63,7 +63,7 @@ model {
                             "-DCMAKE_BUILD_TYPE=${type.capitalize()}",
                             "-DANDROID_NDK_ROOT=${project.ext.ndkDir}",
                             "-DANDROID_PLATFORM=android-21", "-DANDROID_ARCH=$arch",
-                            "-DCMAKE_TOOLCHAIN_FILE=Android.toolchain.cmake",
+                            "-DCMAKE_TOOLCHAIN_FILE=../cmake/Android.toolchain.cmake",
                             "-DIPPROOT=False",
                             "-DMKLROOT=$mklRoot"
                    });

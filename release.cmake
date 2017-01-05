@@ -17,7 +17,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "^(android-x32|android-x64)$")
     message(FATAL_ERROR "Specify -DMKLROOT=<mkl-root>")
   endif()
   set(RELEASE_EXTRA ${RELEASE_EXTRA}
-    -DCMAKE_TOOLCHAIN_FILE=../android/Android.toolchain.cmake
+    -DCMAKE_TOOLCHAIN_FILE=../cmake/Android.toolchain.cmake
     -DANDROID_PLATFORM=android-21
     -DANDROID_NDK_ROOT=${ANDROID_NDK_ROOT}
     -DMKLROOT=${MKLROOT}

@@ -23,12 +23,12 @@ std::string render_filename_from_filename(const char * benchmark_folder, const c
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--realtime] [--async] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-fast-path] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
+        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--realtime] [--async] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-fast-path] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] [--progress] <filename>\n";
         cerr << "       " << v[0] << " [--qvga] [--drop-depth] --benchmark <directory>\n";
         return 1;
     }
 
-    bool realtime = false, start_paused = false, benchmark = false, calibrate = false, zero_bias = false, fast_path = true, async = false;
+    bool realtime = false, start_paused = false, benchmark = false, calibrate = false, zero_bias = false, fast_path = true, async = false, progress = false;
     const char *save = nullptr, *load = nullptr;
     std::string save_map, load_map;
     bool qvga = false, depth = true;
@@ -62,6 +62,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--render-output") == 0 && i+1 < c) render_output = v[++i];
         else if (strcmp(v[i], "--calibrate") == 0) calibrate = true;
         else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
+        else if (strcmp(v[i], "--progress") == 0) progress = true;
         else goto usage;
 
     if (!filename)
@@ -152,14 +153,14 @@ int main(int c, char **v)
                 res.user_data = nullptr;
 
 
-            std::cout << "Running  " << capture_file << std::endl;
+            if (progress) std::cout << "Running  " << capture_file << std::endl;
             rp.start(load_map);
-            std::cout << "Finished " << capture_file << std::endl;
+            if (progress) std::cout << "Finished " << capture_file << std::endl;
 
             res.length_cm.reference = 100*rp.get_reference_length();  res.path_length_cm.reference = 100*rp.get_reference_path_length();
             res.length_cm.measured  = 100*rp.get_length();            res.path_length_cm.measured  = 100*rp.get_path_length();
 
-            print_results(rp, capture_file);
+            if (progress) print_results(rp, capture_file);
 
             return true;
         },

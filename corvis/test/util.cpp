@@ -100,8 +100,8 @@
 ::testing::AssertionResult test_rotation_vector_near(const char* expr1, const char* expr2, const char* bounds_expr,
                                                      const rotation_vector &a, const rotation_vector &b, const f_t bounds)
 {
-    v4 A(a.x(), a.y(), a.z(), 0), B(b.x(), b.y(), b.z(), 0);
-    if (A == v4::Zero() || B == v4::Zero()) {
+    v3 A = a.raw_vector(), B = b.raw_vector();
+    if (A == v3::Zero() || B == v3::Zero()) {
         EXPECT_NEAR(fmod(A.norm(), 2*M_PI), 0, bounds)                 << "In " << expr1 << " " << expr2 << " where a = " << a;
         EXPECT_NEAR(fmod(B.norm(), 2*M_PI), 0, bounds)                 << "In " << expr1 << " " << expr2 << " where b = " << b;
     } else

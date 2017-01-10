@@ -84,3 +84,9 @@ TEST(Matrix3, Rotation) {
         test_rotation(rotvec.normalized() * (M_PI));
     }
 }
+
+TEST(Quaternion,Log) {
+    for (f_t i=-100*F_T_EPS; i <100*F_T_EPS; i += F_T_EPS)
+        for (f_t j=0; j<2*M_PI; j+=M_PI/16)
+            EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(quaternion(cos(j+i), sin(j+i),0,0)), rotation_vector(2*(j+i),0,0), 6*F_T_EPS);
+}

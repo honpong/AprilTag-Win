@@ -63,9 +63,8 @@ static inline quaternion to_quaternion(const rotation_vector &v) {
 }
 
 static inline rotation_vector to_rotation_vector(const quaternion &q) {
-    f_t denom = sqrt(q.x()*q.x() + q.y()*q.y() + q.z()*q.z());
-    if(denom == 0.) return rotation_vector(q.x(), q.y(), q.z());
-    f_t scale = 2 * acos(q.w()) / denom;
+    f_t S2, S = sqrt(S2=q.x()*q.x() + q.y()*q.y() + q.z()*q.z()), C = q.w();
+    f_t scale = 2 * atan2c(S,C,S2); // robust version of 2 asin(S)/S
     return rotation_vector(q.x() * scale, q.y() * scale, q.z() * scale); // 2 log(q)
 }
 

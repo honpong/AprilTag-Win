@@ -58,8 +58,8 @@ static inline quaternion to_quaternion(const m3 &m)
 
 static inline quaternion to_quaternion(const rotation_vector &v) {
     rotation_vector w(v.x()/2, v.y()/2, v.z()/2);
-    f_t th2, th = sqrt(th2=w.norm2()), C = cos(th), S = sinc(th,th2);
-    return quaternion(C, S * w.x(), S * w.y(), S * w.z()); // e^(v/2)
+    f_t th2, th = sqrt(th2=w.norm2()), C = cos(th), Sc = sinc(th,th2);
+    return quaternion(C, Sc * w.x(), Sc * w.y(), Sc * w.z()); // e^(v/2)
 }
 
 static inline rotation_vector to_rotation_vector(const quaternion &q) {

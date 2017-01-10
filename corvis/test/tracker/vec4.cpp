@@ -27,27 +27,27 @@ static void test_rotation(const v3 &vec)
         EXPECT_V3_NEAR(rvec.raw_vector(), vec, 0);
     }
     
-    EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(to_quaternion(rvec)), rvec, 4*F_T_EPS) << "rot_vec(quaternion(vec)) = vec";
-    EXPECT_ROTATION_VECTOR_NEAR(rvec, to_rotation_vector(rotmat), 4*F_T_EPS) << "vec = invrod(rod(vec))";
+    EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(to_quaternion(rvec)), rvec, 3*F_T_EPS) << "rot_vec(quaternion(vec)) = vec";
+    EXPECT_ROTATION_VECTOR_NEAR(rvec, to_rotation_vector(rotmat), 3*F_T_EPS) << "vec = invrod(rod(vec))";
 
-    EXPECT_M3_NEAR(m3::Identity(), rotmat.transpose() * rotmat, 4*F_T_EPS) << "R'R = I";
-    EXPECT_V3_NEAR(vec, rotmat.transpose() * (rotmat * vec), 4*F_T_EPS) << "R'Rv = v";
+    EXPECT_M3_NEAR(m3::Identity(), rotmat.transpose() * rotmat, 3*F_T_EPS) << "R'R = I";
+    EXPECT_V3_NEAR(vec, rotmat.transpose() * (rotmat * vec), 3*F_T_EPS) << "R'Rv = v";
 
     quaternion quat = to_quaternion(rvec);
-    EXPECT_M3_NEAR(quat.toRotationMatrix(), to_rotation_matrix(rvec), 4*F_T_EPS) << "rot_mat(rotvec_to_quat(v)) = rodrigues(v)";
+    EXPECT_M3_NEAR(quat.toRotationMatrix(), to_rotation_matrix(rvec), 3*F_T_EPS) << "rot_mat(rotvec_to_quat(v)) = rodrigues(v)";
     quaternion qinv = to_quaternion(rotmat);
     EXPECT_QUATERNION_ROTATION_NEAR(quat, qinv, 2*F_T_EPS) << "q = to_quaternion(to_rotation_matrix(q))";
 
     {
         const v3 lvec(1.5f, -.64f, 4.1f);
         v3 vrot = quat * lvec;
-        EXPECT_V3_NEAR(vrot, rotation_between_two_vectors(lvec, vrot) * lvec, 20*F_T_EPS)
+        EXPECT_V3_NEAR(vrot, rotation_between_two_vectors(lvec, vrot) * lvec, 16*F_T_EPS)
             << "q * vec = rotation_between_two_vectors(vec, quaternion_rotation(q, vec)) * vec";
     }
     
     {
         const v3 up(0, 0, 1);
-        EXPECT_V3_NEAR(up, rotation_between_two_vectors(quat * up, up) * (quat * up) , 8*F_T_EPS);
+        EXPECT_V3_NEAR(up, rotation_between_two_vectors(quat * up, up) * (quat * up) , 3*F_T_EPS);
     }
     
 }

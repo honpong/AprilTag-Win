@@ -297,6 +297,11 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
         observe_plot_item(timestamp_us, p, "Wa" + std::to_string(i) + "_z", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[2]);
     }
 
+    if (path_gt.size() && path_gt.back().timestamp == data->time_us) {
+        p = get_plot_by_name("reference error");
+        observe_plot_item(timestamp_us, p, "orientation error", (float)to_rotation_vector(f->s.Q.v.conjugate() * path_gt.back().g.Q).raw_vector().norm());
+    }
+
     p = get_plot_by_name("translation");
     observe_plot_item(timestamp_us, p, "T_x", (float)f->s.T.v[0]);
     observe_plot_item(timestamp_us, p, "T_y", (float)f->s.T.v[1]);

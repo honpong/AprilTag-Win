@@ -72,6 +72,13 @@ public:
             angular_velocity_rad__s = data;
     }
 
+    class stack_copy {};
+    sensor_data(const sensor_data &other, stack_copy) :
+        rc_Data(static_cast<rc_Data>(other)),
+        image_handle(other.image_handle.get(),[](void*){}),
+        timestamp(other.timestamp) {
+    }
+
     std::unique_ptr<sensor_data> make_copy() const
     {
         switch(type) {

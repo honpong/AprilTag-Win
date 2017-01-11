@@ -360,7 +360,11 @@ void fusion_queue::dispatch_buffered(std::function<void(sensor_data &)> receive_
 {
     std::unique_lock<std::mutex> lock(data_mutex);
 
-    for (auto i = queue.begin(); i != queue.end(); ++i)
-        receive_func(*i);
+    for (auto i = queue.begin(); i != queue.end(); ++i) {
+        sensor_data d(*i, sensor_data::stack_copy());
+        lock.unlock();
+        receive_func(d);
+        lock.lock();
+        while (*i < d) ++i; // skip items push()ed during receive_func()
+    }
 }
-

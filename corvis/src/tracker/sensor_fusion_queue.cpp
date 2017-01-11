@@ -24,12 +24,6 @@ inline Stream &operator <<(Stream &s, const std::deque<sensor_data> &q) {
     return s;
 }
 
-static bool compare_sensor_data(const sensor_data &d1, const sensor_data &d2) {
-    if(d1.timestamp == d2.timestamp)
-        return d1.type > d2.type;
-    return d1.timestamp > d2.timestamp;
-}
-
 fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> data_func,
                            latency_strategy s,
                            sensor_clock::duration maximum_latency):
@@ -239,7 +233,7 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
 
     s.first->second.push();
     queue.push_back(std::move(x));
-    std::push_heap(queue.begin(), queue.end(), compare_sensor_data);
+    std::push_heap(queue.begin(), queue.end());
 }
 
 sensor_clock::time_point fusion_queue::next_timestamp()
@@ -251,7 +245,7 @@ sensor_clock::time_point fusion_queue::next_timestamp()
 
 sensor_data fusion_queue::pop_queue()
 {
-    std::pop_heap(queue.begin(), queue.end(), compare_sensor_data);
+    std::pop_heap(queue.begin(), queue.end());
     sensor_data data = std::move(queue.back());
     queue.pop_back();
     last_dispatched = data.timestamp;
@@ -337,11 +331,11 @@ void fusion_queue::dispatch_singlethread(bool force)
 void fusion_queue::dispatch_buffered(std::function<void(sensor_data &)> receive_func)
 {
     std::unique_lock<std::mutex> lock(data_mutex);
-    std::sort_heap(queue.begin(), queue.end(), compare_sensor_data);
+    std::sort_heap(queue.begin(), queue.end());
 
     for (auto i = queue.rbegin(); i != queue.rend(); ++i)
         receive_func(*i);
 
-    std::make_heap(queue.begin(), queue.end(), compare_sensor_data);
+    std::make_heap(queue.begin(), queue.end());
 }
 

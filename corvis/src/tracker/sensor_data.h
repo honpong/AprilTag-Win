@@ -30,6 +30,10 @@ public:
     sensor_data(const sensor_data &other) = delete;
     sensor_data &operator=(const sensor_data& other) = delete;
 
+    friend constexpr bool operator<(const sensor_data &a, const sensor_data &b) {
+        return a.timestamp == b.timestamp? a.type < b.type : a.timestamp < b.timestamp;
+    }
+
     sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
                 rc_Timestamp shutter_time_us, int width, int height, int stride, rc_ImageFormat format, const void * image_ptr,
                 std::unique_ptr<void, void(*)(void *)> handle) :

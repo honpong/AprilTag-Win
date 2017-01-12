@@ -100,7 +100,7 @@ public:
 };
 
 class state_vision_group;
-class state_camera;
+struct state_camera;
 
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:

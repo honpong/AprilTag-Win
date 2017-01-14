@@ -56,7 +56,7 @@ TEST(SensorFusionQueue, Reorder)
         last_time = x.time_us;
     };
 
-    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
+    auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 500000);
     
     q->start(true);
 

@@ -61,6 +61,9 @@ TEST(SensorFusionQueue, Reorder)
     q->start(true);
 
     q->receive_sensor_data(std::move(gyro_for_time(0)));
+    q->receive_sensor_data(std::move(accel_for_time(1)));
+    q->receive_sensor_data(std::move(gray8_for_time(2)));
+    q->receive_sensor_data(std::move(depth16_for_time(3)));
 
     q->receive_sensor_data(std::move(gyro_for_time(10000)));
 
@@ -91,8 +94,8 @@ TEST(SensorFusionQueue, Reorder)
     q->receive_sensor_data(std::move(gyro_for_time(50000)));
     
     q->stop();
-    ASSERT_EQ(q->total_in, 15);
-    ASSERT_EQ(q->total_out, 15);
+    ASSERT_EQ(q->total_in, 18);
+    ASSERT_EQ(q->total_out, 18);
 }
 
 #include <iostream>

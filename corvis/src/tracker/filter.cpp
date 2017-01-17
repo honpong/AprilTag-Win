@@ -754,7 +754,7 @@ static int filter_available_feature_space(struct filter *f, state_camera &camera
     int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize;
     int empty = 0;
     for (auto &c : f->s.cameras.children) {
-        if (c->detecting_group)
+        if (!c->detecting_group)
             space -= 6;
         empty += c->groups.children.size() == 0;
     }

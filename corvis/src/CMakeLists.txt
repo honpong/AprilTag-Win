@@ -47,6 +47,10 @@ target_include_directories(tracker PUBLIC tracker)
 set_property(TARGET tracker trackeri PROPERTY CXX_STANDARD 14)
 
 target_include_directories(trackeri PUBLIC tracker)
+
+find_package(Threads REQUIRED)
+target_link_libraries(trackeri PUBLIC Threads::Threads)
+
 target_include_directories(trackeri SYSTEM PUBLIC
     ../../ThirdParty/rapidjson/include
     ../../ThirdParty/spdlog/include

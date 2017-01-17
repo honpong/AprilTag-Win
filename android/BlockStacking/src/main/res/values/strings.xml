@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="app_name">Block Stacking</string>
-    <string name="description_info">A block stacking game</string>
-	<color name="black">#000000</color>
-	<color name="blue">#0000ff</color> 
-	<color name="light_gray">#666699</color>     
-</resources>

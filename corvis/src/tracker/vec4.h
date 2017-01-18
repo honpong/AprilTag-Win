@@ -30,6 +30,7 @@
 #include <initializer_list> // needed by "eigen_initializer_list.h"
 #define EIGEN_MATRIX_PLUGIN "eigen_initializer_list.h"
 #include <Eigen/Dense>
+#undef I // We don't use the C header <complex.h>, but Eigen does when you use LAPACKe, so remove this conficting definition
 
 template <int Rows = Eigen::Dynamic>                  using v = Eigen::Matrix<f_t, Rows, 1>;
 template <int Rows = Eigen::Dynamic, int Cols = Rows> using m = Eigen::Matrix<f_t, Rows, Cols>;

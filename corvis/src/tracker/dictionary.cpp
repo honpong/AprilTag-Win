@@ -96,7 +96,7 @@ uint32_t dictionary::quantize(const descriptor & d)
     if(!kmeans)
         return 0;
 
-    uint32_t label;
+    vl_uint32 label;
     float distance;
     vl_kmeans_quantize(kmeans, &label, &distance, d.d, 1);
     return label;

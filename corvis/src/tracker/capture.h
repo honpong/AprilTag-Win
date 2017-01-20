@@ -33,7 +33,6 @@ private:
     std::condition_variable cv;
     bool threaded = false;
 
-    void process(std::packaged_task<void()> &&write);
     void write_packet(packet_t * p);
     void write_accelerometer_data(uint16_t sensor_id, uint64_t timestamp_us, const float data[3]);
     void write_gyroscope_data(uint16_t sensor_id, uint64_t timestamp_us, const float data[3]);

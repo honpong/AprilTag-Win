@@ -59,6 +59,7 @@ public:
     public:
         std::vector<VertexData> feature_ellipse_vertex;
         std::vector<VertexData> feature_projection_vertex;
+        std::vector<VertexData> feature_residual_vertex;
         ImageData image;
     };
 
@@ -75,6 +76,7 @@ private:
     uint64_t current_timestamp{0};
     void build_grid_vertex_data();
     void generate_feature_ellipse(const Feature & feat, std::vector<VertexData> & feature_ellipse_vertex, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
+    void generate_innovation_line(const Feature &feat, std::vector<VertexData> &feature_residual_vertex, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
 
     void update_current_timestamp(const uint64_t & timestamp);
     void update_plots(rc_Tracker * tracker, const rc_Data * data);

@@ -22,6 +22,8 @@ static const unsigned char indexed_colors[][4] = {
 };
 
 static const std::size_t feature_ellipse_vertex_size = 30; // 15 segments
+static const float chi_square_95_2df = 5.99146f; //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
+
 void world_state::render_plot(size_t plot_index, size_t key_index, std::function<void (plot&, size_t key_index)> render_callback)
 {
     std::lock_guard<std::mutex> lock(plot_lock);
@@ -195,9 +197,6 @@ void world_state::observe_depth_overlay_image(uint64_t timestamp, uint16_t *alig
 
 static inline void compute_covariance_ellipse(float x, float y, float xy, float & cx, float & cy, float & ctheta)
 {
-    //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
-    const static float chi_square_95 = 5.991f;
-
     float tau = 0;
     if(xy != 0.f)
         tau = (y - x) / xy / 2.f;
@@ -208,8 +207,8 @@ static inline void compute_covariance_ellipse(float x, float y, float xy, float 
     float l2 = y + t * xy;
     float theta = atan2(-s, c);
 
-    cx = (float)2. * sqrt(l1 * chi_square_95); // ellipse width
-    cy = (float)2. * sqrt(l2 * chi_square_95); // ellipse height
+    cx = (float)2. * sqrt(l1 * chi_square_95_2df); // ellipse width
+    cy = (float)2. * sqrt(l2 * chi_square_95_2df); // ellipse height
     ctheta = (float)theta; // rotate
 }
 
@@ -638,6 +637,31 @@ void world_state::generate_feature_ellipse(const Feature & feat, std::vector<Ver
     }
 }
 
+void world_state::generate_innovation_line(const Feature & feat, std::vector<VertexData> & feature_residual_vertex, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha)
+{
+     /* Add line between predicted feature and their corresponding matched observations (tracked features)
+      * when the innovations are very large. Calculate NEES: Test based on Normalized Mahalanobis Distance.
+      */
+    Eigen::Matrix2f S = {
+        { feat.feature.innovation_variance_x, feat.feature.innovation_variance_xy },
+        { feat.feature.innovation_variance_xy,feat.feature.innovation_variance_y },
+    };
+    Eigen::Vector2f v_inn = {
+        feat.feature.image_prediction_x - feat.feature.image_x,
+        feat.feature.image_prediction_y - feat.feature.image_y
+    };
+    float nees = v_inn.dot(S.llt().solve(v_inn)) / chi_square_95_2df;
+    if (nees > 1.f) {
+        VertexData v_meas, v_pred;
+        set_position(&v_meas, feat.feature.image_x, feat.feature.image_y, 0);
+        set_color(&v_meas, r, g, b, alpha);
+        set_position(&v_pred, feat.feature.image_prediction_x, feat.feature.image_prediction_y, 0);
+        set_color(&v_pred, r, g, b, alpha);
+        feature_residual_vertex.push_back(v_meas);
+        feature_residual_vertex.push_back(v_pred);
+    }
+}
+
 bool world_state::update_vertex_arrays(bool show_only_good)
 {
     /*
@@ -652,6 +676,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
     for(auto & c : cameras) {
         c.feature_projection_vertex.clear();
         c.feature_ellipse_vertex.clear();
+        c.feature_residual_vertex.clear();
     }
 
     for(auto const & item : features) {
@@ -673,6 +698,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                 set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
                 set_color(&vp, 247, 88, 98, 255);
             }
+            generate_innovation_line(f,cameras[f.camera_id].feature_residual_vertex, 1, 130, 220, 255);
         }
         else {
             if (show_only_good && !f.good)

@@ -14,6 +14,8 @@
 #include "rc_compat.h"
 #include "mapper.h"
 
+#include <mutex>
+
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     filter() { }

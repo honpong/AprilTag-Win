@@ -760,6 +760,7 @@ static int filter_available_feature_space(struct filter *f, state_camera &camera
     }
     if (empty)
         space /= empty;
+    if(space < 0) space = 0;
     if(space > f->max_group_add)
         space = f->max_group_add;
     return space;

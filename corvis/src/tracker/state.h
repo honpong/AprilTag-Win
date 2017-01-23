@@ -20,6 +20,7 @@
 #include <list>
 #include <iostream>
 #include <cmath>
+#include <memory>
 
 #define log_enabled 0 // Only used in state.h now
 #define show_tuning 0

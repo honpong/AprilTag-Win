@@ -64,20 +64,17 @@ public:
     state_scalar k2 { "k2", constant };
     state_scalar k3 { "k3", constant };
     rc_CalibrationType type {rc_CALIBRATION_TYPE_UNKNOWN};
-    bool estimate;
     int image_width, image_height;
 
-    state_vision_intrinsics(bool _estimate): estimate(_estimate)
+    state_vision_intrinsics(bool estimate_)
     {
-        if(estimate)
-        {
-            children.push_back(&focal_length);
-            children.push_back(&center_x);
-            children.push_back(&center_y);
-            children.push_back(&k1);
-            children.push_back(&k2);
-            children.push_back(&k3);
-        }
+        estimate = estimate_;
+        children.push_back(&focal_length);
+        children.push_back(&center_x);
+        children.push_back(&center_y);
+        children.push_back(&k1);
+        children.push_back(&k2);
+        children.push_back(&k3);
     }
     
     feature_t image_size() const { return feature_t {(f_t)image_width, (f_t)image_height}; }
@@ -268,8 +265,6 @@ public:
     virtual void reset();
 
 protected:
-    virtual void add_non_orientation_states();
-    virtual void remove_non_orientation_states();
     virtual void evolve_state(f_t dt);
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void cache_jacobians(f_t dt);

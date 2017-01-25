@@ -81,85 +81,43 @@ void state_motion::cache_jacobians(f_t dt)
     dT = dt * (V.v + dt/2 * a.v);
 }
 
-void state_motion::remove_non_orientation_states()
-{
-    remove_child(&T);
-    T.reset();
-    remove_child(&V);
-    V.reset();
-    remove_child(&a);
-    a.reset();
-    remove_child(&da);
-    da.reset();
-}
-
-void state_motion::add_non_orientation_states()
-{
-    children.push_back(&T);
-    children.push_back(&V);
-    children.push_back(&a);
-    children.push_back(&da);
-}
-
 void state_motion::enable_orientation_only(bool remap_)
 {
-    if(orientation_only) return;
-    orientation_only = true;
-    remove_non_orientation_states();
-    disable_bias_estimation(remap_);
+    non_orientation.disable_estimation();
+    if (remap_) remap();
 }
 
 void state_motion::disable_orientation_only(bool remap_)
 {
-    if(!orientation_only) return;
-    orientation_only = false;
-    add_non_orientation_states();
-    enable_bias_estimation(remap_);
-}
-
-void state_imu_intrinsics::disable_bias_estimation()
-{
-    if(!estimate_bias) return;
-    estimate_bias = false;
-    a_bias.save_initial_variance();
-    w_bias.save_initial_variance();
-    remove_child(&a_bias);
-    remove_child(&w_bias);
+    non_orientation.enable_estimation();
+    if (remap_) remap();
 }
 
 void state_motion::disable_bias_estimation(bool remap_)
 {
     for (auto &imu : imus.children)
-        imu->intrinsics.disable_bias_estimation();
+        imu->intrinsics.disable_estimation();
     if (remap_) remap();
-}
-
-void state_imu_intrinsics::enable_bias_estimation()
-{
-    if(estimate_bias) return;
-    estimate_bias = true;
-    children.push_back(&w_bias);
-    children.push_back(&a_bias);
 }
 
 void state_motion::enable_bias_estimation(bool remap_)
 {
     for (auto &imu : imus.children)
-        imu->intrinsics.enable_bias_estimation();
+        imu->intrinsics.enable_estimation();
     if (remap_) remap();
 }
 
 void state_motion::copy_from(const state_motion &other)
 {
-    if(other.orientation_only) enable_orientation_only(false);
-    else                       disable_orientation_only(false);
+    if(other.non_orientation.estimate) disable_orientation_only(false);
+    else                               enable_orientation_only(false);
 
     auto i = other.imus.children.begin();
     for (auto &imu : imus.children) {
         auto &other_imu = *i;
 
-        if(other_imu->intrinsics.estimate_bias) imu->intrinsics.enable_bias_estimation();
-        else                                    imu->intrinsics.disable_bias_estimation();
+        if(other_imu->intrinsics.estimate) imu->intrinsics.enable_estimation();
+        else                               imu->intrinsics.disable_estimation();
 
         imu->extrinsics.Q = other_imu->extrinsics.Q;
         imu->extrinsics.T = other_imu->extrinsics.T;

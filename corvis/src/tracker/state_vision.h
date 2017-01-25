@@ -74,19 +74,9 @@ public:
             children.push_back(&focal_length);
             children.push_back(&center_x);
             children.push_back(&center_y);
-            switch(type) {
-            case rc_CALIBRATION_TYPE_FISHEYE:
-                children.push_back(&k1);
-                break;
-            case rc_CALIBRATION_TYPE_POLYNOMIAL3:
-                children.push_back(&k1);
-                children.push_back(&k2);
-                children.push_back(&k3);
-                break;
-            case rc_CALIBRATION_TYPE_UNKNOWN:
-            case rc_CALIBRATION_TYPE_UNDISTORTED:
-                break;
-            }
+            children.push_back(&k1);
+            children.push_back(&k2);
+            children.push_back(&k3);
         }
     }
     

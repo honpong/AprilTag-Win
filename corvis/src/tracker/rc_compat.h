@@ -15,7 +15,8 @@ static rc_Pose to_rc_Pose(const transformation &g)
 static transformation to_transformation(const rc_Pose p)
 {
     quaternion Q(v_map(p.Q.v).cast<f_t>()); m3 R = m_map(p.R.v).cast<f_t>(); v3 T = v_map(p.T.v).cast<f_t>();
-    return std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1) ? transformation(R, T) : transformation(Q, T);
+    return Q.norm() == 0 && R.determinant() == 0 ? transformation() :
+        std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1) ? transformation(R, T) : transformation(Q, T);
 }
 
 static struct sensor::extrinsics rc_Extrinsics_to_sensor_extrinsics(const rc_Extrinsics e)

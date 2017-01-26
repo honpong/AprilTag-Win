@@ -9,20 +9,47 @@
 #include "sensor_fusion_queue.h"
 #include <cassert>
 #include <memory>
-#include <algorithm>
 
 #define MAX_SENSORS 64
 
-template <typename Stream>
-inline Stream &operator <<(Stream &s, const std::deque<sensor_data> &q) {
-    struct tt { sensor_clock::time_point time_us; rc_SensorType type; rc_Sensor id; };
-    std::vector<struct tt> v(q.size());
-    std::transform(q.begin(), q.end(), v.begin(), [](const sensor_data &d) { return tt{ d.timestamp, d.type, d.id }; });
-    std::sort(v.begin(), v.end(), [](const sensor_data &a, const sensor_data &b) { return a.time_us < b.time_us; });
-    for(auto &d: v)
-        s << std::chrono::duration_cast<std::chrono::microseconds>(d.time_us-v.front().time_us).count() << ":" << std::hex << d.id*16+d.type << std::dec << " ";
+template <typename Stream, int size>
+inline Stream &operator <<(Stream &s, const sorted_ring_buffer<sensor_data, size> &q) {
+    for(auto &d: q)
+        s << std::chrono::duration_cast<std::chrono::microseconds>(d.timestamp-q.front().time_us).count() << ":" << std::hex << d.id*16+d.type << std::dec << " ";
     return s;
 }
+
+template<typename T, int N>
+class sorted_ring_iterator : std::iterator<std::forward_iterator_tag, T>
+{
+public:
+    sorted_ring_iterator(sorted_ring_buffer<T, N> &_buf, int _index): buf(_buf), index(_index){}
+    
+    T &operator*() const
+    {
+        return buf[index];
+    }
+    
+    T *operator->() const
+    {
+        return &(buf[index]);
+    }
+    
+    bool operator!=(const sorted_ring_iterator<T, N> &other) const
+    {
+        return index != other.index;
+    }
+    
+    sorted_ring_iterator<T, N> operator++()
+    {
+        ++index;
+        return *this;
+    }
+    
+private:
+    sorted_ring_buffer<T, N> &buf;
+    int index;
+};
 
 fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> data_func,
                            latency_strategy s,
@@ -230,10 +257,13 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
         s.first->second.drop_out_of_order();
         return;
     }
+    if (queue.full()) {
+        s.first->second.drop_full();
+        return;
+    }
 
     s.first->second.push();
-    queue.push_back(std::move(x));
-    std::push_heap(queue.begin(), queue.end());
+    queue.push(std::move(x));
 }
 
 sensor_clock::time_point fusion_queue::next_timestamp()
@@ -245,9 +275,7 @@ sensor_clock::time_point fusion_queue::next_timestamp()
 
 sensor_data fusion_queue::pop_queue()
 {
-    std::pop_heap(queue.begin(), queue.end());
-    sensor_data data = std::move(queue.back());
-    queue.pop_back();
+    sensor_data data = queue.pop();
     last_dispatched = data.timestamp;
     return data;
 }
@@ -331,11 +359,8 @@ void fusion_queue::dispatch_singlethread(bool force)
 void fusion_queue::dispatch_buffered(std::function<void(sensor_data &)> receive_func)
 {
     std::unique_lock<std::mutex> lock(data_mutex);
-    std::sort_heap(queue.begin(), queue.end());
 
-    for (auto i = queue.rbegin(); i != queue.rend(); ++i)
+    for (auto i = queue.begin(); i != queue.end(); ++i)
         receive_func(*i);
-
-    std::make_heap(queue.begin(), queue.end());
 }
 

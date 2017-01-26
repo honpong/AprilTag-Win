@@ -24,6 +24,8 @@ private:
 public:
     sensor_clock::time_point timestamp;
 
+    sensor_data() = default;
+
     sensor_data(sensor_data&& other) = default;
     sensor_data &operator=(sensor_data&& other) = default;
 

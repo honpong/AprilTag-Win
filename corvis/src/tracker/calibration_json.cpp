@@ -38,12 +38,12 @@ static void copy_json_to_calibration(Value &json, calibration_json &cal, Documen
 
 static void copy_json_to_camera(Value &json, calibration_xml::camera &cam, Document::AllocatorType& a)
 {
-    if (json.HasMember(KEY_IMAGE_WIDTH))  cam.intrinsics.width_px  = json[KEY_IMAGE_WIDTH].GetInt();
-    if (json.HasMember(KEY_IMAGE_HEIGHT)) cam.intrinsics.height_px = json[KEY_IMAGE_HEIGHT].GetInt();
-    if (json.HasMember(KEY_FX))           cam.intrinsics.f_x_px    = json[KEY_FX].GetDouble();
-    if (json.HasMember(KEY_FY))           cam.intrinsics.f_y_px    = json[KEY_FY].GetDouble();
-    if (json.HasMember(KEY_CX))           cam.intrinsics.c_x_px    = json[KEY_CX].GetDouble();
-    if (json.HasMember(KEY_CY))           cam.intrinsics.c_y_px    = json[KEY_CY].GetDouble();
+    if (require_key(json, KEY_IMAGE_WIDTH))  cam.intrinsics.width_px  = json[KEY_IMAGE_WIDTH].GetInt();
+    if (require_key(json, KEY_IMAGE_HEIGHT)) cam.intrinsics.height_px = json[KEY_IMAGE_HEIGHT].GetInt();
+    if (require_key(json, KEY_FX))           cam.intrinsics.f_x_px    = json[KEY_FX].GetDouble();
+    if (require_key(json, KEY_FY))           cam.intrinsics.f_y_px    = json[KEY_FY].GetDouble();
+    if (require_key(json, KEY_CX))           cam.intrinsics.c_x_px    = json[KEY_CX].GetDouble();
+    if (require_key(json, KEY_CY))           cam.intrinsics.c_y_px    = json[KEY_CY].GetDouble();
 
     switch (json.HasMember(KEY_DISTORTION_MODEL) ? json[KEY_DISTORTION_MODEL].GetInt() : 0) {
         case 0:

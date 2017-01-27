@@ -44,37 +44,27 @@ sensor_calibration_camera calibration_convert_camera(const struct calibration_xm
     return sensor_calibration_camera(extrinsics, legacy_camera.intrinsics);
 }
 
-void calibration_convert_to_camera_origin(rc_Extrinsics & camera_to_body, rc_Extrinsics & imu_to_body)
-{
-    transformation camera_to_imu(to_transformation(camera_to_body.pose_m));
-    auto imu_to_camera = invert(camera_to_imu);
-
-    imu_to_body.pose_m = to_rc_Pose(imu_to_camera);
-    imu_to_body.variance_m2 = camera_to_body.variance_m2; // FIXME
-
-    camera_to_body.pose_m = rc_POSE_IDENTITY;
-    camera_to_body.variance_m2 = imu_to_body.variance_m2; // FIXME
-}
-
 bool calibration_convert(const calibration_json &cal, calibration &cal_output)
 {
     cal_output.version = CALIBRATION_VERSION;
     cal_output.device_id = cal.device_id;
     cal_output.device_type = "legacy";
-    if(cal.color.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN)
-        cal_output.cameras.push_back(calibration_convert_camera(cal.color));
-
-    if(!cal_output.cameras.size()) return false;
 
     cal_output.imus.push_back(calibration_convert_imu(cal.imu));
 
-    calibration_convert_to_camera_origin(cal_output.cameras[0].extrinsics, cal_output.imus[0].extrinsics);
+    if(cal.color.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN)
+        cal_output.cameras.push_back(calibration_convert_camera(cal.color));
 
-    if(cal.depth.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN) {
-        sensor_calibration_depth depth_cam = calibration_convert_camera(cal.depth);
-        cal_output.depths.push_back(depth_cam);
-        calibration_convert_to_camera_origin(cal_output.depths[0].extrinsics, cal_output.imus[0].extrinsics);
-    }
+    if(cal.depth.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN)
+        cal_output.depths.push_back(calibration_convert_camera(cal.depth));
+
+    if (!cal_output.cameras.size()) return false;
+
+    // Convert extrinsics from accelerometer to camera coordinates
+    if (cal_output.depths.size())
+        cal_output.depths[0].extrinsics.pose_m = to_rc_Pose(to_transformation(cal_output.depths [0].extrinsics.pose_m) * invert(to_transformation(cal_output.cameras[0].extrinsics.pose_m)));
+    cal_output.imus      [0].extrinsics.pose_m = to_rc_Pose(to_transformation(cal_output.imus   [0].extrinsics.pose_m) * invert(to_transformation(cal_output.cameras[0].extrinsics.pose_m)));
+    cal_output.cameras   [0].extrinsics.pose_m = to_rc_Pose(to_transformation(cal_output.cameras[0].extrinsics.pose_m) * invert(to_transformation(cal_output.cameras[0].extrinsics.pose_m)));
 
     return true;
 }

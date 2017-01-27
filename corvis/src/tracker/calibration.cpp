@@ -19,7 +19,7 @@ using namespace std;
 sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu & legacy_imu)
 {
     // In legacy files, extrinsics are always identity for imu
-    rc_Extrinsics extrinsics = {};
+    rc_Extrinsics extrinsics = {rc_POSE_IDENTITY};
     imu_intrinsics intrinsics = {};
 
     m_map(intrinsics.accelerometer.scale_and_alignment.v)  = legacy_imu.a_alignment;

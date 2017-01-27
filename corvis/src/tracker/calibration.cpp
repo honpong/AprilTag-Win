@@ -62,9 +62,9 @@ bool calibration_convert(const calibration_json &cal, calibration &cal_output)
 
     // Convert extrinsics from accelerometer to camera coordinates
     if (cal_output.depths.size())
-        cal_output.depths[0].extrinsics.pose_m = to_rc_Pose(to_transformation(cal_output.depths [0].extrinsics.pose_m) * invert(to_transformation(cal_output.cameras[0].extrinsics.pose_m)));
-    cal_output.imus      [0].extrinsics.pose_m = to_rc_Pose(to_transformation(cal_output.imus   [0].extrinsics.pose_m) * invert(to_transformation(cal_output.cameras[0].extrinsics.pose_m)));
-    cal_output.cameras   [0].extrinsics.pose_m = to_rc_Pose(to_transformation(cal_output.cameras[0].extrinsics.pose_m) * invert(to_transformation(cal_output.cameras[0].extrinsics.pose_m)));
+        cal_output.depths[0].extrinsics.pose_m = to_rc_Pose(invert(to_transformation(cal_output.cameras[0].extrinsics.pose_m)) * to_transformation(cal_output.depths [0].extrinsics.pose_m));
+    cal_output.imus      [0].extrinsics.pose_m = to_rc_Pose(invert(to_transformation(cal_output.cameras[0].extrinsics.pose_m)) * to_transformation(cal_output.imus   [0].extrinsics.pose_m));
+    cal_output.cameras   [0].extrinsics.pose_m = to_rc_Pose(invert(to_transformation(cal_output.cameras[0].extrinsics.pose_m)) * to_transformation(cal_output.cameras[0].extrinsics.pose_m));
 
     return true;
 }

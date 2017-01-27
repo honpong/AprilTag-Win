@@ -55,7 +55,7 @@ public:
     }
     
     template<int _size>
-    void add(int newindex, f_t * p_noise, const m<_size, _size> &initial_covariance)
+    void add(int newindex, const v<_size> &p_noise, const m<_size, _size> &initial_covariance)
     {
         int oldsize = cov.rows();
         process_noise.resize(oldsize + _size);

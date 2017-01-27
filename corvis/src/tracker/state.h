@@ -292,7 +292,7 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
             }
     }
 protected:
-    f_t process_noise[_size];
+    ::v<_size> process_noise;
     m<_size, _size> initial_covariance;
 };
 

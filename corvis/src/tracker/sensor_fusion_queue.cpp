@@ -23,7 +23,7 @@ template<typename T, int N>
 class sorted_ring_iterator : std::iterator<std::forward_iterator_tag, T>
 {
 public:
-    sorted_ring_iterator(sorted_ring_buffer<T, N> &_buf, int _index): buf(_buf), index(_index){}
+    sorted_ring_iterator(sorted_ring_buffer<T, N> &_buf, uint64_t _index): buf(_buf), index(_index){}
     
     T &operator*() const
     {
@@ -48,7 +48,7 @@ public:
     
 private:
     sorted_ring_buffer<T, N> &buf;
-    int index;
+    uint64_t index;
 };
 
 fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> data_func,

@@ -115,12 +115,12 @@ public:
     bool full() const { return writepos - readpos == N; }
     bool size() const { return writepos - readpos; }
     
-    T &operator[](int index)
+    T &operator[](uint64_t index)
     {
         return storage[index % N];
     }
     
-    T const &operator[](int index) const
+    T const &operator[](uint64_t index) const
     {
         return storage[index % N];
     }

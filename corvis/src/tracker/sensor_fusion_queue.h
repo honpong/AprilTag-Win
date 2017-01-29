@@ -150,11 +150,8 @@ public:
     
     void push(T &&x)
     {
-        if(full())
-        {
-            if(front() < x) pop();
-            else return;
-        }
+        assert(!full());
+
         uint64_t insertpos = writepos++;
         while(insertpos > readpos && x < (*this)[insertpos-1])
         {

@@ -58,7 +58,7 @@ public:
     intv operator++() { ++x; return *this; }
     intv operator--() { --x; return *this; }
     bool operator<(const intv &other) const { return x < other.x; }
-    bool operator>(const intv &other) const { return x > other.x; }
+    bool operator>=(const intv &other) const { return x >= other.x; }
 };
 
 TEST(SensorFusionQueue, RingBuffer)
@@ -73,24 +73,41 @@ TEST(SensorFusionQueue, RingBuffer)
     }
     
     for(in = 0; in < 10; ++in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
     for(out = 0; out < 10; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(buf.empty());
+
     for(; in < 20; ++in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
     for(; out < 20; ++out) EXPECT_EQ(out, buf.pop());
-    
-    for(in = 9; in > -1; --in) buf.push(intv{in});
-    for(out = 0; out < 10; ++out) EXPECT_EQ(out, buf.pop());
-    
-    for(in = 0; in < 15; ++in) buf.push(intv{in});
-    for(out = 5; out < 15; ++out) EXPECT_EQ(out, buf.pop());
-    
-    for(in = 9; in > -1; --in) buf.push(intv{in});
-    for(out = 0; out < 10; ++out) EXPECT_EQ(out, buf.pop());
-    
-    for(in = 0; in < 10; ++in) buf.push(intv{in});
-    for(out = 0; out < 10; ++out) EXPECT_EQ(out, buf.pop());
-    
-    for(in = 14; in > -1; --in) buf.push(intv{in});
-    for(out = 5; out < 15; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(buf.empty());
+
+    for(in = 30-1; in >= 20; --in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
+    for(out = 20; out < 30; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(buf.empty());
+
+    for(in = 30; in < 40; ++in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
+    for(out = 30; out < 35; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(!buf.empty());
+
+    for(in = 45-1; in >= 40; --in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
+    for(out = 35; out < 45; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(buf.empty());
+
+    for(in = 45; in < 55; ++in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
+    for(out = 45; out < 55; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(buf.empty());
+
+    for (int i=0; i<1000; i+=7) {
+        for(in = 100+7-1+i; in >= 100+0+i; --in) buf.push(intv{in});
+        EXPECT_TRUE(!buf.full());
+        for(out = 100+0+i; out < 100+7+i; ++out) EXPECT_EQ(out, buf.pop());
+        EXPECT_TRUE(buf.empty());
+    }
 }
 
 TEST(SensorFusionQueue, Reorder)

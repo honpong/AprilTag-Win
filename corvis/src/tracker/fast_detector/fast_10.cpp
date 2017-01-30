@@ -2345,7 +2345,7 @@ vector<xy> &fast_detector_10::detect(const unsigned char *im, const unsigned cha
 		b = (bmin + bmax) / 2;
                 }
             }
-    for(int i = 0; i < features.size(); ++i) pop_heap(features.begin(), features.end() - i, xy_comp);
+    sort_heap(features.begin(), features.end(), xy_comp);
     return features;
 }
 

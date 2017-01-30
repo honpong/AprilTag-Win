@@ -19,7 +19,6 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <deque>
 #include "stdev.h"
 #ifdef DEBUG
 #include "histogram.h"
@@ -37,6 +36,7 @@ public:
     uint64_t in_queue{0};
     uint64_t out{0};
     uint64_t out_of_order{0};
+    uint64_t full{0};
     stdev<1> late{};
     stdev<1> period{};
     stdev<1> latency{};
@@ -81,6 +81,7 @@ public:
     void push() { in_queue++; }
     void dispatch() { out++; in_queue--; }
     void drop_out_of_order() { out_of_order++; }
+    void drop_full() { ++full; }
     void drop_buffered() { /*unbuffered++;*/ }
     void drop_late(const sensor_clock::time_point & now) {
         late.data(v<1>{(f_t)((now - last_in).count())});
@@ -88,13 +89,104 @@ public:
 
     std::string to_string() const {
         std::ostringstream os;
-        os << in << " in, " << out << " out, " << late.count << " late " << out_of_order << " out of order\n";
+        os << in << " in, " << out << " out, " << late.count << " late " << out_of_order << " out of order" << full << " full\n";
         if (period.count)  os << "\tperiod(us):  " << period  << "\n";
         if (latency.count) os << "\tlatency(us): " << latency << "\n";
         if (late.count)    os << "\tlate(us):    " << late    << "\n";
         return os.str();
 
     }
+};
+
+template<typename T, int N> class sorted_ring_iterator;
+
+template<typename T, int N>
+class sorted_ring_buffer
+{
+public:
+    typedef sorted_ring_iterator<T, N> iterator;
+    typedef ptrdiff_t difference_type;
+    typedef size_t size_type;
+    typedef T value_type;
+    typedef T * pointer;
+    typedef T & reference;
+    
+    bool empty() const { return readpos == writepos; }
+    bool full() const { return writepos - readpos == N; }
+    bool size() const { return writepos - readpos; }
+    
+    T &operator[](uint64_t index)
+    {
+        return storage[index % N];
+    }
+    
+    T const &operator[](uint64_t index) const
+    {
+        return storage[index % N];
+    }
+
+    T pop()
+    {
+        assert(!empty());
+        return std::move((*this)[readpos++]);
+    }
+    
+    T &front()
+    {
+        assert(!empty());
+        return (*this)[readpos];
+    }
+
+    T const &front() const
+    {
+        assert(!empty());
+        return (*this)[readpos];
+    }
+    
+    iterator begin()
+    {
+        return iterator(*this, readpos);
+    }
+    
+    void push(T &&x)
+    {
+        assert(!full());
+
+        uint64_t insertpos = writepos++;
+        while(insertpos > readpos && x < (*this)[insertpos-1])
+        {
+            (*this)[insertpos] = std::move((*this)[insertpos-1]);
+            --insertpos;
+        }
+        (*this)[insertpos] = std::move(x);
+    }
+    
+    T &back()
+    {
+        assert(!empty());
+        return (*this)[writepos - 1];
+    }
+
+    T const &back() const
+    {
+        assert(!empty());
+        return (*this)[writepos - 1];
+    }
+    
+    iterator end()
+    {
+        return iterator(*this, writepos);
+    }
+    
+    void clear()
+    {
+        while(!empty()) pop();
+        readpos = writepos = 0;
+    }
+    
+private:
+    uint64_t writepos {0}, readpos {0};
+    std::array<T, N> storage;
 };
 
 /*
@@ -166,7 +258,7 @@ private:
     
     std::unordered_map<uint64_t, sensor_stats> stats;
     std::vector<uint64_t> required_sensors;
-    std::deque<sensor_data> queue;
+    sorted_ring_buffer<sensor_data, 256> queue;
 
     std::function<void()> control_func;
     bool active;

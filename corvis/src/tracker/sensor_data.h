@@ -24,11 +24,17 @@ private:
 public:
     sensor_clock::time_point timestamp;
 
+    sensor_data() = default;
+
     sensor_data(sensor_data&& other) = default;
     sensor_data &operator=(sensor_data&& other) = default;
 
     sensor_data(const sensor_data &other) = delete;
     sensor_data &operator=(const sensor_data& other) = delete;
+
+    friend constexpr bool operator<(const sensor_data &a, const sensor_data &b) {
+        return a.timestamp == b.timestamp ? (a.type == b.type ? a.id < b.id : a.type < b.type) : a.timestamp < b.timestamp;
+    }
 
     sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
                 rc_Timestamp shutter_time_us, int width, int height, int stride, rc_ImageFormat format, const void * image_ptr,
@@ -64,6 +70,13 @@ public:
             acceleration_m__s2 = data;
         else
             angular_velocity_rad__s = data;
+    }
+
+    class stack_copy {};
+    sensor_data(const sensor_data &other, stack_copy) :
+        rc_Data(static_cast<rc_Data>(other)),
+        image_handle(other.image_handle.get(),[](void*){}),
+        timestamp(other.timestamp) {
     }
 
     std::unique_ptr<sensor_data> make_copy() const

@@ -48,6 +48,68 @@ sensor_data gyro_for_time(uint64_t timestamp_us)
     return d;
 }
 
+class intv
+{
+public:
+    int x;
+    intv(): x(0) {};
+    intv(int _x): x(_x) {};
+    bool operator==(const intv &other) const { return x == other.x; }
+    intv operator++() { ++x; return *this; }
+    intv operator--() { --x; return *this; }
+    bool operator<(const intv &other) const { return x < other.x; }
+    bool operator>=(const intv &other) const { return x >= other.x; }
+};
+
+TEST(SensorFusionQueue, RingBuffer)
+{
+    sorted_ring_buffer<intv, 10> buf;
+    
+    intv in {0}, out {0};
+    for(in = 0, out = 0; in < 100; ++in, ++out)
+    {
+        buf.push(intv{in});
+        EXPECT_EQ(in, buf.pop());
+    }
+    
+    for(in = 0; in < 10; ++in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
+    for(out = 0; out < 10; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(buf.empty());
+
+    for(; in < 20; ++in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
+    for(; out < 20; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(buf.empty());
+
+    for(in = 30-1; in >= 20; --in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
+    for(out = 20; out < 30; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(buf.empty());
+
+    for(in = 30; in < 40; ++in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
+    for(out = 30; out < 35; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(!buf.empty());
+
+    for(in = 45-1; in >= 40; --in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
+    for(out = 35; out < 45; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(buf.empty());
+
+    for(in = 45; in < 55; ++in) buf.push(intv{in});
+    EXPECT_TRUE(buf.full());
+    for(out = 45; out < 55; ++out) EXPECT_EQ(out, buf.pop());
+    EXPECT_TRUE(buf.empty());
+
+    for (int i=0; i<1000; i+=7) {
+        for(in = 100+7-1+i; in >= 100+0+i; --in) buf.push(intv{in});
+        EXPECT_TRUE(!buf.full());
+        for(out = 100+0+i; out < 100+7+i; ++out) EXPECT_EQ(out, buf.pop());
+        EXPECT_TRUE(buf.empty());
+    }
+}
+
 TEST(SensorFusionQueue, Reorder)
 {
     uint64_t last_time = 0;

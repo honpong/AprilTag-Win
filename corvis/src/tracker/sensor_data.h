@@ -33,7 +33,7 @@ public:
     sensor_data &operator=(const sensor_data& other) = delete;
 
     friend constexpr bool operator<(const sensor_data &a, const sensor_data &b) {
-        return a.timestamp == b.timestamp? a.type < b.type : a.timestamp < b.timestamp;
+        return a.timestamp == b.timestamp ? (a.type == b.type ? a.id < b.id : a.type < b.type) : a.timestamp < b.timestamp;
     }
 
     sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,

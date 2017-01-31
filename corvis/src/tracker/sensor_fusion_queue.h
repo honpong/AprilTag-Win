@@ -113,7 +113,6 @@ public:
     
     bool empty() const { return readpos == writepos; }
     bool full() const { return writepos - readpos == N; }
-    bool size() const { return writepos - readpos; }
     
     T &operator[](uint64_t index)
     {

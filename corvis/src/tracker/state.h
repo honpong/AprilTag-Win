@@ -113,13 +113,17 @@ public:
     v3 body_forward = {0,0,1};
 
     int remap() {
+        return remap_from(cov);
+    }
+
+    int remap_from(covariance &other) {
 #ifdef TEST_POSDEF
         if(cov.size() && !test_posdef(cov.cov)) log->error("not pos def at beginning of remap");
 #endif
         dynamic_statesize = state_branch<state_node *>::remap(0, cov, node_type::dynamic);
         statesize = state_branch<state_node *>::remap(dynamic_statesize, cov, node_type::constant);
         fake_statesize = state_branch<state_node *>::remap(statesize, cov, node_type::fake) - statesize;
-        cov.remap(statesize);
+        cov.remap_from(statesize, other);
 #ifdef TEST_POSDEF
         if(!test_posdef(cov.cov)) {
             log->error("not pos def at end of remap");

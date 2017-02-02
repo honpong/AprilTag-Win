@@ -33,27 +33,45 @@ public:
     inline f_t &operator() (const int i, const int j) { return cov(i, j); }
     inline const f_t &operator() (const int i, const int j) const { return cov(i, j); }
 
+    void remap_vector(int size, matrix &to, const matrix &from)
+    {
+        to.resize(size);
+        for(int i = 0; i < size; ++i)
+            to[i] = from[abs(map[i])];
+    }
+
+    void remap_matrix(int size, matrix &to, const matrix &from)
+    {
+        to.resize(size, size);
+        for(int i = 0; i < size; ++i)
+            for(int j = 0; j < size; ++j)
+                if(map[i] < 0 || map[j] < 0)
+                    to(i, j) = i == j ? from(-map[i], -map[j]) : 0;
+                else
+                    to(i, j) = from(map[i], map[j]);
+    }
+
     void remap(int size)
     {
         std::swap(cov.data, cov_scratch.data);
         cov_scratch.resize(cov.rows(), cov.cols());
-        cov.resize(size, size);
+        remap_matrix(size, cov, cov_scratch);
 
         std::swap(process_noise.data, process_scratch.data);
         process_scratch.resize(process_noise.cols());
-        process_noise.resize(size);
+        remap_vector(size, process_noise, process_scratch);
+    }
 
-        for(int i = 0; i < size; ++i) {
-            process_noise[i] = process_scratch[abs(map[i])];
-            for(int j = 0; j < size; ++j) {
-                if(map[i] < 0 || map[j] < 0) {
-                    if(i == j) cov(i, j) = cov_scratch(-map[i], -map[j]);
-                    else cov(i, j) = 0.;
-                } else cov(i, j) = cov_scratch(map[i], map[j]);
-            }
+    void remap_from(int size, covariance &other)
+    {
+        if (&other == this)
+            remap(size);
+        else {
+            remap_vector(size, process_noise, other.process_noise);
+            remap_matrix(size, cov, other.cov);
         }
     }
-    
+
     template<int _size>
     void add(int newindex, const v<_size> &p_noise, const m<_size, _size> &initial_covariance)
     {

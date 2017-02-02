@@ -193,15 +193,5 @@ void state_motion::copy_from(const state_motion &other)
     body_forward = other.body_forward;
 
     // copy covariance
-
-    std::swap(cov.cov.data, other.cov.cov.data);
-    cov.cov.resize(other.cov.size(), other.cov.size());
-    std::swap(cov.process_noise.data, other.cov.process_noise.data);
-    cov.process_noise.resize(other.cov.size());
-
-    remap(); // swaps cov/cov_scratch and process_noise/process_scratch and uses indicies/map[] to copy from the scratches
-
-    // to swap other back we need to swap with the scratches due to the swap in remap()
-    std::swap(cov.cov_scratch.data,     other.cov.cov.data);
-    std::swap(cov.process_scratch.data, other.cov.process_noise.data);
+    remap_from(other.cov);
 }

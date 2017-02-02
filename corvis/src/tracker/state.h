@@ -136,6 +136,7 @@ public:
 #ifdef TEST_POSDEF
         if(cov.size() && !test_posdef(cov.cov)) log->error("not pos def at beginning of remap");
 #endif
+        cov.remap_init();
         dynamic_statesize = state_branch<state_node *>::remap(0, cov, node_type::dynamic);
         statesize = state_branch<state_node *>::remap(dynamic_statesize, cov, node_type::constant);
         fake_statesize = state_branch<state_node *>::remap(statesize, cov, node_type::fake) - statesize;

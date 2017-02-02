@@ -13,103 +13,58 @@
 
 #define MAXSTATESIZE 120
 
+#include <remapper.h>
+
 //typedef Eigen::Map<matrixtype, Eigen::Aligned, Eigen::OuterStride<MAXSTATESIZE>> covariance_map;
 
 class covariance
 {
 protected:
-    alignas(64) f_t cov_storage[2][MAXSTATESIZE*MAXSTATESIZE];
-    alignas(64) f_t p_cov_storage[2][MAXSTATESIZE];
-    alignas(64) int map[MAXSTATESIZE];
+    alignas(64) f_t cov_storage[MAXSTATESIZE][MAXSTATESIZE];
+    alignas(64) f_t p_cov_storage[MAXSTATESIZE];
 
 public:
-    covariance(): cov(cov_storage[0], 0, 0, MAXSTATESIZE, MAXSTATESIZE), cov_scratch(cov_storage[1], 0, 0, MAXSTATESIZE, MAXSTATESIZE), process_noise((f_t *)p_cov_storage[0], 1, 0, 1, MAXSTATESIZE), process_scratch((f_t*)p_cov_storage[1], 1, 0, 1, MAXSTATESIZE) {}
-
-    matrix cov;
-    matrix cov_scratch;
-    matrix process_noise;
-    matrix process_scratch;
+    remapper rm;
+    matrix cov           { &cov_storage[0][0], 0, 0, MAXSTATESIZE, MAXSTATESIZE };
+    matrix process_noise { &p_cov_storage[0],  1, 0,            1, MAXSTATESIZE };
 
     inline f_t &operator() (const int i, const int j) { return cov(i, j); }
     inline const f_t &operator() (const int i, const int j) const { return cov(i, j); }
 
-    void remap_vector(int size, matrix &to, const matrix &from)
-    {
-        to.resize(size);
-        for(int i = 0; i < size; ++i)
-            to[i] = from[abs(map[i])];
-    }
-
-    void remap_matrix(int size, matrix &to, const matrix &from)
-    {
-        to.resize(size, size);
-        for(int i = 0; i < size; ++i)
-            for(int j = 0; j < size; ++j)
-                if(map[i] < 0 || map[j] < 0)
-                    to(i, j) = i == j ? from(-map[i], -map[j]) : 0;
-                else
-                    to(i, j) = from(map[i], map[j]);
-    }
-
     void remap(int size)
     {
-        if (size == this->size()) {
-            int i;
-            for (i=0; i<size; i++)
-                if (map[i] != i)
-                    break;
-            if (i == size)
-                return;
-        }
-
-        std::swap(cov.data, cov_scratch.data);
-        cov_scratch.resize(cov.rows(), cov.cols());
-        remap_matrix(size, cov, cov_scratch);
-
-        std::swap(process_noise.data, process_scratch.data);
-        process_scratch.resize(process_noise.cols());
-        remap_vector(size, process_noise, process_scratch);
+        rm.remap_matrix(size, cov);
+        rm.remap_vector(size, process_noise);
     }
 
     void remap_from(int size, covariance &other)
     {
-        if (&other == this)
-            remap(size);
-        else {
-            remap_vector(size, process_noise, other.process_noise);
-            remap_matrix(size, cov, other.cov);
-        }
+        rm.remap_matrix(size, cov, other.cov);
+        rm.remap_vector(size, process_noise, other.process_noise);
+    }
+
+    void remap_init()
+    {
+        rm.reset();
     }
 
     template<int _size>
     void add(int newindex, const v<_size> &p_noise, const m<_size, _size> &initial_covariance)
     {
-        int oldsize = cov.rows();
-        process_noise.resize(oldsize + _size);
-        cov.resize(oldsize + _size, oldsize + _size);
-
-        for(int i = 0; i < _size; ++i) {
-            process_noise[oldsize+i] = p_noise[i];
-            map[newindex+i] = -(oldsize+i);
-            for(int j = 0; j < _size; ++j) {
-                cov(oldsize+i, oldsize+j) = initial_covariance(i, j);
-            }
-        }
+        rm.add(newindex, p_noise, initial_covariance);
     }
-    
+
     void reindex(int newindex, int oldindex, int size)
     {
-        for(int j = 0; j < size; ++j) {
-            map[newindex+j] = oldindex+j;
-        }
+        rm.reindex(newindex, oldindex, size);
     }
-    
+
     void reset()
     {
         cov.resize(0,0);
         process_noise.resize(0);
     }
-    
+
     int size() const
     {
         return cov.cols();

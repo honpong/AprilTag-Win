@@ -134,7 +134,8 @@ bool replay::get_reference_pose(const sensor_clock::time_point & timestamp, tpos
 
 bool replay::set_reference_from_filename(const string &filename)
 {
-    return load_reference_from_pose_file(filename + ".pose") ||
+    return load_reference_from_pose_file(filename + ".tum") ||
+           load_reference_from_pose_file(filename + ".pose") ||
            load_reference_from_pose_file(filename + ".vicon") ||
            find_reference_in_filename(filename);
 }

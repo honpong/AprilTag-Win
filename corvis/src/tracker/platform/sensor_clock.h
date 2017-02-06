@@ -26,6 +26,7 @@ public:
 
     static time_point s_ns_to_tp(uint64_t s, uint64_t ns) { return time_point(std::chrono::duration_cast<duration>(std::chrono::seconds(s) + std::chrono::nanoseconds(ns)));};
     static time_point ns100_to_tp(uint64_t ns100) { return time_point(std::chrono::duration_cast<duration>(std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(ns100))); }
+    static time_point s_to_tp(double s) { return time_point(std::chrono::duration_cast<duration>(std::chrono::duration<double, std::chrono::seconds::period>(s))); }
 };
 
 #endif /* defined(__RC3DK__sensor_clock__) */

@@ -178,7 +178,7 @@ with open(output_filename, "wb") as f:
         stride = w*b
         d = im.tobytes()
         assert len(d) == stride*h
-        data = pack('QHHHH', int(1000000/p['rate_hz']), w, h, stride, rc_IMAGE_GRAY8) + d
+        data = pack('QHHHH', 0, w, h, stride, rc_IMAGE_GRAY8) + d
     elif ptype == gyro_type:
         data = pack('fff', *p['w'])
     elif ptype == accel_type:

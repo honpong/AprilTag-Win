@@ -156,9 +156,6 @@ with open(output_filename + ".json", "w") as f:
   json.dump(cal, f, sort_keys=True,indent=4)
 
 if len(vicon) or len(groundtruth) or len(leica):
-    with open(output_filename + ".vicon", "w") as f:
-        for p in groundtruth if groundtruth else vicon if vicon else leica:
-            f.write(' '.join(map(str,(0, 1000*p['time_us'], 0, p['T_m'][0], p['T_m'][1], p['T_m'][2], p['Q'][1], p['Q'][2], p['Q'][3], p['Q'][0]))) + "\n")
     with open(output_filename + ".tum", "w") as f:
         for p in groundtruth if groundtruth else vicon if vicon else leica:
             time_s = "%.9f" % (p['time_us']/1.e6)

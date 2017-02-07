@@ -66,9 +66,7 @@ function(find_intel_root TYPE) # [REQUIRED]
     if (NOT ${VAR} AND "${${VAR}}" STREQUAL "") # Allow False to disable
         file(GLOB INTEL_LOCS $ENV{${VAR}}
             "/opt/intel/${type}"
-            "C:/Program Files (x86)/Intel/Composer XE 2015/${type}"
             "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/${type}"
-            "C:/Program Files/Intel/Composer XE 2015/${type}"
         )
         list(LENGTH INTEL_LOCS SUPPORTED)
         if (NOT SUPPORTED)

@@ -128,6 +128,18 @@ void replay::enable_pose_output()
         std::cout << data->time_us; for(int c=0; c<4; c++) std::cout << " " << pose.Q.v[c]; for(int c=0; c<3; c++) std::cout << " " << pose.T.v[c]; std::cout << "\n";
     }, this);
 }
+
+void replay::enable_tum_output()
+{
+    rc_setDataCallback(tracker, [](void *handle, rc_Tracker * tracker, const rc_Data * data) {
+        if (data->path != rc_DATA_PATH_SLOW) return;
+        rc_Pose pose = rc_getPose(tracker, nullptr, nullptr, data->path);
+        printf("%.9f", data->time_us/1.e6);
+        for(int c=0; c<3; c++) std::cout << " " << pose.T.v[c] << " ";
+        std::cout << pose.Q.x << " " << pose.Q.y << " " << pose.Q.z << " " << pose.Q.w << "\n";
+    }, this);
+}
+
 void replay::enable_status_output()
 {
     rc_setStatusCallback(tracker, [](void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress) {

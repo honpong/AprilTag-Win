@@ -156,9 +156,10 @@ with open(output_filename + ".json", "w") as f:
   json.dump(cal, f, sort_keys=True,indent=4)
 
 if len(vicon) or len(groundtruth) or len(leica):
-    with open(output_filename + ".vicon", "w") as f:
-        for p in vicon if vicon else groundtruth if groundtruth else leica:
-            f.write(' '.join(map(str,(0, 1000*p['time_us'], 0, p['T_m'][0], p['T_m'][1], p['T_m'][2], p['Q'][1], p['Q'][2], p['Q'][3], p['Q'][0]))) + "\n")
+    with open(output_filename + ".tum", "w") as f:
+        for p in groundtruth if groundtruth else vicon if vicon else leica:
+            time_s = "%.9f" % (p['time_us']/1.e6)
+            f.write(' '.join(map(str,(time_s, p['T_m'][0], p['T_m'][1], p['T_m'][2], p['Q'][1], p['Q'][2], p['Q'][3], p['Q'][0]))) + "\n")
 
 wrote_packets = defaultdict(int)
 wrote_bytes = 0
@@ -174,7 +175,7 @@ with open(output_filename, "wb") as f:
         stride = w*b
         d = im.tobytes()
         assert len(d) == stride*h
-        data = pack('QHHHH', int(1000000/p['rate_hz']), w, h, stride, rc_IMAGE_GRAY8) + d
+        data = pack('QHHHH', 0, w, h, stride, rc_IMAGE_GRAY8) + d
     elif ptype == gyro_type:
         data = pack('fff', *p['w'])
     elif ptype == accel_type:

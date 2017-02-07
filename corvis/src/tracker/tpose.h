@@ -7,6 +7,23 @@
 #include "platform/sensor_clock.h"
 #include "transformation.h"
 
+struct tpose_tum {
+    double t_s; v3 T_m; quaternion Q;
+    tpose_tum() : t_s(0), T_m(v3::Zero()), Q(quaternion::Identity()) {}
+    tpose_tum(const char *line) : tpose_tum() {
+        size_t end = 0;
+        // the +1s below skip the ',' delimiter
+        t_s = std::stod(line+=end, &end);
+        for(int i=0; i<3; i++)
+            T_m(i) = (f_t)std::stod(line+=end+1, &end);
+        Q.x() = (f_t)std::stod(line+=end+1, &end);
+        Q.y() = (f_t)std::stod(line+=end+1, &end);
+        Q.z() = (f_t)std::stod(line+=end+1, &end);
+        Q.w() = (f_t)std::stod(line+=end+1, &end);
+    }
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+};
+
 struct tpose_vicon {
     uint64_t t_s, t_ns, seq_no; v3 T_m; quaternion Q;
     tpose_vicon() : t_s(0), t_ns(0), seq_no(0), T_m(v3::Zero()), Q(quaternion::Identity()) {}
@@ -44,6 +61,7 @@ struct tpose_raw {
 struct tpose {
     tpose(const tpose_raw &r) : t(sensor_clock::ns100_to_tp(r.t_100ns)), G(to_quaternion(r.R), r.T_mm / 1000) {}
     tpose(const tpose_vicon &v) : t(sensor_clock::s_ns_to_tp(v.t_s, v.t_ns)), G(v.Q, v.T_m) {}
+    tpose(const tpose_tum &v) : t(sensor_clock::s_to_tp(v.t_s)), G(v.Q, v.T_m) {}
     tpose(sensor_clock::time_point t_) : t(t_) {}
     tpose(const sensor_clock::time_point & t_, const transformation & G_) : t(t_), G(G_) {}
     tpose(const sensor_clock::time_point & t_, const tpose &tp0, const tpose &tp1) : t(t_) {
@@ -66,7 +84,7 @@ static inline std::ostream& operator<<(std::ostream &stream, const tpose &tp)
 
 struct tpose_sequence {
     aligned_vector<tpose> tposes;
-    bool use_vicon{false};
+    enum {FORMAT_POSE = 0, FORMAT_VICON, FORMAT_TUM} format = FORMAT_POSE;
     f_t get_length() {
         return tposes.empty() ? 0 : (tposes.front().G.T - tposes.back().G.T).norm();
     }
@@ -97,8 +115,12 @@ struct tpose_sequence {
     bool load_from_file(const std::string &filename) {
         std::ifstream file(filename);
 
-        if(filename.find(".vicon") != std::string::npos)
-            use_vicon = true;
+        if(filename.find(".tum") != std::string::npos)
+            format = FORMAT_TUM;
+        else if(filename.find(".vicon") != std::string::npos)
+            format = FORMAT_VICON;
+        else
+            format = FORMAT_POSE;
         return static_cast<bool>(std::ifstream(filename) >> *this);
     }
     friend inline std::istream &operator>>(std::istream &file, tpose_sequence &s);
@@ -108,14 +130,23 @@ struct tpose_sequence {
 inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {
     std::string line;
     for (int num = 1; std::getline(file, line); num++) {
-        if(s.use_vicon && num == 1) continue; // skip header row
+        if(s.format == tpose_sequence::FORMAT_VICON && num == 1) continue; // skip header row
         if (line.find("NA") != std::string::npos)
             continue;
         try {
-            if(s.use_vicon)
+            switch(s.format) {
+                case tpose_sequence::FORMAT_TUM:
+                s.tposes.emplace_back(tpose_tum(line.c_str()));
+                break;
+
+                case tpose_sequence::FORMAT_VICON:
                 s.tposes.emplace_back(tpose_vicon(line.c_str()));
-            else
+                break;
+
+                case tpose_sequence::FORMAT_POSE:
                 s.tposes.emplace_back(tpose_raw(line.c_str()));
+                break;
+            }
         } catch (const std::exception&) { // invalid_argument or out_of_range
             std::cerr << "error on line "<< num <<": " << line << "\n";
             file.setstate(std::ios_base::failbit);

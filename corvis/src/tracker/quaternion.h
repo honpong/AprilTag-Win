@@ -11,7 +11,6 @@
 
 #include "vec4.h"
 #include "sinc.h"
-#include "rotation.h"
 #include "rotation_vector.h"
 
 static inline std::ostream& operator<<(std::ostream &stream, const quaternion &q)

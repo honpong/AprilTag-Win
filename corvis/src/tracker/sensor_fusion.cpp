@@ -139,7 +139,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                             auto start = std::chrono::steady_clock::now();
                             const vector<tracker::point> & res = filter_detect(&sfm, std::move(data));
                             auto stop = std::chrono::steady_clock::now();
-                            queue.stats.find(data.id + data.type * MAX_SENSORS)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+                            queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
                             return res;
                         }, &sfm, std::move(data));
         } break;
@@ -175,7 +175,7 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data)
             if(filter_mini_accelerometer_measurement(&sfm, sfm.mini->observations, sfm.mini->state, data))
                 update_data(&data);
             auto stop = std::chrono::steady_clock::now();
-            queue.stats.find(data.id + data.type * MAX_SENSORS)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+            queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
         } break;
 
         case rc_SENSOR_TYPE_GYROSCOPE: {
@@ -183,7 +183,7 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data)
             if(filter_mini_gyroscope_measurement(&sfm, sfm.mini->observations, sfm.mini->state, data))
                 update_data(&data);
             auto stop = std::chrono::steady_clock::now();
-            queue.stats.find(data.id + data.type * MAX_SENSORS)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+            queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
         } break;
         default:
             break;

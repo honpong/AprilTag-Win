@@ -24,8 +24,6 @@
 #include "histogram.h"
 #endif
 
-#define MAX_SENSORS 64
-
 class sensor_stats
 {
 public:

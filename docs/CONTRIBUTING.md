@@ -33,6 +33,7 @@ For new code, try to maintain the following:
   variables can be short if the meaning is clear (e.g. `w` for angular
   velocity).
 
+<a name="commits"></a>
 #Commits
 
 - Try to make your git commits as small and self contained as possible.
@@ -50,13 +51,92 @@ and the components affected. If you are closing a github issue, you
 can write closes #<issue_number> to automatically close it.
 ```
 
+<a name="forking"></a>
+#Forking and staying up to date
+
+You can fork our repository by clicking on the "fork" button at the
+top of the screen. This creates a complete clone of our repository
+including all branches at:
+
+```
+https://github.intel.com/<your username>/sensorfusion/
+```
+
+Clone this fork to your local machine using:
+
+```
+git clone git@github.intel.com:<your username>/sensorfusion.git
+```
+
+Your local clone now references to your private fork of sensorfusion
+as `origin`. In order to make `master` on your machine track master on
+the main sensorfusion repo instead of the copy of it on your fork, you
+can add a new remote:
+
+```
+git remote add sensorfusion git@github.intel.com:sensorfusion/sensorfusion.git
+```
+
+And then change the "upstream" for your local master branch to point
+to this remote:
+
+```
+# update your local copy of the sensorfusion remote
+git fetch sensorfusion
+# set your local master branch to track sensorfusion/master instead of <your_username>/master
+git branch master --set-upstream-to=sensorfusion/master
+# update your local master with the sensorfusion master
+git pull
+```
+
+Now your local master branch is set to track sensorfusion master. This
+means you will be unable to push to it directly, so to start work you
+should always checkout a new branch (which you can later use for a
+pull request):
+
+```
+# create a new branch
+git checkout -b <feature_name>
+# push this branch to your fork and track it
+git push -u origin <feature_name>
+```
+
+After you've done this, you can push from your `feature_name` branch
+to your fork as normal with:
+
+```
+git push
+```
+
 #Pull requests
 
 Contributions are handled via pull requests. Fork our repository
-(using the github fork button) and make your contributions using the
-commit style above. When you are ready to submit your request, go to
-your forked repository and click on the green "compare, review, and
+and create a feature branch as [described above](#forking).
+
+You should conform to the commit style [described above](#commits).
+
+Once your feature is tested, be sure you have rebased your feature
+branch on the current version of master. Assuming your `master` branch
+is setup to track `sensorfusion/master` as described above, do:
+
+```
+# update your local copy of master
+git checkout master
+git pull
+
+# switch to your feature branch
+git checkout <feature_name>
+git rebase master
+
+# fix whatever needs to be fixed
+# test your feature again
+
+# update your remote branch, force push is required because you have rebased
+git push --force
+```
+
+When you are ready to submit your request, go to your feature branch
+on the forked repository and click on the green "compare, review, and
 create pull request" button. This will provide a new page for comments
 on the request. You can find an example pull request
 [here](https://github.intel.com/sensorfusion/sensorfusion/pull/135)
-

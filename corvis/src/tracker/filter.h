@@ -95,5 +95,6 @@ void filter_initialize(struct filter *f);
 void filter_deinitialize(struct filter *f);
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
+std::string filter_get_stats(const struct filter *f);
 
 #endif

@@ -10,8 +10,6 @@
 #include <cassert>
 #include <memory>
 
-#define MAX_SENSORS 64
-
 template <typename Stream, int size>
 inline Stream &operator <<(Stream &s, const sorted_ring_buffer<sensor_data, size> &q) {
     for(auto &d: q)
@@ -65,7 +63,7 @@ fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> data_func,
 
 void fusion_queue::require_sensor(rc_SensorType type, rc_Sensor id, sensor_clock::duration max_latency)
 {
-    uint64_t global_id = id + type*MAX_SENSORS;
+    uint64_t global_id = sensor_data::get_global_id_by_type_id(type, id);
     required_sensors.push_back(global_id);
     auto s = stats.emplace(global_id, sensor_stats{max_latency});
 }
@@ -90,7 +88,8 @@ fusion_queue::~fusion_queue()
 
 std::string id_string(uint64_t global_id)
 {
-    uint64_t type = global_id / MAX_SENSORS, id = global_id % MAX_SENSORS;
+    auto id = sensor_data::get_id_by_global_id(global_id);
+    auto type = sensor_data::get_type_by_global_id(global_id);
     std::string type_string = "UNKNOWN";
     switch(type) {
         case rc_SENSOR_TYPE_IMAGE: type_string = "Camera"; break;
@@ -114,6 +113,8 @@ std::string fusion_queue::get_stats()
     for(auto k : keys) {
         statstr << id_string(k) << "\t" + stats.find(k)->second.to_string() << "\n";
     }
+    
+    statstr << "Catchup time(us): " << catchup_stats << "\n\n";
 
     statstr << "Queue latency: " << queue_latency << "\n\n";
 
@@ -122,7 +123,7 @@ std::string fusion_queue::get_stats()
 
 void fusion_queue::receive_sensor_data(sensor_data && x)
 {
-    uint64_t id = x.id + MAX_SENSORS*x.type;
+    uint64_t id = x.global_id();
     push_queue(id, std::move(x));
     if(singlethreaded || buffering) dispatch_singlethread(false);
     else cond.notify_one();
@@ -323,8 +324,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &control_lock, boo
         sensor_clock::time_point next_time = next_timestamp();
         while(newest_received - next_time > buffer_time) {
             sensor_data dropped = pop_queue();
-            uint64_t id = dropped.id + dropped.type*MAX_SENSORS;
-            stats.find(id)->second.drop_buffered();
+            stats.find(dropped.global_id())->second.drop_buffered();
             next_time = next_timestamp();
         }
         return false;
@@ -336,12 +336,17 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &control_lock, boo
     
     data_lock.unlock();
 
-    uint64_t id = data.id + data.type*MAX_SENSORS;
+    uint64_t id = data.global_id();
     stats.find(id)->second.dispatch();
     queue_latency.data({f_t((newest_received - data.timestamp).count())});
 
     control_lock.unlock();
+    
+    auto start = std::chrono::steady_clock::now();
     data_receiver(std::move(data));
+    auto stop = std::chrono::steady_clock::now();
+    stats.find(id)->second.measure.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    
     total_out++;
             
     control_lock.lock();

@@ -28,7 +28,8 @@ struct sensor
         transformation mean;
         struct transformation_variance { v3 Q = v3::Zero(), T = v3::Zero(); } variance;
     } extrinsics;
-    sensor(int _id, std::string _name = "") : id(_id), name(_name) {}
+    sensor(int _id, std::string _name) : id(_id), name(_name) {}
+    sensor(int _id) : id(_id), name("Sensor" + std::to_string(_id)) {}
 };
 
 template<int size_> class sensor_storage : public sensor
@@ -38,7 +39,8 @@ public:
     v<size_> start_variance;
     v<size_> last_meas;
     f_t measurement_variance;
-    std::chrono::duration<float, std::milli> timer;
+    stdev<1> measure_time_stats;
+    stdev<1> other_time_stats;
     using sensor::sensor;
     void init_with_variance(f_t variance) {
         got = false;
@@ -46,7 +48,7 @@ public:
         inn_stdev = stdev<size_>();
         stability = stdev<size_>();
         last_meas = v<size_>::Zero();
-        timer = decltype(timer)();
+        measure_time_stats = decltype(measure_time_stats) {};
         measurement_variance = variance;
     }
 };
@@ -57,20 +59,21 @@ struct sensor_camera {
 
 struct sensor_grey : public sensor_storage<2>, public sensor_camera {
     using sensor_storage<2>::sensor_storage;
-    std::chrono::duration<float, std::milli> track_timer, detect_timer;
+    sensor_grey(int _id) : sensor_storage<2>(_id, "Camera" + std::to_string(_id)) {}
 };
 struct sensor_depth : public sensor_storage<1>, public sensor_camera {
     using sensor_storage<1>::sensor_storage;
+    sensor_depth(int _id) : sensor_storage<1>(_id, "Depth" + std::to_string(_id)) {}
 };
 struct sensor_accelerometer : public sensor_storage<3> {
     rc_AccelerometerIntrinsics intrinsics;
-    std::chrono::duration<float, std::milli> mini_timer;
     using sensor_storage<3>::sensor_storage;
+    sensor_accelerometer(int _id) : sensor_storage<3>(_id, "Accel" + std::to_string(_id)) {}
 };
 struct sensor_gyroscope : public sensor_storage<3> {
     rc_GyroscopeIntrinsics intrinsics;
-    std::chrono::duration<float, std::milli> mini_timer;
     using sensor_storage<3>::sensor_storage;
+    sensor_gyroscope(int _id) : sensor_storage<3>(_id, "Gyro" + std::to_string(_id)) {}
 };
 
 #endif /* sensor_h */

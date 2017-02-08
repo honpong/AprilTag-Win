@@ -100,6 +100,16 @@ public:
         assert(0 && "sensor_data::make_copy() unsupported data type.");
         return std::make_unique<sensor_data>(time_us, type, id, rc_Vector());
     }
+    
+    const static rc_Sensor MAX_SENSORS = 64;
+    
+    static uint64_t get_global_id_by_type_id(rc_SensorType type, rc_Sensor id) { return type * MAX_SENSORS + id; }
+
+    static rc_SensorType get_type_by_global_id(uint64_t global_id) { return static_cast<rc_SensorType>(global_id / MAX_SENSORS); }
+    
+    static rc_Sensor get_id_by_global_id(uint64_t global_id) { return global_id % MAX_SENSORS; }
+    
+    uint64_t global_id() const { return get_global_id_by_type_id(type, id); }
 };
 
 #endif

@@ -10,8 +10,8 @@
 #define __RC3DK__sensor_data__
 
 #include <memory>
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 #include <assert.h>
 #include "rc_tracker.h"
 #include "platform/sensor_clock.h"
@@ -79,26 +79,17 @@ public:
         timestamp(other.timestamp) {
     }
 
+    class data_copy {};
+    sensor_data(const sensor_data &other, data_copy) : sensor_data(other, stack_copy()) {
+        if (type == rc_SENSOR_TYPE_IMAGE || type == rc_SENSOR_TYPE_DEPTH) {
+            image_handle = std::unique_ptr<void, void(*)(void *)>(malloc(image.stride*image.height), free);
+            memcpy(image_handle.get(), other.image.image, image.stride*image.height);
+        }
+    }
+
     std::unique_ptr<sensor_data> make_copy() const
     {
-        switch(type) {
-        case rc_SENSOR_TYPE_IMAGE:
-        case rc_SENSOR_TYPE_DEPTH: {
-            std::unique_ptr<void, void(*)(void *)> im_handle(malloc(image.stride*image.height), free);
-            memcpy(im_handle.get(), image.image, image.stride*image.height);
-            return std::make_unique<sensor_data>(time_us, type, id, image.shutter_time_us, image.width, image.height, image.stride, image.format, im_handle.get(), std::move(im_handle));
-        }   break;
-
-        case rc_SENSOR_TYPE_ACCELEROMETER:
-            return std::make_unique<sensor_data>(time_us, type, id, acceleration_m__s2);
-            break;
-
-        case rc_SENSOR_TYPE_GYROSCOPE:
-            return std::make_unique<sensor_data>(time_us, type, id, angular_velocity_rad__s);
-            break;
-        }
-        assert(0 && "sensor_data::make_copy() unsupported data type.");
-        return std::make_unique<sensor_data>(time_us, type, id, rc_Vector());
+        return std::make_unique<sensor_data>(*this, data_copy());
     }
     
     const static rc_Sensor MAX_SENSORS = 64;

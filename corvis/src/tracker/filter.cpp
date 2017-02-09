@@ -918,6 +918,11 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
                 state_vision_group *g = f->s.add_group(camera_state, f->map.get());
+                // we remap here to update f->s.statesize to account
+                // for the new group and to update f->s.fake_statesize
+                // to account for disable_orientation_only
+                f->s.remap();
+                space = filter_available_feature_space(f, camera_state);
                 filter_add_detected_features(f, g, camera_sensor, detection, space, data.image.height);
             }
         } else {

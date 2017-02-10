@@ -33,16 +33,8 @@ except Exception as e:
     print sys.argv[0], "[--no-depth] [--wait-for-image] [--scale-units] <intel_folder> <output_filename>"
     sys.exit(1)
 
-def read_chunk_info(filename):
-    with open(filename, 'rb') as f:
-        line = f.readline()
-        (filename, offset, length, timestamp) = line.split()
-        return (filename, int(length))
-
-def read_image_timestamps(filename, image_type, sensor_id, fixed_filename = None, data_length = None):
-    #image is filename timestamp
+def read_image_timestamps(filename, image_type, sensor_id):
     rows = []
-    z = 0
     with open(filename, 'rb') as f:
         has_header = csv.Sniffer().has_header(f.read(1024))
         f.seek(0)
@@ -53,12 +45,7 @@ def read_image_timestamps(filename, image_type, sensor_id, fixed_filename = None
             row = line.split()
             if len(row) == 2:
                 (filename, timestamp) = row
-                (offset, length) = (0, None)
-                if fixed_filename and data_length:
-                    filename = fixed_filename
-                    length = data_length
-                    offset = data_length*z
-                    z += 1
+                offset, length = 0, None
             else:
                 (filename, offset, length, timestamp) = row
                 offset, length = int(offset), int(length)
@@ -100,21 +87,19 @@ def parse_pgm(f):
         assert h * w * b == len(d), "%d x %d %d bytes/pixel == %d bytes" % (h , w, b, len(d))
         return (w,h,b,d)
 
-(fisheye_data, fisheye_data_length) = (None, None)
-if os.path.exists(path+'fisheye_offsets_timestamps.txt'):
-    (fisheye_data, fisheye_data_length) = read_chunk_info(path+'fisheye_offsets_timestamps.txt')
+fisheye_path = path + ('fisheye_offsets_timestamps.txt')
+if not os.path.exists(fisheye_path):
+    fisheye_path = path + ('fisheye_timestamps.txt')
 
-(depth_data, depth_data_length) = (None, None)
-if os.path.exists(path+'depth_offsets_timestamps.txt'):
-    (depth_data, depth_data_length) = read_chunk_info(path+'depth_offsets_timestamps.txt')
+depth_path   = path + (  'depth_offsets_timestamps.txt')
+if not os.path.exists(depth_path):
+    depth_path = path + (  'depth_timestamps.txt')
 
-fisheye_path = path + ('fisheye_timestamps.txt')
-depth_path = path + ('depth_timestamps.txt')
 raw = {
    'gyro':  read_csv_timestamps(path + 'gyro.txt', gyro_type, 0),
    'accel': read_csv_timestamps(path + 'accel.txt', accel_type, 0),
-   'fish':  read_image_timestamps(fisheye_path, rc_IMAGE_GRAY8, 0, fisheye_data, fisheye_data_length),
-   'depth': read_image_timestamps(depth_path, rc_IMAGE_DEPTH16, 0, depth_data, depth_data_length) if use_depth else [],
+   'fish':  read_image_timestamps(fisheye_path, rc_IMAGE_GRAY8, 0),
+   'depth': read_image_timestamps(depth_path, rc_IMAGE_DEPTH16, 0) if use_depth else [],
    'color': read_image_timestamps(path + 'color_timestamps.txt', 0) if False else [],
 }
 

@@ -61,13 +61,11 @@ def read_image_timestamps(filename, image_type, fixed_filename = None, data_leng
                     z += 1
             else:
                 (filename, offset, length, timestamp) = row
+                offset, length = int(offset), int(length)
 
-            row = [float(timestamp), image_raw_type, filename]
-            row.append(int(offset) if offset else 0)
-            row.append(int(length) if length else None)
-            row.append(image_type)
-
-            rows.append(row)
+            rows.append({'time_ms': float(timestamp),
+                         'ptype': image_raw_type, 'image_type': image_type,
+                         'filename': filename, 'offset': offset, 'length': length})
     return rows
 
 def read_csv_timestamps(filename, ptype):
@@ -82,8 +80,8 @@ def read_csv_timestamps(filename, ptype):
             if has_header:
                 has_header = False
                 continue
-            (timestamp, x, y, z) = row[:4]
-            rows.append([float(timestamp), ptype, float(x), float(y), float(z)])
+            (timestamp, x, y, z) = row
+            rows.append({'time_ms': float(timestamp), 'ptype': ptype, 'vector': [float(x), float(y), float(z)]})
     return rows
 
 import StringIO
@@ -123,40 +121,33 @@ raw = {
 data = [];
 for t in ['gyro','accel', 'fish', 'depth']:
     data.extend(raw[t])
-data.sort()
+data.sort(key=lambda d: (d['time_ms'],d['ptype']))
 
 wrote_packets = defaultdict(int)
 wrote_bytes = 0
 got_image = False
 with open(output_filename, "wb") as f:
-    for line in data:
-        microseconds = int(line[0]*1e3)
-        ptype = line[1]
+    for d in data:
+        microseconds = int(d['time_ms']*1e3)
+        ptype = d['ptype']
         if ptype == image_raw_type:
             got_image = True
         if wait_for_image and not got_image:
             continue
         data = ""
         if ptype == image_raw_type:
-            (time, ptype, filename, offset, length, image_type) = line
-            w, h, b, d = read_pgm(path + filename, offset, length)
+            image_type = d['image_type']
+            w, h, b, d = read_pgm(path + d['filename'], d['offset'], d['length'])
             if image_type == rc_IMAGE_GRAY8:
                 assert b == 1, "image should be 1 byte, not %d" % b
             if image_type == rc_IMAGE_DEPTH16:
                 assert b == 2, "depth should be 2 bytes, not %d" % b
-                time += depth_time_offset
             stride = b*w
             data = pack('QHHHH', 0*33333333, w, h, stride, image_type) + d
         elif ptype == gyro_type:
-            if scale_units:
-                data = pack('fff', line[2] * math.pi / 180, line[3] * math.pi / 180, line[4] * math.pi / 180)
-            else:
-                data = pack('fff', line[2], line[3], line[4])
+            data = pack('fff', *map(lambda x: x * (math.pi / 1280 if scale_units else 1), d['vector']))
         elif ptype == accel_type:
-            if scale_units:
-                data = pack('fff', line[2] * 9.8065, line[3] * 9.8065, line[4] * 9.8065)
-            else:
-                data = pack('fff', line[2], line[3], line[4])
+            data = pack('fff', *map(lambda x: x * (9.8065         if scale_units else 1), d['vector']))
         else:
             print "Unexpected data type", ptype
         pbytes = len(data) + 16

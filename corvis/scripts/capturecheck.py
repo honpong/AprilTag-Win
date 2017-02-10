@@ -49,7 +49,7 @@ while header_str != "":
       # packets are padded to 8 byte boundary
       (x, y, z) = unpack('fff', data[:12])
       if args.verbose:
-          print "\t", ptype, sensor_id, x, y, z, sqrt(x*x + y*y + z*z)
+          print "\t", sensor_id, x, y, z, sqrt(x*x + y*y + z*z)
   elif ptype == image_raw_type:
       (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
       type_str = format_types[camera_format]

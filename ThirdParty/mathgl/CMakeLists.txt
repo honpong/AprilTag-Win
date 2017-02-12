@@ -14,6 +14,13 @@ set(enable-all-widgets OFF CACHE BOOL "")
 set(enable-static OFF CACHE BOOL "")
 set(enable-examples OFF CACHE BOOL "")
 set(enable-headers OFF CACHE BOOL "")
+
+if (WIN32)
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+  add_definitions(-D_CRT_NONSTDC_NO_DEPRECATE)
+  add_definitions(-D_CRT_NON_CONFORMING_WCSTOK)
+endif()
+
 add_subdirectory(mathgl)
 set_target_properties(mgl PROPERTIES MACOSX_RPATH ON)
 target_include_directories(mgl INTERFACE mathgl/include $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/mathgl/include>)
@@ -22,3 +29,4 @@ target_compile_options(mgl PUBLIC    $<$<CXX_COMPILER_ID:Intel>: -diag-disable=3
                                      $<$<CXX_COMPILER_ID:AppleClang>: -Wno-deprecated-register>)
 target_compile_options(mgl PRIVATE   $<$<CXX_COMPILER_ID:Clang>: -Wno-deprecated-declarations>) # internal to mathgl which requires cmake < 3.0 which didn't have AppleCLang
 target_compile_options(mgl INTERFACE $<$<CXX_COMPILER_ID:AppleClang>: -Wno-return-type-c-linkage -Wno-parentheses-equality>)
+

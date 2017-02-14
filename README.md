@@ -1,11 +1,12 @@
 # Intel SLAM
 
-An egomotion estimation library from the Sensor Fusion team, formerly
-RealityCap.
+An egomotion estimation library, originaly from RealityCap, now
+developed by the SLAM team.
 
-It consists of tracker that combines a stream of data from an
-accelerometer, gyro, greyscale camera, and optionally a depth camera
-into an estimate of the rotation and translation of the device itself.
+It consists of tracker that combines a stream of data from
+accelerometers, gyros, greyscale cameras, and optionally a depth
+cameras into an estimate of the rotation and translation of the device
+itself.
 
 The main interface to the library can be found in
 [rc_tracker.h](corvis/src/tracker/rc_tracker.h).
@@ -25,7 +26,7 @@ require additional options to `cmake` (again see below).
 
 ```sh
 
-git clone https://github.intel.com/sensorfusion/sensorfusion rc
+git clone https://github.intel.com/slam/tracker rc
 mkdir rc/build
 cd rc/build
 cmake ..

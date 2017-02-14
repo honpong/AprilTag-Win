@@ -59,37 +59,37 @@ top of the screen. This creates a complete clone of our repository
 including all branches at:
 
 ```
-https://github.intel.com/<your username>/sensorfusion/
+https://github.intel.com/<your username>/tracker
 ```
 
 Clone this fork to your local machine using:
 
 ```
-git clone git@github.intel.com:<your username>/sensorfusion.git
+git clone git@github.intel.com:<your username>/tracker
 ```
 
-Your local clone now references to your private fork of sensorfusion
+Your local clone now references to your private fork of the tracker
 as `origin`. In order to make `master` on your machine track master on
-the main sensorfusion repo instead of the copy of it on your fork, you
+the main slam repo instead of the copy of it on your fork, you
 can add a new remote:
 
 ```
-git remote add sensorfusion git@github.intel.com:sensorfusion/sensorfusion.git
+git remote add slam git@github.intel.com:slam/tracker
 ```
 
 And then change the "upstream" for your local master branch to point
 to this remote:
 
 ```
-# update your local copy of the sensorfusion remote
-git fetch sensorfusion
-# set your local master branch to track sensorfusion/master instead of <your_username>/master
-git branch master --set-upstream-to=sensorfusion/master
-# update your local master with the sensorfusion master
+# update your local copy of the slam remote
+git fetch slam
+# set your local master branch to track slam/master instead of <your_username>/master
+git branch master --set-upstream-to=slam/master
+# update your local master with the slam master
 git pull
 ```
 
-Now your local master branch is set to track sensorfusion master. This
+Now your local master branch is set to track slam master. This
 means you will be unable to push to it directly, so to start work you
 should always checkout a new branch (which you can later use for a
 pull request):
@@ -117,7 +117,7 @@ You should conform to the commit style [described above](#commits).
 
 Once your feature is tested, be sure you have rebased your feature
 branch on the current version of master. Assuming your `master` branch
-is setup to track `sensorfusion/master` as described above, do:
+is setup to track `slam/master` as described above, do:
 
 ```
 # update your local copy of master
@@ -139,4 +139,4 @@ When you are ready to submit your request, go to your feature branch
 on the forked repository and click on the green "compare, review, and
 create pull request" button. This will provide a new page for comments
 on the request. You can find an example pull request
-[here](https://github.intel.com/sensorfusion/sensorfusion/pull/135)
+[here](https://github.intel.com/slam/tracker/pull/135)

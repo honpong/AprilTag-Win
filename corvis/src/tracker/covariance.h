@@ -53,6 +53,15 @@ public:
 
     void remap(int size)
     {
+        if (size == this->size()) {
+            int i;
+            for (i=0; i<size; i++)
+                if (map[i] != i)
+                    break;
+            if (i == size)
+                return;
+        }
+
         std::swap(cov.data, cov_scratch.data);
         cov_scratch.resize(cov.rows(), cov.cols());
         remap_matrix(size, cov, cov_scratch);

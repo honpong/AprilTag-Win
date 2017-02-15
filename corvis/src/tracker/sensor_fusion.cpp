@@ -275,7 +275,6 @@ void sensor_fusion::stop()
     filter_deinitialize(&sfm);
     isSensorFusionRunning = false;
     isProcessingVideo = false;
-    processingVideoRequested = false;
 }
 
 void sensor_fusion::flush_and_reset()

@@ -163,7 +163,7 @@ private:
     RCSensorFusionErrorCode get_error();
     void update_status();
     void update_data(const sensor_data * data);
-    std::atomic<bool> isProcessingVideo, isSensorFusionRunning, processingVideoRequested;
+    std::atomic<bool> isProcessingVideo, isSensorFusionRunning;
     status last_status;
     bool threaded;
     bool fast_path = false;

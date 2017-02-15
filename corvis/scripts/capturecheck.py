@@ -43,7 +43,7 @@ while header_str != "":
   if ptype == 1:
     ptime += 16667
   if args.verbose:
-      print packet_str, pbytes, ptype, sensor_id, float(ptime)/1e6,
+      print packet_str, pbytes, ptype, sensor_id, ptime,
   data = f.read(pbytes-header_size)
   if ptype == accel_type or ptype == gyro_type:
       # packets are padded to 8 byte boundary

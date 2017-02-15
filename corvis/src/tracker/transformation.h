@@ -60,7 +60,7 @@ static inline transformation operator*(const transformation &t1, const transform
     return compose(t1, t2);
 }
 
-static bool estimate_transformation(const aligned_vector<v3> & src, const aligned_vector<v3> & dst, transformation & transform)
+static inline bool estimate_transformation(const aligned_vector<v3> & src, const aligned_vector<v3> & dst, transformation & transform)
 {
     v3 center_src = v3::Zero();
     v3 center_dst = v3::Zero();

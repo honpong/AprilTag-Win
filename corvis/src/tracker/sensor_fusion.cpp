@@ -87,10 +87,10 @@ void sensor_fusion::update_data(const sensor_data * data)
 }
 
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
-    : isSensorFusionRunning(false),
+    : queue([this](sensor_data &&data) { queue_receive_data(std::move(data)); },
+            strategy, std::chrono::milliseconds(500)),
       isProcessingVideo(false),
-      queue([this](sensor_data &&data) { queue_receive_data(std::move(data)); },
-            strategy, std::chrono::milliseconds(500))
+      isSensorFusionRunning(false)
 {
 }
 

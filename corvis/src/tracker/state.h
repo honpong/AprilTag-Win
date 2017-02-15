@@ -42,7 +42,7 @@ public:
 
 class state_leaf_base {
 public:
-    state_leaf_base(const char *name_, state_node::node_type type_, int index_, int size_) : type(type_), name(name_), index(index_), size(size_) {}
+    state_leaf_base(const char *name_, state_node::node_type type_, int index_, int size_) : name(name_), type(type_), index(index_), size(size_) {}
     const char *name;
 protected:
     state_node::node_type type;

@@ -535,8 +535,7 @@ public:
     state_quaternion Q;
     state_vector T;
 
-    state_extrinsics(const char *Qx, const char *Tx, bool estimate_) : T(Tx, constant), Q(Qx, constant)
-    {
+    state_extrinsics(const char *Qx, const char *Tx, bool estimate_) : Q(Qx, constant), T(Tx, constant) {
         estimate = estimate_;
         children.push_back(&T);
         children.push_back(&Q);

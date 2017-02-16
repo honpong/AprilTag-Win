@@ -462,10 +462,8 @@ void observation_accelerometer::predict()
     Ra = extrinsics.Q.v.toRotationMatrix();
     v3 acc = state.world.up * state.g.v + state.a.v;
     xcc = Rt * acc;
-    if(!state.orientation_only)
-    {
+    if(state.non_orientation.estimate)
         xcc += state.w.v.cross(state.w.v.cross(extrinsics.T.v)) + state.dw.v.cross(extrinsics.T.v);
-    }
     pred = Ra.transpose() * xcc + intrinsics.a_bias.v;
 }
 
@@ -479,7 +477,7 @@ void observation_accelerometer::cache_jacobians()
         da_dTa = Ra.transpose() * (skew(state.w.v) * skew(state.w.v) + skew(state.dw.v));
         da_dQa = Ra.transpose() * skew(xcc);
     }
-    if (!state.orientation_only) {
+    if (state.non_orientation.estimate) {
         da_ddw = Ra.transpose() * skew(-extrinsics.T.v);
         da_dw = Ra.transpose() * (skew(extrinsics.T.v.cross(state.w.v)) - skew(state.w.v) * skew(extrinsics.T.v));
     } else {

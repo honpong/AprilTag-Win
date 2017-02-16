@@ -33,7 +33,7 @@ public:
     virtual void copy_state_from_array(matrix &state) = 0;
     virtual int remap(int i, covariance &cov, node_type nt) = 0;
     virtual void reset() = 0;
-    virtual void remove() = 0;
+    virtual bool unmap() = 0;
     virtual std::ostream &print_to(std::ostream & s) const = 0;
     friend inline std::ostream & operator <<(std::ostream & s, const state_node &b) {
         return b.print_to(s);
@@ -53,23 +53,27 @@ protected:
 template<typename T, typename List = std::list<T>> class state_branch: public state_node {
 public:
     void copy_state_to_array(matrix &state) {
+        if (!estimate) return;
         for(const auto &c : children)
             c->copy_state_to_array(state);
     }
 
     virtual void copy_state_from_array(matrix &state) {
+        if (!estimate) return;
         for(auto &c : children)
             c->copy_state_from_array(state);
     }
 
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
+        if (!estimate) return;
         for(const auto &c : children)
             c->print_matrix_with_state_labels(state, nt);
     }
     
     int remap(int i, covariance &cov, node_type nt) {
-        for(auto &c : children)
-            i = c->remap(i, cov, nt);
+        if (estimate)
+            for(auto &c : children)
+                i = c->remap(i, cov, nt);
         return i;
     }
 
@@ -78,26 +82,38 @@ public:
             c->reset();
     }
     
-    virtual void remove()
+    virtual bool unmap()
     {
+        bool mapped = false;
         for(auto &c : children)
-            c->remove();
+            mapped |= c->unmap();
+        return mapped;
     }
-    
+
     void remove_child(const T n)
     {
         children.remove(n);
-        n->remove();
+        n->unmap();
+    }
+
+    virtual bool disable_estimation() {
+        estimate = false;
+        return unmap();
+    }
+
+    void enable_estimation() {
+        estimate = true;
     }
     
     virtual std::ostream &print_to(std::ostream & s) const
     {
         int i = 0;
-        s << "{"; for(const auto &c : children) { if (i++) s << ", "; c->print_to(s); } return s << "}";
+        s << "{"; if (estimate) for(const auto &c : children) { if (i++) s << ", "; c->print_to(s); } return s << "}";
         return s;
     }
 
     List children;
+    bool estimate = true;
 };
 
 class state_root: public state_branch<state_node *> {
@@ -113,13 +129,18 @@ public:
     v3 body_forward = {0,0,1};
 
     int remap() {
+        return remap_from(cov);
+    }
+
+    int remap_from(covariance &other) {
 #ifdef TEST_POSDEF
         if(cov.size() && !test_posdef(cov.cov)) log->error("not pos def at beginning of remap");
 #endif
+        cov.remap_init();
         dynamic_statesize = state_branch<state_node *>::remap(0, cov, node_type::dynamic);
         statesize = state_branch<state_node *>::remap(dynamic_statesize, cov, node_type::constant);
         fake_statesize = state_branch<state_node *>::remap(statesize, cov, node_type::fake) - statesize;
-        cov.remap(statesize);
+        cov.remap_from(statesize, other);
 #ifdef TEST_POSDEF
         if(!test_posdef(cov.cov)) {
             log->error("not pos def at end of remap");
@@ -283,7 +304,7 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
         else                                   return map { &c(index,j), Eigen::InnerStride<>(c.get_stride()) };
     }
 
-    void remove() { index = -1; }
+    bool unmap() { if (index < 0) return false; else { index = -1; return true; } }
 
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         if(type == nt)
@@ -513,15 +534,12 @@ class state_extrinsics: public state_branch<state_node *>
 public:
     state_quaternion Q;
     state_vector T;
-    bool estimate;
 
-    state_extrinsics(const char *Qx, const char *Tx, bool _estimate) : T(Tx, constant), Q(Qx, constant), estimate(_estimate)
+    state_extrinsics(const char *Qx, const char *Tx, bool estimate_) : T(Tx, constant), Q(Qx, constant)
     {
-        if(estimate)
-        {
-            children.push_back(&T);
-            children.push_back(&Q);
-        }
+        estimate = estimate_;
+        children.push_back(&T);
+        children.push_back(&Q);
     }
 };
 

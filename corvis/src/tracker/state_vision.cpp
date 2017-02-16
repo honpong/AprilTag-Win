@@ -146,7 +146,7 @@ state_vision::state_vision(covariance &c):
     state_motion(c),
     feature_counter(0), group_counter(0)
 {
-    children.push_back(&cameras);
+    non_orientation.children.push_back(&cameras);
 }
 
 void state_camera::clear_features_and_groups()
@@ -504,18 +504,6 @@ float state_vision::median_depth_variance()
     }
 
     return median_variance;
-}
-
-void state_vision::remove_non_orientation_states()
-{
-    remove_child(&cameras);
-    state_motion::remove_non_orientation_states();
-}
-
-void state_vision::add_non_orientation_states()
-{
-    state_motion::add_non_orientation_states();
-    children.push_back(&cameras);
 }
 
 void state_vision::evolve_state(f_t dt)

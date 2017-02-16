@@ -224,6 +224,7 @@ typedef struct {
     rc_Vector bias_m__s2;
     rc_Vector bias_variance_m2__s4;
     float measurement_variance_m2__s4;
+    uint32_t decimate_by;
 } rc_AccelerometerIntrinsics;
 
 typedef struct {
@@ -231,6 +232,7 @@ typedef struct {
     rc_Vector bias_rad__s;
     rc_Vector bias_variance_rad2__s2;
     float measurement_variance_rad2__s2;
+    uint32_t decimate_by;
 } rc_GyroscopeIntrinsics;
 
 /**

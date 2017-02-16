@@ -23,6 +23,7 @@
 #define KEY_IMU_BIAS "bias"
 #define KEY_IMU_BIAS_VARIANCE "bias_variance"
 #define KEY_IMU_NOISE_VARIANCE "noise_variance"
+#define KEY_IMU_DECIMATE_BY "decimate_by"
 
 // applies to cameras, depths
 #define KEY_CAMERA_IMAGE_SIZE "size_px"

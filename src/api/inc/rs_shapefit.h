@@ -3,6 +3,16 @@
 #ifndef rs_shapefit_h
 #define rs_shapefit_h
 
+#if (defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64))
+#ifdef RS_SHAPEFIT_EXPORTS
+#define RS_SHAPEFIT_DECL __declspec(dllexport)
+#else
+#define RS_SHAPEFIT_DECL __declspec(dllimport)
+#endif
+#else
+#define RS_SHAPEFIT_DECL
+#endif
+
 struct rs_sf_intrinsics
 {
     unsigned int img_w, img_h;
@@ -33,9 +43,9 @@ enum rs_sf_status {
 
 struct rs_sf_planefit;
 
-rs_sf_planefit* rs_sf_planefit_create(const rs_sf_intrinsics* camera);
-void rs_sf_planefit_delete(rs_sf_planefit* obj);
+RS_SHAPEFIT_DECL rs_sf_planefit* rs_sf_planefit_create(const rs_sf_intrinsics* camera);
+RS_SHAPEFIT_DECL void rs_sf_planefit_delete(rs_sf_planefit* obj);
 
-rs_sf_status rs_sf_planefit_depth_image(rs_sf_planefit* obj, const rs_sf_image* image);
+RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_depth_image(rs_sf_planefit* obj, const rs_sf_image* image);
 
 #endif;

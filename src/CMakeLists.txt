@@ -54,8 +54,12 @@ endmacro()
 option(BUILD_SAMPLE_APP "Build Sample App" ON)
 SET(THIRDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
 SET(EIGEN_DIR ${THIRDPARTY_DIR}/eigen)
+SET(LIBREALSENSE_VER "v2.3.3")
+SET(LIBREALSENSE_DIR ${THIRDPARTY_DIR}/LibRealSense/Windows/${LIBREALSENSE_VER})
+SET(LIBREALSENSE_LIB realsense)
 SET(OpenCV_STATIC ON)
 find_package(OPENCV REQUIRED)
+link_directories(${LIBREALSENSE_DIR}/lib/${CMAKE_VS_PLATFORM_NAME})
 
 ############################################################################################################
 FILE(GLOB SHAPEFIT_API_SRC "${CMAKE_CURRENT_SOURCE_DIR}/api/*.cpp")
@@ -64,7 +68,10 @@ add_library(shapefit_api SHARED
     ${SHAPEFIT_API_SRC}
     ${SHAPEFIT_API_HDR})
 set_property(TARGET shapefit_api PROPERTY CXX_STANDARD 14)
-include_directories(${OPENCV_INCLUDE_DIR} ${EIGEN_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/api/inc/)
+include_directories(
+    ${OPENCV_INCLUDE_DIR} 
+    ${EIGEN_DIR} 
+    ${CMAKE_CURRENT_SOURCE_DIR}/api/inc)
 target_link_libraries(shapefit_api PRIVATE ${OpenCV_LIBS})
 
 #############################################################################################################
@@ -72,8 +79,12 @@ FILE(GLOB SHAPEFIT_APP_SRC "${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp")
 add_executable(shapefit_app 
     ${SHAPEFIT_APP_SRC})
 set_property(TARGET shapefit_app PROPERTY CXX_STANDARD 14)
-include_directories(${OPENCV_INCLUDE_DIR} ${EIGEN_DIR})
-target_link_libraries(shapefit_app PRIVATE ${OpenCV_LIBS} shapefit_api)
+include_directories(
+    ${OPENCV_INCLUDE_DIR} 
+    ${EIGEN_DIR} 
+    ${LIBREALSENSE_DIR}/include)
+target_link_libraries(shapefit_app PUBLIC shapefit_api PRIVATE ${OpenCV_LIBS} ${LIBREALSENSE_LIB})
+add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit_api>" "$<TARGET_FILE_DIR:shapefit_app>")
 
 IF(WIN32)
 set_target_properties(shapefit_app PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")

@@ -2,7 +2,7 @@
 #include <Eigen/Dense>
 #include <memory>
 
-void set_to_zeros(rs_sf_image* img)
+inline void set_to_zeros(rs_sf_image* img)
 {
     memset(img->data, 0, img->num_char());
 }

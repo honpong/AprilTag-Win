@@ -10,3 +10,8 @@ void rs_sf_planefit_delete(rs_sf_planefit * obj)
 {
     if (obj) delete obj;
 }
+
+rs_sf_status rs_sf_planefit_depth_image(rs_sf_planefit* obj, const rs_sf_image * img)
+{
+    return obj->process_depth_image(img);
+}

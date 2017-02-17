@@ -34,7 +34,7 @@ foreach(flag_var
   endif()
 endforeach(flag_var)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:atlthunk.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:msvcrtd.lib")
-set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:libcmt.lib")
+set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcpmt.lib")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:libcmtd.lib")
 endif()
 
@@ -57,6 +57,9 @@ SET(EIGEN_DIR ${THIRDPARTY_DIR}/eigen)
 SET(LIBREALSENSE_VER "v2.3.3")
 SET(LIBREALSENSE_DIR ${THIRDPARTY_DIR}/LibRealSense/Windows/${LIBREALSENSE_VER})
 SET(LIBREALSENSE_LIB realsense)
+SET(JSON_SRC_DIR ${THIRDPARTY_DIR}/Json/src)
+SET(JSON_INC_DIR ${THIRDPARTY_DIR}/Json/include)
+SET(JSON_SRC "${JSON_SRC_DIR}/jsoncpp.cpp")
 SET(OpenCV_STATIC ON)
 find_package(OPENCV REQUIRED)
 link_directories(${LIBREALSENSE_DIR}/lib/${CMAKE_VS_PLATFORM_NAME})
@@ -77,12 +80,14 @@ target_link_libraries(shapefit_api PRIVATE ${OpenCV_LIBS})
 #############################################################################################################
 FILE(GLOB SHAPEFIT_APP_SRC "${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp")
 add_executable(shapefit_app 
-    ${SHAPEFIT_APP_SRC})
+    ${SHAPEFIT_APP_SRC}
+    ${JSON_SRC})
 set_property(TARGET shapefit_app PROPERTY CXX_STANDARD 14)
 include_directories(
     ${OPENCV_INCLUDE_DIR} 
     ${EIGEN_DIR} 
-    ${LIBREALSENSE_DIR}/include)
+    ${LIBREALSENSE_DIR}/include
+    ${JSON_INC_DIR})
 target_link_libraries(shapefit_app PUBLIC shapefit_api PRIVATE ${OpenCV_LIBS} ${LIBREALSENSE_LIB})
 add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit_api>" "$<TARGET_FILE_DIR:shapefit_app>")
 

@@ -13,11 +13,11 @@ struct rs_sf_planefit
 
     struct parameter
     {
-        int img_x_dn_sample = 4;
-        int img_y_dn_sample = 4;
+        int img_x_dn_sample = 8;
+        int img_y_dn_sample = 8;
         int point_cloud_reserve = -1;
-        int candidate_x_dn_sample = 8;
-        int candidate_y_dn_sample = 8;
+        int candidate_x_dn_sample = 16;
+        int candidate_y_dn_sample = 16;
         float max_fit_err_thr = 30.0f;
         float max_normal_thr = 0.7f;
         int min_num_plane_pt = 200;

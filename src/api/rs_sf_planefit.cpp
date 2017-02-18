@@ -17,7 +17,7 @@ rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
     if (!img || img->byte_per_pixel != 2) return RS_SF_INVALID_ARG;
 
     // for debug
-    ref_img = *img;
+    ref_img = img[1];
    
     //reset
     m_pt_cloud.clear();
@@ -176,17 +176,16 @@ void rs_sf_planefit::non_max_plane_suppression(vec_plane& plane_candidates)
             plane.pid = pid = 255;
     }
 
-    cv::Mat disp;
-    cv::Mat(ref_img.img_h, ref_img.img_w, CV_16U, ref_img.data).convertTo(disp, CV_8U, 255 / 4000.0);
-
-    for (int i = 0; i < 3; ++i)
+    cv::Mat disp = cv::Mat(ref_img.img_h, ref_img.img_w, CV_8U, ref_img.data).clone();
+    
+    for (int i = 0; i < 5; ++i)
     {
         std::string name = "display" + std::to_string(i);
         cv::Mat plane_image = disp.clone();
         for (auto& pt : plane_candidates[i].pts)
         {
-            cv::circle(plane_image, cv::Point(pt->px%ref_img.img_w, pt->px / ref_img.img_w), m_param.img_x_dn_sample / 2 +1,
-                255, -1, CV_AA);
+            cv::circle(plane_image, cv::Point(pt->px%ref_img.img_w, pt->px / ref_img.img_w),
+                m_param.img_x_dn_sample / 2 + 1, 255, -1, CV_AA);
         }
         cv::imshow(name, plane_image);
         cv::waitKey(1);

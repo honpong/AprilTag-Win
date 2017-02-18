@@ -20,11 +20,15 @@ int planefit_one_frame(const std::string & path)
     auto depth_data = cv::imread(path + "depth.png", CV_LOAD_IMAGE_UNCHANGED);
     auto ir_data = cv::imread(path + "ir.png", CV_LOAD_IMAGE_UNCHANGED);
 
-    rs_sf_image depth_image = {};
-    depth_image.data = depth_data.data;
-    depth_image.img_w = depth_data.cols;
-    depth_image.img_h = depth_data.rows;
-    depth_image.byte_per_pixel = 2;
+    rs_sf_image input_images[2] = {};
+    input_images[0].data = depth_data.data;
+    input_images[0].img_w = depth_data.cols;
+    input_images[0].img_h = depth_data.rows;
+    input_images[0].byte_per_pixel = 2;
+    input_images[1].data = ir_data.data;
+    input_images[1].img_w = ir_data.cols;
+    input_images[1].img_h = ir_data.rows;
+    input_images[1].byte_per_pixel = 1;
 
     ////////////////////////////////////////////////////////////////////////////////
     Json::Value calibration_data;
@@ -41,10 +45,9 @@ int planefit_one_frame(const std::string & path)
     depth_intrinsics.img_w = json_depth_intrinsics["width"].asInt();
     depth_intrinsics.img_h = json_depth_intrinsics["height"].asInt();
 
-
     ////////////////////////////////////////////////////////////////////////////////
     auto planefitter = rs_sf_planefit_create(&depth_intrinsics);
-    rs_sf_planefit_depth_image(planefitter, &depth_image);
+    rs_sf_planefit_depth_image(planefitter, input_images);
     rs_sf_planefit_delete(planefitter);
     return 0;
 }

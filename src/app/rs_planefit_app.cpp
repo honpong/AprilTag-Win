@@ -33,7 +33,7 @@ int planefit_one_frame(const std::string & path)
     infile >> calibration_data;
 
     Json::Value json_depth_intrinsics = calibration_data["depth_cam"]["intrinsics"];
-    rs_sf_intrinsics depth_intrinsics;
+    rs_sf_intrinsics depth_intrinsics = {};
     depth_intrinsics.cam_fx = json_depth_intrinsics["fx"].asFloat();
     depth_intrinsics.cam_fy = json_depth_intrinsics["fy"].asFloat();
     depth_intrinsics.cam_px = json_depth_intrinsics["ppx"].asFloat();

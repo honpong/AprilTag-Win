@@ -84,7 +84,7 @@ public:
     sensor_data(const sensor_data &other, data_copy) : sensor_data(other, stack_copy()) {
         if (type == rc_SENSOR_TYPE_IMAGE || type == rc_SENSOR_TYPE_DEPTH) {
             image_handle = std::unique_ptr<void, void(*)(void *)>(malloc(image.stride*image.height), free);
-            memcpy(image_handle.get(), other.image.image, image.stride*image.height);
+            image.image = memcpy(image_handle.get(), other.image_handle.get(), image.stride*image.height);
         }
     }
 

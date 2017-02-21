@@ -51,7 +51,7 @@ public:
     template<int _size>
     void add(int newindex, const v<_size> &p_noise, const m<_size, _size> &initial_covariance)
     {
-        rm.add(newindex, p_noise, initial_covariance);
+        rm.add<_size>(newindex, p_noise, initial_covariance);
     }
 
     void reindex(int newindex, int oldindex, int size)

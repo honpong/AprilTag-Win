@@ -100,7 +100,7 @@ template<int size_> struct sensor_vector : public sensor_storage<size_>, public 
     using sensor_storage<size_>::sensor_storage;
     void init_with_variance(f_t variance, unsigned decimate_by) {
         if (!decimate_by) decimate_by = 1;
-        sensor_storage<size_>::init_with_variance(variance);
+        sensor_storage<size_>::init_with_variance(variance / decimate_by);
         decimator<size_>::init(decimate_by);
     }
 };

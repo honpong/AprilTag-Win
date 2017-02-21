@@ -10,8 +10,14 @@ int capture_one_frame(const std::string& path);
 
 int main(int argc, char* argv[])
 {
-    std::string path = "c:\\temp\\shapefit\\";
-    //return capture_one_frame(path);
+    std::string path = "c:\\temp\\shapefit\\a\\";
+    //capture_one_frame(path);
+    planefit_one_frame(path);
+    
+    path = "c:\\temp\\shapefit\\b\\";
+    planefit_one_frame(path);
+    
+    path = "c:\\temp\\shapefit\\c\\";
     return planefit_one_frame(path);
 }
 

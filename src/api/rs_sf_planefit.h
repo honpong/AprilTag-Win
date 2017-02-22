@@ -27,7 +27,7 @@ struct rs_sf_planefit
     rs_sf_planefit(const rs_sf_intrinsics* camera);    
     rs_sf_status process_depth_image(const rs_sf_image* img);
     rs_sf_status track_depth_image(const rs_sf_image* img);
-    int num_detected_planes() const { return (int)m_view.planes.size(); }
+    int num_detected_planes() const;
 
 protected:
 

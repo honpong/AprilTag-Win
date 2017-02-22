@@ -67,6 +67,15 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     return RS_SF_SUCCESS;
 }
 
+int rs_sf_planefit::num_detected_planes() const
+{
+    int n = 0; 
+    for (auto& pl : m_view.planes) 
+        if (pl.best_pts.size() > 0) 
+            ++n; 
+    return n;
+}
+
 bool rs_sf_planefit::is_valid_pt3d(const pt3d& pt)
 {
     return pt.pos.z() > m_param.min_z_value;

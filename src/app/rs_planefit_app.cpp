@@ -11,9 +11,12 @@ struct frame_data { cv::Mat src[2]; rs_sf_image images[2]; rs_sf_intrinsics dept
 int planefit_one_frame(rs_sf_image* images, rs_sf_intrinsics* depth_intrinsics);
 int capture_frames(const std::string& path);
 frame_data load_one_frame(const std::string& path, const int frame_num = -1);
+int run_planefit_live();
 
 int main(int argc, char* argv[])
 {
+    return run_planefit_live();
+
     std::string path = "c:\\temp\\shapefit\\d\\";
     //capture_frames(path);
     //planefit_one_frame(data.images, &data.depth_intrinsics);
@@ -23,9 +26,10 @@ int main(int argc, char* argv[])
     {
         auto data = load_one_frame(path, i);
         if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
-        rs_sf_planefit_depth_image(planefitter, data.images, RS_SF_PLANEFIT_OPTION_RESET);
+        rs_sf_planefit_depth_image(planefitter, data.images /*, RS_SF_PLANEFIT_OPTION_RESET */);
     }
     rs_sf_planefit_delete(planefitter);
+    return 0;
 }
 
 frame_data load_one_frame(const std::string& path, const int frame_num)
@@ -146,5 +150,54 @@ int capture_frames(const std::string& path) {
         writer.write(outfile, root);
     }catch(...){}
 
+    return 0;
+}
+
+int run_planefit_live(){
+
+    rs::context ctx;
+    auto list = ctx.query_devices();
+    if (list.size() == 0) throw std::runtime_error("No device detected.");
+
+    auto dev = list[0];
+    rs::util::config config;
+    config.enable_stream(RS_STREAM_DEPTH, 640, 480, 30, RS_FORMAT_Z16);
+    config.enable_stream(RS_STREAM_INFRARED, 640, 480, 30, RS_FORMAT_Y8);
+
+    auto stream = config.open(dev);
+    auto intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH); 
+    auto planefitter = rs_sf_planefit_create((rs_sf_intrinsics*)&intrinsics);
+
+    rs::util::syncer syncer;
+    stream.start(syncer);
+    dev.set_option(RS_OPTION_EMITTER_ENABLED, 1);
+    dev.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
+
+    struct dataset { cv::Mat depth, ir, displ; };
+    std::deque<dataset> image_set;
+    int frame_id = 0;
+    while (1) {
+        auto fs = syncer.wait_for_frames();
+        if (fs.size() == 0) break;
+        if (fs.size() < 2) continue;
+
+        rs::frame* frames[RS_STREAM_COUNT];
+        for (auto& f : fs) { frames[f.get_stream_type()] = &f; }
+
+        rs_sf_image image[2];
+
+        image[0].data = (unsigned char*)frames[RS_STREAM_DEPTH]->get_data();
+        image[1].data = (unsigned char*)frames[RS_STREAM_INFRARED]->get_data();
+        image[0].img_w = image[1].img_w = frames[RS_STREAM_DEPTH]->get_width();
+        image[0].img_h = image[1].img_h = frames[RS_STREAM_DEPTH]->get_height();
+        image[0].byte_per_pixel = 2;
+        image[1].byte_per_pixel = 1;
+        image[0].frame_id = image[1].frame_id = frame_id++;
+
+        rs_sf_planefit_depth_image(planefitter, image /*, RS_SF_PLANEFIT_OPTION_RESET*/);
+        if (cv::waitKey(1) == 'q') break;
+    }
+
+    if (planefitter) rs_sf_planefit_delete(planefitter);
     return 0;
 }

@@ -30,6 +30,7 @@ rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
     grow_planecandidate(m_view.pt_cloud, m_view.planes);
     //test_planecandidate(m_view.pt_cloud, m_view.planes);
     non_max_plane_suppression(m_view.pt_cloud, m_view.planes);
+    sort_plane_size(m_view.planes);
 
     //debug drawing
     visualize(m_view.planes);
@@ -58,6 +59,8 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     //img_pointcloud_to_planecandidate(m_view.pt_cloud, m_view.planes);
     grow_planecandidate(m_view.pt_cloud, m_view.planes);
     non_max_plane_suppression(m_view.pt_cloud, m_view.planes);
+    combine_planes_from_the_same_past(m_view, m_ref_scene);
+    sort_plane_size(m_view.planes);
 
     visualize(m_view.planes);
 
@@ -263,25 +266,24 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d& pt_cloud, vec_plane& pl
     for (auto& pt : pt_cloud)
         if ( pt.best_plane )
             pt.best_plane->best_pts.push_back(&pt);
-
-    // id each plane
-    std::sort(plane_candidates.begin(), plane_candidates.end(), 
-        [](const plane& p0, const plane& p1) { return p0.best_pts.size() > p1.best_pts.size(); });
-    int pid = 0;
-    for (auto& plane : plane_candidates)
-    {
-        plane.pid = pid++;
-        if (pid > m_param.max_num_plane_output)
-            plane.pid = pid = m_param.max_num_plane_output;
-    }
 }
 
-void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, const scene & past_view)
+void rs_sf_planefit::sort_plane_size(vec_plane & planes)
 {
+    std::sort(planes.begin(), planes.end(),
+        [](const plane& p0, const plane& p1) { return p0.best_pts.size() > p1.best_pts.size(); });
+
+    for (auto& plane : planes) { plane.pid = -1; } //used to mark displayed plane only
+}
+
+void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene & past_view)
+{
+    const int src_w = m_intrinsics.img_w;
     const int img_h = m_intrinsics.img_h / m_param.img_y_dn_sample;
     const int img_w = m_intrinsics.img_w / m_param.img_x_dn_sample;
 
     current_view.planes.clear();
+    current_view.planes.reserve(past_view.planes.size());
     auto& pt_cloud = current_view.pt_cloud;
     const int dn_xy = m_param.img_x_dn_sample*m_param.img_y_dn_sample;
 
@@ -292,7 +294,7 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, const 
 
         v3 avg_normal(0, 0, 0), avg_inlier_normal(0, 0, 0), avg_inlier_pos(0, 0, 0);
         int n_valid_current_pt = 0;
-
+        
         // for each past plane points
         for (auto& past_pt : past_plane.pts)
         {
@@ -320,19 +322,11 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, const 
 
             if (is_valid_pt3d(current_pt))
             {
-                if (std::abs(avg_normal.dot(current_pt.normal)) > m_param.max_normal_thr)
+                if (std::abs(avg_normal.dot(current_pt.normal)) > m_param.max_normal_thr)                
                 {
                     avg_inlier_normal += current_pt.normal;
                     avg_inlier_pos += current_pt.pos;
                     m_inlier_buf.push_back(&current_pt);
-
-                    //if (x % m_param.candidate_x_dn_sample == 0 &&
-                    //    y % m_param.candidate_y_dn_sample == 0)
-                    //{
-                        //auto d = -current_pt.pos.dot(current_pt.normal);
-                        //current_view.planes.push_back(
-                        //{ current_pt.normal,d,&current_pt,vec_pt_ref(),vec_pt_ref(),0 });
-                    //}
 
                     const auto dist = (past_plane.src->pos - current_pt.pos).squaredNorm();
                     if (dist < min_dist_to_past_center)
@@ -340,45 +334,130 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, const 
                         min_dist_to_past_center = dist;
                         best_inlier_to_past_center = &current_pt;
                     }
+
+                    if ((past_pt->px % src_w) % (m_param.candidate_x_dn_sample * 4) == 0 &&
+                        (past_pt->px / src_w) % (m_param.candidate_y_dn_sample * 4) == 0)
+                    {
+                        auto d = -current_pt.pos.dot(current_pt.normal);
+                        current_view.planes.push_back(
+                        { current_pt.normal,d,&current_pt,vec_pt_ref(),vec_pt_ref(),0, &past_plane });
+                    }
                 }
             }
         }
 
         auto center = best_inlier_to_past_center;
-        Eigen::Matrix3f em; em.setZero();
-        for (auto& pt : m_inlier_buf)
+        if (center)
         {
-            const auto dp = (pt->pos - center->pos);
-            em += dp * dp.transpose();
+            Eigen::Matrix3f em; em.setZero();
+            for (auto& pt : m_inlier_buf)
+            {
+                const auto dp = (pt->pos - center->pos);
+                em += dp * dp.transpose();
+            }
+
+            float D[6] = { em(0,0),em(0,1),em(0,2),em(1,1),em(1,2),em(2,2) }, u[3], v[3][3];
+            eigen_3x3_real_symmetric(D, u, v);
+            v3 normal(v[2][0], v[2][1], v[2][2]);
+
+            current_view.planes.push_back(
+            { normal,-center->pos.dot(normal),center,vec_pt_ref(),vec_pt_ref(),0, &past_plane });
+        }
+    }
+#ifdef _DEBUG
+    printf("num plane %d -> %d \n", (int)past_view.planes.size(), num_detected_planes());
+#endif
+}
+
+void rs_sf_planefit::combine_planes_from_the_same_past(scene & current_view, scene & past_view)
+{
+    for (auto& past_plane : past_view.planes)
+    {
+        list_plane_ref child_planes;
+        for (auto& new_plane : current_view.planes)
+        {
+            if (new_plane.past_plane == &past_plane)
+            {
+                child_planes.push_back(&new_plane);
+            }
         }
 
-        float D[6] = { em(0,0),em(0,1),em(0,2),em(1,1),em(1,2),em(2,2) }, u[3], v[3][3];
-        eigen_3x3_real_symmetric(D, u, v);
-        v3 normal(v[2][0], v[2][1], v[2][2]);
+        plane* best_child = nullptr;
+        int max_child_size = 0;
+        for (auto& new_plane : child_planes)
+        {
+            if ((int)new_plane->best_pts.size() > max_child_size)
+            {
+                best_child = new_plane;
+                max_child_size = (int)best_child->best_pts.size();
+            }
+        }
 
-        current_view.planes.push_back(
-        { normal,-center->pos.dot(normal),center,vec_pt_ref(),vec_pt_ref(),0, &past_plane });
+        if (best_child)
+        {
+            auto& best_child_pt = best_child->best_pts;
+            auto& child_pt = best_child->pts;
+            for (auto& new_plane : child_planes)
+            {
+                if (new_plane == best_child) continue;
+                if (is_inlier(*best_child, *new_plane->src))
+                {
+                    auto& new_best_pt = new_plane->best_pts;
+                    if (new_best_pt.size() > 0)
+                    {
+                        best_child_pt.insert(best_child_pt.end(), new_best_pt.begin(), new_best_pt.end());
+                        child_pt.insert(child_pt.end(), new_best_pt.begin(), new_best_pt.end());
+                        new_plane->best_pts.clear();
+                    }
+                    new_plane->pts.clear();
+                }
+            }
+        }
     }
-    printf("num plane %d \n\n", num_detected_planes());
 }
 
 static int display_time = 0;
-void rs_sf_planefit::visualize(vec_plane & plane_candidates)
+void rs_sf_planefit::visualize(vec_plane & planes)
 {
+    static const cv::Vec3b src_color[6] = {
+        cv::Vec3b(255,0,0),
+        cv::Vec3b(0,255,0),
+        cv::Vec3b(0,0,255),
+        cv::Vec3b(255,0,255),
+        cv::Vec3b(255,255,0),
+        cv::Vec3b(0,255,255),
+    };
+    int nColor = std::min((int)(sizeof(src_color)/sizeof(cv::Vec3b)), (int)planes.size());
     cv::Mat ref(ref_img.img_h, ref_img.img_w, CV_8U, ref_img.data);
     cv::Mat disp, mask = cv::Mat::zeros(ref.rows / m_param.img_x_dn_sample, ref.cols / m_param.img_y_dn_sample, CV_8UC3);
     cv::cvtColor(ref, disp, CV_GRAY2RGB, 3);
     std::string name = "planes_" + std::to_string(display_time++);
 
-    for (int i = std::min(4,(int)plane_candidates.size()-1); i >= 0; --i)
+    bool used_pid[5] = {};
+    for (int i = 0; i < nColor; ++i)
     {
-        for (auto& pt : plane_candidates[i].pts)
+        if (planes[i].past_plane && planes[i].past_plane->pid != -1)
         {
-            auto& pixel = mask.at<cv::Vec3b>((cv::Point((pt->px%ref_img.img_w) / m_param.img_x_dn_sample, (pt->px / ref_img.img_w) / m_param.img_y_dn_sample)));
-            if (i < 3) pixel[i] = 255;
-            else {
-                pixel[i % 3] = 255; pixel[2] = 255;
-            }
+            if (!used_pid[planes[i].past_plane->pid])
+                used_pid[planes[i].pid = planes[i].past_plane->pid] = true;
+        }
+    }
+
+    int next_pid = 0;
+    for (int i = 0; i < nColor; ++i)
+    {
+        if (planes[i].pid == -1)
+        {
+            while (used_pid[next_pid]) { next_pid++; }
+            used_pid[planes[i].pid = next_pid] = true;
+        }
+    }
+
+    for (int i = nColor - 1; i >= 0; --i)
+    {
+        for (auto& pt : planes[i].pts)
+        {
+            mask.at<cv::Vec3b>(pt->ppx) = src_color[planes[i].pid];
         }
     }
     //cv::medianBlur(mask, mask, 3);
@@ -390,8 +469,8 @@ void rs_sf_planefit::visualize(vec_plane & plane_candidates)
     cv::imshow("planes", disp);
     cv::waitKey(1);
 
-    std::string path = "c:\\temp\\shapefit\\d\\";
-    cv::imwrite(path + name + ".png", disp);
+    //std::string path = "c:\\temp\\shapefit\\d\\";
+    //cv::imwrite(path + name + ".png", disp);
 }
 
 

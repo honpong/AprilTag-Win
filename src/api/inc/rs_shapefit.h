@@ -43,11 +43,16 @@ extern "C"
     };
 
     struct rs_sf_planefit;
+    enum rs_sf_planefit_option
+    {
+        RS_SF_PLANEFIT_OPTION_TRACK = 0,
+        RS_SF_PLANEFIT_OPTION_RESET = 1,
+    };
 
     RS_SHAPEFIT_DECL rs_sf_planefit* rs_sf_planefit_create(const rs_sf_intrinsics* camera);
     RS_SHAPEFIT_DECL void rs_sf_planefit_delete(rs_sf_planefit* obj);
 
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_depth_image(rs_sf_planefit* obj, const rs_sf_image* image);
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_depth_image(rs_sf_planefit* obj, const rs_sf_image* image, rs_sf_planefit_option option = RS_SF_PLANEFIT_OPTION_TRACK);
 
 #ifdef __cplusplus
 }

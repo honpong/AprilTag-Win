@@ -34,12 +34,22 @@ protected:
     typedef Eigen::Matrix<float, 3, 1> v3;
     typedef Eigen::Matrix<int, 2, 1> i2;
     typedef Eigen::Quaternion<float> rotation;
+    static const int INVALID_PID = -1;
+    static const int MAX_VALID_PID = 5;
 
     struct plane;
-    struct pt3d { v3 pos, normal; int px, ppx; plane* best_plane; };
+    struct pt3d {
+        v3 pos, normal; int px, ppx; plane* best_plane;
+        pt3d(v3& _pos, v3& _nor, int _px = 0, int _ppx = 0, plane* _bestplane = nullptr) 
+            : pos(_pos), normal(_nor), px(_px), ppx(_ppx), best_plane(_bestplane) {}
+    };
     typedef std::vector<pt3d*> vec_pt_ref;
     typedef std::list<plane*> list_plane_ref;
-    struct plane { v3 normal; float d; pt3d* src; vec_pt_ref pts, best_pts; int pid; const plane* past_plane; };
+    struct plane {
+        v3 normal; float d; pt3d* src; vec_pt_ref pts, best_pts; int pid; const plane* past_plane;
+        plane(v3& _nor, float _d, pt3d* _src, int _pid = INVALID_PID, const plane* _past_plane = nullptr)
+            : normal(_nor), d(_d), src(_src), pid(_pid), past_plane(_past_plane) {}
+    };
     
     typedef std::vector<pt3d> vec_pt3d;
     typedef std::vector<plane> vec_plane;
@@ -53,6 +63,8 @@ protected:
     parameter m_param;
     scene m_view, m_ref_scene;
     vec_pt_ref m_inlier_buf;
+
+    std::vector<plane*> m_tracked_pid;
 
 private:
     
@@ -70,7 +82,8 @@ private:
     // plane tracking
     void find_candidate_plane_from_past(scene& current_view, scene& past_view);
     void combine_planes_from_the_same_past(scene& current_view, scene& past_view);
-    
+    void assign_planes_pid(vec_plane& planes);
+
     // debug only
     rs_sf_image ref_img;
     void visualize(vec_plane& planes);

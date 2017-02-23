@@ -10,6 +10,7 @@ rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera)
         (m_param.img_x_dn_sample*m_param.img_y_dn_sample);
 
     m_inlier_buf.reserve(m_param.point_cloud_reserve);
+    m_tracked_pid.reserve(m_param.max_num_plane_output);
 }
 
 rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
@@ -61,7 +62,9 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     non_max_plane_suppression(m_view.pt_cloud, m_view.planes);
     combine_planes_from_the_same_past(m_view, m_ref_scene);
     sort_plane_size(m_view.planes);
+    assign_planes_pid(m_view.planes);
 
+    // debug drawing
     visualize(m_view.planes);
 
     return RS_SF_SUCCESS;
@@ -101,11 +104,11 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, vec_pt3d& pt_c
         for (int x = 0; x < img_w; x += x_step, p += x_step, ++pp)
         {
             const auto z = (float)src_depth[p];
-            pt_cloud.push_back({ v3{
+            pt_cloud.emplace_back(v3{
                 z * (x - px) / fx,
                 z * (y - py) / fy,
                 z }
-            , v3(), p, pp, nullptr });
+            , v3(), p, pp, nullptr);
         }
     }
 }
@@ -116,7 +119,7 @@ void rs_sf_planefit::img_pointcloud_to_normal(vec_pt3d& img_pt_cloud)
     const int img_w = m_intrinsics.img_w / m_param.img_x_dn_sample;
 
     auto* src_pt_cloud = img_pt_cloud.data();
-    for (int y = 0, ey = img_h - 1, p = 0; y < ey; ++y, p=y*img_w) {
+    for (int y = 0, ey = img_h - 1, p = 0; y < ey; ++y, p = y*img_w) {
         for (int x = 0, ex = img_w - 1; x < ex; ++x, ++p)
         {
             if (is_valid_pt3d(src_pt_cloud[p]))
@@ -151,7 +154,7 @@ void rs_sf_planefit::img_pointcloud_to_planecandidate(
             if (is_valid_pt3d(src))
             {
                 float d = -nor.dot(pos);
-                img_planes.push_back({ nor, d, &src, vec_pt_ref(), vec_pt_ref(), 0, nullptr });
+                img_planes.emplace_back(nor, d, &src);
             }
         }
     }
@@ -281,8 +284,6 @@ void rs_sf_planefit::sort_plane_size(vec_plane & planes)
 {
     std::sort(planes.begin(), planes.end(),
         [](const plane& p0, const plane& p1) { return p0.best_pts.size() > p1.best_pts.size(); });
-
-    for (auto& plane : planes) { plane.pid = -1; } //used to mark displayed plane only
 }
 
 void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene & past_view)
@@ -348,8 +349,7 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
                         (past_pt->px / src_w) % (m_param.candidate_y_dn_sample * 4) == 0)
                     {
                         auto d = -current_pt.pos.dot(current_pt.normal);
-                        current_view.planes.push_back(
-                        { current_pt.normal,d,&current_pt,vec_pt_ref(),vec_pt_ref(),0, &past_plane });
+                        current_view.planes.emplace_back(current_pt.normal, d, &current_pt, INVALID_PID, &past_plane);
                     }
                 }
             }
@@ -369,12 +369,11 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
             eigen_3x3_real_symmetric(D, u, v);
             v3 normal(v[2][0], v[2][1], v[2][2]);
 
-            current_view.planes.push_back(
-            { normal,-center->pos.dot(normal),center,vec_pt_ref(),vec_pt_ref(),0, &past_plane });
+            current_view.planes.emplace_back(normal, -center->pos.dot(normal), center, INVALID_PID, &past_plane);
         }
     }
 #ifdef _DEBUG
-    printf("num plane %d -> %d \n", (int)past_view.planes.size(), num_detected_planes());
+    printf("num plane %d -> %d \n", (int)past_view.planes.size(), (int)current_view.planes.size());
 #endif
 }
 
@@ -425,10 +424,37 @@ void rs_sf_planefit::combine_planes_from_the_same_past(scene & current_view, sce
     }
 }
 
+void rs_sf_planefit::assign_planes_pid(vec_plane& planes)
+{
+    m_tracked_pid.resize(MAX_VALID_PID + 1);
+    std::fill_n(m_tracked_pid.begin(), MAX_VALID_PID + 1, nullptr);
+    
+    for (auto& plane : planes)
+    {
+        if (plane.past_plane && plane.best_pts.size() > 0 && plane.past_plane->pid != INVALID_PID)
+        {
+            if (!m_tracked_pid[plane.past_plane->pid])
+            {
+                m_tracked_pid[plane.pid = plane.past_plane->pid] = &plane;
+            }
+        }
+    }
+
+    int next_pid = 0, max_current_pid = std::min(MAX_VALID_PID, (int)planes.size()-1);
+    for (int i = 0; i <= max_current_pid; ++i)
+    {
+        if (planes[i].pid == INVALID_PID)
+        {
+            while (m_tracked_pid[next_pid]) { if (++next_pid > MAX_VALID_PID) return; }
+            m_tracked_pid[planes[i].pid = next_pid] = &planes[i];
+        }
+    }
+}
+
 static int display_time = 0;
 void rs_sf_planefit::visualize(vec_plane & planes)
 {
-    static const cv::Vec3b src_color[6] = {
+    static const cv::Vec3b src_color[] = {
         cv::Vec3b(255,0,0),
         cv::Vec3b(0,255,0),
         cv::Vec3b(0,0,255),
@@ -442,33 +468,19 @@ void rs_sf_planefit::visualize(vec_plane & planes)
     cv::cvtColor(ref, disp, CV_GRAY2RGB, 3);
     std::string name = "planes_" + std::to_string(display_time++);
 
-    bool used_pid[5] = {};
-    for (int i = 0; i < nColor; ++i)
-    {
-        if (planes[i].past_plane && planes[i].past_plane->pid != -1)
-        {
-            if (!used_pid[planes[i].past_plane->pid])
-                used_pid[planes[i].pid = planes[i].past_plane->pid] = true;
-        }
-    }
-
-    int next_pid = 0;
-    for (int i = 0; i < nColor; ++i)
-    {
-        if (planes[i].pid == -1)
-        {
-            while (used_pid[next_pid]) { next_pid++; }
-            used_pid[planes[i].pid = next_pid] = true;
-        }
-    }
 
     for (int i = nColor - 1; i >= 0; --i)
     {
-        for (auto& pt : planes[i].pts)
+        auto& plane = planes[i];
+        if (0 <= plane.pid && plane.pid < nColor)
         {
-            mask.at<cv::Vec3b>(pt->ppx) = src_color[planes[i].pid];
+            for (auto& pt : plane.best_pts)
+            {
+                mask.at<cv::Vec3b>(pt->ppx) = src_color[plane.pid];
+            }
         }
     }
+
     //cv::medianBlur(mask, mask, 3);
 
     cv::Mat disp_clone = disp.clone();
@@ -478,8 +490,8 @@ void rs_sf_planefit::visualize(vec_plane & planes)
     cv::imshow("planes", disp);
     cv::waitKey(1);
 
-    //std::string path = "c:\\temp\\shapefit\\d\\";
-    //cv::imwrite(path + name + ".png", disp);
+    std::string path = "c:\\temp\\shapefit\\e\\";
+    cv::imwrite(path + name + ".png", disp);
 }
 
 

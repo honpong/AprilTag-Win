@@ -96,14 +96,14 @@ struct state {
                     rm.reindex(i, r.index, r.size);
                 else {
                     switch(r.size) {
-                    case 1: rm.add(i, special_noise<1>(r.pindex), special_cov<1>(r.pindex)); break;
-                    case 2: rm.add(i, special_noise<2>(r.pindex), special_cov<2>(r.pindex)); break;
-                    case 3: rm.add(i, special_noise<3>(r.pindex), special_cov<3>(r.pindex)); break;
-                    case 4: rm.add(i, special_noise<4>(r.pindex), special_cov<4>(r.pindex)); break;
-                    case 5: rm.add(i, special_noise<5>(r.pindex), special_cov<5>(r.pindex)); break;
-                    case 6: rm.add(i, special_noise<6>(r.pindex), special_cov<6>(r.pindex)); break;
-                    case 7: rm.add(i, special_noise<7>(r.pindex), special_cov<7>(r.pindex)); break;
-                    case 8: rm.add(i, special_noise<8>(r.pindex), special_cov<8>(r.pindex)); break;
+                    case 1: rm.add<1>(i, special_noise<1>(r.pindex), special_cov<1>(r.pindex)); break;
+                    case 2: rm.add<2>(i, special_noise<2>(r.pindex), special_cov<2>(r.pindex)); break;
+                    case 3: rm.add<3>(i, special_noise<3>(r.pindex), special_cov<3>(r.pindex)); break;
+                    case 4: rm.add<4>(i, special_noise<4>(r.pindex), special_cov<4>(r.pindex)); break;
+                    case 5: rm.add<5>(i, special_noise<5>(r.pindex), special_cov<5>(r.pindex)); break;
+                    case 6: rm.add<6>(i, special_noise<6>(r.pindex), special_cov<6>(r.pindex)); break;
+                    case 7: rm.add<7>(i, special_noise<7>(r.pindex), special_cov<7>(r.pindex)); break;
+                    case 8: rm.add<8>(i, special_noise<8>(r.pindex), special_cov<8>(r.pindex)); break;
                     default: ASSERT_FALSE("add more cases") << "size = " << r.size;
                     }
                 }

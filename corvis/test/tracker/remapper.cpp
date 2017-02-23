@@ -3,6 +3,7 @@
 #include "remapper.h"
 #include <random>
 #include <limits>
+#include <cctype>
 
 namespace rc { namespace testing {
 
@@ -39,7 +40,7 @@ struct state {
     state(const char *initial, const char *old = nullptr) : str(initial) {
         int current = -1, index = 0;
         for (int i=0; initial[i]; i++, max_size++) {
-            bool in = (bool)std::islower(initial[i]), was_in = old ? (bool)std::islower(old[i]) : true;
+            bool in = (bool)islower(initial[i]), was_in = old ? (bool)islower(old[i]) : true;
             if (current == initial[i])
                 items.back().size++;
             else

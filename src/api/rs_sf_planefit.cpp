@@ -88,11 +88,11 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, vec_pt3d& pt_c
 {
     const int img_h = m_intrinsics.img_h;
     const int img_w = m_intrinsics.img_w;
-    const auto& px = m_intrinsics.cam_px;
-    const auto& py = m_intrinsics.cam_py;
-    const auto& fx = m_intrinsics.cam_fx;
-    const auto& fy = m_intrinsics.cam_fy;
-    const auto* src_depth = (unsigned short*)img->data;
+    const auto px = m_intrinsics.cam_px;
+    const auto py = m_intrinsics.cam_py;
+    const auto fx = m_intrinsics.cam_fx;
+    const auto fy = m_intrinsics.cam_fy;
+    const auto src_depth = (unsigned short*)img->data;
 
     const int y_step = m_param.img_y_dn_sample;
     const int x_step = m_param.img_x_dn_sample;
@@ -122,12 +122,13 @@ void rs_sf_planefit::img_pointcloud_to_normal(vec_pt3d& img_pt_cloud)
     for (int y = 0, ey = img_h - 1, p = 0; y < ey; ++y, p = y*img_w) {
         for (int x = 0, ex = img_w - 1; x < ex; ++x, ++p)
         {
-            if (is_valid_pt3d(src_pt_cloud[p]))
+            auto& src_pt_cloud_p = src_pt_cloud[p];
+            if (is_valid_pt3d(src_pt_cloud_p))
             {
                 const auto p_right = p + 1, p_down = p + img_w;
-                auto dx = src_pt_cloud[p_right].pos - src_pt_cloud[p].pos;
-                auto dy = src_pt_cloud[p_down].pos - src_pt_cloud[p].pos;
-                src_pt_cloud[p].normal = dy.cross(dx).normalized();
+                auto dx = src_pt_cloud[p_right].pos - src_pt_cloud_p.pos;
+                auto dy = src_pt_cloud[p_down].pos - src_pt_cloud_p.pos;
+                src_pt_cloud_p.normal = dy.cross(dx).normalized();
             }
         }
     }
@@ -211,7 +212,7 @@ void rs_sf_planefit::grow_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& plan
     auto* src_img_point = img_pt_cloud.data();
     for (auto& plane : plane_candidates)
     {
-        plane.pts.reserve(m_param.point_cloud_reserve);
+        plane.pts.reserve(m_param.point_cloud_reserve >> 1);
         plane.pts.clear();
         m_inlier_buf.clear();
 
@@ -228,15 +229,16 @@ void rs_sf_planefit::grow_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& plan
 
             // neighboring points
             const int x = p->ppx % img_w, y = p->ppx / img_w;
-            const int xb[] = { x - 1, x + 1, x,x };
-            const int yb[] = { y,y,y - 1,y + 1 };
+            const int xb[] = { x - 1, x + 1, x, x };
+            const int yb[] = { y, y, y - 1, y + 1 };
+            const int pb[] = { p->ppx - 1, p->ppx + 1, p->ppx - img_w, p->ppx + img_w };
             
             // grow
             for (int b = 0; b < 4; ++b)
             {
                 if (is_within_fov(xb[b], yb[b])) //within fov
                 {
-                    auto& pt = src_img_point[yb[b] * img_w + xb[b]];
+                    auto& pt = src_img_point[pb[b]];
                     if (!pt.best_plane && is_inlier(plane, pt)) //accept plane point
                     {
                         pt.best_plane = &plane;
@@ -268,11 +270,11 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d& pt_cloud, vec_plane& pl
                 (int)pt->best_plane->pts.size() < this_plane_size)
                 pt->best_plane = &plane;
         }
-    }
 
-    // clear point list for each plane 
-    for (auto& plane : plane_candidates)
+        // clear point list for each plane 
         plane.best_pts.clear();
+        plane.best_pts.reserve(this_plane_size);
+    }
 
     // rebuild point list for each plane based on the best fitting
     for (auto& pt : pt_cloud)
@@ -482,6 +484,8 @@ void rs_sf_planefit::visualize(vec_plane & planes)
     }
 
     //cv::medianBlur(mask, mask, 3);
+    //cv::dilate(mask, mask, cv::Mat());
+    //cv::erode(mask, mask, cv::Mat());
 
     cv::Mat disp_clone = disp.clone();
     cv::resize(mask, mask, disp.size(), 0, 0, CV_INTER_NN);

@@ -30,7 +30,7 @@ class remapper {
     }
 
     template<int size>
-    void add(int newindex, const v<size> process_covariance_, const m<size, size> initial_covariance_) {
+    void add(int newindex, const v<size> &process_covariance_, const m<size, size> &initial_covariance_) {
         assert(updates.empty() ? newindex == 0 : updates.back().to + updates.back().size == newindex);
 
         if (updates.size() &&   updates.back().type == update::add &&

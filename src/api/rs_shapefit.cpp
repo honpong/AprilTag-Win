@@ -16,12 +16,10 @@ rs_sf_status rs_sf_planefit_depth_image(rs_sf_planefit * obj, const rs_sf_image 
 {
     if (!obj || !image) return RS_SF_INVALID_ARG;
 
-    rs_sf_status sts = RS_SF_FAILED;
     if (option == RS_SF_PLANEFIT_OPTION_TRACK && obj->num_detected_planes() > 0)
         return obj->track_depth_image(image);   //tracking mode
     else
         return obj->process_depth_image(image); //static mode
-    return sts;
 }
 
 rs_sf_status rs_sf_planefit_draw_planes(const rs_sf_planefit * obj, rs_sf_image * rgb, const rs_sf_image* src)

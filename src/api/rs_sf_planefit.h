@@ -83,7 +83,7 @@ private:
     void sort_plane_size(vec_plane& planes, vec_plane_ref& sorted_planes);
 
     // plane tracking
-    void save_previous_scene_as_reference();
+    void save_current_scene_as_reference();
     void find_candidate_plane_from_past(scene& current_view, scene& past_view);
     void combine_planes_from_the_same_past(scene& current_view, scene& past_view);
     void assign_planes_pid(vec_plane_ref& sorted_planes);

@@ -12,11 +12,11 @@ int planefit_one_frame(rs_sf_image* images, rs_sf_intrinsics* depth_intrinsics);
 int capture_frames(const std::string& path);
 frame_data load_one_frame(const std::string& path, const int frame_num = -1);
 int run_planefit_live();
-int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image& bkg_image);
+int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image& bkg_image, float compute_time_ms);
 
 int main(int argc, char* argv[])
 {
-    //return run_planefit_live();
+     return run_planefit_live();
 
     std::string path = "c:\\temp\\shapefit\\e\\";
     //capture_frames(path);
@@ -27,9 +27,13 @@ int main(int argc, char* argv[])
     {
         auto data = load_one_frame(path, i);
         if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
-        rs_sf_planefit_depth_image(planefitter, data.images /*, RS_SF_PLANEFIT_OPTION_RESET */);
 
-        if (display_planes_and_wait(planefitter, data.images[1]) == 'q')
+        auto start_time = std::chrono::steady_clock::now();
+        rs_sf_planefit_depth_image(planefitter, data.images  /*, RS_SF_PLANEFIT_OPTION_RESET */);
+        std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
+        printf("frame %d, duration %.2f ms\n", data.images[0].frame_id, last_frame_compute_time.count());
+
+        if (display_planes_and_wait(planefitter, data.images[1], last_frame_compute_time.count()) == 'q')
             break;
     }
     rs_sf_planefit_delete(planefitter);
@@ -198,8 +202,10 @@ int run_planefit_live(){
         image[1].byte_per_pixel = 1;
         image[0].frame_id = image[1].frame_id = frame_id++;
 
-        rs_sf_planefit_depth_image(planefitter, image /*, RS_SF_PLANEFIT_OPTION_RESET*/);
-        if (display_planes_and_wait(planefitter, image[1]) == 'q') break;
+        auto start_time = std::chrono::steady_clock::now();
+        rs_sf_planefit_depth_image(planefitter, image /*,RS_SF_PLANEFIT_OPTION_RESET*/ );
+        std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
+        if (display_planes_and_wait(planefitter, image[1], last_frame_compute_time.count()) == 'q') break;
 
         memcpy(prev_depth.data, frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char());
     }
@@ -208,14 +214,20 @@ int run_planefit_live(){
     return 0;
 }
 
-int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image & bkg_image)
+int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image & bkg_image, float compute_time_ms)
 {
     rs_sf_image_rgb rgb(&bkg_image);
     rs_sf_planefit_draw_planes(planefitter, &rgb, &bkg_image);
+
+    //cv::imwrite("C:\\temp\\shapefit\\e\\tail_plane_" + std::to_string(rgb.frame_id) + ".png", disp);
+
     cv::Mat disp(rgb.img_h, rgb.img_w, CV_8UC3, rgb.data);
+
+    auto time_str = std::to_string(compute_time_ms);
+    cv::putText(disp, time_str.substr(0, time_str.find_first_of(".") + 2) + "ms", 
+        cv::Point(8, 25), CV_FONT_NORMAL, 1, cv::Scalar(255, 255, 255));
+
     cv::imshow("planes", disp);
 
-    cv::imwrite("C:\\temp\\shapefit\\e\\tail_plane_" + 
-        std::to_string(rgb.frame_id) + ".png", disp);
     return cv::waitKey(1);
 }

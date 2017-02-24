@@ -31,6 +31,7 @@ rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
     //test_planecandidate(m_view.pt_cloud, m_view.planes);
     non_max_plane_suppression(m_view.pt_cloud, m_view.planes);
     sort_plane_size(m_view.planes, m_sorted_plane_ptr);
+    assign_planes_pid(m_sorted_plane_ptr);
 
     //debug drawing
     //visualize(m_view.planes);

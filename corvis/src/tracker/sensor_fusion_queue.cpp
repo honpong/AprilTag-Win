@@ -247,23 +247,24 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
     total_in++;
     newest_received = std::max(x.timestamp, newest_received);
 
-    auto s = stats.emplace(global_id, sensor_stats{std::chrono::microseconds(0)});
-    s.first->second.receive(newest_received, x.timestamp);
+    sensor_stats &s = stats.emplace(global_id, sensor_stats{std::chrono::microseconds(0)}).first->second;
+
+    s.receive(newest_received, x.timestamp);
 
     if (x.timestamp < last_dispatched) {
-        s.first->second.drop_late(newest_received);
+        s.drop_late(newest_received);
         return;
     }
-    if (x.timestamp < s.first->second.last_in) {
-        s.first->second.drop_out_of_order();
+    if (x.timestamp < s.last_in) {
+        s.drop_out_of_order();
         return;
     }
     if (queue.full()) {
-        s.first->second.drop_full();
+        s.drop_full();
         return;
     }
 
-    s.first->second.push();
+    s.push();
     queue.push(std::move(x));
 }
 

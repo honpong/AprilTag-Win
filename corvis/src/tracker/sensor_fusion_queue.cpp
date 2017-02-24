@@ -65,7 +65,7 @@ void fusion_queue::require_sensor(rc_SensorType type, rc_Sensor id, sensor_clock
 {
     uint64_t global_id = sensor_data::get_global_id_by_type_id(type, id);
     required_sensors.push_back(global_id);
-    auto s = stats.emplace(global_id, sensor_stats{max_latency});
+    stats.emplace(global_id, sensor_stats{max_latency});
 }
 
 void fusion_queue::reset()

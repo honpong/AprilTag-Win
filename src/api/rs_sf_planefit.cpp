@@ -1,6 +1,3 @@
-#ifdef OPENCV_FOUND
-#include <opencv2/opencv.hpp>
-#endif
 #include "rs_sf_planefit.h"
 
 rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera)
@@ -48,10 +45,8 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     // for debug 
     ref_img = img[1];
 
-    // save history
-    m_ref_scene.planes.swap(m_view.planes);
-    m_ref_scene.pt_cloud.swap(m_view.pt_cloud);
-    m_view.clear();
+    // save previous scene
+    save_current_scene_as_reference();
 
     // preprocessing
     image_to_pointcloud(img, m_view.pt_cloud);
@@ -306,6 +301,26 @@ void rs_sf_planefit::sort_plane_size(vec_plane & planes, vec_plane_ref& sorted_p
         [](const plane* p0, const plane* p1) { return p0->best_pts.size() > p1->best_pts.size(); });
 }
 
+void rs_sf_planefit::save_current_scene_as_reference()
+{
+    // remove tails
+    if (m_param.keep_previous_plane_pts && !m_ref_scene.pt_cloud.empty()) {
+        for (auto& plane : m_view.planes) {
+            while (!plane.best_pts.empty()) {
+                if (m_ref_scene.pt_cloud[plane.best_pts.back()->ppx].best_plane == &plane) {
+                    plane.best_pts.back()->best_plane = nullptr;
+                    plane.best_pts.pop_back();
+                }
+                else break;
+            }
+        }
+    }
+
+    // save history
+    m_view.swap(m_ref_scene);
+    m_view.clear();
+}
+
 void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene & past_view)
 {
     const int src_w = m_intrinsics.img_w;
@@ -444,6 +459,21 @@ void rs_sf_planefit::combine_planes_from_the_same_past(scene & current_view, sce
                     }
                     new_plane->best_pts.clear();
                     new_plane->pts.clear();
+                }
+            }
+
+            if (m_param.keep_previous_plane_pts)
+            {
+                auto& new_pt = m_view.pt_cloud;
+                for (auto& past_pt : past_plane.best_pts)
+                {
+                    auto& overlay = new_pt[past_pt->ppx];
+                    if (overlay.best_plane == nullptr) //a potential hole
+                    {
+                        past_pt->best_plane = best_child;
+                        overlay.best_plane = best_child;
+                        best_child_pt.push_back(&overlay);
+                    }
                 }
             }
         }

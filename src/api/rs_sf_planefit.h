@@ -21,6 +21,7 @@ struct rs_sf_planefit
         float min_z_value = 100.0f;
         float max_z_value = 2500.0f;
         int max_num_plane_output = 254;
+        bool keep_previous_plane_pts = true;
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);    
@@ -59,6 +60,7 @@ protected:
         vec_pt3d pt_cloud;
         vec_plane planes;
         void clear() { pt_cloud.clear(); planes.clear(); }
+        void swap(scene& ref) { pt_cloud.swap(ref.pt_cloud); planes.swap(ref.planes); }
     };
 
     rs_sf_intrinsics m_intrinsics;
@@ -81,6 +83,7 @@ private:
     void sort_plane_size(vec_plane& planes, vec_plane_ref& sorted_planes);
 
     // plane tracking
+    void save_previous_scene_as_reference();
     void find_candidate_plane_from_past(scene& current_view, scene& past_view);
     void combine_planes_from_the_same_past(scene& current_view, scene& past_view);
     void assign_planes_pid(vec_plane_ref& sorted_planes);

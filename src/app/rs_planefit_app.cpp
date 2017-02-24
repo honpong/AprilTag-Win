@@ -16,7 +16,7 @@ int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image& bkg_
 
 int main(int argc, char* argv[])
 {
-    return run_planefit_live();
+    //return run_planefit_live();
 
     std::string path = "c:\\temp\\shapefit\\e\\";
     //capture_frames(path);
@@ -212,6 +212,10 @@ int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image & bkg
 {
     rs_sf_image_rgb rgb(&bkg_image);
     rs_sf_planefit_draw_planes(planefitter, &rgb, &bkg_image);
-    cv::imshow("planes", cv::Mat(rgb.img_h, rgb.img_w, CV_8UC3, rgb.data));
+    cv::Mat disp(rgb.img_h, rgb.img_w, CV_8UC3, rgb.data);
+    cv::imshow("planes", disp);
+
+    cv::imwrite("C:\\temp\\shapefit\\e\\tail_plane_" + 
+        std::to_string(rgb.frame_id) + ".png", disp);
     return cv::waitKey(1);
 }

@@ -32,8 +32,8 @@ extern "C"
         int img_w, img_h, byte_per_pixel;
         int frame_id;
 
-        int num_pixel() { return img_w * img_h; }
-        int num_char() { return num_pixel() * byte_per_pixel; }
+        int num_pixel() const { return img_w * img_h; }
+        int num_char() const { return num_pixel() * byte_per_pixel; }
     };
 
     enum rs_sf_status {
@@ -53,9 +53,26 @@ extern "C"
     RS_SHAPEFIT_DECL void rs_sf_planefit_delete(rs_sf_planefit* obj);
 
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_depth_image(rs_sf_planefit* obj, const rs_sf_image* image, rs_sf_planefit_option option = RS_SF_PLANEFIT_OPTION_TRACK);
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_planes(const rs_sf_planefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr);
 
 #ifdef __cplusplus
 }
+
+#include <memory>
+
+template<int Channel>
+struct rs_sf_image_auto : public rs_sf_image
+{
+    rs_sf_image_auto(const rs_sf_image* ref) : rs_sf_image(*ref) {
+        byte_per_pixel = Channel;
+        data = (src = std::make_unique<unsigned char[]>(num_char())).get();
+    }
+    std::unique_ptr<unsigned char[]> src;
+};
+
+typedef rs_sf_image_auto<1> rs_sf_image_mono;
+typedef rs_sf_image_auto<3> rs_sf_image_rgb;
+
 #endif
 
 #endif //rs_shapefit_h

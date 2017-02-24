@@ -1,7 +1,5 @@
 #pragma once
 #include "rs_sf_util.h"
-#include <vector>
-#include <list>
 
 struct rs_sf_planefit
 {
@@ -19,15 +17,18 @@ struct rs_sf_planefit
         int candidate_y_dn_sample = 16;
         float max_fit_err_thr = 30.0f;
         float max_normal_thr = 0.7f;
-        int min_num_plane_pt = 200;
+        int min_num_plane_pt = 150;
         float min_z_value = 100.0f;
-        int max_num_plane_output = 255;
+        float max_z_value = 2500.0f;
+        int max_num_plane_output = 254;
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);    
     rs_sf_status process_depth_image(const rs_sf_image* img);
     rs_sf_status track_depth_image(const rs_sf_image* img);
+
     int num_detected_planes() const;
+    rs_sf_status get_plane_index_map(rs_sf_image* map, int hole_filled = 0) const; 
 
 protected:
 
@@ -53,6 +54,7 @@ protected:
     
     typedef std::vector<pt3d> vec_pt3d;
     typedef std::vector<plane> vec_plane;
+    typedef std::vector<plane*> vec_plane_ref;
     struct scene {
         vec_pt3d pt_cloud;
         vec_plane planes;
@@ -63,8 +65,7 @@ protected:
     parameter m_param;
     scene m_view, m_ref_scene;
     vec_pt_ref m_inlier_buf;
-
-    std::vector<plane*> m_tracked_pid;
+    vec_plane_ref m_tracked_pid, m_sorted_plane_ptr;
 
 private:
     
@@ -77,14 +78,17 @@ private:
     void grow_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& plane_candidates);
     void test_planecandidate(vec_pt3d& pt_cloud, vec_plane& plane_candidates);
     void non_max_plane_suppression(vec_pt3d& pt_cloud, vec_plane& plane_candidates);
-    void sort_plane_size(vec_plane& planes);
+    void sort_plane_size(vec_plane& planes, vec_plane_ref& sorted_planes);
 
     // plane tracking
     void find_candidate_plane_from_past(scene& current_view, scene& past_view);
     void combine_planes_from_the_same_past(scene& current_view, scene& past_view);
-    void assign_planes_pid(vec_plane& planes);
+    void assign_planes_pid(vec_plane_ref& sorted_planes);
+    bool is_tracked_pid(int pid);
+
+    // output utility 
+    void upsize_pt_cloud_to_plane_map(const vec_pt3d& img_pt_cloud, rs_sf_image* dst) const;
 
     // debug only
     rs_sf_image ref_img;
-    void visualize(vec_plane& planes);
 };

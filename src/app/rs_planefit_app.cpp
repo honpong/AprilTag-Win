@@ -5,19 +5,20 @@
 #include "json/json.h"
 #include "rs_shapefit.h"
 
-const int image_set_size = 20;
+const int image_set_size = 200;
 
 struct frame_data { cv::Mat src[2]; rs_sf_image images[2]; rs_sf_intrinsics depth_intrinsics; };
 int planefit_one_frame(rs_sf_image* images, rs_sf_intrinsics* depth_intrinsics);
 int capture_frames(const std::string& path);
 frame_data load_one_frame(const std::string& path, const int frame_num = -1);
 int run_planefit_live();
+int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image& bkg_image);
 
 int main(int argc, char* argv[])
 {
     return run_planefit_live();
 
-    std::string path = "c:\\temp\\shapefit\\d\\";
+    std::string path = "c:\\temp\\shapefit\\e\\";
     //capture_frames(path);
     //planefit_one_frame(data.images, &data.depth_intrinsics);
 
@@ -27,6 +28,9 @@ int main(int argc, char* argv[])
         auto data = load_one_frame(path, i);
         if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
         rs_sf_planefit_depth_image(planefitter, data.images /*, RS_SF_PLANEFIT_OPTION_RESET */);
+
+        if (display_planes_and_wait(planefitter, data.images[1]) == 'q')
+            break;
     }
     rs_sf_planefit_delete(planefitter);
     return 0;
@@ -48,6 +52,7 @@ frame_data load_one_frame(const std::string& path, const int frame_num)
     input_images[1].img_w = ir_data.cols;
     input_images[1].img_h = ir_data.rows;
     input_images[1].byte_per_pixel = 1;
+    input_images[0].frame_id = input_images[1].frame_id = frame_num;
 
     ////////////////////////////////////////////////////////////////////////////////
     Json::Value calibration_data;
@@ -173,8 +178,7 @@ int run_planefit_live(){
     dev.set_option(RS_OPTION_EMITTER_ENABLED, 1);
     dev.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
 
-    struct dataset { cv::Mat depth, ir, displ; };
-    std::deque<dataset> image_set;
+    cv::Mat prev_depth(480, 640, CV_16U);
     int frame_id = 0;
     while (1) {
         auto fs = syncer.wait_for_frames();
@@ -186,7 +190,7 @@ int run_planefit_live(){
 
         rs_sf_image image[2];
 
-        image[0].data = (unsigned char*)frames[RS_STREAM_DEPTH]->get_data();
+        image[0].data = prev_depth.data; // (unsigned char*)frames[RS_STREAM_DEPTH]->get_data();
         image[1].data = (unsigned char*)frames[RS_STREAM_INFRARED]->get_data();
         image[0].img_w = image[1].img_w = frames[RS_STREAM_DEPTH]->get_width();
         image[0].img_h = image[1].img_h = frames[RS_STREAM_DEPTH]->get_height();
@@ -195,9 +199,19 @@ int run_planefit_live(){
         image[0].frame_id = image[1].frame_id = frame_id++;
 
         rs_sf_planefit_depth_image(planefitter, image /*, RS_SF_PLANEFIT_OPTION_RESET*/);
-        if (cv::waitKey(1) == 'q') break;
+        if (display_planes_and_wait(planefitter, image[1]) == 'q') break;
+
+        memcpy(prev_depth.data, frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char());
     }
 
     if (planefitter) rs_sf_planefit_delete(planefitter);
     return 0;
+}
+
+int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image & bkg_image)
+{
+    rs_sf_image_rgb rgb(&bkg_image);
+    rs_sf_planefit_draw_planes(planefitter, &rgb, &bkg_image);
+    cv::imshow("planes", cv::Mat(rgb.img_h, rgb.img_w, CV_8UC3, rgb.data));
+    return cv::waitKey(1);
 }

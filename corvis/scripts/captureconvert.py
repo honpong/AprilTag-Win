@@ -19,8 +19,9 @@ rc_IMAGE_DEPTH16 = 1
 use_depth = True
 depth_time_offset = 0
 wait_for_image = False
+scale_units = False
 try:
-    opts, (path, output_filename) = getopt.gnu_getopt(sys.argv[1:], "Do:", ["no-depth", "depth-offset=", "wait-for-image"])
+    opts, (path, output_filename) = getopt.gnu_getopt(sys.argv[1:], "Do:", ["no-depth", "depth-offset=", "wait-for-image", "scale-units"])
     for o,v in opts:
         if o in ("-D", "--no-depth"):
             use_depth = False;
@@ -28,9 +29,11 @@ try:
             depth_time_offset = float(v)
         elif o in ("-w", "--wait-for-image"):
             wait_for_image = True
+        elif o in ("-s", "--scale-units"):
+            scale_units = True
 except Exception as e:
     print e
-    print sys.argv[0], "[--no-depth] [--depth-offset=<N>] [--wait-for-image] <intel_folder> <output_filename>"
+    print sys.argv[0], "[--no-depth] [--depth-offset=<N>] [--wait-for-image] [--scale-units] <intel_folder> <output_filename>"
     sys.exit(1)
 
 def read_chunk_info(filename):
@@ -44,7 +47,12 @@ def read_image_timestamps(filename, image_type, fixed_filename = None, data_leng
     rows = []
     z = 0
     with open(filename, 'rb') as f:
+        has_header = csv.Sniffer().has_header(f.read(1024))
+        f.seek(0)
         for line in f.xreadlines():
+            if has_header:
+                has_header = False
+                continue
             row = line.split()
             if len(row) == 2:
                 (filename, timestamp) = row
@@ -70,9 +78,14 @@ def read_csv_timestamps(filename, ptype):
     #gyro is timestamp, wx, wy, wz
     rows = []
     with open(filename, 'rb') as csvfile:
+        has_header = csv.Sniffer().has_header(csvfile.read(1024))
+        csvfile.seek(0)
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
-            (timestamp, x, y, z) = row
+            if has_header:
+                has_header = False
+                continue
+            (timestamp, x, y, z) = row[:4]
             rows.append([float(timestamp), ptype, float(x), float(y), float(z)])
     return rows
 
@@ -143,9 +156,15 @@ with open(output_filename, "wb") as f:
             stride = b*w
             data = pack('QHHHH', 0*33333333, w, h, stride, image_type) + d
         elif ptype == gyro_type:
-            data = pack('fff', line[2], line[3], line[4])
+            if scale_units:
+                data = pack('fff', line[2] * math.pi / 180, line[3] * math.pi / 180, line[4] * math.pi / 180)
+            else:
+                data = pack('fff', line[2], line[3], line[4])
         elif ptype == accel_type:
-            data = pack('fff', line[2], line[3], line[4])
+            if scale_units:
+                data = pack('fff', line[2] * 9.8065, line[3] * 9.8065, line[4] * 9.8065)
+            else:
+                data = pack('fff', line[2], line[3], line[4])
         else:
             print "Unexpected data type", ptype
         pbytes = len(data) + 16

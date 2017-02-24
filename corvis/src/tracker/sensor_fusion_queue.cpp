@@ -247,7 +247,14 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
     total_in++;
     newest_received = std::max(x.timestamp, newest_received);
 
-    sensor_stats &s = stats.emplace(global_id, sensor_stats{std::chrono::microseconds(0)}).first->second;
+#ifdef __cpp_lib_unordered_map_try_emplace
+    sensor_stats &s = stats.try_emplace(global_id, sensor_stats{std::chrono::microseconds(0)}).first->second;
+#else
+    auto i = stats.find(global_id);
+    if (i == stats.end())
+        i = stats.emplace_hint(i, global_id, sensor_stats{std::chrono::microseconds(0)});
+    sensor_stats &s = i->second;
+#endif
 
     s.receive(newest_received, x.timestamp);
 

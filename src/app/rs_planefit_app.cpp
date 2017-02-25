@@ -5,6 +5,7 @@
 #include "json/json.h"
 #include "rs_shapefit.h"
 
+std::string path = "c:\\temp\\shapefit\\a\\";
 const int image_set_size = 200;
 
 struct frame_data { cv::Mat src[2]; rs_sf_image images[2]; rs_sf_intrinsics depth_intrinsics; };
@@ -16,11 +17,8 @@ int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image& bkg_
 
 int main(int argc, char* argv[])
 {
-     return run_planefit_live();
-
-    std::string path = "c:\\temp\\shapefit\\e\\";
+    //return run_planefit_live();
     //capture_frames(path);
-    //planefit_one_frame(data.images, &data.depth_intrinsics);
 
     rs_sf_planefit* planefitter = nullptr;
     for (int i = 0; i < image_set_size; ++i)
@@ -208,6 +206,7 @@ int run_planefit_live(){
         if (display_planes_and_wait(planefitter, image[1], last_frame_compute_time.count()) == 'q') break;
 
         memcpy(prev_depth.data, frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char());
+        cv::medianBlur(prev_depth, prev_depth, 5);
     }
 
     if (planefitter) rs_sf_planefit_delete(planefitter);
@@ -219,14 +218,13 @@ int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image & bkg
     rs_sf_image_rgb rgb(&bkg_image);
     rs_sf_planefit_draw_planes(planefitter, &rgb, &bkg_image);
 
-    //cv::imwrite("C:\\temp\\shapefit\\e\\tail_plane_" + std::to_string(rgb.frame_id) + ".png", disp);
-
     cv::Mat disp(rgb.img_h, rgb.img_w, CV_8UC3, rgb.data);
 
     auto time_str = std::to_string(compute_time_ms);
-    cv::putText(disp, time_str.substr(0, time_str.find_first_of(".") + 2) + "ms", 
+    cv::putText(disp, time_str.substr(0, time_str.find_first_of(".") + 2) + "ms",
         cv::Point(8, 25), CV_FONT_NORMAL, 1, cv::Scalar(255, 255, 255));
 
+    cv::imwrite(path + "tail_plane_" + std::to_string(rgb.frame_id) + ".png", disp);
     cv::imshow("planes", disp);
 
     return cv::waitKey(1);

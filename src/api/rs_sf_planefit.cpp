@@ -401,9 +401,18 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
                 em += dp * dp.transpose();
             }
 
-            float D[6] = { em(0,0),em(0,1),em(0,2),em(1,1),em(1,2),em(2,2) }, u[3], v[3][3];
-            eigen_3x3_real_symmetric(D, u, v);
-            v3 normal(v[2][0], v[2][1], v[2][2]);
+            //float D[6] = { em(0,0),em(0,1),em(0,2),em(1,1),em(1,2),em(2,2) }, ui[3], vi[3][3];
+            //eigen_3x3_real_symmetric(D, ui, vi);
+            //v3 normal(vi[0][0], vi[0][1], vi[0][2]);
+            //if (std::abs(ui[2]) < std::min(std::abs(ui[1]), std::abs(ui[0]))) normal = v3(vi[1][0], vi[1][1], vi[1][2]);
+            //else if (std::abs(ui[1]) < std::abs(ui[0])) normal = v3(vi[2][0], vi[2][1], vi[2][2]);
+
+            Eigen::EigenSolver<Eigen::Matrix3f> solver(em);
+            auto vi = solver.eigenvectors().real();
+            auto ui = solver.eigenvalues().real();
+            v3 normal = vi.col(0);
+            if (std::abs(ui[2]) < std::min(std::abs(ui[1]), std::abs(ui[0]))) normal = vi.col(2);
+            else if (std::abs(ui[1]) < std::abs(ui[0])) normal = vi.col(1);
 
             current_view.planes.emplace_back(normal, -center->pos.dot(normal), center, INVALID_PID, &past_plane);
         }

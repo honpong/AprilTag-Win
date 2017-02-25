@@ -52,8 +52,8 @@ public:
 class observation_vision_feature: public observation_storage<2> {
  private:
     f_t projection_residual(const v3 & X, const feature_t &found);
-    const state_vision_intrinsics &intrinsics;
     const state_extrinsics &extrinsics;
+    const state_vision_intrinsics &intrinsics;
  public:
     m3 Rrt, Rct;
     v3 X0, X;

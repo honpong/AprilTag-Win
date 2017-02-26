@@ -21,7 +21,9 @@ struct rs_sf_planefit
         float min_z_value = 100.0f;
         float max_z_value = 2500.0f;
         int max_num_plane_output = 254;
-        bool keep_previous_plane_pts = true;
+        bool keep_previous_plane_pts = false;
+        int track_x_dn_sample = 16 * 8;
+        int track_y_dn_sample = 16 * 8;
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);    

@@ -14,7 +14,7 @@ rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera)
 
 rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
 {
-    if (!img || img->byte_per_pixel != 2) return RS_SF_INVALID_ARG;
+    if (!img || !img->data || img->byte_per_pixel != 2 ) return RS_SF_INVALID_ARG;
 
     // for debug
     ref_img = img[1];
@@ -33,15 +33,12 @@ rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
     sort_plane_size(m_view.planes, m_sorted_plane_ptr);
     assign_planes_pid(m_sorted_plane_ptr);
 
-    //debug drawing
-    //visualize(m_view.planes);
-
     return RS_SF_SUCCESS;
 }
 
 rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
 {
-    if (!img || img->byte_per_pixel != 2) return RS_SF_INVALID_ARG;
+    if (!img || !img->data || img->byte_per_pixel != 2) return RS_SF_INVALID_ARG;
 
     // for debug 
     ref_img = img[1];
@@ -61,9 +58,6 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     combine_planes_from_the_same_past(m_view, m_ref_scene);
     sort_plane_size(m_view.planes, m_sorted_plane_ptr);
     assign_planes_pid(m_sorted_plane_ptr);
-
-    // debug drawing
-    //visualize(m_view.planes);
 
     return RS_SF_SUCCESS;
 }
@@ -381,8 +375,8 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
                         best_inlier_to_past_center = &current_pt;
                     }
 
-                    if ((past_pt->px % src_w) % (m_param.candidate_x_dn_sample * 4) == 0 &&
-                        (past_pt->px / src_w) % (m_param.candidate_y_dn_sample * 4) == 0)
+                    if ((past_pt->px % src_w) % (m_param.track_x_dn_sample) == 0 &&
+                        (past_pt->px / src_w) % (m_param.track_y_dn_sample) == 0)
                     {
                         auto d = -current_pt.pos.dot(current_pt.normal);
                         current_view.planes.emplace_back(current_pt.normal, d, &current_pt, INVALID_PID, &past_plane);

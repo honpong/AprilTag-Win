@@ -4,6 +4,7 @@
 #include <fstream>
 #include "json/json.h"
 #include "rs_shapefit.h"
+#include "example.hpp"
 
 std::string path = "c:\\temp\\shapefit\\a\\";
 const int image_set_size = 200;
@@ -14,9 +15,11 @@ int capture_frames(const std::string& path);
 frame_data load_one_frame(const std::string& path, const int frame_num = -1);
 int run_planefit_live();
 int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image& bkg_image, float compute_time_ms);
+int loop();
 
 int main(int argc, char* argv[])
 {
+    return loop();
     //return run_planefit_live();
     //capture_frames(path);
 
@@ -230,3 +233,82 @@ int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image & bkg
 
     return cv::waitKey(1);
 }
+
+int loop() try
+{
+    rs_sf_planefit* planefitter = nullptr;
+    texture_buffer buffers[RS_STREAM_COUNT];
+    glfwInit();
+
+    auto win = glfwCreateWindow(1280, 480, path.c_str(), nullptr, nullptr);
+    glfwMakeContextCurrent(win);
+
+    int frame_num = 0;
+    while (!glfwWindowShouldClose(win))
+    {
+        // Wait for new images
+        glfwPollEvents();
+
+        // Clear the framebuffer
+        int w, h;
+        glfwGetFramebufferSize(win, &w, &h);
+        glViewport(0, 0, w, h);
+        glClear(GL_COLOR_BUFFER_BIT);
+
+        // Draw the images
+        glPushMatrix();
+        glfwGetWindowSize(win, &w, &h);
+        glOrtho(0, w, h, 0, -1, +1);
+
+        //auto frames = syncer.wait_for_frames();
+
+        auto data = load_one_frame(path, frame_num++);
+        if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
+        auto start_time = std::chrono::steady_clock::now();
+        if (rs_sf_planefit_depth_image(planefitter, data.images  /*, RS_SF_PLANEFIT_OPTION_RESET */))
+            break;
+        std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
+
+        rs_sf_image_rgb rgb(&data.images[1]);
+        rs_sf_planefit_draw_planes(planefitter, &rgb, &data.images[1]);
+
+        auto index = 0;
+        auto tiles = static_cast<int>(ceil(sqrt(2)));// frames.size())));
+        auto tile_w = static_cast<float>(w) / tiles;
+        auto tile_h = static_cast<float>(h) / 1;
+
+        //for (auto&& frame : frames)
+        rs_stream stream_type[] = { RS_STREAM_INFRARED, RS_STREAM_COLOR };
+        rs_format stream_format[] = { RS_FORMAT_RAW8, RS_FORMAT_RGB8 };
+        rs_sf_image disp[2] = { data.images[1], rgb };
+       
+        for (auto& frame : disp)
+        {
+            auto col_id = index / tiles;
+            auto row_id = index % tiles;
+
+            buffers[stream_type[index]].upload((void*)frame.data, frame.img_w, frame.img_h, stream_format[index]);
+            buffers[stream_type[index]].show({ row_id * tile_w, col_id * tile_h, tile_w, tile_h }, 1);
+
+            index++;
+        }
+
+        glPopMatrix();
+        glfwSwapBuffers(win);
+    }
+
+    glfwDestroyWindow(win);
+    glfwTerminate();
+    return EXIT_SUCCESS;
+}
+catch (const rs::error & e)
+{
+    std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
+    return EXIT_FAILURE;
+}
+catch (const std::exception & e)
+{
+    std::cerr << e.what() << std::endl;
+    return EXIT_FAILURE;
+}
+

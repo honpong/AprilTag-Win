@@ -20,6 +20,7 @@ endif ()
 
 if(MSVC)
   add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
+  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 foreach(flag_var
         CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
@@ -66,6 +67,37 @@ SET(JSON_INC_DIR ${THIRDPARTY_DIR}/Json/include)
 SET(JSON_SRC "${JSON_SRC_DIR}/jsoncpp.cpp")
 SET(OpenCV_STATIC ON)
 find_package(OPENCV REQUIRED)
+find_package(OpenGL REQUIRED)
+
+if(WIN32)
+    add_subdirectory(${THIRDPARTY_DIR}/glfw)
+    #list(APPEND DEPENDENCIES glfw3)
+else()
+    # Find glfw header
+    find_path(GLFW_INCLUDE_DIR NAMES GLFW/glfw3.h
+        PATHS /usr/X11R6/include
+              /usr/include/X11
+              /opt/graphics/OpenGL/include
+              /opt/graphics/OpenGL/contrib/libglfw
+              /usr/local/include
+              /usr/include/GL
+              /usr/include
+    )
+    # Find glfw library
+    find_library(GLFW_LIBRARIES NAMES glfw glfw3
+            PATHS /usr/lib64
+                  /usr/lib
+                  /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}
+                  /usr/local/lib64
+                  /usr/local/lib
+                  /usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
+                  /usr/X11R6/lib
+    )
+    #list(APPEND DEPENDENCIES m ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES})
+    #include_directories(${GLFW_INCLUDE_DIR})
+endif()
+
+
 link_directories(${LIBREALSENSE_DIR}/lib/${CMAKE_VS_PLATFORM_NAME})
 
 ############################################################################################################
@@ -83,8 +115,10 @@ target_link_libraries(shapefit_api PRIVATE ${OpenCV_LIBS})
 
 #############################################################################################################
 FILE(GLOB SHAPEFIT_APP_SRC "${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp")
+FILE(GLOB SHAPEFIT_APP_HDR "${CMAKE_CURRENT_SOURCE_DIR}/app/*.hpp")
 add_executable(shapefit_app 
     ${SHAPEFIT_APP_SRC}
+	${SHAPEFIT_APP_HDR}
     ${JSON_SRC})
 set_property(TARGET shapefit_app PROPERTY CXX_STANDARD 14)
 include_directories(
@@ -92,7 +126,7 @@ include_directories(
     ${EIGEN_DIR} 
     ${LIBREALSENSE_DIR}/include
     ${JSON_INC_DIR})
-target_link_libraries(shapefit_app PUBLIC shapefit_api PRIVATE ${OpenCV_LIBS} ${LIBREALSENSE_LIB})
+target_link_libraries(shapefit_app PUBLIC shapefit_api PRIVATE ${OpenCV_LIBS} ${LIBREALSENSE_LIB} ${OPENGL_LIBRARIES} glfw3)
 add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit_api>" "$<TARGET_FILE_DIR:shapefit_app>")
 
 IF(WIN32)

@@ -27,7 +27,8 @@ int main(int argc, char* argv[])
         if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
 
         auto start_time = std::chrono::steady_clock::now();
-        rs_sf_planefit_depth_image(planefitter, data.images  /*, RS_SF_PLANEFIT_OPTION_RESET */);
+        if (rs_sf_planefit_depth_image(planefitter, data.images  /*, RS_SF_PLANEFIT_OPTION_RESET */))
+            break;
         std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
         printf("frame %d, duration %.2f ms\n", data.images[0].frame_id, last_frame_compute_time.count());
 
@@ -148,7 +149,7 @@ int capture_frames(const std::string& path) {
 
     Json::Value root;
     root["depth_cam"]["intrinsics"] = json_intr;
-    root["depth_cam"]["num_frame"] = image_set_size;
+    root["depth_cam"]["num_frame"] = (int)image_set.size();
 
     try {
         Json::StyledStreamWriter writer;
@@ -201,7 +202,7 @@ int run_planefit_live(){
         image[0].frame_id = image[1].frame_id = frame_id++;
 
         auto start_time = std::chrono::steady_clock::now();
-        rs_sf_planefit_depth_image(planefitter, image /*,RS_SF_PLANEFIT_OPTION_RESET*/ );
+        if (rs_sf_planefit_depth_image(planefitter, image /*,RS_SF_PLANEFIT_OPTION_RESET*/)) break;
         std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
         if (display_planes_and_wait(planefitter, image[1], last_frame_compute_time.count()) == 'q') break;
 

@@ -2,14 +2,17 @@ cmake_minimum_required(VERSION 3.7.0 FATAL_ERROR)
 
 project(shapefit_api C CXX)
 
-############################################################################################################
+#############################################################################################
 SET(THIRDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty)
 SET(EIGEN_DIR ${THIRDPARTY_DIR}/eigen)
-SET(SHAPEFIT_API_HDR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inc CACHE STRING "SHAPEFIT_API_HDR_DIR")
+SET(SHAPEFIT_API_HDR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inc CACHE STRING "")
 SET(OpenCV_STATIC ON)
 find_package(OPENCV QUIET)
+if(OPENCV_FOUND OR OpenCV_FOUND)
+	add_definitions(-DOPENCV_FOUND)
+endif()
 
-############################################################################################################
+#############################################################################################
 include_directories(
     ${OPENCV_INCLUDE_DIR} 
     ${EIGEN_DIR} 

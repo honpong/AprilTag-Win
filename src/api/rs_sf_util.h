@@ -7,6 +7,9 @@
 #include <list>
 #include <vector>
 #include <memory>
+#if defined(OPENCV_FOUND) | defined(OpenCV_FOUND)
+#include <opencv2/opencv.hpp>
+#endif
 
 void set_to_zeros(rs_sf_image* img);
 void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3]);

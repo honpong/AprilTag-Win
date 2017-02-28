@@ -27,11 +27,10 @@ add_executable(shapefit_app
 	${SHAPEFIT_APP_HDR}
     ${JSON_SRC})
 set_property(TARGET shapefit_app PROPERTY CXX_STANDARD 14)
-
 target_link_libraries(shapefit_app PUBLIC shapefit_api PRIVATE ${LIBREALSENSE_LIB} ${OPENGL_LIBRARIES} glfw3)
-add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit_api>" "$<TARGET_FILE_DIR:shapefit_app>")
-add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LIBREALSENSE_BIN_PATH}/${LIBREALSENSE_LIB}.dll" "$<TARGET_FILE_DIR:shapefit_app>")
 
 IF(WIN32)
+add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit_api>" "$<TARGET_FILE_DIR:shapefit_app>")
+add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LIBREALSENSE_BIN_PATH}/${LIBREALSENSE_LIB}.dll" "$<TARGET_FILE_DIR:shapefit_app>")
 set_target_properties(shapefit_app PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
 ENDIF()

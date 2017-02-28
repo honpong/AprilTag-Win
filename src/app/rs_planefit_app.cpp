@@ -25,9 +25,13 @@ struct frame_data {
     rs_sf_image images[2];
     rs_sf_intrinsics depth_intrinsics;
     std::unique_ptr<unsigned char[]> src[2];
+    int num_frame;
 
     frame_data(const std::string& path, const int frame_num)
     {
+        this->depth_intrinsics = read_calibration(path, num_frame);
+        if (num_frame <= frame_num) return;
+
         const auto suffix = std::to_string(frame_num) + ".pgm";
         const auto depth_data = rs_sf_image_read(path + "depth_" + suffix, frame_num);
         const auto ir_data = rs_sf_image_read(path + "ir_" + suffix, frame_num);
@@ -43,11 +47,16 @@ struct frame_data {
         this->images[1].img_h = ir_data->img_h;
         this->images[1].byte_per_pixel = 1;
         this->images[0].frame_id = this->images[1].frame_id = frame_num;
-
-        this->depth_intrinsics = read_calibration(path);
     }
 
-    static rs_sf_intrinsics read_calibration(const std::string& path)
+    static void write_frame(const std::string& path, const rs_sf_image* depth, const rs_sf_image* ir, const rs_sf_image* displ)
+    {
+        rs_sf_image_write(path + "depth_" + std::to_string(depth->frame_id) + ".pgm", depth);
+        rs_sf_image_write(path + "ir_" + std::to_string(ir->frame_id) + ".pgm", ir);
+        rs_sf_image_write(path + "displ_" + std::to_string(displ->frame_id) + ".pgm", displ);
+    }
+
+    static rs_sf_intrinsics read_calibration(const std::string& path, int& num_frame)
     {
         rs_sf_intrinsics depth_intrinsics;
         Json::Value calibration_data;
@@ -62,6 +71,8 @@ struct frame_data {
         depth_intrinsics.cam_py = json_depth_intrinsics["ppy"].asFloat();
         depth_intrinsics.img_w = json_depth_intrinsics["width"].asInt();
         depth_intrinsics.img_h = json_depth_intrinsics["height"].asInt();
+
+        num_frame = calibration_data["depth_cam"]["num_frame"].asInt();
         return depth_intrinsics;
     }
 
@@ -146,10 +157,8 @@ int capture_frames(const std::string& path) {
     int frame_id = 0;
     for (auto& dataset : image_set) {
         printf("\r writing frame %d    ", frame_id);
-        std::string suffix = std::to_string(frame_id++) + ".pgm";
-        rs_sf_image_write(path + "depth_" + suffix, dataset.depth.get());
-        rs_sf_image_write(path + "ir_" + suffix, dataset.ir.get());
-        rs_sf_image_write(path + "displ_" + suffix, dataset.displ.get());
+        dataset.depth->frame_id = dataset.ir->frame_id = dataset.displ->frame_id = frame_id++;
+        frame_data::write_frame(path, dataset.depth.get(), dataset.ir.get(), dataset.displ.get());
     }
     printf("\n");
 
@@ -232,6 +241,8 @@ int run_planefit_offline(const std::string& path)
     while (true)
     {
         frame_data data(path, frame_num++);
+        if (data.src[0] == nullptr) break;
+
         if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
         auto start_time = std::chrono::steady_clock::now();
         if (rs_sf_planefit_depth_image(planefitter, data.images  /*, RS_SF_PLANEFIT_OPTION_RESET */))

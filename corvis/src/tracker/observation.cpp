@@ -101,7 +101,7 @@ bool observation_queue::update_state_and_covariance(state_root &s, const matrix 
     f_t rcond = matrix_check_condition(res_cov);
     if(rcond < .001) { fprintf(stderr, "observation covariance matrix not well-conditioned before computing gain! rcond = %e\n", rcond);}
 #endif
-    if(kalman_compute_gain(K, HP, res_cov, res_tmp))
+    if(kalman_compute_gain(K, HP, res_cov))
     {
         state.resize(1, s.cov.size());
         s.copy_state_to_array(state);

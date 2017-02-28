@@ -8,15 +8,13 @@
 #include "matrix.h"
 #include <string.h>
 
-bool kalman_compute_gain(matrix &K, const matrix &HP, const matrix &S, matrix &tmp)
+bool kalman_compute_gain(matrix &K, const matrix &HP, matrix &S)
 {
     //K = P * H' * inv(S)
     //Lapack uses column-major ordering, so we feed it PH' and get K directly, in the form X * A = B' rather than A' * X = B
     K.resize(HP.cols(), HP.rows());
     K.map() = HP.map().transpose();
-    tmp.resize(S.rows(), S.cols());
-    tmp.map() = S.map();
-    return matrix_solve(tmp, K); // K = K inv(tmp), tmp is destroyed
+    return matrix_solve(S, K); // K = K inv(S), S is destroyed
 }
 
 void kalman_update_state(matrix &state, const matrix &K, const matrix &inn)

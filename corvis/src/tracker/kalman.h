@@ -8,7 +8,7 @@
 
 #include "matrix.h"
 
-bool kalman_compute_gain(matrix &K, const matrix &HP, const matrix &S, matrix &tmp);
+bool kalman_compute_gain(matrix &K, const matrix &HP, matrix &S);
 void kalman_update_state(matrix &state, const matrix &K, const matrix &inn);
 void kalman_update_covariance(matrix &P, const matrix &K, const matrix &HP);
 

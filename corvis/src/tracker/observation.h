@@ -183,7 +183,6 @@ protected:
     matrix HP      {(f_t*)     HP_storage, MAXOBSERVATIONSIZE,       MAXSTATESIZE, MAXOBSERVATIONSIZE,       MAXSTATESIZE };
     matrix K       {(f_t*)      K_storage, MAXSTATESIZE,       MAXOBSERVATIONSIZE,       MAXSTATESIZE, MAXOBSERVATIONSIZE };
     matrix res_cov {(f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE };
-    matrix res_tmp {(f_t*)res_tmp_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE };
 
     alignas(64) f_t state_storage[MAXSTATESIZE];
     alignas(64) f_t inn_storage[MAXOBSERVATIONSIZE];
@@ -191,7 +190,6 @@ protected:
     alignas(64) f_t HP_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
     alignas(64) f_t K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
     alignas(64) f_t res_cov_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
-    alignas(64) f_t res_tmp_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
 };
 
 //some object should have functions to evolve the mean and covariance

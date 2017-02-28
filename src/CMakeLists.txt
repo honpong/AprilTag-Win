@@ -43,94 +43,39 @@ set(CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTL
 set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:libcmtd.lib")
 endif()
 
-macro(target_link_libraries_copied target)
-  target_link_libraries(${target} ${ARGN})
-  if (MSVC)
-    foreach(__lib__ ${ARGN})
-      if (NOT __lib__ MATCHES "^(PRIVATE|PUBLIC|INTERFACE)$")
-        add_custom_command(TARGET ${target} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${__lib__}>" "$<TARGET_FILE_DIR:${target}>")
-        set_target_properties(${target} PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "$<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_NAME:${__lib__}>") # FIXME: Generator Expressions not supported here
-      endif()
-    endforeach()
-  endif()
-endmacro()
+############################################################################################################
+add_subdirectory(api)
 
 ############################################################################################################
 option(BUILD_SAMPLE_APP "Build Sample App" ON)
-SET(THIRDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
-SET(EIGEN_DIR ${THIRDPARTY_DIR}/eigen)
-SET(LIBREALSENSE_VER "v2.3.3")
-SET(LIBREALSENSE_DIR ${THIRDPARTY_DIR}/LibRealSense/Windows/${LIBREALSENSE_VER})
-SET(LIBREALSENSE_BIN_PATH ${LIBREALSENSE_DIR}/bin/${CMAKE_VS_PLATFORM_NAME})
-SET(LIBREALSENSE_LIB_PATH ${LIBREALSENSE_DIR}/lib/${CMAKE_VS_PLATFORM_NAME})
-SET(LIBREALSENSE_LIB realsense)
-SET(JSON_SRC_DIR ${THIRDPARTY_DIR}/Json/src)
-SET(JSON_INC_DIR ${THIRDPARTY_DIR}/Json/include)
-SET(JSON_SRC "${JSON_SRC_DIR}/jsoncpp.cpp")
-SET(OpenCV_STATIC ON)
-find_package(OPENCV QUIET)
-find_package(OpenGL REQUIRED)
-
-if(WIN32)
-    add_subdirectory(${THIRDPARTY_DIR}/glfw)
-    #list(APPEND DEPENDENCIES glfw3)
-else()
-    # Find glfw header
-    find_path(GLFW_INCLUDE_DIR NAMES GLFW/glfw3.h
-        PATHS /usr/X11R6/include
-              /usr/include/X11
-              /opt/graphics/OpenGL/include
-              /opt/graphics/OpenGL/contrib/libglfw
-              /usr/local/include
-              /usr/include/GL
-              /usr/include
-    )
-    # Find glfw library
-    find_library(GLFW_LIBRARIES NAMES glfw glfw3
-            PATHS /usr/lib64
-                  /usr/lib
-                  /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}
-                  /usr/local/lib64
-                  /usr/local/lib
-                  /usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
-                  /usr/X11R6/lib
-    )
-    #list(APPEND DEPENDENCIES m ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES})
-    #include_directories(${GLFW_INCLUDE_DIR})
+if(BUILD_SAMPLE_APP)
+    find_package(OpenGL REQUIRED)
+    if(WIN32)
+        add_subdirectory(thirdparty/glfw)
+        #list(APPEND DEPENDENCIES glfw3)
+    else()
+        # Find glfw header
+        find_path(GLFW_INCLUDE_DIR NAMES GLFW/glfw3.h
+            PATHS /usr/X11R6/include
+                /usr/include/X11
+                /opt/graphics/OpenGL/include
+                /opt/graphics/OpenGL/contrib/libglfw
+                /usr/local/include
+                /usr/include/GL
+                /usr/include
+        )
+        # Find glfw library
+        find_library(GLFW_LIBRARIES NAMES glfw glfw3
+                PATHS /usr/lib64
+                    /usr/lib
+                    /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}
+                    /usr/local/lib64
+                    /usr/local/lib
+                    /usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
+                    /usr/X11R6/lib
+        )
+        #list(APPEND DEPENDENCIES m ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES})
+        #include_directories(${GLFW_INCLUDE_DIR})
+    endif()
+    add_subdirectory(app)
 endif()
-
-############################################################################################################
-FILE(GLOB SHAPEFIT_API_SRC "${CMAKE_CURRENT_SOURCE_DIR}/api/*.cpp")
-FILE(GLOB SHAPEFIT_API_HDR "${CMAKE_CURRENT_SOURCE_DIR}/api/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/api/inc/*")
-add_library(shapefit_api SHARED 
-    ${SHAPEFIT_API_SRC}
-    ${SHAPEFIT_API_HDR})
-set_property(TARGET shapefit_api PROPERTY CXX_STANDARD 14)
-include_directories(
-    ${OPENCV_INCLUDE_DIR} 
-    ${EIGEN_DIR} 
-    ${CMAKE_CURRENT_SOURCE_DIR}/api/inc)
-target_link_libraries(shapefit_api PRIVATE ${OpenCV_LIBS})
-
-#############################################################################################################
-link_directories(${LIBREALSENSE_LIB_PATH})
-
-FILE(GLOB SHAPEFIT_APP_SRC "${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp")
-FILE(GLOB SHAPEFIT_APP_HDR "${CMAKE_CURRENT_SOURCE_DIR}/app/*.hpp")
-add_executable(shapefit_app 
-    ${SHAPEFIT_APP_SRC}
-	${SHAPEFIT_APP_HDR}
-    ${JSON_SRC})
-set_property(TARGET shapefit_app PROPERTY CXX_STANDARD 14)
-include_directories(
-    ${EIGEN_DIR} 
-    ${LIBREALSENSE_DIR}/include
-    ${JSON_INC_DIR})
-
-target_link_libraries(shapefit_app PUBLIC shapefit_api PRIVATE ${LIBREALSENSE_LIB} ${OPENGL_LIBRARIES} glfw3)
-add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit_api>" "$<TARGET_FILE_DIR:shapefit_app>")
-add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LIBREALSENSE_BIN_PATH}/${LIBREALSENSE_LIB}.dll" "$<TARGET_FILE_DIR:shapefit_app>")
-
-IF(WIN32)
-set_target_properties(shapefit_app PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
-ENDIF()

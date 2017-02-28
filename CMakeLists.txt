@@ -5,5 +5,7 @@ project(shapefit C CXX)
 add_subdirectory(src)
 
 if(MSVC)
-set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT shapefit_app)
+    if(BUILD_SAMPLE_APP)
+        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT shapefit_app)
+    endif()
 endif()

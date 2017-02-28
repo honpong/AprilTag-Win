@@ -1,64 +1,44 @@
 #include <librealsense/rs.hpp>
 #include <librealsense/rsutil.hpp>
-#include <opencv2/opencv.hpp>
 #include <fstream>
 #include "json/json.h"
 #include "rs_shapefit.h"
-#include "example.hpp"
+#include "rs_sf_image_io.h"
 
-std::string path = "c:\\temp\\shapefit\\a\\";
+std::string path = "c:\\temp\\shapefit\\f\\";
 const int image_set_size = 200;
 
-struct frame_data { cv::Mat src[2]; rs_sf_image images[2]; rs_sf_intrinsics depth_intrinsics; };
-int planefit_one_frame(rs_sf_image* images, rs_sf_intrinsics* depth_intrinsics);
+struct frame_data { rs_sf_image images[2]; std::unique_ptr<unsigned char[]> src[2]; rs_sf_intrinsics depth_intrinsics; };
 int capture_frames(const std::string& path);
-frame_data load_one_frame(const std::string& path, const int frame_num = -1);
+std::unique_ptr<frame_data> load_one_frame(const std::string& path, const int frame_num = -1);
 int run_planefit_live();
-int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image& bkg_image, float compute_time_ms);
-int loop();
+int run_planefit_offline(const std::string& path);
 
 int main(int argc, char* argv[])
 {
-    return loop();
     //return run_planefit_live();
-    //capture_frames(path);
-
-    rs_sf_planefit* planefitter = nullptr;
-    for (int i = 0; i < image_set_size; ++i)
-    {
-        auto data = load_one_frame(path, i);
-        if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
-
-        auto start_time = std::chrono::steady_clock::now();
-        if (rs_sf_planefit_depth_image(planefitter, data.images  /*, RS_SF_PLANEFIT_OPTION_RESET */))
-            break;
-        std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
-        printf("frame %d, duration %.2f ms\n", data.images[0].frame_id, last_frame_compute_time.count());
-
-        if (display_planes_and_wait(planefitter, data.images[1], last_frame_compute_time.count()) == 'q')
-            break;
-    }
-    rs_sf_planefit_delete(planefitter);
-    return 0;
+    capture_frames(path);
+    return run_planefit_offline(path);
 }
 
-frame_data load_one_frame(const std::string& path, const int frame_num)
+std::unique_ptr<frame_data> load_one_frame(const std::string& path, const int frame_num)
 {
-    frame_data r_data;
-    auto suffix = (frame_num >= 0 ? "_" + std::to_string(frame_num) : "") + ".png";
-    auto depth_data = r_data.src[0] = cv::imread(path + "depth" + suffix, CV_LOAD_IMAGE_UNCHANGED);
-    auto ir_data = r_data.src[1] = cv::imread(path + "ir" + suffix, CV_LOAD_IMAGE_UNCHANGED);
+    auto suffix = (frame_num >= 0 ? "_" + std::to_string(frame_num) : "") + ".pgm";
+    auto depth_data = rs_sf_image_read(path + "depth" + suffix, frame_num);
+    auto ir_data = rs_sf_image_read(path + "ir" + suffix, frame_num);
 
-    auto& input_images = r_data.images;
-    input_images[0].data = depth_data.data;
-    input_images[0].img_w = depth_data.cols;
-    input_images[0].img_h = depth_data.rows;
-    input_images[0].byte_per_pixel = 2;
-    input_images[1].data = ir_data.data;
-    input_images[1].img_w = ir_data.cols;
-    input_images[1].img_h = ir_data.rows;
-    input_images[1].byte_per_pixel = 1;
-    input_images[0].frame_id = input_images[1].frame_id = frame_num;
+    auto r_data = std::make_unique<frame_data>();
+    r_data->src[0] = std::move(depth_data->src);
+    r_data->src[1] = std::move(ir_data->src); 
+    r_data->images[0].data = depth_data->data;
+    r_data->images[0].img_w = depth_data->img_w;
+    r_data->images[0].img_h = depth_data->img_h;
+    r_data->images[0].byte_per_pixel = 2;
+    r_data->images[1].data = ir_data->data;
+    r_data->images[1].img_w = ir_data->img_w;
+    r_data->images[1].img_h = ir_data->img_h;
+    r_data->images[1].byte_per_pixel = 1;
+    r_data->images[0].frame_id = r_data->images[1].frame_id = frame_num;
 
     ////////////////////////////////////////////////////////////////////////////////
     Json::Value calibration_data;
@@ -67,7 +47,7 @@ frame_data load_one_frame(const std::string& path, const int frame_num)
     infile >> calibration_data;
 
     Json::Value json_depth_intrinsics = calibration_data["depth_cam"]["intrinsics"];
-    auto& depth_intrinsics = r_data.depth_intrinsics;
+    auto& depth_intrinsics = r_data->depth_intrinsics;
     depth_intrinsics.cam_fx = json_depth_intrinsics["fx"].asFloat();
     depth_intrinsics.cam_fy = json_depth_intrinsics["fy"].asFloat();
     depth_intrinsics.cam_px = json_depth_intrinsics["ppx"].asFloat();
@@ -75,16 +55,7 @@ frame_data load_one_frame(const std::string& path, const int frame_num)
     depth_intrinsics.img_w = json_depth_intrinsics["width"].asInt();
     depth_intrinsics.img_h = json_depth_intrinsics["height"].asInt();
 
-    return r_data;
-}
-
-int planefit_one_frame(rs_sf_image* input_images, rs_sf_intrinsics* depth_intrinsics)
-{
-    ////////////////////////////////////////////////////////////////////////////////
-    auto planefitter = rs_sf_planefit_create(depth_intrinsics);
-    rs_sf_planefit_depth_image(planefitter, input_images);
-    rs_sf_planefit_delete(planefitter);
-    return 0;
+    return std::move(r_data);
 }
 
 int capture_frames(const std::string& path) {
@@ -106,8 +77,11 @@ int capture_frames(const std::string& path) {
     dev.set_option(RS_OPTION_EMITTER_ENABLED, 1);
     dev.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
     
-    struct dataset { cv::Mat depth, ir, displ; };
+    struct dataset { std::unique_ptr<rs_sf_image_auto> depth, ir, displ; };
     std::deque<dataset> image_set;
+
+    rs_sf_gl_context win("display");
+
     while (1) {
         auto fs = syncer.wait_for_frames();
         if (fs.size() == 0) break;
@@ -116,28 +90,36 @@ int capture_frames(const std::string& path) {
         rs::frame* frames[RS_STREAM_COUNT];
         for (auto& f : fs) { frames[f.get_stream_type()] = &f; }
 
-        auto depth_data = frames[RS_STREAM_DEPTH]->get_data();
         auto img_w = frames[RS_STREAM_DEPTH]->get_width();
         auto img_h = frames[RS_STREAM_DEPTH]->get_height();
-        auto depth_image = cv::Mat(img_h, img_w, CV_16U, (void*)depth_data).clone();
-        auto raw_ir_image = cv::Mat(img_h, img_w, CV_8U, (void*)frames[RS_STREAM_INFRARED]->get_data()).clone();
-        cv::Mat displ_image;
-        depth_image.convertTo(displ_image, CV_8U, 255.0 / 8000.0);
-        cv::hconcat(displ_image, raw_ir_image, displ_image);
-        cv::imshow("DS5 depth", displ_image);
-    
-        image_set.push_back({ depth_image,raw_ir_image,displ_image });
+
+        image_set.push_back({});
+        auto depth_data = (unsigned short*)(image_set.back().depth = std::make_unique<rs_sf_image_depth>(img_w, img_h, frames[RS_STREAM_DEPTH]->get_data()))->data;
+        auto ir_data = (image_set.back().ir = std::make_unique<rs_sf_image_mono>(img_w, img_h, frames[RS_STREAM_INFRARED]->get_data()))->data;
+        auto displ_data = (image_set.back().displ = std::make_unique<rs_sf_image_mono>(img_w * 2, img_h))->data;
+        for (int y = 0, p = 0; y < img_h; ++y) {
+            for (int x = 0; x < img_w; ++x, ++p) {
+                displ_data[y*img_w * 2 + x] = static_cast<unsigned char>(depth_data[p] * 255.0 / 8000.0);
+                displ_data[(y * 2 + 1)*img_w + x] = ir_data[p];
+            }
+        }
+
         while (image_set.size() > image_set_size) image_set.pop_front();
-        if (cv::waitKey(1) == 'q') break;
+        printf("\r image set size %d    ", (int)image_set.size());
+
+        if (!win.imshow(image_set.back().displ.get())) break;
     }
 
+    printf("\n");
     int frame_id = 0;
     for (auto& dataset : image_set) {
-        std::string suffix = std::to_string(frame_id++) + ".png";
-        cv::imwrite(path + "depth_" + suffix, dataset.depth);
-        cv::imwrite(path + "ir_" + suffix, dataset.ir);
-        cv::imwrite(path + "displ_" + suffix , dataset.displ);
+        printf("\r writing frame %d    ", frame_id);
+        std::string suffix = std::to_string(frame_id++) + ".pgm";
+        rs_sf_image_write(path + "depth_" + suffix, dataset.depth.get());
+        rs_sf_image_write(path + "ir_" + suffix, dataset.ir.get());
+        rs_sf_image_write(path + "displ_" + suffix, dataset.displ.get());
     }
+    printf("\n");
 
     Json::Value json_intr;
     json_intr["fx"] = intrinsics.fx;
@@ -164,8 +146,8 @@ int capture_frames(const std::string& path) {
     return 0;
 }
 
-int run_planefit_live(){
-
+int run_planefit_live() try
+{
     rs::context ctx;
     auto list = ctx.query_devices();
     if (list.size() == 0) throw std::runtime_error("No device detected.");
@@ -184,7 +166,8 @@ int run_planefit_live(){
     dev.set_option(RS_OPTION_EMITTER_ENABLED, 1);
     dev.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
 
-    cv::Mat prev_depth(480, 640, CV_16U);
+    auto win = rs_sf_gl_context("display");
+    std::vector<unsigned short> prev_depth(480 * 640);
     int frame_id = 0;
     while (1) {
         auto fs = syncer.wait_for_frames();
@@ -194,9 +177,9 @@ int run_planefit_live(){
         rs::frame* frames[RS_STREAM_COUNT];
         for (auto& f : fs) { frames[f.get_stream_type()] = &f; }
 
-        rs_sf_image image[2];
+        rs_sf_image image[3];
 
-        image[0].data = prev_depth.data; // (unsigned char*)frames[RS_STREAM_DEPTH]->get_data();
+        image[0].data = (unsigned char*)prev_depth.data(); // (unsigned char*)frames[RS_STREAM_DEPTH]->get_data();
         image[1].data = (unsigned char*)frames[RS_STREAM_INFRARED]->get_data();
         image[0].img_w = image[1].img_w = frames[RS_STREAM_DEPTH]->get_width();
         image[0].img_h = image[1].img_h = frames[RS_STREAM_DEPTH]->get_height();
@@ -207,99 +190,17 @@ int run_planefit_live(){
         auto start_time = std::chrono::steady_clock::now();
         if (rs_sf_planefit_depth_image(planefitter, image /*,RS_SF_PLANEFIT_OPTION_RESET*/)) break;
         std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
-        if (display_planes_and_wait(planefitter, image[1], last_frame_compute_time.count()) == 'q') break;
 
-        memcpy(prev_depth.data, frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char());
-        cv::medianBlur(prev_depth, prev_depth, 5);
+        rs_sf_image_rgb rgb(&image[1]);
+        rs_sf_planefit_draw_planes(planefitter, &rgb, &image[1]);
+        image[2] = rgb;
+
+        if (!win.imshow(&image[1], 2)) break;
+        memcpy(prev_depth.data(), frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char()); 
     }
 
     if (planefitter) rs_sf_planefit_delete(planefitter);
     return 0;
-}
-
-int display_planes_and_wait(const rs_sf_planefit* planefitter, rs_sf_image & bkg_image, float compute_time_ms)
-{
-    rs_sf_image_rgb rgb(&bkg_image);
-    rs_sf_planefit_draw_planes(planefitter, &rgb, &bkg_image);
-
-    cv::Mat disp(rgb.img_h, rgb.img_w, CV_8UC3, rgb.data);
-
-    auto time_str = std::to_string(compute_time_ms);
-    cv::putText(disp, time_str.substr(0, time_str.find_first_of(".") + 2) + "ms",
-        cv::Point(8, 25), CV_FONT_NORMAL, 1, cv::Scalar(255, 255, 255));
-
-    cv::imwrite(path + "tail_plane_" + std::to_string(rgb.frame_id) + ".png", disp);
-    cv::imshow("planes", disp);
-
-    return cv::waitKey(1);
-}
-
-int loop() try
-{
-    rs_sf_planefit* planefitter = nullptr;
-    texture_buffer buffers[RS_STREAM_COUNT];
-    glfwInit();
-
-    auto win = glfwCreateWindow(1280, 480, path.c_str(), nullptr, nullptr);
-    glfwMakeContextCurrent(win);
-
-    int frame_num = 0;
-    while (!glfwWindowShouldClose(win))
-    {
-        // Wait for new images
-        glfwPollEvents();
-
-        // Clear the framebuffer
-        int w, h;
-        glfwGetFramebufferSize(win, &w, &h);
-        glViewport(0, 0, w, h);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Draw the images
-        glPushMatrix();
-        glfwGetWindowSize(win, &w, &h);
-        glOrtho(0, w, h, 0, -1, +1);
-
-        //auto frames = syncer.wait_for_frames();
-
-        auto data = load_one_frame(path, frame_num++);
-        if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
-        auto start_time = std::chrono::steady_clock::now();
-        if (rs_sf_planefit_depth_image(planefitter, data.images  /*, RS_SF_PLANEFIT_OPTION_RESET */))
-            break;
-        std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
-
-        rs_sf_image_rgb rgb(&data.images[1]);
-        rs_sf_planefit_draw_planes(planefitter, &rgb, &data.images[1]);
-
-        auto index = 0;
-        auto tiles = static_cast<int>(ceil(sqrt(2)));// frames.size())));
-        auto tile_w = static_cast<float>(w) / tiles;
-        auto tile_h = static_cast<float>(h) / 1;
-
-        //for (auto&& frame : frames)
-        rs_stream stream_type[] = { RS_STREAM_INFRARED, RS_STREAM_COLOR };
-        rs_format stream_format[] = { RS_FORMAT_RAW8, RS_FORMAT_RGB8 };
-        rs_sf_image disp[2] = { data.images[1], rgb };
-       
-        for (auto& frame : disp)
-        {
-            auto col_id = index / tiles;
-            auto row_id = index % tiles;
-
-            buffers[stream_type[index]].upload((void*)frame.data, frame.img_w, frame.img_h, stream_format[index]);
-            buffers[stream_type[index]].show({ row_id * tile_w, col_id * tile_h, tile_w, tile_h }, 1);
-
-            index++;
-        }
-
-        glPopMatrix();
-        glfwSwapBuffers(win);
-    }
-
-    glfwDestroyWindow(win);
-    glfwTerminate();
-    return EXIT_SUCCESS;
 }
 catch (const rs::error & e)
 {
@@ -312,3 +213,25 @@ catch (const std::exception & e)
     return EXIT_FAILURE;
 }
 
+
+int run_planefit_offline(const std::string& path)
+{
+    rs_sf_planefit* planefitter = nullptr;
+    auto win = rs_sf_gl_context("display", 640, 480);
+    int frame_num = 0;
+    while (true)
+    {
+        auto data = load_one_frame(path, frame_num++);
+        if (!planefitter) planefitter = rs_sf_planefit_create(&data->depth_intrinsics);
+        auto start_time = std::chrono::steady_clock::now();
+        if (rs_sf_planefit_depth_image(planefitter, data->images  /*, RS_SF_PLANEFIT_OPTION_RESET */))
+            break;
+        std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
+
+        rs_sf_image_rgb rgb(&data->images[1]);
+        rs_sf_planefit_draw_planes(planefitter, &rgb, &data->images[1]);
+
+        if (win.imshow(&rgb) == false) break;
+    }
+    return 0;
+}

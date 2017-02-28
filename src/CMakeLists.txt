@@ -66,7 +66,7 @@ SET(JSON_SRC_DIR ${THIRDPARTY_DIR}/Json/src)
 SET(JSON_INC_DIR ${THIRDPARTY_DIR}/Json/include)
 SET(JSON_SRC "${JSON_SRC_DIR}/jsoncpp.cpp")
 SET(OpenCV_STATIC ON)
-find_package(OPENCV REQUIRED)
+find_package(OPENCV QUIET)
 find_package(OpenGL REQUIRED)
 
 if(WIN32)
@@ -122,11 +122,10 @@ add_executable(shapefit_app
     ${JSON_SRC})
 set_property(TARGET shapefit_app PROPERTY CXX_STANDARD 14)
 include_directories(
-    ${OPENCV_INCLUDE_DIR} 
     ${EIGEN_DIR} 
     ${LIBREALSENSE_DIR}/include
     ${JSON_INC_DIR})
-target_link_libraries(shapefit_app PUBLIC shapefit_api PRIVATE ${OpenCV_LIBS} ${LIBREALSENSE_LIB} ${OPENGL_LIBRARIES} glfw3)
+target_link_libraries(shapefit_app PUBLIC shapefit_api PRIVATE ${LIBREALSENSE_LIB} ${OPENGL_LIBRARIES} glfw3)
 add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit_api>" "$<TARGET_FILE_DIR:shapefit_app>")
 
 IF(WIN32)

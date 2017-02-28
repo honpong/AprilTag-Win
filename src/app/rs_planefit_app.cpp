@@ -1,62 +1,94 @@
 #include <librealsense/rs.hpp>
 #include <librealsense/rsutil.hpp>
-#include <fstream>
 #include "json/json.h"
 #include "rs_shapefit.h"
 #include "rs_sf_image_io.h"
 
-std::string path = "c:\\temp\\shapefit\\f\\";
+std::string path = "c:\\temp\\shapefit\\a\\";
 const int image_set_size = 200;
 
-struct frame_data { rs_sf_image images[2]; std::unique_ptr<unsigned char[]> src[2]; rs_sf_intrinsics depth_intrinsics; };
 int capture_frames(const std::string& path);
-std::unique_ptr<frame_data> load_one_frame(const std::string& path, const int frame_num = -1);
 int run_planefit_live();
 int run_planefit_offline(const std::string& path);
 
 int main(int argc, char* argv[])
 {
-    //return run_planefit_live();
-    capture_frames(path);
-    return run_planefit_offline(path);
+    if (argc > 1 && strcmp(argv[1], "-live")) {
+        if (!strcmp(argv[1], "-capture"))
+            capture_frames(path);
+        return run_planefit_offline(path);
+    }
+    return run_planefit_live();
 }
 
-std::unique_ptr<frame_data> load_one_frame(const std::string& path, const int frame_num)
-{
-    auto suffix = (frame_num >= 0 ? "_" + std::to_string(frame_num) : "") + ".pgm";
-    auto depth_data = rs_sf_image_read(path + "depth" + suffix, frame_num);
-    auto ir_data = rs_sf_image_read(path + "ir" + suffix, frame_num);
+struct frame_data {
+    rs_sf_image images[2];
+    rs_sf_intrinsics depth_intrinsics;
+    std::unique_ptr<unsigned char[]> src[2];
 
-    auto r_data = std::make_unique<frame_data>();
-    r_data->src[0] = std::move(depth_data->src);
-    r_data->src[1] = std::move(ir_data->src); 
-    r_data->images[0].data = depth_data->data;
-    r_data->images[0].img_w = depth_data->img_w;
-    r_data->images[0].img_h = depth_data->img_h;
-    r_data->images[0].byte_per_pixel = 2;
-    r_data->images[1].data = ir_data->data;
-    r_data->images[1].img_w = ir_data->img_w;
-    r_data->images[1].img_h = ir_data->img_h;
-    r_data->images[1].byte_per_pixel = 1;
-    r_data->images[0].frame_id = r_data->images[1].frame_id = frame_num;
+    frame_data(const std::string& path, const int frame_num)
+    {
+        const auto suffix = std::to_string(frame_num) + ".pgm";
+        const auto depth_data = rs_sf_image_read(path + "depth_" + suffix, frame_num);
+        const auto ir_data = rs_sf_image_read(path + "ir_" + suffix, frame_num);
 
-    ////////////////////////////////////////////////////////////////////////////////
-    Json::Value calibration_data;
-    std::ifstream infile;
-    infile.open(path + "calibration.json", std::ifstream::binary);
-    infile >> calibration_data;
+        this->src[0] = std::move(depth_data->src);
+        this->src[1] = std::move(ir_data->src);
+        this->images[0].data = depth_data->data;
+        this->images[0].img_w = depth_data->img_w;
+        this->images[0].img_h = depth_data->img_h;
+        this->images[0].byte_per_pixel = 2;
+        this->images[1].data = ir_data->data;
+        this->images[1].img_w = ir_data->img_w;
+        this->images[1].img_h = ir_data->img_h;
+        this->images[1].byte_per_pixel = 1;
+        this->images[0].frame_id = this->images[1].frame_id = frame_num;
 
-    Json::Value json_depth_intrinsics = calibration_data["depth_cam"]["intrinsics"];
-    auto& depth_intrinsics = r_data->depth_intrinsics;
-    depth_intrinsics.cam_fx = json_depth_intrinsics["fx"].asFloat();
-    depth_intrinsics.cam_fy = json_depth_intrinsics["fy"].asFloat();
-    depth_intrinsics.cam_px = json_depth_intrinsics["ppx"].asFloat();
-    depth_intrinsics.cam_py = json_depth_intrinsics["ppy"].asFloat();
-    depth_intrinsics.img_w = json_depth_intrinsics["width"].asInt();
-    depth_intrinsics.img_h = json_depth_intrinsics["height"].asInt();
+        this->depth_intrinsics = read_calibration(path);
+    }
 
-    return std::move(r_data);
-}
+    static rs_sf_intrinsics read_calibration(const std::string& path)
+    {
+        rs_sf_intrinsics depth_intrinsics;
+        Json::Value calibration_data;
+        std::ifstream infile;
+        infile.open(path + "calibration.json", std::ifstream::binary);
+        infile >> calibration_data;
+
+        Json::Value json_depth_intrinsics = calibration_data["depth_cam"]["intrinsics"];
+        depth_intrinsics.cam_fx = json_depth_intrinsics["fx"].asFloat();
+        depth_intrinsics.cam_fy = json_depth_intrinsics["fy"].asFloat();
+        depth_intrinsics.cam_px = json_depth_intrinsics["ppx"].asFloat();
+        depth_intrinsics.cam_py = json_depth_intrinsics["ppy"].asFloat();
+        depth_intrinsics.img_w = json_depth_intrinsics["width"].asInt();
+        depth_intrinsics.img_h = json_depth_intrinsics["height"].asInt();
+        return depth_intrinsics;
+    }
+
+    static void write_calibration(const std::string& path, const rs_intrinsics& intrinsics, int num_frame)
+    {
+        Json::Value json_intr, root;
+        json_intr["fx"] = intrinsics.fx;
+        json_intr["fy"] = intrinsics.fy;
+        json_intr["ppx"] = intrinsics.ppx;
+        json_intr["ppy"] = intrinsics.ppy;
+        json_intr["model"] = intrinsics.model;
+        json_intr["height"] = intrinsics.height;
+        json_intr["width"] = intrinsics.width;
+        for (const auto& c : intrinsics.coeffs)
+            json_intr["coeff"].append(c);
+        root["depth_cam"]["intrinsics"] = json_intr;
+        root["depth_cam"]["num_frame"] = num_frame;
+
+        try {
+            Json::StyledStreamWriter writer;
+            std::ofstream outfile;
+            outfile.open(path + "calibration.json");
+            writer.write(outfile, root);
+        }
+        catch (...) {}
+    }
+};
 
 int capture_frames(const std::string& path) {
 
@@ -76,7 +108,7 @@ int capture_frames(const std::string& path) {
     stream.start(syncer);
     dev.set_option(RS_OPTION_EMITTER_ENABLED, 1);
     dev.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
-    
+
     struct dataset { std::unique_ptr<rs_sf_image_auto> depth, ir, displ; };
     std::deque<dataset> image_set;
 
@@ -121,28 +153,7 @@ int capture_frames(const std::string& path) {
     }
     printf("\n");
 
-    Json::Value json_intr;
-    json_intr["fx"] = intrinsics.fx;
-    json_intr["fy"] = intrinsics.fy;
-    json_intr["ppx"] = intrinsics.ppx;
-    json_intr["ppy"] = intrinsics.ppy;
-    json_intr["model"] = intrinsics.model;
-    json_intr["height"] = intrinsics.height;
-    json_intr["width"] = intrinsics.width;
-    for (const auto& c : intrinsics.coeffs)
-        json_intr["coeff"].append(c);
-
-    Json::Value root;
-    root["depth_cam"]["intrinsics"] = json_intr;
-    root["depth_cam"]["num_frame"] = (int)image_set.size();
-
-    try {
-        Json::StyledStreamWriter writer;
-        std::ofstream outfile;
-        outfile.open(path + "calibration.json");
-        writer.write(outfile, root);
-    }catch(...){}
-
+    frame_data::write_calibration(path, intrinsics, (int)image_set.size());
     return 0;
 }
 
@@ -213,7 +224,6 @@ catch (const std::exception & e)
     return EXIT_FAILURE;
 }
 
-
 int run_planefit_offline(const std::string& path)
 {
     rs_sf_planefit* planefitter = nullptr;
@@ -221,15 +231,15 @@ int run_planefit_offline(const std::string& path)
     int frame_num = 0;
     while (true)
     {
-        auto data = load_one_frame(path, frame_num++);
-        if (!planefitter) planefitter = rs_sf_planefit_create(&data->depth_intrinsics);
+        frame_data data(path, frame_num++);
+        if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
         auto start_time = std::chrono::steady_clock::now();
-        if (rs_sf_planefit_depth_image(planefitter, data->images  /*, RS_SF_PLANEFIT_OPTION_RESET */))
+        if (rs_sf_planefit_depth_image(planefitter, data.images  /*, RS_SF_PLANEFIT_OPTION_RESET */))
             break;
         std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 
-        rs_sf_image_rgb rgb(&data->images[1]);
-        rs_sf_planefit_draw_planes(planefitter, &rgb, &data->images[1]);
+        rs_sf_image_rgb rgb(&data.images[1]);
+        rs_sf_planefit_draw_planes(planefitter, &rgb, &data.images[1]);
 
         if (win.imshow(&rgb) == false) break;
     }

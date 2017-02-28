@@ -61,6 +61,8 @@ SET(THIRDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty)
 SET(EIGEN_DIR ${THIRDPARTY_DIR}/eigen)
 SET(LIBREALSENSE_VER "v2.3.3")
 SET(LIBREALSENSE_DIR ${THIRDPARTY_DIR}/LibRealSense/Windows/${LIBREALSENSE_VER})
+SET(LIBREALSENSE_BIN_PATH ${LIBREALSENSE_DIR}/bin/${CMAKE_VS_PLATFORM_NAME})
+SET(LIBREALSENSE_LIB_PATH ${LIBREALSENSE_DIR}/lib/${CMAKE_VS_PLATFORM_NAME})
 SET(LIBREALSENSE_LIB realsense)
 SET(JSON_SRC_DIR ${THIRDPARTY_DIR}/Json/src)
 SET(JSON_INC_DIR ${THIRDPARTY_DIR}/Json/include)
@@ -97,9 +99,6 @@ else()
     #include_directories(${GLFW_INCLUDE_DIR})
 endif()
 
-
-link_directories(${LIBREALSENSE_DIR}/lib/${CMAKE_VS_PLATFORM_NAME})
-
 ############################################################################################################
 FILE(GLOB SHAPEFIT_API_SRC "${CMAKE_CURRENT_SOURCE_DIR}/api/*.cpp")
 FILE(GLOB SHAPEFIT_API_HDR "${CMAKE_CURRENT_SOURCE_DIR}/api/*.h" "${CMAKE_CURRENT_SOURCE_DIR}/api/inc/*")
@@ -114,6 +113,8 @@ include_directories(
 target_link_libraries(shapefit_api PRIVATE ${OpenCV_LIBS})
 
 #############################################################################################################
+link_directories(${LIBREALSENSE_LIB_PATH})
+
 FILE(GLOB SHAPEFIT_APP_SRC "${CMAKE_CURRENT_SOURCE_DIR}/app/*.cpp")
 FILE(GLOB SHAPEFIT_APP_HDR "${CMAKE_CURRENT_SOURCE_DIR}/app/*.hpp")
 add_executable(shapefit_app 
@@ -125,8 +126,10 @@ include_directories(
     ${EIGEN_DIR} 
     ${LIBREALSENSE_DIR}/include
     ${JSON_INC_DIR})
+
 target_link_libraries(shapefit_app PUBLIC shapefit_api PRIVATE ${LIBREALSENSE_LIB} ${OPENGL_LIBRARIES} glfw3)
 add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit_api>" "$<TARGET_FILE_DIR:shapefit_app>")
+add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LIBREALSENSE_BIN_PATH}/${LIBREALSENSE_LIB}.dll" "$<TARGET_FILE_DIR:shapefit_app>")
 
 IF(WIN32)
 set_target_properties(shapefit_app PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")

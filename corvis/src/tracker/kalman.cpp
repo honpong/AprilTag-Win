@@ -32,21 +32,3 @@ void kalman_update_covariance(matrix &P, const matrix &K, const matrix &HP)
     // enforce symmetry
     P.map().triangularView<Eigen::Upper>() = P.map().triangularView<Eigen::Lower>().transpose();
 }
-
-void kalman_update_covariance_robust(matrix &P, const matrix &K, const matrix &HP, const matrix &S)
-{
-    matrix KHP(P.rows(), P.cols());
-    matrix_product(KHP, K, HP);
-    matrix KS(K.rows(), S.cols());
-    //Could optimize this to use dsymm rather than dgemm
-    matrix_product(KS, K, S);
-    matrix KSKt(P.rows(), P.cols());
-    matrix_product(KSKt, KS, K, false, true);
-    for(int i = 0; i < P.rows(); ++i) {
-        for(int j = 0; j < i; ++j) {
-            P(i, j) = P(j, i) = P(i, j) - ((KHP(i, j) + KHP(j, i)) - KSKt(i, j));
-        }
-        P(i, i) = P(i, i) - ((KHP(i, i) + KHP(i, i)) - KSKt(i, i));
-    }
-}
-

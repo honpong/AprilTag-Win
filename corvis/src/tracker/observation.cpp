@@ -108,8 +108,6 @@ bool observation_queue::update_state_and_covariance(state_root &s, const matrix 
         kalman_update_state(state, K, inn);
         s.copy_state_from_array(state);
         kalman_update_covariance(s.cov.cov, K, HP);
-        //Robust update is not needed and is much slower
-        //kalman_update_covariance_robust(s.cov.cov, K, HP, res_cov);
         return true;
     } else {
         return false;

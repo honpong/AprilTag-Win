@@ -241,9 +241,9 @@ void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3])
 
 void draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *src, const unsigned char * rgb_table[3], int num_color)
 {
-    static unsigned char default_r[256] = { 0};
-    static unsigned char default_g[256] = { 0};
-    static unsigned char default_b[256] = { };
+    static unsigned char default_r[256] = { 0 };
+    static unsigned char default_g[256] = { 0 };
+    static unsigned char default_b[256] = { 0 };
     static unsigned char* default_rgb_table[3] = { default_r,default_g,default_b };
     if (default_rgb_table[0][255] == 0)
     {
@@ -267,7 +267,7 @@ void draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *
         memcpy(rgb->data, src->data, rgb->num_char());
 
     for (int p = map->num_pixel() - 1; p >= 0; --p) {
-        const int pid = map->data[p] - 1;
+        const int pid = map->data[p];
         if (0 <= pid && pid < num_color) {
             rgb->data[p * 3 + 0] |= rgb_table[0][pid];
             rgb->data[p * 3 + 1] |= rgb_table[1][pid];

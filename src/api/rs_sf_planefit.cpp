@@ -66,7 +66,7 @@ int rs_sf_planefit::num_detected_planes() const
 {
     int n = 0; 
     for (auto& pl : m_view.planes) 
-        if (pl.best_pts.size() > 0) 
+        if (pl.best_pts.size() >= m_param.min_num_plane_pt) 
             ++n; 
     return n;
 }
@@ -76,7 +76,6 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
     if (!map || !map->data || map->byte_per_pixel != 1) return RS_SF_INVALID_ARG;
     upsize_pt_cloud_to_plane_map(m_view.pt_cloud, map);
 
-    cv::Mat src(map->img_h, map->img_w, CV_8U, map->data);
     if (hole_filled)
     {
         auto* idx = map->data;
@@ -87,8 +86,6 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
         std::vector<Eigen::Matrix<int,4,1>> next_list;
         hole_map.assign(idx, idx + map->num_pixel());
         next_list.reserve(map->num_pixel());
-
-        cv::Mat hole(img_h, img_w, CV_8U, hole_map.data());
 
         // vertical image frame 
         for (int y = 0, x0 = 0, xn = img_w - 1, p = 0; y < img_h; ++y) {

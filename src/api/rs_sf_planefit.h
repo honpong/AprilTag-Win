@@ -8,9 +8,12 @@ struct rs_sf_planefit
 #ifdef _DEBUG
         int img_x_dn_sample = 8;
         int img_y_dn_sample = 8;
+        bool hole_fill_plane_map = false;
+
 #else
         int img_x_dn_sample = 4;
         int img_y_dn_sample = 4;
+        bool hole_fill_plane_map = true;
 #endif
         int point_cloud_reserve = -1;
         int candidate_x_dn_sample = 16;
@@ -31,7 +34,7 @@ struct rs_sf_planefit
     rs_sf_status track_depth_image(const rs_sf_image* img);
 
     int num_detected_planes() const;
-    rs_sf_status get_plane_index_map(rs_sf_image* map, int hole_filled = 0) const; 
+    rs_sf_status get_plane_index_map(rs_sf_image* map, int hole_filled = -1) const; 
 
 protected:
 
@@ -39,7 +42,7 @@ protected:
     typedef Eigen::Matrix<int, 2, 1> i2;
     typedef Eigen::Quaternion<float> rotation;
     static const int INVALID_PID = -1;
-    static const int MAX_VALID_PID = 255;
+    static const int MAX_VALID_PID = 254;
 
     struct plane;
     struct pt3d {
@@ -74,7 +77,8 @@ protected:
 private:
     
     // per frame detection
-    bool is_valid_pt3d(const pt3d& pos);
+    bool is_valid_pt3d_z(const pt3d& pt) const;
+    bool is_valid_pt3d_normal(const pt3d& pt) const;
     void image_to_pointcloud(const rs_sf_image* img, vec_pt3d& pt_cloud);
     void img_pointcloud_to_normal(vec_pt3d& img_pt_cloud);
     void img_pointcloud_to_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& img_planes);

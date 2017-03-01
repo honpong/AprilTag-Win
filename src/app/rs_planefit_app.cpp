@@ -10,6 +10,7 @@ const int image_set_size = 200;
 int capture_frames(const std::string& path);
 int run_planefit_live();
 int run_planefit_offline(const std::string& path);
+bool run_planefit(rs_sf_planefit* planefitter, rs_sf_image img[2]);
 
 int main(int argc, char* argv[])
 {
@@ -124,7 +125,6 @@ int capture_frames(const std::string& path) {
     std::deque<dataset> image_set;
 
     rs_sf_gl_context win("display");
-
     while (1) {
         auto fs = syncer.wait_for_frames();
         if (fs.size() == 0) break;
@@ -186,7 +186,6 @@ int run_planefit_live() try
     dev.set_option(RS_OPTION_EMITTER_ENABLED, 1);
     dev.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
 
-    auto win = rs_sf_gl_context("display");
     std::vector<unsigned short> prev_depth(480 * 640);
     int frame_id = 0;
     while (1) {
@@ -197,8 +196,7 @@ int run_planefit_live() try
         rs::frame* frames[RS_STREAM_COUNT];
         for (auto& f : fs) { frames[f.get_stream_type()] = &f; }
 
-        rs_sf_image image[3];
-
+        rs_sf_image image[2];
         image[0].data = (unsigned char*)prev_depth.data(); // (unsigned char*)frames[RS_STREAM_DEPTH]->get_data();
         image[1].data = (unsigned char*)frames[RS_STREAM_INFRARED]->get_data();
         image[0].img_w = image[1].img_w = frames[RS_STREAM_DEPTH]->get_width();
@@ -207,15 +205,7 @@ int run_planefit_live() try
         image[1].byte_per_pixel = 1;
         image[0].frame_id = image[1].frame_id = frame_id++;
 
-        auto start_time = std::chrono::steady_clock::now();
-        if (rs_sf_planefit_depth_image(planefitter, image /*,RS_SF_PLANEFIT_OPTION_RESET*/)) break;
-        std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
-
-        rs_sf_image_rgb rgb(&image[1]);
-        rs_sf_planefit_draw_planes(planefitter, &rgb, &image[1]);
-        image[2] = rgb;
-
-        if (!win.imshow(&image[1], 2)) break;
+        if (!run_planefit(planefitter, image)) break;
         memcpy(prev_depth.data(), frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char()); 
     }
 
@@ -244,15 +234,32 @@ int run_planefit_offline(const std::string& path)
         if (data.src[0] == nullptr) break;
 
         if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
-        auto start_time = std::chrono::steady_clock::now();
-        if (rs_sf_planefit_depth_image(planefitter, data.images  /*, RS_SF_PLANEFIT_OPTION_RESET */))
-            break;
-        std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 
-        rs_sf_image_rgb rgb(&data.images[1]);
-        rs_sf_planefit_draw_planes(planefitter, &rgb, &data.images[1]);
-
-        if (win.imshow(&rgb) == false) break;
+        if (!run_planefit(planefitter, data.images)) break;
     }
+
+    if (planefitter) rs_sf_planefit_delete(planefitter);
     return 0;
+}
+
+bool run_planefit(rs_sf_planefit * planefitter, rs_sf_image img[2])
+{
+    static rs_sf_gl_context win("display");
+
+    // do plane fit
+    auto start_time = std::chrono::steady_clock::now();
+    if (rs_sf_planefit_depth_image(planefitter, img /*, RS_SF_PLANEFIT_OPTION_RESET*/)) return false;
+    std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
+
+    // time measure
+    char text[256];
+    sprintf(text, "%.2fms/frame", last_frame_compute_time.count());
+
+    // color display
+    rs_sf_image_rgb rgb(&img[1]);
+    rs_sf_planefit_draw_planes(planefitter, &rgb, &img[1]);
+
+    // gl drawing
+    rs_sf_image show[] = { img[0], rgb };
+    return win.imshow(show, 2, text);
 }

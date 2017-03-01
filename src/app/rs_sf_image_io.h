@@ -79,7 +79,7 @@ struct rs_sf_gl_context
         }
     }
 
-    bool imshow(const rs_sf_image* image, int num_images = 1)
+    bool imshow(const rs_sf_image* image, int num_images = 1, const char* text = nullptr)
     {
         if (!glfwWindowShouldClose(win))
         {
@@ -112,7 +112,10 @@ struct rs_sf_gl_context
                 texture.show({ row_id * tile_w, col_id * tile_h, tile_w, tile_h }, 1);
             }
 
-            glPopMatrix();
+            if (text != nullptr)
+                draw_text(20 + w - w/num_images, h-20, text);
+
+            glPopMatrix();        
             glfwSwapBuffers(win);
 
             return true;

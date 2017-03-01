@@ -76,7 +76,7 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
     if (!map || !map->data || map->byte_per_pixel != 1) return RS_SF_INVALID_ARG;
     upsize_pt_cloud_to_plane_map(m_view.pt_cloud, map);
 
-    if (hole_filled)
+    if (hole_filled>0 || m_param.hole_fill_plane_map)
     {
         auto* idx = map->data;
         int img_w = map->img_w, img_h = map->img_h;
@@ -160,9 +160,14 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
     return RS_SF_SUCCESS;
 }
 
-bool rs_sf_planefit::is_valid_pt3d(const pt3d& pt)
+bool rs_sf_planefit::is_valid_pt3d_z(const pt3d& pt) const 
 {
     return pt.pos.z() > m_param.min_z_value && pt.pos.z() < m_param.max_z_value;
+}
+
+bool rs_sf_planefit::is_valid_pt3d_normal(const pt3d& pt) const
+{
+    return pt.normal != v3{ 0,0,0 };
 }
 
 void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, vec_pt3d& pt_cloud)
@@ -203,14 +208,17 @@ void rs_sf_planefit::img_pointcloud_to_normal(vec_pt3d& img_pt_cloud)
     for (int y = 0, ey = img_h - 1, p = 0; y < ey; ++y, p = y*img_w) {
         for (int x = 0, ex = img_w - 1; x < ex; ++x, ++p)
         {
-            auto& src_pt_cloud_p = src_pt_cloud[p];
-            if (is_valid_pt3d(src_pt_cloud_p))
+            auto& src_pt = src_pt_cloud[p];
+            auto& right_pt = src_pt_cloud[p + 1];
+            auto& down_pt = src_pt_cloud[p + img_w];
+            if (is_valid_pt3d_z(src_pt) && is_valid_pt3d_z(right_pt) && is_valid_pt3d_z(down_pt))
             {
-                const auto p_right = p + 1, p_down = p + img_w;
-                auto dx = src_pt_cloud[p_right].pos - src_pt_cloud_p.pos;
-                auto dy = src_pt_cloud[p_down].pos - src_pt_cloud_p.pos;
-                src_pt_cloud_p.normal = dy.cross(dx).normalized();
+                auto dx = right_pt.pos - src_pt.pos;
+                auto dy = down_pt.pos - src_pt.pos;
+                src_pt.normal = dy.cross(dx).normalized();
             }
+            else
+                src_pt.normal = v3{ 0,0,0 };
         }
     }
 }
@@ -233,7 +241,7 @@ void rs_sf_planefit::img_pointcloud_to_planecandidate(
             auto& src = src_img_point[p];
             auto& pos = src.pos;
             auto& nor = src.normal;
-            if (is_valid_pt3d(src))
+            if (is_valid_pt3d_normal(src))
             {
                 float d = -nor.dot(pos);
                 img_planes.emplace_back(nor, d, &src);
@@ -244,7 +252,7 @@ void rs_sf_planefit::img_pointcloud_to_planecandidate(
 
 bool rs_sf_planefit::is_inlier(const plane & candidate, const pt3d & p)
 {
-    if (is_valid_pt3d(p))
+    if (is_valid_pt3d_normal(p) )
     {
         const float nor_fit = std::abs(candidate.normal.dot(p.normal));
         if (nor_fit > m_param.max_normal_thr)
@@ -422,7 +430,7 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
         {
             // check normal in current view           
             auto& current_pt = pt_cloud[past_pt->ppx];
-            if (is_valid_pt3d(current_pt))
+            if (is_valid_pt3d_z(current_pt))
             {
                 avg_normal += current_pt.normal;
                 n_valid_current_pt++;
@@ -442,7 +450,7 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
             // test point            
             auto& current_pt = pt_cloud[past_pt->ppx];
 
-            if (is_valid_pt3d(current_pt))
+            if (is_valid_pt3d_z(current_pt))
             {
                 if (std::abs(avg_normal.dot(current_pt.normal)) > m_param.max_normal_thr)                
                 {

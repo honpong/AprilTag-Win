@@ -27,7 +27,7 @@ rs_sf_status rs_sf_planefit_draw_planes(const rs_sf_planefit * obj, rs_sf_image 
     if (!obj || !rgb) return RS_SF_INVALID_ARG;
 
     rs_sf_image_mono map(rgb);
-    obj->get_plane_index_map(&map);
+    obj->get_plane_index_map(&map, 0);
     draw_planes(rgb, &map, src);
 
     return RS_SF_SUCCESS;

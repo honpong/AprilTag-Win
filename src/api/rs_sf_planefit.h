@@ -39,7 +39,7 @@ protected:
     typedef Eigen::Matrix<int, 2, 1> i2;
     typedef Eigen::Quaternion<float> rotation;
     static const int INVALID_PID = -1;
-    static const int MAX_VALID_PID = 5;
+    static const int MAX_VALID_PID = 255;
 
     struct plane;
     struct pt3d {

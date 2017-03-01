@@ -75,6 +75,91 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
 {
     if (!map || !map->data || map->byte_per_pixel != 1) return RS_SF_INVALID_ARG;
     upsize_pt_cloud_to_plane_map(m_view.pt_cloud, map);
+
+    cv::Mat src(map->img_h, map->img_w, CV_8U, map->data);
+    if (hole_filled)
+    {
+        auto* idx = map->data;
+        int img_w = map->img_w, img_h = map->img_h;
+        const unsigned char VISITED = 255, NO_PLANE = 0;
+
+        std::vector<unsigned char> hole_map;
+        std::vector<Eigen::Matrix<int,4,1>> next_list;
+        hole_map.assign(idx, idx + map->num_pixel());
+        next_list.reserve(map->num_pixel());
+
+        cv::Mat hole(img_h, img_w, CV_8U, hole_map.data());
+
+        // vertical image frame 
+        for (int y = 0, x0 = 0, xn = img_w - 1, p = 0; y < img_h; ++y) {
+            if (idx[p = (y*img_w + x0)] == NO_PLANE) next_list.emplace_back(x0, y, p, NO_PLANE);
+            if (idx[p = (y*img_w + xn)] == NO_PLANE) next_list.emplace_back(xn, y, p, NO_PLANE);
+        }
+        // horizontal image frame
+        for (int x = 0, y0 = 0, yn = img_h - 1, p = 0; x < img_w; ++x) {
+            if (idx[p = (y0*img_w + x)] == NO_PLANE) next_list.emplace_back(x, y0, p, NO_PLANE);
+            if (idx[p = (yn*img_w + x)] == NO_PLANE) next_list.emplace_back(x, yn, p, NO_PLANE);
+        }
+        for (auto& pt : next_list)
+            hole_map[pt[2]] = VISITED;
+
+        // fill background
+        const int xb[] = { -1,1,0,0 };
+        const int yb[] = { 0,0,-1,1 };
+        const int pb[] = { -1,1,-img_w,img_w };
+        while (!next_list.empty())
+        {
+            const auto pt = next_list.back();
+            next_list.pop_back();
+
+            for (int b = 0; b < 4; ++b)
+            {
+                const int x = pt[0] + xb[b], y = pt[1] + yb[b];
+                if (0 <= x && x < img_w && 0 <= y && y < img_h)
+                {
+                    const auto p = pt[2] + pb[b];
+                    if (hole_map[p] == NO_PLANE) {
+                        hole_map[p] = VISITED; 
+                        next_list.emplace_back(x, y, p, NO_PLANE);
+                    }
+                }
+            }
+        }
+
+        //pick up planes
+        for (int y = 0, p = 0, pid; y < img_h; ++y)
+            for (int x = 0; x < img_w; ++x, ++p)
+                if (((pid = hole_map[p]) != NO_PLANE) && pid != VISITED)
+                    next_list.emplace_back(x, y, p, pid);
+
+        //grow planes
+        while (!next_list.empty())
+        {
+            auto pt = next_list.back();
+            next_list.pop_back();
+
+            for (int b = 0; b < 4; ++b)
+            {
+                const int x = pt[0] + xb[b], y = pt[1] + yb[b];
+                if (0 <= x && x < img_w && 0 <= y && y < img_h)
+                {
+                    const auto p = pt[2] + pb[b];
+                    auto& hole_p = hole_map[p];
+                    if (idx[p] == NO_PLANE && hole_p != VISITED && (hole_p == NO_PLANE || hole_p > pt[3]))
+                    {
+                        hole_p = (unsigned char)pt[3];
+                        next_list.emplace_back(x, y, p, pt[3]);
+                    }
+                }
+            }
+        }
+
+        //fill holes
+        for (int p = map->num_pixel() - 1; p >= 0; --p)
+            if (idx[p] == NO_PLANE && hole_map[p] != VISITED)
+                idx[p] = hole_map[p];
+
+    }
     return RS_SF_SUCCESS;
 }
 
@@ -491,7 +576,7 @@ void rs_sf_planefit::assign_planes_pid(vec_plane_ref& sorted_planes)
 
    for ( auto plane : sorted_planes)
     {
-        if (plane->past_plane && plane->best_pts.size() > 0 && is_tracked_pid(plane->past_plane->pid))
+        if (plane->past_plane && plane->best_pts.size() >= m_param.min_num_plane_pt && is_tracked_pid(plane->past_plane->pid))
         {
             if (!m_tracked_pid[plane->past_plane->pid]) //assign old pid to new plane
             {
@@ -503,6 +588,8 @@ void rs_sf_planefit::assign_planes_pid(vec_plane_ref& sorted_planes)
     int next_pid = 0;
     for (auto& plane : sorted_planes)
     {
+        if (plane->best_pts.size() < m_param.min_num_plane_pt) return;
+
         if (!is_tracked_pid(plane->pid)) //no previous plane detected
         {
             while (m_tracked_pid[next_pid]) { //find next unused pid

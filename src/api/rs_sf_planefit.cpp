@@ -166,7 +166,7 @@ bool rs_sf_planefit::is_valid_pt3d_z(const pt3d& pt) const
 
 bool rs_sf_planefit::is_valid_pt3d_normal(const pt3d& pt) const
 {
-    return pt.normal != v3{ 0,0,0 };
+    return pt.normal[0] != 0 || pt.normal[1] != 0 || pt.normal[2] != 0;
 }
 
 void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, vec_pt3d& pt_cloud)
@@ -193,7 +193,7 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, vec_pt3d& pt_c
                 z * (x - px) / fx,
                 z * (y - py) / fy,
                 z }
-            , v3(), p, pp, nullptr);
+            , v3(0,0,0), p, pp, nullptr);
         }
     }
 }
@@ -443,7 +443,7 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
         {
             // check normal in current view           
             auto& current_pt = pt_cloud[past_pt->ppx];
-            if (is_valid_pt3d_z(current_pt))
+            if (is_valid_pt3d_normal(current_pt))
             {
                 avg_normal += current_pt.normal;
                 n_valid_current_pt++;
@@ -463,7 +463,7 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
             // test point            
             auto& current_pt = pt_cloud[past_pt->ppx];
 
-            if (is_valid_pt3d_z(current_pt))
+            if (is_valid_pt3d_normal(current_pt))
             {
                 if (std::abs(avg_normal.dot(current_pt.normal)) > m_param.max_normal_thr)                
                 {

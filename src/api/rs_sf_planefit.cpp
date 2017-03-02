@@ -52,7 +52,6 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
 
     // search for old planes
     find_candidate_plane_from_past(m_view, m_ref_scene);
-    //img_pointcloud_to_planecandidate(m_view.pt_cloud, m_view.planes);
     grow_planecandidate(m_view.pt_cloud, m_view.planes);
     non_max_plane_suppression(m_view.pt_cloud, m_view.planes);
     combine_planes_from_the_same_past(m_view, m_ref_scene);
@@ -225,13 +224,18 @@ void rs_sf_planefit::img_pointcloud_to_normal(vec_pt3d& img_pt_cloud)
 
 void rs_sf_planefit::img_pointcloud_to_planecandidate(
     vec_pt3d& img_pt_cloud,
-    vec_plane& img_planes)
+    vec_plane& img_planes,
+    int candidate_y_dn_sample,
+    int candidate_x_dn_sample)
 {
     const int img_h = m_intrinsics.img_h / m_param.img_y_dn_sample;
     const int img_w = m_intrinsics.img_w / m_param.img_x_dn_sample;
 
-    const int y_step = m_param.candidate_y_dn_sample / m_param.img_y_dn_sample;
-    const int x_step = m_param.candidate_x_dn_sample / m_param.img_x_dn_sample;
+    if (candidate_x_dn_sample == -1) candidate_x_dn_sample = m_param.candidate_x_dn_sample;
+    if (candidate_y_dn_sample == -1) candidate_y_dn_sample = m_param.candidate_y_dn_sample;
+       
+    const int y_step = candidate_y_dn_sample / m_param.img_y_dn_sample;
+    const int x_step = candidate_x_dn_sample / m_param.img_x_dn_sample;
 
     auto* src_img_point = img_pt_cloud.data();
 
@@ -417,6 +421,15 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
     auto& pt_cloud = current_view.pt_cloud;
     const int dn_xy = m_param.img_x_dn_sample*m_param.img_y_dn_sample;
 
+    // coarse grid candidate sampling
+    img_pointcloud_to_planecandidate(
+        current_view.pt_cloud, current_view.planes,
+        m_param.track_x_dn_sample, m_param.track_y_dn_sample);
+
+    // assign past plane reference if available
+    for (auto& plane_candidate : current_view.planes)
+        plane_candidate.past_plane = past_view.pt_cloud[plane_candidate.src->ppx].best_plane;
+
     // for each past plane
     for (auto& past_plane : past_view.planes)
     {
@@ -426,7 +439,7 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
         int n_valid_current_pt = 0;
         
         // for each past plane points
-        for (auto& past_pt : past_plane.pts)
+        for (auto& past_pt : past_plane.best_pts)
         {
             // check normal in current view           
             auto& current_pt = pt_cloud[past_pt->ppx];
@@ -445,7 +458,7 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
         float min_dist_to_past_center = std::numeric_limits<float>::max();
         pt3d* best_inlier_to_past_center = nullptr;
 
-        for (auto& past_pt : past_plane.pts)
+        for (auto& past_pt : past_plane.best_pts)
         {
             // test point            
             auto& current_pt = pt_cloud[past_pt->ppx];
@@ -463,13 +476,6 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
                     {
                         min_dist_to_past_center = dist;
                         best_inlier_to_past_center = &current_pt;
-                    }
-
-                    if ((past_pt->px % src_w) % (m_param.track_x_dn_sample) == 0 &&
-                        (past_pt->px / src_w) % (m_param.track_y_dn_sample) == 0)
-                    {
-                        auto d = -current_pt.pos.dot(current_pt.normal);
-                        current_view.planes.emplace_back(current_pt.normal, d, &current_pt, INVALID_PID, &past_plane);
                     }
                 }
             }
@@ -501,6 +507,7 @@ void rs_sf_planefit::find_candidate_plane_from_past(scene & current_view, scene 
             current_view.planes.emplace_back(normal, -center->pos.dot(normal), center, INVALID_PID, &past_plane);
         }
     }
+
 #ifdef _DEBUG
     printf("num plane %d -> %d \n", (int)past_view.planes.size(), (int)current_view.planes.size());
 #endif

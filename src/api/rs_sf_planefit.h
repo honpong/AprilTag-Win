@@ -81,7 +81,7 @@ private:
     bool is_valid_pt3d_normal(const pt3d& pt) const;
     void image_to_pointcloud(const rs_sf_image* img, vec_pt3d& pt_cloud);
     void img_pointcloud_to_normal(vec_pt3d& img_pt_cloud);
-    void img_pointcloud_to_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& img_planes);
+    void img_pointcloud_to_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& img_planes, int candidate_y_dn_sample = -1, int candidate_x_dn_sample = -1);
     bool is_inlier(const plane& candidate, const pt3d& p);
     void grow_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& plane_candidates);
     void test_planecandidate(vec_pt3d& pt_cloud, vec_plane& plane_candidates);

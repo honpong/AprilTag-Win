@@ -75,14 +75,14 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
     if (!map || !map->data || map->byte_per_pixel != 1) return RS_SF_INVALID_ARG;
     upsize_pt_cloud_to_plane_map(m_view.pt_cloud, map);
 
-    if (hole_filled>0 || m_param.hole_fill_plane_map)
+    if (hole_filled > 0 || (hole_filled == -1 && m_param.hole_fill_plane_map))
     {
         auto* idx = map->data;
         int img_w = map->img_w, img_h = map->img_h;
         const unsigned char VISITED = 255, NO_PLANE = 0;
 
         std::vector<unsigned char> hole_map;
-        std::vector<Eigen::Matrix<int,4,1>> next_list;
+        std::vector<Eigen::Matrix<int, 4, 1>> next_list;
         hole_map.assign(idx, idx + map->num_pixel());
         next_list.reserve(map->num_pixel());
 
@@ -115,7 +115,7 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
                 {
                     const auto p = pt[2] + pb[b];
                     if (hole_map[p] == NO_PLANE) {
-                        hole_map[p] = VISITED; 
+                        hole_map[p] = VISITED;
                         next_list.emplace_back(x, y, p, NO_PLANE);
                     }
                 }

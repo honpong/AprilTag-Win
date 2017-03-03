@@ -50,6 +50,7 @@ std::unique_ptr<rs_sf_image_auto> rs_sf_image_read(std::string& filename, const 
         dst->src = std::make_unique<uint8_t[]>(dst->num_char());
         dst->data = dst->src.get();
         pbuf->sgetn((char*)dst->data, dst->num_char());
+        dst->cam_pose = nullptr;
 
         stream_data.close();
     }

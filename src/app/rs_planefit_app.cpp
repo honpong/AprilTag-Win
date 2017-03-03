@@ -24,8 +24,8 @@ int main(int argc, char* argv[])
 
 struct frame_data {
     rs_sf_image images[2];
+    std::unique_ptr<rs_sf_image_auto> src_image[2];
     rs_sf_intrinsics depth_intrinsics;
-    std::unique_ptr<unsigned char[]> src[2];
     int num_frame;
 
     frame_data(const std::string& path, const int frame_num)
@@ -34,20 +34,8 @@ struct frame_data {
         if (num_frame <= frame_num) return;
 
         const auto suffix = std::to_string(frame_num) + ".pgm";
-        const auto depth_data = rs_sf_image_read(path + "depth_" + suffix, frame_num);
-        const auto ir_data = rs_sf_image_read(path + "ir_" + suffix, frame_num);
-
-        this->src[0] = std::move(depth_data->src);
-        this->src[1] = std::move(ir_data->src);
-        this->images[0].data = depth_data->data;
-        this->images[0].img_w = depth_data->img_w;
-        this->images[0].img_h = depth_data->img_h;
-        this->images[0].byte_per_pixel = 2;
-        this->images[1].data = ir_data->data;
-        this->images[1].img_w = ir_data->img_w;
-        this->images[1].img_h = ir_data->img_h;
-        this->images[1].byte_per_pixel = 1;
-        this->images[0].frame_id = this->images[1].frame_id = frame_num;
+        images[0] = *(src_image[0] = rs_sf_image_read(path + "depth_" + suffix, frame_num));
+        images[1] = *(src_image[1] = rs_sf_image_read(path + "ir_" + suffix, frame_num));
     }
 
     static void write_frame(const std::string& path, const rs_sf_image* depth, const rs_sf_image* ir, const rs_sf_image* displ)
@@ -196,7 +184,7 @@ int run_planefit_live() try
         rs::frame* frames[RS_STREAM_COUNT];
         for (auto& f : fs) { frames[f.get_stream_type()] = &f; }
 
-        rs_sf_image image[2];
+        rs_sf_image image[] = { {}, {} };
         image[0].data = (unsigned char*)prev_depth.data(); // (unsigned char*)frames[RS_STREAM_DEPTH]->get_data();
         image[1].data = (unsigned char*)frames[RS_STREAM_INFRARED]->get_data();
         image[0].img_w = image[1].img_w = frames[RS_STREAM_DEPTH]->get_width();
@@ -231,7 +219,7 @@ int run_planefit_offline(const std::string& path)
     while (true)
     {
         frame_data data(path, frame_num++);
-        if (data.src[0] == nullptr) break;
+        if (data.src_image[0]->src == nullptr) break;
 
         if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
 

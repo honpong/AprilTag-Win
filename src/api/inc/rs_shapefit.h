@@ -31,6 +31,7 @@ extern "C"
         unsigned char* data;
         int img_w, img_h, byte_per_pixel;
         int frame_id;
+        float* cam_pose;
 
         int num_pixel() const { return img_w * img_h; }
         int num_char() const { return num_pixel() * byte_per_pixel; }
@@ -64,6 +65,8 @@ struct rs_sf_image_auto : public rs_sf_image
 {
     virtual ~rs_sf_image_auto() {}
     std::unique_ptr<unsigned char[]> src;
+    float src_pose[12];
+    void set_pose(const float p[12]) { if (p) memcpy(cam_pose = src_pose, p, sizeof(float) * 12); }
 };
 
 template<int Channel>
@@ -74,13 +77,15 @@ struct rs_sf_image_impl : public rs_sf_image_auto
         img_h = ref->img_h; img_w = ref->img_w; byte_per_pixel = Channel;
         data = (src = std::make_unique<unsigned char[]>(num_char())).get();
         if (ref->data && num_char()==ref->num_char()) memcpy(data, ref->data, num_char());
+        if (ref->cam_pose) set_pose(ref->cam_pose);
     }
-    rs_sf_image_impl(int w, int h, const void* v=nullptr){
+    rs_sf_image_impl(int w, int h, const void* v = nullptr, const float pose[12] = nullptr) {
         img_h = h; img_w = w; byte_per_pixel = Channel;
         data = (src = std::make_unique<unsigned char[]>(num_char())).get();
         if (v) memcpy(data, v, num_char());
+        if (pose) set_pose(pose);
     }
-    rs_sf_image_impl(rs_sf_image_auto&& ref) : rs_sf_image_auto(ref) {}
+    //rs_sf_image_impl(rs_sf_image_auto&& ref) : rs_sf_image_auto(ref) {}
 };
 
 typedef rs_sf_image_impl<1> rs_sf_image_mono;

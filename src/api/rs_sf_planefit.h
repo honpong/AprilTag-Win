@@ -87,15 +87,18 @@ protected:
         inline void swap(scene& ref) { pt_cloud.swap(ref.pt_cloud); planes.swap(ref.planes); std::swap(cam_pose, ref.cam_pose); }
     };
 
+    // state memory
     rs_sf_intrinsics m_intrinsics;
     parameter m_param;
     scene m_view, m_ref_scene;
+    
+private:
+
+    // temporary memory
     vec_pt_ref m_inlier_buf;
     vec_plane_ref m_tracked_pid, m_sorted_plane_ptr;
     int m_pt_cloud_img_w, m_pt_cloud_img_h, m_pt_cloud_reserve;
 
-private:
-    
     // per frame detection
     i2 project_dn_i(const v3& cam_pt) const;
     v3 unproject(const float u, const float v, const float z) const;

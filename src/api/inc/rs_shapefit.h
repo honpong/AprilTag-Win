@@ -37,13 +37,14 @@ extern "C"
         int num_char() const { return num_pixel() * byte_per_pixel; }
     };
 
+    struct rs_sf_planefit;
+
     enum rs_sf_status {
         RS_SF_INVALID_ARG = -2,
         RS_SF_FAILED = -1,
         RS_SF_SUCCESS = 0
     };
 
-    struct rs_sf_planefit;
     enum rs_sf_planefit_option
     {
         RS_SF_PLANEFIT_OPTION_TRACK = 0,
@@ -95,12 +96,18 @@ struct rs_sf_image_impl : public rs_sf_image_auto
         if (v) memcpy(data, v, num_char());
         set_pose(pose);
     }
-    //rs_sf_image_impl(rs_sf_image_auto&& ref) : rs_sf_image_auto(ref) {}
 };
 
 typedef rs_sf_image_impl<1> rs_sf_image_mono;
 typedef rs_sf_image_impl<2> rs_sf_image_depth;
 typedef rs_sf_image_impl<3> rs_sf_image_rgb;
+
+struct rs_sf_planefit_ptr : public std::unique_ptr<rs_sf_planefit, void(*)(rs_sf_planefit*)>
+{
+    rs_sf_planefit_ptr(const rs_sf_intrinsics* camera = nullptr) :
+        std::unique_ptr<rs_sf_planefit, void(*)(rs_sf_planefit*)>(
+        (camera ? rs_sf_planefit_create(camera) : nullptr), rs_sf_planefit_delete) {}
+};
 
 #endif
 

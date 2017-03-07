@@ -21,7 +21,7 @@ struct rs_sf_planefit
         float max_normal_thr = 0.7f;
         int min_num_plane_pt = 150;
         float min_z_value = 100.0f;
-        float max_z_value = 2500.0f;
+        float max_z_value = 3500.0f;
         int max_num_plane_output = MAX_VALID_PID;
         int track_x_dn_sample = 16 * 8;
         int track_y_dn_sample = 16 * 8;

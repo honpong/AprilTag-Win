@@ -283,6 +283,6 @@ void scale_plane_ids(rs_sf_image * map, int max_pid)
 {
     max_pid = std::max(1, max_pid);
     for (int p = map->num_pixel() - 1; p >= 0; --p)
-        map->data[p] = map->data[p] * 255 / max_pid;
+        map->data[p] = map->data[p] * 254 / max_pid;
 }
 

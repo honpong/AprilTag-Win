@@ -53,7 +53,6 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
 
     // search for old planes
     map_candidate_plane_from_past(m_view, m_ref_scene);
-    //find_candidate_plane_from_past(m_view, m_ref_scene);
     grow_planecandidate(m_view.pt_cloud, m_view.planes);
     non_max_plane_suppression(m_view.pt_cloud, m_view.planes);
     combine_planes_from_the_same_past(m_view, m_ref_scene);

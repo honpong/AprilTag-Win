@@ -309,7 +309,7 @@ bool run_planefit(rs_sf_planefit * planefitter, rs_sf_image img[2])
 
     // plane map display
     rs_sf_image_mono pid(&img[0]);
-    rs_sf_planefit_draw_plane_ids(planefitter, &pid);
+    rs_sf_planefit_draw_plane_ids(planefitter, &pid, RS_SF_PLANEFIT_DRAW_SCALED);
 
     // gl drawing
     rs_sf_image show[] = { img[0], img[1], rgb, pid };

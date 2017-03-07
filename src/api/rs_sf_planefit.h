@@ -108,6 +108,7 @@ private:
     void img_pointcloud_to_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& img_planes, int candidate_y_dn_sample = -1, int candidate_x_dn_sample = -1);
     bool is_inlier(const plane& candidate, const pt3d& p);
     void grow_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& plane_candidates);
+    void grow_inlier_buffer(pt3d src_img_pt[], plane& plane_candidate, std::vector<pt3d*>& seeds);
     void test_planecandidate(vec_pt3d& pt_cloud, vec_plane& plane_candidates);
     void non_max_plane_suppression(vec_pt3d& pt_cloud, vec_plane& plane_candidates);
     void sort_plane_size(vec_plane& planes, vec_plane_ref& sorted_planes);

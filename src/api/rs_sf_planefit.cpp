@@ -354,42 +354,9 @@ void rs_sf_planefit::grow_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& plan
 
         plane.pts.clear();
         if (!plane.src || plane.src->best_plane) continue;
-        plane.pts.reserve(m_pt_cloud_reserve >> 1);
-
-        m_inlier_buf.clear();
-        m_inlier_buf.push_back(plane.src);
-
-        plane.src->best_plane = &plane;
-        while (!m_inlier_buf.empty())
-        {
-            // new inlier point
-            const auto& p = m_inlier_buf.back();
-            m_inlier_buf.pop_back();
-
-            // store this inlier
-            plane.pts.push_back(p);
-
-            // neighboring points
-            const int x = p->ppx % m_pt_cloud_img_w, y = p->ppx / m_pt_cloud_img_w;
-            const int xb[] = { x - 1, x + 1, x, x };
-            const int yb[] = { y, y, y - 1, y + 1 };
-            const int pb[] = { p->ppx - 1, p->ppx + 1, p->ppx - m_pt_cloud_img_w, p->ppx + m_pt_cloud_img_w };
-
-            // grow
-            for (int b = 0; b < 4; ++b)
-            {
-                if (is_within_pt_cloud_fov(xb[b], yb[b])) //within fov
-                {
-                    auto& pt = src_img_point[pb[b]];
-                    if (!pt.best_plane && is_inlier(plane, pt)) //accept plane point
-                    {
-                        pt.best_plane = &plane;
-                        m_inlier_buf.push_back(&pt);
-                    }
-                }
-            }
-        }
-
+        
+        grow_inlier_buffer(src_img_point, plane, std::vector<pt3d*>{ plane.src });
+        
         // reset marker for next plane candidate
         for (auto& p : plane.pts)
             p->best_plane = nullptr;
@@ -397,6 +364,44 @@ void rs_sf_planefit::grow_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& plan
         if (plane.pts.size() < m_param.min_num_plane_pt)
         {
             plane.pts.clear();
+        }
+    }
+}
+
+void rs_sf_planefit::grow_inlier_buffer(pt3d src_img_point[], plane & plane_candidate, std::vector<pt3d*>& seeds)
+{
+    m_inlier_buf.clear();
+    m_inlier_buf.assign(seeds.begin(), seeds.end());
+    for (auto& p : m_inlier_buf) { p->best_plane = &plane_candidate; }
+    plane_candidate.pts.reserve(m_pt_cloud_reserve >> 1);
+
+    while (!m_inlier_buf.empty())
+    {
+        // new inlier point
+        const auto& p = m_inlier_buf.back();
+        m_inlier_buf.pop_back();
+
+        // store this inlier
+        plane_candidate.pts.push_back(p);
+
+        // neighboring points
+        const int x = p->ppx % m_pt_cloud_img_w, y = p->ppx / m_pt_cloud_img_w;
+        const int xb[] = { x - 1, x + 1, x, x };
+        const int yb[] = { y, y, y - 1, y + 1 };
+        const int pb[] = { p->ppx - 1, p->ppx + 1, p->ppx - m_pt_cloud_img_w, p->ppx + m_pt_cloud_img_w };
+
+        // grow
+        for (int b = 0; b < 4; ++b)
+        {
+            if (is_within_pt_cloud_fov(xb[b], yb[b])) //within fov
+            {
+                auto& pt = src_img_point[pb[b]];
+                if (!pt.best_plane && is_inlier(plane_candidate, pt)) //accept plane point
+                {
+                    pt.best_plane = &plane_candidate;
+                    m_inlier_buf.push_back(&pt);
+                }
+            }
         }
     }
 }
@@ -409,9 +414,15 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d& pt_cloud, vec_plane& pl
         const bool is_past_plane = (plane.past_plane != nullptr);
         for (auto& pt : plane.pts)
         {
-            if (!pt->best_plane ||                                 //no assignment
-                (is_past_plane && !pt->best_plane->past_plane) ||  //previous assignment not a tracked plane
-                (is_past_plane && (int)pt->best_plane->pts.size() < this_plane_size)) //this is a better tracked plane
+            if (!pt->best_plane)         //no assignment yet 
+                pt->best_plane = &plane; //new assignment
+            else if (is_past_plane) {    //is a tracked plane
+                if (!pt->best_plane->past_plane || //overwrite a new plane
+                    (int)pt->best_plane->pts.size() < this_plane_size) //overwrite a smaller tracked plane
+                    pt->best_plane = &plane;
+            }
+            else if (!pt->best_plane->past_plane &&  //both are new planes
+                (int)pt->best_plane->pts.size() < this_plane_size) //overwrite a smaller new plane
                 pt->best_plane = &plane;
         }
     }
@@ -474,7 +485,6 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
             current_view.planes.emplace_back(past_plane.normal, past_plane.d, past_plane.src, INVALID_PID, &past_plane);
             past_to_current_planes[past_plane.pid] = &current_view.planes.back();
             past_to_current_planes[past_plane.pid]->best_pts.reserve(past_plane.pts.size());
-            past_to_current_planes[past_plane.pid]->pts.reserve(past_plane.pts.size());
         }
     }
     
@@ -540,45 +550,10 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
     }
 
     // grow current 
-    auto& src_img_point = current_view.pt_cloud;
+    auto src_img_point = current_view.pt_cloud.data();
     for (auto& current_plane : current_view.planes)
     {
-        m_inlier_buf.clear();
-        m_inlier_buf.assign(current_plane.best_pts.begin(), current_plane.best_pts.end());
-        for (auto& p : m_inlier_buf) { p->best_plane = &current_plane; }
-
-        while (!m_inlier_buf.empty())
-        {
-            auto p = m_inlier_buf.back();
-            m_inlier_buf.pop_back();
-
-            // store this point
-            current_plane.pts.push_back(p);
-
-            // neighboring points
-            const int x = p->ppx % m_pt_cloud_img_w, y = p->ppx / m_pt_cloud_img_w;
-            const int xb[] = { x - 1, x + 1, x, x };
-            const int yb[] = { y, y, y - 1, y + 1 };
-            const int pb[] = { p->ppx - 1, p->ppx + 1, p->ppx - m_pt_cloud_img_w, p->ppx + m_pt_cloud_img_w };
-
-            // grow
-            for (int b = 0; b < 4; ++b)
-            {
-                if (is_within_pt_cloud_fov(xb[b], yb[b])) //within fov
-                {
-                    auto& new_pt = src_img_point[pb[b]];
-                    if (!new_pt.best_plane && is_inlier(current_plane, new_pt)) //accept plane point
-                    {
-                        new_pt.best_plane = &current_plane;
-                        m_inlier_buf.push_back(&new_pt);
-                    }
-                }
-            }
-        }
-
-        // clean up
-        for (auto& p : current_plane.pts)
-            p->best_plane = nullptr;
+        grow_inlier_buffer(src_img_point, current_plane, current_plane.best_pts);
     }
 
     // coarse grid candidate sampling

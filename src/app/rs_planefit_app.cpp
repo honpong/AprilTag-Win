@@ -175,8 +175,8 @@ int run_planefit_live() try
 
     auto stream = config.open(dev);
     auto intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH);
-    auto planefitter = rs_sf_planefit_create((rs_sf_intrinsics*)&intrinsics);
-
+    auto planefitter = rs_sf_planefit_ptr((rs_sf_intrinsics*)&intrinsics);
+    
     rs::util::syncer syncer;
     stream.start(syncer);
     dev.set_option(RS_OPTION_EMITTER_ENABLED, 1);
@@ -207,11 +207,10 @@ int run_planefit_live() try
         image[1].byte_per_pixel = 1;
         image[0].frame_id = image[1].frame_id = frame_id++;
 
-        if (!run_planefit(planefitter, image)) break;
+        if (!run_planefit(planefitter.get(), image)) break;
         memcpy(prev_depth.data(), frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char());
     }
 
-    if (planefitter) rs_sf_planefit_delete(planefitter);
     //if (sp_init) rs_sf_pose_tracking_release();
     return 0;
 }
@@ -228,7 +227,7 @@ catch (const std::exception & e)
 
 int run_planefit_offline(const std::string& path)
 {
-    rs_sf_planefit* planefitter = nullptr;
+    rs_sf_planefit_ptr planefitter;
     int frame_num = 0;
     bool sp_init = false;
     while (true)
@@ -240,7 +239,7 @@ int run_planefit_offline(const std::string& path)
         }
 
         if (!planefitter) {
-            planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
+            planefitter = rs_sf_planefit_ptr(&data.depth_intrinsics);
             //sp_init = rs_sf_setup_scene_perception(
             //    data.depth_intrinsics.cam_fx, data.depth_intrinsics.cam_fy,
             //    data.depth_intrinsics.cam_px, data.depth_intrinsics.cam_py,
@@ -248,11 +247,10 @@ int run_planefit_offline(const std::string& path)
             //    320, 240, RS_SF_LOW_RESOLUTION);
         }
 
-        if (!run_planefit(planefitter, data.images)) break;
+        if (!run_planefit(planefitter.get(), data.images)) break;
     }
 
     //if (sp_init) rs_sf_pose_tracking_release();
-    if (planefitter) rs_sf_planefit_delete(planefitter);
     return 0;
 }
 

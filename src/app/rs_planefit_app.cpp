@@ -234,7 +234,10 @@ int run_planefit_offline(const std::string& path)
     while (true)
     {
         frame_data data(path, frame_num++);
-        if (data.src_image[0] == nullptr) break;
+        if (data.src_image[0] == nullptr) {
+            frame_num = 0;
+            continue;
+        }
 
         if (!planefitter) {
             planefitter = rs_sf_planefit_create(&data.depth_intrinsics);

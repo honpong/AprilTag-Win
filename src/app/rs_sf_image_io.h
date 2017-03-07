@@ -54,7 +54,7 @@ std::unique_ptr<rs_sf_image_auto> rs_sf_image_read(std::string& filename, const 
 
         stream_data.close();
     }
-    
+
     return std::move(dst);
 }
 
@@ -67,7 +67,7 @@ struct rs_sf_gl_context
     std::string key;
     texture_buffer texture;
 
-    rs_sf_gl_context(const std::string& _key, int w = 1280, int h = 480) : key(_key) {
+    rs_sf_gl_context(const std::string& _key, int w = 1280, int h = 480 * 2) : key(_key) {
         glfwInit();
         win = glfwCreateWindow(w, h, key.c_str(), nullptr, nullptr);
         glfwMakeContextCurrent(win);
@@ -100,7 +100,7 @@ struct rs_sf_gl_context
 
             auto tiles = static_cast<int>(ceil(sqrt(num_images)));// frames.size())));
             auto tile_w = static_cast<float>(w) / tiles;
-            auto tile_h = static_cast<float>(h) / 1;
+            auto tile_h = static_cast<float>(h) / (num_images <= 2 ? 1 : tiles);
 
             rs_format stream_format[] = { RS_FORMAT_RAW8, RS_FORMAT_Z16, RS_FORMAT_RGB8 };
             for (int index = 0; index < num_images; ++index)
@@ -114,9 +114,9 @@ struct rs_sf_gl_context
             }
 
             if (text != nullptr)
-                draw_text(20 + w - w/num_images, h-20, text);
+                draw_text(20 + w / 2, h - 20, text);
 
-            glPopMatrix();        
+            glPopMatrix();
             glfwSwapBuffers(win);
 
             return true;

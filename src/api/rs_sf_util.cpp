@@ -241,13 +241,13 @@ void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3])
 
 void draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *src, const unsigned char * rgb_table[3], int num_color)
 {
-    static unsigned char default_r[256] = { 0 };
-    static unsigned char default_g[256] = { 0 };
-    static unsigned char default_b[256] = { 0 };
+    static unsigned char default_r[MAX_VALID_PID + 1] = { 0 };
+    static unsigned char default_g[MAX_VALID_PID + 1] = { 0 };
+    static unsigned char default_b[MAX_VALID_PID + 1] = { 0 };
     static unsigned char* default_rgb_table[3] = { default_r,default_g,default_b };
-    if (default_rgb_table[0][255] == 0)
+    if (default_rgb_table[0][MAX_VALID_PID] == 0)
     {
-        for (int pid = 255; pid >= 0; --pid)
+        for (int pid = MAX_VALID_PID + 1; pid >= 0; --pid)
         {
             default_rgb_table[0][pid] = (pid & 0x01) << 7 | (pid & 0x08) << 3 | (pid & 0x40) >> 1;
             default_rgb_table[1][pid] = (pid & 0x02) << 6 | (pid & 0x10) << 2 | (pid & 0x80) >> 2;
@@ -273,6 +273,16 @@ void draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *
             rgb->data[p * 3 + 1] |= rgb_table[1][pid];
             rgb->data[p * 3 + 2] |= rgb_table[2][pid];
         }
+        else if (pid == PLANE_SRC_PID) {
+            rgb->data[p * 3] = rgb->data[p * 3 + 1] = rgb->data[p * 3 + 2] = 255;
+        }
     }
+}
+
+void scale_plane_ids(rs_sf_image * map, int max_pid)
+{
+    max_pid = std::max(1, max_pid);
+    for (int p = map->num_pixel() - 1; p >= 0; --p)
+        map->data[p] = map->data[p] * 255 / max_pid;
 }
 

@@ -55,6 +55,7 @@ extern "C"
 
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_depth_image(rs_sf_planefit* obj, const rs_sf_image* image, rs_sf_planefit_option option = RS_SF_PLANEFIT_OPTION_TRACK);
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_planes(const rs_sf_planefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr);
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_plane_ids(const rs_sf_planefit* obj, rs_sf_image* mono);
 
 #ifdef __cplusplus
 }

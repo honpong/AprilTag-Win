@@ -3,8 +3,9 @@
 #include "json/json.h"
 #include "rs_shapefit.h"
 #include "rs_sf_image_io.h"
+//#include "rs_sf_pose_tracker.h"
 
-std::string path = "c:\\temp\\shapefit\\a\\";
+std::string path = "c:\\temp\\shapefit\\b\\";
 const int image_set_size = 200;
 
 int capture_frames(const std::string& path);
@@ -112,11 +113,16 @@ int capture_frames(const std::string& path) {
     struct dataset { std::unique_ptr<rs_sf_image_auto> depth, ir, displ; };
     std::deque<dataset> image_set;
 
-    rs_sf_gl_context win("display");
+    rs_sf_gl_context win("capture", 1280, 480);
+    std::unique_ptr<rs_sf_image_depth> prev_depth;
     while (1) {
         auto fs = syncer.wait_for_frames();
         if (fs.size() == 0) break;
-        if (fs.size() < 2) continue;
+        if (fs.size() < 2) {
+            if (fs[0].get_format() == RS_STREAM_DEPTH)
+                prev_depth = std::make_unique<rs_sf_image_depth>(fs[0].get_width(), fs[0].get_height(), fs[0].get_data());
+            continue;
+        }
 
         rs::frame* frames[RS_STREAM_COUNT];
         for (auto& f : fs) { frames[f.get_stream_type()] = &f; }
@@ -125,7 +131,9 @@ int capture_frames(const std::string& path) {
         auto img_h = frames[RS_STREAM_DEPTH]->get_height();
 
         image_set.push_back({});
-        auto depth_data = (unsigned short*)(image_set.back().depth = std::make_unique<rs_sf_image_depth>(img_w, img_h, frames[RS_STREAM_DEPTH]->get_data()))->data;
+        image_set.back().depth = std::move(prev_depth);
+        prev_depth = std::make_unique<rs_sf_image_depth>(img_w, img_h, frames[RS_STREAM_DEPTH]->get_data());
+        auto depth_data = (unsigned short*)image_set.back().depth->data;
         auto ir_data = (image_set.back().ir = std::make_unique<rs_sf_image_mono>(img_w, img_h, frames[RS_STREAM_INFRARED]->get_data()))->data;
         auto displ_data = (image_set.back().displ = std::make_unique<rs_sf_image_mono>(img_w * 2, img_h))->data;
         for (int y = 0, p = 0; y < img_h; ++y) {
@@ -166,13 +174,19 @@ int run_planefit_live() try
     config.enable_stream(RS_STREAM_INFRARED, 640, 480, 30, RS_FORMAT_Y8);
 
     auto stream = config.open(dev);
-    auto intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH); 
+    auto intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH);
     auto planefitter = rs_sf_planefit_create((rs_sf_intrinsics*)&intrinsics);
 
     rs::util::syncer syncer;
     stream.start(syncer);
     dev.set_option(RS_OPTION_EMITTER_ENABLED, 1);
     dev.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
+
+   // bool sp_init = rs_sf_setup_scene_perception(
+   //    intrinsics.fx, intrinsics.fy,
+   //     intrinsics.ppx, intrinsics.ppy,
+   //     intrinsics.width, intrinsics.height,
+   //     320, 240, RS_SF_LOW_RESOLUTION);
 
     std::vector<unsigned short> prev_depth(480 * 640);
     int frame_id = 0;
@@ -184,7 +198,7 @@ int run_planefit_live() try
         rs::frame* frames[RS_STREAM_COUNT];
         for (auto& f : fs) { frames[f.get_stream_type()] = &f; }
 
-        rs_sf_image image[] = { {}, {} };
+        rs_sf_image image[] = { {},{} };
         image[0].data = (unsigned char*)prev_depth.data(); // (unsigned char*)frames[RS_STREAM_DEPTH]->get_data();
         image[1].data = (unsigned char*)frames[RS_STREAM_INFRARED]->get_data();
         image[0].img_w = image[1].img_w = frames[RS_STREAM_DEPTH]->get_width();
@@ -194,10 +208,11 @@ int run_planefit_live() try
         image[0].frame_id = image[1].frame_id = frame_id++;
 
         if (!run_planefit(planefitter, image)) break;
-        memcpy(prev_depth.data(), frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char()); 
+        memcpy(prev_depth.data(), frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char());
     }
 
     if (planefitter) rs_sf_planefit_delete(planefitter);
+    //if (sp_init) rs_sf_pose_tracking_release();
     return 0;
 }
 catch (const rs::error & e)
@@ -214,29 +229,71 @@ catch (const std::exception & e)
 int run_planefit_offline(const std::string& path)
 {
     rs_sf_planefit* planefitter = nullptr;
-    auto win = rs_sf_gl_context("display", 640, 480);
     int frame_num = 0;
+    bool sp_init = false;
     while (true)
     {
         frame_data data(path, frame_num++);
-        if (data.src_image[0]->src == nullptr) break;
+        if (data.src_image[0] == nullptr) break;
 
-        if (!planefitter) planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
+        if (!planefitter) {
+            planefitter = rs_sf_planefit_create(&data.depth_intrinsics);
+            //sp_init = rs_sf_setup_scene_perception(
+            //    data.depth_intrinsics.cam_fx, data.depth_intrinsics.cam_fy,
+            //    data.depth_intrinsics.cam_px, data.depth_intrinsics.cam_py,
+            //    data.depth_intrinsics.img_w, data.depth_intrinsics.img_h,
+            //    320, 240, RS_SF_LOW_RESOLUTION);
+        }
 
         if (!run_planefit(planefitter, data.images)) break;
     }
 
+    //if (sp_init) rs_sf_pose_tracking_release();
     if (planefitter) rs_sf_planefit_delete(planefitter);
     return 0;
 }
 
 bool run_planefit(rs_sf_planefit * planefitter, rs_sf_image img[2])
 {
-    static rs_sf_gl_context win("display");
+    static rs_sf_gl_context win("display"); 
+    //static std::unique_ptr<float[]> buf;
+    //static bool was_tracking = false;
+    //static std::vector<unsigned short> sdepth(img[0].num_pixel() / 4);
+    //static std::vector<unsigned char> scolor(img[1].num_pixel() / 4 * 3);
 
-    // do plane fit
     auto start_time = std::chrono::steady_clock::now();
-    if (rs_sf_planefit_depth_image(planefitter, img /*, RS_SF_PLANEFIT_OPTION_RESET*/)) return false;
+    /*
+    auto depth_data = (unsigned short*)img[0].data;
+    auto ir_data = img[1].data;
+    auto s_depth_data = sdepth.data();
+    auto s_color_data = scolor.data();
+    for (int y = 0, p = 0, w = img[0].img_w; y < 240; ++y) {
+        for (int x = 0; x < 320; ++x, ++p) {
+            const int p_src = (y * w + x) << 1;
+            s_depth_data[p] = depth_data[p_src];
+            s_color_data[p * 3] = s_color_data[p * 3 + 1] = s_color_data[p * 3 + 2] = ir_data[p_src];
+        }
+    }
+
+    float camPose[12];
+    bool bResetRequest = false;
+    bool track_success = rs_sf_do_scene_perception_tracking(sdepth.data(), scolor.data(), bResetRequest, camPose);
+    bool cast_success = rs_sf_do_scene_perception_ray_casting(320, 240, sdepth.data(), buf);
+    bool switch_track = (track_success && cast_success) != was_tracking;
+
+    if (was_tracking = (track_success && cast_success)) {
+        for (int y = 0, p = 0; y < 480; ++y) {
+            for (int x = 0; x < 640; ++x, ++p) {
+                depth_data[p] = s_depth_data[(y >> 1) * 320 + (x >> 1)];
+            }
+        }
+        camPose[3] *= 1000.f; camPose[7] *= 1000.0f; camPose[11] *= 1000.0f;
+        img[0].cam_pose = img[1].cam_pose = camPose;
+    }
+    */
+
+    // do plane fit    
+    if (rs_sf_planefit_depth_image(planefitter, img /*, !switch_track ? RS_SF_PLANEFIT_OPTION_TRACK : RS_SF_PLANEFIT_OPTION_RESET*/)) return false;
     std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 
     // time measure
@@ -247,7 +304,11 @@ bool run_planefit(rs_sf_planefit * planefitter, rs_sf_image img[2])
     rs_sf_image_rgb rgb(&img[1]);
     rs_sf_planefit_draw_planes(planefitter, &rgb, &img[1]);
 
+    // plane map display
+    rs_sf_image_mono pid(&img[0]);
+    rs_sf_planefit_draw_plane_ids(planefitter, &pid);
+
     // gl drawing
-    rs_sf_image show[] = { img[0], rgb };
-    return win.imshow(show, 2, text);
+    rs_sf_image show[] = { img[0], img[1], rgb, pid };
+    return win.imshow(show, 4, text);
 }

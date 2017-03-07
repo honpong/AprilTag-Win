@@ -15,7 +15,6 @@ struct rs_sf_planefit
         int img_y_dn_sample = 4;
         bool hole_fill_plane_map = true;
 #endif
-        int point_cloud_reserve = -1;
         int candidate_x_dn_sample = 16;
         int candidate_y_dn_sample = 16;
         float max_fit_err_thr = 30.0f;
@@ -23,8 +22,7 @@ struct rs_sf_planefit
         int min_num_plane_pt = 150;
         float min_z_value = 100.0f;
         float max_z_value = 2500.0f;
-        int max_num_plane_output = 254;
-        bool keep_previous_plane_pts = false;
+        int max_num_plane_output = MAX_VALID_PID;
         int track_x_dn_sample = 16 * 8;
         int track_y_dn_sample = 16 * 8;
     };
@@ -34,16 +32,36 @@ struct rs_sf_planefit
     rs_sf_status track_depth_image(const rs_sf_image* img);
 
     int num_detected_planes() const;
+    int max_detected_pid() const;
     rs_sf_status get_plane_index_map(rs_sf_image* map, int hole_filled = -1) const; 
+    rs_sf_status mark_plane_src_on_map(rs_sf_image* map) const;
 
 protected:
 
-    typedef Eigen::Matrix<float, 3, 1> v3;
-    typedef Eigen::Matrix<int, 2, 1> i2;
-    typedef Eigen::Quaternion<float> rotation;
-    static const int INVALID_PID = -1;
-    static const int MAX_VALID_PID = 254;
+    static const int INVALID_PID = 0;
+    
+    typedef Eigen::Vector3f v3;
+    typedef Eigen::Vector2i i2;
+    struct pose_t {
+        Eigen::Matrix3f rotation;
+        Eigen::Vector3f translation;
 
+        inline void set_pose(const float p[12] = nullptr) {
+            if (p) {
+                rotation << p[0], p[1], p[2], p[4], p[5], p[6], p[8], p[9], p[10];
+                translation << p[3], p[7], p[11];
+            }
+            else { rotation.setIdentity(); translation.setZero(); }
+        }
+        inline v3 transform(const v3& p) const { return rotation*p + translation; }
+        inline pose_t invert() const {
+            pose_t inv_pose;
+            inv_pose.rotation = rotation.transpose();
+            inv_pose.translation = -(inv_pose.rotation * translation);
+            return inv_pose;
+        }
+    };
+    
     struct plane;
     struct pt3d {
         v3 pos, normal; int px, ppx; plane* best_plane;
@@ -64,8 +82,9 @@ protected:
     struct scene {
         vec_pt3d pt_cloud;
         vec_plane planes;
-        void clear() { pt_cloud.clear(); planes.clear(); }
-        void swap(scene& ref) { pt_cloud.swap(ref.pt_cloud); planes.swap(ref.planes); }
+        pose_t cam_pose;
+        inline void clear() { pt_cloud.clear(); planes.clear(); cam_pose.set_pose(); }
+        inline void swap(scene& ref) { pt_cloud.swap(ref.pt_cloud); planes.swap(ref.planes); std::swap(cam_pose, ref.cam_pose); }
     };
 
     rs_sf_intrinsics m_intrinsics;
@@ -73,13 +92,18 @@ protected:
     scene m_view, m_ref_scene;
     vec_pt_ref m_inlier_buf;
     vec_plane_ref m_tracked_pid, m_sorted_plane_ptr;
+    int m_pt_cloud_img_w, m_pt_cloud_img_h, m_pt_cloud_reserve;
 
 private:
     
     // per frame detection
-    bool is_valid_pt3d_z(const pt3d& pt) const;
+    i2 project_dn_i(const v3& cam_pt) const;
+    v3 unproject(const float u, const float v, const float z) const;
+    bool is_within_pt_cloud_fov(const int x, const int y) const;
+    bool is_valid_raw_z(const float z) const;
+    bool is_valid_pt3d_pos(const pt3d& pt) const;
     bool is_valid_pt3d_normal(const pt3d& pt) const;
-    void image_to_pointcloud(const rs_sf_image* img, vec_pt3d& pt_cloud);
+    void image_to_pointcloud(const rs_sf_image* img, vec_pt3d& pt_cloud, pose_t& pose);
     void img_pointcloud_to_normal(vec_pt3d& img_pt_cloud);
     void img_pointcloud_to_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& img_planes, int candidate_y_dn_sample = -1, int candidate_x_dn_sample = -1);
     bool is_inlier(const plane& candidate, const pt3d& p);
@@ -89,8 +113,9 @@ private:
     void sort_plane_size(vec_plane& planes, vec_plane_ref& sorted_planes);
 
     // plane tracking
+    bool is_valid_past_plane(const plane& past_plane) const;
     void save_current_scene_as_reference();
-    void find_candidate_plane_from_past(scene& current_view, scene& past_view);
+    void map_candidate_plane_from_past(scene& current_view, scene& past_view);
     void combine_planes_from_the_same_past(scene& current_view, scene& past_view);
     void assign_planes_pid(vec_plane_ref& sorted_planes);
     bool is_tracked_pid(int pid);

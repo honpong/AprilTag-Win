@@ -35,8 +35,8 @@ rs_sf_status rs_sf_planefit_draw_planes(const rs_sf_planefit * obj, rs_sf_image 
 
 RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_plane_ids(const rs_sf_planefit * obj, rs_sf_image * mono)
 {
-    if (!obj || !mono) return RS_SF_INVALID_ARG; 
-    obj->get_plane_index_map(mono);
+    if (!obj || !mono) return RS_SF_INVALID_ARG;
+    obj->get_plane_index_map(mono, mono->cam_pose ? 0 : -1);
     scale_plane_ids(mono, obj->max_detected_pid());
 
     return RS_SF_SUCCESS;

@@ -1,7 +1,10 @@
 #pragma once
+#ifndef rs_sf_planefit_h
+#define rs_sf_planefit_h
+
 #include "rs_sf_util.h"
 
-struct rs_sf_planefit
+struct rs_sf_planefit : public rs_shapefit
 {
     struct parameter
     {
@@ -35,6 +38,7 @@ struct rs_sf_planefit
     int max_detected_pid() const;
     rs_sf_status get_plane_index_map(rs_sf_image* map, int hole_filled = -1) const; 
     rs_sf_status mark_plane_src_on_map(rs_sf_image* map) const;
+    rs_sf_status get_plane_equation(int pid, float equ[4]) const;
 
 protected:
 
@@ -130,3 +134,5 @@ private:
     // debug only
     rs_sf_image ref_img;
 };
+
+#endif // ! rs_sf_planefit_h

@@ -11,7 +11,7 @@ const int image_set_size = 200;
 int capture_frames(const std::string& path);
 int run_planefit_live();
 int run_planefit_offline(const std::string& path);
-bool run_planefit(rs_sf_planefit* planefitter, rs_sf_image img[2]);
+bool run_planefit(rs_shapefit* planefitter, rs_sf_image img[2]);
 
 int main(int argc, char* argv[])
 {
@@ -254,7 +254,7 @@ int run_planefit_offline(const std::string& path)
     return 0;
 }
 
-bool run_planefit(rs_sf_planefit * planefitter, rs_sf_image img[2])
+bool run_planefit(rs_shapefit * planefitter, rs_sf_image img[2])
 {
     static rs_sf_gl_context win("display"); 
     //static std::unique_ptr<float[]> buf;

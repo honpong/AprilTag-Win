@@ -95,12 +95,13 @@ protected:
     rs_sf_intrinsics m_intrinsics;
     parameter m_param;
     scene m_view, m_ref_scene;
+    vec_plane_ref m_tracked_pid;
     
 private:
 
     // temporary memory
     vec_pt_ref m_inlier_buf;
-    vec_plane_ref m_tracked_pid, m_sorted_plane_ptr;
+    vec_plane_ref m_sorted_plane_ptr;
     int m_pt_cloud_img_w, m_pt_cloud_img_h, m_pt_cloud_reserve;
 
     // per frame detection

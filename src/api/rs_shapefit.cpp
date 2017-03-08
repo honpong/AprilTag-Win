@@ -54,7 +54,7 @@ rs_sf_status rs_sf_planefit_draw_plane_ids(const rs_shapefit * obj, rs_sf_image 
     return status;
 }
 
-rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit * obj, unsigned int pid, float equation[4])
+rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit * obj, int pid, float equation[4])
 {
     if (!obj || !equation) return RS_SF_INVALID_ARG;
     auto pf = dynamic_cast<const rs_sf_planefit*>(obj);

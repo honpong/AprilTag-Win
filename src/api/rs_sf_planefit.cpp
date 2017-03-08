@@ -18,7 +18,7 @@ rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
     if (!img || !img->data || img->byte_per_pixel != 2 ) return RS_SF_INVALID_ARG;
     
     // for debug
-    ref_img = img[1];
+    ref_img = img[0];
    
     //reset
     m_view.clear();
@@ -42,7 +42,7 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     if (!img || !img->data || img->byte_per_pixel != 2) return RS_SF_INVALID_ARG;
 
     // for debug 
-    ref_img = img[1];
+    ref_img = img[0];
 
     // save previous scene
     save_current_scene_as_reference();
@@ -341,7 +341,6 @@ void rs_sf_planefit::test_planecandidate(vec_pt3d& pt_cloud, vec_plane& plane_ca
         }
     }
 }
-
 
 void rs_sf_planefit::grow_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& plane_candidates)
 {

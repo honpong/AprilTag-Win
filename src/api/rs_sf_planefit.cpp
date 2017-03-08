@@ -1,5 +1,4 @@
 #include "rs_sf_planefit.h"
-#include <opencv2/opencv.hpp>
 
 rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera)
 {
@@ -191,6 +190,19 @@ rs_sf_status rs_sf_planefit::mark_plane_src_on_map(rs_sf_image * map) const
             map->data[y1*dst_w + x1] = PLANE_SRC_PID;
         }
     }
+
+    return RS_SF_SUCCESS;
+}
+
+rs_sf_status rs_sf_planefit::get_plane_equation(int pid, float equ[4]) const
+{
+    if (pid <= 0 || pid >= m_tracked_pid.size()) return RS_SF_INVALID_ARG;
+    if (!m_tracked_pid[pid]) return RS_SF_INVALID_ARG;
+
+    equ[0] = m_tracked_pid[pid]->normal[0];
+    equ[1] = m_tracked_pid[pid]->normal[1];
+    equ[2] = m_tracked_pid[pid]->normal[2];
+    equ[3] = m_tracked_pid[pid]->d;
 
     return RS_SF_SUCCESS;
 }

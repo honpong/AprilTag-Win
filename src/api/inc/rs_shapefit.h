@@ -37,32 +37,42 @@ extern "C"
         int num_char() const { return num_pixel() * byte_per_pixel; }
     };
 
-    struct rs_sf_planefit;
+    struct rs_shapefit;
 
-    enum rs_sf_status {
+    enum rs_sf_status
+    {
+        RS_SF_INVALID_OBJ_HANDLE = -3,
         RS_SF_INVALID_ARG = -2,
         RS_SF_FAILED = -1,
         RS_SF_SUCCESS = 0
     };
 
-    enum rs_sf_planefit_option
+    enum rs_shapefit_option
     {
-        RS_SF_PLANEFIT_OPTION_TRACK = 0,
-        RS_SF_PLANEFIT_OPTION_RESET = 1,
+        RS_SHAPEFIT_PLANE = 0,
+        RS_SHAPEFIT_BOX = 1,
     };
 
-    enum rs_sf_planefit_draw_opion
+    enum rs_sf_fit_option
+    {
+        RS_SHAPEFIT_OPTION_TRACK = 0,
+        RS_SHAPEFIT_OPTION_RESET = 1,
+    };
+
+    enum rs_sf_draw_opion
     {
         RS_SF_PLANEFIT_DRAW_ORIGINAL = 0,
         RS_SF_PLANEFIT_DRAW_SCALED = 1
     };
 
-    RS_SHAPEFIT_DECL rs_sf_planefit* rs_sf_planefit_create(const rs_sf_intrinsics* camera);
-    RS_SHAPEFIT_DECL void rs_sf_planefit_delete(rs_sf_planefit* obj);
+    RS_SHAPEFIT_DECL rs_shapefit* rs_shapefit_create(const rs_sf_intrinsics* camera, rs_shapefit_option option = RS_SHAPEFIT_PLANE);
+    RS_SHAPEFIT_DECL void rs_shapefit_delete(rs_shapefit* obj);
 
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_depth_image(rs_sf_planefit* obj, const rs_sf_image* image, rs_sf_planefit_option option = RS_SF_PLANEFIT_OPTION_TRACK);
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_planes(const rs_sf_planefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr);
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_plane_ids(const rs_sf_planefit* obj, rs_sf_image* mono, rs_sf_planefit_draw_opion option = RS_SF_PLANEFIT_DRAW_ORIGINAL );
+    /// Plane Fitting Functions
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_depth_image(rs_shapefit* obj, const rs_sf_image* image, rs_sf_fit_option option = RS_SHAPEFIT_OPTION_TRACK);
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr);
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_plane_ids(const rs_shapefit* obj, rs_sf_image* mono, rs_sf_draw_opion option = RS_SF_PLANEFIT_DRAW_ORIGINAL );
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit* obj, int pid, float equation[4]);
 
 #ifdef __cplusplus
 }
@@ -102,11 +112,11 @@ typedef rs_sf_image_impl<1> rs_sf_image_mono;
 typedef rs_sf_image_impl<2> rs_sf_image_depth;
 typedef rs_sf_image_impl<3> rs_sf_image_rgb;
 
-struct rs_sf_planefit_ptr : public std::unique_ptr<rs_sf_planefit, void(*)(rs_sf_planefit*)>
+struct rs_sf_planefit_ptr : public std::unique_ptr<rs_shapefit, void(*)(rs_shapefit*)>
 {
     rs_sf_planefit_ptr(const rs_sf_intrinsics* camera = nullptr) :
-        std::unique_ptr<rs_sf_planefit, void(*)(rs_sf_planefit*)>(
-        (camera ? rs_sf_planefit_create(camera) : nullptr), rs_sf_planefit_delete) {}
+        std::unique_ptr<rs_shapefit, void(*)(rs_shapefit*)>(
+        (camera ? rs_shapefit_create(camera) : nullptr), rs_shapefit_delete) {}
 };
 
 #endif

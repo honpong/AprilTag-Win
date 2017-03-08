@@ -350,28 +350,21 @@ void rs_sf_planefit::grow_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& plan
     for (auto& plane : plane_candidates)
     {
         if (plane.past_plane) continue;
-
-        plane.pts.clear();
         if (!plane.src || plane.src->best_plane) continue;
-        
+
         grow_inlier_buffer(src_img_point, plane, std::vector<pt3d*>{ plane.src });
-        
-        // reset marker for next plane candidate
-        for (auto& p : plane.pts)
-            p->best_plane = nullptr;
 
         if (plane.pts.size() < m_param.min_num_plane_pt)
-        {
             plane.pts.clear();
-        }
     }
 }
 
-void rs_sf_planefit::grow_inlier_buffer(pt3d src_img_point[], plane & plane_candidate, std::vector<pt3d*>& seeds)
+void rs_sf_planefit::grow_inlier_buffer(pt3d src_img_point[], plane & plane_candidate, std::vector<pt3d*>& seeds, bool reset_best_plane_ptr)
 {
     m_inlier_buf.clear();
     m_inlier_buf.assign(seeds.begin(), seeds.end());
     for (auto& p : m_inlier_buf) { p->best_plane = &plane_candidate; }
+    plane_candidate.pts.clear();
     plane_candidate.pts.reserve(m_pt_cloud_reserve >> 1);
 
     while (!m_inlier_buf.empty())
@@ -402,6 +395,12 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d src_img_point[], plane & plane_cand
                 }
             }
         }
+    }
+
+    if (reset_best_plane_ptr) {
+        // reset marker for next plane candidate
+        for (auto& p : plane_candidate.pts)
+            p->best_plane = nullptr;
     }
 }
 
@@ -552,7 +551,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
     auto src_img_point = current_view.pt_cloud.data();
     for (auto& current_plane : current_view.planes)
     {
-        grow_inlier_buffer(src_img_point, current_plane, current_plane.best_pts);
+        grow_inlier_buffer(src_img_point, current_plane, current_plane.best_pts, false); //do not grow the same point twice
     }
 
     // coarse grid candidate sampling
@@ -638,10 +637,7 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const vec_pt3d & img_pt_cloud,
             const auto x_src = x * src_w / dst_w;
             const auto y_src = y * src_h / dst_h;
             const auto best_plane = src_pt_cloud[y_src*src_w + x_src].best_plane;
-            if (best_plane != nullptr)
-                dst->data[p] = best_plane->pid + 1;
-            else
-                dst->data[p] = 0;
+            dst->data[p] = (best_plane ? best_plane->pid : 0);
         }
     }
 }

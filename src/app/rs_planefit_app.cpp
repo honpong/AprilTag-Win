@@ -294,7 +294,7 @@ bool run_planefit(rs_shapefit * planefitter, rs_sf_image img[2])
     */
 
     // do plane fit    
-    if (rs_sf_planefit_depth_image(planefitter, img /*, !switch_track ? RS_SF_PLANEFIT_OPTION_TRACK : RS_SF_PLANEFIT_OPTION_RESET*/)) return false;
+    if (rs_sf_planefit_depth_image(planefitter, img /*, !switch_track ? RS_SHAPEFIT_OPTION_TRACK : RS_SHAPEFIT_OPTION_RESET*/)) return false;
     std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 
     // time measure

@@ -7,7 +7,7 @@ rs_shapefit * rs_shapefit_create(const rs_sf_intrinsics * camera, rs_shapefit_op
 {
     switch (option) {
     case RS_SHAPEFIT_PLANE: return new rs_sf_planefit(camera);
-    case RS_SHAPEFIT_BOX: return nullptr;
+    case RS_SHAPEFIT_BOX: return new rs_sf_boxfit(camera);
     default: return nullptr;
     }
 }
@@ -61,4 +61,16 @@ rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit * obj, int pid, float
     if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
 
     return pf->get_plane_equation(pid, equation);
+}
+
+RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_depth_image(rs_shapefit * obj, const rs_sf_image * image, rs_sf_fit_option option)
+{
+    if (!obj || !image || !image->byte_per_pixel != 2) return RS_SF_INVALID_ARG;
+    auto bf = dynamic_cast<rs_sf_boxfit*>(obj);
+    if (!bf) return RS_SF_INVALID_OBJ_HANDLE;
+    
+    if (option == RS_SHAPEFIT_OPTION_TRACK && bf->num_detected_boxes() > 0)
+        return bf->track_depth_image(image);   //tracking mode
+    else
+        return bf->process_depth_image(image); //static mode
 }

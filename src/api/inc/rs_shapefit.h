@@ -74,6 +74,9 @@ extern "C"
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_plane_ids(const rs_shapefit* obj, rs_sf_image* mono, rs_sf_draw_opion option = RS_SF_PLANEFIT_DRAW_ORIGINAL );
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit* obj, int pid, float equation[4]);
 
+    /// Box Fitting Functions
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_depth_image(rs_shapefit* obj, const rs_sf_image* image, rs_sf_fit_option option = RS_SHAPEFIT_OPTION_TRACK);
+    
 #ifdef __cplusplus
 }
 

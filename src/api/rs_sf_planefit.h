@@ -31,8 +31,8 @@ struct rs_sf_planefit : public rs_shapefit
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);    
-    rs_sf_status process_depth_image(const rs_sf_image* img);
-    rs_sf_status track_depth_image(const rs_sf_image* img);
+    virtual rs_sf_status process_depth_image(const rs_sf_image* img);
+    virtual rs_sf_status track_depth_image(const rs_sf_image* img);
 
     int num_detected_planes() const;
     int max_detected_pid() const;
@@ -95,13 +95,12 @@ protected:
     rs_sf_intrinsics m_intrinsics;
     parameter m_param;
     scene m_view, m_ref_scene;
-    vec_plane_ref m_tracked_pid;
+    vec_plane_ref m_tracked_pid, m_sorted_plane_ptr;
     
 private:
 
     // temporary memory
     vec_pt_ref m_inlier_buf;
-    vec_plane_ref m_sorted_plane_ptr;
     int m_pt_cloud_img_w, m_pt_cloud_img_h, m_pt_cloud_reserve;
 
     // per frame detection

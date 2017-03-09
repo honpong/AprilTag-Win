@@ -57,6 +57,7 @@ extern "C"
     {
         RS_SHAPEFIT_OPTION_TRACK = 0,
         RS_SHAPEFIT_OPTION_RESET = 1,
+        RS_SHAPEFIT_OPTION_RAW_DEPTH = 2
     };
 
     enum rs_sf_draw_opion
@@ -68,15 +69,16 @@ extern "C"
     RS_SHAPEFIT_DECL rs_shapefit* rs_shapefit_create(const rs_sf_intrinsics* camera, rs_shapefit_option option = RS_SHAPEFIT_PLANE);
     RS_SHAPEFIT_DECL void rs_shapefit_delete(rs_shapefit* obj);
 
+    /// General Processing
+    RS_SHAPEFIT_DECL rs_sf_status rs_shapefit_depth_image(rs_shapefit* obj, const rs_sf_image* image, rs_sf_fit_option option = RS_SHAPEFIT_OPTION_TRACK);
+
     /// Plane Fitting Functions
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_depth_image(rs_shapefit* obj, const rs_sf_image* image, rs_sf_fit_option option = RS_SHAPEFIT_OPTION_TRACK);
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr);
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_plane_ids(const rs_shapefit* obj, rs_sf_image* mono, rs_sf_draw_opion option = RS_SF_PLANEFIT_DRAW_ORIGINAL );
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit* obj, int pid, float equation[4]);
 
     /// Box Fitting Functions
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_depth_image(rs_shapefit* obj, const rs_sf_image* image, rs_sf_fit_option option = RS_SHAPEFIT_OPTION_TRACK);
-    
+   
 #ifdef __cplusplus
 }
 

@@ -17,16 +17,19 @@ void rs_shapefit_delete(rs_shapefit * obj)
     if (obj) delete obj;
 }
 
-rs_sf_status rs_sf_planefit_depth_image(rs_shapefit * obj, const rs_sf_image * image, rs_sf_fit_option option)
+rs_sf_status rs_shapefit_depth_image(rs_shapefit * obj, const rs_sf_image * image, rs_sf_fit_option option)
 {
     if (!obj || !image || image->byte_per_pixel != 2) return RS_SF_INVALID_ARG;
-    auto pf = dynamic_cast<rs_sf_planefit*>(obj);
-    if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
 
-    if (option == RS_SHAPEFIT_OPTION_TRACK && pf->num_detected_planes() > 0)
-        return pf->track_depth_image(image);   //tracking mode
-    else
-        return pf->process_depth_image(image); //static mode
+    auto pf = dynamic_cast<rs_sf_planefit*>(obj);
+    if (pf) {
+        if (option == RS_SHAPEFIT_OPTION_TRACK && pf->num_detected_planes() > 0)
+            return pf->track_depth_image(image);   //tracking mode
+        else
+            return pf->process_depth_image(image); //static mode
+    }
+
+    return RS_SF_INVALID_OBJ_HANDLE;
 }
 
 rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * src)
@@ -61,16 +64,4 @@ rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit * obj, int pid, float
     if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
 
     return pf->get_plane_equation(pid, equation);
-}
-
-RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_depth_image(rs_shapefit * obj, const rs_sf_image * image, rs_sf_fit_option option)
-{
-    if (!obj || !image || !image->byte_per_pixel != 2) return RS_SF_INVALID_ARG;
-    auto bf = dynamic_cast<rs_sf_boxfit*>(obj);
-    if (!bf) return RS_SF_INVALID_OBJ_HANDLE;
-    
-    if (option == RS_SHAPEFIT_OPTION_TRACK && bf->num_detected_boxes() > 0)
-        return bf->track_depth_image(image);   //tracking mode
-    else
-        return bf->process_depth_image(image); //static mode
 }

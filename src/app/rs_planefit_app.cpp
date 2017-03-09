@@ -5,9 +5,10 @@
 #include "rs_sf_image_io.h"
 //#include "rs_sf_pose_tracker.h"
 
-std::string path = "c:\\temp\\shapefit\\b\\";
+std::string path = "c:\\temp\\shapefit\\a\\";
 const int image_set_size = 200;
 
+typedef rs_sf_boxfit_ptr rs_sf_ptr;
 int capture_frames(const std::string& path);
 int run_planefit_live();
 int run_planefit_offline(const std::string& path);
@@ -175,7 +176,7 @@ int run_planefit_live() try
 
     auto stream = config.open(dev);
     auto intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH);
-    auto planefitter = rs_sf_planefit_ptr((rs_sf_intrinsics*)&intrinsics);
+    auto planefitter = rs_sf_ptr((rs_sf_intrinsics*)&intrinsics);
     
     rs::util::syncer syncer;
     stream.start(syncer);
@@ -227,7 +228,7 @@ catch (const std::exception & e)
 
 int run_planefit_offline(const std::string& path)
 {
-    rs_sf_planefit_ptr planefitter;
+    rs_sf_ptr planefitter;
     int frame_num = 0;
     bool sp_init = false;
     while (true)
@@ -239,7 +240,7 @@ int run_planefit_offline(const std::string& path)
         }
 
         if (!planefitter) {
-            planefitter = rs_sf_planefit_ptr(&data.depth_intrinsics);
+            planefitter = rs_sf_ptr(&data.depth_intrinsics);
             //sp_init = rs_sf_setup_scene_perception(
             //    data.depth_intrinsics.cam_fx, data.depth_intrinsics.cam_fy,
             //    data.depth_intrinsics.cam_px, data.depth_intrinsics.cam_py,
@@ -294,7 +295,7 @@ bool run_planefit(rs_shapefit * planefitter, rs_sf_image img[2])
     */
 
     // do plane fit    
-    if (rs_sf_planefit_depth_image(planefitter, img /*, !switch_track ? RS_SHAPEFIT_OPTION_TRACK : RS_SHAPEFIT_OPTION_RESET*/)) return false;
+    if (rs_shapefit_depth_image(planefitter, img /*, !switch_track ? RS_SHAPEFIT_OPTION_TRACK : RS_SHAPEFIT_OPTION_RESET*/)) return false;
     std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 
     // time measure

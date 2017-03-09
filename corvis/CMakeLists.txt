@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.2.2 FATAL_ERROR)
 
 project(corvis C CXX)
 
-list(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_LIST_DIR}/../cmake)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../cmake)
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL Clang AND EXISTS /usr/include/c++/v1)
   include_directories(SYSTEM BEFORE /usr/include/c++/v1)
@@ -35,18 +35,6 @@ endif ()
 if(MSVC)
   add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
 endif()
-
-macro(target_link_libraries_copied target)
-  target_link_libraries(${target} ${ARGN})
-  if (MSVC)
-    foreach(__lib__ ${ARGN})
-      if (NOT __lib__ MATCHES "^(PRIVATE|PUBLIC|INTERFACE)$")
-        add_custom_command(TARGET ${target} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${__lib__}>" "$<TARGET_FILE_DIR:${target}>")
-        set_target_properties(${target} PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "$<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_NAME:${__lib__}>") # FIXME: Generator Expressions not supported here
-      endif()
-    endforeach()
-  endif()
-endmacro()
 
 find_package(alloy QUIET)
 if (TARGET alloy)
@@ -136,6 +124,7 @@ endif() # VISGL
 
 add_executable(rc_replay src/rc_replay/rc_replay.cpp src/rc_replay/main.cpp)
 set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
+include(TargetLinkLibrariesCopied)
 target_link_libraries_copied(rc_replay tracker)
 install(TARGETS rc_replay RUNTIME DESTINATION bin COMPONENT example-binaries)
 if(ENABLE_SOURCES)

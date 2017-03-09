@@ -8,7 +8,7 @@
 std::string path = "c:\\temp\\shapefit\\a\\";
 const int image_set_size = 200;
 
-typedef rs_sf_boxfit_ptr rs_sf_ptr;
+typedef rs_sf_planefit_ptr rs_sf_ptr;
 int capture_frames(const std::string& path);
 int run_planefit_live();
 int run_planefit_offline(const std::string& path);
@@ -305,6 +305,7 @@ bool run_planefit(rs_shapefit * planefitter, rs_sf_image img[2])
     // color display
     rs_sf_image_rgb rgb(&img[1]);
     rs_sf_planefit_draw_planes(planefitter, &rgb, &img[1]);
+    rs_sf_boxfit_draw_boxes(planefitter, &rgb);
 
     // plane map display
     rs_sf_image_mono pid(&img[0]);

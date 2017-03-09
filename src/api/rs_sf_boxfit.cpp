@@ -34,9 +34,13 @@ rs_sf_status rs_sf_boxfit::track_depth_image(const rs_sf_image * img)
     return pf_status;
 }
 
-int rs_sf_boxfit::num_detected_boxes() const
+std::vector<rs_sf_box> rs_sf_boxfit::get_boxes() const
 {
-    return 0;
+    std::vector<rs_sf_box> dst;
+    dst.reserve(num_detected_boxes());
+    for (const auto& box : m_boxes)
+        dst.push_back(box.to_rs_sf_box());
+    return dst;
 }
 
 bool rs_sf_boxfit::is_valid_box_plane(const plane & p0)
@@ -116,3 +120,10 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
     return true;
 }
 
+rs_sf_box rs_sf_boxfit::box::to_rs_sf_box() const
+{
+    rs_sf_box dst;
+    Eigen::Map<v3>(dst.origin) = translation;
+    Eigen::Map<m3>((float*)dst.axis) = dimension.asDiagonal() * axis;
+    return dst;
+}

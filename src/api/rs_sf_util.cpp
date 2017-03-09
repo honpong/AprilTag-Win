@@ -1,4 +1,5 @@
 #include "rs_sf_util.h"
+#include <unordered_map>
 
 void set_to_zeros(rs_sf_image* img)
 {
@@ -284,5 +285,54 @@ void scale_plane_ids(rs_sf_image * map, int max_pid)
     max_pid = std::max(1, max_pid);
     for (int p = map->num_pixel() - 1; p >= 0; --p)
         map->data[p] = map->data[p] * 254 / max_pid;
+}
+
+void draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size)
+{
+    const auto w = rgb->img_w, h = rgb->img_h;
+    const auto dir = (p1 - p0).normalized();
+    const auto len = (p1 - p0).norm();
+    std::unordered_map<int, float> line_point;
+    for (float s = 0.0f, hs = size * 0.5f; s < len; ++s) {
+        const auto p = p0 + dir * s;
+        const int lx = std::max(0, (int)(p.x() - hs - 1)), ly = std::max(0, (int)(p.y() - hs - 1));
+        const int rx = std::min(w, (int)(p.x() + hs + 1.5f)), ry = std::min(h, (int)(p.y() + hs + 1.5f));
+        for (int y = ly, px; y < ry; ++y)
+            for (int x = lx; x < rx; ++x)
+                if (line_point.find(px = y*w + x) == line_point.end()) {
+                    const auto r = v2(p0.x() - (float)x, p0.y() - (float)y);
+                    const auto d = (r - dir*(r.dot(dir))).norm();
+                    line_point[px] = std::min(1.0f, std::max(0.0f, d - hs));
+                }
+    }
+    for (const auto& pt : line_point) {
+        const auto px = pt.first * 3;
+        const auto alpha = pt.second, beta = 1.0f - alpha;
+        rgb->data[px + 0] = static_cast<unsigned char>((rgb->data[px + 0] * alpha) + (color[0] * beta));
+        rgb->data[px + 1] = static_cast<unsigned char>((rgb->data[px + 1] * alpha) + (color[1] * beta));
+        rgb->data[px + 2] = static_cast<unsigned char>((rgb->data[px + 2] * alpha) + (color[2] * beta));
+    }
+}
+
+void draw_boxes(rs_sf_image * rgb, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes)
+{
+    auto to_cam = pose_t().set_pose(rgb->cam_pose).invert();
+    auto proj = [to_cam = to_cam, cam = camera](const v3& pt) {
+        const auto pt3d = to_cam.rotation * pt + to_cam.translation;
+        return v2{
+            (pt3d.x() * cam.cam_fx) / pt3d.z() + cam.cam_px,
+            (pt3d.y() * cam.cam_fy) / pt3d.z() + cam.cam_py };
+    };
+
+    for (auto& box : boxes)
+    {
+        const v3 pt0 = v3_map((float*)box.origin);
+        const v3 pt1 = v3_map((float*)box.axis[0]) + pt0;
+        const v3 pt2 = v3_map((float*)box.axis[1]) + pt0;
+        const v3 pt3 = v3_map((float*)box.axis[2]) + pt0;
+        draw_line_rgb(rgb, proj(pt0), proj(pt1), b3{ 255,255,0 });
+        draw_line_rgb(rgb, proj(pt0), proj(pt2), b3{ 255,255,0 });
+        draw_line_rgb(rgb, proj(pt0), proj(pt3), b3{ 255,255,0 });
+    }
 }
 

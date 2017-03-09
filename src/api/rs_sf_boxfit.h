@@ -6,9 +6,6 @@
 
 struct rs_sf_boxfit : public rs_sf_planefit
 {
-    typedef Eigen::Vector2f v2;
-    typedef Eigen::Matrix3f m3;
-
     struct parameter
     {
         float plane_angle_thr = 1.0f - 0.97f; //absolute threshold for plane angles dot product
@@ -20,13 +17,16 @@ struct rs_sf_boxfit : public rs_sf_planefit
         v3 translation;
         v3 dimension;
         m3 axis;
+
+        rs_sf_box to_rs_sf_box() const;
     };
 
     rs_sf_boxfit(const rs_sf_intrinsics* camera);
     rs_sf_status process_depth_image(const rs_sf_image* img) override;
     rs_sf_status track_depth_image(const rs_sf_image* img) override;
 
-    int num_detected_boxes() const;
+    int num_detected_boxes() const { return (int)m_boxes.size(); }
+    std::vector<rs_sf_box> get_boxes() const;
 
 protected:
 

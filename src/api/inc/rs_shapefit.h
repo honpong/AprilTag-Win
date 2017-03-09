@@ -37,6 +37,12 @@ extern "C"
         int num_char() const { return num_pixel() * byte_per_pixel; }
     };
 
+    struct rs_sf_box
+    {
+        float origin[3];
+        float axis[3][3];
+    };
+
     struct rs_shapefit;
 
     enum rs_sf_status
@@ -78,6 +84,7 @@ extern "C"
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit* obj, int pid, float equation[4]);
 
     /// Box Fitting Functions
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr);
    
 #ifdef __cplusplus
 }

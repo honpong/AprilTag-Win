@@ -207,7 +207,7 @@ rs_sf_status rs_sf_planefit::get_plane_equation(int pid, float equ[4]) const
     return RS_SF_SUCCESS;
 }
 
-rs_sf_planefit::i2 rs_sf_planefit::project_dn_i(const v3 & cam_pt) const
+i2 rs_sf_planefit::project_dn_i(const v3 & cam_pt) const
 {
     return i2{
         (int)(0.5f + (cam_pt.x() * m_intrinsics.cam_fx) / cam_pt.z() + m_intrinsics.cam_px)/m_param.img_x_dn_sample,
@@ -215,7 +215,7 @@ rs_sf_planefit::i2 rs_sf_planefit::project_dn_i(const v3 & cam_pt) const
     };
 }
 
-rs_sf_planefit::v3 rs_sf_planefit::unproject(const float u, const float v, const float z) const
+v3 rs_sf_planefit::unproject(const float u, const float v, const float z) const
 {
     return v3{
         z * (u - m_intrinsics.cam_px) / m_intrinsics.cam_fx,

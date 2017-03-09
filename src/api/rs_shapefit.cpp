@@ -65,3 +65,14 @@ rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit * obj, int pid, float
 
     return pf->get_plane_equation(pid, equation);
 }
+
+RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * src)
+{
+    if (!obj || !rgb || rgb->byte_per_pixel != 3) return RS_SF_INVALID_ARG;
+    auto bf = dynamic_cast<const rs_sf_boxfit*>(obj);
+    if (!bf) return RS_SF_INVALID_OBJ_HANDLE;
+
+    draw_boxes(rgb, obj->m_intrinsics, bf->get_boxes());
+
+    return RS_SF_SUCCESS;
+}

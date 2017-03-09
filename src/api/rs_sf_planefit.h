@@ -43,29 +43,7 @@ struct rs_sf_planefit : public rs_shapefit
 protected:
 
     static const int INVALID_PID = 0;
-    
-    typedef Eigen::Vector3f v3;
-    typedef Eigen::Vector2i i2;
-    struct pose_t {
-        Eigen::Matrix3f rotation;
-        Eigen::Vector3f translation;
-
-        inline void set_pose(const float p[12] = nullptr) {
-            if (p) {
-                rotation << p[0], p[1], p[2], p[4], p[5], p[6], p[8], p[9], p[10];
-                translation << p[3], p[7], p[11];
-            }
-            else { rotation.setIdentity(); translation.setZero(); }
-        }
-        inline v3 transform(const v3& p) const { return rotation*p + translation; }
-        inline pose_t invert() const {
-            pose_t inv_pose;
-            inv_pose.rotation = rotation.transpose();
-            inv_pose.translation = -(inv_pose.rotation * translation);
-            return inv_pose;
-        }
-    };
-    
+        
     struct plane;
     struct pt3d {
         v3 pos, normal; int px, ppx; plane* best_plane;
@@ -92,7 +70,6 @@ protected:
     };
 
     // state memory
-    rs_sf_intrinsics m_intrinsics;
     parameter m_param;
     scene m_view, m_ref_scene;
     vec_plane_ref m_tracked_pid, m_sorted_plane_ptr;

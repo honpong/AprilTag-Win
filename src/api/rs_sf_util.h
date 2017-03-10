@@ -14,12 +14,13 @@
 static const int MAX_VALID_PID = 254;
 static const int PLANE_SRC_PID = 255;
 
-typedef Eigen::Matrix3f m3;
+typedef Eigen::Matrix<float, 3, 3, Eigen::RowMajor> m3;
 typedef Eigen::Vector3f v3;
 typedef Eigen::Vector2f v2;
 typedef Eigen::Vector2i i2;
 typedef Eigen::Matrix<unsigned char, 3, 1> b3;
 typedef Eigen::Map<v3> v3_map;
+typedef Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::ColMajor>> m3_axis_map;
 
 struct rs_shapefit 
 {

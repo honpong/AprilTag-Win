@@ -42,9 +42,14 @@ protected:
 
 private:
 
+    void run_static_boxfit(const rs_sf_image* img);
+
     bool is_valid_box_plane(const plane& p0);
     void form_list_of_plane_pairs(std::vector<plane_pair>& pairs);
     bool form_box_from_two_planes(const plane& plane0, const plane& plane1, box*& new_box_ptr);
+
+    // for debug
+    pose_t m_current_pose;
 };
 
 #endif // ! rs_sf_boxfit_h

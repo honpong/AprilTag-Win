@@ -553,7 +553,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
             else if (std::abs(ui[1]) < std::abs(ui[0])) normal = vi.col(1);
 
             plane.normal = normal;
-            plane.d = -src->pos.dot(normal);
+            plane.d = -center.dot(normal);
             plane.src = src;
         }
     }

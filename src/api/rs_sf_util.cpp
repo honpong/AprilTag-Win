@@ -270,9 +270,9 @@ void draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *
     for (int p = map->num_pixel() - 1; p >= 0; --p) {
         const int pid = map->data[p];
         if (0 <= pid && pid < num_color) {
-            rgb->data[p * 3 + 0] |= rgb_table[0][pid];
-            rgb->data[p * 3 + 1] |= rgb_table[1][pid];
-            rgb->data[p * 3 + 2] |= rgb_table[2][pid];
+            rgb->data[p * 3 + 0] = (rgb->data[p * 3 + 0] >> 1) + (rgb_table[0][pid] >> 1);
+            rgb->data[p * 3 + 1] = (rgb->data[p * 3 + 1] >> 1) + (rgb_table[1][pid] >> 1);
+            rgb->data[p * 3 + 2] = (rgb->data[p * 3 + 2] >> 1) + (rgb_table[2][pid] >> 1);
         }
         else if (pid == PLANE_SRC_PID) {
             rgb->data[p * 3] = rgb->data[p * 3 + 1] = rgb->data[p * 3 + 2] = 255;
@@ -314,6 +314,23 @@ void draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& colo
     }
 }
 
+void to_box_frame(const rs_sf_box& box, v3 box_frame[12][2])
+{
+    static const int line_index[][2][3] = {
+        {{0,0,0},{1,0,0}}, {{0,0,1},{1,0,1}}, {{0,1,0},{1,1,0}}, {{0,1,1},{1,1,1}},
+        {{0,0,0},{0,1,0}}, {{0,0,1},{0,1,1}}, {{1,0,0},{1,1,0}}, {{1,0,1},{1,1,1}},
+        {{0,0,0},{0,0,1}}, {{0,1,0},{0,1,1}}, {{1,0,0},{1,0,1}}, {{1,1,0},{1,1,1}} };
+
+    const auto& p0 = box.origin, &a0 = box.axis[0], &a1 = box.axis[1], &a2 = box.axis[2];
+    for (int l = 0; l < 12; ++l) {
+        const auto w0 = line_index[l][0], w1 = line_index[l][1];
+        for (int d = 0; d < 3; ++d) {
+            box_frame[l][0][d] = p0[d] + a0[d] * w0[0] + a1[d] * w0[1] + a2[d] * w0[2];
+            box_frame[l][1][d] = p0[d] + a0[d] * w1[0] + a1[d] * w1[1] + a2[d] * w1[2];
+        }
+    }
+}
+
 void draw_boxes(rs_sf_image * rgb, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes)
 {
     auto to_cam = pose_t().set_pose(rgb->cam_pose).invert();
@@ -324,15 +341,11 @@ void draw_boxes(rs_sf_image * rgb, const rs_sf_intrinsics& camera, const std::ve
             (pt3d.y() * cam.cam_fy) / pt3d.z() + cam.cam_py };
     };
 
+    v3 box_frame[12][2];
     for (auto& box : boxes)
     {
-        const v3 pt0 = v3_map((float*)box.origin);
-        const v3 pt1 = v3_map((float*)box.axis[0]) + pt0;
-        const v3 pt2 = v3_map((float*)box.axis[1]) + pt0;
-        const v3 pt3 = v3_map((float*)box.axis[2]) + pt0;
-        draw_line_rgb(rgb, proj(pt0), proj(pt1), b3{ 255,255,0 });
-        draw_line_rgb(rgb, proj(pt0), proj(pt2), b3{ 255,255,0 });
-        draw_line_rgb(rgb, proj(pt0), proj(pt3), b3{ 255,255,0 });
+        to_box_frame(box, box_frame);
+        for (const auto& line : box_frame)
+            draw_line_rgb(rgb, proj(line[0]), proj(line[1]), b3{ 255,255,0 });
     }
 }
-

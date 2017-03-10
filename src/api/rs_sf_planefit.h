@@ -74,6 +74,9 @@ protected:
     scene m_view, m_ref_scene;
     vec_plane_ref m_tracked_pid, m_sorted_plane_ptr;
     
+    // debug only
+    rs_sf_image ref_img, ir_img;
+
 private:
 
     // temporary memory
@@ -107,9 +110,6 @@ private:
 
     // output utility 
     void upsize_pt_cloud_to_plane_map(const vec_pt3d& img_pt_cloud, rs_sf_image* dst) const;
-
-    // debug only
-    rs_sf_image ref_img;
 };
 
 #endif // ! rs_sf_planefit_h

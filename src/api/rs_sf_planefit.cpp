@@ -30,6 +30,7 @@ rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
     grow_planecandidate(m_view.pt_img, m_view.planes);
     //test_planecandidate(m_view.pt_cloud, m_view.planes);
     non_max_plane_suppression(m_view.pt_cloud, m_view.planes);
+    upsample_best_plane_ptr(m_view);
     sort_plane_size(m_view.planes, m_sorted_plane_ptr);
     assign_planes_pid(m_sorted_plane_ptr);
 
@@ -54,6 +55,7 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     map_candidate_plane_from_past(m_view, m_ref_scene);
     grow_planecandidate(m_view.pt_img, m_view.planes);
     non_max_plane_suppression(m_view.pt_cloud, m_view.planes);
+    upsample_best_plane_ptr(m_view);
     combine_planes_from_the_same_past(m_view, m_ref_scene);
     sort_plane_size(m_view.planes, m_sorted_plane_ptr);
     assign_planes_pid(m_sorted_plane_ptr);
@@ -539,13 +541,14 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
     }
     
     // mark current points which belongs to some past planes
+    auto past_pt_img = past_view.pt_img.data();
     for (auto pt : current_view.pt_cloud)
     {
         auto past_cam_pix = project_i(map_to_past.transform(pt->pos));
         if (is_within_pt_cloud_fov(past_cam_pix[0], past_cam_pix[1]))
         {
             //plane pixel in the past
-            auto& past_pt3d = past_view.pt_img[past_cam_pix[1] * src_w() + past_cam_pix[0]];
+            auto& past_pt3d = past_pt_img[past_cam_pix[1] * src_w() + past_cam_pix[0]];
             if (past_pt3d.best_plane && is_valid_past_plane(*past_pt3d.best_plane)) {
                 if (is_inlier(*past_pt3d.best_plane, *pt))
                 {
@@ -674,6 +677,21 @@ void rs_sf_planefit::assign_planes_pid(vec_plane_ref& sorted_planes)
 bool rs_sf_planefit::is_tracked_pid(int pid)
 {
     return INVALID_PID < pid && pid <= MAX_VALID_PID;
+}
+
+void rs_sf_planefit::upsample_best_plane_ptr(scene & view)
+{
+    auto src_pt_img = view.pt_img.data();
+    const int img_w = src_w();
+    const int dn_x = m_param.img_x_dn_sample;
+    const int dn_y = m_param.img_y_dn_sample;
+    const int dn_x_img_w = dn_y * img_w;
+
+    for (int p = num_pixels() - 1; p >= 0; --p)
+    {
+        const int x = p % img_w, y = p / img_w;
+        src_pt_img[p].best_plane = src_pt_img[(y / dn_y) * dn_x_img_w + (x / dn_x)*dn_x].best_plane;
+    }
 }
 
 void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const vec_pt3d & img_pt_cloud, rs_sf_image * dst) const

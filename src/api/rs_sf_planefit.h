@@ -113,6 +113,7 @@ private:
     bool is_tracked_pid(int pid);
 
     // output utility 
+    void upsample_best_plane_ptr(scene& view);
     void upsize_pt_cloud_to_plane_map(const vec_pt3d& img_pt_cloud, rs_sf_image* dst) const;
 };
 

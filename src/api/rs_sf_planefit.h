@@ -12,7 +12,6 @@ struct rs_sf_planefit : public rs_shapefit
         int img_x_dn_sample = 8;
         int img_y_dn_sample = 8;
         bool hole_fill_plane_map = false;
-
 #else
         int img_x_dn_sample = 4;
         int img_y_dn_sample = 4;
@@ -28,6 +27,7 @@ struct rs_sf_planefit : public rs_shapefit
         int max_num_plane_output = MAX_VALID_PID;
         int track_x_dn_sample = 16 * 8;
         int track_y_dn_sample = 16 * 8;
+        bool compute_full_pt_cloud = true;
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);    
@@ -46,15 +46,15 @@ protected:
         
     struct plane;
     struct pt3d {
-        v3 pos, normal; int px, ppx; plane* best_plane;
-        pt3d(v3& _pos, v3& _nor, int _px = 0, int _ppx = 0, plane* _bestplane = nullptr) 
-            : pos(_pos), normal(_nor), px(_px), ppx(_ppx), best_plane(_bestplane) {}
+        v3 pos, normal; int p; i2 pix; plane* best_plane;
+        pt3d(const v3& _pos, const v3& _nor, int _p = 0, int x = 0, int y = 0, plane* _bestplane = nullptr)
+            : pos(_pos), normal(_nor), p(_p), pix(x, y), best_plane(_bestplane) {}
     };
     typedef std::vector<pt3d*> vec_pt_ref;
     typedef std::list<plane*> list_plane_ref;
     struct plane {
         v3 normal; float d; pt3d* src; vec_pt_ref pts, best_pts; int pid; const plane* past_plane;
-        plane(v3& _nor, float _d, pt3d* _src, int _pid = INVALID_PID, const plane* _past_plane = nullptr)
+        plane(const v3& _nor, float _d, pt3d* _src, int _pid = INVALID_PID, const plane* _past_plane = nullptr)
             : normal(_nor), d(_d), src(_src), pid(_pid), past_plane(_past_plane) {}
     };
     
@@ -62,11 +62,12 @@ protected:
     typedef std::vector<plane> vec_plane;
     typedef std::vector<plane*> vec_plane_ref;
     struct scene {
-        vec_pt3d pt_cloud;
+        vec_pt_ref pt_cloud;
+        vec_pt3d pt_img;
         vec_plane planes;
         pose_t cam_pose;
-        inline void clear() { pt_cloud.clear(); planes.clear(); cam_pose.set_pose(); }
-        inline void swap(scene& ref) { pt_cloud.swap(ref.pt_cloud); planes.swap(ref.planes); std::swap(cam_pose, ref.cam_pose); }
+        inline void clear() { pt_cloud.clear(); pt_img.clear(); planes.clear(); cam_pose.set_pose(); }
+        inline void swap(scene& ref) { pt_cloud.swap(ref.pt_cloud); pt_img.swap(ref.pt_img); planes.swap(ref.planes); std::swap(cam_pose, ref.cam_pose); }
     };
 
     // state memory
@@ -81,23 +82,26 @@ private:
 
     // temporary memory
     vec_pt_ref m_inlier_buf;
-    int m_pt_cloud_img_w, m_pt_cloud_img_h, m_pt_cloud_reserve;
+    int m_plane_pt_reserve;
+    int src_h() const { return m_intrinsics.img_h; }
+    int src_w() const { return m_intrinsics.img_w; }
+    int num_pixels() const { return src_h()*src_w(); }
 
     // per frame detection
-    i2 project_dn_i(const v3& cam_pt) const;
+    i2 project_i(const v3& cam_pt) const;
     v3 unproject(const float u, const float v, const float z) const;
     bool is_within_pt_cloud_fov(const int x, const int y) const;
     bool is_valid_raw_z(const float z) const;
     bool is_valid_pt3d_pos(const pt3d& pt) const;
     bool is_valid_pt3d_normal(const pt3d& pt) const;
-    void image_to_pointcloud(const rs_sf_image* img, vec_pt3d& pt_cloud, pose_t& pose);
+    void image_to_pointcloud(const rs_sf_image* img, vec_pt3d& pt_img, vec_pt_ref& pt_cloud, pose_t& pose);
     void img_pointcloud_to_normal(vec_pt3d& img_pt_cloud);
     void img_pointcloud_to_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& img_planes, int candidate_y_dn_sample = -1, int candidate_x_dn_sample = -1);
     bool is_inlier(const plane& candidate, const pt3d& p);
     void grow_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& plane_candidates);
     void grow_inlier_buffer(pt3d src_img_pt[], plane& plane_candidate, std::vector<pt3d*>& seeds, bool reset_best_plane_ptr = true);
-    void test_planecandidate(vec_pt3d& pt_cloud, vec_plane& plane_candidates);
-    void non_max_plane_suppression(vec_pt3d& pt_cloud, vec_plane& plane_candidates);
+    void test_planecandidate(vec_pt_ref& pt_cloud, vec_plane& plane_candidates);
+    void non_max_plane_suppression(vec_pt_ref& pt_cloud, vec_plane& plane_candidates);
     void sort_plane_size(vec_plane& planes, vec_plane_ref& sorted_planes);
 
     // plane tracking

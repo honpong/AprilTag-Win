@@ -236,6 +236,7 @@ int run_planefit_offline(const std::string& path)
         frame_data data(path, frame_num++);
         if (data.src_image[0] == nullptr) {
             frame_num = 0;
+            planefitter = nullptr;
             continue;
         }
 

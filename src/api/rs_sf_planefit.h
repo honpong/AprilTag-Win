@@ -25,9 +25,9 @@ struct rs_sf_planefit : public rs_shapefit
         float min_z_value = 100.0f;
         float max_z_value = 3500.0f;
         int max_num_plane_output = MAX_VALID_PID;
-        int track_x_dn_sample = 16 * 8;
-        int track_y_dn_sample = 16 * 8;
-        bool compute_full_pt_cloud = true;
+        int track_x_dn_sample = 16 * 4;
+        int track_y_dn_sample = 16 * 4;
+        bool compute_full_pt_cloud = false;
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);    
@@ -82,7 +82,7 @@ private:
 
     // temporary memory
     vec_pt_ref m_inlier_buf;
-    int m_plane_pt_reserve;
+    int m_plane_pt_reserve, m_track_plane_reserve;
     int src_h() const { return m_intrinsics.img_h; }
     int src_w() const { return m_intrinsics.img_w; }
     int num_pixels() const { return src_h()*src_w(); }

@@ -69,7 +69,7 @@ protected:
 
     // state memory
     parameter m_param;
-    scene m_view, m_ref_scene;
+    scene m_view, m_ref_view;
     vec_plane_ref m_tracked_pid, m_sorted_plane_ptr;
     
     // debug only
@@ -80,18 +80,17 @@ private:
     // temporary memory
     vec_pt_ref m_inlier_buf;
     int m_plane_pt_reserve, m_track_plane_reserve;
+    const int m_grid_w, m_grid_h;
     int src_h() const { return m_intrinsics.img_h; }
     int src_w() const { return m_intrinsics.img_w; }
-    int dwn_h() const { return src_h() / m_param.img_x_dn_sample; }
-    int dwn_w() const { return src_w() / m_param.img_y_dn_sample; }
     int num_pixels() const { return src_h()*src_w(); }
-    int num_pixel_groups() const { return dwn_h()*dwn_w(); }
+    int num_pixel_groups() const { return m_grid_h * m_grid_w; }
 
     // initalization
     void init_img_pt_groups(scene& view);
 
     // per frame detection
-    i2 project_dwn_i(const v3& cam_pt) const;
+    i2 project_grid_i(const v3& cam_pt) const;
     v3 unproject(const float u, const float v, const float z) const;
     bool is_within_pt_group_fov(const int x, const int y) const;
     bool is_valid_raw_z(const float z) const;

@@ -144,6 +144,7 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
     // form the box dimension by end point differences
     const v3 box_dimension = axis_max - axis_min;
 
+#if defined(__OPENCV_ALL_HPP__) | defined(OPENCV_ALL_HPP)
     rs_sf_image_mono index(&ref_img);
     rs_sf_planefit_draw_plane_ids(this, &index);
     cv::Mat imap(index.img_h, index.img_w, CV_8U, index.data);
@@ -167,6 +168,7 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
             cv::circle(map, cv::Point((int)p0.x(), (int)p0.y()), 1, cv::Scalar(255), -1);
             cv::line(map, cv::Point((int)p0.x(), (int)p0.y()), cv::Point((int)p1.x(), (int)p1.y()), cv::Scalar(128), 1, CV_AA);
         }
+#endif
 
     // make new box
     m_boxes.push_back({ box_translation,box_dimension,box_axis });

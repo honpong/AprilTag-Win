@@ -37,6 +37,7 @@ rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
     non_max_plane_suppression(m_view.pt_grp, m_view.planes);
     sort_plane_size(m_view.planes, m_sorted_plane_ptr);
     assign_planes_pid(m_sorted_plane_ptr);
+    end_of_process();
 
     return RS_SF_SUCCESS;
 }
@@ -62,6 +63,7 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     combine_planes_from_the_same_past(m_view, m_ref_view);
     sort_plane_size(m_view.planes, m_sorted_plane_ptr);
     assign_planes_pid(m_sorted_plane_ptr);
+    end_of_process();
 
     return RS_SF_SUCCESS;
 }
@@ -476,10 +478,30 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_pl
     }
 
     // filter best plane ptr map
+    if (m_param.filter_plane_map)
+        filter_plane_ptr_to_plane_img(pt_groups);
+    else
+    {
+        // not filtering, copy pt_img to plane_img
+        for (auto& grp : pt_groups) {
+            *grp.pl_pt0 = *grp.pt0;
+            if (grp.pl_pt0->best_plane)
+                grp.pl_pt0->best_plane->best_pts.emplace_back(grp.pl_pt0);
+        }
+    }
+
+    // make sure the plane src is valid
+    for (auto& plane : plane_candidates) {
+        if (plane.src) { pt_groups[plane.src->grp->gp].pl_pt0; }
+        if (plane.best_pts.size() > 0 && plane.src->best_plane != &plane)
+            plane.src = plane.best_pts[0];
+    }
+}
+
+void rs_sf_planefit::filter_plane_ptr_to_plane_img(vec_pt3d_group & pt_groups)
+{
     plane* sorter[9], **sorter_end = sorter + 9;
-    const int gb[] = { -m_grid_w - 1,-m_grid_w,-m_grid_w + 1,
-                     -1,0,+1,
-                     m_grid_w - 1, m_grid_w, m_grid_w + 1 };
+    const int gb[] = { -m_grid_w - 1,-m_grid_w,-m_grid_w + 1,-1,0,+1,m_grid_w - 1,m_grid_w,m_grid_w + 1 };
     auto* pt_group = pt_groups.data();
     for (int y = 1, g = m_grid_w + 1; y < m_grid_h - 1; ++y, g += 2) {
         for (int x = 1; x < m_grid_w - 1; ++x, ++g)
@@ -494,13 +516,13 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_pl
             sorter[7] = pt_group[g + gb[7]].pt0->best_plane;
             sorter[8] = pt_group[g + gb[8]].pt0->best_plane;
             std::sort(sorter, sorter_end);
-            pt_groups[g].pl_pt0->best_plane = sorter[4];
+            pt_group[g].pl_pt0->best_plane = sorter[4];
         }
     }
 
     // rebuild point list for the plane map (i.e. grp.pl_pt) based on the best fitting
     for (auto& grp : pt_groups) {
-        auto& grp_best_plane = grp.pl_pt0->best_plane;
+        auto grp_best_plane = grp.pl_pt0->best_plane;
         if (grp_best_plane) {
             grp_best_plane->best_pts.emplace_back(grp.pl_pt0);
             *grp.pl_pt0 = *grp.pt0;
@@ -511,13 +533,6 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_pl
             grp.pl_pt0->valid_normal = false;
             grp.pl_pt0->best_plane = nullptr;
         }
-    }
-
-    // make sure the plane src is valid
-    for (auto& plane : plane_candidates) {
-        if (plane.src) { pt_groups[plane.src->grp->gp].pl_pt0; }
-        if (plane.best_pts.size() > 0 && plane.src->best_plane != &plane)
-            plane.src = plane.best_pts[0];
     }
 }
 
@@ -729,4 +744,20 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const vec_pt3d & img_pt, rs_sf
             dst->data[p] = (best_plane ? best_plane->pid : 0);
         }
     }
+}
+
+void rs_sf_planefit::end_of_process()
+{
+    return;
+    /**
+    rs_sf_image_mono planeimg(&ref_img), pointimg(&ref_img);
+    upsize_pt_cloud_to_plane_map(m_view.plane_img, &planeimg);
+    upsize_pt_cloud_to_plane_map(m_view.pt_img, &pointimg);
+    cv::Mat disp0(src_h(), src_w(), CV_8U, planeimg.data);
+    cv::Mat disp1(src_h(), src_w(), CV_8U, pointimg.data);
+    cv::Mat disp;
+    cv::hconcat(disp0, disp1, disp);
+    cv::imshow("test", disp);
+    cv::waitKey(0);
+    */
 }

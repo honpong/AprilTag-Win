@@ -27,6 +27,7 @@ struct rs_sf_planefit : public rs_shapefit
         int max_num_plane_output = MAX_VALID_PID;
         int track_x_dn_sample = 16 * 6;
         int track_y_dn_sample = 16 * 6;
+        bool filter_plane_map = false;
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);    
@@ -106,6 +107,7 @@ private:
     void grow_planecandidate(vec_pt3d_group& pt_groups, vec_plane& plane_candidates);
     void grow_inlier_buffer(pt3d_group pt_group[], plane& plane_candidate, const vec_pt_ref& seeds, bool reset_best_plane_ptr = true);
     void non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_plane& plane_candidates);
+    void filter_plane_ptr_to_plane_img(vec_pt3d_group& pt_groups);
     void sort_plane_size(vec_plane& planes, vec_plane_ref& sorted_planes);
 
     // per frame up plane boundary refinement 
@@ -120,6 +122,7 @@ private:
 
     // output utility 
     void upsize_pt_cloud_to_plane_map(const vec_pt3d& pt_img, rs_sf_image* dst) const;
+    void end_of_process();
 };
 
 #endif // ! rs_sf_planefit_h

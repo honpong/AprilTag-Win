@@ -21,6 +21,7 @@ typedef Eigen::Vector2i i2;
 typedef Eigen::Matrix<unsigned char, 3, 1> b3;
 typedef Eigen::Map<v3> v3_map;
 typedef Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::ColMajor>> m3_axis_map;
+typedef std::vector<i2> contour;
 
 struct rs_shapefit 
 {
@@ -51,6 +52,10 @@ void draw_planes(rs_sf_image* rgb, const rs_sf_image* map, const rs_sf_image* sr
 void scale_plane_ids(rs_sf_image* map, int max_pid);
 void draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size = 2);
 void draw_boxes(rs_sf_image* rgb, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes);
+
+std::vector<contour> find_contours_in_binary_img(rs_sf_image* bimg);
+contour follow_border(uint8_t* pixel, const int w, const int h, const int _x0);
+
 
 #endif // ! rs_sf_util_h
 

@@ -4,13 +4,14 @@ rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera)
 {
     m_intrinsics = *camera;
 
-    int pt_cloud_img_w = m_intrinsics.img_w / m_param.img_x_dn_sample;
-    int pt_cloud_img_h = m_intrinsics.img_h / m_param.img_y_dn_sample;
-    m_plane_pt_reserve = (pt_cloud_img_w + 1) * (pt_cloud_img_h + 1);
-    m_track_plane_reserve = num_pixels() / (m_param.track_x_dn_sample * m_param.track_y_dn_sample);
+    m_plane_pt_reserve = (dwn_h() + 1)*(dwn_w() + 1);
+    m_track_plane_reserve = m_param.max_num_plane_output + m_plane_pt_reserve;
 
     m_inlier_buf.reserve(m_plane_pt_reserve);
     m_tracked_pid.reserve(m_param.max_num_plane_output);
+
+    init_img_pt_groups(m_view);
+    init_img_pt_groups(m_ref_scene);
 }
 
 rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
@@ -21,17 +22,16 @@ rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
     ref_img = img[0];
    
     //reset
-    m_view.clear();
-    m_ref_scene.clear();
-
+    m_view.reset();
+    m_ref_scene.reset();
+ 
     //plane fitting
-    image_to_pointcloud(img, m_view.pt_img, m_view.pt_cloud, m_view.cam_pose);
-    img_pointcloud_to_normal(m_view.pt_img);
+    image_to_pointcloud(img, m_view.pt_img, m_view.cam_pose);
+    img_pt_group_to_normal(m_view.pt_grp);
     img_pointcloud_to_planecandidate(m_view.pt_img, m_view.planes);
-    grow_planecandidate(m_view.pt_img, m_view.planes);
+    grow_planecandidate(m_view.pt_grp, m_view.planes);
     //test_planecandidate(m_view.pt_cloud, m_view.planes);
-    non_max_plane_suppression(m_view.pt_cloud, m_view.planes);
-    upsample_best_plane_ptr(m_view);
+    non_max_plane_suppression(m_view.pt_grp, m_view.planes);
     sort_plane_size(m_view.planes, m_sorted_plane_ptr);
     assign_planes_pid(m_sorted_plane_ptr);
 
@@ -49,14 +49,13 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     save_current_scene_as_reference();
 
     // preprocessing
-    image_to_pointcloud(img, m_view.pt_img, m_view.pt_cloud, m_view.cam_pose);
-    img_pointcloud_to_normal(m_view.pt_img);
+    image_to_pointcloud(img, m_view.pt_img, m_view.cam_pose);
+    img_pt_group_to_normal(m_view.pt_grp);
 
     // search for old planes
     map_candidate_plane_from_past(m_view, m_ref_scene);
-    grow_planecandidate(m_view.pt_img, m_view.planes);
-    non_max_plane_suppression(m_view.pt_cloud, m_view.planes);
-    upsample_best_plane_ptr(m_view);
+    grow_planecandidate(m_view.pt_grp, m_view.planes);
+    non_max_plane_suppression(m_view.pt_grp, m_view.planes);
     combine_planes_from_the_same_past(m_view, m_ref_scene);
     sort_plane_size(m_view.planes, m_sorted_plane_ptr);
     assign_planes_pid(m_sorted_plane_ptr);
@@ -85,6 +84,7 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
 {
     if (!map || !map->data || map->byte_per_pixel != 1) return RS_SF_INVALID_ARG;
     upsize_pt_cloud_to_plane_map(m_view.pt_img, map);
+    //mark_plane_src_on_map(map);
 
     if (hole_filled > 0 || (hole_filled == -1 && m_param.hole_fill_plane_map))
     {
@@ -207,11 +207,45 @@ rs_sf_status rs_sf_planefit::get_plane_equation(int pid, float equ[4]) const
     return RS_SF_SUCCESS;
 }
 
-i2 rs_sf_planefit::project_i(const v3 & cam_pt) const
+void rs_sf_planefit::init_img_pt_groups(scene& view)
+{
+    const int img_w = src_w();
+    const int grp_w = dwn_w();
+    const int dwn_x = m_param.img_x_dn_sample;
+    const int dwn_y = m_param.img_y_dn_sample;
+    const int pt_per_group = dwn_x * dwn_y;
+
+    view.pt_img.resize(num_pixels());
+    view.pt_grp.resize(num_pixel_groups());
+
+    for (int g = num_pixel_groups() - 1; g >= 0; --g)
+    {
+        auto& grp = view.pt_grp[g];
+        grp.gp = g;
+        grp.gpix[0] = g % grp_w;
+        grp.gpix[1] = g / grp_w;
+        grp.pt.reserve(pt_per_group);
+    }
+
+    for(int p=0, ep = num_pixels(); p < ep; ++p)
+    {
+        auto& pt = view.pt_img[p];
+        pt.pos = pt.normal = v3(0, 0, 0);
+        pt.best_plane = nullptr;
+        pt.pix = i2((pt.p = p) % img_w, p / img_w);
+        pt.grp = &view.pt_grp[(pt.pix[1] / dwn_y) * grp_w + (pt.pix[0] / dwn_x)];
+        pt.grp->pt.emplace_back(&pt);
+    }
+
+    for (auto& grp : view.pt_grp)
+        grp.pt0 = grp.pt[0];
+}
+
+i2 rs_sf_planefit::project_dwn_i(const v3 & cam_pt) const
 {
     return i2{
-        (int)(0.5f + (cam_pt.x() * m_intrinsics.cam_fx) / cam_pt.z() + m_intrinsics.cam_px),
-        (int)(0.5f + (cam_pt.y() * m_intrinsics.cam_fy) / cam_pt.z() + m_intrinsics.cam_py)
+        (int)(0.5f + (cam_pt.x() * m_intrinsics.cam_fx) / cam_pt.z() + m_intrinsics.cam_px) / m_param.img_x_dn_sample,
+        (int)(0.5f + (cam_pt.y() * m_intrinsics.cam_fy) / cam_pt.z() + m_intrinsics.cam_py) / m_param.img_y_dn_sample
     };
 }
 
@@ -223,9 +257,9 @@ v3 rs_sf_planefit::unproject(const float u, const float v, const float z) const
         z };
 }
 
-bool rs_sf_planefit::is_within_pt_cloud_fov(const int x, const int y) const
+bool rs_sf_planefit::is_within_pt_group_fov(const int x, const int y) const
 {
-    return 0 <= x && x < src_w() && 0 <= y && y < src_h();
+    return 0 <= x && x < dwn_w() && 0 <= y && y < dwn_h();
 }
 
 bool rs_sf_planefit::is_valid_raw_z(const float z) const
@@ -243,30 +277,9 @@ bool rs_sf_planefit::is_valid_pt3d_normal(const pt3d& pt) const
     return pt.normal[0] != 0 || pt.normal[1] != 0 || pt.normal[2] != 0;
 }
 
-void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, vec_pt3d& pt_img, vec_pt_ref& pt_cloud, pose_t& pose)
+void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, vec_pt3d& pt_img, pose_t& pose)
 {
-    // define coarse grid
-    const int img_w = src_w();
-    const int y_step = m_param.img_y_dn_sample;
-    const int x_step = m_param.img_x_dn_sample;
-    const int dn_step = y_step * src_w();
-    const int ey = src_h() - y_step;
-    const int ex = src_w() - x_step;
-
-    pt_cloud.reserve(m_plane_pt_reserve);
-    pt_img.resize(num_pixels(), pt3d(v3{}, v3{}));
-    auto* src_pt_grid = pt_img.data();
-    for (int y = 0, p = 0; y <= ey; y += y_step, p = y*img_w)
-    {
-        for (int x = 0; x <= ex; x += x_step, p += x_step)
-        {
-            src_pt_grid[p].p = p;
-            pt_cloud.emplace_back(src_pt_grid + p);
-        }
-    }
-
-    // compute point cloud
-    const auto* src_depth = (unsigned short*)img->data;
+    // camera pose
     pose.set_pose(img->cam_pose);
     const float
         r00 = pose.rotation(0, 0), r01 = pose.rotation(0, 1), r02 = pose.rotation(0, 2),
@@ -277,54 +290,52 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, vec_pt3d& pt_i
         cam_fx = m_intrinsics.cam_fx, cam_fy = m_intrinsics.cam_fy;
 
     //pt.pos = pose.transform(unproject((float)pt.pix.x(), (float)pt.pix.y(), is_valid_raw_z(z) ? z : 0));
-    auto compute_pt3d = [&](pt3d& pt) {
-        const float u = (float)(pt.pix[0] = (pt.p % img_w));
-        const float v = (float)(pt.pix[1] = (pt.p / img_w));
-        const float z = (float)src_depth[pt.p];
+    auto compute_pt3d = [&](pt3d& pt, const float z) {
+        pt.best_plane = nullptr;
+        pt.normal.setZero();
         if (is_valid_raw_z(z)) {
-            const float x = z * (u - cam_px) / cam_fx;
-            const float y = z * (v - cam_py) / cam_fy;
+            const float x = z * (pt.pix[0] - cam_px) / cam_fx;
+            const float y = z * (pt.pix[1] - cam_py) / cam_fy;
             pt.pos[0] = r00 * x + r01 * y + r02 * z + t0;
             pt.pos[1] = r10 * x + r11 * y + r12 * z + t1;
             pt.pos[2] = r20 * x + r21 * y + r22 * z + t2;
         }
+        else {
+            pt.pos.setZero();
+        }
     };
 
-    if (m_param.compute_full_pt_cloud)
-        for (int p = num_pixels() - 1; p >= 0; --p) { compute_pt3d(src_pt_grid[p]); }
-    else
-        for (auto pt : pt_cloud) { compute_pt3d(*pt); }
+    // compute point cloud
+    const auto* src_depth = (unsigned short*)img->data;
+    for (auto& pt : pt_img)
+        compute_pt3d(pt, (float)src_depth[pt.p]);
 }
 
-void rs_sf_planefit::img_pointcloud_to_normal(vec_pt3d& img_pt_cloud)
+void rs_sf_planefit::img_pt_group_to_normal(vec_pt3d_group & pt_groups)
 {
-    auto* src_img_pt = img_pt_cloud.data();
-    const int y_step = m_param.img_y_dn_sample;
-    const int x_step = m_param.img_x_dn_sample;
-    const int dn_step = y_step * src_w();
-    const int ey = src_h() - y_step;
-    const int ex = src_w() - x_step;
+    const int dn_step = dwn_w();
+    auto* img_pt_group = pt_groups.data();
 
-    for (int y = 0, p = 0; y < ey; y += y_step, p = y*src_w())
+    for (int y = 0, ey = dwn_h() - 1, ex = dwn_w() - 1, gp = 0; y < ey; ++y, ++gp)
     {
-        for (int x = 0; x < ex; x += x_step, p += x_step)
+        for (int x = 0; x < ex; ++x, ++gp)
         {
-            auto& src_pt = src_img_pt[p];
-            const auto& right_pt = src_img_pt[p + x_step];
-            const auto& down_pt = src_img_pt[p + dn_step];
-            if (is_valid_pt3d_pos(src_pt) &&
-                is_valid_pt3d_pos(right_pt) &&
-                is_valid_pt3d_pos(down_pt)) {
-                const auto dx = right_pt.pos - src_pt.pos;
-                const auto dy = down_pt.pos - src_pt.pos;
-                src_pt.normal = dy.cross(dx).normalized();
+            auto& pt_query = *img_pt_group[gp].pt0;
+            const auto& pt_right = *img_pt_group[gp + 1].pt0;
+            const auto& pt_below = *img_pt_group[gp + dn_step].pt0;
+            if (is_valid_pt3d_pos(pt_query) &&
+                is_valid_pt3d_pos(pt_right) &&
+                is_valid_pt3d_pos(pt_below)) {
+                const v3 dx = pt_right.pos - pt_query.pos;
+                const v3 dy = pt_below.pos - pt_query.pos;
+                pt_query.normal = dy.cross(dx).normalized();
             }
         }
     }
 }
 
 void rs_sf_planefit::img_pointcloud_to_planecandidate(
-    vec_pt3d& img_pt_cloud,
+    vec_pt3d& pt_img,
     vec_plane& img_planes,
     int candidate_y_dn_sample,
     int candidate_x_dn_sample)
@@ -332,18 +343,17 @@ void rs_sf_planefit::img_pointcloud_to_planecandidate(
     if (candidate_x_dn_sample == -1) candidate_x_dn_sample = m_param.candidate_x_dn_sample;
     if (candidate_y_dn_sample == -1) candidate_y_dn_sample = m_param.candidate_y_dn_sample;
 
-    img_planes.reserve(MAX_VALID_PID + 1);
-
-    auto* src_img_point = img_pt_cloud.data();
+    auto* src_img_point = pt_img.data();
+    const int img_w = src_w(), img_h = src_h();
     const int y_step = candidate_y_dn_sample;
     const int x_step = candidate_x_dn_sample;
-    const int dn_step = y_step * src_w();
-    const int ey = src_h() - y_step * 2;
-    const int ex = src_w() - x_step * 2;
+    const int ey = img_h - y_step * 2;
+    const int ex = img_w - x_step * 2;
 
-    for (int y = y_step; y < ey; y += y_step)
+    img_planes.reserve((img_w / x_step) * (img_h / y_step));
+    for (int y = y_step; y <= ey; y += y_step)
     {
-        for (int x = x_step, p = y * src_w() + x; x < ex; x += x_step, p += x_step)
+        for (int x = x_step, p = y * img_w + x; x <= ex; x += x_step, p += x_step)
         {
             auto& src = src_img_point[p];
             auto& pos = src.pos;
@@ -372,45 +382,22 @@ bool rs_sf_planefit::is_inlier(const plane & candidate, const pt3d & p)
     return false;
 }
 
-void rs_sf_planefit::test_planecandidate(vec_pt_ref& pt_cloud, vec_plane& plane_candidates)
-{
-    // test each plane candidate
-    for (auto& plane : plane_candidates)
-    {
-        plane.pts.clear();
-        m_inlier_buf.clear();
-
-        for (auto p : pt_cloud)
-        {
-           if (is_inlier(plane, *p))
-                m_inlier_buf.push_back(p);
-        }
-
-        if (m_inlier_buf.size() >= m_param.min_num_plane_pt)
-        {
-            plane.pts.reserve(m_inlier_buf.size());
-            plane.pts = m_inlier_buf;
-        }
-    }
-}
-
-void rs_sf_planefit::grow_planecandidate(vec_pt3d& img_pt_cloud, vec_plane& plane_candidates)
+void rs_sf_planefit::grow_planecandidate(vec_pt3d_group& pt_groups, vec_plane& plane_candidates)
 {
     //assume img_pt_cloud is from a 2D grid
-    auto* src_img_point = img_pt_cloud.data();
     for (auto& plane : plane_candidates)
     {
         if (plane.past_plane) continue;
         if (!plane.src || plane.src->best_plane) continue;
 
-        grow_inlier_buffer(src_img_point, plane, std::vector<pt3d*>{ plane.src });
+        grow_inlier_buffer(pt_groups.data(), plane, std::vector<pt3d*>{ plane.src });
 
         if (plane.pts.size() < m_param.min_num_plane_pt)
             plane.pts.clear();
     }
 }
 
-void rs_sf_planefit::grow_inlier_buffer(pt3d src_img_point[], plane & plane_candidate, std::vector<pt3d*>& seeds, bool reset_best_plane_ptr)
+void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_candidate, const vec_pt_ref& seeds, bool reset_best_plane_ptr)
 {
     m_inlier_buf.clear();
     m_inlier_buf.assign(seeds.begin(), seeds.end());
@@ -418,10 +405,7 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d src_img_point[], plane & plane_cand
     plane_candidate.pts.clear();
     plane_candidate.pts.reserve(m_plane_pt_reserve >> 1);
 
-    const int dx = m_param.img_x_dn_sample;
-    const int dy = m_param.img_y_dn_sample;
-    const int dpx = dx, dpy = dy * src_w();
-
+    const int grid_w = dwn_w();
     while (!m_inlier_buf.empty())
     {
         // new inlier point
@@ -432,21 +416,21 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d src_img_point[], plane & plane_cand
         plane_candidate.pts.push_back(pt);
 
         // neighboring points
-        const int x = pt->pix.x(), y = pt->pix.y(), p = pt->p;
-        const int xb[] = { x - dx, x + dx, x, x };
-        const int yb[] = { y, y, y - dy, y + dy };
-        const int pb[] = { p - dpx, p + dpx, p - dpy, p + dpy};
+        const int gx = pt->grp->gpix[0], gy = pt->grp->gpix[1], gp = pt->grp->gp;
+        const int xb[] = { gx - 1,gx + 1, gx, gx };
+        const int yb[] = { gy, gy, gy - 1, gy + 1 };
+        const int pb[] = { gp - 1, gp + 1, gp - grid_w, gp + grid_w };
 
         // grow
         for (int b = 0; b < 4; ++b)
         {
-            if (is_within_pt_cloud_fov(xb[b], yb[b])) //within fov
+            if (is_within_pt_group_fov(xb[b], yb[b])) //within fov
             {
-                auto& pt_next = src_img_point[pb[b]];
-                if (!pt_next.best_plane && is_inlier(plane_candidate, pt_next)) //accept plane point
+                auto pt_next = pt_group[pb[b]].pt0;
+                if (!pt_next->best_plane && is_inlier(plane_candidate, *pt_next)) //accept plane point
                 {
-                    pt_next.best_plane = &plane_candidate;
-                    m_inlier_buf.push_back(&pt_next);
+                    pt_next->best_plane = &plane_candidate;
+                    m_inlier_buf.push_back(pt_next);
                 }
             }
         }
@@ -459,7 +443,7 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d src_img_point[], plane & plane_cand
     }
 }
 
-void rs_sf_planefit::non_max_plane_suppression(vec_pt_ref& pt_cloud, vec_plane& plane_candidates)
+void rs_sf_planefit::non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_plane& plane_candidates)
 {
     for (auto& plane : plane_candidates)
     {
@@ -488,9 +472,9 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt_ref& pt_cloud, vec_plane& 
     }
 
     // rebuild point list for each plane based on the best fitting
-    for (auto pt : pt_cloud)
-        if (pt->best_plane)
-            pt->best_plane->best_pts.push_back(pt);
+    for (auto& grp : pt_groups)
+        if (grp.pt0->best_plane)
+            grp.pt0->best_plane->best_pts.push_back(grp.pt0);
 
     // make sure the plane src is valid
     for (auto& plane : plane_candidates)
@@ -519,7 +503,7 @@ void rs_sf_planefit::save_current_scene_as_reference()
 {
     // save history
     m_view.swap(m_ref_scene);
-    m_view.clear();
+    m_view.reset();
 }
 
 void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene & past_view)
@@ -542,16 +526,17 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
     }
     
     // mark current points which belongs to some past planes
-    auto past_pt_img = past_view.pt_img.data();
+    auto past_pt_grp = past_view.pt_grp.data();
     const int dn_x = m_param.img_x_dn_sample, dn_y = m_param.img_y_dn_sample;
     const int img_w = src_w(), dn_y_img_w = dn_y * img_w;
-    for (auto pt : current_view.pt_cloud)
+    for (auto& grp : current_view.pt_grp)
     {
-        auto past_cam_pix = project_i(map_to_past.transform(pt->pos));
-        if (is_within_pt_cloud_fov(past_cam_pix[0], past_cam_pix[1]))
+        auto& pt = grp.pt0;
+        auto past_cam_pix = project_dwn_i(map_to_past.transform(pt->pos));
+        if (is_within_pt_group_fov(past_cam_pix[0], past_cam_pix[1]))
         {
             //plane pixel in the past
-            auto& past_pt3d = past_pt_img[(past_cam_pix[1] / dn_y) * dn_y_img_w + (past_cam_pix[0] / dn_x)*dn_x];
+            auto& past_pt3d = *past_pt_grp[past_cam_pix[1] * dwn_h() + past_cam_pix[0]].pt0;
             if (past_pt3d.best_plane && is_valid_past_plane(*past_pt3d.best_plane)) {
                 if (is_inlier(*past_pt3d.best_plane, *pt))
                 {
@@ -602,14 +587,14 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
             plane.normal = normal;
             plane.d = -center.dot(normal);
             plane.src = src;
+            src->pos -= -(plane.normal.dot(src->pos) + plane.d) *plane.normal;
         }
     }
 
     // grow current 
-    auto src_img_point = current_view.pt_img.data();
     for (auto& current_plane : current_view.planes)
     {
-        grow_inlier_buffer(src_img_point, current_plane, current_plane.best_pts, false); //do not grow the same point twice
+        grow_inlier_buffer(current_view.pt_grp.data(), current_plane, current_plane.best_pts, false); //do not grow the same point twice
     }
 
     // coarse grid candidate sampling
@@ -682,31 +667,13 @@ bool rs_sf_planefit::is_tracked_pid(int pid)
     return INVALID_PID < pid && pid <= MAX_VALID_PID;
 }
 
-void rs_sf_planefit::upsample_best_plane_ptr(scene & view)
-{
-    return; 
-
-    auto src_pt_img = view.pt_img.data();
-    auto src_pt_cloud = view.pt_cloud.data();
-    const int img_w = src_w();
-    const int dn_x = m_param.img_x_dn_sample;
-    const int dn_y = m_param.img_y_dn_sample;
-    const int cloud_w = src_w() / dn_x;
-
-    for (int p = num_pixels() - 1; p >= 0; --p)
-    {
-        const int x = p % img_w, y = p / img_w;
-        src_pt_img[p].best_plane = src_pt_cloud[(y / dn_y) * cloud_w + (x / dn_x)]->best_plane;
-    }
-}
-
-void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const vec_pt3d & img_pt_cloud, rs_sf_image * dst) const
+void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const vec_pt3d & img_pt, rs_sf_image * dst) const
 {
     const int dst_w = dst->img_w, dst_h = dst->img_h;
     const int dn_x = m_param.img_x_dn_sample;
     const int dn_y = m_param.img_y_dn_sample;
 
-    const auto src_pt_cloud = img_pt_cloud.data();
+    const auto src_pt_cloud = img_pt.data();
     for (int y = 0, p = 0; y < dst_h; ++y) {
         for (int x = 0; x < dst_w; ++x, ++p)
         {

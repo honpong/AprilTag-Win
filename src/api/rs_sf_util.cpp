@@ -349,3 +349,60 @@ void draw_boxes(rs_sf_image * rgb, const rs_sf_intrinsics& camera, const std::ve
             draw_line_rgb(rgb, proj(line[0]), proj(line[1]), b3{ 255,255,0 });
     }
 }
+
+
+enum { BACKGROUND = 0, FOREGROUND = 1, CONTOUR_LEFT = 2, CONTOUR_RIGHT = 3 };
+std::vector<contour> find_contours_in_binary_img(rs_sf_image* bimg)
+{
+    std::vector<contour> dst;
+    const int W = bimg->img_w, H = bimg->img_h;
+    auto* pixel = bimg->data;
+    int parent_contour_id = BACKGROUND;
+    for (int y = 1, i = W + 1; y < H - 1; ++y, i += 2) {
+        for (int x = 1; x < W - 1; ++x, ++i) {
+            if (parent_contour_id == BACKGROUND) //outside
+            {
+                if (pixel[i] == BACKGROUND && pixel[i + 1] == FOREGROUND)
+                {
+                    dst.push_back(follow_border(pixel, W, H, i + 1));
+                    parent_contour_id = (int)dst.size();
+                }
+            }
+            else //inside
+            {
+                if (pixel[i] == CONTOUR_RIGHT) parent_contour_id = BACKGROUND;
+            }
+        }
+        parent_contour_id = BACKGROUND;
+    }
+    return dst;
+}
+
+contour follow_border(uint8_t* pixel, const int w, const int h, const int _x0)
+{
+    std::vector<i2> dst;
+    dst.reserve(200);
+
+    const int xb[] = { -w,-1,w,1 };             //cross neighbor
+    const int xd[] = { -w + 1,-w - 1,w - 1,w + 1 }; //diagonal neigbhor
+
+    int bz0 = -1; // first zero neighbor
+    for (int b = 0; b < 4; ++b)
+        if (pixel[_x0 + xb[b]] == 0) { bz0 = b; break; }
+
+    for (int x0 = _x0, x1 = -1, bx1, tx1; _x0 != x1; x0 = x1)
+    {
+        //first non-zero neighbor after first zero neighbor
+        if (pixel[(x1 = (x0 + xb[(bx1 = (bz0 + 1) % 4)]))] != 0) {}
+        else if (pixel[(x1 = (x0 + xb[(bx1 = (bz0 + 2) % 4)]))] != 0) {}
+        else if (pixel[(x1 = (x0 + xb[(bx1 = (bz0 + 3) % 4)]))] != 0) {}
+        else { break; }
+
+        if (pixel[tx1 = x0 + xd[bx1]] != 0) { x1 = tx1; bz0 = (bx1 + 2) % 4; }
+        else { bz0 = (bx1 + 3) % 4; }
+
+        dst.push_back(i2(x0 % w, x0 / w));
+        pixel[x0] = (pixel[x0 + 1] != 0 ? CONTOUR_LEFT : CONTOUR_RIGHT);
+    }
+    return dst;
+}

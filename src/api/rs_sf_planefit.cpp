@@ -417,7 +417,7 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
         m_inlier_buf.pop_back();
 
         // store this inlier
-        plane_pts.push_back(pt);
+        plane_pts.emplace_back(pt);
 
         // neighboring points
         const int gx = pt->grp->gpix[0], gy = pt->grp->gpix[1], gp = pt->grp->gp;
@@ -434,7 +434,7 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
                 if (!pt_next->best_plane && is_inlier(plane_candidate, *pt_next)) //accept plane point
                 {
                     pt_next->best_plane = &plane_candidate;
-                    m_inlier_buf.push_back(pt_next);
+                    m_inlier_buf.emplace_back(pt_next);
                 }
             }
         }
@@ -488,7 +488,7 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_pl
     // rebuild point list for each plane based on the best fitting
     for (auto& grp : pt_groups)
         if (grp.pt0->best_plane)
-            grp.pt0->best_plane->best_pts.push_back(grp.pt0);
+            grp.pt0->best_plane->best_pts.emplace_back(grp.pt0);
 
     // make sure the plane src is valid
     for (auto& plane : plane_candidates)
@@ -502,7 +502,7 @@ void rs_sf_planefit::sort_plane_size(vec_plane & planes, vec_plane_ref& sorted_p
     sorted_planes.clear();
 
     for (auto& plane : planes)
-        sorted_planes.push_back(&plane);
+        sorted_planes.emplace_back(&plane);
 
     std::sort(sorted_planes.begin(), sorted_planes.end(),
         [](const plane* p0, const plane* p1) { return p0->best_pts.size() > p1->best_pts.size(); });
@@ -558,7 +558,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
                 if (is_inlier(*past_pt3d.best_plane, *pt))
                 {
                     auto current_plane = past_to_current_planes[past_pt3d.best_plane->pid];
-                    current_plane->best_pts.push_back(pt);
+                    current_plane->best_pts.emplace_back(pt);
                 }
             }
         }

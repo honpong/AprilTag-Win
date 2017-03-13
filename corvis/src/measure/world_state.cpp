@@ -298,15 +298,37 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
         observe_plot_item(timestamp_us, p, "Wa" + std::to_string(i) + "_z", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[2]);
     }
 
-    if (path_gt.size() && path_gt.back().timestamp == data->time_us) {
-        p = get_plot_by_name("reference error");
-        observe_plot_item(timestamp_us, p, "orientation error", (float)to_rotation_vector(f->s.Q.v.conjugate() * path_gt.back().g.Q).raw_vector().norm());
-    }
-
     p = get_plot_by_name("translation");
     observe_plot_item(timestamp_us, p, "T_x", (float)f->s.T.v[0]);
     observe_plot_item(timestamp_us, p, "T_y", (float)f->s.T.v[1]);
     observe_plot_item(timestamp_us, p, "T_z", (float)f->s.T.v[2]);
+
+   if (path_gt.size() && path_gt.back().timestamp == data->time_us) {
+       transformation ref = path_gt.back().g;
+       rotation_vector v_current = to_rotation_vector(f->s.Q.v);
+       rotation_vector v_ref = to_rotation_vector(ref.Q);
+       f_t a_current = v_current.raw_vector().norm();
+       f_t a_ref = v_ref.raw_vector().norm();
+       rotation_vector v_error = to_rotation_vector(f->s.Q.v*ref.Q.conjugate());
+       f_t orientation_error = v_error.raw_vector().norm();
+       f_t error_Tx = f->s.T.v[0] - ref.T[0];
+       f_t error_Ty = f->s.T.v[1] - ref.T[1];
+       f_t error_Tz = f->s.T.v[2] - ref.T[2];
+       p = get_plot_by_name("angle");
+       observe_plot_item(timestamp_us, p, "angle current", a_current);
+       observe_plot_item(timestamp_us, p, "angle ref", a_ref);
+       p = get_plot_by_name("angle error");
+       observe_plot_item(timestamp_us, p, "angle error", orientation_error);
+       observe_plot_item(timestamp_us, p, "x angle error", v_error.x());
+       observe_plot_item(timestamp_us, p, "y angle error", v_error.y());
+       observe_plot_item(timestamp_us, p, "z angle error", v_error.z());
+       p = get_plot_by_name("translation error");
+       observe_plot_item(timestamp_us, p, "x error", error_Tx);
+       observe_plot_item(timestamp_us, p, "y error", error_Ty);
+       observe_plot_item(timestamp_us, p, "z error", error_Tz);
+       p = get_plot_by_name("ate");
+       observe_plot_item(timestamp_us, p, "ate", ate);
+    }
 
     p = get_plot_by_name("translation var");
     observe_plot_item(timestamp_us, p, "Tvar_x", (float)f->s.T.variance()[0]);
@@ -794,12 +816,27 @@ bool world_state::update_vertex_arrays(bool show_only_good)
     }
     
     path_gt_vertex.clear();
-    for(auto p : path_gt)
+    path_axis_vertex.clear();
+    for(Position p : path_gt)
     {
         VertexData v;
         set_color(&v, 206, 100, 178, 255); // path color
         set_position(&v, (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
         path_gt_vertex.push_back(v);
+    }
+
+    if (path_gt.size()) {
+        Position p = path_gt[path_gt.size()-1];
+        for(int i = 0; i < 6; i++) {
+            VertexData vagt;
+            v3 vertex(axis_vertex[i].position[0],
+                      axis_vertex[i].position[1],
+                      axis_vertex[i].position[2]);
+            vertex = p.g*vertex;
+            set_position(&vagt, vertex[0], vertex[1], vertex[2]);
+            set_color(&vagt, axis_vertex[i].color[0], axis_vertex[i].color[1], axis_vertex[i].color[2], axis_vertex[i].color[3]);
+            path_axis_vertex.push_back(vagt);
+        }
     }
 
     sensor_vertex.clear();
@@ -1025,4 +1062,9 @@ void world_state::observe_position_gt(uint64_t timestamp, float x, float y, floa
     display_lock.lock();
     path_gt.push_back(p);
     display_lock.unlock();
+}
+
+void world_state::observe_ate(uint64_t timestamp_us, const float absolute_translational_error)
+{
+    ate = absolute_translational_error;
 }

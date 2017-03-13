@@ -133,6 +133,7 @@ struct tpose_sequence {
             tposes[i].G = offset*tposes[i].G;
         }
     }
+    size_t size() { return tposes.size(); }
 
     friend inline std::istream &operator>>(std::istream &file, tpose_sequence &s);
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

@@ -44,6 +44,7 @@ private:
     bool accel_decimate {false};
     bool gyro_decimate {false};
     bool image_decimate {false};
+    bool ground_truth_file{false};
     std::chrono::microseconds accel_interval {10000};
     std::chrono::microseconds gyro_interval {10000};
     std::chrono::microseconds image_interval {33333};
@@ -91,6 +92,7 @@ public:
     void zero_biases();
     void start_mapping() { rc_startMapping(tracker); }
     void save_map(std::string filename);
+    inline bool ground_truth_exists() { return reference_seq->size(); }
 };
 
 #endif /* defined(__RC3DK__replay__) */

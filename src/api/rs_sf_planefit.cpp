@@ -386,7 +386,7 @@ bool rs_sf_planefit::is_inlier(const plane & candidate, const pt3d & p)
 
 void rs_sf_planefit::grow_planecandidate(vec_pt3d_group& pt_groups, vec_plane& plane_candidates)
 {
-    //assume img_pt_cloud is from a 2D grid
+    //assume pt_groups is from a 2D grid
     for (auto& plane : plane_candidates)
     {
         if (plane.past_plane) continue;
@@ -590,7 +590,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
         }
     }
 
-    // grow current 
+    // grow current tracked planes
     for (auto& current_plane : current_view.planes)
     {
         grow_inlier_buffer(current_view.pt_grp.data(), current_plane, current_plane.best_pts, false); //do not grow the same point twice
@@ -600,6 +600,13 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
     img_pointcloud_to_planecandidate(
         current_view.pt_img, current_view.planes,
         m_param.track_x_dn_sample, m_param.track_y_dn_sample);
+
+    // delete candidate if inside a tracked plane
+    for (auto& plane : current_view.planes)
+    {
+        if (plane.past_plane == nullptr) // coarse grid candidate
+            plane.past_plane = plane.src->best_plane; //best_plane is one of the current tracked plane
+    }
 }
 
 void rs_sf_planefit::combine_planes_from_the_same_past(scene & current_view, scene & past_view)

@@ -86,7 +86,7 @@ int rs_sf_planefit::max_detected_pid() const
 rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_filled) const
 {
     if (!map || !map->data || map->byte_per_pixel != 1) return RS_SF_INVALID_ARG;
-    upsize_pt_cloud_to_plane_map(m_view.pt_img, map);
+    upsize_pt_cloud_to_plane_map(m_view.plane_img, map);
     //mark_plane_src_on_map(map);
 
     if (hole_filled > 0 || (hole_filled == -1 && m_param.hole_fill_plane_map))
@@ -475,25 +475,50 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_pl
         plane.best_pts.reserve(plane.pts.size());
     }
 
-    /**
     // filter best plane ptr map
+    plane* sorter[9], **sorter_end = sorter + 9;
+    const int gb[] = { -m_grid_w - 1,-m_grid_w,-m_grid_w + 1,
+                     -1,0,+1,
+                     m_grid_w - 1, m_grid_w, m_grid_w + 1 };
+    auto* pt_group = pt_groups.data();
     for (int y = 1, g = m_grid_w + 1; y < m_grid_h - 1; ++y, g += 2) {
         for (int x = 1; x < m_grid_w - 1; ++x, ++g)
         {
-
+            sorter[0] = pt_group[g + gb[0]].pt0->best_plane;
+            sorter[1] = pt_group[g + gb[1]].pt0->best_plane;
+            sorter[2] = pt_group[g + gb[2]].pt0->best_plane;
+            sorter[3] = pt_group[g + gb[3]].pt0->best_plane;
+            sorter[4] = pt_group[g + gb[4]].pt0->best_plane;
+            sorter[5] = pt_group[g + gb[5]].pt0->best_plane;
+            sorter[6] = pt_group[g + gb[6]].pt0->best_plane;
+            sorter[7] = pt_group[g + gb[7]].pt0->best_plane;
+            sorter[8] = pt_group[g + gb[8]].pt0->best_plane;
+            std::sort(sorter, sorter_end);
+            pt_groups[g].pl_pt0->best_plane = sorter[4];
         }
     }
-    */
 
-    // rebuild point list for each plane based on the best fitting
-    for (auto& grp : pt_groups)
-        if (grp.pt0->best_plane)
-            grp.pt0->best_plane->best_pts.emplace_back(grp.pt0);
+    // rebuild point list for the plane map (i.e. grp.pl_pt) based on the best fitting
+    for (auto& grp : pt_groups) {
+        auto& grp_best_plane = grp.pl_pt0->best_plane;
+        if (grp_best_plane) {
+            grp_best_plane->best_pts.emplace_back(grp.pl_pt0);
+            *grp.pl_pt0 = *grp.pt0;
+            grp.pl_pt0->best_plane = grp_best_plane;
+        }
+        else {
+            grp.pl_pt0->valid_pos = false;
+            grp.pl_pt0->valid_normal = false;
+            grp.pl_pt0->best_plane = nullptr;
+        }
+    }
 
     // make sure the plane src is valid
-    for (auto& plane : plane_candidates)
+    for (auto& plane : plane_candidates) {
+        if (plane.src) { pt_groups[plane.src->grp->gp].pl_pt0; }
         if (plane.best_pts.size() > 0 && plane.src->best_plane != &plane)
             plane.src = plane.best_pts[0];
+    }
 }
 
 void rs_sf_planefit::sort_plane_size(vec_plane & planes, vec_plane_ref& sorted_planes)
@@ -553,7 +578,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
         if (is_within_pt_group_fov(past_cam_pix[0], past_cam_pix[1]))
         {
             //plane pixel in the past
-            auto& past_pt3d = *past_pt_grp[past_cam_pix[1] * m_grid_w + past_cam_pix[0]].pt0;
+            auto& past_pt3d = *past_pt_grp[past_cam_pix[1] * m_grid_w + past_cam_pix[0]].pl_pt0;
             if (past_pt3d.best_plane && is_valid_past_plane(*past_pt3d.best_plane)) {
                 if (is_inlier(*past_pt3d.best_plane, *pt))
                 {

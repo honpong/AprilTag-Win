@@ -301,7 +301,7 @@ bool run_planefit(rs_shapefit * planefitter, rs_sf_image img[2])
 
     // time measure
     char text[256];
-    sprintf(text, "%.2fms/frame", last_frame_compute_time.count());
+    sprintf(text, "%.0fms/frame", last_frame_compute_time.count());
 
     // color display
     rs_sf_image_rgb rgb(&img[1]);

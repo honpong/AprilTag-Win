@@ -25,8 +25,8 @@ struct rs_sf_planefit : public rs_shapefit
         float min_z_value = 100.0f;
         float max_z_value = 3500.0f;
         int max_num_plane_output = MAX_VALID_PID;
-        int track_x_dn_sample = 16 * 4;
-        int track_y_dn_sample = 16 * 4;
+        int track_x_dn_sample = 16 * 6;
+        int track_y_dn_sample = 16 * 6;
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);    

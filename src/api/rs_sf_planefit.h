@@ -27,7 +27,6 @@ struct rs_sf_planefit : public rs_shapefit
         int max_num_plane_output = MAX_VALID_PID;
         int track_x_dn_sample = 16 * 4;
         int track_y_dn_sample = 16 * 4;
-        bool compute_full_pt_cloud = false;
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);    

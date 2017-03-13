@@ -527,8 +527,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
     
     // mark current points which belongs to some past planes
     auto past_pt_grp = past_view.pt_grp.data();
-    const int dn_x = m_param.img_x_dn_sample, dn_y = m_param.img_y_dn_sample;
-    const int img_w = src_w(), dn_y_img_w = dn_y * img_w;
+    const int grid_w = dwn_w();
     for (auto& grp : current_view.pt_grp)
     {
         auto& pt = grp.pt0;
@@ -536,7 +535,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
         if (is_within_pt_group_fov(past_cam_pix[0], past_cam_pix[1]))
         {
             //plane pixel in the past
-            auto& past_pt3d = *past_pt_grp[past_cam_pix[1] * dwn_h() + past_cam_pix[0]].pt0;
+            auto& past_pt3d = *past_pt_grp[past_cam_pix[1] * grid_w + past_cam_pix[0]].pt0;
             if (past_pt3d.best_plane && is_valid_past_plane(*past_pt3d.best_plane)) {
                 if (is_inlier(*past_pt3d.best_plane, *pt))
                 {

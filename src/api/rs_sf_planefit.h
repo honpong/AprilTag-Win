@@ -45,9 +45,9 @@ protected:
         
     struct plane; 
     struct pt3d_group;
-    struct pt3d { v3 pos, normal; plane* best_plane; int p; i2 pix; pt3d_group* grp; };
+    struct pt3d { v3 pos, normal; bool valid_pos, valid_normal;  plane* best_plane; int p; i2 pix; pt3d_group* grp; };
     typedef std::vector<pt3d*> vec_pt_ref;
-    struct pt3d_group { int gp; i2 gpix; vec_pt_ref pt; pt3d* pt0; };
+    struct pt3d_group { int gp; i2 gpix; vec_pt_ref pt, pl_pt; pt3d *pt0, *pl_pt0; };
     struct plane {
         v3 normal; float d; pt3d* src; vec_pt_ref pts, best_pts; int pid; const plane* past_plane;
         plane(const v3& _nor, float _d, pt3d* _src, int _pid = INVALID_PID, const plane* _past_plane = nullptr)
@@ -59,11 +59,16 @@ protected:
     typedef std::vector<plane> vec_plane;
     typedef std::vector<plane*> vec_plane_ref;
     struct scene {
-        vec_pt3d pt_img;
+        vec_pt3d pt_img, plane_img;
         vec_pt3d_group pt_grp;
         vec_plane planes;
         pose_t cam_pose;
-        inline void swap(scene& ref) { pt_grp.swap(ref.pt_grp); pt_img.swap(ref.pt_img); planes.swap(ref.planes); std::swap(cam_pose, ref.cam_pose); }
+        inline void swap(scene& ref) {
+            pt_img.swap(ref.pt_img); plane_img.swap(ref.plane_img);
+            pt_grp.swap(ref.pt_grp);
+            planes.swap(ref.planes);
+            std::swap(cam_pose, ref.cam_pose);
+        }
         inline void reset() { planes.clear(); cam_pose.set_pose(); }
     };
 
@@ -94,9 +99,7 @@ private:
     v3 unproject(const float u, const float v, const float z) const;
     bool is_within_pt_group_fov(const int x, const int y) const;
     bool is_valid_raw_z(const float z) const;
-    bool is_valid_pt3d_pos(const pt3d& pt) const;
-    bool is_valid_pt3d_normal(const pt3d& pt) const;
-    void image_to_pointcloud(const rs_sf_image* img, vec_pt3d& pt_img, pose_t& pose);
+    void image_to_pointcloud(const rs_sf_image* img, scene& current_view, pose_t& pose);
     void img_pt_group_to_normal(vec_pt3d_group& pt_groups);
     void img_pointcloud_to_planecandidate(vec_pt3d& img_ot, vec_plane& img_planes, int candidate_y_dn_sample = -1, int candidate_x_dn_sample = -1);
     bool is_inlier(const plane& candidate, const pt3d& p);
@@ -109,11 +112,11 @@ private:
 
     // plane tracking
     bool is_valid_past_plane(const plane& past_plane) const;
+    bool is_tracked_pid(int pid) const;
     void save_current_scene_as_reference();
     void map_candidate_plane_from_past(scene& current_view, scene& past_view);
     void combine_planes_from_the_same_past(scene& current_view, scene& past_view);
     void assign_planes_pid(vec_plane_ref& sorted_planes);
-    bool is_tracked_pid(int pid);
 
     // output utility 
     void upsize_pt_cloud_to_plane_map(const vec_pt3d& pt_img, rs_sf_image* dst) const;

@@ -8,26 +8,28 @@ struct rs_sf_planefit : public rs_shapefit
 {
     struct parameter
     {
+        bool filter_plane_map = true;
 #ifdef _DEBUG
+        bool hole_fill_plane_map = false;
         int img_x_dn_sample = 8;
         int img_y_dn_sample = 8;
-        bool hole_fill_plane_map = false;
 #else
+        bool hole_fill_plane_map = true;
         int img_x_dn_sample = 4;
         int img_y_dn_sample = 4;
-        bool hole_fill_plane_map = true;
 #endif
         int candidate_x_dn_sample = 16;
         int candidate_y_dn_sample = 16;
-        float max_fit_err_thr = 30.0f;
-        float max_normal_thr = 0.7f;
-        int min_num_plane_pt = 150;
-        float min_z_value = 100.0f;
-        float max_z_value = 3500.0f;
-        int max_num_plane_output = MAX_VALID_PID;
         int track_x_dn_sample = 16 * 6;
         int track_y_dn_sample = 16 * 6;
-        bool filter_plane_map = false;
+
+        float min_z_value = 100.0f;
+        float max_z_value = 3500.0f;
+        float max_fit_err_thr = 30.0f;
+        float max_normal_thr = 0.7f;
+
+        int min_num_plane_pt = 150;
+        int max_num_plane_output = MAX_VALID_PID;
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);    
@@ -86,7 +88,7 @@ private:
     // temporary memory
     vec_pt_ref m_inlier_buf;
     int m_plane_pt_reserve, m_track_plane_reserve;
-    const int m_grid_w, m_grid_h;
+    const int m_grid_w, m_grid_h, m_grid_neighbor[9];
     int src_h() const { return m_intrinsics.img_h; }
     int src_w() const { return m_intrinsics.img_w; }
     int num_pixels() const { return src_h()*src_w(); }
@@ -109,8 +111,6 @@ private:
     void non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_plane& plane_candidates);
     void filter_plane_ptr_to_plane_img(vec_pt3d_group& pt_groups);
     void sort_plane_size(vec_plane& planes, vec_plane_ref& sorted_planes);
-
-    // per frame up plane boundary refinement 
 
     // plane tracking
     bool is_valid_past_plane(const plane& past_plane) const;

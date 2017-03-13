@@ -2,7 +2,9 @@
 
 rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera) :
     m_grid_h(camera->img_h / m_param.img_y_dn_sample),
-    m_grid_w(camera->img_w / m_param.img_x_dn_sample)
+    m_grid_w(camera->img_w / m_param.img_x_dn_sample),
+    m_grid_neighbor{ -1, 1, -m_grid_w, m_grid_w, 0,
+    -m_grid_w - 1, -m_grid_w + 1, m_grid_w - 1, m_grid_w + 1 }
 {
     m_intrinsics = *camera;
 
@@ -48,6 +50,7 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
 
     // for debug 
     ref_img = img[0];
+    if (img->cam_pose) m_param.filter_plane_map = false;
 
     // save previous scene
     save_current_scene_as_reference();
@@ -422,17 +425,18 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
         plane_pts.emplace_back(pt);
 
         // neighboring points
-        const int gx = pt->grp->gpix[0], gy = pt->grp->gpix[1], gp = pt->grp->gp;
-        const int xb[] = { gx - 1,gx + 1, gx, gx };
-        const int yb[] = { gy, gy, gy - 1, gy + 1 };
-        const int pb[] = { gp - 1, gp + 1, gp - m_grid_w, gp + m_grid_w };
+        //const int gx = pt->grp->gpix[0], gy = pt->grp->gpix[1];
+        //const int xb[] = { gx - 1,gx + 1, gx, gx };
+        //const int yb[] = { gy, gy, gy - 1, gy + 1 };
+        //const int pb[] = { gp - 1, gp + 1, gp - m_grid_w, gp + m_grid_w };
+        const int gp = pt->grp->gp;
 
         // grow
         for (int b = 0; b < 4; ++b)
         {
             //if (is_within_pt_group_fov(xb[b], yb[b])) //within fov
             {
-                auto pt_next = pt_group[pb[b]].pt0;
+                auto pt_next = pt_group[gp + m_grid_neighbor[b]].pt0;
                 if (!pt_next->best_plane && is_inlier(plane_candidate, *pt_next)) //accept plane point
                 {
                     pt_next->best_plane = &plane_candidate;
@@ -501,20 +505,19 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_pl
 void rs_sf_planefit::filter_plane_ptr_to_plane_img(vec_pt3d_group & pt_groups)
 {
     plane* sorter[9], **sorter_end = sorter + 9;
-    const int gb[] = { -m_grid_w - 1,-m_grid_w,-m_grid_w + 1,-1,0,+1,m_grid_w - 1,m_grid_w,m_grid_w + 1 };
     auto* pt_group = pt_groups.data();
     for (int y = 1, g = m_grid_w + 1; y < m_grid_h - 1; ++y, g += 2) {
         for (int x = 1; x < m_grid_w - 1; ++x, ++g)
         {
-            sorter[0] = pt_group[g + gb[0]].pt0->best_plane;
-            sorter[1] = pt_group[g + gb[1]].pt0->best_plane;
-            sorter[2] = pt_group[g + gb[2]].pt0->best_plane;
-            sorter[3] = pt_group[g + gb[3]].pt0->best_plane;
-            sorter[4] = pt_group[g + gb[4]].pt0->best_plane;
-            sorter[5] = pt_group[g + gb[5]].pt0->best_plane;
-            sorter[6] = pt_group[g + gb[6]].pt0->best_plane;
-            sorter[7] = pt_group[g + gb[7]].pt0->best_plane;
-            sorter[8] = pt_group[g + gb[8]].pt0->best_plane;
+            sorter[0] = pt_group[g + m_grid_neighbor[0]].pt0->best_plane;
+            sorter[1] = pt_group[g + m_grid_neighbor[1]].pt0->best_plane;
+            sorter[2] = pt_group[g + m_grid_neighbor[2]].pt0->best_plane;
+            sorter[3] = pt_group[g + m_grid_neighbor[3]].pt0->best_plane;
+            sorter[4] = pt_group[g + m_grid_neighbor[4]].pt0->best_plane;
+            sorter[5] = pt_group[g + m_grid_neighbor[5]].pt0->best_plane;
+            sorter[6] = pt_group[g + m_grid_neighbor[6]].pt0->best_plane;
+            sorter[7] = pt_group[g + m_grid_neighbor[7]].pt0->best_plane;
+            sorter[8] = pt_group[g + m_grid_neighbor[8]].pt0->best_plane;
             std::sort(sorter, sorter_end);
             pt_group[g].pl_pt0->best_plane = sorter[4];
         }

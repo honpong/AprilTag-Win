@@ -19,6 +19,7 @@ set(TRACKER_SOURCES
     tracker/mapper.cpp
     tracker/dictionary.cpp
     tracker/fast_tracker.cpp
+    tracker/remapper.cpp
     ${TRACKERI_HEADERS}
 )
 if(WIN32)
@@ -36,6 +37,8 @@ if(ENABLE_QR)
         tracker/qr.cpp
     )
 endif()
+
+set_source_files_properties(tracker/remapper.cpp PROPERTIES COMPILE_DEFINITIONS_DEBUG _SCL_SECURE_NO_WARNINGS)
 
 add_library(trackeri STATIC ${TRACKER_SOURCES})
 

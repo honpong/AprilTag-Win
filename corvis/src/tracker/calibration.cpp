@@ -119,6 +119,12 @@ void copy_camera_to_json(const sensor_calibration_camera & camera, Value & camer
             for(int i = 0; i < 3; i++) distortion_k.PushBack(camera.intrinsics.distortion[i], a);
             distortion.AddMember(KEY_CAMERA_DISTORTION_K, distortion_k, a);
         }
+        else if (camera.intrinsics.type == rc_CALIBRATION_TYPE_KANNALA_BRANDT4) {
+            distortion_type = "kannalabrandt4";
+            Value distortion_k(kArrayType);
+            for (int i = 0; i < 4; i++) distortion_k.PushBack(camera.intrinsics.distortion[i], a);
+            distortion.AddMember(KEY_CAMERA_DISTORTION_K, distortion_k, a);
+        }
         else if(camera.intrinsics.type == rc_CALIBRATION_TYPE_UNDISTORTED)
             distortion_type = "undistorted";
         else
@@ -407,6 +413,16 @@ bool copy_json_to_camera(Value & json, sensor_calibration_camera & camera)
             return false;
         }
         for(int i = 0; i < 3; i++)
+            camera.intrinsics.distortion[i] = distortion[KEY_CAMERA_DISTORTION_K][i].GetDouble();
+    }
+    else if (type == "kannalabrandt4") {
+        require_key(distortion, KEY_CAMERA_DISTORTION_K);
+        camera.intrinsics.type = rc_CALIBRATION_TYPE_KANNALA_BRANDT4;
+        if (distortion[KEY_CAMERA_DISTORTION_K].Size() != 4) {
+            fprintf(stderr, "Error: distortion size is not 4, but kannalabrandt4 was selected\n");
+            return false;
+        }
+        for (int i = 0; i < 4; i++)
             camera.intrinsics.distortion[i] = distortion[KEY_CAMERA_DISTORTION_K][i].GetDouble();
     }
     else if(type == "undistorted") {

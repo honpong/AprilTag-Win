@@ -188,10 +188,12 @@ RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
 RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initial_time_us);
 
 typedef enum rc_CalibrationType {
-    rc_CALIBRATION_TYPE_UNKNOWN,     // rd = ???
-    rc_CALIBRATION_TYPE_FISHEYE,     // rd = arctan(2 * ru * tan(w / 2)) / w
-    rc_CALIBRATION_TYPE_POLYNOMIAL3, // rd = ru * (k1 * ru^2 + k2 * ru^4 + k3 * ru^6)
-    rc_CALIBRATION_TYPE_UNDISTORTED, // rd = ru
+    rc_CALIBRATION_TYPE_UNKNOWN,        // rd = ???
+    rc_CALIBRATION_TYPE_FISHEYE,        // rd = arctan(2 * ru * tan(w / 2)) / w
+    rc_CALIBRATION_TYPE_POLYNOMIAL3,    // rd = ru * (k1 * ru^2 + k2 * ru^4 + k3 * ru^6)
+    rc_CALIBRATION_TYPE_UNDISTORTED,    // rd = ru
+                                        // theta=arctan(ru)
+    rc_CALIBRATION_TYPE_KANNALA_BRANDT4 // rd = theta + k1*theta^3 + k2*theta^5 + k3*theta^7 + k4*theta^9
 } rc_CalibrationType;
 
 /**
@@ -211,8 +213,8 @@ typedef struct rc_CameraIntrinsics {
     double f_x_px, f_y_px;
     double c_x_px, c_y_px;
     union {
-        double distortion[3];
-        struct { double k1,k2,k3; };
+        double distortion[4];
+        struct { double k1,k2,k3,k4; };
         double w;
     };
 } rc_CameraIntrinsics;

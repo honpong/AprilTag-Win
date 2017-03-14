@@ -50,6 +50,14 @@ while header_str != "":
       (x, y, z) = unpack('fff', data[:12])
       if args.verbose:
           print "\t", sensor_id, x, y, z, sqrt(x*x + y*y + z*z)
+  elif ptype == image_with_depth:
+      (exposure, width, height, depth_w, depth_h) = unpack('QHHHH', data[:16])
+      if exposure < 1000 or exposure > 50000:
+          exposure_warnings[packet_str].append((ptime, exposure))
+      ptime += exposure/2
+      if args.verbose:
+          camera_str = "%d %dx%d grey, %dx%d depth, %d exposure, %d adjusted time" % (sensor_id, width, height, depth_w, depth_h, exposure, ptime)
+          print "\t", camera_str
   elif ptype == image_raw_type:
       (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
       type_str = format_types[camera_format]

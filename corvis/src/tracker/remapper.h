@@ -88,7 +88,7 @@ class remapper {
         Pn_to.resize(std::max(Pn_from.cols(),size)); // in case &Pn_to == &Pn_from
         for (auto &c : updates)
             if (c.type == update::add)
-                std::copy(&process_covariance[c.to], &process_covariance[c.to+c.size], &Pn_to[c.to]);
+                std::memcpy(&Pn_to[c.to], &process_covariance[c.to], c.size*sizeof(process_covariance[c.to]));
             else if (&Pn_to != &Pn_from || c.to != c.from)
                 std::memmove(&Pn_to[c.to], &Pn_from[c.from], c.size*sizeof(Pn_from[0]));
         Pn_to.resize(size);

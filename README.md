@@ -99,12 +99,15 @@ dnf install libXcursor-devel libXinerama-devel libXrender-devel libXrandr-devel 
 
 ### Android
 
-  Pass the following to `cmake`.
+  Pass the following to `cmake`
 
    - `-DCMAKE_TOOLCHAIN_FILE=../cmake/Android.toolchain.cmake`,
-   - `-DANDROID_NDK_ROOT=<path-to-the-ndk>`
-   - `-DANDROID_PLATFORM=android-21`
-   - `-DANDROID_ARCH=<x86_64|x86>`
+   - `-DCMAKE_ANDROID_NDK=<path-to-the-ndk>`
+
+  and optionally any of these.
+
+   - `-DCMAKE_SYSTEM_VERSION=21`
+   - `-DCMAKE_ANDROID_ARCH_ABI=<x86_64|x86>`
 
 ## Running
 

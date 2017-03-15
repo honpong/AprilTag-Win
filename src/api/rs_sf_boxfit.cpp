@@ -7,20 +7,27 @@ rs_sf_boxfit::rs_sf_boxfit(const rs_sf_intrinsics * camera) : rs_sf_planefit(cam
 rs_sf_status rs_sf_boxfit::process_depth_image(const rs_sf_image * img)
 {
     cv::waitKey(0);
+
     auto pf_status = rs_sf_planefit::process_depth_image(img);
     if (pf_status < 0) return pf_status;
 
+    m_box_scene.clear();
+    m_box_scene_ref.clear();
     run_static_boxfit(img);
+
     return pf_status;
 }
 
 rs_sf_status rs_sf_boxfit::track_depth_image(const rs_sf_image * img)
 {
     cv::waitKey(0);
+
     auto pf_status = rs_sf_planefit::track_depth_image(img);
     if (pf_status < 0) return pf_status;
 
+    m_box_scene.swap(m_box_scene_ref);
     run_static_boxfit(img);
+
     return pf_status;
 }
 
@@ -28,7 +35,9 @@ std::vector<rs_sf_box> rs_sf_boxfit::get_boxes() const
 {
     std::vector<rs_sf_box> dst;
     dst.reserve(num_detected_boxes());
-    for (const auto& box : m_boxes)
+    for (const auto& box : m_box_scene.boxes)
+        dst.push_back(box.to_rs_sf_box());
+    for (const auto& box : m_box_scene_ref.boxes)
         dst.push_back(box.to_rs_sf_box());
     return dst;
 }
@@ -39,11 +48,8 @@ void rs_sf_boxfit::run_static_boxfit(const rs_sf_image * img)
 
     m_current_pose.set_pose(img->cam_pose);
 
-    m_boxes.clear();
-    m_boxes.reserve(MAX_VALID_PID);
-
-    form_list_of_plane_pairs(m_plane_pairs);
-    for (auto& pairs : m_plane_pairs)
+    form_list_of_plane_pairs(m_box_scene.plane_pairs);
+    for (auto& pairs : m_box_scene.plane_pairs)
         form_box_from_two_planes(*pairs.p0, *pairs.p1, pairs.box);
 }
 
@@ -75,7 +81,33 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
     auto cosine_theta = std::abs(plane0.normal.dot(plane1.normal));
     if (cosine_theta > m_param.plane_angle_thr) return false;
     
+    // box axis
+    v3 axis[3] = { plane1.normal, plane0.normal, {} };
 
+    // part of box origin can be found by the plane intersection
+    v3 axis_origin;
+    axis_origin[0] = -plane1.d;
+    axis_origin[1] = -plane0.d;
+
+    const float cen0_to_plane1_d = plane1.normal.dot(plane0.src->pos) + plane1.d;
+    const float cen1_to_plane0_d = plane0.normal.dot(plane1.src->pos) + plane0.d;
+    if (cen0_to_plane1_d < 0) {
+        axis[0] = -axis[0];   //axis pointing towards plane center
+        axis_origin[0] = -axis_origin[0];
+    }
+    if (cen1_to_plane0_d < 0) {
+        axis[1] = -axis[1];   //axis pointing towards plane center
+        axis_origin[1] = -axis_origin[1];
+    }
+    axis[2] = axis[0].cross(axis[1]).normalized();
+
+    // reject concave plane pair
+    const v3 cen0_on_plane1 = plane0.src->pos - cen0_to_plane1_d * plane1.normal;
+    const v3 cen1_on_plane0 = plane1.src->pos - cen1_to_plane0_d * plane0.normal;
+    if ( axis[0].dot(cen0_on_plane1 - m_current_pose.translation) < 0 ||
+        axis[1].dot(cen1_on_plane0 - m_current_pose.translation) < 0 )
+        return false;
+    
     // box plane helper
     struct box_plane_t
     {
@@ -86,8 +118,9 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
         float height_min;
         box_axis_bin width_min, width_max, height_max;
         int n_bins, upper_bin;
-        
-        box_plane_t(const plane* _src) : src(_src) {
+
+        box_plane_t(const plane* _src) : src(_src)
+        {
             width_min.fill(FLOAT_MAX_VALUE);
             width_max.fill(FLOAT_MIN_VALUE);
             height_min = FLOAT_MAX_VALUE;
@@ -171,24 +204,6 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
     box_plane[0].project_pts_on_plane(m_param.max_plane_pt_error);
     box_plane[1].project_pts_on_plane(m_param.max_plane_pt_error);
 
-    // box axis
-    v3 axis[3] = { plane1.normal, plane0.normal, {} };
-
-    // part of box origin can be found by the plane intersection
-    v3 axis_origin;
-    axis_origin[0] = -plane1.d;
-    axis_origin[1] = -plane0.d;
-
-    if (plane1.normal.dot(box_plane[0].src->src->pos) < axis_origin[0]) {
-        axis[0] = -axis[0];
-        axis_origin[0] = -axis_origin[0];
-    }
-    if (plane0.normal.dot(box_plane[1].src->src->pos) < axis_origin[1]) {
-        axis[1] = -axis[1];
-        axis_origin[1] = -axis_origin[1];
-    }
-    axis[2] = axis[0].cross(axis[1]).normalized();
-
     // get approximated common width range
     const auto width0_bin_range = box_plane[0].approx_width_range(&axis[2]);
     const auto width1_bin_range = box_plane[1].approx_width_range(&axis[2]);
@@ -216,15 +231,15 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
     box_axis.col(1) = axis[1];
     box_axis.col(2) = axis[2];
 
-    // form the box origin by min end points of three axis
-    const v3 box_translation = box_axis * axis_origin;
-
     // form the box dimension by end point differences
     const v3 box_dimension(axis0_length[1], axis1_length[1], axis2_length);
 
+    // form the box center by box origin + 1/2 box dimension
+    const v3 box_center = box_axis * (axis_origin + box_dimension*0.5f);
+
     // make new box
-    m_boxes.push_back({ box_translation,box_dimension,box_axis });
-    new_box_ptr = &m_boxes.back();
+    m_box_scene.boxes.push_back({ box_center, box_dimension, box_axis });
+    new_box_ptr = &m_box_scene.boxes.back();
 
 #if defined(__OPENCV_ALL_HPP__) | defined(OPENCV_ALL_HPP)
 
@@ -244,10 +259,10 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
     cv::Mat src(ref_img.img_h, ref_img.img_w, CV_16U, ref_img.data);
     src.convertTo(map, CV_8U, 255.0 / 4000.0);
 
-    auto pt0 = proj(box_translation);
+    auto pt0 = proj(new_box_ptr->origin());
     auto cv0 = cv::Point((int)pt0.x(), (int)pt0.y());
     for (int a = 0; a < 3; ++a) {
-        auto pt1 = proj(box_dimension[a] * box_axis.col(a) + box_translation);
+        auto pt1 = proj(box_dimension[a] * box_axis.col(a) + new_box_ptr->origin());
         cv::line(map, cv0, cv::Point((int)pt1.x(), (int)pt1.y()), cv::Scalar(70 * (a + 1)), 2, CV_AA);
     }
 
@@ -255,7 +270,7 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
         for (auto& pt : pl.pts)
         {
             auto p0 = proj(pt.pos);
-            auto p1 = proj((box_axis.col(2).dot(pt.pos) - axis_origin[2]) * box_axis.col(2) + box_translation);
+            auto p1 = proj((box_axis.col(2).dot(pt.pos) - axis_origin[2]) * box_axis.col(2) + new_box_ptr->origin());
             cv::circle(map, cv::Point((int)p0.x(), (int)p0.y()), 1, cv::Scalar(255), -1);
             cv::line(map, cv::Point((int)p0.x(), (int)p0.y()), cv::Point((int)p1.x(), (int)p1.y()), cv::Scalar(128), 1, CV_AA);
         }
@@ -265,10 +280,28 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
     return true;
 }
 
+void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & current_view)
+{
+    // each newly detected box
+    for (auto& pair : current_view.plane_pairs)
+    {
+        if (pair.box != nullptr) //new box
+        {
+            for (auto& old_box : m_tracked_boxes)
+            {
+                int new_p0 = -1, new_p1 = -1;
+                if (old_box.prev_plane_pair->p0->pid == pair.p0->pid)
+                {
+                }
+            }
+        }
+    }
+}
+
 rs_sf_box rs_sf_boxfit::box::to_rs_sf_box() const
 {
     rs_sf_box dst;
-    v3_map(dst.origin) = translation;
+    v3_map(dst.center) = center;
     m3_axis_map((float*)dst.axis) = (axis * dimension.asDiagonal());
     return dst;
 }

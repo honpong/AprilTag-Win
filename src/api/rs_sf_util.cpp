@@ -321,12 +321,12 @@ void to_box_frame(const rs_sf_box& box, v3 box_frame[12][2])
         {{0,0,0},{0,1,0}}, {{0,0,1},{0,1,1}}, {{1,0,0},{1,1,0}}, {{1,0,1},{1,1,1}},
         {{0,0,0},{0,0,1}}, {{0,1,0},{0,1,1}}, {{1,0,0},{1,0,1}}, {{1,1,0},{1,1,1}} };
 
-    const auto& p0 = box.origin, &a0 = box.axis[0], &a1 = box.axis[1], &a2 = box.axis[2];
+    const auto& p0 = box.center, &a0 = box.axis[0], &a1 = box.axis[1], &a2 = box.axis[2];
     for (int l = 0; l < 12; ++l) {
         const auto w0 = line_index[l][0], w1 = line_index[l][1];
         for (int d = 0; d < 3; ++d) {
-            box_frame[l][0][d] = p0[d] + a0[d] * w0[0] + a1[d] * w0[1] + a2[d] * w0[2];
-            box_frame[l][1][d] = p0[d] + a0[d] * w1[0] + a1[d] * w1[1] + a2[d] * w1[2];
+            box_frame[l][0][d] = p0[d] + a0[d] * (w0[0]-0.5f) + a1[d] * (w0[1]-0.5f) + a2[d] * (w0[2]-0.5f);
+            box_frame[l][1][d] = p0[d] + a0[d] * (w1[0]-0.5f) + a1[d] * (w1[1]-0.5f) + a2[d] * (w1[2]-0.5f);
         }
     }
 }

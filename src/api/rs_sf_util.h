@@ -54,7 +54,7 @@ inline void print_box(const rs_sf_box& box)
     printf("a0 %.1f %.1f %.1f \n", box.axis[0][0], box.axis[0][1], box.axis[0][2]);
     printf("a1 %.1f %.1f %.1f \n", box.axis[1][0], box.axis[1][1], box.axis[1][2]);
     printf("a2 %.1f %.1f %.1f \n", box.axis[2][0], box.axis[2][1], box.axis[2][2]);
-    printf("t  %.1f %.1f %.1f \n", box.origin[0], box.origin[1], box.origin[2]);
+    printf("t  %.1f %.1f %.1f \n", box.center[0], box.center[1], box.center[2]);
     printf("---------------- \n");
 }
 

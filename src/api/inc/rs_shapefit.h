@@ -39,7 +39,7 @@ extern "C"
 
     struct rs_sf_box
     {
-        float origin[3];
+        float center[3];
         float axis[3][3];
     };
 

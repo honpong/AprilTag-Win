@@ -56,6 +56,7 @@ while header_str != "":
         
     if ptype == image_raw_type:
         (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
+        ptime += exposure//2
         if camera_format == rc_IMAGE_GRAY8:
             image_filename = "fisheye/image_%06d.pgm" % frame_number
             line = camera_to_str(ptime, image_filename)

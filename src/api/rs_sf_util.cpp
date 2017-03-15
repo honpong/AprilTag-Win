@@ -340,7 +340,7 @@ void draw_boxes(rs_sf_image * rgb, const rs_sf_intrinsics& camera, const std::ve
             (pt3d.x() * cam.cam_fx) / pt3d.z() + cam.cam_px,
             (pt3d.y() * cam.cam_fy) / pt3d.z() + cam.cam_py };
     };
-
+    
     v3 box_frame[12][2];
     for (auto& box : boxes)
     {

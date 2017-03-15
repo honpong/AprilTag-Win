@@ -6,6 +6,7 @@ rs_sf_boxfit::rs_sf_boxfit(const rs_sf_intrinsics * camera) : rs_sf_planefit(cam
 
 rs_sf_status rs_sf_boxfit::process_depth_image(const rs_sf_image * img)
 {
+    cv::waitKey(0);
     auto pf_status = rs_sf_planefit::process_depth_image(img);
     if (pf_status < 0) return pf_status;
 
@@ -15,6 +16,7 @@ rs_sf_status rs_sf_boxfit::process_depth_image(const rs_sf_image * img)
 
 rs_sf_status rs_sf_boxfit::track_depth_image(const rs_sf_image * img)
 {
+    cv::waitKey(0);
     auto pf_status = rs_sf_planefit::track_depth_image(img);
     if (pf_status < 0) return pf_status;
 
@@ -66,8 +68,166 @@ void rs_sf_boxfit::form_list_of_plane_pairs(std::vector<plane_pair>& pairs)
     }
 }
 
+#include <array>
 bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& plane1, box* &new_box_ptr)
 {
+    // reject plane pair not perpendicular
+    auto cosine_theta = std::abs(plane0.normal.dot(plane1.normal));
+    if (cosine_theta > m_param.plane_angle_thr) return false;
+    
+
+    // box plane helper
+    struct box_plane_t
+    {
+        typedef std::array<float, 11> box_axis_bin;
+        const plane* src;
+        vec_pt3d pts;
+        const v3* width_axis, *height_axis;
+        float height_min;
+        box_axis_bin width_min, width_max, height_max;
+        int n_bins, upper_bin;
+        
+        box_plane_t(const plane* _src) : src(_src) {
+            width_min.fill(FLOAT_MAX_VALUE);
+            width_max.fill(FLOAT_MIN_VALUE);
+            height_min = FLOAT_MAX_VALUE;
+            height_max.fill(FLOAT_MIN_VALUE);
+            n_bins = sizeof(box_axis_bin) / sizeof(float);
+            upper_bin = n_bins * 3 / 4;
+        }
+
+        void project_pts_on_plane(const float max_plane_pt_error)
+        {
+            const float d = src->d;
+            const v3& normal = src->normal;
+            pts.reserve(src->best_pts.size());
+            for (auto& pt : src->best_pts)
+            {
+                if (pt->valid_pos)
+                {
+                    const float plane_pt_err = normal.dot(pt->pos) + d;
+                    if (std::abs(plane_pt_err) < max_plane_pt_error)
+                    {
+                        pt->pos -= plane_pt_err * normal;
+                        pts.emplace_back(*pt);
+                    }
+                }
+            }
+        }
+
+        v2 approx_width_range(const v3* _width_axis)
+        {
+            width_axis = _width_axis;
+            v2 width_range(FLOAT_MAX_VALUE, FLOAT_MIN_VALUE);
+            for (const auto& pt : pts)
+            {
+                const float coeff = width_axis->dot(pt.pos);
+                width_range[0] = std::min(width_range[0], coeff);
+                width_range[1] = std::max(width_range[1], coeff);
+            }
+            return width_range;
+        }
+
+        v2 get_height_length(const v3* _height_axis, const v2& width_bin_range, const float height_origin)
+        {
+            height_axis = _height_axis;
+            const float w_bin_origin = width_bin_range[0];
+            const float bin_size = (width_bin_range[1] - w_bin_origin) / n_bins;
+            for (const auto& pt : pts)
+            {
+                const float w_len_coeff = width_axis->dot(pt.pos) - w_bin_origin;
+                const int w_bin = std::min(n_bins - 1, std::max(0, (int)(w_len_coeff / bin_size)));
+                const float h_coeff = height_axis->dot(pt.pos) - height_origin;
+                height_max[w_bin] = std::max(height_max[w_bin], h_coeff);
+                height_min = std::min(height_min, h_coeff);
+            }
+            std::sort(height_max.begin(), height_max.end());
+            return{ height_min, height_max[upper_bin] };
+        }
+
+        v2 get_width_range(const float height_origin)
+        {
+            const float h_bin_origin = height_origin;
+            const float bin_size = (height_max[upper_bin] - height_min) / n_bins;
+            for (const auto& pt : pts)
+            {
+                const float h_len_coeff = std::abs(height_axis->dot(pt.pos) - h_bin_origin);
+                const int h_bin = std::max(0, (int)(h_len_coeff / bin_size));
+                if (h_bin < n_bins)
+                {
+                    const float w_coeff = width_axis->dot(pt.pos);
+                    width_max[h_bin] = std::max(width_max[h_bin], w_coeff);
+                    width_min[h_bin] = std::min(width_min[h_bin], w_coeff);
+                }
+            }
+            std::sort(width_min.begin(), width_min.end());
+            std::sort(width_max.begin(), width_max.end());
+            return{ width_min[upper_bin],width_max[upper_bin] };
+        }
+
+    } box_plane[2] = { box_plane_t(&plane0),box_plane_t(&plane1) };
+
+    // setup box planes
+    box_plane[0].project_pts_on_plane(m_param.max_plane_pt_error);
+    box_plane[1].project_pts_on_plane(m_param.max_plane_pt_error);
+
+    // box axis
+    v3 axis[3] = { plane1.normal, plane0.normal, {} };
+
+    // part of box origin can be found by the plane intersection
+    v3 axis_origin;
+    axis_origin[0] = -plane1.d;
+    axis_origin[1] = -plane0.d;
+
+    if (plane1.normal.dot(box_plane[0].src->src->pos) < axis_origin[0]) {
+        axis[0] = -axis[0];
+        axis_origin[0] = -axis_origin[0];
+    }
+    if (plane0.normal.dot(box_plane[1].src->src->pos) < axis_origin[1]) {
+        axis[1] = -axis[1];
+        axis_origin[1] = -axis_origin[1];
+    }
+    axis[2] = axis[0].cross(axis[1]).normalized();
+
+    // get approximated common width range
+    const auto width0_bin_range = box_plane[0].approx_width_range(&axis[2]);
+    const auto width1_bin_range = box_plane[1].approx_width_range(&axis[2]);
+    const v2 width_bin_range(
+        std::max(width0_bin_range[0], width1_bin_range[0]),
+        std::min(width0_bin_range[1], width1_bin_range[1]));
+
+    // compute good plane height
+    const auto axis0_length = box_plane[0].get_height_length(&axis[0], width_bin_range, axis_origin[0]);
+    const auto axis1_length = box_plane[1].get_height_length(&axis[1], width_bin_range, axis_origin[1]);
+
+    // check if two planes touch in 3D
+    if (std::abs(axis0_length[0]) > m_param.plane_intersect_thr) return false;
+    if (std::abs(axis1_length[0]) > m_param.plane_intersect_thr) return false;
+
+    // compute good plane widths
+    const auto width0_range = box_plane[0].get_width_range(axis_origin[0]);
+    const auto width1_range = box_plane[1].get_width_range(axis_origin[1]);
+    axis_origin[2] = std::min(width0_range[0], width1_range[0]);
+    const auto axis2_length = std::max(width0_range[1], width1_range[1]) - axis_origin[2];
+
+    // setup box axis
+    m3 box_axis;
+    box_axis.col(0) = axis[0];
+    box_axis.col(1) = axis[1];
+    box_axis.col(2) = axis[2];
+
+    // form the box origin by min end points of three axis
+    const v3 box_translation = box_axis * axis_origin;
+
+    // form the box dimension by end point differences
+    const v3 box_dimension(axis0_length[1], axis1_length[1], axis2_length);
+
+    // make new box
+    m_boxes.push_back({ box_translation,box_dimension,box_axis });
+    new_box_ptr = &m_boxes.back();
+
+#if defined(__OPENCV_ALL_HPP__) | defined(OPENCV_ALL_HPP)
+
     auto to_cam = m_current_pose.invert();
     auto proj = [to_cam = to_cam, cam = m_intrinsics](const v3& pt) {
         const auto pt3d = to_cam.rotation * pt + to_cam.translation;
@@ -76,75 +236,6 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
             (pt3d.y() * cam.cam_fy) / pt3d.z() + cam.cam_py };
     };
 
-    static const float max_float = std::numeric_limits<float>::max();
-    static const float min_float = -max_float;
-
-    auto cosine_theta = std::abs(plane0.normal.dot(plane1.normal));
-    if (cosine_theta > m_param.plane_angle_thr) return false;
-
-    m3 box_axis;
-    box_axis.col(2) = plane0.normal.cross(plane1.normal).normalized();
-    box_axis.col(1) = plane1.normal; // box_axis.col(2).cross(plane0.normal).normalized();
-    box_axis.col(0) = plane0.normal; // plane1.normal.cross(box_axis.col(2)).normalized();
-
-    v3 axis_min(max_float, max_float, max_float);
-    v3 axis_max(min_float, min_float, min_float);
-
-    vec_pt3d plane_pt[2];
-    plane_pt[0].reserve(plane0.best_pts.size());
-    plane_pt[1].reserve(plane1.best_pts.size());
-    const plane* plane_src[] = { &plane0, &plane1 };
-    for (int i = 0; i < 2; ++i) {
-        auto normal = box_axis.col(i);
-        auto d = plane_src[i]->d;
-        for (auto& pt : plane_src[i]->best_pts) {
-            auto plpt = *pt;
-            auto correct = normal.dot(pt->pos) + d;
-            plpt.pos = pt->pos - correct * normal;
-            
-            if (std::abs(correct) > 10.0f) {
-                //printf("%.2f ", correct);
-            }
-            else {
-                plane_pt[i].push_back(plpt);
-            }
-        }
-        //printf("\n");
-    }
-
-    for (int i = 0; i < 2; ++i) {
-        for (auto& pt : plane_pt[1 - i]) {
-            const auto axis_proj_i = box_axis.col(i).dot(pt.pos);
-            axis_min[i] = std::min(axis_proj_i, axis_min[i]);
-            axis_max[i] = std::max(axis_proj_i, axis_max[i]);
-
-            const auto axis_proj_2 = box_axis.col(2).dot(pt.pos);
-            axis_min[2] = std::min(axis_proj_2, axis_min[2]);
-            axis_max[2] = std::max(axis_proj_2, axis_max[2]);
-        }
-    }
-
-    // one end of a box axis can be found by the plane itself
-    float known_endpt_on_axis[] = {
-        box_axis.col(0).dot(plane0.src->pos),
-        box_axis.col(1).dot(plane1.src->pos) };
-
-    // check if two planes touch in 3D
-    for (int i = 0; i < 2; ++i) {
-        const float end_pt_diff_min = std::abs(axis_min[i] - known_endpt_on_axis[i]);
-        const float end_pt_diff_max = std::abs(axis_max[i] - known_endpt_on_axis[i]);
-
-        if (std::min(end_pt_diff_min, end_pt_diff_max) > m_param.plane_intersect_thr)
-            return false; //end points too far, two planes are not touching
-    }
-
-    // form the box origin by min end points of three axis
-    const v3 box_translation = box_axis * axis_min;
-
-    // form the box dimension by end point differences
-    const v3 box_dimension = axis_max - axis_min;
-
-#if defined(__OPENCV_ALL_HPP__) | defined(OPENCV_ALL_HPP)
     rs_sf_image_mono index(&ref_img);
     rs_sf_planefit_draw_plane_ids(this, &index);
     cv::Mat imap(index.img_h, index.img_w, CV_8U, index.data);
@@ -160,19 +251,16 @@ bool rs_sf_boxfit::form_box_from_two_planes(const plane& plane0, const plane& pl
         cv::line(map, cv0, cv::Point((int)pt1.x(), (int)pt1.y()), cv::Scalar(70 * (a + 1)), 2, CV_AA);
     }
 
-    for (auto& pl : plane_pt)
-        for (auto& pt : pl)
+    for ( auto& pl : box_plane)
+        for (auto& pt : pl.pts)
         {
             auto p0 = proj(pt.pos);
-            auto p1 = proj((box_axis.col(2).dot(pt.pos) - axis_min[2]) * box_axis.col(2) + box_translation);
+            auto p1 = proj((box_axis.col(2).dot(pt.pos) - axis_origin[2]) * box_axis.col(2) + box_translation);
             cv::circle(map, cv::Point((int)p0.x(), (int)p0.y()), 1, cv::Scalar(255), -1);
             cv::line(map, cv::Point((int)p0.x(), (int)p0.y()), cv::Point((int)p1.x(), (int)p1.y()), cv::Scalar(128), 1, CV_AA);
         }
+    cv::imshow("test", map);
 #endif
-
-    // make new box
-    m_boxes.push_back({ box_translation,box_dimension,box_axis });
-    new_box_ptr = &m_boxes.back();
 
     return true;
 }

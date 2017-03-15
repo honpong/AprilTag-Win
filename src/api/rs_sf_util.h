@@ -13,6 +13,8 @@
 
 static const int MAX_VALID_PID = 254;
 static const int PLANE_SRC_PID = 255;
+static const float FLOAT_MAX_VALUE = std::numeric_limits<float>::max();
+static const float FLOAT_MIN_VALUE = -FLOAT_MAX_VALUE;
 
 typedef Eigen::Matrix<float, 3, 3, Eigen::RowMajor> m3;
 typedef Eigen::Vector3f v3;
@@ -45,6 +47,16 @@ struct pose_t
     inline v3 transform(const v3& p) const { return rotation*p + translation; }
     inline pose_t invert() const { return pose_t{ rotation.transpose(),-(rotation.transpose() * translation) }; }
 };
+
+
+inline void print_box(const rs_sf_box& box)
+{
+    printf("a0 %.1f %.1f %.1f \n", box.axis[0][0], box.axis[0][1], box.axis[0][2]);
+    printf("a1 %.1f %.1f %.1f \n", box.axis[1][0], box.axis[1][1], box.axis[1][2]);
+    printf("a2 %.1f %.1f %.1f \n", box.axis[2][0], box.axis[2][1], box.axis[2][2]);
+    printf("t  %.1f %.1f %.1f \n", box.origin[0], box.origin[1], box.origin[2]);
+    printf("---------------- \n");
+}
 
 void set_to_zeros(rs_sf_image* img);
 void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3]);

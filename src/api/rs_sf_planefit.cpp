@@ -1,21 +1,9 @@
 #include "rs_sf_planefit.h"
 
-rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera) :
-    m_grid_h(camera->img_h / m_param.img_y_dn_sample),
-    m_grid_w(camera->img_w / m_param.img_x_dn_sample),
-    m_grid_neighbor{ -1, 1, -m_grid_w, m_grid_w, 0,
-    -m_grid_w - 1, -m_grid_w + 1, m_grid_w - 1, m_grid_w + 1 }
+rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera)
 {
     m_intrinsics = *camera;
-
-    m_plane_pt_reserve = (m_grid_h)*(m_grid_w);
-    m_track_plane_reserve = m_param.max_num_plane_output + m_plane_pt_reserve;
-
-    m_inlier_buf.reserve(m_plane_pt_reserve);
-    m_tracked_pid.reserve(m_param.max_num_plane_output);
-
-    init_img_pt_groups(m_view);
-    init_img_pt_groups(m_ref_view);
+    parameter_updated();
 }
 
 rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
@@ -215,6 +203,30 @@ rs_sf_status rs_sf_planefit::get_plane_equation(int pid, float equ[4]) const
     return RS_SF_SUCCESS;
 }
 
+void rs_sf_planefit::parameter_updated()
+{
+    m_grid_h = src_h() / m_param.img_y_dn_sample;
+    m_grid_w = src_w() / m_param.img_x_dn_sample;
+    m_grid_neighbor[0] = -1;
+    m_grid_neighbor[1] = 1;
+    m_grid_neighbor[2] = -m_grid_w;
+    m_grid_neighbor[3] = m_grid_w;
+    m_grid_neighbor[4] = 0;
+    m_grid_neighbor[5] = -m_grid_w - 1;
+    m_grid_neighbor[6] = -m_grid_w + 1;
+    m_grid_neighbor[7] = m_grid_w - 1;
+    m_grid_neighbor[8] = m_grid_w + 1;
+
+    m_plane_pt_reserve = (m_grid_h)*(m_grid_w);
+    m_track_plane_reserve = m_param.max_num_plane_output + m_plane_pt_reserve;
+
+    m_inlier_buf.reserve(m_plane_pt_reserve);
+    m_tracked_pid.reserve(m_param.max_num_plane_output);
+
+    init_img_pt_groups(m_view);
+    init_img_pt_groups(m_ref_view);
+}
+
 rs_sf_planefit::plane * rs_sf_planefit::get_tracked_plane(int pid) const
 {
     if (pid <= 0 || m_tracked_pid.size() <= pid) return nullptr;
@@ -228,6 +240,7 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
     const int dwn_y = m_param.img_y_dn_sample;
     const int pt_per_group = dwn_x * dwn_y;
 
+    view.reset();
     view.pt_img.resize(num_pixels());
     view.pt_grp.resize(num_pixel_groups());
     view.plane_img.resize(num_pixels());

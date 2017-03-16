@@ -1,9 +1,11 @@
 #include "rs_sf_boxfit.h"
 
+static rs_sf_boxfit* debug_this = nullptr;
 rs_sf_boxfit::rs_sf_boxfit(const rs_sf_intrinsics * camera) : rs_sf_planefit(camera)
 {
     m_box_scene.plane_scene = &m_view;
     m_box_ref_scene.plane_scene = &m_ref_view;
+    debug_this = this;
 }
 
 rs_sf_status rs_sf_boxfit::process_depth_image(const rs_sf_image * img)
@@ -274,42 +276,6 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     view.boxes.push_back({ box_center, box_dimension, box_axis });
     pair.box = &view.boxes.back();
 
-#if 0 & defined(__OPENCV_ALL_HPP__) | defined(OPENCV_ALL_HPP)
-    
-    auto to_cam = m_current_pose.invert();
-    auto proj = [to_cam = to_cam, cam = m_intrinsics](const v3& pt) {
-        const auto pt3d = to_cam.rotation * pt + to_cam.translation;
-        return v2{
-            (pt3d.x() * cam.cam_fx) / pt3d.z() + cam.cam_px,
-            (pt3d.y() * cam.cam_fy) / pt3d.z() + cam.cam_py };
-    };
-
-    rs_sf_image_mono index(&ref_img);
-    rs_sf_planefit_draw_plane_ids(this, &index);
-    cv::Mat imap(index.img_h, index.img_w, CV_8U, index.data);
-
-    cv::Mat map(ref_img.img_h, ref_img.img_w, CV_8U, cv::Scalar(0));
-    cv::Mat src(ref_img.img_h, ref_img.img_w, CV_16U, ref_img.data);
-    src.convertTo(map, CV_8U, 255.0 / 4000.0);
-
-    auto pt0 = proj(new_box_ptr->origin());
-    auto cv0 = cv::Point((int)pt0.x(), (int)pt0.y());
-    for (int a = 0; a < 3; ++a) {
-        auto pt1 = proj(box_dimension[a] * box_axis.col(a) + new_box_ptr->origin());
-        cv::line(map, cv0, cv::Point((int)pt1.x(), (int)pt1.y()), cv::Scalar(70 * (a + 1)), 2, CV_AA);
-    }
-
-    for ( auto& pl : box_plane)
-        for (auto& pt : pl.pts)
-        {
-            auto p0 = proj(pt.pos);
-            auto p1 = proj((box_axis.col(2).dot(pt.pos) - axis_origin[2]) * box_axis.col(2) + new_box_ptr->origin());
-            cv::circle(map, cv::Point((int)p0.x(), (int)p0.y()), 1, cv::Scalar(255), -1);
-            cv::line(map, cv::Point((int)p0.x(), (int)p0.y()), cv::Point((int)p1.x(), (int)p1.y()), cv::Scalar(128), 1, CV_AA);
-        }
-    cv::imshow("test", map);
-#endif
-
     return true;
 }
 
@@ -347,6 +313,33 @@ void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
     }
 }
 
+void rs_sf_boxfit::draw_box(const std::string& name, const box & src)
+{
+#if defined(__OPENCV_ALL_HPP__) | defined(OPENCV_ALL_HPP)
+
+    auto to_cam = m_box_scene.plane_scene->cam_pose.invert();
+    auto proj = [to_cam = to_cam, cam = m_intrinsics](const v3& pt) {
+        const auto pt3d = to_cam.rotation * pt + to_cam.translation;
+        return v2{
+            (pt3d.x() * cam.cam_fx) / pt3d.z() + cam.cam_px,
+            (pt3d.y() * cam.cam_fy) / pt3d.z() + cam.cam_py };
+    };
+
+    cv::Mat map(ref_img.img_h, ref_img.img_w, CV_8U, cv::Scalar(0));
+    cv::Mat(ref_img.img_h, ref_img.img_w, CV_16U, ref_img.data).convertTo(map, CV_8U, 255.0 / 4000.0);
+
+    auto pt0 = proj(src.origin());
+    auto cv0 = cv::Point((int)pt0.x(), (int)pt0.y());
+    for (int a = 0; a < 3; ++a) {
+        auto pt1 = proj(src.dimension[a] * src.axis.col(a) + src.origin());
+        cv::line(map, cv0, cv::Point((int)pt1.x(), (int)pt1.y()), cv::Scalar(70 * (a + 1)), 2, CV_AA);
+    }
+    
+    cv::imshow(name, map);
+#endif
+
+}
+
 rs_sf_box rs_sf_boxfit::box::to_rs_sf_box() const
 {
     rs_sf_box dst;
@@ -369,10 +362,13 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, int max_box_h
 
     // match new box axis to old axis
     int match_a[3] = { -1,-1,-1 };
-    auto match_table = (new_observed_box.axis.transpose() * axis).cwiseAbs();
-    const auto match_a0 = match_table.col(0);
-    const auto match_a1 = match_table.col(1);
-    const auto match_a2 = match_table.col(2);
+    const m3 match_table = (new_observed_box.axis.transpose() * axis);
+    const v3 match_a0 = match_table.col(0).cwiseAbs();
+    const v3 match_a1 = match_table.col(1).cwiseAbs();
+    const v3 match_a2 = match_table.col(2).cwiseAbs();
+    const v3 sign_a0 = ((match_table.col(0).array() > 0).cast<float>()*2-1);
+    const v3 sign_a1 = ((match_table.col(1).array() > 0).cast<float>()*2-1);
+    const v3 sign_a2 = ((match_table.col(2).array() > 0).cast<float>()*2-1);
     if (match_a0(0) > match_a0(1) && match_a0(0) > match_a0(2))
     {
         match_a[0] = 0; match_a[1] = 1; match_a[2] = 2;
@@ -392,9 +388,9 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, int max_box_h
     // change axis
     box& new_box = *this;
     new_box.center = new_observed_box.center;
-    new_box.axis.col(0) = new_observed_box.axis.col(match_a[0]);
-    new_box.axis.col(1) = new_observed_box.axis.col(match_a[1]);
-    new_box.axis.col(2) = new_observed_box.axis.col(match_a[2]);
+    new_box.axis.col(0) = new_observed_box.axis.col(match_a[0])*sign_a0(match_a[0]);
+    new_box.axis.col(1) = new_observed_box.axis.col(match_a[1])*sign_a1(match_a[1]);
+    new_box.axis.col(2) = new_observed_box.axis.col(match_a[2])*sign_a2(match_a[2]);
     new_box.dimension[0] = new_observed_box.dimension[match_a[0]];
     new_box.dimension[1] = new_observed_box.dimension[match_a[1]];
     new_box.dimension[2] = new_observed_box.dimension[match_a[2]];

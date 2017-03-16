@@ -74,7 +74,7 @@ protected:
         }
         inline void reset() { planes.clear(); cam_pose.set_pose(); }
     };
-
+  
     // state memory
     parameter m_param;
     scene m_view, m_ref_view;
@@ -83,6 +83,9 @@ protected:
     // debug only
     rs_sf_image ref_img, ir_img;
 
+    // call after parameter updated
+    void parameter_updated();
+
     plane* get_tracked_plane(int pid) const;
 
 private:
@@ -90,7 +93,7 @@ private:
     // temporary memory
     vec_pt_ref m_inlier_buf;
     int m_plane_pt_reserve, m_track_plane_reserve;
-    const int m_grid_w, m_grid_h, m_grid_neighbor[9];
+    int m_grid_w, m_grid_h, m_grid_neighbor[9];
     int src_h() const { return m_intrinsics.img_h; }
     int src_w() const { return m_intrinsics.img_w; }
     int num_pixels() const { return src_h()*src_w(); }

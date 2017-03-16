@@ -72,8 +72,6 @@ protected:
 
 private:
 
-    // track previous boxes
-
     // per-frame detection
     void form_list_of_plane_pairs(box_scene& view);
     void detect_new_boxes(box_scene& view);
@@ -83,6 +81,8 @@ private:
     // manage box list
     void add_new_boxes_for_tracking(box_scene& view);
 
+    // debug
+    void draw_box(const std::string& name, const box& src);
 };
 
 #endif // ! rs_sf_boxfit_h

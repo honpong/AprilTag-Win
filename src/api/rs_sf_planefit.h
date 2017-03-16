@@ -11,17 +11,17 @@ struct rs_sf_planefit : public rs_shapefit
         bool filter_plane_map = true;
 #ifdef _DEBUG
         bool hole_fill_plane_map = false;
-        int img_x_dn_sample = 8;
-        int img_y_dn_sample = 8;
+        int img_x_dn_sample = 9;
+        int img_y_dn_sample = 9;
 #else
         bool hole_fill_plane_map = true;
-        int img_x_dn_sample = 4;
-        int img_y_dn_sample = 4;
+        int img_x_dn_sample = 5;
+        int img_y_dn_sample = 5;
 #endif
-        int candidate_x_dn_sample = 16;
-        int candidate_y_dn_sample = 16;
-        int track_x_dn_sample = 16 * 6;
-        int track_y_dn_sample = 16 * 6;
+        int candidate_gx_dn_sample = 3;
+        int candidate_gy_dn_sample = 3;
+        int track_gx_dn_sample = 6;
+        int track_gy_dn_sample = 6;
 
         float min_z_value = 100.0f;
         float max_z_value = 3500.0f;
@@ -109,7 +109,7 @@ private:
     bool is_valid_raw_z(const float z) const;
     void image_to_pointcloud(const rs_sf_image* img, scene& current_view, pose_t& pose);
     void img_pt_group_to_normal(vec_pt3d_group& pt_groups);
-    void img_pointcloud_to_planecandidate(vec_pt3d& img_ot, vec_plane& img_planes, int candidate_y_dn_sample = -1, int candidate_x_dn_sample = -1);
+    void img_pointcloud_to_planecandidate(const vec_pt3d_group& pt_groups, vec_plane& img_planes, int candidate_gy_dn_sample = -1, int candidate_gx_dn_sample = -1);
     bool is_inlier(const plane& candidate, const pt3d& p);
     void grow_planecandidate(vec_pt3d_group& pt_groups, vec_plane& plane_candidates);
     void grow_inlier_buffer(pt3d_group pt_group[], plane& plane_candidate, const vec_pt_ref& seeds, bool reset_best_plane_ptr = true);
@@ -126,7 +126,7 @@ private:
     void assign_planes_pid(vec_plane_ref& sorted_planes);
 
     // output utility 
-    void upsize_pt_cloud_to_plane_map(const vec_pt3d& pt_img, rs_sf_image* dst) const;
+    void upsize_pt_cloud_to_plane_map(const vec_pt3d_group& pt_groups, rs_sf_image* dst) const;
     void end_of_process();
 };
 

@@ -83,6 +83,8 @@ protected:
     // debug only
     rs_sf_image ref_img, ir_img;
 
+    plane* get_tracked_plane(int pid) const;
+
 private:
 
     // temporary memory

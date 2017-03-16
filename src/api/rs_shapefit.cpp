@@ -72,6 +72,7 @@ RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, r
     auto bf = dynamic_cast<const rs_sf_boxfit*>(obj);
     if (!bf) return RS_SF_INVALID_OBJ_HANDLE;
 
+    if (src) convert_to_rgb_image(rgb, src);
     draw_boxes(rgb, obj->m_intrinsics, bf->get_boxes());
 
     return RS_SF_SUCCESS;

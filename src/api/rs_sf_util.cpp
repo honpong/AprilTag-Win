@@ -240,6 +240,16 @@ void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3])
     u[2] *= tr;
 }
 
+void convert_to_rgb_image(rs_sf_image * rgb, const rs_sf_image * src)
+{
+    if (!src) return;
+    if (src->byte_per_pixel == 1)
+        for (int p = src->num_pixel() - 1; p >= 0; --p)
+            rgb->data[p * 3 + 0] = rgb->data[p * 3 + 1] = rgb->data[p * 3 + 2] = src->data[p];
+    else if (src->byte_per_pixel == 3)
+        memcpy(rgb->data, src->data, rgb->num_char());
+}
+
 void draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *src, const unsigned char * rgb_table[3], int num_color)
 {
     static unsigned char default_r[MAX_VALID_PID + 1] = { 0 };
@@ -261,11 +271,7 @@ void draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *
         num_color = (int)(sizeof(default_r) / sizeof(unsigned char));
     }
 
-    if (src != nullptr && src->byte_per_pixel == 1)
-        for (int p = map->num_pixel() - 1; p >= 0; --p)
-            rgb->data[p * 3 + 0] = rgb->data[p * 3 + 1] = rgb->data[p * 3 + 2] = src->data[p];
-    else if (src != nullptr && src->byte_per_pixel == 3)
-        memcpy(rgb->data, src->data, rgb->num_char());
+    convert_to_rgb_image(rgb, src);
 
     for (int p = map->num_pixel() - 1; p >= 0; --p) {
         const int pid = map->data[p];

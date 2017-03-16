@@ -215,6 +215,12 @@ rs_sf_status rs_sf_planefit::get_plane_equation(int pid, float equ[4]) const
     return RS_SF_SUCCESS;
 }
 
+rs_sf_planefit::plane * rs_sf_planefit::get_tracked_plane(int pid) const
+{
+    if (pid <= 0 || m_tracked_pid.size() <= pid) return nullptr;
+    return m_tracked_pid[pid];
+}
+
 void rs_sf_planefit::init_img_pt_groups(scene& view)
 {
     const int img_w = src_w();
@@ -357,8 +363,8 @@ void rs_sf_planefit::img_pointcloud_to_planecandidate(
     const int img_w = src_w(), img_h = src_h();
     const int y_step = candidate_y_dn_sample;
     const int x_step = candidate_x_dn_sample;
-    const int ey = img_h - y_step * 2;
-    const int ex = img_w - x_step * 2;
+    const int ey = img_h - y_step + m_param.img_y_dn_sample;
+    const int ex = img_w - x_step + m_param.img_x_dn_sample;
     const int sy = y_step + m_param.img_y_dn_sample;
     const int sx = x_step + m_param.img_x_dn_sample;
 
@@ -586,7 +592,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
             past_to_current_planes[past_plane.pid]->best_pts.reserve(past_plane.pts.size());
         }
     }
-    
+
     // mark current points which belongs to some past planes
     auto past_pt_grp = past_view.pt_grp.data();
     for (auto& grp : current_view.pt_grp)
@@ -666,7 +672,9 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
     for (auto& plane : current_view.planes)
     {
         if (plane.past_plane == nullptr) // coarse grid candidate
+        {
             plane.past_plane = plane.src->best_plane; //best_plane is one of the current tracked plane
+        }
     }
 }
 

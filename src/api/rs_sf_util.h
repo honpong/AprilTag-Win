@@ -60,6 +60,7 @@ inline void print_box(const rs_sf_box& box)
 
 void set_to_zeros(rs_sf_image* img);
 void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3]);
+void convert_to_rgb_image(rs_sf_image* rgb, const rs_sf_image* src);
 void draw_planes(rs_sf_image* rgb, const rs_sf_image* map, const rs_sf_image* src = nullptr, const unsigned char* rgb_table[3] = nullptr, int num_color = 0);
 void scale_plane_ids(rs_sf_image* map, int max_pid);
 void draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size = 2);

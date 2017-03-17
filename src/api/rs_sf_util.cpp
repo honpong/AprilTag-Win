@@ -293,11 +293,12 @@ void rs_sf_util_scale_plane_ids(rs_sf_image * map, int max_pid)
         map->data[p] = map->data[p] * 254 / max_pid;
 }
 
-void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size)
+void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, v2 p0, v2 p1, const b3& color, const int size)
 {
     const auto w = rgb->img_w, h = rgb->img_h;
-    if (p0.x() < 0 || w <= p0.x() || p0.y() < 0 || h <= p0.y()) return;
-    if (p1.x() < 0 || w <= p1.x() || p1.y() < 0 || h <= p1.y()) return;
+
+    if (std::isinf(p0.x()) || std::isinf(p0.y())) return;
+    if (std::isinf(p1.y()) || std::isinf(p1.y())) return;
 
     const auto dir = (p1 - p0).normalized();
     const auto len = (p1 - p0).norm();

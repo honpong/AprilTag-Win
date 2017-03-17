@@ -337,8 +337,10 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, scene& current
     //for (auto& pt : current_view.pt_img)
     //    compute_pt3d(pt, (float)src_depth[pt.p]);
 
-    for (auto& grp : current_view.pt_grp)
-            compute_pt3d(*grp.pt0, (float)src_depth[grp.pt0->p]);
+    for (auto& grp : current_view.pt_grp) {
+        compute_pt3d(*grp.pt0, (float)src_depth[grp.pt0->p]);
+        grp.pl_pt0->best_plane = nullptr;
+    }
 }
 
 void rs_sf_planefit::img_pt_group_to_normal(vec_pt3d_group & pt_groups)
@@ -419,12 +421,18 @@ void rs_sf_planefit::grow_planecandidate(vec_pt3d_group& pt_groups, vec_plane& p
 
 void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_candidate, const vec_pt_ref& seeds, bool reset_best_plane_ptr)
 {
-    m_inlier_buf.clear();
-    m_inlier_buf.assign(seeds.begin(), seeds.end());
-    for (auto p : m_inlier_buf) { p->best_plane = &plane_candidate; }
     auto& plane_pts = plane_candidate.pts;
+    auto& edge_pts = plane_candidate.edge_pts;
     plane_pts.clear();
     plane_pts.reserve(m_plane_pt_reserve);
+    edge_pts.clear();
+
+    m_inlier_buf.clear();
+    m_inlier_buf.assign(seeds.begin(), seeds.end());
+    for (auto p : m_inlier_buf) {
+        p->best_plane = &plane_candidate;              //mark seed
+        p->grp->pl_pt0->best_plane = &plane_candidate; //mark inlier
+    }
 
     while (!m_inlier_buf.empty())
     {
@@ -435,11 +443,7 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
         // store this inlier
         plane_pts.emplace_back(pt);
 
-        // neighboring points
-        //const int gx = pt->grp->gpix[0], gy = pt->grp->gpix[1];
-        //const int xb[] = { gx - 1,gx + 1, gx, gx };
-        //const int yb[] = { gy, gy, gy - 1, gy + 1 };
-        //const int pb[] = { gp - 1, gp + 1, gp - m_grid_w, gp + m_grid_w };
+        // grid point
         const int gp = pt->grp->gp;
 
         // grow
@@ -447,15 +451,29 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
         {
             //if (is_within_pt_group_fov(xb[b], yb[b])) //within fov
             {
-                auto pt_next = pt_group[gp + m_grid_neighbor[b]].pt0;
-                if (!pt_next->best_plane && is_inlier(plane_candidate, *pt_next)) //accept plane point
+                const int gp_next = gp + m_grid_neighbor[b];
+                auto pt_next = pt_group[gp_next].pt0;
+                auto edge_next = pt_group[gp_next].pl_pt0;
+                if (!edge_next->best_plane) //not yet checked
                 {
-                    pt_next->best_plane = &plane_candidate;
-                    m_inlier_buf.emplace_back(pt_next);
+                    if (!pt_next->best_plane) //not assigned a plane
+                    {
+                        if (is_inlier(plane_candidate, *pt_next)) // check this point
+                        {
+                            pt_next->best_plane = &plane_candidate; //assign this plane
+                            m_inlier_buf.emplace_back(pt_next); //go further
+                        }
+                        edge_next->best_plane = &plane_candidate; //mark tested
+                        edge_pts.emplace_back(edge_next);
+                    }
                 }
             }
         }
     }
+
+    // reset plane image best_plane ptr
+    for (auto p : plane_candidate.edge_pts)
+        p->best_plane = nullptr;
 
     if (reset_best_plane_ptr) {
         // reset marker for next plane candidate

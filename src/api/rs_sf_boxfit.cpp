@@ -15,8 +15,6 @@ rs_sf_boxfit::rs_sf_boxfit(const rs_sf_intrinsics * camera) : rs_sf_planefit(cam
 
 rs_sf_status rs_sf_boxfit::process_depth_image(const rs_sf_image * img)
 {
-    cv::waitKey(0);
-
     auto pf_status = rs_sf_planefit::process_depth_image(img);
     if (pf_status < 0) return pf_status;
 
@@ -33,8 +31,6 @@ rs_sf_status rs_sf_boxfit::process_depth_image(const rs_sf_image * img)
 
 rs_sf_status rs_sf_boxfit::track_depth_image(const rs_sf_image * img)
 {
-    cv::waitKey(0);
-
     auto pf_status = rs_sf_planefit::track_depth_image(img);
     if (pf_status < 0) return pf_status;
 
@@ -175,6 +171,7 @@ struct rs_sf_boxfit::box_plane_t
             height_max[w_bin] = std::max(height_max[w_bin], h_coeff);
             height_min = std::min(height_min, h_coeff);
         }
+        fill_empty_max_bin(height_max);
         std::sort(height_max.begin(), height_max.end());
         return{ height_min, height_max[upper_bin] };
     }
@@ -194,9 +191,31 @@ struct rs_sf_boxfit::box_plane_t
                 width_min[h_bin] = std::min(width_min[h_bin], w_coeff);
             }
         }
+        fill_empty_min_bin(width_min);
+        fill_empty_max_bin(width_max);
         std::sort(width_min.begin(), width_min.end());
         std::sort(width_max.begin(), width_max.end());
         return{ width_min[upper_bin],width_max[upper_bin] };
+    }
+
+    void fill_empty_max_bin(box_axis_bin& bin) 
+    {
+        for (int b = 0; b < n_bins; ++b) {
+            for (int n = 0; (bin[b] == FLOAT_MIN_VALUE) && (n < n_bins); ++n) {
+                if ((b - n) >= 0) bin[b] = std::max(bin[b], bin[b - n]);
+                if ((b + n) < n_bins) bin[b] = std::max(bin[b], bin[b + n]);
+            }
+        }
+    }
+     
+    void fill_empty_min_bin(box_axis_bin& bin)
+    {
+        for (int b = 0; b < n_bins; ++b) {
+            for (int n = 0; (bin[b] == FLOAT_MAX_VALUE) && (n < n_bins); ++n) {
+                if ((b - n) >= 0) bin[b] = std::min(bin[b], bin[b - n]);
+                if ((b + n) < n_bins) bin[b] = std::min(bin[b], bin[b + n]);
+            }
+        }
     }
 };
 

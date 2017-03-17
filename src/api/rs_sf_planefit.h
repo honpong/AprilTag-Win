@@ -15,8 +15,8 @@ struct rs_sf_planefit : public rs_shapefit
         int img_y_dn_sample = 9;
 #else
         bool hole_fill_plane_map = true;
-        int img_x_dn_sample = 5;
-        int img_y_dn_sample = 5;
+        int img_x_dn_sample = 3;
+        int img_y_dn_sample = 3;
 #endif
         int candidate_gx_dn_sample = 3;
         int candidate_gy_dn_sample = 3;
@@ -51,8 +51,9 @@ protected:
     struct pt3d { v3 pos, normal; bool valid_pos, valid_normal;  plane* best_plane; int p; i2 pix; pt3d_group* grp; };
     typedef std::vector<pt3d*> vec_pt_ref;
     struct pt3d_group { int gp; i2 gpix; vec_pt_ref pt, pl_pt; pt3d *pt0, *pl_pt0; };
+    typedef std::list<pt3d*> list_pt_ref;
     struct plane {
-        v3 normal; float d; pt3d* src; vec_pt_ref pts, best_pts; int pid; const plane* past_plane;
+        v3 normal; float d; pt3d* src; vec_pt_ref pts, best_pts; list_pt_ref edge_pts;  int pid; const plane* past_plane;
         plane(const v3& _nor, float _d, pt3d* _src, int _pid = INVALID_PID, const plane* _past_plane = nullptr)
             : normal(_nor), d(_d), src(_src), pid(_pid), past_plane(_past_plane) {}
     };
@@ -86,6 +87,7 @@ protected:
     // call after parameter updated
     void parameter_updated();
 
+    // for child classes
     plane* get_tracked_plane(int pid) const;
 
 private:

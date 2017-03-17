@@ -23,6 +23,13 @@ struct rs_sf_boxfit : public rs_sf_planefit
         rs_sf_box to_rs_sf_box() const;
         v3 origin() const { return center - axis * dimension * 0.5f; }
         float max_radius() const { return (center - origin()).norm(); }
+
+        void print() const {
+            std::cout <<
+                "center : " << center.transpose() << std::endl <<
+                "dimension : " << dimension.transpose() << std::endl <<
+                "axis :" << std::endl << axis << std::endl;
+        }
     };
 
     rs_sf_boxfit(const rs_sf_intrinsics* camera);

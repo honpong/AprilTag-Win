@@ -2,34 +2,19 @@
 
 bool estimate_transformation(const aligned_vector<v3> & src, const aligned_vector<v3> & dst, transformation & transform)
 {
-    v3 center_src = v3::Zero();
-    v3 center_dst = v3::Zero();
-    if(src.size() != dst.size()) return false;
-    int N = (int)src.size();
-    if(N < 3) return false;
+    if(src.size() != dst.size() || src.size() < 3)
+        return false;
 
     // calculate centroid
-    for(auto v : src)
-        center_src += v;
-    center_src = center_src / (f_t)N;
-
-    for(auto v : dst)
-        center_dst += v;
-    center_dst = center_dst / (f_t)N;
+    v3 center_src = map(src).colwise().mean();
+    v3 center_dst = map(dst).colwise().mean();
 
     // remove centroid
-    Eigen::Matrix<f_t, Eigen::Dynamic, 3> X(N, 3);
-    Eigen::Matrix<f_t, Eigen::Dynamic, 3> Y(N, 3);
-    for(int i = 0; i < N; i++)
-        for(int j = 0; j < 3; j++)
-            X(i, j) = src[i][j] - center_src[j];
-    for(int i = 0; i < N; i++)
-        for(int j = 0; j < 3; j++)
-            Y(i, j) = dst[i][j] - center_dst[j];
+    m<Eigen::Dynamic, 3> centered_src = map(src) - center_src.transpose().replicate(src.size(),1);
+    m<Eigen::Dynamic, 3> centered_dst = map(dst) - center_dst.transpose().replicate(dst.size(),1);
 
     // TODO: can incorporate weights here optionally, maybe use feature depth variance
-
-    Eigen::JacobiSVD<m3> svd(Y.transpose() * X, Eigen::ComputeFullU | Eigen::ComputeFullV); // SVD the rotation
+    Eigen::JacobiSVD<m3> svd(centered_dst.transpose() * centered_src, Eigen::ComputeFullU | Eigen::ComputeFullV); // SVD the rotation
     m3 U = svd.matrixU(), Vt = svd.matrixV().transpose();
     v3 S = svd.singularValues();
 

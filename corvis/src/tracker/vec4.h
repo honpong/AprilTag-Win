@@ -52,6 +52,11 @@ template <typename T, int R, int C> Eigen::Map<      Eigen::Matrix<T, R, C>, Eig
 template <typename T, int N>        Eigen::Map<const Eigen::Matrix<T, N, 1>, Eigen::Unaligned> map(const T (&a)[N])    { return decltype(map(a)) { &a[0] }; }
 template <typename T, int N>        Eigen::Map<      Eigen::Matrix<T, N, 1>, Eigen::Unaligned> map(      T (&a)[N])    { return decltype(map(a)) { &a[0] }; }
 
+template <typename T, int N>        Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, N>, Eigen::Aligned, Eigen::OuterStride<N>>
+    map(const aligned_vector<Eigen::Matrix<T, N, 1>> &a) { return decltype(map(a)) { &a[0][0], static_cast<Eigen::Index>(a.size()), N }; }
+template <typename T, int N>        Eigen::Map<      Eigen::Matrix<T, Eigen::Dynamic, N>, Eigen::Aligned, Eigen::OuterStride<N>>
+    map(      aligned_vector<Eigen::Matrix<T, N, 1>> &a) { return decltype(map(a)) { &a[0][0], static_cast<Eigen::Index>(a.size()), N }; }
+
 inline static m3 skew(const v3 &v)
 {
     m3 V = m3::Zero();

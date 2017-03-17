@@ -1,5 +1,7 @@
 #include "stereo_features.h"
 
+using namespace std;
+
 void update_progress(void(*progress_callback)(float), float progress_start, float progress_end, float percent)
 {
     if(progress_callback)

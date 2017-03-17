@@ -5,7 +5,6 @@
 #include "matrix.h"
 
 #include <vector>
-using namespace std;
 
 typedef struct _image_coordinate {
     f_t x, y;
@@ -16,11 +15,11 @@ typedef struct _stereo_triangle {
 } stereo_triangle;
 
 typedef struct _stereo_mesh {
-    vector<v3> vertices;
-    vector<image_coordinate> vertices_image;
-    vector<image_coordinate> correspondences_image;
-    vector<float> match_scores;
-    vector<stereo_triangle> triangles;
+    std::vector<v3> vertices;
+    std::vector<image_coordinate> vertices_image;
+    std::vector<image_coordinate> correspondences_image;
+    std::vector<float> match_scores;
+    std::vector<stereo_triangle> triangles;
 } stereo_mesh;
 
 // declared in stereo.h

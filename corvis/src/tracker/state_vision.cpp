@@ -491,7 +491,7 @@ float state_vision::median_depth_variance()
 {
     float median_variance = 1;
 
-    vector<state_vision_feature *> useful_feats;
+    std::vector<state_vision_feature *> useful_feats;
     for (auto &c : cameras.children)
         for(auto &g: c->groups.children)
             for(auto i: g->features.children)

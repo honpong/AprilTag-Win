@@ -487,11 +487,11 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
     preprocess_observation_queue(f, timestamp);
     process_observation_queue(f);
     if(show_tuning) {
-        cerr << " meas   " << meas << "\n"
-             << " innov  " << accelerometer.inn_stdev
-             << " signal "       << accelerometer.meas_stdev
-            // FIXME: these should be for this accelerometer->
-             << " bias is: " << imu.intrinsics.a_bias.v << " stdev is: " << imu.intrinsics.a_bias.variance().array().sqrt() << "\n";
+        std::cerr << " meas   " << meas << "\n"
+                  << " innov  " << accelerometer.inn_stdev
+                  << " signal "       << accelerometer.meas_stdev
+                  // FIXME: these should be for this accelerometer->
+                  << " bias is: " << imu.intrinsics.a_bias.v << " stdev is: " << imu.intrinsics.a_bias.variance().array().sqrt() << "\n";
     }
 
     auto stop = std::chrono::steady_clock::now();
@@ -537,11 +537,11 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
     preprocess_observation_queue(f, timestamp);
     process_observation_queue(f);
     if(show_tuning) {
-        cerr << " meas   " << meas << "\n"
-             << " innov  " << gyroscope.inn_stdev
-             << " signal " << gyroscope.meas_stdev
-            // FIXME: these should be for this gyroscope->
-             << " bias " << imu.intrinsics.w_bias.v << " stdev is: " << imu.intrinsics.w_bias.variance().array().sqrt() << "\n";
+        std::cerr << " meas   " << meas << "\n"
+                  << " innov  " << gyroscope.inn_stdev
+                  << " signal " << gyroscope.meas_stdev
+                  // FIXME: these should be for this gyroscope->
+                  << " bias " << imu.intrinsics.w_bias.v << " stdev is: " << imu.intrinsics.w_bias.variance().array().sqrt() << "\n";
     }
 
     auto stop = std::chrono::steady_clock::now();
@@ -761,7 +761,7 @@ static int filter_available_feature_space(struct filter *f, state_camera &camera
     return space;
 }
 
-const vector<tracker::point> & filter_detect(struct filter *f, const sensor_data &data)
+const std::vector<tracker::point> & filter_detect(struct filter *f, const sensor_data &data)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
@@ -782,7 +782,7 @@ const vector<tracker::point> & filter_detect(struct filter *f, const sensor_data
     timage.width_px = image.width;
     timage.height_px = image.height;
     timage.stride_px = image.stride;
-    vector<tracker::point> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->current_features, space);
+    std::vector<tracker::point> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->current_features, space);
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
@@ -879,7 +879,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     process_observation_queue(f); // update state and covariance based on current location of tracked features
     if(show_tuning) {
         for (auto &c : f->cameras)
-            cerr << " innov  " << c->inn_stdev << "\n";
+            std::cerr << " innov  " << c->inn_stdev << "\n";
     }
 
     int features_used = f->s.process_features(camera_state, data.image, f->map.get());

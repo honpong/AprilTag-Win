@@ -48,8 +48,8 @@ private:
     std::chrono::microseconds gyro_interval {10000};
     std::chrono::microseconds image_interval {33333};
     sensor_clock::time_point last_accel, last_gyro, last_image;
-    bool find_reference_in_filename(const string &filename);
-    bool load_reference_from_pose_file(const string &filename);
+    bool find_reference_in_filename(const std::string &filename);
+    bool load_reference_from_pose_file(const std::string &filename);
     bool load_map(std::string filename);
 
 public:
@@ -73,7 +73,7 @@ public:
     void decimate_accel(std::chrono::microseconds interval) { accel_decimate = true; accel_interval = interval; }
     void decimate_gyro(std::chrono::microseconds interval) { gyro_decimate = true; gyro_interval = interval; }
     void decimate_images(std::chrono::microseconds interval) { image_decimate = true; image_interval = interval; }
-    void start(string map_filename = string());
+    void start(std::string map_filename = std::string());
     void stop();
     void reset() { should_reset = true; }
     void toggle_pause() { is_paused = !is_paused; }
@@ -86,10 +86,10 @@ public:
     bool get_reference_pose(const sensor_clock::time_point & timestamp, tpose & pose_out);
     double get_reference_path_length() { return reference_path_length; }
     double get_reference_length() { return reference_length; }
-    bool set_reference_from_filename(const string &filename);
+    bool set_reference_from_filename(const std::string &filename);
     void zero_biases();
     void start_mapping() { rc_startMapping(tracker); }
-    void save_map(string filename);
+    void save_map(std::string filename);
 };
 
 #endif /* defined(__RC3DK__replay__) */

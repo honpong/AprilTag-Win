@@ -13,8 +13,6 @@
 
 #include "cor_types.h"
 
-using namespace std;
-
 class observation {
 public:
     const int size;
@@ -151,7 +149,7 @@ public:
     observation_queue() {}
     void preprocess(state_root &s, sensor_clock::time_point time);
     bool process(state_root &s);
-    vector<unique_ptr<observation>> observations;
+    std::vector<std::unique_ptr<observation>> observations;
 
     // keep the most recent measurement of a given type around for plotting, etc
     std::unique_ptr<observation_gyroscope> recent_g;

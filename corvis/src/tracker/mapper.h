@@ -16,8 +16,6 @@
 #include <spdlog/spdlog.h>
 #include "spdlog/sinks/null_sink.h"
 
-using namespace std;
-
 class transformation_variance {
     public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -49,10 +47,10 @@ struct map_node {
     static size_t histogram_size;
     bool match_attempted{false};
     bool finished{false};
-    list<map_edge> edges;
+    std::list<map_edge> edges;
     map_edge &get_add_neighbor(uint64_t neighbor);
     int terms;
-    list<map_feature *> features; //sorted by label
+    std::list<map_feature *> features; //sorted by label
     bool add_feature(const uint64_t id, const v3 &p, const float v, const uint32_t l, const descriptor & d);
 
     transformation_variance global_transformation;
@@ -90,16 +88,16 @@ class mapper {
     aligned_vector<map_node> nodes;
     friend struct map_node;
     aligned_vector<transformation_variance> geometry;
-    vector<uint64_t> document_frequency;
+    std::vector<uint64_t> document_frequency;
     transformation relative_transformation;
     uint64_t feature_count;
     dictionary feature_dictionary;
 
-    void diffuse_matches(uint64_t id, vector<float> &matches, aligned_vector<map_match> &diffusion, int max, int unrecent);
-    void joint_histogram(int node, list<map_feature *> &histogram);
+    void diffuse_matches(uint64_t id, std::vector<float> &matches, aligned_vector<map_match> &diffusion, int max, int unrecent);
+    void joint_histogram(int node, std::list<map_feature *> &histogram);
 
-    float tf_idf_score(const list<map_feature *> &hist1, const list<map_feature *> &hist2);
-    void tf_idf_match(vector<float> &scores, const list<map_feature *> &histogram);
+    float tf_idf_score(const std::list<map_feature *> &hist1, const std::list<map_feature *> &hist2);
+    void tf_idf_match(std::vector<float> &scores, const std::list<map_feature *> &histogram);
 
     float refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const aligned_vector<match_pair> &neighbor_matches);
     int check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers);
@@ -152,7 +150,7 @@ class mapper {
     void dump_map(FILE *file);
     void print_stats();
 
-    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper",  make_shared<spdlog::sinks::null_sink_st> ());
+    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper",  std::make_shared<spdlog::sinks::null_sink_st> ());
 
     bool enabled = false;
 };

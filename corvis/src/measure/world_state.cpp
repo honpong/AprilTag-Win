@@ -98,7 +98,7 @@ void world_state::observe_world(float world_up_x, float world_up_y, float world_
     display_lock.unlock();
 }
 
-void world_state::observe_map_node(uint64_t timestamp, uint64_t node_id, bool finished, bool loop_closed, bool unlinked, const transformation &position, vector<uint64_t> & neighbors, vector<Feature> & features)
+void world_state::observe_map_node(uint64_t timestamp, uint64_t node_id, bool finished, bool loop_closed, bool unlinked, const transformation &position, std::vector<uint64_t> & neighbors, std::vector<Feature> & features)
 {
     display_lock.lock();
     MapNode n;
@@ -466,13 +466,13 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
     if(f->map) {
         for(auto map_node : f->map->get_nodes()) {
             bool loop_closed = false;
-            vector<uint64_t> neighbors;
+            std::vector<uint64_t> neighbors;
             for(auto edge : map_node.edges) {
                 neighbors.push_back(edge.neighbor);
                 if(edge.loop_closure)
                     loop_closed = true;
             }
-            vector<Feature> features;
+            std::vector<Feature> features;
             for(auto feature : map_node.features) {
                 Feature f;
                 f.feature.world.x = feature->position[0];
@@ -920,7 +920,7 @@ std::string world_state::get_feature_stats()
 {
     std::ostringstream os;
     os.precision(2);
-    os << fixed;
+    os << std::fixed;
     float average_times_seen = get_feature_lifetime();
     int depth_initialized = get_feature_depth_measurements();
     display_lock.lock();

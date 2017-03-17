@@ -4,6 +4,8 @@
 #include "fast_detector/fast.h"
 #include <iostream>
 
+using namespace std;
+
 bool debug_triangulate_mesh = false;
 bool debug_mrf = false;
 bool enable_match_occupancy = true;

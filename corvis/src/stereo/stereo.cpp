@@ -4,6 +4,8 @@
 #include "stereo_mesh.h"
 #include "filter.h"
 
+using namespace std;
+
 bool debug_triangulate = false;
 // if enabled, adds a 3 pixel jitter in all directions to correspondence
 bool enable_jitter = false;
@@ -346,10 +348,8 @@ bool estimate_F_eight_point(const stereo_frame & reference, const stereo_frame &
     vector<v3> target_pts;
 
     // This assumes reference->features and target->features are sorted by id
-    for(list<stereo_feature>::const_iterator s1iter = reference.features.begin(); s1iter != reference.features.end(); ++s1iter) {
-        stereo_feature f1 = *s1iter;
-        for(list<stereo_feature>::const_iterator s2iter = target.features.begin(); s2iter != target.features.end(); ++s2iter) {
-            stereo_feature f2 = *s2iter;
+    for(const auto &f1 : reference.features) {
+        for(const auto &f2 : target.features) {
             if(f1.id == f2.id) {
                 reference_pts.push_back(f1.current);
                 target_pts.push_back(f2.current);
@@ -691,10 +691,9 @@ void stereo::write_frames(bool is_distorted)
 
 void stereo::undistort_features(list<stereo_feature> & features)
 {
-    for(list<stereo_feature>::iterator fiter = features.begin(); fiter != features.end(); ++fiter) {
-        stereo_feature f = *fiter;
+    for(auto &f : features) {
         feature_t undistorted = camera.undistort_image_point(f.current[0], f.current[1]);
-        fiter->current = v3(undistorted.x(), undistorted.y(), 1);
+        f.current = v3(undistorted.x(), undistorted.y(), 1);
     }
 }
 

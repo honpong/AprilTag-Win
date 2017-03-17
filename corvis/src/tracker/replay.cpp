@@ -11,6 +11,8 @@
 #include <regex>
 #include "packet.h"
 
+using namespace std;
+
 template <int by_x, int by_y>
 static void scale_down_inplace_y8_by(uint8_t *image, int final_width, int final_height, int stride) {
     for (int y=0; y<final_height; y++)

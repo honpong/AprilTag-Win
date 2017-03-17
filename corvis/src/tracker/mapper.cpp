@@ -10,6 +10,8 @@
 #include "corvis_dictionary.h"
 #include <iostream>
 
+using namespace std;
+
 transformation_variance invert(const transformation_variance & T)
 {
     transformation_variance result = T;

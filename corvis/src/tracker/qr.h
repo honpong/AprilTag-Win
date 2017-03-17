@@ -13,8 +13,6 @@
 #include <string>
 #include <functional>
 
-using namespace std;
-
 struct qr_detection {
     feature_t upper_left;
     feature_t upper_right;

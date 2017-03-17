@@ -2,6 +2,8 @@
 
 #include <Eigen/SVD>
 
+using namespace std;
+
 bool debug_eight_point_ransac = false;
 
 m3 eight_point_F(v3 p1[], v3 p2[], int npts)

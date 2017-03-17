@@ -21,8 +21,6 @@
 #include "mapper.h"
 #include "sensor_data.h"
 
-using namespace std;
-
 enum group_flag {
     group_empty = 0,
     group_initializing,
@@ -190,8 +188,8 @@ class state_vision_group: public state_branch<state_node *> {
 
     state_camera &camera;
     state_branch<state_vision_feature *> features;
-    list<uint64_t> neighbors;
-    list<uint64_t> old_neighbors;
+    std::list<uint64_t> neighbors;
+    std::list<uint64_t> old_neighbors;
     int health;
     enum group_flag status;
     uint64_t id;

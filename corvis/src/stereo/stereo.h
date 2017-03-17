@@ -4,7 +4,6 @@
 #include "camera.h"
 #include "stereo_mesh.h"
 #include <list>
-using namespace std;
 
 #include "vec4.h"
 #include "rotation_vector.h"
@@ -46,8 +45,8 @@ public:
     bool *valid;
     v3 T;
     rotation_vector W;
-    list<stereo_feature> features;
-    stereo_frame(const uint8_t *_image, int width, int height, const v3 &_T, const rotation_vector &_W, const list<stereo_feature> &_features);
+    std::list<stereo_feature> features;
+    stereo_frame(const uint8_t *_image, int width, int height, const v3 &_T, const rotation_vector &_W, const std::list<stereo_feature> &_features);
     ~stereo_frame();
 };
 
@@ -76,9 +75,9 @@ public:
     v3 Tw;
     enum stereo_orientation orientation;
 
-    void process_frame(const class camera &c, const v3 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final);
+    void process_frame(const class camera &c, const v3 & T, const rotation_vector & W, const uint8_t *data, std::list<stereo_feature> &features, bool final);
     bool triangulate(int reference_x, int reference_y, v3 & intersection, struct stereo_match * match = NULL) const;
-    bool triangulate_top_n(int reference_x, int reference_y, int n, vector<struct stereo_match> & matches) const;
+    bool triangulate_top_n(int reference_x, int reference_y, int n, std::vector<struct stereo_match> & matches) const;
     bool triangulate_mesh(int x, int y, v3 & intersection) const;
 
     bool preprocess(bool use_eight_point=false, void(*progress_callback)(float)=NULL);
@@ -93,10 +92,10 @@ public:
     stereo(): target(0), reference(0), orientation(STEREO_ORIENTATION_LANDSCAPE_LEFT) {}
     ~stereo() { if(target) delete target; if(reference) delete reference; }
 protected:
-    bool find_and_triangulate_top_n(int reference_x, int reference_y, int width, int height, int n, vector<struct stereo_match> & matches) const;
+    bool find_and_triangulate_top_n(int reference_x, int reference_y, int width, int height, int n, std::vector<struct stereo_match> & matches) const;
     bool triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v3 & intersection, float & depth, float & error) const;
     void undistort_frames();
-    void undistort_features(list<stereo_feature> & features);
+    void undistort_features(std::list<stereo_feature> & features);
 
     // Computes a fundamental matrix between reference and target and stores it in F.
     bool preprocess_internal(const stereo_frame &reference, stereo_frame & target, m3 &F, bool use_eight_point, void(*progress_callback)(float), float progress_start, float progress_end);

@@ -84,7 +84,7 @@ void gui::scroll(GLFWwindow * window, double xoffset, double yoffset)
         scale *= (1 + (float)yoffset*.05f);
     if (is_plot_selected) {
         plot_scale *= (1 + (float)yoffset*.05f);
-        plot_scale = max(plot_scale, 0.01f/30);
+        plot_scale = std::max(plot_scale, 0.01f/30);
         state->max_plot_history_us = plot_scale * 30e6;
     }
 }
@@ -279,7 +279,7 @@ void gui::start_glfw()
                 plots_height = lroundf(height*plots_height_percent);
         }
         if(show_main && (show_video || show_plots || show_depth))
-            main_width = width - max(max(video_width, plots_width), depth_width);
+            main_width = width - std::max(std::max(video_width, plots_width), depth_width);
 
         //state->generate_depth_overlay = show_depth_on_video;
 

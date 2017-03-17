@@ -12,6 +12,8 @@
 #include <sys/stat.h>
 #endif
 
+using namespace std;
+
 std::string render_filename_from_filename(const char * benchmark_folder, const char * render_folder, const char * filename)
 {
     std::string render_filename(filename);

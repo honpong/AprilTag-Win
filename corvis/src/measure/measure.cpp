@@ -124,6 +124,14 @@ int main(int c, char **v)
             std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
+    auto data_callback = [](world_state &ws, replay &rp, rc_Tracker *tracker, const rc_Data *data) {
+        auto timestamp = sensor_clock::micros_to_tp(data->time_us);
+        tpose P(timestamp);
+        if(rp.get_reference_pose(timestamp, P))
+            ws.observe_position_gt(sensor_clock::tp_to_micros(P.t), P.G.T.x(), P.G.T.y(), P.G.T.z(), P.G.Q.w(), P.G.Q.x(), P.G.Q.y(), P.G.Q.z());
+        ws.rc_data_callback(tracker, data);
+    };
+
     if (benchmark) {
         enable_gui = false; if (realtime || start_paused) goto usage;
 
@@ -142,12 +150,8 @@ int main(int c, char **v)
             if(render_output) {
                 world_state * ws = new world_state();
                 res.user_data = ws;
-                rp.set_data_callback([ws,&rp](rc_Tracker * tracker, const rc_Data * data) {
-                    auto timestamp = sensor_clock::micros_to_tp(data->time_us);
-                    tpose P(timestamp);
-                    if(rp.get_reference_pose(timestamp, P))
-                        ws->observe_position_gt(sensor_clock::tp_to_micros(P.t), P.G.T.x(), P.G.T.y(), P.G.T.z(), P.G.Q.w(), P.G.Q.x(), P.G.Q.y(), P.G.Q.z());
-                    ws->rc_data_callback(tracker, data);
+                rp.set_data_callback([ws,&rp,&data_callback](rc_Tracker * tracker, const rc_Data * data) {
+                    data_callback(*ws,rp, tracker, data);
                 });
             } else
                 res.user_data = nullptr;
@@ -188,12 +192,8 @@ int main(int c, char **v)
 #else
     world_state ws;
     if(enable_gui || rendername) {
-        rp.set_data_callback([&ws,&rp](rc_Tracker * tracker, const rc_Data * data) {
-            auto timestamp = sensor_clock::micros_to_tp(data->time_us);
-            tpose P(timestamp);
-            if(rp.get_reference_pose(timestamp, P))
-                ws.observe_position_gt(sensor_clock::tp_to_micros(P.t), P.G.T.x(), P.G.T.y(), P.G.T.z(), P.G.Q.w(), P.G.Q.x(), P.G.Q.y(), P.G.Q.z());
-            ws.rc_data_callback(tracker, data);
+        rp.set_data_callback([&ws,&rp,&data_callback](rc_Tracker * tracker, const rc_Data * data) {
+            data_callback(ws, rp, tracker, data);
         });
     }
 

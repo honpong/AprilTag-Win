@@ -22,15 +22,15 @@ sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu
     rc_Extrinsics extrinsics = {rc_POSE_IDENTITY};
     imu_intrinsics intrinsics = {};
 
-    m_map(intrinsics.accelerometer.scale_and_alignment.v)  = legacy_imu.a_alignment;
-    v_map(intrinsics.accelerometer.bias_m__s2.v)           = legacy_imu.a_bias_m__s2;
-    v_map(intrinsics.accelerometer.bias_variance_m2__s4.v) = legacy_imu.a_bias_var_m2__s4;
-    intrinsics.accelerometer.measurement_variance_m2__s4   = legacy_imu.a_noise_var_m2__s4;
+    map(intrinsics.accelerometer.scale_and_alignment.v)  = legacy_imu.a_alignment;
+    map(intrinsics.accelerometer.bias_m__s2.v)           = legacy_imu.a_bias_m__s2;
+    map(intrinsics.accelerometer.bias_variance_m2__s4.v) = legacy_imu.a_bias_var_m2__s4;
+    intrinsics.accelerometer.measurement_variance_m2__s4 = legacy_imu.a_noise_var_m2__s4;
 
-    m_map(intrinsics.gyroscope.scale_and_alignment.v)    = legacy_imu.w_alignment;
-    v_map(intrinsics.gyroscope.bias_rad__s.v)            = legacy_imu.w_bias_rad__s;
-    v_map(intrinsics.gyroscope.bias_variance_rad2__s2.v) = legacy_imu.w_bias_var_rad2__s2;
-    intrinsics.gyroscope.measurement_variance_rad2__s2   = legacy_imu.w_noise_var_rad2__s2;
+    map(intrinsics.gyroscope.scale_and_alignment.v)    = legacy_imu.w_alignment;
+    map(intrinsics.gyroscope.bias_rad__s.v)            = legacy_imu.w_bias_rad__s;
+    map(intrinsics.gyroscope.bias_variance_rad2__s2.v) = legacy_imu.w_bias_var_rad2__s2;
+    intrinsics.gyroscope.measurement_variance_rad2__s2 = legacy_imu.w_noise_var_rad2__s2;
 
     return sensor_calibration_imu(extrinsics, intrinsics);
 }
@@ -39,8 +39,8 @@ sensor_calibration_camera calibration_convert_camera(const struct calibration_xm
 {
     rc_Extrinsics extrinsics = {};
     extrinsics.pose_m = to_rc_Pose(legacy_camera.extrinsics_wrt_imu_m);
-    v_map(extrinsics.variance_m2.T.v) = legacy_camera.extrinsics_var_wrt_imu_m.T;
-    v_map(extrinsics.variance_m2.W.v) = legacy_camera.extrinsics_var_wrt_imu_m.W;
+    map(extrinsics.variance_m2.T.v) = legacy_camera.extrinsics_var_wrt_imu_m.T;
+    map(extrinsics.variance_m2.W.v) = legacy_camera.extrinsics_var_wrt_imu_m.W;
     return sensor_calibration_camera(extrinsics, legacy_camera.intrinsics);
 }
 
@@ -79,8 +79,8 @@ void rc_vector_to_json_array(const rc_Vector & v, const char * key, Value & json
 void copy_extrinsics_to_json(const rc_Extrinsics & extrinsics, Value & json, Document::AllocatorType& a)
 {
     transformation pose = to_transformation(extrinsics.pose_m);
-    rc_Vector W; v_map(W.v) = to_rotation_vector(pose.Q).raw_vector();
-    rc_Vector T; v_map(T.v) = pose.T;
+    rc_Vector W; map(W.v) = to_rotation_vector(pose.Q).raw_vector();
+    rc_Vector T; map(T.v) = pose.T;
     rc_vector_to_json_array(T, KEY_EXTRINSICS_T, json, a);
     rc_vector_to_json_array(extrinsics.variance_m2.T, KEY_EXTRINSICS_T_VARIANCE, json, a);
     rc_vector_to_json_array(W, KEY_EXTRINSICS_W, json, a);
@@ -270,7 +270,7 @@ bool copy_json_to_extrinsics(Value & json, rc_Extrinsics & extrinsics)
        !copy_json_to_rc_vector(json[KEY_EXTRINSICS_W_VARIANCE], extrinsics.variance_m2.W))
         return false;
 
-    extrinsics.pose_m = to_rc_Pose(transformation(to_quaternion(rotation_vector(W.x,W.y,W.z)), v_map(T.v)));
+    extrinsics.pose_m = to_rc_Pose(transformation(to_quaternion(rotation_vector(W.x,W.y,W.z)), map(T.v)));
 
     return true;
 }

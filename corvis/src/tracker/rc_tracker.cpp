@@ -36,7 +36,7 @@ static void rc_trace(const rc_Matrix p)
 
 static void rc_trace(const rc_Pose p)
 {
-    quaternion Q(v_map(p.Q.v).cast<f_t>()); m3 R = m_map(p.R.v).cast<f_t>(); v3 T = v_map(p.T.v).cast<f_t>();
+    quaternion Q(map(p.Q.v).cast<f_t>()); m3 R = map(p.R.v).cast<f_t>(); v3 T = map(p.T.v).cast<f_t>();
     if (std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1))
         trace_log->info("{} {} {}  {}; {} {} {}  {}; {} {} {}  {}",
                         p.R.v[0][0], p.R.v[0][1], p.R.v[0][2], p.T.v[0],
@@ -357,17 +357,17 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
 
 void rc_configureWorld(rc_Tracker *tracker, const rc_Vector world_up, const rc_Vector world_initial_forward, const rc_Vector body_forward)
 {
-    tracker->sfm.s.world.up              = v_map(world_up.v).normalized();
-    tracker->sfm.s.world.initial_forward = v_map(world_initial_forward.v).normalized();
+    tracker->sfm.s.world.up              = map(world_up.v).normalized();
+    tracker->sfm.s.world.initial_forward = map(world_initial_forward.v).normalized();
     tracker->sfm.s.world.initial_left    = tracker->sfm.s.world.up.cross(tracker->sfm.s.world.initial_forward);
-    tracker->sfm.s.body_forward          = v_map(body_forward.v).normalized();
+    tracker->sfm.s.body_forward          = map(body_forward.v).normalized();
 }
 
 void rc_describeWorld(rc_Tracker *tracker, rc_Vector *world_up, rc_Vector *world_initial_forward, rc_Vector *body_forward)
 {
-    v_map(world_up->v)              = tracker->sfm.s.world.up;
-    v_map(world_initial_forward->v) = tracker->sfm.s.world.initial_forward;
-    v_map(body_forward->v)          = tracker->sfm.s.body_forward;
+    map(world_up->v)              = tracker->sfm.s.world.up;
+    map(world_initial_forward->v) = tracker->sfm.s.world.initial_forward;
+    map(body_forward->v)          = tracker->sfm.s.body_forward;
 }
 
 class rc_callback_sink_st : public spdlog::sinks::base_sink < spdlog::details::null_mutex >
@@ -600,10 +600,10 @@ rc_Pose rc_getPose(rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration
     if(trace) trace_log->info(path == rc_DATA_PATH_FAST ? "rc_getFastPose" : "rc_getPose");
     const state_motion &s = path == rc_DATA_PATH_FAST ? tracker->sfm.mini->state : tracker->sfm.s;
     transformation total = tracker->sfm.origin * s.loop_offset;
-    if (v) v_map(v->W.v) = total.Q * s.Q.v * s.w.v; // we use body rotational velocity, but we export spatial
-    if (a) v_map(a->W.v) = total.Q * s.Q.v * s.dw.v;
-    if (v) v_map(v->T.v) = total.Q * s.V.v;
-    if (a) v_map(a->T.v) = total.Q * s.a.v;
+    if (v) map(v->W.v) = total.Q * s.Q.v * s.w.v; // we use body rotational velocity, but we export spatial
+    if (a) map(a->W.v) = total.Q * s.Q.v * s.dw.v;
+    if (v) map(v->T.v) = total.Q * s.V.v;
+    if (a) map(a->T.v) = total.Q * s.a.v;
     rc_Pose pose_m = to_rc_Pose(total * transformation(s.Q.v, s.T.v));
     // assert(pose_m == tracker->get_transformation()); // FIXME: this depends on the specific implementation of ->get_transformation()
     if(trace) rc_trace(pose_m);

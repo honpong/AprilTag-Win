@@ -189,7 +189,7 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     auto start = std::chrono::steady_clock::now();
     auto &accelerometer = *f->accelerometers[data.id];
     auto &imu = *state.imus.children[data.id];
-    v3 meas = m_map(accelerometer.intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2.v);
+    v3 meas = map(accelerometer.intrinsics.scale_and_alignment.v) * map(data.acceleration_m__s2.v);
 
     //TODO: if out of order, project forward in time
     
@@ -213,7 +213,7 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
     
     auto &gyroscope = *f->gyroscopes[data.id];
     auto &imu = *state.imus.children[data.id];
-    v3 meas = m_map(gyroscope.intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s.v);
+    v3 meas = map(gyroscope.intrinsics.scale_and_alignment.v) * map(data.angular_velocity_rad__s.v);
 
     //TODO: if out of order, project forward in time
     
@@ -450,7 +450,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
     auto &accelerometer = *f->accelerometers[data.id];
     auto &gyroscope     = *f->gyroscopes[data.id];
     auto &imu = *f->s.imus.children[data.id];
-    v3 meas = m_map(accelerometer.intrinsics.scale_and_alignment.v) * v_map(data.acceleration_m__s2.v);
+    v3 meas = map(accelerometer.intrinsics.scale_and_alignment.v) * map(data.acceleration_m__s2.v);
     v3 accel_delta = meas - accelerometer.last_meas;
     accelerometer.last_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
@@ -508,7 +508,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
     auto timestamp = data.timestamp;
     auto &gyroscope = *f->gyroscopes[data.id];
     auto &imu = *std::next(f->s.imus.children.begin(), data.id)->get();
-    v3 meas = m_map(gyroscope.intrinsics.scale_and_alignment.v) * v_map(data.angular_velocity_rad__s.v);
+    v3 meas = map(gyroscope.intrinsics.scale_and_alignment.v) * map(data.angular_velocity_rad__s.v);
     v3 gyro_delta = meas - gyroscope.last_meas;
     gyroscope.last_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
@@ -1038,8 +1038,8 @@ void filter_initialize(struct filter *f)
     for (size_t i = 0; i < f->s.imus.children.size() && i < f->gyroscopes.size(); i++) {
         auto &imu = *f->s.imus.children[i];
         const auto &gyro = *f->gyroscopes[i];
-        imu.intrinsics.w_bias.v = v_map(gyro.intrinsics.bias_rad__s.v);
-        imu.intrinsics.w_bias.set_initial_variance(v_map(gyro.intrinsics.bias_variance_rad2__s2.v));
+        imu.intrinsics.w_bias.v = map(gyro.intrinsics.bias_rad__s.v);
+        imu.intrinsics.w_bias.set_initial_variance(map(gyro.intrinsics.bias_variance_rad2__s2.v));
 
         imu.extrinsics.Q.v = gyro.extrinsics.mean.Q;
         imu.extrinsics.T.v = gyro.extrinsics.mean.T;
@@ -1051,8 +1051,8 @@ void filter_initialize(struct filter *f)
     for (size_t i = 0; i < f->s.imus.children.size() && i < f->accelerometers.size(); i++) {
         auto &imu = *f->s.imus.children[i];
         const auto &accel = *f->accelerometers[i];
-        imu.intrinsics.a_bias.v = v_map(accel.intrinsics.bias_m__s2.v);
-        imu.intrinsics.a_bias.set_initial_variance(v_map(accel.intrinsics.bias_variance_m2__s4.v));
+        imu.intrinsics.a_bias.v = map(accel.intrinsics.bias_m__s2.v);
+        imu.intrinsics.a_bias.set_initial_variance(map(accel.intrinsics.bias_variance_m2__s4.v));
 
         imu.extrinsics.Q.v = accel.extrinsics.mean.Q;
         imu.extrinsics.T.v = accel.extrinsics.mean.T;
@@ -1149,8 +1149,8 @@ void filter_deinitialize(struct filter *f)
         const state_imu &imu = *f->s.imus.children[i];
         sensor_gyroscope &gyro  = *f->gyroscopes[i];
 
-        v_map(gyro.intrinsics.bias_rad__s.v)            = imu.intrinsics.w_bias.v;
-        v_map(gyro.intrinsics.bias_variance_rad2__s2.v) = imu.intrinsics.w_bias.variance();
+        map(gyro.intrinsics.bias_rad__s.v)            = imu.intrinsics.w_bias.v;
+        map(gyro.intrinsics.bias_variance_rad2__s2.v) = imu.intrinsics.w_bias.variance();
     }
 
     for (size_t i = 0; i < f->s.imus.children.size() && i < f->gyroscopes.size(); i++) {
@@ -1158,8 +1158,8 @@ void filter_deinitialize(struct filter *f)
         sensor_accelerometer &accel = *f->accelerometers[i];
         struct sensor::extrinsics &imu_extrinsics = accel.extrinsics;
 
-        v_map(accel.intrinsics.bias_m__s2.v)            = imu.intrinsics.a_bias.v;
-        v_map(accel.intrinsics.bias_variance_m2__s4.v)  = imu.intrinsics.a_bias.variance();
+        map(accel.intrinsics.bias_m__s2.v)            = imu.intrinsics.a_bias.v;
+        map(accel.intrinsics.bias_variance_m2__s4.v)  = imu.intrinsics.a_bias.variance();
 
         imu_extrinsics.mean.T =     imu.extrinsics.T.v;
         imu_extrinsics.mean.Q =     imu.extrinsics.Q.v;

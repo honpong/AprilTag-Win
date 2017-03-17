@@ -24,6 +24,7 @@ typedef Eigen::Matrix<unsigned char, 3, 1> b3;
 typedef Eigen::Map<v3> v3_map;
 typedef Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::ColMajor>> m3_axis_map;
 typedef std::vector<i2> contour;
+typedef Eigen::Quaternionf qv3;
 
 struct rs_shapefit 
 {

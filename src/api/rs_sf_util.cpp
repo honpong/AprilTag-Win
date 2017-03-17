@@ -296,6 +296,9 @@ void scale_plane_ids(rs_sf_image * map, int max_pid)
 void draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size)
 {
     const auto w = rgb->img_w, h = rgb->img_h;
+    if (p0.x() < 0 || w <= p0.x() || p0.y() < 0 || h <= p0.y()) return;
+    if (p1.x() < 0 || w <= p1.x() || p1.y() < 0 || h <= p1.y()) return;
+
     const auto dir = (p1 - p0).normalized();
     const auto len = (p1 - p0).norm();
     std::unordered_map<int, float> line_point;

@@ -72,6 +72,8 @@ protected:
 
 private:
 
+    struct box_plane_t;
+
     // per-frame detection
     void form_list_of_plane_pairs(box_scene& view);
     void detect_new_boxes(box_scene& view);
@@ -82,7 +84,7 @@ private:
     void add_new_boxes_for_tracking(box_scene& view);
 
     // debug
-    void draw_box(const std::string& name, const box& src);
+    void draw_box(const std::string& name, const box& src, const box_plane_t* p0 = nullptr, const box_plane_t* p1 = nullptr) const;
 };
 
 #endif // ! rs_sf_boxfit_h

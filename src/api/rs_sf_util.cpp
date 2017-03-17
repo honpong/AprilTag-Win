@@ -295,11 +295,9 @@ void rs_sf_util_scale_plane_ids(rs_sf_image * map, int max_pid)
 
 void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, v2 p0, v2 p1, const b3& color, const int size)
 {
+    if (p0.array().isInf().any() || p1.array().isInf().any()) return;
+
     const auto w = rgb->img_w, h = rgb->img_h;
-
-    if (std::isinf(p0.x()) || std::isinf(p0.y())) return;
-    if (std::isinf(p1.y()) || std::isinf(p1.y())) return;
-
     const auto dir = (p1 - p0).normalized();
     const auto len = (p1 - p0).norm();
     std::unordered_map<int, float> line_point;
@@ -315,6 +313,7 @@ void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, v2 p0, v2 p1, const b3& color, 
                     line_point[px] = std::min(1.0f, std::max(0.0f, d - hs));
                 }
     }
+
     for (const auto& pt : line_point) {
         const auto px = pt.first * 3;
         const auto alpha = pt.second, beta = 1.0f - alpha;

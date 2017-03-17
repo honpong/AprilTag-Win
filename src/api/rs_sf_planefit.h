@@ -15,8 +15,8 @@ struct rs_sf_planefit : public rs_shapefit
         int img_y_dn_sample = 9;
 #else
         bool hole_fill_plane_map = true;
-        int img_x_dn_sample = 3;
-        int img_y_dn_sample = 3;
+        int img_x_dn_sample = 5;
+        int img_y_dn_sample = 5;
 #endif
         int candidate_gx_dn_sample = 3;
         int candidate_gy_dn_sample = 3;

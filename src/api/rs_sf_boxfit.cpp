@@ -252,8 +252,8 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     const v3 avg_normal = (axis[0] + axis[1]).normalized();
     qv3 avg_to_n0(Eigen::AngleAxisf(-M_PI_4, axis[2]));
     qv3 avg_to_n1(Eigen::AngleAxisf(M_PI_4, axis[2]));
-    axis[0] = avg_to_n0._transformVector(avg_normal);
-    axis[1] = avg_to_n1._transformVector(avg_normal);
+    axis[0] = avg_to_n0 * avg_normal;
+    axis[1] = avg_to_n1 * avg_normal;
 
     // part of box origin can be found by the plane intersection
     v3 axis_origin;
@@ -290,21 +290,15 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     axis_origin[2] = std::min(width0_range[0], width1_range[0]);
     const auto axis2_length = std::max(width0_range[1], width1_range[1]) - axis_origin[2];
 
-    // setup box axis
-    m3 box_axis;
-    box_axis.col(0) = axis[0];
-    box_axis.col(1) = axis[1];
-    box_axis.col(2) = axis[2];
-
-    // form the box dimension by end point differences
-    const v3 box_dimension(axis0_length[1], axis1_length[1], axis2_length);
-
-    // form the box center by box origin + 1/2 box dimension
-    const v3 box_center = box_axis * (axis_origin + (box_dimension*0.5f));
-
     // make new box
-    view.boxes.push_back({ box_center, box_dimension, box_axis });
-    pair.box = &view.boxes.back();
+    view.boxes.push_back({});
+    box* new_box = pair.box = &view.boxes.back();
+    // copy box axis
+    new_box->axis << axis[0], axis[1], axis[2];
+    // form the box dimension by end point differences
+    new_box->dimension << axis0_length[1], axis1_length[1], axis2_length;
+    // form the box center by box origin + 1/2 box dimension
+    new_box->center << new_box->axis * (axis_origin + (new_box->dimension*0.5f));
 
     return true;
 }

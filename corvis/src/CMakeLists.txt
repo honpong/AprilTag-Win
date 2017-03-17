@@ -4,6 +4,7 @@ set(TRACKER_SOURCES
     tracker/rotation_vector.cpp
     tracker/matrix.cpp
     tracker/kalman.cpp
+    tracker/transformation.cpp
     tracker/filter.cpp
     tracker/state_vision.cpp
     tracker/state_motion.cpp

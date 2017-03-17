@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#define MAXSTATESIZE 256
+#include "covariance.h"
 #include "remapper.h"
 #include <random>
 #include <limits>

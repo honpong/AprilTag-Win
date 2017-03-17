@@ -40,7 +40,7 @@ rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * r
 
     rs_sf_image_mono map(rgb);
     const auto status = pf->get_plane_index_map(&map, rgb->cam_pose || (src && src->cam_pose) ? 0 : -1);
-    if (status == RS_SF_SUCCESS)  draw_planes(rgb, &map, src);
+    if (status == RS_SF_SUCCESS)  rs_sf_util_draw_planes(rgb, &map, src);
     return status;
 }
 
@@ -52,7 +52,7 @@ rs_sf_status rs_sf_planefit_draw_plane_ids(const rs_shapefit * obj, rs_sf_image 
 
     const auto status = pf->get_plane_index_map(mono, mono->cam_pose ? 0 : -1);
     if (status == RS_SF_SUCCESS && option == RS_SF_PLANEFIT_DRAW_SCALED)
-        scale_plane_ids(mono, pf->max_detected_pid());
+        rs_sf_util_scale_plane_ids(mono, pf->max_detected_pid());
 
     return status;
 }
@@ -72,8 +72,8 @@ RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, r
     auto bf = dynamic_cast<const rs_sf_boxfit*>(obj);
     if (!bf) return RS_SF_INVALID_OBJ_HANDLE;
 
-    if (src) convert_to_rgb_image(rgb, src);
-    draw_boxes(rgb, obj->m_intrinsics, bf->get_boxes());
+    if (src) rs_sf_util_convert_to_rgb_image(rgb, src);
+    rs_sf_util_draw_boxes(rgb, obj->m_intrinsics, bf->get_boxes());
 
     return RS_SF_SUCCESS;
 }

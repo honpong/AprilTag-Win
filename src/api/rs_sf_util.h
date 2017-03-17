@@ -59,13 +59,13 @@ inline void print_box(const rs_sf_box& box)
     printf("---------------- \n");
 }
 
-void set_to_zeros(rs_sf_image* img);
+void rs_sf_util_set_to_zeros(rs_sf_image* img);
 void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3]);
-void convert_to_rgb_image(rs_sf_image* rgb, const rs_sf_image* src);
-void draw_planes(rs_sf_image* rgb, const rs_sf_image* map, const rs_sf_image* src = nullptr, const unsigned char* rgb_table[3] = nullptr, int num_color = 0);
-void scale_plane_ids(rs_sf_image* map, int max_pid);
-void draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size = 2);
-void draw_boxes(rs_sf_image* rgb, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes);
+void rs_sf_util_convert_to_rgb_image(rs_sf_image* rgb, const rs_sf_image* src);
+void rs_sf_util_draw_planes(rs_sf_image* rgb, const rs_sf_image* map, const rs_sf_image* src = nullptr, const unsigned char* rgb_table[3] = nullptr, int num_color = 0);
+void rs_sf_util_scale_plane_ids(rs_sf_image* map, int max_pid);
+void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size = 2);
+void rs_sf_util_draw_boxes(rs_sf_image* rgb, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes);
 
 std::vector<contour> find_contours_in_binary_img(rs_sf_image* bimg);
 contour follow_border(uint8_t* pixel, const int w, const int h, const int _x0);

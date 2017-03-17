@@ -1,7 +1,7 @@
 #include "rs_sf_util.h"
 #include <unordered_map>
 
-void set_to_zeros(rs_sf_image* img)
+void rs_sf_util_set_to_zeros(rs_sf_image* img)
 {
     memset(img->data, 0, img->num_char());
 }
@@ -240,7 +240,7 @@ void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3])
     u[2] *= tr;
 }
 
-void convert_to_rgb_image(rs_sf_image * rgb, const rs_sf_image * src)
+void rs_sf_util_convert_to_rgb_image(rs_sf_image * rgb, const rs_sf_image * src)
 {
     if (!src) return;
     if (src->byte_per_pixel == 1)
@@ -250,7 +250,7 @@ void convert_to_rgb_image(rs_sf_image * rgb, const rs_sf_image * src)
         memcpy(rgb->data, src->data, rgb->num_char());
 }
 
-void draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *src, const unsigned char * rgb_table[3], int num_color)
+void rs_sf_util_draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *src, const unsigned char * rgb_table[3], int num_color)
 {
     static unsigned char default_r[MAX_VALID_PID + 1] = { 0 };
     static unsigned char default_g[MAX_VALID_PID + 1] = { 0 };
@@ -271,7 +271,7 @@ void draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *
         num_color = (int)(sizeof(default_r) / sizeof(unsigned char));
     }
 
-    convert_to_rgb_image(rgb, src);
+    rs_sf_util_convert_to_rgb_image(rgb, src);
 
     for (int p = map->num_pixel() - 1; p >= 0; --p) {
         const int pid = map->data[p];
@@ -286,14 +286,14 @@ void draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *
     }
 }
 
-void scale_plane_ids(rs_sf_image * map, int max_pid)
+void rs_sf_util_scale_plane_ids(rs_sf_image * map, int max_pid)
 {
     max_pid = std::max(1, max_pid);
     for (int p = map->num_pixel() - 1; p >= 0; --p)
         map->data[p] = map->data[p] * 254 / max_pid;
 }
 
-void draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size)
+void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size)
 {
     const auto w = rgb->img_w, h = rgb->img_h;
     if (p0.x() < 0 || w <= p0.x() || p0.y() < 0 || h <= p0.y()) return;
@@ -323,7 +323,7 @@ void draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& colo
     }
 }
 
-void to_box_frame(const rs_sf_box& box, v3 box_frame[12][2])
+void rs_sf_util_to_box_frame(const rs_sf_box& box, v3 box_frame[12][2])
 {
     static const int line_index[][2][3] = {
         {{0,0,0},{1,0,0}}, {{0,0,1},{1,0,1}}, {{0,1,0},{1,1,0}}, {{0,1,1},{1,1,1}},
@@ -340,7 +340,7 @@ void to_box_frame(const rs_sf_box& box, v3 box_frame[12][2])
     }
 }
 
-void draw_boxes(rs_sf_image * rgb, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes)
+void rs_sf_util_draw_boxes(rs_sf_image * rgb, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes)
 {
     auto to_cam = pose_t().set_pose(rgb->cam_pose).invert();
     auto proj = [to_cam = to_cam, cam = camera](const v3& pt) {
@@ -353,9 +353,9 @@ void draw_boxes(rs_sf_image * rgb, const rs_sf_intrinsics& camera, const std::ve
     v3 box_frame[12][2];
     for (auto& box : boxes)
     {
-        to_box_frame(box, box_frame);
+        rs_sf_util_to_box_frame(box, box_frame);
         for (const auto& line : box_frame)
-            draw_line_rgb(rgb, proj(line[0]), proj(line[1]), b3{ 255,255,0 });
+            rs_sf_util_draw_line_rgb(rgb, proj(line[0]), proj(line[1]), b3{ 255,255,0 });
     }
 }
 

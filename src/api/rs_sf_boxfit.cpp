@@ -284,6 +284,21 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
         if (std::abs(axis1_length[0]) > m_param.plane_intersect_thr) return false;
     }
 
+    /**
+    cv::Mat img[2] = { cv::Mat(src_h(), src_w(), CV_8U(), cv::Scalar(0)),img[0].clone() };
+    const plane* pl[2] = { &plane0, &plane1 };
+    for (auto& map : img) {
+        for (auto& pt : pl[(&map-img)]->best_pts)
+            map.data[pt->p] = 128;
+        for (auto& pt : pl[(&map-img)]->edge_pts)
+            map.data[pt->p] = 255;
+    }
+    printf("\n");
+    cv::hconcat(img[0], img[1], img[0]);
+    cv::imshow("planes", img[0]);
+    cv::waitKey(0);
+    */
+
     // compute good plane widths
     const auto width0_range = box_plane[0].get_width_range(axis_origin[0]);
     const auto width1_range = box_plane[1].get_width_range(axis_origin[1]);

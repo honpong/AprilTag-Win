@@ -14,7 +14,7 @@ struct rs_sf_planefit : public rs_shapefit
         int img_x_dn_sample = 9;
         int img_y_dn_sample = 9;
 #else
-        bool hole_fill_plane_map = true;
+        bool hole_fill_plane_map = false;
         int img_x_dn_sample = 5;
         int img_y_dn_sample = 5;
 #endif
@@ -43,10 +43,11 @@ struct rs_sf_planefit : public rs_shapefit
     rs_sf_status get_plane_equation(int pid, float equ[4]) const;
 
 protected:
-
-    static const int INVALID_PID = 0;
         
     struct plane; 
+    plane *const NON_EDGE_PT = (plane*)-1;
+    static const int INVALID_PID = 0;
+
     struct pt3d_group;
     struct pt3d { v3 pos, normal; bool valid_pos, valid_normal;  plane* best_plane; int p; i2 pix; pt3d_group* grp; };
     typedef std::vector<pt3d*> vec_pt_ref;
@@ -89,6 +90,10 @@ protected:
 
     // for child classes
     plane* get_tracked_plane(int pid) const;
+    int src_h() const { return m_intrinsics.img_h; }
+    int src_w() const { return m_intrinsics.img_w; }
+    int num_pixels() const { return src_h()*src_w(); }
+    int num_pixel_groups() const { return m_grid_h * m_grid_w; }
 
 private:
 
@@ -96,10 +101,6 @@ private:
     vec_pt_ref m_inlier_buf;
     int m_plane_pt_reserve, m_track_plane_reserve;
     int m_grid_w, m_grid_h, m_grid_neighbor[9];
-    int src_h() const { return m_intrinsics.img_h; }
-    int src_w() const { return m_intrinsics.img_w; }
-    int num_pixels() const { return src_h()*src_w(); }
-    int num_pixel_groups() const { return m_grid_h * m_grid_w; }
 
     // initalization
     void init_img_pt_groups(scene& view);
@@ -128,7 +129,7 @@ private:
     void assign_planes_pid(vec_plane_ref& sorted_planes);
 
     // output utility 
-    void upsize_pt_cloud_to_plane_map(const vec_pt3d_group& pt_groups, rs_sf_image* dst) const;
+    void upsize_pt_cloud_to_plane_map(const vec_pt3d& pt_img, rs_sf_image* dst) const;
     void end_of_process();
 };
 

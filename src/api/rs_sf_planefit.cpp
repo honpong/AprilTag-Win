@@ -79,7 +79,7 @@ int rs_sf_planefit::max_detected_pid() const
 rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_filled) const
 {
     if (!map || !map->data || map->byte_per_pixel != 1) return RS_SF_INVALID_ARG;
-    upsize_pt_cloud_to_plane_map(m_view.pt_grp, map);
+    upsize_pt_cloud_to_plane_map(m_view.pt_img, map);
     //mark_plane_src_on_map(map);
 
     if (hole_filled > 0 || (hole_filled == -1 && m_param.hole_fill_plane_map))
@@ -421,6 +421,7 @@ void rs_sf_planefit::grow_planecandidate(vec_pt3d_group& pt_groups, vec_plane& p
 
 void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_candidate, const vec_pt_ref& seeds, bool reset_best_plane_ptr)
 {
+    auto* this_plane_ptr = &plane_candidate;
     auto& plane_pts = plane_candidate.pts;
     auto& edge_pts = plane_candidate.edge_pts;
     plane_pts.clear();
@@ -430,8 +431,8 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
     m_inlier_buf.clear();
     m_inlier_buf.assign(seeds.begin(), seeds.end());
     for (auto p : m_inlier_buf) {
-        p->best_plane = &plane_candidate;              //mark seed
-        p->grp->pl_pt0->best_plane = &plane_candidate; //mark inlier
+        p->best_plane = this_plane_ptr;           //mark seed
+        p->grp->pl_pt0->best_plane = NON_EDGE_PT; //mark inlier
     }
 
     while (!m_inlier_buf.empty())
@@ -445,6 +446,7 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
 
         // grid point
         const int gp = pt->grp->gp;
+        pt3d *const ck = pt->grp->pl_pt0;
 
         // grow
         for (int b = 0; b < 4; ++b)
@@ -453,18 +455,28 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
             {
                 const int gp_next = gp + m_grid_neighbor[b];
                 auto pt_next = pt_group[gp_next].pt0;
-                auto edge_next = pt_group[gp_next].pl_pt0;
-                if (!edge_next->best_plane) //not yet checked
+                auto ck_next = pt_group[gp_next].pl_pt0;
+                if (ck_next->best_plane == nullptr) //not yet checked
                 {
                     if (!pt_next->best_plane) //not assigned a plane
                     {
                         if (is_inlier(plane_candidate, *pt_next)) // check this point
                         {
-                            pt_next->best_plane = &plane_candidate; //assign this plane
-                            m_inlier_buf.emplace_back(pt_next); //go further
+                            pt_next->best_plane = this_plane_ptr;//assign this plane
+                            ck_next->best_plane = NON_EDGE_PT;   //mark visited non-edge
+                            m_inlier_buf.emplace_back(pt_next);  //go further
                         }
-                        edge_next->best_plane = &plane_candidate; //mark tested
-                        edge_pts.emplace_back(edge_next);
+                    }
+
+                    if (ck_next->best_plane == nullptr) //still an edge point
+                    {
+                        ck_next->best_plane = this_plane_ptr; //mark visited edge point
+                        edge_pts.emplace_back(ck_next);       //save edge point
+                        if (ck->best_plane == NON_EDGE_PT)
+                        {
+                            ck->best_plane = this_plane_ptr; //mark edge parent
+                            edge_pts.emplace_back(ck);       //save edge point
+                        }
                     }
                 }
             }
@@ -472,12 +484,14 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
     }
 
     // reset plane image best_plane ptr
-    for (auto p : plane_candidate.edge_pts)
-        p->best_plane = nullptr;
+    for (auto pl_pt0 : edge_pts)
+        pl_pt0->best_plane = nullptr;
+    for (auto p : plane_pts)
+        p->grp->pl_pt0->best_plane = nullptr;
 
     if (reset_best_plane_ptr) {
         // reset marker for next plane candidate
-        for (auto p : plane_candidate.pts)
+        for (auto p : plane_pts)
             p->best_plane = nullptr;
     }
 }
@@ -760,7 +774,7 @@ void rs_sf_planefit::assign_planes_pid(vec_plane_ref& sorted_planes)
     }
 }
 
-void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const vec_pt3d_group& pt_groups, rs_sf_image * dst) const
+void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const vec_pt3d& pt_img, rs_sf_image * dst) const
 {
     const int dst_w = dst->img_w, dst_h = dst->img_h;
     const int img_w = src_w();
@@ -768,13 +782,13 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const vec_pt3d_group& pt_group
     const int dn_x = m_param.img_x_dn_sample;
     const int dn_y = m_param.img_y_dn_sample;
 
-    const auto src_pt_group = pt_groups.data();
+    const auto src_pt = pt_img.data();
     for (int y = 0, p = 0; y < dst_h; ++y) {
         for (int x = 0; x < dst_w; ++x, ++p)
         {
-            const auto x_src = ((x * m_grid_w) / dst_w);
-            const auto y_src = ((y * m_grid_h) / dst_h);
-            const auto best_plane = src_pt_group[y_src * m_grid_w + x_src].pl_pt0->best_plane;
+            const auto x_src = ((x * img_w) / dst_w);
+            const auto y_src = ((y * img_h) / dst_h);
+            const auto best_plane = src_pt[y_src * img_w + x_src].grp->pl_pt0->best_plane;
             dst->data[p] = (best_plane ? best_plane->pid : 0);
         }
     }

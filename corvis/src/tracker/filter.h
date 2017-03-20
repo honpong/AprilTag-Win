@@ -11,7 +11,6 @@
 #include "platform/sensor_clock.h"
 #include "sensor_data.h"
 #include "spdlog/spdlog.h"
-#include "rc_compat.h"
 #include "mapper.h"
 
 #include <mutex>

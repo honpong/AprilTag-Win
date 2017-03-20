@@ -8,7 +8,9 @@ struct rs_sf_planefit : public rs_shapefit
 {
     struct parameter
     {
-        bool filter_plane_map = true;
+        bool compute_full_pt_cloud = false;
+        bool filter_plane_map = false;
+        bool refine_plane_map = false;
 #ifdef _DEBUG
         bool hole_fill_plane_map = false;
         int img_x_dn_sample = 9;
@@ -28,7 +30,7 @@ struct rs_sf_planefit : public rs_shapefit
         float max_fit_err_thr = 30.0f;
         float max_normal_thr = 0.7f;
 
-        int min_num_plane_pt = 150;
+        int min_num_plane_pt = 100;
         int max_num_plane_output = MAX_VALID_PID;
     };
 
@@ -49,14 +51,42 @@ protected:
     static const int INVALID_PID = 0;
 
     struct pt3d_group;
-    struct pt3d { v3 pos, normal; bool valid_pos, valid_normal;  plane* best_plane; int p; i2 pix; pt3d_group* grp; };
+    typedef unsigned char pt_state;
+    static const pt_state PT3D_MASK_KNOWN_POS = 0x1, PT3D_MASK_VALID_POS = 0x2;
+    static const pt_state PT3D_MASK_KNOWN_NORMAL = 0x4, PT3D_MASK_VALID_NORMAL = 0x8;
+    static const pt_state PT3D_MASK_KNOWN_PLANE = 0x10, PT3D_MASK_VALID_PLANE = 0x20;
+    struct pt3d { 
+        v3 pos, normal; 
+        pt_state state;
+        plane* best_plane; 
+        int p; i2 pix; pt3d_group *grp; 
+        inline void reset() { state = 0; best_plane = nullptr; }
+        inline void set_valid_pos() { state |= 0x3; }
+        inline void set_invalid_pos() { state |= 0x1; }
+        inline void set_valid_normal() { state |= 0xf; }
+        inline void set_invalid_normal() { state |= PT3D_MASK_KNOWN_NORMAL; }
+        inline bool is_known_pos() const { return (bool)(state & PT3D_MASK_KNOWN_POS); }
+        inline bool is_known_normal() const { return (bool)(state & PT3D_MASK_KNOWN_NORMAL); }
+        inline bool is_valid_pos() const { return (bool)(state & PT3D_MASK_VALID_POS); }
+        inline bool is_valid_normal() const { return (bool)(state & PT3D_MASK_VALID_NORMAL); }
+        inline bool is_valid_plane() const { return (bool)(state & PT3D_MASK_VALID_PLANE); }
+        inline void set_checked() { state |= 0x80; }
+        inline bool clear_check_flag() { state &= 0x7f; }
+        inline bool is_checked() const { return (bool)(state & 0x80); }
+        inline void set_boundary() { state |= 0x40; }
+        inline bool is_boundary() const { return (bool)(state & 0x40); }
+        inline void clear_boundary_flag() { state &= 0xbf; }
+    };
     typedef std::vector<pt3d*> vec_pt_ref;
-    struct pt3d_group { int gp; i2 gpix; vec_pt_ref pt, pl_pt; pt3d *pt0, *pl_pt0; };
+    struct pt3d_group { int gp; i2 gpix; vec_pt_ref pt; pt3d *pt0; };
     typedef std::list<pt3d*> list_pt_ref;
     struct plane {
-        v3 normal; float d; pt3d* src; vec_pt_ref pts, best_pts; list_pt_ref edge_pts;  int pid; const plane* past_plane;
-        plane(const v3& _nor, float _d, pt3d* _src, int _pid = INVALID_PID, const plane* _past_plane = nullptr)
-            : normal(_nor), d(_d), src(_src), pid(_pid), past_plane(_past_plane) {}
+        v3 normal; float d; pt3d* src; int pid;
+        vec_pt_ref pts, best_pts; 
+        list_pt_ref edge_grp[2], fine_pts;
+        const plane* past_plane;
+        plane(const v3& _nor, float _d, pt3d* _src, const plane* _past_plane = nullptr)
+            : normal(_nor), d(_d), src(_src), pid(INVALID_PID), past_plane(_past_plane) {}
     };
     
     typedef std::vector<pt3d> vec_pt3d;
@@ -64,12 +94,14 @@ protected:
     typedef std::vector<plane> vec_plane;
     typedef std::vector<plane*> vec_plane_ref;
     struct scene {
-        vec_pt3d pt_img, plane_img;
+        bool is_full_pt_cloud;
+        vec_pt3d pt_img;
         vec_pt3d_group pt_grp;
         vec_plane planes;
         pose_t cam_pose;
         inline void swap(scene& ref) {
-            pt_img.swap(ref.pt_img); plane_img.swap(ref.plane_img);
+            std::swap(is_full_pt_cloud, ref.is_full_pt_cloud);
+            pt_img.swap(ref.pt_img);
             pt_grp.swap(ref.pt_grp);
             planes.swap(ref.planes);
             std::swap(cam_pose, ref.cam_pose);
@@ -82,9 +114,9 @@ protected:
     scene m_view, m_ref_view;
     vec_plane_ref m_tracked_pid, m_sorted_plane_ptr;
     
-    // debug only
-    rs_sf_image ref_img, ir_img;
-
+    // input
+    rs_sf_image_depth src_depth_img;
+    
     // call after parameter updated
     void parameter_updated();
 
@@ -94,6 +126,7 @@ protected:
     int src_w() const { return m_intrinsics.img_w; }
     int num_pixels() const { return src_h()*src_w(); }
     int num_pixel_groups() const { return m_grid_h * m_grid_w; }
+    void refine_plane_boundary(plane& dst);
 
 private:
 
@@ -109,8 +142,12 @@ private:
     i2 project_grid_i(const v3& cam_pt) const;
     v3 unproject(const float u, const float v, const float z) const;
     bool is_within_pt_group_fov(const int x, const int y) const;
+    bool is_within_pt_img_fov(const int x, const int y) const;
     bool is_valid_raw_z(const float z) const;
-    void image_to_pointcloud(const rs_sf_image* img, scene& current_view, pose_t& pose);
+    unsigned short& get_raw_z_at(const pt3d& pt) const;
+    void compute_pt3d(pt3d& pt) const;
+    void compute_pt3d_normal(pt3d& pt_query, pt3d& pt_right, pt3d& pt_below) const;
+    void image_to_pointcloud(const rs_sf_image* img, scene& current_view, bool force_full_pt_cloud = false);
     void img_pt_group_to_normal(vec_pt3d_group& pt_groups);
     void img_pointcloud_to_planecandidate(const vec_pt3d_group& pt_groups, vec_plane& img_planes, int candidate_gy_dn_sample = -1, int candidate_gx_dn_sample = -1);
     bool is_inlier(const plane& candidate, const pt3d& p);
@@ -129,8 +166,16 @@ private:
     void assign_planes_pid(vec_plane_ref& sorted_planes);
 
     // output utility 
-    void upsize_pt_cloud_to_plane_map(const vec_pt3d& pt_img, rs_sf_image* dst) const;
+    void pt_groups_planes_to_full_img(vec_pt3d& pt_img, vec_plane_ref& sorted_planes);
+    void upsize_pt_cloud_to_plane_map(const vec_pt3d& plane_img, rs_sf_image* dst) const;
     void end_of_process();
+
+    // pose buffer
+    float r00, r01, r02, r10, r11, r12, r20, r21, r22, t0, t1, t2;
+    float& cam_px = m_intrinsics.cam_px;
+    float& cam_py = m_intrinsics.cam_py;
+    float& cam_fx = m_intrinsics.cam_fx;
+    float& cam_fy = m_intrinsics.cam_fy;
 };
 
 #endif // ! rs_sf_planefit_h

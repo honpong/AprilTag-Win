@@ -10,7 +10,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
     {
         float plane_angle_thr = 1.0f - 0.97f; //absolute threshold for plane angles dot product
         float plane_intersect_thr = 30.0f;    //points on 2 box planes touch within 5mm
-        float max_plane_pt_error = 15.0f; 
+        float max_plane_pt_error = 20.0f; 
         int max_box_history = 7;
     };
 
@@ -45,8 +45,8 @@ protected:
 
     struct tracked_box;
     struct plane_pair {
-        const plane *p0, *p1; box *box; tracked_box* prev_box;
-        plane_pair(const plane* _p0, const plane* _p1, tracked_box* _pb = nullptr)
+        plane *p0, *p1; box *box; tracked_box* prev_box;
+        plane_pair(plane* _p0, plane* _p1, tracked_box* _pb = nullptr)
             : p0(_p0), p1(_p1), prev_box(_pb), box(nullptr) {}
     };
 

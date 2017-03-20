@@ -4,9 +4,7 @@ static rs_sf_boxfit* debug_this = nullptr;
 rs_sf_boxfit::rs_sf_boxfit(const rs_sf_intrinsics * camera) : rs_sf_planefit(camera)
 {
     rs_sf_planefit::m_param.filter_plane_map = false;
-    //rs_sf_planefit::m_param.img_x_dn_sample = 3;
-    //rs_sf_planefit::m_param.img_y_dn_sample = 3;
-    //parameter_updated();
+    //rs_sf_planefit::m_param.refine_plane_map = true;
 
     m_box_scene.plane_scene = &m_view;
     m_box_ref_scene.plane_scene = &m_ref_view;
@@ -130,10 +128,15 @@ struct rs_sf_boxfit::box_plane_t
     {
         d = _d;
         normal = _normal;
-        pts.reserve(src->best_pts.size());
-        for (auto& pt : src->best_pts)
+
+        auto& tmp_fine_pts = src->fine_pts;
+        //if (tmp_fine_pts.size() == 0)
+        //    tmp_fine_pts.assign(src->best_pts.begin(), src->best_pts.end());
+
+        pts.reserve(tmp_fine_pts.size());
+        for (auto& pt : tmp_fine_pts)
         {
-            if (pt->valid_pos)
+            if (pt->is_valid_pos())
             {
                 const float plane_pt_err = normal.dot(pt->pos) + d;
                 if (std::abs(plane_pt_err) < max_plane_pt_error)
@@ -223,7 +226,7 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
 {
     auto& plane0 = *pair.p0, &plane1 = *pair.p1;
 
-    // reject plane pair not perpendiculars only if no box history
+    // reject plane pair n&ot perpendiculars only if no box history
     if (!pair.prev_box) {
         auto cosine_theta = std::abs(plane0.normal.dot(plane1.normal));
         if (cosine_theta > m_param.plane_angle_thr) return false;
@@ -259,9 +262,12 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     v3 axis_origin;
     axis_origin[0] = axis[0].dot(plane1.src->pos);
     axis_origin[1] = axis[1].dot(plane0.src->pos);
- 
+
     // box plane helper
     box_plane_t box_plane[2] = { box_plane_t(plane0),box_plane_t(plane1) };
+
+    refine_plane_boundary(plane0);
+    refine_plane_boundary(plane1);
 
     // setup box planes
     box_plane[0].project_pts_on_plane(axis[1], -axis_origin[1], m_param.max_plane_pt_error);
@@ -283,21 +289,6 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
         if (std::abs(axis0_length[0]) > m_param.plane_intersect_thr) return false;
         if (std::abs(axis1_length[0]) > m_param.plane_intersect_thr) return false;
     }
-
-    /**
-    cv::Mat img[2] = { cv::Mat(src_h(), src_w(), CV_8U(), cv::Scalar(0)),img[0].clone() };
-    const plane* pl[2] = { &plane0, &plane1 };
-    for (auto& map : img) {
-        for (auto& pt : pl[(&map-img)]->best_pts)
-            map.data[pt->p] = 128;
-        for (auto& pt : pl[(&map-img)]->edge_pts)
-            map.data[pt->p] = 255;
-    }
-    printf("\n");
-    cv::hconcat(img[0], img[1], img[0]);
-    cv::imshow("planes", img[0]);
-    cv::waitKey(0);
-    */
 
     // compute good plane widths
     const auto width0_range = box_plane[0].get_width_range(axis_origin[0]);
@@ -364,8 +355,8 @@ void rs_sf_boxfit::draw_box(const std::string& name, const box & src, const box_
             (pt3d.y() * cam.cam_fy) / pt3d.z() + cam.cam_py);
     };
 
-    cv::Mat map(ref_img.img_h, ref_img.img_w, CV_8U, cv::Scalar(0));
-    cv::Mat(ref_img.img_h, ref_img.img_w, CV_16U, ref_img.data).convertTo(map, CV_8U, 255.0 / 4000.0);
+    cv::Mat map(src_depth_img.img_h, src_depth_img.img_w, CV_8U, cv::Scalar(0));
+    cv::Mat(src_depth_img.img_h, src_depth_img.img_w, CV_16U, src_depth_img.data).convertTo(map, CV_8U, 255.0 / 4000.0);
 
     auto pt0 = proj(src.origin());
     for (int a = 0; a < 3; ++a) {

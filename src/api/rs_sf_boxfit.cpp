@@ -231,6 +231,26 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
 
     // box axis
     v3 axis[3] = { plane1.normal, plane0.normal, {} };
+    v3 pt_on_interect(0, 0, 0);
+    {
+        const auto a0 = plane0.normal[0], b0 = plane0.normal[1], c0 = plane0.normal[2], d0 = plane0.d;
+        const auto a1 = plane1.normal[0], b1 = plane1.normal[1], c1 = plane1.normal[2], d1 = plane1.d;
+        const float D0 = b0 * c1 - b1 * c0; //assume x=0;
+        const float D1 = a0 * c1 - a1 * c0; //assume y=0;
+
+        if (std::abs(D0) > 0.0001f)
+        {
+            pt_on_interect.y() = (-d0*c1 + d1*c0) / D0;
+            pt_on_interect.z() = (-d1*b0 + d0*b1) / D0;
+        }
+        else if (std::abs(D1) > 0.0001f)
+        {
+            pt_on_interect.x() = (-d0*c1 + d1*c0) / D1;
+            pt_on_interect.z() = (-d1*a0 + d0*a1) / D1;
+        }
+        else
+            return false; //bad planes
+    }
 
     const float cen0_to_plane1_d = plane1.normal.dot(plane0.src->pos) + plane1.d;
     const float cen1_to_plane0_d = plane0.normal.dot(plane1.src->pos) + plane0.d;
@@ -245,26 +265,27 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
         axis[1].dot(cen1_on_plane0 - view.plane_scene->cam_pose.translation) < 0 )
         return false;
 
-    // third axis is the cross product of two plane normals
-    axis[2] = axis[0].cross(axis[1]).normalized();
-
-    // fix non-orthogonal axis
-    const v3 avg_normal = (axis[0] + axis[1]).normalized();
-    qv3 avg_to_n0(Eigen::AngleAxisf(-M_PI_4, axis[2]));
-    qv3 avg_to_n1(Eigen::AngleAxisf(M_PI_4, axis[2]));
-    axis[0] = avg_to_n0 * avg_normal;
-    axis[1] = avg_to_n1 * avg_normal;
-
-    // part of box origin can be found by the plane intersection
-    v3 axis_origin;
-    axis_origin[0] = axis[0].dot(plane1.src->pos);
-    axis_origin[1] = axis[1].dot(plane0.src->pos);
+    // enforce orthogonal axis
+    const v3 avg_normal = (axis[0] + axis[1])*0.5f; //perpendicular bisector
+    const float avg_length = avg_normal.norm();
+    axis[0] = ((axis[0] - avg_normal).normalized() * avg_length + avg_normal).normalized();
+    axis[1] = ((axis[1] - avg_normal).normalized() * avg_length + avg_normal).normalized();
 
     // box plane helper
     box_plane_t box_plane[2] = { box_plane_t(plane0),box_plane_t(plane1) };
 
     refine_plane_boundary(plane0);
     refine_plane_boundary(plane1);
+
+    // third axis is the cross product of two plane normals
+    axis[2] = axis[0].cross(axis[1]).normalized();
+
+    // part of box origin can be found by the plane-plane intersection
+    v3 axis_origin;
+    const v3 pt_on_intersect0 = (axis[2] * (plane0.src->pos - pt_on_interect).dot(axis[2])) + pt_on_interect;
+    const v3 pt_on_intersect1 = (axis[2] * (plane1.src->pos - pt_on_interect).dot(axis[2])) + pt_on_interect;
+    axis_origin[0] = axis[0].dot(pt_on_intersect1);
+    axis_origin[1] = axis[1].dot(pt_on_intersect0);
 
     // setup box planes
     box_plane[0].project_pts_on_plane(axis[1], -axis_origin[1], m_param.max_plane_pt_error);
@@ -302,7 +323,7 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     new_box->dimension << axis0_length[1], axis1_length[1], axis2_length;
     // form the box center by box origin + 1/2 box dimension
     new_box->center << new_box->axis * (axis_origin + (new_box->dimension*0.5f));
-
+    
     return true;
 }
 

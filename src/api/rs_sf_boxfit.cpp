@@ -52,7 +52,7 @@ std::vector<rs_sf_box> rs_sf_boxfit::get_boxes() const
 
 void rs_sf_boxfit::detect_new_boxes(box_scene& view)
 {
-    for (auto& pair : view.plane_pairs)
+    for (auto&& pair : view.plane_pairs)
     {
         form_box_from_two_planes(view, pair);
     }
@@ -72,10 +72,10 @@ void rs_sf_boxfit::form_list_of_plane_pairs(box_scene& view)
 
     // set null box ptr to all tracked planes
     std::vector<std::vector<tracked_box*>> box_plane_table(max_pid);
-    for (auto& row : box_plane_table) row.assign(max_pid, nullptr);
+    for (auto&& row : box_plane_table) row.assign(max_pid, nullptr);
 
     // old box pairs 
-    for (auto& box : m_tracked_boxes)
+    for (auto&& box : m_tracked_boxes)
     {
         auto* p0 = get_tracked_plane(box.pid[0]);
         auto* p1 = get_tracked_plane(box.pid[1]);
@@ -130,11 +130,8 @@ struct rs_sf_boxfit::box_plane_t
         normal = _normal;
 
         auto& tmp_fine_pts = src->fine_pts;
-        //if (tmp_fine_pts.size() == 0)
-        //    tmp_fine_pts.assign(src->best_pts.begin(), src->best_pts.end());
-
         pts.reserve(tmp_fine_pts.size());
-        for (auto& pt : tmp_fine_pts)
+        for (auto* pt : tmp_fine_pts)
         {
             if (pt->is_valid_pos())
             {
@@ -311,14 +308,14 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
 
 void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
 {
-    for (auto& box : m_tracked_boxes)
+    for (auto&& box : m_tracked_boxes)
         box.updated = false;
 
     // each newly detected box
-    for (auto& pair : view.plane_pairs) {
+    for (auto&& pair : view.plane_pairs) {
         if (pair.box != nullptr) //new box
         {
-            for (auto& old_box : m_tracked_boxes) {
+            for (auto&& old_box : m_tracked_boxes) {
                 if (old_box.try_update(pair, m_param.max_box_history)) {
                     pair.box = nullptr;
                     old_box.updated = true;
@@ -331,12 +328,12 @@ void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
     // delete boxes that lost tracking
     queue_tracked_box prev_tracked_boxes;
     prev_tracked_boxes.swap(m_tracked_boxes);
-    for (auto& box : prev_tracked_boxes) {
+    for (auto&& box : prev_tracked_boxes) {
         if (box.updated) m_tracked_boxes.push_back(box);
     }
 
     // each newly detected box without match
-    for (auto& pair : view.plane_pairs) {
+    for (auto&& pair : view.plane_pairs) {
         if (pair.box != nullptr) {
             m_tracked_boxes.emplace_back(pair);
         }

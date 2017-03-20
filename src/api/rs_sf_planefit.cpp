@@ -16,7 +16,7 @@ rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
     m_ref_view.reset();
  
     // preprocessing
-    memcpy(src_depth_img.data, img->data, src_depth_img.num_char());
+    rs_sf_util_copy_depth_image(src_depth_img, img);
     image_to_pointcloud(&src_depth_img, m_view);
     img_pt_group_to_normal(m_view.pt_grp);
 
@@ -42,7 +42,7 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     save_current_scene_as_reference();
 
     // preprocessing
-    memcpy(src_depth_img.data, img->data, src_depth_img.num_char());
+    rs_sf_util_copy_depth_image(src_depth_img, img);
     image_to_pointcloud(&src_depth_img, m_view);
     img_pt_group_to_normal(m_view.pt_grp);
 
@@ -245,7 +245,7 @@ void rs_sf_planefit::refine_plane_boundary(plane& dst)
     //remove points of boundary
     for (auto& edge_list : dst.edge_grp) {
         for (auto edge_grp : edge_list) {
-            for (auto pl_pt : edge_grp->grp->pt) {
+            for (auto* pl_pt : edge_grp->grp->pt) {
                 pl_pt->set_boundary();
                 if (pl_pt->best_plane == this_plane_ptr)
                     pl_pt->best_plane = nullptr;
@@ -255,7 +255,7 @@ void rs_sf_planefit::refine_plane_boundary(plane& dst)
 
     //find inner neighbor groups of inner boundary as seeds
     auto* pt_group = m_view.pt_grp.data();
-    for (auto& inner_edge_grp : dst.edge_grp[1])
+    for (auto* inner_edge_grp : dst.edge_grp[1])
     {
         const auto gp = inner_edge_grp->grp->gp;
         for (int b = 0; b < 4; ++b)
@@ -263,7 +263,7 @@ void rs_sf_planefit::refine_plane_boundary(plane& dst)
             auto& neighbor = pt_group[gp + m_grid_neighbor[b]];
             if (!neighbor.pt0->is_boundary() && neighbor.pt0->best_plane == this_plane_ptr) //inner neighbor group found
             {
-                for (auto pl_pt : neighbor.pt)
+                for (auto* pl_pt : neighbor.pt)
                 {
                     if (pl_pt->best_plane == this_plane_ptr)
                     {
@@ -284,7 +284,7 @@ void rs_sf_planefit::refine_plane_boundary(plane& dst)
     const int y_down = y_step * src_w();
     while (!next_fine_pt.empty())
     {
-        const auto fine_pt = next_fine_pt.front();
+        const auto* fine_pt = next_fine_pt.front();
         next_fine_pt.pop_front();
 
         for (int b = 0; b < 4; ++b)
@@ -336,8 +336,8 @@ void rs_sf_planefit::refine_plane_boundary(plane& dst)
 
     //clear unreachable boundary
     for (auto& edge_list : dst.edge_grp) {
-        for (auto edge_grp : edge_list) {
-            for (auto pl_pt : edge_grp->grp->pt) {
+        for (auto* edge_grp : edge_list) {
+            for (auto* pl_pt : edge_grp->grp->pt) {
                 pl_pt->clear_boundary_flag();
             }
         }
@@ -467,7 +467,7 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, scene& current
         // compute full point cloud
         for (auto& pt : current_view.pt_img)
         {
-            pt.reset();
+            pt.clear_all_state();
             compute_pt3d(pt);
         }
 
@@ -477,7 +477,7 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, scene& current
 
         // compute point cloud
         for (auto& grp : current_view.pt_grp) {
-            for (auto pt : grp.pt) pt->reset();
+            for (auto pt : grp.pt) pt->clear_all_state();
             compute_pt3d(*grp.pt0);
         }
 
@@ -566,7 +566,7 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
 
     m_inlier_buf.clear();
     m_inlier_buf.assign(seeds.begin(), seeds.end());
-    for (auto p : m_inlier_buf) {
+    for (auto* p : m_inlier_buf) {
         p->best_plane = this_plane_ptr; //mark seed
         p->set_checked();               //mark inlier
     }
@@ -589,7 +589,7 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
             //if (is_within_pt_group_fov(xb[b], yb[b])) //within fov
             {
                 const int gp_next = gp + m_grid_neighbor[b];
-                auto pt_next = pt_group[gp_next].pt0;
+                auto* pt_next = pt_group[gp_next].pt0;
 
                 if (!pt_next->is_checked() && //not yet checked
                     pt_next->best_plane == nullptr && //not assigned a plane
@@ -631,7 +631,7 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
 
     if (reset_best_plane_ptr) {
         // reset marker for next plane candidate
-        for (auto p : plane_pts) {
+        for (auto* p : plane_pts) {
             p->best_plane = nullptr;
             p->clear_check_flag();
         }
@@ -644,7 +644,7 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_pl
     {
         const int this_plane_size = (int)plane.pts.size();
         const bool is_past_plane = (plane.past_plane != nullptr);
-        for (auto& pt : plane.pts)
+        for (auto* pt : plane.pts)
         {
             if (!pt->best_plane)         //no assignment yet 
                 pt->best_plane = &plane; //new assignment
@@ -762,7 +762,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
             past_to_current_planes[past_plane.pid]->best_pts.reserve(past_plane.pts.size());
 
             for (auto& edge_list : past_plane.edge_grp)
-                for (auto edge_grp : edge_list)
+                for (auto* edge_grp : edge_list)
                     edge_grp->best_plane = nullptr; //delete past boundary point
         }
     }
@@ -771,7 +771,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
     auto past_pt_grp = past_view.pt_grp.data();
     for (auto& grp : current_view.pt_grp)
     {
-        auto& pt = grp.pt0;
+        auto* pt = grp.pt0;
         if (!pt->is_valid_pos()) continue;
         auto past_cam_pix = project_grid_i(map_to_past.transform(pt->pos));
         if (is_within_pt_group_fov(past_cam_pix[0], past_cam_pix[1]))
@@ -781,7 +781,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
             if (past_pt3d.best_plane && is_valid_past_plane(*past_pt3d.best_plane)) {
                 if (is_inlier(*past_pt3d.best_plane, *pt))
                 {
-                    auto current_plane = past_to_current_planes[past_pt3d.best_plane->pid];
+                    auto* current_plane = past_to_current_planes[past_pt3d.best_plane->pid];
                     current_plane->best_pts.emplace_back(pt);
                 }
             }
@@ -794,19 +794,19 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
         if (plane.best_pts.size() > 0)
         {
             v3 center(0, 0, 0);
-            for (auto& pt : plane.best_pts)
+            for (auto* pt : plane.best_pts)
                 center += pt->pos;
             center *= (1.0f / (float)plane.best_pts.size());
 
             float min_dist_to_cen = std::numeric_limits<float>::max();
             pt3d* src = nullptr;
-            for (auto& pt : plane.best_pts) {
+            for (auto* pt : plane.best_pts) {
                 const auto dist = (pt->pos - center).squaredNorm();
                 if (dist < min_dist_to_cen) { min_dist_to_cen = dist; src = pt; }
             }
 
             Eigen::Matrix3f em; em.setZero();
-            for (auto& pt : plane.best_pts)
+            for (auto* pt : plane.best_pts)
             {
                 const auto dp = (pt->pos - src->pos);
                 em += dp* dp.transpose();
@@ -860,7 +860,7 @@ void rs_sf_planefit::combine_planes_from_the_same_past(scene & current_view, sce
         if (new_plane.past_plane != nullptr) continue; //tracked plane, okay
 
         int num_new_point = 0;
-        for (auto& pt : new_plane.pts)
+        for (auto* pt : new_plane.pts)
         {
             if (pt->best_plane == &new_plane)
                 ++num_new_point;
@@ -869,7 +869,7 @@ void rs_sf_planefit::combine_planes_from_the_same_past(scene & current_view, sce
         // delete this plane if it largely overlaps with tracked planes
         if (num_new_point < (int)new_plane.pts.size() / 2)
         {
-            for (auto& pt : new_plane.pts)
+            for (auto* pt : new_plane.pts)
                 if (pt->best_plane == &new_plane)
                     pt->best_plane = nullptr;
             new_plane.best_pts.clear();
@@ -896,7 +896,7 @@ void rs_sf_planefit::assign_planes_pid(vec_plane_ref& sorted_planes)
     }
 
     int next_pid = 1;
-    for (auto& plane : sorted_planes)
+    for (auto* plane : sorted_planes)
     {
         if (plane->best_pts.size() < m_param.min_num_plane_pt) return;
 

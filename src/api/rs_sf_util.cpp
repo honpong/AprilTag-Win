@@ -250,6 +250,12 @@ void rs_sf_util_convert_to_rgb_image(rs_sf_image * rgb, const rs_sf_image * src)
         memcpy(rgb->data, src->data, rgb->num_char());
 }
 
+void rs_sf_util_copy_depth_image(rs_sf_image_depth & dst, const rs_sf_image * src)
+{
+    dst.set_pose(src->cam_pose);
+    memcpy(dst.data, src->data, dst.num_char());
+}
+
 void rs_sf_util_draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *src, const unsigned char * rgb_table[3], int num_color)
 {
     static unsigned char default_r[MAX_VALID_PID + 1] = { 0 };

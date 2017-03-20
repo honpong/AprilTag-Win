@@ -60,22 +60,22 @@ protected:
         pt_state state;
         plane* best_plane; 
         int p; i2 pix; pt3d_group *grp; 
-        inline void reset() { state = 0; best_plane = nullptr; }
+        inline void clear_all_state() { state = 0; best_plane = nullptr; }
+        inline void clear_check_flag() { state &= 0x7f; }
+        inline void clear_boundary_flag() { state &= 0xbf; }
         inline void set_valid_pos() { state |= 0x3; }
         inline void set_invalid_pos() { state |= 0x1; }
         inline void set_valid_normal() { state |= 0xf; }
         inline void set_invalid_normal() { state |= PT3D_MASK_KNOWN_NORMAL; }
+        inline void set_checked() { state |= 0x80; }
+        inline void set_boundary() { state |= 0x40; }
         inline bool is_known_pos() const { return (bool)(state & PT3D_MASK_KNOWN_POS); }
         inline bool is_known_normal() const { return (bool)(state & PT3D_MASK_KNOWN_NORMAL); }
         inline bool is_valid_pos() const { return (bool)(state & PT3D_MASK_VALID_POS); }
         inline bool is_valid_normal() const { return (bool)(state & PT3D_MASK_VALID_NORMAL); }
         inline bool is_valid_plane() const { return (bool)(state & PT3D_MASK_VALID_PLANE); }
-        inline void set_checked() { state |= 0x80; }
-        inline bool clear_check_flag() { state &= 0x7f; }
         inline bool is_checked() const { return (bool)(state & 0x80); }
-        inline void set_boundary() { state |= 0x40; }
         inline bool is_boundary() const { return (bool)(state & 0x40); }
-        inline void clear_boundary_flag() { state &= 0xbf; }
     };
     typedef std::vector<pt3d*> vec_pt_ref;
     struct pt3d_group { int gp; i2 gpix; vec_pt_ref pt; pt3d *pt0; };

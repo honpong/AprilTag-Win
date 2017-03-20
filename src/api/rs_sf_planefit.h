@@ -30,7 +30,7 @@ struct rs_sf_planefit : public rs_shapefit
         float max_fit_err_thr = 30.0f;
         float max_normal_thr = 0.7f;
 
-        int min_num_plane_pt = 100;
+        int min_num_plane_pt = 200;
         int max_num_plane_output = MAX_VALID_PID;
     };
 

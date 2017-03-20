@@ -90,6 +90,7 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
 
         std::vector<unsigned char> hole_map;
         std::vector<i4> next_list;
+        hole_map.reserve(map->num_pixel());
         hole_map.assign(idx, idx + map->num_pixel());
         next_list.reserve(map->num_pixel());
 
@@ -148,10 +149,18 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
                 {
                     const auto p = pt[2] + pb[b];
                     auto& hole_p = hole_map[p];
-                    if (idx[p] == NO_PLANE && hole_p != VISITED && (hole_p == NO_PLANE || hole_p > pt[3]))
+                    if (idx[p] == NO_PLANE && hole_p != VISITED)
                     {
-                        hole_p = (unsigned char)pt[3];
-                        next_list.emplace_back(x, y, p, pt[3]);
+                        if (hole_p == NO_PLANE)
+                        {
+                            hole_p = (unsigned char)pt[3];
+                            next_list.emplace_back(x, y, p, pt[3]);
+                        }
+                        else if (hole_p != pt[3])
+                        {
+                            hole_p = VISITED; //not hole, clear this point
+                            next_list.emplace_back(x, y, p, pt[3]);
+                        }
                     }
                 }
             }

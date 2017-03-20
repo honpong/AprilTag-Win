@@ -70,6 +70,7 @@ struct rs_sf_gl_context
     rs_sf_gl_context(const std::string& _key, int w = 1280, int h = 480 * 2) : key(_key) {
         glfwInit();
         win = glfwCreateWindow(w, h, key.c_str(), nullptr, nullptr);
+        glfwSetWindowSize(win, w / 2, h / 2);
         glfwMakeContextCurrent(win);
     }
 

@@ -12,7 +12,8 @@
 bool rs_sf_image_write(std::string& filename, const rs_sf_image* img)
 {
     std::ofstream stream_data;
-    stream_data.open(filename.c_str(), std::ios_base::out | std::ios_base::binary);
+    stream_data.open((filename + (img->byte_per_pixel == 3 ? ".ppm" : ".pgm")).c_str(), 
+        std::ios_base::out | std::ios_base::binary);
     if (stream_data.is_open())
     {
         stream_data.seekp(0, std::ios_base::beg);

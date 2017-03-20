@@ -42,9 +42,9 @@ struct frame_data {
 
     static void write_frame(const std::string& path, const rs_sf_image* depth, const rs_sf_image* ir, const rs_sf_image* displ)
     {
-        rs_sf_image_write(path + "depth_" + std::to_string(depth->frame_id) + ".pgm", depth);
-        rs_sf_image_write(path + "ir_" + std::to_string(ir->frame_id) + ".pgm", ir);
-        rs_sf_image_write(path + "displ_" + std::to_string(displ->frame_id) + ".pgm", displ);
+        rs_sf_image_write(path + "depth_" + std::to_string(depth->frame_id), depth);
+        rs_sf_image_write(path + "ir_" + std::to_string(ir->frame_id), ir);
+        rs_sf_image_write(path + "displ_" + std::to_string(displ->frame_id), displ);
     }
 
     static rs_sf_intrinsics read_calibration(const std::string& path, int& num_frame)
@@ -258,7 +258,7 @@ int run_planefit_offline(const std::string& path)
 
 bool run_planefit(rs_shapefit * planefitter, rs_sf_image img[2])
 {
-    static rs_sf_gl_context win("display"); 
+    static rs_sf_gl_context win("shape fitting"); 
     //static std::unique_ptr<float[]> buf;
     //static bool was_tracking = false;
     //static std::vector<unsigned short> sdepth(img[0].num_pixel() / 4);
@@ -313,7 +313,10 @@ bool run_planefit(rs_shapefit * planefitter, rs_sf_image img[2])
 
     // plane map display
     rs_sf_image_mono pid(&img[0]);
-    rs_sf_planefit_draw_plane_ids(planefitter, &pid, RS_SF_PLANEFIT_DRAW_SCALED);
+    rs_sf_planefit_draw_plane_ids(planefitter, &pid, RS_SF_PLANEFIT_DRAW_MAX10);
+
+    //rs_sf_image_write(path + "..\\live\\plane_" + std::to_string(img->frame_id), &pid);
+    //rs_sf_image_write(path + "..\\live\\color_" + std::to_string(img->frame_id), &rgb);
 
     // gl drawing
     rs_sf_image show[] = { img[0], img[1], pid, rgb };

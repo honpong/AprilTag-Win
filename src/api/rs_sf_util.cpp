@@ -252,6 +252,7 @@ void rs_sf_util_convert_to_rgb_image(rs_sf_image * rgb, const rs_sf_image * src)
 
 void rs_sf_util_copy_depth_image(rs_sf_image_depth & dst, const rs_sf_image * src)
 {
+    dst.frame_id = src->frame_id;
     dst.set_pose(src->cam_pose);
     memcpy(dst.data, src->data, dst.num_char());
 }

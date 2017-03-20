@@ -53,6 +53,8 @@ rs_sf_status rs_sf_planefit_draw_plane_ids(const rs_shapefit * obj, rs_sf_image 
     const auto status = pf->get_plane_index_map(mono, mono->cam_pose ? 0 : -1);
     if (status == RS_SF_SUCCESS && option == RS_SF_PLANEFIT_DRAW_SCALED)
         rs_sf_util_scale_plane_ids(mono, pf->max_detected_pid());
+    else if(status == RS_SF_SUCCESS && option == RS_SF_PLANEFIT_DRAW_MAX10)
+        rs_sf_util_scale_plane_ids(mono, 10);
 
     return status;
 }

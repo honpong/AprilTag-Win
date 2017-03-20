@@ -305,14 +305,17 @@ bool run_planefit(rs_shapefit * planefitter, rs_sf_image img[2])
 
     // color display
     rs_sf_image_rgb rgb(&img[1]);
-    rs_sf_planefit_draw_planes(planefitter, &rgb, &img[1]);
-    rs_sf_boxfit_draw_boxes(planefitter, &rgb);
+
+    if (typeid(rs_sf_ptr) == typeid(rs_sf_planefit_ptr))
+        rs_sf_planefit_draw_planes(planefitter, &rgb, &img[1]);
+    else
+        rs_sf_boxfit_draw_boxes(planefitter, &rgb, &img[1]);
 
     // plane map display
     rs_sf_image_mono pid(&img[0]);
     rs_sf_planefit_draw_plane_ids(planefitter, &pid, RS_SF_PLANEFIT_DRAW_SCALED);
 
     // gl drawing
-    rs_sf_image show[] = { img[0], img[1], pid, rgb};
+    rs_sf_image show[] = { img[0], img[1], pid, rgb };
     return win.imshow(show, 4, text);
 }

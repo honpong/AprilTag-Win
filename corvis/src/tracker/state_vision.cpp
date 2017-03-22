@@ -417,13 +417,13 @@ f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, feat
         f_t theta = std::atan(ru);
         f_t theta2 = theta*theta;
         f_t series = 1 + theta2*(k1.v + theta2*(k2.v + theta2*(k3.v + theta2*k4.v)));
-        f_t factor = theta / ru;
-        kd_u = factor*series;
-        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = (ru2*ru*(series + 2 * (k1.v + theta2*(2 * k2.v + theta2*(3 * k3.v + 4 * k4.v*theta2)))*theta2 + 1) - ru2*(ru2 + 1)*series*theta) / (ru2*ru2*(ru2 + 1)) * feat_u / ru;
-        if (dkd_u_dk1) *dkd_u_dk1 = theta2 * factor;
-        if (dkd_u_dk2) *dkd_u_dk2 = theta2 * theta2 * factor;
-        if (dkd_u_dk3) *dkd_u_dk3 = theta2 * theta2 * theta2 * factor;
-        if (dkd_u_dk4) *dkd_u_dk4 = theta2 * theta2 * theta2 * theta2 * factor;
+        f_t theta_ru = theta / ru;
+        kd_u = theta_ru*series;
+        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = ((theta2*(3 * k1.v + theta2*(5 * k2.v + theta2*(9 * k4.v *theta2 + 7 * k3.v))) + 1) / ((ru2 + 1)*ru) - (series*theta) / ru2) * feat_u / ru;
+        if (dkd_u_dk1) *dkd_u_dk1 = theta_ru * theta2;
+        if (dkd_u_dk2) *dkd_u_dk2 = theta_ru * theta2 * theta2;
+        if (dkd_u_dk3) *dkd_u_dk3 = theta_ru * theta2 * theta2 * theta2;
+        if (dkd_u_dk4) *dkd_u_dk4 = theta_ru * theta2 * theta2 * theta2 * theta2;
         break;
     }
     }
@@ -485,13 +485,14 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
             theta2 = theta*theta;
         }
         f_t ru = std::tan(theta);
+        f_t ru_rd2 = ru / rd2;
         ku_d = ru / rd;
-        if (dku_d_dfeat_d) *dku_d_dfeat_d = -ru/rd2 * feat_d / rd;
+        if (dku_d_dfeat_d) *dku_d_dfeat_d = -ru_rd2 * feat_d / rd;
         // ku_d = ru / theta*(1 + theta2*(k1.v + theta2*(k2.v + theta2*(k3.v + theta2*k4.v))));
-        if (dku_d_dk1) *dku_d_dk1 = -(ru * theta * theta2                           ) / rd2;
-        if (dku_d_dk2) *dku_d_dk2 = -(ru * theta * theta2 * theta2                  ) / rd2;
-        if (dku_d_dk3) *dku_d_dk3 = -(ru * theta * theta2 * theta2 * theta2         ) / rd2;
-        if (dku_d_dk4) *dku_d_dk4 = -(ru * theta * theta2 * theta2 * theta2 * theta2) / rd2;
+        if (dku_d_dk1) *dku_d_dk1 = -ru_rd2 * theta * theta2;
+        if (dku_d_dk2) *dku_d_dk2 = -ru_rd2 * theta * theta2 * theta2;
+        if (dku_d_dk3) *dku_d_dk3 = -ru_rd2 * theta * theta2 * theta2 * theta2;
+        if (dku_d_dk4) *dku_d_dk4 = -ru_rd2 * theta * theta2 * theta2 * theta2 * theta2;
         break;
     }
     }

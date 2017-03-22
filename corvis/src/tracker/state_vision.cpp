@@ -413,9 +413,9 @@ f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, feat
         if (dkd_u_dk4) *dkd_u_dk4 = 0;
     }   break;
     case rc_CALIBRATION_TYPE_KANNALA_BRANDT4: {
+        if (ru < F_T_EPS) ru = F_T_EPS;
         f_t theta = std::atan(ru);
         f_t theta2 = theta*theta;
-        if (ru < F_T_EPS) ru = F_T_EPS;
         f_t series = 1 + theta2*(k1.v + theta2*(k2.v + theta2*(k3.v + theta2*k4.v)));
         f_t factor = theta / ru;
         kd_u = factor*series;
@@ -473,7 +473,18 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
         if (dku_d_dk4) *dku_d_dk4 = 0;
     }   break;
     case rc_CALIBRATION_TYPE_KANNALA_BRANDT4: {
-        ku_d = 1;
+        if (rd < F_T_EPS) rd = F_T_EPS;
+        f_t theta = rd;
+        for (int i = 0; i < 4; i++) {
+            f_t theta2 = theta*theta;
+            f_t f = theta*(1 + theta2*(k1.v + theta2*(k2.v + theta2*(k3.v + theta2*k4.v)))) - rd;
+            f_t df = 1 + theta2*(3 * k1.v + theta2*(5 * k2.v + theta2*(7 * k3.v + 9 * theta2*k4.v)));
+            // f(theta) == theta*(1 + theta2*(k1.v + theta2*(k2.v + theta2*(k3.v + theta2*k4.v)))) - rd == 0;
+            // theta -= f(theta) / f'(theta)
+            theta -= f / df;
+        }
+        f_t ru = std::tan(theta);
+        ku_d = ru / rd;
         if (dku_d_dfeat_d) *dku_d_dfeat_d = 0 * feat_d;
         if (dku_d_dk1) *dku_d_dk1 = 0;
         if (dku_d_dk2) *dku_d_dk2 = 0;

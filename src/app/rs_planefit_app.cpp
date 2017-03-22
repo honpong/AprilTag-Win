@@ -5,23 +5,35 @@
 #include "rs_sf_image_io.h"
 //#include "rs_sf_pose_tracker.h"
 
-std::string path = "c:\\temp\\shapefit\\a\\";
-const int image_set_size = 200;
-
-typedef rs_sf_planefit_ptr rs_sf_ptr;
-int capture_frames(const std::string& path);
+const std::string default_path = "c:\\temp\\shapefit\\a\\";
+typedef rs_sf_planefit_ptr rs_sf_ptr;   //use this line for plane fitting only
+//typedef rs_sf_boxfit_ptr rs_sf_ptr;   //use this line for plane + box fitting
+int capture_frames(const std::string& path, const int image_set_size);
 int run_planefit_live();
 int run_planefit_offline(const std::string& path);
 bool run_planefit(rs_shapefit* planefitter, rs_sf_image img[2]);
 
 int main(int argc, char* argv[])
 {
-    if (argc > 1 && strcmp(argv[1], "-live")) {
-        if (!strcmp(argv[1], "-capture"))
-            capture_frames(path);
-        return run_planefit_offline(path);
+    bool is_live = true, is_capture = false;
+    std::string path = default_path;
+    int num_frames = 200;
+
+    for (int i = 1; i < argc; ++i) {
+        if (strcmp(argv[i], "-live") == 0) { is_live = true; }
+        else if (strcmp(argv[i], "-capture") == 0) { is_capture = true; }
+        else if (strcmp(argv[i], "-num_frames") == 0) { num_frames = atoi(argv[++i]); }
+        else if (strcmp(argv[i], "-path") == 0) { path = argv[++i]; }
+        else if (strcmp(argv[i], "-replay") == 0) { is_live = false; }
+        else {
+            printf("usages:\n rs_shapefit_app [-live|-replay][-path PATH][-capture][-num_frame NUM] \n");
+            return 0;
+        }
     }
-    return run_planefit_live();
+    if (path.back() != '\\' && path.back() != '/') path.push_back('\\');
+    if (is_capture) capture_frames(path, num_frames);
+    if (is_live) return run_planefit_live();
+    return run_planefit_offline(path);
 }
 
 struct frame_data {
@@ -92,7 +104,7 @@ struct frame_data {
     }
 };
 
-int capture_frames(const std::string& path) {
+int capture_frames(const std::string& path, const int image_set_size) {
 
     rs::context ctx;
     auto list = ctx.query_devices();

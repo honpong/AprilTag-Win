@@ -16,16 +16,11 @@ bool estimate_transformation(const aligned_vector<v3> & src, const aligned_vecto
     // TODO: can incorporate weights here optionally, maybe use feature depth variance
     Eigen::JacobiSVD<m3> svd(centered_dst.transpose() * centered_src, Eigen::ComputeFullU | Eigen::ComputeFullV); // SVD the rotation
     m3 U = svd.matrixU(), Vt = svd.matrixV().transpose();
-    v3 S = svd.singularValues();
-
-    // all the same point, or colinear
-    if(S(0) < F_T_EPS*10 || S(1) / S(0) < F_T_EPS*10)
-        return false;
-
     m3 R = U * v3{ 1, 1, (U*Vt).determinant() }.asDiagonal() * Vt;
 
     transform = transformation(R, center_dst - R*center_src);
 
-    return true;
+    v3 S = svd.singularValues();
+    return S(0) > F_T_EPS*10 && S(1) / S(0) > F_T_EPS*10; // not all the same point and not colinear
 }
 

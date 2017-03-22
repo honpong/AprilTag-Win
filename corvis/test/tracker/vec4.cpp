@@ -14,9 +14,6 @@ TEST(Vector3, Cross) {
 
 static void test_rotation(const v3 &vec)
 {
-    m3 skewmat = skew(vec);
-    EXPECT_V3_NEAR(vec, invskew(skewmat), 0) << "invskew(skew(vec)) = vec";
-    
     rotation_vector rvec(vec[0], vec[1], vec[2]);
     m3 rotmat = to_rotation_matrix(rvec);
     {

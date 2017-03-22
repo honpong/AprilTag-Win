@@ -66,11 +66,4 @@ inline static m3 skew(const v3 &v)
     return V;
 }
 
-inline static v3 invskew(const m3 &V)
-{
-    return v3((V(2, 1) - V(1, 2))/2,
-              (V(0, 2) - V(2, 0))/2,
-              (V(1, 0) - V(0, 1))/2);
-}
-
 #endif

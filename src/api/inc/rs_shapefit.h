@@ -125,14 +125,15 @@ typedef rs_sf_image_impl<1> rs_sf_image_mono;
 typedef rs_sf_image_impl<2> rs_sf_image_depth;
 typedef rs_sf_image_impl<3> rs_sf_image_rgb;
 
-template<rs_shapefit_option option>
+template<rs_shapefit_option option = RS_SHAPEFIT_PLANE>
 struct rs_shapefit_ptr : public std::unique_ptr<rs_shapefit, void(*)(rs_shapefit*)>
 {
-    rs_shapefit_ptr(const rs_sf_intrinsics* camera = nullptr) :
+    rs_shapefit_ptr(const rs_sf_intrinsics* camera = nullptr, const rs_shapefit_option opt = option) :
         std::unique_ptr<rs_shapefit, void(*)(rs_shapefit*)>(
-        (camera ? rs_shapefit_create(camera, option) : nullptr), rs_shapefit_delete) {}
+        (camera ? rs_shapefit_create(camera, opt) : nullptr), rs_shapefit_delete) {}
 };
 
+typedef rs_shapefit_ptr<> rs_sf_shapefit_ptr;
 typedef rs_shapefit_ptr<RS_SHAPEFIT_PLANE> rs_sf_planefit_ptr;
 typedef rs_shapefit_ptr<RS_SHAPEFIT_BOX> rs_sf_boxfit_ptr;
 

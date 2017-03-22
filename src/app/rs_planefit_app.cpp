@@ -6,11 +6,9 @@
 //#include "rs_sf_pose_tracker.h"
 
 const std::string default_path = "c:\\temp\\shapefit\\a\\";
-typedef rs_sf_planefit_ptr rs_sf_ptr;   //use this line for plane fitting only
-//typedef rs_sf_boxfit_ptr rs_sf_ptr;   //use this line for plane + box fitting
 int capture_frames(const std::string& path, const int image_set_size);
-int run_planefit_live();
-int run_planefit_offline(const std::string& path);
+int run_planefit_live(const rs_shapefit_option opt);
+int run_planefit_offline(const std::string& path, const rs_shapefit_option opt);
 bool run_planefit(rs_shapefit* planefitter, rs_sf_image img[2]);
 
 int main(int argc, char* argv[])
@@ -18,22 +16,25 @@ int main(int argc, char* argv[])
     bool is_live = true, is_capture = false;
     std::string path = default_path;
     int num_frames = 200;
+    rs_shapefit_option sf_option = RS_SHAPEFIT_PLANE;
 
     for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "-live") == 0) { is_live = true; }
+        if (strcmp(argv[i], "-box") == 0) { sf_option = RS_SHAPEFIT_BOX; }
+        else if (strcmp(argv[i], "-plane") == 0) { sf_option = RS_SHAPEFIT_PLANE; }
+        else if (strcmp(argv[i], "-live") == 0) { is_live = true; }
         else if (strcmp(argv[i], "-capture") == 0) { is_capture = true; }
         else if (strcmp(argv[i], "-num_frames") == 0) { num_frames = atoi(argv[++i]); }
         else if (strcmp(argv[i], "-path") == 0) { path = argv[++i]; }
         else if (strcmp(argv[i], "-replay") == 0) { is_live = false; }
         else {
-            printf("usages:\n rs_shapefit_app [-live|-replay][-path PATH][-capture][-num_frame NUM] \n");
+            printf("usages:\n rs_shapefit_app [-box|-plane][-live|-replay][-path PATH][-capture][-num_frame NUM] \n");
             return 0;
         }
     }
     if (path.back() != '\\' && path.back() != '/') path.push_back('\\');
     if (is_capture) capture_frames(path, num_frames);
-    if (is_live) return run_planefit_live();
-    return run_planefit_offline(path);
+    if (is_live) return run_planefit_live(sf_option);
+    return run_planefit_offline(path, sf_option);
 }
 
 struct frame_data {
@@ -175,7 +176,7 @@ int capture_frames(const std::string& path, const int image_set_size) {
     return 0;
 }
 
-int run_planefit_live() try
+int run_planefit_live(rs_shapefit_option opt) try
 {
     rs::context ctx;
     auto list = ctx.query_devices();
@@ -188,7 +189,7 @@ int run_planefit_live() try
 
     auto stream = config.open(dev);
     auto intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH);
-    auto planefitter = rs_sf_ptr((rs_sf_intrinsics*)&intrinsics);
+    auto planefitter = rs_sf_shapefit_ptr((rs_sf_intrinsics*)&intrinsics, opt);
     
     rs::util::syncer syncer;
     stream.start(syncer);
@@ -238,9 +239,9 @@ catch (const std::exception & e)
     return EXIT_FAILURE;
 }
 
-int run_planefit_offline(const std::string& path)
+int run_planefit_offline(const std::string& path, const rs_shapefit_option shapefit_option)
 {
-    rs_sf_ptr planefitter;
+    rs_sf_shapefit_ptr shapefitter;
     int frame_num = 0;
     bool sp_init = false;
     while (true)
@@ -248,12 +249,12 @@ int run_planefit_offline(const std::string& path)
         frame_data data(path, frame_num++);
         if (data.src_image[0] == nullptr) {
             frame_num = 0;
-            planefitter = nullptr;
+            shapefitter = nullptr;
             continue;
         }
 
-        if (!planefitter) {
-            planefitter = rs_sf_ptr(&data.depth_intrinsics);
+        if (!shapefitter) {
+            shapefitter = rs_sf_shapefit_ptr(&data.depth_intrinsics, shapefit_option);
             //sp_init = rs_sf_setup_scene_perception(
             //    data.depth_intrinsics.cam_fx, data.depth_intrinsics.cam_fy,
             //    data.depth_intrinsics.cam_px, data.depth_intrinsics.cam_py,
@@ -261,14 +262,14 @@ int run_planefit_offline(const std::string& path)
             //    320, 240, RS_SF_LOW_RESOLUTION);
         }
 
-        if (!run_planefit(planefitter.get(), data.images)) break;
+        if (!run_planefit(shapefitter.get(), data.images)) break;
     }
 
     //if (sp_init) rs_sf_pose_tracking_release();
     return 0;
 }
 
-bool run_planefit(rs_shapefit * planefitter, rs_sf_image img[2])
+bool run_planefit(rs_shapefit * shapefitter, rs_sf_image img[2])
 {
     static rs_sf_gl_context win("shape fitting"); 
     //static std::unique_ptr<float[]> buf;
@@ -308,24 +309,23 @@ bool run_planefit(rs_shapefit * planefitter, rs_sf_image img[2])
     */
 
     // do plane fit    
-    if (rs_shapefit_depth_image(planefitter, img /*, !switch_track ? RS_SHAPEFIT_OPTION_TRACK : RS_SHAPEFIT_OPTION_RESET*/)) return false;
+    if (rs_shapefit_depth_image(shapefitter, img /*, !switch_track ? RS_SHAPEFIT_OPTION_TRACK : RS_SHAPEFIT_OPTION_RESET*/)) return false;
     std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 
     // time measure
     char text[256];
     sprintf(text, "%.0fms/frame", last_frame_compute_time.count());
 
-    // color display
+    // color display buffer
     rs_sf_image_rgb rgb(&img[1]);
 
-    if (typeid(rs_sf_ptr) == typeid(rs_sf_planefit_ptr))
-        rs_sf_planefit_draw_planes(planefitter, &rgb, &img[1]);
-    else
-        rs_sf_boxfit_draw_boxes(planefitter, &rgb, &img[1]);
-
+    // display either box wireframe or colored planes
+    if (rs_sf_boxfit_draw_boxes(shapefitter, &rgb, &img[1])!=RS_SF_SUCCESS)
+        rs_sf_planefit_draw_planes(shapefitter, &rgb, &img[1]);
+        
     // plane map display
     rs_sf_image_mono pid(&img[0]);
-    rs_sf_planefit_draw_plane_ids(planefitter, &pid, RS_SF_PLANEFIT_DRAW_MAX10);
+    rs_sf_planefit_draw_plane_ids(shapefitter, &pid, RS_SF_PLANEFIT_DRAW_MAX10);
 
     //rs_sf_image_write(path + "..\\live\\plane_" + std::to_string(img->frame_id), &pid);
     //rs_sf_image_write(path + "..\\live\\color_" + std::to_string(img->frame_id), &rgb);

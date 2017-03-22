@@ -35,7 +35,7 @@ TEST(RotationVector, NumericalJacobians)
         m3 dR_Rt = ((to_rotation_matrix(w_dx) - to_rotation_matrix(w)) * (1 / eps)) * to_rotation_matrix(-w);
         EXPECT_M3_NEAR(-Rt_dR.transpose(), Rt_dR, 2*eps);
         EXPECT_M3_NEAR(-dR_Rt.transpose(), dR_Rt, 2*eps);
-        EXPECT_V3_NEAR(invskew(Rt_dR),    to_body_jacobian(w) * n, eps);
-        EXPECT_V3_NEAR(invskew(dR_Rt), to_spatial_jacobian(w) * n, eps);
+        EXPECT_M3_NEAR(Rt_dR, skew(   to_body_jacobian(w) * n), eps);
+        EXPECT_M3_NEAR(dR_Rt, skew(to_spatial_jacobian(w) * n), eps);
     }
 }

@@ -22,15 +22,7 @@ bool estimate_transformation(const aligned_vector<v3> & src, const aligned_vecto
     if(S(0) < F_T_EPS*10 || S(1) / S(0) < F_T_EPS*10)
         return false;
 
-    m3 R = U * Vt;
-    // If det(R) == -1, we have a flip instead of a rotation
-    if(R.determinant() < 0) {
-        // Vt(2,:) = -Vt(2,:)
-        Vt(2,0) = -Vt(2,0);
-        Vt(2,1) = -Vt(2,1);
-        Vt(2,2) = -Vt(2,2);
-        R = U * Vt;
-    }
+    m3 R = U * v3{ 1, 1, (U*Vt).determinant() }.asDiagonal() * Vt;
 
     transform = transformation(R, center_dst - R*center_src);
 

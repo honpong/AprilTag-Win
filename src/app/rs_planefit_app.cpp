@@ -7,9 +7,9 @@
 
 const std::string default_path = "c:\\temp\\shapefit\\a\\";
 int capture_frames(const std::string& path, const int image_set_size);
-int run_planefit_live(const rs_shapefit_option opt);
-int run_planefit_offline(const std::string& path, const rs_shapefit_option opt);
-bool run_planefit(rs_shapefit* planefitter, rs_sf_image img[2]);
+int run_shapefit_live(const rs_shapefit_option opt);
+int run_shapefit_offline(const std::string& path, const rs_shapefit_option opt);
+bool run_shapefit(rs_shapefit* planefitter, rs_sf_image img[2]);
 
 int main(int argc, char* argv[])
 {
@@ -33,8 +33,8 @@ int main(int argc, char* argv[])
     }
     if (path.back() != '\\' && path.back() != '/') path.push_back('\\');
     if (is_capture) capture_frames(path, num_frames);
-    if (is_live) return run_planefit_live(sf_option);
-    return run_planefit_offline(path, sf_option);
+    if (is_live) return run_shapefit_live(sf_option);
+    return run_shapefit_offline(path, sf_option);
 }
 
 struct frame_data {
@@ -176,7 +176,7 @@ int capture_frames(const std::string& path, const int image_set_size) {
     return 0;
 }
 
-int run_planefit_live(rs_shapefit_option opt) try
+int run_shapefit_live(rs_shapefit_option opt) try
 {
     rs::context ctx;
     auto list = ctx.query_devices();
@@ -221,7 +221,7 @@ int run_planefit_live(rs_shapefit_option opt) try
         image[1].byte_per_pixel = 1;
         image[0].frame_id = image[1].frame_id = frame_id++;
 
-        if (!run_planefit(planefitter.get(), image)) break;
+        if (!run_shapefit(planefitter.get(), image)) break;
         memcpy(prev_depth.data(), frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char());
     }
 
@@ -239,7 +239,7 @@ catch (const std::exception & e)
     return EXIT_FAILURE;
 }
 
-int run_planefit_offline(const std::string& path, const rs_shapefit_option shapefit_option)
+int run_shapefit_offline(const std::string& path, const rs_shapefit_option shapefit_option)
 {
     rs_sf_shapefit_ptr shapefitter;
     int frame_num = 0;
@@ -262,14 +262,14 @@ int run_planefit_offline(const std::string& path, const rs_shapefit_option shape
             //    320, 240, RS_SF_LOW_RESOLUTION);
         }
 
-        if (!run_planefit(shapefitter.get(), data.images)) break;
+        if (!run_shapefit(shapefitter.get(), data.images)) break;
     }
 
     //if (sp_init) rs_sf_pose_tracking_release();
     return 0;
 }
 
-bool run_planefit(rs_shapefit * shapefitter, rs_sf_image img[2])
+bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
 {
     static rs_sf_gl_context win("shape fitting"); 
     //static std::unique_ptr<float[]> buf;

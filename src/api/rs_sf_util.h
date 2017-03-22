@@ -3,10 +3,13 @@
 #define rs_sf_util_h
 
 #include "rs_shapefit.h"
-#include <Eigen/Dense>
 #include <list>
+#include <deque>
 #include <vector>
 #include <memory>
+#include <iostream>
+#include <stdio.h>
+#include <Eigen/Dense>
 #if defined(OPENCV_FOUND) | defined(OpenCV_FOUND)
 #include <opencv2/opencv.hpp>
 #endif

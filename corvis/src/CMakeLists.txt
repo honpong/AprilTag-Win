@@ -47,7 +47,7 @@ add_library(tracker SHARED
     tracker/rc_tracker.h
     tracker/rc_tracker.cpp)
 target_link_libraries(tracker PRIVATE trackeri)
-target_include_directories(tracker PUBLIC tracker)
+target_include_directories(tracker PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/tracker> $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)
 set_property(TARGET tracker trackeri PROPERTY CXX_STANDARD 14)
 
 target_include_directories(trackeri PUBLIC tracker)
@@ -169,8 +169,9 @@ if (NOT RC_BUILD)
   endif()
 endif()
 target_compile_definitions(tracker PRIVATE RC_BUILD="${RC_BUILD}")
-install(TARGETS tracker LIBRARY DESTINATION lib ARCHIVE DESTINATION lib RUNTIME DESTINATION bin COMPONENT tracker)
+install(TARGETS tracker EXPORT tracker LIBRARY DESTINATION lib ARCHIVE DESTINATION lib COMPONENT tracker RUNTIME DESTINATION bin COMPONENT tracker INCLUDES DESTINATION include)
 install(FILES tracker/rc_tracker.h DESTINATION include COMPONENT tracker)
+install(EXPORT tracker NAMESPACE DESTINATION cmake EXPORT_LINK_INTERFACE_LIBRARIES FILE trackerConfig.cmake)
 
 if(ENABLE_QR)
     file(GLOB_RECURSE LIBZXING_FILES

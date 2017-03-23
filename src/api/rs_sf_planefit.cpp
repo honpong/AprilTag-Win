@@ -364,6 +364,7 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
     view.pt_img.resize(num_pixels());
     view.pt_grp.resize(num_pixel_groups());
 
+    // setup sub-image grid
     for (int g = num_pixel_groups() - 1; g >= 0; --g)
     {
         auto& grp = view.pt_grp[g];
@@ -373,6 +374,7 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
         grp.pt.reserve(pt_per_group);
     }
 
+    // setup full image vector
     for (int p = 0, ep = num_pixels(); p < ep; ++p)
     {
         auto& pt = view.pt_img[p];
@@ -383,9 +385,22 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
         pt.grp->pt.emplace_back(&pt);
     }
 
-    for (auto&& grp : view.pt_grp) {
-        const auto gp_cen = std::min((int)grp.pt.size() - 1, pt_per_group / 2);
-        grp.pt0 = grp.pt[gp_cen];
+    // grid pixel pick up order
+    const i2 cen_grp(dwn_x / 2, dwn_y / 2);
+    std::vector<std::pair<float, int>> grp_order;
+    for (int grp_pt = 0; grp_pt < pt_per_group; ++grp_pt)
+        grp_order.emplace_back(std::make_pair((i2(grp_pt % dwn_x, grp_pt / dwn_y) - cen_grp).squaredNorm(), grp_pt));
+    std::sort(grp_order.begin(), grp_order.end());
+
+    // insert grid pixel according to distance from grid center
+    for (auto&& grp : view.pt_grp) 
+    {
+        vec_pt_ref pt_buf; pt_buf.swap(grp.pt);
+        for (int p = 0, group_size = (int)pt_buf.size(); p < group_size; ++p)
+            if (group_size > grp_order[p].second) grp.pt.emplace_back(pt_buf[grp_order[p].second]);
+
+        // group center
+        grp.pt0 = grp.pt[0];
     }
 }
 
@@ -429,17 +444,19 @@ void rs_sf_planefit::compute_pt3d(pt3d & pt) const
 {
     //pt.pos = pose.transform(unproject((float)pt.pix.x(), (float)pt.pix.y(), is_valid_raw_z(z) ? z : 0)); 
     float z;
-    if (is_valid_raw_z(z = (float)get_raw_z_at(pt))) {
-        const float x = z * (pt.pix[0] - cam_px) / cam_fx;
-        const float y = z * (pt.pix[1] - cam_py) / cam_fy;
-        pt.pos[0] = r00 * x + r01 * y + r02 * z + t0;
-        pt.pos[1] = r10 * x + r11 * y + r12 * z + t1;
-        pt.pos[2] = r20 * x + r21 * y + r22 * z + t2;
-        pt.set_valid_pos();
+    for (auto* grp_pt : pt.grp->pt) {
+        if (is_valid_raw_z(z = get_raw_z_at(*grp_pt)))
+        {
+            const float x = z * (pt.pix[0] - cam_px) / cam_fx;
+            const float y = z * (pt.pix[1] - cam_py) / cam_fy;
+            pt.pos[0] = r00 * x + r01 * y + r02 * z + t0;
+            pt.pos[1] = r10 * x + r11 * y + r12 * z + t1;
+            pt.pos[2] = r20 * x + r21 * y + r22 * z + t2;
+            pt.set_valid_pos();
+            return;
+        }
     }
-    else {
-        pt.set_invalid_pos();
-    }
+    pt.set_invalid_pos();
 }
 
 void rs_sf_planefit::compute_pt3d_normal(pt3d& pt_query, pt3d& pt_right, pt3d& pt_below) const

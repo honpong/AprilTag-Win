@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
         if (strcmp(argv[i], "-box") == 0) { sf_option = RS_SHAPEFIT_BOX; }
         else if (strcmp(argv[i], "-plane") == 0) { sf_option = RS_SHAPEFIT_PLANE; }
         else if (strcmp(argv[i], "-live") == 0) { is_live = true; }
-        else if (strcmp(argv[i], "-capture") == 0) { is_capture = true; }
+        else if (strcmp(argv[i], "-capture") == 0) { is_capture = true; is_live = false; }
         else if (strcmp(argv[i], "-num_frames") == 0) { num_frames = atoi(argv[++i]); }
         else if (strcmp(argv[i], "-path") == 0) { path = argv[++i]; }
         else if (strcmp(argv[i], "-replay") == 0) { is_live = false; }

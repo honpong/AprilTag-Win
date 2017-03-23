@@ -124,13 +124,13 @@ set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 
 endif() # VISGL
 
-add_executable(rc_replay src/rc_replay/rc_replay.cpp src/rc_replay/main.cpp)
-set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
-include(TargetLinkLibrariesCopied)
-target_link_libraries_copied(rc_replay tracker)
-install(TARGETS rc_replay RUNTIME DESTINATION bin COMPONENT example-binaries)
+add_subdirectory(src/rc_replay)
+
+include(TargetLinkLibrariesCopied RESULT_VARIABLE TARGET_LINK_LIBRARIES_COPIED)
 if(ENABLE_SOURCES)
+install(FILES ${TARGET_LINK_LIBRARIES_COPIED} DESTINATION lib/cmake COMPONENT example-sources)
 install(FILES
+  src/rc_replay/CMakeLists.txt
   src/rc_replay/main.cpp
   src/rc_replay/rc_replay.h
   src/rc_replay/rc_replay.cpp

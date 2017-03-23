@@ -66,4 +66,12 @@ inline static m3 skew(const v3 &v)
     return V;
 }
 
+inline static m3 project_rotation(m3 M, v3 *S=nullptr)
+{
+    Eigen::JacobiSVD<m3> svd(M, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    m3 U = svd.matrixU(), Vt = svd.matrixV().transpose();
+    if (S) *S = svd.singularValues();
+    return U * v3{ 1, 1, (U*Vt).determinant() }.asDiagonal() * Vt;
+}
+
 #endif

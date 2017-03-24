@@ -4,7 +4,6 @@
 
 #include "rs_shapefit.h"
 #include <list>
-#include <deque>
 #include <vector>
 #include <memory>
 #include <iostream>

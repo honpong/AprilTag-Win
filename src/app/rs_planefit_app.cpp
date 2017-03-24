@@ -59,13 +59,13 @@ int capture_frames(const std::string& path, const int image_set_size) {
     std::deque<dataset> image_set;
 
     rs_sf_gl_context win("capture", 1280, 480);
-    std::unique_ptr<rs_sf_image_depth> prev_depth;
+    rs_sf_image_ptr prev_depth;
     while (1) {
         auto fs = syncer.wait_for_frames();
         if (fs.size() == 0) break;
         if (fs.size() < 2) {
             if (fs[0].get_format() == RS_STREAM_DEPTH)
-                prev_depth = std::make_unique<rs_sf_image_depth>(fs[0].get_width(), fs[0].get_height(), fs[0].get_data());
+                prev_depth = make_depth_ptr(fs[0].get_width(), -1, fs[0].get_height(), fs[0].get_data());
             continue;
         }
 
@@ -77,10 +77,10 @@ int capture_frames(const std::string& path, const int image_set_size) {
 
         image_set.push_back({});
         image_set.back().depth = std::move(prev_depth);
-        prev_depth = std::make_unique<rs_sf_image_depth>(img_w, img_h, frames[RS_STREAM_DEPTH]->get_data());
+        prev_depth = make_depth_ptr(img_w, img_h, -1, frames[RS_STREAM_DEPTH]->get_data());
         auto depth_data = (unsigned short*)image_set.back().depth->data;
-        auto ir_data = (image_set.back().ir = std::make_unique<rs_sf_image_mono>(img_w, img_h, frames[RS_STREAM_INFRARED]->get_data()))->data;
-        auto displ_data = (image_set.back().displ = std::make_unique<rs_sf_image_mono>(img_w * 2, img_h))->data;
+        auto ir_data = (image_set.back().ir = make_mono_ptr(img_w, img_h, -1, frames[RS_STREAM_INFRARED]->get_data()))->data;
+        auto displ_data = (image_set.back().displ = make_mono_ptr(img_w * 2, img_h))->data;
         for (int y = 0, p = 0; y < img_h; ++y) {
             for (int x = 0; x < img_w; ++x, ++p) {
                 displ_data[y*img_w * 2 + x] = static_cast<unsigned char>(depth_data[p] * 255.0 / 8000.0);
@@ -120,7 +120,7 @@ int run_shapefit_live(rs_shapefit_option opt) try
 
     auto stream = config.open(dev);
     auto intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH);
-    auto planefitter = rs_sf_shapefit_ptr((rs_sf_intrinsics*)&intrinsics, opt);
+    auto shapefit = rs_sf_shapefit_ptr((rs_sf_intrinsics*)&intrinsics, opt);
     
     rs::util::syncer syncer;
     stream.start(syncer);
@@ -150,7 +150,7 @@ int run_shapefit_live(rs_shapefit_option opt) try
         image[0].img_h = image[1].img_h = frames[RS_STREAM_DEPTH]->get_height();
         image[0].frame_id = image[1].frame_id = frame_id++;
 
-        if (!run_shapefit(planefitter.get(), image)) break;
+        if (!run_shapefit(shapefit.get(), image)) break;
         memcpy(prev_depth.data(), frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char());
     }
 

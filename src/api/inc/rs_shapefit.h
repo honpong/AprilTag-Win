@@ -117,8 +117,8 @@ struct rs_sf_image_impl : public rs_sf_image_auto
         if (ref->data && num_char()==ref->num_char()) memcpy(data, ref->data, num_char());
         set_pose(ref->cam_pose);
     }
-    rs_sf_image_impl(int w, int h, const void* v = nullptr, const float pose[12] = nullptr) {
-        img_h = h; img_w = w; byte_per_pixel = Channel; frame_id = -1;
+    rs_sf_image_impl(int w, int h, int fid = -1, const void* v = nullptr, const float pose[12] = nullptr) {
+        img_h = h; img_w = w; byte_per_pixel = Channel; frame_id = fid;
         data = (src = std::make_unique<unsigned char[]>(num_char())).get();
         if (v) memcpy(data, v, num_char());
         set_pose(pose);

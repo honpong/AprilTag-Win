@@ -9,6 +9,20 @@
 #include "rs_shapefit.h"
 #include "json/json.h"
 
+#define make_mono_ptr(...) std::make_unique<rs_sf_image_mono>(__VA_ARGS__)
+#define make_depth_ptr(...) std::make_unique<rs_sf_image_depth>(__VA_ARGS__)
+#define make_rgb_ptr(...) std::make_unique<rs_sf_image_rgb>(__VA_ARGS__)
+
+rs_sf_image_ptr make_image_ptr(const rs_sf_image* ref, int byte_per_pixel = -1)
+{
+    byte_per_pixel = (byte_per_pixel <= 0 ? ref->byte_per_pixel : byte_per_pixel);
+    switch (byte_per_pixel) {
+    case 1: return make_mono_ptr(ref);
+    case 2: return make_depth_ptr(ref);
+    case 3: default: return make_rgb_ptr(ref);
+    }
+}
+
 bool rs_sf_image_write(std::string& filename, const rs_sf_image* img)
 {
     std::ofstream stream_data;
@@ -30,7 +44,7 @@ bool rs_sf_image_write(std::string& filename, const rs_sf_image* img)
     return false;
 }
 
-std::unique_ptr<rs_sf_image_auto> rs_sf_image_read(std::string& filename, const int frame_id = 0)
+rs_sf_image_ptr rs_sf_image_read(std::string& filename, const int frame_id = 0)
 {
     std::string tmp;
     std::ifstream stream_data;
@@ -48,14 +62,10 @@ std::unique_ptr<rs_sf_image_auto> rs_sf_image_read(std::string& filename, const 
         dst->frame_id = frame_id;
 
         auto* pbuf = stream_data.rdbuf();
-        dst->src = std::make_unique<uint8_t[]>(dst->num_char());
-        dst->data = dst->src.get();
+        dst = make_image_ptr(&*dst);
         pbuf->sgetn((char*)dst->data, dst->num_char());
-        dst->cam_pose = nullptr;
-
         stream_data.close();
     }
-
     return std::move(dst);
 }
 

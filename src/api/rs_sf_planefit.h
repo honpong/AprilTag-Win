@@ -145,7 +145,7 @@ private:
     bool is_within_pt_img_fov(const int x, const int y) const;
     bool is_valid_raw_z(const float z) const;
     unsigned short& get_raw_z_at(const pt3d& pt) const;
-    void compute_pt3d(pt3d& pt) const;
+    void compute_pt3d(pt3d& pt, bool search_around=false) const;
     void compute_pt3d_normal(pt3d& pt_query, pt3d& pt_right, pt3d& pt_below) const;
     void image_to_pointcloud(const rs_sf_image* img, scene& current_view, bool force_full_pt_cloud = false);
     void img_pt_group_to_normal(vec_pt3d_group& pt_groups);

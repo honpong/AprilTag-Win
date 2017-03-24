@@ -440,11 +440,11 @@ unsigned short & rs_sf_planefit::get_raw_z_at(const pt3d & pt) const
     return ((unsigned short*)src_depth_img.data)[pt.p];
 }
 
-void rs_sf_planefit::compute_pt3d(pt3d & pt) const
+void rs_sf_planefit::compute_pt3d(pt3d & pt, bool search_around) const
 {
     //pt.pos = pose.transform(unproject((float)pt.pix.x(), (float)pt.pix.y(), is_valid_raw_z(z) ? z : 0)); 
     float z;
-    for (auto* grp_pt : pt.grp->pt) {
+    for (pt3d* grp_pt : ( search_around ? pt.grp->pt : vec_pt_ref{&pt} )) {
         if (is_valid_raw_z(z = get_raw_z_at(*grp_pt)))
         {
             const float x = z * (pt.pix[0] - cam_px) / cam_fx;
@@ -494,7 +494,7 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, scene& current
         for (auto&& pt : current_view.pt_img)
         {
             pt.clear_all_state();
-            compute_pt3d(pt);
+            compute_pt3d(pt, true);
         }
 
         current_view.is_full_pt_cloud = true;
@@ -504,7 +504,7 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, scene& current
         // compute point cloud
         for (auto&& grp : current_view.pt_grp) {
             for (auto* pt : grp.pt) pt->clear_all_state();
-            compute_pt3d(*grp.pt0);
+            compute_pt3d(*grp.pt0, true);
         }
 
         current_view.is_full_pt_cloud = false;

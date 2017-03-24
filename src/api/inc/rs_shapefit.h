@@ -34,7 +34,7 @@ extern "C"
     {
         unsigned char* data;
         int img_w, img_h, byte_per_pixel;
-        int frame_id;
+        unsigned long long frame_id;
         float* cam_pose;
 
         int num_pixel() const { return img_w * img_h; }

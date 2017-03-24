@@ -53,12 +53,12 @@ set_property(TARGET tracker trackeri PROPERTY CXX_STANDARD 14)
 target_include_directories(trackeri PUBLIC tracker)
 
 find_package(Threads REQUIRED)
-target_link_libraries(trackeri PUBLIC Threads::Threads)
+find_package(Eigen3 REQUIRED)
+target_link_libraries(trackeri PUBLIC Threads::Threads Eigen3::Eigen)
 
 target_include_directories(trackeri SYSTEM PUBLIC
     ../../ThirdParty/rapidjson/include
     ../../ThirdParty/spdlog/include
-    ../../ThirdParty/eigen
 )
 target_compile_definitions(trackeri PUBLIC SPDLOG_NO_DATETIME SPDLOG_NO_THREAD_ID)
 

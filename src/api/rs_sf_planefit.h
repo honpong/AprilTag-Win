@@ -122,8 +122,8 @@ protected:
 
     // for child classes
     plane* get_tracked_plane(int pid) const;
-    int src_h() const { return m_intrinsics.img_h; }
-    int src_w() const { return m_intrinsics.img_w; }
+    int src_h() const { return m_intrinsics.height; }
+    int src_w() const { return m_intrinsics.width; }
     int num_pixels() const { return src_h()*src_w(); }
     int num_pixel_groups() const { return m_grid_h * m_grid_w; }
     void refine_plane_boundary(plane& dst);
@@ -172,10 +172,10 @@ private:
 
     // pose buffer
     float r00, r01, r02, r10, r11, r12, r20, r21, r22, t0, t1, t2;
-    float& cam_px = m_intrinsics.cam_px;
-    float& cam_py = m_intrinsics.cam_py;
-    float& cam_fx = m_intrinsics.cam_fx;
-    float& cam_fy = m_intrinsics.cam_fy;
+    float& cam_px = m_intrinsics.ppx;
+    float& cam_py = m_intrinsics.ppy;
+    float& cam_fx = m_intrinsics.fx;
+    float& cam_fy = m_intrinsics.fy;
 };
 
 #endif // ! rs_sf_planefit_h

@@ -369,8 +369,8 @@ void rs_sf_boxfit::draw_box(const std::string& name, const box & src, const box_
     auto proj = [to_cam = to_cam, cam = m_intrinsics](const v3& pt) {
         const auto pt3d = to_cam.rotation * pt + to_cam.translation;
         return cv::Point(
-            (pt3d.x() * cam.cam_fx) / pt3d.z() + cam.cam_px,
-            (pt3d.y() * cam.cam_fy) / pt3d.z() + cam.cam_py);
+            (pt3d.x() * cam.fx) / pt3d.z() + cam.ppx,
+            (pt3d.y() * cam.fy) / pt3d.z() + cam.ppy);
     };
 
     cv::Mat map(src_depth_img.img_h, src_depth_img.img_w, CV_8U, cv::Scalar(0));

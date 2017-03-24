@@ -20,10 +20,14 @@ extern "C"
 
     struct rs_sf_intrinsics
     {
-        unsigned int img_w, img_h;
-        float cam_px, cam_py, cam_fx, cam_fy;
-        int reserved;
-        float reserved2[5];
+        int           width;     /* width of the image in pixels */
+        int           height;    /* height of the image in pixels */
+        float         ppx;       /* horizontal coordinate of the principal point of the image, as a pixel offset from the left edge */
+        float         ppy;       /* vertical coordinate of the principal point of the image, as a pixel offset from the top edge */
+        float         fx;        /* focal length of the image plane, as a multiple of pixel width */
+        float         fy;        /* focal length of the image plane, as a multiple of pixel height */
+        int           model;     /* distortion model of the image */
+        float         coeffs[5]; /* distortion coefficients */
     };
 
     struct rs_sf_image
@@ -121,6 +125,7 @@ struct rs_sf_image_impl : public rs_sf_image_auto
     }
 };
 
+typedef std::unique_ptr<rs_sf_image_auto> rs_sf_image_ptr;
 typedef rs_sf_image_impl<1> rs_sf_image_mono;
 typedef rs_sf_image_impl<2> rs_sf_image_depth;
 typedef rs_sf_image_impl<3> rs_sf_image_rgb;

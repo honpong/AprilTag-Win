@@ -7,7 +7,7 @@
 #include <iostream>
 #include <string>
 #include "rs_shapefit.h"
-
+#include "json/json.h"
 
 bool rs_sf_image_write(std::string& filename, const rs_sf_image* img)
 {
@@ -58,6 +58,77 @@ std::unique_ptr<rs_sf_image_auto> rs_sf_image_read(std::string& filename, const 
 
     return std::move(dst);
 }
+
+struct rs_sf_file_stream
+{
+    std::vector<rs_sf_image_ptr> image;
+    rs_sf_intrinsics depth_intrinsics;
+    int num_frame;
+
+    rs_sf_file_stream(const std::string& path, const int frame_num)
+    {
+        this->depth_intrinsics = read_calibration(path, num_frame);
+        if (num_frame <= frame_num) return;
+
+        const auto suffix = std::to_string(frame_num) + ".pgm";
+        image.emplace_back(rs_sf_image_read(path + "depth_" + suffix, frame_num));
+        image.emplace_back(rs_sf_image_read(path + "ir_" + suffix, frame_num));
+    }
+
+    std::vector<rs_sf_image> get_images() const { return{ *image[0], *image[1] }; }
+
+    static void write_frame(const std::string& path, const rs_sf_image* depth, const rs_sf_image* ir, const rs_sf_image* displ)
+    {
+        rs_sf_image_write(path + "depth_" + std::to_string(depth->frame_id), depth);
+        rs_sf_image_write(path + "ir_" + std::to_string(ir->frame_id), ir);
+        rs_sf_image_write(path + "displ_" + std::to_string(displ->frame_id), displ);
+    }
+
+    static rs_sf_intrinsics read_calibration(const std::string& path, int& num_frame)
+    {
+        rs_sf_intrinsics depth_intrinsics;
+        Json::Value calibration_data;
+        std::ifstream infile;
+        infile.open(path + "calibration.json", std::ifstream::binary);
+        infile >> calibration_data;
+
+        Json::Value json_depth_intrinsics = calibration_data["depth_cam"]["intrinsics"];
+        depth_intrinsics.fx = json_depth_intrinsics["fx"].asFloat();
+        depth_intrinsics.fy = json_depth_intrinsics["fy"].asFloat();
+        depth_intrinsics.ppx = json_depth_intrinsics["ppx"].asFloat();
+        depth_intrinsics.ppy = json_depth_intrinsics["ppy"].asFloat();
+        depth_intrinsics.width = json_depth_intrinsics["width"].asInt();
+        depth_intrinsics.height = json_depth_intrinsics["height"].asInt();
+
+        num_frame = calibration_data["depth_cam"]["num_frame"].asInt();
+        return depth_intrinsics;
+    }
+
+    static void write_calibration(const std::string& path, const rs_sf_intrinsics& intrinsics, int num_frame)
+    {
+        Json::Value json_intr, root;
+        json_intr["fx"] = intrinsics.fx;
+        json_intr["fy"] = intrinsics.fy;
+        json_intr["ppx"] = intrinsics.ppx;
+        json_intr["ppy"] = intrinsics.ppy;
+        json_intr["model"] = intrinsics.model;
+        json_intr["height"] = intrinsics.height;
+        json_intr["width"] = intrinsics.width;
+        for (const auto& c : intrinsics.coeffs)
+            json_intr["coeff"].append(c);
+        root["depth_cam"]["intrinsics"] = json_intr;
+        root["depth_cam"]["num_frame"] = num_frame;
+
+        try {
+            Json::StyledStreamWriter writer;
+            std::ofstream outfile;
+            outfile.open(path + "calibration.json");
+            writer.write(outfile, root);
+        }
+        catch (...) {}
+    }
+};
+
 
 #include "example.hpp"
 #include <map>

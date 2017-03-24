@@ -1,7 +1,7 @@
 #include "rs_sf_planefit.h"
 
 rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera) 
-    : src_depth_img(camera->img_w,camera->img_h)
+    : src_depth_img(camera->width,camera->height)
 {
     m_intrinsics = *camera;
     parameter_updated();
@@ -371,18 +371,7 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
         grp.gp = g;
         grp.gpix[0] = g % m_grid_w;
         grp.gpix[1] = g / m_grid_w;
-        grp.pt.reserve(pt_per_group);
-    }
-
-    // setup full image vector
-    for (int p = 0, ep = num_pixels(); p < ep; ++p)
-    {
-        auto& pt = view.pt_img[p];
-        pt.pos = pt.normal = v3(0, 0, 0);
-        pt.best_plane = nullptr;
-        pt.pix = i2((pt.p = p) % img_w, p / img_w);
-        pt.grp = &view.pt_grp[(pt.pix[1] / dwn_y) * m_grid_w + (pt.pix[0] / dwn_x)];
-        pt.grp->pt.emplace_back(&pt);
+        grp.pt.resize(pt_per_group);
     }
 
     // grid pixel pick up order
@@ -392,12 +381,23 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
         grp_order.emplace_back(std::make_pair((i2(grp_pt % dwn_x, grp_pt / dwn_y) - cen_grp).squaredNorm(), grp_pt));
     std::sort(grp_order.begin(), grp_order.end());
 
-    // insert grid pixel according to distance from grid center
+    // setup full image vector
+    for (int p = 0, ep = num_pixels(); p < ep; ++p)
+    {
+        auto& pt = view.pt_img[p];
+        pt.pos = pt.normal = v3(0, 0, 0);
+        pt.best_plane = nullptr;
+        pt.pix = i2((pt.p = p) % img_w, p / img_w);
+        pt.grp = &view.pt_grp[(pt.pix[1] / dwn_y) * m_grid_w + (pt.pix[0] / dwn_x)];
+        pt.grp->pt[(pt.pix.y() % dwn_y) * dwn_x + (pt.pix.x() % dwn_x)] = &pt;
+    }
+
+    // re-insert non-null grid pixel according to distance from grid center
     for (auto&& grp : view.pt_grp) 
     {
         vec_pt_ref pt_buf; pt_buf.swap(grp.pt);
-        for (int p = 0, group_size = (int)pt_buf.size(); p < group_size; ++p)
-            if (group_size > grp_order[p].second) grp.pt.emplace_back(pt_buf[grp_order[p].second]);
+        for (auto* pt : pt_buf)
+            if (pt) grp.pt.emplace_back(pt);
 
         // group center
         grp.pt0 = grp.pt[0];
@@ -407,16 +407,16 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
 i2 rs_sf_planefit::project_grid_i(const v3 & cam_pt) const
 {
     return i2{
-        (int)(0.5f + (cam_pt.x() * m_intrinsics.cam_fx) / cam_pt.z() + m_intrinsics.cam_px) / m_param.img_x_dn_sample,
-        (int)(0.5f + (cam_pt.y() * m_intrinsics.cam_fy) / cam_pt.z() + m_intrinsics.cam_py) / m_param.img_y_dn_sample
+        (int)(0.5f + (cam_pt.x() * m_intrinsics.fx) / cam_pt.z() + m_intrinsics.ppx) / m_param.img_x_dn_sample,
+        (int)(0.5f + (cam_pt.y() * m_intrinsics.fy) / cam_pt.z() + m_intrinsics.ppy) / m_param.img_y_dn_sample
     };
 }
 
 v3 rs_sf_planefit::unproject(const float u, const float v, const float z) const
 {
     return v3{
-        z * (u - m_intrinsics.cam_px) / m_intrinsics.cam_fx,
-        z * (v - m_intrinsics.cam_py) / m_intrinsics.cam_fy,
+        z * (u - m_intrinsics.ppx) / m_intrinsics.fx,
+        z * (v - m_intrinsics.ppy) / m_intrinsics.fy,
         z };
 }
 

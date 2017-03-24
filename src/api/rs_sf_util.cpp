@@ -353,8 +353,8 @@ void rs_sf_util_draw_boxes(rs_sf_image * rgb, const rs_sf_intrinsics& camera, co
     auto proj = [to_cam = to_cam, cam = camera](const v3& pt) {
         const auto pt3d = to_cam.rotation * pt + to_cam.translation;
         return v2{
-            (pt3d.x() * cam.cam_fx) / pt3d.z() + cam.cam_px,
-            (pt3d.y() * cam.cam_fy) / pt3d.z() + cam.cam_py };
+            (pt3d.x() * cam.fx) / pt3d.z() + cam.ppx,
+            (pt3d.y() * cam.fy) / pt3d.z() + cam.ppy };
     };
     
     v3 box_frame[12][2];

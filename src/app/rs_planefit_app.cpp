@@ -1,6 +1,5 @@
 #include <librealsense/rs.hpp>
 #include <librealsense/rsutil.hpp>
-#include "json/json.h"
 #include "rs_shapefit.h"
 #include "rs_sf_image_io.h"
 //#include "rs_sf_pose_tracker.h"
@@ -37,74 +36,6 @@ int main(int argc, char* argv[])
     return run_shapefit_offline(path, sf_option);
 }
 
-struct frame_data {
-    rs_sf_image images[2];
-    std::unique_ptr<rs_sf_image_auto> src_image[2];
-    rs_sf_intrinsics depth_intrinsics;
-    int num_frame;
-
-    frame_data(const std::string& path, const int frame_num)
-    {
-        this->depth_intrinsics = read_calibration(path, num_frame);
-        if (num_frame <= frame_num) return;
-
-        const auto suffix = std::to_string(frame_num) + ".pgm";
-        images[0] = *(src_image[0] = rs_sf_image_read(path + "depth_" + suffix, frame_num));
-        images[1] = *(src_image[1] = rs_sf_image_read(path + "ir_" + suffix, frame_num));
-    }
-
-    static void write_frame(const std::string& path, const rs_sf_image* depth, const rs_sf_image* ir, const rs_sf_image* displ)
-    {
-        rs_sf_image_write(path + "depth_" + std::to_string(depth->frame_id), depth);
-        rs_sf_image_write(path + "ir_" + std::to_string(ir->frame_id), ir);
-        rs_sf_image_write(path + "displ_" + std::to_string(displ->frame_id), displ);
-    }
-
-    static rs_sf_intrinsics read_calibration(const std::string& path, int& num_frame)
-    {
-        rs_sf_intrinsics depth_intrinsics;
-        Json::Value calibration_data;
-        std::ifstream infile;
-        infile.open(path + "calibration.json", std::ifstream::binary);
-        infile >> calibration_data;
-
-        Json::Value json_depth_intrinsics = calibration_data["depth_cam"]["intrinsics"];
-        depth_intrinsics.cam_fx = json_depth_intrinsics["fx"].asFloat();
-        depth_intrinsics.cam_fy = json_depth_intrinsics["fy"].asFloat();
-        depth_intrinsics.cam_px = json_depth_intrinsics["ppx"].asFloat();
-        depth_intrinsics.cam_py = json_depth_intrinsics["ppy"].asFloat();
-        depth_intrinsics.img_w = json_depth_intrinsics["width"].asInt();
-        depth_intrinsics.img_h = json_depth_intrinsics["height"].asInt();
-
-        num_frame = calibration_data["depth_cam"]["num_frame"].asInt();
-        return depth_intrinsics;
-    }
-
-    static void write_calibration(const std::string& path, const rs_intrinsics& intrinsics, int num_frame)
-    {
-        Json::Value json_intr, root;
-        json_intr["fx"] = intrinsics.fx;
-        json_intr["fy"] = intrinsics.fy;
-        json_intr["ppx"] = intrinsics.ppx;
-        json_intr["ppy"] = intrinsics.ppy;
-        json_intr["model"] = intrinsics.model;
-        json_intr["height"] = intrinsics.height;
-        json_intr["width"] = intrinsics.width;
-        for (const auto& c : intrinsics.coeffs)
-            json_intr["coeff"].append(c);
-        root["depth_cam"]["intrinsics"] = json_intr;
-        root["depth_cam"]["num_frame"] = num_frame;
-
-        try {
-            Json::StyledStreamWriter writer;
-            std::ofstream outfile;
-            outfile.open(path + "calibration.json");
-            writer.write(outfile, root);
-        }
-        catch (...) {}
-    }
-};
-
 int capture_frames(const std::string& path, const int image_set_size) {
 
     rs::context ctx;
@@ -124,7 +55,7 @@ int capture_frames(const std::string& path, const int image_set_size) {
     dev.set_option(RS_OPTION_EMITTER_ENABLED, 1);
     dev.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
 
-    struct dataset { std::unique_ptr<rs_sf_image_auto> depth, ir, displ; };
+    struct dataset { rs_sf_image_ptr depth, ir, displ; };
     std::deque<dataset> image_set;
 
     rs_sf_gl_context win("capture", 1280, 480);
@@ -168,11 +99,11 @@ int capture_frames(const std::string& path, const int image_set_size) {
     for (auto& dataset : image_set) {
         printf("\r writing frame %d    ", frame_id);
         dataset.depth->frame_id = dataset.ir->frame_id = dataset.displ->frame_id = frame_id++;
-        frame_data::write_frame(path, dataset.depth.get(), dataset.ir.get(), dataset.displ.get());
+        rs_sf_file_stream::write_frame(path, dataset.depth.get(), dataset.ir.get(), dataset.displ.get());
     }
     printf("\n");
 
-    frame_data::write_calibration(path, intrinsics, (int)image_set.size());
+    rs_sf_file_stream::write_calibration(path, *(rs_sf_intrinsics*)&intrinsics, (int)image_set.size());
     return 0;
 }
 
@@ -212,13 +143,11 @@ int run_shapefit_live(rs_shapefit_option opt) try
         rs::frame* frames[RS_STREAM_COUNT];
         for (auto& f : fs) { frames[f.get_stream_type()] = &f; }
 
-        rs_sf_image image[] = { {},{} };
+        rs_sf_image image[] = { {nullptr,0,0,2},{nullptr,0,0,1} };
         image[0].data = (unsigned char*)prev_depth.data(); // (unsigned char*)frames[RS_STREAM_DEPTH]->get_data();
         image[1].data = (unsigned char*)frames[RS_STREAM_INFRARED]->get_data();
         image[0].img_w = image[1].img_w = frames[RS_STREAM_DEPTH]->get_width();
         image[0].img_h = image[1].img_h = frames[RS_STREAM_DEPTH]->get_height();
-        image[0].byte_per_pixel = 2;
-        image[1].byte_per_pixel = 1;
         image[0].frame_id = image[1].frame_id = frame_id++;
 
         if (!run_shapefit(planefitter.get(), image)) break;
@@ -246,8 +175,8 @@ int run_shapefit_offline(const std::string& path, const rs_shapefit_option shape
     bool sp_init = false;
     while (true)
     {
-        frame_data data(path, frame_num++);
-        if (data.src_image[0] == nullptr) {
+        rs_sf_file_stream data(path, frame_num++);
+        if (data.image.size() == 0) {
             frame_num = 0;
             shapefitter = nullptr;
             continue;
@@ -256,13 +185,13 @@ int run_shapefit_offline(const std::string& path, const rs_shapefit_option shape
         if (!shapefitter) {
             shapefitter = rs_sf_shapefit_ptr(&data.depth_intrinsics, shapefit_option);
             //sp_init = rs_sf_setup_scene_perception(
-            //    data.depth_intrinsics.cam_fx, data.depth_intrinsics.cam_fy,
-            //    data.depth_intrinsics.cam_px, data.depth_intrinsics.cam_py,
-            //    data.depth_intrinsics.img_w, data.depth_intrinsics.img_h,
+            //    data.depth_intrinsics.fx, data.depth_intrinsics.fy,
+            //    data.depth_intrinsics.ppx, data.depth_intrinsics.ppy,
+            //    data.depth_intrinsics.width, data.depth_intrinsics.height,
             //    320, 240, RS_SF_LOW_RESOLUTION);
         }
 
-        if (!run_shapefit(shapefitter.get(), data.images)) break;
+        if (!run_shapefit(shapefitter.get(), data.get_images().data())) break;
     }
 
     //if (sp_init) rs_sf_pose_tracking_release();

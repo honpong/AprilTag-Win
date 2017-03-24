@@ -64,7 +64,7 @@ protected:
 
     struct tracked_box : public box {
         int pid[3];
-        std::deque<box> box_history;
+        std::list<box> box_history;
         bool updated;
 
         tracked_box(const plane_pair& pair) : box(*pair.box), updated(false) {
@@ -74,7 +74,7 @@ protected:
         }
         bool try_update(const plane_pair& pair, int max_box_history);
     };
-    typedef std::deque<tracked_box> queue_tracked_box;
+    typedef std::list<tracked_box> queue_tracked_box;
     queue_tracked_box m_tracked_boxes;
 
 private:

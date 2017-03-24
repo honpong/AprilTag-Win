@@ -1,6 +1,6 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include <util.h>
+#include "util.h"
 
 ::testing::AssertionResult test_m4_near(const char* expr1, const char* expr2, const char* bounds_expr,
                                         const m4 &a, const m4 &b, const f_t bounds)

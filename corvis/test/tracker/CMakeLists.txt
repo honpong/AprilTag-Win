@@ -1,0 +1,32 @@
+project(spec CXX)
+
+add_executable(spec
+  vec4.cpp
+  rotation_vector.cpp
+  quaternion.cpp
+  transformation.cpp
+  matrix.cpp
+  remapper.cpp
+  utils.cpp
+  state_vision.cpp
+  calibration_json.cpp
+  tpose.cpp
+  dictionary.cpp
+  mapper.cpp
+  fast_tracker.cpp
+  sensor_fusion_queue.cpp
+  $<$<BOOL:${ENABLE_QR}>:
+     homography.cpp
+  >
+)
+target_link_libraries(spec util gtest gtest_main trackeri)
+add_test(NAME spec COMMAND spec)
+
+add_executable(spec_intel
+  rc_tracker_tests.cpp
+)
+target_link_libraries(spec_intel util gtest gtest_main tracker trackeri)
+set_property(TARGET spec_intel PROPERTY CXX_STANDARD 11)
+add_test(NAME spec_intel COMMAND spec_intel)
+
+set_property(TARGET spec spec_intel PROPERTY CXX_STANDARD 14)

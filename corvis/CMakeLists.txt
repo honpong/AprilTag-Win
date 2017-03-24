@@ -158,55 +158,7 @@ endif()
 
 if(YES AND NOT ANDROID)
     enable_testing()
-    set(spec_sources
-      ../ThirdParty/googletest/gtest/gtest_main.cc
-      ../ThirdParty/googletest/gtest/gtest-all.cc
-      test/test.cpp test/util.cpp
-      test/tracker/vec4.cpp test/tracker/rotation_vector.cpp test/tracker/quaternion.cpp
-      test/tracker/transformation.cpp
-      test/tracker/matrix.cpp
-      test/tracker/remapper.cpp
-      test/tracker/utils.cpp
-      test/tracker/state_vision.cpp
-      test/tracker/calibration_json.cpp
-      test/tracker/tpose.cpp
-      test/tracker/dictionary.cpp
-      test/tracker/mapper.cpp
-      test/tracker/fast_tracker.cpp
-      test/tracker/sensor_fusion_queue.cpp
-    )
-    if(ENABLE_QR)
-        set(spec_sources ${spec_sources} test/tracker/homography.cpp)
-    endif()
-    add_executable(spec ${spec_sources})
-    set_property(TARGET spec PROPERTY CXX_STANDARD 14)
-    target_include_directories(spec PRIVATE test ../ThirdParty/googletest/)
-    target_link_libraries(spec trackeri)
-    add_test(NAME spec COMMAND spec)
-
-    add_executable(spec_intel
-      ../ThirdParty/googletest/gtest/gtest_main.cc
-      ../ThirdParty/googletest/gtest/gtest-all.cc
-      test/tracker/rc_tracker_tests.cpp
-    )
-    set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
-    target_include_directories(spec_intel PRIVATE test
-        ../ThirdParty/googletest/ ${TRACKER_PRIVATE_INCLUDES})
-    target_link_libraries(spec_intel tracker trackeri)
-    add_test(NAME spec_intel COMMAND spec_intel)
-
-    if(ENABLE_STEREO)
-        add_executable(spec_plus
-          ../ThirdParty/googletest/gtest/gtest_main.cc
-          ../ThirdParty/googletest/gtest/gtest-all.cc
-          test/test.cpp test/util.cpp
-          test/stereo/stereo.cpp
-        )
-        set_property(TARGET spec_plus PROPERTY CXX_STANDARD 14)
-        target_include_directories(spec_plus PRIVATE test ../ThirdParty/googletest/)
-        target_link_libraries(spec_plus trackeri stereo)
-        add_test(NAME spec_plus COMMAND spec_plus)
-    endif()
+    add_subdirectory(test)
 endif()
 
 set(CPACK_PACKAGE_NAME "tracker")

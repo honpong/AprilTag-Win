@@ -193,7 +193,7 @@ if(YES AND NOT ANDROID)
     target_link_libraries(spec_intel tracker trackeri)
     add_test(NAME spec_intel COMMAND spec_intel)
 
-    if(BUILD_STEREO)
+    if(ENABLE_STEREO)
         add_executable(spec_plus
           ../ThirdParty/googletest/gtest/gtest_main.cc
           ../ThirdParty/googletest/gtest/gtest-all.cc

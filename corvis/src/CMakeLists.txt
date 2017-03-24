@@ -219,6 +219,9 @@ set(LIBVLFEAT_FILES
    ../../ThirdParty/vlfeat-0.9.18/vl/kdtree.c
    ../../ThirdParty/vlfeat-0.9.18/vl/liop.c
    ../../ThirdParty/vlfeat-0.9.18/vl/imopv.c
+   $<$<BOOL:${ENABLE_STEREO}>:
+   ../../ThirdParty/vlfeat-0.9.18/vl/sift.c
+   >
 )
 add_library(vlfeat STATIC ${LIBVLFEAT_FILES})
 target_include_directories(vlfeat INTERFACE ../../ThirdParty/vlfeat-0.9.18/vl)

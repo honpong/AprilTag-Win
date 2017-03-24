@@ -40,10 +40,10 @@
     return ::testing::AssertionSuccess();
 }
 
-::testing::AssertionResult test_v4_near(const char* expr1, const char* expr2, const char* bounds_expr,
-                                        const v4 &a, const v4 &b, const f_t bounds)
+::testing::AssertionResult test_v2_near(const char* expr1, const char* expr2, const char* bounds_expr,
+                                        const v2 &a, const v2 &b, const f_t bounds)
 {
-    for(int i = 0; i < 4; ++i)
+    for(int i = 0; i < 2; ++i)
         if(!(fabs(a[i] - b[i]) <= bounds))
             return ::testing::AssertionFailure()
                 << "The difference between\n"

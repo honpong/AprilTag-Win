@@ -22,10 +22,10 @@ test_m3_near(const char* expr1, const char* expr2, const char* bounds_expr,
 #define EXPECT_M3_NEAR(a,b,bounds) EXPECT_PRED_FORMAT3(test_m3_near, a, b, bounds)
 
 ::testing::AssertionResult
-test_v4_near(const char* expr1, const char* expr2, const char* bounds_expr,
-             const v4 &a, const v4 &b, const f_t bounds);
+test_v2_near(const char* expr1, const char* expr2, const char* bounds_expr,
+             const v2 &a, const v2 &b, const f_t bounds);
 
-#define EXPECT_V4_NEAR(a,b,bounds) EXPECT_PRED_FORMAT3(test_v4_near, a, b, bounds)
+#define EXPECT_V2_NEAR(a,b,bounds) EXPECT_PRED_FORMAT3(test_v2_near, a, b, bounds)
 
 ::testing::AssertionResult
 test_v3_near(const char* expr1, const char* expr2, const char* bounds_expr,

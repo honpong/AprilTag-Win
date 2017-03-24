@@ -277,7 +277,7 @@ TEST(Homography, Decomposition)
 
     m3 H = homography_compute(p1, p2);
     EXPECT_M3_NEAR(H, He, 1e-3);
-    vector<homography_decomposition> decompositions = homography_decompose(p1, p2, H);
+    std::vector<homography_decomposition> decompositions = homography_decompose(p1, p2, H);
     bool found = false;
     float margin2 = 1e-3 * 1e-3;
     // There are 2 physically possible solutions, check that it

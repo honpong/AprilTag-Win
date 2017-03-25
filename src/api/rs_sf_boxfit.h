@@ -12,6 +12,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
         float plane_intersect_thr = 30.0f;    //points on 2 box planes touch within 5mm
         float max_plane_pt_error = 20.0f; 
         int max_box_history = 11;
+        float box_state_gain = 0.5f;
     };
 
     struct box
@@ -66,13 +67,17 @@ protected:
         int pid[3];
         std::list<box> box_history;
         bool updated;
-
+        v3 state_vel, state_acc, prev_obs_pos, prev_obs_vel, prev_obs_acc;   
         tracked_box(const plane_pair& pair) : box(*pair.box), updated(false) {
             pid[0] = pair.p0->pid;
             pid[1] = pair.p1->pid;
             pid[2] = 0;
+
+            state_vel = state_acc = prev_obs_vel = prev_obs_acc = v3(0, 0, 0);
+            prev_obs_pos = pair.box->center;
         }
-        bool try_update(const plane_pair& pair, int max_box_history);
+        bool try_update(const plane_pair& pair, const parameter& param);
+        bool update_box_center_state(const box& new_observation, const parameter& param);
     };
     typedef std::list<tracked_box> queue_tracked_box;
     queue_tracked_box m_tracked_boxes;

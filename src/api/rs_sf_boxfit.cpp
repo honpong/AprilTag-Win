@@ -337,7 +337,7 @@ void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
         if (pair.box != nullptr) //new box
         {
             for (auto&& old_box : m_tracked_boxes) {
-                if (old_box.try_update(pair, m_param.max_box_history)) {
+                if (old_box.try_update(pair, m_param)) {
                     pair.box = nullptr;
                     old_box.updated = true;
                     break;
@@ -372,6 +372,7 @@ void rs_sf_boxfit::draw_box(const std::string& name, const box & src, const box_
             (pt3d.x() * cam.fx) / pt3d.z() + cam.ppx,
             (pt3d.y() * cam.fy) / pt3d.z() + cam.ppy);
     };
+    print_box(src.to_rs_sf_box());
 
     cv::Mat map(src_depth_img.img_h, src_depth_img.img_w, CV_8U, cv::Scalar(0));
     cv::Mat(src_depth_img.img_h, src_depth_img.img_w, CV_16U, src_depth_img.data).convertTo(map, CV_8U, 255.0 / 4000.0);
@@ -416,7 +417,7 @@ rs_sf_box rs_sf_boxfit::box::to_rs_sf_box() const
     return dst;
 }
 
-bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, int max_box_history)
+bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const parameter& param)
 {
     // center not overlap
     auto& new_observed_box = *pair.box;
@@ -431,9 +432,9 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, int max_box_h
     // match new box axis to old axis
     const m3 match_table = (new_observed_box.axis.transpose() * axis);
     const m3 match_select = (match_table.cwiseAbs2().array().round());
-    
+
     // change axis
-    box& new_box = *this;
+    box new_box = *this;
     new_box.center = new_observed_box.center;
     new_box.axis = new_observed_box.axis * (match_select.cwiseProduct(match_table.cwiseSign()));
     new_box.dimension = new_observed_box.dimension.transpose() * match_select;
@@ -442,7 +443,8 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, int max_box_h
     pid[0] = pair.p0->pid;
     pid[1] = pair.p1->pid;
     box_history.push_back(new_box);
-    while (box_history.size() > max_box_history) box_history.pop_front();
+    while (box_history.size() > param.max_box_history)
+        box_history.pop_front();
 
     const int num_boxes = (int)box_history.size();
     const int half_n_boxes = num_boxes / 2;
@@ -450,7 +452,7 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, int max_box_h
     // filter box history
     std::vector<float> sort_center[3], sort_dim[3], sort_q[4];
     for (int d = 0; d < 3; ++d) {
-        sort_center[d].reserve(num_boxes);
+        //sort_center[d].reserve(num_boxes);
         sort_dim[d].reserve(num_boxes);
         sort_q[d].reserve(num_boxes);
     }
@@ -458,17 +460,17 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, int max_box_h
         const qv3 rotation(bh.axis);
 
         for (int d = 0; d < 3; ++d) {
-            sort_center[d].emplace_back(bh.center[d]);
+            //sort_center[d].emplace_back(bh.center[d]);
             sort_dim[d].emplace_back(bh.dimension[d]);
             sort_q[d].emplace_back(rotation.coeffs()[d]);
         }
         sort_q[3].emplace_back(rotation.w());
     }
     for (int d = 0; d < 3; ++d) {
-        std::sort(sort_center[d].begin(), sort_center[d].end());
+        //std::sort(sort_center[d].begin(), sort_center[d].end());
         std::sort(sort_dim[d].begin(), sort_dim[d].end());
         std::sort(sort_q[d].begin(), sort_q[d].end());
-        center[d] = sort_center[d][half_n_boxes];
+        //new_box.center[d] = sort_center[d][half_n_boxes];
         dimension[d] = sort_dim[d][half_n_boxes];
     }
     std::sort(sort_q[3].begin(), sort_q[3].end());
@@ -477,6 +479,38 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, int max_box_h
         sort_q[0][half_n_boxes],
         sort_q[1][half_n_boxes],
         sort_q[2][half_n_boxes]).matrix();
+
+    return update_box_center_state(new_box, param);
+}
+
+bool rs_sf_boxfit::tracked_box::update_box_center_state(const box & observation, const parameter& param)
+{
+    v3& state_pos = center;
+
+    // update prediction
+    const v3 pred_acc = state_acc;
+    const v3 pred_vel = pred_acc + state_vel;
+    const v3 pred_pos = pred_vel + state_pos;
+
+    // observation 
+    const v3 obse_pos = observation.center;
+    const v3 obse_vel = obse_pos - prev_obs_pos;
+    const v3 obse_acc = obse_vel - prev_obs_vel;
+
+    // prediction error
+    const v3 residual_pos = obse_pos - pred_pos;
+    const v3 residual_vel = obse_vel - pred_vel;
+    const v3 residual_acc = obse_acc - pred_acc;
+
+    // update state
+    state_pos = pred_pos + residual_pos * param.box_state_gain;
+    state_vel = pred_vel + residual_vel * param.box_state_gain;
+    state_acc = pred_acc + residual_acc * param.box_state_gain;
+    
+    // record history
+    prev_obs_pos = obse_pos;
+    prev_obs_vel = obse_vel;
+    prev_obs_acc = obse_acc;
 
     return true;
 }

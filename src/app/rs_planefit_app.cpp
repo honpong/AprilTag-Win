@@ -65,7 +65,7 @@ int capture_frames(const std::string& path, const int image_set_size) {
         if (fs.size() == 0) break;
         if (fs.size() < 2) {
             if (fs[0].get_format() == RS_STREAM_DEPTH)
-                prev_depth = make_depth_ptr(fs[0].get_width(), -1, fs[0].get_height(), fs[0].get_data());
+                prev_depth = make_depth_ptr(fs[0].get_width(),fs[0].get_height(),-1,fs[0].get_data());
             continue;
         }
 

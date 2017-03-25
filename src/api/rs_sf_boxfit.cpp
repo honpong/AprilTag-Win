@@ -330,7 +330,7 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
 void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
 {
     for (auto&& box : m_tracked_boxes)
-        box.updated = false;
+        ++box.count_miss;
 
     // each newly detected box
     for (auto&& pair : view.plane_pairs) {
@@ -339,7 +339,7 @@ void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
             for (auto&& old_box : m_tracked_boxes) {
                 if (old_box.try_update(pair, m_param)) {
                     pair.box = nullptr;
-                    old_box.updated = true;
+                    old_box.count_miss = 0;
                     break;
                 }
             }
@@ -350,7 +350,8 @@ void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
     queue_tracked_box prev_tracked_boxes;
     prev_tracked_boxes.swap(m_tracked_boxes);
     for (auto&& box : prev_tracked_boxes) {
-        if (box.updated) m_tracked_boxes.push_back(box);
+        if (box.count_miss < m_param.max_box_miss_frame)
+            m_tracked_boxes.push_back(box);
     }
 
     // each newly detected box without match

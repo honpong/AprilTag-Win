@@ -11,8 +11,9 @@ struct rs_sf_boxfit : public rs_sf_planefit
         float plane_angle_thr = 1.0f - 0.95f; //absolute threshold for plane angles dot product
         float plane_intersect_thr = 30.0f;    //points on 2 box planes touch within 5mm
         float max_plane_pt_error = 20.0f; 
-        int max_box_history = 11;
         float box_state_gain = 0.5f;
+        int max_box_history = 11;
+        int max_box_miss_frame = 5;
     };
 
     struct box
@@ -66,13 +67,12 @@ protected:
     struct tracked_box : public box {
         int pid[3];
         std::list<box> box_history;
-        bool updated;
         v3 state_vel, state_acc, prev_obs_pos, prev_obs_vel, prev_obs_acc;   
-        tracked_box(const plane_pair& pair) : box(*pair.box), updated(false) {
+        int count_miss;
+        tracked_box(const plane_pair& pair) : box(*pair.box), count_miss(0) {
             pid[0] = pair.p0->pid;
             pid[1] = pair.p1->pid;
             pid[2] = 0;
-
             state_vel = state_acc = prev_obs_vel = prev_obs_acc = v3(0, 0, 0);
             prev_obs_pos = pair.box->center;
         }

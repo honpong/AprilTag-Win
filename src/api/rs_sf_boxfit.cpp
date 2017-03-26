@@ -351,7 +351,7 @@ void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
     prev_tracked_boxes.swap(m_tracked_boxes);
     for (auto&& box : prev_tracked_boxes) {
         if (box.count_miss < m_param.max_box_miss_frame)
-            m_tracked_boxes.push_back(box);
+            m_tracked_boxes.emplace_back(box);
     }
 
     // each newly detected box without match
@@ -450,68 +450,20 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const paramet
     const int num_boxes = (int)box_history.size();
     const int half_n_boxes = num_boxes / 2;
 
-    // filter box history
-    std::vector<float> sort_center[3], sort_dim[3], sort_q[4];
-    for (int d = 0; d < 3; ++d) {
-        //sort_center[d].reserve(num_boxes);
+    // filter box states
+    std::vector<float> sort_dim[3];
+    for (int d = 0; d < 3; ++d)
         sort_dim[d].reserve(num_boxes);
-        sort_q[d].reserve(num_boxes);
-    }
-    for (const auto& bh : box_history) {
-        const qv3 rotation(bh.axis);
-
-        for (int d = 0; d < 3; ++d) {
-            //sort_center[d].emplace_back(bh.center[d]);
+    for (const auto& bh : box_history) 
+        for (int d = 0; d < 3; ++d) 
             sort_dim[d].emplace_back(bh.dimension[d]);
-            sort_q[d].emplace_back(rotation.coeffs()[d]);
-        }
-        sort_q[3].emplace_back(rotation.w());
-    }
     for (int d = 0; d < 3; ++d) {
-        //std::sort(sort_center[d].begin(), sort_center[d].end());
         std::sort(sort_dim[d].begin(), sort_dim[d].end());
-        std::sort(sort_q[d].begin(), sort_q[d].end());
-        //new_box.center[d] = sort_center[d][half_n_boxes];
         dimension[d] = sort_dim[d][half_n_boxes];
     }
-    std::sort(sort_q[3].begin(), sort_q[3].end());
-    axis = qv3(
-        sort_q[3][half_n_boxes],
-        sort_q[0][half_n_boxes],
-        sort_q[1][half_n_boxes],
-        sort_q[2][half_n_boxes]).matrix();
-
-    return update_box_center_state(new_box, param);
-}
-
-bool rs_sf_boxfit::tracked_box::update_box_center_state(const box & observation, const parameter& param)
-{
-    v3& state_pos = center;
-
-    // update prediction
-    const v3 pred_acc = state_acc;
-    const v3 pred_vel = pred_acc + state_vel;
-    const v3 pred_pos = pred_vel + state_pos;
-
-    // observation 
-    const v3 obse_pos = observation.center;
-    const v3 obse_vel = obse_pos - prev_obs_pos;
-    const v3 obse_acc = obse_vel - prev_obs_vel;
-
-    // prediction error
-    const v3 residual_pos = obse_pos - pred_pos;
-    const v3 residual_vel = obse_vel - pred_vel;
-    const v3 residual_acc = obse_acc - pred_acc;
-
-    // update state
-    state_pos = pred_pos + residual_pos * param.box_state_gain;
-    state_vel = pred_vel + residual_vel * param.box_state_gain;
-    state_acc = pred_acc + residual_acc * param.box_state_gain;
-    
-    // record history
-    prev_obs_pos = obse_pos;
-    prev_obs_vel = obse_vel;
-    prev_obs_acc = obse_acc;
-
+    center = track_pos.update(new_box.center, param.box_state_gain);
+    v4 in_rotation = qv3(new_box.axis).coeffs();
+    if (in_rotation.dot(track_axis.value()) < 0) in_rotation = -in_rotation;
+    axis = qv3(track_axis.update(in_rotation, param.box_state_gain).data()).matrix();
     return true;
 }

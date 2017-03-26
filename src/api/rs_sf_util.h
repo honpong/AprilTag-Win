@@ -18,16 +18,17 @@ static const int PLANE_SRC_PID = 255;
 static const float FLOAT_MAX_VALUE = std::numeric_limits<float>::max();
 static const float FLOAT_MIN_VALUE = -FLOAT_MAX_VALUE;
 
-typedef Eigen::Matrix<float, 3, 3, Eigen::RowMajor> m3;
-typedef Eigen::Vector3f v3;
-typedef Eigen::Vector2f v2;
 typedef Eigen::Vector2i i2;
 typedef Eigen::Vector4i i4;
+typedef Eigen::Vector2f v2;
+typedef Eigen::Vector3f v3;
+typedef Eigen::Vector4f v4;
 typedef Eigen::Matrix<unsigned char, 3, 1> b3;
+typedef Eigen::Matrix<float, 3, 3, Eigen::RowMajor> m3;
 typedef Eigen::Map<v3> v3_map;
 typedef Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::ColMajor>> m3_axis_map;
-typedef std::vector<i2> contour;
 typedef Eigen::Quaternionf qv3;
+typedef std::vector<i2> contour;
 
 struct rs_shapefit 
 {

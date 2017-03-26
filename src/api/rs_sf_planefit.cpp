@@ -183,7 +183,7 @@ rs_sf_status rs_sf_planefit::mark_plane_src_on_map(rs_sf_image * map) const
     const float up_x = (float)dst_w / src_w(), up_y = (float)map->img_h / src_h();
     for (const auto& plane : m_view.planes)
     {
-        if (plane.best_pts.size() >= m_param.min_num_plane_pt)
+        if (is_valid_new_plane(plane))
         {
             const auto x = (plane.src->pix.x()) * up_x;
             const auto y = (plane.src->pix.y()) * up_y;
@@ -245,7 +245,7 @@ rs_sf_planefit::plane * rs_sf_planefit::get_tracked_plane(int pid) const
 void rs_sf_planefit::refine_plane_boundary(plane& dst)
 {
     if (dst.fine_pts.size() > 0) return;
-    if (dst.best_pts.size() <= 0) return;
+    if (!dst.non_empty()) return;
 
     // buffers
     std::list<pt3d*> next_fine_pt;
@@ -573,7 +573,7 @@ void rs_sf_planefit::grow_planecandidate(vec_pt3d_group& pt_groups, vec_plane& p
 
         grow_inlier_buffer(pt_groups.data(), plane, vec_pt_ref{ plane.src });
 
-        if (plane.pts.size() < m_param.min_num_plane_pt) {
+        if (!is_valid_new_plane(plane)) {
             plane.pts.clear();
             plane.pts.shrink_to_fit();
         }
@@ -705,7 +705,7 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_pl
 
     // make sure the plane src is valid
     for (auto&& plane : plane_candidates) {
-        if (plane.best_pts.size() > 0 && plane.src->best_plane != &plane)
+        if (plane.non_empty() && plane.src->best_plane != &plane)
             plane.src = plane.best_pts[0];
     }
 }
@@ -746,21 +746,13 @@ void rs_sf_planefit::sort_plane_size(vec_plane & planes, vec_plane_ref& sorted_p
     sorted_planes.reserve(planes.size());
     sorted_planes.clear();
 
-    for (auto&& plane : planes)
-        sorted_planes.emplace_back(&plane);
+    for (auto&& plane : planes) {
+        if ((plane.non_empty()) && (plane.past_plane || is_valid_new_plane(plane)))
+            sorted_planes.emplace_back(&plane);
+    }
 
     std::sort(sorted_planes.begin(), sorted_planes.end(),
         [](const plane* p0, const plane* p1) { return p0->best_pts.size() > p1->best_pts.size(); });
-}
-
-bool rs_sf_planefit::is_valid_past_plane(const plane & past_plane) const
-{
-    return past_plane.pid > INVALID_PID && past_plane.best_pts.size() > 0;
-}
-
-bool rs_sf_planefit::is_tracked_pid(int pid) const
-{
-    return INVALID_PID < pid && pid <= MAX_VALID_PID;
 }
 
 void rs_sf_planefit::save_current_scene_as_reference()
@@ -817,7 +809,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene &
     // find a better normal
     for (auto&& plane : current_view.planes)
     {
-        if (plane.best_pts.size() > 0)
+        if (plane.non_empty())
         {
             v3 center(0, 0, 0);
             for (auto* pt : plane.best_pts)
@@ -910,9 +902,10 @@ void rs_sf_planefit::assign_planes_pid(vec_plane_ref& sorted_planes)
     m_tracked_pid.resize(m_param.max_num_plane_output + 1);
     std::fill_n(m_tracked_pid.begin(), m_param.max_num_plane_output + 1, nullptr);
 
-    for (auto* plane : sorted_planes)
+    // sorted_plane must be nonempty tracked plane or bigger than min size
+    for (auto* plane : sorted_planes) 
     {
-        if (plane->past_plane && plane->best_pts.size() > 0 && is_tracked_pid(plane->past_plane->pid))
+        if (plane->past_plane && is_tracked_pid(plane->past_plane->pid))
         {
             if (!m_tracked_pid[plane->past_plane->pid]) //assign old pid to new plane
             {
@@ -924,7 +917,7 @@ void rs_sf_planefit::assign_planes_pid(vec_plane_ref& sorted_planes)
     int next_pid = 1;
     for (auto* plane : sorted_planes)
     {
-        if (plane->best_pts.size() < m_param.min_num_plane_pt) return;
+        //if (plane->best_pts.size() < m_param.min_num_plane_pt) return;
 
         if (!is_tracked_pid(plane->pid)) //no previous plane detected
         {

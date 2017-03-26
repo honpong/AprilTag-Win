@@ -34,19 +34,19 @@ struct rs_sf_planefit : public rs_shapefit
         int max_num_plane_output = MAX_VALID_PID;
     };
 
-    rs_sf_planefit(const rs_sf_intrinsics* camera);    
+    rs_sf_planefit(const rs_sf_intrinsics* camera);
     virtual rs_sf_status process_depth_image(const rs_sf_image* img);
     virtual rs_sf_status track_depth_image(const rs_sf_image* img);
 
     int num_detected_planes() const;
     int max_detected_pid() const;
-    rs_sf_status get_plane_index_map(rs_sf_image* map, int hole_filled = -1) const; 
+    rs_sf_status get_plane_index_map(rs_sf_image* map, int hole_filled = -1) const;
     rs_sf_status mark_plane_src_on_map(rs_sf_image* map) const;
     rs_sf_status get_plane_equation(int pid, float equ[4]) const;
 
 protected:
-        
-    struct plane; 
+
+    struct plane;
     plane *const NON_EDGE_PT = (plane*)-1;
     static const int INVALID_PID = 0;
 
@@ -82,13 +82,14 @@ protected:
     typedef std::list<pt3d*> list_pt_ref;
     struct plane {
         v3 normal; float d; pt3d* src; int pid;
-        vec_pt_ref pts, best_pts; 
+        vec_pt_ref pts, best_pts;
         list_pt_ref edge_grp[2], fine_pts;
         const plane* past_plane;
         plane(const v3& _nor, float _d, pt3d* _src, const plane* _past_plane = nullptr)
             : normal(_nor), d(_d), src(_src), pid(INVALID_PID), past_plane(_past_plane) {}
+        bool non_empty() const { return best_pts.size() > 0; }
     };
-    
+
     typedef std::vector<pt3d> vec_pt3d;
     typedef std::vector<pt3d_group> vec_pt3d_group;
     typedef std::vector<plane> vec_plane;
@@ -108,15 +109,15 @@ protected:
         }
         inline void reset() { planes.clear(); cam_pose.set_pose(); }
     };
-  
+
     // state memory
     parameter m_param;
     scene m_view, m_ref_view;
     vec_plane_ref m_tracked_pid, m_sorted_plane_ptr;
-    
+
     // input
     rs_sf_image_depth src_depth_img;
-    
+
     // call after parameter updated
     void parameter_updated();
 
@@ -145,7 +146,7 @@ private:
     bool is_within_pt_img_fov(const int x, const int y) const;
     bool is_valid_raw_z(const float z) const;
     unsigned short& get_raw_z_at(const pt3d& pt) const;
-    void compute_pt3d(pt3d& pt, bool search_around=false) const;
+    void compute_pt3d(pt3d& pt, bool search_around = false) const;
     void compute_pt3d_normal(pt3d& pt_query, pt3d& pt_right, pt3d& pt_below) const;
     void image_to_pointcloud(const rs_sf_image* img, scene& current_view, bool force_full_pt_cloud = false);
     void img_pt_group_to_normal(vec_pt3d_group& pt_groups);
@@ -158,8 +159,10 @@ private:
     void sort_plane_size(vec_plane& planes, vec_plane_ref& sorted_planes);
 
     // plane tracking
-    bool is_valid_past_plane(const plane& past_plane) const;
-    bool is_tracked_pid(int pid) const;
+    bool is_valid_new_plane(const plane& new_plane) const { return new_plane.pts.size() > m_param.min_num_plane_pt; }
+    bool is_valid_plane(const plane& plane) const { return plane.best_pts.size() > m_param.min_num_plane_pt; }
+    bool is_valid_past_plane(const plane& past_plane) const { return past_plane.pid > INVALID_PID && past_plane.non_empty(); }
+    bool is_tracked_pid(int pid) const { return INVALID_PID < pid && pid <= MAX_VALID_PID; }
     void save_current_scene_as_reference();
     void map_candidate_plane_from_past(scene& current_view, scene& past_view);
     void combine_planes_from_the_same_past(scene& current_view, scene& past_view);

@@ -217,7 +217,7 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     // reject plane pair not perpendiculars
     auto cosine_theta = std::abs(plane0.normal.dot(plane1.normal));
     if (!pair.prev_box && (cosine_theta > m_param.plane_angle_thr)) return false;
-    if (pair.prev_box && (cosine_theta > (m_param.plane_angle_thr*2.0f))) return false;
+    if (pair.prev_box && (cosine_theta > (m_param.plane_angle_thr*1.25f))) return false;
 
     // box axis
     v3 axis[3] = { plane1.normal, plane0.normal, {} };

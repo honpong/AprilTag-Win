@@ -254,7 +254,7 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
         
     // plane map display
     rs_sf_image_mono pid(&img[0]);
-    rs_sf_planefit_draw_plane_ids(shapefitter, &pid, RS_SF_PLANEFIT_DRAW_MAX10);
+    rs_sf_planefit_draw_plane_ids(shapefitter, &pid, RS_SF_PLANEFIT_DRAW_REMAP);
 
     //rs_sf_image_write(path + "..\\live\\plane_" + std::to_string(img->frame_id), &pid);
     //rs_sf_image_write(path + "..\\live\\color_" + std::to_string(img->frame_id), &rgb);

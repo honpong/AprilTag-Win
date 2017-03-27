@@ -74,7 +74,7 @@ extern "C"
     {
         RS_SF_PLANEFIT_DRAW_ORIGINAL = 0,
         RS_SF_PLANEFIT_DRAW_SCALED = 1,
-        RS_SF_PLANEFIT_DRAW_MAX10 = 2,
+        RS_SF_PLANEFIT_DRAW_REMAP = 2,
     };
 
     RS_SHAPEFIT_DECL rs_shapefit* rs_shapefit_create(const rs_sf_intrinsics* camera, rs_shapefit_option option = RS_SHAPEFIT_PLANE);

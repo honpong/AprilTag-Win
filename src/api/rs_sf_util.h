@@ -69,6 +69,7 @@ void rs_sf_util_convert_to_rgb_image(rs_sf_image* rgb, const rs_sf_image* src);
 void rs_sf_util_copy_depth_image(rs_sf_image_depth& dst, const rs_sf_image* src);
 void rs_sf_util_draw_planes(rs_sf_image* rgb, const rs_sf_image* map, const rs_sf_image* src = nullptr, const unsigned char* rgb_table[3] = nullptr, int num_color = 0);
 void rs_sf_util_scale_plane_ids(rs_sf_image* map, int max_pid);
+void rs_sf_util_remap_plane_ids(rs_sf_image * map);
 void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, v2 p0, v2 p1, const b3& color, const int size = 2);
 void rs_sf_util_draw_boxes(rs_sf_image* rgb, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes);
 

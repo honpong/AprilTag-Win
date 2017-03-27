@@ -20,7 +20,6 @@ rs_sf_status rs_sf_boxfit::process_depth_image(const rs_sf_image * img)
     m_box_scene.clear();
     m_box_ref_scene.clear();
     
-    form_list_of_plane_pairs(m_box_scene);
     detect_new_boxes(m_box_scene);
     add_new_boxes_for_tracking(m_box_scene);
 
@@ -34,7 +33,6 @@ rs_sf_status rs_sf_boxfit::track_depth_image(const rs_sf_image * img)
 
     m_box_scene.swap(m_box_ref_scene);
 
-    form_list_of_plane_pairs(m_box_scene);
     detect_new_boxes(m_box_scene);
     add_new_boxes_for_tracking(m_box_scene);
 
@@ -50,56 +48,49 @@ std::vector<rs_sf_box> rs_sf_boxfit::get_boxes() const
     return dst;
 }
 
-void rs_sf_boxfit::detect_new_boxes(box_scene& view)
-{
-    for (auto&& pair : view.plane_pairs)
-    {
-        form_box_from_two_planes(view, pair);
-    }
-}
-
 bool rs_sf_boxfit::is_valid_box_plane(const plane & p0)
 {
-    return p0.best_pts.size() >= rs_sf_planefit::m_param.min_num_plane_pt;
+    return (is_valid_past_plane(p0) || is_valid_plane(p0)) &&
+        (p0.pid == 0 || !m_bp_map.plane_used[p0.pid]);
 }
 
-void rs_sf_boxfit::form_list_of_plane_pairs(box_scene& view)
+void rs_sf_boxfit::detect_new_boxes(box_scene& view)
 {
     const int num_plane = (int)m_sorted_plane_ptr.size();
     const int max_pid = (int)m_tracked_pid.size();
     view.plane_pairs.clear();
-    view.plane_pairs.reserve(num_plane*(num_plane + 1) + num_detected_boxes());
-
-    // set null box ptr to all tracked planes
-    std::vector<std::vector<tracked_box*>> box_plane_table(max_pid);
-    for (auto&& row : box_plane_table) row.assign(max_pid, nullptr);
+    view.plane_pairs.reserve(num_plane);
+    view.boxes.clear();
+    view.boxes.reserve(num_plane);
 
     // old box pairs 
-    for (auto&& box : m_tracked_boxes)
-    {
-        auto* p0 = get_tracked_plane(box.pid[0]);
-        auto* p1 = get_tracked_plane(box.pid[1]);
-        if (p0 && p1) {
-            box_plane_table[box.pid[0]][box.pid[1]] = &box;
-            box_plane_table[box.pid[1]][box.pid[0]] = &box;
-        }
+    m_bp_map.reset();
+    for (auto&& box : m_tracked_boxes){
+        m_bp_map.add(box);
     }
 
     // form all box pairs
-    for (int i = 0; i < num_plane; ++i) 
-    {
-        if (is_valid_box_plane(*m_sorted_plane_ptr[i])) {
+    auto* pptr = m_sorted_plane_ptr.data();
+    for (int i = 0; i < num_plane; ++i) {
+        if (is_valid_box_plane(*pptr[i])) {
             for (int j = i + 1; j < num_plane; ++j) {
-                if (is_valid_box_plane(*m_sorted_plane_ptr[j])) {
-                    view.plane_pairs.emplace_back(m_sorted_plane_ptr[i], m_sorted_plane_ptr[j],
-                        box_plane_table[m_sorted_plane_ptr[i]->pid][m_sorted_plane_ptr[j]->pid]);
+                if (is_valid_box_plane(*pptr[j])) {
+                    auto pair = m_bp_map.form_pair(pptr[i], pptr[j]);
+                    if (form_box_from_two_planes(view, pair)) {
+                        for (int k = j + 1; k < num_plane; ++k) {
+                            if (is_valid_box_plane(*pptr[k]) &&
+                                refine_box_from_third_plane(view, pair, *pptr[k])) {
+                                break; //k loop
+                            }
+                        }
+                        view.plane_pairs.emplace_back(pair);
+                        m_bp_map.mark(pair);
+                        break; //j loop
+                    }
                 }
             }
         }
     }
-
-    view.boxes.clear();
-    view.boxes.reserve(view.plane_pairs.size());
 }
 
 #include <array>
@@ -223,11 +214,10 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
 {
     auto& plane0 = *pair.p0, &plane1 = *pair.p1;
 
-    // reject plane pair n&ot perpendiculars only if no box history
-    if (!pair.prev_box) {
-        auto cosine_theta = std::abs(plane0.normal.dot(plane1.normal));
-        if (cosine_theta > m_param.plane_angle_thr) return false;
-    }
+    // reject plane pair not perpendiculars
+    auto cosine_theta = std::abs(plane0.normal.dot(plane1.normal));
+    if (!pair.prev_box && (cosine_theta > m_param.plane_angle_thr)) return false;
+    if (pair.prev_box && (cosine_theta > (m_param.plane_angle_thr*2.0f))) return false;
 
     // box axis
     v3 axis[3] = { plane1.normal, plane0.normal, {} };
@@ -254,7 +244,7 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
 
     const float cen0_to_plane1_d = plane1.normal.dot(plane0.src->pos) + plane1.d;
     const float cen1_to_plane0_d = plane0.normal.dot(plane1.src->pos) + plane0.d;
-    // axis pointing towards plane cetner
+    // axis pointing towards plane center
     axis[0] = (cen0_to_plane1_d < 0 ? -axis[0] : axis[0]);
     axis[1] = (cen1_to_plane0_d < 0 ? -axis[1] : axis[1]);
 
@@ -303,11 +293,9 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     const auto axis1_length = box_plane[1].get_height_length(axis[1], width_bin_range, axis_origin[1]);
 
     // check if two planes touch in 3D
-    if (!pair.prev_box) {
-        if (std::abs(axis0_length[0]) > m_param.plane_intersect_thr) return false;
-        if (std::abs(axis1_length[0]) > m_param.plane_intersect_thr) return false;
-    }
-
+    if (std::abs(axis0_length[0]) > m_param.plane_intersect_thr) return false;
+    if (std::abs(axis1_length[0]) > m_param.plane_intersect_thr) return false;
+  
     // compute good plane widths
     const auto width0_range = box_plane[0].get_width_range(axis_origin[0]);
     const auto width1_range = box_plane[1].get_width_range(axis_origin[1]);
@@ -316,7 +304,7 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
 
     // make new box
     view.boxes.push_back({});
-    box* new_box = pair.box = &view.boxes.back();
+    box* new_box = pair.new_box = &view.boxes.back();
     // copy box axis
     new_box->axis << axis[0], axis[1], axis[2];
     // form the box dimension by end point differences
@@ -327,6 +315,59 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     return true;
 }
 
+bool rs_sf_boxfit::refine_box_from_third_plane(box_scene & view, plane_pair & pair, plane& p2)
+{
+    if (!pair.new_box) return false;
+    if (!p2.src->is_valid_pos()) return false;
+
+    auto& new_box = *pair.new_box;
+    const v3 axis2 = new_box.axis.col(2);
+
+    // plane normal should align with axis2
+    if (std::abs(axis2.dot(p2.normal)) < (1.0f-m_param.plane_angle_thr)) return false;
+
+    // two candidiate plane2 
+    const float half_dim2 = new_box.dimension[2] * 0.5f;
+    const v3 p2_cen[] = {
+        new_box.center - axis2 * half_dim2,  //negative end of axis 2
+        new_box.center + axis2 * half_dim2 };//positive end of axis 2
+
+    // check which plane2 is facing the camera
+    const float p2_neg_dp = (p2_cen[0] - view.plane_scene->cam_pose.translation).dot(-axis2);
+    const float p2_pos_dp = (p2_cen[1] - view.plane_scene->cam_pose.translation).dot(axis2);
+
+    // which end of axis 2 be the visible plane 2
+    if (p2_pos_dp >= 0 && p2_neg_dp >= 0) return false;    // both planes are invisible
+    const int p2_end = (p2_neg_dp < 0 ? 0 : 1); //visible end
+
+    // project p2 src onto box plane 2
+    const auto src_coeff2 = p2.src->pos.dot(axis2);
+    const auto dst_coeff2 = p2_cen[p2_end].dot(axis2);
+    if (std::abs(src_coeff2 - dst_coeff2) > m_param.max_plane_pt_error)
+        return false; //candidate p2 too far from box plane2
+
+    // reject p2 if points out of the box along axis 0 or axis 1
+    const v3 axis0 = new_box.axis.col(0);
+    const v3 axis1 = new_box.axis.col(1);
+    const float half_dim0 = new_box.dimension[0] * 0.5f;
+    const float half_dim1 = new_box.dimension[1] * 0.5f;
+    const float max_diff_dim0 = half_dim0 + m_param.max_plane_pt_error;
+    const float max_diff_dim1 = half_dim1 + m_param.max_plane_pt_error;
+    for (auto* p2pt : p2.best_pts) {
+        const v3 p2vec = (p2pt->pos - new_box.center); //p2 to center
+        if (std::abs(p2vec.dot(axis0)) > max_diff_dim0) return false; //outside box along axis0
+        if (std::abs(p2vec.dot(axis1)) > max_diff_dim1) return false; //outside box along axis1
+    }
+
+    // adjust the box along axis 2
+    const float adjust2 = src_coeff2 - dst_coeff2;
+    new_box.center += (adjust2 *0.5f)* axis2;
+    const float cen_coeff2 = new_box.center.dot(axis2);
+    new_box.dimension[2] = std::abs(src_coeff2 - cen_coeff2) * 2.0f;
+    pair.p2 = &p2;
+    return true;
+}
+
 void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
 {
     for (auto&& box : m_tracked_boxes)
@@ -334,11 +375,11 @@ void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
 
     // each newly detected box
     for (auto&& pair : view.plane_pairs) {
-        if (pair.box != nullptr) //new box
+        if (pair.new_box != nullptr) //new box
         {
             for (auto&& old_box : m_tracked_boxes) {
                 if (old_box.try_update(pair, m_param)) {
-                    pair.box = nullptr;
+                    pair.new_box = nullptr;
                     old_box.count_miss = 0;
                     break;
                 }
@@ -356,7 +397,7 @@ void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
 
     // each newly detected box without match
     for (auto&& pair : view.plane_pairs) {
-        if (pair.box != nullptr) {
+        if (pair.new_box != nullptr) {
             m_tracked_boxes.emplace_back(pair);
         }
     }
@@ -421,7 +462,7 @@ rs_sf_box rs_sf_boxfit::box::to_rs_sf_box() const
 bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const parameter& param)
 {
     // center not overlap
-    auto& new_observed_box = *pair.box;
+    auto& new_observed_box = *pair.new_box;
 
     if (!pair.prev_box) { // new box
         if ((center - new_observed_box.center).norm() > max_radius())

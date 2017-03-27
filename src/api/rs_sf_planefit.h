@@ -13,8 +13,8 @@ struct rs_sf_planefit : public rs_shapefit
         bool refine_plane_map = false;
 #ifdef _DEBUG
         bool hole_fill_plane_map = false;
-        int img_x_dn_sample = 9;
-        int img_y_dn_sample = 9;
+        int img_x_dn_sample = 5;
+        int img_y_dn_sample = 5;
 #else
         bool hole_fill_plane_map = true;
         int img_x_dn_sample = 5;
@@ -127,6 +127,9 @@ protected:
     int src_w() const { return m_intrinsics.width; }
     int num_pixels() const { return src_h()*src_w(); }
     int num_pixel_groups() const { return m_grid_h * m_grid_w; }
+    bool is_valid_new_plane(const plane& new_plane) const { return new_plane.pts.size() > m_param.min_num_plane_pt; }
+    bool is_valid_plane(const plane& plane) const { return plane.best_pts.size() > m_param.min_num_plane_pt; }
+    bool is_valid_past_plane(const plane& past_plane) const { return past_plane.pid > INVALID_PID && past_plane.non_empty(); }
     void refine_plane_boundary(plane& dst);
 
 private:
@@ -159,9 +162,6 @@ private:
     void sort_plane_size(vec_plane& planes, vec_plane_ref& sorted_planes);
 
     // plane tracking
-    bool is_valid_new_plane(const plane& new_plane) const { return new_plane.pts.size() > m_param.min_num_plane_pt; }
-    bool is_valid_plane(const plane& plane) const { return plane.best_pts.size() > m_param.min_num_plane_pt; }
-    bool is_valid_past_plane(const plane& past_plane) const { return past_plane.pid > INVALID_PID && past_plane.non_empty(); }
     bool is_tracked_pid(int pid) const { return INVALID_PID < pid && pid <= MAX_VALID_PID; }
     void save_current_scene_as_reference();
     void map_candidate_plane_from_past(scene& current_view, scene& past_view);

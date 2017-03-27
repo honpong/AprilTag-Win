@@ -87,7 +87,7 @@ protected:
         const plane* past_plane;
         plane(const v3& _nor, float _d, pt3d* _src, const plane* _past_plane = nullptr)
             : normal(_nor), d(_d), src(_src), pid(INVALID_PID), past_plane(_past_plane) {}
-        bool non_empty() const { return best_pts.size() > 0; }
+        bool non_empty() const { return best_pts.size() > 1; }
     };
 
     typedef std::vector<pt3d> vec_pt3d;

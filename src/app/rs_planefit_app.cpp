@@ -232,7 +232,6 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
                 depth_data[p] = s_depth_data[(y >> 1) * 320 + (x >> 1)];
             }
         }
-        camPose[3] *= 1000.f; camPose[7] *= 1000.0f; camPose[11] *= 1000.0f;
         img[0].cam_pose = img[1].cam_pose = camPose;
     }
     */

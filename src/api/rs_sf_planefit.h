@@ -8,7 +8,8 @@ struct rs_sf_planefit : public rs_shapefit
 {
     struct parameter
     {
-        bool compute_full_pt_cloud = false;
+	    bool compute_full_pt_cloud = false;
+		bool search_around_missing_z = false;
         bool filter_plane_map = false;
         bool refine_plane_map = false;
 #ifdef _DEBUG

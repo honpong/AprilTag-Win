@@ -487,6 +487,7 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, scene& current
     r20 = pose.rotation(2, 0); r21 = pose.rotation(2, 1); r22 = pose.rotation(2, 2);
     t0 = pose.translation[0], t1 = pose.translation[1], t2 = pose.translation[2];
 
+	const auto search_around = m_param.search_around_missing_z;
     const auto* src_depth = (unsigned short*)img->data;
     if (force_full_pt_cloud || m_param.compute_full_pt_cloud) {
 
@@ -494,7 +495,7 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, scene& current
         for (auto&& pt : current_view.pt_img)
         {
             pt.clear_all_state();
-            compute_pt3d(pt, true);
+            compute_pt3d(pt, search_around);
         }
 
         current_view.is_full_pt_cloud = true;
@@ -504,7 +505,7 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, scene& current
         // compute point cloud
         for (auto&& grp : current_view.pt_grp) {
             for (auto* pt : grp.pt) pt->clear_all_state();
-            compute_pt3d(*grp.pt0, true);
+            compute_pt3d(*grp.pt0, search_around);
         }
 
         current_view.is_full_pt_cloud = false;

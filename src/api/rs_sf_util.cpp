@@ -119,10 +119,9 @@ void rs_sf_util_to_box_frame(const rs_sf_box& box, v3 box_frame[12][2])
     }
 }
 
-void rs_sf_util_draw_boxes(rs_sf_image * rgb, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes)
+void rs_sf_util_draw_boxes(rs_sf_image * rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes)
 {
-    auto to_cam = pose_t().set_pose(rgb->cam_pose).invert();
-    auto proj = [to_cam = to_cam, cam = camera](const v3& pt) {
+    auto proj = [to_cam = pose.invert(), cam = camera](const v3& pt) {
         const auto pt3d = to_cam.rotation * pt + to_cam.translation;
         return v2{
             (pt3d.x() * cam.fx) / pt3d.z() + cam.ppx,

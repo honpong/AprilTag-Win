@@ -21,7 +21,7 @@ rs_sf_status rs_sf_boxfit::process_depth_image(const rs_sf_image * img)
     m_box_ref_scene.clear();
     
     detect_new_boxes(m_box_scene);
-    add_new_boxes_for_tracking(m_box_scene);
+    update_tracked_boxes(m_box_scene);
 
     return pf_status;
 }
@@ -34,7 +34,7 @@ rs_sf_status rs_sf_boxfit::track_depth_image(const rs_sf_image * img)
     m_box_scene.swap(m_box_ref_scene);
 
     detect_new_boxes(m_box_scene);
-    add_new_boxes_for_tracking(m_box_scene);
+    update_tracked_boxes(m_box_scene);
 
     return pf_status;
 }
@@ -368,7 +368,7 @@ bool rs_sf_boxfit::refine_box_from_third_plane(box_scene & view, plane_pair & pa
     return true;
 }
 
-void rs_sf_boxfit::add_new_boxes_for_tracking(box_scene & view)
+void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
 {
     for (auto&& box : m_tracked_boxes)
         ++box.count_miss;
@@ -484,6 +484,7 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const paramet
     // add to history
     pid[0] = pair.p0->pid;
     pid[1] = pair.p1->pid;
+    pid[2] = pair.p2 ? pair.p2->pid : 0;
     box_history.push_back(new_box);
     while (box_history.size() > param.max_box_history)
         box_history.pop_front();

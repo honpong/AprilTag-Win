@@ -150,7 +150,7 @@ private:
     bool refine_box_from_third_plane(box_scene& view, plane_pair& pair, plane& p2);
 
     // manage box list
-    void add_new_boxes_for_tracking(box_scene& view);
+    void update_tracked_boxes(box_scene& view);
 
     // debug
     void draw_box(const std::string& name, const box& src, const box_plane_t* p0 = nullptr, const box_plane_t* p1 = nullptr) const;

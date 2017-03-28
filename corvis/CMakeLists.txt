@@ -51,7 +51,7 @@ elseif (APPLE)
 endif ()
 
 option(ENABLE_STEREO "Enable Stereo" OFF)
-option(ENABLE_VISGL "Enable GL Visualizations" OFF)
+option(ENABLE_MEASURE "Enable Measure" ON)
 option(ENABLE_MGL "Enable MathGL (used for plots in measure)" OFF)
 option(ENABLE_QR "Enable QR Code localization" OFF)
 option(ENABLE_SOURCES "Enable installation of source code examples" OFF)
@@ -65,25 +65,26 @@ endif (APPLE)
 
 add_subdirectory(src)
 
-if(ENABLE_VISGL)
-
-set(GLFW_INSTALL OFF CACHE BOOL "")
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
-set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
-set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
-add_subdirectory(src/glfw)
-if(NOT WIN32)
+if (ENABLE_MEASURE)
+find_package(OpenGL QUIET)
+if (OPENGL_FOUND AND NOT ANDROID)
+  set(GLFW_INSTALL OFF CACHE BOOL "")
+  set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
+  set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
+  set(GLFW_)
+  add_subdirectory(src/glfw)
+  if(NOT WIN32)
     target_compile_options(glfw PRIVATE $<$<CXX_COMPILER_ID:AppleClang>: -Wno-deprecated-declarations>)
-endif()
-target_include_directories(glfw INTERFACE src/glfw/include)
+  endif()
+  target_include_directories(glfw INTERFACE src/glfw/include)
 
-add_library(glad STATIC
-  src/glfw/deps/glad.c
-)
-target_compile_options(glad PRIVATE $<$<C_COMPILER_ID:MSVC>:/wd4996>)
-target_include_directories(glad
-  PUBLIC src/glfw/deps
-)
+  add_library(glad STATIC src/glfw/deps/glad.c)
+  target_compile_options(glad PRIVATE $<$<C_COMPILER_ID:MSVC>:/wd4996>)
+  target_include_directories(glad PUBLIC src/glfw/deps)
+  set(HAVE_GLFW 1)
+else()
+  message(STATUS "No OpenGL found; measure's GUI disabled.")
+endif()
 
 add_executable(measure
   src/measure/measure.cpp
@@ -91,17 +92,23 @@ add_executable(measure
   src/measure/for_each_file.cpp
 
   src/measure/world_state.cpp
-  src/measure/world_state_render.cpp
-  src/measure/arcball.cpp
-  src/measure/offscreen_render.cpp
-  src/measure/gui.cpp
-  src/measure/lodepng.cpp
-  src/measure/gl_util.cpp
-  src/measure/render.cpp
-  src/measure/video_render.cpp
+  $<$<BOOL:${HAVE_GLFW}>:
+    src/measure/world_state_render.cpp
+    src/measure/arcball.cpp
+    src/measure/offscreen_render.cpp
+    src/measure/gui.cpp
+    src/measure/lodepng.cpp
+    src/measure/gl_util.cpp
+    src/measure/render.cpp
+    src/measure/video_render.cpp
+  >
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 install(TARGETS measure RUNTIME DESTINATION bin COMPONENT alloy)
+if (HAVE_GLFW)
+    target_compile_options(measure PRIVATE -DHAVE_GLFW=1)
+    target_link_libraries(measure PRIVATE glad glfw ${GLFW_LIBRARIES})
+endif()
 if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
     target_compile_options(measure PRIVATE -DDEBUG=1)
 endif()
@@ -111,18 +118,17 @@ if(ENABLE_MGL)
     target_link_libraries(measure PRIVATE mgl)
 endif()
 
-target_link_libraries(measure PRIVATE glad glfw PUBLIC trackeri)
+target_link_libraries(measure PUBLIC trackeri)
 if(ENABLE_MGL)
     add_subdirectory(../ThirdParty/mathgl mathgl)
     target_compile_options(mgl PRIVATE $<$<BOOL:${MSVC}>:/wd4244 /wd4190 /wd4800>)
     target_link_libraries(measure PRIVATE mgl)
     target_compile_definitions(measure PRIVATE HAVE_MGL)
 endif()
-target_link_libraries(measure PRIVATE ${GLFW_LIBRARIES})
 target_include_directories(measure PUBLIC measure)
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 
-endif() # VISGL
+endif()
 
 add_subdirectory(src/rc_replay)
 

@@ -64,8 +64,7 @@ If both MKL and LAPACKe are disabled, the system will fallback to using Eigen.
 
 ### Visualization
 
-Pass `-DENABLE_VISGL=True` to `cmake` to enable the visualizer
-`measure` and on Linux, install its dependencies with:
+To enable the visualizer in `measure` on Linux, install its dependencies with:
 
 ```sh
 

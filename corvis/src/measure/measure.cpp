@@ -171,6 +171,7 @@ int main(int c, char **v)
             return true;
         },
         [&](const char *capture_file, struct benchmark_result &res) -> void {
+#ifdef HAVE_GLFW
             if(render_output && res.user_data) {
                 world_state * ws = (world_state *)res.user_data;
                 std::string render_filename = render_filename_from_filename(filename, render_output, capture_file);
@@ -179,7 +180,7 @@ int main(int c, char **v)
                     cerr << "Failed to render " << render_filename << "\n";
                 delete ws;
             }
-
+#endif
         });
         return 0;
     }
@@ -189,7 +190,7 @@ int main(int c, char **v)
     if (!configure(rp, filename))
         return 2;
 
-#if defined(ANDROID)
+#ifndef HAVE_GLFW
     rp.start(load_map);
 #else
     world_state ws;

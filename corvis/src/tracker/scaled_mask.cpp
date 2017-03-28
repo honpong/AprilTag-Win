@@ -14,10 +14,8 @@ scaled_mask::scaled_mask(int _width, int _height, int mask_shift) {
     assert((((_width >> mask_shift) << mask_shift) == _width) && (((_height >> mask_shift) << mask_shift) == _height));
     scaled_width = _width >> mask_shift;
     scaled_height = _height >> mask_shift;
-    mask = new uint8_t[scaled_width * scaled_height];
+    mask = std::make_unique<uint8_t[]>(scaled_width * scaled_height);
 }
-
-scaled_mask::~scaled_mask() { delete[] mask; }
 
 void scaled_mask::clear(int fx, int fy)
 {
@@ -45,9 +43,9 @@ void scaled_mask::initialize()
 {
     //set up mask - leave a 1-block strip on border off
     //use 8 byte blocks
-    memset(mask, 0, scaled_width);
-    memset(mask + scaled_width, 1, (scaled_height - 2) * scaled_width);
-    memset(mask + (scaled_height - 1) * scaled_width, 0, scaled_width);
+    memset(mask.get(), 0, scaled_width);
+    memset(mask.get() + scaled_width, 1, (scaled_height - 2) * scaled_width);
+    memset(mask.get() + (scaled_height - 1) * scaled_width, 0, scaled_width);
     //vertical border
     for(int y = 1; y < scaled_height - 1; ++y) {
         mask[0 + y * scaled_width] = 0;

@@ -11,6 +11,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <memory>
 
 class scaled_mask
 {
@@ -20,11 +21,10 @@ public:
     inline bool test(int x, int y) const { return mask[(x >> mask_shift) + scaled_width * (y >> mask_shift)] != 0; }
     // mask shift of 3 is 8x8 pixel blocks
     scaled_mask(int _width, int _height, int mask_shift = 3);
-    ~scaled_mask();
     //protected:
     int scaled_width, scaled_height, mask_shift;
     //TODO: should this be a bitfield instead of bytes?
-    uint8_t *mask;
+    std::unique_ptr<uint8_t[]> mask;
 };
 
 #endif /* defined(__RC3DK__scaled_mask__) */

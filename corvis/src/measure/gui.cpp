@@ -129,7 +129,7 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_MINUS:    scale *= 1.1f;
              break; case GLFW_KEY_SPACE:    if (replay_control) replay_control->toggle_pause();
              break; case GLFW_KEY_S:        if (replay_control) replay_control->step();
-             break; case GLFW_KEY_Q:        if (replay_control) replay_control->stop(); quit = true;
+             break; case GLFW_KEY_Q:        if (replay_control) replay_control->stop(); glfwSetWindowShouldClose(window, 1);
              break; case GLFW_KEY_R:        if (replay_control) replay_control->reset();
              break; case GLFW_KEY_F:        write_frame();
              break; case GLFW_KEY_V:        if (!(mods & GLFW_MOD_SHIFT)) show_video = !show_video;
@@ -220,7 +220,7 @@ void gui::start_glfw()
 
     int last_width = width;
     int last_height = height;
-    while (!glfwWindowShouldClose(main_window) && !quit)
+    while (!glfwWindowShouldClose(main_window))
     {
         int screen_width, screen_height;
         glfwGetWindowSize(main_window, &screen_width, &screen_height);

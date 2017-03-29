@@ -13,14 +13,14 @@
 #define RS_SHAPEFIT_DECL
 #endif
 
+#define RS_SHAPEFIT_API_MAJOR_VERSION 1
+#define RS_SHAPEFIT_API_MINOR_VERSION 0
+#define RS_SHAPEFIT_API_PATCH_VERSION 0
+
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-#define RS_SHAPEFIT_API_MAJOR_VERSION 1
-#define RS_SHAPEFIT_API_MINOR_VERSION 0
-#define RS_SHAPEFIT_API_PATCH_VERSION 0
 
     struct rs_sf_intrinsics
     {
@@ -72,10 +72,12 @@ extern "C"
     enum rs_sf_fit_option
     {
         RS_SF_OPTION_TRACKING = 0,      /**< 0:TRACK, 1:SINGLE FRAME       */
-        RS_SF_OPTION_BOX_PLANE_RES = 1, /**< 0:LOW, 1:HIGH, 2:HIGH         */
-        RS_SF_OPTION_DRAW_PLANES = 2,   /**< 0:OVERLAY, 1:OVERWRITE        */
-        RS_SF_OPTION_GET_PLANE_ID = 3,  /**< 0:ORIGINAL, 1:SCALED, 2:REMAP */
-        RS_SF_OPTION_COUNT = 4,
+        RS_SF_OPTION_PLANE_NOISE = 1,   /**< 0:LOW, 1:MEDIUM, 2:HIGH       */
+        RS_SF_OPTION_PLANE_RES = 2,     /**< 0:LOW,           2:HIGH       */
+        RS_SF_OPTION_BOX_PLANE_RES = 3, /**< 0:LOW,           2:HIGH       */
+        RS_SF_OPTION_DRAW_PLANES = 4,   /**< 0:OVERLAY, 1:OVERWRITE        */
+        RS_SF_OPTION_GET_PLANE_ID = 5,  /**< 0:ORIGINAL, 1:SCALED, 2:REMAP */
+        RS_SF_OPTION_COUNT = 6,
     };
 
     RS_SHAPEFIT_DECL rs_shapefit* rs_shapefit_create(const rs_sf_intrinsics* camera, rs_shapefit_option option = RS_SHAPEFIT_PLANE);
@@ -145,6 +147,6 @@ typedef rs_shapefit_ptr<> rs_sf_shapefit_ptr;
 typedef rs_shapefit_ptr<RS_SHAPEFIT_PLANE> rs_sf_planefit_ptr;
 typedef rs_shapefit_ptr<RS_SHAPEFIT_BOX> rs_sf_boxfit_ptr;
 
-#endif
+#endif //__cplusplus
 
 #endif //rs_shapefit_h

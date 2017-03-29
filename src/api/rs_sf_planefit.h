@@ -9,7 +9,7 @@ struct rs_sf_planefit : public rs_shapefit
     struct parameter
     {
 	    bool compute_full_pt_cloud = false;
-		bool search_around_missing_z = true;
+		bool search_around_missing_z = false;
         bool filter_plane_map = false;
         bool refine_plane_map = false;
 #ifdef _DEBUG
@@ -36,6 +36,7 @@ struct rs_sf_planefit : public rs_shapefit
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);
+    virtual rs_sf_status set_option(rs_sf_fit_option option, double value) override;
     virtual rs_sf_status process_depth_image(const rs_sf_image* img);
     virtual rs_sf_status track_depth_image(const rs_sf_image* img);
 

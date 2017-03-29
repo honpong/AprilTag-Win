@@ -36,6 +36,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
     };
 
     rs_sf_boxfit(const rs_sf_intrinsics* camera);
+    rs_sf_status set_option(rs_sf_fit_option option, double value) override;
     rs_sf_status process_depth_image(const rs_sf_image* img) override;
     rs_sf_status track_depth_image(const rs_sf_image* img) override;
 

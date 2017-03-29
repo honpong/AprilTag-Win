@@ -19,9 +19,9 @@ void rs_shapefit_delete(rs_shapefit * obj)
 
 RS_SHAPEFIT_DECL rs_sf_status rs_shapefit_set_option(rs_shapefit * obj, rs_sf_fit_option option, double value)
 {
-    if (!obj || option >= RS_SF_OPTION_COUNT) return RS_SF_INVALID_ARG;
-    obj->m_param[option] = value;
-    return RS_SF_SUCCESS;
+    if (!obj) return RS_SF_INVALID_ARG;
+    if (option < 0 || option >= RS_SF_OPTION_COUNT) return RS_SF_INDEX_OUT_OF_BOUND;
+    return obj->set_option(option, value);
 }
 
 rs_sf_status rs_shapefit_depth_image(rs_shapefit * obj, const rs_sf_image * image)

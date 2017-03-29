@@ -7,6 +7,19 @@ rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera)
     parameter_updated();
 }
 
+rs_sf_status rs_sf_planefit::set_option(rs_sf_fit_option option, double value)
+{
+    auto status = rs_shapefit::set_option(option, value);
+    switch (option) {
+    case RS_SF_OPTION_PLANE_RES:
+        m_param.refine_plane_map = (value > 1); break;
+    case RS_SF_OPTION_PLANE_NOISE:
+        m_param.search_around_missing_z = (value > 0);
+        m_param.filter_plane_map = (value > 1); break;
+    }
+    return status;
+}
+
 rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
 {
     if (!img || !img->data || img->byte_per_pixel != 2 ) return RS_SF_INVALID_ARG;
@@ -61,10 +74,10 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
 
 int rs_sf_planefit::num_detected_planes() const
 {
-    int n = 0; 
-    for (auto&& pl : m_view.planes) 
-        if (pl.best_pts.size() >= m_param.min_num_plane_pt) 
-            ++n; 
+    int n = 0;
+    for (auto&& pl : m_view.planes)
+        if (is_valid_plane(pl))
+            ++n;
     return n;
 }
 

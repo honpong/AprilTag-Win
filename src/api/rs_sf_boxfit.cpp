@@ -11,6 +11,15 @@ rs_sf_boxfit::rs_sf_boxfit(const rs_sf_intrinsics * camera) : rs_sf_planefit(cam
     debug_this = this;
 }
 
+rs_sf_status rs_sf_boxfit::set_option(rs_sf_fit_option option, double value)
+{
+    auto status = rs_sf_planefit::set_option(option, value);
+  
+    if (option == RS_SF_OPTION_BOX_PLANE_RES) { m_param.refine_box_plane = (value > 0); }
+ 
+    return status;
+}
+
 rs_sf_status rs_sf_boxfit::process_depth_image(const rs_sf_image * img)
 {
     auto pf_status = rs_sf_planefit::process_depth_image(img);

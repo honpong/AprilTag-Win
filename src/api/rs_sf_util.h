@@ -32,15 +32,14 @@ typedef std::vector<i2> contour;
 
 struct rs_shapefit
 {
+    virtual rs_sf_status set_option(rs_sf_fit_option option, double value) { m_param[option] = value; return RS_SF_SUCCESS; }
     virtual ~rs_shapefit() {};
     rs_sf_intrinsics m_intrinsics;
     double m_param[RS_SF_OPTION_COUNT] = {};
     enum fit_option_tracking { CONTINUE = 0, SINGLE_FRAME = 1 };
-    enum fit_option_box_plane_res { LOW = 0, MEDIUM = 1, HIGH = 2 };
     enum fit_option_draw_planes { OVERLAY = 0, OVERWRITE = 1 };
     enum fit_option_get_plane_id { ORIGINAL = 0, SCALED = 1, REMAP = 2 };
     fit_option_tracking get_option_track() const { return (fit_option_tracking)m_param[RS_SF_OPTION_TRACKING]; }
-    fit_option_box_plane_res get_option_box_plane_res() const { return (fit_option_box_plane_res)m_param[RS_SF_OPTION_BOX_PLANE_RES]; }
     fit_option_draw_planes get_option_draw_planes() const { return (fit_option_draw_planes)m_param[RS_SF_OPTION_DRAW_PLANES]; }
     fit_option_get_plane_id get_option_get_plane_id() const { return (fit_option_get_plane_id)m_param[RS_SF_OPTION_GET_PLANE_ID]; }
 };
@@ -61,7 +60,6 @@ struct pose_t
     inline v3 transform(const v3& p) const { return rotation*p + translation; }
     inline pose_t invert() const { return pose_t{ rotation.transpose(),-(rotation.transpose() * translation) }; }
 };
-
 
 inline void print_box(const rs_sf_box& box)
 {

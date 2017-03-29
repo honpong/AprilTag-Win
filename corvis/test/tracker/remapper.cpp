@@ -50,7 +50,7 @@ struct state {
                 index++;
         }
         mat = new matrix(max_size, max_size);
-        vec = new matrix(1,        max_size);
+        vec = new matrix(max_size);
 
         {
             int size=0;
@@ -59,7 +59,7 @@ struct state {
                     for (int i=0; i<r.size; i++, size++)
                         (*vec)[size] = primes[r.pindex+i];
             }
-            vec->resize(1, size);
+            vec->resize(size);
             mat->resize(size, size);
         }
 
@@ -115,7 +115,7 @@ struct state {
 
         int size = i;
 
-        matrix v_remapped_into(1, max_size);
+        matrix v_remapped_into(max_size);
         rm.remap_vector(size, v_remapped_into, *vec);
         EXPECT_EQ(v_remapped_into.map(), ref.vec->map()) << str << " -> " << ref.str << " " << v_remapped_into.map() << " -> " << ref.vec->map();
 

@@ -29,8 +29,8 @@ public:
     int get_stride() const { return stride; }
     int rows() const { return _rows; }
     int cols() const { return _cols; }
-    matrix row(const int r) { return matrix(data + r * stride, 1, _cols); }
-    void resize(const int c) {assert(c <= stride && _rows == 1); _cols = c; }
+    matrix row(const int r) { return matrix(data + r * stride, _cols); }
+    void resize(const int size) {assert(size <= stride && _rows == 1); _cols = size; }
     void resize(const int r, const int c) { assert(c <= stride && r <= maxrows); _rows = r; _cols = c; }
 #ifdef DEBUG
     f_t &operator[] (const int i) { assert(i >= 0 && i < _cols && _rows == 1); return data[i]; }
@@ -74,6 +74,7 @@ public:
  matrix(): storage(NULL), _rows(0), _cols(0), stride(0), maxrows(0), data(NULL) {}
  matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): storage(NULL), _rows(rows), _cols(cols), stride(other.stride), maxrows(other.maxrows-startrow), data(&other(startrow, startcol)) {}
     
+  matrix(const int size): storage(new f_t[size]), _rows(1), _cols(size), stride(size), maxrows(1), data(storage) { }
   matrix(const int nrows, const int ncols): storage(new f_t[nrows * ncols]), _rows(nrows), _cols(ncols), stride(ncols), maxrows(nrows), data((f_t *)storage) { }
 
     matrix(const matrix &other): storage(new f_t[other._rows * other._cols]), _rows(other._rows), _cols(other._cols), stride(other._cols), maxrows(other._rows), data((f_t *)storage)

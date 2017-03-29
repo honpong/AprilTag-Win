@@ -103,7 +103,7 @@ bool observation_queue::update_state_and_covariance(state_root &s, const matrix 
 #endif
     if(kalman_compute_gain(K, HP, res_cov))
     {
-        state.resize(1, s.cov.size());
+        state.resize(s.cov.size());
         s.copy_state_to_array(state);
         kalman_update_state(state, K, inn);
         s.copy_state_from_array(state);
@@ -134,8 +134,8 @@ bool observation_queue::process(state_root &s)
 
     int meas_size = size(), statesize = s.cov.size();
     if(meas_size) {
-        inn.resize(1, meas_size);
-        m_cov.resize(1, meas_size);
+        inn.resize(meas_size);
+        m_cov.resize(meas_size);
         HP.resize(meas_size, statesize);
         res_cov.resize(meas_size, meas_size);
 

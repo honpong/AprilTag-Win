@@ -120,7 +120,7 @@ struct rs_sf_boxfit::box_plane_t
         d = _d;
         normal = _normal;
 
-        auto& tmp_fine_pts = src->fine_pts;
+        auto& tmp_fine_pts = (src->fine_pts.size() ? src->fine_pts : src->best_pts);
         pts.reserve(tmp_fine_pts.size());
         for (auto* pt : tmp_fine_pts)
         {
@@ -264,8 +264,10 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     // box plane helper
     box_plane_t box_plane[2] = { box_plane_t(plane0),box_plane_t(plane1) };
 
-    refine_plane_boundary(plane0);
-    refine_plane_boundary(plane1);
+    if (m_param.refine_box_plane) {
+        refine_plane_boundary(plane0);
+        refine_plane_boundary(plane1);
+    }
 
     // third axis is the cross product of two plane normals
     axis[2] = axis[0].cross(axis[1]).normalized();

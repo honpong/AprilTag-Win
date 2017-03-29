@@ -18,6 +18,10 @@ extern "C"
 {
 #endif
 
+#define RS_SHAPEFIT_API_MAJOR_VERSION 1
+#define RS_SHAPEFIT_API_MINOR_VERSION 0
+#define RS_SHAPEFIT_API_PATCH_VERSION 0
+
     struct rs_sf_intrinsics
     {
         int           width;     /* width of the image in pixels */
@@ -54,7 +58,9 @@ extern "C"
         RS_SF_INVALID_OBJ_HANDLE = -3,
         RS_SF_INVALID_ARG = -2,
         RS_SF_FAILED = -1,
-        RS_SF_SUCCESS = 0
+        RS_SF_SUCCESS = 0,
+        RS_SF_INDEX_OUT_OF_BOUND = 1,
+        RS_SF_INDEX_INVALID = 2
     };
 
     enum rs_shapefit_option
@@ -65,30 +71,27 @@ extern "C"
 
     enum rs_sf_fit_option
     {
-        RS_SHAPEFIT_OPTION_TRACK = 0,
-        RS_SHAPEFIT_OPTION_RESET = 1,
-        RS_SHAPEFIT_OPTION_RAW_DEPTH = 2
-    };
-
-    enum rs_sf_draw_opion
-    {
-        RS_SF_PLANEFIT_DRAW_ORIGINAL = 0,
-        RS_SF_PLANEFIT_DRAW_SCALED = 1,
-        RS_SF_PLANEFIT_DRAW_REMAP = 2,
+        RS_SF_OPTION_TRACKING = 0,      /**< 0:TRACK, 1:SINGLE FRAME       */
+        RS_SF_OPTION_BOX_PLANE_RES = 1, /**< 0:LOW, 1:HIGH, 2:HIGH         */
+        RS_SF_OPTION_DRAW_PLANES = 2,   /**< 0:OVERLAY, 1:OVERWRITE        */
+        RS_SF_OPTION_GET_PLANE_ID = 3,  /**< 0:ORIGINAL, 1:SCALED, 2:REMAP */
+        RS_SF_OPTION_COUNT = 4,
     };
 
     RS_SHAPEFIT_DECL rs_shapefit* rs_shapefit_create(const rs_sf_intrinsics* camera, rs_shapefit_option option = RS_SHAPEFIT_PLANE);
     RS_SHAPEFIT_DECL void rs_shapefit_delete(rs_shapefit* obj);
 
     /// General Processing
-    RS_SHAPEFIT_DECL rs_sf_status rs_shapefit_depth_image(rs_shapefit* obj, const rs_sf_image* image, rs_sf_fit_option option = RS_SHAPEFIT_OPTION_TRACK);
+    RS_SHAPEFIT_DECL rs_sf_status rs_shapefit_set_option(rs_shapefit* obj, rs_sf_fit_option option, double value);
+    RS_SHAPEFIT_DECL rs_sf_status rs_shapefit_depth_image(rs_shapefit* obj, const rs_sf_image* image);
 
     /// Plane Fitting Functions
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr);
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_plane_ids(const rs_shapefit* obj, rs_sf_image* mono, rs_sf_draw_opion option = RS_SF_PLANEFIT_DRAW_ORIGINAL );
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_plane_ids(const rs_shapefit* obj, rs_sf_image* mono);
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit* obj, int pid, float equation[4]);
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr);
 
     /// Box Fitting Functions
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit* obj, int box_id, rs_sf_box* dst);
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr);
    
 #ifdef __cplusplus

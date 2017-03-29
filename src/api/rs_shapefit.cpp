@@ -17,16 +17,23 @@ void rs_shapefit_delete(rs_shapefit * obj)
     if (obj) delete obj;
 }
 
-rs_sf_status rs_shapefit_depth_image(rs_shapefit * obj, const rs_sf_image * image, rs_sf_fit_option option)
+RS_SHAPEFIT_DECL rs_sf_status rs_shapefit_set_option(rs_shapefit * obj, rs_sf_fit_option option, double value)
+{
+    if (!obj || option >= RS_SF_OPTION_COUNT) return RS_SF_INVALID_ARG;
+    obj->m_param[option] = value;
+    return RS_SF_SUCCESS;
+}
+
+rs_sf_status rs_shapefit_depth_image(rs_shapefit * obj, const rs_sf_image * image)
 {
     if (!obj || !image || image->byte_per_pixel != 2) return RS_SF_INVALID_ARG;
 
     auto pf = dynamic_cast<rs_sf_planefit*>(obj);
     if (pf) {
-        if (option == RS_SHAPEFIT_OPTION_TRACK && pf->num_detected_planes() > 0)
+        if (pf->get_option_track() == rs_shapefit::CONTINUE && pf->num_detected_planes() > 0)
             return pf->track_depth_image(image);   //tracking mode
         else
-            return pf->process_depth_image(image); //static mode
+            return pf->process_depth_image(image); //single frame mode
     }
 
     return RS_SF_INVALID_OBJ_HANDLE;
@@ -40,22 +47,28 @@ rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * r
 
     rs_sf_image_mono map(rgb);
     const auto status = pf->get_plane_index_map(&map, rgb->cam_pose || (src && src->cam_pose) ? 0 : -1);
-    if (status == RS_SF_SUCCESS)  rs_sf_util_draw_planes(rgb, &map, src);
+    if (status == RS_SF_SUCCESS) {
+        switch (pf->get_option_draw_planes()) {
+        case rs_shapefit::OVERLAY: rs_sf_util_draw_planes(rgb, &map, src); break;
+        case rs_shapefit::OVERWRITE: rs_sf_util_draw_planes(rgb, &map, src,true); break;
+        }
+    }
     return status;
 }
 
-rs_sf_status rs_sf_planefit_draw_plane_ids(const rs_shapefit * obj, rs_sf_image * mono, rs_sf_draw_opion option)
+rs_sf_status rs_sf_planefit_get_plane_ids(const rs_shapefit * obj, rs_sf_image * mono)
 {
     if (!obj || !mono || mono->byte_per_pixel != 1) return RS_SF_INVALID_ARG;
     auto pf = dynamic_cast<const rs_sf_planefit*>(obj);
     if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
 
     const auto status = pf->get_plane_index_map(mono, mono->cam_pose ? 0 : -1);
-    if (status == RS_SF_SUCCESS && option == RS_SF_PLANEFIT_DRAW_SCALED)
-        rs_sf_util_scale_plane_ids(mono, pf->max_detected_pid());
-    else if(status == RS_SF_SUCCESS && option == RS_SF_PLANEFIT_DRAW_REMAP)
-        rs_sf_util_remap_plane_ids(mono);
-
+    if (status == RS_SF_SUCCESS) {
+        switch (pf->get_option_get_plane_id()) {
+        case rs_shapefit::SCALED: rs_sf_util_scale_plane_ids(mono, pf->max_detected_pid()); break;
+        case rs_shapefit::REMAP: rs_sf_util_remap_plane_ids(mono); break;
+        }
+    }
     return status;
 }
 
@@ -66,6 +79,17 @@ rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit * obj, int pid, float
     if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
 
     return pf->get_plane_equation(pid, equation);
+}
+
+RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit * obj, int box_id, rs_sf_box * dst)
+{
+    if (!obj || !dst) return RS_SF_INVALID_ARG;
+    auto bf = dynamic_cast<const rs_sf_boxfit*>(obj);
+    if (!bf) return RS_SF_INVALID_OBJ_HANDLE;
+
+    if (0 < box_id || box_id >= bf->num_detected_boxes()) return RS_SF_INDEX_OUT_OF_BOUND;
+    *dst = bf->get_box(box_id);
+    return RS_SF_SUCCESS;
 }
 
 RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * src)

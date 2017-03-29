@@ -23,7 +23,8 @@ void rs_sf_util_copy_depth_image(rs_sf_image_depth & dst, const rs_sf_image * sr
     memcpy(dst.data, src->data, dst.num_char());
 }
 
-void rs_sf_util_draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *src, const unsigned char * rgb_table[3], int num_color)
+void rs_sf_util_draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *src,
+    bool overwrite_rgb, const unsigned char * rgb_table[3], int num_color)
 {
     static unsigned char default_r[MAX_VALID_PID + 1] = { 0 };
     static unsigned char default_g[MAX_VALID_PID + 1] = { 0 };
@@ -44,14 +45,18 @@ void rs_sf_util_draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs
         num_color = (int)(sizeof(default_r) / sizeof(unsigned char));
     }
 
-    rs_sf_util_convert_to_rgb_image(rgb, src);
+    int c_shift = 8, p_shift = 0;
+    if (!overwrite_rgb) {
+        rs_sf_util_convert_to_rgb_image(rgb, src);
+        c_shift = p_shift = 1;
+    }
 
     for (int p = map->num_pixel() - 1; p >= 0; --p) {
         const int pid = map->data[p];
         if (0 <= pid && pid < num_color) {
-            rgb->data[p * 3 + 0] = (rgb->data[p * 3 + 0] >> 1) + (rgb_table[0][pid] >> 1);
-            rgb->data[p * 3 + 1] = (rgb->data[p * 3 + 1] >> 1) + (rgb_table[1][pid] >> 1);
-            rgb->data[p * 3 + 2] = (rgb->data[p * 3 + 2] >> 1) + (rgb_table[2][pid] >> 1);
+            rgb->data[p * 3 + 0] = (rgb->data[p * 3 + 0] >> c_shift) + (rgb_table[0][pid] >> p_shift);
+            rgb->data[p * 3 + 1] = (rgb->data[p * 3 + 1] >> c_shift) + (rgb_table[1][pid] >> p_shift);
+            rgb->data[p * 3 + 2] = (rgb->data[p * 3 + 2] >> c_shift) + (rgb_table[2][pid] >> p_shift);
         }
         else if (pid == PLANE_SRC_PID) {
             rgb->data[p * 3] = rgb->data[p * 3 + 1] = rgb->data[p * 3 + 2] = 255;

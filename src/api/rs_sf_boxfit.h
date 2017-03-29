@@ -14,6 +14,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
         float box_state_gain = 0.3f;
         int max_box_history = 11;
         int max_box_miss_frame = 5;
+        bool refine_box_plane = false;
     };
 
     struct box
@@ -39,6 +40,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
     rs_sf_status track_depth_image(const rs_sf_image* img) override;
 
     int num_detected_boxes() const { return (int)m_tracked_boxes.size(); }
+    rs_sf_box get_box(int box_id) const { return m_tracked_boxes[box_id].to_rs_sf_box(); }
     std::vector<rs_sf_box> get_boxes() const;
 
 protected:
@@ -136,7 +138,7 @@ protected:
         }
         bool try_update(const plane_pair& pair, const parameter& param);
     };
-    typedef std::list<tracked_box> queue_tracked_box;
+    typedef std::deque<tracked_box> queue_tracked_box;
     queue_tracked_box m_tracked_boxes;
 
 private:

@@ -30,10 +30,19 @@ typedef Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::ColMajor>> m3_axis_map;
 typedef Eigen::Quaternionf qv3;
 typedef std::vector<i2> contour;
 
-struct rs_shapefit 
+struct rs_shapefit
 {
     virtual ~rs_shapefit() {};
     rs_sf_intrinsics m_intrinsics;
+    double m_param[RS_SF_OPTION_COUNT] = {};
+    enum fit_option_tracking { CONTINUE = 0, SINGLE_FRAME = 1 };
+    enum fit_option_box_plane_res { LOW = 0, MEDIUM = 1, HIGH = 2 };
+    enum fit_option_draw_planes { OVERLAY = 0, OVERWRITE = 1 };
+    enum fit_option_get_plane_id { ORIGINAL = 0, SCALED = 1, REMAP = 2 };
+    fit_option_tracking get_option_track() const { return (fit_option_tracking)m_param[RS_SF_OPTION_TRACKING]; }
+    fit_option_box_plane_res get_option_box_plane_res() const { return (fit_option_box_plane_res)m_param[RS_SF_OPTION_BOX_PLANE_RES]; }
+    fit_option_draw_planes get_option_draw_planes() const { return (fit_option_draw_planes)m_param[RS_SF_OPTION_DRAW_PLANES]; }
+    fit_option_get_plane_id get_option_get_plane_id() const { return (fit_option_get_plane_id)m_param[RS_SF_OPTION_GET_PLANE_ID]; }
 };
 
 struct pose_t
@@ -66,7 +75,7 @@ inline void print_box(const rs_sf_box& box)
 void rs_sf_util_set_to_zeros(rs_sf_image* img);
 void rs_sf_util_convert_to_rgb_image(rs_sf_image* rgb, const rs_sf_image* src);
 void rs_sf_util_copy_depth_image(rs_sf_image_depth& dst, const rs_sf_image* src);
-void rs_sf_util_draw_planes(rs_sf_image* rgb, const rs_sf_image* map, const rs_sf_image* src = nullptr, const unsigned char* rgb_table[3] = nullptr, int num_color = 0);
+void rs_sf_util_draw_planes(rs_sf_image* rgb, const rs_sf_image* map, const rs_sf_image* src = nullptr, bool overwrite_rgb = false, const unsigned char* rgb_table[3] = nullptr, int num_color = 0);
 void rs_sf_util_scale_plane_ids(rs_sf_image* map, int max_pid);
 void rs_sf_util_remap_plane_ids(rs_sf_image * map);
 void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, v2 p0, v2 p1, const b3& color, const int size = 2);

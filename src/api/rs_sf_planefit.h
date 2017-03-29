@@ -9,7 +9,7 @@ struct rs_sf_planefit : public rs_shapefit
     struct parameter
     {
 	    bool compute_full_pt_cloud = false;
-		bool search_around_missing_z = false;
+		bool search_around_missing_z = true;
         bool filter_plane_map = false;
         bool refine_plane_map = false;
 #ifdef _DEBUG
@@ -83,8 +83,7 @@ protected:
     typedef std::list<pt3d*> list_pt_ref;
     struct plane {
         v3 normal; float d; pt3d* src; int pid;
-        vec_pt_ref pts, best_pts;
-        list_pt_ref edge_grp[2], fine_pts;
+        vec_pt_ref pts, best_pts, edge_grp[2], fine_pts;
         const plane* past_plane;
         plane(const v3& _nor, float _d, pt3d* _src, const plane* _past_plane = nullptr)
             : normal(_nor), d(_d), src(_src), pid(INVALID_PID), past_plane(_past_plane) {}

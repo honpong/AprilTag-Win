@@ -237,7 +237,7 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
     */
 
     // do plane fit    
-    if (rs_shapefit_depth_image(shapefitter, img /*, !switch_track ? RS_SHAPEFIT_OPTION_TRACK : RS_SHAPEFIT_OPTION_RESET*/)) return false;
+    if (rs_shapefit_depth_image(shapefitter, img)) return false;
     std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 
     // time measure
@@ -248,12 +248,13 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
     rs_sf_image_rgb rgb(&img[1]);
 
     // display either box wireframe or colored planes
-    if (rs_sf_boxfit_draw_boxes(shapefitter, &rgb, &img[1])!=RS_SF_SUCCESS)
+    if (rs_sf_boxfit_draw_boxes(shapefitter, &rgb, &img[1]) != RS_SF_SUCCESS)
         rs_sf_planefit_draw_planes(shapefitter, &rgb, &img[1]);
         
     // plane map display
     rs_sf_image_mono pid(&img[0]);
-    rs_sf_planefit_draw_plane_ids(shapefitter, &pid, RS_SF_PLANEFIT_DRAW_REMAP);
+    rs_shapefit_set_option(shapefitter, RS_SF_OPTION_GET_PLANE_ID, 2);
+    rs_sf_planefit_get_plane_ids(shapefitter, &pid);
 
     //rs_sf_image_write(path + "..\\live\\plane_" + std::to_string(img->frame_id), &pid);
     //rs_sf_image_write(path + "..\\live\\color_" + std::to_string(img->frame_id), &rgb);

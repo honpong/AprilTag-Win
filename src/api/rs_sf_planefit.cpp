@@ -201,8 +201,8 @@ rs_sf_status rs_sf_planefit::mark_plane_src_on_map(rs_sf_image * map) const
 
 rs_sf_status rs_sf_planefit::get_plane_equation(int pid, float equ[4]) const
 {
-    if (pid <= 0 || pid >= m_tracked_pid.size()) return RS_SF_INVALID_ARG;
-    if (!m_tracked_pid[pid]) return RS_SF_INVALID_ARG;
+    if (pid <= 0 || pid >= m_tracked_pid.size()) return RS_SF_INDEX_OUT_OF_BOUND;
+    if (!m_tracked_pid[pid]) return RS_SF_INDEX_INVALID;
 
     equ[0] = m_tracked_pid[pid]->normal[0];
     equ[1] = m_tracked_pid[pid]->normal[1];
@@ -248,7 +248,9 @@ void rs_sf_planefit::refine_plane_boundary(plane& dst)
     if (!dst.non_empty()) return;
 
     // buffers
-    std::list<pt3d*> next_fine_pt;
+    const int max_pt_per_group = m_param.img_x_dn_sample*m_param.img_y_dn_sample;
+    dst.fine_pts.reserve((dst.edge_grp[0].size() + dst.edge_grp[1].size())*max_pt_per_group);
+    list_pt_ref next_fine_pt;
     auto* this_plane_ptr = &dst;
 
     //remove points of boundary
@@ -342,6 +344,9 @@ void rs_sf_planefit::refine_plane_boundary(plane& dst)
             }
         }
     }
+
+    // release unused memory
+    dst.fine_pts.shrink_to_fit();
 
     //clear unreachable boundary
     for (auto&& edge_list : dst.edge_grp) {
@@ -586,10 +591,12 @@ void rs_sf_planefit::grow_inlier_buffer(pt3d_group pt_group[], plane & plane_can
     auto* this_plane_ptr = &plane_candidate;
     auto& plane_pts = plane_candidate.pts;
     auto& edge_grp = plane_candidate.edge_grp;
-    plane_pts.clear();
+    plane_pts.clear(); 
     plane_pts.reserve(m_plane_pt_reserve);
     edge_grp[0].clear();
+    edge_grp[0].reserve(m_plane_pt_reserve >> 2);
     edge_grp[1].clear();
+    edge_grp[1].reserve(m_plane_pt_reserve >> 2);
 
     m_inlier_buf.clear();
     m_inlier_buf.assign(seeds.begin(), seeds.end());
@@ -701,7 +708,7 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_pl
     for (auto&& grp : pt_groups)
     {
         if (grp.pt0->best_plane)
-            grp.pt0->best_plane->best_pts.push_back(grp.pt0);
+            grp.pt0->best_plane->best_pts.emplace_back(grp.pt0);
     }
 
     // make sure the plane src is valid

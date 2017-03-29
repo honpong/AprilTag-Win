@@ -1,7 +1,6 @@
 #include "rs_sf_planefit.h"
 
 rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera) 
-    : src_depth_img(camera->width,camera->height)
 {
     m_intrinsics = *camera;
     parameter_updated();
@@ -29,17 +28,17 @@ rs_sf_status rs_sf_planefit::process_depth_image(const rs_sf_image * img)
     m_ref_view.reset();
  
     // preprocessing
-    rs_sf_util_copy_depth_image(src_depth_img, img);
-    image_to_pointcloud(&src_depth_img, m_view);
+    rs_sf_util_copy_depth_image(*m_view.src_depth_img, img);
+    image_to_pointcloud(m_view);
     img_pt_group_to_normal(m_view.pt_grp);
 
     // new plane fitting
     img_pointcloud_to_planecandidate(m_view.pt_grp, m_view.planes);
     grow_planecandidate(m_view.pt_grp, m_view.planes);
     non_max_plane_suppression(m_view.pt_grp, m_view.planes);
-    sort_plane_size(m_view.planes, m_sorted_plane_ptr);
-    assign_planes_pid(m_sorted_plane_ptr);
-    pt_groups_planes_to_full_img(m_view.pt_img, m_sorted_plane_ptr);
+    sort_plane_size(m_view.planes, m_view.sorted_plane_ptr);
+    assign_planes_pid(m_view.tracked_pid, m_view.sorted_plane_ptr);
+    pt_groups_planes_to_full_img(m_view.pt_img, m_view.sorted_plane_ptr);
     end_of_process();
 
     return RS_SF_SUCCESS;
@@ -55,8 +54,8 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     save_current_scene_as_reference();
 
     // preprocessing
-    rs_sf_util_copy_depth_image(src_depth_img, img);
-    image_to_pointcloud(&src_depth_img, m_view);
+    rs_sf_util_copy_depth_image(*m_view.src_depth_img, img);
+    image_to_pointcloud(m_view);
     img_pt_group_to_normal(m_view.pt_grp);
 
     // search for old planes
@@ -64,9 +63,9 @@ rs_sf_status rs_sf_planefit::track_depth_image(const rs_sf_image *img)
     grow_planecandidate(m_view.pt_grp, m_view.planes);
     non_max_plane_suppression(m_view.pt_grp, m_view.planes);
     combine_planes_from_the_same_past(m_view, m_ref_view);
-    sort_plane_size(m_view.planes, m_sorted_plane_ptr);
-    assign_planes_pid(m_sorted_plane_ptr);
-    pt_groups_planes_to_full_img(m_view.pt_img, m_sorted_plane_ptr);
+    sort_plane_size(m_view.planes, m_view.sorted_plane_ptr);
+    assign_planes_pid(m_view.tracked_pid, m_view.sorted_plane_ptr);
+    pt_groups_planes_to_full_img(m_view.pt_img, m_view.sorted_plane_ptr);
     end_of_process();
 
     return RS_SF_SUCCESS;
@@ -214,13 +213,13 @@ rs_sf_status rs_sf_planefit::mark_plane_src_on_map(rs_sf_image * map) const
 
 rs_sf_status rs_sf_planefit::get_plane_equation(int pid, float equ[4]) const
 {
-    if (pid <= 0 || pid >= m_tracked_pid.size()) return RS_SF_INDEX_OUT_OF_BOUND;
-    if (!m_tracked_pid[pid]) return RS_SF_INDEX_INVALID;
+    if (pid <= 0 || pid >= m_view.tracked_pid.size()) return RS_SF_INDEX_OUT_OF_BOUND;
+    if (!m_view.tracked_pid[pid]) return RS_SF_INDEX_INVALID;
 
-    equ[0] = m_tracked_pid[pid]->normal[0];
-    equ[1] = m_tracked_pid[pid]->normal[1];
-    equ[2] = m_tracked_pid[pid]->normal[2];
-    equ[3] = m_tracked_pid[pid]->d;
+    equ[0] = m_view.tracked_pid[pid]->normal[0];
+    equ[1] = m_view.tracked_pid[pid]->normal[1];
+    equ[2] = m_view.tracked_pid[pid]->normal[2];
+    equ[3] = m_view.tracked_pid[pid]->d;
 
     return RS_SF_SUCCESS;
 }
@@ -241,18 +240,69 @@ void rs_sf_planefit::parameter_updated()
 
     m_plane_pt_reserve = (m_grid_h)*(m_grid_w);
     m_track_plane_reserve = m_param.max_num_plane_output + m_plane_pt_reserve;
-
     m_inlier_buf.reserve(m_plane_pt_reserve);
-    m_tracked_pid.reserve(m_param.max_num_plane_output);
 
     init_img_pt_groups(m_view);
     init_img_pt_groups(m_ref_view);
 }
 
+void rs_sf_planefit::init_img_pt_groups(scene& view)
+{
+    const int img_w = src_w();
+    const int dwn_x = m_param.img_x_dn_sample;
+    const int dwn_y = m_param.img_y_dn_sample;
+    const int pt_per_group = dwn_x * dwn_y;
+
+    view.reset();
+    view.pt_img.resize(num_pixels());
+    view.pt_grp.resize(num_pixel_groups());
+    view.src_depth_img = std::make_unique<rs_sf_image_depth>(src_w(), src_h());
+    view.tracked_pid.reserve(m_param.max_num_plane_output);
+
+    // setup sub-image grid
+    for (int g = num_pixel_groups() - 1; g >= 0; --g)
+    {
+        auto& grp = view.pt_grp[g];
+        grp.gp = g;
+        grp.gpix[0] = g % m_grid_w;
+        grp.gpix[1] = g / m_grid_w;
+        grp.pt.resize(pt_per_group);
+    }
+
+    // grid pixel pick up order
+    const i2 cen_grp(dwn_x / 2, dwn_y / 2);
+    std::vector<std::pair<float, int>> grp_order;
+    for (int grp_pt = 0; grp_pt < pt_per_group; ++grp_pt)
+        grp_order.emplace_back(std::make_pair((i2(grp_pt % dwn_x, grp_pt / dwn_y) - cen_grp).squaredNorm(), grp_pt));
+    std::sort(grp_order.begin(), grp_order.end());
+
+    // setup full image vector
+    for (int p = 0, ep = num_pixels(); p < ep; ++p)
+    {
+        auto& pt = view.pt_img[p];
+        pt.pos = pt.normal = v3(0, 0, 0);
+        pt.best_plane = nullptr;
+        pt.pix = i2((pt.p = p) % img_w, p / img_w);
+        pt.grp = &view.pt_grp[(pt.pix[1] / dwn_y) * m_grid_w + (pt.pix[0] / dwn_x)];
+        pt.grp->pt[(pt.pix.y() % dwn_y) * dwn_x + (pt.pix.x() % dwn_x)] = &pt;
+    }
+
+    // re-insert non-null grid pixel according to distance from grid center
+    for (auto&& grp : view.pt_grp)
+    {
+        vec_pt_ref pt_buf; pt_buf.swap(grp.pt);
+        for (auto* pt : pt_buf)
+            if (pt) grp.pt.emplace_back(pt);
+
+        // group center
+        grp.pt0 = grp.pt[0];
+    }
+}
+
 rs_sf_planefit::plane * rs_sf_planefit::get_tracked_plane(int pid) const
 {
-    if (pid <= 0 || m_tracked_pid.size() <= pid) return nullptr;
-    return m_tracked_pid[pid];
+    if (pid <= 0 || m_view.tracked_pid.size() <= pid) return nullptr;
+    return m_view.tracked_pid[pid];
 }
 
 void rs_sf_planefit::refine_plane_boundary(plane& dst)
@@ -371,57 +421,6 @@ void rs_sf_planefit::refine_plane_boundary(plane& dst)
     }
 }
 
-void rs_sf_planefit::init_img_pt_groups(scene& view)
-{
-    const int img_w = src_w();
-    const int dwn_x = m_param.img_x_dn_sample;
-    const int dwn_y = m_param.img_y_dn_sample;
-    const int pt_per_group = dwn_x * dwn_y;
-
-    view.reset();
-    view.pt_img.resize(num_pixels());
-    view.pt_grp.resize(num_pixel_groups());
-
-    // setup sub-image grid
-    for (int g = num_pixel_groups() - 1; g >= 0; --g)
-    {
-        auto& grp = view.pt_grp[g];
-        grp.gp = g;
-        grp.gpix[0] = g % m_grid_w;
-        grp.gpix[1] = g / m_grid_w;
-        grp.pt.resize(pt_per_group);
-    }
-
-    // grid pixel pick up order
-    const i2 cen_grp(dwn_x / 2, dwn_y / 2);
-    std::vector<std::pair<float, int>> grp_order;
-    for (int grp_pt = 0; grp_pt < pt_per_group; ++grp_pt)
-        grp_order.emplace_back(std::make_pair((i2(grp_pt % dwn_x, grp_pt / dwn_y) - cen_grp).squaredNorm(), grp_pt));
-    std::sort(grp_order.begin(), grp_order.end());
-
-    // setup full image vector
-    for (int p = 0, ep = num_pixels(); p < ep; ++p)
-    {
-        auto& pt = view.pt_img[p];
-        pt.pos = pt.normal = v3(0, 0, 0);
-        pt.best_plane = nullptr;
-        pt.pix = i2((pt.p = p) % img_w, p / img_w);
-        pt.grp = &view.pt_grp[(pt.pix[1] / dwn_y) * m_grid_w + (pt.pix[0] / dwn_x)];
-        pt.grp->pt[(pt.pix.y() % dwn_y) * dwn_x + (pt.pix.x() % dwn_x)] = &pt;
-    }
-
-    // re-insert non-null grid pixel according to distance from grid center
-    for (auto&& grp : view.pt_grp) 
-    {
-        vec_pt_ref pt_buf; pt_buf.swap(grp.pt);
-        for (auto* pt : pt_buf)
-            if (pt) grp.pt.emplace_back(pt);
-
-        // group center
-        grp.pt0 = grp.pt[0];
-    }
-}
-
 i2 rs_sf_planefit::project_grid_i(const v3 & cam_pt) const
 {
     return i2{
@@ -455,7 +454,7 @@ bool rs_sf_planefit::is_valid_raw_z(const float z) const
 
 unsigned short & rs_sf_planefit::get_raw_z_at(const pt3d & pt) const
 {
-    return ((unsigned short*)src_depth_img.data)[pt.p];
+    return ((unsigned short*)m_view.src_depth_img->data)[pt.p];
 }
 
 void rs_sf_planefit::compute_pt3d(pt3d & pt, bool search_around) const
@@ -494,11 +493,11 @@ void rs_sf_planefit::compute_pt3d_normal(pt3d& pt_query, pt3d& pt_right, pt3d& p
         pt_query.set_invalid_normal();
 }
 
-void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, scene& current_view, bool force_full_pt_cloud)
+void rs_sf_planefit::image_to_pointcloud(scene& current_view, bool force_full_pt_cloud)
 {
     // camera pose
     auto& pose = current_view.cam_pose;
-    pose.set_pose(img->cam_pose);
+    pose.set_pose(current_view.src_depth_img->cam_pose);
 
     r00 = pose.rotation(0, 0); r01 = pose.rotation(0, 1); r02 = pose.rotation(0, 2);
     r10 = pose.rotation(1, 0); r11 = pose.rotation(1, 1); r12 = pose.rotation(1, 2);
@@ -506,7 +505,7 @@ void rs_sf_planefit::image_to_pointcloud(const rs_sf_image * img, scene& current
     t0 = pose.translation[0], t1 = pose.translation[1], t2 = pose.translation[2];
 
 	const auto search_around = m_param.search_around_missing_z;
-    const auto* src_depth = (unsigned short*)img->data;
+    const auto* src_depth = (unsigned short*)current_view.src_depth_img->data;
     if (force_full_pt_cloud || m_param.compute_full_pt_cloud) {
 
         // compute full point cloud
@@ -734,12 +733,12 @@ void rs_sf_planefit::non_max_plane_suppression(vec_pt3d_group& pt_groups, vec_pl
 void rs_sf_planefit::filter_plane_ptr_to_plane_img(vec_pt3d_group & pt_groups)
 {
     // setup filtering buffer
-    m_sorted_plane_ptr.clear();
-    m_sorted_plane_ptr.reserve(pt_groups.size());
+    vec_plane_ref src_plane_ptr;
+    src_plane_ptr.reserve(pt_groups.size());
     for (auto&& grp : pt_groups)
-        m_sorted_plane_ptr.emplace_back(grp.pt0->best_plane);
+        src_plane_ptr.emplace_back(grp.pt0->best_plane);
 
-    auto* src_plane = m_sorted_plane_ptr.data();
+    auto* src_plane = src_plane_ptr.data();
     auto* pt_group = pt_groups.data();
 
     // median filter
@@ -783,7 +782,7 @@ void rs_sf_planefit::save_current_scene_as_reference()
     m_view.reset();
 }
 
-void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, scene & past_view)
+void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, const scene & past_view)
 {
     const auto map_to_past = past_view.cam_pose.invert();
     std::vector<plane*> past_to_current_planes(MAX_VALID_PID + 1);
@@ -918,19 +917,19 @@ void rs_sf_planefit::combine_planes_from_the_same_past(scene & current_view, sce
     }
 }
 
-void rs_sf_planefit::assign_planes_pid(vec_plane_ref& sorted_planes)
+void rs_sf_planefit::assign_planes_pid(vec_plane_ref& tracked_pid, const vec_plane_ref& sorted_planes)
 {
-    m_tracked_pid.resize(m_param.max_num_plane_output + 1);
-    std::fill_n(m_tracked_pid.begin(), m_param.max_num_plane_output + 1, nullptr);
+    tracked_pid.resize(m_param.max_num_plane_output + 1);
+    std::fill_n(tracked_pid.begin(), m_param.max_num_plane_output + 1, nullptr);
 
     // sorted_plane must be nonempty tracked plane or bigger than min size
     for (auto* plane : sorted_planes) 
     {
         if (plane->past_plane && is_tracked_pid(plane->past_plane->pid))
         {
-            if (!m_tracked_pid[plane->past_plane->pid]) //assign old pid to new plane
+            if (!tracked_pid[plane->past_plane->pid]) //assign old pid to new plane
             {
-                m_tracked_pid[plane->pid = plane->past_plane->pid] = plane;
+                tracked_pid[plane->pid = plane->past_plane->pid] = plane;
             }
         }
     }
@@ -942,12 +941,12 @@ void rs_sf_planefit::assign_planes_pid(vec_plane_ref& sorted_planes)
 
         if (!is_tracked_pid(plane->pid)) //no previous plane detected
         {
-            while (m_tracked_pid[next_pid]) { //find next unused pid
+            while (tracked_pid[next_pid]) { //find next unused pid
                 if (++next_pid >= m_param.max_num_plane_output) {
                     return;
                 }
             }
-            m_tracked_pid[plane->pid = next_pid] = plane; //assign new pid
+            tracked_pid[plane->pid = next_pid] = plane; //assign new pid
         }
     }
 }

@@ -95,29 +95,36 @@ protected:
     typedef std::vector<pt3d_group> vec_pt3d_group;
     typedef std::vector<plane> vec_plane;
     typedef std::vector<plane*> vec_plane_ref;
+    typedef std::unique_ptr<rs_sf_image_depth> image_depth_ptr;
     struct scene {
         bool is_full_pt_cloud;
+        pose_t cam_pose;
+        image_depth_ptr src_depth_img;
         vec_pt3d pt_img;
         vec_pt3d_group pt_grp;
         vec_plane planes;
-        pose_t cam_pose;
+        vec_plane_ref tracked_pid, sorted_plane_ptr;
         inline void swap(scene& ref) {
             std::swap(is_full_pt_cloud, ref.is_full_pt_cloud);
+            std::swap(cam_pose, ref.cam_pose);
+            std::swap(src_depth_img, ref.src_depth_img);
             pt_img.swap(ref.pt_img);
             pt_grp.swap(ref.pt_grp);
             planes.swap(ref.planes);
-            std::swap(cam_pose, ref.cam_pose);
+            tracked_pid.swap(ref.tracked_pid);
+            sorted_plane_ptr.swap(ref.sorted_plane_ptr);
         }
-        inline void reset() { planes.clear(); cam_pose.set_pose(); }
+        inline void reset() { 
+            cam_pose.set_pose();
+            planes.clear(); 
+            tracked_pid.clear();
+            sorted_plane_ptr.clear();
+        }
     };
 
     // state memory
     parameter m_param;
     scene m_view, m_ref_view;
-    vec_plane_ref m_tracked_pid, m_sorted_plane_ptr;
-
-    // input
-    rs_sf_image_depth src_depth_img;
 
     // call after parameter updated
     void parameter_updated();
@@ -152,7 +159,7 @@ private:
     unsigned short& get_raw_z_at(const pt3d& pt) const;
     void compute_pt3d(pt3d& pt, bool search_around = false) const;
     void compute_pt3d_normal(pt3d& pt_query, pt3d& pt_right, pt3d& pt_below) const;
-    void image_to_pointcloud(const rs_sf_image* img, scene& current_view, bool force_full_pt_cloud = false);
+    void image_to_pointcloud(scene& current_view, bool force_full_pt_cloud = false);
     void img_pt_group_to_normal(vec_pt3d_group& pt_groups);
     void img_pointcloud_to_planecandidate(const vec_pt3d_group& pt_groups, vec_plane& img_planes, int candidate_gy_dn_sample = -1, int candidate_gx_dn_sample = -1);
     bool is_inlier(const plane& candidate, const pt3d& p);
@@ -165,9 +172,9 @@ private:
     // plane tracking
     bool is_tracked_pid(int pid) const { return INVALID_PID < pid && pid <= MAX_VALID_PID; }
     void save_current_scene_as_reference();
-    void map_candidate_plane_from_past(scene& current_view, scene& past_view);
+    void map_candidate_plane_from_past(scene& current_view, const scene& past_view);
     void combine_planes_from_the_same_past(scene& current_view, scene& past_view);
-    void assign_planes_pid(vec_plane_ref& sorted_planes);
+    void assign_planes_pid(vec_plane_ref& tracked_pid, const vec_plane_ref& sorted_planes);
 
     // output utility 
     void pt_groups_planes_to_full_img(vec_pt3d& pt_img, vec_plane_ref& sorted_planes);

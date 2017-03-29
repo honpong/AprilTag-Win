@@ -65,8 +65,8 @@ bool rs_sf_boxfit::is_valid_box_plane(const plane & p0)
 
 void rs_sf_boxfit::detect_new_boxes(box_scene& view)
 {
-    const int num_plane = (int)m_sorted_plane_ptr.size();
-    const int max_pid = (int)m_tracked_pid.size();
+    const int num_plane = (int)view.plane_scene->sorted_plane_ptr.size();
+    const int max_pid = (int)view.plane_scene->tracked_pid.size();
     view.plane_pairs.clear();
     view.plane_pairs.reserve(num_plane);
     view.boxes.clear();
@@ -79,7 +79,7 @@ void rs_sf_boxfit::detect_new_boxes(box_scene& view)
     }
 
     // form all box pairs
-    auto* pptr = m_sorted_plane_ptr.data();
+    auto* pptr = view.plane_scene->sorted_plane_ptr.data();
     for (int i = 0; i < num_plane; ++i) {
         if (is_valid_box_plane(*pptr[i])) {
             for (int j = i + 1; j < num_plane; ++j) {
@@ -427,6 +427,7 @@ void rs_sf_boxfit::draw_box(const std::string& name, const box & src, const box_
     };
     print_box(src.to_rs_sf_box());
 
+    auto& src_depth_img = *m_box_scene.plane_scene->src_depth_img;
     cv::Mat map(src_depth_img.img_h, src_depth_img.img_w, CV_8U, cv::Scalar(0));
     cv::Mat(src_depth_img.img_h, src_depth_img.img_w, CV_16U, src_depth_img.data).convertTo(map, CV_8U, 255.0 / 4000.0);
 

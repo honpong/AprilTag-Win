@@ -30,19 +30,32 @@ typedef Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::ColMajor>> m3_axis_map;
 typedef Eigen::Quaternionf qv3;
 typedef std::vector<i2> contour;
 
+#include <mutex>
+#include <thread>
+#include <future>
 struct rs_shapefit
 {
+    virtual ~rs_shapefit() {}
     virtual rs_sf_status set_option(rs_sf_fit_option option, double value) { m_param[option] = value; return RS_SF_SUCCESS; }
-    virtual ~rs_shapefit() {};
-    rs_sf_intrinsics m_intrinsics;
-    double m_param[RS_SF_OPTION_COUNT] = {};
+    virtual rs_sf_status set_locked_new_inputs(const rs_sf_image *img) { return run_task(0) ? RS_SF_BUSY : RS_SF_SUCCESS; }
+    bool run_task(long long ms) const {
+        return m_task_status.valid() &&
+            (m_task_status.wait_for(std::chrono::milliseconds(ms >= 0 ? ms : 0xffffffffffffff)) != std::future_status::ready);
+    }
+    std::mutex m_input_mutex;
+    std::future<rs_sf_status> m_task_status;
+    double m_param[RS_SF_OPTION_COUNT] = { 3,0 };
+    rs_sf_intrinsics m_intrinsics;    
+
     enum fit_option_tracking { CONTINUE = 0, SINGLE_FRAME = 1 };
     enum fit_option_draw_planes { OVERLAY = 0, OVERWRITE = 1 };
     enum fit_option_get_plane_id { ORIGINAL = 0, SCALED = 1, REMAP = 2 };
-    fit_option_tracking get_option_track() const { return (fit_option_tracking)m_param[RS_SF_OPTION_TRACKING]; }
-    fit_option_draw_planes get_option_draw_planes() const { return (fit_option_draw_planes)m_param[RS_SF_OPTION_DRAW_PLANES]; }
-    fit_option_get_plane_id get_option_get_plane_id() const { return (fit_option_get_plane_id)m_param[RS_SF_OPTION_GET_PLANE_ID]; }
+    long long get_option_max_process_delay() const { return (long long)m_param[RS_SF_OPTION_MAX_PROCESS_DELAY]; }
+    fit_option_tracking get_option_track() const { return (fit_option_tracking)(int)m_param[RS_SF_OPTION_TRACKING]; }
+    fit_option_draw_planes get_option_draw_planes() const { return (fit_option_draw_planes)(int)m_param[RS_SF_OPTION_DRAW_PLANES]; }
+    fit_option_get_plane_id get_option_get_plane_id() const { return (fit_option_get_plane_id)(int)m_param[RS_SF_OPTION_GET_PLANE_ID]; }
 };
+
 
 struct pose_t
 {

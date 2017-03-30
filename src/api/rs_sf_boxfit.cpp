@@ -20,14 +20,23 @@ rs_sf_status rs_sf_boxfit::set_option(rs_sf_fit_option option, double value)
     return status;
 }
 
-rs_sf_status rs_sf_boxfit::process_depth_image(const rs_sf_image * img)
+rs_sf_status rs_sf_boxfit::set_locked_new_inputs(const rs_sf_image * img)
 {
-    auto pf_status = rs_sf_planefit::process_depth_image(img);
+    auto status = rs_sf_planefit::set_locked_new_inputs(img);
+    if (status == RS_SF_SUCCESS) {
+        m_box_scene.swap(m_box_ref_scene);
+        m_box_ref_scene.tracked_boxes = m_box_scene.tracked_boxes;
+    }
+    return status;
+}
+
+rs_sf_status rs_sf_boxfit::process_depth_image()
+{
+    auto pf_status = rs_sf_planefit::process_depth_image();
     if (pf_status < 0) return pf_status;
 
-    m_tracked_boxes.clear();
     m_box_scene.clear();
-    m_box_ref_scene.clear();
+    //m_box_ref_scene.clear();
     
     detect_new_boxes(m_box_scene);
     update_tracked_boxes(m_box_scene);
@@ -35,12 +44,12 @@ rs_sf_status rs_sf_boxfit::process_depth_image(const rs_sf_image * img)
     return pf_status;
 }
 
-rs_sf_status rs_sf_boxfit::track_depth_image(const rs_sf_image * img)
+rs_sf_status rs_sf_boxfit::track_depth_image()
 {
-    auto pf_status = rs_sf_planefit::track_depth_image(img);
+    auto pf_status = rs_sf_planefit::track_depth_image();
     if (pf_status < 0) return pf_status;
 
-    m_box_scene.swap(m_box_ref_scene);
+    //m_box_scene.swap(m_box_ref_scene);
 
     detect_new_boxes(m_box_scene);
     update_tracked_boxes(m_box_scene);
@@ -52,7 +61,7 @@ std::vector<rs_sf_box> rs_sf_boxfit::get_boxes() const
 {
     std::vector<rs_sf_box> dst;
     dst.reserve(num_detected_boxes());
-    for (const auto& box : m_tracked_boxes)
+    for (const auto& box : m_box_ref_scene.tracked_boxes)
         dst.push_back(box.to_rs_sf_box());
     return dst;
 }
@@ -74,7 +83,7 @@ void rs_sf_boxfit::detect_new_boxes(box_scene& view)
 
     // old box pairs 
     m_bp_map.reset();
-    for (auto&& box : m_tracked_boxes){
+    for (auto&& box : m_box_scene.tracked_boxes){
         m_bp_map.add(box);
     }
 
@@ -381,14 +390,14 @@ bool rs_sf_boxfit::refine_box_from_third_plane(box_scene & view, plane_pair & pa
 
 void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
 {
-    for (auto&& box : m_tracked_boxes)
+    for (auto&& box : m_box_scene.tracked_boxes)
         ++box.count_miss;
 
     // each newly detected box
     for (auto&& pair : view.plane_pairs) {
         if (pair.new_box != nullptr) //new box
         {
-            for (auto&& old_box : m_tracked_boxes) {
+            for (auto&& old_box : m_box_scene.tracked_boxes) {
                 if (old_box.try_update(pair, m_param)) {
                     pair.new_box = nullptr;
                     old_box.count_miss = 0;
@@ -400,16 +409,16 @@ void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
 
     // delete boxes that lost tracking
     queue_tracked_box prev_tracked_boxes;
-    prev_tracked_boxes.swap(m_tracked_boxes);
+    prev_tracked_boxes.swap(m_box_scene.tracked_boxes);
     for (auto&& box : prev_tracked_boxes) {
         if (box.count_miss < m_param.max_box_miss_frame)
-            m_tracked_boxes.emplace_back(box);
+            m_box_scene.tracked_boxes.emplace_back(box);
     }
 
     // each newly detected box without match
     for (auto&& pair : view.plane_pairs) {
         if (pair.new_box != nullptr) {
-            m_tracked_boxes.emplace_back(pair);
+            m_box_scene.tracked_boxes.emplace_back(pair);
         }
     }
 }
@@ -422,8 +431,8 @@ void rs_sf_boxfit::draw_box(const std::string& name, const box & src, const box_
     auto proj = [to_cam = to_cam, cam = m_intrinsics](const v3& pt) {
         const auto pt3d = to_cam.rotation * pt + to_cam.translation;
         return cv::Point(
-            (pt3d.x() * cam.fx) / pt3d.z() + cam.ppx,
-            (pt3d.y() * cam.fy) / pt3d.z() + cam.ppy);
+            (int)((pt3d.x() * cam.fx) / pt3d.z() + cam.ppx + 0.5f),
+            (int)((pt3d.y() * cam.fy) / pt3d.z() + cam.ppy + 0.5f));
     };
     print_box(src.to_rs_sf_box());
 

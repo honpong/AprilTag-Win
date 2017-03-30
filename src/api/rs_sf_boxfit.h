@@ -36,12 +36,14 @@ struct rs_sf_boxfit : public rs_sf_planefit
     };
 
     rs_sf_boxfit(const rs_sf_intrinsics* camera);
+    ~rs_sf_boxfit() override { run_task(-1); }
     rs_sf_status set_option(rs_sf_fit_option option, double value) override;
-    rs_sf_status process_depth_image(const rs_sf_image* img) override;
-    rs_sf_status track_depth_image(const rs_sf_image* img) override;
+    rs_sf_status set_locked_new_inputs(const rs_sf_image *img) override;
+    rs_sf_status process_depth_image() override;
+    rs_sf_status track_depth_image() override;
 
-    int num_detected_boxes() const { return (int)m_tracked_boxes.size(); }
-    rs_sf_box get_box(int box_id) const { return m_tracked_boxes[box_id].to_rs_sf_box(); }
+    int num_detected_boxes() const { return (int)m_box_ref_scene.tracked_boxes.size(); }
+    rs_sf_box get_box(int box_id) const { return m_box_ref_scene.tracked_boxes[box_id].to_rs_sf_box(); }
     std::vector<rs_sf_box> get_boxes() const;
 
 protected:
@@ -113,18 +115,6 @@ protected:
         }
     } m_bp_map;
 
-    struct box_scene {
-        std::vector<plane_pair> plane_pairs;
-        std::vector<box> boxes;
-        scene* plane_scene;
-
-        inline void clear() { plane_pairs.clear(); boxes.clear(); }
-        inline void swap(box_scene& ref) {
-            plane_pairs.swap(ref.plane_pairs);
-            boxes.swap(ref.boxes);
-        }
-    } m_box_scene, m_box_ref_scene;
-
     struct tracked_box : public box {
         int pid[3];
         std::list<box> box_history;
@@ -140,7 +130,19 @@ protected:
         bool try_update(const plane_pair& pair, const parameter& param);
     };
     typedef std::deque<tracked_box> queue_tracked_box;
-    queue_tracked_box m_tracked_boxes;
+
+    struct box_scene {
+        scene* plane_scene;
+        std::vector<plane_pair> plane_pairs;
+        std::vector<box> boxes;
+        queue_tracked_box tracked_boxes;
+
+        inline void clear() { plane_pairs.clear(); boxes.clear(); tracked_boxes.clear(); }
+        inline void swap(box_scene& ref) {
+            plane_pairs.swap(ref.plane_pairs);
+            boxes.swap(ref.boxes);
+        }
+    } m_box_scene, m_box_ref_scene;
 
 private:
 

@@ -36,9 +36,11 @@ struct rs_sf_planefit : public rs_shapefit
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);
+    virtual ~rs_sf_planefit() override { run_task(-1); }
     virtual rs_sf_status set_option(rs_sf_fit_option option, double value) override;
-    virtual rs_sf_status process_depth_image(const rs_sf_image* img);
-    virtual rs_sf_status track_depth_image(const rs_sf_image* img);
+    virtual rs_sf_status set_locked_new_inputs(const rs_sf_image *img) override;
+    virtual rs_sf_status process_depth_image();
+    virtual rs_sf_status track_depth_image();
 
     int num_detected_planes() const;
     int max_detected_pid() const;
@@ -179,7 +181,6 @@ private:
     // output utility 
     void pt_groups_planes_to_full_img(vec_pt3d& pt_img, vec_plane_ref& sorted_planes);
     void upsize_pt_cloud_to_plane_map(const vec_pt3d& plane_img, rs_sf_image* dst) const;
-    void end_of_process();
 
     // pose buffer
     float r00, r01, r02, r10, r11, r12, r20, r21, r22, t0, t1, t2;

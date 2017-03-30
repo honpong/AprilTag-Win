@@ -27,16 +27,24 @@ RS_SHAPEFIT_DECL rs_sf_status rs_shapefit_set_option(rs_shapefit * obj, rs_sf_fi
 rs_sf_status rs_shapefit_depth_image(rs_shapefit * obj, const rs_sf_image * image)
 {
     if (!obj || !image || image->byte_per_pixel != 2) return RS_SF_INVALID_ARG;
+    auto* pf = dynamic_cast<rs_sf_planefit*>(obj);
+    if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
 
-    auto pf = dynamic_cast<rs_sf_planefit*>(obj);
-    if (pf) {
-        if (pf->get_option_track() == rs_shapefit::CONTINUE && pf->num_detected_planes() > 0)
-            return pf->track_depth_image(image);   //tracking mode
-        else
-            return pf->process_depth_image(image); //single frame mode
+    if (!pf->m_input_mutex.try_lock()) return RS_SF_BUSY;
+    auto status = pf->set_locked_new_inputs(image);
+    pf->m_input_mutex.unlock();
+
+    if (status == RS_SF_SUCCESS) {
+        pf->m_task_status = std::async(std::launch::async, [pf = pf]() {
+            if (pf->get_option_track() == rs_shapefit::CONTINUE &&
+                pf->num_detected_planes() > 0)
+                return pf->track_depth_image();   //tracking mode
+            else
+                return pf->process_depth_image(); //single frame mode
+        });
     }
-
-    return RS_SF_INVALID_OBJ_HANDLE;
+    pf->run_task(pf->get_option_max_process_delay());
+    return status;
 }
 
 rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * src)

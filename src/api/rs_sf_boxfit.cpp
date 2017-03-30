@@ -3,9 +3,6 @@
 static rs_sf_boxfit* debug_this = nullptr;
 rs_sf_boxfit::rs_sf_boxfit(const rs_sf_intrinsics * camera) : rs_sf_planefit(camera)
 {
-    rs_sf_planefit::m_param.filter_plane_map = false;
-    //rs_sf_planefit::m_param.refine_plane_map = true;
-
     m_box_scene.plane_scene = &m_view;
     m_box_ref_scene.plane_scene = &m_ref_view;
     debug_this = this;
@@ -14,15 +11,16 @@ rs_sf_boxfit::rs_sf_boxfit(const rs_sf_intrinsics * camera) : rs_sf_planefit(cam
 rs_sf_status rs_sf_boxfit::set_option(rs_sf_fit_option option, double value)
 {
     auto status = rs_sf_planefit::set_option(option, value);
-  
-    if (option == RS_SF_OPTION_BOX_PLANE_RES) { m_param.refine_box_plane = (value > 0); }
- 
+    switch (option) {
+    case RS_SF_OPTION_BOX_PLANE_RES:
+        m_param.refine_box_plane = (value > 0);
+    }
     return status;
 }
 
-rs_sf_status rs_sf_boxfit::set_locked_new_inputs(const rs_sf_image * img)
+rs_sf_status rs_sf_boxfit::set_locked_outputs()
 {
-    auto status = rs_sf_planefit::set_locked_new_inputs(img);
+    auto status = rs_sf_planefit::set_locked_outputs();
     if (status == RS_SF_SUCCESS) {
         m_box_scene.swap(m_box_ref_scene);
         m_box_ref_scene.tracked_boxes = m_box_scene.tracked_boxes;

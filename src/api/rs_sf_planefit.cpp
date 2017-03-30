@@ -19,13 +19,17 @@ rs_sf_status rs_sf_planefit::set_option(rs_sf_fit_option option, double value)
     return status;
 }
 
-rs_sf_status rs_sf_planefit::set_locked_new_inputs(const rs_sf_image* img)
+rs_sf_status rs_sf_planefit::set_locked_inputs(const rs_sf_image* img)
 {
-    const auto status = rs_shapefit::set_locked_new_inputs(img);
-    if (status == RS_SF_SUCCESS) {
-        save_current_scene_as_reference();
-        rs_sf_util_copy_depth_image(*m_view.src_depth_img, img);
-    }
+    const auto status = rs_shapefit::set_locked_inputs(img);
+    if (status == RS_SF_SUCCESS) rs_sf_util_copy_depth_image(*m_view.src_depth_img, img);
+    return status;
+}
+
+rs_sf_status rs_sf_planefit::set_locked_outputs()
+{
+    const auto status = rs_shapefit::set_locked_outputs();
+    if (status == RS_SF_SUCCESS) save_current_scene_as_reference();
     return status;
 }
 
@@ -425,8 +429,8 @@ void rs_sf_planefit::refine_plane_boundary(plane& dst)
 i2 rs_sf_planefit::project_grid_i(const v3 & cam_pt) const
 {
     return i2{
-        (int)(0.5f + (cam_pt.x() * m_intrinsics.fx) / cam_pt.z() + m_intrinsics.ppx) / m_param.img_x_dn_sample,
-        (int)(0.5f + (cam_pt.y() * m_intrinsics.fy) / cam_pt.z() + m_intrinsics.ppy) / m_param.img_y_dn_sample
+        (int)(0.5f + (cam_pt.x() * cam_fx) / cam_pt.z() + cam_px) / m_param.img_x_dn_sample,
+        (int)(0.5f + (cam_pt.y() * cam_fx) / cam_pt.z() + cam_py) / m_param.img_y_dn_sample
     };
 }
 
@@ -977,13 +981,32 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const vec_pt3d& plane_img, rs_
     const int dn_y = m_param.img_y_dn_sample;
 
     const auto* src_pt = plane_img.data();
-    for (int y = 0, p = 0; y < dst_h; ++y) {
-        for (int x = 0; x < dst_w; ++x, ++p)
-        {
-            const auto x_src = ((x * img_w) / dst_w);
-            const auto y_src = ((y * img_h) / dst_h);
-            const auto best_plane = src_pt[y_src * img_w + x_src].best_plane;
-            dst->data[p] = (best_plane ? best_plane->pid : 0);
+    if (dst->cam_pose) {
+        pose_t to_cam = pose_t().set_pose(dst->cam_pose).invert();
+        rs_sf_util_set_to_zeros(dst);
+        for (int y = 0, p = 0; y < img_h; ++y) {
+            for (int x = 0; x < img_w; ++x, ++p)
+            {
+                auto& pt = src_pt[p];
+                if (pt.is_valid_pos() && pt.best_plane) {
+                    const auto pos = to_cam.transform(src_pt[p].pos);
+                    const int x = (int)(pos.x() * cam_fx / pos.z() + cam_px + 0.5f);
+                    const int y = (int)(pos.y() * cam_fy / pos.z() + cam_py + 0.5f);
+                    dst->data[y*dst_w + x] = pt.best_plane->pid;
+                }
+            }
+        }
+    } 
+    else
+    {
+        for (int y = 0, p = 0; y < dst_h; ++y) {
+            for (int x = 0; x < dst_w; ++x, ++p)
+            {
+                const auto x_src = ((x * img_w) / dst_w);
+                const auto y_src = ((y * img_h) / dst_h);
+                const auto best_plane = src_pt[y_src * img_w + x_src].best_plane;
+                dst->data[p] = (best_plane ? best_plane->pid : 0);
+            }
         }
     }
 }

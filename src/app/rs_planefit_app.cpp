@@ -238,8 +238,8 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
 
     // do plane fit    
     rs_shapefit_set_option(shapefitter, RS_SF_OPTION_PLANE_NOISE, 1);
-    rs_shapefit_set_option(shapefitter, RS_SF_OPTION_MAX_PROCESS_DELAY, 3);
-    rs_shapefit_set_option(shapefitter, RS_SF_OPTION_BOX_PLANE_RES, 1);
+    //rs_shapefit_set_option(shapefitter, RS_SF_OPTION_MAX_PROCESS_DELAY, -1);
+    //rs_shapefit_set_option(shapefitter, RS_SF_OPTION_BOX_PLANE_RES, 1);
     if (rs_shapefit_depth_image(shapefitter, img) < 0) return false;
     std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 

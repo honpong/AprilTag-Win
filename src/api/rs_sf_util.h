@@ -37,15 +37,21 @@ struct rs_shapefit
 {
     virtual ~rs_shapefit() {}
     virtual rs_sf_status set_option(rs_sf_fit_option option, double value) { m_param[option] = value; return RS_SF_SUCCESS; }
-    virtual rs_sf_status set_locked_new_inputs(const rs_sf_image *img) { return run_task(0) ? RS_SF_BUSY : RS_SF_SUCCESS; }
-    bool run_task(long long ms) const {
-        return m_task_status.valid() &&
-            (m_task_status.wait_for(std::chrono::milliseconds(ms >= 0 ? ms : 0xffffffffffffff)) != std::future_status::ready);
+    virtual rs_sf_status set_locked_inputs(const rs_sf_image *img) { return run_task(0) ? RS_SF_BUSY : (rs_sf_status)run_task(-1); }
+    virtual rs_sf_status set_locked_outputs() { return m_task_status.valid() ? m_task_status.get() : RS_SF_INVALID_ARG; }
+    bool run_task(long long ms) {
+        if (!m_task_status.valid()) return false;
+        if (ms >= 0) return m_task_status.wait_for(std::chrono::milliseconds(ms)) != std::future_status::ready;
+        set_locked_outputs(); return false;
     }
     std::mutex m_input_mutex;
     std::future<rs_sf_status> m_task_status;
-    double m_param[RS_SF_OPTION_COUNT] = { 3,0 };
-    rs_sf_intrinsics m_intrinsics;    
+#ifndef _DEBUG
+    double m_param[RS_SF_OPTION_COUNT] = { 6,0 };
+#else 
+    double m_param[RS_SF_OPTION_COUNT] = { -1,0 };
+#endif
+    rs_sf_intrinsics m_intrinsics;
 
     enum fit_option_tracking { CONTINUE = 0, SINGLE_FRAME = 1 };
     enum fit_option_draw_planes { OVERLAY = 0, OVERWRITE = 1 };

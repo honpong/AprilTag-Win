@@ -14,8 +14,8 @@ struct rs_sf_planefit : public rs_shapefit
         bool refine_plane_map = false;
 #ifdef _DEBUG
         bool hole_fill_plane_map = false;
-        int img_x_dn_sample = 5;
-        int img_y_dn_sample = 5;
+        int img_x_dn_sample = 7;
+        int img_y_dn_sample = 7;
 #else
         bool hole_fill_plane_map = true;
         int img_x_dn_sample = 5;
@@ -31,14 +31,15 @@ struct rs_sf_planefit : public rs_shapefit
         float max_fit_err_thr = 30.0f;
         float max_normal_thr = 0.7f;
 
-        int min_num_plane_pt = 200;
+        int min_num_plane_pt = 150;
         int max_num_plane_output = MAX_VALID_PID;
     };
 
     rs_sf_planefit(const rs_sf_intrinsics* camera);
     virtual ~rs_sf_planefit() override { run_task(-1); }
     virtual rs_sf_status set_option(rs_sf_fit_option option, double value) override;
-    virtual rs_sf_status set_locked_new_inputs(const rs_sf_image *img) override;
+    virtual rs_sf_status set_locked_inputs(const rs_sf_image *img) override;
+    virtual rs_sf_status set_locked_outputs() override;
     virtual rs_sf_status process_depth_image();
     virtual rs_sf_status track_depth_image();
 

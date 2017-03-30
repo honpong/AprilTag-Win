@@ -31,10 +31,8 @@ rs_sf_status rs_shapefit_depth_image(rs_shapefit * obj, const rs_sf_image * imag
     if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
 
     if (!pf->m_input_mutex.try_lock()) return RS_SF_BUSY;
-    auto status = pf->set_locked_new_inputs(image);
-    pf->m_input_mutex.unlock();
-
-    if (status == RS_SF_SUCCESS) {
+    auto new_input_status = pf->set_locked_inputs(image); 
+    if (new_input_status == RS_SF_SUCCESS) {
         pf->m_task_status = std::async(std::launch::async, [pf = pf]() {
             if (pf->get_option_track() == rs_shapefit::CONTINUE &&
                 pf->num_detected_planes() > 0)
@@ -44,7 +42,8 @@ rs_sf_status rs_shapefit_depth_image(rs_shapefit * obj, const rs_sf_image * imag
         });
     }
     pf->run_task(pf->get_option_max_process_delay());
-    return status;
+    pf->m_input_mutex.unlock();
+    return new_input_status;
 }
 
 rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * src)

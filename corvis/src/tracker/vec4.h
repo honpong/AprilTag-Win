@@ -57,6 +57,22 @@ template <typename T, int N>        Eigen::Map<const Eigen::Matrix<T, Eigen::Dyn
 template <typename T, int N>        Eigen::Map<      Eigen::Matrix<T, Eigen::Dynamic, N>, Eigen::Aligned, Eigen::OuterStride<N>>
     map(      aligned_vector<Eigen::Matrix<T, N, 1>> &a) { return decltype(map(a)) { &a[0][0], static_cast<Eigen::Index>(a.size()), N }; }
 
+template <typename T, typename S, int N>        Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, N>, Eigen::Aligned, Eigen::Stride<sizeof(S)/sizeof(T),1>>
+    map(const aligned_vector<S> &a, T (S::*m)[N]) { return decltype(map(a,m)) { &(a[0].*m)[0], static_cast<Eigen::Index>(a.size()), N }; }
+template <typename T, typename S, int N>        Eigen::Map<      Eigen::Matrix<T, Eigen::Dynamic, N>, Eigen::Aligned, Eigen::Stride<sizeof(S)/sizeof(T),1>>
+    map(      aligned_vector<S> &a, T (S::*m)[N]) { return decltype(map(a,m)) { &(a[0].*m)[0], static_cast<Eigen::Index>(a.size()), N }; }
+
+template <typename T, typename S, int N>        Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, N>, Eigen::Aligned, Eigen::Stride<sizeof(S)/sizeof(T),1>>
+    map(const aligned_vector<S> &a, Eigen::Matrix<T,N,1> S::*m) { return decltype(map(a,m)) { &(a[0].*m)[0], static_cast<Eigen::Index>(a.size()), N }; }
+template <typename T, typename S, int N>        Eigen::Map<      Eigen::Matrix<T, Eigen::Dynamic, N>, Eigen::Aligned, Eigen::Stride<sizeof(S)/sizeof(T),1>>
+    map(      aligned_vector<S> &a, Eigen::Matrix<T,N,1> S::*m) { return decltype(map(a,m)) { &(a[0].*m)[0], static_cast<Eigen::Index>(a.size()), N }; }
+
+template <typename T, typename S>               Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, 1>, Eigen::Aligned, Eigen::Stride<1,sizeof(S)/sizeof(T)>>
+    map(const aligned_vector<S> &a, T S::*m) { return decltype(map(a,m)) { &(a[0].*m), static_cast<Eigen::Index>(a.size()), 1 }; }
+template <typename T, typename S>               Eigen::Map<      Eigen::Matrix<T, Eigen::Dynamic, 1>, Eigen::Aligned, Eigen::Stride<1,sizeof(S)/sizeof(T)>>
+    map(      aligned_vector<S> &a, T S::*m) { return decltype(map(a,m)) { &(a[0].*m), static_cast<Eigen::Index>(a.size()), 1 }; }
+
+
 inline static m3 skew(const v3 &v)
 {
     m3 V = m3::Zero();

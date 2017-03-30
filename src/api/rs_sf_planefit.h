@@ -185,6 +185,7 @@ private:
 
     // pose buffer
     float r00, r01, r02, r10, r11, r12, r20, r21, r22, t0, t1, t2;
+    float inv_cam_fx, inv_cam_fy;
     float& cam_px = m_intrinsics.ppx;
     float& cam_py = m_intrinsics.ppy;
     float& cam_fx = m_intrinsics.fx;

@@ -243,6 +243,9 @@ void rs_sf_planefit::parameter_updated()
     m_grid_neighbor[7] = m_grid_w + 1;
     m_grid_neighbor[8] = 0;
 
+    inv_cam_fx = 1.0f / cam_fx;
+    inv_cam_fy = 1.0f / cam_fy;
+
     m_plane_pt_reserve = (m_grid_h)*(m_grid_w);
     m_track_plane_reserve = m_param.max_num_plane_output + m_plane_pt_reserve;
     m_inlier_buf.reserve(m_plane_pt_reserve);
@@ -296,17 +299,19 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
     for (auto&& grp : view.pt_grp)
     {
         vec_pt_ref pt_buf; pt_buf.swap(grp.pt);
-        for (auto* pt : pt_buf)
-            if (pt) grp.pt.emplace_back(pt);
+        for (auto&& order : grp_order)
+            if ((int)pt_buf.size() > order.second) 
+                grp.pt.emplace_back(pt_buf[order.second]);
 
         // group center
         grp.pt0 = grp.pt[0];
     }
 }
 
-rs_sf_planefit::plane * rs_sf_planefit::get_tracked_plane(int pid) const
+// this is a protected function, use m_view instead of m_ref_view
+rs_sf_planefit::plane * rs_sf_planefit::get_tracked_plane(int pid) const 
 {
-    if (pid <= 0 || m_view.tracked_pid.size() <= pid) return nullptr;
+    if (pid <= 0 || m_view.tracked_pid.size() <= pid) return nullptr; //okay to use m_view here
     return m_view.tracked_pid[pid];
 }
 
@@ -436,10 +441,7 @@ i2 rs_sf_planefit::project_grid_i(const v3 & cam_pt) const
 
 v3 rs_sf_planefit::unproject(const float u, const float v, const float z) const
 {
-    return v3{
-        z * (u - m_intrinsics.ppx) / m_intrinsics.fx,
-        z * (v - m_intrinsics.ppy) / m_intrinsics.fy,
-        z };
+    return v3{ z * (u - cam_px) * inv_cam_fx, z * (v - cam_py) * inv_cam_fy, z };
 }
 
 bool rs_sf_planefit::is_within_pt_group_fov(const int x, const int y) const
@@ -469,8 +471,8 @@ void rs_sf_planefit::compute_pt3d(pt3d & pt, bool search_around) const
     for (pt3d* grp_pt : ( search_around ? pt.grp->pt : vec_pt_ref{&pt} )) {
         if (is_valid_raw_z(z = get_raw_z_at(*grp_pt)))
         {
-            const float x = z * (pt.pix[0] - cam_px) / cam_fx;
-            const float y = z * (pt.pix[1] - cam_py) / cam_fy;
+            const float x = z * (pt.pix[0] - cam_px) * inv_cam_fx;
+            const float y = z * (pt.pix[1] - cam_py) * inv_cam_fy;
             pt.pos[0] = r00 * x + r01 * y + r02 * z + t0;
             pt.pos[1] = r10 * x + r11 * y + r12 * z + t1;
             pt.pos[2] = r20 * x + r21 * y + r22 * z + t2;
@@ -958,51 +960,54 @@ void rs_sf_planefit::assign_planes_pid(vec_plane_ref& tracked_pid, const vec_pla
 
 void rs_sf_planefit::pt_groups_planes_to_full_img(vec_pt3d & pt_img, vec_plane_ref& sorted_planes)
 {
-    for (auto&& pt : pt_img)
-    {
-        pt.best_plane = pt.grp->pt0->best_plane;
-    }
+    for (auto&& pt : pt_img) { pt.best_plane = pt.grp->pt0->best_plane; }
 
     if (m_param.refine_plane_map)
-    {
         for (auto pl = sorted_planes.rbegin(); pl != sorted_planes.rend(); ++pl)
-        {
             refine_plane_boundary(**pl);
-        }
-    }
 }
 
 void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_image * dst) const
 {
     const int dst_w = dst->img_w, dst_h = dst->img_h;
-    const int img_w = src_w();
-    const int img_h = src_h();
+    const int img_w = src_w(), img_h = src_h();
     const int dn_x = m_param.img_x_dn_sample;
     const int dn_y = m_param.img_y_dn_sample;
 
     if (dst->cam_pose) {
         pose_t to_cam = pose_t().set_pose(dst->cam_pose).invert();
         rs_sf_util_set_to_zeros(dst);
-        const auto* grp_pt = ref_view.pt_grp.data();
-        for (int y = 0, grp = 0; y < m_grid_h; ++y) {
-            for (int x = 0; x < m_grid_w; ++x, ++grp) {
-                pt3d* pt = grp_pt[grp].pt0;
-                if (pt->best_plane && pt->is_valid_pos()) {
-                    const auto px = project_grid_i(to_cam.transform(pt->pos));
-                    if (is_within_pt_group_fov(px.x(), px.y())) {
-                        dst->data[px.y()*dst_w + px.x()] = pt->best_plane->pid;
-                    }
+
+        const float tcr00 = to_cam.rotation(0, 0), tcr01 = to_cam.rotation(0, 1), tcr02 = to_cam.rotation(0, 2);
+        const float tcr10 = to_cam.rotation(1, 0), tcr11 = to_cam.rotation(1, 1), tcr12 = to_cam.rotation(1, 2);
+        const float tcr20 = to_cam.rotation(2, 0), tcr21 = to_cam.rotation(2, 1), tcr22 = to_cam.rotation(2, 2);
+        const float tct0 = to_cam.translation[0], tct1 = to_cam.translation[1], tct2 = to_cam.translation[2];
+        const float to_dst_u = (float)dst_w / img_w, to_dst_v = (float)dst_h / img_h;
+        const float inv_cam_fx = 1.0f / cam_fx, inv_cam_fy = 1.0f / cam_fy;
+
+        const auto* src_z = (unsigned short*)ref_view.src_depth_img->data;
+        const auto* src_p = ref_view.pt_img.data();
+        auto* dst_d = dst->data;
+        for (int p = num_pixels() - 1, ex = dst_w - 1, ey = dst_h - 1; p >= 0; --p) {
+            float z; plane* pl;
+            if ((pl = src_p[p].best_plane) && (is_valid_raw_z(z = src_z[p]))) {
+                const float x = z * ((p % img_w) - cam_px) * inv_cam_fx;
+                const float y = z * ((p / img_w) - cam_py) * inv_cam_fy;
+                const float xd = tcr00 * x + tcr01 * y + tcr02 * z + tct0;
+                const float yd = tcr10 * x + tcr11 * y + tcr12 * z + tct1;
+                const float iz = 1.0f / (tcr20 * x + tcr21 * y + tcr22 * z + tct2);
+                const int ud = (int)(((xd * cam_fx) * iz + cam_px) * to_dst_u + 0.5f);
+                const int vd = (int)(((yd * cam_fy) * iz + cam_py) * to_dst_v + 0.5f);
+                if (0 < ud && ud < ex && 0 < vd && vd < ey) {
+                    dst_d[vd*dst_w + ud] = pl->pid;
                 }
             }
         }
-        for (int p = dst->num_pixel(); p >= 0; --p)
-            dst->data[p] = dst->data[(p / dst_w) / dn_y*dst_w + ((p%dst_w) / dn_x)];           
-    } 
+    }
     else {
         const auto* src_pt = ref_view.pt_img.data();
         for (int y = 0, p = 0; y < dst_h; ++y) {
-            for (int x = 0; x < dst_w; ++x, ++p)
-            {
+            for (int x = 0; x < dst_w; ++x, ++p){
                 const auto x_src = ((x * img_w) / dst_w);
                 const auto y_src = ((y * img_h) / dst_h);
                 const auto best_plane = src_pt[y_src * img_w + x_src].best_plane;

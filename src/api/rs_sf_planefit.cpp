@@ -798,6 +798,8 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, const s
     current_view.planes.reserve(past_view.planes.size() + m_track_plane_reserve);
 
     // create same amount of current planes as in the past
+    auto valid_past_plane = (const plane**)m_inlier_buf.data();
+    memset(valid_past_plane, 0, num_pixel_groups() * sizeof(plane*));
     for (auto&& past_plane : past_view.planes)
     {
         if (is_valid_past_plane(past_plane))
@@ -806,9 +808,12 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, const s
             past_to_current_planes[past_plane.pid] = &current_view.planes.back();
             past_to_current_planes[past_plane.pid]->best_pts.reserve(past_plane.pts.size());
 
-            for (auto&& edge_list : past_plane.edge_grp)
-                for (auto* edge_grp : edge_list)
-                    edge_grp->best_plane = nullptr; //delete past boundary point
+            // setup valid past plane map
+            for (auto&& ppt : past_plane.best_pts)
+                valid_past_plane[ppt->grp->gp] = &past_plane;
+            // remove boundary of the plane
+            for (auto&& edge : past_plane.edge_grp[1])
+                valid_past_plane[edge->grp->gp] = nullptr;
         }
     }
 
@@ -821,14 +826,10 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, const s
         const auto past_cam_pix = project_grid_i(map_to_past.transform(pt->pos));
         if (is_within_pt_group_fov(past_cam_pix[0], past_cam_pix[1]))
         {
-            //plane pixel in the past
-            auto& past_pt3d = *past_pt_grp[past_cam_pix[1] * m_grid_w + past_cam_pix[0]].pt0;
-            if (past_pt3d.best_plane && is_valid_past_plane(*past_pt3d.best_plane)) {
-                if (is_inlier(*past_pt3d.best_plane, *pt))
-                {
-                    auto* current_plane = past_to_current_planes[past_pt3d.best_plane->pid];
-                    current_plane->best_pts.emplace_back(pt);
-                }
+            // best plane in the past
+            const auto past_plane = valid_past_plane[past_cam_pix[1] * m_grid_w + past_cam_pix[0]];
+            if (past_plane != nullptr && is_inlier(*past_plane, *pt)) {
+                past_to_current_planes[past_plane->pid]->best_pts.emplace_back(pt);
             }
         }
     }

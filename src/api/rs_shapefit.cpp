@@ -53,7 +53,7 @@ rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * r
     if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
 
     rs_sf_image_mono map(rgb);
-    const auto status = pf->get_plane_index_map(&map, rgb->cam_pose || (src && src->cam_pose) ? 0 : -1);
+    const auto status = pf->get_plane_index_map(&map);
     if (status == RS_SF_SUCCESS) {
         switch (pf->get_option_draw_planes()) {
         case rs_shapefit::OVERLAY: rs_sf_util_draw_planes(rgb, &map, src); break;
@@ -69,7 +69,7 @@ rs_sf_status rs_sf_planefit_get_plane_ids(const rs_shapefit * obj, rs_sf_image *
     auto pf = dynamic_cast<const rs_sf_planefit*>(obj);
     if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
 
-    const auto status = pf->get_plane_index_map(mono, mono->cam_pose ? 0 : -1);
+    const auto status = pf->get_plane_index_map(mono);
     if (status == RS_SF_SUCCESS) {
         switch (pf->get_option_get_plane_id()) {
         case rs_shapefit::SCALED: rs_sf_util_scale_plane_ids(mono, pf->max_detected_pid()); break;

@@ -977,17 +977,18 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
 
     if (dst->cam_pose) {
         pose_t to_cam = pose_t().set_pose(dst->cam_pose).invert();
-        rs_sf_util_set_to_zeros(dst);
 
-        const float tcr00 = to_cam.rotation(0, 0), tcr01 = to_cam.rotation(0, 1), tcr02 = to_cam.rotation(0, 2);
-        const float tcr10 = to_cam.rotation(1, 0), tcr11 = to_cam.rotation(1, 1), tcr12 = to_cam.rotation(1, 2);
-        const float tcr20 = to_cam.rotation(2, 0), tcr21 = to_cam.rotation(2, 1), tcr22 = to_cam.rotation(2, 2);
-        const float tct0 = to_cam.translation[0], tct1 = to_cam.translation[1], tct2 = to_cam.translation[2];
+        auto rotation = to_cam.rotation * ref_view.cam_pose.rotation;
+        auto translation = to_cam.rotation * ref_view.cam_pose.translation + to_cam.translation;
+        const float tcr00 = rotation(0, 0), tcr01 = rotation(0, 1), tcr02 = rotation(0, 2);
+        const float tcr10 = rotation(1, 0), tcr11 = rotation(1, 1), tcr12 = rotation(1, 2);
+        const float tcr20 = rotation(2, 0), tcr21 = rotation(2, 1), tcr22 = rotation(2, 2);
+        const float tct0 = translation[0], tct1 = translation[1], tct2 = translation[2];
         const float to_dst_u = (float)dst_w / img_w, to_dst_v = (float)dst_h / img_h;
-        const float inv_cam_fx = 1.0f / cam_fx, inv_cam_fy = 1.0f / cam_fy;
 
         const auto* src_z = (unsigned short*)ref_view.src_depth_img->data;
         const auto* src_p = ref_view.pt_img.data();
+        rs_sf_util_set_to_zeros(dst);
         auto* dst_d = dst->data;
         for (int p = num_pixels() - 1, ex = dst_w - 1, ey = dst_h - 1; p >= 0; --p) {
             float z; plane* pl;

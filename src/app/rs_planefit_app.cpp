@@ -249,21 +249,23 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
     sprintf(text, "%.0fms/frame", last_frame_compute_time.count());
 
     // color display buffer
-    rs_sf_image_rgb rgb(&img[1]);
+    rs_sf_image_rgb rgb_plane(img), rgb_box(img);
 
-    // display either box wireframe or colored planes
-    if (rs_sf_boxfit_draw_boxes(shapefitter, &rgb, &img[1]) != RS_SF_SUCCESS)
-        rs_sf_planefit_draw_planes(shapefitter, &rgb, &img[1]);
-        
-    // plane map display
-    rs_sf_image_mono pid(&img[0]);
-    rs_shapefit_set_option(shapefitter, RS_SF_OPTION_GET_PLANE_ID, 2);
-    rs_sf_planefit_get_plane_ids(shapefitter, &pid);
+    // draw plane color
+    rs_shapefit_set_option(shapefitter, RS_SF_OPTION_DRAW_PLANES, 1);
+    rs_sf_planefit_draw_planes(shapefitter, &rgb_plane);
+
+    // display either box wireframe or plane_id
+    if (rs_sf_boxfit_draw_boxes(shapefitter, &rgb_box, &img[1]) != RS_SF_SUCCESS) {
+        rs_shapefit_set_option(shapefitter, RS_SF_OPTION_GET_PLANE_ID, 2);
+        rgb_box.byte_per_pixel = 1;
+        rs_sf_planefit_get_plane_ids(shapefitter, &rgb_box);
+    }
 
     //rs_sf_image_write(path + "..\\live\\plane_" + std::to_string(img->frame_id), &pid);
-    //rs_sf_image_write(path + "..\\live\\color_" + std::to_string(img->frame_id), &rgb);
+    //rs_sf_image_write(path + "..\\live\\color_" + std::to_string(img->frame_id), &rgb_box);
 
     // gl drawing
-    rs_sf_image show[] = { img[0], img[1], pid, rgb };
+    rs_sf_image show[] = { img[0], img[1], rgb_plane, rgb_box};
     return win.imshow(show, 4, text);
 }

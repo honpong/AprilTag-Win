@@ -3,11 +3,15 @@
 #define rs_sf_util_h
 
 #include "rs_shapefit.h"
+#include <array>
 #include <list>
+#include <deque>
 #include <vector>
 #include <memory>
 #include <iostream>
 #include <stdio.h>
+#include <mutex>
+#include <future>
 #include <Eigen/Dense>
 #if defined(OPENCV_FOUND) | defined(OpenCV_FOUND)
 #include <opencv2/opencv.hpp>
@@ -23,16 +27,13 @@ typedef Eigen::Vector4i i4;
 typedef Eigen::Vector2f v2;
 typedef Eigen::Vector3f v3;
 typedef Eigen::Vector4f v4;
+typedef Eigen::Quaternionf qv3;
 typedef Eigen::Matrix<unsigned char, 3, 1> b3;
 typedef Eigen::Matrix<float, 3, 3, Eigen::RowMajor> m3;
 typedef Eigen::Map<v3> v3_map;
 typedef Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::ColMajor>> m3_axis_map;
-typedef Eigen::Quaternionf qv3;
 typedef std::vector<i2> contour;
 
-#include <mutex>
-#include <thread>
-#include <future>
 struct rs_shapefit
 {
     virtual ~rs_shapefit() {}

@@ -109,7 +109,6 @@ void rs_sf_boxfit::detect_new_boxes(box_scene& view)
     }
 }
 
-#include <array>
 // box plane helper
 struct rs_sf_boxfit::box_plane_t
 {

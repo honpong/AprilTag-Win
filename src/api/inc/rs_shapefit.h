@@ -111,9 +111,10 @@ struct rs_sf_image_auto : public rs_sf_image
     virtual ~rs_sf_image_auto() {}
     std::unique_ptr<unsigned char[]> src;
     float src_pose[12];
-    void set_pose(const float p[12]) { 
+    rs_sf_image_auto& set_pose(const float p[12]) { 
         if (p) memcpy(cam_pose = src_pose, p, sizeof(float) * 12); 
         else cam_pose = nullptr; 
+		return *this;
     }
 };
 

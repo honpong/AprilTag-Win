@@ -88,6 +88,9 @@ extern "C"
     /// General Processing
     RS_SHAPEFIT_DECL rs_sf_status rs_shapefit_set_option(rs_shapefit* obj, rs_sf_fit_option option, double value);
     RS_SHAPEFIT_DECL rs_sf_status rs_shapefit_depth_image(rs_shapefit* obj, const rs_sf_image* image);
+    inline rs_sf_status rs_shapefit_set_synchronous_process(rs_shapefit* obj, double flag = 1) {
+        return rs_shapefit_set_option(obj, RS_SF_OPTION_MAX_PROCESS_DELAY, -flag);
+    }
 
     /// Plane Fitting Functions
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_plane_ids(const rs_shapefit* obj, rs_sf_image* mono);

@@ -176,12 +176,12 @@ private:
     bool is_tracked_pid(int pid) const { return INVALID_PID < pid && pid <= MAX_VALID_PID; }
     void save_current_scene_as_reference();
     void map_candidate_plane_from_past(scene& current_view, const scene& past_view);
-    void combine_planes_from_the_same_past(scene& current_view, scene& past_view);
+    void combine_planes_from_the_same_past(scene& current_view);
     void assign_planes_pid(vec_plane_ref& tracked_pid, const vec_plane_ref& sorted_planes);
 
     // output utility 
     void pt_groups_planes_to_full_img(vec_pt3d& pt_img, vec_plane_ref& sorted_planes);
-    void upsize_pt_cloud_to_plane_map(const vec_pt3d& plane_img, rs_sf_image* dst) const;
+    void upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_image * dst) const;
 
     // pose buffer
     float r00, r01, r02, r10, r11, r12, r20, r21, r22, t0, t1, t2;

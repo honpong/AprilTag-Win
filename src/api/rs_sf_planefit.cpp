@@ -67,7 +67,7 @@ rs_sf_status rs_sf_planefit::track_depth_image()
     map_candidate_plane_from_past(m_view, m_ref_view);
     grow_planecandidate(m_view.pt_grp, m_view.planes);
     non_max_plane_suppression(m_view.pt_grp, m_view.planes);
-    combine_planes_from_the_same_past(m_view, m_ref_view);
+    combine_planes_from_the_same_past(m_view);
     sort_plane_size(m_view.planes, m_view.sorted_plane_ptr);
     assign_planes_pid(m_view.tracked_pid, m_view.sorted_plane_ptr);
     pt_groups_planes_to_full_img(m_view.pt_img, m_view.sorted_plane_ptr);
@@ -95,7 +95,7 @@ int rs_sf_planefit::max_detected_pid() const
 rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_filled) const
 {
     if (!map || !map->data || map->byte_per_pixel != 1) return RS_SF_INVALID_ARG;
-    upsize_pt_cloud_to_plane_map(m_ref_view.pt_img, map);
+    upsize_pt_cloud_to_plane_map(m_ref_view, map);
     //mark_plane_src_on_map(map);
 
     if (hole_filled > 0 || (hole_filled == -1 && m_param.hole_fill_plane_map))
@@ -896,7 +896,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, const s
     }
 }
 
-void rs_sf_planefit::combine_planes_from_the_same_past(scene & current_view, scene & past_view)
+void rs_sf_planefit::combine_planes_from_the_same_past(scene & current_view)
 {
     for (auto&& new_plane : current_view.planes)
     {
@@ -972,7 +972,7 @@ void rs_sf_planefit::pt_groups_planes_to_full_img(vec_pt3d & pt_img, vec_plane_r
     }
 }
 
-void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const vec_pt3d& plane_img, rs_sf_image * dst) const
+void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_image * dst) const
 {
     const int dst_w = dst->img_w, dst_h = dst->img_h;
     const int img_w = src_w();
@@ -980,25 +980,26 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const vec_pt3d& plane_img, rs_
     const int dn_x = m_param.img_x_dn_sample;
     const int dn_y = m_param.img_y_dn_sample;
 
-    const auto* src_pt = plane_img.data();
     if (dst->cam_pose) {
         pose_t to_cam = pose_t().set_pose(dst->cam_pose).invert();
         rs_sf_util_set_to_zeros(dst);
-        for (int y = 0, p = 0; y < img_h; ++y) {
-            for (int x = 0; x < img_w; ++x, ++p)
-            {
-                auto& pt = src_pt[p];
-                if (pt.is_valid_pos() && pt.best_plane) {
-                    const auto pos = to_cam.transform(src_pt[p].pos);
-                    const int x = (int)(pos.x() * cam_fx / pos.z() + cam_px + 0.5f);
-                    const int y = (int)(pos.y() * cam_fy / pos.z() + cam_py + 0.5f);
-                    dst->data[y*dst_w + x] = pt.best_plane->pid;
+        const auto* grp_pt = ref_view.pt_grp.data();
+        for (int y = 0, grp = 0; y < m_grid_h; ++y) {
+            for (int x = 0; x < m_grid_w; ++x, ++grp) {
+                pt3d* pt = grp_pt[grp].pt0;
+                if (pt->best_plane && pt->is_valid_pos()) {
+                    const auto px = project_grid_i(to_cam.transform(pt->pos));
+                    if (is_within_pt_group_fov(px.x(), px.y())) {
+                        dst->data[px.y()*dst_w + px.x()] = pt->best_plane->pid;
+                    }
                 }
             }
         }
+        for (int p = dst->num_pixel(); p >= 0; --p)
+            dst->data[p] = dst->data[(p / dst_w) / dn_y*dst_w + ((p%dst_w) / dn_x)];           
     } 
-    else
-    {
+    else {
+        const auto* src_pt = ref_view.pt_img.data();
         for (int y = 0, p = 0; y < dst_h; ++y) {
             for (int x = 0; x < dst_w; ++x, ++p)
             {

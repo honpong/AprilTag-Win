@@ -180,7 +180,6 @@ void fusion_queue::stop_async()
         //flush any waiting data
         dispatch_singlethread(true);
 #ifdef DEBUG
-        std::cerr << get_stats();
         //std::cerr << gyro_queue->hist;
 #endif
     }

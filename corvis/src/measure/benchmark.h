@@ -83,6 +83,7 @@ struct benchmark_result {
         }
         inline void set_execution_type(const bool incremental_ate) { bincremental_ate = incremental_ate; }
         inline bool is_incremental(){ return bincremental_ate; }
+        inline bool is_valid(){ return nposes > 0; }
     } ate;
 };
 

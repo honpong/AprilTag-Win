@@ -121,7 +121,8 @@ int main(int c, char **v)
         std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
         std::cout << "Computed  Straight-line length is " << 100*rp.get_length()           << " cm, total path length " << 100*rp.get_path_length()           << " cm\n";
         std::cout << "Dispatched " << rp.get_packets_dispatched() << " packets " << rp.get_bytes_dispatched()/1.e6 << " Mbytes\n";
-        res.ate.print_statistics();
+        if(res.ate.is_valid())
+            res.ate.print_statistics();
         if(rc_getConfidence(rp.tracker) >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
             std::cout << "Updating " << rp.calibration_file << "\n";
             rp.save_calibration(rp.calibration_file);

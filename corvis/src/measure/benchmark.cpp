@@ -13,8 +13,12 @@ struct histogram { // follows the semantics of numpy.histogram
 public:
     std::vector<T> edges;
     std::vector<size_t> bins; // invariant: edges.size() + 1 == bin.size()
+    int output_precision;
+    std::string bin_units;
 
-    histogram(const std::vector<T> &data, const std::vector<T> &bin_edges) {
+    histogram(const std::vector<T> &data, const std::vector<T> &bin_edges, int precision = 1, std::string units = "%") :
+        output_precision(precision), bin_units(units)
+    {
         if (bin_edges.size() < 2)
             return;
 
@@ -43,9 +47,9 @@ public:
 template<typename T, bool add_front, bool add_back>
 static inline std::ostream& operator<<(std::ostream &stream, const histogram<T, add_front, add_back> &h)
 {
-    stream << std::fixed << std::setprecision(1);
+    stream << std::fixed << std::setprecision(h.output_precision);
     for (size_t i=0; i<h.bins.size(); i++)
-        stream << (i ? "\t" : "") << h.edges[i] << "%";
+        stream << (i ? "\t" : "") << h.edges[i] << h.bin_units;
     stream << (add_back ? "+" : "") << "\n";
     for (size_t i=0; i<h.bins.size(); i++)
         stream << (i ? "\t" : "") << h.bins[i];

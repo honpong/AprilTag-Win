@@ -223,7 +223,7 @@ int main(int c, char **v)
     if (save)
         rp.save_calibration(save);
 
-    print_results(rp, filename);
     std::cout << rc_getTimingStats(rp.tracker);
+    print_results(rp, filename);
     return 0;
 }

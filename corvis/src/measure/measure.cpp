@@ -131,7 +131,8 @@ int main(int c, char **v)
     };
 
     auto data_callback = [](world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data) {
-        auto timestamp = sensor_clock::micros_to_tp(data->time_us);
+        rc_PoseTime current_pose = rc_getPose(tracker, nullptr, nullptr, data->path);
+        auto timestamp = sensor_clock::micros_to_tp(current_pose.time_us);
         // get/inerpolate gt at current timestamp
         tpose ref_pose(timestamp);
         bool success = rp.get_reference_pose(timestamp, ref_pose);
@@ -139,21 +140,19 @@ int main(int c, char **v)
             ws.observe_position_gt(sensor_clock::tp_to_micros(ref_pose.t),
                                     ref_pose.G.T.x(), ref_pose.G.T.y(), ref_pose.G.T.z(),
                                     ref_pose.G.Q.w(), ref_pose.G.Q.x(), ref_pose.G.Q.y(), ref_pose.G.Q.z());
-        // Reading the current pose
-        rc_Pose current_pose = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
-        //
+
         if(data->path == rc_DATA_PATH_SLOW && first && success &&  rp.ground_truth_exists()) {
             first = false;
             //covert current from rc_Pose to pose
             tpose P{timestamp};
-            P.G.Q = ::map(current_pose.Q.v);
-            P.G.T = ::map(current_pose.T.v);
+            P.G.Q = ::map(current_pose.pose_m.Q.v);
+            P.G.T = ::map(current_pose.pose_m.T.v);
             // transform gt trajectory to tracker world frame
             rp.set_relative_pose(timestamp, P);
         }
         if(success) {
             // calculate ate at current position
-            v3 T_current = ::map(current_pose.T.v);
+            v3 T_current = ::map(current_pose.pose_m.T.v);
             res.ate.add_translation(T_current, ref_pose.G.T); // Accumulate information
             // incremental ate ?
             if (res.ate.is_incremental()) {

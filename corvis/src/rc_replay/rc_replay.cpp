@@ -124,8 +124,8 @@ void replay::enable_pose_output()
 {
     rc_setDataCallback(tracker, [](void *handle, rc_Tracker * tracker, const rc_Data * data) {
         if (data->path != rc_DATA_PATH_SLOW) return;
-        rc_Pose pose = rc_getPose(tracker, nullptr, nullptr, data->path);
-        std::cout << data->time_us; for(int c=0; c<4; c++) std::cout << " " << pose.Q.v[c]; for(int c=0; c<3; c++) std::cout << " " << pose.T.v[c]; std::cout << "\n";
+        rc_PoseTime pt = rc_getPose(tracker, nullptr, nullptr, data->path);
+        std::cout << pt.time_us; for(int c=0; c<4; c++) std::cout << " " << pt.pose_m.Q.v[c]; for(int c=0; c<3; c++) std::cout << " " << pt.pose_m.T.v[c]; std::cout << "\n";
     }, this);
 }
 
@@ -133,10 +133,10 @@ void replay::enable_tum_output()
 {
     rc_setDataCallback(tracker, [](void *handle, rc_Tracker * tracker, const rc_Data * data) {
         if (data->path != rc_DATA_PATH_SLOW) return;
-        rc_Pose pose = rc_getPose(tracker, nullptr, nullptr, data->path);
-        printf("%.9f", data->time_us/1.e6);
-        for(int c=0; c<3; c++) std::cout << " " << pose.T.v[c] << " ";
-        std::cout << pose.Q.x << " " << pose.Q.y << " " << pose.Q.z << " " << pose.Q.w << "\n";
+        rc_PoseTime pt = rc_getPose(tracker, nullptr, nullptr, data->path);
+        printf("%.9f", pt.time_us/1.e6);
+        for(int c=0; c<3; c++) std::cout << " " << pt.pose_m.T.v[c] << " ";
+        std::cout << pt.pose_m.Q.x << " " << pt.pose_m.Q.y << " " << pt.pose_m.Q.z << " " << pt.pose_m.Q.w << "\n";
     }, this);
 }
 
@@ -275,11 +275,11 @@ bool replay::run()
                 }
             }   break;
         }
-        rc_Pose endPose_m = rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);
+        rc_PoseTime endPoseTime = rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);
     }
 
-    rc_Pose endPose_m = rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);
-    length_m = sqrtf(endPose_m.T.x*endPose_m.T.x + endPose_m.T.y*endPose_m.T.y + endPose_m.T.z*endPose_m.T.z);
+    rc_PoseTime endPoseTime = rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);
+    length_m = sqrtf(endPoseTime.pose_m.T.x*endPoseTime.pose_m.T.x + endPoseTime.pose_m.T.y*endPoseTime.pose_m.T.y + endPoseTime.pose_m.T.z*endPoseTime.pose_m.T.z);
 
     rc_stopTracker(tracker);
     file.close();

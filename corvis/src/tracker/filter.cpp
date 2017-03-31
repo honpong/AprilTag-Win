@@ -772,8 +772,8 @@ const std::vector<tracker::point> & filter_detect(struct filter *f, const sensor
     camera.feature_tracker->current_features.reserve(camera.feature_count());
     if (!space)
         return camera.feature_tracker->current_features;
-    for(auto g : camera.groups.children)
-        for(auto i : g->features.children)
+    for(auto &g : camera.groups.children)
+        for(auto &i : g->features.children)
             camera.feature_tracker->current_features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
 
     // Run detector

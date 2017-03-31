@@ -76,6 +76,7 @@ int main(int c, char **v)
         if(realtime) rp.enable_realtime();
         if(enable_map) rp.start_mapping();
         if(fast_path) rp.enable_fast_path();
+        if(async) rp.enable_async();
 
         if(!rp.open(capture_file))
             return false;

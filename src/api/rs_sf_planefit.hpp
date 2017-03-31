@@ -1,6 +1,6 @@
 #pragma once
-#ifndef rs_sf_planefit_h
-#define rs_sf_planefit_h
+#ifndef rs_sf_planefit_hpp
+#define rs_sf_planefit_hpp
 
 #include "rs_sf_util.h"
 
@@ -192,4 +192,4 @@ private:
     float& cam_fy = m_intrinsics.fy;
 };
 
-#endif // ! rs_sf_planefit_h
+#endif // ! rs_sf_planefit_hpp

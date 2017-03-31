@@ -47,8 +47,8 @@ endif()
 add_subdirectory(api)
 
 ############################################################################################################
-option(BUILD_SAMPLE_APP "Build Sample App" ON)
-if(BUILD_SAMPLE_APP)
+option(BUILD_SHAPEFIT_APP "Build Shapefit Sample App" ON)
+if(BUILD_SHAPEFIT_APP)
     find_package(OpenGL REQUIRED)
     if(WIN32)
         add_subdirectory(thirdparty/glfw)

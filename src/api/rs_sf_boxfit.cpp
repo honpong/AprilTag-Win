@@ -1,4 +1,4 @@
-#include "rs_sf_boxfit.h"
+#include "rs_sf_boxfit.hpp"
 
 static rs_sf_boxfit* debug_this = nullptr;
 rs_sf_boxfit::rs_sf_boxfit(const rs_sf_intrinsics * camera) : rs_sf_planefit(camera)

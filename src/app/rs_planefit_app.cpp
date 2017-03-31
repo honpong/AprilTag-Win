@@ -1,7 +1,7 @@
 #include <librealsense/rs.hpp>
 #include <librealsense/rsutil.hpp>
 #include "rs_shapefit.h"
-#include "rs_sf_image_io.h"
+#include "rs_sf_image_io.hpp"
 //#include "rs_sf_pose_tracker.h"
 
 const std::string default_path = "c:\\temp\\shapefit\\a\\";

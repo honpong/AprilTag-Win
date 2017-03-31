@@ -7,10 +7,8 @@
 #ifdef RS_SHAPEFIT_EXPORTS
 #define RS_SHAPEFIT_DECL __declspec(dllexport)
 #else
-#define RS_SHAPEFIT_DECL __declspec(dllimport)
-#endif
-#else
 #define RS_SHAPEFIT_DECL
+#endif
 #endif
 
 #define RS_SHAPEFIT_API_MAJOR_VERSION 1

@@ -1,8 +1,8 @@
 #pragma once
-#ifndef rs_sf_boxfit_h
-#define rs_sf_boxfit_h
+#ifndef rs_sf_boxfit_hpp
+#define rs_sf_boxfit_hpp
 
-#include "rs_sf_planefit.h"
+#include "rs_sf_planefit.hpp"
 
 struct rs_sf_boxfit : public rs_sf_planefit
 {
@@ -161,4 +161,4 @@ private:
     void draw_box(const std::string& name, const box& src, const box_plane_t* p0 = nullptr, const box_plane_t* p1 = nullptr) const;
 };
 
-#endif // ! rs_sf_boxfit_h
+#endif // ! rs_sf_boxfit_hpp

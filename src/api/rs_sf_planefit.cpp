@@ -1,4 +1,4 @@
-#include "rs_sf_planefit.h"
+#include "rs_sf_planefit.hpp"
 
 rs_sf_planefit::rs_sf_planefit(const rs_sf_intrinsics * camera) 
 {
@@ -300,7 +300,7 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
     {
         vec_pt_ref pt_buf; pt_buf.swap(grp.pt);
         for (auto&& order : grp_order)
-            if ((int)pt_buf.size() > order.second) 
+            if (pt_buf[order.second] != nullptr)
                 grp.pt.emplace_back(pt_buf[order.second]);
 
         // group center
@@ -528,7 +528,14 @@ void rs_sf_planefit::image_to_pointcloud(scene& current_view, bool force_full_pt
 
         // compute point cloud
         for (auto&& grp : current_view.pt_grp) {
-            for (auto* pt : grp.pt) pt->clear_all_state();
+            for (auto* pt : grp.pt)
+            {
+                if (pt == nullptr)
+                {
+                    printf("warning\n");
+                }
+                pt->clear_all_state();
+            }
             compute_pt3d(*grp.pt0, search_around);
         }
 

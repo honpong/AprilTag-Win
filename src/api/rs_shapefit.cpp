@@ -1,7 +1,7 @@
 #define RS_SHAPEFIT_EXPORTS
 #include "rs_shapefit.h"
-#include "rs_sf_planefit.h"
-#include "rs_sf_boxfit.h"
+#include "rs_sf_planefit.hpp"
+#include "rs_sf_boxfit.hpp"
 
 rs_shapefit * rs_shapefit_create(const rs_sf_intrinsics * camera, rs_shapefit_option option)
 {

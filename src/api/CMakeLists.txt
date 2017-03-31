@@ -19,9 +19,16 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/inc)
     
 FILE(GLOB SHAPEFIT_API_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-FILE(GLOB SHAPEFIT_API_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h" "${SHAPEFIT_API_HDR_DIR}/*")
-add_library(shapefit_api SHARED 
-    ${SHAPEFIT_API_SRC}
-    ${SHAPEFIT_API_HDR})
+FILE(GLOB SHAPEFIT_API_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp" "${SHAPEFIT_API_HDR_DIR}/*")
+option(BUILD_SHAPEFIT_LIB_SHARED "Build Shared Shapefit Library" ON)
+if(BUILD_SHAPEFIT_LIB_SHARED)
+    add_library(shapefit_api SHARED 
+        ${SHAPEFIT_API_SRC}
+        ${SHAPEFIT_API_HDR})
+else()
+    add_library(shapefit_api STATIC 
+        ${SHAPEFIT_API_SRC}
+        ${SHAPEFIT_API_HDR})
+endif()
 set_property(TARGET shapefit_api PROPERTY CXX_STANDARD 14)
 target_link_libraries(shapefit_api PRIVATE ${OpenCV_LIBS})

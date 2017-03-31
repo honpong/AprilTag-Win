@@ -21,13 +21,13 @@ include_directories(
     ${JSON_INC_DIR})
     
 FILE(GLOB SHAPEFIT_APP_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-FILE(GLOB SHAPEFIT_APP_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp")
+FILE(GLOB SHAPEFIT_APP_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h*" )
 add_executable(shapefit_app 
     ${SHAPEFIT_APP_SRC}
 	${SHAPEFIT_APP_HDR}
     ${JSON_SRC})
 set_property(TARGET shapefit_app PROPERTY CXX_STANDARD 14)
-target_link_libraries(shapefit_app PUBLIC shapefit_api PRIVATE ${LIBREALSENSE_LIB} ${OPENGL_LIBRARIES} glfw3)
+target_link_libraries(shapefit_app PRIVATE shapefit_api ${LIBREALSENSE_LIB} ${OPENGL_LIBRARIES} glfw3)
 
 IF(WIN32)
 	add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit_api>" "$<TARGET_FILE_DIR:shapefit_app>")

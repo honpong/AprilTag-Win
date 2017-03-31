@@ -72,6 +72,11 @@ typedef enum rc_TrackerConfidence
     rc_E_CONFIDENCE_HIGH = 3
 } rc_TrackerConfidence;
 
+/**
+ Timestamp, in microseconds
+ */
+typedef int64_t rc_Timestamp;
+
 typedef struct { float v[3][3]; } rc_Matrix;
 typedef union { struct { float x,y,z;   }; float v[3]; } rc_Vector;
 typedef union { struct { float x,y,z,w; }; float v[4]; } rc_Quaternion;
@@ -79,6 +84,7 @@ typedef struct { rc_Quaternion Q; rc_Vector T; rc_Matrix R; } rc_Pose; // both Q
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVelocity; // Q is the spatial (not body) velocity and T the derivative of rc_Pose's T
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseAcceleration; // derivative of rc_PoseVelocity
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVariance; // this is not the full variance yet
+typedef struct { rc_Pose pose_m; rc_Timestamp time_us; } rc_PoseTime;
 
 static const rc_Matrix rc_MATRIX_IDENTITY = {
     {{1, 0, 0},
@@ -93,11 +99,6 @@ static const rc_Pose rc_POSE_IDENTITY = {
     {{0,0,0}},
     rc_MATRIX_IDENTITY,
 };
-
-/**
- Timestamp, in microseconds
- */
-typedef int64_t rc_Timestamp;
 
 typedef uint16_t rc_Sensor;
 
@@ -415,7 +416,7 @@ RCTRACKER_API void rc_setPose(rc_Tracker *tracker, const rc_Pose pose_m);
  @param acceleration Position (rad/s/s, m/s/s) these are the derivatives of the velocities (may be NULL)
  @param path When RC_RUN_ASYNCHRONOUS, rc_getPose() must only be called from the rc_DataCallback(rc Data *data) with the value of data->path
 */
-RCTRACKER_API rc_Pose rc_getPose(rc_Tracker *tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path);
+RCTRACKER_API rc_PoseTime rc_getPose(rc_Tracker *tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path);
 RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Sensor camera_id, rc_Feature **features_px);
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);

@@ -46,6 +46,12 @@ static void rc_trace(const rc_Pose p)
         trace_log->info("{} {} {} {}; {} {} {}", p.Q.w, p.Q.x, p.Q.y, p.Q.z, p.T.x, p.T.y, p.T.z);
 }
 
+static void rc_trace(const rc_PoseTime pt)
+{
+    trace_log->info("PoseTime: {}us", pt.time_us);
+    rc_trace(pt.pose_m);
+}
+
 static void rc_trace(const rc_Extrinsics e)
 {
     rc_trace(e.pose_m); // FIXME: make rc_Pose, rc_Vector, rc_Matrix types you can serialize natively to spdlog, then all of this can be cleaned up
@@ -595,7 +601,7 @@ bool rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
     return true;
 }
 
-rc_Pose rc_getPose(rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path)
+rc_PoseTime rc_getPose(rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path)
 {
     if(trace) trace_log->info(path == rc_DATA_PATH_FAST ? "rc_getFastPose" : "rc_getPose");
     const state_motion &s = path == rc_DATA_PATH_FAST ? tracker->sfm.mini->state : tracker->sfm.s;
@@ -604,10 +610,12 @@ rc_Pose rc_getPose(rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration
     if (a) map(a->W.v) = total.Q * s.Q.v * s.dw.v;
     if (v) map(v->T.v) = total.Q * s.V.v;
     if (a) map(a->T.v) = total.Q * s.a.v;
-    rc_Pose pose_m = to_rc_Pose(total * transformation(s.Q.v, s.T.v));
+    rc_PoseTime pose_time;
+    pose_time.pose_m = to_rc_Pose(total * transformation(s.Q.v, s.T.v));
+    pose_time.time_us = sensor_clock::tp_to_micros(s.get_current_time());
     // assert(pose_m == tracker->get_transformation()); // FIXME: this depends on the specific implementation of ->get_transformation()
-    if(trace) rc_trace(pose_m);
-    return pose_m;
+    if(trace) rc_trace(pose_time);
+    return pose_time;
 }
 
 void rc_setPose(rc_Tracker * tracker, const rc_Pose pose_m)

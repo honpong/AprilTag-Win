@@ -222,6 +222,8 @@ public:
         current_time = time;
     }
 
+    inline const sensor_clock::time_point & get_current_time() const { return current_time; }
+
 protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) = 0;
     virtual void evolve_state(f_t dt) = 0;

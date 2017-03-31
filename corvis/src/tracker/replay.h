@@ -92,7 +92,7 @@ public:
     void zero_biases();
     void start_mapping() { rc_startMapping(tracker); }
     void save_map(std::string filename);
-    inline bool ground_truth_exists() { return reference_seq->size(); }
+    inline bool ground_truth_exists() { return reference_seq && reference_seq->size(); }
 };
 
 #endif /* defined(__RC3DK__replay__) */

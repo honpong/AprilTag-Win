@@ -11,6 +11,7 @@ rs_sf_status rs_sf_planefit::set_option(rs_sf_fit_option option, double value)
     auto status = rs_shapefit::set_option(option, value);
     switch (option) {
     case RS_SF_OPTION_PLANE_RES:
+        m_param.hole_fill_plane_map = (value > 0);
         m_param.refine_plane_map = (value > 1); break;
     case RS_SF_OPTION_PLANE_NOISE:
         m_param.search_around_missing_z = (value > 0);
@@ -104,12 +105,14 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
         int img_w = map->img_w, img_h = map->img_h;
         const unsigned char VISITED = 255, NO_PLANE = 0;
 
-        std::vector<unsigned char> hole_map;
+        std::vector<unsigned char> hole_map_src;
         std::vector<i4> next_list;
-        hole_map.reserve(map->num_pixel());
-        hole_map.assign(idx, idx + map->num_pixel());
+        hole_map_src.reserve(map->num_pixel());
+        hole_map_src.assign(idx, idx + map->num_pixel());
         next_list.reserve(map->num_pixel());
+        auto* hole_map = hole_map_src.data();
 
+        /***
         // vertical image frame 
         for (int y = 0, x0 = 0, xn = img_w - 1, p = 0; y < img_h; ++y) {
             if (idx[p = (y*img_w + x0)] == NO_PLANE) next_list.emplace_back(x0, y, p, NO_PLANE);
@@ -122,6 +125,17 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
         }
         for (auto&& pt : next_list)
             hole_map[pt[2]] = VISITED;
+            */
+
+        // frame the hole map
+        memset(hole_map, VISITED, sizeof(unsigned char)*img_w);
+        memset(hole_map+ map->num_pixel() - img_w, VISITED, sizeof(unsigned char)*img_w);
+        for (int x0 = 0, ex = map->num_pixel(); x0 < ex; x0 += img_w) {
+            hole_map[x0] = hole_map[x0 + img_w - 1] = VISITED;
+        }
+        // corner backround point
+        hole_map[img_w + 1] = VISITED;
+        next_list.emplace_back(1, 1, img_w + 1, NO_PLANE);
 
         // fill background
         const int xb[] = { -1,1,0,0 };
@@ -135,7 +149,7 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
             for (int b = 0; b < 4; ++b)
             {
                 const int x = pt[0] + xb[b], y = pt[1] + yb[b];
-                if (0 <= x && x < img_w && 0 <= y && y < img_h)
+                //if (0 <= x && x < img_w && 0 <= y && y < img_h)
                 {
                     const auto p = pt[2] + pb[b];
                     if (hole_map[p] == NO_PLANE) {
@@ -161,7 +175,7 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
             for (int b = 0; b < 4; ++b)
             {
                 const int x = pt[0] + xb[b], y = pt[1] + yb[b];
-                if (0 <= x && x < img_w && 0 <= y && y < img_h)
+                //if (0 <= x && x < img_w && 0 <= y && y < img_h)
                 {
                     const auto p = pt[2] + pb[b];
                     auto& hole_p = hole_map[p];

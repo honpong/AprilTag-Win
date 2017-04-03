@@ -165,7 +165,7 @@ if (NOT RC_BUILD)
     WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
     OUTPUT_VARIABLE RC_BUILD RESULT_VARIABLE GIT_RETURN OUTPUT_STRIP_TRAILING_WHITESPACE)
   if (NOT GIT_RETURN EQUAL 0)
-    message(FATAL_ERROR "install git OR pass -DRC_BUILD=<build-string>")
+    message(FATAL_ERROR "install git AND run `git fetch --tags` OR pass -DRC_BUILD=<build-string>")
   endif()
 endif()
 target_compile_definitions(tracker PRIVATE RC_BUILD="${RC_BUILD}")

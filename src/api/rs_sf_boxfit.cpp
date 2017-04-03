@@ -305,6 +305,9 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
         std::max(width0_bin_range[0], width1_bin_range[0]),
         std::min(width0_bin_range[1], width1_bin_range[1]));
 
+	// check if two planes overlap along axis 2
+	if (width_bin_range[0] >= width_bin_range[1]) return false;
+
     // compute good plane height
     const auto axis0_length = box_plane[0].get_height_length(axis[0], width_bin_range, axis_origin[0]);
     const auto axis1_length = box_plane[1].get_height_length(axis[1], width_bin_range, axis_origin[1]);
@@ -318,6 +321,11 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     const auto width1_range = box_plane[1].get_width_range(axis_origin[1]);
     axis_origin[2] = std::min(width0_range[0], width1_range[0]);
     const auto axis2_length = std::max(width0_range[1], width1_range[1]) - axis_origin[2];
+
+	// reject super thin box
+	if (axis0_length[1] < m_param.min_box_thickness) return false;
+	if (axis1_length[1] < m_param.min_box_thickness) return false;
+	if (axis2_length < m_param.min_box_thickness) return false;
 
     // make new box
     view.boxes.push_back({});

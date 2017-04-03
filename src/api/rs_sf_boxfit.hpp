@@ -10,11 +10,13 @@ struct rs_sf_boxfit : public rs_sf_planefit
     {
         float plane_angle_thr = 1.0f - 0.95f; //absolute threshold for plane angles dot product
         float plane_intersect_thr = 30.0f;    //points on 2 box planes touch within 5mm
-        float max_plane_pt_error = 20.0f; 
+		float min_box_thickness = 50.0f;      //minimum box thickness in mm
+		float max_plane_pt_error = 20.0f; 
         float box_state_gain = 0.3f;
         int max_box_history = 11;
         int max_box_miss_frame = 5;
         bool refine_box_plane = false;
+
     };
 
     struct box

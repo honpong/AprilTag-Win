@@ -100,93 +100,8 @@ rs_sf_status rs_sf_planefit::get_plane_index_map(rs_sf_image * map, int hole_fil
     //mark_plane_src_on_map(map);
 
     if (hole_filled > 0 || (hole_filled == -1 && m_param.hole_fill_plane_map))
-    {
-        auto* idx = map->data;
-        const int img_w = map->img_w, img_h = map->img_h;
-        const int num_pixel = map->num_pixel();
-        const unsigned char VISITED = 255, NO_PLANE = 0;
+        hole_fill_custom_plane_map(map);
 
-        std::vector<unsigned char> hole_map_src;
-        std::vector<i2> next_list;
-        hole_map_src.reserve(num_pixel);
-        hole_map_src.assign(idx, idx + num_pixel);
-        next_list.reserve(num_pixel);
-        auto* hole_map = hole_map_src.data();
-
-        // frame the hole map
-        memset(hole_map, VISITED, sizeof(unsigned char)*img_w);
-        memset(hole_map + num_pixel - img_w, VISITED, sizeof(unsigned char)*img_w);
-        for (int x0 = 0, ex = num_pixel, img_w_1 = img_w - 1; x0 < ex; x0 += img_w) {
-            hole_map[x0] = hole_map[x0 + img_w_1] = VISITED;
-        }
-
-        // vertical image frame
-        for (int x0 = img_w + 1, xn = 2 * img_w - 2, ex = num_pixel - img_w; x0 < ex; x0 += img_w, xn += img_w) {
-            if (idx[x0] == NO_PLANE) next_list.emplace_back(x0, NO_PLANE);
-            if (idx[xn] == NO_PLANE) next_list.emplace_back(xn, NO_PLANE);
-        }
-        // horizontal image frame
-        for (int y0 = img_w + 2, yn = num_pixel - 2 * img_w + 2, ey = img_w * 2 - 1; y0 < ey; ++y0, ++yn) {
-            if (idx[y0] == NO_PLANE) next_list.emplace_back(y0, NO_PLANE);
-            if (idx[yn] == NO_PLANE) next_list.emplace_back(yn, NO_PLANE);
-        }
-        for (auto&& pt : next_list)
-            hole_map[pt[1]] = VISITED;
-
-        // fill background
-        const int pb[] = { -1,1,-img_w,img_w };
-        while (!next_list.empty())
-        {
-            const auto pt = next_list.back();
-            next_list.pop_back();
-
-            for (auto&& pbb : pb) {
-                const auto p = pt[0] + pbb;
-                if (hole_map[p] == NO_PLANE) {
-                    hole_map[p] = VISITED;
-                    next_list.emplace_back(p, NO_PLANE);
-                }
-            }
-        }
-
-        //pick up planes
-        for (int p = num_pixel - 1, pid; p >= 0; --p) {
-            if (((pid = hole_map[p]) != NO_PLANE) && pid != VISITED)
-                next_list.emplace_back(p, pid);
-        }
-
-        //grow planes
-        while (!next_list.empty())
-        {
-            auto pt = next_list.back();
-            next_list.pop_back();
-
-            for (auto&& pbb : pb)
-            {
-                const auto p = pt[0] + pbb;
-                auto& hole_p = hole_map[p];
-                if (idx[p] == NO_PLANE && hole_p != VISITED)
-                {
-                    if (hole_p == NO_PLANE)
-                    {
-                        hole_p = (unsigned char)pt[1];
-                        next_list.emplace_back(p, pt[1]);
-                    }
-                    else if (hole_p != pt[1])
-                    {
-                        hole_p = VISITED; //not hole, clear this point
-                        next_list.emplace_back(p, pt[1]);
-                    }
-                }
-            }
-        }
-
-        //fill holes
-        for (int p = num_pixel - 1; p >= 0; --p)
-            if (idx[p] == NO_PLANE && hole_map[p] != VISITED)
-                idx[p] = hole_map[p];
-
-    }
     return RS_SF_SUCCESS;
 }
 
@@ -1023,4 +938,95 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
             }
         }
     }
+}
+
+void rs_sf_planefit::hole_fill_custom_plane_map(rs_sf_image * map) const
+{
+    auto* idx = map->data;
+    const int img_w = map->img_w, img_h = map->img_h;
+    const int num_pixel = map->num_pixel();
+    const unsigned char VISITED = 255, NO_PLANE = 0;
+
+    std::vector<unsigned char> hole_map_src;
+    std::vector<i2> next_list;
+    std::vector<int> holes;
+    hole_map_src.reserve(num_pixel);
+    hole_map_src.assign(idx, idx + num_pixel);
+    next_list.reserve(num_pixel);
+    holes.reserve(num_pixel / 4);
+    auto* hole_map = hole_map_src.data();
+
+    // frame the hole map
+    memset(hole_map, VISITED, sizeof(unsigned char)*img_w);
+    memset(hole_map + num_pixel - img_w, VISITED, sizeof(unsigned char)*img_w);
+    for (int x0 = 0, ex = num_pixel, img_w_1 = img_w - 1; x0 < ex; x0 += img_w) {
+        hole_map[x0] = hole_map[x0 + img_w_1] = VISITED;
+    }
+
+    // vertical image frame
+    for (int x0 = img_w + 1, xn = 2 * img_w - 2, ex = num_pixel - img_w; x0 < ex; x0 += img_w, xn += img_w) {
+        if (idx[x0] == NO_PLANE) next_list.emplace_back(x0, NO_PLANE);
+        if (idx[xn] == NO_PLANE) next_list.emplace_back(xn, NO_PLANE);
+    }
+    // horizontal image frame
+    for (int y0 = img_w + 2, yn = num_pixel - 2 * img_w + 2, ey = img_w * 2 - 1; y0 < ey; ++y0, ++yn) {
+        if (idx[y0] == NO_PLANE) next_list.emplace_back(y0, NO_PLANE);
+        if (idx[yn] == NO_PLANE) next_list.emplace_back(yn, NO_PLANE);
+    }
+    for (auto&& pt : next_list)
+        hole_map[pt[1]] = VISITED;
+
+    // fill background
+    const int pb[] = { -1,1,-img_w,img_w };
+    while (!next_list.empty())
+    {
+        const auto pt = next_list.back();
+        next_list.pop_back();
+
+        for (auto&& pbb : pb) {
+            const auto p = pt[0] + pbb;
+            if (hole_map[p] == NO_PLANE) {
+                hole_map[p] = VISITED;
+                next_list.emplace_back(p, NO_PLANE);
+            }
+        }
+    }
+
+    //pick up planes
+    for (int p = num_pixel - 1, pid; p >= 0; --p) {
+        if (((pid = hole_map[p]) != NO_PLANE) && pid != VISITED)
+            next_list.emplace_back(p, pid);
+    }
+
+    //grow planes
+    while (!next_list.empty())
+    {
+        auto pt = next_list.back();
+        next_list.pop_back();
+
+        for (auto&& pbb : pb)
+        {
+            const auto p = pt[0] + pbb;
+            auto& hole_p = hole_map[p];
+            if (idx[p] == NO_PLANE && hole_p != VISITED)
+            {
+                if (hole_p == NO_PLANE)
+                {
+                    hole_p = (unsigned char)pt[1];
+                    next_list.emplace_back(p, pt[1]);
+                    holes.emplace_back(p);
+                }
+                else if (hole_p != pt[1])
+                {
+                    hole_p = VISITED; //not hole, clear this point
+                    next_list.emplace_back(p, pt[1]);
+                }
+            }
+        }
+    }
+
+    //fill holes
+    for (const auto hole_p : holes)
+        if (hole_map[hole_p] != VISITED)
+            idx[hole_p] = hole_map[hole_p];
 }

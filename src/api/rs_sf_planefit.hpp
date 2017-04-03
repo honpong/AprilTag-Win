@@ -182,6 +182,7 @@ private:
     // output utility 
     void pt_groups_planes_to_full_img(vec_pt3d& pt_img, vec_plane_ref& sorted_planes);
     void upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_image * dst) const;
+    void hole_fill_custom_plane_map(rs_sf_image* map) const;
 
     // pose buffer
     float r00, r01, r02, r10, r11, r12, r20, r21, r22, t0, t1, t2;

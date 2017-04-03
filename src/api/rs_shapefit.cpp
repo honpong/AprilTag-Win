@@ -41,7 +41,7 @@ rs_sf_status rs_shapefit_depth_image(rs_shapefit * obj, const rs_sf_image * imag
                 return pf->process_depth_image(); //single frame mode
         });
     }
-    pf->run_task(pf->get_option_max_process_delay());
+    pf->run_task(pf->get_option_async_process_wait());
     pf->m_input_mutex.unlock();
     return new_input_status;
 }

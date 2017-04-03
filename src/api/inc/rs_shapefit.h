@@ -70,7 +70,7 @@ extern "C"
 
     enum rs_sf_fit_option
     {
-        RS_SF_OPTION_ASYNC_WAIT = 0,       /**<  Wait ms in async mode, set -1 for sync process*/
+        RS_SF_OPTION_ASYNC_WAIT = 0,        /**<  Wait ms in async mode, set -1 for sync process*/
         RS_SF_OPTION_TRACKING = 1,          /**< 0:TRACK, 1:SINGLE FRAME       */
         RS_SF_OPTION_PLANE_NOISE = 2,       /**< 0:LOW, 1:MEDIUM, 2:HIGH       */
         RS_SF_OPTION_PLANE_RES = 3,         /**< 0:LOW,           2:HIGH       */

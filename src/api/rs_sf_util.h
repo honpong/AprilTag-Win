@@ -57,7 +57,7 @@ struct rs_shapefit
     enum fit_option_tracking { CONTINUE = 0, SINGLE_FRAME = 1 };
     enum fit_option_draw_planes { OVERLAY = 0, OVERWRITE = 1 };
     enum fit_option_get_plane_id { ORIGINAL = 0, SCALED = 1, REMAP = 2 };
-    long long get_option_max_process_delay() const { return (long long)m_param[RS_SF_OPTION_MAX_PROCESS_DELAY]; }
+    long long get_option_max_process_delay() const { return (long long)m_param[RS_SF_OPTION_ASYNC_WAIT]; }
     fit_option_tracking get_option_track() const { return (fit_option_tracking)(int)m_param[RS_SF_OPTION_TRACKING]; }
     fit_option_draw_planes get_option_draw_planes() const { return (fit_option_draw_planes)(int)m_param[RS_SF_OPTION_DRAW_PLANES]; }
     fit_option_get_plane_id get_option_get_plane_id() const { return (fit_option_get_plane_id)(int)m_param[RS_SF_OPTION_GET_PLANE_ID]; }

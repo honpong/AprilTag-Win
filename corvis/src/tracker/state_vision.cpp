@@ -74,8 +74,8 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
 state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): camera(camera_), health(0), status(group_initializing)
 {
     id = group_id;
-    children.push_back(&Tr);
     children.push_back(&Qr);
+    children.push_back(&Tr);
     Tr.v = v3(0, 0, 0);
     Qr.v = quaternion::Identity();
     f_t near_zero = F_T_EPS * 100;
@@ -601,8 +601,8 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         const auto cov_ddw = ddw.from_row(src, i);
         const v3 cov_dW = dt * (cov_w + dt/2 * (cov_dw + dt/3 * cov_ddw));
         const auto scov_Q = Q.from_row(src, i);
-        w.to_col(dst, i) = cov_w + dt * (cov_dw + dt/2 * cov_ddw);
         dw.to_col(dst, i) = cov_dw + dt * cov_ddw;
+        w.to_col(dst, i) = cov_w + dt * (cov_dw + dt/2 * cov_ddw);
         Q.to_col(dst, i) = scov_Q + dQp_s_dW * cov_dW;
         // This should match state_motion::project_covariance
         const auto cov_V = V.from_row(src, i);
@@ -610,15 +610,15 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         const auto cov_T = T.from_row(src, i);
         const auto cov_da = da.from_row(src, i);
         const v3 cov_dT = dt * (cov_V + dt/2 * (cov_a + dt/3 * cov_da));
-        T.to_col(dst, i) = cov_T + cov_dT;
-        V.to_col(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
         a.to_col(dst, i) = cov_a + dt * cov_da;
+        V.to_col(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
+        T.to_col(dst, i) = cov_T + cov_dT;
         for (auto &c : cameras.children)
             for(auto &g : c->groups.children) {
                 const auto cov_Tr = g->Tr.from_row(src, i);
                 const auto scov_Qr = g->Qr.from_row(src, i);
-                g->Tr.to_col(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
                 g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
+                g->Tr.to_col(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
             }
     }
 }

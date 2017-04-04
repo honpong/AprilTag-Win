@@ -554,8 +554,8 @@ public:
 
     state_extrinsics(const char *Qx, const char *Tx, bool estimate_) : Q(Qx, constant), T(Tx, constant) {
         estimate = estimate_;
-        children.push_back(&T);
         children.push_back(&Q);
+        children.push_back(&T);
     }
     void copy_from(const state_extrinsics &other) {
         Q = other.Q;

@@ -69,10 +69,10 @@ public:
     state_branch<std::unique_ptr<state_imu>, std::vector<std::unique_ptr<state_imu>>> imus;
 
     state_motion_orientation(covariance &c): state_root(c) {
-        children.push_back(&Q);
-        children.push_back(&w);
-        children.push_back(&dw);
         children.push_back(&ddw);
+        children.push_back(&dw);
+        children.push_back(&w);
+        children.push_back(&Q);
         non_orientation.children.push_back(&imus);
         children.push_back(&non_orientation);
         //children.push_back(&g);
@@ -143,10 +143,10 @@ public:
     }
 
     state_motion(covariance &c): state_motion_orientation(c) {
-        non_orientation.children.push_back(&T);
-        non_orientation.children.push_back(&V);
-        non_orientation.children.push_back(&a);
         non_orientation.children.push_back(&da);
+        non_orientation.children.push_back(&a);
+        non_orientation.children.push_back(&V);
+        non_orientation.children.push_back(&T);
     }
 
     void copy_from(const state_motion &other) {

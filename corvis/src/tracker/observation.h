@@ -175,19 +175,19 @@ protected:
     void compute_innovation_covariance(const matrix &m_cov);
     bool update_state_and_covariance(state_root &s, const matrix &inn);
 
-    matrix state   {(f_t*)  state_storage,                  1,       MAXSTATESIZE,                  1,       MAXSTATESIZE };
-    matrix inn     {(f_t*)    inn_storage,                  1, MAXOBSERVATIONSIZE,                  1, MAXOBSERVATIONSIZE };
-    matrix m_cov   {(f_t*)  m_cov_storage,                  1, MAXOBSERVATIONSIZE,                  1, MAXOBSERVATIONSIZE };
-    matrix HP      {(f_t*)     HP_storage, MAXOBSERVATIONSIZE,       MAXSTATESIZE, MAXOBSERVATIONSIZE,       MAXSTATESIZE };
-    matrix K       {(f_t*)      K_storage, MAXSTATESIZE,       MAXOBSERVATIONSIZE,       MAXSTATESIZE, MAXOBSERVATIONSIZE };
-    matrix res_cov {(f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE };
+    matrix state   {   state_storage };
+    matrix inn     {     inn_storage };
+    matrix m_cov   {   m_cov_storage };
+    matrix HP      {      HP_storage };
+    matrix K       {       K_storage };
+    matrix res_cov { res_cov_storage };
 
     alignas(64) f_t state_storage[MAXSTATESIZE];
     alignas(64) f_t inn_storage[MAXOBSERVATIONSIZE];
     alignas(64) f_t m_cov_storage[MAXOBSERVATIONSIZE];
-    alignas(64) f_t HP_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
-    alignas(64) f_t K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
-    alignas(64) f_t res_cov_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
+    alignas(64) f_t HP_storage[MAXOBSERVATIONSIZE][MAXSTATESIZE];
+    alignas(64) f_t K_storage[MAXSTATESIZE][MAXOBSERVATIONSIZE];
+    alignas(64) f_t res_cov_storage[MAXOBSERVATIONSIZE][MAXOBSERVATIONSIZE];
 };
 
 //some object should have functions to evolve the mean and covariance

@@ -138,7 +138,7 @@ rs_sf_status rs_sf_planefit::get_plane_equation(int pid, float equ[4]) const
     equ[0] = tracked_pid[pid]->normal[0];
     equ[1] = tracked_pid[pid]->normal[1];
     equ[2] = tracked_pid[pid]->normal[2];
-    equ[3] = tracked_pid[pid]->d;
+    equ[3] = tracked_pid[pid]->d / 1000.0f;
 
     return RS_SF_SUCCESS;
 }

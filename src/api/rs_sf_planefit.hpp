@@ -12,19 +12,14 @@ struct rs_sf_planefit : public rs_shapefit
 		bool search_around_missing_z = false;
         bool filter_plane_map = false;
         bool refine_plane_map = false;
-#ifdef _DEBUG
-        bool hole_fill_plane_map = false;
-        int img_x_dn_sample = 7;
-        int img_y_dn_sample = 7;
-#else
-        bool hole_fill_plane_map = true;
-        int img_x_dn_sample = 5;
-        int img_y_dn_sample = 5;
-#endif
-        int candidate_gx_dn_sample = 3;
-        int candidate_gy_dn_sample = 3;
-        int track_gx_dn_sample = 6;
-        int track_gy_dn_sample = 6;
+		bool hole_fill_plane_map = true;
+
+		int  img_x_dn_sample = 5;
+        int  img_y_dn_sample = 5;
+        int  candidate_gx_dn_sample = 3;
+        int  candidate_gy_dn_sample = 3;
+        int  track_gx_dn_sample = 6;
+        int  track_gy_dn_sample = 6;
 
         float min_z_value = 100.0f;
         float max_z_value = 3500.0f;
@@ -47,7 +42,7 @@ struct rs_sf_planefit : public rs_shapefit
     int max_detected_pid() const;
     rs_sf_status get_plane_index_map(rs_sf_image* map, int hole_filled = -1) const;
     rs_sf_status mark_plane_src_on_map(rs_sf_image* map) const;
-    rs_sf_status get_plane_equation(int pid, float equ[4]) const;
+    rs_sf_status get_plane_equation(int pid, float equ[4]) const; // return unit meter
 
 protected:
 

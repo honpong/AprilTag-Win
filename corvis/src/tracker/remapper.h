@@ -11,7 +11,7 @@ class remapper {
         uint16_t size, to, from;
         update(enum type type_, uint16_t size_, uint16_t to_                ): type(type_), size(size_), to(to_), from(-1   ) { assert(type_ ==  add); }
         update(enum type type_, uint16_t size_, uint16_t to_, uint16_t from_): type(type_), size(size_), to(to_), from(from_) { assert(type_ == move); }
-        bool operator <(const update &b) { // return if this *must* happen before other
+        bool operator <(const update &b) const { // return if this *must* happen before other
             return type == move && (b.type != move || to != b.to)
                 // [from,from+size) overlaps [b.to,b.to+b.size)
                 && from < b.to + b.size && b.to < from + size;

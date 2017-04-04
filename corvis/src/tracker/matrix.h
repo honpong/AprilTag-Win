@@ -43,7 +43,10 @@ public:
     inline f_t &operator() (const int i, const int j) { return data[i * stride + j]; }
     inline const f_t &operator() (const int i, const int j) const { return data[i * stride + j]; }
 #endif
-    
+ template<int R, int C>
+ matrix(f_t (&d)[R][C]) : storage(NULL), _rows(0), _cols(0), stride(C), maxrows(R), data(&d[0][0]) {}
+ template<int S>
+ matrix(f_t (&d)[S]) : storage(NULL), _rows(1), _cols(S), stride(S), maxrows(1), data(&d[0]) {}
  matrix(f_t *d, const int r, const int c, const int mr, const int mc): storage(NULL), _rows(r), _cols(c), stride(mc), maxrows(mr), data(d) {}
  matrix(f_t *d, const int r, const int c): storage(NULL), _rows(r), _cols(c), stride(c), maxrows(r), data(d) {}
  matrix(f_t *d, const int size): storage(NULL), _rows(1), _cols(size), stride(size), maxrows(1), data(d) {}

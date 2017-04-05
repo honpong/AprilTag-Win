@@ -11,7 +11,7 @@
 
 #include "matrix.h"
 
-#define MAXSTATESIZE 120
+#define MAXSTATESIZE 114
 
 #include <remapper.h>
 

@@ -10,14 +10,13 @@ struct rs_sf_boxfit : public rs_sf_planefit
     {
         float plane_pair_angle_thr = 0.05f;  // max dot product of box plane pair normals
         float tracked_pair_angle_thr = 0.1f; // max dot product of tracked box plane pair normals
-        float plane_intersect_thr = 30.0f;   //points on 2 box planes touch within 5mm
-		float min_box_thickness = 50.0f;     //minimum box thickness in mm
-		float max_plane_pt_error = 20.0f; 
-        float box_state_gain = 0.3f;
-        int max_box_history = 11;
-        int max_box_miss_frame = 30;
-        bool refine_box_plane = false;
-
+        float plane_intersect_thr = 30.0f;   // points on 2 box planes touch within 5mm
+		float min_box_thickness = 50.0f;     // minimum box thickness in mm
+        float max_plane_pt_error = 10.0f;    // max point to box plane error
+        float box_state_gain = 0.3f;         // fraction of box update allowed per frame
+        float box_miss_ms = 500.0f;          // milliseconds allowed for a tracked box get lost
+        int max_box_history = 11;            // length of box history per tracked box
+        bool refine_box_plane = false;       // flag to refine box edge
     };
 
     struct box
@@ -123,9 +122,9 @@ protected:
         std::list<box> box_history;
         state_vn<v3> track_pos;
         state_vn<v4> track_axis;
-        int count_miss;
-        tracked_box(const plane_pair& pair) : box(*pair.new_box),
-            track_pos(center), track_axis(qv3(axis).coeffs()), count_miss(0) {
+        std::chrono::time_point<std::chrono::steady_clock> last_appear;
+        tracked_box(const plane_pair& pair, const std::chrono::time_point<std::chrono::steady_clock>& now)
+            : box(*pair.new_box), last_appear(now), track_pos(center), track_axis(qv3(axis).coeffs()) {
             pid[0] = pair.p0->pid;
             pid[1] = pair.p1->pid;
             pid[2] = (pair.p2 ? pair.p2->pid : 0);

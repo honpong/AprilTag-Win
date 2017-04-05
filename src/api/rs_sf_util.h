@@ -61,6 +61,11 @@ struct rs_shapefit
     fit_option_tracking get_option_track() const { return (fit_option_tracking)(int)m_param[RS_SF_OPTION_TRACKING]; }
     fit_option_draw_planes get_option_draw_planes() const { return (fit_option_draw_planes)(int)m_param[RS_SF_OPTION_DRAW_PLANES]; }
     fit_option_get_plane_id get_option_get_plane_id() const { return (fit_option_get_plane_id)(int)m_param[RS_SF_OPTION_GET_PLANE_ID]; }
+
+    static std::chrono::time_point<std::chrono::steady_clock> now() { return std::chrono::steady_clock::now(); }
+    template<typename T0, typename T1> static float abs_time_diff_ms(const T0& t0, const T1& t1) {
+        return std::abs(std::chrono::duration<float, std::milli>(t0 - t1).count());
+    }
 };
 
 

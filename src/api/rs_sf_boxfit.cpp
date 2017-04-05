@@ -395,8 +395,7 @@ bool rs_sf_boxfit::refine_box_from_third_plane(box_scene & view, plane_pair & pa
 
 void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
 {
-    for (auto&& box : m_box_scene.tracked_boxes)
-        ++box.count_miss;
+    const auto current_time = now();
 
     // each newly detected box
     for (auto&& pair : view.plane_pairs) {
@@ -405,7 +404,7 @@ void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
             for (auto&& old_box : m_box_scene.tracked_boxes) {
                 if (old_box.try_update(pair, m_param)) {
                     pair.new_box = nullptr;
-                    old_box.count_miss = 0;
+                    old_box.last_appear = current_time;
                     break;
                 }
             }
@@ -416,14 +415,14 @@ void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
     queue_tracked_box prev_tracked_boxes;
     prev_tracked_boxes.swap(m_box_scene.tracked_boxes);
     for (auto&& box : prev_tracked_boxes) {
-        if (box.count_miss < m_param.max_box_miss_frame)
+        if ( abs_time_diff_ms(current_time,box.last_appear) < m_param.box_miss_ms)
             m_box_scene.tracked_boxes.emplace_back(box);
     }
 
     // each newly detected box without match
     for (auto&& pair : view.plane_pairs) {
         if (pair.new_box != nullptr) {
-            m_box_scene.tracked_boxes.emplace_back(pair);
+            m_box_scene.tracked_boxes.emplace_back(pair, current_time);
         }
     }
 }

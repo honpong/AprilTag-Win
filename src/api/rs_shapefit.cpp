@@ -1,3 +1,9 @@
+/*******************************************************************************
+*
+* Perceptual Computing, Intel Corporation
+* Created by: Hon Pong (Gary) Ho
+*
+*******************************************************************************/
 #define RS_SHAPEFIT_EXPORTS
 #include "rs_shapefit.h"
 #include "rs_sf_planefit.hpp"

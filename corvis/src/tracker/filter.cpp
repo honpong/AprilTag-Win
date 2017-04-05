@@ -1059,9 +1059,13 @@ void filter_initialize(struct filter *f)
         const auto &gyro = *f->gyroscopes[i];
         imu.intrinsics.w_bias.v = map(gyro.intrinsics.bias_rad__s.v);
         imu.intrinsics.w_bias.set_initial_variance(map(gyro.intrinsics.bias_variance_rad2__s2.v));
+        imu.intrinsics.w_bias.set_process_noise(2.3e-10);
 
         imu.extrinsics.Q.v = gyro.extrinsics.mean.Q;
         imu.extrinsics.T.v = gyro.extrinsics.mean.T;
+
+        imu.extrinsics.Q.set_process_noise(0);
+        imu.extrinsics.T.set_process_noise(0);
 
         imu.extrinsics.Q.set_initial_variance(gyro.extrinsics.variance.Q);
         imu.extrinsics.T.set_initial_variance(gyro.extrinsics.variance.T);
@@ -1072,20 +1076,18 @@ void filter_initialize(struct filter *f)
         const auto &accel = *f->accelerometers[i];
         imu.intrinsics.a_bias.v = map(accel.intrinsics.bias_m__s2.v);
         imu.intrinsics.a_bias.set_initial_variance(map(accel.intrinsics.bias_variance_m2__s4.v));
+        imu.intrinsics.a_bias.set_process_noise(2.3e-8);
 
         imu.extrinsics.Q.v = accel.extrinsics.mean.Q;
         imu.extrinsics.T.v = accel.extrinsics.mean.T;
+
+        imu.extrinsics.Q.set_process_noise(0);
+        imu.extrinsics.T.set_process_noise(0);
 
         imu.extrinsics.Q.set_initial_variance(accel.extrinsics.variance.Q);
         imu.extrinsics.T.set_initial_variance(accel.extrinsics.variance.T);
     }
 
-    for (const auto &imu : f->s.imus.children) {
-        imu->intrinsics.w_bias.set_process_noise(2.3e-10);
-        imu->intrinsics.a_bias.set_process_noise(2.3e-8);
-        imu->extrinsics.Q.set_process_noise(1.e-30);
-        imu->extrinsics.T.set_process_noise(1.e-30);
-    }
 
     f->s.T.set_process_noise(0.);
     f->s.Q.set_process_noise(0.);
@@ -1093,7 +1095,7 @@ void filter_initialize(struct filter *f)
     f->s.w.set_process_noise(0.);
     f->s.dw.set_process_noise(0);
     f->s.a.set_process_noise(0);
-    f->s.g.set_process_noise(1.e-30);
+    f->s.g.set_process_noise(0);
 
     f->s.g.set_initial_variance(1.e-7);
     f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite

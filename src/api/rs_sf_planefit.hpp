@@ -123,6 +123,7 @@ protected:
     // state memory
     parameter m_param;
     scene m_view, m_ref_view;
+    int m_grid_w, m_grid_h, m_grid_neighbor[9];
 
     // call after parameter updated
     void parameter_updated();
@@ -143,7 +144,6 @@ private:
     // temporary memory
     vec_pt_ref m_inlier_buf;
     int m_plane_pt_reserve, m_track_plane_reserve;
-    int m_grid_w, m_grid_h, m_grid_neighbor[9];
 
     // initalization
     void init_img_pt_groups(scene& view);

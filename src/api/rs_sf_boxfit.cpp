@@ -231,8 +231,8 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
 
     // reject plane pair not perpendiculars
     auto cosine_theta = std::abs(plane0.normal.dot(plane1.normal));
-    if (!pair.prev_box && (cosine_theta > m_param.plane_angle_thr)) return false;
-    if (pair.prev_box && (cosine_theta > (m_param.plane_angle_thr*1.25f))) return false;
+    if (!pair.prev_box && (cosine_theta > m_param.plane_pair_angle_thr)) return false;
+    if (pair.prev_box && (cosine_theta > m_param.tracked_pair_angle_thr)) return false;
 
     // box axis
     v3 axis[3] = { plane1.normal, plane0.normal, {} };
@@ -349,7 +349,7 @@ bool rs_sf_boxfit::refine_box_from_third_plane(box_scene & view, plane_pair & pa
     const v3 axis2 = new_box.axis.col(2);
 
     // plane normal should align with axis2
-    if (std::abs(axis2.dot(p2.normal)) < (1.0f-m_param.plane_angle_thr)) return false;
+    if (std::abs(axis2.dot(p2.normal)) < (1.0f-m_param.tracked_pair_angle_thr)) return false;
 
     // two candidiate plane2 
     const float half_dim2 = new_box.dimension[2] * 0.5f;
@@ -522,8 +522,8 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const paramet
     std::vector<float> sort_dim[3];
     for (int d = 0; d < 3; ++d)
         sort_dim[d].reserve(num_boxes);
-    for (const auto& bh : box_history) 
-        for (int d = 0; d < 3; ++d) 
+    for (const auto& bh : box_history)
+        for (int d = 0; d < 3; ++d)
             sort_dim[d].emplace_back(bh.dimension[d]);
     for (int d = 0; d < 3; ++d) {
         std::sort(sort_dim[d].begin(), sort_dim[d].end());

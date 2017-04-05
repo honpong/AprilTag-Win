@@ -99,7 +99,7 @@ RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit * obj, int 
     return RS_SF_SUCCESS;
 }
 
-RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * src, const rs_sf_intrinsics* cam)
+RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * src, const rs_sf_intrinsics * cam, const unsigned char c[3])
 {
     if (!obj || !rgb || rgb->byte_per_pixel != 3) return RS_SF_INVALID_ARG;
     auto bf = dynamic_cast<const rs_sf_boxfit*>(obj);
@@ -107,7 +107,7 @@ RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, r
 
     if (src) { rs_sf_util_convert_to_rgb_image(rgb, src); }
     pose_t pose; pose.set_pose(rgb->cam_pose || !src ? rgb->cam_pose : src->cam_pose);
-    rs_sf_util_draw_boxes(rgb, pose, cam ? *cam : obj->m_intrinsics, bf->get_boxes());
+    rs_sf_util_draw_boxes(rgb, pose, cam ? *cam : obj->m_intrinsics, bf->get_boxes(), c ? b3{ c[0],c[1],c[2] } : b3{255, 255, 0});
 
     return RS_SF_SUCCESS;
 }

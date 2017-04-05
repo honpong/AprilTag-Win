@@ -97,7 +97,7 @@ extern "C"
 
     /// Box Fitting Functions
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit* obj, int box_id, rs_sf_box* dst);
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr, const rs_sf_intrinsics* cam = nullptr);
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr, const rs_sf_intrinsics* cam = nullptr, const unsigned char c[3] = nullptr);
    
 #ifdef __cplusplus
 }

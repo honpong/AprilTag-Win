@@ -24,44 +24,45 @@ void rs_sf_util_copy_depth_image(rs_sf_image_depth & dst, const rs_sf_image * sr
 }
 
 void rs_sf_util_draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *src,
-    bool overwrite_rgb, const unsigned char * rgb_table[3], int num_color)
+	bool overwrite_rgb, const unsigned char * rgb_table[3], int num_color)
 {
-    static unsigned char default_r[MAX_VALID_PID + 1] = { 0 };
-    static unsigned char default_g[MAX_VALID_PID + 1] = { 0 };
-    static unsigned char default_b[MAX_VALID_PID + 1] = { 0 };
-    static unsigned char* default_rgb_table[3] = { default_r,default_g,default_b };
-    if (default_rgb_table[0][MAX_VALID_PID] == 0)
-    {
-        for (int pid = MAX_VALID_PID + 1; pid >= 0; --pid)
-        {
-            default_rgb_table[0][pid] = (pid & 0x01) << 7 | (pid & 0x08) << 3 | (pid & 0x40) >> 1;
-            default_rgb_table[1][pid] = (pid & 0x02) << 6 | (pid & 0x10) << 2 | (pid & 0x80) >> 2;
-            default_rgb_table[2][pid] = (pid & 0x04) << 5 | (pid & 0x20) << 1;
-        }
-    }
+	static unsigned char default_r[MAX_VALID_PID + 1] = { 0 };
+	static unsigned char default_g[MAX_VALID_PID + 1] = { 0 };
+	static unsigned char default_b[MAX_VALID_PID + 1] = { 0 };
+	static unsigned char* default_rgb_table[3] = { default_r,default_g,default_b };
+	if (default_rgb_table[0][MAX_VALID_PID] == 0)
+	{
+		for (int pid = MAX_VALID_PID; pid >= 0; --pid)
+		{
+			default_rgb_table[0][pid] = (pid & 0x01) << 7 | (pid & 0x08) << 3 | (pid & 0x40) >> 1;
+			default_rgb_table[1][pid] = (pid & 0x02) << 6 | (pid & 0x10) << 2 | (pid & 0x80) >> 2;
+			default_rgb_table[2][pid] = (pid & 0x04) << 5 | (pid & 0x20) << 1;
+		}
+	}
 
-    if (rgb_table == nullptr || num_color <= 0) {
-        rgb_table = (const unsigned char**)default_rgb_table;
-        num_color = (int)(sizeof(default_r) / sizeof(unsigned char));
-    }
+	if (rgb_table == nullptr || num_color <= 0) {
+		rgb_table = (const unsigned char**)default_rgb_table;
+		num_color = (int)(sizeof(default_r) / sizeof(unsigned char));
+	}
 
-    int c_shift = 8, p_shift = 0;
-    if (!overwrite_rgb) {
-        rs_sf_util_convert_to_rgb_image(rgb, src);
-        c_shift = p_shift = 1;
-    }
-
-    for (int p = map->num_pixel() - 1; p >= 0; --p) {
-        const int pid = map->data[p];
-        if (0 <= pid && pid < num_color) {
-            rgb->data[p * 3 + 0] = (rgb->data[p * 3 + 0] >> c_shift) + (rgb_table[0][pid] >> p_shift);
-            rgb->data[p * 3 + 1] = (rgb->data[p * 3 + 1] >> c_shift) + (rgb_table[1][pid] >> p_shift);
-            rgb->data[p * 3 + 2] = (rgb->data[p * 3 + 2] >> c_shift) + (rgb_table[2][pid] >> p_shift);
-        }
-        else if (pid == PLANE_SRC_PID) {
-            rgb->data[p * 3] = rgb->data[p * 3 + 1] = rgb->data[p * 3 + 2] = 255;
-        }
-    }
+	auto* const map_data = map->data, *const rgb_data = rgb->data;
+	if (!overwrite_rgb) {
+		rs_sf_util_convert_to_rgb_image(rgb, src);
+		for (int p = map->num_pixel() - 1, p3 = p * 3; p >= 0; --p, p3 -= 3) {
+			const int pid = map_data[p];
+			rgb_data[p3 + 0] = (rgb_data[p3 + 0] >> 1) + (rgb_table[0][pid] >> 1);
+			rgb_data[p3 + 1] = (rgb_data[p3 + 1] >> 1) + (rgb_table[1][pid] >> 1);
+			rgb_data[p3 + 2] = (rgb_data[p3 + 2] >> 1) + (rgb_table[2][pid] >> 1);
+		}
+	}
+	else {
+		for (int p = map->num_pixel() - 1, p3 = p * 3; p >= 0; --p, p3 -= 3) {
+			const int pid = map_data[p];
+			rgb_data[p3 + 0] = rgb_table[0][pid];
+			rgb_data[p3 + 1] = rgb_table[1][pid];
+			rgb_data[p3 + 2] = rgb_table[2][pid];
+		}
+	}
 }
 
 void rs_sf_util_scale_plane_ids(rs_sf_image * map, int max_pid)
@@ -80,7 +81,7 @@ void rs_sf_util_remap_plane_ids(rs_sf_image * map)
 void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, v2 p0, v2 p1, const b3& color, const int size)
 {
     if (p0.array().isInf().any() || p1.array().isInf().any()) return;
-
+	
     const auto w = rgb->img_w, h = rgb->img_h;
     const auto dir = (p1 - p0).normalized();
     const auto len = (p1 - p0).norm();

@@ -42,6 +42,7 @@ struct filter {
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;
+    sensor_clock::time_point detector_failed_time;
     sensor_clock::time_point speed_warning_time;
     sensor_clock::time_point stable_start;
     bool calibration_bad;

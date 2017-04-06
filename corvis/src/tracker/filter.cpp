@@ -27,6 +27,7 @@
 const static sensor_clock::duration min_steady_time = std::chrono::microseconds(100000); //time held steady before we start treating it as steady
 const static sensor_clock::duration steady_converge_time = std::chrono::microseconds(200000); //time that user needs to hold steady (us)
 const static sensor_clock::duration camera_wait_time = std::chrono::milliseconds(500); //time we'll wait for all cameras before attempting to detect features
+const static sensor_clock::duration max_detector_failed_time = std::chrono::milliseconds(500); //time we'll go with no features before dropping to inertial only mode
 const static int calibration_converge_samples = 200; //number of accelerometer readings needed to converge in calibration mode
 const static f_t accelerometer_steady_var = .15*.15; //variance when held steady, based on std dev measurement of iphone 5s held in hand
 const static f_t velocity_steady_var = .1 * .1; //initial var of state.V when steady
@@ -680,7 +681,7 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 
 static int filter_available_feature_space(struct filter *f, state_camera &camera);
 
-static int filter_add_detected_features(struct filter * f, state_vision_group *g, sensor_grey &camera_sensor, const std::vector<tracker::point> &kp, size_t newfeats, int image_height)
+static int filter_add_detected_features(struct filter * f, state_vision_group *g, sensor_grey &camera_sensor, const std::vector<tracker::point> &kp, size_t newfeats, int image_height, sensor_clock::time_point time)
 {
     f->next_detect_camera = (camera_sensor.id + 1) % f->cameras.size();
     state_camera &camera = g->camera;
@@ -690,9 +691,10 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
         f->s.remap();
         for(const auto &p : kp)
             camera.feature_tracker->drop_feature(p.id);
-        int active_features = camera.feature_count();
+        int active_features = f->s.feature_count();
         if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);
+            if(!f->detector_failed) f->detector_failed_time = time;
             f->detector_failed = true;
             f->calibration_bad = true;
         }
@@ -843,6 +845,11 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
 #endif
 
+    if(f->run_state == RCSensorFusionRunStateRunning && f->detector_failed && time - f->detector_failed_time > max_detector_failed_time) {
+        f->run_state = RCSensorFusionRunStateDynamicInitialization;
+        f->s.enable_orientation_only(true);
+    }
+
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;
         f->last_time = time;
@@ -873,7 +880,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         if(camera_state.detection_future.valid()) {
             const auto & kp = camera_state.detection_future.get();
             int space = filter_available_feature_space(f, camera_state);
-            filter_add_detected_features(f, camera_state.detecting_group, camera_sensor, kp, space, data.image.height);
+            filter_add_detected_features(f, camera_state.detecting_group, camera_sensor, kp, space, data.image.height, time);
         } else {
             camera_state.remove_group(camera_state.detecting_group, f->map.get());
             f->s.remap();
@@ -939,7 +946,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 // to account for disable_orientation_only
                 f->s.remap();
                 space = filter_available_feature_space(f, camera_state);
-                filter_add_detected_features(f, g, camera_sensor, detection, space, data.image.height);
+                filter_add_detected_features(f, g, camera_sensor, detection, space, data.image.height, time);
             }
         } else {
 #ifdef TEST_POSDEF
@@ -989,6 +996,7 @@ void filter_initialize(struct filter *f)
     f->speed_failed = false;
     f->speed_warning = false;
     f->numeric_failed = false;
+    f->detector_failed_time = sensor_clock::time_point(sensor_clock::duration(0));
     f->speed_warning_time = sensor_clock::time_point(sensor_clock::duration(0));
 
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));

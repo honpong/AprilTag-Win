@@ -10,8 +10,8 @@ void rs_sf_util_convert_to_rgb_image(rs_sf_image * rgb, const rs_sf_image * src)
 {
     if (!src) return;
     if (src->byte_per_pixel == 1)
-        for (int p = src->num_pixel() - 1; p >= 0; --p)
-            rgb->data[p * 3 + 0] = rgb->data[p * 3 + 1] = rgb->data[p * 3 + 2] = src->data[p];
+        for (int p = src->num_pixel() - 1, p3 = p * 3; p >= 0; --p, p3 -= 3)
+            rgb->data[p3] = rgb->data[p3 + 1] = rgb->data[p3 + 2] = src->data[p];
     else if (src->byte_per_pixel == 3)
         memcpy(rgb->data, src->data, rgb->num_char());
 }
@@ -81,46 +81,47 @@ void rs_sf_util_remap_plane_ids(rs_sf_image * map)
 void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, v2 p0, v2 p1, const b3& color, const int size)
 {
     if (p0.array().isInf().any() || p1.array().isInf().any()) return;
-	
+
     const auto w = rgb->img_w, h = rgb->img_h;
     const auto dir = (p1 - p0).normalized();
-    const auto len = (p1 - p0).norm();
-    std::unordered_map<int, float> line_point;
-    for (float s = 0.0f, hs = size * 0.5f; s < len; ++s) {
+    const auto len = (p1 - p0).norm() - size * 0.5f;
+    std::unordered_map<int, int> line_point;
+    for (float s = size * 0.5f, hs = s; s <= len; ++s) {
         const auto p = p0 + dir * s;
-        const int lx = std::max(0, (int)(p.x() - hs - 1)), ly = std::max(0, (int)(p.y() - hs - 1));
+        const int lx = std::max(0, (int)(p.x() - hs - 1.0f)), ly = std::max(0, (int)(p.y() - hs - 1.0f));
         const int rx = std::min(w, (int)(p.x() + hs + 1.5f)), ry = std::min(h, (int)(p.y() + hs + 1.5f));
         for (int y = ly, px; y < ry; ++y)
-            for (int x = lx; x < rx; ++x)
-                if (line_point.find(px = y*w + x) == line_point.end()) {
+            for (int x = lx, yw = y*w; x < rx; ++x)
+                if (line_point.find(px = yw + x) == line_point.end()) {
                     const auto r = v2(p0.x() - (float)x, p0.y() - (float)y);
                     const auto d = (r - dir*(r.dot(dir))).norm();
-                    line_point[px] = std::min(1.0f, std::max(0.0f, d - hs));
+                    line_point[px] = std::max(0, (int)(256 * std::min(1.0f, 1.0f - d + hs)));
                 }
     }
 
+    const int c0 = color[0], c1 = color[1], c2 = color[2];
+    auto* rgb_data = rgb->data;
     for (const auto& pt : line_point) {
-        const auto px = pt.first * 3;
-        const auto alpha = pt.second, beta = 1.0f - alpha;
-        rgb->data[px + 0] = static_cast<unsigned char>((rgb->data[px + 0] * alpha) + (color[0] * beta));
-        rgb->data[px + 1] = static_cast<unsigned char>((rgb->data[px + 1] * alpha) + (color[1] * beta));
-        rgb->data[px + 2] = static_cast<unsigned char>((rgb->data[px + 2] * alpha) + (color[2] * beta));
+        const auto px = pt.first * 3, beta = pt.second;
+        rgb_data[px + 0] += static_cast<unsigned char>(((c0 - rgb_data[px + 0]) * beta) >> 8);
+        rgb_data[px + 1] += static_cast<unsigned char>(((c1 - rgb_data[px + 1]) * beta) >> 8);
+        rgb_data[px + 2] += static_cast<unsigned char>(((c2 - rgb_data[px + 2]) * beta) >> 8);
     }
 }
 
 void rs_sf_util_to_box_frame(const rs_sf_box& box, v3 box_frame[12][2])
 {
-    static const int line_index[][2][3] = {
-        {{0,0,0},{1,0,0}}, {{0,0,1},{1,0,1}}, {{0,1,0},{1,1,0}}, {{0,1,1},{1,1,1}},
-        {{0,0,0},{0,1,0}}, {{0,0,1},{0,1,1}}, {{1,0,0},{1,1,0}}, {{1,0,1},{1,1,1}},
-        {{0,0,0},{0,0,1}}, {{0,1,0},{0,1,1}}, {{1,0,0},{1,0,1}}, {{1,1,0},{1,1,1}} };
+    static const float line_index[][2][3] = {
+        {{-.5f,-.5f,-.5f},{.5f,-.5f,-.5f}}, {{-.5f,-.5f,.5f},{.5f,-.5f,.5f}}, {{-.5f,.5f,-.5f},{.5f,.5f,-.5f}}, {{-.5f,.5f,.5f},{.5f,.5f,.5f}},
+        {{-.5f,-.5f,-.5f},{-.5f,.5f,-.5f}}, {{-.5f,-.5f,.5f},{-.5f,.5f,.5f}}, {{.5f,-.5f,-.5f},{.5f,.5f,-.5f}}, {{.5f,-.5f,.5f},{.5f,.5f,.5f}},
+        {{-.5f,-.5f,-.5f},{-.5f,-.5f,.5f}}, {{-.5f,.5f,-.5f},{-.5f,.5f,.5f}}, {{.5f,-.5f,-.5f},{.5f,-.5f,.5f}}, {{.5f,.5f,-.5f},{.5f,.5f,.5f}} };
 
     const auto& p0 = box.center, &a0 = box.axis[0], &a1 = box.axis[1], &a2 = box.axis[2];
     for (int l = 0; l < 12; ++l) {
         const auto w0 = line_index[l][0], w1 = line_index[l][1];
         for (int d = 0; d < 3; ++d) {
-            box_frame[l][0][d] = p0[d] + a0[d] * (w0[0]-0.5f) + a1[d] * (w0[1]-0.5f) + a2[d] * (w0[2]-0.5f);
-            box_frame[l][1][d] = p0[d] + a0[d] * (w1[0]-0.5f) + a1[d] * (w1[1]-0.5f) + a2[d] * (w1[2]-0.5f);
+            box_frame[l][0][d] = p0[d] + a0[d] * w0[0] + a1[d] * w0[1] + a2[d] * w0[2];
+            box_frame[l][1][d] = p0[d] + a0[d] * w1[0] + a1[d] * w1[1] + a2[d] * w1[2];
         }
     }
 }

@@ -10,8 +10,8 @@ void rs_sf_util_convert_to_rgb_image(rs_sf_image * rgb, const rs_sf_image * src)
 {
     if (!src) return;
     if (src->byte_per_pixel == 1)
-        for (int p = src->num_pixel() - 1, p3 = p * 3; p >= 0; --p, p3 -= 3)
-            rgb->data[p3] = rgb->data[p3 + 1] = rgb->data[p3 + 2] = src->data[p];
+        for (int p = src->num_pixel() - 1, p3 = p * 3; p >= 0; p3 -= 3)
+            rgb->data[p3] = rgb->data[p3 + 1] = rgb->data[p3 + 2] = src->data[p--];
     else if (src->byte_per_pixel == 3)
         memcpy(rgb->data, src->data, rgb->num_char());
 }
@@ -24,52 +24,46 @@ void rs_sf_util_copy_depth_image(rs_sf_image_depth & dst, const rs_sf_image * sr
 }
 
 void rs_sf_util_draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *src,
-	bool overwrite_rgb, const unsigned char * rgb_table[3], int num_color)
+    bool overwrite_rgb, const unsigned char(*rgb_table)[3], int num_color)
 {
-	static unsigned char default_r[MAX_VALID_PID + 1] = { 0 };
-	static unsigned char default_g[MAX_VALID_PID + 1] = { 0 };
-	static unsigned char default_b[MAX_VALID_PID + 1] = { 0 };
-	static unsigned char* default_rgb_table[3] = { default_r,default_g,default_b };
-	if (default_rgb_table[0][MAX_VALID_PID] == 0)
-	{
-		for (int pid = MAX_VALID_PID; pid >= 0; --pid)
-		{
-			default_rgb_table[0][pid] = (pid & 0x01) << 7 | (pid & 0x08) << 3 | (pid & 0x40) >> 1;
-			default_rgb_table[1][pid] = (pid & 0x02) << 6 | (pid & 0x10) << 2 | (pid & 0x80) >> 2;
-			default_rgb_table[2][pid] = (pid & 0x04) << 5 | (pid & 0x20) << 1;
-		}
-	}
+    static unsigned char default_rgb_table[MAX_VALID_PID + 1][3] = { 0 };
+    if (default_rgb_table[MAX_VALID_PID][0] == 0)
+    {
+        for (int pid = MAX_VALID_PID; pid >= 0; --pid)
+        {
+            default_rgb_table[pid][0] = (pid & 0x01) << 7 | (pid & 0x08) << 3 | (pid & 0x40) >> 1;
+            default_rgb_table[pid][1] = (pid & 0x02) << 6 | (pid & 0x10) << 2 | (pid & 0x80) >> 2;
+            default_rgb_table[pid][2] = (pid & 0x04) << 5 | (pid & 0x20) << 1;
+        }
+    }
 
-	if (rgb_table == nullptr || num_color <= 0) {
-		rgb_table = (const unsigned char**)default_rgb_table;
-		num_color = (int)(sizeof(default_r) / sizeof(unsigned char));
-	}
+    if (rgb_table == nullptr || num_color <= 0) {
+        rgb_table = default_rgb_table;
+        num_color = MAX_VALID_PID + 1;
+    }
 
-	auto* const map_data = map->data, *const rgb_data = rgb->data;
-	if (!overwrite_rgb) {
-		rs_sf_util_convert_to_rgb_image(rgb, src);
-		for (int p = map->num_pixel() - 1, p3 = p * 3; p >= 0; --p, p3 -= 3) {
-			const int pid = map_data[p];
-			rgb_data[p3 + 0] = (rgb_data[p3 + 0] >> 1) + (rgb_table[0][pid] >> 1);
-			rgb_data[p3 + 1] = (rgb_data[p3 + 1] >> 1) + (rgb_table[1][pid] >> 1);
-			rgb_data[p3 + 2] = (rgb_data[p3 + 2] >> 1) + (rgb_table[2][pid] >> 1);
-		}
-	}
-	else {
-		for (int p = map->num_pixel() - 1, p3 = p * 3; p >= 0; --p, p3 -= 3) {
-			const int pid = map_data[p];
-			rgb_data[p3 + 0] = rgb_table[0][pid];
-			rgb_data[p3 + 1] = rgb_table[1][pid];
-			rgb_data[p3 + 2] = rgb_table[2][pid];
-		}
-	}
+    auto* const map_data = map->data, *const rgb_data = rgb->data;
+    if (!overwrite_rgb) {
+        rs_sf_util_convert_to_rgb_image(rgb, src);
+        for (int p = map->num_pixel() - 1, p3 = p * 3; p >= 0; p3 -= 3) {
+            const auto& color = rgb_table[map_data[p--]];
+            rgb_data[p3 + 0] = (rgb_data[p3 + 0] >> 1) + (color[0] >> 1);
+            rgb_data[p3 + 1] = (rgb_data[p3 + 1] >> 1) + (color[1] >> 1);
+            rgb_data[p3 + 2] = (rgb_data[p3 + 2] >> 1) + (color[2] >> 1);
+        }
+    }
+    else {
+        for (int p = map->num_pixel() - 1, p3 = p * 3; p >= 0; p3 -= 3) {
+            memcpy(rgb_data + p3, rgb_table[map_data[p--]], 3);
+        }
+    }
 }
 
 void rs_sf_util_scale_plane_ids(rs_sf_image * map, int max_pid)
 {
     max_pid = std::max(1, max_pid);
     for (int p = map->num_pixel() - 1; p >= 0; --p)
-        map->data[p] = map->data[p] * 254 / max_pid;
+        map->data[p] = map->data[p] * MAX_VALID_PID / max_pid;
 }
 
 void rs_sf_util_remap_plane_ids(rs_sf_image * map)

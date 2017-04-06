@@ -239,6 +239,7 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
     // do plane fit    
 
     rs_shapefit_set_option(shapefitter, RS_SF_OPTION_PLANE_NOISE, 1);
+    //rs_shapefit_set_option(shapefitter, RS_SF_OPTION_PLANE_RES, 2);
     //rs_shapefit_set_option(shapefitter, RS_SF_OPTION_MAX_PROCESS_DELAY, -1);
     //rs_shapefit_set_option(shapefitter, RS_SF_OPTION_BOX_PLANE_RES, 1);
     if (rs_shapefit_depth_image(shapefitter, img) < 0) return false;

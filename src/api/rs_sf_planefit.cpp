@@ -443,13 +443,7 @@ void rs_sf_planefit::image_to_pointcloud(scene& current_view, bool force_full_pt
         // compute point cloud
         for (auto&& grp : current_view.pt_grp) {
             for (auto* pt : grp.pt)
-            {
-                if (pt == nullptr)
-                {
-                    printf("warning\n");
-                }
                 pt->clear_all_state();
-            }
             compute_pt3d(*grp.pt0, search_around);
         }
 
@@ -463,11 +457,11 @@ void rs_sf_planefit::img_pt_group_to_normal(vec_pt3d_group & pt_groups)
     auto* img_pt_group = pt_groups.data();
     for (int y = 1, ey = m_grid_h - 1, ex = m_grid_w - 1, gp = m_grid_w + 1; y < ey; ++y, gp += 2)
     {
-        for (int x = 1; x < ex; ++x, ++gp)
+        for (int x = 1; x < ex; ++x)
         {
-            auto& pt_query = *img_pt_group[gp].pt0;
-            auto& pt_right = *img_pt_group[gp + 1].pt0;
             auto& pt_below = *img_pt_group[gp + m_grid_w].pt0;
+            auto& pt_query = *img_pt_group[gp++].pt0;
+            auto& pt_right = *img_pt_group[gp].pt0;
             compute_pt3d_normal(pt_query, pt_right, pt_below);
         }
     }
@@ -885,8 +879,8 @@ void rs_sf_planefit::pt_groups_planes_to_full_img(vec_pt3d & pt_img, vec_plane_r
     for (auto&& pt : pt_img) { pt.best_plane = pt.grp->pt0->best_plane; }
 
     if (m_param.refine_plane_map)
-        for (auto pl = sorted_planes.rbegin(); pl != sorted_planes.rend(); ++pl)
-            refine_plane_boundary(**pl);
+        for (auto pl = sorted_planes.rbegin(); pl != sorted_planes.rend();)
+            refine_plane_boundary(**pl++);
 }
 
 void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_image * dst) const
@@ -895,6 +889,7 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
     const int img_w = src_w(), img_h = src_h();
     const int dn_x = m_param.img_x_dn_sample;
     const int dn_y = m_param.img_y_dn_sample;
+    auto* dst_data = dst->data;
 
 	if (dst->cam_pose) {
 		rs_sf_util_set_to_zeros(dst);
@@ -910,7 +905,6 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
 		const auto* src_z = (unsigned short*)ref_view.src_depth_img->data;
 		const auto* src_p = ref_view.pt_img.data();
 
-		auto* dst_d = dst->data;
 		auto map_fcn = [&](int sp, int ep) {
 			for (int p = sp, ex = dst_w - 1, ey = dst_h - 1; p < ep; ++p) {
 				float z; plane* pl;
@@ -923,7 +917,7 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
 					const int ud = (int)(((xd * cam_fx) * iz + cam_px) * to_dst_u + 0.5f);
 					const int vd = (int)(((yd * cam_fy) * iz + cam_py) * to_dst_v + 0.5f);
 					if (0 < ud && ud < ex && 0 < vd && vd < ey) {
-						dst_d[vd*dst_w + ud] = pl->pid;
+                        dst_data[vd*dst_w + ud] = pl->pid;
 					}
 				}
 			}
@@ -941,11 +935,11 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
     else {
         const auto* src_pt = ref_view.pt_img.data();
         for (int y = 0, p = 0; y < dst_h; ++y) {
-            for (int x = 0; x < dst_w; ++x, ++p){
+            for (int x = 0; x < dst_w; ++x) {
                 const auto x_src = ((x * img_w) / dst_w);
                 const auto y_src = ((y * img_h) / dst_h);
                 const auto best_plane = src_pt[y_src * img_w + x_src].best_plane;
-                dst->data[p] = (best_plane ? best_plane->pid : 0);
+                dst_data[p++] = (best_plane ? best_plane->pid : 0);
             }
         }
     }

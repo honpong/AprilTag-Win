@@ -63,7 +63,7 @@ rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * r
     if (status == RS_SF_SUCCESS) {
         switch (pf->get_option_draw_planes()) {
         case rs_shapefit::OVERLAY: rs_sf_util_draw_planes(rgb, &map, src); break;
-        case rs_shapefit::OVERWRITE: rs_sf_util_draw_planes(rgb, &map, src,true); break;
+        case rs_shapefit::OVERWRITE: rs_sf_util_draw_planes(rgb, &map, src, true); break;
         }
     }
     return status;
@@ -105,7 +105,7 @@ RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit * obj, int 
     return RS_SF_SUCCESS;
 }
 
-RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * src, const rs_sf_intrinsics * cam, const unsigned char c[3])
+RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * src, const unsigned char c[3])
 {
     if (!obj || !rgb || rgb->byte_per_pixel != 3) return RS_SF_INVALID_ARG;
     auto bf = dynamic_cast<const rs_sf_boxfit*>(obj);
@@ -113,7 +113,9 @@ RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, r
 
     if (src) { rs_sf_util_convert_to_rgb_image(rgb, src); }
     pose_t pose; pose.set_pose(rgb->cam_pose || !src ? rgb->cam_pose : src->cam_pose);
-    rs_sf_util_draw_boxes(rgb, pose, cam ? *cam : obj->m_intrinsics, bf->get_boxes(), c ? b3{ c[0],c[1],c[2] } : b3{255, 255, 0});
+    rs_sf_util_draw_boxes(rgb, pose, 
+        rgb->intrinsics? *rgb->intrinsics : obj->m_intrinsics, bf->get_boxes(), 
+        c ? b3{ c[0],c[1],c[2] } : b3{255, 255, 0});
 
     return RS_SF_SUCCESS;
 }

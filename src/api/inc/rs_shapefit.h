@@ -47,6 +47,7 @@ extern "C"
         int img_w, img_h, byte_per_pixel;
         unsigned long long frame_id;
         float* cam_pose;
+        rs_sf_intrinsics* intrinsics;
 
         int num_pixel() const { return img_w * img_h; }
         int num_char() const { return num_pixel() * byte_per_pixel; }
@@ -106,7 +107,7 @@ extern "C"
 
     /// Box Fitting Functions
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit* obj, int box_id, rs_sf_box* dst);
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr, const rs_sf_intrinsics* cam = nullptr, const unsigned char c[3] = nullptr);
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr, const unsigned char c[3] = nullptr);
    
 #ifdef __cplusplus
 }
@@ -117,11 +118,17 @@ struct rs_sf_image_auto : public rs_sf_image
 {
     virtual ~rs_sf_image_auto() {}
     std::unique_ptr<unsigned char[]> src;
-    float src_pose[12];
+    float cam_pose_data[12];
+    rs_sf_intrinsics intrinsics_data;
     rs_sf_image_auto& set_pose(const float p[12]) { 
-        if (p) memcpy(cam_pose = src_pose, p, sizeof(float) * 12); 
+        if (p) memcpy(cam_pose = cam_pose_data, p, sizeof(float) * 12);
         else cam_pose = nullptr; 
 		return *this;
+    }
+    rs_sf_image_auto& set_intrinsics(const rs_sf_intrinsics* i) {
+        if (i) memcpy(intrinsics = &intrinsics_data, i, sizeof(rs_sf_intrinsics));
+        else intrinsics = nullptr;
+        return *this;
     }
 };
 
@@ -133,13 +140,13 @@ struct rs_sf_image_impl : public rs_sf_image_auto
         img_h = ref->img_h; img_w = ref->img_w; byte_per_pixel = Channel; frame_id = ref->frame_id;
         data = (src = std::make_unique<unsigned char[]>(num_char())).get();
         if (ref->data && num_char()==ref->num_char()) memcpy(data, ref->data, num_char());
-        set_pose(ref->cam_pose);
+        set_pose(ref->cam_pose); set_intrinsics(ref->intrinsics);
     }
-    rs_sf_image_impl(int w, int h, int fid = -1, const void* v = nullptr, const float pose[12] = nullptr) {
+    rs_sf_image_impl(int w, int h, int fid = -1, const void* v = nullptr, const float pose[12] = nullptr, const rs_sf_intrinsics* i = nullptr) {
         img_h = h; img_w = w; byte_per_pixel = Channel; frame_id = fid;
         data = (src = std::make_unique<unsigned char[]>(num_char())).get();
         if (v) memcpy(data, v, num_char());
-        set_pose(pose);
+        set_pose(pose); set_intrinsics(i);
     }
 };
 

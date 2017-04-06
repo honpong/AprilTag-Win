@@ -890,6 +890,13 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
     const int dn_x = m_param.img_x_dn_sample;
     const int dn_y = m_param.img_y_dn_sample;
     auto* dst_data = dst->data;
+    float dcam_fx = cam_fx, dcam_fy = cam_fy, dcam_px = cam_px, dcam_py = cam_py;
+    if (dst->intrinsics != nullptr) {
+        dcam_fx = dst->intrinsics->fx * dst_w / dst->intrinsics->width;
+        dcam_fy = dst->intrinsics->fy * dst_h / dst->intrinsics->height;
+        dcam_px = dst->intrinsics->ppx * dst_w / dst->intrinsics->width;
+        dcam_py = dst->intrinsics->ppy * dst_h / dst->intrinsics->height;
+    }
 
 	if (dst->cam_pose) {
 		rs_sf_util_set_to_zeros(dst);
@@ -901,7 +908,7 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
 		const float tcr10 = rotation(1, 0), tcr11 = rotation(1, 1), tcr12 = rotation(1, 2);
 		const float tcr20 = rotation(2, 0), tcr21 = rotation(2, 1), tcr22 = rotation(2, 2);
 		const float tct0 = translation[0], tct1 = translation[1], tct2 = translation[2];
-		const float to_dst_u = (float)dst_w / img_w, to_dst_v = (float)dst_h / img_h;
+		//const float to_dst_u = (float)dst_w / img_w, to_dst_v = (float)dst_h / img_h;
 		const auto* src_z = (unsigned short*)ref_view.src_depth_img->data;
 		const auto* src_p = ref_view.pt_img.data();
 
@@ -914,8 +921,8 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
 					const float xd = tcr00 * x + tcr01 * y + tcr02 * z + tct0;
 					const float yd = tcr10 * x + tcr11 * y + tcr12 * z + tct1;
 					const float iz = 1.0f / (tcr20 * x + tcr21 * y + tcr22 * z + tct2);
-					const int ud = (int)(((xd * cam_fx) * iz + cam_px) * to_dst_u + 0.5f);
-					const int vd = (int)(((yd * cam_fy) * iz + cam_py) * to_dst_v + 0.5f);
+					const int ud = (int)(((xd * dcam_fx) * iz + dcam_px) + 0.5f);
+					const int vd = (int)(((yd * dcam_fy) * iz + dcam_py) + 0.5f);
 					if (0 < ud && ud < ex && 0 < vd && vd < ey) {
                         dst_data[vd*dst_w + ud] = pl->pid;
 					}

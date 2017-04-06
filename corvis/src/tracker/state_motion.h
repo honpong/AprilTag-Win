@@ -91,16 +91,6 @@ private:
     f_t gravity_magnitude = (f_t)9.80665;
 };
 
-class state_translation : public state_branch<state_node *> {
-    virtual bool disable_estimation() {
-        if (state_branch<state_node *>::disable_estimation()) {
-            reset();
-            return true;
-        }
-        return false;
-    }
-};
-
 class state_motion: public state_motion_orientation {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     friend class observation_accelerometer;
@@ -115,14 +105,11 @@ public:
 
     v3 last_position = v3::Zero();
 
-    state_translation translation;
-
     state_motion(covariance &c): state_motion_orientation(c) {
-        translation.children.push_back(&T);
-        translation.children.push_back(&V);
-        translation.children.push_back(&a);
-        translation.children.push_back(&da);
-        non_orientation.children.push_back(&translation);
+        non_orientation.children.push_back(&T);
+        non_orientation.children.push_back(&V);
+        non_orientation.children.push_back(&a);
+        non_orientation.children.push_back(&da);
     }
     
     virtual void reset()

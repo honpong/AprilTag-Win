@@ -84,6 +84,7 @@ void state_motion::cache_jacobians(f_t dt)
 void state_motion::enable_orientation_only(bool remap_)
 {
     non_orientation.disable_estimation();
+    V.reset(); a.reset(); da.reset(); // stop moving linearly
     if (remap_) remap();
 }
 

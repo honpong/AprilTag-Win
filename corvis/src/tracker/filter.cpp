@@ -682,6 +682,7 @@ static int filter_available_feature_space(struct filter *f, state_camera &camera
 
 static int filter_add_detected_features(struct filter * f, state_vision_group *g, sensor_grey &camera_sensor, const std::vector<tracker::point> &kp, size_t newfeats, int image_height)
 {
+    f->next_detect_camera = (camera_sensor.id + 1) % f->cameras.size();
     state_camera &camera = g->camera;
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
@@ -763,6 +764,15 @@ static int filter_available_feature_space(struct filter *f, state_camera &camera
     if(space > f->max_group_add)
         space = f->max_group_add;
     return space;
+}
+
+static bool filter_next_detect_camera(struct filter *f, int camera, sensor_clock::time_point time)
+{
+    //TODO: for stereo we need to handle this differently - always detect in the same camera
+    //always try to detect if we have no features currently
+    if(f->s.feature_count() < state_vision_group::min_feats) return true;
+    while(!f->cameras[f->next_detect_camera]->got) f->next_detect_camera = (f->next_detect_camera + 1) % f->cameras.size();
+    return f->next_detect_camera == camera;
 }
 
 const std::vector<tracker::point> &filter_detect(struct filter *f, const sensor_data &data, int space)
@@ -907,7 +917,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     camera_sensor.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 
     int space = filter_available_feature_space(f, camera_state);
-    if(space >= f->min_group_add)
+    bool myturn = filter_next_detect_camera(f, data.id, time);
+    if(space >= f->min_group_add && myturn)
     {
         if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
             auto & detection = filter_detect(f, data, space);
@@ -948,6 +959,7 @@ void filter_initialize(struct filter *f)
     f->min_group_add = 16;
     f->max_group_add = std::max<int>(40 / f->cameras.size(), f->min_group_add);
     f->has_depth = false;
+    f->next_detect_camera = 0;
 
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;
@@ -978,7 +990,7 @@ void filter_initialize(struct filter *f)
     f->speed_warning = false;
     f->numeric_failed = false;
     f->speed_warning_time = sensor_clock::time_point(sensor_clock::duration(0));
-    
+
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->calibration_bad = false;
     

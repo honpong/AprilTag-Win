@@ -21,6 +21,7 @@ struct filter {
     RCSensorFusionRunState run_state;
     int min_group_add;
     int max_group_add;
+    int next_detect_camera;
     
     sensor_clock::time_point last_time;
 

@@ -254,6 +254,7 @@ public:
     state_vision(covariance &c);
     ~state_vision();
     int process_features(state_camera &camera, const rc_ImageData &image, mapper *map);
+    int feature_count() const;
     state_vision_feature *add_feature(state_vision_group &group, const feature_t & initial);
     state_vision_group *add_group(state_camera &camera, mapper *map);
     transformation get_transformation() const;

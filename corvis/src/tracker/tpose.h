@@ -109,7 +109,11 @@ struct tpose_sequence {
         auto i = std::lower_bound(tposes.begin(), tposes.end(), pt); // pt <= *i
         if (i == tposes.end())
             return false;
-        tp = tpose(t, i == tposes.begin() ? *i : *(i-1), *i);
+        auto i1 = i == tposes.begin() ? *i : *(i-1);
+        auto i2 = *i;
+        if(i2.t - i1.t > std::chrono::milliseconds(150))
+            return false;
+        tp = tpose(t, i1, i2);
         return true;
     }
     bool load_from_file(const std::string &filename) {

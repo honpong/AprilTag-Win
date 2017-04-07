@@ -1,4 +1,0 @@
-[submodule "ThirdParty/librealsense"]
-	path = ThirdParty/librealsense
-	url = https://github.intel.com/PerCSystemsEngineering/librealsense.git
-	branch = callback

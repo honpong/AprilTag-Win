@@ -61,10 +61,8 @@ rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * r
     rs_sf_image_mono map(rgb);
     const auto status = pf->get_plane_index_map(&map);
     if (status == RS_SF_SUCCESS) {
-        switch (pf->get_option_draw_planes()) {
-        case rs_shapefit::OVERLAY: rs_sf_util_draw_planes(rgb, &map, src); break;
-        case rs_shapefit::OVERWRITE: rs_sf_util_draw_planes(rgb, &map, src, true); break;
-        }
+        if (src) { rs_sf_util_convert_to_rgb_image(rgb, src); }
+        rs_sf_util_draw_planes(rgb, &map, src == nullptr);
     }
     return status;
 }

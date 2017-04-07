@@ -85,9 +85,8 @@ extern "C"
         RS_SF_OPTION_PLANE_NOISE = 2,       /**< 0:LOW, 1:MEDIUM, 2:HIGH       */
         RS_SF_OPTION_PLANE_RES = 3,         /**< 0:LOW, 1:MEDIUM, 2:HIGH       */
         RS_SF_OPTION_BOX_PLANE_RES = 4,     /**< 0:LOW,           2:HIGH       */
-        RS_SF_OPTION_DRAW_PLANES = 5,       /**< 0:OVERLAY, 1:OVERWRITE        */
-        RS_SF_OPTION_GET_PLANE_ID = 6,      /**< 0:ORIGINAL, 1:SCALED, 2:REMAP */
-        RS_SF_OPTION_COUNT = 7,
+        RS_SF_OPTION_GET_PLANE_ID = 5,      /**< 0:ORIGINAL, 1:SCALED, 2:REMAP */
+        RS_SF_OPTION_COUNT = 6,
     };
 
     RS_SHAPEFIT_DECL rs_shapefit* rs_shapefit_create(const rs_sf_intrinsics* camera, rs_shapefit_option option = RS_SHAPEFIT_PLANE);

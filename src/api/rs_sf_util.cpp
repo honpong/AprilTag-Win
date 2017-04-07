@@ -23,8 +23,7 @@ void rs_sf_util_copy_depth_image(rs_sf_image_depth & dst, const rs_sf_image * sr
     memcpy(dst.data, src->data, dst.num_char());
 }
 
-void rs_sf_util_draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs_sf_image *src,
-    bool overwrite_rgb, const unsigned char(*rgb_table)[3], int num_color)
+void rs_sf_util_draw_planes(rs_sf_image * rgb, const rs_sf_image * map, bool overwrite_rgb, const unsigned char(*rgb_table)[3], int num_color)
 {
     static unsigned char default_rgb_table[MAX_VALID_PID + 1][3] = { 0 };
     if (default_rgb_table[MAX_VALID_PID][0] == 0)
@@ -43,8 +42,8 @@ void rs_sf_util_draw_planes(rs_sf_image * rgb, const rs_sf_image * map, const rs
     }
 
     auto* const map_data = map->data, *const rgb_data = rgb->data;
-    if (!overwrite_rgb) {
-        rs_sf_util_convert_to_rgb_image(rgb, src);
+    if (!overwrite_rgb)
+    {
         for (int p = map->num_pixel() - 1, p3 = p * 3; p >= 0; p3 -= 3) {
             const auto& color = rgb_table[map_data[p--]];
             rgb_data[p3 + 0] = (rgb_data[p3 + 0] >> 1) + (color[0] >> 1);

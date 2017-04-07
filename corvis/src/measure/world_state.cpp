@@ -254,10 +254,12 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
         p = get_plot_by_name("distortion");
         if (camera.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE)
             observe_plot_item(timestamp_us, p, "w" + std::to_string(i), (float)camera.intrinsics.k1.v);
-        else if (camera.intrinsics.type == rc_CALIBRATION_TYPE_POLYNOMIAL3) {
+        else if (camera.intrinsics.type == rc_CALIBRATION_TYPE_POLYNOMIAL3 || camera.intrinsics.type == rc_CALIBRATION_TYPE_KANNALA_BRANDT4) {
             observe_plot_item(timestamp_us, p, "k1-" + std::to_string(i), (float)camera.intrinsics.k1.v);
             observe_plot_item(timestamp_us, p, "k2-" + std::to_string(i), (float)camera.intrinsics.k2.v);
             observe_plot_item(timestamp_us, p, "k3-" + std::to_string(i), (float)camera.intrinsics.k3.v);
+            if (camera.intrinsics.type == rc_CALIBRATION_TYPE_KANNALA_BRANDT4)
+                observe_plot_item(timestamp_us, p, "k4-" + std::to_string(i), (float)camera.intrinsics.k4.v);
         }
 
         p = get_plot_by_name("focal");

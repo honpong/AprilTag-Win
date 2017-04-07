@@ -230,8 +230,8 @@ void observation_vision_feature::cache_jacobians()
     f_t invZ = 1/X[2];
     feature_t Xu = {X[0]*invZ, X[1]*invZ};
     feature_t dkd_u_dXu;
-    f_t kd_u, dkd_u_dk1, dkd_u_dk2, dkd_u_dk3;
-    kd_u = intrinsics.get_distortion_factor(Xu, &dkd_u_dXu, &dkd_u_dk1, &dkd_u_dk2, &dkd_u_dk3);
+    f_t kd_u, dkd_u_dk1, dkd_u_dk2, dkd_u_dk3, dkd_u_dk4;
+    kd_u = intrinsics.get_distortion_factor(Xu, &dkd_u_dXu, &dkd_u_dk1, &dkd_u_dk2, &dkd_u_dk3, &dkd_u_dk4);
     //dx_dX = height * focal_length * d(kd_u * Xu + center)_dX
     //= height * focal_length * (dkd_u_dX * Xu + kd_u * dXu_dX)
     //= height * focal_length * (dkd_u_dXu * dXu_dX * Xu + kd_u * dXu_dX)
@@ -254,14 +254,15 @@ void observation_vision_feature::cache_jacobians()
     } else {
         if(intrinsics.estimate) {
             feature_t dku_d_dXd;
-            f_t ku_d, dku_d_dk1, dku_d_dk2, dku_d_dk3;
-            ku_d = intrinsics.get_undistortion_factor(Xd, &dku_d_dXd, &dku_d_dk1, &dku_d_dk2, &dku_d_dk3);
+            f_t ku_d, dku_d_dk1, dku_d_dk2, dku_d_dk3, dku_d_dk4;
+            ku_d = intrinsics.get_undistortion_factor(Xd, &dku_d_dXd, &dku_d_dk1, &dku_d_dk2, &dku_d_dk3, &dku_d_dk4);
             v3 dX_dcx = Rtot * v3(ku_d  + dku_d_dXd.x()*Xd.x(),         dku_d_dXd.y()*Xd.x(), 0) / -intrinsics.focal_length.v;
             v3 dX_dcy = Rtot * v3(        dku_d_dXd.x()*Xd.y(), ku_d  + dku_d_dXd.y()*Xd.y(), 0) / -intrinsics.focal_length.v;
             v3 dX_dF  = Rtot * v3(Xd.x(), Xd.y(), 0) * (ku_d + dku_d_dXd.dot(Xd))                / -intrinsics.focal_length.v;
             v3 dX_dk1 = Rtot * v3(Xd.x() * dku_d_dk1, Xd.y() * dku_d_dk1, 0);
             v3 dX_dk2 = Rtot * v3(Xd.x() * dku_d_dk2, Xd.y() * dku_d_dk2, 0);
             v3 dX_dk3 = Rtot * v3(Xd.x() * dku_d_dk3, Xd.y() * dku_d_dk3, 0);
+            v3 dX_dk4 = Rtot * v3(Xd.x() * dku_d_dk4, Xd.y() * dku_d_dk4, 0);
 
             dx_dF = intrinsics.image_height * Xu[0] * kd_u + dx_dX.dot(dX_dF);
             dy_dF = intrinsics.image_height * Xu[1] * kd_u + dy_dX.dot(dX_dF);
@@ -272,6 +273,8 @@ void observation_vision_feature::cache_jacobians()
             dy_dk2 = intrinsics.image_height * intrinsics.focal_length.v * Xu[1] * dkd_u_dk2 + dy_dX.dot(dX_dk2);
             dx_dk3 = intrinsics.image_height * intrinsics.focal_length.v * Xu[0] * dkd_u_dk3 + dx_dX.dot(dX_dk3);
             dy_dk3 = intrinsics.image_height * intrinsics.focal_length.v * Xu[1] * dkd_u_dk3 + dy_dX.dot(dX_dk3);
+            dx_dk4 = intrinsics.image_height * intrinsics.focal_length.v * Xu[0] * dkd_u_dk4 + dx_dX.dot(dX_dk4);
+            dy_dk4 = intrinsics.image_height * intrinsics.focal_length.v * Xu[1] * dkd_u_dk4 + dy_dX.dot(dX_dk4);
 
             dx_dcx = intrinsics.image_height + dx_dX.dot(dX_dcx); dx_dcy =                           dx_dX.dot(dX_dcy);
             dy_dcx =                           dy_dX.dot(dX_dcx); dy_dcy = intrinsics.image_height + dy_dX.dot(dX_dcy);
@@ -326,6 +329,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
                 f_t cov_k1 = intrinsics.k1.from_row(src, j);
                 f_t cov_k2 = intrinsics.k2.from_row(src, j);
                 f_t cov_k3 = intrinsics.k3.from_row(src, j);
+                f_t cov_k4 = intrinsics.k4.from_row(src, j);
 
                 dst(0, j) +=
                 dx_dF * cov_F +
@@ -333,7 +337,8 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
                 dx_dcy * cov_cy +
                 dx_dk1 * cov_k1 +
                 dx_dk2 * cov_k2 +
-                dx_dk3 * cov_k3;
+                dx_dk3 * cov_k3 +
+                dx_dk4 * cov_k4;
 
                 dst(1, j) +=
                 dy_dF * cov_F +
@@ -341,7 +346,8 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
                 dy_dcy * cov_cy +
                 dy_dk1 * cov_k1 +
                 dy_dk2 * cov_k2 +
-                dy_dk3 * cov_k3;
+                dy_dk3 * cov_k3 +
+                dy_dk4 * cov_k4;
             }
         }
     }

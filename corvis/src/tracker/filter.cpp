@@ -1004,6 +1004,7 @@ void filter_initialize(struct filter *f)
             camera_state.intrinsics.k1.v = camera_sensor.intrinsics.k1;
         camera_state.intrinsics.k2.v = camera_sensor.intrinsics.k2;
         camera_state.intrinsics.k3.v = camera_sensor.intrinsics.k3;
+        camera_state.intrinsics.k4.v = camera_sensor.intrinsics.k4;
         camera_state.intrinsics.type = camera_sensor.intrinsics.type;
 
         camera_state.extrinsics.Q.set_process_noise(1.e-30);
@@ -1023,6 +1024,7 @@ void filter_initialize(struct filter *f)
         camera_state.intrinsics.k1.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
         camera_state.intrinsics.k2.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
         camera_state.intrinsics.k3.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
+        camera_state.intrinsics.k4.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
 
         camera_state.intrinsics.image_width  = camera_sensor.intrinsics.width_px;
         camera_state.intrinsics.image_height = camera_sensor.intrinsics.height_px;
@@ -1132,6 +1134,13 @@ void filter_deinitialize(struct filter *f)
             camera_sensor.intrinsics.k1 = camera_state.intrinsics.k1.v;
             camera_sensor.intrinsics.k2 = camera_state.intrinsics.k2.v;
             camera_sensor.intrinsics.k3 = camera_state.intrinsics.k3.v;
+            break;
+        case rc_CALIBRATION_TYPE_KANNALA_BRANDT4:
+            camera_sensor.intrinsics.type = rc_CALIBRATION_TYPE_KANNALA_BRANDT4;
+            camera_sensor.intrinsics.k1 = camera_state.intrinsics.k1.v;
+            camera_sensor.intrinsics.k2 = camera_state.intrinsics.k2.v;
+            camera_sensor.intrinsics.k3 = camera_state.intrinsics.k3.v;
+            camera_sensor.intrinsics.k4 = camera_state.intrinsics.k4.v;
             break;
         default:
         case rc_CALIBRATION_TYPE_UNKNOWN:

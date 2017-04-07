@@ -90,6 +90,51 @@ TEST_F(StateVision, DistortFisheyeZero)
     EXPECT_NEAR(distort_p.y(), 0., std::numeric_limits<f_t>::epsilon());
 }
 
+TEST_F(StateVision, UndistortKannalaBrandtIdentity)
+{
+    camera.intrinsics.type = rc_CALIBRATION_TYPE_KANNALA_BRANDT4;
+    camera.intrinsics.k1.v = -0.01079977f;
+    camera.intrinsics.k2.v =  0.0180711f;
+    camera.intrinsics.k3.v = -0.007713882f;
+    camera.intrinsics.k4.v =  0.0006934929f;
+
+    for (int i = 0; i<1000; i++) {
+        feature_t p = { normalized_coord(gen), normalized_coord(gen) },
+            distort_undistort_p = camera.intrinsics.distort_feature(camera.intrinsics.undistort_feature(p));
+        EXPECT_NEAR(p.x(), distort_undistort_p.x(), 2 * std::numeric_limits<f_t>::epsilon());
+        EXPECT_NEAR(p.y(), distort_undistort_p.y(), 2 * std::numeric_limits<f_t>::epsilon());
+    }
+
+}
+
+TEST_F(StateVision, UndistortKannalaBrandtZero)
+{
+    camera.intrinsics.type = rc_CALIBRATION_TYPE_KANNALA_BRANDT4;
+    camera.intrinsics.k1.v = -0.01079977f;
+    camera.intrinsics.k2.v = 0.0180711f;
+    camera.intrinsics.k3.v = -0.007713882f;
+    camera.intrinsics.k4.v = 0.0006934929f;
+
+    feature_t p = { 0, 0 };
+    feature_t undistort_p = camera.intrinsics.undistort_feature(p);
+    EXPECT_NEAR(undistort_p.x(), 0., std::numeric_limits<f_t>::epsilon());
+    EXPECT_NEAR(undistort_p.y(), 0., std::numeric_limits<f_t>::epsilon());
+}
+
+TEST_F(StateVision, DistortKannalaBrandtZero)
+{
+    camera.intrinsics.type = rc_CALIBRATION_TYPE_KANNALA_BRANDT4;
+    camera.intrinsics.k1.v = -0.01079977f;
+    camera.intrinsics.k2.v = 0.0180711f;
+    camera.intrinsics.k3.v = -0.007713882f;
+    camera.intrinsics.k4.v = 0.0006934929f;
+
+    feature_t p = { 0, 0 };
+    feature_t distort_p = camera.intrinsics.distort_feature(p);
+    EXPECT_NEAR(distort_p.x(), 0., std::numeric_limits<f_t>::epsilon());
+    EXPECT_NEAR(distort_p.y(), 0., std::numeric_limits<f_t>::epsilon());
+}
+
 TEST_F(StateVision, NormalizeIdentity)
 {
     camera.intrinsics.image_width = 640;

@@ -61,6 +61,7 @@ public:
     state_scalar k1 { "k1", constant };
     state_scalar k2 { "k2", constant };
     state_scalar k3 { "k3", constant };
+    state_scalar k4 { "k4", constant };
     rc_CalibrationType type {rc_CALIBRATION_TYPE_UNKNOWN};
     int image_width, image_height;
 
@@ -78,8 +79,8 @@ public:
     feature_t image_size() const { return feature_t {(f_t)image_width, (f_t)image_height}; }
     feature_t undistort_feature(const feature_t &feat_d) const;
     feature_t distort_feature(const feature_t &featu_u) const;
-    f_t get_undistortion_factor(const feature_t &feat_d, feature_t *dku_d_dfeat_d = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;
-    f_t get_distortion_factor(const feature_t &feat_u, feature_t *dkd_u_dfeat_u = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr) const;
+    f_t get_undistortion_factor(const feature_t &feat_d, feature_t *dku_d_dfeat_d = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr, f_t *dku_d_dk4 = nullptr) const;
+    f_t get_distortion_factor(const feature_t &feat_u, feature_t *dkd_u_dfeat_u = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr, f_t *dku_d_dk4 = nullptr) const;
     feature_t normalize_feature(const feature_t &feat) const;
     feature_t unnormalize_feature(const feature_t &feat) const;
 };

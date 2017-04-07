@@ -99,6 +99,7 @@ public:
     std::vector<VertexData> path_vertex;
     std::vector<VertexData> path_mini_vertex;
     std::vector<VertexData> path_gt_vertex;
+    std::vector<VertexData> path_axis_vertex;
     std::vector<VertexData> feature_vertex;
     std::vector<VertexData> orientation_vertex;
     std::vector<VertexData> map_node_vertex;
@@ -109,6 +110,7 @@ public:
     std::vector<overlay_data> cameras;
     std::vector<ImageData> depths;
     float up[3] = {0,0,1};
+    float ate = 0;
 
     uint64_t max_plot_history_us = 30e6;
 
@@ -132,6 +134,7 @@ public:
     void observe_depth(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data);
     void observe_depth_overlay_image(uint64_t timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
     void observe_map_node(uint64_t timestamp_us, uint64_t id, bool finished, bool loop_closed, bool is_unlinked, const transformation &T, std::vector<uint64_t> & neighbors, std::vector<Feature> & features);
+    void observe_ate(uint64_t timestamp_us, const float absolute_translational_error);
     std::string get_feature_stats();
     float get_feature_lifetime();
     int get_feature_depth_measurements();

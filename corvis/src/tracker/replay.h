@@ -44,6 +44,7 @@ private:
     bool accel_decimate {false};
     bool gyro_decimate {false};
     bool image_decimate {false};
+    bool ground_truth_file{false};
     std::chrono::microseconds accel_interval {10000};
     std::chrono::microseconds gyro_interval {10000};
     std::chrono::microseconds image_interval {33333};
@@ -83,6 +84,7 @@ public:
     uint64_t get_packets_dispatched() { return packets_dispatched; }
     double get_path_length() { return path_length; }
     double get_length() { return length; }
+    void set_relative_pose(const sensor_clock::time_point & timestamp, const tpose & pose);
     bool get_reference_pose(const sensor_clock::time_point & timestamp, tpose & pose_out);
     double get_reference_path_length() { return reference_path_length; }
     double get_reference_length() { return reference_length; }
@@ -90,6 +92,7 @@ public:
     void zero_biases();
     void start_mapping() { rc_startMapping(tracker); }
     void save_map(std::string filename);
+    inline bool ground_truth_exists() { return reference_seq && reference_seq->size(); }
 };
 
 #endif /* defined(__RC3DK__replay__) */

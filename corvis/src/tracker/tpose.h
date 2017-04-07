@@ -109,7 +109,11 @@ struct tpose_sequence {
         auto i = std::lower_bound(tposes.begin(), tposes.end(), pt); // pt <= *i
         if (i == tposes.end())
             return false;
-        tp = tpose(t, i == tposes.begin() ? *i : *(i-1), *i);
+        auto i1 = i == tposes.begin() ? *i : *(i-1);
+        auto i2 = *i;
+        if(i2.t - i1.t > std::chrono::milliseconds(150))
+            return false;
+        tp = tpose(t, i1, i2);
         return true;
     }
     bool load_from_file(const std::string &filename) {
@@ -123,6 +127,18 @@ struct tpose_sequence {
             format = FORMAT_POSE;
         return static_cast<bool>(std::ifstream(filename) >> *this);
     }
+    void set_relative_pose(sensor_clock::time_point t, const tpose & g) {
+        tpose gt {t};
+        if(!get_pose(t, gt))
+            return;
+
+        transformation offset = g.G*invert(gt.G);
+        for(size_t i = 0; i < tposes.size(); i++) {
+            tposes[i].G = offset*tposes[i].G;
+        }
+    }
+    size_t size() { return tposes.size(); }
+
     friend inline std::istream &operator>>(std::istream &file, tpose_sequence &s);
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };

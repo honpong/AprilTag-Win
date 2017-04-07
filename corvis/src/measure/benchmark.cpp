@@ -13,8 +13,12 @@ struct histogram { // follows the semantics of numpy.histogram
 public:
     std::vector<T> edges;
     std::vector<size_t> bins; // invariant: edges.size() + 1 == bin.size()
+    int output_precision;
+    std::string bin_units;
 
-    histogram(const std::vector<T> &data, const std::vector<T> &bin_edges) {
+    histogram(const std::vector<T> &data, const std::vector<T> &bin_edges, int precision = 1, std::string units = "%") :
+        output_precision(precision), bin_units(units)
+    {
         if (bin_edges.size() < 2)
             return;
 
@@ -43,9 +47,9 @@ public:
 template<typename T, bool add_front, bool add_back>
 static inline std::ostream& operator<<(std::ostream &stream, const histogram<T, add_front, add_back> &h)
 {
-    stream << std::fixed << std::setprecision(1);
+    stream << std::fixed << std::setprecision(h.output_precision);
     for (size_t i=0; i<h.bins.size(); i++)
-        stream << (i ? "\t" : "") << h.edges[i] << "%";
+        stream << (i ? "\t" : "") << h.edges[i] << h.bin_units;
     stream << (add_back ? "+" : "") << "\n";
     for (size_t i=0; i<h.bins.size(); i++)
         stream << (i ? "\t" : "") << h.bins[i];
@@ -103,7 +107,7 @@ void benchmark_run(std::ostream &stream, const char *directory,
         first++;
     }
 
-    std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent;
+    std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m;
 
     for (auto &bm : results) {
         if (!bm.ok.get()) {
@@ -149,10 +153,15 @@ void benchmark_run(std::ostream &stream, const char *directory,
             stream << "\tPL\t" << mPL.to_string() << "\n";
             PL_errors_percent.push_back(mPL.error_percent);
         }
+        if (r.ate.is_valid()) {
+            stream << "\tATE\t" << r.ate.rmse << "m\n";
+            ate_errors_m.push_back(r.ate.rmse);
+        }
     }
 
     std::vector<double> std_edges = {0, 3, 10, 25, 50, 100};
     std::vector<double> alt_edges = {0, 4, 12, 30, 65, 100};
+    std::vector<double> ate_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
     typedef histogram<double, false, true> error_histogram;
 
     stream << "Length error histogram (" << L_errors_percent.size() << " sequences)\n";
@@ -168,6 +177,10 @@ void benchmark_run(std::ostream &stream, const char *directory,
     stream << "Alternate error histogram (" << primary_errors_percent.size() << " sequences)\n";
     error_histogram alt_hist(primary_errors_percent, alt_edges);
     stream << alt_hist << "\n";
+
+    stream << "ATE histogram (" << ate_errors_m.size() << " sequences)\n";
+    error_histogram ate_hist(ate_errors_m, ate_edges, 2, "m");
+    stream << ate_hist << "\n";
 
     struct stat { size_t n; double sum, mean, median; } pe_le50 = {0, 0, 0, 0};
     std::sort(primary_errors_percent.begin(), primary_errors_percent.end());

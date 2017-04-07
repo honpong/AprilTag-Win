@@ -129,6 +129,11 @@ bool replay::set_calibration_from_filename(const char *filename)
     return true;
 }
 
+void replay::set_relative_pose(const sensor_clock::time_point & timestamp, const tpose & pose)
+{
+    if(reference_seq) reference_seq->set_relative_pose(timestamp, pose);
+}
+
 bool replay::get_reference_pose(const sensor_clock::time_point & timestamp, tpose & pose_out)
 {
     return reference_seq && reference_seq->get_pose(timestamp, pose_out);

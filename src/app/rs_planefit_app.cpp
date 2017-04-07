@@ -253,7 +253,6 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
     rs_sf_image_rgb rgb_plane(img), rgb_box(img);
 
     // draw plane color
-    rs_shapefit_set_option(shapefitter, RS_SF_OPTION_DRAW_PLANES, 1);
     rs_sf_planefit_draw_planes(shapefitter, &rgb_plane);
 
     // display either box wireframe or plane_id

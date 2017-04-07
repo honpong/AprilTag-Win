@@ -92,6 +92,15 @@ rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit * obj, int pid, float
     return pf->get_plane_equation(pid, equation);
 }
 
+RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_plane_contour(const rs_shapefit * obj, int pid, float(*contour)[3], int * num_contour_pt)
+{
+    if (!obj || !contour || !num_contour_pt) return RS_SF_INVALID_ARG;
+    auto pf = dynamic_cast<const rs_sf_planefit*>(obj);
+    if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
+
+    return pf->get_plane_contour(pid, contour, *num_contour_pt);
+}
+
 RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit * obj, int box_id, rs_sf_box * dst)
 {
     if (!obj || !dst) return RS_SF_INVALID_ARG;

@@ -143,6 +143,18 @@ rs_sf_status rs_sf_planefit::get_plane_equation(int pid, float equ[4]) const
     return RS_SF_SUCCESS;
 }
 
+rs_sf_status rs_sf_planefit::get_plane_contour(int pid, float(*contour)[3], int & num_contour_pt) const
+{
+    num_contour_pt = 0;
+    if (m_ref_view.tracked_pid[pid] == nullptr) return RS_SF_INVALID_ARG;
+
+    const auto px = m_ref_view.pt_img.data();
+
+
+
+    return RS_SF_SUCCESS;
+}
+
 void rs_sf_planefit::parameter_updated()
 {
     m_grid_h = (int)(std::ceilf((float)src_h() / m_param.img_y_dn_sample));
@@ -451,7 +463,6 @@ void rs_sf_planefit::image_to_pointcloud(scene& current_view, bool force_full_pt
     }
 }
 
-
 void rs_sf_planefit::img_pt_group_to_normal(vec_pt3d_group & pt_groups)
 {
     auto* img_pt_group = pt_groups.data();
@@ -732,7 +743,7 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, const s
         }
     }
 
-    // mark current points which belongs to some past planes
+    // mark current points which belong to some past planes
     auto past_pt_grp = past_view.pt_grp.data();
     for (auto&& grp : current_view.pt_grp)
     {
@@ -897,7 +908,7 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
     }
 
     int dn_x = 1, dn_y = 1;
-    if (dst_w > img_w) {
+    if (dst_w > img_w || dst_h > img_h) {
         dn_x = std::max(1, (int)std::round((float)dst_w / img_w));
         dn_y = std::max(1, (int)std::round((float)dst_h / img_h));
     }
@@ -916,7 +927,7 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
 		const auto* src_z = (unsigned short*)ref_view.src_depth_img->data;
 		const auto* src_p = ref_view.pt_img.data();
 
-		auto map_fcn = [&](int sp, int ep) {
+		auto map_fcn = [&](const int sp, const int ep) {
 			for (int p = sp, ex = (dst_w - 1)/dn_x, ey = (dst_h - 1)/dn_y; p < ep; ++p) {
 				float z; plane* pl;
 				if ((pl = src_p[p].best_plane) && (is_valid_raw_z(z = src_z[p]))) {
@@ -957,6 +968,7 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
         }
     }
 }
+
 
 void rs_sf_planefit::hole_fill_custom_plane_map(rs_sf_image * map) const
 {

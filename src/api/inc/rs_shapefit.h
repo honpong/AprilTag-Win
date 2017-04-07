@@ -102,6 +102,7 @@ extern "C"
     /// Plane Fitting Functions
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_plane_ids(const rs_shapefit* obj, rs_sf_image* mono);
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit* obj, int pid, float equation[4]);
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_plane_contour(const rs_shapefit* obj, int pid, float(*contour)[3], int* num_contour_pt);
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr);
 
     /// Box Fitting Functions

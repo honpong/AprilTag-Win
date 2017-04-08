@@ -67,7 +67,6 @@ struct rs_shapefit
     }
 };
 
-
 struct pose_t
 {
     m3 rotation;

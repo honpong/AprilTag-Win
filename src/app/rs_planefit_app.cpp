@@ -151,7 +151,7 @@ int run_shapefit_live(rs_shapefit_option opt) try
         image[0].frame_id = image[1].frame_id = frame_id++;
 
         if (!run_shapefit(shapefit.get(), image)) break;
-        memcpy(prev_depth.data(), frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char());
+        rs_sf_memcpy(prev_depth.data(), frames[RS_STREAM_DEPTH]->get_data(), image[0].num_char());
     }
 
     //if (sp_init) rs_sf_pose_tracking_release();

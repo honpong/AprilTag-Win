@@ -120,6 +120,7 @@ extern "C"
 }
 
 #include <memory>
+inline void rs_sf_memcpy(void* dst, const void* src, size_t len) { memcpy(dst, src, len); }
 
 struct rs_sf_image_auto : public rs_sf_image
 {
@@ -128,12 +129,12 @@ struct rs_sf_image_auto : public rs_sf_image
     float cam_pose_data[12];
     rs_sf_intrinsics intrinsics_data;
     rs_sf_image_auto& set_pose(const float p[12]) { 
-        if (p) memcpy(cam_pose = cam_pose_data, p, sizeof(float) * 12);
+        if (p) rs_sf_memcpy(cam_pose = cam_pose_data, p, sizeof(float) * 12);
         else cam_pose = nullptr; 
 		return *this;
     }
     rs_sf_image_auto& set_intrinsics(const rs_sf_intrinsics* i) {
-        if (i) memcpy(intrinsics = &intrinsics_data, i, sizeof(rs_sf_intrinsics));
+        if (i) rs_sf_memcpy(intrinsics = &intrinsics_data, i, sizeof(rs_sf_intrinsics));
         else intrinsics = nullptr;
         return *this;
     }
@@ -146,13 +147,13 @@ struct rs_sf_image_impl : public rs_sf_image_auto
     {
         img_h = ref->img_h; img_w = ref->img_w; byte_per_pixel = Channel; frame_id = ref->frame_id;
         data = (src = std::make_unique<unsigned char[]>(num_char())).get();
-        if (ref->data && num_char()==ref->num_char()) memcpy(data, ref->data, num_char());
+        if (ref->data && num_char()==ref->num_char()) rs_sf_memcpy(data, ref->data, num_char());
         set_pose(ref->cam_pose); set_intrinsics(ref->intrinsics);       
     }
     rs_sf_image_impl(int w, int h, int fid = -1, const void* v = nullptr, const float pose[12] = nullptr, const rs_sf_intrinsics* i = nullptr) {
         img_h = h; img_w = w; byte_per_pixel = Channel; frame_id = fid;
         data = (src = std::make_unique<unsigned char[]>(num_char())).get();
-        if (v) memcpy(data, v, num_char());
+        if (v) rs_sf_memcpy(data, v, num_char());
         set_pose(pose); set_intrinsics(i);
     }
 };

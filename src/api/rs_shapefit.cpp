@@ -83,22 +83,43 @@ rs_sf_status rs_sf_planefit_get_plane_ids(const rs_shapefit * obj, rs_sf_image *
     return status;
 }
 
-rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit * obj, int pid, float equation[4])
+RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_planes(const rs_shapefit * obj, rs_sf_image * img, rs_sf_plane planes[256], float * point_buffer)
 {
-    if (!obj || !equation) return RS_SF_INVALID_ARG;
+    if (!obj || (!planes && !img)) return RS_SF_INVALID_ARG;
+    if (img && img->byte_per_pixel != 3) return RS_SF_INVALID_ARG;
     auto pf = dynamic_cast<const rs_sf_planefit*>(obj);
     if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
 
-    return pf->get_plane_equation(pid, equation);
-}
+    rs_sf_plane tmp[MAX_VALID_PID + 1];
+    std::vector<float> buf;
+    if (img &&  point_buffer == nullptr) {
+        buf.resize(img->num_pixel() * 3);
+        point_buffer = buf.data();
+    }
+    if (planes == nullptr) { planes = tmp; }
 
-RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_plane_contour(const rs_shapefit * obj, int pid, float(*contour)[3], int * num_contour_pt)
-{
-    if (!obj || !contour || !num_contour_pt) return RS_SF_INVALID_ARG;
-    auto pf = dynamic_cast<const rs_sf_planefit*>(obj);
-    if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
-
-    return pf->get_plane_contour(pid, contour, *num_contour_pt);
+    auto status = pf->get_planes(planes, point_buffer);
+    if (img != nullptr && status >= RS_SF_SUCCESS) 
+    {
+        pose_t pose = pose_t().set_pose(img->cam_pose).invert(); 
+        const auto* intr = img->intrinsics ? img->intrinsics : &pf->m_intrinsics;
+        const int dst_w = img->img_w, dst_h = img->img_h;
+        for (int pl = 0; pl <= MAX_VALID_PID; ++pl) {
+            if (planes[pl].pid == 0) break;
+            auto* pos = planes[pl].pos;
+            for (int p = planes[pl].num_points - 1; p >= 0; --p) {
+                const auto campt = pose.transform(v3(pos[p]));
+                const int u = (int)((campt.x() * intr->fx) / campt.z() + intr->ppx + 0.5f);
+                const int v = (int)((campt.y() * intr->fy) / campt.z() + intr->ppy + 0.5f);
+                if (0 <= u && u < dst_w && 0 <= v && v < dst_h) {
+                    img->data[(v * dst_w + u) * 3 + 0] = 255;
+                    img->data[(v * dst_w + u) * 3 + 1] = 255;
+                    img->data[(v * dst_w + u) * 3 + 2] = 255;
+                }
+            }
+        }
+    }
+    return status;
 }
 
 RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit * obj, int box_id, rs_sf_box * dst)

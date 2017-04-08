@@ -1,5 +1,4 @@
 #include "rs_sf_util.h"
-#include <unordered_map>
 
 void rs_sf_util_set_to_zeros(rs_sf_image* img)
 {
@@ -424,5 +423,64 @@ contour follow_border(uint8_t* pixel, const int w, const int h, const int _x0)
         dst.push_back(i2(x0 % w, x0 / w));
         pixel[x0] = (pixel[x0 + 1] != 0 ? CONTOUR_LEFT : CONTOUR_RIGHT);
     }
+    return dst;
+}
+
+std::vector<std::vector<int>> find_contours_in_map_uchar(short * map, const int w, const int h)
+{
+    const int BACKGROUND = 0;
+    std::vector<std::vector<int>> dst;
+    dst.reserve(MAX_VALID_PID);
+    std::vector<int> parent_targets;
+    parent_targets.reserve(w);
+    for (int y = 1, i = w + 1; y < h - 1; ++y, i += 2, parent_targets.clear()) {
+        parent_targets.emplace_back(BACKGROUND);
+        for (int x = 1; x < w - 1; ++x, ++i) {
+            const auto current = (map[i] & 0x00ff);
+            const auto visited = (map[i] & 0x4000);
+            if (current != parent_targets.back() && current != BACKGROUND) //not prev contour
+            {
+                parent_targets.emplace_back(current);
+                if (!visited) {
+                    dst.emplace_back(follow_border_uchar(map, w, h, i));
+                }
+            }
+            if (map[i] < 0) { parent_targets.pop_back(); }
+        }
+    }
+    return dst;
+}
+
+std::vector<int> follow_border_uchar(short * map, const int w, const int h, const int _x0)
+{
+    std::vector<int> dst;
+    dst.reserve(w * h / 4);
+
+    const short target = map[_x0] & 0x00ff;
+    const short c_left = target | 0x4000;
+    const short c_right = target | 0xc000;
+    const int xb[] = { -w,-1,w,1 };             //cross neighbor
+    const int xd[] = { -w + 1,-w - 1,w - 1,w + 1 }; //diagonal neigbhor
+
+    int bz0 = -1; // first zero neighbor
+    for (int b = 0; b < 4; ++b)
+        if ((map[_x0 + xb[b]] & 0x00ff) != target) { bz0 = b; break; }
+
+    for (int x0 = _x0, x1 = -1, bx1, tx1; _x0 != x1; x0 = x1)
+    {
+        //first non-zero neighbor after first zero neighbor
+        if ((map[(x1 = (x0 + xb[(bx1 = (bz0 + 1) % 4)]))] & 0x00ff) == target) {}
+        else if ((map[(x1 = (x0 + xb[(bx1 = (bz0 + 2) % 4)]))] & 0x00ff) == target) {}
+        else if ((map[(x1 = (x0 + xb[(bx1 = (bz0 + 3) % 4)]))] & 0x00ff) == target) {}
+        else { break; }
+
+        if ((map[tx1 = x0 + xd[bx1]] & 0x00ff) == target) { x1 = tx1; bz0 = (bx1 + 2) % 4; }
+        else { bz0 = (bx1 + 3) % 4; }
+
+        //dst.emplace_back(x0 % w, x0 / w);
+        dst.emplace_back(x0);
+        map[x0] = ((map[x0 + 1] & 0x00ff) == target ? c_left : c_right); //shape left: shape right
+    }
+    dst.shrink_to_fit();
     return dst;
 }

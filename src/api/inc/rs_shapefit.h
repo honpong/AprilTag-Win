@@ -53,6 +53,15 @@ extern "C"
         int num_char() const { return num_pixel() * byte_per_pixel; }
     };
 
+    struct rs_sf_plane
+    {
+        int pid;
+        int contour_id;
+        int num_points;
+        float(*pos)[3];
+        float equation[4];
+    };
+
     struct rs_sf_box
     {
         float center[3];
@@ -69,7 +78,6 @@ extern "C"
         RS_SF_SUCCESS = 0,
         RS_SF_BUSY = 1,
         RS_SF_INDEX_OUT_OF_BOUND = 2,
-        RS_SF_INDEX_INVALID = 3
     };
 
     enum rs_shapefit_option
@@ -101,8 +109,7 @@ extern "C"
 
     /// Plane Fitting Functions
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_plane_ids(const rs_shapefit* obj, rs_sf_image* mono);
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_equation(const rs_shapefit* obj, int pid, float equation[4]);
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_plane_contour(const rs_shapefit* obj, int pid, float(*contour)[3], int* num_contour_pt);
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_planes(const rs_shapefit* obj, rs_sf_image* img = nullptr, rs_sf_plane planes[256] = nullptr, float* point_buffer = nullptr);
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* src = nullptr);
 
     /// Box Fitting Functions
@@ -140,7 +147,7 @@ struct rs_sf_image_impl : public rs_sf_image_auto
         img_h = ref->img_h; img_w = ref->img_w; byte_per_pixel = Channel; frame_id = ref->frame_id;
         data = (src = std::make_unique<unsigned char[]>(num_char())).get();
         if (ref->data && num_char()==ref->num_char()) memcpy(data, ref->data, num_char());
-        set_pose(ref->cam_pose); set_intrinsics(ref->intrinsics);
+        set_pose(ref->cam_pose); set_intrinsics(ref->intrinsics);       
     }
     rs_sf_image_impl(int w, int h, int fid = -1, const void* v = nullptr, const float pose[12] = nullptr, const rs_sf_intrinsics* i = nullptr) {
         img_h = h; img_w = w; byte_per_pixel = Channel; frame_id = fid;

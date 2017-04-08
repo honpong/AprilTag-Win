@@ -129,29 +129,46 @@ rs_sf_status rs_sf_planefit::mark_plane_src_on_map(rs_sf_image * map) const
     return RS_SF_SUCCESS;
 }
 
-rs_sf_status rs_sf_planefit::get_plane_equation(int pid, float equ[4]) const
+rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane * dst, float * point_buffer) const
 {
-    auto& tracked_pid = m_ref_view.tracked_pid;
-    if (pid <= 0 || pid >= tracked_pid.size()) return RS_SF_INDEX_OUT_OF_BOUND;
-    if (!tracked_pid[pid]) return RS_SF_INDEX_INVALID;
+    static const int size_v3 = sizeof(float) * 3;
+    std::vector<std::vector<int>> contours;
+    if (point_buffer != nullptr) {
+        // get contours if point_buffer available 
+        std::vector<short> pid_map(num_pixels());
+        auto* pid_data = pid_map.data();
+        for (auto&& pt : m_ref_view.pt_img)
+            pid_data[pt.p] = pt.best_plane ? pt.best_plane->pid : 0;
+        contours = find_contours_in_map_uchar(pid_data, src_w(), src_h());
+    }
+    else {
+        // empty list of contours, just mark available pid for output
+        for (auto* plane : m_ref_view.tracked_pid)
+            if (plane) { contours.push_back({ plane->src->p }); }
+    }
+   
+    const auto* pt3d = m_ref_view.pt_img.data();
+    int pl = 0, pid_contour[MAX_VALID_PID + 1] = { 0 };
+    for (const auto& contour : contours)
+    {
+        auto& dst_plane = dst[pl++] = {};
+        auto& src_plane = pt3d[contour[0]].best_plane;
+        dst_plane.pid = src_plane->pid;
+        dst_plane.contour_id = pid_contour[dst_plane.pid]++;
+        memcpy(dst_plane.equation, src_plane->normal.data(), size_v3);
 
-    equ[0] = tracked_pid[pid]->normal[0];
-    equ[1] = tracked_pid[pid]->normal[1];
-    equ[2] = tracked_pid[pid]->normal[2];
-    equ[3] = tracked_pid[pid]->d / 1000.0f;
+        if (point_buffer) {
+            dst_plane.pos = (float(*)[3])point_buffer;
+            dst_plane.num_points = (int)contour.size();
+            for (int p = dst_plane.num_points - 1; p >= 0; --p) {
+                memcpy(dst_plane.pos[p], pt3d[contour[p]].grp->pt0->pos.data(), size_v3);
+            }
+            point_buffer += (dst_plane.num_points * 3);
+        }
 
-    return RS_SF_SUCCESS;
-}
-
-rs_sf_status rs_sf_planefit::get_plane_contour(int pid, float(*contour)[3], int & num_contour_pt) const
-{
-    num_contour_pt = 0;
-    if (m_ref_view.tracked_pid[pid] == nullptr) return RS_SF_INVALID_ARG;
-
-    const auto px = m_ref_view.pt_img.data();
-
-
-
+        if (pl >= 256) return RS_SF_INDEX_OUT_OF_BOUND;
+    }
+    dst[pl] = {};
     return RS_SF_SUCCESS;
 }
 

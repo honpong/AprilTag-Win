@@ -8,6 +8,7 @@
 #include <deque>
 #include <vector>
 #include <memory>
+#include <unordered_map>
 #include <iostream>
 #include <stdio.h>
 #include <mutex>
@@ -107,6 +108,8 @@ void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3]);
 std::vector<contour> find_contours_in_binary_img(rs_sf_image* bimg);
 contour follow_border(uint8_t* pixel, const int w, const int h, const int _x0);
 
+std::vector<std::vector<int>> find_contours_in_map_uchar(short* map, const int w, const int h);
+std::vector<int> follow_border_uchar(short* map, const int w, const int h, const int _x0);
 
 #endif // ! rs_sf_util_h
 

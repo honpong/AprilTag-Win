@@ -42,8 +42,7 @@ struct rs_sf_planefit : public rs_shapefit
     int max_detected_pid() const;
     rs_sf_status get_plane_index_map(rs_sf_image* map, int hole_filled = -1) const;
     rs_sf_status mark_plane_src_on_map(rs_sf_image* map) const;
-    rs_sf_status get_plane_equation(int pid, float equ[4]) const; // return unit meter
-    rs_sf_status get_plane_contour(int pid, float(*contour)[3], int& num_contour_pt) const;
+    rs_sf_status get_planes(rs_sf_plane * dst, float* point_buffer) const; // return unit meter
 
 protected:
 

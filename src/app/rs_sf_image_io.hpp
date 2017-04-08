@@ -96,7 +96,7 @@ struct rs_sf_file_stream
 
     static rs_sf_intrinsics read_calibration(const std::string& path, int& num_frame)
     {
-        rs_sf_intrinsics depth_intrinsics;
+        rs_sf_intrinsics depth_intrinsics = {};
         Json::Value calibration_data;
         std::ifstream infile;
         infile.open(path + "calibration.json", std::ifstream::binary);

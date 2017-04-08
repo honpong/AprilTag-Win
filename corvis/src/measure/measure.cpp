@@ -12,8 +12,6 @@
 #include <sys/stat.h>
 #endif
 
-using namespace std;
-
 std::string render_filename_from_filename(const char * benchmark_folder, const char * render_folder, const char * filename)
 {
     std::string render_filename(filename);
@@ -24,6 +22,7 @@ std::string render_filename_from_filename(const char * benchmark_folder, const c
 
 int main(int c, char **v)
 {
+    using std::cerr;
     if (0) { usage:
         cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--realtime] [--async] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-fast-path] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] [--progress] [--incremental-ate] <filename>\n";
         cerr << "       " << v[0] << " [--qvga] [--drop-depth] --benchmark <directory>\n";
@@ -86,7 +85,7 @@ int main(int c, char **v)
         if(pause_at) {
             uint64_t pause_time = 0;
             try {
-                pause_time = stoull(string(pause_at));
+                pause_time = std::stoull(pause_at);
             } catch (...) {
                 cerr << "invalid timestamp: " << pause_at << "\n";
                 return false;

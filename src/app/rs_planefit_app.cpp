@@ -260,12 +260,14 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
         rs_shapefit_set_option(shapefitter, RS_SF_OPTION_GET_PLANE_ID, 2);
         rgb_box.byte_per_pixel = 1;
         rs_sf_planefit_get_plane_ids(shapefitter, &rgb_box);
-    }
-
+    } 
+    // display plane contours
+    rs_sf_planefit_get_planes(shapefitter, &rgb_box);
+   
     //rs_sf_image_write(path + "..\\live\\plane_" + std::to_string(img->frame_id), &pid);
     //rs_sf_image_write(path + "..\\live\\color_" + std::to_string(img->frame_id), &rgb_box);
 
     // gl drawing
-    rs_sf_image show[] = { img[0], img[1], rgb_plane, rgb_box};
+    rs_sf_image show[] = { img[0], img[1], rgb_plane, rgb_box };
     return win.imshow(show, 4, text);
 }

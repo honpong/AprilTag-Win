@@ -149,20 +149,55 @@ rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane * dst, float * point_buffer)
    
     const auto* pt3d = m_ref_view.pt_img.data();
     int pl = 0, pid_contour[MAX_VALID_PID + 1] = { 0 };
+    int avg_len = (int)((m_param.img_x_dn_sample + m_param.img_y_dn_sample) * std::sqrt(2.0) * 0.5f);
     for (const auto& contour : contours)
     {
         auto& dst_plane = dst[pl++] = {};
         auto& src_plane = pt3d[contour[0]].best_plane;
         dst_plane.pid = src_plane->pid;
         dst_plane.contour_id = pid_contour[dst_plane.pid]++;
-        memcpy(dst_plane.equation, src_plane->normal.data(), size_v3);
+        float* equ = dst_plane.equation;
+        memcpy(equ, src_plane->normal.data(), size_v3);
 
         if (point_buffer) {
             dst_plane.pos = (float(*)[3])point_buffer;
             dst_plane.num_points = (int)contour.size();
+
+            const float d = src_plane->d;
+            const v3& normal = src_plane->normal;
+            const v3& translate = m_ref_view.cam_pose.translation;
+            const m3& rotate = m_ref_view.cam_pose.rotation;
+            const v3 ndotr = normal.transpose() * rotate;
+            const float ndott = normal.dot(translate);
+            std::vector<v3> pos(dst_plane.num_points);
             for (int p = dst_plane.num_points - 1; p >= 0; --p) {
-                memcpy(dst_plane.pos[p], pt3d[contour[p]].grp->pt0->pos.data(), size_v3);
+                const int u = contour[p] % src_w();
+                const int v = contour[p] / src_w();
+                const float xdz = (u - cam_px) * inv_cam_fx;
+                const float ydz = (v - cam_py) * inv_cam_fy;
+                const v3 Rx = rotate * v3(xdz, ydz, 1);
+                const float z = -(ndott + d) / (normal.dot(Rx));
+                pos[p] = Rx * z + translate;
+                
+                /*
+                const float x = z * (pt.pix[0] - cam_px) * inv_cam_fx;
+                const float y = z * (pt.pix[1] - cam_py) * inv_cam_fy;
+                pt.pos[0] = r00 * x + r01 * y + r02 * z + t0;
+                pt.pos[1] = r10 * x + r11 * y + r12 * z + t1;
+                pt.pos[2] = r20 * x + r21 * y + r22 * z + t2;
+                //(pos - t) = z * R *[xdz, ydz, 1];
+                */
             }
+
+            // if plane boundary not refined, smooth contour 
+            const int avlen = src_plane->fine_pts.size() ? 1 : avg_len;
+            for (int np = pos.size(), p = np - 1, r = std::min(avlen, np - 1); p >= 0; --p) {
+                v3_map avpos(dst_plane.pos[p]); avpos = pos[p];
+                for (int a = 1; a <= r; ++a)
+                    avpos += (v3(pos[(p - a + np) % np]) + v3(pos[(p + a) % np]));
+                avpos *= (1.0f / r);
+            }
+
             point_buffer += (dst_plane.num_points * 3);
         }
 

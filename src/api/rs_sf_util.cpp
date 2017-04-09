@@ -22,7 +22,7 @@ void rs_sf_util_copy_depth_image(rs_sf_image_depth & dst, const rs_sf_image * sr
     memcpy(dst.data, src->data, dst.num_char());
 }
 
-void rs_sf_util_draw_planes(rs_sf_image * rgb, const rs_sf_image * map, bool overwrite_rgb, const unsigned char(*rgb_table)[3], int num_color)
+void rs_sf_util_draw_plane_ids(rs_sf_image * rgb, const rs_sf_image * map, bool overwrite_rgb, const unsigned char(*rgb_table)[3], int num_color)
 {
     static unsigned char default_rgb_table[MAX_VALID_PID + 1][3] = { 0 };
     if (default_rgb_table[MAX_VALID_PID][0] == 0)
@@ -70,15 +70,15 @@ void rs_sf_util_remap_plane_ids(rs_sf_image * map)
         map->data[p] = ((map->data[p] << 4) | (map->data[p] >> 4));
 }
 
-void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, v2 p0, v2 p1, const b3& color, const int size)
+void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size)
 {
     if (p0.array().isInf().any() || p1.array().isInf().any()) return;
 
     const auto w = rgb->img_w, h = rgb->img_h;
-    const auto dir = (p1 - p0).normalized();
-    const auto len = (p1 - p0).norm() - size * 0.5f;
+    const auto diff = (p1 - p0);
+    const auto dir = diff.normalized();
     std::unordered_map<int, int> line_point;
-    for (float s = size * 0.5f, hs = s; s <= len; ++s) {
+    for (float s = size * 0.5f, len = std::max(s, diff.norm() - s), hs = s; s <= len; ++s) {
         const auto p = p0 + dir * s;
         const int lx = std::max(0, (int)(p.x() - hs - 1.0f)), ly = std::max(0, (int)(p.y() - hs - 1.0f));
         const int rx = std::min(w, (int)(p.x() + hs + 1.5f)), ry = std::min(h, (int)(p.y() + hs + 1.5f));
@@ -98,6 +98,30 @@ void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, v2 p0, v2 p1, const b3& color, 
         rgb_data[px + 0] += static_cast<unsigned char>(((c0 - rgb_data[px + 0]) * beta) >> 8);
         rgb_data[px + 1] += static_cast<unsigned char>(((c1 - rgb_data[px + 1]) * beta) >> 8);
         rgb_data[px + 2] += static_cast<unsigned char>(((c2 - rgb_data[px + 2]) * beta) >> 8);
+    }
+}
+
+void rs_sf_util_draw_plane_contours(rs_sf_image * rgb, const pose_t & pose, const rs_sf_intrinsics & camera,
+    const rs_sf_plane planes[MAX_VALID_PID + 1], const int max_plane_count)
+{
+    const b3 plane_wire_color(255, 255, 255);
+    pose_t to_cam = pose.invert();
+    const int dst_w = rgb->img_w, dst_h = rgb->img_h;
+    for (int pl = 0; pl <= MAX_VALID_PID; ++pl) {
+        if (planes[pl].pid == 0) break;
+        auto* pos = planes[pl].pos;
+        v2 uv0 = {}, uvp = {};
+        for (int np = planes[pl].num_points, p = np - 1; p >= 0; --p) {
+            const auto campt = to_cam.transform(
+                (v3(pos[(p - 1 + np) % np]) + v3(pos[p]) + v3(pos[(p + 1) % np]))*(1.0f / 3.0f));
+            const v2 uv(
+                ((campt.x() * camera.fx) / campt.z() + camera.ppx),
+                ((campt.y() * camera.fy) / campt.z() + camera.ppy));
+            if (p == np - 1) { uv0 = uv; }
+            else { rs_sf_util_draw_line_rgb(rgb, uv, uvp, plane_wire_color, 2); }
+            uvp = uv;
+        }
+        rs_sf_util_draw_line_rgb(rgb, uv0, uvp, plane_wire_color);
     }
 }
 
@@ -442,7 +466,7 @@ std::vector<std::vector<int>> find_contours_in_map_uchar(short * map, const int 
             {
                 parent_targets.emplace_back(current);
                 if (!visited) {
-                    dst.emplace_back(follow_border_uchar(map, w, h, i));
+                    try_follow_border_uchar(dst, map, w, h, i);
                 }
             }
             if (map[i] < 0) { parent_targets.pop_back(); }
@@ -451,7 +475,7 @@ std::vector<std::vector<int>> find_contours_in_map_uchar(short * map, const int 
     return dst;
 }
 
-std::vector<int> follow_border_uchar(short * map, const int w, const int h, const int _x0)
+bool try_follow_border_uchar(std::vector<std::vector<int>>& dst_list, short * map, const int w, const int h, const int _x0)
 {
     std::vector<int> dst;
     dst.reserve(w * h / 4);
@@ -472,7 +496,7 @@ std::vector<int> follow_border_uchar(short * map, const int w, const int h, cons
         if ((map[(x1 = (x0 + xb[(bx1 = (bz0 + 1) % 4)]))] & 0x00ff) == target) {}
         else if ((map[(x1 = (x0 + xb[(bx1 = (bz0 + 2) % 4)]))] & 0x00ff) == target) {}
         else if ((map[(x1 = (x0 + xb[(bx1 = (bz0 + 3) % 4)]))] & 0x00ff) == target) {}
-        else { break; }
+        else { return false; }
 
         if ((map[tx1 = x0 + xd[bx1]] & 0x00ff) == target) { x1 = tx1; bz0 = (bx1 + 2) % 4; }
         else { bz0 = (bx1 + 3) % 4; }
@@ -481,6 +505,7 @@ std::vector<int> follow_border_uchar(short * map, const int w, const int h, cons
         dst.emplace_back(x0);
         map[x0] = ((map[x0 + 1] & 0x00ff) == target ? c_left : c_right); //shape left: shape right
     }
-    dst.shrink_to_fit();
-    return dst;
+    if ((int)dst.size() < 16) return false;
+    dst_list.emplace_back(dst);
+    return true;
 }

@@ -62,7 +62,7 @@ rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * r
     const auto status = pf->get_plane_index_map(&map);
     if (status == RS_SF_SUCCESS) {
         if (src) { rs_sf_util_convert_to_rgb_image(rgb, src); }
-        rs_sf_util_draw_planes(rgb, &map, src == nullptr);
+        rs_sf_util_draw_plane_ids(rgb, &map, src == nullptr);
     }
     return status;
 }
@@ -83,14 +83,14 @@ rs_sf_status rs_sf_planefit_get_plane_ids(const rs_shapefit * obj, rs_sf_image *
     return status;
 }
 
-RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_planes(const rs_shapefit * obj, rs_sf_image * img, rs_sf_plane planes[256], float * point_buffer)
+RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_planes(const rs_shapefit * obj, rs_sf_image * img, rs_sf_plane planes[255], float * point_buffer)
 {
     if (!obj || (!planes && !img)) return RS_SF_INVALID_ARG;
     if (img && img->byte_per_pixel != 3) return RS_SF_INVALID_ARG;
     auto pf = dynamic_cast<const rs_sf_planefit*>(obj);
     if (!pf) return RS_SF_INVALID_OBJ_HANDLE;
 
-    rs_sf_plane tmp[MAX_VALID_PID + 1];
+    rs_sf_plane tmp[MAX_VALID_PID + 2];
     std::vector<float> buf;
     if (img &&  point_buffer == nullptr) {
         buf.resize(img->num_pixel() * 3);
@@ -98,25 +98,14 @@ RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_planes(const rs_shapefit * obj,
     }
     if (planes == nullptr) { planes = tmp; }
 
+    // call internal get plane api
     auto status = pf->get_planes(planes, point_buffer);
-    if (img != nullptr && status >= RS_SF_SUCCESS) 
-    {
-        pose_t pose = pose_t().set_pose(img->cam_pose).invert(); 
-        const auto* intr = img->intrinsics ? img->intrinsics : &pf->m_intrinsics;
-        const int dst_w = img->img_w, dst_h = img->img_h;
-        for (int pl = 0; pl <= MAX_VALID_PID; ++pl) {
-            if (planes[pl].pid == 0) break;
-            auto* pos = planes[pl].pos;
-            for (int np = planes[pl].num_points, p = np - 1; p >= 0; --p) {              
-                const auto campt = pose.transform(v3(pos[p]));
-                const int u = (int)((campt.x() * intr->fx) / campt.z() + intr->ppx + 0.5f);
-                const int v = (int)((campt.y() * intr->fy) / campt.z() + intr->ppy + 0.5f);
-                if (0 <= u && u < dst_w && 0 <= v && v < dst_h) {
-                    memset(img->data + (v*dst_w + u) * 3, 255, 3);
-                }
-            }
-        }
-    }
+
+    // call internal draw plane api
+    if (img != nullptr && status >= RS_SF_SUCCESS)   
+        rs_sf_util_draw_plane_contours(img, pose_t().set_pose(img->cam_pose), 
+            img->intrinsics ? *img->intrinsics : pf->m_intrinsics, planes, MAX_VALID_PID + 1);
+
     return status;
 }
 

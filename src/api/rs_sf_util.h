@@ -100,7 +100,7 @@ void rs_sf_util_draw_plane_ids(rs_sf_image* rgb, const rs_sf_image* map, bool ov
 void rs_sf_util_scale_plane_ids(rs_sf_image* map, int max_pid);
 void rs_sf_util_remap_plane_ids(rs_sf_image * map);
 void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size = 4);
-void rs_sf_util_draw_plane_contours(rs_sf_image *rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const rs_sf_plane planes[MAX_VALID_PID+1], const int max_plane_count);
+void rs_sf_util_draw_plane_contours(rs_sf_image *rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const rs_sf_plane planes[MAX_VALID_PID+1], const int pt_per_line =1);
 void rs_sf_util_draw_boxes(rs_sf_image* rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes, const b3& color);
 
 void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3]);

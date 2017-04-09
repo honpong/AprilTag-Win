@@ -102,18 +102,18 @@ void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, con
 }
 
 void rs_sf_util_draw_plane_contours(rs_sf_image * rgb, const pose_t & pose, const rs_sf_intrinsics & camera,
-    const rs_sf_plane planes[MAX_VALID_PID + 1], const int max_plane_count)
+    const rs_sf_plane planes[MAX_VALID_PID + 1], const int pt_per_line)
 {
     const b3 plane_wire_color(255, 255, 255);
     pose_t to_cam = pose.invert();
     const int dst_w = rgb->img_w, dst_h = rgb->img_h;
-    for (int pl = 0; pl <= MAX_VALID_PID; ++pl) {
+    for (int pl = 0, next = std::max(1, pt_per_line / 2); pl <= MAX_VALID_PID; ++pl) {
         if (planes[pl].pid == 0) break;
         auto* pos = planes[pl].pos;
         v2 uv0 = {}, uvp = {};
-        for (int np = planes[pl].num_points, p = np - 1; p >= 0; --p) {
+        for (int np = planes[pl].num_points, p = np - 1, prev = np - next; p >= 0; p -= pt_per_line) {
             const auto campt = to_cam.transform(
-                (v3(pos[(p - 1 + np) % np]) + v3(pos[p]) + v3(pos[(p + 1) % np]))*(1.0f / 3.0f));
+                (v3(pos[(p + prev) % np]) + v3(pos[p]) + v3(pos[(p + next) % np]))*(1.0f / 3.0f));
             const v2 uv(
                 ((campt.x() * camera.fx) / campt.z() + camera.ppx),
                 ((campt.y() * camera.fy) / campt.z() + camera.ppy));

@@ -166,14 +166,9 @@ rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[MAX_VALID_PID + 1], floa
             const float ms_ndott_d = -normal.dot(translate) - src_plane->d;
             const bool fine_contour = src_plane->fine_pts.size() > 0;
             auto dst_pos = dst_plane.pos = (float(*)[3])point_buffer;
-
-            std::function<int(int)> get_px = [pt3d = pt3d](const int& contour_p) { return pt3d[contour_p].grp->pt0->p; };
-            if (src_plane->fine_pts.size() > 0)
-                get_px = [](const int& contour_p) { return contour_p; };
-
             for (int p = (int)contour.size() - 1, px, prev_px = -1; p >= 0; --p, prev_px = px)
             {
-                if ((px = get_px(contour[p])) != prev_px) {
+                if ((px = contour[p]) != prev_px) {
                     const float xdz = ((px % img_w) - cam_px) * inv_cam_fx;
                     const float ydz = ((px / img_w) - cam_py) * inv_cam_fy;
                     const v3 Rx = rotate * v3(xdz, ydz, 1);

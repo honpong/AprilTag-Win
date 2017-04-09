@@ -104,7 +104,7 @@ RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_planes(const rs_shapefit * obj,
     // call internal draw plane api
     if (img != nullptr && status >= RS_SF_SUCCESS)   
         rs_sf_util_draw_plane_contours(img, pose_t().set_pose(img->cam_pose), 
-            img->intrinsics ? *img->intrinsics : pf->m_intrinsics, planes, MAX_VALID_PID + 1);
+            img->intrinsics ? *img->intrinsics : pf->m_intrinsics, planes, 25);
 
     return status;
 }

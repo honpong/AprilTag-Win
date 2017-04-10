@@ -178,7 +178,7 @@ rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[MAX_VALID_PID + 1], floa
             }
 
             // move to next chunk of buffer memory
-            dst_plane.num_points = dst_pos - dst_plane.pos;
+            dst_plane.num_points = (int)(dst_pos - dst_plane.pos);
             point_buffer += (dst_plane.num_points * 3);
         }
 

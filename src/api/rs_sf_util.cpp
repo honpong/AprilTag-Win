@@ -114,7 +114,7 @@ void rs_sf_util_draw_plane_contours(rs_sf_image * rgb, const pose_t & pose, cons
         for (int np = planes[pl].num_points, p = np - 1, prev = np - next; p >= 0; p -= pt_per_line) {
             const auto cam_pt = to_cam.transform(
                 (v3(pos[(p + prev) % np]) + v3(pos[p]) + v3(pos[(p + next) % np]))*(1.0f / 3.0f));
-            if (cam_pt.z() < 0.0001f) continue;
+            if (cam_pt.z() < 1.0f) continue;
             const float iz = 1.0f / cam_pt.z();
             const v2 uv(
                 ((cam_pt.x() * camera.fx) * iz + camera.ppx),

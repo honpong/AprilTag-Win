@@ -262,7 +262,7 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
         rs_sf_planefit_get_plane_ids(shapefitter, &rgb_box);
     } 
     // display plane contours
-    rs_sf_planefit_get_planes(shapefitter, &rgb_box);
+    rs_sf_planefit_get_planes(shapefitter, &rgb_plane);
 
     //rs_sf_image_write("c:\\temp\\shapefit\\live\\plane_"" + std::to_string(img->frame_id), &pid);
     //rs_sf_image_write("c:\\temp\\shapefit\\live\\color_" + std::to_string(img->frame_id), &rgb_box);

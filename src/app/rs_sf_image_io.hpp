@@ -141,7 +141,6 @@ struct rs_sf_file_stream
 
 
 #include "example.hpp"
-#include <map>
 
 struct rs_sf_gl_context
 {

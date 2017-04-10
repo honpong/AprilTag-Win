@@ -108,7 +108,7 @@ void rs_sf_util_draw_plane_contours(rs_sf_image * rgb, const pose_t & pose, cons
     pose_t to_cam = pose.invert();
     const int dst_w = rgb->img_w, dst_h = rgb->img_h;
     for (int pl = 0, next = std::max(1, pt_per_line / 2); pl <= MAX_VALID_PID; ++pl) {
-        if (planes[pl].pid == 0) break;
+        if (planes[pl].plane_id == 0) break;
         auto* pos = planes[pl].pos;
         v2 uv0 = {}, uvp = {};
         for (int np = planes[pl].num_points, p = np - 1, prev = np - next; p >= 0; p -= pt_per_line) {
@@ -459,9 +459,9 @@ std::vector<std::vector<int>> find_contours_in_map_uchar(short * map, const int 
     dst.reserve(MAX_VALID_PID);
     std::vector<int> parent_targets;
     parent_targets.reserve(w);
-    for (int y = 1, i = w + 1; y < h - 1; ++y, i += 2, parent_targets.clear()) {
+    for (int y = 1, i = w + 1, ey = h - 1, ex = w - 1; y < ey; ++y, i += 2, parent_targets.clear()) {
         parent_targets.emplace_back(BACKGROUND);
-        for (int x = 1; x < w - 1; ++x, ++i) {
+        for (int x = 1; x < ex; ++x, ++i) {
             const auto current = (map[i] & 0x00ff);
             const auto visited = (map[i] & 0x4000);
             if (current != parent_targets.back() && current != BACKGROUND) //not prev contour
@@ -479,7 +479,8 @@ std::vector<std::vector<int>> find_contours_in_map_uchar(short * map, const int 
 
 bool try_follow_border_uchar(std::vector<std::vector<int>>& dst_list, short * map, const int w, const int h, const int _x0)
 {
-    std::vector<int> dst;
+    dst_list.emplace_back();
+    auto& dst = dst_list.back();
     dst.reserve(w * h / 4);
 
     const short target = map[_x0] & 0x00ff;
@@ -498,7 +499,7 @@ bool try_follow_border_uchar(std::vector<std::vector<int>>& dst_list, short * ma
         if ((map[(x1 = (x0 + xb[(bx1 = (bz0 + 1) % 4)]))] & 0x00ff) == target) {}
         else if ((map[(x1 = (x0 + xb[(bx1 = (bz0 + 2) % 4)]))] & 0x00ff) == target) {}
         else if ((map[(x1 = (x0 + xb[(bx1 = (bz0 + 3) % 4)]))] & 0x00ff) == target) {}
-        else { return false; }
+        else { break; }
 
         if ((map[tx1 = x0 + xd[bx1]] & 0x00ff) == target) { x1 = tx1; bz0 = (bx1 + 2) % 4; }
         else { bz0 = (bx1 + 3) % 4; }
@@ -507,7 +508,6 @@ bool try_follow_border_uchar(std::vector<std::vector<int>>& dst_list, short * ma
         dst.emplace_back(x0);
         map[x0] = ((map[x0 + 1] & 0x00ff) == target ? c_left : c_right); //shape left: shape right
     }
-    if ((int)dst.size() <= 16) return false;
-    dst_list.emplace_back(dst);
+    if ((int)dst.size() <= 16) { dst_list.pop_back(); return false; }
     return true;
 }

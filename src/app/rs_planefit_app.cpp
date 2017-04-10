@@ -6,8 +6,8 @@
 
 const std::string default_path = "c:\\temp\\shapefit\\a\\";
 int capture_frames(const std::string& path, const int image_set_size);
-int run_shapefit_live(const rs_shapefit_option opt);
-int run_shapefit_offline(const std::string& path, const rs_shapefit_option opt);
+int run_shapefit_live(const rs_shapefit_capability cap);
+int run_shapefit_offline(const std::string& path, const rs_shapefit_capability cap);
 bool run_shapefit(rs_shapefit* planefitter, rs_sf_image img[2]);
 
 int main(int argc, char* argv[])
@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
     bool is_live = true, is_capture = false;
     std::string path = default_path;
     int num_frames = 200;
-    rs_shapefit_option sf_option = RS_SHAPEFIT_PLANE;
+    rs_shapefit_capability sf_option = RS_SHAPEFIT_PLANE;
 
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "-box") == 0) { sf_option = RS_SHAPEFIT_BOX; }
@@ -107,7 +107,7 @@ int capture_frames(const std::string& path, const int image_set_size) {
     return 0;
 }
 
-int run_shapefit_live(rs_shapefit_option opt) try
+int run_shapefit_live(rs_shapefit_capability cap) try
 {
     rs::context ctx;
     auto list = ctx.query_devices();
@@ -120,7 +120,7 @@ int run_shapefit_live(rs_shapefit_option opt) try
 
     auto stream = config.open(dev);
     auto intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH);
-    auto shapefit = rs_sf_shapefit_ptr((rs_sf_intrinsics*)&intrinsics, opt);
+    auto shapefit = rs_sf_shapefit_ptr((rs_sf_intrinsics*)&intrinsics, cap);
     
     rs::util::syncer syncer;
     stream.start(syncer);
@@ -143,7 +143,7 @@ int run_shapefit_live(rs_shapefit_option opt) try
         rs::frame* frames[RS_STREAM_COUNT];
         for (auto& f : fs) { frames[f.get_stream_type()] = &f; }
 
-        rs_sf_image image[] = { {nullptr,0,0,2},{nullptr,0,0,1} };
+        rs_sf_image image[] = { {0,0,2},{0,0,1} };
         image[0].data = (unsigned char*)prev_depth.data(); // (unsigned char*)frames[RS_STREAM_DEPTH]->get_data();
         image[1].data = (unsigned char*)frames[RS_STREAM_INFRARED]->get_data();
         image[0].img_w = image[1].img_w = frames[RS_STREAM_DEPTH]->get_width();
@@ -168,7 +168,7 @@ catch (const std::exception & e)
     return EXIT_FAILURE;
 }
 
-int run_shapefit_offline(const std::string& path, const rs_shapefit_option shapefit_option)
+int run_shapefit_offline(const std::string& path, const rs_shapefit_capability shapefit_capability)
 {
     rs_sf_shapefit_ptr shapefitter;
     int frame_num = 0;
@@ -183,7 +183,7 @@ int run_shapefit_offline(const std::string& path, const rs_shapefit_option shape
         }
 
         if (!shapefitter) {
-            shapefitter = rs_sf_shapefit_ptr(&data.depth_intrinsics, shapefit_option);
+            shapefitter = rs_sf_shapefit_ptr(&data.depth_intrinsics, shapefit_capability);
             //sp_init = rs_sf_setup_scene_perception(
             //    data.depth_intrinsics.fx, data.depth_intrinsics.fy,
             //    data.depth_intrinsics.ppx, data.depth_intrinsics.ppy,

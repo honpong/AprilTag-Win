@@ -36,24 +36,38 @@ int main(int argc, char* argv[])
     return run_shapefit_offline(path, sf_option);
 }
 
+struct rs_depth_camera_input_src
+{
+    rs_depth_camera_input_src()
+    {
+        auto list = ctx.query_devices();
+        if (list.size() == 0) throw std::runtime_error("No device detected.");
+
+        device = list[0];
+        config.enable_stream(RS_STREAM_DEPTH, 640, 480, 30, RS_FORMAT_Z16);
+        config.enable_stream(RS_STREAM_INFRARED, 640, 480, 30, RS_FORMAT_Y8);
+
+        stream = config.open(device);
+        intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH);
+
+        stream.start(syncer);
+        device.set_option(RS_OPTION_EMITTER_ENABLED, 1);
+        //device.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
+    }
+
+    inline rs::util::frameset wait_for_frames() { return syncer.wait_for_frames(); }
+    
+    rs::context ctx;
+    rs::device device;
+    rs::util::syncer syncer;
+    rs::util::config config;
+    rs_intrinsics intrinsics;
+    rs::util::Config<>::multistream stream;
+};
+
 int capture_frames(const std::string& path, const int image_set_size) {
 
-    rs::context ctx;
-    auto list = ctx.query_devices();
-    if (list.size() == 0) throw std::runtime_error("No device detected.");
-
-    auto dev = list[0];
-    rs::util::config config;
-    config.enable_stream(RS_STREAM_DEPTH, 640, 480, 30, RS_FORMAT_Z16);
-    config.enable_stream(RS_STREAM_INFRARED, 640, 480, 30, RS_FORMAT_Y8);
-
-    auto stream = config.open(dev);
-    auto intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH);
-
-    rs::util::syncer syncer;
-    stream.start(syncer);
-    dev.set_option(RS_OPTION_EMITTER_ENABLED, 1);
-    dev.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
+    rs_depth_camera_input_src rs_cam;
 
     struct dataset { rs_sf_image_ptr depth, ir, displ; };
     std::deque<dataset> image_set;
@@ -61,7 +75,7 @@ int capture_frames(const std::string& path, const int image_set_size) {
     rs_sf_gl_context win("capture", 1280, 480);
     rs_sf_image_ptr prev_depth;
     while (1) {
-        auto fs = syncer.wait_for_frames();
+        auto fs = rs_cam.wait_for_frames();
         if (fs.size() == 0) break;
         if (fs.size() < 2) {
             if (fs[0].get_format() == RS_STREAM_DEPTH)
@@ -103,29 +117,14 @@ int capture_frames(const std::string& path, const int image_set_size) {
     }
     printf("\n");
 
-    rs_sf_file_stream::write_calibration(path, *(rs_sf_intrinsics*)&intrinsics, (int)image_set.size());
+    rs_sf_file_stream::write_calibration(path, *(rs_sf_intrinsics*)&rs_cam.intrinsics, (int)image_set.size());
     return 0;
 }
 
 int run_shapefit_live(rs_shapefit_capability cap) try
 {
-    rs::context ctx;
-    auto list = ctx.query_devices();
-    if (list.size() == 0) throw std::runtime_error("No device detected.");
-
-    auto dev = list[0];
-    rs::util::config config;
-    config.enable_stream(RS_STREAM_DEPTH, 640, 480, 30, RS_FORMAT_Z16);
-    config.enable_stream(RS_STREAM_INFRARED, 640, 480, 30, RS_FORMAT_Y8);
-
-    auto stream = config.open(dev);
-    auto intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH);
-    auto shapefit = rs_sf_shapefit_ptr((rs_sf_intrinsics*)&intrinsics, cap);
-    
-    rs::util::syncer syncer;
-    stream.start(syncer);
-    dev.set_option(RS_OPTION_EMITTER_ENABLED, 1);
-    dev.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
+    rs_depth_camera_input_src rs_cam;
+    auto shapefit = rs_sf_shapefit_ptr((rs_sf_intrinsics*)&rs_cam.intrinsics, cap);
 
    // bool sp_init = rs_sf_setup_scene_perception(
    //    intrinsics.fx, intrinsics.fy,
@@ -136,7 +135,7 @@ int run_shapefit_live(rs_shapefit_capability cap) try
     std::vector<unsigned short> prev_depth(480 * 640);
     int frame_id = 0;
     while (1) {
-        auto fs = syncer.wait_for_frames();
+        auto fs = rs_cam.wait_for_frames();
         if (fs.size() == 0) break;
         if (fs.size() < 2) continue;
 

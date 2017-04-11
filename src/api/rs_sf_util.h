@@ -100,7 +100,7 @@ void rs_sf_util_draw_plane_ids(rs_sf_image* rgb, const rs_sf_image* map, bool ov
 void rs_sf_util_scale_plane_ids(rs_sf_image* map, int max_pid);
 void rs_sf_util_remap_plane_ids(rs_sf_image * map);
 void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size = 4);
-void rs_sf_util_draw_plane_contours(rs_sf_image *rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const rs_sf_plane planes[MAX_VALID_PID+1], const int pt_per_line =1);
+void rs_sf_util_draw_plane_contours(rs_sf_image *rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const rs_sf_plane planes[RS_SF_MAX_PLANE_COUNT], const int pt_per_line =1);
 void rs_sf_util_draw_boxes(rs_sf_image* rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes, const b3& color);
 
 void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3]);
@@ -108,8 +108,8 @@ void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3]);
 std::vector<contour> find_contours_in_binary_img(rs_sf_image* bimg);
 contour follow_border(uint8_t* pixel, const int w, const int h, const int _x0);
 
-std::vector<std::vector<int>> find_contours_in_map_uchar(short* map, const int w, const int h);
-bool try_follow_border_uchar(std::vector<std::vector<int>>& dst_list, short* map, const int w, const int h, const int _x0);
+std::vector<std::vector<int>> find_contours_in_map_uchar(short* map, const int w, const int h, const int min_len);
+bool try_follow_border_uchar(std::vector<std::vector<int>>& dst_list, short* map, const int w, const int h, const int _x0, const int min_len);
 
 #endif // ! rs_sf_util_h
 

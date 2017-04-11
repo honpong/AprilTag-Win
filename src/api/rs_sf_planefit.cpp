@@ -129,7 +129,7 @@ rs_sf_status rs_sf_planefit::mark_plane_src_on_map(rs_sf_image * map) const
     return RS_SF_SUCCESS;
 }
 
-rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[MAX_VALID_PID + 1], float * point_buffer) const
+rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[RS_SF_MAX_PLANE_COUNT], float * point_buffer) const
 {
     static const int size_v3 = sizeof(float) * 3;
     std::vector<std::vector<int>> contours;
@@ -139,7 +139,7 @@ rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[MAX_VALID_PID + 1], floa
         auto* pid_data = pid_map.data();
         for (auto&& pt : m_ref_view.pt_img)
             pid_data[pt.p] = pt.best_plane ? pt.best_plane->pid : 0;
-        contours = find_contours_in_map_uchar(pid_data, src_w(), src_h());
+        contours = find_contours_in_map_uchar(pid_data, src_w(), src_h(), (m_param.img_x_dn_sample + m_param.img_y_dn_sample) * 2);
     }
     else {
         // empty list of contours, just mark available pid for output

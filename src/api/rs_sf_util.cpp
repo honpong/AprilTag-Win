@@ -102,12 +102,12 @@ void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, con
 }
 
 void rs_sf_util_draw_plane_contours(rs_sf_image * rgb, const pose_t & pose, const rs_sf_intrinsics & camera,
-    const rs_sf_plane planes[MAX_VALID_PID + 1], const int pt_per_line)
+    const rs_sf_plane planes[RS_SF_MAX_PLANE_COUNT], const int pt_per_line)
 {
     const b3 plane_wire_color(255, 255, 255);
     pose_t to_cam = pose.invert();
     const int dst_w = rgb->img_w, dst_h = rgb->img_h;
-    for (int pl = 0, next = std::max(1, pt_per_line / 2); pl <= MAX_VALID_PID; ++pl) {
+    for (int pl = 0, next = std::max(1, pt_per_line / 2); pl < RS_SF_MAX_PLANE_COUNT; ++pl) {
         if (planes[pl].plane_id == 0) break;
         auto* pos = planes[pl].pos;
         v2 uv0 = { std::numeric_limits<float>::infinity(),0 }, uvp = uv0;
@@ -452,7 +452,7 @@ contour follow_border(uint8_t* pixel, const int w, const int h, const int _x0)
     return dst;
 }
 
-std::vector<std::vector<int>> find_contours_in_map_uchar(short * map, const int w, const int h)
+std::vector<std::vector<int>> find_contours_in_map_uchar(short * map, const int w, const int h, const int min_len)
 {
     const int BACKGROUND = 0;
     std::vector<std::vector<int>> dst;
@@ -468,7 +468,7 @@ std::vector<std::vector<int>> find_contours_in_map_uchar(short * map, const int 
             {
                 parent_targets.emplace_back(current);
                 if (!visited) {
-                    try_follow_border_uchar(dst, map, w, h, i);
+                    try_follow_border_uchar(dst, map, w, h, i, min_len);
                 }
             }
             if (map[i] < 0) { parent_targets.pop_back(); }
@@ -477,7 +477,7 @@ std::vector<std::vector<int>> find_contours_in_map_uchar(short * map, const int 
     return dst;
 }
 
-bool try_follow_border_uchar(std::vector<std::vector<int>>& dst_list, short * map, const int w, const int h, const int _x0)
+bool try_follow_border_uchar(std::vector<std::vector<int>>& dst_list, short * map, const int w, const int h, const int _x0, const int min_len)
 {
     dst_list.emplace_back();
     auto& dst = dst_list.back();
@@ -508,6 +508,6 @@ bool try_follow_border_uchar(std::vector<std::vector<int>>& dst_list, short * ma
         dst.emplace_back(x0);
         map[x0] = ((map[x0 + 1] & 0x00ff) == target ? c_left : c_right); //shape left: shape right
     }
-    if ((int)dst.size() <= 16) { dst_list.pop_back(); return false; }
+    if ((int)dst.size() < min_len) { dst_list.pop_back(); return false; }
     return true;
 }

@@ -110,16 +110,16 @@ void rs_sf_util_draw_plane_contours(rs_sf_image * rgb, const pose_t & pose, cons
     for (int pl = 0, next = std::max(1, pt_per_line / 2); pl <= MAX_VALID_PID; ++pl) {
         if (planes[pl].plane_id == 0) break;
         auto* pos = planes[pl].pos;
-        v2 uv0 = {}, uvp = {};
+        v2 uv0 = { std::numeric_limits<float>::infinity(),0 }, uvp = uv0;
         for (int np = planes[pl].num_points, p = np - 1, prev = np - next; p >= 0; p -= pt_per_line) {
             const auto cam_pt = to_cam.transform(
                 (v3(pos[(p + prev) % np]) + v3(pos[p]) + v3(pos[(p + next) % np]))*(1.0f / 3.0f));
-            if (cam_pt.z() < 1.0f) continue;
+            if (cam_pt.z() < 0.001f) continue;
             const float iz = 1.0f / cam_pt.z();
             const v2 uv(
                 ((cam_pt.x() * camera.fx) * iz + camera.ppx),
                 ((cam_pt.y() * camera.fy) * iz + camera.ppy));
-            if (p == np - 1) { uv0 = uv; }
+            if (p == (np - 1)) { uv0 = uv; }
             else { rs_sf_util_draw_line_rgb(rgb, uv, uvp, plane_wire_color, 2); }
             uvp = uv;
         }

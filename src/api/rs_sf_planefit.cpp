@@ -172,7 +172,9 @@ rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[MAX_VALID_PID + 1], floa
                     const float xdz = ((px % img_w) - cam_px) * inv_cam_fx;
                     const float ydz = ((px / img_w) - cam_py) * inv_cam_fy;
                     const v3 Rx = rotate * v3(xdz, ydz, 1);
-                    const v3 pos = Rx * (ms_ndott_d / normal.dot(Rx)) + translate;
+                    const float normal_dot_Rx = normal.dot(Rx);
+                    const float inv_normal_dot_Rx = (std::abs(normal_dot_Rx) > 0.001f) ? (1.0f / normal_dot_Rx) : 0.0f;
+                    const v3 pos = Rx * (ms_ndott_d * inv_normal_dot_Rx) + translate;
                     rs_sf_memcpy(*(dst_pos++), pos.data(), size_v3);
                 }
             }

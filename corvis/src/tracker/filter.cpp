@@ -958,8 +958,8 @@ void filter_initialize(struct filter *f)
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 4;
 
-    for (auto &g : f->gyroscopes)     g->init_with_variance(g->intrinsics.measurement_variance_rad2__s2);
-    for (auto &a : f->accelerometers) a->init_with_variance(a->intrinsics.measurement_variance_m2__s4);
+    for (auto &g : f->gyroscopes)     g->init_with_variance(g->intrinsics.measurement_variance_rad2__s2, g->intrinsics.decimate_by);
+    for (auto &a : f->accelerometers) a->init_with_variance(a->intrinsics.measurement_variance_m2__s4,   a->intrinsics.decimate_by);
     for (auto &c : f->cameras)        c->init_with_variance(2 * 2);
     for (auto &d : f->depths)         d->init_with_variance(0);
 

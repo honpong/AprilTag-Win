@@ -224,6 +224,7 @@ typedef struct {
     rc_Vector bias_m__s2;
     rc_Vector bias_variance_m2__s4;
     float measurement_variance_m2__s4;
+    uint32_t decimate_by;
 } rc_AccelerometerIntrinsics;
 
 typedef struct {
@@ -231,6 +232,7 @@ typedef struct {
     rc_Vector bias_rad__s;
     rc_Vector bias_variance_rad2__s2;
     float measurement_variance_rad2__s2;
+    uint32_t decimate_by;
 } rc_GyroscopeIntrinsics;
 
 /**
@@ -393,7 +395,7 @@ RCTRACKER_API bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_
  @param time_us Timestamp (in microseconds) corresponding to the middle of the IMU data integration time
  @param acceleration_m__s2 Vector of measured acceleration in meters/second^2
  */
-RCTRACKER_API bool rc_receiveAccelerometer(rc_Tracker *tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
+RCTRACKER_API bool rc_receiveAccelerometer(rc_Tracker *tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, rc_Vector acceleration_m__s2);
 
 /*
  @param tracker The active rc_Tracker instance
@@ -401,7 +403,7 @@ RCTRACKER_API bool rc_receiveAccelerometer(rc_Tracker *tracker, rc_Sensor accele
  @param time_us Timestamp (in microseconds) corresponding to the middle of the IMU data integration time
  @param angular_velocity_rad__s Vector of measured angular velocity in radians/second
  */
-RCTRACKER_API bool rc_receiveGyro(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
+RCTRACKER_API bool rc_receiveGyro(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Timestamp time_us, rc_Vector angular_velocity_rad__s);
 
 /**
  @param tracker The active rc_Tracker instance

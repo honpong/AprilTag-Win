@@ -162,6 +162,9 @@ void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, Document
         accelerometer.AddMember(KEY_IMU_BIAS_VARIANCE, bias_variance, a);
 
         accelerometer.AddMember(KEY_IMU_NOISE_VARIANCE, imu.intrinsics.accelerometer.measurement_variance_m2__s4, a);
+
+        if (imu.intrinsics.accelerometer.decimate_by > 1)
+            accelerometer.AddMember(KEY_IMU_DECIMATE_BY, imu.intrinsics.accelerometer.decimate_by, a);
     }
     imu_object.AddMember(KEY_IMU_ACCELEROMETER, accelerometer, a);
 
@@ -182,6 +185,9 @@ void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, Document
         gyroscope.AddMember(KEY_IMU_BIAS_VARIANCE, bias_variance, a);
 
         gyroscope.AddMember(KEY_IMU_NOISE_VARIANCE, imu.intrinsics.gyroscope.measurement_variance_rad2__s2, a);
+
+        if (imu.intrinsics.gyroscope.decimate_by > 1)
+            gyroscope.AddMember(KEY_IMU_DECIMATE_BY, imu.intrinsics.gyroscope.decimate_by, a);
     }
     imu_object.AddMember(KEY_IMU_GYROSCOPE, gyroscope, a);
 
@@ -303,6 +309,9 @@ bool copy_json_to_gyroscope(Value & json, rc_GyroscopeIntrinsics & gyroscope)
 
     gyroscope.measurement_variance_rad2__s2 = json[KEY_IMU_NOISE_VARIANCE].GetDouble();
 
+    if (json[KEY_IMU_DECIMATE_BY].IsInt())
+        gyroscope.decimate_by = json[KEY_IMU_DECIMATE_BY].GetInt();
+
     return true;
 }
 
@@ -327,6 +336,9 @@ bool copy_json_to_accelerometer(Value & json, rc_AccelerometerIntrinsics & accel
     }
 
     accelerometer.measurement_variance_m2__s4 = json[KEY_IMU_NOISE_VARIANCE].GetDouble();
+
+    if (json[KEY_IMU_DECIMATE_BY].IsInt())
+        accelerometer.decimate_by = json[KEY_IMU_DECIMATE_BY].GetInt();
 
     return true;
 }

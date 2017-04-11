@@ -152,10 +152,13 @@ state_vision::state_vision(covariance &c):
 void state_camera::clear_features_and_groups()
 {
     for(state_vision_group *g : groups.children) {
-        g->make_empty();
-        delete g;
+        if(g != detecting_group) {
+            g->make_empty();
+            delete g;
+        }
     }
     groups.children.clear();
+    if(detecting_group) groups.children.push_back(detecting_group);
 }
 
 state_vision::~state_vision()
@@ -178,6 +181,17 @@ int state_vision::feature_count() const
     int res = 0;
     for (auto &camera : cameras.children) res += camera->feature_count();
     return res;
+}
+
+void state_vision::clear_features_and_groups()
+{
+    for (auto &camera : cameras.children) camera->clear_features_and_groups();
+}
+
+void state_vision::enable_orientation_only(bool _remap)
+{
+    clear_features_and_groups();
+    state_motion::enable_orientation_only(_remap);
 }
 
 int state_camera::feature_count() const

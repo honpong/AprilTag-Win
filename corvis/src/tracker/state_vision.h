@@ -255,6 +255,7 @@ public:
     ~state_vision();
     int process_features(state_camera &camera, const rc_ImageData &image, mapper *map);
     int feature_count() const;
+    void clear_features_and_groups();
     state_vision_feature *add_feature(state_vision_group &group, const feature_t & initial);
     state_vision_group *add_group(state_camera &camera, mapper *map);
     transformation get_transformation() const;
@@ -263,6 +264,7 @@ public:
 
     float median_depth_variance();
     
+    virtual void enable_orientation_only(bool remap = true);
     virtual void reset();
 
 protected:

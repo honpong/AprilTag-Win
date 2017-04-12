@@ -18,28 +18,28 @@ void remapper::remap_matrix(int size, matrix &P_to, const matrix &P_from) {
         if (r.from <= r.to && r.to < r.from+r.size) {
             for (int i=r.size-1; i>=0; i--)
                 if (r.type == update::add) {
-                    std::fill(&P_to(r.to+i,   0),&P_to(r.to+i, r.to+i), 0);
-                    P_to(r.to+i,r.to+i) = initial_covariance[r.to+i];
-                    std::fill(&P_to(r.to+i,r.to+i+1),&P_to(r.to+i,size), 0);
+                    P_to.row_segment(r.to+i,0, i) = 0;
+                    P_to            (r.to+i,r.to+i) = initial_covariance[r.to+i];
+                    P_to.row_segment(r.to+i,r.to+i+1, size-(r.to+i+1)) = 0;
                 } else {
                     for (auto &c : updates)
                         if (c.type == update::add)
-                            std::fill(&P_to(r.to+i,c.to),&P_to(r.to+i,c.to+c.size), 0);
+                            P_to.row_segment(r.to+i,c.to, c.size) = 0;
                         else if (&P_to != &P_from || r.from != r.to || c.from != c.to)
-                            std::memmove(&P_to(r.to+i,c.to), &P_from(r.from+i,c.from), c.size * sizeof(P_from(0,0)));
+                            P_to.row_segment(r.to+i,c.to, c.size) = P_from.row_segment(r.from+i,c.from, c.size);
                 }
         } else {
             for (int i=0; i<r.size; i++)
                 if (r.type == update::add) {
-                    std::fill(&P_to(r.to+i,   0),&P_to(r.to+i, r.to+i), 0);
-                    P_to(r.to+i,r.to+i) = initial_covariance[r.to+i];
-                    std::fill(&P_to(r.to+i,r.to+i+1),&P_to(r.to+i,size), 0);
+                    P_to.row_segment(r.to+i,0, r.to+i) = 0;
+                    P_to            (r.to+i,r.to+i) = initial_covariance[r.to+i];
+                    P_to.row_segment(r.to+i,r.to+i+1, size-(r.to+i+1)) = 0;
                 } else
                     for (auto &c : updates)
                         if (c.type == update::add)
-                            std::fill(&P_to(r.to+i,c.to),&P_to(r.to+i,c.to+c.size), 0);
+                            P_to.row_segment(r.to+i,c.to, c.size) = 0;
                         else if (&P_to != &P_from || r.from != r.to || c.from != c.to)
-                            std::memmove(&P_to(r.to+i,c.to), &P_from(r.from+i,c.from), c.size * sizeof(P_from(0,0)));
+                            P_to.row_segment(r.to+i,c.to, c.size) = P_from.row_segment(r.from+i,c.from, c.size);
         }
     }
     P_to.resize(size, size);

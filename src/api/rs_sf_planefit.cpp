@@ -155,6 +155,7 @@ rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[RS_SF_MAX_PLANE_COUNT], 
         auto& src_plane = pt3d[contour[0]].best_plane;
         dst_plane.plane_id = src_plane->pid;
         dst_plane.contour_id = pid_contour[dst_plane.plane_id]++;
+        dst_plane.equation[3] = src_plane->d;
         rs_sf_memcpy(dst_plane.equation, src_plane->normal.data(), size_v3);
 
         if (point_buffer)
@@ -164,19 +165,16 @@ rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[RS_SF_MAX_PLANE_COUNT], 
             const v3& translate = m_ref_view.cam_pose.translation;
             const m3& rotate = m_ref_view.cam_pose.rotation;
             const float ms_ndott_d = -normal.dot(translate) - src_plane->d;
-            const bool fine_contour = src_plane->fine_pts.size() > 0;
             auto dst_pos = dst_plane.pos = (float(*)[3])point_buffer;
-            for (int p = (int)contour.size() - 1, px, prev_px = -1; p >= 0; --p, prev_px = px)
+            for (auto&& px : contour)
             {
-                if ((px = contour[p]) != prev_px) {
-                    const float xdz = ((px % img_w) - cam_px) * inv_cam_fx;
-                    const float ydz = ((px / img_w) - cam_py) * inv_cam_fy;
-                    const v3 Rx = rotate * v3(xdz, ydz, 1);
-                    const float normal_dot_Rx = normal.dot(Rx);
-                    if (std::abs(normal_dot_Rx) > 0.001f) {
-                        const v3 pos = Rx * (ms_ndott_d / normal_dot_Rx) + translate;
-                        rs_sf_memcpy(*(dst_pos++), pos.data(), size_v3);
-                    }
+                const float xdz = ((px % img_w) - cam_px) * inv_cam_fx;
+                const float ydz = ((px / img_w) - cam_py) * inv_cam_fy;
+                const v3 Rx = rotate * v3(xdz, ydz, 1);
+                const float normal_dot_Rx = normal.dot(Rx);
+                if (std::abs(normal_dot_Rx) > 0.001f) {
+                    const v3 pos = Rx * (ms_ndott_d / normal_dot_Rx) + translate;
+                    rs_sf_memcpy(*(dst_pos++), pos.data(), size_v3);
                 }
             }
 
@@ -833,10 +831,12 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, const s
             if (std::abs(ui[2]) < std::min(std::abs(ui[1]), std::abs(ui[0]))) normal = vi.col(2);
             else if (std::abs(ui[1]) < std::abs(ui[0])) normal = vi.col(1);
 
-            plane.normal = normal;
-            plane.d = -center.dot(normal);
+            if (normal.dot(plane.normal) > m_param.max_normal_thr) {
+                plane.normal = normal;
+            }
+            plane.d = -center.dot(plane.normal);
             plane.src = src;
-            src->pos -= -(plane.normal.dot(src->pos) + plane.d) *plane.normal;
+            src->pos -= (plane.normal.dot(src->pos) + plane.d) * plane.normal;
         }
     }
 

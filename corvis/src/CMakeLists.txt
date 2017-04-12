@@ -251,4 +251,5 @@ endif() # WIN32
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
     target_compile_options(trackeri PRIVATE -DDEBUG=1)
+    target_compile_options(tracker PRIVATE -DDEBUG=1)
 endif()

@@ -14,9 +14,9 @@ SET(JSON_INC_DIR ${THIRDPARTY_DIR}/Json/include)
 SET(JSON_SRC "${JSON_SRC_DIR}/jsoncpp.cpp")
 
 #############################################################################################################
-link_directories(${LIBREALSENSE_LIB_PATH})
+#link_directories(${LIBREALSENSE_LIB_PATH})
 include_directories(
-    ${SHAPEFIT_API_HDR_DIR}
+#    ${SHAPEFIT_API_HDR_DIR}
 #    ${LIBREALSENSE_DIR}/include
     ${JSON_INC_DIR})
     

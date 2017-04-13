@@ -309,7 +309,7 @@ bool copy_json_to_gyroscope(Value & json, rc_GyroscopeIntrinsics & gyroscope)
 
     gyroscope.measurement_variance_rad2__s2 = json[KEY_IMU_NOISE_VARIANCE].GetDouble();
 
-    if (json[KEY_IMU_DECIMATE_BY].IsInt())
+    if (json.HasMember(KEY_IMU_DECIMATE_BY) && json[KEY_IMU_DECIMATE_BY].IsInt())
         gyroscope.decimate_by = json[KEY_IMU_DECIMATE_BY].GetInt();
 
     return true;
@@ -337,7 +337,7 @@ bool copy_json_to_accelerometer(Value & json, rc_AccelerometerIntrinsics & accel
 
     accelerometer.measurement_variance_m2__s4 = json[KEY_IMU_NOISE_VARIANCE].GetDouble();
 
-    if (json[KEY_IMU_DECIMATE_BY].IsInt())
+    if (json.HasMember(KEY_IMU_DECIMATE_BY) && json[KEY_IMU_DECIMATE_BY].IsInt())
         accelerometer.decimate_by = json[KEY_IMU_DECIMATE_BY].GetInt();
 
     return true;

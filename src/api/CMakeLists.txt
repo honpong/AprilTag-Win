@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.7.0 FATAL_ERROR)
 
-project(shapefit_api C CXX)
-
 #############################################################################################
 SET(THIRDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty)
 SET(EIGEN_DIR ${THIRDPARTY_DIR}/eigen)

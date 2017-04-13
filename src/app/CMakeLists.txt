@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.7.0 FATAL_ERROR)
 
-project(shapefit_app C CXX)
-
 ############################################################################################################
 SET(THIRDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty)
 #SET(LIBREALSENSE_VER "v2.3.3")

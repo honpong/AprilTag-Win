@@ -14,21 +14,20 @@ SET(JSON_SRC "${JSON_SRC_DIR}/jsoncpp.cpp")
 #############################################################################################################
 #link_directories(${LIBREALSENSE_LIB_PATH})
 include_directories(
-#    ${SHAPEFIT_API_HDR_DIR}
 #    ${LIBREALSENSE_DIR}/include
     ${JSON_INC_DIR})
     
-FILE(GLOB SHAPEFIT_APP_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-FILE(GLOB SHAPEFIT_APP_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h*" )
-add_executable(shapefit_app 
-    ${SHAPEFIT_APP_SRC}
-	${SHAPEFIT_APP_HDR}
+FILE(GLOB SHAPEFIT_DEV_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+FILE(GLOB SHAPEFIT_DEV_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h*" )
+add_executable(shapefit-dev
+    ${SHAPEFIT_DEV_SRC}
+	${SHAPEFIT_DEV_HDR}
     ${JSON_SRC})
-set_property(TARGET shapefit_app PROPERTY CXX_STANDARD 14)
-target_link_libraries(shapefit_app PRIVATE shapefit_api realsense ${OPENGL_LIBRARIES} glfw3)
+set_property(TARGET shapefit-dev PROPERTY CXX_STANDARD 14)
+target_link_libraries(shapefit-dev PRIVATE shapefit-core realsense ${OPENGL_LIBRARIES} glfw3)
 
 IF(WIN32)
-	add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit_api>" "$<TARGET_FILE_DIR:shapefit_app>")
-#	add_custom_command(TARGET shapefit_app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LIBREALSENSE_BIN_PATH}/${LIBREALSENSE_LIB}.dll" "$<TARGET_FILE_DIR:shapefit_app>")
-	set_target_properties(shapefit_app PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
+	add_custom_command(TARGET shapefit-dev POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit-core>" "$<TARGET_FILE_DIR:shapefit-dev>")
+#	add_custom_command(TARGET shapefit-dev POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LIBREALSENSE_BIN_PATH}/${LIBREALSENSE_LIB}.dll" "$<TARGET_FILE_DIR:shapefit-dev>")
+	set_target_properties(shapefit-dev PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
 ENDIF()

@@ -561,10 +561,10 @@ TEST(SensorFusionQueue, BufferNoDispatch)
     int deprcv = 0;
     int gyrrcv = 0;
     int accrcv = 0;
-    uint64_t buffer_time_us = 50e3;
-    uint64_t start_time_us = 1e6;
+    uint64_t buffer_time_us = 50000;
+    uint64_t start_time_us = 1000000;
     uint64_t last_time_us = 0;
-    uint64_t extra_time_us = 100e3;
+    uint64_t extra_time_us = 100000;
 
     auto dataf = [&last_time_us, &start_time_us, &buffer_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time_us);

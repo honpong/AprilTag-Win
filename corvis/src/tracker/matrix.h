@@ -43,6 +43,27 @@ public:
     inline f_t &operator() (const int i, const int j) { return data[i * stride + j]; }
     inline const f_t &operator() (const int i, const int j) const { return data[i * stride + j]; }
 #endif
+    struct row_segment {
+        const matrix &m;
+        const int r, c, s;
+        row_segment(const matrix &m_, int r_, int c_, int s_) : m(m_), r(r_), c(c_), s(s_) {
+            assert(0 <= r   && r   <  m._rows &&
+                   0 <= c   && c   <= m._cols &&
+                   0 <= c+s && c+s <= m._cols);
+        }
+        const row_segment &operator=(f_t n) const {
+            std::memset(&m.data[r*m.stride+c], n, s * sizeof(*m.data));
+            return *this;
+        }
+        const row_segment &operator=(const row_segment &o) const {
+            assert(s == o.s);
+            std::memmove(&  m.data[r   *   m.stride +   c],
+                         &o.m.data[o.r * o.m.stride + o.c], o.s * sizeof(*o.m.data));
+            return *this;
+        }
+    };
+    row_segment row_segment(int row, int col, int size) const { return {*this, row, col, size}; }
+
  template<int R, int C>
  matrix(f_t (&d)[R][C]) : storage(NULL), _rows(0), _cols(0), stride(C), maxrows(R), data(&d[0][0]) {}
  template<int S>

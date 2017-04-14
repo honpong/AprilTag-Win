@@ -258,25 +258,19 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
     // display plane contours
     rs_sf_planefit_get_planes(shapefitter, &rgb_plane);
 
-    // get box
-    std::string box_text = "";
+    // time measure
+    std::ostringstream text; 
+    text << (int)last_frame_compute_time.count() << "ms/frame";
+    
     rs_sf_box box = {};
     if (rs_sf_boxfit_get_box(shapefitter, 0, &box) == RS_SF_SUCCESS) {
-        float(*axis)[3] = box.axis, dim[] = {
-            std::sqrt(std::pow(axis[0][0], 2) + std::pow(axis[0][1], 2) + std::pow(axis[0][2], 2))*1000,
-            std::sqrt(std::pow(axis[1][0], 2) + std::pow(axis[1][1], 2) + std::pow(axis[1][2], 2))*1000,
-            std::sqrt(std::pow(axis[2][0], 2) + std::pow(axis[2][1], 2) + std::pow(axis[2][2], 2))*1000};
-        box_text = ", box " + std::to_string((int)dim[0]) + " x " + std::to_string((int)dim[1]) + " x " + std::to_string((int)dim[2]) + " mm^3";
+        text << ", box " << int(std::sqrt(box.lenSqr(0)) * 1000) << " x " << int(std::sqrt(box.lenSqr(1)) * 1000) << " x " << int(std::sqrt(box.lenSqr(2)) * 1000) << " mm^3";
     }
-
-    // time measure
-    char text[256];
-    sprintf(text, "%.0fms/frame %s", last_frame_compute_time.count(), box_text.c_str());
 
     //rs_sf_image_write("c:\\temp\\shapefit\\live\\plane_"" + std::to_string(img->frame_id), &pid);
     //rs_sf_image_write("c:\\temp\\shapefit\\live\\color_" + std::to_string(img->frame_id), &rgb_box);
 
     // gl drawing
     rs_sf_image show[] = { img[0], img[1], rgb_plane, rgb_box };
-    return win.imshow(show, 4, text);
+    return win.imshow(show, 4, text.str().c_str());
 }

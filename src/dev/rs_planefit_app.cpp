@@ -236,10 +236,10 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
     */
 
     // do plane fit    
-    //rs_shapefit_set_option(shapefitter, RS_SF_OPTION_PLANE_NOISE, 1);
+    rs_shapefit_set_option(shapefitter, RS_SF_OPTION_PLANE_NOISE, 1);
+    rs_shapefit_set_option(shapefitter, RS_SF_OPTION_BOX_PLANE_RES, 1);
     //rs_shapefit_set_option(shapefitter, RS_SF_OPTION_PLANE_RES, 1);
     //rs_shapefit_set_option(shapefitter, RS_SF_OPTION_MAX_PROCESS_DELAY, -1);
-    rs_shapefit_set_option(shapefitter, RS_SF_OPTION_BOX_PLANE_RES, 1);
     if (rs_shapefit_depth_image(shapefitter, img) < 0) return false;
     std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 
@@ -264,7 +264,7 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
     
     rs_sf_box box = {};
     if (rs_sf_boxfit_get_box(shapefitter, 0, &box) == RS_SF_SUCCESS) {
-        text << ", box " << int(std::sqrt(box.lenSqr(0)) * 1000) << " x " << int(std::sqrt(box.lenSqr(1)) * 1000) << " x " << int(std::sqrt(box.lenSqr(2)) * 1000) << " mm^3";
+        text << ", box " << int(std::sqrt(box.dim_sqr(0)) * 1000) << " x " << int(std::sqrt(box.dim_sqr(1)) * 1000) << " x " << int(std::sqrt(box.dim_sqr(2)) * 1000) << " mm^3";
     }
 
     //rs_sf_image_write("c:\\temp\\shapefit\\live\\plane_"" + std::to_string(img->frame_id), &pid);

@@ -69,7 +69,8 @@ extern "C"
         float center[3];   /**< box center in 3d world coordinate           */
         float axis[3][3];  /**< box axis and lengths in 3d world coordinate */
 
-        inline float lenSqr(int d) const { return axis[d][0] * axis[d][0] + axis[d][1] * axis[d][1] + axis[d][2] * axis[d][2]; }
+        inline float lenSqr(int d) const /**< squared box length of dimension d in meter */ 
+        { return axis[d][0] * axis[d][0] + axis[d][1] * axis[d][1] + axis[d][2] * axis[d][2]; } 
     };
 
     struct rs_shapefit;

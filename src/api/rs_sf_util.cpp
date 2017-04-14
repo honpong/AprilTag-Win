@@ -143,20 +143,33 @@ void rs_sf_util_to_box_frame(const rs_sf_box& box, v3 box_frame[12][2])
 
 void rs_sf_util_draw_boxes(rs_sf_image * rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes, const b3& color)
 {
-    auto proj = [to_cam = pose.invert(), cam = camera](const v3& pt) {
+    auto proj = [to_cam = pose.invert(), &cam = camera](const v3& pt) {
         const auto pt3d = to_cam.rotation * pt + to_cam.translation;
         return v2{
             (pt3d.x() * cam.fx) / pt3d.z() + cam.ppx,
             (pt3d.y() * cam.fy) / pt3d.z() + cam.ppy };
     };
-    
+
     v3 box_frame[12][2];
+    const int line_width = rgb->img_w > 100 ? 4 : 1;
     for (auto& box : boxes)
     {
         rs_sf_util_to_box_frame(box, box_frame);
         for (const auto& line : box_frame)
-            rs_sf_util_draw_line_rgb(rgb, proj(line[0]), proj(line[1]), color);
+            rs_sf_util_draw_line_rgb(rgb, proj(line[0]), proj(line[1]), color, line_width);
     }
+}
+
+rs_sf_intrinsics rs_sf_util_match_intrinsics(rs_sf_image * img, const rs_sf_intrinsics & ref)
+{
+    if (img->intrinsics) return *img->intrinsics;
+    if (img->img_h == ref.height && img->img_w == ref.width) return ref;
+    rs_sf_intrinsics dst = ref;
+    const float scale_x = ((float)img->img_w / ref.width), scale_y = ((float)img->img_h / ref.height);
+    dst.fx *= scale_x; dst.fy *= scale_y;
+    dst.ppx *= scale_x; dst.ppy *= scale_y;
+    dst.width = img->img_w; dst.height = img->img_h;
+    return dst;
 }
 
 void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3])

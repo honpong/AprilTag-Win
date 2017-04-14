@@ -199,12 +199,12 @@ struct rs_sf_image_auto : public rs_sf_image
 
 template<int Channel> struct rs_sf_image_impl : public rs_sf_image_auto
 {
-    rs_sf_image_impl(const rs_sf_image* ref) 
+    rs_sf_image_impl(const rs_sf_image* ref)
     {
         img_h = ref->img_h; img_w = ref->img_w; byte_per_pixel = Channel; frame_id = ref->frame_id;
         data = (src = std::make_unique<unsigned char[]>(num_char())).get();
-        if (ref->data && num_char()==ref->num_char()) rs_sf_memcpy(data, ref->data, num_char());
-        set_pose(ref->cam_pose); set_intrinsics(ref->intrinsics);       
+        if (ref->data && num_char() == ref->num_char()) rs_sf_memcpy(data, ref->data, num_char());
+        set_pose(ref->cam_pose); set_intrinsics(ref->intrinsics);
     }
     rs_sf_image_impl(int w, int h, int fid = -1, const void* v = nullptr, const float pose[12] = nullptr, const rs_sf_intrinsics* i = nullptr) {
         img_h = h; img_w = w; byte_per_pixel = Channel; frame_id = fid;

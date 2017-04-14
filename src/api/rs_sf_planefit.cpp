@@ -393,15 +393,14 @@ void rs_sf_planefit::refine_plane_boundary(plane& dst)
 
 i2 rs_sf_planefit::project_grid_i(const v3 & cam_pt) const
 {
-    return i2{
+    return i2(
         (int)(0.5f + (cam_pt.x() * cam_fx) / cam_pt.z() + cam_px) / m_param.img_x_dn_sample,
-        (int)(0.5f + (cam_pt.y() * cam_fx) / cam_pt.z() + cam_py) / m_param.img_y_dn_sample
-    };
+        (int)(0.5f + (cam_pt.y() * cam_fx) / cam_pt.z() + cam_py) / m_param.img_y_dn_sample);
 }
 
 v3 rs_sf_planefit::unproject(const float u, const float v, const float z) const
 {
-    return v3{ z * (u - cam_px) * inv_cam_fx, z * (v - cam_py) * inv_cam_fy, z };
+    return v3(z * (u - cam_px) * inv_cam_fx, z * (v - cam_py) * inv_cam_fy, z);
 }
 
 bool rs_sf_planefit::is_within_pt_group_fov(const int x, const int y) const
@@ -419,9 +418,9 @@ bool rs_sf_planefit::is_valid_raw_z(const float z) const
     return z > m_param.min_z_value && z < m_param.max_z_value;
 }
 
-unsigned short & rs_sf_planefit::get_raw_z_at(const pt3d & pt) const
+float rs_sf_planefit::get_z_in_meter(const pt3d & pt) const
 {
-    return ((unsigned short*)m_view.src_depth_img->data)[pt.p];
+    return ((unsigned short*)m_view.src_depth_img->data)[pt.p] * 0.001f;
 }
 
 void rs_sf_planefit::compute_pt3d(pt3d & pt, bool search_around) const
@@ -429,7 +428,7 @@ void rs_sf_planefit::compute_pt3d(pt3d & pt, bool search_around) const
     //pt.pos = pose.transform(unproject((float)pt.pix.x(), (float)pt.pix.y(), is_valid_raw_z(z) ? z : 0)); 
     float z;
     for (pt3d* grp_pt : ( search_around ? pt.grp->pt : vec_pt_ref{&pt} )) {
-        if (is_valid_raw_z(z = get_raw_z_at(*grp_pt)))
+        if (is_valid_raw_z(z = get_z_in_meter(*grp_pt)))
         {
             const float x = z * (pt.pix[0] - cam_px) * inv_cam_fx;
             const float y = z * (pt.pix[1] - cam_py) * inv_cam_fy;
@@ -966,7 +965,7 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
 		auto map_fcn = [&](const int sp, const int ep) {
 			for (int p = sp, ex = (dst_w - 1)/dn_x, ey = (dst_h - 1)/dn_y; p < ep; ++p) {
 				float z; plane* pl;
-				if ((pl = src_p[p].best_plane) && (is_valid_raw_z(z = src_z[p]))) {
+				if ((pl = src_p[p].best_plane) && (is_valid_raw_z(z = (src_z[p]*0.001f)))) {
 					const float x = z * ((p % img_w) - cam_px) * inv_cam_fx;
 					const float y = z * ((p / img_w) - cam_py) * inv_cam_fy;
 					const float xd = tcr00 * x + tcr01 * y + tcr02 * z + tct0;

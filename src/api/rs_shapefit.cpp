@@ -89,7 +89,7 @@ RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_planes(const rs_shapefit * obj,
     // call internal draw plane api
     if (rgb != nullptr && status >= RS_SF_SUCCESS)
         rs_sf_util_draw_plane_contours(rgb, pose_t().set_pose(rgb->cam_pose),
-            rgb->intrinsics ? *rgb->intrinsics : pf->m_intrinsics, planes, 15);
+            rs_sf_util_match_intrinsics(rgb,pf->m_intrinsics), planes, 15);
 
     return status;
 }
@@ -129,8 +129,7 @@ RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, r
 
     if (bkg) { rs_sf_util_convert_to_rgb_image(rgb, bkg); }
     pose_t pose; pose.set_pose(rgb->cam_pose || !bkg ? rgb->cam_pose : bkg->cam_pose);
-    rs_sf_util_draw_boxes(rgb, pose,
-        rgb->intrinsics ? *rgb->intrinsics : obj->m_intrinsics, bf->get_boxes(),
+    rs_sf_util_draw_boxes(rgb, pose, rs_sf_util_match_intrinsics(rgb, obj->m_intrinsics), bf->get_boxes(),
         color ? b3{ color[0],color[1],color[2] } : b3{ 255, 255, 0 });
 
     return RS_SF_SUCCESS;

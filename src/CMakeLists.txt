@@ -19,6 +19,7 @@ endif ()
 if(MSVC)
   add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+  add_compile_options(/wd3199) #disable librealsense warning
 
 foreach(flag_var
         CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE

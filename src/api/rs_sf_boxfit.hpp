@@ -10,9 +10,9 @@ struct rs_sf_boxfit : public rs_sf_planefit
     {
         float plane_pair_angle_thr = 0.05f;  // max dot product of box plane pair normals
         float tracked_pair_angle_thr = 0.1f; // max dot product of tracked box plane pair normals
-        float plane_intersect_thr = 30.0f;   // points on 2 box planes touch within 5mm
-		float min_box_thickness = 50.0f;     // minimum box thickness in mm
-        float max_plane_pt_error = 10.0f;    // max point to box plane error
+        float plane_intersect_thr = 0.03f;   // points on 2 box planes touch within 30mm
+		float min_box_thickness = 0.05f;     // minimum box thickness in meter
+        float max_plane_pt_error = 0.01f;    // max point to box plane error
         float box_state_gain = 0.3f;         // fraction of box update allowed per frame
         float box_miss_ms = 500.0f;          // milliseconds allowed for a tracked box get lost
         int max_box_history = 11;            // length of box history per tracked box

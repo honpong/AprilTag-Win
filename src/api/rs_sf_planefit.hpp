@@ -21,9 +21,9 @@ struct rs_sf_planefit : public rs_shapefit
         int  track_gx_dn_sample = 6;
         int  track_gy_dn_sample = 6;
 
-        float min_z_value = 100.0f;
-        float max_z_value = 3500.0f;
-        float max_fit_err_thr = 30.0f;
+        float min_z_value = 0.05f;      //meter
+        float max_z_value = 3.5f;       //meter
+        float max_fit_err_thr = 0.035f; //meter
         float max_normal_thr = 0.7f;
 
         int min_num_plane_pt = 150;
@@ -154,7 +154,7 @@ private:
     bool is_within_pt_group_fov(const int x, const int y) const;
     bool is_within_pt_img_fov(const int x, const int y) const;
     bool is_valid_raw_z(const float z) const;
-    unsigned short& get_raw_z_at(const pt3d& pt) const;
+    float get_z_in_meter(const pt3d& pt) const;
     void compute_pt3d(pt3d& pt, bool search_around = false) const;
     void compute_pt3d_normal(pt3d& pt_query, pt3d& pt_right, pt3d& pt_below) const;
     void image_to_pointcloud(scene& current_view, bool force_full_pt_cloud = false);

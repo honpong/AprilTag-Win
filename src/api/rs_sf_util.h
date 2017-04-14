@@ -75,7 +75,7 @@ struct pose_t
     inline pose_t& set_pose(const float p[12] = nullptr) {
 		if (p) {
 			rotation << p[0], p[1], p[2], p[4], p[5], p[6], p[8], p[9], p[10];
-			translation << p[3] * 1000.0f, p[7] * 1000.0f, p[11] * 1000.0f;
+			translation << p[3], p[7], p[11];
 		}
         else { rotation.setIdentity(); translation.setZero(); }
         return *this;
@@ -102,6 +102,7 @@ void rs_sf_util_remap_plane_ids(rs_sf_image * map);
 void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size = 4);
 void rs_sf_util_draw_plane_contours(rs_sf_image *rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const rs_sf_plane planes[RS_SF_MAX_PLANE_COUNT], const int pt_per_line =1);
 void rs_sf_util_draw_boxes(rs_sf_image* rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes, const b3& color);
+rs_sf_intrinsics rs_sf_util_match_intrinsics(rs_sf_image* img, const rs_sf_intrinsics& ref);
 
 void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3]);
 

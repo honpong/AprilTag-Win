@@ -8,11 +8,21 @@ void rs_sf_util_set_to_zeros(rs_sf_image* img)
 void rs_sf_util_convert_to_rgb_image(rs_sf_image * rgb, const rs_sf_image * src)
 {
     if (!src) return;
-    if (src->byte_per_pixel == 1)
-        for (int p = src->num_pixel() - 1, p3 = p * 3; p >= 0; p3 -= 3)
-            rgb->data[p3] = rgb->data[p3 + 1] = rgb->data[p3 + 2] = src->data[p--];
-    else if (src->byte_per_pixel == 3)
-        memcpy(rgb->data, src->data, rgb->num_char());
+    if (rgb->img_h == src->img_h && rgb->img_w == src->img_w) {
+        if (src->byte_per_pixel == 1)
+            for (int p = src->num_pixel() - 1, p3 = p * 3; p >= 0; p3 -= 3)
+                rgb->data[p3] = rgb->data[p3 + 1] = rgb->data[p3 + 2] = src->data[p--];
+        else if (src->byte_per_pixel == 3)
+            memcpy(rgb->data, src->data, rgb->num_char());
+    }
+    else {
+        for (int p = rgb->num_pixel() - 1, p3 = p * 3, s, s1 = src->byte_per_pixel / 3, s2 = s1 * 2, h = rgb->img_h, w = rgb->img_w, sh = src->img_h, sw = src->img_w; p >= 0; --p, p3 -= 3)
+        {
+            rgb->data[p3 + 0] = src->data[s = ((p / w) * sh / h) * sw + ((p % w) * sw / w)];
+            rgb->data[p3 + 1] = src->data[s + s1];
+            rgb->data[p3 + 2] = src->data[s + s2];
+        }
+    }
 }
 
 void rs_sf_util_copy_depth_image(rs_sf_image_depth & dst, const rs_sf_image * src)
@@ -103,7 +113,7 @@ void rs_sf_util_draw_plane_contours(rs_sf_image * rgb, const pose_t & pose, cons
 {
     const b3 plane_wire_color(255, 255, 255);
     pose_t to_cam = pose.invert();
-    const int dst_w = rgb->img_w, dst_h = rgb->img_h;
+    const int dst_w = rgb->img_w, dst_h = rgb->img_h, line_width = rs_sf_util_image_to_line_width(rgb);
     for (int pl = 0, next = std::max(1, pt_per_line / 2); pl < RS_SF_MAX_PLANE_COUNT; ++pl) {
         if (planes[pl].plane_id == 0) break;
         auto* pos = planes[pl].pos;
@@ -117,10 +127,10 @@ void rs_sf_util_draw_plane_contours(rs_sf_image * rgb, const pose_t & pose, cons
                 ((cam_pt.x() * camera.fx) * iz + camera.ppx),
                 ((cam_pt.y() * camera.fy) * iz + camera.ppy));
             if (p == (np - 1)) { uv0 = uv; }
-            else { rs_sf_util_draw_line_rgb(rgb, uv, uvp, plane_wire_color, 2); }
+            else { rs_sf_util_draw_line_rgb(rgb, uv, uvp, plane_wire_color, line_width); }
             uvp = uv;
         }
-        rs_sf_util_draw_line_rgb(rgb, uv0, uvp, plane_wire_color);
+        rs_sf_util_draw_line_rgb(rgb, uv0, uvp, plane_wire_color, line_width);
     }
 }
 
@@ -151,7 +161,7 @@ void rs_sf_util_draw_boxes(rs_sf_image * rgb, const pose_t& pose, const rs_sf_in
     };
 
     v3 box_frame[12][2];
-    const int line_width = rgb->img_w > 100 ? 4 : 1;
+    const int line_width = rs_sf_util_image_to_line_width(rgb);
     for (auto& box : boxes)
     {
         rs_sf_util_to_box_frame(box, box_frame);

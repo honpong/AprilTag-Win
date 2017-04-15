@@ -22,7 +22,7 @@ struct rs_sf_planefit : public rs_shapefit
         int  track_gy_dn_sample = 6;
 
         float min_z_value = 0.05f;      //meter
-        float max_z_value = 3.5f;       //meter
+        float max_z_value = 6.0f;       //meter
         float max_fit_err_thr = 0.035f; //meter
         float max_normal_thr = 0.7f;
 

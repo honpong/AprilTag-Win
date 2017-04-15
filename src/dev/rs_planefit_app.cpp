@@ -5,8 +5,8 @@
 //#include "rs_sf_pose_tracker.h"
 
 const std::string default_path = "c:\\temp\\shapefit\\a\\";
-int capture_frames(const std::string& path, const int image_set_size);
-int run_shapefit_live(const rs_shapefit_capability cap);
+int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2]);
+int run_shapefit_live(const rs_shapefit_capability cap, const int cap_size[2]);
 int run_shapefit_offline(const std::string& path, const rs_shapefit_capability cap);
 bool run_shapefit(rs_shapefit* planefitter, rs_sf_image img[2]);
 
@@ -14,7 +14,7 @@ int main(int argc, char* argv[])
 {
     bool is_live = true, is_capture = false;
     std::string path = default_path;
-    int num_frames = 200;
+    int num_frames = 200; std::vector<int> capture_size = { 640,480 };
     rs_shapefit_capability sf_option = RS_SHAPEFIT_PLANE;
 
     for (int i = 1; i < argc; ++i) {
@@ -25,34 +25,36 @@ int main(int argc, char* argv[])
         else if (strcmp(argv[i], "-num_frames") == 0) { num_frames = atoi(argv[++i]); }
         else if (strcmp(argv[i], "-path") == 0) { path = argv[++i]; }
         else if (strcmp(argv[i], "-replay") == 0) { is_live = false; }
+        else if (strcmp(argv[i], "-hd") == 0) { capture_size = { 1280,720 }; }
+        else if (strcmp(argv[i], "-vga") == 0) { capture_size = { 640,480 }; }
         else {
             printf("usages:\n rs_shapefit_app [-box|-plane][-live|-replay][-path PATH][-capture][-num_frame NUM] \n");
             return 0;
         }
     }
     if (path.back() != '\\' && path.back() != '/') path.push_back('\\');
-    if (is_capture) capture_frames(path, num_frames);
-    if (is_live) return run_shapefit_live(sf_option);
+    if (is_capture) capture_frames(path, num_frames, capture_size.data());
+    if (is_live) return run_shapefit_live(sf_option, capture_size.data());
     return run_shapefit_offline(path, sf_option);
 }
 
 struct rs_depth_camera_input_src
 {
-    rs_depth_camera_input_src()
+    rs_depth_camera_input_src(int w, int h)
     {
         auto list = ctx.query_devices();
         if (list.size() == 0) throw std::runtime_error("No device detected.");
 
         device = list[0];
-        config.enable_stream(RS_STREAM_DEPTH, 640, 480, 30, RS_FORMAT_Z16);
-        config.enable_stream(RS_STREAM_INFRARED, 640, 480, 30, RS_FORMAT_Y8);
+        config.enable_stream(RS_STREAM_DEPTH, w, h, 30, RS_FORMAT_Z16);
+        config.enable_stream(RS_STREAM_INFRARED, w, h, 30, RS_FORMAT_Y8);
 
         stream = config.open(device);
         intrinsics = stream.get_intrinsics(RS_STREAM_DEPTH);
 
         stream.start(syncer);
         device.set_option(RS_OPTION_EMITTER_ENABLED, 1);
-        //device.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
+        device.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
     }
 
     inline rs::util::frameset wait_for_frames() { return syncer.wait_for_frames(); }
@@ -65,14 +67,14 @@ struct rs_depth_camera_input_src
     rs::util::Config<>::multistream stream;
 };
 
-int capture_frames(const std::string& path, const int image_set_size) {
+int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2]) {
 
-    rs_depth_camera_input_src rs_cam;
+    rs_depth_camera_input_src rs_cam(cap_size[0], cap_size[1]);
 
     struct dataset { rs_sf_image_ptr depth, ir, displ; };
     std::deque<dataset> image_set;
 
-    rs_sf_gl_context win("capture", 1280, 480);
+    rs_sf_gl_context win("capture", cap_size[0] * 2, cap_size[1]);
     rs_sf_image_ptr prev_depth;
     while (1) {
         auto fs = rs_cam.wait_for_frames();
@@ -121,9 +123,9 @@ int capture_frames(const std::string& path, const int image_set_size) {
     return 0;
 }
 
-int run_shapefit_live(rs_shapefit_capability cap) try
+int run_shapefit_live(rs_shapefit_capability cap, const int cap_size[2]) try
 {
-    rs_depth_camera_input_src rs_cam;
+    rs_depth_camera_input_src rs_cam(cap_size[0], cap_size[1]);
     auto shapefit = rs_sf_shapefit_ptr((rs_sf_intrinsics*)&rs_cam.intrinsics, cap);
 
    // bool sp_init = rs_sf_setup_scene_perception(
@@ -132,7 +134,7 @@ int run_shapefit_live(rs_shapefit_capability cap) try
    //     intrinsics.width, intrinsics.height,
    //     320, 240, RS_SF_LOW_RESOLUTION);
 
-    std::vector<unsigned short> prev_depth(480 * 640);
+    std::vector<unsigned short> prev_depth(rs_cam.intrinsics.width * rs_cam.intrinsics.height);
     int frame_id = 0;
     while (1) {
         auto fs = rs_cam.wait_for_frames();
@@ -199,7 +201,7 @@ int run_shapefit_offline(const std::string& path, const rs_shapefit_capability s
 
 bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
 {
-    static rs_sf_gl_context win("shape fitting"); 
+    static rs_sf_gl_context win("shape fitting", img[0].img_w * 2, img[0].img_h * 2);
     //static std::unique_ptr<float[]> buf;
     //static bool was_tracking = false;
     //static std::vector<unsigned short> sdepth(img[0].num_pixel() / 4);
@@ -244,7 +246,7 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[2])
     std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 
     // color display buffer
-    rs_sf_image_rgb rgb_plane(img), rgb_box(img);
+    rs_sf_image_rgb rgb_plane(img->img_w/2,img->img_h/2, img->frame_id, nullptr, img->cam_pose, img->intrinsics), rgb_box(&rgb_plane);
 
     // draw plane color
     rs_sf_planefit_draw_planes(shapefitter, &rgb_plane);

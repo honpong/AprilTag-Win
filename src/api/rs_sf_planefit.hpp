@@ -8,13 +8,13 @@ struct rs_sf_planefit : public rs_shapefit
 {
     struct parameter
     {
-	    bool compute_full_pt_cloud = false;
-		bool search_around_missing_z = false;
+        bool compute_full_pt_cloud = false;
+        bool search_around_missing_z = false;
         bool filter_plane_map = false;
         bool refine_plane_map = false;
-		bool hole_fill_plane_map = true;
+        bool hole_fill_plane_map = true;
 
-		int  img_x_dn_sample = 5;
+        int  img_x_dn_sample = 5;
         int  img_y_dn_sample = 5;
         int  candidate_gx_dn_sample = 3;
         int  candidate_gy_dn_sample = 3;
@@ -47,39 +47,49 @@ struct rs_sf_planefit : public rs_shapefit
 protected:
 
     struct plane;
-    plane *const NON_EDGE_PT = (plane*)-1;
-    static const int INVALID_PID = 0;
-
     struct pt3d_group;
-    typedef unsigned char pt_state;
-    static const pt_state PT3D_MASK_KNOWN_POS = 0x1, PT3D_MASK_VALID_POS = 0x2;
-    static const pt_state PT3D_MASK_KNOWN_NORMAL = 0x4, PT3D_MASK_VALID_NORMAL = 0x8;
-    static const pt_state PT3D_MASK_KNOWN_PLANE = 0x10, PT3D_MASK_VALID_PLANE = 0x20;
     struct pt3d {
-        v3 pos, normal;
-        pt_state state;
+        enum : unsigned char {
+            MASK_KNOWN_POS = 0x01,
+            MASK_VALID_POS = 0x02,
+            MASK_KNOWN_NORMAL = 0x04,
+            MASK_VALID_NORMAL = 0x08,
+            MASK_KNOWN_PLANE = 0x10,
+            MASK_VALID_PLANE = 0x20,
+            MASK_BOUNDARY = 0x40,
+            MASK_CHECKED = 0x80,
+            SET_VALID_POS = (MASK_KNOWN_POS | MASK_VALID_POS),
+            SET_VALID_NORMAL = (MASK_KNOWN_NORMAL | MASK_VALID_NORMAL),
+            CLEAR_BOUNDARY = (~MASK_BOUNDARY & 0xff),
+            CLEAR_CHECKED = (~MASK_CHECKED & 0xff),
+        }; 
+        unsigned char state;
         plane* best_plane;
-        int p; i2 pix; pt3d_group *grp;
+        v3 pos, normal;
+        int p; i2 pix; pt3d_group *grp;       
         inline void clear_all_state() { state = 0; best_plane = nullptr; }
-        inline void clear_check_flag() { state &= 0x7f; }
-        inline void clear_boundary_flag() { state &= 0xbf; }
-        inline void set_valid_pos() { state |= 0x3; }
-        inline void set_invalid_pos() { state |= 0x1; }
-        inline void set_valid_normal() { state |= 0xf; }
-        inline void set_invalid_normal() { state |= PT3D_MASK_KNOWN_NORMAL; }
-        inline void set_checked() { state |= 0x80; }
-        inline void set_boundary() { state |= 0x40; }
-        inline bool is_known_pos() const { return (state & PT3D_MASK_KNOWN_POS) != 0; }
-        inline bool is_known_normal() const { return (state & PT3D_MASK_KNOWN_NORMAL) != 0; }
-        inline bool is_valid_pos() const { return (state & PT3D_MASK_VALID_POS) != 0; }
-        inline bool is_valid_normal() const { return (state & PT3D_MASK_VALID_NORMAL) != 0; }
-        inline bool is_valid_plane() const { return (state & PT3D_MASK_VALID_PLANE) != 0; }
-        inline bool is_checked() const { return (state & 0x80) != 0; }
-        inline bool is_boundary() const { return (state & 0x40) != 0; }
+        inline void clear_check_flag() { state &= CLEAR_CHECKED; }
+        inline void clear_boundary_flag() { state &= CLEAR_BOUNDARY; }
+        inline void set_valid_pos() { state |= SET_VALID_POS; }
+        inline void set_invalid_pos() { state |= MASK_KNOWN_POS; }
+        inline void set_valid_normal() { state |= SET_VALID_NORMAL; }
+        inline void set_invalid_normal() { state |= MASK_KNOWN_NORMAL; }
+        inline void set_checked() { state |= MASK_CHECKED; }
+        inline void set_boundary() { state |= MASK_BOUNDARY; }
+        inline bool is_known_pos() const { return (state & MASK_KNOWN_POS) != 0; }
+        inline bool is_known_normal() const { return (state & MASK_KNOWN_NORMAL) != 0; }
+        inline bool is_valid_pos() const { return (state & MASK_VALID_POS) != 0; }
+        inline bool is_valid_normal() const { return (state & MASK_VALID_NORMAL) != 0; }
+        inline bool is_valid_plane() const { return (state & MASK_VALID_PLANE) != 0; }
+        inline bool is_checked() const { return (state & MASK_CHECKED) != 0; }
+        inline bool is_boundary() const { return (state & MASK_BOUNDARY) != 0; }
     };
+
+    typedef std::vector<pt3d> vec_pt3d;
     typedef std::vector<pt3d*> vec_pt_ref;
-    struct pt3d_group { int gp; i2 gpix; vec_pt_ref pt; pt3d *pt0; };
     typedef std::list<pt3d*> list_pt_ref;
+
+    struct pt3d_group { pt3d *pt0; int gp; vec_pt_ref pt; };
     struct plane {
         v3 normal; float d; pt3d* src; int pid;
         vec_pt_ref pts, best_pts, edge_grp[2], fine_pts;
@@ -89,11 +99,11 @@ protected:
         bool non_empty() const { return best_pts.size() > 1; }
     };
 
-    typedef std::vector<pt3d> vec_pt3d;
-    typedef std::vector<pt3d_group> vec_pt3d_group;
     typedef std::vector<plane> vec_plane;
     typedef std::vector<plane*> vec_plane_ref;
+    typedef std::vector<pt3d_group> vec_pt3d_group;
     typedef std::unique_ptr<rs_sf_image_depth> image_depth_ptr;
+
     struct scene {
         bool is_full_pt_cloud;
         pose_t cam_pose;
@@ -112,9 +122,9 @@ protected:
             tracked_pid.swap(ref.tracked_pid);
             sorted_plane_ptr.swap(ref.sorted_plane_ptr);
         }
-        inline void reset() { 
+        inline void reset() {
             cam_pose.set_pose();
-            planes.clear(); 
+            planes.clear();
             tracked_pid.clear();
             sorted_plane_ptr.clear();
         }

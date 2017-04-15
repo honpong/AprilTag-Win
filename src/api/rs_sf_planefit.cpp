@@ -230,11 +230,8 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
     // setup sub-image grid
     for (int g = num_pixel_groups() - 1; g >= 0; --g)
     {
-        auto& grp = view.pt_grp[g];
-        grp.gp = g;
-        grp.gpix[0] = g % m_grid_w;
-        grp.gpix[1] = g / m_grid_w;
-        grp.pt.resize(pt_per_group);
+        view.pt_grp[g].gp = g;
+        view.pt_grp[g].pt.resize(pt_per_group);
     }
 
     // grid pixel pick up order
@@ -271,7 +268,7 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
 // this is a protected function, use m_view instead of m_ref_view
 rs_sf_planefit::plane * rs_sf_planefit::get_tracked_plane(int pid) const 
 {
-    if (pid <= 0 || m_view.tracked_pid.size() <= pid) return nullptr; //okay to use m_view here
+    if (pid <= INVALID_PID || m_view.tracked_pid.size() <= pid) return nullptr; //okay to use m_view here
     return m_view.tracked_pid[pid];
 }
 

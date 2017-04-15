@@ -18,6 +18,7 @@
 #include <opencv2/opencv.hpp>
 #endif
 
+static const int INVALID_PID = 0;
 static const int MAX_VALID_PID = 254;
 static const int PLANE_SRC_PID = 255;
 static const float FLOAT_MAX_VALUE = std::numeric_limits<float>::max();

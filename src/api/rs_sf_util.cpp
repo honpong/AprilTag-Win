@@ -172,13 +172,12 @@ void rs_sf_util_draw_boxes(rs_sf_image * rgb, const pose_t& pose, const rs_sf_in
 
 rs_sf_intrinsics rs_sf_util_match_intrinsics(rs_sf_image * img, const rs_sf_intrinsics & ref)
 {
-    if (img->intrinsics) return *img->intrinsics;
-    if (img->img_h == ref.height && img->img_w == ref.width) return ref;
-    rs_sf_intrinsics dst = ref;
-    const float scale_x = ((float)img->img_w / ref.width), scale_y = ((float)img->img_h / ref.height);
-    dst.fx *= scale_x; dst.fy *= scale_y;
-    dst.ppx *= scale_x; dst.ppy *= scale_y;
-    dst.width = img->img_w; dst.height = img->img_h;
+    rs_sf_intrinsics dst = (img->intrinsics ? *img->intrinsics : ref);
+    if (img->img_h != dst.height || img->img_w != dst.width) {
+        const float scale_x = ((float)img->img_w / dst.width), scale_y = ((float)img->img_h / dst.height);
+        dst.fx *= scale_x; dst.ppx *= scale_x; dst.fy *= scale_y; dst.ppy *= scale_y;
+        dst.width = img->img_w; dst.height = img->img_h;
+    }
     return dst;
 }
 

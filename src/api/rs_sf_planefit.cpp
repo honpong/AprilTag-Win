@@ -931,17 +931,9 @@ void rs_sf_planefit::pt_groups_planes_to_full_img(vec_pt3d & pt_img, vec_plane_r
 
 void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_image * dst) const
 {
-    const int dst_w = dst->img_w, dst_h = dst->img_h;
-    const int img_w = src_w(), img_h = src_h();
+    const int dst_w = dst->img_w, dst_h = dst->img_h, img_w = src_w(), img_h = src_h();
     auto* dst_data = dst->data;
-    float dcam_fx = cam_fx, dcam_fy = cam_fy, dcam_px = cam_px, dcam_py = cam_py;
-    if (dst->intrinsics != nullptr) {
-        dcam_fx = dst->intrinsics->fx * dst_w / dst->intrinsics->width;
-        dcam_fy = dst->intrinsics->fy * dst_h / dst->intrinsics->height;
-        dcam_px = dst->intrinsics->ppx * dst_w / dst->intrinsics->width;
-        dcam_py = dst->intrinsics->ppy * dst_h / dst->intrinsics->height;
-    }
-
+   
     int dn_x = 1, dn_y = 1;
     if (dst_w > img_w || dst_h > img_h) {
         dn_x = std::max(1, (int)std::round((float)dst_w / img_w));
@@ -957,10 +949,11 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
 		const float tcr00 = rotation(0, 0), tcr01 = rotation(0, 1), tcr02 = rotation(0, 2);
 		const float tcr10 = rotation(1, 0), tcr11 = rotation(1, 1), tcr12 = rotation(1, 2);
 		const float tcr20 = rotation(2, 0), tcr21 = rotation(2, 1), tcr22 = rotation(2, 2);
-		const float tct0 = translation[0], tct1 = translation[1], tct2 = translation[2];
-		//const float to_dst_u = (float)dst_w / img_w, to_dst_v = (float)dst_h / img_h;
-		const auto* src_z = (unsigned short*)ref_view.src_depth_img->data;
+		const float tct0 = translation[0], tct1 = translation[1], tct2 = translation[2];	
+        const auto* src_z = (unsigned short*)ref_view.src_depth_img->data;
 		const auto* src_p = ref_view.pt_img.data();
+        const auto dcam = rs_sf_util_match_intrinsics(dst, m_intrinsics);
+        const auto dcam_fx = dcam.fx, dcam_fy = dcam.fy, dcam_ppx = dcam.ppx, dcam_ppy = dcam.ppy;
 
 		auto map_fcn = [&](const int sp, const int ep) {
 			for (int p = sp, ex = (dst_w - 1)/dn_x, ey = (dst_h - 1)/dn_y; p < ep; ++p) {
@@ -971,8 +964,8 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
 					const float xd = tcr00 * x + tcr01 * y + tcr02 * z + tct0;
 					const float yd = tcr10 * x + tcr11 * y + tcr12 * z + tct1;
 					const float iz = 1.0f / (tcr20 * x + tcr21 * y + tcr22 * z + tct2);
-					const int ud = (int)(((xd * dcam_fx) * iz + dcam_px) + 0.5f) / dn_x;
-					const int vd = (int)(((yd * dcam_fy) * iz + dcam_py) + 0.5f) / dn_y;
+					const int ud = (int)(((xd * dcam_fx) * iz + dcam_ppx) + 0.5f) / dn_x;
+					const int vd = (int)(((yd * dcam_fy) * iz + dcam_ppy) + 0.5f) / dn_y;
                     if (0 < ud && ud < ex && 0 < vd && vd < ey) {
                         for (int j = 0; j < dn_y; ++j)
                             for (int i = 0; i < dn_x; ++i)

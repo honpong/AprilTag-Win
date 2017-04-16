@@ -16,6 +16,7 @@ rs_sf_status rs_sf_planefit::set_option(rs_sf_fit_option option, double value)
     case RS_SF_OPTION_PLANE_NOISE:
         m_param.search_around_missing_z = (value > 0);
         m_param.filter_plane_map = (value > 1); break;
+    default: break;
     }
     return status;
 }
@@ -468,7 +469,6 @@ void rs_sf_planefit::image_to_pointcloud(scene& current_view, bool force_full_pt
     t0 = pose.translation[0], t1 = pose.translation[1], t2 = pose.translation[2];
 
 	const auto search_around = m_param.search_around_missing_z;
-    const auto* src_depth = (unsigned short*)current_view.src_depth_img->data;
     if (force_full_pt_cloud || m_param.compute_full_pt_cloud) {
 
         // compute full point cloud
@@ -774,7 +774,6 @@ void rs_sf_planefit::map_candidate_plane_from_past(scene & current_view, const s
     }
 
     // mark current points which belong to some past planes
-    auto past_pt_grp = past_view.pt_grp.data();
     for (auto&& grp : current_view.pt_grp)
     {
         auto* pt = grp.pt0;
@@ -998,7 +997,7 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
 void rs_sf_planefit::hole_fill_custom_plane_map(rs_sf_image * map) const
 {
     auto* idx = map->data;
-    const int img_w = map->img_w, img_h = map->img_h;
+    const int img_w = map->img_w;
     const int num_pixel = map->num_pixel();
     const unsigned char VISITED = 255, NO_PLANE = 0;
 

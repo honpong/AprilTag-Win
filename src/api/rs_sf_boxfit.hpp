@@ -79,7 +79,7 @@ protected:
     struct plane_pair {
         plane *p0, *p1, *p2; box *new_box; tracked_box* prev_box;
         plane_pair(plane* _p0, plane* _p1, tracked_box* _pb = nullptr, box *_nb = nullptr)
-            : p0(_p0), p1(_p1), p2(nullptr), prev_box(_pb), new_box(_nb) {}
+        : p0(_p0), p1(_p1), p2(nullptr), new_box(_nb), prev_box(_pb) {}
     };
 
     struct box_plane_map
@@ -117,7 +117,7 @@ protected:
         state_vn<v4> track_axis;
         std::chrono::time_point<std::chrono::steady_clock> last_appear;
         tracked_box(const plane_pair& pair, const std::chrono::time_point<std::chrono::steady_clock>& now)
-            : box(*pair.new_box), last_appear(now), track_pos(center), track_axis(qv3(axis).coeffs()) {
+        : box(*pair.new_box),track_pos(center), track_axis(qv3(axis).coeffs()), last_appear(now) {
             pid[0] = pair.p0->pid;
             pid[1] = pair.p1->pid;
             pid[2] = (pair.p2 ? pair.p2->pid : 0);

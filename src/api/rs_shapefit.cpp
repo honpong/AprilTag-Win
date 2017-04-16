@@ -63,6 +63,7 @@ rs_sf_status rs_sf_planefit_get_plane_ids(const rs_shapefit * obj, rs_sf_image *
         switch (pf->get_option_get_plane_id()) {
         case rs_shapefit::SCALED: rs_sf_util_scale_plane_ids(id_map, pf->max_detected_pid()); break;
         case rs_shapefit::REMAP: rs_sf_util_remap_plane_ids(id_map); break;
+            default: break;
         }
     }
     return status;

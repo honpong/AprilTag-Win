@@ -34,7 +34,7 @@ void rs_sf_util_copy_depth_image(rs_sf_image_depth & dst, const rs_sf_image * sr
 
 void rs_sf_util_draw_plane_ids(rs_sf_image * rgb, const rs_sf_image * map, bool overwrite_rgb, const unsigned char(*rgb_table)[3])
 {
-    static unsigned char default_rgb_table[MAX_VALID_PID + 2][3] = { 0 };
+    static unsigned char default_rgb_table[MAX_VALID_PID + 2][3] = {};
     if (default_rgb_table[MAX_VALID_PID][0] == 0)
     {
         for (int pid = MAX_VALID_PID; pid >= 0; --pid)
@@ -113,7 +113,7 @@ void rs_sf_util_draw_plane_contours(rs_sf_image * rgb, const pose_t & pose, cons
 {
     const b3 plane_wire_color(255, 255, 255);
     pose_t to_cam = pose.invert();
-    const int dst_w = rgb->img_w, dst_h = rgb->img_h, line_width = rs_sf_util_image_to_line_width(rgb);
+    const int line_width = rs_sf_util_image_to_line_width(rgb);
     for (int pl = 0, next = std::max(1, pt_per_line / 2); pl < RS_SF_MAX_PLANE_COUNT; ++pl) {
         if (planes[pl].plane_id == 0) break;
         auto* pos = planes[pl].pos;
@@ -185,8 +185,8 @@ void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3])
 {
 	static const float EPSILONZERO = 0.0001f;
 	static const float PI = 3.14159265358979f;
-	static const float Euclidean[3][3] = { 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f };
-	const float tr = std::max(1.0f, D[0] + D[3] + D[5]);
+    static const float Euclidean[3][3] = { {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f}};
+    const float tr = std::max(1.0f, D[0] + D[3] + D[5]);
 	const float tt = 1.0f / tr; // scale down factor
 	const float d1 = D[0] * tt; // scale down to avoid numerical overflow
 	const float d2 = D[1] * tt; // scale down to avoid numerical overflow

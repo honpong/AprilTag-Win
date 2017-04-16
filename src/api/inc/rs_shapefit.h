@@ -15,9 +15,9 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 #if (defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64))
 #ifdef RS_SHAPEFIT_EXPORTS
 #define RS_SHAPEFIT_DECL __declspec(dllexport)
-#else
-#define RS_SHAPEFIT_DECL
 #endif
+#else
+#define RS_SHAPEFIT_DECL 
 #endif
 
 #define RS_SHAPEFIT_API_MAJOR_VERSION 1

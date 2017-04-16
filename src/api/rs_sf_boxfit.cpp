@@ -13,7 +13,8 @@ rs_sf_status rs_sf_boxfit::set_option(rs_sf_fit_option option, double value)
     auto status = rs_sf_planefit::set_option(option, value);
     switch (option) {
     case RS_SF_OPTION_BOX_PLANE_RES:
-        m_param.refine_box_plane = (value > 0);
+            m_param.refine_box_plane = (value > 0); break;
+        default: break;
     }
     return status;
 }
@@ -73,7 +74,6 @@ bool rs_sf_boxfit::is_valid_box_plane(const plane & p0)
 void rs_sf_boxfit::detect_new_boxes(box_scene& view)
 {
     const int num_plane = (int)view.plane_scene->sorted_plane_ptr.size();
-    const int max_pid = (int)view.plane_scene->tracked_pid.size();
     view.plane_pairs.clear();
     view.plane_pairs.reserve(num_plane);
     view.boxes.clear();

@@ -24,7 +24,7 @@ add_executable(shapefit-dev
 	${SHAPEFIT_DEV_HDR}
     ${JSON_SRC})
 set_property(TARGET shapefit-dev PROPERTY CXX_STANDARD 14)
-target_link_libraries(shapefit-dev PRIVATE shapefit-core realsense ${OPENGL_LIBRARIES} glfw3)
+target_link_libraries(shapefit-dev ${SHAPEFIT_DEV_DEPENDENCIES})
 
 IF(WIN32)
 	add_custom_command(TARGET shapefit-dev POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit-core>" "$<TARGET_FILE_DIR:shapefit-dev>")

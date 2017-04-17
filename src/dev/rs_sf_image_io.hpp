@@ -23,7 +23,7 @@ rs_sf_image_ptr make_image_ptr(const rs_sf_image* ref, int byte_per_pixel = -1)
     }
 }
 
-bool rs_sf_image_write(std::string& filename, const rs_sf_image* img)
+bool rs_sf_image_write(const std::string& filename, const rs_sf_image* img)
 {
     std::ofstream stream_data;
     stream_data.open((filename + (img->byte_per_pixel == 3 ? ".ppm" : ".pgm")).c_str(), 
@@ -44,7 +44,7 @@ bool rs_sf_image_write(std::string& filename, const rs_sf_image* img)
     return false;
 }
 
-rs_sf_image_ptr rs_sf_image_read(std::string& filename, const int frame_id = 0)
+rs_sf_image_ptr rs_sf_image_read(const std::string& filename, const int frame_id = 0)
 {
     std::string tmp;
     std::ifstream stream_data;
@@ -56,7 +56,7 @@ rs_sf_image_ptr rs_sf_image_read(std::string& filename, const int frame_id = 0)
         std::getline(stream_data, tmp);
         dst->byte_per_pixel = (tmp == "P6" ? 3 : 1);
         std::getline(stream_data, tmp);
-        sscanf_s(tmp.c_str(), "%d %d", &dst->img_w, &dst->img_h);
+        sscanf(tmp.c_str(), "%d %d", &dst->img_w, &dst->img_h);
         std::getline(stream_data, tmp);
         if (std::stoi(tmp) == 65535) dst->byte_per_pixel = 2;
         dst->frame_id = frame_id;

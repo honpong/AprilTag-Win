@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.7.0 FATAL_ERROR)
 
+project(shapefit C CXX)
+
 # SDL (Security Development Lifecycle) Requirements
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 if (MSVC)
@@ -48,11 +50,20 @@ add_subdirectory(api)
 ############################################################################################################
 option(BUILD_SHAPEFIT_DEV_APP "Build Shapefit Development App" ON)
 if(BUILD_SHAPEFIT_DEV_APP)
+
     find_package(OpenGL REQUIRED)
+    set(SHAPEFIT_DEV_DEPENDENCIES shapefit-core ${OPENGL_LIBRARIES})
+    
     if(WIN32)
+        add_subdirectory(thirdparty/LibRealSense/librealsense)
         add_subdirectory(thirdparty/glfw)
-        #list(APPEND DEPENDENCIES glfw3)
+        list(APPEND SHAPEFIT_DEV_DEPENDENCIES realsense glfw3)
     else()
+        if(NOT APPLE)
+            add_subdirectory(thirdparty/LibRealSense/librealsense)
+            list(APPEND SHAPEFIT_DEV_DEPENDENCIES realsense ${LIBUSB1_LIBRARIES})
+        endif()
+
         # Find glfw header
         find_path(GLFW_INCLUDE_DIR NAMES GLFW/glfw3.h
             PATHS /usr/X11R6/include
@@ -73,9 +84,13 @@ if(BUILD_SHAPEFIT_DEV_APP)
                     /usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
                     /usr/X11R6/lib
         )
-        #list(APPEND DEPENDENCIES m ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES})
-        #include_directories(${GLFW_INCLUDE_DIR})
+        list(APPEND SHAPEFIT_DEV_DEPENDENCIES m ${GLFW_LIBRARIES})
+        include_directories(${GLFW_INCLUDE_DIR})
     endif()
-    add_subdirectory(thirdparty/librealsense/librealsense)
+
     add_subdirectory(dev)
+
+    if(MSVC)
+        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT shapefit-dev)
+    endif()
 endif()

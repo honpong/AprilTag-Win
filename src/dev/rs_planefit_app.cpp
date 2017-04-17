@@ -1,3 +1,4 @@
+#include <string.h>
 #include <librealsense/rs.hpp>
 #include <librealsense/rsutil.hpp>
 #include "rs_shapefit.h"

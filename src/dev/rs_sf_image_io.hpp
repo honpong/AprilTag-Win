@@ -3,11 +3,13 @@
 #ifndef rs_sf_image_io_h
 #define rs_sf_image_io_h
 
+#include "rs_shapefit.h"
+#include "rs_sf_camera.hpp"
+#include "json/json.h"
+
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "rs_shapefit.h"
-#include "json/json.h"
 
 #define make_mono_ptr(...) std::make_unique<rs_sf_image_mono>(__VA_ARGS__)
 #define make_depth_ptr(...) std::make_unique<rs_sf_image_depth>(__VA_ARGS__)
@@ -69,23 +71,34 @@ rs_sf_image_ptr rs_sf_image_read(const std::string& filename, const int frame_id
     return std::move(dst);
 }
 
-struct rs_sf_file_stream
+struct rs_sf_file_stream : rs_sf_image_stream 
 {
+    rs_sf_image images[RS_SF_STREAM_COUNT];
     std::vector<rs_sf_image_ptr> image;
     rs_sf_intrinsics depth_intrinsics;
-    int num_frame;
+    int total_num_frame, next_frame_num;
+    std::string folder_path, file_prefix[RS_SF_STREAM_COUNT] = { "","depth_","color_","ir_","ir2_","fisheye_" }, file_format[RS_SF_STREAM_COUNT] = { "",".pgm",".ppm",".pgm",".pgm",".pgm" };
 
-    rs_sf_file_stream(const std::string& path, const int frame_num)
+    rs_sf_file_stream(const std::string& path) : folder_path(path), total_num_frame(0), next_frame_num(0), image(RS_SF_STREAM_COUNT)
     {
-        this->depth_intrinsics = read_calibration(path, num_frame);
-        if (num_frame <= frame_num) return;
-
-        const auto suffix = std::to_string(frame_num) + ".pgm";
-        image.emplace_back(rs_sf_image_read(path + "depth_" + suffix, frame_num));
-        image.emplace_back(rs_sf_image_read(path + "ir_" + suffix, frame_num));
+        depth_intrinsics = read_calibration(folder_path, total_num_frame);
     }
 
-    std::vector<rs_sf_image> get_images() const { return{ *image[0], *image[1] }; }
+    rs_sf_intrinsics* get_intrinsics() override { return &depth_intrinsics; }
+    
+    rs_sf_image* get_images() override
+    {
+        next_frame_num = get_next_frame_num();
+        for (auto&& stream : { RS_SF_STREAM_DEPTH, RS_SF_STREAM_INFRARED }) {
+            const auto file_path = folder_path + file_prefix[stream] + std::to_string(next_frame_num) + file_format[stream];
+            images[stream] = *(image[stream] = rs_sf_image_read(file_path, next_frame_num));
+        }
+        ++next_frame_num;
+        return images;
+    }
+
+    bool is_end_of_stream() const { return next_frame_num >= total_num_frame; }
+    int get_next_frame_num() const { return next_frame_num % total_num_frame; }
 
     static void write_frame(const std::string& path, const rs_sf_image* depth, const rs_sf_image* ir, const rs_sf_image* displ)
     {
@@ -138,75 +151,6 @@ struct rs_sf_file_stream
         catch (...) {}
     }
 };
-
-
-#include "example.hpp"
-
-struct rs_sf_gl_context
-{
-    GLFWwindow* win = nullptr;
-    std::string key;
-    texture_buffer texture;
-
-    rs_sf_gl_context(const std::string& _key, int w = 1280, int h = 480 * 2) : key(_key) {
-        glfwInit();
-        win = glfwCreateWindow(w, h, key.c_str(), nullptr, nullptr);
-        glfwSetWindowSize(win, w / 2, h / 2);
-        glfwMakeContextCurrent(win);
-    }
-
-    virtual ~rs_sf_gl_context() {
-        if (win) {
-            glfwDestroyWindow(win);
-            glfwTerminate();
-        }
-    }
-
-    bool imshow(const rs_sf_image* image, int num_images = 1, const char* text = nullptr)
-    {
-        if (!glfwWindowShouldClose(win))
-        {
-            // Wait for new images
-            glfwPollEvents();
-
-            // Clear the framebuffer
-            int w, h;
-            glfwGetFramebufferSize(win, &w, &h);
-            glViewport(0, 0, w, h);
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            // Draw the images
-            glPushMatrix();
-            glfwGetWindowSize(win, &w, &h);
-            glOrtho(0, w, h, 0, -1, +1);
-
-            auto tiles = static_cast<int>(ceil(sqrt(num_images)));// frames.size())));
-            auto tile_w = static_cast<float>(w) / tiles;
-            auto tile_h = static_cast<float>(h) / (num_images <= 2 ? 1 : tiles);
-
-            rs_format stream_format[] = { RS_FORMAT_RAW8, RS_FORMAT_Z16, RS_FORMAT_RGB8 };
-            for (int index = 0; index < num_images; ++index)
-            {
-                auto col_id = index / tiles;
-                auto row_id = index % tiles;
-                auto& frame = image[index];
-
-                texture.upload((void*)frame.data, frame.img_w, frame.img_h, stream_format[frame.byte_per_pixel - 1]);
-                texture.show({ row_id * tile_w, col_id * tile_h, tile_w, tile_h }, 1);
-            }
-
-            if (text != nullptr)
-                draw_text(20 + w / 2, h - 20, text);
-
-            glPopMatrix();
-            glfwSwapBuffers(win);
-
-            return true;
-        }
-        return false;
-    }
-};
-
 
 
 #endif // !rs_sf_image_io_h

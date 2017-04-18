@@ -1,9 +1,10 @@
-#include <string.h>
 #include "rs_shapefit.h"
 #include "rs_sf_camera.hpp"
 #include "rs_sf_image_io.hpp"
 #include "rs_sf_gl_context.hpp"
 //#include "rs_sf_pose_tracker.h"
+
+#include <chrono>
 
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'

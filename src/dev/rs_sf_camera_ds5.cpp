@@ -13,21 +13,24 @@ struct rs_sf_camera_stream : rs_sf_image_stream
 struct rs_sf_camera_stream : rs_sf_image_stream
 {
     rs_sf_camera_stream(int w, int h) : image{}, curr_depth(w*h * 2), prev_depth(w*h * 2)
-    {
-        auto list = ctx.query_devices();
-        if (list.size() == 0) throw std::runtime_error("No device detected.");
+	{
+		try {
+			auto list = ctx.query_devices();
+			if (list.size() == 0) throw std::runtime_error("No device detected.");
 
-        device = list[0];
-        config.enable_stream(RS_SF_STREAM_DEPTH, w, h, 30, RS_SF_FORMAT_Z16);
-        config.enable_stream(RS_SF_STREAM_INFRARED, w, h, 30, RS_SF_FORMAT_Y8);
+			device = list[0];
+			config.enable_stream(RS_SF_STREAM_DEPTH, w, h, 30, RS_SF_FORMAT_Z16);
+			config.enable_stream(RS_SF_STREAM_INFRARED, w, h, 30, RS_SF_FORMAT_Y8);
 
-        stream = config.open(device);
-        intrinsics = stream.get_intrinsics(RS_SF_STREAM_DEPTH);
+			stream = config.open(device);
+			intrinsics = stream.get_intrinsics(RS_SF_STREAM_DEPTH);
 
-        stream.start(syncer);
-        device.set_option(RS_OPTION_EMITTER_ENABLED, 1);
-        //device.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
-    }
+			stream.start(syncer);
+			device.set_option(RS_OPTION_EMITTER_ENABLED, 1);
+			//device.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
+		}
+		catch (const rs::error & e) { print(e); }
+	}
 
     virtual rs_sf_intrinsics* get_intrinsics() override { return (rs_sf_intrinsics*)&intrinsics; }
 
@@ -54,12 +57,8 @@ struct rs_sf_camera_stream : rs_sf_image_stream
             if (frames.size() == 0) return nullptr;
         }
     }
-    catch (const rs::error & e)
-    {
-        std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
-        return nullptr;
-    }
-
+	catch (const rs::error & e) { print(e);	return nullptr; }
+	
 protected:
     rs_sf_image image[RS_SF_STREAM_COUNT];
     int stream_to_byte_per_pixel[RS_SF_STREAM_COUNT] = { 0,2,3,1,1 };
@@ -73,6 +72,9 @@ private:
     rs_intrinsics intrinsics;
     rs::util::Config<>::multistream stream;
 
+	void print(const rs::error& e) {
+		std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
+	}
 };
 
 #endif // realsense defined only

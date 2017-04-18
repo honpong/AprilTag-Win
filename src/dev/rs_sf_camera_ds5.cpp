@@ -31,7 +31,7 @@ struct rs_sf_camera_stream : rs_sf_image_stream
 
     virtual rs_sf_intrinsics* get_intrinsics() override { return (rs_sf_intrinsics*)&intrinsics; }
 
-    virtual rs_sf_image* get_images() override
+    virtual rs_sf_image* get_images() override try
     {
         for (auto frames = syncer.wait_for_frames();; frames = syncer.wait_for_frames())
         {
@@ -53,6 +53,11 @@ struct rs_sf_camera_stream : rs_sf_image_stream
             if (frames.size() > 1) return image;
             if (frames.size() == 0) return nullptr;
         }
+    }
+    catch (const rs::error & e)
+    {
+        std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
+        return nullptr;
     }
 
 protected:

@@ -109,11 +109,6 @@ int run_shapefit_live(rs_shapefit_capability cap, const int cap_size[2]) try
     //if (sp_init) rs_sf_pose_tracking_release();
     return 0;
 }
-//catch (const rs::error & e)
-//{
-//    std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
-//    return EXIT_FAILURE;
-//}
 catch (const std::exception & e)
 {
     std::cerr << e.what() << std::endl;
@@ -192,7 +187,7 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[])
     rs_shapefit_set_option(shapefitter, RS_SF_OPTION_PLANE_NOISE, 1);
     rs_shapefit_set_option(shapefitter, RS_SF_OPTION_BOX_PLANE_RES, 1);
     //rs_shapefit_set_option(shapefitter, RS_SF_OPTION_PLANE_RES, 1);
-    //rs_shapefit_set_option(shapefitter, RS_SF_OPTION_MAX_PROCESS_DELAY, -1);
+    //rs_shapefit_set_option(shapefitter, RS_SF_OPTION_ASYNC_WAIT, -1);
     if (rs_shapefit_depth_image(shapefitter, img_d) < 0) return false;
     std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 

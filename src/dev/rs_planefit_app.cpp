@@ -5,6 +5,12 @@
 #include "rs_sf_gl_context.hpp"
 //#include "rs_sf_pose_tracker.h"
 
+#if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
+#define PATH_SEPARATER '\\'
+#else
+#define PATH_SEPARATER '/'
+#endif
+
 const std::string default_path = "c:\\temp\\shapefit\\a\\";
 int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2]);
 int run_shapefit_live(const rs_shapefit_capability cap, const int cap_size[2]);
@@ -33,7 +39,7 @@ int main(int argc, char* argv[])
             return 0;
         }
     }
-    if (path.back() != '\\' && path.back() != '/') path.push_back('\\');
+    if (path.back() != '\\' && path.back() != '/'){ path.push_back(PATH_SEPARATER); }
     if (is_capture) capture_frames(path, num_frames, capture_size.data());
     if (is_live) return run_shapefit_live(sf_option, capture_size.data());
     return run_shapefit_offline(path, sf_option);
@@ -103,11 +109,11 @@ int run_shapefit_live(rs_shapefit_capability cap, const int cap_size[2]) try
     //if (sp_init) rs_sf_pose_tracking_release();
     return 0;
 }
-catch (const rs::error & e)
-{
-    std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
-    return EXIT_FAILURE;
-}
+//catch (const rs::error & e)
+//{
+//    std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
+//    return EXIT_FAILURE;
+//}
 catch (const std::exception & e)
 {
     std::cerr << e.what() << std::endl;
@@ -118,7 +124,7 @@ int run_shapefit_offline(const std::string& path, const rs_shapefit_capability s
 {
     rs_sf_shapefit_ptr shapefitter;
     rs_sf_file_stream data(path);
-    bool sp_init = false;
+    //bool sp_init = false;
     while (true)
     {
         if (!shapefitter) {

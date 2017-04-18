@@ -4,7 +4,6 @@
 #define rs_sf_camera_hpp
 
 #include <../../thirdparty/LibRealSense/librealsense/include/librealsense/rs.h>
-#include <../../thirdparty/LibRealSense/librealsense/include/librealsense/rsutil.hpp>
 #include "rs_shapefit.h"
 
 const static auto RS_SF_STREAM_DEPTH = RS_STREAM_DEPTH;

@@ -68,16 +68,16 @@ rs_sf_image_ptr rs_sf_image_read(const std::string& filename, const int frame_id
         pbuf->sgetn((char*)dst->data, dst->num_char());
         stream_data.close();
     }
-    return std::move(dst);
+    return dst;
 }
 
 struct rs_sf_file_stream : rs_sf_image_stream 
 {
-    rs_sf_image images[RS_SF_STREAM_COUNT];
-    std::vector<rs_sf_image_ptr> image;
-    rs_sf_intrinsics depth_intrinsics;
-    int total_num_frame, next_frame_num;
     std::string folder_path, file_prefix[RS_SF_STREAM_COUNT] = { "","depth_","color_","ir_","ir2_","fisheye_" }, file_format[RS_SF_STREAM_COUNT] = { "",".pgm",".ppm",".pgm",".pgm",".pgm" };
+    int total_num_frame, next_frame_num;
+    std::vector<rs_sf_image_ptr> image;
+    rs_sf_image images[RS_SF_STREAM_COUNT];
+    rs_sf_intrinsics depth_intrinsics;
 
     rs_sf_file_stream(const std::string& path) : folder_path(path), total_num_frame(0), next_frame_num(0), image(RS_SF_STREAM_COUNT)
     {

@@ -438,11 +438,11 @@ public:
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
-    void upload(rs::frame& frame)
-    {
-        upload(frame.get_data(), frame.get_width(), frame.get_height(), frame.get_format(), 
-            (frame.get_stride_in_bytes() * 8) / frame.get_bits_per_pixel(), frame.get_stream_type());
-    }
+    //void upload(rs::frame& frame)
+    //{
+    //    upload(frame.get_data(), frame.get_width(), frame.get_height(), frame.get_format(),
+    //        (frame.get_stride_in_bytes() * 8) / frame.get_bits_per_pixel(), frame.get_stream_type());
+    //}
 
     void show(const rect& r, float alpha) const
     {
@@ -479,10 +479,10 @@ inline void draw_depth_histogram(const uint16_t depth_image[], int width, int he
     glDrawPixels(width, height, GL_RGB, GL_UNSIGNED_BYTE, rgb_image);
 }
 
-inline bool is_integer(float f)
-{
-    return abs(f - floor(f)) < 0.001f;
-}
+//inline bool is_integer(float f)
+//{
+//    return abs(f - floor(f)) < 0.001f;
+//}
 
 struct to_string
 {
@@ -491,8 +491,8 @@ struct to_string
     operator std::string() const { return ss.str(); }
 };
 
-inline std::string error_to_string(const rs::error& e)
-{
-    return to_string() << e.get_failed_function() << "("
-        << e.get_failed_args() << "):\n" << e.what();
-}
+//inline std::string error_to_string(const rs::error& e)
+//{
+//    return to_string() << e.get_failed_function() << "("
+//        << e.get_failed_args() << "):\n" << e.what();
+//}

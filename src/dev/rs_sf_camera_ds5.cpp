@@ -1,6 +1,6 @@
 #include "rs_sf_camera.hpp"
 
-#ifdef APPLE
+#if defined(__APPLE__) | defined(__OSX__) | defined(APPLE)
 struct rs_sf_camera_stream : rs_sf_image_stream
 {
     rs_sf_camera_stream(int w, int h) {}

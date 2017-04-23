@@ -677,6 +677,8 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 }
 */
 
+static int filter_available_feature_space(struct filter *f, state_camera &camera);
+
 static int filter_add_detected_features(struct filter * f, state_vision_group *g, sensor_grey &camera_sensor, const std::vector<tracker::point> &kp, size_t newfeats, int image_height)
 {
     state_camera &camera = g->camera;
@@ -699,12 +701,13 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
 
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
 
+    int space = filter_available_feature_space(f, camera);
     int found_feats = 0;
     int i;
     f_t image_to_depth = 1;
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
-    for(i = 0; i < (int)kp.size(); ++i) {
+    for(i = 0; i < (int)kp.size() && i < space; ++i) {
         feature_t kp_i = {kp[i].x, kp[i].y};
         {
             state_vision_feature *feat = f->s.add_feature(*g, kp_i);

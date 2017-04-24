@@ -136,7 +136,7 @@ bool observation_queue::process(state_root &s)
     if(meas_size) {
         inn.resize(1, meas_size);
         m_cov.resize(1, meas_size);
-        HP.resize(meas_size, statesize + s.fake_statesize);
+        HP.resize(meas_size, statesize);
         res_cov.resize(meas_size, meas_size);
 
         compute_innovation(inn);

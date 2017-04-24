@@ -748,7 +748,7 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
 
 static int filter_available_feature_space(struct filter *f, state_camera &camera)
 {
-    int space = f->s.maxstatesize - f->s.fake_statesize - f->s.statesize;
+    int space = f->s.maxstatesize - f->s.statesize;
     int empty = 0;
     for (auto &c : f->s.cameras.children) {
         if (!c->detecting_group)
@@ -937,9 +937,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
                 state_vision_group *g = f->s.add_group(camera_state, f->map.get());
-                // we remap here to update f->s.statesize to account
-                // for the new group and to update f->s.fake_statesize
-                // to account for disable_orientation_only
+                // we remap here to update f->s.statesize to account for the new group
                 f->s.remap();
                 space = filter_available_feature_space(f, camera_state);
                 filter_add_detected_features(f, g, camera_sensor, detection, space, data.image.height, time);

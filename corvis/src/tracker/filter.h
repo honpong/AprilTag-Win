@@ -45,8 +45,7 @@ struct filter {
     sensor_clock::time_point detector_failed_time;
     sensor_clock::time_point speed_warning_time;
     sensor_clock::time_point stable_start;
-    bool calibration_bad;
-    
+
     float max_velocity;
     float median_depth_variance;
     bool has_converged;

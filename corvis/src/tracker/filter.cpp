@@ -141,7 +141,6 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     if(speed > 3.) { //1.4m/s is normal walking speed
         if (!old_speedfail) f->log->info("Velocity {} m/s exceeds max bound", speed);
         f->speed_failed = true;
-        f->calibration_bad = true;
     } else if(speed > 2.) {
         if (!f->speed_warning) f->log->info("High velocity ({} m/s)", speed);
         f->speed_warning = true;
@@ -151,7 +150,6 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     if(accel > 9.8) { //1g would saturate sensor anyway
         if (!old_speedfail) f->log->info("Acceleration exceeds max bound");
         f->speed_failed = true;
-        f->calibration_bad = true;
     } else if(accel > 5.) { //max in mine is 6.
         if (!f->speed_warning) f->log->info("High acceleration ({} m/s^2)", accel);
         f->speed_warning = true;
@@ -161,7 +159,6 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
         if (!old_speedfail) f->log->info("Angular velocity exceeds max bound");
         f->speed_failed = true;
-        f->calibration_bad = true;
     } else if(ang_vel > 2.) { // max in mine is 1.6
         if (!f->speed_warning) f->log->info("High angular velocity");
         f->speed_warning = true;
@@ -241,7 +238,6 @@ static void process_observation_queue(struct filter *f)
 {
     if(!f->observations.process(f->s)) {
         f->numeric_failed = true;
-        f->calibration_bad = true;
     }
     f_t delta_T = (f->s.T.v - f->s.last_position).norm();
     if(delta_T > .01) {
@@ -696,7 +692,6 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
             f->log->info("detector failure: only {} features after add", active_features);
             if(!f->detector_failed) f->detector_failed_time = time;
             f->detector_failed = true;
-            f->calibration_bad = true;
         }
         return 0;
     }
@@ -1001,8 +996,7 @@ void filter_initialize(struct filter *f)
     f->speed_warning_time = sensor_clock::time_point(sensor_clock::duration(0));
 
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
-    f->calibration_bad = false;
-    
+
     f->observations.observations.clear();
     f->mini->observations.observations.clear();
     f->catchup->observations.observations.clear();

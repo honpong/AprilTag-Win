@@ -26,6 +26,7 @@
 
 const static sensor_clock::duration min_steady_time = std::chrono::microseconds(100000); //time held steady before we start treating it as steady
 const static sensor_clock::duration steady_converge_time = std::chrono::microseconds(200000); //time that user needs to hold steady (us)
+const static sensor_clock::duration camera_wait_time = std::chrono::milliseconds(500); //time we'll wait for all cameras before attempting to detect features
 const static int calibration_converge_samples = 200; //number of accelerometer readings needed to converge in calibration mode
 const static f_t accelerometer_steady_var = .15*.15; //variance when held steady, based on std dev measurement of iphone 5s held in hand
 const static f_t velocity_steady_var = .1 * .1; //initial var of state.V when steady
@@ -807,11 +808,15 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     auto &camera_sensor = *f->cameras[data.id];
     auto &camera_state = *f->s.cameras.children[data.id];
+    camera_sensor.got = true;
 
     sensor_clock::time_point time = data.timestamp;
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!f->got_any_accelerometers() || !f->got_any_gyroscopes()) return false;
+    if(time - f->want_start < camera_wait_time) {
+        for(auto &camera : f->cameras) if(!camera->got) return false;
+    }
 
 #ifdef ENABLE_QR
     if (f->qr.running || f->qr_bench.enabled) {
@@ -827,8 +832,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             f->qr_bench.process_frame(f, data.image.image, data.image.width, data.image.height);
     }
 #endif
-
-    camera_sensor.got = true;
 
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;

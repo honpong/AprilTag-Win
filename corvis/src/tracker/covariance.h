@@ -26,8 +26,8 @@ protected:
 
 public:
     remapper rm;
-    matrix cov           { &cov_storage[0][0], 0, 0, MAXSTATESIZE, MAXSTATESIZE_PADDED };
-    matrix process_noise { &p_cov_storage[0],  1, 0,            1, MAXSTATESIZE_PADDED };
+    matrix cov           { cov_storage };
+    matrix process_noise { p_cov_storage };
 
     inline f_t &operator() (const int i, const int j) { return cov(i, j); }
     inline const f_t &operator() (const int i, const int j) const { return cov(i, j); }

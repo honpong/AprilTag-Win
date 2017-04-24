@@ -140,8 +140,9 @@ protected:
     observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics): observation_spatial(src), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
 };
 
-#define MAXOBSERVATIONSIZE 256
-static_assert(MAXOBSERVATIONSIZE > MAXSTATESIZE*2, "MAXOBSERVATIONSIZE isn't big enough for MAXSTATESIZE tracked features\n");
+#define MAXOBSERVATIONSIZE (MAXSTATESIZE * 2)
+#define MAXOBSERVATIONSIZE_PADDED ((MAXOBSERVATIONSIZE + 7) & ~7)
+static_assert(MAXOBSERVATIONSIZE >= MAXSTATESIZE*2, "MAXOBSERVATIONSIZE isn't big enough for MAXSTATESIZE tracked features\n");
 
 class observation_queue {
 public:
@@ -185,9 +186,9 @@ protected:
     alignas(64) f_t state_storage[MAXSTATESIZE];
     alignas(64) f_t inn_storage[MAXOBSERVATIONSIZE];
     alignas(64) f_t m_cov_storage[MAXOBSERVATIONSIZE];
-    alignas(64) f_t HP_storage[MAXOBSERVATIONSIZE][MAXSTATESIZE];
-    alignas(64) f_t K_storage[MAXSTATESIZE][MAXOBSERVATIONSIZE];
-    alignas(64) f_t res_cov_storage[MAXOBSERVATIONSIZE][MAXOBSERVATIONSIZE];
+    alignas(64) f_t HP_storage[MAXOBSERVATIONSIZE][MAXSTATESIZE_PADDED];
+    alignas(64) f_t K_storage[MAXSTATESIZE][MAXOBSERVATIONSIZE_PADDED];
+    alignas(64) f_t res_cov_storage[MAXOBSERVATIONSIZE][MAXOBSERVATIONSIZE_PADDED];
 };
 
 //some object should have functions to evolve the mean and covariance

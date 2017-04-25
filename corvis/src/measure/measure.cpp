@@ -120,12 +120,14 @@ int main(int c, char **v)
         std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
         std::cout << "Computed  Straight-line length is " << 100*rp.get_length()           << " cm, total path length " << 100*rp.get_path_length()           << " cm\n";
         std::cout << "Dispatched " << rp.get_packets_dispatched() << " packets " << rp.get_bytes_dispatched()/1.e6 << " Mbytes\n";
-        std::cout << "Error Statistics (ATE [m]):\n";
-        std::cout << res.errors.ate << "\n";
-        std::cout << "translation RPE [m]:\n";
-        std::cout << res.errors.rpe_T << "\n";
-        std::cout << "rotation    RPE [deg]:\n";
-        std::cout << res.errors.rpe_R*(180.f/M_PI) << "\n";
+        if (res.errors.calculate_ate()) {
+            std::cout << "Error Statistics (ATE [m]):\n";
+            std::cout << res.errors.ate << "\n";
+            std::cout << "translation RPE [m]:\n";
+            std::cout << res.errors.rpe_T << "\n";
+            std::cout << "rotation    RPE [deg]:\n";
+            std::cout << res.errors.rpe_R*(180.f/M_PI) << "\n";
+        }
 
         if(rc_getConfidence(rp.tracker) >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
             std::cout << "Updating " << rp.calibration_file << "\n";
@@ -192,10 +194,6 @@ int main(int c, char **v)
             rp.start(load_map);
             if (progress) std::cout << "Finished " << capture_file << std::endl;
 
-            if (!incremental_ate && rp.ground_truth_exists() ) {
-                res.errors.calculate_ate();
-            }
-
             res.length_cm.reference = 100*rp.get_reference_length();  res.path_length_cm.reference = 100*rp.get_reference_path_length();
             res.length_cm.measured  = 100*rp.get_length();            res.path_length_cm.measured  = 100*rp.get_path_length();
 
@@ -252,10 +250,6 @@ int main(int c, char **v)
 
     if (!save_map.empty()) {
         rp.save_map(save_map);
-    }
-
-    if (!incremental_ate && rp.ground_truth_exists()) {
-        res.errors.calculate_ate();
     }
 
     if (save)

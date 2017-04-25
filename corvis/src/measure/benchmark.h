@@ -26,6 +26,7 @@ struct benchmark_result {
             }
 
             void compute(aligned_vector<f_t> &errors) {
+                if (errors.empty()) return;
                 rmse = sqrt(map(errors).array().square().mean());
                 mean = map(errors).mean();
                 min = map(errors).minCoeff();
@@ -50,7 +51,7 @@ struct benchmark_result {
                 e.min = error.min * scale;
                 e.max = error.max * scale;
                 return e;
-            }            
+            }
         } ate, rpe_T, rpe_R;
 
         // ATE variables
@@ -102,7 +103,7 @@ struct benchmark_result {
 
         //solve for Horn's Rotation and translation. It uses a closed form solution
         //(no approximation is applied, but it is subject to the svd implementation).
-        void calculate_ate() {
+        bool calculate_ate() {
             R = project_rotation(W.transpose());
             T = T_current_mean - R * T_ref_mean;
             m<3,Eigen::Dynamic> T_ref_aligned = R*map(T_ref_all).transpose() + T.replicate(1,nposes);
@@ -110,6 +111,7 @@ struct benchmark_result {
             v<Eigen::Dynamic> rse = T_errors.colwise().norm(); // ||T_error||_l2
             aligned_vector<f_t> rse_v(rse.data(),rse.data() + rse.cols()*rse.rows());
             ate.compute(rse_v);
+            return nposes;
         }
 
         inline bool is_valid() { return nposes > 0; }

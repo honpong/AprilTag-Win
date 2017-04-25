@@ -107,7 +107,7 @@ void benchmark_run(std::ostream &stream, const char *directory,
         first++;
     }
 
-    std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m;
+    std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m, rpe_T_errors_m, rpe_R_errors_deg;
 
     for (auto &bm : results) {
         if (!bm.ok.get()) {
@@ -153,15 +153,22 @@ void benchmark_run(std::ostream &stream, const char *directory,
             stream << "\tPL\t" << mPL.to_string() << "\n";
             PL_errors_percent.push_back(mPL.error_percent);
         }
-        if (r.ate.is_valid()) {
-            stream << "\tATE\t" << r.ate.rmse << "m\n";
-            ate_errors_m.push_back(r.ate.rmse);
+
+        if (r.errors.is_valid()) {
+            stream << "\tATE\t" << r.errors.ate.rmse << "m\n";
+            ate_errors_m.push_back(r.errors.ate.rmse);
+            stream << "\tTranslational RPE\t" << r.errors.rpe_T.rmse << "m\n";
+            rpe_T_errors_m.push_back(r.errors.rpe_T.rmse);
+            stream << "\tRotational RPE\t" << r.errors.rpe_R.rmse << "deg\n";
+            rpe_R_errors_deg.push_back(r.errors.rpe_R.rmse);
         }
     }
 
     std::vector<double> std_edges = {0, 3, 10, 25, 50, 100};
     std::vector<double> alt_edges = {0, 4, 12, 30, 65, 100};
     std::vector<double> ate_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
+    std::vector<double> rpe_T_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
+    std::vector<double> rpe_R_edges = {0, 5, 10, 15, 20, 25};
     typedef histogram<double, false, true> error_histogram;
 
     stream << "Length error histogram (" << L_errors_percent.size() << " sequences)\n";
@@ -181,6 +188,14 @@ void benchmark_run(std::ostream &stream, const char *directory,
     stream << "ATE histogram (" << ate_errors_m.size() << " sequences)\n";
     error_histogram ate_hist(ate_errors_m, ate_edges, 2, "m");
     stream << ate_hist << "\n";
+
+    stream << "RPE (Translation) histogram (" << rpe_T_errors_m.size() << " sequences)\n";
+    error_histogram rpe_T_hist(ate_errors_m, rpe_T_edges, 2, "m");
+    stream << rpe_T_hist << "\n";
+
+    stream << "RPE (Rotation) histogram (" << rpe_R_errors_deg.size() << " sequences)\n";
+    error_histogram rpe_R_hist(rpe_R_errors_deg, rpe_R_edges, 2, "deg");
+    stream << rpe_R_hist << "\n";
 
     struct stat { size_t n; double sum, mean, median; } pe_le50 = {0, 0, 0, 0};
     std::sort(primary_errors_percent.begin(), primary_errors_percent.end());

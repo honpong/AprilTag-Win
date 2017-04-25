@@ -72,6 +72,8 @@ template <typename T, typename S>               Eigen::Map<const Eigen::Matrix<T
 template <typename T, typename S>               Eigen::Map<      Eigen::Matrix<T, Eigen::Dynamic, 1>, Eigen::Aligned, Eigen::Stride<1,sizeof(S)/sizeof(T)>>
     map(      aligned_vector<S> &a, T S::*m) { return decltype(map(a,m)) { &(a[0].*m), static_cast<Eigen::Index>(a.size()), 1 }; }
 
+template <typename T>                           Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, 1>,  Eigen::Unaligned> map(const aligned_vector<T> &a) { return decltype(map(a)) { &a[0], static_cast<Eigen::Index>(a.size()), 1}; }
+template <typename T>                           Eigen::Map<      Eigen::Matrix<T, Eigen::Dynamic, 1>,  Eigen::Unaligned> map(      aligned_vector<T> &a) { return decltype(map(a)) { &a[0], static_cast<Eigen::Index>(a.size()), 1}; }
 
 inline static m3 skew(const v3 &v)
 {

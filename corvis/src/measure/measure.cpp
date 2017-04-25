@@ -120,8 +120,13 @@ int main(int c, char **v)
         std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
         std::cout << "Computed  Straight-line length is " << 100*rp.get_length()           << " cm, total path length " << 100*rp.get_path_length()           << " cm\n";
         std::cout << "Dispatched " << rp.get_packets_dispatched() << " packets " << rp.get_bytes_dispatched()/1.e6 << " Mbytes\n";
-        if(res.ate.is_valid())
-            res.ate.print_statistics();
+        std::cout << "Error Statistics (ATE [m]):\n";
+        std::cout << res.errors.ate << "\n";
+        std::cout << "translation RPE [m]:\n";
+        std::cout << res.errors.rpe_T << "\n";
+        std::cout << "rotation    RPE [deg]:\n";
+        std::cout << res.errors.rpe_R*(180.f/M_PI) << "\n";
+
         if(rc_getConfidence(rp.tracker) >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
             std::cout << "Updating " << rp.calibration_file << "\n";
             rp.save_calibration(rp.calibration_file);
@@ -130,37 +135,36 @@ int main(int c, char **v)
             std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
-    auto data_callback = [](world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data) {
-        rc_PoseTime current_pose = rc_getPose(tracker, nullptr, nullptr, data->path);
-        auto timestamp = sensor_clock::micros_to_tp(current_pose.time_us);
-        // get/inerpolate gt at current timestamp
-        tpose ref_pose(timestamp);
-        bool success = rp.get_reference_pose(timestamp, ref_pose);
-        if(success)
-            ws.observe_position_gt(sensor_clock::tp_to_micros(ref_pose.t),
-                                    ref_pose.G.T.x(), ref_pose.G.T.y(), ref_pose.G.T.z(),
-                                    ref_pose.G.Q.w(), ref_pose.G.Q.x(), ref_pose.G.Q.y(), ref_pose.G.Q.z());
-
-        if(data->path == rc_DATA_PATH_SLOW && first && success &&  rp.ground_truth_exists()) {
-            first = false;
-            //covert current from rc_Pose to pose
-            tpose P{timestamp};
-            P.G.Q = ::map(current_pose.pose_m.Q.v);
-            P.G.T = ::map(current_pose.pose_m.T.v);
-            // transform gt trajectory to tracker world frame
-            rp.set_relative_pose(timestamp, P);
+    auto data_callback = [enable_gui, incremental_ate, render_output](world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data) {
+        auto timestamp = sensor_clock::micros_to_tp(data->time_us);
+        tpose ref_tpose(timestamp);
+        bool success = rp.get_reference_pose(timestamp, ref_tpose);
+        if (success) {
+            if (enable_gui || render_output)
+                ws.observe_position_gt(sensor_clock::tp_to_micros(ref_tpose.t),
+                                       ref_tpose.G.T.x(), ref_tpose.G.T.y(), ref_tpose.G.T.z(),
+                                       ref_tpose.G.Q.w(), ref_tpose.G.Q.x(), ref_tpose.G.Q.y(), ref_tpose.G.Q.z());
         }
-        if(success) {
-            // calculate ate at current position
-            v3 T_current = ::map(current_pose.pose_m.T.v);
-            res.ate.add_translation(T_current, ref_pose.G.T); // Accumulate information
-            // incremental ate ?
-            if (res.ate.is_incremental()) {
-                res.ate.calculate_statistics(); // This is computationaly expensive
-                ws.observe_ate(data->time_us,res.ate.rmse);
+        rc_PoseTime current_rc_pose = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
+        if(success && data->path == rc_DATA_PATH_SLOW) {
+            tpose current_tpose {timestamp, { quaternion(::map(current_rc_pose.pose_m.Q.v)), ::map(current_rc_pose.pose_m.T.v) } };
+            if (first) {
+                first = false;
+                // transform reference trajectory to tracker world frame
+                rp.set_relative_pose(timestamp, current_tpose);
+                ref_tpose.G = current_tpose.G;
+                res.errors.set_initial_pose(current_tpose,ref_tpose);
+            } else {
+                res.errors.add_pose(current_tpose, ref_tpose);
+                if (incremental_ate) {
+                    res.errors.calculate_ate();
+                    if (enable_gui || render_output)
+                        ws.observe_ate(data->time_us, res.errors.ate.rmse);
+                }
             }
         }
-        ws.rc_data_callback(tracker, data);
+        if (enable_gui || render_output)
+            ws.rc_data_callback(tracker, data);
     };
 
     if (benchmark) {
@@ -178,27 +182,18 @@ int main(int c, char **v)
 
             if (!configure(rp, capture_file)) return false;
 
-            // clear result variables before processing a new dataset
-            res.user_data = nullptr;
-            res.ate.set_execution_type(incremental_ate);
-            if ( rp.ground_truth_exists() || render_output) {
-                world_state * ws = new world_state();
-                res.user_data = ws;
-                bool first = true;
-                rp.set_data_callback([ws,&rp,&first,&res,&data_callback](rc_Tracker * tracker, const rc_Data * data) {
-                    data_callback(*ws, rp, first, res, tracker, data);
-                });
-                if(render_output)
-                    res.user_data = ws;
-            }
+            world_state * ws = new world_state();
+            res.user_data = render_output ? ws : nullptr;
+            rp.set_data_callback([ws,&rp,first=true,&res,&data_callback](rc_Tracker * tracker, const rc_Data * data) mutable {
+                data_callback(*ws, rp, first, res, tracker, data);
+            });
 
             if (progress) std::cout << "Running  " << capture_file << std::endl;
             rp.start(load_map);
             if (progress) std::cout << "Finished " << capture_file << std::endl;
 
-            //calculate horn's transform and print ATE statistics
-            if (!res.ate.is_incremental() && rp.ground_truth_exists()) {
-                res.ate.calculate_statistics();
+            if (!incremental_ate && rp.ground_truth_exists() ) {
+                res.errors.calculate_ate();
             }
 
             res.length_cm.reference = 100*rp.get_reference_length();  res.path_length_cm.reference = 100*rp.get_reference_path_length();
@@ -228,18 +223,15 @@ int main(int c, char **v)
     if (!configure(rp, filename))
         return 2;
 
+ benchmark_result res;
+
 #ifndef HAVE_GLFW
     rp.start(load_map);
 #else
     world_state ws;
-    benchmark_result res;
-    res.ate.set_execution_type(incremental_ate);
-    bool first = true;
-    if(enable_gui || rendername) {        
-        rp.set_data_callback([&ws,&rp,&first,&res,&data_callback](rc_Tracker * tracker, const rc_Data * data) {
-            data_callback(ws, rp, first, res, tracker, data);
-        });
-    }
+    rp.set_data_callback([&ws,&rp,first=true,&res,&data_callback](rc_Tracker * tracker, const rc_Data * data) mutable {
+        data_callback(ws, rp, first, res, tracker, data);
+    });
 
     if(enable_gui) { // The GUI must be on the main thread
         gui vis(&ws, show_main, show_video, show_depth, show_plots);
@@ -248,14 +240,7 @@ int main(int c, char **v)
         rp.stop();
         replay_thread.join();
     } else {
-        rp.set_data_callback([&ws,&rp,&first,&res,&data_callback](rc_Tracker * tracker, const rc_Data * data) {
-            data_callback(ws, rp, first, res, tracker, data);
-        });
         rp.start(load_map);
-    }
-
-    if (!res.ate.is_incremental() && rp.ground_truth_exists()) {
-        res.ate.calculate_statistics();
     }
 
     if(rendername && !offscreen_render_to_file(rendername, &ws)) {
@@ -269,9 +254,14 @@ int main(int c, char **v)
         rp.save_map(save_map);
     }
 
+    if (!incremental_ate && rp.ground_truth_exists()) {
+        res.errors.calculate_ate();
+    }
+
     if (save)
         rp.save_calibration(save);
 
+    print_results(rp,res,filename);
     std::cout << rc_getTimingStats(rp.tracker);
     print_results(rp,res,filename);
     return 0;

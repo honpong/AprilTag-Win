@@ -1064,7 +1064,7 @@ void world_state::observe_position_gt(uint64_t timestamp, float x, float y, floa
     display_lock.unlock();
 }
 
-void world_state::observe_ate(uint64_t timestamp_us, const float absolute_translational_error)
+void world_state::observe_ate(uint64_t timestamp_us, const float absolute_trajectory_error)
 {
-    ate = absolute_translational_error;
+    ate = absolute_trajectory_error;
 }

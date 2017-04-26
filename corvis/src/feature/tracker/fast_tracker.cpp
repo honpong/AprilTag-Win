@@ -1,7 +1,8 @@
 #include "fast_tracker.h"
 #include "fast_constants.h"
 
-#include "cor_types.h"
+#include "math.h"
+#include "orb_descriptor.h"
 
 using namespace std;
 
@@ -21,7 +22,7 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
         if(!is_trackable((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
             continue;
         mask->clear((int)d.x, (int)d.y);
-        feature_points.emplace_back(make_shared<fast_feature>(d.x, d.y, image.image, image.stride_px), d.x, d.y, d.x, d.y, d.score);
+        feature_points.emplace_back(make_shared<fast_feature<orb_descriptor>>(d.x, d.y, image), d.x, d.y, d.x, d.y, d.score);
         if (feature_points.size() == number_desired)
             break;
     }
@@ -32,7 +33,7 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
 {
     for(auto &tp : tracks) {
         auto &t = *tp;
-        fast_feature &f = *static_cast<fast_feature *>(t.feature.get());
+        fast_feature<orb_descriptor> &f = *static_cast<fast_feature<orb_descriptor>*>(t.feature.get());
 
         xy bestkp;
         if(t.found) bestkp = fast.track(f.patch, image.image,

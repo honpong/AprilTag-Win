@@ -3,7 +3,7 @@
 
 #include "tracker.h"
 #include "fast_constants.h"
-#include "fast_detector/fast.h"
+#include "fast.h"
 
 class fast_tracker : public tracker
 {
@@ -15,16 +15,19 @@ class fast_tracker : public tracker
                 y < height-1-half_patch_width);
     }
 
+    template<typename Descriptor>
     struct fast_feature: public tracker::feature
     {
-        fast_feature(int x, int y, const uint8_t * im, int stride)
+        fast_feature(float x_, float y_, const tracker::image& image) : x(x_), y(y_)
         {
             for(int py = 0; py < full_patch_width; ++py) {
                 for(int px = 0; px < full_patch_width; ++px) {
-                    patch[py * full_patch_width + px] = im[(int)x + px - half_patch_width + ((int)y + py - half_patch_width) * stride];
+                    patch[py * full_patch_width + px] = image.image[(int)x + px - half_patch_width + ((int)y + py - half_patch_width) * image.stride_px];
                 }
             }
         }
+        float x, y;
+        Descriptor descriptor;
         uint8_t patch[full_patch_width*full_patch_width];
     };
 

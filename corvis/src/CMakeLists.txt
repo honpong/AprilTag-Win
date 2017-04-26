@@ -9,8 +9,6 @@ set(TRACKER_SOURCES
     tracker/state_vision.cpp
     tracker/state_motion.cpp
     tracker/observation.cpp
-    tracker/fast_detector/fast_9.cpp
-    tracker/scaled_mask.cpp
     tracker/calibration.cpp
     tracker/calibration_json.cpp
     tracker/sensor_fusion.cpp
@@ -19,8 +17,6 @@ set(TRACKER_SOURCES
     tracker/feature_descriptor.cpp
     tracker/mapper.cpp
     tracker/dictionary.cpp
-    tracker/feature_tracker.cpp
-    tracker/fast_tracker.cpp
     tracker/remapper.cpp
     ${TRACKERI_HEADERS}
 )
@@ -269,3 +265,6 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo"
     target_compile_options(trackeri PRIVATE -DDEBUG=1)
     target_compile_options(tracker PRIVATE -DDEBUG=1)
 endif()
+
+add_subdirectory(feature feature)
+target_link_libraries(trackeri PUBLIC feature)

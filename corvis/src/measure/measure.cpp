@@ -155,7 +155,7 @@ int main(int c, char **v)
                 // transform reference trajectory to tracker world frame
                 rp.set_relative_pose(timestamp, current_tpose);
                 ref_tpose.G = current_tpose.G;
-                res.errors.set_initial_pose(current_tpose,ref_tpose);
+                res.errors.add_pose(current_tpose,ref_tpose);
             } else {
                 res.errors.add_pose(current_tpose, ref_tpose);
                 if (incremental_ate) {

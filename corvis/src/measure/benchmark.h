@@ -68,16 +68,11 @@ struct benchmark_result {
         aligned_vector<f_t> distances, angles;
         std::unique_ptr<tpose> current_tpose_ptr, ref_tpose_ptr;
 
-        // initialize k pose to calculate RPE
-        void set_initial_pose(const tpose &current_tpose,const tpose &ref_tpose) {
-            if ( (current_tpose_ptr == nullptr) || (ref_tpose_ptr == nullptr) ) {
-                current_tpose_ptr = std::make_unique<tpose>(current_tpose);
-                ref_tpose_ptr = std::make_unique<tpose>(ref_tpose);
-            }
-        }
-
         //append the current and ref translations to matrices
         void add_pose(const tpose &current_tpose,const tpose &ref_tpose) {
+            if (!current_tpose_ptr) current_tpose_ptr = std::make_unique<tpose>(current_tpose);
+            if (!ref_tpose_ptr) ref_tpose_ptr = std::make_unique<tpose>(ref_tpose);
+
             // calculate the incremental mean of translations
             T_current_mean = (current_tpose.G.T + T_current_mean*nposes) / (nposes + 1);
             T_ref_mean = (ref_tpose.G.T +  T_ref_mean*nposes) / (nposes + 1);

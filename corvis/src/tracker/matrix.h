@@ -32,17 +32,10 @@ public:
     matrix row(const int r) { return matrix(data + r * stride, _cols); }
     void resize(const int size) {assert(size <= stride && _rows == 1); _cols = size; }
     void resize(const int r, const int c) { assert(c <= stride && r <= maxrows); _rows = r; _cols = c; }
-#ifdef DEBUG
-    f_t &operator[] (const int i) { assert(i >= 0 && i < _cols && _rows == 1); return data[i]; }
-    const f_t &operator[] (const int i) const { assert(i >= 0 && i < _cols && _rows == 1); return data[i]; }
-    f_t &operator() (const int i, const int j) { assert(i >= 0 && j >= 0 && i < _rows && j < _cols); return data[i * stride + j]; }
-    const f_t &operator() (const int i, const int j) const { assert(i >= 0 && j >= 0 && i < _rows && j < _cols); return data[i * stride + j]; }
-#else
-    inline f_t &operator[] (const int i) { return data[i]; }
-    inline const f_t &operator[] (const int i) const { return data[i]; }
-    inline f_t &operator() (const int i, const int j) { return data[i * stride + j]; }
-    inline const f_t &operator() (const int i, const int j) const { return data[i * stride + j]; }
-#endif
+    f_t &operator[] (const int i)       { assert(i >= 0 && i < _cols && _rows == 1); return data[i]; }
+    f_t &operator[] (const int i) const { assert(i >= 0 && i < _cols && _rows == 1); return data[i]; }
+    f_t &operator() (const int i, const int j)       { assert(i >= 0 && j >= 0 && i < _rows && j < _cols); return data[i * stride + j]; }
+    f_t &operator() (const int i, const int j) const { assert(i >= 0 && j >= 0 && i < _rows && j < _cols); return data[i * stride + j]; }
     struct row_segment {
         const matrix &m;
         const int r, c, s;

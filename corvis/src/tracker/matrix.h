@@ -70,18 +70,6 @@ public:
   matrix(const int size): storage(new f_t[size]), _rows(1), _cols(size), stride(size), maxrows(1), data(storage) { }
   matrix(const int nrows, const int ncols): storage(new f_t[nrows * ncols]), _rows(nrows), _cols(ncols), stride(ncols), maxrows(nrows), data((f_t *)storage) { }
 
-    matrix(const matrix &other): storage(new f_t[other._rows * other._cols]), _rows(other._rows), _cols(other._cols), stride(other._cols), maxrows(other._rows), data((f_t *)storage)
-    { *this = other; }
-    
-    matrix &operator=(const matrix &other)
-    {
-        assert(_rows == other._rows && _cols == other._cols);
-        for(int i = 0; i < _rows; ++i) {
-            memcpy(data + i * stride, other.data + i * other.stride, _cols * sizeof(f_t));
-        }
-        return *this;
-    }
-    
     ~matrix() { if(storage) delete [] storage; }
 
     Eigen::Map<Eigen::Matrix<f_t, Eigen::Dynamic, Eigen::Dynamic>, Eigen::Unaligned, Eigen::OuterStride<>> map() const { return decltype(map()) { data, _rows, _cols, Eigen::OuterStride<>(stride) }; }

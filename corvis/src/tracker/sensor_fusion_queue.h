@@ -231,6 +231,7 @@ public:
 
     std::string get_stats();
     uint64_t size();
+    uint64_t data_in_queue(rc_SensorType type, rc_Sensor id);
 
     void dispatch_buffered(std::function<void(sensor_data &)> receive_func);
 

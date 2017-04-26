@@ -72,7 +72,9 @@ public:
 
     ~matrix() { if(storage) delete [] storage; }
 
-    Eigen::Map<Eigen::Matrix<f_t, Eigen::Dynamic, Eigen::Dynamic>, Eigen::Unaligned, Eigen::OuterStride<>> map() const { return decltype(map()) { data, _rows, _cols, Eigen::OuterStride<>(stride) }; }
+    typedef Eigen::Map<Eigen::Matrix<f_t, Eigen::Dynamic, Eigen::Dynamic>, Eigen::Unaligned, Eigen::OuterStride<>> Map;
+
+    Map map() const { return Map { data, _rows, _cols, Eigen::OuterStride<>(stride) }; }
 
     void print() const;
     void print_high() const;

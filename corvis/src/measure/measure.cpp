@@ -3,6 +3,7 @@
 #include "offscreen_render.h"
 #include "gui.h"
 #include "benchmark.h"
+#include "rc_compat.h"
 #include <iomanip>
 
 #ifdef WIN32
@@ -138,8 +139,9 @@ int main(int c, char **v)
     };
 
     auto data_callback = [enable_gui, incremental_ate, render_output](world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data) {
-        auto timestamp = sensor_clock::micros_to_tp(data->time_us);
-        tpose ref_tpose(timestamp);
+        rc_PoseTime current = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
+        auto timestamp = sensor_clock::micros_to_tp(current.time_us);
+        tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current.pose_m));
         bool success = rp.get_reference_pose(timestamp, ref_tpose);
         if (success) {
             if (enable_gui || render_output)
@@ -147,9 +149,7 @@ int main(int c, char **v)
                                        ref_tpose.G.T.x(), ref_tpose.G.T.y(), ref_tpose.G.T.z(),
                                        ref_tpose.G.Q.w(), ref_tpose.G.Q.x(), ref_tpose.G.Q.y(), ref_tpose.G.Q.z());
         }
-        rc_PoseTime current_rc_pose = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
         if(success && data->path == rc_DATA_PATH_SLOW) {
-            tpose current_tpose {timestamp, { quaternion(::map(current_rc_pose.pose_m.Q.v)), ::map(current_rc_pose.pose_m.T.v) } };
             if (first) {
                 first = false;
                 // transform reference trajectory to tracker world frame

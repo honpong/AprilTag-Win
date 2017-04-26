@@ -368,6 +368,13 @@ void fusion_queue::dispatch_singlethread(bool force)
     lock.unlock();
 }
 
+uint64_t fusion_queue::size()
+{
+    std::unique_lock<std::mutex> lock(data_mutex);
+
+    return queue.size();
+}
+
 void fusion_queue::dispatch_buffered(std::function<void(sensor_data &)> receive_func)
 {
     std::unique_lock<std::mutex> lock(data_mutex);

@@ -186,6 +186,11 @@ public:
         while(!empty()) pop();
         readpos = writepos = 0;
     }
+
+    uint64_t size()
+    {
+        return writepos - readpos;
+    }
     
 private:
     uint64_t writepos {0}, readpos {0};
@@ -225,6 +230,7 @@ public:
     void dispatch_async(std::function<void()> fn);
 
     std::string get_stats();
+    uint64_t size();
 
     void dispatch_buffered(std::function<void(sensor_data &)> receive_func);
 

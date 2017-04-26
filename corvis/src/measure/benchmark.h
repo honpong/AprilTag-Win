@@ -94,8 +94,8 @@ struct benchmark_result {
                 distances.emplace_back(G_current_ref_kk.T.norm());
                 angles.emplace_back(std::acosf(std::min(std::max((G_current_ref_kk.Q.toRotationMatrix().trace()-1)/2, -1.0f),1.0f)));
                 // update pose
-                current_tpose_ptr.reset(new tpose(current_tpose));
-                ref_tpose_ptr.reset(new tpose(ref_tpose));
+                *current_tpose_ptr = current_tpose;
+                *ref_tpose_ptr = ref_tpose;
                 rpe_T.compute(distances);
                 rpe_R.compute(angles);
             }

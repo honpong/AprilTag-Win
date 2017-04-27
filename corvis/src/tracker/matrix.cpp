@@ -69,10 +69,13 @@ f_t matrix_check_condition(matrix &A)
 
 bool matrix_solve(matrix &A, matrix &B)
 {
-    Eigen::LLT<Eigen::Matrix<f_t,Eigen::Dynamic,Eigen::Dynamic>> llt(A.map());
+    matrix::Map
+        A_map { &A(0,0), A.rows(), A.cols(), A.get_stride() },
+        B_map { &B(0,0), B.rows(), B.cols(), B.get_stride() };
+    Eigen::LLT< Eigen::Ref<decltype(A_map)> > llt(A_map);
     if (llt.info() == Eigen::NumericalIssue)
         return false;
-    llt.solveInPlace(B.map().transpose());
+    llt.solveInPlace(B_map.transpose());
     return true;
 }
 

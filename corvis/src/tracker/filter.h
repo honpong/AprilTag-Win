@@ -33,6 +33,7 @@ struct filter {
         observation_queue observations;
         covariance cov;
         state_motion state {cov};
+        bool valid{false};
     } _mini[2], *mini = &_mini[0], *catchup = &_mini[1];
     std::recursive_mutex mini_mutex;
 

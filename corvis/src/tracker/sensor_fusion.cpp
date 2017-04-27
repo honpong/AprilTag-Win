@@ -125,6 +125,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                     });
                 auto stop = std::chrono::steady_clock::now();
                 queue.catchup_stats.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+                sfm.catchup->valid = true;
                 std::swap(sfm.mini, sfm.catchup);
             }
 
@@ -167,7 +168,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
 void sensor_fusion::queue_receive_data_fast(sensor_data &data)
 {
-    if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning || !fast_path) return;
+    if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning || !fast_path || !sfm.mini->valid) return;
     data.path = rc_DATA_PATH_FAST;
     switch(data.type) {
         case rc_SENSOR_TYPE_ACCELEROMETER: {

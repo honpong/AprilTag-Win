@@ -556,9 +556,8 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
 
     for(state_vision_group *g : camera_state.groups.children) {
         if(!g->status || g->status == group_initializing) continue;
-        for(state_vision_feature *i : g->features.children) {
-            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state.extrinsics, camera_state.intrinsics);
-            obs->feature = i;
+        for(auto &feature : g->features.children) {
+            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, *feature);
             f->observations.observations.push_back(std::move(obs));
         }
     }

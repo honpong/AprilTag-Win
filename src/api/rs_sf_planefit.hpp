@@ -14,8 +14,13 @@ struct rs_sf_planefit : public rs_shapefit
         bool refine_plane_map = false;
         bool hole_fill_plane_map = true;
 
+#ifndef _DEBUG
         int  img_x_dn_sample = 5;
         int  img_y_dn_sample = 5;
+#else
+        int  img_x_dn_sample = 10;
+        int  img_y_dn_sample = 10;
+#endif
         int  candidate_gx_dn_sample = 3;
         int  candidate_gy_dn_sample = 3;
         int  track_gx_dn_sample = 6;

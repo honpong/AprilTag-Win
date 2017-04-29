@@ -17,8 +17,8 @@ class state_imu_intrinsics: public state_branch<state_node *>
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 public:
-    state_vector w_bias {"w_bias", constant};
-    state_vector a_bias {"a_bias", constant};
+    state_vector<3> w_bias {"w_bias", constant};
+    state_vector<3> a_bias {"a_bias", constant};
 
     state_imu_intrinsics()
     {
@@ -49,11 +49,11 @@ struct state_imu: public state_branch<state_node *> {
 class state_motion_orientation: public state_root {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    state_quaternion Q { "Q",  dynamic };
-    state_vector     w { "w",  dynamic };
-    state_vector    dw { "dw", dynamic };
-    state_vector   ddw {"ddw", fake };
-    state_scalar     g { "g",  constant };
+    state_quaternion  Q { "Q",  dynamic };
+    state_vector<3>   w { "w",  dynamic };
+    state_vector<3>  dw { "dw", dynamic };
+    state_vector<3> ddw {"ddw", fake };
+    state_scalar      g { "g",  constant };
 
     state_branch<state_node *> non_orientation;
     state_branch<std::unique_ptr<state_imu>, std::vector<std::unique_ptr<state_imu>>> imus;
@@ -95,10 +95,10 @@ class state_motion: public state_motion_orientation {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     friend class observation_accelerometer;
 public:
-    state_vector  T {  "T", dynamic };
-    state_vector  V {  "V", dynamic };
-    state_vector  a {  "a", dynamic };
-    state_vector da { "da", fake };
+    state_vector<3>  T {  "T", dynamic };
+    state_vector<3>  V {  "V", dynamic };
+    state_vector<3>  a {  "a", dynamic };
+    state_vector<3> da { "da", fake };
 
     float total_distance = 0;
     transformation loop_offset;

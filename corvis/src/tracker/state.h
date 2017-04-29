@@ -323,14 +323,20 @@ protected:
 
 #define PERTURB_FACTOR f_t(1.1)
 
-class state_vector: public state_leaf<v3, 3> {
+template <int size_>
+class state_vector : public state_leaf<::v<size_>, size_> {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    state_vector(const char *_name, node_type nt): state_leaf(_name, nt) { reset(); }
+    state_vector(const char *_name, state_node::node_type nt): state_leaf<::v<size_>, size_>(_name, nt) { reset(); }
 
-    using state_leaf::set_initial_variance;
+    using state_leaf<::v<size_>,size_>::set_initial_variance;
+    using state_leaf<::v<size_>,size_>::cov;
+    using state_leaf<::v<size_>,size_>::v;
+    using state_leaf<::v<size_>,size_>::index;
+    using state_leaf<::v<size_>,size_>::name;
+    using state_leaf<::v<size_>,size_>::initial_covariance;
     
-    void set_initial_variance(v3 v)
+    void set_initial_variance(::v<size_> v)
     {
         initial_covariance.setZero();
         initial_covariance.diagonal() = v;
@@ -338,35 +344,34 @@ public:
     
     void reset() {
         index = -1;
-        v = v3::Zero();
+        v = ::v<size_>::Zero();
     }
     
     void perturb_variance() {
         if(index < 0 || index >= cov->size()) return;
-        cov->cov(index, index) *= PERTURB_FACTOR;
-        cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
-        cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
+        for (int i=0; i<size_; i++)
+            cov->cov(index+i, index+i) *= PERTURB_FACTOR;
     }
     
-    v3 variance() const {
-        if(index < 0 || index >= cov->size()) return v3(initial_covariance(0, 0), initial_covariance(1, 1), initial_covariance(2, 2));
-        return v3((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2));
+    ::v<size_> variance() const {
+        ::v<size_> var;
+        for (int i=0; i<size_; i++)
+            var[i] = index < 0 || index >= cov->size() ? initial_covariance(i, i) : (*cov)(index+i, index+i);
+        return var;
     }
     
     void copy_state_to_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
-        state[index] = v[0];
-        state[index+1] = v[1];
-        state[index+2] = v[2];
+        for (int i=0; i<size_; i++)
+            state[index + i] = v[i];
     }
     
     virtual void copy_state_from_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
-        v[0] = state[index+0];
-        v[1] = state[index+1];
-        v[2] = state[index+2];
+        for (int i=0; i<size_; i++)
+            v[i] = state[index+i];
     }
-    
+
     virtual std::ostream &print_to(std::ostream & s) const
     {
         return s << name << ": " << v << "±" << variance().array().sqrt();
@@ -537,7 +542,7 @@ class state_extrinsics: public state_branch<state_node *>
 {
 public:
     state_quaternion Q;
-    state_vector T;
+    state_vector<3> T;
 
     state_extrinsics(const char *Qx, const char *Tx, bool estimate_) : Q(Qx, constant), T(Tx, constant) {
         estimate = estimate_;

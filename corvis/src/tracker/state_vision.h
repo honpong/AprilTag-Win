@@ -184,7 +184,7 @@ public:
 
 class state_vision_group: public state_branch<state_node *> {
  public:
-    state_vector     Tr { "Tr", dynamic};
+    state_vector<3>  Tr { "Tr", dynamic};
     state_quaternion Qr { "Qr", dynamic};
 
     state_camera &camera;

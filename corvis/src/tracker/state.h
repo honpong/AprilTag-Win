@@ -287,7 +287,7 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
         }
     }
     
-    inline const Eigen::Map< const Eigen::Matrix<f_t, _size, 1>, Eigen::Unaligned, Eigen::OuterStride<> > from_row(const matrix &c, int i) const
+    inline const Eigen::Map< const ::v<_size>, Eigen::Unaligned, Eigen::OuterStride<> > from_row(const matrix &c, int i) const
     {
         typedef decltype(from_row(c,i)) map;
         static const f_t zero[_size] = { 0 };
@@ -300,7 +300,7 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
         else                                                                         return map { &c(i,index),                       Eigen::OuterStride<>(c.get_stride()) };
     }
 
-    inline Eigen::Map< Eigen::Matrix<f_t, _size, 1>, Eigen::Unaligned, Eigen::InnerStride<> > to_col(matrix &c, int j) const
+    inline Eigen::Map< ::v<_size>, Eigen::Unaligned, Eigen::InnerStride<> > to_col(matrix &c, int j) const
     {
         typedef decltype(to_col(c,j)) map;
         static f_t scratch[_size];

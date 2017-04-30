@@ -50,8 +50,6 @@ public:
 class observation_vision_feature: public observation_storage<2> {
  private:
     f_t projection_residual(const v3 & X, const feature_t &found);
-    const state_extrinsics &extrinsics;
-    const state_vision_intrinsics &intrinsics;
  public:
     m3 Rrt, Rct;
     v3 X0, X;
@@ -60,13 +58,16 @@ class observation_vision_feature: public observation_storage<2> {
 
     f_t dx_dp, dy_dp;
     v3 dx_dQr, dy_dQr, dx_dTr, dy_dTr;
-    v3 dx_dQc, dy_dQc, dx_dTc, dy_dTc;
+    struct intrinsics_derivative {
+        intrinsics_derivative(const state_camera &c) : camera(c) {}
+        const state_camera &camera;
+        v3 dx_dQ, dy_dQ, dx_dT, dy_dT;
+        f_t dx_dF, dy_dF;
+        f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dk3, dy_dk3, dx_dk4, dy_dk4, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
+    } orig, curr;
 
-    f_t dx_dF, dy_dF;
-    f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dk3, dy_dk3, dx_dk4, dy_dk4, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
+    state_vision_feature *const feature;
 
-    state_vision_feature *feature;
-    
     feature_t norm_initial, norm_predicted, Xd;
 
     virtual void predict();
@@ -77,7 +78,8 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     void update_initializing();
 
-    observation_vision_feature(sensor_grey &src, const state_extrinsics &_extrinsics, const state_vision_intrinsics &_intrinsics): observation_storage(src), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_vision_feature(sensor_grey &src, const state_camera &camera, state_vision_feature &f)
+        : observation_storage(src), curr(camera), orig(f.group.camera), feature(&f) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

@@ -105,7 +105,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
                 docallback = sfm.s.orientation_initialized;
 
-            if (isProcessingVideo && fast_path) {
+            if (isProcessingVideo && fast_path && !queue.data_in_queue(data.type, data.id)) {
                 auto start = std::chrono::steady_clock::now();
                 sfm.catchup->state.copy_from(sfm.s);
                 std::unique_lock<std::recursive_mutex> mini_lock(sfm.mini_mutex);

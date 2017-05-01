@@ -321,6 +321,16 @@ bool fusion_queue::ok_to_dispatch()
     return true;
 }
 
+uint64_t fusion_queue::data_in_queue(rc_SensorType type, rc_Sensor id)
+{
+    std::unique_lock<std::mutex> data_lock(data_mutex);
+
+    const auto stat = stats.find(sensor_data::get_global_id_by_type_id(type, id));
+    if(stat == stats.end()) return 0;
+
+    return stat->second.in_queue;
+}
+
 bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &control_lock, bool force)
 {
     std::unique_lock<std::mutex> data_lock(data_mutex);
@@ -366,6 +376,13 @@ void fusion_queue::dispatch_singlethread(bool force)
     std::unique_lock<std::mutex> lock(control_mutex);
     while(dispatch_next(lock, force)); //always be greedy - could have multiple pieces of data buffered
     lock.unlock();
+}
+
+uint64_t fusion_queue::size()
+{
+    std::unique_lock<std::mutex> lock(data_mutex);
+
+    return queue.size();
 }
 
 void fusion_queue::dispatch_buffered(std::function<void(sensor_data &)> receive_func)

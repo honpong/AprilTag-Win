@@ -64,6 +64,7 @@ extern "C"
         int num_points;    /**< number of contour points of this contour       */
         float(*pos)[3];    /**< array of 3d points of this contour             */
         float equation[4]; /**< plane equation                                 */
+        int contour_p0;    /**< position of the first point in contour buffer  */
     };
 
     struct rs_sf_box

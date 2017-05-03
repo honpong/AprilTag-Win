@@ -116,9 +116,6 @@ bool observation_queue::update_state_and_covariance(state_root &s, const matrix 
 
 void observation_queue::preprocess(state_root &s, sensor_clock::time_point time)
 {
-#ifdef TEST_POSDEF
-    if(!test_posdef(s.cov.cov)) fprintf(stderr, "not pos def when starting process_observation_queue\n");
-#endif
     s.time_update(time);
 
     predict();

@@ -532,19 +532,11 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
         const auto cov_w = state.w.from_row(src, j);
         const auto cov_dw = state.dw.from_row(src, j);
         f_t cov_g = state.g.from_row(src, j);
-        v3 res =
-            cov_a_bias +
-            da_dQ * scov_Q +
-            da_dw * cov_w +
-            da_ddw * cov_dw +
-            da_dacc * (cov_a + state.world.up * cov_g);
+        col(dst, j) = cov_a_bias + da_dQ * scov_Q + da_dw * cov_w + da_ddw * cov_dw + da_dacc * (cov_a + state.world.up * cov_g);
         if(extrinsics.estimate) {
             const auto scov_Qa = extrinsics.Q.from_row(src, j);
             const auto cov_Ta = extrinsics.T.from_row(src, j);
-            res += da_dQa * scov_Qa + da_dTa * cov_Ta;
-        }
-        for(int i = 0; i < 3; ++i) {
-            dst(i, j) = res[i];
+            col(dst, j) += da_dQa * scov_Qa + da_dTa * cov_Ta;
         }
     }
 }
@@ -574,14 +566,10 @@ void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
     for(int j = 0; j < dst.cols(); ++j) {
         const auto cov_w = state.w.from_row(src, j);
         const auto cov_wbias = intrinsics.w_bias.from_row(src, j);
-        v3 res = cov_wbias +
-            Rw.transpose() * cov_w;
+        col(dst, j) = cov_wbias + Rw.transpose() * cov_w;
         if(extrinsics.estimate) {
             v3 scov_Qw = extrinsics.Q.from_row(src, j);
-            res += dw_dQw * scov_Qw;
-        }
-        for(int i = 0; i < 3; ++i) {
-            dst(i, j) = res[i];
+            col(dst, j) += dw_dQw * scov_Qw;
         }
     }
 }

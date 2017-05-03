@@ -173,6 +173,7 @@ void state_vision::reset()
     for (auto &camera : cameras.children) {
         camera->clear_features_and_groups();
         camera->detecting_group = nullptr; // FIXME: does this leak?
+        camera->detecting_space = 0;
     }
     state_motion::reset();
 }

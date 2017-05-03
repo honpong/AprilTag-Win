@@ -134,7 +134,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 update_data(&data);
 
             if (data.id < sfm.s.cameras.children.size())
-                if(sfm.s.cameras.children[data.id]->detecting_group)
+                if(sfm.s.cameras.children[data.id]->detecting_space)
                     sfm.s.cameras.children[data.id]->detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                         [space=sfm.s.cameras.children[data.id]->detecting_space, this] (struct filter *f, const sensor_data &data) -> const std::vector<tracker::feature_track> & {
                             auto start = std::chrono::steady_clock::now();

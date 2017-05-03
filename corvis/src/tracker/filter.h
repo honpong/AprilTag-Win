@@ -20,7 +20,6 @@ struct filter {
     int min_group_add;
     int max_group_add;
     int next_detect_camera;
-    bool first_detect {true};
     
     sensor_clock::time_point last_time;
 

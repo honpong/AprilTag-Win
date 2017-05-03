@@ -844,7 +844,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(f->run_state == RCSensorFusionRunStateRunning && f->detector_failed && time - f->detector_failed_time > max_detector_failed_time) {
         f->log->error("No features for 500ms; switching to orientation only.");
         f->run_state = RCSensorFusionRunStateDynamicInitialization;
-        f->first_detect = true;
         f->s.enable_orientation_only(true);
     }
 
@@ -854,7 +853,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         v3 non_up_var = f->s.Q.variance() - f->s.world.up * f->s.world.up.dot(f->s.Q.variance());
         bool inertial_converged = non_up_var[0] < dynamic_W_thresh_variance && non_up_var[1] < dynamic_W_thresh_variance && non_up_var[2] < dynamic_W_thresh_variance;
         if(inertial_converged) {
-            if(f->first_detect) { f->first_detect = false; return true; }
             if(inertial_converged) {
                 f->log->debug("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
             } else {
@@ -885,6 +883,16 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             f->s.remap();
         }
         camera_state.detecting_group = nullptr;
+        camera_state.detecting_space = 0;
+    }
+    else if(camera_state.detecting_space) //if we are detecting features without a group (first detect)
+    {
+        if(camera_state.detection_future.valid()) {
+            const auto &kp = camera_state.detection_future.get();
+            for(auto &t: kp)
+                camera_state.standby_features.push_back(t);
+        }
+        camera_state.detecting_space = 0;
     }
 
     if(f->run_state == RCSensorFusionRunStateRunning)
@@ -926,9 +934,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     bool myturn = filter_next_detect_camera(f, data.id, time);
     if(space >= f->min_group_add && myturn)
     {
-        if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-            auto & detection = filter_detect(f, data, space);
-            if(detection.size() >= state_vision_group::min_feats) {
+        if((f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization)) {
+            if(camera_state.standby_features.size() >= state_vision_group::min_feats) {
 #ifdef TEST_POSDEF
                 if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
 #endif
@@ -939,12 +946,12 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->run_state = RCSensorFusionRunStateRunning;
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
-                state_vision_group *g = f->s.add_group(camera_state, f->map.get());
+                camera_state.detecting_group = f->s.add_group(camera_state, f->map.get());
                 // we remap here to update f->s.statesize to account for the new group
                 f->s.remap();
                 space = filter_available_feature_space(f, camera_state);
-                filter_add_detected_features(f, g, camera_sensor, detection, space, data.image.height, time);
             }
+            camera_state.detecting_space = space > camera_state.standby_features.size() ? space - camera_state.standby_features.size() : 0;
         } else {
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");

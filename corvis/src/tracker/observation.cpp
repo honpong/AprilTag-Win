@@ -507,7 +507,6 @@ void observation_gyroscope::cache_jacobians()
 
 void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
 {
-    //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
     for(int j = 0; j < dst.cols(); ++j) {
         const auto cov_w = state.w.from_row(src, j);
         const auto cov_wbias = intrinsics.w_bias.from_row(src, j);

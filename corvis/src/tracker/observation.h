@@ -41,7 +41,7 @@ public:
     v<_size> meas;
     sensor_storage<_size> &source;
 
-    Eigen::Map< Eigen::Matrix<f_t, _size, 1>, Eigen::Unaligned, Eigen::InnerStride<> >
+    Eigen::Map< ::v<_size>, Eigen::Unaligned, Eigen::InnerStride<> >
         col(matrix &m, int i) const { return decltype(col(m,i)) { &m(0,i), Eigen::InnerStride<>(m.get_stride()) }; }
 
     virtual void set_prediction_covariance(const matrix &cov, const int index) { for(int i = 0; i < size; ++i) for(int j = 0; j < size; ++j) pred_cov(i, j) = cov(index + i, index + j); }

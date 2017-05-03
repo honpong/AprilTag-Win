@@ -253,21 +253,21 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
         if (!camera.intrinsics.estimate) continue;
         p = get_plot_by_name("distortion");
         if (camera.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE)
-            observe_plot_item(timestamp_us, p, "w" + std::to_string(i), (float)camera.intrinsics.k1.v);
+            observe_plot_item(timestamp_us, p, "w" + std::to_string(i), (float)camera.intrinsics.k.v[0]);
         else if (camera.intrinsics.type == rc_CALIBRATION_TYPE_POLYNOMIAL3 || camera.intrinsics.type == rc_CALIBRATION_TYPE_KANNALA_BRANDT4) {
-            observe_plot_item(timestamp_us, p, "k1-" + std::to_string(i), (float)camera.intrinsics.k1.v);
-            observe_plot_item(timestamp_us, p, "k2-" + std::to_string(i), (float)camera.intrinsics.k2.v);
-            observe_plot_item(timestamp_us, p, "k3-" + std::to_string(i), (float)camera.intrinsics.k3.v);
+            observe_plot_item(timestamp_us, p, "k1-" + std::to_string(i), (float)camera.intrinsics.k.v[0]);
+            observe_plot_item(timestamp_us, p, "k2-" + std::to_string(i), (float)camera.intrinsics.k.v[1]);
+            observe_plot_item(timestamp_us, p, "k3-" + std::to_string(i), (float)camera.intrinsics.k.v[2]);
             if (camera.intrinsics.type == rc_CALIBRATION_TYPE_KANNALA_BRANDT4)
-                observe_plot_item(timestamp_us, p, "k4-" + std::to_string(i), (float)camera.intrinsics.k4.v);
+                observe_plot_item(timestamp_us, p, "k4-" + std::to_string(i), (float)camera.intrinsics.k.v[3]);
         }
 
         p = get_plot_by_name("focal");
         observe_plot_item(timestamp_us, p, "F" + std::to_string(i), (float)(camera.intrinsics.focal_length.v * camera.intrinsics.image_height));
 
         p = get_plot_by_name("center");
-        observe_plot_item(timestamp_us, p, "C_x" + std::to_string(i), (float)(camera.intrinsics.center_x.v * camera.intrinsics.image_height + camera.intrinsics.image_width  / 2. - .5));
-        observe_plot_item(timestamp_us, p, "C_y" + std::to_string(i), (float)(camera.intrinsics.center_y.v * camera.intrinsics.image_height + camera.intrinsics.image_height / 2. - .5));
+        observe_plot_item(timestamp_us, p, "C_x" + std::to_string(i), (float)(camera.intrinsics.center.v.x() * camera.intrinsics.image_height + camera.intrinsics.image_width  / 2. - .5));
+        observe_plot_item(timestamp_us, p, "C_y" + std::to_string(i), (float)(camera.intrinsics.center.v.y() * camera.intrinsics.image_height + camera.intrinsics.image_height / 2. - .5));
     }
 
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {

@@ -383,12 +383,12 @@ void state_camera::remove_group(state_vision_group *g, mapper *map)
 
 feature_t state_vision_intrinsics::normalize_feature(const feature_t &feat) const
 {
-    return (((feat - f_t(.5) * image_size()) + feature_t{.5,.5}) / image_height - feature_t {center_x.v, center_y.v}) / focal_length.v;
+    return (((feat - f_t(.5) * image_size()) + feature_t{.5,.5}) / image_height - center.v) / focal_length.v;
 }
 
 feature_t state_vision_intrinsics::unnormalize_feature(const feature_t &feat_n) const
 {
-    return (feat_n * focal_length.v + feature_t {center_x.v, center_y.v}) * image_height + f_t(.5) * image_size() - feature_t{.5,.5};
+    return (feat_n * focal_length.v + center.v) * image_height + f_t(.5) * image_size() - feature_t{.5,.5};
 }
 
 feature_t state_vision_intrinsics::distort_feature(const feature_t &feat_u) const
@@ -401,7 +401,7 @@ feature_t state_vision_intrinsics::undistort_feature(const feature_t &feat_d) co
     return feat_d * get_undistortion_factor(feat_d);
 }
 
-f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, feature_t *dkd_u_dfeat_u, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3, f_t *dkd_u_dk4) const
+f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, m<1,2> *dkd_u_dfeat_u, m<1,4> *dkd_u_dk) const
 {
     f_t kd_u, ru2, ru = std::sqrt(ru2 = feat_u.squaredNorm());
     switch (type) {
@@ -409,49 +409,55 @@ f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, feat
     case rc_CALIBRATION_TYPE_UNKNOWN:
     case rc_CALIBRATION_TYPE_UNDISTORTED:
         kd_u = 1;
-        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = 0 * feat_u;
-        if (dkd_u_dk1) *dkd_u_dk1 = 0;
-        if (dkd_u_dk2) *dkd_u_dk2 = 0;
-        if (dkd_u_dk3) *dkd_u_dk3 = 0;
-        if (dkd_u_dk4) *dkd_u_dk4 = 0;
+        if (dkd_u_dfeat_u)
+            *dkd_u_dfeat_u = m<1,2>::Zero();
+        if (dkd_u_dk)
+            *dkd_u_dk = m<1,4>::Zero();
         break;
     case rc_CALIBRATION_TYPE_FISHEYE: {
-        f_t w = k1.v;
+        f_t w = k.v[0];
         if(ru < F_T_EPS) ru = F_T_EPS;
         kd_u = std::atan(2 * std::tan(w/2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
-        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = (2 * std::tan(w/2) / (w + 4 * ru * ru * w * std::tan(w/2) * std::tan(w/2)) - kd_u) / ru * feat_u / ru;
-        if (dkd_u_dk1) *dkd_u_dk1 = (2 / (1 + std::cos(w) + 4 * ru * ru * (1 - std::cos(w))) - kd_u) / w;
-        if (dkd_u_dk2) *dkd_u_dk2 = 0;
-        if (dkd_u_dk3) *dkd_u_dk3 = 0;
-        if (dkd_u_dk4) *dkd_u_dk4 = 0;
+        if (dkd_u_dfeat_u)
+            *dkd_u_dfeat_u = (2 * std::tan(w/2) / (w + 4 * ru * ru * w * std::tan(w/2) * std::tan(w/2)) - kd_u) / ru * feat_u.transpose() / ru;
+        if (dkd_u_dk)
+            *dkd_u_dk = m<1,4> {{ (2 / (1 + std::cos(w) + 4 * ru * ru * (1 - std::cos(w))) - kd_u) / w, 0, 0, 0 }};
     }   break;
     case rc_CALIBRATION_TYPE_POLYNOMIAL3: {
-        kd_u = f_t(1) + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
-        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = (k1.v + ru2 * (2 * k2.v + 3 * k3.v * ru2)) * 2 * feat_u;
-        if (dkd_u_dk1) *dkd_u_dk1 = ru2;
-        if (dkd_u_dk2) *dkd_u_dk2 = ru2 * ru2;
-        if (dkd_u_dk3) *dkd_u_dk3 = ru2 * ru2 * ru2;
-        if (dkd_u_dk4) *dkd_u_dk4 = 0;
+        kd_u = f_t(1) + ru2 * (k.v[0] + ru2 * (k.v[1] + ru2 * k.v[2]));
+        if (dkd_u_dfeat_u)
+            *dkd_u_dfeat_u = (k.v[0] + ru2 * (2 * k.v[1] + 3 * k.v[2] * ru2)) * 2 * feat_u.transpose();
+        if (dkd_u_dk)
+            *dkd_u_dk = m<1,4> {{
+                ru2,
+                ru2 * ru2,
+                ru2 * ru2 * ru2,
+                0,
+            }};
     }   break;
     case rc_CALIBRATION_TYPE_KANNALA_BRANDT4: {
         if (ru < F_T_EPS) ru = F_T_EPS;
         f_t theta = std::atan(ru);
         f_t theta2 = theta*theta;
-        f_t series = 1 + theta2*(k1.v + theta2*(k2.v + theta2*(k3.v + theta2*k4.v)));
+        f_t series = 1 + theta2*(k.v[0] + theta2*(k.v[1] + theta2*(k.v[2] + theta2*k.v[3])));
         f_t theta_ru = theta / ru;
         kd_u = theta_ru*series;
-        if (dkd_u_dfeat_u) *dkd_u_dfeat_u = ((theta2*(3 * k1.v + theta2*(5 * k2.v + theta2*(9 * k4.v *theta2 + 7 * k3.v))) + 1) / ((ru2 + 1)*ru) - (series*theta) / ru2) * feat_u / ru;
-        if (dkd_u_dk1) *dkd_u_dk1 = theta_ru * theta2;
-        if (dkd_u_dk2) *dkd_u_dk2 = theta_ru * theta2 * theta2;
-        if (dkd_u_dk3) *dkd_u_dk3 = theta_ru * theta2 * theta2 * theta2;
-        if (dkd_u_dk4) *dkd_u_dk4 = theta_ru * theta2 * theta2 * theta2 * theta2;
+        if (dkd_u_dfeat_u)
+            *dkd_u_dfeat_u = ((theta2*(3 * k.v[0] + theta2*(5 * k.v[1] + theta2*(9 * k.v[3] *theta2 + 7 * k.v[2]))) + 1) / ((ru2 + 1)*ru) - (series*theta) / ru2) * feat_u.transpose() / ru;
+        if (dkd_u_dk)
+            *dkd_u_dk = m<1,4> {{
+                theta_ru * theta2,
+                theta_ru * theta2 * theta2,
+                theta_ru * theta2 * theta2 * theta2,
+                theta_ru * theta2 * theta2 * theta2 * theta2,
+            }};
         break;
     }
     }
     return kd_u;
 }
 
-f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, feature_t *dku_d_dfeat_d, f_t *dku_d_dk1, f_t *dku_d_dk2, f_t *dku_d_dk3, f_t *dku_d_dk4) const
+f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<1,2> *dku_d_dfeat_d, m<1,4> *dku_d_dk) const
 {
     f_t ku_d, rd2, rd = sqrt(rd2 = feat_d.squaredNorm());
     switch (type) {
@@ -459,27 +465,30 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
     case rc_CALIBRATION_TYPE_UNKNOWN:
     case rc_CALIBRATION_TYPE_UNDISTORTED:
         ku_d = 1;
-        if (dku_d_dfeat_d) *dku_d_dfeat_d = 0 * feat_d;
-        if (dku_d_dk1) *dku_d_dk1 = 0;
-        if (dku_d_dk2) *dku_d_dk2 = 0;
-        if (dku_d_dk3) *dku_d_dk3 = 0;
-        if (dku_d_dk4) *dku_d_dk4 = 0;
+        if (dku_d_dfeat_d)
+            *dku_d_dfeat_d = m<1,2>::Zero();
+        if (dku_d_dk)
+            *dku_d_dk = m<1,4>::Zero();
         break;
     case rc_CALIBRATION_TYPE_FISHEYE: {
-        f_t w = k1.v;
+        f_t w = k.v[0];
         if(rd < F_T_EPS) rd = F_T_EPS;
         ku_d = std::tan(w * rd) / (2 * std::tan(w/2) * rd);
-        if (dku_d_dfeat_d) *dku_d_dfeat_d = (rd * w / (std::cos(rd * w) * std::cos(rd * w) * (2 * rd * std::tan(w/2))) - ku_d) / rd * feat_d / rd;
-        if (dku_d_dk1) *dku_d_dk1 = (2 * rd * std::sin(w) - std::sin(2 * rd * w)) / (8 * rd * (std::cos(rd * w) * std::cos(rd * w)) * (std::sin(w/2) * std::sin(w/2)));
-        if (dku_d_dk2) *dku_d_dk2 = 0;
-        if (dku_d_dk3) *dku_d_dk3 = 0;
-        if (dku_d_dk4) *dku_d_dk4 = 0;
+        if (dku_d_dfeat_d)
+            *dku_d_dfeat_d = (rd * w / (std::cos(rd * w) * std::cos(rd * w) * (2 * rd * std::tan(w/2))) - ku_d) / rd * feat_d.transpose() / rd;
+        if (dku_d_dk)
+            *dku_d_dk = m<1,4> {{
+                (2 * rd * std::sin(w) - std::sin(2 * rd * w)) / (8 * rd * (std::cos(rd * w) * std::cos(rd * w)) * (std::sin(w/2) * std::sin(w/2))),
+                0,
+                0,
+                0
+            }};
     }   break;
     case rc_CALIBRATION_TYPE_POLYNOMIAL3: {
         f_t kd_u, ru2 = rd2, dkd_u_dru2;
         for (int i=0; i<4; i++) {
-           kd_u =  1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
-           dkd_u_dru2 = k1.v + 2 * ru2 * (k2.v + 3 * ru2 * k3.v);
+           kd_u =  1 + ru2 * (k.v[0] + ru2 * (k.v[1] + ru2 * k.v[2]));
+           dkd_u_dru2 = k.v[0] + 2 * ru2 * (k.v[1] + 3 * ru2 * k.v[2]);
            // f(ru2) == ru2 * kd_u * kd_u - rd2 == 0;
            // ru2 -= f(ru2) / f'(ru2)
            ru2 -= (ru2 * kd_u * kd_u - rd2) / (kd_u * (kd_u + 2 * ru2 * dkd_u_dru2));
@@ -487,20 +496,24 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
         ku_d = 1 / kd_u;
         f_t ru = std::sqrt(ru2), dkd_u_dru = 2 * ru * dkd_u_dru2;
         // dku_d_drd = d/rd (1/kd_u) = d/ru (1/kd_u) dru/drd = d/ru (1/kd_u) / (drd/dru) = d/ru (1/kd_u) / (d/ru (ru kd_u)) = -dkd_u_dru/kd_u/kd_u / (kd_u + ru dkd_u_dru)
-        if (dku_d_dfeat_d) *dku_d_dfeat_d = -dkd_u_dru/(kd_u * kd_u * (kd_u + ru * dkd_u_dru)) * feat_d / rd;
-        if (dku_d_dk1) *dku_d_dk1 = -(ru2            )/(kd_u*kd_u);
-        if (dku_d_dk2) *dku_d_dk2 = -(ru2 * ru2      )/(kd_u*kd_u);
-        if (dku_d_dk3) *dku_d_dk3 = -(ru2 * ru2 * ru2)/(kd_u*kd_u);
-        if (dku_d_dk4) *dku_d_dk4 = 0;
+        if (dku_d_dfeat_d)
+            *dku_d_dfeat_d = -dkd_u_dru/(kd_u * kd_u * (kd_u + ru * dkd_u_dru)) * feat_d.transpose() / rd;
+        if (dku_d_dk)
+            *dku_d_dk = m<1,4> {{
+                -(ru2            )/(kd_u*kd_u),
+                -(ru2 * ru2      )/(kd_u*kd_u),
+                -(ru2 * ru2 * ru2)/(kd_u*kd_u),
+                0,
+            }};
     }   break;
     case rc_CALIBRATION_TYPE_KANNALA_BRANDT4: {
         if (rd < F_T_EPS) rd = F_T_EPS;
         f_t theta = rd;
         f_t theta2 = theta*theta;
         for (int i = 0; i < 4; i++) {
-            f_t f = theta*(1 + theta2*(k1.v + theta2*(k2.v + theta2*(k3.v + theta2*k4.v)))) - rd;
-            f_t df = 1 + theta2*(3 * k1.v + theta2*(5 * k2.v + theta2*(7 * k3.v + 9 * theta2*k4.v)));
-            // f(theta) == theta*(1 + theta2*(k1.v + theta2*(k2.v + theta2*(k3.v + theta2*k4.v)))) - rd == 0;
+            f_t f = theta*(1 + theta2*(k.v[0] + theta2*(k.v[1] + theta2*(k.v[2] + theta2*k.v[3])))) - rd;
+            f_t df = 1 + theta2*(3 * k.v[0] + theta2*(5 * k.v[1] + theta2*(7 * k.v[2] + 9 * theta2*k.v[3])));
+            // f(theta) == theta*(1 + theta2*(k0 + theta2*(k1 + theta2*(k2 + theta2*k3)))) - rd == 0;
             // theta -= f(theta) / f'(theta)
             theta -= f / df;
             theta2 = theta*theta;
@@ -508,12 +521,16 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
         f_t ru = std::tan(theta);
         f_t ru_rd2 = ru / rd2;
         ku_d = ru / rd;
-        if (dku_d_dfeat_d) *dku_d_dfeat_d = -ru_rd2 * feat_d / rd;
-        // ku_d = ru / theta*(1 + theta2*(k1.v + theta2*(k2.v + theta2*(k3.v + theta2*k4.v))));
-        if (dku_d_dk1) *dku_d_dk1 = -ru_rd2 * theta * theta2;
-        if (dku_d_dk2) *dku_d_dk2 = -ru_rd2 * theta * theta2 * theta2;
-        if (dku_d_dk3) *dku_d_dk3 = -ru_rd2 * theta * theta2 * theta2 * theta2;
-        if (dku_d_dk4) *dku_d_dk4 = -ru_rd2 * theta * theta2 * theta2 * theta2 * theta2;
+        if (dku_d_dfeat_d)
+            *dku_d_dfeat_d = -ru_rd2 * feat_d.transpose() / rd;
+        // ku_d = ru / theta*(1 + theta2*(k.v[0] + theta2*(k.v[1] + theta2*(k.v[2] + theta2*k.v[3]))));
+        if (dku_d_dk)
+            *dku_d_dk = m<1,4> {{
+                -ru_rd2 * theta * theta2,
+                -ru_rd2 * theta * theta2 * theta2,
+                -ru_rd2 * theta * theta2 * theta2 * theta2,
+                -ru_rd2 * theta * theta2 * theta2 * theta2 * theta2,
+            }};
         break;
     }
     }

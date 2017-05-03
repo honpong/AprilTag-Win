@@ -605,8 +605,8 @@ static std::unique_ptr<sensor_data> filter_aligned_depth_to_camera(const sensor_
           i_Fx = d_focal_length_x * i_height,
           i_Fy = d_focal_length_y * i_height;
 
-    float o_Cx = camera_state.intrinsics.center_x.v     * o_height + (o_width  - 1) / 2.,
-          o_Cy = camera_state.intrinsics.center_y.v     * o_height + (o_height - 1) / 2.,
+    float o_Cx = camera_state.intrinsics.center.v.x()   * o_height + (o_width  - 1) / 2.,
+          o_Cy = camera_state.intrinsics.center.v.y()   * o_height + (o_height - 1) / 2.,
           o_Fx = camera_state.intrinsics.focal_length.v * o_height,
           o_Fy = camera_state.intrinsics.focal_length.v * o_height;
 
@@ -1012,35 +1012,28 @@ void filter_initialize(struct filter *f)
         camera_state.extrinsics.T.set_initial_variance(camera_sensor.extrinsics.variance.T);
 
         camera_state.intrinsics.focal_length.v = (camera_sensor.intrinsics.f_x_px + camera_sensor.intrinsics.f_y_px)   / 2        / camera_sensor.intrinsics.height_px;
-        camera_state.intrinsics.center_x.v     = (camera_sensor.intrinsics.c_x_px - camera_sensor.intrinsics.width_px  / 2. + .5) / camera_sensor.intrinsics.height_px;
-        camera_state.intrinsics.center_y.v     = (camera_sensor.intrinsics.c_y_px - camera_sensor.intrinsics.height_px / 2. + .5) / camera_sensor.intrinsics.height_px;
+        camera_state.intrinsics.center.v.x()   = (camera_sensor.intrinsics.c_x_px - camera_sensor.intrinsics.width_px  / 2. + .5) / camera_sensor.intrinsics.height_px;
+        camera_state.intrinsics.center.v.y()   = (camera_sensor.intrinsics.c_y_px - camera_sensor.intrinsics.height_px / 2. + .5) / camera_sensor.intrinsics.height_px;
         if (camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE)
-            camera_state.intrinsics.k1.v = camera_sensor.intrinsics.w;
+            camera_state.intrinsics.k.v[0] = camera_sensor.intrinsics.w;
         else
-            camera_state.intrinsics.k1.v = camera_sensor.intrinsics.k1;
-        camera_state.intrinsics.k2.v = camera_sensor.intrinsics.k2;
-        camera_state.intrinsics.k3.v = camera_sensor.intrinsics.k3;
-        camera_state.intrinsics.k4.v = camera_sensor.intrinsics.k4;
+            camera_state.intrinsics.k.v[0] = camera_sensor.intrinsics.k1;
+        camera_state.intrinsics.k.v[1] = camera_sensor.intrinsics.k2;
+        camera_state.intrinsics.k.v[2] = camera_sensor.intrinsics.k3;
+        camera_state.intrinsics.k.v[3] = camera_sensor.intrinsics.k4;
         camera_state.intrinsics.type = camera_sensor.intrinsics.type;
 
         camera_state.extrinsics.Q.set_process_noise(1.e-30);
         camera_state.extrinsics.T.set_process_noise(1.e-30);
 
         camera_state.intrinsics.focal_length.set_process_noise(2.3e-3 / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
-        camera_state.intrinsics.center_x.set_process_noise(    2.3e-3 / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
-        camera_state.intrinsics.center_y.set_process_noise(    2.3e-3 / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
-        camera_state.intrinsics.k1.set_process_noise(2.3e-7);
-        camera_state.intrinsics.k2.set_process_noise(2.3e-7);
-        camera_state.intrinsics.k3.set_process_noise(2.3e-7);
+        camera_state.intrinsics.center.set_process_noise(      2.3e-3 / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
+        camera_state.intrinsics.k.set_process_noise(2.3e-7);
 
         camera_state.intrinsics.focal_length.set_initial_variance(10. / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
-        camera_state.intrinsics.center_x.set_initial_variance(     2. / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
-        camera_state.intrinsics.center_y.set_initial_variance(     2. / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
+        camera_state.intrinsics.center.set_initial_variance(       2. / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
 
-        camera_state.intrinsics.k1.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
-        camera_state.intrinsics.k2.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
-        camera_state.intrinsics.k3.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
-        camera_state.intrinsics.k4.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
+        camera_state.intrinsics.k.set_initial_variance(camera_sensor.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE ? .01*.01 : 2.e-4);
 
         camera_state.intrinsics.image_width  = camera_sensor.intrinsics.width_px;
         camera_state.intrinsics.image_height = camera_sensor.intrinsics.height_px;
@@ -1139,26 +1132,26 @@ void filter_deinitialize(struct filter *f)
         camera_sensor.intrinsics.height_px = camera_state.intrinsics.image_height;
         camera_sensor.intrinsics.f_x_px    = camera_state.intrinsics.focal_length.v * camera_state.intrinsics.image_height;
         camera_sensor.intrinsics.f_y_px    = camera_state.intrinsics.focal_length.v * camera_state.intrinsics.image_height;
-        camera_sensor.intrinsics.c_x_px    = camera_state.intrinsics.center_x.v * camera_state.intrinsics.image_height + camera_state.intrinsics.image_width / 2. - .5;
-        camera_sensor.intrinsics.c_y_px    = camera_state.intrinsics.center_y.v * camera_state.intrinsics.image_height + camera_state.intrinsics.image_height / 2. - .5;
+        camera_sensor.intrinsics.c_x_px    = camera_state.intrinsics.center.v.x()   * camera_state.intrinsics.image_height + camera_state.intrinsics.image_width / 2. - .5;
+        camera_sensor.intrinsics.c_y_px    = camera_state.intrinsics.center.v.y()   * camera_state.intrinsics.image_height + camera_state.intrinsics.image_height / 2. - .5;
 
         switch((camera_sensor.intrinsics.type = camera_state.intrinsics.type)) {
         case rc_CALIBRATION_TYPE_FISHEYE:
             camera_sensor.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
-            camera_sensor.intrinsics.w = camera_state.intrinsics.k1.v;
+            camera_sensor.intrinsics.w = camera_state.intrinsics.k.v[0];
             break;
         case rc_CALIBRATION_TYPE_POLYNOMIAL3:
             camera_sensor.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
-            camera_sensor.intrinsics.k1 = camera_state.intrinsics.k1.v;
-            camera_sensor.intrinsics.k2 = camera_state.intrinsics.k2.v;
-            camera_sensor.intrinsics.k3 = camera_state.intrinsics.k3.v;
+            camera_sensor.intrinsics.k1 = camera_state.intrinsics.k.v[0];
+            camera_sensor.intrinsics.k2 = camera_state.intrinsics.k.v[1];
+            camera_sensor.intrinsics.k3 = camera_state.intrinsics.k.v[2];
             break;
         case rc_CALIBRATION_TYPE_KANNALA_BRANDT4:
             camera_sensor.intrinsics.type = rc_CALIBRATION_TYPE_KANNALA_BRANDT4;
-            camera_sensor.intrinsics.k1 = camera_state.intrinsics.k1.v;
-            camera_sensor.intrinsics.k2 = camera_state.intrinsics.k2.v;
-            camera_sensor.intrinsics.k3 = camera_state.intrinsics.k3.v;
-            camera_sensor.intrinsics.k4 = camera_state.intrinsics.k4.v;
+            camera_sensor.intrinsics.k1 = camera_state.intrinsics.k.v[0];
+            camera_sensor.intrinsics.k2 = camera_state.intrinsics.k.v[1];
+            camera_sensor.intrinsics.k3 = camera_state.intrinsics.k.v[2];
+            camera_sensor.intrinsics.k4 = camera_state.intrinsics.k.v[3];
             break;
         default:
         case rc_CALIBRATION_TYPE_UNKNOWN:

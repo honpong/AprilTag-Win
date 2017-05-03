@@ -18,6 +18,7 @@
 #include "RCSensorFusionInternals.h"
 #include "filter.h"
 #include "sensor.h"
+#include <mutex>
 
 class sensor_fusion
 {
@@ -171,6 +172,8 @@ private:
     void flush_and_reset();
 
     bool buffering = true;
+
+    std::recursive_mutex mini_mutex;
 };
 
 #endif /* defined(__RC3DK__sensor_fusion__) */

@@ -13,8 +13,6 @@
 #include "spdlog/spdlog.h"
 #include "mapper.h"
 
-#include <mutex>
-
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     filter() { }
@@ -35,7 +33,6 @@ struct filter {
         state_motion state {cov};
         bool valid{false};
     } _mini[2], *mini = &_mini[0], *catchup = &_mini[1];
-    std::recursive_mutex mini_mutex;
 
     std::unique_ptr<spdlog::logger> &log = s.log;
 

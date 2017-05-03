@@ -108,7 +108,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             if (isProcessingVideo && fast_path && !queue.data_in_queue(data.type, data.id)) {
                 auto start = std::chrono::steady_clock::now();
                 sfm.catchup->state.copy_from(sfm.s);
-                std::unique_lock<std::recursive_mutex> mini_lock(sfm.mini_mutex);
+                std::unique_lock<std::recursive_mutex> mini_lock(mini_mutex);
                 // hold the mini_mutex while we manipulate the mini
                 // state *and* while we manipulate the queue during
                 // catchup so that dispatch_buffered is sure to notice
@@ -329,7 +329,7 @@ bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t l
 
 void sensor_fusion::receive_data(sensor_data && data)
 {
-    std::unique_lock<std::recursive_mutex> mini_lock(sfm.mini_mutex);
+    std::unique_lock<std::recursive_mutex> mini_lock(mini_mutex);
     // hold the mini_mutex while we manipulate the mini state *and*
     // while we push data onto the queue so that catchup either
     // updates the mini state before we do or notices that we pushed

@@ -17,6 +17,8 @@ parser.add_argument("-w", "--warnings", action='store_true',
         help="Print details when multiple image frames arrive without an imu frame in between")
 parser.add_argument("-x", "--exposure_warnings", action='store_true',
         help="Print details when exposure times are less than 1ms or greater than 50ms")
+parser.add_argument("-i", "--imu_warnings", action='store_true',
+        help="Print details when accelerometer deltas are > 9m/s^2 or gyro delta is > 2 radians/sec")
 parser.add_argument("capture_filename")
 
 args = parser.parse_args()
@@ -36,6 +38,8 @@ header_str = f.read(header_size)
 prev_packet_str = ""
 warnings = defaultdict(list)
 exposure_warnings = defaultdict(list)
+imu_warnings = defaultdict(list)
+last_data = {}
 while header_str != "":
   (pbytes, ptype, sensor_id, ptime) = unpack('IHHQ', header_str)
   got_types[ptype] += 1
@@ -48,8 +52,16 @@ while header_str != "":
   if ptype == accel_type or ptype == gyro_type:
       # packets are padded to 8 byte boundary
       (x, y, z) = unpack('fff', data[:12])
+      current_data = numpy.array([x, y, z])
       if args.verbose:
           print "\t", sensor_id, x, y, z, sqrt(x*x + y*y + z*z)
+      if packet_str in last_data:
+          norm = numpy.linalg.norm(last_data[packet_str] - current_data)
+          if ptype == gyro_type and norm > 2:
+              imu_warnings[packet_str].append((ptime, norm, current_data, last_data[packet_str]))
+          if ptype == accel_type and norm > 9:
+              imu_warnings[packet_str].append((ptime, norm, current_data, last_data[packet_str]))
+      last_data[packet_str] = current_data
   elif ptype == image_with_depth:
       (exposure, width, height, depth_w, depth_h) = unpack('QHHHH', data[:16])
       if exposure < 1000 or exposure > 50000:
@@ -122,6 +134,8 @@ for packet_type in sorted(packets.keys()):
       print len(warnings[packet_type]), "latency warnings"
   if len(exposure_warnings[packet_type]):
       print len(exposure_warnings[packet_type]), "exposure warnings"
+  if len(imu_warnings[packet_type]):
+      print len(imu_warnings[packet_type]), "IMU warnings"
   if args.exceptions:
       for e in exceptions:
           print "Exception: t t+1 delta", timestamps[e], timestamps[e+1], deltas[e]
@@ -132,6 +146,10 @@ for packet_type in sorted(packets.keys()):
   if args.exposure_warnings:
       for w in exposure_warnings[packet_type]:
           print "Warning: Image at", w[0], "had exposure of", w[1], "microseconds"
+  if args.imu_warnings:
+      numpy.set_printoptions(precision=2)
+      for w in imu_warnings[packet_type]:
+          print "Warning:", packet_type, "at", w[0], "changed by ", w[1], "current: ", w[2], "last:", w[3]
   print ""
 
 if got_types[accel_type] == 0:

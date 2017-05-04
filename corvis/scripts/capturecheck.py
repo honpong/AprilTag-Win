@@ -113,7 +113,7 @@ for packet_type in sorted(packets.keys()):
   print "\tRate:", 1/(median_delta/1e6), "hz"
   print "\tmedian dt (us):", median_delta
   print "\tstd dt (us):", numpy.std(deltas)
-  print "\trelative latency (us): min %.3f, %.3f median, %.3f max, %.3f std" % (numpy.min(platencies), numpy.median(platencies), numpy.max(platencies), numpy.std(platencies))
+  print "\trelative latency (us): %.3f min, %.3f median, %.3f max, %.3f std" % (numpy.min(platencies), numpy.median(platencies), numpy.max(platencies), numpy.std(platencies))
   print "\tstart (s) finish (s):", numpy.min(timestamps)/1e6, numpy.max(timestamps)/1e6
   print "\tlength (s):", (numpy.max(timestamps) - numpy.min(timestamps))/1e6
   exceptions = numpy.flatnonzero(numpy.logical_or(deltas > median_delta*1.05, deltas < median_delta*0.95))

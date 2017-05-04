@@ -12,7 +12,7 @@ parser = argparse.ArgumentParser(description='Check a capture file.')
 parser.add_argument("-v", "--verbose", action='store_true',
         help="Print more information about every packet")
 parser.add_argument("-e", "--exceptions", action='store_true',
-        help="Print details when sample dt is more than 5%% away from the mean")
+        help="Print details when sample dt is more than 5%% away from the median")
 parser.add_argument("-w", "--warnings", action='store_true',
         help="Print details when multiple image frames arrive without an imu frame in between")
 parser.add_argument("-x", "--exposure_warnings", action='store_true',
@@ -108,16 +108,16 @@ for packet_type in sorted(packets.keys()):
   timestamps = numpy.array(packets[packet_type])
   platencies = numpy.array(latencies[packet_type])
   deltas = timestamps[1:] - timestamps[:-1]
-  mean_delta = numpy.mean(deltas)
+  median_delta = numpy.median(deltas)
   print packet_type, len(packets[packet_type]), "packets"
-  print "\tRate:", 1/(mean_delta/1e6), "hz"
-  print "\tmean dt (us):", mean_delta
+  print "\tRate:", 1/(median_delta/1e6), "hz"
+  print "\tmedian dt (us):", median_delta
   print "\tstd dt (us):", numpy.std(deltas)
-  print "\trelative latency (us): min %.3f, %.3f mean, %.3f max, %.3f std" % (numpy.min(platencies), numpy.mean(platencies), numpy.max(platencies), numpy.std(platencies))
+  print "\trelative latency (us): min %.3f, %.3f median, %.3f max, %.3f std" % (numpy.min(platencies), numpy.median(platencies), numpy.max(platencies), numpy.std(platencies))
   print "\tstart (s) finish (s):", numpy.min(timestamps)/1e6, numpy.max(timestamps)/1e6
   print "\tlength (s):", (numpy.max(timestamps) - numpy.min(timestamps))/1e6
-  exceptions = numpy.flatnonzero(numpy.logical_or(deltas > mean_delta*1.05, deltas < mean_delta*0.95))
-  print len(exceptions), "samples are more than 5% from mean"
+  exceptions = numpy.flatnonzero(numpy.logical_or(deltas > median_delta*1.05, deltas < median_delta*0.95))
+  print len(exceptions), "samples are more than 5% from median"
   if len(warnings[packet_type]):
       print len(warnings[packet_type]), "latency warnings"
   if len(exposure_warnings[packet_type]):

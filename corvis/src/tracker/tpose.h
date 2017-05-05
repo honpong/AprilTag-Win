@@ -149,7 +149,9 @@ inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {
         if(s.format == tpose_sequence::FORMAT_VICON && num == 1) continue; // skip header row
         if (line.find("NA") != std::string::npos)
             continue;
+#ifndef MYRIAD2 // Doesn't support exceptions
         try {
+#endif
             switch(s.format) {
                 case tpose_sequence::FORMAT_TUM:
                 s.tposes.emplace_back(tpose_tum(line.c_str()));
@@ -163,11 +165,13 @@ inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {
                 s.tposes.emplace_back(tpose_raw(line.c_str()));
                 break;
             }
+#ifndef MYRIAD2
         } catch (const std::exception&) { // invalid_argument or out_of_range
             std::cerr << "error on line "<< num <<": " << line << "\n";
             file.setstate(std::ios_base::failbit);
             return file;
         }
+#endif
     }
     if (file.eof() && !file.bad()) // getline() can set fail on eof() :(
         file.clear(file.rdstate() & ~std::ios::failbit);

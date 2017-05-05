@@ -14,6 +14,7 @@
 #include <Eigen/Cholesky>
 
 #include <stdio.h>
+#include "Trace.h"
 
 #ifdef MYRIAD2
 #define USE_CHOLESKY_SHAVE
@@ -138,6 +139,7 @@ bool matrix_cholesky_shave(matrix &A, matrix &B)
     // issue which causes us to lock waiting on a DMA transaction on
     // the fast path
     if(A.rows() == 3 && B.rows() == 24) return false;
+    START_EVENT(SF_MSOLVE_HW, 0);
 
 	int N_orig = A.rows();
 	int M_orig = B.rows();
@@ -198,6 +200,7 @@ bool matrix_cholesky_shave(matrix &A, matrix &B)
         A.resize(N_orig, N_orig);
         B.resize(M_orig, N_orig);
     }
+    END_EVENT(SF_MSOLVE_HW, 0);
    return resize;
 }
 #endif
@@ -239,6 +242,8 @@ void matrix::print_diag() const
 
 void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale)
 {
+
+    START_EVENT(SF_GEMM, 0);
 #ifdef USE_BLIS_GEMM
 
     int k = trans1 ? A.rows() : A.cols();
@@ -250,7 +255,9 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
       )
     {
     	blis_mutex.lock();
+        START_EVENT(SF_GEMM_HW, 0);
         matrix_product_blis(res, A, B, dst_scale, scale);
+        END_EVENT(SF_GEMM_HW, k);
         blis_mutex.unlock();
     }
     else
@@ -266,6 +273,7 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
     else
         res.map().noalias() += scale*A.map().transpose() * B.map().transpose();
     }
+    END_EVENT(SF_GEMM, 0);
 }
 
 f_t matrix_check_condition(matrix &A)
@@ -275,10 +283,11 @@ f_t matrix_check_condition(matrix &A)
 
 bool matrix_solve(matrix &A, matrix &B)
 {
+    START_EVENT(SF_MSOLVE, 0);
 #ifdef MYRIAD2
-    if (matrix_cholesky_shave(A, B))
-        return true;
+    if (!matrix_cholesky_shave(A, B))
 #endif
+    {
     matrix::Map
         A_map { &A(0,0), A.rows(), A.cols(), A.get_stride() },
         B_map { &B(0,0), B.rows(), B.cols(), B.get_stride() };
@@ -286,6 +295,8 @@ bool matrix_solve(matrix &A, matrix &B)
     if (llt.info() == Eigen::NumericalIssue)
         return false;
     llt.solveInPlace(B_map.transpose());
+    }
+    END_EVENT(SF_MSOLVE, 0);
     return true;
 }
 

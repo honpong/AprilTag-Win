@@ -26,6 +26,8 @@
 #ifdef HAVE_IPP
 #include "ipp_tracker.h"
 #endif
+#include "Trace.h"
+
 #define USE_SHAVE_TRACKER 1
 
 const static sensor_clock::duration min_steady_time = std::chrono::microseconds(100000); //time held steady before we start treating it as steady
@@ -186,6 +188,7 @@ static bool filter_mini_process_observation_queue(struct filter * f, observation
 
 bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data)
 {
+    START_EVENT(SF_MINI_ACCEL_MEAS, 0);
     if(data.id >= f->accelerometers.size() || data.id >= f->s.imus.children.size())
         return false;
 
@@ -204,11 +207,13 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
     auto stop = std::chrono::steady_clock::now();
     accelerometer.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    END_EVENT(SF_MINI_ACCEL_MEAS, 0);
     return ok;
 }
 
 bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data)
 {
+    START_EVENT(SF_MINI_GYRO_MEAS, 0);
     if(data.id >= f->gyroscopes.size() || data.id >= f->s.imus.children.size())
         return false;
 
@@ -229,6 +234,8 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
 
     auto stop = std::chrono::steady_clock::now();
     gyroscope.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    END_EVENT(SF_MINI_GYRO_MEAS, 0);
+
     return ok;
 }
 
@@ -444,6 +451,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, state_imu 
 
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 {
+    START_EVENT(SF_ACCEL_MEAS, 0);
     if(data.id >= f->accelerometers.size() || data.id >= f->s.imus.children.size())
         return false;
 
@@ -498,11 +506,13 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 
     auto stop = std::chrono::steady_clock::now();
     accelerometer.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    END_EVENT(SF_ACCEL_MEAS, 0);
     return true;
 }
 
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
 {
+    START_EVENT(SF_GYRO_MEAS, 0);
     if(data.id >= f->gyroscopes.size() || data.id >= f->s.imus.children.size())
         return false;
 
@@ -548,6 +558,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
 
     auto stop = std::chrono::steady_clock::now();
     gyroscope.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    END_EVENT(SF_GYRO_MEAS, 0);
     return true;
 }
 
@@ -811,6 +822,7 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 
 bool filter_image_measurement(struct filter *f, const sensor_data & data)
 {
+    START_EVENT(SF_IMAGE_MEAS, 0);
     if(data.id >= f->cameras.size() || data.id >= f->s.cameras.children.size())
         return false;
 
@@ -953,6 +965,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             camera_state.detecting_space = space;
         }
     }
+    END_EVENT(SF_IMAGE_MEAS, 0);
     return true;
 }
 

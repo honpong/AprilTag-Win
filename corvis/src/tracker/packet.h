@@ -9,6 +9,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#ifdef MYRIAD2
+// lives in target/host common area
+#ifdef USE_TM2_PACKETS
+#include "get_pose.h"
+#endif
+#endif
+
 #ifdef WIN32
 #pragma warning (push)
 #pragma warning (disable : 4200)
@@ -47,6 +54,11 @@ enum packet_type {
     packet_core_motion = 27,
     packet_image_with_depth = 28,
     packet_image_raw = 29,
+#ifdef MYRIAD2
+    packet_pose = 30,
+    packet_command_start = 100,
+    packet_command_stop = 101,
+#endif
 };
 
 typedef struct {
@@ -241,6 +253,15 @@ enum packet_plot_type {
     packet_plot_meas_w,
     packet_plot_unknown = 256
 };
+
+#ifdef MYRIAD2
+#ifdef USE_TM2_PACKETS
+typedef struct {
+    packet_header_t header;
+    sixDof_data data;
+} packet_pose_t;
+#endif
+#endif
 
 #ifdef WIN32
 #pragma warning (pop)

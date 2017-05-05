@@ -26,6 +26,9 @@ protected:
     f_t *data;
 
 public:
+    f_t * Data() { return data; }
+    const f_t * Data() const { return data; }
+    int Maxrows() { return maxrows; }
     int get_stride() const { return stride; }
     int rows() const { return _rows; }
     int cols() const { return _cols; }

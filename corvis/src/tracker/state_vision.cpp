@@ -499,6 +499,8 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
         f_t theta2 = theta*theta;
         for (int i = 0; i < 4; i++) {
             f_t f = theta*(1 + theta2*(k1.v + theta2*(k2.v + theta2*(k3.v + theta2*k4.v)))) - rd;
+            if (f == 0)
+                break;
             f_t df = 1 + theta2*(3 * k1.v + theta2*(5 * k2.v + theta2*(7 * k3.v + 9 * theta2*k4.v)));
             // f(theta) == theta*(1 + theta2*(k1.v + theta2*(k2.v + theta2*(k3.v + theta2*k4.v)))) - rd == 0;
             // theta -= f(theta) / f'(theta)

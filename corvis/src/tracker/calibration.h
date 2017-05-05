@@ -28,7 +28,7 @@ typedef sensor_calibration<rc_AccelerometerIntrinsics> sensor_calibration_accele
 typedef sensor_calibration<rc_GyroscopeIntrinsics> sensor_calibration_gyroscope;
 
 struct calibration {
-    int version;
+    int version = CALIBRATION_VERSION;
     std::string device_id;
     std::string device_type;
     std::vector<sensor_calibration_imu> imus;

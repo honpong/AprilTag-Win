@@ -516,7 +516,6 @@ bool calibration_deserialize(const std::string &jsonString, calibration &cal)
         return false;
     }
 
-    cal = {};
     if(version < 10) {
         calibration_json legacy_calibration;
         bool success = calibration_deserialize(jsonString, legacy_calibration);

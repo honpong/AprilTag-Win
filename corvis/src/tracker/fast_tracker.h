@@ -9,6 +9,7 @@
 
 class fast_tracker : public tracker
 {
+public:
     bool is_trackable(int x, int y, int width, int height)
     {
         return (x > half_patch_width &&
@@ -31,9 +32,10 @@ class fast_tracker : public tracker
         float dx, dy;
     };
 
+protected:
+    std::map<uint64_t, feature> feature_map;
 
 private:
-    std::map<uint64_t, feature> feature_map;
     fast_detector_9 fast;
     uint64_t next_id = 0;
 

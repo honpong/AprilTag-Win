@@ -20,9 +20,13 @@
 #include "filter.h"
 #include <memory>
 #include "fast_tracker.h"
+#ifdef MYRIAD2
+#include "shave_tracker.h"
+#endif
 #ifdef HAVE_IPP
 #include "ipp_tracker.h"
 #endif
+#define USE_SHAVE_TRACKER 1
 
 const static sensor_clock::duration min_steady_time = std::chrono::microseconds(100000); //time held steady before we start treating it as steady
 const static sensor_clock::duration steady_converge_time = std::chrono::microseconds(200000); //time that user needs to hold steady (us)
@@ -1038,12 +1042,20 @@ void filter_initialize(struct filter *f)
         camera_state.intrinsics.image_width  = camera_sensor.intrinsics.width_px;
         camera_state.intrinsics.image_height = camera_sensor.intrinsics.height_px;
 
+#ifdef MYRIAD2
+#if USE_SHAVE_TRACKER == 1
+        camera_state.feature_tracker = std::make_unique<shave_tracker>();
+#else
+        camera_state.feature_tracker = std::make_unique<fast_tracker>();
+#endif
+#else // MYRIAD2
         if (1)
             camera_state.feature_tracker = std::make_unique<fast_tracker>();
 #ifdef HAVE_IPP
         else
             camera_state.feature_tracker = std::make_unique<ipp_tracker>();
 #endif
+#endif // MYRIAD2
     }
 
     for (size_t i = 0; i < f->s.imus.children.size() && i < f->gyroscopes.size(); i++) {

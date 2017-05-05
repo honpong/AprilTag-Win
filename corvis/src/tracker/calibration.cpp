@@ -92,8 +92,8 @@ void copy_camera_to_json(const sensor_calibration_camera & camera, Value & camer
     Value camera_object(kObjectType);
 
     Value image_size(kArrayType);
-    image_size.PushBack(camera.intrinsics.width_px, a);
-    image_size.PushBack(camera.intrinsics.height_px, a);
+    image_size.PushBack((unsigned)camera.intrinsics.width_px, a);
+    image_size.PushBack((unsigned)camera.intrinsics.height_px, a);
     camera_object.AddMember(KEY_CAMERA_IMAGE_SIZE, image_size, a);
 
     Value center(kArrayType);
@@ -164,7 +164,7 @@ void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, Document
         accelerometer.AddMember(KEY_IMU_NOISE_VARIANCE, imu.intrinsics.accelerometer.measurement_variance_m2__s4, a);
 
         if (imu.intrinsics.accelerometer.decimate_by > 1)
-            accelerometer.AddMember(KEY_IMU_DECIMATE_BY, imu.intrinsics.accelerometer.decimate_by, a);
+            accelerometer.AddMember(KEY_IMU_DECIMATE_BY, (unsigned)imu.intrinsics.accelerometer.decimate_by, a);
     }
     imu_object.AddMember(KEY_IMU_ACCELEROMETER, accelerometer, a);
 
@@ -187,7 +187,7 @@ void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, Document
         gyroscope.AddMember(KEY_IMU_NOISE_VARIANCE, imu.intrinsics.gyroscope.measurement_variance_rad2__s2, a);
 
         if (imu.intrinsics.gyroscope.decimate_by > 1)
-            gyroscope.AddMember(KEY_IMU_DECIMATE_BY, imu.intrinsics.gyroscope.decimate_by, a);
+            gyroscope.AddMember(KEY_IMU_DECIMATE_BY, (unsigned)imu.intrinsics.gyroscope.decimate_by, a);
     }
     imu_object.AddMember(KEY_IMU_GYROSCOPE, gyroscope, a);
 

@@ -139,8 +139,8 @@ static void copy_calibration_to_json(const calibration_json &cal, Value &json, D
 
 static void copy_camera_to_json(const calibration_xml::camera &cam, Value &json, Document::AllocatorType& a)
 {
-    json.AddMember(KEY_IMAGE_WIDTH, cam.intrinsics.width_px, a);
-    json.AddMember(KEY_IMAGE_HEIGHT, cam.intrinsics.height_px, a);
+    json.AddMember(KEY_IMAGE_WIDTH, (unsigned)cam.intrinsics.width_px, a);
+    json.AddMember(KEY_IMAGE_HEIGHT, (unsigned)cam.intrinsics.height_px, a);
     json.AddMember(KEY_FX, cam.intrinsics.f_x_px, a);
     json.AddMember(KEY_FY, cam.intrinsics.f_y_px, a);
     json.AddMember(KEY_CX, cam.intrinsics.c_x_px, a);

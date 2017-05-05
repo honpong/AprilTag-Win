@@ -74,6 +74,7 @@ public:
         children.push_back(&k1);
         children.push_back(&k2);
         children.push_back(&k3);
+        children.push_back(&k4);
     }
     
     feature_t image_size() const { return feature_t {(f_t)image_width, (f_t)image_height}; }

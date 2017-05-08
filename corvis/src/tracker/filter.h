@@ -51,7 +51,6 @@ struct filter {
     std::vector<transformation> reloc_poses;
     transformation reloc_pose, pose_at_reloc;
 
-
 #ifdef ENABLE_QR
     qr_detector qr;
     sensor_clock::time_point last_qr_time;

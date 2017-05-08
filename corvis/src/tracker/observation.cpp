@@ -229,92 +229,53 @@ void observation_vision_feature::cache_jacobians()
     m3 dTtot_dTr = -(Rct * Rrt);
 
     f_t invZ = 1/X[2];
-    feature_t Xu = {X[0]*invZ, X[1]*invZ};
-    feature_t dkd_u_dXu;
-    f_t kd_u, dkd_u_dk1, dkd_u_dk2, dkd_u_dk3, dkd_u_dk4;
-    kd_u = curr.camera.intrinsics.get_distortion_factor(Xu, &dkd_u_dXu, &dkd_u_dk1, &dkd_u_dk2, &dkd_u_dk3, &dkd_u_dk4);
+    v2 Xu = {X[0]*invZ, X[1]*invZ};
+    m<1,2> dkd_u_dXu;
+    m<1,4> dkd_u_dk;
+    f_t kd_u = curr.camera.intrinsics.get_distortion_factor(Xu, &dkd_u_dXu, &dkd_u_dk);
     //dx_dX = height * focal_length * d(kd_u * Xu + center)_dX
     //= height * focal_length * (dkd_u_dX * Xu + kd_u * dXu_dX)
     //= height * focal_length * (dkd_u_dXu * dXu_dX * Xu + kd_u * dXu_dX)
-    v3 dx_dX, dy_dX;
-    v3 dXu_dX[2];
-    dXu_dX[0] = v3(invZ, 0, -Xu[0] * invZ);
-    dXu_dX[1] = v3(0, invZ, -Xu[1] * invZ);
-    v3 dkd_u_dX = dkd_u_dXu[0] * dXu_dX[0] + dkd_u_dXu[1] * dXu_dX[1];
-    dx_dX = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * (dkd_u_dX * Xu[0] + kd_u * dXu_dX[0]);
-    dy_dX = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * (dkd_u_dX * Xu[1] + kd_u * dXu_dX[1]);
-
+    m<2,3> dXu_dX = {{ invZ, 0, -Xu[0] * invZ },
+                     { 0, invZ, -Xu[1] * invZ }};
+    m<1,3> dkd_u_dX = dkd_u_dXu * dXu_dX;
+    m<2,3> dx_dX = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * (Xu * dkd_u_dX + dXu_dX * kd_u);
     v3 dX_dp = Ttot * feature->v.invdepth_jacobian();
-    dx_dp = dx_dX.dot(dX_dp);
-    dy_dp = dy_dX.dot(dX_dp);
+    dx_dp = dx_dX * dX_dp;
     f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
-        dx_dQr = dx_dX.transpose() * dRtotX0_dQr;
-        dy_dQr = dy_dX.transpose() * dRtotX0_dQr;
-        //dy_dTr = m4(0.);
+        dx_dQr = dx_dX * dRtotX0_dQr;
     } else {
         if(orig.camera.intrinsics.estimate) {
-            feature_t dku_d_dXd;
-            f_t ku_d, dku_d_dk1, dku_d_dk2, dku_d_dk3, dku_d_dk4;
-            ku_d = orig.camera.intrinsics.get_undistortion_factor(Xd, &dku_d_dXd, &dku_d_dk1, &dku_d_dk2, &dku_d_dk3, &dku_d_dk4);
-            v3 dX_dcx = Rtot * v3(ku_d  + dku_d_dXd.x()*Xd.x(),         dku_d_dXd.y()*Xd.x(), 0) / -orig.camera.intrinsics.focal_length.v;
-            v3 dX_dcy = Rtot * v3(        dku_d_dXd.x()*Xd.y(), ku_d  + dku_d_dXd.y()*Xd.y(), 0) / -orig.camera.intrinsics.focal_length.v;
-            v3 dX_dF  = Rtot * v3(Xd.x(), Xd.y(), 0) * (ku_d + dku_d_dXd.dot(Xd))                / -orig.camera.intrinsics.focal_length.v;
-            v3 dX_dk1 = Rtot * v3(Xd.x() * dku_d_dk1, Xd.y() * dku_d_dk1, 0);
-            v3 dX_dk2 = Rtot * v3(Xd.x() * dku_d_dk2, Xd.y() * dku_d_dk2, 0);
-            v3 dX_dk3 = Rtot * v3(Xd.x() * dku_d_dk3, Xd.y() * dku_d_dk3, 0);
-            v3 dX_dk4 = Rtot * v3(Xd.x() * dku_d_dk4, Xd.y() * dku_d_dk4, 0);
+            m<1,2> dku_d_dXd;
+            f_t ku_d; m<1,4> dku_d_dk;
+            ku_d = orig.camera.intrinsics.get_undistortion_factor(Xd, &dku_d_dXd, &dku_d_dk);
+            m<3,2> dX_dc = Rtot * (v3(Xd.x(), Xd.y(), 0) *  dku_d_dXd +      ku_d * m<3,2>::Identity()) / -orig.camera.intrinsics.focal_length.v;
+            m<3,1> dX_dF = Rtot *  v3(Xd.x(), Xd.y(), 0) * (dku_d_dXd * Xd + ku_d * m<1,1>::Identity()) / -orig.camera.intrinsics.focal_length.v;
+            m<3,4> dX_dk = Rtot *  v3(Xd.x(), Xd.y(), 0) *  dku_d_dk;
 
-
-            orig.dx_dF  = dx_dX.dot(dX_dF);
-            orig.dy_dF  = dy_dX.dot(dX_dF);
-            orig.dx_dk1 = dx_dX.dot(dX_dk1);
-            orig.dy_dk1 = dy_dX.dot(dX_dk1);
-            orig.dx_dk2 = dx_dX.dot(dX_dk2);
-            orig.dy_dk2 = dy_dX.dot(dX_dk2);
-            orig.dx_dk3 = dx_dX.dot(dX_dk3);
-            orig.dy_dk3 = dy_dX.dot(dX_dk3);
-            orig.dx_dk4 = dx_dX.dot(dX_dk4);
-            orig.dy_dk4 = dy_dX.dot(dX_dk4);
-
-            orig.dx_dcx = dx_dX.dot(dX_dcx);            orig.dx_dcy = dx_dX.dot(dX_dcy);
-            orig.dy_dcx = dy_dX.dot(dX_dcx);            orig.dy_dcy = dy_dX.dot(dX_dcy);
+            orig.dx_dF = dx_dX * dX_dF;
+            orig.dx_dk = dx_dX * dX_dk;
+            orig.dx_dc = dx_dX * dX_dc;
         }
 
         if (curr.camera.intrinsics.estimate) {
-            curr.dx_dF = curr.camera.intrinsics.image_height * Xu[0] * kd_u;
-            curr.dy_dF = curr.camera.intrinsics.image_height * Xu[1] * kd_u;
-
-            curr.dx_dk1 = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * Xu[0] * dkd_u_dk1;
-            curr.dy_dk1 = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * Xu[1] * dkd_u_dk1;
-            curr.dx_dk2 = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * Xu[0] * dkd_u_dk2;
-            curr.dy_dk2 = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * Xu[1] * dkd_u_dk2;
-            curr.dx_dk3 = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * Xu[0] * dkd_u_dk3;
-            curr.dy_dk3 = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * Xu[1] * dkd_u_dk3;
-            curr.dx_dk4 = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * Xu[0] * dkd_u_dk4;
-            curr.dy_dk4 = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * Xu[1] * dkd_u_dk4;
-
-            curr.dx_dcx = curr.camera.intrinsics.image_height; curr.dx_dcy = 0;
-            curr.dy_dcx = 0;                                   curr.dy_dcy = curr.camera.intrinsics.image_height;
+            curr.dx_dF = curr.camera.intrinsics.image_height * Xu * kd_u;
+            curr.dx_dk = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * Xu * dkd_u_dk;
+            curr.dx_dc = curr.camera.intrinsics.image_height * m<2,2>::Identity();
         }
 
-        dx_dQr = dx_dX.transpose() * (dRtotX0_dQr + dTtot_dQr * invrho);
-        dx_dTr = dx_dX.transpose() * dTtot_dTr * invrho;
-        dy_dQr = dy_dX.transpose() * (dRtotX0_dQr + dTtot_dQr * invrho);
-        dy_dTr = dy_dX.transpose() * dTtot_dTr * invrho;
+        dx_dQr = dx_dX * (dTtot_dQr * invrho + dRtotX0_dQr);
+        dx_dTr = dx_dX *  dTtot_dTr * invrho;
 
         if (curr.camera.extrinsics.estimate) {
-            curr.dx_dQ = dx_dX.transpose() * (dRtotX0_dQc + dTtot_dQc * invrho);
-            curr.dx_dT = dx_dX.transpose() * dTtot_dTc * invrho;
-            curr.dy_dQ = dy_dX.transpose() * (dRtotX0_dQc + dTtot_dQc * invrho);
-            curr.dy_dT = dy_dX.transpose() * dTtot_dTc * invrho;
+            curr.dx_dQ = dx_dX * (dTtot_dQc * invrho + dRtotX0_dQc);
+            curr.dx_dT = dx_dX *  dTtot_dTc * invrho;
         }
 
         if (orig.camera.extrinsics.estimate) {
-            orig.dx_dQ = dx_dX.transpose() * (dRtotX0_dQo + dTtot_dQo * invrho);
-            orig.dx_dT = dx_dX.transpose() * dTtot_dTo * invrho;
-            orig.dy_dQ = dy_dX.transpose() * (dRtotX0_dQo + dTtot_dQo * invrho);
-            orig.dy_dT = dy_dX.transpose() * dTtot_dTo * invrho;
+            orig.dx_dQ = dx_dX * (dTtot_dQo * invrho + dRtotX0_dQo);
+            orig.dx_dT = dx_dX *  dTtot_dTo * invrho;
         }
     }
 }
@@ -325,55 +286,39 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
     if(!feature->is_initialized()) {
         for(int j = 0; j < dst.cols(); ++j) {
             const auto scov_Qr = feature->group.Qr.from_row(src, j);
-            dst(0, j) = dx_dQr.dot(scov_Qr);
-            dst(1, j) = dy_dQr.dot(scov_Qr);
+            col(dst, j) = dx_dQr * scov_Qr;
         }
     } else {
         for(int j = 0; j < dst.cols(); ++j) {
-            const f_t cov_feat = feature->from_row(src, j);
-            const auto scov_Qr = feature->group.Qr.from_row(src, j);
-            const auto  cov_Tr = feature->group.Tr.from_row(src, j);
-            dst(0, j) = dx_dp * cov_feat + dx_dQr.dot(scov_Qr) + dx_dTr.dot(cov_Tr);
-            dst(1, j) = dy_dp * cov_feat + dy_dQr.dot(scov_Qr) + dy_dTr.dot(cov_Tr);
+            const auto cov_feat = feature->from_row(src, j);
+            const auto scov_Qr  = feature->group.Qr.from_row(src, j);
+            const auto  cov_Tr  = feature->group.Tr.from_row(src, j);
+            col(dst, j) = dx_dp * cov_feat + dx_dQr * scov_Qr + dx_dTr * cov_Tr;
 
             if (curr.camera.extrinsics.estimate) {
                 const auto scov_Qc = curr.camera.extrinsics.Q.from_row(src, j);
                 const auto  cov_Tc = curr.camera.extrinsics.T.from_row(src, j);
-                dst(0, j) += curr.dx_dQ.dot(scov_Qc) + curr.dx_dT.dot(cov_Tc);
-                dst(1, j) += curr.dy_dQ.dot(scov_Qc) + curr.dy_dT.dot(cov_Tc);
+                col(dst, j) += curr.dx_dQ * scov_Qc + curr.dx_dT * cov_Tc;
             }
 
             if (orig.camera.extrinsics.estimate) {
                 const auto scov_Qo = orig.camera.extrinsics.Q.from_row(src, j);
                 const auto  cov_To = orig.camera.extrinsics.T.from_row(src, j);
-                dst(0, j) += orig.dx_dQ.dot(scov_Qo) + orig.dx_dT.dot(cov_To);
-                dst(1, j) += orig.dy_dQ.dot(scov_Qo) + orig.dy_dT.dot(cov_To);
+                col(dst, j) += orig.dx_dQ * scov_Qo + orig.dx_dT * cov_To;
             }
 
             if (curr.camera.intrinsics.estimate) {
-                f_t cov_F  = curr.camera.intrinsics.focal_length.from_row(src, j);
-                f_t cov_cx = curr.camera.intrinsics.center_x.from_row(src, j);
-                f_t cov_cy = curr.camera.intrinsics.center_y.from_row(src, j);
-                f_t cov_k1 = curr.camera.intrinsics.k1.from_row(src, j);
-                f_t cov_k2 = curr.camera.intrinsics.k2.from_row(src, j);
-                f_t cov_k3 = curr.camera.intrinsics.k3.from_row(src, j);
-                f_t cov_k4 = curr.camera.intrinsics.k4.from_row(src, j);
-
-                dst(0, j) += curr.dx_dF * cov_F + curr.dx_dcx * cov_cx + curr.dx_dcy * cov_cy + curr.dx_dk1 * cov_k1 + curr.dx_dk2 * cov_k2 + curr.dx_dk3 * cov_k3 + curr.dx_dk4 * cov_k4;
-                dst(1, j) += curr.dy_dF * cov_F + curr.dy_dcx * cov_cx + curr.dy_dcy * cov_cy + curr.dy_dk1 * cov_k1 + curr.dy_dk2 * cov_k2 + curr.dy_dk3 * cov_k3 + curr.dy_dk4 * cov_k4;
+                const auto cov_F = curr.camera.intrinsics.focal_length.from_row(src, j);
+                const auto cov_c = curr.camera.intrinsics.center.from_row(src, j);
+                const auto cov_k = curr.camera.intrinsics.k.from_row(src, j);
+                col(dst, j) += curr.dx_dF * cov_F + curr.dx_dc * cov_c + curr.dx_dk * cov_k;
             }
 
             if (orig.camera.intrinsics.estimate) {
-                f_t cov_F  = orig.camera.intrinsics.focal_length.from_row(src, j);
-                f_t cov_cx = orig.camera.intrinsics.center_x.from_row(src, j);
-                f_t cov_cy = orig.camera.intrinsics.center_y.from_row(src, j);
-                f_t cov_k1 = orig.camera.intrinsics.k1.from_row(src, j);
-                f_t cov_k2 = orig.camera.intrinsics.k2.from_row(src, j);
-                f_t cov_k3 = orig.camera.intrinsics.k3.from_row(src, j);
-                f_t cov_k4 = orig.camera.intrinsics.k4.from_row(src, j);
-
-                dst(0, j) += orig.dx_dF * cov_F + orig.dx_dcx * cov_cx + orig.dx_dcy * cov_cy + orig.dx_dk1 * cov_k1 + orig.dx_dk2 * cov_k2 + orig.dx_dk3 * cov_k3 + orig.dx_dk4 * cov_k4;
-                dst(1, j) += orig.dy_dF * cov_F + orig.dy_dcx * cov_cx + orig.dy_dcy * cov_cy + orig.dy_dk1 * cov_k1 + orig.dy_dk2 * cov_k2 + orig.dy_dk3 * cov_k3 + orig.dy_dk4 * cov_k4;
+                const auto cov_F = orig.camera.intrinsics.focal_length.from_row(src, j);
+                const auto cov_c = orig.camera.intrinsics.center.from_row(src, j);
+                const auto cov_k = orig.camera.intrinsics.k.from_row(src, j);
+                col(dst, j) += orig.dx_dF * cov_F + orig.dx_dc * cov_c + orig.dx_dk * cov_k;
             }
         }
     }
@@ -529,19 +474,11 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
         const auto cov_w = state.w.from_row(src, j);
         const auto cov_dw = state.dw.from_row(src, j);
         f_t cov_g = state.g.from_row(src, j);
-        v3 res =
-            cov_a_bias +
-            da_dQ * scov_Q +
-            da_dw * cov_w +
-            da_ddw * cov_dw +
-            da_dacc * (cov_a + state.world.up * cov_g);
+        col(dst, j) = cov_a_bias + da_dQ * scov_Q + da_dw * cov_w + da_ddw * cov_dw + da_dacc * (cov_a + state.world.up * cov_g);
         if(extrinsics.estimate) {
             const auto scov_Qa = extrinsics.Q.from_row(src, j);
             const auto cov_Ta = extrinsics.T.from_row(src, j);
-            res += da_dQa * scov_Qa + da_dTa * cov_Ta;
-        }
-        for(int i = 0; i < 3; ++i) {
-            dst(i, j) = res[i];
+            col(dst, j) += da_dQa * scov_Qa + da_dTa * cov_Ta;
         }
     }
 }
@@ -567,18 +504,13 @@ void observation_gyroscope::cache_jacobians()
 
 void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
 {
-    //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
     for(int j = 0; j < dst.cols(); ++j) {
         const auto cov_w = state.w.from_row(src, j);
         const auto cov_wbias = intrinsics.w_bias.from_row(src, j);
-        v3 res = cov_wbias +
-            Rw.transpose() * cov_w;
+        col(dst, j) = cov_wbias + Rw.transpose() * cov_w;
         if(extrinsics.estimate) {
             v3 scov_Qw = extrinsics.Q.from_row(src, j);
-            res += dw_dQw * scov_Qw;
-        }
-        for(int i = 0; i < 3; ++i) {
-            dst(i, j) = res[i];
+            col(dst, j) += dw_dQw * scov_Qw;
         }
     }
 }

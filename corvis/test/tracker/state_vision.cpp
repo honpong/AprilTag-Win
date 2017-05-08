@@ -16,9 +16,9 @@ struct StateVision : public ::testing::Test {
 TEST_F(StateVision, UndistortPolynomialIdentity)
 {
     camera.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
-    camera.intrinsics.k1.v = -0.00959507;
-    camera.intrinsics.k2.v = 0.008005806;
-    camera.intrinsics.k3.v = 0.000281827;
+    camera.intrinsics.k.v[0] = -0.00959507;
+    camera.intrinsics.k.v[1] = 0.008005806;
+    camera.intrinsics.k.v[2] = 0.000281827;
 
     for (int i=0; i<1000; i++) {
         feature_t p = { normalized_coord(gen), normalized_coord(gen) },
@@ -31,9 +31,9 @@ TEST_F(StateVision, UndistortPolynomialIdentity)
 TEST_F(StateVision, UndistortPolynomialZero)
 {
     camera.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
-    camera.intrinsics.k1.v = -0.00959507;
-    camera.intrinsics.k2.v = 0.008005806;
-    camera.intrinsics.k3.v = 0.000281827;
+    camera.intrinsics.k.v[0] = -0.00959507;
+    camera.intrinsics.k.v[1] = 0.008005806;
+    camera.intrinsics.k.v[2] = 0.000281827;
 
     feature_t p = {0, 0};
     feature_t undistort_p = camera.intrinsics.undistort_feature(p);
@@ -44,9 +44,9 @@ TEST_F(StateVision, UndistortPolynomialZero)
 TEST_F(StateVision, DistortPolynomialZero)
 {
     camera.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
-    camera.intrinsics.k1.v = -0.00959507;
-    camera.intrinsics.k2.v = 0.008005806;
-    camera.intrinsics.k3.v = 0.000281827;
+    camera.intrinsics.k.v[0] = -0.00959507;
+    camera.intrinsics.k.v[1] = 0.008005806;
+    camera.intrinsics.k.v[2] = 0.000281827;
 
     feature_t p = {0, 0};
     feature_t distort_p = camera.intrinsics.distort_feature(p);
@@ -57,7 +57,7 @@ TEST_F(StateVision, DistortPolynomialZero)
 TEST_F(StateVision, UndistortFisheyeIdentity)
 {
     camera.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
-    camera.intrinsics.k1.v = 0.95;
+    camera.intrinsics.k.v[0] = 0.95;
 
     for (int i=0; i<1000; i++) {
         feature_t p = { normalized_coord(gen), normalized_coord(gen) },
@@ -71,7 +71,7 @@ TEST_F(StateVision, UndistortFisheyeIdentity)
 TEST_F(StateVision, UndistortFisheyeZero)
 {
     camera.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
-    camera.intrinsics.k1.v = 0.95;
+    camera.intrinsics.k.v[0] = 0.95;
 
     feature_t p = {0, 0};
     feature_t undistort_p = camera.intrinsics.undistort_feature(p);
@@ -82,7 +82,7 @@ TEST_F(StateVision, UndistortFisheyeZero)
 TEST_F(StateVision, DistortFisheyeZero)
 {
     camera.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
-    camera.intrinsics.k1.v = 0.95;
+    camera.intrinsics.k.v[0] = 0.95;
 
     feature_t p = {0, 0};
     feature_t distort_p = camera.intrinsics.distort_feature(p);
@@ -93,10 +93,10 @@ TEST_F(StateVision, DistortFisheyeZero)
 TEST_F(StateVision, UndistortKannalaBrandtIdentity)
 {
     camera.intrinsics.type = rc_CALIBRATION_TYPE_KANNALA_BRANDT4;
-    camera.intrinsics.k1.v = -0.01079977f;
-    camera.intrinsics.k2.v =  0.0180711f;
-    camera.intrinsics.k3.v = -0.007713882f;
-    camera.intrinsics.k4.v =  0.0006934929f;
+    camera.intrinsics.k.v[0] = -0.01079977f;
+    camera.intrinsics.k.v[1] =  0.0180711f;
+    camera.intrinsics.k.v[2] = -0.007713882f;
+    camera.intrinsics.k.v[3] =  0.0006934929f;
 
     for (int i = 0; i<1000; i++) {
         feature_t p = { normalized_coord(gen), normalized_coord(gen) },
@@ -110,10 +110,10 @@ TEST_F(StateVision, UndistortKannalaBrandtIdentity)
 TEST_F(StateVision, UndistortKannalaBrandtZero)
 {
     camera.intrinsics.type = rc_CALIBRATION_TYPE_KANNALA_BRANDT4;
-    camera.intrinsics.k1.v = -0.01079977f;
-    camera.intrinsics.k2.v = 0.0180711f;
-    camera.intrinsics.k3.v = -0.007713882f;
-    camera.intrinsics.k4.v = 0.0006934929f;
+    camera.intrinsics.k.v[0] = -0.01079977f;
+    camera.intrinsics.k.v[1] = 0.0180711f;
+    camera.intrinsics.k.v[2] = -0.007713882f;
+    camera.intrinsics.k.v[3] = 0.0006934929f;
 
     feature_t p = { 0, 0 };
     feature_t undistort_p = camera.intrinsics.undistort_feature(p);
@@ -124,10 +124,10 @@ TEST_F(StateVision, UndistortKannalaBrandtZero)
 TEST_F(StateVision, DistortKannalaBrandtZero)
 {
     camera.intrinsics.type = rc_CALIBRATION_TYPE_KANNALA_BRANDT4;
-    camera.intrinsics.k1.v = -0.01079977f;
-    camera.intrinsics.k2.v = 0.0180711f;
-    camera.intrinsics.k3.v = -0.007713882f;
-    camera.intrinsics.k4.v = 0.0006934929f;
+    camera.intrinsics.k.v[0] = -0.01079977f;
+    camera.intrinsics.k.v[1] = 0.0180711f;
+    camera.intrinsics.k.v[2] = -0.007713882f;
+    camera.intrinsics.k.v[3] = 0.0006934929f;
 
     feature_t p = { 0, 0 };
     feature_t distort_p = camera.intrinsics.distort_feature(p);
@@ -140,8 +140,8 @@ TEST_F(StateVision, NormalizeIdentity)
     camera.intrinsics.image_width = 640;
     camera.intrinsics.image_height = 480;
     camera.intrinsics.focal_length.v = 400.f/camera.intrinsics.image_height;
-    camera.intrinsics.center_x.v = (320 - camera.intrinsics.image_width / 2. + .5) / camera.intrinsics.image_height;
-    camera.intrinsics.center_y.v = (240 - camera.intrinsics.image_width / 2. + .5) / camera.intrinsics.image_height;
+    camera.intrinsics.center.v.x() = (320 - camera.intrinsics.image_width / 2. + .5) / camera.intrinsics.image_height;
+    camera.intrinsics.center.v.y() = (240 - camera.intrinsics.image_width / 2. + .5) / camera.intrinsics.image_height;
 
     for (int i=0; i<1000; i++) {
         feature_t p = { normalized_coord(gen), normalized_coord(gen) };

@@ -40,6 +40,10 @@ protected:
 public:
     v<_size> meas;
     sensor_storage<_size> &source;
+
+    Eigen::Map< ::v<_size>, Eigen::Unaligned, Eigen::InnerStride<> >
+        col(matrix &m, int i) const { return decltype(col(m,i)) { &m(0,i), Eigen::InnerStride<>(m.get_stride()) }; }
+
     virtual void set_prediction_covariance(const matrix &cov, const int index) { for(int i = 0; i < size; ++i) for(int j = 0; j < size; ++j) pred_cov(i, j) = cov(index + i, index + j); }
     virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }
@@ -56,14 +60,15 @@ class observation_vision_feature: public observation_storage<2> {
     m3 Rtot;
     v3 Ttot;
 
-    f_t dx_dp, dy_dp;
-    v3 dx_dQr, dy_dQr, dx_dTr, dy_dTr;
+    m<2,1> dx_dp;
+    m<2,3> dx_dQr, dx_dTr;
     struct intrinsics_derivative {
         intrinsics_derivative(const state_camera &c) : camera(c) {}
         const state_camera &camera;
-        v3 dx_dQ, dy_dQ, dx_dT, dy_dT;
-        f_t dx_dF, dy_dF;
-        f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dk3, dy_dk3, dx_dk4, dy_dk4, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
+        m<2,3> dx_dQ, dx_dT;
+        m<2,1> dx_dF;
+        m<2,2> dx_dc;
+        m<2,4> dx_dk;
     } orig, curr;
 
     state_vision_feature *const feature;

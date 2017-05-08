@@ -159,6 +159,7 @@ rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[RS_SF_MAX_PLANE_COUNT], 
         dst_plane.contour_p0 = cp0;
         dst_plane.equation[3] = src_plane->d;
         rs_sf_memcpy(dst_plane.equation, src_plane->normal.data(), size_v3);
+        dst_plane.is_new_plane = src_plane->past_plane ? 0 : 255;
 
         if (point_buffer)
         {

@@ -159,8 +159,8 @@ void benchmark_run(std::ostream &stream, const char *directory,
             ate_errors_m.push_back(r.errors.ate.rmse);
             stream << "\tTranslational RPE\t" << r.errors.rpe_T.rmse << "m\n";
             rpe_T_errors_m.push_back(r.errors.rpe_T.rmse);
-            stream << "\tRotational RPE\t" << r.errors.rpe_R.rmse << "deg\n";
-            rpe_R_errors_deg.push_back(r.errors.rpe_R.rmse);
+            stream << "\tRotational RPE\t" << r.errors.rpe_R.rmse*(180.f/M_PI) << "deg\n";
+            rpe_R_errors_deg.push_back(r.errors.rpe_R.rmse*(180.f/M_PI));
         }
     }
 

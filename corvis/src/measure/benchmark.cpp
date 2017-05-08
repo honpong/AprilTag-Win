@@ -154,7 +154,7 @@ void benchmark_run(std::ostream &stream, const char *directory,
             PL_errors_percent.push_back(mPL.error_percent);
         }
 
-        if (r.errors.is_valid()) {
+        if (r.errors.calculate_ate()) {
             stream << "\tATE\t" << r.errors.ate.rmse << "m\n";
             ate_errors_m.push_back(r.errors.ate.rmse);
             stream << "\tTranslational RPE\t" << r.errors.rpe_T.rmse << "m\n";

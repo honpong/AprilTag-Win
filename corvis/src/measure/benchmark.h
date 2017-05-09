@@ -87,7 +87,7 @@ struct benchmark_result {
                 transformation G_current_kp1_k = invert(current_tpose.G)*current_tpose_ptr->G;
                 transformation G_current_ref_kk = invert(G_current_kp1_k)*G_ref_kp1_k;
                 distances.emplace_back(G_current_ref_kk.T.norm());
-                angles.emplace_back(std::acosf(std::min(std::max((G_current_ref_kk.Q.toRotationMatrix().trace()-1)/2, -1.0f),1.0f)));
+                angles.emplace_back(std::acos(std::min(std::max((G_current_ref_kk.Q.toRotationMatrix().trace()-1)/2, -1.0f),1.0f)));
                 // update pose
                 *current_tpose_ptr = current_tpose;
                 *ref_tpose_ptr = ref_tpose;

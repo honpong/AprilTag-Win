@@ -28,5 +28,5 @@ void kalman_update_covariance(matrix &P, const matrix &K, const matrix &HP)
     //P -= KHP
     matrix_product(P, K, HP, false, false, 1.0, -1.0);
     // enforce symmetry
-    P.map().triangularView<Eigen::Upper>() = P.map().triangularView<Eigen::Lower>().transpose();
+    P.map().triangularView<Eigen::StrictlyUpper>() = P.map().triangularView<Eigen::StrictlyLower>().transpose();
 }

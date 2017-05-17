@@ -383,7 +383,7 @@ void state_camera::remove_group(state_vision_group *g, mapper *map)
 
 feature_t state_vision_intrinsics::normalize_feature(const feature_t &feat) const
 {
-    return (((feat - f_t(.5) * image_size()) + feature_t{.5,.5}) / image_height - center.v) / focal_length.v;
+    return ((feat - f_t(.5) * image_size() + feature_t{.5,.5}) / image_height - center.v) / focal_length.v;
 }
 
 feature_t state_vision_intrinsics::unnormalize_feature(const feature_t &feat_n) const

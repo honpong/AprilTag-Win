@@ -62,8 +62,8 @@ class observation_vision_feature: public observation_storage<2> {
 
     m<2,1> dx_dp;
     m<2,3> dx_dQr, dx_dTr;
-    struct intrinsics_derivative {
-        intrinsics_derivative(const state_camera &c) : camera(c) {}
+    struct camera_derivative {
+        camera_derivative(const state_camera &c) : camera(c) {}
         const state_camera &camera;
         m<2,3> dx_dQ, dx_dT;
         m<2,1> dx_dF;

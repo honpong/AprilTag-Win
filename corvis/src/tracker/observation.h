@@ -22,7 +22,7 @@ public:
     virtual bool measure() = 0;
     virtual void cache_jacobians() = 0;
     virtual void project_covariance(matrix &dst, const matrix &src) = 0;
-    virtual void innovation_covariance_hook(const matrix &cov, int index) = 0;
+    virtual void innovation_covariance_hook(const matrix &cov, int index);
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
     
@@ -94,7 +94,6 @@ public:
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
     observation_spatial(sensor_storage<3> &src): observation_storage(src), variance(0.) {}
-    void innovation_covariance_hook(const matrix &cov, int index);
 };
 
 class observation_accelerometer: public observation_spatial {

@@ -143,11 +143,10 @@ bool observation_queue::process(state_root &s)
     return success;
 }
 
-void observation_spatial::innovation_covariance_hook(const matrix &cov, int index)
+void observation::innovation_covariance_hook(const matrix &cov, int index)
 {
-    if(show_tuning) {
-        fprintf(stderr, " predicted stdev is %e %e %e\n", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)), sqrt(cov(index+2, index+2)));
-    }
+    if (show_tuning)
+        std::cerr << " predicted stdev is " << cov.map().block(index, index, size, size).diagonal().array().sqrt() << "\n";
 }
 
 void observation_vision_feature::innovation_covariance_hook(const matrix &cov, int index)
@@ -155,9 +154,7 @@ void observation_vision_feature::innovation_covariance_hook(const matrix &cov, i
     feature->innovation_variance_x = cov(index, index);
     feature->innovation_variance_y = cov(index + 1, index + 1);
     feature->innovation_variance_xy = cov(index, index +1);
-    if(show_tuning) {
-        fprintf(stderr, " predicted stdev is %e %e\n", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)));
-    }
+    observation::innovation_covariance_hook(cov, index);
 }
 
 void observation_vision_feature::predict()

@@ -232,12 +232,10 @@ void observation_vision_feature::cache_jacobians()
                      { 0, invZ, -Xu[1] * invZ }};
     m<1,3> dkd_u_dX = dkd_u_dXu * dXu_dX;
     m<2,3> dx_dX = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * (Xu * dkd_u_dX + dXu_dX * kd_u);
-    v3 dX_dp = Ttot * feature->v.invdepth_jacobian();
+    v3 dX_dp = Ttot * (feature->is_initialized() ? feature->v.invdepth_jacobian() : 0);
     dx_dp = dx_dX * dX_dp;
-    f_t invrho = feature->v.invdepth();
-    if(!feature->is_initialized()) {
-        dx_dQr = dx_dX * dRtotX0_dQr;
-    } else {
+    f_t invrho = feature->is_initialized() ? feature->v.invdepth() : 0;
+    {
         if(orig.camera.intrinsics.estimate) {
             m<1,2> dku_d_dXd;
             f_t ku_d; m<1,4> dku_d_dk;
@@ -274,13 +272,7 @@ void observation_vision_feature::cache_jacobians()
 
 void observation_vision_feature::project_covariance(matrix &dst, const matrix &src)
 {
-
-    if(!feature->is_initialized()) {
-        for(int j = 0; j < dst.cols(); ++j) {
-            const auto scov_Qr = feature->group.Qr.from_row(src, j);
-            col(dst, j) = dx_dQr * scov_Qr;
-        }
-    } else {
+    {
         for(int j = 0; j < dst.cols(); ++j) {
             const auto cov_feat = feature->from_row(src, j);
             const auto scov_Qr  = feature->group.Qr.from_row(src, j);

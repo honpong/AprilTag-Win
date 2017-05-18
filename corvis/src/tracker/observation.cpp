@@ -181,14 +181,7 @@ void observation_vision_feature::predict()
     feature->body = Rb * X0 * feature->v.depth() + Tb;
 
     X = Rtot * X0 + Ttot * feature->v.invdepth();
-    v3 ippred = X / X[2]; //in the image plane
-#ifdef DEBUG
-    if(fabs(ippred[2]-1.) > 1.e-7) {
-        fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
-    }
-#endif
-
-    v2 Xu = ippred.segment(0,2);
+    v2 Xu = X.segment(0,2) / X[2];
     feature->prediction = curr.camera.intrinsics.unnormalize_feature(curr.camera.intrinsics.distort_feature(Xu));
     pred = feature->prediction;
 }
@@ -305,15 +298,8 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 
 f_t observation_vision_feature::projection_residual(const v3 & X, const feature_t & found_undistorted)
 {
-    f_t invZ = 1/X[2];
-    v3 ippred = X * invZ; //in the image plane
-#ifdef DEBUG
-    if(fabs(ippred[2]-1) > 1.e-7f) {
-        fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
-    }
-#endif
-    feature_t norm = { ippred[0], ippred[1] };
-    return (norm - found_undistorted).squaredNorm();
+    v2 Xu = X.segment(0,2) / X[2];
+    return (Xu - found_undistorted).squaredNorm();
 }
 
 void observation_vision_feature::update_initializing()

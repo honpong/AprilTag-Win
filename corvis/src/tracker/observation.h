@@ -73,7 +73,7 @@ class observation_vision_feature: public observation_storage<2> {
 
     state_vision_feature *const feature;
 
-    feature_t norm_initial, norm_predicted, Xd;
+    feature_t Xd;
 
     virtual void predict();
     virtual void compute_measurement_covariance();

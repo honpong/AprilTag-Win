@@ -177,7 +177,7 @@ void observation_vision_feature::predict()
     Ttot = Rct * (Tb - curr.camera.extrinsics.T.v);
 
     Xd = orig.camera.intrinsics.normalize_feature(feature->initial);
-    norm_initial = orig.camera.intrinsics.undistort_feature(Xd);
+    v2 norm_initial = orig.camera.intrinsics.undistort_feature(Xd);
     X0 = v3(norm_initial.x(), norm_initial.y(), 1);
     feature->body = Rb * X0 * feature->v.depth() + Tb;
 
@@ -189,7 +189,7 @@ void observation_vision_feature::predict()
     }
 #endif
 
-    norm_predicted = {ippred[0], ippred[1]};
+    v2 norm_predicted = {ippred[0], ippred[1]};
     feature->prediction = curr.camera.intrinsics.unnormalize_feature(curr.camera.intrinsics.distort_feature(norm_predicted));
     pred = feature->prediction;
 }

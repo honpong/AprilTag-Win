@@ -206,20 +206,6 @@ void observation_vision_feature::cache_jacobians()
     // v4 X = Rtot * X0 + Ttot / depth
     // v4 dX = dRtot * X0 + Rtot * dX0 + dTtot / depth - Tot / depth / depth ddepth
 
-    // d(Rtot X0) = (Rc' Rr' Ro X0)^ Rc' (dRc Rc')v + (Rc' Rr' Ro X0)^ Rc' Rr' (dRr Rr')v  - (Rr' Rc' Ro X0)^ Rc' Rr' (dRo Ro')v + Rtot dX0
-    // d Ttot = Ttot^ Rc' (dRc Rc')v  - Rc' Tc^ (dRc Rc')v + (Rc' Rr' Rc) Rc' (To - Tr)^ (dRr Rr')v + Rc' Rr' (dTo - dTr) - Rc dTc
-
-    v3 RtotX0 = Rtot * X0;
-    m3 dRtotX0_dQr =   skew(RtotX0) * Rct * Rrt;
-    m3 dRtotX0_dQo = -(skew(RtotX0) * Rct * Rrt);
-    m3 dRtotX0_dQc =   skew(RtotX0) * Rct;
-    m3 dTtot_dQr = Rtot * (Rct * skew(orig.camera.extrinsics.T.v - feature->group.Tr.v));
-    m3 dTtot_dQc = skew(Ttot) * Rct - Rct * skew(curr.camera.extrinsics.T.v);
-    m3 dTtot_dQo = m3::Zero();
-    m3 dTtot_dTc = - Rct;
-    m3 dTtot_dTo =   Rct * Rrt;
-    m3 dTtot_dTr = -(Rct * Rrt);
-
     f_t invZ = 1/X[2];
     v2 Xu = {X[0]*invZ, X[1]*invZ};
     m<1,2> dkd_u_dXu;
@@ -236,6 +222,12 @@ void observation_vision_feature::cache_jacobians()
     dx_dp = dx_dX * dX_dp;
     f_t invrho = feature->is_initialized() ? feature->v.invdepth() : 0;
 
+    // d(Rtot X0) = (Rc' Rr' Ro X0)^ Rc' (dRc Rc')v + (Rc' Rr' Ro X0)^ Rc' Rr' (dRr Rr')v  - (Rr' Rc' Ro X0)^ Rc' Rr' (dRo Ro')v + Rtot dX0
+    // d Ttot = Ttot^ Rc' (dRc Rc')v  - Rc' Tc^ (dRc Rc')v + (Rc' Rr' Rc) Rc' (To - Tr)^ (dRr Rr')v + Rc' Rr' (dTo - dTr) - Rc dTc
+    v3 RtotX0 = Rtot * X0;
+    m3 dRtotX0_dQr = skew(RtotX0) * Rct * Rrt;
+    m3 dTtot_dQr = Rtot * (Rct * skew(orig.camera.extrinsics.T.v - feature->group.Tr.v));
+    m3 dTtot_dTr = -(Rct * Rrt);
 
     dx_dQr = dx_dX * (dTtot_dQr * invrho + dRtotX0_dQr);
     dx_dTr = dx_dX *  dTtot_dTr * invrho;
@@ -260,11 +252,17 @@ void observation_vision_feature::cache_jacobians()
     }
 
     if (curr.camera.extrinsics.estimate) {
+        m3 dRtotX0_dQc = skew(RtotX0) * Rct;
+        m3 dTtot_dQc = skew(Ttot) * Rct - Rct * skew(curr.camera.extrinsics.T.v);
+        m3 dTtot_dTc = -Rct;
         curr.dx_dQ = dx_dX * (dTtot_dQc * invrho + dRtotX0_dQc);
         curr.dx_dT = dx_dX *  dTtot_dTc * invrho;
     }
 
     if (orig.camera.extrinsics.estimate) {
+        m3 dTtot_dQo = m3::Zero();
+        m3 dTtot_dTo = Rct * Rrt;
+        m3 dRtotX0_dQo = -(skew(RtotX0) * Rct * Rrt);
         orig.dx_dQ = dx_dX * (dTtot_dQo * invrho + dRtotX0_dQo);
         orig.dx_dT = dx_dX *  dTtot_dTo * invrho;
     }

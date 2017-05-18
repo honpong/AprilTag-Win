@@ -22,7 +22,6 @@ public:
     virtual bool measure() = 0;
     virtual void cache_jacobians() = 0;
     virtual void project_covariance(matrix &dst, const matrix &src) = 0;
-    virtual void set_prediction_covariance(const matrix &cov, const int index) = 0;
     virtual void innovation_covariance_hook(const matrix &cov, int index) = 0;
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
@@ -36,7 +35,6 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:
     v<_size> m_cov, pred, inn;
-    m<_size> pred_cov;
 public:
     v<_size> meas;
     sensor_storage<_size> &source;
@@ -44,7 +42,6 @@ public:
     Eigen::Map< ::v<_size>, Eigen::Unaligned, Eigen::InnerStride<> >
         col(matrix &m, int i) const { return decltype(col(m,i)) { &m(0,i), Eigen::InnerStride<>(m.get_stride()) }; }
 
-    virtual void set_prediction_covariance(const matrix &cov, const int index) { for(int i = 0; i < size; ++i) for(int j = 0; j < size; ++j) pred_cov(i, j) = cov(index + i, index + j); }
     virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }
     virtual f_t measurement_covariance(const int i) const { return m_cov[i]; }

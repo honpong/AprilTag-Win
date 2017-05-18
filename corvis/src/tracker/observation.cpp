@@ -60,17 +60,11 @@ void observation_queue::compute_prediction_covariance(const state_root &s, int m
         o->project_covariance(dst, s.cov.cov); // HP = H * P'
         index += o->size;
     }
-    
+
     index = 0;
     for(auto &o : observations) {
         matrix dst(res_cov, index, 0, o->size, meas_size);
         o->project_covariance(dst, HP); // res_cov = H * (H * P')' = H * P * H'
-        index += o->size;
-    }
-    
-    index = 0;
-    for(auto &o : observations) {
-        o->set_prediction_covariance(res_cov, index);
         index += o->size;
     }
 }

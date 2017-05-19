@@ -552,7 +552,7 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
             id_to_state[feature->tracker_feature->id] = feature;
             feature_tracker->tracks.emplace_back(feature->tracker_feature,
                                                       (float)feature->current.x(), (float)feature->current.y(),
-                                                      (float)feature->prediction.x(), (float)feature->prediction.y());
+                                                      (float)feature->prediction.x(), (float)feature->prediction.y(), 0);
         }
     }
 

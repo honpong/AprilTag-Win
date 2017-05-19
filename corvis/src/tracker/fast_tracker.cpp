@@ -5,7 +5,7 @@
 
 using namespace std;
 
-vector<tracker::point> &fast_tracker::detect(const image &image, const std::vector<point> &features, int number_desired)
+vector<tracker::feature_track> &fast_tracker::detect(const image &image, const std::vector<point> &features, int number_desired)
 {
     if (!mask)
         mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
@@ -21,7 +21,7 @@ vector<tracker::point> &fast_tracker::detect(const image &image, const std::vect
         if(!is_trackable((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
             continue;
         mask->clear((int)d.x, (int)d.y);
-        feature_points.emplace_back(make_shared<fast_feature>(d.x, d.y, image.image, image.stride_px), d.x, d.y, d.score);
+        feature_points.emplace_back(make_shared<fast_feature>(d.x, d.y, image.image, image.stride_px), d.x, d.y, d.x, d.y, d.score);
         if (feature_points.size() == number_desired)
             break;
     }

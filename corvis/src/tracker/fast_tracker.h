@@ -38,7 +38,7 @@ private:
 public:
     fast_tracker() {}
     virtual ~fast_tracker() {}
-    virtual std::vector<point> &detect(const image &image, const std::vector<point> &features, int number_desired) override;
+    virtual std::vector<feature_track> &detect(const image &image, const std::vector<point> &features, int number_desired) override;
     virtual void track(const image &image, std::vector<feature_track> &tracks) override;
 };
 

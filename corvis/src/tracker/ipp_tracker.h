@@ -223,7 +223,7 @@ public:
         std::swap(prev, next);
     }
 
-    virtual std::vector<point> &detect(const image &image, const std::vector<point> &current, int number_desired) override {
+    virtual std::vector<feature_track> &detect(const image &image, const std::vector<point> &current, int number_desired) override {
         if (!mask)
             mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
         mask->initialize();
@@ -244,7 +244,7 @@ public:
                 continue;
             mask->clear((int)c.x, (int)c.y);
 
-            feature_points.emplace_back(std::make_shared<tracker::feature>(), c.x, c.y, c.score);
+            feature_points.emplace_back(std::make_shared<tracker::feature>(), c.x, c.y, c.x, c.y, c.score);
             push_heap(feature_points.begin(), feature_points.end(), by_score);
             if(feature_points.size() > number_desired) {
                 pop_heap(feature_points.begin(), feature_points.end(), by_score);

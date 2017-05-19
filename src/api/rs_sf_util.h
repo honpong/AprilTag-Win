@@ -13,6 +13,15 @@
 #include <stdio.h>
 #include <mutex>
 #include <future>
+
+//Don't use GPL-licensed pieces of eigen
+#define EIGEN_MPL2_ONLY
+
+//This disables internal asserts which slow eigen down quite a bit
+#ifndef DEBUG
+#define EIGEN_NO_DEBUG
+#endif
+
 #include <Eigen/Dense>
 #if defined(OPENCV_FOUND) | defined(OpenCV_FOUND)
 #include <opencv2/opencv.hpp>

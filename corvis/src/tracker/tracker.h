@@ -36,8 +36,7 @@ struct tracker {
     std::unique_ptr<scaled_mask> mask;
 
     std::vector<feature_track> feature_points;
-    std::vector<feature_track *> current_features; // reusable storage passed to detect()
-    std::vector<feature_track *> tracks; // reusable storage passed to and returned from track()
+    std::vector<feature_track *> tracks; // reusable storage passed to track() and detect()
     /*
      @param image  The image to use for feature detection
      @param number_desired  The desired number of features, function can return less or more

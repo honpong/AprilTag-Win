@@ -89,10 +89,12 @@ if(BUILD_SHAPEFIT_DEV_APP)
         list(APPEND SHAPEFIT_DEV_DEPENDENCIES m ${GLFW_LIBRARIES})
         include_directories(${GLFW_INCLUDE_DIR})
     endif()
-
+	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     add_subdirectory(dev)
 
     if(MSVC)
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT shapefit-dev)
+		set(CMAKE_CONFIGURATION_TYPES Release CACHE STRING "" FORCE)
     endif()
 endif()

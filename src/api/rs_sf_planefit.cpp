@@ -149,15 +149,17 @@ rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[RS_SF_MAX_PLANE_COUNT], 
     }
 
     const auto* pt3d = m_ref_view.pt_img.data();
-    int pl = 0, pid_contour[RS_SF_MAX_PLANE_COUNT] = { 0 };
+    int pl = 0, cp0 = 0, pid_contour[RS_SF_MAX_PLANE_COUNT] = { 0 };
     for (const auto& contour : contours)
     {
         auto& dst_plane = dst[pl++] = {};
         auto& src_plane = pt3d[contour[0]].best_plane;
         dst_plane.plane_id = src_plane->pid;
         dst_plane.contour_id = pid_contour[dst_plane.plane_id]++;
+        dst_plane.contour_p0 = cp0;
         dst_plane.equation[3] = src_plane->d;
         rs_sf_memcpy(dst_plane.equation, src_plane->normal.data(), size_v3);
+        dst_plane.is_new_plane = src_plane->past_plane ? 0 : 255;
 
         if (point_buffer)
         {
@@ -183,6 +185,9 @@ rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[RS_SF_MAX_PLANE_COUNT], 
             dst_plane.num_points = (int)(dst_pos - dst_plane.pos);
             point_buffer += (dst_plane.num_points * 3);
         }
+        
+        // move to next first point position of buffer memory
+        cp0 += (dst_plane.num_points * 3);
 
         if (pl >= RS_SF_MAX_PLANE_COUNT) return RS_SF_INDEX_OUT_OF_BOUND;
     }

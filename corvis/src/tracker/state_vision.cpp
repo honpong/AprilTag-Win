@@ -544,21 +544,21 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
 
     std::map<uint64_t, state_vision_feature *> id_to_state;
 
-    feature_tracker->predictions.clear();
-    feature_tracker->predictions.reserve(feature_count());
+    feature_tracker->tracks.clear();
+    feature_tracker->tracks.reserve(feature_count());
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children) {
             id_to_state[feature->tracker_feature->id] = feature;
-            feature_tracker->predictions.emplace_back(feature->tracker_feature,
+            feature_tracker->tracks.emplace_back(feature->tracker_feature,
                                                       (float)feature->current.x(), (float)feature->current.y(),
                                                       (float)feature->prediction.x(), (float)feature->prediction.y());
         }
     }
 
-    int i=0;
-    if (feature_tracker->predictions.size())
-        for(const auto &p : feature_tracker->track(current_image, feature_tracker->predictions)) {
+    if (feature_tracker->tracks.size())
+        feature_tracker->track(current_image, feature_tracker->tracks);
+        for(const auto &p : feature_tracker->tracks) {
             state_vision_feature * feature = id_to_state[p.feature->id];
             feature->current.x() = p.found ? p.x : INFINITY;
             feature->current.y() = p.found ? p.y : INFINITY;

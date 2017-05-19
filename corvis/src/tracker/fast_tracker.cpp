@@ -28,35 +28,33 @@ vector<tracker::point> &fast_tracker::detect(const image &image, const std::vect
     return feature_points;
 }
 
-vector<tracker::prediction> &fast_tracker::track(const image &image, vector<prediction> &predictions)
+void fast_tracker::track(const image &image, vector<feature_track> &tracks)
 {
-    for(auto &pred : predictions) {
-        fast_feature &f = *static_cast<fast_feature *>(pred.feature.get());
+    for(auto &t : tracks) {
+        fast_feature &f = *static_cast<fast_feature *>(t.feature.get());
 
         xy bestkp = fast.track(f.patch, image.image,
                 half_patch_width, half_patch_width,
-                pred.prev_x + f.dx, pred.prev_y + f.dy, fast_track_radius,
+                t.x + f.dx, t.y + f.dy, fast_track_radius,
                 fast_track_threshold, fast_min_match);
 
         // Not a good enough match, try the filter prediction
         if(bestkp.score < fast_good_match) {
             xy bestkp2 = fast.track(f.patch, image.image,
                     half_patch_width, half_patch_width,
-                    pred.x, pred.y, fast_track_radius,
+                    t.pred_x, t.pred_y, fast_track_radius,
                     fast_track_threshold, bestkp.score);
             if(bestkp2.score > bestkp.score)
                 bestkp = bestkp2;
         }
 
         if(bestkp.x != INFINITY) {
-            f.dx = bestkp.x - pred.prev_x;
-            f.dy = bestkp.y - pred.prev_y;
-            pred.x = bestkp.x;
-            pred.y = bestkp.y;
-            pred.score = bestkp.score;
-            pred.found = true;
+            f.dx = bestkp.x - t.x;
+            f.dy = bestkp.y - t.y;
+            t.x = bestkp.x;
+            t.y = bestkp.y;
+            t.score = bestkp.score;
+            t.found = true;
         }
     }
-
-    return predictions;
 }

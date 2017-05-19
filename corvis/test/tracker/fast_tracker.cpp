@@ -98,11 +98,11 @@ TEST(FastTracker, Track)
 
     EXPECT_EQ(detections.size(), 4);
 
-    std::vector<tracker::prediction> predictions;
+    std::vector<tracker::feature_track> tracks;
     for(int i = 0; i < detections.size(); i++) {
-        predictions.push_back(tracker::prediction(detections[i].feature, detections[i].x, detections[i].y, detections[i].x+velocity_x_px, detections[i].y+velocity_y_px));
+        tracks.push_back(tracker::feature_track(detections[i].feature, detections[i].x, detections[i].y, detections[i].x+velocity_x_px, detections[i].y+velocity_y_px));
     }
-    std::vector<tracker::prediction> tracks = tracker.track(image2, predictions);
+    tracker.track(image2, tracks);
     EXPECT_EQ(tracks.size(), 4);
 }
 
@@ -133,11 +133,11 @@ TEST(FastTracker, TrackBounds)
 
     EXPECT_EQ(detections.size(), 4);
 
-    std::vector<tracker::prediction> predictions;
+    std::vector<tracker::feature_track> tracks;
     for(int i = 0; i < detections.size(); i++) {
-        predictions.push_back(tracker::prediction(detections[i].feature, detections[i].x +1000, detections[i].y + 1000, detections[i].x+1000, detections[i].y+1000));
+        tracks.push_back(tracker::feature_track(detections[i].feature, detections[i].x +1000, detections[i].y + 1000, detections[i].x+1000, detections[i].y+1000));
     }
-    std::vector<tracker::prediction> tracks = tracker.track(image2, predictions);
+    tracker.track(image2, tracks);
     EXPECT_EQ(tracks.size(), 4);
     for(int i = 0; i < tracks.size(); i++) {
         EXPECT_FALSE(tracks[i].found);

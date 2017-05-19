@@ -23,11 +23,11 @@ struct tracker {
         point(std::shared_ptr<struct feature> feature_, float x_, float y_, float score_) : feature(feature_), x(x_), y(y_), score(score_) {}
     };
 
-    struct prediction : public point {
+    struct feature_track : public point {
         bool found;
-        float prev_x, prev_y;
-        prediction(std::shared_ptr<struct feature> feature_, float prev_x_, float prev_y_, float pred_x_, float pred_y_)
-            : point(feature_, pred_x_, pred_y_, 0), found(false), prev_x(prev_x_), prev_y(prev_y_) {}
+        float pred_x, pred_y;
+        feature_track(std::shared_ptr<struct feature> feature_, float x_, float y_, float pred_x_, float pred_y_)
+            : point(feature_, x_, y_, 0), found(false), pred_x(pred_x_), pred_y(pred_y_) {}
     };
 
     typedef struct {
@@ -41,7 +41,7 @@ struct tracker {
 
     std::vector<point> feature_points;
     std::vector<point> current_features; // reuasable storage passed to detect()
-    std::vector<prediction> predictions; // reuasable storage passed to and returned from track()
+    std::vector<feature_track> tracks; // reusable storage passed to and returned from track()
     /*
      @param image  The image to use for feature detection
      @param number_desired  The desired number of features, function can return less or more
@@ -53,11 +53,11 @@ struct tracker {
 
     /*
      @param current_image The image to track in
-     @param predictions The current and predicted locations in the current image
+     @param tracks Includes the current and predicted locations in the current image
 
-     Returns the same vector of predictions as given but with found and score set
+     Updates the vector of tracks, with found and score set
      */
-    virtual std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions) = 0;
+    virtual void track(const image &image, std::vector<feature_track> &tracks) = 0;
 
     virtual ~tracker() {}
 };

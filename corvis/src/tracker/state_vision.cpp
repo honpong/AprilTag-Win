@@ -15,7 +15,7 @@ f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 
 state_vision_feature::state_vision_feature(const tracker::feature_track &track_, state_vision_group &group_):
-    state_leaf("feature", constant), track(track_), initial(track_.x, track_.y), current(track_.x, track_.y), group(group_)
+    state_leaf("feature", constant), track(track_), initial(track_.x, track_.y), group(group_)
 {
     reset();
 }
@@ -216,7 +216,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     int track_fail = 0;
     for(auto *g : groups.children) {
         for(state_vision_feature *i : g->features.children) {
-            if(i->current[0] == INFINITY) {
+            if(i->track.found == false) {
                 // Drop tracking failures
                 ++track_fail;
                 if(i->is_good()) ++useful_drops;
@@ -319,7 +319,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
                     }
                     //log->info("feature {} good radius {}", f->id, radius);
                     if (descriptor_compute((uint8_t*)image.image, image.width, image.height, image.stride,
-                                           static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
+                                           static_cast<float>(f->track.x), static_cast<float>(f->track.y), radius,
                                            f->descriptor)) {
                         f->descriptor_valid = true;
                         map->add_feature(g->id, f->track.feature->id, f->node_body, variance_meters, f->descriptor);
@@ -542,29 +542,16 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
     current_image.height_px = image.height;
     current_image.stride_px = image.stride;
 
-    std::map<uint64_t, state_vision_feature *> id_to_state;
-
     feature_tracker->tracks.clear();
     feature_tracker->tracks.reserve(feature_count());
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
-        for(state_vision_feature *feature : g->features.children) {
-            id_to_state[feature->track.feature->id] = feature;
-            feature->track.x = feature->current.x();
-            feature->track.y = feature->current.y();
-            feature->track.pred_x = feature->prediction.x();
-            feature->track.pred_y = feature->prediction.y();
+        for(state_vision_feature *feature : g->features.children)
             feature_tracker->tracks.emplace_back(&feature->track);
-        }
     }
 
     if (feature_tracker->tracks.size())
         feature_tracker->track(current_image, feature_tracker->tracks);
-        for(const auto &p : feature_tracker->tracks) {
-            state_vision_feature * feature = id_to_state[p->feature->id];
-            feature->current.x() = p->found ? p->x : INFINITY;
-            feature->current.y() = p->found ? p->y : INFINITY;
-        }
 }
 
 float state_vision::median_depth_variance()

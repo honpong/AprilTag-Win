@@ -86,8 +86,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     tracker::feature_track track;
     f_t outlier = 0;
     v2 initial;
-    v2 current;
-    v2 prediction;
     f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
     state_vision_group &group;
     v3 body = v3(0, 0, 0);

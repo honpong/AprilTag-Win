@@ -174,8 +174,9 @@ void observation_vision_feature::predict()
 
     X = Rtot * X0 + Ttot * feature->v.invdepth();
     v2 Xu = X.segment(0,2) / X[2];
-    feature->prediction = curr.camera.intrinsics.unnormalize_feature(curr.camera.intrinsics.distort_feature(Xu));
-    pred = feature->prediction;
+    pred = curr.camera.intrinsics.unnormalize_feature(curr.camera.intrinsics.distort_feature(Xu));
+    feature->track.pred_x = pred.x();
+    feature->track.pred_y = pred.y();
 }
 
 void observation_vision_feature::cache_jacobians()
@@ -347,11 +348,9 @@ void observation_vision_feature::update_initializing()
 
 bool observation_vision_feature::measure()
 {
-    meas = feature->current;
+    meas = {feature->track.x, feature->track.y};
 
-    bool valid = meas[0] != INFINITY;
-
-    if(valid) {
+    if(feature->track.found) {
         source.meas_stdev.data(meas);
         if(!feature->is_initialized()) {
             update_initializing();
@@ -365,7 +364,7 @@ bool observation_vision_feature::measure()
         return false;
     }
 
-    return valid;
+    return feature->track.found;
 }
 
 void observation_vision_feature::compute_measurement_covariance()

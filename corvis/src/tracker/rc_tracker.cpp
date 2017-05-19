@@ -656,10 +656,10 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
                 if(!i->is_valid()) continue;
                 rc_Feature feat;
                 feat.id = i->track.feature->id;
-                feat.image_x = static_cast<decltype(feat.image_x)>(i->current[0]);
-                feat.image_y = static_cast<decltype(feat.image_y)>(i->current[1]);
-                feat.image_prediction_x = static_cast<decltype(feat.image_prediction_x)>(i->prediction[0]);
-                feat.image_prediction_y = static_cast<decltype(feat.image_prediction_y)>(i->prediction[1]);
+                feat.image_x = static_cast<decltype(feat.image_x)>(i->track.x);
+                feat.image_y = static_cast<decltype(feat.image_y)>(i->track.y);
+                feat.image_prediction_x = static_cast<decltype(feat.image_prediction_x)>(i->track.pred_x);
+                feat.image_prediction_y = static_cast<decltype(feat.image_prediction_y)>(i->track.pred_y);
                 v3 ext_pos = G * i->body;
                 feat.world.x = static_cast<decltype(feat.world.x)>(ext_pos[0]);
                 feat.world.y = static_cast<decltype(feat.world.y)>(ext_pos[1]);

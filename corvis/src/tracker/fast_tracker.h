@@ -5,8 +5,6 @@
 #include "fast_constants.h"
 #include "fast_detector/fast.h"
 
-#include <map>
-
 class fast_tracker : public tracker
 {
     bool is_trackable(int x, int y, int width, int height)

@@ -14,8 +14,8 @@ f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 
-state_vision_feature::state_vision_feature(state_vision_group &group_, uint64_t feature_id, const feature_t &initial_):
-    state_leaf("feature", constant), group(group_), id(feature_id), initial(initial_), current(initial_)
+state_vision_feature::state_vision_feature(std::shared_ptr<tracker::feature> feature_, state_vision_group &group_, uint64_t feature_id, const feature_t &initial_):
+    state_leaf("feature", constant), tracker_feature(feature_), initial(initial_), current(initial_), id(feature_id), group(group_)
 {
     reset();
 }
@@ -229,8 +229,6 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
                     ++outliers;
                 }
             }
-            if(i->should_drop())
-                feature_tracker->drop_feature(i->tracker_id);
         }
     }
 
@@ -253,11 +251,8 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
 
         // Notify features that this group is about to disappear
         // This sets group_empty (even if group_reference)
-        if(!health) {
-            for(state_vision_feature *i : g->features.children)
-                feature_tracker->drop_feature(i->tracker_id);
+        if(!health)
             g->make_empty();
-        }
 
         // Found our reference group
         if(g->status == group_reference)
@@ -343,9 +338,9 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
     }
 }
 
-state_vision_feature * state_vision::add_feature(state_vision_group &group, const feature_t &initial)
+state_vision_feature * state_vision::add_feature(std::shared_ptr<tracker::feature> feature_, state_vision_group &group, const feature_t &initial)
 {
-    return new state_vision_feature(group, feature_counter++, initial);
+    return new state_vision_feature(feature_, group, feature_counter++, initial);
 }
 
 state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
@@ -554,8 +549,8 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children) {
-            id_to_state[feature->tracker_id] = feature;
-            feature_tracker->predictions.emplace_back(feature->tracker_id,
+            id_to_state[feature->tracker_feature->id] = feature;
+            feature_tracker->predictions.emplace_back(feature->tracker_feature,
                                                       (float)feature->current.x(), (float)feature->current.y(),
                                                       (float)feature->prediction.x(), (float)feature->prediction.y());
         }
@@ -564,7 +559,7 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
     int i=0;
     if (feature_tracker->predictions.size())
         for(const auto &p : feature_tracker->track(current_image, feature_tracker->predictions)) {
-            state_vision_feature * feature = id_to_state[p.id];
+            state_vision_feature * feature = id_to_state[p.feature->id];
             feature->current.x() = p.found ? p.x : INFINITY;
             feature->current.y() = p.found ? p.y : INFINITY;
         }

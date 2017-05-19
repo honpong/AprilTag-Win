@@ -167,7 +167,6 @@ class ipp_tracker : public tracker
     static constexpr float threshold = .1f;
     static constexpr int win_size = static_cast<int>(2*fast_track_radius + .5);
 private:
-    uint64_t next_id = 0;
     Ipp8u *state_buffer = nullptr;
     IppiOptFlowPyrLK_8u_C1R *state = nullptr;
     ipp_fast_detector fast;
@@ -246,7 +245,7 @@ public:
                 continue;
             mask->clear((int)c.x, (int)c.y);
 
-            feature_points.emplace_back(next_id++, c.x, c.y, c.score);
+            feature_points.emplace_back(std::make_shared<tracker::feature>(), c.x, c.y, c.score);
             push_heap(feature_points.begin(), feature_points.end(), by_score);
             if(feature_points.size() > number_desired) {
                 pop_heap(feature_points.begin(), feature_points.end(), by_score);
@@ -255,8 +254,6 @@ public:
         }
         std::sort_heap(feature_points.begin(), feature_points.end(), by_score);
         return feature_points;
-    }
-    virtual void drop_feature(uint64_t feature_id) override {
     }
 };
 

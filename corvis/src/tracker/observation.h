@@ -81,7 +81,7 @@ class observation_vision_feature: public observation_storage<2> {
     void update_initializing();
 
     observation_vision_feature(sensor_grey &src, const state_camera &camera, state_vision_feature &f)
-        : observation_storage(src), curr(camera), orig(f.group.camera), feature(&f) {}
+        : observation_storage(src), orig(f.group.camera), curr(camera), feature(&f) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

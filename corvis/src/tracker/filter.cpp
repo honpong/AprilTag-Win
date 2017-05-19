@@ -684,8 +684,6 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
     if(kp.size() < state_vision_group::min_feats) {
         camera.remove_group(g, f->map.get());
         f->s.remap();
-        for(const auto &p : kp)
-            camera.feature_tracker->drop_feature(p.id);
         int active_features = f->s.feature_count();
         if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);
@@ -708,7 +706,7 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
     for(i = 0; i < (int)kp.size() && i < space; ++i) {
         feature_t kp_i = {kp[i].x, kp[i].y};
         {
-            state_vision_feature *feat = f->s.add_feature(*g, kp_i);
+            state_vision_feature *feat = f->s.add_feature(kp[i].feature,*g, kp_i);
 
             float depth_m = 0;
             if(f->has_depth) {
@@ -727,14 +725,12 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
             }
             
             g->features.children.push_back(feat);
-            feat->tracker_id = kp[i].id;
+            feat->tracker_feature = kp[i].feature;
             
             found_feats++;
             if(found_feats == newfeats) break;
         }
     }
-    for(i = i+1; i < (int)kp.size(); ++i)
-        camera.feature_tracker->drop_feature(kp[i].id);
 
     g->status = group_initializing;
     g->make_normal();
@@ -781,7 +777,7 @@ const std::vector<tracker::point> &filter_detect(struct filter *f, const sensor_
     camera.feature_tracker->current_features.reserve(camera.feature_count());
     for(auto &g : camera.groups.children)
         for(auto &i : g->features.children)
-            camera.feature_tracker->current_features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
+            camera.feature_tracker->current_features.emplace_back(i->tracker_feature, (float)i->current[0], (float)i->current[1], 0);
 
     // Run detector
     tracker::image timage;

@@ -21,9 +21,7 @@ vector<tracker::point> &fast_tracker::detect(const image &image, const std::vect
         if(!is_trackable((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
             continue;
         mask->clear((int)d.x, (int)d.y);
-        auto id = next_id++;
-        feature_map.emplace_hint(feature_map.end(), id, feature(d.x, d.y, image.image, image.stride_px));
-        feature_points.emplace_back(id, d.x, d.y, d.score);
+        feature_points.emplace_back(make_shared<fast_feature>(d.x, d.y, image.image, image.stride_px), d.x, d.y, d.score);
         if (feature_points.size() == number_desired)
             break;
     }
@@ -33,9 +31,7 @@ vector<tracker::point> &fast_tracker::detect(const image &image, const std::vect
 vector<tracker::prediction> &fast_tracker::track(const image &image, vector<prediction> &predictions)
 {
     for(auto &pred : predictions) {
-        auto f_iter = feature_map.find(pred.id);
-        if(f_iter == feature_map.end()) continue;
-        feature &f = f_iter->second;
+        fast_feature &f = *static_cast<fast_feature *>(pred.feature.get());
 
         xy bestkp = fast.track(f.patch, image.image,
                 half_patch_width, half_patch_width,
@@ -63,9 +59,4 @@ vector<tracker::prediction> &fast_tracker::track(const image &image, vector<pred
     }
 
     return predictions;
-}
-
-void fast_tracker::drop_feature(uint64_t feature_id)
-{
-    feature_map.erase(feature_id);
 }

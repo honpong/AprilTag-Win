@@ -776,7 +776,7 @@ const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const
     camera.feature_tracker->current_features.reserve(camera.feature_count());
     for(auto &g : camera.groups.children)
         for(auto &i : g->features.children)
-            camera.feature_tracker->current_features.emplace_back(i->track.feature, (float)i->current[0], (float)i->current[1], 0);
+            camera.feature_tracker->current_features.emplace_back(&i->track);
 
     // Run detector
     tracker::image timage;

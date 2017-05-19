@@ -15,19 +15,15 @@ struct tracker {
         feature(): id(next_id++) {}
         virtual ~feature() {}
     };
-    
-    struct point {
+
+    struct feature_track{
         std::shared_ptr<struct feature> feature;
         float x, y;
-        float score; // scores are > 0, higher scores are better detections / tracks
-        point(std::shared_ptr<struct feature> feature_, float x_, float y_, float score_) : feature(feature_), x(x_), y(y_), score(score_) {}
-    };
-
-    struct feature_track : public point {
-        bool found;
         float pred_x, pred_y;
+        float score; // scores are > 0, higher scores are better detections / tracks
+        bool found;
         feature_track(std::shared_ptr<struct feature> feature_, float x_, float y_, float pred_x_, float pred_y_, float score_)
-            : point(feature_, x_, y_, score_), found(false), pred_x(pred_x_), pred_y(pred_y_) {}
+            : feature(feature_), x(x_), y(y_), pred_x(pred_x_), pred_y(pred_y_), score(score_), found(false) {}
     };
 
     typedef struct {
@@ -40,7 +36,7 @@ struct tracker {
     std::unique_ptr<scaled_mask> mask;
 
     std::vector<feature_track> feature_points;
-    std::vector<point> current_features; // reuasable storage passed to detect()
+    std::vector<feature_track *> current_features; // reusable storage passed to detect()
     std::vector<feature_track *> tracks; // reusable storage passed to and returned from track()
     /*
      @param image  The image to use for feature detection
@@ -49,7 +45,7 @@ struct tracker {
 
      Returns a reference to a vector (using feature_points above for storage) of newly detected features with higher scored points being preferred
      */
-    virtual std::vector<feature_track> &detect(const image &image, const std::vector<point> &current_features, int number_desired) = 0;
+    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_track *> &current_features, int number_desired) = 0;
 
     /*
      @param current_image The image to track in

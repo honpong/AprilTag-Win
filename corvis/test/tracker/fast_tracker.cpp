@@ -28,7 +28,7 @@ TEST(FastTracker, DetectBlackImage)
     auto image_data = black_image(image.stride_px, image.height_px);
     image.image = image_data.get();
 
-    std::vector<tracker::point> features;
+    std::vector<tracker::feature_track *> features;
     std::vector<tracker::feature_track> detections = tracker.detect(image, features, 10000);
     EXPECT_EQ(detections.size(), 0);
 }
@@ -45,7 +45,7 @@ TEST(FastTracker, DetectBox)
     draw_box(image_data.get(), image.width_px, image.height_px, image.stride_px, 100, 100, 20, 20);
     image.image = image_data.get();
 
-    std::vector<tracker::point> features;
+    std::vector<tracker::feature_track *> features;
     std::vector<tracker::feature_track> detections = tracker.detect(image, features, 10000);
     EXPECT_EQ(detections.size(), 4);
 
@@ -64,9 +64,11 @@ TEST(FastTracker, DetectMasked)
     image.image = image_data.get();
 
     // detects at 101 and 118
-    std::vector<tracker::point> features;
-    features.push_back(tracker::point(0, 101, 101, 1));
-    features.push_back(tracker::point(0, 118, 101, 1));
+    std::vector<tracker::feature_track *> features;
+    tracker::feature_track first(nullptr, 101, 101, 0, 0, 1);
+    tracker::feature_track second(nullptr, 118, 101, 0, 0, 1);
+    features.push_back(&first);
+    features.push_back(&second);
     std::vector<tracker::feature_track> detections = tracker.detect(image, features, 10000);
     EXPECT_EQ(detections.size(), 2);
 }
@@ -93,7 +95,7 @@ TEST(FastTracker, Track)
     draw_box(image_data2.get(), image2.width_px, image2.height_px, image2.stride_px, 100 + velocity_x_px, 100 + velocity_y_px, 20, 20);
     image2.image = image_data2.get();
 
-    std::vector<tracker::point> features;
+    std::vector<tracker::feature_track *> features;
     std::vector<tracker::feature_track> detections = tracker.detect(image2, features, 10000);
 
     EXPECT_EQ(detections.size(), 4);
@@ -130,7 +132,7 @@ TEST(FastTracker, TrackBounds)
     draw_box(image_data2.get(), image2.width_px, image2.height_px, image2.stride_px, 100 + velocity_x_px, 100 + velocity_y_px, 20, 20);
     image2.image = image_data2.get();
 
-    std::vector<tracker::point> features;
+    std::vector<tracker::feature_track *> features;
     std::vector<tracker::feature_track> detections = tracker.detect(image2, features, 10000);
 
     EXPECT_EQ(detections.size(), 4);

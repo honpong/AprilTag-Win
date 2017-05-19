@@ -226,19 +226,19 @@ public:
         std::swap(prev, next);
     }
 
-    virtual std::vector<feature_track> &detect(const image &image, const std::vector<point> &current, int number_desired) override {
+    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_track *> &current, int number_desired) override {
         if (!mask)
             mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
         mask->initialize();
         for (auto &f : current)
-            mask->clear((int)f.x, (int)f.y);
+            mask->clear((int)f->x, (int)f->y);
 
         prev.pyramid.set(image);
 
         IppiSize roi_size = {image.width_px, image.height_px};
         std::vector<IppiCornerFastN> &corner_vec = fast.detect(image, IppiPoint{0,0}, roi_size, *mask);
 
-        auto by_score = [](const point &a, const point &b){ return a.score > b.score; };
+        auto by_score = [](const feature_track &a, const feature_track &b){ return a.score > b.score; };
 
         feature_points.clear();
         feature_points.reserve(number_desired+1/*see below*/);

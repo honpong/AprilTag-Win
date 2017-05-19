@@ -550,18 +550,20 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children) {
             id_to_state[feature->track.feature->id] = feature;
-            feature_tracker->tracks.emplace_back(feature->track.feature,
-                                                      (float)feature->current.x(), (float)feature->current.y(),
-                                                      (float)feature->prediction.x(), (float)feature->prediction.y(), 0);
+            feature->track.x = feature->current.x();
+            feature->track.y = feature->current.y();
+            feature->track.pred_x = feature->prediction.x();
+            feature->track.pred_y = feature->prediction.y();
+            feature_tracker->tracks.emplace_back(&feature->track);
         }
     }
 
     if (feature_tracker->tracks.size())
         feature_tracker->track(current_image, feature_tracker->tracks);
         for(const auto &p : feature_tracker->tracks) {
-            state_vision_feature * feature = id_to_state[p.feature->id];
-            feature->current.x() = p.found ? p.x : INFINITY;
-            feature->current.y() = p.found ? p.y : INFINITY;
+            state_vision_feature * feature = id_to_state[p->feature->id];
+            feature->current.x() = p->found ? p->x : INFINITY;
+            feature->current.y() = p->found ? p->y : INFINITY;
         }
 }
 

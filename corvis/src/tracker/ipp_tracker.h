@@ -183,7 +183,7 @@ public:
     ipp_tracker() {
     };
 
-    virtual void track(const image &image, std::vector<feature_track> &tracks) override {
+    virtual void track(const image &image, std::vector<feature_track *> &tracks) override {
         if(!state_buffer) {
             IppiSize roi_size {image.width_px, image.height_px};
             {
@@ -200,10 +200,10 @@ public:
         if (prev.pyramid.pyramid) {
             next.pyramid.set(image);
             for (size_t i = 0; i < tracks.size(); i++) {
-                prev.points[i].x = tracks[i].x;
-                prev.points[i].y = tracks[i].y;
-                next.points[i].x = tracks[i].pred_x;
-                next.points[i].y = tracks[i].pred_y;
+                prev.points[i].x = tracks[i]->x;
+                prev.points[i].y = tracks[i]->y;
+                next.points[i].x = tracks[i]->pred_x;
+                next.points[i].y = tracks[i]->pred_y;
             }
             check(ippiOpticalFlowPyrLK_8u_C1R(prev.pyramid.pyramid, next.pyramid.pyramid,
                                               prev.points.data(), next.points.data(), statuses.data(), errors.data(), tracks.size(),
@@ -212,11 +212,14 @@ public:
         size_t found=0;
         for (size_t i = 0; i < tracks.size(); i++) {
             if (statuses[i] < ipp_image_pyramid::levels) {
-                tracks[i].x = next.points[i].x;
-                tracks[i].y = next.points[i].y;
-                tracks[i].score = errors[i];
+                tracks[i]->x = next.points[i].x;
+                tracks[i]->y = next.points[i].y;
+                tracks[i]->score = errors[i];
                 if(errors[i] < 10) {
-                    tracks[i].found = true; found++;
+                    tracks[i]->found = true; found++;
+                } else {
+                    tracks[i]->found = false;
+                    tracks[i]->score = 0;
                 }
             }
         }

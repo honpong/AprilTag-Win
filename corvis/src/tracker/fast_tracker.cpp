@@ -28,9 +28,10 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
     return feature_points;
 }
 
-void fast_tracker::track(const image &image, vector<feature_track> &tracks)
+void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
 {
-    for(auto &t : tracks) {
+    for(auto &tp : tracks) {
+        auto &t = *tp;
         fast_feature &f = *static_cast<fast_feature *>(t.feature.get());
 
         xy bestkp = fast.track(f.patch, image.image,
@@ -55,6 +56,9 @@ void fast_tracker::track(const image &image, vector<feature_track> &tracks)
             t.y = bestkp.y;
             t.score = bestkp.score;
             t.found = true;
+        } else {
+            t.score = 0;
+            t.found = false;
         }
     }
 }

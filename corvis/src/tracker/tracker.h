@@ -41,7 +41,7 @@ struct tracker {
 
     std::vector<feature_track> feature_points;
     std::vector<point> current_features; // reuasable storage passed to detect()
-    std::vector<feature_track> tracks; // reusable storage passed to and returned from track()
+    std::vector<feature_track *> tracks; // reusable storage passed to and returned from track()
     /*
      @param image  The image to use for feature detection
      @param number_desired  The desired number of features, function can return less or more
@@ -57,7 +57,7 @@ struct tracker {
 
      Updates the vector of tracks, with found and score set
      */
-    virtual void track(const image &image, std::vector<feature_track> &tracks) = 0;
+    virtual void track(const image &image, std::vector<feature_track *> &tracks) = 0;
 
     virtual ~tracker() {}
 };

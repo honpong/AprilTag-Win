@@ -655,7 +655,7 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
             for(auto &i: g->features.children) {
                 if(!i->is_valid()) continue;
                 rc_Feature feat;
-                feat.id = i->id;
+                feat.id = i->tracker_feature->id;
                 feat.image_x = static_cast<decltype(feat.image_x)>(i->current[0]);
                 feat.image_y = static_cast<decltype(feat.image_y)>(i->current[1]);
                 feat.image_prediction_x = static_cast<decltype(feat.image_prediction_x)>(i->prediction[0]);

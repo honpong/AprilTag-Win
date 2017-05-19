@@ -14,8 +14,8 @@ f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 
-state_vision_feature::state_vision_feature(std::shared_ptr<tracker::feature> feature_, state_vision_group &group_, uint64_t feature_id, const feature_t &initial_):
-    state_leaf("feature", constant), tracker_feature(feature_), initial(initial_), current(initial_), id(feature_id), group(group_)
+state_vision_feature::state_vision_feature(std::shared_ptr<tracker::feature> feature_, state_vision_group &group_, const feature_t &initial_):
+    state_leaf("feature", constant), tracker_feature(feature_), initial(initial_), current(initial_), group(group_)
 {
     reset();
 }
@@ -144,7 +144,7 @@ int state_vision_group::make_normal()
 
 state_vision::state_vision(covariance &c):
     state_motion(c),
-    feature_counter(0), group_counter(0)
+    group_counter(0)
 {
     non_orientation.children.push_back(&cameras);
 }
@@ -310,7 +310,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
 
                 bool good = stdev / f->v.depth() < .05f;
                 if (good && f->descriptor_valid)
-                    map->update_feature_position(g->id, f->id, f->node_body, variance_meters);
+                    map->update_feature_position(g->id, f->tracker_feature->id, f->node_body, variance_meters);
                 if (good && !f->descriptor_valid) {
                     float scale = static_cast<float>(f->v.depth());
                     float radius = 32.f/scale * (image.width / 320.f);
@@ -322,7 +322,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
                                            static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
                                            f->descriptor)) {
                         f->descriptor_valid = true;
-                        map->add_feature(g->id, f->id, f->node_body, variance_meters, f->descriptor);
+                        map->add_feature(g->id, f->tracker_feature->id, f->node_body, variance_meters, f->descriptor);
                     }
                 }
             }
@@ -340,7 +340,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
 
 state_vision_feature * state_vision::add_feature(std::shared_ptr<tracker::feature> feature_, state_vision_group &group, const feature_t &initial)
 {
-    return new state_vision_feature(feature_, group, feature_counter++, initial);
+    return new state_vision_feature(feature_, group, initial);
 }
 
 state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)

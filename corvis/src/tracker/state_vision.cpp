@@ -14,8 +14,8 @@ f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 
-state_vision_feature::state_vision_feature(std::shared_ptr<tracker::feature> feature_, state_vision_group &group_, const feature_t &initial_):
-    state_leaf("feature", constant), tracker_feature(feature_), initial(initial_), current(initial_), group(group_)
+state_vision_feature::state_vision_feature(const tracker::feature_track &track_, state_vision_group &group_):
+    state_leaf("feature", constant), track(track_), initial(track_.x, track_.y), current(track_.x, track_.y), group(group_)
 {
     reset();
 }
@@ -310,7 +310,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
 
                 bool good = stdev / f->v.depth() < .05f;
                 if (good && f->descriptor_valid)
-                    map->update_feature_position(g->id, f->tracker_feature->id, f->node_body, variance_meters);
+                    map->update_feature_position(g->id, f->track.feature->id, f->node_body, variance_meters);
                 if (good && !f->descriptor_valid) {
                     float scale = static_cast<float>(f->v.depth());
                     float radius = 32.f/scale * (image.width / 320.f);
@@ -322,7 +322,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
                                            static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
                                            f->descriptor)) {
                         f->descriptor_valid = true;
-                        map->add_feature(g->id, f->tracker_feature->id, f->node_body, variance_meters, f->descriptor);
+                        map->add_feature(g->id, f->track.feature->id, f->node_body, variance_meters, f->descriptor);
                     }
                 }
             }
@@ -338,9 +338,9 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
     }
 }
 
-state_vision_feature * state_vision::add_feature(std::shared_ptr<tracker::feature> feature_, state_vision_group &group, const feature_t &initial)
+state_vision_feature * state_vision::add_feature(const tracker::feature_track &track_, state_vision_group &group)
 {
-    return new state_vision_feature(feature_, group, initial);
+    return new state_vision_feature(track_, group);
 }
 
 state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
@@ -549,8 +549,8 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children) {
-            id_to_state[feature->tracker_feature->id] = feature;
-            feature_tracker->tracks.emplace_back(feature->tracker_feature,
+            id_to_state[feature->track.feature->id] = feature;
+            feature_tracker->tracks.emplace_back(feature->track.feature,
                                                       (float)feature->current.x(), (float)feature->current.y(),
                                                       (float)feature->prediction.x(), (float)feature->prediction.y(), 0);
         }

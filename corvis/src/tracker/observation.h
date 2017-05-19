@@ -162,7 +162,7 @@ public:
     //std::unique_ptr<std::map<uint64_t, unique_ptr<observation_vision_feature>>> recent_f_map;
     void cache_recent(std::unique_ptr<observation> &&o) {
         if (auto *ovf = dynamic_cast<observation_vision_feature*>(o.get()))
-            recent_f_map[ovf->feature->tracker_feature->id] = std::unique_ptr<observation_vision_feature>(static_cast<observation_vision_feature*>(o.release()));
+            recent_f_map[ovf->feature->track.feature->id] = std::unique_ptr<observation_vision_feature>(static_cast<observation_vision_feature*>(o.release()));
         else if (dynamic_cast<observation_accelerometer*>(o.get()))
             recent_a = std::unique_ptr<observation_accelerometer>(static_cast<observation_accelerometer*>(o.release()));
         else if (dynamic_cast<observation_gyroscope*>(o.get()))

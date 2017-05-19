@@ -704,16 +704,15 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
     for(i = 0; i < (int)kp.size() && i < space; ++i) {
-        feature_t kp_i = {kp[i].x, kp[i].y};
         {
-            state_vision_feature *feat = f->s.add_feature(kp[i].feature,*g, kp_i);
+            state_vision_feature *feat = f->s.add_feature(kp[i], *g);
 
             float depth_m = 0;
             if(f->has_depth) {
                 if (!aligned_undistorted_depth)
                     aligned_undistorted_depth = filter_aligned_depth_to_camera(*f->recent_depth, *f->depths[f->recent_depth->id], camera, camera_sensor);
 
-                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature(kp_i))));
+                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({kp[i].x, kp[i].y}))));
             }
             if(depth_m)
             {
@@ -725,7 +724,7 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
             }
             
             g->features.children.push_back(feat);
-            feat->tracker_feature = kp[i].feature;
+            feat->track.feature = kp[i].feature;
             
             found_feats++;
             if(found_feats == newfeats) break;
@@ -777,7 +776,7 @@ const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const
     camera.feature_tracker->current_features.reserve(camera.feature_count());
     for(auto &g : camera.groups.children)
         for(auto &i : g->features.children)
-            camera.feature_tracker->current_features.emplace_back(i->tracker_feature, (float)i->current[0], (float)i->current[1], 0);
+            camera.feature_tracker->current_features.emplace_back(i->track.feature, (float)i->current[0], (float)i->current[1], 0);
 
     // Run detector
     tracker::image timage;

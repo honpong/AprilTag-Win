@@ -83,7 +83,7 @@ struct state_camera;
 
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
-    std::shared_ptr<tracker::feature> tracker_feature;
+    tracker::feature_track track;
     f_t outlier = 0;
     v2 initial;
     v2 current;
@@ -105,7 +105,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t outlier_reject;
     static f_t max_variance;
 
-    state_vision_feature(std::shared_ptr<tracker::feature> feature_, state_vision_group &group, const feature_t &initial);
+    state_vision_feature(const tracker::feature_track &track, state_vision_group &group);
     bool should_drop() const;
     bool is_valid() const;
     bool is_good() const;
@@ -163,12 +163,12 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         if(type != nt) return;
-        fprintf(stderr, "feature[%" PRIu64 "]: ", tracker_feature->id); state.row(index+0).print();
+        fprintf(stderr, "feature[%" PRIu64 "]: ", track.feature->id); state.row(index+0).print();
     }
 
     virtual std::ostream &print_to(std::ostream & s) const
     {
-        return s << "f" << tracker_feature->id << ": " << v.v << "±" << std::sqrt(variance());
+        return s << "f" << track.feature->id << ": " << v.v << "±" << std::sqrt(variance());
     }
 
 public:
@@ -248,7 +248,7 @@ public:
     int process_features(state_camera &camera, const rc_ImageData &image, mapper *map);
     int feature_count() const;
     void clear_features_and_groups();
-    state_vision_feature *add_feature(std::shared_ptr<tracker::feature> feature_, state_vision_group &group, const feature_t & initial);
+    state_vision_feature *add_feature(const tracker::feature_track &track_, state_vision_group &group);
     state_vision_group *add_group(state_camera &camera, mapper *map);
     transformation get_transformation() const;
 

@@ -23,7 +23,7 @@ struct tracker {
         float score; // scores are > 0, higher scores are better detections / tracks
         bool found;
         feature_track(std::shared_ptr<struct feature> feature_, float x_, float y_, float pred_x_, float pred_y_, float score_)
-            : feature(feature_), x(x_), y(y_), pred_x(pred_x_), pred_y(pred_y_), score(score_), found(false) {}
+            : feature(feature_), x(x_), y(y_), pred_x(pred_x_), pred_y(pred_y_), score(score_), found(true) {}
     };
 
     typedef struct {

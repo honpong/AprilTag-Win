@@ -34,18 +34,19 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
         auto &t = *tp;
         fast_feature &f = *static_cast<fast_feature *>(t.feature.get());
 
-        xy bestkp = fast.track(f.patch, image.image,
+        xy bestkp;
+        if(t.found) bestkp = fast.track(f.patch, image.image,
                 half_patch_width, half_patch_width,
                 t.x + f.dx, t.y + f.dy, fast_track_radius,
                 fast_track_threshold, fast_min_match);
 
         // Not a good enough match, try the filter prediction
-        if(bestkp.score < fast_good_match) {
+        if(!t.found || bestkp.score < fast_good_match) {
             xy bestkp2 = fast.track(f.patch, image.image,
                     half_patch_width, half_patch_width,
                     t.pred_x, t.pred_y, fast_track_radius,
                     fast_track_threshold, bestkp.score);
-            if(bestkp2.score > bestkp.score)
+            if(!t.found || bestkp2.score > bestkp.score)
                 bestkp = bestkp2;
         }
 

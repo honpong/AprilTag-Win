@@ -190,14 +190,14 @@ void observation_vision_feature::cache_jacobians()
     // v4 X = Rtot * X0 + Ttot / depth
     // v4 dX = dRtot * X0 + Rtot * dX0 + dTtot / depth - Tot / depth / depth ddepth
 
-    f_t invZ = 1/X[2];
-    v2 Xu = {X[0]*invZ, X[1]*invZ};
+    v2 Xu = X.segment(0,2) / X[2];
     m<1,2> dkd_u_dXu;
     m<1,4> dkd_u_dk;
     f_t kd_u = curr.camera.intrinsics.get_distortion_factor(Xu, &dkd_u_dXu, &dkd_u_dk);
     //dx_dX = height * focal_length * d(kd_u * Xu + center)_dX
     //= height * focal_length * (dkd_u_dX * Xu + kd_u * dXu_dX)
     //= height * focal_length * (dkd_u_dXu * dXu_dX * Xu + kd_u * dXu_dX)
+    f_t invZ = 1/X[2];
     m<2,3> dXu_dX = {{ invZ, 0, -Xu[0] * invZ },
                      { 0, invZ, -Xu[1] * invZ }};
     m<1,3> dkd_u_dX = dkd_u_dXu * dXu_dX;

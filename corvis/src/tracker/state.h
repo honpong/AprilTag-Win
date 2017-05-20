@@ -336,7 +336,7 @@ public:
     using state_leaf<::v<size_>,size_>::name;
     using state_leaf<::v<size_>,size_>::initial_covariance;
     
-    void set_initial_variance(::v<size_> v)
+    void set_initial_variance(const ::v<size_> &v)
     {
         initial_covariance.setZero();
         initial_covariance.diagonal() = v;
@@ -385,7 +385,7 @@ public:
 
     using state_leaf::set_initial_variance;
     
-    void set_initial_variance(v3 v)
+    void set_initial_variance(const v3 &v)
     {
         initial_covariance.setZero();
         initial_covariance.diagonal() = v;
@@ -436,7 +436,7 @@ public:
     
     using state_leaf::set_initial_variance;
     
-    void set_initial_variance(v3 v)
+    void set_initial_variance(const v3 &v)
     {
         initial_covariance.setZero();
         initial_covariance.diagonal() = v;

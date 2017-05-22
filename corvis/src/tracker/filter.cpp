@@ -1100,7 +1100,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         // preprocess data for kp1
         m3 Rw1 = camera_state1.extrinsics.Q.v.toRotationMatrix();
         m3 Rw1T = Rw1.transpose();
-        vector<kp_pre_data> prkpv1;
+        std::vector<kp_pre_data> prkpv1;
         for(const tracker::point & const_k1 : *keypoints)
         {
              kp_pre_data prkp;
@@ -1112,7 +1112,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         // preprocess data for kp2
         m3 Rw2 = camera_state2.extrinsics.Q.v.toRotationMatrix();
         m3 Rw2T = Rw1.transpose();
-        vector<kp_pre_data> prkpv2;
+        std::vector<kp_pre_data> prkpv2;
         for(auto & k2 : kp2)
         {
              kp_pre_data prkp;

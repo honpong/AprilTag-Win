@@ -355,7 +355,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &control_lock, boo
     if(!force && !ok_to_dispatch()) return false;
 
     sensor_data data = pop_queue();
-    TRACE_EVENT(SF_POP_QUEUE, data.time_us);
+    TRACE_EVENT(SF_POP_QUEUE, data.time_us / 1000);
     
     data_lock.unlock();
 

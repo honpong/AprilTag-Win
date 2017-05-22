@@ -207,7 +207,7 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
     auto stop = std::chrono::steady_clock::now();
     accelerometer.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-    END_EVENT(SF_MINI_ACCEL_MEAS, 0);
+    END_EVENT(SF_MINI_ACCEL_MEAS, data.time_us / 1000);
     return ok;
 }
 
@@ -234,7 +234,7 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
 
     auto stop = std::chrono::steady_clock::now();
     gyroscope.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-    END_EVENT(SF_MINI_GYRO_MEAS, 0);
+    END_EVENT(SF_MINI_GYRO_MEAS, data.time_us / 1000);
 
     return ok;
 }
@@ -506,7 +506,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 
     auto stop = std::chrono::steady_clock::now();
     accelerometer.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-    END_EVENT(SF_ACCEL_MEAS, 0);
+    END_EVENT(SF_ACCEL_MEAS, data.time_us / 1000);
     return true;
 }
 
@@ -558,7 +558,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
 
     auto stop = std::chrono::steady_clock::now();
     gyroscope.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-    END_EVENT(SF_GYRO_MEAS, 0);
+    END_EVENT(SF_GYRO_MEAS, data.time_us / 1000);
     return true;
 }
 
@@ -804,7 +804,9 @@ const std::vector<tracker::point> &filter_detect(struct filter *f, const sensor_
     timage.width_px = image.width;
     timage.height_px = image.height;
     timage.stride_px = image.stride;
+    START_EVENT(SF_DETECT, 0);
     std::vector<tracker::point> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->current_features, space);
+    END_EVENT(SF_DETECT, kp.size())
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
@@ -965,7 +967,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             camera_state.detecting_space = space;
         }
     }
-    END_EVENT(SF_IMAGE_MEAS, 0);
+    END_EVENT(SF_IMAGE_MEAS, data.time_us / 1000);
     return true;
 }
 

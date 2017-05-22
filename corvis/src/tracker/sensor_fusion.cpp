@@ -9,6 +9,9 @@
 #include <future>
 #include "sensor_fusion.h"
 #include "filter.h"
+#include "Trace.h"
+
+#define STEREO_TIME_THRESHOLD 0.023
 
 transformation sensor_fusion::get_transformation() const
 {
@@ -147,6 +150,67 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
                             return res;
                         }, &sfm, std::move(data));
+        } break;
+
+        case rc_SENSOR_TYPE_STEREO: {
+            auto start = std::chrono::steady_clock::now();
+            bool docallback = true;
+            if(isProcessingVideo) {
+                std::unique_ptr<void, void(*)(void *)> im_copy(malloc(data.stereo.height*data.stereo.stride1), free);
+                void * im_ptr = im_copy.get();
+                memcpy(im_ptr, data.stereo.image1, data.stereo.height*data.stereo.stride1);
+                sensor_data image_data(data.time_us, rc_SENSOR_TYPE_IMAGE, 0, data.stereo.shutter_time_us,
+                        data.stereo.width, data.stereo.height, data.stereo.stride1, data.stereo.format, im_ptr, std::move(im_copy));
+                START_EVENT(EV_FILTER_IMG_STEREO, 0);
+                docallback = filter_image_measurement(&sfm, image_data);
+                END_EVENT(EV_FILTER_IMG_STEREO, 0);
+
+                if (fast_path && !queue.data_in_queue(data.type, data.id))
+                    fast_path_catchup();
+
+                update_status();
+                if(docallback)
+                    update_data(&image_data); // TODO: visualize stereo data directly so we don't have a data callback here
+
+                if(sfm.s.cameras.children[0]->detecting_group) {
+                    sfm.s.cameras.children[0]->detection_future = std::async(threaded ? std::launch::deferred : std::launch::deferred,
+                        [space=sfm.s.cameras.children[data.id]->detecting_space, this] (struct filter *f, const sensor_data &data) -> const std::vector<tracker::point> * {
+                            START_EVENT(EV_DETECTING_GROUP_STEREO, 0);
+                            auto start = std::chrono::steady_clock::now();
+                            const std::vector<tracker::point> * res = filter_detect(&sfm, std::move(data), space);
+                            auto stop = std::chrono::steady_clock::now();
+                            queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+                            END_EVENT(EV_DETECTING_GROUP_STEREO, 0);
+                            return res;
+                        }, &sfm, std::move(image_data));
+                }
+                auto stop = std::chrono::steady_clock::now();
+                std::chrono::duration<double> diff = stop-start;
+                //printf("image 0 processing + Catchup time: %lf\n" , diff.count());
+                if(docallback) {
+                    // wait on detection future here
+                    if((diff.count() < STEREO_TIME_THRESHOLD) || (false_stereo_counter == 0)) {
+                        //printf("INF: PROCESSING TIME IS ** %lf ** \n" , diff.count());
+                        if (diff.count() > STEREO_TIME_THRESHOLD){
+                            false_stereo_counter++ ;
+                        }
+                        filter_stereo_initialize(&sfm, 0, 1, data);
+                    }
+                    else {
+                        if(sfm.s.cameras.children[0]->detection_future.valid()) {
+                            false_stereo_counter++;
+                            printf("ERR: PROCESSING TIME IS HIGH ** %lf ** false_stereo_counter %d\n" , diff.count(), false_stereo_counter);
+                        }
+                    }
+                }
+
+                update_status();
+                if(docallback)
+                    update_data(&data);
+            }
+            else
+                //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
+                docallback = sfm.s.orientation_initialized;
         } break;
 
         case rc_SENSOR_TYPE_DEPTH: {

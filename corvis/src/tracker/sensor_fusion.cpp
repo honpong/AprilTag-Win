@@ -94,6 +94,31 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 {
 }
 
+void sensor_fusion::fast_path_catchup()
+{
+    auto start = std::chrono::steady_clock::now();
+    sfm.catchup->state.copy_from(sfm.s);
+    std::unique_lock<std::recursive_mutex> mini_lock(mini_mutex);
+    // hold the mini_mutex while we manipulate the mini
+    // state *and* while we manipulate the queue during
+    // catchup so that dispatch_buffered is sure to notice
+    // any new data we get while we are doing the filter
+    // updates on the catchup state
+    queue.dispatch_buffered([this,&mini_lock](sensor_data &data) {
+            mini_lock.unlock();
+            switch(data.type) {
+                case rc_SENSOR_TYPE_ACCELEROMETER: filter_mini_accelerometer_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
+                case rc_SENSOR_TYPE_GYROSCOPE:     filter_mini_gyroscope_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
+                default: break;
+            }
+            mini_lock.lock();
+        });
+    auto stop = std::chrono::steady_clock::now();
+    queue.catchup_stats.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    sfm.catchup->valid = true;
+    std::swap(sfm.mini, sfm.catchup);
+}
+
 void sensor_fusion::queue_receive_data(sensor_data &&data)
 {
     switch(data.type) {
@@ -105,29 +130,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
                 docallback = sfm.s.orientation_initialized;
 
-            if (isProcessingVideo && fast_path && !queue.data_in_queue(data.type, data.id)) {
-                auto start = std::chrono::steady_clock::now();
-                sfm.catchup->state.copy_from(sfm.s);
-                std::unique_lock<std::recursive_mutex> mini_lock(mini_mutex);
-                // hold the mini_mutex while we manipulate the mini
-                // state *and* while we manipulate the queue during
-                // catchup so that dispatch_buffered is sure to notice
-                // any new data we get while we are doing the filter
-                // updates on the catchup state
-                queue.dispatch_buffered([this,&mini_lock](sensor_data &data) {
-                        mini_lock.unlock();
-                        switch(data.type) {
-                        case rc_SENSOR_TYPE_ACCELEROMETER: filter_mini_accelerometer_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
-                        case rc_SENSOR_TYPE_GYROSCOPE:     filter_mini_gyroscope_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
-                        default: break;
-                        }
-                        mini_lock.lock();
-                    });
-                auto stop = std::chrono::steady_clock::now();
-                queue.catchup_stats.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-                sfm.catchup->valid = true;
-                std::swap(sfm.mini, sfm.catchup);
-            }
+            if (isProcessingVideo && fast_path && !queue.data_in_queue(data.type, data.id))
+                fast_path_catchup();
 
             update_status();
             if(docallback)

@@ -170,6 +170,7 @@ private:
     bool fast_path = false;
 
     void flush_and_reset();
+    void fast_path_catchup();
 
     bool buffering = true;
 

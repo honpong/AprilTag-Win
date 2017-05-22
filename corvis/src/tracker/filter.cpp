@@ -22,7 +22,6 @@
 #include "fast_tracker.h"
 #ifdef MYRIAD2
 #include "shave_tracker.h"
-#include "shave_stereo.h"
 #endif
 #ifdef HAVE_IPP
 #include "ipp_tracker.h"
@@ -31,6 +30,9 @@
 
 #define USE_SHAVE_TRACKER 1
 //#define SHAVE_STEREO_MATCHING
+#ifdef SHAVE_STEREO_MATCHING
+#include "shave_stereo.h"
+#endif
 #define MAX_KP2 200
 #define MAX_KP1 40
 

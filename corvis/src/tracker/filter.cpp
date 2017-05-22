@@ -796,7 +796,7 @@ static bool filter_next_detect_camera(struct filter *f, int camera, sensor_clock
     return f->next_detect_camera == camera;
 }
 
-const std::vector<tracker::point> &filter_detect(struct filter *f, const sensor_data &data, int space)
+const std::vector<tracker::point> * filter_detect(struct filter *f, const sensor_data &data, int space)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
@@ -1302,8 +1302,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(space >= f->min_group_add && myturn)
     {
         if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-            auto & detection = filter_detect(f, data, space);
-            if(detection.size() >= state_vision_group::min_feats) {
+            auto * detection = filter_detect(f, data, space);
+            if(detection->size() >= state_vision_group::min_feats) {
 #ifdef TEST_POSDEF
                 if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
 #endif
@@ -1318,7 +1318,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 // we remap here to update f->s.statesize to account for the new group
                 f->s.remap();
                 space = filter_available_feature_space(f, camera_state);
-                filter_add_detected_features(f, g, camera_sensor, detection, space, data.image.height, time);
+                filter_add_detected_features(f, g, camera_sensor, *detection, space, data.image.height, time);
             }
         } else {
 #ifdef TEST_POSDEF

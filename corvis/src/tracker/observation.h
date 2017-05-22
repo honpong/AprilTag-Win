@@ -22,8 +22,7 @@ public:
     virtual bool measure() = 0;
     virtual void cache_jacobians() = 0;
     virtual void project_covariance(matrix &dst, const matrix &src) = 0;
-    virtual void set_prediction_covariance(const matrix &cov, const int index) = 0;
-    virtual void innovation_covariance_hook(const matrix &cov, int index) = 0;
+    virtual void innovation_covariance_hook(const matrix &cov, int index);
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
     
@@ -36,7 +35,6 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:
     v<_size> m_cov, pred, inn;
-    m<_size> pred_cov;
 public:
     v<_size> meas;
     sensor_storage<_size> &source;
@@ -44,7 +42,6 @@ public:
     Eigen::Map< ::v<_size>, Eigen::Unaligned, Eigen::InnerStride<> >
         col(matrix &m, int i) const { return decltype(col(m,i)) { &m(0,i), Eigen::InnerStride<>(m.get_stride()) }; }
 
-    virtual void set_prediction_covariance(const matrix &cov, const int index) { for(int i = 0; i < size; ++i) for(int j = 0; j < size; ++j) pred_cov(i, j) = cov(index + i, index + j); }
     virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }
     virtual f_t measurement_covariance(const int i) const { return m_cov[i]; }
@@ -62,8 +59,8 @@ class observation_vision_feature: public observation_storage<2> {
 
     m<2,1> dx_dp;
     m<2,3> dx_dQr, dx_dTr;
-    struct intrinsics_derivative {
-        intrinsics_derivative(const state_camera &c) : camera(c) {}
+    struct camera_derivative {
+        camera_derivative(const state_camera &c) : camera(c) {}
         const state_camera &camera;
         m<2,3> dx_dQ, dx_dT;
         m<2,1> dx_dF;
@@ -73,7 +70,7 @@ class observation_vision_feature: public observation_storage<2> {
 
     state_vision_feature *const feature;
 
-    feature_t norm_initial, norm_predicted, Xd;
+    feature_t Xd;
 
     virtual void predict();
     virtual void compute_measurement_covariance();
@@ -97,7 +94,6 @@ public:
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
     observation_spatial(sensor_storage<3> &src): observation_storage(src), variance(0.) {}
-    void innovation_covariance_hook(const matrix &cov, int index);
 };
 
 class observation_accelerometer: public observation_spatial {

@@ -86,7 +86,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
                     /usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
                     /usr/X11R6/lib
         )
-        list(APPEND SHAPEFIT_DEV_DEPENDENCIES m ${GLFW_LIBRARIES})
+        list(APPEND SHAPEFIT_DEV_DEPENDENCIES m ${GLFW_LIBRARIES} shapefit-core)
         include_directories(${GLFW_INCLUDE_DIR})
     endif()
 	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)

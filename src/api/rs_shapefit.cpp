@@ -69,7 +69,7 @@ rs_sf_status rs_sf_planefit_get_plane_ids(const rs_shapefit * obj, rs_sf_image *
     return status;
 }
 
-RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_planes(const rs_shapefit * obj, rs_sf_image * rgb, rs_sf_plane planes[RS_SF_MAX_PLANE_COUNT], float * point_buffer)
+rs_sf_status rs_sf_planefit_get_planes(const rs_shapefit * obj, rs_sf_image * rgb, rs_sf_plane planes[RS_SF_MAX_PLANE_COUNT], float * point_buffer)
 {
     if (!obj || (!planes && !rgb)) return RS_SF_INVALID_ARG;
     if (rgb && rgb->byte_per_pixel != 3) return RS_SF_INVALID_ARG;
@@ -111,7 +111,7 @@ rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * r
 }
 
 
-RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit * obj, int box_id, rs_sf_box * box)
+rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit * obj, int box_id, rs_sf_box * box)
 {
     if (!obj || !box) return RS_SF_INVALID_ARG;
     auto bf = dynamic_cast<const rs_sf_boxfit*>(obj);
@@ -122,7 +122,7 @@ RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit * obj, int 
     return RS_SF_SUCCESS;
 }
 
-RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * bkg, const unsigned char color[3])
+rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * bkg, const unsigned char color[3])
 {
     if (!obj || !rgb || rgb->byte_per_pixel != 3) return RS_SF_INVALID_ARG;
     auto bf = dynamic_cast<const rs_sf_boxfit*>(obj);

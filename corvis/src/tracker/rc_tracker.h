@@ -272,6 +272,11 @@ typedef struct rc_Extrinsics {
 RCTRACKER_API bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_CameraIntrinsics *intrinsics);
 RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat format,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics);
 
+/* Configures a stereo pair for use with rc_receiveStereo using the
+ * calibration from camera_id_0 and camera_id_1. The ID of the stereo
+ * pair will be camera_id_0 */
+RCTRACKER_API bool rc_configureStereo(rc_Tracker *tracker, rc_Sensor camera_id_0, rc_Sensor camera_id_1);
+
 /**
  Configure or describe an accelerometer. When configuring, extrinsics and intrinsics must be set.
  @param tracker The active rc_Tracker instance
@@ -401,6 +406,8 @@ RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
  @param callback_handle An opaque pointer that will be passed to completion_callback when the frame has been processed and image data is no longer needed. Note: callback_handle must not be null, or completion_callback will not be called.
  */
 RCTRACKER_API bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
+
+RCTRACKER_API bool rc_receiveStereo(rc_Tracker *tracker, rc_Sensor stereo_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride1, int stride2, const void *image1, const void * image2, void(*completion_callback)(void *callback_handle), void *callback_handle);
 
 /*
  @param tracker The active rc_Tracker instance

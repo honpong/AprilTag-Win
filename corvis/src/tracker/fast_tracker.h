@@ -45,6 +45,9 @@ public:
     virtual std::vector<point> &detect(const image &image, const std::vector<point> &features, int number_desired) override;
     virtual std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions) override;
     virtual void drop_feature(uint64_t feature_id) override;
+    const struct feature & get_feature(uint64_t feature_id) const {
+        return feature_map.at(feature_id);
+    }
 };
 
 #endif

@@ -108,6 +108,7 @@ typedef enum rc_SensorType
     rc_SENSOR_TYPE_ACCELEROMETER = 1,
     rc_SENSOR_TYPE_DEPTH = 2,
     rc_SENSOR_TYPE_IMAGE = 3,
+    rc_SENSOR_TYPE_STEREO = 4,
 } rc_SensorType;
 
 typedef enum rc_DataPath
@@ -154,6 +155,17 @@ typedef struct rc_ImageData
     void *handle;
 } rc_ImageData;
 
+typedef struct rc_StereoData
+{
+    rc_Timestamp shutter_time_us;
+    int width, height, stride1, stride2;
+    rc_ImageFormat format;
+    const void * image1;
+    const void * image2;
+    void (*release)(void * handle);
+    void *handle;
+} rc_StereoData;
+
 typedef struct rc_Data
 {
     rc_Sensor id;
@@ -163,6 +175,7 @@ typedef struct rc_Data
     union {
         rc_ImageData image;
         rc_ImageData depth;
+        rc_StereoData stereo;
         rc_Vector angular_velocity_rad__s;
         rc_Vector acceleration_m__s2;
     };

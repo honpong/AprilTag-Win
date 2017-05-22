@@ -54,6 +54,8 @@ enum packet_type {
     packet_core_motion = 27,
     packet_image_with_depth = 28,
     packet_image_raw = 29,
+    packet_stereo_raw = 40,
+    packet_image_stereo = 41,
 #ifdef MYRIAD2
     packet_pose = 30,
     packet_command_start = 100,
@@ -93,6 +95,19 @@ typedef struct {
     uint16_t format; // enum { Y8, Z16_mm };
     uint8_t data[];
 } packet_image_raw_t;
+
+typedef struct {
+    packet_header_t header;
+    uint64_t exposure_time_us;
+    uint16_t width, height, stride1, stride2;
+    uint16_t format; // enum { Y8, Z16_mm };
+    uint8_t data[]; // image2 starts at data + height*stride1
+} packet_stereo_raw_t;
+
+typedef struct {
+    packet_header_t header;
+    packet_image_raw_t *frames[2];
+} packet_image_stereo_t;
 
 typedef struct {
     packet_header_t header;

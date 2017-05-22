@@ -37,6 +37,31 @@ public:
     }
 
     sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
+                rc_Timestamp shutter_time_us, int width, int height, int stride1, int stride2,
+                rc_ImageFormat format, const void * image1_ptr, const void * image2_ptr,
+                std::unique_ptr<void, void(*)(void *)> handle) :
+        rc_Data({}),
+        timestamp(sensor_clock::micros_to_tp(timestamp_us + shutter_time_us / 2)), image_handle(std::move(handle))
+    {
+        assert(sensor_type == rc_SENSOR_TYPE_STEREO);
+
+        id = sensor_id;
+        type = sensor_type;
+        time_us = timestamp_us;
+        path = rc_DATA_PATH_SLOW;
+        stereo.shutter_time_us = shutter_time_us;
+        stereo.width = width;
+        stereo.height = height;
+        stereo.stride1 = stride1;
+        stereo.stride2 = stride2;
+        stereo.format = format;
+        stereo.image1 = image1_ptr;
+        stereo.image2 = image2_ptr;
+        stereo.handle = image_handle.get();
+        stereo.release = image_handle.get_deleter();
+    }
+
+    sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id,
                 rc_Timestamp shutter_time_us, int width, int height, int stride, rc_ImageFormat format, const void * image_ptr,
                 std::unique_ptr<void, void(*)(void *)> handle) :
         rc_Data({}),
@@ -87,6 +112,14 @@ public:
                 image.release = free
             );
             image.image = memcpy(image.handle, other.image.image, image.stride*image.height);
+        }
+        else if(type == rc_SENSOR_TYPE_STEREO) {
+            image_handle = std::unique_ptr<void, void(*)(void *)>(
+                stereo.handle  = malloc(stereo.stride1*stereo.height + stereo.stride2*stereo.height),
+                stereo.release = free
+            );
+            stereo.image1 = memcpy(stereo.handle                               , other.stereo.image1, stereo.stride1*stereo.height);
+            stereo.image2 = memcpy((uint8_t*)stereo.handle + stereo.stride1*stereo.height, other.stereo.image2, stereo.stride2*stereo.height);
         }
     }
 

@@ -95,6 +95,7 @@ std::string id_string(uint64_t global_id)
     switch(type) {
         case rc_SENSOR_TYPE_IMAGE: type_string = "Camera"; break;
         case rc_SENSOR_TYPE_DEPTH: type_string = "Depth"; break;
+        case rc_SENSOR_TYPE_STEREO: type_string = "Stereo"; break;
         case rc_SENSOR_TYPE_ACCELEROMETER: type_string = "Accel"; break;
         case rc_SENSOR_TYPE_GYROSCOPE: type_string = "Gyro"; break;
     }

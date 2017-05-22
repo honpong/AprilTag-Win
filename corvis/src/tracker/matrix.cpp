@@ -249,6 +249,7 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
     int k = trans1 ? A.rows() : A.cols();
     if ((trans1 == false) && 
         (trans2 == false) &&
+        (k > 3) &&
         (A.get_stride() % 16 == 0) &&
         (B.get_stride() % 16 == 0) &&
         (res.get_stride() % 16 == 0)

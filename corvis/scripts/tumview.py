@@ -12,7 +12,7 @@ def plot_file(filename, fig, plot_projections = False) :
     point_y = []
     point_z = []
     for l in fp.readlines():
-        data = l.split(' ')
+        data = l.split()
         point_x.append( float( data[1]) )
         point_y.append( float( data[2]) )
         point_z.append( float( data[3]) )

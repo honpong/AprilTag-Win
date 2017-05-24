@@ -36,7 +36,7 @@ static void rc_trace(const rc_Matrix p)
 
 static void rc_trace(const rc_Pose p)
 {
-    quaternion Q(map(p.Q.v).cast<f_t>()); m3 R = map(p.R.v).cast<f_t>(); v3 T = map(p.T.v).cast<f_t>();
+    quaternion Q(map(p.Q.v).cast<f_t>()); m3 R = map(p.R.v).cast<f_t>();
     if (std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1))
         trace_log->info("{} {} {}  {}; {} {} {}  {}; {} {} {}  {}",
                         p.R.v[0][0], p.R.v[0][1], p.R.v[0][2], p.T.v[0],

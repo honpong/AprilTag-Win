@@ -170,6 +170,7 @@ void observation_vision_feature::predict()
     Xd = orig.camera.intrinsics.normalize_feature(feature->initial);
     X0 = orig.camera.intrinsics.undistort_feature(Xd).homogeneous();
     feature->body = Rb * X0 * feature->v.depth() + Tb;
+    feature->node_body = Ro*X0 * feature->v.depth() + orig.camera.extrinsics.T.v;
 
     X = Rtot * X0 + Ttot * feature->v.invdepth();
     v2 Xu = X.segment(0,2) / X[2];

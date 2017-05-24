@@ -5,13 +5,13 @@
 
 using namespace std;
 
-vector<tracker::point> &fast_tracker::detect(const image &image, const std::vector<point> &features, int number_desired)
+vector<tracker::feature_track> &fast_tracker::detect(const image &image, const std::vector<feature_track *> &current, int number_desired)
 {
     if (!mask)
         mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
     mask->initialize();
-    for (auto &f : features)
-        mask->clear((int)f.x, (int)f.y);
+    for (auto &f : current)
+        mask->clear((int)f->x, (int)f->y);
 
     fast.init(image.width_px, image.height_px, image.stride_px, full_patch_width, half_patch_width);
 
@@ -21,51 +21,45 @@ vector<tracker::point> &fast_tracker::detect(const image &image, const std::vect
         if(!is_trackable((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
             continue;
         mask->clear((int)d.x, (int)d.y);
-        auto id = next_id++;
-        feature_map.emplace_hint(feature_map.end(), id, feature(d.x, d.y, image.image, image.stride_px));
-        feature_points.emplace_back(id, d.x, d.y, d.score);
+        feature_points.emplace_back(make_shared<fast_feature>(d.x, d.y, image.image, image.stride_px), d.x, d.y, d.x, d.y, d.score);
         if (feature_points.size() == number_desired)
             break;
     }
     return feature_points;
 }
 
-vector<tracker::prediction> &fast_tracker::track(const image &image, vector<prediction> &predictions)
+void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
 {
-    for(auto &pred : predictions) {
-        auto f_iter = feature_map.find(pred.id);
-        if(f_iter == feature_map.end()) continue;
-        feature &f = f_iter->second;
+    for(auto &tp : tracks) {
+        auto &t = *tp;
+        fast_feature &f = *static_cast<fast_feature *>(t.feature.get());
 
-        xy bestkp = fast.track(f.patch, image.image,
+        xy bestkp;
+        if(t.found) bestkp = fast.track(f.patch, image.image,
                 half_patch_width, half_patch_width,
-                pred.prev_x + f.dx, pred.prev_y + f.dy, fast_track_radius,
+                t.x + f.dx, t.y + f.dy, fast_track_radius,
                 fast_track_threshold, fast_min_match);
 
         // Not a good enough match, try the filter prediction
-        if(bestkp.score < fast_good_match) {
+        if(!t.found || bestkp.score < fast_good_match) {
             xy bestkp2 = fast.track(f.patch, image.image,
                     half_patch_width, half_patch_width,
-                    pred.x, pred.y, fast_track_radius,
+                    t.pred_x, t.pred_y, fast_track_radius,
                     fast_track_threshold, bestkp.score);
-            if(bestkp2.score > bestkp.score)
+            if(!t.found || bestkp2.score > bestkp.score)
                 bestkp = bestkp2;
         }
 
         if(bestkp.x != INFINITY) {
-            f.dx = bestkp.x - pred.prev_x;
-            f.dy = bestkp.y - pred.prev_y;
-            pred.x = bestkp.x;
-            pred.y = bestkp.y;
-            pred.score = bestkp.score;
-            pred.found = true;
+            f.dx = bestkp.x - t.x;
+            f.dy = bestkp.y - t.y;
+            t.x = bestkp.x;
+            t.y = bestkp.y;
+            t.score = bestkp.score;
+            t.found = true;
+        } else {
+            t.score = 0;
+            t.found = false;
         }
     }
-
-    return predictions;
-}
-
-void fast_tracker::drop_feature(uint64_t feature_id)
-{
-    feature_map.erase(feature_id);
 }

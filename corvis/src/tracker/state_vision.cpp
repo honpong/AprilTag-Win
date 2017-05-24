@@ -14,8 +14,8 @@ f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 
-state_vision_feature::state_vision_feature(state_vision_group &group_, uint64_t feature_id, const feature_t &initial_):
-    state_leaf("feature", constant), group(group_), id(feature_id), initial(initial_), current(initial_)
+state_vision_feature::state_vision_feature(const tracker::feature_track &track_, state_vision_group &group_):
+    state_leaf("feature", constant), track(track_), initial(track_.x, track_.y), group(group_)
 {
     reset();
 }
@@ -144,7 +144,7 @@ int state_vision_group::make_normal()
 
 state_vision::state_vision(covariance &c):
     state_motion(c),
-    feature_counter(0), group_counter(0)
+    group_counter(0)
 {
     non_orientation.children.push_back(&cameras);
 }
@@ -216,7 +216,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     int track_fail = 0;
     for(auto *g : groups.children) {
         for(state_vision_feature *i : g->features.children) {
-            if(i->current[0] == INFINITY) {
+            if(i->track.found == false) {
                 // Drop tracking failures
                 ++track_fail;
                 if(i->is_good()) ++useful_drops;
@@ -229,8 +229,6 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
                     ++outliers;
                 }
             }
-            if(i->should_drop())
-                feature_tracker->drop_feature(i->tracker_id);
         }
     }
 
@@ -253,11 +251,8 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
 
         // Notify features that this group is about to disappear
         // This sets group_empty (even if group_reference)
-        if(!health) {
-            for(state_vision_feature *i : g->features.children)
-                feature_tracker->drop_feature(i->tracker_id);
+        if(!health)
             g->make_empty();
-        }
 
         // Found our reference group
         if(g->status == group_reference)
@@ -315,7 +310,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
 
                 bool good = stdev / f->v.depth() < .05f;
                 if (good && f->descriptor_valid)
-                    map->update_feature_position(g->id, f->id, f->node_body, variance_meters);
+                    map->update_feature_position(g->id, f->track.feature->id, f->node_body, variance_meters);
                 if (good && !f->descriptor_valid) {
                     float scale = static_cast<float>(f->v.depth());
                     float radius = 32.f/scale * (image.width / 320.f);
@@ -324,10 +319,10 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
                     }
                     //log->info("feature {} good radius {}", f->id, radius);
                     if (descriptor_compute((uint8_t*)image.image, image.width, image.height, image.stride,
-                                           static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
+                                           static_cast<float>(f->track.x), static_cast<float>(f->track.y), radius,
                                            f->descriptor)) {
                         f->descriptor_valid = true;
-                        map->add_feature(g->id, f->id, f->node_body, variance_meters, f->descriptor);
+                        map->add_feature(g->id, f->track.feature->id, f->node_body, variance_meters, f->descriptor);
                     }
                 }
             }
@@ -343,9 +338,9 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
     }
 }
 
-state_vision_feature * state_vision::add_feature(state_vision_group &group, const feature_t &initial)
+state_vision_feature * state_vision::add_feature(const tracker::feature_track &track_, state_vision_group &group)
 {
-    return new state_vision_feature(group, feature_counter++, initial);
+    return new state_vision_feature(track_, group);
 }
 
 state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
@@ -547,27 +542,16 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
     current_image.height_px = image.height;
     current_image.stride_px = image.stride;
 
-    std::map<uint64_t, state_vision_feature *> id_to_state;
-
-    feature_tracker->predictions.clear();
-    feature_tracker->predictions.reserve(feature_count());
+    feature_tracker->tracks.clear();
+    feature_tracker->tracks.reserve(feature_count());
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
-        for(state_vision_feature *feature : g->features.children) {
-            id_to_state[feature->tracker_id] = feature;
-            feature_tracker->predictions.emplace_back(feature->tracker_id,
-                                                      (float)feature->current.x(), (float)feature->current.y(),
-                                                      (float)feature->prediction.x(), (float)feature->prediction.y());
-        }
+        for(state_vision_feature *feature : g->features.children)
+            feature_tracker->tracks.emplace_back(&feature->track);
     }
 
-    int i=0;
-    if (feature_tracker->predictions.size())
-        for(const auto &p : feature_tracker->track(current_image, feature_tracker->predictions)) {
-            state_vision_feature * feature = id_to_state[p.id];
-            feature->current.x() = p.found ? p.x : INFINITY;
-            feature->current.y() = p.found ? p.y : INFINITY;
-        }
+    if (feature_tracker->tracks.size())
+        feature_tracker->track(current_image, feature_tracker->tracks);
 }
 
 float state_vision::median_depth_variance()

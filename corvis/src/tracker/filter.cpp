@@ -676,7 +676,7 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 
 static int filter_available_feature_space(struct filter *f, state_camera &camera);
 
-static int filter_add_detected_features(struct filter * f, state_vision_group *g, sensor_grey &camera_sensor, const std::vector<tracker::point> &kp, size_t newfeats, int image_height, sensor_clock::time_point time)
+static int filter_add_detected_features(struct filter * f, state_vision_group *g, sensor_grey &camera_sensor, const std::vector<tracker::feature_track> &kp, size_t newfeats, int image_height, sensor_clock::time_point time)
 {
     f->next_detect_camera = (camera_sensor.id + 1) % f->cameras.size();
     state_camera &camera = g->camera;
@@ -684,8 +684,6 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
     if(kp.size() < state_vision_group::min_feats) {
         camera.remove_group(g, f->map.get());
         f->s.remap();
-        for(const auto &p : kp)
-            camera.feature_tracker->drop_feature(p.id);
         int active_features = f->s.feature_count();
         if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);
@@ -706,16 +704,15 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
     for(i = 0; i < (int)kp.size() && i < space; ++i) {
-        feature_t kp_i = {kp[i].x, kp[i].y};
         {
-            state_vision_feature *feat = f->s.add_feature(*g, kp_i);
+            state_vision_feature *feat = f->s.add_feature(kp[i], *g);
 
             float depth_m = 0;
             if(f->has_depth) {
                 if (!aligned_undistorted_depth)
                     aligned_undistorted_depth = filter_aligned_depth_to_camera(*f->recent_depth, *f->depths[f->recent_depth->id], camera, camera_sensor);
 
-                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature(kp_i))));
+                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({kp[i].x, kp[i].y}))));
             }
             if(depth_m)
             {
@@ -727,14 +724,12 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
             }
             
             g->features.children.push_back(feat);
-            feat->tracker_id = kp[i].id;
+            feat->track.feature = kp[i].feature;
             
             found_feats++;
             if(found_feats == newfeats) break;
         }
     }
-    for(i = i+1; i < (int)kp.size(); ++i)
-        camera.feature_tracker->drop_feature(kp[i].id);
 
     g->status = group_initializing;
     g->make_normal();
@@ -771,17 +766,17 @@ static bool filter_next_detect_camera(struct filter *f, int camera, sensor_clock
     return f->next_detect_camera == camera;
 }
 
-const std::vector<tracker::point> &filter_detect(struct filter *f, const sensor_data &data, int space)
+const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const sensor_data &data, int space)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
     auto start = std::chrono::steady_clock::now();
     const rc_ImageData &image = data.image;
-    camera.feature_tracker->current_features.clear();
-    camera.feature_tracker->current_features.reserve(camera.feature_count());
+    camera.feature_tracker->tracks.clear();
+    camera.feature_tracker->tracks.reserve(camera.feature_count());
     for(auto &g : camera.groups.children)
         for(auto &i : g->features.children)
-            camera.feature_tracker->current_features.emplace_back(i->tracker_id, (float)i->current[0], (float)i->current[1], 0);
+            camera.feature_tracker->tracks.emplace_back(&i->track);
 
     // Run detector
     tracker::image timage;
@@ -789,7 +784,7 @@ const std::vector<tracker::point> &filter_detect(struct filter *f, const sensor_
     timage.width_px = image.width;
     timage.height_px = image.height;
     timage.stride_px = image.stride;
-    std::vector<tracker::point> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->current_features, space);
+    std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space);
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });

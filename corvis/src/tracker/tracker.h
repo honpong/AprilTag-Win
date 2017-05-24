@@ -4,22 +4,26 @@
 #include <vector>
 #include <cstdint>
 #include <memory>
+#include <atomic>
 
 #include "scaled_mask.h"
 
 struct tracker {
-    struct point {
+    struct feature {
         uint64_t id;
-        float x, y;
-        float score; // scores are > 0, higher scores are better detections / tracks
-        point(uint64_t id_, float x_, float y_, float score_) : id(id_), x(x_), y(y_), score(score_) {}
+        static std::atomic_uint_fast64_t next_id;
+        feature(): id(next_id++) {}
+        virtual ~feature() {}
     };
 
-    struct prediction : public point {
+    struct feature_track{
+        std::shared_ptr<struct feature> feature;
+        float x, y;
+        float pred_x, pred_y;
+        float score; // scores are > 0, higher scores are better detections / tracks
         bool found;
-        float prev_x, prev_y;
-        prediction(uint64_t id_, float prev_x_, float prev_y_, float pred_x_, float pred_y_)
-            : point(id_, pred_x_, pred_y_, 0), found(false), prev_x(prev_x_), prev_y(prev_y_) {}
+        feature_track(std::shared_ptr<struct feature> feature_, float x_, float y_, float pred_x_, float pred_y_, float score_)
+            : feature(feature_), x(x_), y(y_), pred_x(pred_x_), pred_y(pred_y_), score(score_), found(true) {}
     };
 
     typedef struct {
@@ -31,9 +35,8 @@ struct tracker {
 
     std::unique_ptr<scaled_mask> mask;
 
-    std::vector<point> feature_points;
-    std::vector<point> current_features; // reuasable storage passed to detect()
-    std::vector<prediction> predictions; // reuasable storage passed to and returned from track()
+    std::vector<feature_track> feature_points;
+    std::vector<feature_track *> tracks; // reusable storage passed to track() and detect()
     /*
      @param image  The image to use for feature detection
      @param number_desired  The desired number of features, function can return less or more
@@ -41,20 +44,15 @@ struct tracker {
 
      Returns a reference to a vector (using feature_points above for storage) of newly detected features with higher scored points being preferred
      */
-    virtual std::vector<point> &detect(const image &image, const std::vector<point> &current_features, int number_desired) = 0;
+    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_track *> &current_features, int number_desired) = 0;
 
     /*
      @param current_image The image to track in
-     @param predictions The current and predicted locations in the current image
+     @param tracks Includes the current and predicted locations in the current image
 
-     Returns the same vector of predictions as given but with found and score set
+     Updates the vector of tracks, with found and score set
      */
-    virtual std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions) = 0;
-
-    /*
-     @param feature_ids A vector of feature ids which are no longer tracked. Free any internal storage related to them.
-     */
-    virtual void drop_feature(uint64_t feature_id) = 0;
+    virtual void track(const image &image, std::vector<feature_track *> &tracks) = 0;
 
     virtual ~tracker() {}
 };

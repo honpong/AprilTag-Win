@@ -5,8 +5,6 @@
 #include "fast_constants.h"
 #include "fast_detector/fast.h"
 
-#include <map>
-
 class fast_tracker : public tracker
 {
     bool is_trackable(int x, int y, int width, int height)
@@ -17,9 +15,9 @@ class fast_tracker : public tracker
                 y < height-1-half_patch_width);
     }
 
-    struct feature
+    struct fast_feature: public tracker::feature
     {
-        feature(int x, int y, const uint8_t * im, int stride) : dx(0), dy(0)
+        fast_feature(int x, int y, const uint8_t * im, int stride) : dx(0), dy(0)
         {
             for(int py = 0; py < full_patch_width; ++py) {
                 for(int px = 0; px < full_patch_width; ++px) {
@@ -33,16 +31,13 @@ class fast_tracker : public tracker
 
 
 private:
-    std::map<uint64_t, feature> feature_map;
     fast_detector_9 fast;
-    uint64_t next_id = 0;
 
 public:
     fast_tracker() {}
     virtual ~fast_tracker() {}
-    virtual std::vector<point> &detect(const image &image, const std::vector<point> &features, int number_desired) override;
-    virtual std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions) override;
-    virtual void drop_feature(uint64_t feature_id) override;
+    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_track *> &current, int number_desired) override;
+    virtual void track(const image &image, std::vector<feature_track *> &tracks) override;
 };
 
 #endif

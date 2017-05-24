@@ -19,6 +19,7 @@ set(TRACKER_SOURCES
     tracker/feature_descriptor.cpp
     tracker/mapper.cpp
     tracker/dictionary.cpp
+    tracker/feature_tracker.cpp
     tracker/fast_tracker.cpp
     tracker/remapper.cpp
     ${TRACKERI_HEADERS}

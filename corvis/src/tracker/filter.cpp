@@ -884,7 +884,7 @@ struct kp_pre_data{
 };
 
 // Triangulates a point in the body reference frame from two views
-float preprocess_keypoint_intersect(const state_camera & camera, feature_t f,const m3& Rw,kp_pre_data& pre_data)
+void preprocess_keypoint_intersect(const state_camera & camera, feature_t f,const m3& Rw,kp_pre_data& pre_data)
 {
     feature_t f_n = camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature(f));
     v3 p_calibrated(f_n.x(), f_n.y(), 1);

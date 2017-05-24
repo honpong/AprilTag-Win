@@ -772,11 +772,16 @@ const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const
     auto start = std::chrono::steady_clock::now();
     const rc_ImageData &image = data.image;
     camera.feature_tracker->tracks.clear();
-    camera.feature_tracker->tracks.reserve(camera.feature_count());
+    int standby_count = camera.standby_features.size();
+    camera.feature_tracker->tracks.reserve(camera.feature_count() + standby_count);
     for(auto &g : camera.groups.children)
         for(auto &i : g->features.children)
             camera.feature_tracker->tracks.emplace_back(&i->track);
 
+    for(auto &t: camera.standby_features)
+        camera.feature_tracker->tracks.emplace_back(&t);
+
+    space = space > standby_count ? space - standby_count : 0;
     // Run detector
     tracker::image timage;
     timage.image = (uint8_t *)image.image;
@@ -784,6 +789,9 @@ const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const
     timage.height_px = image.height;
     timage.stride_px = image.stride;
     std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space);
+    for(const auto &t : camera.standby_features)
+        kp.push_back(t);
+    camera.standby_features.clear();
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });

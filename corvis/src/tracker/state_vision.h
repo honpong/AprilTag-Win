@@ -213,7 +213,7 @@ struct state_camera: state_branch<state_node*> {
     state_extrinsics extrinsics;
     state_vision_intrinsics intrinsics;
     std::unique_ptr<tracker> feature_tracker;
-
+    std::list<tracker::feature_track> standby_features;
     std::future<const std::vector<tracker::feature_track> & > detection_future;
 
     state_branch<state_vision_group *> groups;

@@ -26,7 +26,7 @@ public:
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
     
-    observation(sensor &src, int _size): size(_size) {}
+    observation(int _size): size(_size) {}
     virtual ~observation() {};
 };
 
@@ -45,7 +45,7 @@ public:
     virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }
     virtual f_t measurement_covariance(const int i) const { return m_cov[i]; }
-    observation_storage(sensor_storage<_size> &src): observation(src, _size), source(src) {}
+    observation_storage(sensor_storage<_size> &src): observation(_size), source(src) {}
 };
 
 class observation_vision_feature: public observation_storage<2> {

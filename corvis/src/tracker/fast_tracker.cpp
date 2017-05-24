@@ -5,7 +5,7 @@
 
 using namespace std;
 
-vector<tracker::feature_track> &fast_tracker::detect(const image &image, const std::vector<feature_track *> &current, int number_desired)
+vector<tracker::feature_track> &fast_tracker::detect(const image &image, const std::vector<feature_track *> &current, size_t number_desired)
 {
     if (!mask)
         mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);

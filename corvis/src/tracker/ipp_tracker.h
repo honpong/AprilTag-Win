@@ -226,7 +226,7 @@ public:
         std::swap(prev, next);
     }
 
-    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_track *> &current, int number_desired) override {
+    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_track *> &current, size_t number_desired) override {
         if (!mask)
             mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
         mask->initialize();

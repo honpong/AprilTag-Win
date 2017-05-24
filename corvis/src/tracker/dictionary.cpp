@@ -105,7 +105,7 @@ uint32_t dictionary::quantize(const descriptor & d)
 dictionary::dictionary(vector<descriptor> descriptors, int num_clusters)
 {
     float *data = new float[descriptors.size()*descriptor_size];
-    for(int i = 0; i < descriptors.size(); i++)
+    for(size_t i = 0; i < descriptors.size(); i++)
         memcpy(&data[descriptor_size*i], descriptors[i].d, descriptor_size*sizeof(float));
 
     dimension = descriptor_size;

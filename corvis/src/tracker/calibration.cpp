@@ -350,7 +350,7 @@ bool copy_json_to_imus(Value & json, std::vector<sensor_calibration_imu> & imus)
         return false;
     }
 
-    for(int i = 0; i < json.Size(); i++) {
+    for(size_t i = 0; i < json.Size(); i++) {
         sensor_calibration_imu imu;
         Value & json_imu = json[i];
         if(!json_imu.IsObject()) {
@@ -457,7 +457,7 @@ bool copy_json_to_cameras(Value & json, std::vector<sensor_calibration_camera> &
         return false;
     }
 
-    for(int i = 0; i < json.Size(); i++) {
+    for(size_t i = 0; i < json.Size(); i++) {
         sensor_calibration_camera camera;
         if(!copy_json_to_camera(json[i], camera))
             return false;

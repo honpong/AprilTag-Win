@@ -44,7 +44,7 @@ struct tracker {
 
      Returns a reference to a vector (using feature_points above for storage) of newly detected features with higher scored points being preferred
      */
-    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_track *> &current_features, int number_desired) = 0;
+    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_track *> &current_features, size_t number_desired) = 0;
 
     /*
      @param current_image The image to track in

@@ -303,7 +303,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
 
     for (auto &camera : cameras.children) {
         for (auto &g : camera->groups.children) {
-            if (g->status == group_normal)
+            if (g->status == group_normal || g->status == group_reference)
                 map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
 
             for (state_vision_feature *f : g->features.children) {

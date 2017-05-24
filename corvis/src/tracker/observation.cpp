@@ -173,7 +173,7 @@ void observation_vision_feature::predict()
     feature->node_body = Ro*X0 * feature->v.depth() + orig.camera.extrinsics.T.v;
 
     X = Rtot * X0 + Ttot * feature->v.invdepth();
-    v2 Xu = X.segment(0,2) / X[2];
+    v2 Xu = X.segment<2>(0) / X[2];
     feature->prediction = curr.camera.intrinsics.unnormalize_feature(curr.camera.intrinsics.distort_feature(Xu));
     pred = feature->prediction;
 }
@@ -190,7 +190,7 @@ void observation_vision_feature::cache_jacobians()
     // v4 X = Rtot * X0 + Ttot / depth
     // v4 dX = dRtot * X0 + Rtot * dX0 + dTtot / depth - Tot / depth / depth ddepth
 
-    v2 Xu = X.segment(0,2) / X[2];
+    v2 Xu = X.segment<2>(0) / X[2];
     m<1,2> dkd_u_dXu;
     m<1,4> dkd_u_dk;
     f_t kd_u = curr.camera.intrinsics.get_distortion_factor(Xu, &dkd_u_dXu, &dkd_u_dk);
@@ -290,7 +290,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 
 f_t observation_vision_feature::projection_residual(const v3 & X, const feature_t & found_undistorted)
 {
-    v2 Xu = X.segment(0,2) / X[2];
+    v2 Xu = X.segment<2>(0) / X[2];
     return (Xu - found_undistorted).squaredNorm();
 }
 

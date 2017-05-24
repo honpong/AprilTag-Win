@@ -95,9 +95,11 @@ static const rc_Quaternion rc_QUATERNION_IDENTITY = {
     {0,0,0,1},
 };
 static const rc_Pose rc_POSE_IDENTITY = {
-    rc_QUATERNION_IDENTITY,
+    {{0,0,0,1}},
     {{0,0,0}},
-    rc_MATRIX_IDENTITY,
+    {{{1, 0, 0},
+      {0, 1, 0},
+      {0, 0, 1}}},
 };
 
 typedef uint16_t rc_Sensor;

@@ -86,6 +86,7 @@ typedef struct { rc_Vector W; rc_Vector T; } rc_PoseAcceleration; // derivative 
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVariance; // this is not the full variance yet
 typedef struct { rc_Pose pose_m; rc_Timestamp time_us; } rc_PoseTime;
 
+#if __cplusplus
 static const rc_Matrix rc_MATRIX_IDENTITY = {
     {{1, 0, 0},
      {0, 1, 0},
@@ -99,6 +100,7 @@ static const rc_Pose rc_POSE_IDENTITY = {
     {{0,0,0}},
     rc_MATRIX_IDENTITY,
 };
+#endif
 
 typedef uint16_t rc_Sensor;
 

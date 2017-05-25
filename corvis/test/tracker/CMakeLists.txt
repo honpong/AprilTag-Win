@@ -1,4 +1,4 @@
-project(spec CXX)
+project(spec C CXX)
 
 add_executable(spec
   vec4.cpp
@@ -30,3 +30,6 @@ set_property(TARGET spec_intel PROPERTY CXX_STANDARD 11)
 add_test(NAME spec_intel COMMAND spec_intel)
 
 set_property(TARGET spec spec_intel PROPERTY CXX_STANDARD 14)
+
+add_executable(c-test c_test.c)
+target_link_libraries(c-test tracker)

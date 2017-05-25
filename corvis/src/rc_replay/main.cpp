@@ -24,6 +24,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--output-status") == 0) rp.enable_status_output();
         else if (strcmp(v[i], "--output-summary") == 0) summary = true;
         else if (strcmp(v[i], "--pause") == 0) pause = true;
+        else if (strcmp(v[i], "--enable-map") == 0) rp.start_mapping();
         else if (strcmp(v[i], "--version") == 0) {
             std::cerr << rp.get_version() << "\n\n"; goto usage;
         }

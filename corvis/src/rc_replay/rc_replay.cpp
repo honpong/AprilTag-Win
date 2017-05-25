@@ -289,3 +289,7 @@ bool replay::run()
 
     return file.eof() && !file.fail();
 }
+
+void replay::start_mapping() {
+    rc_startMapping(tracker);
+}

@@ -460,6 +460,43 @@ RCTRACKER_API void rc_stopMapping(rc_Tracker *tracker);
 RCTRACKER_API void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, const void *buffer, size_t length), void *handle);
 RCTRACKER_API bool rc_loadMap(rc_Tracker *tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle);
 
+#include <math.h>
+#include <float.h>
+inline rc_Quaternion rc_quaternionExp(rc_Vector v)
+{
+    rc_Vector w = {{ v.x/2, v.y/2, v.z/2 }};
+    float th2, th = sqrtf(th2 = w.x*w.x + w.y*w.y + w.z*w.z), c = cosf(th), s = th2 < sqrtf(120*FLT_EPSILON) ? 1-th2/6 : sinf(th)/th;
+    rc_Quaternion Q = {{ s*w.x, s*w.y, s*w.z, c }};
+    return Q;
+}
+
+inline rc_Quaternion rc_quaternionMultiply(rc_Quaternion a, rc_Quaternion b)
+{
+    rc_Quaternion Q = {{
+        a.x * b.w + a.w * b.x - a.z * b.y + a.y * b.z,
+        a.y * b.w + a.z * b.x + a.w * b.y - a.x * b.z,
+        a.z * b.w - a.y * b.x + a.x * b.y + a.w * b.z,
+        a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+    }};
+    return Q;
+}
+
+inline rc_Pose rc_predictPose(rc_Timestamp dt_us, const rc_Pose p, const rc_PoseVelocity v, const rc_PoseAcceleration a)
+{
+    float dt = dt_us * 1e-6;
+    rc_Pose P = {};
+    P.T.x = dt * (dt/2 * a.T.x + v.T.x) + p.T.x;
+    P.T.y = dt * (dt/2 * a.T.y + v.T.y) + p.T.y;
+    P.T.z = dt * (dt/2 * a.T.z + v.T.z) + p.T.z;
+    rc_Vector W = {{
+            dt * (dt/2 * a.W.x + v.W.x),
+            dt * (dt/2 * a.W.y + v.W.y),
+            dt * (dt/2 * a.W.z + v.W.z),
+    }};
+    P.Q = rc_quaternionMultiply(rc_quaternionExp(W), p.Q);
+    return P;
+}
+
 #ifdef __cplusplus
 }
 #endif

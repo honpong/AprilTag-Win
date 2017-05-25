@@ -24,6 +24,7 @@ add_test(NAME spec COMMAND spec)
 
 add_executable(spec_intel
   rc_tracker_tests.cpp
+  prediction.cpp
 )
 target_link_libraries(spec_intel util gtest gtest_main tracker trackeri)
 set_property(TARGET spec_intel PROPERTY CXX_STANDARD 11)

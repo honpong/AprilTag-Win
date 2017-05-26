@@ -844,6 +844,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(f->run_state == RCSensorFusionRunStateRunning && f->detector_failed && time - f->detector_failed_time > max_detector_failed_time) {
         f->log->error("No features for 500ms; switching to orientation only.");
         f->run_state = RCSensorFusionRunStateDynamicInitialization;
+        f->first_detect = true;
         f->s.enable_orientation_only(true);
     }
 
@@ -853,6 +854,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         v3 non_up_var = f->s.Q.variance() - f->s.world.up * f->s.world.up.dot(f->s.Q.variance());
         bool inertial_converged = non_up_var[0] < dynamic_W_thresh_variance && non_up_var[1] < dynamic_W_thresh_variance && non_up_var[2] < dynamic_W_thresh_variance;
         if(inertial_converged) {
+            if(f->first_detect) { f->first_detect = false; return true; }
             if(inertial_converged) {
                 f->log->debug("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
             } else {

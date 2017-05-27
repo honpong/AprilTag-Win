@@ -730,7 +730,6 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
         }
     }
 
-    g->status = group_initializing;
     g->make_normal();
     f->s.remap();
 #ifdef TEST_POSDEF

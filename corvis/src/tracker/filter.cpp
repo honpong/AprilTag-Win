@@ -701,16 +701,16 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
     f_t image_to_depth = 1;
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
-    for(size_t i = 0; i < kp.size(); ++i) {
+    for(auto i = kp.begin(); i != kp.end(); ++i) {
         {
-            state_vision_feature *feat = f->s.add_feature(kp[i], *g);
+            state_vision_feature *feat = f->s.add_feature(*i, *g);
 
             float depth_m = 0;
             if(f->has_depth) {
                 if (!aligned_undistorted_depth)
                     aligned_undistorted_depth = filter_aligned_depth_to_camera(*f->recent_depth, *f->depths[f->recent_depth->id], camera, camera_sensor);
 
-                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({kp[i].x, kp[i].y}))));
+                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({i->x, i->y}))));
             }
             if(depth_m)
             {
@@ -722,7 +722,7 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
             }
             
             g->features.children.push_back(feat);
-            feat->track.feature = kp[i].feature;
+            feat->track.feature = i->feature;
             
             found_feats++;
             if(found_feats == newfeats) break;

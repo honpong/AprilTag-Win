@@ -697,12 +697,11 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
 
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
 
-    size_t space = filter_available_feature_space(f, camera);
     size_t found_feats = 0;
     f_t image_to_depth = 1;
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
-    for(size_t i = 0; i < kp.size() && i < space; ++i) {
+    for(size_t i = 0; i < kp.size(); ++i) {
         {
             state_vision_feature *feat = f->s.add_feature(kp[i], *g);
 

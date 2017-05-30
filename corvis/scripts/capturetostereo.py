@@ -64,7 +64,7 @@ while header_str != "":
     if ptype == image_raw_type:
         this_frame = image_frame(sensor_id, ptime, data)
 
-        if last_frame and abs(last_frame.time_us - this_frame.time_us) < 1000:
+        if last_frame and last_frame.sensor_id != this_frame.sensor_id and abs(last_frame.time_us - this_frame.time_us) < 1000:
             write_stereo_frame(f_out, last_frame, this_frame)
 
         last_frame = this_frame

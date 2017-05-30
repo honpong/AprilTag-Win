@@ -268,6 +268,8 @@ endif()
 
 add_subdirectory(feature feature)
 target_link_libraries(trackeri PUBLIC feature)
+add_subdirectory(vocabulary vocabulary)
+target_link_libraries(trackeri PUBLIC vocabulary)
 
 set(DBOW2_FILES
     ../../ThirdParty/DBoW2/include/DBoW2/BowVector.h

@@ -676,9 +676,10 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 
 static int filter_available_feature_space(struct filter *f, state_camera &camera);
 
-static int filter_add_detected_features(struct filter * f, state_camera &camera, sensor_grey &camera_sensor, size_t newfeats, const std::vector<tracker::feature_track> &kp, int image_height, sensor_clock::time_point time)
+static int filter_add_detected_features(struct filter * f, state_camera &camera, sensor_grey &camera_sensor, size_t newfeats, int image_height, sensor_clock::time_point time)
 {
     f->next_detect_camera = (camera_sensor.id + 1) % f->cameras.size();
+    auto &kp = camera.standby_features;
     auto g = camera.detecting_group;
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
@@ -690,6 +691,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             if(!f->detector_failed) f->detector_failed_time = time;
             f->detector_failed = true;
         }
+        kp.clear();
         return 0;
     }
 
@@ -728,6 +730,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             if(found_feats == newfeats) break;
         }
     }
+    kp.clear();
 
     g->status = group_initializing;
     g->make_normal();
@@ -868,8 +871,10 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 #endif
         if(camera_state.detection_future.valid()) {
             const auto & kp = camera_state.detection_future.get();
+            for(auto &t: kp)
+                camera_state.standby_features.push_back(t);
             int space = filter_available_feature_space(f, camera_state);
-            filter_add_detected_features(f, camera_state, camera_sensor, space, kp, data.image.height, time);
+            filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
         } else {
             camera_state.remove_group(camera_state.detecting_group, f->map.get());
             f->s.remap();

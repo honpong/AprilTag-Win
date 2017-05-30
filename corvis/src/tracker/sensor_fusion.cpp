@@ -161,7 +161,6 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 sensor_data image_data(data.time_us, rc_SENSOR_TYPE_IMAGE, 0, data.stereo.shutter_time_us,
                        data.stereo.width, data.stereo.height, data.stereo.stride1, data.stereo.format, data.stereo.image1, std::move(im_copy));
                 docallback = filter_image_measurement(&sfm, image_data);
-                END_EVENT(EV_FILTER_IMG_STEREO, 0);
 
                 if (fast_path && !queue.data_in_queue(data.type, data.id))
                     fast_path_catchup();
@@ -186,30 +185,15 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                     // finished using it before the end of this case
                     // statement
                     sfm.s.cameras.children[0]->detection_future.wait();
-                }
-                auto stop = std::chrono::steady_clock::now();
-                std::chrono::duration<double> diff = stop-start;
-                //printf("image 0 processing + Catchup time: %lf\n" , diff.count());
-                if(docallback) {
-                    // wait on detection future here
-                    if((diff.count() < STEREO_TIME_THRESHOLD) || (false_stereo_counter == 0)) {
-                        //printf("INF: PROCESSING TIME IS ** %lf ** \n" , diff.count());
-                        if (diff.count() > STEREO_TIME_THRESHOLD){
-                            false_stereo_counter++ ;
-                        }
-                        filter_stereo_initialize(&sfm, 0, 1, data);
-                    }
-                    else {
-                        if(sfm.s.cameras.children[0]->detection_future.valid()) {
-                            false_stereo_counter++;
-                            printf("ERR: PROCESSING TIME IS HIGH ** %lf ** false_stereo_counter %d\n" , diff.count(), false_stereo_counter);
-                        }
-                    }
+                    auto finished_detect = std::chrono::steady_clock::now();
+                    std::chrono::duration<double> diff = finished_detect-start;
+                    filter_stereo_initialize(&sfm, 0, 1, data);
                 }
 
                 update_status();
                 if(docallback)
                     update_data(&data);
+                END_EVENT(EV_FILTER_IMG_STEREO, 0);
             }
             else
                 //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.

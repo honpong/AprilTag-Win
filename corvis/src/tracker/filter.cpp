@@ -691,7 +691,6 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             if(!f->detector_failed) f->detector_failed_time = time;
             f->detector_failed = true;
         }
-        kp.clear();
         return 0;
     }
 
@@ -703,7 +702,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     f_t image_to_depth = 1;
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
-    for(auto i = kp.begin(); i != kp.end(); ++i) {
+    for(auto i = kp.begin(); i != kp.end(); i = kp.erase(i)) {
         {
             state_vision_feature *feat = f->s.add_feature(*i, *g);
 
@@ -730,7 +729,6 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             if(found_feats == newfeats) break;
         }
     }
-    kp.clear();
 
     g->status = group_initializing;
     g->make_normal();

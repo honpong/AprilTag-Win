@@ -10,6 +10,7 @@
 #include <cfloat>
 #include "DBoW2/TemplatedVocabulary.h"
 #include "DBoW2/BowVector.h"
+#include <cmath>
 
 using namespace DBoW2;
 

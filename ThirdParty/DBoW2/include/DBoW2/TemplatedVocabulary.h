@@ -14,10 +14,8 @@
 
 #include <vector>
 #include <numeric>
-#include <fstream>
-#include <string>
+#include <cstring>
 #include <algorithm>
-#include <opencv2/core/core_c.h>
 
 #include "FeatureVector.h"
 #include "BowVector.h"
@@ -408,13 +406,11 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromMemory(const char *pBinaries, 
             memcpy(&nodes[i].word_id, pSrc, sizeof(WordId) * 1);
             pSrc += sizeof(WordId);
             //fread(&nodes[i].word_id, sizeof(WordId), 1, pf);
-            nodes[i].descriptor = cv::Mat::zeros(1, 32, CV_8UC1);
-            
-            memcpy(nodes[i].descriptor.data, pSrc, sizeof(char)*32);
+
+            memcpy(nodes[i].descriptor.data(), pSrc, sizeof(char)*32);
             pSrc += sizeof(char) * 32;
             //fread(nodes[i].descriptor.data, sizeof(char), 32, pf);
-        }        
-        nodes[0].descriptor = cv::Mat();
+        }
         bRet = true;
     }
       
@@ -467,11 +463,9 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromTextFile(const std::string &fi
                     words[wid] = &nodes[i];
                 }
                 fread(&nodes[i].word_id, sizeof(WordId), 1, pf);
-                nodes[i].descriptor = cv::Mat::zeros(1, 32, CV_8UC1);
-                fread(nodes[i].descriptor.data, sizeof(char), 32, pf);
+                fread(nodes[i].descriptor.data(), sizeof(char), 32, pf);
             }
             fclose(pf);
-            nodes[0].descriptor = cv::Mat();
             bRet = true;
         }        
     }

@@ -156,12 +156,10 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             auto start = std::chrono::steady_clock::now();
             bool docallback = true;
             if(isProcessingVideo) {
-                std::unique_ptr<void, void(*)(void *)> im_copy(malloc(data.stereo.height*data.stereo.stride1), free);
-                void * im_ptr = im_copy.get();
-                memcpy(im_ptr, data.stereo.image1, data.stereo.height*data.stereo.stride1);
-                sensor_data image_data(data.time_us, rc_SENSOR_TYPE_IMAGE, 0, data.stereo.shutter_time_us,
-                        data.stereo.width, data.stereo.height, data.stereo.stride1, data.stereo.format, im_ptr, std::move(im_copy));
                 START_EVENT(EV_FILTER_IMG_STEREO, 0);
+                std::unique_ptr<void, void(*)(void *)> im_copy(const_cast<void*>(data.stereo.image1), [](void *){});
+                sensor_data image_data(data.time_us, rc_SENSOR_TYPE_IMAGE, 0, data.stereo.shutter_time_us,
+                       data.stereo.width, data.stereo.height, data.stereo.stride1, data.stereo.format, data.stereo.image1, std::move(im_copy));
                 docallback = filter_image_measurement(&sfm, image_data);
                 END_EVENT(EV_FILTER_IMG_STEREO, 0);
 

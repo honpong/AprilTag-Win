@@ -741,14 +741,7 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
 static int filter_available_feature_space(struct filter *f, state_camera &camera)
 {
     int space = f->s.maxstatesize - f->s.statesize;
-    int empty = 0;
-    for (auto &c : f->s.cameras.children) {
-        if (!c->detecting_group)
-            space -= 6;
-        empty += c->groups.children.size() == 0;
-    }
-    if (empty)
-        space /= empty;
+    if(!camera.detecting_group) space -= 6;
     if(space < 0) space = 0;
     if(space > f->max_group_add)
         space = f->max_group_add;

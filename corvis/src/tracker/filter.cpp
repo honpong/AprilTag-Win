@@ -784,9 +784,6 @@ const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const
     timage.height_px = image.height;
     timage.stride_px = image.stride;
     std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space);
-    for(const auto &t : camera.standby_features)
-        kp.push_back(t);
-    camera.standby_features.clear();
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
@@ -864,31 +861,22 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     camera_state.intrinsics.image_width = data.image.width;
     camera_state.intrinsics.image_height = data.image.height;
     
-    if(camera_state.detecting_group)
+    if(camera_state.detecting_space)
     {
 #ifdef TEST_POSDEF
         if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
 #endif
         if(camera_state.detection_future.valid()) {
-            const auto & kp = camera_state.detection_future.get();
-            for(auto &t: kp)
-                camera_state.standby_features.push_back(t);
+            const auto &kp = camera_state.detection_future.get();
+            for(int t = kp.size()-1; t >= 0; --t)
+                camera_state.standby_features.push_front(kp[t]);
+        }
+        if(camera_state.detecting_group)
+        {
             int space = filter_available_feature_space(f, camera_state);
             filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
-        } else {
-            camera_state.remove_group(camera_state.detecting_group, f->map.get());
-            f->s.remap();
         }
         camera_state.detecting_group = nullptr;
-        camera_state.detecting_space = 0;
-    }
-    else if(camera_state.detecting_space) //if we are detecting features without a group (first detect)
-    {
-        if(camera_state.detection_future.valid()) {
-            const auto &kp = camera_state.detection_future.get();
-            for(auto &t: kp)
-                camera_state.standby_features.push_back(t);
-        }
         camera_state.detecting_space = 0;
     }
 

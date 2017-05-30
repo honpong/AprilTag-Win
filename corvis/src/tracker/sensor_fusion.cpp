@@ -181,6 +181,11 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                             END_EVENT(EV_DETECTING_GROUP_STEREO, 0);
                             return res;
                         }, &sfm, std::move(image_data));
+                    // since image_data is a wrapper type here that
+                    // does't have a copy, we need to be sure we are
+                    // finished using it before the end of this case
+                    // statement
+                    sfm.s.cameras.children[0]->detection_future.wait();
                 }
                 auto stop = std::chrono::steady_clock::now();
                 std::chrono::duration<double> diff = stop-start;

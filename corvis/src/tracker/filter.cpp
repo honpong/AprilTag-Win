@@ -682,20 +682,6 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     auto &kp = camera.standby_features;
     auto g = camera.detecting_group;
     camera.detecting_group = nullptr;
-    // give up if we didn't get enough features
-    if(kp.size() < state_vision_group::min_feats) {
-        camera.remove_group(g, f->map.get());
-        f->s.remap();
-        int active_features = f->s.feature_count();
-        if(active_features < state_vision_group::min_feats) {
-            f->log->info("detector failure: only {} features after add", active_features);
-            if(!f->detector_failed) f->detector_failed_time = time;
-            f->detector_failed = true;
-        }
-        return 0;
-    }
-
-    f->detector_failed = false;
 
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
 
@@ -864,9 +850,18 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         const auto &kp = camera_state.detection_future.get();
         for(int t = kp.size()-1; t >= 0; --t)
             camera_state.standby_features.push_front(kp[t]);
+        auto active_features = f->s.feature_count();
+        if(active_features < state_vision_group::min_feats)
+        {
+            f->log->info("detector failure: only {} features after add", active_features);
+            if(!f->detector_failed) f->detector_failed_time = time;
+            f->detector_failed = true;
+        } else if(active_features >= f->min_group_add) {
+            f->detector_failed = false;
+        }
     }
 
-    if(camera_state.detecting_group && camera_state.detecting_space)
+    if(camera_state.detecting_group && camera_state.detecting_space && camera_state.standby_features.size() >= f->min_group_add)
     {
 #ifdef TEST_POSDEF
         if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");

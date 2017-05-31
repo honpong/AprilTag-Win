@@ -767,7 +767,7 @@ const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const
     const rc_ImageData &image = data.image;
     camera.feature_tracker->tracks.clear();
     int standby_count = camera.standby_features.size();
-    camera.feature_tracker->tracks.reserve(camera.feature_count() + standby_count);
+    camera.feature_tracker->tracks.reserve(camera.feature_count());
     for(auto &g : camera.groups.children)
         for(auto &i : g->features.children)
             camera.feature_tracker->tracks.emplace_back(&i->track);

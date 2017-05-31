@@ -202,7 +202,7 @@ int state_camera::feature_count() const
     for(auto *g : groups.children)
         count += g->features.children.size();
 
-    return count;
+    return count + standby_features.size();
 }
 
 transformation state_vision::get_transformation() const

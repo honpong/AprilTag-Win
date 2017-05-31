@@ -862,7 +862,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
 
     auto space = filter_available_feature_space(f, camera_state);
-    if(camera_state.detecting_group && camera_state.detecting_space && camera_state.standby_features.size() >= f->min_group_add && space >= f->min_group_add)
+    if(camera_state.detecting_group && camera_state.standby_features.size() >= f->min_group_add && space >= f->min_group_add)
     {
 #ifdef TEST_POSDEF
         if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
@@ -924,7 +924,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->run_state = RCSensorFusionRunStateRunning;
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
-                camera_state.detecting_group = f->s.add_group(camera_state, f->map.get());
+                camera_state.detecting_space = space > camera_state.standby_features.size() ? space - camera_state.standby_features.size() : 0;
+                if(camera_state.detecting_space) camera_state.detecting_group = f->s.add_group(camera_state, f->map.get()); //HACK: we should always want to add a group here, shouldn't we?
             }
             camera_state.detecting_space = space > camera_state.standby_features.size() ? space - camera_state.standby_features.size() : 0;
         } else {

@@ -901,37 +901,36 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     
     filter_update_outputs(f, time);
     
+    space = filter_available_feature_space(f, camera_state);
+    bool myturn = filter_next_detect_camera(f, data.id, time);
+
+    if((f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization)) {
+        if(camera_state.standby_features.size() >= state_vision_group::min_feats) {
+#ifdef TEST_POSDEF
+            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
+#endif
+            f->s.disable_orientation_only();
+#ifdef TEST_POSDEF
+            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
+#endif
+            f->run_state = RCSensorFusionRunStateRunning;
+            f->log->trace("When moving from steady init to running:");
+            print_calibration(f);
+            camera_state.detecting_space = space > camera_state.standby_features.size() ? space - camera_state.standby_features.size() : 0;
+            if(camera_state.detecting_space) camera_state.detecting_group = f->s.add_group(camera_state, f->map.get()); //HACK: we should always want to add a group here, shouldn't we?
+        }
+        camera_state.detecting_space = space > camera_state.standby_features.size() ? space - camera_state.standby_features.size() : 0;
+    } else if(space >= f->min_group_add && myturn) {
+#ifdef TEST_POSDEF
+        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
+#endif
+        camera_state.detecting_group = f->s.add_group(camera_state, f->map.get());
+        camera_state.detecting_space = space;
+    }
+
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 
-    space = filter_available_feature_space(f, camera_state);
-    bool myturn = filter_next_detect_camera(f, data.id, time);
-    if(space >= f->min_group_add && myturn)
-    {
-        if((f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization)) {
-            if(camera_state.standby_features.size() >= state_vision_group::min_feats) {
-#ifdef TEST_POSDEF
-                if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
-#endif
-                f->s.disable_orientation_only();
-#ifdef TEST_POSDEF
-                if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
-#endif
-                f->run_state = RCSensorFusionRunStateRunning;
-                f->log->trace("When moving from steady init to running:");
-                print_calibration(f);
-                camera_state.detecting_space = space > camera_state.standby_features.size() ? space - camera_state.standby_features.size() : 0;
-                if(camera_state.detecting_space) camera_state.detecting_group = f->s.add_group(camera_state, f->map.get()); //HACK: we should always want to add a group here, shouldn't we?
-            }
-            camera_state.detecting_space = space > camera_state.standby_features.size() ? space - camera_state.standby_features.size() : 0;
-        } else {
-#ifdef TEST_POSDEF
-            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
-#endif
-            camera_state.detecting_group = f->s.add_group(camera_state, f->map.get());
-            camera_state.detecting_space = space;
-        }
-    }
     return true;
 }
 

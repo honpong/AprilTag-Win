@@ -681,6 +681,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     f->next_detect_camera = (camera_sensor.id + 1) % f->cameras.size();
     auto &kp = camera.standby_features;
     auto g = camera.detecting_group;
+    camera.detecting_group = nullptr;
     // give up if we didn't get enough features
     if(kp.size() < state_vision_group::min_feats) {
         camera.remove_group(g, f->map.get());
@@ -859,24 +860,23 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     camera_state.intrinsics.image_width = data.image.width;
     camera_state.intrinsics.image_height = data.image.height;
     
-    if(camera_state.detecting_space)
+    if(camera_state.detection_future.valid()) {
+        const auto &kp = camera_state.detection_future.get();
+        for(int t = kp.size()-1; t >= 0; --t)
+            camera_state.standby_features.push_front(kp[t]);
+    }
+
+    if(camera_state.detecting_group && camera_state.detecting_space)
     {
 #ifdef TEST_POSDEF
         if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
 #endif
-        if(camera_state.detection_future.valid()) {
-            const auto &kp = camera_state.detection_future.get();
-            for(int t = kp.size()-1; t >= 0; --t)
-                camera_state.standby_features.push_front(kp[t]);
-        }
-        if(camera_state.detecting_group)
-        {
-            int space = filter_available_feature_space(f, camera_state);
-            filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
-        }
-        camera_state.detecting_group = nullptr;
-        camera_state.detecting_space = 0;
+        int space = filter_available_feature_space(f, camera_state);
+        filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
     }
+
+    camera_state.detecting_group = nullptr;
+    camera_state.detecting_space = 0;
 
     if(f->run_state == RCSensorFusionRunStateRunning)
         filter_setup_next_frame(f, data); // put current features into observation queue as potential things to measure
@@ -930,9 +930,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
                 camera_state.detecting_group = f->s.add_group(camera_state, f->map.get());
-                // we remap here to update f->s.statesize to account for the new group
-                f->s.remap();
-                space = filter_available_feature_space(f, camera_state);
             }
             camera_state.detecting_space = space > camera_state.standby_features.size() ? space - camera_state.standby_features.size() : 0;
         } else {

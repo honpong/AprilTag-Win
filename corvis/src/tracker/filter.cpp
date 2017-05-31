@@ -861,12 +861,12 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         }
     }
 
-    if(camera_state.detecting_group && camera_state.detecting_space && camera_state.standby_features.size() >= f->min_group_add)
+    auto space = filter_available_feature_space(f, camera_state);
+    if(camera_state.detecting_group && camera_state.detecting_space && camera_state.standby_features.size() >= f->min_group_add && space >= f->min_group_add)
     {
 #ifdef TEST_POSDEF
         if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
 #endif
-        int space = filter_available_feature_space(f, camera_state);
         filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
     }
 
@@ -908,7 +908,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 
-    int space = filter_available_feature_space(f, camera_state);
+    space = filter_available_feature_space(f, camera_state);
     bool myturn = filter_next_detect_camera(f, data.id, time);
     if(space >= f->min_group_add && myturn)
     {

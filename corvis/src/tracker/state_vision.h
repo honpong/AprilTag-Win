@@ -223,7 +223,6 @@ struct state_camera: state_branch<state_node*> {
     int process_features(mapper *map, spdlog::logger &log);
     void remove_group(state_vision_group *g, mapper *map);
 
-    state_vision_group *detecting_group = nullptr; // FIXME on reset
     int detecting_space = 0;
 
     state_camera() : extrinsics("Qc", "Tc", false), intrinsics(false) {

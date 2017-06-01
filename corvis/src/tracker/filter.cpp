@@ -678,10 +678,8 @@ static int filter_available_feature_space(struct filter *f, state_camera &camera
 
 static int filter_add_detected_features(struct filter * f, state_camera &camera, sensor_grey &camera_sensor, size_t newfeats, int image_height, sensor_clock::time_point time)
 {
-    f->next_detect_camera = (camera_sensor.id + 1) % f->cameras.size();
     auto &kp = camera.standby_features;
-    auto g = camera.detecting_group;
-    camera.detecting_group = nullptr;
+    auto g = f->s.add_group(camera, f->map.get());
 
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
 
@@ -729,20 +727,12 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
 static int filter_available_feature_space(struct filter *f, state_camera &camera)
 {
     int space = f->s.maxstatesize - f->s.statesize;
-    if(!camera.detecting_group) space -= 6;
+    //leave space for the group
+    space -= 6;
     if(space < 0) space = 0;
     if(space > f->max_group_add)
         space = f->max_group_add;
     return space;
-}
-
-static bool filter_next_detect_camera(struct filter *f, int camera, sensor_clock::time_point time)
-{
-    //TODO: for stereo we need to handle this differently - always detect in the same camera
-    //always try to detect if we have no features currently
-    if(f->s.feature_count() < state_vision_group::min_feats) return true;
-    while(!f->cameras[f->next_detect_camera]->got) f->next_detect_camera = (f->next_detect_camera + 1) % f->cameras.size();
-    return f->next_detect_camera == camera;
 }
 
 const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const sensor_data &data, int space)
@@ -847,8 +837,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         for(int t = kp.size()-1; t >= 0; --t)
             camera_state.standby_features.push_front(kp[t]);
         auto active_features = f->s.feature_count();
-        if(active_features < state_vision_group::min_feats)
-        {
+        if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);
             if(!f->detector_failed) f->detector_failed_time = time;
             f->detector_failed = true;
@@ -856,17 +845,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             f->detector_failed = false;
         }
     }
-
-    auto space = filter_available_feature_space(f, camera_state);
-    if(camera_state.detecting_group && camera_state.standby_features.size() >= f->min_group_add && space >= f->min_group_add)
-    {
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
-#endif
-        filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
-    }
-
-    camera_state.detecting_group = nullptr;
     camera_state.detecting_space = 0;
 
     if(f->run_state == RCSensorFusionRunStateRunning)
@@ -900,15 +878,14 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
     
     filter_update_outputs(f, time);
-    
-    space = filter_available_feature_space(f, camera_state);
-    bool myturn = filter_next_detect_camera(f, data.id, time);
 
-    if((f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization)) {
-        if(camera_state.standby_features.size() >= state_vision_group::min_feats) {
+    auto space = filter_available_feature_space(f, camera_state);
+    if(space >= f->min_group_add && camera_state.standby_features.size() >= f->min_group_add)
+    {
 #ifdef TEST_POSDEF
-            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
+        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
 #endif
+        if((f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization)) {
             f->s.disable_orientation_only();
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
@@ -916,16 +893,13 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             f->run_state = RCSensorFusionRunStateRunning;
             f->log->trace("When moving from steady init to running:");
             print_calibration(f);
-            camera_state.detecting_space = space > camera_state.standby_features.size() ? space - camera_state.standby_features.size() : 0;
-            if(camera_state.detecting_space) camera_state.detecting_group = f->s.add_group(camera_state, f->map.get()); //HACK: we should always want to add a group here, shouldn't we?
         }
-        camera_state.detecting_space = space > camera_state.standby_features.size() ? space - camera_state.standby_features.size() : 0;
-    } else if(space >= f->min_group_add && myturn) {
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
-#endif
-        camera_state.detecting_group = f->s.add_group(camera_state, f->map.get());
-        camera_state.detecting_space = space;
+        filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
+    }
+
+    space = filter_available_feature_space(f, camera_state);
+    if(space >= f->min_group_add && camera_state.standby_features.size() < f->max_group_add) {
+        camera_state.detecting_space = f->max_group_add;
     }
 
     auto stop = std::chrono::steady_clock::now();
@@ -939,9 +913,8 @@ void filter_initialize(struct filter *f)
 {
     //changing these two doesn't affect much.
     f->min_group_add = 16;
-    f->max_group_add = std::max<int>(40 / f->cameras.size(), f->min_group_add);
+    f->max_group_add = std::max<int>(80 / f->cameras.size(), f->min_group_add);
     f->has_depth = false;
-    f->next_detect_camera = 0;
 
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;

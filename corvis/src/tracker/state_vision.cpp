@@ -152,14 +152,11 @@ state_vision::state_vision(covariance &c):
 void state_camera::clear_features_and_groups()
 {
     for(state_vision_group *g : groups.children) {
-        if(g != detecting_group) {
-            g->make_empty();
-            delete g;
-        }
+        g->make_empty();
+        delete g;
     }
     groups.children.clear();
     standby_features.clear();
-    if(detecting_group) groups.children.push_back(detecting_group);
 }
 
 state_vision::~state_vision()
@@ -172,7 +169,6 @@ void state_vision::reset()
 {
     for (auto &camera : cameras.children) {
         camera->clear_features_and_groups();
-        camera->detecting_group = nullptr; // FIXME: does this leak?
         camera->detecting_space = 0;
     }
     state_motion::reset();

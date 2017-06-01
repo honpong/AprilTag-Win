@@ -25,10 +25,10 @@ public:
     f_t &y() { return data[1]; }
     f_t &z() { return data[2]; }
 
-    inline const rotation_vector operator-() const { return rotation_vector(-data); }
+    inline rotation_vector operator-() const { return rotation_vector(-data); }
     inline f_t norm2() const { return data[0]*data[0] + data[1]*data[1] + data[2]*data[2]; }
-    inline const rotation_vector operator*(f_t s) { return data = data * s; }
-    inline const rotation_vector operator/(f_t s) { return data = data / s; }
+    inline rotation_vector operator*(f_t s) const { return rotation_vector(data * s); }
+    inline rotation_vector operator/(f_t s) const { return rotation_vector(data / s); }
 private:
     rotation_vector(const v3 &v) : data(v) {}
     v3 data;

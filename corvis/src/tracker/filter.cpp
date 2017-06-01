@@ -29,7 +29,7 @@
 #include "Trace.h"
 
 #define USE_SHAVE_TRACKER 1
-//#define SHAVE_STEREO_MATCHING
+#define SHAVE_STEREO_MATCHING
 #ifdef SHAVE_STEREO_MATCHING
 #include "shave_stereo.h"
 #endif

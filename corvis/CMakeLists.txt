@@ -149,6 +149,8 @@ install(FILES
 )
 endif()
 
+add_subdirectory(src/movidius/host)
+
 add_executable(alloy_merge src/tools/alloy_merge.cpp)
 set_property(TARGET alloy_merge PROPERTY CXX_STANDARD 14)
 target_link_libraries(alloy_merge tracker trackeri) # trackeri for private includes though we really link with tracker

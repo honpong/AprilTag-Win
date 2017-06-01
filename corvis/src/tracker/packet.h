@@ -8,6 +8,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "rc_tracker.h"
 
 #ifdef MYRIAD2
 // lives in target/host common area
@@ -56,6 +57,8 @@ enum packet_type {
     packet_image_raw = 29,
     packet_stereo_raw = 40,
     packet_image_stereo = 41,
+    packet_rc_pose = 42,
+    packet_calibration_json = 43,
 #ifdef MYRIAD2
     packet_pose = 30,
     packet_command_start = 100,
@@ -277,6 +280,19 @@ typedef struct {
 } packet_pose_t;
 #endif
 #endif
+
+typedef struct {
+    // pose time is stored in header.time
+    packet_header_t header;
+    rc_Pose pose;
+    rc_PoseVelocity velocity;
+    rc_PoseAcceleration acceleration;
+} packet_rc_pose_t;
+
+typedef struct {
+    packet_header_t header;
+    uint8_t data[];
+} packet_calibration_json_t;
 
 #ifdef WIN32
 #pragma warning (pop)

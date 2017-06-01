@@ -33,7 +33,6 @@
 
 
 #include <mutex>
-#include "prof_timers.h"
 #include <OsDrvShaveL2Cache.h>
 
 #ifdef USE_CHOLESKY_SHAVE
@@ -43,7 +42,6 @@
 static std::mutex cholesky_mutex;
 #endif
 
-#define USE_BLIS_GEMM
 #ifdef USE_BLIS_GEMM
 #include <DrvLeonL2C.h>
 #include "blis.h"
@@ -297,7 +295,7 @@ f_t matrix_check_condition(matrix &A)
 bool matrix_solve(matrix &A, matrix &B)
 {
     START_EVENT(SF_MSOLVE, 0);
-#ifdef MYRIAD2
+#ifdef USE_CHOLESKY_SHAVE
     if (!matrix_cholesky_shave(A, B))
 #endif
     {

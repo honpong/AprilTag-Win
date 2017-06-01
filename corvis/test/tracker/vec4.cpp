@@ -14,7 +14,7 @@ TEST(Vector3, Cross) {
 
 static void test_rotation(const v3 &vec)
 {
-    rotation_vector rvec(vec[0], vec[1], vec[2]);
+    rotation_vector rvec(vec);
     m3 rotmat = to_rotation_matrix(rvec);
     {
         SCOPED_TRACE("rotation_vector(vec).[xyz] = vec");
@@ -55,7 +55,7 @@ TEST(Matrix3, Rotation) {
     
     {
         SCOPED_TRACE("identity matrix = 0 rotation vector");
-        EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(m3::Identity()), rotation_vector(0., 0., 0.), 0);
+        EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(m3::Identity()), rotation_vector(v3::Zero()), 0);
     }
     
     {

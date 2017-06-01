@@ -14,6 +14,7 @@
 class rotation_vector {
 public:
     rotation_vector(): data(v3::Zero()) {}
+    explicit rotation_vector(const v3 &v): data(v) {}
     rotation_vector(const f_t other0, const f_t other1, const f_t other2): data(other0, other1, other2) {}
     
     v3 raw_vector() const { return data; }
@@ -30,7 +31,6 @@ public:
     inline rotation_vector operator*(f_t s) const { return rotation_vector(data * s); }
     inline rotation_vector operator/(f_t s) const { return rotation_vector(data / s); }
 private:
-    rotation_vector(const v3 &v) : data(v) {}
     v3 data;
 };
 

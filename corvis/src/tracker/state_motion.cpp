@@ -12,9 +12,8 @@
 void state_motion_orientation::cache_jacobians(f_t dt)
 {
     dW = (w.v + dt/2 * dw.v) * dt;
-    rotation_vector dW_(dW[0],dW[1],dW[2]); // FIXME: remove this
     m3 R = Q.v.toRotationMatrix();
-    JdW_s = to_spatial_jacobian(f_t(.5) * dW_);
+    JdW_s = to_spatial_jacobian(rotation_vector(dW)/2);
     dQp_s_dW = R * JdW_s;
     Rt = R.transpose();  // FIXME: remove this?
 }
@@ -36,8 +35,7 @@ void state_motion_orientation::project_motion_covariance(matrix &dst, const matr
 
 void state_motion_orientation::evolve_state(f_t dt)
 {
-    rotation_vector dW_(dW[0], dW[1], dW[2]); // FIXME: remove this!
-    Q.v *= to_quaternion(dW_); // FIXME: use cached value?
+    Q.v *= to_quaternion(rotation_vector(dW)); // FIXME: use cached value?
     w.v += dw.v * dt;
 }
 

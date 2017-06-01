@@ -30,7 +30,7 @@ TEST(RotationVector, NumericalJacobians)
 {
     for (f_t eps = 1; eps >= sqrt(F_T_EPS); eps /= 2) {
         rotation_vector w(.5,.2,-.7); v3 n(-.9,.3,-.003); // Random
-        v3 dx = eps * n, wdx = w.raw_vector()+dx; rotation_vector w_dx(wdx[0], wdx[1], wdx[2]);
+        v3 dx = eps * n, wdx = w.raw_vector()+dx; rotation_vector w_dx(wdx);
         m3 Rt_dR = to_rotation_matrix(-w) * ((to_rotation_matrix(w_dx) - to_rotation_matrix(w)) * (1 / eps));
         m3 dR_Rt = ((to_rotation_matrix(w_dx) - to_rotation_matrix(w)) * (1 / eps)) * to_rotation_matrix(-w);
         EXPECT_M3_NEAR(-Rt_dR.transpose(), Rt_dR, 2*eps);

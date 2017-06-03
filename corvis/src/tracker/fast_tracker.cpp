@@ -37,7 +37,7 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
         xy bestkp;
         if(t.found) bestkp = fast.track(f.patch, image.image,
                 half_patch_width, half_patch_width,
-                t.x + f.dx, t.y + f.dy, fast_track_radius,
+                t.x + t.dx, t.y + t.dy, fast_track_radius,
                 fast_track_threshold, fast_min_match);
 
         // Not a good enough match, try the filter prediction
@@ -51,8 +51,8 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
         }
 
         if(bestkp.x != INFINITY) {
-            f.dx = bestkp.x - t.x;
-            f.dy = bestkp.y - t.y;
+            t.dx = bestkp.x - t.x;
+            t.dy = bestkp.y - t.y;
             t.x = bestkp.x;
             t.y = bestkp.y;
             t.score = bestkp.score;

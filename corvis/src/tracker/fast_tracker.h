@@ -17,7 +17,7 @@ class fast_tracker : public tracker
 
     struct fast_feature: public tracker::feature
     {
-        fast_feature(int x, int y, const uint8_t * im, int stride) : dx(0), dy(0)
+        fast_feature(int x, int y, const uint8_t * im, int stride)
         {
             for(int py = 0; py < full_patch_width; ++py) {
                 for(int px = 0; px < full_patch_width; ++px) {
@@ -26,7 +26,6 @@ class fast_tracker : public tracker
             }
         }
         uint8_t patch[full_patch_width*full_patch_width];
-        float dx, dy;
     };
 
 

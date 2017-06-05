@@ -132,3 +132,45 @@ f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<
     }
     return reprojection_error;
 }
+
+struct estimated_transformation {
+    transformation G; m3 R_cached;
+    f_t reprojection_error = std::numeric_limits<f_t>::infinity();
+    size_t size;
+    aligned_vector<size_t> indices;
+    struct state {
+        const aligned_vector<v3> &src;
+        const aligned_vector<v2> &dst;
+        const f_t threshold;
+    };
+    estimated_transformation(const struct state &state, aligned_vector<size_t>::iterator b, aligned_vector<size_t>::iterator e) : size(e-b) {
+        aligned_vector<v3> src; src.reserve(e-b); for (auto i = b; i != e; ++i) src.push_back(state.src[*i]);
+        aligned_vector<v2> dst; dst.reserve(e-b); for (auto i = b; i != e; ++i) dst.push_back(state.dst[*i]);
+        /**/                indices.reserve(e-b); for (auto i = b; i != e; ++i) indices.push_back(*i);
+        reprojection_error = estimate_transformation(src, dst, G);
+        R_cached = G.Q.toRotationMatrix();
+    }
+    bool operator()(const struct state &state, aligned_vector<size_t>::iterator i) const {
+        v3 xyz = R_cached * state.src[*i] + G.T;
+        f_t e = (xyz.head<2>()/xyz.z() - state.dst[*i]).norm();
+        return e < state.threshold;
+    }
+    bool operator>(estimated_transformation &o) const {
+        return reprojection_error > o.reprojection_error;
+    }
+};
+
+#include <ransac.h>
+
+f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<v2> &dst, transformation &transform, std::default_random_engine &gen,
+                            int max_iterations, f_t max_reprojection_error, f_t confidence, unsigned min_matches, std::set<size_t> *inliers)
+{
+    if (src.size() != dst.size() || src.size() < 5)
+        return false;
+    aligned_vector<size_t> indices(src.size()); for (size_t i=0; i<src.size(); i++) indices[i] = i;
+    estimated_transformation::state state = { src, dst, max_reprojection_error };
+    estimated_transformation best = ransac<5,estimated_transformation>(state, indices.begin(), indices.end(), gen, max_iterations, confidence);
+    transform = best.G;
+    if (inliers) { inliers->clear(); for (auto i : best.indices) inliers->insert(i); }
+    return best.reprojection_error;
+}

@@ -735,7 +735,7 @@ static int filter_available_feature_space(struct filter *f, state_camera &camera
     return space;
 }
 
-const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const sensor_data &data, int space)
+void filter_detect(struct filter *f, const sensor_data &data)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
@@ -751,7 +751,7 @@ const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const
     for(auto &t: camera.standby_features)
         camera.feature_tracker->tracks.emplace_back(&t);
 
-    space = space > standby_count ? space - standby_count : 0;
+    auto space = camera.detecting_space > standby_count ? camera.detecting_space - standby_count : 0;
     // Run detector
     tracker::image timage;
     timage.image = (uint8_t *)image.image;
@@ -759,10 +759,12 @@ const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const
     timage.height_px = image.height;
     timage.stride_px = image.stride;
     std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space);
+    for(int t = kp.size()-1; t >= 0; --t)
+        camera.standby_features.push_front(kp[t]);
+    camera.detecting_space = 0;
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-    return kp;
 }
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data)
@@ -833,9 +835,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     camera_state.intrinsics.image_height = data.image.height;
     
     if(camera_state.detection_future.valid()) {
-        const auto &kp = camera_state.detection_future.get();
-        for(int t = kp.size()-1; t >= 0; --t)
-            camera_state.standby_features.push_front(kp[t]);
+        camera_state.detection_future.wait();
         auto active_features = f->s.feature_count();
         if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);
@@ -845,7 +845,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             f->detector_failed = false;
         }
     }
-    camera_state.detecting_space = 0;
 
     if(f->run_state == RCSensorFusionRunStateRunning)
         filter_setup_next_frame(f, data); // put current features into observation queue as potential things to measure

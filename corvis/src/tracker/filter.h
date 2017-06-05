@@ -73,7 +73,7 @@ struct filter {
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data);
 bool filter_image_measurement(struct filter *f, const sensor_data & data);
-const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const sensor_data &data, int space);
+void filter_detect(struct filter *f, const sensor_data &data);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
 bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data);

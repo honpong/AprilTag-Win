@@ -565,27 +565,13 @@ size_t mapper::calculate_orientation_bin(const orb_descriptor &a, const orb_desc
     return static_cast<size_t>(((a-b) * (float)M_1_PI + 1)/2 * num_orientation_bins + 0.5f) % num_orientation_bins;
 }
 
-#ifdef HAVE_OPENCV
-void mapper::estimate_pose(const std::vector<cv::Point3f>& points_3d, const std::vector<cv::Point2f>& points_2d, transformation& G_WC, std::set<uint32_t>& inliers_set) {
-
-    cv::Mat rvec, tvec;// always return in CV_64F for the camera pose
-//    cv::Mat inliers;   // a single column vector
-    const float max_reprojection_error = 4.0f; //threshold = 2*sigma (pixels)
+void mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_WC, std::set<size_t>& inliers_set) {
+    const f_t max_reprojection_error = 4.0f/38; //threshold = 2*sigma (pixels) / f_px? FIXME!
     const int max_iter = 10; // 10
     const float confidence = 0.9; //0.9
-    cv::Mat camera_K = cv::Mat::zeros(3, 3, CV_32FC1);
-    camera_K.at<float>(0, 0) = sensor_intrinsics[current_frame.camera_id]->f_x_px;
-    camera_K.at<float>(1, 1) = sensor_intrinsics[current_frame.camera_id]->f_y_px;
-    camera_K.at<float>(0, 2) = sensor_intrinsics[current_frame.camera_id]->c_x_px;
-    camera_K.at<float>(1, 2) = sensor_intrinsics[current_frame.camera_id]->c_y_px;
-    camera_K.at<float>(2, 2) = 1.0f;
-
-    cv::solvePnPRansac_SP(points_3d, points_2d, camera_K, cv::noArray(), rvec, tvec,
-                          false, max_iter, max_reprojection_error, confidence, CV_EPNP, inliers_set);
-
-    rotation_vector r_CW(float(rvec.at<double>(0)), float(rvec.at<double>(1)), float(rvec.at<double>(2)));
-    v3 t_CW = {float(tvec.at<double>(0)), float(tvec.at<double>(1)), float(tvec.at<double>(2))};
-    transformation G_CW = transformation(r_CW,t_CW);
+    std::default_random_engine rng(-1);
+    transformation G_CW;
+    estimate_transformation(points_3d, points_2d, G_CW, rng, max_iter, max_reprojection_error, confidence, 5, &inliers_set);
     G_WC = invert(G_CW);
 }
 
@@ -606,9 +592,9 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
         matches matches_node_candidate = match_2d_descriptors(nid.first);
         debug_message += " candidate node id: " + to_string(nid.first) + " score: " + to_string(nid.second) + " matches: " + to_string(matches_node_candidate.size());
         // Just keep candidates with more than a min number of mathces
-        std::set<uint32_t> inliers_set;
-        std::vector<cv::Point3f> candidate_3d_points;
-        std::vector<cv::Point2f> current_2d_points;
+        std::set<size_t> inliers_set;
+        aligned_vector<v3> candidate_3d_points;
+        aligned_vector<v2> current_2d_points;
         transformation G_WC;
         if(matches_node_candidate.size() >= min_num_inliers) {
             // Estimate pose from 3d-2d matches
@@ -621,12 +607,12 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                 // these features belong to the candidate node (group)
                 map_feature* mfeat = nodes[nodeid_keypoint].features_reloc[keypoint_id]; // feat is in body frame
                 v3 p_w = nodes[nodeid_keypoint].global_transformation.transform*mfeat->position;
-                candidate_3d_points.push_back(cv::Point3f(p_w[0], p_w[1], p_w[2]));
+                candidate_3d_points.push_back(p_w);
                 //undistort keypoints at current frame
                 auto& current = *static_cast<fast_tracker::fast_feature<orb_descriptor>*>(keypoint_current[m.first].get());
                 feature_t kp = {current.x, current.y};
-                feature_t ukp = intrinsics->unnormalize_feature(intrinsics->undistort_feature(intrinsics->normalize_feature(kp)));
-                current_2d_points.push_back(cv::Point2f(ukp[0], ukp[1]));
+                feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(kp));
+                current_2d_points.push_back(ukp);
             }
             estimate_pose(candidate_3d_points, current_2d_points, G_WC, inliers_set);
             debug_message += ", num EPnP inliers: " + to_string(inliers_set.size()) + "\n";
@@ -652,4 +638,3 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
 
     return is_relocalized;
 }
-#endif

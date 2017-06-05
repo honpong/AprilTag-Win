@@ -1,13 +1,4 @@
-//
-//  transformation.h
-//  RC3DK
-//
-//  Created by Brian Fulkerson
-//  Copyright (c) 2015 RealityCap. All rights reserved.
-//
-
-#ifndef __TRANSFORMATION_H
-#define __TRANSFORMATION_H
+#pragma once
 
 #include "vec4.h"
 #include "rotation_vector.h"
@@ -62,5 +53,3 @@ static inline transformation operator*(const transformation &t1, const transform
 
 bool estimate_transformation(const aligned_vector<v3> & src, const aligned_vector<v3> & dst, transformation & transform);
 f_t  estimate_transformation(const aligned_vector<v3> &P, const aligned_vector<v2> &p, transformation &transform);
-
-#endif

@@ -3,6 +3,9 @@
 
 #include "math.h"
 #include "orb_descriptor.h"
+#include "patch_descriptor.h"
+
+#define DESCRIPTOR patch_descriptor
 
 using namespace std;
 
@@ -22,7 +25,7 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
         if(!is_trackable((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
             continue;
         mask->clear((int)d.x, (int)d.y);
-        feature_points.emplace_back(make_shared<fast_feature<orb_descriptor>>(d.x, d.y, image), d.x, d.y, d.x, d.y, d.score);
+        feature_points.emplace_back(make_shared<fast_feature<DESCRIPTOR>>(d.x, d.y, image), d.x, d.y, d.x, d.y, d.score);
         if (feature_points.size() == number_desired)
             break;
     }
@@ -33,18 +36,16 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
 {
     for(auto &tp : tracks) {
         auto &t = *tp;
-        fast_feature<orb_descriptor> &f = *static_cast<fast_feature<orb_descriptor>*>(t.feature.get());
+        fast_feature<DESCRIPTOR> &f = *static_cast<fast_feature<DESCRIPTOR>*>(t.feature.get());
 
         xy bestkp;
-        if(t.found) bestkp = fast.track(f.patch, image.image,
-                half_patch_width, half_patch_width,
+        if(t.found) bestkp = fast.track(f.descriptor.descriptor, image,
                 t.x + t.dx, t.y + t.dy, fast_track_radius,
                 fast_track_threshold, fast_min_match);
 
         // Not a good enough match, try the filter prediction
         if(!t.found || bestkp.score < fast_good_match) {
-            xy bestkp2 = fast.track(f.patch, image.image,
-                    half_patch_width, half_patch_width,
+            xy bestkp2 = fast.track(f.descriptor.descriptor, image,
                     t.pred_x, t.pred_y, fast_track_radius,
                     fast_track_threshold, bestkp.score);
             if(!t.found || bestkp2.score > bestkp.score)

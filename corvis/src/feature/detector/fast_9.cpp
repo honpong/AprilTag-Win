@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <algorithm>
+#include "patch_descriptor.h"
 using namespace std;
 
 static bool xy_comp(const xy &first, const xy &second)
@@ -3104,7 +3105,7 @@ float inline fast_detector_9::compute_mean1(const unsigned char *im1, const int 
     return 1. - (float)error/(float)area/127.5;
 }*/
 
-xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, float predx, float predy, float radius, int b, float min_score)
+xy fast_detector_9::track(const patch_descriptor::TDescriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b, float min_score)
 {
     int x, y;
     
@@ -3120,10 +3121,9 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
     if(x1 < half || x2 >= xsize - half || y1 < half || y2 >= ysize - half)
         return best;
  
-    float mean1 = compute_mean1(im1, xcurrent, ycurrent);
     for(y = y1; y <= y2; y++) {
         for(x = x1; x <= x2; x++) {
-            const byte* p = im2 + y*stride + x;
+            const byte* p = image.image + y*stride + x;
             byte val = (byte)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
 		
             int cb = val + b;
@@ -6031,7 +6031,9 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
          else
           continue;
 
-        float score = score_match(im1, xcurrent, ycurrent, im2, x, y, best.score, mean1);
+        patch_descriptor candidate;
+        candidate.compute_descriptor(x, y, image);
+        double score = patch_descriptor::distance(descriptor, candidate.descriptor);
         if(score > best.score) {
             best.x = (float)x;
             best.y = (float)y;

@@ -10,6 +10,8 @@ set(DETECTOR_SOURCES
 set(DESCRIPTOR_SOURCES
     descriptor/orb_descriptor.h
     descriptor/orb_descriptor.cpp
+    descriptor/patch_descriptor.h
+    descriptor/patch_descriptor.cpp
 )
 
 set(TRACKER_SOURCES

@@ -20,15 +20,10 @@ class fast_tracker : public tracker
     {
         fast_feature(float x_, float y_, const tracker::image& image) : x(x_), y(y_)
         {
-            for(int py = 0; py < full_patch_width; ++py) {
-                for(int px = 0; px < full_patch_width; ++px) {
-                    patch[py * full_patch_width + px] = image.image[(int)x + px - half_patch_width + ((int)y + py - half_patch_width) * image.stride_px];
-                }
-            }
+            descriptor.compute_descriptor(x, y, image);
         }
         float x, y;
         Descriptor descriptor;
-        uint8_t patch[full_patch_width*full_patch_width];
     };
 
 

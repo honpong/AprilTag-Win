@@ -6,34 +6,24 @@ and may not be copied or disclosed except in accordance with the terms of that
 agreement.
 Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 Pedro Pinies, Lina Paz
-
 *********************************************************************************/
 #pragma once
 #include "tracker.h"
+#include "fast_constants.h"
 #include <array>
 
-class orb_descriptor
+class patch_descriptor
 {
 public:
-    static const int L = 32; // descriptor length
-    static const int orb_half_patch_size = 15;
-    static const int orb_half_patch_diagonal = 19;
+    static const int L = full_patch_width * full_patch_width; // descriptor length
+    static const int full_patch_size = full_patch_width;
+    static const int half_patch_size = half_patch_width;
+    static const int min_score = fast_min_match;
 
     typedef std::array<unsigned char, L> TDescriptor;
-    typedef const TDescriptor *pDescriptor;
 
     TDescriptor descriptor;
-    float angle;
 
     static double distance(const TDescriptor &a, const TDescriptor &b);
     void compute_descriptor(float x, float y, const tracker::image& image);
-
-private:
-    static int bit_pattern_31_[256 * 4];
-    static const std::array<int, orb_half_patch_size + 2>& vUmax;
-
-    template<int orb_half_patch_size_>
-    static constexpr std::array<int, orb_half_patch_size_ + 2> initialize_umax();
-    static float ic_angle(float x, float y, const tracker::image& image);
-    static float atan2(float y, float x);
 };

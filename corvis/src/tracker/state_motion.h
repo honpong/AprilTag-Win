@@ -100,10 +100,18 @@ public:
     state_vector<3>  a {  "a", dynamic };
     state_vector<3> da { "da", fake };
 
-    float total_distance = 0;
+    f_t total_distance = 0;
     transformation loop_offset;
 
     v3 last_position = v3::Zero();
+
+    void integrate_distance() {
+        f_t dT = (T.v - last_position).norm();
+        if(dT > .01) {
+            total_distance += dT;
+            last_position = T.v;
+        }
+    }
 
     state_motion(covariance &c): state_motion_orientation(c) {
         non_orientation.children.push_back(&T);

@@ -190,7 +190,6 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
     if (format == rc_FORMAT_GRAY8) {
         if(camera_id > tracker->sfm.cameras.size()) return false;
         if(camera_id == tracker->sfm.cameras.size()) {
-            // new camera
             if(trace) trace_log->info(" configuring new grey camera");
             auto new_camera = std::make_unique<sensor_grey>(camera_id);
             tracker->sfm.cameras.push_back(std::move(new_camera));
@@ -207,7 +206,6 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
     else if(format == rc_FORMAT_DEPTH16) {
         if(camera_id > tracker->sfm.depths.size()) return false;
         if(camera_id == tracker->sfm.depths.size()) {
-            // new depth camera
             if(trace) trace_log->info(" configuring new camera");
             auto new_camera = std::make_unique<sensor_depth>(camera_id);
             tracker->sfm.depths.push_back(std::move(new_camera));
@@ -261,7 +259,6 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
 
     if(accel_id > tracker->sfm.accelerometers.size()) return false;
     if(accel_id == tracker->sfm.accelerometers.size()) {
-        // new depth camera
         if(trace) trace_log->info(" configuring new accel");
         tracker->queue.require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, std::chrono::microseconds(600));
         auto new_accel = std::make_unique<sensor_accelerometer>(accel_id);
@@ -315,7 +312,6 @@ bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extr
 
     if(gyro_id > tracker->sfm.gyroscopes.size()) return false;
     if(gyro_id == tracker->sfm.gyroscopes.size()) {
-        // new depth camera
         if(trace) trace_log->info(" configuring new gyro");
         tracker->queue.require_sensor(rc_SENSOR_TYPE_GYROSCOPE, gyro_id, std::chrono::microseconds(600));
         auto new_gyro = std::make_unique<sensor_gyroscope>(gyro_id);

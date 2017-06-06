@@ -211,15 +211,15 @@ static void copy_calibration_to_json(const calibration &cal, Value & json, Docum
     json.AddMember(KEY_VERSION, CALIBRATION_VERSION, a);
 
     Value cameras(kArrayType);
-    for(auto camera : cal.cameras) copy_camera_to_json(camera, cameras, a);
+    for(const auto &camera : cal.cameras) copy_camera_to_json(camera, cameras, a);
     json.AddMember(KEY_CAMERAS, cameras, a);
 
     Value depths(kArrayType);
-    for(auto depth : cal.depths) copy_camera_to_json(depth, depths, a);
+    for(const auto &depth : cal.depths) copy_camera_to_json(depth, depths, a);
     json.AddMember(KEY_DEPTHS, depths, a);
 
     Value imus(kArrayType);
-    for(auto imu : cal.imus) copy_imu_to_json(imu, imus, a);
+    for(const auto &imu : cal.imus) copy_imu_to_json(imu, imus, a);
     json.AddMember(KEY_IMUS, imus, a);
 }
 

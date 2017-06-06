@@ -50,14 +50,13 @@ void observation_queue::compute_measurement_covariance(matrix &m_cov)
     }
 }
 
-void observation_queue::compute_prediction_covariance(const state_root &s, int meas_size)
+void observation_queue::compute_prediction_covariance(const matrix &cov, int statesize, int meas_size)
 {
-    int statesize = s.cov.size();
     int index = 0;
     for(auto &o : observations) {
         matrix dst(HP, index, 0, o->size, statesize);
         o->cache_jacobians();
-        o->project_covariance(dst, s.cov.cov); // HP = H * P'
+        o->project_covariance(dst, cov); // HP = H * P'
         index += o->size;
     }
 
@@ -81,7 +80,7 @@ void observation_queue::compute_innovation_covariance(const matrix &m_cov)
     }
 }
 
-bool observation_queue::update_state_and_covariance(state_root &s, const matrix &inn)
+bool observation_queue::update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn)
 {
 #ifdef TEST_POSDEF
     f_t rcond = matrix_check_condition(res_cov);
@@ -89,11 +88,8 @@ bool observation_queue::update_state_and_covariance(state_root &s, const matrix 
 #endif
     if(kalman_compute_gain(K, HP, res_cov))
     {
-        state.resize(s.cov.size());
-        s.copy_state_to_array(state);
         kalman_update_state(state, K, inn);
-        s.copy_state_from_array(state);
-        kalman_update_covariance(s.cov.cov, K, HP);
+        kalman_update_covariance(cov, K, HP);
         return true;
     } else {
         return false;
@@ -121,13 +117,18 @@ bool observation_queue::process(state_root &s)
         m_cov.resize(meas_size);
         HP.resize(meas_size, statesize);
         res_cov.resize(meas_size, meas_size);
+        state.resize(statesize);
 
         compute_innovation(inn);
         compute_measurement_covariance(m_cov);
-        compute_prediction_covariance(s, meas_size);
+        compute_prediction_covariance(s.cov.cov, statesize, meas_size);
         compute_innovation_covariance(m_cov);
-        HP.resize(meas_size, statesize);
-        success = update_state_and_covariance(s, inn);
+
+        s.copy_state_to_array(state);
+
+        success = update_state_and_covariance(state, s.cov.cov, inn);
+
+        s.copy_state_from_array(state);
     } else if(orig_meas_size && orig_meas_size != 3) {
         //s.log->warn("In Kalman update, original measurement size was {}, ended up with 0 measurements!\n", orig_meas_size);
     }

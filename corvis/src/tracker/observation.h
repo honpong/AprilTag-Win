@@ -175,9 +175,9 @@ protected:
     void measure_and_prune();
     void compute_innovation(matrix &inn);
     void compute_measurement_covariance(matrix &m_cov);
-    void compute_prediction_covariance(const state_root &s, int meas_size);
+    void compute_prediction_covariance(const matrix &cov, int statesize, int meas_size);
     void compute_innovation_covariance(const matrix &m_cov);
-    bool update_state_and_covariance(state_root &s, const matrix &inn);
+    bool update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn);
 
     matrix state   {   state_storage };
     matrix inn     {     inn_storage };

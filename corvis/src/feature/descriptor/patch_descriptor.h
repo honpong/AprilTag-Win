@@ -23,6 +23,7 @@ public:
     static constexpr float good_score = 0.65f*0.65f;
 
     std::array<unsigned char, L> descriptor;
+    float mean{0}, variance{0};
 
     static bool is_better(const float score1, const float score2) {return score1 > score2;}
     static double distance(const patch_descriptor &a, const patch_descriptor &b);

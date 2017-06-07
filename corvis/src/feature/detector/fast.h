@@ -13,8 +13,6 @@ class fast_detector_9 {
  private:
     int pixel[16];
     int xsize, ysize, stride, patch_stride, patch_win_half_width;
-    float inline score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error, float mean1);
-    float inline compute_mean1(const unsigned char *im1, const int x1, const int y1);
 
  public:
     std::vector<xy> features;

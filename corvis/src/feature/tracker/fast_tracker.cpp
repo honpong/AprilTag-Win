@@ -22,7 +22,7 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
     feature_points.clear();
     feature_points.reserve(number_desired);
     for(const auto &d : fast.detect(image.image, mask.get(), number_desired, fast_detect_threshold, 0, 0, image.width_px, image.height_px)) {
-        if(!is_trackable((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
+        if(!is_trackable<DESCRIPTOR::border_size>((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
             continue;
         mask->clear((int)d.x, (int)d.y);
         feature_points.emplace_back(make_shared<fast_feature<DESCRIPTOR>>(d.x, d.y, image), d.x, d.y, d.x, d.y, d.score);
@@ -39,16 +39,16 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
         fast_feature<DESCRIPTOR> &f = *static_cast<fast_feature<DESCRIPTOR>*>(t.feature.get());
 
         xy bestkp;
-        if(t.found) bestkp = fast.track(f.descriptor.descriptor, image,
+        if(t.found) bestkp = fast.track(f.descriptor, image,
                 t.x + t.dx, t.y + t.dy, fast_track_radius,
-                fast_track_threshold, fast_min_match);
+                fast_track_threshold);
 
         // Not a good enough match, try the filter prediction
-        if(!t.found || bestkp.score < fast_good_match) {
-            xy bestkp2 = fast.track(f.descriptor.descriptor, image,
+        if(!t.found || DESCRIPTOR::is_better(DESCRIPTOR::good_score, bestkp.score)) {
+            xy bestkp2 = fast.track(f.descriptor, image,
                     t.pred_x, t.pred_y, fast_track_radius,
-                    fast_track_threshold, bestkp.score);
-            if(!t.found || bestkp2.score > bestkp.score)
+                    fast_track_threshold);
+            if(!t.found || DESCRIPTOR::is_better(bestkp2.score, bestkp.score))
                 bestkp = bestkp2;
         }
 

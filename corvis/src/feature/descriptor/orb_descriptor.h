@@ -17,7 +17,9 @@ class orb_descriptor
 public:
     static const int L = 32; // descriptor length
     static const int orb_half_patch_size = 15;
-    static const int orb_half_patch_diagonal = 19;
+    static const int border_size = 19;
+    static constexpr float min_score = 200.f;
+    static constexpr float good_score = 50.f;
 
     typedef std::array<unsigned char, L> TDescriptor;
     typedef const TDescriptor *pDescriptor;
@@ -25,6 +27,7 @@ public:
     TDescriptor descriptor;
     float angle;
 
+    static bool is_better(const float distance1, const float distance2) {return distance1 < distance2;}
     static double distance(const TDescriptor &a, const TDescriptor &b);
     void compute_descriptor(float x, float y, const tracker::image& image);
 

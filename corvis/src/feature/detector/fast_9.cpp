@@ -3105,18 +3105,19 @@ float inline fast_detector_9::compute_mean1(const unsigned char *im1, const int 
     return 1. - (float)error/(float)area/127.5;
 }*/
 
-xy fast_detector_9::track(const patch_descriptor::TDescriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b, float min_score)
+template<typename Descriptor>
+xy fast_detector_9::track(const Descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b)
 {
     int x, y;
     
-    xy best = {INFINITY, INFINITY, min_score, 0.f};
+    xy best = {INFINITY, INFINITY, Descriptor::min_score, 0.f};
     
     int x1 = (int)ceilf(predx - radius);
     int x2 = (int)floorf(predx + radius);
     int y1 = (int)ceilf(predy - radius);
     int y2 = (int)floorf(predy + radius);
     
-    int half = patch_win_half_width;
+    int half = Descriptor::border_size;
     
     if(x1 < half || x2 >= xsize - half || y1 < half || y2 >= ysize - half)
         return best;
@@ -6031,10 +6032,10 @@ xy fast_detector_9::track(const patch_descriptor::TDescriptor& descriptor, const
          else
           continue;
 
-        patch_descriptor candidate;
+        Descriptor candidate;
         candidate.compute_descriptor(x, y, image);
-        double score = patch_descriptor::distance(descriptor, candidate.descriptor);
-        if(score > best.score) {
+        double score = Descriptor::distance(descriptor.descriptor, candidate.descriptor);
+        if(Descriptor::is_better(score,best.score)) {
             best.x = (float)x;
             best.y = (float)y;
             best.score = score;
@@ -6043,3 +6044,9 @@ xy fast_detector_9::track(const patch_descriptor::TDescriptor& descriptor, const
     }
     return best;
 }
+
+template
+xy fast_detector_9::track<patch_descriptor>(const patch_descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);
+
+template
+xy fast_detector_9::track<orb_descriptor>(const orb_descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);

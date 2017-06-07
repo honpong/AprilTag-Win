@@ -4,6 +4,7 @@
 #include <vector>
 #include "scaled_mask.h"
 #include "patch_descriptor.h"
+#include "orb_descriptor.h"
 
 typedef struct { float x, y, score, reserved; } xy; 
 typedef unsigned char byte;
@@ -19,7 +20,8 @@ class fast_detector_9 {
     std::vector<xy> features;
     std::vector<xy> &detect(const unsigned char *im, const scaled_mask *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight);
     std::vector<xy> &detect(const unsigned char *im, const scaled_mask *mask, int number_wanted, int bthresh) { return detect(im, mask, number_wanted, bthresh, 0, 0, xsize, ysize); }
-    xy track(const patch_descriptor::TDescriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b, float min_score);
+    template<typename Descriptor>
+    xy track(const Descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);
     void init(const int image_width, const int image_height, const int image_stride, const int tracker_patch_stride, const int tracker_patch_win_half_width);
 };
 /*

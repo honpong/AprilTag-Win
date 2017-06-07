@@ -6034,7 +6034,7 @@ xy fast_detector_9::track(const Descriptor& descriptor, const tracker::image& im
 
         Descriptor candidate;
         candidate.compute_descriptor(x, y, image);
-        double score = Descriptor::distance(descriptor.descriptor, candidate.descriptor);
+        double score = Descriptor::distance(descriptor, candidate);
         if(Descriptor::is_better(score,best.score)) {
             best.x = (float)x;
             best.y = (float)y;

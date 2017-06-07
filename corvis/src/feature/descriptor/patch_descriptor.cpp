@@ -20,15 +20,15 @@ void patch_descriptor::compute_descriptor(float x, float y, const tracker::image
     }
 }
 
-double patch_descriptor::distance(const patch_descriptor::TDescriptor &a,
-                                  const patch_descriptor::TDescriptor &b) {
+double patch_descriptor::distance(const patch_descriptor &a,
+                                  const patch_descriptor &b) {
 
     float sum_d1{0}, sum_d2{0}, sum_d1d2{0};
     float variance1{0}, variance2{0};
     for(int py = 0; py < full_patch_size; ++py) {
         for(int px = 0; px < full_patch_size; ++px) {
-            uint8_t d1  = a[py * full_patch_size + px];
-            uint8_t d2  = b[py * full_patch_size + px];
+            uint8_t d1  = a.descriptor[py * full_patch_size + px];
+            uint8_t d2  = b.descriptor[py * full_patch_size + px];
             // double-weighting the center on a 3x3 window
             int weight = ((std::fabs(px - half_patch_size) <=1) && (std::fabs(py - half_patch_size) <=1)) ? 2 : 1;
             sum_d1 += weight * d1;

@@ -22,11 +22,9 @@ public:
     static constexpr float min_score = 0.2f*0.2f;
     static constexpr float good_score = 0.65f*0.65f;
 
-    typedef std::array<unsigned char, L> TDescriptor;
-
-    TDescriptor descriptor;
+    std::array<unsigned char, L> descriptor;
 
     static bool is_better(const float score1, const float score2) {return score1 > score2;}
-    static double distance(const TDescriptor &a, const TDescriptor &b);
+    static double distance(const patch_descriptor &a, const patch_descriptor &b);
     void compute_descriptor(float x, float y, const tracker::image& image);
 };

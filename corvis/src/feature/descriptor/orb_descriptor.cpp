@@ -105,11 +105,11 @@ static inline int popcnt128(__m128i n)
  * return distance
  */
 
-double computedistance(const orb_descriptor::TDescriptor& descriptor1,
-                       const orb_descriptor::TDescriptor& descriptor2)
+double computedistance(const orb_descriptor& a,
+                       const orb_descriptor& b)
 {
-    const int32_t* p1 = reinterpret_cast<const int32_t*>(descriptor1.data());
-    const int32_t* p2 = reinterpret_cast<const int32_t*>(descriptor2.data());
+    const int32_t* p1 = reinterpret_cast<const int32_t*>(a.descriptor.data());
+    const int32_t* p2 = reinterpret_cast<const int32_t*>(b.descriptor.data());
     int dist = 0;
 
     for (int i = 0; i < 8; ++i, ++p1, ++p2) {
@@ -129,13 +129,13 @@ double computedistance(const orb_descriptor::TDescriptor& descriptor1,
     return dist;
 }
 
-double computedistanceSSE(const orb_descriptor::TDescriptor &a,
-                          const orb_descriptor::TDescriptor &b)
+double computedistanceSSE(const orb_descriptor &a,
+                          const orb_descriptor &b)
 {
     unsigned int distance = 0;
 
-    const __m128i* aVec = reinterpret_cast<const __m128i*>(a.data());
-    const __m128i* bVec = reinterpret_cast<const __m128i*>(b.data());
+    const __m128i* aVec = reinterpret_cast<const __m128i*>(a.descriptor.data());
+    const __m128i* bVec = reinterpret_cast<const __m128i*>(b.descriptor.data());
 
     for (int i = 0; i < 2; i++)
     {
@@ -148,8 +148,8 @@ double computedistanceSSE(const orb_descriptor::TDescriptor &a,
     return static_cast<double>(distance);
 }
 
-double orb_descriptor::distance(const orb_descriptor::TDescriptor &a,
-                                const orb_descriptor::TDescriptor &b)
+double orb_descriptor::distance(const orb_descriptor &a,
+                                const orb_descriptor &b)
 {
     double distance = 0;
 

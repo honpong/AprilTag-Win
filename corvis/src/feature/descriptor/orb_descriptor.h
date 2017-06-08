@@ -51,10 +51,12 @@ public:
     float angle;
     std::array<unsigned char, L> descriptor;
 
+    orb_descriptor(float x, float y, const tracker::image& image);
     static bool is_better(const float distance1, const float distance2) {return distance1 < distance2;}
     static double distance(const orb_descriptor &a, const orb_descriptor &b);
-    double distance(float x, float y, const tracker::image& image) const;
-    void compute_descriptor(float x, float y, const tracker::image& image);
+    double distance(float x, float y, const tracker::image& image) const {
+        return orb_descriptor::distance(*this, orb_descriptor(x,y,image));
+    }
 
 private:
     static int bit_pattern_31_[256 * 4];

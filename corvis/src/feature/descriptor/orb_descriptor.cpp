@@ -54,7 +54,7 @@ struct pattern_point {
     int x, y;
 };
 
-void orb_descriptor::compute_descriptor(float x, float y, const tracker::image &image)
+orb_descriptor::orb_descriptor(float x, float y, const tracker::image &image)
 {
     angle = ic_angle(x, y, image)*factorPI;
     float a = (float)cos(angle), b = (float)sin(angle);
@@ -100,13 +100,6 @@ void orb_descriptor::compute_descriptor(float x, float y, const tracker::image &
 
 #undef GET_VALUE
 }
-
-double orb_descriptor::distance(float x, float y, const tracker::image& image) const{
-    orb_descriptor candidate;
-    candidate.compute_descriptor(x, y, image);
-    return orb_descriptor::distance(*this, candidate);
-}
-
 
 static const __m128i popcount_mask = _mm_set1_epi8(0x0F);
 static const __m128i popcount_table = _mm_setr_epi8(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4);

@@ -19,10 +19,9 @@ class fast_tracker : public tracker
     template<typename Descriptor>
     struct fast_feature: public tracker::feature
     {
-        fast_feature(float x_, float y_, const tracker::image& image) : x(x_), y(y_)
-        {
-            descriptor.compute_descriptor(x, y, image);
-        }
+        fast_feature(float x_, float y_, const tracker::image& image) : x(x_), y(y_),
+                                                                        descriptor(x_, y_, image) {}
+
         float x, y;
         Descriptor descriptor;
     };

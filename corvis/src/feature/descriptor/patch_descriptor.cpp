@@ -11,7 +11,7 @@ Pedro Pinies, Lina Paz
 #include "patch_descriptor.h"
 #include <cmath>
 
-void patch_descriptor::compute_descriptor(float x, float y, const tracker::image &image) {
+patch_descriptor::patch_descriptor(float x, float y, const tracker::image &image) {
     for(int py = 0; py < full_patch_size; ++py) {
         for(int px = 0; px < full_patch_size; ++px) {
             uint8_t value = image.image[(int)x + px - half_patch_size +

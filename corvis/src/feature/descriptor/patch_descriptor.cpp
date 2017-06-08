@@ -34,7 +34,7 @@ double patch_descriptor::distance(const patch_descriptor &a,
     if (a.variance < 1e-15 || b.variance < 1e-15)
         return min_score;
 
-    double distance{0};
+    float distance{0};
     for(int py = 0; py < full_patch_size; ++py) {
         for(int px = 0; px < full_patch_size; ++px) {
             int index = py * full_patch_size + px;

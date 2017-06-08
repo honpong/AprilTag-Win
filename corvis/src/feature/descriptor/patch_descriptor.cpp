@@ -38,7 +38,7 @@ double patch_descriptor::distance(const patch_descriptor &a,
     for(int py = 0; py < full_patch_size; ++py) {
         for(int px = 0; px < full_patch_size; ++px) {
             int index = py * full_patch_size + px;
-            int value =  (a.descriptor[index]-a.mean)*(b.descriptor[index]-b.mean);
+            float value =  (a.descriptor[index]-a.mean)*(b.descriptor[index]-b.mean);
             int weight = (std::fabs(px - half_patch_size) <=1) && (std::fabs(py - half_patch_size) <=1) ? 2 : 1;
             distance += weight*value;
         }

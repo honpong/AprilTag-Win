@@ -27,5 +27,6 @@ public:
 
     static bool is_better(const float score1, const float score2) {return score1 > score2;}
     static double distance(const patch_descriptor &a, const patch_descriptor &b);
+    double distance(float x, float y, const tracker::image& image) const;
     void compute_descriptor(float x, float y, const tracker::image& image);
 };

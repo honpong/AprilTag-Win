@@ -3,7 +3,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <algorithm>
-#include "patch_descriptor.h"
 using namespace std;
 
 static bool xy_comp(const xy &first, const xy &second)
@@ -5940,8 +5939,8 @@ xy fast_detector_9::track(const Descriptor& descriptor, const tracker::image& im
     return best;
 }
 
-template
-xy fast_detector_9::track<patch_descriptor>(const patch_descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);
+#include "patch_descriptor.h"
+template xy fast_detector_9::track<patch_descriptor>(const patch_descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);
 
-template
-xy fast_detector_9::track<orb_descriptor>(const orb_descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);
+#include "orb_descriptor.h"
+template xy fast_detector_9::track<orb_descriptor>(const orb_descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);

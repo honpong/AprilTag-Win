@@ -3,8 +3,7 @@
 
 #include <vector>
 #include "scaled_mask.h"
-#include "patch_descriptor.h"
-#include "orb_descriptor.h"
+#include "tracker.h"
 
 typedef struct { float x, y, score, reserved; } xy; 
 typedef unsigned char byte;

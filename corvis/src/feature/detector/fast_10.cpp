@@ -10,11 +10,11 @@ static bool xy_comp(const xy &first, const xy &second)
     return first.score > second.score;
 }
 
-vector<xy> &fast_detector_10::detect(const unsigned char *im, const unsigned char *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight)
+vector<xy> &fast_detector_10::detect(const unsigned char *im, const scaled_mask *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight)
 {
     int need = number_wanted * 8;
     features.clear();
-    features.reserve(need);
+    features.reserve(need+1);
     int x, y, x1, y1, x2, y2;
 
     int bstart = bthresh;
@@ -22,13 +22,12 @@ vector<xy> &fast_detector_10::detect(const unsigned char *im, const unsigned cha
     y1 = (winy < 8) ? 8: winy;
     x2 = (winx + winwidth > xsize - 8) ? xsize - 8: winx + winwidth;
     y2 = (winy + winheight > ysize - 8) ? ysize - 8: winy + winheight;
-        
+    
     for(y = y1; y < y2; y++)
-        for(x = x1; x < x2; x++)
-        {
-            if(mask && !mask[(x >> 3) + (y >> 3) * (stride>>3)]) { x += 7 - (x % 8); continue; }
+        for(x = x1; x < x2; x++) {
+                if(mask && !mask->test(x, y)) { x += 7 - (x % 8); continue; }
                 const byte* p = im + y*stride + x;
-                byte val = ((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1;
+                byte val = (byte)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
 
                 int bmin = bstart;
                 int bmax = 255;
@@ -2333,16 +2332,16 @@ vector<xy> &fast_detector_10::detect(const unsigned char *im, const unsigned cha
 		end_if:
 
                         if(bmin == bmax - 1 || bmin == bmax) {
-                            features.push_back((xy){(float)x, (float)y, (float)bmin, 0});
+                            features.push_back({(float)x, (float)y, (float)bmin, 0});
                             push_heap(features.begin(), features.end(), xy_comp);
                             if(features.size() > need) {
                                 pop_heap(features.begin(), features.end(), xy_comp);
                                 features.pop_back();
-                                bstart = features[0].score + 1;
+                                bstart = (int)(features[0].score + 1);
                             }
                             break;
                         }
-		b = (bmin + bmax) / 2;
+                        b = (bmin + bmax) / 2;
                 }
             }
     sort_heap(features.begin(), features.end(), xy_comp);
@@ -2369,68 +2368,37 @@ static void make_offsets(int pixel[], int row_stride)
         pixel[15] = -1 + row_stride * 3;
 }
 
-void fast_detector_10::init(const int x, const int y, const int s)
+void fast_detector_10::init(const int x, const int y, const int s, const int ps, const int phw)
 {
     xsize = x;
     ysize = y;
     stride = s;
+    patch_stride = ps;
+    patch_win_half_width = phw;
     make_offsets(pixel, stride);
 }
 
-#ifdef __ARM_NEON__
-#include <arm_neon.h>
-#endif
-#include <assert.h>
-
-float fast_detector_10::score_match(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float max_error)
-{
-    int window = 3;
-    int area = 7 * 7;
-    
-    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return max_error + 1.;
-    int error = 0;
-
-    const unsigned char *p1 = im1 + stride * (y1 - window) + x1 - window;
-    const unsigned char *p2 = im2 + stride * (y2 - window) + x2 - window;
-#ifdef __ARM_NEON__
-    //this neon optimized version is about 25% faster than the optimized version below. Would be close to 2x, but we lose by not escaping the loop early
-    uint16_t temp[8];
-    uint16x8_t accum = vdupq_n_u16(0);
-    for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
-        uint8x8_t a = vld1_u8(p1);
-        uint8x8_t b = vld1_u8(p2);
-        uint16x8_t a16 = vmovl_u8(a);
-        uint16x8_t b16 = vmovl_u8(b);
-        accum = vabaq_u16(accum, a16, b16);
-    }
-    vst1q_u16(temp, accum);
-    error = temp[0] + temp[1] + temp[2] + temp[3] + temp[4] + temp[5] + temp[6];// + temp[7];
-#else
-    int total_max_error = max_error * area;
-    for(int dy = -window; dy <= window; ++dy, p1+=stride, p2+=stride) {
-        error += abs((short)p1[0]-(short)p2[0]) + abs((short)p1[1]-(short)p2[1]) + abs((short)p1[2]-(short)p2[2]) + abs((short)p1[3]-(short)p2[3]) + abs((short)p1[4]-(short)p2[4]) + abs((short)p1[5]-(short)p2[5]) + abs((short)p1[6]-(short)p2[6]);// + abs((short)p1[7]-(short)p2[7]);
-        if(error >= total_max_error) return max_error + 1;
-    }
-#endif
-    return (float)error/(float)area;
-}
-
-xy fast_detector_10::track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, int x1, int y1, int x2, int y2, int b)
+template<typename Descriptor>
+xy fast_detector_10::track(const Descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b)
 {
     int x, y;
     
-    float max_error = 30.;
-    xy best = {INFINITY, INFINITY, max_error, 0.};
+    xy best = {INFINITY, INFINITY, Descriptor::min_score, 0.f};
     
-    if(x1 < 3) x1 = 3;
-    if(x2 >= xsize - 3) x2 = xsize - 4;
-    if(y1 < 3) y1 = 3;
-    if(y2 >= ysize - 3) y2 = ysize - 4;
+    int x1 = (int)ceilf(predx - radius);
+    int x2 = (int)floorf(predx + radius);
+    int y1 = (int)ceilf(predy - radius);
+    int y2 = (int)floorf(predy + radius);
     
+    int half = Descriptor::border_size;
+    
+    if(x1 < half || x2 >= xsize - half || y1 < half || y2 >= ysize - half)
+        return best;
+ 
     for(y = y1; y <= y2; y++) {
         for(x = x1; x <= x2; x++) {
-            const byte* p = im2 + y*stride + x;
-            byte val = ((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1;
+            const byte* p = image.image + y*stride + x;
+            byte val = (byte)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
 		
             int cb = val + b;
             int c_b= val - b;
@@ -4715,13 +4683,19 @@ xy fast_detector_10::track(const unsigned char *im1, const unsigned char *im2, i
          else
           continue;
 
-        float score = score_match(im1, xcurrent, ycurrent, im2, x, y, best.score);
-        if(score < best.score) {
-            best.x = x;
-            best.y = y;
+        double score = descriptor.distance(x, y, image);
+        if(Descriptor::is_better(score,best.score)) {
+            best.x = (float)x;
+            best.y = (float)y;
             best.score = score;
         }
         }
     }
     return best;
 }
+
+#include "patch_descriptor.h"
+template xy fast_detector_10::track<patch_descriptor>(const patch_descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);
+
+#include "orb_descriptor.h"
+template xy fast_detector_10::track<orb_descriptor>(const orb_descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);

@@ -1,11 +1,8 @@
 #include "fast_tracker.h"
 #include "fast_constants.h"
+#include "descriptor.h"
 
 #include "math.h"
-#include "orb_descriptor.h"
-#include "patch_descriptor.h"
-
-#define DESCRIPTOR patch_descriptor
 
 using namespace std;
 

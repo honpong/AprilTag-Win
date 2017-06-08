@@ -4694,8 +4694,5 @@ xy fast_detector_10::track(const Descriptor& descriptor, const tracker::image& i
     return best;
 }
 
-#include "patch_descriptor.h"
-template xy fast_detector_10::track<patch_descriptor>(const patch_descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);
-
-#include "orb_descriptor.h"
-template xy fast_detector_10::track<orb_descriptor>(const orb_descriptor& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);
+#include "descriptor.h"
+template xy fast_detector_10::track<DESCRIPTOR>(const DESCRIPTOR& descriptor, const tracker::image& image, float predx, float predy, float radius, int b);

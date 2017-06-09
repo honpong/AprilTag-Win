@@ -670,8 +670,6 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 }
 */
 
-static int filter_available_feature_space(struct filter *f, state_camera &camera);
-
 static int filter_add_detected_features(struct filter * f, state_camera &camera, sensor_grey &camera_sensor, size_t newfeats, int image_height, sensor_clock::time_point time)
 {
     auto &kp = camera.standby_features;

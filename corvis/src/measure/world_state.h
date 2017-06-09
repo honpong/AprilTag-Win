@@ -20,6 +20,7 @@ typedef struct _feature {
     int times_seen;
     float cx, cy, ctheta;
     bool good;
+    bool not_in_filter;
     rc_Sensor camera_id;
 } Feature;
 

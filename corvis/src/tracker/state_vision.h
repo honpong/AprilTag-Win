@@ -213,8 +213,8 @@ struct state_camera: state_branch<state_node*> {
     state_extrinsics extrinsics;
     state_vision_intrinsics intrinsics;
     std::unique_ptr<tracker> feature_tracker;
-
-    std::future<const std::vector<tracker::feature_track> & > detection_future;
+    std::list<tracker::feature_track> standby_features;
+    std::future<void> detection_future;
 
     state_branch<state_vision_group *> groups;
     void update_feature_tracks(const rc_ImageData &image);
@@ -223,7 +223,6 @@ struct state_camera: state_branch<state_node*> {
     int process_features(mapper *map, spdlog::logger &log);
     void remove_group(state_vision_group *g, mapper *map);
 
-    state_vision_group *detecting_group = nullptr; // FIXME on reset
     int detecting_space = 0;
 
     state_camera() : extrinsics("Qc", "Tc", false), intrinsics(false) {

@@ -672,42 +672,27 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 
 static int filter_available_feature_space(struct filter *f, state_camera &camera);
 
-static int filter_add_detected_features(struct filter * f, state_vision_group *g, sensor_grey &camera_sensor, const std::vector<tracker::feature_track> &kp, size_t newfeats, int image_height, sensor_clock::time_point time)
+static int filter_add_detected_features(struct filter * f, state_camera &camera, sensor_grey &camera_sensor, size_t newfeats, int image_height, sensor_clock::time_point time)
 {
-    f->next_detect_camera = (camera_sensor.id + 1) % f->cameras.size();
-    state_camera &camera = g->camera;
-    // give up if we didn't get enough features
-    if(kp.size() < state_vision_group::min_feats) {
-        camera.remove_group(g, f->map.get());
-        f->s.remap();
-        int active_features = f->s.feature_count();
-        if(active_features < state_vision_group::min_feats) {
-            f->log->info("detector failure: only {} features after add", active_features);
-            if(!f->detector_failed) f->detector_failed_time = time;
-            f->detector_failed = true;
-        }
-        return 0;
-    }
-
-    f->detector_failed = false;
+    auto &kp = camera.standby_features;
+    auto g = f->s.add_group(camera, f->map.get());
 
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
 
-    size_t space = filter_available_feature_space(f, camera);
     size_t found_feats = 0;
     f_t image_to_depth = 1;
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
-    for(size_t i = 0; i < kp.size() && i < space; ++i) {
+    for(auto i = kp.begin(); i != kp.end(); i = kp.erase(i)) {
         {
-            state_vision_feature *feat = f->s.add_feature(kp[i], *g);
+            state_vision_feature *feat = f->s.add_feature(*i, *g);
 
             float depth_m = 0;
             if(f->has_depth) {
                 if (!aligned_undistorted_depth)
                     aligned_undistorted_depth = filter_aligned_depth_to_camera(*f->recent_depth, *f->depths[f->recent_depth->id], camera, camera_sensor);
 
-                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({kp[i].x, kp[i].y}))));
+                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({i->x, i->y}))));
             }
             if(depth_m)
             {
@@ -719,7 +704,7 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
             }
             
             g->features.children.push_back(feat);
-            feat->track.feature = kp[i].feature;
+            feat->track.feature = i->feature;
             
             found_feats++;
             if(found_feats == newfeats) break;
@@ -737,41 +722,31 @@ static int filter_add_detected_features(struct filter * f, state_vision_group *g
 static int filter_available_feature_space(struct filter *f, state_camera &camera)
 {
     int space = f->s.maxstatesize - f->s.statesize;
-    int empty = 0;
-    for (auto &c : f->s.cameras.children) {
-        if (!c->detecting_group)
-            space -= 6;
-        empty += c->groups.children.size() == 0;
-    }
-    if (empty)
-        space /= empty;
+    //leave space for the group
+    space -= 6;
     if(space < 0) space = 0;
     if(space > f->max_group_add)
         space = f->max_group_add;
     return space;
 }
 
-static bool filter_next_detect_camera(struct filter *f, int camera, sensor_clock::time_point time)
-{
-    //TODO: for stereo we need to handle this differently - always detect in the same camera
-    //always try to detect if we have no features currently
-    if(f->s.feature_count() < state_vision_group::min_feats) return true;
-    while(!f->cameras[f->next_detect_camera]->got) f->next_detect_camera = (f->next_detect_camera + 1) % f->cameras.size();
-    return f->next_detect_camera == camera;
-}
-
-const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const sensor_data &data, int space)
+void filter_detect(struct filter *f, const sensor_data &data)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
     auto start = std::chrono::steady_clock::now();
     const rc_ImageData &image = data.image;
     camera.feature_tracker->tracks.clear();
+    int standby_count = camera.standby_features.size();
     camera.feature_tracker->tracks.reserve(camera.feature_count());
     for(auto &g : camera.groups.children)
         for(auto &i : g->features.children)
             camera.feature_tracker->tracks.emplace_back(&i->track);
 
+    for(auto &t: camera.standby_features)
+        camera.feature_tracker->tracks.emplace_back(&t);
+
+    auto space = camera.detecting_space > standby_count ? camera.detecting_space - standby_count : 0;
     // Run detector
     tracker::image timage;
     timage.image = (uint8_t *)image.image;
@@ -779,10 +754,12 @@ const std::vector<tracker::feature_track> &filter_detect(struct filter *f, const
     timage.height_px = image.height;
     timage.stride_px = image.stride;
     std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space);
+    for(int t = kp.size()-1; t >= 0; --t)
+        camera.standby_features.push_front(kp[t]);
+    camera.detecting_space = 0;
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-    return kp;
 }
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data)
@@ -840,11 +817,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         v3 non_up_var = f->s.Q.variance() - f->s.world.up * f->s.world.up.dot(f->s.Q.variance());
         bool inertial_converged = non_up_var[0] < dynamic_W_thresh_variance && non_up_var[1] < dynamic_W_thresh_variance && non_up_var[2] < dynamic_W_thresh_variance;
         if(inertial_converged) {
-            if(inertial_converged) {
-                f->log->debug("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
-            } else {
-                f->log->warn("Inertial did not converge {}", non_up_var);
-            }
+            f->log->debug("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
         } else return true;
     }
     if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
@@ -856,20 +829,16 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     camera_state.intrinsics.image_width = data.image.width;
     camera_state.intrinsics.image_height = data.image.height;
     
-    if(camera_state.detecting_group)
-    {
-#ifdef TEST_POSDEF
-        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
-#endif
-        if(camera_state.detection_future.valid()) {
-            const auto & kp = camera_state.detection_future.get();
-            int space = filter_available_feature_space(f, camera_state);
-            filter_add_detected_features(f, camera_state.detecting_group, camera_sensor, kp, space, data.image.height, time);
-        } else {
-            camera_state.remove_group(camera_state.detecting_group, f->map.get());
-            f->s.remap();
+    if(camera_state.detection_future.valid()) {
+        camera_state.detection_future.wait();
+        auto active_features = f->s.feature_count();
+        if(active_features < state_vision_group::min_feats) {
+            f->log->info("detector failure: only {} features after add", active_features);
+            if(!f->detector_failed) f->detector_failed_time = time;
+            f->detector_failed = true;
+        } else if(active_features >= f->min_group_add) {
+            f->detector_failed = false;
         }
-        camera_state.detecting_group = nullptr;
     }
 
     if(f->run_state == RCSensorFusionRunStateRunning)
@@ -903,41 +872,33 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
     
     filter_update_outputs(f, time);
-    
+
+    auto space = filter_available_feature_space(f, camera_state);
+    if(space >= f->min_group_add && camera_state.standby_features.size() >= f->min_group_add)
+    {
+#ifdef TEST_POSDEF
+        if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
+#endif
+        if((f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization)) {
+            f->s.disable_orientation_only();
+#ifdef TEST_POSDEF
+            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
+#endif
+            f->run_state = RCSensorFusionRunStateRunning;
+            f->log->trace("When moving from steady init to running:");
+            print_calibration(f);
+        }
+        filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
+    }
+
+    space = filter_available_feature_space(f, camera_state);
+    if(space >= f->min_group_add && camera_state.standby_features.size() < f->max_group_add) {
+        camera_state.detecting_space = f->max_group_add;
+    }
+
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 
-    int space = filter_available_feature_space(f, camera_state);
-    bool myturn = filter_next_detect_camera(f, data.id, time);
-    if(space >= f->min_group_add && myturn)
-    {
-        if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-            auto & detection = filter_detect(f, data, space);
-            if(detection.size() >= state_vision_group::min_feats) {
-#ifdef TEST_POSDEF
-                if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
-#endif
-                f->s.disable_orientation_only();
-#ifdef TEST_POSDEF
-                if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
-#endif
-                f->run_state = RCSensorFusionRunStateRunning;
-                f->log->trace("When moving from steady init to running:");
-                print_calibration(f);
-                state_vision_group *g = f->s.add_group(camera_state, f->map.get());
-                // we remap here to update f->s.statesize to account for the new group
-                f->s.remap();
-                space = filter_available_feature_space(f, camera_state);
-                filter_add_detected_features(f, g, camera_sensor, detection, space, data.image.height, time);
-            }
-        } else {
-#ifdef TEST_POSDEF
-            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
-#endif
-            camera_state.detecting_group = f->s.add_group(camera_state, f->map.get());
-            camera_state.detecting_space = space;
-        }
-    }
     return true;
 }
 
@@ -946,9 +907,8 @@ void filter_initialize(struct filter *f)
 {
     //changing these two doesn't affect much.
     f->min_group_add = 16;
-    f->max_group_add = std::max<int>(40 / f->cameras.size(), f->min_group_add);
+    f->max_group_add = std::max<int>(80 / f->cameras.size(), f->min_group_add);
     f->has_depth = false;
-    f->next_detect_camera = 0;
 
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;

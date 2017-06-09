@@ -152,13 +152,11 @@ state_vision::state_vision(covariance &c):
 void state_camera::clear_features_and_groups()
 {
     for(state_vision_group *g : groups.children) {
-        if(g != detecting_group) {
-            g->make_empty();
-            delete g;
-        }
+        g->make_empty();
+        delete g;
     }
     groups.children.clear();
-    if(detecting_group) groups.children.push_back(detecting_group);
+    standby_features.clear();
 }
 
 state_vision::~state_vision()
@@ -171,7 +169,7 @@ void state_vision::reset()
 {
     for (auto &camera : cameras.children) {
         camera->clear_features_and_groups();
-        camera->detecting_group = nullptr; // FIXME: does this leak?
+        camera->detecting_space = 0;
     }
     state_motion::reset();
 }
@@ -200,7 +198,7 @@ int state_camera::feature_count() const
     for(auto *g : groups.children)
         count += g->features.children.size();
 
-    return count;
+    return count + standby_features.size();
 }
 
 transformation state_vision::get_transformation() const
@@ -231,6 +229,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
             }
         }
     }
+    standby_features.remove_if([](tracker::feature_track &t) {return !t.found;});
 
     if(track_fail && !total_feats) log.warn("Tracker failed! {} features dropped.", track_fail);
     //    log.warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);
@@ -549,6 +548,7 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
         for(state_vision_feature *feature : g->features.children)
             feature_tracker->tracks.emplace_back(&feature->track);
     }
+    for(auto &t:standby_features) feature_tracker->tracks.emplace_back(&t);
 
     if (feature_tracker->tracks.size())
         feature_tracker->track(current_image, feature_tracker->tracks);

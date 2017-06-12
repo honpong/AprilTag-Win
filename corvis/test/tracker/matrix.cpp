@@ -36,10 +36,10 @@ TEST(Matrix, SimplePadded)
     matrix B(B_padded, 8, 4, 8, 4);
     matrix R(R_padded, 8, 4, 8, 4);
     matrix_solve(A, B);
-   
-    for(int i = 0; i < 4; i++)
-        for(int j = 0; j < 8; j++)
-            EXPECT_NEAR(B(i,j), R(i,j), 1e-6); 
+
+    for(int i = 0; i < 8; i++)
+        for(int j = 0; j < 4; j++)
+            EXPECT_NEAR(B(i,j), R(i,j), 1e-6);
 }
 
 static f_t chol[] = {  4,  12, -16, 0,

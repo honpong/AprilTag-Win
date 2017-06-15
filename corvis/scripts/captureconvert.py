@@ -17,23 +17,20 @@ rc_IMAGE_GRAY8 = 0
 rc_IMAGE_DEPTH16 = 1
 
 use_depth = True
-depth_time_offset = 0
 wait_for_image = False
 scale_units = False
 try:
-    opts, (path, output_filename) = getopt.gnu_getopt(sys.argv[1:], "Do:", ["no-depth", "depth-offset=", "wait-for-image", "scale-units"])
+    opts, (path, output_filename) = getopt.gnu_getopt(sys.argv[1:], "Do:", ["no-depth", "wait-for-image", "scale-units"])
     for o,v in opts:
         if o in ("-D", "--no-depth"):
             use_depth = False;
-        elif o in ("-o", "--depth-offset"):
-            depth_time_offset = float(v)
         elif o in ("-w", "--wait-for-image"):
             wait_for_image = True
         elif o in ("-s", "--scale-units"):
             scale_units = True
 except Exception as e:
     print e
-    print sys.argv[0], "[--no-depth] [--depth-offset=<N>] [--wait-for-image] [--scale-units] <intel_folder> <output_filename>"
+    print sys.argv[0], "[--no-depth] [--wait-for-image] [--scale-units] <intel_folder> <output_filename>"
     sys.exit(1)
 
 def read_chunk_info(filename):
@@ -127,11 +124,6 @@ data = [];
 for t in ['gyro','accel', 'fish', 'depth']:
     data.extend(raw[t])
 data.sort()
-
-if use_depth:
-    if abs(raw['depth'][0][0] - raw['fish'][0][0]) > 100:
-        depth_time_offset += raw['depth'][0][0] - raw['fish'][0][0]
-        print "correcting for depth camera and fisheye not being on the same clock"
 
 wrote_packets = defaultdict(int)
 wrote_bytes = 0

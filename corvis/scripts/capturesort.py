@@ -21,7 +21,7 @@ packets = list(capture_packets(src))
 
 if args.destination is not None:
   with open(args.destination, "wb") as d:
-    for p in sorted(packets, None, lambda p: p['time'] + p['exposure']/2):
+    for p in sorted(packets, None, lambda p: (p['time'] + p['exposure']/2, p['type'])):
         d.write(p['header'])
         d.write(p['data'])
 else:

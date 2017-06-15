@@ -39,7 +39,7 @@ def read_chunk_info(filename):
         (filename, offset, length, timestamp) = line.split()
         return (filename, int(length))
 
-def read_image_timestamps(filename, image_type, fixed_filename = None, data_length = None):
+def read_image_timestamps(filename, image_type, sensor_id, fixed_filename = None, data_length = None):
     #image is filename timestamp
     rows = []
     z = 0
@@ -63,12 +63,12 @@ def read_image_timestamps(filename, image_type, fixed_filename = None, data_leng
                 (filename, offset, length, timestamp) = row
                 offset, length = int(offset), int(length)
 
-            rows.append({'time_ms': float(timestamp),
+            rows.append({'time_ms': float(timestamp), 'user': sensor_id,
                          'ptype': image_raw_type, 'image_type': image_type,
                          'filename': filename, 'offset': offset, 'length': length})
     return rows
 
-def read_csv_timestamps(filename, ptype):
+def read_csv_timestamps(filename, ptype, sensor_id):
     #accel is timestamp, x, y, z
     #gyro is timestamp, wx, wy, wz
     rows = []
@@ -81,7 +81,7 @@ def read_csv_timestamps(filename, ptype):
                 has_header = False
                 continue
             (timestamp, x, y, z) = row
-            rows.append({'time_ms': float(timestamp), 'ptype': ptype, 'vector': [float(x), float(y), float(z)]})
+            rows.append({'time_ms': float(timestamp), 'user': sensor_id, 'ptype': ptype, 'vector': [float(x), float(y), float(z)]})
     return rows
 
 import StringIO
@@ -111,11 +111,11 @@ if os.path.exists(path+'depth_offsets_timestamps.txt'):
 fisheye_path = path + ('fisheye_timestamps.txt')
 depth_path = path + ('depth_timestamps.txt')
 raw = {
-   'gyro':  read_csv_timestamps(path + 'gyro.txt', gyro_type),
-   'accel': read_csv_timestamps(path + 'accel.txt', accel_type),
-   'fish':  read_image_timestamps(fisheye_path, rc_IMAGE_GRAY8, fisheye_data, fisheye_data_length),
-   'depth': read_image_timestamps(depth_path, rc_IMAGE_DEPTH16, depth_data, depth_data_length) if use_depth else [],
-   'color': read_image_timestamps(path + 'color_timestamps.txt') if False else [],
+   'gyro':  read_csv_timestamps(path + 'gyro.txt', gyro_type, 0),
+   'accel': read_csv_timestamps(path + 'accel.txt', accel_type, 0),
+   'fish':  read_image_timestamps(fisheye_path, rc_IMAGE_GRAY8, 0, fisheye_data, fisheye_data_length),
+   'depth': read_image_timestamps(depth_path, rc_IMAGE_DEPTH16, 0, depth_data, depth_data_length) if use_depth else [],
+   'color': read_image_timestamps(path + 'color_timestamps.txt', 0) if False else [],
 }
 
 data = [];
@@ -129,7 +129,7 @@ got_image = False
 with open(output_filename, "wb") as f:
     for d in data:
         microseconds = int(d['time_ms']*1e3)
-        ptype = d['ptype']
+        ptype, user = d['ptype'], d['user']
         if ptype == image_raw_type:
             got_image = True
         if wait_for_image and not got_image:
@@ -151,7 +151,6 @@ with open(output_filename, "wb") as f:
         else:
             print "Unexpected data type", ptype
         pbytes = len(data) + 16
-        user = 0
         header_str = pack('IHHQ', pbytes, ptype, user, microseconds)
         f.write(header_str)
         f.write(data)

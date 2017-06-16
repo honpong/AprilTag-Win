@@ -26,6 +26,12 @@ public:
         children.push_back(&a_bias);
     }
 
+    void copy_from(const state_imu_intrinsics &other) {
+        if (other.estimate) enable_estimation(); else disable_estimation();
+        w_bias = other.w_bias;
+        a_bias = other.a_bias;
+    }
+
     virtual bool unmap() {
         if (state_branch<state_node *>::unmap()) {
             a_bias.save_initial_variance();
@@ -43,6 +49,10 @@ struct state_imu: public state_branch<state_node *> {
     state_imu() : extrinsics("Qa", "Ta", false) {
         children.push_back(&intrinsics);
         children.push_back(&extrinsics);
+    }
+    void copy_from(const state_imu &other) {
+        extrinsics.copy_from(other.extrinsics);
+        intrinsics.copy_from(other.intrinsics);
     }
 };
 
@@ -68,7 +78,23 @@ public:
         //children.push_back(&g);
         g.v = gravity_magnitude;
     }
-    
+
+    void copy_from(const state_motion_orientation &other) {
+        for (auto i = std::make_pair(imus.children.begin(),other.imus.children.begin()); i.first != imus.children.end() && i.second != other.imus.children.end(); ++i.first, ++i.second)
+            (**i.first).copy_from(**i.second);
+
+        Q = other.Q;
+        w = other.w;
+        dw = other.dw;
+        ddw = other.ddw;
+
+        g = other.g;
+
+        orientation_initialized = other.orientation_initialized;
+
+        state_root::copy_from(other);
+    }
+
     virtual void reset()
     {
         orientation_initialized = false;
@@ -119,7 +145,21 @@ public:
         non_orientation.children.push_back(&a);
         non_orientation.children.push_back(&da);
     }
-    
+
+    void copy_from(const state_motion &other) {
+        if(other.non_orientation.estimate) disable_orientation_only(false);
+        else                               enable_orientation_only(false);
+
+        T = other.T;
+        V = other.V;
+        a = other.a;
+        da = other.da;
+
+        loop_offset = other.loop_offset;
+
+        state_motion_orientation::copy_from(other);
+    }
+
     virtual void reset()
     {
         disable_orientation_only();
@@ -138,8 +178,6 @@ public:
     virtual void disable_orientation_only(bool remap_ = true);
     virtual void enable_bias_estimation(bool remap_ = true);
     virtual void disable_bias_estimation(bool remap_ = true);
-
-    void copy_from(const state_motion & other);
 
 protected:
     virtual void evolve_state(f_t dt);

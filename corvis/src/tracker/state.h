@@ -150,7 +150,15 @@ public:
 #endif
         return statesize;
     }
-    
+
+    void copy_from(const state_root &other) {
+        current_time = other.current_time;
+        world_up_initial_forward_left = other.world_up_initial_forward_left;
+        body_forward = other.body_forward;
+
+        remap_from(other.cov); // copy covariance
+    }
+
     void print_matrix_with_state_labels(matrix &state) const {
         if(state.rows() >= dynamic_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::dynamic);
         if(state.rows() >= statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::constant);
@@ -548,6 +556,10 @@ public:
         estimate = estimate_;
         children.push_back(&T);
         children.push_back(&Q);
+    }
+    void copy_from(const state_extrinsics &other) {
+        Q = other.Q;
+        T = other.T;
     }
 };
 

@@ -283,14 +283,6 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     return total_health;
 }
 
-int state_vision::process_features(state_camera &camera, const rc_ImageData &image, mapper *map)
-{
-    int health = camera.process_features(map, *log);
-    remap();
-    update_map(image, map);
-    return health;
-}
-
 void state_vision::update_map(const rc_ImageData &image, mapper *map)
 {
     if (!map) return;

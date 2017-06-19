@@ -144,6 +144,7 @@ typedef enum rc_MessageLevel
 typedef enum rc_ImageFormat {
     rc_FORMAT_GRAY8,
     rc_FORMAT_DEPTH16,
+    rc_FORMAT_RGBA8,
 } rc_ImageFormat;
 
 typedef struct rc_ImageData

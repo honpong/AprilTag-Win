@@ -115,13 +115,14 @@ void world_state::observe_map_node(uint64_t timestamp, uint64_t node_id, bool fi
 
 static void update_image_size(const rc_ImageData & src, ImageData & dst)
 {
-    if(dst.image && (src.width != dst.width || src.height != dst.height))
-        dst.image = (uint8_t *)realloc(dst.image, sizeof(uint8_t)*src.width*src.height);
-
+    bool src_luminance = src.format == rc_FORMAT_GRAY8 || src.format == rc_FORMAT_DEPTH16; // both rendered as grey
     if(!dst.image)
-        dst.image = (uint8_t *)malloc(sizeof(uint8_t)*src.width*src.height);
+        dst.image = (uint8_t *)malloc(            sizeof(uint8_t)*src.width*src.height*(src_luminance?1:4));
+    else if(src.width != dst.width || src.height != dst.height || src_luminance != dst.luminance)
+        dst.image = (uint8_t *)realloc(dst.image, sizeof(uint8_t)*src.width*src.height*(src_luminance?1:4));
     dst.width = src.width;
     dst.height = src.height;
+    dst.luminance = src_luminance;
 }
 
 void world_state::observe_image(uint64_t timestamp, rc_Sensor camera_id, const rc_ImageData & data)
@@ -135,8 +136,7 @@ void world_state::observe_image(uint64_t timestamp, rc_Sensor camera_id, const r
     update_image_size(data, image);
 
     for(int i=0; i<data.height; i++)
-        memcpy(image.image + i*data.width, (uint8_t *)data.image + i*data.stride, sizeof(uint8_t)*data.width);
-
+        memcpy(image.image + i*image.width*(image.luminance?1:4), (uint8_t *)data.image + i*data.stride, sizeof(uint8_t)*(data.format == rc_FORMAT_GRAY8?1:4)*data.width);
 
     image_lock.unlock();
 }

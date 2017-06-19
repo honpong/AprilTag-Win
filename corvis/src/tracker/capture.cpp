@@ -69,8 +69,11 @@ void capture::write_gyroscope_data(uint16_t sensor_id, uint64_t timestamp_us, co
 void capture::write_image_raw(uint16_t sensor_id, uint64_t timestamp_us, uint64_t exposure_time_us, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
 {
     int format_size = sizeof(uint8_t);
-    if(format == rc_FORMAT_DEPTH16)
-        format_size = sizeof(uint16_t);
+    switch(format) {
+    case rc_FORMAT_GRAY8:   format_size = sizeof(uint8_t);  break;
+    case rc_FORMAT_DEPTH16: format_size = sizeof(uint16_t); break;
+    case rc_FORMAT_RGBA8:   format_size = sizeof(uint32_t); break;
+    }
 
     auto bytes = 16 + width * height * format_size;
     packet_t *buf = packet_alloc(packet_image_raw, bytes, sensor_id, timestamp_us);
@@ -94,12 +97,15 @@ void capture::write_image_raw(uint16_t sensor_id, uint64_t timestamp_us, uint64_
 void capture::write(std::unique_ptr<sensor_data> data)
 {
     switch(data->type) {
+        case rc_SENSOR_TYPE_DEBUG:
+            break; // FIXME: fallthrough?
+
         case rc_SENSOR_TYPE_IMAGE:
-            write_image_raw(data->id, data->time_us, data->image.shutter_time_us, (uint8_t *)data->image.image, data->image.width, data->image.height, data->image.stride, rc_FORMAT_GRAY8);
+            write_image_raw(data->id, data->time_us, data->image.shutter_time_us, (uint8_t *)data->image.image, data->image.width, data->image.height, data->image.stride, data->image.format);
             break;
 
         case rc_SENSOR_TYPE_DEPTH:
-            write_image_raw(data->id, data->time_us, data->depth.shutter_time_us, (uint8_t *)data->depth.image, data->depth.width, data->depth.height, data->depth.stride, rc_FORMAT_DEPTH16);
+            write_image_raw(data->id, data->time_us, data->depth.shutter_time_us, (uint8_t *)data->depth.image, data->depth.width, data->depth.height, data->depth.stride, data->image.format);
             break;
 
         case rc_SENSOR_TYPE_ACCELEROMETER:

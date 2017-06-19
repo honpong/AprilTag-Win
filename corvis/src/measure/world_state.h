@@ -35,6 +35,7 @@ typedef struct _ImageData {
     uint8_t * image;
     int width, height;
     uint64_t timestamp;
+    bool luminance;
 } ImageData;
 
 typedef struct _mapnode {

@@ -106,8 +106,8 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     v3 meas = map(accelerometer.intrinsics.scale_and_alignment.v) * map(data.acceleration_m__s2.v);
 
     //TODO: if out of order, project forward in time
-    
-    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, state, imu);
+
+    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, state, state, imu);
     obs_a->meas = meas;
     obs_a->variance = accelerometer.measurement_variance;
 
@@ -223,7 +223,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
         return true;
     }
 
-    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, f->s, imu);
+    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, f->s, f->s, imu);
     obs_a->meas = meas;
     obs_a->variance = get_accelerometer_variance_for_run_state(f, accelerometer);
 

@@ -393,7 +393,7 @@ void observation_accelerometer::predict()
 {
     Rt = state.Q.v.conjugate().toRotationMatrix();
     Ra = extrinsics.Q.v.toRotationMatrix();
-    v3 acc = state.world.up * state.g.v + state.a.v;
+    v3 acc = root.world.up * root.g.v + state.a.v;
     xcc = Rt * acc;
     if(state.non_orientation.estimate)
         xcc += state.w.v.cross(state.w.v.cross(extrinsics.T.v)) + state.dw.v.cross(extrinsics.T.v);
@@ -402,7 +402,7 @@ void observation_accelerometer::predict()
 
 void observation_accelerometer::cache_jacobians()
 {
-    v3 acc = state.world.up * state.g.v + state.a.v;
+    v3 acc = root.world.up * root.g.v + state.a.v;
     da_dacc = Ra.transpose() * Rt;
     da_dQ = Ra.transpose() * Rt * skew(acc);
     if(extrinsics.estimate)
@@ -430,8 +430,8 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
         const auto cov_a = state.a.from_row(src, j);
         const auto cov_w = state.w.from_row(src, j);
         const auto cov_dw = state.dw.from_row(src, j);
-        f_t cov_g = state.g.from_row(src, j);
-        col(dst, j) = cov_a_bias + da_dQ * scov_Q + da_dw * cov_w + da_ddw * cov_dw + da_dacc * (cov_a + state.world.up * cov_g);
+        f_t cov_g = root.g.from_row(src, j);
+        col(dst, j) = cov_a_bias + da_dQ * scov_Q + da_dw * cov_w + da_ddw * cov_dw + da_dacc * (cov_a + root.world.up * cov_g);
         if(extrinsics.estimate) {
             const auto scov_Qa = extrinsics.Q.from_row(src, j);
             const auto cov_Ta = extrinsics.T.from_row(src, j);

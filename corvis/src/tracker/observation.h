@@ -101,6 +101,7 @@ public:
 
 class observation_accelerometer: public observation_spatial<3> {
 protected:
+    const state_root &root;
     const state_motion &state;
     const state_extrinsics &extrinsics;
     const state_imu_intrinsics &intrinsics;
@@ -116,7 +117,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer(sensor_accelerometer &src, const state_motion &state_, const state_imu &imu): observation_spatial(src), state(state_), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
+    observation_accelerometer(sensor_accelerometer &src, const state_root &root_, const state_motion &state_, const state_imu &imu): observation_spatial(src), root(root_), state(state_), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

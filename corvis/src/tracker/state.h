@@ -117,129 +117,6 @@ public:
     bool estimate = true;
 };
 
-class state_root: public state_branch<state_node *> {
-public:
-    state_root(covariance &c): cov(c), current_time(sensor_clock::micros_to_tp(0)) {}
-
-    int statesize, maxstatesize, dynamic_statesize, fake_statesize;
-    covariance &cov;
-    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", std::make_shared<spdlog::sinks::null_sink_st> ());
-
-    struct world { v3 up{0,0,1}, initial_forward{0,1,0}, initial_left{-1,0,0}; } world;
-    Eigen::Map<m3> world_up_initial_forward_left{world.up.data()};
-    v3 body_forward = {0,0,1};
-
-    int remap() {
-        return remap_from(cov);
-    }
-
-    int remap_from(covariance &other) {
-#ifdef TEST_POSDEF
-        if(cov.size() && !test_posdef(cov.cov)) log->error("not pos def at beginning of remap");
-#endif
-        cov.remap_init();
-        dynamic_statesize = state_branch<state_node *>::remap(0, cov, node_type::dynamic);
-        statesize = state_branch<state_node *>::remap(dynamic_statesize, cov, node_type::constant);
-        fake_statesize = state_branch<state_node *>::remap(statesize, cov, node_type::fake) - statesize;
-        cov.remap_from(statesize, other);
-#ifdef TEST_POSDEF
-        if(!test_posdef(cov.cov)) {
-            log->error("not pos def at end of remap");
-            assert(0);
-        }
-#endif
-        return statesize;
-    }
-
-    void copy_from(const state_root &other) {
-        current_time = other.current_time;
-        world_up_initial_forward_left = other.world_up_initial_forward_left;
-        body_forward = other.body_forward;
-
-        remap_from(other.cov); // copy covariance
-    }
-
-    void print_matrix_with_state_labels(matrix &state) const {
-        if(state.rows() >= dynamic_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::dynamic);
-        if(state.rows() >= statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::constant);
-        if(state.rows() >= statesize + fake_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::fake);
-    }
-
-    virtual std::ostream &print_to(std::ostream & s) const
-    {
-        s << "state: "; return state_branch<state_node*>::print_to(s);
-    }
-
-    virtual void reset() {
-        cov.reset();
-        state_branch<state_node *>::reset();
-        current_time = sensor_clock::micros_to_tp(0);
-    }
-    
-    void evolve(f_t dt)
-    {
-        evolve_covariance(dt);
-        evolve_state(dt);
-    }
-
-    void evolve_covariance(f_t dt)
-    {
-        cache_jacobians(dt);
-
-        matrix tmp(dynamic_statesize, cov.size() + fake_statesize);
-
-        project_motion_covariance(tmp, cov.cov, dt);
-
-        //fill in the UR and LL matrices
-        auto cov_LL = cov.cov.map().block(dynamic_statesize,0, cov.size()-dynamic_statesize,dynamic_statesize);
-        auto cov_UR = cov.cov.map().block(0,dynamic_statesize, dynamic_statesize,cov.size()-dynamic_statesize);
-        auto tmp_UR =     tmp.map().block(0,dynamic_statesize, dynamic_statesize,cov.size()-dynamic_statesize);
-        cov_LL.transpose() = cov_UR = tmp_UR;
-
-        //compute the UL matrix
-        matrix ul(cov.cov, 0, 0, dynamic_statesize, dynamic_statesize);
-        project_motion_covariance(ul, tmp, dt);
-
-        //enforce symmetry
-        //for(int i = 0; i < dynamic_statesize; ++i)
-        //    for(int j = i + 1; j < dynamic_statesize; ++j)
-        //        cov(i, j) = cov(j, i);
-
-        //cov += diag(R)*dt^2
-        for(int i = 0; i < cov.size(); ++i)
-            cov(i, i) += cov.process_noise[i] * dt * dt;
-    }
-
-    void time_update(sensor_clock::time_point time)
-    {
-        if(time <= current_time) {
-            if(time < current_time) log->info("negative time step: last was {}, this is {}, delta {}", sensor_clock::tp_to_micros(current_time), sensor_clock::tp_to_micros(time), std::chrono::duration_cast<std::chrono::microseconds>(current_time - time).count());
-            return;
-        }
-        if(current_time != sensor_clock::micros_to_tp(0)) {
-#ifdef TEST_POSDEF
-            if(!test_posdef(cov.cov)) log->error("not pos def before explicit time update");
-#endif
-            auto dt = std::chrono::duration_cast<std::chrono::duration<f_t>>(time - current_time).count();
-            if(log_enabled && dt > .025) log->warn("Large time step (dt): {}", dt);
-            evolve(dt);
-#ifdef TEST_POSDEF
-            if(!test_posdef(cov.cov)) log->error("not pos def after explicit time update");
-#endif
-        }
-        current_time = time;
-    }
-
-    inline const sensor_clock::time_point & get_current_time() const { return current_time; }
-
-protected:
-    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const = 0;
-    virtual void evolve_state(f_t dt) = 0;
-    virtual void cache_jacobians(f_t dt) = 0;
-
-    sensor_clock::time_point current_time;
-};
-
 template <class T, int _size> class state_leaf: public state_leaf_base, public state_node {
  public:
     state_leaf(const char *_name, node_type nt) : state_leaf_base(_name, nt, -1, _size) {}
@@ -573,6 +450,129 @@ public:
         Q = other.Q;
         T = other.T;
     }
+};
+
+class state_root: public state_branch<state_node *> {
+public:
+    state_root(covariance &c): cov(c), current_time(sensor_clock::micros_to_tp(0)) {}
+
+    int statesize, maxstatesize, dynamic_statesize, fake_statesize;
+    covariance &cov;
+    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", std::make_shared<spdlog::sinks::null_sink_st> ());
+
+    struct world { v3 up{0,0,1}, initial_forward{0,1,0}, initial_left{-1,0,0}; } world;
+    Eigen::Map<m3> world_up_initial_forward_left{world.up.data()};
+    v3 body_forward = {0,0,1};
+
+    int remap() {
+        return remap_from(cov);
+    }
+
+    int remap_from(covariance &other) {
+#ifdef TEST_POSDEF
+        if(cov.size() && !test_posdef(cov.cov)) log->error("not pos def at beginning of remap");
+#endif
+        cov.remap_init();
+        dynamic_statesize = state_branch<state_node *>::remap(0, cov, node_type::dynamic);
+        statesize = state_branch<state_node *>::remap(dynamic_statesize, cov, node_type::constant);
+        fake_statesize = state_branch<state_node *>::remap(statesize, cov, node_type::fake) - statesize;
+        cov.remap_from(statesize, other);
+#ifdef TEST_POSDEF
+        if(!test_posdef(cov.cov)) {
+            log->error("not pos def at end of remap");
+            assert(0);
+        }
+#endif
+        return statesize;
+    }
+
+    void copy_from(const state_root &other) {
+        current_time = other.current_time;
+        world_up_initial_forward_left = other.world_up_initial_forward_left;
+        body_forward = other.body_forward;
+
+        remap_from(other.cov); // copy covariance
+    }
+
+    void print_matrix_with_state_labels(matrix &state) const {
+        if(state.rows() >= dynamic_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::dynamic);
+        if(state.rows() >= statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::constant);
+        if(state.rows() >= statesize + fake_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::fake);
+    }
+
+    virtual std::ostream &print_to(std::ostream & s) const
+    {
+        s << "state: "; return state_branch<state_node*>::print_to(s);
+    }
+
+    virtual void reset() {
+        cov.reset();
+        state_branch<state_node *>::reset();
+        current_time = sensor_clock::micros_to_tp(0);
+    }
+
+    void evolve(f_t dt)
+    {
+        evolve_covariance(dt);
+        evolve_state(dt);
+    }
+
+    void evolve_covariance(f_t dt)
+    {
+        cache_jacobians(dt);
+
+        matrix tmp(dynamic_statesize, cov.size() + fake_statesize);
+
+        project_motion_covariance(tmp, cov.cov, dt);
+
+        //fill in the UR and LL matrices
+        auto cov_LL = cov.cov.map().block(dynamic_statesize,0, cov.size()-dynamic_statesize,dynamic_statesize);
+        auto cov_UR = cov.cov.map().block(0,dynamic_statesize, dynamic_statesize,cov.size()-dynamic_statesize);
+        auto tmp_UR =     tmp.map().block(0,dynamic_statesize, dynamic_statesize,cov.size()-dynamic_statesize);
+        cov_LL.transpose() = cov_UR = tmp_UR;
+
+        //compute the UL matrix
+        matrix ul(cov.cov, 0, 0, dynamic_statesize, dynamic_statesize);
+        project_motion_covariance(ul, tmp, dt);
+
+        //enforce symmetry
+        //for(int i = 0; i < dynamic_statesize; ++i)
+        //    for(int j = i + 1; j < dynamic_statesize; ++j)
+        //        cov(i, j) = cov(j, i);
+
+        //cov += diag(R)*dt^2
+        for(int i = 0; i < cov.size(); ++i)
+            cov(i, i) += cov.process_noise[i] * dt * dt;
+    }
+
+    void time_update(sensor_clock::time_point time)
+    {
+        if(time <= current_time) {
+            if(time < current_time) log->info("negative time step: last was {}, this is {}, delta {}", sensor_clock::tp_to_micros(current_time), sensor_clock::tp_to_micros(time), std::chrono::duration_cast<std::chrono::microseconds>(current_time - time).count());
+            return;
+        }
+        if(current_time != sensor_clock::micros_to_tp(0)) {
+#ifdef TEST_POSDEF
+            if(!test_posdef(cov.cov)) log->error("not pos def before explicit time update");
+#endif
+            auto dt = std::chrono::duration_cast<std::chrono::duration<f_t>>(time - current_time).count();
+            if(log_enabled && dt > .025) log->warn("Large time step (dt): {}", dt);
+            evolve(dt);
+#ifdef TEST_POSDEF
+            if(!test_posdef(cov.cov)) log->error("not pos def after explicit time update");
+#endif
+        }
+        current_time = time;
+    }
+
+    inline const sensor_clock::time_point & get_current_time() const { return current_time; }
+
+protected:
+    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const = 0;
+    virtual void evolve_state(f_t dt) = 0;
+    virtual void cache_jacobians(f_t dt) = 0;
+
+    sensor_clock::time_point current_time;
 };
 
 #endif

@@ -28,8 +28,8 @@ patch_descriptor::patch_descriptor(float x, float y, const tracker::image &image
     variance = variance - area*mean*mean;
 }
 
-double patch_descriptor::distance(const patch_descriptor &a,
-                                  const patch_descriptor &b) {
+float patch_descriptor::distance(const patch_descriptor &a,
+                                 const patch_descriptor &b) {
     // constant patches can't be matched
     if (a.variance < 1e-15 || b.variance < 1e-15)
         return min_score;
@@ -50,7 +50,7 @@ double patch_descriptor::distance(const patch_descriptor &a,
     return distance*distance/(a.variance*b.variance);
 }
 
-double patch_descriptor::distance(float x, float y, const tracker::image &image) const {
+float patch_descriptor::distance(float x, float y, const tracker::image &image) const {
 
     float sum_d2{0}, sum_d1d2{0};
     float variance2{0};

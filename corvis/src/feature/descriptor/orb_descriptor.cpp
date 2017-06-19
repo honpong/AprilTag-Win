@@ -132,8 +132,8 @@ static inline int popcnt128(__m128i n)
  * return distance
  */
 
-double computedistance(const orb_descriptor& a,
-                       const orb_descriptor& b)
+float computedistance(const orb_descriptor& a,
+                      const orb_descriptor& b)
 {
     const int32_t* p1 = reinterpret_cast<const int32_t*>(a.descriptor.data());
     const int32_t* p2 = reinterpret_cast<const int32_t*>(b.descriptor.data());
@@ -156,8 +156,8 @@ double computedistance(const orb_descriptor& a,
     return dist;
 }
 
-double computedistanceSSE(const orb_descriptor &a,
-                          const orb_descriptor &b)
+float computedistanceSSE(const orb_descriptor &a,
+                         const orb_descriptor &b)
 {
     unsigned int distance = 0;
 
@@ -172,22 +172,18 @@ double computedistanceSSE(const orb_descriptor &a,
         distance += popcnt128(xorResult);
     }
 
-    return static_cast<double>(distance);
+    return static_cast<float>(distance);
 }
 
-double orb_descriptor::distance(const orb_descriptor &a,
-                                const orb_descriptor &b)
+float orb_descriptor::distance(const orb_descriptor &a,
+                               const orb_descriptor &b)
 {
-    double distance = 0;
-
 #if 1
-    distance = computedistanceSSE(a, b);
+    return computedistanceSSE(a, b);
 #else
     // in case no SSE support
-    distance = computedistance(a, b);
+    return computedistance(a, b);
 #endif
-
-    return distance;
 }
 
 template<int orb_half_patch_size_>

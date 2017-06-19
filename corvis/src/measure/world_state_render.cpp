@@ -38,11 +38,12 @@ void world_state_render_video_teardown()
     frame_render.gl_destroy();
 }
 
-void world_state_render_video(world_state * world, rc_Sensor id, int viewport_width, int viewport_height)
+void world_state_render_video(world_state * world, rc_Sensor id, int viewport_width, int viewport_height,
+                              std::vector<world_state::overlay_data> &cameras)
 {
     world->display_lock.lock();
     world->image_lock.lock();
-    const auto & c = world->cameras[id];
+    const auto &c = cameras[id];
     frame_render.render(c.image.image, c.image.width, c.image.height, viewport_width, viewport_height, c.image.luminance);
 #if TARGET_OS_IPHONE
 #else
@@ -56,12 +57,13 @@ void world_state_render_video(world_state * world, rc_Sensor id, int viewport_wi
     world->display_lock.unlock();
 }
 
-bool world_state_render_video_get_size(world_state * world, rc_Sensor id, int *width, int *height)
+bool world_state_render_video_get_size(world_state * world, rc_Sensor id, int *width, int *height,
+                                       std::vector<world_state::overlay_data> &cameras)
 {
-    if(id >= world->cameras.size()) return false;
+    if(id >= cameras.size()) return false;
     world->image_lock.lock();
-    *width = world->cameras[id].image.width;
-    *height = world->cameras[id].image.height;
+    *width = cameras[id].image.width;
+    *height = cameras[id].image.height;
     world->image_lock.unlock();
     return *width && *height;
 }

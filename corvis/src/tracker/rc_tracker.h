@@ -110,6 +110,7 @@ typedef enum rc_SensorType
     rc_SENSOR_TYPE_IMAGE = 3,
     rc_SENSOR_TYPE_STEREO = 4,
     rc_SENSOR_TYPE_THERMOMETER = 5,
+    rc_SENSOR_TYPE_DEBUG = 6,
 } rc_SensorType;
 
 typedef enum rc_DataPath

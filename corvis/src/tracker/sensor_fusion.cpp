@@ -204,6 +204,9 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
         case rc_SENSOR_TYPE_THERMOMETER: {
             update_data(&data);
         } break;
+
+        case rc_SENSOR_TYPE_DEBUG: {
+        } break;
     }
 }
 

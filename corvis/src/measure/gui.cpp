@@ -60,6 +60,7 @@ void gui::mouse(GLFWwindow * window, int button, int action, int mods)
         is_plot_selected  = in_plots(x,y);
         is_depth_selected = in_depth(x,y);
         is_video_selected = in_video(x,y);
+        is_debug_selected = in_debug(x,y);
     }
     else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         is_rotating = false;
@@ -134,6 +135,8 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_F:        write_frame();
              break; case GLFW_KEY_V:        if (!(mods & GLFW_MOD_SHIFT)) show_video = !show_video;
                                             else                          current_camera = 1+current_camera < state->cameras.size() ? 1+current_camera : 0;
+             break; case GLFW_KEY_C:        if (!(mods & GLFW_MOD_SHIFT)) show_debug = !show_debug;
+                                            else                          current_debug = 1+current_debug < state->debug_cameras.size() ? 1+current_debug : 0;
              break; case GLFW_KEY_D:        if (!(mods & GLFW_MOD_SHIFT)) show_depth = !show_depth;
                                             else                          current_depth  = 1+current_depth  < state->depths.size()  ? 1+current_depth  : 0;
              break; case GLFW_KEY_M:        show_main = !show_main;
@@ -155,8 +158,10 @@ s     Step
 r     Reset (i.e. Stop/Start)
 
 V     Next Video
+C     Next Color Debug
 D     Next Depth
 v     Toggle Video
+c     Toggle Color Debug
 d     Toggle Depth
 m     Toggle (Main) 3D path view
 p     Toggle Plots
@@ -235,23 +240,28 @@ void gui::start_glfw()
         // Calculate layout
         int main_width = width, main_height = height;
         int video_width = 0, video_height = 0;
+        int debug_width = 0, debug_height = 0;
         int depth_width = 0, depth_height = 0;
         int plots_width = 0, plots_height = 0;
         int video_frame_width = 0, video_frame_height = 0;
+        int debug_frame_width = 0, debug_frame_height = 0;
         int depth_frame_width = 0, depth_frame_height = 0;
 
-        bool show_video = this->show_video && world_state_render_video_get_size(state, current_camera, &video_frame_width, &video_frame_height);
+        bool show_video = this->show_video && world_state_render_video_get_size(state, current_camera, &video_frame_width, &video_frame_height, state->cameras);
+        bool show_debug = this->show_debug && world_state_render_video_get_size(state, current_debug, &debug_frame_width, &debug_frame_height, state->debug_cameras);
         bool show_depth = this->show_depth && world_state_render_depth_get_size(state, current_depth, &depth_frame_width, &depth_frame_height);
 
         float right_column_percent = show_main ? .5f : 1.f;
         float video_ratio = show_video ? 1.f : 0.f;
+        float debug_ratio = show_debug ? 1.f : 0.f;
         float plots_ratio = show_plots ? 1.f : 0.f;
         float depth_ratio = show_depth ? 1.f : 0.f;
 
-        float total = video_ratio + plots_ratio + depth_ratio + FLT_EPSILON;
+        float total = video_ratio + plots_ratio + debug_ratio + depth_ratio + FLT_EPSILON;
         float video_height_percent = video_ratio / total;
+        float debug_height_percent = debug_ratio / total;
         float depth_height_percent = depth_ratio / total;
-        float plots_height_percent = 1.f - video_height_percent - depth_height_percent;
+        float plots_height_percent = 1.f - video_height_percent - debug_height_percent - depth_height_percent;
 
         if(show_video) {
             video_width = lroundf(width*right_column_percent);
@@ -261,6 +271,16 @@ void gui::start_glfw()
             else
                 video_width = lroundf(video_height * 1.f*video_frame_width/video_frame_height);
         }
+
+        if(show_debug) {
+            debug_width = lroundf(width*right_column_percent);
+            debug_height = lroundf(height*debug_height_percent);
+            if(1.*debug_height/debug_width > 1.f*debug_frame_height/debug_frame_width)
+                debug_height = lroundf(debug_width *  1.f*debug_frame_height/debug_frame_width);
+            else
+                debug_width = lroundf(debug_height * 1.f*debug_frame_width/debug_frame_height);
+        }
+
         if(show_depth) {
             depth_width = lroundf(width*right_column_percent);
             depth_height = lroundf(height*depth_height_percent);
@@ -272,14 +292,14 @@ void gui::start_glfw()
 
         if(show_plots) {
             plots_width = lroundf(width*right_column_percent);
-            plots_height = height - video_height - depth_height;
+            plots_height = height - video_height - debug_height - depth_height;
             if(show_video)
                 plots_width = video_width;
             if(!show_video && show_main)
                 plots_height = lroundf(height*plots_height_percent);
         }
-        if(show_main && (show_video || show_plots || show_depth))
-            main_width = width - std::max(std::max(video_width, plots_width), depth_width);
+        if(show_main && (show_video || show_plots || show_depth || show_debug))
+            main_width = width - std::max({video_width, debug_width, plots_width, depth_width});
 
         //state->generate_depth_overlay = show_depth_on_video;
 
@@ -306,8 +326,8 @@ void gui::start_glfw()
 
             if(show_video) {
                 // y coordinate is 0 = bottom, height = top (opengl)
-                glViewport(width - video_width, 0, video_width, video_height);
-                world_state_render_video(state, current_camera, video_width, video_height);
+                glViewport(main_width, 0, video_width, video_height);
+                world_state_render_video(state, current_camera, video_width, video_height, state->cameras);
                 in_video = [&](double x, double y) { x *= screen_to_pixel_x;
                                                      y *= screen_to_pixel_y;
                                                      return width - video_width <        x &&        x < width
@@ -315,9 +335,20 @@ void gui::start_glfw()
             } else
                 in_video = [&](double x, double y) { return false; };
 
+            if(show_debug) {
+                // y coordinate is 0 = bottom, height = top (opengl)
+                glViewport(main_width, video_height, debug_width, debug_height);
+                world_state_render_video(state, current_debug, debug_width, debug_height, state->debug_cameras);
+                in_debug = [&](double x, double y) { x *= screen_to_pixel_x;
+                                                     y *= screen_to_pixel_y;
+                                                     return width - debug_width <        x &&        x < width
+                                                     &&     0                   < height-y && height-y < debug_height; };
+            } else
+                in_debug = [&](double x, double y) { return false; };
+
             if(show_depth) {
                 // y coordinate is 0 = bottom, height = top (opengl)
-                glViewport(width - depth_width, video_height, depth_width, depth_height);
+                glViewport(main_width, video_height + debug_height, depth_width, depth_height);
                 if (show_depth_on_video)
                     world_state_render_depth_on_video(state, current_depth, depth_width, depth_height);
                 else
@@ -331,7 +362,7 @@ void gui::start_glfw()
 
             if(show_plots) {
                 // y coordinate is 0 = bottom, height = top (opengl)
-                glViewport(width - plots_width, video_height + depth_height, plots_width, plots_height);
+                glViewport(main_width, video_height + debug_height + depth_height, plots_width, plots_height);
                 world_state_render_plot(state, current_plot, current_plot_key, plots_width, plots_height);
                 in_plots = [&](double x, double y) { x *= screen_to_pixel_x;
                                                      y *= screen_to_pixel_y;

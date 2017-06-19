@@ -194,6 +194,7 @@ TEST(SensorFusionQueue, FastCatchup)
                 ++tmprcv;
                 break;
             case rc_SENSOR_TYPE_STEREO:
+            case rc_SENSOR_TYPE_DEBUG:
                 break;
         }
     };
@@ -320,6 +321,7 @@ TEST(SensorFusionQueue, Threading)
                 ++tmprcv;
                 break;
             case rc_SENSOR_TYPE_STEREO:
+            case rc_SENSOR_TYPE_DEBUG:
                 break;
         }
     };
@@ -469,6 +471,7 @@ TEST(SensorFusionQueue, SameTime)
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
             case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
+            case rc_SENSOR_TYPE_DEBUG: break;
         }
     };
 
@@ -510,6 +513,7 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
             case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
+            case rc_SENSOR_TYPE_DEBUG: break;
         }
     };
     
@@ -570,6 +574,7 @@ TEST(SensorFusionQueue, BufferNoDispatch)
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
             case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
+            case rc_SENSOR_TYPE_DEBUG: break;
         }
     };
 
@@ -616,6 +621,7 @@ TEST(SensorFusionQueue, Buffering)
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
             case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
+            case rc_SENSOR_TYPE_DEBUG: break;
         }
     };
 

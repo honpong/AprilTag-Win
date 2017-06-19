@@ -115,6 +115,7 @@ public:
     std::vector<VertexData> sensor_vertex;
     std::vector<VertexData> sensor_axis_vertex;
     std::vector<overlay_data> cameras;
+    std::vector<overlay_data> debug_cameras;
     std::vector<ImageData> depths;
     float up[3] = {0,0,1};
     float ate = 0;
@@ -137,7 +138,7 @@ public:
     void observe_position(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz, bool fast);
     void observe_position_gt(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_plot_item(uint64_t timestamp_us, size_t plot_index, std::string plot_name, float value);
-    void observe_image(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data);
+    void observe_image(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data, std::vector<overlay_data> &cameras);
     void observe_depth(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data);
     void observe_depth_overlay_image(uint64_t timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
     void observe_map_node(uint64_t timestamp_us, uint64_t id, bool finished, const std::set<uint64_t>& loop_closed, bool is_unlinked, const transformation& T, std::vector<uint64_t>& neighbors, std::vector<Feature>& features);

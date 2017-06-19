@@ -12,8 +12,8 @@ void world_state_render_teardown();
 // Render the current world state, passing the modelview projection matrix and the projection matrix to the shaders
 void world_state_render(world_state * world, float * _modelViewMatrix, float * _projectionMatrix);
 bool world_state_render_video_init();
-void world_state_render_video(world_state * world, rc_Sensor id, int viewport_width, int viewport_height);
-bool world_state_render_video_get_size(world_state * world, rc_Sensor id, int *video_width, int *video_height);
+void world_state_render_video(world_state * world, rc_Sensor id, int viewport_width, int viewport_height, std::vector<world_state::overlay_data> &cameras);
+bool world_state_render_video_get_size(world_state * world, rc_Sensor id, int *video_width, int *video_height, std::vector<world_state::overlay_data> &cameras);
 void world_state_render_video_teardown();
 bool world_state_render_depth_init();
 void world_state_render_depth(world_state * world, rc_Sensor id, int viewport_width, int viewport_height);

@@ -53,6 +53,7 @@ private:
     float plot_scale = 1;
 
     std::atomic<rc_Sensor> current_camera{0};
+    std::atomic<rc_Sensor> current_debug{0};
     std::atomic<rc_Sensor> current_depth{0};
     std::atomic<size_t> current_plot{0};
     std::atomic<size_t> current_plot_key{(size_t)-1};
@@ -69,9 +70,9 @@ private:
 
     // Display related
     GLFWwindow * main_window;
-    bool show_main, show_video, show_depth, show_plots, show_depth_on_video;
-    std::function<bool(double x, double y)> in_main, in_plots, in_video, in_depth;
-    bool is_main_selected = true, is_depth_selected = false, is_plot_selected = false, is_video_selected = false;
+    bool show_main = true, show_video = true, show_debug = true, show_depth = true, show_plots = true, show_depth_on_video = false;
+    std::function<bool(double x, double y)> in_main, in_plots, in_video, in_debug, in_depth;
+    bool is_main_selected = true, is_depth_selected = false, is_plot_selected = false, is_video_selected = false, is_debug_selected = false;
 
     replay * replay_control;
 

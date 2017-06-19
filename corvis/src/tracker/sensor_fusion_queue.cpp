@@ -99,6 +99,7 @@ std::string id_string(uint64_t global_id)
         case rc_SENSOR_TYPE_ACCELEROMETER: type_string = "Accel"; break;
         case rc_SENSOR_TYPE_GYROSCOPE: type_string = "Gyro"; break;
         case rc_SENSOR_TYPE_THERMOMETER: type_string = "Temp"; break;
+        case rc_SENSOR_TYPE_DEBUG: type_string = "Debug"; break;
     }
     return type_string + std::to_string(id);
 }

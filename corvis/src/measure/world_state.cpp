@@ -125,7 +125,8 @@ static void update_image_size(const rc_ImageData & src, ImageData & dst)
     dst.luminance = src_luminance;
 }
 
-void world_state::observe_image(uint64_t timestamp, rc_Sensor camera_id, const rc_ImageData & data)
+void world_state::observe_image(uint64_t timestamp, rc_Sensor camera_id, const rc_ImageData &data,
+                                std::vector<overlay_data> &cameras)
 {
     image_lock.lock();
     if(cameras.size() < camera_id+1)
@@ -525,6 +526,9 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
     if(data->path == rc_DATA_PATH_FAST) return;
 
     switch(data->type) {
+        case rc_SENSOR_TYPE_DEBUG:
+            observe_image(timestamp_us, data->id, data->image, debug_cameras);
+            break;
         case rc_SENSOR_TYPE_IMAGE:
 
             {
@@ -551,7 +555,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
                 observe_feature(timestamp_us, data->id, rcf);
             }
 
-            observe_image(timestamp_us, data->id, data->image);
+            observe_image(timestamp_us, data->id, data->image, cameras);
 
             // Map update is slow and loop closure checks only happen
             // on images, so only update on image updates

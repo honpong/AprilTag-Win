@@ -80,6 +80,9 @@ public:
     }
 
     void copy_from(const state_motion_orientation &other) {
+        for (int i=imus.children.size(); i<other.imus.children.size(); i++)
+            imus.children.emplace_back(std::make_unique<state_imu>());
+
         for (auto i = std::make_pair(imus.children.begin(),other.imus.children.begin()); i.first != imus.children.end() && i.second != other.imus.children.end(); ++i.first, ++i.second)
             (**i.first).copy_from(**i.second);
 

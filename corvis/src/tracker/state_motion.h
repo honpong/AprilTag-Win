@@ -63,7 +63,6 @@ public:
     state_vector<3>   w { "w",  dynamic };
     state_vector<3>  dw { "dw", dynamic };
     state_vector<3> ddw {"ddw", fake };
-    state_scalar      g { "g",  constant };
 
     state_branch<state_node *> non_orientation;
     state_branch<std::unique_ptr<state_imu>, std::vector<std::unique_ptr<state_imu>>> imus;
@@ -75,8 +74,6 @@ public:
         children.push_back(&Q);
         non_orientation.children.push_back(&imus);
         children.push_back(&non_orientation);
-        //children.push_back(&g);
-        g.v = gravity_magnitude;
     }
 
     void copy_from(const state_motion_orientation &other) {
@@ -91,8 +88,6 @@ public:
         dw = other.dw;
         ddw = other.ddw;
 
-        g = other.g;
-
         orientation_initialized = other.orientation_initialized;
 
         state_root::copy_from(other);
@@ -102,10 +97,7 @@ public:
     {
         orientation_initialized = false;
         state_root::reset();
-        g.v = gravity_magnitude;
     }
-
-    void compute_gravity(double latitude, double altitude);
 
     bool orientation_initialized = false;
 
@@ -115,8 +107,6 @@ protected:
     m3 Rt;
     v3 dW;
     m3 JdW_s, dQp_s_dW;
-private:
-    f_t gravity_magnitude = (f_t)9.80665;
 };
 
 class state_motion: public state_motion_orientation {

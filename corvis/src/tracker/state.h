@@ -454,7 +454,12 @@ public:
 
 class state_root: public state_branch<state_node *> {
 public:
-    state_root(covariance &c): cov(c), current_time(sensor_clock::micros_to_tp(0)) {}
+    state_scalar      g { "g",  constant };
+
+    state_root(covariance &c): cov(c), current_time(sensor_clock::micros_to_tp(0)) {
+        //children.push_back(&g);
+        g.v = gravity_magnitude;
+    }
 
     int statesize, maxstatesize, dynamic_statesize, fake_statesize;
     covariance &cov;
@@ -491,6 +496,8 @@ public:
         world_up_initial_forward_left = other.world_up_initial_forward_left;
         body_forward = other.body_forward;
 
+        g = other.g;
+
         remap_from(other.cov); // copy covariance
     }
 
@@ -509,6 +516,8 @@ public:
         cov.reset();
         state_branch<state_node *>::reset();
         current_time = sensor_clock::micros_to_tp(0);
+
+        g.v = gravity_magnitude;
     }
 
     void evolve(f_t dt)
@@ -565,6 +574,13 @@ public:
         current_time = time;
     }
 
+    void compute_gravity(double latitude, double altitude) {
+        //http://en.wikipedia.org/wiki/Gravity_of_Earth#Free_air_correction
+        double sin_lat = sin(latitude/180. * M_PI);
+        double sin_2lat = sin(2*latitude/180. * M_PI);
+        g.v = gravity_magnitude = (f_t)(9.780327 * (1 + 0.0053024 * sin_lat*sin_lat - 0.0000058 * sin_2lat*sin_2lat) - 3.086e-6 * altitude);
+    }
+
     inline const sensor_clock::time_point & get_current_time() const { return current_time; }
 
 protected:
@@ -573,6 +589,8 @@ protected:
     virtual void cache_jacobians(f_t dt) = 0;
 
     sensor_clock::time_point current_time;
+private:
+    f_t gravity_magnitude = (f_t)9.80665;
 };
 
 #endif

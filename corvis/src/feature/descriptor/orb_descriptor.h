@@ -42,9 +42,9 @@
 class orb_descriptor
 {
 public:
-    static const int L = 32; // descriptor length
-    static const int orb_half_patch_size = 15;
-    static const int border_size = 19;
+    static constexpr int L = 32; // descriptor length
+    static constexpr int orb_half_patch_size = 15;
+    static constexpr int border_size = 19;
     static constexpr float min_score = 200.f;
     static constexpr float good_score = 50.f;
 
@@ -62,8 +62,7 @@ private:
     static int bit_pattern_31_[256 * 4];
     static const std::array<int, orb_half_patch_size + 1>& vUmax;
 
-    template<int orb_half_patch_size_>
-    static const std::array<int, orb_half_patch_size_ + 1> initialize_umax();
+    static const std::array<int, orb_half_patch_size + 1> initialize_umax();
     static float ic_angle(float x, float y, const tracker::image& image);
     static float atan2(float y, float x);
 };

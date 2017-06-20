@@ -481,7 +481,7 @@ inline rc_Quaternion rc_quaternionMultiply(rc_Quaternion a, rc_Quaternion b)
 
 inline rc_Pose rc_predictPose(rc_Timestamp dt_us, const rc_Pose p, const rc_PoseVelocity v, const rc_PoseAcceleration a)
 {
-    float dt = dt_us * 1e-6;
+    float dt = dt_us * 1e-6f;
     rc_Pose P = {};
     P.T.x = dt * (dt/2 * a.T.x + v.T.x) + p.T.x;
     P.T.y = dt * (dt/2 * a.T.y + v.T.y) + p.T.y;

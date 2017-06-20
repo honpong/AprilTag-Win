@@ -55,7 +55,7 @@ struct pattern_point {
 orb_descriptor::orb_descriptor(float x, float y, const tracker::image &image)
 {
     angle = ic_angle(x, y, image)*factorPI;
-    float a = (float)cos(angle), b = (float)sin(angle);
+    float a = cos(angle), b = sin(angle);
     const pattern_point* pattern = (const pattern_point*)bit_pattern_31_;
 
     const int step = image.stride_px;
@@ -135,11 +135,11 @@ const std::array<int, orb_descriptor::orb_half_patch_size + 1> orb_descriptor::i
 {
     std::array<int, orb_half_patch_size + 1> umax;
 
-    int vmax = std::floorf(orb_half_patch_size * sqrt(2.f) / 2 + 1);
-    int vmin = std::ceilf(orb_half_patch_size * sqrt(2.f) / 2);
+    int vmax = static_cast<int>(std::floor(orb_half_patch_size * sqrtf(2) / 2 + 1));
+    int vmin = static_cast<int>(std::ceil(orb_half_patch_size * sqrtf(2) / 2));
     for (int v = 0; v <= vmax; ++v)
     {
-        umax[v] = static_cast<int>(lrintf(sqrt((double)orb_half_patch_size * orb_half_patch_size - v * v)));
+        umax[v] = static_cast<int>(lrintf(sqrtf((float)orb_half_patch_size * orb_half_patch_size - v * v)));
     }
 
     // Make sure we are symmetric

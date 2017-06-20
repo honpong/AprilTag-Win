@@ -187,7 +187,7 @@ float orb_descriptor::distance(const orb_descriptor &a,
 }
 
 template<int orb_half_patch_size_>
-constexpr std::array<int, orb_half_patch_size_ + 2> orb_descriptor::initialize_umax()
+const std::array<int, orb_half_patch_size_ + 2> orb_descriptor::initialize_umax()
 {
     std::array<int, orb_half_patch_size_ + 2> umax;
 

@@ -188,38 +188,8 @@ float orb_descriptor::ic_angle(float x, float y, const tracker::image& image)
         m_01 += v * v_sum;
     }
 
-    return atan2((float)m_01, (float)m_10);
+    return std::atan2((float)m_01, (float)m_10);
 }
-
-// atan2 taken from opencv
-static const float atan2_p1 = 0.9997878412794807f*(float)(180/M_PI);
-static const float atan2_p3 = -0.3258083974640975f*(float)(180/M_PI);
-static const float atan2_p5 = 0.1555786518463281f*(float)(180/M_PI);
-static const float atan2_p7 = -0.04432655554792128f*(float)(180/M_PI);
-
-float orb_descriptor::atan2(float y, float x)
-{
-    float ax = std::abs(x), ay = std::abs(y);
-    float a, c, c2;
-    if( ax >= ay )
-    {
-        c = ay/(ax + std::numeric_limits<float>::epsilon());
-        c2 = c*c;
-        a = (((atan2_p7*c2 + atan2_p5)*c2 + atan2_p3)*c2 + atan2_p1)*c;
-    }
-    else
-    {
-        c = ax/(ay + std::numeric_limits<float>::epsilon());
-        c2 = c*c;
-        a = 90.f - (((atan2_p7*c2 + atan2_p5)*c2 + atan2_p3)*c2 + atan2_p1)*c;
-    }
-    if( x < 0 )
-        a = 180.f - a;
-    if( y < 0 )
-        a = 360.f - a;
-    return a;
-}
-
 
 int orb_descriptor::bit_pattern_31_[256 * 4] =
 {

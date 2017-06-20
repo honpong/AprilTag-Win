@@ -64,5 +64,4 @@ private:
 
     static const std::array<int, orb_half_patch_size + 1> initialize_umax();
     static float ic_angle(float x, float y, const tracker::image& image);
-    static float atan2(float y, float x);
 };

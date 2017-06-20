@@ -187,9 +187,9 @@ float orb_descriptor::distance(const orb_descriptor &a,
 }
 
 template<int orb_half_patch_size_>
-const std::array<int, orb_half_patch_size_ + 2> orb_descriptor::initialize_umax()
+const std::array<int, orb_half_patch_size_ + 1> orb_descriptor::initialize_umax()
 {
-    std::array<int, orb_half_patch_size_ + 2> umax;
+    std::array<int, orb_half_patch_size_ + 1> umax;
 
     int vmax = std::floorf(orb_half_patch_size_ * sqrt(2.f) / 2 + 1);
     int vmin = std::ceilf(orb_half_patch_size_ * sqrt(2.f) / 2);
@@ -211,7 +211,7 @@ const std::array<int, orb_half_patch_size_ + 2> orb_descriptor::initialize_umax(
 
     return umax;
 }
-const std::array<int, orb_descriptor::orb_half_patch_size + 2>& orb_descriptor::vUmax = orb_descriptor::initialize_umax<orb_descriptor::orb_half_patch_size>();
+const std::array<int, orb_descriptor::orb_half_patch_size + 1>& orb_descriptor::vUmax = orb_descriptor::initialize_umax<orb_descriptor::orb_half_patch_size>();
 
 float orb_descriptor::ic_angle(float x, float y, const tracker::image& image)
 {

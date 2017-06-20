@@ -60,10 +60,10 @@ public:
 
 private:
     static int bit_pattern_31_[256 * 4];
-    static const std::array<int, orb_half_patch_size + 2>& vUmax;
+    static const std::array<int, orb_half_patch_size + 1>& vUmax;
 
     template<int orb_half_patch_size_>
-    static const std::array<int, orb_half_patch_size_ + 2> initialize_umax();
+    static const std::array<int, orb_half_patch_size_ + 1> initialize_umax();
     static float ic_angle(float x, float y, const tracker::image& image);
     static float atan2(float y, float x);
 };

@@ -576,10 +576,15 @@ bool rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
     return true;
 }
 
+rc_Pose rc_getRelocOffset(rc_Tracker* tracker) {
+    return to_rc_Pose(tracker->sfm.reloc_pose * invert(tracker->sfm.pose_at_reloc));
+}
+
 rc_PoseTime rc_getPose(rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path)
 {
     if(trace) trace_log->info(path == rc_DATA_PATH_FAST ? "rc_getFastPose" : "rc_getPose");
     const state_motion &s = path == rc_DATA_PATH_FAST ? tracker->sfm.mini->state : tracker->sfm.s;
+
     transformation total = tracker->sfm.origin * s.loop_offset;
     if (v) map(v->W.v) = total.Q * s.Q.v * s.w.v; // we use body rotational velocity, but we export spatial
     if (a) map(a->W.v) = total.Q * s.Q.v * s.dw.v;

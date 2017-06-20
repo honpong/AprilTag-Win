@@ -41,8 +41,6 @@
 #include "tracker.h"
 #include <iostream>
 #include <stdint.h>
-#include <emmintrin.h>
-#include <tmmintrin.h>
 #include <limits>
 #include <cmath>
 
@@ -64,11 +62,13 @@ orb_descriptor::orb_descriptor(float x, float y, const tracker::image &image)
     const uint8_t* center = image.image + static_cast<int>(lrintf(y))*step
                                         + static_cast<int>(lrintf(x));
 
+    uint8_t *d = reinterpret_cast<uint8_t*>(descriptor.data());
+
 #define GET_VALUE(idx) \
     center[static_cast<int>(lrintf(pattern[idx].x*b + pattern[idx].y*a))*step + \
            static_cast<int>(lrintf(pattern[idx].x*a - pattern[idx].y*b))]
 
-    for (int i = 0; i < 32; ++i, pattern += 16)
+    for (int i = 0; i < sizeof(descriptor); ++i, pattern += 16)
     {
         int t0, t1, val;
         t0 = GET_VALUE(0);
@@ -95,33 +95,10 @@ orb_descriptor::orb_descriptor(float x, float y, const tracker::image &image)
         t0 = GET_VALUE(14);
         t1 = GET_VALUE(15);
         val |= (t0 < t1) << 7;
-        descriptor[i] = (unsigned char)val;
+        d[i] = (unsigned char)val;
     }
 
 #undef GET_VALUE
-}
-
-static const __m128i popcount_mask = _mm_set1_epi8(0x0F);
-static const __m128i popcount_table = _mm_setr_epi8(0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4);
-static inline __m128i popcnt8(__m128i n)
-{
-    const __m128i pcnt0 = _mm_shuffle_epi8(popcount_table, _mm_and_si128(n, popcount_mask));
-    const __m128i pcnt1 = _mm_shuffle_epi8(popcount_table, _mm_and_si128(_mm_srli_epi16(n, 4), popcount_mask));
-    return _mm_add_epi8(pcnt0, pcnt1);
-}
-
-static inline __m128i popcnt64(__m128i n)
-{
-    const __m128i cnt8 = popcnt8(n);
-    return _mm_sad_epu8(cnt8, _mm_setzero_si128());
-}
-
-static inline int popcnt128(__m128i n)
-{
-    const __m128i cnt64 = popcnt64(n);
-    const __m128i cnt64_hi = _mm_unpackhi_epi64(cnt64, cnt64);
-    const __m128i cnt128 = _mm_add_epi32(cnt64, cnt64_hi);
-    return _mm_cvtsi128_si32(cnt128);
 }
 
 /* Return hamming distance between [a..a+255], [b..b+255].
@@ -132,60 +109,27 @@ static inline int popcnt128(__m128i n)
  * return distance
  */
 
-float computedistance(const orb_descriptor& a,
-                      const orb_descriptor& b)
-{
-    const int32_t* p1 = reinterpret_cast<const int32_t*>(a.descriptor.data());
-    const int32_t* p2 = reinterpret_cast<const int32_t*>(b.descriptor.data());
-    int dist = 0;
-
-    for (int i = 0; i < 8; ++i, ++p1, ++p2) {
-        auto v = (*p1) ^ (*p2);
-
-#if defined(WIN32)||defined(WIN64)
-        auto c = __popcnt(v);
-#else
-        // taken from http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
-        v = v - ((v >> 1) & 0x55555555);                    // reuse input as temporary
-        v = (v & 0x33333333) + ((v >> 2) & 0x33333333);     // temp
-        auto c = ((v + (v >> 4) & 0xF0F0F0F) * 0x1010101) >> 24; // count
-#endif
-        dist += c;
-    }
-
-    return dist;
-}
-
-float computedistanceSSE(const orb_descriptor &a,
-                         const orb_descriptor &b)
-{
-    unsigned int distance = 0;
-
-    const __m128i* aVec = reinterpret_cast<const __m128i*>(a.descriptor.data());
-    const __m128i* bVec = reinterpret_cast<const __m128i*>(b.descriptor.data());
-
-    for (int i = 0; i < 2; i++)
-    {
-        __m128i aValue = _mm_loadu_si128(aVec + i);
-        __m128i bValue = _mm_loadu_si128(bVec + i);
-        __m128i xorResult = _mm_xor_si128(aValue, bValue);
-        distance += popcnt128(xorResult);
-    }
-
-    return static_cast<float>(distance);
-}
-
 float orb_descriptor::distance(const orb_descriptor &a,
                                const orb_descriptor &b)
 {
-#if 1
-    return computedistanceSSE(a, b);
+    uint64_t dist = 0;
+    for (auto p1 = a.descriptor.begin(), p2 = b.descriptor.begin(); p1 != a.descriptor.end() && p2 != b.descriptor.end(); p1++, p2++) {
+        auto v = (*p1) ^ (*p2);
+#if __has_builtin(__builtin_popcountl)
+        dist += __builtin_popcountl(v);
+#elif defined(_WIN64)
+        dist += __popcnt64(v);
 #else
-    // in case no SSE support
-    return computedistance(a, b);
+        // taken from http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
+        typedef uint64_t T;
+        v = v - ((v >> 1) & (T)~(T)0/3);
+        v = (v & (T)~(T)0/15*3) + ((v >> 2) & (T)~(T)0/15*3);
+        v = (v + (v >> 4)) & (T)~(T)0/255*15;
+        dist += (T)(v * ((T)~(T)0/255)) >> (sizeof(T) - 1) * CHAR_BIT;
 #endif
+    }
+    return static_cast<float>(dist);
 }
-
 
 const std::array<int, orb_descriptor::orb_half_patch_size + 1> orb_descriptor::initialize_umax()
 {

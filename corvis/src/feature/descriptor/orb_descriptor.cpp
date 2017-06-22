@@ -47,15 +47,15 @@
  //
  // functions taken from OpenCV
  //
-const float factorPI = (float)(M_PI / 180.f);
 struct pattern_point {
     int x, y;
 };
 
 orb_descriptor::orb_descriptor(float x, float y, const tracker::image &image)
 {
-    angle = ic_angle(x, y, image)*factorPI;
-    float a = cos(angle), b = sin(angle);
+    float theta = ic_angle(x, y, image);
+    angle = theta * (float)(180/M_PI);
+    float a = cos(theta), b = sin(theta);
     const pattern_point* pattern = (const pattern_point*)bit_pattern_31_;
 
     const int step = image.stride_px;

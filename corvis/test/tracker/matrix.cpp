@@ -39,7 +39,9 @@ TEST(Matrix, SimplePadded)
 
     for(int i = 0; i < 8; i++)
         for(int j = 0; j < 4; j++)
-            EXPECT_NEAR(B(i,j), R(i,j), 1e-6);
+            if (std::fabs( B(i,j) - R(i,j) )          > 25*F_T_EPS &&
+                std::fabs((B(i,j) - R(i,j)) / R(i,j)) > 25*F_T_EPS)
+                EXPECT_NEAR(B(i,j), R(i,j),             25*F_T_EPS);
 }
 
 static f_t chol[] = {  4,  12, -16, 0,

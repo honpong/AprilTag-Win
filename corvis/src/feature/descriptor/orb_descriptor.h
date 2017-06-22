@@ -48,7 +48,7 @@ public:
     static constexpr float min_score = 200.f;
     static constexpr float good_score = 50.f;
 
-    float angle;
+    float sin_, cos_;
     std::array<uint64_t, L/8> descriptor;
 
     orb_descriptor(float x, float y, const tracker::image& image);
@@ -63,5 +63,5 @@ private:
     static const std::array<int, orb_half_patch_size + 1>& vUmax;
 
     static const std::array<int, orb_half_patch_size + 1> initialize_umax();
-    static float ic_angle(float x, float y, const tracker::image& image);
+    void ic_angle(float x, float y, const tracker::image& image);
 };

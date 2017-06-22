@@ -53,9 +53,7 @@ struct pattern_point {
 
 orb_descriptor::orb_descriptor(float x, float y, const tracker::image &image)
 {
-    float theta = ic_angle(x, y, image);
-    angle = theta * (float)(180/M_PI);
-    float a = cos(theta), b = sin(theta);
+    ic_angle(x, y, image);
     const pattern_point* pattern = (const pattern_point*)bit_pattern_31_;
 
     const int step = image.stride_px;
@@ -65,8 +63,8 @@ orb_descriptor::orb_descriptor(float x, float y, const tracker::image &image)
     uint8_t *d = reinterpret_cast<uint8_t*>(descriptor.data());
 
 #define GET_VALUE(idx) \
-    center[static_cast<int>(lrintf(pattern[idx].x*b + pattern[idx].y*a))*step + \
-           static_cast<int>(lrintf(pattern[idx].x*a - pattern[idx].y*b))]
+    center[static_cast<int>(lrintf(pattern[idx].x*sin_ + pattern[idx].y*cos_))*step + \
+           static_cast<int>(lrintf(pattern[idx].x*cos_ - pattern[idx].y*sin_))]
 
     for (int i = 0; i < sizeof(descriptor); ++i, pattern += 16)
     {
@@ -157,7 +155,7 @@ const std::array<int, orb_descriptor::orb_half_patch_size + 1> orb_descriptor::i
 }
 const std::array<int, orb_descriptor::orb_half_patch_size + 1>& orb_descriptor::vUmax = orb_descriptor::initialize_umax();
 
-float orb_descriptor::ic_angle(float x, float y, const tracker::image& image)
+void orb_descriptor::ic_angle(float x, float y, const tracker::image& image)
 {
     int m_01 = 0, m_10 = 0;
 
@@ -188,7 +186,9 @@ float orb_descriptor::ic_angle(float x, float y, const tracker::image& image)
         m_01 += v * v_sum;
     }
 
-    return std::atan2((float)m_01, (float)m_10);
+    float d = std::hypot<float>(m_01,m_10);
+    cos_ = d ? m_10*(1/d) : 1;
+    sin_ = d ? m_01*(1/d) : 0;
 }
 
 int orb_descriptor::bit_pattern_31_[256 * 4] =

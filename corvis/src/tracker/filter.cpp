@@ -533,6 +533,25 @@ void filter_detect(struct filter *f, const sensor_data &data)
     camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 }
 
+bool filter_relocalize(struct filter *f, const rc_Sensor sensor_id)
+{
+    if (!f->map || sensor_id >= f->s.cameras.children.size() || sensor_id != 0)
+        return false;
+    state_camera &camera = *f->s.cameras.children[sensor_id];
+
+    transformation G_WB(f->s.Q.v, f->s.T.v);
+    transformation G_BC = transformation(camera.extrinsics.Q.v, camera.extrinsics.T.v);
+    std::vector<transformation> vG_WC;
+    if (!f->map->relocalize(vG_WC, G_BC))
+        return false;
+    f->pose_at_reloc = G_WB; // we are not relocalizing wrt current image but wrt current_frame in mapper (CAREFUL with threads).
+    for(auto && G_WC : vG_WC) {
+        f->reloc_pose = G_WC * invert(G_BC);
+        f->reloc_poses.push_back(f->reloc_pose);
+    }
+    return true;
+}
+
 bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 {
     if(data.id != 0) return true;
@@ -950,6 +969,12 @@ void filter_initialize(struct filter *f)
             camera_state.feature_tracker = std::make_unique<ipp_tracker>();
 #endif
 #endif // MYRIAD2
+
+        // send intrinsics to map for relocalization
+        if (f->map) {
+            f->map->camera_intrinsics.push_back(&camera_state.intrinsics);
+            f->map->sensor_intrinsics.push_back(&camera_sensor.intrinsics);
+        }
     }
 
     for (size_t i=f->s.imus.children.size(); i<f->gyroscopes.size(); i++)

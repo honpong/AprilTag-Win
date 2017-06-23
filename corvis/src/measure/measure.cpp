@@ -25,7 +25,7 @@ int main(int c, char **v)
 {
     using std::cerr;
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--realtime] [--async] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-fast-path] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] [--progress] [--incremental-ate] <filename>\n";
+        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--realtime] [--async] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-fast-path] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] [--progress] [--incremental-ate] [--display-reloc] <filename>\n";
         cerr << "       " << v[0] << " [--qvga] [--drop-depth] --benchmark <directory>\n";
         return 1;
     }
@@ -37,6 +37,7 @@ int main(int c, char **v)
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     bool enable_map = false;
     bool incremental_ate = false;
+    bool display_reloc = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
     char *pause_at = nullptr;
     for (int i=1; i<c; i++)
@@ -67,6 +68,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
         else if (strcmp(v[i], "--progress") == 0) progress = true;
         else if (strcmp(v[i], "--incremental-ate") == 0) incremental_ate = true;
+        else if (strcmp(v[i], "--display-reloc") == 0) display_reloc = true;
         else goto usage;
 
     if (!filename)
@@ -225,6 +227,8 @@ int main(int c, char **v)
     rp.start(load_map);
 #else
     world_state ws;
+    if (display_reloc)
+        ws.enable_display_reloc();
     rp.set_data_callback([&ws,&rp,first=true,&res,&data_callback](rc_Tracker * tracker, const rc_Data * data) mutable {
         data_callback(ws, rp, first, res, tracker, data);
     });

@@ -591,34 +591,43 @@ void state_vision::cache_jacobians(f_t dt)
 
 }
 
-void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
+template<int N>
+int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const
 {
     //Previously we called state_motion::project_covariance here, but this is inlined into the above for faster performance
-    for(int i = 0; i < dst.cols(); ++i) {
+    for(; i < (N > 1 ? std::min(src.cols(),dst.cols())/N*N : dst.cols()); i+=N) {
         // This should match state_motion_orientation::project_covariance
-        const auto cov_w = w.from_row(src, i);
-        const auto cov_dw = dw.from_row(src, i);
-        const auto cov_ddw = ddw.from_row(src, i);
-        const v3 cov_dW = dt * (cov_w + dt/2 * (cov_dw + dt/3 * cov_ddw));
-        const auto scov_Q = Q.from_row(src, i);
-        dw.to_col(dst, i) = cov_dw + dt * cov_ddw;
-        w.to_col(dst, i) = cov_w + dt * (cov_dw + dt/2 * cov_ddw);
-        Q.to_col(dst, i) = scov_Q + dQp_s_dW * cov_dW;
+        const auto cov_w = w.from_row<N>(src, i);
+        const auto cov_dw = dw.from_row<N>(src, i);
+        const auto cov_ddw = ddw.from_row<N>(src, i);
+        const m<3,N> cov_dW = dt * (cov_w + dt/2 * (cov_dw + dt/3 * cov_ddw));
+        const auto scov_Q = Q.from_row<N>(src, i);
+        dw.to_col<N>(dst, i) = cov_dw + dt * cov_ddw;
+        w.to_col<N>(dst, i) = cov_w + dt * (cov_dw + dt/2 * cov_ddw);
+        Q.to_col<N>(dst, i) = scov_Q + dQp_s_dW * cov_dW;
         // This should match state_motion::project_covariance
-        const auto cov_V = V.from_row(src, i);
-        const auto cov_a = a.from_row(src, i);
-        const auto cov_T = T.from_row(src, i);
-        const auto cov_da = da.from_row(src, i);
-        const v3 cov_dT = dt * (cov_V + dt/2 * (cov_a + dt/3 * cov_da));
-        a.to_col(dst, i) = cov_a + dt * cov_da;
-        V.to_col(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
-        T.to_col(dst, i) = cov_T + cov_dT;
+        const auto cov_V = V.from_row<N>(src, i);
+        const auto cov_a = a.from_row<N>(src, i);
+        const auto cov_T = T.from_row<N>(src, i);
+        const auto cov_da = da.from_row<N>(src, i);
+        const m<3,N> cov_dT = dt * (cov_V + dt/2 * (cov_a + dt/3 * cov_da));
+        a.to_col<N>(dst, i) = cov_a + dt * cov_da;
+        V.to_col<N>(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
+        T.to_col<N>(dst, i) = cov_T + cov_dT;
         for (auto &c : cameras.children)
             for(auto &g : c->groups.children) {
-                const auto cov_Tr = g->Tr.from_row(src, i);
-                const auto scov_Qr = g->Qr.from_row(src, i);
-                g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
-                g->Tr.to_col(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
+                const auto cov_Tr = g->Tr.from_row<N>(src, i);
+                const auto scov_Qr = g->Qr.from_row<N>(src, i);
+                g->Qr.to_col<N>(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
+                g->Tr.to_col<N>(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
             }
     }
+    return i;
+}
+
+void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
+{
+    int i = 0;
+    i = project_motion_covariance<8>(dst, src, dt, i);
+    i = project_motion_covariance<1>(dst, src, dt, i);
 }

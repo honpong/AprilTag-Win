@@ -25,6 +25,7 @@ SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/feature_tracker.cpp
 SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/scaled_mask.cpp
 SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/fast_tracker.cpp
 SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/descriptor/patch_descriptor.cpp
+SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/descriptor/orb_descriptor.cpp
 SLAM_SOURCES += $(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.cpp)
 
 SLAM_SOURCES += $(addprefix $(SLAM_PREFIX)/ThirdParty/DBoW2/src/, \

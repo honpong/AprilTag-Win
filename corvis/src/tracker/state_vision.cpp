@@ -326,19 +326,11 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map, spdlog::lo
                                            static_cast<float>(f->track.x), static_cast<float>(f->track.y), radius,
                                            f->descriptor)) {
                         f->descriptor_valid = true;
-                        map->add_feature(g->id, f->track.feature->id, f->node_body, variance_meters, f->descriptor);
+//                        map->add_feature(g->id, f->track.feature->id, f->node_body, variance_meters, f->descriptor);
                     }
                 }
             }
         }
-    }
-
-    transformation offset;
-    int max = 20;
-    int suppression = 10;
-    if (map->find_closure(max, suppression, offset)) {
-        loop_offset = offset*loop_offset;
-        log.info("loop closed, offset: {}", std::cref(loop_offset));
     }
 }
 

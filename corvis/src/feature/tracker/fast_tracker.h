@@ -16,6 +16,7 @@ public:
                 y < height-1-border_size);
     }
 
+public:
     template<typename Descriptor>
     struct fast_feature: public tracker::feature
     {

@@ -71,6 +71,7 @@ private:
     std::map<int, std::map<uint16_t, Sensor, std::less<uint16_t>, Eigen::aligned_allocator<std::pair<const uint16_t, Sensor> > > > sensors;
     std::map<uint64_t, MapNode> map_nodes;
     std::map<uint64_t, Feature> features;
+    std::vector<Position, Eigen::aligned_allocator<Position> > path_reloc;
     std::vector<Position, Eigen::aligned_allocator<Position> > path;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_mini;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_gt;
@@ -84,6 +85,7 @@ private:
     void update_plots(rc_Tracker * tracker, const rc_Data * data);
     void update_sensors(rc_Tracker * tracker, const rc_Data * data);
     void update_map(rc_Tracker * tracker, const rc_Data * data);
+    void update_relocalization(rc_Tracker * tracker, const rc_Data * data);
 
     size_t get_plot_by_name(std::string plot_name);
 
@@ -107,6 +109,7 @@ public:
     std::vector<VertexData> map_node_vertex;
     std::vector<VertexData> map_edge_vertex;
     std::vector<VertexData> map_feature_vertex;
+    std::vector<VertexData> reloc_vertex;
     std::vector<VertexData> sensor_vertex;
     std::vector<VertexData> sensor_axis_vertex;
     std::vector<overlay_data> cameras;
@@ -137,6 +140,7 @@ public:
     void observe_depth_overlay_image(uint64_t timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
     void observe_map_node(uint64_t timestamp_us, uint64_t id, bool finished, bool loop_closed, bool is_unlinked, const transformation &T, std::vector<uint64_t> & neighbors, std::vector<Feature> & features);
     void observe_ate(uint64_t timestamp_us, const float absolute_trajectory_error);
+    void observe_position_reloc(uint64_t timestamp, const std::vector<transformation>& transformation_vector);
     std::string get_feature_stats();
     float get_feature_lifetime();
     int get_feature_depth_measurements();

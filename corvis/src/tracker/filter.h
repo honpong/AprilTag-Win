@@ -48,6 +48,7 @@ struct filter {
     bool stereo_enabled;
 
     std::unique_ptr<mapper> map;
+    std::vector<transformation> reloc_poses;
 
 #ifdef ENABLE_QR
     qr_detector qr;

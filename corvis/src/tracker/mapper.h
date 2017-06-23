@@ -65,7 +65,7 @@ struct map_node {
     map_edge &get_add_neighbor(uint64_t neighbor);
     int terms;
     std::list<map_feature *> features; //sorted by label
-    bool add_feature(const uint64_t id, const v3 &p, const float v);
+    void add_feature(const uint64_t id, const v3 &p, const float v);
 
     transformation_variance global_transformation;
 
@@ -117,7 +117,7 @@ class mapper {
     void process_current_image(tracker *feature_tracker, const rc_Sensor camera_id, const tracker::image &image);
     void add_node(uint64_t node_id);
     void add_edge(uint64_t node_id1, uint64_t node_id2);
-    void add_feature(uint64_t node_id, uint64_t feature_id, uint64_t feature_track_id, const v3 & position_m, float depth_variance_m2);
+    void add_feature(uint64_t node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; };
 
@@ -151,8 +151,8 @@ class mapper {
     // temporary store current frame in case we add a new node
     map_frame current_frame;
 
-    // for a tracker_id we associate the corresponding node in which it was detected and its feature_id
-    std::map<uint64_t, std::pair<nodeid, uint64_t>> features_dbow;
+    // for a feature id we associate the corresponding node in which it was detected
+    std::map<uint64_t, nodeid> features_dbow;
 
     //we need the camera intrinsics
     std::vector<state_vision_intrinsics*> camera_intrinsics;

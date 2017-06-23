@@ -94,7 +94,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     v3 node_body = v3(0, 0, 0);
 
     struct descriptor descriptor;
-    bool descriptor_valid{false};
+    bool is_in_map{false};
 
     bool depth_measured{false};
 

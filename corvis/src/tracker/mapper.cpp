@@ -1,6 +1,7 @@
 // Created by Eagle Jones
 // Copyright (c) 2012. RealityCap, Inc.
 // All Rights Reserved.
+// Modified by Pedro Pinies and Lina Paz
 
 #include <iostream>
 #include <algorithm>
@@ -122,15 +123,13 @@ void mapper::process_current_image(tracker *feature_tracker, const rc_Sensor cam
                                                current_frame.dbow_direct_file, 6);
 }
 
-bool map_node::add_feature(const uint64_t id, const v3 &pos, const float variance)
+void map_node::add_feature(const uint64_t id, const v3 &pos, const float variance)
 {
     map_feature *feat = new map_feature(id, pos, variance);
-    list<map_feature *>::iterator feature;
 
-    features.insert(feature, feat);
+    features.push_back(feat);
     features_reloc[id] = feat;
     ++terms;
-    return (feature == features.end());
 }
 
 void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v3 &pos, float variance)
@@ -145,12 +144,12 @@ void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v3 &po
     }
 }
 
-void mapper::add_feature(uint64_t groupid, uint64_t id, uint64_t track_id, const v3 &pos, float variance) {
+void mapper::add_feature(uint64_t groupid, uint64_t id, const v3 &pos, float variance) {
     groupid += node_id_offset;
     id += feature_id_offset;
     ++feature_count;
     nodes[groupid].add_feature(id, pos, variance);
-    features_dbow[track_id] = std::pair<uint64_t, uint64_t>(groupid, id);
+    features_dbow[id] = groupid;
 }
 
 
@@ -617,11 +616,11 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
             for (auto m : matches_node_candidate) {
                 auto& candidate = *static_cast<fast_tracker::fast_feature<orb_descriptor>*>(keypoint_candidates[m.second].get());
                 uint64_t keypoint_id = candidate.id;
-                std::pair<uint64_t, uint64_t> nodeid_featid = features_dbow[keypoint_id];
+                nodeid nodeid_keypoint = features_dbow[keypoint_id];
                 // NOTE: We use 3d features observed from candidate, this does not mean
                 // these features belong to the candidate node (group)
-                map_feature* mfeat = nodes[nodeid_featid.first].features_reloc[nodeid_featid.second]; // feat is in body frame
-                v3 p_w = nodes[nodeid_featid.first].global_transformation.transform*mfeat->position;
+                map_feature* mfeat = nodes[nodeid_keypoint].features_reloc[keypoint_id]; // feat is in body frame
+                v3 p_w = nodes[nodeid_keypoint].global_transformation.transform*mfeat->position;
                 candidate_3d_points.push_back(cv::Point3f(p_w[0], p_w[1], p_w[2]));
                 //undistort keypoints at current frame
                 auto& current = *static_cast<fast_tracker::fast_feature<orb_descriptor>*>(keypoint_current[m.first].get());

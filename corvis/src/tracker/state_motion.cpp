@@ -18,7 +18,7 @@ void state_motion_orientation::cache_jacobians(f_t dt)
     Rt = R.transpose();  // FIXME: remove this?
 }
 
-void state_motion_orientation::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
+void state_motion_orientation::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
     //NOTE: Any changes here must also be reflected in state_vision:project_motion_covariance
     for(int i = 0; i < dst.cols(); ++i) {
@@ -55,7 +55,7 @@ void state_motion::evolve_state(f_t dt)
     V.v += dt * a.v;
 }
 
-void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
+void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
     state_motion_orientation::project_motion_covariance(dst, src, dt);
 

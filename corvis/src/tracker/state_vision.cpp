@@ -591,7 +591,7 @@ void state_vision::cache_jacobians(f_t dt)
 
 }
 
-void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
+void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
     //Previously we called state_motion::project_covariance here, but this is inlined into the above for faster performance
     for(int i = 0; i < dst.cols(); ++i) {

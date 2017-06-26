@@ -352,10 +352,6 @@ state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
         }
     }
     camera.groups.children.push_back(g);
-    remap();
-#ifdef TEST_POSDEF
-    if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after propagating group\n");
-#endif
     return g;
 }
 

@@ -67,37 +67,29 @@ protected:
   typedef const TDescriptor *pDescriptor;
 
   /// Tree node
-  struct Node 
+  struct Node
   {
-    /// Node id
-    NodeId id;
-    /// Weight if the node is a word
-    WordValue weight;
+
 
     /// Children 
-    char nChildren;
+    int nChildren;
 
-    //Children IDs are consecutive, so keeping only the first.
-    NodeId first_child_id;
+    ///Inner nodes hold the first_child_id, and leaves hold the word_weight.
+    union
+    {
+        ///Children IDs are consecutive, so keeping only the first.
+        NodeId first_child_id;
 
-    /// Parent node (undefined in case of root)
-    NodeId parent;
+        /// Weight if the node is a word
+        WordValue weight;
+    };
     /// Node descriptor
     TDescriptor descriptor;
-
-    /// Word id if the node is a word
-    WordId word_id;
 
     /**
      * Empty constructor
      */
-    Node(): id(0), weight(0), parent(0), word_id(0), nChildren(0), first_child_id(0){}
-    
-    /**
-     * Constructor
-     * @param _id node id
-     */
-    Node(NodeId _id): id(_id), weight(0), parent(0), word_id(0), nChildren(0), first_child_id(0){}
+    Node(): nChildren(0), weight(0){}
 
     /**
      * Returns whether the node is a leaf node
@@ -142,11 +134,14 @@ protected:
   GeneralScoring* m_scoring_object;
   
   /// Tree nodes
-  std::vector<Node> m_nodes;
-  
+  Node* m_nodes;
+
   /// Words of the vocabulary (tree leaves)
   /// this condition holds: m_words[wid]->word_id == wid
   std::vector<Node*> m_words;
+
+  /// For each leaf, point to the corresponding word
+  std::vector<WordId> m_node_to_word;
   
 };
 
@@ -322,6 +317,7 @@ void TemplatedVocabulary<TDescriptor,F>::transform(const TDescriptor &feature,
     for(NodeId current_child = 1; current_child < nChildren; current_child++)
     {
       NodeId id = first_child_id + current_child;
+
       double d = F::distance(feature, m_nodes[id].descriptor);
       if(d < best_d)
       {
@@ -336,7 +332,7 @@ void TemplatedVocabulary<TDescriptor,F>::transform(const TDescriptor &feature,
   } while( !m_nodes[final_id].isLeaf() );
 
   // turn node id into word id
-  word_id = m_nodes[final_id].word_id;
+  word_id = m_node_to_word[final_id];
   weight = m_nodes[final_id].weight;
 }
 
@@ -352,62 +348,33 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromMemory(const char *pBinaries, 
 
     m_scoring = (ScoringType)n1;
     m_weighting = (WeightingType)n2;
-    
+
     createScoringObject();
-    
-    std::vector<Node>& nodes = m_nodes;
-    std::vector<Node*>& words = m_words;
 
     // reading
     {
         unsigned int nNodes = 0;
         const char* pSrc = pBinaries;
-        
+
         memcpy(&nNodes, pSrc, sizeof(unsigned int)*1);
         pSrc += sizeof(unsigned int);
 
-        nodes.resize(nNodes);
+        m_node_to_word.resize(nNodes);
+        m_words.reserve(nNodes); //There are less words than nodes, but not much less (about 90%) and it worth to have less allocation
+        m_nodes = (Node*)pSrc;
 
-        NodeId word_ids = 0;
-        for (unsigned int i = 0; i < nNodes; ++i)
+        WordId word_ids = 0;
+        for(unsigned int i = 0; i < nNodes; i++)
         {
-            nodes[i].id = i;
-            memcpy((char*)&nodes[i].nChildren, pSrc, sizeof(char) * 1);
-            pSrc += sizeof(char);
-
-            if (nodes[i].nChildren > 0)
+            if(m_nodes[i].isLeaf())
             {
-                memcpy(&nodes[i].first_child_id, pSrc, sizeof(NodeId) * 1);
-                pSrc += sizeof(NodeId) * 1;
+                m_node_to_word[i] = word_ids++;
+                m_words.push_back(&m_nodes[i]);
             }
-            else
-            {
-                memcpy(&nodes[i].weight, pSrc, sizeof(WordValue) * 1);
-                pSrc += sizeof(WordValue);
-
-                words.resize(word_ids + 1);
-                nodes[i].word_id = word_ids;
-                words[word_ids] = &nodes[i];
-                word_ids++;
-            }
-
-            memcpy(nodes[i].descriptor.data(), pSrc, sizeof(char)*32);
-
-            pSrc += sizeof(char) * 32;
         }
 
         bRet = true;
-
-
-        for (NodeId i = 0; i < nNodes; i++)
-        {
-            for (unsigned int current_child = 0; current_child < nodes[i].nChildren; current_child++)
-            {
-                nodes[nodes[i].first_child_id + current_child].parent = i;
-            }
-        }
     }
-      
     return bRet;
 }
 
@@ -425,7 +392,7 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromTextFile(const std::string &fi
     m_weighting = (WeightingType)n2;
     createScoringObject();
     unsigned int nNodes = 0;
-    std::vector<Node>& nodes = m_nodes;
+    Node* nodes = nullptr;//m_nodes;
     std::vector<Node*>& words = m_words;
     // reading
     {
@@ -434,15 +401,17 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromTextFile(const std::string &fi
         {
 
             fread(&nNodes, sizeof(unsigned int), 1, pf);
-            if (nNodes > 0) nodes.resize(nNodes);
+            if (nNodes > 0)
+            {
+                nodes = new Node[nNodes];
+                m_node_to_word.resize(nNodes);
+            }
             else nNodes = 0;
-            
+
             WordId word_ids = 0;
             for (unsigned int i = 0; i < nNodes; ++i)
             {
-                nodes[i].id = i;
-                
-                fread(&nodes[i].nChildren, sizeof(char), 1, pf);
+                fread(&nodes[i].nChildren, sizeof(int), 1, pf);
                 if (nodes[i].nChildren > 0)
                 {
                     fread(&nodes[i].first_child_id, sizeof(NodeId), 1, pf);
@@ -451,23 +420,15 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromTextFile(const std::string &fi
                 {
                     fread(&nodes[i].weight, sizeof(WordValue), 1, pf);
 
-                    words.resize(word_ids + 1);
-                    nodes[i].word_id = word_ids;
-                    words[word_ids] = &nodes[i];
-                    word_ids++;
+                    m_node_to_word[i] = word_ids++;
+                    m_words.push_back(&nodes[i]);
                 }
 
-                fread(m_nodes[i].descriptor.data(), sizeof(char), 32, pf);
+                fread(nodes[i].descriptor.data(), sizeof(char), 32, pf);
             }
             fclose(pf);
             bRet = true;
-        }        
-    }
-    for (unsigned int i = 0; i < nNodes; i++)
-    {
-        for (unsigned int current_child = 0; current_child < nodes[i].nChildren; current_child++)
-        {
-            nodes[nodes[i].first_child_id + current_child].parent = i;
+            m_nodes = nodes;
         }
     }
     return bRet;

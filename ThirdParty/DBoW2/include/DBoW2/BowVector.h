@@ -20,7 +20,7 @@ namespace DBoW2 {
 typedef unsigned int WordId;
 
 /// Value of a word
-typedef double WordValue;
+typedef float WordValue;
 
 /// Id of nodes in the vocabulary treee
 typedef unsigned int NodeId;

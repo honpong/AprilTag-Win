@@ -83,6 +83,7 @@ struct state_camera;
 
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     tracker::feature_track track;
     f_t outlier = 0;
     v2 initial;
@@ -168,13 +169,12 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     {
         return s << "f" << track.feature->id << ": " << v.v << "±" << std::sqrt(variance());
     }
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 class state_vision_group: public state_branch<state_node *> {
  public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
     state_vector<3>  Tr { "Tr", dynamic};
     state_quaternion Qr { "Qr", dynamic};
 
@@ -202,9 +202,6 @@ class state_vision_group: public state_branch<state_node *> {
     {
         s << "g" << id << ": "; return state_branch<state_node*>::print_to(s);
     }
-
-public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 struct state_camera: state_branch<state_node*> {
@@ -233,8 +230,8 @@ struct state_camera: state_branch<state_node*> {
 };
 
 class state_vision: public state_motion {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
     state_vision(covariance &c) : state_motion(c) {
         non_orientation.children.push_back(&cameras);

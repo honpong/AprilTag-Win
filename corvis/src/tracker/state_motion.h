@@ -15,8 +15,8 @@
 
 class state_imu_intrinsics: public state_branch<state_node *>
 {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     state_vector<3> w_bias {"w_bias", constant};
     state_vector<3> a_bias {"a_bias", constant};
 
@@ -57,8 +57,9 @@ struct state_imu: public state_branch<state_node *> {
 };
 
 class state_motion_orientation: public state_root {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+
     state_quaternion  Q { "Q",  dynamic };
     state_vector<3>   w { "w",  dynamic };
     state_vector<3>  dw { "dw", dynamic };
@@ -110,9 +111,10 @@ protected:
 };
 
 class state_motion: public state_motion_orientation {
+public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     friend class observation_accelerometer;
-public:
+
     state_vector<3>  T {  "T", dynamic };
     state_vector<3>  V {  "V", dynamic };
     state_vector<3>  a {  "a", dynamic };

@@ -142,13 +142,6 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(covariance &c):
-    state_motion(c),
-    group_counter(0)
-{
-    non_orientation.children.push_back(&cameras);
-}
-
 void state_camera::clear_features_and_groups()
 {
     for(state_vision_group *g : groups.children) {

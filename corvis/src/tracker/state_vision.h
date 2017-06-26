@@ -237,11 +237,12 @@ class state_vision: public state_motion {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
     state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
-
-    uint64_t group_counter;
-
-    state_vision(covariance &c);
+    state_vision(covariance &c) : state_motion(c) {
+        non_orientation.children.push_back(&cameras);
+    }
     ~state_vision();
+    uint64_t group_counter = 0;
+
     int feature_count() const;
     void clear_features_and_groups();
     state_vision_feature *add_feature(const tracker::feature_track &track_, state_vision_group &group);

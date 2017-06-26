@@ -95,7 +95,7 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
 
     //TODO: if out of order, project forward in time
     
-    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, state, imu.extrinsics, imu.intrinsics);
+    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, state, imu);
     obs_a->meas = meas;
     obs_a->variance = accelerometer.measurement_variance;
 
@@ -119,7 +119,7 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
 
     //TODO: if out of order, project forward in time
     
-    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, state, imu.extrinsics, imu.intrinsics);
+    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, state, imu);
     obs_w->meas = meas;
     obs_w->variance = gyroscope.measurement_variance;
 
@@ -211,7 +211,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
         return true;
     }
 
-    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, f->s, imu.extrinsics, imu.intrinsics);
+    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, f->s, imu);
     obs_a->meas = meas;
     obs_a->variance = get_accelerometer_variance_for_run_state(f, accelerometer);
 
@@ -258,7 +258,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
 
     if(!f->s.orientation_initialized) return false;
 
-    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, f->s, imu.extrinsics, imu.intrinsics);
+    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, f->s, imu);
     obs_w->meas = meas;
     obs_w->variance = gyroscope.measurement_variance;
 

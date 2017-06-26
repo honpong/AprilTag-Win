@@ -101,7 +101,7 @@ public:
 
 class observation_accelerometer: public observation_spatial<3> {
 protected:
-    state_motion &state;
+    const state_motion &state;
     const state_extrinsics &extrinsics;
     const state_imu_intrinsics &intrinsics;
     v3 xcc;
@@ -116,7 +116,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer(sensor_accelerometer &src, state_motion &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics): observation_spatial(src), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_accelerometer(sensor_accelerometer &src, const state_motion &state_, const state_imu &imu): observation_spatial(src), state(state_), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -143,7 +143,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics): observation_spatial(src), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_imu &imu): observation_spatial(src), state(_state), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 };
 
 #define MAXOBSERVATIONSIZE (MAXSTATESIZE * 2)

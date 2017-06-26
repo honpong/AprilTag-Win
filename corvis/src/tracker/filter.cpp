@@ -445,20 +445,18 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
     auto &gyroscope     = *f->gyroscopes[data.id];
     auto &imu = *f->s.imus.children[data.id];
     v3 meas = map(accelerometer.intrinsics.scale_and_alignment.v) * map(data.acceleration_m__s2.v);
-    v3 accel_delta = meas - accelerometer.last_meas;
+    if (!accelerometer.got)
+        accelerometer.got = true;
+    else {
+        v3 accel_delta = (meas - accelerometer.last_meas);
+        if (fabs(accel_delta[0]) > max_accel_delta || fabs(accel_delta[1]) > max_accel_delta || fabs(accel_delta[2]) > max_accel_delta)
+            f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
+    }
     accelerometer.last_meas = meas;
+
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
-    if(!accelerometer.got) { //skip first packet - has been crap from gyro
-        accelerometer.got = true;
-        return false;
-    }
     if (!f->got_any_gyroscopes()) return false;
-
-    if(fabs(accel_delta[0]) > max_accel_delta || fabs(accel_delta[1]) > max_accel_delta || fabs(accel_delta[2]) > max_accel_delta)
-    {
-        f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
-    }
 
     if(!f->s.orientation_initialized) {
         f->s.orientation_initialized = true;
@@ -502,21 +500,21 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
     auto timestamp = data.timestamp;
     auto &gyroscope = *f->gyroscopes[data.id];
     auto &imu = *std::next(f->s.imus.children.begin(), data.id)->get();
+
     v3 meas = map(gyroscope.intrinsics.scale_and_alignment.v) * map(data.angular_velocity_rad__s.v);
-    v3 gyro_delta = meas - gyroscope.last_meas;
+    if (!gyroscope.got)
+        gyroscope.got = true;
+    else {
+        v3 gyro_delta = meas - gyroscope.last_meas;
+        if(fabs(gyro_delta[0]) > max_gyro_delta || fabs(gyro_delta[1]) > max_gyro_delta || fabs(gyro_delta[2]) > max_gyro_delta)
+            f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
+    }
     gyroscope.last_meas = meas;
+
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
-    if(!gyroscope.got) { //skip the first piece of data as it seems to be crap
-        gyroscope.got = true;
-        return false;
-    }
-    if(!f->s.orientation_initialized) return false;
 
-    if(fabs(gyro_delta[0]) > max_gyro_delta || fabs(gyro_delta[1]) > max_gyro_delta || fabs(gyro_delta[2]) > max_gyro_delta)
-    {
-        f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
-    }
+    if(!f->s.orientation_initialized) return false;
 
     auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, f->s, imu.extrinsics, imu.intrinsics);
     obs_w->meas = meas;

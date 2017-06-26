@@ -855,7 +855,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     int features_used = camera_state.process_features(f->map.get(), *f->log);
     f->s.remap();
-    f->s.update_map(data.image, f->map.get());
+    f->s.update_map(data.image, f->map.get(), *f->log);
     if(!features_used)
     {
         //Lost all features - reset convergence

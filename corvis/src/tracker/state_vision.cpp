@@ -283,7 +283,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     return total_health;
 }
 
-void state_vision::update_map(const rc_ImageData &image, mapper *map)
+void state_vision::update_map(const rc_ImageData &image, mapper *map, spdlog::logger &log)
 {
     if (!map) return;
 
@@ -308,7 +308,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
                     if(radius < 4.f) {
                         radius = 4.f;
                     }
-                    //log->info("feature {} good radius {}", f->id, radius);
+                    //log.info("feature {} good radius {}", f->id, radius);
                     if (descriptor_compute((uint8_t*)image.image, image.width, image.height, image.stride,
                                            static_cast<float>(f->track.x), static_cast<float>(f->track.y), radius,
                                            f->descriptor)) {
@@ -325,7 +325,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map)
     int suppression = 10;
     if (map->find_closure(max, suppression, offset)) {
         loop_offset = offset*loop_offset;
-        log->info("loop closed, offset: {}", std::cref(loop_offset));
+        log.info("loop closed, offset: {}", std::cref(loop_offset));
     }
 }
 

@@ -248,7 +248,7 @@ public:
     state_vision_group *add_group(state_camera &camera, mapper *map);
     transformation get_transformation() const;
 
-    void update_map(const rc_ImageData &image, mapper *map);
+    void update_map(const rc_ImageData &image, mapper *map, spdlog::logger &log);
 
     float median_depth_variance();
     

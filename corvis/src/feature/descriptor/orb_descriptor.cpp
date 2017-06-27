@@ -107,11 +107,11 @@ orb_descriptor::orb_descriptor(float x, float y, const tracker::image &image)
  * return distance
  */
 
-float orb_descriptor::distance(const orb_descriptor &a,
-                               const orb_descriptor &b)
+float orb_descriptor::raw::distance(const orb_descriptor::raw &a,
+                                    const orb_descriptor::raw &b)
 {
     uint64_t dist = 0;
-    for (auto p1 = a.descriptor.begin(), p2 = b.descriptor.begin(); p1 != a.descriptor.end() && p2 != b.descriptor.end(); p1++, p2++) {
+    for (auto p1 = a.begin(), p2 = b.begin(); p1 != a.end() && p2 != b.end(); p1++, p2++) {
         auto v = (*p1) ^ (*p2);
 #ifndef __has_builtin
 #define __has_builtin(x) 0

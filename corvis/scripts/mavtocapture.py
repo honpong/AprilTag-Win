@@ -69,19 +69,19 @@ for i in itertools.count():
         break
     sensor = mav_sensor(imu)
     s = sensor.meta
+    gyro_bias_variance = s['gyroscope_random_walk'] * s['gyroscope_random_walk'] * s['rate_hz']
+    acc_bias_variance = s['accelerometer_random_walk'] * s['accelerometer_random_walk'] * s['rate_hz']
     cal['imus'].append({
         'accelerometer': {
-            'noise_variance': s[    'gyroscope_noise_density'] * s[    'gyroscope_noise_density'] * s['rate_hz'],
-            'noise_variance': 0.005,
+            'noise_variance': s['accelerometer_noise_density'] * s['accelerometer_noise_density'] * s['rate_hz'],
             'bias': [0,0,0],
-            'bias_variance': [1e-3, 1e-3, 1e-3] ,
+            'bias_variance': [acc_bias_variance, acc_bias_variance, acc_bias_variance],
             'scale_and_alignment': [ 1,0,0, 0,1,0, 0,0,1 ],
         },
         'gyroscope':     {
-            'noise_variance': s['accelerometer_noise_density'] * s['accelerometer_noise_density'] * s['rate_hz'],
-            'noise_variance': 0.0002,
+            'noise_variance': s['gyroscope_noise_density'] * s['gyroscope_noise_density'] * s['rate_hz'],
             'bias': [0,0,0],
-            'bias_variance': [1e-5, 1e-5, 1e-5],
+            'bias_variance': [gyro_bias_variance, gyro_bias_variance, gyro_bias_variance],
             'scale_and_alignment': [ 1,0,0, 0,1,0, 0,0,1 ],
         },
         'extrinsics': compute_extrinsics(s['T_BS']),

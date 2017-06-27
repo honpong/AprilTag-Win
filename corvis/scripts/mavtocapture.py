@@ -113,8 +113,12 @@ for i in itertools.count():
         break
     sensor = mav_sensor(gte)
 
-    cal['imus'][i]['accelerometer']['bias'] = list(float(sensor.data[0][x]) for x in ('b_a_RS_S_x [m s^-2]',  'b_a_RS_S_y [m s^-2]',  'b_a_RS_S_z [m s^-2]'  ))
-    cal['imus'][i]['gyroscope'    ]['bias'] = list(float(sensor.data[0][x]) for x in ('b_w_RS_S_x [rad s^-1]','b_w_RS_S_y [rad s^-1]','b_w_RS_S_z [rad s^-1]'))
+    if False: # These optimized biases are per-sequence
+        cal['imus'][i]['accelerometer']['bias'] = list(float(sensor.data[0][x]) for x in ('b_a_RS_S_x [m s^-2]',  'b_a_RS_S_y [m s^-2]',  'b_a_RS_S_z [m s^-2]'  ))
+        cal['imus'][i]['gyroscope'    ]['bias'] = list(float(sensor.data[0][x]) for x in ('b_w_RS_S_x [rad s^-1]','b_w_RS_S_y [rad s^-1]','b_w_RS_S_z [rad s^-1]'))
+    else: # Instead we use averaged values above so they are per-device not per-run
+        cal['imus'][i]['accelerometer']['bias'] = [-0.0207691, 0.119103, 0.0737784]
+        cal['imus'][i]['gyroscope'    ]['bias'] = [-0.00236, 0.02221, 0.077807]
 
     #FIXME transform by the given extrinsics
     for d in sensor.data:

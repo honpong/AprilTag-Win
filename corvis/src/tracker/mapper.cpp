@@ -591,6 +591,8 @@ void mapper::estimate_pose(const std::vector<cv::Point3f>& points_3d, const std:
 }
 
 bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation& G_BC) {
+    if (!current_frame.keypoints.size())
+        return false;
 
     bool is_relocalized = false;
     const int min_num_inliers = 12;
@@ -644,6 +646,9 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
             debug_message += "\n";
         }
     }
+
+    current_frame.keypoints.clear();
+
     std::cout << debug_message << std::endl;
 
     return is_relocalized;

@@ -18,21 +18,6 @@ void state_motion_orientation::cache_jacobians(f_t dt)
     Rt = R.transpose();  // FIXME: remove this?
 }
 
-void state_motion_orientation::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
-{
-    //NOTE: Any changes here must also be reflected in state_vision:project_motion_covariance
-    for(int i = 0; i < dst.cols(); ++i) {
-        const auto cov_w = w.from_row(src, i);
-        const auto cov_dw = dw.from_row(src, i);
-        const auto cov_ddw = ddw.from_row(src, i);
-        const v3 cov_dW = dt * (cov_w + dt/2 * (cov_dw + dt/3 * cov_ddw));
-        const auto scov_Q = Q.from_row(src, i);
-        w.to_col(dst, i) = cov_w + dt * (cov_dw + dt/2 * cov_ddw);
-        dw.to_col(dst, i) = cov_dw + dt * cov_ddw;
-        Q.to_col(dst, i) = scov_Q + dQp_s_dW * cov_dW;
-    }
-}
-
 void state_motion_orientation::evolve_state(f_t dt)
 {
     Q.v *= to_quaternion(rotation_vector(dW)); // FIXME: use cached value?
@@ -55,21 +40,36 @@ void state_motion::evolve_state(f_t dt)
     V.v += dt * a.v;
 }
 
-void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
+template<int N>
+int state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const
 {
-    state_motion_orientation::project_motion_covariance(dst, src, dt);
-
     //NOTE: Any changes here must also be reflected in state_vision:project_motion_covariance
-    for(int i = 0; i < dst.cols(); ++i) {
-        const auto cov_V = V.from_row(src, i);
-        const auto cov_a = a.from_row(src, i);
-        const auto cov_T = T.from_row(src, i);
-        const auto cov_da = da.from_row(src, i);
-        const v3 cov_dT = dt * (cov_V + dt/2 * (cov_a + dt/3 * cov_da));
-        T.to_col(dst, i) = cov_T + cov_dT;
-        V.to_col(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
-        a.to_col(dst, i) = cov_a + dt * cov_da;
+    for(; i < (N > 1 ? std::min(src.cols(),dst.cols())/N*N : dst.cols()); i+=N) {
+        const m<3,N> cov_w = w.from_row<N>(src, i);
+        const m<3,N> cov_dw = dw.from_row<N>(src, i);
+        const m<3,N> cov_ddw = ddw.from_row<N>(src, i);
+        const m<3,N> cov_dW = dt * (cov_w + dt/2 * (cov_dw + dt/3 * cov_ddw));
+        const m<3,N> scov_Q = Q.from_row<N>(src, i);
+        dw.to_col<N>(dst, i) = cov_dw + dt * cov_ddw;
+        w.to_col<N>(dst, i) = cov_w + dt * (cov_dw + dt/2 * cov_ddw);
+        Q.to_col<N>(dst, i) = scov_Q + dQp_s_dW * cov_dW;
+        const m<3,N> cov_V = V.from_row<N>(src, i);
+        const m<3,N> cov_a = a.from_row<N>(src, i);
+        const m<3,N> cov_T = T.from_row<N>(src, i);
+        const m<3,N> cov_da = da.from_row<N>(src, i);
+        const m<3,N> cov_dT = dt * (cov_V + dt/2 * (cov_a + dt/3 * cov_da));
+        a.to_col<N>(dst, i) = cov_a + dt * cov_da;
+        V.to_col<N>(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
+        T.to_col<N>(dst, i) = cov_T + cov_dT;
     }
+    return i;
+}
+
+void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
+{
+    int i = 0;
+    i = project_motion_covariance<4>(dst, src, dt, i);
+    i = project_motion_covariance<1>(dst, src, dt, i);
 }
 
 void state_motion::cache_jacobians(f_t dt)
@@ -104,51 +104,4 @@ void state_motion::enable_bias_estimation(bool remap_)
     for (auto &imu : imus.children)
         imu->intrinsics.enable_estimation();
     if (remap_) remap();
-}
-
-void state_motion::copy_from(const state_motion &other)
-{
-    if(other.non_orientation.estimate) disable_orientation_only(false);
-    else                               enable_orientation_only(false);
-
-    auto i = other.imus.children.begin();
-    for (auto &imu : imus.children) {
-        auto &other_imu = *i;
-
-        if(other_imu->intrinsics.estimate) imu->intrinsics.enable_estimation();
-        else                               imu->intrinsics.disable_estimation();
-
-        imu->extrinsics.Q = other_imu->extrinsics.Q;
-        imu->extrinsics.T = other_imu->extrinsics.T;
-
-        imu->intrinsics.w_bias = other_imu->intrinsics.w_bias;
-        imu->intrinsics.a_bias = other_imu->intrinsics.a_bias;
-
-        ++i;
-    }
-
-    // remaps done. structure should match other. now reset content
-
-    Q = other.Q;
-    w = other.w;
-    dw = other.dw;
-    ddw = other.ddw;
-
-    g = other.g;
-    T = other.T;
-    V = other.V;
-    a = other.a;
-    da = other.da;
-
-    // copy state_root
-
-    orientation_initialized = other.orientation_initialized;
-    current_time = other.current_time;
-    loop_offset = other.loop_offset;
-
-    world_up_initial_forward_left = other.world_up_initial_forward_left;
-    body_forward = other.body_forward;
-
-    // copy covariance
-    remap_from(other.cov);
 }

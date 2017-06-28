@@ -853,7 +853,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             std::cerr << " innov  " << c->inn_stdev << "\n";
     }
 
-    int features_used = f->s.process_features(camera_state, data.image, f->map.get());
+    int features_used = camera_state.process_features(f->map.get(), *f->log);
+    f->s.remap();
+    f->s.update_map(data.image, f->map.get());
     if(!features_used)
     {
         //Lost all features - reset convergence
@@ -993,6 +995,9 @@ void filter_initialize(struct filter *f)
 #endif
     }
 
+    for (int i=f->s.imus.children.size(); i<f->gyroscopes.size(); i++)
+        f->s.imus.children.emplace_back(std::make_unique<state_imu>());
+
     for (size_t i = 0; i < f->s.imus.children.size() && i < f->gyroscopes.size(); i++) {
         auto &imu = *f->s.imus.children[i];
         const auto &gyro = *f->gyroscopes[i];
@@ -1009,6 +1014,9 @@ void filter_initialize(struct filter *f)
         imu.extrinsics.Q.set_initial_variance(gyro.extrinsics.variance.Q);
         imu.extrinsics.T.set_initial_variance(gyro.extrinsics.variance.T);
     }
+
+    for (int i=f->s.imus.children.size(); i<f->accelerometers.size(); i++)
+        f->s.imus.children.emplace_back(std::make_unique<state_imu>());
 
     for (size_t i = 0; i < f->s.imus.children.size() && i < f->accelerometers.size(); i++) {
         auto &imu = *f->s.imus.children[i];

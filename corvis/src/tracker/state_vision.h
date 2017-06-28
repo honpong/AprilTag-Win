@@ -242,7 +242,6 @@ public:
 
     state_vision(covariance &c);
     ~state_vision();
-    int process_features(state_camera &camera, const rc_ImageData &image, mapper *map);
     int feature_count() const;
     void clear_features_and_groups();
     state_vision_feature *add_feature(const tracker::feature_track &track_, state_vision_group &group);
@@ -258,8 +257,10 @@ public:
 
 protected:
     virtual void evolve_state(f_t dt);
-    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
+    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const;
     virtual void cache_jacobians(f_t dt);
+    template<int N>
+    int project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const;
 };
 
 typedef state_vision state;

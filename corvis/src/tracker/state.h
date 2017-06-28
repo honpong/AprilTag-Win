@@ -150,7 +150,15 @@ public:
 #endif
         return statesize;
     }
-    
+
+    void copy_from(const state_root &other) {
+        current_time = other.current_time;
+        world_up_initial_forward_left = other.world_up_initial_forward_left;
+        body_forward = other.body_forward;
+
+        remap_from(other.cov); // copy covariance
+    }
+
     void print_matrix_with_state_labels(matrix &state) const {
         if(state.rows() >= dynamic_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::dynamic);
         if(state.rows() >= statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::constant);
@@ -225,7 +233,7 @@ public:
     inline const sensor_clock::time_point & get_current_time() const { return current_time; }
 
 protected:
-    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) = 0;
+    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const = 0;
     virtual void evolve_state(f_t dt) = 0;
     virtual void cache_jacobians(f_t dt) = 0;
 
@@ -286,26 +294,28 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
             }
         }
     }
-    
-    inline const Eigen::Map< const ::v<_size>, Eigen::Unaligned, Eigen::OuterStride<> > from_row(const matrix &c, int i) const
+
+    template<int Cols = 1>
+    inline const Eigen::Map< const m<_size, Cols>, Eigen::Unaligned, Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic> > from_row(const matrix &c, int i) const
     {
-        typedef decltype(from_row(c,i)) map;
-        static const f_t zero[_size] = { 0 };
-        if(index < 0)                                                                return map { &zero[0],                          Eigen::OuterStride<>(1) };
+        typedef decltype(from_row<Cols>(c,i)) map;
+        static const f_t zero[_size*Cols] = { 0 };
+        if(index < 0)                                                                return map { &zero[0],                          Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic>(Cols == 1 ?              1 : 1, Cols == 1 ? 0 :              1) };
         if(index >= c.cols()) {
-            if((type == node_type::fake) && (i - index >= 0) && (i - index < _size)) return map { &initial_covariance(i - index, 0), Eigen::OuterStride<>(_size) };
-            else                                                                     return map { &zero[0],                          Eigen::OuterStride<>(1) };
+            if((type == node_type::fake) && (i - index >= 0) && (i - index < _size)) return map { &initial_covariance(i - index, 0), Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic>(Cols == 1 ?          _size : 1, Cols == 1 ? 0 :          _size) };
+            else                                                                     return map { &zero[0],                          Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic>(Cols == 1 ?              1 : 1, Cols == 1 ? 0 :              1) };
         }
-        if((i < 0) || (i >= c.rows()))                                               return map { &zero[0] ,                         Eigen::OuterStride<>(1) };
-        else                                                                         return map { &c(i,index),                       Eigen::OuterStride<>(c.get_stride()) };
+        if((i < 0) || (i >= c.rows()))                                               return map { &zero[0] ,                         Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic>(Cols == 1 ?              1 : 1, Cols == 1 ? 0 :              1) };
+        else                                                                         return map { &c(i,index),                       Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic>(Cols == 1 ? c.get_stride() : 1, Cols == 1 ? 0 : c.get_stride()) };
     }
 
-    inline Eigen::Map< ::v<_size>, Eigen::Unaligned, Eigen::InnerStride<> > to_col(matrix &c, int j) const
+    template<int Rows = 1>
+    inline Eigen::Map< m<_size, Rows>, Eigen::Unaligned, Eigen::Stride<Rows == 1 ? 0 : Eigen::Dynamic, Rows == 1 ? Eigen::Dynamic : 1> > to_col(matrix &c, int j) const
     {
-        typedef decltype(to_col(c,j)) map;
-        static f_t scratch[_size];
-        if((index < 0) || (index >= c.rows())) return map { &scratch[0], Eigen::InnerStride<>(1) };
-        else                                   return map { &c(index,j), Eigen::InnerStride<>(c.get_stride()) };
+        typedef decltype(to_col<Rows>(c,j)) map;
+        static f_t scratch[_size*Rows];
+        if((index < 0) || (index >= c.rows())) return map { &scratch[0], Eigen::Stride<Rows == 1 ? 0 : Eigen::Dynamic, Rows == 1 ? Eigen::Dynamic : 1>(Rows == 1 ? 0 :              1, Rows == 1 ?              1 : 1) };
+        else                                   return map { &c(index,j), Eigen::Stride<Rows == 1 ? 0 : Eigen::Dynamic, Rows == 1 ? Eigen::Dynamic : 1>(Rows == 1 ? 0 : c.get_stride(), Rows == 1 ? c.get_stride() : 1) };
     }
 
     bool unmap() { if (index < 0) return false; else { index = -1; return true; } }
@@ -546,8 +556,12 @@ public:
 
     state_extrinsics(const char *Qx, const char *Tx, bool estimate_) : Q(Qx, constant), T(Tx, constant) {
         estimate = estimate_;
-        children.push_back(&T);
         children.push_back(&Q);
+        children.push_back(&T);
+    }
+    void copy_from(const state_extrinsics &other) {
+        Q = other.Q;
+        T = other.T;
     }
 };
 

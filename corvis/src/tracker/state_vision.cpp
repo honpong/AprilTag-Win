@@ -597,19 +597,19 @@ int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t 
     //Previously we called state_motion::project_covariance here, but this is inlined into the above for faster performance
     for(; i < (N > 1 ? std::min(src.cols(),dst.cols())/N*N : dst.cols()); i+=N) {
         // This should match state_motion_orientation::project_covariance
-        const auto cov_w = w.from_row<N>(src, i);
-        const auto cov_dw = dw.from_row<N>(src, i);
-        const auto cov_ddw = ddw.from_row<N>(src, i);
+        const m<3,N> cov_w = w.from_row<N>(src, i);
+        const m<3,N> cov_dw = dw.from_row<N>(src, i);
+        const m<3,N> cov_ddw = ddw.from_row<N>(src, i);
         const m<3,N> cov_dW = dt * (cov_w + dt/2 * (cov_dw + dt/3 * cov_ddw));
-        const auto scov_Q = Q.from_row<N>(src, i);
+        const m<3,N> scov_Q = Q.from_row<N>(src, i);
         dw.to_col<N>(dst, i) = cov_dw + dt * cov_ddw;
         w.to_col<N>(dst, i) = cov_w + dt * (cov_dw + dt/2 * cov_ddw);
         Q.to_col<N>(dst, i) = scov_Q + dQp_s_dW * cov_dW;
         // This should match state_motion::project_covariance
-        const auto cov_V = V.from_row<N>(src, i);
-        const auto cov_a = a.from_row<N>(src, i);
-        const auto cov_T = T.from_row<N>(src, i);
-        const auto cov_da = da.from_row<N>(src, i);
+        const m<3,N> cov_V = V.from_row<N>(src, i);
+        const m<3,N> cov_a = a.from_row<N>(src, i);
+        const m<3,N> cov_T = T.from_row<N>(src, i);
+        const m<3,N> cov_da = da.from_row<N>(src, i);
         const m<3,N> cov_dT = dt * (cov_V + dt/2 * (cov_a + dt/3 * cov_da));
         a.to_col<N>(dst, i) = cov_a + dt * cov_da;
         V.to_col<N>(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
@@ -628,6 +628,6 @@ int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
     int i = 0;
-    i = project_motion_covariance<8>(dst, src, dt, i);
+    i = project_motion_covariance<4>(dst, src, dt, i);
     i = project_motion_covariance<1>(dst, src, dt, i);
 }

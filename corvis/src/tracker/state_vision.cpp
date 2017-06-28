@@ -594,9 +594,8 @@ void state_vision::cache_jacobians(f_t dt)
 template<int N>
 int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const
 {
-    //Previously we called state_motion::project_covariance here, but this is inlined into the above for faster performance
+    //NOTE: Any changes here must also be reflected in state_motion:project_motion_covariance
     for(; i < (N > 1 ? std::min(src.cols(),dst.cols())/N*N : dst.cols()); i+=N) {
-        // This should match state_motion_orientation::project_covariance
         const m<3,N> cov_w = w.from_row<N>(src, i);
         const m<3,N> cov_dw = dw.from_row<N>(src, i);
         const m<3,N> cov_ddw = ddw.from_row<N>(src, i);
@@ -605,7 +604,6 @@ int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t 
         dw.to_col<N>(dst, i) = cov_dw + dt * cov_ddw;
         w.to_col<N>(dst, i) = cov_w + dt * (cov_dw + dt/2 * cov_ddw);
         Q.to_col<N>(dst, i) = scov_Q + dQp_s_dW * cov_dW;
-        // This should match state_motion::project_covariance
         const m<3,N> cov_V = V.from_row<N>(src, i);
         const m<3,N> cov_a = a.from_row<N>(src, i);
         const m<3,N> cov_T = T.from_row<N>(src, i);

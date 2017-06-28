@@ -110,7 +110,6 @@ public:
     bool orientation_initialized = false;
 
 protected:
-    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const;
     virtual void evolve_state(f_t dt);
     virtual void cache_jacobians(f_t dt);
     m3 Rt;
@@ -184,6 +183,8 @@ public:
 
 protected:
     virtual void evolve_state(f_t dt);
+    template<int N>
+    int project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const;
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const;
     virtual void cache_jacobians(f_t dt);
     v3 dT;

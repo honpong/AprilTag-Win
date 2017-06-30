@@ -186,7 +186,6 @@ class state_vision_group: public state_branch<state_node *> {
     enum group_flag status;
     uint64_t id;
 
-    state_vision_group(const state_vision_group &other);
     state_vision_group(state_camera &camera, uint64_t group_id);
     void make_empty();
     int process_features();

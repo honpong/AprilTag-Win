@@ -295,27 +295,37 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
         }
     }
 
+    template <int Cols, typename Stride_ = Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic> >
+    struct outer_stride : Stride_ {
+        outer_stride(int inner) : Stride_(Cols == 1 ? inner : 1, Cols == 1 ? 0 : inner) {}
+    };
+
+    template <int Rows, typename Stride_ = Eigen::Stride<Rows == 1 ? 0 : Eigen::Dynamic, Rows == 1 ? Eigen::Dynamic : 1> >
+    struct inner_stride : Stride_ {
+        inner_stride(int outer) : Stride_(Rows == 1 ? 0 : outer, Rows == 1 ? outer : 1) {}
+    };
+
     template<int Cols = 1>
-    inline const Eigen::Map< const m<_size, Cols>, Eigen::Unaligned, Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic> > from_row(const matrix &c, int i) const
+    inline const Eigen::Map< const m<_size, Cols>, Eigen::Unaligned, outer_stride<Cols>> from_row(const matrix &c, int i) const
     {
         typedef decltype(from_row<Cols>(c,i)) map;
         static const f_t zero[_size*Cols] = { 0 };
-        if(index < 0)                                                                return map { &zero[0],                          Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic>(Cols == 1 ?              1 : 1, Cols == 1 ? 0 :              1) };
+        if(index < 0)                                                                return map { &zero[0],                          outer_stride<Cols>(1) };
         if(index >= c.cols()) {
-            if((type == node_type::fake) && (i - index >= 0) && (i - index < _size)) return map { &initial_covariance(i - index, 0), Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic>(Cols == 1 ?          _size : 1, Cols == 1 ? 0 :          _size) };
-            else                                                                     return map { &zero[0],                          Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic>(Cols == 1 ?              1 : 1, Cols == 1 ? 0 :              1) };
+            if((type == node_type::fake) && (i - index >= 0) && (i - index < _size)) return map { &initial_covariance(i - index, 0), outer_stride<Cols>(_size) };
+            else                                                                     return map { &zero[0],                          outer_stride<Cols>(1) };
         }
-        if((i < 0) || (i >= c.rows()))                                               return map { &zero[0] ,                         Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic>(Cols == 1 ?              1 : 1, Cols == 1 ? 0 :              1) };
-        else                                                                         return map { &c(i,index),                       Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic>(Cols == 1 ? c.get_stride() : 1, Cols == 1 ? 0 : c.get_stride()) };
+        if((i < 0) || (i >= c.rows()))                                               return map { &zero[0] ,                         outer_stride<Cols>(1) };
+        else                                                                         return map { &c(i,index),                       outer_stride<Cols>(c.get_stride()) };
     }
 
     template<int Rows = 1>
-    inline Eigen::Map< m<_size, Rows>, Eigen::Unaligned, Eigen::Stride<Rows == 1 ? 0 : Eigen::Dynamic, Rows == 1 ? Eigen::Dynamic : 1> > to_col(matrix &c, int j) const
+    inline Eigen::Map< m<_size, Rows>, Eigen::Unaligned, inner_stride<Rows>> to_col(matrix &c, int j) const
     {
         typedef decltype(to_col<Rows>(c,j)) map;
         static f_t scratch[_size*Rows];
-        if((index < 0) || (index >= c.rows())) return map { &scratch[0], Eigen::Stride<Rows == 1 ? 0 : Eigen::Dynamic, Rows == 1 ? Eigen::Dynamic : 1>(Rows == 1 ? 0 :              1, Rows == 1 ?              1 : 1) };
-        else                                   return map { &c(index,j), Eigen::Stride<Rows == 1 ? 0 : Eigen::Dynamic, Rows == 1 ? Eigen::Dynamic : 1>(Rows == 1 ? 0 : c.get_stride(), Rows == 1 ? c.get_stride() : 1) };
+        if((index < 0) || (index >= c.rows())) return map { &scratch[0], inner_stride<Rows>(1) };
+        else                                   return map { &c(index,j), inner_stride<Rows>(c.get_stride()) };
     }
 
     bool unmap() { if (index < 0) return false; else { index = -1; return true; } }

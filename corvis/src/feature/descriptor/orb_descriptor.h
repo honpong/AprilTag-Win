@@ -38,6 +38,7 @@
 #pragma once
 #include "tracker.h"
 #include <array>
+#include <cmath>
 
 class orb_descriptor
 {
@@ -56,6 +57,10 @@ public:
     static float distance(const orb_descriptor &a, const orb_descriptor &b);
     float distance(float x, float y, const tracker::image& image) const {
         return orb_descriptor::distance(*this, orb_descriptor(x,y,image));
+    }
+
+    float operator-(const orb_descriptor &o) const {
+        return std::atan2(sin_ * o.cos_ - cos_ * o.sin_, cos_ * o.cos_ + sin_ * o.sin_);
     }
 
 private:

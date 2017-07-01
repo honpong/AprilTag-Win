@@ -216,9 +216,10 @@ public:
                 tracks[i]->y = next.points[i].y;
                 tracks[i]->score = errors[i];
                 if(errors[i] < 10) {
-                    tracks[i]->found = true; found++;
+                    found++;
                 } else {
-                    tracks[i]->found = false;
+                    tracks[i]->x = INFINITY;
+                    tracks[i]->y = INFINITY;
                     tracks[i]->score = 0;
                 }
             }

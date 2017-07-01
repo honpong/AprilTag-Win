@@ -351,7 +351,7 @@ bool observation_vision_feature::measure()
 {
     meas = {feature->track.x, feature->track.y};
 
-    if(feature->track.found) {
+    if(feature->track.found()) {
         source.meas_stdev.data(meas);
         if(!feature->is_initialized()) {
             update_initializing();
@@ -365,7 +365,7 @@ bool observation_vision_feature::measure()
         return false;
     }
 
-    return feature->track.found;
+    return feature->track.found();
 }
 
 void observation_vision_feature::compute_measurement_covariance()

@@ -148,7 +148,7 @@ TEST(FastTracker, TrackBounds)
     tracker.track(image2, tracks);
     EXPECT_EQ(tracks.size(), 4);
     for(int i = 0; i < tracks.size(); i++) {
-        EXPECT_FALSE(tracks[i]->found);
+        EXPECT_FALSE(tracks[i]->found());
     }
 }
 

@@ -34,7 +34,7 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
         fast_feature<DESCRIPTOR> &f = *static_cast<fast_feature<DESCRIPTOR>*>(t.feature.get());
 
         xy bestkp {INFINITY, INFINITY, DESCRIPTOR::bad_score, 0};
-        if(t.found) bestkp = fast.track(f.descriptor, image,
+        if(t.found()) bestkp = fast.track(f.descriptor, image,
                 t.x + t.dx, t.y + t.dy, fast_track_radius,
                 fast_track_threshold);
 
@@ -43,20 +43,19 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
             xy bestkp2 = fast.track(f.descriptor, image,
                     t.pred_x, t.pred_y, fast_track_radius,
                     fast_track_threshold);
-            if(!t.found || DESCRIPTOR::is_better(bestkp2.score, bestkp.score))
+            if(!t.found() || DESCRIPTOR::is_better(bestkp2.score, bestkp.score))
                 bestkp = bestkp2;
         }
 
         if(bestkp.x != INFINITY) {
             t.dx = bestkp.x - t.x;
             t.dy = bestkp.y - t.y;
-            t.x = bestkp.x;
-            t.y = bestkp.y;
-            t.score = bestkp.score;
-            t.found = true;
         } else {
-            t.score = 0;
-            t.found = false;
+            t.dx = 0;
+            t.dy = 0;
         }
+        t.x = bestkp.x;
+        t.y = bestkp.y;
+        t.score = bestkp.score;
     }
 }

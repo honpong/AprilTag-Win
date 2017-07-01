@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <atomic>
+#include <cmath>
 
 #include "scaled_mask.h"
 
@@ -23,8 +24,8 @@ struct tracker {
         float pred_x, pred_y;
         float score; // scores are > 0, higher scores are better detections / tracks
         bool found;
-        feature_track(std::shared_ptr<struct feature> feature_, float x_, float y_, float pred_x_, float pred_y_, float score_)
-            : feature(feature_), x(x_), y(y_), dx(0), dy(0), pred_x(pred_x_), pred_y(pred_y_), score(score_), found(true) {}
+        feature_track(std::shared_ptr<struct feature> feature_, float x_, float y_, float score_)
+            : feature(feature_), x(x_), y(y_), dx(0), dy(0), pred_x(INFINITY), pred_y(INFINITY), score(score_), found(true) {}
     };
 
     typedef struct {

@@ -2,8 +2,6 @@
 #include "fast_constants.h"
 #include "descriptor.h"
 
-#include "math.h"
-
 using namespace std;
 
 vector<tracker::feature_track> &fast_tracker::detect(const image &image, const std::vector<feature_track *> &current, size_t number_desired)
@@ -22,7 +20,7 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
         if(!is_trackable<DESCRIPTOR::border_size>((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
             continue;
         mask->clear((int)d.x, (int)d.y);
-        feature_points.emplace_back(make_shared<fast_feature<DESCRIPTOR>>(d.x, d.y, image), d.x, d.y, d.x, d.y, d.score);
+        feature_points.emplace_back(make_shared<fast_feature<DESCRIPTOR>>(d.x, d.y, image), d.x, d.y, d.score);
         if (feature_points.size() == number_desired)
             break;
     }
@@ -41,7 +39,7 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
                 fast_track_threshold);
 
         // Not a good enough match, try the filter prediction
-        if(!t.found || DESCRIPTOR::is_better(DESCRIPTOR::good_score, bestkp.score)) {
+        if(t.pred_x != INFINITY && DESCRIPTOR::is_better(DESCRIPTOR::good_score, bestkp.score)) {
             xy bestkp2 = fast.track(f.descriptor, image,
                     t.pred_x, t.pred_y, fast_track_radius,
                     fast_track_threshold);

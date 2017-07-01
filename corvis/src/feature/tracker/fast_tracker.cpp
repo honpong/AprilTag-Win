@@ -35,7 +35,7 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
         auto &t = *tp;
         fast_feature<DESCRIPTOR> &f = *static_cast<fast_feature<DESCRIPTOR>*>(t.feature.get());
 
-        xy bestkp;
+        xy bestkp {INFINITY, INFINITY, DESCRIPTOR::bad_score, 0};
         if(t.found) bestkp = fast.track(f.descriptor, image,
                 t.x + t.dx, t.y + t.dy, fast_track_radius,
                 fast_track_threshold);

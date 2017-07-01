@@ -5,6 +5,7 @@ project(feature CXX)
 add_library(${PROJECT_NAME} STATIC
     detector/fast.h
     detector/fast_9.cpp
+    detector/fast_9.h
 
     descriptor/orb_descriptor.h
     descriptor/orb_descriptor.cpp

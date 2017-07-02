@@ -12,7 +12,7 @@ static bool xy_comp(const xy &first, const xy &second)
 
 vector<xy> &fast_detector_9::detect(const unsigned char *im, const scaled_mask *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight)
 {
-    int need = number_wanted * 8;
+    int need = number_wanted * 2.3;
     features.clear();
     features.reserve(need+1);
     int x, y, mx, my, x1, y1, x2, y2;
@@ -26,7 +26,12 @@ vector<xy> &fast_detector_9::detect(const unsigned char *im, const scaled_mask *
     for(my = y1; my < y2; my+=8) {
         for(mx = x1; mx < x2; mx+=8) {
             if(mask && !mask->test(mx, my)) continue;
+            int bestx, besty;
+            int save_start = bstart;
+            bool found = false;
             for(y = my; y < my+8; ++y) {
+                //This makes this a bit faster on x86, but leaving out for now as it's untested on other architectures and could slow us down:
+                //if(mx % 64 == 0) _mm_prefetch((const char *)(im + (y+8)*stride + mx), 0);
                 for(x = mx; x< mx+8; ++x) {
                     const byte* p = im + y*stride + x;
                     byte val = (byte)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
@@ -47,18 +52,24 @@ vector<xy> &fast_detector_9::detect(const unsigned char *im, const scaled_mask *
                         }
                         
                         if(bmin == bmax - 1 || bmin == bmax) {
-                            features.push_back({(float)x, (float)y, (float)bmin, 0});
-                            push_heap(features.begin(), features.end(), xy_comp);
-                            if(features.size() > need) {
-                                pop_heap(features.begin(), features.end(), xy_comp);
-                                features.pop_back();
-                                bstart = (int)(features[0].score + 1);
-                            }
+                            bestx = x;
+                            besty = y;
+                            bstart = bmin;
+                            found = true;
                             break;
                         }
                         b = (bmin + bmax) / 2;
                     }
                 }
+            }
+            if(found) {
+                features.push_back({(float)bestx, (float)besty, (float)bstart, 0});
+                push_heap(features.begin(), features.end(), xy_comp);
+                if(features.size() > need) {
+                    pop_heap(features.begin(), features.end(), xy_comp);
+                    features.pop_back();
+                    bstart = (int)(features[0].score + 1);
+                } else bstart = save_start;
             }
         }
     }

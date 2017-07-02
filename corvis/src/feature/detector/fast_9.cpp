@@ -15,7 +15,7 @@ vector<xy> &fast_detector_9::detect(const unsigned char *im, const scaled_mask *
     int need = number_wanted * 8;
     features.clear();
     features.reserve(need+1);
-    int x, y, x1, y1, x2, y2;
+    int x, y, mx, my, x1, y1, x2, y2;
 
     int bstart = bthresh;
     x1 = (winx < 8) ? 8: winx;
@@ -23,40 +23,45 @@ vector<xy> &fast_detector_9::detect(const unsigned char *im, const scaled_mask *
     x2 = (winx + winwidth > xsize - 8) ? xsize - 8: winx + winwidth;
     y2 = (winy + winheight > ysize - 8) ? ysize - 8: winy + winheight;
     
-    for(y = y1; y < y2; y++)
-        for(x = x1; x < x2; x++) {
-            if(mask && !mask->test(x, y)) { x += 7 - (x % 8); continue; }
-            const byte* p = im + y*stride + x;
-            byte val = (byte)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
-            
-            int bmin = bstart;
-            int bmax = 255;
-            int b = bstart;
-            
-            //Compute the score using binary search
-            for(;;)
-            {
-                if(fast_9_kernel(p, pixel, val, b))
-                {
-                    bmin=b;
-                } else {
-                    if(b == bstart) break;
-                    bmax=b;
-                }
-                
-                if(bmin == bmax - 1 || bmin == bmax) {
-                    features.push_back({(float)x, (float)y, (float)bmin, 0});
-                    push_heap(features.begin(), features.end(), xy_comp);
-                    if(features.size() > need) {
-                        pop_heap(features.begin(), features.end(), xy_comp);
-                        features.pop_back();
-                        bstart = (int)(features[0].score + 1);
+    for(my = y1; my < y2; my+=8) {
+        for(mx = x1; mx < x2; mx+=8) {
+            if(mask && !mask->test(mx, my)) continue;
+            for(y = my; y < my+8; ++y) {
+                for(x = mx; x< mx+8; ++x) {
+                    const byte* p = im + y*stride + x;
+                    byte val = (byte)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
+                    
+                    int bmin = bstart;
+                    int bmax = 255;
+                    int b = bstart;
+                    
+                    //Compute the score using binary search
+                    for(;;)
+                    {
+                        if(fast_9_kernel(p, pixel, val, b))
+                        {
+                            bmin=b;
+                        } else {
+                            if(b == bstart) break;
+                            bmax=b;
+                        }
+                        
+                        if(bmin == bmax - 1 || bmin == bmax) {
+                            features.push_back({(float)x, (float)y, (float)bmin, 0});
+                            push_heap(features.begin(), features.end(), xy_comp);
+                            if(features.size() > need) {
+                                pop_heap(features.begin(), features.end(), xy_comp);
+                                features.pop_back();
+                                bstart = (int)(features[0].score + 1);
+                            }
+                            break;
+                        }
+                        b = (bmin + bmax) / 2;
                     }
-                    break;
                 }
-                b = (bmin + bmax) / 2;
             }
         }
+    }
     sort_heap(features.begin(), features.end(), xy_comp);
     return features;
 }

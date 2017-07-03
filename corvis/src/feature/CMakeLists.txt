@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 2.8)
 project(feature CXX)
 
 add_library(${PROJECT_NAME} STATIC
-    detector/fast.h
-    detector/fast_9.cpp
     detector/fast_9.h
 
     descriptor/orb_descriptor.h

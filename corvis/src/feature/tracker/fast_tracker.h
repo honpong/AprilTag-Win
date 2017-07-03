@@ -3,7 +3,6 @@
 
 #include "tracker.h"
 #include "fast_constants.h"
-#include "fast.h"
 
 class fast_tracker : public tracker
 {
@@ -21,14 +20,18 @@ class fast_tracker : public tracker
     {
         fast_feature(float x_, float y_, const tracker::image& image) : x(x_), y(y_),
                                                                         descriptor(x_, y_, image) {}
-
         float x, y;
         Descriptor descriptor;
     };
 
 
 private:
-    fast_detector_9 fast;
+    typedef struct { float x, y, score, reserved; } xy;
+    static bool xy_comp(const xy &first, const xy &second) { return first.score > second.score; }
+    int pixel[16];
+    int xsize, ysize, stride, patch_stride, patch_win_half_width;
+    void init(const int x, const int y, const int s, const int ps, const int phw);
+    std::vector<xy> features;
 
 public:
     fast_tracker() {}

@@ -1,8 +1,41 @@
 #include "fast_tracker.h"
 #include "fast_constants.h"
 #include "descriptor.h"
+#include "fast_9.h"
 
 using namespace std;
+
+typedef unsigned char byte;
+
+static void make_offsets(int pixel[], int row_stride)
+{
+    pixel[0] = 0 + row_stride * 3;
+    pixel[1] = 1 + row_stride * 3;
+    pixel[2] = 2 + row_stride * 2;
+    pixel[3] = 3 + row_stride * 1;
+    pixel[4] = 3 + row_stride * 0;
+    pixel[5] = 3 + row_stride * -1;
+    pixel[6] = 2 + row_stride * -2;
+    pixel[7] = 1 + row_stride * -3;
+    pixel[8] = 0 + row_stride * -3;
+    pixel[9] = -1 + row_stride * -3;
+    pixel[10] = -2 + row_stride * -2;
+    pixel[11] = -3 + row_stride * -1;
+    pixel[12] = -3 + row_stride * 0;
+    pixel[13] = -3 + row_stride * 1;
+    pixel[14] = -2 + row_stride * 2;
+    pixel[15] = -1 + row_stride * 3;
+}
+
+void fast_tracker::init(const int x, const int y, const int s, const int ps, const int phw)
+{
+    xsize = x;
+    ysize = y;
+    stride = s;
+    patch_stride = ps;
+    patch_win_half_width = phw;
+    make_offsets(pixel, stride);
+}
 
 vector<tracker::feature_track> &fast_tracker::detect(const image &image, const std::vector<feature_track *> &current, size_t number_desired)
 {
@@ -12,11 +45,75 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
     for (auto &f : current)
         mask->clear((int)f->x, (int)f->y);
 
-    fast.init(image.width_px, image.height_px, image.stride_px, full_patch_width, half_patch_width);
+    init(image.width_px, image.height_px, image.stride_px, full_patch_width, half_patch_width);
 
     feature_points.clear();
     feature_points.reserve(number_desired);
-    for(const auto &d : fast.detect(image.image, mask.get(), number_desired, fast_detect_threshold, 0, 0, image.width_px, image.height_px)) {
+
+    int need = number_desired * 2.3;
+    features.clear();
+    features.reserve(need+1);
+    int x, y, mx, my, x1, y1, x2, y2;
+    
+    int bstart = fast_detect_threshold;
+    x1 = 8;
+    y1 = 8;
+    x2 = image.width_px - 8;
+    y2 = image.height_px - 8;
+    
+    for(my = y1; my < y2; my+=8) {
+        for(mx = x1; mx < x2; mx+=8) {
+            if(mask && !mask->test(mx, my)) continue;
+            int bestx, besty;
+            int save_start = bstart;
+            bool found = false;
+            for(y = my; y < my+8; ++y) {
+                //This makes this a bit faster on x86, but leaving out for now as it's untested on other architectures and could slow us down:
+                //if(mx % 64 == 0) _mm_prefetch((const char *)(im + (y+8)*stride + mx), 0);
+                for(x = mx; x< mx+8; ++x) {
+                    const byte* p = image.image + y*stride + x;
+                    byte val = (byte)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
+                    
+                    int bmin = bstart;
+                    int bmax = 255;
+                    int b = bstart;
+                    
+                    //Compute the score using binary search
+                    for(;;)
+                    {
+                        if(fast_9_kernel(p, pixel, val, b))
+                        {
+                            bmin=b;
+                        } else {
+                            if(b == bstart) break;
+                            bmax=b;
+                        }
+                        
+                        if(bmin == bmax - 1 || bmin == bmax) {
+                            bestx = x;
+                            besty = y;
+                            bstart = bmin;
+                            found = true;
+                            break;
+                        }
+                        b = (bmin + bmax) / 2;
+                    }
+                }
+            }
+            if(found) {
+                features.push_back({(float)bestx, (float)besty, (float)bstart, 0});
+                push_heap(features.begin(), features.end(), xy_comp);
+                if(features.size() > need) {
+                    pop_heap(features.begin(), features.end(), xy_comp);
+                    features.pop_back();
+                    bstart = (int)(features[0].score + 1);
+                } else bstart = save_start;
+            }
+        }
+    }
+    sort_heap(features.begin(), features.end(), xy_comp);
+    
+    for(const auto &d : features) {
         if(!is_trackable<DESCRIPTOR::border_size>((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
             continue;
         mask->clear((int)d.x, (int)d.y);
@@ -32,19 +129,38 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
     for(auto &tp : tracks) {
         auto &t = *tp;
         fast_feature<DESCRIPTOR> &f = *static_cast<fast_feature<DESCRIPTOR>*>(t.feature.get());
+        xy preds[2];
+        int pred_count = 0;
+        if(t.found()) preds[pred_count++] = {t.x + t.dx, t.y + t.dy, 0, 0};
+        if(t.pred_x != INFINITY) preds[pred_count++] = {t.pred_x, t.pred_y, 0, 0};
 
-        xy bestkp {INFINITY, INFINITY, DESCRIPTOR::bad_score, 0};
-        if(t.found()) bestkp = fast.track(f.descriptor, image,
-                t.x + t.dx, t.y + t.dy, fast_track_radius,
-                fast_track_threshold);
-
-        // Not a good enough match, try the filter prediction
-        if(t.pred_x != INFINITY && DESCRIPTOR::is_better(DESCRIPTOR::good_score, bestkp.score)) {
-            xy bestkp2 = fast.track(f.descriptor, image,
-                    t.pred_x, t.pred_y, fast_track_radius,
-                    fast_track_threshold);
-            if(!t.found() || DESCRIPTOR::is_better(bestkp2.score, bestkp.score))
-                bestkp = bestkp2;
+        xy bestkp {INFINITY, INFINITY, DESCRIPTOR::min_score, 0};
+        for(int i = 0; i < pred_count; ++i) {
+            int x, y;
+            int x1 = (int)ceilf(preds[i].x - fast_track_radius);
+            int x2 = (int)floorf(preds[i].x + fast_track_radius);
+            int y1 = (int)ceilf(preds[i].y - fast_track_radius);
+            int y2 = (int)floorf(preds[i].y + fast_track_radius);
+            
+            int half = DESCRIPTOR::border_size;
+            
+            if(x1 >= half && x2 < xsize - half && y1 >= half && y2 < ysize - half) {
+                for(y = y1; y <= y2; y++) {
+                    for(x = x1; x <= x2; x++) {
+                        const byte* p = image.image + y*stride + x;
+                        byte val = (byte)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
+                        if(fast_9_kernel(p, pixel, val, fast_track_threshold)) {
+                            auto score = f.descriptor.distance(x, y, image);
+                            if(DESCRIPTOR::is_better(score,bestkp.score)) {
+                                bestkp.x = (float)x;
+                                bestkp.y = (float)y;
+                                bestkp.score = score;
+                            }
+                        }
+                    }
+                }
+            }
+            if(DESCRIPTOR::is_better(bestkp.score, DESCRIPTOR::good_score)) break;
         }
 
         if(bestkp.x != INFINITY) {

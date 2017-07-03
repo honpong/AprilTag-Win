@@ -995,7 +995,7 @@ void filter_initialize(struct filter *f)
 #endif
     }
 
-    for (int i=f->s.imus.children.size(); i<f->gyroscopes.size(); i++)
+    for (size_t i=f->s.imus.children.size(); i<f->gyroscopes.size(); i++)
         f->s.imus.children.emplace_back(std::make_unique<state_imu>());
 
     for (size_t i = 0; i < f->s.imus.children.size() && i < f->gyroscopes.size(); i++) {
@@ -1015,7 +1015,7 @@ void filter_initialize(struct filter *f)
         imu.extrinsics.T.set_initial_variance(gyro.extrinsics.variance.T);
     }
 
-    for (int i=f->s.imus.children.size(); i<f->accelerometers.size(); i++)
+    for (size_t i=f->s.imus.children.size(); i<f->accelerometers.size(); i++)
         f->s.imus.children.emplace_back(std::make_unique<state_imu>());
 
     for (size_t i = 0; i < f->s.imus.children.size() && i < f->accelerometers.size(); i++) {

@@ -258,6 +258,7 @@ public:
     }
     virtual void drop_feature(uint64_t feature_id) override {
     }
+    virtual void drop_all_features() override {}
 };
 
 #ifndef check

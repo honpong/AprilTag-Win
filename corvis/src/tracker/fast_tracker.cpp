@@ -69,3 +69,8 @@ void fast_tracker::drop_feature(uint64_t feature_id)
 {
     feature_map.erase(feature_id);
 }
+
+void fast_tracker::drop_all_features()
+{
+    feature_map.clear();
+}

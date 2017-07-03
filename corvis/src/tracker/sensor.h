@@ -29,7 +29,6 @@ struct sensor
         struct transformation_variance { v3 Q = v3::Zero(), T = v3::Zero(); } variance;
     } extrinsics;
     sensor(int _id, std::string _name) : id(_id), name(_name) {}
-    sensor(int _id) : id(_id), name("Sensor" + std::to_string(_id)) {}
 };
 
 template <int size_> class decimator {

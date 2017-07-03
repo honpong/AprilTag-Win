@@ -16,11 +16,11 @@
 
 
 // 2:  Source Specific #defines and types  (typedef,enum,struct)
-#define DEBUG_PRINTS
-#include <stdio.h>
+//#define DEBUG_PRINTS
+//#include <stdio.h>
 // ----------------------------------------------------------------------------
 // 3: Global Data (Only if absolutely necessary)
-extern ShavekpMatchingSettings kpMatchingParams;
+//extern ShavekpMatchingSettings cvrt0_kpMatchingParams;
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
 static stereo_matching stereo_matching_o;
@@ -29,11 +29,13 @@ static stereo_matching stereo_matching_o;
 // ----------------------------------------------------------------------------
 // 6: Functions Implementation
 // ----------------------------------------------------------------------------
-extern "C" void stereo_kp_matching_main(u8* p_kp1, u8* p_kp2,int* kp_intersect,float* kp_intersect_depth)
+
+
+extern "C" void stereo_kp_matching(ShavekpMatchingSettings *kpMatchingParams,  u8* p_kp1, u8* p_kp2,const feature_t * f1_group[] ,const feature_t * f2_group[],u8* shave_new_keypoint,u8* shave_other_keypoint)
 {
-    stereo_matching_o.init();
-    stereo_matching_o.stereo_kp_matching(p_kp1,p_kp2,kp_intersect,kp_intersect_depth) ;
-    //todo::Amir we can call init only at first time
+    stereo_matching_o.init(*kpMatchingParams);
+    stereo_matching_o.stereo_kp_matching_and_compare(p_kp1,p_kp2,f1_group,f2_group,shave_new_keypoint,shave_other_keypoint);
+
 SHAVE_HALT;
 return;
 }

@@ -9,7 +9,6 @@
 #include "fast9M2.h"
 #include "svuCommonShave.h"
 
-
 #define FAST_ROWS 7
 #define TOTAL_ROWS (FAST_ROWS + 1)
 #define DMA_MASK NUM_ROWS
@@ -22,76 +21,6 @@ dmaTransactionList_t  dmaFastTask[TOTAL_ROWS];
 dmaTransactionList_t  dmaSingleFeatureTask[1];
 dmaTransactionList_t  dmaOutTask[2];
 
-//NCC: use with threshold of -0.50 - -0.70(we negate at the bottom to get error-like value
-//NCC doesn't seem to benefit from double-weighting the center
-float inline fast_detector_9::score_match(byte **pFastLines, const int x1, const int x2, float max_error, unsigned short mean1)
-{
-    int window = patch_win_half_width;
-    short mean2 = compute_mean7x7(pFastLines, x2);
-    const unsigned char *p1 = singleFeatureBuffer + x1 - window;
-    const unsigned char *p2;
-    int8  top = 0, bottom1 = 0, bottom2 = 0;
-
-    for(int dy = 0; dy < FAST_ROWS; ++dy, p1+=patch_stride) {
-        p2 = pFastLines[dy] + x2 - window;
-        int8 t1 = {p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], p1[6], 0};
-        t1 = t1 - (int)mean1;
-        int8 t2 = {p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], p2[6], 0};
-        t2 = t2 - (int)mean2;
-        int8 t12 = t1 *t2;;
-        top += t12;
-        int8 t1square = t1 * t1;
-        int8 t2square = t2 * t2;
-        bottom1 += t1square;
-        bottom2 += t2square;
-        if( (dy > 1) && (dy < 5))
-        {
-            top.s234 += t1.s234 * t2.s234;
-            bottom1.s234 += (t1.s234 * t1.s234);
-            bottom2.s234 += (t2.s234 * t2.s234);
-        }
-    }
-
-    float sumTop = (float)top[0] + (float)top[1] + (float)top[2]+ (float)top[3] +
-            (float)top[4] + (float)top[5] + (float)top[6];
-    float sumBottom1 = (float)bottom1[0] + (float)bottom1[1] + (float)bottom1[2]+ (float)bottom1[3] +
-            (float)bottom1[4] + (float)bottom1[5] + (float)bottom1[6];
-    float sumBottom2 = (float)bottom2[0] + (float)bottom2[1] + (float)bottom2[2]+ (float)bottom2[3] +
-            (float)bottom2[4] + (float)bottom2[5] + (float)bottom2[6];
-    // constant patches can't be matched
-    if(sumBottom1 < 1e-15 || sumBottom2 < 1e-15 || sumTop < 0.f){
-      return max_error;
-   }
-    return (sumTop * sumTop)/(sumBottom1 * sumBottom2);
-}
-
-/*
- * compute the mean of a 7x7 patch
- * double the weight of the inner 3x3
- * neglects the value after the decimal point
- */
-unsigned short inline fast_detector_9::compute_mean7x7(u8 **pPatch, const int x)
-{
-    int full = patch_win_half_width * 2 + 1;
-    int area = full * full + 3 * 3;
-
-    ushort8 sum = 0;
-
-    for (int y = 0; y < FAST_ROWS; ++y) {
-        //TODO: gather load
-        u8* pLine = pPatch[y] + x - patch_win_half_width;
-        ushort8 line = {pLine[0], pLine[1], pLine[2], pLine[3], pLine[4], pLine[5], pLine[6], 0};
-        sum += line;
-        if(y > 1 && y < 5){
-            sum.s234 += line.s234;
-        }
-    }
-    //TODO: reduction function
-    unsigned short sum1 = sum[0] + sum[1] + sum [2]+ sum[3] + sum[4] + sum [5] + sum[6];
-    unsigned short mean = sum1 / area;
-    return mean;
-}
-
 void fast_detector_9::init(const int x, const int y, const int s, const int ps, const int phw)
 {
     xsize = x;
@@ -101,7 +30,6 @@ void fast_detector_9::init(const int x, const int y, const int s, const int ps, 
     patch_win_half_width = phw;
 
 }
-
 
 void fast_detector_9::detect(const u8* pImage,
 		int bthresh,
@@ -205,7 +133,6 @@ void fast_detector_9::detect(const u8* pImage,
 xy fast_detector_9::track(u8* im1,
 							const u8* im2,
 							int xcurrent,
-							int ycurrent,
 							float predx,
 							float predy,
 							float radius,
@@ -214,7 +141,7 @@ xy fast_detector_9::track(u8* im1,
 
 	int x, y, x1, y1, x2, y2, paddedWidth, width;
 	xy pBest = { -1, -1, min_score, 0.f };
-
+	unsigned short mean1, mean2;
 	x1 = (int) (predx - radius + 0.5);
 	x2 = (int) (predx + radius - 0.5);
 	y1 = (int) (predy - radius + 0.5);
@@ -252,12 +179,11 @@ xy fast_detector_9::track(u8* im1,
 	dmaStartListTask(dmaRef[0]);
 	dmaWaitTask(dmaRef[0]);
 
-	u8* patch[7];
+	u8* patch1_pa[7];
 	for(int i = 0; i < 7; ++i){
-	    patch[i] = singleFeatureBuffer + i * (patch_win_half_width * 2 + 1);
+	    patch1_pa[i] = singleFeatureBuffer + i * (patch_win_half_width * 2 + 1);
 	}
-	unsigned short mean1 = compute_mean7x7(patch, 3);
-
+	mean1 = compute_mean7x7_from_pointer_array(patch_win_half_width,patch_win_half_width ,patch1_pa) ;
 	for (y = y1; y < y2; y++) {
 		const byte* pSrc = im2 + y * stride;
 
@@ -280,8 +206,10 @@ xy fast_detector_9::track(u8* im1,
 			x = (int) *(baseBuffer + 2 + i); // 0 <= x <= 10
             if (x < PADDING || x >= width + PADDING) continue;
 
-			float score = score_match(pFastLines, xcurrent,
-			                    x, pBest.score, mean1);
+			//float score = score_match(pFastLines, xcurrent,x, pBest.score, mean1);
+            mean2 = compute_mean7x7_from_pointer_array(x,patch_win_half_width ,pFastLines) ;
+            float score = score_match_from_pointer_array(patch1_pa, pFastLines,patch_win_half_width , x,patch_win_half_width,pBest.score ,mean1, mean2);
+  		  	int shaveNum = scGetShaveNumber();
 
 			if (score > pBest.score) {
 				pBest.x = (float) x + x1 - PADDING;
@@ -309,14 +237,14 @@ void fast_detector_9::trackFeature(TrackingData* trackingData,int index, const u
 	float fast_min_match = 0.2f*0.2f;
 	float fast_good_match = 0.65f*0.65f;
 	xy bestkp = track(data.patch, image,
-	                patch_win_half_width, patch_win_half_width,
+	                patch_win_half_width,
 	                data.x1, data.y1, fast_track_radius,
 	                fast_track_threshold, fast_min_match);
 //
 	// Not a good enough match, try the filter prediction
 	if(bestkp.score < fast_good_match) {
 		xy bestkp2 = track(data.patch, image,
-				patch_win_half_width, patch_win_half_width,
+				patch_win_half_width,
 				data.x2, data.y2, fast_track_radius,
 				fast_track_threshold, bestkp.score);
 		if(bestkp2.score > bestkp.score)
@@ -326,7 +254,7 @@ void fast_detector_9::trackFeature(TrackingData* trackingData,int index, const u
 	// Still no match? Guess that we haven't moved at all
 	if(bestkp.score < fast_min_match) {
 		xy bestkp2 = track(data.patch, image,
-				patch_win_half_width, patch_win_half_width,
+				patch_win_half_width,
 				data.x3, data.y3, fast_track_radius,
 				fast_track_threshold, bestkp.score);
 		if(bestkp2.score > bestkp.score)

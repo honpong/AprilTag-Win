@@ -20,21 +20,17 @@
 #include "filter.h"
 #include <memory>
 #include "fast_tracker.h"
-#ifdef MYRIAD2
-#include "shave_tracker.h"
-#endif
 #ifdef HAVE_IPP
 #include "ipp_tracker.h"
 #endif
 #include "Trace.h"
 
+#ifdef MYRIAD2
+#include "shave_tracker.h"
 #define USE_SHAVE_TRACKER 1
-#define SHAVE_STEREO_MATCHING
-#ifdef SHAVE_STEREO_MATCHING
-#include "shave_stereo.h"
-#endif
 #define MAX_KP2 200
 #define MAX_KP1 40
+#endif // MYRIAD2
 
 const static sensor_clock::duration min_steady_time = std::chrono::microseconds(100000); //time held steady before we start treating it as steady
 const static sensor_clock::duration steady_converge_time = std::chrono::microseconds(200000); //time that user needs to hold steady (us)
@@ -1076,13 +1072,12 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         std::vector<tracker::point> * new_keypoints_p = &new_keypoints;
 // START PUSH 2 SHAVE
 #ifdef SHAVE_STEREO_MATCHING
-        //todo:Amir : f1_group and f2_group can be pointers ??
         const fast_tracker::feature * f2_group[MAX_KP2];
         const fast_tracker::feature * f1_group[MAX_KP1];
         int i=0;
         for(auto & k2 : kp2)
         {
-            f2_group[i] = &(tracker2->get_feature(k2.id));  //todo: amir check if we need the &
+            f2_group[i] = &(tracker2->get_feature(k2.id));
             i++;
         }
 
@@ -1093,9 +1088,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             f1_group[j] = &(tracker1->get_feature(k1.id));
             j++;
         }
-        shave_stereo shave_stereo_o;
-        shave_stereo_o.stereo_matching_shave(*keypoints, kp2, f1_group, f2_group, camera_state1, camera_state2, new_keypoints_p);
-        //new_keypoints_p =  new_keypoints_address ;
+        shave_tracker shave_stereo_o;
+        shave_stereo_o.stereo_matching_full_shave(*keypoints, kp2, f1_group, f2_group, camera_state1, camera_state2, new_keypoints_p);
 #else
         // preprocess data for kp1
         m3 Rw1 = camera_state1.extrinsics.Q.v.toRotationMatrix();

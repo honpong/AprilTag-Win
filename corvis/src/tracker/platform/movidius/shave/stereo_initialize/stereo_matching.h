@@ -11,17 +11,26 @@
 #include <moviVectorUtils.h>
 #include <math.h>
 #include "stereo_commonDefs.hpp"
-
+#include "../../../../fast_constants.h"
 // 2:  Source Specific #defines and types  (typedef,enum,struct)
 // 3: Global Data (Only if absolutely necessary)
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
 // ----------------------------------------------------------------------------
 // 5: Static Function Prototypes
+struct feature_t
+{
+    uint8_t patch[full_patch_width*full_patch_width];
+    //unsigned char *patch;
+    float dx, dy;
+};
 
-class stereo_matching
+    class stereo_matching
 {
     private:
+        //compare
+        int xsize, ysize, stride, patch_stride, patch_win_half_width;
+        //kp_intersect
         float4x4 R1w_transpose;
         float4x4 R2w_transpose;
         float4 camera1_extrinsics_T_v;
@@ -31,9 +40,8 @@ class stereo_matching
         float EPS;
         bool l_l_intersect_shave(int i , int j ,float4 *pa,float4 *pb);
 
-
     public:
-        void init();
-        void stereo_kp_matching(u8* p_kp1, u8* p_kp2,int* kp_intersect , float* kp_intersect_depth);
+        void init(ShavekpMatchingSettings kpMatchingParams);
+        void stereo_kp_matching_and_compare( u8* p_kp1, u8* p_kp2,const feature_t * f1_group[] ,const feature_t * f2_group[], u8* new_keypoint_p, u8* other_keypoint_p);
 };
 #endif /* CORE_TARGET_SHAVE_STEREO_MATCHING_H_ */

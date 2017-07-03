@@ -8,33 +8,26 @@
 #include <swcFrameTypes.h>
 #include <svuCommonShave.h>
 #include <swcSIMDUtils.h>
+#include <string.h>
 
 // 2:  Source Specific #defines and types  (typedef,enum,struct)
 //#define DEBUG_PRINTS
 #include "stereo_commonDefs.hpp"
-
-#if 0 // Configure debug prints
-#include <stdio.h>
-#define DPRINTF(...) printf(__VA_ARGS__)
-#else
-#define DPRINTF(...)
-#endif
+#include "common_shave.h"
 
 // ----------------------------------------------------------------------------
 // 3: Global Data (Only if absolutely necessary)
-extern ShavekpMatchingSettings kpMatchingParams;
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
 static u8 __attribute__((section(".cmx.bss"))) p_kp1_Buffer[sizeof(float3_t)*MAX_KP1+sizeof(int)]; //l_float3
 static u8 __attribute__((section(".cmx.bss"))) p_kp2_Buffer[sizeof(float3_t)*MAX_KP2+sizeof(int)]; //l_float3
-static int   __attribute__((section(".cmx.bss"))) kp_intersect_Buffer[MAX_KP2_INTERSECT+ 1];    //reduce 2'nd dim to 64
-static int   __attribute__((section(".cmx.bss"))) kp_intersect_Buffer_1[MAX_KP2_INTERSECT+ 1];    //reduce 2'nd dim to 64
-static float __attribute__((section(".cmx.bss"))) kp_intersect_depth_Buffer[MAX_KP2_INTERSECT]; //reduce 2'nd dim to 64
-static float __attribute__((section(".cmx.bss"))) kp_intersect_depth_Buffer_1[MAX_KP2_INTERSECT]; //reduce 2'nd dim to 64
+static u8 __attribute__((section(".cmx.bss"))) shave_new_keypoint_buffer[sizeof(kp_out_t)*((MAX_KP1)/(SHAVES_USED))+sizeof(int)];
+static u8 __attribute__((section(".cmx.bss"))) shave_other_keypoint_buffer[sizeof(kp_out_t)*((MAX_KP1)/(SHAVES_USED))+sizeof(int)];
+static u8 __attribute__((section(".cmx.data")))  f1_FeatureBuffer[128];
+static u8 __attribute__((section(".cmx.data")))  f2_FeatureBuffer[128];
 
 dmaTransactionList_t /*__attribute__((section(".cmx.cdmaDescriptors")))*/ dmaImportKeypoint[2];
 dmaTransactionList_t /*__attribute__((section(".cmx.cdmaDescriptors")))*/ dmaOutIntersect[2];
-
 
 // ----------------------------------------------------------------------------
 // 5: Static Function Prototypes
@@ -47,8 +40,9 @@ static float4 m_mult ( float4x4 A, float4 B)
 // ----------------------------------------------------------------------------
 // 6: Functions Implementation
 // ----------------------------------------------------------------------------
-void stereo_matching::init()
+void stereo_matching::init(ShavekpMatchingSettings kpMatchingParams)
 {
+    //kp intersect
     camera1_extrinsics_T_v=  { kpMatchingParams.camera1_extrinsics_T_v[0], kpMatchingParams.camera1_extrinsics_T_v[1], kpMatchingParams.camera1_extrinsics_T_v[2], kpMatchingParams.camera1_extrinsics_T_v[3] };
     camera2_extrinsics_T_v=  { kpMatchingParams.camera2_extrinsics_T_v[0], kpMatchingParams.camera2_extrinsics_T_v[1], kpMatchingParams.camera2_extrinsics_T_v[2], kpMatchingParams.camera2_extrinsics_T_v[3] };
     p_o1_transformed= { kpMatchingParams.p_o1_transformed[0], kpMatchingParams.p_o1_transformed[1], kpMatchingParams.p_o1_transformed[2] ,0};
@@ -57,6 +51,9 @@ void stereo_matching::init()
    //todo: Amir - castinig works,consider convert all other also!!!
     R1w_transpose= * (float4x4*) kpMatchingParams.R1w_transpose;
     R2w_transpose= * (float4x4*) kpMatchingParams.R2w_transpose;
+    //compare
+    patch_stride = kpMatchingParams.patch_stride;
+    patch_win_half_width = kpMatchingParams.patch_win_half_width;
 }
 
 bool stereo_matching::l_l_intersect_shave(int i , int j,float4 *pa,float4 *pb)
@@ -110,42 +107,74 @@ bool stereo_matching::l_l_intersect_shave(int i , int j,float4 *pa,float4 *pb)
     return(true);
 }
 
-void stereo_matching::stereo_kp_matching(u8* p_kp1, u8* p_kp2, int* kp_intersect, float* kp_intersect_depth)
+void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2,const feature_t * f1_group[] ,const feature_t * f2_group[], u8* new_keypoint_p, u8* other_keypoint_p)
 {
+  //kp intersect vars
     float4 pa,pb;
     bool success= 0;
     float depth,error,error_2;
     float4 cam1_intersect,cam2_intersect;
-    int MaKPfound;
-    int* MA_kp_intersect;
-    float* MA_kp_intersect_depth;
     bool dma_flag =0 ;
+  //kp compare vars
+    float second_best_score = fast_good_match;
+    float best_score = fast_good_match;
+    float best_depth = 0;
+    float score  = 0 ;
+    float min_score = 0;
+    unsigned short mean1 , mean2 ;
     //DMA - bring KP1 - KP2
-    dmaTransactionList_t* dmaRef[2];
+    dmaTransactionList_t* dmaRef[3];
     dmaTransactionList_t* dmaOut[2];
+
     u32 dmaRequsterId= dmaInitRequester(1);
     dmaRef[0]= dmaCreateTransaction(dmaRequsterId, &dmaImportKeypoint[0], p_kp1, p_kp1_Buffer, sizeof(float3_t)*MAX_KP1+sizeof(int));
     dmaRef[1]= dmaCreateTransaction(dmaRequsterId, &dmaImportKeypoint[1], p_kp2, p_kp2_Buffer, sizeof(float3_t)*MAX_KP2+sizeof(int));
     dmaLinkTasks(dmaRef[0], 1, dmaRef[1]);
     dmaStartListTask(dmaRef[0]);
-    dmaWaitTask(dmaRef[1]);
+    dmaWaitTask(dmaRef[0]);
+
     int n_kp1=*((int*)(p_kp1_Buffer));
     int n_kp2=*((int*)(p_kp2_Buffer));
+    int & n_new_keypoint  =(*(int*)(shave_new_keypoint_buffer));
+    int & n_other_keypoint=(*(int*)(shave_other_keypoint_buffer));
+    int patch_buffer_size = patch_stride *patch_stride;
+    float3_t* kp1=(float3_t*)(p_kp1_Buffer+sizeof(int));
+    kp_out_t* new_keypoint = (kp_out_t*) (shave_new_keypoint_buffer+sizeof(int));
+    kp_out_t* other_keypoint = (kp_out_t*) (shave_other_keypoint_buffer+sizeof(int));
+    n_new_keypoint=0;
+    n_other_keypoint=0;
+    int shaveNum = scGetShaveNumber() ;
+    DPRINTF("\t#AS- START SHAVE %d\n",shaveNum);
 
-    for(int i=0; i< n_kp1; i++)
+    //prepare patch pointer array to buffers
+    u8 *patch1_pa[7], *patch2_pa[7];
+    for(int i = 0; i < 7; ++i){
+        patch1_pa[i] = f1_FeatureBuffer + i * patch_stride;
+    }
+
+    for(int i = 0; i < 7; ++i){
+        patch2_pa[i] = f2_FeatureBuffer + i *patch_stride;
+    }
+
+    //start kp1 loop
+    int start_index = (int) ( shaveNum*(n_kp1)/(SHAVES_USED));
+    int end_index ;
+    if (shaveNum == 3)
+       end_index = n_kp1 ;
+    else
+       end_index = (int)( (shaveNum+1)*(n_kp1)/(SHAVES_USED)) ;
+
+    for (int i=start_index ; i < end_index ; i++)
     {
-        if (dma_flag==0)
-        {
-            MA_kp_intersect= kp_intersect_Buffer;
-            MA_kp_intersect_depth= kp_intersect_depth_Buffer;
-            dma_flag = 1 ;
-        } else  {
-            MA_kp_intersect= kp_intersect_Buffer_1;
-            MA_kp_intersect_depth= kp_intersect_depth_Buffer_1;
-            dma_flag = 0 ;
-        }
 
-        MaKPfound=0;
+        best_score = second_best_score = fast_good_match;
+        best_depth = 0;
+
+        //bring f1 feature
+        u8* patch_source =  (u8*) (f1_group[i]->patch );
+        memcpy(f1_FeatureBuffer,patch_source,patch_buffer_size); //memcpy gave better results than DMA.
+        mean1 = compute_mean7x7_from_pointer_array(patch_win_half_width,patch_win_half_width ,patch1_pa) ;
+
         for ( int j=0; j< n_kp2; j++)
         {
             success= l_l_intersect_shave(i,j, &pa, &pb);
@@ -167,47 +196,62 @@ void stereo_matching::stereo_kp_matching(u8* p_kp1, u8* p_kp2, int* kp_intersect
             //intersection_error_percent= error/cam1_intersect[2];
             if(float (error_2/(cam1_intersect[2]*cam1_intersect[2])) > (0.02*0.02))
             {
-                error= sqrt(error_2);
-                DPRINTF("intersection_error_percent too large %f, failing\n",float (error/cam1_intersect[2] ));
+                DPRINTF("intersection_error_percent too large %f, failing\n",float (error/cam1_intersect[2]));
                 continue;
             }
-            //float3 intersection= pa;
+            error= sqrt(error_2);
             depth= cam1_intersect[2];
-            MA_kp_intersect[MaKPfound+1]= j;
-            MA_kp_intersect_depth[MaKPfound]= depth;
-            MaKPfound++;
-            DPRINTF("%d:%d depth %f,error %f,intersection %f \t\n ",i,j, cam1_intersect[2],error,error/cam1_intersect[2]);
-        }
-        MA_kp_intersect[0]= MaKPfound;
+//START COMPARE
+            DPRINTF("\t\tkp1 %d, kp2 %d, depth %f, error %f \n",i,j,depth,error);
+            if(depth && error < 0.02 )
+            {
+                //bring f2 feature
+                u8* patch_source_2 = (u8*) (f2_group[j]->patch ) ;
+                memcpy(f2_FeatureBuffer,patch_source_2,patch_buffer_size);
 
-//DMA_TRANSACTION_ON
-            if (i!=0)
-                 dmaWaitTask(dmaOut[0]);
-            dmaOut[0]= dmaCreateTransaction(dmaRequsterId, &dmaOutIntersect[0], (u8*)MA_kp_intersect, (u8*) &kp_intersect[i*(MAX_KP2_INTERSECT+1)], sizeof (int)*(MaKPfound+ 1));
-            dmaOut[1]= dmaCreateTransaction(dmaRequsterId, &dmaOutIntersect[1], (u8*)MA_kp_intersect_depth, (u8*) &kp_intersect_depth[i*(MAX_KP2_INTERSECT)], sizeof (float)*MaKPfound+1);
-            dmaLinkTasks(dmaOut[0], 1, dmaOut[1]);
-            dmaStartListTask(dmaOut[0]);
-    }
+                mean2 = compute_mean7x7_from_pointer_array(patch_win_half_width,patch_win_half_width ,patch2_pa) ;
+                score = score_match_from_pointer_array( patch1_pa, patch2_pa,patch_win_half_width,patch_win_half_width,patch_win_half_width,min_score,mean1, mean2) ;
+                if(score > best_score)
+                {
+                    DPRINTF("\t\t\t After score:kp1 %d, kp2 %d ,shave %d , after mean2:%d, score %f , depth %f , Error %f\n",i,j, mean1,mean2,score, depth ,error);
+                    second_best_score = best_score;
+                    best_score = score;
+                    best_depth = depth;
+                }
+            }
+        } //end kp2 loop
+
+        if(best_depth && second_best_score == fast_good_match)
+        {
+            new_keypoint[n_new_keypoint].index=i;
+            new_keypoint[n_new_keypoint].depth=best_depth;
+            DPRINTF("\t\t\t new_keypoints:Index : %d ,Depth %f \n",new_keypoint[n_new_keypoint].index,new_keypoint[n_new_keypoint].depth);
+            n_new_keypoint++;
+        } else
+        {
+            other_keypoint[n_other_keypoint].index=i;
+            DPRINTF("\t\t\t other_keypoints:index : %d ; best depth %f, second score %f \n",other_keypoint[n_other_keypoint].index, best_depth ,second_best_score );
+            n_other_keypoint++ ;
+        }
+    }//end kp1 loop
+
+    //DMA_TRANSACTION
+    dmaOut[0]= dmaCreateTransaction(dmaRequsterId, &dmaOutIntersect[0], (u8*)shave_new_keypoint_buffer      , (u8*) new_keypoint_p    , sizeof (int)+sizeof(kp_out_t)*n_new_keypoint);
+    dmaOut[1]= dmaCreateTransaction(dmaRequsterId, &dmaOutIntersect[1], (u8*)shave_other_keypoint_buffer    , (u8*) other_keypoint_p  , sizeof (int)+sizeof(kp_out_t)*n_other_keypoint);
+    dmaLinkTasks(dmaOut[0], 1, dmaOut[1]);
+    dmaStartListTask(dmaOut[0]);
     dmaWaitTask(dmaOut[0]);
 
 #ifdef DEBUG_PRINTS
-    if(shaveNum== 5)
-    {
-        printf("\n kp_intersect\n");
-        for(int i=0; i< n_kp1; i++)
-        {
-            MA_kp_intersect= &kp_intersect[i*(MAX_KP2_INTERSECT+1)];
-            printf("\n line %d :: %d :",i,MA_kp_intersect[0]);
-             for ( int j=0; j< MA_kp_intersect[0]; j++)
-             {
-                    printf(" %d",MA_kp_intersect[j+1]);
-             }
-        }
-        printf ("\n");
-    }
-#endif
+    //for debug
+    kp_out_t* shave_new_keypoint_p   = (kp_out_t*) (new_keypoint_p+sizeof(int));
+    kp_out_t* shave_other_keypoint_p = (kp_out_t*) (other_keypoint_p+sizeof(int));
+    DPRINTF("#DMA_OUTA n_new_keypoint %d ,&new_keypoint_p %d , n_other_keypoint %d ,&other_keypoint_p %d \n", n_new_keypoint,&new_keypoint_p, n_other_keypoint,&other_keypoint_p );
+    DPRINTF("#DMA_OUTB new_keypoint %d ,other_keypoint %d , %u,%u\n", *(int* ) new_keypoint_p , *(int* ) other_keypoint_p , new_keypoint_p ,other_keypoint_p );
+    if (*(int* ) other_keypoint_p>0 )
+       DPRINTF("#DMA_OUTC index depth %d %f\n", shave_new_keypoint_p[0].index,shave_new_keypoint_p[0].depth);
+ #endif
 
 }
-
 
 

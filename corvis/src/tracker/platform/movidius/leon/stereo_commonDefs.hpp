@@ -6,10 +6,8 @@
 	#define STEREO_COMMON_COMMONDEFS2_HPP_
 	#define MAX_KP1 40
 	#define MAX_KP2 200
-	#define MAX_KP2_INTERSECT 64
-	#define SHAVE_USED 5
+	#define SHAVES_USED 4
 
-	//#include <moviVectorUtils.h>
 	typedef float float4_t[4];
 	typedef float float3_t[3];
 	typedef float float4x4_t[4][4];
@@ -58,8 +56,10 @@
 		float3_t p_o1_transformed;
 		float3_t p_o2_transformed;
 		float EPS;
+	    int patch_stride;
+	    int patch_win_half_width;
 
-		ShavekpMatchingSettings( float4x4_t I_R1w_transpose , float4x4_t I_R2w_transpose , float4_t I_camera1_extrinsics_T_v , 	float4_t I_camera2_extrinsics_T_v  ,  float3_t I_p_o1_transformed ,  float3_t I_p_o2_transformed, float I_EPS)
+		ShavekpMatchingSettings( float4x4_t I_R1w_transpose , float4x4_t I_R2w_transpose , float4_t I_camera1_extrinsics_T_v , 	float4_t I_camera2_extrinsics_T_v  ,  float3_t I_p_o1_transformed ,  float3_t I_p_o2_transformed, float I_EPS, int half_patch_width)
 		{
 			l_float4x4_copy (R1w_transpose , I_R1w_transpose );
 			l_float4x4_copy (R2w_transpose , I_R2w_transpose );
@@ -68,6 +68,8 @@
 			l_float3_copy (p_o1_transformed , I_p_o1_transformed );
 			l_float3_copy (p_o2_transformed , I_p_o2_transformed );
 			EPS = I_EPS;
+			patch_stride=half_patch_width*2+1;
+			patch_win_half_width=half_patch_width;
 		}
 
 		ShavekpMatchingSettings()
@@ -87,9 +89,15 @@
 			l_float3_copy (p_o2_transformed,Z3 );
 			//float
 			EPS = 0;
+			patch_win_half_width= 0;
+			patch_stride =0 ;
 		}
 	};
 
+	struct kp_out_t {
+		int index;
+		float depth;
+	};
 
 
 #endif /* COMMON_COMMONDEFS_HPP_ */

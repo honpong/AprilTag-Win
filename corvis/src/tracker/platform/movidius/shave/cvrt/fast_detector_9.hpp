@@ -9,6 +9,7 @@
 #define SHAVE_FAST_DETECTOR_9_HPP_
 #include <mv_types.h>
 #include "commonDefs.hpp"
+#include "../stereo_initialize/common_shave.h"
 
 typedef struct { float x, y, score, reserved;} xy;
 typedef unsigned char byte;
@@ -18,7 +19,6 @@ class fast_detector_9 {
     int xsize, ysize, stride, patch_stride, patch_win_half_width;
     float inline score_match(byte **pFastLines, const int x1, const int x2, float max_error, unsigned short mean1);
 
-    unsigned short inline compute_mean7x7(u8** pPatch, const int x);
     void detectC(u8** pFastLines, u8* pscores, u16* pOffsets, int bthresh,  int width);
  public:
     //std::vector<xy> features;
@@ -36,7 +36,6 @@ class fast_detector_9 {
     xy track(u8* im1,
     			const u8* im2,
     			int xcurrent,
-    			int ycurrent,
     			float predx,
     			float predy,
     			float radius,

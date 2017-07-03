@@ -132,6 +132,7 @@ SLAM_CCOPT   := \
 	-Idummy \
 	-I$(SLAM_PLATFORM_PREFIX) \
 	-I$(SLAM_PLATFORM_PREFIX)/leon/ \
+	-I$(SLAM_PREFIX)/corvis/src/tracker/platform/movidius/ \
 	-I$(SLAM_PREFIX)/corvis/src/tracker \
 	-I$(SLAM_PREFIX)/ThirdParty/eigen \
 	-I$(SLAM_PREFIX)/ThirdParty/spdlog/include \
@@ -140,10 +141,11 @@ SLAM_CCOPT   := \
 	-Wno-unused-variable \
 	-Wno-unused-parameter \
 	-Wno-sign-compare \
+	-fno-strict-aliasing \
 	-DRAPIDJSON_64BIT=1 \
 	-DEIGEN_STACK_ALLOCATION_LIMIT=1024
 
-SLAM_CPPOPT  := -std=gnu++11 -fpermissive -fno-exceptions -Wno-reorder -Wno-missing-field-initializers
+SLAM_CPPOPT  := -std=gnu++11 -fpermissive -fno-exceptions -Wno-reorder -Wno-missing-field-initializers -fno-strict-aliasing
 
 LEON_APP_CPP_SOURCES += $(SLAM_SOURCES)
 LEON_APP_C_SOURCES   += $(SLAM_C_SOURCES)
@@ -184,13 +186,13 @@ MVCMDOPT   = -mvcmdVersion:v00.70
 MVASMOPT  += -a
 #MVCC_OPT_LEVEL= -O2
 
-SHAVE_APP_LIBS += $(cvrt).mvlib $(cvst).mvlib $(cholesky).mvlib
+SHAVE_APP_LIBS += $(cvrt).mvlib $(cholesky).mvlib
 SHAVE0_APPS += $(cvrt).shv0lib
 SHAVE1_APPS += $(cvrt).shv1lib
 SHAVE2_APPS += $(cvrt).shv2lib
 SHAVE3_APPS += $(cvrt).shv3lib
 SHAVE4_APPS += $(blis).shv4lib
-SHAVE5_APPS += $(cvst).shv5lib
+
 SHAVE7_APPS += $(cholesky).shv7lib
 SHAVE8_APPS += $(cholesky).shv8lib
 SHAVE9_APPS += $(cholesky).shv9lib
@@ -201,10 +203,10 @@ PROJECTCLEAN += $(SHAVE4_APPS) $(SHAVE5_APPS) $(SHAVE6_APPS) $(SHAVE7_APPS) $(SH
 PROJECTCLEAN += $(SHAVE9_APPS) $(SHAVE10_APPS) 
 
 cvrt = $(DirAppOutput)/cvrt
-cvst = $(DirAppOutput)/cvst
 blis = $(DirAppOutput)/blis
 
 SHAVE_CPP_SOURCES_cvrt = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cvrt/*.cpp)
+SHAVE_CPP_SOURCES_cvrt += $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/stereo_initialize/*.cpp)
 SHAVE_ASM_SOURCES_cvrt = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cvrt/*.asm)
 
 SHAVE_GENASMS_cvrt = \
@@ -213,14 +215,6 @@ SHAVE_GENASMS_cvrt = \
 SHAVE_cvrt_OBJS = \
 	$(patsubst $(DirAppObjBase)%.asmgen,$(DirAppObjBase)%_shave.o,$(SHAVE_GENASMS_cvrt)) \
 	$(patsubst %.asm,$(DirAppObjBase)%_shave.o,$(SHAVE_ASM_SOURCES_cvrt))
-
-SHAVE_CPP_SOURCES_cvst = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/stereo_initialize/*.cpp)
-
-SHAVE_GENASMS_cvst = \
-	$(patsubst %.cpp,$(DirAppObjBase)%.asmgen,$(SHAVE_CPP_SOURCES_cvst))
-SHAVE_cvst_OBJS = \
-	$(patsubst $(DirAppObjBase)%.asmgen,$(DirAppObjBase)%_shave.o,$(SHAVE_GENASMS_cvst)) \
-	$(patsubst %.asm,$(DirAppObjBase)%_shave.o,$(SHAVE_ASM_SOURCES_cvst))
 
 cholesky     = $(DirAppOutput)/cholesky
 CholeskyFns  = _exit
@@ -260,15 +254,8 @@ include $(MV_COMMON_BASE)/components/BLIS/genblislib.mk
 #LRT_PROJECT_LIBS += --start-group $(BLIS_LIB_LEON) --end-group
 AllLibs += --start-group $(BLIS_LIB_LEON) --end-group
 
-ENTRYPOINTS_cvst = -e  stereo_kp_matching_main --gc-sections
-$(cvst).mvlib : $(SHAVE_cvst_OBJS) $(PROJECT_SHAVE_LIBS)
-	$(ECHO) $(LD) $(ENTRYPOINTS_cvst) $(MVLIBOPT)           \
-				$(SHAVE_cvst_OBJS) $(PROJECT_SHAVE_LIBS)    \
-				$(CompilerANSILibs) -o $@
-
-
 # SHAVE linking rules
-ENTRYPOINTS_cvrt = -e fast9Detect -u fast9Track --gc-sections
+ENTRYPOINTS_cvrt = -e fast9Detect -u fast9Track -u stereo_kp_matching --gc-sections
 $(cvrt).mvlib : $(SHAVE_cvrt_OBJS) $(PROJECT_SHAVE_LIBS)
 	$(ECHO) $(LD) $(ENTRYPOINTS_cvrt) $(MVLIBOPT) 			\
                       $(SHAVE_cvrt_OBJS) $(PROJECT_SHAVE_LIBS) 		\
@@ -286,8 +273,8 @@ $(cholesky).mvlib : $(SHAVE_cholesky_OBJS) $(PROJECT_SHAVE_LIBS)
 		      $(SHAVE_cholesky_OBJS) $(PROJECT_SHAVE_LIBS) -o $@
 
 # ------------------------------[ USB ]--------------------------------------------#
-MVCCOPT   += -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++ 
-MVCCPPOPT += -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++
+MVCCOPT   += -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++
+MVCCPPOPT += -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++
 
 CCOPT     += -DDEFAULT_RTEMS_L2C_WAYS=0
 CCOPT_LRT += -DDEFAULT_RTEMS_L2C_WAYS=0

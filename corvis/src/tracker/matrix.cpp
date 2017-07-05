@@ -53,10 +53,6 @@ static std::mutex cholesky_mutex;
 static std::mutex blis_mutex;
 
 
-#define BLIS_HEAP_SIZE (16 * 1024 * 1024)
-
-unsigned char DDR_LEON_HEAP ALIGNED(16) g_blis_heap[BLIS_HEAP_SIZE]; 
-
 void blis_set_object(const matrix &m, void *v)
 {
     // XXX v should have been declared as obj_t, however, due to C++ wouldn't allow forward-declaration of typedefed type,
@@ -104,14 +100,6 @@ void blis_set_object(const matrix &m, void *v)
 void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, const float dst_scale, const float scale)
 {
 	int sc = 0;
-    static bool first_time = true;
-    if (first_time)
-    {
-        first_time = false;
-        memset(g_blis_heap, 0, sizeof(g_blis_heap));
-        bli_init_leon(g_blis_heap, BLIS_HEAP_SIZE);
-        bli_init();
-    }
     obj_t Aobj, Bobj, resObj, scaleObj, dstScaleObj;
 
     blis_set_object(A, &Aobj); 

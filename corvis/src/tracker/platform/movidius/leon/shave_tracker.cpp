@@ -1,11 +1,8 @@
 #include "shave_tracker.h"
 #include <DrvLeonL2C.h>
 #include <algorithm>
-#include <DrvTimer.h>
-#include <HglCpr.h>
 #include "commonDefs.hpp"
 #include "mv_trace.h"
-#include <chrono>
 
 extern "C" {
 #include "cor_types.h"
@@ -25,7 +22,6 @@ extern "C" {
 #define DPRINTF(...)
 #endif
 
-#define SHAVES_USED  4
 #define VECTOR_SIZE 6000
 
 // 3: Global Data (Only if absolutely necessary)
@@ -67,35 +63,31 @@ extern u32 cvrt2_stereo_kp_matching;
 extern u32 cvrt3_stereo_kp_matching;
 
 //tracker
-u32 entryPoints[SHAVES_USED] = {
+u32 entryPoints[TRACKER_SHAVES_USED] = {
         (u32)&cvrt0_fast9Detect,
         (u32)&cvrt1_fast9Detect,
         (u32)&cvrt2_fast9Detect,
         (u32)&cvrt3_fast9Detect
 };
 
-u32 entryPointsTracking[4] = {
+u32 entryPointsTracking[TRACKER_SHAVES_USED] = {
         (u32)&cvrt0_fast9Track,
         (u32)&cvrt1_fast9Track,
         (u32)&cvrt2_fast9Track,
         (u32)&cvrt3_fast9Track
 };
 //stereo
-u32 entryPoints_intersect_and_compare[SHAVES_USED] = {
+u32 entryPoints_intersect_and_compare[TRACKER_SHAVES_USED] = {
         (u32)&cvrt0_stereo_kp_matching,
         (u32)&cvrt1_stereo_kp_matching,
         (u32)&cvrt2_stereo_kp_matching,
         (u32)&cvrt3_stereo_kp_matching
 };
 
-
-bool shave_tracker::s_shavesOpened = false;
-osDrvSvuHandler_t shave_tracker::s_handler[12];
-
 typedef volatile ShaveFastDetectSettings *pvShaveFastDetectSettings;
 std::vector< std::vector<short> > detected_points(VECTOR_SIZE , std::vector<short>(3));
 
-pvShaveFastDetectSettings cvrt_detectParams[SHAVES_USED] = {
+pvShaveFastDetectSettings cvrt_detectParams[TRACKER_SHAVES_USED] = {
         &cvrt0_detectParams,
         &cvrt1_detectParams,
         &cvrt2_detectParams,
@@ -118,39 +110,11 @@ shave_tracker::shave_tracker() :
                          fast_detect_controller_min_threshold, fast_detect_controller_max_threshold,
                          fast_detect_controller_threshold_up_step, fast_detect_controller_threshold_down_step,
                          fast_detect_controller_high_hist, fast_detect_controller_low_hist)
-
-    {
-
-    shavesToUse = SHAVES_USED;
-    if (s_shavesOpened == false)
-    {
-        s_shavesOpened = true;
-        s32 sc = OsDrvSvuInit();
-        if (sc)
-        {
-            s_shavesOpened = false;
-            return;
-        }
-        for(int i = 0; i < shavesToUse; ++i){
-            sc = OsDrvSvuOpenShave(&s_handler[i], i, OS_MYR_PROTECTION_SEM);
-            if (sc)
-            {
-                s_shavesOpened = false;
-                return;
-            }
-        }
-        if (sc!=0)
-        {
-            printf("#ERROR: error init shaves sc:%d \n",(int)sc );
-        }
-        if (sc!=0)
-        {
-            printf("#ERROR: error init shaves sc:%d \n",(int)sc );
-        }
+{
+    shavesToUse = TRACKER_SHAVES_USED;
+    for (unsigned int i = 0; i < shavesToUse; ++i){
+       shaves[i] = Shave::get_handle(i);
     }
-}
-
-shave_tracker::~shave_tracker() {
 }
 
 #ifdef DEBUG_TRACK
@@ -177,23 +141,23 @@ std::vector<tracker::point> &shave_tracker::detect(const image &image, const std
     feature_points.reserve(number_desired);
 
     //run
-    detectMultipleShave(image, number_desired);
+    detectMultipleShave(image);
+    sortFeatures(image, number_desired);
 
     END_EVENT(EV_SHAVE_DETECT, feature_points.size());
 
     return feature_points;
 }
 
-void shave_tracker::sortFeatures(const image &image, int number_desired) {
-
-	auto start = std::chrono::steady_clock::now();
+void shave_tracker::sortFeatures(const image &image, int number_desired)
+{
 	unsigned int feature_counter = 0;
 
 	for (int y = 8; y < image.height_px - 8; ++y) {
 		unsigned int numPoints = *(int *) (scores[y]);
 		if (feature_counter + numPoints > (detected_points.size() - 1)){
 			detected_points.resize(detected_points.size() * 1.5);
-                        DPRINTF("INF: vector resize \n");
+            DPRINTF("INF: vector resize \n");
 		}
 		for (unsigned int j = 0; j < numPoints; ++j) {
 			u16 x = offsets[y][2 + j] + PADDING;
@@ -212,15 +176,13 @@ void shave_tracker::sortFeatures(const image &image, int number_desired) {
             feature_counter++;
         }
     }
-    auto stop = std::chrono::steady_clock::now();
-    std::chrono::duration<double> diff = stop-start;
-    DPRINTF("detected_points: %lf\n" , diff.count());
 
+    DPRINTF("detected_points: %d\n" , feature_counter);
 
-        //sort
-        if(feature_counter > 1){
-            std::sort(detected_points.begin(), detected_points.begin()+feature_counter, point_comp_vector);
-        }
+    //sort
+    if(feature_counter > 1){
+        std::sort(detected_points.begin(), detected_points.begin()+feature_counter, point_comp_vector);
+    }
 
     DPRINTF("log_threshold_, %d %u\n", m_thresholdController.control(), feature_counter);
 
@@ -245,50 +207,37 @@ void shave_tracker::sortFeatures(const image &image, int number_desired) {
     }
 }
 
-void shave_tracker::detectMultipleShave(const image &image, int number_desired)
+void shave_tracker::detectMultipleShave(const image &image)
 {
     DPRINTF("##shave_tracker## entered detectMultipleShave\n");
-	u32 running = 0, sc = 0;
-	u32 mask = 0xf;
-	HglCprTurnOnShaveMask(mask);
-	for (int j = 0; j < SHAVES_USED; j++)
-	{
-		cvrt_detectParams[j]->imgWidth = image.width_px;
-		cvrt_detectParams[j]->imgHeight = image.height_px;
-		cvrt_detectParams[j]->winWidth = image.width_px;
-		cvrt_detectParams[j]->winHeight = image.height_px/SHAVES_USED;
-		cvrt_detectParams[j]->imgStride = image.stride_px;
-		cvrt_detectParams[j]->x = 0;
-		cvrt_detectParams[j]->y = j*(image.height_px/SHAVES_USED);
-		cvrt_detectParams[j]->threshold = m_thresholdController.control();
-		cvrt_detectParams[j]->halfWindow = half_patch_width;
-	}
 
-    for(int i = 0; i < SHAVES_USED; ++i)
-    {
-        sc |= OsDrvSvuResetShave(&s_handler[i]);
-        sc |= OsDrvSvuSetAbsoluteDefaultStack(&s_handler[i]);
-        sc |= OsDrvSvuStartShaveCC(&s_handler[i], entryPoints[i],
-                    "iii", image.image, scores, offsets);
-    }
-    DPRINTF("##shave_tracker## waiting for shaves\n");
-    sc |= OsDrvSvuWaitShaves(SHAVES_USED, s_handler, OS_DRV_SVU_WAIT_FOREVER, &running);
-
-    HglCprTurnOffShaveMask(mask);
-    if (0 == sc && 0 == running) {
-        DPRINTF("##shave_tracker## shaves returned, sorting features\n");
-        sortFeatures(image, number_desired);
-    }
-    else {
-        printf("error running shaves\n");
+    for (int j = 0; j < shavesToUse; j++) {
+        cvrt_detectParams[j]->imgWidth = image.width_px;
+        cvrt_detectParams[j]->imgHeight = image.height_px;
+        cvrt_detectParams[j]->winWidth = image.width_px;
+        cvrt_detectParams[j]->winHeight = image.height_px / TRACKER_SHAVES_USED;
+        cvrt_detectParams[j]->imgStride = image.stride_px;
+        cvrt_detectParams[j]->x = 0;
+        cvrt_detectParams[j]->y = j * (image.height_px / TRACKER_SHAVES_USED);
+        cvrt_detectParams[j]->threshold = m_thresholdController.control();
+        cvrt_detectParams[j]->halfWindow = half_patch_width;
     }
 
+    for (int i = 0; i < shavesToUse; ++i) {
+        shaves[i]->start(entryPoints[i], "iii", (u32) image.image, (u32) scores,
+                (u32) offsets);
+    } DPRINTF("##shave_tracker## waiting for shaves\n");
+
+    for (int i = 0; i < shavesToUse; ++i) {
+        shaves[i]->wait();
+    }
+    DPRINTF("##shave_tracker## features sorted\n");
 }
 
-int track_start, track_end;
-void shave_tracker::trackShave(std::vector<TrackingData>& trackingData, const image& image)
+void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,
+        const image& image)
 {
-    DPRINTF("##shave_tracker## entered track shave\n");
+    DPRINTF("##shave_tracker## entered trackMultipleShave\n");
     cvrt0_detectParams.imgWidth = image.width_px;
     cvrt0_detectParams.imgHeight = image.height_px;
     cvrt0_detectParams.winWidth = full_patch_width;
@@ -299,95 +248,54 @@ void shave_tracker::trackShave(std::vector<TrackingData>& trackingData, const im
     cvrt0_detectParams.threshold = fast_track_threshold;
     cvrt0_detectParams.halfWindow = half_patch_width;
 
-    u32 running, sc = 0;
+    cvrt1_detectParams.imgWidth = image.width_px;
+    cvrt1_detectParams.imgHeight = image.height_px;
+    cvrt1_detectParams.winWidth = full_patch_width;
+    cvrt1_detectParams.winHeight = image.height_px;
+    cvrt1_detectParams.imgStride = image.stride_px;
+    cvrt1_detectParams.x = 0;
+    cvrt1_detectParams.y = 0;
+    cvrt1_detectParams.threshold = fast_track_threshold;
+    cvrt1_detectParams.halfWindow = half_patch_width;
 
-    sc |= OsDrvSvuResetShave(&s_handler[0]);
-    sc |= OsDrvSvuSetAbsoluteDefaultStack(&s_handler[0]);
-    DPRINTF("##shave_tracker## start shave NEW. number of features = %d\n", trackingData.size());
-    sc |= OsDrvSvuStartShaveCC(&s_handler[0], (u32) &cvrt0_fast9Track,
-            "iiii", trackingData.data(), trackingData.size(), image.image, tracked_features);
-    sc |= OsDrvSvuWaitShaves(1, &s_handler[0], OS_DRV_SVU_WAIT_FOREVER, &running);
-    if (sc)
-        printf("ERROR trackShave\n");
+    cvrt2_detectParams.imgWidth = image.width_px;
+    cvrt2_detectParams.imgHeight = image.height_px;
+    cvrt2_detectParams.winWidth = full_patch_width;
+    cvrt2_detectParams.winHeight = image.height_px;
+    cvrt2_detectParams.imgStride = image.stride_px;
+    cvrt2_detectParams.x = 0;
+    cvrt2_detectParams.y = 0;
+    cvrt2_detectParams.threshold = fast_track_threshold;
+    cvrt2_detectParams.halfWindow = half_patch_width;
+
+    cvrt3_detectParams.imgWidth = image.width_px;
+    cvrt3_detectParams.imgHeight = image.height_px;
+    cvrt3_detectParams.winWidth = full_patch_width;
+    cvrt3_detectParams.winHeight = image.height_px;
+    cvrt3_detectParams.imgStride = image.stride_px;
+    cvrt3_detectParams.x = 0;
+    cvrt3_detectParams.y = 0;
+    cvrt3_detectParams.threshold = fast_track_threshold;
+    cvrt3_detectParams.halfWindow = half_patch_width;
+
+    int start[4] = { 0, (trackingData.size() / 4), (trackingData.size() / 2),
+            (trackingData.size() * 3 / 4) };
+    int size[4] = { (trackingData.size() / 4), ((trackingData.size() / 2)
+            - (trackingData.size() / 4)), ((trackingData.size() * 3 / 4)
+            - (trackingData.size() / 2)), (trackingData.size()
+            - (trackingData.size() * 3 / 4)) };
+
+    for (int i = 0; i < shavesToUse; ++i) {
+        shaves[i]->start(entryPointsTracking[i], "iiii",
+                (u32) &trackingData.data()[start[i]], size[i],
+                (u32) image.image, (u32) &tracked_features[start[i]]);
+    }
+
+    for (int i = 0; i < shavesToUse; ++i) {
+        shaves[i]->wait();
+    }
+
     DPRINTF("##shave_tracker## shave returned\n");
-    /*if ((sc2 = OsDrvShaveL2CachePartitionFlush(SHAVE_TRACKER_L2_PARTITION,
-        PERFORM_INVALIDATION)) != OS_MYR_DRV_SUCCESS)
-        printf("ERROR: OsDrvShaveL2CachePartitionFlush %lu\n", sc2);*/
-    //Doron: no need to invalidate lrt cache- tracked_features is in cmx_direct
-}
-
-void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData, const image& image)
-{
-
-	cvrt0_detectParams.imgWidth = image.width_px;
-	cvrt0_detectParams.imgHeight = image.height_px;
-	cvrt0_detectParams.winWidth = full_patch_width;
-	cvrt0_detectParams.winHeight = image.height_px;
-	cvrt0_detectParams.imgStride = image.stride_px;
-	cvrt0_detectParams.x = 0;
-	cvrt0_detectParams.y = 0;
-	cvrt0_detectParams.threshold = fast_track_threshold;
-	cvrt0_detectParams.halfWindow = half_patch_width;
-
-	cvrt1_detectParams.imgWidth = image.width_px;
-	cvrt1_detectParams.imgHeight = image.height_px;
-	cvrt1_detectParams.winWidth = full_patch_width;
-	cvrt1_detectParams.winHeight = image.height_px;
-	cvrt1_detectParams.imgStride = image.stride_px;
-	cvrt1_detectParams.x = 0;
-	cvrt1_detectParams.y = 0;
-	cvrt1_detectParams.threshold = fast_track_threshold;
-	cvrt1_detectParams.halfWindow = half_patch_width;
-
-	cvrt2_detectParams.imgWidth = image.width_px;
-	cvrt2_detectParams.imgHeight = image.height_px;
-	cvrt2_detectParams.winWidth = full_patch_width;
-	cvrt2_detectParams.winHeight = image.height_px;
-	cvrt2_detectParams.imgStride = image.stride_px;
-	cvrt2_detectParams.x = 0;
-	cvrt2_detectParams.y = 0;
-	cvrt2_detectParams.threshold = fast_track_threshold;
-	cvrt2_detectParams.halfWindow = half_patch_width;
-
-	cvrt3_detectParams.imgWidth = image.width_px;
-	cvrt3_detectParams.imgHeight = image.height_px;
-	cvrt3_detectParams.winWidth = full_patch_width;
-	cvrt3_detectParams.winHeight = image.height_px;
-	cvrt3_detectParams.imgStride = image.stride_px;
-	cvrt3_detectParams.x = 0;
-	cvrt3_detectParams.y = 0;
-	cvrt3_detectParams.threshold = fast_track_threshold;
-	cvrt3_detectParams.halfWindow = half_patch_width;
-
-	u32 running = 0, sc = 0;
-
-	int start [4] = { 0,
-					  ((int)trackingData.size() / 4),
-					  ((int)trackingData.size() / 2),
-					  ((int)trackingData.size() * 3 / 4)};
-	int size [4] = { ((int)trackingData.size() / 4),
-					 (((int)trackingData.size() / 2) - ((int)trackingData.size() / 4)),
-					 (((int)trackingData.size() * 3 / 4) - ((int)trackingData.size() / 2)),
-					 ((int)trackingData.size() - ((int)trackingData.size() * 3 / 4))};
-
-	for(int i = 0; i < 4; ++i)
-	{
-		sc |= OsDrvSvuResetShave(&s_handler[i]);
-		sc |= OsDrvSvuSetAbsoluteDefaultStack(&s_handler[i]);
-		sc |= OsDrvSvuStartShaveCC(&s_handler[i], entryPointsTracking[i],
-				"iiii", (u32)&trackingData.data()[start[i]], size[i], image.image, (u32)&tracked_features[start[i]]);
-
-	}
-	sc |= OsDrvSvuWaitShaves(4, &s_handler[0], OS_DRV_SVU_WAIT_FOREVER, &running);
-	if (sc)
-	    printf("ERROR trackShave\n");
-	DPRINTF("##shave_tracker## shave returned\n");
-	/*if ((sc2 = OsDrvShaveL2CachePartitionFlush(SHAVE_TRACKER_L2_PARTITION,
-
-
-        PERFORM_INVALIDATION)) != OS_MYR_DRV_SUCCESS)
-        printf("ERROR: OsDrvShaveL2CachePartitionFlush %lu\n", sc2);*/
-    //Doron: no need to invalidate lrt cache- tracked_features is in cmx_direct
 }
 
 void shave_tracker::prepTrackingData(std::vector<TrackingData>& trackingData, std::vector<prediction> &predictions)
@@ -456,11 +364,9 @@ std::vector<tracker::prediction> &shave_tracker::track(const image &image, std::
 #endif
     std::vector<TrackingData> trackingData;
     prepTrackingData(trackingData, predictions);
-    u32 mask =0xf;
-    HglCprTurnOnShaveMask(mask);
     trackMultipleShave(trackingData, image);
-    HglCprTurnOffShaveMask(mask);
-	processTrackingResult(predictions);
+    processTrackingResult(predictions);
+
     END_EVENT(EV_SHAVE_TRACK, predictions.size());
     return predictions;
 }
@@ -552,7 +458,6 @@ void shave_tracker::stereo_matching_full_shave (const std::vector<tracker::point
     *((int*)p_kp2)=nk2;
 
     DPRINTF("\t\t AS:nk1 : %d, nk2: %d, &nk1 %d,&nk2 %d\n ",nk1,nk2, &p_kp1, &p_kp2);
-    u32 running = 0, sc = 0;
     //Eigen types
     m3 E_R1w_t=R1w.transpose();
     m3 E_R2w_t=R2w.transpose();
@@ -582,21 +487,21 @@ void shave_tracker::stereo_matching_full_shave (const std::vector<tracker::point
 	kpMatchingParams->patch_stride=full_patch_width;
 	kpMatchingParams->patch_win_half_width=half_patch_width;
 
-    u32 mask = 0xf;
-    HglCprTurnOnShaveMask(mask);
-    for (int j = 0; j < SHAVES_USED ; j++)
-    {
-        sc |= OsDrvSvuResetShave(&s_handler[j]);
-        sc |= OsDrvSvuSetAbsoluteDefaultStack(&s_handler[j]);
-        sc |= OsDrvSvuStartShaveCC(&s_handler[j],entryPoints_intersect_and_compare[j],"iiiiiii",kpMatchingParams,p_kp1, p_kp2,f1_group,f2_group,shave_new_keypoint[j],shave_other_keypoint[j]);
+	for (int i = 0; i < shavesToUse; ++i) {
+        shaves[i]->start(entryPoints_intersect_and_compare[i],
+                "iiiiiii",
+                kpMatchingParams,
+                p_kp1,
+                p_kp2,
+                f1_group,
+                f2_group,
+                shave_new_keypoint[i],
+                shave_other_keypoint[i]);
     }
-    sc |= OsDrvSvuWaitShaves(SHAVES_USED, &s_handler[0], OS_DRV_SVU_WAIT_FOREVER, &running);
 
-    HglCprTurnOffShaveMask(mask);
-    if (0 == sc && 0 == running) {
-        new_keypoint_other_keypoint_mearge(kp1,*new_keypoints_p);
+    for (int i = 0; i < shavesToUse; ++i) {
+        shaves[i]->wait();
     }
-    else {
-        printf("error running shaves sc:%d running:%d\n",(int) sc, (int) running);
-    }
+
+    new_keypoint_other_keypoint_mearge(kp1,*new_keypoints_p);
 }

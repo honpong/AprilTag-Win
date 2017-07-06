@@ -216,9 +216,10 @@ public:
                 tracks[i]->y = next.points[i].y;
                 tracks[i]->score = errors[i];
                 if(errors[i] < 10) {
-                    tracks[i]->found = true; found++;
+                    found++;
                 } else {
-                    tracks[i]->found = false;
+                    tracks[i]->x = INFINITY;
+                    tracks[i]->y = INFINITY;
                     tracks[i]->score = 0;
                 }
             }
@@ -247,7 +248,7 @@ public:
                 continue;
             mask->clear((int)c.x, (int)c.y);
 
-            feature_points.emplace_back(std::make_shared<tracker::feature>(), c.x, c.y, c.x, c.y, c.score);
+            feature_points.emplace_back(std::make_shared<tracker::feature>(), c.x, c.y, c.score);
             push_heap(feature_points.begin(), feature_points.end(), by_score);
             if(feature_points.size() > number_desired) {
                 pop_heap(feature_points.begin(), feature_points.end(), by_score);

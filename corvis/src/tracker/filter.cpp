@@ -887,6 +887,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             f->run_state = RCSensorFusionRunStateRunning;
             f->log->trace("When moving from steady init to running:");
             print_calibration(f);
+            space = filter_available_feature_space(f, camera_state);
         }
         filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
     }

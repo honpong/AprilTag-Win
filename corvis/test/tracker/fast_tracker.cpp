@@ -65,8 +65,8 @@ TEST(FastTracker, DetectMasked)
 
     // detects at 101 and 118
     std::vector<tracker::feature_track *> features;
-    tracker::feature_track first(nullptr, 101, 101, 0, 0, 1);
-    tracker::feature_track second(nullptr, 118, 101, 0, 0, 1);
+    tracker::feature_track first(nullptr, 101, 101, 1);
+    tracker::feature_track second(nullptr, 118, 101, 1);
     features.push_back(&first);
     features.push_back(&second);
     std::vector<tracker::feature_track> detections = tracker.detect(image, features, 10000);
@@ -148,7 +148,7 @@ TEST(FastTracker, TrackBounds)
     tracker.track(image2, tracks);
     EXPECT_EQ(tracks.size(), 4);
     for(int i = 0; i < tracks.size(); i++) {
-        EXPECT_FALSE(tracks[i]->found);
+        EXPECT_FALSE(tracks[i]->found());
     }
 }
 

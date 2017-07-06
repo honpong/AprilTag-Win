@@ -200,7 +200,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     int track_fail = 0;
     for(auto *g : groups.children) {
         for(state_vision_feature *i : g->features.children) {
-            if(i->track.found == false) {
+            if(i->track.found() == false) {
                 // Drop tracking failures
                 ++track_fail;
                 if(i->is_good()) ++useful_drops;
@@ -215,7 +215,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
             }
         }
     }
-    standby_features.remove_if([](tracker::feature_track &t) {return !t.found;});
+    standby_features.remove_if([](tracker::feature_track &t) {return !t.found();});
 
     if(track_fail && !total_feats) log.warn("Tracker failed! {} features dropped.", track_fail);
     //    log.warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);

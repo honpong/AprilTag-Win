@@ -19,6 +19,7 @@ public:
     static const int full_patch_size = full_patch_width;
     static const int half_patch_size = half_patch_width;
     static const int border_size = half_patch_size;
+    static constexpr float bad_score = 0;
     static constexpr float min_score = 0.2f*0.2f;
     static constexpr float good_score = 0.65f*0.65f;
 

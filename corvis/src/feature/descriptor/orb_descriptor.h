@@ -46,6 +46,7 @@ public:
     static constexpr int L = 32; // descriptor length
     static constexpr int orb_half_patch_size = 15;
     static constexpr int border_size = 19;
+    static constexpr float bad_score = INFINITY;
     static constexpr float min_score = 200.f;
     static constexpr float good_score = 50.f;
 

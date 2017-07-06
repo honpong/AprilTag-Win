@@ -42,8 +42,10 @@ public:
 };
 
 class state_leaf_base {
+    friend class state_vision;
 public:
     state_leaf_base(const char *name_, state_node::node_type type_, int index_, int size_) : name(name_), type(type_), index(index_), size(size_) {}
+    inline bool single_index() { return size == 1; }
     const char *name;
 protected:
     state_node::node_type type;
@@ -298,6 +300,10 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
         }
         if((i < 0) || (i >= c.rows()))                                               return map { &zero[0] ,                         Eigen::OuterStride<>(1) };
         else                                                                         return map { &c(i,index),                       Eigen::OuterStride<>(c.get_stride()) };
+    }
+
+    inline f_t get_initial_covariance(){
+            return (type == node_type::fake) ? initial_covariance(0, 0) : 0;
     }
 
     inline Eigen::Map< ::v<_size>, Eigen::Unaligned, Eigen::InnerStride<> > to_col(matrix &c, int j) const

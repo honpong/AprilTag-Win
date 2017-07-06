@@ -238,6 +238,26 @@ void matrix::print_diag() const
     fprintf(stderr, "\n");
 }
 
+bool matrix::identical(const matrix &other, f_t epsilon) const
+{
+    bool identical = true;
+    if (_rows == other.rows() && _cols == other.cols()) {
+        for (int r = 0; r < _rows; r++) {
+            for (int c = 0; c < _cols; c++) {
+                if ((*this)(r, c) - other(r, c) > epsilon
+                        || (*this)(r, c) - other(r, c) < -epsilon) {
+                    identical = false;
+                    printf("r %d c %d  \tleft %f \tright %f\n", r, c,
+                            (*this)(r, c), other(r, c));
+                }
+            }
+        }
+    } else {
+        identical = false;
+    }
+    return identical;
+}
+
 void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale)
 {
 

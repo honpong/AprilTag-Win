@@ -5,8 +5,6 @@
 
 using namespace std;
 
-typedef unsigned char byte;
-
 static void make_offsets(int pixel[], int row_stride)
 {
     pixel[0] = 0 + row_stride * 3;
@@ -71,8 +69,8 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
                 //This makes this a bit faster on x86, but leaving out for now as it's untested on other architectures and could slow us down:
                 //if(mx % 64 == 0) _mm_prefetch((const char *)(im + (y+8)*stride + mx), 0);
                 for(x = mx; x< mx+8; ++x) {
-                    const byte* p = image.image + y*stride + x;
-                    byte val = (byte)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
+                    const uint8_t* p = image.image + y*stride + x;
+                    uint8_t val = (uint8_t)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
                     
                     int bmin = bstart;
                     int bmax = 255;
@@ -147,8 +145,8 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
             if(x1 >= half && x2 < xsize - half && y1 >= half && y2 < ysize - half) {
                 for(y = y1; y <= y2; y++) {
                     for(x = x1; x <= x2; x++) {
-                        const byte* p = image.image + y*stride + x;
-                        byte val = (byte)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
+                        const uint8_t* p = image.image + y*stride + x;
+                        uint8_t val = (uint8_t)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
                         if(fast_9_kernel(p, pixel, val, fast_track_threshold)) {
                             auto score = f.descriptor.distance(x, y, image);
                             if(DESCRIPTOR::is_better(score,bestkp.score)) {

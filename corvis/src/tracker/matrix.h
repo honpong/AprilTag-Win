@@ -82,6 +82,7 @@ public:
     void print() const;
     void print_high() const;
     void print_diag() const;
+    bool identical(const matrix &other, f_t epsilon) const;
 
     friend void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale);
     friend f_t matrix_check_condition(matrix &A);

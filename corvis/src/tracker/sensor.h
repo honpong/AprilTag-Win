@@ -65,7 +65,6 @@ template<int size_> class sensor_storage : public sensor
 {
 public:
     stdev<size_> meas_stdev, inn_stdev, stability;
-    v<size_> start_variance;
     v<size_> last_meas;
     f_t measurement_variance;
     stdev<1> measure_time_stats;

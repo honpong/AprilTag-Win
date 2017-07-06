@@ -93,14 +93,8 @@ static rc_TrackerState tracker_state_from_run_state(RCSensorFusionRunState run_s
             return rc_E_DYNAMIC_INITIALIZATION;
         case RCSensorFusionRunStateInactive:
             return rc_E_INACTIVE;
-        case RCSensorFusionRunStateLandscapeCalibration:
-            return rc_E_LANDSCAPE_CALIBRATION;
-        case RCSensorFusionRunStatePortraitCalibration:
-            return rc_E_PORTRAIT_CALIBRATION;
         case RCSensorFusionRunStateRunning:
             return rc_E_RUNNING;
-        case RCSensorFusionRunStateStaticCalibration:
-            return rc_E_STATIC_CALIBRATION;
         case RCSensorFusionRunStateSteadyInitialization:
             return rc_E_STEADY_INITIALIZATION;
         default: // This case should never be reached
@@ -450,14 +444,6 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
     if(callback) tracker->status_callback = [callback, handle](sensor_fusion::status s) {
         callback(handle, tracker_state_from_run_state(s.run_state), tracker_error_from_error(s.error), tracker_confidence_from_confidence(s.confidence), static_cast<float>(s.progress));
     };
-}
-
-bool rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
-{
-    if(trace) trace_log->info("rc_startCalibration {}", run_flags);
-    if(!tracker->sfm.accelerometers.size() || !tracker->sfm.gyroscopes.size()) return false;
-    tracker->start_calibration(run_flags & rc_RUN_ASYNCHRONOUS);
-    return true;
 }
 
 void rc_pauseAndResetPosition(rc_Tracker * tracker)

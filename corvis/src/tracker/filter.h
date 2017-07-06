@@ -79,7 +79,6 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
 bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data);
 bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
-void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
 void filter_start_dynamic(struct filter *f);
 void filter_start_inertial_only(struct filter *f);

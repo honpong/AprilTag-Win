@@ -65,7 +65,7 @@ void sensor_fusion::update_status()
         filter_set_origin(&sfm, last_transform, true);
         filter_start_dynamic(&sfm);
     }
-    else if(last_status.run_state == RCSensorFusionRunStateStaticCalibration && s.run_state == RCSensorFusionRunStateInactive && s.error == RCSensorFusionErrorCodeNone)
+    else if(s.run_state == RCSensorFusionRunStateInactive && s.error == RCSensorFusionErrorCodeNone)
     {
         isSensorFusionRunning = false;
         //TODO: save calibration
@@ -196,18 +196,6 @@ void sensor_fusion::set_location(double latitude_degrees, double longitude_degre
     queue.dispatch_async([this, latitude_degrees, altitude_meters]{
         filter_compute_gravity(&sfm, latitude_degrees, altitude_meters);
     });
-}
-
-void sensor_fusion::start_calibration(bool thread)
-{
-    threaded = thread;
-    buffering = false;
-    fast_path = false;
-    isSensorFusionRunning = true;
-    isProcessingVideo = false;
-    filter_initialize(&sfm);
-    filter_start_static_calibration(&sfm);
-    queue.start(threaded);
 }
 
 void sensor_fusion::start(bool thread)

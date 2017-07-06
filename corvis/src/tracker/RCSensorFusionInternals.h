@@ -15,18 +15,12 @@ typedef enum
 {
     /** RCSensorFusion is inactive. */
     RCSensorFusionRunStateInactive = 0,
-    /** RCSensorFusion is in static calibration mode. The device should not be moved or touched. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
-    RCSensorFusionRunStateStaticCalibration = 1,
     /** startSensorFusionWithDevice: has been called, and RCSensorFusion is in the handheld steady initialization phase. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
     RCSensorFusionRunStateSteadyInitialization = 2,
     /** startSensorFusionUnstableWithDevice: has been called, and RCSensorFusion is in the handheld dynamic initialization phase. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
     RCSensorFusionRunStateDynamicInitialization = 3,
     /** RCSensorFusion is active and updates are being provided with all data. */
     RCSensorFusionRunStateRunning = 4,
-    /** RCSensorFusion is in handheld portrait calibration mode. The device should be held steady in portrait orientation, perpendicular to the floor. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
-    RCSensorFusionRunStatePortraitCalibration = 5,
-    /** RCSensorFusion is in handheld landscape calibration mode. The device should be held steady in landscape orientation, perpendicular to the floor. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
-    RCSensorFusionRunStateLandscapeCalibration = 6,
     /** RCSensorFusion is in inertial only mode. Orientation will be tracked, and internal states will be updated so that initialization will occur more quickly. */
     RCSensorFusionRunStateInertialOnly = 7
 } RCSensorFusionRunState;

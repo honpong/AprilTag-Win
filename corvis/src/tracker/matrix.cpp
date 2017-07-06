@@ -238,7 +238,8 @@ void matrix::print_diag() const
     fprintf(stderr, "\n");
 }
 
-bool matrix::identical(const matrix &other, f_t epsilon) const {
+bool matrix::identical(const matrix &other, f_t epsilon) const
+{
     bool identical = true;
     if (_rows == other.rows() && _cols == other.cols()) {
         for (int r = 0; r < _rows; r++) {

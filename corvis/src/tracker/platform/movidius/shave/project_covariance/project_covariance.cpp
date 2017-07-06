@@ -74,7 +74,7 @@ inline float4 mull_m3_v3(float* mat, float4 vec)
     int dst_cols =    data->dst_cols;
 
     int shave_number = scGetShaveNumber();
-    int cols_per_shave = (dst_cols + data->shaves_number -1) / data->shaves_number;
+    int cols_per_shave = (dst_cols + data->shaves_number - 1) / data->shaves_number;
     int start_col = cols_per_shave * (shave_number - data->first_shave);
     int end_col = start_col + cols_per_shave;
     if (end_col > dst_cols){

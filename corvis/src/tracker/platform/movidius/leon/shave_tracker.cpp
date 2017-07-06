@@ -151,17 +151,17 @@ std::vector<tracker::point> &shave_tracker::detect(const image &image, const std
 
 void shave_tracker::sortFeatures(const image &image, int number_desired)
 {
-	unsigned int feature_counter = 0;
+    unsigned int feature_counter = 0;
 
-	for (int y = 8; y < image.height_px - 8; ++y) {
-		unsigned int numPoints = *(int *) (scores[y]);
-		if (feature_counter + numPoints > (detected_points.size() - 1)){
-			detected_points.resize(detected_points.size() * 1.5);
+    for (int y = 8; y < image.height_px - 8; ++y) {
+        unsigned int numPoints = *(int *) (scores[y]);
+        if (feature_counter + numPoints > (detected_points.size() - 1)) {
+            detected_points.resize(detected_points.size() * 1.5);
             DPRINTF("INF: vector resize \n");
-		}
-		for (unsigned int j = 0; j < numPoints; ++j) {
-			u16 x = offsets[y][2 + j] + PADDING;
-			u8 score = scores[y][4 + j];
+        }
+        for (unsigned int j = 0; j < numPoints; ++j) {
+            u16 x = offsets[y][2 + j] + PADDING;
+            u8 score = scores[y][4 + j];
 
 #ifdef DEBUG_TRACK
             printf("detect: x %d y %d score %d\n", x, y, score);
@@ -170,9 +170,9 @@ void shave_tracker::sortFeatures(const image &image, int number_desired)
                     image.height_px) || !mask->test(x, y))
                 continue;
 
-            detected_points[feature_counter][0] =   x;
-            detected_points[feature_counter][1] =   y;
-            detected_points[feature_counter][2] =   score;
+            detected_points[feature_counter][0] = x;
+            detected_points[feature_counter][1] = y;
+            detected_points[feature_counter][2] = score;
             feature_counter++;
         }
     }
@@ -180,8 +180,9 @@ void shave_tracker::sortFeatures(const image &image, int number_desired)
     DPRINTF("detected_points: %d\n" , feature_counter);
 
     //sort
-    if(feature_counter > 1){
-        std::sort(detected_points.begin(), detected_points.begin()+feature_counter, point_comp_vector);
+    if (feature_counter > 1) {
+        std::sort(detected_points.begin(),
+                detected_points.begin() + feature_counter, point_comp_vector);
     }
 
     DPRINTF("log_threshold_, %d %u\n", m_thresholdController.control(), feature_counter);
@@ -192,9 +193,9 @@ void shave_tracker::sortFeatures(const image &image, int number_desired)
     m_lastDetectedFeatures = int(feature_counter);
 
     int added = 0;
-    for (size_t i = 0; i < feature_counter ; ++i) {
+    for (size_t i = 0; i < feature_counter; ++i) {
         const auto &d = detected_points[i];
-        if(mask->test((int)d[0] , (int)d[1])){
+        if (mask->test((int) d[0], (int) d[1])) {
             mask->clear((int) d[0], (int) d[1]);
             auto id = next_id++;
             feature_points.emplace_back(id, (float) d[0], (float) d[1],
@@ -202,7 +203,8 @@ void shave_tracker::sortFeatures(const image &image, int number_desired)
             feature_map.emplace_hint(feature_map.end(), id,
                     feature(d[0], d[1], image.image, image.stride_px));
             added++;
-            if(added == number_desired) break;
+            if (added == number_desired)
+                break;
         }
     }
 }

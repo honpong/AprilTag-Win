@@ -156,14 +156,6 @@ target_link_libraries(alloy_merge tracker trackeri) # trackeri for private inclu
 find_package(alloy QUIET)
 if (TARGET alloy)
     install(TARGETS alloy_merge RUNTIME DESTINATION bin COMPONENT alloy)
-
-    add_executable(rc_calibrate
-        src/tools/rc_calibrate.cpp
-    )
-    set_property(TARGET rc_calibrate PROPERTY CXX_STANDARD 14)
-    target_link_libraries(rc_calibrate alloy tracker)
-    install(TARGETS rc_calibrate RUNTIME DESTINATION bin COMPONENT alloy)
-
 endif()
 
 if(YES AND NOT ANDROID)

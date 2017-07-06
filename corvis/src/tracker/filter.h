@@ -41,7 +41,6 @@ struct filter {
     bool numeric_failed;
     sensor_clock::time_point detector_failed_time;
     sensor_clock::time_point speed_warning_time;
-    sensor_clock::time_point stable_start;
 
     float max_velocity;
     float median_depth_variance;
@@ -79,9 +78,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
 bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data);
 bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
-void filter_start_static_calibration(struct filter *f);
-void filter_start_hold_steady(struct filter *f);
-void filter_start_dynamic(struct filter *f);
+void filter_start(struct filter *f);
 void filter_start_inertial_only(struct filter *f);
 #ifdef ENABLE_QR
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity);
@@ -92,8 +89,6 @@ void filter_set_origin(struct filter *f, const transformation &origin, bool grav
 
 void filter_initialize(struct filter *f);
 void filter_deinitialize(struct filter *f);
-float filter_converged(const struct filter *f);
-bool filter_is_steady(const struct filter *f);
 std::string filter_get_stats(const struct filter *f);
 
 #endif

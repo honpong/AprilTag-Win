@@ -93,16 +93,8 @@ static rc_TrackerState tracker_state_from_run_state(RCSensorFusionRunState run_s
             return rc_E_DYNAMIC_INITIALIZATION;
         case RCSensorFusionRunStateInactive:
             return rc_E_INACTIVE;
-        case RCSensorFusionRunStateLandscapeCalibration:
-            return rc_E_LANDSCAPE_CALIBRATION;
-        case RCSensorFusionRunStatePortraitCalibration:
-            return rc_E_PORTRAIT_CALIBRATION;
         case RCSensorFusionRunStateRunning:
             return rc_E_RUNNING;
-        case RCSensorFusionRunStateStaticCalibration:
-            return rc_E_STATIC_CALIBRATION;
-        case RCSensorFusionRunStateSteadyInitialization:
-            return rc_E_STEADY_INITIALIZATION;
         default: // This case should never be reached
             return rc_E_INACTIVE;
     }
@@ -448,16 +440,8 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
 {
     if(trace) trace_log->info("rc_setStatusCallback");
     if(callback) tracker->status_callback = [callback, handle](sensor_fusion::status s) {
-        callback(handle, tracker_state_from_run_state(s.run_state), tracker_error_from_error(s.error), tracker_confidence_from_confidence(s.confidence), static_cast<float>(s.progress));
+        callback(handle, tracker_state_from_run_state(s.run_state), tracker_error_from_error(s.error), tracker_confidence_from_confidence(s.confidence));
     };
-}
-
-bool rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
-{
-    if(trace) trace_log->info("rc_startCalibration {}", run_flags);
-    if(!tracker->sfm.accelerometers.size() || !tracker->sfm.gyroscopes.size()) return false;
-    tracker->start_calibration(run_flags & rc_RUN_ASYNCHRONOUS);
-    return true;
 }
 
 void rc_pauseAndResetPosition(rc_Tracker * tracker)
@@ -484,10 +468,7 @@ bool rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
     if(trace) trace_log->info("rc_startTracker");
     if(!is_configured(tracker)) return false;
-    if (run_flags & rc_RUN_ASYNCHRONOUS)
-        tracker->start_unstable(true, run_flags & rc_RUN_FAST_PATH);
-    else
-        tracker->start_offline(run_flags & rc_RUN_FAST_PATH);
+    tracker->start(run_flags & rc_RUN_ASYNCHRONOUS, run_flags & rc_RUN_FAST_PATH);
     return true;
 }
 
@@ -693,12 +674,6 @@ rc_TrackerError rc_getError(const rc_Tracker *tracker)
     else if(tracker->sfm.speed_failed) error = rc_E_ERROR_SPEED;
     else if(tracker->sfm.detector_failed) error = rc_E_ERROR_VISION;
     return error;
-}
-
-float rc_getProgress(const rc_Tracker *tracker)
-{
-    if(trace) trace_log->info("rc_getProgress");
-    return filter_converged(&tracker->sfm);
 }
 
 bool rc_setOutputLog(rc_Tracker * tracker, const char *filename, rc_TrackerRunFlags run_flags)

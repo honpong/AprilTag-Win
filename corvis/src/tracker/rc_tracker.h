@@ -30,20 +30,12 @@ typedef enum rc_TrackerState
 {
     /** rc_Tracker is inactive. */
     rc_E_INACTIVE = 0,
-    /** rc_Tracker is in static calibration mode. The device should not be moved or touched. */
-    rc_E_STATIC_CALIBRATION = 1,
-    /** startSensorFusionWithDevice: has been called, and rc_Tracker is in the handheld steady initialization phase. */
-    rc_E_STEADY_INITIALIZATION = 2,
     /** startSensorFusionUnstableWithDevice: has been called, and rc_Tracker is in the handheld dynamic initialization phase. */
     rc_E_DYNAMIC_INITIALIZATION = 3,
     /** rc_Tracker is active and updates are being provided with all data. */
     rc_E_RUNNING = 4,
-    /** rc_Tracker is in handheld portrait calibration mode. The device should be held steady in portrait orientation, perpendicular to the floor. */
-    rc_E_PORTRAIT_CALIBRATION = 5,
-    /** rc_Tracker is in handheld landscape calibration mode. The device should be held steady in landscape orientation, perpendicular to the floor. */
-    rc_E_LANDSCAPE_CALIBRATION = 6,
     /** rc_Tracker is running in inertial only mode. Orientation will be tracked. */
-    rc_E_INERTIAL_ONLY
+    rc_E_INERTIAL_ONLY = 7,
 } rc_TrackerState;
 
 typedef enum rc_TrackerError
@@ -174,7 +166,7 @@ typedef struct rc_Tracker rc_Tracker;
   The callbacks are called synchronously with the filter thread
  */
 typedef void(*rc_DataCallback)(void *handle, rc_Tracker * tracker, const rc_Data * data);
-typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
+typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence);
 typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, const char * message, size_t len);
 
 RCTRACKER_API const char *rc_version();
@@ -338,8 +330,6 @@ constexpr rc_TrackerRunFlags operator|(rc_TrackerRunFlags x, rc_TrackerRunFlags 
 extern "C" {
 #endif
 
-RCTRACKER_API bool rc_startCalibration(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
-
 /**
  Resets position and pauses the tracker. While paused, the tracker will continue processing inertial measurements and updating orientation. When rc_unpause is called, the tracker will start up again very quickly.
  */
@@ -425,7 +415,6 @@ RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Sensor camera_id, rc_Fe
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerError rc_getError(const rc_Tracker *tracker);
-RCTRACKER_API float rc_getProgress(const rc_Tracker *tracker);
 
 /**
  Returns a string with statistics on sensor timing

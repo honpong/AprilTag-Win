@@ -15,9 +15,7 @@ typedef enum
 {
     /** RCSensorFusion is inactive. */
     RCSensorFusionRunStateInactive = 0,
-    /** startSensorFusionWithDevice: has been called, and RCSensorFusion is in the handheld steady initialization phase. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
-    RCSensorFusionRunStateSteadyInitialization = 2,
-    /** startSensorFusionUnstableWithDevice: has been called, and RCSensorFusion is in the handheld dynamic initialization phase. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
+    /** startSensorFusionUnstableWithDevice: has been called, and RCSensorFusion is in the handheld dynamic initialization phase. */
     RCSensorFusionRunStateDynamicInitialization = 3,
     /** RCSensorFusion is active and updates are being provided with all data. */
     RCSensorFusionRunStateRunning = 4,

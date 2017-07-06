@@ -35,7 +35,6 @@ void sensor_fusion::update_status()
     status s;
     //Updates happen synchronously in the calling (filter) thread
     s.error = get_error();
-    s.progress = filter_converged(&sfm);
     s.run_state = sfm.run_state;
     
     s.confidence = RCSensorFusionConfidenceNone;
@@ -63,7 +62,7 @@ void sensor_fusion::update_status()
         transformation last_transform = get_transformation();
         filter_initialize(&sfm);
         filter_set_origin(&sfm, last_transform, true);
-        filter_start_dynamic(&sfm);
+        filter_start(&sfm);
     }
     else if(s.run_state == RCSensorFusionRunStateInactive && s.error == RCSensorFusionErrorCodeNone)
     {
@@ -198,19 +197,7 @@ void sensor_fusion::set_location(double latitude_degrees, double longitude_degre
     });
 }
 
-void sensor_fusion::start(bool thread)
-{
-    threaded = thread;
-    buffering = false;
-    fast_path = false;
-    isSensorFusionRunning = true;
-    isProcessingVideo = true;
-    filter_initialize(&sfm);
-    filter_start_hold_steady(&sfm);
-    queue.start(threaded);
-}
-
-void sensor_fusion::start_unstable(bool thread, bool fast_path_)
+void sensor_fusion::start(bool thread, bool fast_path_)
 {
     threaded = thread;
     buffering = false;
@@ -218,7 +205,7 @@ void sensor_fusion::start_unstable(bool thread, bool fast_path_)
     isSensorFusionRunning = true;
     isProcessingVideo = true;
     filter_initialize(&sfm);
-    filter_start_dynamic(&sfm);
+    filter_start(&sfm);
     queue.start(thread);
 }
 
@@ -231,25 +218,13 @@ void sensor_fusion::pause_and_reset_position()
 void sensor_fusion::unpause()
 {
     isProcessingVideo = true;
-    queue.dispatch_async([this]() { filter_start_dynamic(&sfm); });
+    queue.dispatch_async([this]() { filter_start(&sfm); });
 }
 
 void sensor_fusion::start_buffering()
 {
     buffering = true;
     queue.start_buffering(std::chrono::milliseconds(200));
-}
-
-void sensor_fusion::start_offline(bool fast_path_)
-{
-    threaded = false;
-    buffering = false;
-    fast_path = fast_path_;
-    filter_initialize(&sfm);
-    filter_start_dynamic(&sfm);
-    isSensorFusionRunning = true;
-    isProcessingVideo = true;
-    queue.start(false);
 }
 
 bool sensor_fusion::started()

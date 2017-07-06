@@ -37,99 +37,10 @@ const static f_t steady_sigma = 3.; //how close to mean measurements in steady m
 const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be less than this to initialize from dynamic mode
 //a_bias_var for best results on benchmarks is 6.4e-3
 const static f_t min_a_bias_var = 1.e-6; // calibration will finish immediately when variance of a_bias is less than this, and it is reset to this between each run
-const static f_t min_w_bias_var = 1.e-8; // variance of w_bias is reset to this between each run
 const static f_t max_accel_delta = 20.; //This is biggest jump seen in hard shaking of device
 const static f_t max_gyro_delta = 5.; //This is biggest jump seen in hard shaking of device
-const static sensor_clock::duration qr_detect_period = std::chrono::microseconds(100000); //Time between checking frames for QR codes to reduce CPU usage
 const static f_t convergence_minimum_velocity = 0.3; //Minimum speed (m/s) that the user must have traveled to consider the filter converged
 const static f_t convergence_maximum_depth_variance = .001; //Median feature depth must have been under this to consider the filter converged
-//TODO: homogeneous coordinates.
-
-/*
-void test_time_update(struct filter *f, f_t dt, int statesize)
-{
-    //test linearization
-    MAT_TEMP(ltu, statesize, statesize);
-    memset(ltu_data, 0, sizeof(ltu_data));
-    for(int i = 0; i < statesize; ++i) {
-        ltu(i, i) = 1.;
-    }
-
-    MAT_TEMP(save_state, 1, statesize);
-    MAT_TEMP(save_new_state, 1, statesize);
-    MAT_TEMP(state, 1, statesize);
-    f->s.copy_state_to_array(save_state);
-
-    integrate_motion_state_euler(f->s, dt);
-    f->s.copy_state_to_array(save_new_state);
-
-    f_t eps = .1;
-
-    for(int i = 0; i < statesize; ++i) {
-        memcpy(state_data, save_state_data, sizeof(state_data));
-        f_t leps = state[i] * eps + 1.e-7;
-        state[i] += leps;
-        f->s.copy_state_from_array(state);
-        integrate_motion_state_euler(f->s, dt);
-        f->s.copy_state_to_array(state);
-        for(int j = 0; j < statesize; ++j) {
-            f_t delta = state[j] - save_new_state[j];
-            f_t ldiff = leps * ltu(j, i);
-            if((ldiff * delta < 0.) && (fabs(delta) > 1.e-5)) {
-                f->log->warn("{}\t{}\t: sign flip: expected {}, got {}", i, j, ldiff, delta);
-                continue;
-            }
-            f_t error = fabs(ldiff - delta);
-            if(fabs(delta)) error /= fabs(delta);
-            else error /= 1.e-5;
-            if(error > .1) {
-                f->log->warn("{}\t{}\t: lin error: expected {}, got {}", i, j, ldiff, delta);
-                continue;
-            }
-        }
-    }
-    f->s.copy_state_from_array(save_state);
-}
-
-void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(state *, matrix &, matrix *))
-{
-    //test linearization
-    MAT_TEMP(lp, pred_size, statesize);
-    MAT_TEMP(save_state, 1, statesize);
-    MAT_TEMP(state, 1, statesize);
-    f->s.copy_state_to_array(save_state);
-    MAT_TEMP(pred, 1, pred_size);
-    MAT_TEMP(save_pred, 1, pred_size);
-    memset(lp_data, 0, sizeof(lp_data));
-    predict(&f->s, save_pred, &lp);
-
-    f_t eps = .1;
-
-    for(int i = 0; i < statesize; ++i) {
-        memcpy(state_data, save_state_data, sizeof(state_data));
-        f_t leps = state[i] * eps + 1.e-7;
-        state[i] += leps;
-        f->s.copy_state_from_array(state);
-        predict(&f->s, pred, NULL);
-        for(int j = 0; j < pred_size; ++j) {
-            f_t delta = pred[j] - save_pred[j];
-            f_t ldiff = leps * lp(j, i);
-            if((ldiff * delta < 0.) && (fabs(delta) > 1.e-5)) {
-                f->log->warn("{}\t{}\t: sign flip: expected {}, got {}", i, j, ldiff, delta);
-                continue;
-            }
-            f_t error = fabs(ldiff - delta);
-            if(fabs(delta)) error /= fabs(delta);
-            else error /= 1.e-5;
-            if(error > .1) {
-                f->log->warn("{}\t{}\t: lin error: expected {}, got {}", i, j, ldiff, delta);
-                continue;
-            }
-        }
-    }
-    f->s.copy_state_from_array(save_state);
-}
-*/
 
 void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
 {

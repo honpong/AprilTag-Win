@@ -21,62 +21,19 @@ void sensor_fusion::set_transformation(const transformation &pose_m)
     sfm.origin = pose_m*invert(sfm.s.get_transformation());
 }
 
-RCSensorFusionErrorCode sensor_fusion::get_error()
-{
-    RCSensorFusionErrorCode error = RCSensorFusionErrorCodeNone;
-    if(sfm.numeric_failed) error = RCSensorFusionErrorCodeOther;
-    else if(sfm.speed_failed) error = RCSensorFusionErrorCodeTooFast;
-    else if(sfm.detector_failed) error = RCSensorFusionErrorCodeVision;
-    return error;
-}
-
 void sensor_fusion::update_status()
 {
-    status s;
-    //Updates happen synchronously in the calling (filter) thread
-    s.error = get_error();
-    s.run_state = sfm.run_state;
-    
-    s.confidence = RCSensorFusionConfidenceNone;
-    if(s.run_state == RCSensorFusionRunStateRunning)
-    {
-        if(s.error == RCSensorFusionErrorCodeVision)
-        {
-            s.confidence = RCSensorFusionConfidenceLow;
-        }
-        else if(sfm.has_converged)
-        {
-            s.confidence = RCSensorFusionConfidenceHigh;
-        }
-        else
-        {
-            s.confidence = RCSensorFusionConfidenceMedium;
-        }
-    }
-    if(s == last_status) return;
-    
+    if(status_callback)
+        status_callback();
+
     // queue actions related to failures before queuing callbacks to the sdk client.
-    if(s.error == RCSensorFusionErrorCodeOther)
-    {
+    if(sfm.numeric_failed) {
         sfm.log->error("Numerical error; filter reset.");
         transformation last_transform = get_transformation();
         filter_initialize(&sfm);
         filter_set_origin(&sfm, last_transform, true);
         filter_start(&sfm);
     }
-    else if(s.run_state == RCSensorFusionRunStateInactive && s.error == RCSensorFusionErrorCodeNone)
-    {
-        isSensorFusionRunning = false;
-        //TODO: save calibration
-    }
-    
-    if((s.error == RCSensorFusionErrorCodeVision && s.run_state != RCSensorFusionRunStateRunning)) {
-    }
-
-    if(status_callback)
-        status_callback(s);
-
-    last_status = s;
 }
 
 void sensor_fusion::update_data(const sensor_data * data)

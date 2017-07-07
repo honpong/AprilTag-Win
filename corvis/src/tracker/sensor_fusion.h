@@ -24,14 +24,6 @@ class sensor_fusion
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    struct status
-    {
-        RCSensorFusionRunState run_state{ RCSensorFusionRunStateInactive };
-        RCSensorFusionErrorCode error{ RCSensorFusionErrorCodeNone };
-        RCSensorFusionConfidence confidence{ RCSensorFusionConfidenceNone };
-        bool operator==(const struct status & other) { return run_state == other.run_state && error == other.error && confidence == other.confidence; }
-    };
-    
     struct feature_point
     {
         uint64_t id;
@@ -43,7 +35,7 @@ public:
     };
     
     std::function<void(const sensor_data *)> data_callback;
-    std::function<void(status)> status_callback;
+    std::function<void()> status_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
     
@@ -147,11 +139,9 @@ public:
 
 private:
     friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere
-    RCSensorFusionErrorCode get_error();
     void update_status();
     void update_data(const sensor_data * data);
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning;
-    status last_status;
     bool threaded;
     bool fast_path = false;
 

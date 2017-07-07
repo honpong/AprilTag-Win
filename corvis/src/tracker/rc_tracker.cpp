@@ -85,54 +85,6 @@ static void rc_trace(rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp ti
     trace_log->info("rc_receiveImage id,t,s,f {} {} {} {} w,h,s {} {} {} px {} {} {}", camera_id, time_us, shutter_time_us, format, width, height, stride, pixel1, pixel2, pixel3);
 }
 
-static rc_TrackerState tracker_state_from_run_state(RCSensorFusionRunState run_state)
-{
-    switch(run_state)
-    {
-        case RCSensorFusionRunStateDynamicInitialization:
-            return rc_E_DYNAMIC_INITIALIZATION;
-        case RCSensorFusionRunStateInactive:
-            return rc_E_INACTIVE;
-        case RCSensorFusionRunStateRunning:
-            return rc_E_RUNNING;
-        default: // This case should never be reached
-            return rc_E_INACTIVE;
-    }
-}
-
-static rc_TrackerError tracker_error_from_error(RCSensorFusionErrorCode error)
-{
-    switch(error)
-    {
-        case RCSensorFusionErrorCodeNone:
-            return rc_E_ERROR_NONE;
-        case RCSensorFusionErrorCodeOther:
-            return rc_E_ERROR_OTHER;
-        case RCSensorFusionErrorCodeVision:
-            return rc_E_ERROR_VISION;
-        case RCSensorFusionErrorCodeTooFast:
-            return rc_E_ERROR_SPEED;
-        default:
-            return rc_E_ERROR_OTHER;
-    }
-}
-
-static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionConfidence confidence)
-{
-    switch(confidence)
-    {
-        case RCSensorFusionConfidenceHigh:
-            return rc_E_CONFIDENCE_HIGH;
-        case RCSensorFusionConfidenceMedium:
-            return rc_E_CONFIDENCE_MEDIUM;
-        case RCSensorFusionConfidenceLow:
-            return rc_E_CONFIDENCE_LOW;
-        case RCSensorFusionConfidenceNone:
-        default:
-            return rc_E_CONFIDENCE_NONE;
-    }
-}
-
 struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::MINIMIZE_DROPS) {}
@@ -140,6 +92,14 @@ struct rc_Tracker: public sensor_fusion
     std::vector<std::vector<rc_Feature> > stored_features;
     std::string timingStats;
     capture output;
+    struct status {
+        rc_TrackerState run_state = rc_E_INACTIVE;
+        rc_TrackerError error = rc_E_ERROR_NONE;
+        rc_TrackerConfidence confidence = rc_E_CONFIDENCE_NONE;
+        status() {}
+        status(rc_Tracker *tracker) : run_state(rc_getState(tracker)), error(rc_getError(tracker)), confidence(rc_getConfidence(tracker)) {}
+        bool operator!=(const struct status &o) { return run_state != o.run_state && error != o.error && confidence != o.confidence; }
+    } last;
 };
 
 static bool is_configured(const rc_Tracker * tracker)
@@ -439,8 +399,13 @@ RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callb
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle)
 {
     if(trace) trace_log->info("rc_setStatusCallback");
-    if(callback) tracker->status_callback = [callback, handle](sensor_fusion::status s) {
-        callback(handle, tracker_state_from_run_state(s.run_state), tracker_error_from_error(s.error), tracker_confidence_from_confidence(s.confidence));
+    tracker->status_callback = [callback, handle, tracker]() -> bool {
+        rc_Tracker::status current(tracker);
+        bool diff = tracker->last != current;
+        tracker->last = current;
+        if (diff && callback)
+            callback(handle, current.run_state, current.error, current.confidence);
+        return diff;
     };
 }
 
@@ -650,7 +615,19 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
 rc_TrackerState rc_getState(const rc_Tracker *tracker)
 {
     if(trace) trace_log->info("rc_getState");
-    return tracker_state_from_run_state(tracker->sfm.run_state);
+    switch(tracker->sfm.run_state)
+    {
+        case RCSensorFusionRunStateDynamicInitialization:
+            return rc_E_DYNAMIC_INITIALIZATION;
+        case RCSensorFusionRunStateInactive:
+            return rc_E_INACTIVE;
+        case RCSensorFusionRunStateRunning:
+            return rc_E_RUNNING;
+        case RCSensorFusionRunStateInertialOnly:
+            //return rc_E_INERTIAL_ONLY;
+        default:
+            return rc_E_INACTIVE;
+    }
 }
 
 rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker)

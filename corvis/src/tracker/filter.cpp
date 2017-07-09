@@ -24,19 +24,12 @@
 #include "ipp_tracker.h"
 #endif
 
-const static sensor_clock::duration min_steady_time = std::chrono::microseconds(100000); //time held steady before we start treating it as steady
-const static sensor_clock::duration steady_converge_time = std::chrono::microseconds(200000); //time that user needs to hold steady (us)
 const static sensor_clock::duration camera_wait_time = std::chrono::milliseconds(500); //time we'll wait for all cameras before attempting to detect features
 const static sensor_clock::duration max_detector_failed_time = std::chrono::milliseconds(500); //time we'll go with no features before dropping to inertial only mode
 const static int calibration_converge_samples = 200; //number of accelerometer readings needed to converge in calibration mode
-const static f_t accelerometer_steady_var = .15*.15; //variance when held steady, based on std dev measurement of iphone 5s held in hand
-const static f_t velocity_steady_var = .1 * .1; //initial var of state.V when steady
 const static f_t accelerometer_inertial_var = 2.33*2.33; //variance when in inertial only mode
-const static f_t static_sigma = 6.; //how close to mean measurements in static mode need to be
-const static f_t steady_sigma = 3.; //how close to mean measurements in steady mode need to be - lower because it is handheld motion, not gaussian noise
 const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be less than this to initialize from dynamic mode
 //a_bias_var for best results on benchmarks is 6.4e-3
-const static f_t min_a_bias_var = 1.e-6; // calibration will finish immediately when variance of a_bias is less than this, and it is reset to this between each run
 const static f_t max_accel_delta = 20.; //This is biggest jump seen in hard shaking of device
 const static f_t max_gyro_delta = 5.; //This is biggest jump seen in hard shaking of device
 const static f_t convergence_minimum_velocity = 0.3; //Minimum speed (m/s) that the user must have traveled to consider the filter converged
@@ -155,23 +148,6 @@ static void process_observation_queue(struct filter *f)
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)
 {
     assert(f); f->s.compute_gravity(latitude, altitude);
-}
-
-static void update_static_calibration(struct filter *f, state_imu &imu, sensor_accelerometer &a, sensor_gyroscope &g)
-{
-    if(g.stability.count < calibration_converge_samples) return;
-    a.measurement_variance = a.stability.variance.array().mean();
-    g.measurement_variance = g.stability.variance.array().mean();
-#ifdef _WIN32
-    //WARNING HACK - floor set at milhone values
-    if (a.measurement_variance <   .005) a.measurement_variance =   .005;
-    if (g.measurement_variance < .00002) g.measurement_variance = .00002;
-    //TODO: get rid of this (figure out how to deal with quantized sensor data)
-#endif
-    //this updates even the one dof that can't converge in the filter for this orientation (since we were static)
-    imu.intrinsics.w_bias.v = g.stability.mean;
-    imu.intrinsics.w_bias.set_initial_variance(g.stability.variance); //Even though the one dof won't have converged in the filter, we know that this is a good value (average across stable meas).
-    imu.intrinsics.w_bias.reset_covariance(f->s.cov);
 }
 
 static void print_calibration(struct filter *f)

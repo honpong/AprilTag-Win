@@ -58,7 +58,7 @@ struct tracker {
      */
     virtual void drop_feature(uint64_t feature_id) = 0;
 
-    virtual void drop_all_features() = 0;
+    virtual void drop_all_features(){};
 
     virtual ~tracker() {}
 };

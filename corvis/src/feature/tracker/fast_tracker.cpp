@@ -3,6 +3,8 @@
 #include "descriptor.h"
 #include "fast_9.h"
 
+#include <algorithm>
+
 using namespace std;
 
 static void make_offsets(int pixel[], int row_stride)

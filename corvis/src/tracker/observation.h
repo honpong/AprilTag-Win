@@ -26,7 +26,7 @@ public:
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
     
-    observation(sensor &src, int _size): size(_size) {}
+    observation(int _size): size(_size) {}
     virtual ~observation() {};
 };
 
@@ -45,7 +45,7 @@ public:
     virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }
     virtual f_t measurement_covariance(const int i) const { return m_cov[i]; }
-    observation_storage(sensor_storage<_size> &src): observation(src, _size), source(src) {}
+    observation_storage(sensor_storage<_size> &src): observation(_size), source(src) {}
 };
 
 class observation_vision_feature: public observation_storage<2> {
@@ -81,7 +81,7 @@ class observation_vision_feature: public observation_storage<2> {
     void update_initializing();
 
     observation_vision_feature(sensor_grey &src, const state_camera &camera, state_vision_feature &f)
-        : observation_storage(src), curr(camera), orig(f.group.camera), feature(&f) {}
+        : observation_storage(src), orig(f.group.camera), curr(camera), feature(&f) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -163,7 +163,7 @@ public:
     void cache_recent(std::unique_ptr<observation> &&o) {
 #ifndef MYRIAD2 // Doesn't support dynamic_cast
         if (auto *ovf = dynamic_cast<observation_vision_feature*>(o.get()))
-            recent_f_map[ovf->feature->id] = std::unique_ptr<observation_vision_feature>(static_cast<observation_vision_feature*>(o.release()));
+            recent_f_map[ovf->feature->track.feature->id] = std::unique_ptr<observation_vision_feature>(static_cast<observation_vision_feature*>(o.release()));
         else if (dynamic_cast<observation_accelerometer*>(o.get()))
             recent_a = std::unique_ptr<observation_accelerometer>(static_cast<observation_accelerometer*>(o.release()));
         else if (dynamic_cast<observation_gyroscope*>(o.get()))
@@ -177,9 +177,9 @@ protected:
     void measure_and_prune();
     void compute_innovation(matrix &inn);
     void compute_measurement_covariance(matrix &m_cov);
-    void compute_prediction_covariance(const state_root &s, int meas_size);
+    void compute_prediction_covariance(const matrix &cov, int statesize, int meas_size);
     void compute_innovation_covariance(const matrix &m_cov);
-    bool update_state_and_covariance(state_root &s, const matrix &inn);
+    bool update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn);
 
     matrix state   {   state_storage };
     matrix inn     {     inn_storage };

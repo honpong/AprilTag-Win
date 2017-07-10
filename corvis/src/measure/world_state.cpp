@@ -197,6 +197,8 @@ void world_state::observe_depth_overlay_image(uint64_t timestamp, uint16_t *alig
 
 static inline void compute_covariance_ellipse(float x, float y, float xy, float & cx, float & cy, float & ctheta)
 {
+    if(x == 0) x = 1;
+    if(y == 0) y = 1;
     float tau = 0;
     if(xy != 0.f)
         tau = (y - x) / xy / 2.f;
@@ -531,6 +533,24 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
 
             for(int i = 0; i < nfeatures; i++)
                 observe_feature(timestamp_us, data->id, features[i]);
+
+            const struct filter * f = &((sensor_fusion *)tracker)->sfm;
+            for(const auto &t: f->s.cameras.children[data->id]->standby_features)
+            {
+                rc_Feature rcf;
+                rcf.id = t.feature->id;
+                rcf.image_x = t.x;
+                rcf.image_y = t.y;
+                rcf.image_prediction_x = t.x;
+                rcf.image_prediction_y = t.y;
+                rcf.initialized = false;
+                rcf.stdev = 100;
+                rcf.depth = 100;
+                rcf.depth_measured = false;
+                rcf.innovation_variance_x = rcf.innovation_variance_y = rcf.innovation_variance_xy = 0;
+                observe_feature(timestamp_us, data->id, rcf);
+            }
+
             observe_image(timestamp_us, data->id, data->image);
 
             // Map update is slow and loop closure checks only happen
@@ -718,7 +738,13 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                 set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
                 set_color(&vp, 88, 247, 98, 255);
             }
-            else {
+            else if(f.not_in_filter) {
+                generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 88, 98, 247, 255);
+                set_color(&v, 88, 98, 247, 255);
+
+                set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
+                set_color(&vp, 88, 98, 247, 255);
+            } else {
                 generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 247, 88, 98, 255);
                 set_color(&v, 247, 88, 98, 255);
 
@@ -990,6 +1016,7 @@ void world_state::observe_feature(uint64_t timestamp, rc_Sensor camera_id, const
     f.times_seen = 1;
     f.good = feature.stdev / feature.depth < 0.02;;
     f.depth_measured = feature.depth_measured;
+    f.not_in_filter = feature.innovation_variance_x == 0;
     f.camera_id = camera_id;
 
     display_lock.lock();

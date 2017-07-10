@@ -50,14 +50,13 @@ void observation_queue::compute_measurement_covariance(matrix &m_cov)
     }
 }
 
-void observation_queue::compute_prediction_covariance(const state_root &s, int meas_size)
+void observation_queue::compute_prediction_covariance(const matrix &cov, int statesize, int meas_size)
 {
-    int statesize = s.cov.size();
     int index = 0;
     for(auto &o : observations) {
         matrix dst(HP, index, 0, o->size, statesize);
         o->cache_jacobians();
-        o->project_covariance(dst, s.cov.cov); // HP = H * P'
+        o->project_covariance(dst, cov); // HP = H * P'
         index += o->size;
     }
 
@@ -81,7 +80,7 @@ void observation_queue::compute_innovation_covariance(const matrix &m_cov)
     }
 }
 
-bool observation_queue::update_state_and_covariance(state_root &s, const matrix &inn)
+bool observation_queue::update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn)
 {
 #ifdef TEST_POSDEF
     f_t rcond = matrix_check_condition(res_cov);
@@ -89,11 +88,8 @@ bool observation_queue::update_state_and_covariance(state_root &s, const matrix 
 #endif
     if(kalman_compute_gain(K, HP, res_cov))
     {
-        state.resize(s.cov.size());
-        s.copy_state_to_array(state);
         kalman_update_state(state, K, inn);
-        s.copy_state_from_array(state);
-        kalman_update_covariance(s.cov.cov, K, HP);
+        kalman_update_covariance(cov, K, HP);
         return true;
     } else {
         return false;
@@ -121,13 +117,18 @@ bool observation_queue::process(state_root &s)
         m_cov.resize(meas_size);
         HP.resize(meas_size, statesize);
         res_cov.resize(meas_size, meas_size);
+        state.resize(statesize);
 
         compute_innovation(inn);
         compute_measurement_covariance(m_cov);
-        compute_prediction_covariance(s, meas_size);
+        compute_prediction_covariance(s.cov.cov, statesize, meas_size);
         compute_innovation_covariance(m_cov);
-        HP.resize(meas_size, statesize);
-        success = update_state_and_covariance(s, inn);
+
+        s.copy_state_to_array(state);
+
+        success = update_state_and_covariance(state, s.cov.cov, inn);
+
+        s.copy_state_from_array(state);
     } else if(orig_meas_size && orig_meas_size != 3) {
         //s.log->warn("In Kalman update, original measurement size was {}, ended up with 0 measurements!\n", orig_meas_size);
     }
@@ -170,11 +171,13 @@ void observation_vision_feature::predict()
     Xd = orig.camera.intrinsics.normalize_feature(feature->initial);
     X0 = orig.camera.intrinsics.undistort_feature(Xd).homogeneous();
     feature->body = Rb * X0 * feature->v.depth() + Tb;
+    feature->node_body = Ro*X0 * feature->v.depth() + orig.camera.extrinsics.T.v;
 
     X = Rtot * X0 + Ttot * feature->v.invdepth();
-    v2 Xu = X.segment(0,2) / X[2];
-    feature->prediction = curr.camera.intrinsics.unnormalize_feature(curr.camera.intrinsics.distort_feature(Xu));
-    pred = feature->prediction;
+    v2 Xu = X.segment<2>(0) / X[2];
+    pred = curr.camera.intrinsics.unnormalize_feature(curr.camera.intrinsics.distort_feature(Xu));
+    feature->track.pred_x = pred.x();
+    feature->track.pred_y = pred.y();
 }
 
 void observation_vision_feature::cache_jacobians()
@@ -189,14 +192,14 @@ void observation_vision_feature::cache_jacobians()
     // v4 X = Rtot * X0 + Ttot / depth
     // v4 dX = dRtot * X0 + Rtot * dX0 + dTtot / depth - Tot / depth / depth ddepth
 
-    f_t invZ = 1/X[2];
-    v2 Xu = {X[0]*invZ, X[1]*invZ};
+    v2 Xu = X.segment<2>(0) / X[2];
     m<1,2> dkd_u_dXu;
     m<1,4> dkd_u_dk;
     f_t kd_u = curr.camera.intrinsics.get_distortion_factor(Xu, &dkd_u_dXu, &dkd_u_dk);
     //dx_dX = height * focal_length * d(kd_u * Xu + center)_dX
     //= height * focal_length * (dkd_u_dX * Xu + kd_u * dXu_dX)
     //= height * focal_length * (dkd_u_dXu * dXu_dX * Xu + kd_u * dXu_dX)
+    f_t invZ = 1/X[2];
     m<2,3> dXu_dX = {{ invZ, 0, -Xu[0] * invZ },
                      { 0, invZ, -Xu[1] * invZ }};
     m<1,3> dkd_u_dX = dkd_u_dXu * dXu_dX;
@@ -289,7 +292,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 
 f_t observation_vision_feature::projection_residual(const v3 & X, const feature_t & found_undistorted)
 {
-    v2 Xu = X.segment(0,2) / X[2];
+    v2 Xu = X.segment<2>(0) / X[2];
     return (Xu - found_undistorted).squaredNorm();
 }
 
@@ -346,11 +349,9 @@ void observation_vision_feature::update_initializing()
 
 bool observation_vision_feature::measure()
 {
-    meas = feature->current;
+    meas = {feature->track.x, feature->track.y};
 
-    bool valid = meas[0] != INFINITY;
-
-    if(valid) {
+    if(feature->track.found()) {
         source.meas_stdev.data(meas);
         if(!feature->is_initialized()) {
             update_initializing();
@@ -364,7 +365,7 @@ bool observation_vision_feature::measure()
         return false;
     }
 
-    return valid;
+    return feature->track.found();
 }
 
 void observation_vision_feature::compute_measurement_covariance()

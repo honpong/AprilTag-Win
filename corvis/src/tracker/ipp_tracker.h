@@ -167,7 +167,6 @@ class ipp_tracker : public tracker
     static constexpr float threshold = .1f;
     static constexpr int win_size = static_cast<int>(2*fast_track_radius + .5);
 private:
-    uint64_t next_id = 0;
     Ipp8u *state_buffer = nullptr;
     IppiOptFlowPyrLK_8u_C1R *state = nullptr;
     ipp_fast_detector fast;
@@ -184,7 +183,7 @@ public:
     ipp_tracker() {
     };
 
-    virtual std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions) override {
+    virtual void track(const image &image, std::vector<feature_track *> &tracks) override {
         if(!state_buffer) {
             IppiSize roi_size {image.width_px, image.height_px};
             {
@@ -194,50 +193,53 @@ public:
             }
             check(ippiOpticalFlowPyrLKInit_8u_C1R(&state, roi_size, win_size, ippAlgHintFast, state_buffer));
         }
-        prev.points.resize(predictions.size());
-        next.points.resize(predictions.size());
-        statuses.resize(predictions.size());
-        errors.resize(predictions.size());
+        prev.points.resize(tracks.size());
+        next.points.resize(tracks.size());
+        statuses.resize(tracks.size());
+        errors.resize(tracks.size());
         if (prev.pyramid.pyramid) {
             next.pyramid.set(image);
-            for (size_t i = 0; i < predictions.size(); i++) {
-                prev.points[i].x = predictions[i].prev_x;
-                prev.points[i].y = predictions[i].prev_y;
-                next.points[i].x = predictions[i].x;
-                next.points[i].y = predictions[i].y;
+            for (size_t i = 0; i < tracks.size(); i++) {
+                prev.points[i].x = tracks[i]->x;
+                prev.points[i].y = tracks[i]->y;
+                next.points[i].x = tracks[i]->pred_x;
+                next.points[i].y = tracks[i]->pred_y;
             }
             check(ippiOpticalFlowPyrLK_8u_C1R(prev.pyramid.pyramid, next.pyramid.pyramid,
-                                              prev.points.data(), next.points.data(), statuses.data(), errors.data(), predictions.size(),
+                                              prev.points.data(), next.points.data(), statuses.data(), errors.data(), tracks.size(),
                                               win_size/*<= win_size above*/, ipp_image_pyramid::levels-1, max_iterations, threshold, state));
         }
         size_t found=0;
-        for (size_t i = 0; i < predictions.size(); i++) {
+        for (size_t i = 0; i < tracks.size(); i++) {
             if (statuses[i] < ipp_image_pyramid::levels) {
-                predictions[i].x = next.points[i].x;
-                predictions[i].y = next.points[i].y;
-                predictions[i].score = errors[i];
+                tracks[i]->x = next.points[i].x;
+                tracks[i]->y = next.points[i].y;
+                tracks[i]->score = errors[i];
                 if(errors[i] < 10) {
-                    predictions[i].found = true; found++;
+                    found++;
+                } else {
+                    tracks[i]->x = INFINITY;
+                    tracks[i]->y = INFINITY;
+                    tracks[i]->score = 0;
                 }
             }
         }
         std::swap(prev, next);
-        return predictions;
     }
 
-    virtual std::vector<point> &detect(const image &image, const std::vector<point> &current, int number_desired) override {
+    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_track *> &current, size_t number_desired) override {
         if (!mask)
             mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
         mask->initialize();
         for (auto &f : current)
-            mask->clear((int)f.x, (int)f.y);
+            mask->clear((int)f->x, (int)f->y);
 
         prev.pyramid.set(image);
 
         IppiSize roi_size = {image.width_px, image.height_px};
         std::vector<IppiCornerFastN> &corner_vec = fast.detect(image, IppiPoint{0,0}, roi_size, *mask);
 
-        auto by_score = [](const point &a, const point &b){ return a.score > b.score; };
+        auto by_score = [](const feature_track &a, const feature_track &b){ return a.score > b.score; };
 
         feature_points.clear();
         feature_points.reserve(number_desired+1/*see below*/);
@@ -246,7 +248,7 @@ public:
                 continue;
             mask->clear((int)c.x, (int)c.y);
 
-            feature_points.emplace_back(next_id++, c.x, c.y, c.score);
+            feature_points.emplace_back(std::make_shared<tracker::feature>(), c.x, c.y, c.score);
             push_heap(feature_points.begin(), feature_points.end(), by_score);
             if(feature_points.size() > number_desired) {
                 pop_heap(feature_points.begin(), feature_points.end(), by_score);
@@ -256,9 +258,6 @@ public:
         std::sort_heap(feature_points.begin(), feature_points.end(), by_score);
         return feature_points;
     }
-    virtual void drop_feature(uint64_t feature_id) override {
-    }
-    virtual void drop_all_features() override {}
 };
 
 #ifndef check

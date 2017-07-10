@@ -36,7 +36,7 @@ static void rc_trace(const rc_Matrix p)
 
 static void rc_trace(const rc_Pose p)
 {
-    quaternion Q(map(p.Q.v).cast<f_t>()); m3 R = map(p.R.v).cast<f_t>(); v3 T = map(p.T.v).cast<f_t>();
+    quaternion Q(map(p.Q.v).cast<f_t>()); m3 R = map(p.R.v).cast<f_t>();
     if (std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1))
         trace_log->info("{} {} {}  {}; {} {} {}  {}; {} {} {}  {}",
                         p.R.v[0][0], p.R.v[0][1], p.R.v[0][2], p.T.v[0],
@@ -85,62 +85,6 @@ static void rc_trace(rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp ti
     trace_log->info("rc_receiveImage id,t,s,f {} {} {} {} w,h,s {} {} {} px {} {} {}", camera_id, time_us, shutter_time_us, format, width, height, stride, pixel1, pixel2, pixel3);
 }
 
-static rc_TrackerState tracker_state_from_run_state(RCSensorFusionRunState run_state)
-{
-    switch(run_state)
-    {
-        case RCSensorFusionRunStateDynamicInitialization:
-            return rc_E_DYNAMIC_INITIALIZATION;
-        case RCSensorFusionRunStateInactive:
-            return rc_E_INACTIVE;
-        case RCSensorFusionRunStateLandscapeCalibration:
-            return rc_E_LANDSCAPE_CALIBRATION;
-        case RCSensorFusionRunStatePortraitCalibration:
-            return rc_E_PORTRAIT_CALIBRATION;
-        case RCSensorFusionRunStateRunning:
-            return rc_E_RUNNING;
-        case RCSensorFusionRunStateStaticCalibration:
-            return rc_E_STATIC_CALIBRATION;
-        case RCSensorFusionRunStateSteadyInitialization:
-            return rc_E_STEADY_INITIALIZATION;
-        default: // This case should never be reached
-            return rc_E_INACTIVE;
-    }
-}
-
-static rc_TrackerError tracker_error_from_error(RCSensorFusionErrorCode error)
-{
-    switch(error)
-    {
-        case RCSensorFusionErrorCodeNone:
-            return rc_E_ERROR_NONE;
-        case RCSensorFusionErrorCodeOther:
-            return rc_E_ERROR_OTHER;
-        case RCSensorFusionErrorCodeVision:
-            return rc_E_ERROR_VISION;
-        case RCSensorFusionErrorCodeTooFast:
-            return rc_E_ERROR_SPEED;
-        default:
-            return rc_E_ERROR_OTHER;
-    }
-}
-
-static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionConfidence confidence)
-{
-    switch(confidence)
-    {
-        case RCSensorFusionConfidenceHigh:
-            return rc_E_CONFIDENCE_HIGH;
-        case RCSensorFusionConfidenceMedium:
-            return rc_E_CONFIDENCE_MEDIUM;
-        case RCSensorFusionConfidenceLow:
-            return rc_E_CONFIDENCE_LOW;
-        case RCSensorFusionConfidenceNone:
-        default:
-            return rc_E_CONFIDENCE_NONE;
-    }
-}
-
 struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::MINIMIZE_DROPS) {}
@@ -148,6 +92,14 @@ struct rc_Tracker: public sensor_fusion
     std::vector<std::vector<rc_Feature> > stored_features;
     std::string timingStats;
     capture output;
+    struct status {
+        rc_TrackerState run_state = rc_E_INACTIVE;
+        rc_TrackerError error = rc_E_ERROR_NONE;
+        rc_TrackerConfidence confidence = rc_E_CONFIDENCE_NONE;
+        status() {}
+        status(rc_Tracker *tracker) : run_state(rc_getState(tracker)), error(rc_getError(tracker)), confidence(rc_getConfidence(tracker)) {}
+        bool operator!=(const struct status &o) { return run_state != o.run_state && error != o.error && confidence != o.confidence; }
+    } last;
 };
 
 static bool is_configured(const rc_Tracker * tracker)
@@ -190,7 +142,6 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
     if (format == rc_FORMAT_GRAY8) {
         if(camera_id > tracker->sfm.cameras.size()) return false;
         if(camera_id == tracker->sfm.cameras.size()) {
-            // new camera
             if(trace) trace_log->info(" configuring new grey camera");
             auto new_camera = std::make_unique<sensor_grey>(camera_id);
             tracker->sfm.cameras.push_back(std::move(new_camera));
@@ -207,7 +158,6 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
     else if(format == rc_FORMAT_DEPTH16) {
         if(camera_id > tracker->sfm.depths.size()) return false;
         if(camera_id == tracker->sfm.depths.size()) {
-            // new depth camera
             if(trace) trace_log->info(" configuring new camera");
             auto new_camera = std::make_unique<sensor_depth>(camera_id);
             tracker->sfm.depths.push_back(std::move(new_camera));
@@ -267,16 +217,10 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
 
     if(accel_id > tracker->sfm.accelerometers.size()) return false;
     if(accel_id == tracker->sfm.accelerometers.size()) {
-        // new depth camera
         if(trace) trace_log->info(" configuring new accel");
         tracker->queue.require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, std::chrono::microseconds(600));
         auto new_accel = std::make_unique<sensor_accelerometer>(accel_id);
         tracker->sfm.accelerometers.push_back(std::move(new_accel));
-        if (accel_id == tracker->sfm.s.imus.children.size()) {
-            tracker->sfm.s.imus.children.emplace_back(std::make_unique<state_imu>());
-            tracker->sfm.mini->state.imus.children.emplace_back(std::make_unique<state_imu>());
-            tracker->sfm.catchup->state.imus.children.emplace_back(std::make_unique<state_imu>());
-        }
     }
 
     tracker->sfm.accelerometers[accel_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
@@ -321,16 +265,10 @@ bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extr
 
     if(gyro_id > tracker->sfm.gyroscopes.size()) return false;
     if(gyro_id == tracker->sfm.gyroscopes.size()) {
-        // new depth camera
         if(trace) trace_log->info(" configuring new gyro");
         tracker->queue.require_sensor(rc_SENSOR_TYPE_GYROSCOPE, gyro_id, std::chrono::microseconds(600));
         auto new_gyro = std::make_unique<sensor_gyroscope>(gyro_id);
         tracker->sfm.gyroscopes.push_back(std::move(new_gyro));
-        if (gyro_id == tracker->sfm.s.imus.children.size()) {
-            tracker->sfm.s.imus.children.emplace_back(std::make_unique<state_imu>());
-            tracker->sfm.mini->state.imus.children.emplace_back(std::make_unique<state_imu>());
-            tracker->sfm.catchup->state.imus.children.emplace_back(std::make_unique<state_imu>());
-        }
     }
 
     tracker->sfm.gyroscopes[gyro_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
@@ -467,17 +405,14 @@ RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callb
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle)
 {
     if(trace) trace_log->info("rc_setStatusCallback");
-    if(callback) tracker->status_callback = [callback, handle](sensor_fusion::status s) {
-        callback(handle, tracker_state_from_run_state(s.run_state), tracker_error_from_error(s.error), tracker_confidence_from_confidence(s.confidence), static_cast<float>(s.progress));
+    tracker->status_callback = [callback, handle, tracker]() -> bool {
+        rc_Tracker::status current(tracker);
+        bool diff = tracker->last != current;
+        tracker->last = current;
+        if (diff && callback)
+            callback(handle, current.run_state, current.error, current.confidence);
+        return diff;
     };
-}
-
-bool rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
-{
-    if(trace) trace_log->info("rc_startCalibration {}", run_flags);
-    if(!tracker->sfm.accelerometers.size() || !tracker->sfm.gyroscopes.size()) return false;
-    tracker->start_calibration(run_flags & rc_RUN_ASYNCHRONOUS);
-    return true;
 }
 
 void rc_pauseAndResetPosition(rc_Tracker * tracker)
@@ -504,10 +439,7 @@ bool rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
     if(trace) trace_log->info("rc_startTracker");
     if(!is_configured(tracker)) return false;
-    if (run_flags & rc_RUN_ASYNCHRONOUS)
-        tracker->start_unstable(true, run_flags & rc_RUN_FAST_PATH);
-    else
-        tracker->start_offline(run_flags & rc_RUN_FAST_PATH);
+    tracker->start(run_flags & rc_RUN_ASYNCHRONOUS, run_flags & rc_RUN_FAST_PATH);
     return true;
 }
 
@@ -678,11 +610,11 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
             for(auto &i: g->features.children) {
                 if(!i->is_valid()) continue;
                 rc_Feature feat;
-                feat.id = i->id;
-                feat.image_x = static_cast<decltype(feat.image_x)>(i->current[0]);
-                feat.image_y = static_cast<decltype(feat.image_y)>(i->current[1]);
-                feat.image_prediction_x = static_cast<decltype(feat.image_prediction_x)>(i->prediction[0]);
-                feat.image_prediction_y = static_cast<decltype(feat.image_prediction_y)>(i->prediction[1]);
+                feat.id = i->track.feature->id;
+                feat.image_x = static_cast<decltype(feat.image_x)>(i->track.x);
+                feat.image_y = static_cast<decltype(feat.image_y)>(i->track.y);
+                feat.image_prediction_x = static_cast<decltype(feat.image_prediction_x)>(i->track.pred_x);
+                feat.image_prediction_y = static_cast<decltype(feat.image_prediction_y)>(i->track.pred_y);
                 v3 ext_pos = G * i->body;
                 feat.world.x = static_cast<decltype(feat.world.x)>(ext_pos[0]);
                 feat.world.y = static_cast<decltype(feat.world.y)>(ext_pos[1]);
@@ -706,7 +638,19 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
 rc_TrackerState rc_getState(const rc_Tracker *tracker)
 {
     if(trace) trace_log->info("rc_getState");
-    return tracker_state_from_run_state(tracker->sfm.run_state);
+    switch(tracker->sfm.run_state)
+    {
+        case RCSensorFusionRunStateDynamicInitialization:
+            return rc_E_DYNAMIC_INITIALIZATION;
+        case RCSensorFusionRunStateInactive:
+            return rc_E_INACTIVE;
+        case RCSensorFusionRunStateRunning:
+            return rc_E_RUNNING;
+        case RCSensorFusionRunStateInertialOnly:
+            //return rc_E_INERTIAL_ONLY;
+        default:
+            return rc_E_INACTIVE;
+    }
 }
 
 rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker)
@@ -732,12 +676,6 @@ rc_TrackerError rc_getError(const rc_Tracker *tracker)
     return error;
 }
 
-float rc_getProgress(const rc_Tracker *tracker)
-{
-    if(trace) trace_log->info("rc_getProgress");
-    return filter_converged(&tracker->sfm);
-}
-
 bool rc_setOutputLog(rc_Tracker * tracker, const char *filename, rc_TrackerRunFlags run_flags)
 {
     if(trace) trace_log->info("rc_setOutputLog");
@@ -757,17 +695,17 @@ size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 
     size_t size = std::min(tracker->sfm.accelerometers.size(), tracker->sfm.gyroscopes.size());
     cal.imus.resize(size);
-    for (int id = 0; id < size; id++) {
+    for (size_t id = 0; id < size; id++) {
         rc_describeGyroscope(tracker, id, &cal.imus[id].extrinsics, &cal.imus[id].intrinsics.gyroscope);
         rc_describeAccelerometer(tracker, id, &cal.imus[id].extrinsics, &cal.imus[id].intrinsics.accelerometer);
     }
 
     cal.cameras.resize(tracker->sfm.cameras.size());
-    for (int id = 0; id < tracker->sfm.cameras.size(); id++)
+    for (size_t id = 0; id < tracker->sfm.cameras.size(); id++)
         rc_describeCamera(tracker, id, rc_FORMAT_GRAY8, &cal.cameras[id].extrinsics, &cal.cameras[id].intrinsics);
 
     cal.depths.resize(tracker->sfm.depths.size());
-    for (int id = 0; id < tracker->sfm.depths.size(); id++)
+    for (size_t id = 0; id < tracker->sfm.depths.size(); id++)
         rc_describeCamera(tracker, id, rc_FORMAT_DEPTH16, &cal.depths[id].extrinsics, &cal.depths[id].intrinsics);
 
     std::string json;

@@ -16,7 +16,7 @@
 using namespace rapidjson;
 using namespace std;
 
-sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu & legacy_imu)
+static sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu & legacy_imu)
 {
     // In legacy files, extrinsics are always identity for imu
     rc_Extrinsics extrinsics = {rc_POSE_IDENTITY};
@@ -35,7 +35,7 @@ sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu
     return sensor_calibration_imu(extrinsics, intrinsics);
 }
 
-sensor_calibration_camera calibration_convert_camera(const struct calibration_xml::camera & legacy_camera)
+static sensor_calibration_camera calibration_convert_camera(const struct calibration_xml::camera & legacy_camera)
 {
     rc_Extrinsics extrinsics = {};
     extrinsics.pose_m = to_rc_Pose(legacy_camera.extrinsics_wrt_imu_m);
@@ -44,7 +44,7 @@ sensor_calibration_camera calibration_convert_camera(const struct calibration_xm
     return sensor_calibration_camera(extrinsics, legacy_camera.intrinsics);
 }
 
-bool calibration_convert(const calibration_json &cal, calibration &cal_output)
+static bool calibration_convert(const calibration_json &cal, calibration &cal_output)
 {
     cal_output.version = CALIBRATION_VERSION;
     cal_output.device_id = cal.device_id;
@@ -69,14 +69,14 @@ bool calibration_convert(const calibration_json &cal, calibration &cal_output)
     return true;
 }
 
-void rc_vector_to_json_array(const rc_Vector & v, const char * key, Value & json, Document::AllocatorType& a)
+static void rc_vector_to_json_array(const rc_Vector & v, const char * key, Value & json, Document::AllocatorType& a)
 {
     Value json_value(kArrayType);
     for(int i = 0; i < 3; i++) json_value.PushBack(v.v[i], a);
     json.AddMember(StringRef(key), json_value, a); // assumes key will live long enough
 }
 
-void copy_extrinsics_to_json(const rc_Extrinsics & extrinsics, Value & json, Document::AllocatorType& a)
+static void copy_extrinsics_to_json(const rc_Extrinsics & extrinsics, Value & json, Document::AllocatorType& a)
 {
     transformation pose = to_transformation(extrinsics.pose_m);
     rc_Vector W; map(W.v) = to_rotation_vector(pose.Q).raw_vector();
@@ -87,7 +87,7 @@ void copy_extrinsics_to_json(const rc_Extrinsics & extrinsics, Value & json, Doc
     rc_vector_to_json_array(extrinsics.variance_m2.W, KEY_EXTRINSICS_W_VARIANCE, json, a);
 }
 
-void copy_camera_to_json(const sensor_calibration_camera & camera, Value & cameras, Document::AllocatorType& a)
+static void copy_camera_to_json(const sensor_calibration_camera & camera, Value & cameras, Document::AllocatorType& a)
 {
     Value camera_object(kObjectType);
 
@@ -141,7 +141,7 @@ void copy_camera_to_json(const sensor_calibration_camera & camera, Value & camer
     cameras.PushBack(camera_object, a);
 }
 
-void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, Document::AllocatorType& a)
+static void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, Document::AllocatorType& a)
 {
     Value imu_object(kObjectType);
 
@@ -198,7 +198,7 @@ void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, Document
     imus.PushBack(imu_object, a);
 }
 
-void copy_calibration_to_json(const calibration &cal, Document & json, Document::AllocatorType& a)
+static void copy_calibration_to_json(const calibration &cal, Value & json, Document::AllocatorType& a)
 {
     Value id(kStringType);
     id.SetString(cal.device_id.c_str(), a);
@@ -211,15 +211,15 @@ void copy_calibration_to_json(const calibration &cal, Document & json, Document:
     json.AddMember(KEY_VERSION, CALIBRATION_VERSION, a);
 
     Value cameras(kArrayType);
-    for(auto camera : cal.cameras) copy_camera_to_json(camera, cameras, a);
+    for(const auto &camera : cal.cameras) copy_camera_to_json(camera, cameras, a);
     json.AddMember(KEY_CAMERAS, cameras, a);
 
     Value depths(kArrayType);
-    for(auto depth : cal.depths) copy_camera_to_json(depth, depths, a);
+    for(const auto &depth : cal.depths) copy_camera_to_json(depth, depths, a);
     json.AddMember(KEY_DEPTHS, depths, a);
 
     Value imus(kArrayType);
-    for(auto imu : cal.imus) copy_imu_to_json(imu, imus, a);
+    for(const auto &imu : cal.imus) copy_imu_to_json(imu, imus, a);
     json.AddMember(KEY_IMUS, imus, a);
 }
 
@@ -240,7 +240,7 @@ static bool require_keys(const Value &json, std::vector<const char *> keys)
     return true;
 }
 
-bool copy_json_to_rc_matrix(Value & json, rc_Matrix & m)
+static bool copy_json_to_rc_matrix(Value & json, rc_Matrix & m)
 {
     if(!json.IsArray() || json.Size() != 9) {
         fprintf(stderr, "Error: problem converting to an rc_Vector\n");
@@ -253,7 +253,7 @@ bool copy_json_to_rc_matrix(Value & json, rc_Matrix & m)
     return true;
 }
 
-bool copy_json_to_rc_vector(Value & json, rc_Vector & v)
+static bool copy_json_to_rc_vector(Value & json, rc_Vector & v)
 {
     if(!json.IsArray() || json.Size() != 3) {
         fprintf(stderr, "Error: problem converting to an rc_Vector\n");
@@ -265,7 +265,7 @@ bool copy_json_to_rc_vector(Value & json, rc_Vector & v)
     return true;
 }
 
-bool copy_json_to_extrinsics(Value & json, rc_Extrinsics & extrinsics)
+static bool copy_json_to_extrinsics(Value & json, rc_Extrinsics & extrinsics)
 {
     if(!json.IsObject()) {
         fprintf(stderr, "Error: extrinsic is not an object\n");
@@ -287,7 +287,7 @@ bool copy_json_to_extrinsics(Value & json, rc_Extrinsics & extrinsics)
     return true;
 }
 
-bool copy_json_to_gyroscope(Value & json, rc_GyroscopeIntrinsics & gyroscope)
+static bool copy_json_to_gyroscope(Value & json, rc_GyroscopeIntrinsics & gyroscope)
 {
     if(!json.IsObject()) {
         fprintf(stderr, "Error: gyroscope is not an object\n");
@@ -315,7 +315,7 @@ bool copy_json_to_gyroscope(Value & json, rc_GyroscopeIntrinsics & gyroscope)
     return true;
 }
 
-bool copy_json_to_accelerometer(Value & json, rc_AccelerometerIntrinsics & accelerometer)
+static bool copy_json_to_accelerometer(Value & json, rc_AccelerometerIntrinsics & accelerometer)
 {
     if(!json.IsObject()) {
         fprintf(stderr, "Error: accelerometer is not an object\n");
@@ -343,14 +343,14 @@ bool copy_json_to_accelerometer(Value & json, rc_AccelerometerIntrinsics & accel
     return true;
 }
 
-bool copy_json_to_imus(Value & json, std::vector<sensor_calibration_imu> & imus)
+static bool copy_json_to_imus(Value & json, std::vector<sensor_calibration_imu> & imus)
 {
     if(!json.IsArray()) {
         fprintf(stderr, "Error: imus is not an array\n");
         return false;
     }
 
-    for(int i = 0; i < json.Size(); i++) {
+    for(size_t i = 0; i < json.Size(); i++) {
         sensor_calibration_imu imu;
         Value & json_imu = json[i];
         if(!json_imu.IsObject()) {
@@ -367,7 +367,7 @@ bool copy_json_to_imus(Value & json, std::vector<sensor_calibration_imu> & imus)
     return true;
 }
 
-bool copy_json_to_two_elements_uint32(Value & json, const char * key, uint32_t & val0, uint32_t & val1)
+static bool copy_json_to_two_elements_uint32(Value & json, const char * key, uint32_t & val0, uint32_t & val1)
 {
     if(!json[key].IsArray() || json[key].Size() != 2) {
         fprintf(stderr, "Error: %s is not a 2 element array\n", key);
@@ -378,7 +378,7 @@ bool copy_json_to_two_elements_uint32(Value & json, const char * key, uint32_t &
     return true;
 }
 
-bool copy_json_to_two_elements_double(Value & json, const char * key, double & val0, double & val1)
+static bool copy_json_to_two_elements_double(Value & json, const char * key, double & val0, double & val1)
 {
     if(!json[key].IsArray() || json[key].Size() != 2) {
         fprintf(stderr, "Error: %s is not a 2 element array\n", key);
@@ -389,7 +389,7 @@ bool copy_json_to_two_elements_double(Value & json, const char * key, double & v
     return true;
 }
 
-bool copy_json_to_camera(Value & json, sensor_calibration_camera & camera)
+static bool copy_json_to_camera(Value & json, sensor_calibration_camera & camera)
 {
     if(!json.IsObject()) {
         fprintf(stderr, "Error: camera is not an object\n");
@@ -450,14 +450,14 @@ bool copy_json_to_camera(Value & json, sensor_calibration_camera & camera)
     return true;
 }
 
-bool copy_json_to_cameras(Value & json, std::vector<sensor_calibration_camera> & cameras)
+static bool copy_json_to_cameras(Value & json, std::vector<sensor_calibration_camera> & cameras)
 {
     if(!json.IsArray()) {
         fprintf(stderr, "Error: cameras or depths is not an array\n");
         return false;
     }
 
-    for(int i = 0; i < json.Size(); i++) {
+    for(size_t i = 0; i < json.Size(); i++) {
         sensor_calibration_camera camera;
         if(!copy_json_to_camera(json[i], camera))
             return false;
@@ -467,7 +467,7 @@ bool copy_json_to_cameras(Value & json, std::vector<sensor_calibration_camera> &
     return true;
 }
 
-bool copy_json_to_calibration(Value & json, calibration & cal)
+static bool copy_json_to_calibration(Value & json, calibration & cal)
 {
     if(!require_keys(json, {KEY_DEVICE_ID, KEY_DEVICE_TYPE, KEY_VERSION, KEY_CAMERAS, KEY_DEPTHS, KEY_IMUS}))
         return false;

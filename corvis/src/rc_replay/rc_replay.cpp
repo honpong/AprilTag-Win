@@ -151,8 +151,8 @@ void replay::enable_tum_output()
 
 void replay::enable_status_output()
 {
-    rc_setStatusCallback(tracker, [](void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress) {
-        std::cerr << "state = " << state << " error = " << error << " confidence = " << confidence << " progress = " << progress << "\n";
+    rc_setStatusCallback(tracker, [](void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence) {
+        std::cerr << "state = " << state << " error = " << error << " confidence = " << confidence << "\n";
     }, this);
 }
 
@@ -311,4 +311,8 @@ bool replay::run()
             std::cerr << "Warning: Received data for " << data.first << " id " << data.second << " before it was configured\n";
 
     return file.eof() && !file.fail();
+}
+
+void replay::start_mapping() {
+    rc_startMapping(tracker);
 }

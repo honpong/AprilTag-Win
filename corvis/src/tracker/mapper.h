@@ -112,7 +112,7 @@ class mapper {
     uint32_t project_feature(const descriptor & d);
     int pick_transformation_ransac(const aligned_vector<match_pair> &neighbor_matches,  transformation_variance & tv);
     int ransac_transformation(uint64_t id1, uint64_t id2, transformation_variance &proposal);
-    int estimate_transform_with_inliers(const aligned_vector<match_pair> & matches, transformation_variance & tv);
+    size_t estimate_transform_with_inliers(const aligned_vector<match_pair> & matches, transformation_variance & tv);
     void rebuild_map_from_node(int id);
 
     bool unlinked;

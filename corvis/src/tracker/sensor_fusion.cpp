@@ -24,63 +24,19 @@ void sensor_fusion::set_transformation(const transformation &pose_m)
     sfm.origin = pose_m*invert(sfm.s.get_transformation());
 }
 
-RCSensorFusionErrorCode sensor_fusion::get_error()
-{
-    RCSensorFusionErrorCode error = RCSensorFusionErrorCodeNone;
-    if(sfm.numeric_failed) error = RCSensorFusionErrorCodeOther;
-    else if(sfm.speed_failed) error = RCSensorFusionErrorCodeTooFast;
-    else if(sfm.detector_failed) error = RCSensorFusionErrorCodeVision;
-    return error;
-}
-
 void sensor_fusion::update_status()
 {
-    status s;
-    //Updates happen synchronously in the calling (filter) thread
-    s.error = get_error();
-    s.progress = filter_converged(&sfm);
-    s.run_state = sfm.run_state;
-    
-    s.confidence = RCSensorFusionConfidenceNone;
-    if(s.run_state == RCSensorFusionRunStateRunning)
-    {
-        if(s.error == RCSensorFusionErrorCodeVision)
-        {
-            s.confidence = RCSensorFusionConfidenceLow;
-        }
-        else if(sfm.has_converged)
-        {
-            s.confidence = RCSensorFusionConfidenceHigh;
-        }
-        else
-        {
-            s.confidence = RCSensorFusionConfidenceMedium;
-        }
-    }
-    if(s == last_status) return;
-    
+    if(status_callback)
+        status_callback();
+
     // queue actions related to failures before queuing callbacks to the sdk client.
-    if(s.error == RCSensorFusionErrorCodeOther)
-    {
+    if(sfm.numeric_failed) {
         sfm.log->error("Numerical error; filter reset.");
         transformation last_transform = get_transformation();
         filter_initialize(&sfm);
         filter_set_origin(&sfm, last_transform, true);
-        filter_start_dynamic(&sfm);
+        filter_start(&sfm);
     }
-    else if(last_status.run_state == RCSensorFusionRunStateStaticCalibration && s.run_state == RCSensorFusionRunStateInactive && s.error == RCSensorFusionErrorCodeNone)
-    {
-        isSensorFusionRunning = false;
-        //TODO: save calibration
-    }
-    
-    if((s.error == RCSensorFusionErrorCodeVision && s.run_state != RCSensorFusionRunStateRunning)) {
-    }
-
-    if(status_callback)
-        status_callback(s);
-
-    last_status = s;
 }
 
 void sensor_fusion::update_data(const sensor_data * data)
@@ -141,14 +97,13 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 update_data(&data);
 
             if (data.id < sfm.s.cameras.children.size())
-                if(sfm.s.cameras.children[data.id]->detecting_group)
+                if(sfm.s.cameras.children[data.id]->detecting_space)
                     sfm.s.cameras.children[data.id]->detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
-                        [space=sfm.s.cameras.children[data.id]->detecting_space, this] (struct filter *f, const sensor_data &&data) -> const std::vector<tracker::point> * {
+                        [this] (struct filter *f, const sensor_data &&data) {
                             auto start = std::chrono::steady_clock::now();
-                            const std::vector<tracker::point> * res = filter_detect(&sfm, data, space);
+                            filter_detect(&sfm, std::move(data));
                             auto stop = std::chrono::steady_clock::now();
                             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-                            return res;
                         }, &sfm, std::move(data));
         } break;
 
@@ -169,16 +124,15 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if(docallback)
                     update_data(&image_data); // TODO: visualize stereo data directly so we don't have a data callback here
 
-                if(sfm.s.cameras.children[0]->detecting_group) {
+                if(sfm.s.cameras.children[0]->detecting_space) {
                     sfm.s.cameras.children[0]->detection_future = std::async(threaded ? std::launch::deferred : std::launch::deferred,
-                        [space=sfm.s.cameras.children[data.id]->detecting_space, this] (struct filter *f, const sensor_data &&data) -> const std::vector<tracker::point> * {
+                        [this] (struct filter *f, const sensor_data &&data) {
                             START_EVENT(EV_DETECTING_GROUP_STEREO, 0);
                             auto start = std::chrono::steady_clock::now();
-                            const std::vector<tracker::point> * res = filter_detect(&sfm, data, space);
+                            filter_detect(&sfm, std::move(data));
                             auto stop = std::chrono::steady_clock::now();
                             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
                             END_EVENT(EV_DETECTING_GROUP_STEREO, 0);
-                            return res;
                         }, &sfm, std::move(image_data));
                     // since image_data is a wrapper type here that
                     // does't have a copy, we need to be sure we are
@@ -254,31 +208,7 @@ void sensor_fusion::set_location(double latitude_degrees, double longitude_degre
     });
 }
 
-void sensor_fusion::start_calibration(bool thread)
-{
-    threaded = thread;
-    buffering = false;
-    fast_path = false;
-    isSensorFusionRunning = true;
-    isProcessingVideo = false;
-    filter_initialize(&sfm);
-    filter_start_static_calibration(&sfm);
-    queue.start(threaded);
-}
-
-void sensor_fusion::start(bool thread)
-{
-    threaded = thread;
-    buffering = false;
-    fast_path = false;
-    isSensorFusionRunning = true;
-    isProcessingVideo = true;
-    filter_initialize(&sfm);
-    filter_start_hold_steady(&sfm);
-    queue.start(threaded);
-}
-
-void sensor_fusion::start_unstable(bool thread, bool fast_path_)
+void sensor_fusion::start(bool thread, bool fast_path_)
 {
     threaded = thread;
     buffering = false;
@@ -286,7 +216,7 @@ void sensor_fusion::start_unstable(bool thread, bool fast_path_)
     isSensorFusionRunning = true;
     isProcessingVideo = true;
     filter_initialize(&sfm);
-    filter_start_dynamic(&sfm);
+    filter_start(&sfm);
     queue.start(thread);
 }
 
@@ -299,25 +229,13 @@ void sensor_fusion::pause_and_reset_position()
 void sensor_fusion::unpause()
 {
     isProcessingVideo = true;
-    queue.dispatch_async([this]() { filter_start_dynamic(&sfm); });
+    queue.dispatch_async([this]() { filter_start(&sfm); });
 }
 
 void sensor_fusion::start_buffering()
 {
     buffering = true;
     queue.start_buffering(std::chrono::milliseconds(200));
-}
-
-void sensor_fusion::start_offline(bool fast_path_)
-{
-    threaded = false;
-    buffering = false;
-    fast_path = fast_path_;
-    filter_initialize(&sfm);
-    filter_start_dynamic(&sfm);
-    isSensorFusionRunning = true;
-    isProcessingVideo = true;
-    queue.start(false);
 }
 
 bool sensor_fusion::started()

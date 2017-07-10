@@ -21,6 +21,7 @@ typedef struct _feature {
     float cx, cy, ctheta;
     bool good;
     bool depth_measured;
+    bool not_in_filter;
     rc_Sensor camera_id;
 } Feature;
 

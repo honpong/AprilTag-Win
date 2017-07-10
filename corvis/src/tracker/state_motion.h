@@ -26,6 +26,12 @@ public:
         children.push_back(&a_bias);
     }
 
+    void copy_from(const state_imu_intrinsics &other) {
+        if (other.estimate) enable_estimation(); else disable_estimation();
+        w_bias = other.w_bias;
+        a_bias = other.a_bias;
+    }
+
     virtual bool unmap() {
         if (state_branch<state_node *>::unmap()) {
             a_bias.save_initial_variance();
@@ -44,6 +50,10 @@ struct state_imu: public state_branch<state_node *> {
         children.push_back(&intrinsics);
         children.push_back(&extrinsics);
     }
+    void copy_from(const state_imu &other) {
+        extrinsics.copy_from(other.extrinsics);
+        intrinsics.copy_from(other.intrinsics);
+    }
 };
 
 class state_motion_orientation: public state_root {
@@ -59,16 +69,35 @@ public:
     state_branch<std::unique_ptr<state_imu>, std::vector<std::unique_ptr<state_imu>>> imus;
 
     state_motion_orientation(covariance &c): state_root(c) {
-        children.push_back(&Q);
-        children.push_back(&w);
-        children.push_back(&dw);
         children.push_back(&ddw);
+        children.push_back(&dw);
+        children.push_back(&w);
+        children.push_back(&Q);
         non_orientation.children.push_back(&imus);
         children.push_back(&non_orientation);
         //children.push_back(&g);
         g.v = gravity_magnitude;
     }
-    
+
+    void copy_from(const state_motion_orientation &other) {
+        for (size_t i=imus.children.size(); i<other.imus.children.size(); i++)
+            imus.children.emplace_back(std::make_unique<state_imu>());
+
+        for (auto i = std::make_pair(imus.children.begin(),other.imus.children.begin()); i.first != imus.children.end() && i.second != other.imus.children.end(); ++i.first, ++i.second)
+            (**i.first).copy_from(**i.second);
+
+        Q = other.Q;
+        w = other.w;
+        dw = other.dw;
+        ddw = other.ddw;
+
+        g = other.g;
+
+        orientation_initialized = other.orientation_initialized;
+
+        state_root::copy_from(other);
+    }
+
     virtual void reset()
     {
         orientation_initialized = false;
@@ -81,7 +110,6 @@ public:
     bool orientation_initialized = false;
 
 protected:
-    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void evolve_state(f_t dt);
     virtual void cache_jacobians(f_t dt);
     m3 Rt;
@@ -100,18 +128,40 @@ public:
     state_vector<3>  a {  "a", dynamic };
     state_vector<3> da { "da", fake };
 
-    float total_distance = 0;
+    f_t total_distance = 0;
     transformation loop_offset;
 
     v3 last_position = v3::Zero();
 
-    state_motion(covariance &c): state_motion_orientation(c) {
-        non_orientation.children.push_back(&T);
-        non_orientation.children.push_back(&V);
-        non_orientation.children.push_back(&a);
-        non_orientation.children.push_back(&da);
+    void integrate_distance() {
+        f_t dT = (T.v - last_position).norm();
+        if(dT > .01) {
+            total_distance += dT;
+            last_position = T.v;
+        }
     }
-    
+
+    state_motion(covariance &c): state_motion_orientation(c) {
+        non_orientation.children.push_back(&da);
+        non_orientation.children.push_back(&a);
+        non_orientation.children.push_back(&V);
+        non_orientation.children.push_back(&T);
+    }
+
+    void copy_from(const state_motion &other) {
+        if(other.non_orientation.estimate) disable_orientation_only(false);
+        else                               enable_orientation_only(false);
+
+        T = other.T;
+        V = other.V;
+        a = other.a;
+        da = other.da;
+
+        loop_offset = other.loop_offset;
+
+        state_motion_orientation::copy_from(other);
+    }
+
     virtual void reset()
     {
         disable_orientation_only();
@@ -131,11 +181,11 @@ public:
     virtual void enable_bias_estimation(bool remap_ = true);
     virtual void disable_bias_estimation(bool remap_ = true);
 
-    void copy_from(const state_motion & other);
-
 protected:
     virtual void evolve_state(f_t dt);
-    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
+    template<int N>
+    int project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const;
+    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const;
     virtual void cache_jacobians(f_t dt);
     v3 dT;
 };

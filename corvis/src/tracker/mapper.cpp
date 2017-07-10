@@ -91,7 +91,7 @@ mapper::~mapper()
 void mapper::reset()
 {
     log->debug("Map reset");
-    for(int i = 0; i < (int)nodes.size(); i++) {
+    for(size_t i = 0; i < nodes.size(); i++) {
         for(map_feature * f : nodes[i].features)
             delete f;
         nodes[i].features.clear();
@@ -155,7 +155,7 @@ bool map_node::add_feature(const uint64_t id, const v3 &pos, const float varianc
 void mapper::train_dictionary() const
 {
     vector<descriptor> features;
-    for(int n = 0; n < nodes.size(); n++) {
+    for(size_t n = 0; n < nodes.size(); n++) {
         for(auto f : nodes[n].features) {
             descriptor d;
             for(int i = 0; i < descriptor_size; i++)
@@ -246,7 +246,7 @@ void mapper::tf_idf_match(vector<float> &matches, const list<map_feature *> &his
 void mapper::diffuse_matches(uint64_t node_id, vector<float> &matches, aligned_vector<map_match> &result, int max, int unrecent)
 {
     //mark the nodes that are too close to this one
-    for(int i = 0; i < matches.size(); ++i) {
+    for(size_t i = 0; i < matches.size(); ++i) {
         if(unlinked && i < node_id_offset) {
             if(!nodes[i].finished) continue; // Can't match unfinished nodes
         }
@@ -355,7 +355,7 @@ bool mapper::get_matches(uint64_t id, map_match & m, int max, int suppression)
     tf_idf_match(scores, histogram);
     diffuse_matches(id, scores, matches, max, suppression);
     int threshhold = 8;
-    for(int i = 0; i < matches.size(); ++i) {
+    for(size_t i = 0; i < matches.size(); ++i) {
         transformation_variance g;
         if(unlinked && matches[i].to < node_id_offset)
             matches[i].score = ransac_transformation(matches[i].from, matches[i].to, g);
@@ -365,7 +365,7 @@ bool mapper::get_matches(uint64_t id, map_match & m, int max, int suppression)
     }
     sort(matches.begin(), matches.end(), map_match_compare);
     if(matches.size() > 0 && matches[0].score >= threshhold) {
-        for(int i = 0; i < matches.size(); i++) {
+        for(size_t i = 0; i < matches.size(); i++) {
             if(matches[i].score != matches[0].score)
                 break;
 
@@ -397,7 +397,7 @@ void mapper::rebuild_map_from_node(int id)
     int start_id = node_id_offset;
     if(!unlinked)
         start_id = 0;
-    for(int i = start_id; i < nodes.size(); i++) {
+    for(size_t i = start_id; i < nodes.size(); i++) {
         if(!nodes[i].finished) continue;
         //log->info("setting {} from {} ",i, nodes[i].global_transformation.transform);
         //log->info("to {}", nodes[i].transform.transform);
@@ -407,7 +407,7 @@ void mapper::rebuild_map_from_node(int id)
 
 bool mapper::find_closure(int max, int suppression, transformation & offset)
 {
-    for(int i = 0; i < nodes.size(); i++) {
+    for(size_t i = 0; i < nodes.size(); i++) {
         // the first node (node_id_offset) must be finished since we
         // rebuild the map relative to this node
         if(nodes[node_id_offset].finished && nodes[i].finished && !nodes[i].match_attempted && i + 10 < nodes.size()) {
@@ -591,7 +591,7 @@ int mapper::pick_transformation_ransac(const aligned_vector<match_pair> &neighbo
     // = 16
     // p_inlier = 0.25 (25%)
     // = 71
-    for(int i = 0; i < std::max((int)neighbor_matches.size(), 71); i++) { /* TODO: adapt dynamically */
+    for(size_t i = 0; i < std::max<size_t>(neighbor_matches.size(), 71); i++) { /* TODO: adapt dynamically */
         int i1 = first(gen);
         int i2 = second(gen);
         if(i1 == i2)
@@ -616,7 +616,7 @@ int mapper::pick_transformation_ransac(const aligned_vector<match_pair> &neighbo
     return best_inliers;
 }
 
-int mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & matches, transformation_variance & tv)
+size_t mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & matches, transformation_variance & tv)
 {
     float meanstd = 0;
     for(auto m : matches) {
@@ -654,7 +654,7 @@ int mapper::estimate_transform_with_inliers(const aligned_vector<match_pair> & m
         //    log->info("from: {} to: {}", from[i], to[i]);
         //}
     }
-    return (int)inliers.size();
+    return inliers.size();
 }
 
 float mapper::refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const aligned_vector<match_pair> &neighbor_matches)

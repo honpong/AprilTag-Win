@@ -48,7 +48,11 @@ struct tpose_raw {
     tpose_raw() : t_100ns(0), R(m3::Identity()), T_mm(v3::Zero()) {}
     tpose_raw(const char *line) : tpose_raw() {
         size_t end = 0;
-        t_100ns = std::stoull(line+=end, &end);
+        auto t_ms = std::stod(line+=end, &end);
+        if(memchr(line, '.', end))
+            t_100ns = t_ms * 10000;
+        else
+            t_100ns = std::stoull(line, &end);
         for (int i=0; i<3; i++) {
             for (int j=0; j<3; j++)
                 R(i,j) = (f_t)std::stod(line+=end, &end);
@@ -162,7 +166,9 @@ inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {
                 break;
 
                 case tpose_sequence::FORMAT_POSE:
-                s.tposes.emplace_back(tpose_raw(line.c_str()));
+                tpose_raw p(line.c_str());
+                if(p.T_mm != v3(0, 0, 0))
+                    s.tposes.emplace_back(p);
                 break;
             }
 #ifndef MYRIAD2

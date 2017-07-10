@@ -17,35 +17,24 @@ rc_IMAGE_GRAY8 = 0
 rc_IMAGE_DEPTH16 = 1
 
 use_depth = True
-depth_time_offset = 0
 wait_for_image = False
 scale_units = False
 try:
-    opts, (path, output_filename) = getopt.gnu_getopt(sys.argv[1:], "Do:", ["no-depth", "depth-offset=", "wait-for-image", "scale-units"])
+    opts, (path, output_filename) = getopt.gnu_getopt(sys.argv[1:], "Do:", ["no-depth", "wait-for-image", "scale-units"])
     for o,v in opts:
         if o in ("-D", "--no-depth"):
             use_depth = False;
-        elif o in ("-o", "--depth-offset"):
-            depth_time_offset = float(v)
         elif o in ("-w", "--wait-for-image"):
             wait_for_image = True
         elif o in ("-s", "--scale-units"):
             scale_units = True
 except Exception as e:
     print e
-    print sys.argv[0], "[--no-depth] [--depth-offset=<N>] [--wait-for-image] [--scale-units] <intel_folder> <output_filename>"
+    print sys.argv[0], "[--no-depth] [--wait-for-image] [--scale-units] <intel_folder> <output_filename>"
     sys.exit(1)
 
-def read_chunk_info(filename):
-    with open(filename, 'rb') as f:
-        line = f.readline()
-        (filename, offset, length, timestamp) = line.split()
-        return (filename, int(length))
-
-def read_image_timestamps(filename, image_type, fixed_filename = None, data_length = None):
-    #image is filename timestamp
+def read_image_timestamps(filename, image_type, sensor_id):
     rows = []
-    z = 0
     with open(filename, 'rb') as f:
         has_header = csv.Sniffer().has_header(f.read(1024))
         f.seek(0)
@@ -56,24 +45,17 @@ def read_image_timestamps(filename, image_type, fixed_filename = None, data_leng
             row = line.split()
             if len(row) == 2:
                 (filename, timestamp) = row
-                (offset, length) = (0, None)
-                if fixed_filename and data_length:
-                    filename = fixed_filename
-                    length = data_length
-                    offset = data_length*z
-                    z += 1
+                offset, length = 0, None
             else:
                 (filename, offset, length, timestamp) = row
+                offset, length = int(offset), int(length)
 
-            row = [float(timestamp), image_raw_type, filename]
-            row.append(int(offset) if offset else 0)
-            row.append(int(length) if length else None)
-            row.append(image_type)
-
-            rows.append(row)
+            rows.append({'time_ms': float(timestamp), 'user': sensor_id,
+                         'ptype': image_raw_type, 'image_type': image_type,
+                         'filename': filename, 'offset': offset, 'length': length})
     return rows
 
-def read_csv_timestamps(filename, ptype):
+def read_csv_timestamps(filename, ptype, sensor_id):
     #accel is timestamp, x, y, z
     #gyro is timestamp, wx, wy, wz
     rows = []
@@ -85,8 +67,8 @@ def read_csv_timestamps(filename, ptype):
             if has_header:
                 has_header = False
                 continue
-            (timestamp, x, y, z) = row[:4]
-            rows.append([float(timestamp), ptype, float(x), float(y), float(z)])
+            (timestamp, x, y, z) = row
+            rows.append({'time_ms': float(timestamp), 'user': sensor_id, 'ptype': ptype, 'vector': [float(x), float(y), float(z)]})
     return rows
 
 import StringIO
@@ -105,70 +87,55 @@ def parse_pgm(f):
         assert h * w * b == len(d), "%d x %d %d bytes/pixel == %d bytes" % (h , w, b, len(d))
         return (w,h,b,d)
 
-(fisheye_data, fisheye_data_length) = (None, None)
-if os.path.exists(path+'fisheye_offsets_timestamps.txt'):
-    (fisheye_data, fisheye_data_length) = read_chunk_info(path+'fisheye_offsets_timestamps.txt')
+fisheye_path = path + ('fisheye_offsets_timestamps.txt')
+if not os.path.exists(fisheye_path):
+    fisheye_path = path + ('fisheye_timestamps.txt')
 
-(depth_data, depth_data_length) = (None, None)
-if os.path.exists(path+'depth_offsets_timestamps.txt'):
-    (depth_data, depth_data_length) = read_chunk_info(path+'depth_offsets_timestamps.txt')
+depth_path   = path + (  'depth_offsets_timestamps.txt')
+if not os.path.exists(depth_path):
+    depth_path = path + (  'depth_timestamps.txt')
 
-fisheye_path = path + ('fisheye_timestamps.txt')
-depth_path = path + ('depth_timestamps.txt')
 raw = {
-   'gyro':  read_csv_timestamps(path + 'gyro.txt', gyro_type),
-   'accel': read_csv_timestamps(path + 'accel.txt', accel_type),
-   'fish':  read_image_timestamps(fisheye_path, rc_IMAGE_GRAY8, fisheye_data, fisheye_data_length),
-   'depth': read_image_timestamps(depth_path, rc_IMAGE_DEPTH16, depth_data, depth_data_length) if use_depth else [],
-   'color': read_image_timestamps(path + 'color_timestamps.txt') if False else [],
+   'gyro':  read_csv_timestamps(path + 'gyro.txt', gyro_type, 0),
+   'accel': read_csv_timestamps(path + 'accel.txt', accel_type, 0),
+   'fish':  read_image_timestamps(fisheye_path, rc_IMAGE_GRAY8, 0),
+   'depth': read_image_timestamps(depth_path, rc_IMAGE_DEPTH16, 0) if use_depth else [],
+   'color': read_image_timestamps(path + 'color_timestamps.txt', 0) if False else [],
 }
 
 data = [];
 for t in ['gyro','accel', 'fish', 'depth']:
     data.extend(raw[t])
-data.sort()
-
-if use_depth:
-    if abs(raw['depth'][0][0] - raw['fish'][0][0]) > 100:
-        depth_time_offset += raw['depth'][0][0] - raw['fish'][0][0]
-        print "correcting for depth camera and fisheye not being on the same clock"
+data.sort(key=lambda d: (d['time_ms'],d['ptype']))
 
 wrote_packets = defaultdict(int)
 wrote_bytes = 0
 got_image = False
 with open(output_filename, "wb") as f:
-    for line in data:
-        microseconds = int(line[0]*1e3)
-        ptype = line[1]
+    for d in data:
+        microseconds = int(d['time_ms']*1e3)
+        ptype, user = d['ptype'], d['user']
         if ptype == image_raw_type:
             got_image = True
         if wait_for_image and not got_image:
             continue
         data = ""
         if ptype == image_raw_type:
-            (time, ptype, filename, offset, length, image_type) = line
-            w, h, b, d = read_pgm(path + filename, offset, length)
+            image_type = d['image_type']
+            w, h, b, d = read_pgm(path + d['filename'], d['offset'], d['length'])
             if image_type == rc_IMAGE_GRAY8:
                 assert b == 1, "image should be 1 byte, not %d" % b
             if image_type == rc_IMAGE_DEPTH16:
                 assert b == 2, "depth should be 2 bytes, not %d" % b
-                time += depth_time_offset
             stride = b*w
             data = pack('QHHHH', 0*33333333, w, h, stride, image_type) + d
         elif ptype == gyro_type:
-            if scale_units:
-                data = pack('fff', line[2] * math.pi / 180, line[3] * math.pi / 180, line[4] * math.pi / 180)
-            else:
-                data = pack('fff', line[2], line[3], line[4])
+            data = pack('fff', *map(lambda x: x * (math.pi / 1280 if scale_units else 1), d['vector']))
         elif ptype == accel_type:
-            if scale_units:
-                data = pack('fff', line[2] * 9.8065, line[3] * 9.8065, line[4] * 9.8065)
-            else:
-                data = pack('fff', line[2], line[3], line[4])
+            data = pack('fff', *map(lambda x: x * (9.8065         if scale_units else 1), d['vector']))
         else:
             print "Unexpected data type", ptype
         pbytes = len(data) + 16
-        user = 0
         header_str = pack('IHHQ', pbytes, ptype, user, microseconds)
         f.write(header_str)
         f.write(data)

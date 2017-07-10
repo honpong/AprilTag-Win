@@ -83,15 +83,13 @@ struct state_camera;
 
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
+    tracker::feature_track track;
     f_t outlier = 0;
     v2 initial;
-    v2 current;
-    v2 prediction;
     f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
-    uint64_t id;
-    uint64_t tracker_id;
     state_vision_group &group;
     v3 body = v3(0, 0, 0);
+    v3 node_body = v3(0, 0, 0);
 
     struct descriptor descriptor;
     bool descriptor_valid{false};
@@ -105,7 +103,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t outlier_reject;
     static f_t max_variance;
 
-    state_vision_feature(state_vision_group &group, uint64_t feature_id, const feature_t &initial);
+    state_vision_feature(const tracker::feature_track &track, state_vision_group &group);
     bool should_drop() const;
     bool is_valid() const;
     bool is_good() const;
@@ -163,12 +161,12 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         if(type != nt) return;
-        fprintf(stderr, "feature[%" PRIu64 "]: ", id); state.row(index+0).print();
+        fprintf(stderr, "feature[%" PRIu64 "]: ", track.feature->id); state.row(index+0).print();
     }
 
     virtual std::ostream &print_to(std::ostream & s) const
     {
-        return s << "f" << id << ": " << v.v << "±" << std::sqrt(variance());
+        return s << "f" << track.feature->id << ": " << v.v << "±" << std::sqrt(variance());
     }
 
 public:
@@ -188,7 +186,6 @@ class state_vision_group: public state_branch<state_node *> {
     enum group_flag status;
     uint64_t id;
 
-    state_vision_group(const state_vision_group &other);
     state_vision_group(state_camera &camera, uint64_t group_id);
     void make_empty();
     int process_features();
@@ -215,8 +212,8 @@ struct state_camera: state_branch<state_node*> {
     state_extrinsics extrinsics;
     state_vision_intrinsics intrinsics;
     std::unique_ptr<tracker> feature_tracker;
-
-    std::future<const std::vector<tracker::point> * > detection_future;
+    std::list<tracker::feature_track> standby_features;
+    std::future<void> detection_future;
 
     state_branch<state_vision_group *> groups;
     void update_feature_tracks(const rc_ImageData &image);
@@ -225,7 +222,6 @@ struct state_camera: state_branch<state_node*> {
     int process_features(mapper *map, spdlog::logger &log);
     void remove_group(state_vision_group *g, mapper *map);
 
-    state_vision_group *detecting_group = nullptr; // FIXME on reset
     int detecting_space = 0;
 
     state_camera() : extrinsics("Qc", "Tc", false), intrinsics(false) {
@@ -240,20 +236,19 @@ class state_vision: public state_motion {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
     state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
-
-    uint64_t feature_counter;
-    uint64_t group_counter;
-
-    state_vision(covariance &c);
+    state_vision(covariance &c) : state_motion(c) {
+        non_orientation.children.push_back(&cameras);
+    }
     ~state_vision();
-    int process_features(state_camera &camera, const rc_ImageData &image, mapper *map);
+    uint64_t group_counter = 0;
+
     int feature_count() const;
     void clear_features_and_groups();
-    state_vision_feature *add_feature(state_vision_group &group, const feature_t & initial);
+    state_vision_feature *add_feature(const tracker::feature_track &track_, state_vision_group &group);
     state_vision_group *add_group(state_camera &camera, mapper *map);
     transformation get_transformation() const;
 
-    void update_map(const rc_ImageData &image, mapper *map);
+    void update_map(const rc_ImageData &image, mapper *map, spdlog::logger &log);
 
     float median_depth_variance();
     
@@ -262,11 +257,13 @@ public:
 
 protected:
     virtual void evolve_state(f_t dt);
-    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
+    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const;
 #ifdef MYRIAD2
     void project_motion_covariance_shave(matrix &dst, const matrix &src, f_t dt);
 #endif
     virtual void cache_jacobians(f_t dt);
+    template<int N>
+    int project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const;
 };
 
 typedef state_vision state;

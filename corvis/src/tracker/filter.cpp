@@ -285,8 +285,6 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
     auto &camera_sensor = *f->cameras[data.id];
     auto &camera_state = *f->s.cameras.children[data.id];
 
-    auto timestamp = data.timestamp;
-
     for(state_vision_group *g : camera_state.groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(auto &feature : g->features.children) {

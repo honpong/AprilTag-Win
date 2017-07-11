@@ -7,6 +7,11 @@
 
 #include "cholesky.h"
 #include "swcCdma.h"
+#include <svuCommonShave.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void ENTRYPOINT
 potrf_ln( float* __restrict__ L_,float* __restrict__ cmxA, int n, int sL )
@@ -45,4 +50,9 @@ potrf_ln( float* __restrict__ L_,float* __restrict__ cmxA, int n, int sL )
         }
     }
 # undef L
+
+    SHAVE_HALT;
 }
+#ifdef __cplusplus
+}
+#endif

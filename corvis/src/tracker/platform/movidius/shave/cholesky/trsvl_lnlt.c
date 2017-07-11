@@ -1,5 +1,9 @@
 #include "cholesky.h"
 #include "swcCdma.h"
+#include <svuCommonShave.h>
+#ifdef __cplusplus
+extern "C" {
+#endif
 static float cmxB[512];
 static float cmxY[512];
 
@@ -32,4 +36,9 @@ trsvl_lnlt( float* __restrict__ y, const float* __restrict__ L_,
 				(u8*) y, n * sizeof(float));
 	dmaStartListTask(dmaRef);
 	dmaWaitTask(dmaRef);
+
+	SHAVE_HALT;
 }
+#ifdef __cplusplus
+}
+#endif

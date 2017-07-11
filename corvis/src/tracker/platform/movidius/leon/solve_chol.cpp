@@ -1,82 +1,64 @@
+#include <mv_types.h>
 #include "solve_chol.h"
+#include "Shave.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <DrvSvu.h>
-#include <DrvTimer.h>
-#include "rtems.h"
+#define FIRST_CHOLESKY_SHAVE 0
+#define SOLVE_SHAVES 4
+#define MAX_MATRIX 36*1024
 
-#define FIRST_SHAVE 7
-#define MAX_SHAVES 4
-#define SHAVES_USED 4
+extern void *(cvrt0_trsvl_lnlt);
+extern void *(cvrt1_trsvl_lnlt);
+extern void *(cvrt2_trsvl_lnlt);
+extern void *(cvrt3_trsvl_lnlt);
 
-// functions from shaves
-extern void *(cholesky7__exit);
-extern void *(cholesky8__exit);
-extern void *(cholesky9__exit);
-extern void *(cholesky10__exit);
+extern void *(cvrt0_potrf_ln);
 
-extern void *(cholesky7_trsvl_lnlt);
-extern void *(cholesky8_trsvl_lnlt);
-extern void *(cholesky9_trsvl_lnlt);
-extern void *(cholesky10_trsvl_lnlt);
-
-extern void *(cholesky7_potrf_ln);
-
-void *f__exit[MAX_SHAVES] = {
-    &cholesky7__exit,
-    &cholesky8__exit,
-    &cholesky9__exit,
-    &cholesky10__exit,
-};
-void* f_trsvl_lnlt[MAX_SHAVES] = {
-    &cholesky7_trsvl_lnlt,
-    &cholesky8_trsvl_lnlt,
-    &cholesky9_trsvl_lnlt,
-    &cholesky10_trsvl_lnlt,
+void* f_trsvl_lnlt[SOLVE_SHAVES] = {
+    &cvrt0_trsvl_lnlt,
+    &cvrt1_trsvl_lnlt,
+    &cvrt2_trsvl_lnlt,
+    &cvrt3_trsvl_lnlt,
 };
 
 void *f_potrf_ln[1] = {
-    &cholesky7_potrf_ln,
+    &cvrt0_potrf_ln,
 };
 
-
-#define invd_cache() \
-    { DrvLL2CFlushOpOnAllLines(LL2C_OPERATION_INVALIDATE,0); asm volatile( "flush"); }
-
-#define MAX_MATRIX 36*1024
 __attribute__((section(".cmx_direct.data"))) float cmxA[MAX_MATRIX];
+Shave* shaves[SOLVE_SHAVES] = { NULL };
 
 void solve_chol(float * A, float * Bt, float * X, int rows, int Bt_rows, int A_stride, int Bt_stride, int X_stride)
 {
-    for (int i = 0; i < SHAVES_USED; i++) {
-        swcResetShave( FIRST_SHAVE + i );
-        swcSetAbsoluteDefaultStack( FIRST_SHAVE + i );
+    for (int i = 0; i < SOLVE_SHAVES; i++) {
+        shaves[i] = Shave::get_handle(i + FIRST_CHOLESKY_SHAVE);
+        shaves[i]->acquire();
     }
 
-	//make sure A and B are in ddr - not needed when cache in write through
-	 //invd_cache();
+    //make sure A and B are in ddr - not needed when cache in write through
+     //invd_cache();
     // Phase 1 - execute on single shave only
     void **potrf = f_potrf_ln;
-    DrvSvutIrfWrite( FIRST_SHAVE, 30, (u32)f__exit[0] );
-    swcStartShaveCC( FIRST_SHAVE, (u32)potrf[0], "iiii", A, cmxA, rows, A_stride*sizeof(float) );
-    swcWaitShave( FIRST_SHAVE);
+    shaves[0]->start( (u32)potrf[0], "iiii", A, cmxA, rows, A_stride*sizeof(float) );
+    shaves[0]->wait();
 
     int n = rows;
     int cols = Bt_rows;
 
     //SHAVES_USED must be multiple of 4 or need to treat excessive rows
-    int parallel_cols = (int)(cols / SHAVES_USED) * SHAVES_USED;
+    int parallel_cols = (int)(cols / SOLVE_SHAVES) * SOLVE_SHAVES;
 
-    for(int i = 0; i < parallel_cols; i += SHAVES_USED) {
-    	 for(int t = 0; t < SHAVES_USED; t++) {
-			DrvSvutIrfWrite( FIRST_SHAVE + t, 30, (u32)f__exit[t] );
-			swcStartShaveCC( FIRST_SHAVE + t, (u32)f_trsvl_lnlt[t], "iiiiii", X+(i + t)*X_stride, cmxA, Bt+(i + t)*Bt_stride, n, n*sizeof(float),Bt_rows);
-		}
+    for(int i = 0; i < parallel_cols; i += SOLVE_SHAVES) {
+        for(int t = 0; t < SOLVE_SHAVES; t++) {
+            shaves[t]->start( (u32)f_trsvl_lnlt[t], "iiiiii", X+(i + t)*X_stride, cmxA, Bt+(i + t)*Bt_stride, n, n*sizeof(float),Bt_rows);
+        }
 
-		for (int t = 0; t < SHAVES_USED; t++) {
-			swcWaitShave( FIRST_SHAVE + t );
-		}
+        for (int t = 0; t < SOLVE_SHAVES; t++) {
+            shaves[t]->wait();
+        }
     }
-}
 
+    for (int i = 0; i < SOLVE_SHAVES; i++) {
+        shaves[i]->release();
+    }
+
+}

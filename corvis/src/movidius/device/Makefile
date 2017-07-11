@@ -186,21 +186,15 @@ MVCMDOPT   = -mvcmdVersion:v00.70
 MVASMOPT  += -a
 #MVCC_OPT_LEVEL= -O2
 
-SHAVE_APP_LIBS += $(cvrt).mvlib $(cholesky).mvlib
+SHAVE_APP_LIBS += $(cvrt).mvlib
 SHAVE0_APPS += $(cvrt).shv0lib
 SHAVE1_APPS += $(cvrt).shv1lib
 SHAVE2_APPS += $(cvrt).shv2lib
 SHAVE3_APPS += $(cvrt).shv3lib
 SHAVE4_APPS += $(blis).shv4lib
 
-SHAVE7_APPS += $(cholesky).shv7lib
-SHAVE8_APPS += $(cholesky).shv8lib
-SHAVE9_APPS += $(cholesky).shv9lib
-SHAVE10_APPS += $(cholesky).shv10lib
 
-PROJECTCLEAN += $(SHAVE_APP_LIBS) $(SHAVE0_APPS) $(SHAVE1_APPS) $(SHAVE2_APPS) $(SHAVE3_APPS)
-PROJECTCLEAN += $(SHAVE4_APPS) $(SHAVE5_APPS) $(SHAVE6_APPS) $(SHAVE7_APPS) $(SHAVE8_APPS)
-PROJECTCLEAN += $(SHAVE9_APPS) $(SHAVE10_APPS) 
+PROJECTCLEAN += $(SHAVE_APP_LIBS) $(SHAVE0_APPS) $(SHAVE1_APPS) $(SHAVE2_APPS) $(SHAVE3_APPS) $(SHAVE4_APPS)
 
 cvrt = $(DirAppOutput)/cvrt
 blis = $(DirAppOutput)/blis
@@ -210,29 +204,18 @@ SHAVE_CPP_SOURCES_cvrt += $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/stereo_initia
 SHAVE_CPP_SOURCES_cvrt += $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/project_covariance/*.cpp)
 SHAVE_ASM_SOURCES_cvrt = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cvrt/*.asm)
 
+SHAVE_ASM_SOURCES_cvrt += $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cholesky/*.asm)
+
+SHAVE_C_SOURCES_cvrt   = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cholesky/*.c)
+
 SHAVE_GENASMS_cvrt = \
 	$(patsubst %.cpp,$(DirAppObjBase)%.asmgen,$(SHAVE_CPP_SOURCES_cvrt))
+SHAVE_GENASMS_cvrt += \
+	$(patsubst %.c,$(DirAppObjBase)%.asmgen,$(SHAVE_C_SOURCES_cvrt))
 
 SHAVE_cvrt_OBJS = \
 	$(patsubst $(DirAppObjBase)%.asmgen,$(DirAppObjBase)%_shave.o,$(SHAVE_GENASMS_cvrt)) \
 	$(patsubst %.asm,$(DirAppObjBase)%_shave.o,$(SHAVE_ASM_SOURCES_cvrt))
-
-cholesky     = $(DirAppOutput)/cholesky
-CholeskyFns  = _exit
-CholeskyFns += potrf_ln trsvl_ln trsvl_lt trsvl_lnlt
-
-SHAVE_C_SOURCES_cholesky   = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cholesky/*.c)
-SHAVE_ASM_SOURCES_cholesky = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cholesky/*.asm)
-
-SHAVE_GENASMS_cholesky = \
-	$(patsubst %.c,$(DirAppObjBase)%.asmgen,\
-	$(SHAVE_C_SOURCES_cholesky))
-
-SHAVE_cholesky_OBJS = \
-	$(patsubst $(DirAppObjBase)%.asmgen,$(DirAppObjBase)%_shave.o,\
-	$(SHAVE_GENASMS_cholesky)) \
-	$(patsubst %.asm,$(DirAppObjBase)%_shave.o,\
-	$(SHAVE_ASM_SOURCES_cholesky))
 
 # BLIS/GEMM related stuff
 VERS_STR            = 0.1.0-34
@@ -256,7 +239,9 @@ include $(MV_COMMON_BASE)/components/BLIS/genblislib.mk
 AllLibs += --start-group $(BLIS_LIB_LEON) --end-group
 
 # SHAVE linking rules
-ENTRYPOINTS_cvrt = -e fast9Detect -u fast9Track -u stereo_kp_matching -u vision_project_motion_covariance --gc-sections
+cvrt_fns = fast9Detect fast9Track stereo_kp_matching vision_project_motion_covariance
+cvrt_fns += potrf_ln trsvl_ln trsvl_lt trsvl_lnlt
+ENTRYPOINTS_cvrt = -e $(word 1, $(cvrt_fns)) $(foreach ep,$(cvrt_fns),-u $(ep) ) --gc-sections
 $(cvrt).mvlib : $(SHAVE_cvrt_OBJS) $(PROJECT_SHAVE_LIBS)
 	$(ECHO) $(LD) $(ENTRYPOINTS_cvrt) $(MVLIBOPT) 			\
                       $(SHAVE_cvrt_OBJS) $(PROJECT_SHAVE_LIBS) 		\
@@ -267,11 +252,6 @@ $(blis).mvlib : $(BLIS_LIB_SHAVE) $(PROJECT_SHAVE_LIBS)
 	$(ECHO) $(LD) $(ENTRYPOINTS_blis) $(MVLIBOPT) 			\
                       $(BLIS_LIB_SHAVE) $(PROJECT_SHAVE_LIBS) 		\
                       $(CompilerANSILibs) -o $@
-
-ENTRYPOINTS_CHOLESKY = -e $(word 1, $(CholeskyFns)) $(foreach ep,$(CholeskyFns),-u $(ep) ) --gc-sections
-$(cholesky).mvlib : $(SHAVE_cholesky_OBJS) $(PROJECT_SHAVE_LIBS)
-	$(ECHO) $(LD) $(MVLIBOPT) $(ENTRYPOINTS_CHOLESKY) 		\
-		      $(SHAVE_cholesky_OBJS) $(PROJECT_SHAVE_LIBS) -o $@
 
 # ------------------------------[ USB ]--------------------------------------------#
 MVCCOPT   += -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++

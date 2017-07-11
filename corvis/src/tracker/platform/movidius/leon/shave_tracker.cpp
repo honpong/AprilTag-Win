@@ -226,12 +226,14 @@ void shave_tracker::detectMultipleShave(const image &image)
     }
 
     for (int i = 0; i < shavesToUse; ++i) {
+        shaves[i]->acquire();
         shaves[i]->start(entryPoints[i], "iii", (u32) image.image, (u32) scores,
                 (u32) offsets);
     } DPRINTF("##shave_tracker## waiting for shaves\n");
 
     for (int i = 0; i < shavesToUse; ++i) {
         shaves[i]->wait();
+        shaves[i]->release();
     }
     DPRINTF("##shave_tracker## features sorted\n");
 }
@@ -288,6 +290,7 @@ void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,
             - (trackingData.size() * 3 / 4)) };
 
     for (int i = 0; i < shavesToUse; ++i) {
+        shaves[i]->acquire();
         shaves[i]->start(entryPointsTracking[i], "iiii",
                 (u32) &trackingData.data()[start[i]], size[i],
                 (u32) image.image, (u32) &tracked_features[start[i]]);
@@ -295,6 +298,7 @@ void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,
 
     for (int i = 0; i < shavesToUse; ++i) {
         shaves[i]->wait();
+        shaves[i]->release();
     }
 
     DPRINTF("##shave_tracker## shave returned\n");
@@ -490,6 +494,7 @@ void shave_tracker::stereo_matching_full_shave (const std::vector<tracker::point
 	kpMatchingParams->patch_win_half_width=half_patch_width;
 
 	for (int i = 0; i < shavesToUse; ++i) {
+        shaves[i]->acquire();
         shaves[i]->start(entryPoints_intersect_and_compare[i],
                 "iiiiiii",
                 kpMatchingParams,
@@ -503,6 +508,7 @@ void shave_tracker::stereo_matching_full_shave (const std::vector<tracker::point
 
     for (int i = 0; i < shavesToUse; ++i) {
         shaves[i]->wait();
+        shaves[i]->release();
     }
 
     new_keypoint_other_keypoint_mearge(kp1,*new_keypoints_p);

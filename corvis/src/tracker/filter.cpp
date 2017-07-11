@@ -517,6 +517,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     auto &camera_state = *f->s.cameras.children[data.id];
     camera_sensor.got = true;
 
+    camera_state.intrinsics.image_width = data.image.width;
+    camera_state.intrinsics.image_height = data.image.height;
+
     sensor_clock::time_point time = data.timestamp;
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
@@ -557,9 +560,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization) return true; //frame was "processed" so that callbacks still get called
 
-    camera_state.intrinsics.image_width = data.image.width;
-    camera_state.intrinsics.image_height = data.image.height;
-    
     if(camera_state.detection_future.valid()) {
         camera_state.detection_future.wait();
         auto active_features = f->s.feature_count();

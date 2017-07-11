@@ -35,9 +35,21 @@ const static f_t max_gyro_delta = 5.; //This is biggest jump seen in hard shakin
 const static f_t convergence_minimum_velocity = 0.3; //Minimum speed (m/s) that the user must have traveled to consider the filter converged
 const static f_t convergence_maximum_depth_variance = .001; //Median feature depth must have been under this to consider the filter converged
 
-void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
+void filter_update_outputs(struct filter *f, sensor_clock::time_point time, bool failed)
 {
     if(f->run_state != RCSensorFusionRunStateRunning) return;
+
+    if(failed) { // if we lost all features - reset convergence
+        f->has_converged = false;
+        f->max_velocity = 0;
+    }
+
+    f->median_depth_variance = f->s.median_depth_variance();
+    if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance)
+        f->has_converged = true;
+
+    if(f->s.V.v.norm() > f->max_velocity)
+        f->max_velocity = f->s.V.v.norm();
 
     bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
@@ -584,25 +596,11 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             std::cerr << " innov  " << c->inn_stdev << "\n";
     }
 
-    int features_used = camera_state.process_features(f->map.get(), *f->log);
+    int normal_groups = camera_state.process_features(f->map.get(), *f->log);
+    filter_update_outputs(f, time, normal_groups == 0);
+
     f->s.remap();
     f->s.update_map(data.image, f->map.get(), *f->log);
-    if(!features_used)
-    {
-        //Lost all features - reset convergence
-        f->has_converged = false;
-        f->max_velocity = 0.;
-        f->median_depth_variance = 1.;
-    }
-    
-    f->median_depth_variance = f->s.median_depth_variance();
-    
-    float velocity = (float)f->s.V.v.norm();
-    if(velocity > f->max_velocity) f->max_velocity = velocity;
-    
-    if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
-    
-    filter_update_outputs(f, time);
 
     auto space = filter_available_feature_space(f, camera_state);
     if(space >= f->min_group_add && camera_state.standby_features.size() >= f->min_group_add)

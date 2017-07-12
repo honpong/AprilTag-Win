@@ -15,8 +15,8 @@
 #include <HglCpr.h>
 #include "Shave.h" 
 
-Shave::Shave(unsigned int a) {
-
+Shave::Shave(unsigned int a)
+{
     //printf("Shave constructur called for id:%d at 0x%x\n", a, this);
     this->id = a;
     power_mask = 1 << id;
@@ -25,8 +25,8 @@ Shave::Shave(unsigned int a) {
 Shave* Shave::handles[] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
         NULL, NULL, NULL, NULL };
 
-Shave* Shave::get_handle(unsigned int a) {
-
+Shave* Shave::get_handle(unsigned int a)
+{
     Shave *obj;
 
     if (a > SHAVES_CNT) {
@@ -68,8 +68,6 @@ void Shave::set_default_stack(void)
 
 void Shave::start(unsigned int ptr, const char* fmt, ... )
 {
-    shave_mutex.lock();
-    HglCprTurnOnShaveMask(power_mask);
     this->reset();
     this->set_default_stack();
     va_list a_list;
@@ -82,6 +80,14 @@ void Shave::start(unsigned int ptr, const char* fmt, ... )
 void Shave::wait(void)
 {
     swcWaitShave(id);
+}
+
+void Shave::acquire(void) {
+    shave_mutex.lock();
+    HglCprTurnOnShaveMask(power_mask);
+}
+
+void Shave::release(void) {
     HglCprTurnOnShaveMask(power_mask);
     shave_mutex.unlock();
 }

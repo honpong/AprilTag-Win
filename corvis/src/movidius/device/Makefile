@@ -207,6 +207,7 @@ blis = $(DirAppOutput)/blis
 
 SHAVE_CPP_SOURCES_cvrt = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cvrt/*.cpp)
 SHAVE_CPP_SOURCES_cvrt += $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/stereo_initialize/*.cpp)
+SHAVE_CPP_SOURCES_cvrt += $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/project_covariance/*.cpp)
 SHAVE_ASM_SOURCES_cvrt = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cvrt/*.asm)
 
 SHAVE_GENASMS_cvrt = \
@@ -255,7 +256,7 @@ include $(MV_COMMON_BASE)/components/BLIS/genblislib.mk
 AllLibs += --start-group $(BLIS_LIB_LEON) --end-group
 
 # SHAVE linking rules
-ENTRYPOINTS_cvrt = -e fast9Detect -u fast9Track -u stereo_kp_matching --gc-sections
+ENTRYPOINTS_cvrt = -e fast9Detect -u fast9Track -u stereo_kp_matching -u vision_project_motion_covariance --gc-sections
 $(cvrt).mvlib : $(SHAVE_cvrt_OBJS) $(PROJECT_SHAVE_LIBS)
 	$(ECHO) $(LD) $(ENTRYPOINTS_cvrt) $(MVLIBOPT) 			\
                       $(SHAVE_cvrt_OBJS) $(PROJECT_SHAVE_LIBS) 		\

@@ -304,7 +304,19 @@ bool matrix_solve(matrix &A, matrix &B)
 {
     START_EVENT(SF_MSOLVE, 0);
 #ifdef USE_CHOLESKY_SHAVE
+//#define SHAVE_CHOLESKY_TEST
+#ifdef SHAVE_CHOLESKY_TEST
+    matrix A_test(A.Maxrows(), A.get_stride());
+    matrix B_test(B.Maxrows(), B.get_stride());
+    A_test.resize(A.rows(), A.cols() );
+    B_test.resize(B.rows(), B.cols() );
+
+    memcpy(A_test.Data(), A.Data(), A.get_stride()*A.rows()*sizeof(f_t));
+    memcpy(B_test.Data(), B.Data(), B.get_stride()*B.rows()*sizeof(f_t));
+    bool test = matrix_cholesky_shave(A_test, B_test);
+#else
     if (!matrix_cholesky_shave(A, B))
+#endif
 #endif
     {
     matrix::Map
@@ -316,6 +328,12 @@ bool matrix_solve(matrix &A, matrix &B)
     llt.solveInPlace(B_map.transpose());
     }
     END_EVENT(SF_MSOLVE, 0);
+#ifdef SHAVE_CHOLESKY_TEST
+    if(test && B.identical(B_test, 0.001)){
+        printf("cholesky test passed\n");
+    }
+
+#endif
     return true;
 }
 

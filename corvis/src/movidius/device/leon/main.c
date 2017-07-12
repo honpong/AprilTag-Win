@@ -46,6 +46,9 @@
 
 #include "rtems_config.h"
 
+#include "blis.h"
+#include "blis_defines.h"
+
 #include "mv_trace.h"
 #include "mv_types.h"
 
@@ -55,6 +58,9 @@
 
 #define CMX_CONFIG_SLICE_7_0 (0x11111111)
 #define CMX_CONFIG_SLICE_15_8 (0x11111111)
+
+#define BLIS_HEAP_SIZE (16 * 1024 * 1024)
+unsigned char DDR_LEON_HEAP __attribute__((aligned(16))) g_blis_heap[BLIS_HEAP_SIZE];
 
 CmxRamLayoutCfgType __attribute__((section(".cmx.ctrl")))
 __cmx_config = {CMX_CONFIG_SLICE_7_0, CMX_CONFIG_SLICE_15_8};
@@ -184,6 +190,10 @@ void POSIX_Init(void * args)
     OsDrvUsbPhyInit(&initParam);
 
     printf("INF: [Init] LeonOS started.\n");
+
+    memset(g_blis_heap, 0, sizeof(g_blis_heap));
+    bli_init_leon(g_blis_heap, BLIS_HEAP_SIZE);
+    bli_init();
 
     if(usbInit() != 0) {
         printf("ERR: [Init] USB initialization failed\n");

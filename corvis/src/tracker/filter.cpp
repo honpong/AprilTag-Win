@@ -34,6 +34,7 @@ const static f_t max_accel_delta = 20.; //This is biggest jump seen in hard shak
 const static f_t max_gyro_delta = 5.; //This is biggest jump seen in hard shaking of device
 const static f_t convergence_minimum_velocity = 0.3; //Minimum speed (m/s) that the user must have traveled to consider the filter converged
 const static f_t convergence_maximum_depth_variance = .001; //Median feature depth must have been under this to consider the filter converged
+const static f_t recovered_feature_initial_variance = .05; //When features are recovered, set their initial variance to this
 
 void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
 {
@@ -290,6 +291,10 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
     for(state_vision_group *g : camera_state.groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(auto &feature : g->features.children) {
+            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, *feature);
+            f->observations.observations.push_back(std::move(obs));
+        }
+        for(auto &feature : g->lost_features) {
             auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, *feature);
             f->observations.observations.push_back(std::move(obs));
         }
@@ -578,9 +583,31 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(show_tuning) {
         fprintf(stderr, "\nvision:\n");
     }
+    
     preprocess_observation_queue(f, time); // time update filter, then predict locations of current features in the observation queue
     camera_state.update_feature_tracks(data.image); // track the current features near their predicted locations
     process_observation_queue(f); // update state and covariance based on current location of tracked features
+
+    auto space = filter_available_feature_space(f, camera_state);
+    if(space) {
+        for(auto g : camera_state.groups.children)
+        {
+            if(!space) break;
+            for(auto i = g->lost_features.begin(); i != g->lost_features.end();)
+            {
+                if(!space) break;
+                if((*i)->track.found()) {
+                    --space;
+                    g->features.children.push_back(*i);
+                    (*i)->set_initial_variance(recovered_feature_initial_variance);
+                    (*i)->status = feature_normal;
+                    i = g->lost_features.erase(i);
+                } else ++i;
+            }
+        }
+        f->s.remap();
+    }
+
     if(show_tuning) {
         for (auto &c : f->cameras)
             std::cerr << " innov  " << c->inn_stdev << "\n";
@@ -606,7 +633,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     
     filter_update_outputs(f, time);
 
-    auto space = filter_available_feature_space(f, camera_state);
+    space = filter_available_feature_space(f, camera_state);
     if(space >= f->min_group_add && camera_state.standby_features.size() >= f->min_group_add)
     {
 #ifdef TEST_POSDEF
@@ -653,6 +680,7 @@ void filter_initialize(struct filter *f)
     state_vision_feature::initial_process_noise = 1.e-20;
     state_vision_feature::outlier_thresh = 1;
     state_vision_feature::outlier_reject = 30.;
+    state_vision_feature::outlier_lost_reject = 5.;
     state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 4;

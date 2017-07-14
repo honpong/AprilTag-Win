@@ -349,6 +349,7 @@ void observation_vision_feature::update_initializing()
 
 bool observation_vision_feature::measure()
 {
+    if(feature->status == feature_lost) return false;
     meas = {feature->track.x, feature->track.y};
 
     if(feature->track.found()) {

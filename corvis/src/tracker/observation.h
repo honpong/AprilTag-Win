@@ -87,16 +87,19 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-class observation_spatial: public observation_storage<3> {
+template <int size_>
+class observation_spatial : public observation_storage<size_> {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     f_t variance;
-    virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
+    virtual void compute_measurement_covariance() {
+        observation_storage<size_>::m_cov = v<size_>::Constant(variance);
+    }
     virtual bool measure() { return true; }
-    observation_spatial(sensor_storage<3> &src): observation_storage(src), variance(0.) {}
+    observation_spatial(sensor_storage<size_> &src) : observation_storage<size_>(src), variance(0.) {}
 };
 
-class observation_accelerometer: public observation_spatial {
+class observation_accelerometer: public observation_spatial<3> {
 protected:
     state_motion &state;
     const state_extrinsics &extrinsics;
@@ -119,7 +122,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-class observation_gyroscope: public observation_spatial {
+class observation_gyroscope: public observation_spatial<3> {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:

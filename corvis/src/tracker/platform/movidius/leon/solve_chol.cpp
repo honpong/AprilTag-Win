@@ -31,34 +31,32 @@ void solve_chol(float * A, float * Bt, float * X, int rows, int Bt_rows, int A_s
 {
     for (int i = 0; i < SOLVE_SHAVES; i++) {
         shaves[i] = Shave::get_handle(i + FIRST_CHOLESKY_SHAVE);
-        shaves[i]->acquire();
     }
-
-    //make sure A and B are in ddr - not needed when cache in write through
-     //invd_cache();
     // Phase 1 - execute on single shave only
     void **potrf = f_potrf_ln;
     shaves[0]->start( (u32)potrf[0], "iiii", A, cmxA, rows, A_stride*sizeof(float) );
     shaves[0]->wait();
 
-    int n = rows;
-    int cols = Bt_rows;
+    int parallel_cols = (int)(Bt_rows / SOLVE_SHAVES) * SOLVE_SHAVES;
+    int startIndex[SOLVE_SHAVES + 1] = {0};
 
-    //SHAVES_USED must be multiple of 4 or need to treat excessive rows
-    int parallel_cols = (int)(cols / SOLVE_SHAVES) * SOLVE_SHAVES;
-
-    for(int i = 0; i < parallel_cols; i += SOLVE_SHAVES) {
-        for(int t = 0; t < SOLVE_SHAVES; t++) {
-            shaves[t]->start( (u32)f_trsvl_lnlt[t], "iiiiii", X+(i + t)*X_stride, cmxA, Bt+(i + t)*Bt_stride, n, n*sizeof(float),Bt_rows);
-        }
-
-        for (int t = 0; t < SOLVE_SHAVES; t++) {
-            shaves[t]->wait();
-        }
+    for(int i = 0; i < SOLVE_SHAVES; ++i){
+        startIndex[i + 1] = startIndex[i] + parallel_cols;
+        startIndex[i + 1] = (startIndex[i + 1] > Bt_rows)? Bt_rows : startIndex[i + 1];
     }
 
-    for (int i = 0; i < SOLVE_SHAVES; i++) {
-        shaves[i]->release();
-    }
+    for(int i = 0; i < SOLVE_SHAVES; ++i){
+        shaves[i]->start( (u32)f_trsvl_lnlt[i],
+                          "iiiiiiii",
+                          X + startIndex[i] * X_stride,
+                          cmxA,
+                          Bt + startIndex[i] * Bt_stride,
+                          rows,
+                          X_stride,
+                          rows,
+                          Bt_stride,
+                          startIndex[i + 1] - startIndex[i]);
 
+        shaves[i]->wait();
+    }
 }

@@ -1,6 +1,7 @@
 #include "cholesky.h"
 #include "swcCdma.h"
 #include <svuCommonShave.h>
+#include <string.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -15,29 +16,24 @@ trsvl_lt( float* __restrict__ y, const float* __restrict__ L_,
           float* __restrict__ b, int n, int sL );
 
 void ENTRYPOINT
-trsvl_lnlt( float* __restrict__ y, const float* __restrict__ L_, 
-            float* __restrict__ b, int n, int sL)
+trsvl_lnlt( float* __restrict__ y, const float* __restrict__ L_,
+            float* __restrict__ b, int n, int y_stride, int l_stride,
+            int b_stride, int lines_number)
 {
+    float* y_line = y;
+    float* b_line = b;
 
-	//dma transaction of b to cmxB
-	dmaTransactionList_t dmaTask;
-	dmaTransactionList_t* dmaRef;
-	u32 dmaRequsterId = dmaInitRequester(1);
-	dmaRef = dmaCreateTransaction(dmaRequsterId, &dmaTask, (u8*)(b),
-			(u8*) cmxB, n * sizeof(float));
-	dmaStartListTask(dmaRef);
-	dmaWaitTask(dmaRef);
+    //TODO:doron investigate why DMA ouside the loop hangs
+    for(int i = 0; i < lines_number; ++i){
+        memcpy((void*)cmxB, (void*)b_line, n * sizeof(float));
+        trsvl_ln(cmxY, L_, cmxB, n, l_stride * sizeof(float));
+        trsvl_lt(cmxY, L_, cmxY, n, l_stride * sizeof(float));
+        memcpy((void*)y_line, cmxY, n * sizeof(float));
+        y_line += y_stride;
+        b_line += b_stride;
+    }
 
-	trsvl_ln(cmxY, L_, cmxB, n, sL);
-    trsvl_lt(cmxY, L_, cmxY, n, sL);
-
-    //out DMA to y
-	dmaRef = dmaCreateTransaction(dmaRequsterId, &dmaTask, (u8*)(cmxY),
-				(u8*) y, n * sizeof(float));
-	dmaStartListTask(dmaRef);
-	dmaWaitTask(dmaRef);
-
-	SHAVE_HALT;
+    SHAVE_HALT;
 }
 #ifdef __cplusplus
 }

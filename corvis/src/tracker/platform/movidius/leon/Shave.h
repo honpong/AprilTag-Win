@@ -21,8 +21,6 @@ public:
     void set_default_stack(void);
     void start(unsigned int ptr, const char* fmt, ...);
     void wait(void);
-    void acquire();
-    void release();
 };
 
 #endif

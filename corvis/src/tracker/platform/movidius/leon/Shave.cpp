@@ -68,6 +68,8 @@ void Shave::set_default_stack(void)
 
 void Shave::start(unsigned int ptr, const char* fmt, ... )
 {
+    shave_mutex.lock();
+    HglCprTurnOnShaveMask(power_mask);
     this->reset();
     this->set_default_stack();
     va_list a_list;
@@ -80,14 +82,6 @@ void Shave::start(unsigned int ptr, const char* fmt, ... )
 void Shave::wait(void)
 {
     swcWaitShave(id);
-}
-
-void Shave::acquire(void) {
-    shave_mutex.lock();
-    HglCprTurnOnShaveMask(power_mask);
-}
-
-void Shave::release(void) {
     HglCprTurnOnShaveMask(power_mask);
     shave_mutex.unlock();
 }

@@ -15,6 +15,8 @@
 #include "stereo_commonDefs.hpp"
 #include "common_shave.h"
 
+static const float fast_good_match = 0.65f*0.65f;
+
 // ----------------------------------------------------------------------------
 // 3: Global Data (Only if absolutely necessary)
 // ----------------------------------------------------------------------------

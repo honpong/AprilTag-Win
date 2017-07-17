@@ -775,23 +775,16 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         START_EVENT(EV_SF_MATCH_FEATURES, 2)
 // START PUSH 2 SHAVE
 #ifdef SHAVE_STEREO_MATCHING
+        tracker::feature_track * f1_group[MAX_KP1];
         const tracker::feature_track * f2_group[MAX_KP2];
-        const tracker::feature_track * f1_group[MAX_KP1];
-        int i=0;
-        for(auto & k2 : kp2)
-        {
-            f2_group[i] = &(tracker2->get_feature(k2.id));
-            i++;
-        }
-
-        int j=0;
         for(tracker:feature_track & k1 : keypoints)
-        {
-            f1_group[j] = &(tracker1->get_feature(k1.id));
-            j++;
-        }
+            f1_group[j] = &k1;
+
+        for(auto & k2 : kp2)
+            f2_group[i] = &k2;
+
         shave_tracker shave_stereo_o;
-        shave_stereo_o.stereo_matching_full_shave(*keypoints, kp2, f1_group, f2_group, camera_state1, camera_state2, new_keypoints_p);
+        shave_stereo_o.stereo_matching_full_shave(f1_group, keypoints.size(), f2_group, kp2.size(), camera_state1, camera_state2);
 #else
         // preprocess data for kp1
         m3 Rw1 = camera_state1.extrinsics.Q.v.toRotationMatrix();

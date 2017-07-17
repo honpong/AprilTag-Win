@@ -11,7 +11,7 @@
 #include <moviVectorUtils.h>
 #include <math.h>
 #include "stereo_commonDefs.hpp"
-#include "../../../../fast_constants.h"
+#include "../../../../../feature/tracker/fast_constants.h"
 // 2:  Source Specific #defines and types  (typedef,enum,struct)
 // 3: Global Data (Only if absolutely necessary)
 // ----------------------------------------------------------------------------

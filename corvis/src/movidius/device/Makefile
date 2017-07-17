@@ -97,8 +97,6 @@ SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/corvis/src/tracker/, \
     state_vision.cpp \
     state_motion.cpp \
     observation.cpp \
-    fast_detector/fast_9.cpp \
-    scaled_mask.cpp \
     calibration.cpp \
     calibration_json.cpp \
     sensor_fusion.cpp \
@@ -107,10 +105,13 @@ SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/corvis/src/tracker/, \
     feature_descriptor.cpp \
     mapper.cpp \
     dictionary.cpp \
-    fast_tracker.cpp \
     remapper.cpp \
     transformation.cpp \
 )
+SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/feature_tracker.cpp
+SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/scaled_mask.cpp
+SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/fast_tracker.cpp
+SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/descriptor/patch_descriptor.cpp
 SLAM_SOURCES += $(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.cpp)
 
 SLAM_C_SOURCES := $(addprefix $(SLAM_PREFIX)/ThirdParty/vlfeat-0.9.18/vl/, \
@@ -134,6 +135,9 @@ SLAM_CCOPT   := \
 	-I$(SLAM_PLATFORM_PREFIX)/leon/ \
 	-I$(SLAM_PREFIX)/corvis/src/tracker/platform/movidius/ \
 	-I$(SLAM_PREFIX)/corvis/src/tracker \
+	-I$(SLAM_PREFIX)/corvis/src/feature/descriptor \
+	-I$(SLAM_PREFIX)/corvis/src/feature/detector \
+	-I$(SLAM_PREFIX)/corvis/src/feature/tracker \
 	-I$(SLAM_PREFIX)/ThirdParty/eigen \
 	-I$(SLAM_PREFIX)/ThirdParty/spdlog/include \
 	-I$(SLAM_PREFIX)/ThirdParty/rapidjson/include/ \

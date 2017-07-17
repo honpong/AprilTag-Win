@@ -3,6 +3,8 @@
 #include <algorithm>
 #include "commonDefs.hpp"
 #include "mv_trace.h"
+#include "tracker.h"
+#include "descriptor.h"
 
 extern "C" {
 #include "cor_types.h"
@@ -42,7 +44,7 @@ static u8 __attribute__((section(".ddr_direct.bss"))) shave_other_keypoint[SHAVE
 
 volatile __attribute__((section(".cmx_direct.data")))  ShavekpMatchingSettings cvrt_kpMatchingParams;
 
-__attribute__((section(".cmx_direct.data"))) xy tracked_features[512];
+__attribute__((section(".cmx_direct.data"))) fast_tracker::xy tracked_features[512];
 
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
@@ -124,7 +126,7 @@ shave_tracker::shave_tracker() :
     static int offsety = 40;
 #endif
 
-std::vector<tracker::point> &shave_tracker::detect(const image &image, const std::vector<point> &features, int number_desired)
+std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image &image, const std::vector<tracker::feature_track *> &features, size_t number_desired)
 {
 
     START_EVENT(EV_SHAVE_DETECT, 0);
@@ -135,7 +137,7 @@ std::vector<tracker::point> &shave_tracker::detect(const image &image, const std
                 > (new scaled_mask(image.width_px, image.height_px));
     mask->initialize();
     for (auto &f : features)
-        mask->clear((int) f.x, (int) f.y);
+        mask->clear((int) f->x, (int) f->y);
 
     feature_points.clear();
     feature_points.reserve(number_desired);
@@ -149,7 +151,7 @@ std::vector<tracker::point> &shave_tracker::detect(const image &image, const std
     return feature_points;
 }
 
-void shave_tracker::sortFeatures(const image &image, int number_desired)
+void shave_tracker::sortFeatures(const tracker::image &image, int number_desired)
 {
     unsigned int feature_counter = 0;
 
@@ -166,8 +168,8 @@ void shave_tracker::sortFeatures(const image &image, int number_desired)
 #ifdef DEBUG_TRACK
             printf("detect: x %d y %d score %d\n", x, y, score);
 #endif
-            if (!is_trackable((float) x, (float) y, image.width_px,
-                    image.height_px) || !mask->test(x, y))
+            if (!is_trackable<DESCRIPTOR::border_size>((float) x, (float) y, image.width_px, image.height_px) ||
+                    !mask->test(x, y))
                 continue;
 
             detected_points[feature_counter][0] = x;
@@ -198,10 +200,9 @@ void shave_tracker::sortFeatures(const image &image, int number_desired)
         if (mask->test((int) d[0], (int) d[1])) {
             mask->clear((int) d[0], (int) d[1]);
             auto id = next_id++;
-            feature_points.emplace_back(id, (float) d[0], (float) d[1],
-                    (float) d[2]);
-            feature_map.emplace_hint(feature_map.end(), id,
-                    feature(d[0], d[1], image.image, image.stride_px));
+            feature_points.emplace_back(
+                std::make_shared<fast_feature<DESCRIPTOR>>(d[0], d[1], image),
+                (float) d[0], (float) d[1], (float) d[2]);
             added++;
             if (added == number_desired)
                 break;
@@ -209,7 +210,7 @@ void shave_tracker::sortFeatures(const image &image, int number_desired)
     }
 }
 
-void shave_tracker::detectMultipleShave(const image &image)
+void shave_tracker::detectMultipleShave(const tracker::image &image)
 {
     DPRINTF("##shave_tracker## entered detectMultipleShave\n");
 
@@ -304,48 +305,50 @@ void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,
     DPRINTF("##shave_tracker## shave returned\n");
 }
 
-void shave_tracker::prepTrackingData(std::vector<TrackingData>& trackingData, std::vector<prediction> &predictions)
+void shave_tracker::prepTrackingData(std::vector<TrackingData>& trackingData, std::vector<tracker::feature_track *> &predictions)
 {
-     for(auto &pred : predictions) {
-            auto f_iter = feature_map.find(pred.id);
-            if(f_iter == feature_map.end()) continue;
-            feature &f = f_iter->second;
+     for(auto * pred : predictions) {
             TrackingData data;
-            data.patch = f.patch;
-            data.x1 = pred.prev_x + f.dx;
-            data.y1 = pred.prev_y + f.dy;
-            data.x2 = pred.x;
-            data.y2 = pred.y;
-            data.x3 = pred.prev_x;
-            data.y3 = pred.prev_y;
+            fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(pred->feature.get());
+            data.patch = f.descriptor.descriptor.data();
+            data.x1 = pred->x + pred->dx;
+            data.y1 = pred->y + pred->dy;
+            data.x2 = pred->pred_x;
+            data.y2 = pred->pred_y;
+            data.x3 = pred->x;
+            data.y3 = pred->y;
             trackingData.push_back(data);
      }
 }
 
-void shave_tracker::processTrackingResult(std::vector<prediction>& predictions)
+void shave_tracker::processTrackingResult(std::vector<tracker::feature_track *>& predictions)
 {
      int i = 0;
-     for(auto &pred : predictions) {
-                auto f_iter = feature_map.find(pred.id);
-                if(f_iter == feature_map.end()) continue;
-                feature &f = f_iter->second;
+     for(auto * pred : predictions) {
+                fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(pred->feature.get());
                 xy * bestkp = &tracked_features[i];
                 if(bestkp->x != -1) {
-                    f.dx = bestkp->x - pred.prev_x;
-                    f.dy = bestkp->y - pred.prev_y;
-                    pred.x = bestkp->x;
-                    pred.y = bestkp->y;
-                    pred.score = bestkp->score;
-                    pred.found = true;
 #ifdef DEBUG_TRACK
-                    printf("prevx %f prevy %f x %f y %f dx %f dy %f score %f id %llu\n" ,pred.prev_x, pred.prev_y, bestkp->x, bestkp->y, f.dx, f.dy, bestkp->score, pred.id);
+                    printf("prevx %f prevy %f x %f y %f dx %f dy %f score %f id %llu\n" ,pred->x, pred->y, bestkp->x, bestkp->y, f.dx, f.dy, bestkp->score, pred->id);
 #endif
+                    pred->dx = bestkp->x - pred->x;
+                    pred->dy = bestkp->y - pred->y;
+                    pred->x = bestkp->x;
+                    pred->y = bestkp->y;
+                    pred->score = bestkp->score;
+                }
+                else {
+                    /* TODO: match fast tracker which does this?
+                    f.dx = 0;
+                    f.dy = 0;
+                    */
+                    pred->score = DESCRIPTOR::min_score;
                 }
                 i++;
          }
 }
 
-std::vector<tracker::prediction> &shave_tracker::track(const image &image, std::vector<prediction> &predictions)
+void shave_tracker::track(const tracker::image &image, std::vector<tracker::feature_track *> &predictions)
 {
     START_EVENT(EV_SHAVE_TRACK, 0);
 #ifdef DEBUG_TRACK
@@ -374,18 +377,13 @@ std::vector<tracker::prediction> &shave_tracker::track(const image &image, std::
     processTrackingResult(predictions);
 
     END_EVENT(EV_SHAVE_TRACK, predictions.size());
-    return predictions;
-}
-
-void shave_tracker::drop_feature(uint64_t feature_id)
-{
-    feature_map.erase(feature_id);
 }
 
 //############################################################
-void shave_tracker::new_keypoint_other_keypoint_mearge(const std::vector<tracker::point> & kp1, std::vector<tracker::point> & new_keypoints)
+/*
+void shave_tracker::new_keypoint_other_keypoint_mearge(const std::vector<point> & kp1, std::vector<point> & new_keypoints)
 {
-    static std::vector<tracker::point> other_keypoints;
+    static std::vector<point> other_keypoints;
     new_keypoints.clear();
     other_keypoints.clear();
 
@@ -397,7 +395,7 @@ void shave_tracker::new_keypoint_other_keypoint_mearge(const std::vector<tracker
         kp_out_t* shave_other_keypoint_p = (kp_out_t*) (shave_other_keypoint[j]+sizeof(int));
         for(int i=0; i<n_new_keypoint ; i++)
         {
-            tracker::point  k1 = kp1[shave_new_keypoint_p[i].index];
+            point  k1 = kp1[shave_new_keypoint_p[i].index];
             k1.depth = shave_new_keypoint_p[i].depth;
             new_keypoints.push_back(k1);
             DPRINTF ("%d:{%f,%f} %f ,",i,k1.x,k1.y, k1.depth   );
@@ -405,20 +403,21 @@ void shave_tracker::new_keypoint_other_keypoint_mearge(const std::vector<tracker
         DPRINTF("\n shave %d: other keypoint (%d), address: %u",j, n_other_keypoint, (u8*) shave_other_keypoint[j]);
         for(int i=0; i<n_other_keypoint ; i++)
         {
-            tracker::point  k1 = kp1[shave_other_keypoint_p[i].index];
+            point  k1 = kp1[shave_other_keypoint_p[i].index];
             other_keypoints.push_back(k1);
             DPRINTF ("%d:{%f,%f} %f ,",i,k1.x,k1.y,k1.depth);
         }
         DPRINTF("\n");
     }
-    for(tracker::point & k1 : other_keypoints)
+    for(point & k1 : other_keypoints)
     {
         new_keypoints.push_back(k1); //todo: check if we can use std:move to copy all vector element.
     }
 
 }
+*/
 
-void shave_tracker::stereo_matching_full_shave (const std::vector<tracker::point> & kp1, std::vector<tracker::point> & kp2,const fast_tracker::feature * f1_group[MAX_KP1],const fast_tracker::feature * f2_group[MAX_KP2], state_camera & camera1, state_camera & camera2, std::vector<tracker::point> * new_keypoints_p)
+void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group[], size_t n1, const tracker::feature_track * f2_group[], size_t n2, state_camera & camera1, state_camera & camera2)
 {
 
     feature_t f1_n,f2_n;
@@ -436,34 +435,32 @@ void shave_tracker::stereo_matching_full_shave (const std::vector<tracker::point
     R2w = camera2.extrinsics.Q.v.toRotationMatrix();
 
     //prepare p_kp2_transformed
-    int nk2=0;
-    for(auto & k2 : kp2) {
-        feature_t f2(k2.x,k2.y);
+    for(int i = 0; i < n2; i++) {
+        auto * k2 = f2_group[i];
+        feature_t f2(k2->x,k2->y);
         f2_n=camera2.intrinsics.undistort_feature(camera2.intrinsics.normalize_feature(f2));
         p2_calibrated << f2_n.x(), f2_n.y(), 1;
         p2_cal_transformed = R2w*p2_calibrated + camera2.extrinsics.T.v;
 
-        p_kp2_transformed[nk2][0] = p2_cal_transformed(0); // todo : Amir : check if we can skip the v3;
-        p_kp2_transformed[nk2][1] = p2_cal_transformed(1);
-        p_kp2_transformed[nk2][2] = p2_cal_transformed(2);
-        nk2++;
+        p_kp2_transformed[i][0] = p2_cal_transformed(0); // todo : Amir : check if we can skip the v3;
+        p_kp2_transformed[i][1] = p2_cal_transformed(1);
+        p_kp2_transformed[i][2] = p2_cal_transformed(2);
     }
     //prepare p_kp1_transformed
-    int nk1=0;
-    for(const tracker::point & k1 : kp1) {
-        feature_t f1(k1.x,k1.y);
+    for(int i = 0; i < n1; i++) {
+        auto * k1 = f1_group[i];
+        feature_t f1(k1->x,k1->y);
         f1_n=camera1.intrinsics.undistort_feature(camera1.intrinsics.normalize_feature(f1));
         p1_calibrated  << f1_n.x(),f1_n.y(),1;
         p1_cal_transformed = R1w*p1_calibrated + camera1.extrinsics.T.v;
-        p_kp1_transformed[nk1][0] = p1_cal_transformed(0);
-        p_kp1_transformed[nk1][1] = p1_cal_transformed(1);
-        p_kp1_transformed[nk1][2] = p1_cal_transformed(2);
-        nk1++;
+        p_kp1_transformed[i][0] = p1_cal_transformed(0);
+        p_kp1_transformed[i][1] = p1_cal_transformed(1);
+        p_kp1_transformed[i][2] = p1_cal_transformed(2);
     }
-    *((int*)p_kp1)=nk1;
-    *((int*)p_kp2)=nk2;
+    *((int*)p_kp1)=n1;
+    *((int*)p_kp2)=n2;
 
-    DPRINTF("\t\t AS:nk1 : %d, nk2: %d, &nk1 %d,&nk2 %d\n ",nk1,nk2, &p_kp1, &p_kp2);
+    DPRINTF("\t\t AS:nk1 : %d, nk2: %d, &nk1 %d,&nk2 %d\n ",n1,n2, &p_kp1, &p_kp2);
     //Eigen types
     m3 E_R1w_t=R1w.transpose();
     m3 E_R2w_t=R2w.transpose();
@@ -511,5 +508,5 @@ void shave_tracker::stereo_matching_full_shave (const std::vector<tracker::point
         shaves[i]->release();
     }
 
-    new_keypoint_other_keypoint_mearge(kp1,*new_keypoints_p);
+    //new_keypoint_other_keypoint_mearge(kp1,*new_keypoints_p);
 }

@@ -36,9 +36,9 @@ private:
     void detectMultipleShave(const image &image);
     void sortFeatures(const image &image, int number_desired);
     void trackMultipleShave(std::vector<TrackingData>& trackingData, const image& image);
-    void prepTrackingData(std::vector<TrackingData>& trackingData, std::vector<prediction> &predictions);
-    void processTrackingResult(std::vector<prediction>& predictions);
-    void new_keypoint_other_keypoint_mearge(const std::vector<tracker::point> & kp1, std::vector<tracker::point> & new_keypoints);
+    void prepTrackingData(std::vector<TrackingData>& trackingData, std::vector<tracker::feature_track *> &predictions);
+    void processTrackingResult(std::vector<tracker::feature_track *> &predictions);
+//    void new_keypoint_other_keypoint_mearge(const std::vector<tracker:feature_track *> & kp1, std::vector<tracker::feature_track *> & new_keypoints);
 
     int shavesToUse;
     AdaptiveController  m_thresholdController;
@@ -48,10 +48,9 @@ private:
 public:
     shave_tracker();
 
-    virtual std::vector<point> &detect(const image &image, const std::vector<point> &features, int number_desired) override;
-    virtual std::vector<prediction> &track(const image &image, std::vector<prediction> &predictions) override;
-    virtual void drop_feature(uint64_t feature_id) override;
-    void stereo_matching_full_shave (const std::vector<tracker::point> & kp1, std::vector<tracker::point> & kp2,const fast_tracker::feature * f1_group[] ,const fast_tracker::feature * f2_group[], state_camera & camera1, state_camera & camera2, std::vector<tracker::point> * new_keypoints_p);
+    virtual std::vector<tracker::feature_track> &detect(const image &image, const std::vector<tracker::feature_track *> &features, size_t number_desired) override;
+    virtual void track(const image &image, std::vector<tracker::feature_track *> &predictions) override;
+    void stereo_matching_full_shave(tracker::feature_track * f1_group[], size_t n1, const tracker::feature_track * f2_group[], size_t n2, state_camera & camera1, state_camera & camera2);
 
 };
 

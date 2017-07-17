@@ -99,7 +99,6 @@ void blis_set_object(const matrix &m, void *v)
 
 void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, const float dst_scale, const float scale)
 {
-	int sc = 0;
     obj_t Aobj, Bobj, resObj, scaleObj, dstScaleObj;
 
     blis_set_object(A, &Aobj); 
@@ -113,7 +112,8 @@ void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, const fl
     bli_gemm(&scaleObj, &Aobj, &Bobj, &dstScaleObj, &resObj);
 
     //invalidate shave cache and lrt resObj range
-    /*if ((sc = OsDrvShaveL2CachePartitionFlush(SHAVE_BLIS_L2_PARTITION,
+    /*int sc = 0;
+      if ((sc = OsDrvShaveL2CachePartitionFlush(SHAVE_BLIS_L2_PARTITION,
               PERFORM_INVALIDATION)) != OS_MYR_DRV_SUCCESS)
               printf("ERROR: OsDrvShaveL2CachePartitionFlush %lu\n", sc);*/
     rtems_cache_invalidate_multiple_data_lines( (void *)res.Data(), res.cols() * res.get_stride() * sizeof(f_t) );
@@ -186,10 +186,8 @@ bool matrix_cholesky_shave(matrix &A, matrix &B)
         solve_chol(A.Data(), B.Data(), B.Data(), N, M, A.get_stride(), B.get_stride(), B.get_stride());
         cholesky_mutex.unlock();
         //invalidate cache B range
-        int sc = OS_MYR_DRV_SUCCESS;
-
-
-        /*if ((sc = OsDrvShaveL2CachePartitionFlush(SHAVE_CHOLESKY_L2_PARTITION,
+        /*int sc = OS_MYR_DRV_SUCCESS;
+          if ((sc = OsDrvShaveL2CachePartitionFlush(SHAVE_CHOLESKY_L2_PARTITION,
                PERFORM_INVALIDATION)) != OS_MYR_DRV_SUCCESS)
                printf("ERROR: OsDrvShaveL2CachePartitionFlush %lu\n", sc);*/
        

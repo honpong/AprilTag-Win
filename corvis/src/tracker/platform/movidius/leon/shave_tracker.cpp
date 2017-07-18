@@ -24,8 +24,6 @@ extern "C" {
 #define DPRINTF(...)
 #endif
 
-#define VECTOR_SIZE 6000
-
 // 3: Global Data (Only if absolutely necessary)
 // ----------------------------------------------------------------------------
 //## Define Memory useage ##
@@ -86,8 +84,13 @@ u32 entryPoints_intersect_and_compare[TRACKER_SHAVES_USED] = {
         (u32)&cvrt3_stereo_kp_matching
 };
 
+typedef struct _short_score {
+    _short_score(short _x=0, short _y=0, short _score=0) : x(_x), y(_y), score(_score) {}
+    short x,y,score;
+} short_score;
+
 typedef volatile ShaveFastDetectSettings *pvShaveFastDetectSettings;
-std::vector< std::vector<short> > detected_points(VECTOR_SIZE , std::vector<short>(3));
+std::vector<short_score> detected_points;
 
 pvShaveFastDetectSettings cvrt_detectParams[TRACKER_SHAVES_USED] = {
         &cvrt0_detectParams,
@@ -101,9 +104,9 @@ volatile ShavekpMatchingSettings *kpMatchingParams =  &cvrt_kpMatchingParams;
 // ----------------------------------------------------------------------------
 // 5: Static Function Prototypes
 
-static bool point_comp_vector(const std::vector<short> &first, const std::vector<short> &second)
+static bool point_comp_vector(const short_score &first, const short_score &second)
 {
-    return first[2] > second[2];
+    return first.score > second.score;
 }
 using namespace std;
 
@@ -155,12 +158,9 @@ void shave_tracker::sortFeatures(const tracker::image &image, int number_desired
 {
     unsigned int feature_counter = 0;
 
+    detected_points.clear();
     for (int y = 8; y < image.height_px - 8; ++y) {
         unsigned int numPoints = *(int *) (scores[y]);
-        if (feature_counter + numPoints > (detected_points.size() - 1)) {
-            detected_points.resize(detected_points.size() * 1.5);
-            DPRINTF("INF: vector resize \n");
-        }
         for (unsigned int j = 0; j < numPoints; ++j) {
             u16 x = offsets[y][2 + j] + PADDING;
             u8 score = scores[y][4 + j];
@@ -172,19 +172,16 @@ void shave_tracker::sortFeatures(const tracker::image &image, int number_desired
                     !mask->test(x, y))
                 continue;
 
-            detected_points[feature_counter][0] = x;
-            detected_points[feature_counter][1] = y;
-            detected_points[feature_counter][2] = score;
+            detected_points.emplace_back(x, y, score);
             feature_counter++;
         }
     }
 
-    DPRINTF("detected_points: %d\n" , feature_counter);
+    DPRINTF("detected_points: %u\n" , feature_counter);
 
     //sort
     if (feature_counter > 1) {
-        std::sort(detected_points.begin(),
-                detected_points.begin() + feature_counter, point_comp_vector);
+        std::sort(detected_points.begin(), detected_points.end(), point_comp_vector);
     }
 
     DPRINTF("log_threshold_, %d %u\n", m_thresholdController.control(), feature_counter);
@@ -197,12 +194,12 @@ void shave_tracker::sortFeatures(const tracker::image &image, int number_desired
     int added = 0;
     for (size_t i = 0; i < feature_counter; ++i) {
         const auto &d = detected_points[i];
-        if (mask->test((int) d[0], (int) d[1])) {
-            mask->clear((int) d[0], (int) d[1]);
+        if (mask->test((int) d.x, (int) d.y)) {
+            mask->clear((int) d.x, (int) d.y);
             auto id = next_id++;
             feature_points.emplace_back(
-                std::make_shared<fast_feature<DESCRIPTOR>>(d[0], d[1], image),
-                (float) d[0], (float) d[1], (float) d[2]);
+                std::make_shared<fast_feature<DESCRIPTOR>>(d.x, d.y, image),
+                (float) d.x, (float) d.y, (float) d.score);
             added++;
             if (added == number_desired)
                 break;

@@ -10,78 +10,115 @@
 // ----------------------------------------------------------------------------
 
 #include <stdio.h>
-#include <mv_types.h>
-#include <swcShaveLoader.h>
 #include <HglCpr.h>
 #include "Shave.h" 
 
+#define SHAVE_DEBUG_PRINTS
+#ifdef SHAVE_DEBUG_PRINTS
+    #define DPRINTF(...)  printf(__VA_ARGS__);
+#else
+    #define DPRINTF(...)
+#endif
+
+
+Shave* Shave::shaves[] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+        NULL, NULL, NULL, NULL };
+
+osDrvSvuHandler_t Shave::handlers[SHAVES_CNT];
+
+bool Shave::drv_initialized = false;
+
 Shave::Shave(unsigned int a)
 {
-    //printf("Shave constructur called for id:%d at 0x%x\n", a, this);
+    u32 sc = OS_MYR_DRV_SUCCESS;
+    if(!drv_initialized) {
+        sc = OsDrvSvuInit();
+        drv_initialized = true;
+        if (OS_MYR_DRV_SUCCESS != sc) {
+            DPRINTF("Error: failed initializing drv %lu\n", sc);
+        }
+    }
     this->id = a;
     power_mask = 1 << id;
+    sc = OsDrvSvuOpenShave(&handlers[a], a, OS_MYR_PROTECTION_SEM );
+    if (OS_MYR_DRV_SUCCESS != sc) {
+        DPRINTF("Error: failed creating shave %lu\n", sc);
+    }
 }
-
-Shave* Shave::handles[] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
-        NULL, NULL, NULL, NULL };
 
 Shave* Shave::get_handle(unsigned int a)
 {
-    Shave *obj;
+    Shave* obj;
 
     if (a > SHAVES_CNT) {
-        printf("Error: invalid shave ID\n");
+        DPRINTF("Error: invalid shave ID\n");
         return NULL;
     }
 
-    if (handles[a] == NULL) {
+    if (shaves[a] == NULL) {
         obj = new Shave(a);
-        handles[a] = obj;
+        shaves[a] = obj;
         return obj;
     } else {
-        return handles[a];
+        return shaves[a];
     }
 }
 
 void Shave::destroy(unsigned int a)
 {
     if (a > SHAVES_CNT) {
-        printf("Error: invalid shave ID\n");
+        DPRINTF("Error: invalid shave ID\n");
         return;
     }
 
-    if (handles[a] != NULL) {
-        delete handles[a];
-        handles[a] = NULL;
+    if (shaves[a] != NULL) {
+        delete shaves[a];
+        shaves[a] = NULL;
     }
 }
 
-void Shave::reset(void)
+u32 Shave::reset(void)
 {
-    swcResetShave(id);
+    return OsDrvSvuResetShave(&handlers[id]);
 }
 
-void Shave::set_default_stack(void)
+u32 Shave::set_default_stack(void)
 {
-    swcSetAbsoluteDefaultStack(this->id);
+    return OsDrvSvuSetAbsoluteDefaultStack(&handlers[id]);
 }
 
 void Shave::start(unsigned int ptr, const char* fmt, ... )
 {
+    u32 sc = OS_MYR_DRV_SUCCESS;
     shave_mutex.lock();
     HglCprTurnOnShaveMask(power_mask);
-    this->reset();
-    this->set_default_stack();
+    sc = this->reset();
+    if (OS_MYR_DRV_SUCCESS != sc) {
+        DPRINTF("Error: failed reset shave %lu\n", sc);
+    }
+    sc= this->set_default_stack();
+    if (OS_MYR_DRV_SUCCESS != sc) {
+        DPRINTF("Error: failed setting shave stack %lu\n", sc);
+    }
     va_list a_list;
     va_start(a_list, fmt);
-    swcSetRegsCC(id, fmt, a_list);
+    sc = OsDrvSvuStartShaveCC2(&handlers[id], ptr, fmt, a_list);
     va_end(a_list);
-    swcStartShave(id, ptr);
+    if (OS_MYR_DRV_SUCCESS != sc) {
+        DPRINTF("Error: failed starting shave %lu\n", sc);
+    }
 }
 
 void Shave::wait(void)
 {
-    swcWaitShave(id);
-    HglCprTurnOnShaveMask(power_mask);
+    u32 running = 0, sc = OS_MYR_DRV_SUCCESS;
+    sc = OsDrvSvuWaitShaves(1, &handlers[id], OS_DRV_SVU_WAIT_FOREVER, &running);
+    HglCprTurnOffShaveMask(power_mask);
     shave_mutex.unlock();
+    if (OS_MYR_DRV_SUCCESS != sc) {
+        DPRINTF("Error: while waiting shave %lu\n", sc);
+    }
+    if (0 != running) {
+        DPRINTF("Error: wait shave %lu is running\n", running);
+    }
 }

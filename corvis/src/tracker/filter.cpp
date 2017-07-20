@@ -566,9 +566,6 @@ static bool l_l_intersect(v3 p1, v3 p2, v3 p3, v3 p4, v3 & pa, v3 & pb)
 
     pa = p1 + mua*p21;
     pb = p3 + mub*p43;
-    // Return homogeneous points
-    pa[3] = 1;
-    pb[3] = 1;
 
     return true;
 }

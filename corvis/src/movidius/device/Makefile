@@ -243,7 +243,7 @@ include $(MV_COMMON_BASE)/components/BLIS/genblislib.mk
 AllLibs += --start-group $(BLIS_LIB_LEON) --end-group
 
 # SHAVE linking rules
-cvrt_fns = fast9Detect fast9Track stereo_kp_matching vision_project_motion_covariance
+cvrt_fns = fast9Detect fast9Track stereo_kp_matching_and_compare vision_project_motion_covariance
 cvrt_fns += potrf_ln trsvl_ln trsvl_lt trsvl_lnlt
 ENTRYPOINTS_cvrt = -e $(word 1, $(cvrt_fns)) $(foreach ep,$(cvrt_fns),-u $(ep) ) --gc-sections
 $(cvrt).mvlib : $(SHAVE_cvrt_OBJS) $(PROJECT_SHAVE_LIBS)

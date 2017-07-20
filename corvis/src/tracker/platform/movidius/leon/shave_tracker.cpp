@@ -37,13 +37,14 @@ volatile __attribute__((section(".cmx_direct.data"))) ShaveFastDetectSettings cv
 //stereo
 static u8 __attribute__((section(".ddr.bss"))) p_kp1[sizeof(float3_t)*MAX_KP1+sizeof(int)]; //l_float3
 static u8 __attribute__((section(".ddr.bss"))) p_kp2[sizeof(float3_t)*MAX_KP2+sizeof(int)]; //l_float3
-static u8 __attribute__((section(".ddr_direct.bss"))) shave_new_keypoint[SHAVES_USED][sizeof(kp_out_t)*((MAX_KP1)/(SHAVES_USED))+sizeof(int)];
-static u8 __attribute__((section(".ddr_direct.bss"))) shave_other_keypoint[SHAVES_USED][sizeof(kp_out_t)*((MAX_KP1)/(SHAVES_USED))+sizeof(int)];
 
 volatile __attribute__((section(".cmx_direct.data")))  ShavekpMatchingSettings cvrt_kpMatchingParams;
 
 __attribute__((section(".cmx_direct.data"))) fast_tracker::xy tracked_features[512];
 
+__attribute__((section(".cmx_direct.data"))) uint8_t * patches1[MAX_KP1];
+__attribute__((section(".cmx_direct.data"))) uint8_t * patches2[MAX_KP2];
+__attribute__((section(".cmx_direct.data"))) float depths1[MAX_KP1];
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
 //tracker
@@ -57,10 +58,10 @@ extern u32 cvrt1_fast9Track;
 extern u32 cvrt2_fast9Track;
 extern u32 cvrt3_fast9Track;
 //stereo
-extern u32 cvrt0_stereo_kp_matching;
-extern u32 cvrt1_stereo_kp_matching;
-extern u32 cvrt2_stereo_kp_matching;
-extern u32 cvrt3_stereo_kp_matching;
+extern u32 cvrt0_stereo_kp_matching_and_compare;
+extern u32 cvrt1_stereo_kp_matching_and_compare;
+extern u32 cvrt2_stereo_kp_matching_and_compare;
+extern u32 cvrt3_stereo_kp_matching_and_compare;
 
 //tracker
 u32 entryPoints[TRACKER_SHAVES_USED] = {
@@ -78,10 +79,10 @@ u32 entryPointsTracking[TRACKER_SHAVES_USED] = {
 };
 //stereo
 u32 entryPoints_intersect_and_compare[TRACKER_SHAVES_USED] = {
-        (u32)&cvrt0_stereo_kp_matching,
-        (u32)&cvrt1_stereo_kp_matching,
-        (u32)&cvrt2_stereo_kp_matching,
-        (u32)&cvrt3_stereo_kp_matching
+        (u32)&cvrt0_stereo_kp_matching_and_compare,
+        (u32)&cvrt1_stereo_kp_matching_and_compare,
+        (u32)&cvrt2_stereo_kp_matching_and_compare,
+        (u32)&cvrt3_stereo_kp_matching_and_compare
 };
 
 typedef struct _short_score {
@@ -376,44 +377,6 @@ void shave_tracker::track(const tracker::image &image, std::vector<tracker::feat
     END_EVENT(EV_SHAVE_TRACK, predictions.size());
 }
 
-//############################################################
-/*
-void shave_tracker::new_keypoint_other_keypoint_mearge(const std::vector<point> & kp1, std::vector<point> & new_keypoints)
-{
-    static std::vector<point> other_keypoints;
-    new_keypoints.clear();
-    other_keypoints.clear();
-
-    for (int j = 0; j < SHAVES_USED; j++)//defines outside of loops
-    {
-        int n_new_keypoint  =(*(int*)(shave_new_keypoint[j]));
-        int n_other_keypoint=(*(int*)(shave_other_keypoint[j]));
-        kp_out_t* shave_new_keypoint_p   = (kp_out_t*) (shave_new_keypoint[j]+sizeof(int));
-        kp_out_t* shave_other_keypoint_p = (kp_out_t*) (shave_other_keypoint[j]+sizeof(int));
-        for(int i=0; i<n_new_keypoint ; i++)
-        {
-            point  k1 = kp1[shave_new_keypoint_p[i].index];
-            k1.depth = shave_new_keypoint_p[i].depth;
-            new_keypoints.push_back(k1);
-            DPRINTF ("%d:{%f,%f} %f ,",i,k1.x,k1.y, k1.depth   );
-        }
-        DPRINTF("\n shave %d: other keypoint (%d), address: %u",j, n_other_keypoint, (u8*) shave_other_keypoint[j]);
-        for(int i=0; i<n_other_keypoint ; i++)
-        {
-            point  k1 = kp1[shave_other_keypoint_p[i].index];
-            other_keypoints.push_back(k1);
-            DPRINTF ("%d:{%f,%f} %f ,",i,k1.x,k1.y,k1.depth);
-        }
-        DPRINTF("\n");
-    }
-    for(point & k1 : other_keypoints)
-    {
-        new_keypoints.push_back(k1); //todo: check if we can use std:move to copy all vector element.
-    }
-
-}
-*/
-
 void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group[], size_t n1, const tracker::feature_track * f2_group[], size_t n2, state_camera & camera1, state_camera & camera2)
 {
 
@@ -438,6 +401,8 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
         f2_n=camera2.intrinsics.undistort_feature(camera2.intrinsics.normalize_feature(f2));
         p2_calibrated << f2_n.x(), f2_n.y(), 1;
         p2_cal_transformed = R2w*p2_calibrated + camera2.extrinsics.T.v;
+        fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(f2_group[i]->feature.get());
+        patches2[i] = f.descriptor.descriptor.data();
 
         p_kp2_transformed[i][0] = p2_cal_transformed(0); // todo : Amir : check if we can skip the v3;
         p_kp2_transformed[i][1] = p2_cal_transformed(1);
@@ -445,6 +410,10 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
     }
     //prepare p_kp1_transformed
     for(int i = 0; i < n1; i++) {
+        fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(f1_group[i]->feature.get());
+        patches1[i] = f.descriptor.descriptor.data();
+        depths1[i] = 0;
+
         auto * k1 = f1_group[i];
         feature_t f1(k1->x,k1->y);
         f1_n=camera1.intrinsics.undistort_feature(camera1.intrinsics.normalize_feature(f1));
@@ -457,7 +426,7 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
     *((int*)p_kp1)=n1;
     *((int*)p_kp2)=n2;
 
-    DPRINTF("\t\t AS:nk1 : %d, nk2: %d, &nk1 %d,&nk2 %d\n ",n1,n2, &p_kp1, &p_kp2);
+    DPRINTF("\t\t AS:nk1 : %d, nk2: %d \n ",n1,n2);
     //Eigen types
     m3 E_R1w_t=R1w.transpose();
     m3 E_R2w_t=R2w.transpose();
@@ -490,14 +459,13 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
 	for (int i = 0; i < shavesToUse; ++i) {
         shaves[i]->acquire();
         shaves[i]->start(entryPoints_intersect_and_compare[i],
-                "iiiiiii",
+                "iiiiii",
                 kpMatchingParams,
                 p_kp1,
                 p_kp2,
-                f1_group,
-                f2_group,
-                shave_new_keypoint[i],
-                shave_other_keypoint[i]);
+                patches1,
+                patches2,
+                depths1);
     }
 
     for (int i = 0; i < shavesToUse; ++i) {
@@ -505,5 +473,6 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
         shaves[i]->release();
     }
 
-    //new_keypoint_other_keypoint_mearge(kp1,*new_keypoints_p);
+    for(int i = 0; i < n1; i++)
+        f1_group[i]->depth = depths1[i];
 }

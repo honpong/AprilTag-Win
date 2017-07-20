@@ -38,7 +38,6 @@ private:
     void trackMultipleShave(std::vector<TrackingData>& trackingData, const image& image);
     void prepTrackingData(std::vector<TrackingData>& trackingData, std::vector<tracker::feature_track *> &predictions);
     void processTrackingResult(std::vector<tracker::feature_track *> &predictions);
-//    void new_keypoint_other_keypoint_mearge(const std::vector<tracker:feature_track *> & kp1, std::vector<tracker::feature_track *> & new_keypoints);
 
     int shavesToUse;
     AdaptiveController  m_thresholdController;

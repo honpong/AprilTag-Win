@@ -23,13 +23,10 @@ static const float fast_good_match = 0.65f*0.65f;
 // 4: Static Local Data
 static u8 __attribute__((section(".cmx.bss"))) p_kp1_Buffer[sizeof(float3_t)*MAX_KP1+sizeof(int)]; //l_float3
 static u8 __attribute__((section(".cmx.bss"))) p_kp2_Buffer[sizeof(float3_t)*MAX_KP2+sizeof(int)]; //l_float3
-static u8 __attribute__((section(".cmx.bss"))) shave_new_keypoint_buffer[sizeof(kp_out_t)*((MAX_KP1)/(SHAVES_USED))+sizeof(int)];
-static u8 __attribute__((section(".cmx.bss"))) shave_other_keypoint_buffer[sizeof(kp_out_t)*((MAX_KP1)/(SHAVES_USED))+sizeof(int)];
 static u8 __attribute__((section(".cmx.data")))  f1_FeatureBuffer[128];
 static u8 __attribute__((section(".cmx.data")))  f2_FeatureBuffer[128];
 
 dmaTransactionList_t /*__attribute__((section(".cmx.cdmaDescriptors")))*/ dmaImportKeypoint[2];
-dmaTransactionList_t /*__attribute__((section(".cmx.cdmaDescriptors")))*/ dmaOutIntersect[2];
 
 // ----------------------------------------------------------------------------
 // 5: Static Function Prototypes
@@ -109,7 +106,7 @@ bool stereo_matching::l_l_intersect_shave(int i , int j,float4 *pa,float4 *pb)
     return(true);
 }
 
-void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2,const feature_t * f1_group[] ,const feature_t * f2_group[], u8* new_keypoint_p, u8* other_keypoint_p)
+void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1)
 {
   //kp intersect vars
     float4 pa,pb;
@@ -125,8 +122,7 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2,const 
     float min_score = 0;
     unsigned short mean1 , mean2 ;
     //DMA - bring KP1 - KP2
-    dmaTransactionList_t* dmaRef[3];
-    dmaTransactionList_t* dmaOut[2];
+    dmaTransactionList_t* dmaRef[2];
 
     u32 dmaRequsterId= dmaInitRequester(1);
     dmaRef[0]= dmaCreateTransaction(dmaRequsterId, &dmaImportKeypoint[0], p_kp1, p_kp1_Buffer, sizeof(float3_t)*MAX_KP1+sizeof(int));
@@ -137,14 +133,8 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2,const 
 
     int n_kp1=*((int*)(p_kp1_Buffer));
     int n_kp2=*((int*)(p_kp2_Buffer));
-    int & n_new_keypoint  =(*(int*)(shave_new_keypoint_buffer));
-    int & n_other_keypoint=(*(int*)(shave_other_keypoint_buffer));
     int patch_buffer_size = patch_stride *patch_stride;
     float3_t* kp1=(float3_t*)(p_kp1_Buffer+sizeof(int));
-    kp_out_t* new_keypoint = (kp_out_t*) (shave_new_keypoint_buffer+sizeof(int));
-    kp_out_t* other_keypoint = (kp_out_t*) (shave_other_keypoint_buffer+sizeof(int));
-    n_new_keypoint=0;
-    n_other_keypoint=0;
     int shaveNum = scGetShaveNumber() ;
     DPRINTF("\t#AS- START SHAVE %d\n",shaveNum);
 
@@ -173,7 +163,7 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2,const 
         best_depth = 0;
 
         //bring f1 feature
-        u8* patch_source =  (u8*) (f1_group[i]->patch );
+        u8* patch_source =  (u8*) (patches1[i]);
         memcpy(f1_FeatureBuffer,patch_source,patch_buffer_size); //memcpy gave better results than DMA.
         mean1 = compute_mean7x7_from_pointer_array(patch_win_half_width,patch_win_half_width ,patch1_pa) ;
 
@@ -208,7 +198,7 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2,const 
             if(depth && error < 0.02 )
             {
                 //bring f2 feature
-                u8* patch_source_2 = (u8*) (f2_group[j]->patch ) ;
+                u8* patch_source_2 = (u8*) (patches2[j]) ;
                 memcpy(f2_FeatureBuffer,patch_source_2,patch_buffer_size);
 
                 mean2 = compute_mean7x7_from_pointer_array(patch_win_half_width,patch_win_half_width ,patch2_pa) ;
@@ -225,35 +215,9 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2,const 
 
         if(best_depth && second_best_score == fast_good_match)
         {
-            new_keypoint[n_new_keypoint].index=i;
-            new_keypoint[n_new_keypoint].depth=best_depth;
-            DPRINTF("\t\t\t new_keypoints:Index : %d ,Depth %f \n",new_keypoint[n_new_keypoint].index,new_keypoint[n_new_keypoint].depth);
-            n_new_keypoint++;
-        } else
-        {
-            other_keypoint[n_other_keypoint].index=i;
-            DPRINTF("\t\t\t other_keypoints:index : %d ; best depth %f, second score %f \n",other_keypoint[n_other_keypoint].index, best_depth ,second_best_score );
-            n_other_keypoint++ ;
+            depths1[i] = best_depth;
         }
     }//end kp1 loop
-
-    //DMA_TRANSACTION
-    dmaOut[0]= dmaCreateTransaction(dmaRequsterId, &dmaOutIntersect[0], (u8*)shave_new_keypoint_buffer      , (u8*) new_keypoint_p    , sizeof (int)+sizeof(kp_out_t)*n_new_keypoint);
-    dmaOut[1]= dmaCreateTransaction(dmaRequsterId, &dmaOutIntersect[1], (u8*)shave_other_keypoint_buffer    , (u8*) other_keypoint_p  , sizeof (int)+sizeof(kp_out_t)*n_other_keypoint);
-    dmaLinkTasks(dmaOut[0], 1, dmaOut[1]);
-    dmaStartListTask(dmaOut[0]);
-    dmaWaitTask(dmaOut[0]);
-
-#ifdef DEBUG_PRINTS
-    //for debug
-    kp_out_t* shave_new_keypoint_p   = (kp_out_t*) (new_keypoint_p+sizeof(int));
-    kp_out_t* shave_other_keypoint_p = (kp_out_t*) (other_keypoint_p+sizeof(int));
-    DPRINTF("#DMA_OUTA n_new_keypoint %d ,&new_keypoint_p %d , n_other_keypoint %d ,&other_keypoint_p %d \n", n_new_keypoint,&new_keypoint_p, n_other_keypoint,&other_keypoint_p );
-    DPRINTF("#DMA_OUTB new_keypoint %d ,other_keypoint %d , %u,%u\n", *(int* ) new_keypoint_p , *(int* ) other_keypoint_p , new_keypoint_p ,other_keypoint_p );
-    if (*(int* ) other_keypoint_p>0 )
-       DPRINTF("#DMA_OUTC index depth %d %f\n", shave_new_keypoint_p[0].index,shave_new_keypoint_p[0].depth);
- #endif
-
 }
 
 

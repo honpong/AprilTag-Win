@@ -29,6 +29,7 @@
 #ifdef MYRIAD2
 #include "shave_tracker.h"
 #define USE_SHAVE_TRACKER 1
+#define SHAVE_STEREO_MATCHING 1
 #define MAX_KP2 200
 #define MAX_KP1 40
 #endif // MYRIAD2
@@ -774,11 +775,13 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
 #ifdef SHAVE_STEREO_MATCHING
         tracker::feature_track * f1_group[MAX_KP1];
         const tracker::feature_track * f2_group[MAX_KP2];
-        for(tracker:feature_track & k1 : keypoints)
-            f1_group[j] = &k1;
+        int i = 0;
+        for(auto & k1 : keypoints)
+            f1_group[i++] = &k1;
 
+        i = 0;
         for(auto & k2 : kp2)
-            f2_group[i] = &k2;
+            f2_group[i++] = &k2;
 
         shave_tracker shave_stereo_o;
         shave_stereo_o.stereo_matching_full_shave(f1_group, keypoints.size(), f2_group, kp2.size(), camera_state1, camera_state2);

@@ -12,6 +12,7 @@ f_t state_vision_feature::initial_var;
 f_t state_vision_feature::initial_process_noise;
 f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
+f_t state_vision_feature::outlier_lost_reject;
 f_t state_vision_feature::max_variance;
 
 state_vision_feature::state_vision_feature(const tracker::feature_track &track_, state_vision_group &group_):
@@ -30,6 +31,13 @@ void state_vision_feature::drop()
 {
     if(is_good()) status = feature_gooddrop;
     else status = feature_empty;
+}
+
+void state_vision_feature::make_lost()
+{
+    status = feature_lost;
+    save_initial_variance();
+    index = -1;
 }
 
 bool state_vision_feature::should_drop() const
@@ -84,7 +92,12 @@ void state_vision_group::make_empty()
         f->dropping_group();
         delete f;
     }
+    for(state_vision_feature *f : lost_features) {
+        f->dropping_group();
+        delete f;
+    }
     features.children.clear();
+    lost_features.clear();
     status = group_empty;
 }
 
@@ -93,6 +106,9 @@ int state_vision_group::process_features()
     features.children.remove_if([&](state_vision_feature *f) {
         if(f->should_drop()) {
             delete f;
+            return true;
+        } else if(f->status == feature_lost) {
+            lost_features.push_back(f);
             return true;
         } else
             return false;
@@ -204,7 +220,10 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
                 // Drop tracking failures
                 ++track_fail;
                 if(i->is_good()) ++useful_drops;
-                i->drop();
+                if(i->is_good() && i->outlier < i->outlier_lost_reject)
+                    i->make_lost();
+                else
+                    i->drop();
             } else {
                 // Drop outliers
                 if(i->status == feature_normal) ++total_feats;
@@ -521,6 +540,9 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children)
             feature_tracker->tracks.emplace_back(&feature->track);
+        for(state_vision_feature *feature : g->lost_features)
+            feature_tracker->tracks.emplace_back(&feature->track);
+
     }
     for(auto &t:standby_features) feature_tracker->tracks.emplace_back(&t);
 

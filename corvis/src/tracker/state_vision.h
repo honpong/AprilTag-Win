@@ -35,7 +35,8 @@ enum feature_flag {
     feature_ready,
     feature_initializing,
     feature_single,
-    feature_revived
+    feature_revived,
+    feature_lost
 };
 
 class log_depth
@@ -101,6 +102,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t initial_process_noise;
     static f_t outlier_thresh;
     static f_t outlier_reject;
+    static f_t outlier_lost_reject;
     static f_t max_variance;
 
     state_vision_feature(const tracker::feature_track &track, state_vision_group &group);
@@ -109,6 +111,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     bool is_good() const;
     void dropping_group();
     void drop();
+    void make_lost();
     bool is_initialized() const { return status == feature_normal; }
     bool force_initialize();
 //private:
@@ -180,6 +183,7 @@ class state_vision_group: public state_branch<state_node *> {
 
     state_camera &camera;
     state_branch<state_vision_feature *> features;
+    std::list<state_vision_feature *> lost_features;
     std::list<uint64_t> neighbors;
     std::list<uint64_t> old_neighbors;
     int health;

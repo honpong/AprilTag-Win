@@ -7,7 +7,11 @@ add_library(slam_usb
 )
 
 target_link_libraries(slam_usb PUBLIC ${LIBUSB_1_LIBRARIES} -lusb-1.0
-    -lpthread -lrt)
+    -lpthread)
+if(UNIX AND NOT APPLE)
+    target_link_libraries(slam_usb PUBLIC -lrt)
+endif(UNIX AND NOT APPLE)
+
 target_include_directories(slam_usb PUBLIC
     ../common/                                  # for usb_definitions.h & get_pose.h
     ../../tracker/ # for packet.h

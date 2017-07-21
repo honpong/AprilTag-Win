@@ -33,6 +33,20 @@ For new code, try to maintain the following:
   variables can be short if the meaning is clear (e.g. `w` for angular
   velocity).
 
+<a name="testing"></a>
+#Testing
+
+Please test all changes by replaying a non-trival capture on:
+
+- TM2 using the included replayer (see
+  [../src/movidius](src/movidius))
+- In order of preference: Mac, Linux, and Windows using measure
+
+And verifying nothing is obviously broken or slow.
+
+If that works, try running our benchmark dataset (see
+`#slam_benchmark_talk` and `#slam_benchmark` on Slack).
+
 <a name="commits"></a>
 #Commits
 
@@ -115,9 +129,10 @@ and create a feature branch as [described above](#forking).
 
 You should conform to the commit style [described above](#commits).
 
-Once your feature is tested, be sure you have rebased your feature
-branch on the current version of master. Assuming your `master` branch
-is setup to track `slam/master` as described above, do:
+Once your feature is [tested](#testing), be sure you have rebased your
+feature branch on the current version of master. Assuming your
+`master` branch is setup to track `slam/master` as described above,
+do:
 
 ```
 # update your local copy of master

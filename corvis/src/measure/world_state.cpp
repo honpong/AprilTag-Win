@@ -724,7 +724,14 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         auto f = item.second;
         VertexData v, vp;
         if (f.last_seen == cameras[f.camera_id].image.timestamp) {
-            if(f.good) {
+            if(f.depth_measured) {
+                generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 247, 247, 98, 255);
+                set_color(&v, 247, 247, 98, 255);
+
+                set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
+                set_color(&vp, 247, 247, 98, 255);
+            }
+            else if(f.good) {
                 generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 88, 247, 98, 255);
                 set_color(&v, 88, 247, 98, 255);
 
@@ -1008,6 +1015,7 @@ void world_state::observe_feature(uint64_t timestamp, rc_Sensor camera_id, const
     f.last_seen = timestamp;
     f.times_seen = 1;
     f.good = feature.stdev / feature.depth < 0.02;;
+    f.depth_measured = feature.depth_measured;
     f.not_in_filter = feature.innovation_variance_x == 0;
     f.camera_id = camera_id;
 

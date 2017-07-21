@@ -1,0 +1,504 @@
+From ef95bc8c0852cffd789617288b131cc46d58d107 Mon Sep 17 00:00:00 2001
+From: Patrik Stepan <patrik.stepan@intel.com>
+Date: Thu, 25 May 2017 01:43:48 +0300
+Subject: [PATCH] fix cdma driver issues
+
+---
+ .../myriad2/socDrivers/leon/bm/src/DrvCmxDma.c     | 149 +++++++++---------
+ .../myriad2/socDrivers/shared/include/CmxDma.h     |   3 +-
+ .../shave_code/myriad2/src/swcCdmaShaveM2.c        | 174 +++++++++++++--------
+ 3 files changed, 184 insertions(+), 142 deletions(-)
+
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/bm/src/DrvCmxDma.c
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/drivers/myriad2/socDrivers/leon/bm/src/DrvCmxDma.c
+@@ -9,7 +9,9 @@
+ 
+ #include "DrvCmxDma.h"
+ #include "DrvCmxDmaArch.h"
+-
++#ifndef USE_CMX_DMA_GLOBAL_TAIL
++#define USE_CMX_DMA_GLOBAL_TAIL 1
++#endif
+ int usedAgentsNr = 2;//Number of used Link Agents(LA) by current processor
+ int startFrom = DMA_AGENT1;//The first LA to use
+ int intOffset = 13;//Bit position from INT_STATUS register used for task status
+@@ -25,10 +27,6 @@ u32 dmaMutexes[4] = {DMA_MUTEX0,
+                      DMA_MUTEX2,
+                      DMA_MUTEX3};
+ 
+-static const u32 dmaChannelToAgent[4] = { DMA_CHANNEL0,
+-                                          DMA_CHANNEL1,
+-                                          DMA_CHANNEL2,
+-                                          DMA_CHANNEL3};
+ u32 **tail[4];
+ 
+ drvStat_t cmxDmaStatus;
+@@ -231,81 +229,80 @@ static inline void dmaWaitUntilLinkAgentIsntFetchingDescriptors(int linkAgent)
+     } while (!is_fetching);
+ }
+ 
+-static int DrvCmxDmaStartTask(dmaTransactionList* ListPtr, u32 taskCnt, dmaIrqHandler function, void *userContext, u32 *saveTail)
++static dmaTransactionList* findLast(dmaTransactionList *ptr)
++{
++    dmaTransactionList* next = (dmaTransactionList*)swcLeonReadNoCacheU32(&ptr->linkAddress);
++    while(next) {
++        ptr = next;
++        next = (dmaTransactionList*)swcLeonReadNoCacheU32(&ptr->linkAddress);
++    }
++    return ptr;
++}
++
++static int DrvCmxDmaStartTask(dmaTransactionList* ListPtr, dmaIrqHandler function,
++                              void *userContext, u32 *saveTail)
+ {
+     UNUSED(function); // hush the compiler warning.
+     UNUSED(userContext); // hush the compiler warning.
+ 
+-        u8 assignedLA;
+-        u32 result = CDMA_TASK_ERR;
+-
+-        //get the assigned Link Agent for the current task
+-        //the Link Agent is determined by calculating modulus of 3 from the value of reqCount variable
+-        //used to generate the requesterID for this task
+-        assignedLA = startFrom + (ListPtr->agentOff);
+-        u32 cdma_link_cfg_adr = CDMA_LINK_CFG0_ADR + 8 * assignedLA;
+-        u32 cdma_link_cfg_adr_hi_word = cdma_link_cfg_adr + 4;
+-        u32 channel_mask = 1 << dmaChannelToAgent[assignedLA];
+-
+-        // Since we're using mutexes in the following section of code, and it
+-        // could itself be interruptible by another call to the same functions
+-        // the following should be protected against interrupts happening. To
+-        // allow other interrupts to be serviced during this time, only CMXDMA
+-        // interrupt is disabled
+-        DrvIcbDisableIrq(IRQ_CMXDMA);
+-
+-        DRV_MUTEX_LOCK(dmaMutexes[assignedLA]);
+-        //disable the channel associated with our link agent
+-
+-        u32 isShadowValid = GET_REG_WORD_VAL(cdma_link_cfg_adr_hi_word) & 1;
+-        if (isShadowValid)
+-        {
+-            // as long as the channel mutex is locked, the shadow valid bit can only go from Yes to No
+-            // If the shadow register contains no chain then we are safe to start a new chain by writing to the
+-            // link_cfg register. This is true both if the chain ends up qued in the shadow register or if it
+-            // is started from an idle state.
+-            // However if the shadow is valid, then we need to stop the channel to make sure that the previous chain
+-            // we are appending to doesn't get consumed just before we get to append to it. After the channel is stopped
+-            // we need to check again if we need to append to an existing chain, or if we can just start the new chain as-is
+-            SET_REG_WORD(CDMA_SET_CHGATE_ADR, channel_mask);
+-            dmaWaitUntilLinkAgentIsntFetchingDescriptors(assignedLA);
+-            isShadowValid = GET_REG_WORD_VAL(cdma_link_cfg_adr_hi_word) & 1;
+-        }
+-
+-        //set how many tasks with the same interrupt ID should be executed before an interrupt is triggered
+-        //we need a single interrupt for the entire list, so the number of list elements - 1 is set up.
+-        SET_REG_WORD(CDMA_INT_FREQ0_ADR + 8 * ListPtr->cfgLink.cfgBits.interruptTrigger, taskCnt - 1);
+-
+-        if (!isShadowValid)
+-        {
+-            SET_REG_WORD(CDMA_CLR_CHGATE_ADR, channel_mask); //enable the channel associated with our link agent
+-
+-            SET_REG_DWORD(cdma_link_cfg_adr, START_LCA_BIT | (u32)ListPtr);//enable the Link Agent
+-
+-            result = CDMA_TASK_STARTED;
+-        }
+-        else
+-        {
+-            //patch the end of the existing list in order to be linked to our list (ListPtr)
+-            dmaTransactionList* ptr = (dmaTransactionList*)*tail[assignedLA];
+-
+-            ptr->linkAddress = ListPtr;
+-            // read back the address to make sure that the value was written before being used
+-            GET_REG_WORD_VAL(ptr->linkAddress);
+-
+-            SET_REG_WORD(CDMA_CLR_CHGATE_ADR, channel_mask); //enable the channel associated with our link agent
+-
+-            result = CDMA_TASK_LINKED;
++    u8 assignedLA;
++    u32 result = CDMA_TASK_ERR;
++
++    //get the assigned Link Agent for the current task
++    //the Link Agent is determined by calculating modulus of 3 from the value of reqCount variable
++    //used to generate the requesterID for this task
++    assignedLA = startFrom + (ListPtr->agentOff);
++    u32 cdma_link_cfg_adr = CDMA_LINK_CFG0_ADR + 8 * assignedLA;
++    u32 cdma_link_cfg_adr_hi_word = cdma_link_cfg_adr + 4;
++    u32 channel_mask = 0xF;
++
++    // Since we're using mutexes in the following section of code, and it
++    // could itself be interruptible by another call to the same functions
++    // the following should be protected against interrupts happening. To
++    // allow other interrupts to be serviced during this time, only CMXDMA
++    // interrupt is disabled
++    DrvIcbDisableIrq(IRQ_CMXDMA);
++    // as a resolution of Bug 26749, we need to stop all channels while adding a task
++    DRV_MUTEX_LOCK(DMA_MUTEX_COMMON);
++    SET_REG_WORD(CDMA_SET_CHGATE_ADR, channel_mask);
++    //disable the channel associated with our link agent
++    dmaWaitUntilLinkAgentIsntFetchingDescriptors(assignedLA);
++    u32 isShadowValid = GET_REG_WORD_VAL(cdma_link_cfg_adr_hi_word) & 1;
++
++    if (!isShadowValid)
++    {
++        SET_REG_DWORD(cdma_link_cfg_adr, START_LCA_BIT | (u32)ListPtr);//enable the Link Agent
++        result = CDMA_TASK_STARTED;
++    }
++    else
++    {
++        //patch the end of the list in order to be linked to our list (ListPtr)
++        dmaTransactionList* lastTask;
++        if (!USE_CMX_DMA_GLOBAL_TAIL){
++            dmaTransactionList* currentTask =
++                            (dmaTransactionList*)GET_REG_WORD_VAL(cdma_link_cfg_adr);
++            lastTask = findLast(currentTask);
++        }else{
++            //tail points to an un-cached address space, so this should be fine
++            lastTask = (dmaTransactionList*)*tail[assignedLA];
+         }
++        // the task is not necessarily in a cached space, so let's be sure that the write happens
++        swcLeonWriteNoCache32(&lastTask->linkAddress, ListPtr);
++        // read back the address to make sure that the value was written before being used
++        GET_REG_WORD_VAL(lastTask);
++        result = CDMA_TASK_LINKED;
++    }
++    if(USE_CMX_DMA_GLOBAL_TAIL){
+         //save the pointer to the end of the newly added chain
+         *tail[assignedLA] = saveTail;
+         // read back the address to make sure that the value was written before being used
+         GET_REG_WORD_VAL(tail[assignedLA]);
++    }
++    SET_REG_WORD(CDMA_CLR_CHGATE_ADR, channel_mask); //enable the channel associated with our link agent
++    DRV_MUTEX_UNLOCK(DMA_MUTEX_COMMON);
++    DrvIcbEnableIrq(IRQ_CMXDMA);
+ 
+-        DRV_MUTEX_UNLOCK(dmaMutexes[assignedLA]);
+-        DrvIcbEnableIrq(IRQ_CMXDMA);
+-
+-        return result;
++    return result;
+ }
+ 
+ void DrvCmxDmaIrqHandlerFunc(u32 source)
+@@ -357,7 +354,6 @@ void DrvCmxDmaIrqHandlerFunc(u32 source)
+             if(qElem->taskNum != 0)
+             {
+                 DrvCmxDmaStartTask(qElem->ListPtr,
+-                                   qElem->taskNum,
+                                    qElem->callbackFunc,
+                                    qElem->userContext,
+                                    qElem->saveTail);
+@@ -389,9 +385,12 @@ int DrvCmxDmaStartTaskAsync(dmaTransactionList* ListPtr, dmaIrqHandler function,
+         while(ptr)
+         {
+             ptr->cfgLink.cfgBits.interruptTrigger = intOffset + (ListPtr->agentOff);
+-            if(ptr->linkAddress == NULL)
+-            {
+-                lastDescriptor = (u32 *)ptr;
++            if(ptr->linkAddress == NULL){
++                ptr->cfgLink.cfgBits.disableInt = 0;
++                lastDescriptor = (u32*)ptr;
++            }
++            else{
++                ptr->cfgLink.cfgBits.disableInt = 1;
+             }
+             ptr = ptr->linkAddress;
+             taskCnt++;
+@@ -422,7 +421,7 @@ int DrvCmxDmaStartTaskAsync(dmaTransactionList* ListPtr, dmaIrqHandler function,
+                 {
+                     currentlyExecuting[assignedAgent] = 1;
+ 
+-                    result = DrvCmxDmaStartTask(ListPtr, taskCnt, function, userContext, lastDescriptor);
++                    result = DrvCmxDmaStartTask(ListPtr, function, userContext, lastDescriptor);
+                 }
+                 else result = CDMA_TASK_QUEUED;
+             }
+
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/shared/include/CmxDma.h
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/drivers/myriad2/socDrivers/shared/include/CmxDma.h
+@@ -17,7 +17,7 @@
+ #define DMA_INTERRUPT_TRIGGER(N) ((N & 0xF) << 12) ///< ID of the interrupt which will be triggered when the task is done
+ #define DMA_DISABLE_INTERRUPTS (1 << 21) ///< Stop the interrupt generation
+ #define DMA_ENABLE_INTERRUPTS (0 << 21) ///< Start the interrupt generation
+-#define DMA_SKIP_NR(N) ((N & 0xF) << 28)///< Set the skip descriptor for a task, in order to determine from the skip register whether the task should be skipped or not.
++#define DMA_SKIP_NR(N) ((N & 0x1F) << 27)///< Set the skip descriptor for a task, in order to determine from the skip register whether the task should be skipped or not.
+ 
+ #define NR_OF_LINK_AGENTS      4
+ #define START_LCA_BIT (1ULL << 32)///< Value used to start the Link Agent
+@@ -101,4 +101,3 @@ void CmxDmaInitTail(u32 **tail[]);
+ #endif // USE_CMX_DMA_NEW_DRIVER
+ 
+ #endif // _COMMON_DMA_DEFS_H_
+-
+
+--- mdk_release_17.04.5_general_purpose/mdk/common/swCommon/shave_code/myriad2/src/swcCdmaShaveM2.c
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/swCommon/shave_code/myriad2/src/swcCdmaShaveM2.c
+@@ -16,21 +16,35 @@
+ static u8 usedAgentsNr = 3;
+ static u8 startFrom = 1;
+ u32 **tail[4];
+-u32 dmaMutexes[4] = {DMA_MUTEX0,
+-                     DMA_MUTEX1,
+-                     DMA_MUTEX2,
+-                     DMA_MUTEX3};
+-
+-static const __attribute__((section(".data.dmaChannelToAgent"))) u32 dmaChannelToAgent[4] = { DMA_CHANNEL0,
+-                                          DMA_CHANNEL1,
+-                                          DMA_CHANNEL2,
+-                                          DMA_CHANNEL3};
+-
+ 
++#ifndef USE_CMX_DMA_GLOBAL_TAIL
++#define USE_CMX_DMA_GLOBAL_TAIL 1
++#endif
++#ifndef USE_CMX_DMA_CANARY_TRANS
++#define USE_CMX_DMA_CANARY_TRANS 0
++#endif
++#define DMA_MAGIC_STARTED 0xA5B6C7D8
++#define DMA_MAGIC_FINISHED 0x12345678
++#define DMA_MAGIC_COMPLETE 0x87654321
++
++#define NO_CACHE_ABSOLUTE(ret, adr) {\
++    u32 absoluteAdr = (u32) dmaSolveRelAddr((u32)adr, scGetShaveNumber());\
++    if ((absoluteAdr >> 24) & 0x70){\
++        ret = (void *)((u32)absoluteAdr | 0x08000000);\
++    }else{\
++        ret = (void *)((u32)absoluteAdr | 0x40000000);\
++    }\
++}
++#if USE_CMX_DMA_CANARY_TRANS
++static const  u32 canarySource[1] = {DMA_MAGIC_FINISHED}; // TODO this should live only until we implement per transaction canary
++volatile u32 canaryDest[1] = {DMA_MAGIC_COMPLETE};
++dmaTransactionList_t dmaCanaryTrans;
++static u32* canaryDestNocachePtr;
++static dmaTransactionList_t* canaryTransNocachePtr;
++#endif
+ static void dmaSetup()
+ {
+     CmxDmaInitTail(tail);
+-
+     //enable the DMA if it wasn't already enabled
+     if(!(GET_REG_WORD_VAL(CDMA_CTRL_ADR) & DMA_ENABLE_BIT))
+     {
+@@ -55,20 +69,23 @@ static inline u32 dmaAssignAgent()
+ //TODO:reimplement dmaRequesterId in a struct with corresponding fields
+ dmaRequesterId dmaInitRequesterWithAgent(int priority, int agentToAssign)
+ {
+-    dmaSetup();
+-
+     if (agentToAssign < 0 || agentToAssign > 3)
+         return -1; // invalid id
+-    return (agentToAssign << 6) | (scGetShaveNumber() << 2) | (priority & 0x3);
++    dmaRequesterId reqId = (agentToAssign << 6) | (scGetShaveNumber() << 2) | (priority & 0x3);
++#if USE_CMX_DMA_CANARY_TRANS
++    dmaCreateTransaction(reqId, &dmaCanaryTrans, (u8*)&canarySource[0],
++                         (u8*)&canaryDest[0], sizeof(canarySource));
++    NO_CACHE_ABSOLUTE(canaryDestNocachePtr, &canaryDest[0]);
++    NO_CACHE_ABSOLUTE(canaryTransNocachePtr, &dmaCanaryTrans);
++#endif
++    dmaSetup();
++    return reqId;
+ }
+ 
+ dmaRequesterId dmaInitRequester(int priority)
+ {
+     u32 agentToAssign = dmaAssignAgent();
+-
+-    dmaSetup();
+-
+-    return (agentToAssign << 6) | (scGetShaveNumber() << 2) | (priority & 0x3);
++    return dmaInitRequesterWithAgent(priority, agentToAssign);
+ }
+ 
+ void dmaSetUsedAgents(u8 nrOfUsedAgents, u8 startingFrom)
+@@ -91,7 +108,8 @@ static void dmaNewTransaction(u32 Type,
+ {
+     if(NewTransaction)
+     {
+-        NewTransaction->linkAddress = 0;
++        SET_REG_WORD(&NewTransaction->linkAddress, NULL);
++        GET_REG_WORD_VAL(&NewTransaction->linkAddress);
+         NewTransaction->cfgLink.fullCfgRegister = Type                             |
+                                                   DMA_PRIORITY(ReqId & 3)          |
+                                                   DMA_BURST_LENGTH(0xF)            |
+@@ -197,7 +215,14 @@ void dmaLinkTasks(dmaTransactionList* listHead, u32 nmbTasks, ...)
+     } while (!is_fetching);\
+ }
+ 
+-int dmaStartTask(dmaTransactionList* ListPtr, u8 taskCnt, u32* saveTail)
++static dmaTransactionList* findLast(dmaTransactionList *dptr)
++{
++    while(dptr->linkAddress) {dptr = dptr->linkAddress;}
++    return dptr;
++}
++
++
++int dmaStartTask(dmaTransactionList* ListPtr, u32* saveTail)
+ {
+     u8 assignedLA;
+     int result = 0;
+@@ -206,93 +231,113 @@ int dmaStartTask(dmaTransactionList* ListPtr, u8 taskCnt, u32* saveTail)
+     assignedLA = ListPtr->agentOff;
+     u32 cdma_link_cfg_adr = CDMA_LINK_CFG0_ADR + 8 * assignedLA;
+     u32 cdma_link_cfg_adr_hi_word = cdma_link_cfg_adr + 4;
+-    u32 channel_mask = 1 << dmaChannelToAgent[assignedLA];
+-    scMutexRequest(dmaMutexes[assignedLA]);
++    u32 channel_mask = 0xF;
++    // as a resolution of Bug 26749, we need to stop all channels while adding a task
++    scMutexRequest(DMA_MUTEX_COMMON);
++    SET_REG_WORD(CDMA_SET_CHGATE_ADR, channel_mask);
++    dmaWaitUntilLinkAgentIsntFetchingDescriptors(assignedLA);
+     u32 isShadowValid = GET_REG_WORD_VAL(cdma_link_cfg_adr_hi_word) & 1;
+-    if (isShadowValid)
+-    {
+-        // as long as the channel mutex is locked, the shadow valid bit can only go from Yes to No
+-        // If the shadow register contains no chain then we are safe to start a new chain by writing to the
+-        // link_cfg register. This is true both if the chain ends up qued in the shadow register or if it
+-        // is started from an idle state.
+-        // However if the shadow is valid, then we need to stop the channel to make sure that the previous chain
+-        // we are appending to doesn't get consumed just before we get to append to it. After the channel is stopped
+-        // we need to check again if we need to append to an existing chain, or if we can just start the new chain as-is
+-        SET_REG_WORD(CDMA_SET_CHGATE_ADR, channel_mask);
+-        dmaWaitUntilLinkAgentIsntFetchingDescriptors(assignedLA);
+-        isShadowValid = GET_REG_WORD_VAL(cdma_link_cfg_adr_hi_word) & 1;
+-    }
+-
+-    //set how many tasks with the same interrupt ID should be executed before an interrupt is triggered
+-    //we need a single interrupt for the entire list, so the number of list elements - 1 is set up.
+-    SET_REG_WORD(CDMA_INT_FREQ0_ADR + 8 * ListPtr->cfgLink.cfgBits.interruptTrigger, taskCnt - 1);
+ 
+     if(!isShadowValid)
+     {
+-        SET_REG_WORD(CDMA_CLR_CHGATE_ADR, channel_mask);
+         SET_REG_DWORD(cdma_link_cfg_adr, ((u64)((u32)ListPtr)) | START_LCA_BIT); //enable the Link Agent
+         result = 1;
+     }
+     else
+     {
+         //patch the end of the list in order to be linked to our list (ListPtr)
+-        dmaTransactionList* ptr = (dmaTransactionList*)*tail[assignedLA];
+-        SET_REG_WORD(&ptr->linkAddress, ListPtr);
+-        GET_REG_WORD_VAL(&ptr->linkAddress); // read back to ensure that previous write transaction is finished
+-        SET_REG_WORD(CDMA_CLR_CHGATE_ADR, channel_mask);
++        dmaTransactionList* lastTask;
++        if(!USE_CMX_DMA_GLOBAL_TAIL){
++            dmaTransactionList* currentTask =
++                    (dmaTransactionList*)GET_REG_WORD_VAL(cdma_link_cfg_adr);
++            lastTask = findLast(currentTask);
++        }else{
++            lastTask = (dmaTransactionList*)*tail[assignedLA];
++        }
++        SET_REG_WORD(&lastTask->linkAddress, ListPtr);
++        GET_REG_WORD_VAL(&lastTask->linkAddress); // read back to ensure that previous write transaction is finished
+         result = 2;
+     }
+-
+-    SET_REG_WORD(tail[assignedLA], saveTail);
+-    GET_REG_WORD_VAL(tail[assignedLA]); // read back to ensure that previous write transaction is finished
+-
+-    scMutexRelease(dmaMutexes[assignedLA]);
+-
++    if(USE_CMX_DMA_GLOBAL_TAIL){
++        SET_REG_WORD(tail[assignedLA], saveTail);
++        GET_REG_WORD_VAL(tail[assignedLA]); // read back to ensure that previous write transaction is finished
++    }
++    SET_REG_WORD(CDMA_CLR_CHGATE_ADR, channel_mask);
++    scMutexRelease(DMA_MUTEX_COMMON);
+     return result;
+ }
+ 
+ int dmaStartListTask(dmaTransactionList* ListPtr)
+ {
+-    u8 result = 0, taskCnt;
++
++    u8 result = 0;
+     dmaTransactionList* ptr;
+-    u32 *saveTail;
+ 
+-    //Count the number of tasks from the current list and assign a common interrupt ID
+-    ptr = ListPtr; taskCnt = 0;
++    u32 *saveTail = NULL;
++#if USE_CMX_DMA_CANARY_TRANS
++    saveTail = (u32*)&dmaCanaryTrans;
++    if (*canaryDestNocachePtr != DMA_MAGIC_COMPLETE)
++        while(1); // TODO: what should we do here?
++    SET_REG_WORD(canaryDestNocachePtr, DMA_MAGIC_STARTED);
++    dmaCanaryTrans.cfgLink.cfgBits.interruptTrigger = ListPtr->cfgLink.cfgBits.id ;
++    SET_REG_WORD(&dmaCanaryTrans.linkAddress, NULL);
++    dmaCanaryTrans.cfgLink.cfgBits.disableInt = 0;
++#endif
++    ptr = ListPtr;
+     while(ptr)
+     {
++        ptr->cfgLink.cfgBits.disableInt = 1;
+         ptr->cfgLink.cfgBits.interruptTrigger = ListPtr->cfgLink.cfgBits.id ;
+         if(ptr->linkAddress == NULL)
+         {
+-            saveTail = (u32 *)ptr;
++#if USE_CMX_DMA_CANARY_TRANS
++            SET_REG_WORD(&ptr->linkAddress, canaryTransNocachePtr);
++            GET_REG_WORD_VAL(&ptr->linkAddress);
++#else
++            saveTail = (u32*)ptr;
++            ptr->cfgLink.cfgBits.disableInt = 0;
++#endif
++            break;
+         }
+         ptr = ptr->linkAddress;
+-        taskCnt++;
+     }
+ 
+-    result = dmaStartTask(ListPtr, taskCnt, saveTail);
++    result = dmaStartTask(ListPtr, saveTail);
+ 
+     return result;
+ }
+-
+ void dmaWaitTask(dmaTransactionList* ListPtr)
+ {
++    UNUSED(ListPtr);
+ 
++#if USE_CMX_DMA_CANARY_TRANS
++    while (GET_REG_WORD_VAL(canaryDestNocachePtr) != DMA_MAGIC_FINISHED)
++        ;
++    *canaryDestNocachePtr = DMA_MAGIC_COMPLETE;
++#else
+     while(!(GET_REG_WORD_VAL(CDMA_INT_STATUS_ADR) & (1 << ListPtr->cfgLink.cfgBits.interruptTrigger)));
+-
+     SET_REG_WORD(CDMA_INT_RESET_ADR, 1 << ListPtr->cfgLink.cfgBits.interruptTrigger);
+-
++#endif
+ }
+ 
+ int dmaIsTaskFinished(dmaTransactionList* ListPtr)
+ {
+-    if(GET_REG_WORD_VAL(CDMA_INT_STATUS_ADR) & (1 << ListPtr->cfgLink.cfgBits.interruptTrigger))
+-    {
++    UNUSED(ListPtr);
++#if USE_CMX_DMA_CANARY_TRANS
++    if (GET_REG_WORD_VAL(canaryDestNocachePtr) != DMA_MAGIC_FINISHED)
++        return 0;
++    else{
++        *canaryDestNocachePtr = DMA_MAGIC_COMPLETE;
++        return 1;
++    }
++#else
++    if((GET_REG_WORD_VAL(CDMA_INT_STATUS_ADR) & (1 << ListPtr->cfgLink.cfgBits.interruptTrigger))){
+         SET_REG_WORD(CDMA_INT_RESET_ADR, 1 << ListPtr->cfgLink.cfgBits.interruptTrigger);
+-
+         return 1;
++    }else{
++        return 0;
+     }
+-    return 0;
++#endif
+ }
+ 
+ u32 dmaSolveRelAddr(u32 inAddr, u32 shaveNumber)
+@@ -337,4 +382,3 @@ dmaTransactionList* dmaCreateTransactionExt(u32 Type,
+ }
+ 
+ #endif // USE_CMX_DMA_NEW_DRIVER
+-
+-- 
+1.9.1
+

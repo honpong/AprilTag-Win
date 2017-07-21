@@ -76,6 +76,7 @@ typedef struct { rc_Vector W; rc_Vector T; } rc_PoseAcceleration; // derivative 
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVariance; // this is not the full variance yet
 typedef struct { rc_Pose pose_m; rc_Timestamp time_us; } rc_PoseTime;
 
+#if __cplusplus
 static const rc_Matrix rc_MATRIX_IDENTITY = {
     {{1, 0, 0},
      {0, 1, 0},
@@ -91,6 +92,7 @@ static const rc_Pose rc_POSE_IDENTITY = {
       {0, 1, 0},
       {0, 0, 1}}},
 };
+#endif
 
 typedef uint16_t rc_Sensor;
 
@@ -100,6 +102,7 @@ typedef enum rc_SensorType
     rc_SENSOR_TYPE_ACCELEROMETER = 1,
     rc_SENSOR_TYPE_DEPTH = 2,
     rc_SENSOR_TYPE_IMAGE = 3,
+    rc_SENSOR_TYPE_STEREO = 4,
 } rc_SensorType;
 
 typedef enum rc_DataPath
@@ -146,6 +149,17 @@ typedef struct rc_ImageData
     void *handle;
 } rc_ImageData;
 
+typedef struct rc_StereoData
+{
+    rc_Timestamp shutter_time_us;
+    int width, height, stride1, stride2;
+    rc_ImageFormat format;
+    const void * image1;
+    const void * image2;
+    void (*release)(void * handle);
+    void *handle;
+} rc_StereoData;
+
 typedef struct rc_Data
 {
     rc_Sensor id;
@@ -155,6 +169,7 @@ typedef struct rc_Data
     union {
         rc_ImageData image;
         rc_ImageData depth;
+        rc_StereoData stereo;
         rc_Vector angular_velocity_rad__s;
         rc_Vector acceleration_m__s2;
     };
@@ -250,6 +265,11 @@ typedef struct rc_Extrinsics {
  */
 RCTRACKER_API bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_CameraIntrinsics *intrinsics);
 RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat format,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_CameraIntrinsics *intrinsics);
+
+/* Configures a stereo pair for use with rc_receiveStereo using the
+ * calibration from camera_id_0 and camera_id_1. The ID of the stereo
+ * pair will be camera_id_0 */
+RCTRACKER_API bool rc_configureStereo(rc_Tracker *tracker, rc_Sensor camera_id_0, rc_Sensor camera_id_1);
 
 /**
  Configure or describe an accelerometer. When configuring, extrinsics and intrinsics must be set.
@@ -378,6 +398,8 @@ RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
  @param callback_handle An opaque pointer that will be passed to completion_callback when the frame has been processed and image data is no longer needed. Note: callback_handle must not be null, or completion_callback will not be called.
  */
 RCTRACKER_API bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
+
+RCTRACKER_API bool rc_receiveStereo(rc_Tracker *tracker, rc_Sensor stereo_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride1, int stride2, const void *image1, const void * image2, void(*completion_callback)(void *callback_handle), void *callback_handle);
 
 /*
  @param tracker The active rc_Tracker instance

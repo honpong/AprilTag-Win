@@ -18,6 +18,7 @@ enum packet_type {
     packet_filter_control = 25,
     packet_image_with_depth = 28,
     packet_image_raw = 29,
+    packet_stereo_raw = 40,
 };
 
 typedef struct {
@@ -52,6 +53,14 @@ typedef struct {
     uint16_t format;
     uint8_t data[];
 } packet_image_raw_t;
+
+typedef struct {
+    packet_header_t header;
+    uint64_t exposure_time_us;
+    uint16_t width, height, stride1, stride2;
+    uint16_t format; // enum { Y8, Z16_mm };
+    uint8_t data[]; // image2 starts at data + height*stride1
+} packet_stereo_raw_t;
 
 typedef struct {
     packet_header_t header;
@@ -176,6 +185,7 @@ static void scale_down_inplace_z16_by(uint16_t *image, int final_width, int fina
 
 bool replay::run()
 {
+    bool is_stereo = false;
     typedef std::pair<std::string, int> data_pair;
     std::set<data_pair> unconfigured_data;
 
@@ -223,6 +233,19 @@ bool replay::run()
                                     ip->width, ip->height, ip->stride, ip->data,
                                     [](void *packet) { free(packet); }, phandle.release()))
                         unconfigured_data.insert(data_pair("depth", packet->header.sensor_id));
+                }
+            }   break;
+            case packet_stereo_raw: {
+            if (!is_stereo) {
+                is_stereo = true;
+                rc_configureStereo(tracker, 0, 1);
+            }
+                packet_stereo_raw_t *ip = (packet_stereo_raw_t *)packet;
+
+                if (ip->format == rc_FORMAT_GRAY8) {
+                    rc_receiveStereo(tracker, packet->header.sensor_id, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
+                                     ip->width, ip->height, ip->stride1, ip->stride2, ip->data, (uint8_t *)ip->data + ip->stride1*ip->height,
+                                     [](void *packet) { free(packet); }, phandle.release());
                 }
             }   break;
             case packet_image_with_depth: {

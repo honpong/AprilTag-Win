@@ -1,0 +1,42 @@
+diff --git a/common/drivers/myriad2/socDrivers/leon/rtems/include/OsDrvSvu.h b/common/drivers/myriad2/socDrivers/leon/rtems/include/OsDrvSvu.h
+index 8dc40db..2ee17e3 100644
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/rtems/include/OsDrvSvu.h
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/drivers/myriad2/socDrivers/leon/rtems/include/OsDrvSvu.h
+@@ -175,6 +175,7 @@ int OsDrvSvuStartShave(osDrvSvuHandler_t* handler, u32 entryPoint);
+ ///     OS_MYR_DRV_RESOURCE_BUSY - the shave cannot be accessed because it is used by another thread
+ ///
+ int OsDrvSvuStartShaveCC(osDrvSvuHandler_t* handler, u32 pc, const char *fmt, ...);
++int OsDrvSvuStartShaveCC2(osDrvSvuHandler_t* handler, u32 pc, const char *fmt, va_list a_list);
+ 
+ /// Write the value to a IRF/VRF Registers from a specific Shave
+ /// @param[in] handler - shave handler
+diff --git a/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvSvu.c b/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvSvu.c
+index 231cac4..4d76eeb 100644
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvSvu.c
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvSvu.c
+@@ -551,6 +551,14 @@ static int OsDrvSvuDynStartShave(osDrvSvuHandler_t* handler, u32 Context)
+ int OsDrvSvuStartShaveCC(osDrvSvuHandler_t* handler, u32 entryPoint, const char *fmt, ...)
+ {
+     va_list a_list;
++    va_start(a_list, fmt);
++    OS_MYRIAD_DRIVER_STATUS_CODE res = OsDrvSvuStartShaveCC2(handler, entryPoint, fmt, a_list);
++    va_end(a_list);
++    return res;
++}
++
++int OsDrvSvuStartShaveCC2(osDrvSvuHandler_t* handler, u32 entryPoint, const char *fmt, va_list a_list)
++{
+     OS_MYRIAD_DRIVER_STATUS_CODE res = OS_MYR_DRV_ERROR;
+ 
+     res = OS_DRV_SVU_LOCK(handler->shaveNumber);
+@@ -558,10 +566,7 @@ int OsDrvSvuStartShaveCC(osDrvSvuHandler_t* handler, u32 entryPoint, const char
+     {
+         if (handler->shaveState == OS_DRV_SVU_TAKEN)
+         {
+-            va_start(a_list, fmt);
+             swcSetRegsCC(handler->shaveNumber, fmt, a_list);
+-            va_end(a_list);
+-
+             updateTaskId(handler);
+             handler->shaveState = OS_DRV_SVU_RUNNING;
+             swcShaveStartAsync(handler->shaveNumber, (u32)entryPoint, osDrvSvuIrqHandler);

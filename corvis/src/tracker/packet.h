@@ -8,6 +8,14 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "rc_tracker.h"
+
+#ifdef MYRIAD2
+// lives in target/host common area
+#ifdef USE_TM2_PACKETS
+#include "get_pose.h"
+#endif
+#endif
 
 #ifdef WIN32
 #pragma warning (push)
@@ -47,6 +55,15 @@ enum packet_type {
     packet_core_motion = 27,
     packet_image_with_depth = 28,
     packet_image_raw = 29,
+    packet_stereo_raw = 40,
+    packet_image_stereo = 41,
+    packet_rc_pose = 42,
+    packet_calibration_json = 43,
+#ifdef MYRIAD2
+    packet_pose = 30,
+    packet_command_start = 100,
+    packet_command_stop = 101,
+#endif
 };
 
 typedef struct {
@@ -81,6 +98,19 @@ typedef struct {
     uint16_t format; // enum { Y8, Z16_mm };
     uint8_t data[];
 } packet_image_raw_t;
+
+typedef struct {
+    packet_header_t header;
+    uint64_t exposure_time_us;
+    uint16_t width, height, stride1, stride2;
+    uint16_t format; // enum { Y8, Z16_mm };
+    uint8_t data[]; // image2 starts at data + height*stride1
+} packet_stereo_raw_t;
+
+typedef struct {
+    packet_header_t header;
+    packet_image_raw_t *frames[2];
+} packet_image_stereo_t;
 
 typedef struct {
     packet_header_t header;
@@ -241,6 +271,28 @@ enum packet_plot_type {
     packet_plot_meas_w,
     packet_plot_unknown = 256
 };
+
+#ifdef MYRIAD2
+#ifdef USE_TM2_PACKETS
+typedef struct {
+    packet_header_t header;
+    sixDof_data data;
+} packet_pose_t;
+#endif
+#endif
+
+typedef struct {
+    // pose time is stored in header.time
+    packet_header_t header;
+    rc_Pose pose;
+    rc_PoseVelocity velocity;
+    rc_PoseAcceleration acceleration;
+} packet_rc_pose_t;
+
+typedef struct {
+    packet_header_t header;
+    uint8_t data[];
+} packet_calibration_json_t;
 
 #ifdef WIN32
 #pragma warning (pop)

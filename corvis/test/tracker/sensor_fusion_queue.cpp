@@ -196,6 +196,8 @@ TEST(SensorFusionQueue, FastCatchup)
             case rc_SENSOR_TYPE_GYROSCOPE:
                 ++gyrrcv;
                 break;
+            case rc_SENSOR_TYPE_STEREO:
+                break;
         }
     };
     
@@ -317,6 +319,8 @@ TEST(SensorFusionQueue, Threading)
                 EXPECT_GE(x.time_us, last_gyr_time);
                 last_gyr_time = x.time_us;
                 ++gyrrcv;
+                break;
+            case rc_SENSOR_TYPE_STEREO:
                 break;
         }
     };
@@ -478,6 +482,7 @@ TEST(SensorFusionQueue, SameTime)
             case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
             case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
+            case rc_SENSOR_TYPE_STEREO: break;
         }
     };
     
@@ -517,6 +522,7 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
             case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
             case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
+            case rc_SENSOR_TYPE_STEREO: break;
         }
     };
     
@@ -574,6 +580,7 @@ TEST(SensorFusionQueue, BufferNoDispatch)
             case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
             case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
+            case rc_SENSOR_TYPE_STEREO: break;
         }
     };
     
@@ -617,6 +624,7 @@ TEST(SensorFusionQueue, Buffering)
             case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
             case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
+            case rc_SENSOR_TYPE_STEREO: break;
         }
     };
 

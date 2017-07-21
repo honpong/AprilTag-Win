@@ -6,6 +6,14 @@
 #include "fast_tracker.h"
 #include "transformation.h"
 #include <spdlog/fmt/ostr.h> // must be included to use our operator<<
+#include "Trace.h"
+
+#ifdef MYRIAD2
+    #define SHAVE_PROJECT_MOTION_COVARIANCE
+    #include <OsCommon.h>
+    #include "project_covariance_definitions.h"
+    #include "covariance_projector.h"
+#endif
 
 f_t state_vision_feature::initial_depth_meters;
 f_t state_vision_feature::initial_var;
@@ -595,6 +603,70 @@ void state_vision::cache_jacobians(f_t dt)
 
 }
 
+#ifdef SHAVE_PROJECT_MOTION_COVARIANCE
+__attribute__((section(".cmx_direct.data"))) project_motion_covariance_data data;
+void state_vision::project_motion_covariance_shave(matrix &dst, const matrix &src, f_t dt)
+{
+    data.src_rows = src.rows();
+    data.src_cols = src.cols();
+    data.src_stride = src.get_stride();
+    data.dst_rows = dst.rows();
+    data.dst_cols = dst.cols();
+    data.dst_stride = dst.get_stride();
+
+    data.w.index = w.index;
+    data.dw.index = dw.index;
+    data.ddw.index = ddw.index;
+    data.V.index = V.index;
+    data.a.index = a.index;
+    data.T.index = T.index;
+    data.da.index = da.index;
+    data.Q.index = Q.index;
+
+    data.w.initial_covariance = w.get_initial_covariance();
+    data.dw.initial_covariance = dw.get_initial_covariance();
+    data.ddw.initial_covariance = ddw.get_initial_covariance();
+    data.V.initial_covariance = V.get_initial_covariance();
+    data.a.initial_covariance = a.get_initial_covariance();
+    data.T.initial_covariance = T.get_initial_covariance();
+    data.da.initial_covariance = da.get_initial_covariance();
+    data.Q.initial_covariance = Q.get_initial_covariance();
+
+    data.w.use_single_index = w.single_index();
+    data.dw.use_single_index = dw.single_index();
+    data.ddw.use_single_index = ddw.single_index();
+    data.V.use_single_index = V.single_index();
+    data.a.use_single_index = a.single_index();
+    data.T.use_single_index = T.single_index();
+    data.da.use_single_index = da.single_index();
+    data.Q.use_single_index = Q.single_index();
+
+    data.dQp_s_dW = dQp_s_dW.data();
+    data.dt = dt;
+    int camera_count = 0;
+    for (auto &c : cameras.children){
+        for(auto &g : c->groups.children) {
+            data.tr[camera_count].index = g->Tr.index;
+            data.qr[camera_count].index = g->Qr.index;
+            data.tr[camera_count].initial_covariance = g->Tr.get_initial_covariance();
+            data.qr[camera_count].initial_covariance = g->Qr.get_initial_covariance();
+            data.tr[camera_count].use_single_index = g->Tr.single_index();
+            data.qr[camera_count].use_single_index = g->Qr.single_index();
+            data.dTrp_dQ_s_matrix[camera_count] = g->dTrp_dQ_s.data();
+            data.dQrp_s_dW_matrix[camera_count] = g->dQrp_s_dW.data();
+            data.dTrp_ddT_matrix[camera_count] = g->dTrp_ddT.data();
+            camera_count++;
+        }
+    }
+    data.camera_count = camera_count;
+
+    static covariance_projector projector;
+    projector.project_motion_covariance(dst.Data(), src.Data(), data);
+
+    rtems_cache_invalidate_data_range(dst.Data(), dst.rows() * dst.get_stride() * sizeof(float) );
+}
+#endif
+
 template<int N>
 int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const
 {
@@ -629,7 +701,30 @@ int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t 
 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
+    START_EVENT(EV_PROJECT_MOTION_COVARIANCE, 0);
+#ifdef SHAVE_PROJECT_MOTION_COVARIANCE
+//#define SHAVE_PROJECT_COVARIANCE_TEST
+#ifdef SHAVE_PROJECT_COVARIANCE_TEST
+    matrix dstShave(dst.rows(), dst.cols());
+    project_motion_covariance_shave(dstShave, src, dt);
+#else
+    project_motion_covariance_shave(dst, src, dt);
+    if(0)
+#endif
+    {
+#endif
+
     int i = 0;
     i = project_motion_covariance<4>(dst, src, dt, i);
     i = project_motion_covariance<1>(dst, src, dt, i);
+
+#ifdef SHAVE_PROJECT_MOTION_COVARIANCE
+    }
+#ifdef SHAVE_PROJECT_COVARIANCE_TEST
+    if(dst.identical(dstShave, 0.001)){
+        printf("identical\n");
+    }
+#endif
+#endif
+    END_EVENT(EV_PROJECT_MOTION_COVARIANCE, 0);
 }

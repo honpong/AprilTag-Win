@@ -20,9 +20,19 @@
 #include "filter.h"
 #include <memory>
 #include "fast_tracker.h"
+#include "descriptor.h"
 #ifdef HAVE_IPP
 #include "ipp_tracker.h"
 #endif
+#include "Trace.h"
+
+#ifdef MYRIAD2
+#include "shave_tracker.h"
+#define USE_SHAVE_TRACKER 1
+#define SHAVE_STEREO_MATCHING 1
+#define MAX_KP2 200
+#define MAX_KP1 40
+#endif // MYRIAD2
 
 const static sensor_clock::duration camera_wait_time = std::chrono::milliseconds(500); //time we'll wait for all cameras before attempting to detect features
 const static sensor_clock::duration max_detector_failed_time = std::chrono::milliseconds(500); //time we'll go with no features before dropping to inertial only mode
@@ -86,6 +96,7 @@ static bool filter_mini_process_observation_queue(struct filter * f, observation
 
 bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data)
 {
+    START_EVENT(SF_MINI_ACCEL_MEAS, 0);
     if(data.id >= f->accelerometers.size() || data.id >= f->s.imus.children.size())
         return false;
 
@@ -104,11 +115,13 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
     auto stop = std::chrono::steady_clock::now();
     accelerometer.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    END_EVENT(SF_MINI_ACCEL_MEAS, data.time_us / 1000);
     return ok;
 }
 
 bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data)
 {
+    START_EVENT(SF_MINI_GYRO_MEAS, 0);
     if(data.id >= f->gyroscopes.size() || data.id >= f->s.imus.children.size())
         return false;
 
@@ -129,6 +142,8 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
 
     auto stop = std::chrono::steady_clock::now();
     gyroscope.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    END_EVENT(SF_MINI_GYRO_MEAS, data.time_us / 1000);
+
     return ok;
 }
 
@@ -180,6 +195,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, sensor_acc
 
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 {
+    START_EVENT(SF_ACCEL_MEAS, 0);
     if(data.id >= f->accelerometers.size() || data.id >= f->s.imus.children.size())
         return false;
 
@@ -231,11 +247,13 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 
     auto stop = std::chrono::steady_clock::now();
     accelerometer.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    END_EVENT(SF_ACCEL_MEAS, data.time_us / 1000);
     return true;
 }
 
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
 {
+    START_EVENT(SF_GYRO_MEAS, 0);
     if(data.id >= f->gyroscopes.size() || data.id >= f->s.imus.children.size())
         return false;
 
@@ -278,6 +296,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
 
     auto stop = std::chrono::steady_clock::now();
     gyroscope.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    END_EVENT(SF_GYRO_MEAS, data.time_us / 1000);
     return true;
 }
 
@@ -427,7 +446,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
         {
             state_vision_feature *feat = f->s.add_feature(*i, *g);
 
-            float depth_m = 0;
+            float depth_m = i->depth;
             if(f->has_depth) {
                 if (!aligned_undistorted_depth)
                     aligned_undistorted_depth = filter_aligned_depth_to_camera(*f->recent_depth, *f->depths[f->recent_depth->id], camera, camera_sensor);
@@ -438,7 +457,11 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             {
                 feat->v.set_depth_meters(depth_m);
                 float std_pct = get_stdev_pct_for_depth(depth_m);
-                feat->set_initial_variance(std_pct * std_pct); // assumes log depth
+                if(i->error)
+                    std_pct = i->error;
+                std_pct = std::max<float>(0.02f, std_pct);
+                //fprintf(stderr, "percent %f\n", std_pct);
+                feat->set_initial_variance(state_vision_feature::initial_var/10); // assumes log depth
                 feat->status = feature_normal;
                 feat->depth_measured = true;
             }
@@ -493,7 +516,10 @@ void filter_detect(struct filter *f, const sensor_data &data)
     timage.width_px = image.width;
     timage.height_px = image.height;
     timage.stride_px = image.stride;
+
+    START_EVENT(SF_DETECT, 0);
     std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space);
+    END_EVENT(SF_DETECT, kp.size())
     for(int t = kp.size()-1; t >= 0; --t)
         camera.standby_features.push_front(kp[t]);
     camera.detecting_space = 0;
@@ -511,8 +537,335 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
     return true;
 }
 
+// From http://paulbourke.net/geometry/pointlineplane/lineline.c
+// line 1 is p1 to p2, line 2 is p3 to p4
+static bool l_l_intersect(v3 p1, v3 p2, v3 p3, v3 p4, v3 & pa, v3 & pb)
+{
+    v3 p13,p43,p21;
+    double d1343,d4321,d1321,d4343,d2121;
+    double numer,denom;
+
+    f_t eps = 1e-14;
+
+    p13 = p1 - p3;
+    p43 = p4 - p3;
+    if (fabs(p43[0]) < eps && fabs(p43[1]) < eps && fabs(p43[2]) < eps)
+      return false;
+
+    p21 = p2 - p1;
+    if (fabs(p21[0]) < eps && fabs(p21[1]) < eps && fabs(p21[2]) < eps)
+      return false;
+
+    d1343 = p13.dot(p43); //p13.x * p43.x + p13.y * p43.y + p13.z * p43.z;
+    d4321 = p43.dot(p21); //p43.x * p21.x + p43.y * p21.y + p43.z * p21.z;
+    d1321 = p13.dot(p21); //p13.x * p21.x + p13.y * p21.y + p13.z * p21.z;
+    d4343 = p43.dot(p43); //p43.x * p43.x + p43.y * p43.y + p43.z * p43.z;
+    d2121 = p21.dot(p21); //p21.x * p21.x + p21.y * p21.y + p21.z * p21.z;
+
+    denom = d2121 * d4343 - d4321 * d4321;
+    if (fabs(denom) < eps)
+      return false;
+    numer = d1343 * d4321 - d1321 * d4343;
+
+    float mua = numer / denom;
+    float mub = (d1343 + d4321 * mua) / d4343;
+
+    pa = p1 + mua*p21;
+    pb = p3 + mub*p43;
+
+    return true;
+}
+
+struct kp_pre_data{
+	   v3 p_cal_transformed ;
+	   v3 o_transformed    ;
+	   int sum;
+	   float mean;
+	   const unsigned char *p;
+
+};
+
+// Triangulates a point in the body reference frame from two views
+void preprocess_keypoint_intersect(const state_camera & camera, feature_t f,const m3& Rw,kp_pre_data& pre_data)
+{
+    feature_t f_n = camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature(f));
+    v3 p_calibrated(f_n.x(), f_n.y(), 1);
+
+    pre_data.p_cal_transformed = Rw*p_calibrated + camera.extrinsics.T.v;
+    pre_data.o_transformed     = camera.extrinsics.T.v;
+    pre_data.sum = -1;
+    pre_data.mean = 0;
+    pre_data.p = 0;
+}
+
+
+// Triangulates a point in the body reference frame from two views
+float keypoint_intersect(state_camera & camera1, state_camera & camera2, kp_pre_data& pre_data1, kp_pre_data& pre_data2,const m3& Rw1T, const m3& Rw2T, float & intersection_error_percent)
+{
+     
+    const bool debug_triangulate = false;
+
+    v3 pa, pb;
+    bool success;
+    float depth;    
+
+    // pa is the point on the first line closest to the intersection
+    // pb is the point on the second line closest to the intersection
+    success = l_l_intersect(pre_data1.o_transformed, pre_data1.p_cal_transformed, pre_data2.o_transformed, pre_data2.p_cal_transformed, pa, pb);
+    if(!success) {
+        if(debug_triangulate)
+            fprintf(stderr, "Failed intersect\n");
+        return 0;
+    }
+
+    float error = (pa - pb).norm();
+    v3 cam1_intersect = Rw1T * (pa - camera1.extrinsics.T.v);
+    v3 cam2_intersect = Rw2T * (pb - camera2.extrinsics.T.v);
+    if(debug_triangulate)
+        fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
+
+    if(cam1_intersect[2] < 0 || cam2_intersect[2] < 0) {
+        if(debug_triangulate)
+           fprintf(stderr, "Lines intersected at a negative camera depth, failing\n");
+        return 0;
+    }
+
+    // TODO: set minz and maxz or at least bound error when close to /
+    // far away from camera
+    intersection_error_percent = error/cam1_intersect[2];
+
+    if(error/cam1_intersect[2] > .05) {
+        if(debug_triangulate)
+            fprintf(stderr, "Error too large, failing\n");
+        return 0;
+    }
+  
+    depth = cam1_intersect[2];
+     
+    //fprintf(stderr, "Success: %f depth\n", depth);
+    return depth;
+}
+
+
+
+//NCC: use with threshold of -0.50 - -0.70(we negate at the bottom to get error-like value
+//NCC doesn't seem to benefit from double-weighting the center
+static float inline ncc_score(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float min_score, float mean1,kp_pre_data& pre_data)
+{
+    int patch_win_half_width = half_patch_width;
+    int window = patch_win_half_width;
+    int patch_stride = full_patch_width;
+    int full = patch_win_half_width * 2 + 1;
+    int area = full * full + 3 * 3;
+    int xsize = full_patch_width;
+    int ysize = full_patch_width;
+
+    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return -1;
+
+    const unsigned char *p1 = im1 + patch_stride * (y1 - window) + x1;
+    const unsigned char *p2 = im2 + patch_stride * (y2 - window) + x2;
+    float mean2=0;
+    if (pre_data.sum == -1  ) // calc pre_data for later use
+    {
+
+        int  sum2 = 0;
+        for(int dy = -window; dy <= window; ++dy, p2+=patch_stride) {
+            for(int dx = -window; dx <= window; ++dx) {
+                sum2 += p2[dx];
+            }
+        }
+
+        p2 = im2 + patch_stride * (y2 - 1) + x2;
+        for (int dy = -1; dy <= 1; ++dy, p2 += patch_stride) {
+            for (int dx = -1; dx <= 1; ++dx) {
+                 sum2 += p2[dx];
+            }
+        }    
+
+        mean2 = sum2 / (float)area;
+        p2 = im2 + patch_stride * (y2 - window) + x2;
+        pre_data.sum = sum2;
+        pre_data.mean = mean2;
+        pre_data.p = p2;
+    }
+
+    
+    
+    p2 = pre_data.p;
+    mean2 = pre_data.mean;
+
+    float top = 0, bottom1 = 0, bottom2 = 0;
+    for(int dy = -window; dy <= window; ++dy, p1+=patch_stride, p2+=patch_stride) {
+        for(int dx = -window; dx <= window; ++dx) {
+            float t1 = (p1[dx] - mean1);
+            float t2 = (p2[dx] - mean2);
+            top += t1 * t2;
+            bottom1 += (t1 * t1);
+            bottom2 += (t2 * t2);
+            if((dx >= -1) && (dx <= 1) && (dy >= -1) && (dy <= 1))
+            {
+                top += t1 * t2;
+                bottom1 += (t1 * t1);
+                bottom2 += (t2 * t2);
+            }
+        }
+    }
+    // constant patches can't be matched
+    if(bottom1 < 1e-15 || bottom2 < 1e-15 || top < 0.f)
+      return min_score;
+
+    return top*top/(bottom1 * bottom2);
+}
+
+static float inline compute_mean(const tracker::feature_track & t)
+{
+    fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(t.feature.get());
+    uint8_t * patch = f.descriptor.descriptor.data();
+    int patch_stride = full_patch_width;
+    const int area = full_patch_width*full_patch_width + 3*3;
+    int sum1 = 0;
+    for(int i = 0; i < full_patch_width*full_patch_width; i++)
+        sum1 += patch[i];
+
+    // center weighting
+    uint8_t * p1 = (uint8_t*)patch + patch_stride * (half_patch_width - 1) + half_patch_width;
+    for (int dy = -1; dy <= 1; ++dy, p1 += patch_stride) {
+        for (int dx = -1; dx <= 1; ++dx) {
+            sum1 += p1[dx];
+        }
+    }
+    float mean1 = sum1 / (float)area;
+
+    return mean1;
+}
+
+float keypoint_compare(const tracker::feature_track & t1, const tracker::feature_track & t2, kp_pre_data& pre_data)
+{
+    float mean1 = compute_mean(t1);
+    float min_score = 0;
+    fast_tracker::fast_feature<DESCRIPTOR> &f1 = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(t1.feature.get());
+    uint8_t * p1 = f1.descriptor.descriptor.data();
+    fast_tracker::fast_feature<DESCRIPTOR> &f2 = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(t2.feature.get());
+    uint8_t * p2 = f2.descriptor.descriptor.data();
+    return ncc_score(p1, half_patch_width, half_patch_width, p2, half_patch_width, half_patch_width, min_score, mean1, pre_data);
+}
+
+#include <future>
+bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data)
+{
+
+    if(f->s.cameras.children[camera1_id]->detection_future.valid()) {
+        START_EVENT(EV_SF_IMG_STEREO_MEAS, 0)
+        state_camera &camera_state1 = *f->s.cameras.children[camera1_id];
+        state_camera &camera_state2 = *f->s.cameras.children[camera2_id];
+        std::list<tracker::feature_track> & keypoints = f->s.cameras.children[camera1_id]->standby_features;
+
+        const std::vector<tracker::feature_track *> existing_features;
+
+        tracker::image timage;
+        timage.image = (uint8_t *)data.stereo.image2;
+        timage.width_px = data.stereo.width;
+        timage.height_px = data.stereo.height;
+        timage.stride_px = data.stereo.stride2;
+
+        START_EVENT(EV_SF_IMG2_STEREO_DETECT, 1)
+        std::vector<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->feature_tracker->detect(timage, existing_features, 200);
+        const fast_tracker * tracker1 = (fast_tracker *)f->s.cameras.children[camera1_id]->feature_tracker.get();
+        const fast_tracker * tracker2 = (fast_tracker *)f->s.cameras.children[camera2_id]->feature_tracker.get();
+        END_EVENT(EV_SF_IMG2_STEREO_DETECT, 1)
+
+        //fprintf(stderr, "%lu detected in im2\n", kp2.size());
+        START_EVENT(EV_SF_MATCH_FEATURES, 2)
+// START PUSH 2 SHAVE
+#ifdef SHAVE_STEREO_MATCHING
+        tracker::feature_track * f1_group[MAX_KP1];
+        const tracker::feature_track * f2_group[MAX_KP2];
+        int i = 0;
+        for(auto & k1 : keypoints)
+            f1_group[i++] = &k1;
+
+        i = 0;
+        for(auto & k2 : kp2)
+            f2_group[i++] = &k2;
+
+        shave_tracker shave_stereo_o;
+        shave_stereo_o.stereo_matching_full_shave(f1_group, keypoints.size(), f2_group, kp2.size(), camera_state1, camera_state2);
+#else
+        // preprocess data for kp1
+        m3 Rw1 = camera_state1.extrinsics.Q.v.toRotationMatrix();
+        m3 Rw1T = Rw1.transpose();
+        std::vector<kp_pre_data> prkpv1;
+        for(tracker::feature_track & k1 : keypoints)
+        {
+             kp_pre_data prkp;
+             feature_t ff1{k1.x, k1.y};
+             preprocess_keypoint_intersect(camera_state1, ff1, Rw1, prkp);
+             prkpv1.push_back(prkp);
+        }
+        // preprocess data for kp2
+        m3 Rw2 = camera_state2.extrinsics.Q.v.toRotationMatrix();
+        m3 Rw2T = Rw1.transpose();
+        std::vector<kp_pre_data> prkpv2;
+        for(auto & k2 : kp2)
+        {
+             kp_pre_data prkp;
+             feature_t ff2{k2.x, k2.y};
+             preprocess_keypoint_intersect(camera_state2, ff2,Rw2, prkp);
+             prkpv2.push_back(prkp);
+        }
+        int j=0;
+        for(tracker::feature_track & k1 : keypoints) {
+            float second_best_score = DESCRIPTOR::good_score;
+            float best_score = DESCRIPTOR::good_score;
+            float best_depth = 0;
+            float best_error = 0;
+            float error;
+            feature_t best_f2;
+            feature_t ff1{k1.x, k1.y};
+            // try to find a match in im2
+            int i= 0;
+            for(auto & k2 : kp2 ){
+                feature_t ff2{k2.x, k2.y};
+                float depth = keypoint_intersect(camera_state1, camera_state2, prkpv1[j],prkpv2[i],Rw1T,Rw2T, error);
+                if(depth && error < 0.02) {
+                    float score = keypoint_compare(k1, k2, prkpv2[i]);
+                    if(score > best_score) {
+                        second_best_score = best_score;
+                        best_score = score;
+                        best_depth = depth;
+                        best_error = error;
+                        best_f2 = ff2;
+                    }
+                }
+                i++;
+            }
+            //float ratio = sqrt(second_best_score)/sqrt(best_score);
+            // If we have two candidates, just give up
+            if(best_depth && second_best_score == DESCRIPTOR::good_score) {
+                //fprintf(stderr, "good depth for kp at %f %f with %f %f score %f no_second_best %d ratio %f with error %f\n", k1.x, k1.y, best_f2.x(), best_f2.y(), best_score, second_best_score==DESCRIPTOR::good_score, ratio, best_error);
+                k1.depth = best_depth;
+                k1.error = best_error;
+            }
+            j++;
+        }
+
+        // Sort features with depth first
+        keypoints.sort([](const tracker::feature_track & f1, const tracker::feature_track &f2) {
+                return f1.depth > f2.depth;
+            });
+#endif //END PUSH 2 ASHAVE
+        END_EVENT(EV_SF_MATCH_FEATURES, 2)
+
+        f->s.cameras.children[camera1_id]->detection_future = std::async(std::launch::deferred, []() {});
+        END_EVENT(EV_SF_IMG_STEREO_MEAS, 0)
+    }
+
+    return true;
+}
+
 bool filter_image_measurement(struct filter *f, const sensor_data & data)
 {
+    START_EVENT(SF_IMAGE_MEAS, 0);
     if(data.id >= f->cameras.size() || data.id >= f->s.cameras.children.size())
         return false;
 
@@ -656,6 +1009,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(space >= f->min_group_add && camera_state.standby_features.size() < f->max_group_add) {
         camera_state.detecting_space = f->max_group_add;
     }
+    END_EVENT(SF_IMAGE_MEAS, data.time_us / 1000);
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
@@ -747,12 +1101,20 @@ void filter_initialize(struct filter *f)
         camera_state.intrinsics.image_width  = camera_sensor.intrinsics.width_px;
         camera_state.intrinsics.image_height = camera_sensor.intrinsics.height_px;
 
+#ifdef MYRIAD2
+#if USE_SHAVE_TRACKER == 1
+        camera_state.feature_tracker = std::make_unique<shave_tracker>();
+#else
+        camera_state.feature_tracker = std::make_unique<fast_tracker>();
+#endif
+#else // MYRIAD2
         if (1)
             camera_state.feature_tracker = std::make_unique<fast_tracker>();
 #ifdef HAVE_IPP
         else
             camera_state.feature_tracker = std::make_unique<ipp_tracker>();
 #endif
+#endif // MYRIAD2
     }
 
     for (size_t i=f->s.imus.children.size(); i<f->gyroscopes.size(); i++)

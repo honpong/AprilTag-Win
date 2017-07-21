@@ -9,6 +9,9 @@
 #include <future>
 #include "sensor_fusion.h"
 #include "filter.h"
+#include "Trace.h"
+
+#define STEREO_TIME_THRESHOLD 0.023
 
 transformation sensor_fusion::get_transformation() const
 {
@@ -50,6 +53,31 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 {
 }
 
+void sensor_fusion::fast_path_catchup()
+{
+    auto start = std::chrono::steady_clock::now();
+    sfm.catchup->state.copy_from(sfm.s);
+    std::unique_lock<std::recursive_mutex> mini_lock(mini_mutex);
+    // hold the mini_mutex while we manipulate the mini
+    // state *and* while we manipulate the queue during
+    // catchup so that dispatch_buffered is sure to notice
+    // any new data we get while we are doing the filter
+    // updates on the catchup state
+    queue.dispatch_buffered([this,&mini_lock](sensor_data &data) {
+            mini_lock.unlock();
+            switch(data.type) {
+                case rc_SENSOR_TYPE_ACCELEROMETER: filter_mini_accelerometer_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
+                case rc_SENSOR_TYPE_GYROSCOPE:     filter_mini_gyroscope_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
+                default: break;
+            }
+            mini_lock.lock();
+        });
+    auto stop = std::chrono::steady_clock::now();
+    queue.catchup_stats.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    sfm.catchup->valid = true;
+    std::swap(sfm.mini, sfm.catchup);
+}
+
 void sensor_fusion::queue_receive_data(sensor_data &&data)
 {
     switch(data.type) {
@@ -61,29 +89,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
                 docallback = sfm.s.orientation_initialized;
 
-            if (isProcessingVideo && fast_path && !queue.data_in_queue(data.type, data.id)) {
-                auto start = std::chrono::steady_clock::now();
-                sfm.catchup->state.copy_from(sfm.s);
-                std::unique_lock<std::recursive_mutex> mini_lock(mini_mutex);
-                // hold the mini_mutex while we manipulate the mini
-                // state *and* while we manipulate the queue during
-                // catchup so that dispatch_buffered is sure to notice
-                // any new data we get while we are doing the filter
-                // updates on the catchup state
-                queue.dispatch_buffered([this,&mini_lock](sensor_data &data) {
-                        mini_lock.unlock();
-                        switch(data.type) {
-                        case rc_SENSOR_TYPE_ACCELEROMETER: filter_mini_accelerometer_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
-                        case rc_SENSOR_TYPE_GYROSCOPE:     filter_mini_gyroscope_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
-                        default: break;
-                        }
-                        mini_lock.lock();
-                    });
-                auto stop = std::chrono::steady_clock::now();
-                queue.catchup_stats.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-                sfm.catchup->valid = true;
-                std::swap(sfm.mini, sfm.catchup);
-            }
+            if (isProcessingVideo && fast_path && !queue.data_in_queue(data.type, data.id))
+                fast_path_catchup();
 
             update_status();
             if(docallback)
@@ -92,12 +99,56 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             if (data.id < sfm.s.cameras.children.size())
                 if(sfm.s.cameras.children[data.id]->detecting_space)
                     sfm.s.cameras.children[data.id]->detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
-                        [space=sfm.s.cameras.children[data.id]->detecting_space, this] (struct filter *f, const sensor_data &data) {
+                        [this] (struct filter *f, const sensor_data &&data) {
                             auto start = std::chrono::steady_clock::now();
                             filter_detect(&sfm, std::move(data));
                             auto stop = std::chrono::steady_clock::now();
                             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
                         }, &sfm, std::move(data));
+        } break;
+
+        case rc_SENSOR_TYPE_STEREO: {
+            bool docallback = true;
+            if(isProcessingVideo) {
+                START_EVENT(EV_FILTER_IMG_STEREO, 0);
+                std::unique_ptr<void, void(*)(void *)> im_copy(const_cast<void*>(data.stereo.image1), [](void *){});
+                sensor_data image_data(data.time_us, rc_SENSOR_TYPE_IMAGE, 0, data.stereo.shutter_time_us,
+                       data.stereo.width, data.stereo.height, data.stereo.stride1, data.stereo.format, data.stereo.image1, std::move(im_copy));
+                docallback = filter_image_measurement(&sfm, image_data);
+
+                if (fast_path && !queue.data_in_queue(data.type, data.id))
+                    fast_path_catchup();
+
+                update_status();
+                if(docallback)
+                    update_data(&image_data); // TODO: visualize stereo data directly so we don't have a data callback here
+
+                if(sfm.s.cameras.children[0]->detecting_space) {
+                    sfm.s.cameras.children[0]->detection_future = std::async(threaded ? std::launch::deferred : std::launch::deferred,
+                        [this] (struct filter *f, const sensor_data &&data) {
+                            START_EVENT(EV_DETECTING_GROUP_STEREO, 0);
+                            auto start = std::chrono::steady_clock::now();
+                            filter_detect(&sfm, std::move(data));
+                            auto stop = std::chrono::steady_clock::now();
+                            queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+                            END_EVENT(EV_DETECTING_GROUP_STEREO, 0);
+                        }, &sfm, std::move(image_data));
+                    // since image_data is a wrapper type here that
+                    // does't have a copy, we need to be sure we are
+                    // finished using it before the end of this case
+                    // statement
+                    sfm.s.cameras.children[0]->detection_future.wait();
+                    filter_stereo_initialize(&sfm, 0, 1, data);
+                }
+
+                update_status();
+                if(docallback)
+                    update_data(&data);
+                END_EVENT(EV_FILTER_IMG_STEREO, 0);
+            }
+            else
+                //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
+                docallback = sfm.s.orientation_initialized;
         } break;
 
         case rc_SENSOR_TYPE_DEPTH: {

@@ -199,6 +199,7 @@ void replay::start(string map_filename)
     length = 0;
     packets_dispatched = 0;
     bytes_dispatched = 0;
+    bool is_stereo = false;
 
     packet_header_t header;
     file.read((char *)&header, 16);
@@ -343,6 +344,25 @@ void replay::start(string map_filename)
                     is_stepping = false;
                     break;
 
+                }
+                case packet_stereo_raw:
+                {
+
+                    if (!is_stereo) {
+                        is_stereo = true;
+                        rc_configureStereo(tracker, 0, 1);
+                    }
+                    packet_stereo_raw_t *ip = (packet_stereo_raw_t *)packet;
+
+                    if (ip->format == rc_FORMAT_GRAY8) {
+                        rc_receiveStereo(tracker, packet->header.sensor_id, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
+                                         ip->width, ip->height, ip->stride1, ip->stride2, ip->data, (uint8_t *)ip->data + ip->stride1*ip->height,
+                                         [](void *packet) { free(packet); }, phandle.release());
+                    }
+
+                    last_image += image_interval;
+                    is_stepping = false;
+                    break;
                 }
                 case packet_accelerometer:
                 {

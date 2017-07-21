@@ -1,0 +1,62 @@
+/*  This is a Default Linker script
+ *  Should be used as an included linker script in top level scripts
+ *
+ *  Addresses defined in common/drivers/myriad2/system/asm/memmap.S
+ */
+
+MEMORY
+{
+  SHV0_CODE (wx)  : ORIGIN = 0x70000000 + 0 * 128K,       LENGTH = 28K
+  SHV0_DATA (w)   : ORIGIN = 0x70000000 + 0 * 128K + 28K, LENGTH = 128K - 28K
+
+  SHV1_CODE (wx)  : ORIGIN = 0x70000000 + 1 * 128K,       LENGTH = 28K
+  SHV1_DATA (w)   : ORIGIN = 0x70000000 + 1 * 128K + 28K, LENGTH = 128K - 28K
+
+  SHV2_CODE (wx)  : ORIGIN = 0x70000000 + 2 * 128K,       LENGTH = 28K
+  SHV2_DATA (w)   : ORIGIN = 0x70000000 + 2 * 128K + 28K, LENGTH = 128K - 28K
+
+  SHV3_CODE (wx)  : ORIGIN = 0x70000000 + 3 * 128K,       LENGTH = 28K
+  SHV3_DATA (w)   : ORIGIN = 0x70000000 + 3 * 128K + 28K, LENGTH = 128K - 28K
+
+  SHV4_CODE (wx)  : ORIGIN = 0x70000000 + 4 * 128K,       LENGTH = 28K
+  SHV4_DATA (w)   : ORIGIN = 0x70000000 + 4 * 128K + 28K, LENGTH = 128K - 28K
+
+  SHV5_CODE (wx)  : ORIGIN = 0x70000000 + 5 * 128K,       LENGTH = 28K
+  SHV5_DATA (w)   : ORIGIN = 0x70000000 + 5 * 128K + 28K, LENGTH = 128K - 28K
+
+  SHV6_CODE (wx)  : ORIGIN = 0x70000000 + 6 * 128K,       LENGTH = 28K
+  SHV6_DATA (w)   : ORIGIN = 0x70000000 + 6 * 128K + 28K, LENGTH = 128K - 28K
+
+  SHV7_CODE (wx)  : ORIGIN = 0x70000000 + 7 * 128K,       LENGTH = 64K
+  SHV7_DATA (w)   : ORIGIN = 0x70000000 + 7 * 128K + 64K, LENGTH = 64K
+
+  SHV8_CODE (wx)  : ORIGIN = 0x70000000 + 8 * 128K,       LENGTH = 64K
+  SHV8_DATA (w)   : ORIGIN = 0x70000000 + 8 * 128K + 64K, LENGTH = 64K
+
+  SHV9_CODE (wx)  : ORIGIN = 0x70000000 + 9 * 128K,       LENGTH = 64K
+  SHV9_DATA (w)   : ORIGIN = 0x70000000 + 9 * 128K + 64K, LENGTH = 64K
+
+  SHV10_CODE (wx) : ORIGIN = 0x70000000 + 10 * 128K,       LENGTH = 64K
+  SHV10_DATA (w)  : ORIGIN = 0x70000000 + 10 * 128K + 64K, LENGTH = 64K
+
+  SHV11_CODE (wx) : ORIGIN = 0x70000000 + 11 * 128K,       LENGTH = 64K
+  SHV11_DATA (w)  : ORIGIN = 0x70000000 + 11 * 128K + 64K, LENGTH = 64K
+
+  /* The CMX_DMA section must be between the following addreses
+   *  0x78000000 + 12 * 128K
+   *      and
+   *  0x78000000 + 13 * 128K  */
+  CMX_DMA_DESCRIPTORS (wx) : ORIGIN = 0x78000000 + 12 * 128K , LENGTH = 5K
+
+  CMX_OTHER (wx) : ORIGIN = 0x70000000 + 12*128K + 5K, LENGTH = 128K - 5K + 128K +128K
+
+  LRT (wx) : ORIGIN = 0x80000000 + 112M, LENGTH = 8M
+
+  DDR_DATA (wx) : ORIGIN = 0x80000000, LENGTH = 112M
+
+  LOS (wx) : ORIGIN = 0x80000000 + 120M , LENGTH = 8M
+}
+
+INCLUDE myriad2_leon_default_elf.ldscript
+INCLUDE myriad2_shave_slices.ldscript
+INCLUDE myriad2_default_general_purpose_sections.ldscript

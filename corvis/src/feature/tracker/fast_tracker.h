@@ -6,6 +6,7 @@
 
 class fast_tracker : public tracker
 {
+public:
     template<int border_size>
     bool is_trackable(int x, int y, int width, int height)
     {
@@ -25,8 +26,9 @@ class fast_tracker : public tracker
     };
 
 
-private:
     typedef struct { float x, y, score, reserved; } xy;
+
+private:
     static bool xy_comp(const xy &first, const xy &second) { return first.score > second.score; }
     int pixel[16];
     int xsize, ysize, stride, patch_stride, patch_win_half_width;

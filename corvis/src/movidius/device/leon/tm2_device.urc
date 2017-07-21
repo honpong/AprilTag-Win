@@ -1,0 +1,95 @@
+USB-resource-file 3.00 =
+	{
+	Device 	{
+		Class		0x00	# Device: use class information in the
+		SubClass	0x00	#	  interface descriptors.
+		Protocol	0x00	#
+
+		Vendor 		0x040E	%tag% S_VENDOR_ID
+		Product-ID 	0xF63B 	%tag% S_PRODUCT
+
+		Device-Version 	1.0
+		serial-number S_SERIALNUMBER
+		} %no external name% ;
+
+	#########################################
+	#### here's the first configuration. ####
+	#########################################
+
+	Configuration 1
+		{
+		# %tag% S_CONFIG_ID		% name of this configuration %
+		%Bus-Powered% Self-Powered	%the flags%
+		Power 5 mA
+		% private descriptors would go here %
+
+		#########################################
+		#	Vendor specific interface	#
+		#########################################
+		interface 0
+			{
+			alternate-setting 0
+				class	 0xFF	# vendor specific class
+				subclass 0x00	#
+				protocol 0x00	#
+				name S_BULKDATA	# string
+				endpoints
+					bulk out
+					bulk in
+					bulk out
+					bulk in
+					interrupt out packet-size (speed == full ? 64 : 1024) polling-interval (speed == full ? 1 : 1)
+					interrupt in packet-size (speed == full ? 64 : 1024) polling-interval (speed == full ? 1 : 1)
+					
+					;
+			}
+
+		} %end of configuration% ;
+
+	strings
+		{
+		properties external read-only S_SERIALNUMBER;
+
+		default, language "English (USA)"
+			{
+			S_VENDOR_ID = "MCCI Corporation";
+			S_PRODUCT = "VSC Loopback Device";
+			S_SERIALNUMBER = "DUMMY";
+
+			S_BULKDATA = "Bulk Data";
+			}
+		} %strings% ;
+	} %no name% ;
+
+#### the stuff we need to generate the external string info ####
+application
+        {
+	structure
+		{
+		type name "UDEVICE_VSCAPP";
+		};
+	initialization
+		{
+		function name "usbrc_UdeviceVscApp_Init";
+		file name "tm2_device.c";
+		};
+	header-file
+		{
+		file name "tm2_device.h";
+		with string ids;
+		};
+        descriptor table
+                {
+		internal names static;
+                functions
+                       {
+                       get-descriptor "UsbPumpFilter_MultiConfigModalDescriptors";
+                       };
+               };
+	strings
+		{
+		prefix "VSCAPP";
+		};
+        };
+
+% end of file %

@@ -197,6 +197,12 @@ bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat
     return true;
 }
 
+bool rc_configureStereo(rc_Tracker *tracker, rc_Sensor camera_id_0, rc_Sensor camera_id_1)
+{
+    tracker->queue.require_sensor(rc_SENSOR_TYPE_STEREO, camera_id_0, std::chrono::milliseconds(25));
+    return true;
+}
+
 bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_AccelerometerIntrinsics *intrinsics)
 {
     if(trace)
@@ -468,6 +474,23 @@ void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, const void *bu
 {
     if(trace) trace_log->info("rc_saveMap");
     tracker->save_map(write, handle);
+}
+
+bool rc_receiveStereo(rc_Tracker *tracker, rc_Sensor stereo_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us,
+                     int width, int height, int stride1, int stride2, const void *image1, const void * image2,
+                     void(*completion_callback)(void *callback_handle), void *callback_handle)
+{
+    std::unique_ptr<void, void(*)(void *)> stereo_handle(callback_handle, completion_callback);
+
+    sensor_data data(time_us, rc_SENSOR_TYPE_STEREO, stereo_id,
+            shutter_time_us, width, height, stride1, stride2, rc_FORMAT_GRAY8, image1, image2, std::move(stereo_handle));
+
+    if(tracker->output.started())
+        tracker->output.push(data.make_copy());
+    if (tracker->started())
+        tracker->receive_data(std::move(data));
+
+    return true;
 }
 
 bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us,

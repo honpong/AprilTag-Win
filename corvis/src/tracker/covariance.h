@@ -11,7 +11,11 @@
 
 #include "matrix.h"
 
+#ifdef MYRIAD2
+#define MAXSTATESIZE 96
+#else
 #define MAXSTATESIZE 114
+#endif
 #define MAXSTATESIZE_PADDED ((MAXSTATESIZE + 7) & ~7)
 
 #include <remapper.h>

@@ -1,0 +1,12 @@
+diff -ru mdk_release_17.04.5_general_purpose/mdk/common/generic.mk mdk_release_17.04.5_general_purpose_patched/mdk/common/generic.mk
+--- mdk_release_17.04.5_general_purpose/mdk/common/generic.mk	2017-04-14 07:52:32.000000000 +0100
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/generic.mk	2017-05-10 18:48:14.812000000 +0100
+@@ -471,7 +471,7 @@
+ # Now we have to provide crti, crtbegin, crtn and crtend for RTEMS 4.10.99 MV_RTEMS_PROLOGUE and MV_RTEMS_EPILOGUE
+ # As both Leons may have different compiling options they must use different objects
+ $(LEON_RT_LIB_NAME).mvlib : $(LEON_RT_APP_OBJS) $(LEON_SHARED_OBJECTS_REQUIRED_LRT) $(ALL_SHAVE_APPS) $(DefaultSparcRTEMSLibsRT)
+-	$(ECHO) $(LD) $(LD_ENDIAN_OPT) $(LRT_PROJECT_LIBS) $(patsubst %,-L %,$(DirSparcDefaultLibs)) -Ur $(MV_RTEMS_PROLOGUE_LRT) $(LEON_RT_APP_OBJS) $(ALL_SHAVE_APPS) $(LEON_SHARED_OBJECTS_REQUIRED_LRT) --start-group $(DefaultSparcRTEMSLibsRT) $(MV_RTEMS_EPILOGUE_LRT) --end-group $(DefaultSparcGccLibs) -o $(call RESOLVE_TARGET_PATH,$@)
++	$(ECHO) $(LD) $(LD_ENDIAN_OPT) $(LRT_PROJECT_LIBS) $(patsubst %,-L %,$(DirSparcDefaultLibs)) -Ur $(MV_RTEMS_PROLOGUE_LRT) $(LEON_RT_APP_OBJS) $(LRT_PROJECT_LIBS) $(ALL_SHAVE_APPS) $(LEON_SHARED_OBJECTS_REQUIRED_LRT) --start-group $(DefaultSparcRTEMSLibsRT) $(MV_RTEMS_EPILOGUE_LRT) --end-group $(DefaultSparcGccLibs) -o $(call RESOLVE_TARGET_PATH,$@)
+ 
+ $(DirAppObjBase)%_lrt.o : %.c $(LEON_HEADERS_LRT) Makefile
+ 	$(call PRINT_USING_CCACHE)

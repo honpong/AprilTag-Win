@@ -99,6 +99,11 @@ void capture::write(std::unique_ptr<sensor_data> data)
         case rc_SENSOR_TYPE_GYROSCOPE:
             write_gyroscope_data(data->id, data->time_us, data->angular_velocity_rad__s.v);
             break;
+
+        case rc_SENSOR_TYPE_STEREO:
+            //TODO support stereo capture
+            fprintf(stderr, "Stereo capture not yet supported\n");
+            break;
     }
 }
 

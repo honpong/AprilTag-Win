@@ -9,6 +9,7 @@
 #include "sensor_fusion_queue.h"
 #include <cassert>
 #include <memory>
+#include "Trace.h"
 
 template <typename Stream, int size>
 inline Stream &operator <<(Stream &s, const sorted_ring_buffer<sensor_data, size> &q) {
@@ -94,6 +95,7 @@ std::string id_string(uint64_t global_id)
     switch(type) {
         case rc_SENSOR_TYPE_IMAGE: type_string = "Camera"; break;
         case rc_SENSOR_TYPE_DEPTH: type_string = "Depth"; break;
+        case rc_SENSOR_TYPE_STEREO: type_string = "Stereo"; break;
         case rc_SENSOR_TYPE_ACCELEROMETER: type_string = "Accel"; break;
         case rc_SENSOR_TYPE_GYROSCOPE: type_string = "Gyro"; break;
     }
@@ -258,14 +260,17 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
     s.receive(newest_received, x.timestamp);
 
     if (x.timestamp < last_dispatched) {
+        TRACE_EVENT(SF_DROP_LATE, 0);
         s.drop_late(newest_received);
         return;
     }
     if (x.timestamp < s.last_in) {
+        TRACE_EVENT(SF_DROP_LATE, 1);
         s.drop_out_of_order();
         return;
     }
     if (queue.full()) {
+        TRACE_EVENT(SF_DROP_LATE, 2);
         s.drop_full();
         return;
     }
@@ -350,6 +355,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &control_lock, boo
     if(!force && !ok_to_dispatch()) return false;
 
     sensor_data data = pop_queue();
+    TRACE_EVENT(SF_POP_QUEUE, data.time_us / 1000);
     
     data_lock.unlock();
 

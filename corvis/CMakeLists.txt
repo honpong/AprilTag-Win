@@ -136,6 +136,8 @@ endif()
 
 add_subdirectory(src/rc_replay)
 
+add_subdirectory(src/compare_poses)
+
 include(TargetLinkLibrariesCopied RESULT_VARIABLE TARGET_LINK_LIBRARIES_COPIED)
 if(ENABLE_SOURCES)
 install(FILES ${TARGET_LINK_LIBRARIES_COPIED} DESTINATION lib/cmake COMPONENT example-sources)
@@ -148,6 +150,8 @@ install(FILES
   COMPONENT example-sources
 )
 endif()
+
+add_subdirectory(src/movidius/host)
 
 add_executable(alloy_merge src/tools/alloy_merge.cpp)
 set_property(TARGET alloy_merge PROPERTY CXX_STANDARD 14)

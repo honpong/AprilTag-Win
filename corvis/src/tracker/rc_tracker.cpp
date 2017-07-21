@@ -98,7 +98,7 @@ struct rc_Tracker: public sensor_fusion
         rc_TrackerConfidence confidence = rc_E_CONFIDENCE_NONE;
         status() {}
         status(rc_Tracker *tracker) : run_state(rc_getState(tracker)), error(rc_getError(tracker)), confidence(rc_getConfidence(tracker)) {}
-        bool operator!=(const struct status &o) { return run_state != o.run_state && error != o.error && confidence != o.confidence; }
+        bool operator!=(const struct status &o) { return run_state != o.run_state || error != o.error || confidence != o.confidence; }
     } last;
 };
 

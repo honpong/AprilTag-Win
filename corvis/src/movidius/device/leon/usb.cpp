@@ -51,6 +51,11 @@ static USBPUMP_APPLICATION_RTEMS_CONFIGURATION sg_DataPump_AppConfig =
 bool      isReplayRunning = false;
 pthread_t thReplay        = {0};
 
+void status_callback(void * handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence)
+{
+    printf("Status change: state %d error %d confidence %d\n", state, error, confidence);
+}
+
 void data_callback(void * handle, rc_Tracker * tracker, const rc_Data * data)
 {
     UNUSED(handle);
@@ -87,6 +92,7 @@ void * fnReplay(void * arg)
     tracker_instance = rc_create();
     sfm              = &((sensor_fusion *)tracker_instance)->sfm;
     rc_setDataCallback(tracker_instance, data_callback, tracker_instance);
+    rc_setStatusCallback(tracker_instance, status_callback, tracker_instance);
 
     uint16_t replay_params = 0;
     uint64_t lastTimestamp = 0;

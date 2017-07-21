@@ -108,7 +108,6 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
         } break;
 
         case rc_SENSOR_TYPE_STEREO: {
-            auto start = std::chrono::steady_clock::now();
             bool docallback = true;
             if(isProcessingVideo) {
                 START_EVENT(EV_FILTER_IMG_STEREO, 0);
@@ -139,8 +138,6 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                     // finished using it before the end of this case
                     // statement
                     sfm.s.cameras.children[0]->detection_future.wait();
-                    auto finished_detect = std::chrono::steady_clock::now();
-                    std::chrono::duration<double> diff = finished_detect-start;
                     filter_stereo_initialize(&sfm, 0, 1, data);
                 }
 

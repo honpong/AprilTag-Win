@@ -144,7 +144,6 @@ private:
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning;
     bool threaded;
     bool fast_path = false;
-    int false_stereo_counter = 0;
 
     void flush_and_reset();
     void fast_path_catchup();

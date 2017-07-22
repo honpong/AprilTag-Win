@@ -201,7 +201,7 @@ int main(int argc, char ** argv)
             float rate_mb__sec =
                     total_bytes * 1.f /
                     micros.count();  // bytes / microsecond = megabytes / sec
-            printf("sent %" PRIu64 " packets with %lu bytes in %.2f MB/sec\n",
+            printf("sent %" PRIu64 " packets with %" PRIu64 " bytes in %.2f MB/sec\n",
                    packets, total_bytes, rate_mb__sec);
             printf("Last timestamp sent is: %.9f\n", last_exptected_ts / 1.e6);
         });

@@ -8,7 +8,6 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <opencv2/opencv.hpp>
 #include <thread>
 #include "packet.h"
 #include "usb_host.h"

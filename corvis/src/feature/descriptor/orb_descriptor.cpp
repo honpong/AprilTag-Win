@@ -41,7 +41,7 @@
 #include "tracker.h"
 #include <iostream>
 #include <stdint.h>
-#include <limits>
+#include <climits>
 #include <cmath>
 
  //

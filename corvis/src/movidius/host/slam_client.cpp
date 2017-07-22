@@ -126,7 +126,7 @@ int main(int argc, char ** argv)
                         pose_in.pose.Q.y, pose_in.pose.Q.z, pose_in.pose.Q.w);
                 poses_read++;
                 if(last_exptected_ts != 0) {
-                    if(fabs(pose_in.header.time - last_exptected_ts) < 10.0) {
+                    if(pose_in.header.time + 10 > last_exptected_ts) {
                         printf("Got the last expected packet - exit 6dof\n");
                         break;
                     }

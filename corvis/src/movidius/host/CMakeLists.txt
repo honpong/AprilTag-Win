@@ -6,11 +6,8 @@ add_library(slam_usb
    usb_host.h
 )
 
-target_link_libraries(slam_usb PUBLIC ${LIBUSB_1_LIBRARIES} -lusb-1.0
-    -lpthread)
-if(UNIX AND NOT APPLE)
-    target_link_libraries(slam_usb PUBLIC -lrt)
-endif(UNIX AND NOT APPLE)
+find_package(Threads REQUIRED)
+target_link_libraries(slam_usb PUBLIC ${LIBUSB_1_LIBRARIES} -lusb-1.0 Threads::Threads)
 
 target_include_directories(slam_usb PUBLIC
     ../common/                                  # for usb_definitions.h & get_pose.h

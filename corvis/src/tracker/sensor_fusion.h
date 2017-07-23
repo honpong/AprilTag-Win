@@ -35,7 +35,7 @@ public:
     };
     
     std::function<void(const sensor_data *)> data_callback;
-    std::function<void()> status_callback;
+    std::function<bool()> status_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
     

@@ -15,7 +15,7 @@ TEST(Prediction, QuaternionMultiply)
         transformation t12(t1.Q * t2.Q, v3(0,0,0));
         rc_Pose p1 = to_rc_Pose(t1);
         rc_Pose p2 = to_rc_Pose(t2);
-        rc_Pose p12 = {{ rc_quaternionMultiply(p1.Q, p2.Q) }};
+        rc_Pose p12 = { rc_quaternionMultiply(p1.Q, p2.Q) };
         EXPECT_QUATERNION_NEAR(t12.Q, to_transformation(p12).Q, F_T_EPS);
     }
 }

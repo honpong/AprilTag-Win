@@ -23,7 +23,7 @@ if (NOT TARGET usb)
   return()
 endif()
 
-target_link_libraries(slam_usb PUBLIC ${LIBUSB_1_LIBRARIES} usb Threads::Threads)
+target_link_libraries(slam_usb PUBLIC usb Threads::Threads)
 
 target_include_directories(slam_usb PUBLIC
     ../common/                                  # for usb_definitions.h & get_pose.h

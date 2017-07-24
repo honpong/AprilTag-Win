@@ -851,9 +851,9 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         }
 
         // Sort features with depth first
-        keypoints.sort([](const tracker::feature_track & f1, const tracker::feature_track &f2) {
-                return f1.depth > f2.depth;
-            });
+        //keypoints.sort([](const tracker::feature_track & f1, const tracker::feature_track &f2) {
+        //        return f1.depth > f2.depth;
+        //    });
 #endif //END PUSH 2 ASHAVE
         END_EVENT(EV_SF_MATCH_FEATURES, 2)
 

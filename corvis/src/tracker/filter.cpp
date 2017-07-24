@@ -457,11 +457,12 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             {
                 feat->v.set_depth_meters(depth_m);
                 float std_pct = get_stdev_pct_for_depth(depth_m);
-                if(i->error)
-                    std_pct = i->error;
-                std_pct = std::max<float>(0.02f, std_pct);
+                if(i->error) { // stereo
+                    //std_pct = std::max<float>(0.02f, i->error);
+                    std_pct = sqrt(state_vision_feature::initial_var/10); // consider using error
+                }
                 //fprintf(stderr, "percent %f\n", std_pct);
-                feat->set_initial_variance(state_vision_feature::initial_var/10); // assumes log depth
+                feat->set_initial_variance(std_pct * std_pct); // assumes log depth
                 feat->status = feature_normal;
                 feat->depth_measured = true;
             }

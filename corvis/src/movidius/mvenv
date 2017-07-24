@@ -32,7 +32,7 @@ fi
 
 # Check if all patches have been added
 pushd $MDK_INSTALL_DIR
-for f in $TM2_ROOT/mdk_patches/*
+for f in $TM2_ROOT/mdk_patches/*.patch
 do
     echo $f;
     patch -p0 -N --dry-run --silent < $f 2>/dev/null

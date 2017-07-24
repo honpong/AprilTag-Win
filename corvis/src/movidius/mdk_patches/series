@@ -1,0 +1,4 @@
+001_mdk_release_17.04.5_general_purpose_generic_mk_blis.patch -p1
+002_mdk_release_17.04.5_generic_spi_driver_workaround.patch -p1
+003_mdk_release_17.04.5_generic_fix_cdma_driver_issues.patch -p1
+004_mdk_release_17.04.5_generic_osdrvsvu_add_start_with_va_list.patch -p1

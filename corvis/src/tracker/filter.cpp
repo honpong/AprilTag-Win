@@ -503,6 +503,11 @@ void filter_detect(struct filter *f, const sensor_data &data)
     const rc_ImageData &image = data.image;
     camera.feature_tracker->tracks.clear();
     int standby_count = camera.standby_features.size();
+    auto space = camera.detecting_space > standby_count ? camera.detecting_space - standby_count : 0;
+    camera.detecting_space = 0;
+
+    if(!space) return;
+
     camera.feature_tracker->tracks.reserve(camera.feature_count());
     for(auto &g : camera.groups.children)
         for(auto &i : g->features.children)
@@ -511,7 +516,6 @@ void filter_detect(struct filter *f, const sensor_data &data)
     for(auto &t: camera.standby_features)
         camera.feature_tracker->tracks.emplace_back(&t);
 
-    auto space = camera.detecting_space > standby_count ? camera.detecting_space - standby_count : 0;
     // Run detector
     tracker::image timage;
     timage.image = (uint8_t *)image.image;
@@ -524,7 +528,6 @@ void filter_detect(struct filter *f, const sensor_data &data)
     END_EVENT(SF_DETECT, kp.size())
     for(int t = kp.size()-1; t >= 0; --t)
         camera.standby_features.push_front(kp[t]);
-    camera.detecting_space = 0;
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });

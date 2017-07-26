@@ -199,6 +199,7 @@ bool rc_describeCamera(rc_Tracker *tracker,  rc_Sensor camera_id, rc_ImageFormat
 
 bool rc_configureStereo(rc_Tracker *tracker, rc_Sensor camera_id_0, rc_Sensor camera_id_1)
 {
+    tracker->sfm.stereo_enabled = true;
     tracker->queue.require_sensor(rc_SENSOR_TYPE_STEREO, camera_id_0, std::chrono::milliseconds(25));
     return true;
 }

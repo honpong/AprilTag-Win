@@ -896,7 +896,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!f->got_any_accelerometers() || !f->got_any_gyroscopes()) return false;
-    if(time - f->want_start < camera_wait_time) {
+    if(!f->stereo_enabled && time - f->want_start < camera_wait_time) {
         for(auto &camera : f->cameras) if(!camera->got) return false;
     }
 
@@ -1024,6 +1024,7 @@ void filter_initialize(struct filter *f)
     f->min_group_add = 16;
     f->max_group_add = std::max<int>(80 / f->cameras.size(), f->min_group_add);
     f->has_depth = false;
+    f->stereo_enabled = false;
 
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;

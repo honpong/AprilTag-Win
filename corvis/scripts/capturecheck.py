@@ -5,7 +5,7 @@ import numpy
 import argparse
 from math import sqrt
 
-packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw"})
+packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 40:"stereo_raw"})
 format_types = defaultdict(str, {0:"Y8", 1:"Z16_mm"})
 
 parser = argparse.ArgumentParser(description='Check a capture file.')
@@ -27,6 +27,7 @@ accel_type = 20
 gyro_type = 21
 image_with_depth = 28
 image_raw_type = 29
+stereo_raw_type = 40
 got_types = defaultdict(int)
 
 packets = defaultdict(list)
@@ -156,5 +157,7 @@ if got_types[accel_type] == 0:
     print "Error: Never received any accelerometer data"
 if got_types[gyro_type] == 0:
     print "Error: Never received any gyro data"
-if got_types[image_raw_type] == 0 and got_types[image_with_depth] == 0:
+if got_types[image_raw_type] == 0 and \
+   got_types[image_with_depth] == 0 and \
+   got_types[stereo_raw_type] == 0:
     print "Error: Never received any image data"

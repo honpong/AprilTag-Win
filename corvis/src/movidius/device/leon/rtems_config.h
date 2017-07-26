@@ -52,7 +52,7 @@
 #define CONFIGURE_LIBIO_MAXIMUM_FILE_DESCRIPTORS 64
 
 static void Fatal_extension(Internal_errors_Source the_source, bool is_internal,
-                            uint32_t the_error);
+                            Internal_errors_t the_error);
 
 void POSIX_Init(void * args);
 

@@ -36,7 +36,6 @@
 
 const static sensor_clock::duration camera_wait_time = std::chrono::milliseconds(500); //time we'll wait for all cameras before attempting to detect features
 const static sensor_clock::duration max_detector_failed_time = std::chrono::milliseconds(500); //time we'll go with no features before dropping to inertial only mode
-const static int calibration_converge_samples = 200; //number of accelerometer readings needed to converge in calibration mode
 const static f_t accelerometer_inertial_var = 2.33*2.33; //variance when in inertial only mode
 const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be less than this to initialize from dynamic mode
 //a_bias_var for best results on benchmarks is 6.4e-3

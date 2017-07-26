@@ -46,9 +46,21 @@ const static f_t convergence_minimum_velocity = 0.3; //Minimum speed (m/s) that 
 const static f_t convergence_maximum_depth_variance = .001; //Median feature depth must have been under this to consider the filter converged
 const static f_t recovered_feature_initial_variance = .05; //When features are recovered, set their initial variance to this
 
-void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
+void filter_update_outputs(struct filter *f, sensor_clock::time_point time, bool failed)
 {
     if(f->run_state != RCSensorFusionRunStateRunning) return;
+
+    if(failed) { // if we lost all features - reset convergence
+        f->has_converged = false;
+        f->max_velocity = 0;
+    }
+
+    f->median_depth_variance = f->s.median_depth_variance();
+    if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance)
+        f->has_converged = true;
+
+    if(f->s.V.v.norm() > f->max_velocity)
+        f->max_velocity = f->s.V.v.norm();
 
     bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
@@ -106,8 +118,8 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     v3 meas = map(accelerometer.intrinsics.scale_and_alignment.v) * map(data.acceleration_m__s2.v);
 
     //TODO: if out of order, project forward in time
-    
-    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, state, imu.extrinsics, imu.intrinsics);
+
+    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, state, state, imu);
     obs_a->meas = meas;
     obs_a->variance = accelerometer.measurement_variance;
 
@@ -133,7 +145,7 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
 
     //TODO: if out of order, project forward in time
     
-    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, state, imu.extrinsics, imu.intrinsics);
+    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, state, imu);
     obs_w->meas = meas;
     obs_w->variance = gyroscope.measurement_variance;
 
@@ -228,7 +240,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
         return true;
     }
 
-    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, f->s, imu.extrinsics, imu.intrinsics);
+    auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, f->s, f->s, imu);
     obs_a->meas = meas;
     obs_a->variance = get_accelerometer_variance_for_run_state(f, accelerometer);
 
@@ -277,7 +289,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
 
     if(!f->s.orientation_initialized) return false;
 
-    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, f->s, imu.extrinsics, imu.intrinsics);
+    auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, f->s, imu);
     obs_w->meas = meas;
     obs_w->variance = gyroscope.measurement_variance;
 
@@ -304,8 +316,6 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
 {
     auto &camera_sensor = *f->cameras[data.id];
     auto &camera_state = *f->s.cameras.children[data.id];
-
-    auto timestamp = data.timestamp;
 
     for(state_vision_group *g : camera_state.groups.children) {
         if(!g->status || g->status == group_initializing) continue;
@@ -880,6 +890,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     auto &camera_state = *f->s.cameras.children[data.id];
     camera_sensor.got = true;
 
+    camera_state.intrinsics.image_width = data.image.width;
+    camera_state.intrinsics.image_height = data.image.height;
+
     sensor_clock::time_point time = data.timestamp;
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
@@ -920,9 +933,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization) return true; //frame was "processed" so that callbacks still get called
 
-    camera_state.intrinsics.image_width = data.image.width;
-    camera_state.intrinsics.image_height = data.image.height;
-    
     if(camera_state.detection_future.valid()) {
         camera_state.detection_future.wait();
         auto active_features = f->s.feature_count();
@@ -971,25 +981,11 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             std::cerr << " innov  " << c->inn_stdev << "\n";
     }
 
-    int features_used = camera_state.process_features(f->map.get(), *f->log);
+    int normal_groups = camera_state.process_features(f->map.get(), *f->log);
+    filter_update_outputs(f, time, normal_groups == 0);
+
     f->s.remap();
     f->s.update_map(data.image, f->map.get(), *f->log);
-    if(!features_used)
-    {
-        //Lost all features - reset convergence
-        f->has_converged = false;
-        f->max_velocity = 0.;
-        f->median_depth_variance = 1.;
-    }
-    
-    f->median_depth_variance = f->s.median_depth_variance();
-    
-    float velocity = (float)f->s.V.v.norm();
-    if(velocity > f->max_velocity) f->max_velocity = velocity;
-    
-    if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
-    
-    filter_update_outputs(f, time);
 
     space = filter_available_feature_space(f, camera_state);
     if(space >= f->min_group_add && camera_state.standby_features.size() >= f->min_group_add)

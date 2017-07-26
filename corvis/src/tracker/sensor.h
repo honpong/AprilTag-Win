@@ -28,7 +28,7 @@ struct sensor
         transformation mean;
         struct transformation_variance { v3 Q = v3::Zero(), T = v3::Zero(); } variance;
     } extrinsics;
-    sensor(int _id, std::string _name) : id(_id), name(_name) {}
+    sensor(int id_, std::string name_) : id(id_), name(name_ + std::to_string(id)) {}
 };
 
 template <int size_> class decimator {
@@ -86,11 +86,11 @@ struct sensor_camera {
 
 struct sensor_grey : public sensor_storage<2>, public sensor_camera {
     using sensor_storage<2>::sensor_storage;
-    sensor_grey(int _id) : sensor_storage<2>(_id, "Camera" + std::to_string(_id)) {}
+    sensor_grey(int id_) : sensor_storage<2>(id_, "Camera") {}
 };
 struct sensor_depth : public sensor_storage<1>, public sensor_camera {
     using sensor_storage<1>::sensor_storage;
-    sensor_depth(int _id) : sensor_storage<1>(_id, "Depth" + std::to_string(_id)) {}
+    sensor_depth(int id_) : sensor_storage<1>(id_, "Depth") {}
 };
 
 template<int size_> struct sensor_vector : public sensor_storage<size_>, public decimator<size_>
@@ -105,12 +105,12 @@ template<int size_> struct sensor_vector : public sensor_storage<size_>, public 
 struct sensor_accelerometer : public sensor_vector<3> {
     rc_AccelerometerIntrinsics intrinsics;
     using sensor_vector<3>::sensor_vector;
-    sensor_accelerometer(int _id) : sensor_vector<3>(_id, "Accel" + std::to_string(_id)) {}
+    sensor_accelerometer(int id_) : sensor_vector<3>(id_, "Accel") {}
 };
 struct sensor_gyroscope : public sensor_vector<3> {
     rc_GyroscopeIntrinsics intrinsics;
     using sensor_vector<3>::sensor_vector;
-    sensor_gyroscope(int _id) : sensor_vector<3>(_id, "Gyro" + std::to_string(_id)) {}
+    sensor_gyroscope(int id_) : sensor_vector<3>(id_, "Gyro") {}
 };
 
 #endif /* sensor_h */

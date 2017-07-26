@@ -48,7 +48,7 @@ public:
                    0 <= c+s && c+s <= m._cols);
         }
         const row_segment &operator=(f_t n) const {
-            std::memset(&m.data[r*m.stride+c], n, s * sizeof(*m.data));
+            for (size_t i=0; i<s; i++) m.data[r*m.stride+c+i] = n;
             return *this;
         }
         const row_segment &operator=(const row_segment &o) const {

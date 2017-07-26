@@ -87,18 +87,22 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-class observation_spatial: public observation_storage<3> {
+template <int size_>
+class observation_spatial : public observation_storage<size_> {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     f_t variance;
-    virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
+    virtual void compute_measurement_covariance() {
+        observation_storage<size_>::m_cov = v<size_>::Constant(variance);
+    }
     virtual bool measure() { return true; }
-    observation_spatial(sensor_storage<3> &src): observation_storage(src), variance(0.) {}
+    observation_spatial(sensor_storage<size_> &src) : observation_storage<size_>(src), variance(0.) {}
 };
 
-class observation_accelerometer: public observation_spatial {
+class observation_accelerometer: public observation_spatial<3> {
 protected:
-    state_motion &state;
+    const state_root &root;
+    const state_motion &state;
     const state_extrinsics &extrinsics;
     const state_imu_intrinsics &intrinsics;
     v3 xcc;
@@ -113,13 +117,13 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer(sensor_accelerometer &src, state_motion &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics): observation_spatial(src), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_accelerometer(sensor_accelerometer &src, const state_root &root_, const state_motion &state_, const state_imu &imu): observation_spatial(src), root(root_), state(state_), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-class observation_gyroscope: public observation_spatial {
+class observation_gyroscope: public observation_spatial<3> {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:
@@ -140,7 +144,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_extrinsics &_extrinsics, const state_imu_intrinsics &_intrinsics): observation_spatial(src), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+    observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_imu &imu): observation_spatial(src), state(_state), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 };
 
 #define MAXOBSERVATIONSIZE (MAXSTATESIZE * 2)

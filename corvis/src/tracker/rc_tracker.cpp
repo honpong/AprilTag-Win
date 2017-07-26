@@ -215,16 +215,17 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
         rc_trace(intrinsics->scale_and_alignment);
     }
 
-    if(accel_id > tracker->sfm.accelerometers.size()) return false;
-    if(accel_id == tracker->sfm.accelerometers.size()) {
+    auto &accelerometers = tracker->sfm.accelerometers;
+
+    if(accel_id > accelerometers.size()) return false;
+    if(accel_id == accelerometers.size()) {
         if(trace) trace_log->info(" configuring new accel");
         tracker->queue.require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, std::chrono::microseconds(600));
-        auto new_accel = std::make_unique<sensor_accelerometer>(accel_id);
-        tracker->sfm.accelerometers.push_back(std::move(new_accel));
+        accelerometers.push_back(std::make_unique<sensor_accelerometer>(accel_id));
     }
 
-    tracker->sfm.accelerometers[accel_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
-    tracker->sfm.accelerometers[accel_id]->intrinsics = *intrinsics;
+    accelerometers[accel_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
+    accelerometers[accel_id]->intrinsics = *intrinsics;
 
     return true;
 }
@@ -234,11 +235,13 @@ bool rc_describeAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, rc_Extrin
     if(accel_id >= tracker->sfm.accelerometers.size())
         return false;
 
+    const auto &accelerometer = tracker->sfm.accelerometers[accel_id];
+
     if (extrinsics_wrt_origin_m)
-        *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(tracker->sfm.accelerometers[accel_id]->extrinsics);
+        *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(accelerometer->extrinsics);
 
     if (intrinsics)
-        *intrinsics = tracker->sfm.accelerometers[accel_id]->intrinsics;
+        *intrinsics = accelerometer->intrinsics;
 
     if(trace) {
         trace_log->info("rc_describeAccelerometer {} noise {}", accel_id, intrinsics->measurement_variance_m2__s4);
@@ -263,16 +266,17 @@ bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extr
         rc_trace(intrinsics->scale_and_alignment);
     }
 
-    if(gyro_id > tracker->sfm.gyroscopes.size()) return false;
-    if(gyro_id == tracker->sfm.gyroscopes.size()) {
+    auto &gyroscopes = tracker->sfm.gyroscopes;
+
+    if(gyro_id > gyroscopes.size()) return false;
+    if(gyro_id == gyroscopes.size()) {
         if(trace) trace_log->info(" configuring new gyro");
         tracker->queue.require_sensor(rc_SENSOR_TYPE_GYROSCOPE, gyro_id, std::chrono::microseconds(600));
-        auto new_gyro = std::make_unique<sensor_gyroscope>(gyro_id);
-        tracker->sfm.gyroscopes.push_back(std::move(new_gyro));
+        gyroscopes.push_back(std::make_unique<sensor_gyroscope>(gyro_id));
     }
 
-    tracker->sfm.gyroscopes[gyro_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
-    tracker->sfm.gyroscopes[gyro_id]->intrinsics = *intrinsics;
+    gyroscopes[gyro_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
+    gyroscopes[gyro_id]->intrinsics = *intrinsics;
 
     return true;
 }
@@ -282,11 +286,13 @@ bool rc_describeGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Extrinsics 
     if(gyro_id >= tracker->sfm.gyroscopes.size())
         return false;
 
+    const auto &gyroscope = tracker->sfm.gyroscopes[gyro_id];
+
     if (extrinsics_wrt_origin_m)
-        *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(tracker->sfm.gyroscopes[gyro_id]->extrinsics);
+        *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(gyroscope->extrinsics);
 
     if (intrinsics)
-        *intrinsics = tracker->sfm.gyroscopes[gyro_id]->intrinsics;
+        *intrinsics = gyroscope->intrinsics;
 
     if(trace) {
         trace_log->info("rc_describeGyroscope {} noise {}", gyro_id, intrinsics->measurement_variance_rad2__s2);

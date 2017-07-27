@@ -130,7 +130,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                             auto start = std::chrono::steady_clock::now();
                             filter_detect(&sfm, std::move(data));
                             auto stop = std::chrono::steady_clock::now();
-                            queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+                            auto global_id = sensor_data::get_global_id_by_type_id(rc_SENSOR_TYPE_STEREO, 0); //"data" is of type IMAGE, but truly should report stats to STEREO stream
+                            queue.stats.find(global_id)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
                             END_EVENT(EV_DETECTING_GROUP_STEREO, 0);
                         }, &sfm, std::move(image_data));
                     // since image_data is a wrapper type here that

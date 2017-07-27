@@ -554,7 +554,7 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 
 // From http://paulbourke.net/geometry/pointlineplane/lineline.c
 // line 1 is p1 to p2, line 2 is p3 to p4
-static bool l_l_intersect(v3 p1, v3 p2, v3 p3, v3 p4, v3 & pa, v3 & pb)
+static bool l_l_intersect(const v3& p1, const v3& p2, const v3& p3, const v3& p4, v3 & pa, v3 & pb)
 {
     v3 p13,p43,p21;
     double d1343,d4321,d1321,d4343,d2121;
@@ -601,7 +601,7 @@ struct kp_pre_data{
 };
 
 // Triangulates a point in the body reference frame from two views
-void preprocess_keypoint_intersect(const state_camera & camera, feature_t f,const m3& Rw,kp_pre_data& pre_data)
+void preprocess_keypoint_intersect(const state_camera & camera, const feature_t& f,const m3& Rw,kp_pre_data& pre_data)
 {
     feature_t f_n = camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature(f));
     v3 p_calibrated(f_n.x(), f_n.y(), 1);

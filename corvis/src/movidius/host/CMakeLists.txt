@@ -3,6 +3,19 @@ project( slam_client )
 
 find_package(Threads REQUIRED)
 
+find_path(GETOPT_INC getopt.h)
+include(FindPackageHandleStandardArgs)
+find_package_handle_standard_args(getopt "getopt.h not found" GETOPT_INC)
+if (GETOPT_FOUND)
+  add_library(getopt INTERFACE)
+  target_include_directories(getopt INTERFACE ${GETOPT_INC})
+endif()
+
+if (NOT TARGET getopt)
+  message(STATUS "slam_usb and slam_client will not be built; requires getopt")
+  return()
+endif()
+
 find_library(LIBUSB_LIB usb-1.0)
 find_path(LIBUSB_INC libusb-1.0/libusb.h)
 include(FindPackageHandleStandardArgs)
@@ -23,7 +36,7 @@ add_library(slam_usb
    usb_host.h
 )
 
-target_link_libraries(slam_usb PUBLIC usb Threads::Threads)
+target_link_libraries(slam_usb PUBLIC usb getopt Threads::Threads)
 
 target_include_directories(slam_usb PUBLIC
     ../common/                                  # for usb_definitions.h & get_pose.h

@@ -60,7 +60,6 @@ struct map_node {
     void set_feature(const uint64_t id, const v3 &p, const float v);
 
     transformation_variance global_transformation;
-    transformation_variance transform;
 
     // relocalization
     map_frame frame;
@@ -122,14 +121,8 @@ class mapper {
     std::vector<state_vision_intrinsics*> camera_intrinsics;
     std::vector<rc_CameraIntrinsics*> sensor_intrinsics;
 
-    std::vector<std::pair<nodeid,float>> find_loop_closing_candidates();
-    matches match_2d_descriptors(const nodeid &candidate_id);
-
     bool relocalize(std::vector<transformation>& vG_WC, const transformation& G_BC);
     void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_WC, std::set<size_t>& inliers_set);
-
-private:
-    size_t calculate_orientation_bin(const orb_descriptor &a, const orb_descriptor &b, const size_t num_orientation_bins);
 };
 
 

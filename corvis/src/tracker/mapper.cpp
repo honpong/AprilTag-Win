@@ -356,12 +356,16 @@ bool mapper::deserialize(const std::string &json, mapper & map)
     return true;
 }
 
-std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidates() {
-
-    std::vector<std::pair<nodeid, float>> loop_closing_candidates;
+std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
+    const map_frame &current_frame,
+    const aligned_vector<map_node> &nodes,
+    const std::vector<std::vector<mapper::nodeid>> &dbow_inverted_index,
+    const orb_vocabulary* orb_voc
+) {
+    std::vector<std::pair<mapper::nodeid, float>> loop_closing_candidates;
 
     // find nodes sharing words with current frame
-    std::map<nodeid,uint32_t> common_words_per_node;
+    std::map<mapper::nodeid,uint32_t> common_words_per_node;
     uint32_t max_num_shared_words = 0;
     for (auto word : current_frame.dbow_histogram) {
         for (auto nid : dbow_inverted_index[word.first]) {
@@ -381,7 +385,7 @@ std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidate
 
     // keep candidates with at least min_num_shared_words
     int min_num_shared_words = static_cast<int>(max_num_shared_words * 0.8f);
-    std::vector<std::pair<nodeid, float> > dbow_scores;
+    std::vector<std::pair<mapper::nodeid, float> > dbow_scores;
 //    assert(orb_voc->getScoringType() != DBoW2::ScoringType::L1_NORM);
     float best_score = 0.0f; // assuming L1 norm
     for (auto node_candidate : common_words_per_node) {
@@ -395,7 +399,7 @@ std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidate
     }
 
     // sort candidates by dbow_score and age
-    auto compare_dbow_scores = [](std::pair<nodeid, float> p1, std::pair<nodeid, float> p2) {
+    auto compare_dbow_scores = [](std::pair<mapper::nodeid, float> p1, std::pair<mapper::nodeid, float> p2) {
         return (p1.second > p2.second) || (p1.second == p2.second && p1.first < p2.first);
     };
     std::sort(dbow_scores.begin(), dbow_scores.end(), compare_dbow_scores);
@@ -410,14 +414,17 @@ std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidate
     return loop_closing_candidates;
 }
 
-mapper::matches mapper::match_2d_descriptors(const nodeid& candidate_id) {
+static size_t calculate_orientation_bin(const orb_descriptor &a, const orb_descriptor &b, const size_t num_orientation_bins) {
+    return static_cast<size_t>(((a - b) * (float)M_1_PI + 1) / 2 * num_orientation_bins + 0.5f) % num_orientation_bins;
+}
 
+static mapper::matches match_2d_descriptors(const map_frame& candidate_frame, const map_frame& current_frame,
+                                            std::map<uint64_t, mapper::nodeid> &features_dbow) {
     //matches per orientationn increment between current frame and node candidate
     const int num_orientation_bins = 30;
-    std::vector<matches> increment_orientation_histogram(num_orientation_bins);
+    std::vector<mapper::matches> increment_orientation_histogram(num_orientation_bins);
 
-    const map_frame& candidate_frame = nodes[candidate_id].frame;
-    matches current_to_candidate_matches;
+    mapper::matches current_to_candidate_matches;
 
     if (candidate_frame.keypoints.size() > 0 && current_frame.keypoints.size() > 0) {
         auto it_candidate = candidate_frame.dbow_direct_file.begin();
@@ -456,11 +463,10 @@ mapper::matches mapper::match_2d_descriptors(const nodeid& candidate_id) {
                     // not match if more than 50 bits are different
                     if (best_distance <= 50 && (best_distance < second_best_distance * 0.6f)) {
                         auto& best_candidate_keypoint = *candidate_frame.keypoints[best_candidate_point_idx];
-                        unsigned int bin = calculate_orientation_bin(best_candidate_keypoint.descriptor,
-                                                                     current_keypoint.descriptor,
-                                                                     num_orientation_bins);
-//                        bin = 0; //deactivate orientation histogram check
-                        increment_orientation_histogram[bin].push_back(match(current_point_idx, best_candidate_point_idx));
+                        size_t bin = calculate_orientation_bin(best_candidate_keypoint.descriptor,
+                                                               current_keypoint.descriptor,
+                                                               num_orientation_bins);
+                        increment_orientation_histogram[bin].push_back(mapper::match(current_point_idx, best_candidate_point_idx));
                     }
                 }
                 ++it_current;
@@ -486,10 +492,6 @@ mapper::matches mapper::match_2d_descriptors(const nodeid& candidate_id) {
     return current_to_candidate_matches;
 }
 
-size_t mapper::calculate_orientation_bin(const orb_descriptor &a, const orb_descriptor &b, const size_t num_orientation_bins) {
-    return static_cast<size_t>(((a-b) * (float)M_1_PI + 1)/2 * num_orientation_bins + 0.5f) % num_orientation_bins;
-}
-
 void mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_WC, std::set<size_t>& inliers_set) {
     const f_t max_reprojection_error = 4.0f/38; //threshold = 2*sigma (pixels) / f_px? FIXME!
     const int max_iter = 10; // 10
@@ -509,12 +511,12 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
     int best_num_inliers = 0;
     int i = 0;
 
-    std::vector<std::pair<nodeid,float>> candidate_nodes = find_loop_closing_candidates();
-
+    std::vector<std::pair<nodeid, float>> candidate_nodes =
+        find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc);
     const auto &keypoint_current = current_frame.keypoints;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[current_frame.camera_id];
     for (auto nid : candidate_nodes) {
-        matches matches_node_candidate = match_2d_descriptors(nid.first);
+        matches matches_node_candidate = match_2d_descriptors(nodes[nid.first].frame, current_frame, features_dbow);
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
         aligned_vector<v3> candidate_3d_points;

@@ -17,22 +17,6 @@
 
 using namespace std;
 
-transformation_variance invert(const transformation_variance & T)
-{
-    transformation_variance result = T;
-    result.transform = invert(T.transform);
-    // TODO: deal with variance
-    return result;
-}
-
-transformation_variance operator *(const transformation_variance & T1, const transformation_variance & T2)
-{
-    transformation_variance result;
-    result.transform = compose(T1.transform, T2.transform);
-    // TODO: deal with variance
-    return result;
-}
-
 mapper::mapper()
 {
     unlinked = false;
@@ -131,20 +115,10 @@ void mapper::set_feature(uint64_t groupid, uint64_t id, const v3 &pos, float var
     if (is_new) features_dbow[id] = groupid;
 }
 
-void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform)
-{
-    id1 += node_id_offset;
-    id2 += node_id_offset;
-    if(nodes.size() <= id1) nodes.resize(id1+1);
-    if(nodes.size() <= id2) nodes.resize(id2+1);
-}
-
-
 void mapper::set_node_transformation(uint64_t id, const transformation & G)
 {
     id += node_id_offset;
-    nodes[id].global_transformation = transformation_variance();
-    nodes[id].global_transformation.transform = G;
+    nodes[id].global_transformation = G;
     nodes[id].status = node_status::normal;
 }
 
@@ -153,17 +127,8 @@ void mapper::node_finished(uint64_t id)
     if (nodes[id].status == node_status::normal) {
         id += node_id_offset;
         nodes[id].status = node_status::finished;
-        for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {
-            uint64_t nid = edge->neighbor;
-            if(nodes[nid].status == node_status::finished) {
-                //log->info("setting an edge for {} to {}", id, nid);
-                transformation_variance tv;
-                tv.transform = invert(nodes[id].global_transformation.transform)*nodes[nid].global_transformation.transform;
-            }
-        }
-        for (auto word : nodes[id].frame.dbow_histogram) {
+        for (auto &word : nodes[id].frame.dbow_histogram)
             dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index
-        }
     } else {
         // delete node when its status is not normal
         nodes[id] = std::move(nodes.back());
@@ -257,16 +222,16 @@ bool mapper::serialize(std::string &json)
         node_json.AddMember(KEY_FEATURES, node_features_json, allocator);
 
         Value translation_json(kArrayType);
-        translation_json.PushBack(nodes[i].global_transformation.transform.T[0], allocator);
-        translation_json.PushBack(nodes[i].global_transformation.transform.T[1], allocator);
-        translation_json.PushBack(nodes[i].global_transformation.transform.T[2], allocator);
+        translation_json.PushBack(nodes[i].global_transformation.T[0], allocator);
+        translation_json.PushBack(nodes[i].global_transformation.T[1], allocator);
+        translation_json.PushBack(nodes[i].global_transformation.T[2], allocator);
         node_json.AddMember(KEY_NODE_TRANSLATION, translation_json, allocator);
 
         Value rotation_json(kArrayType);
-        rotation_json.PushBack(nodes[i].global_transformation.transform.Q.w(), allocator);
-        rotation_json.PushBack(nodes[i].global_transformation.transform.Q.x(), allocator);
-        rotation_json.PushBack(nodes[i].global_transformation.transform.Q.y(), allocator);
-        rotation_json.PushBack(nodes[i].global_transformation.transform.Q.z(), allocator);
+        rotation_json.PushBack(nodes[i].global_transformation.Q.w(), allocator);
+        rotation_json.PushBack(nodes[i].global_transformation.Q.x(), allocator);
+        rotation_json.PushBack(nodes[i].global_transformation.Q.y(), allocator);
+        rotation_json.PushBack(nodes[i].global_transformation.Q.z(), allocator);
         node_json.AddMember(KEY_NODE_QUATERNION, rotation_json, allocator);
 
         nodes_json.PushBack(node_json, allocator);
@@ -532,7 +497,7 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                 // NOTE: We use 3d features observed from candidate, this does not mean
                 // these features belong to the candidate node (group)
                 map_feature &mfeat = nodes[nodeid_keypoint].features[keypoint_id]; // feat is in body frame
-                v3 p_w = nodes[nodeid_keypoint].global_transformation.transform*mfeat.position;
+                v3 p_w = nodes[nodeid_keypoint].global_transformation * mfeat.position;
                 candidate_3d_points.push_back(p_w);
                 //undistort keypoints at current frame
                 auto& current = *keypoint_current[m.first];

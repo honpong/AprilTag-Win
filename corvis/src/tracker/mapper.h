@@ -24,11 +24,6 @@ typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, orb_descriptor::raw> orb
 
 class state_vision_intrinsics;
 
-struct transformation_variance {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    transformation transform;
-};
-
 struct map_edge {
     uint64_t neighbor;
     bool loop_closure;
@@ -59,7 +54,7 @@ struct map_node {
     map_edge &get_add_neighbor(uint64_t neighbor);
     void set_feature(const uint64_t id, const v3 &p, const float v);
 
-    transformation_variance global_transformation;
+    transformation global_transformation;
 
     // relocalization
     map_frame frame;
@@ -72,9 +67,6 @@ class mapper {
  private:
     aligned_vector<map_node> nodes;
     friend struct map_node;
-
-    void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
-
     bool unlinked;
     uint64_t node_id_offset{0};
     uint64_t feature_id_offset{0};

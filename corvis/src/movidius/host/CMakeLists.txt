@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 3.2.2)
 project( slam_client )
 
-add_library(slam_usb
-   usb_host.cpp
-   usb_host.h
-)
-
 find_package(Threads REQUIRED)
 
 find_library(LIBUSB_LIB usb-1.0)
@@ -22,6 +17,11 @@ if (NOT TARGET usb)
   message(STATUS "libusb not found; slam_usb and slam_client will not be built. `brew install libusb` or `apt-get install libusb-1.0-0-dev`.")
   return()
 endif()
+
+add_library(slam_usb
+   usb_host.cpp
+   usb_host.h
+)
 
 target_link_libraries(slam_usb PUBLIC usb Threads::Threads)
 

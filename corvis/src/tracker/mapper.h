@@ -24,16 +24,13 @@ typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, orb_descriptor::raw> orb
 
 class state_vision_intrinsics;
 
-class transformation_variance {
-    public:
+struct transformation_variance {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     transformation transform;
-    m4 variance;
 };
 
 struct map_edge {
     uint64_t neighbor;
-    int64_t geometry; //positive/negative indicate geometric edge direction, 0 indicates a covisibility edge
     bool loop_closure;
 };
 
@@ -44,7 +41,6 @@ struct map_feature {
     // one of images axes oriented to match gravity (world z axis)
     v3 position;
     float variance;
-    map_feature(const uint64_t id, const v3 &p, const float v): id(id), position(p), variance(v){}
 };
 
 struct map_frame {
@@ -59,18 +55,12 @@ enum class node_status { initializing, normal, finished };
 struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
-    bool match_attempted{false};
     std::list<map_edge> edges;
     map_edge &get_add_neighbor(uint64_t neighbor);
-    int terms;
     std::list<map_feature *> features; //sorted by label
     void add_feature(const uint64_t id, const v3 &p, const float v);
 
     transformation_variance global_transformation;
-
-    // temporary variables used in breadth first
-    int depth;
-    int parent;
     transformation_variance transform;
 
     // relocalization
@@ -78,28 +68,13 @@ struct map_node {
     std::set<uint64_t> neighbors;
     std::map<uint64_t,map_feature*> features_reloc; // essentially we need a map instead of a list
     node_status status{node_status::initializing};
-
-map_node(): terms(0), depth(0), parent(-1) {}
 };
-
-
-struct local_feature {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    v3 position;
-    map_feature *feature;
-};
-
 
 class mapper {
  private:
     aligned_vector<map_node> nodes;
     friend struct map_node;
-    aligned_vector<transformation_variance> geometry;
-    transformation relative_transformation;
-    uint64_t feature_count;
 
-    void internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform, bool loop_closed);
-    void set_special(uint64_t id, bool special);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
 
     bool unlinked;
@@ -128,17 +103,9 @@ class mapper {
     bool serialize(std::string &json);
     static bool deserialize(const std::string &json, mapper & map);
 
-    // Debugging
-    void dump_map(FILE *file);
-    void print_stats();
-
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper",  std::make_shared<spdlog::sinks::null_sink_st> ());
 
-    bool enabled = false;
-
     /// fetch the vocabulary file from resource and create orb vocabulary
-    size_t voc_size = 0;
-    const char* voc_file = nullptr;
     orb_vocabulary* orb_voc;
 
     typedef uint64_t nodeid;

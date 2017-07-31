@@ -33,12 +33,13 @@ transformation_variance operator *(const transformation_variance & T1, const tra
     return result;
 }
 
-mapper::mapper(): feature_count(0)
+mapper::mapper()
 {
     unlinked = false;
 
     // Load BoW vocabulary
-    voc_file = load_vocabulary(voc_size);
+    size_t voc_size = 0;
+    const char* voc_file = load_vocabulary(voc_size);
     if (voc_size == 0 || voc_file == nullptr)
         std::cerr << "mapper: BoW vocabulary file not found" << std::endl;
     orb_voc = new orb_vocabulary();
@@ -65,8 +66,6 @@ void mapper::reset()
         nodes[i].features.clear();
     }
     nodes.clear();
-    geometry.clear();
-    feature_count = 0;
     feature_id_offset = 0;
     node_id_offset = 0;
     unlinked = false;
@@ -99,7 +98,6 @@ void mapper::add_node(uint64_t id)
     id += node_id_offset;
     if(nodes.size() <= id) nodes.resize(id + 1);
     nodes[id].id = id;
-    nodes[id].parent = -1;
     nodes[id].frame = current_frame;
 }
 
@@ -126,11 +124,10 @@ void mapper::process_keypoints(const std::vector<tracker::feature_track*> &keypo
 
 void map_node::add_feature(const uint64_t id, const v3 &pos, const float variance)
 {
-    map_feature *feat = new map_feature(id, pos, variance);
+    map_feature *feat = new map_feature{ id, pos, variance };
 
     features.push_back(feat);
     features_reloc[id] = feat;
-    ++terms;
 }
 
 void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v3 &pos, float variance)
@@ -148,32 +145,8 @@ void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v3 &po
 void mapper::add_feature(uint64_t groupid, uint64_t id, const v3 &pos, float variance) {
     groupid += node_id_offset;
     id += feature_id_offset;
-    ++feature_count;
     nodes[groupid].add_feature(id, pos, variance);
     features_dbow[id] = groupid;
-}
-
-
-void mapper::internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform, bool loop_closure)
-{
-    map_edge &edge1 = nodes[id1].get_add_neighbor(id2);
-    int64_t id = edge1.geometry;
-    if(id > 0) {
-        geometry[id-1] = transform;
-    } else {
-        if(id) {
-            id = -id;
-            geometry[id-1] = transform;
-        } else {
-            geometry.push_back(transform);
-            id = geometry.size();
-        }
-        map_edge &edge2 = nodes[id2].get_add_neighbor(id1);
-        edge1.geometry = id;
-        edge2.geometry = -id;
-        edge1.loop_closure = loop_closure;
-        edge2.loop_closure = loop_closure;
-    }
 }
 
 void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform)
@@ -182,30 +155,8 @@ void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_varia
     id2 += node_id_offset;
     if(nodes.size() <= id1) nodes.resize(id1+1);
     if(nodes.size() <= id2) nodes.resize(id2+1);
-    internal_set_geometry(id1, id2, transform, false);
 }
 
-void mapper::dump_map(FILE *group_graph)
-{
-    fprintf(group_graph, "graph G {\nedge[len=2];\n");
-    for(unsigned int node = 0; node < nodes.size(); ++node) {
-        for(list<map_edge>::iterator edge = nodes[node].edges.begin(); edge != nodes[node].edges.end(); ++edge) {
-            unsigned int neighbor = edge->neighbor;
-            if(edge->geometry > 0) {
-                fprintf(group_graph, "%d -- %d [dir=forward]\n;", node, neighbor);
-            } else if(edge->geometry == 0 && node < neighbor) {
-                fprintf(group_graph, "%d -- %d;\n", node, neighbor);
-            }
-        }
-    }
-    fprintf(group_graph, "}\n");
-}
-
-void mapper::print_stats()
-{
-    log->info("Map nodes: {}", nodes.size());
-    log->info("features: {}", feature_count);
-}
 
 void mapper::set_node_transformation(uint64_t id, const transformation & G)
 {
@@ -226,7 +177,6 @@ void mapper::node_finished(uint64_t id)
                 //log->info("setting an edge for {} to {}", id, nid);
                 transformation_variance tv;
                 tv.transform = invert(nodes[id].global_transformation.transform)*nodes[nid].global_transformation.transform;
-                internal_set_geometry(id, nid, tv, false);
             }
         }
         for (auto word : nodes[id].frame.dbow_histogram) {
@@ -416,7 +366,6 @@ bool mapper::deserialize(const std::string &json, mapper & map)
 
         map.set_node_transformation(node_id, G);
         map.node_finished(node_id);
-        map.nodes[node_id].match_attempted = true;
     }
     map.node_id_offset = max_node_id + 1;
     map.feature_id_offset = max_feature_id + 1;

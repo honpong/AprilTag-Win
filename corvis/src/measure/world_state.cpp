@@ -499,11 +499,11 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
                     loop_closed = true;
             }
             std::vector<Feature> features;
-            for(auto feature : map_node.features) {
+            for(auto &feat : map_node.features) {
                 Feature f;
-                f.feature.world.x = feature->position[0];
-                f.feature.world.y = feature->position[1];
-                f.feature.world.z = feature->position[2];
+                f.feature.world.x = feat.second.position[0];
+                f.feature.world.y = feat.second.position[1];
+                f.feature.world.z = feat.second.position[2];
                 features.push_back(f);
             }
             bool unlinked = f->map->is_unlinked(map_node.id);

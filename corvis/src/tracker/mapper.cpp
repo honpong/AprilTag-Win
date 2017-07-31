@@ -60,11 +60,6 @@ mapper::~mapper()
 void mapper::reset()
 {
     log->debug("Map reset");
-    for(int i = 0; i < (int)nodes.size(); i++) {
-        for(map_feature * f : nodes[i].features)
-            delete f;
-        nodes[i].features.clear();
-    }
     nodes.clear();
     feature_id_offset = 0;
     node_id_offset = 0;
@@ -122,31 +117,18 @@ void mapper::process_keypoints(const std::vector<tracker::feature_track*> &keypo
                                                current_frame.dbow_direct_file, 6);
 }
 
-void map_node::add_feature(const uint64_t id, const v3 &pos, const float variance)
+void map_node::set_feature(const uint64_t id, const v3 &pos, const float variance)
 {
-    map_feature *feat = new map_feature{ id, pos, variance };
-
-    features.push_back(feat);
-    features_reloc[id] = feat;
+    features[id].position = pos;
+    features[id].variance = variance;
+    features[id].id = id;
 }
 
-void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v3 &pos, float variance)
-{
+void mapper::set_feature(uint64_t groupid, uint64_t id, const v3 &pos, float variance, bool is_new) {
     groupid += node_id_offset;
     id += feature_id_offset;
-    for(auto f : nodes[groupid].features) {
-        if(f->id == id) {
-            f->position = pos;
-            f->variance = variance;
-        }
-    }
-}
-
-void mapper::add_feature(uint64_t groupid, uint64_t id, const v3 &pos, float variance) {
-    groupid += node_id_offset;
-    id += feature_id_offset;
-    nodes[groupid].add_feature(id, pos, variance);
-    features_dbow[id] = groupid;
+    nodes[groupid].set_feature(id, pos, variance);
+    if (is_new) features_dbow[id] = groupid;
 }
 
 void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform)
@@ -249,19 +231,19 @@ bool mapper::serialize(std::string &json)
         node_json.AddMember(KEY_NODE_NEIGHBORS, node_neighbors_json, allocator);
 
         Value node_features_json(kArrayType);
-        for(auto f : nodes[i].features) {
+        for(auto &f : nodes[i].features) {
             Value node_feature_json(kObjectType);
 
-            Value fid(f->id);
+            Value fid(f.second.id);
             node_feature_json.AddMember(KEY_FEATURE_ID, fid, allocator);
 
-            Value fvariance(f->variance);
+            Value fvariance(f.second.variance);
             node_feature_json.AddMember(KEY_FEATURE_VARIANCE, fvariance, allocator);
 
             Value fposition(kArrayType);
-            fposition.PushBack(f->position[0], allocator);
-            fposition.PushBack(f->position[1], allocator);
-            fposition.PushBack(f->position[2], allocator);
+            fposition.PushBack(f.second.position[0], allocator);
+            fposition.PushBack(f.second.position[1], allocator);
+            fposition.PushBack(f.second.position[2], allocator);
             node_feature_json.AddMember(KEY_FEATURE_POSITION, fposition, allocator);
 
             // Save descriptor, feature_dbow and track_id
@@ -547,8 +529,8 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                 nodeid nodeid_keypoint = features_dbow[keypoint_id];
                 // NOTE: We use 3d features observed from candidate, this does not mean
                 // these features belong to the candidate node (group)
-                map_feature* mfeat = nodes[nodeid_keypoint].features_reloc[keypoint_id]; // feat is in body frame
-                v3 p_w = nodes[nodeid_keypoint].global_transformation.transform*mfeat->position;
+                map_feature &mfeat = nodes[nodeid_keypoint].features[keypoint_id]; // feat is in body frame
+                v3 p_w = nodes[nodeid_keypoint].global_transformation.transform*mfeat.position;
                 candidate_3d_points.push_back(p_w);
                 //undistort keypoints at current frame
                 auto& current = *keypoint_current[m.first];

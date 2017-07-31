@@ -57,8 +57,7 @@ struct map_node {
     uint64_t id;
     std::list<map_edge> edges;
     map_edge &get_add_neighbor(uint64_t neighbor);
-    std::list<map_feature *> features; //sorted by label
-    void add_feature(const uint64_t id, const v3 &p, const float v);
+    void set_feature(const uint64_t id, const v3 &p, const float v);
 
     transformation_variance global_transformation;
     transformation_variance transform;
@@ -66,7 +65,7 @@ struct map_node {
     // relocalization
     map_frame frame;
     std::set<uint64_t> neighbors;
-    std::map<uint64_t,map_feature*> features_reloc; // essentially we need a map instead of a list
+    std::map<uint64_t,map_feature> features;
     node_status status{node_status::initializing};
 };
 
@@ -91,11 +90,10 @@ class mapper {
     void process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image &image);
     void add_node(uint64_t node_id);
     void add_edge(uint64_t node_id1, uint64_t node_id2);
-    void add_feature(uint64_t node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2);
+    void set_feature(uint64_t node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2, bool is_new = true);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; };
 
-    void update_feature_position(uint64_t node_id, uint64_t feature_id, const v3 &position_m, float depth_variance_m2);
     void node_finished(uint64_t node_id);
     void set_node_transformation(uint64_t id, const transformation & G);
 

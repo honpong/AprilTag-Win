@@ -313,12 +313,9 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map, spdlog::lo
                     variance_meters = measurement_var;
 
                 bool good = stdev / f->v.depth() < .05f;
-                if (good && f->is_in_map)
-                    map->update_feature_position(g->id, f->track.feature->id, f->node_body, variance_meters);
-
-                if (good && !f->is_in_map) {
-                        f->is_in_map = true;
-                        map->add_feature(g->id, f->track.feature->id, f->node_body, variance_meters);
+                if (good) {
+                    map->set_feature(g->id, f->track.feature->id, f->node_body, variance_meters, !f->is_in_map);
+                    f->is_in_map = true;
                 }
             }
         }

@@ -219,11 +219,10 @@ void mapper::node_finished(uint64_t id)
 {
     if (nodes[id].status == node_status::normal) {
         id += node_id_offset;
-        nodes[id].finished = true;
         nodes[id].status = node_status::finished;
         for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {
             uint64_t nid = edge->neighbor;
-            if(nodes[nid].finished) {
+            if(nodes[nid].status == node_status::finished) {
                 //log->info("setting an edge for {} to {}", id, nid);
                 transformation_variance tv;
                 tv.transform = invert(nodes[id].global_transformation.transform)*nodes[nid].global_transformation.transform;
@@ -274,7 +273,7 @@ bool mapper::serialize(std::string &json)
     vector<uint64_t> id_map; id_map.resize(nodes.size());
     uint64_t to = 0;
     for(uint64_t from = 0; from < nodes.size(); from++) {
-        if(!nodes[from].finished) {
+        if(nodes[from].status != node_status::finished) {
             id_map[from] = nodes.size() + 1;
             continue;
         }
@@ -286,14 +285,14 @@ bool mapper::serialize(std::string &json)
     for(int i = 0; i < nodes.size(); i++) {
         // Only write finished nodes, because geometry is not valid
         // otherwise
-        if(!nodes[i].finished) continue;
+        if(nodes[i].status != node_status::finished) continue;
         Value node_json(kObjectType);
         node_json.AddMember(KEY_NODE_ID, id_map[nodes[i].id], allocator);
 
         Value node_neighbors_json(kArrayType);
         for(list<map_edge>::iterator edge = nodes[i].edges.begin(); edge != nodes[i].edges.end(); ++edge) {
             uint64_t nid = edge->neighbor;
-            if(!nodes[nid].finished) continue;
+            if(nodes[nid].status != node_status::finished) continue;
             Value neighbor_id(id_map[nid]);
             node_neighbors_json.PushBack(neighbor_id, allocator);
         }
@@ -435,7 +434,7 @@ std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidate
     uint32_t max_num_shared_words = 0;
     for (auto word : current_frame.dbow_histogram) {
         for (auto nid : dbow_inverted_index[word.first]) {
-            if (nodes[nid].finished) {
+            if (nodes[nid].status == node_status::finished) {
                 common_words_per_node[nid]++;
                 // keep maximum number of words shared with current frame
                 if (max_num_shared_words < common_words_per_node[nid]) {

@@ -507,7 +507,7 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
                 features.push_back(f);
             }
             bool unlinked = f->map->is_unlinked(map_node.id);
-            observe_map_node(timestamp_us, map_node.id, map_node.finished, loop_closed, unlinked, map_node.global_transformation.transform, neighbors, features);
+            observe_map_node(timestamp_us, map_node.id, map_node.status == node_status::finished, loop_closed, unlinked, map_node.global_transformation.transform, neighbors, features);
         }
     }
 }

@@ -60,7 +60,6 @@ struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
     bool match_attempted{false};
-    bool finished{false};
     std::list<map_edge> edges;
     map_edge &get_add_neighbor(uint64_t neighbor);
     int terms;

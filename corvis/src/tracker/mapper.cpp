@@ -19,8 +19,6 @@ using namespace std;
 
 mapper::mapper()
 {
-    unlinked = false;
-
     // Load BoW vocabulary
     size_t voc_size = 0;
     const char* voc_file = load_vocabulary(voc_size);

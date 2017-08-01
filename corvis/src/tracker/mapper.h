@@ -67,7 +67,7 @@ class mapper {
  private:
     aligned_vector<map_node> nodes;
     friend struct map_node;
-    bool unlinked;
+    bool unlinked{false};
     uint64_t node_id_offset{0};
     uint64_t feature_id_offset{0};
 
@@ -111,7 +111,6 @@ class mapper {
 
     //we need the camera intrinsics
     std::vector<state_vision_intrinsics*> camera_intrinsics;
-    std::vector<rc_CameraIntrinsics*> sensor_intrinsics;
 
     bool relocalize(std::vector<transformation>& vG_WC, const transformation& G_BC);
 };

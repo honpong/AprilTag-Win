@@ -985,10 +985,8 @@ void filter_initialize(struct filter *f)
 #endif // MYRIAD2
 
         // send intrinsics to map for relocalization
-        if (f->map) {
+        if (f->map)
             f->map->camera_intrinsics.push_back(&camera_state.intrinsics);
-            f->map->sensor_intrinsics.push_back(&camera_sensor.intrinsics);
-        }
     }
 
     for (size_t i=f->s.imus.children.size(); i<f->gyroscopes.size(); i++)

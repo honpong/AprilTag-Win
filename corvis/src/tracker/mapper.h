@@ -114,7 +114,6 @@ class mapper {
     std::vector<rc_CameraIntrinsics*> sensor_intrinsics;
 
     bool relocalize(std::vector<transformation>& vG_WC, const transformation& G_BC);
-    void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_WC, std::set<size_t>& inliers_set);
 };
 
 

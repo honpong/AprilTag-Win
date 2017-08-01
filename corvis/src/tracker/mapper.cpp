@@ -455,7 +455,7 @@ static mapper::matches match_2d_descriptors(const map_frame& candidate_frame, co
     return current_to_candidate_matches;
 }
 
-void mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_WC, std::set<size_t>& inliers_set) {
+static void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_WC, std::set<size_t>& inliers_set) {
     const f_t max_reprojection_error = 4.0f/38; //threshold = 2*sigma (pixels) / f_px? FIXME!
     const int max_iter = 10; // 10
     const float confidence = 0.9; //0.9

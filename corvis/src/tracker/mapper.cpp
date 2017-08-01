@@ -30,7 +30,6 @@ mapper::mapper()
         orb_voc =  nullptr;
         std::cerr << "mapper: Cannot load BoW vocabulay" << std::endl;
     }
-    dbow_inverted_index.resize(orb_voc->size());
 }
 
 
@@ -322,7 +321,7 @@ bool mapper::deserialize(const std::string &json, mapper & map)
 std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     const map_frame &current_frame,
     const aligned_vector<map_node> &nodes,
-    const std::vector<std::vector<mapper::nodeid>> &dbow_inverted_index,
+    const std::map<unsigned int, std::vector<mapper::nodeid>> &dbow_inverted_index,
     const orb_vocabulary* orb_voc
 ) {
     std::vector<std::pair<mapper::nodeid, float>> loop_closing_candidates;
@@ -331,7 +330,10 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     std::map<mapper::nodeid,uint32_t> common_words_per_node;
     uint32_t max_num_shared_words = 0;
     for (auto word : current_frame.dbow_histogram) {
-        for (auto nid : dbow_inverted_index[word.first]) {
+        auto word_i = dbow_inverted_index.find(word.first);
+        if (word_i == dbow_inverted_index.end())
+            continue;
+        for (auto nid : word_i->second) {
             if (nodes[nid].status == node_status::finished) {
                 common_words_per_node[nid]++;
                 // keep maximum number of words shared with current frame

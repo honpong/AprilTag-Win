@@ -8,6 +8,7 @@
 #include <list>
 #include <vector>
 #include <set>
+#include <map>
 #include <stdbool.h>
 
 #include "transformation.h"
@@ -101,7 +102,7 @@ class mapper {
     typedef std::pair<nodeid, nodeid> match;
     typedef std::vector<match> matches;
 
-    std::vector<std::vector<nodeid>> dbow_inverted_index; // given a word it stores the nodes in which it was observed
+    std::map<unsigned int, std::vector<nodeid>> dbow_inverted_index; // given a word it stores the nodes in which it was observed
 
     // temporary store current frame in case we add a new node
     map_frame current_frame;

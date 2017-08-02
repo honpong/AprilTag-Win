@@ -412,13 +412,11 @@ static mapper::matches match_2d_descriptors(const map_frame& candidate_frame, co
                     auto& current_keypoint = *current_frame.keypoints[current_point_idx];
                     for (int candidate_point_idx : candidate_keypoint_indexes) {
                         auto& candidate_keypoint = *candidate_frame.keypoints[candidate_point_idx];
-                        // Use only keypoints with 3D estimation
-                        if (!features_dbow.count(candidate_keypoint.id)) {
-                            continue;
-                        }
                         int dist = orb_descriptor::distance(candidate_keypoint.descriptor,
-                                                    current_keypoint.descriptor);
-                        if (dist < best_distance) {
+                                                            current_keypoint.descriptor);
+                        if (dist < best_distance
+                            // Use only keypoints with 3D estimation
+                            && features_dbow.find(candidate_keypoint.id) != features_dbow.end()) {
                             second_best_distance = best_distance;
                             best_distance = dist;
                             best_candidate_point_idx = candidate_point_idx;

@@ -91,7 +91,9 @@ void Shave::start(unsigned int ptr, const char* fmt, ... )
 {
     u32 sc = OS_MYR_DRV_SUCCESS;
     shave_mutex.lock();
+#ifndef DISABLE_SHAVE_PM
     HglCprTurnOnShaveMask(power_mask);
+#endif
     sc = this->reset();
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: failed reset shave %lu\n", sc);
@@ -113,7 +115,9 @@ void Shave::wait(void)
 {
     u32 running = 0, sc = OS_MYR_DRV_SUCCESS;
     sc = OsDrvSvuWaitShaves(1, &handlers[id], OS_DRV_SVU_WAIT_FOREVER, &running);
+#ifndef DISABLE_SHAVE_PM
     HglCprTurnOffShaveMask(power_mask);
+#endif
     shave_mutex.unlock();
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: while waiting shave %lu\n", sc);

@@ -29,7 +29,7 @@ struct project_motion_covariance_data{
     project_covariance_element_data T = {0, 0, 0};
     project_covariance_element_data da = {0, 0, 0};
     project_covariance_element_data Q = {0, 0, 0};
-    float *dQp_s_dW = NULL;
+    const float *dQp_s_dW = NULL;
     int camera_count = 0;
     project_covariance_element_data tr[MAX_DATA_SIZE] = { {0, 0, 0} };
     project_covariance_element_data qr[MAX_DATA_SIZE] = { {0, 0, 0} };

@@ -48,7 +48,7 @@ inline void to_col(float *dst, int col, int stride, int index, int rows, float4 
     }
 }
 
-inline float4 mull_m3_v3(float* mat, float4 vec)
+inline float4 mull_m3_v3(const float* mat, float4 vec)
 {
     float4 new_vec;
     vec.s3 = 0.f;

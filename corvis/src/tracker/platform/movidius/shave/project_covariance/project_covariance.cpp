@@ -33,7 +33,10 @@ inline float4 from_row(const float *src, int row, int stride, int index, int col
     if((row < 0) || (row >= rows)){
         return res;
     }
-    res = *(float4*) (src + row * stride + index);
+    res = {*(src + row * stride + index),
+           *(src + row * stride + index + 1),
+           *(src + row * stride + index + 2),
+           0};
     return res;
 }
 
@@ -49,9 +52,12 @@ inline float4 mull_m3_v3(float* mat, float4 vec)
 {
     float4 new_vec;
     vec.s3 = 0.f;
-    new_vec[0]= mvuDot( *(float4*)(mat    ), vec);
-    new_vec[1]= mvuDot( *(float4*)(mat + 3), vec);
-    new_vec[2]= mvuDot( *(float4*)(mat + 6), vec);
+    float4 r1 = {*mat,   *(mat+1), *(mat+2), 0};
+    float4 r2 = {*mat+3, *(mat+4), *(mat+5), 0};
+    float4 r3 = {*mat+6, *(mat+7), *(mat+8), 0};
+    new_vec[0]= mvuDot(r1, vec);
+    new_vec[1]= mvuDot(r2, vec);
+    new_vec[2]= mvuDot(r3, vec);
     return new_vec;
 }
 

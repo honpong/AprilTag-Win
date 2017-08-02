@@ -9,7 +9,7 @@
 #include "Trace.h"
 
 #ifdef MYRIAD2
-    #define SHAVE_PROJECT_MOTION_COVARIANCE
+    //#define SHAVE_PROJECT_MOTION_COVARIANCE
     #include <OsCommon.h>
     #include "project_covariance_definitions.h"
     #include "covariance_projector.h"

@@ -45,7 +45,7 @@ class state_leaf_base {
     friend class state_vision;
 public:
     state_leaf_base(const char *name_, state_node::node_type type_, int index_, int size_) : name(name_), type(type_), index(index_), size(size_) {}
-    inline bool single_index() { return size == 1; }
+    inline bool single_index() const { return size == 1; }
     const char *name;
 protected:
     state_node::node_type type;
@@ -198,7 +198,7 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
         else                                                                         return map { &c(i,index),                       outer_stride<Cols>(c.get_stride()) };
     }
 
-    inline f_t get_initial_covariance(){
+    inline f_t get_initial_covariance() const {
             return (type == node_type::fake) ? initial_covariance(0, 0) : 0;
     }
 

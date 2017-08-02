@@ -36,7 +36,6 @@
 
 const static sensor_clock::duration camera_wait_time = std::chrono::milliseconds(500); //time we'll wait for all cameras before attempting to detect features
 const static sensor_clock::duration max_detector_failed_time = std::chrono::milliseconds(500); //time we'll go with no features before dropping to inertial only mode
-const static int calibration_converge_samples = 200; //number of accelerometer readings needed to converge in calibration mode
 const static f_t accelerometer_inertial_var = 2.33*2.33; //variance when in inertial only mode
 const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be less than this to initialize from dynamic mode
 //a_bias_var for best results on benchmarks is 6.4e-3
@@ -897,7 +896,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!f->got_any_accelerometers() || !f->got_any_gyroscopes()) return false;
-    if(time - f->want_start < camera_wait_time) {
+    if(!f->stereo_enabled && time - f->want_start < camera_wait_time) {
         for(auto &camera : f->cameras) if(!camera->got) return false;
     }
 
@@ -1025,6 +1024,7 @@ void filter_initialize(struct filter *f)
     f->min_group_add = 16;
     f->max_group_add = std::max<int>(80 / f->cameras.size(), f->min_group_add);
     f->has_depth = false;
+    f->stereo_enabled = false;
 
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;

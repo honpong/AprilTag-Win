@@ -11,8 +11,6 @@
 #include "filter.h"
 #include "Trace.h"
 
-#define STEREO_TIME_THRESHOLD 0.023
-
 transformation sensor_fusion::get_transformation() const
 {
     return sfm.origin*sfm.s.get_transformation();

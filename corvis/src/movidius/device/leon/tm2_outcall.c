@@ -133,12 +133,17 @@ static VOID UsbPumpVscAppI_Event(VOID *                   ClientHandle,
             TTUSB_PLATFORM_PRINTF((pSelf->pPlatform, UDMASK_ANY,
                                    " UsbPumpVscAppI_Event: interface down.\n"));
 
+            printf("\nIfc down\n");
             pSelf->fInterfaceUp = FALSE;
         } break;
 
         case USBPUMP_PROTO_VSC2_EVENT_RESUME:
+            printf("\nIfc resume\n");
+            break;
+
         case USBPUMP_PROTO_VSC2_EVENT_SUSPEND:
             /* Need to notify client */
+            printf("\nIfc suspend\n");
             break;
 
         default:

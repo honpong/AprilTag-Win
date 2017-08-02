@@ -9,7 +9,7 @@
 #include "Trace.h"
 
 #ifdef MYRIAD2
-    #define SHAVE_PROJECT_MOTION_COVARIANCE
+    //#define SHAVE_PROJECT_MOTION_COVARIANCE
     #include <OsCommon.h>
     #include "project_covariance_definitions.h"
     #include "covariance_projector.h"
@@ -605,7 +605,7 @@ void state_vision::cache_jacobians(f_t dt)
 
 #ifdef SHAVE_PROJECT_MOTION_COVARIANCE
 __attribute__((section(".cmx_direct.data"))) project_motion_covariance_data data;
-void state_vision::project_motion_covariance_shave(matrix &dst, const matrix &src, f_t dt)
+void state_vision::project_motion_covariance_shave(matrix &dst, const matrix &src, f_t dt) const
 {
     data.src_rows = src.rows();
     data.src_cols = src.cols();

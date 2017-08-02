@@ -19,5 +19,6 @@ DATADIR=output
 -p chlesky:11007 \
 -p cholesky-shave:11008 \
 -p shave-track:10032 \
--p shave-detect:10033
+-p shave-detect:10033 \
+-p project-cov:10027
 

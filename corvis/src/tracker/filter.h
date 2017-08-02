@@ -45,6 +45,7 @@ struct filter {
     float max_velocity;
     float median_depth_variance;
     bool has_converged;
+    bool stereo_enabled;
 
     std::unique_ptr<mapper> map;
 

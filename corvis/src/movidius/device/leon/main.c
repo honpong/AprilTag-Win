@@ -206,12 +206,13 @@ void POSIX_Init(void * args)
 
 // User extension to be able to catch abnormal terminations
 static void Fatal_extension(Internal_errors_Source the_source, bool is_internal,
-                            uint32_t the_error)
+                            Internal_errors_t the_error)
 {
     switch(the_source) {
+
         case RTEMS_FATAL_SOURCE_EXIT:
             if(the_error) {
-                printk("Exited with error code %lu\n", the_error);
+                printk("Exited with error code %u\n", the_error);
             }
             break;  // normal exit
         case RTEMS_FATAL_SOURCE_ASSERT: {
@@ -225,7 +226,7 @@ static void Fatal_extension(Internal_errors_Source the_source, bool is_internal,
                     (const rtems_exception_frame *)the_error);
         } break;
         default: {
-            printk("\nSource %d Internal %d Error %lu  0x%X:\n", the_source,
+            printk("\nSource %d Internal %d Error %u  0x%X:\n", the_source,
                    is_internal, the_error, (unsigned int)the_error);
         } break;
     }

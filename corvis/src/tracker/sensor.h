@@ -34,7 +34,7 @@ struct sensor
 template <int size_> class decimator {
     int num_samples;
     v<size_> accumulator;
-    rc_Timestamp start_ts;
+    rc_Timestamp start_ts{0};
   public:
     unsigned decimate_by = 1;
     void init(unsigned decimate_by_) {

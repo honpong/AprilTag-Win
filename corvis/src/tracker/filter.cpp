@@ -28,8 +28,7 @@
 
 #ifdef MYRIAD2
 #include "shave_tracker.h"
-#define USE_SHAVE_TRACKER 1
-#define SHAVE_STEREO_MATCHING 1
+#include "myriad_defines.h"
 #define MAX_KP2 200
 #define MAX_KP1 40
 #endif // MYRIAD2
@@ -647,7 +646,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         END_EVENT(SF_STEREO_DETECT2, 1)
 
         START_EVENT(SF_STEREO_MATCH, 2)
-#ifdef SHAVE_STEREO_MATCHING
+#ifdef ENABLE_SHAVE_STEREO_MATCHING
         tracker::feature_track * f1_group[MAX_KP1];
         const tracker::feature_track * f2_group[MAX_KP2];
         int i = 0;
@@ -936,7 +935,7 @@ void filter_initialize(struct filter *f)
         camera_state.intrinsics.image_height = camera_sensor.intrinsics.height_px;
 
 #ifdef MYRIAD2
-#if USE_SHAVE_TRACKER == 1
+#ifdef ENABLE_SHAVE_TRACKER
         camera_state.feature_tracker = std::make_unique<shave_tracker>();
 #else
         camera_state.feature_tracker = std::make_unique<fast_tracker>();

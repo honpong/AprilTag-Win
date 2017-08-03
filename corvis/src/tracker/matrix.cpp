@@ -17,8 +17,7 @@
 #include "Trace.h"
 
 #ifdef MYRIAD2
-#define USE_CHOLESKY_SHAVE
-#define USE_BLIS_GEMM
+#include "myriad_defines.h"
 
 #define TRACE_MATRIX_EVENTS 0
 
@@ -35,14 +34,14 @@
 #include <mutex>
 #include <OsDrvShaveL2Cache.h>
 
-#ifdef USE_CHOLESKY_SHAVE
+#ifdef ENABLE_SHAVE_CHOLESKY
 
 #include "solve_chol.h"
 #define SHAVE_CHOLESKY_L2_PARTITION 0
 static std::mutex cholesky_mutex;
 #endif
 
-#ifdef USE_BLIS_GEMM
+#ifdef ENABLE_BLIS_GEMM
 #include <DrvLeonL2C.h>
 #include "blis.h"
 #include "blis_defines.h"
@@ -128,8 +127,8 @@ void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, const fl
     }
 }
 
-#endif // USE_BLIS_GEMM
-#ifdef USE_CHOLESKY_SHAVE
+#endif // ENABLE_BLIS_GEMM
+#ifdef ENABLE_SHAVE_CHOLESKY
 bool matrix_cholesky_shave(matrix &A, matrix &B)
 {
     // Fast path always has this size(3,24), don't run shave cholesky
@@ -260,7 +259,7 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
 {
 
     START_EVENT(SF_GEMM, 0);
-#ifdef USE_BLIS_GEMM
+#ifdef ENABLE_BLIS_GEMM
 
     int k = trans1 ? A.rows() : A.cols();
     if ((trans1 == false) && 
@@ -301,9 +300,8 @@ f_t matrix_check_condition(matrix &A)
 bool matrix_solve(matrix &A, matrix &B)
 {
     START_EVENT(SF_MSOLVE, 0);
-#ifdef USE_CHOLESKY_SHAVE
-//#define SHAVE_CHOLESKY_TEST
-#ifdef SHAVE_CHOLESKY_TEST
+#ifdef ENABLE_SHAVE_CHOLESKY
+#ifdef ENABLE_SHAVE_CHOLESKY_TEST
     matrix A_test(A.Maxrows(), A.get_stride());
     matrix B_test(B.Maxrows(), B.get_stride());
     A_test.resize(A.rows(), A.cols() );
@@ -326,7 +324,7 @@ bool matrix_solve(matrix &A, matrix &B)
     llt.solveInPlace(B_map.transpose());
     }
     END_EVENT(SF_MSOLVE, 0);
-#ifdef SHAVE_CHOLESKY_TEST
+#ifdef ENABLE_SHAVE_CHOLESKY_TEST
     if(test && B.identical(B_test, 0.001)){
         printf("cholesky test passed\n");
     }

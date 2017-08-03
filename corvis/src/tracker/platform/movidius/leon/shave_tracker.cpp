@@ -332,10 +332,8 @@ void shave_tracker::processTrackingResult(std::vector<tracker::feature_track *>&
                     pred->score = bestkp->score;
                 }
                 else {
-                    /* TODO: match fast tracker which does this?
-                    f.dx = 0;
-                    f.dy = 0;
-                    */
+                    pred->dx = 0;
+                    pred->dy = 0;
                     pred->score = DESCRIPTOR::min_score;
                 }
                 i++;

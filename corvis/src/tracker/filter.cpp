@@ -451,7 +451,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     f_t image_to_depth = 1;
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
-    for(auto i = kp.begin(); i != kp.end();) {
+    for(auto i = kp.begin(); i != kp.end() && found_feats < newfeats; found_feats++) {
         {
             state_vision_feature *feat = f->s.add_feature(*i, *g);
 
@@ -478,10 +478,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             
             g->features.children.push_back(feat);
             feat->track.feature = i->feature;
-            
             i = kp.erase(i);
-            found_feats++;
-            if(found_feats == newfeats) break;
         }
     }
 

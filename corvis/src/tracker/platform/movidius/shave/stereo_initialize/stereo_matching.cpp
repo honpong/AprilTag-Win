@@ -113,7 +113,6 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
     bool success= 0;
     float depth,error,error_2;
     float4 cam1_intersect,cam2_intersect;
-    bool dma_flag =0 ;
   //kp compare vars
     float second_best_score = fast_good_match;
     float best_score = fast_good_match;

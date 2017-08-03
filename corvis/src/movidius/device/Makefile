@@ -147,9 +147,10 @@ SLAM_CCOPT   := \
 	-Wno-sign-compare \
 	-fno-strict-aliasing \
 	-DRAPIDJSON_64BIT=1 \
-	-DEIGEN_STACK_ALLOCATION_LIMIT=1024
+	-DEIGEN_STACK_ALLOCATION_LIMIT=1024 \
+	-MD
 
-SLAM_CPPOPT  := -std=gnu++11 -fpermissive -fno-exceptions -Wno-reorder -Wno-missing-field-initializers -fno-strict-aliasing
+SLAM_CPPOPT  := -std=gnu++11 -fpermissive -fno-exceptions -Wno-reorder -Wno-missing-field-initializers -fno-strict-aliasing -MD
 
 LEON_APP_CPP_SOURCES += $(SLAM_SOURCES)
 LEON_APP_C_SOURCES   += $(SLAM_C_SOURCES)
@@ -298,3 +299,6 @@ CCOPT_LRT += -DPIPEPRINT_NOWAIT_DEBUG
 CCOPT     += -DPIPEPRINT_NOWAIT_DEBUG -I../common
 
 print-%: ; @echo $* = $($*)
+
+-include $(LEON_APP_OBJECTS_REQUIRED:%.o=%.d)
+-include $(LEON_RT_APP_OBJ:%.o=%.d)

@@ -587,28 +587,21 @@ static bool l_l_intersect(const v3& p1, const v3& p2, const v3& p3, const v3& p4
 struct kp_pre_data{
 	   v3 p_cal_transformed ;
 	   v3 o_transformed    ;
-	   int sum;
-	   float mean;
-	   const unsigned char *p;
-
 };
 
 // Triangulates a point in the body reference frame from two views
-void preprocess_keypoint_intersect(const state_camera & camera, const feature_t& f,const m3& Rw,kp_pre_data& pre_data)
+static void preprocess_keypoint_intersect(const state_camera & camera, const feature_t& f,const m3& Rw,kp_pre_data& pre_data)
 {
     feature_t f_n = camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature(f));
     v3 p_calibrated(f_n.x(), f_n.y(), 1);
 
     pre_data.p_cal_transformed = Rw*p_calibrated + camera.extrinsics.T.v;
     pre_data.o_transformed     = camera.extrinsics.T.v;
-    pre_data.sum = -1;
-    pre_data.mean = 0;
-    pre_data.p = 0;
 }
 
 
 // Triangulates a point in the body reference frame from two views
-float keypoint_intersect(state_camera & camera1, state_camera & camera2, kp_pre_data& pre_data1, kp_pre_data& pre_data2,const m3& Rw1T, const m3& Rw2T, float & intersection_error_percent)
+static float keypoint_intersect(state_camera & camera1, state_camera & camera2, kp_pre_data& pre_data1, kp_pre_data& pre_data2,const m3& Rw1T, const m3& Rw2T, float & intersection_error_percent)
 {
      
     const bool debug_triangulate = false;
@@ -654,108 +647,11 @@ float keypoint_intersect(state_camera & camera1, state_camera & camera2, kp_pre_
     return depth;
 }
 
-
-
-//NCC: use with threshold of -0.50 - -0.70(we negate at the bottom to get error-like value
-//NCC doesn't seem to benefit from double-weighting the center
-static float inline ncc_score(const unsigned char *im1, const int x1, const int y1, const unsigned char *im2, const int x2, const int y2, float min_score, float mean1,kp_pre_data& pre_data)
+static float keypoint_compare(const tracker::feature_track & t1, const tracker::feature_track & t2)
 {
-    int patch_win_half_width = half_patch_width;
-    int window = patch_win_half_width;
-    int patch_stride = full_patch_width;
-    int full = patch_win_half_width * 2 + 1;
-    int area = full * full + 3 * 3;
-    int xsize = full_patch_width;
-    int ysize = full_patch_width;
-
-    if(x1 < window || y1 < window || x2 < window || y2 < window || x1 >= xsize - window || x2 >= xsize - window || y1 >= ysize - window || y2 >= ysize - window) return -1;
-
-    const unsigned char *p1 = im1 + patch_stride * (y1 - window) + x1;
-    const unsigned char *p2 = im2 + patch_stride * (y2 - window) + x2;
-    float mean2=0;
-    if (pre_data.sum == -1  ) // calc pre_data for later use
-    {
-
-        int  sum2 = 0;
-        for(int dy = -window; dy <= window; ++dy, p2+=patch_stride) {
-            for(int dx = -window; dx <= window; ++dx) {
-                sum2 += p2[dx];
-            }
-        }
-
-        p2 = im2 + patch_stride * (y2 - 1) + x2;
-        for (int dy = -1; dy <= 1; ++dy, p2 += patch_stride) {
-            for (int dx = -1; dx <= 1; ++dx) {
-                 sum2 += p2[dx];
-            }
-        }    
-
-        mean2 = sum2 / (float)area;
-        p2 = im2 + patch_stride * (y2 - window) + x2;
-        pre_data.sum = sum2;
-        pre_data.mean = mean2;
-        pre_data.p = p2;
-    }
-
-    
-    
-    p2 = pre_data.p;
-    mean2 = pre_data.mean;
-
-    float top = 0, bottom1 = 0, bottom2 = 0;
-    for(int dy = -window; dy <= window; ++dy, p1+=patch_stride, p2+=patch_stride) {
-        for(int dx = -window; dx <= window; ++dx) {
-            float t1 = (p1[dx] - mean1);
-            float t2 = (p2[dx] - mean2);
-            top += t1 * t2;
-            bottom1 += (t1 * t1);
-            bottom2 += (t2 * t2);
-            if((dx >= -1) && (dx <= 1) && (dy >= -1) && (dy <= 1))
-            {
-                top += t1 * t2;
-                bottom1 += (t1 * t1);
-                bottom2 += (t2 * t2);
-            }
-        }
-    }
-    // constant patches can't be matched
-    if(bottom1 < 1e-15 || bottom2 < 1e-15 || top < 0.f)
-      return min_score;
-
-    return top*top/(bottom1 * bottom2);
-}
-
-static float inline compute_mean(const tracker::feature_track & t)
-{
-    fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(t.feature.get());
-    uint8_t * patch = f.descriptor.descriptor.data();
-    int patch_stride = full_patch_width;
-    const int area = full_patch_width*full_patch_width + 3*3;
-    int sum1 = 0;
-    for(int i = 0; i < full_patch_width*full_patch_width; i++)
-        sum1 += patch[i];
-
-    // center weighting
-    uint8_t * p1 = (uint8_t*)patch + patch_stride * (half_patch_width - 1) + half_patch_width;
-    for (int dy = -1; dy <= 1; ++dy, p1 += patch_stride) {
-        for (int dx = -1; dx <= 1; ++dx) {
-            sum1 += p1[dx];
-        }
-    }
-    float mean1 = sum1 / (float)area;
-
-    return mean1;
-}
-
-float keypoint_compare(const tracker::feature_track & t1, const tracker::feature_track & t2, kp_pre_data& pre_data)
-{
-    float mean1 = compute_mean(t1);
-    float min_score = 0;
     fast_tracker::fast_feature<DESCRIPTOR> &f1 = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(t1.feature.get());
-    uint8_t * p1 = f1.descriptor.descriptor.data();
     fast_tracker::fast_feature<DESCRIPTOR> &f2 = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(t2.feature.get());
-    uint8_t * p2 = f2.descriptor.descriptor.data();
-    return ncc_score(p1, half_patch_width, half_patch_width, p2, half_patch_width, half_patch_width, min_score, mean1, pre_data);
+    return DESCRIPTOR::distance(f1.descriptor, f2.descriptor);
 }
 
 #include <future>
@@ -836,7 +732,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                 feature_t ff2{k2.x, k2.y};
                 float depth = keypoint_intersect(camera_state1, camera_state2, prkpv1[j],prkpv2[i],Rw1T,Rw2T, error);
                 if(depth && error < 0.02) {
-                    float score = keypoint_compare(k1, k2, prkpv2[i]);
+                    float score = keypoint_compare(k1, k2);
                     if(score > best_score) {
                         second_best_score = best_score;
                         best_score = score;

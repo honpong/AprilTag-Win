@@ -10,6 +10,7 @@ Pedro Pinies, Lina Paz
 *********************************************************************************/
 #include "patch_descriptor.h"
 #include <cmath>
+#include <cstdlib>
 
 patch_descriptor::patch_descriptor(float x, float y, const tracker::image &image) {
     for(int py = 0; py < full_patch_size; ++py) {
@@ -18,7 +19,7 @@ patch_descriptor::patch_descriptor(float x, float y, const tracker::image &image
                                        ((int)y + py - half_patch_size) * image.stride_px];
             descriptor[py * full_patch_size + px] = value;
             // double-weighting the center on a 3x3 window
-            int weight = (std::fabs(px - half_patch_size) <=1) && (std::fabs(py - half_patch_size) <=1) ? 2 : 1;
+            int weight = std::abs(px - half_patch_size) <= 1 && std::abs(py - half_patch_size) <= 1 ? 2 : 1;
             mean += weight * value;
             variance += weight * value * value;
         }
@@ -39,7 +40,7 @@ float patch_descriptor::distance(const patch_descriptor &a,
         for(int px = 0; px < full_patch_size; ++px) {
             int index = py * full_patch_size + px;
             float value =  (a.descriptor[index]-a.mean)*(b.descriptor[index]-b.mean);
-            int weight = (std::fabs(px - half_patch_size) <=1) && (std::fabs(py - half_patch_size) <=1) ? 2 : 1;
+            int weight = std::abs(px - half_patch_size) <= 1 && std::abs(py - half_patch_size) <= 1 ? 2 : 1;
             distance += weight*value;
         }
     }
@@ -60,7 +61,7 @@ float patch_descriptor::distance(float x, float y, const tracker::image &image) 
             uint8_t d2  = image.image[(int)x + px - half_patch_size +
                                       ((int)y + py - half_patch_size) * image.stride_px];
             // double-weighting the center on a 3x3 window
-            int weight = ((std::fabs(px - half_patch_size) <=1) && (std::fabs(py - half_patch_size) <=1)) ? 2 : 1;
+            int weight = std::abs(px - half_patch_size) <= 1 && std::abs(py - half_patch_size) <= 1 ? 2 : 1;
             sum_d2 += weight * d2;
             sum_d1d2 += weight * d1 * d2;
             variance2 += weight * d2 * d2;

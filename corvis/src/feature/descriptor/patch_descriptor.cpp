@@ -35,7 +35,7 @@ float patch_descriptor::distance(const patch_descriptor &a,
     if (a.variance < 1e-15 || b.variance < 1e-15)
         return min_score;
 
-    float distance{0};
+    float distance = 0;
     for(int py = 0; py < full_patch_size; ++py) {
         for(int px = 0; px < full_patch_size; ++px) {
             int index = py * full_patch_size + px;
@@ -53,8 +53,7 @@ float patch_descriptor::distance(const patch_descriptor &a,
 
 float patch_descriptor::distance(float x, float y, const tracker::image &image) const {
 
-    float sum_d2{0}, sum_d1d2{0};
-    float variance2{0};
+    float sum_d2 = 0, sum_d1d2 = 0, variance2 = 0;
     for(int py = 0; py < full_patch_size; ++py) {
         for(int px = 0; px < full_patch_size; ++px) {
             uint8_t d1  = descriptor[py * full_patch_size + px];

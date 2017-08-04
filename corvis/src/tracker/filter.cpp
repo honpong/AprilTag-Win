@@ -585,20 +585,15 @@ static bool l_l_intersect(const v3& p1, const v3& p2, const v3& p3, const v3& p4
 }
 
 struct kp_pre_data{
-	   v3 p_cal_transformed ;
-	   v3 o_transformed    ;
+    v3 p_cal_transformed, o_transformed;
 };
 
 // Triangulates a point in the body reference frame from two views
-static void preprocess_keypoint_intersect(const state_camera & camera, const feature_t& f,const m3& Rw,kp_pre_data& pre_data)
+static kp_pre_data preprocess_keypoint_intersect(const state_camera & camera, const feature_t& f,const m3& Rw)
 {
-    feature_t f_n = camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature(f));
-    v3 p_calibrated(f_n.x(), f_n.y(), 1);
-
-    pre_data.p_cal_transformed = Rw*p_calibrated + camera.extrinsics.T.v;
-    pre_data.o_transformed     = camera.extrinsics.T.v;
+    v3 p_calibrated = camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature(f)).homogeneous();
+    return { Rw*p_calibrated + camera.extrinsics.T.v, camera.extrinsics.T.v };
 }
-
 
 // Triangulates a point in the body reference frame from two views
 static float keypoint_intersect(state_camera & camera1, state_camera & camera2, kp_pre_data& pre_data1, kp_pre_data& pre_data2,const m3& Rw1T, const m3& Rw2T, float & intersection_error_percent)
@@ -700,23 +695,13 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         m3 Rw1T = Rw1.transpose();
         std::vector<kp_pre_data> prkpv1;
         for(tracker::feature_track & k1 : keypoints)
-        {
-             kp_pre_data prkp;
-             feature_t ff1{k1.x, k1.y};
-             preprocess_keypoint_intersect(camera_state1, ff1, Rw1, prkp);
-             prkpv1.push_back(prkp);
-        }
+             prkpv1.emplace_back(preprocess_keypoint_intersect(camera_state1, feature_t{k1.x, k1.y}, Rw1));
         // preprocess data for kp2
         m3 Rw2 = camera_state2.extrinsics.Q.v.toRotationMatrix();
         m3 Rw2T = Rw1.transpose();
         std::vector<kp_pre_data> prkpv2;
         for(auto & k2 : kp2)
-        {
-             kp_pre_data prkp;
-             feature_t ff2{k2.x, k2.y};
-             preprocess_keypoint_intersect(camera_state2, ff2,Rw2, prkp);
-             prkpv2.push_back(prkp);
-        }
+            prkpv2.emplace_back(preprocess_keypoint_intersect(camera_state2, feature_t{k2.x, k2.y},Rw2));
         int j=0;
         for(tracker::feature_track & k1 : keypoints) {
             float second_best_score = DESCRIPTOR::good_score;

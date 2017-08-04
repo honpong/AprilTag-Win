@@ -669,8 +669,6 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
 
         START_EVENT(EV_SF_IMG2_STEREO_DETECT, 1)
         std::vector<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->feature_tracker->detect(timage, existing_features, 200);
-        const fast_tracker * tracker1 = (fast_tracker *)f->s.cameras.children[camera1_id]->feature_tracker.get();
-        const fast_tracker * tracker2 = (fast_tracker *)f->s.cameras.children[camera2_id]->feature_tracker.get();
         END_EVENT(EV_SF_IMG2_STEREO_DETECT, 1)
 
         //fprintf(stderr, "%lu detected in im2\n", kp2.size());

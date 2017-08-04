@@ -13,13 +13,17 @@ Pedro Pinies, Lina Paz
 #include <cstdlib>
 
 patch_descriptor::patch_descriptor(float x, float y, const tracker::image &image) {
+    uint8_t w[full_patch_size];
+    for (int i=0; i<full_patch_size; i++)
+        w[i] = std::abs(i - half_patch_size) <= 1 ? 2 : 1;
+
     for(int py = 0; py < full_patch_size; ++py) {
         for(int px = 0; px < full_patch_size; ++px) {
             uint8_t value = image.image[(int)x + px - half_patch_size +
                                        ((int)y + py - half_patch_size) * image.stride_px];
             descriptor[py * full_patch_size + px] = value;
             // double-weighting the center on a 3x3 window
-            int weight = std::abs(px - half_patch_size) <= 1 && std::abs(py - half_patch_size) <= 1 ? 2 : 1;
+            int weight = std::abs(py - half_patch_size) <= 1 ? w[px] : 1;
             mean += weight * value;
             variance += weight * value * value;
         }
@@ -35,12 +39,17 @@ float patch_descriptor::distance(const patch_descriptor &a,
     if (a.variance < 1e-15 || b.variance < 1e-15)
         return min_score;
 
+    uint8_t w[full_patch_size];
+    for (int i=0; i<full_patch_size; i++)
+        w[i] = std::abs(i - half_patch_size) <= 1 ? 2 : 1;
+
     float distance = 0;
     for(int py = 0; py < full_patch_size; ++py) {
         for(int px = 0; px < full_patch_size; ++px) {
             int index = py * full_patch_size + px;
             float value =  (a.descriptor[index]-a.mean)*(b.descriptor[index]-b.mean);
-            int weight = std::abs(px - half_patch_size) <= 1 && std::abs(py - half_patch_size) <= 1 ? 2 : 1;
+            // double-weighting the center on a 3x3 window
+            int weight = std::abs(py - half_patch_size) <= 1 ? w[px] : 1;
             distance += weight*value;
         }
     }
@@ -52,6 +61,9 @@ float patch_descriptor::distance(const patch_descriptor &a,
 }
 
 float patch_descriptor::distance(float x, float y, const tracker::image &image) const {
+    uint8_t w[full_patch_size];
+    for (int i=0; i<full_patch_size; i++)
+        w[i] = std::abs(i - half_patch_size) <= 1 ? 2 : 1;
 
     float sum_d2 = 0, sum_d1d2 = 0, variance2 = 0;
     for(int py = 0; py < full_patch_size; ++py) {
@@ -60,12 +72,13 @@ float patch_descriptor::distance(float x, float y, const tracker::image &image) 
             uint8_t d2  = image.image[(int)x + px - half_patch_size +
                                       ((int)y + py - half_patch_size) * image.stride_px];
             // double-weighting the center on a 3x3 window
-            int weight = std::abs(px - half_patch_size) <= 1 && std::abs(py - half_patch_size) <= 1 ? 2 : 1;
+            int weight = std::abs(py - half_patch_size) <= 1 ? w[px] : 1;
             sum_d2 += weight * d2;
             sum_d1d2 += weight * d1 * d2;
             variance2 += weight * d2 * d2;
         }
     }
+
     const int area = full_patch_size * full_patch_size + 3 * 3;
     float mean2 = sum_d2/area;
     variance2 = variance2 - area*mean2*mean2;
@@ -77,4 +90,3 @@ float patch_descriptor::distance(float x, float y, const tracker::image &image) 
 
     return top*top/(variance*variance2);
 }
-

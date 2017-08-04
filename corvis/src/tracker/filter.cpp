@@ -598,47 +598,23 @@ static kp_pre_data preprocess_keypoint_intersect(const state_camera & camera, co
 // Triangulates a point in the body reference frame from two views
 static float keypoint_intersect(state_camera & camera1, state_camera & camera2, kp_pre_data& pre_data1, kp_pre_data& pre_data2,const m3& Rw1T, const m3& Rw2T, float & intersection_error_percent)
 {
-     
-    const bool debug_triangulate = false;
-
-    v3 pa, pb;
-    bool success;
-    float depth;    
-
-    // pa is the point on the first line closest to the intersection
-    // pb is the point on the second line closest to the intersection
-    success = l_l_intersect(pre_data1.o_transformed, pre_data1.p_cal_transformed, pre_data2.o_transformed, pre_data2.p_cal_transformed, pa, pb);
-    if(!success) {
-        if(debug_triangulate)
-            fprintf(stderr, "Failed intersect\n");
+    v3 pa, pb; // pa (pb) is the point on the first (second) line closest to the intersection
+    bool success = l_l_intersect(pre_data1.o_transformed, pre_data1.p_cal_transformed, pre_data2.o_transformed, pre_data2.p_cal_transformed, pa, pb);
+    if(!success)
         return 0;
-    }
 
-    float error = (pa - pb).norm();
     v3 cam1_intersect = Rw1T * (pa - camera1.extrinsics.T.v);
     v3 cam2_intersect = Rw2T * (pb - camera2.extrinsics.T.v);
-    if(debug_triangulate)
-        fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
-
-    if(cam1_intersect[2] < 0 || cam2_intersect[2] < 0) {
-        if(debug_triangulate)
-           fprintf(stderr, "Lines intersected at a negative camera depth, failing\n");
+    if(cam1_intersect[2] < 0 || cam2_intersect[2] < 0)
         return 0;
-    }
 
-    // TODO: set minz and maxz or at least bound error when close to /
-    // far away from camera
+    // TODO: set minz and maxz or at least bound error when close to / far away from camera
+    float error = (pa - pb).norm();
     intersection_error_percent = error/cam1_intersect[2];
-
-    if(error/cam1_intersect[2] > .05) {
-        if(debug_triangulate)
-            fprintf(stderr, "Error too large, failing\n");
+    if(error/cam1_intersect[2] > .05)
         return 0;
-    }
-  
-    depth = cam1_intersect[2];
-     
-    //fprintf(stderr, "Success: %f depth\n", depth);
+
+    float depth = cam1_intersect[2];
     return depth;
 }
 

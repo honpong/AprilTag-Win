@@ -123,13 +123,6 @@ shave_tracker::shave_tracker() :
     }
 }
 
-#ifdef DEBUG_TRACK
-    static int directx = 1;
-    static int directy = 1;
-    static int offsetx = 40;
-    static int offsety = 40;
-#endif
-
 std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image &image, const std::vector<tracker::feature_track *> &features, size_t number_desired)
 {
     //init
@@ -161,9 +154,6 @@ void shave_tracker::sortFeatures(const tracker::image &image, int number_desired
             u16 x = offsets[y][2 + j] + PADDING;
             u8 score = scores[y][4 + j];
 
-#ifdef DEBUG_TRACK
-            printf("detect: x %d y %d score %d\n", x, y, score);
-#endif
             if (!is_trackable<DESCRIPTOR::border_size>((float) x, (float) y, image.width_px, image.height_px) ||
                     !mask->test(x, y))
                 continue;
@@ -317,9 +307,6 @@ void shave_tracker::processTrackingResult(std::vector<tracker::feature_track *>&
                 fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(pred->feature.get());
                 xy * bestkp = &tracked_features[i];
                 if(bestkp->x != -1) {
-#ifdef DEBUG_TRACK
-                    printf("prevx %f prevy %f x %f y %f dx %f dy %f score %f id %llu\n" ,pred->x, pred->y, bestkp->x, bestkp->y, f.dx, f.dy, bestkp->score, pred->id);
-#endif
                     pred->dx = bestkp->x - pred->x;
                     pred->dy = bestkp->y - pred->y;
                     pred->x = bestkp->x;
@@ -337,26 +324,6 @@ void shave_tracker::processTrackingResult(std::vector<tracker::feature_track *>&
 
 void shave_tracker::track(const tracker::image &image, std::vector<tracker::feature_track *> &predictions)
 {
-#ifdef DEBUG_TRACK
-    memset(image.image, 0, image.width_px * image.height_px);
-    offsetx += 5*directx;
-    offsety += 3*directy;
-
-    if( offsetx >= 640 || offsetx <=0){
-        directx = -directx;
-        offsetx += 5*directx;
-    }
-    if( offsety >= 480 || offsety <= 0){
-        directy = -directy;
-        offsety += 3*directy;
-    }
-    printf("track offsetx %d offsety %d\n",offsetx, offsety);
-
-    for (int i = 0; i < offsety; ++i)
-    {
-        memset(image.image + i * image.width_px, 255, offsetx);
-    }
-#endif
     std::vector<TrackingData> trackingData;
     prepTrackingData(trackingData, predictions);
     trackMultipleShave(trackingData, image);

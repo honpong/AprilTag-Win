@@ -625,7 +625,6 @@ static float keypoint_compare(const tracker::feature_track & t1, const tracker::
     return DESCRIPTOR::distance(f1.descriptor, f2.descriptor);
 }
 
-#include <future>
 bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data)
 {
 
@@ -647,9 +646,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         std::vector<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->feature_tracker->detect(timage, existing_features, 200);
         END_EVENT(EV_SF_IMG2_STEREO_DETECT, 1)
 
-        //fprintf(stderr, "%lu detected in im2\n", kp2.size());
         START_EVENT(EV_SF_MATCH_FEATURES, 2)
-// START PUSH 2 SHAVE
 #ifdef SHAVE_STEREO_MATCHING
         tracker::feature_track * f1_group[MAX_KP1];
         const tracker::feature_track * f2_group[MAX_KP2];
@@ -678,7 +675,6 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             float best_score = DESCRIPTOR::good_score;
             float best_depth = 0;
             float best_error = 0;
-            feature_t best_f2;
             kp_pre_data pre1 = preprocess_keypoint_intersect(camera_state1, feature_t{k1.x, k1.y}, Rw1);
             // try to find a match in im2
             int i= 0;
@@ -691,15 +687,12 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                         best_score = score;
                         best_depth = depth;
                         best_error = error;
-                        best_f2 = ff2;
                     }
                 }
                 i++;
             }
-            //float ratio = sqrt(second_best_score)/sqrt(best_score);
             // If we have two candidates, just give up
             if(best_depth && second_best_score == DESCRIPTOR::good_score) {
-                //fprintf(stderr, "good depth for kp at %f %f with %f %f score %f no_second_best %d ratio %f with error %f\n", k1.x, k1.y, best_f2.x(), best_f2.y(), best_score, second_best_score==DESCRIPTOR::good_score, ratio, best_error);
                 k1.depth = best_depth;
                 k1.error = best_error;
             }
@@ -709,7 +702,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         //keypoints.sort([](const tracker::feature_track & f1, const tracker::feature_track &f2) {
         //        return f1.depth > f2.depth;
         //    });
-#endif //END PUSH 2 ASHAVE
+#endif
         END_EVENT(EV_SF_MATCH_FEATURES, 2)
 
         f->s.cameras.children[camera1_id]->detection_future = std::async(std::launch::deferred, []() {});

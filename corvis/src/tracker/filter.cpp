@@ -632,7 +632,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         START_EVENT(EV_SF_IMG_STEREO_MEAS, 0)
         state_camera &camera_state1 = *f->s.cameras.children[camera1_id];
         state_camera &camera_state2 = *f->s.cameras.children[camera2_id];
-        std::list<tracker::feature_track> & keypoints = f->s.cameras.children[camera1_id]->standby_features;
+        std::list<tracker::feature_track> & kp1 = f->s.cameras.children[camera1_id]->standby_features;
 
         const std::vector<tracker::feature_track *> existing_features;
 
@@ -651,7 +651,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         tracker::feature_track * f1_group[MAX_KP1];
         const tracker::feature_track * f2_group[MAX_KP2];
         int i = 0;
-        for(auto & k1 : keypoints)
+        for(auto & k1 : kp1)
             f1_group[i++] = &k1;
 
         i = 0;
@@ -659,7 +659,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             f2_group[i++] = &k2;
 
         shave_tracker shave_stereo_o;
-        shave_stereo_o.stereo_matching_full_shave(f1_group, keypoints.size(), f2_group, kp2.size(), camera_state1, camera_state2);
+        shave_stereo_o.stereo_matching_full_shave(f1_group, kp1.size(), f2_group, kp2.size(), camera_state1, camera_state2);
 #else
         // preprocess data for kp1
         m3 Rw1 = camera_state1.extrinsics.Q.v.toRotationMatrix();
@@ -670,7 +670,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         std::vector<kp_pre_data> prkpv2;
         for(auto & k2 : kp2)
             prkpv2.emplace_back(preprocess_keypoint_intersect(camera_state2, feature_t{k2.x, k2.y},Rw2));
-        for(tracker::feature_track & k1 : keypoints) {
+        for(tracker::feature_track & k1 : kp1) {
             float second_best_score = DESCRIPTOR::good_score;
             float best_score = DESCRIPTOR::good_score;
             float best_depth = 0;
@@ -699,9 +699,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         }
 
         // Sort features with depth first
-        //keypoints.sort([](const tracker::feature_track & f1, const tracker::feature_track &f2) {
-        //        return f1.depth > f2.depth;
-        //    });
+        //kp1.sort([](const tracker::feature_track & f1, const tracker::feature_track &f2) { return f1.depth > f2.depth; });
 #endif
         END_EVENT(EV_SF_MATCH_FEATURES, 2)
 

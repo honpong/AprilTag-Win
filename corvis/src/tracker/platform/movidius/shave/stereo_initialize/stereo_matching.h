@@ -29,7 +29,7 @@ struct feature_t
 {
     private:
         //compare
-        int xsize, ysize, stride, patch_stride, patch_win_half_width;
+        int patch_stride, patch_win_half_width;
         //kp_intersect
         float4x4 R1w_transpose;
         float4x4 R2w_transpose;

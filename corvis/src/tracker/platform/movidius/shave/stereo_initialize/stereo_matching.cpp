@@ -11,7 +11,6 @@
 #include <string.h>
 
 // 2:  Source Specific #defines and types  (typedef,enum,struct)
-//#define DEBUG_PRINTS
 #include "stereo_commonDefs.hpp"
 #include "common_shave.h"
 
@@ -134,7 +133,6 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
     int n_kp1=*((int*)(p_kp1_Buffer));
     int n_kp2=*((int*)(p_kp2_Buffer));
     int patch_buffer_size = patch_stride *patch_stride;
-    float3_t* kp1=(float3_t*)(p_kp1_Buffer+sizeof(int));
     int shaveNum = scGetShaveNumber() ;
     DPRINTF("\t#AS- START SHAVE %d\n",shaveNum);
 

@@ -45,6 +45,7 @@ __attribute__((section(".cmx_direct.data"))) fast_tracker::xy tracked_features[5
 __attribute__((section(".cmx_direct.data"))) uint8_t * patches1[MAX_KP1];
 __attribute__((section(".cmx_direct.data"))) uint8_t * patches2[MAX_KP2];
 __attribute__((section(".cmx_direct.data"))) float depths1[MAX_KP1];
+__attribute__((section(".cmx_direct.data"))) float errors1[MAX_KP1];
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
 //tracker
@@ -366,6 +367,7 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
         fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(f1_group[i]->feature.get());
         patches1[i] = f.descriptor.descriptor.data();
         depths1[i] = 0;
+        errors1[i] = 0;
 
         auto * k1 = f1_group[i];
         feature_t f1(k1->x,k1->y);
@@ -411,19 +413,22 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
 
 	for (int i = 0; i < shavesToUse; ++i) {
         shaves[i]->start(entryPoints_intersect_and_compare[i],
-                "iiiiii",
+                "iiiiiii",
                 kpMatchingParams,
                 p_kp1,
                 p_kp2,
                 patches1,
                 patches2,
-                depths1);
+                depths1,
+                errors1);
     }
 
     for (int i = 0; i < shavesToUse; ++i) {
         shaves[i]->wait();
     }
 
-    for(int i = 0; i < n1; i++)
+    for(int i = 0; i < n1; i++) {
         f1_group[i]->depth = depths1[i];
+        f1_group[i]->error = errors1[i];
+    }
 }

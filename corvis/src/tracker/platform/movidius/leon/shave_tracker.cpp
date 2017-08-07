@@ -78,7 +78,7 @@ u32 entryPointsTracking[TRACKER_SHAVES_USED] = {
         (u32)&cvrt3_fast9Track
 };
 //stereo
-u32 entryPoints_intersect_and_compare[TRACKER_SHAVES_USED] = {
+u32 entryPoints_intersect_and_compare[4] = {
         (u32)&cvrt0_stereo_kp_matching_and_compare,
         (u32)&cvrt1_stereo_kp_matching_and_compare,
         (u32)&cvrt2_stereo_kp_matching_and_compare,
@@ -410,7 +410,7 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
 	kpMatchingParams->patch_stride=full_patch_width;
 	kpMatchingParams->patch_win_half_width=half_patch_width;
 
-	for (int i = 0; i < shavesToUse; ++i) {
+	for (int i = 0; i < STEREO_SHAVES_USED; ++i) {
         shaves[i]->start(entryPoints_intersect_and_compare[i],
                 "iiiiiii",
                 kpMatchingParams,
@@ -422,7 +422,7 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
                 errors1);
     }
 
-    for (int i = 0; i < shavesToUse; ++i) {
+    for (int i = 0; i < STEREO_SHAVES_USED; ++i) {
         shaves[i]->wait();
     }
 

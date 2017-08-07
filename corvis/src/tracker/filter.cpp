@@ -695,6 +695,10 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                 k1.depth = best_depth;
                 k1.error = best_error;
             }
+            else {
+                k1.depth = 0;
+                k1.error = 0;
+            }
         }
 
         // Sort features with depth first

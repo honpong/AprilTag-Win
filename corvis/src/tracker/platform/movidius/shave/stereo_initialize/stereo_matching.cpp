@@ -147,12 +147,8 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
     }
 
     //start kp1 loop
-    int start_index = (int) ( shaveNum*(n_kp1)/(SHAVES_USED));
-    int end_index ;
-    if (shaveNum == 3)
-       end_index = n_kp1 ;
-    else
-       end_index = (int)( (shaveNum+1)*(n_kp1)/(SHAVES_USED)) ;
+    int start_index = (int)(shaveNum*(n_kp1)/(STEREO_SHAVES_USED));
+    int end_index = (int)((shaveNum+1)*(n_kp1)/(STEREO_SHAVES_USED)) ;
 
     for (int i=start_index ; i < end_index ; i++)
     {

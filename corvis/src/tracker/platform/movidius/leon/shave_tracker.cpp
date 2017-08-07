@@ -16,7 +16,6 @@ extern "C" {
 
 // Set to 1 to skip detection threshold update so initial threshold will be used. 
 #define SKIP_THRESHOLD_UPDATE 0
-#define SHAVE_TRACKER_L2_PARTITION 1
 
 #if 0 // Configure debug prints
 #define DPRINTF(...) printf(__VA_ARGS__)

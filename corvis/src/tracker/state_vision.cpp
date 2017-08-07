@@ -536,6 +536,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<
 
 void state_camera::update_feature_tracks(const rc_ImageData &image)
 {
+    START_EVENT(SF_TRACK, 0);
     tracker::image current_image;
     current_image.image = (uint8_t *)image.image;
     current_image.width_px = image.width;
@@ -556,6 +557,7 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
 
     if (feature_tracker->tracks.size())
         feature_tracker->track(current_image, feature_tracker->tracks);
+    END_EVENT(SF_TRACK, feature_tracker->tracks.size())
 }
 
 float state_vision::median_depth_variance()
@@ -701,7 +703,7 @@ int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t 
 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
-    START_EVENT(EV_PROJECT_MOTION_COVARIANCE, 0);
+    START_EVENT(SF_PROJECT_MOTION_COVARIANCE, 0);
 #ifdef SHAVE_PROJECT_MOTION_COVARIANCE
 //#define SHAVE_PROJECT_COVARIANCE_TEST
 #ifdef SHAVE_PROJECT_COVARIANCE_TEST
@@ -726,5 +728,5 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
     }
 #endif
 #endif
-    END_EVENT(EV_PROJECT_MOTION_COVARIANCE, 0);
+    END_EVENT(SF_PROJECT_MOTION_COVARIANCE, 0);
 }

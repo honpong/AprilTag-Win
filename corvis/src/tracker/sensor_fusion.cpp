@@ -53,6 +53,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 
 void sensor_fusion::fast_path_catchup()
 {
+    START_EVENT(SF_FAST_PATH_CATCHUP, 0);
     auto start = std::chrono::steady_clock::now();
     sfm.catchup->state.copy_from(sfm.s);
     std::unique_lock<std::recursive_mutex> mini_lock(mini_mutex);
@@ -74,6 +75,7 @@ void sensor_fusion::fast_path_catchup()
     queue.catchup_stats.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
     sfm.catchup->valid = true;
     std::swap(sfm.mini, sfm.catchup);
+    END_EVENT(SF_FAST_PATH_CATCHUP, 0);
 }
 
 void sensor_fusion::queue_receive_data(sensor_data &&data)
@@ -108,7 +110,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
         case rc_SENSOR_TYPE_STEREO: {
             bool docallback = true;
             if(isProcessingVideo) {
-                START_EVENT(EV_FILTER_IMG_STEREO, 0);
+                START_EVENT(SF_STEREO_RECEIVE, 0);
                 std::unique_ptr<void, void(*)(void *)> im_copy(const_cast<void*>(data.stereo.image1), [](void *){});
                 sensor_data image_data(data.time_us, rc_SENSOR_TYPE_IMAGE, 0, data.stereo.shutter_time_us,
                        data.stereo.width, data.stereo.height, data.stereo.stride1, data.stereo.format, data.stereo.image1, std::move(im_copy));
@@ -124,13 +126,13 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if(sfm.s.cameras.children[0]->detecting_space) {
                     sfm.s.cameras.children[0]->detection_future = std::async(threaded ? std::launch::deferred : std::launch::deferred,
                         [this] (struct filter *f, const sensor_data &&data) {
-                            START_EVENT(EV_DETECTING_GROUP_STEREO, 0);
+                            START_EVENT(SF_STEREO_DETECT1, 0);
                             auto start = std::chrono::steady_clock::now();
                             filter_detect(&sfm, std::move(data));
                             auto stop = std::chrono::steady_clock::now();
                             auto global_id = sensor_data::get_global_id_by_type_id(rc_SENSOR_TYPE_STEREO, 0); //"data" is of type IMAGE, but truly should report stats to STEREO stream
                             queue.stats.find(global_id)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-                            END_EVENT(EV_DETECTING_GROUP_STEREO, 0);
+                            END_EVENT(SF_STEREO_DETECT1, 0);
                         }, &sfm, std::move(image_data));
                     // since image_data is a wrapper type here that
                     // does't have a copy, we need to be sure we are
@@ -143,7 +145,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 update_status();
                 if(docallback)
                     update_data(&data);
-                END_EVENT(EV_FILTER_IMG_STEREO, 0);
+                END_EVENT(SF_STEREO_RECEIVE, 0);
             }
             else
                 //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.

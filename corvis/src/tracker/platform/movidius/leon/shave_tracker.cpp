@@ -132,9 +132,6 @@ shave_tracker::shave_tracker() :
 
 std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image &image, const std::vector<tracker::feature_track *> &features, size_t number_desired)
 {
-
-    START_EVENT(EV_SHAVE_DETECT, 0);
-
     //init
     if (!mask)
         mask = std::unique_ptr < scaled_mask
@@ -149,8 +146,6 @@ std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image
     //run
     detectMultipleShave(image);
     sortFeatures(image, number_desired);
-
-    END_EVENT(EV_SHAVE_DETECT, feature_points.size());
 
     return feature_points;
 }
@@ -342,7 +337,6 @@ void shave_tracker::processTrackingResult(std::vector<tracker::feature_track *>&
 
 void shave_tracker::track(const tracker::image &image, std::vector<tracker::feature_track *> &predictions)
 {
-    START_EVENT(EV_SHAVE_TRACK, 0);
 #ifdef DEBUG_TRACK
     memset(image.image, 0, image.width_px * image.height_px);
     offsetx += 5*directx;
@@ -367,8 +361,6 @@ void shave_tracker::track(const tracker::image &image, std::vector<tracker::feat
     prepTrackingData(trackingData, predictions);
     trackMultipleShave(trackingData, image);
     processTrackingResult(predictions);
-
-    END_EVENT(EV_SHAVE_TRACK, predictions.size());
 }
 
 void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group[], size_t n1, const tracker::feature_track * f2_group[], size_t n2, state_camera & camera1, state_camera & camera2)

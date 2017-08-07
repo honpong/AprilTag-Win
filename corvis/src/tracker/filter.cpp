@@ -629,7 +629,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
 {
 
     if(f->s.cameras.children[camera1_id]->detection_future.valid()) {
-        START_EVENT(EV_SF_IMG_STEREO_MEAS, 0)
+        START_EVENT(SF_STEREO_MEAS, 0)
         state_camera &camera_state1 = *f->s.cameras.children[camera1_id];
         state_camera &camera_state2 = *f->s.cameras.children[camera2_id];
         std::list<tracker::feature_track> & kp1 = f->s.cameras.children[camera1_id]->standby_features;
@@ -642,11 +642,11 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         timage.height_px = data.stereo.height;
         timage.stride_px = data.stereo.stride2;
 
-        START_EVENT(EV_SF_IMG2_STEREO_DETECT, 1)
+        START_EVENT(SF_STEREO_DETECT2, 1)
         std::vector<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->feature_tracker->detect(timage, existing_features, 200);
-        END_EVENT(EV_SF_IMG2_STEREO_DETECT, 1)
+        END_EVENT(SF_STEREO_DETECT2, 1)
 
-        START_EVENT(EV_SF_MATCH_FEATURES, 2)
+        START_EVENT(SF_STEREO_MATCH, 2)
 #ifdef SHAVE_STEREO_MATCHING
         tracker::feature_track * f1_group[MAX_KP1];
         const tracker::feature_track * f2_group[MAX_KP2];
@@ -701,10 +701,10 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         // Sort features with depth first
         //kp1.sort([](const tracker::feature_track & f1, const tracker::feature_track &f2) { return f1.depth > f2.depth; });
 #endif
-        END_EVENT(EV_SF_MATCH_FEATURES, 2)
+        END_EVENT(SF_STEREO_MATCH, 2)
 
         f->s.cameras.children[camera1_id]->detection_future = std::async(std::launch::deferred, []() {});
-        END_EVENT(EV_SF_IMG_STEREO_MEAS, 0)
+        END_EVENT(SF_STEREO_MEAS, 0)
     }
 
     return true;

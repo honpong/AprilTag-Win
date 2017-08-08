@@ -1,15 +1,15 @@
-#Sample Movidius project
+# Sample Movidius project
 
 This project contains a complete 6dof system that takes data replayed
 over USB and outputs poses over USB. It supports TM2 hardware (both
 ES0 and ES1) on Ubuntu 16.04.
 
-##Building
+## Building
 
 There are two components to build, the firmware and the host client
 app.
 
-###Firmware:
+### Firmware:
 
 ```
 # downloads and patches mdk if necessary and sets up environment variables
@@ -24,7 +24,7 @@ cd device
 make debug
 ```
 
-###Host:
+### Host:
 
 ```
 mkdir -p host/build

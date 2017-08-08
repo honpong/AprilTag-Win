@@ -4,7 +4,7 @@
 #include <matrix.h>
 
 class remapper {
-    v<MAXSTATESIZE> initial_covariance, process_covariance;
+    matrix &initial_covariance, &process_covariance;
 
     struct update {
         enum type : uint16_t { move, add } type;
@@ -22,8 +22,11 @@ class remapper {
     std::vector <update> updates;
 
   public:
-    remapper() {
+    remapper(int MAXSTATESIZE, matrix &initial_covariance_, matrix &process_covariance_)
+        : initial_covariance(initial_covariance_), process_covariance(process_covariance_) {
         updates.reserve(MAXSTATESIZE);
+        initial_covariance.resize(MAXSTATESIZE);
+        process_covariance.resize(MAXSTATESIZE);
     }
 
     void reset() {
@@ -41,8 +44,8 @@ class remapper {
         else
             updates.emplace_back(update::add, size, newindex);
 
-        initial_covariance.segment<size>(newindex) = initial_covariance_.diagonal();
-        process_covariance.segment<size>(newindex) = process_covariance_;
+        initial_covariance.map().block<1,size>(0,newindex) = initial_covariance_.diagonal();
+        process_covariance.map().block<1,size>(0,newindex) = process_covariance_;
     };
 
     void reindex(int newindex, int oldindex, int size) {

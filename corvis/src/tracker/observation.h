@@ -147,14 +147,11 @@ protected:
     observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_imu &imu): observation_spatial(src), state(_state), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 };
 
-#define MAXOBSERVATIONSIZE (MAXSTATESIZE * 2)
-#define MAXOBSERVATIONSIZE_PADDED ((MAXOBSERVATIONSIZE + 7) & ~7)
-static_assert(MAXOBSERVATIONSIZE >= MAXSTATESIZE*2, "MAXOBSERVATIONSIZE isn't big enough for MAXSTATESIZE tracked features\n");
-
 class observation_queue {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    observation_queue() {}
+    observation_queue(matrix &state_, matrix &inn_, matrix &m_cov_, matrix &HP_, matrix &K_, matrix &res_cov_)
+        : state(state_), inn(inn_), m_cov(m_cov_), HP(HP_), K(K_), res_cov(res_cov_)  {}
     void preprocess(state_root &s, sensor_clock::time_point time);
     bool process(state_root &s);
     std::vector<std::unique_ptr<observation>> observations;
@@ -185,19 +182,7 @@ protected:
     void compute_innovation_covariance(const matrix &m_cov);
     bool update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn);
 
-    matrix state   {   state_storage };
-    matrix inn     {     inn_storage };
-    matrix m_cov   {   m_cov_storage };
-    matrix HP      {      HP_storage };
-    matrix K       {       K_storage };
-    matrix res_cov { res_cov_storage };
-
-    alignas(64) f_t state_storage[MAXSTATESIZE];
-    alignas(64) f_t inn_storage[MAXOBSERVATIONSIZE];
-    alignas(64) f_t m_cov_storage[MAXOBSERVATIONSIZE];
-    alignas(64) f_t HP_storage[MAXOBSERVATIONSIZE][MAXSTATESIZE_PADDED];
-    alignas(64) f_t K_storage[MAXSTATESIZE][MAXOBSERVATIONSIZE_PADDED];
-    alignas(64) f_t res_cov_storage[MAXOBSERVATIONSIZE][MAXOBSERVATIONSIZE_PADDED];
+    matrix &state, &inn, &m_cov, &HP, &K, &res_cov;
 };
 
 //some object should have functions to evolve the mean and covariance

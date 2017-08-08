@@ -237,7 +237,7 @@ class state_vision: public state_motion {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
-    state_vision(covariance &c) : state_motion(c) {
+    state_vision(covariance &c, matrix &FP) : state_motion(c, FP) {
         non_orientation.children.push_back(&cameras);
     }
     ~state_vision();

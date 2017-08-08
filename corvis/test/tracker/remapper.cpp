@@ -86,7 +86,8 @@ struct state {
         ASSERT_STRCASEEQ(ref.str, str);
         ASSERT_EQ(ref.items.size(), items.size()) << ref.str << " != " << str;
 
-        remapper rm;
+        matrix iP(1,100), iQ(1,100);
+        remapper rm(100, iP, iQ);
 
         int i=0, c = 0;
         for (int j=0; j< items.size() && j<ref.items.size(); j++) {

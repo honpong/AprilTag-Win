@@ -10,28 +10,15 @@
 #define RC3DK_covariance_h
 
 #include "matrix.h"
-
-#ifdef MYRIAD2
-#define MAXSTATESIZE 96
-#else
-#define MAXSTATESIZE 114
-#endif
-#define MAXSTATESIZE_PADDED ((MAXSTATESIZE + 7) & ~7)
-
 #include <remapper.h>
-
-//typedef Eigen::Map<matrixtype, Eigen::Aligned, Eigen::OuterStride<MAXSTATESIZE>> covariance_map;
 
 class covariance
 {
-protected:
-    alignas(64) f_t cov_storage[MAXSTATESIZE][MAXSTATESIZE_PADDED];
-    alignas(64) f_t p_cov_storage[MAXSTATESIZE];
-
 public:
     remapper rm;
-    matrix cov           { cov_storage };
-    matrix process_noise { p_cov_storage };
+    matrix &cov, &process_noise;
+    covariance(int MAXSTATESIZE, matrix &cov_, matrix &process_noise_, matrix &initial_covariance_, matrix &process_covariance_)
+        : rm(MAXSTATESIZE, initial_covariance_, process_covariance_), cov(cov_), process_noise(process_noise_) {}
 
     inline f_t &operator() (const int i, const int j) { return cov(i, j); }
     inline const f_t &operator() (const int i, const int j) const { return cov(i, j); }

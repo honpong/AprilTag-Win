@@ -68,7 +68,7 @@ public:
     state_branch<state_node *> non_orientation;
     state_branch<std::unique_ptr<state_imu>, std::vector<std::unique_ptr<state_imu>>> imus;
 
-    state_motion_orientation(covariance &c): state_root(c) {
+    state_motion_orientation(covariance &c, matrix &FP): state_root(c, FP) {
         children.push_back(&ddw);
         children.push_back(&dw);
         children.push_back(&w);
@@ -133,7 +133,7 @@ public:
         }
     }
 
-    state_motion(covariance &c): state_motion_orientation(c) {
+    state_motion(covariance &c, matrix &FP): state_motion_orientation(c, FP) {
         non_orientation.children.push_back(&da);
         non_orientation.children.push_back(&a);
         non_orientation.children.push_back(&V);

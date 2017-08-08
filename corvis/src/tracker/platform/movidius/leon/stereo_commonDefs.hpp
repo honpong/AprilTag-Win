@@ -6,7 +6,7 @@
 	#define STEREO_COMMON_COMMONDEFS2_HPP_
 	#define MAX_KP1 40
 	#define MAX_KP2 200
-	#define SHAVES_USED 4
+	#define STEREO_SHAVES_USED 4
 
 	typedef float float4_t[4];
 	typedef float float3_t[3];

@@ -16,7 +16,6 @@ extern "C" {
 
 // Set to 1 to skip detection threshold update so initial threshold will be used. 
 #define SKIP_THRESHOLD_UPDATE 0
-#define SHAVE_TRACKER_L2_PARTITION 1
 
 #if 0 // Configure debug prints
 #define DPRINTF(...) printf(__VA_ARGS__)
@@ -45,6 +44,7 @@ __attribute__((section(".cmx_direct.data"))) fast_tracker::xy tracked_features[5
 __attribute__((section(".cmx_direct.data"))) uint8_t * patches1[MAX_KP1];
 __attribute__((section(".cmx_direct.data"))) uint8_t * patches2[MAX_KP2];
 __attribute__((section(".cmx_direct.data"))) float depths1[MAX_KP1];
+__attribute__((section(".cmx_direct.data"))) float errors1[MAX_KP1];
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
 //tracker
@@ -78,7 +78,7 @@ u32 entryPointsTracking[TRACKER_SHAVES_USED] = {
         (u32)&cvrt3_fast9Track
 };
 //stereo
-u32 entryPoints_intersect_and_compare[TRACKER_SHAVES_USED] = {
+u32 entryPoints_intersect_and_compare[4] = {
         (u32)&cvrt0_stereo_kp_matching_and_compare,
         (u32)&cvrt1_stereo_kp_matching_and_compare,
         (u32)&cvrt2_stereo_kp_matching_and_compare,
@@ -123,18 +123,8 @@ shave_tracker::shave_tracker() :
     }
 }
 
-#ifdef DEBUG_TRACK
-    static int directx = 1;
-    static int directy = 1;
-    static int offsetx = 40;
-    static int offsety = 40;
-#endif
-
 std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image &image, const std::vector<tracker::feature_track *> &features, size_t number_desired)
 {
-
-    START_EVENT(EV_SHAVE_DETECT, 0);
-
     //init
     if (!mask)
         mask = std::unique_ptr < scaled_mask
@@ -150,8 +140,6 @@ std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image
     detectMultipleShave(image);
     sortFeatures(image, number_desired);
 
-    END_EVENT(EV_SHAVE_DETECT, feature_points.size());
-
     return feature_points;
 }
 
@@ -166,9 +154,6 @@ void shave_tracker::sortFeatures(const tracker::image &image, int number_desired
             u16 x = offsets[y][2 + j] + PADDING;
             u8 score = scores[y][4 + j];
 
-#ifdef DEBUG_TRACK
-            printf("detect: x %d y %d score %d\n", x, y, score);
-#endif
             if (!is_trackable<DESCRIPTOR::border_size>((float) x, (float) y, image.width_px, image.height_px) ||
                     !mask->test(x, y))
                 continue;
@@ -322,9 +307,6 @@ void shave_tracker::processTrackingResult(std::vector<tracker::feature_track *>&
                 fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(pred->feature.get());
                 xy * bestkp = &tracked_features[i];
                 if(bestkp->x != -1) {
-#ifdef DEBUG_TRACK
-                    printf("prevx %f prevy %f x %f y %f dx %f dy %f score %f id %llu\n" ,pred->x, pred->y, bestkp->x, bestkp->y, f.dx, f.dy, bestkp->score, pred->id);
-#endif
                     pred->dx = bestkp->x - pred->x;
                     pred->dy = bestkp->y - pred->y;
                     pred->x = bestkp->x;
@@ -332,10 +314,8 @@ void shave_tracker::processTrackingResult(std::vector<tracker::feature_track *>&
                     pred->score = bestkp->score;
                 }
                 else {
-                    /* TODO: match fast tracker which does this?
-                    f.dx = 0;
-                    f.dy = 0;
-                    */
+                    pred->dx = 0;
+                    pred->dy = 0;
                     pred->score = DESCRIPTOR::min_score;
                 }
                 i++;
@@ -344,33 +324,10 @@ void shave_tracker::processTrackingResult(std::vector<tracker::feature_track *>&
 
 void shave_tracker::track(const tracker::image &image, std::vector<tracker::feature_track *> &predictions)
 {
-    START_EVENT(EV_SHAVE_TRACK, 0);
-#ifdef DEBUG_TRACK
-    memset(image.image, 0, image.width_px * image.height_px);
-    offsetx += 5*directx;
-    offsety += 3*directy;
-
-    if( offsetx >= 640 || offsetx <=0){
-        directx = -directx;
-        offsetx += 5*directx;
-    }
-    if( offsety >= 480 || offsety <= 0){
-        directy = -directy;
-        offsety += 3*directy;
-    }
-    printf("track offsetx %d offsety %d\n",offsetx, offsety);
-
-    for (int i = 0; i < offsety; ++i)
-    {
-        memset(image.image + i * image.width_px, 255, offsetx);
-    }
-#endif
     std::vector<TrackingData> trackingData;
     prepTrackingData(trackingData, predictions);
     trackMultipleShave(trackingData, image);
     processTrackingResult(predictions);
-
-    END_EVENT(EV_SHAVE_TRACK, predictions.size());
 }
 
 void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group[], size_t n1, const tracker::feature_track * f2_group[], size_t n2, state_camera & camera1, state_camera & camera2)
@@ -409,6 +366,7 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
         fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(f1_group[i]->feature.get());
         patches1[i] = f.descriptor.descriptor.data();
         depths1[i] = 0;
+        errors1[i] = 0;
 
         auto * k1 = f1_group[i];
         feature_t f1(k1->x,k1->y);
@@ -452,21 +410,24 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
 	kpMatchingParams->patch_stride=full_patch_width;
 	kpMatchingParams->patch_win_half_width=half_patch_width;
 
-	for (int i = 0; i < shavesToUse; ++i) {
+	for (int i = 0; i < STEREO_SHAVES_USED; ++i) {
         shaves[i]->start(entryPoints_intersect_and_compare[i],
-                "iiiiii",
+                "iiiiiii",
                 kpMatchingParams,
                 p_kp1,
                 p_kp2,
                 patches1,
                 patches2,
-                depths1);
+                depths1,
+                errors1);
     }
 
-    for (int i = 0; i < shavesToUse; ++i) {
+    for (int i = 0; i < STEREO_SHAVES_USED; ++i) {
         shaves[i]->wait();
     }
 
-    for(int i = 0; i < n1; i++)
+    for(int i = 0; i < n1; i++) {
         f1_group[i]->depth = depths1[i];
+        f1_group[i]->error = errors1[i];
+    }
 }

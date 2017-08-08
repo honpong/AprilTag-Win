@@ -29,7 +29,7 @@ struct feature_t
 {
     private:
         //compare
-        int xsize, ysize, stride, patch_stride, patch_win_half_width;
+        int patch_stride, patch_win_half_width;
         //kp_intersect
         float4x4 R1w_transpose;
         float4x4 R2w_transpose;
@@ -42,6 +42,6 @@ struct feature_t
 
     public:
         void init(ShavekpMatchingSettings kpMatchingParams);
-        void stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1);
+        void stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1, float * errors1);
 };
 #endif /* CORE_TARGET_SHAVE_STEREO_MATCHING_H_ */

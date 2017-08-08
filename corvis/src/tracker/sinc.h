@@ -28,7 +28,7 @@ template <typename f_t> constexpr f_t sincc(f_t x) {
     return sincc(x, x*x);
 }
 
-// x = atan2(s,c)/s  w/ c = sin(x), s = sin(x)
+// x = atan2(s,c)/s  w/ c = cos(x), s = sin(x)
 template <typename f_t> constexpr f_t atan2c(f_t s, f_t c, f_t s2) {
     return s2 < std::sqrt(f_t(40)/f_t(3) * std::numeric_limits<f_t>::epsilon()) && c > 0 ? f_t(1) + f_t(1)/f_t(6) * s2 : std::atan2(s,c) / s;
 }

@@ -29,8 +29,6 @@
 #ifdef MYRIAD2
 #include "shave_tracker.h"
 #include "platform_defines.h"
-#define MAX_KP2 200
-#define MAX_KP1 40
 #endif // MYRIAD2
 
 const static sensor_clock::duration camera_wait_time = std::chrono::milliseconds(500); //time we'll wait for all cameras before attempting to detect features

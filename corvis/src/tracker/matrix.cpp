@@ -17,7 +17,7 @@
 #include "Trace.h"
 
 #ifdef MYRIAD2
-#include "myriad_defines.h"
+#include "platform_defines.h"
 
 #define TRACE_MATRIX_EVENTS 0
 

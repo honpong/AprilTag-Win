@@ -28,7 +28,7 @@
 
 #ifdef MYRIAD2
 #include "shave_tracker.h"
-#include "myriad_defines.h"
+#include "platform_defines.h"
 #define MAX_KP2 200
 #define MAX_KP1 40
 #endif // MYRIAD2

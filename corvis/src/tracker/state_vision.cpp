@@ -9,7 +9,7 @@
 #include "Trace.h"
 
 #ifdef MYRIAD2
-    #include "myriad_defines.h"
+    #include "platform_defines.h"
     #include <OsCommon.h>
     #include "project_covariance_definitions.h"
     #include "covariance_projector.h"

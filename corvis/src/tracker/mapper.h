@@ -19,6 +19,7 @@
 #include "sensor.h"
 #include "rc_tracker.h"
 #include "orb_descriptor.h"
+#include "rapidjson/document.h"
 #include "DBoW2/TemplatedVocabulary.h"
 
 typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, orb_descriptor::raw> orb_vocabulary;
@@ -28,6 +29,8 @@ class state_vision_intrinsics;
 struct map_edge {
     uint64_t neighbor;
     bool loop_closure;
+    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
+    static void deserialize(const rapidjson::Value &json, map_edge &node);
 };
 
 struct map_feature {
@@ -37,6 +40,8 @@ struct map_feature {
     // one of images axes oriented to match gravity (world z axis)
     v3 position;
     float variance;
+    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
+    static bool deserialize(const rapidjson::Value &json, map_feature &feature, uint64_t &max_loaded_featid);
 };
 
 struct map_frame {
@@ -44,6 +49,8 @@ struct map_frame {
     std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>> keypoints;
     DBoW2::BowVector dbow_histogram;       // histogram describing image
     DBoW2::FeatureVector dbow_direct_file;  // direct file (at level 4)
+    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
+    static bool deserialize(const rapidjson::Value &json, map_frame &frame);
 };
 
 enum class node_status { initializing, normal, finished };
@@ -62,6 +69,8 @@ struct map_node {
     std::set<uint64_t> neighbors;
     std::map<uint64_t,map_feature> features;
     node_status status{node_status::initializing};
+    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
+    static bool deserialize(const rapidjson::Value &json, map_node &node, uint64_t &max_loaded_featid);
 };
 
 class mapper {

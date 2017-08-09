@@ -132,13 +132,11 @@ void mapper::node_finished(uint64_t id)
         nodes.pop_back();
     }
 }
-    
-#include "rapidjson/document.h"
+
+using namespace rapidjson;
+
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
-#include <iostream>
-#include <fstream>
-#include <sys/stat.h>
 #define MAPPER_SERIALIZED_VERSION 1
 #define KEY_VERSION "version"
 #define KEY_NODES "nodes"
@@ -151,8 +149,6 @@ void mapper::node_finished(uint64_t id)
 #define KEY_FEATURE_VARIANCE "variance"
 #define KEY_FEATURE_POSITION "position"
 #define KEY_FEATURE_DESCRIPTOR "d"
-
-using namespace rapidjson;
 
 bool mapper::serialize(std::string &json)
 {
@@ -527,4 +523,196 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
     current_frame.keypoints.clear();
 
     return is_relocalized;
+}
+
+#define KEY_INDEX "index"
+#define RETURN_IF_FAILED(R) {bool ret = R; if (!ret) return ret;}
+
+#define KEY_NODE_EDGE_NEIGHBOR "neighbor"
+#define KEY_NODE_EDGE_LOOP_CLOSURE "closure"
+void map_edge::serialize(Value &json, Document::AllocatorType & allocator) {
+    json.AddMember(KEY_NODE_EDGE_NEIGHBOR, neighbor, allocator);
+    json.AddMember(KEY_NODE_EDGE_LOOP_CLOSURE, loop_closure, allocator);
+}
+
+void map_edge::deserialize(const Value &json, map_edge &edge) {
+    edge.neighbor = json[KEY_NODE_EDGE_NEIGHBOR].GetUint64();
+    edge.loop_closure = json[KEY_NODE_EDGE_LOOP_CLOSURE].GetBool();
+}
+
+#define KEY_FEATURE_ID "id"
+#define KEY_FEATURE_VARIANCE "variance"
+#define KEY_FEATURE_POSITION "position"
+void map_feature::serialize(Value &feature_json, Document::AllocatorType &allocator) {
+    feature_json.AddMember(KEY_FEATURE_ID, id, allocator);
+    feature_json.AddMember(KEY_FEATURE_VARIANCE, variance, allocator);
+
+    Value pos_json(kArrayType);
+    pos_json.PushBack(position[0], allocator);
+    pos_json.PushBack(position[1], allocator);
+    pos_json.PushBack(position[2], allocator);
+    feature_json.AddMember(KEY_FEATURE_POSITION, pos_json, allocator);
+}
+
+bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t &max_loaded_featid) {
+    feature.id = json[KEY_FEATURE_ID].GetUint64();
+    if (feature.id > max_loaded_featid) max_loaded_featid = feature.id;
+
+    feature.variance = (float)json[KEY_FEATURE_VARIANCE].GetDouble();
+    const Value &pos_json = json[KEY_FEATURE_POSITION];
+    RETURN_IF_FAILED(pos_json.IsArray())
+        RETURN_IF_FAILED(pos_json.Size() == feature.position.size())
+        for (SizeType j = 0; j < pos_json.Size(); j++) {
+            feature.position[j] = (f_t)pos_json[j].GetDouble();
+        }
+    return true;
+}
+
+#define KEY_FRAME_CAMERA_ID "camera_id"
+#define KEY_FRAME_FEAT "features"
+#define KEY_FRAME_FEAT_ID "id"
+#define KEY_FRAME_FEAT_X "x"
+#define KEY_FRAME_FEAT_Y "y"
+#define KEY_FRAME_FEAT_LEVEL "level"
+#define KEY_FRAME_FEAT_DESC "descriptor"
+#define KEY_FRAME_FEAT_DESC_RAW "raw"
+#define KEY_FRAME_FEAT_DESC_SIN "sin"
+#define KEY_FRAME_FEAT_DESC_COS "cos"
+void map_frame::serialize(Value &json, Document::AllocatorType &allocator) {
+
+    json.AddMember(KEY_FRAME_CAMERA_ID, camera_id, allocator);
+    // add key point
+    Value features_json(kArrayType);
+    for (auto &fast_feat : keypoints) {
+        Value feat_json(kObjectType);
+        feat_json.AddMember(KEY_FRAME_FEAT_ID, fast_feat->id, allocator);
+        feat_json.AddMember(KEY_FRAME_FEAT_X, fast_feat->x, allocator);
+        feat_json.AddMember(KEY_FRAME_FEAT_Y, fast_feat->y, allocator);
+        //feat_json.AddMember(KEY_FRAME_FEAT_LEVEL, fast_feat->level, allocator);
+
+        // add descriptor
+        Value descriptor_json(kObjectType);
+        descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_SIN, fast_feat->descriptor.sin_, allocator);
+        descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_COS, fast_feat->descriptor.cos_, allocator);
+        Value desc_raw_json(kArrayType);
+        for (auto v : fast_feat->descriptor.descriptor)
+            desc_raw_json.PushBack(v, allocator);
+        descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_RAW, desc_raw_json, allocator);
+        feat_json.AddMember(KEY_FRAME_FEAT_DESC, descriptor_json, allocator);
+
+        features_json.PushBack(feat_json, allocator);
+    }
+    json.AddMember(KEY_FRAME_FEAT, features_json, allocator);
+}
+
+bool map_frame::deserialize(const Value &json, map_frame &frame) {
+
+    frame.camera_id = json[KEY_FRAME_CAMERA_ID].GetUint();
+    // get key points
+    const Value &features_json = json[KEY_FRAME_FEAT];
+    RETURN_IF_FAILED(features_json.IsArray())
+    frame.keypoints.resize(features_json.Size(), nullptr);
+    for (SizeType j = 0; j < features_json.Size(); j++) {
+        // get descriptor values
+        const Value &desc_json = features_json[j][KEY_FRAME_FEAT_DESC];
+        const Value &desc_raw_json = desc_json[KEY_FRAME_FEAT_DESC_RAW];
+        RETURN_IF_FAILED(desc_raw_json.IsArray())
+        orb_descriptor::raw raw_desc;
+        RETURN_IF_FAILED(raw_desc.size() == desc_raw_json.Size())
+        for (SizeType d = 0; d < desc_raw_json.Size(); d++)
+            raw_desc[d] = desc_raw_json[d].GetUint64();
+        float desc_cos = (float)desc_json[KEY_FRAME_FEAT_DESC_COS].GetDouble();
+        float desc_sin = (float)desc_json[KEY_FRAME_FEAT_DESC_SIN].GetDouble();
+        //get feature values
+        frame.keypoints[j] = std::make_shared<fast_tracker::fast_feature<orb_descriptor>>(
+            features_json[j][KEY_FRAME_FEAT_ID].GetUint64(),
+            (float)features_json[j][KEY_FRAME_FEAT_X].GetDouble(),
+            (float)features_json[j][KEY_FRAME_FEAT_Y].GetDouble(),
+            //features_json[j][KEY_FRAME_FEAT_LEVEL].GetInt(),
+            orb_descriptor(raw_desc, desc_cos, desc_sin)
+        );
+    }
+    return true;
+}
+
+#define KEY_NODE_ID "id"
+#define KEY_NODE_EDGE "edges"
+#define KEY_NODE_FEATURES "features"
+#define KEY_NODE_FRAME "map_frame"
+#define KEY_NODE_TRANSLATION "T"
+#define KEY_NODE_QUATERNION "Q"
+#define KEY_NODE_STATUS "status"
+void map_node::serialize(Value &json, Document::AllocatorType & allocator) {
+    json.AddMember(KEY_NODE_ID, id, allocator);
+    // add edges
+    Value edges_json(kArrayType);
+    for (auto &edge : edges) {
+        Value edge_json(kObjectType);
+        edge.serialize(edge_json, allocator);
+        edges_json.PushBack(edge_json, allocator);
+    }
+    json.AddMember(KEY_NODE_EDGE, edges_json, allocator);
+    // add global transformation
+    Value translation_json(kArrayType);
+    translation_json.PushBack(global_transformation.T[0], allocator);
+    translation_json.PushBack(global_transformation.T[1], allocator);
+    translation_json.PushBack(global_transformation.T[2], allocator);
+    json.AddMember(KEY_NODE_TRANSLATION, translation_json, allocator);
+
+    Value rotation_json(kArrayType);
+    rotation_json.PushBack(global_transformation.Q.w(), allocator);
+    rotation_json.PushBack(global_transformation.Q.x(), allocator);
+    rotation_json.PushBack(global_transformation.Q.y(), allocator);
+    rotation_json.PushBack(global_transformation.Q.z(), allocator);
+    json.AddMember(KEY_NODE_QUATERNION, rotation_json, allocator);
+    // add map_frame
+    Value map_frame_json = Value(kObjectType);
+    frame.serialize(map_frame_json, allocator);
+    json.AddMember(KEY_NODE_FRAME, map_frame_json, allocator);
+
+    Value features_json(kArrayType);
+    for (auto &feat : features) {
+        Value feature_json(kObjectType);
+        feat.second.serialize(feature_json, allocator);
+        feature_json.AddMember(KEY_INDEX, feat.first, allocator);
+        features_json.PushBack(feature_json, allocator);
+    }
+    json.AddMember(KEY_NODE_FEATURES, features_json, allocator);
+    json.AddMember(KEY_NODE_STATUS, (uint8_t)status, allocator);
+}
+
+bool map_node::deserialize(const Value &json, map_node &node, uint64_t &max_loaded_featid) {
+    node.id = json[KEY_NODE_ID].GetUint64();
+    // get edges
+    const Value & edges_json = json[KEY_NODE_EDGE];
+    RETURN_IF_FAILED(edges_json.IsArray())
+    for (SizeType j = 0; j < edges_json.Size(); j++) {
+        map_edge edge;
+        map_edge::deserialize(edges_json[j], edge);
+        node.edges.push_back(edge);
+    }
+    // get global transformation
+    transformation &G = node.global_transformation;
+    const Value & translation = json[KEY_NODE_TRANSLATION];
+    RETURN_IF_FAILED(translation.IsArray())
+        for (SizeType j = 0; j < G.T.size() && j < translation.Size(); j++) {
+            G.T[j] = (float)translation[j].GetDouble();
+        }
+    const Value & rotation = json[KEY_NODE_QUATERNION];
+    G.Q.w() = (float)rotation[0].GetDouble();
+    G.Q.x() = (float)rotation[1].GetDouble();
+    G.Q.y() = (float)rotation[2].GetDouble();
+    G.Q.z() = (float)rotation[3].GetDouble();
+
+    // get map frame
+    RETURN_IF_FAILED(map_frame::deserialize(json[KEY_NODE_FRAME], node.frame))
+    const Value & features_json = json[KEY_NODE_FEATURES];
+    RETURN_IF_FAILED(features_json.IsArray())
+    for (SizeType j = 0; j < features_json.Size(); j++) {
+        const Value &feature_json = features_json[j];
+        uint64_t map_index = feature_json[KEY_INDEX].GetUint64();
+        RETURN_IF_FAILED(map_feature::deserialize(feature_json, node.features[map_index], max_loaded_featid))
+    }
+    node.status = static_cast<node_status>(json[KEY_NODE_STATUS].GetUint());
+    return true;
 }

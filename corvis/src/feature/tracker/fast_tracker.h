@@ -24,6 +24,8 @@ public:
               x(x_), y(y_), descriptor(x_, y_, image) {}
         fast_feature(uint64_t id, float x_, float y_, const tracker::image& image) : feature(id),
               x(x_), y(y_), descriptor(x_, y_, image) {}
+        fast_feature(uint64_t id, float x_, float y_, const Descriptor &descriptor_) : feature(id),
+              x(x_), y(y_), descriptor(descriptor_) {}
         float x, y;
         Descriptor descriptor;
     };

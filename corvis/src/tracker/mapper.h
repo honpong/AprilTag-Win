@@ -49,6 +49,7 @@ struct map_frame {
     std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>> keypoints;
     DBoW2::BowVector dbow_histogram;       // histogram describing image
     DBoW2::FeatureVector dbow_direct_file;  // direct file (at level 4)
+    void dbow_init(const orb_vocabulary *orb_voc);
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, map_frame &frame);
 };

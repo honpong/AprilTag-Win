@@ -70,6 +70,8 @@ void mapper::reset()
     feature_id_offset = 0;
     node_id_offset = 0;
     unlinked = false;
+    dbow_inverted_index.clear();
+    features_dbow.clear();
 }
 
 map_edge &map_node::get_add_neighbor(uint64_t neighbor)

@@ -110,6 +110,9 @@ void usb_init()
         std::cout << ".";
     }
     std::cout << "\nDevice open\n";
+    libusb_device* dev = libusb_get_device(device_handle);
+    if(libusb_get_device_speed(dev) != LIBUSB_SPEED_SUPER)
+        std::cout << "Warning: Device is not connected via USB3\n";
 
     if(libusb_claim_interface(device_handle, 0)) {
         std::cerr << "Failed to claim interface\n";

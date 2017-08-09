@@ -121,8 +121,8 @@ void mapper::set_node_transformation(uint64_t id, const transformation & G)
 
 void mapper::node_finished(uint64_t id)
 {
+    id += node_id_offset;
     if (nodes[id].status == node_status::normal) {
-        id += node_id_offset;
         nodes[id].status = node_status::finished;
         for (auto &word : nodes[id].frame.dbow_histogram)
             dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index

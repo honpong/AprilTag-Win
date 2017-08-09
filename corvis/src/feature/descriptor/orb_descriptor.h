@@ -70,7 +70,7 @@ public:
     }
 
 private:
-    static int bit_pattern_31_[256 * 4];
+    static const int bit_pattern_31_[256 * 4];
     static const std::array<int, orb_half_patch_size + 1>& vUmax;
 
     static const std::array<int, orb_half_patch_size + 1> initialize_umax();

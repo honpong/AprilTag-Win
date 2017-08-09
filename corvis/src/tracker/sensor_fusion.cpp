@@ -290,26 +290,27 @@ void sensor_fusion::stop_mapping()
     sfm.map = nullptr;
 }
 
+#include "jsonstream.h"
+#include "rapidjson/writer.h"
+
 void sensor_fusion::save_map(void (*write)(void *handle, const void *buffer, size_t length), void *handle)
 {
-    std::string json;
-    if(sfm.map && sfm.map->serialize(json))
-        write(handle, json.c_str(), json.length());
+    if (!sfm.map)
+        return;
+    rapidjson::Document map_json;
+    sfm.map->serialize(map_json, map_json.GetAllocator());
+    save_stream stream(write, handle);
+    rapidjson::Writer<save_stream> writer(stream);
+    map_json.Accept(writer);
 }
 
 bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t length), void *handle)
 {
     if(!sfm.map)
         return false;
-
-    std::string json;
-    char buffer[1024];
-    size_t bytes_read;
-    while((bytes_read = read(handle, buffer, 1024)) != 0) {
-        json.append(buffer, bytes_read);
-    }
-
-    return mapper::deserialize(json, *sfm.map);
+    load_stream stream(read, handle);
+    rapidjson::Document doc;
+    return mapper::deserialize(doc.ParseStream(stream), *sfm.map);
 }
 
 void sensor_fusion::receive_data(sensor_data && data)

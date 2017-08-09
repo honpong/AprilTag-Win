@@ -554,13 +554,9 @@ bool map_node::deserialize(const Value &json, map_node &node, uint64_t &max_load
 #define KEY_NODES "nodes"
 #define KEY_FEATURE_DESCRIPTOR "d"
 
-bool mapper::serialize(std::string &json) {
-    // Build DOM
-    Document map_json;
-    map_json.SetObject();
-    Document::AllocatorType & allocator = map_json.GetAllocator();
-
+void mapper::serialize(rapidjson::Value &map_json, rapidjson::Document::AllocatorType &allocator) {
     Value version(MAPPER_SERIALIZED_VERSION);
+    map_json.SetObject();
     map_json.AddMember(KEY_VERSION, version, allocator);
 
     // add map nodes
@@ -595,24 +591,18 @@ bool mapper::serialize(std::string &json) {
         features_dbow_json.PushBack(featid_nodeid_json, allocator);
     }
     map_json.AddMember(KEY_MAP_DBOW_FEATURES, features_dbow_json, allocator);
-
-    // Write json to string buffer
-    StringBuffer buffer;
-    Writer<StringBuffer> writer(buffer);
-    map_json.Accept(writer);
-    json = buffer.GetString();
-
-    return json.length() > 0;
 }
 
 #define HANDLE_IF_FAILED(condition, handle_func) { bool ret = condition; if (!ret) {handle_func(); return false; } }
-bool mapper::deserialize(const std::string &json, mapper &map) {
+
+bool mapper::deserialize(const Value &map_json, mapper &map) {
     auto failure_handle = [&]() {map.reset(); map.log->critical("Failed to load map!");};
 
-    Document map_json; map_json.Parse(json.c_str());
-    HANDLE_IF_FAILED(!map_json.HasParseError(), failure_handle)
     int version = map_json[KEY_VERSION].GetInt();
-    HANDLE_IF_FAILED(version == MAPPER_SERIALIZED_VERSION, failure_handle)
+    if (version != MAPPER_SERIALIZED_VERSION) {
+        map.log->error("mapper version mismatch.  Found {}, but xpected {}", version, MAPPER_SERIALIZED_VERSION);
+        return false;
+    }
     const Value & nodes_json = map_json[KEY_NODES];
     HANDLE_IF_FAILED(nodes_json.IsArray(), failure_handle)
 

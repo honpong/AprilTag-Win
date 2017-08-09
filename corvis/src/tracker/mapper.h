@@ -99,9 +99,8 @@ class mapper {
     void node_finished(uint64_t node_id);
     void set_node_transformation(uint64_t id, const transformation & G);
 
-    // Reading / writing
-    bool serialize(std::string &json);
-    static bool deserialize(const std::string &json, mapper & map);
+    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
+    static bool deserialize(const rapidjson::Value &json, mapper &map);
 
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper",  std::make_shared<spdlog::sinks::null_sink_st> ());
 
@@ -125,6 +124,5 @@ class mapper {
 
     bool relocalize(std::vector<transformation>& vG_WC, const transformation& G_BC);
 };
-
 
 #endif

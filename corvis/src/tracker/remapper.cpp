@@ -2,7 +2,10 @@
 
 void remapper::remap_vector(int size, matrix &Pn_to, const matrix &Pn_from) {
     compile();
-    Pn_to.resize(std::max(Pn_from.cols(),size)); // in case &Pn_to == &Pn_from
+    if (&Pn_to == &Pn_from)
+        Pn_to.resize(std::max(Pn_from.cols(),size));
+    else
+        Pn_to.resize(size);
     for (auto &c : updates)
         if (c.type == update::add)
             std::memcpy(&Pn_to[c.to], &process_covariance[c.to], c.size*sizeof(process_covariance[c.to]));
@@ -13,7 +16,10 @@ void remapper::remap_vector(int size, matrix &Pn_to, const matrix &Pn_from) {
 
 void remapper::remap_matrix(int size, matrix &P_to, const matrix &P_from) {
     compile();
-    P_to.resize(std::max(P_from.rows(),size), std::max(P_from.cols(),size)); // in case &P_to == &P_from
+    if (&P_to == &P_from)
+        P_to.resize(std::max(P_from.rows(),size), std::max(P_from.cols(),size));
+    else
+        P_to.resize(size, size);
     for (auto &r : updates) {
         if (r.from <= r.to && r.to < r.from+r.size) {
             for (int i=r.size-1; i>=0; i--)

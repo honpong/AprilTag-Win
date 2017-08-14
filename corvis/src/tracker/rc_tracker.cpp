@@ -87,6 +87,7 @@ static void rc_trace(rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp ti
 
 struct rc_Tracker: public sensor_fusion
 {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::MINIMIZE_DROPS) {}
     std::string jsonString;
     std::vector<std::vector<rc_Feature> > stored_features;

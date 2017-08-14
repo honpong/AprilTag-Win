@@ -67,7 +67,6 @@ public:
     v<size_> last_meas;
     f_t measurement_variance;
     stdev<1> measure_time_stats;
-    stdev<1> other_time_stats;
     using sensor::sensor;
     void init_with_variance(f_t variance) {
         got = false;
@@ -87,6 +86,11 @@ struct sensor_camera {
 struct sensor_grey : public sensor_storage<2>, public sensor_camera {
     using sensor_storage<2>::sensor_storage;
     sensor_grey(int id_) : sensor_storage<2>(id_, "Camera") {}
+    stdev<1> detect_time_stats;
+    void init_with_variance(f_t variance) {
+        detect_time_stats = stdev<1>();
+        sensor_storage<2>::init_with_variance(variance);
+    }
 };
 struct sensor_depth : public sensor_storage<1>, public sensor_camera {
     using sensor_storage<1>::sensor_storage;
@@ -96,10 +100,12 @@ struct sensor_depth : public sensor_storage<1>, public sensor_camera {
 template<int size_> struct sensor_vector : public sensor_storage<size_>, public decimator<size_>
 {
     using sensor_storage<size_>::sensor_storage;
+    stdev<1> fast_path_time_stats;
     void init_with_variance(f_t variance, unsigned decimate_by) {
         if (!decimate_by) decimate_by = 1;
         sensor_storage<size_>::init_with_variance(variance / decimate_by);
         decimator<size_>::init(decimate_by);
+        fast_path_time_stats = stdev<1>();
     }
 };
 struct sensor_accelerometer : public sensor_vector<3> {

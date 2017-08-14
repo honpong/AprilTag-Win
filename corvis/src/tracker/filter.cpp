@@ -122,7 +122,7 @@ bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue 
     queue.observations.push_back(std::move(obs_a));
     bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
     auto stop = std::chrono::steady_clock::now();
-    accelerometer.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    accelerometer.fast_path_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
     END_EVENT(SF_MINI_ACCEL_MEAS, data.time_us / 1000);
     return ok;
 }
@@ -149,7 +149,7 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
     bool ok = filter_mini_process_observation_queue(f, queue, state, data.timestamp);
 
     auto stop = std::chrono::steady_clock::now();
-    gyroscope.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    gyroscope.fast_path_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
     END_EVENT(SF_MINI_GYRO_MEAS, data.time_us / 1000);
 
     return ok;
@@ -530,7 +530,7 @@ void filter_detect(struct filter *f, const sensor_data &data)
         camera.standby_features.push_front(kp[t]);
 
     auto stop = std::chrono::steady_clock::now();
-    camera_sensor.other_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 }
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data)
@@ -1149,17 +1149,17 @@ std::string filter_get_stats(const struct filter *f)
     for(auto &i:f->cameras)
     {
         statstr << i->name << "\t (measure): " << i->measure_time_stats << "\n";
-        statstr << i->name << "\t (detect):  " << i->other_time_stats << "\n";
+        statstr << i->name << "\t (detect):  " << i->detect_time_stats << "\n";
     }
     for(auto &i:f->accelerometers)
     {
         statstr << i->name << "\t (measure): " << i->measure_time_stats << "\n";
-        statstr << i->name << "\t (fast):    " << i->other_time_stats << "\n";
+        statstr << i->name << "\t (fast):    " << i->fast_path_time_stats << "\n";
     }
     for(auto &i:f->gyroscopes)
     {
         statstr << i->name << "\t (measure): " << i->measure_time_stats << "\n";
-        statstr << i->name << "\t (fast):    " << i->other_time_stats << "\n";
+        statstr << i->name << "\t (fast):    " << i->fast_path_time_stats << "\n";
     }
     statstr << "\n";
     return statstr.str();

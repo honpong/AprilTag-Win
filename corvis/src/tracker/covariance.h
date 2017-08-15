@@ -12,7 +12,7 @@
 #include "matrix.h"
 
 #ifdef MYRIAD2
-#define MAXSTATESIZE 96
+#define MAXSTATESIZE 80
 #else
 #define MAXSTATESIZE 114
 #endif

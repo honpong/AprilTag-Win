@@ -13,6 +13,7 @@
 #include "state_vision.h"
 #include "quaternion.h"
 #include "fast_tracker.h"
+#include "descriptor.h"
 
 using namespace std;
 
@@ -100,17 +101,18 @@ void mapper::add_node(uint64_t id)
     nodes[id].frame = current_frame;
 }
 
-void mapper::process_current_image(tracker *feature_tracker, const rc_Sensor camera_id, const tracker::image& image)
+void mapper::process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image& image)
 {
     // fill in relocalization variables
-#ifdef HAVE_OPENCV
-    current_frame.keypoints = feature_tracker->detect_pyramid(image);
-#endif
     current_frame.camera_id = camera_id;
 
-    if (current_frame.keypoints.empty()) {
-        return;
-    }
+    current_frame.keypoints.clear();
+    for (auto &p : keypoints)
+        if (std::is_same<DESCRIPTOR, orb_descriptor>::value)
+            current_frame.keypoints.emplace_back(p->feature);
+        else if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, image.width_px, image.height_px))
+            current_frame.keypoints.emplace_back(make_shared<fast_tracker::fast_feature<orb_descriptor>>(p->feature->id, p->x, p->y, image));
+
     // copy pyramid descriptors to a vector of descriptors
     std::vector<orb_descriptor::raw> v_descriptor;
     v_descriptor.reserve(current_frame.keypoints.size());

@@ -14,6 +14,7 @@ struct tracker {
         uint64_t id;
         static std::atomic_uint_fast64_t next_id;
         feature(): id(next_id++) {}
+        feature(uint64_t id_): id(id_) {}
         virtual ~feature() {}
     };
 

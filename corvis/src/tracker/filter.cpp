@@ -495,20 +495,25 @@ static int filter_available_feature_space(struct filter *f, state_camera &camera
     return space;
 }
 
-void filter_detect(struct filter *f, const sensor_data &data)
+void filter_detect(struct filter *f, const sensor_data &data, bool relocalize)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
     auto start = std::chrono::steady_clock::now();
     const rc_ImageData &image = data.image;
     camera.feature_tracker->tracks.clear();
-    int standby_count = camera.standby_features.size();
-    auto space = camera.detecting_space > standby_count ? camera.detecting_space - standby_count : 0;
+    int standby_count = camera.standby_features.size(),
+        detect_count = camera.detecting_space,
+        feature_count = camera.feature_count(),
+        reloc_count = f->map && relocalize ? 400 : 0;
     camera.detecting_space = 0;
 
-    if(!space) return;
+    auto space = std::max({0, detect_count - standby_count, reloc_count - standby_count - feature_count });
 
-    camera.feature_tracker->tracks.reserve(camera.feature_count());
+    if(!space) return; // FIXME: what min number is worth detecting?
+
+    camera.feature_tracker->tracks.reserve(feature_count + standby_count + space);
+
     for(auto &g : camera.groups.children)
         for(auto &i : g->features.children)
             camera.feature_tracker->tracks.emplace_back(&i->track);
@@ -526,8 +531,17 @@ void filter_detect(struct filter *f, const sensor_data &data)
     START_EVENT(SF_DETECT, 0);
     std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space);
     END_EVENT(SF_DETECT, kp.size())
-    for(int t = kp.size()-1; t >= 0; --t)
-        camera.standby_features.push_front(kp[t]);
+
+    // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
+    camera.standby_features.insert(camera.standby_features.begin(),
+                                   kp.begin(),
+                                   kp.begin() + std::min<size_t>(detect_count, kp.size()));
+
+    for (auto &p : kp)
+        camera.feature_tracker->tracks.push_back(&p);
+
+    if (f->map && relocalize)
+        f->map->process_keypoints(camera.feature_tracker->tracks, data.id, timage);
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });

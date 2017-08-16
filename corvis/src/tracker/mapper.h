@@ -114,7 +114,7 @@ class mapper {
     void reset();
 
     bool is_unlinked(uint64_t node_id) const { return (unlinked && node_id < node_id_offset); }
-    void process_current_image(tracker *feature_tracker, const rc_Sensor camera_id, const tracker::image &image);
+    void process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image &image);
     void add_node(uint64_t node_id);
     void add_edge(uint64_t node_id1, uint64_t node_id2);
     void add_feature(uint64_t node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2);

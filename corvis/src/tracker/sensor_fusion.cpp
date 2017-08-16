@@ -96,15 +96,23 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             if(docallback)
                 update_data(&data);
 
-            if (data.id < sfm.s.cameras.children.size())
-                if(sfm.s.cameras.children[data.id]->detecting_space)
+
+            if (data.id < sfm.s.cameras.children.size()) {
+                bool relocalize = sfm.map && data.id == 0;
+
+                // Note that this relocalizes based on the data from the previous frame (which is now done)
+                if (filter_relocalize(&sfm, data.id))
+                    sfm.log->info("relocalized");
+
+                if(sfm.s.cameras.children[data.id]->detecting_space || relocalize)
                     sfm.s.cameras.children[data.id]->detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
-                        [this] (struct filter *f, const sensor_data &&data) {
+                        [this, relocalize] (struct filter *f, const sensor_data &&data) {
                             auto start = std::chrono::steady_clock::now();
-                            filter_detect(&sfm, std::move(data));
+                            filter_detect(&sfm, std::move(data), relocalize);
                             auto stop = std::chrono::steady_clock::now();
                             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
                         }, &sfm, std::move(data));
+            }
         } break;
 
         case rc_SENSOR_TYPE_STEREO: {
@@ -123,12 +131,18 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if(docallback)
                     update_data(&image_data); // TODO: visualize stereo data directly so we don't have a data callback here
 
-                if(sfm.s.cameras.children[0]->detecting_space) {
+                bool relocalize = !!sfm.map;
+
+                // Note that this relocalizes based on the data from the previous frame (which is now done)
+                if (filter_relocalize(&sfm, data.id))
+                    sfm.log->info("relocalized");
+
+                if(sfm.s.cameras.children[0]->detecting_space || relocalize) {
                     sfm.s.cameras.children[0]->detection_future = std::async(threaded ? std::launch::deferred : std::launch::deferred,
-                        [this] (struct filter *f, const sensor_data &&data) {
+                    [this, relocalize] (struct filter *f, const sensor_data &&data) {
                             START_EVENT(SF_STEREO_DETECT1, 0);
                             auto start = std::chrono::steady_clock::now();
-                            filter_detect(&sfm, std::move(data));
+                            filter_detect(&sfm, std::move(data), relocalize);
                             auto stop = std::chrono::steady_clock::now();
                             auto global_id = sensor_data::get_global_id_by_type_id(rc_SENSOR_TYPE_STEREO, 0); //"data" is of type IMAGE, but truly should report stats to STEREO stream
                             queue.stats.find(global_id)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });

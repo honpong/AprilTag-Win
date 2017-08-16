@@ -76,7 +76,7 @@ struct filter {
 bool filter_depth_measurement(struct filter *f, const sensor_data & data);
 bool filter_image_measurement(struct filter *f, const sensor_data & data);
 bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data);
-void filter_detect(struct filter *f, const sensor_data &data);
+void filter_detect(struct filter *f, const sensor_data &data, bool reloc);
 bool filter_relocalize(struct filter *f, const rc_Sensor sensor_id);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);

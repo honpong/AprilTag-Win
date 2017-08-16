@@ -66,6 +66,6 @@ TEST(Prediction, Predict)
         transformation t1 = to_transformation(p1);
         s.evolve(dt_s);
         transformation t1_(s.Q.v, s.T.v);
-        EXPECT_TRANSFORMATION_NEAR(t1, t1_, 8*F_T_EPS) << "t=1";;
+        EXPECT_TRANSFORMATION_NEAR(t1, t1_, 9*F_T_EPS) << "t=1";;
     }
 }

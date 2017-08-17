@@ -69,10 +69,8 @@ protected:
   /// Tree node
   struct Node
   {
-
-
     /// Children 
-    int nChildren;
+    NodeId nChildren;
 
     ///Inner nodes hold the first_child_id, and leaves hold the word_weight.
     union
@@ -353,11 +351,11 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromMemory(const char *pBinaries, 
 
     // reading
     {
-        unsigned int nNodes = 0;
+        NodeId nNodes = 0;
         const char* pSrc = pBinaries;
 
-        memcpy(&nNodes, pSrc, sizeof(unsigned int)*1);
-        pSrc += sizeof(unsigned int);
+        memcpy(&nNodes, pSrc, sizeof(NodeId)*1);
+        pSrc += sizeof(NodeId);
 
         m_node_to_word.resize(nNodes);
         m_words.reserve(nNodes); //There are less words than nodes, but not much less (about 90%) and it worth to have less allocation

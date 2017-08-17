@@ -13,17 +13,18 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <cstdint>
 
 namespace DBoW2 {
 
 /// Id of words
-typedef unsigned int WordId;
+typedef uint32_t WordId;
 
 /// Value of a word
 typedef float WordValue;
 
 /// Id of nodes in the vocabulary treee
-typedef unsigned int NodeId;
+typedef uint32_t NodeId;
 
 /// L-norms for normalization
 enum LNorm

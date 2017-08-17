@@ -14,7 +14,7 @@
 #include "vec4.h"
 #include <spdlog/spdlog.h>
 #include "spdlog/sinks/null_sink.h"
-#include "tracker.h"
+#include "fast_tracker.h"
 #include "sensor.h"
 #include "rc_tracker.h"
 #include "orb_descriptor.h"
@@ -49,7 +49,7 @@ struct map_feature {
 
 struct map_frame {
     rc_Sensor camera_id; // to know which camera intrinsics
-    std::vector<std::shared_ptr<tracker::feature>> keypoints; // Pyramid 2D features
+    std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>> keypoints;
     DBoW2::BowVector dbow_histogram;       // histogram describing image
     DBoW2::FeatureVector dbow_direct_file;  // direct file (at level 4)
 };

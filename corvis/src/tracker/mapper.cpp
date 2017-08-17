@@ -109,18 +109,15 @@ void mapper::process_keypoints(const std::vector<tracker::feature_track*> &keypo
     current_frame.keypoints.clear();
     for (auto &p : keypoints)
         if (std::is_same<DESCRIPTOR, orb_descriptor>::value)
-            current_frame.keypoints.emplace_back(p->feature);
+            current_frame.keypoints.emplace_back(std::static_pointer_cast<fast_tracker::fast_feature<orb_descriptor>>(p->feature));
         else if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, image.width_px, image.height_px))
             current_frame.keypoints.emplace_back(make_shared<fast_tracker::fast_feature<orb_descriptor>>(p->feature->id, p->x, p->y, image));
 
     // copy pyramid descriptors to a vector of descriptors
     std::vector<orb_descriptor::raw> v_descriptor;
     v_descriptor.reserve(current_frame.keypoints.size());
-    for ( auto& p : current_frame.keypoints ) {
-        fast_tracker::fast_feature<orb_descriptor> &f =
-                *static_cast<fast_tracker::fast_feature<orb_descriptor>*>(p.get());
-        v_descriptor.push_back(f.descriptor.descriptor);
-    }
+    for ( auto& p : current_frame.keypoints )
+        v_descriptor.push_back(p->descriptor.descriptor);
     int num_words_missing = orb_voc->transform(v_descriptor, current_frame.dbow_histogram,
                                                current_frame.dbow_direct_file, 6);
 }
@@ -508,13 +505,9 @@ mapper::matches mapper::match_2d_descriptors(const nodeid& candidate_id) {
                     int best_candidate_point_idx;
                     int best_distance = std::numeric_limits<int>::max();
                     int second_best_distance = std::numeric_limits<int>::max();
-                    auto& current_keypoint =
-                            *static_cast<fast_tracker::fast_feature<orb_descriptor>*>
-                            (current_frame.keypoints[current_point_idx].get());
+                    auto& current_keypoint = *current_frame.keypoints[current_point_idx];
                     for (int candidate_point_idx : candidate_keypoint_indexes) {
-                        auto& candidate_keypoint =
-                                *static_cast<fast_tracker::fast_feature<orb_descriptor>*>
-                                (candidate_frame.keypoints[candidate_point_idx].get());
+                        auto& candidate_keypoint = *candidate_frame.keypoints[candidate_point_idx];
                         // Use only keypoints with 3D estimation
                         if (!features_dbow.count(candidate_keypoint.id)) {
                             continue;
@@ -530,9 +523,7 @@ mapper::matches mapper::match_2d_descriptors(const nodeid& candidate_id) {
 
                     // not match if more than 50 bits are different
                     if (best_distance <= 50 && (best_distance < second_best_distance * 0.6f)) {
-                        auto& best_candidate_keypoint =
-                                *static_cast<fast_tracker::fast_feature<orb_descriptor>*>
-                                (candidate_frame.keypoints[best_candidate_point_idx].get());
+                        auto& best_candidate_keypoint = *candidate_frame.keypoints[best_candidate_point_idx];
                         unsigned int bin = calculate_orientation_bin(best_candidate_keypoint.descriptor,
                                                                      current_keypoint.descriptor,
                                                                      num_orientation_bins);
@@ -588,7 +579,7 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
     std::vector<std::pair<nodeid,float>> candidate_nodes = find_loop_closing_candidates();
     std::string debug_message = "Total candidates: " + to_string(candidate_nodes.size()) + "\n";
 
-    const std::vector<std::shared_ptr<tracker::feature>>& keypoint_current = current_frame.keypoints;
+    const auto &keypoint_current = current_frame.keypoints;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[current_frame.camera_id];
     for (auto nid : candidate_nodes) {
         matches matches_node_candidate = match_2d_descriptors(nid.first);
@@ -600,9 +591,9 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
         transformation G_WC;
         if(matches_node_candidate.size() >= min_num_inliers) {
             // Estimate pose from 3d-2d matches
-            const std::vector<std::shared_ptr<tracker::feature>>& keypoint_candidates = nodes[nid.first].frame.keypoints;
+            const auto &keypoint_candidates = nodes[nid.first].frame.keypoints;
             for (auto m : matches_node_candidate) {
-                auto& candidate = *static_cast<fast_tracker::fast_feature<orb_descriptor>*>(keypoint_candidates[m.second].get());
+                auto &candidate = *keypoint_candidates[m.second];
                 uint64_t keypoint_id = candidate.id;
                 nodeid nodeid_keypoint = features_dbow[keypoint_id];
                 // NOTE: We use 3d features observed from candidate, this does not mean
@@ -611,7 +602,7 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                 v3 p_w = nodes[nodeid_keypoint].global_transformation.transform*mfeat->position;
                 candidate_3d_points.push_back(p_w);
                 //undistort keypoints at current frame
-                auto& current = *static_cast<fast_tracker::fast_feature<orb_descriptor>*>(keypoint_current[m.first].get());
+                auto& current = *keypoint_current[m.first];
                 feature_t kp = {current.x, current.y};
                 feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(kp));
                 current_2d_points.push_back(ukp);

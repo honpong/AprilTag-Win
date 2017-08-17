@@ -64,7 +64,7 @@ public:
   
   bool loadFromTextFile(const std::string &filename);
 
-  bool loadFromTextFile(const char* pBinaries);
+  bool loadFromMemory(const char *pBinaries, size_t size);
 
   ScoringType getScoringType() { return m_scoring; }
  
@@ -346,7 +346,7 @@ void TemplatedVocabulary<TDescriptor,F>::transform(const TDescriptor &feature,
 }
 
 template<class TDescriptor, class F>
-bool TemplatedVocabulary<TDescriptor, F>::loadFromTextFile(const char* pBinaries)
+bool TemplatedVocabulary<TDescriptor, F>::loadFromMemory(const char *pBinaries, size_t size)
 {
    bool bRet = false;
 

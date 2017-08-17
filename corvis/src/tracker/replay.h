@@ -78,6 +78,7 @@ public:
     void stop();
     void reset() { should_reset = true; }
     void toggle_pause() { is_paused = !is_paused; }
+    void pause() { is_paused = true; }
     void set_pause(uint64_t timestamp) { next_pause = timestamp; }
     void step() { is_paused = is_stepping = true; }
     void set_message_level(rc_MessageLevel level) { message_level = level; }

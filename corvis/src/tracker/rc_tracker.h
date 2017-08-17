@@ -169,6 +169,12 @@ typedef struct rc_StereoData
     void *handle;
 } rc_StereoData;
 
+typedef struct rc_DebugData {
+    rc_ImageData image;
+    const char *message;
+    bool pause;
+} rc_DebugData;
+
 typedef struct rc_Data
 {
     rc_Sensor id;
@@ -182,6 +188,7 @@ typedef struct rc_Data
         rc_Vector angular_velocity_rad__s;
         rc_Vector acceleration_m__s2;
         float temperature_C;
+        rc_DebugData debug;
     };
 } rc_Data;
 

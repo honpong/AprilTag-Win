@@ -188,6 +188,8 @@ int main(int c, char **v)
         }
         if (enable_gui || render_output)
             ws.rc_data_callback(tracker, data);
+        if (enable_gui && data->type == rc_SENSOR_TYPE_DEBUG && data->debug.pause)
+            rp.pause();
     };
 
     if (benchmark) {

@@ -575,15 +575,14 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
     bool is_relocalized = false;
     const int min_num_inliers = 12;
     int best_num_inliers = 0;
+    int i = 0;
 
     std::vector<std::pair<nodeid,float>> candidate_nodes = find_loop_closing_candidates();
-    std::string debug_message = "Total candidates: " + to_string(candidate_nodes.size()) + "\n";
 
     const auto &keypoint_current = current_frame.keypoints;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[current_frame.camera_id];
     for (auto nid : candidate_nodes) {
         matches matches_node_candidate = match_2d_descriptors(nid.first);
-        debug_message += " candidate node id: " + to_string(nid.first) + " score: " + to_string(nid.second) + " matches: " + to_string(matches_node_candidate.size());
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
         aligned_vector<v3> candidate_3d_points;
@@ -608,8 +607,6 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                 current_2d_points.push_back(ukp);
             }
             estimate_pose(candidate_3d_points, current_2d_points, G_WC, inliers_set);
-            debug_message += ", num EPnP inliers: " + to_string(inliers_set.size()) + "\n";
-
             if(inliers_set.size() >= min_num_inliers) {
                 is_relocalized = true;
 //                vG_WC.push_back(G_WC);
@@ -620,14 +617,17 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                     vG_WC.push_back(G_WC);
                 }
             }
-        } else {
-            debug_message += "\n";
         }
+
+        if (!inliers_set.size())
+            log->debug("{}/{}) candidate nid: {:3} score: {:.5f}, matches: {:2}",
+                       i++, candidate_nodes.size(), nid.first, nid.second, matches_node_candidate.size());
+        else
+            log->info(" {}/{}) candidate nid: {:3} score: {:.5f}, matches: {:2}, EPnP inliers: {}",
+                      i++, candidate_nodes.size(), nid.first, nid.second, matches_node_candidate.size(), inliers_set.size());
     }
 
     current_frame.keypoints.clear();
-
-    std::cout << debug_message << std::endl;
 
     return is_relocalized;
 }

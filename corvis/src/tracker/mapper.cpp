@@ -131,7 +131,7 @@ void mapper::node_finished(uint64_t id)
             dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index
     } else {
         // delete node when its status is not normal
-        nodes[id] = std::move(nodes.back());
+        std::swap(nodes[id], nodes.back());
         nodes.pop_back();
     }
 }

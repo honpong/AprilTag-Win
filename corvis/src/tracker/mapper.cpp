@@ -74,7 +74,7 @@ void mapper::add_node(uint64_t id)
     id += node_id_offset;
     if(nodes.size() <= id) nodes.resize(id + 1);
     nodes[id].id = id;
-    nodes[id].frame = current_frame;
+    nodes[id].frame = std::move(current_frame);
 }
 
 void mapper::process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image& image)

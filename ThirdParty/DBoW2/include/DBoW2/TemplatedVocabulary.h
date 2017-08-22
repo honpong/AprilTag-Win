@@ -21,11 +21,6 @@
 #include "BowVector.h"
 #include "ScoringObject.h"
 
-#pragma warning (disable : 4996)
-#if !defined(WIN32) &&!defined(WIN64)
-#pragma GCC diagnostic ignored "-Wunused-result"
-#endif
-
 namespace DBoW2 {
 
 /// @param TDescriptor class of descriptor

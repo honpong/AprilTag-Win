@@ -486,7 +486,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
 
 static int filter_available_feature_space(struct filter *f, state_camera &camera)
 {
-    int space = f->s.maxstatesize - f->s.statesize;
+    int space = f->store.maxstatesize - f->s.statesize;
     //leave space for the group
     space -= 6;
     if(space < 0) space = 0;
@@ -1028,7 +1028,6 @@ void filter_initialize(struct filter *f)
     f->s.statesize = 0;
     f->s.enable_orientation_only(false);
     f->s.remap();
-    f->s.maxstatesize = MAXSTATESIZE;
 
     f->mini->state.copy_from(f->s);
     f->catchup->state.copy_from(f->s);

@@ -462,12 +462,12 @@ class state_root: public state_branch<state_node *> {
 public:
     state_scalar      g { "g",  constant };
 
-    state_root(covariance &c): cov(c), current_time(sensor_clock::micros_to_tp(0)) {
+    state_root(covariance &c, matrix &FP_): cov(c), current_time(sensor_clock::micros_to_tp(0)), FP(FP_) {
         //children.push_back(&g);
         g.v = gravity_magnitude;
     }
 
-    int statesize, maxstatesize, dynamic_statesize, fake_statesize;
+    int statesize, dynamic_statesize, fake_statesize;
     covariance &cov;
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", std::make_shared<spdlog::sinks::null_sink_st> ());
 
@@ -532,23 +532,24 @@ public:
         evolve_state(dt);
     }
 
+    matrix &FP;
     void evolve_covariance(f_t dt)
     {
         cache_jacobians(dt);
 
-        matrix tmp(dynamic_statesize, cov.size() + fake_statesize);
+        FP.resize(dynamic_statesize, cov.size() + fake_statesize);
 
-        project_motion_covariance(tmp, cov.cov, dt);
+        project_motion_covariance(FP, cov.cov, dt);
 
         //fill in the UR and LL matrices
         auto cov_LL = cov.cov.map().block(dynamic_statesize,0, cov.size()-dynamic_statesize,dynamic_statesize);
         auto cov_UR = cov.cov.map().block(0,dynamic_statesize, dynamic_statesize,cov.size()-dynamic_statesize);
-        auto tmp_UR =     tmp.map().block(0,dynamic_statesize, dynamic_statesize,cov.size()-dynamic_statesize);
-        cov_LL.transpose() = cov_UR = tmp_UR;
+        auto  FP_UR =      FP.map().block(0,dynamic_statesize, dynamic_statesize,cov.size()-dynamic_statesize);
+        cov_LL.transpose() = cov_UR = FP_UR;
 
         //compute the UL matrix
         matrix ul(cov.cov, 0, 0, dynamic_statesize, dynamic_statesize);
-        project_motion_covariance(ul, tmp, dt);
+        project_motion_covariance(ul, FP, dt);
 
         //enforce symmetry
         //for(int i = 0; i < dynamic_statesize; ++i)

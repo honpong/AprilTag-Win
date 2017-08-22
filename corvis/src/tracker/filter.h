@@ -12,6 +12,13 @@
 #include "sensor_data.h"
 #include "spdlog/spdlog.h"
 #include "mapper.h"
+#include "storage.h"
+
+#ifdef MYRIAD2
+#define MAXSTATESIZE 80
+#else
+#define MAXSTATESIZE 114
+#endif
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -19,17 +26,19 @@ struct filter {
     RCSensorFusionRunState run_state;
     int min_group_add;
     int max_group_add;
-    
+
     sensor_clock::time_point last_time;
 
-    observation_queue observations;
-    covariance cov;
-    state s{cov};
+    kalman_storage<MAXSTATESIZE, 2*MAXSTATESIZE, 6> store;
+    observation_queue observations{store.x, store.y, store.R, store.HP, store.K, store.S};
+    covariance cov{store.maxstatesize, store.P, store.Q, store.iP, store.iQ};
+    state s{cov, store.FP};
 
     struct {
-        observation_queue observations;
-        covariance cov;
-        state_motion state {cov};
+        kalman_storage<6*3+2/*MAXIMUS*/*6, 3, 6> store;
+        observation_queue observations{store.x, store.y, store.R, store.HP, store.K, store.S};
+        covariance cov{store.maxstatesize, store.P, store.Q, store.iP, store.iQ};
+        state_motion state{cov, store.FP};
         bool valid{false};
     } _mini[2], *mini = &_mini[0], *catchup = &_mini[1];
 

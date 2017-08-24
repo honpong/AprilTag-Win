@@ -508,7 +508,8 @@ void filter_detect(struct filter *f, const sensor_data &data, bool relocalize)
         reloc_count = f->map && relocalize ? 400 : 0;
     camera.detecting_space = 0;
 
-    auto space = std::max({0, detect_count - standby_count, reloc_count - standby_count - feature_count });
+    auto froom = std::max(0, detect_count - standby_count);
+    auto space = std::max(froom, reloc_count - standby_count - feature_count);
 
     if(!space) return; // FIXME: what min number is worth detecting?
 
@@ -535,7 +536,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool relocalize)
     // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
     camera.standby_features.insert(camera.standby_features.begin(),
                                    kp.begin(),
-                                   kp.begin() + std::min<size_t>(detect_count, kp.size()));
+                                   kp.begin() + std::min<size_t>(froom, kp.size()));
 
     for (auto &p : kp)
         camera.feature_tracker->tracks.push_back(&p);

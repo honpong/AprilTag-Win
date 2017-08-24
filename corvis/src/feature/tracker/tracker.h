@@ -18,6 +18,11 @@ struct tracker {
         virtual ~feature() {}
     };
 
+    struct group_track {
+        uint64_t group_id;
+        float x,y;
+    };
+
     struct feature_track{
         std::shared_ptr<struct feature> feature;
         float x, y;
@@ -26,6 +31,7 @@ struct tracker {
         float score; // scores are > 0, higher scores are better detections / tracks
         float depth;
         float error;
+        std::vector<group_track> group_tracks; // keeps group id/measurement
         bool found() const { return x != INFINITY; }
         feature_track(std::shared_ptr<struct feature> feature_, float x_, float y_, float score_)
             : feature(feature_), x(x_), y(y_), dx(0), dy(0), pred_x(INFINITY), pred_y(INFINITY), score(score_), depth(0.f), error(0.f) {}

@@ -335,7 +335,10 @@ state_vision_group * state_vision::add_group(state_camera &camera, const rc_Sens
     state_vision_group *g = new state_vision_group(camera, group_counter++);
     if(map) {
         map->add_node(g->id, camera_id);
-
+        // add group id to standby_features to triangulate
+        for (tracker::feature_track &f : camera.standby_features) {
+            f.group_tracks.push_back({g->id,f.x,f.y});
+        }
         // add edge in the map between new group and active groups in the filter
         const transformation& G_gnew_now = transformation(g->Qr.v, g->Tr.v);
         for(auto &neighbor : camera.groups.children) {

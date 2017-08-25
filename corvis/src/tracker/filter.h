@@ -35,7 +35,9 @@ struct filter {
     state s{cov, store.FP};
 
     struct {
-        kalman_storage<6*3+2/*MAXIMUS*/*6, 3, 6> store;
+        // maxobservationsize is 3, but due to a bug in BLIS we need
+        // matrices to be resizable to boundaries divisible by 4
+        kalman_storage<6*3+2/*MAXIMUS*/*6, 4, 6> store;
         observation_queue observations{store.x, store.y, store.R, store.HP, store.K, store.S};
         covariance cov{store.maxstatesize, store.P, store.Q, store.iP, store.iQ};
         state_motion state{cov, store.FP};

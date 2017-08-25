@@ -605,8 +605,10 @@ void state_vision::cache_jacobians(f_t dt)
 
 #ifdef ENABLE_SHAVE_PROJECT_MOTION_COVARIANCE
 __attribute__((section(".cmx_direct.data"))) project_motion_covariance_data data;
-void state_vision::project_motion_covariance_shave(matrix &dst, const matrix &src, f_t dt) const
+void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
+    START_EVENT(SF_PROJECT_MOTION_COVARIANCE, 0);
+
     data.src = src.Data();
     data.src_rows = src.rows();
     data.src_cols = src.cols();
@@ -664,8 +666,11 @@ void state_vision::project_motion_covariance_shave(matrix &dst, const matrix &sr
 
     static covariance_projector projector;
     projector.project_motion_covariance(dst.Data(), src.Data(), data);
+
+    END_EVENT(SF_PROJECT_MOTION_COVARIANCE, 0);
 }
-#endif
+
+#else
 
 template<int N>
 int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const
@@ -702,28 +707,9 @@ int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
     START_EVENT(SF_PROJECT_MOTION_COVARIANCE, 0);
-#ifdef ENABLE_SHAVE_PROJECT_MOTION_COVARIANCE
-#ifdef ENABLE_SHAVE_PROJECT_MOTION_COVARIANCE_TEST
-    matrix dstShave(dst.rows(), dst.cols());
-    project_motion_covariance_shave(dstShave, src, dt);
-#else
-    project_motion_covariance_shave(dst, src, dt);
-    if(0)
-#endif
-    {
-#endif
-
     int i = 0;
     i = project_motion_covariance<4>(dst, src, dt, i);
     i = project_motion_covariance<1>(dst, src, dt, i);
-
-#ifdef ENABLE_SHAVE_PROJECT_MOTION_COVARIANCE
-    }
-#ifdef ENABLE_SHAVE_PROJECT_MOTION_COVARIANCE_TEST
-    if(dst.identical(dstShave, 0.001)){
-        printf("identical\n");
-    }
-#endif
-#endif
     END_EVENT(SF_PROJECT_MOTION_COVARIANCE, 0);
 }
+#endif

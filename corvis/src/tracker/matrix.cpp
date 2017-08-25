@@ -115,7 +115,7 @@ void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, const fl
       if ((sc = OsDrvShaveL2CachePartitionFlush(SHAVE_BLIS_L2_PARTITION,
               PERFORM_INVALIDATION)) != OS_MYR_DRV_SUCCESS)
               printf("ERROR: OsDrvShaveL2CachePartitionFlush %lu\n", sc);*/
-    rtems_cache_invalidate_multiple_data_lines( (void *)res.Data(), res.cols() * res.get_stride() * sizeof(f_t) );
+    rtems_cache_invalidate_multiple_data_lines( (void *)res.Data(), res.rows() * res.get_stride() * sizeof(f_t) );
 
     // copy data out from resObj back to the result matrix;
     unsigned char *obj_row = (unsigned char *)resObj.buffer;

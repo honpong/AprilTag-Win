@@ -1,4 +1,5 @@
 #include <mv_types.h>
+#include <OsCommon.h>
 #include "covariance_projector.h"
 
 extern u32 cvrt0_vision_project_motion_covariance;
@@ -31,4 +32,5 @@ void covariance_projector::project_motion_covariance(project_motion_covariance_d
     for (int i = 0; i < shaves_number; ++i) {
         shaves[i]->wait();
     }
+    rtems_cache_invalidate_data_range(data.dst, data.dst_cols * data.dst_stride);
 }

@@ -10,8 +10,6 @@
 
 #ifdef MYRIAD2
     #include "platform_defines.h"
-    #include <OsCommon.h>
-    #include "project_covariance_definitions.h"
     #include "covariance_projector.h"
 #endif
 
@@ -666,8 +664,6 @@ void state_vision::project_motion_covariance_shave(matrix &dst, const matrix &sr
 
     static covariance_projector projector;
     projector.project_motion_covariance(dst.Data(), src.Data(), data);
-
-    rtems_cache_invalidate_data_range(dst.Data(), dst.rows() * dst.get_stride() * sizeof(float) );
 }
 #endif
 

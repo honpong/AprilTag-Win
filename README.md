@@ -11,6 +11,9 @@ itself.
 The main interface to the library can be found in
 [rc_tracker.h](corvis/src/tracker/rc_tracker.h).
 
+Please read [docs/COORDINATES.md](docs/COORDINATES.md) to understand
+how poses might be used in your application.
+
 An overview of the algorithm can be found in
 [docs/OVERVIEW.md](docs/OVERVIEW.md)
 

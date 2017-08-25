@@ -62,9 +62,7 @@ inline float4 mull_m3_v3(const float* mat, float4 vec)
 }
 
 
- extern "C" void vision_project_motion_covariance(const float* p_src, float* p_dst,
-        project_motion_covariance_data* data) {
-
+ extern "C" void vision_project_motion_covariance(project_motion_covariance_data* data) {
 
     //dma transaction of src
     dmaTransactionList_t dma_task;
@@ -91,7 +89,7 @@ inline float4 mull_m3_v3(const float* mat, float4 vec)
     dma_ref = dmaCreateTransaction(
                     dma_requster_id,
                     &dma_task,
-                    (u8*)(p_src),
+                    (u8*)(data->src),
                     (u8*)covariance_matrix,
                     data->src_rows * data->src_stride * sizeof(float));
 
@@ -106,14 +104,14 @@ inline float4 mull_m3_v3(const float* mat, float4 vec)
         float4 scov_Q = from_row(covariance_matrix, i, src_stride, data->Q.index, src_cols, src_rows, data->Q.initial_covariance, data->Q.use_single_index);
 
         float4 result = cov_w + dt * (cov_dw + dt / 2 * cov_ddw);
-        to_col(p_dst, i, dst_stride, data->w.index, dst_rows, result);
+        to_col(data->dst, i, dst_stride, data->w.index, dst_rows, result);
 
         float4 result2 = cov_dw + dt * cov_ddw;
-        to_col(p_dst, i, dst_stride, data->dw.index, dst_rows, result2);
+        to_col(data->dst, i, dst_stride, data->dw.index, dst_rows, result2);
 
         float4 result9 =  mull_m3_v3(data->dQp_s_dW, cov_dW);
         float4 result3 = scov_Q + result9;
-        to_col(p_dst, i, dst_stride, data->Q.index, dst_rows, result3);
+        to_col(data->dst, i, dst_stride, data->Q.index, dst_rows, result3);
 
         // This should match state_motion::project_covariance
         float4 cov_V = from_row(covariance_matrix, i, src_stride, data->V.index, src_cols, src_rows, data->V.initial_covariance, data->V.use_single_index);
@@ -122,11 +120,11 @@ inline float4 mull_m3_v3(const float* mat, float4 vec)
         float4 cov_da = from_row(covariance_matrix, i, src_stride, data->da.index, src_cols, src_rows, data->da.initial_covariance, data->da.use_single_index);
         float4 cov_dT = dt * (cov_V + dt / 2 * (cov_a + dt / 3 * cov_da));
         float4 result4 = cov_T + cov_dT;
-        to_col(p_dst, i, dst_stride, data->T.index, dst_rows, result4);
+        to_col(data->dst, i, dst_stride, data->T.index, dst_rows, result4);
         float4 result5 = cov_V + dt * (cov_a + dt / 2 * cov_da);
-        to_col(p_dst, i, dst_stride, data->V.index, dst_rows, result5);
+        to_col(data->dst, i, dst_stride, data->V.index, dst_rows, result5);
         float4 result6 = cov_a + dt * cov_da;
-        to_col(p_dst, i, dst_stride, data->a.index, dst_rows, result6);
+        to_col(data->dst, i, dst_stride, data->a.index, dst_rows, result6);
 
         for (int j = 0; j < data->camera_count; ++j) {
             float4 cov_Tr = from_row(covariance_matrix, i, src_stride, data->tr[j].index, src_cols, src_rows, data->tr[j].initial_covariance, data->tr[j].use_single_index);
@@ -134,9 +132,9 @@ inline float4 mull_m3_v3(const float* mat, float4 vec)
 
             float4 result7 = cov_Tr + mull_m3_v3(data->dTrp_dQ_s_matrix[j], (scov_Q - scov_Qr))
                     + mull_m3_v3(data->dTrp_ddT_matrix[j], cov_dT);
-            to_col(p_dst, i, dst_stride, data->tr[j].index, dst_rows, result7);
+            to_col(data->dst, i, dst_stride, data->tr[j].index, dst_rows, result7);
             float4 result8 = scov_Qr + mull_m3_v3(data->dQrp_s_dW_matrix[j], cov_dW);
-            to_col(p_dst, i, dst_stride, data->qr[j].index, dst_rows, result8);
+            to_col(data->dst, i, dst_stride, data->qr[j].index, dst_rows, result8);
         }
     }
 

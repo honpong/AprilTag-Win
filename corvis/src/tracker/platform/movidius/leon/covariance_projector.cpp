@@ -21,12 +21,12 @@ covariance_projector::covariance_projector()
     }
 }
 
-void covariance_projector::project_motion_covariance(float *dst, const float *src, project_motion_covariance_data &data)
+void covariance_projector::project_motion_covariance(project_motion_covariance_data &data)
 {
     data.first_shave = first_shave;
     data.shaves_number = shaves_number;
     for (int i = 0; i < shaves_number; ++i) {
-        shaves[i]->start(project_covariance_entry_points[i], "iii", (u32)src, (u32)dst, (u32)&data);
+        shaves[i]->start(project_covariance_entry_points[i], "i", (u32)&data);
     }
     for (int i = 0; i < shaves_number; ++i) {
         shaves[i]->wait();

@@ -15,9 +15,11 @@ struct project_covariance_element_data{
 struct project_motion_covariance_data{
     int first_shave = -1;
     int shaves_number = 0;
+    const float *src = nullptr;
     int src_rows = 0;
     int src_cols = 0;
     int src_stride = 0;
+    float *dst = nullptr;
     int dst_rows = 0;
     int dst_cols = 0;
     int dst_stride = 0;

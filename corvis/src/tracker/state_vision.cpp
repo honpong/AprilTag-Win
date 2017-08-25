@@ -609,9 +609,11 @@ void state_vision::cache_jacobians(f_t dt)
 __attribute__((section(".cmx_direct.data"))) project_motion_covariance_data data;
 void state_vision::project_motion_covariance_shave(matrix &dst, const matrix &src, f_t dt) const
 {
+    data.src = src.Data();
     data.src_rows = src.rows();
     data.src_cols = src.cols();
     data.src_stride = src.get_stride();
+    data.dst = dst.Data();
     data.dst_rows = dst.rows();
     data.dst_cols = dst.cols();
     data.dst_stride = dst.get_stride();

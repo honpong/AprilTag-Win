@@ -133,10 +133,10 @@ include $(SLAM_PREFIX)/corvis/src/tracker/platform/movidius/platform_after.mk
 AllLibs += --start-group $(SLAM_LEON_LIBS) --end-group
 
 # ------------------------------[ USB ]--------------------------------------------#
-CCOPT      += $(SLAM_CCOPT)
-CPPOPT     += $(SLAM_CPPOPT)
-MVCCOPT   += $(SLAM_SHAVE_CCOPT)
-MVCCPPOPT += $(SLAM_SHAVE_CPPOPT)
+CCOPT      += $(SLAM_CCOPT) -DNDEBUG
+CPPOPT     += $(SLAM_CPPOPT) -DNDEBUG
+MVCCOPT   += $(SLAM_SHAVE_CCOPT) -DNDEBUG
+MVCCPPOPT += $(SLAM_SHAVE_CPPOPT) -DNDEBUG
 
 CCOPT     += -DDEFAULT_RTEMS_L2C_WAYS=0
 CCOPT_LRT += -DDEFAULT_RTEMS_L2C_WAYS=0

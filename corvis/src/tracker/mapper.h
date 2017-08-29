@@ -37,6 +37,8 @@ struct map_edge {
     static void deserialize(const rapidjson::Value &json, map_edge &node);
 };
 
+enum class feature_type { tracked, triangulated };
+
 struct map_feature {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
@@ -44,6 +46,7 @@ struct map_feature {
     // one of images axes oriented to match gravity (world z axis)
     v3 position;
     float variance;
+    feature_type type;
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, map_feature &feature, uint64_t &max_loaded_featid);
 };
@@ -55,7 +58,7 @@ struct map_node {
     uint64_t id;
     std::unordered_map<uint64_t, map_edge> edges; // key is neighbor_id
     map_edge &get_add_neighbor(uint64_t neighbor);
-    void set_feature(const uint64_t id, const v3 &pos, const float variance);
+    void set_feature(const uint64_t id, const v3 &pos, const float variance, const feature_type type = feature_type::tracked);
 
     transformation global_transformation;
 

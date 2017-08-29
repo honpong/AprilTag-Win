@@ -75,11 +75,12 @@ void mapper::add_node(nodeid id, const rc_Sensor camera_id)
     nodes[id].camera_id = camera_id;
 }
 
-void map_node::set_feature(const uint64_t id, const v3 &pos, const float variance)
+void map_node::set_feature(const uint64_t id, const v3 &pos, const float variance, const feature_type type)
 {
     features[id].position = pos;
     features[id].variance = variance;
     features[id].id = id;
+    features[id].type = type;
 }
 
 void mapper::set_feature(nodeid groupid, uint64_t id, const v3 &pos, const float variance, const bool is_new) {

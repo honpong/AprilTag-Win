@@ -25,8 +25,13 @@ int main(int c, char **v)
 {
     using std::cerr;
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--realtime] [--async] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-fast-path] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] [--progress] [--incremental-ate] <filename>\n";
-        cerr << "       " << v[0] << " [--qvga] [--drop-depth] --benchmark <directory>\n";
+        cerr << "Usage: " << v[0] << " { <filename> [--no-gui] | --benchmark <directory> [--progress] }\n"
+             << "   [--qvga] [--drop-depth] [--realtime] [--async] [--no-fast-path] [--zero-bias]\n"
+             << "   [--pause] [--pause-at <timestamp_us>]\n"
+             << "   [--no-plots] [--no-video] [--no-main] [--no-depth]\n"
+             << "   [--render <file.png>] [--incremental-ate]\n"
+             << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
+             << "   [--enable-map] [--save-map <map-json>] [--load-map <map-json>]\n";
         return 1;
     }
 

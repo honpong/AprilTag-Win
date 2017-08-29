@@ -34,6 +34,7 @@ private:
     std::atomic<bool> is_paused{false};
     std::atomic<bool> is_stepping{false};
     std::atomic<uint64_t> next_pause{0};
+    rc_MessageLevel message_level = rc_MESSAGE_WARN;
     bool is_realtime = false;
     std::function<void (rc_Tracker *, const rc_Data *)> data_callback;
     std::function<void (float)> progress_callback;
@@ -80,6 +81,7 @@ public:
     void toggle_pause() { is_paused = !is_paused; }
     void set_pause(uint64_t timestamp) { next_pause = timestamp; }
     void step() { is_paused = is_stepping = true; }
+    void set_message_level(rc_MessageLevel level) { message_level = level; }
     uint64_t get_bytes_dispatched() { return bytes_dispatched; }
     uint64_t get_packets_dispatched() { return packets_dispatched; }
     double get_path_length() { return path_length; }

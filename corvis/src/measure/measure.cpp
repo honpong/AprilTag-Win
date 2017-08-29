@@ -27,6 +27,7 @@ int main(int c, char **v)
     if (0) { usage:
         cerr << "Usage: " << v[0] << " { <filename> [--no-gui] | --benchmark <directory> [--progress] }\n"
              << "   [--qvga] [--drop-depth] [--realtime] [--async] [--no-fast-path] [--zero-bias]\n"
+             << "   [--trace | --debug | --error | --info | --warn | --none]\n"
              << "   [--pause] [--pause-at <timestamp_us>]\n"
              << "   [--no-plots] [--no-video] [--no-main] [--no-depth]\n"
              << "   [--render <file.png>] [--incremental-ate]\n"
@@ -44,6 +45,7 @@ int main(int c, char **v)
     bool incremental_ate = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
     char *pause_at = nullptr;
+    rc_MessageLevel message_level = rc_MESSAGE_WARN;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
@@ -72,12 +74,20 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
         else if (strcmp(v[i], "--progress") == 0) progress = true;
         else if (strcmp(v[i], "--incremental-ate") == 0) incremental_ate = true;
+        else if (strcmp(v[i], "--trace") == 0) message_level = rc_MESSAGE_TRACE;
+        else if (strcmp(v[i], "--debug") == 0) message_level = rc_MESSAGE_DEBUG;
+        else if (strcmp(v[i], "--error") == 0) message_level = rc_MESSAGE_ERROR;
+        else if (strcmp(v[i], "--info") == 0)  message_level = rc_MESSAGE_INFO;
+        else if (strcmp(v[i], "--warn") == 0)  message_level = rc_MESSAGE_WARN;
+        else if (strcmp(v[i], "--none") == 0)  message_level = rc_MESSAGE_NONE;
         else goto usage;
 
     if (!filename)
         goto usage;
 
     auto configure = [&](replay &rp, const char *capture_file) -> bool {
+        rp.set_message_level(message_level);
+
         if(qvga) rp.enable_qvga();
         if(!depth) rp.disable_depth();
         if(realtime) rp.enable_realtime();

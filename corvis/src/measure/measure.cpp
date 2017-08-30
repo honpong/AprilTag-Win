@@ -25,7 +25,7 @@ int main(int c, char **v)
 {
     using std::cerr;
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " { <filename> [--no-gui] | --benchmark <directory> [--progress] }\n"
+        cerr << "Usage: " << v[0] << " { <filename> [--no-gui] | --benchmark <directory> [--threads <n>] [--progress] }\n"
              << "   [--qvga] [--drop-depth] [--realtime] [--async] [--no-fast-path] [--zero-bias]\n"
              << "   [--trace | --debug | --error | --info | --warn | --none]\n"
              << "   [--pause] [--pause-at <timestamp_us>]\n"
@@ -46,6 +46,7 @@ int main(int c, char **v)
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
     char *pause_at = nullptr;
     rc_MessageLevel message_level = rc_MESSAGE_WARN;
+    int threads = 0;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
@@ -57,6 +58,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--no-depth") == 0) show_depth = false;
         else if (strcmp(v[i], "--no-video") == 0) show_video = false;
         else if (strcmp(v[i], "--no-main")  == 0) show_main  = false;
+        else if (strcmp(v[i], "--threads") == 0 && i+1 < c) threads = std::atoi(v[++i]);
         else if (strcmp(v[i], "--pause")  == 0) start_paused  = true;
         else if (strcmp(v[i], "--pause-at")  == 0 && i+1 < c) pause_at = v[++i];
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
@@ -153,7 +155,7 @@ int main(int c, char **v)
             std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
-    auto data_callback = [&enable_gui, &incremental_ate, &render_output](world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data) {
+    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &threads] (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data) {
         rc_PoseTime current = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
         auto timestamp = sensor_clock::micros_to_tp(current.time_us);
         tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current.pose_m));
@@ -191,7 +193,7 @@ int main(int c, char **v)
         if (render_output)
             mkdir(render_output, 0777);
 
-        benchmark_run(stream, filename,
+        benchmark_run(stream, filename, threads,
         [&](const char *capture_file, struct benchmark_result &res) -> bool {
             auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
 

@@ -113,6 +113,6 @@ struct benchmark_result {
     } errors;
 };
 
-void benchmark_run(std::ostream &stream, const char *directory,
+void benchmark_run(std::ostream &stream, const char *directory, int threads,
         std::function<bool (const char *file, struct benchmark_result &result)> measure_file,
         std::function<void (const char *file, struct benchmark_result &result)> measure_done);

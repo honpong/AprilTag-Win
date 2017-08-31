@@ -25,8 +25,14 @@ int main(int c, char **v)
 {
     using std::cerr;
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--realtime] [--async] [--pause] [--pause-at <timestamp_us>][--no-gui] [--no-plots] [--no-fast-path] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] [--progress] [--incremental-ate] <filename>\n";
-        cerr << "       " << v[0] << " [--qvga] [--drop-depth] --benchmark <directory>\n";
+        cerr << "Usage: " << v[0] << " { <filename> [--no-gui] | --benchmark <directory> [--threads <n>] [--progress] }\n"
+             << "   [--qvga] [--drop-depth] [--realtime] [--async] [--no-fast-path] [--zero-bias]\n"
+             << "   [--trace | --debug | --error | --info | --warn | --none]\n"
+             << "   [--pause] [--pause-at <timestamp_us>]\n"
+             << "   [--no-plots] [--no-video] [--no-main] [--no-depth]\n"
+             << "   [--render <file.png>] [--incremental-ate]\n"
+             << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
+             << "   [--enable-map] [--save-map <map-json>] [--load-map <map-json>]\n";
         return 1;
     }
 
@@ -39,6 +45,8 @@ int main(int c, char **v)
     bool incremental_ate = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
     char *pause_at = nullptr;
+    rc_MessageLevel message_level = rc_MESSAGE_WARN;
+    int threads = 0;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
@@ -50,6 +58,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--no-depth") == 0) show_depth = false;
         else if (strcmp(v[i], "--no-video") == 0) show_video = false;
         else if (strcmp(v[i], "--no-main")  == 0) show_main  = false;
+        else if (strcmp(v[i], "--threads") == 0 && i+1 < c) threads = std::atoi(v[++i]);
         else if (strcmp(v[i], "--pause")  == 0) start_paused  = true;
         else if (strcmp(v[i], "--pause-at")  == 0 && i+1 < c) pause_at = v[++i];
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
@@ -67,12 +76,20 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
         else if (strcmp(v[i], "--progress") == 0) progress = true;
         else if (strcmp(v[i], "--incremental-ate") == 0) incremental_ate = true;
+        else if (strcmp(v[i], "--trace") == 0) message_level = rc_MESSAGE_TRACE;
+        else if (strcmp(v[i], "--debug") == 0) message_level = rc_MESSAGE_DEBUG;
+        else if (strcmp(v[i], "--error") == 0) message_level = rc_MESSAGE_ERROR;
+        else if (strcmp(v[i], "--info") == 0)  message_level = rc_MESSAGE_INFO;
+        else if (strcmp(v[i], "--warn") == 0)  message_level = rc_MESSAGE_WARN;
+        else if (strcmp(v[i], "--none") == 0)  message_level = rc_MESSAGE_NONE;
         else goto usage;
 
     if (!filename)
         goto usage;
 
     auto configure = [&](replay &rp, const char *capture_file) -> bool {
+        rp.set_message_level(message_level);
+
         if(qvga) rp.enable_qvga();
         if(!depth) rp.disable_depth();
         if(realtime) rp.enable_realtime();
@@ -138,7 +155,7 @@ int main(int c, char **v)
             std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
-    auto data_callback = [&enable_gui, &incremental_ate, &render_output](world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data) {
+    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &threads] (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data) {
         rc_PoseTime current = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
         auto timestamp = sensor_clock::micros_to_tp(current.time_us);
         tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current.pose_m));
@@ -176,7 +193,7 @@ int main(int c, char **v)
         if (render_output)
             mkdir(render_output, 0777);
 
-        benchmark_run(stream, filename,
+        benchmark_run(stream, filename, threads,
         [&](const char *capture_file, struct benchmark_result &res) -> bool {
             auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
 

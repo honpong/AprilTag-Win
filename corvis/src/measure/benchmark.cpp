@@ -77,7 +77,7 @@ struct measurement {
 #include <algorithm>
 #include <string.h>
 
-void benchmark_run(std::ostream &stream, const char *directory,
+void benchmark_run(std::ostream &stream, const char *directory, int threads,
         std::function<bool (const char *file, struct benchmark_result &result)> measure_file,
         std::function<void (const char *file, struct benchmark_result &result)> measure_done)
 {
@@ -95,7 +95,7 @@ void benchmark_run(std::ostream &stream, const char *directory,
     for (auto &file : files) {
         results.push_back(benchmark_data { file.substr(strlen(directory) + 1), file });
         results.back().ok = std::async(std::launch::async, measure_file, results.back().file.c_str(), std::ref(results.back().result));
-        if ((++last - first) >= std::max<signed>(1, std::thread::hardware_concurrency())) {
+        if ((++last - first) >= std::max<signed>(1, threads ? threads : std::thread::hardware_concurrency())) {
           results[first].ok.wait();
           measure_done(results[first].file.c_str(), results[first].result);
           first++;

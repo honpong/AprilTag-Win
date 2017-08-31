@@ -48,11 +48,6 @@ void log_to_stderr(void *handle, rc_MessageLevel message_level, const char * mes
 replay::replay(bool start_paused): is_paused(start_paused)
 {
     tracker = rc_create();
-#ifdef DEBUG
-    rc_setMessageCallback(tracker, log_to_stderr, nullptr, rc_MESSAGE_INFO);
-#else
-    rc_setMessageCallback(tracker, log_to_stderr, nullptr, rc_MESSAGE_WARN);
-#endif
 }
 
 bool replay::open(const char *name)
@@ -192,6 +187,7 @@ void replay::setup_filter()
 void replay::start(string map_filename)
 {
     setup_filter();
+    rc_setMessageCallback(tracker, log_to_stderr, nullptr, message_level);
     if(!map_filename.empty())
         load_map(map_filename);
     is_running = true;

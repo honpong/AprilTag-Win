@@ -366,7 +366,7 @@ const std::array<rc_MessageLevel, 7> rc_callback_sink_st::rc_levels = {
 
 RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback callback, void *handle, rc_MessageLevel maximum_log_level)
 {
-#ifndef DEBUG
+#if defined(RC_VERSION) && !defined(DEBUG)
     bool debug_unavailable = false;
     if ((debug_unavailable = maximum_log_level > rc_MESSAGE_WARN))
         maximum_log_level = rc_MESSAGE_WARN;
@@ -383,7 +383,7 @@ RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback
         trace_log = std::make_unique<spdlog::logger>("rc_trace", rc_sink);
         trace_log->set_pattern("%n: %v");
     }
-#ifndef DEBUG
+#if defined(RC_VERSION) && !defined(DEBUG)
     if (debug_unavailable)
         tracker->sfm.s.log->warn("INFO, DEBUG, TRACE message levels are unavailable.");
 #endif

@@ -75,22 +75,6 @@ void mapper::add_node(nodeid id, const rc_Sensor camera_id)
     nodes[id].camera_id = camera_id;
 }
 
-void mapper::estimate_3d_point(const aligned_vector<v2> &tracks_2d, const std::vector<transformation> &camera_poses, v3 &point_3d)
-{
-    m<Eigen::Dynamic, 4> A; A.resize(2*camera_poses.size(),4);
-    m<3,4> P;
-    for (int i = 0; i< tracks_2d.size(); ++i) {
-        v2 p = tracks_2d[i];
-        const transformation& camera = camera_poses[i];
-        P.block<3,3>(0,0) = camera.Q.toRotationMatrix();
-        P.block<3,1>(0,3) = camera.T;
-        A.block<2,4>(2*i,0) = p * P.row(2) - P.topRows(2);
-    }
-
-    Eigen::JacobiSVD<decltype(A)> msvd(A, Eigen::ComputeFullV);
-    point_3d = msvd.matrixV().topRightCorner(3,1) / msvd.matrixV()(3,3);
-}
-
 void mapper::triangulate_keypoint(const tracker::feature_track& keypoint)
 {
     if (keypoint.group_tracks.size() > 1) {
@@ -111,18 +95,7 @@ void mapper::triangulate_keypoint(const tracker::feature_track& keypoint)
             camera_poses.push_back(G_CW);
         }
         v3 point_3d;
-        estimate_3d_point(tracks_2d, camera_poses, point_3d);
-        // calculate reprojection error at each node
-        aligned_vector<f_t> errors_point;
-        for (int i = 0; i< camera_poses.size(); ++i) {
-            transformation& G_CW = camera_poses[i];
-            feature_t& kpn = tracks_2d[i];
-            // predict 3d point in the camera reference
-            v3 p3dC = G_CW * point_3d;
-            v2 kpn_p = p3dC.segment<2>(0)/p3dC.z();
-            errors_point.push_back((kpn - kpn_p).norm());
-        }
-        float mean_error_point = ::map(errors_point).mean();
+        float mean_error_point = estimate_3d_point(tracks_2d, camera_poses, point_3d);
         if ( mean_error_point < 0.03f) {
             map_node &ref_node = nodes[keypoint.group_tracks[0].group_id];
             transformation G_BW = invert(ref_node.global_transformation);

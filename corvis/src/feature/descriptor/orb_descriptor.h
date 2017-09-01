@@ -50,12 +50,17 @@ public:
     static constexpr float min_score = 200.f;
     static constexpr float good_score = 50.f;
 
-    float sin_, cos_;
-    std::array<uint64_t, L/8> descriptor;
+    struct raw : public std::array<uint64_t, L/8> {
+        static float distance(const orb_descriptor::raw &a, const orb_descriptor::raw &b);
+    } descriptor;
+    float cos_, sin_;
 
+    orb_descriptor(const raw &d, float c, float s) : descriptor(d), cos_(c), sin_(s) {}
     orb_descriptor(float x, float y, const tracker::image& image);
     static bool is_better(const float distance1, const float distance2) {return distance1 < distance2;}
-    static float distance(const orb_descriptor &a, const orb_descriptor &b);
+    static float distance(const orb_descriptor &a, const orb_descriptor &b) {
+        return raw::distance(a.descriptor, b.descriptor);
+    }
     float distance(float x, float y, const tracker::image& image) const {
         return orb_descriptor::distance(*this, orb_descriptor(x,y,image));
     }
@@ -65,7 +70,7 @@ public:
     }
 
 private:
-    static int bit_pattern_31_[256 * 4];
+    static const int bit_pattern_31_[256 * 4];
     static const std::array<int, orb_half_patch_size + 1>& vUmax;
 
     static const std::array<int, orb_half_patch_size + 1> initialize_umax();

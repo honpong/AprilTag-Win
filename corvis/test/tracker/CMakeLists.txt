@@ -12,7 +12,7 @@ add_executable(spec
   calibration_json.cpp
   tpose.cpp
   dictionary.cpp
-  mapper.cpp
+  #mapper.cpp
   fast_tracker.cpp
   sensor_fusion_queue.cpp
   $<$<BOOL:${ENABLE_QR}>:

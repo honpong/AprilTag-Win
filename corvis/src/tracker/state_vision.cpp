@@ -313,32 +313,12 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map, spdlog::lo
                     variance_meters = measurement_var;
 
                 bool good = stdev / f->v.depth() < .05f;
-                if (good && f->descriptor_valid)
-                    map->update_feature_position(g->id, f->track.feature->id, f->node_body, variance_meters);
-                if (good && !f->descriptor_valid) {
-                    float scale = static_cast<float>(f->v.depth());
-                    float radius = 32.f/scale * (image.width / 320.f);
-                    if(radius < 4.f) {
-                        radius = 4.f;
-                    }
-                    //log.info("feature {} good radius {}", f->id, radius);
-                    if (descriptor_compute((uint8_t*)image.image, image.width, image.height, image.stride,
-                                           static_cast<float>(f->track.x), static_cast<float>(f->track.y), radius,
-                                           f->descriptor)) {
-                        f->descriptor_valid = true;
-                        map->add_feature(g->id, f->track.feature->id, f->node_body, variance_meters, f->descriptor);
-                    }
+                if (good) {
+                    map->set_feature(g->id, f->track.feature->id, f->node_body, variance_meters, !f->is_in_map);
+                    f->is_in_map = true;
                 }
             }
         }
-    }
-
-    transformation offset;
-    int max = 20;
-    int suppression = 10;
-    if (map->find_closure(max, suppression, offset)) {
-        loop_offset = offset*loop_offset;
-        log.info("loop closed, offset: {}", std::cref(loop_offset));
     }
 }
 

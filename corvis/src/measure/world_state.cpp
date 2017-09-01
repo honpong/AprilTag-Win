@@ -499,17 +499,23 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
                     loop_closed = true;
             }
             std::vector<Feature> features;
-            for(auto feature : map_node.features) {
+            for(auto &feat : map_node.features) {
                 Feature f;
-                f.feature.world.x = feature->position[0];
-                f.feature.world.y = feature->position[1];
-                f.feature.world.z = feature->position[2];
+                f.feature.world.x = feat.second.position[0];
+                f.feature.world.y = feat.second.position[1];
+                f.feature.world.z = feat.second.position[2];
                 features.push_back(f);
             }
             bool unlinked = f->map->is_unlinked(map_node.id);
-            observe_map_node(timestamp_us, map_node.id, map_node.finished, loop_closed, unlinked, map_node.global_transformation.transform, neighbors, features);
+            observe_map_node(timestamp_us, map_node.id, map_node.status == node_status::finished, loop_closed, unlinked, map_node.global_transformation, neighbors, features);
         }
     }
+}
+
+void world_state::update_relocalization(rc_Tracker * tracker, const rc_Data * data) {
+    const struct filter * f = &((sensor_fusion *)tracker)->sfm;
+    uint64_t timestamp_us = data->time_us;
+    observe_position_reloc(timestamp_us,f->reloc_poses);
 }
 
 void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
@@ -519,6 +525,8 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
     rc_PoseTime pt = rc_getPose(tracker, nullptr, nullptr, data->path);
     uint64_t timestamp_us = pt.time_us;
     transformation G = to_transformation(pt.pose_m);
+    if (display_reloc)
+        G = f->reloc_pose * invert(f->pose_at_reloc) * G; // plot camera pose wrt relocalization pose
     observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z(), data->path == rc_DATA_PATH_FAST);
     update_sensors(tracker, data);
 
@@ -556,6 +564,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
             // Map update is slow and loop closure checks only happen
             // on images, so only update on image updates
             update_map(tracker, data);
+            update_relocalization(tracker, data);
             }
             break;
 
@@ -897,6 +906,15 @@ bool world_state::update_vertex_arrays(bool show_only_good)
 
         }
     }
+
+    reloc_vertex.clear();
+    for(Position p : path_reloc)
+    {
+        VertexData v;
+        set_color(&v, 10, 255, 10, 255); // path color
+        set_position(&v, (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
+        reloc_vertex.push_back(v);
+    }
     dirty = false;
     return true;
 }
@@ -1102,4 +1120,16 @@ void world_state::observe_position_gt(uint64_t timestamp, float x, float y, floa
 void world_state::observe_ate(uint64_t timestamp_us, const float absolute_trajectory_error)
 {
     ate = absolute_trajectory_error;
+}
+
+void world_state::observe_position_reloc(uint64_t timestamp, const std::vector<transformation>& transformation_vector) {
+    Position p;
+    display_lock.lock();
+    path_reloc.clear();
+    for (auto g : transformation_vector) {
+        p.timestamp = timestamp;
+        p.g = g;
+        path_reloc.push_back(p);
+    }
+    display_lock.unlock();
 }

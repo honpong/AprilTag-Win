@@ -7,26 +7,30 @@
 
 #include <list>
 #include <vector>
+#include <set>
+#include <map>
 #include <stdbool.h>
 
 #include "transformation.h"
 #include "vec4.h"
-#include "feature_descriptor.h"
-#include "dictionary.h"
 #include <spdlog/spdlog.h>
 #include "spdlog/sinks/null_sink.h"
+#include "fast_tracker.h"
+#include "sensor.h"
+#include "rc_tracker.h"
+#include "orb_descriptor.h"
+#include "rapidjson/document.h"
+#include "DBoW2/TemplatedVocabulary.h"
 
-class transformation_variance {
-    public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    transformation transform;
-    m4 variance;
-};
+typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, orb_descriptor::raw> orb_vocabulary;
+
+class state_vision_intrinsics;
 
 struct map_edge {
     uint64_t neighbor;
-    int64_t geometry; //positive/negative indicate geometric edge direction, 0 indicates a covisibility edge
     bool loop_closure;
+    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
+    static void deserialize(const rapidjson::Value &json, map_edge &node);
 };
 
 struct map_feature {
@@ -36,86 +40,45 @@ struct map_feature {
     // one of images axes oriented to match gravity (world z axis)
     v3 position;
     float variance;
-    uint32_t label;
-    Eigen::VectorXf dvec;
-    map_feature(const uint64_t id, const v3 &p, const float v, const uint32_t l, const descriptor & d);
+    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
+    static bool deserialize(const rapidjson::Value &json, map_feature &feature, uint64_t &max_loaded_featid);
 };
+
+struct map_frame {
+    rc_Sensor camera_id; // to know which camera intrinsics
+    std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>> keypoints;
+    DBoW2::BowVector dbow_histogram;       // histogram describing image
+    DBoW2::FeatureVector dbow_direct_file;  // direct file (at level 4)
+    void dbow_init(const orb_vocabulary *orb_voc);
+    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
+    static bool deserialize(const rapidjson::Value &json, map_frame &frame);
+};
+
+enum class node_status { initializing, normal, finished };
 
 struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
-    static size_t histogram_size;
-    bool match_attempted{false};
-    bool finished{false};
     std::list<map_edge> edges;
     map_edge &get_add_neighbor(uint64_t neighbor);
-    int terms;
-    std::list<map_feature *> features; //sorted by label
-    bool add_feature(const uint64_t id, const v3 &p, const float v, const uint32_t l, const descriptor & d);
+    void set_feature(const uint64_t id, const v3 &p, const float v);
 
-    transformation_variance global_transformation;
+    transformation global_transformation;
 
-    // temporary variables used in breadth first
-    int depth;
-    int parent;
-    transformation_variance transform;
-
-map_node(): terms(0), depth(0), parent(-1) {}
-};
-
-struct map_match {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    uint64_t from;
-    uint64_t to;
-    float score;
-    transformation g;
-};
-
-struct local_feature {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    v3 position;
-    map_feature *feature;
-};
-
-struct match_pair {
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    local_feature first, second;
-    float score;
+    // relocalization
+    map_frame frame;
+    std::set<uint64_t> neighbors;
+    std::map<uint64_t,map_feature> features;
+    node_status status{node_status::initializing};
+    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
+    static bool deserialize(const rapidjson::Value &json, map_node &node, uint64_t &max_loaded_featid);
 };
 
 class mapper {
  private:
     aligned_vector<map_node> nodes;
     friend struct map_node;
-    aligned_vector<transformation_variance> geometry;
-    std::vector<uint64_t> document_frequency;
-    transformation relative_transformation;
-    uint64_t feature_count;
-    dictionary feature_dictionary;
-
-    void diffuse_matches(uint64_t id, std::vector<float> &matches, aligned_vector<map_match> &diffusion, int max, int unrecent);
-    void joint_histogram(int node, std::list<map_feature *> &histogram);
-
-    float tf_idf_score(const std::list<map_feature *> &hist1, const std::list<map_feature *> &hist2);
-    void tf_idf_match(std::vector<float> &scores, const std::list<map_feature *> &histogram);
-
-    float refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const aligned_vector<match_pair> &neighbor_matches);
-    int check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers);
-    int estimate_translation(uint64_t id1, uint64_t id2, v3 &result, int min_inliers, const transformation &pre_transform, const aligned_vector<match_pair> &matches, const aligned_vector<match_pair> &neighbor_matches);
-    void localize_neighbor_features(uint64_t id, aligned_list<local_feature> &features);
-    void breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &));
-    void internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform, bool loop_closed);
-    void set_special(uint64_t id, bool special);
-    bool get_matches(uint64_t id, map_match &match, int max, int suppression);
-    transformation get_relative_transformation(uint64_t id1, uint64_t id2);
-    void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
-    uint32_t project_feature(const descriptor & d);
-    int pick_transformation_ransac(const aligned_vector<match_pair> &neighbor_matches,  transformation_variance & tv);
-    int ransac_transformation(uint64_t id1, uint64_t id2, transformation_variance &proposal);
-    size_t estimate_transform_with_inliers(const aligned_vector<match_pair> & matches, transformation_variance & tv);
-    void rebuild_map_from_node(int id);
-
-    bool unlinked;
+    bool unlinked{false};
     uint64_t node_id_offset{0};
     uint64_t feature_id_offset{0};
 
@@ -126,34 +89,40 @@ class mapper {
     void reset();
 
     bool is_unlinked(uint64_t node_id) const { return (unlinked && node_id < node_id_offset); }
+    void process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image &image);
     void add_node(uint64_t node_id);
     void add_edge(uint64_t node_id1, uint64_t node_id2);
-    // Descriptor must have a norm of 1
-    void add_feature(uint64_t node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2, const descriptor & feature_descriptor);
+    void set_feature(uint64_t node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2, bool is_new = true);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; };
 
-    void update_feature_position(uint64_t node_id, uint64_t feature_id, const v3 &position_m, float depth_variance_m2);
     void node_finished(uint64_t node_id);
     void set_node_transformation(uint64_t id, const transformation & G);
 
-    bool find_closure(int max, int suppression, transformation &offset);
-
-    // Training
-    void train_dictionary() const;
-
-    // Reading / writing
-    bool serialize(std::string &json);
-    static bool deserialize(const std::string &json, mapper & map);
-
-    // Debugging
-    void dump_map(FILE *file);
-    void print_stats();
+    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
+    static bool deserialize(const rapidjson::Value &json, mapper &map);
 
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper",  std::make_shared<spdlog::sinks::null_sink_st> ());
 
-    bool enabled = false;
-};
+    /// fetch the vocabulary file from resource and create orb vocabulary
+    orb_vocabulary* orb_voc;
 
+    typedef uint64_t nodeid;
+    typedef std::pair<nodeid, nodeid> match;
+    typedef std::vector<match> matches;
+
+    std::map<unsigned int, std::vector<nodeid>> dbow_inverted_index; // given a word it stores the nodes in which it was observed
+
+    // temporary store current frame in case we add a new node
+    map_frame current_frame;
+
+    // for a feature id we associate the corresponding node in which it was detected
+    std::map<uint64_t, nodeid> features_dbow;
+
+    //we need the camera intrinsics
+    std::vector<state_vision_intrinsics*> camera_intrinsics;
+
+    bool relocalize(std::vector<transformation>& vG_WC, const transformation& G_BC);
+};
 
 #endif

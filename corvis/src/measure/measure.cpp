@@ -25,12 +25,13 @@ int main(int c, char **v)
 {
     using std::cerr;
     if (0) { usage:
+
         cerr << "Usage: " << v[0] << " { <filename> [--no-gui] | --benchmark <directory> [--threads <n>] [--progress] }\n"
              << "   [--qvga] [--drop-depth] [--realtime] [--async] [--no-fast-path] [--zero-bias]\n"
              << "   [--trace | --debug | --error | --info | --warn | --none]\n"
              << "   [--pause] [--pause-at <timestamp_us>]\n"
              << "   [--no-plots] [--no-video] [--no-main] [--no-depth]\n"
-             << "   [--render <file.png>] [--incremental-ate]\n"
+             << "   [--render <file.png>] [--incremental-ate] [--display-reloc]\n"
              << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
              << "   [--enable-map] [--save-map <map-json>] [--load-map <map-json>]\n";
         return 1;
@@ -43,6 +44,7 @@ int main(int c, char **v)
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     bool enable_map = false;
     bool incremental_ate = false;
+    bool display_reloc = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
     char *pause_at = nullptr;
     rc_MessageLevel message_level = rc_MESSAGE_WARN;
@@ -76,6 +78,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
         else if (strcmp(v[i], "--progress") == 0) progress = true;
         else if (strcmp(v[i], "--incremental-ate") == 0) incremental_ate = true;
+        else if (strcmp(v[i], "--display-reloc") == 0) display_reloc = true;
         else if (strcmp(v[i], "--trace") == 0) message_level = rc_MESSAGE_TRACE;
         else if (strcmp(v[i], "--debug") == 0) message_level = rc_MESSAGE_DEBUG;
         else if (strcmp(v[i], "--error") == 0) message_level = rc_MESSAGE_ERROR;
@@ -155,10 +158,15 @@ int main(int c, char **v)
             std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
-    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &threads] (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data) {
+    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &threads, &display_reloc]
+        (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data) {
         rc_PoseTime current = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
         auto timestamp = sensor_clock::micros_to_tp(current.time_us);
         tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current.pose_m));
+
+        if (display_reloc)
+            current_tpose.G = to_transformation(rc_getRelocOffset(tracker)) * current_tpose.G;
+
         bool success = rp.get_reference_pose(timestamp, ref_tpose);
         if (success) {
             if (enable_gui || render_output)
@@ -242,6 +250,8 @@ int main(int c, char **v)
     rp.start(load_map);
 #else
     world_state ws;
+    if (display_reloc)
+        ws.enable_display_reloc();
     rp.set_data_callback([&ws,&rp,first=true,&res,&data_callback](rc_Tracker * tracker, const rc_Data * data) mutable {
         data_callback(ws, rp, first, res, tracker, data);
     });

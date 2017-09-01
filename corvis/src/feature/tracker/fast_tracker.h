@@ -8,7 +8,7 @@ class fast_tracker : public tracker
 {
 public:
     template<int border_size>
-    bool is_trackable(int x, int y, int width, int height)
+    static bool is_trackable(int x, int y, int width, int height)
     {
         return (x > border_size &&
                 y > border_size &&
@@ -16,11 +16,16 @@ public:
                 y < height-1-border_size);
     }
 
+public:
     template<typename Descriptor>
     struct fast_feature: public tracker::feature
     {
-        fast_feature(float x_, float y_, const tracker::image& image) : x(x_), y(y_),
-                                                                        descriptor(x_, y_, image) {}
+        fast_feature(float x_, float y_, const tracker::image& image) :
+              x(x_), y(y_), descriptor(x_, y_, image) {}
+        fast_feature(uint64_t id, float x_, float y_, const tracker::image& image) : feature(id),
+              x(x_), y(y_), descriptor(x_, y_, image) {}
+        fast_feature(uint64_t id, float x_, float y_, const Descriptor &descriptor_) : feature(id),
+              x(x_), y(y_), descriptor(descriptor_) {}
         float x, y;
         Descriptor descriptor;
     };

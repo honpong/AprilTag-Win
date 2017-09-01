@@ -181,15 +181,15 @@ void replay::setup_filter()
             this_replay->data_callback(tracker, data);
         }, this);
     }
+    rc_setMessageCallback(tracker, log_to_stderr, nullptr, message_level);
     rc_startTracker(tracker, (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) | (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
 }
 
 void replay::start(string map_filename)
 {
-    setup_filter();
-    rc_setMessageCallback(tracker, log_to_stderr, nullptr, message_level);
     if(!map_filename.empty())
         load_map(map_filename);
+    setup_filter();
     is_running = true;
     path_length = 0;
     length = 0;

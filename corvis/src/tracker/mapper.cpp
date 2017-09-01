@@ -97,12 +97,18 @@ void mapper::get_triangulation_geometry(const tracker::feature_track& keypoint, 
 
 void mapper::add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& point_3d, const float mean_error_point)
 {
-    if ( mean_error_point < 0.03f) {
+    if (mean_error_point < 0.03f) {
         map_node &ref_node = nodes[group_id];
+        state_extrinsics *extrinsics = camera_extrinsics[ref_node.camera_id];
         transformation G_BW = invert(ref_node.global_transformation);
         v3 p3dB = G_BW * point_3d;
-        ref_node.set_feature(feature_id, p3dB, 1.e-3f*1.e-3f, feature_type::triangulated);
-        features_dbow[feature_id] = group_id;
+        transformation G_CB = invert(transformation(extrinsics->Q.v, extrinsics->T.v));
+        v3 p3dC = G_CB*p3dB;
+        // a good 3d point has to be in front of the camera
+        if (p3dC[2] > 0) {
+            ref_node.set_feature(feature_id, p3dB, 1.e-3f*1.e-3f, feature_type::triangulated);
+            features_dbow[feature_id] = group_id;
+        }
     } else {
         log->debug("{}/{}) Reprojection error too large for triangulated point with id: {}", feature_id);
     }

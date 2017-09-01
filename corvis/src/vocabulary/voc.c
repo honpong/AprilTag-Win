@@ -3,6 +3,9 @@ __asm__(
 #ifdef __APPLE__
     ".const_data\n"
 #define _ "_"
+#elif defined(MYRIAD2)
+    ".section .ddr.rodata\n"
+#define _ ""
 #else
     ".section .rodata\n"
 #define _ ""

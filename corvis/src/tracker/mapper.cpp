@@ -75,36 +75,36 @@ void mapper::add_node(nodeid id, const rc_Sensor camera_id)
     nodes[id].camera_id = camera_id;
 }
 
-void mapper::triangulate_keypoint(const tracker::feature_track& keypoint)
+void mapper::get_triangulation_geometry(const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses)
 {
-    if (keypoint.group_tracks.size() > 1) {
-        // accumulate cameras and 2d tracks to triangulate
-        aligned_vector<v2> tracks_2d;
-        std::vector<transformation> camera_poses;
-        for (auto &ag : keypoint.group_tracks) {
-            map_node &node = nodes[ag.group_id];
-            const state_extrinsics* const extrinsics = camera_extrinsics[node.camera_id];
-            const state_vision_intrinsics* const intrinsics = camera_intrinsics[node.camera_id];
-            transformation G_BC = transformation(extrinsics->Q.v, extrinsics->T.v);
-            // normalize/undistort 2d point track
-            feature_t kpd = {ag.x, ag.y};
-            feature_t kpn = intrinsics->undistort_feature(intrinsics->normalize_feature(kpd));
-            tracks_2d.push_back(kpn);
-            // read node transformation
-            transformation G_CW = invert(node.global_transformation * G_BC);
-            camera_poses.push_back(G_CW);
-        }
-        v3 point_3d;
-        float mean_error_point = estimate_3d_point(tracks_2d, camera_poses, point_3d);
-        if ( mean_error_point < 0.03f) {
-            map_node &ref_node = nodes[keypoint.group_tracks[0].group_id];
-            transformation G_BW = invert(ref_node.global_transformation);
-            v3 p3dB = G_BW * point_3d;
-            ref_node.set_feature(keypoint.feature->id, p3dB, 1.e-3f*1.e-3f, feature_type::triangulated);
-            features_dbow[keypoint.feature->id] = keypoint.group_tracks[0].group_id;
-        } else {
-            log->debug("{}/{}) Reprojection error too large for triangulated point with id: {}", keypoint.feature->id);
-        }
+    tracks_2d.clear();
+    camera_poses.clear();
+    // accumulate cameras and 2d tracks to triangulate
+    for (auto &ag : keypoint.group_tracks) {
+        map_node &node = nodes[ag.group_id];
+        const state_extrinsics* const extrinsics = camera_extrinsics[node.camera_id];
+        const state_vision_intrinsics* const intrinsics = camera_intrinsics[node.camera_id];
+        transformation G_BC = transformation(extrinsics->Q.v, extrinsics->T.v);
+        // normalize/undistort 2d point track
+        feature_t kpd = {ag.x, ag.y};
+        feature_t kpn = intrinsics->undistort_feature(intrinsics->normalize_feature(kpd));
+        tracks_2d.push_back(kpn);
+        // read node transformation
+        transformation G_CW = invert(node.global_transformation * G_BC);
+        camera_poses.push_back(G_CW);
+    }
+}
+
+void mapper::add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& point_3d, const float mean_error_point)
+{
+    if ( mean_error_point < 0.03f) {
+        map_node &ref_node = nodes[group_id];
+        transformation G_BW = invert(ref_node.global_transformation);
+        v3 p3dB = G_BW * point_3d;
+        ref_node.set_feature(feature_id, p3dB, 1.e-3f*1.e-3f, feature_type::triangulated);
+        features_dbow[feature_id] = group_id;
+    } else {
+        log->debug("{}/{}) Reprojection error too large for triangulated point with id: {}", feature_id);
     }
 }
 

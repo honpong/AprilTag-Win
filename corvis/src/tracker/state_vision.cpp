@@ -250,7 +250,14 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
         bool not_found = !t.found();
         if (map && not_found) {
             // Triangulate point not in filter neither being tracked
-            map->triangulate_keypoint(t);
+            if (t.group_tracks.size() > 1) {
+                aligned_vector<v2> tracks_2d;
+                std::vector<transformation> camera_poses;
+                map->get_triangulation_geometry(t, tracks_2d, camera_poses);
+                v3 point_3d;
+                float mean_error_point = estimate_3d_point(tracks_2d,camera_poses, point_3d);
+                map->add_triangulated_feature_to_group(t.group_tracks[0].group_id, t.feature->id, point_3d, mean_error_point);
+            }
         }
         return not_found;
     });

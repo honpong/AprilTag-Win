@@ -29,7 +29,7 @@ struct filter {
 
     sensor_clock::time_point last_time;
 
-    kalman_storage<MAXSTATESIZE, 2*MAXSTATESIZE, 6> store;
+    kalman_storage<MAXSTATESIZE, 2*(MAXSTATESIZE - (6*3+1/*MINIMUS*/*6)), 6> store;
     observation_queue observations{store.x, store.y, store.R, store.HP, store.K, store.S};
     covariance cov{store.maxstatesize, store.P, store.Q, store.iP, store.iQ};
     state s{cov, store.FP};

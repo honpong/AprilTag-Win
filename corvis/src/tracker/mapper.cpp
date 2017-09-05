@@ -49,23 +49,23 @@ void mapper::reset()
     features_dbow.clear();
 }
 
-map_edge &map_node::get_add_neighbor(uint64_t neighbor)
+map_edge &map_node::get_add_neighbor(uint64_t neighbor, bool loop_closure)
 {
     for(list<map_edge>::iterator edge = edges.begin(); edge != edges.end(); ++edge) {
         if(edge->neighbor == neighbor) return *edge;
     }
-    edges.push_back(map_edge{neighbor, 0});
+    edges.push_back(map_edge{neighbor, loop_closure});
     return edges.back();
 }
 
-void mapper::add_edge(uint64_t id1, uint64_t id2)
+void mapper::add_edge(uint64_t id1, uint64_t id2, bool loop_closure)
 {
     id1 += node_id_offset;
     id2 += node_id_offset;
     if(nodes.size() <= id1) nodes.resize(id1+1);
     if(nodes.size() <= id2) nodes.resize(id2+1);
-    nodes[id1].get_add_neighbor(id2);
-    nodes[id2].get_add_neighbor(id1);
+    nodes[id1].get_add_neighbor(id2, loop_closure);
+    nodes[id2].get_add_neighbor(id1, loop_closure);
 }
 
 void mapper::add_node(uint64_t id)
@@ -119,6 +119,8 @@ void mapper::set_node_transformation(uint64_t id, const transformation & G)
     id += node_id_offset;
     nodes[id].global_transformation = G;
     nodes[id].status = node_status::normal;
+    if(id > current_node_id)
+        current_node_id = id;
 }
 
 void mapper::node_finished(uint64_t id)
@@ -331,6 +333,7 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                     best_num_inliers = inliers_set.size();
                     vG_WC.clear();
                     vG_WC.push_back(G_WC);
+                    add_edge(current_node_id, nid.first, true);
                 }
             }
         }

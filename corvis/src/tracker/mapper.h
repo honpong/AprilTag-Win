@@ -60,7 +60,7 @@ struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
     std::list<map_edge> edges;
-    map_edge &get_add_neighbor(uint64_t neighbor);
+    map_edge &get_add_neighbor(uint64_t neighbor, bool loop_closure = false);
     void set_feature(const uint64_t id, const v3 &p, const float v);
 
     transformation global_transformation;
@@ -90,7 +90,7 @@ class mapper {
     bool is_unlinked(uint64_t node_id) const { return (unlinked && node_id < node_id_offset); }
     void process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image &image);
     void add_node(uint64_t node_id);
-    void add_edge(uint64_t node_id1, uint64_t node_id2);
+    void add_edge(uint64_t node_id1, uint64_t node_id2, bool loop_closure = false);
     void set_feature(uint64_t node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2, bool is_new = true);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; };
@@ -114,6 +114,7 @@ class mapper {
 
     // temporary store current frame in case we add a new node
     map_frame current_frame;
+    nodeid current_node_id = 0;
 
     // for a feature id we associate the corresponding node in which it was detected
     std::map<uint64_t, nodeid> features_dbow;

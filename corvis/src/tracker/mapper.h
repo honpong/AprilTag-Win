@@ -87,16 +87,21 @@ class mapper {
     ~mapper();
     void reset();
 
-    bool is_unlinked(uint64_t node_id) const { return (unlinked && node_id < node_id_offset); }
+    typedef uint64_t nodeid;
+    typedef std::pair<nodeid, nodeid> match;
+    typedef std::vector<match> matches;
+
+    bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     void process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image &image);
-    void add_node(uint64_t node_id);
-    void add_edge(uint64_t node_id1, uint64_t node_id2, bool loop_closure = false);
-    void set_feature(uint64_t node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2, bool is_new = true);
+    void add_node(nodeid node_id);
+    void add_edge(nodeid node_id1, nodeid node_id2, bool loop_closure = false);
+    void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2, bool is_new = true);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; };
 
-    void node_finished(uint64_t node_id);
-    void set_node_transformation(uint64_t id, const transformation & G);
+    uint64_t get_current_node_id() { return current_node_id; }
+    void node_finished(nodeid node_id);
+    void set_node_transformation(nodeid id, const transformation & G);
 
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, mapper &map);
@@ -105,10 +110,6 @@ class mapper {
 
     /// fetch the vocabulary file from resource and create orb vocabulary
     orb_vocabulary* orb_voc;
-
-    typedef uint64_t nodeid;
-    typedef std::pair<nodeid, nodeid> match;
-    typedef std::vector<match> matches;
 
     std::map<unsigned int, std::vector<nodeid>> dbow_inverted_index; // given a word it stores the nodes in which it was observed
 

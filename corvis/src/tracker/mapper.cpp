@@ -49,7 +49,7 @@ void mapper::reset()
     features_dbow.clear();
 }
 
-map_edge &map_node::get_add_neighbor(uint64_t neighbor, bool loop_closure)
+map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor, bool loop_closure)
 {
     for(list<map_edge>::iterator edge = edges.begin(); edge != edges.end(); ++edge) {
         if(edge->neighbor == neighbor) return *edge;
@@ -58,7 +58,7 @@ map_edge &map_node::get_add_neighbor(uint64_t neighbor, bool loop_closure)
     return edges.back();
 }
 
-void mapper::add_edge(uint64_t id1, uint64_t id2, bool loop_closure)
+void mapper::add_edge(nodeid id1, nodeid id2, bool loop_closure)
 {
     id1 += node_id_offset;
     id2 += node_id_offset;
@@ -68,7 +68,7 @@ void mapper::add_edge(uint64_t id1, uint64_t id2, bool loop_closure)
     nodes[id2].get_add_neighbor(id1, loop_closure);
 }
 
-void mapper::add_node(uint64_t id)
+void mapper::add_node(nodeid id)
 {
     id += node_id_offset;
     if(nodes.size() <= id) nodes.resize(id + 1);
@@ -107,14 +107,14 @@ void map_node::set_feature(const uint64_t id, const v3 &pos, const float varianc
     features[id].id = id;
 }
 
-void mapper::set_feature(uint64_t groupid, uint64_t id, const v3 &pos, float variance, bool is_new) {
+void mapper::set_feature(nodeid groupid, uint64_t id, const v3 &pos, float variance, bool is_new) {
     groupid += node_id_offset;
     id += feature_id_offset;
     nodes[groupid].set_feature(id, pos, variance);
     if (is_new) features_dbow[id] = groupid;
 }
 
-void mapper::set_node_transformation(uint64_t id, const transformation & G)
+void mapper::set_node_transformation(nodeid id, const transformation & G)
 {
     id += node_id_offset;
     nodes[id].global_transformation = G;
@@ -123,7 +123,7 @@ void mapper::set_node_transformation(uint64_t id, const transformation & G)
         current_node_id = id;
 }
 
-void mapper::node_finished(uint64_t id)
+void mapper::node_finished(nodeid id)
 {
     id += node_id_offset;
     if (nodes[id].status == node_status::normal) {

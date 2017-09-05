@@ -249,17 +249,12 @@ void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,
     cvrt3_detectParams.threshold = fast_track_threshold;
     cvrt3_detectParams.halfWindow = half_patch_width;
 
-    int start[4] = { 0, (trackingData.size() / 4), (trackingData.size() / 2),
-            (trackingData.size() * 3 / 4) };
-    int size[4] = { (trackingData.size() / 4), ((trackingData.size() / 2)
-            - (trackingData.size() / 4)), ((trackingData.size() * 3 / 4)
-            - (trackingData.size() / 2)), (trackingData.size()
-            - (trackingData.size() * 3 / 4)) };
-
     for (int i = 0; i < shavesToUse; ++i) {
         shaves[i]->start(entryPointsTracking[i], "iiii",
-                (u32) &trackingData.data()[start[i]], size[i],
-                (u32) image.image, (u32) &tracked_features[start[i]]);
+                (u32) &trackingData.data()[trackingData.size() * i / shavesToUse],
+                trackingData.size() * (i+1) / shavesToUse - trackingData.size() * i / shavesToUse,
+                (u32) image.image,
+                (u32) &tracked_features[trackingData.size() * i / shavesToUse]);
     }
 
     for (int i = 0; i < shavesToUse; ++i) {

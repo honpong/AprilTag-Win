@@ -209,45 +209,18 @@ void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,
         const image& image)
 {
     DPRINTF("##shave_tracker## entered trackMultipleShave\n");
-    cvrt0_detectParams.imgWidth = image.width_px;
-    cvrt0_detectParams.imgHeight = image.height_px;
-    cvrt0_detectParams.winWidth = full_patch_width;
-    cvrt0_detectParams.winHeight = image.height_px;
-    cvrt0_detectParams.imgStride = image.stride_px;
-    cvrt0_detectParams.x = 0;
-    cvrt0_detectParams.y = 0;
-    cvrt0_detectParams.threshold = fast_track_threshold;
-    cvrt0_detectParams.halfWindow = half_patch_width;
 
-    cvrt1_detectParams.imgWidth = image.width_px;
-    cvrt1_detectParams.imgHeight = image.height_px;
-    cvrt1_detectParams.winWidth = full_patch_width;
-    cvrt1_detectParams.winHeight = image.height_px;
-    cvrt1_detectParams.imgStride = image.stride_px;
-    cvrt1_detectParams.x = 0;
-    cvrt1_detectParams.y = 0;
-    cvrt1_detectParams.threshold = fast_track_threshold;
-    cvrt1_detectParams.halfWindow = half_patch_width;
-
-    cvrt2_detectParams.imgWidth = image.width_px;
-    cvrt2_detectParams.imgHeight = image.height_px;
-    cvrt2_detectParams.winWidth = full_patch_width;
-    cvrt2_detectParams.winHeight = image.height_px;
-    cvrt2_detectParams.imgStride = image.stride_px;
-    cvrt2_detectParams.x = 0;
-    cvrt2_detectParams.y = 0;
-    cvrt2_detectParams.threshold = fast_track_threshold;
-    cvrt2_detectParams.halfWindow = half_patch_width;
-
-    cvrt3_detectParams.imgWidth = image.width_px;
-    cvrt3_detectParams.imgHeight = image.height_px;
-    cvrt3_detectParams.winWidth = full_patch_width;
-    cvrt3_detectParams.winHeight = image.height_px;
-    cvrt3_detectParams.imgStride = image.stride_px;
-    cvrt3_detectParams.x = 0;
-    cvrt3_detectParams.y = 0;
-    cvrt3_detectParams.threshold = fast_track_threshold;
-    cvrt3_detectParams.halfWindow = half_patch_width;
+    for (int j = 0; j < shavesToUse; j++) {
+        cvrt_detectParams[j]->imgWidth = image.width_px;
+        cvrt_detectParams[j]->imgHeight = image.height_px;
+        cvrt_detectParams[j]->winWidth = full_patch_width;
+        cvrt_detectParams[j]->winHeight = image.height_px;
+        cvrt_detectParams[j]->imgStride = image.stride_px;
+        cvrt_detectParams[j]->x = 0;
+        cvrt_detectParams[j]->y = 0;
+        cvrt_detectParams[j]->threshold = fast_track_threshold;
+        cvrt_detectParams[j]->halfWindow = half_patch_width;
+    }
 
     for (int i = 0; i < shavesToUse; ++i) {
         shaves[i]->start(entryPointsTracking[i], "iiii",

@@ -169,7 +169,7 @@ f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<
         return false;
     aligned_vector<size_t> indices(src.size()); for (size_t i=0; i<src.size(); i++) indices[i] = i;
     estimated_transformation::state state = { src, dst, max_reprojection_error };
-    estimated_transformation best = ransac<5,estimated_transformation>(state, indices.begin(), indices.end(), gen, max_iterations, confidence);
+    estimated_transformation best = ransac<5,estimated_transformation>(state, indices.begin(), indices.end(), gen, max_iterations, confidence, min_matches);
     transform = best.G;
     if (inliers) { inliers->clear(); for (auto i : best.indices) inliers->insert(i); }
     return best.reprojection_error;

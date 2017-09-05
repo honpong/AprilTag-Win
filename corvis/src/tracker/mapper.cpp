@@ -141,6 +141,38 @@ void mapper::node_finished(nodeid id)
         dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index
 }
 
+vector<mapper::node_path> mapper::breadth_first_search(nodeid start, int maxdepth) {
+    queue<node_path> next;
+    vector<node_path> neighbor_nodes;
+    next.push(node_path{start, transformation()});
+    //FIXME: use unordered_map<nodeid,struct{depth,parent}> to avoid storing this info in mapper
+    nodes[start].parent = -2;
+    nodes[start].depth = 0;
+    while (!next.empty()) {
+        node_path current_path = next.front();
+        nodeid& u = current_path.first;
+        transformation& Gu = current_path.second;
+        next.pop();
+        if(!maxdepth || nodes[u].depth < maxdepth) {
+            for(auto edge : nodes[u].edges) {
+                const nodeid& v = edge.first;
+                const transformation& Gv = edge.second.G;
+
+                if(nodes[v].parent == -1) {
+                    nodes[v].depth = nodes[u].depth + 1;
+                    nodes[v].parent = u;
+                    next.push(node_path{v, Gu*Gv});
+                }
+            }
+        }
+        neighbor_nodes.push_back(current_path);
+    }
+    for(auto neighbor : neighbor_nodes) {
+        nodes[neighbor.first].parent = -1;
+    }
+    return neighbor_nodes;
+}
+
 std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     const map_frame &current_frame,
     const aligned_vector<map_node> &nodes,

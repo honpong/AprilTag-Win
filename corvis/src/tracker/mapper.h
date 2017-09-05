@@ -73,6 +73,10 @@ struct map_node {
     node_status status{node_status::normal};
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, map_node &node, uint64_t &max_loaded_featid);
+
+    //temporary variables used in breath first
+    int parent{-1};
+    int depth{0};
 };
 
 class mapper {
@@ -92,6 +96,7 @@ class mapper {
     typedef uint64_t nodeid;
     typedef std::pair<nodeid, nodeid> match;
     typedef std::vector<match> matches;
+    typedef std::pair<nodeid, transformation> node_path;
 
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     void process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image &image);
@@ -99,6 +104,7 @@ class mapper {
     void add_edge(nodeid node_id1, nodeid node_id2);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2, bool is_new = true);
+    std::vector<node_path> breadth_first_search(nodeid start, int maxdepth = 1);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; };
 

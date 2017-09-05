@@ -86,7 +86,7 @@ public:
 
     friend void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale);
     friend f_t matrix_check_condition(matrix &A);
-    friend bool matrix_solve(matrix &A, matrix &B);
+    friend bool matrix_half_solve(matrix &A, matrix &B);
     friend bool test_posdef(const matrix &m);
 
     friend class covariance;

@@ -27,7 +27,7 @@ trsvl_lnlt( float* __restrict__ y, const float* __restrict__ L_,
     for(int i = 0; i < lines_number; ++i){
         memcpy((void*)cmxB, (void*)b_line, n * sizeof(float));
         trsvl_ln(cmxY, L_, cmxB, n, l_stride * sizeof(float));
-        trsvl_lt(cmxY, L_, cmxY, n, l_stride * sizeof(float));
+      //trsvl_lt(cmxY, L_, cmxY, n, l_stride * sizeof(float));
         memcpy((void*)y_line, cmxY, n * sizeof(float));
         y_line += y_stride;
         b_line += b_stride;

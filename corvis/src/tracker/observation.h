@@ -150,8 +150,8 @@ protected:
 class observation_queue {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    observation_queue(matrix &state_, matrix &inn_, matrix &m_cov_, matrix &HP_, matrix &K_, matrix &res_cov_)
-        : state(state_), inn(inn_), m_cov(m_cov_), HP(HP_), K(K_), res_cov(res_cov_)  {}
+    observation_queue(matrix &state_, matrix &inn_, matrix &m_cov_, matrix &HP_, matrix &KL_, matrix &res_cov_)
+        : state(state_), inn(inn_), m_cov(m_cov_), HP(HP_), KL(KL_), res_cov(res_cov_)  {}
     void preprocess(state_root &s, sensor_clock::time_point time);
     bool process(state_root &s);
     std::vector<std::unique_ptr<observation>> observations;
@@ -180,9 +180,9 @@ protected:
     void compute_measurement_covariance(matrix &m_cov);
     void compute_prediction_covariance(const matrix &cov, int statesize, int meas_size);
     void compute_innovation_covariance(const matrix &m_cov);
-    bool update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn);
+    static bool update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn, matrix &HP, matrix &res_cov, matrix &K);
 
-    matrix &state, &inn, &m_cov, &HP, &K, &res_cov;
+    matrix &state, &inn, &m_cov, &HP, &KL, &res_cov;
 };
 
 //some object should have functions to evolve the mean and covariance

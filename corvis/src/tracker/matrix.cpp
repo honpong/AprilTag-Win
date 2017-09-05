@@ -277,7 +277,7 @@ f_t matrix_check_condition(matrix &A)
     return A.map().llt().rcond();
 }
 
-bool matrix_solve(matrix &A, matrix &B)
+bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = B L^-T
 {
     START_EVENT(SF_MSOLVE, 0);
 #ifdef ENABLE_SHAVE_CHOLESKY
@@ -290,7 +290,7 @@ bool matrix_solve(matrix &A, matrix &B)
     Eigen::LLT< Eigen::Ref<decltype(A_map)> > llt(A_map);
     if (llt.info() == Eigen::NumericalIssue)
         return false;
-    llt.solveInPlace(B_map.transpose());
+    llt.matrixL().solveInPlace(B_map.transpose());
     }
     END_EVENT(SF_MSOLVE, 0);
     return true;

@@ -80,20 +80,25 @@ void observation_queue::compute_innovation_covariance(const matrix &m_cov)
     }
 }
 
-bool observation_queue::update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn)
+__attribute__((noinline))
+bool observation_queue::update_state_and_covariance(matrix &x, matrix &P, const matrix &y, matrix &HP, matrix &S, matrix &KL)
 {
-#ifdef TEST_POSDEF
-    f_t rcond = matrix_check_condition(res_cov);
-    if(rcond < .001) { fprintf(stderr, "observation covariance matrix not well-conditioned before computing gain! rcond = %e\n", rcond);}
-#endif
-    if(kalman_compute_gain(K, HP, res_cov))
-    {
-        kalman_update_state(state, K, inn);
-        kalman_update_covariance(cov, K, HP);
-        return true;
-    } else {
+    int meas_size = HP.rows(), statesize = HP.cols();
+    matrix Px(P, 0,0, statesize+1, statesize); // [ P ; x ]
+    Px.map().bottomRows(1) = x.map();
+
+    matrix KL_y (KL, 0,0, statesize+1, meas_size);
+    KL.map() = HP.map().transpose();
+    KL_y.map().bottomRows(1) = -y.map();
+    if (!matrix_half_solve(S, KL_y)) // S = L L^T; KL = [ HP -y ]' L^-T
         return false;
-    }
+    matrix_product(Px, KL_y, KL, false, true, 1, -1); // [P ; x ] -= (L^-1 [HP -y])' * (L^-1 HP)
+
+    P.map().triangularView<Eigen::StrictlyUpper>() = P.map().triangularView<Eigen::StrictlyLower>().transpose();
+
+    x.map() = Px.map().bottomRows(1); // write back the updated state
+
+    return true;
 }
 
 void observation_queue::preprocess(state_root &s, sensor_clock::time_point time)
@@ -116,6 +121,7 @@ bool observation_queue::process(state_root &s)
         inn.resize(meas_size);
         m_cov.resize(meas_size);
         HP.resize(meas_size, statesize);
+        KL.resize(statesize, meas_size);
         res_cov.resize(meas_size, meas_size);
         state.resize(statesize);
 
@@ -126,7 +132,7 @@ bool observation_queue::process(state_root &s)
 
         s.copy_state_to_array(state);
 
-        success = update_state_and_covariance(state, s.cov.cov, inn);
+        success = update_state_and_covariance(state, s.cov.cov, inn, HP, res_cov, KL);
 
         s.copy_state_from_array(state);
     } else if(orig_meas_size && orig_meas_size != 3) {

@@ -5,7 +5,6 @@ SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/corvis/src/tracker/, \
     sensor_fusion_queue.cpp \
     rotation_vector.cpp \
     matrix.cpp \
-    kalman.cpp \
     filter.cpp \
     state_vision.cpp \
     state_motion.cpp \

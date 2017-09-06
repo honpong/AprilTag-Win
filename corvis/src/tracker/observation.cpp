@@ -1,5 +1,4 @@
 #include "observation.h"
-#include "kalman.h"
 #include "utils.h"
 
 int observation_queue::size()

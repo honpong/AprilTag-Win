@@ -14,7 +14,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stddef.h>
-#include "kalman.h"
 #include "matrix.h"
 #include "observation.h"
 #include "filter.h"

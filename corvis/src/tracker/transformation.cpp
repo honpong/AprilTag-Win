@@ -134,8 +134,6 @@ f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<
 }
 
 struct estimated_transformation {
-    transformation G; m3 R_cached;
-    f_t reprojection_error = std::numeric_limits<f_t>::infinity();
     aligned_vector<size_t> indices;
     struct state {
         const aligned_vector<v3> &src;
@@ -146,17 +144,26 @@ struct estimated_transformation {
         aligned_vector<v3> src; src.reserve(e-b); for (auto i = b; i != e; ++i) src.push_back(state.src[*i]);
         aligned_vector<v2> dst; dst.reserve(e-b); for (auto i = b; i != e; ++i) dst.push_back(state.dst[*i]);
         /**/                indices.reserve(e-b); for (auto i = b; i != e; ++i) indices.push_back(*i);
-        reprojection_error = estimate_transformation(src, dst, G);
+        error = estimate_transformation(src, dst, G);
         R_cached = G.Q.toRotationMatrix();
+    }
+    transformation transform() {
+        return G;
+    }
+    f_t reprojection_error() {
+        return error;
     }
     bool operator()(const struct state &state, aligned_vector<size_t>::iterator i) const {
         v3 xyz = R_cached * state.src[*i] + G.T;
         f_t e = (xyz.head<2>()/xyz.z() - state.dst[*i]).norm();
         return e < state.threshold;
     }
-    bool operator>(estimated_transformation &o) const {
-        return reprojection_error > o.reprojection_error;
+    bool operator>(estimated_transformation &o) {
+        return reprojection_error() > o.reprojection_error();
     }
+protected:
+    transformation G; m3 R_cached;
+    f_t error = std::numeric_limits<f_t>::infinity();
 };
 
 #include <ransac.h>
@@ -169,7 +176,7 @@ f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<
     aligned_vector<size_t> indices(src.size()); for (size_t i=0; i<src.size(); i++) indices[i] = i;
     estimated_transformation::state state = { src, dst, max_reprojection_error };
     estimated_transformation best = ransac<5,estimated_transformation>(state, indices.begin(), indices.end(), gen, max_iterations, confidence, min_matches);
-    transform = best.G;
+    transform = best.transform();
     if (inliers) { inliers->clear(); for (auto i : best.indices) inliers->insert(i); }
-    return best.reprojection_error;
+    return best.reprojection_error();
 }

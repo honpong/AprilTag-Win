@@ -276,8 +276,9 @@ static mapper::matches match_2d_descriptors(const map_frame& candidate_frame, co
     return current_to_candidate_matches;
 }
 
-static void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_WC, std::set<size_t>& inliers_set) {
-    const f_t max_reprojection_error = 4.0f/38; //threshold = 2*sigma (pixels) / f_px? FIXME!
+static void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_WC, std::set<size_t>& inliers_set, const f_t focal_px) {
+    const f_t sigma_px = 3.0;
+    const f_t max_reprojection_error = 2*sigma_px/focal_px;
     const int max_iter = 10; // 10
     const float confidence = 0.9; //0.9
     std::default_random_engine rng(-1);
@@ -299,6 +300,7 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
         find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc);
     const auto &keypoint_current = current_frame.keypoints;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[current_frame.camera_id];
+    const f_t focal_px = intrinsics->focal_length.v * intrinsics->image_height;
     for (auto nid : candidate_nodes) {
         matches matches_node_candidate = match_2d_descriptors(nodes[nid.first].frame, current_frame, features_dbow);
         // Just keep candidates with more than a min number of mathces
@@ -324,7 +326,7 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                 feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(kp));
                 current_2d_points.push_back(ukp);
             }
-            estimate_pose(candidate_3d_points, current_2d_points, G_WC, inliers_set);
+            estimate_pose(candidate_3d_points, current_2d_points, G_WC, inliers_set, focal_px);
             if(inliers_set.size() >= min_num_inliers) {
                 is_relocalized = true;
 //                vG_WC.push_back(G_WC);

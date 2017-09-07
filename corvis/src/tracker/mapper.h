@@ -101,7 +101,7 @@ class mapper {
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, const float depth_variance_m2, const bool is_new = true);
     void get_triangulation_geometry(const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses);
-    void add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& point_3d, const float mean_error_point);
+    void add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& point_3d);
     std::vector<node_path> breadth_first_search(nodeid start, int maxdepth = 1);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; }

@@ -16,7 +16,6 @@
 #include <numeric>
 #include <cstring>
 #include <algorithm>
-
 #include "FeatureVector.h"
 #include "BowVector.h"
 #include "ScoringObject.h"
@@ -134,13 +133,11 @@ protected:
   /// Tree nodes
   Node* m_nodes;
 
-  /// Words of the vocabulary (tree leaves)
-  /// this condition holds: m_words[wid]->word_id == wid
-  std::vector<Node*> m_words;
+  /// number of words of the vocabulary (tree leaves)
+  uint32_t m_num_words{ 0 };
 
   /// For each leaf, point to the corresponding word
   std::vector<WordId> m_node_to_word;
-  
 };
 
 // --------------------------------------------------------------------------
@@ -198,13 +195,13 @@ TemplatedVocabulary<TDescriptor,F>::~TemplatedVocabulary()
 template<class TDescriptor, class F>
 inline unsigned int TemplatedVocabulary<TDescriptor,F>::size() const
 {
-    return static_cast<unsigned int>(m_words.size());
+    return m_num_words;
 }
 
 template<class TDescriptor, class F>
 inline bool TemplatedVocabulary<TDescriptor,F>::empty() const // g
 {
-  return m_words.empty();
+    return m_num_words == 0;
 }
 
 template<class TDescriptor, class F> 
@@ -356,9 +353,7 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromMemory(const char *pBinaries, 
 
         memcpy(&nNodes, pSrc, sizeof(NodeId)*1);
         pSrc += sizeof(NodeId);
-
         m_node_to_word.resize(nNodes);
-        m_words.reserve(nNodes); //There are less words than nodes, but not much less (about 90%) and it worth to have less allocation
         m_nodes = (Node*)pSrc;
 
         WordId word_ids = 0;
@@ -367,10 +362,9 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromMemory(const char *pBinaries, 
             if(m_nodes[i].isLeaf())
             {
                 m_node_to_word[i] = word_ids++;
-                m_words.push_back(&m_nodes[i]);
+                m_num_words++;
             }
         }
-
         bRet = true;
     }
     return bRet;
@@ -391,7 +385,6 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromTextFile(const std::string &fi
     createScoringObject();
     unsigned int nNodes = 0;
     Node* nodes = nullptr;//m_nodes;
-    std::vector<Node*>& words = m_words;
     // reading
     {
         FILE* pf = fopen(filename.c_str(), "rb");
@@ -419,7 +412,7 @@ bool TemplatedVocabulary<TDescriptor, F>::loadFromTextFile(const std::string &fi
                     fread(&nodes[i].weight, sizeof(WordValue), 1, pf);
 
                     m_node_to_word[i] = word_ids++;
-                    m_words.push_back(&nodes[i]);
+                    m_num_words++;
                 }
 
                 fread(nodes[i].descriptor.data(), sizeof(char), 32, pf);

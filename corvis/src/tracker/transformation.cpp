@@ -136,14 +136,13 @@ f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<
 struct estimated_transformation {
     transformation G; m3 R_cached;
     f_t reprojection_error = std::numeric_limits<f_t>::infinity();
-    size_t size;
     aligned_vector<size_t> indices;
     struct state {
         const aligned_vector<v3> &src;
         const aligned_vector<v2> &dst;
         const f_t threshold;
     };
-    estimated_transformation(const struct state &state, aligned_vector<size_t>::iterator b, aligned_vector<size_t>::iterator e) : size(e-b) {
+    estimated_transformation(const struct state &state, aligned_vector<size_t>::iterator b, aligned_vector<size_t>::iterator e) {
         aligned_vector<v3> src; src.reserve(e-b); for (auto i = b; i != e; ++i) src.push_back(state.src[*i]);
         aligned_vector<v2> dst; dst.reserve(e-b); for (auto i = b; i != e; ++i) dst.push_back(state.dst[*i]);
         /**/                indices.reserve(e-b); for (auto i = b; i != e; ++i) indices.push_back(*i);

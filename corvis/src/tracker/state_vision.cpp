@@ -246,7 +246,9 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
             }
         }
     }
-    standby_features.remove_if([&map, &log](tracker::feature_track &t) {
+    const f_t focal_px = intrinsics.focal_length.v * intrinsics.image_height;
+    const f_t sigma = 5 / focal_px; // sigma_px = 5
+    standby_features.remove_if([&map, &log, sigma](tracker::feature_track &t) {
         bool not_found = !t.found();
         if (map && not_found) {
             // Triangulate point not in filter neither being tracked
@@ -255,8 +257,8 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
                 std::vector<transformation> camera_poses;
                 map->get_triangulation_geometry(t, tracks_2d, camera_poses);
                 v3 point_3d;
-                float mean_error_point = estimate_3d_point(tracks_2d, camera_poses, point_3d);
-                if (mean_error_point < 0.03f)
+                float mean_error_point = estimate_3d_point(tracks_2d,camera_poses, point_3d);
+                if (mean_error_point <  2*sigma)
                     map->add_triangulated_feature_to_group(t.group_tracks[0].group_id, t.feature->id, point_3d);
                 else
                     log.debug("{}/{}) Reprojection error too large for triangulated point with id: {}", t.feature->id);

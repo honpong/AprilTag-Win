@@ -54,7 +54,6 @@ map_edge &map_node::get_add_neighbor(uint64_t neighbor)
     for(list<map_edge>::iterator edge = edges.begin(); edge != edges.end(); ++edge) {
         if(edge->neighbor == neighbor) return *edge;
     }
-    neighbors.insert(neighbor);
     edges.push_back(map_edge{neighbor, 0});
     return edges.back();
 }
@@ -615,8 +614,6 @@ bool mapper::deserialize(const Value &map_json, mapper &map) {
     for (SizeType i = 0; i < nodes_json.Size(); i++) {
         auto &cur_node = map.nodes[i];
         HANDLE_IF_FAILED(map_node::deserialize(nodes_json[i], cur_node, max_feature_id), failure_handle)
-        for (auto &edge : cur_node.edges) //populate neighbors
-            cur_node.neighbors.insert(edge.neighbor);
         cur_node.frame.dbow_init(map.orb_voc); // populate map_frame's dbow_histogram and dbow_direct_file
         if (max_node_id < cur_node.id) max_node_id = cur_node.id;
     }

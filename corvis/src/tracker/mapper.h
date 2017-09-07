@@ -67,7 +67,6 @@ struct map_node {
 
     // relocalization
     map_frame frame;
-    std::set<uint64_t> neighbors;
     std::map<uint64_t,map_feature> features;
     node_status status{node_status::initializing};
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);

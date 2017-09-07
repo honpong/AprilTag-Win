@@ -135,31 +135,36 @@ f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<
 
 struct estimated_transformation {
     aligned_vector<size_t> indices;
-    struct state {
+    const struct state {
         const aligned_vector<v3> &src;
         const aligned_vector<v2> &dst;
         const f_t threshold;
-    };
-    estimated_transformation(const struct state &state, aligned_vector<size_t>::iterator b, aligned_vector<size_t>::iterator e) {
-        aligned_vector<v3> src; src.reserve(e-b); for (auto i = b; i != e; ++i) src.push_back(state.src[*i]);
-        aligned_vector<v2> dst; dst.reserve(e-b); for (auto i = b; i != e; ++i) dst.push_back(state.dst[*i]);
-        /**/                indices.reserve(e-b); for (auto i = b; i != e; ++i) indices.push_back(*i);
+    } *state;
+    estimated_transformation(const struct state &state_, aligned_vector<size_t>::iterator b, aligned_vector<size_t>::iterator e) : indices(b,e), state(&state_) {}
+    bool computed = false;
+    void compute_model() {
+        if (computed) return; else computed = true;
+        aligned_vector<v3> src; src.reserve(indices.size()); for (auto &i : indices) src.push_back(state->src[i]);
+        aligned_vector<v2> dst; dst.reserve(indices.size()); for (auto &i : indices) dst.push_back(state->dst[i]);
         error = estimate_transformation(src, dst, G);
         R_cached = G.Q.toRotationMatrix();
     }
     transformation transform() {
+        compute_model();
         return G;
     }
     f_t reprojection_error() {
+        compute_model();
         return error;
     }
-    bool operator()(const struct state &state, aligned_vector<size_t>::iterator i) const {
+    bool operator()(const struct state &state, aligned_vector<size_t>::iterator i) {
+        compute_model();
         v3 xyz = R_cached * state.src[*i] + G.T;
         f_t e = (xyz.head<2>()/xyz.z() - state.dst[*i]).norm();
         return e < state.threshold;
     }
-    bool operator>(estimated_transformation &o) {
-        return reprojection_error() > o.reprojection_error();
+    bool operator>(estimated_transformation &o) const {
+        return indices.size() < o.indices.size();
     }
 protected:
     transformation G; m3 R_cached;
@@ -174,7 +179,7 @@ f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<
     if (src.size() != dst.size() || src.size() < 5)
         return false;
     aligned_vector<size_t> indices(src.size()); for (size_t i=0; i<src.size(); i++) indices[i] = i;
-    estimated_transformation::state state = { src, dst, max_reprojection_error };
+    struct estimated_transformation::state state = { src, dst, max_reprojection_error };
     estimated_transformation best = ransac<5,estimated_transformation>(state, indices.begin(), indices.end(), gen, max_iterations, confidence, min_matches);
     transform = best.transform();
     if (inliers) { inliers->clear(); for (auto i : best.indices) inliers->insert(i); }

@@ -323,7 +323,7 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
     auto &camera_state = *f->s.cameras.children[data.id];
 
     for(state_vision_group *g : camera_state.groups.children) {
-        if(!g->status || g->status == group_initializing) continue;
+        if(!g->status) continue;
         for(auto &feature : g->features.children) {
             auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, *feature);
             f->observations.observations.push_back(std::move(obs));
@@ -484,8 +484,6 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             g->features.children.push_back(feat);
             feat->track.feature = i->feature;
     }
-
-    g->make_normal();
     f->s.remap();
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after adding features");

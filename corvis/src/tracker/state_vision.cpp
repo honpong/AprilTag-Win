@@ -78,11 +78,12 @@ bool state_vision_feature::force_initialize()
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
 
-state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): camera(camera_), health(0), status(group_initializing)
+state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): camera(camera_)
 {
     id = group_id;
     children.push_back(&Qr);
     children.push_back(&Tr);
+    children.push_back(&features);
     Tr.v = v3(0, 0, 0);
     Qr.v = quaternion::Identity();
     f_t near_zero = F_T_EPS * 100;
@@ -129,7 +130,6 @@ int state_vision_group::process_features()
 
 int state_vision_group::make_reference()
 {
-    if(status == group_initializing) make_normal();
     assert(status == group_normal);
     status = group_reference;
     int normals = 0;
@@ -146,14 +146,6 @@ int state_vision_group::make_reference()
     }
     //remove_child(&Tr);
     //Qr.saturate();
-    return 0;
-}
-
-int state_vision_group::make_normal()
-{
-    assert(status == group_initializing);
-    children.push_back(&features);
-    status = group_normal;
     return 0;
 }
 
@@ -256,7 +248,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
         // the group (the number of features)
         int health = g->process_features();
 
-        if(g->status && g->status != group_initializing)
+        if(g->status)
             total_health += health;
 
         // Notify features that this group is about to disappear
@@ -267,10 +259,6 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
         // Found our reference group
         if(g->status == group_reference)
             need_reference = false;
-
-        // If we have enough features to initialize the group, do it
-        if(g->status == group_initializing && health >= g->min_feats)
-            g->make_normal();
 
         if(g->status == group_normal) {
             ++normal_groups;
@@ -300,8 +288,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map, spdlog::lo
 
     for (auto &camera : cameras.children) {
         for (auto &g : camera->groups.children) {
-            if (g->status == group_normal || g->status == group_reference)
-                map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
+            map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
 
             for (state_vision_feature *f : g->features.children) {
                 float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
@@ -520,7 +507,7 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
     feature_tracker->tracks.clear();
     feature_tracker->tracks.reserve(feature_count());
     for(state_vision_group *g : groups.children) {
-        if(!g->status || g->status == group_initializing) continue;
+        if(!g->status) continue;
         for(state_vision_feature *feature : g->features.children)
             feature_tracker->tracks.emplace_back(&feature->track);
         for(state_vision_feature *feature : g->lost_features)

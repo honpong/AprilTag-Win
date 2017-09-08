@@ -23,7 +23,6 @@
 
 enum group_flag {
     group_empty = 0,
-    group_initializing,
     group_normal,
     group_reference
 };
@@ -168,15 +167,14 @@ class state_vision_group: public state_branch<state_node *> {
     state_camera &camera;
     state_branch<state_vision_feature *> features;
     std::list<state_vision_feature *> lost_features;
-    int health;
-    enum group_flag status;
+    int health = 0;
+    enum group_flag status = group_normal;
     uint64_t id;
 
     state_vision_group(state_camera &camera, uint64_t group_id);
     void make_empty();
     int process_features();
     int make_reference();
-    int make_normal();
     static f_t ref_noise;
     static f_t min_feats;
     

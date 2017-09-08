@@ -248,7 +248,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
         // the group (the number of features)
         int health = g->process_features();
 
-        if(g->status)
+        if(g->status != group_empty)
             total_health += health;
 
         // Notify features that this group is about to disappear
@@ -507,7 +507,7 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
     feature_tracker->tracks.clear();
     feature_tracker->tracks.reserve(feature_count());
     for(state_vision_group *g : groups.children) {
-        if(!g->status) continue;
+        if(g->status == group_empty) continue;
         for(state_vision_feature *feature : g->features.children)
             feature_tracker->tracks.emplace_back(&feature->track);
         for(state_vision_feature *feature : g->lost_features)

@@ -333,13 +333,9 @@ state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
         if(camera.groups.children.empty() && g->id != 0) // FIXME: what if the other camera has groups?
         {
             map->add_edge(g->id, g->id-1);
-            g->old_neighbors.push_back(g->id-1);
         }
         for(auto &neighbor : camera.groups.children) {
             map->add_edge(g->id, neighbor->id);
-
-            g->old_neighbors.push_back(neighbor->id);
-            neighbor->neighbors.push_back(g->id);
         }
     }
     camera.groups.children.push_back(g);

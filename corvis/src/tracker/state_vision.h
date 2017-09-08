@@ -168,8 +168,6 @@ class state_vision_group: public state_branch<state_node *> {
     state_camera &camera;
     state_branch<state_vision_feature *> features;
     std::list<state_vision_feature *> lost_features;
-    std::list<uint64_t> neighbors;
-    std::list<uint64_t> old_neighbors;
     int health;
     enum group_flag status;
     uint64_t id;

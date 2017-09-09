@@ -201,8 +201,9 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, sensor_acc
     return accelerometer.measurement_variance;
 }
 
-bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
+bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data_)
 {
+    sensor_data data(data_, sensor_data::stack_copy());
     START_EVENT(SF_ACCEL_MEAS, 0);
     if(data.id >= f->accelerometers.size() || data.id >= f->s.imus.children.size())
         return false;
@@ -211,6 +212,10 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
     auto timestamp = data.timestamp;
     auto &accelerometer = *f->accelerometers[data.id];
     auto &imu = *f->s.imus.children[data.id];
+
+    if (!accelerometer.decimate(data.time_us, data.acceleration_m__s2.v))
+        return false;
+
     v3 meas = map(accelerometer.intrinsics.scale_and_alignment.v) * map(data.acceleration_m__s2.v);
     if (!accelerometer.got)
         accelerometer.got = true;
@@ -238,7 +243,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
 
     auto obs_a = std::make_unique<observation_accelerometer>(accelerometer, f->s, f->s, imu);
     obs_a->meas = meas;
-    obs_a->variance = get_accelerometer_variance_for_run_state(f, accelerometer);
+    obs_a->variance = get_accelerometer_variance_for_run_state(f, accelerometer) / accelerometer.decimate_by;
 
     f->observations.observations.push_back(std::move(obs_a));
 
@@ -259,8 +264,9 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data)
     return true;
 }
 
-bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
+bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data_)
 {
+    sensor_data data(data_, sensor_data::stack_copy());
     START_EVENT(SF_GYRO_MEAS, 0);
     if(data.id >= f->gyroscopes.size() || data.id >= f->s.imus.children.size())
         return false;
@@ -269,6 +275,9 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
     auto timestamp = data.timestamp;
     auto &gyroscope = *f->gyroscopes[data.id];
     auto &imu = *std::next(f->s.imus.children.begin(), data.id)->get();
+
+    if (!gyroscope.decimate(data.time_us, data.angular_velocity_rad__s.v))
+        return false;
 
     v3 meas = map(gyroscope.intrinsics.scale_and_alignment.v) * map(data.angular_velocity_rad__s.v);
     if (!gyroscope.got)
@@ -287,7 +296,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data)
 
     auto obs_w = std::make_unique<observation_gyroscope>(gyroscope, f->s, imu);
     obs_w->meas = meas;
-    obs_w->variance = gyroscope.measurement_variance;
+    obs_w->variance = gyroscope.measurement_variance / gyroscope.decimate_by;
 
     f->observations.observations.push_back(std::move(obs_w));
 

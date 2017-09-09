@@ -547,9 +547,6 @@ bool rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, r
     if (accelerometer_id >= tracker->sfm.accelerometers.size())
         return false;
 
-    if (!tracker->sfm.accelerometers[accelerometer_id]->decimate(time_us, acceleration_m__s2.v))
-        return true;
-
     sensor_data data(time_us, rc_SENSOR_TYPE_ACCELEROMETER, accelerometer_id, acceleration_m__s2);
 
     if(tracker->output.started())
@@ -564,9 +561,6 @@ bool rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
     if(trace) trace_log->info("rc_receiveGyro {} {}: {} {} {}", gyroscope_id, time_us, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
     if (gyroscope_id >= tracker->sfm.gyroscopes.size())
         return false;
-
-    if (!tracker->sfm.gyroscopes[gyroscope_id]->decimate(time_us, angular_velocity_rad__s.v))
-        return true;
 
     sensor_data data(time_us, rc_SENSOR_TYPE_GYROSCOPE, gyroscope_id, angular_velocity_rad__s);
 

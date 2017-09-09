@@ -103,7 +103,7 @@ template<int size_> struct sensor_vector : public sensor_storage<size_>, public 
     stdev<1> fast_path_time_stats;
     void init_with_variance(f_t variance, unsigned decimate_by) {
         if (!decimate_by) decimate_by = 1;
-        sensor_storage<size_>::init_with_variance(variance / decimate_by);
+        sensor_storage<size_>::init_with_variance(variance);
         decimator<size_>::init(decimate_by);
         fast_path_time_stats = stdev<1>();
     }

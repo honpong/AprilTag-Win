@@ -254,40 +254,49 @@ void observation_vision_feature::cache_jacobians()
     }
 }
 
-void observation_vision_feature::project_covariance(matrix &dst, const matrix &src)
+void observation_vision_feature::project_covariance(matrix &dst, const matrix &src) const
 {
-    for(int j = 0; j < dst.cols(); ++j) {
-        const auto cov_feat = feature->from_row(src, j);
-        const auto scov_Qr  = feature->group.Qr.from_row(src, j);
-        const auto  cov_Tr  = feature->group.Tr.from_row(src, j);
-        col(dst, j) = dx_dp * cov_feat + dx_dQr * scov_Qr + dx_dTr * cov_Tr;
+    int i=0;
+    i = project_covariance<4>(dst,src,i);
+    i = project_covariance<1>(dst,src,i);
+}
+
+template<int N>
+    int observation_vision_feature::project_covariance(matrix &dst, const matrix &src, int j) const
+{
+    for(; j < dst.cols()/N*N; j+=N) {
+        const m<1,N> cov_feat = feature->from_row<N>(src, j);
+        const m<3,N> scov_Qr  = feature->group.Qr.from_row<N>(src, j);
+        const m<3,N> cov_Tr  = feature->group.Tr.from_row<N>(src, j);
+        col<N>(dst, j) = dx_dp * cov_feat + dx_dQr * scov_Qr + dx_dTr * cov_Tr;
 
         if (curr.camera.extrinsics.estimate) {
-            const auto scov_Qc = curr.camera.extrinsics.Q.from_row(src, j);
-            const auto  cov_Tc = curr.camera.extrinsics.T.from_row(src, j);
-            col(dst, j) += curr.dx_dQ * scov_Qc + curr.dx_dT * cov_Tc;
+            const m<3,N> scov_Qc = curr.camera.extrinsics.Q.from_row<N>(src, j);
+            const m<3,N>  cov_Tc = curr.camera.extrinsics.T.from_row<N>(src, j);
+            col<N>(dst, j) += curr.dx_dQ * scov_Qc + curr.dx_dT * cov_Tc;
         }
 
         if (orig.camera.extrinsics.estimate) {
-            const auto scov_Qo = orig.camera.extrinsics.Q.from_row(src, j);
-            const auto  cov_To = orig.camera.extrinsics.T.from_row(src, j);
-            col(dst, j) += orig.dx_dQ * scov_Qo + orig.dx_dT * cov_To;
+            const m<3,N> scov_Qo = orig.camera.extrinsics.Q.from_row<N>(src, j);
+            const m<3,N>  cov_To = orig.camera.extrinsics.T.from_row<N>(src, j);
+            col<N>(dst, j) += orig.dx_dQ * scov_Qo + orig.dx_dT * cov_To;
         }
 
         if (curr.camera.intrinsics.estimate) {
-            const auto cov_F = curr.camera.intrinsics.focal_length.from_row(src, j);
-            const auto cov_c = curr.camera.intrinsics.center.from_row(src, j);
-            const auto cov_k = curr.camera.intrinsics.k.from_row(src, j);
-            col(dst, j) += curr.dx_dF * cov_F + curr.dx_dc * cov_c + curr.dx_dk * cov_k;
+            const m<1,N> cov_F = curr.camera.intrinsics.focal_length.from_row<N>(src, j);
+            const m<2,N> cov_c = curr.camera.intrinsics.center.from_row<N>(src, j);
+            const m<4,N> cov_k = curr.camera.intrinsics.k.from_row<N>(src, j);
+            col<N>(dst, j) += curr.dx_dF * cov_F + curr.dx_dc * cov_c + curr.dx_dk * cov_k;
         }
 
         if (orig.camera.intrinsics.estimate) {
-            const auto cov_F = orig.camera.intrinsics.focal_length.from_row(src, j);
-            const auto cov_c = orig.camera.intrinsics.center.from_row(src, j);
-            const auto cov_k = orig.camera.intrinsics.k.from_row(src, j);
-            col(dst, j) += orig.dx_dF * cov_F + orig.dx_dc * cov_c + orig.dx_dk * cov_k;
+            const m<1,N> cov_F = orig.camera.intrinsics.focal_length.from_row<N>(src, j);
+            const m<2,N> cov_c = orig.camera.intrinsics.center.from_row<N>(src, j);
+            const m<4,N> cov_k = orig.camera.intrinsics.k.from_row<N>(src, j);
+            col<N>(dst, j) += orig.dx_dF * cov_F + orig.dx_dc * cov_c + orig.dx_dk * cov_k;
         }
     }
+    return j;
 }
 
 f_t observation_vision_feature::projection_residual(const v3 & X, const feature_t & found_undistorted)
@@ -421,24 +430,31 @@ void observation_accelerometer::cache_jacobians()
     }
 }
 
-void observation_accelerometer::project_covariance(matrix &dst, const matrix &src)
+void observation_accelerometer::project_covariance(matrix &dst, const matrix &src) const
 {
-    //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    assert(dst.cols() == src.rows());
-    for(int j = 0; j < dst.cols(); ++j) {
-        const auto cov_a_bias = intrinsics.a_bias.from_row(src, j);
-        const auto scov_Q = state.Q.from_row(src, j);
-        const auto cov_a = state.a.from_row(src, j);
-        const auto cov_w = state.w.from_row(src, j);
-        const auto cov_dw = state.dw.from_row(src, j);
-        const auto cov_g = root.g.from_row(src, j);
-        col(dst, j) = cov_a_bias + da_dQ * scov_Q + da_dw * cov_w + da_ddw * cov_dw + da_dacc * (cov_a + root.world.up * cov_g);
+    int i=0;
+    i = project_covariance<4>(dst,src,i);
+    i = project_covariance<1>(dst,src,i);
+}
+
+template<int N>
+int observation_accelerometer::project_covariance(matrix &dst, const matrix &src, int j) const
+{
+    for(; j < dst.cols()/N*N; j+=N) {
+        const m<3,N> cov_a_bias = intrinsics.a_bias.from_row<N>(src, j);
+        const m<3,N> scov_Q = state.Q.from_row<N>(src, j);
+        const m<3,N> cov_a = state.a.from_row<N>(src, j);
+        const m<3,N> cov_w = state.w.from_row<N>(src, j);
+        const m<3,N> cov_dw = state.dw.from_row<N>(src, j);
+        const m<1,N> cov_g = root.g.from_row<N>(src, j);
+        col<N>(dst, j) = cov_a_bias + da_dQ * scov_Q + da_dw * cov_w + da_ddw * cov_dw + da_dacc * (cov_a + root.world.up * cov_g);
         if(extrinsics.estimate) {
-            const auto scov_Qa = extrinsics.Q.from_row(src, j);
-            const auto cov_Ta = extrinsics.T.from_row(src, j);
-            col(dst, j) += da_dQa * scov_Qa + da_dTa * cov_Ta;
+            const m<3,N> scov_Qa = extrinsics.Q.from_row<N>(src, j);
+            const m<3,N> cov_Ta = extrinsics.T.from_row<N>(src, j);
+            col<N>(dst, j) += da_dQa * scov_Qa + da_dTa * cov_Ta;
         }
     }
+    return j;
 }
 
 bool observation_accelerometer::measure()
@@ -460,15 +476,24 @@ void observation_gyroscope::cache_jacobians()
     }
 }
 
-void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
+void observation_gyroscope::project_covariance(matrix &dst, const matrix &src) const
 {
-    for(int j = 0; j < dst.cols(); ++j) {
-        const auto cov_w = state.w.from_row(src, j);
-        const auto cov_wbias = intrinsics.w_bias.from_row(src, j);
-        col(dst, j) = cov_wbias + Rw.transpose() * cov_w;
+    int i=0;
+    i = project_covariance<4>(dst,src,i);
+    i = project_covariance<1>(dst,src,i);
+}
+
+template<int N>
+    int observation_gyroscope::project_covariance(matrix &dst, const matrix &src, int j) const
+{
+    for(; j < dst.cols()/N*N; j+=N) {
+        const m<3,N> cov_w = state.w.from_row<N>(src, j);
+        const m<3,N> cov_wbias = intrinsics.w_bias.from_row<N>(src, j);
+        col<N>(dst, j) = cov_wbias + Rw.transpose() * cov_w;
         if(extrinsics.estimate) {
-            v3 scov_Qw = extrinsics.Q.from_row(src, j);
-            col(dst, j) += dw_dQw * scov_Qw;
+            const m<3,N> scov_Qw = extrinsics.Q.from_row<N>(src, j);
+            col<N>(dst, j) += dw_dQw * scov_Qw;
         }
     }
+    return j;
 }

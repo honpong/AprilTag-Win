@@ -118,7 +118,6 @@ void mapper::set_node_transformation(nodeid id, const transformation & G)
 {
     id += node_id_offset;
     nodes[id].global_transformation = G;
-    nodes[id].status = node_status::normal;
     if(id > current_node_id)
         current_node_id = id;
 }
@@ -126,15 +125,9 @@ void mapper::set_node_transformation(nodeid id, const transformation & G)
 void mapper::node_finished(nodeid id)
 {
     id += node_id_offset;
-    if (nodes[id].status == node_status::normal) {
-        nodes[id].status = node_status::finished;
-        for (auto &word : nodes[id].frame.dbow_histogram)
-            dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index
-    } else {
-        // delete node when its status is not normal
-        std::swap(nodes[id], nodes.back());
-        nodes.pop_back();
-    }
+    nodes[id].status = node_status::finished;
+    for (auto &word : nodes[id].frame.dbow_histogram)
+        dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index
 }
 
 std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(

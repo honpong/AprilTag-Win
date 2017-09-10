@@ -54,7 +54,7 @@ struct map_frame {
     static bool deserialize(const rapidjson::Value &json, map_frame &frame);
 };
 
-enum class node_status { initializing, normal, finished };
+enum class node_status {normal, finished};
 
 struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -68,7 +68,7 @@ struct map_node {
     // relocalization
     map_frame frame;
     std::map<uint64_t,map_feature> features;
-    node_status status{node_status::initializing};
+    node_status status{node_status::normal};
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, map_node &node, uint64_t &max_loaded_featid);
 };

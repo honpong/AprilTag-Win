@@ -123,26 +123,10 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
         v.set_depth_meters(initial_depth_meters);
         set_process_noise(initial_process_noise);
     }
-    
-    inline f_t from_row(const matrix &c, const int i) const
-    {
-        if(index < 0) return 0;
-        if(index >= c.cols())
-        {
-            if((type == node_type::fake) && (i == index)) return initial_covariance(0, 0);
-            else return 0;
-        }
-        if((i < 0) || (i >= c.rows())) return 0;
-        else return c(i, index);
-    }
 
-    inline f_t &to_col(matrix &c, const int j) const
-    {
-        static f_t scratch;
-        if((index < 0) || (index >= c.rows())) return scratch;
-        else return c(index, j);
-    }
-    
+    using state_leaf::from_row;
+    using state_leaf::to_col;
+
     void perturb_variance() {
         if(index < 0 || index >= cov->size()) return;
         cov->cov(index, index) *= PERTURB_FACTOR;

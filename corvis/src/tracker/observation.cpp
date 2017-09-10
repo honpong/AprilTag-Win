@@ -431,7 +431,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
         const auto cov_a = state.a.from_row(src, j);
         const auto cov_w = state.w.from_row(src, j);
         const auto cov_dw = state.dw.from_row(src, j);
-        f_t cov_g = root.g.from_row(src, j);
+        const auto cov_g = root.g.from_row(src, j);
         col(dst, j) = cov_a_bias + da_dQ * scov_Q + da_dw * cov_w + da_ddw * cov_dw + da_dacc * (cov_a + root.world.up * cov_g);
         if(extrinsics.estimate) {
             const auto scov_Qa = extrinsics.Q.from_row(src, j);

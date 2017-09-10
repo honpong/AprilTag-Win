@@ -51,11 +51,7 @@ void mapper::reset()
 
 map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor, bool loop_closure)
 {
-    for(list<map_edge>::iterator edge = edges.begin(); edge != edges.end(); ++edge) {
-        if(edge->neighbor == neighbor) return *edge;
-    }
-    edges.push_back(map_edge{neighbor, loop_closure});
-    return edges.back();
+    return edges.emplace(neighbor, loop_closure).first->second;
 }
 
 void mapper::add_edge(nodeid id1, nodeid id2, bool loop_closure)
@@ -351,15 +347,12 @@ using namespace rapidjson;
 #define KEY_INDEX "index"
 #define RETURN_IF_FAILED(R) {bool ret = R; if (!ret) return ret;}
 
-#define KEY_NODE_EDGE_NEIGHBOR "neighbor"
 #define KEY_NODE_EDGE_LOOP_CLOSURE "closure"
 void map_edge::serialize(Value &json, Document::AllocatorType & allocator) {
-    json.AddMember(KEY_NODE_EDGE_NEIGHBOR, neighbor, allocator);
     json.AddMember(KEY_NODE_EDGE_LOOP_CLOSURE, loop_closure, allocator);
 }
 
 void map_edge::deserialize(const Value &json, map_edge &edge) {
-    edge.neighbor = json[KEY_NODE_EDGE_NEIGHBOR].GetUint64();
     edge.loop_closure = json[KEY_NODE_EDGE_LOOP_CLOSURE].GetBool();
 }
 
@@ -471,7 +464,8 @@ void map_node::serialize(Value &json, Document::AllocatorType & allocator) {
     Value edges_json(kArrayType);
     for (auto &edge : edges) {
         Value edge_json(kObjectType);
-        edge.serialize(edge_json, allocator);
+        edge.second.serialize(edge_json, allocator);
+        edge_json.AddMember(KEY_INDEX, edge.first, allocator);
         edges_json.PushBack(edge_json, allocator);
     }
     json.AddMember(KEY_NODE_EDGE, edges_json, allocator);
@@ -510,9 +504,9 @@ bool map_node::deserialize(const Value &json, map_node &node, uint64_t &max_load
     const Value & edges_json = json[KEY_NODE_EDGE];
     RETURN_IF_FAILED(edges_json.IsArray())
     for (SizeType j = 0; j < edges_json.Size(); j++) {
-        map_edge edge;
-        map_edge::deserialize(edges_json[j], edge);
-        node.edges.push_back(edge);
+        const Value& edge_json = edges_json[j];
+        uint64_t unordered_map_index = edge_json[KEY_INDEX].GetUint64();
+        map_edge::deserialize(edge_json, node.edges[unordered_map_index]);
     }
     // get global transformation
     transformation &G = node.global_transformation;

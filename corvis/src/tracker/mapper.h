@@ -9,6 +9,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <unordered_map>
 #include <stdbool.h>
 
 #include "transformation.h"
@@ -27,7 +28,7 @@ typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, orb_descriptor::raw> orb
 class state_vision_intrinsics;
 
 struct map_edge {
-    uint64_t neighbor;
+    map_edge(bool loop_closure_ = false) : loop_closure(loop_closure_) {}
     bool loop_closure;
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static void deserialize(const rapidjson::Value &json, map_edge &node);
@@ -59,7 +60,7 @@ enum class node_status {normal, finished};
 struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
-    std::list<map_edge> edges;
+    std::unordered_map<uint64_t, map_edge> edges; // key is neighbor_id
     map_edge &get_add_neighbor(uint64_t neighbor, bool loop_closure = false);
     void set_feature(const uint64_t id, const v3 &p, const float v);
 

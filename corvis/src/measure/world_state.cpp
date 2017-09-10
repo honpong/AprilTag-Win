@@ -494,9 +494,9 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
             std::set<uint64_t> loop_closed;
             std::vector<uint64_t> neighbors;
             for(auto edge : map_node.edges) {
-                neighbors.push_back(edge.neighbor);
-                if(edge.loop_closure)
-                    loop_closed.insert(edge.neighbor);
+                neighbors.push_back(edge.first);
+                if(edge.second.loop_closure)
+                    loop_closed.insert(edge.first);
             }
             std::vector<Feature> features;
             for(auto &feat : map_node.features) {

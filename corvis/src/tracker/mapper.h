@@ -102,7 +102,6 @@ class mapper {
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; };
 
-    uint64_t get_current_node_id() { return current_node_id; }
     void node_finished(nodeid node_id);
     void set_node_transformation(nodeid id, const transformation & G);
 

@@ -7,6 +7,7 @@
 #include "transformation.h"
 #include <spdlog/fmt/ostr.h> // must be included to use our operator<<
 #include "Trace.h"
+#include <limits>
 
 #ifdef MYRIAD2
     #include "platform_defines.h"
@@ -285,11 +286,15 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
 void state_vision::update_map(const rc_ImageData &image, mapper *map, spdlog::logger &log)
 {
     if (!map) return;
-
+    float distance_current_node = std::numeric_limits<float>::max();
     for (auto &camera : cameras.children) {
         for (auto &g : camera->groups.children) {
             map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
-
+            // Set current node as the closest active group to current pose
+            if(g->Tr.v.norm() < distance_current_node) {
+                distance_current_node = g->Tr.v.norm();
+                map->current_node_id = g->id;
+            }
             for (state_vision_feature *f : g->features.children) {
                 float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
                 float variance_meters = stdev*stdev;

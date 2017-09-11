@@ -131,8 +131,6 @@ void mapper::set_node_transformation(nodeid id, const transformation & G)
 {
     id += node_id_offset;
     nodes[id].global_transformation = G;
-    if(id > current_node_id)
-        current_node_id = id;
 }
 
 void mapper::node_finished(nodeid id)

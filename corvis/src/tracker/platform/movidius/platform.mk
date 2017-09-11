@@ -39,6 +39,7 @@ SLAM_C_SOURCES += $(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.c)
 SLAM_HEADERS := \
 	$(wildcard $(SLAM_PREFIX)/corvis/src/tracker/*.h) \
 	$(wildcard $(SLAM_PREFIX)/corvis/src/tracker/fast_detector/*.h) \
+	$(wildcard $(SLAM_PLATFORM_PREFIX)/*.h) \
 	$(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.h) \
 	$(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.hpp)
 

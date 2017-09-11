@@ -230,20 +230,19 @@ xy fast_detector_9::track(u8* im1,
 	return pBest;
 }
 
+#include "fast_constants.h"
+#include "patch_constants.h"
+
 void fast_detector_9::trackFeature(TrackingData* trackingData,int index, const uint8_t* image, xy* out)
 {
 	TrackingData& data = trackingData[index];
-	int fast_track_threshold = 5;
-	float fast_track_radius = 5.5f;
-	float fast_min_match = 0.2f*0.2f;
-	float fast_good_match = 0.65f*0.65f;
 	xy bestkp = track(data.patch, image,
 	                patch_win_half_width,
 	                data.x_dx, data.y_dy, fast_track_radius,
-	                fast_track_threshold, fast_min_match);
+	                fast_track_threshold, patch_min_score);
 //
 	// Not a good enough match, try the filter prediction
-	if(data.pred_x != INFINITY && bestkp.score < fast_good_match) {
+	if(data.pred_x != INFINITY && bestkp.score < patch_good_score) {
 		xy bestkp2 = track(data.patch, image,
 				patch_win_half_width,
 				data.pred_x, data.pred_y, fast_track_radius,

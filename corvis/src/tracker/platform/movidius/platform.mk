@@ -38,7 +38,8 @@ SLAM_C_SOURCES += $(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.c)
 
 SLAM_HEADERS := \
 	$(wildcard $(SLAM_PREFIX)/corvis/src/tracker/*.h) \
-	$(wildcard $(SLAM_PREFIX)/corvis/src/tracker/fast_detector/*.h) \
+	$(wildcard $(SLAM_PREFIX)/corvis/src/feature/detector/*.h) \
+	$(wildcard $(SLAM_PREFIX)/corvis/src/feature/descriptor/*.h) \
 	$(wildcard $(SLAM_PLATFORM_PREFIX)/*.h) \
 	$(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.h) \
 	$(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.hpp)
@@ -68,7 +69,12 @@ SLAM_CCOPT   := \
 
 SLAM_CPPOPT  := -std=gnu++11 -fpermissive -fno-exceptions -Wno-reorder -Wno-missing-field-initializers -fno-strict-aliasing -MD
 
-SLAM_SHAVE_CCOPT := -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++
+SLAM_SHAVE_CCOPT := -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon \
+   -I$(SLAM_PREFIX)/corvis/src/feature/descriptor \
+   -I$(SLAM_PREFIX)/corvis/src/feature/detector \
+   -I$(SLAM_PREFIX)/corvis/src/feature/tracker \
+   -I$(SLAM_PLATFORM_PREFIX)/leon
+
 SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++
 
 cvrt = $(DirAppOutput)/cvrt

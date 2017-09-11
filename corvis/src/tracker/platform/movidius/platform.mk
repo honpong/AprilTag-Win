@@ -53,9 +53,9 @@ SLAM_CCOPT   := \
 	-I$(SLAM_PREFIX)/corvis/src/feature/descriptor \
 	-I$(SLAM_PREFIX)/corvis/src/feature/detector \
 	-I$(SLAM_PREFIX)/corvis/src/feature/tracker \
-	-I$(SLAM_PREFIX)/ThirdParty/eigen \
-	-I$(SLAM_PREFIX)/ThirdParty/spdlog/include \
-	-I$(SLAM_PREFIX)/ThirdParty/rapidjson/include/ \
+	-isystem$(SLAM_PREFIX)/ThirdParty/eigen \
+	-isystem$(SLAM_PREFIX)/ThirdParty/spdlog/include \
+	-isystem$(SLAM_PREFIX)/ThirdParty/rapidjson/include/ \
 	-Wno-unused-function \
 	-Wno-unused-variable \
 	-Wno-unused-parameter \

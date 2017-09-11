@@ -21,7 +21,7 @@ public:
     virtual void compute_measurement_covariance() = 0;
     virtual bool measure() = 0;
     virtual void cache_jacobians() = 0;
-    virtual void project_covariance(matrix &dst, const matrix &src) = 0;
+    virtual void project_covariance(matrix &dst, const matrix &src) const = 0;
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
@@ -39,8 +39,15 @@ public:
     v<_size> meas;
     sensor_storage<_size> &source;
 
-    Eigen::Map< ::v<_size>, Eigen::Unaligned, Eigen::InnerStride<> >
-        col(matrix &m, int i) const { return decltype(col(m,i)) { &m(0,i), Eigen::InnerStride<>(m.get_stride()) }; }
+    template <int Rows, typename Stride_ = Eigen::Stride<Rows == 1 ? 0 : Eigen::Dynamic, Rows == 1 ? Eigen::Dynamic : 1> >
+    struct inner_stride : Stride_ {
+        inner_stride(int outer) : Stride_(Rows == 1 ? 0 : outer, Rows == 1 ? outer : 1) {}
+    };
+
+    template<int Rows = 1>
+    inline Eigen::Map< m<_size, Rows>, Eigen::Unaligned, inner_stride<Rows>> col(matrix &m, int i) const {
+        return decltype(col<Rows>(m,i)) { &m(0,i), inner_stride<Rows>(m.get_stride()) };
+    }
 
     virtual void compute_innovation() { inn = meas - pred; }
     virtual f_t innovation(const int i) const { return inn[i]; }
@@ -76,7 +83,9 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void compute_measurement_covariance();
     virtual bool measure();
     virtual void cache_jacobians();
-    virtual void project_covariance(matrix &dst, const matrix &src);
+    template<int N>
+             int project_covariance(matrix &dst, const matrix &src, int i) const;
+    virtual void project_covariance(matrix &dst, const matrix &src) const;
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     void update_initializing();
 
@@ -116,7 +125,9 @@ protected:
         observation_spatial::compute_measurement_covariance();
     }
     virtual void cache_jacobians();
-    virtual void project_covariance(matrix &dst, const matrix &src);
+    template<int N>
+             int project_covariance(matrix &dst, const matrix &src, int i) const;
+    virtual void project_covariance(matrix &dst, const matrix &src) const;
     observation_accelerometer(sensor_accelerometer &src, const state_root &root_, const state_motion &state_, const state_imu &imu): observation_spatial(src), root(root_), state(state_), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 
 public:
@@ -143,7 +154,9 @@ protected:
         observation_spatial::compute_measurement_covariance();
     }
     virtual void cache_jacobians();
-    virtual void project_covariance(matrix &dst, const matrix &src);
+    template<int N>
+             int project_covariance(matrix &dst, const matrix &src, int i) const;
+    virtual void project_covariance(matrix &dst, const matrix &src) const;
     observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_imu &imu): observation_spatial(src), state(_state), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 };
 

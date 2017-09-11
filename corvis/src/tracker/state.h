@@ -127,6 +127,39 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
     
     covariance *cov;
     
+    template <int Cols, typename Stride_ = Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic> >
+    struct outer_stride : Stride_ {
+        outer_stride(int inner) : Stride_(Cols == 1 ? inner : 1, Cols == 1 ? 0 : inner) {}
+    };
+
+    template <int Rows, typename Stride_ = Eigen::Stride<Rows == 1 ? 0 : Eigen::Dynamic, Rows == 1 ? Eigen::Dynamic : 1> >
+    struct inner_stride : Stride_ {
+        inner_stride(int outer) : Stride_(Rows == 1 ? 0 : outer, Rows == 1 ? outer : 1) {}
+    };
+
+    template<int Cols = 1>
+    inline const Eigen::Map< const m<_size, Cols>, Eigen::Unaligned, outer_stride<Cols>> from_row(const matrix &c, int i) const
+    {
+        typedef decltype(from_row<Cols>(c,i)) map;
+        static const f_t zero[_size*Cols] = { 0 };
+        if(index < 0)                                                                return map { &zero[0],                          outer_stride<Cols>(1) };
+        if(index >= c.cols()) {
+            if((type == node_type::fake) && (i - index >= 0) && (i - index < _size)) return map { &initial_covariance(i - index, 0), outer_stride<Cols>(_size) };
+            else                                                                     return map { &zero[0],                          outer_stride<Cols>(1) };
+        }
+        if((i < 0) || (i >= c.rows()))                                               return map { &zero[0] ,                         outer_stride<Cols>(1) };
+        else                                                                         return map { &c(i,index),                       outer_stride<Cols>(c.get_stride()) };
+    }
+
+    template<int Rows = 1>
+    inline Eigen::Map< m<_size, Rows>, Eigen::Unaligned, inner_stride<Rows>> to_col(matrix &c, int j) const
+    {
+        typedef decltype(to_col<Rows>(c,j)) map;
+        static f_t scratch[_size*Rows];
+        if((index < 0) || (index >= c.rows())) return map { &scratch[0], inner_stride<Rows>(1) };
+        else                                   return map { &c(index,j), inner_stride<Rows>(c.get_stride()) };
+    }
+
     void set_process_noise(f_t x)
     {
         for(int i = 0; i < size; ++i) process_noise[i] = x;
@@ -174,41 +207,8 @@ template <class T, int _size> class state_leaf: public state_leaf_base, public s
         }
     }
 
-    template <int Cols, typename Stride_ = Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic> >
-    struct outer_stride : Stride_ {
-        outer_stride(int inner) : Stride_(Cols == 1 ? inner : 1, Cols == 1 ? 0 : inner) {}
-    };
-
-    template <int Rows, typename Stride_ = Eigen::Stride<Rows == 1 ? 0 : Eigen::Dynamic, Rows == 1 ? Eigen::Dynamic : 1> >
-    struct inner_stride : Stride_ {
-        inner_stride(int outer) : Stride_(Rows == 1 ? 0 : outer, Rows == 1 ? outer : 1) {}
-    };
-
-    template<int Cols = 1>
-    inline const Eigen::Map< const m<_size, Cols>, Eigen::Unaligned, outer_stride<Cols>> from_row(const matrix &c, int i) const
-    {
-        typedef decltype(from_row<Cols>(c,i)) map;
-        static const f_t zero[_size*Cols] = { 0 };
-        if(index < 0)                                                                return map { &zero[0],                          outer_stride<Cols>(1) };
-        if(index >= c.cols()) {
-            if((type == node_type::fake) && (i - index >= 0) && (i - index < _size)) return map { &initial_covariance(i - index, 0), outer_stride<Cols>(_size) };
-            else                                                                     return map { &zero[0],                          outer_stride<Cols>(1) };
-        }
-        if((i < 0) || (i >= c.rows()))                                               return map { &zero[0] ,                         outer_stride<Cols>(1) };
-        else                                                                         return map { &c(i,index),                       outer_stride<Cols>(c.get_stride()) };
-    }
-
     inline f_t get_initial_covariance() const {
             return (type == node_type::fake) ? initial_covariance(0, 0) : 0;
-    }
-
-    template<int Rows = 1>
-    inline Eigen::Map< m<_size, Rows>, Eigen::Unaligned, inner_stride<Rows>> to_col(matrix &c, int j) const
-    {
-        typedef decltype(to_col<Rows>(c,j)) map;
-        static f_t scratch[_size*Rows];
-        if((index < 0) || (index >= c.rows())) return map { &scratch[0], inner_stride<Rows>(1) };
-        else                                   return map { &c(index,j), inner_stride<Rows>(c.get_stride()) };
     }
 
     bool unmap() { if (index < 0) return false; else { index = -1; return true; } }
@@ -238,7 +238,9 @@ public:
     using state_leaf<::v<size_>,size_>::index;
     using state_leaf<::v<size_>,size_>::name;
     using state_leaf<::v<size_>,size_>::initial_covariance;
-    
+    using state_leaf<::v<size_>,size_>::from_row;
+    using state_leaf<::v<size_>,size_>::to_col;
+
     void set_initial_variance(const ::v<size_> &v)
     {
         initial_covariance.setZero();
@@ -396,25 +398,9 @@ class state_scalar: public state_leaf<f_t, 1> {
         v = 0.;
     }
     
-    inline f_t from_row(const matrix &c, const int i) const
-    {
-        if(index < 0) return 0;
-        if(index >= c.cols())
-        {
-            if((type == node_type::fake) && (i == index)) return initial_covariance(0, 0);
-            else return 0;
-        }
-        if((i < 0) || (i >= c.rows())) return 0;
-        else return c(i, index);
-    }
+    using state_leaf::from_row;
+    using state_leaf::to_col;
 
-    inline f_t &to_col(matrix &c, const int j) const
-    {
-        static f_t scratch;
-        if((index < 0) || (index >= c.rows())) return scratch;
-        else return c(index, j);
-    }
-    
     void perturb_variance() {
         if(index < 0 || index >= cov->size()) return;
         cov->cov(index, index) *= PERTURB_FACTOR;

@@ -8,6 +8,7 @@
 #include "swcCdma.h"
 #include "fast9M2.h"
 #include "svuCommonShave.h"
+#include <math.h>
 
 #define FAST_ROWS 7
 #define TOTAL_ROWS (FAST_ROWS + 1)
@@ -242,7 +243,7 @@ void fast_detector_9::trackFeature(TrackingData* trackingData,int index, const u
 	                fast_track_threshold, fast_min_match);
 //
 	// Not a good enough match, try the filter prediction
-	if(bestkp.score < fast_good_match) {
+	if(data.x2 != INFINITY && bestkp.score < fast_good_match) {
 		xy bestkp2 = track(data.patch, image,
 				patch_win_half_width,
 				data.x2, data.y2, fast_track_radius,

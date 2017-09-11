@@ -18,6 +18,7 @@
 #include "spdlog/sinks/null_sink.h"
 #include "fast_tracker.h"
 #include "sensor.h"
+#include "state.h"
 #include "rc_tracker.h"
 #include "orb_descriptor.h"
 #include "rapidjson/document.h"
@@ -28,8 +29,8 @@ typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, orb_descriptor::raw> orb
 class state_vision_intrinsics;
 
 struct map_edge {
-    map_edge(bool loop_closure_ = false) : loop_closure(loop_closure_) {}
-    bool loop_closure;
+    bool loop_closure = false;
+    transformation G;
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static void deserialize(const rapidjson::Value &json, map_edge &node);
 };
@@ -61,7 +62,7 @@ struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
     std::unordered_map<uint64_t, map_edge> edges; // key is neighbor_id
-    map_edge &get_add_neighbor(uint64_t neighbor, bool loop_closure = false);
+    map_edge &get_add_neighbor(uint64_t neighbor);
     void set_feature(const uint64_t id, const v3 &p, const float v);
 
     transformation global_transformation;
@@ -95,7 +96,8 @@ class mapper {
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     void process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image &image);
     void add_node(nodeid node_id);
-    void add_edge(nodeid node_id1, nodeid node_id2, bool loop_closure = false);
+    void add_edge(nodeid node_id1, nodeid node_id2);
+    void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2, bool is_new = true);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; };
@@ -123,8 +125,9 @@ class mapper {
 
     //we need the camera intrinsics
     std::vector<state_vision_intrinsics*> camera_intrinsics;
+    std::vector<state_extrinsics*> camera_extrinsics;
 
-    bool relocalize(std::vector<transformation>& vG_WC, const transformation& G_BC);
+    bool relocalize(std::vector<transformation>& vG_WC, const transformation& G_WBk);
 };
 
 #endif

@@ -49,19 +49,36 @@ void mapper::reset()
     features_dbow.clear();
 }
 
-map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor, bool loop_closure)
+map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
 {
-    return edges.emplace(neighbor, loop_closure).first->second;
+    return edges.emplace(neighbor, map_edge{}).first->second;
 }
 
-void mapper::add_edge(nodeid id1, nodeid id2, bool loop_closure)
+void mapper::add_edge(nodeid id1, nodeid id2)
 {
     id1 += node_id_offset;
     id2 += node_id_offset;
     if(nodes.size() <= id1) nodes.resize(id1+1);
     if(nodes.size() <= id2) nodes.resize(id2+1);
-    nodes[id1].get_add_neighbor(id2, loop_closure);
-    nodes[id2].get_add_neighbor(id1, loop_closure);
+    transformation& Gw1 = nodes[id1].global_transformation;
+    transformation& Gw2 = nodes[id2].global_transformation;
+    map_edge& edge12 = nodes[id1].get_add_neighbor(id2);
+    edge12.G = invert(Gw1)*Gw2;
+    map_edge& edge21 = nodes[id2].get_add_neighbor(id1);
+    edge21.G = invert(edge12.G);
+}
+
+void mapper::add_loop_closure_edge(nodeid id1, nodeid id2, const transformation& G12) {
+    id1 += node_id_offset;
+    id2 += node_id_offset;
+    if(nodes.size() <= id1) nodes.resize(id1+1);
+    if(nodes.size() <= id2) nodes.resize(id2+1);
+    map_edge& edge12 = nodes[id1].get_add_neighbor(id2);
+    edge12.loop_closure = true;
+    edge12.G = G12;
+    map_edge& edge21 = nodes[id2].get_add_neighbor(id1);
+    edge21.loop_closure = true;
+    edge21.G = invert(G12);
 }
 
 void mapper::add_node(nodeid id)
@@ -276,9 +293,12 @@ static void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vec
     G_WC = invert(G_CW);
 }
 
-bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation& G_BC) {
+bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation& G_WBk) {
     if (!current_frame.keypoints.size())
         return false;
+
+    state_extrinsics* const extrinsics = camera_extrinsics[current_frame.camera_id];
+    transformation G_CB = invert(transformation(extrinsics->Q.v, extrinsics->T.v));
 
     bool is_relocalized = false;
     const int min_num_inliers = 12;
@@ -290,13 +310,14 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
     const auto &keypoint_current = current_frame.keypoints;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[current_frame.camera_id];
     const f_t focal_px = intrinsics->focal_length.v * intrinsics->image_height;
+    transformation G_BkCurrent = invert(G_WBk)*nodes[current_node_id].global_transformation;
     for (auto nid : candidate_nodes) {
         matches matches_node_candidate = match_2d_descriptors(nodes[nid.first].frame, current_frame, features_dbow);
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
         aligned_vector<v3> candidate_3d_points;
         aligned_vector<v2> current_2d_points;
-        transformation G_WC;
+        transformation G_WCk;
         if(matches_node_candidate.size() >= min_num_inliers) {
             // Estimate pose from 3d-2d matches
             const auto &keypoint_candidates = nodes[nid.first].frame.keypoints;
@@ -315,7 +336,7 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                 feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(kp));
                 current_2d_points.push_back(ukp);
             }
-            estimate_pose(candidate_3d_points, current_2d_points, G_WC, inliers_set, focal_px);
+            estimate_pose(candidate_3d_points, current_2d_points, G_WCk, inliers_set, focal_px);
             if(inliers_set.size() >= min_num_inliers) {
                 is_relocalized = true;
 //                vG_WC.push_back(G_WC);
@@ -323,8 +344,11 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                 if(inliers_set.size() >  best_num_inliers) {
                     best_num_inliers = inliers_set.size();
                     vG_WC.clear();
-                    vG_WC.push_back(G_WC);
-                    add_edge(current_node_id, nid.first, true);
+                    vG_WC.push_back(G_WCk);
+                    transformation G_WBk = G_WCk*G_CB;
+                    const transformation& G_WCandidate = nodes[nid.first].global_transformation;
+                    add_loop_closure_edge(nid.first, current_node_id,
+                                          invert(G_WCandidate)*G_WBk*G_BkCurrent);
                 }
             }
         }
@@ -348,12 +372,40 @@ using namespace rapidjson;
 #define RETURN_IF_FAILED(R) {bool ret = R; if (!ret) return ret;}
 
 #define KEY_NODE_EDGE_LOOP_CLOSURE "closure"
+#define KEY_NODE_EDGE_TRANSLATION "T"
+#define KEY_NODE_EDGE_QUATERNION "Q"
 void map_edge::serialize(Value &json, Document::AllocatorType & allocator) {
     json.AddMember(KEY_NODE_EDGE_LOOP_CLOSURE, loop_closure, allocator);
+
+    // add edge transformation
+    Value translation_json(kArrayType);
+    translation_json.PushBack(G.T[0], allocator);
+    translation_json.PushBack(G.T[1], allocator);
+    translation_json.PushBack(G.T[2], allocator);
+    json.AddMember(KEY_NODE_EDGE_TRANSLATION, translation_json, allocator);
+
+    Value rotation_json(kArrayType);
+    rotation_json.PushBack(G.Q.w(), allocator);
+    rotation_json.PushBack(G.Q.x(), allocator);
+    rotation_json.PushBack(G.Q.y(), allocator);
+    rotation_json.PushBack(G.Q.z(), allocator);
+    json.AddMember(KEY_NODE_EDGE_QUATERNION, rotation_json, allocator);
 }
 
 void map_edge::deserialize(const Value &json, map_edge &edge) {
     edge.loop_closure = json[KEY_NODE_EDGE_LOOP_CLOSURE].GetBool();
+
+    // get edge transformation
+    transformation &G = edge.G;
+    const Value & translation = json[KEY_NODE_EDGE_TRANSLATION];
+    for (SizeType j = 0; j < G.T.size() && j < translation.Size(); j++) {
+        G.T[j] = (float)translation[j].GetDouble();
+    }
+    const Value & rotation = json[KEY_NODE_EDGE_QUATERNION];
+    G.Q.w() = (float)rotation[0].GetDouble();
+    G.Q.x() = (float)rotation[1].GetDouble();
+    G.Q.y() = (float)rotation[2].GetDouble();
+    G.Q.z() = (float)rotation[3].GetDouble();
 }
 
 #define KEY_FEATURE_ID "id"

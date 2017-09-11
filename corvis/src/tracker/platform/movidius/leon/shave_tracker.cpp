@@ -290,12 +290,10 @@ void shave_tracker::prepTrackingData(std::vector<TrackingData>& trackingData, st
             TrackingData data;
             fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(pred->feature.get());
             data.patch = f.descriptor.descriptor.data();
-            data.x1 = pred->x + pred->dx;
-            data.y1 = pred->y + pred->dy;
-            data.x2 = pred->pred_x;
-            data.y2 = pred->pred_y;
-            data.x3 = pred->x;
-            data.y3 = pred->y;
+            data.x_dx = pred->x + pred->dx;
+            data.y_dy = pred->y + pred->dy;
+            data.pred_x = pred->pred_x;
+            data.pred_y = pred->pred_y;
             trackingData.push_back(data);
      }
 }

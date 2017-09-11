@@ -239,14 +239,14 @@ void fast_detector_9::trackFeature(TrackingData* trackingData,int index, const u
 	float fast_good_match = 0.65f*0.65f;
 	xy bestkp = track(data.patch, image,
 	                patch_win_half_width,
-	                data.x1, data.y1, fast_track_radius,
+	                data.x_dx, data.y_dy, fast_track_radius,
 	                fast_track_threshold, fast_min_match);
 //
 	// Not a good enough match, try the filter prediction
-	if(data.x2 != INFINITY && bestkp.score < fast_good_match) {
+	if(data.pred_x != INFINITY && bestkp.score < fast_good_match) {
 		xy bestkp2 = track(data.patch, image,
 				patch_win_half_width,
-				data.x2, data.y2, fast_track_radius,
+				data.pred_x, data.pred_y, fast_track_radius,
 				fast_track_threshold, bestkp.score);
 		if(bestkp2.score > bestkp.score)
 			bestkp = bestkp2;

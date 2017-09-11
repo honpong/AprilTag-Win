@@ -50,7 +50,7 @@ struct ShaveFastDetectSettings {
 struct TrackingData {
 
 	unsigned char *patch;
-	float x1, y1, x2, y2, x3, y3;
+	float x_dx, y_dy, pred_x, pred_y;
 };
 
 #endif /* COMMON_COMMONDEFS_HPP_ */

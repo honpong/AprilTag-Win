@@ -252,16 +252,6 @@ void fast_detector_9::trackFeature(TrackingData* trackingData,int index, const u
 			bestkp = bestkp2;
 	}
 
-	// Still no match? Guess that we haven't moved at all
-	if(bestkp.score < fast_min_match) {
-		xy bestkp2 = track(data.patch, image,
-				patch_win_half_width,
-				data.x3, data.y3, fast_track_radius,
-				fast_track_threshold, bestkp.score);
-		if(bestkp2.score > bestkp.score)
-			bestkp = bestkp2;
-	}
-
 	out[index].x = bestkp.x;
 	out[index].y = bestkp.y;
 	out[index].score = bestkp.score;

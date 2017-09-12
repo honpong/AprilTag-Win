@@ -31,8 +31,8 @@ public:
 private:
     static bool xy_comp(const xy &first, const xy &second) { return first.score > second.score; }
     int pixel[16];
-    int xsize, ysize, stride, patch_stride, patch_win_half_width;
-    void init(const int x, const int y, const int s, const int ps, const int phw);
+    int xsize, ysize, stride, patch_stride;
+    void init(const int x, const int y, const int s, const int ps);
     std::vector<xy> features;
 
 public:

@@ -27,13 +27,12 @@ static void make_offsets(int pixel[], int row_stride)
     pixel[15] = -1 + row_stride * 3;
 }
 
-void fast_tracker::init(const int x, const int y, const int s, const int ps, const int phw)
+void fast_tracker::init(const int x, const int y, const int s, const int ps)
 {
     xsize = x;
     ysize = y;
     stride = s;
     patch_stride = ps;
-    patch_win_half_width = phw;
     make_offsets(pixel, stride);
 }
 
@@ -45,7 +44,7 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
     for (auto &f : current)
         mask->clear((int)f->x, (int)f->y);
 
-    init(image.width_px, image.height_px, image.stride_px, full_patch_width, half_patch_width);
+    init(image.width_px, image.height_px, image.stride_px, full_patch_width);
 
     feature_points.clear();
     feature_points.reserve(number_desired);

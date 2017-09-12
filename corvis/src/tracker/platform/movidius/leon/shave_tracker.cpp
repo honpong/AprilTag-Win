@@ -157,7 +157,9 @@ void shave_tracker::sortFeatures(const tracker::image &image, int number_desired
         }
     }
 
-    std::sort(detected_points.begin(), detected_points.end(), point_comp_vector);
+    std::partial_sort(detected_points.begin(),
+                      detected_points.begin() + std::min<size_t>(detected_points.size(), 8 * number_desired),
+                      detected_points.end(), point_comp_vector);
 
 #if SKIP_THRESHOLD_UPDATE == 0
     m_thresholdController.update(detected_points.size());

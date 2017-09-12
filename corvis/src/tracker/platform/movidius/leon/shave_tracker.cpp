@@ -145,49 +145,32 @@ std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image
 
 void shave_tracker::sortFeatures(const tracker::image &image, int number_desired)
 {
-    unsigned int feature_counter = 0;
-
     detected_points.clear();
     for (int y = 8; y < image.height_px - 8; ++y) {
         unsigned int numPoints = *(int *) (scores[y]);
         for (unsigned int j = 0; j < numPoints; ++j) {
             u16 x = offsets[y][2 + j] + PADDING;
             u8 score = scores[y][4 + j];
-
-            if (!is_trackable<DESCRIPTOR::border_size>((float) x, (float) y, image.width_px, image.height_px) ||
-                    !mask->test(x, y))
-                continue;
-
-            detected_points.emplace_back(x, y, score);
-            feature_counter++;
+            if (is_trackable<DESCRIPTOR::border_size>((float) x, (float) y, image.width_px, image.height_px)
+                && mask->test(x, y))
+                detected_points.emplace_back(x, y, score);
         }
     }
 
-    DPRINTF("detected_points: %u\n" , feature_counter);
-
-    //sort
-    if (feature_counter > 1) {
-        std::sort(detected_points.begin(), detected_points.end(), point_comp_vector);
-    }
-
-    DPRINTF("log_threshold_, %d %u\n", m_thresholdController.control(), feature_counter);
+    std::sort(detected_points.begin(), detected_points.end(), point_comp_vector);
 
 #if SKIP_THRESHOLD_UPDATE == 0
-    m_thresholdController.update(feature_counter);
+    m_thresholdController.update(detected_points.size());
 #endif
-    m_lastDetectedFeatures = int(feature_counter);
+    m_lastDetectedFeatures = int(detected_points.size());
 
-    int added = 0;
-    for (size_t i = 0; i < feature_counter; ++i) {
-        const auto &d = detected_points[i];
+    for (const auto &d : detected_points) {
         if (mask->test((int) d.x, (int) d.y)) {
             mask->clear((int) d.x, (int) d.y);
-            auto id = next_id++;
             feature_points.emplace_back(
                 std::make_shared<fast_feature<DESCRIPTOR>>(d.x, d.y, image),
                 (float) d.x, (float) d.y, (float) d.score);
-            added++;
-            if (added == number_desired)
+            if (feature_points.size() == number_desired)
                 break;
         }
     }

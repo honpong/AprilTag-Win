@@ -8,12 +8,9 @@ class fast_tracker : public tracker
 {
 public:
     template<int border_size>
-    bool is_trackable(int x, int y, int width, int height)
-    {
-        return (x > border_size &&
-                y > border_size &&
-                x < width-1-border_size &&
-                y < height-1-border_size);
+    static bool is_trackable(int x, int y, int width, int height) {
+        return 0 <= (x-border_size) && (x+border_size) < width
+            && 0 <= (y-border_size) && (y+border_size) < height;
     }
 
     template<typename Descriptor>

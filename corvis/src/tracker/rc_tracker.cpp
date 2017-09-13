@@ -88,7 +88,7 @@ static void rc_trace(rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp ti
 struct rc_Tracker: public sensor_fusion
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::MINIMIZE_DROPS) {}
+    rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::MINIMIZE_LATENCY) {}
     std::string jsonString;
     std::vector<std::vector<rc_Feature> > stored_features;
     std::string timingStats;
@@ -146,7 +146,7 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
             if(trace) trace_log->info(" configuring new grey camera");
             auto new_camera = std::make_unique<sensor_grey>(camera_id);
             tracker->sfm.cameras.push_back(std::move(new_camera));
-            tracker->queue.require_sensor(rc_SENSOR_TYPE_IMAGE, camera_id, std::chrono::milliseconds(15));
+            tracker->queue.require_sensor(rc_SENSOR_TYPE_IMAGE, camera_id, std::chrono::milliseconds(20));
             if (camera_id == tracker->sfm.s.cameras.children.size())
                 tracker->sfm.s.cameras.children.emplace_back(std::make_unique<state_camera>());
         }

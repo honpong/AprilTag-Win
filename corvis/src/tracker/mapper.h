@@ -63,7 +63,7 @@ struct map_node {
     uint64_t id;
     std::unordered_map<uint64_t, map_edge> edges; // key is neighbor_id
     map_edge &get_add_neighbor(uint64_t neighbor);
-    void set_feature(const uint64_t id, const v3 &p, const float v);
+    void set_feature(const uint64_t id, const v3 &pos, const float variance);
 
     transformation global_transformation;
 
@@ -103,7 +103,7 @@ class mapper {
     void add_node(nodeid node_id);
     void add_edge(nodeid node_id1, nodeid node_id2);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
-    void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, float depth_variance_m2, bool is_new = true);
+    void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, const float depth_variance_m2, const bool is_new = true);
     std::vector<node_path> breadth_first_search(nodeid start, int maxdepth = 1);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; };

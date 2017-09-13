@@ -120,7 +120,7 @@ void map_node::set_feature(const uint64_t id, const v3 &pos, const float varianc
     features[id].id = id;
 }
 
-void mapper::set_feature(nodeid groupid, uint64_t id, const v3 &pos, float variance, bool is_new) {
+void mapper::set_feature(nodeid groupid, uint64_t id, const v3 &pos, const float variance, const bool is_new) {
     groupid += node_id_offset;
     id += feature_id_offset;
     nodes[groupid].set_feature(id, pos, variance);

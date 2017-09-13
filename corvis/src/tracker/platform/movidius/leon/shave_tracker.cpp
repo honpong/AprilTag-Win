@@ -243,34 +243,32 @@ void shave_tracker::prepTrackingData(std::vector<TrackingData>& trackingData, st
             TrackingData data;
             fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(pred->feature.get());
             data.patch = f.descriptor.descriptor.data();
-            data.x_dx = pred->x + pred->dx;
-            data.y_dy = pred->y + pred->dy;
+            data.x_dx = pred->x == INFINITY ? INFINITY : pred->x + pred->dx;
+            data.y_dy = pred->y == INFINITY ? INFINITY : pred->y + pred->dy;
             data.pred_x = pred->pred_x;
             data.pred_y = pred->pred_y;
             trackingData.push_back(data);
      }
 }
 
-void shave_tracker::processTrackingResult(std::vector<tracker::feature_track *>& predictions)
+void shave_tracker::processTrackingResult(std::vector<tracker::feature_track *>&tracks)
 {
      int i = 0;
-     for(auto * pred : predictions) {
-                fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(pred->feature.get());
-                xy * bestkp = &tracked_features[i];
-                if(bestkp->x != -1) {
-                    pred->dx = bestkp->x - pred->x;
-                    pred->dy = bestkp->y - pred->y;
-                    pred->x = bestkp->x;
-                    pred->y = bestkp->y;
-                    pred->score = bestkp->score;
-                }
-                else {
-                    pred->dx = 0;
-                    pred->dy = 0;
-                    pred->score = DESCRIPTOR::min_score;
-                }
-                i++;
+     for(auto &tp : tracks) {
+         auto &t = *tp;
+         fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(t.feature.get());
+         xy &bestkp = tracked_features[i++];
+         if(bestkp.x != INFINITY && t.x != INFINITY) {
+             t.dx = bestkp.x - t.x;
+             t.dy = bestkp.y - t.y;
+         } else {
+             t.dx = 0;
+             t.dy = 0;
          }
+         t.x = bestkp.x;
+         t.y = bestkp.y;
+         t.score = bestkp.score;
+     }
 }
 
 void shave_tracker::track(const tracker::image &image, std::vector<tracker::feature_track *> &predictions)

@@ -141,7 +141,7 @@ xy fast_detector_9::track(u8* im1,
 							float min_score) {
 
 	int x, y, x1, y1, x2, y2, paddedWidth, width;
-	xy pBest = { -1, -1, min_score, 0.f };
+	xy pBest = {INFINITY, INFINITY, min_score, 0};
 	unsigned short mean1, mean2;
 	x1 = (int) (predx - radius + 0.5);
 	x2 = (int) (predx + radius - 0.5);
@@ -236,10 +236,12 @@ xy fast_detector_9::track(u8* im1,
 void fast_detector_9::trackFeature(TrackingData* trackingData,int index, const uint8_t* image, xy* out)
 {
 	TrackingData& data = trackingData[index];
-	xy bestkp = track(data.patch, image,
-	                patch_win_half_width,
-	                data.x_dx, data.y_dy, fast_track_radius,
-	                fast_track_threshold, patch_min_score);
+	xy bestkp = {INFINITY, INFINITY, patch_min_score, 0};
+	if (data.x_dx != INFINITY)
+	    bestkp = track(data.patch, image,
+	                   patch_win_half_width,
+	                   data.x_dx, data.y_dy, fast_track_radius,
+	                   fast_track_threshold, bestkp.score);
 //
 	// Not a good enough match, try the filter prediction
 	if(data.pred_x != INFINITY && bestkp.score < patch_good_score) {

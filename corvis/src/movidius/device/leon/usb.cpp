@@ -198,6 +198,7 @@ void * fnReplay(void * arg)
     printf("Destroying tracker and exiting\n");
 
     rc_stopTracker(tracker_instance);
+    printf("Timing:\n%s\n", rc_getTimingStats(tracker_instance));
     rc_destroy(tracker_instance);
     isReplayRunning = false;
     return NULL;

@@ -23,6 +23,11 @@ bool packet_io_write(packet_t * packet)
     return true;
 }
 
+bool packet_io_unblock_read()
+{
+    return usb_unblock(ENDPOINT_DEV_IN);
+}
+
 bool packet_io_read(packet_t ** packet)
 {
     packet_header_t header;

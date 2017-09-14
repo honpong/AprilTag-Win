@@ -485,6 +485,11 @@ bool usb_blocking_read(uint32_t endpoint, uint8_t * buffer, uint32_t size)
     //printf("got it\n");
 }
 
+bool usb_unblock(uint32_t endpoint)
+{
+    rtems_semaphore_flush(pSelf->semReadId[endpoint]);
+}
+
 bool usb_blocking_write(uint32_t endpoint, uint8_t * buffer, uint32_t size)
 {
     //printf("start write to %p of %u bytes\n", buffer, size);

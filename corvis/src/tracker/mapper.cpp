@@ -98,7 +98,7 @@ void mapper::get_triangulation_geometry(const nodeid group_id, const tracker::fe
     }
 }
 
-void mapper::add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& pBref)
+void mapper::add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const DESCRIPTOR& descriptor, const v3& pBref)
 {
     map_node &ref_node = nodes[group_id];
     state_extrinsics *extrinsics = camera_extrinsics[ref_node.camera_id];
@@ -106,9 +106,20 @@ void mapper::add_triangulated_feature_to_group(const nodeid group_id, const uint
     v3 pCref = G_CB*pBref;
     // a good 3d point has to be in front of the camera
     if (pCref[2] > 0) {
-        ref_node.set_feature(feature_id, pBref, 1.e-3f*1.e-3f, feature_type::triangulated);
+        ref_node.add_feature(feature_id, pBref, 1.e-3f*1.e-3f, descriptor, feature_type::triangulated);
         features_dbow[feature_id] = group_id;
     }
+}
+
+void map_node::add_feature(const uint64_t id, const v3 &pos, const float variance,
+                           const DESCRIPTOR& descriptor, const feature_type type) {
+    map_feature mf;
+    mf.id = id;
+    mf.position = pos;
+    mf.variance = variance;
+    mf.descriptor = make_shared<DESCRIPTOR>(descriptor);
+    mf.type = type;
+    features.emplace(id, mf);
 }
 
 void map_node::set_feature(const uint64_t id, const v3 &pos, const float variance, const feature_type type)
@@ -119,9 +130,15 @@ void map_node::set_feature(const uint64_t id, const v3 &pos, const float varianc
     features[id].type = type;
 }
 
-void mapper::set_feature(nodeid groupid, uint64_t id, const v3 &pos, const float variance, const bool is_new) {
-    nodes[groupid].set_feature(id, pos, variance);
-    if (is_new) features_dbow[id] = groupid;
+void mapper::add_feature(nodeid groupid, uint64_t id, const v3 &pos, const float variance,
+                         const DESCRIPTOR& descriptor, const feature_type type) {
+    nodes[groupid].add_feature(id, pos, variance, descriptor, type);
+    features_dbow[id] = groupid;
+}
+
+void mapper::set_feature(nodeid groupid, uint64_t id, const v3 &pos, const float variance,
+                         const feature_type type) {
+    nodes[groupid].set_feature(id, pos, variance, type);
 }
 
 void mapper::set_node_transformation(nodeid id, const transformation & G)

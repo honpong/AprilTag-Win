@@ -146,7 +146,7 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
             if(trace) trace_log->info(" configuring new grey camera");
             auto new_camera = std::make_unique<sensor_grey>(camera_id);
             tracker->sfm.cameras.push_back(std::move(new_camera));
-            tracker->queue.require_sensor(rc_SENSOR_TYPE_IMAGE, camera_id, std::chrono::milliseconds(20));
+            tracker->queue.require_sensor(rc_SENSOR_TYPE_IMAGE, camera_id, std::chrono::milliseconds(10));
             if (camera_id == tracker->sfm.s.cameras.children.size())
                 tracker->sfm.s.cameras.children.emplace_back(std::make_unique<state_camera>());
         }
@@ -222,7 +222,7 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
     if(accel_id > accelerometers.size()) return false;
     if(accel_id == accelerometers.size()) {
         if(trace) trace_log->info(" configuring new accel");
-        tracker->queue.require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, std::chrono::microseconds(600));
+        tracker->queue.require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, std::chrono::microseconds(4300 + 600)); //  4300us is the group-delay difference between Gyro and Accel in TM2 
         accelerometers.push_back(std::make_unique<sensor_accelerometer>(accel_id));
     }
 

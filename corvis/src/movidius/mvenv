@@ -1,14 +1,15 @@
 #!/bin/bash
 
-TM2_ROOT=`pwd`
+TM2_ROOT=$(cd $(dirname "$BASH_SOURCE") && pwd)
+MDK_ROOT=$(pwd)
 MDK_NAME=mdk-17.04.5.tar.gz
 MDK_CANONICAL=mdk_release_17.04.5_general_purpose
 MDK_URL=http://artifactoryperc01.iil.intel.com:8081/artifactory/libs-release-local/movidius/mdk/mdk/17.04.05/$MDK_NAME
 
-export MDK_INSTALL_DIR=$TM2_ROOT/external/
+export MDK_INSTALL_DIR=$MDK_ROOT/external/
 
-export MV_COMMON_BASE=$TM2_ROOT/external/$MDK_CANONICAL/mdk/common
-export MV_TOOLS_DIR=$TM2_ROOT/external/$MDK_CANONICAL/tools
+export MV_COMMON_BASE=$MDK_ROOT/external/$MDK_CANONICAL/mdk/common
+export MV_TOOLS_DIR=$MDK_ROOT/external/$MDK_CANONICAL/tools
 export MV_TOOLS_VERSION=00.83.4
 #export MV_SOC_REV=ma2450
 export MV_SOC_REV=ma2150
@@ -20,7 +21,7 @@ fi
 if [[ ! -d $MDK_INSTALL_DIR/$MDK_CANONICAL ]]; then
 	echo "WARNING: No MDK found in $MDK_INSTALL_DIR/$MDK_CANONICAL. Trying to download."
 
-	TMP=$TM2_ROOT/external/.mdk
+	TMP=$MDK_ROOT/external/.mdk
 	mkdir -p $TMP
 	pushd $TMP
 	if [[ ! -f $MDK_NAME ]]; then
@@ -50,7 +51,7 @@ popd
 # Install udev rules
 echo "Checking udev rules"
 INSTALLED=false
-for RULE in udev/*.rules
+for RULE in $TM2_ROOT/udev/*.rules
 do
     RULEFILE=`basename $RULE`
     if [ ! -f /etc/udev/rules.d/$RULEFILE ]; then

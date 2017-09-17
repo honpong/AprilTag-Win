@@ -23,11 +23,13 @@ if [[ ! -d $MDK_INSTALL_DIR/$MDK_CANONICAL ]]; then
 	TMP=$TM2_ROOT/external/.mdk
 	mkdir -p $TMP
 	pushd $TMP
-	wget $MDK_URL
-	tar xzf mdk-17.04.5.tar.gz
+	if [[ ! -f $MDK_NAME ]]; then
+		curl -O $MDK_URL
+	fi
+	echo "Untaring MDK."
+	tar xzf $MDK_NAME
 	mv $MDK_CANONICAL $MDK_INSTALL_DIR/$MDK_CANONICAL
 	popd
-	rm -fr $TMP
 fi
 
 # Check if all patches have been added

@@ -34,18 +34,9 @@ if [[ ! -d $MDK_INSTALL_DIR/$MDK_CANONICAL ]]; then
 fi
 
 # Check if all patches have been added
-pushd $MDK_INSTALL_DIR
-for f in $TM2_ROOT/mdk_patches/*.patch
-do
-    echo $f;
-    patch -p0 -N --dry-run --silent < $f 2>/dev/null
-    if [ $? -eq 0 ]; then
-        echo "applying $f"
-        patch -p0 -N < $f
-    else
-        echo "skipping $f"
-    fi
-done
+pushd $MDK_INSTALL_DIR/$MDK_CANONICAL
+QUILT_PATCHES=$(realpath --relative-to=. $TM2_ROOT/mdk_patches) quilt pop -a -f
+QUILT_PATCHES=$(realpath --relative-to=. $TM2_ROOT/mdk_patches) quilt push -a
 popd
 
 # Install udev rules

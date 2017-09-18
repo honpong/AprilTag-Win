@@ -665,7 +665,7 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
     data.camera_count = camera_count;
 
     static covariance_projector projector;
-    projector.project_motion_covariance(dst.Data(), src.Data(), data);
+    projector.project_motion_covariance(data);
 
     END_EVENT(SF_PROJECT_MOTION_COVARIANCE, 0);
 }

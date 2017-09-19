@@ -234,7 +234,6 @@ void stopReplay()
 {
     if(isReplayRunning) {
         isReplayRunning = false;
-        packet_io_unblock_read();
         pthread_join(thReplay, NULL);
     }
 }

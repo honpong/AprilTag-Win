@@ -286,7 +286,7 @@ static BOOL UsbPumpVscAppI_SetupProcess(VOID * ClientHandle,
                 break;
             case CONTROL_MESSAGE_STOP_AND_RESET:
                 printf("CONTROL_MESSAGE_STOP_AND_RESET\n");
-                stopReplay();
+                UsbPump_Rtems_DataPump_RestartDevice(50);
                 break;
             case CONTROL_MESSAGE_USB_RESET:
                 printf("CONTROL_MESSAGE_USB_RESET\n");

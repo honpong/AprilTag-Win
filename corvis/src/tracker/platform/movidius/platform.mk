@@ -74,7 +74,7 @@ SLAM_SHAVE_CCOPT := -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-stri
    -I$(SLAM_PREFIX)/corvis/src/feature/tracker \
    -I$(SLAM_PLATFORM_PREFIX)/leon
 
-SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++
+SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++ -mno-replace-jmp-with-bra-peephole
 
 cvrt = $(DirAppOutput)/cvrt
 blis = $(DirAppOutput)/blis
@@ -97,7 +97,7 @@ SHAVE_cvrt_OBJS = \
 	$(patsubst $(DirAppObjBase)%.asmgen,$(DirAppObjBase)%_shave.o,$(SHAVE_GENASMS_cvrt)) \
 	$(patsubst %.asm,$(DirAppObjBase)%_shave.o,$(SHAVE_ASM_SOURCES_cvrt))
 
-cvrt_fns = fast9Detect fast9Track stereo_kp_matching_and_compare vision_project_motion_covariance
+cvrt_fns = fast9Detect fast9Track stereo_kp_matching_and_compare vision_project_motion_covariance vision_project_observation_covariance1 vision_project_observation_covariance
 cvrt_fns += potrf_ln trsvl_ln trsvl_lt trsvl_lnlt
 ENTRYPOINTS_cvrt = -e $(word 1, $(cvrt_fns)) $(foreach ep,$(cvrt_fns),-u $(ep) ) --gc-sections
 

@@ -13,6 +13,19 @@ static u32 project_covariance_entry_points[PROJECT_COVARIANE_SHAVES] = {
         (u32) &cvrt2_vision_project_motion_covariance,
         (u32) &cvrt3_vision_project_motion_covariance };
 
+extern u32 cvrt0_vision_project_observation_covariance1;
+
+extern u32 cvrt0_vision_project_observation_covariance;
+extern u32 cvrt1_vision_project_observation_covariance;
+extern u32 cvrt2_vision_project_observation_covariance;
+extern u32 cvrt3_vision_project_observation_covariance;
+
+static u32 project_observation_covariance_entry_points[PROJECT_COVARIANE_SHAVES] = {
+        (u32) &cvrt0_vision_project_observation_covariance,
+        (u32) &cvrt1_vision_project_observation_covariance,
+        (u32) &cvrt2_vision_project_observation_covariance,
+        (u32) &cvrt3_vision_project_observation_covariance };
+
 covariance_projector::covariance_projector()
 {
     shaves_number = PROJECT_COVARIANE_SHAVES;
@@ -33,4 +46,64 @@ void covariance_projector::project_motion_covariance(project_motion_covariance_d
         shaves[i]->wait();
     }
     rtems_cache_invalidate_data_range(data.dst, data.dst_cols * data.dst_stride);
+}
+
+void covariance_projector::project_observation_covariance(project_observation_covariance_data &data, int start_index[])
+{
+    int start_shave = 0;
+    data.first_shave = first_shave;
+
+    if (data.observations_size < 4) {
+        data.shaves_number = 1;
+        rtems_cache_flush_entire_data();
+        shaves[start_shave]->start((u32) &cvrt0_vision_project_observation_covariance1, "i", (u32)&data);
+        shaves[start_shave]->wait();
+        rtems_cache_invalidate_entire_data();
+        rtems_cache_flush_entire_data();
+    }
+    else {
+        data.shaves_number = shaves_number;
+
+        int HP_rows     = data.HP_rows;
+        int HP_src_cols = data.HP_src_cols;
+        int HP_dst_cols = data.HP_dst_cols;
+        int HP_stride   = data.HP_stride;
+        float* HP       = data.HP;
+        int dst_cols    = data.dst_cols;
+        int dst_stride  = data.dst_stride;
+        int dst_rows    = data.dst_rows;
+        float* dst      = data.dst;
+        
+        // HP = H * P'
+        data.dst_cols   = HP_dst_cols;
+        data.dst_stride = HP_stride;
+        data.dst_rows   = HP_rows;
+        data.dst        = HP;
+        rtems_cache_flush_entire_data();
+        for (int i = start_shave; i < shaves_number; ++i) {
+            shaves[i]->start(project_observation_covariance_entry_points[i], "ii", (u32)&data, start_index[i - start_shave]);
+        }
+        for (int i = start_shave; i < shaves_number; ++i) {
+            shaves[i]->wait();
+        }
+        rtems_cache_invalidate_entire_data();
+        // res_cov = H * (H * P')' = H * P * H'
+        data.src_rows   = HP_rows;
+        data.src_cols   = HP_src_cols;
+        data.src_stride = HP_stride;
+        data.src        = HP;
+        data.dst_cols   = dst_cols;
+        data.dst_stride = dst_stride;
+        data.dst_rows   = dst_rows;
+        data.dst        = dst;
+        rtems_cache_flush_entire_data();
+        for (int i = start_shave; i < shaves_number; ++i) {
+            shaves[i]->start(project_observation_covariance_entry_points[i], "ii", (u32)&data, start_index[i - start_shave]);
+        }
+        for (int i = start_shave; i < shaves_number; ++i) {
+            shaves[i]->wait();
+        }
+        rtems_cache_invalidate_entire_data();
+        rtems_cache_flush_entire_data();
+    }
 }

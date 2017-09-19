@@ -11,7 +11,6 @@ bool usb_blocking_read(uint32_t endpoint, uint8_t * buffer, uint32_t size);
 bool usb_blocking_write(uint32_t endpoint, uint8_t * buffer, uint32_t size);
 void usb_nonblocking_write(uint32_t endpoint, uint8_t * buffer, uint32_t size,
                            void (*callback)(void * handle));
-bool usb_unblock(uint32_t endpoint);
 
 #ifdef __cplusplus
 }

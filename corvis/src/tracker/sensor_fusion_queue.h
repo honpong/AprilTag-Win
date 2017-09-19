@@ -207,9 +207,9 @@ class fusion_queue
 public:
     enum class latency_strategy
     {
+        MINIMIZE_DROPS, //wait until we have one of everything to dispatch, except the first packet
         MINIMIZE_LATENCY, //minimize latency
         DYNAMIC_LATENCY, //estimate relative latency and use it to determine drops
-        MINIMIZE_DROPS //wait until we have one of everything to dispatch, except the first packet
     };
 
     fusion_queue(std::function<void(sensor_data &&)> receive_func,

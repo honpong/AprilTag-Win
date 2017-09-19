@@ -328,6 +328,35 @@ void rc_describeWorld(rc_Tracker *tracker, rc_Vector *world_up, rc_Vector *world
     map(body_forward->v)          = tracker->sfm.s.body_forward;
 }
 
+bool rc_configureQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy strategy)
+{
+    if(trace) trace_log->info("rc_configureQueueStrategy {}", strategy);
+
+    switch(strategy) {
+        case rc_QUEUE_MINIMIZE_DROPS:
+            tracker->queue.strategy = fusion_queue::latency_strategy::MINIMIZE_DROPS;
+            break;
+
+        case rc_QUEUE_MINIMIZE_LATENCY:
+            tracker->queue.strategy = fusion_queue::latency_strategy::MINIMIZE_LATENCY;
+            break;
+
+        default:
+            return false;
+
+    }
+
+    return true;
+}
+
+bool rc_describeQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy * strategy)
+{
+    if(trace) trace_log->info("rc_describeQueueStrategy");
+
+    *strategy = (rc_TrackerQueueStrategy)tracker->queue.strategy;
+    return true;
+}
+
 class rc_callback_sink_st : public spdlog::sinks::base_sink < spdlog::details::null_mutex >
 {
 private:

@@ -322,12 +322,12 @@ state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
     state_vision_group *g = new state_vision_group(camera, group_counter++);
     if(map) {
         map->add_node(g->id);
-        if(camera.groups.children.empty() && g->id != 0) // FIXME: what if the other camera has groups?
-        {
-            map->add_edge(g->id, g->id-1);
-        }
+
+        const transformation& G_gnew_now = transformation(g->Qr.v, g->Tr.v);
         for(auto &neighbor : camera.groups.children) {
-            map->add_edge(g->id, neighbor->id);
+            const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
+            transformation G_gnew_neighbor = G_gnew_now*G_now_neighbor;
+            map->add_edge(g->id, neighbor->id, G_gnew_neighbor);
         }
     }
     camera.groups.children.push_back(g);

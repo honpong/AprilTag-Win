@@ -101,7 +101,7 @@ class mapper {
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     void process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image &image);
     void add_node(nodeid node_id);
-    void add_edge(nodeid node_id1, nodeid node_id2);
+    void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, const float depth_variance_m2, const bool is_new = true);
     std::vector<node_path> breadth_first_search(nodeid start, int maxdepth = 1);

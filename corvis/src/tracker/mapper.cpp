@@ -54,30 +54,16 @@ map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
     return edges.emplace(neighbor, map_edge{}).first->second;
 }
 
-void mapper::add_edge(nodeid id1, nodeid id2)
-{
-    id1 += node_id_offset;
-    id2 += node_id_offset;
-    if(nodes.size() <= id1) nodes.resize(id1+1);
-    if(nodes.size() <= id2) nodes.resize(id2+1);
-    transformation& Gw1 = nodes[id1].global_transformation;
-    transformation& Gw2 = nodes[id2].global_transformation;
-    map_edge& edge12 = nodes[id1].get_add_neighbor(id2);
-    edge12.G = invert(Gw1)*Gw2;
-    map_edge& edge21 = nodes[id2].get_add_neighbor(id1);
-    edge21.G = invert(edge12.G);
-}
-
-void mapper::add_loop_closure_edge(nodeid id1, nodeid id2, const transformation& G12) {
+void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, bool loop_closure) {
     id1 += node_id_offset;
     id2 += node_id_offset;
     if(nodes.size() <= id1) nodes.resize(id1+1);
     if(nodes.size() <= id2) nodes.resize(id2+1);
     map_edge& edge12 = nodes[id1].get_add_neighbor(id2);
-    edge12.loop_closure = true;
+    edge12.loop_closure = loop_closure;
     edge12.G = G12;
     map_edge& edge21 = nodes[id2].get_add_neighbor(id1);
-    edge21.loop_closure = true;
+    edge21.loop_closure = loop_closure;
     edge21.G = invert(G12);
 }
 
@@ -377,8 +363,8 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                     vG_WC.push_back(G_WCk);
                     transformation G_WBk = G_WCk*G_CB;
                     const transformation& G_WCandidate = nodes[nid.first].global_transformation;
-                    add_loop_closure_edge(nid.first, current_node_id,
-                                          invert(G_WCandidate)*G_WBk*G_BkCurrent);
+                    add_edge(nid.first, current_node_id,
+                             invert(G_WCandidate)*G_WBk*G_BkCurrent, true);
                 }
             }
         }

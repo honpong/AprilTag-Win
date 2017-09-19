@@ -93,6 +93,7 @@ void * fnReplay(void * arg)
     sfm              = &((sensor_fusion *)tracker_instance)->sfm;
     rc_setDataCallback(tracker_instance, data_callback, tracker_instance);
     rc_setStatusCallback(tracker_instance, status_callback, tracker_instance);
+    rc_configureQueueStrategy(tracker_instance, rc_QUEUE_MINIMIZE_DROPS);
 
     uint16_t replay_params = 0;
     uint64_t lastTimestamp = 0;

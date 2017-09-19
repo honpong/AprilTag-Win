@@ -1,0 +1,52 @@
+From eed06b41741f46db8fc3e2bbc9fc768fef2babd2 Mon Sep 17 00:00:00 2001
+From: Patrik Stepan <patrik.stepan@intel.com>
+Date: Fri, 7 Apr 2017 15:35:48 +0300
+Subject: [PATCH 2/3] gemm macro-kernel handles padding in CMX
+
+---
+ common/components/BLIS/shave/shaveSGEMM.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
+
+diff --git mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMM.c mdk_release_17.04.5_general_purpose_patched/mdk/common/components/BLIS/shave/shaveSGEMM.c
+index 6e7c83e..192d662 100644
+--- mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMM.c
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/components/BLIS/shave/shaveSGEMM.c
+@@ -10,6 +10,7 @@
+ // ----------------------------------------------------------------------------
+ #include <mv_types.h>
+ #include <svuCommonShave.h>
++#include <string.h>
+ #include "Defines.h"
+ #include "Buffers.h"
+ #include "Portab.h"
+@@ -132,6 +134,18 @@ void startSGEMM(kernelInfo_t *kernelInfo, int startIter, int endIter)
+     }
+ 
+     DMA_START_LIST_TASK(ref[0], numberTasks);
++
++    /* a_buff is the CMX address of a micro-panel of matrix A of dimension MR x k,
++    stored by columns with leading dimension PACKMR, where typically PACKMR = MR
++    padding for the micro-panels was already done in DDR but it is needed in CMX also
++    to allow the usage of the same micro-kernel */
++    memset(a_buff + MR * rstep_a * m_iter, 0, (MR - 1) * NR * sizeof(float));
++
++    /* he address of a micro-panel of matrix B of dimension k x NR,
++    stored by rows with leading dimension PACKNR, where typically PACKNR = NR */
++    memset(b_buff[0] + NR * k, 0, MR * (NR - 1) * sizeof(float));
++    memset(b_buff[1] + NR * k, 0, MR * (NR - 1) * sizeof(float));
++
+     DMA_WAIT_TASK(ref[0]);
+     b_buff_used = 1;
+     c_buff_used = 2;
+@@ -185,6 +199,8 @@ void startSGEMM(kernelInfo_t *kernelInfo, int startIter, int endIter)
+             {
+                 int i, j;
+ 
++                /* ct may contain uninitialized memory (including elements containing NaN or Inf)*/
++                memset(ct, 0, sizeof(ct));
+                 mvcvsgemm4x4_asm(k, &alphaValue, a1, bp, &zero, ct, rs_ct, cs_ct);
+ 
+                 /* Scale the bottom edge of C and add the result from above. */
+-- 
+2.11.1
+

@@ -2,3 +2,6 @@
 002_mdk_release_17.04.5_generic_spi_driver_workaround.patch -p1
 003_mdk_release_17.04.5_generic_fix_cdma_driver_issues.patch -p1
 004_mdk_release_17.04.5_generic_osdrvsvu_add_start_with_va_list.patch -p1
+005_mdk_release_17.04.5_general_gemm_handle_padding_in_cmx.patch -p1
+006_mdk_release_17.04.5_general_gemm_makefile_fix.patch -p1
+007_mdk_release_17.04.5_general_gemm_avoid_busy_wait.patch -p1

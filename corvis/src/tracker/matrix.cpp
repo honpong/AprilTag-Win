@@ -48,83 +48,28 @@ static std::mutex cholesky_mutex;
 #ifdef __RTEMS__
 #include <rtems.h>
 #endif
-#define SHAVE_BLIS_L2_PARTITION 2
 static std::mutex blis_mutex;
 
-
-void blis_set_object(const matrix &m, void *v)
+static void blis_set_object(const matrix &m, obj_t *obj, bool trans = false)
 {
-    // XXX v should have been declared as obj_t, however, due to C++ wouldn't allow forward-declaration of typedefed type,
-    // we trick it with a void* that is immidiatly casted into obj_t
-    obj_t *obj = (obj_t *)v;
-
-    dim_t obj_m = m.rows();
-    dim_t obj_n = m.cols();
-
-    // adjust m/n to be multiple of 4 per blis requirment
-    obj_m = (obj_m % 4 == 0) ? obj_m : (int(obj_m / 4) + 1) * 4;
-    obj_n = (obj_n % 4 == 0) ? obj_n : (int(obj_n / 4) + 1) * 4;
-
-    // We assume that m memroy layout is 16byte aligned, hence matrix.get_stride() guarenteed to be less than obj_n*sizeof(float)
-    dim_t row_stride = m.get_stride();
-    if (row_stride < obj_n) {
-        printf("oops, row_stride is shorter than number of columns... something went wrong\n");
-    }
-    
-    dim_t col_stride = 1;
-
-    if (row_stride % 16 != 0) {
-        printf("Oy vey !!!!!!!!!!!! , row stride is not multiple of 16\n");
-    }
-    // XXX - JR - hardcoded to BLIS_FLOAT
-    bli_obj_create_with_attached_buffer(BLIS_FLOAT, obj_m, obj_n, (void *)(m.Data()), row_stride, col_stride, obj);
-
-    // zero unused matrix elements
-    {
-        unsigned char  *obj_row = (unsigned char *)obj->buffer;
-        for (int r = 0; r < m.rows(); r++) {
-            if (obj_n > m.cols()) memset(obj_row + m.cols() * sizeof(float), 0, (obj_n - m.cols()) * sizeof(float));
-            obj_row += row_stride * sizeof(float);
-        }
-        if (obj_m > m.rows()) {
-            for (int r = m.rows();  r < obj_m; r++) {
-                memset(obj_row, 0, obj_n * sizeof(float));
-                obj_row += row_stride * sizeof(float);
-            }
-        }
-    }
+    if (trans) bli_obj_create_with_attached_buffer(BLIS_FLOAT, m.cols(), m.rows(), (void *)&m(0,0), 1, m.get_stride(), obj);
+    else       bli_obj_create_with_attached_buffer(BLIS_FLOAT, m.rows(), m.cols(), (void *)&m(0,0), m.get_stride(), 1, obj);
 }
 
-
-void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, const float dst_scale, const float scale)
+void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, bool transA, bool transB, const float dst_scale, const float scale)
 {
     obj_t Aobj, Bobj, resObj, scaleObj, dstScaleObj;
 
-    blis_set_object(A, &Aobj); 
-    blis_set_object(B, &Bobj); 
+    blis_set_object(A, &Aobj, transA);
+    blis_set_object(B, &Bobj, transB);
     blis_set_object(res, &resObj);
     bli_obj_scalar_init_detached(BLIS_FLOAT, &scaleObj);
     bli_obj_scalar_init_detached(BLIS_FLOAT, &dstScaleObj);
-    
     bli_setsc(scale, 0.0, &scaleObj);
     bli_setsc(dst_scale, 0.0, &dstScaleObj);
     bli_gemm(&scaleObj, &Aobj, &Bobj, &dstScaleObj, &resObj);
 
-    //invalidate shave cache and lrt resObj range
-    /*int sc = 0;
-      if ((sc = OsDrvShaveL2CachePartitionFlush(SHAVE_BLIS_L2_PARTITION,
-              PERFORM_INVALIDATION)) != OS_MYR_DRV_SUCCESS)
-              printf("ERROR: OsDrvShaveL2CachePartitionFlush %lu\n", sc);*/
     rtems_cache_invalidate_multiple_data_lines( (void *)res.Data(), res.rows() * res.get_stride() * sizeof(f_t) );
-
-    // copy data out from resObj back to the result matrix;
-    unsigned char *obj_row = (unsigned char *)resObj.buffer;
-    unsigned char * mat_row = (unsigned char *)res.Data();
-    for (int r = 0; r < res.rows(); r++) {
-        memcpy(mat_row, obj_row, res.cols() * sizeof(float));
-        mat_row += res.get_stride() * sizeof(float);
-        obj_row += res.get_stride() * sizeof(float);
-    }
 }
 
 #endif // ENABLE_BLIS_GEMM
@@ -239,11 +184,10 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
 {
 
     START_EVENT(SF_GEMM, 0);
-#ifdef ENABLE_BLIS_GEMM
 
+#ifdef ENABLE_BLIS_GEMM
     int k = trans1 ? A.rows() : A.cols();
-    if ((trans1 == false) && 
-        (trans2 == false) &&
+    if (
         (k > 3) &&
         (A.get_stride() % 16 == 0) &&
         (B.get_stride() % 16 == 0) &&
@@ -252,7 +196,7 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
     {
     	blis_mutex.lock();
         START_EVENT(SF_GEMM_HW, 0);
-        matrix_product_blis(res, A, B, dst_scale, scale);
+        matrix_product_blis(res, A, B, trans1, trans2, dst_scale, scale);
         END_EVENT(SF_GEMM_HW, k);
         blis_mutex.unlock();
     }

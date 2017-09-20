@@ -23,7 +23,6 @@ static char *      pose_filename;
 static FILE *      pose_file         = stderr;
 static uint16_t    replay_flags      = REPLAY_SYNC;
 static uint16_t    sixdof_flags      = SIXDOF_FLAG_MULTI_THREADED;
-static uint64_t    last_exptected_ts = 0;
 
 void shutdown(int _unused = 0)
 {
@@ -118,6 +117,11 @@ int main(int argc, char ** argv)
             int poses_read = 0;
             while(1) {
                 packet_rc_pose_t pose_in = usb_read_6dof();
+                // Quit if we receive done from the device
+                if(pose_in.header.type == packet_filter_control &&
+                   pose_in.header.sensor_id == 0)
+                    break;
+
                 fprintf(pose_file, "%.9f ",
                         pose_in.header.time / 1.e6);  // seconds
                 fprintf(pose_file, "%.9f %.9f %.9f ", pose_in.pose.T.x,
@@ -125,17 +129,6 @@ int main(int argc, char ** argv)
                 fprintf(pose_file, "%.9f %.9f %.9f %.9f\n", pose_in.pose.Q.x,
                         pose_in.pose.Q.y, pose_in.pose.Q.z, pose_in.pose.Q.w);
                 poses_read++;
-                if(last_exptected_ts != 0) {
-                    if(pose_in.header.time + 10 > last_exptected_ts) {
-                        printf("Got the last expected packet - exit 6dof\n");
-                        break;
-                    }
-                    else {
-                        printf("draining out. Recevied %" PRIu64
-                               " waiting for %f\n",
-                               pose_in.header.time, float(last_exptected_ts));
-                    }
-                }
             }
         });
     }
@@ -148,7 +141,6 @@ int main(int argc, char ** argv)
             uint64_t        total_bytes = 0;
             packet_header_t header;
             auto            start_ts    = std::chrono::steady_clock::now();
-            uint64_t        sent_imu_ts = 0;
 
             // write calibration
             std::ifstream calibration_file(calibration_filename);
@@ -181,10 +173,6 @@ int main(int argc, char ** argv)
                     fprintf(stderr, "Error reading replay file, exiting\n");
                     exit(1);
                 }
-                if(packet->header.type == packet_gyroscope ||
-                   packet->header.type == packet_accelerometer) {
-                    sent_imu_ts = packet->header.time;
-                }
                 if(packets % 1000 == 0) {
                     printf("%" PRIu64 " packets written\n", packets);
                 }
@@ -194,7 +182,6 @@ int main(int argc, char ** argv)
                 free(packet);
                 packets++;
             }
-            last_exptected_ts = sent_imu_ts;
             auto end_ts       = std::chrono::steady_clock::now();
             auto micros = std::chrono::duration_cast<std::chrono::microseconds>(
                     end_ts - start_ts);
@@ -203,7 +190,11 @@ int main(int argc, char ** argv)
                     micros.count();  // bytes / microsecond = megabytes / sec
             printf("sent %" PRIu64 " packets with %" PRIu64 " bytes in %.2f MB/sec\n",
                    packets, total_bytes, rate_mb__sec);
-            printf("Last timestamp sent is: %.9f\n", last_exptected_ts / 1.e6);
+            // Send done to the device
+            header.bytes = sizeof(packet_header_t);
+            header.type = packet_filter_control;
+            header.sensor_id = 0; // use 0 for done
+            usb_write_packet((packet_t *)&header);
         });
     }
 

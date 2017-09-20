@@ -107,12 +107,19 @@ void * fnReplay(void * arg)
         printf("Starting replay: as fast as possible\n");
 
     rtems_object_set_name(rtems_task_self(), __func__);
+    bool clean_exit = false;
     while(1) {
         if(!isReplayRunning) break;
 
         packet_t * packet;
         if(!packet_io_read(&packet)) {
             printf("Error reading packet, exiting\n");
+            break;
+        }
+        if(packet->header.type == packet_filter_control &&
+           packet->header.sensor_id == 0) {
+            printf("All data received, exiting\n");
+            clean_exit = true;
             break;
         }
 
@@ -205,6 +212,19 @@ void * fnReplay(void * arg)
     rc_stopTracker(tracker_instance);
     printf("Timing:\n%s\n", rc_getTimingStats(tracker_instance));
     rc_destroy(tracker_instance);
+
+    if(clean_exit) {
+        // Tell the host we are done by abusing the packet_rc_pose_t
+        // (since we read a fixed sized packet on the host)
+        packet_rc_pose_t done_packet;
+        done_packet.header.type = packet_filter_control;
+        done_packet.header.bytes = sizeof(packet_rc_pose_t);
+        done_packet.header.sensor_id = 0;
+        printf("Sending done message to the host\n");
+        usb_blocking_write(ENDPOINT_DEV_INT_OUT, (uint8_t *)&done_packet,
+                               sizeof(packet_rc_pose_t));
+    }
+
     isReplayRunning = false;
     return NULL;
 }

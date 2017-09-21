@@ -19,18 +19,6 @@ namespace DBoW2 {
 
 // --------------------------------------------------------------------------
 
-BowVector::BowVector(void)
-{
-}
-
-// --------------------------------------------------------------------------
-
-BowVector::~BowVector(void)
-{
-}
-
-// --------------------------------------------------------------------------
-
 void BowVector::addWeight(WordId id, WordValue v) // g
 {
   BowVector::iterator vit = this->lower_bound(id);

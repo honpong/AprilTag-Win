@@ -58,17 +58,6 @@ class BowVector:
 	public std::map<WordId, WordValue>
 {
 public:
-
-	/** 
-	 * Constructor
-	 */
-	BowVector(void);
-
-	/**
-	 * Destructor
-	 */
-	~BowVector(void);
-	
 	/**
 	 * Adds a value to a word value existing in the vector, or creates a new
 	 * word with the given value

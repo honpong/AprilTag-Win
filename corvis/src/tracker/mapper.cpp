@@ -191,6 +191,8 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     for (auto& dbow_score : dbow_scores) {
         if (dbow_score.second > min_score) {
             loop_closing_candidates.push_back(dbow_score);
+        } else {
+            break;
         }
     }
     return loop_closing_candidates;

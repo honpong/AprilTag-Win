@@ -146,7 +146,7 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     // find nodes sharing words with current frame
     std::map<mapper::nodeid,uint32_t> common_words_per_node;
     uint32_t max_num_shared_words = 0;
-    for (auto word : current_frame.dbow_histogram) {
+    for (auto& word : current_frame.dbow_histogram) {
         auto word_i = dbow_inverted_index.find(word.first);
         if (word_i == dbow_inverted_index.end())
             continue;
@@ -170,7 +170,7 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     std::vector<std::pair<mapper::nodeid, float> > dbow_scores;
 //    assert(orb_voc->getScoringType() != DBoW2::ScoringType::L1_NORM);
     float best_score = 0.0f; // assuming L1 norm
-    for (auto node_candidate : common_words_per_node) {
+    for (auto& node_candidate : common_words_per_node) {
         if (node_candidate.second > min_num_shared_words) {
             const map_node& node = nodes[node_candidate.first];
             float dbow_score = static_cast<float>(orb_voc->score(node.frame.dbow_histogram,
@@ -181,14 +181,14 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     }
 
     // sort candidates by dbow_score and age
-    auto compare_dbow_scores = [](std::pair<mapper::nodeid, float> p1, std::pair<mapper::nodeid, float> p2) {
+    auto compare_dbow_scores = [](const std::pair<mapper::nodeid, float>& p1, const std::pair<mapper::nodeid, float>& p2) {
         return (p1.second > p2.second) || (p1.second == p2.second && p1.first < p2.first);
     };
     std::sort(dbow_scores.begin(), dbow_scores.end(), compare_dbow_scores);
 
     // keep good candidates according to a minimum score
     float min_score = std::max(best_score * 0.75f, 0.0f); // assuming L1 norm
-    for (auto dbow_score : dbow_scores) {
+    for (auto& dbow_score : dbow_scores) {
         if (dbow_score.second > min_score) {
             loop_closing_candidates.push_back(dbow_score);
         }

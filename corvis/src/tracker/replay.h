@@ -92,7 +92,7 @@ public:
     double get_reference_length() { return reference_length; }
     bool set_reference_from_filename(const std::string &filename);
     void zero_biases();
-    void start_mapping() { rc_startMapping(tracker); }
+    void start_mapping(bool relocalize) { rc_startMapping(tracker, relocalize); }
     void save_map(std::string filename);
 };
 

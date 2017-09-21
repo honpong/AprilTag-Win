@@ -78,7 +78,7 @@ public:
      */
     void receive_data(sensor_data && data);
     
-    void start_mapping();
+    void start_mapping(bool relocalize);
     void stop_mapping();
 
     void save_map(void (*write)(void *handle, const void *buffer, size_t length), void *handle);

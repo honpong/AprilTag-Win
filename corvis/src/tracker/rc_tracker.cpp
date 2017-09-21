@@ -540,10 +540,10 @@ void rc_stopTracker(rc_Tracker * tracker)
         tracker->output.stop();
 }
 
-void rc_startMapping(rc_Tracker *tracker)
+void rc_startMapping(rc_Tracker *tracker, bool relocalize)
 {
     if(trace) trace_log->info("rc_startMapping");
-    tracker->start_mapping();
+    tracker->start_mapping(relocalize);
 }
 
 void rc_stopMapping(rc_Tracker *tracker)

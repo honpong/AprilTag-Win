@@ -504,7 +504,7 @@ static int filter_available_feature_space(struct filter *f, state_camera &camera
     return space;
 }
 
-void filter_detect(struct filter *f, const sensor_data &data, bool relocalize)
+void filter_detect(struct filter *f, const sensor_data &data, bool process_map_kp)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
@@ -514,7 +514,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool relocalize)
     int standby_count = camera.standby_features.size(),
         detect_count = camera.detecting_space,
         feature_count = camera.feature_count(),
-        reloc_count = f->map && relocalize ? 400 : 0;
+        reloc_count = f->map && process_map_kp ? 400 : 0;
     camera.detecting_space = 0;
 
     auto froom = std::max(0, detect_count - standby_count);
@@ -550,7 +550,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool relocalize)
     for (auto &p : kp)
         camera.feature_tracker->tracks.push_back(&p);
 
-    if (f->map && relocalize)
+    if (f->map && process_map_kp)
         f->map->process_keypoints(camera.feature_tracker->tracks, data.id, timage);
 
     auto stop = std::chrono::steady_clock::now();

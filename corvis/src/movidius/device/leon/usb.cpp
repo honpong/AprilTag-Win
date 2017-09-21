@@ -167,10 +167,6 @@ void * fnReplay(void * arg)
             }
             case packet_image_raw: {
                 packet_image_raw_t * image = (packet_image_raw_t *)packet;
-                if(image->header.sensor_id != 0) {  // only mono for now
-                    packet_io_free(packet);
-                    break;
-                }
                 START_EVENT(EV_SF_REC_IMAGE, 0);
                 rc_receiveImage(tracker_instance, image->header.sensor_id,
                                 (rc_ImageFormat)image->format,

@@ -524,6 +524,8 @@ void map_edge::deserialize(const Value &json, map_edge &edge) {
 #define KEY_FEATURE_ID "id"
 #define KEY_FEATURE_VARIANCE "variance"
 #define KEY_FEATURE_POSITION "position"
+#define KEY_FRAME_FEAT_PATCH "patch"
+#define KEY_FRAME_FEAT_DESC_RAW "raw"
 void map_feature::serialize(Value &feature_json, Document::AllocatorType &allocator) {
     feature_json.AddMember(KEY_FEATURE_ID, id, allocator);
     feature_json.AddMember(KEY_FEATURE_VARIANCE, variance, allocator);
@@ -533,6 +535,15 @@ void map_feature::serialize(Value &feature_json, Document::AllocatorType &alloca
     pos_json.PushBack(position[1], allocator);
     pos_json.PushBack(position[2], allocator);
     feature_json.AddMember(KEY_FEATURE_POSITION, pos_json, allocator);
+
+    // add descriptor
+    Value desc_json(kObjectType);
+    Value desc_raw_json(kArrayType);
+    for (auto v : descriptor->descriptor)
+        desc_raw_json.PushBack(v, allocator);
+
+    desc_json.AddMember(KEY_FRAME_FEAT_DESC_RAW, desc_raw_json, allocator);
+    feature_json.AddMember(KEY_FRAME_FEAT_PATCH, desc_json, allocator);
 }
 
 bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t &max_loaded_featid) {
@@ -546,6 +557,17 @@ bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t 
         for (SizeType j = 0; j < pos_json.Size(); j++) {
             feature.position[j] = (f_t)pos_json[j].GetDouble();
         }
+
+    // get descriptor values
+    const Value &desc_json = json[KEY_FRAME_FEAT_PATCH];
+    const Value &desc_raw_json = desc_json[KEY_FRAME_FEAT_DESC_RAW];
+    RETURN_IF_FAILED(desc_raw_json.IsArray())
+    std::array<unsigned char, patch_descriptor::L> raw_desc;
+    RETURN_IF_FAILED(raw_desc.size() == desc_raw_json.Size())
+    for (SizeType d = 0; d < desc_raw_json.Size(); d++)
+        raw_desc[d] = static_cast<unsigned char>(desc_raw_json[d].GetUint64());
+
+    feature.descriptor = std::make_shared<patch_descriptor>(raw_desc);
     return true;
 }
 
@@ -555,7 +577,6 @@ bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t 
 #define KEY_FRAME_FEAT_Y "y"
 #define KEY_FRAME_FEAT_LEVEL "level"
 #define KEY_FRAME_FEAT_DESC "descriptor"
-#define KEY_FRAME_FEAT_DESC_RAW "raw"
 #define KEY_FRAME_FEAT_DESC_SIN "sin"
 #define KEY_FRAME_FEAT_DESC_COS "cos"
 void frame_serialize(const std::shared_ptr<frame_t> frame, Value &json, Document::AllocatorType &allocator) {

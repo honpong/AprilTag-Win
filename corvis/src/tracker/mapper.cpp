@@ -55,8 +55,6 @@ map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
 }
 
 void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, bool loop_closure) {
-    id1 += node_id_offset;
-    id2 += node_id_offset;
     if(nodes.size() <= id1) nodes.resize(id1+1);
     if(nodes.size() <= id2) nodes.resize(id2+1);
     map_edge& edge12 = nodes[id1].get_add_neighbor(id2);
@@ -69,7 +67,6 @@ void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, bool lo
 
 void mapper::add_node(nodeid id, const rc_Sensor camera_id)
 {
-    id += node_id_offset;
     if(nodes.size() <= id) nodes.resize(id + 1);
     nodes[id].id = id;
     nodes[id].camera_id = camera_id;
@@ -122,21 +119,17 @@ void map_node::set_feature(const uint64_t id, const v3 &pos, const float varianc
 }
 
 void mapper::set_feature(nodeid groupid, uint64_t id, const v3 &pos, const float variance, const bool is_new) {
-    groupid += node_id_offset;
-    id += feature_id_offset;
     nodes[groupid].set_feature(id, pos, variance);
     if (is_new) features_dbow[id] = groupid;
 }
 
 void mapper::set_node_transformation(nodeid id, const transformation & G)
 {
-    id += node_id_offset;
     nodes[id].global_transformation = G;
 }
 
 void mapper::node_finished(nodeid id)
 {
-    id += node_id_offset;
     nodes[id].status = node_status::finished;
     for (auto &word : nodes[id].frame->dbow_histogram)
         dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index

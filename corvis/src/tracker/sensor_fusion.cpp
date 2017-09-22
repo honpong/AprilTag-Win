@@ -335,7 +335,11 @@ bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t l
         return false;
     load_stream stream(read, handle);
     rapidjson::Document doc;
-    return mapper::deserialize(doc.ParseStream(stream), *sfm.map);
+    bool deserialize_status = mapper::deserialize(doc.ParseStream(stream), *sfm.map);
+    sfm.s.group_counter = sfm.map->get_node_id_offset();
+    tracker::feature::next_id = sfm.map->get_feature_id_offset();
+
+    return deserialize_status;
 }
 
 void sensor_fusion::receive_data(sensor_data && data)

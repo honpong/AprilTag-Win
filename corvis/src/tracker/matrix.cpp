@@ -19,18 +19,6 @@
 #ifdef MYRIAD2
 #include "platform_defines.h"
 
-#define TRACE_MATRIX_EVENTS 0
-
-#if TRACE_MATRIX_EVENTS == 0
-    #undef START_EVENT
-    #define START_EVENT(x, y)
-    #undef END_EVENT
-    #define END_EVENT(x, y)
-    #undef TRACE_EVENT
-    #define TRACE_EVENT(x, y)
-#endif
-
-
 #include <mutex>
 #include <OsDrvShaveL2Cache.h>
 

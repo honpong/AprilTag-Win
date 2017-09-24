@@ -55,11 +55,10 @@ void covariance_projector::project_observation_covariance(project_observation_co
 
     if (data.observations_size < 4) {
         data.shaves_number = 1;
-        rtems_cache_flush_entire_data();
         shaves[start_shave]->start((u32) &cvrt0_vision_project_observation_covariance1, "i", (u32)&data);
         shaves[start_shave]->wait();
-        rtems_cache_invalidate_entire_data();
-        rtems_cache_flush_entire_data();
+        rtems_cache_invalidate_data_range(data.dst, data.dst_cols * data.dst_stride);
+        rtems_cache_invalidate_data_range(data.HP, data.HP_src_cols * data.HP_stride);
     }
     else {
         data.shaves_number = shaves_number;
@@ -79,14 +78,13 @@ void covariance_projector::project_observation_covariance(project_observation_co
         data.dst_stride = HP_stride;
         data.dst_rows   = HP_rows;
         data.dst        = HP;
-        rtems_cache_flush_entire_data();
         for (int i = start_shave; i < shaves_number; ++i) {
             shaves[i]->start(project_observation_covariance_entry_points[i], "ii", (u32)&data, start_index[i - start_shave]);
         }
         for (int i = start_shave; i < shaves_number; ++i) {
             shaves[i]->wait();
         }
-        rtems_cache_invalidate_entire_data();
+        rtems_cache_invalidate_data_range(data.HP, data.HP_src_cols * data.HP_stride);
         // res_cov = H * (H * P')' = H * P * H'
         data.src_rows   = HP_rows;
         data.src_cols   = HP_src_cols;
@@ -96,14 +94,13 @@ void covariance_projector::project_observation_covariance(project_observation_co
         data.dst_stride = dst_stride;
         data.dst_rows   = dst_rows;
         data.dst        = dst;
-        rtems_cache_flush_entire_data();
         for (int i = start_shave; i < shaves_number; ++i) {
             shaves[i]->start(project_observation_covariance_entry_points[i], "ii", (u32)&data, start_index[i - start_shave]);
         }
         for (int i = start_shave; i < shaves_number; ++i) {
             shaves[i]->wait();
         }
-        rtems_cache_invalidate_entire_data();
-        rtems_cache_flush_entire_data();
+        rtems_cache_invalidate_data_range(data.HP, data.HP_src_cols * data.HP_stride);
+        rtems_cache_invalidate_data_range(data.dst, data.dst_cols * data.dst_stride);
     }
 }

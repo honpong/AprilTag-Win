@@ -95,9 +95,6 @@ void observation_queue::compute_prediction_covariance_shave(const matrix &cov, i
     static covariance_projector projector;
     projector.project_observation_covariance(queue_data, start_index);
 
-    for (auto &d : observation_datas) {
-        delete(d);
-    }
     observation_datas.clear();
     END_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE, 0);
 }

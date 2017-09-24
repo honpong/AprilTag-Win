@@ -12,6 +12,8 @@ struct project_covariance_element_data{
     bool use_single_index;
 };
 
+enum observation_type { none, vision_feature, accelerometer, gyroscope };
+
 struct project_motion_covariance_data{
     int first_shave = -1;
     int shaves_number = 0;
@@ -43,9 +45,9 @@ struct project_motion_covariance_data{
 
 struct observation_data {
     int size = 0;
-    int type = 0;
+    observation_type type = none;
 
-    observation_data(int _size=0, int _type=0) : size(_size), type(_type) {}
+    observation_data(int _size=0, observation_type _type=none) : size(_size), type(_type) {}
 };
 
 struct observation_vision_feature_data : observation_data {
@@ -76,7 +78,7 @@ struct observation_vision_feature_data : observation_data {
 
     } orig, curr;
 
-    observation_vision_feature_data() : observation_data (0, 1) {}
+    observation_vision_feature_data() : observation_data (0, vision_feature) {}
     observation_vision_feature_data(observation_data& base) : observation_data (base) {}
 };
 
@@ -100,7 +102,7 @@ struct observation_accelerometer_data : observation_data {
     float* worldUp = NULL; //v3
     bool e_estimate = true;
 
-    observation_accelerometer_data() : observation_data (0, 2) {}
+    observation_accelerometer_data() : observation_data (0, accelerometer) {}
     observation_accelerometer_data(observation_data& base) : observation_data (base) {}
 };
 
@@ -114,7 +116,7 @@ struct observation_gyroscope_data : observation_data {
     float* dw_dQw = NULL; //m3
     bool e_estimate = true;
 
-    observation_gyroscope_data() : observation_data (0, 3) {}
+    observation_gyroscope_data() : observation_data (0, gyroscope) {}
     observation_gyroscope_data(observation_data& base) : observation_data (base) {}
 };
 

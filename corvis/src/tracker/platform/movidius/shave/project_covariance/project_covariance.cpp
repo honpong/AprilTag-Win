@@ -166,8 +166,8 @@ inline float2 mull_m24_v4(const float* mat, float4 vec)
 inline float2 mull_m2_v2(const float* mat, float2 vec)
 {
     float2 new_vec = {0};
-    new_vec[0]= mat[0]*vec.s0 + mat[1]*vec.s0;
-    new_vec[1]= mat[2]*vec.s0 + mat[3]*vec.s0;
+    new_vec[0]= mat[0]*vec.s0 + mat[1]*vec.s1;
+    new_vec[1]= mat[2]*vec.s0 + mat[3]*vec.s1;
     return new_vec;
 }
 
@@ -386,19 +386,19 @@ extern "C" void vision_project_observation_covariance1(project_observation_covar
     int index = 0;
     for (int i = 0; i < data->observations_size; ++i) { // HP = H * P'
         switch (data->observations[i]->type) {
-            case 1:
+            case vision_feature:
             {
                 observation_vision_feature_data* vision_data = (observation_vision_feature_data*)data->observations[i];
                 observation_vision_feature_project_covariance(covariance_matrix, data->HP + index*HP_stride, src_rows, src_cols, src_stride, HP_dst_cols, HP_stride, vision_data);
             }
                 break;
-            case 2:
+            case accelerometer:
             {
                 observation_accelerometer_data* accel_data = (observation_accelerometer_data*)data->observations[i];
                 observation_accelerometer_project_covariance(covariance_matrix, data->HP + index*HP_stride, src_rows, src_cols, src_stride, HP_dst_cols, HP_stride, accel_data);
             }
                 break;
-            case 3:
+            case gyroscope:
             {
                 observation_gyroscope_data* gyro_data = (observation_gyroscope_data*)data->observations[i];
                 observation_gyroscope_project_covariance(covariance_matrix, data->HP + index*HP_stride, src_rows, src_cols, src_stride, HP_dst_cols, HP_stride, gyro_data);
@@ -412,19 +412,19 @@ extern "C" void vision_project_observation_covariance1(project_observation_covar
     index = 0;
     for (int i = 0; i < data->observations_size; ++i) { // res_cov = H * (H * P')' = H * P * H'
         switch (data->observations[i]->type) {
-            case 1:
+            case vision_feature:
             {
                 observation_vision_feature_data* vision_data = (observation_vision_feature_data*)data->observations[i];
                 observation_vision_feature_project_covariance(data->HP, data->dst + index*dst_stride, HP_rows, HP_src_cols, HP_stride, dst_cols, dst_stride, vision_data);
             }
                 break;
-            case 2:
+            case accelerometer:
             {
                 observation_accelerometer_data* accel_data = (observation_accelerometer_data*)data->observations[i];
                 observation_accelerometer_project_covariance(data->HP, data->dst + index*dst_stride, HP_rows, HP_src_cols, HP_stride, dst_cols, dst_stride, accel_data);
             }
                 break;
-            case 3:
+            case gyroscope:
             {
                 observation_gyroscope_data* gyro_data = (observation_gyroscope_data*)data->observations[i];
                 observation_gyroscope_project_covariance(data->HP, data->dst + index*dst_stride, HP_rows, HP_src_cols, HP_stride, dst_cols, dst_stride, gyro_data);
@@ -476,19 +476,19 @@ extern "C" void vision_project_observation_covariance(project_observation_covari
     int index = start_index;
     for (int i = start_obs; i < end_obs; ++i) {
         switch (data->observations[i]->type) {
-            case 1:
+            case vision_feature:
             {
                 observation_vision_feature_data* vision_data = (observation_vision_feature_data*)data->observations[i];
                 observation_vision_feature_project_covariance(covariance_matrix, data->dst + index*dst_stride, src_rows, src_cols, src_stride, dst_cols, dst_stride, vision_data);
             }
                 break;
-            case 2:
+            case accelerometer:
             {
                 observation_accelerometer_data* accel_data = (observation_accelerometer_data*)data->observations[i];
                 observation_accelerometer_project_covariance(covariance_matrix, data->dst + index*dst_stride, src_rows, src_cols, src_stride, dst_cols, dst_stride, accel_data);
             }
                 break;
-            case 3:
+            case gyroscope:
             {
                 observation_gyroscope_data* gyro_data = (observation_gyroscope_data*)data->observations[i];
                 observation_gyroscope_project_covariance(covariance_matrix, data->dst + index*dst_stride, src_rows, src_cols, src_stride, dst_cols, dst_stride, gyro_data);

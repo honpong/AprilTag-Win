@@ -144,7 +144,7 @@ inline float4 mull_m3_v3(const float* mat, float4 vec)
 
 inline float2 mull_m23_v3(const float* mat, float4 vec)
 {
-    float2 new_vec = {0};
+    float2 new_vec;
     vec.s3 = 0.f;
     float4 r1 = {*mat,     *(mat+1), *(mat+2), 0};
     float4 r2 = {*(mat+3), *(mat+4), *(mat+5), 0};
@@ -155,7 +155,7 @@ inline float2 mull_m23_v3(const float* mat, float4 vec)
 
 inline float2 mull_m24_v4(const float* mat, float4 vec)
 {
-    float2 new_vec = {0};
+    float2 new_vec;
     float4 r1 = {*mat,     *(mat+1), *(mat+2), *(mat+3)};
     float4 r2 = {*(mat+4), *(mat+5), *(mat+6), *(mat+7)};
     new_vec[0]= mvuDot(r1, vec);
@@ -165,7 +165,7 @@ inline float2 mull_m24_v4(const float* mat, float4 vec)
 
 inline float2 mull_m2_v2(const float* mat, float2 vec)
 {
-    float2 new_vec = {0};
+    float2 new_vec;
     new_vec[0]= mat[0]*vec.s0 + mat[1]*vec.s1;
     new_vec[1]= mat[2]*vec.s0 + mat[3]*vec.s1;
     return new_vec;
@@ -173,7 +173,7 @@ inline float2 mull_m2_v2(const float* mat, float2 vec)
 
 inline float2 mull_v2_f(const float* mat, float v)
 {
-    float2 new_vec = {0};
+    float2 new_vec;
     new_vec[0]= mat[0]*v;
     new_vec[1]= mat[1]*v;
     return new_vec;

@@ -47,9 +47,9 @@ public:
     state_leaf_base(const char *name_, state_node::node_type type_, int index_, int size_) : name(name_), type(type_), index(index_), size(size_) {}
     inline bool single_index() const { return size == 1; }
     const char *name;
+    int index;
 protected:
     state_node::node_type type;
-    int index;
     int size;
 };
 

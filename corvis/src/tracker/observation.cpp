@@ -102,7 +102,6 @@ void observation_queue::compute_prediction_covariance_shave(const matrix &cov, i
 
 void observation_queue::compute_prediction_covariance(const matrix &cov, int statesize, int meas_size)
 {
-    START_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE, 0);
     int index = 0;
     for(auto &o : observations) {
         matrix dst(HP, index, 0, o->size, statesize);
@@ -117,7 +116,6 @@ void observation_queue::compute_prediction_covariance(const matrix &cov, int sta
         o->project_covariance(dst, HP); // res_cov = H * (H * P')' = H * P * H'
         index += o->size;
     }
-    END_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE, 0);
 }
 
 void observation_queue::compute_innovation_covariance(const matrix &m_cov)
@@ -455,6 +453,7 @@ void observation_vision_feature::compute_measurement_covariance()
     m_cov[1] = robust_mc;
 }
 
+#ifdef MYRIAD2
 observation_data* observation_vision_feature::getData()
 {
     vision_data.size = size;
@@ -522,6 +521,7 @@ observation_data* observation_vision_feature::getData()
 
     return &vision_data;
 }
+#endif
 
 void observation_accelerometer::predict()
 {
@@ -580,6 +580,7 @@ bool observation_accelerometer::measure()
     return observation_spatial::measure();
 }
 
+#ifdef MYRIAD2
 observation_data* observation_accelerometer::getData()
 {
     accel_data.size = size;
@@ -623,6 +624,7 @@ observation_data* observation_accelerometer::getData()
     
     return &accel_data;
 }
+#endif
 
 void observation_gyroscope::predict()
 {
@@ -650,6 +652,7 @@ void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
     }
 }
 
+#ifdef MYRIAD2
 observation_data* observation_gyroscope::getData()
 {  
     gyro_data.size = size;
@@ -673,3 +676,4 @@ observation_data* observation_gyroscope::getData()
     
     return &gyro_data;
 }
+#endif

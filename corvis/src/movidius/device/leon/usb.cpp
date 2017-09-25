@@ -89,11 +89,21 @@ void * fnReplay(void * arg)
 {
     bool stereo_configured = false;
 
-    tracker_instance = rc_create();
+    __attribute__((section(".cmx.bss"),aligned(64)))
+    static uint8_t rc_tracker_memory[166*1024];
+    static size_t rc_tracker_size;
+    if (rc_tracker_size || (rc_create_at(nullptr, &rc_tracker_size),
+                            rc_tracker_size > sizeof(rc_tracker_memory))) {
+        printf("\e[31;1mWarning\e[m: reserved %td for rc_Tracker in CMX, but needed %td; using DDR\n", sizeof(rc_tracker_memory), rc_tracker_size);
+        tracker_instance = rc_create();
+    } else
+        tracker_instance = rc_create_at(rc_tracker_memory, nullptr);
+
     if(!tracker_instance) {
         printf("Error: failed to create tracker instance\n");
         return NULL;
     }
+
     sfm              = &((sensor_fusion *)tracker_instance)->sfm;
     rc_setDataCallback(tracker_instance, data_callback, tracker_instance);
     rc_setStatusCallback(tracker_instance, status_callback, tracker_instance);

@@ -45,7 +45,7 @@ void covariance_projector::project_motion_covariance(project_motion_covariance_d
     for (int i = 0; i < shaves_number; ++i) {
         shaves[i]->wait();
     }
-    rtems_cache_invalidate_data_range(data.dst, data.dst_cols * data.dst_stride);
+    rtems_cache_invalidate_data_range(data.dst, data.dst_rows * data.dst_stride * sizeof(float));
 }
 
 void covariance_projector::project_observation_covariance(project_observation_covariance_data &data, int start_index[])
@@ -57,8 +57,8 @@ void covariance_projector::project_observation_covariance(project_observation_co
         data.shaves_number = 1;
         shaves[start_shave]->start((u32) &cvrt0_vision_project_observation_covariance1, "i", (u32)&data);
         shaves[start_shave]->wait();
-        rtems_cache_invalidate_data_range(data.dst, data.dst_cols * data.dst_stride);
-        rtems_cache_invalidate_data_range(data.HP, data.HP_src_cols * data.HP_stride);
+        rtems_cache_invalidate_data_range(data.dst, data.dst_rows * data.dst_stride * sizeof(float));
+        rtems_cache_invalidate_data_range(data.HP, data.HP_rows * data.HP_stride * sizeof(float));
     }
     else {
         data.shaves_number = shaves_number;
@@ -84,7 +84,7 @@ void covariance_projector::project_observation_covariance(project_observation_co
         for (int i = start_shave; i < shaves_number; ++i) {
             shaves[i]->wait();
         }
-        rtems_cache_invalidate_data_range(data.HP, data.HP_src_cols * data.HP_stride);
+        rtems_cache_invalidate_data_range(data.HP, data.HP_rows * data.HP_stride * sizeof(float));
         // res_cov = H * (H * P')' = H * P * H'
         data.src_rows   = HP_rows;
         data.src_cols   = HP_src_cols;
@@ -100,7 +100,7 @@ void covariance_projector::project_observation_covariance(project_observation_co
         for (int i = start_shave; i < shaves_number; ++i) {
             shaves[i]->wait();
         }
-        rtems_cache_invalidate_data_range(data.HP, data.HP_src_cols * data.HP_stride);
-        rtems_cache_invalidate_data_range(data.dst, data.dst_cols * data.dst_stride);
+        rtems_cache_invalidate_data_range(data.HP, data.HP_rows * data.HP_stride * sizeof(float));
+        rtems_cache_invalidate_data_range(data.dst, data.dst_rows * data.dst_stride * sizeof(float));
     }
 }

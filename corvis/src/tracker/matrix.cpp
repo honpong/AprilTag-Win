@@ -18,15 +18,17 @@
 
 #ifdef MYRIAD2
 #include "platform_defines.h"
-
-#include <mutex>
-
-#if defined(ENABLE_BLIS_GEMM) || defined(ENABLE_SHAVE_SOLVE)
-#include "blis.h"
-#include "blis_defines.h"
-#ifdef __RTEMS__
-#include <rtems.h>
 #endif
+
+#if defined(ENABLE_BLIS_GEMM) || defined(ENABLE_SHAVE_SOLVE) || defined(HAVE_BLIS)
+#include "blis.h"
+#ifdef MYRIAD2
+#include "blis_defines.h"
+#include <rtems.h>
+#else
+static struct blis_initialize { blis_initialize() { bli_init(); } } blis_initialize;
+#endif
+#include <mutex>
 static std::mutex blis_mutex;
 
 static void blis_set_object(const matrix &m, obj_t *obj, bool trans = false)
@@ -37,7 +39,7 @@ static void blis_set_object(const matrix &m, obj_t *obj, bool trans = false)
 
 #endif
 
-#ifdef ENABLE_BLIS_GEMM
+#if defined(ENABLE_BLIS_GEMM) || defined(HAVE_BLIS)
 static void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, bool transA, bool transB, const float dst_scale, const float scale)
 {
     obj_t Aobj, Bobj, resObj, scaleObj, dstScaleObj;
@@ -53,12 +55,13 @@ static void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, b
     blis_mutex.lock();
     bli_gemm(&scaleObj, &Aobj, &Bobj, &dstScaleObj, &resObj);
     blis_mutex.unlock();
-
+#ifdef MYRIAD2
     rtems_cache_invalidate_multiple_data_lines( (void *)res.Data(), res.rows() * res.get_stride() * sizeof(f_t) );
+#endif
 }
 #endif // ENABLE_BLIS_GEMM
 
-#ifdef ENABLE_SHAVE_SOLVE
+#if defined(ENABLE_SHAVE_SOLVE) || defined(HAVE_BLIS)
 static void matrix_solve_blis(const matrix &A, const matrix &B, uplo_t uplo, bool transB)
 {
     obj_t Aobj, Bobj;
@@ -70,12 +73,11 @@ static void matrix_solve_blis(const matrix &A, const matrix &B, uplo_t uplo, boo
     blis_mutex.lock();
     bli_trsm(BLIS_RIGHT, &BLIS_ONE, &Aobj, &Bobj);
     blis_mutex.unlock();
-
+#ifdef MYRIAD2
     rtems_cache_invalidate_multiple_data_lines( (void *)B.Data(), B.rows() * B.get_stride() * sizeof(f_t) );
+#endif
 }
 #endif // ENABLE_SHAVE_SOLVE
-
-#endif //MYRIAD2
 
 void matrix::print() const
 {
@@ -160,7 +162,7 @@ bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = B L^-T
     Eigen::LLT< Eigen::Ref<decltype(A_map)>, Eigen::Upper > llt(A_map);
     if (llt.info() == Eigen::NumericalIssue)
         return false;
-#ifdef ENABLE_SHAVE_SOLVE
+#if defined(ENABLE_SHAVE_SOLVE) || defined(HAVE_BLIS)
     if (A.rows() > 3)
         matrix_solve_blis(A, B, BLIS_UPPER, false);
     else

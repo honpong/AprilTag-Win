@@ -131,7 +131,7 @@ void observation_queue::compute_innovation_covariance(const matrix &m_cov)
 }
 
 __attribute__((noinline))
-bool observation_queue::update_state_and_covariance(matrix &x, matrix &P, const matrix &y, matrix &HP, matrix &S, matrix &KL)
+bool observation_queue::update_state_and_covariance(matrix &x, matrix &P, const matrix &y, matrix &HP, matrix &S)
 {
     int meas_size = HP.rows(), statesize = HP.cols();
     matrix Px(P, 0,0, statesize+1, statesize); // [ P ; x ]
@@ -170,7 +170,6 @@ bool observation_queue::process(state_root &s, bool run_on_shave)
         inn.resize(meas_size);
         m_cov.resize(meas_size);
         HP.resize(meas_size, statesize);
-        KL.resize(statesize, meas_size);
         res_cov.resize(meas_size, meas_size);
         state.resize(statesize);
 
@@ -188,7 +187,7 @@ bool observation_queue::process(state_root &s, bool run_on_shave)
 
         s.copy_state_to_array(state);
 
-        success = update_state_and_covariance(state, s.cov.cov, inn, HP, res_cov, KL);
+        success = update_state_and_covariance(state, s.cov.cov, inn, HP, res_cov);
 
         s.copy_state_from_array(state);
     } else if(orig_meas_size && orig_meas_size != 3) {

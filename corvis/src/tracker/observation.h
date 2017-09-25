@@ -183,8 +183,8 @@ public:
 class observation_queue {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    observation_queue(matrix &state_, matrix &inn_, matrix &m_cov_, matrix &HP_, matrix &KL_, matrix &res_cov_)
-        : state(state_), inn(inn_), m_cov(m_cov_), HP(HP_), KL(KL_), res_cov(res_cov_)  {}
+    observation_queue(matrix &state_, matrix &inn_, matrix &m_cov_, matrix &HP_, matrix &res_cov_)
+        : state(state_), inn(inn_), m_cov(m_cov_), HP(HP_), res_cov(res_cov_)  {}
     void preprocess(state_root &s, sensor_clock::time_point time);
     bool process(state_root &s, bool run_on_shave = false);
     std::vector<std::unique_ptr<observation>> observations;
@@ -216,9 +216,9 @@ protected:
     void compute_prediction_covariance_shave(const matrix &cov, int statesize, int meas_size);
 #endif
     void compute_innovation_covariance(const matrix &m_cov);
-    static bool update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn, matrix &HP, matrix &res_cov, matrix &K);
+    static bool update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn, matrix &HP, matrix &res_cov);
 
-    matrix &state, &inn, &m_cov, &HP, &KL, &res_cov;
+    matrix &state, &inn, &m_cov, &HP, &res_cov;
 #ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
     std::vector<observation_data*> observation_datas;
     int start_index[PROJECT_COVARIANE_SHAVES];

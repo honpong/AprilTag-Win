@@ -137,12 +137,11 @@ bool observation_queue::update_state_and_covariance(matrix &x, matrix &P, const 
     matrix Px(P, 0,0, statesize+1, statesize); // [ P ; x ]
     Px.map().bottomRows(1) = x.map();
 
-    matrix KL_y (KL, 0,0, statesize+1, meas_size);
-    KL.map() = HP.map().transpose();
-    KL_y.map().bottomRows(1) = -y.map();
-    if (!matrix_half_solve(S, KL_y)) // S = L L^T; KL = [ HP -y ]' L^-T
+    matrix HP_y (HP, 0,0, meas_size, statesize+1);
+    HP_y.map().rightCols(1) = -y.map().transpose();
+    if (!matrix_half_solve(S, HP_y)) // S = L L^T; HP_y = L^-1 [ HP -y ]
         return false;
-    matrix_product(Px, KL_y, KL, false, true, 1, -1); // [P ; x ] -= (L^-1 [HP -y])' * (L^-1 HP)
+    matrix_product(Px, HP_y, HP, true, false, 1, -1); // [P ; x ] -= (L^-1 [HP -y])' * (L^-1 HP)
 
     P.map().triangularView<Eigen::StrictlyUpper>() = P.map().triangularView<Eigen::StrictlyLower>().transpose();
 

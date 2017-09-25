@@ -71,7 +71,7 @@ static void matrix_solve_blis(const matrix &A, const matrix &B, uplo_t uplo, boo
     blis_set_object(B, &Bobj, transB);
 
     blis_mutex.lock();
-    bli_trsm(BLIS_RIGHT, &BLIS_ONE, &Aobj, &Bobj);
+    bli_trsm(BLIS_LEFT, &BLIS_ONE, &Aobj, &Bobj);
     blis_mutex.unlock();
 #ifdef MYRIAD2
     rtems_cache_invalidate_multiple_data_lines( (void *)B.Data(), B.rows() * B.get_stride() * sizeof(f_t) );
@@ -152,22 +152,22 @@ f_t matrix_check_condition(matrix &A)
     return A.map().llt().rcond();
 }
 
-bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = B L^-T
+bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = L^-T B
 {
     START_EVENT(SF_MSOLVE, 0);
     {
     matrix::Map
         A_map { &A(0,0), A.rows(), A.cols(), A.get_stride() },
         B_map { &B(0,0), B.rows(), B.cols(), B.get_stride() };
-    Eigen::LLT< Eigen::Ref<decltype(A_map)>, Eigen::Upper > llt(A_map);
+    Eigen::LLT< Eigen::Ref<decltype(A_map)>, Eigen::Lower > llt(A_map);
     if (llt.info() == Eigen::NumericalIssue)
         return false;
 #if defined(ENABLE_SHAVE_SOLVE) || defined(HAVE_BLIS)
     if (A.rows() > 3)
-        matrix_solve_blis(A, B, BLIS_UPPER, false);
+        matrix_solve_blis(A, B, BLIS_LOWER, false);
     else
 #endif
-    llt.matrixL().solveInPlace(B_map.transpose());
+    llt.matrixL().solveInPlace(B_map);
     }
     END_EVENT(SF_MSOLVE, 0);
     return true;

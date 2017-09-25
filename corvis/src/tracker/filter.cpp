@@ -94,8 +94,7 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time, bool
 static bool filter_mini_process_observation_queue(struct filter * f, observation_queue &queue, state_root &state, const sensor_clock::time_point & time)
 {
     queue.preprocess(state, time);
-    bool run_on_shave = true;
-    if(!queue.process(state, run_on_shave)) {
+    if(!queue.process(state)) {
         f->log->error("mini state observation failed\n");
         return false;
     }
@@ -163,7 +162,8 @@ static void preprocess_observation_queue(struct filter *f, sensor_clock::time_po
 
 static void process_observation_queue(struct filter *f)
 {
-    if(!f->observations.process(f->s)) {
+    bool run_on_shave = true;
+    if(!f->observations.process(f->s, run_on_shave)) {
         f->numeric_failed = true;
     }
     f->s.integrate_distance();

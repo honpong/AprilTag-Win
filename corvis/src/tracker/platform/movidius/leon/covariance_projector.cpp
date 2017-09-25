@@ -84,7 +84,7 @@ void covariance_projector::project_observation_covariance(project_observation_co
         for (int i = start_shave; i < shaves_number; ++i) {
             shaves[i]->wait();
         }
-        rtems_cache_invalidate_data_range(data.HP, data.HP_rows * data.HP_stride * sizeof(float));
+        rtems_cache_invalidate_data_range(HP, HP_rows * HP_stride * sizeof(float));
         // res_cov = H * (H * P')' = H * P * H'
         data.src_rows   = HP_rows;
         data.src_cols   = HP_src_cols;
@@ -100,7 +100,7 @@ void covariance_projector::project_observation_covariance(project_observation_co
         for (int i = start_shave; i < shaves_number; ++i) {
             shaves[i]->wait();
         }
-        rtems_cache_invalidate_data_range(data.HP, data.HP_rows * data.HP_stride * sizeof(float));
-        rtems_cache_invalidate_data_range(data.dst, data.dst_rows * data.dst_stride * sizeof(float));
+        rtems_cache_invalidate_data_range(HP, HP_rows * HP_stride * sizeof(float));
+        rtems_cache_invalidate_data_range(dst, dst_rows * dst_stride * sizeof(float));
     }
 }

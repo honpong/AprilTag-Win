@@ -364,11 +364,10 @@ extern "C" void vision_project_observation_covariance1(project_observation_covar
     int HP_stride   = data->HP_stride;
     int dst_cols    = data->dst_cols;
     int dst_stride  = data->dst_stride;
-    int dst_rows    = data->dst_rows;
     
     //dma transaction of data->src
-    dmaTransactionList_t dma_task1, dma_task2, dma_task3;
-    dmaTransactionList_t *dma_ref1, *dma_ref2, *dma_ref3;
+    dmaTransactionList_t dma_task1;
+    dmaTransactionList_t *dma_ref1;
     u32 dma_requster_id = dmaInitRequester(1);
     
     //input DMA
@@ -447,7 +446,6 @@ extern "C" void vision_project_observation_covariance(project_observation_covari
     int src_stride  = data->src_stride;
     int dst_cols    = data->dst_cols;
     int dst_stride  = data->dst_stride;
-    int dst_rows    = data->dst_rows;
     
     int shave_number = scGetShaveNumber();
     int obs_per_shave = (data->observations_size + data->shaves_number -1) / data->shaves_number;
@@ -458,8 +456,8 @@ extern "C" void vision_project_observation_covariance(project_observation_covari
     }
 
     //dma transaction of data->src
-    dmaTransactionList_t dma_task1, dma_task2;
-    dmaTransactionList_t *dma_ref1, *dma_ref2;
+    dmaTransactionList_t dma_task1;
+    dmaTransactionList_t *dma_ref1;
     u32 dma_requster_id = dmaInitRequester(1);
 
     //input DMA

@@ -99,7 +99,7 @@ struct observation_accelerometer_data : observation_data {
     float* da_dacc = NULL; //m3
     float* da_dQa = NULL; //m3
     float* da_dTa = NULL; //m3
-    float* worldUp = NULL; //v3
+    const float* worldUp = NULL; //v3
     bool e_estimate = true;
 
     observation_accelerometer_data() : observation_data (0, accelerometer) {}

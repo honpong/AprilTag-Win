@@ -75,6 +75,7 @@ class observation_vision_feature: public observation_storage<2> {
     } orig, curr;
 
     state_vision_feature *const feature;
+    observation_vision_feature_data vision_data;
 
     feature_t Xd;
 
@@ -115,7 +116,8 @@ protected:
     v3 xcc;
     m3 Rt, Ra, da_dQ, da_dw, da_ddw, da_dacc;
     m3 da_dQa, da_dTa;
- public:
+    observation_accelerometer_data accel_data;
+public:
     virtual void predict();
     virtual bool measure();
     virtual void compute_measurement_covariance() {
@@ -140,7 +142,8 @@ protected:
     const state_imu_intrinsics &intrinsics;
     m3 Rw;
     m3 dw_dQw;
- public:
+    observation_gyroscope_data gyro_data;
+public:
     virtual void predict();
     virtual bool measure() {
         source.meas_stdev.data(meas);

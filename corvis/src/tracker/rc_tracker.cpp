@@ -88,7 +88,8 @@ static void rc_trace(rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp ti
 struct rc_Tracker: public sensor_fusion
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    rc_Tracker(): sensor_fusion(fusion_queue::latency_strategy::MINIMIZE_DROPS) {}
+    rc_Tracker(bool placement_ = false): sensor_fusion(fusion_queue::latency_strategy::MINIMIZE_DROPS), placement(placement_) {}
+    bool placement;
     std::string jsonString;
     std::vector<std::vector<rc_Feature> > stored_features;
     std::string timingStats;
@@ -116,10 +117,19 @@ rc_Tracker * rc_create()
     return tracker;
 }
 
+rc_Tracker *rc_create_at(void *mem, size_t *size)
+{
+    if (size) *size = sizeof(rc_Tracker);
+    return mem ? new (mem) rc_Tracker(true) : nullptr;
+}
+
 void rc_destroy(rc_Tracker * tracker)
 {
     if(trace) trace_log->info("rc_destroy");
-    delete tracker;
+    if (tracker->placement)
+        tracker->~rc_Tracker();
+    else
+        delete tracker;
 }
 
 void rc_reset(rc_Tracker * tracker, rc_Timestamp initial_time_us)

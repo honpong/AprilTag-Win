@@ -191,7 +191,8 @@ typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_Tracker
 typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, const char * message, size_t len);
 
 RCTRACKER_API const char *rc_version();
-RCTRACKER_API rc_Tracker * rc_create();
+RCTRACKER_API rc_Tracker *rc_create();
+RCTRACKER_API rc_Tracker *rc_create_at(void *mem, size_t *size);
 RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
 
 /**

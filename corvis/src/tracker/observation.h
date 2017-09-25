@@ -30,7 +30,9 @@ public:
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
+#ifdef MYRIAD2
     virtual observation_data* getData() = 0;
+#endif
     
     observation(int _size): size(_size) {}
     virtual ~observation() {};
@@ -75,7 +77,6 @@ class observation_vision_feature: public observation_storage<2> {
     } orig, curr;
 
     state_vision_feature *const feature;
-    observation_vision_feature_data vision_data;
 
     feature_t Xd;
 
@@ -85,7 +86,10 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
     virtual void innovation_covariance_hook(const matrix &cov, int index);
+#ifdef MYRIAD2
+    observation_vision_feature_data vision_data;
     virtual observation_data* getData();
+#endif
     void update_initializing();
 
     observation_vision_feature(sensor_grey &src, const state_camera &camera, state_vision_feature &f)
@@ -116,7 +120,6 @@ protected:
     v3 xcc;
     m3 Rt, Ra, da_dQ, da_dw, da_ddw, da_dacc;
     m3 da_dQa, da_dTa;
-    observation_accelerometer_data accel_data;
 public:
     virtual void predict();
     virtual bool measure();
@@ -126,7 +129,10 @@ public:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
+#ifdef MYRIAD2
+    observation_accelerometer_data accel_data;
     virtual observation_data* getData();
+#endif
     observation_accelerometer(sensor_accelerometer &src, const state_root &root_, const state_motion &state_, const state_imu &imu): observation_spatial(src), root(root_), state(state_), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 
 public:
@@ -142,7 +148,6 @@ protected:
     const state_imu_intrinsics &intrinsics;
     m3 Rw;
     m3 dw_dQw;
-    observation_gyroscope_data gyro_data;
 public:
     virtual void predict();
     virtual bool measure() {
@@ -155,7 +160,10 @@ public:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
+#ifdef MYRIAD2
+    observation_gyroscope_data gyro_data;
     virtual observation_data* getData();
+#endif
     observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_imu &imu): observation_spatial(src), state(_state), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 };
 

@@ -96,12 +96,10 @@ SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-st
 SHAVE_SEARCH_PATH = $(SLAM_PLATFORM_PREFIX)/shave
 
 ENTRYPOINTS_cvrt = fast9Detect fast9Track
-ENTRYPOINTS_cholesky = potrf_ln trsvl_ln trsvl_lt trsvl_lnlt
 ENTRYPOINTS_stereo_initialize = stereo_kp_matching_and_compare
 ENTRYPOINTS_project_covariance = vision_project_motion_covariance vision_project_observation_covariance1 vision_project_observation_covariance
 ENTRYPOINTS_blis = startSGEMM startSGEMMTRSM_LL startSGEMMTRSM_LU startSGEMMTRSM_RU startSGEMMTRSM_RL
 SHAVES_IDX_cvrt               = 0 1 2 3
-SHAVES_IDX_cholesky           = 0 1 2 3
 SHAVES_IDX_stereo_initialize  = 0 1 2 3
 SHAVES_IDX_project_covariance = 0 1 2 3
 SHAVES_IDX_blis               = 0 1 2 3

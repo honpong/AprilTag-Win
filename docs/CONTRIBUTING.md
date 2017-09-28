@@ -1,8 +1,8 @@
-#C++11
+# C++11
 
 We use C++11, with the addition of `make_unique` from C++14.
 
-#Coding style
+# Coding style
 
 As this repository has grown, there have been many different styles
 used in it. For exisiting code, the first and most important guidline
@@ -34,7 +34,7 @@ For new code, try to maintain the following:
   velocity).
 
 <a name="testing"></a>
-#Testing
+# Testing
 
 Please test all changes by replaying a non-trival capture on:
 
@@ -48,7 +48,7 @@ If that works, try running our benchmark dataset (see
 `#slam_benchmark_talk` and `#slam_benchmark` on Slack).
 
 <a name="commits"></a>
-#Commits
+# Commits
 
 - Try to make your git commits as small and self contained as possible.
 The commits should not contain extra changes that are unrelated or
@@ -66,7 +66,7 @@ can write closes #<issue_number> to automatically close it.
 ```
 
 <a name="forking"></a>
-#Forking and staying up to date
+# Forking and staying up to date
 
 You can fork our repository by clicking on the "fork" button at the
 top of the screen. This creates a complete clone of our repository
@@ -122,7 +122,7 @@ to your fork as normal with:
 git push
 ```
 
-#Pull requests
+# Pull requests
 
 Contributions are handled via pull requests. Fork our repository
 and create a feature branch as [described above](#forking).

@@ -35,6 +35,7 @@ bool packet_io_read(packet_t ** packet)
     switch(header.type) {
         default:
             *packet = (packet_t *)malloc(header.bytes);
+            if(!*packet) return false;
             bytes_allocated += header.bytes;
             //printf("Malloc: %d allocated: %d\n", header.bytes, bytes_allocated);
     }

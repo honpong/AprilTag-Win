@@ -548,27 +548,31 @@ void filter_detect(struct filter *f, const sensor_data &data, bool process_map_k
     for (auto &p : kp)
         camera.feature_tracker->tracks.push_back(&p);
 
-    if (f->map && process_map_kp)
-        f->map->process_keypoints(camera.feature_tracker->tracks, data.id, timage);
+    if (f->map && process_map_kp) {
+        transformation G_Bnow_Bcurrent;
+        for(state_vision_group *g: camera.groups.children) {
+            if(g->id == f->map->current_node_id)
+                G_Bnow_Bcurrent = invert(transformation(g->Qr.v, g->Tr.v));
+        }
+        f->map->process_keypoints(camera.feature_tracker->tracks, data.id, timage, G_Bnow_Bcurrent);
+    }
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 }
 
-bool filter_relocalize(struct filter *f, const rc_Sensor sensor_id)
+bool filter_relocalize(struct filter *f)
 {
-    if (!f->map || sensor_id >= f->s.cameras.children.size() || sensor_id != 0)
+    if (!f->map)
         return false;
-    state_camera &camera = *f->s.cameras.children[sensor_id];
 
-    transformation G_WB(f->s.Q.v, f->s.T.v);
-    transformation G_BC = transformation(camera.extrinsics.Q.v, camera.extrinsics.T.v);
-    std::vector<transformation> vG_WC;
-    if (!f->map->relocalize(vG_WC, G_BC))
+    std::vector<transformation> vG_W_currentframe;
+    if (!f->map->relocalize(vG_W_currentframe))
         return false;
-    f->pose_at_reloc = G_WB; // we are not relocalizing wrt current image but wrt current_frame in mapper (CAREFUL with threads).
-    for(auto && G_WC : vG_WC) {
-        f->reloc_pose = G_WC * invert(G_BC);
+    transformation G_W_currentnodeatcurrentframe = f->map->get_node(f->map->current_node_id_at_current_frame).global_transformation;
+    f->pose_at_reloc = G_W_currentnodeatcurrentframe*invert(f->map->G_currentframe_currentnode); // we are not relocalizing wrt current image but wrt current_frame in mapper (CAREFUL with threads).
+    for(auto && G_WC : vG_W_currentframe) {
+        f->reloc_pose = G_WC;
         f->reloc_poses.push_back(f->reloc_pose);
     }
     return true;

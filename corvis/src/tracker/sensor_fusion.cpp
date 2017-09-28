@@ -102,7 +102,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
                 // Note that this relocalizes based on the data from the previous frame (which is now done)
                 if (sfm.relocalize) {
-                    if (filter_relocalize(&sfm, data.id))
+                    if (filter_relocalize(&sfm))
                         sfm.log->info("relocalized");
                 }
 
@@ -137,7 +137,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
                 // Note that this relocalizes based on the data from the previous frame (which is now done)
                 if (sfm.relocalize) {
-                    if (filter_relocalize(&sfm, data.id))
+                    if (filter_relocalize(&sfm))
                         sfm.log->info("relocalized");
                 }
 

@@ -75,11 +75,13 @@ void mapper::add_node(nodeid id)
     nodes[id].frame = std::move(current_frame);
 }
 
-void mapper::process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image& image)
+void mapper::process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image& image,
+                               const transformation& G_Bnow_Bcurrent)
 {
     // fill in relocalization variables
+    current_node_id_at_current_frame = current_node_id;
+    G_currentframe_currentnode = G_Bnow_Bcurrent;
     current_frame.camera_id = camera_id;
-
     current_frame.keypoints.clear();
     for (auto &p : keypoints)
         if (std::is_same<DESCRIPTOR, orb_descriptor>::value)
@@ -298,23 +300,24 @@ static mapper::matches match_2d_descriptors(const map_frame& candidate_frame, co
     return current_to_candidate_matches;
 }
 
-static void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_WC, std::set<size_t>& inliers_set, const f_t focal_px) {
+void mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_candidateB_currentframeB, std::set<size_t>& inliers_set) {
+    state_extrinsics* const extrinsics = camera_extrinsics[current_frame.camera_id];
+    transformation G_BC = transformation(extrinsics->Q.v, extrinsics->T.v);
+    state_vision_intrinsics* const intrinsics = camera_intrinsics[current_frame.camera_id];
+    const f_t focal_px = intrinsics->focal_length.v * intrinsics->image_height;
     const f_t sigma_px = 3.0;
     const f_t max_reprojection_error = 2*sigma_px/focal_px;
     const int max_iter = 10; // 10
     const float confidence = 0.9; //0.9
     std::default_random_engine rng(-1);
-    transformation G_CW;
-    estimate_transformation(points_3d, points_2d, G_CW, rng, max_iter, max_reprojection_error, confidence, 5, &inliers_set);
-    G_WC = invert(G_CW);
+    transformation G_currentframeC_candidateB;
+    estimate_transformation(points_3d, points_2d, G_currentframeC_candidateB, rng, max_iter, max_reprojection_error, confidence, 5, &inliers_set);
+    G_candidateB_currentframeB = invert(G_BC*G_currentframeC_candidateB);
 }
 
-bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation& G_WBk) {
+bool mapper::relocalize(std::vector<transformation>& vG_W_currentframe) {
     if (!current_frame.keypoints.size())
         return false;
-
-    state_extrinsics* const extrinsics = camera_extrinsics[current_frame.camera_id];
-    transformation G_CB = invert(transformation(extrinsics->Q.v, extrinsics->T.v));
 
     bool is_relocalized = false;
     const int min_num_inliers = 12;
@@ -325,17 +328,20 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
         find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc);
     const auto &keypoint_current = current_frame.keypoints;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[current_frame.camera_id];
-    const f_t focal_px = intrinsics->focal_length.v * intrinsics->image_height;
-    transformation G_BkCurrent = invert(G_WBk)*nodes[current_node_id].global_transformation;
     for (auto nid : candidate_nodes) {
         matches matches_node_candidate = match_2d_descriptors(nodes[nid.first].frame, current_frame, features_dbow);
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
-        aligned_vector<v3> candidate_3d_points;
-        aligned_vector<v2> current_2d_points;
-        transformation G_WCk;
         if(matches_node_candidate.size() >= min_num_inliers) {
+            aligned_vector<v3> candidate_3d_points;
+            aligned_vector<v2> current_2d_points;
+            transformation G_candidate_currentframe;
             // Estimate pose from 3d-2d matches
+            auto neighbors = breadth_first_search(nid.first, 1); // all points observed from this candidate node should be created at a node 1 edge away in the graph
+            std::map<nodeid, transformation> G_candidate_neighbors;
+            for (auto neighbor : neighbors) {
+                G_candidate_neighbors[neighbor.first] = std::move(neighbor.second);
+            }
             const auto &keypoint_candidates = nodes[nid.first].frame.keypoints;
             for (auto m : matches_node_candidate) {
                 auto &candidate = *keypoint_candidates[m.second];
@@ -344,27 +350,27 @@ bool mapper::relocalize(std::vector<transformation>& vG_WC, const transformation
                 // NOTE: We use 3d features observed from candidate, this does not mean
                 // these features belong to the candidate node (group)
                 map_feature &mfeat = nodes[nodeid_keypoint].features[keypoint_id]; // feat is in body frame
-                v3 p_w = nodes[nodeid_keypoint].global_transformation * mfeat.position;
-                candidate_3d_points.push_back(p_w);
+                v3 p_candidate = G_candidate_neighbors[nodeid_keypoint] * mfeat.position;
+                candidate_3d_points.push_back(p_candidate);
                 //undistort keypoints at current frame
                 auto& current = *keypoint_current[m.first];
                 feature_t kp = {current.x, current.y};
                 feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(kp));
                 current_2d_points.push_back(ukp);
             }
-            estimate_pose(candidate_3d_points, current_2d_points, G_WCk, inliers_set, focal_px);
+            estimate_pose(candidate_3d_points, current_2d_points, G_candidate_currentframe, inliers_set);
             if(inliers_set.size() >= min_num_inliers) {
                 is_relocalized = true;
 //                vG_WC.push_back(G_WC);
 
                 if(inliers_set.size() >  best_num_inliers) {
                     best_num_inliers = inliers_set.size();
-                    vG_WC.clear();
-                    vG_WC.push_back(G_WCk);
-                    transformation G_WBk = G_WCk*G_CB;
-                    const transformation& G_WCandidate = nodes[nid.first].global_transformation;
-                    add_edge(nid.first, current_node_id,
-                             invert(G_WCandidate)*G_WBk*G_BkCurrent, true);
+                    vG_W_currentframe.clear();
+                    const transformation& G_W_candidate = nodes[nid.first].global_transformation;
+                    vG_W_currentframe.push_back(G_W_candidate*G_candidate_currentframe);
+                    transformation G_candidate_currentnode = G_candidate_currentframe*G_currentframe_currentnode;
+                    add_edge(nid.first, current_node_id_at_current_frame,
+                             G_candidate_currentnode, true);
                 }
             }
         }

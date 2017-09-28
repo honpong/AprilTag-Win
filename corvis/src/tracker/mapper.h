@@ -99,7 +99,7 @@ class mapper {
     typedef std::pair<nodeid, transformation> node_path;
 
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
-    void process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image &image);
+    void process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image &image, const transformation &G_Bnow_Bcurrent);
     void add_node(nodeid node_id);
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
@@ -125,6 +125,8 @@ class mapper {
     // temporary store current frame in case we add a new node
     map_frame current_frame;
     nodeid current_node_id = 0;
+    nodeid current_node_id_at_current_frame;
+    transformation G_currentframe_currentnode;
 
     // for a feature id we associate the corresponding node in which it was detected
     std::map<uint64_t, nodeid> features_dbow;
@@ -133,7 +135,8 @@ class mapper {
     std::vector<state_vision_intrinsics*> camera_intrinsics;
     std::vector<state_extrinsics*> camera_extrinsics;
 
-    bool relocalize(std::vector<transformation>& vG_WC, const transformation& G_WBk);
+    bool relocalize(std::vector<transformation>& vG_W_currentframe);
+    void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
 };
 
 #endif

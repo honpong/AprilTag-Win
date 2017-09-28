@@ -80,7 +80,7 @@ bool matrix_cholesky_shave(matrix &A, matrix &B)
     // here (use Eigen instead) as a workaround to avoid an unknown
     // issue which causes us to lock waiting on a DMA transaction on
     // the fast path
-    if(A.rows() == 3 && B.rows() == 24) return false;
+    if(A.rows() == 3 && B.rows() <= 25) return false;
     START_EVENT(SF_MSOLVE_HW, 0);
 
 	int N_orig = A.rows();

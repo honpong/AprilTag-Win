@@ -33,6 +33,25 @@ patch_descriptor::patch_descriptor(float x, float y, const tracker::image &image
     variance = variance - area*mean*mean;
 }
 
+patch_descriptor::patch_descriptor(const std::array<unsigned char, L> &d) : descriptor(d) {
+    uint8_t w[full_patch_size];
+    for (int i=0; i<full_patch_size; i++)
+        w[i] = std::abs(i - half_patch_size) <= 1 ? 2 : 1;
+
+    for(int py = 0; py < full_patch_size; ++py) {
+        for(int px = 0; px < full_patch_size; ++px) {
+            uint8_t value = d[py * full_patch_size + px];
+            // double-weighting the center on a 3x3 window
+            int weight = std::abs(py - half_patch_size) <= 1 ? w[px] : 1;
+            mean += weight * value;
+            variance += weight * value * value;
+        }
+    }
+    const int area = full_patch_size * full_patch_size + 3 * 3;
+    mean /= area;
+    variance = variance - area*mean*mean;
+}
+
 float patch_descriptor::distance(const patch_descriptor &a,
                                  const patch_descriptor &b) {
     // constant patches can't be matched

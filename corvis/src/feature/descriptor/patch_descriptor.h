@@ -28,7 +28,7 @@ public:
     float mean{0}, variance{0};
 
     patch_descriptor(float x, float y, const tracker::image& image);
-    patch_descriptor(const std::array<unsigned char, L> &d) : descriptor(d) {}
+    patch_descriptor(const std::array<unsigned char, L> &d);
     static bool is_better(const float score1, const float score2) {return score1 > score2;}
     static float distance(const patch_descriptor &a, const patch_descriptor &b);
     float distance(float x, float y, const tracker::image& image) const;

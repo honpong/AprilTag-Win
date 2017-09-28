@@ -5,7 +5,7 @@ import numpy
 import argparse
 from math import sqrt
 
-packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 40:"stereo_raw"})
+packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 40:"stereo_raw", 44:"arrival_time"})
 format_types = defaultdict(str, {0:"Y8", 1:"Z16_mm"})
 
 parser = argparse.ArgumentParser(description='Check a capture file.')
@@ -28,6 +28,7 @@ gyro_type = 21
 image_with_depth = 28
 image_raw_type = 29
 stereo_raw_type = 40
+arrival_time_type = 44
 got_types = defaultdict(int)
 
 packets = defaultdict(list)
@@ -81,6 +82,10 @@ while header_str != "":
       if args.verbose:
           camera_str = "%s %d (%d) %dx%d, %d stride, %d exposure, %d adjusted time" % (type_str, sensor_id, camera_format, width, height, stride, exposure, ptime)
           print "\t", camera_str
+  elif ptype == arrival_time_type:
+      arrival_time = unpack('Q', data[:8])
+      if args.verbose:
+          print "\t %d" % arrival_time 
   else:
       if args.verbose:
           print ""

@@ -111,7 +111,7 @@ class mapper {
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper",  std::make_shared<spdlog::sinks::null_sink_st> ());
 
     /// fetch the vocabulary file from resource and create orb vocabulary
-    orb_vocabulary* orb_voc;
+    std::unique_ptr<orb_vocabulary> orb_voc;
 
     std::map<unsigned int, std::vector<nodeid>> dbow_inverted_index; // given a word it stores the nodes in which it was observed
 

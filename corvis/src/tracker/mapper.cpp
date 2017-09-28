@@ -24,10 +24,9 @@ mapper::mapper()
     const char* voc_file = load_vocabulary(voc_size);
     if (voc_size == 0 || voc_file == nullptr)
         std::cerr << "mapper: BoW vocabulary file not found" << std::endl;
-    orb_voc = new orb_vocabulary();
+    orb_voc.reset(new orb_vocabulary());
     if(!orb_voc->loadFromMemory(voc_file, voc_size)) {
-        delete orb_voc;
-        orb_voc =  nullptr;
+        orb_voc.reset();
         std::cerr << "mapper: Cannot load BoW vocabulay" << std::endl;
     }
 }
@@ -305,7 +304,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
     int i = 0;
 
     std::vector<std::pair<nodeid, float>> candidate_nodes =
-        find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc);
+        find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc.get());
     const auto &keypoint_current = current_frame->keypoints;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
     for (auto nid : candidate_nodes) {
@@ -662,7 +661,7 @@ bool mapper::deserialize(const Value &map_json, mapper &map) {
     for (SizeType i = 0; i < nodes_json.Size(); i++) {
         auto &cur_node = map.nodes[i];
         HANDLE_IF_FAILED(map_node::deserialize(nodes_json[i], cur_node, max_feature_id), failure_handle)
-        cur_node.frame->calculate_dbow(map.orb_voc); // populate map_frame's dbow_histogram and dbow_direct_file
+        cur_node.frame->calculate_dbow(map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
         if (max_node_id < cur_node.id) max_node_id = cur_node.id;
     }
 

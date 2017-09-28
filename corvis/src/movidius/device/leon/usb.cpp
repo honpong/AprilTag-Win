@@ -90,6 +90,10 @@ void * fnReplay(void * arg)
     bool stereo_configured = false;
 
     tracker_instance = rc_create();
+    if(!tracker_instance) {
+        printf("Error: failed to create tracker instance\n");
+        return NULL;
+    }
     sfm              = &((sensor_fusion *)tracker_instance)->sfm;
     rc_setDataCallback(tracker_instance, data_callback, tracker_instance);
     rc_setStatusCallback(tracker_instance, status_callback, tracker_instance);

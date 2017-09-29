@@ -116,8 +116,13 @@ float orb_descriptor::raw::distance(const orb_descriptor::raw &a,
 #ifndef __has_builtin
 #define __has_builtin(x) 0
 #endif
-#if __has_builtin(__builtin_popcountl)
-        dist += __builtin_popcountl(v);
+#if defined(__GNUC__) || __has_builtin(__builtin_popcountll)
+        if (std::is_same<unsigned int, decltype(v)>::value)
+            dist += __builtin_popcount(v);
+        else if (std::is_same<unsigned long, decltype(v)>::value)
+            dist += __builtin_popcountl(v);
+        else if (std::is_same<unsigned long long, decltype(v)>::value)
+            dist += __builtin_popcountll(v);
 #elif defined(_WIN64)
         dist += __popcnt64(v);
 #else

@@ -156,7 +156,7 @@ AppModuleList += appConfig
 $(svuSippImg).mvlib : $(SippSvuObj)
 	@mkdir -p $(dir $@)
 	$(ECHO) $(LD) $(MVLIBOPT) $(SippSvuObj) $(CompilerANSILibs) -o $@
-	
+
 $(svuSippImg)_sym.o : $(svuSippImg).shvdcomplete
 	$(ECHO) $(OBJCOPY) --prefix-symbols=SS_ --extract-symbol $< $@
 

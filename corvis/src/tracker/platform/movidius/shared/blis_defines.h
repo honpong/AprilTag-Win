@@ -12,7 +12,7 @@
 /* MAX_M_ITER = (BLIS_DEFAULT_MC_S / 4) */
 /* MAX_K      = BLIS_DEFAULT_KC_S       */
 #define MAX_M_ITER       8
-#define MAX_K          512
+#define MAX_K          192
 
 #define DDR_TO_DDRCACHE(_address) ((u8*)(((u32)_address)&0xF7FFFFFF))
 #define ALIGNED(_value) __attribute__((aligned(_value)))

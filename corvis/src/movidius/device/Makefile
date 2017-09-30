@@ -175,6 +175,3 @@ CCOPT_LRT += -DPIPEPRINT_NOWAIT_DEBUG
 CCOPT     += -DPIPEPRINT_NOWAIT_DEBUG -I../common
 
 print-%: ; @echo $* = $($*)
-
--include $(LEON_APP_OBJECTS_REQUIRED:%.o=%.d)
--include $(LEON_RT_APP_OBJ:%.o=%.d)

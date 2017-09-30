@@ -1,3 +1,5 @@
+MAKEDEPEND = yes
+
 # SLAM_PREFIX must be defined before including this makefile
 SLAM_PLATFORM_PREFIX := $(SLAM_PREFIX)/corvis/src/tracker/platform/movidius
 SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/corvis/src/tracker/, \
@@ -80,7 +82,7 @@ SLAM_CCOPT   := \
 	-finstrument-functions-exclude-file-list=eigen \
 	-finstrument-functions-exclude-function-list=operator,iterator,from_row,to_col,get_stride,size,cols,rows,std
 
-SLAM_CPPOPT  := -std=gnu++11 -fpermissive -fno-exceptions -Wno-reorder -Wno-missing-field-initializers -fno-strict-aliasing -MD
+SLAM_CPPOPT  := -std=gnu++11 -fpermissive -fno-exceptions -Wno-reorder -Wno-missing-field-initializers -fno-strict-aliasing
 
 SLAM_SHAVE_CCOPT := -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon \
    -I$(SLAM_PREFIX)/corvis/src/feature/descriptor \

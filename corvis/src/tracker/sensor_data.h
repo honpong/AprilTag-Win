@@ -41,7 +41,8 @@ public:
                 rc_ImageFormat format, const void * image1_ptr, const void * image2_ptr,
                 std::unique_ptr<void, void(*)(void *)> handle) :
         rc_Data({}),
-        timestamp(sensor_clock::micros_to_tp(timestamp_us + shutter_time_us / 2)), image_handle(std::move(handle))
+        timestamp(sensor_clock::micros_to_tp(timestamp_us + shutter_time_us / 2)),
+        image_handle(std::move(handle))
     {
         assert(sensor_type == rc_SENSOR_TYPE_STEREO);
 
@@ -65,8 +66,8 @@ public:
                 rc_Timestamp shutter_time_us, int width, int height, int stride, rc_ImageFormat format, const void * image_ptr,
                 std::unique_ptr<void, void(*)(void *)> handle) :
         rc_Data({}),
-        image_handle(std::move(handle)),
-        timestamp(sensor_clock::micros_to_tp(timestamp_us + shutter_time_us / 2))
+        timestamp(sensor_clock::micros_to_tp(timestamp_us + shutter_time_us / 2)),
+        image_handle(std::move(handle))
     {
         assert(sensor_type == rc_SENSOR_TYPE_IMAGE || sensor_type == rc_SENSOR_TYPE_DEPTH);
         id = sensor_id;

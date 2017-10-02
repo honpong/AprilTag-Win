@@ -50,7 +50,7 @@ Shave* Shave::get_handle(unsigned int a)
 {
     Shave* obj;
 
-    if (a > SHAVES_CNT) {
+    if (a >= SHAVES_CNT) {
         DPRINTF("Error: invalid shave ID\n");
         return NULL;
     }

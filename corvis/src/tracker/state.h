@@ -448,7 +448,7 @@ class state_root: public state_branch<state_node *> {
 public:
     state_scalar      g { "g",  constant };
 
-    state_root(covariance &c, matrix &FP_): cov(c), current_time(sensor_clock::micros_to_tp(0)), FP(FP_) {
+    state_root(covariance &c, matrix &FP_): cov(c), FP(FP_), current_time(sensor_clock::micros_to_tp(0)) {
         //children.push_back(&g);
         g.v = gravity_magnitude;
     }

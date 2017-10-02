@@ -22,12 +22,13 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes_, uint16_t sensor_i
     {
         fprintf(stderr, "Capture failed: malloc returned null.\n");
         assert(0);
+    } else {
+        ptr->header.type = type;
+        ptr->header.bytes = sizeof(packet_header_t) + bytes;
+        ptr->header.time = time;
+        ptr->header.sensor_id = sensor_id;
+        memset(ptr->data + bytes_, 0, bytes - bytes_); // zero the padding
     }
-    ptr->header.type = type;
-    ptr->header.bytes = sizeof(packet_header_t) + bytes;
-    ptr->header.time = time;
-    ptr->header.sensor_id = sensor_id;
-    memset(ptr->data + bytes_, 0, bytes - bytes_); // zero the padding
     return ptr;
 }
 

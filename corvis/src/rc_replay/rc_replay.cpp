@@ -18,6 +18,7 @@ enum packet_type {
     packet_filter_control = 25,
     packet_image_with_depth = 28,
     packet_image_raw = 29,
+    packet_thermometer = 31,
     packet_stereo_raw = 40,
 };
 
@@ -77,6 +78,11 @@ typedef struct {
     packet_header_t header;
     float w[3]; // rad/s
 } packet_gyroscope_t;
+
+typedef struct {
+    packet_header_t header;
+    float temperature_C;
+} packet_thermometer_t;
 
 bool replay::open(const char *name)
 {
@@ -290,6 +296,11 @@ bool replay::run()
                     unconfigured_data.insert(data_pair("accelerometer", packet->header.sensor_id));
                 if(!rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s))
                     unconfigured_data.insert(data_pair("gyroscope", packet->header.sensor_id));
+            }   break;
+            case packet_thermometer: {
+                auto thermometer = (packet_thermometer_t *)packet;
+                if(!rc_receiveTemperature(tracker, thermometer->header.sensor_id, thermometer->header.time, thermometer->temperature_C))
+                    unconfigured_data.insert(data_pair("temperature", packet->header.sensor_id));
             }   break;
             case packet_filter_control: {
                 if(header.sensor_id == 1) { //start measuring

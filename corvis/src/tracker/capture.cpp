@@ -38,6 +38,15 @@ void capture::write_packet(packet_t * p)
     packets_written++;
 }
 
+void capture::write_temperature_data(uint16_t sensor_id, uint64_t timestamp_us, float temp_C)
+{
+    uint32_t bytes = sizeof(float);
+    packet_t *buf = packet_alloc(packet_thermometer, bytes, sensor_id, timestamp_us);
+    memcpy(buf->data, &temp_C, bytes);
+    write_packet(buf);
+    free(buf);
+}
+
 void capture::write_accelerometer_data(uint16_t sensor_id, uint64_t timestamp_us, const float data[3])
 {
     uint32_t bytes = 3*sizeof(float);
@@ -103,6 +112,9 @@ void capture::write(std::unique_ptr<sensor_data> data)
         case rc_SENSOR_TYPE_STEREO:
             //TODO support stereo capture
             fprintf(stderr, "Stereo capture not yet supported\n");
+
+        case rc_SENSOR_TYPE_THERMOMETER:
+            write_temperature_data(data->id, data->time_us, data->temperature_C);
             break;
     }
 }

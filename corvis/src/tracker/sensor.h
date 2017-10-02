@@ -119,4 +119,10 @@ struct sensor_gyroscope : public sensor_vector<3> {
     sensor_gyroscope(int id_) : sensor_vector<3>(id_, "Gyro") {}
 };
 
+struct sensor_thermometer : public sensor_storage<1> {
+    rc_ThermometerIntrinsics intrinsics;
+    using sensor_storage<1>::sensor_storage;
+    sensor_thermometer(int id_) : sensor_storage<1>(id_, "Therm") {}
+};
+
 #endif /* sensor_h */

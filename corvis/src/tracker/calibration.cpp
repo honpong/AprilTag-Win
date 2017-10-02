@@ -191,6 +191,10 @@ static void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, D
     }
     imu_object.AddMember(KEY_IMU_GYROSCOPE, gyroscope, a);
 
+    Value thermometer(kObjectType);
+    thermometer.AddMember(KEY_IMU_NOISE_VARIANCE, imu.intrinsics.thermometer.measurement_variance_C2, a);
+    imu_object.AddMember(KEY_IMU_THERMOMETER, thermometer, a);
+
     Value extrinsics(kObjectType);
     copy_extrinsics_to_json(imu.extrinsics, extrinsics, a);
     imu_object.AddMember(KEY_EXTRINSICS, extrinsics, a);
@@ -343,6 +347,25 @@ static bool copy_json_to_accelerometer(Value & json, rc_AccelerometerIntrinsics 
     return true;
 }
 
+static bool copy_json_to_thermometer(Value &json, rc_ThermometerIntrinsics &thermometer)
+{
+    if (!json.IsObject()) {
+        fprintf(stderr, "Error: thermometer is not an object\n");
+        return false;
+    }
+
+    if (json.HasMember(KEY_IMU_NOISE_VARIANCE)) {
+        if(json[KEY_IMU_NOISE_VARIANCE].IsDouble())
+            thermometer.measurement_variance_C2 = json[KEY_IMU_NOISE_VARIANCE].GetDouble();
+        else {
+            fprintf(stderr, "Error: measurement noise should be a double\n");
+            return false;
+        }
+    }
+
+    return true;
+}
+
 static bool copy_json_to_imus(Value & json, std::vector<sensor_calibration_imu> & imus)
 {
     if(!json.IsArray()) {
@@ -361,6 +384,7 @@ static bool copy_json_to_imus(Value & json, std::vector<sensor_calibration_imu> 
 
         copy_json_to_accelerometer(json_imu[KEY_IMU_ACCELEROMETER], imu.intrinsics.accelerometer);
         copy_json_to_gyroscope(json_imu[KEY_IMU_GYROSCOPE], imu.intrinsics.gyroscope);
+        copy_json_to_thermometer(json_imu[KEY_IMU_THERMOMETER], imu.intrinsics.thermometer);
         copy_json_to_extrinsics(json_imu[KEY_EXTRINSICS], imu.extrinsics);
         imus.push_back(imu);
     }

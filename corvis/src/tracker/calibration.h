@@ -21,11 +21,13 @@ typedef sensor_calibration<rc_CameraIntrinsics> sensor_calibration_depth;
 struct imu_intrinsics {
     rc_AccelerometerIntrinsics accelerometer;
     rc_GyroscopeIntrinsics gyroscope;
+    rc_ThermometerIntrinsics thermometer;
 };
 
 typedef sensor_calibration<imu_intrinsics> sensor_calibration_imu;
 typedef sensor_calibration<rc_AccelerometerIntrinsics> sensor_calibration_accelerometer;
 typedef sensor_calibration<rc_GyroscopeIntrinsics> sensor_calibration_gyroscope;
+typedef sensor_calibration<rc_ThermometerIntrinsics> sensor_calibration_thermometer;
 
 struct calibration {
     int version = CALIBRATION_VERSION;

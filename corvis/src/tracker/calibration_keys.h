@@ -19,6 +19,7 @@
 // applies to imus
 #define KEY_IMU_ACCELEROMETER "accelerometer"
 #define KEY_IMU_GYROSCOPE "gyroscope"
+#define KEY_IMU_THERMOMETER "thermometer"
 #define KEY_IMU_SCALE_AND_ALIGNMENT "scale_and_alignment"
 #define KEY_IMU_BIAS "bias"
 #define KEY_IMU_BIAS_VARIANCE "bias_variance"

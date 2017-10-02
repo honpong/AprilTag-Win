@@ -98,6 +98,17 @@ public:
             angular_velocity_rad__s = data;
     }
 
+    sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id, float temperature_C) :
+        rc_Data({}),
+        timestamp(sensor_clock::micros_to_tp(timestamp_us))
+    {
+        assert(sensor_type == rc_SENSOR_TYPE_THERMOMETER);
+        id = sensor_id;
+        type = sensor_type;
+        time_us = timestamp_us;
+        temperature_C = temperature_C;
+    }
+
     class stack_copy {};
     sensor_data(const sensor_data &other, stack_copy) :
         rc_Data(static_cast<rc_Data>(other)),

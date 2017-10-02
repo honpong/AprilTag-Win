@@ -184,6 +184,10 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             if (filter_gyroscope_measurement(&sfm, data))
                 update_data(&data);
         } break;
+
+        case rc_SENSOR_TYPE_THERMOMETER: {
+            update_data(&data);
+        } break;
     }
 }
 

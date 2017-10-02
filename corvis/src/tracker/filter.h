@@ -79,6 +79,7 @@ struct filter {
     std::vector<std::unique_ptr<sensor_depth>> depths;
     std::vector<std::unique_ptr<sensor_accelerometer>> accelerometers;
     std::vector<std::unique_ptr<sensor_gyroscope>> gyroscopes;
+    std::vector<std::unique_ptr<sensor_thermometer>> thermometers;
 
     bool got_any_gyroscopes()     const { for (const auto &gyro  :     gyroscopes) if (gyro->got)  return true; return false;}
     bool got_any_accelerometers() const { for (const auto &accel : accelerometers) if (accel->got) return true; return false; }

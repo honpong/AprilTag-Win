@@ -137,6 +137,31 @@ float orb_descriptor::raw::distance(const orb_descriptor::raw &a,
     return static_cast<float>(dist);
 }
 
+orb_descriptor::raw orb_descriptor::raw::mean(
+        const std::vector<const raw*>& items) {
+    raw avg;
+    avg.fill(0);
+    if (items.empty()) return avg;
+
+    std::array<int, sizeof(raw) * 8> counters = {0};
+    for (auto* item : items) {
+        auto counter_it = counters.begin();
+        for (uint64_t pack : *item) {
+            for (int i = 0; i < sizeof(uint64_t) * 8; ++i, ++counter_it) {
+                *counter_it += (pack & ((uint64_t)1 << i)) >> i;
+            }
+        }
+    }
+    const int half = items.size() / 2;
+    auto counter_it = counters.begin();
+    for (uint64_t& pack : avg) {
+        for (int i = 0; i < sizeof(uint64_t) * 8; ++i, ++counter_it) {
+            pack |= static_cast<uint64_t>(*counter_it > half) << i;
+        }
+    }
+    return avg;
+}
+
 const std::array<int, orb_descriptor::orb_half_patch_size + 1> orb_descriptor::initialize_umax()
 {
     std::array<int, orb_half_patch_size + 1> umax;

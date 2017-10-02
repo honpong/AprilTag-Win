@@ -14,6 +14,7 @@
 #include <random>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 #include "endianness.h"
 
 namespace DBoW2 {
@@ -37,6 +38,7 @@ enum ScoringType {
  * Templated vocabulary
  * @param T Descriptor class that implements:
  *   static float distance(const T&, const T&): computes distance.
+ *   T mean(const std::vector<const T*>&): computes mean of descriptors.
  * @param type ScoringType value
  */
 template<typename T, int type>
@@ -75,6 +77,16 @@ class TemplatedVocabulary {
     /** Returns current depth levels of the tree (L).
      */
     int getDepthLevels() const;
+
+    /** Resets the vocabulary and creates it from a collection of descriptors.
+     * The BowVectors that were already created cannot be matched against
+     * the ones obtained after training.
+     * @param descriptors training descriptors given in covisibility groups.
+     * @param k branching factor.
+     * @param L depth levels.
+     */
+    void train(const std::vector<std::vector<T>>& descriptors, int k, int L);
+    void train(const std::vector<std::vector<const T*>>& descriptors, int k, int L);
 
     /** Returns the normalized tf-idf histogram of some descriptors.
      */
@@ -124,6 +136,15 @@ class TemplatedVocabulary {
         };
     };
 
+    struct Cluster {
+        std::vector<const T*> members;
+        T centroid;
+        Cluster() {}
+        Cluster(const T& centroid_) : centroid(centroid_) {}
+        Cluster(std::vector<const T*>&& members_, const T& centroid_) :
+            members(members_), centroid(centroid_) {}
+    };
+
     std::vector<Node> m_nodes_pool;
     const Node* m_nodes;  // points to m_nodes_pool or to external data
 
@@ -131,6 +152,21 @@ class TemplatedVocabulary {
     int m_L;  // max levels (L-1 levels of inner nodes + 1 last level of words)
 
  private:
+    /** Creates the tree recursively with kmeans.
+     */
+    int trainHKMeansStep(WordId first_node_id,
+                         const typename std::vector<const T*>& corpus,
+                         int level);
+
+    /** Initiates clusters with kmeans++.
+     */
+    std::vector<Cluster> trainInitialKMppClusters(
+            const typename std::vector<const T*>& corpus);
+
+    /** Sets the weights of the words after training.
+     */
+    void setWordWeights(const std::vector<std::vector<const T*>>& descriptors);
+
     /** Transforms descriptors into words.
      */
     BowVector transform(const typename std::vector<T>& descriptors,
@@ -303,6 +339,225 @@ WordId TemplatedVocabulary<T, type>::traverseTree(
             *fv_node = node;
     }
     return node;
+}
+
+template<typename T, int type>
+void TemplatedVocabulary<T, type>::train(
+        const std::vector<std::vector<T>>& descriptors, int k, int L) {
+    std::vector<std::vector<const T*>> pdescriptors;
+    pdescriptors.reserve(descriptors.size());
+    for (auto& document : descriptors) {
+        std::vector<const T*> pointers;
+        std::transform(document.begin(), document.end(),
+                       std::back_inserter(pointers),
+                       [](const T& descriptor) { return &descriptor; });
+        pdescriptors.emplace_back(std::move(pointers));
+    }
+    train(pdescriptors, k, L);
+}
+
+template<typename T, int type>
+void TemplatedVocabulary<T, type>::train(
+        const std::vector<std::vector<const T*>>& descriptors, int k, int L) {
+    if (k <= 1 || L <= 0 || descriptors.empty()) {
+        clear();
+        return;
+    }
+
+    m_k = k;
+    m_L = L;
+    m_nodes_pool.resize(calculateNodes(m_k, m_L));
+    m_nodes = &m_nodes_pool[0];
+
+    std::vector<const T*> corpus;
+    {
+        size_t n = 0;
+        for (auto& document : descriptors) n += document.size();
+        corpus.reserve(n);
+        for (auto& document : descriptors) {
+            for (auto* item : document) corpus.emplace_back(item);
+        }
+    }
+
+    int nodes_first_level = trainHKMeansStep(0, corpus, 0);
+    if (nodes_first_level < k) {
+        // special case for very few training descriptors
+        for (int i = nodes_first_level; i < k; ++i) {
+            m_nodes_pool[i].descriptor = m_nodes[0].descriptor;
+            m_nodes_pool[i].children = 0;
+        }
+    }
+
+    setWordWeights(descriptors);
+}
+
+template<typename T, int type>
+int TemplatedVocabulary<T, type>::trainHKMeansStep(
+        WordId first_node_id, const typename std::vector<const T*>& corpus,
+        int level) {
+    std::vector<Cluster> clusters;
+
+    if (corpus.size() <= m_k) {
+        // trivial case: one cluster per feature
+        clusters.reserve(m_k);
+        for (const auto* descriptor : corpus)
+            clusters.emplace_back(std::vector<const T*>{descriptor},
+                                  *descriptor);
+    } else {
+        // kmeans
+        auto same_members = [](const std::vector<const T*>& lhs,
+                const std::vector<const T*>& rhs) {
+            if (lhs.size() != rhs.size()) return false;
+            for (size_t i = 0; i < lhs.size(); ++i) {
+                if (lhs[i] != rhs[i]) return false;
+            }
+            return true;
+        };
+
+        auto same_clusters = [&same_members](
+                const std::vector<Cluster>& lhs,
+                const std::vector<Cluster>& rhs) {
+            if (lhs.size() != rhs.size()) return false;
+            for (size_t i = 0; i < lhs.size(); ++i) {
+                if (!same_members(lhs[i].members, rhs[i].members))
+                    return false;
+            }
+            return true;
+        };
+
+        std::vector<Cluster> previous_clusters;
+        clusters = trainInitialKMppClusters(corpus);
+
+        for (bool convergence = false; !convergence; ) {
+            for (auto& cluster : clusters) cluster.members.clear();
+            for (auto* item : corpus) {
+                float best_distance = std::numeric_limits<float>::infinity();
+                Cluster* best_cluster = nullptr;
+                for (auto& cluster : clusters) {
+                    float distance = T::distance(*item, cluster.centroid);
+                    if (distance < best_distance) {
+                        best_distance = distance;
+                        best_cluster = &cluster;
+                    }
+                }
+                //assert(best_cluster);
+                best_cluster->members.push_back(item);
+            }
+            for (auto& cluster : clusters) {
+                cluster.centroid = T::mean(cluster.members);
+            }
+            convergence = same_clusters(clusters, previous_clusters);
+            if (!convergence) previous_clusters = clusters;
+        }
+    }
+
+    // create nodes
+    if (level < m_L - 1) {
+        auto node_it = m_nodes_pool.begin() + first_node_id;
+        WordId current_node_id = first_node_id;
+        for (auto& cluster : clusters) {
+            node_it->descriptor = cluster.centroid;
+            node_it->children = trainHKMeansStep(firstChild(current_node_id),
+                                                   cluster.members,
+                                                   level + 1);
+            ++node_it;
+            ++current_node_id;
+        }
+    } else {
+        auto node_it = m_nodes_pool.begin() + first_node_id;
+        for (auto& cluster : clusters) {
+            node_it->descriptor = cluster.centroid;
+            node_it->weight = 0;
+            ++node_it;
+        }
+    }
+    return clusters.size();
+}
+
+template<typename T, int type>
+std::vector<typename TemplatedVocabulary<T, type>::Cluster>
+TemplatedVocabulary<T, type>::trainInitialKMppClusters(
+        const std::vector<const T*>& corpus) {
+    // Implements kmeans++ seeding algorithm:
+    // 1. Choose one center uniformly at random from among the data points.
+    // 2. For each data point x, compute D(x), the distance between x and the
+    //    nearest center that has already been chosen.
+    // 3. Add one new data point as a center. Each point x is chosen with
+    // probability proportional to D(x)^2.
+    // 4. Repeat Steps 2 and 3 until k centers have been chosen.
+    std::mt19937 gen;
+    std::vector<Cluster> clusters;
+
+    auto remove_item = [](std::vector<const T*>& items, size_t idx) {
+        std::swap(items[idx], items.back());
+        items.pop_back();
+    };
+
+    auto rnd_uniform = [&gen](const std::vector<const T*>& items) {
+        std::uniform_int_distribution<size_t> rnd(0, items.size() - 1);
+        return rnd(gen);
+    };
+
+    auto available_corpus = corpus;
+    size_t index = rnd_uniform(available_corpus);
+    clusters.emplace_back(*available_corpus[index]);
+    remove_item(available_corpus, index);
+
+    std::vector<float> sq_distances;
+    sq_distances.reserve(available_corpus.size());
+
+    auto rnd_proportional_to_sq_d = [&gen](const std::vector<float>& sq_d) {
+        float total = std::accumulate(sq_d.begin(), sq_d.end(), 0.f);
+        std::uniform_real_distribution<float> rnd(0, total);  // [0, total)
+
+        size_t index = 0;
+        float target = rnd(gen);
+        for (float traveled = 0;
+             traveled <= target && index < sq_d.size(); ++index) {
+            traveled += sq_d[index];
+        }
+        return index - 1;
+    };
+
+    for (int t = 1; t < m_k; ++t) {
+        sq_distances.clear();
+        for (auto* item : available_corpus) {
+            float min_distance = std::numeric_limits<float>::infinity();
+            for (auto& cluster : clusters) {
+                float distance = T::distance(*item, cluster.centroid);
+                if (distance < min_distance) {
+                    min_distance = distance;
+                }
+            }
+            sq_distances.push_back(min_distance * min_distance);
+        }
+
+        index = rnd_proportional_to_sq_d(sq_distances);
+        clusters.emplace_back(*available_corpus[index]);
+        remove_item(available_corpus, index);
+    }
+    return clusters;
+}
+
+template<typename T, int type>
+void TemplatedVocabulary<T, type>::setWordWeights(
+        const std::vector<std::vector<const T*>>& descriptors) {
+    std::unordered_map<WordId, int> document_counter;
+    for (auto& document : descriptors) {
+        std::unordered_set<WordId> words;
+        for (auto* descriptor : document) {
+            words.emplace(traverseTree(*descriptor));
+        }
+        for (WordId word : words) ++document_counter[word];
+    }
+    const float log_documents = std::log(descriptors.size());
+    for (auto& pair : document_counter) {
+        // idf = log(|D| / |D containing word|)
+        if (pair.second < descriptors.size()) {
+            m_nodes_pool[pair.first].weight =
+                    log_documents - std::log(pair.second);
+        }
+    }
 }
 
 template<typename T, int type>

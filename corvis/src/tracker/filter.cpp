@@ -777,31 +777,15 @@ static float keypoint_compare(const tracker::feature_track & t1, const tracker::
     return DESCRIPTOR::distance_stereo(f1->descriptor, f2->descriptor);
 }
 
-bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data2)
+bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id)
 {
     {
-        START_EVENT(SF_STEREO_MEAS, 0)
+        START_EVENT(SF_STEREO_MATCH, camera1_id)
         state_camera &camera_state1 = *f->s.cameras.children[camera1_id];
         state_camera &camera_state2 = *f->s.cameras.children[camera2_id];
-        std::list<tracker::feature_track> & kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
+        std::list<tracker::feature_track> &kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
+        std::list<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->standby_tracks;
 
-        const std::vector<tracker::feature_track *> existing_features;
-
-        const rc_ImageData &image = data2.image;
-        tracker::image timage;
-        timage.image = (uint8_t *)image.image;
-        timage.width_px = image.width;
-        timage.height_px = image.height;
-        timage.stride_px = image.stride;
-
-        camera_state2.intrinsics.image_width = image.width;
-        camera_state2.intrinsics.image_height = image.height;
-
-        START_EVENT(SF_STEREO_DETECT2, 1)
-        std::vector<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->feature_tracker->detect(timage, existing_features, 200);
-        END_EVENT(SF_STEREO_DETECT2, 1)
-
-        START_EVENT(SF_STEREO_MATCH, 2)
 #ifdef ENABLE_SHAVE_STEREO_MATCHING
         tracker::feature_track * f1_group[MAX_KP1];
         const tracker::feature_track * f2_group[MAX_KP2];
@@ -830,6 +814,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             float best_distance = INFINITY;
             float best_depth = 0;
             float best_error = 0;
+            tracker::feature_track *best_kp = nullptr;
             kp_pre_data pre1 = preprocess_keypoint_intersect(camera_state1, feature_t{k1.x, k1.y}, Rw1);
             // try to find a match in im2
             int i= 0;
@@ -842,6 +827,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                         best_distance = distance;
                         best_depth = depth;
                         best_error = error;
+                        best_kp = &k2;
                     } else if(distance < second_best_distance){
                         second_best_distance = distance;
                     }
@@ -850,8 +836,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             }
             // If we have two candidates, just give up
             if(best_distance < DESCRIPTOR::good_track_distance && second_best_distance > DESCRIPTOR::good_track_distance) {
-                k1.depth = best_depth;
-                k1.error = best_error;
+                best_kp->depth = k1.depth = best_depth;
+                best_kp->error = k1.error = best_error;
             }
             else {
                 k1.depth = 0;
@@ -862,8 +848,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         // Sort features with depth first
         //kp1.sort([](const tracker::feature_track & f1, const tracker::feature_track &f2) { return f1.depth > f2.depth; });
 #endif
-        END_EVENT(SF_STEREO_MATCH, 2)
-        END_EVENT(SF_STEREO_MEAS, 0)
+        END_EVENT(SF_STEREO_MATCH, 0)
     }
     return true;
 }

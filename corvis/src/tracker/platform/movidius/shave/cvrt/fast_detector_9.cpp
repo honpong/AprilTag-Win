@@ -14,10 +14,10 @@
 #define TOTAL_ROWS (FAST_ROWS + 1)
 #define DMA_MASK NUM_ROWS
 
-static byte __attribute__((section(".cmx.data")))  dataBuffer[TOTAL_ROWS * MAX_WIDTH]; //8 lines
-static byte __attribute__((section(".cmx.data")))  singleFeatureBuffer[128];
-static u8 __attribute__((section(".cmx.data")))  scoreBuffer[MAX_WIDTH + 4];
-static u16 __attribute__((section(".cmx.data")))  baseBuffer[MAX_WIDTH + 2];
+static byte dataBuffer[TOTAL_ROWS * MAX_WIDTH]; //8 lines
+static byte singleFeatureBuffer[128];
+static u8 scoreBuffer[MAX_WIDTH + 4];
+static u16 baseBuffer[MAX_WIDTH + 2];
 dmaTransactionList_t  dmaFastTask[TOTAL_ROWS];
 dmaTransactionList_t  dmaSingleFeatureTask[1];
 dmaTransactionList_t  dmaOutTask[2];

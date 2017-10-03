@@ -296,8 +296,7 @@ typedef struct {
 } packet_calibration_json_t;
 
 typedef struct {
-    packet_header_t header;
-    uint64_t arrival_time; // packet arrival time (To algo, during record) in microseconds;
+    packet_header_t header; // header::timestamp is packet arrival time (To algo), header::sensor_id is not used
 } packet_arrival_time_t;
 
 #ifdef WIN32

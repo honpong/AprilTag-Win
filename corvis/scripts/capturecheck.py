@@ -86,7 +86,7 @@ while header_str != "":
           print "\t", camera_str
   elif ptype == arrival_time_type:
       if last_arrival_time > ptime:
-          arrival_time_warnings.apeend((ptime, last_arrival_time))
+          arrival_time_warnings.append((ptime, last_arrival_time))
       last_arrival_time = ptime
       if args.verbose:
           print "\t %d" % ptime

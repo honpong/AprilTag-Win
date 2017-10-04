@@ -8,15 +8,16 @@
 #include "swcCdma.h"
 #include "fast9M2.h"
 #include "svuCommonShave.h"
+#include <math.h>
 
 #define FAST_ROWS 7
 #define TOTAL_ROWS (FAST_ROWS + 1)
 #define DMA_MASK NUM_ROWS
 
-static byte __attribute__((section(".cmx.data")))  dataBuffer[TOTAL_ROWS * MAX_WIDTH]; //8 lines
-static byte __attribute__((section(".cmx.data")))  singleFeatureBuffer[128];
-static u8 __attribute__((section(".cmx.data")))  scoreBuffer[MAX_WIDTH + 4];
-static u16 __attribute__((section(".cmx.data")))  baseBuffer[MAX_WIDTH + 2];
+static byte dataBuffer[TOTAL_ROWS * MAX_WIDTH]; //8 lines
+static byte singleFeatureBuffer[128];
+static u8 scoreBuffer[MAX_WIDTH + 4];
+static u16 baseBuffer[MAX_WIDTH + 2];
 dmaTransactionList_t  dmaFastTask[TOTAL_ROWS];
 dmaTransactionList_t  dmaSingleFeatureTask[1];
 dmaTransactionList_t  dmaOutTask[2];
@@ -140,7 +141,7 @@ xy fast_detector_9::track(u8* im1,
 							float min_score) {
 
 	int x, y, x1, y1, x2, y2, paddedWidth, width;
-	xy pBest = { -1, -1, min_score, 0.f };
+	xy pBest = {INFINITY, INFINITY, min_score, 0};
 	unsigned short mean1, mean2;
 	x1 = (int) (predx - radius + 0.5);
 	x2 = (int) (predx + radius - 0.5);
@@ -229,33 +230,24 @@ xy fast_detector_9::track(u8* im1,
 	return pBest;
 }
 
+#include "fast_constants.h"
+#include "patch_constants.h"
+
 void fast_detector_9::trackFeature(TrackingData* trackingData,int index, const uint8_t* image, xy* out)
 {
 	TrackingData& data = trackingData[index];
-	int fast_track_threshold = 5;
-	float fast_track_radius = 5.5f;
-	float fast_min_match = 0.2f*0.2f;
-	float fast_good_match = 0.65f*0.65f;
-	xy bestkp = track(data.patch, image,
-	                patch_win_half_width,
-	                data.x1, data.y1, fast_track_radius,
-	                fast_track_threshold, fast_min_match);
+	xy bestkp = {INFINITY, INFINITY, patch_min_score, 0};
+	if (data.x_dx != INFINITY)
+	    bestkp = track(data.patch, image,
+	                   patch_win_half_width,
+	                   data.x_dx, data.y_dy, fast_track_radius,
+	                   fast_track_threshold, bestkp.score);
 //
 	// Not a good enough match, try the filter prediction
-	if(bestkp.score < fast_good_match) {
+	if(data.pred_x != INFINITY && bestkp.score < patch_good_score) {
 		xy bestkp2 = track(data.patch, image,
 				patch_win_half_width,
-				data.x2, data.y2, fast_track_radius,
-				fast_track_threshold, bestkp.score);
-		if(bestkp2.score > bestkp.score)
-			bestkp = bestkp2;
-	}
-
-	// Still no match? Guess that we haven't moved at all
-	if(bestkp.score < fast_min_match) {
-		xy bestkp2 = track(data.patch, image,
-				patch_win_half_width,
-				data.x3, data.y3, fast_track_radius,
+				data.pred_x, data.pred_y, fast_track_radius,
 				fast_track_threshold, bestkp.score);
 		if(bestkp2.score > bestkp.score)
 			bestkp = bestkp2;

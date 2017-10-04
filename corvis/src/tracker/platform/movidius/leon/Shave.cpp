@@ -10,7 +10,7 @@
 // ----------------------------------------------------------------------------
 
 #include <stdio.h>
-#include <HglCpr.h>
+#include <OsDrvCpr.h>
 #include "Shave.h" 
 
 #define SHAVE_DEBUG_PRINTS
@@ -91,7 +91,12 @@ void Shave::start(unsigned int ptr, const char* fmt, ... )
 {
     u32 sc = OS_MYR_DRV_SUCCESS;
     shave_mutex.lock();
-    HglCprTurnOnShaveMask(power_mask);
+#ifndef DISABLE_SHAVE_PM
+    sc = OsDrvCprTurnOnShaveMask(power_mask);
+#endif
+    if (OS_MYR_DRV_SUCCESS != sc) {
+        DPRINTF("Error: failed Turn on shave %lu\n", sc);
+    }
     sc = this->reset();
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: failed reset shave %lu\n", sc);
@@ -113,7 +118,12 @@ void Shave::wait(void)
 {
     u32 running = 0, sc = OS_MYR_DRV_SUCCESS;
     sc = OsDrvSvuWaitShaves(1, &handlers[id], OS_DRV_SVU_WAIT_FOREVER, &running);
-    HglCprTurnOffShaveMask(power_mask);
+#ifndef DISABLE_SHAVE_PM
+    sc = OsDrvCprTurnOffShaveMask (power_mask);
+#endif
+    if (OS_MYR_DRV_SUCCESS != sc) {
+        DPRINTF("Error: failed Turn off shave %lu\n", sc);
+    }
     shave_mutex.unlock();
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: while waiting shave %lu\n", sc);

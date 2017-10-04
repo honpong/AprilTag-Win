@@ -59,6 +59,7 @@ enum packet_type {
     packet_image_stereo = 41,
     packet_rc_pose = 42,
     packet_calibration_json = 43,
+    packet_arrival_time = 44,
 #ifdef MYRIAD2
     packet_pose = 30,
     packet_command_start = 100,
@@ -293,6 +294,10 @@ typedef struct {
     packet_header_t header;
     uint8_t data[];
 } packet_calibration_json_t;
+
+typedef struct {
+    packet_header_t header; // header::timestamp is packet arrival time (To algo), header::sensor_id is not used
+} packet_arrival_time_t;
 
 #ifdef WIN32
 #pragma warning (pop)

@@ -13,7 +13,7 @@ class kalman_storage {
     matrix P  {  P_storage };
     matrix Q  {  Q_storage };
     matrix FP { FP_storage };
-    matrix K  {  K_storage };
+    matrix KL { KL_storage };
     matrix R  {  R_storage };
     matrix y  {  y_storage };
     matrix HP { HP_storage };
@@ -25,15 +25,15 @@ class kalman_storage {
     alignas(a) f_t iP_storage[maxstatesize];
     alignas(a) f_t iQ_storage[maxstatesize];
     alignas(a) f_t  x_storage[maxstatesize];
-    alignas(a) f_t  P_storage[maxstatesize][padded(maxstatesize)];
+    alignas(a) f_t  P_storage[maxstatesize+1/*x*/][padded(maxstatesize)];
     alignas(a) f_t  Q_storage[maxstatesize];
     union {
     alignas(a) f_t FP_storage[maxstatesize][padded(maxstatesize + maxfakestatesize)];
     struct {
-    alignas(a) f_t  K_storage[maxstatesize][padded(maxobservationsize)];
+    alignas(a) f_t KL_storage[maxstatesize+1/*y*/][padded(maxobservationsize)];
     alignas(a) f_t  R_storage[maxobservationsize];
     alignas(a) f_t  y_storage[maxobservationsize];
-    alignas(a) f_t HP_storage[maxobservationsize][padded(maxstatesize)];
+    alignas(a) f_t HP_storage[maxobservationsize][padded(maxstatesize+1/*y*/)];
     alignas(a) f_t  S_storage[maxobservationsize][padded(maxobservationsize)];
     };
     };

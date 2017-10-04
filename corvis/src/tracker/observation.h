@@ -13,6 +13,11 @@
 
 #include "cor_types.h"
 
+#ifdef MYRIAD2
+    #include "platform_defines.h"
+    #include "project_covariance_definitions.h"
+#endif
+
 class observation {
 public:
     const int size;
@@ -25,6 +30,9 @@ public:
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
+#ifdef MYRIAD2
+    virtual observation_data* getData() = 0;
+#endif
     
     observation(int _size): size(_size) {}
     virtual ~observation() {};
@@ -87,6 +95,10 @@ class observation_vision_feature: public observation_storage<2> {
              int project_covariance(matrix &dst, const matrix &src, int i) const;
     virtual void project_covariance(matrix &dst, const matrix &src) const;
     virtual void innovation_covariance_hook(const matrix &cov, int index);
+#ifdef MYRIAD2
+    observation_vision_feature_data vision_data;
+    virtual observation_data* getData();
+#endif
     void update_initializing();
 
     observation_vision_feature(sensor_grey &src, const state_camera &camera, state_vision_feature &f)
@@ -117,7 +129,7 @@ protected:
     v3 xcc;
     m3 Rt, Ra, da_dQ, da_dw, da_ddw, da_dacc;
     m3 da_dQa, da_dTa;
- public:
+public:
     virtual void predict();
     virtual bool measure();
     virtual void compute_measurement_covariance() {
@@ -128,6 +140,10 @@ protected:
     template<int N>
              int project_covariance(matrix &dst, const matrix &src, int i) const;
     virtual void project_covariance(matrix &dst, const matrix &src) const;
+#ifdef MYRIAD2
+    observation_accelerometer_data accel_data;
+    virtual observation_data* getData();
+#endif
     observation_accelerometer(sensor_accelerometer &src, const state_root &root_, const state_motion &state_, const state_imu &imu): observation_spatial(src), root(root_), state(state_), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 
 public:
@@ -143,7 +159,7 @@ protected:
     const state_imu_intrinsics &intrinsics;
     m3 Rw;
     m3 dw_dQw;
- public:
+public:
     virtual void predict();
     virtual bool measure() {
         source.meas_stdev.data(meas);
@@ -157,16 +173,20 @@ protected:
     template<int N>
              int project_covariance(matrix &dst, const matrix &src, int i) const;
     virtual void project_covariance(matrix &dst, const matrix &src) const;
+#ifdef MYRIAD2
+    observation_gyroscope_data gyro_data;
+    virtual observation_data* getData();
+#endif
     observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_imu &imu): observation_spatial(src), state(_state), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 };
 
 class observation_queue {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    observation_queue(matrix &state_, matrix &inn_, matrix &m_cov_, matrix &HP_, matrix &K_, matrix &res_cov_)
-        : state(state_), inn(inn_), m_cov(m_cov_), HP(HP_), K(K_), res_cov(res_cov_)  {}
+    observation_queue(matrix &state_, matrix &inn_, matrix &m_cov_, matrix &HP_, matrix &KL_, matrix &res_cov_)
+        : state(state_), inn(inn_), m_cov(m_cov_), HP(HP_), KL(KL_), res_cov(res_cov_)  {}
     void preprocess(state_root &s, sensor_clock::time_point time);
-    bool process(state_root &s);
+    bool process(state_root &s, bool run_on_shave = false);
     std::vector<std::unique_ptr<observation>> observations;
 
     // keep the most recent measurement of a given type around for plotting, etc
@@ -192,10 +212,18 @@ protected:
     void compute_innovation(matrix &inn);
     void compute_measurement_covariance(matrix &m_cov);
     void compute_prediction_covariance(const matrix &cov, int statesize, int meas_size);
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+    void compute_prediction_covariance_shave(const matrix &cov, int statesize, int meas_size);
+#endif
     void compute_innovation_covariance(const matrix &m_cov);
-    bool update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn);
+    static bool update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn, matrix &HP, matrix &res_cov, matrix &K);
 
-    matrix &state, &inn, &m_cov, &HP, &K, &res_cov;
+    matrix &state, &inn, &m_cov, &HP, &KL, &res_cov;
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+    std::vector<observation_data*> observation_datas;
+    int start_index[PROJECT_COVARIANE_SHAVES];
+    int obs_per_shave;
+#endif
 };
 
 //some object should have functions to evolve the mean and covariance

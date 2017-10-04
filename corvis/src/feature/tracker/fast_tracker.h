@@ -10,10 +10,8 @@ public:
     template<int border_size>
     static bool is_trackable(int x, int y, int width, int height)
     {
-        return (x > border_size &&
-                y > border_size &&
-                x < width-1-border_size &&
-                y < height-1-border_size);
+        return 0 <= (x-border_size) && (x+border_size) < width
+            && 0 <= (y-border_size) && (y+border_size) < height;
     }
 
 public:
@@ -36,8 +34,8 @@ public:
 private:
     static bool xy_comp(const xy &first, const xy &second) { return first.score > second.score; }
     int pixel[16];
-    int xsize, ysize, stride, patch_stride, patch_win_half_width;
-    void init(const int x, const int y, const int s, const int ps, const int phw);
+    int xsize, ysize, stride, patch_stride;
+    void init(const int x, const int y, const int s, const int ps);
     std::vector<xy> features;
 
 public:

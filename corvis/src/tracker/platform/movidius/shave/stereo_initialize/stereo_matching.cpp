@@ -20,10 +20,10 @@ static const float fast_good_match = 0.65f*0.65f;
 // 3: Global Data (Only if absolutely necessary)
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
-static u8 __attribute__((section(".cmx.bss"))) p_kp1_Buffer[sizeof(float3_t)*MAX_KP1+sizeof(int)]; //l_float3
-static u8 __attribute__((section(".cmx.bss"))) p_kp2_Buffer[sizeof(float3_t)*MAX_KP2+sizeof(int)]; //l_float3
-static u8 __attribute__((section(".cmx.data")))  f1_FeatureBuffer[128];
-static u8 __attribute__((section(".cmx.data")))  f2_FeatureBuffer[128];
+static u8 p_kp1_Buffer[sizeof(float3_t)*MAX_KP1+sizeof(int)]; //l_float3
+static u8 p_kp2_Buffer[sizeof(float3_t)*MAX_KP2+sizeof(int)]; //l_float3
+static u8 f1_FeatureBuffer[128];
+static u8 f2_FeatureBuffer[128];
 
 dmaTransactionList_t /*__attribute__((section(".cmx.cdmaDescriptors")))*/ dmaImportKeypoint[2];
 

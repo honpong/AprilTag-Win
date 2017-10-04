@@ -5,7 +5,7 @@ import numpy
 import argparse
 from math import sqrt
 
-packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 40:"stereo_raw"})
+packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 40:"stereo_raw", 44:"arrival_time"})
 format_types = defaultdict(str, {0:"Y8", 1:"Z16_mm"})
 
 parser = argparse.ArgumentParser(description='Check a capture file.')
@@ -28,6 +28,7 @@ gyro_type = 21
 image_with_depth = 28
 image_raw_type = 29
 stereo_raw_type = 40
+arrival_time_type = 44
 got_types = defaultdict(int)
 
 packets = defaultdict(list)
@@ -40,7 +41,9 @@ prev_packet_str = ""
 warnings = defaultdict(list)
 exposure_warnings = defaultdict(list)
 imu_warnings = defaultdict(list)
+arrival_time_warnings = []
 last_data = {}
+last_arrival_time = 0
 while header_str != "":
   (pbytes, ptype, sensor_id, ptime) = unpack('IHHQ', header_str)
   got_types[ptype] += 1
@@ -81,6 +84,12 @@ while header_str != "":
       if args.verbose:
           camera_str = "%s %d (%d) %dx%d, %d stride, %d exposure, %d adjusted time" % (type_str, sensor_id, camera_format, width, height, stride, exposure, ptime)
           print "\t", camera_str
+  elif ptype == arrival_time_type:
+      if last_arrival_time > ptime:
+          arrival_time_warnings.append((ptime, last_arrival_time))
+      last_arrival_time = ptime
+      if args.verbose:
+          print "\t %d" % ptime
   else:
       if args.verbose:
           print ""
@@ -152,6 +161,9 @@ for packet_type in sorted(packets.keys()):
       for w in imu_warnings[packet_type]:
           print "Warning:", packet_type, "at", w[0], "changed by ", w[1], "current: ", w[2], "last:", w[3]
   print ""
+
+if len(arrival_time_warnings) > 0 :
+    print "Warning: %d packets arrival_time is out of order" % len(arrival_time_warnings)
 
 if got_types[accel_type] == 0:
     print "Error: Never received any accelerometer data"

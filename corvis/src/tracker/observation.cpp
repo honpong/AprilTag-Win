@@ -1,6 +1,10 @@
 #include "observation.h"
-#include "kalman.h"
 #include "utils.h"
+#include "Trace.h"
+
+#ifdef MYRIAD2
+    #include "covariance_projector.h"
+#endif
 
 int observation_queue::size()
 {
@@ -50,6 +54,52 @@ void observation_queue::compute_measurement_covariance(matrix &m_cov)
     }
 }
 
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+__attribute__((section(".cmx_direct.data"))) project_observation_covariance_data queue_data;
+void observation_queue::compute_prediction_covariance_shave(const matrix &cov, int statesize, int meas_size)
+{
+    START_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE, 0);
+    queue_data.src_rows     = cov.rows();
+    queue_data.src_cols     = cov.cols();
+    queue_data.src_stride   = cov.get_stride();
+    queue_data.src          = cov.Data();
+    queue_data.HP_stride    = HP.get_stride();
+    queue_data.HP_src_cols  = HP.cols();
+    queue_data.HP_dst_cols  = statesize;
+    queue_data.HP_rows      = HP.rows();
+    queue_data.HP           = HP.Data();
+    queue_data.dst_rows     = res_cov.rows();
+    queue_data.dst_cols     = meas_size;
+    queue_data.dst_stride   = res_cov.get_stride();
+    queue_data.dst          = res_cov.Data();
+    queue_data.observations_size = observations.size();
+
+    int obs_per_shave = (observations.size() + PROJECT_COVARIANE_SHAVES -1) / PROJECT_COVARIANE_SHAVES;
+
+    for(int i=0; i < PROJECT_COVARIANE_SHAVES; i++) {
+        start_index[i] = 0;
+    }
+
+    int i=0;
+    for (auto &o : observations) {
+        o->cache_jacobians();
+        start_index[i++/obs_per_shave + 1] += o->size;
+        observation_datas.push_back(o->getData());
+    }
+    queue_data.observations = (observation_data**)observation_datas.data();
+
+    for(int i=1; i < PROJECT_COVARIANE_SHAVES; i++) {
+        start_index[i] += start_index[i-1];
+    }
+
+    static covariance_projector projector;
+    projector.project_observation_covariance(queue_data, start_index);
+
+    observation_datas.clear();
+    END_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE, 0);
+}
+#endif
+
 void observation_queue::compute_prediction_covariance(const matrix &cov, int statesize, int meas_size)
 {
     int index = 0;
@@ -80,20 +130,25 @@ void observation_queue::compute_innovation_covariance(const matrix &m_cov)
     }
 }
 
-bool observation_queue::update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn)
+__attribute__((noinline))
+bool observation_queue::update_state_and_covariance(matrix &x, matrix &P, const matrix &y, matrix &HP, matrix &S, matrix &KL)
 {
-#ifdef TEST_POSDEF
-    f_t rcond = matrix_check_condition(res_cov);
-    if(rcond < .001) { fprintf(stderr, "observation covariance matrix not well-conditioned before computing gain! rcond = %e\n", rcond);}
-#endif
-    if(kalman_compute_gain(K, HP, res_cov))
-    {
-        kalman_update_state(state, K, inn);
-        kalman_update_covariance(cov, K, HP);
-        return true;
-    } else {
+    int meas_size = HP.rows(), statesize = HP.cols();
+    matrix Px(P, 0,0, statesize+1, statesize); // [ P ; x ]
+    Px.map().bottomRows(1) = x.map();
+
+    matrix KL_y (KL, 0,0, statesize+1, meas_size);
+    KL.map() = HP.map().transpose();
+    KL_y.map().bottomRows(1) = -y.map();
+    if (!matrix_half_solve(S, KL_y)) // S = L L^T; KL = [ HP -y ]' L^-T
         return false;
-    }
+    matrix_product(Px, KL_y, KL, false, true, 1, -1); // [P ; x ] -= (L^-1 [HP -y])' * (L^-1 HP)
+
+    P.map().triangularView<Eigen::StrictlyUpper>() = P.map().triangularView<Eigen::StrictlyLower>().transpose();
+
+    x.map() = Px.map().bottomRows(1); // write back the updated state
+
+    return true;
 }
 
 void observation_queue::preprocess(state_root &s, sensor_clock::time_point time)
@@ -103,7 +158,7 @@ void observation_queue::preprocess(state_root &s, sensor_clock::time_point time)
     predict();
 }
 
-bool observation_queue::process(state_root &s)
+bool observation_queue::process(state_root &s, bool run_on_shave)
 {
     bool success = true;
 
@@ -116,17 +171,25 @@ bool observation_queue::process(state_root &s)
         inn.resize(meas_size);
         m_cov.resize(meas_size);
         HP.resize(meas_size, statesize);
+        KL.resize(statesize, meas_size);
         res_cov.resize(meas_size, meas_size);
         state.resize(statesize);
 
         compute_innovation(inn);
         compute_measurement_covariance(m_cov);
-        compute_prediction_covariance(s.cov.cov, statesize, meas_size);
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+        if (run_on_shave)
+            compute_prediction_covariance_shave(s.cov.cov, statesize, meas_size);
+        else
+            compute_prediction_covariance(s.cov.cov, statesize, meas_size);
+#else
+            compute_prediction_covariance(s.cov.cov, statesize, meas_size);
+#endif
         compute_innovation_covariance(m_cov);
 
         s.copy_state_to_array(state);
 
-        success = update_state_and_covariance(state, s.cov.cov, inn);
+        success = update_state_and_covariance(state, s.cov.cov, inn, HP, res_cov, KL);
 
         s.copy_state_from_array(state);
     } else if(orig_meas_size && orig_meas_size != 3) {
@@ -399,6 +462,76 @@ void observation_vision_feature::compute_measurement_covariance()
     m_cov[1] = robust_mc;
 }
 
+#ifdef MYRIAD2
+observation_data* observation_vision_feature::getData()
+{
+    vision_data.size = size;
+
+    vision_data.orig.e_estimate = orig.camera.extrinsics.estimate;
+    vision_data.orig.i_estimate = orig.camera.intrinsics.estimate;
+    vision_data.curr.e_estimate = curr.camera.extrinsics.estimate;
+    vision_data.curr.i_estimate = curr.camera.intrinsics.estimate;
+
+    vision_data.feature.index              = feature->index;
+    vision_data.Qr.index                   = feature->group.Qr.index;
+    vision_data.Tr.index                   = feature->group.Tr.index;
+    vision_data.orig.Q.index               = orig.camera.extrinsics.Q.index;
+    vision_data.orig.T.index               = orig.camera.extrinsics.T.index;
+    vision_data.orig.focal_length.index    = orig.camera.intrinsics.focal_length.index;
+    vision_data.orig.center.index          = orig.camera.intrinsics.center.index;
+    vision_data.orig.k.index               = orig.camera.intrinsics.k.index;
+    vision_data.curr.Q.index               = curr.camera.extrinsics.Q.index;
+    vision_data.curr.T.index               = curr.camera.extrinsics.T.index;
+    vision_data.curr.focal_length.index    = curr.camera.intrinsics.focal_length.index;
+    vision_data.curr.center.index          = curr.camera.intrinsics.center.index;
+    vision_data.curr.k.index               = curr.camera.intrinsics.k.index;
+
+    vision_data.feature.initial_covariance             = feature->get_initial_covariance();
+    vision_data.Qr.initial_covariance                  = feature->group.Qr.get_initial_covariance();
+    vision_data.Tr.initial_covariance                  = feature->group.Tr.get_initial_covariance();
+    vision_data.orig.Q.initial_covariance              = orig.camera.extrinsics.Q.get_initial_covariance();
+    vision_data.orig.T.initial_covariance              = orig.camera.extrinsics.T.get_initial_covariance();
+    vision_data.orig.focal_length.initial_covariance   = orig.camera.intrinsics.focal_length.get_initial_covariance();
+    vision_data.orig.center.initial_covariance         = orig.camera.intrinsics.center.get_initial_covariance();
+    vision_data.orig.k.initial_covariance              = orig.camera.intrinsics.k.get_initial_covariance();
+    vision_data.curr.Q.initial_covariance              = curr.camera.extrinsics.Q.get_initial_covariance();
+    vision_data.curr.T.initial_covariance              = curr.camera.extrinsics.T.get_initial_covariance();
+    vision_data.curr.focal_length.initial_covariance   = curr.camera.intrinsics.focal_length.get_initial_covariance();
+    vision_data.curr.center.initial_covariance         = curr.camera.intrinsics.center.get_initial_covariance();
+    vision_data.curr.k.initial_covariance              = curr.camera.intrinsics.k.get_initial_covariance();
+
+    vision_data.feature.use_single_index           = feature->single_index();
+    vision_data.Qr.use_single_index                = feature->group.Qr.single_index();
+    vision_data.Tr.use_single_index                = feature->group.Tr.single_index();
+    vision_data.orig.Q.use_single_index            = orig.camera.extrinsics.Q.single_index();
+    vision_data.orig.T.use_single_index            = orig.camera.extrinsics.T.single_index();
+    vision_data.orig.focal_length.use_single_index = orig.camera.intrinsics.focal_length.single_index();
+    vision_data.orig.center.use_single_index       = orig.camera.intrinsics.center.single_index();
+    vision_data.orig.k.use_single_index            = orig.camera.intrinsics.k.single_index();
+    vision_data.curr.Q.use_single_index            = curr.camera.extrinsics.Q.single_index();
+    vision_data.curr.T.use_single_index            = curr.camera.extrinsics.T.single_index();
+    vision_data.curr.focal_length.use_single_index = curr.camera.intrinsics.focal_length.single_index();
+    vision_data.curr.center.use_single_index       = curr.camera.intrinsics.center.single_index();
+    vision_data.curr.k.use_single_index            = curr.camera.intrinsics.k.single_index();
+
+    vision_data.dx_dp      = dx_dp.data();
+    vision_data.dx_dQr     = dx_dQr.data();
+    vision_data.dx_dTr     = dx_dTr.data();
+    vision_data.orig.dx_dQ = orig.dx_dQ.data();
+    vision_data.orig.dx_dT = orig.dx_dT.data();
+    vision_data.orig.dx_dF = orig.dx_dF.data();
+    vision_data.orig.dx_dc = orig.dx_dc.data();
+    vision_data.orig.dx_dk = orig.dx_dk.data();
+    vision_data.curr.dx_dQ = curr.dx_dQ.data();
+    vision_data.curr.dx_dT = curr.dx_dT.data();
+    vision_data.curr.dx_dF = curr.dx_dF.data();
+    vision_data.curr.dx_dc = curr.dx_dc.data();
+    vision_data.curr.dx_dk = curr.dx_dk.data();
+
+    return &vision_data;
+}
+#endif
+
 void observation_accelerometer::predict()
 {
     Rt = state.Q.v.conjugate().toRotationMatrix();
@@ -463,6 +596,52 @@ bool observation_accelerometer::measure()
     return observation_spatial::measure();
 }
 
+#ifdef MYRIAD2
+observation_data* observation_accelerometer::getData()
+{
+    accel_data.size = size;
+    
+    accel_data.a_bias.index    = intrinsics.a_bias.index;
+    accel_data.Q.index         = state.Q.index;
+    accel_data.a.index         = state.a.index;
+    accel_data.w.index         = state.w.index;
+    accel_data.dw.index        = state.dw.index;
+    accel_data.g.index         = state.g.index;
+    accel_data.eQ.index        = extrinsics.Q.index;
+    accel_data.eT.index        = extrinsics.T.index;
+    
+    accel_data.a_bias.initial_covariance   = intrinsics.a_bias.get_initial_covariance();
+    accel_data.Q.initial_covariance        = state.Q.get_initial_covariance();
+    accel_data.a.initial_covariance        = state.a.get_initial_covariance();
+    accel_data.w.initial_covariance        = state.w.get_initial_covariance();
+    accel_data.dw.initial_covariance       = state.dw.get_initial_covariance();
+    accel_data.g.initial_covariance        = state.g.get_initial_covariance();
+    accel_data.eQ.initial_covariance       = extrinsics.Q.get_initial_covariance();
+    accel_data.eT.initial_covariance       = extrinsics.T.get_initial_covariance();
+    
+    accel_data.a_bias.use_single_index = intrinsics.a_bias.single_index();
+    accel_data.Q.use_single_index      = state.Q.single_index();
+    accel_data.a.use_single_index      = state.a.single_index();
+    accel_data.w.use_single_index      = state.w.single_index();
+    accel_data.dw.use_single_index     = state.dw.single_index();
+    accel_data.g.use_single_index      = state.g.single_index();
+    accel_data.eQ.use_single_index     = extrinsics.Q.single_index();
+    accel_data.eT.use_single_index     = extrinsics.T.single_index();
+    
+    accel_data.da_dQ   = da_dQ.data();
+    accel_data.da_dw   = da_dw.data();
+    accel_data.da_ddw  = da_ddw.data();
+    accel_data.da_dacc = da_dacc.data();
+    accel_data.worldUp = state.world.up.data();
+    accel_data.da_dQa  = da_dQa.data();
+    accel_data.da_dTa  = da_dTa.data();
+    
+    accel_data.e_estimate = extrinsics.estimate;
+    
+    return &accel_data;
+}
+#endif
+
 void observation_gyroscope::predict()
 {
     Rw = extrinsics.Q.v.toRotationMatrix();
@@ -497,3 +676,29 @@ template<int N>
     }
     return j;
 }
+
+#ifdef MYRIAD2
+observation_data* observation_gyroscope::getData()
+{  
+    gyro_data.size = size;
+    
+    gyro_data.w.index      = state.w.index;
+    gyro_data.w_bias.index = intrinsics.w_bias.index;
+    gyro_data.Q.index      = extrinsics.Q.index;
+    
+    gyro_data.w.initial_covariance         = state.w.get_initial_covariance();
+    gyro_data.w_bias.initial_covariance    = intrinsics.w_bias.get_initial_covariance();
+    gyro_data.Q.initial_covariance         = extrinsics.Q.get_initial_covariance();
+    
+    gyro_data.w.use_single_index       = state.w.single_index();
+    gyro_data.w_bias.use_single_index  = intrinsics.w_bias.single_index();
+    gyro_data.Q.use_single_index       = extrinsics.Q.single_index();
+    
+    gyro_data.RwT      = Rw.transpose().data();
+    gyro_data.dw_dQw   = dw_dQw.data();
+    
+    gyro_data.e_estimate = extrinsics.estimate;
+    
+    return &gyro_data;
+}
+#endif

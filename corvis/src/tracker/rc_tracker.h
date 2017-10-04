@@ -62,6 +62,12 @@ typedef enum rc_TrackerConfidence
     rc_E_CONFIDENCE_HIGH = 3
 } rc_TrackerConfidence;
 
+typedef enum rc_TrackerQueueStrategy
+{
+    rc_QUEUE_MINIMIZE_DROPS = 0,
+    rc_QUEUE_MINIMIZE_LATENCY = 1,
+} rc_TrackerQueueStrategy;
+
 /**
  Timestamp, in microseconds
  */
@@ -321,6 +327,15 @@ RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg
  */
 RCTRACKER_API void rc_configureWorld(rc_Tracker *tracker, const rc_Vector  world_up, const rc_Vector  world_initial_forward, const rc_Vector  body_forward);
 RCTRACKER_API void rc_describeWorld( rc_Tracker *tracker,       rc_Vector *world_up,       rc_Vector *world_initial_forward,       rc_Vector *body_forward);
+
+/* Configures the latency strategy used by the sensor fusion queue.
+ * The current default is rc_QUEUE_MINIMIZE_LATENCY, which will use
+ * internal constants for each sensor to determine how long to wait
+ * until we dispatch data from the queue and potentially drop late
+ * arriving data.
+ */
+RCTRACKER_API bool rc_configureQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy strategy);
+RCTRACKER_API bool rc_describeQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy * strategy);
 
 /**
   WARNING: These callbacks are synchronous with the the filter thread. Don't do significant work in them!

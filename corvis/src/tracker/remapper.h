@@ -22,11 +22,11 @@ class remapper {
     std::vector <update> updates;
 
   public:
-    remapper(int MAXSTATESIZE, matrix &initial_covariance_, matrix &process_covariance_)
+    remapper(int maxstatesize, matrix &initial_covariance_, matrix &process_covariance_)
         : initial_covariance(initial_covariance_), process_covariance(process_covariance_) {
-        updates.reserve(MAXSTATESIZE);
-        initial_covariance.resize(MAXSTATESIZE);
-        process_covariance.resize(MAXSTATESIZE);
+        updates.reserve(maxstatesize);
+        initial_covariance.resize(maxstatesize);
+        process_covariance.resize(maxstatesize);
     }
 
     void reset() {

@@ -68,8 +68,9 @@ public:
  matrix(f_t *d, const int r, const int c): storage(NULL), _rows(r), _cols(c), stride(c), maxrows(r), data(d) {}
  matrix(f_t *d, const int size): storage(NULL), _rows(1), _cols(size), stride(size), maxrows(1), data(d) {}
  matrix(): storage(NULL), _rows(0), _cols(0), stride(0), maxrows(0), data(NULL) {}
- matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): storage(NULL), _rows(rows), _cols(cols), stride(other.stride), maxrows(other.maxrows-startrow), data(&other(startrow, startcol)) {}
-    
+ matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): storage(NULL), _rows(rows), _cols(cols), stride(other.stride), maxrows(other.maxrows-startrow), data(&other(startrow, startcol)) {
+     assert(rows <= maxrows && cols <= stride);
+ }
   matrix(const int size): storage(new f_t[size]), _rows(1), _cols(size), stride(size), maxrows(1), data(storage) { }
   matrix(const int nrows, const int ncols): storage(new f_t[nrows * ncols]), _rows(nrows), _cols(ncols), stride(ncols), maxrows(nrows), data((f_t *)storage) { }
 
@@ -82,11 +83,10 @@ public:
     void print() const;
     void print_high() const;
     void print_diag() const;
-    bool identical(const matrix &other, f_t epsilon) const;
 
     friend void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale);
     friend f_t matrix_check_condition(matrix &A);
-    friend bool matrix_solve(matrix &A, matrix &B);
+    friend bool matrix_half_solve(matrix &A, matrix &B);
     friend bool test_posdef(const matrix &m);
 
     friend class covariance;

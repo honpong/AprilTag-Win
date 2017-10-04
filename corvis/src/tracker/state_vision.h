@@ -243,9 +243,6 @@ public:
 protected:
     virtual void evolve_state(f_t dt);
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const;
-#ifdef MYRIAD2
-    void project_motion_covariance_shave(matrix &dst, const matrix &src, f_t dt) const;
-#endif
     virtual void cache_jacobians(f_t dt);
     template<int N>
     int project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const;

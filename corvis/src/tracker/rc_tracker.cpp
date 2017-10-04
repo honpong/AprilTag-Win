@@ -146,7 +146,7 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
             if(trace) trace_log->info(" configuring new grey camera");
             auto new_camera = std::make_unique<sensor_grey>(camera_id);
             tracker->sfm.cameras.push_back(std::move(new_camera));
-            tracker->queue.require_sensor(rc_SENSOR_TYPE_IMAGE, camera_id, std::chrono::milliseconds(15));
+            tracker->queue.require_sensor(rc_SENSOR_TYPE_IMAGE, camera_id, std::chrono::milliseconds(10));
             if (camera_id == tracker->sfm.s.cameras.children.size())
                 tracker->sfm.s.cameras.children.emplace_back(std::make_unique<state_camera>());
         }
@@ -222,7 +222,7 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
     if(accel_id > accelerometers.size()) return false;
     if(accel_id == accelerometers.size()) {
         if(trace) trace_log->info(" configuring new accel");
-        tracker->queue.require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, std::chrono::microseconds(600));
+        tracker->queue.require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, std::chrono::microseconds(4300 + 600)); //  4300us is the group-delay difference between Gyro and Accel in TM2 
         accelerometers.push_back(std::make_unique<sensor_accelerometer>(accel_id));
     }
 
@@ -326,6 +326,35 @@ void rc_describeWorld(rc_Tracker *tracker, rc_Vector *world_up, rc_Vector *world
     map(world_up->v)              = tracker->sfm.s.world.up;
     map(world_initial_forward->v) = tracker->sfm.s.world.initial_forward;
     map(body_forward->v)          = tracker->sfm.s.body_forward;
+}
+
+bool rc_configureQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy strategy)
+{
+    if(trace) trace_log->info("rc_configureQueueStrategy {}", strategy);
+
+    switch(strategy) {
+        case rc_QUEUE_MINIMIZE_DROPS:
+            tracker->queue.strategy = fusion_queue::latency_strategy::MINIMIZE_DROPS;
+            break;
+
+        case rc_QUEUE_MINIMIZE_LATENCY:
+            tracker->queue.strategy = fusion_queue::latency_strategy::MINIMIZE_LATENCY;
+            break;
+
+        default:
+            return false;
+
+    }
+
+    return true;
+}
+
+bool rc_describeQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy * strategy)
+{
+    if(trace) trace_log->info("rc_describeQueueStrategy");
+
+    *strategy = (rc_TrackerQueueStrategy)tracker->queue.strategy;
+    return true;
 }
 
 class rc_callback_sink_st : public spdlog::sinks::base_sink < spdlog::details::null_mutex >
@@ -547,9 +576,6 @@ bool rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, r
     if (accelerometer_id >= tracker->sfm.accelerometers.size())
         return false;
 
-    if (!tracker->sfm.accelerometers[accelerometer_id]->decimate(time_us, acceleration_m__s2.v))
-        return true;
-
     sensor_data data(time_us, rc_SENSOR_TYPE_ACCELEROMETER, accelerometer_id, acceleration_m__s2);
 
     if(tracker->output.started())
@@ -564,9 +590,6 @@ bool rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
     if(trace) trace_log->info("rc_receiveGyro {} {}: {} {} {}", gyroscope_id, time_us, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
     if (gyroscope_id >= tracker->sfm.gyroscopes.size())
         return false;
-
-    if (!tracker->sfm.gyroscopes[gyroscope_id]->decimate(time_us, angular_velocity_rad__s.v))
-        return true;
 
     sensor_data data(time_us, rc_SENSOR_TYPE_GYROSCOPE, gyroscope_id, angular_velocity_rad__s);
 

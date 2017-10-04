@@ -5,7 +5,6 @@ SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/corvis/src/tracker/, \
     sensor_fusion_queue.cpp \
     rotation_vector.cpp \
     matrix.cpp \
-    kalman.cpp \
     filter.cpp \
     state_vision.cpp \
     state_motion.cpp \
@@ -48,8 +47,10 @@ SLAM_C_SOURCES += $(SLAM_PREFIX)/corvis/src/vocabulary/voc.c
 
 SLAM_HEADERS := \
 	$(wildcard $(SLAM_PREFIX)/corvis/src/tracker/*.h) \
-	$(wildcard $(SLAM_PREFIX)/corvis/src/tracker/fast_detector/*.h) \
 	$(wildcard $(SLAM_PREFIX)/ThirdParty/DBoW2/include/*.h) \
+	$(wildcard $(SLAM_PREFIX)/corvis/src/feature/detector/*.h) \
+	$(wildcard $(SLAM_PREFIX)/corvis/src/feature/descriptor/*.h) \
+	$(wildcard $(SLAM_PLATFORM_PREFIX)/*.h) \
 	$(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.h) \
 	$(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.hpp)
 
@@ -64,9 +65,9 @@ SLAM_CCOPT   := \
 	-I$(SLAM_PREFIX)/corvis/src/feature/tracker \
 	-I$(SLAM_PREFIX)/corvis/src/vocabulary \
 	-I$(SLAM_PREFIX)/ThirdParty/DBoW2/include \
-	-I$(SLAM_PREFIX)/ThirdParty/eigen \
-	-I$(SLAM_PREFIX)/ThirdParty/spdlog/include \
-	-I$(SLAM_PREFIX)/ThirdParty/rapidjson/include/ \
+	-isystem$(SLAM_PREFIX)/ThirdParty/eigen \
+	-isystem$(SLAM_PREFIX)/ThirdParty/spdlog/include \
+	-isystem$(SLAM_PREFIX)/ThirdParty/rapidjson/include/ \
 	-Wno-unused-function \
 	-Wno-unused-variable \
 	-Wno-unused-parameter \
@@ -81,8 +82,13 @@ SLAM_CCOPT   := \
 
 SLAM_CPPOPT  := -std=gnu++11 -fpermissive -fno-exceptions -Wno-reorder -Wno-missing-field-initializers -fno-strict-aliasing -MD
 
-SLAM_SHAVE_CCOPT := -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++
-SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++
+SLAM_SHAVE_CCOPT := -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon \
+   -I$(SLAM_PREFIX)/corvis/src/feature/descriptor \
+   -I$(SLAM_PREFIX)/corvis/src/feature/detector \
+   -I$(SLAM_PREFIX)/corvis/src/feature/tracker \
+   -I$(SLAM_PLATFORM_PREFIX)/leon
+
+SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++ -mno-replace-jmp-with-bra-peephole
 
 cvrt = $(DirAppOutput)/cvrt
 blis = $(DirAppOutput)/blis
@@ -105,7 +111,7 @@ SHAVE_cvrt_OBJS = \
 	$(patsubst $(DirAppObjBase)%.asmgen,$(DirAppObjBase)%_shave.o,$(SHAVE_GENASMS_cvrt)) \
 	$(patsubst %.asm,$(DirAppObjBase)%_shave.o,$(SHAVE_ASM_SOURCES_cvrt))
 
-cvrt_fns = fast9Detect fast9Track stereo_kp_matching_and_compare vision_project_motion_covariance
+cvrt_fns = fast9Detect fast9Track stereo_kp_matching_and_compare vision_project_motion_covariance vision_project_observation_covariance1 vision_project_observation_covariance
 cvrt_fns += potrf_ln trsvl_ln trsvl_lt trsvl_lnlt
 ENTRYPOINTS_cvrt = -e $(word 1, $(cvrt_fns)) $(foreach ep,$(cvrt_fns),-u $(ep) ) --gc-sections
 

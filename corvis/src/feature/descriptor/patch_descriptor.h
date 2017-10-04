@@ -10,6 +10,7 @@ Pedro Pinies, Lina Paz
 #pragma once
 #include "tracker.h"
 #include "fast_constants.h"
+#include "patch_constants.h"
 #include <array>
 
 class patch_descriptor
@@ -20,8 +21,8 @@ public:
     static const int half_patch_size = half_patch_width;
     static const int border_size = half_patch_size;
     static constexpr float bad_score = 0;
-    static constexpr float min_score = 0.2f*0.2f;
-    static constexpr float good_score = 0.65f*0.65f;
+    static constexpr float min_score = patch_min_score;
+    static constexpr float good_score = patch_good_score;
 
     std::array<unsigned char, L> descriptor;
     float mean{0}, variance{0};

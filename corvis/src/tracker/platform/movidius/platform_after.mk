@@ -17,7 +17,7 @@ $(cvrt).mvlib : $(SHAVE_cvrt_OBJS) $(PROJECT_SHAVE_LIBS)
                       $(SHAVE_cvrt_OBJS) $(PROJECT_SHAVE_LIBS) 		\
                       $(CompilerANSILibs) -o $@
 
-$(blis).mvlib : $(BLIS_LIB_SHAVE) $(PROJECT_SHAVE_LIBS)
+$(blis).mvlib : blis_lib $(BLIS_LIB_SHAVE) $(PROJECT_SHAVE_LIBS)
 	$(ECHO) $(LD) $(ENTRYPOINTS_blis) $(MVLIBOPT) 			\
                       $(BLIS_LIB_SHAVE) $(PROJECT_SHAVE_LIBS) 		\
                       $(CompilerANSILibs) -o $@

@@ -17,8 +17,8 @@ class covariance
 public:
     remapper rm;
     matrix &cov, &process_noise;
-    covariance(int MAXSTATESIZE, matrix &cov_, matrix &process_noise_, matrix &initial_covariance_, matrix &process_covariance_)
-        : rm(MAXSTATESIZE, initial_covariance_, process_covariance_), cov(cov_), process_noise(process_noise_) {}
+    covariance(int maxstatesize, matrix &cov_, matrix &process_noise_, matrix &initial_covariance_, matrix &process_covariance_)
+        : rm(maxstatesize, initial_covariance_, process_covariance_), cov(cov_), process_noise(process_noise_) {}
 
     inline f_t &operator() (const int i, const int j) { return cov(i, j); }
     inline const f_t &operator() (const int i, const int j) const { return cov(i, j); }

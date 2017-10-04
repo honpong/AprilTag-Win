@@ -27,13 +27,12 @@ static void make_offsets(int pixel[], int row_stride)
     pixel[15] = -1 + row_stride * 3;
 }
 
-void fast_tracker::init(const int x, const int y, const int s, const int ps, const int phw)
+void fast_tracker::init(const int x, const int y, const int s, const int ps)
 {
     xsize = x;
     ysize = y;
     stride = s;
     patch_stride = ps;
-    patch_win_half_width = phw;
     make_offsets(pixel, stride);
 }
 
@@ -45,7 +44,7 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
     for (auto &f : current)
         mask->clear((int)f->x, (int)f->y);
 
-    init(image.width_px, image.height_px, image.stride_px, full_patch_width, half_patch_width);
+    init(image.width_px, image.height_px, image.stride_px, full_patch_width);
 
     feature_points.clear();
     feature_points.reserve(number_desired);
@@ -131,7 +130,7 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
         fast_feature<DESCRIPTOR> &f = *static_cast<fast_feature<DESCRIPTOR>*>(t.feature.get());
         xy preds[2];
         int pred_count = 0;
-        if(t.found()) preds[pred_count++] = {t.x + t.dx, t.y + t.dy, 0, 0};
+        if(t.x      != INFINITY) preds[pred_count++] = {t.x+t.dx, t.y+t.dy, 0, 0};
         if(t.pred_x != INFINITY) preds[pred_count++] = {t.pred_x, t.pred_y, 0, 0};
 
         xy bestkp {INFINITY, INFINITY, DESCRIPTOR::min_score, 0};
@@ -163,7 +162,7 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
             if(DESCRIPTOR::is_better(bestkp.score, DESCRIPTOR::good_score)) break;
         }
 
-        if(bestkp.x != INFINITY) {
+        if(bestkp.x != INFINITY && t.x != INFINITY) {
             t.dx = bestkp.x - t.x;
             t.dy = bestkp.y - t.y;
         } else {

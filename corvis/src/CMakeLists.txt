@@ -3,7 +3,6 @@ set(TRACKER_SOURCES
     tracker/sensor_fusion_queue.cpp
     tracker/rotation_vector.cpp
     tracker/matrix.cpp
-    tracker/kalman.cpp
     tracker/transformation.cpp
     tracker/filter.cpp
     tracker/state_vision.cpp

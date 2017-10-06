@@ -1,0 +1,234 @@
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/gemm/bli_gemm_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/gemm/bli_gemm_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/gemm/bli_gemm_ker_var2.c
+@@ -35,6 +35,7 @@
+ #include "blis.h"
+ #include "blis_helper.h"
+ #include "mv_types.h"
++#include "OsDrvSvu.h"
+ 
+ #define FUNCPTR_T gemm_fp
+ 
+@@ -245,12 +246,16 @@ void bli_sgemm_ker_var2(
+     kernelInfo.rstep_a = rstep_a;
+     kernelInfo.cstep_b = cstep_b;
+ 
++    s32 sc;
++    u32 running;
++    osDrvSvuHandler_t handler[TOTAL_NUM_SHAVES];
+     for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
+     {
+         shaveNr = listShaves[shaveIdx];
+-        swcResetShave(shaveNr);
+-        swcSetAbsoluteDefaultStack(shaveNr);
+-        swcStartShaveCC(shaveNr, entryPointsSGEMM[shaveNr], "iii", (u32)&kernelInfo, startIter, endIter);
++        sc = OsDrvSvuOpenShave(&handler[shaveNr], shaveNr, OS_MYR_PROTECTION_SEM); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuResetShave(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuSetAbsoluteDefaultStack(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuStartShaveCC(&handler[shaveNr], (u32) entryPointsSGEMM[shaveNr], "iii", (u32)&kernelInfo, startIter, endIter); assert(sc==OS_MYR_DRV_SUCCESS);
+         startIter = endIter;
+         /* Check last SHAVE */
+         if(shaveIdx == numberShaves - modIter - 1)
+@@ -259,7 +264,12 @@ void bli_sgemm_ker_var2(
+         }
+         endIter += stepIter;
+     }
+-    swcWaitShaves(numberShaves, listShaves);
++    for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
++    {
++        shaveNr = listShaves[shaveIdx];
++        sc = OsDrvSvuWaitShaves(1, &handler[shaveNr], OS_DRV_SVU_WAIT_FOREVER, &running); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuCloseShave(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++    }
+ #ifdef MYRIAD2
+     DrvShaveL2CachePartitionFlushAndInvalidate(0);
+ #endif
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ll_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ll_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ll_ker_var2.c
+@@ -35,6 +35,7 @@
+ #include "blis.h"
+ #include "blis_helper.h"
+ #include "mv_types.h"
++#include "OsDrvSvu.h"
+ 
+ #define FUNCPTR_T gemm_fp
+ 
+@@ -248,13 +249,16 @@ void bli_strsm_ll_ker_var2(
+     startIter = 0;
+     endIter = stepIter;
+ 
++    s32 sc;
++    u32 running;
++    osDrvSvuHandler_t handler[TOTAL_NUM_SHAVES];
+     for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
+     {
+         shaveNr = listShaves[shaveIdx];
+-        swcResetShave(shaveNr);
+-        swcSetAbsoluteDefaultStack(shaveNr);
+-
+-        swcStartShaveCC(shaveNr, entryPointsSGEMMTRSM_LL[shaveNr], "iiii", (u32)&kernelInfo, diagoffa, startIter, endIter);
++        sc = OsDrvSvuOpenShave(&handler[shaveNr], shaveNr, OS_MYR_PROTECTION_SEM); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuResetShave(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuSetAbsoluteDefaultStack(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuStartShaveCC(&handler[shaveNr], (u32) entryPointsSGEMMTRSM_LL[shaveNr], "iiii", (u32)&kernelInfo, diagoffa, startIter, endIter); assert(sc==OS_MYR_DRV_SUCCESS);
+         startIter = endIter;
+         /* Check last SHAVE */
+         if(shaveIdx == numberShaves - modIter - 1)
+@@ -263,7 +267,12 @@ void bli_strsm_ll_ker_var2(
+         }
+         endIter += stepIter;
+     }
+-    swcWaitShaves(numberShaves, listShaves);
++    for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
++    {
++        shaveNr = listShaves[shaveIdx];
++        sc = OsDrvSvuWaitShaves(1, &handler[shaveNr], OS_DRV_SVU_WAIT_FOREVER, &running); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuCloseShave(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++    }
+ #ifdef MYRIAD2
+     DrvShaveL2CachePartitionFlushAndInvalidate(0);
+ #endif
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_lu_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_lu_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_lu_ker_var2.c
+@@ -35,6 +35,7 @@
+ #include "blis.h"
+ #include "blis_helper.h"
+ #include "mv_types.h"
++#include "OsDrvSvu.h"
+ 
+ #define FUNCPTR_T gemm_fp
+ 
+@@ -258,13 +259,16 @@ void bli_strsm_lu_ker_var2(
+     kernelInfo.rstep_a = rstep_a;
+     kernelInfo.cstep_b = cstep_b;
+ 
++    s32 sc;
++    u32 running;
++    osDrvSvuHandler_t handler[TOTAL_NUM_SHAVES];
+     for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
+     {
+         shaveNr = listShaves[shaveIdx];
+-        swcResetShave(shaveNr);
+-        swcSetAbsoluteDefaultStack(shaveNr);
+-
+-        swcStartShaveCC(shaveNr, entryPointsSGEMMTRSM_LU[shaveNr], "iiii", (u32)&kernelInfo, diagoffa, startIter, endIter);
++        sc = OsDrvSvuOpenShave(&handler[shaveNr], shaveNr, OS_MYR_PROTECTION_SEM); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuResetShave(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuSetAbsoluteDefaultStack(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuStartShaveCC(&handler[shaveNr], (u32) entryPointsSGEMMTRSM_LU[shaveNr], "iiii", (u32)&kernelInfo, diagoffa, startIter, endIter); assert(sc==OS_MYR_DRV_SUCCESS);
+         startIter = endIter;
+         /* Check last SHAVE */
+         if(shaveIdx == numberShaves - modIter - 1)
+@@ -273,7 +277,12 @@ void bli_strsm_lu_ker_var2(
+         }
+         endIter += stepIter;
+     }
+-    swcWaitShaves(numberShaves, listShaves);
++    for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
++    {
++        shaveNr = listShaves[shaveIdx];
++        sc = OsDrvSvuWaitShaves(1, &handler[shaveNr], OS_DRV_SVU_WAIT_FOREVER, &running); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuCloseShave(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++    }
+ #ifdef MYRIAD2
+     DrvShaveL2CachePartitionFlushAndInvalidate(0);
+ #endif
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_rl_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_rl_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_rl_ker_var2.c
+@@ -35,6 +35,7 @@
+ #include "blis.h"
+ #include "blis_helper.h"
+ #include "mv_types.h"
++#include "OsDrvSvu.h"
+ 
+ #define FUNCPTR_T gemm_fp
+ 
+@@ -263,13 +264,16 @@ void bli_strsm_rl_ker_var2(
+     kernelInfo.rstep_a = rstep_a;
+     kernelInfo.cstep_b = cstep_b;
+ 
++    s32 sc;
++    u32 running;
++    osDrvSvuHandler_t handler[TOTAL_NUM_SHAVES];
+     for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
+     {
+         shaveNr = listShaves[shaveIdx];
+-        swcResetShave(shaveNr);
+-        swcSetAbsoluteDefaultStack(shaveNr);
+-
+-        swcStartShaveCC(shaveNr, entryPointsSGEMMTRSM_RL[shaveNr], "iiii", (u32)&kernelInfo, diagoffb, startIter, endIter);
++        sc = OsDrvSvuOpenShave(&handler[shaveNr], shaveNr, OS_MYR_PROTECTION_SEM); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuResetShave(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuSetAbsoluteDefaultStack(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuStartShaveCC(&handler[shaveNr], (u32) entryPointsSGEMMTRSM_RL[shaveNr], "iii", (u32)&kernelInfo, diagoffb, startIter, endIter); assert(sc==OS_MYR_DRV_SUCCESS);
+         startIter = endIter;
+         /* Check last SHAVE */
+         if(shaveIdx == numberShaves - modIter - 1)
+@@ -278,7 +282,12 @@ void bli_strsm_rl_ker_var2(
+         }
+         endIter += stepIter;
+     }
+-    swcWaitShaves(numberShaves, listShaves);
++    for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
++    {
++        shaveNr = listShaves[shaveIdx];
++        sc = OsDrvSvuWaitShaves(1, &handler[shaveNr], OS_DRV_SVU_WAIT_FOREVER, &running); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuCloseShave(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++    }
+ #ifdef MYRIAD2
+     DrvShaveL2CachePartitionFlushAndInvalidate(0);
+ #endif
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ru_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ru_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ru_ker_var2.c
+@@ -35,6 +35,7 @@
+ #include "blis.h"
+ #include "blis_helper.h"
+ #include "mv_types.h"
++#include "OsDrvSvu.h"
+ 
+ #define FUNCPTR_T gemm_fp
+ 
+@@ -267,13 +268,16 @@ void bli_strsm_ru_ker_var2(
+     startIter = 0;
+     endIter = stepIter;
+ 
++    s32 sc;
++    u32 running;
++    osDrvSvuHandler_t handler[TOTAL_NUM_SHAVES];
+     for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
+     {
+         shaveNr = listShaves[shaveIdx];
+-        swcResetShave(shaveNr);
+-        swcSetAbsoluteDefaultStack(shaveNr);
+-
+-        swcStartShaveCC(shaveNr, entryPointsSGEMMTRSM_RU[shaveNr], "iiii", (u32)&kernelInfo, diagoffb, startIter, endIter);
++        sc = OsDrvSvuOpenShave(&handler[shaveNr], shaveNr, OS_MYR_PROTECTION_SEM); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuResetShave(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuSetAbsoluteDefaultStack(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuStartShaveCC(&handler[shaveNr], (u32) entryPointsSGEMMTRSM_RU[shaveNr], "iiii", (u32)&kernelInfo, diagoffb, startIter, endIter); assert(sc==OS_MYR_DRV_SUCCESS);
+         startIter = endIter;
+         /* Check last SHAVE */
+         if(shaveIdx == numberShaves - modIter - 1)
+@@ -282,7 +286,12 @@ void bli_strsm_ru_ker_var2(
+         }
+         endIter += stepIter;
+     }
+-    swcWaitShaves(numberShaves, listShaves);
++    for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
++    {
++        shaveNr = listShaves[shaveIdx];
++        sc = OsDrvSvuWaitShaves(1, &handler[shaveNr], OS_DRV_SVU_WAIT_FOREVER, &running); assert(sc==OS_MYR_DRV_SUCCESS);
++        sc = OsDrvSvuCloseShave(&handler[shaveNr]); assert(sc==OS_MYR_DRV_SUCCESS);
++    }
+ #ifdef MYRIAD2
+     DrvShaveL2CachePartitionFlushAndInvalidate(0);
+ #endif

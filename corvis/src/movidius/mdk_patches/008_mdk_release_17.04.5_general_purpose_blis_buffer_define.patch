@@ -110,8 +110,8 @@ Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame
 -#include "Helpers.h"
 +#include "blis_helper.h"
  #include "mv_types.h"
- #include "OsDrvSvu.h"
  
+ #define FUNCPTR_T gemm_fp
 Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ll_ker_var2.c
 ===================================================================
 --- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ll_ker_var2.c

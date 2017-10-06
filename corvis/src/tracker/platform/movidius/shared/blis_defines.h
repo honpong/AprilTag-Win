@@ -8,9 +8,6 @@
 #ifndef __DEFINES_H__
 #define __DEFINES_H__
 
-/* Shave allocation - use only 1 shave*/
-#define MAX_SHAVES     1
-
 /* PLEASE DON'T CHANGE THESE VALUES WITHOUT CHANGING CORRESPONDING DEPENDENTS */
 /* MAX_M_ITER = (BLIS_DEFAULT_MC_S / 4) */
 /* MAX_K      = BLIS_DEFAULT_KC_S       */

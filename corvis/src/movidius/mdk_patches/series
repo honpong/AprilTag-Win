@@ -6,4 +6,4 @@
 006_mdk_release_17.04.5_general_generalize_shave_build.patch -p1
 007_mdk_release_17.04.5_general_purpose_osdrv_close_fix.patch -p1
 008_mdk_release_17.04.5_general_purpose_blis_buffer_define.patch -p1
-008_mdk_release_17.04.5_general_purpose_avoid_blis_busy_wait.patch -p1
+008_mdk_release_17.04.5_general_purpose_avoid_blis_busy_wait.patch

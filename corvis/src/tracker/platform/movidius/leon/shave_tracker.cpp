@@ -37,7 +37,7 @@ volatile __attribute__((section(".cmx_direct.data"))) ShaveFastDetectSettings cv
 static u8 __attribute__((section(".ddr.bss"))) p_kp1[sizeof(float3_t)*MAX_KP1+sizeof(int)]; //l_float3
 static u8 __attribute__((section(".ddr.bss"))) p_kp2[sizeof(float3_t)*MAX_KP2+sizeof(int)]; //l_float3
 
-volatile __attribute__((section(".cmx_direct.data")))  ShavekpMatchingSettings cvrt_kpMatchingParams;
+volatile __attribute__((section(".cmx_direct.data")))  ShavekpMatchingSettings stereo_initialize_kpMatchingParams;
 
 __attribute__((section(".cmx_direct.data"))) fast_tracker::xy tracked_features[512];
 
@@ -58,10 +58,10 @@ extern u32 cvrt1_fast9Track;
 extern u32 cvrt2_fast9Track;
 extern u32 cvrt3_fast9Track;
 //stereo
-extern u32 cvrt0_stereo_kp_matching_and_compare;
-extern u32 cvrt1_stereo_kp_matching_and_compare;
-extern u32 cvrt2_stereo_kp_matching_and_compare;
-extern u32 cvrt3_stereo_kp_matching_and_compare;
+extern u32 stereo_initialize0_stereo_kp_matching_and_compare;
+extern u32 stereo_initialize1_stereo_kp_matching_and_compare;
+extern u32 stereo_initialize2_stereo_kp_matching_and_compare;
+extern u32 stereo_initialize3_stereo_kp_matching_and_compare;
 
 //tracker
 u32 entryPoints[TRACKER_SHAVES_USED] = {
@@ -79,10 +79,10 @@ u32 entryPointsTracking[TRACKER_SHAVES_USED] = {
 };
 //stereo
 u32 entryPoints_intersect_and_compare[4] = {
-        (u32)&cvrt0_stereo_kp_matching_and_compare,
-        (u32)&cvrt1_stereo_kp_matching_and_compare,
-        (u32)&cvrt2_stereo_kp_matching_and_compare,
-        (u32)&cvrt3_stereo_kp_matching_and_compare
+        (u32)&stereo_initialize0_stereo_kp_matching_and_compare,
+        (u32)&stereo_initialize1_stereo_kp_matching_and_compare,
+        (u32)&stereo_initialize2_stereo_kp_matching_and_compare,
+        (u32)&stereo_initialize3_stereo_kp_matching_and_compare
 };
 
 typedef struct _short_score {
@@ -100,7 +100,7 @@ pvShaveFastDetectSettings cvrt_detectParams[TRACKER_SHAVES_USED] = {
         &cvrt3_detectParams
 };
 
-volatile ShavekpMatchingSettings *kpMatchingParams =  &cvrt_kpMatchingParams;
+static volatile ShavekpMatchingSettings *kpMatchingParams =  &stereo_initialize_kpMatchingParams;
 
 // ----------------------------------------------------------------------------
 // 5: Static Function Prototypes

@@ -1,0 +1,62 @@
+Index: mdk_release_17.04.5_general_purpose/mdk/common/commonbuilds.mk
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/commonbuilds.mk
++++ mdk_release_17.04.5_general_purpose/mdk/common/commonbuilds.mk
+@@ -154,7 +154,7 @@ define mvlibTemplate
+ $$(DirAppOutput)/$(1).mvlib : $$(SHAVE_$(1)_AUTOSTAT_OBJS) $$(PROJECT_SHAVE_LIBS)
+ 	@echo "Building statically allocated shave lib $$@"
+ 	@test -d $$(@D) || mkdir -p $$(@D)
+-	$$(ECHO) $$(LD) $$(MVLIBOPT) $$(DefaultStaticProjectShaveEntryPoints) --gc-sections $$(SHAVE_$(1)_AUTOSTAT_OBJS) $$(PROJECT_SHAVE_LIBS) $$(CompilerANSILibs) -o $$(call RESOLVE_TARGET_PATH,$$@)
++	$$(ECHO) $$(LD) $$(MVLIBOPT) $$(if $$(ENTRYPOINTS_$(1)),-e $$(word 1,$$(ENTRYPOINTS_$(1))) $$(foreach ep,$$(ENTRYPOINTS_$(1)),-u $$(ep)),$$(DefaultStaticProjectShaveEntryPoints)) --gc-sections $$(SHAVE_$(1)_AUTOSTAT_OBJS) $$(PROJECT_SHAVE_LIBS) $$(CompilerANSILibs) -o $$(call RESOLVE_TARGET_PATH,$$@)
+ 
+ endef
+ 
+Index: mdk_release_17.04.5_general_purpose/mdk/common/commonsources.mk
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/commonsources.mk
++++ mdk_release_17.04.5_general_purpose/mdk/common/commonsources.mk
+@@ -387,12 +387,14 @@ endif
+ #First autodetect the applications
+ SHAVE_SEARCH_PATH ?= shaveApps
+ AUTO_DETECTED_SHAVE_APPS = $(wildcard $(SHAVE_SEARCH_PATH)/*)
+-
++define shaveAddApp
++SHAVE$(2)_APPS += $$(DirAppOutput)/$(1).shv$(2)lib
++endef
+ define shaveSourcesRulesTemplate
+ #Choosing C sources the brthYASM application on shave
+-SHAVE_C_AUTOSTAT_SOURCES_$(1) = $$(wildcard $$(DirAppRoot)/$$(SHAVE_SEARCH_PATH)/$(1)/*.c)
+-SHAVE_CPP_AUTOSTAT_SOURCES_$(1) = $$(wildcard $$(DirAppRoot)/$$(SHAVE_SEARCH_PATH)/$(1)/*.cpp)
+-SHAVE_ASM_AUTOSTAT_SOURCES_$(1) = $$(wildcard $$(DirAppRoot)/$$(SHAVE_SEARCH_PATH)/$(1)/*.asm)
++SHAVE_C_AUTOSTAT_SOURCES_$(1) += $$(wildcard $$(DirAppRoot)/$$(SHAVE_SEARCH_PATH)/$(1)/*.c)
++SHAVE_CPP_AUTOSTAT_SOURCES_$(1) += $$(wildcard $$(DirAppRoot)/$$(SHAVE_SEARCH_PATH)/$(1)/*.cpp)
++SHAVE_ASM_AUTOSTAT_SOURCES_$(1) += $$(wildcard $$(DirAppRoot)/$$(SHAVE_SEARCH_PATH)/$(1)/*.asm)
+ 
+ #Generating list of required generated assembly files for the brthYASM app on shave
+ SHAVE_GENASMS_AUTOSTAT_$(1)  = $$(patsubst %.c,$$(DirAppObjBase)%.asmgen,$$(SHAVE_C_AUTOSTAT_SOURCES_$(1)))
+@@ -408,24 +410,7 @@ PROJECTINTERM += $$(SHAVE_GENASMS_AUTOST
+ 
+ #--------------------------[ Shave applications section ]--------------------------#
+ SHAVE_APP_LIBS += $$(DirAppOutput)/$(1).mvlib
+-SHAVE0_APPS += $$(DirAppOutput)/$(1).shv0lib
+-SHAVE1_APPS += $$(DirAppOutput)/$(1).shv1lib
+-SHAVE2_APPS += $$(DirAppOutput)/$(1).shv2lib
+-SHAVE3_APPS += $$(DirAppOutput)/$(1).shv3lib
+-SHAVE4_APPS += $$(DirAppOutput)/$(1).shv4lib
+-SHAVE5_APPS += $$(DirAppOutput)/$(1).shv5lib
+-SHAVE6_APPS += $$(DirAppOutput)/$(1).shv6lib
+-SHAVE7_APPS += $$(DirAppOutput)/$(1).shv7lib
+-SHAVE8_APPS += $$(DirAppOutput)/$(1).shv8lib
+-SHAVE9_APPS += $$(DirAppOutput)/$(1).shv9lib
+-SHAVE10_APPS += $$(DirAppOutput)/$(1).shv10lib
+-SHAVE11_APPS += $$(DirAppOutput)/$(1).shv11lib
+-ifeq ($(MV_SOC_REV),$(filter $(MV_SOC_REV),ma2480 ma2485))
+-SHAVE12_APPS += $$(DirAppOutput)/$(1).shv12lib
+-SHAVE13_APPS += $$(DirAppOutput)/$(1).shv13lib
+-SHAVE14_APPS += $$(DirAppOutput)/$(1).shv14lib
+-SHAVE15_APPS += $$(DirAppOutput)/$(1).shv15lib
+-endif
++$$(foreach idx,$$(or $$(SHAVES_IDX_$(1)),$$(SHAVES_IDX)),$$(eval $$(call shaveAddApp,$(1),$$(idx))))
+ endef
+ 
+ $(foreach app,$(AUTO_DETECTED_SHAVE_APPS),$(eval $(call shaveSourcesRulesTemplate,$(lastword $(subst /, ,$(app))))))

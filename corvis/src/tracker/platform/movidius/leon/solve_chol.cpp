@@ -6,22 +6,22 @@
 #define SOLVE_SHAVES 4
 #define MAX_MATRIX 36*1024
 
-extern void *(cvrt0_trsvl_lnlt);
-extern void *(cvrt1_trsvl_lnlt);
-extern void *(cvrt2_trsvl_lnlt);
-extern void *(cvrt3_trsvl_lnlt);
+extern void *(cholesky0_trsvl_lnlt);
+extern void *(cholesky1_trsvl_lnlt);
+extern void *(cholesky2_trsvl_lnlt);
+extern void *(cholesky3_trsvl_lnlt);
 
-extern void *(cvrt0_potrf_ln);
+extern void *(cholesky0_potrf_ln);
 
 void* f_trsvl_lnlt[SOLVE_SHAVES] = {
-    &cvrt0_trsvl_lnlt,
-    &cvrt1_trsvl_lnlt,
-    &cvrt2_trsvl_lnlt,
-    &cvrt3_trsvl_lnlt,
+    &cholesky0_trsvl_lnlt,
+    &cholesky1_trsvl_lnlt,
+    &cholesky2_trsvl_lnlt,
+    &cholesky3_trsvl_lnlt,
 };
 
 void *f_potrf_ln[1] = {
-    &cvrt0_potrf_ln,
+    &cholesky0_potrf_ln,
 };
 
 __attribute__((section(".cmx_direct.data"))) float cmxA[MAX_MATRIX];

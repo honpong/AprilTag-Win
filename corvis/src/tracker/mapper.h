@@ -27,6 +27,8 @@
 typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, orb_descriptor::raw> orb_vocabulary;
 
 class state_vision_intrinsics;
+struct frame_t;
+struct camera_frame_t;
 
 struct map_edge {
     bool loop_closure = false;
@@ -46,16 +48,6 @@ struct map_feature {
     static bool deserialize(const rapidjson::Value &json, map_feature &feature, uint64_t &max_loaded_featid);
 };
 
-struct map_frame {
-    rc_Sensor camera_id; // to know which camera intrinsics
-    std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>> keypoints;
-    DBoW2::BowVector dbow_histogram;       // histogram describing image
-    DBoW2::FeatureVector dbow_direct_file;  // direct file (at level 4)
-    void dbow_init(const orb_vocabulary *orb_voc);
-    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
-    static bool deserialize(const rapidjson::Value &json, map_frame &frame);
-};
-
 enum class node_status {normal, finished};
 
 struct map_node {
@@ -68,7 +60,8 @@ struct map_node {
     transformation global_transformation;
 
     // relocalization
-    map_frame frame;
+    uint64_t camera_id;
+    std::shared_ptr<frame_t> frame;
     std::map<uint64_t,map_feature> features;
     node_status status{node_status::normal};
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
@@ -99,8 +92,8 @@ class mapper {
     typedef std::pair<nodeid, transformation> node_path;
 
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
-    void process_keypoints(const std::vector<tracker::feature_track*> &keypoints, const rc_Sensor camera_id, const tracker::image &image, const transformation &G_Bnow_Bcurrent);
-    void add_node(nodeid node_id);
+    bool initialized() const { return (current_node_id != std::numeric_limits<uint64_t>::max()); }
+    void add_node(nodeid node_id, const rc_Sensor camera_id);
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, const float depth_variance_m2, const bool is_new = true);
@@ -123,10 +116,7 @@ class mapper {
     std::map<unsigned int, std::vector<nodeid>> dbow_inverted_index; // given a word it stores the nodes in which it was observed
 
     // temporary store current frame in case we add a new node
-    map_frame current_frame;
-    nodeid current_node_id = 0;
-    nodeid current_node_id_at_current_frame;
-    transformation G_currentframe_currentnode;
+    nodeid current_node_id = std::numeric_limits<uint64_t>::max();
 
     // for a feature id we associate the corresponding node in which it was detected
     std::map<uint64_t, nodeid> features_dbow;
@@ -135,8 +125,8 @@ class mapper {
     std::vector<state_vision_intrinsics*> camera_intrinsics;
     std::vector<state_extrinsics*> camera_extrinsics;
 
-    bool relocalize(std::vector<transformation>& vG_W_currentframe);
-    void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
+    bool relocalize(const camera_frame_t& camera_frame, std::vector<transformation>& vG_W_currentframe);
+    void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
 };
 
 #endif

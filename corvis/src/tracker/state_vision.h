@@ -20,6 +20,7 @@
 #include "feature_descriptor.h"
 #include "mapper.h"
 #include "sensor_data.h"
+#include "orb_descriptor.h"
 
 enum group_flag {
     group_empty = 0,
@@ -76,6 +77,27 @@ public:
     f_t   get_distortion_factor(const feature_t &feat_u, m<1,2> *dkd_u_dfeat_u = nullptr, m<1,4> *dkd_u_dk = nullptr) const;
     feature_t normalize_feature(const feature_t &feat) const;
     feature_t unnormalize_feature(const feature_t &feat) const;
+};
+
+struct frame_t {
+    std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>> keypoints;
+    DBoW2::BowVector dbow_histogram;       // histogram describing image
+    DBoW2::FeatureVector dbow_direct_file;  // direct file (at level 4)
+    inline void calculate_dbow(const orb_vocabulary *orb_voc) {
+        // copy pyramid descriptors to a vector of descriptors
+        std::vector<orb_descriptor::raw> v_descriptor;
+        v_descriptor.reserve(keypoints.size());
+        for ( auto& p : keypoints )
+            v_descriptor.push_back(p->descriptor.descriptor);
+        int num_words_missing = orb_voc->transform(v_descriptor, dbow_histogram, dbow_direct_file, 6);
+    }
+};
+
+struct camera_frame_t {
+    rc_Sensor camera_id;
+    std::shared_ptr<frame_t> frame;
+    uint64_t closest_node;
+    transformation G_closestnode_frame;
 };
 
 class state_vision_group;
@@ -195,6 +217,7 @@ struct state_camera: state_branch<state_node*> {
     std::unique_ptr<tracker> feature_tracker;
     std::list<tracker::feature_track> standby_features;
     std::future<void> detection_future;
+    camera_frame_t camera_frame;
 
     state_branch<state_vision_group *> groups;
     void update_feature_tracks(const rc_ImageData &image);
@@ -202,6 +225,7 @@ struct state_camera: state_branch<state_node*> {
     int feature_count() const;
     int process_features(mapper *map, spdlog::logger &log);
     void remove_group(state_vision_group *g, mapper *map);
+    transformation get_group_transformation(uint64_t group_id) const;
 
     int detecting_space = 0;
 
@@ -226,10 +250,10 @@ public:
     int feature_count() const;
     void clear_features_and_groups();
     state_vision_feature *add_feature(const tracker::feature_track &track_, state_vision_group &group);
-    state_vision_group *add_group(state_camera &camera, mapper *map);
+    state_vision_group *add_group(state_camera &camera, const rc_Sensor camera_id, mapper *map);
     transformation get_transformation() const;
 
-    void update_map(const rc_ImageData &image, mapper *map, spdlog::logger &log);
+    void update_map(mapper *map);
 
     float median_depth_variance();
     

@@ -207,6 +207,16 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
+transformation state_camera::get_group_transformation(uint64_t group_id) const
+{
+    for(state_vision_group *g: groups.children) {
+        if(g->id == group_id)
+           return transformation(g->Qr.v, g->Tr.v);
+    }
+    assert(false); // group_id is not in the filter, should never fall through to here.
+    return transformation();
+}
+
 int state_camera::process_features(mapper *map, spdlog::logger &log)
 {
     int useful_drops = 0;
@@ -283,7 +293,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     return total_health;
 }
 
-void state_vision::update_map(const rc_ImageData &image, mapper *map, spdlog::logger &log)
+void state_vision::update_map(mapper *map)
 {
     if (!map) return;
     float distance_current_node = std::numeric_limits<float>::max();
@@ -291,7 +301,7 @@ void state_vision::update_map(const rc_ImageData &image, mapper *map, spdlog::lo
         for (auto &g : camera->groups.children) {
             map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
             // Set current node as the closest active group to current pose
-            if(g->Tr.v.norm() < distance_current_node) {
+            if(g->Tr.v.norm() <= distance_current_node) {
                 distance_current_node = g->Tr.v.norm();
                 map->current_node_id = g->id;
             }
@@ -317,12 +327,13 @@ state_vision_feature * state_vision::add_feature(const tracker::feature_track &t
     return new state_vision_feature(track_, group);
 }
 
-state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
+state_vision_group * state_vision::add_group(state_camera &camera, const rc_Sensor camera_id, mapper *map)
 {
     state_vision_group *g = new state_vision_group(camera, group_counter++);
     if(map) {
-        map->add_node(g->id);
+        map->add_node(g->id, camera_id);
 
+        // add edge in the map between new group and active groups in the filter
         const transformation& G_gnew_now = transformation(g->Qr.v, g->Tr.v);
         for(auto &neighbor : camera.groups.children) {
             const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));

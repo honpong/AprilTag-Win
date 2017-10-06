@@ -449,7 +449,7 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 static int filter_add_detected_features(struct filter * f, state_camera &camera, sensor_grey &camera_sensor, size_t newfeats, int image_height, sensor_clock::time_point time)
 {
     auto &kp = camera.standby_features;
-    auto g = f->s.add_group(camera, f->map.get());
+    auto g = f->s.add_group(camera, camera_sensor.id, f->map.get());
 
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
 
@@ -502,7 +502,7 @@ static int filter_available_feature_space(struct filter *f, state_camera &camera
     return space;
 }
 
-void filter_detect(struct filter *f, const sensor_data &data, bool process_map_kp)
+void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
@@ -512,13 +512,13 @@ void filter_detect(struct filter *f, const sensor_data &data, bool process_map_k
     int standby_count = camera.standby_features.size(),
         detect_count = camera.detecting_space,
         feature_count = camera.feature_count(),
-        reloc_count = f->map && process_map_kp ? 400 : 0;
+        reloc_count = f->map && update_frame ? 400 : 0;
     camera.detecting_space = 0;
 
     auto froom = std::max(0, detect_count - standby_count);
     auto space = std::max(froom, reloc_count - standby_count - feature_count);
 
-    if(!space) return; // FIXME: what min number is worth detecting?
+    if(!space && !update_frame) return; // FIXME: what min number is worth detecting?
 
     camera.feature_tracker->tracks.reserve(feature_count + standby_count + space);
 
@@ -541,38 +541,44 @@ void filter_detect(struct filter *f, const sensor_data &data, bool process_map_k
     END_EVENT(SF_DETECT, kp.size())
 
     // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
-    camera.standby_features.insert(camera.standby_features.begin(),
-                                   kp.begin(),
-                                   kp.begin() + std::min<size_t>(froom, kp.size()));
+    if (space)
+       camera.standby_features.insert(camera.standby_features.begin(),
+                                      kp.begin(),
+                                      kp.begin() + std::min<size_t>(froom, kp.size()));
 
     for (auto &p : kp)
         camera.feature_tracker->tracks.push_back(&p);
 
-    if (f->map && process_map_kp) {
-        transformation G_Bnow_Bcurrent;
-        for(state_vision_group *g: camera.groups.children) {
-            if(g->id == f->map->current_node_id)
-                G_Bnow_Bcurrent = invert(transformation(g->Qr.v, g->Tr.v));
-        }
-        f->map->process_keypoints(camera.feature_tracker->tracks, data.id, timage, G_Bnow_Bcurrent);
+    if (f->map && update_frame) {
+        // Update camera frame. Position wrt current node was updated just before starting this thread.
+        camera_frame_t &camera_frame = camera.camera_frame;
+        camera_frame.frame = std::make_shared<frame_t>();
+        for (auto &p : camera.feature_tracker->tracks)
+            if (std::is_same<DESCRIPTOR, orb_descriptor>::value)
+                camera_frame.frame->keypoints.emplace_back(std::static_pointer_cast<fast_tracker::fast_feature<orb_descriptor>>(p->feature));
+            else if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, timage.width_px, timage.height_px))
+                camera_frame.frame->keypoints.emplace_back(std::make_shared<fast_tracker::fast_feature<orb_descriptor>>(p->feature->id, p->x, p->y, timage));
+
+        camera_frame.frame->calculate_dbow(f->map->orb_voc);
     }
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 }
 
-bool filter_relocalize(struct filter *f)
+bool filter_relocalize(struct filter *f, const rc_Sensor camera_id)
 {
-    if (!f->map)
+    camera_frame_t &camera_frame = f->s.cameras.children[camera_id]->camera_frame;
+    if (!f->map->initialized() || !camera_frame.frame)
         return false;
 
-    std::vector<transformation> vG_W_currentframe;
-    if (!f->map->relocalize(vG_W_currentframe))
+    std::vector<transformation> vG_W_frame;
+    if (!f->map->relocalize(camera_frame, vG_W_frame))
         return false;
-    transformation G_W_currentnodeatcurrentframe = f->map->get_node(f->map->current_node_id_at_current_frame).global_transformation;
-    f->pose_at_reloc = G_W_currentnodeatcurrentframe*invert(f->map->G_currentframe_currentnode); // we are not relocalizing wrt current image but wrt current_frame in mapper (CAREFUL with threads).
-    for(auto && G_WC : vG_W_currentframe) {
-        f->reloc_pose = G_WC;
+    transformation G_W_closestnode = f->map->get_node(camera_frame.closest_node).global_transformation;
+    f->pose_at_reloc = G_W_closestnode*camera_frame.G_closestnode_frame; // Note that this relocalizes based on the data from the previous frame (which is now done)
+    for(auto && G_W_frame : vG_W_frame) {
+        f->reloc_pose = G_W_frame;
         f->reloc_poses.push_back(f->reloc_pose);
     }
     return true;
@@ -823,6 +829,13 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         }
     }
 
+    // update latest node added with this camera using the frame calculated in filter_detect
+    if(f->map && f->map->initialized() && camera_state.camera_frame.frame) {
+        map_node &closest_node = f->map->get_node(camera_state.camera_frame.closest_node);
+        if (closest_node.camera_id == data.id && !closest_node.frame) // node recently added?
+            closest_node.frame = camera_state.camera_frame.frame;
+    }
+
     if(f->run_state == RCSensorFusionRunStateRunning)
         filter_setup_next_frame(f, data); // put current features into observation queue as potential things to measure
 
@@ -861,9 +874,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     int normal_groups = camera_state.process_features(f->map.get(), *f->log);
     filter_update_outputs(f, time, normal_groups == 0);
-
     f->s.remap();
-    f->s.update_map(data.image, f->map.get(), *f->log);
 
     space = filter_available_feature_space(f, camera_state);
     if(space >= f->min_group_add && camera_state.standby_features.size() >= f->min_group_add)
@@ -883,6 +894,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         }
         filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
     }
+
+    f->s.update_map(f->map.get());
 
     space = filter_available_feature_space(f, camera_state);
     if(space >= f->min_group_add && camera_state.standby_features.size() < f->max_group_add) {

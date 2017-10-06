@@ -104,7 +104,7 @@ SHAVES_IDX_cvrt               = 0 1 2 3
 SHAVES_IDX_cholesky           = 0 1 2 3
 SHAVES_IDX_stereo_initialize  = 0 1 2 3
 SHAVES_IDX_project_covariance = 0 1 2 3
-SHAVES_IDX_blis               = 4
+SHAVES_IDX_blis               = 0 1 2 3
 
 SHAVE_CPP_AUTOSTAT_SOURCES_cvrt += $(SHAVE_SEARCH_PATH)/stereo_initialize/common_shave.cpp
 

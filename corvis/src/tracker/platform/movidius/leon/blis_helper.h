@@ -6,7 +6,7 @@
 #include "blis_defines.h"
 #include <DrvShaveL2Cache.h>
 
-#define BLIS_SHAVES 1
+#define BLIS_SHAVES 4
 
 #ifdef SHAVE_PERFORMANCE_ONLY
 extern double time_shave;

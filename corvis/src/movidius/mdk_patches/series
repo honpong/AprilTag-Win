@@ -5,3 +5,4 @@
 005_mdk_release_17.04.5_general_gemm_handle_padding_in_cmx.patch -p1
 006_mdk_release_17.04.5_general_gemm_makefile_fix.patch -p1
 007_mdk_release_17.04.5_general_gemm_avoid_busy_wait.patch -p1
+008_mdk_release_17.04.5_general_purpose_blis_buffer_define.patch -p1

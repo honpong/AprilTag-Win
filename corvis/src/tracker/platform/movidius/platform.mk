@@ -88,6 +88,7 @@ SLAM_SHAVE_CCOPT := -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-stri
    -I$(SLAM_PREFIX)/corvis/src/feature/descriptor \
    -I$(SLAM_PREFIX)/corvis/src/feature/detector \
    -I$(SLAM_PREFIX)/corvis/src/feature/tracker \
+   -I$(SLAM_PLATFORM_PREFIX)/shared \
    -I$(SLAM_PLATFORM_PREFIX)/leon
 
 SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++ -mno-replace-jmp-with-bra-peephole

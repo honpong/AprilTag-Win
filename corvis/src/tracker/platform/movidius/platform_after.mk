@@ -5,6 +5,10 @@ VERSION             = BLIS_VERSION_STRING=\"$(VERS_STR)\"
 
 SLAM_CCOPT   += -DBLIS -DVERSION -DBLIS_VERSION_STRING=\"$(VERS_STR)\" -DLEON_USE_REAL_NUMBERS_ONLY
 
+CCOPT   += -I$(SLAM_PLATFORM_PREFIX)/shared
+CCOPT   += -I$(SLAM_PLATFORM_PREFIX)/leon
+MVCCOPT += -I$(SLAM_PLATFORM_PREFIX)/shave/blis
+
 include $(MV_COMMON_BASE)/components/BLIS/genblislib.mk
 
 SLAM_CCOPT   += -I$(MV_COMMON_BASE)/components/BLIS/leon/config/reference $(BLIS_LEON_HEADERS_I)

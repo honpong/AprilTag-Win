@@ -260,7 +260,7 @@ void fusion_queue::push_queue(uint64_t global_id, sensor_data && x)
     s.receive(newest_received, x.timestamp);
 
     if (x.timestamp < last_dispatched) {
-        TRACE_EVENT(SF_DROP_LATE, 0);
+        TRACE_EVENT(SF_DROP_LATE, sensor_clock::tp_to_micros(last_dispatched));
         s.drop_late(newest_received);
         return;
     }

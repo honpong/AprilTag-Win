@@ -168,7 +168,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     std::vector<double> alt_edges = {0, 4, 12, 30, 65, 100};
     std::vector<double> ate_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
     std::vector<double> rpe_T_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
-    std::vector<double> rpe_R_edges = {0, 5, 10, 15, 20, 25};
+    std::vector<double> rpe_R_edges = {0, 0.05, 0.1, 0.5, 1, 5};
     typedef histogram<double, false, true> error_histogram;
 
     stream << "Length error histogram (" << L_errors_percent.size() << " sequences)\n";

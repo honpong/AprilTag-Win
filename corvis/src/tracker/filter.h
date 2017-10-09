@@ -14,11 +14,7 @@
 #include "mapper.h"
 #include "storage.h"
 
-#ifdef MYRIAD2
 #define MAXSTATESIZE 80
-#else
-#define MAXSTATESIZE 114
-#endif
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;

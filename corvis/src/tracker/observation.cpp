@@ -130,7 +130,6 @@ void observation_queue::compute_innovation_covariance(const matrix &m_cov)
     }
 }
 
-__attribute__((noinline))
 bool observation_queue::update_state_and_covariance(matrix &x, matrix &P, const matrix &y, matrix &HP, matrix &S, matrix &KL)
 {
     int meas_size = HP.rows(), statesize = HP.cols();

@@ -108,6 +108,8 @@ class mapper {
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, mapper &map);
 
+    std::unique_ptr<orb_vocabulary> create_vocabulary_from_map(int branching_factor, int depth_levels) const;
+
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper",  std::make_shared<spdlog::sinks::null_sink_st> ());
 
     /// fetch the vocabulary file from resource and create orb vocabulary

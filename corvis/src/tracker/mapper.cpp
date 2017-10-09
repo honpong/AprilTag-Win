@@ -367,6 +367,26 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
     return is_relocalized;
 }
 
+std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching_factor, int depth_levels) const {
+    std::unique_ptr<orb_vocabulary> voc;
+    if (branching_factor > 1 && depth_levels > 0 && !nodes.empty()) {
+        std::vector<std::vector<const orb_descriptor::raw*>> training_descriptors;
+        training_descriptors.reserve(nodes.size());
+        for (const auto& node : nodes) {
+            std::vector<const orb_descriptor::raw*> pointers;
+            pointers.reserve(node.frame->keypoints.size());
+            for (const auto& keypoint : node.frame->keypoints) {
+                const orb_descriptor& d = keypoint->descriptor;
+                pointers.emplace_back(&d.descriptor);
+            }
+            training_descriptors.emplace_back(std::move(pointers));
+        }
+        voc.reset(new orb_vocabulary);
+        voc->train(training_descriptors, branching_factor, depth_levels);
+    }
+    return std::move(voc);
+}
+
 using namespace rapidjson;
 
 #define KEY_INDEX "index"

@@ -42,8 +42,9 @@ SLAM_C_SOURCES := $(addprefix $(SLAM_PREFIX)/ThirdParty/vlfeat-0.9.18/vl/, \
 )
 SLAM_C_SOURCES += $(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.c)
 
-SLAM_SOURCES   += $(SLAM_PREFIX)/corvis/src/vocabulary/resource.cpp
-SLAM_C_SOURCES += $(SLAM_PREFIX)/corvis/src/vocabulary/voc.c
+#Commented out to prevent loading vocabulary in TM2 project
+#SLAM_SOURCES   += $(SLAM_PREFIX)/corvis/src/vocabulary/resource.cpp
+#SLAM_C_SOURCES += $(SLAM_PREFIX)/corvis/src/vocabulary/voc.c
 
 SLAM_HEADERS := \
 	$(wildcard $(SLAM_PREFIX)/corvis/src/tracker/*.h) \

@@ -222,7 +222,10 @@ bool rc_configureAccelerometer(rc_Tracker *tracker, rc_Sensor accel_id, const rc
     if(accel_id > accelerometers.size()) return false;
     if(accel_id == accelerometers.size()) {
         if(trace) trace_log->info(" configuring new accel");
-        tracker->queue.require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, std::chrono::microseconds(4300 + 600)); //  4300us is the group-delay difference between Gyro and Accel in TM2 
+        tracker->queue.require_sensor(rc_SENSOR_TYPE_ACCELEROMETER, accel_id, std::chrono::microseconds(
+            /* accel group delay @ 62.5Hz */     13800
+            /* gyro group delay @ 200Hz */      - 4500
+            /* typical system latency on TM2 */ +  600));
         accelerometers.push_back(std::make_unique<sensor_accelerometer>(accel_id));
     }
 

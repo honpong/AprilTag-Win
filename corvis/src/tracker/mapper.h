@@ -106,7 +106,8 @@ class mapper {
     void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, const float depth_variance_m2, const bool is_new = true);
     std::vector<node_path> breadth_first_search(nodeid start, int maxdepth = 1);
 
-    const aligned_vector<map_node> & get_nodes() const { return nodes; };
+    const aligned_vector<map_node> & get_nodes() const { return nodes; }
+    map_node& get_node(nodeid id) { return nodes[id]; }
 
     void node_finished(nodeid node_id);
     void set_node_transformation(nodeid id, const transformation & G);

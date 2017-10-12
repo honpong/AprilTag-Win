@@ -58,26 +58,30 @@ extern u32 stereo_initialize1_stereo_match;
 extern u32 stereo_initialize2_stereo_match;
 extern u32 stereo_initialize3_stereo_match;
 
-//tracker
-u32 entryPoints[TRACKER_SHAVES_USED] = {
-        (u32)&cvrt0_fast_detect,
-        (u32)&cvrt1_fast_detect,
-        (u32)&cvrt2_fast_detect,
-        (u32)&cvrt3_fast_detect,
+struct shave_entry_point { int shave; u32 *entry_point; };
+
+#define DETECT_SHAVES 4
+shave_entry_point fast_detect[DETECT_SHAVES] = {
+    {0, &cvrt0_fast_detect},
+    {1, &cvrt1_fast_detect},
+    {2, &cvrt2_fast_detect},
+    {3, &cvrt3_fast_detect},
 };
 
-u32 entryPointsTracking[TRACKER_SHAVES_USED] = {
-        (u32)&cvrt0_fast_track,
-        (u32)&cvrt1_fast_track,
-        (u32)&cvrt2_fast_track,
-        (u32)&cvrt3_fast_track,
+#define TRACK_SHAVES 4
+shave_entry_point fast_track[TRACK_SHAVES] = {
+    {0, &cvrt0_fast_track},
+    {1, &cvrt1_fast_track},
+    {2, &cvrt2_fast_track},
+    {3, &cvrt3_fast_track},
 };
-//stereo
-u32 entryPoints_intersect_and_compare[4] = {
-        (u32)&stereo_initialize0_stereo_match,
-        (u32)&stereo_initialize1_stereo_match,
-        (u32)&stereo_initialize2_stereo_match,
-        (u32)&stereo_initialize3_stereo_match,
+
+#define STEREO_SHAVES STEREO_SHAVES_USED // FIXME
+shave_entry_point stereo_match[STEREO_SHAVES] = {
+    {0, &stereo_initialize0_stereo_match},
+    {1, &stereo_initialize1_stereo_match},
+    {2, &stereo_initialize2_stereo_match},
+    {3, &stereo_initialize3_stereo_match},
 };
 
 typedef struct _short_score {
@@ -104,10 +108,6 @@ shave_tracker::shave_tracker() :
                          fast_detect_controller_threshold_up_step, fast_detect_controller_threshold_down_step,
                          fast_detect_controller_high_hist, fast_detect_controller_low_hist)
 {
-    shavesToUse = TRACKER_SHAVES_USED;
-    for (unsigned int i = 0; i < shavesToUse; ++i){
-       shaves[i] = Shave::get_handle(i);
-    }
 }
 
 std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image &image, const std::vector<tracker::feature_track *> &features, size_t number_desired)
@@ -168,41 +168,42 @@ void shave_tracker::sortFeatures(const tracker::image &image, int number_desired
 void shave_tracker::detectMultipleShave(const tracker::image &image)
 {
     struct int2 { int x,y; };
-    for (int i = 0; i < shavesToUse; ++i)
-        shaves[i]->start(
-            entryPoints[i], "iiiviivv",
+    for (int i=0; i< DETECT_SHAVES; ++i)
+        Shave::get_handle(fast_detect[i].shave)->start(
+            (u32)fast_detect[i].entry_point, "iiiviivv",
             scores,
             offsets,
             m_thresholdController.control(),
-            &(int2) { 0, (i * (image.height_px / TRACKER_SHAVES_USED)) },
+            &(int2) { 0, i * image.height_px / DETECT_SHAVES },
             image.image,
             image.stride_px,
-            &(int2) {image.width_px, image.height_px },
-            &(int2) { image.width_px, (image.height_px / TRACKER_SHAVES_USED) }
+            &(int2) { image.width_px, image.height_px },
+            &(int2) { image.width_px, image.height_px / DETECT_SHAVES }
         );
 
-    for (int i = 0; i < shavesToUse; ++i)
-        shaves[i]->wait();
+    for (int i = 0; i < DETECT_SHAVES; ++i)
+        Shave::get_handle(fast_detect[i].shave)->wait();
 }
 
 void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,
         const image& image)
 {
     struct int2 { int x,y; };
-    for (int i = 0; i < shavesToUse; ++i)
-        shaves[i]->start(
-            entryPointsTracking[i], "iiiiivii",
-            &trackingData.data()[trackingData.size() * i / shavesToUse],
-            (trackingData.size() * (i+1) / shavesToUse - trackingData.size() * i / shavesToUse),
-            &tracked_features[trackingData.size() * i / shavesToUse],
+    for (int i = 0; i < TRACK_SHAVES; ++i)
+        Shave::get_handle(fast_track[i].shave)->start(
+            (u32)fast_track[i].entry_point, "iiiiivii",
+            &trackingData[trackingData.size() * i / TRACK_SHAVES],
+            (trackingData.size() * (i+1) / TRACK_SHAVES
+            -trackingData.size() *  i    / TRACK_SHAVES),
+            &tracked_features[trackingData.size() * i / TRACK_SHAVES],
             image.image,
             image.stride_px,
             &(int2) { image.width_px, image.height_px },
             full_patch_width, half_patch_width
         );
 
-    for (int i = 0; i < shavesToUse; ++i)
-        shaves[i]->wait();
+    for (int i = 0; i < TRACK_SHAVES; ++i)
+        Shave::get_handle(fast_track[i].shave)->wait();
 }
 
 void shave_tracker::prepTrackingData(std::vector<TrackingData>& trackingData, std::vector<tracker::feature_track *> &predictions)
@@ -327,8 +328,9 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
 	kpMatchingParams->patch_stride=full_patch_width;
 	kpMatchingParams->patch_win_half_width=half_patch_width;
 
-	for (int i = 0; i < STEREO_SHAVES_USED; ++i) {
-        shaves[i]->start(entryPoints_intersect_and_compare[i],
+	for (int i = 0; i < STEREO_SHAVES; ++i)
+        Shave::get_handle(stereo_match[i].shave)->start(
+                (u32)stereo_match[i].entry_point,
                 "iiiiiii",
                 kpMatchingParams,
                 p_kp1,
@@ -337,11 +339,9 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
                 patches2,
                 depths1,
                 errors1);
-    }
 
-    for (int i = 0; i < STEREO_SHAVES_USED; ++i) {
-        shaves[i]->wait();
-    }
+    for (int i = 0; i < STEREO_SHAVES; ++i)
+        Shave::get_handle(stereo_match[i].shave)->wait();
 
     for(int i = 0; i < n1; i++) {
         f1_group[i]->depth = depths1[i];

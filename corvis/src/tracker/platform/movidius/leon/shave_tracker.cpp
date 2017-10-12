@@ -43,41 +43,41 @@ __attribute__((section(".cmx_direct.data"))) float errors1[MAX_KP1];
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
 //tracker
-extern u32 cvrt0_fast9Detect;
-extern u32 cvrt1_fast9Detect;
-extern u32 cvrt2_fast9Detect;
-extern u32 cvrt3_fast9Detect;
+extern u32 cvrt0_fast_detect;
+extern u32 cvrt1_fast_detect;
+extern u32 cvrt2_fast_detect;
+extern u32 cvrt3_fast_detect;
 
-extern u32 cvrt0_fast9Track;
-extern u32 cvrt1_fast9Track;
-extern u32 cvrt2_fast9Track;
-extern u32 cvrt3_fast9Track;
+extern u32 cvrt0_fast_track;
+extern u32 cvrt1_fast_track;
+extern u32 cvrt2_fast_track;
+extern u32 cvrt3_fast_track;
 //stereo
-extern u32 stereo_initialize0_stereo_kp_matching_and_compare;
-extern u32 stereo_initialize1_stereo_kp_matching_and_compare;
-extern u32 stereo_initialize2_stereo_kp_matching_and_compare;
-extern u32 stereo_initialize3_stereo_kp_matching_and_compare;
+extern u32 stereo_initialize0_stereo_match;
+extern u32 stereo_initialize1_stereo_match;
+extern u32 stereo_initialize2_stereo_match;
+extern u32 stereo_initialize3_stereo_match;
 
 //tracker
 u32 entryPoints[TRACKER_SHAVES_USED] = {
-        (u32)&cvrt0_fast9Detect,
-        (u32)&cvrt1_fast9Detect,
-        (u32)&cvrt2_fast9Detect,
-        (u32)&cvrt3_fast9Detect
+        (u32)&cvrt0_fast_detect,
+        (u32)&cvrt1_fast_detect,
+        (u32)&cvrt2_fast_detect,
+        (u32)&cvrt3_fast_detect,
 };
 
 u32 entryPointsTracking[TRACKER_SHAVES_USED] = {
-        (u32)&cvrt0_fast9Track,
-        (u32)&cvrt1_fast9Track,
-        (u32)&cvrt2_fast9Track,
-        (u32)&cvrt3_fast9Track
+        (u32)&cvrt0_fast_track,
+        (u32)&cvrt1_fast_track,
+        (u32)&cvrt2_fast_track,
+        (u32)&cvrt3_fast_track,
 };
 //stereo
 u32 entryPoints_intersect_and_compare[4] = {
-        (u32)&stereo_initialize0_stereo_kp_matching_and_compare,
-        (u32)&stereo_initialize1_stereo_kp_matching_and_compare,
-        (u32)&stereo_initialize2_stereo_kp_matching_and_compare,
-        (u32)&stereo_initialize3_stereo_kp_matching_and_compare
+        (u32)&stereo_initialize0_stereo_match,
+        (u32)&stereo_initialize1_stereo_match,
+        (u32)&stereo_initialize2_stereo_match,
+        (u32)&stereo_initialize3_stereo_match,
 };
 
 typedef struct _short_score {

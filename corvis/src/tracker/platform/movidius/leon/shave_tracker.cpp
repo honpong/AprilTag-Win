@@ -29,11 +29,6 @@ extern "C" {
 //tracker
 static u8 __attribute__((section(".ddr_direct.bss"))) scores[MAX_HEIGHT][MAX_WIDTH + 4];
 static u16 __attribute__((section(".ddr_direct.bss"))) offsets[MAX_HEIGHT][MAX_WIDTH + 2];
-volatile __attribute__((section(".cmx_direct.data"))) ShaveFastDetectSettings cvrt0_detectParams;
-volatile __attribute__((section(".cmx_direct.data"))) ShaveFastDetectSettings cvrt1_detectParams;
-volatile __attribute__((section(".cmx_direct.data"))) ShaveFastDetectSettings cvrt2_detectParams;
-volatile __attribute__((section(".cmx_direct.data"))) ShaveFastDetectSettings cvrt3_detectParams;
-//stereo
 static u8 __attribute__((section(".ddr.bss"))) p_kp1[sizeof(float3_t)*MAX_KP1+sizeof(int)]; //l_float3
 static u8 __attribute__((section(".ddr.bss"))) p_kp2[sizeof(float3_t)*MAX_KP2+sizeof(int)]; //l_float3
 
@@ -90,15 +85,7 @@ typedef struct _short_score {
     short x,y,score;
 } short_score;
 
-typedef volatile ShaveFastDetectSettings *pvShaveFastDetectSettings;
 std::vector<short_score> detected_points;
-
-pvShaveFastDetectSettings cvrt_detectParams[TRACKER_SHAVES_USED] = {
-        &cvrt0_detectParams,
-        &cvrt1_detectParams,
-        &cvrt2_detectParams,
-        &cvrt3_detectParams
-};
 
 static volatile ShavekpMatchingSettings *kpMatchingParams =  &stereo_initialize_kpMatchingParams;
 
@@ -180,61 +167,42 @@ void shave_tracker::sortFeatures(const tracker::image &image, int number_desired
 
 void shave_tracker::detectMultipleShave(const tracker::image &image)
 {
-    DPRINTF("##shave_tracker## entered detectMultipleShave\n");
+    struct int2 { int x,y; };
+    for (int i = 0; i < shavesToUse; ++i)
+        shaves[i]->start(
+            entryPoints[i], "iiiviivv",
+            scores,
+            offsets,
+            m_thresholdController.control(),
+            &(int2) { 0, (i * (image.height_px / TRACKER_SHAVES_USED)) },
+            image.image,
+            image.stride_px,
+            &(int2) {image.width_px, image.height_px },
+            &(int2) { image.width_px, (image.height_px / TRACKER_SHAVES_USED) }
+        );
 
-    for (int j = 0; j < shavesToUse; j++) {
-        cvrt_detectParams[j]->imgWidth = image.width_px;
-        cvrt_detectParams[j]->imgHeight = image.height_px;
-        cvrt_detectParams[j]->winWidth = image.width_px;
-        cvrt_detectParams[j]->winHeight = image.height_px / TRACKER_SHAVES_USED;
-        cvrt_detectParams[j]->imgStride = image.stride_px;
-        cvrt_detectParams[j]->x = 0;
-        cvrt_detectParams[j]->y = j * (image.height_px / TRACKER_SHAVES_USED);
-        cvrt_detectParams[j]->threshold = m_thresholdController.control();
-        cvrt_detectParams[j]->halfWindow = half_patch_width;
-    }
-
-    for (int i = 0; i < shavesToUse; ++i) {
-        shaves[i]->start(entryPoints[i], "iii", (u32) image.image, (u32) scores,
-                (u32) offsets);
-    } DPRINTF("##shave_tracker## waiting for shaves\n");
-
-    for (int i = 0; i < shavesToUse; ++i) {
+    for (int i = 0; i < shavesToUse; ++i)
         shaves[i]->wait();
-    }
-    DPRINTF("##shave_tracker## features sorted\n");
 }
 
 void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,
         const image& image)
 {
-    DPRINTF("##shave_tracker## entered trackMultipleShave\n");
+    struct int2 { int x,y; };
+    for (int i = 0; i < shavesToUse; ++i)
+        shaves[i]->start(
+            entryPointsTracking[i], "iiiiivii",
+            &trackingData.data()[trackingData.size() * i / shavesToUse],
+            (trackingData.size() * (i+1) / shavesToUse - trackingData.size() * i / shavesToUse),
+            &tracked_features[trackingData.size() * i / shavesToUse],
+            image.image,
+            image.stride_px,
+            &(int2) { image.width_px, image.height_px },
+            full_patch_width, half_patch_width
+        );
 
-    for (int j = 0; j < shavesToUse; j++) {
-        cvrt_detectParams[j]->imgWidth = image.width_px;
-        cvrt_detectParams[j]->imgHeight = image.height_px;
-        cvrt_detectParams[j]->winWidth = full_patch_width;
-        cvrt_detectParams[j]->winHeight = image.height_px;
-        cvrt_detectParams[j]->imgStride = image.stride_px;
-        cvrt_detectParams[j]->x = 0;
-        cvrt_detectParams[j]->y = 0;
-        cvrt_detectParams[j]->threshold = fast_track_threshold;
-        cvrt_detectParams[j]->halfWindow = half_patch_width;
-    }
-
-    for (int i = 0; i < shavesToUse; ++i) {
-        shaves[i]->start(entryPointsTracking[i], "iiii",
-                (u32) &trackingData.data()[trackingData.size() * i / shavesToUse],
-                trackingData.size() * (i+1) / shavesToUse - trackingData.size() * i / shavesToUse,
-                (u32) image.image,
-                (u32) &tracked_features[trackingData.size() * i / shavesToUse]);
-    }
-
-    for (int i = 0; i < shavesToUse; ++i) {
+    for (int i = 0; i < shavesToUse; ++i)
         shaves[i]->wait();
-    }
-
-    DPRINTF("##shave_tracker## shave returned\n");
 }
 
 void shave_tracker::prepTrackingData(std::vector<TrackingData>& trackingData, std::vector<tracker::feature_track *> &predictions)

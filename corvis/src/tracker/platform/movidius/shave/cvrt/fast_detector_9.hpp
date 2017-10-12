@@ -42,7 +42,15 @@ class fast_detector_9 {
     			int bthresh,
     			float min_score);
     void trackFeature(TrackingData* trackingData,int index, const uint8_t* image, xy* out);
+private:
+ 
+    static constexpr int FAST_ROWS = 7;
+    static constexpr int TOTAL_ROWS = FAST_ROWS + 1;
 
+    byte dataBuffer[TOTAL_ROWS * MAX_WIDTH]; //8 lines
+    byte singleFeatureBuffer[128];
+    u8 scoreBuffer[MAX_WIDTH + 4];
+    u16 baseBuffer[MAX_WIDTH + 2];
 };
 
 

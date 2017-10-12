@@ -191,9 +191,11 @@ static void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, D
     }
     imu_object.AddMember(KEY_IMU_GYROSCOPE, gyroscope, a);
 
-    Value thermometer(kObjectType);
-    thermometer.AddMember(KEY_IMU_NOISE_VARIANCE, imu.intrinsics.thermometer.measurement_variance_C2, a);
-    imu_object.AddMember(KEY_IMU_THERMOMETER, thermometer, a);
+    if (imu.intrinsics.thermometer.measurement_variance_C2) {
+        Value thermometer(kObjectType);
+        thermometer.AddMember(KEY_IMU_NOISE_VARIANCE, imu.intrinsics.thermometer.measurement_variance_C2, a);
+        imu_object.AddMember(KEY_IMU_THERMOMETER, thermometer, a);
+    }
 
     Value extrinsics(kObjectType);
     copy_extrinsics_to_json(imu.extrinsics, extrinsics, a);

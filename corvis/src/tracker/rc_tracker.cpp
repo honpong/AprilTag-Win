@@ -809,7 +809,8 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
     for(auto imu : cal.imus) {
         rc_configureAccelerometer(tracker, id, &imu.extrinsics, &imu.intrinsics.accelerometer);
         rc_configureGyroscope(tracker, id, &imu.extrinsics, &imu.intrinsics.gyroscope);
-        rc_configureThermometer(tracker, id++, &imu.extrinsics, &imu.intrinsics.thermometer);
+        if (imu.intrinsics.thermometer.measurement_variance_C2)
+            rc_configureThermometer(tracker, id++, &imu.extrinsics, &imu.intrinsics.thermometer);
         id++;
     }
 

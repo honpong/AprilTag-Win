@@ -46,7 +46,7 @@ int main(int c, char **v)
     if (!rc_setCalibration(r_rc, r_json.c_str())) { std::cerr << "Error parsing JSON " << r_file << "\n"; return 1; }
     if (!rc_setCalibration(l_rc, l_json.c_str())) { std::cerr << "Error parsing JSON " << l_file << "\n"; return 1; }
 
-    rc_Extrinsics ex; rc_CameraIntrinsics c_in; rc_GyroscopeIntrinsics w_in; rc_AccelerometerIntrinsics a_in;
+    rc_Extrinsics ex; rc_CameraIntrinsics c_in; rc_GyroscopeIntrinsics w_in; rc_AccelerometerIntrinsics a_in; rc_ThermometerIntrinsics t_in;
     int i, j;
 
     j=0;
@@ -64,6 +64,10 @@ int main(int c, char **v)
     j=0;
     for (i=0; rc_describeGyroscope(r_rc, i, &ex, &w_in); i++) { ex = r_b_from_fe * ex; rc_configureGyroscope(j_rc, j++, &ex, &w_in); }
     for (i=0; rc_describeGyroscope(l_rc, i, &ex, &w_in); i++) { ex = l_b_from_fe * ex; rc_configureGyroscope(j_rc, j++, &ex, &w_in); }
+
+    j=0;
+    for (i=0; rc_describeThermometer(r_rc, i, &ex, &t_in); i++) { ex = r_b_from_fe * ex; rc_configureThermometer(j_rc, j++, &ex, &t_in); }
+    for (i=0; rc_describeThermometer(l_rc, i, &ex, &t_in); i++) { ex = l_b_from_fe * ex; rc_configureThermometer(j_rc, j++, &ex, &t_in); }
 
     const char *j_json = nullptr;
     size_t len = rc_getCalibration(j_rc, &j_json); if (!len) { std::cerr << "Error generating JSON"; return 1; }

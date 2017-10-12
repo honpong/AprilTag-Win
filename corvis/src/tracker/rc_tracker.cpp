@@ -310,6 +310,54 @@ bool rc_describeGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Extrinsics 
     return true;
 }
 
+bool rc_configureThermometer(rc_Tracker *tracker, rc_Sensor therm_id, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_ThermometerIntrinsics *intrinsics)
+{
+    if(trace)
+        trace_log->info("rc_configureThermometer {} noise {}", therm_id, intrinsics->measurement_variance_C2);
+
+    if(!extrinsics_wrt_origin_m || !intrinsics) return false;
+
+    if(trace)
+        rc_trace(*extrinsics_wrt_origin_m);
+
+    auto &thermometers = tracker->sfm.thermometers;
+
+
+    if(therm_id > thermometers.size()) return false;
+    if(therm_id == thermometers.size()) {
+        if(trace) trace_log->info(" configuring new thermometer");
+        //tracker->queue.require_sensor(rc_SENSOR_TYPE_THERMOMETER, therm_id, std::chrono::microseconds(600));
+        thermometers.push_back(std::make_unique<sensor_thermometer>(therm_id));
+    }
+
+    thermometers[therm_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
+    thermometers[therm_id]->intrinsics = *intrinsics;
+
+    return true;
+}
+
+bool rc_describeThermometer(rc_Tracker *tracker, rc_Sensor therm_id, rc_Extrinsics *extrinsics_wrt_origin_m, rc_ThermometerIntrinsics *intrinsics)
+{
+    if(therm_id >= tracker->sfm.thermometers.size())
+        return false;
+
+    const auto &thermometer = tracker->sfm.thermometers[therm_id];
+
+    if (extrinsics_wrt_origin_m)
+        *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(thermometer->extrinsics);
+
+    if (intrinsics)
+        *intrinsics = thermometer->intrinsics;
+
+    if(trace) {
+        trace_log->info("rc_describeThermometer {} noise {}", therm_id, intrinsics->measurement_variance_C2);
+
+        if (extrinsics_wrt_origin_m)
+            rc_trace(*extrinsics_wrt_origin_m);
+    }
+    return true;
+}
+
 void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double longitude_deg, double altitude_m)
 {
     if(trace) trace_log->info("rc_configureLocation {} {} {}", latitude_deg, longitude_deg, altitude_m);
@@ -603,6 +651,21 @@ bool rc_receiveGyro(rc_Tracker * tracker, rc_Sensor gyroscope_id, rc_Timestamp t
     return true;
 }
 
+bool rc_receiveTemperature(rc_Tracker * tracker, rc_Sensor therm_id, rc_Timestamp time_us, float temperature_C)
+{
+    if(trace) trace_log->info("rc_receiveTemperature {} {}: {}", therm_id, time_us, temperature_C);
+    if (therm_id >= tracker->sfm.thermometers.size())
+        return false;
+
+    sensor_data data(time_us, rc_SENSOR_TYPE_THERMOMETER, therm_id, temperature_C);
+
+    if(tracker->output.started())
+        tracker->output.push(data.make_copy());
+    if (tracker->started())
+        tracker->receive_data(std::move(data));
+    return true;
+}
+
 rc_Pose rc_getRelocOffset(rc_Tracker* tracker) {
     return to_rc_Pose(tracker->sfm.reloc_pose * invert(tracker->sfm.pose_at_reloc));
 }
@@ -766,11 +829,14 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
     tracker->sfm.depths.clear();
     tracker->sfm.accelerometers.clear();
     tracker->sfm.gyroscopes.clear();
+    tracker->sfm.thermometers.clear();
 
     int id = 0;
     for(auto imu : cal.imus) {
         rc_configureAccelerometer(tracker, id, &imu.extrinsics, &imu.intrinsics.accelerometer);
         rc_configureGyroscope(tracker, id, &imu.extrinsics, &imu.intrinsics.gyroscope);
+        if (imu.intrinsics.thermometer.measurement_variance_C2)
+            rc_configureThermometer(tracker, id++, &imu.extrinsics, &imu.intrinsics.thermometer);
         id++;
     }
 

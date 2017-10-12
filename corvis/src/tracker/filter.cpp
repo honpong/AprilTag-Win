@@ -921,6 +921,7 @@ void filter_initialize(struct filter *f)
     for (auto &a : f->accelerometers) a->init_with_variance(a->intrinsics.measurement_variance_m2__s4,   a->intrinsics.decimate_by);
     for (auto &c : f->cameras)        c->init_with_variance(2 * 2);
     for (auto &d : f->depths)         d->init_with_variance(0);
+    for (auto &t : f->thermometers)   t->init_with_variance(t->intrinsics.measurement_variance_C2);
 
     f->last_time = sensor_clock::time_point(sensor_clock::duration(0));
     f->want_start = sensor_clock::time_point(sensor_clock::duration(0));

@@ -48,6 +48,13 @@ sensor_data gyro_for_time(uint64_t timestamp_us)
     return d;
 }
 
+sensor_data temp_for_time(uint64_t timestamp_us)
+{
+    float t = {};
+    sensor_data d(timestamp_us, rc_SENSOR_TYPE_THERMOMETER, 0 /* id */, t);
+    return d;
+}
+
 class intv
 {
 public:
@@ -170,12 +177,13 @@ TEST(SensorFusionQueue, FastCatchup)
     int deprcv = 0;
     int gyrrcv = 0;
     int accrcv = 0;
+    int tmprcv = 0;
     int catchup_accrcv = 0;
     int catchup_gyrrcv = 0;
     
     std::unique_ptr<fusion_queue> q;
     
-    auto dataf = [&catchup_accrcv, &catchup_gyrrcv, &camrcv, &deprcv, &accrcv, &gyrrcv, &q](sensor_data && x) {
+    auto dataf = [&catchup_accrcv, &catchup_gyrrcv, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv, &q](sensor_data && x) {
         switch(x.type) {
             case rc_SENSOR_TYPE_IMAGE:
                 q->dispatch_buffered([&catchup_accrcv, &catchup_gyrrcv](const sensor_data &x) {
@@ -195,6 +203,9 @@ TEST(SensorFusionQueue, FastCatchup)
                 break;
             case rc_SENSOR_TYPE_GYROSCOPE:
                 ++gyrrcv;
+                break;
+            case rc_SENSOR_TYPE_THERMOMETER:
+                ++tmprcv;
                 break;
             case rc_SENSOR_TYPE_STEREO:
                 break;
@@ -220,6 +231,7 @@ TEST(SensorFusionQueue, FastCatchup)
     EXPECT_EQ(0, camrcv);
     EXPECT_EQ(0, accrcv);
     EXPECT_EQ(1, gyrrcv);
+    EXPECT_EQ(0, tmprcv);
     EXPECT_EQ(0, catchup_accrcv);
     EXPECT_EQ(0, catchup_gyrrcv);
     
@@ -229,6 +241,7 @@ TEST(SensorFusionQueue, FastCatchup)
     EXPECT_EQ(0, camrcv);
     EXPECT_EQ(0, accrcv);
     EXPECT_EQ(1, gyrrcv);
+    EXPECT_EQ(0, tmprcv);
     EXPECT_EQ(0, catchup_accrcv);
     EXPECT_EQ(0, catchup_gyrrcv);
     
@@ -275,6 +288,7 @@ TEST(SensorFusionQueue, Threading)
     uint64_t last_dep_time = 0;
     uint64_t last_acc_time = 0;
     uint64_t last_gyr_time = 0;
+    uint64_t last_tmp_time = 0;
     
     //Times in us
     //Thread time isn't really how long we'll spend since we just sleep for interval us
@@ -289,15 +303,18 @@ TEST(SensorFusionQueue, Threading)
     int depsent = 0;
     int gyrsent = 0;
     int accsent = 0;
+    int tmpsent = 0;
     
     int camrcv = 0;
     int deprcv = 0;
     int gyrrcv = 0;
     int accrcv = 0;
+    int tmprcv = 0;
 
     std::unique_ptr<fusion_queue> q;
     
-    auto dataf = [&last_cam_time, &last_dep_time, &last_acc_time, &last_gyr_time, &camrcv, &deprcv, &accrcv, &gyrrcv, &q](sensor_data && x) {
+    auto dataf = [&last_cam_time, &last_dep_time, &last_acc_time, &last_gyr_time, &last_tmp_time,
+                  &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv, &q](sensor_data && x) {
         switch(x.type) {
             case rc_SENSOR_TYPE_IMAGE:
                 EXPECT_GE(x.time_us, last_cam_time);
@@ -319,6 +336,11 @@ TEST(SensorFusionQueue, Threading)
                 EXPECT_GE(x.time_us, last_gyr_time);
                 last_gyr_time = x.time_us;
                 ++gyrrcv;
+                break;
+            case rc_SENSOR_TYPE_THERMOMETER:
+                EXPECT_GE(x.time_us, last_tmp_time);
+                last_tmp_time = x.time_us;
+                ++tmprcv;
                 break;
             case rc_SENSOR_TYPE_STEREO:
                 break;
@@ -472,9 +494,10 @@ TEST(SensorFusionQueue, SameTime)
     int deprcv = 0;
     int gyrrcv = 0;
     int accrcv = 0;
+    int tmprcv = 0;
     uint64_t last_time = 0;
 
-    auto dataf = [&last_time, &camrcv, &deprcv, &accrcv, &gyrrcv](sensor_data && x) {
+    auto dataf = [&last_time, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time);
         last_time = x.time_us;
         switch(x.type) {
@@ -482,6 +505,7 @@ TEST(SensorFusionQueue, SameTime)
             case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
             case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
+            case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
         }
     };
@@ -496,6 +520,8 @@ TEST(SensorFusionQueue, SameTime)
 
     q->receive_sensor_data(std::move(gray8_for_time(5000)));
 
+    q->receive_sensor_data(std::move(temp_for_time(5000)));
+
     q->receive_sensor_data(std::move(depth16_for_time(5000)));
 
     q->stop();
@@ -504,6 +530,7 @@ TEST(SensorFusionQueue, SameTime)
     EXPECT_EQ(deprcv, 1);
     EXPECT_EQ(gyrrcv, 1);
     EXPECT_EQ(accrcv, 1);
+    EXPECT_EQ(tmprcv, 1);
 }
 
 TEST(SensorFusionQueue, MaxLatencyDispatch)
@@ -512,9 +539,10 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
     int deprcv = 0;
     int gyrrcv = 0;
     int accrcv = 0;
+    int tmprcv = 0;
     uint64_t last_time = 0;
 
-    auto dataf = [&last_time, &camrcv, &deprcv, &accrcv, &gyrrcv](sensor_data && x) {
+    auto dataf = [&last_time, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time);
         last_time = x.time_us;
         switch(x.type) {
@@ -522,6 +550,7 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
             case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
             case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
+            case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
         }
     };
@@ -557,6 +586,7 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
 
     EXPECT_EQ(camrcv, 2);
     EXPECT_EQ(deprcv, 0);
+    EXPECT_EQ(tmprcv, 0);
     EXPECT_EQ(gyrrcv, 5);
     EXPECT_EQ(accrcv, 5);
 }
@@ -567,12 +597,13 @@ TEST(SensorFusionQueue, BufferNoDispatch)
     int deprcv = 0;
     int gyrrcv = 0;
     int accrcv = 0;
+    int tmprcv = 0;
     uint64_t buffer_time_us = 50000;
     uint64_t start_time_us = 1000000;
     uint64_t last_time_us = 0;
     uint64_t extra_time_us = 100000;
 
-    auto dataf = [&last_time_us, &start_time_us, &buffer_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv](sensor_data && x) {
+    auto dataf = [&last_time_us, &start_time_us, &buffer_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time_us);
         last_time_us = x.time_us;
         switch(x.type) {
@@ -580,10 +611,11 @@ TEST(SensorFusionQueue, BufferNoDispatch)
             case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
             case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
+            case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
         }
     };
-    
+
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
 
     q->start_buffering(std::chrono::microseconds(buffer_time_us));
@@ -610,12 +642,13 @@ TEST(SensorFusionQueue, Buffering)
     int deprcv = 0;
     int gyrrcv = 0;
     int accrcv = 0;
+    int tmprcv = 0;
     uint64_t buffer_time_us = 50e3;
     uint64_t start_time_us = 1e6;
     uint64_t last_time_us = 0;
     uint64_t extra_time_us = 100e3;
 
-    auto dataf = [&last_time_us, &start_time_us, &buffer_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv](sensor_data && x) {
+    auto dataf = [&last_time_us, &start_time_us, &buffer_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv](sensor_data && x) {
         EXPECT_GE(x.time_us, start_time_us - buffer_time_us);
         EXPECT_GE(x.time_us, last_time_us);
         last_time_us = x.time_us;
@@ -624,6 +657,7 @@ TEST(SensorFusionQueue, Buffering)
             case rc_SENSOR_TYPE_DEPTH: ++deprcv; break;
             case rc_SENSOR_TYPE_ACCELEROMETER: ++accrcv; break;
             case rc_SENSOR_TYPE_GYROSCOPE: ++gyrrcv; break;
+            case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
         }
     };

@@ -109,6 +109,7 @@ typedef enum rc_SensorType
     rc_SENSOR_TYPE_DEPTH = 2,
     rc_SENSOR_TYPE_IMAGE = 3,
     rc_SENSOR_TYPE_STEREO = 4,
+    rc_SENSOR_TYPE_THERMOMETER = 5,
 } rc_SensorType;
 
 typedef enum rc_DataPath
@@ -178,6 +179,7 @@ typedef struct rc_Data
         rc_StereoData stereo;
         rc_Vector angular_velocity_rad__s;
         rc_Vector acceleration_m__s2;
+        float temperature_C;
     };
 } rc_Data;
 
@@ -248,6 +250,10 @@ typedef struct {
     uint32_t decimate_by;
 } rc_GyroscopeIntrinsics;
 
+typedef struct {
+    float measurement_variance_C2;
+} rc_ThermometerIntrinsics;
+
 /**
  @param T Translation to the origin
  @param W Rotation vector specifying the rotation to the origin
@@ -300,6 +306,16 @@ RCTRACKER_API bool rc_describeAccelerometer( rc_Tracker *tracker, rc_Sensor acce
  */
 RCTRACKER_API bool rc_configureGyroscope(rc_Tracker *tracker, rc_Sensor gyro_id, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_GyroscopeIntrinsics *intrinsics);
 RCTRACKER_API bool rc_describeGyroscope( rc_Tracker *tracker, rc_Sensor gyro_id,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_GyroscopeIntrinsics *intrinsics);
+
+/**
+ Configure or describe an thermometer.
+ @param tracker The active rc_Tracker instance
+ @param therm_id The id of the temperature sensor to configure/describe. Temperature sensor ids start at 0 and must be sequential.
+
+ Must be called before rc_startTracker().
+ */
+RCTRACKER_API bool rc_configureThermometer(rc_Tracker *tracker, rc_Sensor therm_id, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_ThermometerIntrinsics *intrinsics);
+RCTRACKER_API bool rc_describeThermometer( rc_Tracker *tracker, rc_Sensor therm_id,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_ThermometerIntrinsics *intrinsics);
 
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
@@ -431,6 +447,14 @@ RCTRACKER_API bool rc_receiveAccelerometer(rc_Tracker *tracker, rc_Sensor accele
  @param angular_velocity_rad__s Vector of measured angular velocity in radians/second
  */
 RCTRACKER_API bool rc_receiveGyro(rc_Tracker *tracker, rc_Sensor gyro_id, rc_Timestamp time_us, rc_Vector angular_velocity_rad__s);
+
+/*
+ @param tracker The active rc_Tracker instance
+ @param therm_id The id of the thermometer
+ @param time_us Timestamp (in microseconds)
+ @param temperature_C the measurement in degrees Celsius
+ */
+RCTRACKER_API bool rc_receiveTemperature(rc_Tracker *tracker, rc_Sensor therm_id, rc_Timestamp time_us, float temperature_C);
 
 /**
  @param tracker The active rc_Tracker instance

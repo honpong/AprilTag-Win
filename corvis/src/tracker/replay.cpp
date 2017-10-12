@@ -391,6 +391,12 @@ void replay::start(string map_filename)
 
                     break;
                 }
+                case packet_thermometer:
+                {
+                    auto thermometer = (packet_thermometer_t *)packet;
+                    rc_receiveTemperature(tracker, packet->header.sensor_id, packet->header.time, thermometer->temperature_C);
+                    break;
+                }
                 case packet_filter_control:
                 {
                     // this legacy packet used a field in the header

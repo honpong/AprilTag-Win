@@ -55,6 +55,7 @@ enum packet_type {
     packet_core_motion = 27,
     packet_image_with_depth = 28,
     packet_image_raw = 29,
+    packet_thermometer = 31,
     packet_stereo_raw = 40,
     packet_image_stereo = 41,
     packet_rc_pose = 42,
@@ -128,6 +129,11 @@ typedef struct {
     packet_header_t header;
     float w[3]; // rad/s
 } packet_gyroscope_t;
+
+typedef struct {
+    packet_header_t header;
+    float temperature_C;
+} packet_thermometer_t;
 
 typedef struct {
     packet_header_t header;

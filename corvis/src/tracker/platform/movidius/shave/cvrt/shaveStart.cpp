@@ -1,31 +1,7 @@
-///
-/// @file
-/// @copyright All code copyright Movidius Ltd 2012, all rights reserved.
-///            For License Warranty see: common/license.txt
-///
-/// @brief
-///
-
-// 1: Includes
-// ----------------------------------------------------------------------------
 #include <mv_types.h>
 #include <moviVectorTypes.h>
-#include <swcFrameTypes.h>
-#include <svuCommonShave.h>
 #include "fast_detector_9.hpp"
 #include "commonDefs.hpp"
-
-
-// 2:  Source Specific #defines and types  (typedef,enum,struct)
-// ----------------------------------------------------------------------------
-// 3: Global Data (Only if absolutely necessary)
-// ----------------------------------------------------------------------------
-// 4: Static Local Data
-// ----------------------------------------------------------------------------
-// 5: Static Function Prototypes
-// ----------------------------------------------------------------------------
-// 6: Functions Implementation
-// ----------------------------------------------------------------------------
 
 static fast_detector_9 detector;
 
@@ -47,5 +23,3 @@ extern "C" void fast_track(TrackingData *data, int size, xy *out, const uint8_t 
 	SHAVE_HALT;
 	return;
 }
-
-

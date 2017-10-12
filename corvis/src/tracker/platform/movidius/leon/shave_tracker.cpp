@@ -43,10 +43,10 @@ __attribute__((section(".cmx_direct.data"))) float errors1[MAX_KP1];
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
 //tracker
-extern u32 cvrt0_fast_detect;
-extern u32 cvrt1_fast_detect;
-extern u32 cvrt2_fast_detect;
-extern u32 cvrt3_fast_detect;
+extern u32 cvrt4_fast_detect;
+extern u32 cvrt5_fast_detect;
+extern u32 cvrt6_fast_detect;
+extern u32 cvrt7_fast_detect;
 
 extern u32 cvrt0_fast_track;
 extern u32 cvrt1_fast_track;
@@ -62,10 +62,10 @@ struct shave_entry_point { int shave; u32 *entry_point; };
 
 #define DETECT_SHAVES 4
 shave_entry_point fast_detect[DETECT_SHAVES] = {
-    {0, &cvrt0_fast_detect},
-    {1, &cvrt1_fast_detect},
-    {2, &cvrt2_fast_detect},
-    {3, &cvrt3_fast_detect},
+    {4, &cvrt4_fast_detect},
+    {5, &cvrt5_fast_detect},
+    {6, &cvrt6_fast_detect},
+    {7, &cvrt7_fast_detect},
 };
 
 #define TRACK_SHAVES 4

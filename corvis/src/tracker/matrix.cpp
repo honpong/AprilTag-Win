@@ -163,9 +163,11 @@ bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = L^-T B
     if (llt.info() == Eigen::NumericalIssue)
         return false;
 #if defined(ENABLE_SHAVE_SOLVE) || defined(HAVE_BLIS)
-    if (A.rows() > 3)
+    if (A.rows() > 3) {
+        START_EVENT(SF_MSOLVE_HW, A.rows());
         matrix_solve_blis(A, B, BLIS_LOWER, false);
-    else
+        END_EVENT(SF_MSOLVE_HW, B.cols());
+    } else
 #endif
     llt.matrixL().solveInPlace(B_map);
     }

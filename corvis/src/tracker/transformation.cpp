@@ -163,7 +163,7 @@ struct estimated_transformation {
         f_t e = (xyz.head<2>()/xyz.z() - state.dst[*i]).norm();
         return e < state.threshold;
     }
-    bool operator>(estimated_transformation &o) {
+    bool operator<(estimated_transformation &o) {
         return indices.size() != o.indices.size()
              ? indices.size() < o.indices.size()
              : reprojection_error() > o.reprojection_error();

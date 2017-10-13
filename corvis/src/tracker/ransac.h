@@ -15,7 +15,8 @@ ForwardIt random_n(ForwardIt begin, ForwardIt end, size_t n, Generator &gen) {
 
 // Models should compare by their fitness and allow being called to determine if the argument "fits the model well enough"
 template <size_t N, typename Model, typename State, typename ForwardIt, typename Generator>
-    Model ransac(State &state, ForwardIt begin, ForwardIt end, Generator &gen, int max_iterations = 10, float confidence = .99f, unsigned min_matches = 1) {
+    Model ransac(State &state, ForwardIt begin, ForwardIt end, Generator &gen, int max_iterations = 10,
+                 float confidence = .99f, unsigned min_matches = 1, unsigned max_matches = std::numeric_limits<unsigned>::max()) {
     static_assert(N > 0,"N>0"); assert(begin + N <= end); assert(0 <= confidence && confidence < 1);
     Model best_model(state, begin, begin);
     for (int n=max_iterations, i = 0; i < n; i++) {
@@ -29,14 +30,16 @@ template <size_t N, typename Model, typename State, typename ForwardIt, typename
                 std::iter_swap(also_inliers++, mi);
         if (also_inliers - begin >= min_matches) {
             if (also_inliers == maybe_inliers) {
-                if (best_model > maybe_model)
+                if (best_model < maybe_model)
                     best_model = std::move(maybe_model); // FIXME: remove this case?  Seems like a pointless optimization
             } else {
                 Model maybe_better_model(state, begin, also_inliers);
-                if (best_model > maybe_better_model)
+                if (best_model < maybe_better_model)
                     best_model = std::move(maybe_better_model);
             }
         }
+        if (also_inliers - begin >= max_matches)
+            break;
         float inlier_fraction = (float)(also_inliers-begin)/(end-begin);
         float n_ = logf(1-confidence)/logf(1 - powf(inlier_fraction,N));
         n = std::min<int>(std::round(n_), n);

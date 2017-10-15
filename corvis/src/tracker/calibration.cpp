@@ -386,7 +386,8 @@ static bool copy_json_to_imus(Value & json, std::vector<sensor_calibration_imu> 
 
         copy_json_to_accelerometer(json_imu[KEY_IMU_ACCELEROMETER], imu.intrinsics.accelerometer);
         copy_json_to_gyroscope(json_imu[KEY_IMU_GYROSCOPE], imu.intrinsics.gyroscope);
-        copy_json_to_thermometer(json_imu[KEY_IMU_THERMOMETER], imu.intrinsics.thermometer);
+        if(json_imu.HasMember(KEY_IMU_THERMOMETER))
+            copy_json_to_thermometer(json_imu[KEY_IMU_THERMOMETER], imu.intrinsics.thermometer);
         copy_json_to_extrinsics(json_imu[KEY_EXTRINSICS], imu.extrinsics);
         imus.push_back(imu);
     }

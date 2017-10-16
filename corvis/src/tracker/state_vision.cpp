@@ -246,7 +246,14 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
             }
         }
     }
-    standby_features.remove_if([](tracker::feature_track &t) {return !t.found();});
+    standby_features.remove_if([&map](tracker::feature_track &t) {
+        bool not_found = !t.found();
+        if (map && not_found) {
+            // Triangulate point not in filter neither being tracked
+            map->triangulate_keypoint(t);
+        }
+        return not_found;
+    });
 
     if(track_fail && !total_feats) log.warn("Tracker failed! {} features dropped.", track_fail);
     //    log.warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);

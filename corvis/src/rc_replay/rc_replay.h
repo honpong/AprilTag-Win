@@ -39,7 +39,7 @@ public:
     void enable_pose_output();
     void enable_tum_output();
     void enable_status_output();
-    void start_mapping();
+    void start_mapping(bool relocalize);
 };
 
 };

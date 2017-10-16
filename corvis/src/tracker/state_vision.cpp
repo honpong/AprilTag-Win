@@ -7,6 +7,7 @@
 #include "transformation.h"
 #include <spdlog/fmt/ostr.h> // must be included to use our operator<<
 #include "Trace.h"
+#include <limits>
 
 #ifdef MYRIAD2
     #include "platform_defines.h"
@@ -78,11 +79,12 @@ bool state_vision_feature::force_initialize()
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
 
-state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): camera(camera_), health(0), status(group_initializing)
+state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): camera(camera_)
 {
     id = group_id;
     children.push_back(&Qr);
     children.push_back(&Tr);
+    children.push_back(&features);
     Tr.v = v3(0, 0, 0);
     Qr.v = quaternion::Identity();
     f_t near_zero = F_T_EPS * 100;
@@ -129,7 +131,6 @@ int state_vision_group::process_features()
 
 int state_vision_group::make_reference()
 {
-    if(status == group_initializing) make_normal();
     assert(status == group_normal);
     status = group_reference;
     int normals = 0;
@@ -146,14 +147,6 @@ int state_vision_group::make_reference()
     }
     //remove_child(&Tr);
     //Qr.saturate();
-    return 0;
-}
-
-int state_vision_group::make_normal()
-{
-    assert(status == group_initializing);
-    children.push_back(&features);
-    status = group_normal;
     return 0;
 }
 
@@ -214,6 +207,16 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
+transformation state_camera::get_group_transformation(uint64_t group_id) const
+{
+    for(state_vision_group *g: groups.children) {
+        if(g->id == group_id)
+           return transformation(g->Qr.v, g->Tr.v);
+    }
+    assert(false); // group_id is not in the filter, should never fall through to here.
+    return transformation();
+}
+
 int state_camera::process_features(mapper *map, spdlog::logger &log)
 {
     int useful_drops = 0;
@@ -256,7 +259,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
         // the group (the number of features)
         int health = g->process_features();
 
-        if(g->status && g->status != group_initializing)
+        if(g->status != group_empty)
             total_health += health;
 
         // Notify features that this group is about to disappear
@@ -267,10 +270,6 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
         // Found our reference group
         if(g->status == group_reference)
             need_reference = false;
-
-        // If we have enough features to initialize the group, do it
-        if(g->status == group_initializing && health >= g->min_feats)
-            g->make_normal();
 
         if(g->status == group_normal) {
             ++normal_groups;
@@ -294,15 +293,18 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     return total_health;
 }
 
-void state_vision::update_map(const rc_ImageData &image, mapper *map, spdlog::logger &log)
+void state_vision::update_map(mapper *map)
 {
     if (!map) return;
-
+    float distance_current_node = std::numeric_limits<float>::max();
     for (auto &camera : cameras.children) {
         for (auto &g : camera->groups.children) {
-            if (g->status == group_normal || g->status == group_reference)
-                map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
-
+            map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
+            // Set current node as the closest active group to current pose
+            if(g->Tr.v.norm() <= distance_current_node) {
+                distance_current_node = g->Tr.v.norm();
+                map->current_node_id = g->id;
+            }
             for (state_vision_feature *f : g->features.children) {
                 float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
                 float variance_meters = stdev*stdev;
@@ -325,21 +327,18 @@ state_vision_feature * state_vision::add_feature(const tracker::feature_track &t
     return new state_vision_feature(track_, group);
 }
 
-state_vision_group * state_vision::add_group(state_camera &camera, mapper *map)
+state_vision_group * state_vision::add_group(state_camera &camera, const rc_Sensor camera_id, mapper *map)
 {
     state_vision_group *g = new state_vision_group(camera, group_counter++);
     if(map) {
-        map->add_node(g->id);
-        if(camera.groups.children.empty() && g->id != 0) // FIXME: what if the other camera has groups?
-        {
-            map->add_edge(g->id, g->id-1);
-            g->old_neighbors.push_back(g->id-1);
-        }
-        for(auto &neighbor : camera.groups.children) {
-            map->add_edge(g->id, neighbor->id);
+        map->add_node(g->id, camera_id);
 
-            g->old_neighbors.push_back(neighbor->id);
-            neighbor->neighbors.push_back(g->id);
+        // add edge in the map between new group and active groups in the filter
+        const transformation& G_gnew_now = transformation(g->Qr.v, g->Tr.v);
+        for(auto &neighbor : camera.groups.children) {
+            const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
+            transformation G_gnew_neighbor = G_gnew_now*G_now_neighbor;
+            map->add_edge(g->id, neighbor->id, G_gnew_neighbor);
         }
     }
     camera.groups.children.push_back(g);
@@ -524,7 +523,7 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
     feature_tracker->tracks.clear();
     feature_tracker->tracks.reserve(feature_count());
     for(state_vision_group *g : groups.children) {
-        if(!g->status || g->status == group_initializing) continue;
+        if(g->status == group_empty) continue;
         for(state_vision_feature *feature : g->features.children)
             feature_tracker->tracks.emplace_back(&feature->track);
         for(state_vision_feature *feature : g->lost_features)

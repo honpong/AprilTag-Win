@@ -33,7 +33,8 @@ int main(int c, char **v)
              << "   [--no-plots] [--no-video] [--no-main] [--no-depth]\n"
              << "   [--render <file.png>] [--incremental-ate] [--display-reloc]\n"
              << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
-             << "   [--enable-map] [--save-map <map-json>] [--load-map <map-json>]\n";
+             << "   [--enable-map] [--save-map <map-json>] [--load-map <map-json>]\n"
+             << "   [--relocalize]\n";
         return 1;
     }
 
@@ -45,6 +46,7 @@ int main(int c, char **v)
     bool enable_map = false;
     bool incremental_ate = false;
     bool display_reloc = false;
+    bool relocalize = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
     char *pause_at = nullptr;
     rc_MessageLevel message_level = rc_MESSAGE_WARN;
@@ -79,6 +81,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--progress") == 0) progress = true;
         else if (strcmp(v[i], "--incremental-ate") == 0) incremental_ate = true;
         else if (strcmp(v[i], "--display-reloc") == 0) display_reloc = true;
+        else if (strcmp(v[i], "--relocalize") == 0) relocalize = true;
         else if (strcmp(v[i], "--trace") == 0) message_level = rc_MESSAGE_TRACE;
         else if (strcmp(v[i], "--debug") == 0) message_level = rc_MESSAGE_DEBUG;
         else if (strcmp(v[i], "--error") == 0) message_level = rc_MESSAGE_ERROR;
@@ -96,7 +99,7 @@ int main(int c, char **v)
         if(qvga) rp.enable_qvga();
         if(!depth) rp.disable_depth();
         if(realtime) rp.enable_realtime();
-        if(enable_map) rp.start_mapping();
+        if(enable_map) rp.start_mapping(relocalize);
         if(fast_path) rp.enable_fast_path();
         if(async) rp.enable_async();
 

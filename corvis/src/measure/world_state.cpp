@@ -98,7 +98,7 @@ void world_state::observe_world(float world_up_x, float world_up_y, float world_
     display_lock.unlock();
 }
 
-void world_state::observe_map_node(uint64_t timestamp, uint64_t node_id, bool finished, bool loop_closed, bool unlinked, const transformation &position, std::vector<uint64_t> & neighbors, std::vector<Feature> & features)
+void world_state::observe_map_node(uint64_t timestamp, uint64_t node_id, bool finished, const std::set<uint64_t>& loop_closed, bool unlinked, const transformation& position, std::vector<uint64_t>& neighbors, std::vector<Feature>& features)
 {
     display_lock.lock();
     MapNode n;
@@ -491,12 +491,12 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
 
     if(f->map) {
         for(auto map_node : f->map->get_nodes()) {
-            bool loop_closed = false;
+            std::set<uint64_t> loop_closed;
             std::vector<uint64_t> neighbors;
             for(auto edge : map_node.edges) {
-                neighbors.push_back(edge.neighbor);
-                if(edge.loop_closure)
-                    loop_closed = true;
+                neighbors.push_back(edge.first);
+                if(edge.second.loop_closure)
+                    loop_closed.insert(edge.first);
             }
             std::vector<Feature> features;
             for(auto &feat : map_node.features) {
@@ -809,7 +809,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         VertexData v;
         if(!node.finished)
             set_color(&v, 255, 0, 255, alpha);
-        else if(node.loop_closed)
+        else if(!node.loop_closed.empty())
             set_color(&v, 255, 0, 0, alpha);
         else
             set_color(&v, 255, 255, 0, alpha);
@@ -820,7 +820,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
             if(!node.finished || !map_nodes[neighbor_id].finished) continue;
 
             VertexData ve;
-            if(node.loop_closed && map_nodes[neighbor_id].loop_closed)
+            if(node.loop_closed.find(neighbor_id) != node.loop_closed.end())
                 set_color(&ve, 255, 0, 0, 255);
             else
                 set_color(&ve, 255, 0, 255, alpha*0.2);
@@ -828,7 +828,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
             map_edge_vertex.push_back(ve);
 
             auto node2 = map_nodes[neighbor_id];
-            if(node.loop_closed && map_nodes[neighbor_id].loop_closed)
+            if(node.loop_closed.find(neighbor_id) != node.loop_closed.end())
                 set_color(&ve, 255, 0, 0, 255);
             else
                 set_color(&ve, 255, 0, 255, alpha*0.2);
@@ -839,7 +839,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
             VertexData vf;
             v3 vertex(f.feature.world.x, f.feature.world.y, f.feature.world.z);
             vertex = transformation_apply(node.position, vertex);
-            if(node.loop_closed)
+            if(!node.loop_closed.empty())
                 set_color(&vf, 255, 127, 127, 255);
             else
                 set_color(&vf, 0, 0, 255, alpha);

@@ -8,13 +8,14 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        std::cerr << "Usage: " << v[0] << " [--drop-depth] [--qvga] [--output-poses] [--output-tum] [--output-status] [--output-summary] [--pause] [--version] <logfile>..\n";
+        std::cerr << "Usage: " << v[0] << " [--drop-depth] [--qvga] [--output-poses] [--output-tum] [--output-status] [--output-summary] [--pause] [--enable-map] [--relocalize] [--version] <logfile>..\n";
         return 1;
     }
 
     rc::replay rp;
 
     int filenames = 0; bool summary = false; bool pause = false;
+    bool relocalize = false;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-') v[1+filenames++] = v[i];
         else if (strcmp(v[i], "--drop-depth") == 0) rp.disable_depth();
@@ -24,7 +25,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--output-status") == 0) rp.enable_status_output();
         else if (strcmp(v[i], "--output-summary") == 0) summary = true;
         else if (strcmp(v[i], "--pause") == 0) pause = true;
-        else if (strcmp(v[i], "--enable-map") == 0) rp.start_mapping();
+        else if (strcmp(v[i], "--enable-map") == 0) {relocalize = true; rp.start_mapping(relocalize); }
         else if (strcmp(v[i], "--version") == 0) {
             std::cerr << rp.get_version() << "\n\n"; goto usage;
         }

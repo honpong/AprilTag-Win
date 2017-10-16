@@ -39,7 +39,7 @@ typedef struct _ImageData {
 typedef struct _mapnode {
     uint64_t id;
     bool finished;
-    bool loop_closed;
+    std::set<uint64_t> loop_closed;
     bool unlinked;
     transformation position;
     std::vector<uint64_t> neighbors;
@@ -139,7 +139,7 @@ public:
     void observe_image(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data);
     void observe_depth(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data);
     void observe_depth_overlay_image(uint64_t timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
-    void observe_map_node(uint64_t timestamp_us, uint64_t id, bool finished, bool loop_closed, bool is_unlinked, const transformation &T, std::vector<uint64_t> & neighbors, std::vector<Feature> & features);
+    void observe_map_node(uint64_t timestamp_us, uint64_t id, bool finished, const std::set<uint64_t>& loop_closed, bool is_unlinked, const transformation& T, std::vector<uint64_t>& neighbors, std::vector<Feature>& features);
     void observe_ate(uint64_t timestamp_us, const float absolute_trajectory_error);
     void observe_position_reloc(uint64_t timestamp, const std::vector<transformation>& transformation_vector);
     std::string get_feature_stats();

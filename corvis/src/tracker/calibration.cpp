@@ -193,7 +193,12 @@ static void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, D
 
     if (imu.intrinsics.thermometer.measurement_variance_C2) {
         Value thermometer(kObjectType);
-        thermometer.AddMember(KEY_IMU_NOISE_VARIANCE, imu.intrinsics.thermometer.measurement_variance_C2, a);
+
+        auto &t = imu.intrinsics.thermometer;
+        thermometer.AddMember(KEY_IMU_SCALE_AND_ALIGNMENT, t.scale_and_alignment, a);
+        thermometer.AddMember(KEY_IMU_BIAS,                t.bias_C, a);
+        thermometer.AddMember(KEY_IMU_BIAS_VARIANCE,       t.bias_variance_C2, a);
+        thermometer.AddMember(KEY_IMU_NOISE_VARIANCE,      t.measurement_variance_C2, a);
         imu_object.AddMember(KEY_IMU_THERMOMETER, thermometer, a);
     }
 

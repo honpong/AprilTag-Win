@@ -251,6 +251,9 @@ typedef struct {
 } rc_GyroscopeIntrinsics;
 
 typedef struct {
+    float scale_and_alignment;
+    float bias_C;
+    float bias_variance_C2;
     float measurement_variance_C2;
 } rc_ThermometerIntrinsics;
 

@@ -516,11 +516,11 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
     camera.detecting_space = 0;
 
     auto froom = std::max(0, detect_count - standby_count);
-    auto space = std::max(froom, reloc_count - standby_count - feature_count);
+    auto space = std::max(froom, reloc_count - feature_count);
 
     if(!space && !update_frame) return; // FIXME: what min number is worth detecting?
 
-    camera.feature_tracker->tracks.reserve(feature_count + standby_count + space);
+    camera.feature_tracker->tracks.reserve(feature_count + space);
 
     for(auto &g : camera.groups.children)
         for(auto &i : g->features.children)

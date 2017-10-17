@@ -1,6 +1,6 @@
 #include "resource.h"
 
-#if defined(WIN32) || defined(WIN64)
+#if defined(WIN32) || defined(_WIN32)
 #include <windows.h>
 #endif
 

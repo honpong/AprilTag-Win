@@ -3,7 +3,7 @@
 #include <sys/stat.h>
 #include <string>
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 #include <windows.h>
 #else
 #include <dirent.h>

@@ -1,4 +1,4 @@
-#ifndef WIN32
+#if !defined(WIN32) && !defined(_WIN32)
 #include <alloca.h>
 #endif
 #include <limits>

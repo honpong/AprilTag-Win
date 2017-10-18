@@ -216,48 +216,59 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
     mapper::matches current_to_candidate_matches;
 
     if (candidate_frame->keypoints.size() > 0 && current_frame->keypoints.size() > 0) {
-        auto it_candidate = candidate_frame->dbow_direct_file.begin();
-        auto it_current = current_frame->dbow_direct_file.begin();
-
-        while (it_candidate != candidate_frame->dbow_direct_file.end() &&
-               it_current != current_frame->dbow_direct_file.end()) {
-            if (it_current->first < it_candidate->first) {
-                ++it_current;
-            } else if (it_current->first > it_candidate->first) {
-                ++it_candidate;
-            } else {
-                auto candidate_keypoint_indexes = it_candidate->second;
-                auto current_keypoint_indexes = it_current->second;
-
-                for (int current_point_idx : current_keypoint_indexes) {
-                    int best_candidate_point_idx;
-                    int best_distance = std::numeric_limits<int>::max();
-                    int second_best_distance = std::numeric_limits<int>::max();
-                    auto& current_keypoint = *current_frame->keypoints[current_point_idx];
-                    for (int candidate_point_idx : candidate_keypoint_indexes) {
-                        auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
-                        int dist = orb_descriptor::distance(candidate_keypoint.descriptor,
-                                                            current_keypoint.descriptor);
-                        if (dist < best_distance
-                            // Use only keypoints with 3D estimation
-                            && features_dbow.find(candidate_keypoint.id) != features_dbow.end()) {
-                            second_best_distance = best_distance;
-                            best_distance = dist;
-                            best_candidate_point_idx = candidate_point_idx;
-                        }
-                    }
-
-                    // not match if more than 50 bits are different
-                    if (best_distance <= 50 && (best_distance < second_best_distance * 0.6f)) {
-                        auto& best_candidate_keypoint = *candidate_frame->keypoints[best_candidate_point_idx];
-                        size_t bin = calculate_orientation_bin(best_candidate_keypoint.descriptor,
-                                                               current_keypoint.descriptor,
-                                                               num_orientation_bins);
-                        increment_orientation_histogram[bin].push_back(mapper::match(current_point_idx, best_candidate_point_idx));
+        auto match = [&current_frame, &candidate_frame, &features_dbow, &increment_orientation_histogram](
+                const std::vector<unsigned int>& current_keypoint_indexes,
+                const std::vector<unsigned int>& candidate_keypoint_indexes) {
+            for (unsigned int current_point_idx : current_keypoint_indexes) {
+                int best_candidate_point_idx;
+                int best_distance = std::numeric_limits<int>::max();
+                int second_best_distance = std::numeric_limits<int>::max();
+                auto& current_keypoint = *current_frame->keypoints[current_point_idx];
+                for (unsigned int candidate_point_idx : candidate_keypoint_indexes) {
+                    auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
+                    int dist = orb_descriptor::distance(candidate_keypoint.descriptor,
+                                                        current_keypoint.descriptor);
+                    if (dist < best_distance
+                        // Use only keypoints with 3D estimation
+                        && features_dbow.find(candidate_keypoint.id) != features_dbow.end()) {
+                        second_best_distance = best_distance;
+                        best_distance = dist;
+                        best_candidate_point_idx = candidate_point_idx;
                     }
                 }
-                ++it_current;
-                ++it_candidate;
+
+                // not match if more than 50 bits are different
+                if (best_distance <= 50 && (best_distance < second_best_distance * 0.6f)) {
+                    auto& best_candidate_keypoint = *candidate_frame->keypoints[best_candidate_point_idx];
+                    size_t bin = calculate_orientation_bin(best_candidate_keypoint.descriptor,
+                                                           current_keypoint.descriptor,
+                                                           num_orientation_bins);
+                    increment_orientation_histogram[bin].push_back(mapper::match(current_point_idx, best_candidate_point_idx));
+                }
+            }
+        };
+
+        if (candidate_frame->dbow_direct_file.empty() && current_frame->dbow_direct_file.empty()) {
+            // not using dbow direct file to prefilter matches
+            auto fill_with_indices = [](size_t N) {
+                std::vector<unsigned int> v;
+                v.reserve(N);
+                for (size_t i = 0; i < N; ++i) v.push_back(i);
+                return std::move(v);
+            };
+            std::vector<unsigned int> current_keypoint_indexes = fill_with_indices(current_frame->keypoints.size());
+            std::vector<unsigned int> candidate_keypoint_indexes = fill_with_indices(candidate_frame->keypoints.size());
+            match(current_keypoint_indexes, candidate_keypoint_indexes);
+        } else {
+            // dbow direct file is used
+            for (auto it_candidate = candidate_frame->dbow_direct_file.begin();
+                 it_candidate != candidate_frame->dbow_direct_file.end(); ++it_candidate) {
+                auto it_current = current_frame->dbow_direct_file.find(it_candidate->first);
+                if (it_current != current_frame->dbow_direct_file.end()) {
+                    const auto& candidate_keypoint_indexes = it_candidate->second;
+                    const auto& current_keypoint_indexes = it_current->second;
+                    match(current_keypoint_indexes, candidate_keypoint_indexes);
+                }
             }
         }
 

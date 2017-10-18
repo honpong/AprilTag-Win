@@ -99,6 +99,7 @@ class mapper {
     void get_triangulation_geometry(const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses);
     void add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& point_3d);
     nodes_path breadth_first_search(nodeid start, int maxdepth = 1);
+    nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; }
     map_node& get_node(nodeid id) { return nodes[id]; }

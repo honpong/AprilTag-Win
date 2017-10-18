@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <limits.h>
 #include <queue>
+#include <unordered_set>
 #include "mapper.h"
 #include "resource.h"
 #include "state_vision.h"
@@ -172,6 +173,45 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
     }
 
     return neighbor_nodes;
+}
+
+mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& searched_nodes)
+{
+    nodes_path searched_nodes_path;
+    if(!initialized())
+        return searched_nodes_path;
+
+    typedef std::pair<nodeid, transformation> node_path;
+    queue<node_path> next;
+    next.push(node_path{start, transformation()});
+
+    unordered_set<nodeid> nodes_visited;
+    nodes_visited.insert(start);
+
+    while (!next.empty() && !searched_nodes.empty()) {
+        node_path current_path = next.front();
+        nodeid& u = current_path.first;
+        transformation& Gu = current_path.second;
+        next.pop();
+        for(auto edge : nodes[u].edges) {
+            const nodeid& v = edge.first;
+            if(nodes_visited.find(v) == nodes_visited.end()) {
+                nodes_visited.insert(v);
+                const transformation& Gv = edge.second.G;
+                next.push(node_path{v, Gu*Gv});
+            }
+        }
+
+        if(searched_nodes.find(u) != searched_nodes.end()) {
+            searched_nodes_path.insert(current_path);
+            searched_nodes.erase(u);
+        }
+    }
+
+    if(next.empty())
+        assert(searched_nodes.empty()); // If all graph has been traversed searched_nodes should be empty
+
+    return searched_nodes_path;
 }
 
 std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(

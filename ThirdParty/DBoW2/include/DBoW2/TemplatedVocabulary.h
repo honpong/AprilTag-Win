@@ -86,7 +86,25 @@ class TemplatedVocabulary {
      * @param L depth levels.
      */
     void train(const std::vector<std::vector<T>>& descriptors, int k, int L);
-    void train(const std::vector<std::vector<const T*>>& descriptors, int k, int L);
+
+    /** Resets the vocabulary and creates it from a collection of descriptors.
+     * The BowVectors that were already created cannot be matched against
+     * the ones obtained after training.
+     * @param begin_group iterator to the first group of descriptors.
+     * @param end_group iterator to the last+1 group of descriptors.
+     * @param group_op function such that group_op(*begin_group) returns
+     * a std container of structs that contain descriptors. The container must
+     * be a valid parameter for std::begin and std::end.
+     * @param descriptor_op function such that descriptor_op(*it) returns
+     * a reference to a descriptor, where "it" is an iterator that traverses
+     * the container returned by group_op.
+     * @param k branching factor.
+     * @param L depth levels.
+     */
+    template<typename It, typename UnaryGroupOp, typename UnaryDescriptorOp>
+    void train(It begin_group, It end_group,
+               UnaryGroupOp group_op, UnaryDescriptorOp descriptor_op,
+               int k, int L);
 
     /** Returns the normalized tf-idf histogram of some descriptors.
      */
@@ -186,7 +204,9 @@ class TemplatedVocabulary {
 
     /** Sets the weights of the words after training.
      */
-    void setWordWeights(const std::vector<std::vector<const T*>>& descriptors);
+    template<typename It, typename UnaryGroupOp, typename UnaryDescriptorOp>
+    void setWordWeights(It begin_group, It end_group, UnaryGroupOp group_op,
+                        UnaryDescriptorOp descriptor_op);
 
     /** Transforms descriptors into words.
      */
@@ -385,22 +405,17 @@ WordId TemplatedVocabulary<T, type>::traverseTree(
 template<typename T, int type>
 void TemplatedVocabulary<T, type>::train(
         const std::vector<std::vector<T>>& descriptors, int k, int L) {
-    std::vector<std::vector<const T*>> pdescriptors;
-    pdescriptors.reserve(descriptors.size());
-    for (auto& document : descriptors) {
-        std::vector<const T*> pointers;
-        std::transform(document.begin(), document.end(),
-                       std::back_inserter(pointers),
-                       [](const T& descriptor) { return &descriptor; });
-        pdescriptors.emplace_back(std::move(pointers));
-    }
-    train(pdescriptors, k, L);
+    train(descriptors.begin(), descriptors.end(),
+          identity<std::vector<T>>, identity<T>, k, L);
 }
 
 template<typename T, int type>
-void TemplatedVocabulary<T, type>::train(
-        const std::vector<std::vector<const T*>>& descriptors, int k, int L) {
-    if (k <= 1 || L <= 0 || descriptors.empty()) {
+template<typename It, typename UnaryGroupOp, typename UnaryDescriptorOp>
+void TemplatedVocabulary<T, type>::train(It begin_group, It end_group,
+                                         UnaryGroupOp group_op,
+                                         UnaryDescriptorOp descriptor_op,
+                                         int k, int L) {
+    if (k <= 1 || L <= 0 || begin_group == end_group) {
         clear();
         return;
     }
@@ -411,12 +426,11 @@ void TemplatedVocabulary<T, type>::train(
     m_nodes = &m_nodes_pool[0];
 
     std::vector<const T*> corpus;
-    {
-        size_t n = 0;
-        for (auto& document : descriptors) n += document.size();
-        corpus.reserve(n);
-        for (auto& document : descriptors) {
-            for (auto* item : document) corpus.emplace_back(item);
+    for (auto group_it = begin_group; group_it != end_group; ++group_it) {
+        const auto& features = group_op(*group_it);
+        for (auto it = std::begin(features); it != std::end(features); ++it) {
+            const auto* item = &descriptor_op(*it);
+            corpus.emplace_back(item);
         }
     }
 
@@ -429,7 +443,7 @@ void TemplatedVocabulary<T, type>::train(
         }
     }
 
-    setWordWeights(descriptors);
+    setWordWeights(begin_group, end_group, group_op, descriptor_op);
 }
 
 template<typename T, int type>
@@ -581,20 +595,24 @@ TemplatedVocabulary<T, type>::trainInitialKMppClusters(
 }
 
 template<typename T, int type>
+template<typename It, typename UnaryGroupOp, typename UnaryDescriptorOp>
 void TemplatedVocabulary<T, type>::setWordWeights(
-        const std::vector<std::vector<const T*>>& descriptors) {
+        It begin_group, It end_group,
+        UnaryGroupOp group_op, UnaryDescriptorOp descriptor_op) {
     std::unordered_map<WordId, int> document_counter;
-    for (auto& document : descriptors) {
+    for (auto group_it = begin_group; group_it != end_group; ++group_it) {
+        const auto& group = group_op(*group_it);
         std::unordered_set<WordId> words;
-        for (auto* descriptor : document) {
-            words.emplace(traverseTree(*descriptor));
+        for (auto it = std::begin(group); it != std::end(group); ++it) {
+            words.emplace(traverseTree(descriptor_op(*it)));
         }
         for (WordId word : words) ++document_counter[word];
     }
-    const float log_documents = std::log(descriptors.size());
+    const int number_of_documents = std::distance(begin_group, end_group);
+    const float log_documents = std::log(number_of_documents);
     for (auto& pair : document_counter) {
         // idf = log(|D| / |D containing word|)
-        if (pair.second < descriptors.size()) {
+        if (pair.second < number_of_documents) {
             m_nodes_pool[pair.first].weight =
                     log_documents - std::log(pair.second);
         }

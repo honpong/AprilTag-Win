@@ -92,7 +92,7 @@ class mapper {
     typedef uint64_t nodeid;
     typedef std::pair<nodeid, nodeid> match;
     typedef std::vector<match> matches;
-    typedef std::pair<nodeid, transformation> node_path;
+    typedef std::map<nodeid, transformation> nodes_path;
 
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     bool initialized() const { return (current_node_id != std::numeric_limits<uint64_t>::max()); }
@@ -102,7 +102,7 @@ class mapper {
     void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, const float depth_variance_m2, const bool is_new = true);
     void get_triangulation_geometry(const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses);
     void add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& point_3d);
-    std::vector<node_path> breadth_first_search(nodeid start, int maxdepth = 1);
+    nodes_path breadth_first_search(nodeid start, int maxdepth = 1);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; }
     map_node& get_node(nodeid id) { return nodes[id]; }

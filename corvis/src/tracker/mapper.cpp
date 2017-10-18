@@ -139,12 +139,13 @@ void mapper::node_finished(nodeid id)
         dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index
 }
 
-vector<mapper::node_path> mapper::breadth_first_search(nodeid start, int maxdepth) {
-    vector<node_path> neighbor_nodes;
+mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth) {
+    nodes_path neighbor_nodes;
 
     if(!initialized())
         return neighbor_nodes;
 
+    typedef std::pair<nodeid, transformation> node_path;
     queue<node_path> next;
     next.push(node_path{start, transformation()});
 
@@ -168,7 +169,7 @@ vector<mapper::node_path> mapper::breadth_first_search(nodeid start, int maxdept
                 }
             }
         }
-        neighbor_nodes.push_back(current_path);
+        neighbor_nodes.insert(current_path);
     }
     for(auto neighbor : neighbor_nodes) {
         nodes[neighbor.first].parent = -1;
@@ -353,10 +354,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
             aligned_vector<v2> current_2d_points;
             transformation G_candidate_currentframe;
             // Estimate pose from 3d-2d matches
-            auto neighbors = breadth_first_search(nid.first, 1); // all points observed from this candidate node should be created at a node 1 edge away in the graph
-            std::map<nodeid, transformation> G_candidate_neighbors;
-            for (auto neighbor : neighbors)
-                G_candidate_neighbors[neighbor.first] = std::move(neighbor.second);
+            auto G_candidate_neighbors = breadth_first_search(nid.first, 1); // all points observed from this candidate node should be created at a node 1 edge away in the graph
 
             const auto &keypoint_candidates = nodes[nid.first].frame->keypoints;
             for (auto m : matches_node_candidate) {

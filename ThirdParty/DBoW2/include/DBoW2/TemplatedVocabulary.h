@@ -92,6 +92,14 @@ class TemplatedVocabulary {
      */
     BowVector transform(const std::vector<T>& descriptors) const;
 
+    /** Returns the normalized tf-idf histogram of some descriptors.
+     * @param begin iterator to first struct containing the descriptor.
+     * @param end iterator to last+1 struct containing the descriptor.
+     * @param unary_op function such that unary_op(*begin) returns the descriptor.
+     */
+    template<typename It, typename UnaryOp>
+    BowVector transform(It begin, It end, UnaryOp unary_op) const;
+
     /** Returns the normalized tf-idf histogram of some descriptors
      * and their indices arranged by words.
      * @param[out] fv indices of descriptors arranged by words.
@@ -99,6 +107,19 @@ class TemplatedVocabulary {
      * to select the indexing nodes (higher = coarser groups).
      */
     BowVector transform(const std::vector<T>& descriptors,
+                        FeatureVector& fv, int levelsup = 0) const;
+
+    /** Returns the normalized tf-idf histogram of some descriptors
+     * and their indices arranged by words.
+     * @param begin iterator to first struct containing the descriptor.
+     * @param end iterator to last+1 struct containing the descriptor.
+     * @param unary_op function such that unary_op(*begin) returns the descriptor.
+     * @param[out] fv indices of descriptors arranged by words.
+     * @param levelsup number of levels to go up the tree from the leaves
+     * to select the indexing nodes (higher = coarser groups).
+     */
+    template<typename It, typename UnaryOp>
+    BowVector transform(It begin, It end, UnaryOp unary_op,
                         FeatureVector& fv, int levelsup = 0) const;
 
     /** Matches two sets of descriptors and returns a matching score.
@@ -169,7 +190,8 @@ class TemplatedVocabulary {
 
     /** Transforms descriptors into words.
      */
-    BowVector transform(const typename std::vector<T>& descriptors,
+    template<typename It, typename UnaryOp>
+    BowVector transform(It begin, It end, UnaryOp unary_op,
                         FeatureVector* fv, int levelsup) const;
 
     /** Traverses the tree to find the word and feature_node of a descriptor.
@@ -269,31 +291,50 @@ WordId TemplatedVocabulary<T, type>::firstChild(WordId parent) const {
     return (parent + 1) * m_k;
 }
 
+template<typename T> static constexpr T& identity(const T& t) { return t; }
+
 template<typename T, int type>
 BowVector TemplatedVocabulary<T, type>::transform(
         const std::vector<T>& descriptors) const {
-    return transform(descriptors, nullptr, 0);
+    return transform(descriptors.begin(), descriptors.end(), identity<T>,
+                     nullptr, 0);
+}
+
+template<typename T, int type>
+template<typename It, typename UnaryOp>
+BowVector TemplatedVocabulary<T, type>::transform(It begin, It end,
+                                                  UnaryOp unary_op) const {
+    return transform(begin, end, unary_op, nullptr, 0);
 }
 
 template<typename T, int type>
 BowVector TemplatedVocabulary<T, type>::transform(
         const std::vector<T>& descriptors, FeatureVector& fv,
         int levelsup) const {
-    return transform(descriptors, &fv, levelsup);
+    return transform(descriptors.begin(), descriptors.end(), identity<T>,
+                     &fv, levelsup);
 }
 
 template<typename T, int type>
+template<typename It, typename UnaryOp>
 BowVector TemplatedVocabulary<T, type>::transform(
-        const std::vector<T>& descriptors, FeatureVector* fv,
+        It begin, It end, UnaryOp unary_op, FeatureVector& fv,
+        int levelsup) const {
+    return transform(begin, end, unary_op, &fv, levelsup);
+}
+
+template<typename T, int type>
+template<typename It, typename UnaryOp>
+BowVector TemplatedVocabulary<T, type>::transform(
+        It begin, It end, UnaryOp unary_op, FeatureVector* fv,
         int levelsup) const {
     if (fv) fv->clear();
     if (!m_nodes) return BowVector();
 
     BowVector bow;
     WordId fv_node;
-    for (size_t descriptor_idx = 0; descriptor_idx < descriptors.size();
-         ++descriptor_idx) {
-        const auto& descriptor = descriptors[descriptor_idx];
+    for (size_t descriptor_idx = 0; begin != end; ++begin, ++descriptor_idx) {
+        const auto& descriptor = unary_op(*begin);
         WordId word = traverseTree(descriptor, &fv_node, levelsup);
         if (m_nodes[word].weight > 0) bow[word] += m_nodes[word].weight;
         if (fv) (*fv)[fv_node].push_back(descriptor_idx);

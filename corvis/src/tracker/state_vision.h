@@ -85,11 +85,11 @@ struct frame_t {
     DBoW2::FeatureVector dbow_direct_file;  // direct file (at level 4)
     inline void calculate_dbow(const orb_vocabulary *orb_voc) {
         // copy pyramid descriptors to a vector of descriptors
-        std::vector<orb_descriptor::raw> v_descriptor;
-        v_descriptor.reserve(keypoints.size());
-        for ( auto& p : keypoints )
-            v_descriptor.push_back(p->descriptor.descriptor);
-        dbow_histogram = orb_voc->transform(v_descriptor, dbow_direct_file, orb_voc->getDepthLevels());
+        dbow_histogram = orb_voc->transform(
+                    keypoints.begin(), keypoints.end(),
+                    [](const decltype(keypoints)::value_type &kp) -> const auto& {
+            return kp->descriptor.descriptor;
+        }, dbow_direct_file, orb_voc->getDepthLevels());
     }
 };
 

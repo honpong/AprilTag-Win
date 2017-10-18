@@ -76,10 +76,15 @@ void mapper::add_node(nodeid id, const rc_Sensor camera_id)
     nodes[id].camera_id = camera_id;
 }
 
-void mapper::get_triangulation_geometry(const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses)
+void mapper::get_triangulation_geometry(const nodeid group_id, const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses)
 {
     tracks_2d.clear();
     camera_poses.clear();
+    std::set<nodeid> search_nodes;
+    for (auto &ag : keypoint.group_tracks) {
+        search_nodes.insert(ag.group_id);
+    }
+    nodes_path ref_path = breadth_first_search(group_id, std::move(search_nodes));
     // accumulate cameras and 2d tracks to triangulate
     for (auto &ag : keypoint.group_tracks) {
         map_node &node = nodes[ag.group_id];
@@ -91,22 +96,20 @@ void mapper::get_triangulation_geometry(const tracker::feature_track& keypoint, 
         feature_t kpn = intrinsics->undistort_feature(intrinsics->normalize_feature(kpd));
         tracks_2d.push_back(kpn);
         // read node transformation
-        transformation G_CW = invert(node.global_transformation * G_BC);
-        camera_poses.push_back(G_CW);
+        transformation G_CR = invert(ref_path[ag.group_id] * G_BC);
+        camera_poses.push_back(G_CR);
     }
 }
 
-void mapper::add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& point_3d)
+void mapper::add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& pBref)
 {
     map_node &ref_node = nodes[group_id];
     state_extrinsics *extrinsics = camera_extrinsics[ref_node.camera_id];
-    transformation G_BW = invert(ref_node.global_transformation);
-    v3 p3dB = G_BW * point_3d;
     transformation G_CB = invert(transformation(extrinsics->Q.v, extrinsics->T.v));
-    v3 p3dC = G_CB*p3dB;
+    v3 pCref = G_CB*pBref;
     // a good 3d point has to be in front of the camera
-    if (p3dC[2] > 0) {
-        ref_node.set_feature(feature_id, p3dB, 1.e-3f*1.e-3f, feature_type::triangulated);
+    if (pCref[2] > 0) {
+        ref_node.set_feature(feature_id, pBref, 1.e-3f*1.e-3f, feature_type::triangulated);
         features_dbow[feature_id] = group_id;
     }
 }

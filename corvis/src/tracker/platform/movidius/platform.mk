@@ -27,12 +27,6 @@ SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/descriptor/patch_descriptor.cp
 SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/descriptor/orb_descriptor.cpp
 SLAM_SOURCES += $(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.cpp)
 
-SLAM_SOURCES += $(addprefix $(SLAM_PREFIX)/ThirdParty/DBoW2/src/, \
-    BowVector.cpp \
-    FeatureVector.cpp \
-    ScoringObject.cpp \
-)
-
 SLAM_C_SOURCES := $(addprefix $(SLAM_PREFIX)/ThirdParty/vlfeat-0.9.18/vl/, \
     liop.c \
     imopv.c \

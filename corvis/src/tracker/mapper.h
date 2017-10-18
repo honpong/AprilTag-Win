@@ -24,7 +24,7 @@
 #include "rapidjson/document.h"
 #include "DBoW2/TemplatedVocabulary.h"
 
-typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, orb_descriptor::raw> orb_vocabulary;
+typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, DBoW2::L1_NORM> orb_vocabulary;
 
 class state_vision_intrinsics;
 struct frame_t;

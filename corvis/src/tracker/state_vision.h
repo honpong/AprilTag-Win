@@ -89,7 +89,7 @@ struct frame_t {
         v_descriptor.reserve(keypoints.size());
         for ( auto& p : keypoints )
             v_descriptor.push_back(p->descriptor.descriptor);
-        dbow_histogram = orb_voc->transform(v_descriptor, dbow_direct_file, 6);
+        dbow_histogram = orb_voc->transform(v_descriptor, dbow_direct_file, orb_voc->getDepthLevels());
     }
 };
 

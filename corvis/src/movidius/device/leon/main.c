@@ -59,7 +59,7 @@
 #define CMX_CONFIG_SLICE_7_0 (0x11111111)
 #define CMX_CONFIG_SLICE_15_8 (0x11111111)
 
-#define BLIS_HEAP_SIZE (16 * 1024 * 1024)
+#define BLIS_HEAP_SIZE (1 * 1024 * 1024)
 unsigned char DDR_LEON_HEAP __attribute__((aligned(16))) g_blis_heap[BLIS_HEAP_SIZE];
 
 CmxRamLayoutCfgType __attribute__((section(".cmx.ctrl")))

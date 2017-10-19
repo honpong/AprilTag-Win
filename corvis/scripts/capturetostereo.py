@@ -57,11 +57,11 @@ last_frame = None
 while header_str != "":
     (pbytes, ptype, sensor_id, ptime) = unpack('IHHQ', header_str)
     data = f.read(pbytes-header_size)
-    if not ptype == image_raw_type:
+    if (not ptype == image_raw_type) or (ptype == image_raw_type and sensor_id >= 2):
         f_out.write(header_str)
         f_out.write(data)
         
-    if ptype == image_raw_type:
+    else:
         this_frame = image_frame(sensor_id, ptime, data)
 
         if last_frame and last_frame.sensor_id != this_frame.sensor_id and abs(last_frame.time_us - this_frame.time_us) < 1000:

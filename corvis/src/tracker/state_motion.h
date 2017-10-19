@@ -12,6 +12,7 @@
 #include <iostream>
 #include "state.h"
 #include "transformation.h"
+#include "state_size.h"
 
 class state_imu_intrinsics: public state_branch<state_node *>
 {
@@ -138,6 +139,8 @@ public:
         non_orientation.children.push_back(&a);
         non_orientation.children.push_back(&V);
         non_orientation.children.push_back(&T);
+        remap();
+        assert(fake_statesize == FAKESTATESIZE && statesize == BASEMOTIONSTATESIZE);
     }
 
     void copy_from(const state_motion &other) {

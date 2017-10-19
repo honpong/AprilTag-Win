@@ -110,7 +110,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if(update_frame) {
                     state_camera& camera = *sfm.s.cameras.children[data.id];
                     camera.camera_frame.closest_node = sfm.map->current_node_id;
-                    camera.camera_frame.G_closestnode_frame = camera.get_group_transformation(sfm.map->current_node_id);
+                    camera.camera_frame.G_closestnode_frame = sfm.s.get_group_transformation(sfm.map->current_node_id);
                 }
 
                 if(sfm.s.cameras.children[data.id]->detecting_space || update_frame)
@@ -153,7 +153,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                  if(update_frame) {
                      state_camera& camera = *sfm.s.cameras.children[data.id];
                      camera.camera_frame.closest_node = sfm.map->current_node_id;
-                     camera.camera_frame.G_closestnode_frame = camera.get_group_transformation(sfm.map->current_node_id);
+                     camera.camera_frame.G_closestnode_frame = sfm.s.get_group_transformation(sfm.map->current_node_id);
                  }
 
                 if(sfm.s.cameras.children[0]->detecting_space || update_frame) {

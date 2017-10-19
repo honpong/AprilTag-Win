@@ -225,7 +225,6 @@ struct state_camera: state_branch<state_node*> {
     int feature_count() const;
     int process_features(mapper *map, spdlog::logger &log);
     void remove_group(state_vision_group *g, mapper *map);
-    transformation get_group_transformation(uint64_t group_id) const;
 
     int detecting_space = 0;
 
@@ -252,6 +251,7 @@ public:
     state_vision_feature *add_feature(const tracker::feature_track &track_, state_vision_group &group);
     state_vision_group *add_group(state_camera &camera, const rc_Sensor camera_id, mapper *map);
     transformation get_transformation() const;
+    transformation get_group_transformation(uint64_t group_id) const;
 
     void update_map(mapper *map);
 

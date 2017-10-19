@@ -207,17 +207,17 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
-transformation state_vision::get_group_transformation(uint64_t group_id) const
+bool state_vision::get_closest_group_transformation(const uint64_t group_id, transformation& G) const
 {
     for (auto &camera : cameras.children) {
         for (auto &g : camera->groups.children) {
             if(g->id == group_id) {
-                return transformation(g->Qr.v, g->Tr.v);
+                G = transformation(g->Qr.v, g->Tr.v);
+                return true;
             }
         }
     }
-    assert(false); // group_id is not in the filter, should never fall through to here.
-    return transformation();
+    return false;
 }
 
 int state_camera::process_features(mapper *map, spdlog::logger &log)

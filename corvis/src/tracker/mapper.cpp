@@ -172,7 +172,8 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     // keep candidates with at least min_num_shared_words
     int min_num_shared_words = static_cast<int>(max_num_shared_words * 0.8f);
     std::vector<std::pair<mapper::nodeid, float> > dbow_scores;
-//    assert(orb_voc->getScoringType() != DBoW2::ScoringType::L1_NORM);
+    static_assert(orb_vocabulary::scoring_type == DBoW2::ScoringType::L1_NORM,
+                  "orb_vocabulary does not use L1 norm");
     float best_score = 0.0f; // assuming L1 norm
     for (auto& node_candidate : common_words_per_node) {
         if (node_candidate.second > min_num_shared_words) {

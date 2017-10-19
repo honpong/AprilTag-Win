@@ -45,6 +45,9 @@ class TemplatedVocabulary {
                   "Wrong type in TemplatedVocabulary<T, type>");
 
  public:
+    using descriptor_type = T;
+    static constexpr ScoringType scoring_type = static_cast<ScoringType>(type);
+
     TemplatedVocabulary();
     TemplatedVocabulary(const TemplatedVocabulary<T, type>&) = delete;
     TemplatedVocabulary<T, type>& operator=(const TemplatedVocabulary<T, type>&) = delete;

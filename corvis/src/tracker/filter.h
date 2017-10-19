@@ -13,8 +13,7 @@
 #include "spdlog/spdlog.h"
 #include "mapper.h"
 #include "storage.h"
-
-#define MAXSTATESIZE 80
+#include "state_size.h"
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -25,7 +24,7 @@ struct filter {
 
     sensor_clock::time_point last_time;
 
-    kalman_storage<MAXSTATESIZE, 2*(MAXSTATESIZE - (6*3+1/*MINIMUS*/*6)), 6> store;
+    kalman_storage<MAXSTATESIZE, MAXOBSERVATIONSIZE, FAKESTATESIZE> store;
     observation_queue observations{store.x, store.y, store.R, store.HP, store.S};
     covariance cov{store.maxstatesize, store.P, store.Q, store.iP, store.iQ};
     state s{cov, store.FP};
@@ -33,7 +32,7 @@ struct filter {
     struct {
         // maxobservationsize is 3, but due to a bug in BLIS we need
         // matrices to be resizable to boundaries divisible by 4
-        kalman_storage<6*3+2/*MAXIMUS*/*6, 4, 6> store;
+        kalman_storage<MAX_FAST_PATH_STATESIZE, 4, FAKESTATESIZE> store;
         observation_queue observations{store.x, store.y, store.R, store.HP, store.S};
         covariance cov{store.maxstatesize, store.P, store.Q, store.iP, store.iQ};
         state_motion state{cov, store.FP};

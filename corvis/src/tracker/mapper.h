@@ -69,10 +69,6 @@ struct map_node {
     node_status status{node_status::normal};
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, map_node &node, uint64_t &max_loaded_featid);
-
-    //temporary variables used in breath first
-    int parent{-1};
-    int depth{0};
 };
 
 class mapper {

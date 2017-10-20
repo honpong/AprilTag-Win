@@ -139,9 +139,9 @@ void mapper::node_finished(nodeid id)
         dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index
 }
 
-mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth) {
+mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
+{
     nodes_path neighbor_nodes;
-
     if(!initialized())
         return neighbor_nodes;
 
@@ -149,31 +149,28 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth) {
     queue<node_path> next;
     next.push(node_path{start, transformation()});
 
-    //FIXME: use unordered_map<nodeid,struct{depth,parent}> to avoid storing this info in mapper
-    nodes[start].parent = -2;
-    nodes[start].depth = 0;
+    typedef int depth;
+    unordered_map<nodeid, depth> nodes_visited;
+    nodes_visited[start] = 0;
+
     while (!next.empty()) {
         node_path current_path = next.front();
         nodeid& u = current_path.first;
         transformation& Gu = current_path.second;
         next.pop();
-        if(!maxdepth || nodes[u].depth < maxdepth) {
+        if(!maxdepth || nodes_visited[u] < maxdepth) {
             for(auto edge : nodes[u].edges) {
                 const nodeid& v = edge.first;
-                const transformation& Gv = edge.second.G;
-
-                if(nodes[v].parent == -1) {
-                    nodes[v].depth = nodes[u].depth + 1;
-                    nodes[v].parent = u;
+                if(nodes_visited.find(v) == nodes_visited.end()) {
+                    nodes_visited[v] = nodes_visited[u] + 1;
+                    const transformation& Gv = edge.second.G;
                     next.push(node_path{v, Gu*Gv});
                 }
             }
         }
         neighbor_nodes.insert(current_path);
     }
-    for(auto neighbor : neighbor_nodes) {
-        nodes[neighbor.first].parent = -1;
-    }
+
     return neighbor_nodes;
 }
 

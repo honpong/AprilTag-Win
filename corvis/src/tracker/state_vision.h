@@ -249,7 +249,7 @@ public:
     int feature_count() const;
     void clear_features_and_groups();
     state_vision_feature *add_feature(const tracker::feature_track &track_, state_vision_group &group);
-    state_vision_group *add_group(state_camera &camera, const rc_Sensor camera_id, mapper *map);
+    state_vision_group *add_group(const rc_Sensor camera_id, mapper *map);
     transformation get_transformation() const;
     bool get_closest_group_transformation(const uint64_t group_id, transformation& G) const;
 

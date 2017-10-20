@@ -349,8 +349,9 @@ state_vision_feature * state_vision::add_feature(const tracker::feature_track &t
     return new state_vision_feature(track_, group);
 }
 
-state_vision_group * state_vision::add_group(state_camera &camera, const rc_Sensor camera_id, mapper *map)
+state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *map)
 {
+    state_camera& camera = *cameras.children[camera_id];
     state_vision_group *g = new state_vision_group(camera, group_counter++);
     if(map) {
         map->add_node(g->id, camera_id);
@@ -360,10 +361,12 @@ state_vision_group * state_vision::add_group(state_camera &camera, const rc_Sens
         }
         // add edge in the map between new group and active groups in the filter
         const transformation& G_gnew_now = transformation(g->Qr.v, g->Tr.v);
-        for(auto &neighbor : camera.groups.children) {
-            const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
-            transformation G_gnew_neighbor = G_gnew_now*G_now_neighbor;
-            map->add_edge(g->id, neighbor->id, G_gnew_neighbor);
+        for (auto& camera : cameras.children) {
+            for(auto& neighbor : camera->groups.children) {
+                const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
+                transformation G_gnew_neighbor = G_gnew_now*G_now_neighbor;
+                map->add_edge(g->id, neighbor->id, G_gnew_neighbor);
+            }
         }
     }
     camera.groups.children.push_back(g);

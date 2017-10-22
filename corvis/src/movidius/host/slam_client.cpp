@@ -165,13 +165,16 @@ int main(int argc, char ** argv)
             while(fread(&header, sizeof(packet_header_t), 1, replay_file)) {
                 packet_t * packet = (packet_t *)malloc(header.bytes);
                 packet->header    = header;
-                size_t count =
-                        fread(&packet->data,
-                              packet->header.bytes - sizeof(packet_header_t), 1,
-                              replay_file);
-                if(count != 1) {
-                    fprintf(stderr, "Error reading replay file, exiting\n");
-                    exit(1);
+                if (packet->header.bytes > sizeof(packet_header_t)) {
+                    size_t count =
+                            fread(&packet->data,
+                                  packet->header.bytes - sizeof(packet_header_t), 1,
+                                  replay_file);
+                    if(count != 1) {
+                        perror("fread");
+                        fprintf(stderr, "count = %lu: Error reading replay file, exiting\n", count);
+                        exit(1);
+                    }
                 }
                 if(packets % 1000 == 0) {
                     printf("%" PRIu64 " packets written\n", packets);

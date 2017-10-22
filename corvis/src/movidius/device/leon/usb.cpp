@@ -206,6 +206,10 @@ void * fnReplay(void * arg)
                 END_EVENT(EV_SF_REC_STEREO, 0);
                 break;
             }
+            case packet_arrival_time: {
+                // ignore arrival_time packets for now
+                break;
+            }
             default:
                 printf("Unrecognized data type %d\n", packet->header.type);
                 packet_io_free(packet);

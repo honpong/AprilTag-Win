@@ -30,8 +30,8 @@ public:
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
-#ifdef MYRIAD2
-    virtual observation_data* getData() = 0;
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+    virtual observation_data* getData(int index = 0) = 0;
 #endif
     
     observation(int _size): size(_size) {}
@@ -95,9 +95,8 @@ class observation_vision_feature: public observation_storage<2> {
              int project_covariance(matrix &dst, const matrix &src, int i) const;
     virtual void project_covariance(matrix &dst, const matrix &src) const;
     virtual void innovation_covariance_hook(const matrix &cov, int index);
-#ifdef MYRIAD2
-    observation_vision_feature_data vision_data;
-    virtual observation_data* getData();
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+    virtual observation_data* getData(int index = 0);
 #endif
     void update_initializing();
 
@@ -140,9 +139,8 @@ public:
     template<int N>
              int project_covariance(matrix &dst, const matrix &src, int i) const;
     virtual void project_covariance(matrix &dst, const matrix &src) const;
-#ifdef MYRIAD2
-    observation_accelerometer_data accel_data;
-    virtual observation_data* getData();
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+    virtual observation_data* getData(int index = 0);
 #endif
     observation_accelerometer(sensor_accelerometer &src, const state_root &root_, const state_motion &state_, const state_imu &imu): observation_spatial(src), root(root_), state(state_), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 
@@ -173,9 +171,8 @@ public:
     template<int N>
              int project_covariance(matrix &dst, const matrix &src, int i) const;
     virtual void project_covariance(matrix &dst, const matrix &src) const;
-#ifdef MYRIAD2
-    observation_gyroscope_data gyro_data;
-    virtual observation_data* getData();
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+    virtual observation_data* getData(int index = 0);
 #endif
     observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_imu &imu): observation_spatial(src), state(_state), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 };

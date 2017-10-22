@@ -2,8 +2,11 @@
 #include "utils.h"
 #include "Trace.h"
 
-#ifdef MYRIAD2
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
     #include "covariance_projector.h"
+    #include "state_size.h"
+    __attribute__((section(".cmx_direct.bss")))
+    observation_vision_feature_data vision_datas[2*(MAXSTATESIZE - (6*3+1/*MINIMUS*/*6))];
 #endif
 
 int observation_queue::size()
@@ -55,7 +58,7 @@ void observation_queue::compute_measurement_covariance(matrix &m_cov)
 }
 
 #ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
-__attribute__((section(".cmx_direct.data"))) project_observation_covariance_data queue_data;
+__attribute__((section(".cmx_direct.bss"))) project_observation_covariance_data queue_data;
 void observation_queue::compute_prediction_covariance_shave(const matrix &cov, int statesize, int meas_size)
 {
     START_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE, 0);
@@ -81,10 +84,11 @@ void observation_queue::compute_prediction_covariance_shave(const matrix &cov, i
     }
 
     int i=0;
+    int index = 0;
     for (auto &o : observations) {
         o->cache_jacobians();
         start_index[i++/obs_per_shave + 1] += o->size;
-        observation_datas.push_back(o->getData());
+        observation_datas.push_back(o->getData(index++));
     }
     queue_data.observations = (observation_data**)observation_datas.data();
 
@@ -459,73 +463,73 @@ void observation_vision_feature::compute_measurement_covariance()
     m_cov[1] = robust_mc;
 }
 
-#ifdef MYRIAD2
-observation_data* observation_vision_feature::getData()
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+observation_data* observation_vision_feature::getData(int index)
 {
-    vision_data.size = size;
+    vision_datas[index].size = size;
 
-    vision_data.orig.e_estimate = orig.camera.extrinsics.estimate;
-    vision_data.orig.i_estimate = orig.camera.intrinsics.estimate;
-    vision_data.curr.e_estimate = curr.camera.extrinsics.estimate;
-    vision_data.curr.i_estimate = curr.camera.intrinsics.estimate;
+    vision_datas[index].orig.e_estimate = orig.camera.extrinsics.estimate;
+    vision_datas[index].orig.i_estimate = orig.camera.intrinsics.estimate;
+    vision_datas[index].curr.e_estimate = curr.camera.extrinsics.estimate;
+    vision_datas[index].curr.i_estimate = curr.camera.intrinsics.estimate;
 
-    vision_data.feature.index              = feature->index;
-    vision_data.Qr.index                   = feature->group.Qr.index;
-    vision_data.Tr.index                   = feature->group.Tr.index;
-    vision_data.orig.Q.index               = orig.camera.extrinsics.Q.index;
-    vision_data.orig.T.index               = orig.camera.extrinsics.T.index;
-    vision_data.orig.focal_length.index    = orig.camera.intrinsics.focal_length.index;
-    vision_data.orig.center.index          = orig.camera.intrinsics.center.index;
-    vision_data.orig.k.index               = orig.camera.intrinsics.k.index;
-    vision_data.curr.Q.index               = curr.camera.extrinsics.Q.index;
-    vision_data.curr.T.index               = curr.camera.extrinsics.T.index;
-    vision_data.curr.focal_length.index    = curr.camera.intrinsics.focal_length.index;
-    vision_data.curr.center.index          = curr.camera.intrinsics.center.index;
-    vision_data.curr.k.index               = curr.camera.intrinsics.k.index;
+    vision_datas[index].feature.index              = feature->index;
+    vision_datas[index].Qr.index                   = feature->group.Qr.index;
+    vision_datas[index].Tr.index                   = feature->group.Tr.index;
+    vision_datas[index].orig.Q.index               = orig.camera.extrinsics.Q.index;
+    vision_datas[index].orig.T.index               = orig.camera.extrinsics.T.index;
+    vision_datas[index].orig.focal_length.index    = orig.camera.intrinsics.focal_length.index;
+    vision_datas[index].orig.center.index          = orig.camera.intrinsics.center.index;
+    vision_datas[index].orig.k.index               = orig.camera.intrinsics.k.index;
+    vision_datas[index].curr.Q.index               = curr.camera.extrinsics.Q.index;
+    vision_datas[index].curr.T.index               = curr.camera.extrinsics.T.index;
+    vision_datas[index].curr.focal_length.index    = curr.camera.intrinsics.focal_length.index;
+    vision_datas[index].curr.center.index          = curr.camera.intrinsics.center.index;
+    vision_datas[index].curr.k.index               = curr.camera.intrinsics.k.index;
 
-    vision_data.feature.initial_covariance             = feature->get_initial_covariance();
-    vision_data.Qr.initial_covariance                  = feature->group.Qr.get_initial_covariance();
-    vision_data.Tr.initial_covariance                  = feature->group.Tr.get_initial_covariance();
-    vision_data.orig.Q.initial_covariance              = orig.camera.extrinsics.Q.get_initial_covariance();
-    vision_data.orig.T.initial_covariance              = orig.camera.extrinsics.T.get_initial_covariance();
-    vision_data.orig.focal_length.initial_covariance   = orig.camera.intrinsics.focal_length.get_initial_covariance();
-    vision_data.orig.center.initial_covariance         = orig.camera.intrinsics.center.get_initial_covariance();
-    vision_data.orig.k.initial_covariance              = orig.camera.intrinsics.k.get_initial_covariance();
-    vision_data.curr.Q.initial_covariance              = curr.camera.extrinsics.Q.get_initial_covariance();
-    vision_data.curr.T.initial_covariance              = curr.camera.extrinsics.T.get_initial_covariance();
-    vision_data.curr.focal_length.initial_covariance   = curr.camera.intrinsics.focal_length.get_initial_covariance();
-    vision_data.curr.center.initial_covariance         = curr.camera.intrinsics.center.get_initial_covariance();
-    vision_data.curr.k.initial_covariance              = curr.camera.intrinsics.k.get_initial_covariance();
+    vision_datas[index].feature.initial_covariance             = feature->get_initial_covariance();
+    vision_datas[index].Qr.initial_covariance                  = feature->group.Qr.get_initial_covariance();
+    vision_datas[index].Tr.initial_covariance                  = feature->group.Tr.get_initial_covariance();
+    vision_datas[index].orig.Q.initial_covariance              = orig.camera.extrinsics.Q.get_initial_covariance();
+    vision_datas[index].orig.T.initial_covariance              = orig.camera.extrinsics.T.get_initial_covariance();
+    vision_datas[index].orig.focal_length.initial_covariance   = orig.camera.intrinsics.focal_length.get_initial_covariance();
+    vision_datas[index].orig.center.initial_covariance         = orig.camera.intrinsics.center.get_initial_covariance();
+    vision_datas[index].orig.k.initial_covariance              = orig.camera.intrinsics.k.get_initial_covariance();
+    vision_datas[index].curr.Q.initial_covariance              = curr.camera.extrinsics.Q.get_initial_covariance();
+    vision_datas[index].curr.T.initial_covariance              = curr.camera.extrinsics.T.get_initial_covariance();
+    vision_datas[index].curr.focal_length.initial_covariance   = curr.camera.intrinsics.focal_length.get_initial_covariance();
+    vision_datas[index].curr.center.initial_covariance         = curr.camera.intrinsics.center.get_initial_covariance();
+    vision_datas[index].curr.k.initial_covariance              = curr.camera.intrinsics.k.get_initial_covariance();
 
-    vision_data.feature.use_single_index           = feature->single_index();
-    vision_data.Qr.use_single_index                = feature->group.Qr.single_index();
-    vision_data.Tr.use_single_index                = feature->group.Tr.single_index();
-    vision_data.orig.Q.use_single_index            = orig.camera.extrinsics.Q.single_index();
-    vision_data.orig.T.use_single_index            = orig.camera.extrinsics.T.single_index();
-    vision_data.orig.focal_length.use_single_index = orig.camera.intrinsics.focal_length.single_index();
-    vision_data.orig.center.use_single_index       = orig.camera.intrinsics.center.single_index();
-    vision_data.orig.k.use_single_index            = orig.camera.intrinsics.k.single_index();
-    vision_data.curr.Q.use_single_index            = curr.camera.extrinsics.Q.single_index();
-    vision_data.curr.T.use_single_index            = curr.camera.extrinsics.T.single_index();
-    vision_data.curr.focal_length.use_single_index = curr.camera.intrinsics.focal_length.single_index();
-    vision_data.curr.center.use_single_index       = curr.camera.intrinsics.center.single_index();
-    vision_data.curr.k.use_single_index            = curr.camera.intrinsics.k.single_index();
+    vision_datas[index].feature.use_single_index           = feature->single_index();
+    vision_datas[index].Qr.use_single_index                = feature->group.Qr.single_index();
+    vision_datas[index].Tr.use_single_index                = feature->group.Tr.single_index();
+    vision_datas[index].orig.Q.use_single_index            = orig.camera.extrinsics.Q.single_index();
+    vision_datas[index].orig.T.use_single_index            = orig.camera.extrinsics.T.single_index();
+    vision_datas[index].orig.focal_length.use_single_index = orig.camera.intrinsics.focal_length.single_index();
+    vision_datas[index].orig.center.use_single_index       = orig.camera.intrinsics.center.single_index();
+    vision_datas[index].orig.k.use_single_index            = orig.camera.intrinsics.k.single_index();
+    vision_datas[index].curr.Q.use_single_index            = curr.camera.extrinsics.Q.single_index();
+    vision_datas[index].curr.T.use_single_index            = curr.camera.extrinsics.T.single_index();
+    vision_datas[index].curr.focal_length.use_single_index = curr.camera.intrinsics.focal_length.single_index();
+    vision_datas[index].curr.center.use_single_index       = curr.camera.intrinsics.center.single_index();
+    vision_datas[index].curr.k.use_single_index            = curr.camera.intrinsics.k.single_index();
 
-    vision_data.dx_dp      = dx_dp.data();
-    vision_data.dx_dQr     = dx_dQr.data();
-    vision_data.dx_dTr     = dx_dTr.data();
-    vision_data.orig.dx_dQ = orig.dx_dQ.data();
-    vision_data.orig.dx_dT = orig.dx_dT.data();
-    vision_data.orig.dx_dF = orig.dx_dF.data();
-    vision_data.orig.dx_dc = orig.dx_dc.data();
-    vision_data.orig.dx_dk = orig.dx_dk.data();
-    vision_data.curr.dx_dQ = curr.dx_dQ.data();
-    vision_data.curr.dx_dT = curr.dx_dT.data();
-    vision_data.curr.dx_dF = curr.dx_dF.data();
-    vision_data.curr.dx_dc = curr.dx_dc.data();
-    vision_data.curr.dx_dk = curr.dx_dk.data();
+    memcpy(vision_datas[index].dx_dp, dx_dp.data(), 2*sizeof(float));
+    memcpy(vision_datas[index].dx_dQr, dx_dQr.data(), 6*sizeof(float));
+    memcpy(vision_datas[index].dx_dTr, dx_dTr.data(), 6*sizeof(float));
+    memcpy(vision_datas[index].orig.dx_dQ, orig.dx_dQ.data(), 6*sizeof(float));
+    memcpy(vision_datas[index].orig.dx_dT, orig.dx_dT.data(), 6*sizeof(float));
+    memcpy(vision_datas[index].orig.dx_dF, orig.dx_dF.data(), 2*sizeof(float));
+    memcpy(vision_datas[index].orig.dx_dc, orig.dx_dc.data(), 4*sizeof(float));
+    memcpy(vision_datas[index].orig.dx_dk, orig.dx_dk.data(), 8*sizeof(float));
+    memcpy(vision_datas[index].curr.dx_dQ, curr.dx_dQ.data(), 6*sizeof(float));
+    memcpy(vision_datas[index].curr.dx_dT, curr.dx_dT.data(), 6*sizeof(float));
+    memcpy(vision_datas[index].curr.dx_dF, curr.dx_dF.data(), 2*sizeof(float));
+    memcpy(vision_datas[index].curr.dx_dc, curr.dx_dc.data(), 4*sizeof(float));
+    memcpy(vision_datas[index].curr.dx_dk, curr.dx_dk.data(), 8*sizeof(float));
 
-    return &vision_data;
+    return &(vision_datas[index]);
 }
 #endif
 
@@ -593,8 +597,9 @@ bool observation_accelerometer::measure()
     return observation_spatial::measure();
 }
 
-#ifdef MYRIAD2
-observation_data* observation_accelerometer::getData()
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+__attribute__((section(".cmx_direct.bss"))) observation_accelerometer_data accel_data;
+observation_data* observation_accelerometer::getData(int index)
 {
     accel_data.size = size;
     
@@ -625,13 +630,13 @@ observation_data* observation_accelerometer::getData()
     accel_data.eQ.use_single_index     = extrinsics.Q.single_index();
     accel_data.eT.use_single_index     = extrinsics.T.single_index();
     
-    accel_data.da_dQ   = da_dQ.data();
-    accel_data.da_dw   = da_dw.data();
-    accel_data.da_ddw  = da_ddw.data();
-    accel_data.da_dacc = da_dacc.data();
-    accel_data.worldUp = state.world.up.data();
-    accel_data.da_dQa  = da_dQa.data();
-    accel_data.da_dTa  = da_dTa.data();
+    memcpy(accel_data.da_dQ, da_dQ.data(), 9*sizeof(float));
+    memcpy(accel_data.da_dw, da_dw.data(), 9*sizeof(float));
+    memcpy(accel_data.da_ddw, da_ddw.data(), 9*sizeof(float));
+    memcpy(accel_data.da_dacc, da_dacc.data(), 9*sizeof(float));
+    memcpy(accel_data.worldUp, state.world.up.data(), 3*sizeof(float));
+    memcpy(accel_data.da_dQa, da_dQa.data(), 9*sizeof(float));
+    memcpy(accel_data.da_dTa, da_dTa.data(), 9*sizeof(float));
     
     accel_data.e_estimate = extrinsics.estimate;
     
@@ -674,8 +679,9 @@ template<int N>
     return j;
 }
 
-#ifdef MYRIAD2
-observation_data* observation_gyroscope::getData()
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+__attribute__((section(".cmx_direct.bss"))) observation_gyroscope_data gyro_data;
+observation_data* observation_gyroscope::getData(int index)
 {  
     gyro_data.size = size;
     
@@ -691,8 +697,8 @@ observation_data* observation_gyroscope::getData()
     gyro_data.w_bias.use_single_index  = intrinsics.w_bias.single_index();
     gyro_data.Q.use_single_index       = extrinsics.Q.single_index();
     
-    gyro_data.RwT      = Rw.transpose().data();
-    gyro_data.dw_dQw   = dw_dQw.data();
+    memcpy(gyro_data.RwT, Rw.transpose().data(), 9*sizeof(float));
+    memcpy(gyro_data.dw_dQw, dw_dQw.data(), 9*sizeof(float));
     
     gyro_data.e_estimate = extrinsics.estimate;
     

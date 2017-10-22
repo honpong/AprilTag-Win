@@ -96,7 +96,7 @@ SHAVE_SEARCH_PATH = $(SLAM_PLATFORM_PREFIX)/shave
 
 ENTRYPOINTS_cvrt = fast_detect fast_track
 ENTRYPOINTS_stereo_initialize = stereo_match
-ENTRYPOINTS_project_covariance = vision_project_motion_covariance vision_project_observation_covariance1 vision_project_observation_covariance
+ENTRYPOINTS_project_covariance = vision_project_motion_covariance vision_project_observation_covariance
 ENTRYPOINTS_blis = startSGEMM startSGEMMTRSM_LL startSGEMMTRSM_LU startSGEMMTRSM_RU startSGEMMTRSM_RL
 SHAVES_IDX_cvrt               = 0 1 2 3 4 9 10
 SHAVES_IDX_stereo_initialize  = 0 1 2 3

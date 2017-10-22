@@ -56,9 +56,9 @@ struct observation_vision_feature_data : observation_data {
     project_covariance_element_data Qr = {0, 0, 0};
     project_covariance_element_data Tr = {0, 0, 0};
 
-    float* dx_dp = NULL; //m<2,1>
-    float* dx_dQr = NULL; //m<2,3>
-    float* dx_dTr = NULL; //m<2,3>
+    float dx_dp[2]  = {0}; //m<2,1>
+    float dx_dQr[6] = {0}; //m<2,3>
+    float dx_dTr[6] = {0}; //m<2,3>
 
     struct camera_derivative {
         project_covariance_element_data Q = {0, 0, 0};
@@ -70,11 +70,11 @@ struct observation_vision_feature_data : observation_data {
         bool e_estimate = true;
         bool i_estimate = true;
 
-        float* dx_dQ = NULL; //m<2,3>
-        float* dx_dT = NULL; //m<2,3>
-        float* dx_dF = NULL; //m<2,1>
-        float* dx_dc = NULL; //m<2,2>
-        float* dx_dk = NULL; //m<2,4>
+        float dx_dQ[6] = {0}; //m<2,3>
+        float dx_dT[6] = {0}; //m<2,3>
+        float dx_dF[2] = {0}; //m<2,1>
+        float dx_dc[4] = {0}; //m<2,2>
+        float dx_dk[8] = {0}; //m<2,4>
 
     } orig, curr;
 
@@ -93,13 +93,13 @@ struct observation_accelerometer_data : observation_data {
     project_covariance_element_data eQ = {0, 0, 0};
     project_covariance_element_data eT = {0, 0, 0};
 
-    float* da_dQ = NULL; //m3
-    float* da_dw = NULL; //m3
-    float* da_ddw = NULL; //m3
-    float* da_dacc = NULL; //m3
-    float* da_dQa = NULL; //m3
-    float* da_dTa = NULL; //m3
-    const float* worldUp = NULL; //v3
+    float da_dQ[9] = {0}; //m3
+    float da_dw[9] = {0}; //m3
+    float da_ddw[9] = {0}; //m3
+    float da_dacc[9] = {0}; //m3
+    float da_dQa[9] = {0}; //m3
+    float da_dTa[9] = {0}; //m3
+    const float worldUp[3] = {0}; //v3
     bool e_estimate = true;
 
     observation_accelerometer_data() : observation_data (0, accelerometer) {}
@@ -112,8 +112,8 @@ struct observation_gyroscope_data : observation_data {
     project_covariance_element_data w_bias = {0, 0, 0};
     project_covariance_element_data Q = {0, 0, 0};
 
-    float* RwT = NULL; //m3 //Rw.transpose();
-    float* dw_dQw = NULL; //m3
+    float RwT[9] = {0}; //m3 //Rw.transpose();
+    float dw_dQw[9] = {0}; //m3
     bool e_estimate = true;
 
     observation_gyroscope_data() : observation_data (0, gyroscope) {}

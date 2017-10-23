@@ -34,10 +34,15 @@ if [[ ! -d $MDK_INSTALL_DIR/$MDK_CANONICAL ]]; then
 fi
 
 # Check if all patches have been added
-pushd $MDK_INSTALL_DIR/$MDK_CANONICAL
-QUILT_PATCHES=$(realpath --relative-to=. $TM2_ROOT/mdk_patches) quilt pop -a -f
-QUILT_PATCHES=$(realpath --relative-to=. $TM2_ROOT/mdk_patches) quilt push -a
-popd
+(
+    cd $MDK_INSTALL_DIR/$MDK_CANONICAL
+    export QUILT_PATCHES=$(realpath --relative-to=. $TM2_ROOT/mdk_patches)
+    if [ "$(quilt series)" != "$(quilt applied)" ]; then
+       echo MDK patches need refreshing
+       quilt pop -a -f
+       quilt push -a
+    fi
+)
 
 if [[ -d /etc/udev/rules.d ]]; then
     # Install udev rules

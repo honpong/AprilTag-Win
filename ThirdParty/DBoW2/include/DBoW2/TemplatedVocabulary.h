@@ -10,6 +10,7 @@
 #ifndef __D_T_TEMPLATED_VOCABULARY__
 #define __D_T_TEMPLATED_VOCABULARY__
 
+#include <numeric>
 #include <fstream>
 #include <random>
 #include <vector>

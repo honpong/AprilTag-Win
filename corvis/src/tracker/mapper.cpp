@@ -287,7 +287,7 @@ static size_t calculate_orientation_bin(const orb_descriptor &a, const orb_descr
 static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candidate_frame, const std::shared_ptr<frame_t> current_frame,
                                             std::map<uint64_t, mapper::nodeid> &features_dbow) {
     //matches per orientationn increment between current frame and node candidate
-    const int num_orientation_bins = 30;
+    static constexpr int num_orientation_bins = 30;
     std::vector<mapper::matches> increment_orientation_histogram(num_orientation_bins);
 
     mapper::matches current_to_candidate_matches;

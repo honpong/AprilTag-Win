@@ -19,18 +19,20 @@ fi
 
 # Check for cross-compilation toolchain
 if [[ ! -d $MDK_INSTALL_DIR/$MDK_CANONICAL ]]; then
-	echo "WARNING: No MDK found in $MDK_INSTALL_DIR/$MDK_CANONICAL. Trying to download."
+    echo "No MDK found in $MDK_INSTALL_DIR/$MDK_CANONICAL."
 
-	TMP=$MDK_ROOT/external/.mdk
-	mkdir -p $TMP
-	pushd $TMP
-	if [[ ! -f $MDK_NAME ]]; then
-		curl -O $MDK_URL
-	fi
-	echo "Untaring MDK."
-	tar xzf $MDK_NAME
-	mv $MDK_CANONICAL $MDK_INSTALL_DIR/$MDK_CANONICAL
-	popd
+    TMP=$MDK_ROOT/external/.mdk
+    mkdir -p $TMP
+    (
+        cd $TMP
+        if [[ ! -f $MDK_NAME ]]; then
+            echo "Downloading MDK..."
+            curl -O $MDK_URL
+        fi
+        echo "Untaring MDK..."
+        tar xzf $MDK_NAME
+        mv $MDK_CANONICAL $MDK_INSTALL_DIR/$MDK_CANONICAL
+    )
 fi
 
 # Check if all patches have been added

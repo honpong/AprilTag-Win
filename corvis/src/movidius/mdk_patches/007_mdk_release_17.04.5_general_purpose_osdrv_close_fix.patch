@@ -1,0 +1,12 @@
+Index: mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvSvu.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvSvu.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvSvu.c
+@@ -914,6 +914,7 @@ int OsDrvSvuCloseShave(osDrvSvuHandler_t
+                 {
+                     rtems_semaphore_delete(handler->shaveMutex);
+                 }
++                osDrvSvuHandler[handler->shaveNumber] = NULL;
+                 OS_DRV_SVU_MUTEX_UNLOCK();
+             }
+         }

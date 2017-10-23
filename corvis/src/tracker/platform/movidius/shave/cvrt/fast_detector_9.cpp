@@ -10,17 +10,6 @@
 #include "svuCommonShave.h"
 #include <math.h>
 
-#define FAST_ROWS 7
-#define TOTAL_ROWS (FAST_ROWS + 1)
-#define DMA_MASK NUM_ROWS
-
-static byte dataBuffer[TOTAL_ROWS * MAX_WIDTH]; //8 lines
-static byte singleFeatureBuffer[128];
-static u8 scoreBuffer[MAX_WIDTH + 4];
-static u16 baseBuffer[MAX_WIDTH + 2];
-dmaTransactionList_t  dmaFastTask[TOTAL_ROWS];
-dmaTransactionList_t  dmaSingleFeatureTask[1];
-dmaTransactionList_t  dmaOutTask[2];
 
 void fast_detector_9::init(const int x, const int y, const int s, const int ps, const int phw)
 {
@@ -63,12 +52,12 @@ void fast_detector_9::detect(const u8* pImage,
 		pFastLines[i] = pFastLines[i-1] + paddedWidth;
 	}
 
-	//dma transactions
-	dmaTransactionList_t* dmaRef[FAST_ROWS + 1];
-	dmaTransactionList_t* dmaOut[2];
+    dmaTransactionList_t  dmaFastTask[TOTAL_ROWS];
+    dmaTransactionList_t  dmaOutTask[2];
+    dmaTransactionList_t* dmaRef[FAST_ROWS + 1];
+    dmaTransactionList_t* dmaOut[2];
 
     u32 dmaRequsterId = dmaInitRequester(1);
-
     //read 7 lines for the fast algorithm
     for(int i = 0; i < FAST_ROWS; ++i)
     {
@@ -162,7 +151,8 @@ xy fast_detector_9::track(u8* im1,
 		pFastLines[i] = pFastLines[i - 1] + paddedWidth;
 	}
 
-	//dma transactions
+    dmaTransactionList_t  dmaFastTask[TOTAL_ROWS];
+    dmaTransactionList_t  dmaSingleFeatureTask[1];
 	dmaTransactionList_t* dmaRef[FAST_ROWS + 1];
 	dmaTransactionList_t* dmaSingleFeature[1];
 

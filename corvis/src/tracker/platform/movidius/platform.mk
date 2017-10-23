@@ -1,3 +1,5 @@
+MAKEDEPEND = yes
+
 # SLAM_PREFIX must be defined before including this makefile
 SLAM_PLATFORM_PREFIX := $(SLAM_PREFIX)/corvis/src/tracker/platform/movidius
 SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/corvis/src/tracker/, \
@@ -75,50 +77,51 @@ SLAM_CCOPT   := \
 	-finstrument-functions-exclude-file-list=eigen \
 	-finstrument-functions-exclude-function-list=operator,iterator,from_row,to_col,get_stride,size,cols,rows,std
 
-SLAM_CPPOPT  := -std=gnu++11 -fpermissive -fno-exceptions -Wno-reorder -Wno-missing-field-initializers -fno-strict-aliasing -MD
+SLAM_CPPOPT  := -std=gnu++11 -fpermissive -fno-exceptions -Wno-reorder -Wno-missing-field-initializers -fno-strict-aliasing
 
 SLAM_SHAVE_CCOPT := -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon \
    -I$(SLAM_PREFIX)/corvis/src/feature/descriptor \
    -I$(SLAM_PREFIX)/corvis/src/feature/detector \
    -I$(SLAM_PREFIX)/corvis/src/feature/tracker \
+   -I$(SLAM_PLATFORM_PREFIX)/shared \
    -I$(SLAM_PLATFORM_PREFIX)/leon
 
 SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++ -mno-replace-jmp-with-bra-peephole
 
-cvrt = $(DirAppOutput)/cvrt
-blis = $(DirAppOutput)/blis
+SHAVE_SEARCH_PATH = $(SLAM_PLATFORM_PREFIX)/shave
 
-SHAVE_CPP_SOURCES_cvrt = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cvrt/*.cpp)
-SHAVE_CPP_SOURCES_cvrt += $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/stereo_initialize/*.cpp)
-SHAVE_CPP_SOURCES_cvrt += $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/project_covariance/*.cpp)
-SHAVE_ASM_SOURCES_cvrt = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cvrt/*.asm)
+ENTRYPOINTS_cvrt = fast_detect fast_track
+ENTRYPOINTS_stereo_initialize = stereo_match
+ENTRYPOINTS_project_covariance = vision_project_motion_covariance vision_project_observation_covariance1 vision_project_observation_covariance
+ENTRYPOINTS_blis = startSGEMM startSGEMMTRSM_LL startSGEMMTRSM_LU startSGEMMTRSM_RU startSGEMMTRSM_RL
+SHAVES_IDX_cvrt               = 0 1 2 3 4 5 6 7
+SHAVES_IDX_stereo_initialize  = 0 1 2 3
+SHAVES_IDX_project_covariance = 0 1 2 3
+SHAVES_IDX_blis               = 0 1 2 3
 
-SHAVE_ASM_SOURCES_cvrt += $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cholesky/*.asm)
+SHAVE_CPP_AUTOSTAT_SOURCES_cvrt += $(SHAVE_SEARCH_PATH)/stereo_initialize/common_shave.cpp
 
-SHAVE_C_SOURCES_cvrt   = $(wildcard $(SLAM_PLATFORM_PREFIX)/shave/cholesky/*.c)
+SHAVE_CPP_AUTOSTAT_SOURCES_blis += $(shell realpath --relative-to=$$(pwd) $(wildcard \
+  $(MV_COMMON_BASE)/components/kernelLib/LAMA/kernels/sgemm*/shave/src/cpp/*.cpp \
+  $(MV_COMMON_BASE)/components/kernelLib/LAMA/kernels/strsm*/shave/src/cpp/*.cpp \
+))
+SHAVE_C_AUTOSTAT_SOURCES_blis += $(shell realpath --relative-to=$$(pwd) $(wildcard \
+  $(MV_COMMON_BASE)/components/BLIS/shave/*.c \
+))
+SHAVE_ASM_AUTOSTAT_SOURCES_blis += $(shell realpath --relative-to=$$(pwd) $(wildcard \
+  $(MV_COMMON_BASE)/components/kernelLib/LAMA/kernels/sgemm*/arch/ma2x5x/shave/src/*.asm \
+  $(MV_COMMON_BASE)/components/kernelLib/LAMA/kernels/strsm*/arch/ma2x5x/shave/src/*.asm \
+))
+MVCCOPT += $(addprefix -I,$(wildcard \
+   $(MV_COMMON_BASE)/components/kernelLib/LAMA/kernels/sgemm*/shave/include \
+   $(MV_COMMON_BASE)/components/kernelLib/LAMA/kernels/strsm*/shave/include \
+   $(MV_COMMON_BASE)/components/kernelLib/MvCV/include \
+))
+MVCCOPT += -I$(SLAM_PLATFORM_PREFIX)/shave/blis
 
-SHAVE_GENASMS_cvrt = \
-	$(patsubst %.cpp,$(DirAppObjBase)%.asmgen,$(SHAVE_CPP_SOURCES_cvrt))
-SHAVE_GENASMS_cvrt += \
-	$(patsubst %.c,$(DirAppObjBase)%.asmgen,$(SHAVE_C_SOURCES_cvrt))
+MVCCOPT += -I$(SLAM_PLATFORM_PREFIX)/shared
+CCOPT   += -I$(SLAM_PLATFORM_PREFIX)/shared
 
-SHAVE_cvrt_OBJS = \
-	$(patsubst $(DirAppObjBase)%.asmgen,$(DirAppObjBase)%_shave.o,$(SHAVE_GENASMS_cvrt)) \
-	$(patsubst %.asm,$(DirAppObjBase)%_shave.o,$(SHAVE_ASM_SOURCES_cvrt))
-
-cvrt_fns = fast9Detect fast9Track stereo_kp_matching_and_compare vision_project_motion_covariance vision_project_observation_covariance1 vision_project_observation_covariance
-cvrt_fns += potrf_ln trsvl_ln trsvl_lt trsvl_lnlt
-ENTRYPOINTS_cvrt = -e $(word 1, $(cvrt_fns)) $(foreach ep,$(cvrt_fns),-u $(ep) ) --gc-sections
-
-ENTRYPOINTS_blis = -e startSGEMM -u startSGEMMTRSM_LL -u startSGEMMTRSM_LU -u startSGEMMTRSM_RU -u startSGEMMTRSM_RL --gc-sections
-
-SHAVE_APP_LIBS += $(cvrt).mvlib
-SHAVE0_APPS += $(cvrt).shv0lib
-SHAVE1_APPS += $(cvrt).shv1lib
-SHAVE2_APPS += $(cvrt).shv2lib
-SHAVE3_APPS += $(cvrt).shv3lib
-SHAVE4_APPS += $(blis).shv4lib
-
-PROJECTCLEAN += $(SHAVE_APP_LIBS) $(SHAVE0_APPS) $(SHAVE1_APPS) $(SHAVE2_APPS) $(SHAVE3_APPS) $(SHAVE4_APPS)
-
-#include $(MV_COMMON_BASE)/generic.mk	
+SLAM_CCOPT += -DBLIS_VERSION_STRING=\"0.1.0-34\" -DLEON_USE_REAL_NUMBERS_ONLY
+SLAM_CCOPT += $(addprefix -I, $(sort $(dir $(shell find $(MV_COMMON_BASE)/components/BLIS/leon -name "*.h"))))
+SLAM_C_SOURCES +=             $(sort       $(shell find $(MV_COMMON_BASE)/components/BLIS/leon -name "*.c"))

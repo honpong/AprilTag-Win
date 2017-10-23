@@ -1,0 +1,309 @@
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/gemm/bli_gemm_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/gemm/bli_gemm_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/gemm/bli_gemm_ker_var2.c
+@@ -34,7 +34,7 @@
+ 
+ #include "blis.h"
+ #include "blis_helper.h"
+-#include "mv_types.h"
++#include "Shave.h"
+ 
+ #define FUNCPTR_T gemm_fp
+ 
+@@ -155,8 +155,6 @@ void bli_sgemm_ker_var2(
+     dim_t        n_iter, n_left;
+     inc_t        rstep_a;
+     inc_t        cstep_b;
+-    int          shaveIdx;
+-    int          shaveNr;
+     int          stepIter, startIter, endIter, modIter;
+     kernelInfo_t kernelInfo;
+ #ifdef SHAVE_PERFORMANCE_ONLY
+@@ -226,8 +224,8 @@ void bli_sgemm_ker_var2(
+     countCycles = bli_clock();
+ #endif
+ 
+-    stepIter  = n_iter/numberShaves;
+-    modIter   = n_iter%numberShaves;
++    stepIter  = n_iter/BLIS_SHAVES;
++    modIter   = n_iter%BLIS_SHAVES;
+     startIter = 0;
+     endIter   = stepIter;
+     kernelInfo.a       = a;
+@@ -245,21 +243,20 @@ void bli_sgemm_ker_var2(
+     kernelInfo.rstep_a = rstep_a;
+     kernelInfo.cstep_b = cstep_b;
+ 
+-    for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
++    for (int s = 0; s < BLIS_SHAVES; s++)
+     {
+-        shaveNr = listShaves[shaveIdx];
+-        swcResetShave(shaveNr);
+-        swcSetAbsoluteDefaultStack(shaveNr);
+-        swcStartShaveCC(shaveNr, entryPointsSGEMM[shaveNr], "iii", (u32)&kernelInfo, startIter, endIter);
++        shave_start(blis_shaves[s], entryPointsSGEMM[s], "iii", (u32)&kernelInfo, startIter, endIter);
+         startIter = endIter;
+         /* Check last SHAVE */
+-        if(shaveIdx == numberShaves - modIter - 1)
++        if(s == BLIS_SHAVES - modIter - 1)
+         {
+             stepIter += 1;
+         }
+         endIter += stepIter;
+     }
+-    swcWaitShaves(numberShaves, listShaves);
++    for (int s = 0; s < BLIS_SHAVES; s++)
++        shave_wait(blis_shaves[s]);
++
+ #ifdef MYRIAD2
+     DrvShaveL2CachePartitionFlushAndInvalidate(0);
+ #endif
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ll_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ll_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ll_ker_var2.c
+@@ -34,7 +34,7 @@
+ 
+ #include "blis.h"
+ #include "blis_helper.h"
+-#include "mv_types.h"
++#include "Shave.h"
+ 
+ #define FUNCPTR_T gemm_fp
+ 
+@@ -133,8 +133,6 @@ void bli_strsm_ll_ker_var2(
+     dim_t        i;
+     dim_t        rstep_a;
+     dim_t        cstep_b;
+-    int          shaveIdx;
+-    int          shaveNr;
+     int          stepIter, startIter, endIter, modIter;
+     kernelInfo_t kernelInfo;
+ #ifdef SHAVE_PERFORMANCE_ONLY
+@@ -229,8 +227,8 @@ void bli_strsm_ll_ker_var2(
+ #ifdef SHAVE_PERFORMANCE_ONLY
+     countCycles = bli_clock();
+ #endif
+-    stepIter  = n_iter/numberShaves;
+-    modIter   = n_iter%numberShaves;
++    stepIter  = n_iter/BLIS_SHAVES;
++    modIter   = n_iter%BLIS_SHAVES;
+     kernelInfo.a       = a;
+     kernelInfo.b       = b;
+     kernelInfo.c       = (void*)c_cast;
+@@ -248,22 +246,20 @@ void bli_strsm_ll_ker_var2(
+     startIter = 0;
+     endIter = stepIter;
+ 
+-    for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
++    for (int s = 0; s < BLIS_SHAVES; s++)
+     {
+-        shaveNr = listShaves[shaveIdx];
+-        swcResetShave(shaveNr);
+-        swcSetAbsoluteDefaultStack(shaveNr);
+-
+-        swcStartShaveCC(shaveNr, entryPointsSGEMMTRSM_LL[shaveNr], "iiii", (u32)&kernelInfo, diagoffa, startIter, endIter);
++        shave_start(blis_shaves[s], entryPointsSGEMMTRSM_LL[s], "iiii", (u32)&kernelInfo, diagoffa, startIter, endIter);
+         startIter = endIter;
+         /* Check last SHAVE */
+-        if(shaveIdx == numberShaves - modIter - 1)
++        if(s == BLIS_SHAVES - modIter - 1)
+         {
+             stepIter += 1;
+         }
+         endIter += stepIter;
+     }
+-    swcWaitShaves(numberShaves, listShaves);
++    for (int s = 0; s < BLIS_SHAVES; s++)
++        shave_wait(blis_shaves[s]);
++
+ #ifdef MYRIAD2
+     DrvShaveL2CachePartitionFlushAndInvalidate(0);
+ #endif
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_lu_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_lu_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_lu_ker_var2.c
+@@ -34,7 +34,7 @@
+ 
+ #include "blis.h"
+ #include "blis_helper.h"
+-#include "mv_types.h"
++#include "Shave.h"
+ 
+ #define FUNCPTR_T gemm_fp
+ 
+@@ -134,8 +134,6 @@ void bli_strsm_lu_ker_var2(
+     dim_t           n_iter, n_left;
+     dim_t           rstep_a;
+     dim_t           cstep_b;
+-    int             shaveIdx;
+-    int             shaveNr;
+     int             stepIter, startIter, endIter, modIter;
+     kernelInfo_t    kernelInfo;
+ #ifdef SHAVE_PERFORMANCE_ONLY
+@@ -239,8 +237,8 @@ void bli_strsm_lu_ker_var2(
+     countCycles = bli_clock();
+ #endif
+ 
+-    stepIter  = n_iter/numberShaves;
+-    modIter   = n_iter%numberShaves;
++    stepIter  = n_iter/BLIS_SHAVES;
++    modIter   = n_iter%BLIS_SHAVES;
+     startIter = 0;
+     endIter   = stepIter;
+     kernelInfo.a       = a;
+@@ -258,22 +256,20 @@ void bli_strsm_lu_ker_var2(
+     kernelInfo.rstep_a = rstep_a;
+     kernelInfo.cstep_b = cstep_b;
+ 
+-    for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
++    for (int s = 0; s < BLIS_SHAVES; s++)
+     {
+-        shaveNr = listShaves[shaveIdx];
+-        swcResetShave(shaveNr);
+-        swcSetAbsoluteDefaultStack(shaveNr);
+-
+-        swcStartShaveCC(shaveNr, entryPointsSGEMMTRSM_LU[shaveNr], "iiii", (u32)&kernelInfo, diagoffa, startIter, endIter);
++        shave_start(blis_shaves[s], entryPointsSGEMMTRSM_LU[s], "iiii", (u32)&kernelInfo, diagoffa, startIter, endIter);
+         startIter = endIter;
+         /* Check last SHAVE */
+-        if(shaveIdx == numberShaves - modIter - 1)
++        if(s == BLIS_SHAVES - modIter - 1)
+         {
+             stepIter += 1;
+         }
+         endIter += stepIter;
+     }
+-    swcWaitShaves(numberShaves, listShaves);
++    for (int s = 0; s < BLIS_SHAVES; s++)
++        shave_wait(blis_shaves[s]);
++
+ #ifdef MYRIAD2
+     DrvShaveL2CachePartitionFlushAndInvalidate(0);
+ #endif
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_rl_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_rl_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_rl_ker_var2.c
+@@ -34,7 +34,7 @@
+ 
+ #include "blis.h"
+ #include "blis_helper.h"
+-#include "mv_types.h"
++#include "Shave.h"
+ 
+ #define FUNCPTR_T gemm_fp
+ 
+@@ -136,8 +136,6 @@ void bli_strsm_rl_ker_var2(
+     dim_t           rstep_a;
+     dim_t           cstep_b;
+     kernelInfo_t    kernelInfo;
+-    int             shaveIdx;
+-    int             shaveNr;
+     int             stepIter, startIter, endIter, modIter;
+ #ifdef SHAVE_PERFORMANCE_ONLY
+     double          countCycles;
+@@ -244,8 +242,8 @@ void bli_strsm_rl_ker_var2(
+ #ifdef SHAVE_PERFORMANCE_ONLY
+     countCycles = bli_clock();
+ #endif
+-    stepIter  = m_iter/numberShaves;
+-    modIter   = m_iter%numberShaves;
++    stepIter  = m_iter/BLIS_SHAVES;
++    modIter   = m_iter%BLIS_SHAVES;
+     startIter = 0;
+     endIter   = stepIter;
+     kernelInfo.a       = (void*)a_cast;
+@@ -263,22 +261,20 @@ void bli_strsm_rl_ker_var2(
+     kernelInfo.rstep_a = rstep_a;
+     kernelInfo.cstep_b = cstep_b;
+ 
+-    for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
++    for (int s = 0; s < BLIS_SHAVES; s++)
+     {
+-        shaveNr = listShaves[shaveIdx];
+-        swcResetShave(shaveNr);
+-        swcSetAbsoluteDefaultStack(shaveNr);
+-
+-        swcStartShaveCC(shaveNr, entryPointsSGEMMTRSM_RL[shaveNr], "iiii", (u32)&kernelInfo, diagoffb, startIter, endIter);
++        shave_start(blis_shaves[s], entryPointsSGEMMTRSM_RL[s], "iii", (u32)&kernelInfo, diagoffb, startIter, endIter);
+         startIter = endIter;
+         /* Check last SHAVE */
+-        if(shaveIdx == numberShaves - modIter - 1)
++        if(s == BLIS_SHAVES - modIter - 1)
+         {
+             stepIter += 1;
+         }
+         endIter += stepIter;
+     }
+-    swcWaitShaves(numberShaves, listShaves);
++    for (int s = 0; s < BLIS_SHAVES; s++)
++        shave_wait(blis_shaves[s]);
++
+ #ifdef MYRIAD2
+     DrvShaveL2CachePartitionFlushAndInvalidate(0);
+ #endif
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ru_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ru_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ru_ker_var2.c
+@@ -34,7 +34,7 @@
+ 
+ #include "blis.h"
+ #include "blis_helper.h"
+-#include "mv_types.h"
++#include "Shave.h"
+ 
+ #define FUNCPTR_T gemm_fp
+ 
+@@ -144,8 +144,6 @@ void bli_strsm_ru_ker_var2(
+     dim_t           j;
+     dim_t           rstep_a;
+     dim_t           cstep_b;
+-    int             shaveIdx;
+-    int             shaveNr;
+     int             stepIter, startIter, endIter, modIter;
+     kernelInfo_t    kernelInfo;
+ #ifdef SHAVE_PERFORMANCE_ONLY
+@@ -248,8 +246,8 @@ void bli_strsm_ru_ker_var2(
+ #ifdef SHAVE_PERFORMANCE_ONLY
+     countCycles = bli_clock();
+ #endif
+-    stepIter  = m_iter/numberShaves;
+-    modIter   = m_iter%numberShaves;
++    stepIter  = m_iter/BLIS_SHAVES;
++    modIter   = m_iter%BLIS_SHAVES;
+     kernelInfo.a       = a;
+     kernelInfo.b       = b;
+     kernelInfo.c       = (void*)c_cast;
+@@ -267,22 +265,20 @@ void bli_strsm_ru_ker_var2(
+     startIter = 0;
+     endIter = stepIter;
+ 
+-    for (shaveIdx = 0; shaveIdx < numberShaves; shaveIdx++)
++    for (int s = 0; s < BLIS_SHAVES; s++)
+     {
+-        shaveNr = listShaves[shaveIdx];
+-        swcResetShave(shaveNr);
+-        swcSetAbsoluteDefaultStack(shaveNr);
+-
+-        swcStartShaveCC(shaveNr, entryPointsSGEMMTRSM_RU[shaveNr], "iiii", (u32)&kernelInfo, diagoffb, startIter, endIter);
++        shave_start(blis_shaves[s], entryPointsSGEMMTRSM_RU[s], "iiii", (u32)&kernelInfo, diagoffb, startIter, endIter);
+         startIter = endIter;
+         /* Check last SHAVE */
+-        if(shaveIdx == numberShaves - modIter - 1)
++        if(s == BLIS_SHAVES - modIter - 1)
+         {
+             stepIter += 1;
+         }
+         endIter += stepIter;
+     }
+-    swcWaitShaves(numberShaves, listShaves);
++    for (int s = 0; s < BLIS_SHAVES; s++)
++        shave_wait(blis_shaves[s]);
++
+ #ifdef MYRIAD2
+     DrvShaveL2CachePartitionFlushAndInvalidate(0);
+ #endif

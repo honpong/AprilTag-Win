@@ -89,11 +89,21 @@ void * fnReplay(void * arg)
 {
     bool stereo_configured = false;
 
-    tracker_instance = rc_create();
+    __attribute__((section(".cmx.bss"),aligned(64)))
+    static uint8_t rc_tracker_memory[166*1024];
+    static size_t rc_tracker_size;
+    if (rc_tracker_size || (rc_create_at(nullptr, &rc_tracker_size),
+                            rc_tracker_size > sizeof(rc_tracker_memory))) {
+        printf("\e[31;1mWarning\e[m: reserved %td for rc_Tracker in CMX, but needed %td; using DDR\n", sizeof(rc_tracker_memory), rc_tracker_size);
+        tracker_instance = rc_create();
+    } else
+        tracker_instance = rc_create_at(rc_tracker_memory, nullptr);
+
     if(!tracker_instance) {
         printf("Error: failed to create tracker instance\n");
         return NULL;
     }
+
     sfm              = &((sensor_fusion *)tracker_instance)->sfm;
     rc_setDataCallback(tracker_instance, data_callback, tracker_instance);
     rc_setStatusCallback(tracker_instance, status_callback, tracker_instance);
@@ -107,12 +117,19 @@ void * fnReplay(void * arg)
         printf("Starting replay: as fast as possible\n");
 
     rtems_object_set_name(rtems_task_self(), __func__);
+    bool clean_exit = false;
     while(1) {
         if(!isReplayRunning) break;
 
         packet_t * packet;
         if(!packet_io_read(&packet)) {
             printf("Error reading packet, exiting\n");
+            break;
+        }
+        if(packet->header.type == packet_filter_control &&
+           packet->header.sensor_id == 0) {
+            printf("All data received, exiting\n");
+            clean_exit = true;
             break;
         }
 
@@ -160,10 +177,6 @@ void * fnReplay(void * arg)
             }
             case packet_image_raw: {
                 packet_image_raw_t * image = (packet_image_raw_t *)packet;
-                if(image->header.sensor_id != 0) {  // only mono for now
-                    packet_io_free(packet);
-                    break;
-                }
                 START_EVENT(EV_SF_REC_IMAGE, 0);
                 rc_receiveImage(tracker_instance, image->header.sensor_id,
                                 (rc_ImageFormat)image->format,
@@ -205,6 +218,19 @@ void * fnReplay(void * arg)
     rc_stopTracker(tracker_instance);
     printf("Timing:\n%s\n", rc_getTimingStats(tracker_instance));
     rc_destroy(tracker_instance);
+
+    if(clean_exit) {
+        // Tell the host we are done by abusing the packet_rc_pose_t
+        // (since we read a fixed sized packet on the host)
+        packet_rc_pose_t done_packet;
+        done_packet.header.type = packet_filter_control;
+        done_packet.header.bytes = sizeof(packet_rc_pose_t);
+        done_packet.header.sensor_id = 0;
+        printf("Sending done message to the host\n");
+        usb_blocking_write(ENDPOINT_DEV_INT_OUT, (uint8_t *)&done_packet,
+                               sizeof(packet_rc_pose_t));
+    }
+
     isReplayRunning = false;
     return NULL;
 }

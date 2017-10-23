@@ -18,36 +18,17 @@
 
 #ifdef MYRIAD2
 #include "platform_defines.h"
-
-#define TRACE_MATRIX_EVENTS 0
-
-#if TRACE_MATRIX_EVENTS == 0
-    #undef START_EVENT
-    #define START_EVENT(x, y)
-    #undef END_EVENT
-    #define END_EVENT(x, y)
-    #undef TRACE_EVENT
-    #define TRACE_EVENT(x, y)
 #endif
 
-
-#include <mutex>
-#include <OsDrvShaveL2Cache.h>
-
-#ifdef ENABLE_SHAVE_CHOLESKY
-
-#include "solve_chol.h"
-#define SHAVE_CHOLESKY_L2_PARTITION 0
-static std::mutex cholesky_mutex;
-#endif
-
-#ifdef ENABLE_BLIS_GEMM
-#include <DrvLeonL2C.h>
+#if defined(ENABLE_BLIS_GEMM) || defined(ENABLE_SHAVE_SOLVE) || defined(HAVE_BLIS)
 #include "blis.h"
+#ifdef MYRIAD2
 #include "blis_defines.h"
-#ifdef __RTEMS__
 #include <rtems.h>
+#else
+static struct blis_initialize { blis_initialize() { bli_init(); } } blis_initialize;
 #endif
+#include <mutex>
 static std::mutex blis_mutex;
 
 static void blis_set_object(const matrix &m, obj_t *obj, bool trans = false)
@@ -56,7 +37,10 @@ static void blis_set_object(const matrix &m, obj_t *obj, bool trans = false)
     else       bli_obj_create_with_attached_buffer(BLIS_FLOAT, m.rows(), m.cols(), (void *)&m(0,0), m.get_stride(), 1, obj);
 }
 
-void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, bool transA, bool transB, const float dst_scale, const float scale)
+#endif
+
+#if defined(ENABLE_BLIS_GEMM) || defined(HAVE_BLIS)
+static void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, bool transA, bool transB, const float dst_scale, const float scale)
 {
     obj_t Aobj, Bobj, resObj, scaleObj, dstScaleObj;
 
@@ -67,84 +51,33 @@ void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, bool tra
     bli_obj_scalar_init_detached(BLIS_FLOAT, &dstScaleObj);
     bli_setsc(scale, 0.0, &scaleObj);
     bli_setsc(dst_scale, 0.0, &dstScaleObj);
+
+    blis_mutex.lock();
     bli_gemm(&scaleObj, &Aobj, &Bobj, &dstScaleObj, &resObj);
-
+    blis_mutex.unlock();
+#ifdef MYRIAD2
     rtems_cache_invalidate_multiple_data_lines( (void *)res.Data(), res.rows() * res.get_stride() * sizeof(f_t) );
-}
-
-#endif // ENABLE_BLIS_GEMM
-#ifdef ENABLE_SHAVE_CHOLESKY
-bool matrix_cholesky_shave(matrix &A, matrix &B)
-{
-    // Fast path always has this size(3,24), don't run shave cholesky
-    // here (use Eigen instead) as a workaround to avoid an unknown
-    // issue which causes us to lock waiting on a DMA transaction on
-    // the fast path
-    if(A.rows() == 3 && B.rows() <= 25) return false;
-    START_EVENT(SF_MSOLVE_HW, 0);
-
-	int N_orig = A.rows();
-	int M_orig = B.rows();
-	int N = N_orig;
-	int M = M_orig;
-	int N_pad = 4 - (N % 4);
-	int M_pad = 4 - (M % 4);
-	//check that we can resize B
-	//no need to check A, because it is ensured before calling solve
-	bool resize = ((N_pad == 4 || N + N_pad <= B.get_stride()) &&
-			(M_pad == 4 || M + M_pad <= B.Maxrows()));
-   if (resize )  {
-	    // Pad A and B to be % 4 = 0
-        // A should be NxN
-        // B should be MxN (because we operate on transposed)
-        if(N_pad != 4) {
-            N += N_pad;
-            A.resize(N,N);
-            // 0 the padded rows and cols
-            for(int row = 0; row < N; row++)
-                for(int col = N_orig; col < N; col++)
-                    A(row,col) = 0;
-            for(int row = N_orig; row < N; row++)
-                for(int col = 0; col < N; col++)
-                    A(row,col) = 0;
-            // set the diagonal to 1
-            for(int diag = N_orig; diag < N; diag++)
-                A(diag, diag) = 1;
-
-            // 0 the padded cols of B
-            B.resize(M,N);
-            for(int row = 0; row < M; row++)
-                for(int col = N_orig; col < N; col++)
-                    B(row,col) = 0;
-        }
-
-        if(M_pad != 4) {
-            // 0 pad the rows of B
-            M += M_pad;
-            B.resize(M,N);
-            for(int row = M_orig; row < M; row++)
-                for(int col = 0; col < N; col++)
-                    B(row,col) = 0;
-        }
-        cholesky_mutex.lock();
-        solve_chol(A.Data(), B.Data(), B.Data(), N, M, A.get_stride(), B.get_stride(), B.get_stride());
-        cholesky_mutex.unlock();
-        //invalidate cache B range
-        /*int sc = OS_MYR_DRV_SUCCESS;
-          if ((sc = OsDrvShaveL2CachePartitionFlush(SHAVE_CHOLESKY_L2_PARTITION,
-               PERFORM_INVALIDATION)) != OS_MYR_DRV_SUCCESS)
-               printf("ERROR: OsDrvShaveL2CachePartitionFlush %lu\n", sc);*/
-       
-        rtems_cache_invalidate_multiple_data_lines( (void *)B.Data(), M * B.get_stride() * sizeof(f_t) );
-        
-        A.resize(N_orig, N_orig);
-        B.resize(M_orig, N_orig);
-    }
-    END_EVENT(SF_MSOLVE_HW, 0);
-   return resize;
-}
 #endif
-#endif //MYRIAD2
+}
+#endif // ENABLE_BLIS_GEMM
+
+#if defined(ENABLE_SHAVE_SOLVE) || defined(HAVE_BLIS)
+static void matrix_solve_blis(const matrix &A, const matrix &B, uplo_t uplo, bool transB)
+{
+    obj_t Aobj, Bobj;
+    blis_set_object(A, &Aobj, false);
+    bli_obj_set_uplo(uplo, Aobj);
+    bli_obj_set_struc(BLIS_TRIANGULAR, Aobj);
+    blis_set_object(B, &Bobj, transB);
+
+    blis_mutex.lock();
+    bli_trsm(BLIS_LEFT, &BLIS_ONE, &Aobj, &Bobj);
+    blis_mutex.unlock();
+#ifdef MYRIAD2
+    rtems_cache_invalidate_multiple_data_lines( (void *)B.Data(), B.rows() * B.get_stride() * sizeof(f_t) );
+#endif
+}
+#endif // ENABLE_SHAVE_SOLVE
 
 void matrix::print() const
 {
@@ -194,11 +127,9 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
         (res.get_stride() % 16 == 0)
       )
     {
-    	blis_mutex.lock();
         START_EVENT(SF_GEMM_HW, 0);
         matrix_product_blis(res, A, B, trans1, trans2, dst_scale, scale);
         END_EVENT(SF_GEMM_HW, k);
-        blis_mutex.unlock();
     }
     else
 #endif
@@ -221,20 +152,24 @@ f_t matrix_check_condition(matrix &A)
     return A.map().llt().rcond();
 }
 
-bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = B L^-T
+bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = L^-T B
 {
     START_EVENT(SF_MSOLVE, 0);
-#ifdef ENABLE_SHAVE_CHOLESKY
-    if (!matrix_cholesky_shave(A, B))
-#endif
     {
     matrix::Map
         A_map { &A(0,0), A.rows(), A.cols(), A.get_stride() },
         B_map { &B(0,0), B.rows(), B.cols(), B.get_stride() };
-    Eigen::LLT< Eigen::Ref<decltype(A_map)> > llt(A_map);
+    Eigen::LLT< Eigen::Ref<decltype(A_map)>, Eigen::Lower > llt(A_map);
     if (llt.info() == Eigen::NumericalIssue)
         return false;
-    llt.matrixL().solveInPlace(B_map.transpose());
+#if defined(ENABLE_SHAVE_SOLVE) || defined(HAVE_BLIS)
+    if (A.rows() > 3) {
+        START_EVENT(SF_MSOLVE_HW, A.rows());
+        matrix_solve_blis(A, B, BLIS_LOWER, false);
+        END_EVENT(SF_MSOLVE_HW, B.cols());
+    } else
+#endif
+    llt.matrixL().solveInPlace(B_map);
     }
     END_EVENT(SF_MSOLVE, 0);
     return true;

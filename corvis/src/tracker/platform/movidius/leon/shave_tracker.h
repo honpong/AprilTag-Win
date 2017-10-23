@@ -15,8 +15,6 @@
 #include "adaptive_controller.h"
 #include "Shave.h"
 
-#define TRACKER_SHAVES_USED  4
-
 constexpr int fast_detect_controller_max_features = 400;
 constexpr int fast_detect_controller_min_features = 200;
 constexpr int fast_detect_controller_min_threshold = 15;
@@ -39,10 +37,8 @@ private:
     void prepTrackingData(std::vector<TrackingData>& trackingData, std::vector<tracker::feature_track *> &predictions);
     void processTrackingResult(std::vector<tracker::feature_track *> &predictions);
 
-    int shavesToUse;
     AdaptiveController  m_thresholdController;
     int m_lastDetectedFeatures;
-    Shave* shaves[TRACKER_SHAVES_USED];
 
 public:
     shave_tracker();

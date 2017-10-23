@@ -31,7 +31,7 @@ static stereo_matching stereo_matching_o;
 // ----------------------------------------------------------------------------
 
 
-extern "C" void stereo_kp_matching_and_compare(ShavekpMatchingSettings *kpMatchingParams, u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1, float * errors1)
+extern "C" void stereo_match(ShavekpMatchingSettings *kpMatchingParams, u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1, float * errors1)
 {
     stereo_matching_o.init(*kpMatchingParams);
     stereo_matching_o.stereo_kp_matching_and_compare(p_kp1, p_kp2, patches1, patches2, depths1, errors1);

@@ -130,18 +130,17 @@ void observation_queue::compute_innovation_covariance(const matrix &m_cov)
     }
 }
 
-bool observation_queue::update_state_and_covariance(matrix &x, matrix &P, const matrix &y, matrix &HP, matrix &S, matrix &KL)
+bool observation_queue::update_state_and_covariance(matrix &x, matrix &P, const matrix &y, matrix &HP, matrix &S)
 {
     int meas_size = HP.rows(), statesize = HP.cols();
     matrix Px(P, 0,0, statesize+1, statesize); // [ P ; x ]
     Px.map().bottomRows(1) = x.map();
 
-    matrix KL_y (KL, 0,0, statesize+1, meas_size);
-    KL.map() = HP.map().transpose();
-    KL_y.map().bottomRows(1) = -y.map();
-    if (!matrix_half_solve(S, KL_y)) // S = L L^T; KL = [ HP -y ]' L^-T
+    matrix HP_y (HP, 0,0, meas_size, statesize+1);
+    HP_y.map().rightCols(1) = -y.map().transpose();
+    if (!matrix_half_solve(S, HP_y)) // S = L L^T; HP_y = L^-1 [ HP -y ]
         return false;
-    matrix_product(Px, KL_y, KL, false, true, 1, -1); // [P ; x ] -= (L^-1 [HP -y])' * (L^-1 HP)
+    matrix_product(Px, HP_y, HP, true, false, 1, -1); // [P ; x ] -= (L^-1 [HP -y])' * (L^-1 HP)
 
     P.map().triangularView<Eigen::StrictlyUpper>() = P.map().triangularView<Eigen::StrictlyLower>().transpose();
 
@@ -170,7 +169,6 @@ bool observation_queue::process(state_root &s, bool run_on_shave)
         inn.resize(meas_size);
         m_cov.resize(meas_size);
         HP.resize(meas_size, statesize);
-        KL.resize(statesize, meas_size);
         res_cov.resize(meas_size, meas_size);
         state.resize(statesize);
 
@@ -188,7 +186,7 @@ bool observation_queue::process(state_root &s, bool run_on_shave)
 
         s.copy_state_to_array(state);
 
-        success = update_state_and_covariance(state, s.cov.cov, inn, HP, res_cov, KL);
+        success = update_state_and_covariance(state, s.cov.cov, inn, HP, res_cov);
 
         s.copy_state_from_array(state);
     } else if(orig_meas_size && orig_meas_size != 3) {

@@ -1,14 +1,15 @@
 #!/bin/bash
 
-TM2_ROOT=`pwd`
+TM2_ROOT=$(cd $(dirname "$BASH_SOURCE") && pwd)
+MDK_ROOT=$(pwd)
 MDK_NAME=mdk-17.04.5.tar.gz
 MDK_CANONICAL=mdk_release_17.04.5_general_purpose
 MDK_URL=http://artifactoryperc01.iil.intel.com:8081/artifactory/libs-release-local/movidius/mdk/mdk/17.04.05/$MDK_NAME
 
-export MDK_INSTALL_DIR=$TM2_ROOT/external/
+export MDK_INSTALL_DIR=$MDK_ROOT/external/
 
-export MV_COMMON_BASE=$TM2_ROOT/external/$MDK_CANONICAL/mdk/common
-export MV_TOOLS_DIR=$TM2_ROOT/external/$MDK_CANONICAL/tools
+export MV_COMMON_BASE=$MDK_ROOT/external/$MDK_CANONICAL/mdk/common
+export MV_TOOLS_DIR=$MDK_ROOT/external/$MDK_CANONICAL/tools
 export MV_TOOLS_VERSION=00.83.4
 #export MV_SOC_REV=ma2450
 export MV_SOC_REV=ma2150
@@ -18,49 +19,51 @@ fi
 
 # Check for cross-compilation toolchain
 if [[ ! -d $MDK_INSTALL_DIR/$MDK_CANONICAL ]]; then
-	echo "WARNING: No MDK found in $MDK_INSTALL_DIR/$MDK_CANONICAL. Trying to download."
+    echo "No MDK found in $MDK_INSTALL_DIR/$MDK_CANONICAL."
 
-	TMP=$TM2_ROOT/external/.mdk
-	mkdir -p $TMP
-	pushd $TMP
-	wget $MDK_URL
-	tar xzf mdk-17.04.5.tar.gz
-	mv $MDK_CANONICAL $MDK_INSTALL_DIR/$MDK_CANONICAL
-	popd
-	rm -fr $TMP
+    TMP=$MDK_ROOT/external/.mdk
+    mkdir -p $TMP
+    (
+        cd $TMP
+        if [[ ! -f $MDK_NAME ]]; then
+            echo "Downloading MDK..."
+            curl -O $MDK_URL
+        fi
+        echo "Untaring MDK..."
+        tar xzf $MDK_NAME
+        mv $MDK_CANONICAL $MDK_INSTALL_DIR/$MDK_CANONICAL
+    )
 fi
 
 # Check if all patches have been added
-pushd $MDK_INSTALL_DIR
-for f in $TM2_ROOT/mdk_patches/*.patch
-do
-    echo $f;
-    patch -p0 -N --dry-run --silent < $f 2>/dev/null
-    if [ $? -eq 0 ]; then
-        echo "applying $f"
-        patch -p0 -N < $f
-    else
-        echo "skipping $f"
+(
+    cd $MDK_INSTALL_DIR/$MDK_CANONICAL
+    export QUILT_PATCHES=$(realpath --relative-to=. $TM2_ROOT/mdk_patches)
+    if [ "$(quilt series)" != "$(quilt applied)" ]; then
+       echo MDK patches need refreshing
+       quilt pop -a -f
+       quilt push -a
     fi
-done
-popd
+)
 
-# Install udev rules
-echo "Checking udev rules"
-INSTALLED=false
-for RULE in udev/*.rules
-do
-    RULEFILE=`basename $RULE`
-    if [ ! -f /etc/udev/rules.d/$RULEFILE ]; then
-        echo "Installing udev rule $RULEFILE" 
-        sudo cp $RULE /etc/udev/rules.d/$RULEFILE
-        sudo chmod +x /etc/udev/rules.d/$RULEFILE
-        INSTALLED=true
+if [[ -d /etc/udev/rules.d ]]; then
+    # Install udev rules
+    echo "Checking udev rules"
+    INSTALLED=false
+    for RULE in $TM2_ROOT/udev/*.rules
+    do
+        RULEFILE=`basename $RULE`
+        if [ ! -f /etc/udev/rules.d/$RULEFILE ]; then
+            echo "Installing udev rule $RULEFILE"
+            sudo cp $RULE /etc/udev/rules.d/$RULEFILE
+            sudo chmod +x /etc/udev/rules.d/$RULEFILE
+            INSTALLED=true
+        fi
+    done
+    if [ "$INSTALLED" = true ]; then
+        echo "Reloading udev, unplug and replug your devices"
+        sudo udevadm control --reload
+    else
+        echo "All udev rules already installed"
     fi
-done
-if [ "$INSTALLED" = true ]; then
-    echo "Reloading udev, unplug and replug your devices"
-    sudo udevadm control --reload
-else
-    echo "All udev rules already installed"
 fi

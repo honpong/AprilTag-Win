@@ -1,0 +1,166 @@
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMM.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/shave/shaveSGEMM.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMM.c
+@@ -11,8 +11,8 @@
+ #include <mv_types.h>
+ #include <svuCommonShave.h>
+ #include <string.h>
+-#include "Defines.h"
+-#include "Buffers.h"
++#include "blis_defines.h"
++#include "blis_buffers.h"
+ #include "Portab.h"
+ 
+ // 2:  Source Specific #defines and types  (typedef,enum,struct)
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_LL.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_LL.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_LL.c
+@@ -12,8 +12,8 @@
+ #include <svuCommonShave.h>
+ #include <moviVectorUtils.h>
+ 
+-#include "Defines.h"
+-#include "Buffers.h"
++#include "blis_defines.h"
++#include "blis_buffers.h"
+ #include "Portab.h"
+ 
+ // 1: Includes
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_LU.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_LU.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_LU.c
+@@ -12,8 +12,8 @@
+ #include <svuCommonShave.h>
+ #include <moviVectorUtils.h>
+ 
+-#include "Defines.h"
+-#include "Buffers.h"
++#include "blis_defines.h"
++#include "blis_buffers.h"
+ #include "Portab.h"
+ 
+ // 1: Includes
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_RL.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_RL.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_RL.c
+@@ -11,8 +11,8 @@
+ #include <mv_types.h>
+ #include <svuCommonShave.h>
+ 
+-#include "Defines.h"
+-#include "Buffers.h"
++#include "blis_defines.h"
++#include "blis_buffers.h"
+ #include "Portab.h"
+ 
+ // 1: Includes
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_RU.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_RU.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/shave/shaveSGEMMTRSM_RU.c
+@@ -12,8 +12,8 @@
+ #include <svuCommonShave.h>
+ #include <moviVectorUtils.h>
+ 
+-#include "Defines.h"
+-#include "Buffers.h"
++#include "blis_defines.h"
++#include "blis_buffers.h"
+ #include "Portab.h"
+ 
+ // 1: Includes
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/1m/packm/bli_packm_cxk.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/1m/packm/bli_packm_cxk.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/1m/packm/bli_packm_cxk.c
+@@ -33,7 +33,7 @@
+ */
+ 
+ #include "blis.h"
+-#include "Defines.h"
++#include "blis_defines.h"
+ 
+ #define FUNCPTR_T packm_cxk_fp
+ 
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/base/bli_mem.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/base/bli_mem.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/base/bli_mem.c
+@@ -33,7 +33,7 @@
+ */
+ 
+ #include "blis.h"
+-#include "Defines.h"
++#include "blis_defines.h"
+ 
+ #ifdef MYRIAD1
+ typedef u32 uintptr_t;
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/gemm/bli_gemm_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/gemm/bli_gemm_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/gemm/bli_gemm_ker_var2.c
+@@ -33,7 +33,7 @@
+ */
+ 
+ #include "blis.h"
+-#include "Helpers.h"
++#include "blis_helper.h"
+ #include "mv_types.h"
+ 
+ #define FUNCPTR_T gemm_fp
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ll_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ll_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ll_ker_var2.c
+@@ -33,7 +33,7 @@
+ */
+ 
+ #include "blis.h"
+-#include "Helpers.h"
++#include "blis_helper.h"
+ #include "mv_types.h"
+ 
+ #define FUNCPTR_T gemm_fp
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_lu_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_lu_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_lu_ker_var2.c
+@@ -33,7 +33,7 @@
+ */
+ 
+ #include "blis.h"
+-#include "Helpers.h"
++#include "blis_helper.h"
+ #include "mv_types.h"
+ 
+ #define FUNCPTR_T gemm_fp
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_rl_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_rl_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_rl_ker_var2.c
+@@ -33,7 +33,7 @@
+ */
+ 
+ #include "blis.h"
+-#include "Helpers.h"
++#include "blis_helper.h"
+ #include "mv_types.h"
+ 
+ #define FUNCPTR_T gemm_fp
+Index: mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ru_ker_var2.c
+===================================================================
+--- mdk_release_17.04.5_general_purpose.orig/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ru_ker_var2.c
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/BLIS/leon/frame/3/trsm/bli_trsm_ru_ker_var2.c
+@@ -33,7 +33,7 @@
+ */
+ 
+ #include "blis.h"
+-#include "Helpers.h"
++#include "blis_helper.h"
+ #include "mv_types.h"
+ 
+ #define FUNCPTR_T gemm_fp

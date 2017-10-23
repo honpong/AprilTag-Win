@@ -3,109 +3,67 @@
 #ifdef SHAVE_PERFORMANCE_ONLY
 double time_shave;
 #endif
-// XXX - JR - This is a variable that blis library refers to it external
-int numberShaves = MAX_SHAVES;
 
 
-extern void* (blis4_startSGEMM);
-extern void* (blis4_startSGEMMTRSM_LL);
-extern void* (blis4_startSGEMMTRSM_LU);
-extern void* (blis4_startSGEMMTRSM_RU);
-extern void* (blis4_startSGEMMTRSM_RL);
+extern void* (blis0_startSGEMM);
+extern void* (blis1_startSGEMM);
+extern void* (blis2_startSGEMM);
+extern void* (blis3_startSGEMM);
+extern void* (blis0_startSGEMMTRSM_LL);
+extern void* (blis1_startSGEMMTRSM_LL);
+extern void* (blis2_startSGEMMTRSM_LL);
+extern void* (blis3_startSGEMMTRSM_LL);
+extern void* (blis0_startSGEMMTRSM_LU);
+extern void* (blis1_startSGEMMTRSM_LU);
+extern void* (blis2_startSGEMMTRSM_LU);
+extern void* (blis3_startSGEMMTRSM_LU);
+extern void* (blis0_startSGEMMTRSM_RU);
+extern void* (blis1_startSGEMMTRSM_RU);
+extern void* (blis2_startSGEMMTRSM_RU);
+extern void* (blis3_startSGEMMTRSM_RU);
+extern void* (blis0_startSGEMMTRSM_RL);
+extern void* (blis1_startSGEMMTRSM_RL);
+extern void* (blis2_startSGEMMTRSM_RL);
+extern void* (blis3_startSGEMMTRSM_RL);
 
-// XXX - JR - This is a variable that blis library refers to it external
-swcShaveUnit_t listShaves[MAX_SHAVES] = {4};
-/***
-u32 entryPointsSGEMM[MAX_SHAVES] =
+swcShaveUnit_t blis_shaves[BLIS_SHAVES] = {0,1,2,3};
+
+u32 entryPointsSGEMM[BLIS_SHAVES] =
 {
-   (u32)&BLIS_GEMM5_startSGEMM,
+   (u32)&blis0_startSGEMM,
+   (u32)&blis1_startSGEMM,
+   (u32)&blis2_startSGEMM,
+   (u32)&blis3_startSGEMM,
 };
 
-u32 entryPointsSGEMMTRSM_LL[MAX_SHAVES] =
+u32 entryPointsSGEMMTRSM_LL[BLIS_SHAVES] =
 {
-   (u32)&BLIS_GEMM5_startSGEMMTRSM_LL,
+   (u32)&blis0_startSGEMMTRSM_LL,
+   (u32)&blis1_startSGEMMTRSM_LL,
+   (u32)&blis2_startSGEMMTRSM_LL,
+   (u32)&blis3_startSGEMMTRSM_LL,
 };
 
-u32 entryPointsSGEMMTRSM_LU[MAX_SHAVES] =
+u32 entryPointsSGEMMTRSM_LU[BLIS_SHAVES] =
 {
-   (u32)&BLIS_GEMM5_startSGEMMTRSM_LU
+   (u32)&blis0_startSGEMMTRSM_LU,
+   (u32)&blis1_startSGEMMTRSM_LU,
+   (u32)&blis2_startSGEMMTRSM_LU,
+   (u32)&blis3_startSGEMMTRSM_LU,
 };
 
-u32 entryPointsSGEMMTRSM_RU[MAX_SHAVES] =
+u32 entryPointsSGEMMTRSM_RU[BLIS_SHAVES] =
 {
-   (u32)&BLIS_GEMM5_startSGEMMTRSM_RU
+   (u32)&blis0_startSGEMMTRSM_RU,
+   (u32)&blis1_startSGEMMTRSM_RU,
+   (u32)&blis2_startSGEMMTRSM_RU,
+   (u32)&blis3_startSGEMMTRSM_RU,
 };
 
-u32 entryPointsSGEMMTRSM_RL[MAX_SHAVES] =
+u32 entryPointsSGEMMTRSM_RL[BLIS_SHAVES] =
 {
-   (u32)&BLIS_GEMM5_startSGEMMTRSM_RL
-};
-***/
-
-
-// XXX - JR due to bug in blis library, it expects the entry points for shave N (0-11) to be
-// located in the N position, regardless to the shave in use !
-u32 entryPointsSGEMM[9] =
-{
-   (u32)&blis4_startSGEMM,
-   (u32)&blis4_startSGEMM,
-   (u32)&blis4_startSGEMM,
-   (u32)&blis4_startSGEMM,
-   (u32)&blis4_startSGEMM,
-   (u32)&blis4_startSGEMM,
-   (u32)&blis4_startSGEMM,
-   (u32)&blis4_startSGEMM,
-   (u32)&blis4_startSGEMM,
-};
-
-u32 entryPointsSGEMMTRSM_LL[9] =
-{
-   (u32)&blis4_startSGEMMTRSM_LL,
-   (u32)&blis4_startSGEMMTRSM_LL,
-   (u32)&blis4_startSGEMMTRSM_LL,
-   (u32)&blis4_startSGEMMTRSM_LL,
-   (u32)&blis4_startSGEMMTRSM_LL,
-   (u32)&blis4_startSGEMMTRSM_LL,
-   (u32)&blis4_startSGEMMTRSM_LL,
-   (u32)&blis4_startSGEMMTRSM_LL,
-   (u32)&blis4_startSGEMMTRSM_LL,
-};
-
-u32 entryPointsSGEMMTRSM_LU[9] =
-{
-   (u32)&blis4_startSGEMMTRSM_LU,
-   (u32)&blis4_startSGEMMTRSM_LU,
-   (u32)&blis4_startSGEMMTRSM_LU,
-   (u32)&blis4_startSGEMMTRSM_LU,
-   (u32)&blis4_startSGEMMTRSM_LU,
-   (u32)&blis4_startSGEMMTRSM_LU,
-   (u32)&blis4_startSGEMMTRSM_LU,
-   (u32)&blis4_startSGEMMTRSM_LU,
-   (u32)&blis4_startSGEMMTRSM_LU,
-};
-
-u32 entryPointsSGEMMTRSM_RU[9] =
-{
-   (u32)&blis4_startSGEMMTRSM_RU,
-   (u32)&blis4_startSGEMMTRSM_RU,
-   (u32)&blis4_startSGEMMTRSM_RU,
-   (u32)&blis4_startSGEMMTRSM_RU,
-   (u32)&blis4_startSGEMMTRSM_RU,
-   (u32)&blis4_startSGEMMTRSM_RU,
-   (u32)&blis4_startSGEMMTRSM_RU,
-   (u32)&blis4_startSGEMMTRSM_RU,
-   (u32)&blis4_startSGEMMTRSM_RU,
-};
-
-u32 entryPointsSGEMMTRSM_RL[9] =
-{
-   (u32)&blis4_startSGEMMTRSM_RL,
-   (u32)&blis4_startSGEMMTRSM_RL,
-   (u32)&blis4_startSGEMMTRSM_RL,
-   (u32)&blis4_startSGEMMTRSM_RL,
-   (u32)&blis4_startSGEMMTRSM_RL,
-   (u32)&blis4_startSGEMMTRSM_RL,
-   (u32)&blis4_startSGEMMTRSM_RL,
-   (u32)&blis4_startSGEMMTRSM_RL,
-   (u32)&blis4_startSGEMMTRSM_RL,
+   (u32)&blis0_startSGEMMTRSM_RL,
+   (u32)&blis1_startSGEMMTRSM_RL,
+   (u32)&blis2_startSGEMMTRSM_RL,
+   (u32)&blis3_startSGEMMTRSM_RL,
 };

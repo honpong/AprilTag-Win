@@ -25,8 +25,6 @@ static u8 p_kp2_Buffer[sizeof(float3_t)*MAX_KP2+sizeof(int)]; //l_float3
 static u8 f1_FeatureBuffer[128];
 static u8 f2_FeatureBuffer[128];
 
-dmaTransactionList_t /*__attribute__((section(".cmx.cdmaDescriptors")))*/ dmaImportKeypoint[2];
-
 // ----------------------------------------------------------------------------
 // 5: Static Function Prototypes
 static float4 m_mult ( float4x4 A, float4 B)
@@ -122,7 +120,7 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
     unsigned short mean1 , mean2 ;
     //DMA - bring KP1 - KP2
     dmaTransactionList_t* dmaRef[2];
-
+    dmaTransactionList_t dmaImportKeypoint[2];
     u32 dmaRequsterId= dmaInitRequester(1);
     dmaRef[0]= dmaCreateTransaction(dmaRequsterId, &dmaImportKeypoint[0], p_kp1, p_kp1_Buffer, sizeof(float3_t)*MAX_KP1+sizeof(int));
     dmaRef[1]= dmaCreateTransaction(dmaRequsterId, &dmaImportKeypoint[1], p_kp2, p_kp2_Buffer, sizeof(float3_t)*MAX_KP2+sizeof(int));

@@ -2,29 +2,29 @@
 #include <OsCommon.h>
 #include "covariance_projector.h"
 
-extern u32 cvrt0_vision_project_motion_covariance;
-extern u32 cvrt1_vision_project_motion_covariance;
-extern u32 cvrt2_vision_project_motion_covariance;
-extern u32 cvrt3_vision_project_motion_covariance;
+extern u32 project_covariance0_vision_project_motion_covariance;
+extern u32 project_covariance1_vision_project_motion_covariance;
+extern u32 project_covariance2_vision_project_motion_covariance;
+extern u32 project_covariance3_vision_project_motion_covariance;
 
 static u32 project_covariance_entry_points[PROJECT_COVARIANE_SHAVES] = {
-        (u32) &cvrt0_vision_project_motion_covariance,
-        (u32) &cvrt1_vision_project_motion_covariance,
-        (u32) &cvrt2_vision_project_motion_covariance,
-        (u32) &cvrt3_vision_project_motion_covariance };
+        (u32) &project_covariance0_vision_project_motion_covariance,
+        (u32) &project_covariance1_vision_project_motion_covariance,
+        (u32) &project_covariance2_vision_project_motion_covariance,
+        (u32) &project_covariance3_vision_project_motion_covariance };
 
-extern u32 cvrt0_vision_project_observation_covariance1;
+extern u32 project_covariance0_vision_project_observation_covariance1;
 
-extern u32 cvrt0_vision_project_observation_covariance;
-extern u32 cvrt1_vision_project_observation_covariance;
-extern u32 cvrt2_vision_project_observation_covariance;
-extern u32 cvrt3_vision_project_observation_covariance;
+extern u32 project_covariance0_vision_project_observation_covariance;
+extern u32 project_covariance1_vision_project_observation_covariance;
+extern u32 project_covariance2_vision_project_observation_covariance;
+extern u32 project_covariance3_vision_project_observation_covariance;
 
 static u32 project_observation_covariance_entry_points[PROJECT_COVARIANE_SHAVES] = {
-        (u32) &cvrt0_vision_project_observation_covariance,
-        (u32) &cvrt1_vision_project_observation_covariance,
-        (u32) &cvrt2_vision_project_observation_covariance,
-        (u32) &cvrt3_vision_project_observation_covariance };
+        (u32) &project_covariance0_vision_project_observation_covariance,
+        (u32) &project_covariance1_vision_project_observation_covariance,
+        (u32) &project_covariance2_vision_project_observation_covariance,
+        (u32) &project_covariance3_vision_project_observation_covariance };
 
 covariance_projector::covariance_projector()
 {
@@ -55,7 +55,7 @@ void covariance_projector::project_observation_covariance(project_observation_co
 
     if (data.observations_size < 4) {
         data.shaves_number = 1;
-        shaves[start_shave]->start((u32) &cvrt0_vision_project_observation_covariance1, "i", (u32)&data);
+        shaves[start_shave]->start((u32) &project_covariance0_vision_project_observation_covariance1, "i", (u32)&data);
         shaves[start_shave]->wait();
         rtems_cache_invalidate_data_range(data.dst, data.dst_rows * data.dst_stride * sizeof(float));
         rtems_cache_invalidate_data_range(data.HP, data.HP_rows * data.HP_stride * sizeof(float));

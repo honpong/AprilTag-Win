@@ -89,26 +89,39 @@ u32 Shave::set_default_stack(void)
 
 void Shave::start(unsigned int ptr, const char* fmt, ... )
 {
+    va_list a_list;
+    va_start(a_list, fmt);
+    vstart(this, ptr, fmt, a_list);
+    va_end(a_list);
+}
+
+void shave_start(unsigned int i, unsigned int ptr, const char* fmt, ...)
+{
+    va_list a_list;
+    va_start(a_list, fmt);
+    Shave::vstart(Shave::get_handle(i), ptr, fmt, a_list);
+    va_end(a_list);
+}
+
+void Shave::vstart(Shave *s, unsigned int ptr, const char* fmt, va_list a_list)
+{
     u32 sc = OS_MYR_DRV_SUCCESS;
-    shave_mutex.lock();
+    s->shave_mutex.lock();
 #ifndef DISABLE_SHAVE_PM
-    sc = OsDrvCprTurnOnShaveMask(power_mask);
-#endif
+    sc = OsDrvCprTurnOnShaveMask(s->power_mask);
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: failed Turn on shave %lu\n", sc);
     }
-    sc = this->reset();
+#endif
+    sc = s->reset();
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: failed reset shave %lu\n", sc);
     }
-    sc= this->set_default_stack();
+    sc= s->set_default_stack();
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: failed setting shave stack %lu\n", sc);
     }
-    va_list a_list;
-    va_start(a_list, fmt);
-    sc = OsDrvSvuStartShaveCC2(&handlers[id], ptr, fmt, a_list);
-    va_end(a_list);
+    sc = OsDrvSvuStartShaveCC2(&handlers[s->id], ptr, fmt, a_list);
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: failed starting shave %lu\n", sc);
     }
@@ -120,10 +133,10 @@ void Shave::wait(void)
     sc = OsDrvSvuWaitShaves(1, &handlers[id], OS_DRV_SVU_WAIT_FOREVER, &running);
 #ifndef DISABLE_SHAVE_PM
     sc = OsDrvCprTurnOffShaveMask (power_mask);
-#endif
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: failed Turn off shave %lu\n", sc);
     }
+#endif
     shave_mutex.unlock();
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: while waiting shave %lu\n", sc);
@@ -131,4 +144,9 @@ void Shave::wait(void)
     if (0 != running) {
         DPRINTF("Error: wait shave %lu is running\n", running);
     }
+}
+
+void shave_wait(unsigned int i)
+{
+    Shave::get_handle(i)->wait();
 }

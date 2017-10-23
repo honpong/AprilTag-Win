@@ -504,6 +504,7 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
                 f.feature.world.x = feat.second.position[0];
                 f.feature.world.y = feat.second.position[1];
                 f.feature.world.z = feat.second.position[2];
+                f.is_triangulated = feat.second.type == feature_type::triangulated;
                 features.push_back(f);
             }
             bool unlinked = f->map->is_unlinked(map_node.id);
@@ -841,8 +842,13 @@ bool world_state::update_vertex_arrays(bool show_only_good)
             vertex = transformation_apply(node.position, vertex);
             if(!node.loop_closed.empty())
                 set_color(&vf, 255, 127, 127, 255);
-            else
-                set_color(&vf, 0, 0, 255, alpha);
+            else {
+                if (f.is_triangulated) {
+                    set_color(&vf, 255, 153, 0, alpha);
+                } else {
+                    set_color(&vf, 0, 0, 255, alpha);
+                }
+            }
             set_position(&vf, vertex[0], vertex[1], vertex[2]);
             map_feature_vertex.push_back(vf);
         }

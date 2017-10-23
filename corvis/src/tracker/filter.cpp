@@ -449,7 +449,7 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 static int filter_add_detected_features(struct filter * f, state_camera &camera, sensor_grey &camera_sensor, size_t newfeats, int image_height, sensor_clock::time_point time)
 {
     auto &kp = camera.standby_features;
-    auto g = f->s.add_group(camera, camera_sensor.id, f->map.get());
+    auto g = f->s.add_group(camera_sensor.id, f->map.get());
 
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
 

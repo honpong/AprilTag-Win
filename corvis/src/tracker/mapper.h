@@ -37,6 +37,8 @@ struct map_edge {
     static void deserialize(const rapidjson::Value &json, map_edge &node);
 };
 
+enum class feature_type { tracked, triangulated };
+
 struct map_feature {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
@@ -44,6 +46,7 @@ struct map_feature {
     // one of images axes oriented to match gravity (world z axis)
     v3 position;
     float variance;
+    feature_type type;
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, map_feature &feature, uint64_t &max_loaded_featid);
 };
@@ -55,7 +58,7 @@ struct map_node {
     uint64_t id;
     std::unordered_map<uint64_t, map_edge> edges; // key is neighbor_id
     map_edge &get_add_neighbor(uint64_t neighbor);
-    void set_feature(const uint64_t id, const v3 &pos, const float variance);
+    void set_feature(const uint64_t id, const v3 &pos, const float variance, const feature_type type = feature_type::tracked);
 
     transformation global_transformation;
 
@@ -66,10 +69,6 @@ struct map_node {
     node_status status{node_status::normal};
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, map_node &node, uint64_t &max_loaded_featid);
-
-    //temporary variables used in breath first
-    int parent{-1};
-    int depth{0};
 };
 
 class mapper {
@@ -89,7 +88,7 @@ class mapper {
     typedef uint64_t nodeid;
     typedef std::pair<nodeid, nodeid> match;
     typedef std::vector<match> matches;
-    typedef std::pair<nodeid, transformation> node_path;
+    typedef std::map<nodeid, transformation> nodes_path;
 
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     bool initialized() const { return (current_node_id != std::numeric_limits<uint64_t>::max()); }
@@ -97,7 +96,10 @@ class mapper {
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, const float depth_variance_m2, const bool is_new = true);
-    std::vector<node_path> breadth_first_search(nodeid start, int maxdepth = 1);
+    void get_triangulation_geometry(const nodeid group_id, const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses);
+    void add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& point_3d);
+    nodes_path breadth_first_search(nodeid start, int maxdepth = 1);
+    nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes);
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; }
     map_node& get_node(nodeid id) { return nodes[id]; }

@@ -8,6 +8,7 @@
 #include <assert.h>
 #include <limits.h>
 #include <queue>
+#include <unordered_set>
 #include "mapper.h"
 #include "resource.h"
 #include "state_vision.h"
@@ -75,11 +76,50 @@ void mapper::add_node(nodeid id, const rc_Sensor camera_id)
     nodes[id].camera_id = camera_id;
 }
 
-void map_node::set_feature(const uint64_t id, const v3 &pos, const float variance)
+void mapper::get_triangulation_geometry(const nodeid group_id, const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses)
+{
+    tracks_2d.clear();
+    camera_poses.clear();
+    std::set<nodeid> search_nodes;
+    for (auto &ag : keypoint.group_tracks) {
+        search_nodes.insert(ag.group_id);
+    }
+    nodes_path ref_path = breadth_first_search(group_id, std::move(search_nodes));
+    // accumulate cameras and 2d tracks to triangulate
+    for (auto &ag : keypoint.group_tracks) {
+        map_node &node = nodes[ag.group_id];
+        const state_extrinsics* const extrinsics = camera_extrinsics[node.camera_id];
+        const state_vision_intrinsics* const intrinsics = camera_intrinsics[node.camera_id];
+        transformation G_BC = transformation(extrinsics->Q.v, extrinsics->T.v);
+        // normalize/undistort 2d point track
+        feature_t kpd = {ag.x, ag.y};
+        feature_t kpn = intrinsics->undistort_feature(intrinsics->normalize_feature(kpd));
+        tracks_2d.push_back(kpn);
+        // read node transformation
+        transformation G_CR = invert(ref_path[ag.group_id] * G_BC);
+        camera_poses.push_back(G_CR);
+    }
+}
+
+void mapper::add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& pBref)
+{
+    map_node &ref_node = nodes[group_id];
+    state_extrinsics *extrinsics = camera_extrinsics[ref_node.camera_id];
+    transformation G_CB = invert(transformation(extrinsics->Q.v, extrinsics->T.v));
+    v3 pCref = G_CB*pBref;
+    // a good 3d point has to be in front of the camera
+    if (pCref[2] > 0) {
+        ref_node.set_feature(feature_id, pBref, 1.e-3f*1.e-3f, feature_type::triangulated);
+        features_dbow[feature_id] = group_id;
+    }
+}
+
+void map_node::set_feature(const uint64_t id, const v3 &pos, const float variance, const feature_type type)
 {
     features[id].position = pos;
     features[id].variance = variance;
     features[id].id = id;
+    features[id].type = type;
 }
 
 void mapper::set_feature(nodeid groupid, uint64_t id, const v3 &pos, const float variance, const bool is_new) {
@@ -103,41 +143,78 @@ void mapper::node_finished(nodeid id)
         dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index
 }
 
-vector<mapper::node_path> mapper::breadth_first_search(nodeid start, int maxdepth) {
-    vector<node_path> neighbor_nodes;
-
+mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
+{
+    nodes_path neighbor_nodes;
     if(!initialized())
         return neighbor_nodes;
 
+    typedef std::pair<nodeid, transformation> node_path;
     queue<node_path> next;
     next.push(node_path{start, transformation()});
 
-    //FIXME: use unordered_map<nodeid,struct{depth,parent}> to avoid storing this info in mapper
-    nodes[start].parent = -2;
-    nodes[start].depth = 0;
+    typedef int depth;
+    unordered_map<nodeid, depth> nodes_visited;
+    nodes_visited[start] = 0;
+
     while (!next.empty()) {
         node_path current_path = next.front();
         nodeid& u = current_path.first;
         transformation& Gu = current_path.second;
         next.pop();
-        if(!maxdepth || nodes[u].depth < maxdepth) {
+        if(!maxdepth || nodes_visited[u] < maxdepth) {
             for(auto edge : nodes[u].edges) {
                 const nodeid& v = edge.first;
-                const transformation& Gv = edge.second.G;
-
-                if(nodes[v].parent == -1) {
-                    nodes[v].depth = nodes[u].depth + 1;
-                    nodes[v].parent = u;
+                if(nodes_visited.find(v) == nodes_visited.end()) {
+                    nodes_visited[v] = nodes_visited[u] + 1;
+                    const transformation& Gv = edge.second.G;
                     next.push(node_path{v, Gu*Gv});
                 }
             }
         }
-        neighbor_nodes.push_back(current_path);
+        neighbor_nodes.insert(current_path);
     }
-    for(auto neighbor : neighbor_nodes) {
-        nodes[neighbor.first].parent = -1;
-    }
+
     return neighbor_nodes;
+}
+
+mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& searched_nodes)
+{
+    nodes_path searched_nodes_path;
+    if(!initialized())
+        return searched_nodes_path;
+
+    typedef std::pair<nodeid, transformation> node_path;
+    queue<node_path> next;
+    next.push(node_path{start, transformation()});
+
+    unordered_set<nodeid> nodes_visited;
+    nodes_visited.insert(start);
+
+    while (!next.empty() && !searched_nodes.empty()) {
+        node_path current_path = next.front();
+        nodeid& u = current_path.first;
+        transformation& Gu = current_path.second;
+        next.pop();
+        for(auto edge : nodes[u].edges) {
+            const nodeid& v = edge.first;
+            if(nodes_visited.find(v) == nodes_visited.end()) {
+                nodes_visited.insert(v);
+                const transformation& Gv = edge.second.G;
+                next.push(node_path{v, Gu*Gv});
+            }
+        }
+
+        if(searched_nodes.find(u) != searched_nodes.end()) {
+            searched_nodes_path.insert(current_path);
+            searched_nodes.erase(u);
+        }
+    }
+
+    if(next.empty())
+        assert(searched_nodes.empty()); // If all graph has been traversed searched_nodes should be empty
+
+    return searched_nodes_path;
 }
 
 std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
@@ -317,10 +394,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
             aligned_vector<v2> current_2d_points;
             transformation G_candidate_currentframe;
             // Estimate pose from 3d-2d matches
-            auto neighbors = breadth_first_search(nid.first, 1); // all points observed from this candidate node should be created at a node 1 edge away in the graph
-            std::map<nodeid, transformation> G_candidate_neighbors;
-            for (auto neighbor : neighbors)
-                G_candidate_neighbors[neighbor.first] = std::move(neighbor.second);
+            auto G_candidate_neighbors = breadth_first_search(nid.first, 1); // all points observed from this candidate node should be created at a node 1 edge away in the graph
 
             const auto &keypoint_candidates = nodes[nid.first].frame->keypoints;
             for (auto m : matches_node_candidate) {

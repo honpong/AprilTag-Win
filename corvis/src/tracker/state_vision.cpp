@@ -246,7 +246,27 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
             }
         }
     }
-    standby_features.remove_if([](tracker::feature_track &t) {return !t.found();});
+    const f_t focal_px = intrinsics.focal_length.v * intrinsics.image_height;
+    const f_t sigma = 5 / focal_px; // sigma_px = 5
+    standby_features.remove_if([&map, &log, sigma](tracker::feature_track &t) {
+        bool not_found = !t.found();
+        if (map && not_found) {
+            // Triangulate point not in filter neither being tracked
+            if (t.group_tracks.size() > 1) {
+                aligned_vector<v2> tracks_2d;
+                std::vector<transformation> camera_poses;
+                const uint64_t& ref_group_id = t.group_tracks[0].group_id;
+                map->get_triangulation_geometry(ref_group_id, t, tracks_2d, camera_poses);
+                v3 point_3d;
+                float mean_error_point = estimate_3d_point(tracks_2d,camera_poses, point_3d);
+                if (mean_error_point <  2*sigma)
+                    map->add_triangulated_feature_to_group(ref_group_id, t.feature->id, point_3d);
+                else
+                    log.debug("{}/{}) Reprojection error too large for triangulated point with id: {}", t.feature->id);
+            }
+        }
+        return not_found;
+    });
 
     if(track_fail && !total_feats) log.warn("Tracker failed! {} features dropped.", track_fail);
     //    log.warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);
@@ -330,18 +350,24 @@ state_vision_feature * state_vision::add_feature(const tracker::feature_track &t
     return new state_vision_feature(track_, group);
 }
 
-state_vision_group * state_vision::add_group(state_camera &camera, const rc_Sensor camera_id, mapper *map)
+state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *map)
 {
+    state_camera& camera = *cameras.children[camera_id];
     state_vision_group *g = new state_vision_group(camera, group_counter++);
     if(map) {
         map->add_node(g->id, camera_id);
-
+        // add group id to standby_features to triangulate
+        for (tracker::feature_track &f : camera.standby_features) {
+            f.group_tracks.push_back({g->id,f.x,f.y});
+        }
         // add edge in the map between new group and active groups in the filter
         const transformation& G_gnew_now = transformation(g->Qr.v, g->Tr.v);
-        for(auto &neighbor : camera.groups.children) {
-            const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
-            transformation G_gnew_neighbor = G_gnew_now*G_now_neighbor;
-            map->add_edge(g->id, neighbor->id, G_gnew_neighbor);
+        for (auto& camera : cameras.children) {
+            for(auto& neighbor : camera->groups.children) {
+                const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
+                transformation G_gnew_neighbor = G_gnew_now*G_now_neighbor;
+                map->add_edge(g->id, neighbor->id, G_gnew_neighbor);
+            }
         }
     }
     camera.groups.children.push_back(g);

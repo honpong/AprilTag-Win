@@ -22,6 +22,7 @@ typedef struct _feature {
     bool good;
     bool depth_measured;
     bool not_in_filter;
+    bool is_triangulated;
     rc_Sensor camera_id;
 } Feature;
 

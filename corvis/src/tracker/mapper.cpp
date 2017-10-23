@@ -387,7 +387,7 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
                    [](const std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>& feature) -> const auto& { return feature->descriptor.descriptor; },
             branching_factor, depth_levels);
     }
-    return std::move(voc);
+    return voc;
 }
 
 using namespace rapidjson;

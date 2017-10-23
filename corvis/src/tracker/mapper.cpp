@@ -25,10 +25,9 @@ mapper::mapper()
     const char* voc_file = load_vocabulary(voc_size);
     if (voc_size == 0 || voc_file == nullptr)
         std::cerr << "mapper: BoW vocabulary file not found" << std::endl;
-    orb_voc = new orb_vocabulary();
+    orb_voc.reset(new orb_vocabulary());
     if(!orb_voc->loadFromMemory(voc_file, voc_size)) {
-        delete orb_voc;
-        orb_voc =  nullptr;
+        orb_voc.reset();
         std::cerr << "mapper: Cannot load BoW vocabulay" << std::endl;
     }
 }
@@ -250,7 +249,8 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     // keep candidates with at least min_num_shared_words
     int min_num_shared_words = static_cast<int>(max_num_shared_words * 0.8f);
     std::vector<std::pair<mapper::nodeid, float> > dbow_scores;
-//    assert(orb_voc->getScoringType() != DBoW2::ScoringType::L1_NORM);
+    static_assert(orb_vocabulary::scoring_type == DBoW2::ScoringType::L1_NORM,
+                  "orb_vocabulary does not use L1 norm");
     float best_score = 0.0f; // assuming L1 norm
     for (auto& node_candidate : common_words_per_node) {
         if (node_candidate.second > min_num_shared_words) {
@@ -293,48 +293,59 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
     mapper::matches current_to_candidate_matches;
 
     if (candidate_frame->keypoints.size() > 0 && current_frame->keypoints.size() > 0) {
-        auto it_candidate = candidate_frame->dbow_direct_file.begin();
-        auto it_current = current_frame->dbow_direct_file.begin();
-
-        while (it_candidate != candidate_frame->dbow_direct_file.end() &&
-               it_current != current_frame->dbow_direct_file.end()) {
-            if (it_current->first < it_candidate->first) {
-                ++it_current;
-            } else if (it_current->first > it_candidate->first) {
-                ++it_candidate;
-            } else {
-                auto candidate_keypoint_indexes = it_candidate->second;
-                auto current_keypoint_indexes = it_current->second;
-
-                for (int current_point_idx : current_keypoint_indexes) {
-                    int best_candidate_point_idx;
-                    int best_distance = std::numeric_limits<int>::max();
-                    int second_best_distance = std::numeric_limits<int>::max();
-                    auto& current_keypoint = *current_frame->keypoints[current_point_idx];
-                    for (int candidate_point_idx : candidate_keypoint_indexes) {
-                        auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
-                        int dist = orb_descriptor::distance(candidate_keypoint.descriptor,
-                                                            current_keypoint.descriptor);
-                        if (dist < best_distance
-                            // Use only keypoints with 3D estimation
-                            && features_dbow.find(candidate_keypoint.id) != features_dbow.end()) {
-                            second_best_distance = best_distance;
-                            best_distance = dist;
-                            best_candidate_point_idx = candidate_point_idx;
-                        }
-                    }
-
-                    // not match if more than 50 bits are different
-                    if (best_distance <= 50 && (best_distance < second_best_distance * 0.6f)) {
-                        auto& best_candidate_keypoint = *candidate_frame->keypoints[best_candidate_point_idx];
-                        size_t bin = calculate_orientation_bin(best_candidate_keypoint.descriptor,
-                                                               current_keypoint.descriptor,
-                                                               num_orientation_bins);
-                        increment_orientation_histogram[bin].push_back(mapper::match(current_point_idx, best_candidate_point_idx));
+        auto match = [&current_frame, &candidate_frame, &features_dbow, &increment_orientation_histogram](
+                const std::vector<unsigned int>& current_keypoint_indexes,
+                const std::vector<unsigned int>& candidate_keypoint_indexes) {
+            for (unsigned int current_point_idx : current_keypoint_indexes) {
+                int best_candidate_point_idx;
+                int best_distance = std::numeric_limits<int>::max();
+                int second_best_distance = std::numeric_limits<int>::max();
+                auto& current_keypoint = *current_frame->keypoints[current_point_idx];
+                for (unsigned int candidate_point_idx : candidate_keypoint_indexes) {
+                    auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
+                    int dist = orb_descriptor::distance(candidate_keypoint.descriptor,
+                                                        current_keypoint.descriptor);
+                    if (dist < best_distance
+                        // Use only keypoints with 3D estimation
+                        && features_dbow.find(candidate_keypoint.id) != features_dbow.end()) {
+                        second_best_distance = best_distance;
+                        best_distance = dist;
+                        best_candidate_point_idx = candidate_point_idx;
                     }
                 }
-                ++it_current;
-                ++it_candidate;
+
+                // not match if more than 50 bits are different
+                if (best_distance <= 50 && (best_distance < second_best_distance * 0.6f)) {
+                    auto& best_candidate_keypoint = *candidate_frame->keypoints[best_candidate_point_idx];
+                    size_t bin = calculate_orientation_bin(best_candidate_keypoint.descriptor,
+                                                           current_keypoint.descriptor,
+                                                           num_orientation_bins);
+                    increment_orientation_histogram[bin].push_back(mapper::match(current_point_idx, best_candidate_point_idx));
+                }
+            }
+        };
+
+        if (candidate_frame->dbow_direct_file.empty() && current_frame->dbow_direct_file.empty()) {
+            // not using dbow direct file to prefilter matches
+            auto fill_with_indices = [](size_t N) {
+                std::vector<unsigned int> v;
+                v.reserve(N);
+                for (size_t i = 0; i < N; ++i) v.push_back(i);
+                return std::move(v);
+            };
+            std::vector<unsigned int> current_keypoint_indexes = fill_with_indices(current_frame->keypoints.size());
+            std::vector<unsigned int> candidate_keypoint_indexes = fill_with_indices(candidate_frame->keypoints.size());
+            match(current_keypoint_indexes, candidate_keypoint_indexes);
+        } else {
+            // dbow direct file is used
+            for (auto it_candidate = candidate_frame->dbow_direct_file.begin();
+                 it_candidate != candidate_frame->dbow_direct_file.end(); ++it_candidate) {
+                auto it_current = current_frame->dbow_direct_file.find(it_candidate->first);
+                if (it_current != current_frame->dbow_direct_file.end()) {
+                    const auto& candidate_keypoint_indexes = it_candidate->second;
+                    const auto& current_keypoint_indexes = it_current->second;
+                    match(current_keypoint_indexes, candidate_keypoint_indexes);
+                }
             }
         }
 
@@ -382,7 +393,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
     int i = 0;
 
     std::vector<std::pair<nodeid, float>> candidate_nodes =
-        find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc);
+        find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc.get());
     const auto &keypoint_current = current_frame->keypoints;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
     for (auto nid : candidate_nodes) {
@@ -439,6 +450,18 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
     }
 
     return is_relocalized;
+}
+
+std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching_factor, int depth_levels) const {
+    std::unique_ptr<orb_vocabulary> voc;
+    if (branching_factor > 1 && depth_levels > 0 && !nodes.empty()) {
+        voc.reset(new orb_vocabulary);
+        voc->train(nodes.begin(), nodes.end(),
+                   [](const map_node& node) -> const auto& { return node.frame->keypoints; },
+                   [](const std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>& feature) -> const auto& { return feature->descriptor.descriptor; },
+            branching_factor, depth_levels);
+    }
+    return voc;
 }
 
 using namespace rapidjson;
@@ -736,7 +759,7 @@ bool mapper::deserialize(const Value &map_json, mapper &map) {
     for (SizeType i = 0; i < nodes_json.Size(); i++) {
         auto &cur_node = map.nodes[i];
         HANDLE_IF_FAILED(map_node::deserialize(nodes_json[i], cur_node, max_feature_id), failure_handle)
-        cur_node.frame->calculate_dbow(map.orb_voc); // populate map_frame's dbow_histogram and dbow_direct_file
+        cur_node.frame->calculate_dbow(map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
         if (max_node_id < cur_node.id) max_node_id = cur_node.id;
     }
 

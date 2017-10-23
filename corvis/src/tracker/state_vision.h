@@ -82,14 +82,24 @@ public:
 struct frame_t {
     std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>> keypoints;
     DBoW2::BowVector dbow_histogram;       // histogram describing image
-    DBoW2::FeatureVector dbow_direct_file;  // direct file (at level 4)
+    DBoW2::FeatureVector dbow_direct_file;  // direct file if used, empty otherwise
     inline void calculate_dbow(const orb_vocabulary *orb_voc) {
         // copy pyramid descriptors to a vector of descriptors
-        std::vector<orb_descriptor::raw> v_descriptor;
-        v_descriptor.reserve(keypoints.size());
-        for ( auto& p : keypoints )
-            v_descriptor.push_back(p->descriptor.descriptor);
-        int num_words_missing = orb_voc->transform(v_descriptor, dbow_histogram, dbow_direct_file, 6);
+        constexpr int direct_file_level = std::numeric_limits<int>::max();  // change to enable
+        if (direct_file_level < orb_voc->getDepthLevels()) {
+            dbow_histogram = orb_voc->transform(
+                        keypoints.begin(), keypoints.end(),
+                        [](const decltype(keypoints)::value_type &kp) -> const auto& {
+                return kp->descriptor.descriptor;
+            }, dbow_direct_file, direct_file_level);
+        } else {
+            dbow_direct_file.clear();
+            dbow_histogram = orb_voc->transform(
+                        keypoints.begin(), keypoints.end(),
+                        [](const decltype(keypoints)::value_type &kp) -> const auto& {
+                return kp->descriptor.descriptor;
+            });
+        }
     }
 };
 

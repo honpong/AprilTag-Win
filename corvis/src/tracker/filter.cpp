@@ -559,7 +559,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
             else if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, timage.width_px, timage.height_px))
                 camera_frame.frame->keypoints.emplace_back(std::make_shared<fast_tracker::fast_feature<orb_descriptor>>(p->feature->id, p->x, p->y, timage));
 
-        camera_frame.frame->calculate_dbow(f->map->orb_voc);
+        camera_frame.frame->calculate_dbow(f->map->orb_voc.get());
     }
 
     auto stop = std::chrono::steady_clock::now();

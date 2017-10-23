@@ -271,16 +271,9 @@ add_subdirectory(vocabulary vocabulary)
 target_link_libraries(trackeri PUBLIC vocabulary)
 
 set(DBOW2_FILES
-    ../../ThirdParty/DBoW2/include/DBoW2/BowVector.h
-    ../../ThirdParty/DBoW2/include/DBoW2/FeatureVector.h
-    ../../ThirdParty/DBoW2/include/DBoW2/ScoringObject.h
     ../../ThirdParty/DBoW2/include/DBoW2/TemplatedVocabulary.h
-    ../../ThirdParty/DBoW2/src/BowVector.cpp
-    ../../ThirdParty/DBoW2/src/FeatureVector.cpp
-    ../../ThirdParty/DBoW2/src/ScoringObject.cpp
 #   ../../ThirdParty/DBoW2/src/train.cpp
 )
-add_library(dbow2 STATIC ${DBOW2_FILES})
-set_property(TARGET dbow2 PROPERTY CXX_STANDARD 11)
-target_include_directories(dbow2 PUBLIC ../../ThirdParty/DBoW2/include/)
+add_library(dbow2 INTERFACE)
+target_include_directories(dbow2 INTERFACE ../../ThirdParty/DBoW2/include/)
 target_link_libraries(trackeri PUBLIC dbow2)

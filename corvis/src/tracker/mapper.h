@@ -24,7 +24,7 @@
 #include "rapidjson/document.h"
 #include "DBoW2/TemplatedVocabulary.h"
 
-typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, orb_descriptor::raw> orb_vocabulary;
+typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, DBoW2::L1_NORM> orb_vocabulary;
 
 class state_vision_intrinsics;
 struct frame_t;
@@ -110,10 +110,12 @@ class mapper {
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, mapper &map);
 
+    std::unique_ptr<orb_vocabulary> create_vocabulary_from_map(int branching_factor, int depth_levels) const;
+
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper",  std::make_shared<spdlog::sinks::null_sink_st> ());
 
     /// fetch the vocabulary file from resource and create orb vocabulary
-    orb_vocabulary* orb_voc;
+    std::unique_ptr<orb_vocabulary> orb_voc;
 
     std::map<unsigned int, std::vector<nodeid>> dbow_inverted_index; // given a word it stores the nodes in which it was observed
 

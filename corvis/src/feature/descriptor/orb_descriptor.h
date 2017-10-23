@@ -19,6 +19,7 @@ public:
 
     struct raw : public std::array<uint64_t, L/8> {
         static float distance(const orb_descriptor::raw &a, const orb_descriptor::raw &b);
+        static raw mean(const std::vector<const raw*>& items);
     } descriptor;
     float cos_, sin_;
 

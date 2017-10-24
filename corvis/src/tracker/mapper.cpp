@@ -450,8 +450,12 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
     if (branching_factor > 1 && depth_levels > 0 && !nodes.empty()) {
         voc.reset(new orb_vocabulary);
         voc->train(nodes.begin(), nodes.end(),
-                   [](const map_node& node) -> const auto& { return node.frame->keypoints; },
-                   [](const std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>& feature) -> const auto& { return feature->descriptor.descriptor; },
+                   [](const map_node& node) -> const std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>>& {
+                       return node.frame->keypoints;
+                   },
+                   [](const std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>& feature) -> const orb_descriptor::raw& {
+                       return feature->descriptor.descriptor;
+                   },
             branching_factor, depth_levels);
     }
     return voc;

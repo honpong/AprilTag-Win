@@ -550,7 +550,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<
     return ku_d;
 }
 
-void state_camera::update_feature_tracks(const rc_ImageData &image)
+void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map, const transformation& G_Bcurrent_Bnow)
 {
     START_EVENT(SF_TRACK, 0);
     tracker::image current_image;
@@ -571,8 +571,34 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
     }
     for(auto &t:standby_features) feature_tracker->tracks.emplace_back(&t);
 
+    // create tracks of features visible in inactive map nodes
+    if(map) {
+        map->predict_map_features(camera_frame.camera_id, G_Bcurrent_Bnow);
+        for(auto &ft : map->map_feature_tracks) {
+            for(auto &t : ft.second)
+                feature_tracker->tracks.emplace_back(&t);
+        }
+    }
+
     if (feature_tracker->tracks.size())
         feature_tracker->track(current_image, feature_tracker->tracks);
+
+    // sort map tracks according to number of features found
+    if(map) {
+        std::sort(map->map_feature_tracks.begin(), map->map_feature_tracks.end(),
+                  [](const mapper::node_feature_track& ft1, const mapper::node_feature_track& ft2) {
+            int num_found1 = 0;
+            for(auto &f : ft1.second)
+                if(f.found()) num_found1++;
+
+            int num_found2 = 0;
+            for(auto &f : ft2.second)
+                if(f.found()) num_found2++;
+
+            return num_found1 > num_found2;
+        });
+    }
+
     END_EVENT(SF_TRACK, feature_tracker->tracks.size())
 }
 

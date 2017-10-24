@@ -850,9 +850,13 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(show_tuning) {
         fprintf(stderr, "\nvision:\n");
     }
+
+    transformation G_Bcurrent_Bnow;
+    if(f->map)
+        f->s.get_closest_group_transformation(f->map->current_node_id, G_Bcurrent_Bnow);
     
     preprocess_observation_queue(f, time); // time update filter, then predict locations of current features in the observation queue
-    camera_state.update_feature_tracks(data.image); // track the current features near their predicted locations
+    camera_state.update_feature_tracks(data.image, f->map.get(), G_Bcurrent_Bnow); // track the current features near their predicted locations
     process_observation_queue(f); // update state and covariance based on current location of tracked features
 
     auto space = filter_available_feature_space(f, camera_state);

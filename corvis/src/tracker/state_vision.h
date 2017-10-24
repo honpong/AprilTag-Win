@@ -226,7 +226,7 @@ struct state_camera: state_branch<state_node*> {
     camera_frame_t camera_frame;
 
     state_branch<state_vision_group *> groups;
-    void update_feature_tracks(const rc_ImageData &image);
+    void update_feature_tracks(const rc_ImageData &image, mapper *map, const transformation &G_Bcurrent_Bnow);
     void clear_features_and_groups();
     size_t feature_count() const;
     int process_features(mapper *map, spdlog::logger &log);

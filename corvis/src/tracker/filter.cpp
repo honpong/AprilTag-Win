@@ -553,6 +553,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
         START_EVENT(SF_ORB, 0);
         // Update camera frame. Position wrt current node was updated just before starting this thread.
         camera_frame_t &camera_frame = camera.camera_frame;
+        camera_frame.camera_id = data.id;
         camera_frame.frame = std::make_shared<frame_t>();
         for (auto &p : camera.feature_tracker->tracks)
             if (std::is_same<DESCRIPTOR, orb_descriptor>::value)

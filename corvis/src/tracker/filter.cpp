@@ -578,7 +578,10 @@ bool filter_relocalize(struct filter *f, const rc_Sensor camera_id)
         return false;
 
     std::vector<transformation> vG_W_frame;
-    if (!f->map->relocalize(camera_frame, vG_W_frame))
+    START_EVENT(SF_RELOCALIZE, camera_id);
+    bool relocalized = f->map->relocalize(camera_frame, vG_W_frame);
+    END_EVENT(SF_RELOCALIZE, relocalized);
+    if (!relocalized)
         return false;
     transformation G_W_closestnode = f->map->get_node(camera_frame.closest_node).global_transformation;
     f->pose_at_reloc = G_W_closestnode*camera_frame.G_closestnode_frame; // Note that this relocalizes based on the data from the previous frame (which is now done)

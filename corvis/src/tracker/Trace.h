@@ -34,3 +34,4 @@
 #define SF_PROJECT_OBSERVATION_COVARIANCE (SF_EVENT_BASE + 29)
 #define SF_ORB                  (SF_EVENT_BASE + 30)
 #define SF_DBOW_TRANSFORM       (SF_EVENT_BASE + 31)
+#define SF_RELOCALIZE           (SF_EVENT_BASE + 32)

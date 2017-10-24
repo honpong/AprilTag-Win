@@ -193,8 +193,8 @@ class state_vision_group: public state_branch<state_node *> {
     state_quaternion Qr { "Qr", dynamic};
 
     state_camera &camera;
-    state_branch<state_vision_feature *> features;
-    std::list<state_vision_feature *> lost_features;
+    state_branch<std::unique_ptr<state_vision_feature>> features;
+    std::list<std::unique_ptr<state_vision_feature>> lost_features;
     int health = 0;
     enum group_flag status = group_normal;
     uint64_t id;
@@ -225,12 +225,11 @@ struct state_camera: state_branch<state_node*> {
     std::future<void> detection_future;
     camera_frame_t camera_frame;
 
-    state_branch<state_vision_group *> groups;
+    state_branch<std::unique_ptr<state_vision_group>> groups;
     void update_feature_tracks(const rc_ImageData &image, mapper *map, const transformation &G_Bcurrent_Bnow);
     void clear_features_and_groups();
     size_t feature_count() const;
     int process_features(mapper *map, spdlog::logger &log);
-    void remove_group(state_vision_group *g, mapper *map);
 
     int detecting_space = 0;
 
@@ -254,7 +253,6 @@ public:
 
     size_t feature_count() const;
     void clear_features_and_groups();
-    state_vision_feature *add_feature(const tracker::feature_track &track_, state_vision_group &group);
     state_vision_group *add_group(const rc_Sensor camera_id, mapper *map);
     transformation get_transformation() const;
     bool get_closest_group_transformation(const uint64_t group_id, transformation& G) const;

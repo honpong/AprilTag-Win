@@ -322,7 +322,7 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
     auto &camera_sensor = *f->cameras[data.id];
     auto &camera_state = *f->s.cameras.children[data.id];
 
-    for(state_vision_group *g : camera_state.groups.children) {
+    for(auto &g : camera_state.groups.children) {
         if(g->status == group_empty) continue;
         for(auto &feature : g->features.children) {
             auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, *feature);
@@ -460,7 +460,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     for(auto i = kp.begin(); i != kp.end() && found_feats < newfeats; found_feats++, i = kp.erase(i)) {
             std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->x = i->x;
             std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->y = i->y;
-            state_vision_feature *feat = f->s.add_feature(*i, *g);
+            auto feat = std::make_unique<state_vision_feature>(*i, *g);
 
             float depth_m = i->depth;
             if(f->has_depth) {
@@ -483,8 +483,8 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
                 feat->depth_measured = true;
             }
             
-            g->features.children.push_back(feat);
             feat->track.feature = i->feature;
+            g->features.children.push_back(std::move(feat));
     }
     f->s.remap();
 #ifdef TEST_POSDEF
@@ -861,7 +861,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     auto space = filter_available_feature_space(f, camera_state);
     if(space) {
-        for(auto g : camera_state.groups.children)
+        for(auto &g : camera_state.groups.children)
         {
             if(!space) break;
             for(auto i = g->lost_features.begin(); i != g->lost_features.end();)
@@ -869,9 +869,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 if(!space) break;
                 if((*i)->track.found()) {
                     --space;
-                    g->features.children.push_back(*i);
                     (*i)->set_initial_variance(recovered_feature_initial_variance);
                     (*i)->status = feature_normal;
+                    g->features.children.push_back(std::move(*i));
                     i = g->lost_features.erase(i);
                 } else ++i;
             }
@@ -1257,7 +1257,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
             auto space = filter_available_feature_space(f, camera_node_state);
             if(space > f->min_group_map_add) {
                 if(nft.found > f->min_group_map_add) {
-                    state_vision_group *g = new state_vision_group(camera_node_state, nft.group_id);
+                    auto g = std::make_unique<state_vision_group>(camera_node_state, nft.group_id);
                     g->Tr.v = nft.G_neighbor_now.T;
                     g->Qr.v = nft.G_neighbor_now.Q;
                     // g->Tr.set_initial_variance({0.1,0.1,0.1});
@@ -1265,7 +1265,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                     node.status = node_status::normal;
 
                     for(const auto &ft : nft.tracks) {
-                        state_vision_feature *feat = f->s.add_feature(ft, *g);
+                        auto feat = std::make_unique<state_vision_feature>(ft, *g);
                         auto ftmp = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(ft.feature);
                         feat->initial[0] = ftmp->x;
                         feat->initial[1] = ftmp->y;
@@ -1277,11 +1277,11 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                         if(space && ft.found()) {
                             --space;
                             feat->status = feature_normal;
-                            g->features.children.push_back(feat);
+                            g->features.children.push_back(std::move(feat));
                         } else {
                             // if there is no space or feature not found add to feature_lost
                             feat->status = feature_lost;
-                            g->lost_features.push_back(feat);
+                            g->lost_features.push_back(std::move(feat));
                         }
                     }
                     const transformation& G_gold_now = transformation(g->Qr.v, g->Tr.v);
@@ -1292,7 +1292,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                             f->map->add_edge(g->id, neighbor->id, G_gold_neighbor);
                         }
                     }
-                    camera_node_state.groups.children.push_back(g);
+                    camera_node_state.groups.children.push_back(std::move(g));
                     f->s.remap();
                 } else {
                     break;

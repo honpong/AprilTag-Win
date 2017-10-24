@@ -96,13 +96,11 @@ state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id)
 
 void state_vision_group::make_empty()
 {
-    for(state_vision_feature *f : features.children) {
+    for(auto &f : features.children) {
         f->dropping_group();
-        delete f;
     }
-    for(state_vision_feature *f : lost_features) {
+    for(auto &f : lost_features) {
         f->dropping_group();
-        delete f;
     }
     features.children.clear();
     lost_features.clear();
@@ -111,12 +109,11 @@ void state_vision_group::make_empty()
 
 int state_vision_group::process_features()
 {
-    features.children.remove_if([&](state_vision_feature *f) {
+    features.children.remove_if([&](auto &f) {
         if(f->should_drop()) {
-            delete f;
             return true;
         } else if(f->status == feature_lost) {
-            lost_features.push_back(f);
+            lost_features.push_back(std::move(f));
             return true;
         } else
             return false;
@@ -134,11 +131,11 @@ int state_vision_group::make_reference()
     assert(status == group_normal);
     status = group_reference;
     int normals = 0;
-    for(state_vision_feature *f : features.children) {
+    for(auto &f : features.children) {
         if(f->is_initialized()) ++normals;
     }
     if(normals < 3) {
-        for(state_vision_feature *f : features.children) {
+        for(auto &f : features.children) {
             if(!f->is_initialized()) {
                 if (f->force_initialize()) ++normals;
                 if(normals >= 3) break;
@@ -152,9 +149,8 @@ int state_vision_group::make_reference()
 
 void state_camera::clear_features_and_groups()
 {
-    for(state_vision_group *g : groups.children) {
+    for(auto &g : groups.children) {
         g->make_empty();
-        delete g;
     }
     groups.children.clear();
     standby_features.clear();
@@ -196,7 +192,7 @@ void state_vision::enable_orientation_only(bool _remap)
 size_t state_camera::feature_count() const
 {
     int count = 0;
-    for(auto *g : groups.children)
+    for(auto &g : groups.children)
         count += g->features.children.size();
 
     return count + standby_features.size();
@@ -226,8 +222,8 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     int total_feats = 0;
     int outliers = 0;
     int track_fail = 0;
-    for(auto *g : groups.children) {
-        for(state_vision_feature *i : g->features.children) {
+    for(auto &g : groups.children) {
+        for(auto &i : g->features.children) {
             if(i->track.found() == false) {
                 // Drop tracking failures
                 ++track_fail;
@@ -282,7 +278,9 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     int best_health = -1;
     int normal_groups = 0;
 
-    for(state_vision_group *g : groups.children) {
+    for(auto i = groups.children.begin(); i != groups.children.end();) {
+        auto &g = *i;
+
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
         int health = g->process_features();
@@ -302,21 +300,19 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
         if(g->status == group_normal) {
             ++normal_groups;
             if(health > best_health) {
-                best_group = g;
+                best_group = g.get();
                 best_health = g->health;
             }
         }
+        if(g->status == group_empty) {
+            if (map) map->node_finished(g->id);
+            g->unmap();
+            i = groups.children.erase(i);
+        } else ++i;
     }
 
     if(best_group && need_reference)
         total_health += best_group->make_reference();
-
-    for(auto i = groups.children.begin(); i != groups.children.end();)
-    {
-        auto g = *i;
-        ++i;
-        if(g->status == group_empty) remove_group(g, map);
-    }
 
     return total_health;
 }
@@ -333,7 +329,7 @@ void state_vision::update_map(mapper *map)
                 distance_current_node = g->Tr.v.norm();
                 map->current_node_id = g->id;
             }
-            for (state_vision_feature *f : g->features.children) {
+            for (auto &f : g->features.children) {
                 float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
                 float variance_meters = stdev*stdev;
                 const float measurement_var = 1.e-3f*1.e-3f;
@@ -355,15 +351,10 @@ void state_vision::update_map(mapper *map)
     }
 }
 
-state_vision_feature * state_vision::add_feature(const tracker::feature_track &track_, state_vision_group &group)
-{
-    return new state_vision_feature(track_, group);
-}
-
 state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *map)
 {
     state_camera& camera = *cameras.children[camera_id];
-    state_vision_group *g = new state_vision_group(camera, group_counter++);
+    auto g = std::make_unique<state_vision_group>(camera, group_counter++);
     if(map) {
         map->add_node(g->id, camera_id);
         // add group id to standby_features to triangulate
@@ -378,16 +369,9 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
             }
         }
     }
-    camera.groups.children.push_back(g);
-    return g;
-}
-
-void state_camera::remove_group(state_vision_group *g, mapper *map)
-{
-    if (map)
-        map->node_finished(g->id);
-    groups.remove_child(g);
-    delete g;
+    auto *p = g.get();
+    camera.groups.children.push_back(std::move(g));
+    return p;
 }
 
 feature_t state_vision_intrinsics::normalize_feature(const feature_t &feat) const
@@ -561,11 +545,11 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
 
     feature_tracker->tracks.clear();
     feature_tracker->tracks.reserve(feature_count());
-    for(state_vision_group *g : groups.children) {
+    for(auto &g : groups.children) {
         if(g->status == group_empty) continue;
-        for(state_vision_feature *feature : g->features.children)
+        for(auto &feature : g->features.children)
             feature_tracker->tracks.emplace_back(&feature->track);
-        for(state_vision_feature *feature : g->lost_features)
+        for(auto &feature : g->lost_features)
             feature_tracker->tracks.emplace_back(&feature->track);
 
     }
@@ -606,7 +590,7 @@ float state_vision::median_depth_variance()
         for(auto &g: c->groups.children)
             for(auto &i: g->features.children)
                 if(i->is_initialized())
-                    useful_feats.push_back(i);
+                    useful_feats.push_back(i.get());
 
     if(useful_feats.size()) {
         sort(useful_feats.begin(), useful_feats.end(), [](state_vision_feature *a, state_vision_feature *b) { return a->variance() < b->variance(); });

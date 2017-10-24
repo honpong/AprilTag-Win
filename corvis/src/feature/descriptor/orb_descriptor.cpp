@@ -44,6 +44,8 @@
 #include <climits>
 #include <cmath>
 
+#define lrintf(x) ((x) + 0.5f)
+
  //
  // functions taken from OpenCV
  //

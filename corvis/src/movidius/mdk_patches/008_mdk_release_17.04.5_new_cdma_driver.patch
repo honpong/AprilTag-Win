@@ -1,0 +1,300 @@
+diff -Naur mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/bm/include/DrvCdma.h mdk_release_17.04.5_general_purpose_cmx/mdk/common/drivers/myriad2/socDrivers/leon/bm/include/DrvCdma.h
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/bm/include/DrvCdma.h	2017-04-14 02:52:31.000000000 -0400
++++ mdk_release_17.04.5_general_purpose_cmx/mdk/common/drivers/myriad2/socDrivers/leon/bm/include/DrvCdma.h	2017-09-26 06:25:15.655812377 -0400
+@@ -1,8 +1,9 @@
+ ///
+-/// @file
++/// @file DrvCdma.h
+ /// @copyright All code copyright Movidius Ltd 2016, all rights reserved
+ ///            For License Warranty see: common/license.txt
+-///
++/// @defgroup DrvCdma Cdma Driver
++/// @{
+ /// @brief     CMX DMA driver API
+ ///
+ /// Driver usage example:
+@@ -35,6 +36,7 @@
+ ///  }
+ ///
+ 
++
+ #ifndef COMMON_DRIVERS_MYRIAD2_SOCDRIVERS_LEON_BM_INCLUDE_DRVCDMA_H_
+ #define COMMON_DRIVERS_MYRIAD2_SOCDRIVERS_LEON_BM_INCLUDE_DRVCDMA_H_
+ 
+@@ -246,6 +248,23 @@
+ int32_t DrvCmxDmaGetTransactionStatus(DrvCmxDmaTransactionHnd *handle,
+                                       DrvCmxDmaTransactionStatus *t_status);
+ 
++/// CMX DMA interrupt handler
++///
++/// @param [in] source - interrupt source
++///
++/// NOTE: This function is only exported to be used by sipp framework
++///       It must not be used in any other cases
++///
++void DrvCmxDmaIrqHandler(uint32_t source);
++
++/// DrvCmxDmaGetIrqMask
++///
++/// @return  The mask dicttaing which internal CDMA irqs will be handled
++///          within driver
++///
++
++uint32_t DrvCmxDmaGetIrqMask ();
++
+ #ifdef __cplusplus
+ }
+ #endif
+@@ -254,3 +273,5 @@
+ 
+ #endif  // COMMON_DRIVERS_MYRIAD2_SOCDRIVERS_LEON_BM_INCLUDE_DRVCDMA_H_
+ 
++
++///@}
+diff -Naur mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/bm/src/DrvCdma.c mdk_release_17.04.5_general_purpose_cmx/mdk/common/drivers/myriad2/socDrivers/leon/bm/src/DrvCdma.c
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/bm/src/DrvCdma.c	2017-04-14 02:52:31.000000000 -0400
++++ mdk_release_17.04.5_general_purpose_cmx/mdk/common/drivers/myriad2/socDrivers/leon/bm/src/DrvCdma.c	2017-09-26 06:23:07.575811973 -0400
+@@ -1,10 +1,13 @@
+ ///
+-/// @copyright All code copyright Movidius Ltd 2016, all rights reserved.
++/// @file DrvCdma.c
++/// @copyright All code copyright Movidius Ltd 2016, all rights reserved
+ ///            For License Warranty see: common/license.txt
+-///
++/// @ingroup DrvCdma
++/// @{
+ /// @brief     CMX DMA driver implementation
+ ///
+ 
++
+ // 1: Includes
+ // ----------------------------------------------------------------------------
+ #ifdef USE_CMX_DMA_NEW_DRIVER
+@@ -78,7 +81,7 @@
+ 
+ static inline void drvCmxDmaSaveTail(uint32_t agent,
+                                      DrvCmxDmaTransaction *tail) {
+-  DrvCmxDmaTransaction *tr;
++  DrvCmxDmaTransaction __attribute__((unused)) *tr; // avoid 'unused variable' error from scan build
+   UNUSED(tr);
+   statusInfo[agent]->tail = tail;
+   // read back to ensure that previous write transaction is finished
+@@ -157,7 +160,7 @@
+   return trQueue.queue[trQueue.first];
+ }
+ 
+-static void DrvCmxDmaIrqHandler(uint32_t source) {
++void DrvCmxDmaIrqHandler(uint32_t source) {
+   UNUSED(source);
+   DrvCmxDmaTransactionHnd *current;
+   DrvCmxDmaTransactionHnd *next;
+@@ -166,7 +169,6 @@
+ 
+   status = HglCmxDmaIrqGetStatus();
+   mask = cmx_dma_control.irq_mask;
+-
+   if (status & mask) {
+     HglCmxDmaIrqClearStatus(mask);
+     DrvIcbIrqClear(IRQ_CMXDMA);
+@@ -221,21 +223,17 @@
+   uint32_t top_id = 0;
+   DrvCmxDmaTransaction *tail;
+ 
+-  if (!SC_CMX_DMA_SHADOW_REG_FREE(agent)) {
+-    HglCmxDmaChannelDisable(agent);
+-    HglCmxDmaWaitUntilLinkAgentIsntFetchingDescriptors(agent);
+-  }
++  HglCmxDmaDisableAllChannels();
++  HglCmxDmaWaitUntilLinkAgentIsntFetchingDescriptors(agent);
+   if (SC_CMX_DMA_SHADOW_REG_FREE(agent)) {
+     handle->current_id = handle->head->sw_id;
+     if(!cmx_dma_control.irq_ena || (trQueue.count <= 1) ||
+         cmx_dma_control.can_start_new) {
+       handle->status = DRV_CMX_DMA_STARTED;
+-      HglCmxDmaChannelEnable(agent);
+       drvCmxDmaStartTransfer(handle, callback, context);
+     } else {
+       handle->callback = callback;
+       handle->context = context;
+-      HglCmxDmaChannelEnable(agent);
+     }
+   } else {
+     drvCmxDmaGetTopSwId(agent, &top_id);
+@@ -251,8 +249,8 @@
+       handle->status = DRV_CMX_DMA_STARTED;
+       drvCmxDmaLinkToTail(handle, agent);
+     }
+-    HglCmxDmaChannelEnable(agent);
+   }
++  HglCmxDmaEnableAllChannels();
+ }
+ 
+ int32_t DrvCmxDmaInitialize(DrvCmxDmaSetupStruct *config) {
+@@ -306,6 +304,11 @@
+   return MYR_DRV_SUCCESS;
+ }
+ 
++uint32_t DrvCmxDmaGetIrqMask ()
++{
++    return cmx_dma_control.irq_mask;
++}
++
+ int32_t DrvCmxDmaTransactionConfig(DrvCmxDmaTransaction *transaction,
+                                    DrvCmxDmaConfParams *params) {
+   if (!transaction || !params) return MYR_DRV_ERROR;
+@@ -515,3 +518,5 @@
+ 
+ #endif // USE_CMX_DMA_NEW_DRIVER
+ 
++
++///@}
+diff -Naur mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/hgl/include/HglCmxDma.h mdk_release_17.04.5_general_purpose_cmx/mdk/common/drivers/myriad2/socDrivers/leon/hgl/include/HglCmxDma.h
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/hgl/include/HglCmxDma.h	2017-04-14 02:52:31.000000000 -0400
++++ mdk_release_17.04.5_general_purpose_cmx/mdk/common/drivers/myriad2/socDrivers/leon/hgl/include/HglCmxDma.h	2017-09-26 06:38:02.279814794 -0400
+@@ -1,11 +1,13 @@
+ ///
+-/// @file
+-/// @copyright All code copyright Movidius Ltd 2016, all rights reserved.
++/// @file HglCmxDma.h
++/// @copyright All code copyright Movidius Ltd 2016, all rights reserved
+ ///            For License Warranty see: common/license.txt
+-///
++/// @defgroup HglCmxDma HglCmxDma Driver
++/// @{
+ /// @brief     Header of HGL for CMX DMA
+ ///
+ 
++
+ #ifndef COMMON_DRIVERS_MYRIAD2_SOCDRIVERS_LEON_HGL_INCLUDE_HGLCMXDMA_H_
+ #define COMMON_DRIVERS_MYRIAD2_SOCDRIVERS_LEON_HGL_INCLUDE_HGLCMXDMA_H_
+ 
+@@ -81,6 +83,14 @@
+   SET_REG_WORD(CDMA_CTRL_ADR, reg_val);
+ }
+ 
++static inline void HglCmxDmaDisableAllChannels(void) {
++  SET_REG_WORD(CDMA_SET_CHGATE_ADR, 0xf);
++}
++
++static inline void HglCmxDmaEnableAllChannels(void) {
++  SET_REG_WORD(CDMA_CLR_CHGATE_ADR, 0xf);
++}
++
+ static inline void HglCmxDmaChannelDisable(uint32_t channelNo) {
+   SET_REG_WORD(CDMA_SET_CHGATE_ADR, (1 << channelNo));
+ }
+@@ -179,3 +189,5 @@
+ #endif  // USE_CMX_DMA_NEW_DRIVER
+ 
+ #endif  // COMMON_DRIVERS_MYRIAD2_SOCDRIVERS_LEON_HGL_INCLUDE_HGLCMXDMA_H_
++
++///@}
+diff -Naur mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvCdma.c mdk_release_17.04.5_general_purpose_cmx/mdk/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvCdma.c
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvCdma.c	2017-04-14 02:52:32.000000000 -0400
++++ mdk_release_17.04.5_general_purpose_cmx/mdk/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvCdma.c	2017-08-06 10:27:09.000000000 -0400
+@@ -1,10 +1,13 @@
+-/// @file
+-/// @copyright All code copyright Movidius Ltd 2016, all rights reserved.
+-///            For License Warranty see: common/license.txt
+ ///
++/// @file OsDrvCdma.c
++/// @copyright All code copyright Movidius Ltd 2016, all rights reserved
++///            For License Warranty see: common/license.txt
++/// @ingroup OsDrvCdma
++/// @{
+ /// @brief     CMX DMA API RTEMS Functions.
+ ///
+ 
++
+ /// 1: Includes
+ /// ----------------------------------------------------------------------------
+ 
+@@ -100,12 +103,12 @@
+   return res;
+ }
+ 
+-// TODO Replace this with a proper call once SysPage is released
++/// @todo Replace this with a proper call once SysPage is released
+ static inline int32_t osDrvCmxDmaHwMutexObtain(uint32_t agent) {
+   return HglMutexObtain(kDrvCmxDmaMutexId[agent], cmx_dma_control.proc);
+ }
+ 
+-// TODO Replace this with a proper call once SysPage is released
++/// @todo Replace this with a proper call once SysPage is released
+ static inline void osDrvCmxDmaHwMutexRelease(uint32_t agent) {
+   HglMutexRelease(kDrvCmxDmaMutexId[agent], cmx_dma_control.proc);
+ }
+@@ -257,13 +260,11 @@
+                                 uint32_t agent) {
+   uint32_t top_id = 0;
+ 
+-  if (!SC_CMX_DMA_SHADOW_REG_FREE(agent)) {
+-    HglCmxDmaChannelDisable(agent);
+-    HglCmxDmaWaitUntilLinkAgentIsntFetchingDescriptors(agent);
+-  }
++  // as a resolution of Bug 26749, we need to stop all channels while adding a task
++  HglCmxDmaDisableAllChannels();
++  HglCmxDmaWaitUntilLinkAgentIsntFetchingDescriptors(agent);
+   if (SC_CMX_DMA_SHADOW_REG_FREE(agent)) {
+     handle->current_id = handle->head->sw_id;
+-    HglCmxDmaChannelEnable(agent);
+     handle->status = OS_DRV_CMX_DMA_STARTED;
+     if (cmx_dma_control.can_start_new)
+       osDrvCmxDmaStartTransfer(handle);
+@@ -276,8 +277,8 @@
+       handle->status = OS_DRV_CMX_DMA_STARTED;
+       osDrvCmxDmaLinkToTail(handle, agent);
+     }
+-    HglCmxDmaChannelEnable(agent);
+   }
++  HglCmxDmaEnableAllChannels();
+ }
+ 
+ int32_t OsDrvCmxDmaInitialize(OsDrvCmxDmaSetupStruct *config) {
+@@ -469,29 +470,27 @@
+   rtems_event_set evt_out;
+   int32_t status = OS_MYR_DRV_ERROR;
+ 
++  status = OS_DRV_CMX_DMA_LOCK();
++  if (status != OS_MYR_DRV_SUCCESS) return status;
+   BSP_Mask_interrupt(IRQ_CMXDMA);
+   status = osDrvCmxDmaHwMutexObtain(cmx_dma_control.agent);
+   if (status != OS_MYR_DRV_SUCCESS) return status;
+ 
+   if (cmx_dma_control.status == OS_DRV_CMX_DMA_INITIALIZED) {
+-    status = OS_DRV_CMX_DMA_LOCK();
+-    if (status == OS_MYR_DRV_SUCCESS) {
+-      handle->status = OS_DRV_CMX_DMA_NOT_STARTED;
+-      if (osDrvCmxDmaSaveTransaction(&trQueue, handle) != 0) {
+-        // transaction queue overflow
+-        OS_DRV_CMX_DMA_UNLOCK();
+-        osDrvCmxDmaHwMutexRelease(cmx_dma_control.agent);
+-        return OS_MYR_DRV_ERROR;
+-      }
+-      osDrvCmxDmaListSetup(handle);
+-      osDrvCmxDmaTryStart(handle, cmx_dma_control.agent);
+-      OS_DRV_CMX_DMA_UNLOCK();
++    handle->status = OS_DRV_CMX_DMA_NOT_STARTED;
++    if (osDrvCmxDmaSaveTransaction(&trQueue, handle) != 0) {
++      // transaction queue overflow
++      osDrvCmxDmaHwMutexRelease(cmx_dma_control.agent);
++      return OS_MYR_DRV_ERROR;
+     }
++    osDrvCmxDmaListSetup(handle);
++    osDrvCmxDmaTryStart(handle, cmx_dma_control.agent);
+   } else {
+     status = OS_MYR_DRV_NOTOPENED;
+   }
+   osDrvCmxDmaHwMutexRelease(cmx_dma_control.agent);
+   BSP_Unmask_interrupt(IRQ_CMXDMA);
++  OS_DRV_CMX_DMA_UNLOCK();
+   if (wait) {
+     status = rtems_event_system_receive(OS_DRV_CMX_DMA_TRANSFER_EVENT,
+                                         RTEMS_WAIT | RTEMS_EVENT_ALL,
+@@ -533,3 +532,6 @@
+ 
+ #endif // USE_CMX_DMA_NEW_DRIVER
+ 
++
++///@}
++

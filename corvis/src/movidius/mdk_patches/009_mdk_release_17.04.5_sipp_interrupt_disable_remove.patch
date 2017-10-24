@@ -1,0 +1,23 @@
+diff -ru mdk_release_17.04.5_general_purpose/mdk/common/components/sipp/arch/ma2x5x/PAL/leon/sippPlatformAbstractionLayer.c mdk_release_17.04.5_general_purpose_patched/mdk/common/components/sipp/arch/ma2x5x/PAL/leon/sippPlatformAbstractionLayer.c
+--- mdk_release_17.04.5_general_purpose/mdk/common/components/sipp/arch/ma2x5x/PAL/leon/sippPlatformAbstractionLayer.c	2017-04-14 09:52:31.000000000 +0300
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/components/sipp/arch/ma2x5x/PAL/leon/sippPlatformAbstractionLayer.c	2017-08-15 16:24:11.964749148 +0300
+@@ -144,8 +144,8 @@
+ 
+ void sippPalCriticalSectionBegin (SIPP_PAL_CRIT_STATE * pState)
+ {
+-    *pState = swcLeonGetPIL();
+-    swcLeonSetPIL(15);
++    //*pState = swcLeonGetPIL();
++    //swcLeonSetPIL(15);
+ } /* sippPalCriticalSectionBegin */
+ 
+ ////////////////////////////////////////////////////////////////////////////////
+@@ -168,8 +168,8 @@
+ 
+ void sippPalCriticalSectionEnd (SIPP_PAL_CRIT_STATE PreviousState)
+ {
+-    u32 interruptLevel = (u32)PreviousState;
+-    swcLeonSetPIL(interruptLevel);
++        //u32 interruptLevel = (u32)PreviousState;
++        //swcLeonSetPIL(interruptLevel);
+ }

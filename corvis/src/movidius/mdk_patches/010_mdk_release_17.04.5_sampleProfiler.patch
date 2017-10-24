@@ -1,0 +1,26 @@
+diff --git a/common/components/profiler/sampleProfiler.mk b/common/components/profiler/sampleProfiler.mk
+index ccbf5d3..36c80f6 100644
+--- mdk_release_17.04.5_general_purpose/mdk/common/components/profiler/sampleProfiler.mk
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/components/profiler/sampleProfiler.mk
+@@ -37,8 +37,8 @@ endif
+ 
+ SAMPLE_PROFILER_OBJ=%/leon/sampleProfiler.o
+ SAMPLE_PROFILER_OBJ_LRT=%/leon/sampleProfiler_lrt.o
+-$(call mkrule,$(SAMPLE_PROFILER_OBJ),CCOPT_EXTRA,$(PROFILER_OPTIONS))
+-$(call mkrule,$(SAMPLE_PROFILER_OBJ_LRT),CCOPT_EXTRA_LRT,$(PROFILER_OPTIONS))
++$(call mkrule,$(SAMPLE_PROFILER_OBJ),CCOPT,$(PROFILER_OPTIONS))
++$(call mkrule,$(SAMPLE_PROFILER_OBJ_LRT),CCOPT_LRT,$(PROFILER_OPTIONS))
+ 
+ # redefine symbols in swcShaveLoader during compile time
+ SWC_SHAVE_LOADER_SYM_REDEFINE := -DswcWaitShave=swcWaitShave_original \
+@@ -53,8 +53,8 @@ SWC_SHAVE_LOADER_SYM_REDEFINE := -DswcWaitShave=swcWaitShave_original \
+ 	-DswcStartShaveAsyncCC=swcStartShaveAsyncCC_original \
+ 	-DswcAssignShaveCallback=swcAssignShaveCallback_original
+ 
+-$(call mkrule,%/swcShaveLoader.o,CCOPT_EXTRA,$(SWC_SHAVE_LOADER_SYM_REDEFINE))
+-$(call mkrule,%/swcShaveLoader_lrt.o,CCOPT_EXTRA_LRT,$(SWC_SHAVE_LOADER_SYM_REDEFINE))
++$(call mkrule,%/swcShaveLoader.o,CCOPT,$(SWC_SHAVE_LOADER_SYM_REDEFINE))
++$(call mkrule,%/swcShaveLoader_lrt.o,CCOPT_LRT,$(SWC_SHAVE_LOADER_SYM_REDEFINE))
+ 
+ # insert the profiler into the build chain
+ ComponentList_LOS += profiler

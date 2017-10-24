@@ -50,11 +50,9 @@ MEMORY
 
   CMX_OTHER (wx) : ORIGIN = 0x70000000 + 12*128K + 5K, LENGTH = 128K - 5K + 128K +128K
 
-  LRT (wx) : ORIGIN = 0x80000000 + 112M, LENGTH = 8M
-
-  DDR_DATA (wx) : ORIGIN = 0x80000000, LENGTH = 112M
-
-  LOS (wx) : ORIGIN = 0x80000000 + 120M , LENGTH = 8M
+  DDR_DATA  (wx) : ORIGIN = 0x80000000,                LENGTH = 112M
+  LRT       (wx) : ORIGIN = 0x80000000 + 112M,         LENGTH =   1M
+  LOS       (wx) : ORIGIN = 0x80000000 + 112M + 1M,    LENGTH =  15M
 }
 
 INCLUDE myriad2_leon_default_elf.ldscript

@@ -4,7 +4,7 @@ __asm__(
     ".const_data\n"
 #define _ "_"
 #elif defined(MYRIAD2)
-    ".section .ddr.rodata\n"
+    ".section .ddr.data\n"
 #define _ ""
 #else
     ".section .rodata\n"

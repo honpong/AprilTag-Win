@@ -86,19 +86,15 @@ struct frame_t {
     inline void calculate_dbow(const orb_vocabulary *orb_voc) {
         // copy pyramid descriptors to a vector of descriptors
         constexpr int direct_file_level = std::numeric_limits<int>::max();  // change to enable
-        if (direct_file_level < orb_voc->getDepthLevels()) {
-            dbow_histogram = orb_voc->transform(
-                        keypoints.begin(), keypoints.end(),
-                        [](const decltype(keypoints)::value_type &kp) -> const auto& {
+        auto get_descriptor = [](const decltype(keypoints)::value_type &kp) -> const orb_descriptor::raw & {
                 return kp->descriptor.descriptor;
-            }, dbow_direct_file, direct_file_level);
+        };
+        if (direct_file_level < orb_voc->getDepthLevels()) {
+            dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor,
+                                                dbow_direct_file, direct_file_level);
         } else {
             dbow_direct_file.clear();
-            dbow_histogram = orb_voc->transform(
-                        keypoints.begin(), keypoints.end(),
-                        [](const decltype(keypoints)::value_type &kp) -> const auto& {
-                return kp->descriptor.descriptor;
-            });
+            dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor);
         }
     }
 };

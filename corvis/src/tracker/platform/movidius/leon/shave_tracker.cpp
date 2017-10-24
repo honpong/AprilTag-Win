@@ -167,18 +167,18 @@ void shave_tracker::sortFeatures(const tracker::image &image, int number_desired
 
 void shave_tracker::detectMultipleShave(const tracker::image &image)
 {
-    struct int2 { int x,y; };
+    struct int2 { int x,y; } xy, image_size, win_size;
     for (int i=0; i< DETECT_SHAVES; ++i)
         Shave::get_handle(fast_detect[i].shave)->start(
             (u32)fast_detect[i].entry_point, "iiiviivv",
             scores,
             offsets,
             m_thresholdController.control(),
-            &(int2) { 0, i * image.height_px / DETECT_SHAVES },
+            &(xy = (int2) { 0, i * image.height_px / DETECT_SHAVES }),
             image.image,
             image.stride_px,
-            &(int2) { image.width_px, image.height_px },
-            &(int2) { image.width_px, image.height_px / DETECT_SHAVES }
+            &(image_size = (int2) { image.width_px, image.height_px }),
+            &(win_size = (int2) { image.width_px, image.height_px / DETECT_SHAVES })
         );
 
     for (int i = 0; i < DETECT_SHAVES; ++i)
@@ -188,7 +188,7 @@ void shave_tracker::detectMultipleShave(const tracker::image &image)
 void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,
         const image& image)
 {
-    struct int2 { int x,y; };
+    struct int2 { int x,y; } image_size;
     for (int i = 0; i < TRACK_SHAVES; ++i)
         Shave::get_handle(fast_track[i].shave)->start(
             (u32)fast_track[i].entry_point, "iiiiivii",
@@ -198,7 +198,7 @@ void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,
             &tracked_features[trackingData.size() * i / TRACK_SHAVES],
             image.image,
             image.stride_px,
-            &(int2) { image.width_px, image.height_px },
+            &(image_size = (int2) { image.width_px, image.height_px }),
             full_patch_width, half_patch_width
         );
 

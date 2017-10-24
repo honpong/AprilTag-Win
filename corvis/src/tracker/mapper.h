@@ -91,7 +91,9 @@ class mapper {
     typedef uint64_t nodeid;
     typedef std::pair<nodeid, nodeid> match;
     typedef std::vector<match> matches;
+    typedef std::pair<nodeid, transformation> node_path;
     typedef std::map<nodeid, transformation> nodes_path;
+    typedef std::pair<nodeid, std::list<tracker::feature_track>> node_feature_track;
 
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     bool initialized() const { return (current_node_id != std::numeric_limits<uint64_t>::max()); }
@@ -137,6 +139,11 @@ class mapper {
 
     bool relocalize(const camera_frame_t& camera_frame, std::vector<transformation>& vG_W_currentframe);
     void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
+
+    // reuse map features in filter
+    std::vector<node_feature_track> map_feature_tracks;
+    void predict_map_features(const uint64_t camera_id_now, const transformation& G_Bcurrent_Bnow);
+    std::map<nodeid, transformation> G_neighbors_now;
 };
 
 #endif

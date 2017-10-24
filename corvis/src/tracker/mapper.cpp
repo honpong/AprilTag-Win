@@ -159,7 +159,6 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
     if(!initialized())
         return neighbor_nodes;
 
-    typedef std::pair<nodeid, transformation> node_path;
     queue<node_path> next;
     next.push(node_path{start, transformation()});
 
@@ -194,7 +193,6 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& sear
     if(!initialized())
         return searched_nodes_path;
 
-    typedef std::pair<nodeid, transformation> node_path;
     queue<node_path> next;
     next.push(node_path{start, transformation()});
 
@@ -477,6 +475,53 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
             branching_factor, depth_levels);
     }
     return voc;
+}
+
+void mapper::predict_map_features(const uint64_t camera_id_now, const transformation& G_Bcurrent_Bnow) {
+    map_feature_tracks.clear();
+    G_neighbors_now.clear();
+    // predict features from all nodes that are 1 edge away from current_node_id in the map.
+    // increasing this value will try to bring back groups that are not directly connected to current_node_id.
+    const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
+    const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
+    nodes_path neighbors = breadth_first_search(current_node_id, 1);
+    transformation G_CB = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
+
+    transformation G_Bnow_Bcurrent = invert(G_Bcurrent_Bnow);
+    for(const auto& neighbor : neighbors) {
+        map_node& node_neighbor = nodes[neighbor.first];
+        if(node_neighbor.status == node_status::normal)
+            continue; // if node status is normal then node is already in the filter
+        std::list<tracker::feature_track> tracks;
+        const transformation& G_Bnow_Bneighbor = G_Bnow_Bcurrent*neighbor.second;
+        transformation G_Cnow_Bneighbor = G_CB*G_Bnow_Bneighbor;
+        for(const auto& f : node_neighbor.features) {
+            // predict feature in current camera pose
+            v3 p3dC = G_Cnow_Bneighbor * f.second.position;
+            if(p3dC.z() < 0)
+                continue;
+            feature_t kpn = p3dC.segment<2>(0)/p3dC.z();
+            feature_t kpd = intrinsics_now->unnormalize_feature(intrinsics_now->distort_feature(kpn));
+            if(kpd.x() < 0 || kpd.x() > intrinsics_now->image_width ||
+               kpd.y() < 0 || kpd.y() > intrinsics_now->image_height)
+                continue;
+
+            // predict feature in node it was created
+            const state_extrinsics* const  extrinsics_neighbor = camera_extrinsics[node_neighbor.camera_id];
+            const state_vision_intrinsics* const  intrinsics_neighbor = camera_intrinsics[node_neighbor.camera_id];
+            transformation G_CB_neighbor = invert(transformation(extrinsics_neighbor->Q.v, extrinsics_neighbor->T.v));
+            v3 p3dC_initial = G_CB_neighbor * f.second.position;
+            feature_t kpn_initial = p3dC_initial.segment<2>(0)/p3dC_initial.z();
+            feature_t kpd_initial = intrinsics_neighbor->unnormalize_feature(intrinsics_neighbor->distort_feature(kpn_initial));
+
+            // create feature track
+            tracks.emplace_back(make_shared<fast_tracker::fast_feature<DESCRIPTOR>>(f.second.id, kpd_initial.x(), kpd_initial.y(), *f.second.descriptor),
+                                kpd.x(), kpd.y(), 0);
+            tracks.back().depth = p3dC_initial.z();
+        }
+        map_feature_tracks.emplace_back(neighbor.first, std::move(tracks));
+        G_neighbors_now[neighbor.first] = invert(G_Bnow_Bneighbor);
+    }
 }
 
 using namespace rapidjson;

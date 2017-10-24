@@ -305,7 +305,7 @@ void sensor_fusion::start_mapping(bool relocalize)
 {
     if (!sfm.map) {
         sfm.map = std::make_unique<mapper>();
-        if (relocalize) sfm.relocalize = true;
+        sfm.relocalize = relocalize;
     }
     sfm.map->reset();
 }

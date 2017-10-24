@@ -120,10 +120,12 @@ MVCCOPT += $(addprefix -I,$(wildcard \
    $(MV_COMMON_BASE)/components/kernelLib/LAMA/kernels/strsm*/shave/include \
    $(MV_COMMON_BASE)/components/kernelLib/MvCV/include \
 ))
-MVCCOPT += -I$(SLAM_PLATFORM_PREFIX)/shave/blis
-
-MVCCOPT += -I$(SLAM_PLATFORM_PREFIX)/shared
-CCOPT   += -I$(SLAM_PLATFORM_PREFIX)/shared
+MVCCOPT     += -I$(SLAM_PLATFORM_PREFIX)/shave/blis
+MVCCOPT_LRT += -I$(SLAM_PLATFORM_PREFIX)/shave/blis
+MVCCOPT     += -I$(SLAM_PLATFORM_PREFIX)/shared
+MVCCOPT_PRT += -I$(SLAM_PLATFORM_PREFIX)/shared
+CCOPT       += -I$(SLAM_PLATFORM_PREFIX)/shared
+CCOPT_LRT   += -I$(SLAM_PLATFORM_PREFIX)/shared
 
 SLAM_CCOPT += -DBLIS_VERSION_STRING=\"0.1.0-34\" -DLEON_USE_REAL_NUMBERS_ONLY
 SLAM_CCOPT += $(addprefix -I, $(sort $(dir $(shell find $(MV_COMMON_BASE)/components/BLIS/leon -name "*.h"))))

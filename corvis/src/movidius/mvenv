@@ -35,6 +35,12 @@ if [[ ! -d $MDK_INSTALL_DIR/$MDK_CANONICAL ]]; then
     )
 fi
 
+type -p quilt > /dev/null || {
+    echo Installing quilt...
+    type -p apt-get > /dev/null && sudo apt-get install quilt
+    type -p brew    > /dev/null && brew install quilt
+}
+
 # Check if all patches have been added
 (
     cd $MDK_INSTALL_DIR/$MDK_CANONICAL

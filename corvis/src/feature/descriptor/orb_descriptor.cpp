@@ -145,7 +145,7 @@ orb_descriptor::raw orb_descriptor::raw::mean(
     avg.fill(0);
     if (items.empty()) return avg;
 
-    std::array<int, sizeof(raw) * 8> counters = {0};
+    std::array<int, sizeof(raw) * 8> counters = {};
     for (auto* item : items) {
         auto counter_it = counters.begin();
         for (uint64_t pack : *item) {

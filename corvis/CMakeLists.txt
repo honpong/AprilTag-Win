@@ -37,6 +37,8 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Intel|GNU|Clang")
   add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>)
 endif ()
 
+add_compile_options(-Wall)
+
 if(MSVC)
   add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
 endif()

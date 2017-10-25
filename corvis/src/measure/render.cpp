@@ -27,6 +27,7 @@ static const char * fs = ""
 "    gl_FragColor = color_fs;\n"
 "}";
 
+#if TARGET_OS_IPHONE
 static const char * vs_es =
 "uniform mat4 view, proj;\n"
 " "
@@ -47,6 +48,7 @@ static const char * fs_es =
 "{\n"
 "    gl_FragColor = color_fs;\n"
 "}";
+#endif
 
 void render::gl_init()
 {

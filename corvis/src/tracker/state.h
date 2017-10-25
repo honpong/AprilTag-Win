@@ -44,7 +44,7 @@ public:
 class state_leaf_base {
     friend class state_vision;
 public:
-    state_leaf_base(const char *name_, state_node::node_type type_, int index_, int size_) : name(name_), type(type_), index(index_), size(size_) {}
+    state_leaf_base(const char *name_, state_node::node_type type_, int index_, int size_) : name(name_), index(index_), type(type_), size(size_) {}
     inline bool single_index() const { return size == 1; }
     const char *name;
     int index;

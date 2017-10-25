@@ -44,6 +44,7 @@ void mapper::reset()
     nodes.clear();
     feature_id_offset = 0;
     node_id_offset = 0;
+    current_node_id = std::numeric_limits<uint64_t>::max();
     unlinked = false;
     dbow_inverted_index.clear();
     features_dbow.clear();

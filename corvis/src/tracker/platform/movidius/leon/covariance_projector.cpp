@@ -52,11 +52,6 @@ void covariance_projector::project_observation_covariance(project_observation_co
     data.first_shave = first_shave;
     data.shaves_number = shaves_number;
 
-    if (data.observations_size < 4) {
-        data.shaves_number = 1;
-
-    }
-
     int HP_rows     = data.HP_rows;
     int HP_src_cols = data.HP_src_cols;
     int HP_dst_cols = data.HP_dst_cols;

@@ -106,6 +106,7 @@ void observation_queue::compute_prediction_covariance_shave(const matrix &cov, i
 
 void observation_queue::compute_prediction_covariance(const matrix &cov, int statesize, int meas_size)
 {
+    START_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE_LEON, 0);
     int index = 0;
     for(auto &o : observations) {
         matrix dst(HP, index, 0, o->size, statesize);
@@ -120,6 +121,7 @@ void observation_queue::compute_prediction_covariance(const matrix &cov, int sta
         o->project_covariance(dst, HP); // res_cov = H * (H * P')' = H * P * H'
         index += o->size;
     }
+    END_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE_LEON, 0);
 }
 
 void observation_queue::compute_innovation_covariance(const matrix &m_cov)
@@ -179,7 +181,7 @@ bool observation_queue::process(state_root &s, bool run_on_shave)
         compute_innovation(inn);
         compute_measurement_covariance(m_cov);
 #ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
-        if (run_on_shave)
+        if (run_on_shave && observations.size() >= 4)
             compute_prediction_covariance_shave(s.cov.cov, statesize, meas_size);
         else
             compute_prediction_covariance(s.cov.cov, statesize, meas_size);

@@ -325,7 +325,7 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
                 std::vector<unsigned int> v;
                 v.reserve(N);
                 for (size_t i = 0; i < N; ++i) v.push_back(i);
-                return std::move(v);
+                return v;
             };
             std::vector<unsigned int> current_keypoint_indexes = fill_with_indices(current_frame->keypoints.size());
             std::vector<unsigned int> candidate_keypoint_indexes = fill_with_indices(candidate_frame->keypoints.size());

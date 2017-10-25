@@ -22,6 +22,7 @@ struct filter {
     RCSensorFusionRunState run_state;
     size_t min_group_add;
     size_t max_group_add;
+    size_t min_group_map_add;
 
     sensor_clock::time_point last_time;
 
@@ -94,6 +95,7 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start(struct filter *f);
 void filter_start_inertial_only(struct filter *f);
+void filter_bring_groups_back(struct filter *f, const rc_Sensor camera_id);
 #ifdef ENABLE_QR
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);

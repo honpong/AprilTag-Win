@@ -483,7 +483,6 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
                 feat->depth_measured = true;
             }
             
-            feat->track.feature = i->feature;
             g->features.children.push_back(std::move(feat));
     }
     f->s.remap();

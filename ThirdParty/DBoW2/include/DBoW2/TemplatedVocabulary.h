@@ -267,7 +267,7 @@ class TemplatedVocabulary {
 
 template<typename T, int type>
 TemplatedVocabulary<T, type>::TemplatedVocabulary() :
-    m_k(0), m_L(0), m_nodes(nullptr) {}
+    m_nodes(nullptr), m_k(0), m_L(0) {}
 
 template<typename T, int type>
 constexpr ScoringType TemplatedVocabulary<T, type>::getScoringType() const {

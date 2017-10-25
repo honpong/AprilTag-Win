@@ -75,42 +75,42 @@ TEST(SensorFusionQueue, RingBuffer)
     intv in {0}, out {0}, x;
     for(in = 0, out = 0; in < 100; ++in, ++out)
     {
-        buf.push(std::move(intv{in}));
+        buf.push(intv{in});
         EXPECT_EQ(in, buf.pop());
     }
     
-    for(in = 0; in < 10; ++in) buf.push(std::move(std::move(intv{in})));
+    for(in = 0; in < 10; ++in) buf.push(intv{in});
     EXPECT_TRUE(buf.full());
     for(out = 0; out < 10; ++out) EXPECT_EQ(out, buf.pop());
     EXPECT_TRUE(buf.empty());
 
-    for(; in < 20; ++in) buf.push(std::move(intv{in}));
+    for(; in < 20; ++in) buf.push(intv{in});
     EXPECT_TRUE(buf.full());
     for(; out < 20; ++out) EXPECT_EQ(out, buf.pop());
     EXPECT_TRUE(buf.empty());
 
-    for(in = 30-1; in >= 20; --in) buf.push(std::move(intv{in}));
+    for(in = 30-1; in >= 20; --in) buf.push(intv{in});
     EXPECT_TRUE(buf.full());
     for(out = 20; out < 30; ++out) EXPECT_EQ(out, buf.pop());
     EXPECT_TRUE(buf.empty());
 
-    for(in = 30; in < 40; ++in) buf.push(std::move(intv{in}));
+    for(in = 30; in < 40; ++in) buf.push(intv{in});
     EXPECT_TRUE(buf.full());
     for(out = 30; out < 35; ++out) EXPECT_EQ(out, buf.pop());
     EXPECT_TRUE(!buf.empty());
 
-    for(in = 45-1; in >= 40; --in) buf.push(std::move(intv{in}));
+    for(in = 45-1; in >= 40; --in) buf.push(intv{in});
     EXPECT_TRUE(buf.full());
     for(out = 35; out < 45; ++out) EXPECT_EQ(out, buf.pop());
     EXPECT_TRUE(buf.empty());
 
-    for(in = 45; in < 55; ++in) buf.push(std::move(intv{in}));
+    for(in = 45; in < 55; ++in) buf.push(intv{in});
     EXPECT_TRUE(buf.full());
     for(out = 45; out < 55; ++out) EXPECT_EQ(out, buf.pop());
     EXPECT_TRUE(buf.empty());
 
     for (int i=0; i<1000; i+=7) {
-        for(in = 100+7-1+i; in >= 100+0+i; --in) buf.push(std::move(intv{in}));
+        for(in = 100+7-1+i; in >= 100+0+i; --in) buf.push(intv{in});
         EXPECT_TRUE(!buf.full());
         for(out = 100+0+i; out < 100+7+i; ++out) EXPECT_EQ(out, buf.pop());
         EXPECT_TRUE(buf.empty());
@@ -126,42 +126,28 @@ TEST(SensorFusionQueue, Reorder)
     };
 
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 500000);
-    
+
     q->start(true);
 
-    q->receive_sensor_data(std::move(gyro_for_time(0)));
-    q->receive_sensor_data(std::move(accel_for_time(1)));
-    q->receive_sensor_data(std::move(gray8_for_time(2)));
-    q->receive_sensor_data(std::move(depth16_for_time(3)));
+    q->receive_sensor_data(gyro_for_time(0));
+    q->receive_sensor_data(accel_for_time(1));
+    q->receive_sensor_data(gray8_for_time(2));
+    q->receive_sensor_data(depth16_for_time(3));
+    q->receive_sensor_data(gyro_for_time(10000));
+    q->receive_sensor_data(accel_for_time(8000));
+    q->receive_sensor_data(depth16_for_time(5000));
+    q->receive_sensor_data(gray8_for_time(5000));
+    q->receive_sensor_data(accel_for_time(18000));
+    q->receive_sensor_data(gyro_for_time(20000));
+    q->receive_sensor_data(gyro_for_time(30000));
+    q->receive_sensor_data(accel_for_time(28000));
+    q->receive_sensor_data(accel_for_time(38000));
+    q->receive_sensor_data(gyro_for_time(40000));
+    q->receive_sensor_data(accel_for_time(48000));
+    q->receive_sensor_data(depth16_for_time(38000));
+    q->receive_sensor_data(gray8_for_time(38000));
+    q->receive_sensor_data(gyro_for_time(50000));
 
-    q->receive_sensor_data(std::move(gyro_for_time(10000)));
-
-    q->receive_sensor_data(std::move(accel_for_time(8000)));
-
-    q->receive_sensor_data(std::move(depth16_for_time(5000)));
-
-    q->receive_sensor_data(std::move(gray8_for_time(5000)));
-
-    q->receive_sensor_data(std::move(accel_for_time(18000)));
-
-    q->receive_sensor_data(std::move(gyro_for_time(20000)));
-    
-    q->receive_sensor_data(std::move(gyro_for_time(30000)));
-
-    q->receive_sensor_data(std::move(accel_for_time(28000)));
-
-    q->receive_sensor_data(std::move(accel_for_time(38000)));
-    
-    q->receive_sensor_data(std::move(gyro_for_time(40000)));
-
-    q->receive_sensor_data(std::move(accel_for_time(48000)));
-    
-    q->receive_sensor_data(std::move(depth16_for_time(38000)));
-
-    q->receive_sensor_data(std::move(gray8_for_time(38000)));
-    
-    q->receive_sensor_data(std::move(gyro_for_time(50000)));
-    
     q->stop();
     ASSERT_EQ(q->total_in, 18);
     ASSERT_EQ(q->total_out, 18);
@@ -211,14 +197,14 @@ TEST(SensorFusionQueue, FastCatchup)
                 break;
         }
     };
-    
+
     q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, maximum_latency_us);
 
 
     q->start(false);
-    
+
     q->receive_sensor_data(gyro_for_time(0));
-    
+
     EXPECT_EQ(1, gyrrcv);
 
     q->receive_sensor_data(depth16_for_time(5000));
@@ -226,7 +212,7 @@ TEST(SensorFusionQueue, FastCatchup)
     q->receive_sensor_data(gray8_for_time(5000));
 
     q->receive_sensor_data(accel_for_time(8000));
-    
+
     EXPECT_EQ(0, deprcv);
     EXPECT_EQ(0, camrcv);
     EXPECT_EQ(0, accrcv);
@@ -234,9 +220,9 @@ TEST(SensorFusionQueue, FastCatchup)
     EXPECT_EQ(0, tmprcv);
     EXPECT_EQ(0, catchup_accrcv);
     EXPECT_EQ(0, catchup_gyrrcv);
-    
+
     q->receive_sensor_data(gyro_for_time(10000));
-    
+
     EXPECT_EQ(1, deprcv);
     EXPECT_EQ(0, camrcv);
     EXPECT_EQ(0, accrcv);
@@ -244,41 +230,34 @@ TEST(SensorFusionQueue, FastCatchup)
     EXPECT_EQ(0, tmprcv);
     EXPECT_EQ(0, catchup_accrcv);
     EXPECT_EQ(0, catchup_gyrrcv);
-    
+
     q->receive_sensor_data(accel_for_time(18000));
-    
     q->receive_sensor_data(gyro_for_time(20000));
-
     q->receive_sensor_data(gyro_for_time(30000));
-
     q->receive_sensor_data(accel_for_time(28000));
-    
     q->receive_sensor_data(accel_for_time(38000));
-
     q->receive_sensor_data(gyro_for_time(40000));
-    
     q->receive_sensor_data(accel_for_time(48000));
-    
     q->receive_sensor_data(depth16_for_time(38000));
-    
+
     EXPECT_EQ(1, deprcv);
     EXPECT_EQ(1, camrcv);
     EXPECT_EQ(0, accrcv);
     EXPECT_EQ(1, gyrrcv);
     EXPECT_EQ(5, catchup_accrcv);
     EXPECT_EQ(4, catchup_gyrrcv);
-    
+
     q->receive_sensor_data(gray8_for_time(38000));
-    
+
     EXPECT_EQ(2, deprcv);
     EXPECT_EQ(1, camrcv);
     EXPECT_EQ(4, accrcv);
     EXPECT_EQ(4, gyrrcv);
     EXPECT_EQ(5, catchup_accrcv);
     EXPECT_EQ(4, catchup_gyrrcv);
-    
+
     q->receive_sensor_data(gyro_for_time(50000));
-    
+
     q->stop();
 }
 
@@ -298,13 +277,11 @@ TEST(SensorFusionQueue, Threading)
     const uint64_t maximum_latency_us = 10;
     const sensor_clock::duration cam_latency = std::chrono::microseconds(10);
     const sensor_clock::duration in_latency = std::chrono::microseconds(2);
-    
+
     int camsent = 0;
-    int depsent = 0;
     int gyrsent = 0;
     int accsent = 0;
-    int tmpsent = 0;
-    
+
     int camrcv = 0;
     int deprcv = 0;
     int gyrrcv = 0;
@@ -312,7 +289,7 @@ TEST(SensorFusionQueue, Threading)
     int tmprcv = 0;
 
     std::unique_ptr<fusion_queue> q;
-    
+
     auto dataf = [&last_cam_time, &last_dep_time, &last_acc_time, &last_gyr_time, &last_tmp_time,
                   &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv, &q](sensor_data && x) {
         switch(x.type) {
@@ -360,7 +337,7 @@ TEST(SensorFusionQueue, Threading)
         {
             auto duration = now - start;
             std::this_thread::sleep_for(cam_latency);
-            q->receive_sensor_data(std::move(gray8_for_time(duration.count())));
+            q->receive_sensor_data(gray8_for_time(duration.count()));
             ++camsent;
             std::this_thread::sleep_for(camera_interval-cam_latency);
         }
@@ -372,7 +349,7 @@ TEST(SensorFusionQueue, Threading)
         {
             auto duration = now - start;
             std::this_thread::sleep_for(cam_latency);
-            q->receive_sensor_data(std::move(depth16_for_time(duration.count())));
+            q->receive_sensor_data(depth16_for_time(duration.count()));
             ++camsent;
             std::this_thread::sleep_for(camera_interval-cam_latency);
         }
@@ -384,7 +361,7 @@ TEST(SensorFusionQueue, Threading)
         {
             auto duration = now - start;
             std::this_thread::sleep_for(in_latency);
-            q->receive_sensor_data(std::move(gyro_for_time(duration.count())));
+            q->receive_sensor_data(gyro_for_time(duration.count()));
             ++gyrsent;
             std::this_thread::sleep_for(inertial_interval-in_latency);
         }
@@ -396,12 +373,12 @@ TEST(SensorFusionQueue, Threading)
         {
             auto duration = now - start;
             std::this_thread::sleep_for(in_latency);
-            q->receive_sensor_data(std::move(accel_for_time(duration.count())));
+            q->receive_sensor_data(accel_for_time(duration.count()));
             ++accsent;
             std::this_thread::sleep_for(inertial_interval-in_latency);
         }
     });
-    
+
     camthread.join();
     depthread.join();
     gyrothread.join();
@@ -420,18 +397,15 @@ TEST(SensorFusionQueue, DropOrder)
     };
 
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
-    
+
     q->start(true);
-    
-    q->receive_sensor_data(std::move(gyro_for_time(0)));
-    
-    q->receive_sensor_data(std::move(accel_for_time(8000)));
-    
-    q->receive_sensor_data(std::move(gray8_for_time(5000)));
 
-    q->receive_sensor_data(std::move(depth16_for_time(5000)));
+    q->receive_sensor_data(gyro_for_time(0));
+    q->receive_sensor_data(accel_for_time(8000));
+    q->receive_sensor_data(gray8_for_time(5000));
+    q->receive_sensor_data(depth16_for_time(5000));
+    q->receive_sensor_data(accel_for_time(4000));
 
-    q->receive_sensor_data(std::move(accel_for_time(4000)));
     q->stop();
 }
 
@@ -446,45 +420,33 @@ TEST(ThreadedDispatch, DropLate)
     };
 
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_LATENCY, 5000);
-    
+
     q->start(true);
-    
-    q->receive_sensor_data(std::move(gyro_for_time(0)));
 
-    q->receive_sensor_data(std::move(gyro_for_time(10000)));
-    
-    q->receive_sensor_data(std::move(accel_for_time(8000)));
-    
-    q->receive_sensor_data(std::move(gray8_for_time(5000)));
+    q->receive_sensor_data(gyro_for_time(0));
+    q->receive_sensor_data(gyro_for_time(10000));
+    q->receive_sensor_data(accel_for_time(8000));
+    q->receive_sensor_data(gray8_for_time(5000));
+    q->receive_sensor_data(depth16_for_time(5000));
+    q->receive_sensor_data(accel_for_time(18000));
+    q->receive_sensor_data(gyro_for_time(20000));
+    q->receive_sensor_data(accel_for_time(19000));
+    q->receive_sensor_data(accel_for_time(28000));
+    q->receive_sensor_data(accel_for_time(38000));
+    q->receive_sensor_data(gray8_for_time(38000));
+    q->receive_sensor_data(depth16_for_time(38000));
+    q->receive_sensor_data(accel_for_time(48000));
 
-    q->receive_sensor_data(std::move(depth16_for_time(5000)));
-
-    q->receive_sensor_data(std::move(accel_for_time(18000)));
-    
-    q->receive_sensor_data(std::move(gyro_for_time(20000)));
-    
-    q->receive_sensor_data(std::move(accel_for_time(19000)));
-    
-    q->receive_sensor_data(std::move(accel_for_time(28000)));
-    
-    q->receive_sensor_data(std::move(accel_for_time(38000)));
-    
-    q->receive_sensor_data(std::move(gray8_for_time(38000)));
-
-    q->receive_sensor_data(std::move(depth16_for_time(38000)));
-    
-    q->receive_sensor_data(std::move(accel_for_time(48000)));
-    
     //NOTE: This makes this test a little non-deterministic - if it fails due to the 30000 timestamp showing up this could be why
     //If we remove the sleep, everything gets into the queue before the dispatch thread even starts, so everything shows up on the other side in order
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    
-    q->receive_sensor_data(std::move(gyro_for_time(30000)));
-    
-    q->receive_sensor_data(std::move(gyro_for_time(40000)));
-    
-    q->receive_sensor_data(std::move(gyro_for_time(50000)));
-    
+
+    q->receive_sensor_data(gyro_for_time(30000));
+
+    q->receive_sensor_data(gyro_for_time(40000));
+
+    q->receive_sensor_data(gyro_for_time(50000));
+
     q->stop();
 }
 
@@ -509,20 +471,16 @@ TEST(SensorFusionQueue, SameTime)
             case rc_SENSOR_TYPE_STEREO: break;
         }
     };
-    
+
     auto q = setup_queue(dataf, fusion_queue::latency_strategy::MINIMIZE_DROPS, 5000);
 
     q->start(true);
 
-    q->receive_sensor_data(std::move(gyro_for_time(5000)));
-
-    q->receive_sensor_data(std::move(accel_for_time(5000)));
-
-    q->receive_sensor_data(std::move(gray8_for_time(5000)));
-
-    q->receive_sensor_data(std::move(temp_for_time(5000)));
-
-    q->receive_sensor_data(std::move(depth16_for_time(5000)));
+    q->receive_sensor_data(gyro_for_time(5000));
+    q->receive_sensor_data(accel_for_time(5000));
+    q->receive_sensor_data(gray8_for_time(5000));
+    q->receive_sensor_data(temp_for_time(5000));
+    q->receive_sensor_data(depth16_for_time(5000));
 
     q->stop();
 
@@ -559,28 +517,28 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
 
     q->start(true);
 
-    q->receive_sensor_data(std::move(gyro_for_time(5000)));
-    q->receive_sensor_data(std::move(accel_for_time(5000)));
-    q->receive_sensor_data(std::move(gray8_for_time(5000)));
+    q->receive_sensor_data(gyro_for_time(5000));
+    q->receive_sensor_data(accel_for_time(5000));
+    q->receive_sensor_data(gray8_for_time(5000));
 
-    q->receive_sensor_data(std::move(gyro_for_time(6000)));
-    q->receive_sensor_data(std::move(gyro_for_time(7000)));
-    q->receive_sensor_data(std::move(gyro_for_time(8000)));
-    q->receive_sensor_data(std::move(gyro_for_time(9000)));
+    q->receive_sensor_data(gyro_for_time(6000));
+    q->receive_sensor_data(gyro_for_time(7000));
+    q->receive_sensor_data(gyro_for_time(8000));
+    q->receive_sensor_data(gyro_for_time(9000));
 
-    q->receive_sensor_data(std::move(accel_for_time(6000)));
-    q->receive_sensor_data(std::move(accel_for_time(7000)));
-    q->receive_sensor_data(std::move(accel_for_time(8000)));
-    q->receive_sensor_data(std::move(accel_for_time(9000)));
+    q->receive_sensor_data(accel_for_time(6000));
+    q->receive_sensor_data(accel_for_time(7000));
+    q->receive_sensor_data(accel_for_time(8000));
+    q->receive_sensor_data(accel_for_time(9000));
 
     // we should dispatch here due to max latency of 5ms
-    q->receive_sensor_data(std::move(gray8_for_time(10001)));
+    q->receive_sensor_data(gray8_for_time(10001));
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // we should drop this, since we will have already dispatched t =
     // 5000
-    q->receive_sensor_data(std::move(depth16_for_time(4000)));
+    q->receive_sensor_data(depth16_for_time(4000));
 
     q->stop();
 
@@ -601,7 +559,6 @@ TEST(SensorFusionQueue, BufferNoDispatch)
     uint64_t buffer_time_us = 50000;
     uint64_t start_time_us = 1000000;
     uint64_t last_time_us = 0;
-    uint64_t extra_time_us = 100000;
 
     auto dataf = [&last_time_us, &start_time_us, &buffer_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time_us);
@@ -622,10 +579,10 @@ TEST(SensorFusionQueue, BufferNoDispatch)
 
     uint64_t time_us;
     for(time_us = 0; time_us < start_time_us; time_us += 2000) {
-        q->receive_sensor_data(std::move(gyro_for_time(time_us)));
-        q->receive_sensor_data(std::move(accel_for_time(time_us)));
-        q->receive_sensor_data(std::move(gray8_for_time(time_us)));
-        q->receive_sensor_data(std::move(depth16_for_time(time_us)));
+        q->receive_sensor_data(gyro_for_time(time_us));
+        q->receive_sensor_data(accel_for_time(time_us));
+        q->receive_sensor_data(gray8_for_time(time_us));
+        q->receive_sensor_data(depth16_for_time(time_us));
     }
 
     q->stop();
@@ -669,10 +626,10 @@ TEST(SensorFusionQueue, Buffering)
     uint64_t time_us;
     int packets = 0;
     for(time_us = 0; time_us <= start_time_us; time_us += 2000) {
-        q->receive_sensor_data(std::move(gyro_for_time(time_us)));
-        q->receive_sensor_data(std::move(accel_for_time(time_us)));
-        q->receive_sensor_data(std::move(gray8_for_time(time_us)));
-        q->receive_sensor_data(std::move(depth16_for_time(time_us)));
+        q->receive_sensor_data(gyro_for_time(time_us));
+        q->receive_sensor_data(accel_for_time(time_us));
+        q->receive_sensor_data(gray8_for_time(time_us));
+        q->receive_sensor_data(depth16_for_time(time_us));
         if(time_us >= start_time_us - buffer_time_us) {
             packets++;
         }
@@ -685,10 +642,10 @@ TEST(SensorFusionQueue, Buffering)
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     for(; time_us < start_time_us + extra_time_us; time_us += 2000) {
-        q->receive_sensor_data(std::move(gyro_for_time(time_us)));
-        q->receive_sensor_data(std::move(accel_for_time(time_us)));
-        q->receive_sensor_data(std::move(gray8_for_time(time_us)));
-        q->receive_sensor_data(std::move(depth16_for_time(time_us)));
+        q->receive_sensor_data(gyro_for_time(time_us));
+        q->receive_sensor_data(accel_for_time(time_us));
+        q->receive_sensor_data(gray8_for_time(time_us));
+        q->receive_sensor_data(depth16_for_time(time_us));
         packets++;
     }
 

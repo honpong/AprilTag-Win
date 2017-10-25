@@ -99,7 +99,7 @@ public:
             angular_velocity_rad__s = data;
     }
 
-    sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id, float temperature_C) :
+    sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id, float temp_C) :
         rc_Data({}),
         timestamp(sensor_clock::micros_to_tp(timestamp_us))
     {
@@ -107,7 +107,7 @@ public:
         id = sensor_id;
         type = sensor_type;
         time_us = timestamp_us;
-        temperature_C = temperature_C;
+        temperature_C = temp_C;
     }
 
     class stack_copy {};

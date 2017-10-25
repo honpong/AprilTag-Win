@@ -444,7 +444,7 @@ protected:
     void flush() override {}
 };
 
-const std::array<rc_MessageLevel, 7> rc_callback_sink_st::rc_levels = {
+const std::array<rc_MessageLevel, 7> rc_callback_sink_st::rc_levels {{
     rc_MESSAGE_TRACE, // trace    = 0,
     rc_MESSAGE_DEBUG, // debug    = 1,
     rc_MESSAGE_INFO,  // info     = 2,
@@ -452,7 +452,7 @@ const std::array<rc_MessageLevel, 7> rc_callback_sink_st::rc_levels = {
     rc_MESSAGE_ERROR, // err      = 4,
     rc_MESSAGE_ERROR, // critical = 5,
     rc_MESSAGE_NONE,  // off      = 6
-};
+}};
 
 RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback callback, void *handle, rc_MessageLevel maximum_log_level)
 {

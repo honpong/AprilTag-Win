@@ -45,7 +45,6 @@ private:
     bool accel_decimate {false};
     bool gyro_decimate {false};
     bool image_decimate {false};
-    bool ground_truth_file{false};
     std::chrono::microseconds accel_interval {10000};
     std::chrono::microseconds gyro_interval {10000};
     std::chrono::microseconds image_interval {33333};

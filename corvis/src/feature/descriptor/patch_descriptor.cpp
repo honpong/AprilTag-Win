@@ -11,6 +11,7 @@ Pedro Pinies, Lina Paz
 #include "patch_descriptor.h"
 #include <cmath>
 #include <cstdlib>
+#include <cfloat>
 
 patch_descriptor::patch_descriptor(float x, float y, const tracker::image &image) {
     uint8_t w[full_patch_size];
@@ -36,7 +37,7 @@ patch_descriptor::patch_descriptor(float x, float y, const tracker::image &image
 float patch_descriptor::distance(const patch_descriptor &a,
                                  const patch_descriptor &b) {
     // constant patches can't be matched
-    if (a.variance < 1e-15 || b.variance < 1e-15)
+    if (a.variance < FLT_EPSILON || b.variance < FLT_EPSILON)
         return min_score;
 
     uint8_t w[full_patch_size];
@@ -85,7 +86,7 @@ float patch_descriptor::distance(float x, float y, const tracker::image &image) 
     float top = sum_d1d2 - mean2*(mean*area) - mean*sum_d2 + mean*mean2*area;
 
     // constant patches can't be matched
-    if (variance < 1e-15 || variance2 < 1e-15 || top < 0.f)
+    if (variance < FLT_EPSILON || variance2 < FLT_EPSILON || top < 0.f)
         return min_score;
 
     return top*top/(variance*variance2);

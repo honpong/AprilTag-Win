@@ -15,7 +15,7 @@ static inline rc_Pose to_rc_Pose(const transformation &g)
 static inline transformation to_transformation(const rc_Pose p)
 {
     quaternion Q(map(p.Q.v).cast<f_t>()); m3 R = map(p.R.v).cast<f_t>(); v3 T = map(p.T.v).cast<f_t>();
-    return Q.norm() == 0 && R.determinant() == 0 ? transformation() :
+    return Q.norm() < F_T_EPS && R.determinant() < F_T_EPS ? transformation() :
         std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1) ? transformation(R, T) : transformation(Q, T);
 }
 

@@ -611,11 +611,11 @@ static bool l_l_intersect(const v3& p1, const v3& p2, const v3& p3, const v3& p4
 
     p13 = p1 - p3;
     p43 = p4 - p3;
-    if (fabs(p43[0]) < FLT_EPSILON && fabs(p43[1]) < FLT_EPSILON && fabs(p43[2]) < FLT_EPSILON)
+    if (fabs(p43[0]) < F_T_EPS && fabs(p43[1]) < F_T_EPS && fabs(p43[2]) < F_T_EPS)
       return false;
 
     p21 = p2 - p1;
-    if (fabs(p21[0]) < FLT_EPSILON && fabs(p21[1]) < FLT_EPSILON && fabs(p21[2]) < FLT_EPSILON)
+    if (fabs(p21[0]) < F_T_EPS && fabs(p21[1]) < F_T_EPS && fabs(p21[2]) < F_T_EPS)
       return false;
 
     d1343 = p13.dot(p43); //p13.x * p43.x + p13.y * p43.y + p13.z * p43.z;
@@ -625,7 +625,7 @@ static bool l_l_intersect(const v3& p1, const v3& p2, const v3& p3, const v3& p4
     d2121 = p21.dot(p21); //p21.x * p21.x + p21.y * p21.y + p21.z * p21.z;
 
     denom = d2121 * d4343 - d4321 * d4321;
-    if (fabs(denom) < FLT_EPSILON)
+    if (fabs(denom) < F_T_EPS)
       return false;
     numer = d1343 * d4321 - d1321 * d4343;
 

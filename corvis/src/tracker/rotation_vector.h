@@ -41,12 +41,6 @@ static inline std::ostream& operator<<(std::ostream &stream, const rotation_vect
     return stream  << "(" << v.x() << ", " << v.y() << ", " << v.z() << ")";
 }
 
-//TODO: regularize so that opposite axis/angle and/or 2*pi shells evaluate to equal
-static inline bool operator==(const rotation_vector &a, const rotation_vector &b)
-{
-    return a.x() == b.x() && a.y() == b.y() && a.z() == b.z();
-}
-
 //TODO: move these here so that they can be inlined
 m3 to_rotation_matrix(const rotation_vector &v); // e^\hat{v}
 m3 to_spatial_jacobian(const rotation_vector &v); // \unhat{(d e^\hat{ v})  e^\hat{-v}} == to_spatial_jacobian(v) dv

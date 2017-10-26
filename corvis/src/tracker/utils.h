@@ -10,7 +10,7 @@ static inline quaternion initial_orientation_from_gravity_facing(const v3 &world
     v3 zt = q * body_forward;
     zt -= world_up * zt.dot(world_up); // remove the component of zt in the world_up direction
     f_t len = zt.norm();
-    if(len > 1.e-6) // otherwise we're looking straight up or down, so don't make any changes
+    if(len > F_T_EPS) // otherwise we're looking straight up or down, so don't make any changes
         {
             v3 a = (zt / len).cross(world_facing.normalized());
             f_t d =  (zt / len).dot(world_facing.normalized()), s = sqrt(2*(1 + d));

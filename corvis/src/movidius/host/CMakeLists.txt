@@ -32,6 +32,8 @@ if (NOT TARGET usb)
   return()
 endif()
 
+add_subdirectory(mv-usb-boot)
+
 add_library(slam_usb
    usb_host.cpp
    usb_host.h

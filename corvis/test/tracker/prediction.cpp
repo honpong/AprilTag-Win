@@ -55,7 +55,6 @@ TEST(Prediction, Predict)
         s.a.v = v3(r(gen), r(gen), r(gen));
 
         transformation t0_(s.Q.v, s.T.v);
-        rc_Pose p0_ = to_rc_Pose(t0_);
         rc_PoseVelocity v; rc_PoseAcceleration a;
         rc_Pose p0 = rc_getPose(rc.get(), &v, &a, rc_DATA_PATH_SLOW).pose_m;
         transformation t0 = to_transformation(p0);

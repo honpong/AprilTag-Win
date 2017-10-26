@@ -224,6 +224,7 @@ bool replay::run()
                     unconfigured_data.insert(data_pair("camera", 0));
             }   break;
             case packet_image_raw: {
+                uint16_t sensor_id = packet->header.sensor_id;
                 packet_image_raw_t *ip = (packet_image_raw_t *)packet;
                 if (ip->format == rc_FORMAT_GRAY8) {
                     if (qvga && ip->width == 640 && ip->height == 480)
@@ -231,14 +232,14 @@ bool replay::run()
                     if(!rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
                                     ip->width, ip->height, ip->stride, ip->data,
                                     [](void *packet) { free(packet); }, phandle.release()))
-                        unconfigured_data.insert(data_pair("camera", packet->header.sensor_id));
+                        unconfigured_data.insert(data_pair("camera", sensor_id));
                 } else if (depth && ip->format == rc_FORMAT_DEPTH16) {
                     if (qvga && ip->width == 640 && ip->height == 480)
                         scale_down_inplace_z16_by<2,2>((uint16_t*)ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
                     if(!rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_DEPTH16, ip->header.time, ip->exposure_time_us,
                                     ip->width, ip->height, ip->stride, ip->data,
                                     [](void *packet) { free(packet); }, phandle.release()))
-                        unconfigured_data.insert(data_pair("depth", packet->header.sensor_id));
+                        unconfigured_data.insert(data_pair("depth", sensor_id));
                 }
             }   break;
             case packet_stereo_raw: {

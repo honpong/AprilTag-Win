@@ -28,6 +28,7 @@
 class state_node {
 public:
     virtual ~state_node() {}
+    state_node &operator=(const state_node &other) = default;
     enum node_type { dynamic, constant, fake };
     virtual void copy_state_to_array(matrix &state) = 0;
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const = 0;

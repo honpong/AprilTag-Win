@@ -81,8 +81,8 @@ void dictionary::write_header(std::string basename)
     f << "const static float " << basename << "_centers[" << basename << "_dimension * " << basename << "_num_centers] {\n";
 
     float *centers = (float *)vl_kmeans_get_centers(kmeans);
-    for(int c = 0; c < num_centers; ++c) {
-        for(int d = 0; d < dimension; ++d)
+    for(size_t c = 0; c < num_centers; ++c) {
+        for(size_t d = 0; d < dimension; ++d)
             f << centers[c * dimension + d] << ", ";
         f << "\n";
     }

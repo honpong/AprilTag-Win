@@ -90,7 +90,7 @@ struct state {
         remapper rm(100, iP, iQ);
 
         int i=0;
-        for (int j=0; j< items.size() && j<ref.items.size(); j++) {
+        for (size_t j=0; j< items.size() && j<ref.items.size(); j++) {
             auto &r = items[j];
             if (ref.items[j].in) {
                 if (r.in)

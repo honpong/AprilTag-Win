@@ -20,8 +20,8 @@ struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     filter() { }
     RCSensorFusionRunState run_state;
-    int min_group_add;
-    int max_group_add;
+    size_t min_group_add;
+    size_t max_group_add;
 
     sensor_clock::time_point last_time;
 

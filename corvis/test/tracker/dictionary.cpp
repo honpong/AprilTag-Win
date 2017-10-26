@@ -6,9 +6,9 @@ using namespace std;
 
 vector<descriptor> generate_training_data()
 {
-    uint32_t num_data = 100;
+    size_t num_data = 100;
     vector<descriptor> train_data;
-    for(int i = 0; i < num_data; i++) {
+    for(size_t i = 0; i < num_data; i++) {
         descriptor d;
         for(int j = 0; j < descriptor_size; j++) {
             d.d[j] = i;
@@ -22,11 +22,11 @@ TEST(Dictionary, Train)
 {
     vector<descriptor> train_data = generate_training_data();
 
-    const int dict_size = 2;
+    const size_t dict_size = 2;
     dictionary dict(train_data, dict_size);
 
     int hist[dict_size];
-    for(int i = 0; i < dict_size; i++) hist[i] = 0;
+    for(size_t i = 0; i < dict_size; i++) hist[i] = 0;
 
     for(auto point : train_data) {
         int id = dict.quantize(point);

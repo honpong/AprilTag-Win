@@ -453,7 +453,7 @@ int TemplatedVocabulary<T, type>::trainHKMeansStep(
         int level) {
     std::vector<Cluster> clusters;
 
-    if (corpus.size() <= m_k) {
+    if (corpus.size() <= static_cast<size_t>(m_k)) {
         // trivial case: one cluster per feature
         clusters.reserve(m_k);
         for (const auto* descriptor : corpus)

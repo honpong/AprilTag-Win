@@ -312,7 +312,7 @@ WordId TemplatedVocabulary<T, type>::firstChild(WordId parent) const {
     return (parent + 1) * m_k;
 }
 
-template<typename T> static constexpr T& identity(const T& t) { return t; }
+template<typename T> static inline constexpr const T& identity(const T& t) { return t; }
 
 template<typename T, int type>
 BowVector TemplatedVocabulary<T, type>::transform(

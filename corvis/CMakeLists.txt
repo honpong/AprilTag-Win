@@ -138,6 +138,8 @@ add_subdirectory(src/rc_replay)
 
 add_subdirectory(src/compare_poses)
 
+add_subdirectory(src/create_vocabulary)
+
 include(TargetLinkLibrariesCopied RESULT_VARIABLE TARGET_LINK_LIBRARIES_COPIED)
 if(ENABLE_SOURCES)
 install(FILES ${TARGET_LINK_LIBRARIES_COPIED} DESTINATION lib/cmake COMPONENT example-sources)

@@ -309,7 +309,7 @@ bool replay::run()
                 }
             }   break;
         }
-        rc_PoseTime endPoseTime = rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);
+        rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);
     }
 
     rc_PoseTime endPoseTime = rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);

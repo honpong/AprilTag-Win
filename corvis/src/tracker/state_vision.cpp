@@ -339,11 +339,14 @@ void state_vision::update_map(mapper *map)
 
                 bool good = stdev / f->v.depth() < .05f;
                 if (good) {
+                    m3 Rbc = camera->extrinsics.Q.v.toRotationMatrix();
+                    v2 pn = camera->intrinsics.undistort_feature(camera->intrinsics.normalize_feature(f->initial));
+                    v3 f3D = Rbc*(f->v.depth()*pn.homogeneous()) + camera->extrinsics.T.v;
                     if(f->is_in_map) {
-                        map->set_feature(g->id, f->track.feature->id, f->node_body, variance_meters);
+                        map->set_feature(g->id, f->track.feature->id, f3D, variance_meters);
                     } else {
                         auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->track.feature);
-                        map->add_feature(g->id, feature->id, f->node_body, variance_meters, feature->descriptor);
+                        map->add_feature(g->id, feature->id, f3D, variance_meters, feature->descriptor);
                     }
                     f->is_in_map = true;
                 }

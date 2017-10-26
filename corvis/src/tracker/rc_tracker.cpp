@@ -551,14 +551,15 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
     if(camera_id < tracker->sfm.s.cameras.children.size()) {
         transformation G = tracker->get_transformation();
         for(auto &g: tracker->sfm.s.cameras.children[camera_id]->groups.children) {
+            auto t = g->tracks.begin();
             for(auto &i: g->features.children) {
                 if(!i->is_valid()) continue;
                 rc_Feature feat;
-                feat.id = i->track.feature->id;
-                feat.image_x = static_cast<decltype(feat.image_x)>(i->track.x);
-                feat.image_y = static_cast<decltype(feat.image_y)>(i->track.y);
-                feat.image_prediction_x = static_cast<decltype(feat.image_prediction_x)>(i->track.pred_x);
-                feat.image_prediction_y = static_cast<decltype(feat.image_prediction_y)>(i->track.pred_y);
+                feat.id = i->feature->id;
+                feat.image_x = static_cast<decltype(feat.image_x)>(t->track.x);
+                feat.image_y = static_cast<decltype(feat.image_y)>(t->track.y);
+                feat.image_prediction_x = static_cast<decltype(feat.image_prediction_x)>(t->track.pred_x);
+                feat.image_prediction_y = static_cast<decltype(feat.image_prediction_y)>(t->track.pred_y);
                 v3 ext_pos = G * i->body;
                 feat.world.x = static_cast<decltype(feat.world.x)>(ext_pos[0]);
                 feat.world.y = static_cast<decltype(feat.world.y)>(ext_pos[1]);
@@ -571,6 +572,7 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
                 feat.initialized =  i->is_initialized();
                 feat.depth = i->v.depth();
                 features.push_back(feat);
+                ++t;
             }
         }
     }

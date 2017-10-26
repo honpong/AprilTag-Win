@@ -112,7 +112,7 @@ struct state_camera;
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    tracker::feature_track track;
+    std::shared_ptr<tracker::feature> feature;
     f_t outlier = 0;
     v2 initial;
     f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
@@ -176,13 +176,22 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         if(type != nt) return;
-        fprintf(stderr, "feature[%" PRIu64 "]: ", track.feature->id); state.row(index+0).print();
+        fprintf(stderr, "feature[%" PRIu64 "]: ", feature->id); state.row(index+0).print();
     }
 
     virtual std::ostream &print_to(std::ostream & s) const
     {
-        return s << "f" << track.feature->id << ": " << v.v << "±" << std::sqrt(variance());
+        return s << "f" << feature->id << ": " << v.v << "±" << std::sqrt(variance());
     }
+};
+
+class state_vision_track {
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    state_vision_feature &feature;
+    tracker::feature_track track;
+    
+    state_vision_track(state_vision_feature &f, tracker::feature_track &t): feature(f), track(t) {}
 };
 
 class state_vision_group: public state_branch<state_node *> {
@@ -195,6 +204,8 @@ class state_vision_group: public state_branch<state_node *> {
     state_camera &camera;
     state_branch<std::unique_ptr<state_vision_feature>> features;
     std::list<std::unique_ptr<state_vision_feature>> lost_features;
+    std::list<state_vision_track> tracks;
+    std::list<state_vision_track> lost_tracks;
     int health = 0;
     enum group_flag status = group_normal;
     uint64_t id;

@@ -23,7 +23,7 @@ f_t state_vision_feature::outlier_lost_reject;
 f_t state_vision_feature::max_variance;
 
 state_vision_feature::state_vision_feature(const tracker::feature_track &track_, state_vision_group &group_):
-    state_leaf("feature", constant), track(track_), initial(track_.x, track_.y), group(group_)
+    state_leaf("feature", constant), initial(track_.x, track_.y), group(group_), feature(track_.feature)
 {
     reset();
 }
@@ -104,20 +104,28 @@ void state_vision_group::make_empty()
     }
     features.children.clear();
     lost_features.clear();
+    tracks.clear();
+    lost_tracks.clear();
     status = group_empty;
 }
 
 int state_vision_group::process_features()
 {
-    features.children.remove_if([&](auto &f) {
-        if(f->should_drop()) {
-            return true;
-        } else if(f->status == feature_lost) {
-            lost_features.push_back(std::move(f));
-            return true;
-        } else
-            return false;
-    });
+    auto t = tracks.begin();
+    for(auto f = features.children.begin(); f != features.children.end();) {
+        if((*f)->should_drop()) {
+            f = features.children.erase(f);
+            t = tracks.erase(t);
+        } else if((*f)->status == feature_lost) {
+            lost_features.push_back(std::move(*f));
+            lost_tracks.push_back(std::move(*t));
+            f = features.children.erase(f);
+            t = tracks.erase(t);
+        } else {
+            f++;
+            t++;
+        }
+    }
 
     health = features.children.size();
     if(health < min_feats)
@@ -223,8 +231,9 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     int outliers = 0;
     int track_fail = 0;
     for(auto &g : groups.children) {
+        auto t = g->tracks.begin();
         for(auto &i : g->features.children) {
-            if(i->track.found() == false) {
+            if(t->track.found() == false) {
                 // Drop tracking failures
                 ++track_fail;
                 if(i->is_good()) ++useful_drops;
@@ -240,6 +249,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
                     ++outliers;
                 }
             }
+            ++t;
         }
     }
     const f_t focal_px = intrinsics.focal_length.v * intrinsics.image_height;
@@ -339,9 +349,9 @@ void state_vision::update_map(mapper *map)
                 bool good = stdev / f->v.depth() < .05f;
                 if (good) {
                     if(f->is_in_map) {
-                        map->set_feature(g->id, f->track.feature->id, f->v.depth(), variance_meters);
+                        map->set_feature(g->id, f->feature->id, f->v.depth(), variance_meters);
                     } else {
-                        auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->track.feature);
+                        auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->feature);
                         map->add_feature(g->id, feature, f->v.depth(), variance_meters);
                     }
                     f->is_in_map = true;
@@ -547,10 +557,10 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
     feature_tracker->tracks.reserve(feature_count());
     for(auto &g : groups.children) {
         if(g->status == group_empty) continue;
-        for(auto &feature : g->features.children)
-            feature_tracker->tracks.emplace_back(&feature->track);
-        for(auto &feature : g->lost_features)
-            feature_tracker->tracks.emplace_back(&feature->track);
+        for(auto &feature : g->tracks)
+            feature_tracker->tracks.emplace_back(&feature.track);
+        for(auto &feature : g->lost_tracks)
+            feature_tracker->tracks.emplace_back(&feature.track);
 
     }
     for(auto &t:standby_features) feature_tracker->tracks.emplace_back(&t);

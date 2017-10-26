@@ -84,6 +84,7 @@ class observation_vision_feature: public observation_storage<2> {
     } orig, curr;
 
     state_vision_feature *const feature;
+    state_vision_track &track;
 
     feature_t Xd;
 
@@ -100,8 +101,8 @@ class observation_vision_feature: public observation_storage<2> {
 #endif
     void update_initializing();
 
-    observation_vision_feature(sensor_grey &src, const state_camera &camera, state_vision_feature &f)
-        : observation_storage(src), orig(f.group.camera), curr(camera), feature(&f) {}
+    observation_vision_feature(sensor_grey &src, const state_camera &camera, state_vision_feature &f, state_vision_track &t)
+        : observation_storage(src), orig(f.group.camera), curr(camera), feature(&f), track(t) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -194,7 +195,7 @@ public:
     void cache_recent(std::unique_ptr<observation> &&o) {
 #ifndef MYRIAD2 // Doesn't support dynamic_cast
         if (auto *ovf = dynamic_cast<observation_vision_feature*>(o.get()))
-            recent_f_map[ovf->feature->track.feature->id] = std::unique_ptr<observation_vision_feature>(static_cast<observation_vision_feature*>(o.release()));
+            recent_f_map[ovf->feature->feature->id] = std::unique_ptr<observation_vision_feature>(static_cast<observation_vision_feature*>(o.release()));
         else if (dynamic_cast<observation_accelerometer*>(o.get()))
             recent_a = std::unique_ptr<observation_accelerometer>(static_cast<observation_accelerometer*>(o.release()));
         else if (dynamic_cast<observation_gyroscope*>(o.get()))

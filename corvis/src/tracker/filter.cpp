@@ -324,12 +324,12 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
 
     for(auto &g : camera_state.groups.children) {
         if(g->status == group_empty) continue;
-        for(auto &feature : g->features.children) {
-            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, *feature);
+        for(auto &track : g->tracks) {
+            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, track.feature, track);
             f->observations.observations.push_back(std::move(obs));
         }
-        for(auto &feature : g->lost_features) {
-            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, *feature);
+        for(auto &track : g->lost_tracks) {
+            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, track.feature, track);
             f->observations.observations.push_back(std::move(obs));
         }
     }
@@ -483,6 +483,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
                 feat->depth_measured = true;
             }
             
+            g->tracks.push_back(state_vision_track(*feat, *i));
             g->features.children.push_back(std::move(feat));
     }
     f->s.remap();
@@ -524,8 +525,8 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
     camera.feature_tracker->tracks.reserve(feature_count + space);
 
     for(auto &g : camera.groups.children)
-        for(auto &i : g->features.children)
-            camera.feature_tracker->tracks.emplace_back(&i->track);
+        for(auto &i : g->tracks)
+            camera.feature_tracker->tracks.emplace_back(&i.track);
 
     for(auto &t: camera.standby_features)
         camera.feature_tracker->tracks.emplace_back(&t);
@@ -863,16 +864,19 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         for(auto &g : camera_state.groups.children)
         {
             if(!space) break;
-            for(auto i = g->lost_features.begin(); i != g->lost_features.end();)
+            auto f = g->lost_features.begin();
+            for(auto i = g->lost_tracks.begin(); i != g->lost_tracks.end();)
             {
                 if(!space) break;
-                if((*i)->track.found()) {
+                if(i->track.found()) {
                     --space;
-                    (*i)->set_initial_variance(recovered_feature_initial_variance);
-                    (*i)->status = feature_normal;
-                    g->features.children.push_back(std::move(*i));
-                    i = g->lost_features.erase(i);
-                } else ++i;
+                    i->feature.set_initial_variance(recovered_feature_initial_variance);
+                    i->feature.status = feature_normal;
+                    g->features.children.push_back(std::move(*f));
+                    g->tracks.push_back(std::move(*i));
+                    f = g->lost_features.erase(f);
+                    i = g->lost_tracks.erase(i);
+                } else { ++i; ++f; }
             }
         }
         f->s.remap();
@@ -1263,7 +1267,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                     // g->Qr.set_initial_variance({0.1,0.1,0.1});
                     node.status = node_status::normal;
 
-                    for(const auto &ft : nft.tracks) {
+                    for(auto &ft : nft.tracks) {
                         auto feat = std::make_unique<state_vision_feature>(ft, *g);
                         auto ftmp = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(ft.feature);
                         feat->initial[0] = ftmp->x;
@@ -1276,10 +1280,12 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                         if(space && ft.found()) {
                             --space;
                             feat->status = feature_normal;
+                            g->tracks.push_back(state_vision_track(*feat, ft));
                             g->features.children.push_back(std::move(feat));
                         } else {
                             // if there is no space or feature not found add to feature_lost
                             feat->status = feature_lost;
+                            g->lost_tracks.push_back(state_vision_track(*feat, ft));
                             g->lost_features.push_back(std::move(feat));
                         }
                     }

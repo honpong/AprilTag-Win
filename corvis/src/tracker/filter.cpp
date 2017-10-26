@@ -60,28 +60,28 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time, bool
     bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
     f_t speed = f->s.V.v.norm();
-    if(speed > 3.) { //1.4m/s is normal walking speed
+    if(speed > 3.f) { //1.4m/s is normal walking speed
         if (!old_speedfail) f->log->info("Velocity {} m/s exceeds max bound", speed);
         f->speed_failed = true;
-    } else if(speed > 2.) {
+    } else if(speed > 2.f) {
         if (!f->speed_warning) f->log->info("High velocity ({} m/s)", speed);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t accel = f->s.a.v.norm();
-    if(accel > 9.8) { //1g would saturate sensor anyway
+    if(accel > 9.8f) { //1g would saturate sensor anyway
         if (!old_speedfail) f->log->info("Acceleration exceeds max bound");
         f->speed_failed = true;
-    } else if(accel > 5.) { //max in mine is 6.
+    } else if(accel > 5.f) { //max in mine is 6.
         if (!f->speed_warning) f->log->info("High acceleration ({} m/s^2)", accel);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t ang_vel = f->s.w.v.norm();
-    if(ang_vel > 5.) { //sensor saturation - 250/180*pi
+    if(ang_vel > 5.f) { //sensor saturation - 250/180*pi
         if (!old_speedfail) f->log->info("Angular velocity exceeds max bound");
         f->speed_failed = true;
-    } else if(ang_vel > 2.) { // max in mine is 1.6
+    } else if(ang_vel > 2.f) { // max in mine is 1.6
         if (!f->speed_warning) f->log->info("High angular velocity");
         f->speed_warning = true;
         f->speed_warning_time = time;
@@ -372,13 +372,13 @@ static std::unique_ptr<sensor_data> filter_aligned_depth_to_camera(const sensor_
           d_center_x       = (intrinsics.c_x_px - intrinsics.width_px  / 2. + .5) / intrinsics.height_px,
           d_center_y       = (intrinsics.c_y_px - intrinsics.height_px / 2. + .5) / intrinsics.height_px;
 
-    float i_Cx = d_center_x       * i_height + (i_width  - 1) / 2.,
-          i_Cy = d_center_y       * i_height + (i_height - 1) / 2.,
+    float i_Cx = d_center_x       * i_height + (i_width  - 1) / 2.f,
+          i_Cy = d_center_y       * i_height + (i_height - 1) / 2.f,
           i_Fx = d_focal_length_x * i_height,
           i_Fy = d_focal_length_y * i_height;
 
-    float o_Cx = camera_state.intrinsics.center.v.x()   * o_height + (o_width  - 1) / 2.,
-          o_Cy = camera_state.intrinsics.center.v.y()   * o_height + (o_height - 1) / 2.,
+    float o_Cx = camera_state.intrinsics.center.v.x()   * o_height + (o_width  - 1) / 2.f,
+          o_Cy = camera_state.intrinsics.center.v.y()   * o_height + (o_height - 1) / 2.f,
           o_Fx = camera_state.intrinsics.focal_length.v * o_height,
           o_Fy = camera_state.intrinsics.focal_length.v * o_height;
 
@@ -665,7 +665,7 @@ static float keypoint_intersect(state_camera & camera1, state_camera & camera2, 
     // TODO: set minz and maxz or at least bound error when close to / far away from camera
     float error = (pa - pb).norm();
     intersection_error_percent = error/cam1_intersect[2];
-    if(error/cam1_intersect[2] > .05)
+    if(error/cam1_intersect[2] > .05f)
         return 0;
 
     float depth = cam1_intersect[2];
@@ -734,7 +734,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             int i= 0;
             for(auto & k2 : kp2 ){
                 float error, depth = keypoint_intersect(camera_state1, camera_state2, pre1, prkpv2[i], Rw1T, Rw2T, error);
-                if(depth && error < 0.02) {
+                if(depth && error < 0.02f) {
                     float score = keypoint_compare(k1, k2);
                     if(score > best_score) {
                         second_best_score = best_score;

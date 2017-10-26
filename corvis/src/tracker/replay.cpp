@@ -246,7 +246,7 @@ void replay::start(string map_filename)
             now = sensor_clock::now();
             if(is_realtime && timestamp - now > std::chrono::seconds(1)) {
                 auto gap = std::chrono::duration_cast<std::chrono::microseconds>(timestamp - now);
-                fprintf(stderr, "Warning: skipping a %f second gap\n", gap.count()/1.e6f);
+                fprintf(stderr, "Warning: skipping a %f second gap\n", gap.count()/1.e6);
                 realtime_offset -= (timestamp - now);
                 timestamp -= realtime_offset;
             }

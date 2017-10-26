@@ -127,7 +127,7 @@ public:
 
     void integrate_distance() {
         f_t dT = (T.v - last_position).norm();
-        if(dT > .01) {
+        if(dT > .01f) {
             total_distance += dT;
             last_position = T.v;
         }

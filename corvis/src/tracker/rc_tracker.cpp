@@ -15,7 +15,7 @@ RCTRACKER_API const char *rc_build_     = "BUILD: "   RC_STR(RC_BUILD);
 RCTRACKER_API const char *rc_version_   = "VERSION: " RC_STR(RC_VERSION);
 #endif
 
-std::unique_ptr<spdlog::logger> trace_log = std::make_unique<spdlog::logger>("rc_trace", std::make_shared<spdlog::sinks::null_sink_st> ());
+static std::unique_ptr<spdlog::logger> trace_log = std::make_unique<spdlog::logger>("rc_trace", std::make_shared<spdlog::sinks::null_sink_st> ());
 static const bool trace = false;
 
 const char *rc_version()

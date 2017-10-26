@@ -73,7 +73,10 @@ public:
  }
   matrix(const int size): storage(new f_t[size]), _rows(1), _cols(size), stride(size), maxrows(1), data(storage) { }
   matrix(const int nrows, const int ncols): storage(new f_t[nrows * ncols]), _rows(nrows), _cols(ncols), stride(ncols), maxrows(nrows), data((f_t *)storage) { }
-
+    matrix(const matrix &other) = delete;
+    matrix(matrix &&other) = default;
+    matrix &operator=(const matrix &other) = delete;
+    matrix &operator=(matrix &&other) = default;
     ~matrix() { if(storage) delete [] storage; }
 
     typedef Eigen::Map<Eigen::Matrix<f_t, Eigen::Dynamic, Eigen::Dynamic>, Eigen::Unaligned, Eigen::OuterStride<>> Map;

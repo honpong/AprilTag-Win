@@ -1,4 +1,6 @@
+#ifdef _WIN32
 #define RCTRACKER_API_EXPORTS
+#endif
 #include "rc_tracker.h"
 #include "rc_compat.h"
 #include "sensor_fusion.h"

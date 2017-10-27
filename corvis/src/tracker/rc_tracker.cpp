@@ -393,18 +393,14 @@ bool rc_configureQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy stra
     switch(strategy) {
         case rc_QUEUE_MINIMIZE_DROPS:
             tracker->queue.strategy = fusion_queue::latency_strategy::MINIMIZE_DROPS;
-            break;
+            return true;
 
         case rc_QUEUE_MINIMIZE_LATENCY:
             tracker->queue.strategy = fusion_queue::latency_strategy::MINIMIZE_LATENCY;
-            break;
-
-        default:
-            return false;
-
+            return true;
     }
 
-    return true;
+    return false;
 }
 
 bool rc_describeQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy * strategy)

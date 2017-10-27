@@ -43,9 +43,9 @@ public:
         const matrix &m;
         const size_t r, c, s;
         row_segment(const matrix &m_, size_t r_, size_t c_, size_t s_) : m(m_), r(r_), c(c_), s(s_) {
-            assert(0 <= r   && r   <  m._rows &&
-                   0 <= c   && c   <= m._cols &&
-                   0 <= c+s && c+s <= m._cols);
+            assert(0 <= r   && r   <  (size_t)m._rows &&
+                   0 <= c   && c   <= (size_t)m._cols &&
+                   0 <= c+s && c+s <= (size_t)m._cols);
         }
         const row_segment &operator=(f_t n) const {
             for (size_t i=0; i<s; i++) m.data[r*m.stride+c+i] = n;

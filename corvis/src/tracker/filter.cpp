@@ -725,8 +725,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         for(auto & k2 : kp2)
             prkpv2.emplace_back(preprocess_keypoint_intersect(camera_state2, feature_t{k2.x, k2.y},Rw2));
         for(tracker::feature_track & k1 : kp1) {
-            float second_best_score = DESCRIPTOR::good_score;
-            float best_score = DESCRIPTOR::good_score;
+            float second_best_score = DESCRIPTOR::bad_score;
+            float best_score = DESCRIPTOR::bad_score;
             float best_depth = 0;
             float best_error = 0;
             kp_pre_data pre1 = preprocess_keypoint_intersect(camera_state1, feature_t{k1.x, k1.y}, Rw1);
@@ -746,7 +746,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                 i++;
             }
             // If we have two candidates, just give up
-            if(best_depth && second_best_score == DESCRIPTOR::good_score) {
+            if(best_score >= DESCRIPTOR::good_score && second_best_score < DESCRIPTOR::good_score) {
                 k1.depth = best_depth;
                 k1.error = best_error;
             }

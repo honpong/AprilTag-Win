@@ -536,7 +536,6 @@ bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t 
 #define KEY_FRAME_FEAT_ID "id"
 #define KEY_FRAME_FEAT_X "x"
 #define KEY_FRAME_FEAT_Y "y"
-#define KEY_FRAME_FEAT_LEVEL "level"
 #define KEY_FRAME_FEAT_DESC "descriptor"
 #define KEY_FRAME_FEAT_DESC_RAW "raw"
 #define KEY_FRAME_FEAT_DESC_SIN "sin"
@@ -694,7 +693,6 @@ bool map_node::deserialize(const Value &json, map_node &node, uint64_t &max_load
 #define KEY_MAP_DBOW_INVERTED_INDICES "inverted_indices"
 #define KEY_MAP_DBOW_FEATURES "dbow_features"
 #define KEY_NODES "nodes"
-#define KEY_FEATURE_DESCRIPTOR "d"
 
 void mapper::serialize(rapidjson::Value &map_json, rapidjson::Document::AllocatorType &allocator) {
     Value version(MAPPER_SERIALIZED_VERSION);

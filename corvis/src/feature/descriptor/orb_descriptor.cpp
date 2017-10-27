@@ -188,7 +188,11 @@ const std::array<int, orb_descriptor::orb_half_patch_size + 1> orb_descriptor::i
 
     return umax;
 }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wglobal-constructors"
 const std::array<int, orb_descriptor::orb_half_patch_size + 1>& orb_descriptor::vUmax = orb_descriptor::initialize_umax();
+#pragma GCC diagnostic pop
 
 void orb_descriptor::ic_angle(float x, float y, const tracker::image& image)
 {

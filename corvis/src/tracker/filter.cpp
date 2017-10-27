@@ -676,9 +676,9 @@ static float keypoint_intersect(state_camera & camera1, state_camera & camera2, 
 
 static float keypoint_compare(const tracker::feature_track & t1, const tracker::feature_track & t2)
 {
-    fast_tracker::fast_feature<DESCRIPTOR> &f1 = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(t1.feature.get());
-    fast_tracker::fast_feature<DESCRIPTOR> &f2 = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(t2.feature.get());
-    return DESCRIPTOR::distance(f1.descriptor, f2.descriptor);
+    auto f1 = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t1.feature);
+    auto f2 = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t2.feature);
+    return DESCRIPTOR::distance(f1->descriptor, f2->descriptor);
 }
 
 bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data)

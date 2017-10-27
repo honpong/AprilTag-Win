@@ -210,8 +210,8 @@ void shave_tracker::prepTrackingData(std::vector<TrackingData>& trackingData, st
 {
      for(auto * pred : predictions) {
             TrackingData data;
-            fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(pred->feature.get());
-            data.patch = f.descriptor.descriptor.data();
+            auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(pred->feature);
+            data.patch = f->descriptor.descriptor.data();
             data.x_dx = pred->x == INFINITY ? INFINITY : pred->x + pred->dx;
             data.y_dy = pred->y == INFINITY ? INFINITY : pred->y + pred->dy;
             data.pred_x = pred->pred_x;
@@ -225,7 +225,6 @@ void shave_tracker::processTrackingResult(std::vector<tracker::feature_track *>&
      int i = 0;
      for(auto &tp : tracks) {
          auto &t = *tp;
-         fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(t.feature.get());
          xy &bestkp = tracked_features[i++];
          if(bestkp.x != INFINITY && t.x != INFINITY) {
              t.dx = bestkp.x - t.x;
@@ -272,8 +271,8 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
         f2_n=camera2.intrinsics.undistort_feature(camera2.intrinsics.normalize_feature(f2));
         p2_calibrated << f2_n.x(), f2_n.y(), 1;
         p2_cal_transformed = R2w*p2_calibrated + camera2.extrinsics.T.v;
-        fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(f2_group[i]->feature.get());
-        patches2[i] = f.descriptor.descriptor.data();
+        auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f2_group[i]->feature);
+        patches2[i] = f->descriptor.descriptor.data();
 
         p_kp2_transformed[i][0] = p2_cal_transformed(0); // todo : Amir : check if we can skip the v3;
         p_kp2_transformed[i][1] = p2_cal_transformed(1);
@@ -281,8 +280,8 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
     }
     //prepare p_kp1_transformed
     for(int i = 0; i < n1; i++) {
-        fast_tracker::fast_feature<DESCRIPTOR> &f = *static_cast<fast_tracker::fast_feature<DESCRIPTOR>*>(f1_group[i]->feature.get());
-        patches1[i] = f.descriptor.descriptor.data();
+        auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f1_group[i]->feature);
+        patches1[i] = f->descriptor.descriptor.data();
         depths1[i] = 0;
         errors1[i] = 0;
 

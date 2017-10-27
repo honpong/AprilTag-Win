@@ -488,7 +488,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<
             }};
     }   break;
     case rc_CALIBRATION_TYPE_POLYNOMIAL3: {
-        f_t kd_u, ru2 = rd2, dkd_u_dru2;
+        f_t kd_u = 0, ru2 = rd2, dkd_u_dru2 = 0;
         for (int i=0; i<4; i++) {
            kd_u =  1 + ru2 * (k.v[0] + ru2 * (k.v[1] + ru2 * k.v[2]));
            dkd_u_dru2 = k.v[0] + 2 * ru2 * (k.v[1] + 3 * ru2 * k.v[2]);

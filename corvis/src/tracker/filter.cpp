@@ -497,7 +497,7 @@ static size_t filter_available_feature_space(struct filter *f, state_camera &cam
     //leave space for the group
     space -= 6;
     if(space < 0) space = 0;
-    if(space > f->max_group_add)
+    if((size_t)space > f->max_group_add)
         space = f->max_group_add;
     return space;
 }

@@ -41,7 +41,7 @@ For new code, try to maintain the following:
 Please test all changes by replaying a non-trival capture on:
 
 - TM2 using the included replayer (see
-  [../src/movidius](src/movidius))
+  [src/movidius](../src/movidius))
 - In order of preference: Mac, Linux, and Windows using measure
 
 And verifying nothing is obviously broken or slow.

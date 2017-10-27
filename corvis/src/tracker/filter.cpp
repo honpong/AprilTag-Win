@@ -1104,6 +1104,7 @@ void filter_initialize(struct filter *f)
     f->catchup->state.copy_from(f->s);
 }
 
+//TODO: change the calibration parameters to floats
 void filter_deinitialize(struct filter *f)
 {
     for (size_t i = 0; i < f->s.cameras.children.size() && i < f->cameras.size(); i++) {

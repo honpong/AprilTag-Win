@@ -17,6 +17,17 @@ target_include_directories(vlfeat SYSTEM INTERFACE ../../ThirdParty/vlfeat-0.9.1
 target_compile_options(vlfeat PRIVATE $<$<BOOL:${MSVC}>:/wd4244>)
 set_target_properties(vlfeat PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+   add_compile_options(-Wall -Wextra)
+   add_compile_options(-Wdeprecated -Wfloat-equal -Wunreachable-code -Wswitch-enum  -Wunused-macros)
+   #add_compile_options(-Wweak-vtables -Wcast-align -Wextra-semi -Wdouble-promotion) # noisy, but should be considered in the future
+   add_compile_options(-Wno-missing-field-initializers -Wno-unused-parameter) # TODO: components of -Wextra that are not clean yet
+endif()
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang") # not supported by gcc
+   add_compile_options(-Wconditional-uninitialized -Wglobal-constructors -Wcovered-switch-default -Wunreachable-code-break -Wmissing-variable-declarations)
+endif()
+
 file(GLOB TRACKERI_HEADERS tracker/*.h)
 set(TRACKER_SOURCES
     tracker/sensor_fusion_queue.cpp

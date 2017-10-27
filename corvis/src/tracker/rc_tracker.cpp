@@ -9,6 +9,9 @@
 #include "sensor_data.h"
 #include <fstream>
 
+//We want these strings to be in the build but not in the header
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-variable-declarations"
 #define RC_STR_(x) #x
 #define RC_STR(x) RC_STR_(x)
 RCTRACKER_API const char *rc_copyright_ = "COPYRIGHT: Intel(r) RealSense(tm)";
@@ -16,6 +19,7 @@ RCTRACKER_API const char *rc_build_     = "BUILD: "   RC_STR(RC_BUILD);
 #ifdef RC_VERSION
 RCTRACKER_API const char *rc_version_   = "VERSION: " RC_STR(RC_VERSION);
 #endif
+#pragma GCC diagnostic pop
 
 static std::unique_ptr<spdlog::logger> trace_log = std::make_unique<spdlog::logger>("rc_trace", std::make_shared<spdlog::sinks::null_sink_st> ());
 static const bool trace = false;

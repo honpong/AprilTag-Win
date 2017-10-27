@@ -32,6 +32,8 @@ For new code, try to maintain the following:
 - Variable names should be informative whenever possible. Math
   variables can be short if the meaning is clear (e.g. `w` for angular
   velocity).
+- A detailed set of formatting rules can be found in our
+  [clang-format](../.clang-format) file.
 
 <a name="testing"></a>
 # Testing

@@ -35,8 +35,8 @@ int main(int c, char **v)
     const char *r_file = v[1], *l_file = v[2];
 
     const float fourty = 40*M_PI/180, S = std::sin(fourty/2) / M_SQRT2, C = std::cos(fourty/2) / M_SQRT2;
-    rc_Pose r_b_from_fe = {{ C, C, S, S}, { 0.160668f/2, 0.0256f, -0.01216f}};
-    rc_Pose l_b_from_fe = {{ C, C,-S,-S}, {-0.160668f/2, 0.0256f, -0.01216f}};
+    rc_Pose r_b_from_fe = {{{ C, C, S, S}}, {{ 0.160668f/2, 0.0256f, -0.01216f}}};
+    rc_Pose l_b_from_fe = {{{ C, C,-S,-S}}, {{-0.160668f/2, 0.0256f, -0.01216f}}};
 
     std::string r_json; if (!read_file(r_file, r_json)) { std::cerr << "Error reading " << r_file << "\n"; return 1; }
     std::string l_json; if (!read_file(l_file, l_json)) { std::cerr << "Error reading " << l_file << "\n"; return 1; }

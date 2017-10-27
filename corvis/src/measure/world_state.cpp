@@ -801,7 +801,6 @@ bool world_state::update_vertex_arrays(bool show_only_good)
     map_edge_vertex.clear();
     map_feature_vertex.clear();
     for(auto n : map_nodes) {
-        auto id = n.first;
         auto node = n.second;
         int alpha = 255;
         if(node.unlinked)
@@ -892,7 +891,6 @@ bool world_state::update_vertex_arrays(bool show_only_good)
     for(auto st : sensors) {
         int sensor_type = st.first;
         for(auto s : st.second) {
-            uint16_t sensor_id = s.first;
             transformation g = current_position*s.second.extrinsics;
             VertexData v;
             set_indexed_color(&v, sensor_type);

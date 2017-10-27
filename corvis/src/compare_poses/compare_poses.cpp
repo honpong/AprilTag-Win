@@ -18,7 +18,6 @@ int main(int argc, char ** argv)
         pose_sequence.load_from_file(argv[i]);
 
         benchmark_result result;
-        uint64_t         pose_count = 0;
         for(auto &pose : pose_sequence.tposes) {
             tpose gt_interp(pose.t);
             if(gt_sequence.get_pose(pose.t, gt_interp)) {

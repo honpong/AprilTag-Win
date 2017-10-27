@@ -267,7 +267,7 @@ class TemplatedVocabulary {
 
 template<typename T, int type>
 TemplatedVocabulary<T, type>::TemplatedVocabulary() :
-    m_k(0), m_L(0), m_nodes(nullptr) {}
+    m_nodes(nullptr), m_k(0), m_L(0) {}
 
 template<typename T, int type>
 constexpr ScoringType TemplatedVocabulary<T, type>::getScoringType() const {
@@ -453,7 +453,7 @@ int TemplatedVocabulary<T, type>::trainHKMeansStep(
         int level) {
     std::vector<Cluster> clusters;
 
-    if (corpus.size() <= m_k) {
+    if (corpus.size() <= static_cast<size_t>(m_k)) {
         // trivial case: one cluster per feature
         clusters.reserve(m_k);
         for (const auto* descriptor : corpus)

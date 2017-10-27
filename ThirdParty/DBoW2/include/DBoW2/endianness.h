@@ -56,7 +56,7 @@
 #include <algorithm>
 #include <cstring>
 
-static bool host_is_little_endian() {
+static inline bool host_is_little_endian() {
 #if HOST_IS_LITTLE_ENDIAN
     return true;
 #elif HOST_IS_BIG_ENDIAN
@@ -67,7 +67,7 @@ static bool host_is_little_endian() {
 #endif
 }
 
-static void le8toh(const uint8_t* src, int size, uint8_t* dst) {
+static inline void le8toh(const uint8_t* src, int size, uint8_t* dst) {
     if (host_is_little_endian()) {
         memcpy(dst, src, size * sizeof(uint8_t));
     } else {

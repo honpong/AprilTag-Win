@@ -491,9 +491,9 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     return found_feats;
 }
 
-static int filter_available_feature_space(struct filter *f, state_camera &camera)
+static size_t filter_available_feature_space(struct filter *f, state_camera &camera)
 {
-    int space = f->store.maxstatesize - f->s.statesize;
+    auto space = f->store.maxstatesize - f->s.statesize;
     //leave space for the group
     space -= 6;
     if(space < 0) space = 0;

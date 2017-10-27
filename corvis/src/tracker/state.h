@@ -44,7 +44,7 @@ public:
 class state_leaf_base {
     friend class state_vision;
 public:
-    state_leaf_base(const char *name_, state_node::node_type type_, int index_, int size_) : name(name_), type(type_), index(index_), size(size_) {}
+    state_leaf_base(const char *name_, state_node::node_type type_, int index_, int size_) : name(name_), index(index_), type(type_), size(size_) {}
     inline bool single_index() const { return size == 1; }
     const char *name;
     int index;
@@ -72,7 +72,7 @@ public:
         for(const auto &c : children)
             c->print_matrix_with_state_labels(state, nt);
     }
-    
+
     int remap(int i, covariance &cov, node_type nt) {
         if (estimate)
             for(auto &c : children)
@@ -584,6 +584,9 @@ protected:
     sensor_clock::time_point current_time;
 private:
     f_t gravity_magnitude = (f_t)9.80665;
+
+    using state_branch<state_node*>::print_matrix_with_state_labels; // explicitly hide; we export our own above
+    using state_branch<state_node *>::remap; // explicitly hide; we export our own above
 };
 
 #endif

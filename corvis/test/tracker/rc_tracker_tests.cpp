@@ -21,7 +21,7 @@ rc_Tracker * create_default()
 
     rc_Extrinsics identity;
     identity.pose_m = rc_POSE_IDENTITY;
-    identity.variance_m2 = {{1e-7f, 1e-7f, 1e-7f}, {1e-7f, 1.e-7f, 1.e-7f}};
+    identity.variance_m2 = {{{1e-7f, 1e-7f, 1e-7f}}, {{1e-7f, 1.e-7f, 1.e-7f}}};
 
     rc_AccelerometerIntrinsics accelerometer_intrinsics = {};
     EXPECT_TRUE(rc_configureAccelerometer(tracker, 0, &identity, &accelerometer_intrinsics));

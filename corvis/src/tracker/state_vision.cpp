@@ -175,7 +175,7 @@ void state_vision::reset()
     state_motion::reset();
 }
 
-int state_vision::feature_count() const
+size_t state_vision::feature_count() const
 {
     int res = 0;
     for (auto &camera : cameras.children) res += camera->feature_count();
@@ -193,7 +193,7 @@ void state_vision::enable_orientation_only(bool _remap)
     state_motion::enable_orientation_only(_remap);
 }
 
-int state_camera::feature_count() const
+size_t state_camera::feature_count() const
 {
     int count = 0;
     for(auto *g : groups.children)

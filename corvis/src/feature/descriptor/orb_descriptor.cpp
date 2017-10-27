@@ -68,7 +68,7 @@ orb_descriptor::orb_descriptor(float x, float y, const tracker::image &image)
     center[static_cast<int>(lrintf(pattern[idx].x*sin_ + pattern[idx].y*cos_))*step + \
            static_cast<int>(lrintf(pattern[idx].x*cos_ - pattern[idx].y*sin_))]
 
-    for (int i = 0; i < sizeof(descriptor); ++i, pattern += 16)
+    for (size_t i = 0; i < sizeof(descriptor); ++i, pattern += 16)
     {
         int t0, t1, val;
         t0 = GET_VALUE(0);
@@ -145,11 +145,11 @@ orb_descriptor::raw orb_descriptor::raw::mean(
     avg.fill(0);
     if (items.empty()) return avg;
 
-    std::array<int, sizeof(raw) * 8> counters = {0};
+    std::array<int, sizeof(raw) * 8> counters = {};
     for (auto* item : items) {
         auto counter_it = counters.begin();
         for (uint64_t pack : *item) {
-            for (int i = 0; i < sizeof(uint64_t) * 8; ++i, ++counter_it) {
+            for (size_t i = 0; i < sizeof(uint64_t) * 8; ++i, ++counter_it) {
                 *counter_it += (pack & ((uint64_t)1 << i)) >> i;
             }
         }
@@ -157,7 +157,7 @@ orb_descriptor::raw orb_descriptor::raw::mean(
     const int half = items.size() / 2;
     auto counter_it = counters.begin();
     for (uint64_t& pack : avg) {
-        for (int i = 0; i < sizeof(uint64_t) * 8; ++i, ++counter_it) {
+        for (size_t i = 0; i < sizeof(uint64_t) * 8; ++i, ++counter_it) {
             pack |= static_cast<uint64_t>(*counter_it > half) << i;
         }
     }

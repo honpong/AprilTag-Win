@@ -27,7 +27,7 @@ TEST(Prediction, QuaternionExp)
     for (int i=0; i<100; i++) {
         rc_Vector w = {{r(gen), r(gen), r(gen)}};
         rotation_vector W(w.x,w.y,w.z);
-        rc_Pose p = { rc_quaternionExp(w), rc_Vector{0,0,0} };
+        rc_Pose p = { rc_quaternionExp(w), rc_Vector{{0,0,0}} };
         transformation P = to_transformation(p);
         EXPECT_QUATERNION_NEAR(to_quaternion(W), P.Q, F_T_EPS);
     }
@@ -55,7 +55,6 @@ TEST(Prediction, Predict)
         s.a.v = v3(r(gen), r(gen), r(gen));
 
         transformation t0_(s.Q.v, s.T.v);
-        rc_Pose p0_ = to_rc_Pose(t0_);
         rc_PoseVelocity v; rc_PoseAcceleration a;
         rc_Pose p0 = rc_getPose(rc.get(), &v, &a, rc_DATA_PATH_SLOW).pose_m;
         transformation t0 = to_transformation(p0);

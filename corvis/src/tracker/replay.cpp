@@ -348,7 +348,7 @@ void replay::start(string map_filename)
                         is_stereo = true;
                         rc_configureStereo(tracker, 0, 1);
                     }
-                    packet_stereo_raw_t *ip = (packet_stereo_raw_t *)packet;
+                    auto *ip = (packet_stereo_raw_t *)packet;
 
                     if (ip->format == rc_FORMAT_GRAY8) {
                         rc_receiveStereo(tracker, packet->header.sensor_id, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
@@ -362,7 +362,8 @@ void replay::start(string map_filename)
                 }
                 case packet_accelerometer:
                 {
-                    const rc_Vector acceleration_m__s2 = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
+                    auto *p = (packet_accelerometer_t *)packet;
+                    const rc_Vector acceleration_m__s2 = {{ p->a[0], p->a[1], p->a[2] }};
 
                     if(accel_decimate && data_timestamp < last_accel) break;
                     if(last_accel == sensor_clock::time_point()) last_accel = sensor_clock::micros_to_tp(header.time);
@@ -373,7 +374,8 @@ void replay::start(string map_filename)
                 }
                 case packet_gyroscope:
                 {
-                    const rc_Vector angular_velocity_rad__s = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
+                    auto *p = (packet_gyroscope_t *)packet;
+                    const rc_Vector angular_velocity_rad__s = {{ p->w[0], p->w[1], p->w[2] }};
 
                     if(gyro_decimate && data_timestamp < last_gyro) break;
                     if(last_gyro == sensor_clock::time_point()) last_gyro = sensor_clock::micros_to_tp(header.time);
@@ -385,7 +387,7 @@ void replay::start(string map_filename)
                 case packet_imu:
                 {
                     auto imu = (packet_imu_t *)packet;
-                    const rc_Vector acceleration_m__s2 = { imu->a[0], imu->a[1], imu->a[2] }, angular_velocity_rad__s = { imu->w[0], imu->w[1], imu->w[2] };
+                    const rc_Vector acceleration_m__s2 = {{ imu->a[0], imu->a[1], imu->a[2] }}, angular_velocity_rad__s = {{ imu->w[0], imu->w[1], imu->w[2] }};
                     rc_receiveAccelerometer(tracker, packet->header.sensor_id, packet->header.time, acceleration_m__s2);
                     rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s);
 

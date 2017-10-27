@@ -41,8 +41,8 @@ public:
     f_t &operator() (const int i, const int j) const { assert(i >= 0 && j >= 0 && i < _rows && j < _cols); return data[i * stride + j]; }
     struct row_segment {
         const matrix &m;
-        const int r, c, s;
-        row_segment(const matrix &m_, int r_, int c_, int s_) : m(m_), r(r_), c(c_), s(s_) {
+        const size_t r, c, s;
+        row_segment(const matrix &m_, size_t r_, size_t c_, size_t s_) : m(m_), r(r_), c(c_), s(s_) {
             assert(0 <= r   && r   <  m._rows &&
                    0 <= c   && c   <= m._cols &&
                    0 <= c+s && c+s <= m._cols);
@@ -58,7 +58,7 @@ public:
             return *this;
         }
     };
-    row_segment row_segment(int row, int col, int size) const { return {*this, row, col, size}; }
+    row_segment row_segment(size_t row, size_t col, size_t size) const { return {*this, row, col, size}; }
 
  template<int R, int C>
  matrix(f_t (&d)[R][C]) : storage(NULL), _rows(0), _cols(0), stride(C), maxrows(R), data(&d[0][0]) {}

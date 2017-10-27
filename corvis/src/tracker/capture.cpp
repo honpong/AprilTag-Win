@@ -113,6 +113,7 @@ void capture::write(std::unique_ptr<sensor_data> data)
         case rc_SENSOR_TYPE_STEREO:
             //TODO support stereo capture
             fprintf(stderr, "Stereo capture not yet supported\n");
+            break;
 
         case rc_SENSOR_TYPE_THERMOMETER:
             write_temperature_data(data->id, data->time_us, data->temperature_C);

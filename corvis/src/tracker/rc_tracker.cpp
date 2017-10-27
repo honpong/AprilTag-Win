@@ -24,11 +24,6 @@ const char *rc_version()
     return rc_build_;
 }
 
-static void rc_trace(const rc_Vector p)
-{
-    trace_log->info("{} {} {}", p.x, p.y, p.z);
-}
-
 static void rc_trace(const rc_Matrix p)
 {
     trace_log->info("{} {} {}; {} {} {}; {} {} {}", p.v[0][0], p.v[0][1], p.v[0][2],  p.v[1][0], p.v[1][1], p.v[1][2],  p.v[2][0], p.v[2][1], p.v[2][2]);
@@ -444,7 +439,7 @@ protected:
     void flush() override {}
 };
 
-const std::array<rc_MessageLevel, 7> rc_callback_sink_st::rc_levels = {
+const std::array<rc_MessageLevel, 7> rc_callback_sink_st::rc_levels {{
     rc_MESSAGE_TRACE, // trace    = 0,
     rc_MESSAGE_DEBUG, // debug    = 1,
     rc_MESSAGE_INFO,  // info     = 2,
@@ -452,7 +447,7 @@ const std::array<rc_MessageLevel, 7> rc_callback_sink_st::rc_levels = {
     rc_MESSAGE_ERROR, // err      = 4,
     rc_MESSAGE_ERROR, // critical = 5,
     rc_MESSAGE_NONE,  // off      = 6
-};
+}};
 
 RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback callback, void *handle, rc_MessageLevel maximum_log_level)
 {

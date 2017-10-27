@@ -281,18 +281,18 @@ bool replay::run()
                 }
             }   break;
             case packet_accelerometer: {
-                const rc_Vector acceleration_m__s2 = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
+                const rc_Vector acceleration_m__s2 = {{ ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] }};
                 if(!rc_receiveAccelerometer(tracker, packet->header.sensor_id, packet->header.time, acceleration_m__s2))
                     unconfigured_data.insert(data_pair("accelerometer", packet->header.sensor_id));
             }   break;
             case packet_gyroscope: {
-                const rc_Vector angular_velocity_rad__s = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
+                const rc_Vector angular_velocity_rad__s = {{ ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] }};
                 if(!rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s))
                     unconfigured_data.insert(data_pair("gyroscope", packet->header.sensor_id));
             }   break;
             case packet_imu: {
                 auto imu = (packet_imu_t *)packet;
-                const rc_Vector acceleration_m__s2 = { imu->a[0], imu->a[1], imu->a[2] }, angular_velocity_rad__s = { imu->w[0], imu->w[1], imu->w[2] };
+                const rc_Vector acceleration_m__s2 = {{ imu->a[0], imu->a[1], imu->a[2] }}, angular_velocity_rad__s = {{ imu->w[0], imu->w[1], imu->w[2] }};
                 if(!rc_receiveAccelerometer(tracker, packet->header.sensor_id, packet->header.time, acceleration_m__s2))
                     unconfigured_data.insert(data_pair("accelerometer", packet->header.sensor_id));
                 if(!rc_receiveGyro(tracker, packet->header.sensor_id, packet->header.time, angular_velocity_rad__s))
@@ -310,7 +310,7 @@ bool replay::run()
                 }
             }   break;
         }
-        rc_PoseTime endPoseTime = rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);
+        rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);
     }
 
     rc_PoseTime endPoseTime = rc_getPose(tracker,nullptr,nullptr,rc_DATA_PATH_SLOW);

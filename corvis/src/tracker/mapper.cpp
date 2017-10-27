@@ -241,7 +241,7 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
         return loop_closing_candidates;
 
     // keep candidates with at least min_num_shared_words
-    int min_num_shared_words = static_cast<int>(max_num_shared_words * 0.8f);
+    size_t min_num_shared_words = static_cast<int>(max_num_shared_words * 0.8f);
     std::vector<std::pair<mapper::nodeid, float> > dbow_scores;
     static_assert(orb_vocabulary::scoring_type == DBoW2::ScoringType::L1_NORM,
                   "orb_vocabulary does not use L1 norm");
@@ -325,7 +325,7 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
                 std::vector<unsigned int> v;
                 v.reserve(N);
                 for (size_t i = 0; i < N; ++i) v.push_back(i);
-                return std::move(v);
+                return v;
             };
             std::vector<unsigned int> current_keypoint_indexes = fill_with_indices(current_frame->keypoints.size());
             std::vector<unsigned int> candidate_keypoint_indexes = fill_with_indices(candidate_frame->keypoints.size());
@@ -382,9 +382,9 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
         return false;
 
     bool is_relocalized = false;
-    const int min_num_inliers = 12;
-    int best_num_inliers = 0;
-    int i = 0;
+    const size_t min_num_inliers = 12;
+    size_t best_num_inliers = 0;
+    size_t i = 0;
 
     std::vector<std::pair<nodeid, float>> candidate_nodes =
         find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc.get());
@@ -703,7 +703,7 @@ void mapper::serialize(rapidjson::Value &map_json, rapidjson::Document::Allocato
 
     // add map nodes
     Value nodes_json(kArrayType);
-    for (int i = 0; i < nodes.size(); i++) {
+    for (size_t i = 0; i < nodes.size(); i++) {
         Value node_json(kObjectType);
         nodes[i].serialize(node_json, allocator);
         nodes_json.PushBack(node_json, allocator);

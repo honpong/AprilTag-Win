@@ -643,7 +643,6 @@ void map_node::serialize(Value &json, Document::AllocatorType & allocator) {
         features_json.PushBack(feature_json, allocator);
     }
     json.AddMember(KEY_NODE_FEATURES, features_json, allocator);
-    json.AddMember(KEY_NODE_STATUS, (uint8_t)status, allocator);
 }
 
 bool map_node::deserialize(const Value &json, map_node &node, uint64_t &max_loaded_featid) {
@@ -679,7 +678,7 @@ bool map_node::deserialize(const Value &json, map_node &node, uint64_t &max_load
         uint64_t map_index = feature_json[KEY_INDEX].GetUint64();
         RETURN_IF_FAILED(map_feature::deserialize(feature_json, node.features[map_index], max_loaded_featid))
     }
-    node.status = static_cast<node_status>(json[KEY_NODE_STATUS].GetUint());
+    node.status = node_status::finished;
     return true;
 }
 

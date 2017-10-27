@@ -1135,9 +1135,10 @@ void filter_deinitialize(struct filter *f)
             camera_sensor.intrinsics.k3 = camera_state.intrinsics.k.v[2];
             camera_sensor.intrinsics.k4 = camera_state.intrinsics.k.v[3];
             break;
-        default:
-        case rc_CALIBRATION_TYPE_UNKNOWN:
         case rc_CALIBRATION_TYPE_UNDISTORTED:
+            break;
+        case rc_CALIBRATION_TYPE_UNKNOWN:
+            assert(0);
             break;
         }
 

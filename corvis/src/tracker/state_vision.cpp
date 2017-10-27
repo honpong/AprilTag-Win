@@ -404,10 +404,11 @@ feature_t state_vision_intrinsics::undistort_feature(const feature_t &feat_d) co
 
 f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, m<1,2> *dkd_u_dfeat_u, m<1,4> *dkd_u_dk) const
 {
-    f_t kd_u, ru2, ru = std::sqrt(ru2 = feat_u.squaredNorm());
+    f_t kd_u = 1, ru2, ru = std::sqrt(ru2 = feat_u.squaredNorm());
     switch (type) {
-    default:
     case rc_CALIBRATION_TYPE_UNKNOWN:
+        assert(0);
+        break;
     case rc_CALIBRATION_TYPE_UNDISTORTED:
         kd_u = 1;
         if (dkd_u_dfeat_u)
@@ -460,10 +461,11 @@ f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, m<1,
 
 f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<1,2> *dku_d_dfeat_d, m<1,4> *dku_d_dk) const
 {
-    f_t ku_d, rd2, rd = sqrt(rd2 = feat_d.squaredNorm());
+    f_t ku_d = 1, rd2, rd = sqrt(rd2 = feat_d.squaredNorm());
     switch (type) {
-    default:
     case rc_CALIBRATION_TYPE_UNKNOWN:
+        assert(0);
+        break;
     case rc_CALIBRATION_TYPE_UNDISTORTED:
         ku_d = 1;
         if (dku_d_dfeat_d)

@@ -1008,7 +1008,7 @@ void filter_initialize(struct filter *f)
         camera_state.feature_tracker = std::make_unique<fast_tracker>();
 #endif
 #else // MYRIAD2
-        if (1)
+        if (/* DISABLES CODE */ (1))
             camera_state.feature_tracker = std::make_unique<fast_tracker>();
 #ifdef HAVE_IPP
         else

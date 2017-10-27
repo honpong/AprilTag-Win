@@ -98,7 +98,7 @@ void mapper::get_triangulation_geometry(const nodeid group_id, const tracker::fe
     }
 }
 
-void mapper::add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const DESCRIPTOR& descriptor, const v3& pBref)
+void mapper::add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, const v3& pBref)
 {
     map_node &ref_node = nodes[group_id];
     state_extrinsics *extrinsics = camera_extrinsics[ref_node.camera_id];
@@ -106,34 +106,32 @@ void mapper::add_triangulated_feature_to_group(const nodeid group_id, const uint
     v3 pCref = G_CB*pBref;
     // a good 3d point has to be in front of the camera
     if (pCref[2] > 0) {
-        ref_node.add_feature(feature_id, pBref, 1.e-3f*1.e-3f, descriptor, feature_type::triangulated);
-        features_dbow[feature_id] = group_id;
+        ref_node.add_feature(feature, pBref, 1.e-3f*1.e-3f, feature_type::triangulated);
+        features_dbow[feature->id] = group_id;
     }
 }
 
-void map_node::add_feature(const uint64_t id, const v3 &pos, const float variance,
-                           const DESCRIPTOR& descriptor, const feature_type type) {
+void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
+                           const v3 &pos, const float variance, const feature_type type) {
     map_feature mf;
-    mf.id = id;
     mf.position = pos;
     mf.variance = variance;
-    mf.descriptor = make_shared<DESCRIPTOR>(descriptor);
+    mf.feature = feature;
     mf.type = type;
-    features.emplace(id, mf);
+    features.emplace(feature->id, mf);
 }
 
 void map_node::set_feature(const uint64_t id, const v3 &pos, const float variance, const feature_type type)
 {
     features[id].position = pos;
     features[id].variance = variance;
-    features[id].id = id;
     features[id].type = type;
 }
 
-void mapper::add_feature(nodeid groupid, uint64_t id, const v3 &pos, const float variance,
-                         const DESCRIPTOR& descriptor, const feature_type type) {
-    nodes[groupid].add_feature(id, pos, variance, descriptor, type);
-    features_dbow[id] = groupid;
+void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
+                         const v3 &pos, const float variance, const feature_type type) {
+    nodes[groupid].add_feature(feature, pos, variance, type);
+    features_dbow[feature->id] = groupid;
 }
 
 void mapper::set_feature(nodeid groupid, uint64_t id, const v3 &pos, const float variance,
@@ -513,10 +511,10 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
             v3 p3dC_initial = G_CB_neighbor * f.second.position;
             feature_t kpn_initial = p3dC_initial.segment<2>(0)/p3dC_initial.z();
             feature_t kpd_initial = intrinsics_neighbor->unnormalize_feature(intrinsics_neighbor->distort_feature(kpn_initial));
-
+            f.second.feature->x = kpd_initial.x();
+            f.second.feature->y = kpd_initial.y();
             // create feature track
-            tracks.emplace_back(make_shared<fast_tracker::fast_feature<DESCRIPTOR>>(f.second.id, kpd_initial.x(), kpd_initial.y(), *f.second.descriptor),
-                                kpd.x(), kpd.y(), 0);
+            tracks.emplace_back(f.second.feature, kpd.x(), kpd.y(), 0);
             tracks.back().depth = p3dC_initial.z();
         }
         map_feature_tracks.emplace_back(neighbor.first, std::move(tracks));
@@ -569,10 +567,11 @@ void map_edge::deserialize(const Value &json, map_edge &edge) {
 #define KEY_FEATURE_ID "id"
 #define KEY_FEATURE_VARIANCE "variance"
 #define KEY_FEATURE_POSITION "position"
+#define KEY_FEATURE_INITIAL_XY "xy"
 #define KEY_FRAME_FEAT_PATCH "patch"
 #define KEY_FRAME_FEAT_DESC_RAW "raw"
 void map_feature::serialize(Value &feature_json, Document::AllocatorType &allocator) {
-    feature_json.AddMember(KEY_FEATURE_ID, id, allocator);
+    feature_json.AddMember(KEY_FEATURE_ID, feature->id, allocator);
     feature_json.AddMember(KEY_FEATURE_VARIANCE, variance, allocator);
 
     Value pos_json(kArrayType);
@@ -581,10 +580,16 @@ void map_feature::serialize(Value &feature_json, Document::AllocatorType &alloca
     pos_json.PushBack(position[2], allocator);
     feature_json.AddMember(KEY_FEATURE_POSITION, pos_json, allocator);
 
-    // add descriptor
+    // add feature initial coordinates
+    Value xy_json(kArrayType);
+    xy_json.PushBack(feature->x, allocator);
+    xy_json.PushBack(feature->y, allocator);
+    feature_json.AddMember(KEY_FEATURE_INITIAL_XY, xy_json, allocator);
+
+    // add feature descriptor
     Value desc_json(kObjectType);
     Value desc_raw_json(kArrayType);
-    for (auto v : descriptor->descriptor)
+    for (auto v : feature->descriptor.descriptor)
         desc_raw_json.PushBack(v, allocator);
 
     desc_json.AddMember(KEY_FRAME_FEAT_DESC_RAW, desc_raw_json, allocator);
@@ -592,8 +597,8 @@ void map_feature::serialize(Value &feature_json, Document::AllocatorType &alloca
 }
 
 bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t &max_loaded_featid) {
-    feature.id = json[KEY_FEATURE_ID].GetUint64();
-    if (feature.id > max_loaded_featid) max_loaded_featid = feature.id;
+    uint64_t id = json[KEY_FEATURE_ID].GetUint64();
+    if (id > max_loaded_featid) max_loaded_featid = id;
 
     feature.variance = (float)json[KEY_FEATURE_VARIANCE].GetDouble();
     const Value &pos_json = json[KEY_FEATURE_POSITION];
@@ -603,6 +608,14 @@ bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t 
             feature.position[j] = (f_t)pos_json[j].GetDouble();
         }
 
+    // get feature initial coordinates
+    const Value &xy_json = json[KEY_FEATURE_INITIAL_XY];
+    RETURN_IF_FAILED(xy_json.IsArray())
+            RETURN_IF_FAILED(xy_json.Size() == 2)
+            v2 xy;
+            for (SizeType j = 0; j < 2; ++j) {
+                xy[j] = (f_t) xy_json[j].GetDouble();
+            }
     // get descriptor values
     const Value &desc_json = json[KEY_FRAME_FEAT_PATCH];
     const Value &desc_raw_json = desc_json[KEY_FRAME_FEAT_DESC_RAW];
@@ -612,7 +625,7 @@ bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t 
     for (SizeType d = 0; d < desc_raw_json.Size(); d++)
         raw_desc[d] = static_cast<unsigned char>(desc_raw_json[d].GetUint64());
 
-    feature.descriptor = std::make_shared<patch_descriptor>(raw_desc);
+    feature.feature = std::make_shared<fast_tracker::fast_feature<patch_descriptor>>(id, xy[0], xy[1], raw_desc);
     return true;
 }
 

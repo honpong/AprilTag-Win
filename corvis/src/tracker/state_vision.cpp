@@ -261,7 +261,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
                 float mean_error_point = estimate_3d_point(tracks_2d,camera_poses, point_3d);
                 if (mean_error_point <  2*sigma) {
                     auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature);
-                    map->add_triangulated_feature_to_group(ref_group_id, f->id, f->descriptor, point_3d);
+                    map->add_triangulated_feature_to_group(ref_group_id, f, point_3d);
                 }
                 else
                     log.debug("{}/{}) Reprojection error too large for triangulated point with id: {}", t.feature->id);
@@ -346,7 +346,7 @@ void state_vision::update_map(mapper *map)
                         map->set_feature(g->id, f->track.feature->id, f3D, variance_meters);
                     } else {
                         auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->track.feature);
-                        map->add_feature(g->id, feature->id, f3D, variance_meters, feature->descriptor);
+                        map->add_feature(g->id, feature, f3D, variance_meters);
                     }
                     f->is_in_map = true;
                 }

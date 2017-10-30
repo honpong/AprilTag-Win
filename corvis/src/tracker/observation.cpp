@@ -218,9 +218,9 @@ void observation::innovation_covariance_hook(const matrix &cov, int index)
 
 void observation_vision_feature::innovation_covariance_hook(const matrix &cov, int index)
 {
-    feature->innovation_variance_x = cov(index, index);
-    feature->innovation_variance_y = cov(index + 1, index + 1);
-    feature->innovation_variance_xy = cov(index, index +1);
+    track.innovation_variance_x = cov(index, index);
+    track.innovation_variance_y = cov(index + 1, index + 1);
+    track.innovation_variance_xy = cov(index, index +1);
     observation::innovation_covariance_hook(cov, index);
 }
 

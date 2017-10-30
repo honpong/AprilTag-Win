@@ -17,9 +17,9 @@
 f_t state_vision_feature::initial_depth_meters;
 f_t state_vision_feature::initial_var;
 f_t state_vision_feature::initial_process_noise;
-f_t state_vision_feature::outlier_thresh;
-f_t state_vision_feature::outlier_reject;
-f_t state_vision_feature::outlier_lost_reject;
+f_t state_vision_track::outlier_thresh;
+f_t state_vision_track::outlier_reject;
+f_t state_vision_track::outlier_lost_reject;
 f_t state_vision_feature::max_variance;
 
 state_vision_feature::state_vision_feature(const tracker::feature_track &track_, state_vision_group &group_):
@@ -237,14 +237,14 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
                 // Drop tracking failures
                 ++track_fail;
                 if(i->is_good()) ++useful_drops;
-                if(i->is_good() && i->outlier < i->outlier_lost_reject)
+                if(i->is_good() && t->outlier < t->outlier_lost_reject)
                     i->make_lost();
                 else
                     i->drop();
             } else {
                 // Drop outliers
                 if(i->status == feature_normal) ++total_feats;
-                if(i->outlier > i->outlier_reject) {
+                if(t->outlier > t->outlier_reject) {
                     i->status = feature_empty;
                     ++outliers;
                 }

@@ -113,7 +113,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     std::shared_ptr<tracker::feature> feature;
-    f_t outlier = 0;
     v2 initial;
     state_vision_group &group;
     v3 body = v3(0, 0, 0);
@@ -127,9 +126,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t initial_depth_meters;
     static f_t initial_var;
     static f_t initial_process_noise;
-    static f_t outlier_thresh;
-    static f_t outlier_reject;
-    static f_t outlier_lost_reject;
     static f_t max_variance;
 
     state_vision_feature(const tracker::feature_track &track, state_vision_group &group);
@@ -189,7 +185,11 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     state_vision_feature &feature;
     tracker::feature_track track;
+    f_t outlier = 0;
     f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
+    static f_t outlier_thresh;
+    static f_t outlier_reject;
+    static f_t outlier_lost_reject;
     
     state_vision_track(state_vision_feature &f, tracker::feature_track &t): feature(f), track(t) {}
 };

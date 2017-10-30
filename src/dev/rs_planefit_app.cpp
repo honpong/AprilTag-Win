@@ -70,7 +70,7 @@ int capture_frames(const std::string& path, const int image_set_size, const int 
             }
         }
 
-        while (image_set.size() > image_set_size) image_set.pop_front();
+        while ((int)image_set.size() > image_set_size) image_set.pop_front();
         printf("\r image set size %d    ", (int)image_set.size());
 
         if (!win.imshow(image_set.back().displ.get())) break;

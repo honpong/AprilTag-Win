@@ -60,28 +60,28 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time, bool
     bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
     f_t speed = f->s.V.v.norm();
-    if(speed > 3.) { //1.4m/s is normal walking speed
+    if(speed > 3.f) { //1.4m/s is normal walking speed
         if (!old_speedfail) f->log->info("Velocity {} m/s exceeds max bound", speed);
         f->speed_failed = true;
-    } else if(speed > 2.) {
+    } else if(speed > 2.f) {
         if (!f->speed_warning) f->log->info("High velocity ({} m/s)", speed);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t accel = f->s.a.v.norm();
-    if(accel > 9.8) { //1g would saturate sensor anyway
+    if(accel > 9.8f) { //1g would saturate sensor anyway
         if (!old_speedfail) f->log->info("Acceleration exceeds max bound");
         f->speed_failed = true;
-    } else if(accel > 5.) { //max in mine is 6.
+    } else if(accel > 5.f) { //max in mine is 6.
         if (!f->speed_warning) f->log->info("High acceleration ({} m/s^2)", accel);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t ang_vel = f->s.w.v.norm();
-    if(ang_vel > 5.) { //sensor saturation - 250/180*pi
+    if(ang_vel > 5.f) { //sensor saturation - 250/180*pi
         if (!old_speedfail) f->log->info("Angular velocity exceeds max bound");
         f->speed_failed = true;
-    } else if(ang_vel > 2.) { // max in mine is 1.6
+    } else if(ang_vel > 2.f) { // max in mine is 1.6
         if (!f->speed_warning) f->log->info("High angular velocity");
         f->speed_warning = true;
         f->speed_warning_time = time;
@@ -372,13 +372,13 @@ static std::unique_ptr<sensor_data> filter_aligned_depth_to_camera(const sensor_
           d_center_x       = (intrinsics.c_x_px - intrinsics.width_px  / 2. + .5) / intrinsics.height_px,
           d_center_y       = (intrinsics.c_y_px - intrinsics.height_px / 2. + .5) / intrinsics.height_px;
 
-    float i_Cx = d_center_x       * i_height + (i_width  - 1) / 2.,
-          i_Cy = d_center_y       * i_height + (i_height - 1) / 2.,
+    float i_Cx = d_center_x       * i_height + (i_width  - 1) / 2.f,
+          i_Cy = d_center_y       * i_height + (i_height - 1) / 2.f,
           i_Fx = d_focal_length_x * i_height,
           i_Fy = d_focal_length_y * i_height;
 
-    float o_Cx = camera_state.intrinsics.center.v.x()   * o_height + (o_width  - 1) / 2.,
-          o_Cy = camera_state.intrinsics.center.v.y()   * o_height + (o_height - 1) / 2.,
+    float o_Cx = camera_state.intrinsics.center.v.x()   * o_height + (o_width  - 1) / 2.f,
+          o_Cy = camera_state.intrinsics.center.v.y()   * o_height + (o_height - 1) / 2.f,
           o_Fx = camera_state.intrinsics.focal_length.v * o_height,
           o_Fy = camera_state.intrinsics.focal_length.v * o_height;
 
@@ -497,7 +497,7 @@ static size_t filter_available_feature_space(struct filter *f, state_camera &cam
     //leave space for the group
     space -= 6;
     if(space < 0) space = 0;
-    if(space > f->max_group_add)
+    if((size_t)space > f->max_group_add)
         space = f->max_group_add;
     return space;
 }
@@ -606,18 +606,16 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 static bool l_l_intersect(const v3& p1, const v3& p2, const v3& p3, const v3& p4, v3 & pa, v3 & pb)
 {
     v3 p13,p43,p21;
-    double d1343,d4321,d1321,d4343,d2121;
-    double numer,denom;
-
-    f_t eps = 1e-14;
+    f_t d1343,d4321,d1321,d4343,d2121;
+    f_t numer,denom;
 
     p13 = p1 - p3;
     p43 = p4 - p3;
-    if (fabs(p43[0]) < eps && fabs(p43[1]) < eps && fabs(p43[2]) < eps)
+    if (fabs(p43[0]) < F_T_EPS && fabs(p43[1]) < F_T_EPS && fabs(p43[2]) < F_T_EPS)
       return false;
 
     p21 = p2 - p1;
-    if (fabs(p21[0]) < eps && fabs(p21[1]) < eps && fabs(p21[2]) < eps)
+    if (fabs(p21[0]) < F_T_EPS && fabs(p21[1]) < F_T_EPS && fabs(p21[2]) < F_T_EPS)
       return false;
 
     d1343 = p13.dot(p43); //p13.x * p43.x + p13.y * p43.y + p13.z * p43.z;
@@ -627,7 +625,7 @@ static bool l_l_intersect(const v3& p1, const v3& p2, const v3& p3, const v3& p4
     d2121 = p21.dot(p21); //p21.x * p21.x + p21.y * p21.y + p21.z * p21.z;
 
     denom = d2121 * d4343 - d4321 * d4321;
-    if (fabs(denom) < eps)
+    if (fabs(denom) < F_T_EPS)
       return false;
     numer = d1343 * d4321 - d1321 * d4343;
 
@@ -667,7 +665,7 @@ static float keypoint_intersect(state_camera & camera1, state_camera & camera2, 
     // TODO: set minz and maxz or at least bound error when close to / far away from camera
     float error = (pa - pb).norm();
     intersection_error_percent = error/cam1_intersect[2];
-    if(error/cam1_intersect[2] > .05)
+    if(error/cam1_intersect[2] > .05f)
         return 0;
 
     float depth = cam1_intersect[2];
@@ -727,8 +725,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         for(auto & k2 : kp2)
             prkpv2.emplace_back(preprocess_keypoint_intersect(camera_state2, feature_t{k2.x, k2.y},Rw2));
         for(tracker::feature_track & k1 : kp1) {
-            float second_best_score = DESCRIPTOR::good_score;
-            float best_score = DESCRIPTOR::good_score;
+            float second_best_score = DESCRIPTOR::bad_score;
+            float best_score = DESCRIPTOR::bad_score;
             float best_depth = 0;
             float best_error = 0;
             kp_pre_data pre1 = preprocess_keypoint_intersect(camera_state1, feature_t{k1.x, k1.y}, Rw1);
@@ -736,7 +734,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             int i= 0;
             for(auto & k2 : kp2 ){
                 float error, depth = keypoint_intersect(camera_state1, camera_state2, pre1, prkpv2[i], Rw1T, Rw2T, error);
-                if(depth && error < 0.02) {
+                if(depth && error < 0.02f) {
                     float score = keypoint_compare(k1, k2);
                     if(score > best_score) {
                         second_best_score = best_score;
@@ -748,7 +746,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                 i++;
             }
             // If we have two candidates, just give up
-            if(best_depth && second_best_score == DESCRIPTOR::good_score) {
+            if(best_score >= DESCRIPTOR::good_score && second_best_score < DESCRIPTOR::good_score) {
                 k1.depth = best_depth;
                 k1.error = best_error;
             }
@@ -1010,7 +1008,7 @@ void filter_initialize(struct filter *f)
         camera_state.feature_tracker = std::make_unique<fast_tracker>();
 #endif
 #else // MYRIAD2
-        if (1)
+        if (/* DISABLES CODE */ (1))
             camera_state.feature_tracker = std::make_unique<fast_tracker>();
 #ifdef HAVE_IPP
         else
@@ -1106,6 +1104,7 @@ void filter_initialize(struct filter *f)
     f->catchup->state.copy_from(f->s);
 }
 
+//TODO: change the calibration parameters to floats
 void filter_deinitialize(struct filter *f)
 {
     for (size_t i = 0; i < f->s.cameras.children.size() && i < f->cameras.size(); i++) {
@@ -1137,9 +1136,10 @@ void filter_deinitialize(struct filter *f)
             camera_sensor.intrinsics.k3 = camera_state.intrinsics.k.v[2];
             camera_sensor.intrinsics.k4 = camera_state.intrinsics.k.v[3];
             break;
-        default:
-        case rc_CALIBRATION_TYPE_UNKNOWN:
         case rc_CALIBRATION_TYPE_UNDISTORTED:
+            break;
+        case rc_CALIBRATION_TYPE_UNKNOWN:
+            assert(0);
             break;
         }
 

@@ -43,9 +43,9 @@ public:
         const matrix &m;
         const size_t r, c, s;
         row_segment(const matrix &m_, size_t r_, size_t c_, size_t s_) : m(m_), r(r_), c(c_), s(s_) {
-            assert(0 <= r   && r   <  m._rows &&
-                   0 <= c   && c   <= m._cols &&
-                   0 <= c+s && c+s <= m._cols);
+            assert(0 <= r   && r   <  (size_t)m._rows &&
+                   0 <= c   && c   <= (size_t)m._cols &&
+                   0 <= c+s && c+s <= (size_t)m._cols);
         }
         const row_segment &operator=(f_t n) const {
             for (size_t i=0; i<s; i++) m.data[r*m.stride+c+i] = n;
@@ -73,7 +73,10 @@ public:
  }
   matrix(const int size): storage(new f_t[size]), _rows(1), _cols(size), stride(size), maxrows(1), data(storage) { }
   matrix(const int nrows, const int ncols): storage(new f_t[nrows * ncols]), _rows(nrows), _cols(ncols), stride(ncols), maxrows(nrows), data((f_t *)storage) { }
-
+    matrix(const matrix &other) = delete;
+    matrix(matrix &&other) = default;
+    matrix &operator=(const matrix &other) = delete;
+    matrix &operator=(matrix &&other) = default;
     ~matrix() { if(storage) delete [] storage; }
 
     typedef Eigen::Map<Eigen::Matrix<f_t, Eigen::Dynamic, Eigen::Dynamic>, Eigen::Unaligned, Eigen::OuterStride<>> Map;

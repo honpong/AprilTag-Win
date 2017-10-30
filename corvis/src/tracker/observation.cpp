@@ -381,7 +381,7 @@ void observation_vision_feature::update_initializing()
     auto &intrinsics = curr.camera.intrinsics;
     f_t normalized_distance_to_px = intrinsics.focal_length.v * intrinsics.image_height;
     f_t pixelvar = delta.dot(delta) * normalized_distance_to_px * normalized_distance_to_px;
-    if(pixelvar > 5. * 5. * source.measurement_variance) { //tells us if we have enough baseline
+    if(pixelvar > 5.f * 5.f * source.measurement_variance) { //tells us if we have enough baseline
         feature->status = feature_normal;
     }
     
@@ -409,7 +409,7 @@ void observation_vision_feature::update_initializing()
             }
         }
     }
-    if(best > .01 && best < 10.) {
+    if(best > .01f && best < 10.f) {
         feature->v.set_depth_meters(1/best);
     }
     //repredict using triangulated depth
@@ -430,7 +430,7 @@ bool observation_vision_feature::measure()
 
     // The covariance will become ill-conditioned if either the original predict()ion
     // or the predict()ion in update_initializing() lead to huge or non-sensical pred[]s
-    if (X[2] < .01) { // throw away features that are predicted to be too close to or even behind the camera
+    if (X[2] < .01f) { // throw away features that are predicted to be too close to or even behind the camera
         feature->drop();
         return false;
     }

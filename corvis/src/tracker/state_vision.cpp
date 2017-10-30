@@ -404,10 +404,11 @@ feature_t state_vision_intrinsics::undistort_feature(const feature_t &feat_d) co
 
 f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, m<1,2> *dkd_u_dfeat_u, m<1,4> *dkd_u_dk) const
 {
-    f_t kd_u, ru2, ru = std::sqrt(ru2 = feat_u.squaredNorm());
+    f_t kd_u = 1, ru2, ru = std::sqrt(ru2 = feat_u.squaredNorm());
     switch (type) {
-    default:
     case rc_CALIBRATION_TYPE_UNKNOWN:
+        assert(0);
+        break;
     case rc_CALIBRATION_TYPE_UNDISTORTED:
         kd_u = 1;
         if (dkd_u_dfeat_u)
@@ -460,10 +461,11 @@ f_t state_vision_intrinsics::get_distortion_factor(const feature_t &feat_u, m<1,
 
 f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<1,2> *dku_d_dfeat_d, m<1,4> *dku_d_dk) const
 {
-    f_t ku_d, rd2, rd = sqrt(rd2 = feat_d.squaredNorm());
+    f_t ku_d = 1, rd2, rd = sqrt(rd2 = feat_d.squaredNorm());
     switch (type) {
-    default:
     case rc_CALIBRATION_TYPE_UNKNOWN:
+        assert(0);
+        break;
     case rc_CALIBRATION_TYPE_UNDISTORTED:
         ku_d = 1;
         if (dku_d_dfeat_d)
@@ -486,7 +488,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<
             }};
     }   break;
     case rc_CALIBRATION_TYPE_POLYNOMIAL3: {
-        f_t kd_u, ru2 = rd2, dkd_u_dru2;
+        f_t kd_u = 0, ru2 = rd2, dkd_u_dru2 = 0;
         for (int i=0; i<4; i++) {
            kd_u =  1 + ru2 * (k.v[0] + ru2 * (k.v[1] + ru2 * k.v[2]));
            dkd_u_dru2 = k.v[0] + 2 * ru2 * (k.v[1] + 3 * ru2 * k.v[2]);
@@ -513,7 +515,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<
         f_t theta2 = theta*theta;
         for (int i = 0; i < 4; i++) {
             f_t f = theta*(1 + theta2*(k.v[0] + theta2*(k.v[1] + theta2*(k.v[2] + theta2*k.v[3])))) - rd;
-            if (f == 0)
+            if (f < F_T_EPS)
                 break;
             f_t df = 1 + theta2*(3 * k.v[0] + theta2*(5 * k.v[1] + theta2*(7 * k.v[2] + 9 * theta2*k.v[3])));
             // f(theta) == theta*(1 + theta2*(k0 + theta2*(k1 + theta2*(k2 + theta2*k3)))) - rd == 0;

@@ -1,3 +1,33 @@
+add_library(vlfeat STATIC
+   ../../ThirdParty/vlfeat-0.9.18/vl/generic.c
+   ../../ThirdParty/vlfeat-0.9.18/vl/host.c
+   ../../ThirdParty/vlfeat-0.9.18/vl/gmm.c
+   ../../ThirdParty/vlfeat-0.9.18/vl/mathop.c
+   ../../ThirdParty/vlfeat-0.9.18/vl/random.c
+   ../../ThirdParty/vlfeat-0.9.18/vl/vlad.c
+   ../../ThirdParty/vlfeat-0.9.18/vl/kmeans.c
+   ../../ThirdParty/vlfeat-0.9.18/vl/kdtree.c
+   ../../ThirdParty/vlfeat-0.9.18/vl/liop.c
+   ../../ThirdParty/vlfeat-0.9.18/vl/imopv.c
+   $<$<BOOL:${ENABLE_STEREO}>:
+   ../../ThirdParty/vlfeat-0.9.18/vl/sift.c
+   >
+)
+target_include_directories(vlfeat SYSTEM INTERFACE ../../ThirdParty/vlfeat-0.9.18)
+target_compile_options(vlfeat PRIVATE $<$<BOOL:${MSVC}>:/wd4244>)
+set_target_properties(vlfeat PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+   add_compile_options(-Wall -Wextra)
+   add_compile_options(-Wdeprecated -Wfloat-equal -Wunreachable-code -Wswitch-enum  -Wunused-macros)
+   #add_compile_options(-Wweak-vtables -Wcast-align -Wextra-semi -Wdouble-promotion) # noisy, but should be considered in the future
+   add_compile_options(-Wno-missing-field-initializers -Wno-unused-parameter) # TODO: components of -Wextra that are not clean yet
+endif()
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang") # not supported by gcc
+   add_compile_options(-Wconditional-uninitialized -Wglobal-constructors -Wcovered-switch-default -Wunreachable-code-break -Wmissing-variable-declarations)
+endif()
+
 file(GLOB TRACKERI_HEADERS tracker/*.h)
 set(TRACKER_SOURCES
     tracker/sensor_fusion_queue.cpp
@@ -58,7 +88,7 @@ target_include_directories(trackeri SYSTEM PUBLIC
 )
 target_compile_definitions(trackeri PUBLIC SPDLOG_NO_DATETIME SPDLOG_NO_THREAD_ID)
 
-target_link_libraries(trackeri PRIVATE vlfeat)
+target_link_libraries(trackeri PUBLIC vlfeat)
 
 function(find_intel_root TYPE) # [REQUIRED]
     set(VAR ${TYPE}ROOT)
@@ -231,26 +261,7 @@ if(ENABLE_STEREO)
     target_include_directories(stereo PUBLIC stereo)
     set_property(TARGET stereo PROPERTY CXX_STANDARD 14)
 endif()
-
-set(LIBVLFEAT_FILES
-   ../../ThirdParty/vlfeat-0.9.18/vl/generic.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/host.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/gmm.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/mathop.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/random.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/vlad.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/kmeans.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/kdtree.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/liop.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/imopv.c
-   $<$<BOOL:${ENABLE_STEREO}>:
-   ../../ThirdParty/vlfeat-0.9.18/vl/sift.c
-   >
-)
-add_library(vlfeat STATIC ${LIBVLFEAT_FILES})
-target_include_directories(vlfeat INTERFACE ../../ThirdParty/vlfeat-0.9.18/vl)
-target_compile_options(vlfeat PRIVATE $<$<BOOL:${MSVC}>:/wd4244>)
-set_target_properties(trackeri vlfeat PROPERTIES POSITION_INDEPENDENT_CODE ON)
+set_target_properties(trackeri PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if(ENABLE_STEREO)
     foreach(f alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp daialg.cpp properties.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)

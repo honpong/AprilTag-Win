@@ -63,14 +63,11 @@ void sensor_fusion::fast_path_catchup()
     // any new data we get while we are doing the filter
     // updates on the catchup state
     queue.dispatch_buffered([this,&mini_lock](sensor_data &data) {
-            mini_lock.unlock();
-            switch(data.type) {
-                case rc_SENSOR_TYPE_ACCELEROMETER: filter_mini_accelerometer_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
-                case rc_SENSOR_TYPE_GYROSCOPE:     filter_mini_gyroscope_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data); break;
-                default: break;
-            }
-            mini_lock.lock();
-        });
+        mini_lock.unlock();
+        if(data.type == rc_SENSOR_TYPE_ACCELEROMETER) filter_mini_accelerometer_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data);
+        if(data.type == rc_SENSOR_TYPE_GYROSCOPE)     filter_mini_gyroscope_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data);
+        mini_lock.lock();
+    });
     auto stop = std::chrono::steady_clock::now();
     queue.catchup_stats.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
     sfm.catchup->valid = true;
@@ -230,7 +227,11 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data)
             auto stop = std::chrono::steady_clock::now();
             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
         } break;
-        default:
+        case rc_SENSOR_TYPE_DEPTH:
+        case rc_SENSOR_TYPE_IMAGE:
+        case rc_SENSOR_TYPE_STEREO:
+        case rc_SENSOR_TYPE_THERMOMETER:
+            assert(0);
             break;
     }
     data.path = rc_DATA_PATH_SLOW;

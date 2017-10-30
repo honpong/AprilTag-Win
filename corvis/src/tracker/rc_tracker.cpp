@@ -1,4 +1,6 @@
+#ifdef _WIN32
 #define RCTRACKER_API_EXPORTS
+#endif
 #include "rc_tracker.h"
 #include "rc_compat.h"
 #include "sensor_fusion.h"
@@ -7,6 +9,9 @@
 #include "sensor_data.h"
 #include <fstream>
 
+//We want these strings to be in the build but not in the header
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-variable-declarations"
 #define RC_STR_(x) #x
 #define RC_STR(x) RC_STR_(x)
 RCTRACKER_API const char *rc_copyright_ = "COPYRIGHT: Intel(r) RealSense(tm)";
@@ -14,8 +19,9 @@ RCTRACKER_API const char *rc_build_     = "BUILD: "   RC_STR(RC_BUILD);
 #ifdef RC_VERSION
 RCTRACKER_API const char *rc_version_   = "VERSION: " RC_STR(RC_VERSION);
 #endif
+#pragma GCC diagnostic pop
 
-std::unique_ptr<spdlog::logger> trace_log = std::make_unique<spdlog::logger>("rc_trace", std::make_shared<spdlog::sinks::null_sink_st> ());
+static std::unique_ptr<spdlog::logger> trace_log = std::make_unique<spdlog::logger>("rc_trace", std::make_shared<spdlog::sinks::null_sink_st> ());
 static const bool trace = false;
 
 const char *rc_version()
@@ -391,18 +397,14 @@ bool rc_configureQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy stra
     switch(strategy) {
         case rc_QUEUE_MINIMIZE_DROPS:
             tracker->queue.strategy = fusion_queue::latency_strategy::MINIMIZE_DROPS;
-            break;
+            return true;
 
         case rc_QUEUE_MINIMIZE_LATENCY:
             tracker->queue.strategy = fusion_queue::latency_strategy::MINIMIZE_LATENCY;
-            break;
-
-        default:
-            return false;
-
+            return true;
     }
 
-    return true;
+    return false;
 }
 
 bool rc_describeQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy * strategy)
@@ -754,10 +756,9 @@ rc_TrackerState rc_getState(const rc_Tracker *tracker)
         case RCSensorFusionRunStateRunning:
             return rc_E_RUNNING;
         case RCSensorFusionRunStateInertialOnly:
-            //return rc_E_INERTIAL_ONLY;
-        default:
-            return rc_E_INACTIVE;
+            return rc_E_INERTIAL_ONLY;
     }
+    assert(0);
 }
 
 rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker)

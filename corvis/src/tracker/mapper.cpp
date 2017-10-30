@@ -256,9 +256,9 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
         }
     }
 
-    // sort candidates by dbow_score and age
+    // sort candidates by dbow_score
     auto compare_dbow_scores = [](const std::pair<mapper::nodeid, float>& p1, const std::pair<mapper::nodeid, float>& p2) {
-        return (p1.second > p2.second) || (p1.second == p2.second && p1.first < p2.first);
+        return (p1.second > p2.second);
     };
     std::sort(dbow_scores.begin(), dbow_scores.end(), compare_dbow_scores);
 
@@ -291,7 +291,7 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
                 const std::vector<unsigned int>& current_keypoint_indexes,
                 const std::vector<unsigned int>& candidate_keypoint_indexes) {
             for (unsigned int current_point_idx : current_keypoint_indexes) {
-                int best_candidate_point_idx;
+                int best_candidate_point_idx = 0;
                 int best_distance = std::numeric_limits<int>::max();
                 int second_best_distance = std::numeric_limits<int>::max();
                 auto& current_keypoint = *current_frame->keypoints[current_point_idx];
@@ -536,7 +536,6 @@ bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t 
 #define KEY_FRAME_FEAT_ID "id"
 #define KEY_FRAME_FEAT_X "x"
 #define KEY_FRAME_FEAT_Y "y"
-#define KEY_FRAME_FEAT_LEVEL "level"
 #define KEY_FRAME_FEAT_DESC "descriptor"
 #define KEY_FRAME_FEAT_DESC_RAW "raw"
 #define KEY_FRAME_FEAT_DESC_SIN "sin"
@@ -694,7 +693,6 @@ bool map_node::deserialize(const Value &json, map_node &node, uint64_t &max_load
 #define KEY_MAP_DBOW_INVERTED_INDICES "inverted_indices"
 #define KEY_MAP_DBOW_FEATURES "dbow_features"
 #define KEY_NODES "nodes"
-#define KEY_FEATURE_DESCRIPTOR "d"
 
 void mapper::serialize(rapidjson::Value &map_json, rapidjson::Document::AllocatorType &allocator) {
     Value version(MAPPER_SERIALIZED_VERSION);

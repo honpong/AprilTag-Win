@@ -2,7 +2,7 @@
 #define __FEATURE_DESCRIPTOR_H
 
 extern "C" {
-#include "../vlfeat-0.9.18/vl/liop.h"
+#include "vl/liop.h"
 }
 
 #include <stdio.h>

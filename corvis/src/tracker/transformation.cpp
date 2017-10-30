@@ -107,9 +107,9 @@ f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<
     {
         m<4,3> c_c;
         switch(N) {
-            break; case 0: c_c = estimate_transformation_camera_control_points<2,3>(r, msvd.matrixV()); // [ B11 B12 B13; 0  B22 B23 ]
-            break; case 1: c_c = estimate_transformation_camera_control_points<2,2>(r, msvd.matrixV()); // [ B11 B12; 0  B22 ]
-            break; case 2: c_c = estimate_transformation_camera_control_points<1,4>(r, msvd.matrixV()); // [ B11 B12 B13 B14 ]
+            case 0: c_c = estimate_transformation_camera_control_points<2,3>(r, msvd.matrixV()); break; // [ B11 B12 B13; 0  B22 B23 ]
+            case 1: c_c = estimate_transformation_camera_control_points<2,2>(r, msvd.matrixV()); break; // [ B11 B12; 0  B22 ]
+            case 2: c_c = estimate_transformation_camera_control_points<1,4>(r, msvd.matrixV()); break; // [ B11 B12 B13 B14 ]
         }
 
         // Use the control points in the camera frame to compute all the points in the camera frame

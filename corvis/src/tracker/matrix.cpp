@@ -83,9 +83,9 @@ void matrix::print() const
 {
     for(int i = 0; i < _rows; ++i) {
         for(int j = 0; j < _cols; ++j) {
-            f_t v = (*this)(i, j);
+            auto v = (double)(*this)(i, j);
             if(i == j) fprintf(stderr, "[% .1e]", v);
-            else if(v == 0) fprintf(stderr, "     0    ");
+            else if(fabs(v) < DBL_MIN) fprintf(stderr, "     0    ");
             else fprintf(stderr, " % .1e ", v);
         }
         fprintf(stderr, "\n");
@@ -96,9 +96,9 @@ void matrix::print_high() const
 {
     for(int i = 0; i < _rows; ++i) {
         for(int j = 0; j < _cols; ++j) {
-            f_t v = (*this)(i, j);
+            auto v = (double)(*this)(i, j);
             if(i == j) fprintf(stderr, "[% .10e]", v);
-            else if(v == 0) fprintf(stderr, "     0    ");
+            else if(fabs(v) < DBL_MIN) fprintf(stderr, "     0    ");
             else fprintf(stderr, " % .10e ", v);
         }
         fprintf(stderr, "\n");
@@ -108,7 +108,7 @@ void matrix::print_high() const
 void matrix::print_diag() const
 {
     for(int i = 0; i < _rows; ++i) {
-        fprintf(stderr, "% .1e ", (*this)(i, i));
+        fprintf(stderr, "% .1e ", (double)(*this)(i, i));
     }
     fprintf(stderr, "\n");
 }

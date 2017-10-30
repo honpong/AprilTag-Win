@@ -28,6 +28,7 @@
 class state_node {
 public:
     virtual ~state_node() {}
+    state_node &operator=(const state_node &other) = default;
     enum node_type { dynamic, constant, fake };
     virtual void copy_state_to_array(matrix &state) = 0;
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const = 0;
@@ -558,7 +559,7 @@ public:
             if(!test_posdef(cov.cov)) log->error("not pos def before explicit time update");
 #endif
             auto dt = std::chrono::duration_cast<std::chrono::duration<f_t>>(time - current_time).count();
-            if(log_enabled && dt > .025) log->warn("Large time step (dt): {}", dt);
+            if(log_enabled && dt > .025f) log->warn("Large time step (dt): {}", dt);
             evolve(dt);
 #ifdef TEST_POSDEF
             if(!test_posdef(cov.cov)) log->error("not pos def after explicit time update");

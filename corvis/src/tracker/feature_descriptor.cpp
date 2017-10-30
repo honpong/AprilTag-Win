@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 extern "C" {
-#include "../vlfeat-0.9.18/vl/imopv.h"
+#include "vl/imopv.h"
 }
 
 #define interp(c0, c1, t) ((c0)*(1-(t)) + ((c1)*(t)))

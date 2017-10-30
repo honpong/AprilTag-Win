@@ -98,7 +98,7 @@ struct tpose_sequence {
             v3 last_position = tposes.front().G.T;
             for (auto &tp : tposes) {
                 f_t delta_T = (tp.G.T - last_position).norm();
-                if (delta_T > .01) {
+                if (delta_T > .01f) {
                     total_distance += delta_T;
                     last_position = tp.G.T;
                 }

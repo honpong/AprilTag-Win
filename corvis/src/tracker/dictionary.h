@@ -4,9 +4,8 @@
 #include <vector>
 #include <string>
 #include "feature_descriptor.h"
-
 extern "C" {
-#include "../vlfeat-0.9.18/vl/kmeans.h"
+#include "vl/kmeans.h"
 }
 
 class dictionary {

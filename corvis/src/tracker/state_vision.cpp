@@ -257,11 +257,14 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
                 std::vector<transformation> camera_poses;
                 const uint64_t& ref_group_id = t.group_tracks[0].group_id;
                 map->get_triangulation_geometry(ref_group_id, t, tracks_2d, camera_poses);
-                v3 point_3d;
-                float mean_error_point = estimate_3d_point(tracks_2d,camera_poses, point_3d);
-                if (mean_error_point <  2*sigma) {
+                f_t depth_m;
+                float mean_error_point = estimate_3d_point(tracks_2d,camera_poses, depth_m);
+                if ((depth_m > 0) && (mean_error_point <  2*sigma)) // a good 3d point has to be in front of the camera
+                {
                     auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature);
-                    map->add_triangulated_feature_to_group(ref_group_id, f, point_3d);
+                    f->x = t.group_tracks[0].x;
+                    f->y = t.group_tracks[0].y;
+                    map->add_triangulated_feature_to_group(ref_group_id, f, depth_m);
                 }
                 else
                     log.debug("{}/{}) Reprojection error too large for triangulated point with id: {}", t.feature->id);
@@ -339,14 +342,11 @@ void state_vision::update_map(mapper *map)
 
                 bool good = stdev / f->v.depth() < .05f;
                 if (good) {
-                    m3 Rbc = camera->extrinsics.Q.v.toRotationMatrix();
-                    v2 pn = camera->intrinsics.undistort_feature(camera->intrinsics.normalize_feature(f->initial));
-                    v3 f3D = Rbc*(f->v.depth()*pn.homogeneous()) + camera->extrinsics.T.v;
                     if(f->is_in_map) {
-                        map->set_feature(g->id, f->track.feature->id, f3D, variance_meters);
+                        map->set_feature(g->id, f->track.feature->id, f->v.depth(), variance_meters);
                     } else {
                         auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->track.feature);
-                        map->add_feature(g->id, feature, f3D, variance_meters);
+                        map->add_feature(g->id, feature, f->v.depth(), variance_meters);
                     }
                     f->is_in_map = true;
                 }

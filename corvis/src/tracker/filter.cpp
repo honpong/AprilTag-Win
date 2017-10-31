@@ -458,6 +458,8 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
     for(auto i = kp.begin(); i != kp.end() && found_feats < newfeats; found_feats++, i = kp.erase(i)) {
+            std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->x = i->x;
+            std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->y = i->y;
             state_vision_feature *feat = f->s.add_feature(*i, *g);
 
             float depth_m = i->depth;

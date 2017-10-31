@@ -42,9 +42,7 @@ enum class feature_type { tracked, triangulated };
 
 struct map_feature {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    // map_feature position is the position relative to a camera with
-    // one of images axes oriented to match gravity (world z axis)
-    v3 position;
+    float depth; // depth in meters in camera frame
     float variance;
     feature_type type;
     std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
@@ -59,8 +57,8 @@ struct map_node {
     uint64_t id;
     std::unordered_map<uint64_t, map_edge> edges; // key is neighbor_id
     map_edge &get_add_neighbor(uint64_t neighbor);
-    void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, const v3 &pos, const float variance, const feature_type type);
-    void set_feature(const uint64_t id, const v3 &pos, const float variance, const feature_type type);
+    void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, const f_t depth_m, const float depth_variance_m2, const feature_type type);
+    void set_feature(const uint64_t id, const f_t depth_m, const float depth_variance_m2, const feature_type type);
 
     transformation global_transformation;
 
@@ -100,12 +98,13 @@ class mapper {
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
-                     const v3 & position_m, const float depth_variance_m2, const feature_type type = feature_type::tracked);
-    void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, const float depth_variance_m2, const feature_type type = feature_type::tracked);
+                     const f_t depth_m, const float depth_variance_m2, const feature_type type = feature_type::tracked);
+    void set_feature(nodeid node_id, uint64_t feature_id, const f_t depth_m, const float depth_variance_m2, const feature_type type = feature_type::tracked);
     void get_triangulation_geometry(const nodeid group_id, const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses);
-    void add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, const v3& point_3d);
+    void add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, const f_t depth_m);
     nodes_path breadth_first_search(nodeid start, int maxdepth = 1);
     nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes);
+    v3 get_feature3D(nodeid node_id, uint64_t feature_id); // returns feature wrt node body frame
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; }
     map_node& get_node(nodeid id) { return nodes[id]; }

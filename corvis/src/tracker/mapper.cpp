@@ -82,6 +82,9 @@ void mapper::get_triangulation_geometry(const nodeid group_id, const tracker::fe
         search_nodes.insert(ag.group_id);
     }
     nodes_path ref_path = breadth_first_search(group_id, std::move(search_nodes));
+    map_node &ref_node = nodes[group_id];
+    const state_extrinsics* const ref_extrinsics = camera_extrinsics[ref_node.camera_id];
+    transformation G_BR = transformation(ref_extrinsics->Q.v, ref_extrinsics->T.v);
     // accumulate cameras and 2d tracks to triangulate
     for (auto &ag : keypoint.group_tracks) {
         map_node &node = nodes[ag.group_id];
@@ -93,50 +96,55 @@ void mapper::get_triangulation_geometry(const nodeid group_id, const tracker::fe
         feature_t kpn = intrinsics->undistort_feature(intrinsics->normalize_feature(kpd));
         tracks_2d.push_back(kpn);
         // read node transformation
-        transformation G_CR = invert(ref_path[ag.group_id] * G_BC);
+        transformation G_CR = invert(ref_path[ag.group_id] * G_BC) * G_BR;
         camera_poses.push_back(G_CR);
     }
 }
 
-void mapper::add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, const v3& pBref)
+void mapper::add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, const f_t depth_m)
 {
     map_node &ref_node = nodes[group_id];
-    state_extrinsics *extrinsics = camera_extrinsics[ref_node.camera_id];
-    transformation G_CB = invert(transformation(extrinsics->Q.v, extrinsics->T.v));
-    v3 pCref = G_CB*pBref;
-    // a good 3d point has to be in front of the camera
-    if (pCref[2] > 0) {
-        ref_node.add_feature(feature, pBref, 1.e-3f*1.e-3f, feature_type::triangulated);
-        features_dbow[feature->id] = group_id;
-    }
+    ref_node.add_feature(feature, depth_m, 1.e-3f*1.e-3f, feature_type::triangulated);
+    features_dbow[feature->id] = group_id;
 }
 
 void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
-                           const v3 &pos, const float variance, const feature_type type) {
+                           const f_t depth_m, const float depth_variance_m2, const feature_type type) {
     map_feature mf;
-    mf.position = pos;
-    mf.variance = variance;
+    mf.depth = depth_m;
+    mf.variance = depth_variance_m2;
     mf.feature = feature;
     mf.type = type;
     features.emplace(feature->id, mf);
 }
 
-void map_node::set_feature(const uint64_t id, const v3 &pos, const float variance, const feature_type type)
+void map_node::set_feature(const uint64_t id, const f_t depth_m, const float depth_variance_m2, const feature_type type)
 {
-    features[id].position = pos;
-    features[id].variance = variance;
+    features[id].depth = depth_m;
+    features[id].variance = depth_variance_m2;
     features[id].type = type;
 }
 
 void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
-                         const v3 &pos, const float variance, const feature_type type) {
-    nodes[groupid].add_feature(feature, pos, variance, type);
+                         const f_t depth_m, const float depth_variance_m2, const feature_type type) {
+    nodes[groupid].add_feature(feature, depth_m, depth_variance_m2, type);
     features_dbow[feature->id] = groupid;
 }
 
-void mapper::set_feature(nodeid groupid, uint64_t id, const v3 &pos, const float variance,
+void mapper::set_feature(nodeid groupid, uint64_t id, const f_t depth_m, const float depth_variance_m2,
                          const feature_type type) {
-    nodes[groupid].set_feature(id, pos, variance, type);
+    nodes[groupid].set_feature(id, depth_m, depth_variance_m2, type);
+}
+
+v3 mapper::get_feature3D(nodeid node_id, uint64_t feature_id) {
+    map_node& node = nodes[node_id];
+    auto mf = node.features[feature_id];
+    auto intrinsics = camera_intrinsics[node.camera_id];
+    auto extrinsics = camera_extrinsics[node.camera_id];
+    m3 Rbc = extrinsics->Q.v.toRotationMatrix();
+    feature_t feature{mf.feature->x, mf.feature->y};
+    v2 pn = intrinsics->undistort_feature(intrinsics->normalize_feature(feature));
+    return Rbc*(mf.depth*pn.homogeneous()) + extrinsics->T.v;
 }
 
 void mapper::set_node_transformation(nodeid id, const transformation & G)
@@ -422,8 +430,8 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
 
                 // NOTE: We use 3d features observed from candidate, this does not mean
                 // these features belong to the candidate node (group)
-                map_feature &mfeat = nodes[nodeid_keypoint].features[keypoint_id]; // feat is in body frame
-                v3 p_candidate = G_candidate_neighbors[nodeid_keypoint] * mfeat.position;
+                v3 p_candidate = G_candidate_neighbors[nodeid_keypoint] *
+                        get_feature3D(nodeid_keypoint, keypoint_id); // feat is in body frame
                 candidate_3d_points.push_back(p_candidate);
                 //undistort keypoints at current frame
                 auto& current = *keypoint_current[m.first];
@@ -495,7 +503,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
         transformation G_Cnow_Bneighbor = G_CB*G_Bnow_Bneighbor;
         for(const auto& f : node_neighbor.features) {
             // predict feature in current camera pose
-            v3 p3dC = G_Cnow_Bneighbor * f.second.position;
+            v3 p3dC = G_Cnow_Bneighbor * get_feature3D(neighbor.first, f.second.feature->id);
             if(p3dC.z() < 0)
                 continue;
             feature_t kpn = p3dC.segment<2>(0)/p3dC.z();
@@ -504,18 +512,9 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
                kpd.y() < 0 || kpd.y() > intrinsics_now->image_height)
                 continue;
 
-            // predict feature in node it was created
-            const state_extrinsics* const  extrinsics_neighbor = camera_extrinsics[node_neighbor.camera_id];
-            const state_vision_intrinsics* const  intrinsics_neighbor = camera_intrinsics[node_neighbor.camera_id];
-            transformation G_CB_neighbor = invert(transformation(extrinsics_neighbor->Q.v, extrinsics_neighbor->T.v));
-            v3 p3dC_initial = G_CB_neighbor * f.second.position;
-            feature_t kpn_initial = p3dC_initial.segment<2>(0)/p3dC_initial.z();
-            feature_t kpd_initial = intrinsics_neighbor->unnormalize_feature(intrinsics_neighbor->distort_feature(kpn_initial));
-            f.second.feature->x = kpd_initial.x();
-            f.second.feature->y = kpd_initial.y();
             // create feature track
             tracks.emplace_back(f.second.feature, kpd.x(), kpd.y(), 0);
-            tracks.back().depth = p3dC_initial.z();
+            tracks.back().depth = f.second.depth;
         }
         map_feature_tracks.emplace_back(neighbor.first, std::move(tracks));
         G_neighbors_now[neighbor.first] = invert(G_Bnow_Bneighbor);
@@ -566,19 +565,14 @@ void map_edge::deserialize(const Value &json, map_edge &edge) {
 
 #define KEY_FEATURE_ID "id"
 #define KEY_FEATURE_VARIANCE "variance"
-#define KEY_FEATURE_POSITION "position"
+#define KEY_FEATURE_DEPTH "depth"
 #define KEY_FEATURE_INITIAL_XY "xy"
 #define KEY_FRAME_FEAT_PATCH "patch"
 #define KEY_FRAME_FEAT_DESC_RAW "raw"
 void map_feature::serialize(Value &feature_json, Document::AllocatorType &allocator) {
     feature_json.AddMember(KEY_FEATURE_ID, feature->id, allocator);
+    feature_json.AddMember(KEY_FEATURE_DEPTH, depth, allocator);
     feature_json.AddMember(KEY_FEATURE_VARIANCE, variance, allocator);
-
-    Value pos_json(kArrayType);
-    pos_json.PushBack(position[0], allocator);
-    pos_json.PushBack(position[1], allocator);
-    pos_json.PushBack(position[2], allocator);
-    feature_json.AddMember(KEY_FEATURE_POSITION, pos_json, allocator);
 
     // add feature initial coordinates
     Value xy_json(kArrayType);
@@ -599,14 +593,7 @@ void map_feature::serialize(Value &feature_json, Document::AllocatorType &alloca
 bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t &max_loaded_featid) {
     uint64_t id = json[KEY_FEATURE_ID].GetUint64();
     if (id > max_loaded_featid) max_loaded_featid = id;
-
-    feature.variance = (float)json[KEY_FEATURE_VARIANCE].GetDouble();
-    const Value &pos_json = json[KEY_FEATURE_POSITION];
-    RETURN_IF_FAILED(pos_json.IsArray())
-        RETURN_IF_FAILED(pos_json.Size() == feature.position.size())
-        for (SizeType j = 0; j < pos_json.Size(); j++) {
-            feature.position[j] = (f_t)pos_json[j].GetDouble();
-        }
+    feature.depth = (float)json[KEY_FEATURE_DEPTH].GetDouble();
 
     // get feature initial coordinates
     const Value &xy_json = json[KEY_FEATURE_INITIAL_XY];

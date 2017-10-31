@@ -500,12 +500,13 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
             }
             std::vector<Feature> features;
             for(auto &feat : map_node.features) {
-                Feature f;
-                f.feature.world.x = feat.second.position[0];
-                f.feature.world.y = feat.second.position[1];
-                f.feature.world.z = feat.second.position[2];
-                f.is_triangulated = feat.second.type == feature_type::triangulated;
-                features.push_back(f);
+                Feature fw;
+                v3 feature = f->map->get_feature3D(map_node.id, feat.second.feature->id);
+                fw.feature.world.x = feature[0];
+                fw.feature.world.y = feature[1];
+                fw.feature.world.z = feature[2];
+                fw.is_triangulated = feat.second.type == feature_type::triangulated;
+                features.push_back(fw);
             }
             bool unlinked = f->map->is_unlinked(map_node.id);
             observe_map_node(timestamp_us, map_node.id, map_node.status == node_status::finished, loop_closed, unlinked, map_node.global_transformation, neighbors, features);

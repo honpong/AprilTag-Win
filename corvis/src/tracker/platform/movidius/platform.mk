@@ -68,6 +68,7 @@ SLAM_CCOPT   := \
 	-isystem$(SLAM_PREFIX)/ThirdParty/eigen \
 	-isystem$(SLAM_PREFIX)/ThirdParty/spdlog/include \
 	-isystem$(SLAM_PREFIX)/ThirdParty/rapidjson/include/ \
+	-isystem$(SLAM_PREFIX)/ThirdParty/vlfeat-0.9.18 \
 	-Wno-unused-function \
 	-Wno-unused-variable \
 	-Wno-unused-parameter \

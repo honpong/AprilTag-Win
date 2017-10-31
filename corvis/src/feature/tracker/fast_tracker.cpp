@@ -63,7 +63,7 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
     for(my = y1; my < y2; my+=8) {
         for(mx = x1; mx < x2; mx+=8) {
             if(mask && !mask->test(mx, my)) continue;
-            int bestx = INFINITY, besty = INFINITY;
+            int bestx = -1, besty = -1;
             int save_start = bstart;
             bool found = false;
             for(y = my; y < my+8; ++y) {

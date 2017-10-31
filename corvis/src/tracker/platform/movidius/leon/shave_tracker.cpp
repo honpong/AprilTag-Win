@@ -60,12 +60,11 @@ extern u32 stereo_initialize3_stereo_match;
 
 struct shave_entry_point { int shave; u32 *entry_point; };
 
-#define DETECT_SHAVES 4
+#define DETECT_SHAVES 3
 shave_entry_point fast_detect[DETECT_SHAVES] = {
     {4,  &cvrt4_fast_detect},
     {9,  &cvrt9_fast_detect},
     {10, &cvrt10_fast_detect},
-    {11, &cvrt11_fast_detect},
 };
 
 #define TRACK_SHAVES 4

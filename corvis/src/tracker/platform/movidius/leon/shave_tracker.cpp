@@ -311,7 +311,7 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
 
     float4x4_t R2w_transpose {{ E_R2w_t(0,0), E_R2w_t(0,1),E_R2w_t(0,2),0 },
                                {E_R2w_t(1,0), E_R2w_t(1,1),E_R2w_t(1,2),0 },
-                               {E_R1w_t(2,0), E_R2w_t(2,1),E_R2w_t(2,2),0 },
+                               {E_R2w_t(2,0), E_R2w_t(2,1),E_R2w_t(2,2),0 },
                                { 0, 0, 0, 0 }};
     float4_t camera1_extrinsics_T_v = { E_camera1_extrinsics_T_v[0],E_camera1_extrinsics_T_v[1],E_camera1_extrinsics_T_v[2] };
     float4_t camera2_extrinsics_T_v = { E_camera2_extrinsics_T_v[0],E_camera2_extrinsics_T_v[1],E_camera2_extrinsics_T_v[2] };

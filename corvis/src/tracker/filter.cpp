@@ -720,7 +720,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         m3 Rw1T = Rw1.transpose();
         // preprocess data for kp2
         m3 Rw2 = camera_state2.extrinsics.Q.v.toRotationMatrix();
-        m3 Rw2T = Rw1.transpose();
+        m3 Rw2T = Rw2.transpose();
         std::vector<kp_pre_data> prkpv2;
         for(auto & k2 : kp2)
             prkpv2.emplace_back(preprocess_keypoint_intersect(camera_state2, feature_t{k2.x, k2.y},Rw2));

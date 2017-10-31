@@ -19,6 +19,7 @@ namespace spdlog {
             off = 6
         } level_enum;
 
+        __attribute__((unused))
         static const char* level_names[] { "trace", "debug", "info",  "warning", "error", "critical", "off" };
     }
 
@@ -34,10 +35,10 @@ namespace spdlog {
     using sink_ptr = std::shared_ptr < sinks::sink >;
 
     class logger {
-        
+
     public:
 
-        logger(const std::string& logger_name, sink_ptr single_sink) {};
+        logger(const std::string&, sink_ptr) {};
 
         void set_level(level::level_enum) {};
         void set_pattern(const char *) {};

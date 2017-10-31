@@ -5,6 +5,10 @@
 // from LOS or LRT code
 __attribute__((section(".ddr.bss"))) u8 traceBuffer[TRACE_BUFFER_SIZES];
 
+int logState = 1;
+int traceLevel = DEBUG_PROFILE;
+int traceComponents = COMPONENTS_MASK;
+
 void traceInit(void) { dbgMemLogInit(traceBuffer, sizeof(traceBuffer)); }
 void setTraceBufferBP(u8 bpNum)
 {

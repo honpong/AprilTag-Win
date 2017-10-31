@@ -178,7 +178,8 @@ void shave_tracker::detectMultipleShave(const tracker::image &image)
             image.image,
             image.stride_px,
             &(image_size = (int2) { image.width_px, image.height_px }),
-            &(win_size = (int2) { image.width_px, image.height_px / DETECT_SHAVES })
+            &(win_size = (int2) { image.width_px, (i+1) * image.height_px / DETECT_SHAVES
+                                                 - i    * image.height_px / DETECT_SHAVES })
         );
 
     for (int i = 0; i < DETECT_SHAVES; ++i)

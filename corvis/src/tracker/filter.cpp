@@ -1251,25 +1251,21 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
     if (f->map) {
         auto &camera_state = *f->s.cameras.children[camera_id];
         for(auto &nft : f->map->map_feature_tracks) {
-            map_node &node = f->map->get_node(nft.first);
+            map_node &node = f->map->get_node(nft.group_id);
             if(node.camera_id != camera_id) continue; // Only bring a group if node camera_id matches current camera. DO WE REALLY NEED THIS?
 
             auto space = filter_available_feature_space(f, camera_state);
             if(space > f->min_group_map_add) {
-                int num_found = 0;
-                for(auto &ft : nft.second)
-                    if(ft.found()) num_found++;
-
-                if(num_found > f->min_group_map_add) {
+                if(nft.found > f->min_group_map_add) {
                     auto &camera_node_state = *f->s.cameras.children[node.camera_id];
-                    state_vision_group *g = new state_vision_group(camera_node_state, nft.first);
-                    g->Tr.v = f->map->G_neighbors_now[nft.first].T;
-                    g->Qr.v = f->map->G_neighbors_now[nft.first].Q;
+                    state_vision_group *g = new state_vision_group(camera_node_state, nft.group_id);
+                    g->Tr.v = nft.G_neighbor_now.T;
+                    g->Qr.v = nft.G_neighbor_now.Q;
                     // g->Tr.set_initial_variance({0.1,0.1,0.1});
                     // g->Qr.set_initial_variance({0.1,0.1,0.1});
                     node.status = node_status::normal;
 
-                    for(auto &ft : nft.second) {
+                    for(const auto &ft : nft.tracks) {
                         state_vision_feature *feat = f->s.add_feature(ft, *g);
                         auto ftmp = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(ft.feature);
                         feat->initial[0] = ftmp->x;

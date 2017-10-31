@@ -485,7 +485,6 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
 
 void mapper::predict_map_features(const uint64_t camera_id_now, const transformation& G_Bcurrent_Bnow) {
     map_feature_tracks.clear();
-    G_neighbors_now.clear();
     // predict features from all nodes that are 1 edge away from current_node_id in the map.
     // increasing this value will try to bring back groups that are not directly connected to current_node_id.
     const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
@@ -498,7 +497,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
         map_node& node_neighbor = nodes[neighbor.first];
         if(node_neighbor.status == node_status::normal)
             continue; // if node status is normal then node is already in the filter
-        std::list<tracker::feature_track> tracks;
+        std::vector<tracker::feature_track> tracks;
         const transformation& G_Bnow_Bneighbor = G_Bnow_Bcurrent*neighbor.second;
         transformation G_Cnow_Bneighbor = G_CB*G_Bnow_Bneighbor;
         for(const auto& f : node_neighbor.features) {
@@ -516,8 +515,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
             tracks.emplace_back(f.second.feature, kpd.x(), kpd.y(), 0);
             tracks.back().depth = f.second.depth;
         }
-        map_feature_tracks.emplace_back(neighbor.first, std::move(tracks));
-        G_neighbors_now[neighbor.first] = invert(G_Bnow_Bneighbor);
+        map_feature_tracks.emplace_back(neighbor.first, invert(G_Bnow_Bneighbor), std::move(tracks));
     }
 }
 

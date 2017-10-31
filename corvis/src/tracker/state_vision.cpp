@@ -574,8 +574,8 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
     // create tracks of features visible in inactive map nodes
     if(map) {
         map->predict_map_features(camera_frame.camera_id, G_Bcurrent_Bnow);
-        for(auto &ft : map->map_feature_tracks) {
-            for(auto &t : ft.second)
+        for(auto &nft : map->map_feature_tracks) {
+            for(auto &t : nft.tracks)
                 feature_tracker->tracks.emplace_back(&t);
         }
     }
@@ -585,18 +585,13 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
 
     // sort map tracks according to number of features found
     if(map) {
+        for (auto &nft : map->map_feature_tracks)
+            for (auto &t : nft.tracks)
+                nft.found += t.found();
         std::sort(map->map_feature_tracks.begin(), map->map_feature_tracks.end(),
-                  [](const mapper::node_feature_track& ft1, const mapper::node_feature_track& ft2) {
-            int num_found1 = 0;
-            for(auto &f : ft1.second)
-                if(f.found()) num_found1++;
-
-            int num_found2 = 0;
-            for(auto &f : ft2.second)
-                if(f.found()) num_found2++;
-
-            return num_found1 > num_found2;
-        });
+                  [](const mapper::node_feature_track &a, const mapper::node_feature_track &b) {
+                      return a.found > b.found;
+                  });
     }
 
     END_EVENT(SF_TRACK, feature_tracker->tracks.size())

@@ -188,7 +188,7 @@ f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<
     return best.reprojection_error();
 }
 
-f_t estimate_3d_point(const aligned_vector<v2> &src, const std::vector<transformation> &camera_poses, v3 &dst)
+f_t estimate_3d_point(const aligned_vector<v2> &src, const std::vector<transformation> &camera_poses, f_t &depth_m)
 {
     m<Eigen::Dynamic, 4> A; A.resize(2*camera_poses.size(),4);
     m<3,4> P;
@@ -200,15 +200,16 @@ f_t estimate_3d_point(const aligned_vector<v2> &src, const std::vector<transform
         A.block<2,4>(2*i,0) = p * P.row(2) - P.topRows(2);
     }
     Eigen::JacobiSVD<decltype(A)> msvd(A, Eigen::ComputeFullV);
-    dst = msvd.matrixV().topRightCorner(3,1) / msvd.matrixV()(3,3);
+    v3 pCref = msvd.matrixV().topRightCorner(3,1) / msvd.matrixV()(3,3);
+    depth_m = pCref[2];
 
     // calculate reprojection error at each node
     aligned_vector<f_t> errors_point;
     for (size_t i = 0; i< camera_poses.size(); ++i) {
-        const transformation& G_CW = camera_poses[i];
+        const transformation& G_C_Cref = camera_poses[i];
         const feature_t& kpn = src[i];
         // predict 3d point in the camera reference
-        v3 p3dC = G_CW * dst;
+        v3 p3dC = G_C_Cref * pCref;
         v2 kpn_p = p3dC.segment<2>(0)/p3dC.z();
         errors_point.push_back((kpn - kpn_p).norm());
     }

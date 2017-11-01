@@ -23,6 +23,7 @@
 #include "orb_descriptor.h"
 #include "rapidjson/document.h"
 #include "DBoW2/TemplatedVocabulary.h"
+#include "descriptor.h"
 
 typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, DBoW2::L1_NORM> orb_vocabulary;
 
@@ -41,12 +42,10 @@ enum class feature_type { tracked, triangulated };
 
 struct map_feature {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    uint64_t id;
-    // map_feature position is the position relative to a camera with
-    // one of images axes oriented to match gravity (world z axis)
-    v3 position;
+    float depth; // depth in meters in camera frame
     float variance;
     feature_type type;
+    std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, map_feature &feature, uint64_t &max_loaded_featid);
 };
@@ -58,7 +57,8 @@ struct map_node {
     uint64_t id;
     std::unordered_map<uint64_t, map_edge> edges; // key is neighbor_id
     map_edge &get_add_neighbor(uint64_t neighbor);
-    void set_feature(const uint64_t id, const v3 &pos, const float variance, const feature_type type = feature_type::tracked);
+    void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, const f_t depth_m, const float depth_variance_m2, const feature_type type);
+    void set_feature(const uint64_t id, const f_t depth_m, const float depth_variance_m2, const feature_type type);
 
     transformation global_transformation;
 
@@ -88,6 +88,7 @@ class mapper {
     typedef uint64_t nodeid;
     typedef std::pair<nodeid, nodeid> match;
     typedef std::vector<match> matches;
+    typedef std::pair<nodeid, transformation> node_path;
     typedef std::map<nodeid, transformation> nodes_path;
 
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
@@ -95,11 +96,14 @@ class mapper {
     void add_node(nodeid node_id, const rc_Sensor camera_id);
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
-    void set_feature(nodeid node_id, uint64_t feature_id, const v3 & position_m, const float depth_variance_m2, const bool is_new = true);
+    void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
+                     const f_t depth_m, const float depth_variance_m2, const feature_type type = feature_type::tracked);
+    void set_feature(nodeid node_id, uint64_t feature_id, const f_t depth_m, const float depth_variance_m2, const feature_type type = feature_type::tracked);
     void get_triangulation_geometry(const nodeid group_id, const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses);
-    void add_triangulated_feature_to_group(const nodeid group_id, const uint64_t feature_id, const v3& point_3d);
+    void add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, const f_t depth_m);
     nodes_path breadth_first_search(nodeid start, int maxdepth = 1);
     nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes);
+    v3 get_feature3D(nodeid node_id, uint64_t feature_id); // returns feature wrt node body frame
 
     const aligned_vector<map_node> & get_nodes() const { return nodes; }
     map_node& get_node(nodeid id) { return nodes[id]; }
@@ -133,6 +137,18 @@ class mapper {
 
     bool relocalize(const camera_frame_t& camera_frame, std::vector<transformation>& vG_W_currentframe);
     void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
+
+    // reuse map features in filter
+    struct node_feature_track {
+        nodeid group_id;
+        transformation G_neighbor_now;
+        std::vector<tracker::feature_track> tracks;
+        int found = 0;
+        node_feature_track(nodeid id, const transformation &G, std::vector<tracker::feature_track> &&tracks)
+            : group_id(id), G_neighbor_now(G), tracks(std::move(tracks)) {}
+    };
+    std::vector<node_feature_track> map_feature_tracks;
+    void predict_map_features(const uint64_t camera_id_now, const transformation& G_Bcurrent_Bnow);
 };
 
 #endif

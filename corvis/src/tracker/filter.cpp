@@ -458,6 +458,8 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
     for(auto i = kp.begin(); i != kp.end() && found_feats < newfeats; found_feats++, i = kp.erase(i)) {
+            std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->x = i->x;
+            std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->y = i->y;
             state_vision_feature *feat = f->s.add_feature(*i, *g);
 
             float depth_m = i->depth;
@@ -848,9 +850,13 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(show_tuning) {
         fprintf(stderr, "\nvision:\n");
     }
+
+    transformation G_Bcurrent_Bnow;
+    if(f->map)
+        f->s.get_closest_group_transformation(f->map->current_node_id, G_Bcurrent_Bnow);
     
     preprocess_observation_queue(f, time); // time update filter, then predict locations of current features in the observation queue
-    camera_state.update_feature_tracks(data.image); // track the current features near their predicted locations
+    camera_state.update_feature_tracks(data.image, f->map.get(), G_Bcurrent_Bnow); // track the current features near their predicted locations
     process_observation_queue(f); // update state and covariance based on current location of tracked features
 
     auto space = filter_available_feature_space(f, camera_state);
@@ -881,6 +887,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     int normal_groups = camera_state.process_features(f->map.get(), *f->log);
     filter_update_outputs(f, time, normal_groups == 0);
     f->s.remap();
+
+    filter_bring_groups_back(f, data.id);
 
     space = filter_available_feature_space(f, camera_state);
     if(space >= f->min_group_add && camera_state.standby_features.size() >= f->min_group_add)
@@ -920,6 +928,7 @@ void filter_initialize(struct filter *f)
 {
     //changing these two doesn't affect much.
     f->min_group_add = 16;
+    f->min_group_map_add = 10;
     f->max_group_add = std::max<int>(80 / f->cameras.size(), f->min_group_add);
     f->has_depth = false;
     f->stereo_enabled = false;
@@ -1235,4 +1244,63 @@ std::string filter_get_stats(const struct filter *f)
     }
     statstr << "\n";
     return statstr.str();
+}
+
+void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
+{
+    if (f->map) {
+        auto &camera_state = *f->s.cameras.children[camera_id];
+        for(auto &nft : f->map->map_feature_tracks) {
+            map_node &node = f->map->get_node(nft.group_id);
+            if(node.camera_id != camera_id) continue; // Only bring a group if node camera_id matches current camera. DO WE REALLY NEED THIS?
+
+            auto space = filter_available_feature_space(f, camera_state);
+            if(space > f->min_group_map_add) {
+                if(nft.found > f->min_group_map_add) {
+                    auto &camera_node_state = *f->s.cameras.children[node.camera_id];
+                    state_vision_group *g = new state_vision_group(camera_node_state, nft.group_id);
+                    g->Tr.v = nft.G_neighbor_now.T;
+                    g->Qr.v = nft.G_neighbor_now.Q;
+                    // g->Tr.set_initial_variance({0.1,0.1,0.1});
+                    // g->Qr.set_initial_variance({0.1,0.1,0.1});
+                    node.status = node_status::normal;
+
+                    for(const auto &ft : nft.tracks) {
+                        state_vision_feature *feat = f->s.add_feature(ft, *g);
+                        auto ftmp = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(ft.feature);
+                        feat->initial[0] = ftmp->x;
+                        feat->initial[1] = ftmp->y;
+                        feat->v.set_depth_meters(ft.depth);
+                        float std_pct = get_stdev_pct_for_depth(ft.depth);
+                        feat->set_initial_variance(std_pct * std_pct); // assumes log depth
+                        feat->depth_measured = true;
+
+                        if(space && ft.found()) {
+                            --space;
+                            feat->status = feature_normal;
+                            g->features.children.push_back(feat);
+                            feat->track.feature = ft.feature;
+                        } else {
+                            // if there is no space or feature not found add to feature_lost
+                            feat->status = feature_lost;
+                            g->lost_features.push_back(feat);
+                        }
+                    }
+                    const transformation& G_gnew_now = transformation(g->Qr.v, g->Tr.v);
+                    for(auto &neighbor : camera_state.groups.children) {
+                        const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
+                        transformation G_gnew_neighbor = G_gnew_now*G_now_neighbor;
+                        f->map->add_edge(g->id, neighbor->id, G_gnew_neighbor);
+                    }
+                    camera_state.groups.children.push_back(g);
+                    f->s.remap();
+                } else {
+                    break;
+                }
+            }
+            else {
+                break;
+            }
+        }
+    }
 }

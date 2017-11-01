@@ -257,10 +257,15 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
                 std::vector<transformation> camera_poses;
                 const uint64_t& ref_group_id = t.group_tracks[0].group_id;
                 map->get_triangulation_geometry(ref_group_id, t, tracks_2d, camera_poses);
-                v3 point_3d;
-                float mean_error_point = estimate_3d_point(tracks_2d,camera_poses, point_3d);
-                if (mean_error_point <  2*sigma)
-                    map->add_triangulated_feature_to_group(ref_group_id, t.feature->id, point_3d);
+                f_t depth_m;
+                float mean_error_point = estimate_3d_point(tracks_2d,camera_poses, depth_m);
+                if ((depth_m > 0) && (mean_error_point <  2*sigma)) // a good 3d point has to be in front of the camera
+                {
+                    auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature);
+                    f->x = t.group_tracks[0].x;
+                    f->y = t.group_tracks[0].y;
+                    map->add_triangulated_feature_to_group(ref_group_id, f, depth_m);
+                }
                 else
                     log.debug("{}/{}) Reprojection error too large for triangulated point with id: {}", t.feature->id);
             }
@@ -337,7 +342,12 @@ void state_vision::update_map(mapper *map)
 
                 bool good = stdev / f->v.depth() < .05f;
                 if (good) {
-                    map->set_feature(g->id, f->track.feature->id, f->node_body, variance_meters, !f->is_in_map);
+                    if(f->is_in_map) {
+                        map->set_feature(g->id, f->track.feature->id, f->v.depth(), variance_meters);
+                    } else {
+                        auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->track.feature);
+                        map->add_feature(g->id, feature, f->v.depth(), variance_meters);
+                    }
                     f->is_in_map = true;
                 }
             }
@@ -542,7 +552,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<
     return ku_d;
 }
 
-void state_camera::update_feature_tracks(const rc_ImageData &image)
+void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map, const transformation& G_Bcurrent_Bnow)
 {
     START_EVENT(SF_TRACK, 0);
     tracker::image current_image;
@@ -563,8 +573,29 @@ void state_camera::update_feature_tracks(const rc_ImageData &image)
     }
     for(auto &t:standby_features) feature_tracker->tracks.emplace_back(&t);
 
+    // create tracks of features visible in inactive map nodes
+    if(map) {
+        map->predict_map_features(camera_frame.camera_id, G_Bcurrent_Bnow);
+        for(auto &nft : map->map_feature_tracks) {
+            for(auto &t : nft.tracks)
+                feature_tracker->tracks.emplace_back(&t);
+        }
+    }
+
     if (feature_tracker->tracks.size())
         feature_tracker->track(current_image, feature_tracker->tracks);
+
+    // sort map tracks according to number of features found
+    if(map) {
+        for (auto &nft : map->map_feature_tracks)
+            for (auto &t : nft.tracks)
+                nft.found += t.found();
+        std::sort(map->map_feature_tracks.begin(), map->map_feature_tracks.end(),
+                  [](const mapper::node_feature_track &a, const mapper::node_feature_track &b) {
+                      return a.found > b.found;
+                  });
+    }
+
     END_EVENT(SF_TRACK, feature_tracker->tracks.size())
 }
 

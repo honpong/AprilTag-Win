@@ -43,7 +43,9 @@ class log_depth
 {
 protected:
     friend class state_vision_feature;
+    friend class observation_vision_feature;
     f_t v;
+    v2 initial;
 public:
     f_t depth() { return exp(v); }
     f_t invdepth() { return exp(-v); }
@@ -114,7 +116,6 @@ class state_vision_feature: public state_leaf<1> {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     log_depth v;
     std::shared_ptr<tracker::feature> feature;
-    v2 initial;
     state_vision_group &group;
     v3 body = v3(0, 0, 0);
     v3 node_body = v3(0, 0, 0);

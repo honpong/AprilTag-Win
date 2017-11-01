@@ -684,7 +684,6 @@ bool frame_deserialize(const Value &json, std::shared_ptr<frame_t> &frame) {
 #define KEY_NODE_FRAME "map_frame"
 #define KEY_NODE_TRANSLATION "T"
 #define KEY_NODE_QUATERNION "Q"
-#define KEY_NODE_STATUS "status"
 void map_node::serialize(Value &json, Document::AllocatorType & allocator) {
     json.AddMember(KEY_NODE_ID, id, allocator);
     json.AddMember(KEY_FRAME_CAMERA_ID, camera_id, allocator);

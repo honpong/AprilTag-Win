@@ -109,9 +109,10 @@ struct camera_frame_t {
 class state_vision_group;
 struct state_camera;
 
-class state_vision_feature: public state_leaf<log_depth, 1> {
+class state_vision_feature: public state_leaf<1> {
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    log_depth v;
     std::shared_ptr<tracker::feature> feature;
     v2 initial;
     state_vision_group &group;

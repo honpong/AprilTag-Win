@@ -120,12 +120,10 @@ public:
     bool estimate = true;
 };
 
-template <class T, int _size> class state_leaf: public state_leaf_base, public state_node {
+template <int _size> class state_leaf: public state_leaf_base, public state_node {
  public:
     state_leaf(const char *_name, node_type nt) : state_leaf_base(_name, nt, -1, _size) {}
 
-    T v;
-    
     covariance *cov;
     
     template <int Cols, typename Stride_ = Eigen::Stride<Cols == 1 ? Eigen::Dynamic : 1, Cols == 1 ? 0 : Eigen::Dynamic> >
@@ -228,19 +226,19 @@ protected:
 #define PERTURB_FACTOR f_t(1.1)
 
 template <int size_>
-class state_vector : public state_leaf<::v<size_>, size_> {
+class state_vector : public state_leaf<size_> {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    state_vector(const char *_name, state_node::node_type nt): state_leaf<::v<size_>, size_>(_name, nt) { reset(); }
+    ::v<size_> v;
+    state_vector(const char *_name, state_node::node_type nt): state_leaf<size_>(_name, nt) { reset(); }
 
-    using state_leaf<::v<size_>,size_>::set_initial_variance;
-    using state_leaf<::v<size_>,size_>::cov;
-    using state_leaf<::v<size_>,size_>::v;
-    using state_leaf<::v<size_>,size_>::index;
-    using state_leaf<::v<size_>,size_>::name;
-    using state_leaf<::v<size_>,size_>::initial_covariance;
-    using state_leaf<::v<size_>,size_>::from_row;
-    using state_leaf<::v<size_>,size_>::to_col;
+    using state_leaf<size_>::set_initial_variance;
+    using state_leaf<size_>::cov;
+    using state_leaf<size_>::index;
+    using state_leaf<size_>::name;
+    using state_leaf<size_>::initial_covariance;
+    using state_leaf<size_>::from_row;
+    using state_leaf<size_>::to_col;
 
     void set_initial_variance(const ::v<size_> &v)
     {
@@ -284,9 +282,11 @@ public:
     }
 };
 
-class state_rotation_vector: public state_leaf<rotation_vector, 3> {
+class state_rotation_vector: public state_leaf<3> {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
+    rotation_vector v;
+
     state_rotation_vector(const char *_name, node_type nt): state_leaf(_name, nt) { reset(); }
 
     using state_leaf::set_initial_variance;
@@ -334,10 +334,12 @@ public:
     }
 };
 
-class state_quaternion: public state_leaf<quaternion, 3>
+class state_quaternion: public state_leaf<3>
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
+    quaternion v;
+
     state_quaternion(const char *_name, node_type nt): state_leaf(_name, nt) { reset(); }
     
     using state_leaf::set_initial_variance;
@@ -388,8 +390,10 @@ protected:
     rotation_vector w;
 };
 
-class state_scalar: public state_leaf<f_t, 1> {
+class state_scalar: public state_leaf<1> {
  public:
+    f_t v;
+
     state_scalar(const char *_name, node_type nt): state_leaf(_name, nt) { reset(); }
 
     f_t *raw_array() { return &v; }

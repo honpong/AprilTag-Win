@@ -564,13 +564,13 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
                 feat.world.x = static_cast<decltype(feat.world.x)>(ext_pos[0]);
                 feat.world.y = static_cast<decltype(feat.world.y)>(ext_pos[1]);
                 feat.world.z = static_cast<decltype(feat.world.z)>(ext_pos[2]);
-                feat.stdev   = static_cast<decltype(feat.stdev)>(i->v.stdev_meters(sqrt(i->variance())));
+                feat.stdev   = static_cast<decltype(feat.stdev)>(i->v->stdev_meters(sqrt(i->variance())));
                 feat.innovation_variance_x = t->innovation_variance_x;
                 feat.innovation_variance_y = t->innovation_variance_y;
                 feat.innovation_variance_xy = t->innovation_variance_xy;
                 feat.depth_measured = i->depth_measured;
                 feat.initialized =  i->is_initialized();
-                feat.depth = i->v.depth();
+                feat.depth = i->v->depth();
                 features.push_back(feat);
                 ++t;
             }

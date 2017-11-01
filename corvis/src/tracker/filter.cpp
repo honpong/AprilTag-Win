@@ -471,7 +471,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             }
             if(depth_m)
             {
-                feat->v.set_depth_meters(depth_m);
+                feat->v->set_depth_meters(depth_m);
                 float std_pct = get_stdev_pct_for_depth(depth_m);
                 if(i->error) { // stereo
                     //std_pct = std::max<float>(0.02f, i->error);
@@ -1270,9 +1270,9 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                     for(auto &ft : nft.tracks) {
                         auto feat = std::make_unique<state_vision_feature>(ft, *g);
                         auto ftmp = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(ft.feature);
-                        feat->initial[0] = ftmp->x;
-                        feat->initial[1] = ftmp->y;
-                        feat->v.set_depth_meters(ft.depth);
+                        feat->v->initial[0] = ftmp->x;
+                        feat->v->initial[1] = ftmp->y;
+                        feat->v->set_depth_meters(ft.depth);
                         float std_pct = get_stdev_pct_for_depth(ft.depth);
                         feat->set_initial_variance(std_pct * std_pct); // assumes log depth
                         feat->depth_measured = true;

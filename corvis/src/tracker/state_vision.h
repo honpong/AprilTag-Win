@@ -41,12 +41,9 @@ enum feature_flag {
 
 class log_depth
 {
-protected:
-    friend class state_vision_feature;
-    friend class observation_vision_feature;
+public:
     f_t v;
     v2 initial;
-public:
     f_t depth() { return exp(v); }
     f_t invdepth() { return exp(-v); }
     f_t invdepth_jacobian() { return -exp(-v); }
@@ -114,7 +111,7 @@ struct state_camera;
 class state_vision_feature: public state_leaf<1> {
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    log_depth v;
+    std::shared_ptr<log_depth> v;
     std::shared_ptr<tracker::feature> feature;
     state_vision_group &group;
     v3 body = v3(0, 0, 0);
@@ -144,7 +141,7 @@ class state_vision_feature: public state_leaf<1> {
     
     void reset() {
         set_initial_variance(initial_var);
-        v.set_depth_meters(initial_depth_meters);
+        v->set_depth_meters(initial_depth_meters);
         set_process_noise(initial_process_noise);
     }
 
@@ -163,12 +160,12 @@ class state_vision_feature: public state_leaf<1> {
     
     void copy_state_to_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
-        state[index] = v.v;
+        state[index] = v->v;
     }
     
     virtual void copy_state_from_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
-        v.v = state[index];
+        v->v = state[index];
     }
     
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
@@ -178,7 +175,7 @@ class state_vision_feature: public state_leaf<1> {
 
     virtual std::ostream &print_to(std::ostream & s) const
     {
-        return s << "f" << feature->id << ": " << v.v << "±" << std::sqrt(variance());
+        return s << "f" << feature->id << ": " << v->v << "±" << std::sqrt(variance());
     }
 };
 

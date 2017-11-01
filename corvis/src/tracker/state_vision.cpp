@@ -23,9 +23,9 @@ f_t state_vision_track::outlier_lost_reject;
 f_t state_vision_feature::max_variance;
 
 state_vision_feature::state_vision_feature(const tracker::feature_track &track_, state_vision_group &group_):
-    state_leaf("feature", constant), group(group_), feature(track_.feature)
+    state_leaf("feature", constant), v(std::make_shared<log_depth>()), group(group_), feature(track_.feature)
 {
-    v.initial = {track_.x, track_.y};
+    v->initial = {track_.x, track_.y};
     reset();
 }
 
@@ -341,19 +341,19 @@ void state_vision::update_map(mapper *map)
                 map->current_node_id = g->id;
             }
             for (auto &f : g->features.children) {
-                float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
+                float stdev = (float)f->v->stdev_meters(sqrt(f->variance()));
                 float variance_meters = stdev*stdev;
                 const float measurement_var = 1.e-3f*1.e-3f;
                 if (variance_meters < measurement_var)
                     variance_meters = measurement_var;
 
-                bool good = stdev / f->v.depth() < .05f;
+                bool good = stdev / f->v->depth() < .05f;
                 if (good) {
                     if(f->is_in_map) {
-                        map->set_feature(g->id, f->feature->id, f->v.depth(), variance_meters);
+                        map->set_feature(g->id, f->feature->id, f->v->depth(), variance_meters);
                     } else {
                         auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->feature);
-                        map->add_feature(g->id, feature, f->v.depth(), variance_meters);
+                        map->add_feature(g->id, feature, f->v->depth(), variance_meters);
                     }
                     f->is_in_map = true;
                 }

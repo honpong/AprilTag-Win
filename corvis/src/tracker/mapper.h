@@ -143,7 +143,7 @@ class mapper {
         nodeid group_id;
         transformation G_neighbor_now;
         std::vector<tracker::feature_track> tracks;
-        int found = 0;
+        size_t found = 0;
         node_feature_track(nodeid id, const transformation &G, std::vector<tracker::feature_track> &&tracks)
             : group_id(id), G_neighbor_now(G), tracks(std::move(tracks)) {}
     };

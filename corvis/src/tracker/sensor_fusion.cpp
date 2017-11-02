@@ -280,6 +280,8 @@ bool sensor_fusion::started()
 
 void sensor_fusion::stop()
 {
+    if (!isSensorFusionRunning)
+        return;
     queue.stop();
     filter_deinitialize(&sfm);
     isSensorFusionRunning = false;

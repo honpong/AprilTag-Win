@@ -514,7 +514,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
     int standby_count = camera.standby_features.size(),
         detect_count = camera.detecting_space,
         feature_count = camera.feature_count(),
-        reloc_count = f->map && update_frame ? 400 : 0;
+        reloc_count = f->relocalize && update_frame ? 400 : 0;
     camera.detecting_space = 0;
 
     auto froom = std::max(0, detect_count - standby_count);

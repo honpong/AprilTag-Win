@@ -574,7 +574,7 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
     for(auto &t:standby_features) feature_tracker->tracks.emplace_back(&t);
 
     // create tracks of features visible in inactive map nodes
-    if(map) {
+    if(map && camera_frame.frame) {
         map->predict_map_features(camera_frame.camera_id, G_Bcurrent_Bnow);
         for(auto &nft : map->map_feature_tracks) {
             for(auto &t : nft.tracks)

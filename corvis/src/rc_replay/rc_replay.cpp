@@ -138,7 +138,9 @@ bool replay::find_reference_in_filename(const std::string &filename)
 void replay::enable_pose_output()
 {
     rc_setDataCallback(tracker, [](void *handle, rc_Tracker * tracker, const rc_Data * data) {
-        if (data->path != rc_DATA_PATH_SLOW) return;
+        replay *rp = (replay *)handle;
+        if (data->path != (rp->fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW))
+            return;
         rc_PoseTime pt = rc_getPose(tracker, nullptr, nullptr, data->path);
         std::cout << pt.time_us; for(int c=0; c<4; c++) std::cout << " " << pt.pose_m.Q.v[c]; for(int c=0; c<3; c++) std::cout << " " << pt.pose_m.T.v[c]; std::cout << "\n";
     }, this);
@@ -147,7 +149,9 @@ void replay::enable_pose_output()
 void replay::enable_tum_output()
 {
     rc_setDataCallback(tracker, [](void *handle, rc_Tracker * tracker, const rc_Data * data) {
-        if (data->path != rc_DATA_PATH_SLOW) return;
+        replay *rp = (replay *)handle;
+        if (data->path != (rp->fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW))
+            return;
         rc_PoseTime pt = rc_getPose(tracker, nullptr, nullptr, data->path);
         printf("%.9f", pt.time_us/1.e6);
         for(int c=0; c<3; c++) std::cout << " " << pt.pose_m.T.v[c] << " ";
@@ -195,7 +199,7 @@ bool replay::run()
     typedef std::pair<std::string, int> data_pair;
     std::set<data_pair> unconfigured_data;
 
-    rc_startTracker(tracker, rc_RUN_SYNCHRONOUS);
+    rc_startTracker(tracker, rc_RUN_SYNCHRONOUS | (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
 
     while (file.peek() != EOF) {
         packet_header_t header;

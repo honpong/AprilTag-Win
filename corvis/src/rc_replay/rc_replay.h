@@ -18,6 +18,7 @@ private:
     bool find_reference_in_filename(const std::string &filename);
     bool set_calibration_from_filename(const std::string &fn);
     virtual bool sleep_until(uint64_t time_us) { return true; }
+    bool fast_path { false };
 
 public:
     rc_Tracker *tracker;
@@ -31,6 +32,7 @@ public:
     void reset() { rc_reset(tracker, 0); }
     bool open(const char *name);
     bool run();
+    void enable_fast_path() { fast_path = true; }
     void disable_depth() { depth = false; }
     void enable_qvga() { qvga = true; }
     double get_length() { return length_m; }

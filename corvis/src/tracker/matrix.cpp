@@ -40,9 +40,9 @@ static void blis_set_object(const matrix &m, obj_t *obj, bool trans = false)
 #endif
 
 #if defined(ENABLE_BLIS_GEMM) || defined(HAVE_BLIS)
-static void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, bool transA, bool transB, const float dst_scale, const float scale)
+static void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, bool transA, bool transB, const float scale)
 {
-    obj_t Aobj, Bobj, resObj, scaleObj, dstScaleObj;
+    obj_t Aobj, Bobj, resObj, scaleObj;
 
     blis_set_object(A, &Aobj, transA);
     blis_set_object(B, &Bobj, transB);
@@ -50,10 +50,9 @@ static void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, b
     bli_obj_scalar_init_detached(BLIS_FLOAT, &scaleObj);
     bli_obj_scalar_init_detached(BLIS_FLOAT, &dstScaleObj);
     bli_setsc(scale, 0.0, &scaleObj);
-    bli_setsc(dst_scale, 0.0, &dstScaleObj);
 
     blis_mutex.lock();
-    bli_gemm(&scaleObj, &Aobj, &Bobj, &dstScaleObj, &resObj);
+    bli_gemm(&scaleObj, &Aobj, &Bobj, &BLIS_ONE, &resObj);
     blis_mutex.unlock();
 #ifdef MYRIAD2
     rtems_cache_invalidate_multiple_data_lines( (void *)res.Data(), res.rows() * res.get_stride() * sizeof(f_t) );
@@ -113,7 +112,7 @@ void matrix::print_diag() const
     fprintf(stderr, "\n");
 }
 
-void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale)
+void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t scale)
 {
 
     START_EVENT(SF_GEMM, 0);
@@ -128,13 +127,12 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
       )
     {
         START_EVENT(SF_GEMM_HW, 0);
-        matrix_product_blis(res, A, B, trans1, trans2, dst_scale, scale);
+        matrix_product_blis(res, A, B, trans1, trans2, scale);
         END_EVENT(SF_GEMM_HW, k);
     }
     else
 #endif
     {
-    assert(dst_scale == 1); // a limitation of Eigen's GEMM detection
     if(!trans1 && !trans2)
         res.map().noalias() += scale*A.map()             * B.map();
     else if(trans1 && !trans2)

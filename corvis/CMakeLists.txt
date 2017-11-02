@@ -6,6 +6,10 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../cmake)
 
+foreach(__lang__ C CXX) # enable assert()s
+  string(REGEX REPLACE "(^| )-DNDEBUG( |$)" "" CMAKE_${__lang__}_FLAGS_RELWITHDEBINFO   "${CMAKE_${__lang__}_FLAGS_RELWITHDEBINFO}")
+endforeach()
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL Clang AND EXISTS /usr/include/c++/v1)
   include_directories(SYSTEM BEFORE /usr/include/c++/v1)
   link_libraries(c++)

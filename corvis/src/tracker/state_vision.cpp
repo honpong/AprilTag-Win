@@ -23,7 +23,7 @@ f_t state_vision_track::outlier_lost_reject;
 f_t state_vision_feature::max_variance;
 
 state_vision_feature::state_vision_feature(const tracker::feature_track &track_, state_vision_group &group_):
-    state_leaf("feature", constant), v(std::make_shared<log_depth>()), group(group_), feature(track_.feature)
+    state_leaf("feature", constant), v(std::make_shared<log_depth>()), feature(track_.feature), group(group_)
 {
     v->initial = {track_.x, track_.y};
     reset();

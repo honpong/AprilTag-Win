@@ -197,8 +197,9 @@ class state_vision_group: public state_branch<state_node *> {
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    state_vector<3>  Tr { "Tr", dynamic};
-    state_quaternion Qr { "Qr", dynamic};
+    std::shared_ptr<transformation> Gr;
+    state_vector_ref<3>  Tr;
+    state_quaternion_ref Qr;
 
     state_camera &camera;
     state_branch<std::unique_ptr<state_vision_feature>> features;

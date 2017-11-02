@@ -80,7 +80,7 @@ bool state_vision_feature::force_initialize()
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
 
-state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): camera(camera_)
+state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): Gr (std::make_shared<transformation>()), Tr(Gr->T, "Tr", dynamic), Qr(Gr->Q, "Qr", dynamic),  camera(camera_)
 {
     id = group_id;
     children.push_back(&Qr);

@@ -34,6 +34,7 @@ rc_Tracker * create_default()
     EXPECT_FALSE(rc_startTracker(tracker, rc_RUN_ASYNCHRONOUS));
 
     rc_CameraIntrinsics camera_intrinsics = {};
+    camera_intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
     EXPECT_TRUE(rc_configureCamera(tracker, 0, rc_FORMAT_GRAY8, &identity, &camera_intrinsics));
 
     return tracker;
@@ -162,6 +163,7 @@ TEST(rc_tracker_tests, rc_fisheyeKw)
     EXPECT_TRUE(rc_setCalibration(tracker, json_in));
 
     struct rc_CameraIntrinsics intrinsics = {};
+    intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
     ASSERT_TRUE(rc_describeCamera(tracker, rc_CAMERA_ID_FISHEYE, nullptr, &intrinsics));
     EXPECT_EQ(intrinsics.type, rc_CALIBRATION_TYPE_FISHEYE);
     EXPECT_FLOAT_EQ(intrinsics.w, 0.123);
@@ -174,6 +176,7 @@ TEST(rc_tracker_tests, rc_fisheyeKw)
     rc_configureCamera(tracker, rc_CAMERA_ID_COLOR, nullptr, &intrinsics);
 
     rc_CameraIntrinsics intrinsics_out;
+    intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
     ASSERT_TRUE(rc_describeCamera(tracker, rc_CAMERA_ID_COLOR, nullptr, &intrinsics_out));
     EXPECT_EQ(intrinsics_out.type, rc_CALIBRATION_TYPE_POLYNOMIAL3);
     EXPECT_FLOAT_EQ(intrinsics_out.k1, 23);

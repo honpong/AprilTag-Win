@@ -24,6 +24,7 @@
 #include "ipp_tracker.h"
 #endif
 #include "Trace.h"
+#include "rc_compat.h"
 
 #ifdef MYRIAD2
 #include "shave_tracker.h"
@@ -569,24 +570,19 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
     camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 }
 
-bool filter_relocalize(struct filter *f, const rc_Sensor camera_id)
+bool filter_relocalize(struct filter *f, const rc_Sensor camera_id, sensor_clock::time_point timestamp)
 {
     camera_frame_t &camera_frame = f->s.cameras.children[camera_id]->camera_frame;
     if (!f->map->initialized() || !camera_frame.frame)
         return false;
 
-    std::vector<transformation> vG_W_frame;
     START_EVENT(SF_RELOCALIZE, camera_id);
-    bool relocalized = f->map->relocalize(camera_frame, vG_W_frame);
-    END_EVENT(SF_RELOCALIZE, relocalized);
-    if (!relocalized)
+    f->is_relocalized = f->map->relocalize(camera_frame);
+    END_EVENT(SF_RELOCALIZE, f->is_relocalized);
+    if (!f->is_relocalized)
         return false;
-    transformation G_W_closestnode = f->map->get_node(camera_frame.closest_node).global_transformation;
+    const transformation& G_W_closestnode = f->map->get_node(camera_frame.closest_node).global_transformation;
     f->pose_at_reloc = G_W_closestnode*camera_frame.G_closestnode_frame; // Note that this relocalizes based on the data from the previous frame (which is now done)
-    f->reloc_poses.clear();
-    for(auto && G_W_frame : vG_W_frame) {
-        f->reloc_poses.push_back(G_W_frame);
-    }
     return true;
 }
 
@@ -943,6 +939,7 @@ void filter_initialize(struct filter *f)
     f->max_group_add = std::max<int>(80 / f->cameras.size(), f->min_group_add);
     f->has_depth = false;
     f->stereo_enabled = false;
+    f->is_relocalized = false;
 
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;

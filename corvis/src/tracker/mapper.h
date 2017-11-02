@@ -74,13 +74,22 @@ struct map_node {
     static bool deserialize(const rapidjson::Value &json, map_node &node, uint64_t &max_loaded_featid);
 };
 
-class mapper {
+struct map_relocalization_info {
+    sensor_clock::time_point frame_timestamp;
+    std::vector<uint64_t> node_ids;
+    aligned_vector<transformation> vG_node_frame;
+    void clear() { frame_timestamp = sensor_clock::micros_to_tp(0); node_ids.clear(); vG_node_frame.clear(); }
+    size_t size() const { return vG_node_frame.size(); }
+};
+
+class mapper {   
  private:
     aligned_vector<map_node> nodes;
     friend struct map_node;
     bool unlinked{false};
     uint64_t node_id_offset{0};
     uint64_t feature_id_offset{0};
+    map_relocalization_info reloc_info;
 
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -138,8 +147,9 @@ class mapper {
     std::vector<state_vision_intrinsics*> camera_intrinsics;
     std::vector<state_extrinsics*> camera_extrinsics;
 
-    bool relocalize(const camera_frame_t& camera_frame, std::vector<transformation>& vG_W_currentframe);
+    bool relocalize(const camera_frame_t& camera_frame);
     void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
+    const map_relocalization_info& get_relocalization_info() const { return reloc_info; }
 
     // reuse map features in filter
     struct node_feature_track {

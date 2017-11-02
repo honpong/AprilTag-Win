@@ -9,7 +9,10 @@
 
 #include <string.h>
 #include <regex>
+#include <unordered_map>
 #include "packet.h"
+#include "tpose.h"
+#include "rc_compat.h"
 
 using namespace std;
 
@@ -153,6 +156,38 @@ bool replay::load_reference_from_pose_file(const string &filename)
         reference_path_length = seq->get_path_length();
         reference_length = seq->get_length();
         reference_seq = move(seq);
+        return true;
+    }
+    return false;
+}
+
+bool replay::set_reloc_reference_from_filename(const string &filename)
+{
+    return load_reloc_reference_from_file(filename + ".loop");
+}
+
+bool replay::load_reloc_reference_from_file(const std::string &filename)
+{
+    ref_relocalization_edges.clear();
+    std::ifstream ref_reloc_file(filename, std::ios::in | std::ios::binary);
+    if (ref_reloc_file.is_open()) {
+        auto it = ref_relocalization_edges.end();
+        uint64_t time[2];
+        uint32_t node_id;
+        while (!ref_reloc_file.bad() && !ref_reloc_file.eof()) {
+            // stored in little endian
+            ref_reloc_file.read(reinterpret_cast<char*>(time), sizeof(uint64_t) * 2);
+            ref_reloc_file.read(reinterpret_cast<char*>(&node_id), sizeof(uint32_t));
+            if (!ref_reloc_file.bad() && !ref_reloc_file.eof()) {
+                uint64_t time_new = le64toh(time[0]);
+                uint64_t time_old = le64toh(time[1]);
+                node_id = le32toh(node_id);
+                if (it == ref_relocalization_edges.end() || static_cast<uint64_t>(it->first) != time_new) {
+                    it = ref_relocalization_edges.emplace(time_new, std::unordered_set<rc_Timestamp>());
+                }
+                it->second.emplace(time_old);
+            }
+        }
         return true;
     }
     return false;

@@ -508,9 +508,9 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
 }
 
 void world_state::update_relocalization(rc_Tracker * tracker, const rc_Data * data) {
-    const struct filter * f = &((sensor_fusion *)tracker)->sfm;
-    uint64_t timestamp_us = data->time_us;
-    observe_position_reloc(timestamp_us,f->reloc_poses);
+    rc_Pose* poses;
+    size_t n = rc_getRelocalizationPoses(tracker, &poses);
+    observe_position_reloc(data->time_us, poses, n);
 }
 
 void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
@@ -1123,13 +1123,19 @@ void world_state::observe_ate(uint64_t timestamp_us, const float absolute_trajec
     ate = absolute_trajectory_error;
 }
 
-void world_state::observe_position_reloc(uint64_t timestamp, const std::vector<transformation>& transformation_vector) {
+void world_state::observe_position_reloc(uint64_t timestamp, const rc_Pose* poses, size_t nposes) {
     Position p;
-    display_lock.lock();
-    for (auto g : transformation_vector) {
-        p.timestamp = timestamp;
-        p.g = g;
-        path_reloc.push_back(p);
+    p.timestamp = timestamp;
+    decltype(path_reloc) additional_reloc;
+    additional_reloc.reserve(nposes);
+    for (size_t i = 0; i < nposes; ++i) {
+        const rc_Pose& G_world_body = poses[i];
+        p.g = to_transformation(G_world_body);
+        additional_reloc.push_back(p);
     }
+    display_lock.lock();
+    path_reloc.insert(path_reloc.end(),
+                      std::make_move_iterator(additional_reloc.begin()),
+                      std::make_move_iterator(additional_reloc.end()));
     display_lock.unlock();
 }

@@ -1278,7 +1278,6 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                             --space;
                             feat->status = feature_normal;
                             g->features.children.push_back(feat);
-                            feat->track.feature = ft.feature;
                         } else {
                             // if there is no space or feature not found add to feature_lost
                             feat->status = feature_lost;

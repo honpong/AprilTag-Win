@@ -72,7 +72,7 @@ TEST(rc_tracker_tests, rc_progressiveConfigure)
     rc_destroy(tracker);
 }
 
-TEST(rc_tracker_tests, rc_startStopReset)
+TEST(rc_tracker_tests, rc_stopReset)
 {
     rc_Tracker * tracker = create_default();
     rc_stopTracker(tracker);
@@ -80,6 +80,14 @@ TEST(rc_tracker_tests, rc_startStopReset)
     rc_destroy(tracker);
 }
 
+TEST(rc_tracker_tests, rc_startStopReset)
+{
+    rc_Tracker * tracker = create_default();
+    rc_startTracker(tracker, rc_RUN_ASYNCHRONOUS);
+    rc_stopTracker(tracker);
+    rc_reset(tracker, 0);
+    rc_destroy(tracker);
+}
 
 TEST(rc_tracker_tests, rc_receiveImageBadDimensions)
 {

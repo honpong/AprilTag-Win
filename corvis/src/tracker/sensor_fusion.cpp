@@ -231,7 +231,6 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data)
         case rc_SENSOR_TYPE_IMAGE:
         case rc_SENSOR_TYPE_STEREO:
         case rc_SENSOR_TYPE_THERMOMETER:
-            assert(0);
             break;
     }
     data.path = rc_DATA_PATH_SLOW;

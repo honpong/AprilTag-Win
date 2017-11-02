@@ -1,18 +1,35 @@
 #!/usr/bin/env python
+'''
+tumview.py - Extended .tum visualization tool
+---------------------------------------------
+tumview.py enables visualization of .tum or .tumx files. 
+.tum file format is defined in https://vision.in.tum.de/data/datasets/rgbd-dataset/file_formats
+which is space 8 space delimited lines in a form of
+timestamp, Tx, Ty, Tz, Qi, Qj, Qk, Qw
+In addition, tumview can use 9th field device-id data if exists to visualize each device
+seperatly.
+'''
 
 import matplotlib.pyplot as plt
 import sys
 import os
+import math
 
 TIME = 0
 X = 1
 Y = 2
 Z = 3
+D = 4
+
+# plot modes
+PLOT_MODE_AXIS = 0 # X,Y,Z trajectories
+PLOT_MODE_DIST = 1 # distance from origin
+PLOT_MODE_PROJECTIONS = 2 # plane projections
 
 def read_tum(filename) :
     '''
     Read tum file, return a generic name and dictinary of the form:
-    d[device-id] = { timebase: [] point_x: [] point_y: [] point_z: [] }
+    d[device-id] = { TIME: [] X: [] Y: [] Z: [] D: [] }
     '''
     d = {}
     name = os.path.basename(filename)
@@ -23,32 +40,39 @@ def read_tum(filename) :
         lc += 1
         data = l.split()
         if len(data) < 4:
-            print 'misformatted line at %d' % lc
+            print '%s: misformatted line at %d' % (filename, lc)
             continue
         device_id = 0
         if len(data) > 8:
             device_id = int(data[8])
         if (device_id in d.keys()) == False:
-            print name, ': found new device id: ', device_id
-            d[device_id] = { TIME: [], X:[], Y:[], Z:[] }
+            d[device_id] = { TIME: [], X:[], Y:[], Z:[], D:[] }
 
         d[device_id][TIME].append( float(data[0]))
-        d[device_id][X].append( float( data[1]) )
-        d[device_id][Y].append( float( data[2]) )
-        d[device_id][Z].append( float( data[3]) )
+        x = float(data[1])
+        y = float(data[2])
+        z = float(data[3])
+        dist = math.sqrt(x * x + y * y + z * z)
+        d[device_id][X].append( x )
+        d[device_id][Y].append( y )
+        d[device_id][Z].append( z )
+        d[device_id][D].append( dist )
 
     return name, d
 
-def plot_tum(name, data, fig, plot_projections = False) :
-    nkeys = len(data.keys())
+def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
     l = 0
     for k in data.keys():
         l += 1
-        if plot_projections == False:
+        if plot_mode == PLOT_MODE_AXIS or plot_mode == PLOT_MODE_DIST:
             xy_plt = plt.subplot(nkeys, 1, l)
-            xy_plt.plot(data[k][TIME], data[k][X], label="X_%s_%d" % (name, k))
-            xy_plt.plot(data[k][TIME], data[k][Y], label="Y_%s_%d" % (name, k))
-            xy_plt.plot(data[k][TIME], data[k][Z], label="Z_%s_%d" % (name, k))
+            if plot_mode == PLOT_MODE_AXIS:
+                xy_plt.plot(data[k][TIME], data[k][X], label="X_%s_%d" % (name, k))
+                xy_plt.plot(data[k][TIME], data[k][Y], label="Y_%s_%d" % (name, k))
+                xy_plt.plot(data[k][TIME], data[k][Z], label="Z_%s_%d" % (name, k))
+            else:
+                xy_plt.plot(data[k][TIME], data[k][D], label="%s_%d" % (name, k))
+
             xy_plt.legend(loc='upper right')
         else:
             xy_plt = plt.subplot(3, nkeys, l + nkeys * 0)
@@ -72,25 +96,30 @@ def plot_tum(name, data, fig, plot_projections = False) :
 
 def main() :
     files = []
-    plot_projections = False
+    plot_mode = PLOT_MODE_DIST
     for c in sys.argv[1:]:
         if c.strip() == '-p':
-            plot_projections = True
+            plot_mode = PLOT_MODE_PROJECTIONS
+        elif c.strip() == '-x':
+            plot_mode = PLOT_MODE_AXIS
         else:
             files.append(c.strip())
+
     if len(files) == 0:
-        print 'usage: %s [-p] files' % sys.argv[0]
+        print 'usage: %s [-p -x] files' % sys.argv[0]
         sys.exit(1)
     fig = plt.Figure()
+    datasets = []
     for f in files:
         name, data = read_tum(f)
-        plot_tum(name, data, fig, plot_projections = plot_projections)
+        datasets.append((name, data))
+    nitems = 0
+    for d in datasets:
+        if len(d[1].keys()) > nitems: nitems = len(d[1].keys())
+
+    for dataset in datasets:
+        plot_tum(nitems, dataset[0], dataset[1], fig, plot_mode = plot_mode)
     plt.show()
 
 if __name__ == '__main__':
     main()
-        
-        
-
-
-

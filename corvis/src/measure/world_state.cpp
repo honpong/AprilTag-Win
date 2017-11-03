@@ -528,7 +528,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
     uint64_t timestamp_us = pt.time_us;
     transformation G = to_transformation(pt.pose_m);
     if (display_reloc)
-        G = f->reloc_pose * invert(f->pose_at_reloc) * G; // plot camera pose wrt relocalization pose
+        G = f->reloc_poses.back() * invert(f->pose_at_reloc) * G; // plot camera pose wrt relocalization pose
     observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z(), data->path == rc_DATA_PATH_FAST);
     update_sensors(tracker, data);
 

@@ -57,7 +57,7 @@ struct filter {
 
     std::unique_ptr<mapper> map;
     std::vector<transformation> reloc_poses;
-    transformation reloc_pose, pose_at_reloc;
+    transformation pose_at_reloc;
 
 #ifdef ENABLE_QR
     qr_detector qr;

@@ -588,8 +588,7 @@ bool filter_relocalize(struct filter *f, const rc_Sensor camera_id)
     transformation G_W_closestnode = f->map->get_node(camera_frame.closest_node).global_transformation;
     f->pose_at_reloc = G_W_closestnode*camera_frame.G_closestnode_frame; // Note that this relocalizes based on the data from the previous frame (which is now done)
     for(auto && G_W_frame : vG_W_frame) {
-        f->reloc_pose = G_W_frame;
-        f->reloc_poses.push_back(f->reloc_pose);
+        f->reloc_poses.push_back(G_W_frame);
     }
     return true;
 }

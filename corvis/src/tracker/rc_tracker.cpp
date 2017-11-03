@@ -520,7 +520,7 @@ bool rc_receiveTemperature(rc_Tracker * tracker, rc_Sensor therm_id, rc_Timestam
 }
 
 rc_Pose rc_getRelocOffset(rc_Tracker* tracker) {
-    return to_rc_Pose(tracker->sfm.reloc_poses.back() * invert(tracker->sfm.pose_at_reloc));
+    return to_rc_Pose((tracker->sfm.reloc_poses.size() ? tracker->sfm.reloc_poses.back() : transformation()) * invert(tracker->sfm.pose_at_reloc));
 }
 
 rc_PoseTime rc_getPose(rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path)

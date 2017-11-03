@@ -1130,7 +1130,6 @@ void world_state::observe_ate(uint64_t timestamp_us, const float absolute_trajec
 void world_state::observe_position_reloc(uint64_t timestamp, const std::vector<transformation>& transformation_vector) {
     Position p;
     display_lock.lock();
-    path_reloc.clear();
     for (auto g : transformation_vector) {
         p.timestamp = timestamp;
         p.g = g;

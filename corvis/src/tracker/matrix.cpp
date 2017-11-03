@@ -48,7 +48,6 @@ static void matrix_product_blis(matrix &res, const matrix &A, const matrix &B, b
     blis_set_object(B, &Bobj, transB);
     blis_set_object(res, &resObj);
     bli_obj_scalar_init_detached(BLIS_FLOAT, &scaleObj);
-    bli_obj_scalar_init_detached(BLIS_FLOAT, &dstScaleObj);
     bli_setsc(scale, 0.0, &scaleObj);
 
     blis_mutex.lock();

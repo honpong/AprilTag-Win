@@ -3,8 +3,10 @@
 #include <moviVectorUtils.h>
 #include <swcCdma.h>
 #include "project_covariance_definitions.h"
+#include "../../../../state_size.h"
 
-static float __attribute__((section(".cmx.bss")))  covariance_matrix[MAX_DATA_SIZE * MAX_DATA_SIZE];
+__attribute__((section(".cmx.bss")))
+static float covariance_matrix[(MAXSTATESIZE+1) * (MAXSTATESIZE+1)];
 
 inline float4 from_row(const float *src, int row, int stride, int index, int cols, int rows, float initial_covariance, bool use_single_index, int size=3)
 {
@@ -133,9 +135,12 @@ inline float4 mull_m3_v3(const float* mat, float4 vec)
 {
     float4 new_vec;
     vec.s3 = 0.f;
-    float4 r1 = {*mat,     *(mat+1), *(mat+2), 0};
-    float4 r2 = {*(mat+3), *(mat+4), *(mat+5), 0};
-    float4 r3 = {*(mat+6), *(mat+7), *(mat+8), 0};
+    float4 r1 = *(float4*)mat;
+    r1.s3 = 0;
+    float4 r2 = *(float4*)(mat+3);
+    r2.s3 = 0;
+    float4 r3 = *(float4*)(mat+6);
+    r3.s3 = 0;
     new_vec[0]= mvuDot(r1, vec);
     new_vec[1]= mvuDot(r2, vec);
     new_vec[2]= mvuDot(r3, vec);
@@ -146,8 +151,10 @@ inline float2 mull_m23_v3(const float* mat, float4 vec)
 {
     float2 new_vec;
     vec.s3 = 0.f;
-    float4 r1 = {*mat,     *(mat+1), *(mat+2), 0};
-    float4 r2 = {*(mat+3), *(mat+4), *(mat+5), 0};
+    float4 r1 = *(float4*)mat;
+    r1.s3 = 0;
+    float4 r2 = *(float4*)(mat+3);
+    r2.s3 = 0;
     new_vec[0]= mvuDot(r1, vec);
     new_vec[1]= mvuDot(r2, vec);
     return new_vec;
@@ -156,8 +163,8 @@ inline float2 mull_m23_v3(const float* mat, float4 vec)
 inline float2 mull_m24_v4(const float* mat, float4 vec)
 {
     float2 new_vec;
-    float4 r1 = {*mat,     *(mat+1), *(mat+2), *(mat+3)};
-    float4 r2 = {*(mat+4), *(mat+5), *(mat+6), *(mat+7)};
+    float4 r1 = *(float4*)mat;
+    float4 r2 = *(float4*)(mat+4);
     new_vec[0]= mvuDot(r1, vec);
     new_vec[1]= mvuDot(r2, vec);
     return new_vec;
@@ -353,92 +360,6 @@ void observation_gyroscope_project_covariance(const float* src, float* dst,
     return;
 }
 
-extern "C" void vision_project_observation_covariance1(project_observation_covariance_data* data) {
-
-    int src_rows    = data->src_rows;
-    int src_cols    = data->src_cols;
-    int src_stride  = data->src_stride;
-    int HP_rows     = data->HP_rows;
-    int HP_src_cols = data->HP_src_cols;
-    int HP_dst_cols = data->HP_dst_cols;
-    int HP_stride   = data->HP_stride;
-    int dst_cols    = data->dst_cols;
-    int dst_stride  = data->dst_stride;
-    
-    //dma transaction of data->src
-    dmaTransactionList_t dma_task1;
-    dmaTransactionList_t *dma_ref1;
-    u32 dma_requster_id = dmaInitRequester(1);
-    
-    //input DMA
-    dma_ref1 = dmaCreateTransaction(
-                    dma_requster_id,
-                    &dma_task1,
-                    (u8*)(data->src),
-                    (u8*)covariance_matrix,
-                    data->src_rows * data->src_stride * sizeof(float));
-
-    dmaStartListTask(dma_ref1);
-    dmaWaitTask(dma_ref1);
-
-
-    int index = 0;
-    for (int i = 0; i < data->observations_size; ++i) { // HP = H * P'
-        switch (data->observations[i]->type) {
-            case vision_feature:
-            {
-                observation_vision_feature_data* vision_data = (observation_vision_feature_data*)data->observations[i];
-                observation_vision_feature_project_covariance(covariance_matrix, data->HP + index*HP_stride, src_rows, src_cols, src_stride, HP_dst_cols, HP_stride, vision_data);
-            }
-                break;
-            case accelerometer:
-            {
-                observation_accelerometer_data* accel_data = (observation_accelerometer_data*)data->observations[i];
-                observation_accelerometer_project_covariance(covariance_matrix, data->HP + index*HP_stride, src_rows, src_cols, src_stride, HP_dst_cols, HP_stride, accel_data);
-            }
-                break;
-            case gyroscope:
-            {
-                observation_gyroscope_data* gyro_data = (observation_gyroscope_data*)data->observations[i];
-                observation_gyroscope_project_covariance(covariance_matrix, data->HP + index*HP_stride, src_rows, src_cols, src_stride, HP_dst_cols, HP_stride, gyro_data);
-            }
-                break;
-            default:
-                break;
-        }
-        index+=data->observations[i]->size;
-    }
-    index = 0;
-    for (int i = 0; i < data->observations_size; ++i) { // res_cov = H * (H * P')' = H * P * H'
-        switch (data->observations[i]->type) {
-            case vision_feature:
-            {
-                observation_vision_feature_data* vision_data = (observation_vision_feature_data*)data->observations[i];
-                observation_vision_feature_project_covariance(data->HP, data->dst + index*dst_stride, HP_rows, HP_src_cols, HP_stride, dst_cols, dst_stride, vision_data);
-            }
-                break;
-            case accelerometer:
-            {
-                observation_accelerometer_data* accel_data = (observation_accelerometer_data*)data->observations[i];
-                observation_accelerometer_project_covariance(data->HP, data->dst + index*dst_stride, HP_rows, HP_src_cols, HP_stride, dst_cols, dst_stride, accel_data);
-            }
-                break;
-            case gyroscope:
-            {
-                observation_gyroscope_data* gyro_data = (observation_gyroscope_data*)data->observations[i];
-                observation_gyroscope_project_covariance(data->HP, data->dst + index*dst_stride, HP_rows, HP_src_cols, HP_stride, dst_cols, dst_stride, gyro_data);
-            }
-                break;
-            default:
-                break;
-        }
-        index+=data->observations[i]->size;
-    }
-    
-    SHAVE_HALT;
-    return;
-}
-
 extern "C" void vision_project_observation_covariance(project_observation_covariance_data* data, int start_index) {
 
     int src_rows    = data->src_rows;
@@ -456,20 +377,20 @@ extern "C" void vision_project_observation_covariance(project_observation_covari
     }
 
     //dma transaction of data->src
-    dmaTransactionList_t dma_task1;
-    dmaTransactionList_t *dma_ref1;
+    dmaTransactionList_t dma_task;
+    dmaTransactionList_t *dma_ref;
     u32 dma_requster_id = dmaInitRequester(1);
 
     //input DMA
-    dma_ref1 = dmaCreateTransaction(
+    dma_ref = dmaCreateTransaction(
                     dma_requster_id,
-                    &dma_task1,
+                    &dma_task,
                     (u8*)(data->src),
                     (u8*)covariance_matrix,
                     data->src_rows * data->src_stride * sizeof(float));
 
-    dmaStartListTask(dma_ref1);
-    dmaWaitTask(dma_ref1);
+    dmaStartListTask(dma_ref);
+    dmaWaitTask(dma_ref);
 
     int index = start_index;
     for (int i = start_obs; i < end_obs; ++i) {

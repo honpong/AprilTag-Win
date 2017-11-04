@@ -27,6 +27,8 @@ rs_sf_image_ptr make_image_ptr(const rs_sf_image* ref, int byte_per_pixel = -1)
 
 bool rs_sf_image_write(const std::string& filename, const rs_sf_image* img)
 {
+    if (!img || !img->data) return false;
+
     std::ofstream stream_data;
     stream_data.open((filename + (img->byte_per_pixel == 3 ? ".ppm" : ".pgm")).c_str(), 
         std::ios_base::out | std::ios_base::binary);

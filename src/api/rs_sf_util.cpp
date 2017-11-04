@@ -16,9 +16,9 @@ void rs_sf_util_convert_to_rgb_image(rs_sf_image * rgb, const rs_sf_image * src)
             memcpy(rgb->data, src->data, rgb->num_char());
     }
     else {
-        for (int p = rgb->num_pixel() - 1, p3 = p * 3, s, s1 = src->byte_per_pixel / 3, s2 = s1 * 2, h = rgb->img_h, w = rgb->img_w, sh = src->img_h, sw = src->img_w; p >= 0; --p, p3 -= 3)
+        for (int p = rgb->num_pixel() - 1, p3 = p * 3, s, sb = src->byte_per_pixel, s1 = sb / 3, s2 = s1 * 2, w = rgb->img_w, sw = src->img_w, dy = src->img_h / rgb->img_h * sb, dx = sw / w * sb; p >= 0; --p, p3 -= 3)
         {
-            rgb->data[p3 + 0] = src->data[s = ((p / w) * sh / h) * sw + ((p % w) * sw / w)];
+            rgb->data[p3 + 0] = src->data[s = ((p / w) * dy) * sw + ((p % w) * dx)];
             rgb->data[p3 + 1] = src->data[s + s1];
             rgb->data[p3 + 2] = src->data[s + s2];
         }

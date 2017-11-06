@@ -1,0 +1,96 @@
+--- mdk_release_17.04.5_general_purpose/mdk/common/swCommon/include/swcCdmaCommon.h	2017-11-02 10:35:16.256590727 +0200
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/swCommon/include/swcCdmaCommon.h	2017-11-02 10:35:04.920534514 +0200
+@@ -16,7 +16,7 @@
+ #ifndef _SWC_CDMA_COMMON_H_
+ #define _SWC_CDMA_COMMON_H_
+ 
+-
++#include <stdarg.h>
+ #include "swcCdmaCommonDefines.h"
+ 
+ #ifdef __cplusplus
+@@ -92,6 +92,8 @@
+ ///
+ void dmaLinkTasks(dmaTransactionList* listHead, u32 nmbTasks, ...);
+ 
++void dmaLinkTasks_va(dmaTransactionList* listHead, u32 nmbTasks, va_list a_list);
++
+ /// @brief Set-up CMXDMA to execute the given list of tasks.
+ /// @note Please note if there is heavy use of CMXDMA, the task list won't start immediately,
+ /// it will be put in a waiting queue until CMXDMA will become available to execute the current task.
+--- mdk_release_17.04.5_general_purpose/mdk/common/swCommon/shave_code/myriad2/src/swcCdmaShaveM2.c	2017-10-19 10:42:15.184074000 +0300
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/swCommon/shave_code/myriad2/src/swcCdmaShaveM2.c	2017-11-02 11:21:24.298316704 +0200
+@@ -194,6 +194,16 @@
+ 
+     va_start(a_list, nmbTasks);
+ 
++    dmaLinkTasks_va(listHead, nmbTasks, a_list);
++
++    va_end(a_list);
++}
++
++void dmaLinkTasks_va(dmaTransactionList* listHead, u32 nmbTasks, va_list a_list)
++{
++    dmaTransactionList *listEnd, *val;
++    u32 i;
++
+     listEnd = listHead;
+     for(i = 0; i < nmbTasks; i++)
+     {
+@@ -201,8 +211,6 @@
+         listEnd->linkAddress = val;
+         listEnd = listEnd->linkAddress;
+     }
+-
+-    va_end(a_list);
+ }
+ 
+ #define dmaWaitUntilLinkAgentIsntFetchingDescriptors(linkAgent)\
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/shave/include/scCmxDma.h	2017-11-02 14:29:56.638411570 +0200
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/drivers/myriad2/socDrivers/shave/include/scCmxDma.h	2017-11-02 15:04:12.004603580 +0200
+@@ -192,6 +192,9 @@
+ int32_t ScCmxDmaLinkTransactions(ScCmxDmaTransactionHnd *handle,
+                                  uint32_t list_cnt, ...);
+ 
++int32_t ScCmxDmaLinkTransactions_va(ScCmxDmaTransactionHnd *handle,
++                                 uint32_t list_cnt, va_list a_list);
++
+ /// Start the DMA transfer for a transaction list
+ ///
+ /// @param [in] handle for the transaction list
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/shave/src/scCmxDma.c	2017-11-02 14:30:12.582490632 +0200
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/drivers/myriad2/socDrivers/shave/src/scCmxDma.c	2017-11-02 14:44:00.974598407 +0200
+@@ -374,17 +374,29 @@
+ 
+   va_start(a_list, list_cnt);
+ 
++  ScCmxDmaLinkTransactions_va(list_head, list_cnt, a_list);
++
++  va_end(a_list);
++
++  return MYR_DRV_SUCCESS;
++}
++
++int32_t ScCmxDmaLinkTransactions_va(ScCmxDmaTransactionHnd *list_head,
++                                 uint32_t list_cnt, va_list a_list) {
++  uint32_t i;
++  ScCmxDmaTransactionHnd *list_hnd;
++
++  if (list_cnt == 0) return MYR_DRV_ERROR;
++
+   list_hnd = va_arg(a_list, ScCmxDmaTransactionHnd *);
+   list_head->head = list_hnd->head;
+   list_head->tail = list_hnd->tail;
+   for (i = 1; i < list_cnt; i++) {
+-    list_hnd = va_arg(a_list, ScCmxDmaTransactionHnd *);
+-    list_head->tail->link_address = list_hnd->head;
+-    list_head->tail = list_hnd->tail;
++      list_hnd = va_arg(a_list, ScCmxDmaTransactionHnd *);
++      list_head->tail->link_address = list_hnd->head;
++      list_head->tail = list_hnd->tail;
+   }
+ 
+-  va_end(a_list);
+-
+   return MYR_DRV_SUCCESS;
+ }

@@ -92,7 +92,6 @@ private:
 
     std::vector<plot> plots;
     bool dirty{true};
-    bool display_reloc{false};
 
 public:
     std::mutex image_lock;
@@ -149,7 +148,6 @@ public:
 
     void get_bounding_box(float min[3], float max[3]);
     uint64_t get_current_timestamp();
-    bool enable_display_reloc() { return display_reloc = true; }
 
     void reset() {
         display_lock.lock();

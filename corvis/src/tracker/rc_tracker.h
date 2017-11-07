@@ -480,7 +480,6 @@ RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Sensor camera_id, rc_Fe
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerError rc_getError(const rc_Tracker *tracker);
-RCTRACKER_API rc_Pose rc_getRelocOffset(rc_Tracker* tracker);
 
 /**
  Returns a string with statistics on sensor timing

@@ -53,18 +53,35 @@ if(BUILD_SHAPEFIT_DEV_APP)
 
     find_package(OpenGL REQUIRED)
     set(SHAPEFIT_DEV_DEPENDENCIES shapefit-core ${OPENGL_LIBRARIES})
-    
+
+    set(BUILD_EXAMPLES           OFF CACHE BOOL "" FORCE)
+    set(BUILD_GRAPHICAL_EXAMPLES OFF CACHE BOOL "" FORCE)
+    set(BUILD_SHARED_LIBS        OFF CACHE BOOL "" FORCE)
+    set(BUILD_UNIT_TESTS         OFF CACHE BOOL "" FORCE)
     if(WIN32)
         add_subdirectory(thirdparty/LibRealSense/librealsense)
         add_subdirectory(thirdparty/glfw)
-        list(APPEND SHAPEFIT_DEV_DEPENDENCIES realsense glfw3)
+        list(APPEND SHAPEFIT_DEV_DEPENDENCIES realsense2 glfw3)
     else()
         if(APPLE)
             add_definitions(-DAPPLE)
-        else()
-            add_subdirectory(thirdparty/LibRealSense/librealsense)
-            list(APPEND SHAPEFIT_DEV_DEPENDENCIES realsense ${LIBUSB1_LIBRARIES})
+            set(BUILD_WITH_OPENMP OFF CACHE BOOL "" FORCE)
+            set(FORCE_LIBUVC ON)
         endif()
+
+        find_package(PkgConfig)
+        if(NOT PKG_CONFIG_FOUND)
+            message(FATAL_ERROR "\n\n PkgConfig package is missing!\n\n")
+        endif()
+
+        pkg_search_module(LIBUSB1 REQUIRED libusb-1.0)
+        if(LIBUSB1_FOUND)
+            include_directories(SYSTEM ${LIBUSB1_INCLUDE_DIRS})
+            link_directories(${LIBUSB1_LIBRARY_DIRS})
+        else()
+            message( FATAL_ERROR "Failed to find libusb-1.0" )
+        endif(LIBUSB1_FOUND)
+        add_subdirectory(thirdparty/LibRealSense/librealsense)
 
         # Find glfw header
         find_path(GLFW_INCLUDE_DIR NAMES GLFW/glfw3.h
@@ -86,15 +103,14 @@ if(BUILD_SHAPEFIT_DEV_APP)
                     /usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
                     /usr/X11R6/lib
         )
-        list(APPEND SHAPEFIT_DEV_DEPENDENCIES m ${GLFW_LIBRARIES} shapefit-core)
+
+        list(APPEND SHAPEFIT_DEV_DEPENDENCIES realsense2 realsense-file m ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES})
         include_directories(${GLFW_INCLUDE_DIR})
     endif()
-	set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
-	set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
     add_subdirectory(dev)
 
     if(MSVC)
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT shapefit-dev)
-		set(CMAKE_CONFIGURATION_TYPES Release CACHE STRING "" FORCE)
+		set(CMAKE_CONFIGURATION_TYPES Release Debug CACHE STRING "" FORCE)
     endif()
 endif()

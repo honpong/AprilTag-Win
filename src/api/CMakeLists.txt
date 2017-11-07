@@ -1,9 +1,22 @@
 cmake_minimum_required(VERSION 3.7.0 FATAL_ERROR)
 
+if(ALGO_LIB)
+    set(PROJECT_NAME ${ALGO_LIB})
+    option(BUILD_SHARED_LIB_ALGO "Build Shared Algorithm Library" ON)
+else()
+    set(PROJECT_NAME shapefit-core)
+    option(BUILD_SHARED_LIB_SHAPEFIT "Build Shared Shapefit Library" ON)
+    if(BUILD_SHARED_LIB_SHAPEFIT)
+        set(BUILD_SHARED_LIB_ALGO)
+    endif()
+endif()
+
+project(${PROJECT_NAME})
+
 #############################################################################################
 SET(THIRDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty)
 SET(EIGEN_DIR ${THIRDPARTY_DIR}/eigen)
-SET(SHAPEFIT_CORE_HDR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inc CACHE STRING "")
+SET(ALGO_CORE_HDR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inc CACHE STRING "")
 SET(OpenCV_STATIC ON)
 find_package(OPENCV QUIET)
 if(OPENCV_FOUND OR OpenCV_FOUND)
@@ -16,19 +29,18 @@ include_directories(
     ${EIGEN_DIR} 
     ${CMAKE_CURRENT_SOURCE_DIR}/inc)
     
-FILE(GLOB SHAPEFIT_CORE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-FILE(GLOB SHAPEFIT_CORE_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp" "${SHAPEFIT_CORE_HDR_DIR}/*")
-option(BUILD_SHARED_LIB_SHAPEFIT "Build Shared Shapefit Library" ON)
-if(BUILD_SHARED_LIB_SHAPEFIT)
-    add_library(shapefit-core SHARED 
-        ${SHAPEFIT_CORE_SRC}
-        ${SHAPEFIT_CORE_HDR})
+FILE(GLOB ALGO_CORE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
+FILE(GLOB ALGO_CORE_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp" "${ALGO_CORE_HDR_DIR}/*")
+if(BUILD_SHARED_LIB_ALGO)
+add_library(${PROJECT_NAME} SHARED
+        ${ALGO_CORE_SRC}
+        ${ALGO_CORE_HDR})
 else()
-    add_library(shapefit-core STATIC 
-        ${SHAPEFIT_CORE_SRC}
-        ${SHAPEFIT_CORE_HDR})
+add_library(${PROJECT_NAME} STATIC
+        ${ALGO_CORE_SRC}
+        ${ALGO_CORE_HDR})
 endif()
-set_property(TARGET shapefit-core PROPERTY CXX_STANDARD 14)
-set_target_properties (shapefit-core PROPERTIES FOLDER Library)
-target_include_directories(shapefit-core PUBLIC inc)
-target_link_libraries(shapefit-core PRIVATE ${OpenCV_LIBS})
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
+set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER Library)
+target_include_directories(${PROJECT_NAME} PUBLIC inc)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})

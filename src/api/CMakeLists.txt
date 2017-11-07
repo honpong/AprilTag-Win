@@ -18,8 +18,8 @@ include_directories(
     
 FILE(GLOB SHAPEFIT_CORE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB SHAPEFIT_CORE_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp" "${SHAPEFIT_CORE_HDR_DIR}/*")
-option(BUILD_SHAPEFIT_LIB_SHARED "Build Shared Shapefit Library" ON)
-if(BUILD_SHAPEFIT_LIB_SHARED)
+option(BUILD_SHARED_LIB_SHAPEFIT "Build Shared Shapefit Library" ON)
+if(BUILD_SHARED_LIB_SHAPEFIT)
     add_library(shapefit-core SHARED 
         ${SHAPEFIT_CORE_SRC}
         ${SHAPEFIT_CORE_HDR})
@@ -29,5 +29,6 @@ else()
         ${SHAPEFIT_CORE_HDR})
 endif()
 set_property(TARGET shapefit-core PROPERTY CXX_STANDARD 14)
+set_target_properties (shapefit-core PROPERTIES FOLDER Library)
 target_include_directories(shapefit-core PUBLIC inc)
 target_link_libraries(shapefit-core PRIVATE ${OpenCV_LIBS})

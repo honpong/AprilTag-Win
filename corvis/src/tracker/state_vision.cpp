@@ -88,16 +88,6 @@ state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id)
     Tr.set_process_noise(ref_noise);
     Qr.set_process_noise(ref_noise);
 }
-
-void state_vision_group::make_empty()
-{
-    features.children.clear();
-    lost_features.clear();
-    tracks.clear();
-    lost_tracks.clear();
-    status = group_empty;
-}
-
 int state_vision_group::process_features()
 {
     auto t = tracks.begin();
@@ -169,7 +159,10 @@ void state_vision::clear_features_and_groups()
     for (auto &camera : cameras.children)
     {
         for(auto &g : camera->groups.children) {
-            g->make_empty();
+            g->features.children.clear();
+            g->lost_features.clear();
+            g->tracks.clear();
+            g->lost_tracks.clear();
         }
         camera->groups.children.clear();
         camera->standby_features.clear();
@@ -195,10 +188,8 @@ int state_vision::process_features(mapper *map)
             if(g->status != group_empty)
                 total_health += health;
             
-            // Notify features that this group is about to disappear
             // This sets group_empty (even if group_reference)
-            if(!health)
-                g->make_empty();
+            if(!health) g->status = group_empty;
             
             // Found our reference group
             if(g->status == group_reference)
@@ -214,6 +205,10 @@ int state_vision::process_features(mapper *map)
             if(g->status == group_empty) {
                 if (map) map->node_finished(g->id);
                 g->unmap();
+                g->features.children.clear();
+                g->lost_features.clear();
+                g->tracks.clear();
+                g->lost_tracks.clear();
                 i = camera->groups.children.erase(i);
             } else ++i;
         }

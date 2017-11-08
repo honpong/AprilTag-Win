@@ -210,7 +210,6 @@ class state_vision_group: public state_branch<state_node *> {
     uint64_t id;
 
     state_vision_group(state_camera &camera, uint64_t group_id);
-    void make_empty();
     int process_features();
     void make_reference();
     static f_t ref_noise;

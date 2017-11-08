@@ -229,25 +229,23 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
     int outliers = 0;
     int track_fail = 0;
     for(auto &g : groups.children) {
-        auto t = g->tracks.begin();
-        for(auto &i : g->features.children) {
-            if(t->track.found() == false) {
+        for(auto &t : g->tracks) {
+            if(t.track.found() == false) {
                 // Drop tracking failures
                 ++track_fail;
-                if(i->is_good()) ++useful_drops;
-                if(i->is_good() && t->outlier < t->outlier_lost_reject)
-                    i->make_lost();
+                if(t.feature.is_good()) ++useful_drops;
+                if(t.feature.is_good() && t.outlier < t.outlier_lost_reject)
+                    t.feature.make_lost();
                 else
-                    i->drop();
+                    t.feature.drop();
             } else {
                 // Drop outliers
-                if(i->status == feature_normal) ++total_feats;
-                if(t->outlier > t->outlier_reject) {
-                    i->status = feature_empty;
+                if(t.feature.status == feature_normal) ++total_feats;
+                if(t.outlier > t.outlier_reject) {
+                    t.feature.status = feature_empty;
                     ++outliers;
                 }
             }
-            ++t;
         }
     }
     const f_t focal_px = intrinsics.focal_length.v * intrinsics.image_height;

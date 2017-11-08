@@ -156,25 +156,15 @@ int state_vision_group::make_reference()
     return 0;
 }
 
-void state_camera::clear_features_and_groups()
-{
-    for(auto &g : groups.children) {
-        g->make_empty();
-    }
-    groups.children.clear();
-    standby_features.clear();
-}
-
 state_vision::~state_vision()
 {
-    for (auto &camera : cameras.children)
-        camera->clear_features_and_groups();
+    clear_features_and_groups();
 }
 
 void state_vision::reset()
 {
+    clear_features_and_groups();
     for (auto &camera : cameras.children) {
-        camera->clear_features_and_groups();
         camera->detecting_space = 0;
     }
     state_motion::reset();
@@ -189,7 +179,14 @@ size_t state_vision::feature_count() const
 
 void state_vision::clear_features_and_groups()
 {
-    for (auto &camera : cameras.children) camera->clear_features_and_groups();
+    for (auto &camera : cameras.children)
+    {
+        for(auto &g : camera->groups.children) {
+            g->make_empty();
+        }
+        camera->groups.children.clear();
+        camera->standby_features.clear();
+    }
 }
 
 void state_vision::enable_orientation_only(bool _remap)

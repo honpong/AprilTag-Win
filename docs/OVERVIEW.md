@@ -14,6 +14,7 @@
         1. [Sparse matrix multiply](#state-sparse-mul)
 
 <a name="overview">
+
 # Overview
 In the below description, various terms are in **bold** that
 correspond to terminology used in the algorithm and software.
@@ -52,6 +53,7 @@ innovation and the covariance of the model and measurement is used to
 update the model. This model is also referred to as the **filter**.
 
 <a name="kalman-filter">
+
 # Kalman Filter
 
 ![Kalman Filter](images/kalman-filter.png)
@@ -99,6 +101,7 @@ uncertainty in the model to be acknowledged so new data always has
 some influence.
 
 <a name="vision-features">
+
 # Vision Features
 
 Features are found in a camera image. Then, using the filter's
@@ -112,6 +115,7 @@ first be described at a higher level with reference to a figure, and
 then at a lower level reflecting steps taken by the software.
 
 <a name="vision-features-filter-update">
+
 ## Vision Features and Filter Update Overview
 
 ![Vision Features](images/features.png)
@@ -179,6 +183,7 @@ outlier, this is repeated a few times since the risk of picking say 3
 outliers in a row, especially ones that all agree, is remote.
 
 <a name="vision-features-ekf">
+
 ## Vision Features and EKF Code Flow Overview
 
 The below diagram shows the flow for vision features and how this ties
@@ -339,11 +344,13 @@ A description of these states follows:
     and put them in the list to be tracked next frame.
 
 <a name="state-and-covariance">
+
 # State and Covariance
 
 ![State and Covariance](images/state-and-covariance.png)
 
 <a name="state-variables">
+
 ## State variables
 
 "State" are variables where we want to refine an initial estimation
@@ -385,6 +392,7 @@ inaccurate initially and takes a bit of time to stabilize. The output
 of the filter shouldn't be used during this initialization time.
 
 <a name="state-dynamics">
+
 ## State Dynamics
 
 The estimate of the state changes with time according to Newtonian
@@ -394,6 +402,7 @@ laws of motion. This is done as part of the `time_update()` and
 ![State Dynamics](images/state-dynamics.png)
 
 <a name="tracking-state">
+
 ## Tracking State
 
 All state being estimated/refined by the filter is kept in a tree
@@ -431,6 +440,7 @@ constantly being removed (lost tracking on them) and added (during
 detect), the "Groups" part of the state is constantly being updated.
 
 <a name="state-covariance-matrix">
+
 ## The state covariance matrix
 
 ![State covariance](images/state-covariance.png)
@@ -461,6 +471,7 @@ being added/removed. Key to HW acceleration is:
   N^3 computes required for growing the state.
 
 <a name="state-sparse-ekf">
+
 ## Sparse EKF calculations
 
 As part of the Kalman Filter, the updated covariance of the
@@ -479,6 +490,7 @@ the matrix multiply. In addition, caching the jacobians only needs to
 be done once per filter update and not per state/feature.
 
 <a name="state-sparse-mul">
+
 ### Sparse matrix multiply
 
 The "LC" matrix needs to be constructed which starts with the

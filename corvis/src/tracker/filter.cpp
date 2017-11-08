@@ -1249,15 +1249,14 @@ std::string filter_get_stats(const struct filter *f)
 void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
 {
     if (f->map) {
-        auto &camera_state = *f->s.cameras.children[camera_id];
         for(auto &nft : f->map->map_feature_tracks) {
             map_node &node = f->map->get_node(nft.group_id);
             if(node.camera_id != camera_id) continue; // Only bring a group if node camera_id matches current camera. DO WE REALLY NEED THIS?
+            auto &camera_node_state = *f->s.cameras.children[node.camera_id];
 
-            auto space = filter_available_feature_space(f, camera_state);
+            auto space = filter_available_feature_space(f, camera_node_state);
             if(space > f->min_group_map_add) {
                 if(nft.found > f->min_group_map_add) {
-                    auto &camera_node_state = *f->s.cameras.children[node.camera_id];
                     state_vision_group *g = new state_vision_group(camera_node_state, nft.group_id);
                     g->Tr.v = nft.G_neighbor_now.T;
                     g->Qr.v = nft.G_neighbor_now.Q;
@@ -1286,13 +1285,15 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                             g->lost_features.push_back(feat);
                         }
                     }
-                    const transformation& G_gnew_now = transformation(g->Qr.v, g->Tr.v);
-                    for(auto &neighbor : camera_state.groups.children) {
-                        const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
-                        transformation G_gnew_neighbor = G_gnew_now*G_now_neighbor;
-                        f->map->add_edge(g->id, neighbor->id, G_gnew_neighbor);
+                    const transformation& G_gold_now = transformation(g->Qr.v, g->Tr.v);
+                    for(auto &camera_state : f->s.cameras.children) {
+                        for(auto &neighbor : camera_state->groups.children) {
+                            const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
+                            transformation G_gold_neighbor = G_gold_now*G_now_neighbor;
+                            f->map->add_edge(g->id, neighbor->id, G_gold_neighbor);
+                        }
                     }
-                    camera_state.groups.children.push_back(g);
+                    camera_node_state.groups.children.push_back(g);
                     f->s.remap();
                 } else {
                     break;

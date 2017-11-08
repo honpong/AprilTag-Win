@@ -2,13 +2,6 @@
 #include "utils.h"
 #include "Trace.h"
 
-#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
-    #include "covariance_projector.h"
-    #include "state_size.h"
-    __attribute__((section(".cmx_direct.bss")))
-    observation_vision_feature_data vision_datas[MAXOBSERVATIONSIZE];
-#endif
-
 int observation_queue::size()
 {
     int size = 0;
@@ -58,9 +51,12 @@ void observation_queue::compute_measurement_covariance(matrix &m_cov)
 }
 
 #ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
-__attribute__((section(".cmx_direct.bss"))) project_observation_covariance_data queue_data;
+#include "covariance_projector.h"
+
 void observation_queue::compute_prediction_covariance_shave(const matrix &cov, int statesize, int meas_size)
 {
+    __attribute__((section(".cmx_direct.bss")))
+    static project_observation_covariance_data queue_data;
     START_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE, 0);
     queue_data.src_rows     = cov.rows();
     queue_data.src_cols     = cov.cols();
@@ -466,8 +462,13 @@ void observation_vision_feature::compute_measurement_covariance()
 }
 
 #ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+#include "state_size.h"
+
 observation_data* observation_vision_feature::getData(int index)
 {
+    __attribute__((section(".cmx_direct.bss")))
+    static observation_vision_feature_data vision_datas[MAXOBSERVATIONSIZE];
+
     vision_datas[index].size = size;
 
     vision_datas[index].orig.e_estimate = orig.camera.extrinsics.estimate;
@@ -600,9 +601,10 @@ bool observation_accelerometer::measure()
 }
 
 #ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
-__attribute__((section(".cmx_direct.bss"))) observation_accelerometer_data accel_data;
 observation_data* observation_accelerometer::getData(int index)
 {
+    __attribute__((section(".cmx_direct.bss")))
+    static observation_accelerometer_data accel_data;
     accel_data.size = size;
     
     accel_data.a_bias.index    = intrinsics.a_bias.index;
@@ -682,9 +684,10 @@ template<int N>
 }
 
 #ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
-__attribute__((section(".cmx_direct.bss"))) observation_gyroscope_data gyro_data;
 observation_data* observation_gyroscope::getData(int index)
 {  
+    __attribute__((section(".cmx_direct.bss")))
+    static observation_gyroscope_data gyro_data;
     gyro_data.size = size;
     
     gyro_data.w.index      = state.w.index;

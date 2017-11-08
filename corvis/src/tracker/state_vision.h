@@ -213,7 +213,7 @@ class state_vision_group: public state_branch<state_node *> {
     state_vision_group(state_camera &camera, uint64_t group_id);
     void make_empty();
     int process_features();
-    int make_reference();
+    void make_reference();
     static f_t ref_noise;
     static f_t min_feats;
     
@@ -239,7 +239,7 @@ struct state_camera: state_branch<state_node*> {
     state_branch<std::unique_ptr<state_vision_group>> groups;
     void update_feature_tracks(const rc_ImageData &image, mapper *map, const transformation &G_Bcurrent_Bnow);
     size_t feature_count() const;
-    int process_features(mapper *map, spdlog::logger &log);
+    int process_tracks(mapper *map, spdlog::logger &log);
 
     int detecting_space = 0;
 
@@ -263,6 +263,7 @@ public:
 
     size_t feature_count() const;
     void clear_features_and_groups();
+    int process_features(mapper *map);
     state_vision_group *add_group(const rc_Sensor camera_id, mapper *map);
     transformation get_transformation() const;
     bool get_closest_group_transformation(const uint64_t group_id, transformation& G) const;

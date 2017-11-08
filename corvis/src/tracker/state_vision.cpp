@@ -135,7 +135,7 @@ int state_vision_group::process_features()
     return health;
 }
 
-int state_vision_group::make_reference()
+void state_vision_group::make_reference()
 {
     assert(status == group_normal);
     status = group_reference;
@@ -153,7 +153,6 @@ int state_vision_group::make_reference()
     }
     //remove_child(&Tr);
     //Qr.saturate();
-    return 0;
 }
 
 state_vision::~state_vision()
@@ -189,6 +188,52 @@ void state_vision::clear_features_and_groups()
     }
 }
 
+int state_vision::process_features(mapper *map)
+{
+    int total_health = 0;
+    bool need_reference = true;
+    state_vision_group *best_group = 0;
+    int best_health = -1;
+    int normal_groups = 0;
+
+    for(auto &camera : cameras.children) {
+        for(auto i = camera->groups.children.begin(); i != camera->groups.children.end();) {
+            auto &g = *i;
+            
+            // Delete the features we marked to drop, return the health of
+            // the group (the number of features)
+            int health = g->process_features();
+            
+            if(g->status != group_empty)
+                total_health += health;
+            
+            // Notify features that this group is about to disappear
+            // This sets group_empty (even if group_reference)
+            if(!health)
+                g->make_empty();
+            
+            // Found our reference group
+            if(g->status == group_reference)
+                need_reference = false;
+            
+            if(g->status == group_normal) {
+                ++normal_groups;
+                if(health > best_health) {
+                    best_group = g.get();
+                    best_health = g->health;
+                }
+            }
+            if(g->status == group_empty) {
+                if (map) map->node_finished(g->id);
+                g->unmap();
+                i = camera->groups.children.erase(i);
+            } else ++i;
+        }
+    }
+    if(best_group && need_reference) best_group->make_reference();
+    return total_health;
+}
+
 void state_vision::enable_orientation_only(bool _remap)
 {
     clear_features_and_groups();
@@ -222,7 +267,7 @@ bool state_vision::get_closest_group_transformation(const uint64_t group_id, tra
     return false;
 }
 
-int state_camera::process_features(mapper *map, spdlog::logger &log)
+int state_camera::process_tracks(mapper *map, spdlog::logger &log)
 {
     int useful_drops = 0;
     int total_feats = 0;
@@ -277,50 +322,7 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
 
     if(track_fail && !total_feats) log.warn("Tracker failed! {} features dropped.", track_fail);
     //    log.warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);
-
-    int total_health = 0;
-    bool need_reference = true;
-    state_vision_group *best_group = 0;
-    int best_health = -1;
-    int normal_groups = 0;
-
-    for(auto i = groups.children.begin(); i != groups.children.end();) {
-        auto &g = *i;
-
-        // Delete the features we marked to drop, return the health of
-        // the group (the number of features)
-        int health = g->process_features();
-
-        if(g->status != group_empty)
-            total_health += health;
-
-        // Notify features that this group is about to disappear
-        // This sets group_empty (even if group_reference)
-        if(!health)
-            g->make_empty();
-
-        // Found our reference group
-        if(g->status == group_reference)
-            need_reference = false;
-
-        if(g->status == group_normal) {
-            ++normal_groups;
-            if(health > best_health) {
-                best_group = g.get();
-                best_health = g->health;
-            }
-        }
-        if(g->status == group_empty) {
-            if (map) map->node_finished(g->id);
-            g->unmap();
-            i = groups.children.erase(i);
-        } else ++i;
-    }
-
-    if(best_group && need_reference)
-        total_health += best_group->make_reference();
-
-    return total_health;
+    return total_feats;
 }
 
 void state_vision::update_map(mapper *map)

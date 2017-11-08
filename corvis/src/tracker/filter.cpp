@@ -887,7 +887,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             std::cerr << " innov  " << c->inn_stdev << "\n";
     }
 
-    int normal_groups = camera_state.process_features(f->map.get(), *f->log);
+    camera_state.process_tracks(f->map.get(), *f->log);
+    auto normal_groups = f->s.process_features(f->map.get());
     filter_update_outputs(f, time, normal_groups == 0);
     f->s.remap();
 

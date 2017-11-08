@@ -1,12 +1,7 @@
 #include <mv_types.h>
 #include <svuCommonShave.h>
 #include <moviVectorUtils.h>
-#include <swcCdma.h>
 #include "project_covariance_definitions.h"
-#include "../../../../state_size.h"
-
-__attribute__((section(".cmx.bss")))
-static float covariance_matrix[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
 
 inline float4 from_row(const float *src, int row, int stride, int index, int cols, int rows, float initial_covariance, bool use_single_index, int size=3)
 {
@@ -197,11 +192,6 @@ inline float4 mull_v3_f(const float* mat, float v)
 
  extern "C" void vision_project_motion_covariance(project_motion_covariance_data* data) {
 
-    //dma transaction of src
-    dmaTransactionList_t dma_task;
-    dmaTransactionList_t* dma_ref;
-    u32 dma_requster_id = dmaInitRequester(1);
-
     float dt =      data->dt;
     int src_cols =   data->src_cols;
     int src_rows =   data->src_rows;
@@ -218,23 +208,12 @@ inline float4 mull_v3_f(const float* mat, float v)
         end_col = dst_cols;
     }
 
-    //input DMA
-    dma_ref = dmaCreateTransaction(
-                    dma_requster_id,
-                    &dma_task,
-                    (u8*)(data->src),
-                    (u8*)covariance_matrix,
-                    data->src_rows * data->src_stride * sizeof(float));
-
-    dmaStartListTask(dma_ref);
-    dmaWaitTask(dma_ref);
-
     for (int i = start_col; i < end_col; ++i) {
-        float4 cov_w = from_row(covariance_matrix, i, src_stride, data->w.index, src_cols, src_rows, data->w.initial_covariance, data->w.use_single_index);
-        float4 cov_dw = from_row(covariance_matrix, i, src_stride, data->dw.index, src_cols, src_rows, data->dw.initial_covariance, data->dw.use_single_index);
-        float4 cov_ddw = from_row(covariance_matrix, i, src_stride, data->ddw.index, src_cols, src_rows, data->ddw.initial_covariance, data->ddw.use_single_index);
+        float4 cov_w = from_row(data->src, i, src_stride, data->w.index, src_cols, src_rows, data->w.initial_covariance, data->w.use_single_index);
+        float4 cov_dw = from_row(data->src, i, src_stride, data->dw.index, src_cols, src_rows, data->dw.initial_covariance, data->dw.use_single_index);
+        float4 cov_ddw = from_row(data->src, i, src_stride, data->ddw.index, src_cols, src_rows, data->ddw.initial_covariance, data->ddw.use_single_index);
         float4 cov_dW = dt * (cov_w + dt / 2 * (cov_dw + dt / 3 * cov_ddw));
-        float4 scov_Q = from_row(covariance_matrix, i, src_stride, data->Q.index, src_cols, src_rows, data->Q.initial_covariance, data->Q.use_single_index);
+        float4 scov_Q = from_row(data->src, i, src_stride, data->Q.index, src_cols, src_rows, data->Q.initial_covariance, data->Q.use_single_index);
 
         float4 result = cov_w + dt * (cov_dw + dt / 2 * cov_ddw);
         to_col(data->dst, i, dst_stride, data->w.index, dst_rows, result);
@@ -247,10 +226,10 @@ inline float4 mull_v3_f(const float* mat, float v)
         to_col(data->dst, i, dst_stride, data->Q.index, dst_rows, result3);
 
         // This should match state_motion::project_covariance
-        float4 cov_V = from_row(covariance_matrix, i, src_stride, data->V.index, src_cols, src_rows, data->V.initial_covariance, data->V.use_single_index);
-        float4 cov_a = from_row(covariance_matrix, i, src_stride, data->a.index, src_cols, src_rows, data->a.initial_covariance, data->a.use_single_index);
-        float4 cov_T = from_row(covariance_matrix, i, src_stride, data->T.index, src_cols, src_rows, data->T.initial_covariance, data->T.use_single_index);
-        float4 cov_da = from_row(covariance_matrix, i, src_stride, data->da.index, src_cols, src_rows, data->da.initial_covariance, data->da.use_single_index);
+        float4 cov_V = from_row(data->src, i, src_stride, data->V.index, src_cols, src_rows, data->V.initial_covariance, data->V.use_single_index);
+        float4 cov_a = from_row(data->src, i, src_stride, data->a.index, src_cols, src_rows, data->a.initial_covariance, data->a.use_single_index);
+        float4 cov_T = from_row(data->src, i, src_stride, data->T.index, src_cols, src_rows, data->T.initial_covariance, data->T.use_single_index);
+        float4 cov_da = from_row(data->src, i, src_stride, data->da.index, src_cols, src_rows, data->da.initial_covariance, data->da.use_single_index);
         float4 cov_dT = dt * (cov_V + dt / 2 * (cov_a + dt / 3 * cov_da));
         float4 result4 = cov_T + cov_dT;
         to_col(data->dst, i, dst_stride, data->T.index, dst_rows, result4);
@@ -260,8 +239,8 @@ inline float4 mull_v3_f(const float* mat, float v)
         to_col(data->dst, i, dst_stride, data->a.index, dst_rows, result6);
 
         for (int j = 0; j < data->camera_count; ++j) {
-            float4 cov_Tr = from_row(covariance_matrix, i, src_stride, data->tr[j].index, src_cols, src_rows, data->tr[j].initial_covariance, data->tr[j].use_single_index);
-            float4 scov_Qr = from_row(covariance_matrix, i, src_stride, data->qr[j].index, src_cols, src_rows, data->qr[j].initial_covariance, data->qr[j].use_single_index);
+            float4 cov_Tr = from_row(data->src, i, src_stride, data->tr[j].index, src_cols, src_rows, data->tr[j].initial_covariance, data->tr[j].use_single_index);
+            float4 scov_Qr = from_row(data->src, i, src_stride, data->qr[j].index, src_cols, src_rows, data->qr[j].initial_covariance, data->qr[j].use_single_index);
 
             float4 result7 = cov_Tr + mull_m3_v3(data->dTrp_dQ_s_matrix[j], (scov_Q - scov_Qr))
                     + mull_m3_v3(data->dTrp_ddT_matrix[j], cov_dT);
@@ -376,41 +355,25 @@ extern "C" void vision_project_observation_covariance(project_observation_covari
         end_obs = data->observations_size;
     }
 
-    //dma transaction of data->src
-    dmaTransactionList_t dma_task;
-    dmaTransactionList_t *dma_ref;
-    u32 dma_requster_id = dmaInitRequester(1);
-
-    //input DMA
-    dma_ref = dmaCreateTransaction(
-                    dma_requster_id,
-                    &dma_task,
-                    (u8*)(data->src),
-                    (u8*)covariance_matrix,
-                    data->src_rows * data->src_stride * sizeof(float));
-
-    dmaStartListTask(dma_ref);
-    dmaWaitTask(dma_ref);
-
     int index = start_index;
     for (int i = start_obs; i < end_obs; ++i) {
         switch (data->observations[i]->type) {
             case vision_feature:
             {
                 observation_vision_feature_data* vision_data = (observation_vision_feature_data*)data->observations[i];
-                observation_vision_feature_project_covariance(covariance_matrix, data->dst + index*dst_stride, src_rows, src_cols, src_stride, dst_cols, dst_stride, vision_data);
+                observation_vision_feature_project_covariance(data->src, data->dst + index*dst_stride, src_rows, src_cols, src_stride, dst_cols, dst_stride, vision_data);
             }
                 break;
             case accelerometer:
             {
                 observation_accelerometer_data* accel_data = (observation_accelerometer_data*)data->observations[i];
-                observation_accelerometer_project_covariance(covariance_matrix, data->dst + index*dst_stride, src_rows, src_cols, src_stride, dst_cols, dst_stride, accel_data);
+                observation_accelerometer_project_covariance(data->src, data->dst + index*dst_stride, src_rows, src_cols, src_stride, dst_cols, dst_stride, accel_data);
             }
                 break;
             case gyroscope:
             {
                 observation_gyroscope_data* gyro_data = (observation_gyroscope_data*)data->observations[i];
-                observation_gyroscope_project_covariance(covariance_matrix, data->dst + index*dst_stride, src_rows, src_cols, src_stride, dst_cols, dst_stride, gyro_data);
+                observation_gyroscope_project_covariance(data->src, data->dst + index*dst_stride, src_rows, src_cols, src_stride, dst_cols, dst_stride, gyro_data);
             }
                 break;
             default:

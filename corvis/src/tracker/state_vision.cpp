@@ -29,12 +29,6 @@ state_vision_feature::state_vision_feature(const tracker::feature_track &track_,
     reset();
 }
 
-void state_vision_feature::dropping_group()
-{
-    //TODO: keep features after group is gone
-    if(status != feature_empty) drop();
-}
-
 void state_vision_feature::drop()
 {
     if(is_good()) status = feature_gooddrop;
@@ -97,12 +91,6 @@ state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id)
 
 void state_vision_group::make_empty()
 {
-    for(auto &f : features.children) {
-        f->dropping_group();
-    }
-    for(auto &f : lost_features) {
-        f->dropping_group();
-    }
     features.children.clear();
     lost_features.clear();
     tracks.clear();

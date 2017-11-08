@@ -131,7 +131,6 @@ class state_vision_feature: public state_leaf<1> {
     bool should_drop() const;
     bool is_valid() const;
     bool is_good() const;
-    void dropping_group();
     void drop();
     void make_lost();
     bool is_initialized() const { return status == feature_normal; }

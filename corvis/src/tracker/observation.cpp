@@ -6,7 +6,7 @@
     #include "covariance_projector.h"
     #include "state_size.h"
     __attribute__((section(".cmx_direct.bss")))
-    observation_vision_feature_data vision_datas[2*(MAXSTATESIZE - (6*3+1/*MINIMUS*/*6))];
+    observation_vision_feature_data vision_datas[MAXOBSERVATIONSIZE];
 #endif
 
 int observation_queue::size()

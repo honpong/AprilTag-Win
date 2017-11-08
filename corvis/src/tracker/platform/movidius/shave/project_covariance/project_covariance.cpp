@@ -6,7 +6,7 @@
 #include "../../../../state_size.h"
 
 __attribute__((section(".cmx.bss")))
-static float covariance_matrix[(MAXSTATESIZE+1) * (MAXSTATESIZE+1)];
+static float covariance_matrix[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
 
 inline float4 from_row(const float *src, int row, int stride, int index, int cols, int rows, float initial_covariance, bool use_single_index, int size=3)
 {

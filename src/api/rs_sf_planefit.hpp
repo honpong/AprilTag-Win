@@ -201,6 +201,8 @@ private:
     float& cam_py = m_intrinsics.ppy;
     float& cam_fx = m_intrinsics.fx;
     float& cam_fy = m_intrinsics.fy;
+    rs_sf_distortion& model = m_intrinsics.model;
+    float m_depth_img_to_meter = 0.001f;
 };
 
 #endif // ! rs_sf_planefit_hpp

@@ -16,6 +16,8 @@ rs_sf_status rs_sf_planefit::set_option(rs_sf_fit_option option, double value)
     case RS_SF_OPTION_PLANE_NOISE:
         m_param.search_around_missing_z = (value > 0);
         m_param.filter_plane_map = (value > 1); break;
+    case RS_SF_OPTION_DEPTH_UNIT:
+        m_depth_img_to_meter = value; break;
     default: break;
     }
     return status;
@@ -423,8 +425,43 @@ bool rs_sf_planefit::is_valid_raw_z(const float z) const
 
 float rs_sf_planefit::get_z_in_meter(const pt3d & pt) const
 {
-    return ((unsigned short*)m_view.src_depth_img->data)[pt.p] * 0.001f;
+    return ((unsigned short*)m_view.src_depth_img->data)[pt.p] * m_depth_img_to_meter;
 }
+
+#if 0
+/** \brief Distortion model: defines how pixel coordinates should be mapped to sensor coordinates. */
+typedef enum rs2_distortion
+{
+    RS2_DISTORTION_NONE, /**< Rectilinear images. No distortion compensation required. */
+    RS2_DISTORTION_MODIFIED_BROWN_CONRADY, /**< Equivalent to Brown-Conrady distortion, except that tangential distortion is applied to radially distorted points */
+    RS2_DISTORTION_INVERSE_BROWN_CONRADY, /**< Equivalent to Brown-Conrady distortion, except undistorts image instead of distorting it */
+    RS2_DISTORTION_FTHETA, /**< F-Theta fish-eye distortion model */
+    RS2_DISTORTION_BROWN_CONRADY, /**< Unmodified Brown-Conrady distortion model */
+    RS2_DISTORTION_COUNT, /**< Number of enumeration values. Not a valid input: intended to be used in for-loops. */
+} rs2_distortion;
+
+static void rs2_deproject_pixel_to_point(float point[3], const struct rs_sf_intrinsics * intrin, const float pixel[2], float depth)
+{
+    assert(intrin->model != RS2_DISTORTION_MODIFIED_BROWN_CONRADY); // Cannot deproject from a forward-distorted image
+    assert(intrin->model != RS2_DISTORTION_FTHETA); // Cannot deproject to an ftheta image
+                                                    //assert(intrin->model != RS2_DISTORTION_BROWN_CONRADY); // Cannot deproject to an brown conrady model
+
+    float x = (pixel[0] - intrin->ppx) / intrin->fx;
+    float y = (pixel[1] - intrin->ppy) / intrin->fy;
+    if (intrin->model == RS2_DISTORTION_INVERSE_BROWN_CONRADY)
+    {
+        float r2 = x*x + y*y;
+        float f = 1 + intrin->coeffs[0] * r2 + intrin->coeffs[1] * r2*r2 + intrin->coeffs[4] * r2*r2*r2;
+        float ux = x*f + 2 * intrin->coeffs[2] * x*y + intrin->coeffs[3] * (r2 + 2 * x*x);
+        float uy = y*f + 2 * intrin->coeffs[3] * x*y + intrin->coeffs[2] * (r2 + 2 * y*y);
+        x = ux;
+        y = uy;
+    }
+    point[0] = depth * x;
+    point[1] = depth * y;
+    point[2] = depth;
+}
+#endif
 
 void rs_sf_planefit::compute_pt3d(pt3d & pt, bool search_around) const
 {
@@ -959,7 +996,7 @@ void rs_sf_planefit::upsize_pt_cloud_to_plane_map(const scene& ref_view, rs_sf_i
 		auto map_fcn = [&](const int sp, const int ep) {
 			for (int p = sp, ex = (dst_w - 1)/dn_x, ey = (dst_h - 1)/dn_y; p < ep; ++p) {
 				float z; plane* pl;
-				if ((pl = src_p[p].best_plane) && (is_valid_raw_z(z = (src_z[p]*0.001f)))) {
+				if ((pl = src_p[p].best_plane) && (is_valid_raw_z(z = (src_z[p]*m_depth_img_to_meter)))) {
 					const float x = z * ((p % img_w) - cam_px) * inv_cam_fx;
 					const float y = z * ((p / img_w) - cam_py) * inv_cam_fy;
 					const float xd = tcr00 * x + tcr01 * y + tcr02 * z + tct0;

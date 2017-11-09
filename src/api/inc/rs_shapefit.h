@@ -31,6 +31,8 @@ extern "C"
 {
 #endif
 
+    typedef enum rs_sf_distortion { MODEL_COUNT = 5 } rs_sf_distortion;
+
     struct rs_sf_intrinsics
     {
         int           width;     /* width of the image in pixels */
@@ -39,7 +41,7 @@ extern "C"
         float         ppy;       /* vertical coordinate of the principal point of the image, as a pixel offset from the top edge */
         float         fx;        /* focal length of the image plane, as a multiple of pixel width */
         float         fy;        /* focal length of the image plane, as a multiple of pixel height */
-        int           model;     /* distortion model of the image */
+        rs_sf_distortion model;  /* distortion model of the image */
         float         coeffs[5]; /* distortion coefficients */
     };
 
@@ -103,7 +105,8 @@ extern "C"
         RS_SF_OPTION_PLANE_RES = 3,         /**< 0:LOW, 1:MEDIUM, 2:HIGH       */
         RS_SF_OPTION_BOX_PLANE_RES = 4,     /**< 0:LOW,           2:HIGH       */
         RS_SF_OPTION_GET_PLANE_ID = 5,      /**< 0:ORIGINAL, 1:SCALED, 2:REMAP */
-        RS_SF_OPTION_COUNT = 6,
+        RS_SF_OPTION_DEPTH_UNIT = 6,        /**< depth pixel unit in meter, default 0.001f */
+        RS_SF_OPTION_COUNT = 7,
         RS_SF_MAX_PLANE_COUNT = 256,        /**< required buffers by rs_sf_planefit_get_planes() */
     };
 

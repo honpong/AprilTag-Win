@@ -37,7 +37,7 @@ fi
 
 type -p quilt > /dev/null || {
     echo Installing quilt...
-    type -p apt-get > /dev/null && sudo apt-get install quilt
+    type -p apt-get > /dev/null && sudo apt-get --assume-yes install quilt
     type -p brew    > /dev/null && brew install quilt
 }
 

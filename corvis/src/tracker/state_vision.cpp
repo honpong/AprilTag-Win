@@ -90,19 +90,20 @@ state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id)
 }
 int state_vision_group::process_features()
 {
-    auto t = tracks.begin();
+    for(auto t = tracks.begin(); t != tracks.end();)
+    {
+        if(t->feature.should_drop()) t = tracks.erase(t);
+        else ++t;
+    }
+
     for(auto f = features.children.begin(); f != features.children.end();) {
         if((*f)->should_drop()) {
             f = features.children.erase(f);
-            t = tracks.erase(t);
         } else if((*f)->status == feature_lost) {
             lost_features.push_back(std::move(*f));
-            lost_tracks.push_back(std::move(*t));
             f = features.children.erase(f);
-            t = tracks.erase(t);
         } else {
             f++;
-            t++;
         }
     }
 
@@ -162,7 +163,6 @@ void state_vision::clear_features_and_groups()
             g->features.children.clear();
             g->lost_features.clear();
             g->tracks.clear();
-            g->lost_tracks.clear();
         }
         camera->groups.children.clear();
         camera->standby_features.clear();
@@ -208,7 +208,6 @@ int state_vision::process_features(mapper *map)
                 g->features.children.clear();
                 g->lost_features.clear();
                 g->tracks.clear();
-                g->lost_tracks.clear();
                 i = camera->groups.children.erase(i);
             } else ++i;
         }
@@ -541,9 +540,6 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
         if(g->status == group_empty) continue;
         for(auto &feature : g->tracks)
             feature_tracker->tracks.emplace_back(&feature.track);
-        for(auto &feature : g->lost_tracks)
-            feature_tracker->tracks.emplace_back(&feature.track);
-
     }
     for(auto &t:standby_features) feature_tracker->tracks.emplace_back(&t);
 

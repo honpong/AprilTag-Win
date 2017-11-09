@@ -328,10 +328,6 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
             auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, track.feature, track);
             f->observations.observations.push_back(std::move(obs));
         }
-        for(auto &track : g->lost_tracks) {
-            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, track.feature, track);
-            f->observations.observations.push_back(std::move(obs));
-        }
     }
 }
 
@@ -526,7 +522,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
 
     for(auto &g : camera.groups.children)
         for(auto &i : g->tracks)
-            camera.feature_tracker->tracks.emplace_back(&i.track);
+            if(i.track.found()) camera.feature_tracker->tracks.emplace_back(&i.track);
 
     for(auto &t: camera.standby_features)
         camera.feature_tracker->tracks.emplace_back(&t);
@@ -871,8 +867,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         for(auto &g : c->groups.children) {
             for(auto &i : g->tracks)
                 if(i.track.found()) ++i.feature.tracks_found;
-            for(auto &i : g->lost_tracks)
-                if(i.track.found()) ++i.feature.tracks_found;
         }
 
     auto space = filter_available_feature_space(f, camera_state);
@@ -880,19 +874,16 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         for(auto &g : camera_state.groups.children)
         {
             if(!space) break;
-            auto f = g->lost_features.begin();
-            for(auto i = g->lost_tracks.begin(); i != g->lost_tracks.end();)
+            for(auto f = g->lost_features.begin(); f != g->lost_features.end();)
             {
                 if(!space) break;
-                if(i->track.found()) {
+                if((*f)->tracks_found) {
                     --space;
-                    i->feature.set_initial_variance(recovered_feature_initial_variance);
-                    i->feature.status = feature_normal;
+                    (*f)->set_initial_variance(recovered_feature_initial_variance);
+                    (*f)->status = feature_normal;
                     g->features.children.push_back(std::move(*f));
-                    g->tracks.push_back(std::move(*i));
                     f = g->lost_features.erase(f);
-                    i = g->lost_tracks.erase(i);
-                } else { ++i; ++f; }
+                } else ++f;
             }
         }
         f->s.remap();
@@ -1302,7 +1293,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                         } else {
                             // if there is no space or feature not found add to feature_lost
                             feat->status = feature_lost;
-                            g->lost_tracks.push_back(state_vision_track(*feat, ft));
+                            g->tracks.push_back(state_vision_track(*feat, ft));
                             g->lost_features.push_back(std::move(feat));
                         }
                     }

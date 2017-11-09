@@ -205,7 +205,6 @@ class state_vision_group: public state_branch<state_node *> {
     state_branch<std::unique_ptr<state_vision_feature>> features;
     std::list<std::unique_ptr<state_vision_feature>> lost_features;
     std::list<state_vision_track> tracks;
-    std::list<state_vision_track> lost_tracks;
     int health = 0;
     enum group_flag status = group_normal;
     uint64_t id;

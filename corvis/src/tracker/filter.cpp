@@ -859,6 +859,22 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     camera_state.update_feature_tracks(data.image, f->map.get(), G_Bcurrent_Bnow); // track the current features near their predicted locations
     process_observation_queue(f); // update state and covariance based on current location of tracked features
 
+    for(auto &c : f->s.cameras.children)
+        for(auto &g : c->groups.children) {
+            for(auto &i : g->features.children)
+                i->tracks_found = 0;
+            for(auto &i : g->lost_features)
+                i->tracks_found = 0;
+        }
+
+    for(auto &c : f->s.cameras.children)
+        for(auto &g : c->groups.children) {
+            for(auto &i : g->tracks)
+                if(i.track.found()) ++i.feature.tracks_found;
+            for(auto &i : g->lost_tracks)
+                if(i.track.found()) ++i.feature.tracks_found;
+        }
+
     auto space = filter_available_feature_space(f, camera_state);
     if(space) {
         for(auto &g : camera_state.groups.children)

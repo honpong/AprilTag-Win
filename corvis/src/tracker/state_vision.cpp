@@ -258,7 +258,8 @@ int state_camera::process_tracks(mapper *map, spdlog::logger &log)
     int track_fail = 0;
     for(auto &g : groups.children) {
         for(auto &t : g->tracks) {
-            if(t.track.found() == false) {
+            if(!t.feature.tracks_found)
+            {
                 // Drop tracking failures
                 ++track_fail;
                 if(t.feature.is_good()) ++useful_drops;

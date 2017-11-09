@@ -114,6 +114,7 @@ class state_vision_feature: public state_leaf<1> {
     std::shared_ptr<log_depth> v;
     std::shared_ptr<tracker::feature> feature;
     state_vision_group &group;
+    size_t tracks_found {0};
     v3 body = v3(0, 0, 0);
     v3 node_body = v3(0, 0, 0);
 
@@ -189,7 +190,7 @@ public:
     static f_t outlier_reject;
     static f_t outlier_lost_reject;
     
-    state_vision_track(state_vision_feature &f, tracker::feature_track &t): feature(f), track(t) {}
+    state_vision_track(state_vision_feature &f, tracker::feature_track &t): feature(f), track(t) { if(t.found()) ++feature.tracks_found; }
 };
 
 class state_vision_group: public state_branch<state_node *> {

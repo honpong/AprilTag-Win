@@ -7,6 +7,12 @@ accordance with the terms of that agreement
 Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 
 *******************************************************************************/
+//
+//  rs_shapefit.h
+//  algo-core
+//
+//  Created by Hon Pong (Gary) Ho
+//
 #pragma once
 
 #ifndef rs_shapefit_h

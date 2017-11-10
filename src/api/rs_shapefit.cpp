@@ -1,9 +1,18 @@
 /*******************************************************************************
-*
-* Perceptual Computing, Intel Corporation
-* Created by: Hon Pong (Gary) Ho
-*
+
+INTEL CORPORATION PROPRIETARY INFORMATION
+This software is supplied under the terms of a license agreement or nondisclosure
+agreement with Intel Corporation and may not be copied or disclosed except in
+accordance with the terms of that agreement
+Copyright(c) 2017 Intel Corporation. All Rights Reserved.
+
 *******************************************************************************/
+//
+//  rs_shapefit.cpp
+//  algo-core
+//
+//  Created by Hon Pong (Gary) Ho
+//
 #define RS_SHAPEFIT_EXPORTS
 #include "rs_shapefit.h"
 #include "rs_sf_planefit.hpp"

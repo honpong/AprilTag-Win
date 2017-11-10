@@ -241,44 +241,42 @@ public:
     using state_leaf<size_>::from_row;
     using state_leaf<size_>::to_col;
 
-    void set_initial_variance(const ::v<size_> &v)
-    {
+    void set_initial_variance(const ::v<size_> &v) {
         initial_covariance.setZero();
         initial_covariance.diagonal() = v;
     }
-    
+
     void reset() {
         index = -1;
         v = ::v<size_>::Zero();
     }
-    
+
     void perturb_variance() {
         if(index < 0 || index >= cov->size()) return;
         for (int i=0; i<size_; i++)
             cov->cov(index+i, index+i) *= PERTURB_FACTOR;
     }
-    
+
     ::v<size_> variance() const {
         ::v<size_> var;
         for (int i=0; i<size_; i++)
             var[i] = index < 0 || index >= cov->size() ? initial_covariance(i, i) : (*cov)(index+i, index+i);
         return var;
     }
-    
+
     void copy_state_to_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
         for (int i=0; i<size_; i++)
             state[index + i] = v[i];
     }
-    
+
     virtual void copy_state_from_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
         for (int i=0; i<size_; i++)
             v[i] = state[index+i];
     }
 
-    virtual std::ostream &print_to(std::ostream & s) const
-    {
+    virtual std::ostream &print_to(std::ostream & s) const {
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
 };
@@ -297,45 +295,43 @@ public:
     using state_leaf<size_>::initial_covariance;
     using state_leaf<size_>::from_row;
     using state_leaf<size_>::to_col;
-    
-    void set_initial_variance(const ::v<size_> &v)
-    {
+
+    void set_initial_variance(const ::v<size_> &v) {
         initial_covariance.setZero();
         initial_covariance.diagonal() = v;
     }
-    
+
     void reset() {
         index = -1;
         v = ::v<size_>::Zero();
     }
-    
+
     void perturb_variance() {
         if(index < 0 || index >= cov->size()) return;
         for (int i=0; i<size_; i++)
             cov->cov(index+i, index+i) *= PERTURB_FACTOR;
     }
-    
+
     ::v<size_> variance() const {
         ::v<size_> var;
         for (int i=0; i<size_; i++)
             var[i] = index < 0 || index >= cov->size() ? initial_covariance(i, i) : (*cov)(index+i, index+i);
         return var;
     }
-    
+
     void copy_state_to_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
         for (int i=0; i<size_; i++)
             state[index + i] = v[i];
     }
-    
+
     virtual void copy_state_from_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
         for (int i=0; i<size_; i++)
             v[i] = state[index+i];
     }
-    
-    virtual std::ostream &print_to(std::ostream & s) const
-    {
+
+    virtual std::ostream &print_to(std::ostream & s) const {
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
 };
@@ -399,11 +395,10 @@ public:
     quaternion v;
 
     state_quaternion(const char *_name, node_type nt): state_leaf(_name, nt) { reset(); }
-    
+
     using state_leaf::set_initial_variance;
-    
-    void set_initial_variance(const v3 &v)
-    {
+
+    void set_initial_variance(const v3 &v) {
         initial_covariance.setZero();
         initial_covariance.diagonal() = v;
     }
@@ -413,34 +408,33 @@ public:
         v = quaternion::Identity();
         w = rotation_vector(0,0,0);
     }
-    
+
     void perturb_variance() {
         if(index < 0 || index >= cov->size()) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
         cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
         cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
-    
+
     v3 variance() const {
         if(index < 0 || index > cov->size()) return v3(initial_covariance(0, 0), initial_covariance(1, 1), initial_covariance(2, 2));
         return v3((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2));
     }
-    
+
     void copy_state_to_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
         state[index+0] = 0;
         state[index+1] = 0;
         state[index+2] = 0;
     }
-    
+
     virtual void copy_state_from_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
         w = rotation_vector(state[index+0], state[index+1], state[index+2]);
         v = to_quaternion(w) * v;
     }
-    
-    virtual std::ostream &print_to(std::ostream & s) const
-    {
+
+    virtual std::ostream &print_to(std::ostream & s) const {
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
     
@@ -453,13 +447,12 @@ class state_quaternion_ref: public state_leaf<3>
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
     quaternion &v;
-    
+
     state_quaternion_ref(quaternion &q, const char *_name, node_type nt): state_leaf(_name, nt), v(q) { reset(); }
 
     using state_leaf::set_initial_variance;
-    
-    void set_initial_variance(const v3 &v)
-    {
+
+    void set_initial_variance(const v3 &v) {
         initial_covariance.setZero();
         initial_covariance.diagonal() = v;
     }
@@ -469,34 +462,33 @@ public:
         v = quaternion::Identity();
         w = rotation_vector(0,0,0);
     }
-    
+
     void perturb_variance() {
         if(index < 0 || index >= cov->size()) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
         cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
         cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
-    
+
     v3 variance() const {
         if(index < 0 || index > cov->size()) return v3(initial_covariance(0, 0), initial_covariance(1, 1), initial_covariance(2, 2));
         return v3((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2));
     }
-    
+
     void copy_state_to_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
         state[index+0] = 0;
         state[index+1] = 0;
         state[index+2] = 0;
     }
-    
+
     virtual void copy_state_from_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
         w = rotation_vector(state[index+0], state[index+1], state[index+2]);
         v = to_quaternion(w) * v;
     }
     
-    virtual std::ostream &print_to(std::ostream & s) const
-    {
+    virtual std::ostream &print_to(std::ostream & s) const {
         return s << name << ": " << v << "±" << variance().array().sqrt();
     }
     

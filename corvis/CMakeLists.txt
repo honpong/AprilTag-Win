@@ -10,6 +10,17 @@ foreach(__lang__ C CXX) # enable assert()s
   string(REGEX REPLACE "(^| )-DNDEBUG( |$)" "" CMAKE_${__lang__}_FLAGS_RELWITHDEBINFO   "${CMAKE_${__lang__}_FLAGS_RELWITHDEBINFO}")
 endforeach()
 
+find_program(CCACHE NAMES ccache sccache)
+if (CCACHE)
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${CCACHE})
+  if (NOT MSVC) # cmake runs cmake/cmd to link wihch sccache doesn't link
+    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK  ${CCACHE})
+  endif()
+  message(STATUS "Caching build with ${CCACHE}")
+else()
+  message(WARNING "Repeated builds will be slow without ccache or sccache installed")
+endif()
+
 if (CMAKE_CXX_COMPILER_ID STREQUAL Clang AND EXISTS /usr/include/c++/v1)
   include_directories(SYSTEM BEFORE /usr/include/c++/v1)
   link_libraries(c++)

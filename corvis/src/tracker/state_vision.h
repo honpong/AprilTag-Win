@@ -116,7 +116,6 @@ class state_vision_feature: public state_leaf<1> {
     state_vision_group &group;
     size_t tracks_found {0};
     v3 body = v3(0, 0, 0);
-    v3 node_body = v3(0, 0, 0);
 
     struct descriptor descriptor;
     bool is_in_map{false};

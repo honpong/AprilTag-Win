@@ -88,31 +88,6 @@ state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id)
     Tr.set_process_noise(ref_noise);
     Qr.set_process_noise(ref_noise);
 }
-int state_vision_group::process_features()
-{
-    for(auto t = tracks.begin(); t != tracks.end();)
-    {
-        if(t->feature.should_drop()) t = tracks.erase(t);
-        else ++t;
-    }
-
-    for(auto f = features.children.begin(); f != features.children.end();) {
-        if((*f)->should_drop()) {
-            f = features.children.erase(f);
-        } else if((*f)->status == feature_lost) {
-            lost_features.push_back(std::move(*f));
-            f = features.children.erase(f);
-        } else {
-            f++;
-        }
-    }
-
-    health = features.children.size();
-    if(health < min_feats)
-        health = 0;
-
-    return health;
-}
 
 void state_vision_group::make_reference()
 {
@@ -159,10 +134,10 @@ void state_vision::clear_features_and_groups()
 {
     for (auto &camera : cameras.children)
     {
+        camera->tracks.clear();
         for(auto &g : camera->groups.children) {
             g->features.children.clear();
             g->lost_features.clear();
-            g->tracks.clear();
         }
         camera->groups.children.clear();
         camera->standby_features.clear();
@@ -175,44 +150,64 @@ int state_vision::process_features(mapper *map)
     bool need_reference = true;
     state_vision_group *best_group = 0;
     int best_health = -1;
-    int normal_groups = 0;
 
+    //First: process groups, mark additional features for deletion
     for(auto &camera : cameras.children) {
-        for(auto i = camera->groups.children.begin(); i != camera->groups.children.end();) {
-            auto &g = *i;
-            
-            // Delete the features we marked to drop, return the health of
-            // the group (the number of features)
-            int health = g->process_features();
-            
-            if(g->status != group_empty)
+        for(auto &g : camera->groups.children) {
+            int health = 0;
+            for(auto &f : g->features.children)
+                if(!f->should_drop() && f->status != feature_lost) ++health;
+
+            if(health < state_vision_group::min_feats)
+                g->status = group_empty;
+            else
                 total_health += health;
             
-            // This sets group_empty (even if group_reference)
-            if(!health) g->status = group_empty;
-            
             // Found our reference group
-            if(g->status == group_reference)
-                need_reference = false;
+            if(g->status == group_reference) need_reference = false;
             
             if(g->status == group_normal) {
-                ++normal_groups;
                 if(health > best_health) {
                     best_group = g.get();
                     best_health = g->health;
                 }
             }
+        }
+    }
+    if(best_group && need_reference) best_group->make_reference();
+
+    //Then: remove tracks based on feature and group status
+    for(auto &camera : cameras.children)
+        for(auto t = camera->tracks.begin(); t != camera->tracks.end();)
+            if(t->feature.should_drop() || t->feature.group.status == group_empty) t = camera->tracks.erase(t);
+            else ++t;
+
+    //Finally: remove features and groups
+    for(auto &camera : cameras.children) {
+        for(auto i = camera->groups.children.begin(); i != camera->groups.children.end();) {
+            auto &g = *i;
             if(g->status == group_empty) {
                 if (map) map->node_finished(g->id);
                 g->unmap();
                 g->features.children.clear();
                 g->lost_features.clear();
-                g->tracks.clear();
                 i = camera->groups.children.erase(i);
-            } else ++i;
+            } else {
+                // Delete the features we marked to drop
+                for(auto f = g->features.children.begin(); f != g->features.children.end();) {
+                    if((*f)->should_drop()) {
+                        f = g->features.children.erase(f);
+                    } else if((*f)->status == feature_lost) {
+                        g->lost_features.push_back(std::move(*f));
+                        f = g->features.children.erase(f);
+                    } else {
+                        f++;
+                    }
+                }
+                ++i;
+            }
         }
     }
-    if(best_group && need_reference) best_group->make_reference();
     return total_health;
 }
 
@@ -255,24 +250,22 @@ int state_camera::process_tracks(mapper *map, spdlog::logger &log)
     int total_feats = 0;
     int outliers = 0;
     int track_fail = 0;
-    for(auto &g : groups.children) {
-        for(auto &t : g->tracks) {
-            if(!t.feature.tracks_found)
-            {
-                // Drop tracking failures
-                ++track_fail;
-                if(t.feature.is_good()) ++useful_drops;
-                if(t.feature.is_good() && t.outlier < t.outlier_lost_reject)
-                    t.feature.make_lost();
-                else
-                    t.feature.drop();
-            } else {
-                // Drop outliers
-                if(t.feature.status == feature_normal) ++total_feats;
-                if(t.outlier > t.outlier_reject) {
-                    t.feature.status = feature_empty;
-                    ++outliers;
-                }
+    for(auto &t : tracks) {
+        if(!t.feature.tracks_found)
+        {
+            // Drop tracking failures
+            ++track_fail;
+            if(t.feature.is_good()) ++useful_drops;
+            if(t.feature.is_good() && t.outlier < t.outlier_lost_reject)
+                t.feature.make_lost();
+            else
+                t.feature.drop();
+        } else {
+            // Drop outliers
+            if(t.feature.status == feature_normal) ++total_feats;
+            if(t.outlier > t.outlier_reject) {
+                t.feature.status = feature_empty;
+                ++outliers;
             }
         }
     }
@@ -536,11 +529,7 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
 
     feature_tracker->tracks.clear();
     feature_tracker->tracks.reserve(feature_count());
-    for(auto &g : groups.children) {
-        if(g->status == group_empty) continue;
-        for(auto &feature : g->tracks)
-            feature_tracker->tracks.emplace_back(&feature.track);
-    }
+    for(auto &feature : tracks) feature_tracker->tracks.emplace_back(&feature.track);
     for(auto &t:standby_features) feature_tracker->tracks.emplace_back(&t);
 
     // create tracks of features visible in inactive map nodes

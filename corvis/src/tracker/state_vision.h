@@ -204,13 +204,11 @@ class state_vision_group: public state_branch<state_node *> {
     state_camera &camera;
     state_branch<std::unique_ptr<state_vision_feature>> features;
     std::list<std::unique_ptr<state_vision_feature>> lost_features;
-    std::list<state_vision_track> tracks;
     int health = 0;
     enum group_flag status = group_normal;
     uint64_t id;
 
     state_vision_group(state_camera &camera, uint64_t group_id);
-    int process_features();
     void make_reference();
     static f_t ref_noise;
     static f_t min_feats;
@@ -234,6 +232,7 @@ struct state_camera: state_branch<state_node*> {
     std::future<void> detection_future;
     camera_frame_t camera_frame;
 
+    std::list<state_vision_track> tracks;
     state_branch<std::unique_ptr<state_vision_group>> groups;
     void update_feature_tracks(const rc_ImageData &image, mapper *map, const transformation &G_Bcurrent_Bnow);
     size_t feature_count() const;

@@ -1291,9 +1291,9 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                             g->lost_features.push_back(std::move(feat));
                         }
                     }
-                    const transformation& G_gold_now = transformation(g->Qr.v, g->Tr.v);
+                    const transformation& G_gold_now = *g->Gr;
                     for(auto &neighbor : f->s.groups.children) {
-                        const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
+                        const transformation& G_now_neighbor = invert(*neighbor->Gr);
                         transformation G_gold_neighbor = G_gold_now*G_now_neighbor;
                         f->map->add_edge(g->id, neighbor->id, G_gold_neighbor);
                     }

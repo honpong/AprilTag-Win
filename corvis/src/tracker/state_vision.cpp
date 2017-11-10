@@ -231,7 +231,7 @@ bool state_vision::get_closest_group_transformation(const uint64_t group_id, tra
 {
     for (auto &g : groups.children) {
         if(g->id == group_id) {
-            G = transformation(g->Qr.v, g->Tr.v);
+            G = *g->Gr;
             return true;
         }
     }
@@ -300,7 +300,7 @@ void state_vision::update_map(mapper *map)
     if (!map) return;
     float distance_current_node = std::numeric_limits<float>::max();
     for (auto &g : groups.children) {
-        map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
+        map->set_node_transformation(g->id, get_transformation()*invert(*g->Gr));
         // Set current node as the closest active group to current pose
         if(g->Tr.v.norm() <= distance_current_node) {
             distance_current_node = g->Tr.v.norm();
@@ -339,7 +339,7 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
         }
         // add edge in the map between new group and active groups in the filter
         for(auto& neighbor : groups.children) {
-            const transformation& G_new_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
+            const transformation& G_new_neighbor = invert(*neighbor->Gr);
             map->add_edge(g->id, neighbor->id, G_new_neighbor);
         }
     }

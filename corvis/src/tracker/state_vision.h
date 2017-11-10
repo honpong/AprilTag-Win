@@ -228,14 +228,14 @@ struct state_camera: state_branch<state_node*> {
     state_extrinsics extrinsics;
     state_vision_intrinsics intrinsics;
     std::unique_ptr<tracker> feature_tracker;
-    std::list<tracker::feature_track> standby_features;
+    std::list<tracker::feature_track> standby_tracks;
     std::future<void> detection_future;
     camera_frame_t camera_frame;
 
     std::list<state_vision_track> tracks;
     state_branch<std::unique_ptr<state_vision_group>> groups;
     void update_feature_tracks(const rc_ImageData &image, mapper *map, const transformation &G_Bcurrent_Bnow);
-    size_t feature_count() const;
+    size_t track_count() const;
     int process_tracks(mapper *map, spdlog::logger &log);
 
     int detecting_space = 0;
@@ -258,7 +258,7 @@ public:
     ~state_vision();
     uint64_t group_counter = 0;
 
-    size_t feature_count() const;
+    size_t track_count() const;
     void clear_features_and_groups();
     int process_features(mapper *map);
     state_vision_group *add_group(const rc_Sensor camera_id, mapper *map);

@@ -441,7 +441,7 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 
 static int filter_add_detected_features(struct filter * f, state_camera &camera, sensor_grey &camera_sensor, size_t newfeats, int image_height, sensor_clock::time_point time)
 {
-    auto &kp = camera.standby_features;
+    auto &kp = camera.standby_tracks;
     auto g = f->s.add_group(camera_sensor.id, f->map.get());
 
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
@@ -504,23 +504,23 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
     auto start = std::chrono::steady_clock::now();
     const rc_ImageData &image = data.image;
     camera.feature_tracker->tracks.clear();
-    int standby_count = camera.standby_features.size(),
+    int standby_count = camera.standby_tracks.size(),
         detect_count = camera.detecting_space,
-        feature_count = camera.feature_count(),
+        track_count = camera.track_count(),
         reloc_count = f->relocalize && update_frame ? 400 : 0;
     camera.detecting_space = 0;
 
     auto froom = std::max(0, detect_count - standby_count);
-    auto space = std::max(froom, reloc_count - feature_count);
+    auto space = std::max(froom, reloc_count - track_count);
 
     if(!space && !update_frame) return; // FIXME: what min number is worth detecting?
 
-    camera.feature_tracker->tracks.reserve(feature_count + space);
+    camera.feature_tracker->tracks.reserve(track_count + space);
 
     for(auto &i : camera.tracks)
         if(i.track.found()) camera.feature_tracker->tracks.emplace_back(&i.track);
 
-    for(auto &t: camera.standby_features)
+    for(auto &t: camera.standby_tracks)
         camera.feature_tracker->tracks.emplace_back(&t);
 
     // Run detector
@@ -536,7 +536,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
 
     // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
     if (space)
-       camera.standby_features.insert(camera.standby_features.begin(),
+       camera.standby_tracks.insert(camera.standby_tracks.begin(),
                                       kp.begin(),
                                       kp.begin() + std::min<size_t>(froom, kp.size()));
 
@@ -680,7 +680,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         START_EVENT(SF_STEREO_MEAS, 0)
         state_camera &camera_state1 = *f->s.cameras.children[camera1_id];
         state_camera &camera_state2 = *f->s.cameras.children[camera2_id];
-        std::list<tracker::feature_track> & kp1 = f->s.cameras.children[camera1_id]->standby_features;
+        std::list<tracker::feature_track> & kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
 
         const std::vector<tracker::feature_track *> existing_features;
 
@@ -819,7 +819,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     if(camera_state.detection_future.valid()) {
         camera_state.detection_future.get();
-        auto active_features = f->s.feature_count();
+        auto active_features = f->s.track_count();
         if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);
             if(!f->detector_failed) f->detector_failed_time = time;
@@ -896,7 +896,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     filter_bring_groups_back(f, data.id);
 
     space = filter_available_feature_space(f, camera_state);
-    if(space >= f->min_group_add && camera_state.standby_features.size() >= f->min_group_add)
+    if(space >= f->min_group_add && camera_state.standby_tracks.size() >= f->min_group_add)
     {
 #ifdef TEST_POSDEF
         if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
@@ -917,7 +917,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     f->s.update_map(f->map.get());
 
     space = filter_available_feature_space(f, camera_state);
-    if(space >= f->min_group_add && camera_state.standby_features.size() < f->max_group_add) {
+    if(space >= f->min_group_add && camera_state.standby_tracks.size() < f->max_group_add) {
         camera_state.detecting_space = f->max_group_add;
     }
     END_EVENT(SF_IMAGE_MEAS, data.time_us / 1000);

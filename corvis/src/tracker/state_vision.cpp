@@ -123,10 +123,10 @@ void state_vision::reset()
     state_motion::reset();
 }
 
-size_t state_vision::feature_count() const
+size_t state_vision::track_count() const
 {
     int res = 0;
-    for (auto &camera : cameras.children) res += camera->feature_count();
+    for (auto &camera : cameras.children) res += camera->track_count();
     return res;
 }
 
@@ -140,7 +140,7 @@ void state_vision::clear_features_and_groups()
             g->lost_features.clear();
         }
         camera->groups.children.clear();
-        camera->standby_features.clear();
+        camera->standby_tracks.clear();
     }
 }
 
@@ -217,13 +217,13 @@ void state_vision::enable_orientation_only(bool _remap)
     state_motion::enable_orientation_only(_remap);
 }
 
-size_t state_camera::feature_count() const
+size_t state_camera::track_count() const
 {
     int count = 0;
-    for(auto &g : groups.children)
-        count += g->features.children.size();
+    for(auto &t : tracks)
+        if(t.track.found()) ++count;
 
-    return count + standby_features.size();
+    return count + standby_tracks.size();
 }
 
 transformation state_vision::get_transformation() const
@@ -271,7 +271,7 @@ int state_camera::process_tracks(mapper *map, spdlog::logger &log)
     }
     const f_t focal_px = intrinsics.focal_length.v * intrinsics.image_height;
     const f_t sigma = 5 / focal_px; // sigma_px = 5
-    standby_features.remove_if([&map, &log, sigma](tracker::feature_track &t) {
+    standby_tracks.remove_if([&map, &log, sigma](tracker::feature_track &t) {
         bool not_found = !t.found();
         if (map && not_found) {
             // Triangulate point not in filter neither being tracked
@@ -341,8 +341,8 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     auto g = std::make_unique<state_vision_group>(camera, group_counter++);
     if(map) {
         map->add_node(g->id, camera_id);
-        // add group id to standby_features to triangulate
-        for (tracker::feature_track &f : camera.standby_features) {
+        // add group id to standby_tracks to triangulate
+        for (tracker::feature_track &f : camera.standby_tracks) {
             f.group_tracks.push_back({g->id,f.x,f.y});
         }
         // add edge in the map between new group and active groups in the filter
@@ -528,9 +528,9 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
     current_image.stride_px = image.stride;
 
     feature_tracker->tracks.clear();
-    feature_tracker->tracks.reserve(feature_count());
+    feature_tracker->tracks.reserve(track_count());
     for(auto &feature : tracks) feature_tracker->tracks.emplace_back(&feature.track);
-    for(auto &t:standby_features) feature_tracker->tracks.emplace_back(&t);
+    for(auto &t:standby_tracks) feature_tracker->tracks.emplace_back(&t);
 
     // create tracks of features visible in inactive map nodes
     if(map && camera_frame.frame) {

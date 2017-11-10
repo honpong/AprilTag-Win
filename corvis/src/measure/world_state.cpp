@@ -415,12 +415,10 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
 
     p = get_plot_by_name("state-size");
     observe_plot_item(timestamp_us, p, "state size", (float)f->s.statesize);
-    int group_storage = 0;
+    int group_storage = f->s.groups.children.size() * 6;;
     int feature_storage = 0;
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {
-        const auto &camera = *f->s.cameras.children[i];
-        group_storage += camera.groups.children.size() * 6;
-        feature_storage += camera.track_count();
+        feature_storage += f->s.cameras.children[i]->track_count();
     }
     observe_plot_item(timestamp_us, p, "groups", (float)group_storage);
     observe_plot_item(timestamp_us, p, "feats", (float)feature_storage);
@@ -429,12 +427,6 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {
         const auto &camera = *f->s.cameras.children[i];
         observe_plot_item(timestamp_us, p, "feats" + std::to_string(i), (float)camera.track_count());
-    }
-
-    p = get_plot_by_name("group counts");
-    for (size_t i=0; i<f->s.cameras.children.size(); i++) {
-        const auto &camera = *f->s.cameras.children[i];
-        observe_plot_item(timestamp_us, p, "groups" + std::to_string(i), (float)camera.groups.children.size());
     }
 
     p = get_plot_by_name("acc timer");

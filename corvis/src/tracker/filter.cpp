@@ -851,13 +851,12 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     camera_state.update_feature_tracks(data.image, f->map.get(), G_Bcurrent_Bnow); // track the current features near their predicted locations
     process_observation_queue(f); // update state and covariance based on current location of tracked features
 
-    for(auto &c : f->s.cameras.children)
-        for(auto &g : c->groups.children) {
-            for(auto &i : g->features.children)
-                i->tracks_found = 0;
-            for(auto &i : g->lost_features)
-                i->tracks_found = 0;
-        }
+    for(auto &g : f->s.groups.children) {
+        for(auto &i : g->features.children)
+            i->tracks_found = 0;
+        for(auto &i : g->lost_features)
+            i->tracks_found = 0;
+    }
 
     for(auto &c : f->s.cameras.children)
         for(auto &i : c->tracks)
@@ -865,7 +864,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     auto space = filter_available_feature_space(f, camera_state);
     if(space) {
-        for(auto &g : camera_state.groups.children)
+        for(auto &g : f->s.groups.children)
         {
             if(!space) break;
             for(auto f = g->lost_features.begin(); f != g->lost_features.end();)
@@ -1293,14 +1292,12 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                         }
                     }
                     const transformation& G_gold_now = transformation(g->Qr.v, g->Tr.v);
-                    for(auto &camera_state : f->s.cameras.children) {
-                        for(auto &neighbor : camera_state->groups.children) {
-                            const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
-                            transformation G_gold_neighbor = G_gold_now*G_now_neighbor;
-                            f->map->add_edge(g->id, neighbor->id, G_gold_neighbor);
-                        }
+                    for(auto &neighbor : f->s.groups.children) {
+                        const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
+                        transformation G_gold_neighbor = G_gold_now*G_now_neighbor;
+                        f->map->add_edge(g->id, neighbor->id, G_gold_neighbor);
                     }
-                    camera_node_state.groups.children.push_back(std::move(g));
+                    f->s.groups.children.push_back(std::move(g));
                     f->s.remap();
                 } else {
                     break;

@@ -233,7 +233,6 @@ struct state_camera: state_branch<state_node*> {
     camera_frame_t camera_frame;
 
     std::list<state_vision_track> tracks;
-    state_branch<std::unique_ptr<state_vision_group>> groups;
     void update_feature_tracks(const rc_ImageData &image, mapper *map, const transformation &G_Bcurrent_Bnow);
     size_t track_count() const;
     int process_tracks(mapper *map, spdlog::logger &log);
@@ -244,7 +243,6 @@ struct state_camera: state_branch<state_node*> {
         reset();
         children.push_back(&extrinsics);
         children.push_back(&intrinsics);
-        children.push_back(&groups);
     }
 };
 
@@ -252,8 +250,10 @@ class state_vision: public state_motion {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
+    state_branch<std::unique_ptr<state_vision_group>> groups;
     state_vision(covariance &c, matrix &FP) : state_motion(c, FP) {
         non_orientation.children.push_back(&cameras);
+        non_orientation.children.push_back(&groups);
     }
     ~state_vision();
     uint64_t group_counter = 0;

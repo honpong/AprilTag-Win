@@ -155,8 +155,6 @@ void mapper::set_node_transformation(nodeid id, const transformation & G)
 void mapper::node_finished(nodeid id)
 {
     nodes[id].status = node_status::finished;
-    for (auto &word : nodes[id].frame->dbow_histogram)
-        dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index
 }
 
 mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)

@@ -451,33 +451,33 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
     for(auto i = kp.begin(); i != kp.end() && found_feats < newfeats; found_feats++, i = kp.erase(i)) {
-            std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->x = i->x;
-            std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->y = i->y;
-            auto feat = std::make_unique<state_vision_feature>(*i, *g);
-
-            float depth_m = i->depth;
-            if(f->has_depth) {
-                if (!aligned_undistorted_depth)
-                    aligned_undistorted_depth = filter_aligned_depth_to_camera(*f->recent_depth, *f->depths[f->recent_depth->id], camera, camera_sensor);
-
-                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({i->x, i->y}))));
-            }
-            if(depth_m)
-            {
-                feat->v->set_depth_meters(depth_m);
-                float std_pct = get_stdev_pct_for_depth(depth_m);
-                if(i->error) { // stereo
-                    //std_pct = std::max<float>(0.02f, i->error);
-                    std_pct = sqrt(state_vision_feature::initial_var/10); // consider using error
-                }
-                //fprintf(stderr, "percent %f\n", std_pct);
-                feat->set_initial_variance(std_pct * std_pct); // assumes log depth
-                feat->status = feature_normal;
-                feat->depth_measured = true;
-            }
+        std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->x = i->x;
+        std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->y = i->y;
+        auto feat = std::make_unique<state_vision_feature>(*i, *g);
+        
+        float depth_m = i->depth;
+        if(f->has_depth) {
+            if (!aligned_undistorted_depth)
+                aligned_undistorted_depth = filter_aligned_depth_to_camera(*f->recent_depth, *f->depths[f->recent_depth->id], camera, camera_sensor);
             
-            camera.tracks.push_back(state_vision_track(*feat, *i));
-            g->features.children.push_back(std::move(feat));
+            depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({i->x, i->y}))));
+        }
+        if(depth_m)
+        {
+            feat->v->set_depth_meters(depth_m);
+            float std_pct = get_stdev_pct_for_depth(depth_m);
+            if(i->error) { // stereo
+                //std_pct = std::max<float>(0.02f, i->error);
+                std_pct = sqrt(state_vision_feature::initial_var/10); // consider using error
+            }
+            //fprintf(stderr, "percent %f\n", std_pct);
+            feat->set_initial_variance(std_pct * std_pct); // assumes log depth
+            feat->status = feature_normal;
+            feat->depth_measured = true;
+        }
+        
+        camera.tracks.push_back(state_vision_track(*feat, *i));
+        g->features.children.push_back(std::move(feat));
     }
     f->s.remap();
 #ifdef TEST_POSDEF

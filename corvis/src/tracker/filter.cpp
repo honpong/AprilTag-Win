@@ -557,6 +557,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
         camera_frame_t &camera_frame = camera.camera_frame;
         camera_frame.camera_id = data.id;
         camera_frame.frame = std::make_shared<frame_t>();
+        camera_frame.frame->timestamp = data.timestamp;
         for (auto &p : camera.feature_tracker->tracks)
             if (std::is_same<DESCRIPTOR, orb_descriptor>::value)
                 camera_frame.frame->keypoints.emplace_back(std::static_pointer_cast<fast_tracker::fast_feature<orb_descriptor>>(p->feature));

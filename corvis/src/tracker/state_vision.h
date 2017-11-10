@@ -80,6 +80,7 @@ public:
 };
 
 struct frame_t {
+    sensor_clock::time_point timestamp;
     std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>> keypoints;
     DBoW2::BowVector dbow_histogram;       // histogram describing image
     DBoW2::FeatureVector dbow_direct_file;  // direct file if used, empty otherwise

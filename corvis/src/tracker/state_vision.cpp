@@ -17,21 +17,16 @@
 f_t state_vision_feature::initial_depth_meters;
 f_t state_vision_feature::initial_var;
 f_t state_vision_feature::initial_process_noise;
-f_t state_vision_feature::outlier_thresh;
-f_t state_vision_feature::outlier_reject;
-f_t state_vision_feature::outlier_lost_reject;
+f_t state_vision_track::outlier_thresh;
+f_t state_vision_track::outlier_reject;
+f_t state_vision_track::outlier_lost_reject;
 f_t state_vision_feature::max_variance;
 
 state_vision_feature::state_vision_feature(const tracker::feature_track &track_, state_vision_group &group_):
-    state_leaf("feature", constant), track(track_), initial(track_.x, track_.y), group(group_)
+    state_leaf("feature", constant), v(std::make_shared<log_depth>()), group(group_), feature(track_.feature)
 {
+    v->initial = {track_.x, track_.y};
     reset();
-}
-
-void state_vision_feature::dropping_group()
-{
-    //TODO: keep features after group is gone
-    if(status != feature_empty) drop();
 }
 
 void state_vision_feature::drop()
@@ -79,7 +74,7 @@ bool state_vision_feature::force_initialize()
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
 
-state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): camera(camera_)
+state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): Gr (std::make_shared<transformation>()), Tr(Gr->T, "Tr", dynamic), Qr(Gr->Q, "Qr", dynamic),  camera(camera_)
 {
     id = group_id;
     children.push_back(&Qr);
@@ -94,51 +89,16 @@ state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id)
     Qr.set_process_noise(ref_noise);
 }
 
-void state_vision_group::make_empty()
-{
-    for(state_vision_feature *f : features.children) {
-        f->dropping_group();
-        delete f;
-    }
-    for(state_vision_feature *f : lost_features) {
-        f->dropping_group();
-        delete f;
-    }
-    features.children.clear();
-    lost_features.clear();
-    status = group_empty;
-}
-
-int state_vision_group::process_features()
-{
-    features.children.remove_if([&](state_vision_feature *f) {
-        if(f->should_drop()) {
-            delete f;
-            return true;
-        } else if(f->status == feature_lost) {
-            lost_features.push_back(f);
-            return true;
-        } else
-            return false;
-    });
-
-    health = features.children.size();
-    if(health < min_feats)
-        health = 0;
-
-    return health;
-}
-
-int state_vision_group::make_reference()
+void state_vision_group::make_reference()
 {
     assert(status == group_normal);
     status = group_reference;
     int normals = 0;
-    for(state_vision_feature *f : features.children) {
+    for(auto &f : features.children) {
         if(f->is_initialized()) ++normals;
     }
     if(normals < 3) {
-        for(state_vision_feature *f : features.children) {
+        for(auto &f : features.children) {
             if(!f->is_initialized()) {
                 if (f->force_initialize()) ++normals;
                 if(normals >= 3) break;
@@ -147,44 +107,104 @@ int state_vision_group::make_reference()
     }
     //remove_child(&Tr);
     //Qr.saturate();
-    return 0;
-}
-
-void state_camera::clear_features_and_groups()
-{
-    for(state_vision_group *g : groups.children) {
-        g->make_empty();
-        delete g;
-    }
-    groups.children.clear();
-    standby_features.clear();
 }
 
 state_vision::~state_vision()
 {
-    for (auto &camera : cameras.children)
-        camera->clear_features_and_groups();
+    clear_features_and_groups();
 }
 
 void state_vision::reset()
 {
+    clear_features_and_groups();
     for (auto &camera : cameras.children) {
-        camera->clear_features_and_groups();
         camera->detecting_space = 0;
     }
     state_motion::reset();
 }
 
-size_t state_vision::feature_count() const
+size_t state_vision::track_count() const
 {
     int res = 0;
-    for (auto &camera : cameras.children) res += camera->feature_count();
+    for (auto &camera : cameras.children) res += camera->track_count();
     return res;
 }
 
 void state_vision::clear_features_and_groups()
 {
-    for (auto &camera : cameras.children) camera->clear_features_and_groups();
+    for (auto &camera : cameras.children)
+    {
+        camera->tracks.clear();
+        camera->standby_tracks.clear();
+    }
+    for(auto &g : groups.children) { //This shouldn't be necessary, but keep to remind us to clear if features move
+        g->features.children.clear();
+        g->lost_features.clear();
+    }
+    groups.children.clear();
+}
+
+int state_vision::process_features(mapper *map)
+{
+    int total_health = 0;
+    bool need_reference = true;
+    state_vision_group *best_group = 0;
+    int best_health = -1;
+
+    //First: process groups, mark additional features for deletion
+    for(auto &g : groups.children) {
+        int health = 0;
+        for(auto &f : g->features.children)
+            if(!f->should_drop() && f->status != feature_lost) ++health;
+        
+        if(health < state_vision_group::min_feats)
+            g->status = group_empty;
+        else
+            total_health += health;
+        
+        // Found our reference group
+        if(g->status == group_reference) need_reference = false;
+        
+        if(g->status == group_normal) {
+            if(health > best_health) {
+                best_group = g.get();
+                best_health = g->health;
+            }
+        }
+    }
+    if(best_group && need_reference) best_group->make_reference();
+
+    //Then: remove tracks based on feature and group status
+    for(auto &camera : cameras.children)
+        for(auto t = camera->tracks.begin(); t != camera->tracks.end();)
+            if(t->feature.should_drop() || t->feature.group.status == group_empty) t = camera->tracks.erase(t);
+            else ++t;
+
+    //Finally: remove features and groups
+    for(auto i = groups.children.begin(); i != groups.children.end();) {
+        auto &g = *i;
+        if(g->status == group_empty) {
+            if (map) map->node_finished(g->id);
+            g->unmap();
+            g->features.children.clear();
+            g->lost_features.clear();
+            i = groups.children.erase(i);
+        } else {
+            // Delete the features we marked to drop
+            for(auto f = g->features.children.begin(); f != g->features.children.end();) {
+                if((*f)->should_drop()) {
+                    f = g->features.children.erase(f);
+                } else if((*f)->status == feature_lost) {
+                    g->lost_features.push_back(std::move(*f));
+                    f = g->features.children.erase(f);
+                } else {
+                    f++;
+                }
+            }
+            ++i;
+        }
+    }
+    return total_health;
 }
 
 void state_vision::enable_orientation_only(bool _remap)
@@ -193,13 +213,13 @@ void state_vision::enable_orientation_only(bool _remap)
     state_motion::enable_orientation_only(_remap);
 }
 
-size_t state_camera::feature_count() const
+size_t state_camera::track_count() const
 {
     int count = 0;
-    for(auto *g : groups.children)
-        count += g->features.children.size();
+    for(auto &t : tracks)
+        if(t.track.found()) ++count;
 
-    return count + standby_features.size();
+    return count + standby_tracks.size();
 }
 
 transformation state_vision::get_transformation() const
@@ -209,46 +229,43 @@ transformation state_vision::get_transformation() const
 
 bool state_vision::get_closest_group_transformation(const uint64_t group_id, transformation& G) const
 {
-    for (auto &camera : cameras.children) {
-        for (auto &g : camera->groups.children) {
-            if(g->id == group_id) {
-                G = transformation(g->Qr.v, g->Tr.v);
-                return true;
-            }
+    for (auto &g : groups.children) {
+        if(g->id == group_id) {
+            G = *g->Gr;
+            return true;
         }
     }
     return false;
 }
 
-int state_camera::process_features(mapper *map, spdlog::logger &log)
+int state_camera::process_tracks(mapper *map, spdlog::logger &log)
 {
     int useful_drops = 0;
     int total_feats = 0;
     int outliers = 0;
     int track_fail = 0;
-    for(auto *g : groups.children) {
-        for(state_vision_feature *i : g->features.children) {
-            if(i->track.found() == false) {
-                // Drop tracking failures
-                ++track_fail;
-                if(i->is_good()) ++useful_drops;
-                if(i->is_good() && i->outlier < i->outlier_lost_reject)
-                    i->make_lost();
-                else
-                    i->drop();
-            } else {
-                // Drop outliers
-                if(i->status == feature_normal) ++total_feats;
-                if(i->outlier > i->outlier_reject) {
-                    i->status = feature_empty;
-                    ++outliers;
-                }
+    for(auto &t : tracks) {
+        if(!t.feature.tracks_found)
+        {
+            // Drop tracking failures
+            ++track_fail;
+            if(t.feature.is_good()) ++useful_drops;
+            if(t.feature.is_good() && t.outlier < t.outlier_lost_reject)
+                t.feature.make_lost();
+            else
+                t.feature.drop();
+        } else {
+            // Drop outliers
+            if(t.feature.status == feature_normal) ++total_feats;
+            if(t.outlier > t.outlier_reject) {
+                t.feature.status = feature_empty;
+                ++outliers;
             }
         }
     }
     const f_t focal_px = intrinsics.focal_length.v * intrinsics.image_height;
     const f_t sigma = 5 / focal_px; // sigma_px = 5
-    standby_features.remove_if([&map, &log, sigma](tracker::feature_track &t) {
+    standby_tracks.remove_if([&map, &log, sigma](tracker::feature_track &t) {
         bool not_found = !t.found();
         if (map && not_found) {
             // Triangulate point not in filter neither being tracked
@@ -275,119 +292,60 @@ int state_camera::process_features(mapper *map, spdlog::logger &log)
 
     if(track_fail && !total_feats) log.warn("Tracker failed! {} features dropped.", track_fail);
     //    log.warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);
-
-    int total_health = 0;
-    bool need_reference = true;
-    state_vision_group *best_group = 0;
-    int best_health = -1;
-    int normal_groups = 0;
-
-    for(state_vision_group *g : groups.children) {
-        // Delete the features we marked to drop, return the health of
-        // the group (the number of features)
-        int health = g->process_features();
-
-        if(g->status != group_empty)
-            total_health += health;
-
-        // Notify features that this group is about to disappear
-        // This sets group_empty (even if group_reference)
-        if(!health)
-            g->make_empty();
-
-        // Found our reference group
-        if(g->status == group_reference)
-            need_reference = false;
-
-        if(g->status == group_normal) {
-            ++normal_groups;
-            if(health > best_health) {
-                best_group = g;
-                best_health = g->health;
-            }
-        }
-    }
-
-    if(best_group && need_reference)
-        total_health += best_group->make_reference();
-
-    for(auto i = groups.children.begin(); i != groups.children.end();)
-    {
-        auto g = *i;
-        ++i;
-        if(g->status == group_empty) remove_group(g, map);
-    }
-
-    return total_health;
+    return total_feats;
 }
 
 void state_vision::update_map(mapper *map)
 {
     if (!map) return;
     float distance_current_node = std::numeric_limits<float>::max();
-    for (auto &camera : cameras.children) {
-        for (auto &g : camera->groups.children) {
-            map->set_node_transformation(g->id, get_transformation()*invert(transformation(g->Qr.v, g->Tr.v)));
-            // Set current node as the closest active group to current pose
-            if(g->Tr.v.norm() <= distance_current_node) {
-                distance_current_node = g->Tr.v.norm();
-                map->current_node_id = g->id;
-            }
-            for (state_vision_feature *f : g->features.children) {
-                float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
-                float variance_meters = stdev*stdev;
-                const float measurement_var = 1.e-3f*1.e-3f;
-                if (variance_meters < measurement_var)
-                    variance_meters = measurement_var;
-
-                bool good = stdev / f->v.depth() < .05f;
-                if (good) {
-                    if(f->is_in_map) {
-                        map->set_feature(g->id, f->track.feature->id, f->v.depth(), variance_meters);
-                    } else {
-                        auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->track.feature);
-                        map->add_feature(g->id, feature, f->v.depth(), variance_meters);
-                    }
-                    f->is_in_map = true;
+    for (auto &g : groups.children) {
+        map->set_node_transformation(g->id, get_transformation()*invert(*g->Gr));
+        // Set current node as the closest active group to current pose
+        if(g->Tr.v.norm() <= distance_current_node) {
+            distance_current_node = g->Tr.v.norm();
+            map->current_node_id = g->id;
+        }
+        for (auto &f : g->features.children) {
+            float stdev = (float)f->v->stdev_meters(sqrt(f->variance()));
+            float variance_meters = stdev*stdev;
+            const float measurement_var = 1.e-3f*1.e-3f;
+            if (variance_meters < measurement_var)
+                variance_meters = measurement_var;
+            
+            bool good = stdev / f->v->depth() < .05f;
+            if (good) {
+                if(f->is_in_map) {
+                    map->set_feature(g->id, f->feature->id, f->v->depth(), variance_meters);
+                } else {
+                    auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->feature);
+                    map->add_feature(g->id, feature, f->v->depth(), variance_meters);
                 }
+                f->is_in_map = true;
             }
         }
     }
-}
-
-state_vision_feature * state_vision::add_feature(const tracker::feature_track &track_, state_vision_group &group)
-{
-    return new state_vision_feature(track_, group);
 }
 
 state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *map)
 {
     state_camera& camera = *cameras.children[camera_id];
-    state_vision_group *g = new state_vision_group(camera, group_counter++);
+    auto g = std::make_unique<state_vision_group>(camera, group_counter++);
     if(map) {
         map->add_node(g->id, camera_id);
-        // add group id to standby_features to triangulate
-        for (tracker::feature_track &f : camera.standby_features) {
+        // add group id to standby_tracks to triangulate
+        for (tracker::feature_track &f : camera.standby_tracks) {
             f.group_tracks.push_back({g->id,f.x,f.y});
         }
         // add edge in the map between new group and active groups in the filter
-        for (auto& camera : cameras.children) {
-            for(auto& neighbor : camera->groups.children) {
-                const transformation& G_new_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
-                map->add_edge(g->id, neighbor->id, G_new_neighbor);
-            }
+        for(auto& neighbor : groups.children) {
+            const transformation& G_new_neighbor = invert(*neighbor->Gr);
+            map->add_edge(g->id, neighbor->id, G_new_neighbor);
         }
     }
-    camera.groups.children.push_back(g);
-    return g;
-}
-
-void state_camera::remove_group(state_vision_group *g, mapper *map)
-{
-    if (map)
-        map->node_finished(g->id);
-    groups.remove_child(g);
-    delete g;
+    auto *p = g.get();
+    groups.children.push_back(std::move(g));
+    return p;
 }
 
 feature_t state_vision_intrinsics::normalize_feature(const feature_t &feat) const
@@ -560,16 +518,9 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
     current_image.stride_px = image.stride;
 
     feature_tracker->tracks.clear();
-    feature_tracker->tracks.reserve(feature_count());
-    for(state_vision_group *g : groups.children) {
-        if(g->status == group_empty) continue;
-        for(state_vision_feature *feature : g->features.children)
-            feature_tracker->tracks.emplace_back(&feature->track);
-        for(state_vision_feature *feature : g->lost_features)
-            feature_tracker->tracks.emplace_back(&feature->track);
-
-    }
-    for(auto &t:standby_features) feature_tracker->tracks.emplace_back(&t);
+    feature_tracker->tracks.reserve(track_count());
+    for(auto &feature : tracks) feature_tracker->tracks.emplace_back(&feature.track);
+    for(auto &t:standby_tracks) feature_tracker->tracks.emplace_back(&t);
 
     // create tracks of features visible in inactive map nodes
     if(map && camera_frame.frame) {
@@ -602,11 +553,10 @@ float state_vision::median_depth_variance()
     float median_variance = 1;
 
     std::vector<state_vision_feature *> useful_feats;
-    for (auto &c : cameras.children)
-        for(auto &g: c->groups.children)
-            for(auto &i: g->features.children)
-                if(i->is_initialized())
-                    useful_feats.push_back(i);
+    for(auto &g: groups.children)
+        for(auto &i: g->features.children)
+            if(i->is_initialized())
+                useful_feats.push_back(i.get());
 
     if(useful_feats.size()) {
         sort(useful_feats.begin(), useful_feats.end(), [](state_vision_feature *a, state_vision_feature *b) { return a->variance() < b->variance(); });
@@ -618,12 +568,11 @@ float state_vision::median_depth_variance()
 
 void state_vision::evolve_state(f_t dt)
 {
-    for (auto &c : cameras.children)
-        for(auto &g : c->groups.children) {
-            g->Tr.v += g->dTrp_ddT * dT;
-            rotation_vector dWr(dW[0], dW[1], dW[2]);
-            g->Qr.v *= to_quaternion(dWr); // FIXME: cache this?
-        }
+    for(auto &g : groups.children) {
+        g->Tr.v += g->dTrp_ddT * dT;
+        rotation_vector dWr(dW[0], dW[1], dW[2]);
+        g->Qr.v *= to_quaternion(dWr); // FIXME: cache this?
+    }
     state_motion::evolve_state(dt);
 }
 
@@ -631,14 +580,13 @@ void state_vision::cache_jacobians(f_t dt)
 {
     state_motion::cache_jacobians(dt);
 
-    for (auto &c : cameras.children)
-        for(auto &g : c->groups.children) {
-            m3 Rr = g->Qr.v.toRotationMatrix();
-            g->dTrp_ddT = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
-            m3 xRrRtdT = skew(g->dTrp_ddT * dT);
-            g->dTrp_dQ_s   = xRrRtdT;
-            g->dQrp_s_dW = Rr * JdW_s;
-        }
+    for(auto &g : groups.children) {
+        m3 Rr = g->Qr.v.toRotationMatrix();
+        g->dTrp_ddT = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
+        m3 xRrRtdT = skew(g->dTrp_ddT * dT);
+        g->dTrp_dQ_s   = xRrRtdT;
+        g->dQrp_s_dW = Rr * JdW_s;
+    }
 
 }
 
@@ -732,13 +680,12 @@ int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t 
         a.to_col<N>(dst, i) = cov_a + dt * cov_da;
         V.to_col<N>(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
         T.to_col<N>(dst, i) = cov_T + cov_dT;
-        for (auto &c : cameras.children)
-            for(auto &g : c->groups.children) {
-                const auto cov_Tr = g->Tr.from_row<N>(src, i);
-                const auto scov_Qr = g->Qr.from_row<N>(src, i);
-                g->Qr.to_col<N>(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
-                g->Tr.to_col<N>(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
-            }
+        for(auto &g : groups.children) {
+            const auto cov_Tr = g->Tr.from_row<N>(src, i);
+            const auto scov_Qr = g->Qr.from_row<N>(src, i);
+            g->Qr.to_col<N>(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
+            g->Tr.to_col<N>(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
+        }
     }
     return i;
 }

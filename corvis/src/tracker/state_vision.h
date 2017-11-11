@@ -41,10 +41,9 @@ enum feature_flag {
 
 class log_depth
 {
-protected:
-    friend class state_vision_feature;
-    f_t v;
 public:
+    f_t v;
+    v2 initial;
     f_t depth() { return exp(v); }
     f_t invdepth() { return exp(-v); }
     f_t invdepth_jacobian() { return -exp(-v); }
@@ -110,16 +109,14 @@ struct camera_frame_t {
 class state_vision_group;
 struct state_camera;
 
-class state_vision_feature: public state_leaf<log_depth, 1> {
+class state_vision_feature: public state_leaf<1> {
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    tracker::feature_track track;
-    f_t outlier = 0;
-    v2 initial;
-    f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
+    std::shared_ptr<log_depth> v;
+    std::shared_ptr<tracker::feature> feature;
     state_vision_group &group;
+    size_t tracks_found {0};
     v3 body = v3(0, 0, 0);
-    v3 node_body = v3(0, 0, 0);
 
     struct descriptor descriptor;
     bool is_in_map{false};
@@ -129,16 +126,12 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t initial_depth_meters;
     static f_t initial_var;
     static f_t initial_process_noise;
-    static f_t outlier_thresh;
-    static f_t outlier_reject;
-    static f_t outlier_lost_reject;
     static f_t max_variance;
 
     state_vision_feature(const tracker::feature_track &track, state_vision_group &group);
     bool should_drop() const;
     bool is_valid() const;
     bool is_good() const;
-    void dropping_group();
     void drop();
     void make_lost();
     bool is_initialized() const { return status == feature_normal; }
@@ -148,7 +141,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     
     void reset() {
         set_initial_variance(initial_var);
-        v.set_depth_meters(initial_depth_meters);
+        v->set_depth_meters(initial_depth_meters);
         set_process_noise(initial_process_noise);
     }
 
@@ -167,43 +160,56 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     
     void copy_state_to_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
-        state[index] = v.v;
+        state[index] = v->v;
     }
     
     virtual void copy_state_from_array(matrix &state) {
         if(index < 0 || index >= state.cols()) return;
-        v.v = state[index];
+        v->v = state[index];
     }
     
     virtual void print_matrix_with_state_labels(matrix &state, node_type nt) const {
         if(type != nt) return;
-        fprintf(stderr, "feature[%" PRIu64 "]: ", track.feature->id); state.row(index+0).print();
+        fprintf(stderr, "feature[%" PRIu64 "]: ", feature->id); state.row(index+0).print();
     }
 
     virtual std::ostream &print_to(std::ostream & s) const
     {
-        return s << "f" << track.feature->id << ": " << v.v << "±" << std::sqrt(variance());
+        return s << "f" << feature->id << ": " << v->v << "±" << std::sqrt(variance());
     }
+};
+
+class state_vision_track {
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    state_vision_feature &feature;
+    tracker::feature_track track;
+    f_t outlier = 0;
+    f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
+    static f_t outlier_thresh;
+    static f_t outlier_reject;
+    static f_t outlier_lost_reject;
+    
+    state_vision_track(state_vision_feature &f, tracker::feature_track &t): feature(f), track(t) { if(t.found()) ++feature.tracks_found; }
 };
 
 class state_vision_group: public state_branch<state_node *> {
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    state_vector<3>  Tr { "Tr", dynamic};
-    state_quaternion Qr { "Qr", dynamic};
+    std::shared_ptr<transformation> Gr;
+    state_vector_ref<3>  Tr;
+    state_quaternion_ref Qr;
 
     state_camera &camera;
-    state_branch<state_vision_feature *> features;
-    std::list<state_vision_feature *> lost_features;
+    state_branch<std::unique_ptr<state_vision_feature>> features;
+    std::list<std::unique_ptr<state_vision_feature>> lost_features;
     int health = 0;
     enum group_flag status = group_normal;
     uint64_t id;
 
     state_vision_group(state_camera &camera, uint64_t group_id);
-    void make_empty();
-    int process_features();
-    int make_reference();
+    void make_reference();
     static f_t ref_noise;
     static f_t min_feats;
     
@@ -222,16 +228,14 @@ struct state_camera: state_branch<state_node*> {
     state_extrinsics extrinsics;
     state_vision_intrinsics intrinsics;
     std::unique_ptr<tracker> feature_tracker;
-    std::list<tracker::feature_track> standby_features;
+    std::list<tracker::feature_track> standby_tracks;
     std::future<void> detection_future;
     camera_frame_t camera_frame;
 
-    state_branch<state_vision_group *> groups;
+    std::list<state_vision_track> tracks;
     void update_feature_tracks(const rc_ImageData &image, mapper *map, const transformation &G_Bcurrent_Bnow);
-    void clear_features_and_groups();
-    size_t feature_count() const;
-    int process_features(mapper *map, spdlog::logger &log);
-    void remove_group(state_vision_group *g, mapper *map);
+    size_t track_count() const;
+    int process_tracks(mapper *map, spdlog::logger &log);
 
     int detecting_space = 0;
 
@@ -239,7 +243,6 @@ struct state_camera: state_branch<state_node*> {
         reset();
         children.push_back(&extrinsics);
         children.push_back(&intrinsics);
-        children.push_back(&groups);
     }
 };
 
@@ -247,15 +250,17 @@ class state_vision: public state_motion {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
+    state_branch<std::unique_ptr<state_vision_group>> groups;
     state_vision(covariance &c, matrix &FP) : state_motion(c, FP) {
         non_orientation.children.push_back(&cameras);
+        non_orientation.children.push_back(&groups);
     }
     ~state_vision();
     uint64_t group_counter = 0;
 
-    size_t feature_count() const;
+    size_t track_count() const;
     void clear_features_and_groups();
-    state_vision_feature *add_feature(const tracker::feature_track &track_, state_vision_group &group);
+    int process_features(mapper *map);
     state_vision_group *add_group(const rc_Sensor camera_id, mapper *map);
     transformation get_transformation() const;
     bool get_closest_group_transformation(const uint64_t group_id, transformation& G) const;

@@ -214,9 +214,9 @@ void observation::innovation_covariance_hook(const matrix &cov, int index)
 
 void observation_vision_feature::innovation_covariance_hook(const matrix &cov, int index)
 {
-    feature->innovation_variance_x = cov(index, index);
-    feature->innovation_variance_y = cov(index + 1, index + 1);
-    feature->innovation_variance_xy = cov(index, index +1);
+    track.innovation_variance_x = cov(index, index);
+    track.innovation_variance_y = cov(index + 1, index + 1);
+    track.innovation_variance_xy = cov(index, index +1);
     observation::innovation_covariance_hook(cov, index);
 }
 
@@ -230,16 +230,15 @@ void observation_vision_feature::predict()
     Rtot = Rct * Rb;
     Ttot = Rct * (Tb - curr.camera.extrinsics.T.v);
 
-    Xd = orig.camera.intrinsics.normalize_feature(feature->initial);
+    Xd = orig.camera.intrinsics.normalize_feature(feature->v->initial);
     X0 = orig.camera.intrinsics.undistort_feature(Xd).homogeneous();
-    feature->body = Rb * X0 * feature->v.depth() + Tb;
-    feature->node_body = Ro*X0 * feature->v.depth() + orig.camera.extrinsics.T.v;
+    feature->body = Rb * X0 * feature->v->depth() + Tb;
 
-    X = Rtot * X0 + Ttot * feature->v.invdepth();
+    X = Rtot * X0 + Ttot * feature->v->invdepth();
     v2 Xu = X.segment<2>(0) / X[2];
     pred = curr.camera.intrinsics.unnormalize_feature(curr.camera.intrinsics.distort_feature(Xu));
-    feature->track.pred_x = pred.x();
-    feature->track.pred_y = pred.y();
+    track.track.pred_x = pred.x();
+    track.track.pred_y = pred.y();
 }
 
 void observation_vision_feature::cache_jacobians()
@@ -266,9 +265,9 @@ void observation_vision_feature::cache_jacobians()
                      { 0, invZ, -Xu[1] * invZ }};
     m<1,3> dkd_u_dX = dkd_u_dXu * dXu_dX;
     m<2,3> dx_dX = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * (Xu * dkd_u_dX + dXu_dX * kd_u);
-    v3 dX_dp = Ttot * (feature->is_initialized() ? feature->v.invdepth_jacobian() : 0);
+    v3 dX_dp = Ttot * (feature->is_initialized() ? feature->v->invdepth_jacobian() : 0);
     dx_dp = dx_dX * dX_dp;
-    f_t invrho = feature->is_initialized() ? feature->v.invdepth() : 0;
+    f_t invrho = feature->is_initialized() ? feature->v->invdepth() : 0;
 
     // d(Rtot X0) = (Rc' Rr' Ro X0)^ Rc' (dRc Rc')v + (Rc' Rr' Ro X0)^ Rc' Rr' (dRr Rr')v  - (Rr' Rc' Ro X0)^ Rc' Rr' (dRo Ro')v + Rtot dX0
     // d Ttot = Ttot^ Rc' (dRc Rc')v  - Rc' Tc^ (dRc Rc')v + (Rc' Rr' Rc) Rc' (To - Tr)^ (dRr Rr')v + Rc' Rr' (dTo - dTr) - Rc dTc
@@ -412,7 +411,7 @@ void observation_vision_feature::update_initializing()
         }
     }
     if(best > .01f && best < 10.f) {
-        feature->v.set_depth_meters(1/best);
+        feature->v->set_depth_meters(1/best);
     }
     //repredict using triangulated depth
     predict();
@@ -421,9 +420,9 @@ void observation_vision_feature::update_initializing()
 bool observation_vision_feature::measure()
 {
     if(feature->status == feature_lost) return false;
-    meas = {feature->track.x, feature->track.y};
+    meas = {track.track.x, track.track.y};
 
-    if(feature->track.found()) {
+    if(track.track.found()) {
         source.meas_stdev.data(meas);
         if(!feature->is_initialized()) {
             update_initializing();
@@ -437,13 +436,13 @@ bool observation_vision_feature::measure()
         return false;
     }
 
-    return feature->track.found();
+    return track.track.found();
 }
 
 void observation_vision_feature::compute_measurement_covariance()
 {
     source.inn_stdev.data(inn);
-    f_t ot = feature->outlier_thresh * feature->outlier_thresh * (curr.camera.intrinsics.image_height/240.f)*(curr.camera.intrinsics.image_height/240.f);
+    f_t ot = track.outlier_thresh * track.outlier_thresh * (curr.camera.intrinsics.image_height/240.f)*(curr.camera.intrinsics.image_height/240.f);
 
     f_t residual = inn[0]*inn[0] + inn[1]*inn[1];
     f_t badness = residual; //outlier_count <= 0  ? outlier_inn[i] : outlier_ess[i];
@@ -452,10 +451,10 @@ void observation_vision_feature::compute_measurement_covariance()
     if(badness > thresh) {
         f_t ratio = sqrt(badness / thresh);
         robust_mc = ratio * source.measurement_variance;
-        feature->outlier += ratio;
+        track.outlier += ratio;
     } else {
         robust_mc =         source.measurement_variance;
-        feature->outlier = 0.;
+        track.outlier = 0.;
     }
     m_cov[0] = robust_mc;
     m_cov[1] = robust_mc;

@@ -322,16 +322,9 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
     auto &camera_sensor = *f->cameras[data.id];
     auto &camera_state = *f->s.cameras.children[data.id];
 
-    for(state_vision_group *g : camera_state.groups.children) {
-        if(g->status == group_empty) continue;
-        for(auto &feature : g->features.children) {
-            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, *feature);
-            f->observations.observations.push_back(std::move(obs));
-        }
-        for(auto &feature : g->lost_features) {
-            auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, *feature);
-            f->observations.observations.push_back(std::move(obs));
-        }
+    for(auto &track : camera_state.tracks) {
+        auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, track.feature, track);
+        f->observations.observations.push_back(std::move(obs));
     }
 }
 
@@ -448,7 +441,7 @@ static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct 
 
 static int filter_add_detected_features(struct filter * f, state_camera &camera, sensor_grey &camera_sensor, size_t newfeats, int image_height, sensor_clock::time_point time)
 {
-    auto &kp = camera.standby_features;
+    auto &kp = camera.standby_tracks;
     auto g = f->s.add_group(camera_sensor.id, f->map.get());
 
     std::unique_ptr<sensor_data> aligned_undistorted_depth;
@@ -458,33 +451,33 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
     for(auto i = kp.begin(); i != kp.end() && found_feats < newfeats; found_feats++, i = kp.erase(i)) {
-            std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->x = i->x;
-            std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->y = i->y;
-            state_vision_feature *feat = f->s.add_feature(*i, *g);
-
-            float depth_m = i->depth;
-            if(f->has_depth) {
-                if (!aligned_undistorted_depth)
-                    aligned_undistorted_depth = filter_aligned_depth_to_camera(*f->recent_depth, *f->depths[f->recent_depth->id], camera, camera_sensor);
-
-                depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({i->x, i->y}))));
-            }
-            if(depth_m)
-            {
-                feat->v.set_depth_meters(depth_m);
-                float std_pct = get_stdev_pct_for_depth(depth_m);
-                if(i->error) { // stereo
-                    //std_pct = std::max<float>(0.02f, i->error);
-                    std_pct = sqrt(state_vision_feature::initial_var/10); // consider using error
-                }
-                //fprintf(stderr, "percent %f\n", std_pct);
-                feat->set_initial_variance(std_pct * std_pct); // assumes log depth
-                feat->status = feature_normal;
-                feat->depth_measured = true;
-            }
+        std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->x = i->x;
+        std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->y = i->y;
+        auto feat = std::make_unique<state_vision_feature>(*i, *g);
+        
+        float depth_m = i->depth;
+        if(f->has_depth) {
+            if (!aligned_undistorted_depth)
+                aligned_undistorted_depth = filter_aligned_depth_to_camera(*f->recent_depth, *f->depths[f->recent_depth->id], camera, camera_sensor);
             
-            g->features.children.push_back(feat);
-            feat->track.feature = i->feature;
+            depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({i->x, i->y}))));
+        }
+        if(depth_m)
+        {
+            feat->v->set_depth_meters(depth_m);
+            float std_pct = get_stdev_pct_for_depth(depth_m);
+            if(i->error) { // stereo
+                //std_pct = std::max<float>(0.02f, i->error);
+                std_pct = sqrt(state_vision_feature::initial_var/10); // consider using error
+            }
+            //fprintf(stderr, "percent %f\n", std_pct);
+            feat->set_initial_variance(std_pct * std_pct); // assumes log depth
+            feat->status = feature_normal;
+            feat->depth_measured = true;
+        }
+        
+        camera.tracks.push_back(state_vision_track(*feat, *i));
+        g->features.children.push_back(std::move(feat));
     }
     f->s.remap();
 #ifdef TEST_POSDEF
@@ -511,24 +504,23 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
     auto start = std::chrono::steady_clock::now();
     const rc_ImageData &image = data.image;
     camera.feature_tracker->tracks.clear();
-    int standby_count = camera.standby_features.size(),
+    int standby_count = camera.standby_tracks.size(),
         detect_count = camera.detecting_space,
-        feature_count = camera.feature_count(),
+        track_count = camera.track_count(),
         reloc_count = f->relocalize && update_frame ? 400 : 0;
     camera.detecting_space = 0;
 
     auto froom = std::max(0, detect_count - standby_count);
-    auto space = std::max(froom, reloc_count - feature_count);
+    auto space = std::max(froom, reloc_count - track_count);
 
     if(!space && !update_frame) return; // FIXME: what min number is worth detecting?
 
-    camera.feature_tracker->tracks.reserve(feature_count + space);
+    camera.feature_tracker->tracks.reserve(track_count + space);
 
-    for(auto &g : camera.groups.children)
-        for(auto &i : g->features.children)
-            camera.feature_tracker->tracks.emplace_back(&i->track);
+    for(auto &i : camera.tracks)
+        if(i.track.found()) camera.feature_tracker->tracks.emplace_back(&i.track);
 
-    for(auto &t: camera.standby_features)
+    for(auto &t: camera.standby_tracks)
         camera.feature_tracker->tracks.emplace_back(&t);
 
     // Run detector
@@ -544,7 +536,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
 
     // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
     if (space)
-       camera.standby_features.insert(camera.standby_features.begin(),
+       camera.standby_tracks.insert(camera.standby_tracks.begin(),
                                       kp.begin(),
                                       kp.begin() + std::min<size_t>(froom, kp.size()));
 
@@ -689,7 +681,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         START_EVENT(SF_STEREO_MEAS, 0)
         state_camera &camera_state1 = *f->s.cameras.children[camera1_id];
         state_camera &camera_state2 = *f->s.cameras.children[camera2_id];
-        std::list<tracker::feature_track> & kp1 = f->s.cameras.children[camera1_id]->standby_features;
+        std::list<tracker::feature_track> & kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
 
         const std::vector<tracker::feature_track *> existing_features;
 
@@ -828,7 +820,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     if(camera_state.detection_future.valid()) {
         camera_state.detection_future.get();
-        auto active_features = f->s.feature_count();
+        auto active_features = f->s.track_count();
         if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);
             if(!f->detector_failed) f->detector_failed_time = time;
@@ -863,21 +855,32 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     camera_state.update_feature_tracks(data.image, f->map.get(), G_Bcurrent_Bnow); // track the current features near their predicted locations
     process_observation_queue(f); // update state and covariance based on current location of tracked features
 
+    for(auto &g : f->s.groups.children) {
+        for(auto &i : g->features.children)
+            i->tracks_found = 0;
+        for(auto &i : g->lost_features)
+            i->tracks_found = 0;
+    }
+
+    for(auto &c : f->s.cameras.children)
+        for(auto &i : c->tracks)
+            if(i.track.found()) ++i.feature.tracks_found;
+
     auto space = filter_available_feature_space(f, camera_state);
     if(space) {
-        for(auto g : camera_state.groups.children)
+        for(auto &g : f->s.groups.children)
         {
             if(!space) break;
-            for(auto i = g->lost_features.begin(); i != g->lost_features.end();)
+            for(auto f = g->lost_features.begin(); f != g->lost_features.end();)
             {
                 if(!space) break;
-                if((*i)->track.found()) {
+                if((*f)->tracks_found) {
                     --space;
-                    g->features.children.push_back(*i);
-                    (*i)->set_initial_variance(recovered_feature_initial_variance);
-                    (*i)->status = feature_normal;
-                    i = g->lost_features.erase(i);
-                } else ++i;
+                    (*f)->set_initial_variance(recovered_feature_initial_variance);
+                    (*f)->status = feature_normal;
+                    g->features.children.push_back(std::move(*f));
+                    f = g->lost_features.erase(f);
+                } else ++f;
             }
         }
         f->s.remap();
@@ -888,14 +891,15 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             std::cerr << " innov  " << c->inn_stdev << "\n";
     }
 
-    int normal_groups = camera_state.process_features(f->map.get(), *f->log);
+    camera_state.process_tracks(f->map.get(), *f->log);
+    auto normal_groups = f->s.process_features(f->map.get());
     filter_update_outputs(f, time, normal_groups == 0);
     f->s.remap();
 
     filter_bring_groups_back(f, data.id);
 
     space = filter_available_feature_space(f, camera_state);
-    if(space >= f->min_group_add && camera_state.standby_features.size() >= f->min_group_add)
+    if(space >= f->min_group_add && camera_state.standby_tracks.size() >= f->min_group_add)
     {
 #ifdef TEST_POSDEF
         if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding group");
@@ -916,7 +920,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     f->s.update_map(f->map.get());
 
     space = filter_available_feature_space(f, camera_state);
-    if(space >= f->min_group_add && camera_state.standby_features.size() < f->max_group_add) {
+    if(space >= f->min_group_add && camera_state.standby_tracks.size() < f->max_group_add) {
         camera_state.detecting_space = f->max_group_add;
     }
     END_EVENT(SF_IMAGE_MEAS, data.time_us / 1000);
@@ -944,9 +948,9 @@ void filter_initialize(struct filter *f)
 #endif
     state_vision_feature::initial_var = .75;
     state_vision_feature::initial_process_noise = 1.e-20;
-    state_vision_feature::outlier_thresh = 1;
-    state_vision_feature::outlier_reject = 30.;
-    state_vision_feature::outlier_lost_reject = 5.;
+    state_vision_track::outlier_thresh = 1;
+    state_vision_track::outlier_reject = 30.;
+    state_vision_track::outlier_lost_reject = 5.;
     state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 4;
@@ -1261,43 +1265,43 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
             auto space = filter_available_feature_space(f, camera_node_state);
             if(space > f->min_group_map_add) {
                 if(nft.found > f->min_group_map_add) {
-                    state_vision_group *g = new state_vision_group(camera_node_state, nft.group_id);
+                    auto g = std::make_unique<state_vision_group>(camera_node_state, nft.group_id);
                     g->Tr.v = nft.G_neighbor_now.T;
                     g->Qr.v = nft.G_neighbor_now.Q;
                     // g->Tr.set_initial_variance({0.1,0.1,0.1});
                     // g->Qr.set_initial_variance({0.1,0.1,0.1});
                     node.status = node_status::normal;
 
-                    for(const auto &ft : nft.tracks) {
-                        state_vision_feature *feat = f->s.add_feature(ft, *g);
+                    for(auto &ft : nft.tracks) {
+                        auto feat = std::make_unique<state_vision_feature>(ft, *g);
                         auto ftmp = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(ft.feature);
-                        feat->initial[0] = ftmp->x;
-                        feat->initial[1] = ftmp->y;
-                        feat->v.set_depth_meters(ft.depth);
+                        feat->v->initial[0] = ftmp->x;
+                        feat->v->initial[1] = ftmp->y;
+                        feat->v->set_depth_meters(ft.depth);
                         float std_pct = get_stdev_pct_for_depth(ft.depth);
                         feat->set_initial_variance(std_pct * std_pct); // assumes log depth
                         feat->depth_measured = true;
 
+                        auto &camera_state = *f->s.cameras.children[camera_id];
                         if(space && ft.found()) {
                             --space;
                             feat->status = feature_normal;
-                            g->features.children.push_back(feat);
-                            feat->track.feature = ft.feature;
+                            camera_state.tracks.push_back(state_vision_track(*feat, ft));
+                            g->features.children.push_back(std::move(feat));
                         } else {
                             // if there is no space or feature not found add to feature_lost
                             feat->status = feature_lost;
-                            g->lost_features.push_back(feat);
+                            camera_state.tracks.push_back(state_vision_track(*feat, ft));
+                            g->lost_features.push_back(std::move(feat));
                         }
                     }
-                    const transformation& G_gold_now = transformation(g->Qr.v, g->Tr.v);
-                    for(auto &camera_state : f->s.cameras.children) {
-                        for(auto &neighbor : camera_state->groups.children) {
-                            const transformation& G_now_neighbor = invert(transformation(neighbor->Qr.v, neighbor->Tr.v));
-                            transformation G_gold_neighbor = G_gold_now*G_now_neighbor;
-                            f->map->add_edge(g->id, neighbor->id, G_gold_neighbor);
-                        }
+                    const transformation& G_gold_now = *g->Gr;
+                    for(auto &neighbor : f->s.groups.children) {
+                        const transformation& G_now_neighbor = invert(*neighbor->Gr);
+                        transformation G_gold_neighbor = G_gold_now*G_now_neighbor;
+                        f->map->add_edge(g->id, neighbor->id, G_gold_neighbor);
                     }
-                    camera_node_state.groups.children.push_back(g);
+                    f->s.groups.children.push_back(std::move(g));
                     f->s.remap();
                 } else {
                     break;

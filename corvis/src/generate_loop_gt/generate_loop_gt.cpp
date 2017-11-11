@@ -58,11 +58,16 @@ class gt_generator {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         v3 center;
         v3 optical_axis;
-        aligned_vector<v3> discretized_axis;
         frustum() {}
         frustum(const transformation& G_world_camera) :
             center(G_world_camera.T),
             optical_axis((G_world_camera.Q * (v3() << 0, 0, 1).finished()).normalized()) {}
+    };
+
+    struct segment {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        segment(const v3& p1, const v3& p2) : p{p1}, v{p2-p1} {}
+        v3 p, v;
     };
 
     enum covisibility {
@@ -203,8 +208,6 @@ void gt_generator::run() {
         for (const auto& pose : interpolated_poses_) {
             transformation G_world_camera = pose.G * G_body_camera0_;
             frustums.emplace_back(G_world_camera);
-            frustums.back().discretized_axis = discretize_axis(frustums.back().center,
-                                                               frustums.back().optical_axis);
         }
         return frustums;
     }();
@@ -281,20 +284,6 @@ std::vector<tpose> gt_generator::interpolate_poses() const {
     return poses;
 }
 
-aligned_vector<v3> gt_generator::discretize_axis(const v3& C, const v3& axis) const {
-    // axis is normalized
-    constexpr float step = 0.25;  // m
-    const int N = std::floor((config_.far_z - config_.near_z) / step) + 1;
-    v3 axis_step = step * axis;
-    aligned_vector<v3> points;
-    points.reserve(N);
-    points.emplace_back(C + config_.near_z * axis);
-    for (int i = 1; i < N; ++i) {
-        points.emplace_back(points.back() + axis_step);
-    }
-    return points;
-}
-
 gt_generator::covisibility gt_generator::covisible_by_proximity(
         const transformation &G_world_camera_A,
         const transformation &G_world_camera_B) const {
@@ -322,75 +311,85 @@ gt_generator::covisibility gt_generator::covisible_by_proximity(
     }
 }
 
-bool gt_generator::covisible_by_frustum_overlap(const frustum& discretized_lhs,
+bool gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
                                                 const frustum& rhs) const {
-    static auto get_perpedicular_vector = [](const v3& p, const frustum& f) {
-        // returns the perpendicular vector to the frustum optical axis that
-        // is coplanar to the point p.
-        v3 u = p - f.center;
-        v3 normal = u.cross(f.optical_axis);
-        return normal.cross(f.optical_axis).normalized();
-    };
-
-    static auto get_intersection_point = [](const v3& line_p, const v3& line_v,
-            const frustum& f, double& lambda1, double& lambda2) {
-        // returns lambda1 and lambda2 such that
-        // line_p + lambda1 * line_v = f.center + lambda2 * f.optical_axis
-        Eigen::Matrix<v3::Scalar, 6, 5> A;
-        Eigen::Matrix<v3::Scalar, 6, 1> b;
-
-        A << 1, 0, 0, -line_v(0), 0,
-             0, 1, 0, -line_v(1), 0,
-             0, 0, 1, -line_v(2), 0,
-             1, 0, 0, 0, -f.optical_axis(0),
-             0, 1, 0, 0, -f.optical_axis(1),
-             0, 0, 1, 0, -f.optical_axis(2);
-        b << line_p(0), line_p(1), line_p(2),
-             f.center(0), f.center(1), f.center(2);
-
-        Eigen::ColPivHouseholderQR<decltype(A)> system(A);
-        Eigen::Matrix<v3::Scalar, 5, 1> x = system.solve(b);
-        lambda1 = x(3);
-        lambda2 = x(4);
-        // instersection point: x(0:2)
+    static auto point_to_segment_projection = [](const v3& p, const segment& s) {
+        f_t t = (p-s.p).dot(s.v)/s.v.squaredNorm();
+        if(t > 0.f && t < 1.f) {
+            v3 p_projection = s.p + t*s.v;
+            return std::pair<f_t, v3>{(p-p_projection).norm(), std::move(p_projection)};
+        }
+        return std::pair<f_t, v3>{std::numeric_limits<float>::max(), v3{}};
     };
 
     const double tan_half_fov = std::tan(config_.fov_rad / 2);
-    auto get_point_on_surface = [this, tan_half_fov](
-            const v3& p, const frustum& f, v3& surface_point) {
-        // returns a point on the surface of the frustum f that is in the line
-        // that joins p (from another frustum) with f.optical_axis
-        v3 aux_line_v = get_perpedicular_vector(p, f);
-        double lambda1, lambda2;
-        get_intersection_point(p, aux_line_v, f, lambda1, lambda2);
-        if (lambda2 < config_.near_z || lambda2 > config_.far_z) return false;
-        double radius = lambda2 * tan_half_fov;
-        surface_point = p + aux_line_v * (lambda1 - radius);
-        return true;
+    // plane is defined by frustum optical axis and point p
+    static auto plane_frustum_intersection = [this, tan_half_fov](const v3& p, const frustum& f) {
+        f_t l = config_.near_z * tan_half_fov;
+        f_t L = config_.far_z * tan_half_fov;
+        f_t h = config_.far_z - config_.near_z;
+        const v3& c = f.center + config_.near_z * f.optical_axis;
+        const v3& y = f.optical_axis;
+        v3 x = ((p-c) - ((p-c).dot(y)) * y).normalized();
+        if(x.sum() == 0) // if point p on optical axis select yz plane
+            x = v3{1.f, 0.f, 0.f};
+        // plane intersects frustum (truncated cone) in 4 corners
+        std::vector<v3> intersection = {c-l*x, c+l*x, c+h*y+L*x, c+h*y-L*x};
+        return intersection;
     };
 
-    const double min_cos_angle = std::cos(config_.fov_rad / 2);
-    auto point_in_frustum = [this, min_cos_angle](const v3& p, const frustum& f) {
-        v3 point_axis = p - f.center;
-        double distance = point_axis.norm();
-        double cos_point_angle = point_axis.dot(f.optical_axis) / distance;
-        if (cos_point_angle >= min_cos_angle) {
-            double min_distance = config_.near_z / cos_point_angle;
-            double max_distance = config_.far_z / cos_point_angle;
-            return (min_distance <= distance && distance <= max_distance);
+    static auto point_to_frustum_projection = [](const v3& p, const frustum& f) {
+        f_t min_distance = std::numeric_limits<float>::max();
+        v3 p_projected;
+
+        // distance to plane-cone intersection corners
+        std::vector<v3> points = plane_frustum_intersection(p, f);
+        for(int i=0; i<4; ++i) {
+            f_t distance = (p-points[i]).norm();
+            if(distance < min_distance) {
+                min_distance = distance;
+                p_projected = points[i];
+            }
         }
-        return false;
+
+        // distance to plane-cone intersection segments
+        for(int i=0; i<4; ++i) {
+            segment s(points[i], points[(i+1)%4]);
+            std::pair<f_t, v3> distance_point = point_to_segment_projection(p, s);
+            if(distance_point.first < min_distance) {
+                min_distance = distance_point.first;
+                p_projected = distance_point.second;
+            }
+        }
+
+        return p_projected;
     };
 
-    v3 rhs_point;
-    for (auto it = discretized_lhs.discretized_axis.rbegin();
-         it != discretized_lhs.discretized_axis.rend();
-         ++it) {
-        if (get_point_on_surface(*it, rhs, rhs_point)) {
-            if (point_in_frustum(rhs_point, discretized_lhs)) return true;
-        }
-    }
-    return false;
+    static auto numerical_frustums_intersection = [this](const frustum& lhs, const frustum& rhs) {
+      f_t distance = std::numeric_limits<f_t>::max();
+      std::vector<const frustum*> frustums = {&lhs, &rhs};
+
+      v3 p = rhs.center + config_.near_z * rhs.optical_axis;
+      bool stop = false;
+      int iteration = 0;
+      while(!stop && iteration < 10) {
+          v3 p_new = point_to_frustum_projection(p, *frustums[iteration%2]);
+          f_t distance_new = (p_new-p).norm();
+          if(std::abs(distance-distance_new) < 1e-3 || distance_new < 1e-3) // in theory distance >= distance_new always
+              stop = true;
+
+          distance = distance_new;
+          p = p_new;
+          iteration++;
+      }
+
+      if(distance < 1e-3)
+          return true;
+
+      return false;
+    };
+
+    return numerical_frustums_intersection(lhs, rhs);
 }
 
 void gt_generator::get_connected_components(const SymmetricMatrix<bool>& associations,

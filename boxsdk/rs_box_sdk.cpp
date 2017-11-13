@@ -54,17 +54,19 @@ namespace rs2
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_ASYNC_WAIT, 500.0);
             //rs_shapefit_set_option(_detector.get(), RS_SF_OPTION_PLANE_NOISE, 2);
             //rs_shapefit_set_option(_detector.get(), RS_SF_OPTION_PLANE_RES, 1);
-            //rs_shapefit_set_option(_detector.get(), RS_SF_OPTION_TRACKING, 1);
 
             _color_stream_profile = std::make_shared<video_stream_profile>(input_color_frame.get_profile());
             _color_intrinsics = _color_stream_profile->get_intrinsics();
             _depth_to_color = _color_stream_profile->get_extrinsics_to(*_depth_stream_profile);
 
-            for (auto i : { 0,1,2,9,3,4,5,10,6,7,8,11 })
-                output_image_pose.push_back(((float*)&_depth_to_color)[i]);
+            for (auto i : { 0, 1, 2, 9, 3, 4, 5, 10, 6, 7, 8, 11 })
+                color_image_pose.push_back(((float*)&_depth_to_color)[i]);
+
+            for (auto v : { 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f, .0f, .0f, 0.f, 1.0f, 0.f })
+                depth_image_pose.push_back(v);
 
             _image[BOX_SRC_DEPTH] << input_depth_frame << &_depth_intrinsics;
-            _image[BOX_SRC_COLOR] << input_color_frame << &_color_intrinsics << output_image_pose.data();
+            _image[BOX_SRC_COLOR] << input_color_frame << &_color_intrinsics << color_image_pose.data();
             _image[BOX_DST_COLOR] << input_color_frame << &_depth_intrinsics;
             return box_detector;
         }
@@ -82,17 +84,25 @@ namespace rs2
             auto status = rs_shapefit_depth_image(box_detector, &_image[BOX_SRC_DEPTH]);
 
             if (status == RS_SF_SUCCESS)
-            {             
+            {
                 auto output_color_frame = src.allocate_video_frame(*_color_stream_profile, input_color_frame);
+                auto output_align_frame = src.allocate_video_frame(*_color_stream_profile, input_color_frame, 8, 1, sizeof(rs2_measure_camera_state), 1);
+
                 _image[BOX_DST_COLOR] << input_color_frame.get_frame_number() << output_color_frame.get_data();
                 _image[BOX_SRC_COLOR] << input_color_frame.get_frame_number() << input_color_frame.get_data();
-              
-                status = rs_sf_planefit_draw_planes(box_detector, &_image[BOX_DST_COLOR]);
-                status = rs_sf_boxfit_draw_boxes(box_detector, &_image[BOX_SRC_COLOR]);
-                status = rs_sf_boxfit_draw_boxes(box_detector, &_image[BOX_DST_COLOR]);
-                if (status == RS_SF_SUCCESS)
+
+                auto cameras = (rs2_measure_camera_state*)output_align_frame.get_data();
+                cameras->color_intrinsics = &_color_intrinsics;
+                cameras->depth_intrinsics = &_depth_intrinsics;
+                memcpy(cameras->depth_pose, depth_image_pose.data(), sizeof(float)*depth_image_pose.size());
+                memcpy(cameras->color_pose, color_image_pose.data(), sizeof(float)*color_image_pose.size());
+
+                //status = rs_sf_planefit_draw_planes(box_detector, &_image[BOX_DST_COLOR]);
+                //status = rs_sf_boxfit_draw_boxes(box_detector, &_image[BOX_DST_COLOR]);
+                //if (status == RS_SF_SUCCESS)
                 {
-                    src.frame_ready(std::move(output_color_frame));
+                    auto output = src.allocate_composite_frame({ output_align_frame, output_color_frame });
+                    src.frame_ready(std::move(output));
                 }
             }
         }
@@ -120,7 +130,7 @@ namespace rs2
         std::shared_ptr<video_stream_profile> _depth_stream_profile, _color_stream_profile;
         
         std::shared_ptr<rs_shapefit> _detector;
-        std::vector<float> output_image_pose;
+        std::vector<float> depth_image_pose, color_image_pose;
         float _depth_unit = 0.001f;
        
         enum { BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_DEPTH, BOX_DST_COLOR, BOX_IMG_COUNT };

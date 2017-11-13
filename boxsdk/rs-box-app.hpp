@@ -20,6 +20,9 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 #include <sstream>
 #include <iostream>
 
+#ifndef GL_BGR
+#define GL_BGR GL_BGR_EXT
+#endif
 
 //////////////////////////////
 // Basic Data Types         //
@@ -63,6 +66,35 @@ inline void draw_text(int x, int y, const char * text)
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
+//////////////////////
+// Box display code //
+//////////////////////
+
+inline void draw_box_wire(const int width, const int height, const float box_wire_endpt[12][2][2], const rect& r, int line_width)
+{
+    if (width <= 0 || height <= 0 || !box_wire_endpt || r.w <= 0 || r.h <= 0) return;
+    const auto sx = r.w / width, sy = r.h / height;
+
+    float currentColor[4];
+    glGetFloatv(GL_CURRENT_COLOR, currentColor);
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glLineWidth(line_width);
+    glColor3f(1.0f, 1.0f, 0.0f);
+    glBegin(GL_LINES);
+    for (int l = 0; l < 12; ++l)
+    {
+        glVertex2f(r.x + box_wire_endpt[l][0][0] * sx, r.y + box_wire_endpt[l][0][1] * sy);
+        glVertex2f(r.x + box_wire_endpt[l][1][0] * sx, r.y + box_wire_endpt[l][1][1] * sy);
+    }
+    glEnd();
+    glDisable(GL_BLEND);
+    glDisable(GL_LINE_SMOOTH);
+    glColor4fv(currentColor);
+}
+
 ////////////////////////
 // Image display code //
 ////////////////////////
@@ -70,31 +102,50 @@ inline void draw_text(int x, int y, const char * text)
 class texture
 {
 public:
+
+    //template<typename ICON>
+    //void render(ICON icon, const rect& r)
+    //{
+    //int width, height;
+    //render(icon(width, height), width, height, { r.x + r.w / 4, r.y, r.w / 2, r.h }, nullptr, RS2_FORMAT_BGR8);
+
+    //GLfloat a = r.x, b = r.y, c = r.x + r.w, d = r.y + r.h;
+    //printf("%.2f %.2f %.2f %.2f \n", a, b, c, d);
+    //glRectf(a, b, c, d);
+    //}
+
     void render(const rs2::video_frame& frame, const rect& r, const char* text = nullptr)
     {
-        upload(frame);
-        show(r.adjust_ratio({ float(width), float(height) }), text);
+        if (!frame) return;
+        render(frame.get_data(), frame.get_width(), frame.get_height(), r, text, frame.get_profile().format());
     }
 
-    void upload(const rs2::video_frame& frame)
+    void render(const void* data, const int width, const int height, const rect& r, const char* text = nullptr, const rs2_format& format = RS2_FORMAT_RGB8)
     {
-        if (!frame) return;
+        upload(data, width, height, format);
+        show(_r = r.adjust_ratio({ float(width), float(height) }), text);
+        //show(_r = r, text);
+    }
+
+    void upload(const void* data, const int width, const int height, const rs2_format& format = RS2_FORMAT_RGB8)
+    {
+        if (!data) return;
 
         if (!gl_handle)
             glGenTextures(1, &gl_handle);
         GLenum err = glGetError();
 
-        auto format = frame.get_profile().format();
-        width = frame.get_width();
-        height = frame.get_height();
-        stream = frame.get_profile().stream_type();
+        //stream = frame.get_profile().stream_type();
 
         glBindTexture(GL_TEXTURE_2D, gl_handle);
 
         switch (format)
         {
         case RS2_FORMAT_RGB8:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, frame.get_data());
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width = width, _height = height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+            break;
+        case RS2_FORMAT_BGR8:
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width = width, _height = height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
             break;
         default:
             throw std::runtime_error("The requested format is not suported by this demo!");
@@ -128,20 +179,27 @@ public:
 
         draw_text((int)(r.x) + 15, (int)(r.y) + 20, text ? text : rs2_stream_to_string(stream));
     }
+
+    void draw_box(const float box_wire_endpt[12][2][2], int line_width = 2)
+    {
+        draw_box_wire(_width, _height, box_wire_endpt, _r, line_width);
+    }
+
 private:
     GLuint gl_handle = 0;
-    int width = 0;
-    int height = 0;
+    int _width = 0;
+    int _height = 0;
+    rect _r = {};
     rs2_stream stream = RS2_STREAM_ANY;
 };
 
 class window
 {
 public:
-    std::function<void(bool)>           on_left_mouse   = [](bool) {};
+    std::function<void(bool)>           on_left_mouse = [](bool) {};
     std::function<void(double, double)> on_mouse_scroll = [](double, double) {};
-    std::function<void(double, double)> on_mouse_move   = [](double, double) {};
-    std::function<void(int)>            on_key_release  = [](int) {};
+    std::function<void(double, double)> on_mouse_move = [](double, double) {};
+    std::function<void(int)>            on_key_release = [](int) {};
 
     window(int width, int height, const char* title)
         : _width(width), _height(height)

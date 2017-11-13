@@ -151,6 +151,10 @@ int main(int c, char **v)
             std::cout << "rotation    RPE [deg]:\n";
             std::cout << res.errors.rpe_R*(180.f/M_PI) << "\n";
         }
+        if (res.errors.calculate_precision_recall()) {
+            std::cout << "Relocalization Statistics (PR [%]):\n";
+            std::cout << res.errors.relocalization << "\n";
+        }
 
         if(rc_getConfidence(rp.tracker) >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
             std::cout << "Updating " << rp.calibration_file << "\n";
@@ -189,6 +193,13 @@ int main(int c, char **v)
                 res.errors.calculate_ate();
                 if (enable_gui || render_output)
                     ws.observe_ate(data->time_us, res.errors.ate.rmse);
+            }
+            if (num_reloc_edges) {
+                res.errors.add_edges(num_reloc_edges,
+                                     num_mapnodes,
+                                     reloc_edges,
+                                     mapnodes_timestamps,
+                                     rp.get_reference_edges());
             }
         }
         if (enable_gui || render_output)

@@ -106,7 +106,7 @@ struct tpose_sequence {
         }
         return total_distance;
     }
-    bool get_pose(sensor_clock::time_point t, tpose &tp) {
+    bool get_pose(sensor_clock::time_point t, tpose &tp) const {
         tpose pt {t};
         if (tposes.empty() || pt < tposes.front())
             return false;
@@ -141,7 +141,7 @@ struct tpose_sequence {
             tposes[i].G = offset*tposes[i].G;
         }
     }
-    size_t size() { return tposes.size(); }
+    size_t size() const { return tposes.size(); }
 
     friend inline std::istream &operator>>(std::istream &file, tpose_sequence &s);
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

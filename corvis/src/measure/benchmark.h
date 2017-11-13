@@ -4,7 +4,10 @@
 #include <algorithm>
 #include <vec4.h>
 #include <tpose.h>
+#include <rc_tracker.h>
 #include <memory>
+#include <unordered_map>
+#include <unordered_set>
 
 struct benchmark_result {
     struct { double reference, measured; } length_cm, path_length_cm; void * user_data;
@@ -54,6 +57,21 @@ struct benchmark_result {
             }
         } ate, rpe_T, rpe_R;
 
+        struct matching_statistics {
+            f_t precision = 0, recall = 0;
+
+            void compute_pr(f_t tp, f_t fp, f_t fn) {
+                if ( !((tp + fp) && (tp + fn))) return;
+                precision = tp / (tp + fp);
+                recall = tp / (tp + fn);
+            }
+
+            template <typename Stream>
+            friend Stream& operator<<(Stream &stream, const matching_statistics &reloc_error) {
+                return stream << " precision "   << reloc_error.precision*100 << " recall "  << reloc_error.recall*100;
+            }
+        } relocalization;
+
         // ATE variables
         m3 W = m3::Zero();
         m3 R = m3::Identity();
@@ -62,6 +80,7 @@ struct benchmark_result {
         v3 T_ref_mean = v3::Zero();
         v3 T_error_mean = v3::Zero();
         int nposes = 0;
+        int true_positives = 0, true_negatives = 0, false_positives = 0, false_negatives = 0;
 
         // RPE variables
         aligned_vector<v3> T_current_all, T_ref_all;
@@ -109,7 +128,55 @@ struct benchmark_result {
             return nposes;
         }
 
+        bool calculate_precision_recall(){
+            relocalization.compute_pr(true_positives,false_positives,false_negatives);
+            return true;
+        }
+
         inline bool is_valid() { return nposes > 0; }
+
+        bool add_edges(const int num_reloc_edges,
+                       const int num_mapnodes,
+                       const rc_RelocEdge* reloc_edges,
+                       const rc_Timestamp* mapnodes_timestamps,
+                       const std::unordered_multimap<rc_Timestamp, std::unordered_set<rc_Timestamp>>& ref_edges) {
+
+            if (!num_reloc_edges) return false;
+            // get range in reference multimap for currentframe timestamp and creates a multimap from it
+            const rc_Timestamp& current_frame_timestamp = reloc_edges[0].time_source;
+
+            // search for map node timestamps in a subset of reference edges
+            std::unordered_set<rc_Timestamp> ref_mapnode_edges;
+            {
+                auto it = ref_edges.find(current_frame_timestamp);
+                if (it != ref_edges.end()) {
+                    for (rc_Timestamp destination : it->second) {
+                        if (std::binary_search(mapnodes_timestamps, mapnodes_timestamps + num_mapnodes,
+                                               destination)) {
+                            ref_mapnode_edges.emplace(destination);
+                        }
+                    }
+                }
+            }
+
+            int tp = 0, fp = 0;
+            // maybe all reloc edges are false positive
+            if (!ref_mapnode_edges.size()) {
+                fp = num_reloc_edges;
+            } else {
+                // traverse all relocalization mapnode timestamps and check if they are in canditate timestamps
+                for (int i = 0; i < num_reloc_edges; ++i) {
+                    tp += ref_mapnode_edges.count(reloc_edges[i].time_destination);
+                }
+                fp = num_reloc_edges - tp;
+            }
+
+            true_positives += tp;
+            false_positives += fp;
+            false_negatives += ref_mapnode_edges.size() - tp;
+
+            return true;
+        }
     } errors;
 };
 

@@ -41,9 +41,12 @@ prev_packet_str = ""
 warnings = defaultdict(list)
 exposure_warnings = defaultdict(list)
 imu_warnings = defaultdict(list)
-arrival_time_warnings = []
+out_of_order_warnings = []
+missing_arrival_time_warnings = []
+unconsumed_arrival_time_warnings = []
 last_data = {}
 last_arrival_time = 0
+arrival_time_consumed = True
 while header_str != "":
   (pbytes, ptype, sensor_id, ptime) = unpack('IHHQ', header_str)
   got_types[ptype] += 1
@@ -53,6 +56,14 @@ while header_str != "":
   if args.verbose:
       print packet_str, pbytes, ptype, sensor_id, ptime,
   data = f.read(pbytes-header_size)
+
+  if (ptype == accel_type or ptype == gyro_type or
+     ptype == image_with_depth or ptype == image_raw_type or ptype == stereo_raw_type):
+      if arrival_time_consumed:
+          missing_arrival_time_warnings.append((ptime))
+          if args.verbose: print "warning: missing data packet arrival_time"
+      arrival_time_consumed = True
+
   if ptype == accel_type or ptype == gyro_type:
       # packets are padded to 8 byte boundary
       (x, y, z) = unpack('fff', data[:12])
@@ -66,6 +77,7 @@ while header_str != "":
           if ptype == accel_type and norm > 9:
               imu_warnings[packet_str].append((ptime, norm, current_data, last_data[packet_str]))
       last_data[packet_str] = current_data
+
   elif ptype == image_with_depth:
       (exposure, width, height, depth_w, depth_h) = unpack('QHHHH', data[:16])
       if exposure < 1000 or exposure > 50000:
@@ -74,6 +86,7 @@ while header_str != "":
       if args.verbose:
           camera_str = "%d %dx%d grey, %dx%d depth, %d exposure, %d adjusted time" % (sensor_id, width, height, depth_w, depth_h, exposure, ptime)
           print "\t", camera_str
+
   elif ptype == image_raw_type:
       (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
       type_str = format_types[camera_format]
@@ -84,21 +97,29 @@ while header_str != "":
       if args.verbose:
           camera_str = "%s %d (%d) %dx%d, %d stride, %d exposure, %d adjusted time" % (type_str, sensor_id, camera_format, width, height, stride, exposure, ptime)
           print "\t", camera_str
+
   elif ptype == arrival_time_type:
+      if arrival_time_consumed == False:
+          if args.verbose: print "warning : Unconsumed arrival time"
+          unconsumed_arrival_time_warnings.append((ptime))
+      arrival_time_consumed = False;
       if last_arrival_time > ptime:
-          arrival_time_warnings.append((ptime, last_arrival_time))
+          out_of_order_warnings.append((ptime, last_arrival_time))
       last_arrival_time = ptime
       if args.verbose:
           print "\t %d" % ptime
+
   else:
       if args.verbose:
           print ""
+
   if packet_str == "":
       packet_str = str(ptype)
   if not latest_received or latest_received < ptime:
       latest_received = ptime
-  latencies[packet_str].append(latest_received - ptime)
-  packets[packet_str].append(ptime)
+  if ptype != arrival_time_type:
+    latencies[packet_str].append(latest_received - ptime)
+    packets[packet_str].append(ptime)
   if not (ptype == accel_type or ptype == gyro_type) and prev_packet_str == packet_str:
       warnings[packet_str].append((last_time, ptime))
   last_time = ptime
@@ -127,6 +148,7 @@ def compress_warnings(warning_list):
     return output_list
 
 for packet_type in sorted(packets.keys()):
+  if packet_type == arrival_time_type: continue
   timestamps = numpy.array(packets[packet_type])
   platencies = numpy.array(latencies[packet_type])
   deltas = timestamps[1:] - timestamps[:-1]
@@ -162,8 +184,15 @@ for packet_type in sorted(packets.keys()):
           print "Warning:", packet_type, "at", w[0], "changed by ", w[1], "current: ", w[2], "last:", w[3]
   print ""
 
-if len(arrival_time_warnings) > 0 :
-    print "Warning: %d packets arrival_time is out of order" % len(arrival_time_warnings)
+if got_types[arrival_time_type] == 0:
+    print "Warning: Never received arrival_time packet"
+else:
+    if len(out_of_order_warnings) > 0 :
+        print "Warning: %d packets arrival_time is out of order" % len(out_of_order_warnings)
+    if len(missing_arrival_time_warnings) > 0 :
+        print "Warning: %d packets missing arrival time data" % len(missing_arrival_time_warnings)
+    if len(unconsumed_arrival_time_warnings) > 0 :
+        print "Warning: %d unconsumed arrival-time packets" % len(unconsumed_arrival_time_warnings)
 
 if got_types[accel_type] == 0:
     print "Error: Never received any accelerometer data"

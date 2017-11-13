@@ -82,7 +82,6 @@ class gt_generator {
     covisibility covisible_by_proximity(const transformation &G_world_camera_A,
                                         const transformation &G_world_camera_B) const;
     bool covisible_by_frustum_overlap(const frustum& discretized_frustum_lhs, const frustum& rhs) const;
-    aligned_vector<v3> discretize_axis(const v3& center, const v3& normalized_axis) const;
 
     void get_connected_components(const SymmetricMatrix<bool>& associations,
                                   SymmetricMatrix<size_t>& labels) const;
@@ -324,7 +323,7 @@ bool gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
 
     const double tan_half_fov = std::tan(config_.fov_rad / 2);
     // plane is defined by frustum optical axis and point p
-    static auto plane_frustum_intersection = [this, tan_half_fov](const v3& p, const frustum& f) {
+    auto plane_frustum_intersection = [this, tan_half_fov](const v3& p, const frustum& f) {
         f_t l = config_.near_z * tan_half_fov;
         f_t L = config_.far_z * tan_half_fov;
         f_t h = config_.far_z - config_.near_z;
@@ -338,7 +337,7 @@ bool gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
         return intersection;
     };
 
-    static auto point_to_frustum_projection = [](const v3& p, const frustum& f) {
+    auto point_to_frustum_projection = [&plane_frustum_intersection](const v3& p, const frustum& f) {
         f_t min_distance = std::numeric_limits<float>::max();
         v3 p_projected;
 
@@ -365,7 +364,7 @@ bool gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
         return p_projected;
     };
 
-    static auto numerical_frustums_intersection = [this](const frustum& lhs, const frustum& rhs) {
+    auto numerical_frustums_intersection = [this, &point_to_frustum_projection](const frustum& lhs, const frustum& rhs) {
       f_t distance = std::numeric_limits<f_t>::max();
       std::vector<const frustum*> frustums = {&lhs, &rhs};
 

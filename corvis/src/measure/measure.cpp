@@ -170,9 +170,10 @@ int main(int c, char **v)
         auto timestamp = sensor_clock::micros_to_tp(current.time_us);
         tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current.pose_m));
         rc_RelocEdge* reloc_edges;
+        rc_Timestamp reloc_source;
         rc_Timestamp* mapnodes_timestamps;
         int num_mapnodes = rc_getMapNodes(tracker, &mapnodes_timestamps);
-        int num_reloc_edges = rc_getRelocalizationEdges(tracker, &reloc_edges);
+        int num_reloc_edges = rc_getRelocalizationEdges(tracker, &reloc_source, &reloc_edges);
 
         bool success = rp.get_reference_pose(timestamp, ref_tpose);
         if (success) {
@@ -194,13 +195,12 @@ int main(int c, char **v)
                 if (enable_gui || render_output)
                     ws.observe_ate(data->time_us, res.errors.ate.rmse);
             }
-            if (num_reloc_edges) {
-                res.errors.add_edges(num_reloc_edges,
-                                     num_mapnodes,
-                                     reloc_edges,
-                                     mapnodes_timestamps,
-                                     rp.get_reference_edges());
-            }
+            res.errors.add_edges(reloc_source,
+                                 num_reloc_edges,
+                                 num_mapnodes,
+                                 reloc_edges,
+                                 mapnodes_timestamps,
+                                 rp.get_reference_edges());
         }
         if (enable_gui || render_output)
             ws.rc_data_callback(tracker, data);

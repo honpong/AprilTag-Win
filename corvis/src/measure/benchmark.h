@@ -135,19 +135,16 @@ struct benchmark_result {
 
         inline bool is_valid() { return nposes > 0; }
 
-        bool add_edges(const int num_reloc_edges,
+        bool add_edges(const rc_Timestamp current_frame_timestamp,
+                       const int num_reloc_edges,
                        const int num_mapnodes,
                        const rc_RelocEdge* reloc_edges,
                        const rc_Timestamp* mapnodes_timestamps,
                        const std::unordered_multimap<rc_Timestamp, std::unordered_set<rc_Timestamp>>& ref_edges) {
 
-            if (!num_reloc_edges) return false;
-            // get range in reference multimap for currentframe timestamp and creates a multimap from it
-            const rc_Timestamp& current_frame_timestamp = reloc_edges[0].time_source;
-
-            // search for map node timestamps in a subset of reference edges
             std::unordered_set<rc_Timestamp> ref_mapnode_edges;
             {
+                // search for map node timestamps in a subset of reference edges
                 auto it = ref_edges.find(current_frame_timestamp);
                 if (it != ref_edges.end()) {
                     for (rc_Timestamp destination : it->second) {

@@ -543,7 +543,7 @@ int rc_getRelocalizationPoses(rc_Tracker* tracker, rc_Pose **reloc_edges)
     }
 }
 
-int rc_getRelocalizationEdges(rc_Tracker *tracker, rc_RelocEdge **edges) {
+int rc_getRelocalizationEdges(rc_Tracker *tracker, rc_Timestamp *source, rc_RelocEdge **edges) {
     if (tracker && tracker->sfm.map && tracker->sfm.is_relocalized) {
         const auto& map = tracker->sfm.map;
         const auto& info = map->get_relocalization_info();
@@ -552,13 +552,14 @@ int rc_getRelocalizationEdges(rc_Tracker *tracker, rc_RelocEdge **edges) {
         for (size_t i = 0; i < info.size(); ++i) {
             const transformation& G_node_frame = info.vG_node_frame[i];
             rc_RelocEdge& edge = tracker->relocalization_edges[i];
-            edge.pose = to_rc_Pose(G_node_frame);
-            edge.time_source = sensor_clock::tp_to_micros(info.frame_timestamp);
+            edge.pose_m = to_rc_Pose(G_node_frame);
             edge.time_destination = sensor_clock::tp_to_micros(map->get_node(info.node_ids[i]).frame->timestamp);
         }
+        if (source) *source = sensor_clock::tp_to_micros(info.frame_timestamp);
         if (edges) *edges = tracker->relocalization_edges.data();
         return tracker->relocalization_edges.size();
     } else {
+        if (source) *source = 0;
         if (edges) *edges = nullptr;
         return 0;
     }

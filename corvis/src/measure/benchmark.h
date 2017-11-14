@@ -81,6 +81,7 @@ struct benchmark_result {
         v3 T_error_mean = v3::Zero();
         int nposes = 0;
         int true_positives = 0, true_negatives = 0, false_positives = 0, false_negatives = 0;
+        bool there_is_reloc_info = false;
 
         // RPE variables
         aligned_vector<v3> T_current_all, T_ref_all;
@@ -129,8 +130,12 @@ struct benchmark_result {
         }
 
         bool calculate_precision_recall(){
-            relocalization.compute_pr(true_positives,false_positives,false_negatives);
-            return true;
+            if (there_is_reloc_info) {
+                relocalization.compute_pr(true_positives,false_positives,false_negatives);
+                return true;
+            } else {
+                return false;
+            }
         }
 
         inline bool is_valid() { return nposes > 0; }
@@ -171,6 +176,7 @@ struct benchmark_result {
             true_positives += tp;
             false_positives += fp;
             false_negatives += ref_mapnode_edges.size() - tp;
+            there_is_reloc_info = true;
 
             return true;
         }

@@ -118,6 +118,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
 
     std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m, rpe_T_errors_m, rpe_R_errors_deg, precision_reloc, recall_reloc;
     uint32_t precision_anomalies = 0, recall_anomalies = 0;
+    bool has_reloc = false;
 
     for (auto &bm : results) {
         if (!bm.ok.get()) {
@@ -173,6 +174,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
             rpe_R_errors_deg.push_back(r.errors.rpe_R.rmse*(180.f/M_PI));
         }
         if (r.errors.calculate_precision_recall()) {
+            has_reloc = true;
             stream << "\tRelocalization Precision\t" << r.errors.relocalization.precision*100 << "%\n";
             if (!std::isnan(r.errors.relocalization.precision))
                 precision_reloc.push_back(r.errors.relocalization.precision*100);
@@ -222,15 +224,17 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     error_histogram rpe_R_hist(rpe_R_errors_deg, rpe_R_edges, 2, "deg");
     stream << rpe_R_hist << "\n";
 
-    stream << "Precision histogram (" << precision_reloc.size() << " sequences)\n";
-    error_histogram_pr precision_hist(precision_reloc, precision_edges, 2);
-    stream << precision_hist;
-    stream << "Undefined precision: " << precision_anomalies << " sequences\n\n";
+    if (has_reloc) {
+        stream << "Precision histogram (" << precision_reloc.size() << " sequences)\n";
+        error_histogram_pr precision_hist(precision_reloc, precision_edges, 2);
+        stream << precision_hist;
+        stream << "Undefined precision: " << precision_anomalies << " sequences\n\n";
 
-    stream << "Recall histogram (" << recall_reloc.size() << " sequences)\n";
-    error_histogram_pr recall_hist(recall_reloc, recall_edges, 2);
-    stream << recall_hist;
-    stream << "Undefined recall: " << recall_anomalies << " sequences\n\n";
+        stream << "Recall histogram (" << recall_reloc.size() << " sequences)\n";
+        error_histogram_pr recall_hist(recall_reloc, recall_edges, 2);
+        stream << recall_hist;
+        stream << "Undefined recall: " << recall_anomalies << " sequences\n\n";
+    }
 
     struct stat { size_t n; double sum, mean, median; } pe_le50 = {0, 0, 0, 0};
     std::sort(primary_errors_percent.begin(), primary_errors_percent.end());

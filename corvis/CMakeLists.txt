@@ -22,7 +22,7 @@ else()
 endif()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL Clang AND EXISTS /usr/include/c++/v1)
-  include_directories(SYSTEM BEFORE /usr/include/c++/v1)
+  include_directories(BEFORE SYSTEM /usr/include/c++/v1)
   link_libraries(c++)
   list(APPEND CMAKE_REQUIRED_LIBRARIES c++)
 endif()

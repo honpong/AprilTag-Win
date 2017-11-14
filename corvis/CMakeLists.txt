@@ -120,7 +120,7 @@ add_executable(measure
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 install(TARGETS measure RUNTIME DESTINATION bin COMPONENT alloy)
 if (HAVE_GLFW)
-    target_compile_options(measure PRIVATE -DHAVE_GLFW=1)
+    set_source_files_properties(src/measure/measure.cpp PROPERTIES COMPILE_DEFINITIONS HAVE_GLFW)
     target_link_libraries(measure PRIVATE glad glfw ${GLFW_LIBRARIES})
 endif()
 if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")

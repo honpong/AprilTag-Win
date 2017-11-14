@@ -58,7 +58,7 @@ static inline std::ostream& operator<<(std::ostream &stream, const histogram<T, 
     if (add_front) {
         for (int i=h.bins.size(); i>0; i--)
             stream << (i<h.bins.size() ? "\t" : "") << h.edges[i] << h.bin_units;
-        stream <<  "+" << "\n";
+        stream <<  "-" << "\n";
         for (int i=h.bins.size()-1; i>=0; i--)
             stream << (i<h.bins.size()-1 ? "\t" : "") << h.bins[i];
     }
@@ -117,6 +117,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     }
 
     std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m, rpe_T_errors_m, rpe_R_errors_deg, precision_reloc, recall_reloc;
+    uint32_t precision_anomalies = 0, recall_anomalies = 0;
 
     for (auto &bm : results) {
         if (!bm.ok.get()) {
@@ -173,9 +174,15 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
         }
         if (r.errors.calculate_precision_recall()) {
             stream << "\tRelocalization Precision\t" << r.errors.relocalization.precision*100 << "%\n";
-            precision_reloc.push_back(r.errors.relocalization.precision*100);
+            if (!std::isnan(r.errors.relocalization.precision))
+                precision_reloc.push_back(r.errors.relocalization.precision*100);
+            else
+                precision_anomalies++;
             stream << "\tRelocalization Recall\t" << r.errors.relocalization.recall*100 << "%\n";
-            recall_reloc.push_back(r.errors.relocalization.recall*100);
+            if (!std::isnan(r.errors.relocalization.recall))
+                recall_reloc.push_back(r.errors.relocalization.recall*100);
+            else
+                recall_anomalies++;
         }
     }
 
@@ -184,8 +191,8 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     std::vector<double> ate_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
     std::vector<double> rpe_T_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
     std::vector<double> rpe_R_edges = {0, 0.05, 0.1, 0.5, 1, 5};
-    std::vector<double> precision_edges = {0, 60, 70, 80, 90, 100};
-    std::vector<double> recall_edges = {0, 60, 70, 80, 90, 100};
+    std::vector<double> precision_edges = {0, 60, 80, 95, 99, 100};
+    std::vector<double> recall_edges = {0, 20, 40, 60, 80, 100};
     typedef histogram<double, false, true> error_histogram;
     typedef histogram<double, true, false> error_histogram_pr;
 
@@ -217,11 +224,13 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
 
     stream << "Precision histogram (" << precision_reloc.size() << " sequences)\n";
     error_histogram_pr precision_hist(precision_reloc, precision_edges, 2);
-    stream << precision_hist << "\n";
+    stream << precision_hist;
+    stream << "Undefined precision: " << precision_anomalies << " sequences\n\n";
 
     stream << "Recall histogram (" << recall_reloc.size() << " sequences)\n";
     error_histogram_pr recall_hist(recall_reloc, recall_edges, 2);
-    stream << recall_hist << "\n";
+    stream << recall_hist;
+    stream << "Undefined recall: " << recall_anomalies << " sequences\n\n";
 
     struct stat { size_t n; double sum, mean, median; } pe_le50 = {0, 0, 0, 0};
     std::sort(primary_errors_percent.begin(), primary_errors_percent.end());

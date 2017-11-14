@@ -8,6 +8,7 @@
 #include <memory>
 #include <unordered_map>
 #include <unordered_set>
+#include <limits>
 
 struct benchmark_result {
     struct { double reference, measured; } length_cm, path_length_cm; void * user_data;
@@ -61,9 +62,8 @@ struct benchmark_result {
             f_t precision = 0, recall = 0;
 
             void compute_pr(f_t tp, f_t fp, f_t fn) {
-                if ( !((tp + fp) && (tp + fn))) return;
-                precision = tp / (tp + fp);
-                recall = tp / (tp + fn);
+                precision =  !(tp + fp) ? std::numeric_limits<float>::quiet_NaN() : tp / (tp + fp);
+                recall = !(tp + fn) ? std::numeric_limits<float>::quiet_NaN() : tp / (tp + fn);
             }
 
             template <typename Stream>

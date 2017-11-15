@@ -91,7 +91,7 @@ if (OPENGL_FOUND AND NOT ANDROID)
   set(GLFW_)
   add_subdirectory(src/glfw)
   if(NOT WIN32)
-    target_compile_options(glfw PRIVATE $<$<CXX_COMPILER_ID:AppleClang>: -Wno-deprecated-declarations>)
+    target_compile_options(glfw PRIVATE $<$<OR:$<CXX_COMPILER_ID:AppleClang>,$<CXX_COMPILER_ID:Intel>>: -Wno-deprecated-declarations>)
   endif()
   target_include_directories(glfw INTERFACE src/glfw/include)
 

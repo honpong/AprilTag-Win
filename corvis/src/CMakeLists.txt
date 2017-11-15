@@ -17,7 +17,7 @@ target_include_directories(vlfeat SYSTEM INTERFACE ../../ThirdParty/vlfeat-0.9.1
 target_compile_options(vlfeat PRIVATE $<$<BOOL:${MSVC}>:/wd4244>)
 set_target_properties(vlfeat PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU|Intel")
    add_compile_options(-Wall -Wextra)
    add_compile_options(-Wunreachable-code  -Wunused-macros)
    if(NOT CMAKE_GENERATOR STREQUAL "Xcode")
@@ -282,7 +282,7 @@ if(ENABLE_STEREO)
     target_compile_options(DAI PUBLIC -DMACOSX -DDAI_WITH_BP -DDAI_WITH_TRWBP)
 endif() # WIN32
 
-if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
+if(CMAKE_BUILD_TYPE MATCHES "Debug|RelWithDebInfo")
     target_compile_options(trackeri PRIVATE -DDEBUG=1)
     target_compile_options(tracker PRIVATE -DDEBUG=1)
 endif()

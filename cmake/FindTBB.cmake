@@ -1,5 +1,5 @@
 find_library(TBB_LIBRARY tbb)
-find_path(TBB_INCLUDE tbb.h HINTS PATH_SUFFIXES tbb)
+find_path(TBB_INCLUDE tbb/tbb.h)
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(tbb DEFAULT_MSG TBB_INCLUDE TBB_LIBRARY)
 if(TBB_FOUND AND NOT TARGET tbb)

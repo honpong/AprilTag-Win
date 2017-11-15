@@ -16,7 +16,7 @@
 #include "rc_compat.h"
 #include "DBoW2/endianness.h"
 
-#if HAVE_TBB
+#ifdef HAVE_TBB
 #include <tbb/parallel_for_each.h>
 #endif
 
@@ -246,7 +246,7 @@ void gt_generator::run() {
             pairs.emplace_back(cur_idx, prev_idx);
         }
     }
-#if HAVE_TBB
+#ifdef HAVE_TBB
     tbb::parallel_for_each(pairs.begin(), pairs.end(), check_loop);
 #else
     std::for_each(pairs.begin(), pairs.end(), check_loop);

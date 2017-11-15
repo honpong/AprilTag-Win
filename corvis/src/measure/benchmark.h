@@ -144,17 +144,21 @@ struct benchmark_result {
                        const int num_reloc_edges,
                        const int num_mapnodes,
                        const rc_RelocEdge* reloc_edges,
-                       const rc_Timestamp* mapnodes_timestamps,
+                       const rc_MapNode* map_nodes,
                        const std::unordered_multimap<rc_Timestamp, std::unordered_set<rc_Timestamp>>& ref_edges) {
 
             std::unordered_set<rc_Timestamp> ref_mapnode_edges;
             {
                 // search for map node timestamps in a subset of reference edges
+                static auto lt = [](const rc_MapNode& lhs, const rc_MapNode& rhs) {
+                    return lhs.time_us < rhs.time_us;
+                };
                 auto it = ref_edges.find(current_frame_timestamp);
                 if (it != ref_edges.end()) {
                     for (rc_Timestamp destination : it->second) {
-                        if (std::binary_search(mapnodes_timestamps, mapnodes_timestamps + num_mapnodes,
-                                               destination)) {
+                        rc_MapNode map_node;
+                        map_node.time_us = destination;
+                        if (std::binary_search(map_nodes, map_nodes + num_mapnodes, map_node, lt)) {
                             ref_mapnode_edges.emplace(destination);
                         }
                     }

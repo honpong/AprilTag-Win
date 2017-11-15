@@ -35,7 +35,7 @@ struct rc_Tracker: public sensor_fusion
     std::vector<std::vector<rc_Feature> > stored_features;
     std::vector<rc_Pose> relocalization_G_world_body;
     std::vector<rc_RelocEdge> relocalization_edges;
-    std::vector<rc_Timestamp> map_node_timestamps;
+    std::vector<rc_MapNode> map_nodes;
     std::string timingStats;
     capture output;
     struct status {
@@ -565,22 +565,23 @@ int rc_getRelocalizationEdges(rc_Tracker *tracker, rc_Timestamp *source, rc_Relo
     }
 }
 
-int rc_getMapNodes(rc_Tracker *tracker, rc_Timestamp **mapnodes_timestamps)
+int rc_getMapNodes(rc_Tracker *tracker, rc_MapNode **map_nodes)
 {
     if (tracker && tracker->sfm.map) {
         const auto& nodes = tracker->sfm.map->get_nodes();
-        tracker->map_node_timestamps.clear();
-        tracker->map_node_timestamps.reserve(nodes.size());
+        tracker->map_nodes.clear();
+        tracker->map_nodes.reserve(nodes.size());
+        rc_MapNode map_node;
         for (auto& node : nodes) {
             if (node.status == node_status::finished && node.frame) {
-                tracker->map_node_timestamps.emplace_back(
-                            sensor_clock::tp_to_micros(node.frame->timestamp));
+                map_node.time_us = sensor_clock::tp_to_micros(node.frame->timestamp);
+                tracker->map_nodes.push_back(map_node);
             }
         }
-        if (mapnodes_timestamps) *mapnodes_timestamps = tracker->map_node_timestamps.data();
-        return tracker->map_node_timestamps.size();
+        if (map_nodes) *map_nodes = tracker->map_nodes.data();
+        return tracker->map_nodes.size();
     } else {
-        if (mapnodes_timestamps) *mapnodes_timestamps = nullptr;
+        if (map_nodes) *map_nodes = nullptr;
         return 0;
     }
 }

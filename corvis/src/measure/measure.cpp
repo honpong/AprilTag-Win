@@ -171,10 +171,11 @@ int main(int c, char **v)
         auto timestamp = sensor_clock::micros_to_tp(current.time_us);
         tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current.pose_m));
         rc_RelocEdge* reloc_edges;
-        rc_Timestamp reloc_source, *mapnodes_timestamps;
+        rc_Timestamp reloc_source;
+        rc_MapNode* map_nodes;
         int num_mapnodes = 0, num_reloc_edges = 0;
         if (benchmark_relocation) {
-            num_mapnodes = rc_getMapNodes(tracker, &mapnodes_timestamps);
+            num_mapnodes = rc_getMapNodes(tracker, &map_nodes);
             num_reloc_edges = rc_getRelocalizationEdges(tracker, &reloc_source, &reloc_edges);
         }
 
@@ -203,7 +204,7 @@ int main(int c, char **v)
                                      num_reloc_edges,
                                      num_mapnodes,
                                      reloc_edges,
-                                     mapnodes_timestamps,
+                                     map_nodes,
                                      rp.get_reference_edges());
             }
         }

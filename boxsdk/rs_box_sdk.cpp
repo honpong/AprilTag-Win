@@ -17,8 +17,6 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 
 #include <stdio.h>
 #include "inc/rs_box_sdk.hpp"
-#include "librealsense2/rs.hpp"
-#include "librealsense2/rsutil.h"
 #include "rs_shapefit.h"
 #include "rs_box_api.h"
 
@@ -169,3 +167,15 @@ int rs2_box_measure_get_boxes(rs2_box_measure * box_measure, rs2_measure_box * b
     return ((rs2::box_measure_impl*)box_measure)->get_boxes(boxes);
 }
 HANDLE_EXCEPTIONS_AND_RETURN(-1, box_measure, boxes)
+
+extern const char* get_realsense_icon(int& icon_width, int& icon_height);
+const char* rs2_measure_get_realsense_icon(int* icon_width, int* icon_height, rs2_format* format, rs2_error ** error) BEGIN_API_CALL
+{
+    VALIDATE_NOT_NULL(icon_width);
+    VALIDATE_NOT_NULL(icon_height);
+    VALIDATE_NOT_NULL(format);
+    
+    *format = RS2_FORMAT_BGR8;
+    return get_realsense_icon(*icon_width, *icon_height);
+}
+HANDLE_EXCEPTIONS_AND_RETURN(nullptr, icon_width, icon_height, format)

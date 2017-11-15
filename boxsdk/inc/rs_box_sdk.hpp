@@ -59,7 +59,8 @@ extern "C"
     RS2_MEASURE_DECL void* rs2_box_measure_create(rs2_box_measure** box_measure, rs2_error** e);
     RS2_MEASURE_DECL void rs2_box_measure_set_depth_unit(rs2_box_measure* box_measure, float depth_unit, rs2_error** e);
     RS2_MEASURE_DECL int rs2_box_measure_get_boxes(rs2_box_measure* box_measure, rs2_measure_box* boxes, rs2_error** e);
-    
+    RS2_MEASURE_DECL const char* rs2_measure_get_realsense_icon(int* icon_width, int* icon_height, rs2_format* format, rs2_error** e);
+
 #ifdef __cplusplus
 }
 
@@ -70,7 +71,6 @@ namespace rs2
     inline std::string stri(float v, int p = 2) {
         std::ostringstream ss; ss << std::fixed << std::setprecision(p) << v << " "; return ss.str();
     }
-
 
     struct box : public rs2_measure_box
     {
@@ -195,10 +195,13 @@ namespace rs2
         }
         catch (...) { return false; }
 
-        //static const unsigned char* get_icon(int& w, int& h) 
-        //{
-        //    return (const unsigned char*)rs2_box_measure_realsense_icon(&w, &h);
-        //}
+        static const char* get_icon(int& w, int &h, rs2_format& format)
+        {
+            rs2_error* e = nullptr;
+            auto icon = rs2_measure_get_realsense_icon(&w, &h, &format, &e);
+            error::handle(e);
+            return icon;
+        }
 
     private:
         std::shared_ptr<processing_block> _block;

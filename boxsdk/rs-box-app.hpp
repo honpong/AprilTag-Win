@@ -30,6 +30,7 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 
 struct float3 { float x, y, z; };
 struct float2 { float x, y; };
+struct int2 { int w, h; };
 
 struct rect
 {
@@ -57,12 +58,12 @@ struct rect
 
 #include "../third-party/stb_easy_font.h"
 
-inline void draw_text(int x, int y, const char * text)
+inline void draw_text(float x, float y, const char * text)
 {
     char buffer[60000]; // ~300 chars
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 16, buffer);
-    glDrawArrays(GL_QUADS, 0, 4 * stb_easy_font_print((float)x, (float)(y - 7), (char *)text, nullptr, buffer, sizeof(buffer)));
+    glDrawArrays(GL_QUADS, 0, 4 * stb_easy_font_print(x, (y - 7), (char *)text, nullptr, buffer, sizeof(buffer)));
     glDisableClientState(GL_VERTEX_ARRAY);
 }
 
@@ -70,7 +71,7 @@ inline void draw_text(int x, int y, const char * text)
 // Box display code //
 //////////////////////
 
-inline void draw_box_wire(const int width, const int height, const float box_wire_endpt[12][2][2], const rect& r, int line_width)
+inline void draw_box_wire(const int width, const int height, const float box_wire_endpt[12][2][2], const rect& r, float line_width)
 {
     if (width <= 0 || height <= 0 || !box_wire_endpt || r.w <= 0 || r.h <= 0) return;
     const auto sx = r.w / width, sy = r.h / height;
@@ -103,16 +104,16 @@ class texture
 {
 public:
 
-    //template<typename ICON>
-    //void render(ICON icon, const rect& r)
-    //{
-    //int width, height;
-    //render(icon(width, height), width, height, { r.x + r.w / 4, r.y, r.w / 2, r.h }, nullptr, RS2_FORMAT_BGR8);
+    static const bool set_adjust_ratio = false;
 
-    //GLfloat a = r.x, b = r.y, c = r.x + r.w, d = r.y + r.h;
-    //printf("%.2f %.2f %.2f %.2f \n", a, b, c, d);
-    //glRectf(a, b, c, d);
-    //}
+    template<typename ICON>
+    void render(ICON icon, const rect& r, const rs2_format& format = RS2_FORMAT_RGB8)
+    {
+        glRectf(r.x, r.y, r.x + r.w, r.y + r.h);
+
+        static int2 dim; rs2_format fm = format;
+        render(icon(dim.w, dim.h, fm), dim.w, dim.h, rect{ r.x + r.w / 4, r.y, r.w / 2, r.h }.adjust_ratio({ float(dim.w),float(dim.h) }), "", fm);
+    }
 
     void render(const rs2::video_frame& frame, const rect& r, const char* text = nullptr)
     {
@@ -123,8 +124,7 @@ public:
     void render(const void* data, const int width, const int height, const rect& r, const char* text = nullptr, const rs2_format& format = RS2_FORMAT_RGB8)
     {
         upload(data, width, height, format);
-        show(_r = r.adjust_ratio({ float(width), float(height) }), text);
-        //show(_r = r, text);
+        show(_r = set_adjust_ratio ? r.adjust_ratio({ float(width), float(height) }) : r, text);
     }
 
     void upload(const void* data, const int width, const int height, const rs2_format& format = RS2_FORMAT_RGB8)
@@ -146,6 +146,9 @@ public:
             break;
         case RS2_FORMAT_BGR8:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width = width, _height = height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+            break;
+        case RS2_FORMAT_Y8:
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width = width, _height = height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, data);
             break;
         default:
             throw std::runtime_error("The requested format is not suported by this demo!");
@@ -177,10 +180,10 @@ public:
         glDisable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
 
-        draw_text((int)(r.x) + 15, (int)(r.y) + 20, text ? text : rs2_stream_to_string(stream));
+        draw_text(r.x + 15, r.y + 20, text ? text : rs2_stream_to_string(stream));
     }
 
-    void draw_box(const float box_wire_endpt[12][2][2], int line_width = 2)
+    void draw_box(const float box_wire_endpt[12][2][2], float line_width = 2.5f)
     {
         draw_box_wire(_width, _height, box_wire_endpt, _r, line_width);
     }
@@ -274,3 +277,9 @@ private:
     GLFWwindow* win;
     int _width, _height;
 };
+
+//////////////////
+// Button Icons //
+//////////////////
+extern const char* get_close_icon(int& icon_width, int& icon_height);
+extern const char* get_reset_icon(int& icon_width, int& icon_height);

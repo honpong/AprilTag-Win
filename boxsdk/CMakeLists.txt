@@ -7,13 +7,15 @@ if(BUILD_SHARED_LIB_BOXSDK)
         inc/rs_box_sdk.hpp
         rs_box_api.h
         rs_box_camera.hpp
-    	rs_box_sdk.cpp)
+    	rs_box_sdk.cpp
+		rs_icon.cpp)
 else()
     add_library(box-sdk STATIC
         inc/rs_box_sdk.hpp
         rs_box_api.h
         rs_box_camera.hpp
-    	rs_box_sdk.cpp)
+    	rs_box_sdk.cpp
+		rs_icon.cpp)
 endif()
 
 target_include_directories(box-sdk 
@@ -26,6 +28,7 @@ target_link_libraries(box-sdk
 add_executable(box-app
     rs-box-app.cpp
     rs-box-app.hpp
+	rs_icon.cpp
     ${LIBRS_DIR}/third-party/imgui/imgui.cpp
     ${LIBRS_DIR}/third-party/imgui/imgui_draw.cpp
     ${LIBRS_DIR}/third-party/imgui/imgui_impl_glfw.cpp)

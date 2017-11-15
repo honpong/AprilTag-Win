@@ -10,6 +10,9 @@
 #include "../easyloggingpp/src/easylogging++.h"
 #define LOG_WARNING(...) do { CLOG(WARNING ,"boxsdk") << __VA_ARGS__; } while(false)
 
+#include "librealsense2/rs.hpp"
+#include "librealsense2/rsutil.h"
+
 struct rs2_error
 {
     std::string message;

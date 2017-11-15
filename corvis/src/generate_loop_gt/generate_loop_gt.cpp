@@ -364,17 +364,33 @@ bool gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
         return p_projected;
     };
 
-    auto numerical_frustums_intersection = [this, &point_to_frustum_projection](const frustum& lhs, const frustum& rhs) {
+    const double min_cos_angle = std::cos(config_.fov_rad / 2);
+    auto point_inside_frustum = [this, min_cos_angle](const v3& p, const frustum& f) {
+        v3 point_axis = p - f.center;
+        double distance = point_axis.norm();
+        double cos_point_angle = point_axis.dot(f.optical_axis) / distance;
+        if (cos_point_angle >= min_cos_angle) {
+            double min_distance = config_.near_z / cos_point_angle;
+            double max_distance = config_.far_z / cos_point_angle;
+            return (min_distance <= distance && distance <= max_distance);
+        }
+        return false;
+    };
+
+    auto numerical_frustums_intersection = [this, &point_to_frustum_projection, &point_inside_frustum](
+            const frustum& lhs, const frustum& rhs) {
       f_t distance = std::numeric_limits<f_t>::max();
       std::vector<const frustum*> frustums = {&lhs, &rhs};
 
       v3 p = rhs.center + config_.near_z * rhs.optical_axis;
-      bool stop = false;
+      bool point_covisible = point_inside_frustum(p, lhs);
+      bool stop = point_covisible;
       int iteration = 0;
-      while(!stop && iteration < 10) {
+      while (!stop && iteration < 10) {
           v3 p_new = point_to_frustum_projection(p, *frustums[iteration%2]);
+          point_covisible = point_inside_frustum(p, *frustums[1-(iteration%2)]);
           f_t distance_new = (p_new-p).norm();
-          if(std::abs(distance-distance_new) < 1e-3 || distance_new < 1e-3) // in theory distance >= distance_new always
+          if (point_covisible || std::abs(distance-distance_new) < 1e-3 || distance_new < 1e-3) // in theory distance >= distance_new always
               stop = true;
 
           distance = distance_new;
@@ -382,7 +398,7 @@ bool gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
           iteration++;
       }
 
-      if(distance < 1e-3)
+      if (point_covisible || distance < 1e-3)
           return true;
 
       return false;

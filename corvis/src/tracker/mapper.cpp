@@ -107,39 +107,36 @@ void mapper::get_triangulation_geometry(const nodeid group_id, const tracker::fe
     }
 }
 
-void mapper::add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, const f_t depth_m)
+void mapper::add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
+                                               std::shared_ptr<log_depth> v)
 {
     map_node &ref_node = nodes[group_id];
-    ref_node.add_feature(feature, depth_m, 1.e-3f*1.e-3f, feature_type::triangulated);
+    ref_node.add_feature(feature, v, feature_type::triangulated);
     features_dbow[feature->id] = group_id;
 }
 
 void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
-                           const f_t depth_m, const float depth_variance_m2, const feature_type type) {
+                           std::shared_ptr<log_depth> v, const feature_type type) {
     map_feature mf;
-    mf.depth = depth_m;
-    mf.variance = depth_variance_m2;
+    mf.v = v;
     mf.feature = feature;
     mf.type = type;
     features.emplace(feature->id, mf);
 }
 
-void map_node::set_feature(const uint64_t id, const f_t depth_m, const float depth_variance_m2, const feature_type type)
+void map_node::set_feature(const uint64_t id, const feature_type type)
 {
-    features[id].depth = depth_m;
-    features[id].variance = depth_variance_m2;
     features[id].type = type;
 }
 
 void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
-                         const f_t depth_m, const float depth_variance_m2, const feature_type type) {
-    nodes[groupid].add_feature(feature, depth_m, depth_variance_m2, type);
+                         std::shared_ptr<log_depth> v, const feature_type type) {
+    nodes[groupid].add_feature(feature, v, type);
     features_dbow[feature->id] = groupid;
 }
 
-void mapper::set_feature(nodeid groupid, uint64_t id, const f_t depth_m, const float depth_variance_m2,
-                         const feature_type type) {
-    nodes[groupid].set_feature(id, depth_m, depth_variance_m2, type);
+void mapper::set_feature(nodeid groupid, uint64_t id, const feature_type type) {
+    nodes[groupid].set_feature(id, type);
 }
 
 v3 mapper::get_feature3D(nodeid node_id, uint64_t feature_id) {
@@ -148,9 +145,8 @@ v3 mapper::get_feature3D(nodeid node_id, uint64_t feature_id) {
     auto intrinsics = camera_intrinsics[node.camera_id];
     auto extrinsics = camera_extrinsics[node.camera_id];
     m3 Rbc = extrinsics->Q.v.toRotationMatrix();
-    feature_t feature{mf.feature->x, mf.feature->y};
-    v2 pn = intrinsics->undistort_feature(intrinsics->normalize_feature(feature));
-    return Rbc*(mf.depth*pn.homogeneous()) + extrinsics->T.v;
+    v2 pn = intrinsics->undistort_feature(intrinsics->normalize_feature(mf.v->initial));
+    return Rbc*(mf.v->depth()*pn.homogeneous()) + extrinsics->T.v;
 }
 
 void mapper::set_node_transformation(nodeid id, const transformation & G)
@@ -415,7 +411,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
 
     std::vector<std::pair<nodeid, float>> candidate_nodes =
         find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc.get());
-    const auto &keypoint_current = current_frame->keypoints;
+    const auto &keypoint_xy_current = current_frame->keypoints_xy;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
     for (const auto& nid : candidate_nodes) {
         bool is_relocalized_in_candidate = false;
@@ -441,9 +437,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
                         get_feature3D(nodeid_keypoint, keypoint_id); // feat is in body frame
                 candidate_3d_points.push_back(p_candidate);
                 //undistort keypoints at current frame
-                auto& current = *keypoint_current[m.first];
-                feature_t kp = {current.x, current.y};
-                feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(kp));
+                feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(keypoint_xy_current[m.first]));
                 current_2d_points.push_back(ukp);
             }
             estimate_pose(candidate_3d_points, current_2d_points, camera_frame.camera_id, G_candidate_currentframe, inliers_set);
@@ -484,7 +478,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
             cv::cvtColor(current_frame->image, color_current_image, CV_GRAY2BGRA);
             cv::Mat current_reprojection_image = color_current_image.clone();
             cv::Mat candidate_reprojection_image = color_candidate_image.clone();
-            const auto &keypoint_candidates = nodes[nid.first].frame->keypoints;
+            const auto &keypoint_xy_candidates = nodes[nid.first].frame->keypoints_xy;
 
             cv::Mat flipped_color_candidate_image;
             cv::flip(color_candidate_image, flipped_color_candidate_image, 1);
@@ -514,28 +508,28 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
             flipped_color_candidate_image.copyTo(compound(cv::Rect(cols, 0, cols, rows)));
             int matchidx=0;
             for (auto point_match : matches_node_candidate) {
-                auto& p1 = *keypoint_current[point_match.first];
-                auto& p2 = *keypoint_candidates[point_match.second];
+                auto& p1 = keypoint_xy_current[point_match.first];
+                auto& p2 = keypoint_xy_candidates[point_match.second];
                 cv::Scalar color{0,0,255,255};
                 cv::Scalar color_line{0,0,255,255};
                 if(inliers_set.count(matchidx)) {
                     color = cv::Scalar(0,255,0,255);
                     color_line = cv::Scalar(255,0,0,255);
                 }
-                cv::circle(compound,cv::Point(p1.x,p1.y),3,color,2);
-                cv::circle(compound,cv::Point(compound.cols-p2.x,p2.y),3,color,2);
-                cv::line(compound,cv::Point(p1.x,p1.y),cv::Point(compound.cols-p2.x,p2.y),color_line,2);
+                cv::circle(compound,cv::Point(p1[0],p1[1]),3,color,2);
+                cv::circle(compound,cv::Point(compound.cols-p2[0],p2[1]),3,color,2);
+                cv::line(compound,cv::Point(p1[0],p1[1]),cv::Point(compound.cols-p2[0],p2[1]),color_line,2);
                 matchidx++;
             }
             debug(std::move(compound), 0, "Relocalized", false);
 
-            for(auto &pc : keypoint_current) {
-                cv::circle(color_current_image, cv::Point(pc->x,pc->y),3,cv::Scalar{255,0,0,255},2);
+            for(auto &pc : keypoint_xy_current) {
+                cv::circle(color_current_image, cv::Point(pc[0],pc[1]),3,cv::Scalar{255,0,0,255},2);
             }
             debug(std::move(color_current_image), 1, "current image keypoints", false);
 
-            for(auto &pc : keypoint_candidates) {
-                cv::circle(color_candidate_image, cv::Point(pc->x,pc->y),3,cv::Scalar{255,0,0,255},2);
+            for(auto &pc : keypoint_xy_candidates) {
+                cv::circle(color_candidate_image, cv::Point(pc[0],pc[1]),3,cv::Scalar{255,0,0,255},2);
             }
             debug(std::move(color_candidate_image), 2, "candidate image keypoints", true);
 
@@ -575,7 +569,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
         map_node& node_neighbor = nodes[neighbor.first];
         if(node_neighbor.status == node_status::normal)
             continue; // if node status is normal then node is already in the filter
-        std::vector<tracker::feature_track> tracks;
+        std::vector<map_feature_track> tracks;
         const transformation& G_Bnow_Bneighbor = G_Bnow_Bcurrent*neighbor.second;
         transformation G_Cnow_Bneighbor = G_CB*G_Bnow_Bneighbor;
         for(const auto& f : node_neighbor.features) {
@@ -590,8 +584,8 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
                 continue;
 
             // create feature track
-            tracks.emplace_back(f.second.feature, kpd.x(), kpd.y(), 0);
-            tracks.back().depth = f.second.depth;
+            tracker::feature_track track(f.second.feature, kpd.x(), kpd.y(), 0);
+            tracks.emplace_back(std::move(track), f.second.v);
         }
         map_feature_tracks.emplace_back(neighbor.first, invert(G_Bnow_Bneighbor), std::move(tracks));
     }
@@ -640,21 +634,18 @@ void map_edge::deserialize(const Value &json, map_edge &edge) {
 }
 
 #define KEY_FEATURE_ID "id"
-#define KEY_FEATURE_VARIANCE "variance"
-#define KEY_FEATURE_DEPTH "depth"
-#define KEY_FEATURE_INITIAL_XY "xy"
+#define KEY_FEATURE_LOG_DEPTH "log_depth"
 #define KEY_FRAME_FEAT_PATCH "patch"
 #define KEY_FRAME_FEAT_DESC_RAW "raw"
 void map_feature::serialize(Value &feature_json, Document::AllocatorType &allocator) {
     feature_json.AddMember(KEY_FEATURE_ID, feature->id, allocator);
-    feature_json.AddMember(KEY_FEATURE_DEPTH, depth, allocator);
-    feature_json.AddMember(KEY_FEATURE_VARIANCE, variance, allocator);
 
-    // add feature initial coordinates
-    Value xy_json(kArrayType);
-    xy_json.PushBack(feature->x, allocator);
-    xy_json.PushBack(feature->y, allocator);
-    feature_json.AddMember(KEY_FEATURE_INITIAL_XY, xy_json, allocator);
+    // add feature log_depth
+    Value log_depth_json(kArrayType);
+    log_depth_json.PushBack(v->initial[0], allocator); // x
+    log_depth_json.PushBack(v->initial[1], allocator); // y
+    log_depth_json.PushBack(v->v, allocator); // log_depth
+    feature_json.AddMember(KEY_FEATURE_LOG_DEPTH, log_depth_json, allocator);
 
     // add feature descriptor
     Value desc_json(kObjectType);
@@ -669,16 +660,16 @@ void map_feature::serialize(Value &feature_json, Document::AllocatorType &alloca
 bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t &max_loaded_featid) {
     uint64_t id = json[KEY_FEATURE_ID].GetUint64();
     if (id > max_loaded_featid) max_loaded_featid = id;
-    feature.depth = (float)json[KEY_FEATURE_DEPTH].GetDouble();
 
     // get feature initial coordinates
-    const Value &xy_json = json[KEY_FEATURE_INITIAL_XY];
-    RETURN_IF_FAILED(xy_json.IsArray())
-            RETURN_IF_FAILED(xy_json.Size() == 2)
-            v2 xy;
-            for (SizeType j = 0; j < 2; ++j) {
-                xy[j] = (f_t) xy_json[j].GetDouble();
-            }
+    feature.v = std::make_shared<log_depth>();
+    const Value &log_depth_json = json[KEY_FEATURE_LOG_DEPTH];
+    RETURN_IF_FAILED(log_depth_json.IsArray())
+    RETURN_IF_FAILED(log_depth_json.Size() == 3)
+    feature.v->initial[0] = (f_t) log_depth_json[0].GetDouble(); // x
+    feature.v->initial[1] = (f_t) log_depth_json[1].GetDouble(); // y
+    feature.v->v = (f_t) log_depth_json[2].GetDouble(); // log_depth
+
     // get descriptor values
     const Value &desc_json = json[KEY_FRAME_FEAT_PATCH];
     const Value &desc_raw_json = desc_json[KEY_FRAME_FEAT_DESC_RAW];
@@ -688,26 +679,26 @@ bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t 
     for (SizeType d = 0; d < desc_raw_json.Size(); d++)
         raw_desc[d] = static_cast<unsigned char>(desc_raw_json[d].GetUint64());
 
-    feature.feature = std::make_shared<fast_tracker::fast_feature<patch_descriptor>>(id, xy[0], xy[1], raw_desc);
+    feature.feature = std::make_shared<fast_tracker::fast_feature<patch_descriptor>>(id, raw_desc);
     return true;
 }
 
 #define KEY_FRAME_FEAT "features"
 #define KEY_FRAME_FEAT_ID "id"
-#define KEY_FRAME_FEAT_X "x"
-#define KEY_FRAME_FEAT_Y "y"
 #define KEY_FRAME_FEAT_DESC "descriptor"
+#define KEY_FRAME_FEAT_XY "xy"
 #define KEY_FRAME_FEAT_DESC_SIN "sin"
 #define KEY_FRAME_FEAT_DESC_COS "cos"
 void frame_serialize(const std::shared_ptr<frame_t> frame, Value &json, Document::AllocatorType &allocator) {
 
+    assert(frame->keypoints.size() != frame->keypoints_xy.size());
     // add key point
     Value features_json(kArrayType);
-    for (auto &fast_feat : frame->keypoints) {
+    for (SizeType i=0; i<frame->keypoints.size(); ++i) {
+        auto &fast_feat = frame->keypoints[i];
+        auto &feat_xy = frame->keypoints_xy[i];
         Value feat_json(kObjectType);
         feat_json.AddMember(KEY_FRAME_FEAT_ID, fast_feat->id, allocator);
-        feat_json.AddMember(KEY_FRAME_FEAT_X, fast_feat->x, allocator);
-        feat_json.AddMember(KEY_FRAME_FEAT_Y, fast_feat->y, allocator);
         //feat_json.AddMember(KEY_FRAME_FEAT_LEVEL, fast_feat->level, allocator);
 
         // add descriptor
@@ -719,6 +710,12 @@ void frame_serialize(const std::shared_ptr<frame_t> frame, Value &json, Document
             desc_raw_json.PushBack(v, allocator);
         descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_RAW, desc_raw_json, allocator);
         feat_json.AddMember(KEY_FRAME_FEAT_DESC, descriptor_json, allocator);
+
+        // add xy coordinates
+        Value xy_json(kArrayType);
+        xy_json.PushBack(feat_xy[0], allocator);
+        xy_json.PushBack(feat_xy[1], allocator);
+        feat_json.AddMember(KEY_FRAME_FEAT_XY, xy_json, allocator);
 
         features_json.PushBack(feat_json, allocator);
     }
@@ -732,6 +729,7 @@ bool frame_deserialize(const Value &json, std::shared_ptr<frame_t> &frame) {
     const Value &features_json = json[KEY_FRAME_FEAT];
     RETURN_IF_FAILED(features_json.IsArray())
     frame->keypoints.resize(features_json.Size(), nullptr);
+    frame->keypoints_xy.resize(features_json.Size());
     for (SizeType j = 0; j < features_json.Size(); j++) {
         // get descriptor values
         const Value &desc_json = features_json[j][KEY_FRAME_FEAT_DESC];
@@ -746,11 +744,12 @@ bool frame_deserialize(const Value &json, std::shared_ptr<frame_t> &frame) {
         //get feature values
         frame->keypoints[j] = std::make_shared<fast_tracker::fast_feature<orb_descriptor>>(
             features_json[j][KEY_FRAME_FEAT_ID].GetUint64(),
-            (float)features_json[j][KEY_FRAME_FEAT_X].GetDouble(),
-            (float)features_json[j][KEY_FRAME_FEAT_Y].GetDouble(),
             //features_json[j][KEY_FRAME_FEAT_LEVEL].GetInt(),
             orb_descriptor(raw_desc, desc_cos, desc_sin)
         );
+        // xy coordinates
+        const Value &xy_json = features_json[j][KEY_FRAME_FEAT_XY];
+        frame->keypoints_xy[j] = v2{(float)xy_json[0].GetDouble(), (float)xy_json[1].GetDouble()};
     }
     return true;
 }

@@ -18,13 +18,11 @@ public:
     template<typename Descriptor>
     struct fast_feature: public tracker::feature
     {
-        fast_feature(float x_, float y_, const tracker::image& image) :
-              x(x_), y(y_), descriptor(x_, y_, image) {}
+        fast_feature(float x_, float y_, const tracker::image& image) : descriptor(x_, y_, image) {}
         fast_feature(uint64_t id, float x_, float y_, const tracker::image& image) : feature(id),
-              x(x_), y(y_), descriptor(x_, y_, image) {}
-        fast_feature(uint64_t id, float x_, float y_, const Descriptor &descriptor_) : feature(id),
-              x(x_), y(y_), descriptor(descriptor_) {}
-        float x, y;
+              descriptor(x_, y_, image) {}
+        fast_feature(uint64_t id, const Descriptor &descriptor_) : feature(id),
+              descriptor(descriptor_) {}
         Descriptor descriptor;
     };
 

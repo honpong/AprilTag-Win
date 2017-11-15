@@ -74,8 +74,6 @@ while header_str != "":
 f.close()
 f_out.close()
 
-if os.path.isfile(capture_filename + ".json"):
-    shutil.copy(capture_filename + ".json", output_filename + ".json")
-
-if os.path.isfile(capture_filename + ".tum"):
-    shutil.copy(capture_filename + ".tum", output_filename + ".tum")
+for ext in [".json", ".tum", ".loop"]:
+    if os.path.isfile(capture_filename + ext):
+        shutil.copy(capture_filename + ext, output_filename + ext)

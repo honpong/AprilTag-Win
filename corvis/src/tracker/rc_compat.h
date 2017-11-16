@@ -5,6 +5,7 @@
 
 static inline rc_Pose to_rc_Pose(const transformation &g)
 {
+    using rc::map;
     rc_Pose p;
     map(p.R.v) = g.Q.toRotationMatrix().cast<float>();
     map(p.Q.v) = g.Q.coeffs().cast<float>();
@@ -14,6 +15,7 @@ static inline rc_Pose to_rc_Pose(const transformation &g)
 
 static inline transformation to_transformation(const rc_Pose p)
 {
+    using rc::map;
     quaternion Q(map(p.Q.v).cast<f_t>()); m3 R = map(p.R.v).cast<f_t>(); v3 T = map(p.T.v).cast<f_t>();
     return Q.norm() < F_T_EPS && R.determinant() < F_T_EPS ? transformation() :
         std::fabs(R.determinant() - 1) < std::fabs(Q.norm() - 1) ? transformation(R, T) : transformation(Q, T);
@@ -21,6 +23,7 @@ static inline transformation to_transformation(const rc_Pose p)
 
 static inline struct sensor::extrinsics rc_Extrinsics_to_sensor_extrinsics(const rc_Extrinsics e)
 {
+    using rc::map;
     struct sensor::extrinsics extrinsics;
     extrinsics.mean = to_transformation(e.pose_m);
     extrinsics.variance.Q = map(e.variance_m2.W.v);
@@ -30,6 +33,7 @@ static inline struct sensor::extrinsics rc_Extrinsics_to_sensor_extrinsics(const
 
 static inline rc_Extrinsics rc_Extrinsics_from_sensor_extrinsics(const struct sensor::extrinsics &e)
 {
+    using rc::map;
     rc_Extrinsics extrinsics = {};
     extrinsics.pose_m = to_rc_Pose(e.mean);
     map(extrinsics.variance_m2.W.v) = e.variance.Q;

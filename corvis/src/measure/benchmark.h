@@ -31,6 +31,7 @@ struct benchmark_result {
             }
 
             void compute(aligned_vector<f_t> &errors) {
+                using rc::map;
                 if (errors.empty()) return;
                 rmse = sqrt(map(errors).array().square().mean());
                 mean = map(errors).mean();
@@ -120,6 +121,7 @@ struct benchmark_result {
         //solve for Horn's Rotation and translation. It uses a closed form solution
         //(no approximation is applied, but it is subject to the svd implementation).
         bool calculate_ate() {
+            using rc::map;
             R = project_rotation(W.transpose());
             T = T_current_mean - R * T_ref_mean;
             m<3,Eigen::Dynamic> T_ref_aligned = R*map(T_ref_all).transpose() + T.replicate(1,nposes);

@@ -31,6 +31,8 @@
 #include "platform_defines.h"
 #endif // MYRIAD2
 
+using rc::map;
+
 const static sensor_clock::duration camera_wait_time = std::chrono::milliseconds(500); //time we'll wait for all cameras before attempting to detect features
 const static sensor_clock::duration max_detector_failed_time = std::chrono::milliseconds(500); //time we'll go with no features before dropping to inertial only mode
 const static f_t accelerometer_inertial_var = 2.33*2.33; //variance when in inertial only mode

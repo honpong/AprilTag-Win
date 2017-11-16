@@ -9,6 +9,8 @@
 #include "sensor_data.h"
 #include <fstream>
 
+using rc::map;
+
 //We want these strings to be in the build but not in the header
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmissing-variable-declarations"

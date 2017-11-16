@@ -659,7 +659,7 @@ float TemplatedVocabulary<T, type>::score(const BowVector& lhs_,
             }
             case ScoringType::KL:
             {
-                constexpr float LOG_EPSILON = -36.043653389;
+                constexpr float LOG_EPSILON = -36.043653389f;
                 score += vi * (LOG_EPSILON - std::log(wi));
                 break;
             }

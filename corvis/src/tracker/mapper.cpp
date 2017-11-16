@@ -313,14 +313,14 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
 
     if (candidate_frame->keypoints.size() > 0 && current_frame->keypoints.size() > 0) {
         auto match = [&current_frame, &candidate_frame, &features_dbow, &increment_orientation_histogram](
-                const std::vector<unsigned int>& current_keypoint_indexes,
-                const std::vector<unsigned int>& candidate_keypoint_indexes) {
-            for (unsigned int current_point_idx : current_keypoint_indexes) {
-                int best_candidate_point_idx = 0;
+                const std::vector<size_t>& current_keypoint_indexes,
+                const std::vector<size_t>& candidate_keypoint_indexes) {
+            for (auto current_point_idx : current_keypoint_indexes) {
+                size_t best_candidate_point_idx = 0;
                 int best_distance = std::numeric_limits<int>::max();
                 int second_best_distance = std::numeric_limits<int>::max();
                 auto& current_keypoint = *current_frame->keypoints[current_point_idx];
-                for (unsigned int candidate_point_idx : candidate_keypoint_indexes) {
+                for (auto candidate_point_idx : candidate_keypoint_indexes) {
                     auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
                     int dist = orb_descriptor::distance(candidate_keypoint.descriptor,
                                                         current_keypoint.descriptor);
@@ -347,13 +347,13 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
         if (candidate_frame->dbow_direct_file.empty() && current_frame->dbow_direct_file.empty()) {
             // not using dbow direct file to prefilter matches
             auto fill_with_indices = [](size_t N) {
-                std::vector<unsigned int> v;
+                std::vector<size_t> v;
                 v.reserve(N);
                 for (size_t i = 0; i < N; ++i) v.push_back(i);
                 return v;
             };
-            std::vector<unsigned int> current_keypoint_indexes = fill_with_indices(current_frame->keypoints.size());
-            std::vector<unsigned int> candidate_keypoint_indexes = fill_with_indices(candidate_frame->keypoints.size());
+            std::vector<size_t> current_keypoint_indexes = fill_with_indices(current_frame->keypoints.size());
+            std::vector<size_t> candidate_keypoint_indexes = fill_with_indices(candidate_frame->keypoints.size());
             match(current_keypoint_indexes, candidate_keypoint_indexes);
         } else {
             // dbow direct file is used

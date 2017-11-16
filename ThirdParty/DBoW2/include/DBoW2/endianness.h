@@ -55,6 +55,7 @@
 #endif
 
 #if defined(_WIN32) || defined(_WIN64)
+#include <iterator>
 #define IGNORE_VS_UNCHECKED_ITERATOR_WARNING(pointer, size) \
     (stdext::checked_array_iterator<decltype(pointer)>((pointer), (size)))
 #else

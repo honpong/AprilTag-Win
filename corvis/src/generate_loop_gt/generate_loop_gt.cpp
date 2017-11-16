@@ -517,11 +517,12 @@ void gt_generator::get_connected_components(const SymmetricMatrix<bool>& associa
 }
 
 void gt_generator::save() const {
-    auto save_ascii = [](std::ofstream& file, rc_Timestamp cur_t, rc_Timestamp prev_t, size_t label) {
+    using save_function = std::function<void(std::ofstream&, rc_Timestamp, rc_Timestamp, size_t)>;
+    save_function save_ascii = [](std::ofstream& file, rc_Timestamp cur_t, rc_Timestamp prev_t, size_t label) {
         // format: newer_timestamp older_timestamp group_id
         file << cur_t << " " << prev_t << " " << label << "\n";
     };
-    auto save_binary = [](std::ofstream& file, rc_Timestamp cur_t, rc_Timestamp prev_t, size_t label) {
+    save_function save_binary = [](std::ofstream& file, rc_Timestamp cur_t, rc_Timestamp prev_t, size_t label) {
         // format (little endian): 64bits 64bits 32bits
         uint64_t ts[2] = { htole64(static_cast<uint64_t>(cur_t)),
                            htole64(static_cast<uint64_t>(prev_t)) };

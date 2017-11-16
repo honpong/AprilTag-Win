@@ -11,8 +11,6 @@
 #include <regex>
 #include <unordered_map>
 #include "packet.h"
-#include "tpose.h"
-#include "rc_compat.h"
 
 using namespace std;
 

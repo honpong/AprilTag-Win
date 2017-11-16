@@ -281,6 +281,13 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo"
     target_compile_options(tracker PRIVATE -DDEBUG=1)
 endif()
 
+find_package(OpenCV QUIET)
+if(ENABLE_RELOCALIZATION_DEBUG AND TARGET opencv_core
+   AND TARGET opencv_highgui AND TARGET opencv_imgcodecs)
+    target_compile_options(trackeri PRIVATE -DRELOCALIZATION_DEBUG)
+    target_link_libraries(trackeri PRIVATE ${OpenCV_LIBS})
+endif()
+
 add_subdirectory(feature feature)
 target_link_libraries(trackeri PUBLIC feature)
 add_subdirectory(vocabulary vocabulary)

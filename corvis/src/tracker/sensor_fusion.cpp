@@ -234,7 +234,8 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data)
         case rc_SENSOR_TYPE_IMAGE:
         case rc_SENSOR_TYPE_STEREO:
         case rc_SENSOR_TYPE_THERMOMETER:
-            break;
+        case rc_SENSOR_TYPE_DEBUG:
+          break;
     }
     data.path = rc_DATA_PATH_SLOW;
 }
@@ -311,6 +312,22 @@ void sensor_fusion::start_mapping(bool relocalize)
     if (!sfm.map) {
         sfm.map = std::make_unique<mapper>();
         sfm.relocalize = relocalize;
+#ifdef RELOCALIZATION_DEBUG
+        if(sfm.map) sfm.map->debug = [this](cv::Mat &&image,const uint64_t image_id, const std::string &message, const bool pause) {
+            if (data_callback) {
+                sensor_data debug_data = {};
+                debug_data.type = rc_SENSOR_TYPE_DEBUG;
+                debug_data.debug.message = message.c_str();
+                debug_data.debug.pause = pause;
+                debug_data.id = image_id; // we hack the interface to show the # of desired images
+                debug_data.debug.image.width = image.cols;
+                debug_data.debug.image.height = image.rows;
+                debug_data.debug.image.stride = image.step;
+                debug_data.debug.image.format = rc_ImageFormat::rc_FORMAT_RGBA8;
+                debug_data.debug.image.image = image.data;
+                data_callback(&debug_data); }
+        };
+#endif
     }
     sfm.map->reset();
 }

@@ -550,6 +550,9 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
         camera_frame.camera_id = data.id;
         camera_frame.frame = std::make_shared<frame_t>();
         camera_frame.frame->timestamp = data.timestamp;
+#ifdef RELOCALIZATION_DEBUG
+        camera_frame.frame->image = cv::Mat(image.height, image.width, CV_8UC1, (uint8_t*)image.image, image.stride).clone();
+#endif
         for (auto &p : camera.feature_tracker->tracks)
             if (std::is_same<DESCRIPTOR, orb_descriptor>::value)
                 camera_frame.frame->keypoints.emplace_back(std::static_pointer_cast<fast_tracker::fast_feature<orb_descriptor>>(p->feature));

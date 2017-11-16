@@ -153,7 +153,6 @@ void video_render::gl_init()
     overlay_scale_x_loc = glGetUniformLocation(overlay_program, "scale_x");
     overlay_scale_y_loc = glGetUniformLocation(overlay_program, "scale_y");
 
-
     glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);

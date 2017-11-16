@@ -68,6 +68,7 @@ option(ENABLE_MEASURE "Enable Measure" ON)
 option(ENABLE_MGL "Enable MathGL (used for plots in measure)" OFF)
 option(ENABLE_QR "Enable QR Code localization" OFF)
 option(ENABLE_SOURCES "Enable installation of source code examples" OFF)
+option(ENABLE_RELOCALIZATION_DEBUG "Enable Relocalization debug" OFF)
 
 # A few hints for the BOOST_ROOT to help find_package(Boost)
 if (APPLE)

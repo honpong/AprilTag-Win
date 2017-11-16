@@ -16,6 +16,12 @@
 #include "fast_tracker.h"
 #include "descriptor.h"
 
+#ifdef RELOCALIZATION_DEBUG
+#include <opencv2/imgproc.hpp>
+#define IMAGE_SHOW_MAP
+//#define SHOW_ALL_CANDIDATES
+#endif
+
 using namespace std;
 
 mapper::mapper()
@@ -410,6 +416,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
     const auto &keypoint_current = current_frame->keypoints;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
     for (auto nid : candidate_nodes) {
+        bool is_relocalized_in_candidate = false;
         matches matches_node_candidate = match_2d_descriptors(nodes[nid.first].frame, current_frame, features_dbow);
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
@@ -440,6 +447,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
             estimate_pose(candidate_3d_points, current_2d_points, camera_frame.camera_id, G_candidate_currentframe, inliers_set);
             if(inliers_set.size() >= min_num_inliers) {
                 is_relocalized = true;
+                is_relocalized_in_candidate = true;
 //                vG_WC.push_back(G_WC);
 
                 if(inliers_set.size() >  best_num_inliers) {
@@ -460,6 +468,76 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
         else
             log->info(" {}/{}) candidate nid: {:3} score: {:.5f}, matches: {:2}, EPnP inliers: {}",
                       i++, candidate_nodes.size(), nid.first, nid.second, matches_node_candidate.size(), inliers_set.size());
+
+        #ifndef SHOW_ALL_CANDIDATES
+            if (!is_relocalized_in_candidate)
+                continue;
+        #endif
+
+        #if defined(RELOCALIZATION_DEBUG) && defined(IMAGE_SHOW_MAP)
+
+            std::string image_name = "Num candidates: " + std::to_string(candidate_nodes.size()) + ", DBoW candidate: " + std::to_string(nid.first);
+            cv::Mat color_candidate_image, color_current_image;
+            cv::cvtColor(nodes[nid.first].frame->image, color_candidate_image, CV_GRAY2BGRA);
+            cv::cvtColor(current_frame->image, color_current_image, CV_GRAY2BGRA);
+            cv::Mat current_reprojection_image = color_current_image.clone();
+            cv::Mat candidate_reprojection_image = color_candidate_image.clone();
+            const auto &keypoint_candidates = nodes[nid.first].frame->keypoints;
+
+            cv::Mat flipped_color_candidate_image;
+            cv::flip(color_candidate_image, flipped_color_candidate_image, 1);
+            cv::putText(flipped_color_candidate_image,
+                        "candidate image " + std::to_string(nid.first) + " " +  std::to_string(nid.second),
+                        cv::Point(30,30),cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(255,0,0,255));
+            cv::putText(flipped_color_candidate_image,"last node added " + std::to_string(nodes.back().id),
+                        cv::Point(30,60),cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(255,0,0,255));
+            cv::putText(flipped_color_candidate_image,"number of matches " + std::to_string(matches_node_candidate.size()),
+                        cv::Point(30,90),cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(255,0,0,255));
+            cv::putText(flipped_color_candidate_image,"number of inliers " + std::to_string(inliers_set.size()),
+                        cv::Point(30,120),cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(255,0,0,255));
+
+            if(is_relocalized) {
+                cv::putText(color_current_image,"RELOCALIZED",
+                cv::Point(30,30),cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(0,255,0,255));
+            } else {
+                cv::putText(color_current_image,"RELOCALIZATION FAILED",
+                cv::Point(30,30),cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(255,0,0,255));
+            }
+
+            int rows = color_current_image.rows;
+            int cols = color_current_image.cols;
+            int type = color_current_image.type();
+            cv::Mat compound(rows, 2*cols, type);
+            color_current_image.copyTo(compound(cv::Rect(0, 0, cols, rows)));
+            flipped_color_candidate_image.copyTo(compound(cv::Rect(cols, 0, cols, rows)));
+            int matchidx=0;
+            for (auto point_match : matches_node_candidate) {
+                auto& p1 = *keypoint_current[point_match.first];
+                auto& p2 = *keypoint_candidates[point_match.second];
+                cv::Scalar color{0,0,255,255};
+                cv::Scalar color_line{0,0,255,255};
+                if(inliers_set.count(matchidx)) {
+                    color = cv::Scalar(0,255,0,255);
+                    color_line = cv::Scalar(255,0,0,255);
+                }
+                cv::circle(compound,cv::Point(p1.x,p1.y),3,color,2);
+                cv::circle(compound,cv::Point(compound.cols-p2.x,p2.y),3,color,2);
+                cv::line(compound,cv::Point(p1.x,p1.y),cv::Point(compound.cols-p2.x,p2.y),color_line,2);
+                matchidx++;
+            }
+            debug(std::move(compound), 0, "Relocalized", false);
+
+            for(auto &pc : keypoint_current) {
+                cv::circle(color_current_image, cv::Point(pc->x,pc->y),3,cv::Scalar{255,0,0,255},2);
+            }
+            debug(std::move(color_current_image), 1, "current image keypoints", false);
+
+            for(auto &pc : keypoint_candidates) {
+                cv::circle(color_candidate_image, cv::Point(pc->x,pc->y),3,cv::Scalar{255,0,0,255},2);
+            }
+            debug(std::move(color_candidate_image), 2, "candidate image keypoints", true);
+
+        #endif
     }
 
     return is_relocalized;
@@ -862,4 +940,3 @@ bool mapper::deserialize(const Value &map_json, mapper &map) {
     map.log->info("Loaded map with {} nodes and {} features", map.node_id_offset, map.feature_id_offset);
     return true;
 }
-

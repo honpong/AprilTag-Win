@@ -24,6 +24,9 @@
 #include "rapidjson/document.h"
 #include "DBoW2/TemplatedVocabulary.h"
 #include "descriptor.h"
+#ifdef RELOCALIZATION_DEBUG
+#include <opencv2/core/mat.hpp>
+#endif
 
 typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, DBoW2::L1_NORM> orb_vocabulary;
 
@@ -149,6 +152,10 @@ class mapper {
     };
     std::vector<node_feature_track> map_feature_tracks;
     void predict_map_features(const uint64_t camera_id_now, const transformation& G_Bcurrent_Bnow);
+
+#ifdef RELOCALIZATION_DEBUG
+    std::function<void(cv::Mat &&image, const uint64_t image_id, const std::string &message, const bool pause)> debug;
+#endif
 };
 
 #endif

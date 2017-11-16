@@ -83,6 +83,7 @@ struct frame_t {
     std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>> keypoints;
     DBoW2::BowVector dbow_histogram;       // histogram describing image
     DBoW2::FeatureVector dbow_direct_file;  // direct file if used, empty otherwise
+
     inline void calculate_dbow(const orb_vocabulary *orb_voc) {
         // copy pyramid descriptors to a vector of descriptors
         constexpr int direct_file_level = std::numeric_limits<int>::max();  // change to enable
@@ -97,6 +98,9 @@ struct frame_t {
             dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor);
         }
     }
+#ifdef RELOCALIZATION_DEBUG
+    cv::Mat image; // for debugging purposes
+#endif
 };
 
 struct camera_frame_t {

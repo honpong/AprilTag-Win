@@ -96,7 +96,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             if (data.id < sfm.s.cameras.children.size()) {
                 // Note that this relocalizes based on the data from the previous frame (which is now done)
                 if (sfm.relocalize && sfm.map) {
-                    if (filter_relocalize(&sfm, data.id))
+                    if (filter_relocalize(&sfm, data.id, data.timestamp))
                         sfm.log->info("relocalized");
                 }
 
@@ -139,7 +139,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
                 // Note that this relocalizes based on the data from the previous frame (which is now done)
                 if (sfm.relocalize && sfm.map) {
-                    if (filter_relocalize(&sfm, data.id))
+                    if (filter_relocalize(&sfm, data.id, data.timestamp))
                         sfm.log->info("relocalized");
                 }
 

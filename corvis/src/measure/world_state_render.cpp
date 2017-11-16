@@ -1,4 +1,3 @@
-#define NOMINMAX // Tell windows.h to avoid defining min/max
 #include "world_state_render.h"
 
 #include <stdio.h>

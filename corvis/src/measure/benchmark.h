@@ -4,7 +4,12 @@
 #include <algorithm>
 #include <vec4.h>
 #include <tpose.h>
+#include <rc_tracker.h>
+#include <rc_compat.h>
 #include <memory>
+#include <unordered_map>
+#include <unordered_set>
+#include <limits>
 
 struct benchmark_result {
     struct { double reference, measured; } length_cm, path_length_cm; void * user_data;
@@ -37,9 +42,9 @@ struct benchmark_result {
 
             template <typename Stream>
             friend Stream& operator<<(Stream &stream, const statistics &error) {
-                return stream << " rmse "   << error.rmse  << " mean "  << error.mean
-                              << " median " << error.median << " std "  << error.std
-                              << " min "    << error.min    << " max "  << error.max;
+                return stream << "\t rmse "   << error.rmse  << " mean "  << error.mean
+                              << "\t median " << error.median << " std "  << error.std
+                              << "\t min "    << error.min    << " max "  << error.max;
             }
 
             friend statistics operator*(const statistics &error, f_t scale) {
@@ -52,7 +57,21 @@ struct benchmark_result {
                 e.max = error.max * scale;
                 return e;
             }
-        } ate, rpe_T, rpe_R;
+        } ate, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R;
+
+        struct matching_statistics {
+            f_t precision = 0, recall = 0;
+
+            void compute_pr(int tp, int fp, int fn) {
+                precision =  !(tp + fp) ? std::numeric_limits<float>::quiet_NaN() : static_cast<float>(tp) / (tp + fp);
+                recall = !(tp + fn) ? std::numeric_limits<float>::quiet_NaN() : static_cast<float>(tp) / (tp + fn);
+            }
+
+            template <typename Stream>
+            friend Stream& operator<<(Stream &stream, const matching_statistics &error) {
+                return stream << "\t precision "  << error.precision*100 << " recall "  << error.recall*100;
+            }
+        } relocalization;
 
         // ATE variables
         m3 W = m3::Zero();
@@ -62,10 +81,12 @@ struct benchmark_result {
         v3 T_ref_mean = v3::Zero();
         v3 T_error_mean = v3::Zero();
         int nposes = 0;
+        int true_positives = 0, true_negatives = 0, false_positives = 0, false_negatives = 0;
+        bool there_is_reloc_info = false;
 
         // RPE variables
         aligned_vector<v3> T_current_all, T_ref_all;
-        aligned_vector<f_t> distances, angles;
+        aligned_vector<f_t> distances, angles, distances_reloc, angles_reloc;
         std::unique_ptr<tpose> current_tpose_ptr, ref_tpose_ptr;
 
         //append the current and ref translations to matrices
@@ -109,7 +130,82 @@ struct benchmark_result {
             return nposes;
         }
 
+        bool calculate_precision_recall(){
+            if (there_is_reloc_info) {
+                relocalization.compute_pr(true_positives,false_positives,false_negatives);
+                if (!std::isnan(relocalization.precision) && !std::isnan(relocalization.recall)) {
+                    reloc_rpe_T.compute(distances_reloc);
+                    reloc_rpe_R.compute(angles_reloc);
+                } else {
+                    reloc_rpe_T = reloc_rpe_T*std::numeric_limits<float>::quiet_NaN();
+                    reloc_rpe_R = reloc_rpe_R*std::numeric_limits<float>::quiet_NaN();
+                }
+                return true;
+            } else {
+                return false;
+            }
+        }
+
         inline bool is_valid() { return nposes > 0; }
+
+        bool add_edges(const rc_Timestamp current_frame_timestamp,
+                       const int num_reloc_edges,
+                       const int num_mapnodes,
+                       const rc_RelocEdge* reloc_edges,
+                       const rc_MapNode* map_nodes,
+                       const std::unordered_multimap<rc_Timestamp, std::unordered_set<rc_Timestamp>>& ref_edges,
+                       const tpose_sequence& ref_poses) {
+
+            std::unordered_set<rc_Timestamp> ref_mapnode_edges;
+            {
+                // search for map node timestamps in a subset of reference edges
+                static auto lt = [](const rc_MapNode& lhs, const rc_MapNode& rhs) {
+                    return lhs.time_us < rhs.time_us;
+                };
+                auto it = ref_edges.find(current_frame_timestamp);
+                if (it != ref_edges.end()) {
+                    for (rc_Timestamp destination : it->second) {
+                        rc_MapNode map_node;
+                        map_node.time_us = destination;
+                        if (std::binary_search(map_nodes, map_nodes + num_mapnodes, map_node, lt)) {
+                            ref_mapnode_edges.emplace(destination);
+                        }
+                    }
+                }
+            }
+
+            int tp = 0, fp = 0;
+            transformation relative_error;
+            // maybe all reloc edges are false positive
+            if (!ref_mapnode_edges.size()) {
+                fp = num_reloc_edges;
+            } else {
+                // traverse all relocalization mapnode timestamps and check if they are in canditate timestamps
+                auto current_frame_tp = sensor_clock::micros_to_tp(current_frame_timestamp);
+                tpose ref_tpose_current(current_frame_tp);
+                bool success = ref_poses.get_pose(current_frame_tp, ref_tpose_current);
+                for (int i = 0; i < num_reloc_edges; ++i) {
+                    tp += ref_mapnode_edges.count(reloc_edges[i].time_destination);
+                    auto mapnode_tp = sensor_clock::micros_to_tp(reloc_edges[i].time_destination);
+                    tpose ref_tpose_mapnode(mapnode_tp);
+                    transformation reloc_pose =  to_transformation(reloc_edges[i].pose_m);
+                    if (success && ref_poses.get_pose(mapnode_tp, ref_tpose_mapnode)) {
+                        transformation ref_relative_pose = invert(ref_tpose_mapnode.G) * ref_tpose_current.G;
+                        relative_error = ref_relative_pose * invert(reloc_pose);
+                        distances_reloc.emplace_back(relative_error.T.norm());
+                        angles_reloc.emplace_back(std::acos(std::min(std::max((relative_error.Q.toRotationMatrix().trace()-1)/2, -1.0f),1.0f)));
+                    }
+                }
+                fp = num_reloc_edges - tp;
+            }
+
+            true_positives += tp;
+            false_positives += fp;
+            false_negatives += ref_mapnode_edges.size() - tp;
+            there_is_reloc_info = true;
+
+            return true;
+        }
     } errors;
 };
 

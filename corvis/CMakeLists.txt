@@ -49,6 +49,7 @@ endif()
 
 if(MSVC)
   add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
+  add_definitions(-DNOMINMAX) # prevent conflicts with min/max macros
 endif()
 
 find_package(alloy QUIET)
@@ -150,6 +151,8 @@ add_subdirectory(src/rc_replay)
 add_subdirectory(src/compare_poses)
 
 add_subdirectory(src/create_vocabulary)
+
+add_subdirectory(src/generate_loop_gt)
 
 include(TargetLinkLibrariesCopied RESULT_VARIABLE TARGET_LINK_LIBRARIES_COPIED)
 if(ENABLE_SOURCES)

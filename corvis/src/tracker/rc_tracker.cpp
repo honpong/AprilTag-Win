@@ -33,6 +33,9 @@ struct rc_Tracker: public sensor_fusion
     bool placement;
     std::string jsonString;
     std::vector<std::vector<rc_Feature> > stored_features;
+    std::vector<rc_Pose> relocalization_G_world_body;
+    std::vector<rc_RelocEdge> relocalization_edges;
+    std::vector<rc_MapNode> map_nodes;
     std::string timingStats;
     capture output;
     struct status {
@@ -517,6 +520,70 @@ bool rc_receiveTemperature(rc_Tracker * tracker, rc_Sensor therm_id, rc_Timestam
     if (tracker->started())
         tracker->receive_data(std::move(data));
     return true;
+}
+
+int rc_getRelocalizationPoses(rc_Tracker* tracker, rc_Pose **reloc_edges)
+{
+    if (tracker && tracker->sfm.map && tracker->sfm.is_relocalized) {
+        const auto& map = tracker->sfm.map;
+        const auto& info = map->get_relocalization_info();
+        tracker->relocalization_G_world_body.clear();
+        tracker->relocalization_G_world_body.reserve(info.size());
+        for (size_t i = 0; i < info.size(); ++i) {
+            const transformation& G_node_frame = info.vG_node_frame[i];
+            const transformation& G_world_node = map->get_node(info.node_ids[i]).global_transformation;
+            tracker->relocalization_G_world_body.emplace_back(
+                        to_rc_Pose(G_world_node * G_node_frame));
+        }
+        if (reloc_edges) *reloc_edges = tracker->relocalization_G_world_body.data();
+        return tracker->relocalization_G_world_body.size();
+    } else {
+        if (reloc_edges) *reloc_edges = nullptr;
+        return 0;
+    }
+}
+
+int rc_getRelocalizationEdges(rc_Tracker *tracker, rc_Timestamp *source, rc_RelocEdge **edges) {
+    if (tracker && tracker->sfm.map && tracker->sfm.is_relocalized) {
+        const auto& map = tracker->sfm.map;
+        const auto& info = map->get_relocalization_info();
+        tracker->relocalization_edges.clear();
+        tracker->relocalization_edges.resize(info.size());
+        for (size_t i = 0; i < info.size(); ++i) {
+            const transformation& G_node_frame = info.vG_node_frame[i];
+            rc_RelocEdge& edge = tracker->relocalization_edges[i];
+            edge.pose_m = to_rc_Pose(G_node_frame);
+            edge.time_destination = sensor_clock::tp_to_micros(map->get_node(info.node_ids[i]).frame->timestamp);
+        }
+        if (source) *source = sensor_clock::tp_to_micros(info.frame_timestamp);
+        if (edges) *edges = tracker->relocalization_edges.data();
+        return tracker->relocalization_edges.size();
+    } else {
+        if (source) *source = 0;
+        if (edges) *edges = nullptr;
+        return 0;
+    }
+}
+
+int rc_getMapNodes(rc_Tracker *tracker, rc_MapNode **map_nodes)
+{
+    if (tracker && tracker->sfm.map) {
+        const auto& nodes = tracker->sfm.map->get_nodes();
+        tracker->map_nodes.clear();
+        tracker->map_nodes.reserve(nodes.size());
+        rc_MapNode map_node;
+        for (auto& node : nodes) {
+            if (node.status == node_status::finished && node.frame) {
+                map_node.time_us = sensor_clock::tp_to_micros(node.frame->timestamp);
+                tracker->map_nodes.push_back(map_node);
+            }
+        }
+        if (map_nodes) *map_nodes = tracker->map_nodes.data();
+        return tracker->map_nodes.size();
+    } else {
+        if (map_nodes) *map_nodes = nullptr;
+        return 0;
+    }
 }
 
 rc_PoseTime rc_getPose(rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path)

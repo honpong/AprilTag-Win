@@ -81,6 +81,8 @@ typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVelocity; // Q is the spatia
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseAcceleration; // derivative of rc_PoseVelocity
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVariance; // this is not the full variance yet
 typedef struct { rc_Pose pose_m; rc_Timestamp time_us; } rc_PoseTime;
+typedef struct { rc_Pose pose_m; rc_Timestamp time_destination; } rc_RelocEdge;
+typedef struct { rc_Timestamp time_us; } rc_MapNode;
 
 #if __cplusplus
 static const rc_Matrix rc_MATRIX_IDENTITY = {
@@ -489,6 +491,9 @@ RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Sensor camera_id, rc_Fe
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerError rc_getError(const rc_Tracker *tracker);
+RCTRACKER_API int rc_getRelocalizationEdges(rc_Tracker* tracker, rc_Timestamp *source, rc_RelocEdge **edges);
+RCTRACKER_API int rc_getRelocalizationPoses(rc_Tracker* tracker, rc_Pose **poses);
+RCTRACKER_API int rc_getMapNodes(rc_Tracker* tracker, rc_MapNode **mapnodes_timestamps);
 
 /**
  Returns a string with statistics on sensor timing

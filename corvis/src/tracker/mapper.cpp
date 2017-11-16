@@ -401,7 +401,7 @@ void mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_ve
     G_candidateB_currentframeB = invert(G_BC*G_currentframeC_candidateB);
 }
 
-bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transformation>& vG_W_currentframe) {
+bool mapper::relocalize(const camera_frame_t& camera_frame) {
     std::shared_ptr<frame_t> current_frame = camera_frame.frame;
     if (!current_frame->keypoints.size())
         return false;
@@ -410,12 +410,14 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
     const size_t min_num_inliers = 12;
     size_t best_num_inliers = 0;
     size_t i = 0;
+    reloc_info.clear();
+    reloc_info.frame_timestamp = current_frame->timestamp;
 
     std::vector<std::pair<nodeid, float>> candidate_nodes =
         find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc.get());
     const auto &keypoint_current = current_frame->keypoints;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
-    for (auto nid : candidate_nodes) {
+    for (const auto& nid : candidate_nodes) {
         bool is_relocalized_in_candidate = false;
         matches matches_node_candidate = match_2d_descriptors(nodes[nid.first].frame, current_frame, features_dbow);
         // Just keep candidates with more than a min number of mathces
@@ -448,13 +450,13 @@ bool mapper::relocalize(const camera_frame_t& camera_frame, std::vector<transfor
             if(inliers_set.size() >= min_num_inliers) {
                 is_relocalized = true;
                 is_relocalized_in_candidate = true;
-//                vG_WC.push_back(G_WC);
 
-                if(inliers_set.size() >  best_num_inliers) {
+                if(inliers_set.size() > best_num_inliers) {
                     best_num_inliers = inliers_set.size();
-                    vG_W_currentframe.clear();
-                    const transformation& G_W_candidate = nodes[nid.first].global_transformation;
-                    vG_W_currentframe.push_back(G_W_candidate*G_candidate_currentframe);
+                    reloc_info.clear();
+                    reloc_info.frame_timestamp = current_frame->timestamp;
+                    reloc_info.vG_node_frame.push_back(G_candidate_currentframe);
+                    reloc_info.node_ids.push_back(nid.first);
                     transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
                     add_edge(nid.first, camera_frame.closest_node,
                              G_candidate_closestnode, true);

@@ -14,6 +14,7 @@
 #include "mapper.h"
 #include "storage.h"
 #include "state_size.h"
+#include "tpose.h"
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -54,9 +55,9 @@ struct filter {
     bool has_converged;
     bool stereo_enabled;
     bool relocalize;
+    bool is_relocalized;
 
     std::unique_ptr<mapper> map;
-    std::vector<transformation> reloc_poses;
     transformation pose_at_reloc;
 
 #ifdef ENABLE_QR
@@ -86,7 +87,7 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data);
 bool filter_image_measurement(struct filter *f, const sensor_data & data);
 bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data);
 void filter_detect(struct filter *f, const sensor_data &data, bool update_frame);
-bool filter_relocalize(struct filter *f, const rc_Sensor camera_id);
+bool filter_relocalize(struct filter *f, const rc_Sensor camera_id, sensor_clock::time_point timestamp);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
 bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data);

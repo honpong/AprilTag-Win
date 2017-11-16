@@ -124,7 +124,7 @@ void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR
     features.emplace(feature->id, mf);
 }
 
-void map_node::set_feature(const uint64_t id, const feature_type type)
+void map_node::set_feature_type(const uint64_t id, const feature_type type)
 {
     features[id].type = type;
 }
@@ -135,8 +135,8 @@ void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feat
     features_dbow[feature->id] = groupid;
 }
 
-void mapper::set_feature(nodeid groupid, uint64_t id, const feature_type type) {
-    nodes[groupid].set_feature(id, type);
+void mapper::set_feature_type(nodeid groupid, uint64_t id, const feature_type type) {
+    nodes[groupid].set_feature_type(id, type);
 }
 
 v3 mapper::get_feature3D(nodeid node_id, uint64_t feature_id) {

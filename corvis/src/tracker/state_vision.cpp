@@ -318,7 +318,7 @@ void state_vision::update_map(mapper *map)
             bool good = stdev / f->v->depth() < .05f;
             if (good) {
                 if(f->is_in_map) {
-                    map->set_feature(g->id, f->feature->id);
+                    map->set_feature_type(g->id, f->feature->id, feature_type::tracked);
                 } else {
                     auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->feature);
                     map->add_feature(g->id, feature, f->v);

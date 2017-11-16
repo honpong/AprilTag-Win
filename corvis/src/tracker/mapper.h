@@ -61,7 +61,7 @@ struct map_node {
     std::unordered_map<uint64_t, map_edge> edges; // key is neighbor_id
     map_edge &get_add_neighbor(uint64_t neighbor);
     void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v, const feature_type type);
-    void set_feature(const uint64_t id, const feature_type type);
+    void set_feature_type(const uint64_t id, const feature_type type);
 
     transformation global_transformation;
 
@@ -110,7 +110,7 @@ class mapper {
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                      std::shared_ptr<log_depth> v, const feature_type type = feature_type::tracked);
-    void set_feature(nodeid node_id, uint64_t feature_id, const feature_type type = feature_type::tracked);
+    void set_feature_type(nodeid node_id, uint64_t feature_id, const feature_type type = feature_type::tracked);
     void get_triangulation_geometry(const nodeid group_id, const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses);
     void add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v);
     nodes_path breadth_first_search(nodeid start, int maxdepth = 1);

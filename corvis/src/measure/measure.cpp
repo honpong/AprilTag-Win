@@ -176,9 +176,9 @@ int main(int c, char **v)
         rc_PoseTime current = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
         auto timestamp = sensor_clock::micros_to_tp(current.time_us);
         tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current.pose_m));
-        rc_RelocEdge* reloc_edges;
+        rc_RelocEdge* reloc_edges = nullptr;
         rc_Timestamp reloc_source;
-        rc_MapNode* map_nodes;
+        rc_MapNode* map_nodes = nullptr;
         int num_mapnodes = 0, num_reloc_edges = 0;
         if (benchmark_relocation) {
             num_mapnodes = rc_getMapNodes(tracker, &map_nodes);

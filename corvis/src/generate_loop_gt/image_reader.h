@@ -2,6 +2,7 @@
 #define GENERATE_LOOP_GT_IMAGE_READER_H
 
 #include <fstream>
+#include <functional>
 #include <string>
 #include <unordered_map>
 #include "rc_tracker.h"

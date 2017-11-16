@@ -263,11 +263,11 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     stream << std::fixed << std::setprecision(2);
     stream << "Mean of " << pe_le50.n << " primary errors that are less than 50% is " << pe_le50.mean << "% and the median of all errors is " << pe_le50.median << "%\n";
 
-    int score = 0;
+    size_t score = 0;
     for (size_t i=0; i < pri_hist.bins.size(); i++)
         score += i * pri_hist.bins[i];
 
-    int altscore = 0;
+    size_t altscore = 0;
     for (size_t i=0; i < alt_hist.bins.size(); i++)
         altscore += i * alt_hist.bins[i];
 

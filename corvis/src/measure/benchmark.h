@@ -62,9 +62,9 @@ struct benchmark_result {
         struct matching_statistics {
             f_t precision = 0, recall = 0;
 
-            void compute_pr(f_t tp, f_t fp, f_t fn) {
-                precision =  !(tp + fp) ? std::numeric_limits<float>::quiet_NaN() : tp / (tp + fp);
-                recall = !(tp + fn) ? std::numeric_limits<float>::quiet_NaN() : tp / (tp + fn);
+            void compute_pr(int tp, int fp, int fn) {
+                precision =  !(tp + fp) ? std::numeric_limits<float>::quiet_NaN() : static_cast<float>(tp) / (tp + fp);
+                recall = !(tp + fn) ? std::numeric_limits<float>::quiet_NaN() : static_cast<float>(tp) / (tp + fn);
             }
 
             template <typename Stream>

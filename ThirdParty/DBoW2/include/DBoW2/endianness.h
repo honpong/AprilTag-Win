@@ -12,6 +12,7 @@
 #elif defined(__myriad2)
     // Programmer's guide 4.2, 2.3.5
     #define HOST_IS_LITTLE_ENDIAN 1
+    #define HOST_IS_BIG_ENDIAN 0
 #endif
 
 #if defined(__linux__)  || defined(__myriad2)
@@ -53,6 +54,13 @@
     #error Unknown platform
 #endif
 
+#if defined(_WIN32) || defined(_WIN64)
+#define IGNORE_VS_UNCHECKED_ITERATOR_WARNING(pointer, size) \
+    (stdext::checked_array_iterator<decltype(pointer)>((pointer), (size)))
+#else
+#define IGNORE_VS_UNCHECKED_ITERATOR_WARNING(pointer, size) (pointer)
+#endif
+
 #include <algorithm>
 #include <cstring>
 
@@ -71,7 +79,8 @@ static inline void le8toh(const uint8_t* src, int size, uint8_t* dst) {
     if (host_is_little_endian()) {
         memcpy(dst, src, size * sizeof(uint8_t));
     } else {
-        std::reverse_copy(src, src + size, dst);
+        std::reverse_copy(src, src + size,
+                          IGNORE_VS_UNCHECKED_ITERATOR_WARNING(dst, size));
     }
 }
 

@@ -116,7 +116,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
         first++;
     }
 
-    std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m, rpe_T_errors_m, rpe_R_errors_deg, precision_reloc, recall_reloc;
+    std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m, rpe_T_errors_m, rpe_R_errors_deg, reloc_rpe_T_errors_m, reloc_rpe_R_errors_deg, precision_reloc, recall_reloc;
     uint32_t precision_anomalies = 0, recall_anomalies = 0;
     bool has_reloc = false;
 
@@ -180,11 +180,19 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
                 precision_reloc.push_back(r.errors.relocalization.precision*100);
             else
                 precision_anomalies++;
-            stream << "\tRelocalization Recall\t" << r.errors.relocalization.recall*100 << "%\n";
+            stream << "\t               Recall\t" << r.errors.relocalization.recall*100 << "%\n";
             if (!std::isnan(r.errors.relocalization.recall))
                 recall_reloc.push_back(r.errors.relocalization.recall*100);
             else
                 recall_anomalies++;
+            if (!std::isnan(r.errors.reloc_rpe_T.rmse)) {
+                stream << "\t               Translational RPE\t" << r.errors.reloc_rpe_T.rmse << "m\n";
+                reloc_rpe_T_errors_m.push_back(r.errors.reloc_rpe_T.rmse);
+            }
+            if (!std::isnan(r.errors.reloc_rpe_R.rmse)) {
+                stream << "\t               Rotational RPE\t" << r.errors.reloc_rpe_R.rmse*(180.f/M_PI) << "deg\n";
+                reloc_rpe_R_errors_deg.push_back(r.errors.reloc_rpe_R.rmse*(180.f/M_PI));
+            }
         }
     }
 
@@ -195,6 +203,8 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     std::vector<double> rpe_R_edges = {0, 0.05, 0.1, 0.5, 1, 5};
     std::vector<double> precision_edges = {0, 60, 80, 95, 99, 100};
     std::vector<double> recall_edges = {0, 2, 5, 10, 20, 50};
+    std::vector<double> reloc_rpe_T_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
+    std::vector<double> reloc_rpe_R_edges = {0, 0.05, 0.1, 0.5, 1, 5};
     typedef histogram<double, false, true> error_histogram;
     typedef histogram<double, true, false> error_histogram_pr;
 
@@ -217,7 +227,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     stream << ate_hist << "\n";
 
     stream << "RPE (Translation) histogram (" << rpe_T_errors_m.size() << " sequences)\n";
-    error_histogram rpe_T_hist(ate_errors_m, rpe_T_edges, 2, "m");
+    error_histogram rpe_T_hist(rpe_T_errors_m, rpe_T_edges, 2, "m");
     stream << rpe_T_hist << "\n";
 
     stream << "RPE (Rotation) histogram (" << rpe_R_errors_deg.size() << " sequences)\n";
@@ -234,6 +244,14 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
         error_histogram_pr recall_hist(recall_reloc, recall_edges, 2);
         stream << recall_hist;
         stream << "Undefined recall: " << recall_anomalies << " sequences\n\n";
+
+        stream << "Relocalization RPE (Translation) histogram (" << reloc_rpe_T_errors_m.size() << " sequences)\n";
+        error_histogram reloc_rpe_T_hist(reloc_rpe_T_errors_m, reloc_rpe_T_edges, 2, "m");
+        stream << reloc_rpe_T_hist << "\n";
+
+        stream << "Relocalization RPE (Rotation) histogram (" << reloc_rpe_R_errors_deg.size() << " sequences)\n";
+        error_histogram reloc_rpe_R_hist(reloc_rpe_R_errors_deg, reloc_rpe_R_edges, 2, "deg");
+        stream << reloc_rpe_R_hist << "\n";
     }
 
     struct stat { size_t n; double sum, mean, median; } pe_le50 = {0, 0, 0, 0};

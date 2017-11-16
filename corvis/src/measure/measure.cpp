@@ -145,16 +145,22 @@ int main(int c, char **v)
         std::cout << "Computed  Straight-line length is " << 100*rp.get_length()           << " cm, total path length " << 100*rp.get_path_length()           << " cm\n";
         std::cout << "Dispatched " << rp.get_packets_dispatched() << " packets " << rp.get_bytes_dispatched()/1.e6 << " Mbytes\n";
         if (res.errors.calculate_ate()) {
-            std::cout << "Error Statistics (ATE [m]):\n";
+            std::cout << "Trajectory Statistics :\n";
+            std::cout << "\t ATE [m] : \n";
             std::cout << res.errors.ate << "\n";
-            std::cout << "translation RPE [m]:\n";
+            std::cout << "\t RPE translation [m]:\n";
             std::cout << res.errors.rpe_T << "\n";
-            std::cout << "rotation    RPE [deg]:\n";
+            std::cout << "\t RPE rotation [deg]:\n";
             std::cout << res.errors.rpe_R*(180.f/M_PI) << "\n";
         }
         if (res.errors.calculate_precision_recall()) {
-            std::cout << "Relocalization Statistics (PR [%]):\n";
+            std::cout << "Relocalization Statistics :\n";
+            std::cout << "\t Precision-Recall [%] : \n";
             std::cout << res.errors.relocalization << "\n";
+            std::cout << "\t translation RPE [m]:\n";
+            std::cout << res.errors.reloc_rpe_T << "\n";
+            std::cout << "\t rotation RPE [deg]:\n";
+            std::cout << res.errors.reloc_rpe_R*(180.f/M_PI) << "\n";
         }
 
         if(rc_getConfidence(rp.tracker) >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
@@ -205,7 +211,8 @@ int main(int c, char **v)
                                      num_mapnodes,
                                      reloc_edges,
                                      map_nodes,
-                                     rp.get_reference_edges());
+                                     rp.get_reference_edges(),
+                                     rp.get_reference_poses());
             }
         }
         if (enable_gui || render_output)

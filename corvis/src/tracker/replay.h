@@ -98,6 +98,7 @@ public:
     void start_mapping(bool relocalize) { rc_startMapping(tracker, relocalize); }
     void save_map(std::string filename);
     const std::unordered_multimap<rc_Timestamp, std::unordered_set<rc_Timestamp>>& get_reference_edges() const { return ref_relocalization_edges; }
+    const tpose_sequence& get_reference_poses() const { return *reference_seq; }
 };
 
 #endif /* defined(__RC3DK__replay__) */

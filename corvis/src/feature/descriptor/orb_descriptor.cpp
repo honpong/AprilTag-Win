@@ -225,7 +225,7 @@ void orb_descriptor::ic_angle(float x, float y, const tracker::image& image)
         m_01 += v * v_sum;
     }
 
-    float d = std::hypot<float>(m_01,m_10);
+    float d = std::hypot((float)m_01,(float)m_10);
     cos_ = d ? m_10*(1/d) : 1;
     sin_ = d ? m_01*(1/d) : 0;
 }

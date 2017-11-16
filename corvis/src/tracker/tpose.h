@@ -50,7 +50,7 @@ struct tpose_raw {
         size_t end = 0;
         auto t_ms = std::stod(line+=end, &end);
         if(memchr(line, '.', end))
-            t_100ns = t_ms * 10000;
+            t_100ns = (decltype(t_100ns))(t_ms * 10000);
         else
             t_100ns = std::stoull(line, &end);
         for (int i=0; i<3; i++) {

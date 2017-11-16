@@ -394,7 +394,7 @@ void mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_ve
     const f_t sigma_px = 3.0;
     const f_t max_reprojection_error = 2*sigma_px/focal_px;
     const int max_iter = 10; // 10
-    const float confidence = 0.9; //0.9
+    const float confidence = 0.9f; //0.9
     std::default_random_engine rng(-1);
     transformation G_currentframeC_candidateB;
     estimate_transformation(points_3d, points_2d, G_currentframeC_candidateB, rng, max_iter, max_reprojection_error, confidence, 5, &inliers_set);

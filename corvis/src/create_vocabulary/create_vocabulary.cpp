@@ -106,7 +106,7 @@ void trainer<orb_descriptor::raw>::extract_features(const tracker::image& image,
     const float max_y = image.height_px - orb_descriptor::border_size - 1;
     for (auto& track : tracks) {
         if (track.x > min_xy && track.y > min_xy && track.x < max_x && track.y < max_y) {
-            features.emplace_back(std::move((orb_descriptor(track.x, track.y, image)).descriptor));
+            features.emplace_back(orb_descriptor(track.x, track.y, image).descriptor);
         }
     }
 }

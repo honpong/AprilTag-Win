@@ -17,7 +17,7 @@ struct load_stream {
         return (current + 4 <= end) ? current : nullptr;
     }
 
-    void Put(Ch) {}; void Flush(); Ch* PutBegin(); size_t PutEnd(Ch*); // Unimplemented
+    void Put(Ch) {}; void Flush(); Ch* PutBegin() { return nullptr; }; size_t PutEnd(Ch*) { return 0; }; // Unimplemented
 
 private:
     size_t (*read)(void *handle, void *buffer, size_t length);

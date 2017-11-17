@@ -344,7 +344,7 @@ public:
         glPopMatrix(); glColor4fv(original_color);
     }
 
-    void render_ui(rs2::frame& depth_frame, rs2::frame& color_frame)
+    void render_ui(const rs2::frame& depth_frame, const rs2::frame& color_frame)
     {
         glClearColor(bkg_blue[0] / 255.0f, bkg_blue[1] / 255.0f, bkg_blue[2] / 255.0f, 1);
 

@@ -19,6 +19,7 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 #include "inc/rs_box_sdk.hpp"
 #include "rs_shapefit.h"
 #include "rs_box_api.h"
+#include "rs_icon.h"
 
 namespace rs2
 {
@@ -168,7 +169,6 @@ int rs2_box_measure_get_boxes(rs2_box_measure * box_measure, rs2_measure_box * b
 }
 HANDLE_EXCEPTIONS_AND_RETURN(-1, box_measure, boxes)
 
-#include "rs_icon.h";
 const char* rs2_measure_get_realsense_icon(int* icon_width, int* icon_height, rs2_format* format, rs2_error ** error) BEGIN_API_CALL
 {
     VALIDATE_NOT_NULL(icon_width);

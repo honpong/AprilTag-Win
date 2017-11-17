@@ -584,7 +584,9 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
                 continue;
 
             // create feature track
-            tracker::feature_track track(f.second.feature, kpd.x(), kpd.y(), 0);
+            tracker::feature_track track(f.second.feature, INFINITY, INFINITY, 0);
+            track.pred_x = kpd.x();
+            track.pred_y = kpd.y();
             tracks.emplace_back(std::move(track), f.second.v);
         }
         map_feature_tracks.emplace_back(neighbor.first, invert(G_Bnow_Bneighbor), std::move(tracks));

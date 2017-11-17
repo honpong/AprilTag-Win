@@ -590,7 +590,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
                 continue;
 
             // create feature track
-            tracks.emplace_back(f.second.feature, kpd.x(), kpd.y(), 0);
+            tracks.emplace_back(f.second.feature, kpd.x(), kpd.y(), 0.0f);
             tracks.back().depth = f.second.depth;
         }
         map_feature_tracks.emplace_back(neighbor.first, invert(G_Bnow_Bneighbor), std::move(tracks));

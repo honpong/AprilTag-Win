@@ -1262,7 +1262,6 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
     if (f->map) {
         for(auto &mft : f->map->map_feature_tracks) {
             map_node &node = f->map->get_node(mft.group_id);
-            if(node.camera_id != camera_id) continue; // Only bring a group if node camera_id matches current camera. DO WE REALLY NEED THIS?
             auto &camera_node_state = *f->s.cameras.children[node.camera_id];
 
             auto space = filter_available_feature_space(f, camera_node_state);

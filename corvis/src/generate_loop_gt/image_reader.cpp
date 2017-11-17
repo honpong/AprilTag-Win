@@ -16,7 +16,7 @@ bool image_reader::create_index(std::function<void(float)> callback) {
         file_.seekg(0, std::ios::end);
         auto file_size = file_.tellg();
         file_.seekg(0, std::ios::beg);
-        return file_size;
+        return static_cast<double>(file_size);
     }();
 
     constexpr int header_size = 16;

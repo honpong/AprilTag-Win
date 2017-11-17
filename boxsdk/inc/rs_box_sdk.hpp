@@ -64,6 +64,7 @@ extern "C"
 #ifdef __cplusplus
 }
 
+#include <cfloat>
 #include <cmath>
 #include <iomanip>
 namespace rs2

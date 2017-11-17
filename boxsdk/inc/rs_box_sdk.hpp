@@ -147,7 +147,7 @@ namespace rs2
 
         typedef std::vector<box> box_vector;
 
-        box_measure(device dev = device()) : _queue(1)
+        box_measure(device dev = device()) : _queue(1), _stream_w(0), _stream_h(0)
         {
             rs2_error* e = nullptr;
 
@@ -158,6 +158,29 @@ namespace rs2
 
             _block->start(_queue);
         }
+
+        config get_camera_config()
+        {
+            if (_camera_name == "Intel RealSense 410") {
+                _stream_w = 1280 / 2; _stream_h = 720 / 2;
+            }
+            else if (_camera_name == "Intel RealSense 415") {
+                _stream_w = 1280 / 2; _stream_h = 720 / 2;
+            }
+            else if (_camera_name == "Intel RealSense SR300") {
+                _stream_w = 640; _stream_h = 480;
+            }
+            else
+                throw std::runtime_error(_camera_name + " not supported by Box SDK!");
+
+            config config;
+            config.enable_stream(RS2_STREAM_DEPTH, 0, _stream_w, _stream_h, RS2_FORMAT_Z16);
+            config.enable_stream(RS2_STREAM_COLOR, 0, _stream_w, _stream_h, RS2_FORMAT_RGB8);
+            return config;
+        }
+
+        int stream_w() const { return _stream_w; }
+        int stream_h() const { return _stream_h; }
 
         box_frameset process(frameset frame)
         {
@@ -170,15 +193,18 @@ namespace rs2
         box_vector get_boxes()
         {
             rs2_error* e = nullptr;
-            int nbox = rs2_box_measure_get_boxes(_box_measure, box, &e);
+            int nbox = rs2_box_measure_get_boxes(_box_measure, _box, &e);
             error::handle(e);
 
-            return box_vector(box, box + nbox);
+            return box_vector(_box, _box + nbox);
         }
 
         bool try_set_depth_scale(device dev) try
         {
             rs2_error* e = nullptr;
+
+            // get the device name
+            _camera_name = dev.get_info(RS2_CAMERA_INFO_NAME);
 
             // Go over the device's sensors
             for (rs2::sensor& sensor : dev.query_sensors())
@@ -209,7 +235,9 @@ namespace rs2
         frame_queue _queue;
 
         rs2_box_measure* _box_measure;
-        rs2_measure_box box[RS2_MEASURE_BOX_MAXCOUNT];
+        rs2_measure_box _box[RS2_MEASURE_BOX_MAXCOUNT];
+        std::string _camera_name;
+        int _stream_w, _stream_h;
     };
 }
 

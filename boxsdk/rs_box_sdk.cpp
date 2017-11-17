@@ -168,14 +168,16 @@ int rs2_box_measure_get_boxes(rs2_box_measure * box_measure, rs2_measure_box * b
 }
 HANDLE_EXCEPTIONS_AND_RETURN(-1, box_measure, boxes)
 
-extern const char* get_realsense_icon(int& icon_width, int& icon_height);
+#include "rs_icon.h";
 const char* rs2_measure_get_realsense_icon(int* icon_width, int* icon_height, rs2_format* format, rs2_error ** error) BEGIN_API_CALL
 {
     VALIDATE_NOT_NULL(icon_width);
     VALIDATE_NOT_NULL(icon_height);
     VALIDATE_NOT_NULL(format);
     
+    *icon_width = get_icon_width(realsense); 
+    *icon_height = get_icon_height(realsense); 
     *format = RS2_FORMAT_BGR8;
-    return get_realsense_icon(*icon_width, *icon_height);
+    return get_icon_data(realsense);
 }
 HANDLE_EXCEPTIONS_AND_RETURN(nullptr, icon_width, icon_height, format)

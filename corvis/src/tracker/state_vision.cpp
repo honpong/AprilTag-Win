@@ -279,9 +279,11 @@ int state_camera::process_tracks(mapper *map, spdlog::logger &log)
                 if ((depth_m > 0) && (mean_error_point <  2*sigma)) // a good 3d point has to be in front of the camera
                 {
                     auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature);
-                    f->x = t.group_tracks[0].x;
-                    f->y = t.group_tracks[0].y;
-                    map->add_triangulated_feature_to_group(ref_group_id, f, depth_m);
+                    std::shared_ptr<log_depth> v = std::make_shared<log_depth>();
+                    v->set_depth_meters(depth_m);
+                    v->initial[0] = t.group_tracks[0].x;
+                    v->initial[1] = t.group_tracks[0].y;
+                    map->add_triangulated_feature_to_group(ref_group_id, f, v);
                 }
                 else
                     log.debug("{}/{}) Reprojection error too large for triangulated point with id: {}", t.feature->id);
@@ -316,10 +318,10 @@ void state_vision::update_map(mapper *map)
             bool good = stdev / f->v->depth() < .05f;
             if (good) {
                 if(f->is_in_map) {
-                    map->set_feature(g->id, f->feature->id, f->v->depth(), variance_meters);
+                    map->set_feature_type(g->id, f->feature->id, feature_type::tracked);
                 } else {
                     auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->feature);
-                    map->add_feature(g->id, feature, f->v->depth(), variance_meters);
+                    map->add_feature(g->id, feature, f->v);
                 }
                 f->is_in_map = true;
             }
@@ -526,8 +528,8 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
     if(map && camera_frame.frame) {
         map->predict_map_features(camera_frame.camera_id, G_Bcurrent_Bnow);
         for(auto &nft : map->map_feature_tracks) {
-            for(auto &t : nft.tracks)
-                feature_tracker->tracks.emplace_back(&t);
+            for(auto &mft : nft.tracks)
+                feature_tracker->tracks.emplace_back(&mft.track);
         }
     }
 
@@ -537,8 +539,8 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
     // sort map tracks according to number of features found
     if(map) {
         for (auto &nft : map->map_feature_tracks)
-            for (auto &t : nft.tracks)
-                nft.found += t.found();
+            for (auto &mft : nft.tracks)
+                nft.found += mft.track.found();
         std::sort(map->map_feature_tracks.begin(), map->map_feature_tracks.end(),
                   [](const mapper::node_feature_track &a, const mapper::node_feature_track &b) {
                       return a.found > b.found;

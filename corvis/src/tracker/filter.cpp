@@ -452,8 +452,6 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
     for(auto i = kp.begin(); i != kp.end() && found_feats < newfeats; found_feats++, i = kp.erase(i)) {
-        std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->x = i->x;
-        std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(i->feature)->y = i->y;
         auto feat = std::make_unique<state_vision_feature>(*i, *g);
         
         float depth_m = i->depth;
@@ -554,11 +552,16 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
 #ifdef RELOCALIZATION_DEBUG
         camera_frame.frame->image = cv::Mat(image.height, image.width, CV_8UC1, (uint8_t*)image.image, image.stride).clone();
 #endif
-        for (auto &p : camera.feature_tracker->tracks)
-            if (std::is_same<DESCRIPTOR, orb_descriptor>::value)
+        for (auto &p : camera.feature_tracker->tracks) {
+            if (std::is_same<DESCRIPTOR, orb_descriptor>::value) {
                 camera_frame.frame->keypoints.emplace_back(std::static_pointer_cast<fast_tracker::fast_feature<orb_descriptor>>(p->feature));
-            else if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, timage.width_px, timage.height_px))
+                camera_frame.frame->keypoints_xy.emplace_back(p->x, p->y);
+            }
+            else if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, timage.width_px, timage.height_px)) {
                 camera_frame.frame->keypoints.emplace_back(std::make_shared<fast_tracker::fast_feature<orb_descriptor>>(p->feature->id, p->x, p->y, timage));
+                camera_frame.frame->keypoints_xy.emplace_back(p->x, p->y);
+            }
+        }
         END_EVENT(SF_ORB, camera_frame.frame->keypoints.size());
 
         START_EVENT(SF_DBOW_TRANSFORM, 0);
@@ -1257,41 +1260,38 @@ std::string filter_get_stats(const struct filter *f)
 void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
 {
     if (f->map) {
-        for(auto &nft : f->map->map_feature_tracks) {
-            map_node &node = f->map->get_node(nft.group_id);
+        for(auto &mft : f->map->map_feature_tracks) {
+            map_node &node = f->map->get_node(mft.group_id);
             if(node.camera_id != camera_id) continue; // Only bring a group if node camera_id matches current camera. DO WE REALLY NEED THIS?
             auto &camera_node_state = *f->s.cameras.children[node.camera_id];
 
             auto space = filter_available_feature_space(f, camera_node_state);
             if(space > f->min_group_map_add) {
-                if(nft.found > f->min_group_map_add) {
-                    auto g = std::make_unique<state_vision_group>(camera_node_state, nft.group_id);
-                    g->Tr.v = nft.G_neighbor_now.T;
-                    g->Qr.v = nft.G_neighbor_now.Q;
+                if(mft.found > f->min_group_map_add) {
+                    auto g = std::make_unique<state_vision_group>(camera_node_state, mft.group_id);
+                    g->Tr.v = mft.G_neighbor_now.T;
+                    g->Qr.v = mft.G_neighbor_now.Q;
                     // g->Tr.set_initial_variance({0.1,0.1,0.1});
                     // g->Qr.set_initial_variance({0.1,0.1,0.1});
                     node.status = node_status::normal;
 
-                    for(auto &ft : nft.tracks) {
-                        auto feat = std::make_unique<state_vision_feature>(ft, *g);
-                        auto ftmp = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(ft.feature);
-                        feat->v->initial[0] = ftmp->x;
-                        feat->v->initial[1] = ftmp->y;
-                        feat->v->set_depth_meters(ft.depth);
-                        float std_pct = get_stdev_pct_for_depth(ft.depth);
+                    for(auto &ft : mft.tracks) {
+                        auto feat = std::make_unique<state_vision_feature>(ft.track, *g);
+                        feat->v = ft.v;
+                        float std_pct = get_stdev_pct_for_depth(feat->v->depth());
                         feat->set_initial_variance(std_pct * std_pct); // assumes log depth
                         feat->depth_measured = true;
 
                         auto &camera_state = *f->s.cameras.children[camera_id];
-                        if(space && ft.found()) {
+                        if(space && ft.track.found()) {
                             --space;
                             feat->status = feature_normal;
-                            camera_state.tracks.push_back(state_vision_track(*feat, ft));
+                            camera_state.tracks.push_back(state_vision_track(*feat, ft.track));
                             g->features.children.push_back(std::move(feat));
                         } else {
                             // if there is no space or feature not found add to feature_lost
                             feat->status = feature_lost;
-                            camera_state.tracks.push_back(state_vision_track(*feat, ft));
+                            camera_state.tracks.push_back(state_vision_track(*feat, ft.track));
                             g->lost_features.push_back(std::move(feat));
                         }
                     }

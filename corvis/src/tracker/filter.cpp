@@ -505,13 +505,10 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
     camera.feature_tracker->tracks.clear();
     int standby_count = camera.standby_tracks.size(),
         detect_count = camera.detecting_space,
-        track_count = camera.track_count(),
-        reloc_count = f->relocalize && update_frame ? 400 : 0;
+        track_count = camera.track_count();
     camera.detecting_space = 0;
 
-    auto froom = std::max(0, detect_count - standby_count);
-    auto space = std::max(froom, reloc_count - track_count);
-
+    auto space = std::max(0, detect_count - standby_count);
     if(!space && !update_frame) return; // FIXME: what min number is worth detecting?
 
     camera.feature_tracker->tracks.reserve(track_count + space);
@@ -534,11 +531,9 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
     END_EVENT(SF_DETECT, kp.size())
 
     // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
-    if (space)
-       camera.standby_tracks.insert(camera.standby_tracks.begin(),
-                                      kp.begin(),
-                                      kp.begin() + std::min<size_t>(froom, kp.size()));
-
+    camera.standby_tracks.insert(camera.standby_tracks.begin(),
+                                 kp.begin(),
+                                 kp.begin() + kp.size());
     for (auto &p : kp)
         camera.feature_tracker->tracks.push_back(&p);
 

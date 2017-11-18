@@ -19,13 +19,19 @@ set_target_properties(vlfeat PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
    add_compile_options(-Wall -Wextra)
-   add_compile_options(-Wdeprecated -Wfloat-equal -Wunreachable-code -Wswitch-enum  -Wunused-macros)
+   add_compile_options(-Wunreachable-code  -Wunused-macros)
+   if(NOT CMAKE_GENERATOR STREQUAL "Xcode")
+      add_compile_options(-Wdeprecated -Wfloat-equal -Wswitch-enum)
+   endif()
    #add_compile_options(-Wweak-vtables -Wcast-align -Wextra-semi -Wdouble-promotion) # noisy, but should be considered in the future
    add_compile_options(-Wno-missing-field-initializers -Wno-unused-parameter) # TODO: components of -Wextra that are not clean yet
 endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang") # not supported by gcc
-   add_compile_options(-Wconditional-uninitialized -Wglobal-constructors -Wcovered-switch-default -Wunreachable-code-break -Wmissing-variable-declarations)
+   add_compile_options(-Wconditional-uninitialized -Wcovered-switch-default -Wunreachable-code-break -Wmissing-variable-declarations)
+   if(NOT CMAKE_GENERATOR STREQUAL "Xcode")
+      add_compile_options(-Wglobal-constructors)
+   endif()
 endif()
 
 file(GLOB TRACKERI_HEADERS tracker/*.h)

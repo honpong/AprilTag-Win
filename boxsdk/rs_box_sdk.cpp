@@ -96,8 +96,8 @@ namespace rs2
                 memcpy(cameras->depth_pose, depth_image_pose.data(), sizeof(float)*depth_image_pose.size());
                 memcpy(cameras->color_pose, color_image_pose.data(), sizeof(float)*color_image_pose.size());
 
-                //status = rs_sf_planefit_draw_planes(box_detector, &_image[BOX_DST_COLOR]);
-                //status = rs_sf_boxfit_draw_boxes(box_detector, &_image[BOX_DST_COLOR]);
+                status = rs_sf_planefit_draw_planes(box_detector, &_image[BOX_DST_COLOR]);
+                status = rs_sf_boxfit_draw_boxes(box_detector, &_image[BOX_DST_COLOR]);
                 //if (status == RS_SF_SUCCESS)
                 {
                     auto output = src.allocate_composite_frame({ output_align_frame, output_color_frame });

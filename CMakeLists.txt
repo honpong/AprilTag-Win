@@ -42,7 +42,8 @@ if(MSVC)
     set(CMAKE_CONFIGURATION_TYPES Release Debug CACHE STRING "" FORCE)
 
     add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
-    #add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    add_compile_options(/sdl)
     add_subdirectory(${LIBRS_DIR}/third-party/glfw)
     list(APPEND LIBRS_LIBS glfw3)
 
@@ -100,5 +101,6 @@ add_subdirectory(src/api)
 add_subdirectory(boxsdk)
 
 if(MSVC)
+    target_compile_options(realsense2 /wd4996 /wd4703) # disable librealsense warnings
     set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT box-app)
 endif()

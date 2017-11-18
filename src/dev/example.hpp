@@ -353,7 +353,7 @@ public:
         draw_motion_data(x, y, z);
     }
 
-    void upload(const void * data, int width, int height, rs_format format, int stride = 0, rs_stream stream = RS_STREAM_ANY)
+    void upload(const void * data, int width, int height, rs2_format format, int stride = 0, rs2_stream stream = RS2_STREAM_ANY)
     {
         // If the frame timestamp has changed since the last time show(...) was called, re-upload the texture
         if(!texture)
@@ -365,36 +365,37 @@ public:
 
         switch(format)
         {
-        case RS_FORMAT_ANY:
+        case RS2_FORMAT_ANY:
         throw std::runtime_error("not a valid format");
-        case RS_FORMAT_Z16:
-        case RS_FORMAT_DISPARITY16:
+        case RS2_FORMAT_Z16:
+        case RS2_FORMAT_DISPARITY16:
             rgb.resize(width * height * 4);
             make_depth_histogram(rgb.data(), reinterpret_cast<const uint16_t *>(data), width, height);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, rgb.data());
             
             break;
-        case RS_FORMAT_XYZ32F:
+        case RS2_FORMAT_XYZ32F:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_FLOAT, data);
             break;
-        case RS_FORMAT_YUYV: // Display YUYV by showing the luminance channel and packing chrominance into ignored alpha channel
+        case RS2_FORMAT_YUYV: // Display YUYV by showing the luminance channel and packing chrominance into ignored alpha channel
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, data);
             break;
-        case RS_FORMAT_RGB8: case RS_FORMAT_BGR8: // Display both RGB and BGR by interpreting them RGB, to show the flipped byte ordering. Obviously, GL_BGR could be used on OpenGL 1.2+
+        case RS2_FORMAT_RGB8: case RS2_FORMAT_BGR8: // Display both RGB and BGR by interpreting them RGB, to show the flipped byte ordering. Obviously, GL_BGR could be used on OpenGL 1.2+
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
             break;
-        case RS_FORMAT_RGBA8: case RS_FORMAT_BGRA8: // Display both RGBA and BGRA by interpreting them RGBA, to show the flipped byte ordering. Obviously, GL_BGRA could be used on OpenGL 1.2+
+        case RS2_FORMAT_RGBA8: case RS2_FORMAT_BGRA8: // Display both RGBA and BGRA by interpreting them RGBA, to show the flipped byte ordering. Obviously, GL_BGRA could be used on OpenGL 1.2+
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
             break;
-        case RS_FORMAT_Y8:
+        case RS2_FORMAT_Y8:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, data);
             break;
-        case RS_FORMAT_MOTION_DATA:
+#if 0
+        case RS2_FORMAT_MOTION_DATA:
             switch (stream) {
-            case RS_STREAM_GYRO:
+            case RS2_STREAM_GYRO:
                 draw_gyro_texture(data);
                 break;
-            case RS_STREAM_ACCEL:
+            case RS2_STREAM_ACCEL:
                 draw_accel_texture(data);
                 break;
             default:
@@ -402,13 +403,14 @@ public:
                 break;
             }
             break;
-        case RS_FORMAT_Y16:
+#endif
+        case RS2_FORMAT_Y16:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_SHORT, data);
             break;
-        case RS_FORMAT_RAW8:
+        case RS2_FORMAT_RAW8:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_LUMINANCE, width, height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, data);
             break;
-        case RS_FORMAT_RAW10:
+        case RS2_FORMAT_RAW10:
             {
                 // Visualize Raw10 by performing a naive downsample. Each 2x2 block contains one red pixel, two green pixels, and one blue pixel, so combine them into a single RGB triple.
                 rgb.clear(); rgb.resize(width/2 * height/2 * 3);

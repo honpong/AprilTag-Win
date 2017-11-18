@@ -64,7 +64,7 @@ protected:
     struct state_vn {
         vn state[3], obse[3], pred[3], resi[3];
         state_vn(const vn& init) {
-            for (int i = 0; i < sizeof(state) / sizeof(vn); ++i)
+            for (int i = 0; i < 3; ++i)
                 state[i] = obse[i] = pred[i] = resi[i].setZero();
             state[0] = obse[0] = init;
         }

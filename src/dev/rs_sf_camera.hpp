@@ -3,17 +3,17 @@
 #ifndef rs_sf_camera_hpp
 #define rs_sf_camera_hpp
 
-#include <../../thirdparty/LibRealSense/librealsense/include/librealsense/rs.h>
+#include "librealsense2/rs.hpp"
 #include "rs_shapefit.h"
 
-const static auto RS_SF_STREAM_DEPTH = RS_STREAM_DEPTH;
-const static auto RS_SF_STREAM_COLOR = RS_STREAM_COLOR;
-const static auto RS_SF_STREAM_INFRARED = RS_STREAM_INFRARED;
-const static auto RS_SF_STREAM_COUNT = RS_STREAM_COUNT;
-const static auto RS_SF_FORMAT_Z16 = RS_FORMAT_Z16;
-const static auto RS_SF_FORMAT_Y8 = RS_FORMAT_Y8;
-const static auto RS_SF_FORMAT_RGB8 = RS_FORMAT_RGB8;
-const static auto RS_SF_FORMAT_BGR8 = RS_FORMAT_BGR8;
+const static auto RS_SF_STREAM_DEPTH = RS2_STREAM_DEPTH;
+const static auto RS_SF_STREAM_COLOR = RS2_STREAM_COLOR;
+const static auto RS_SF_STREAM_INFRARED = RS2_STREAM_INFRARED;
+const static auto RS_SF_STREAM_COUNT = RS2_STREAM_COUNT;
+const static auto RS_SF_FORMAT_Z16 = RS2_FORMAT_Z16;
+const static auto RS_SF_FORMAT_Y8 = RS2_FORMAT_Y8;
+const static auto RS_SF_FORMAT_RGB8 = RS2_FORMAT_RGB8;
+const static auto RS_SF_FORMAT_BGR8 = RS2_FORMAT_BGR8;
 
 struct rs_sf_image_stream
 {

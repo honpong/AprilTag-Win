@@ -83,7 +83,9 @@ int main(int argc, char* argv[])
         auto box = boxscan.get_boxes();
 
         app.render_ui(color_map(frameset.get_depth_frame()), frameset.get_color_frame());
-        
+        app.render_ui(box_frame[1], frameset.get_color_frame());
+
+
         if (box.size())
         {
             std::string box_msg = "   Box 1 : " + box[0].str();

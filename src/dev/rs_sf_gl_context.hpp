@@ -45,7 +45,7 @@ struct rs_sf_gl_context
             auto tile_w = static_cast<float>(w) / tiles;
             auto tile_h = static_cast<float>(h) / (num_images <= 2 ? 1 : tiles);
 
-            rs_format stream_format[] = { RS_FORMAT_RAW8, RS_FORMAT_Z16, RS_FORMAT_RGB8 };
+            rs2_format stream_format[] = { RS2_FORMAT_RAW8, RS2_FORMAT_Z16, RS2_FORMAT_RGB8 };
             for (int index = 0; index < num_images; ++index)
             {
                 auto col_id = index / tiles;

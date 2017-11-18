@@ -9,7 +9,7 @@ struct rs_sf_camera_stream : rs_sf_image_stream
 };
 #else
 
-#include <../../thirdparty/LibRealSense/librealsense/include/librealsense/rsutil.hpp>
+#include <librealsense/rsutil.h>
 struct rs_sf_camera_stream : rs_sf_image_stream
 {
     rs_sf_camera_stream(int w, int h) : image{}, curr_depth(w*h * 2), prev_depth(w*h * 2)

@@ -1,0 +1,7 @@
+include(FindPackageHandleStandardArgs)
+set(EIGEN3_DIR ${CMAKE_CURRENT_LIST_DIR}/../src/thirdparty/eigen)
+find_package_handle_standard_args(Eigen3 DEFAULT_MSG EIGEN3_DIR)
+if (NOT TARGET Eigen3::Eigen)
+  add_library(Eigen3::Eigen INTERFACE IMPORTED)
+  set_target_properties(Eigen3::Eigen PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${EIGEN3_DIR})
+endif()

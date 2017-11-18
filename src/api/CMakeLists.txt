@@ -14,8 +14,9 @@ endif()
 project(${PROJECT_NAME})
 
 #############################################################################################
-SET(THIRDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty)
-SET(EIGEN_DIR ${THIRDPARTY_DIR}/eigen)
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../cmake)
+find_package(Eigen3 REQUIRED)
+
 SET(ALGO_CORE_HDR_DIR ${CMAKE_CURRENT_SOURCE_DIR}/inc CACHE STRING "")
 SET(OpenCV_STATIC ON)
 find_package(OPENCV QUIET)
@@ -24,11 +25,6 @@ if(OPENCV_FOUND OR OpenCV_FOUND)
 endif()
 
 #############################################################################################
-include_directories(
-    ${OPENCV_INCLUDE_DIR} 
-    ${EIGEN_DIR} 
-    ${CMAKE_CURRENT_SOURCE_DIR}/inc)
-    
 FILE(GLOB ALGO_CORE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB ALGO_CORE_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp" "${ALGO_CORE_HDR_DIR}/*")
 if(BUILD_SHARED_LIB_ALGO)
@@ -43,4 +39,4 @@ endif()
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 set_target_properties (${PROJECT_NAME} PROPERTIES FOLDER Library)
 target_include_directories(${PROJECT_NAME} PUBLIC inc)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
+target_link_libraries(${PROJECT_NAME} PRIVATE ${OpenCV_LIBS} Eigen3::Eigen)

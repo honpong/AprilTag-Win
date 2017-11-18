@@ -16,8 +16,11 @@ endif()
 
 #######################################################################
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
+
 set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/LibRealSense/librealsense)
 
+find_package(Eigen3 REQUIRED)
 find_package(OpenGL REQUIRED)
 set(LIBRS_LIBS realsense2 ${OPENGL_LIBRARIES})
 

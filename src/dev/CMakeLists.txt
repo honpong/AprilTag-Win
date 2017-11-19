@@ -4,11 +4,6 @@ project(shapefit-dev)
 
 ############################################################################################################
 SET(THIRDPARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../thirdparty)
-#SET(LIBREALSENSE_VER "v2.3.3")
-#SET(LIBREALSENSE_DIR ${THIRDPARTY_DIR}/LibRealSense/Windows/${LIBREALSENSE_VER})
-#SET(LIBREALSENSE_BIN_PATH ${LIBREALSENSE_DIR}/bin/${CMAKE_VS_PLATFORM_NAME})
-#SET(LIBREALSENSE_LIB_PATH ${LIBREALSENSE_DIR}/lib/${CMAKE_VS_PLATFORM_NAME})
-#SET(LIBREALSENSE_LIB realsense)
 SET(JSON_SRC_DIR ${THIRDPARTY_DIR}/Json/src)
 SET(JSON_INC_DIR ${THIRDPARTY_DIR}/Json/include)
 SET(JSON_SRC "${JSON_SRC_DIR}/jsoncpp.cpp")
@@ -23,8 +18,8 @@ add_executable(shapefit-dev
 	${SHAPEFIT_DEV_HDR}
     ${JSON_SRC})
 set_property(TARGET shapefit-dev PROPERTY CXX_STANDARD 14)
-target_link_libraries(shapefit-dev ${SHAPEFIT_DEV_DEPENDENCIES})
-target_include_directories(shapefit-dev PRIVATE ${SHAPEFIT_DEV_DEPENDENCIES})
+target_link_libraries(shapefit-dev shapefit-core ${LIBRS_LIBS})
+target_include_directories(shapefit-dev PRIVATE shapefit-core ${LIBRS_LIBS})
 
 IF(WIN32)
 	add_custom_command(TARGET shapefit-dev POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:shapefit-core>" "$<TARGET_FILE_DIR:shapefit-dev>")

@@ -51,7 +51,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
     set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/LibRealSense/librealsense)
     
     find_package(OpenGL REQUIRED)
-    set(SHAPEFIT_DEV_DEPENDENCIES shapefit-core realsense2 ${OPENGL_LIBRARIES})
+    set(LIBRS_LIBS realsense2 ${OPENGL_LIBRARIES})
 
     set(BUILD_EXAMPLES           OFF CACHE BOOL "" FORCE)
     set(BUILD_GRAPHICAL_EXAMPLES OFF CACHE BOOL "" FORCE)
@@ -60,7 +60,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
     
     if(WIN32)
         add_subdirectory(thirdparty/glfw)
-        list(APPEND SHAPEFIT_DEV_DEPENDENCIES glfw3)
+        list(APPEND LIBRS_LIBS glfw3)
     else()
         if(APPLE)
             add_definitions(-DAPPLE)
@@ -78,7 +78,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
             include_directories(SYSTEM ${LIBUSB1_INCLUDE_DIRS})
             link_directories(${LIBUSB1_LIBRARY_DIRS})
         else()
-            message( FATAL_ERROR "Failed to find libusb-1.0" )
+            message(FATAL_ERROR "Failed to find libusb-1.0" )
         endif(LIBUSB1_FOUND)
 
         # Find glfw header
@@ -102,7 +102,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
                     /usr/X11R6/lib
         )
 
-        list(APPEND SHAPEFIT_DEV_DEPENDENCIES m ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES})
+        list(APPEND LIBRS_LIBS m ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES})
         include_directories(${GLFW_INCLUDE_DIR})
     endif()
     

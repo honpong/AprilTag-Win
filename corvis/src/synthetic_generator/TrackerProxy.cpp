@@ -74,7 +74,7 @@ int TrackerProxy::ReadCalibrationFile(std::string inputFile, std::string * const
         m_ain.push_back(rca);
     }
 
-    memset(&rce, 0, sizeof(rc_Extrinsics));
+    rce = {};
     for (i = 0, j = 0; rc_describeGyroscope(m_spTracker.get(), i, &rce, &rcg); i++) 
     {
         if (!rc_configureGyroscope(m_spTracker.get(), j++, &rce, &rcg))
@@ -86,7 +86,7 @@ int TrackerProxy::ReadCalibrationFile(std::string inputFile, std::string * const
         m_win.push_back(rcg);
     }
 
-    memset(&rce, 0, sizeof(rc_Extrinsics));
+    rce = {};
     for (i = 0, j = 0; rc_describeThermometer(m_spTracker.get(), i, &rce, &rct); i++) 
     {
         if (!rc_configureThermometer(m_spTracker.get(), j++, &rce, &rct))
@@ -115,8 +115,7 @@ int TrackerProxy::DescribeCameraHelper(rc_ImageFormat format)
     int i = 0;
     int j = 0;
     rc_Extrinsics rce = {};
-    rc_CameraIntrinsics rcc;
-    memset(&rcc, 0, sizeof(rc_CameraIntrinsics));
+    rc_CameraIntrinsics rcc = {};
 
     for (i = 0, j = 0; rc_describeCamera(m_spTracker.get(), i, format, &rce, &rcc); i++)
     {

@@ -3,7 +3,11 @@ cmake_minimum_required(VERSION 3.5)
 project(SyntheticDataGenerator) 
 
 SET(VTK_MIN_VERSION "7.1.1") 
-find_package(VTK REQUIRED) 
+find_package(VTK QUIET)
+if (NOT VTK_FOUND)
+    message(STATUS "VTK not found; disabling ${PROJECT_NAME}")
+    return()
+endif()
 find_package(OpenCV REQUIRED COMPONENTS 
     core 
     imgproc 

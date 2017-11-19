@@ -404,7 +404,7 @@ void FOVCapturer::InitializeCapturer()
     spInputFisheyeFOV->SetValue((2 * std::atan(InputFisheyeResolution.width / (2 * spInputFisheyeFocalLength->GetValue()[0])) * 180 / M_PI), (2 * std::atan(InputFisheyeResolution.height / (2 * spInputFisheyeFocalLength->GetValue()[1])) * 180 / M_PI));
 }
 
-void CreateCameraInterpolator(const char* const filename, double viewAngle, vtkSmartPointer<vtkCameraInterpolator>* const spCamerainterp)
+void CreateCameraInterpolator(const char* const filename, double viewAngle, vtkSmartPointer<vtkCameraInterpolator>* const spCamerainterp, std::vector<double>* const pTimes)
 {
     *spCamerainterp = vtkSmartPointer<vtkCameraInterpolator>::New();
     (*spCamerainterp)->SetInterpolationTypeToSpline();
@@ -442,6 +442,7 @@ void CreateCameraInterpolator(const char* const filename, double viewAngle, vtkS
             spCamera->SetViewUp(params[6], params[7], params[8]);
             spCamera->SetViewAngle(viewAngle);
             (*spCamerainterp)->AddCamera(time, spCamera);
+            (*pTimes).push_back(time);
         }
     }
     else

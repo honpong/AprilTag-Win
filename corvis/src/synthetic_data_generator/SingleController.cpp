@@ -366,7 +366,7 @@ unsigned int CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::s
         {
             const auto&& pRenderer = m_spRendererCollection->GetNextItem();
 
-            for (unsigned int i = 0; i < m_spActorCollection.size(); ++i)
+            for (uint64_t i = 0; i < static_cast<uint64_t>(m_spActorCollection.size()); ++i)
             {
                 vtkSmartPointer<vtkPolyDataMapper> spMapperSphere = vtkSmartPointer<vtkPolyDataMapper>::New();
                 vtkSmartPointer<vtkPolyDataMapper> spMapperLED = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -491,7 +491,7 @@ void CBannerSimpleScenario::AddControllerInWindow(vtkSmartPointer<vtkCoordinate>
         {
             const auto&& pRenderer = m_spRendererCollection->GetNextItem();
 
-            for (unsigned int j = 0; j < m_spActorCollection.size(); ++j)
+            for (uint64_t j = 0; j < static_cast<uint64_t>(m_spActorCollection.size()); ++j)
             {
                 vtkSmartPointer<vtkPolyDataMapper> spMapperSphere = vtkSmartPointer<vtkPolyDataMapper>::New();
                 vtkSmartPointer<vtkPolyDataMapper> spMapperLED = vtkSmartPointer<vtkPolyDataMapper>::New();
@@ -539,7 +539,6 @@ void CBannerSimpleScenario::GenerateInterpolations(std::string ControllerAnimati
         controllerAnimationRead(ControllerAnimationFile.c_str(), &m_controllerAnimationSize.back(), &AnimationFile);
         m_controllerAnim.push_back(AnimationFile);
 
-        //for (int i = 0; i < m_controllerAnimationSize.size();++i)
         {
             char controllerAnimFileName[1024] = { 0 };
             if (0 > snprintf(controllerAnimFileName, sizeof(controllerAnimFileName), "%scontrollerAnim%d.txt", m_szDirectoryName.c_str(), static_cast<int>(m_controllerAnimationSize.size() - 1)))
@@ -584,9 +583,10 @@ void CBannerSimpleScenario::CreateTimerWindowCallback()
 {
     if (!m_spTimerInput)
     {
+        std::vector<double> Times;
         m_spCamerainterp.push_back(vtkSmartPointer<vtkCameraInterpolator>::New());
-        CreateCameraInterpolator(m_args["--animation"].c_str(), m_spColorCapturer->spColorFOV->GetValue()[1], &m_spCamerainterp.back());
-        m_spTimerInput = std::make_shared<TimerInput>(&m_frameIndex, m_spActorCollection, m_NumberOfFrames, m_spTransformInterpolatorCollection, &m_isControllerAnimated, m_spCapturers, m_spColorWindow,
+        CreateCameraInterpolator(m_args["--animation"].c_str(), m_spColorCapturer->spColorFOV->GetValue()[1], &m_spCamerainterp.back(),&Times);
+        m_spTimerInput = std::make_shared<TimerInput>(m_args,Times, &m_frameIndex, m_spActorCollection, m_NumberOfFrames, m_spTransformInterpolatorCollection, &m_isControllerAnimated, m_spCapturers, m_spColorWindow,
             m_spDepthWindow, m_spLFisheyeWindow, m_spRFisheyeWindow, m_spCamerainterp, &(m_spInteractors[0]));
     }
     m_spTimerWindowCallback = vtkSmartPointer<TimerWindowCallback>::New();

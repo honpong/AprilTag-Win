@@ -18,7 +18,7 @@ struct CFakeImgCapturer;
 
 struct TimerInput
 {
-    TimerInput(int * const pFrameIndex, std::vector<vtkSmartPointer<vtkActorCollection>> spActorCollection, unsigned int NumberFrames, std::vector<vtkSmartPointer<vtkTransformInterpolator>> TransformInterpolators, bool* isControllerAnimated, std::vector<std::shared_ptr<CFakeImgCapturer>> spCapturers, std::shared_ptr<CSimulatedWindow> pColorWindow, std::shared_ptr<CSimulatedWindow> pDepthWindow, std::shared_ptr<CSimulatedWindow> pLFisheyeWindow, std::shared_ptr<CSimulatedWindow> pRFisheyeWindow, std::vector<vtkSmartPointer<vtkCameraInterpolator>> spCamerainterp, vtkSmartPointer<vtkRenderWindowInteractor> * pInteractor);
+    TimerInput(std::map<std::string, std::string> args, std::vector<double> times, int * const pFrameIndex, std::vector<vtkSmartPointer<vtkActorCollection>> spActorCollection, unsigned int NumberFrames, std::vector<vtkSmartPointer<vtkTransformInterpolator>> TransformInterpolators, bool* isControllerAnimated, std::vector<std::shared_ptr<CFakeImgCapturer>> spCapturers, std::shared_ptr<CSimulatedWindow> pColorWindow, std::shared_ptr<CSimulatedWindow> pDepthWindow, std::shared_ptr<CSimulatedWindow> pLFisheyeWindow, std::shared_ptr<CSimulatedWindow> pRFisheyeWindow, std::vector<vtkSmartPointer<vtkCameraInterpolator>> spCamerainterp, vtkSmartPointer<vtkRenderWindowInteractor> * pInteractor);
     std::shared_ptr<CSimulatedWindow> m_pColorWindowTimer;
     std::shared_ptr<CSimulatedWindow> m_pDepthWindowTimer;
     std::shared_ptr<CSimulatedWindow> m_pLFisheyeWindowTimer;
@@ -33,6 +33,8 @@ struct TimerInput
     double m_Max;
     double m_Min;
     int * const m_pFrameIndex;
+    std::map<std::string, std::string> m_args;
+    std::vector<double> m_times;
 };
 
 class StartCallback : public vtkCommand

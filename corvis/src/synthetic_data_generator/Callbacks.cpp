@@ -38,7 +38,7 @@ void StartCallback::Execute(vtkObject*, unsigned long, void*)
     {
         if(m_mutex.try_lock())
         {
-            for (int i = 0; i < m_spInput->m_spActorSpheres.size(); ++i)
+            for (uint64_t i = 0; i < static_cast<uint64_t>((m_spInput->m_spActorSpheres).size()); ++i)
             {
                 vtkSmartPointer<vtkMatrix4x4> spM = vtkSmartPointer<vtkMatrix4x4>::New();
                 m_spInput->m_spActorSpheres[i]->GetMatrix(spM);
@@ -302,8 +302,8 @@ void TimerWindowCallback::SetInput(const std::shared_ptr<TimerInput>& spInput)
     m_spInputTimer = spInput;
 }
 
-TimerInput::TimerInput(int * const pFrameIndex, std::vector<vtkSmartPointer<vtkActorCollection>> spActorCollection, unsigned int NumberFrames, std::vector<vtkSmartPointer<vtkTransformInterpolator>>  spTransformInterpolator, bool* isControllerAnimated, std::vector<std::shared_ptr<CFakeImgCapturer>> spCap, std::shared_ptr<CSimulatedWindow> pColorWindow, std::shared_ptr<CSimulatedWindow> pDepthWindow, std::shared_ptr<CSimulatedWindow> pLFisheyeWindow, std::shared_ptr<CSimulatedWindow> pRFisheyeWindow, std::vector<vtkSmartPointer<vtkCameraInterpolator>> spCamerainterp, vtkSmartPointer<vtkRenderWindowInteractor> * pInteractor) :
-    m_pFrameIndex(pFrameIndex), m_spActorCollection(spActorCollection), m_TotalNumberFrames(NumberFrames), m_pColorWindowTimer(pColorWindow), m_pDepthWindowTimer(pDepthWindow), m_pLFisheyeWindowTimer(pLFisheyeWindow), m_pRFisheyeWindowTimer(pRFisheyeWindow), m_spCamerainterpTimer(spCamerainterp), m_spCapturersTimer(spCap), m_pIsControllerAnimatedTimer(isControllerAnimated), m_spTransformInterpolatorCollection(spTransformInterpolator), m_spInteractorTimer(pInteractor)
+TimerInput::TimerInput(std::map<std::string, std::string> args, std::vector<double> times, int * const pFrameIndex, std::vector<vtkSmartPointer<vtkActorCollection>> spActorCollection, unsigned int NumberFrames, std::vector<vtkSmartPointer<vtkTransformInterpolator>>  spTransformInterpolator, bool* isControllerAnimated, std::vector<std::shared_ptr<CFakeImgCapturer>> spCap, std::shared_ptr<CSimulatedWindow> pColorWindow, std::shared_ptr<CSimulatedWindow> pDepthWindow, std::shared_ptr<CSimulatedWindow> pLFisheyeWindow, std::shared_ptr<CSimulatedWindow> pRFisheyeWindow, std::vector<vtkSmartPointer<vtkCameraInterpolator>> spCamerainterp, vtkSmartPointer<vtkRenderWindowInteractor> * pInteractor) :
+    m_pFrameIndex(pFrameIndex), m_spActorCollection(spActorCollection), m_TotalNumberFrames(NumberFrames), m_pColorWindowTimer(pColorWindow), m_pDepthWindowTimer(pDepthWindow), m_pLFisheyeWindowTimer(pLFisheyeWindow), m_pRFisheyeWindowTimer(pRFisheyeWindow), m_spCamerainterpTimer(spCamerainterp), m_spCapturersTimer(spCap), m_pIsControllerAnimatedTimer(isControllerAnimated), m_spTransformInterpolatorCollection(spTransformInterpolator), m_spInteractorTimer(pInteractor), m_args(args), m_times(times)
 {
     m_Max = VTK_DOUBLE_MIN;
     m_Min = VTK_DOUBLE_MAX;
@@ -373,7 +373,20 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
             {
                 for (const auto& i : m_spInputTimer->m_spCamerainterpTimer)
                 {
-                    i->InterpolateCamera(i->GetMinimumT() + (*m_spInputTimer->m_pFrameIndex * (i->GetMaximumT() - i->GetMinimumT()) / m_spInputTimer->m_TotalNumberFrames), pColorWindow->m_spRenderer->GetActiveCamera());
+                    if (m_spInputTimer->m_args.end() == m_spInputTimer->m_args.find("--nointerpolation"))
+                    {
+                        i->InterpolateCamera(i->GetMinimumT() + (*m_spInputTimer->m_pFrameIndex * (i->GetMaximumT() - i->GetMinimumT()) / m_spInputTimer->m_TotalNumberFrames), pColorWindow->m_spRenderer->GetActiveCamera());
+                    }
+                    else if(m_spInputTimer->m_args.end() != m_spInputTimer->m_args.find("--nointerpolation") && *m_spInputTimer->m_pFrameIndex >= 0 && *m_spInputTimer->m_pFrameIndex < static_cast<int>(m_spInputTimer->m_times.size()))
+                    {
+                        i->InterpolateCamera((m_spInputTimer->m_times)[*m_spInputTimer->m_pFrameIndex], pColorWindow->m_spRenderer->GetActiveCamera());
+                    }
+                    else if (m_spInputTimer->m_args.end() != m_spInputTimer->m_args.find("--nointerpolation") && *m_spInputTimer->m_pFrameIndex >= static_cast<int>(m_spInputTimer->m_times.size()))
+                    {
+                        std::cout << "Exiting application." << std::endl;
+                        (*(m_spInputTimer->m_spInteractorTimer))->TerminateApp();
+                        goto END;
+                    }
                 }
 
                 // get color wTc transform
@@ -514,7 +527,7 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
 
                 if (*m_spInputTimer->m_pIsControllerAnimatedTimer)
                 {
-                    for (unsigned int i = 0; i < (m_spInputTimer->m_spTransformInterpolatorCollection).size(); ++i)
+                    for (uint64_t i = 0; i < static_cast<uint64_t>((m_spInputTimer->m_spTransformInterpolatorCollection).size()); ++i)
                     {
                         auto & pInterpolator = m_spInputTimer->m_spTransformInterpolatorCollection[i];
                         vtkSmartPointer<vtkTransform> spXform = vtkSmartPointer<vtkTransform>::New();
@@ -532,6 +545,7 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
             }
             else if (*m_spInputTimer->m_pFrameIndex >= (m_spInputTimer->m_TotalNumberFrames - 1))
             {
+                std::cout << "Exiting application." << std::endl;
                 (*(m_spInputTimer->m_spInteractorTimer))->TerminateApp();
                 goto END;
             }

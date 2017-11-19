@@ -9,7 +9,8 @@ struct rs_sf_camera_stream : rs_sf_image_stream
 };
 #else
 
-#include <librealsense/rsutil.h>
+#include <librealsense2/rsutil.h>
+#include <iostream>
 struct rs_sf_camera_stream : rs_sf_image_stream
 {
     rs_sf_camera_stream(int w, int h) : image{}, curr_depth(w*h * 2), prev_depth(w*h * 2)
@@ -22,32 +23,32 @@ struct rs_sf_camera_stream : rs_sf_image_stream
 			config.enable_stream(RS_SF_STREAM_DEPTH, w, h, 30, RS_SF_FORMAT_Z16);
 			config.enable_stream(RS_SF_STREAM_INFRARED, w, h, 30, RS_SF_FORMAT_Y8);
 
-			stream = config.open(device);
-			intrinsics = stream.get_intrinsics(RS_SF_STREAM_DEPTH);
+            auto pprofile = pipe.start(config);
+            intrinsics = pprofile.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>().get_intrinsics();
 
-			stream.start(syncer);
-			device.set_option(RS_OPTION_EMITTER_ENABLED, 1);
+			//device.set_option(RS_OPTION_EMITTER_ENABLED, 1);
 			//device.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
 		}
-		catch (const rs::error & e) { print(e); }
+		catch (const rs2::error & e) { print(e); }
 	}
 
     virtual rs_sf_intrinsics* get_intrinsics() override { return (rs_sf_intrinsics*)&intrinsics; }
 
     virtual rs_sf_image* get_images() override try
     {
-        for (auto frames = syncer.wait_for_frames();; frames = syncer.wait_for_frames())
+        for (auto frames = pipe.wait_for_frames();; frames = pipe.wait_for_frames())
         {
             for (auto&& f : frames) {
-                auto& img = image[f.get_stream_type()];
+                auto stream_type = f.get_profile().stream_type();
+                auto& img = image[stream_type];
                 img = {};
                 img.data = (unsigned char*)f.get_data();
-                img.img_h = f.get_height();
-                img.img_w = f.get_width();
+                img.img_h = f.as<rs2::video_frame>().get_height();
+                img.img_w = f.as<rs2::video_frame>().get_width();
                 img.frame_id = f.get_frame_number();
-                img.byte_per_pixel = stream_to_byte_per_pixel[f.get_stream_type()];
+                img.byte_per_pixel = stream_to_byte_per_pixel[stream_type];
 
-                if (f.get_stream_type() == RS_SF_STREAM_DEPTH) {
+                if (stream_type == RS_SF_STREAM_DEPTH) {
                     std::swap(curr_depth, prev_depth);
                     rs_sf_memcpy(curr_depth.data(), img.data, img.num_char());
                     img.data = prev_depth.data();
@@ -57,7 +58,7 @@ struct rs_sf_camera_stream : rs_sf_image_stream
             if (frames.size() == 0) return nullptr;
         }
     }
-	catch (const rs::error & e) { print(e);	return nullptr; }
+	catch (const rs2::error & e) { print(e);	return nullptr; }
 	
 protected:
     rs_sf_image image[RS_SF_STREAM_COUNT];
@@ -65,14 +66,14 @@ protected:
     std::vector<unsigned char> curr_depth, prev_depth;
 
 private:
-    rs::context ctx;
-    rs::device device;
-    rs::util::syncer syncer;
-    rs::util::config config;
-    rs_intrinsics intrinsics;
-    rs::util::Config<>::multistream stream;
+    rs2::context ctx;
+    rs2::device device;
+    rs2::pipeline pipe;
+    rs2::config config;
+    rs2_intrinsics intrinsics;
 
-	void print(const rs::error& e) {
+
+	void print(const rs2::error& e) {
 		std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
 	}
 };

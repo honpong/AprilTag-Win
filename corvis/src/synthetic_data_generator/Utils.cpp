@@ -14,7 +14,7 @@ inline double getFOV(double imageDimension, double focalLength)
 void MapVectorFromWorldToCamera(const double v[3], double r[3], const vtkSmartPointer<vtkMatrix3x3>& spPosition)
 {
     const unsigned int uSize = 3;
-    double temp[uSize][uSize] = { 0 };
+    double temp[uSize][uSize] = {};
     int k = 0;
     for (int i = 0; i < uSize; ++i)
     {

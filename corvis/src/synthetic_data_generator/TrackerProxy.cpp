@@ -41,10 +41,10 @@ int TrackerProxy::ReadCalibrationFile(std::string inputFile, std::string * const
     int j = 0;
     std::string contents;
     const char *pJson = nullptr;
-    rc_Extrinsics rce = { 0 };
-    rc_AccelerometerIntrinsics rca = { 0 };
-    rc_GyroscopeIntrinsics rcg = { 0 };
-    rc_ThermometerIntrinsics rct = { 0 };
+    rc_Extrinsics rce = {};
+    rc_AccelerometerIntrinsics rca = {};
+    rc_GyroscopeIntrinsics rcg = {};
+    rc_ThermometerIntrinsics rct = {};
 
     ReadFile(inputFile, &contents);
     if (!rc_setCalibration(m_spTracker.get(), contents.c_str()))
@@ -114,7 +114,7 @@ int TrackerProxy::DescribeCameraHelper(rc_ImageFormat format)
     int res = 0;
     int i = 0;
     int j = 0;
-    rc_Extrinsics rce = { 0 };
+    rc_Extrinsics rce = {};
     rc_CameraIntrinsics rcc;
     memset(&rcc, 0, sizeof(rc_CameraIntrinsics));
 

@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <ctime>
 #include <chrono>
-#include <mutex>          
+#include <mutex>
 #include "Common.h"
 
 class CSimulatedWindow;
@@ -24,7 +24,7 @@ struct TimerInput
     std::shared_ptr<CSimulatedWindow> m_pLFisheyeWindowTimer;
     std::shared_ptr<CSimulatedWindow> m_pRFisheyeWindowTimer;
     std::vector<vtkSmartPointer<vtkCameraInterpolator>> m_spCamerainterpTimer;
-    std::vector<std::shared_ptr<CFakeImgCapturer>> m_spCapturersTimer; 
+    std::vector<std::shared_ptr<CFakeImgCapturer>> m_spCapturersTimer;
     bool* const m_pIsControllerAnimatedTimer;
     std::vector<vtkSmartPointer<vtkTransformInterpolator>> m_spTransformInterpolatorCollection;
     int m_TotalNumberFrames;

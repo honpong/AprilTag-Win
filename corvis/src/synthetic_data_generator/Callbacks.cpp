@@ -32,7 +32,7 @@ double ColorWindowStartCallback::GetLastProcessedFrame() const
     return lastProcessedFrame;
 }
 
-void StartCallback::Execute(vtkObject*, unsigned long, void*) 
+void StartCallback::Execute(vtkObject*, unsigned long, void*)
 {
     if (m_spInput && *(m_spInput->m_pframeIndex) > lastProcessedFrame && 0 <= *(m_spInput->m_pframeIndex) && *(m_spInput->m_pIsControlleranimated))
     {
@@ -791,7 +791,7 @@ void LFisheyeWindowEndCallback::Execute(vtkObject*  pCaller, unsigned long event
                 ffd[i + 1] = pFisheyePix[i + 1];
                 ffd[i + 2] = pFisheyePix[i + 2];
                 ffd[i + 3] = pFisheyePix[i + 3];
-            } 
+            }
             m_spLFisheyeCapturer->addDistortion(ffd.get(), dims, *(m_spInput->m_pframeIndex), LFISHEYE_FILE_PATH.c_str(), m_spInput->m_szDirectoryName);
             char fileName[1024U] = { 0 };
             if (0 > snprintf(fileName, sizeof(fileName), LFISHEYE_RELATIVE_PATH, *(m_spInput->m_pframeIndex)))

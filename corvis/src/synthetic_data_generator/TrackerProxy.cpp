@@ -48,7 +48,7 @@ int TrackerProxy::ReadCalibrationFile(std::string inputFile, std::string * const
 
     ReadFile(inputFile, &contents);
     if (!rc_setCalibration(m_spTracker.get(), contents.c_str()))
-    { 
+    {
         std::cout << "rc_setCalibration failed." << std::endl;
         goto END;
     }
@@ -64,7 +64,7 @@ int TrackerProxy::ReadCalibrationFile(std::string inputFile, std::string * const
     }
 
     for (i = 0, j = 0; rc_describeAccelerometer(m_spTracker.get(), i, &rce, &rca); i++)
-    { 
+    {
         if (!rc_configureAccelerometer(m_spTracker.get(), j++, &rce, &rca))
         {
             std::cout << "rc_configureAccelerometer failed. i:" << i << ".j:" << j << std::endl;
@@ -76,7 +76,7 @@ int TrackerProxy::ReadCalibrationFile(std::string inputFile, std::string * const
 
     memset(&rce, 0, sizeof(rc_Extrinsics));
     for (i = 0, j = 0; rc_describeGyroscope(m_spTracker.get(), i, &rce, &rcg); i++) 
-    { 
+    {
         if (!rc_configureGyroscope(m_spTracker.get(), j++, &rce, &rcg))
         {
             std::cout << "rc_configureGyroscope failed. i:" << i << ".j:" << j << std::endl;
@@ -88,7 +88,7 @@ int TrackerProxy::ReadCalibrationFile(std::string inputFile, std::string * const
 
     memset(&rce, 0, sizeof(rc_Extrinsics));
     for (i = 0, j = 0; rc_describeThermometer(m_spTracker.get(), i, &rce, &rct); i++) 
-    { 
+    {
         if (!rc_configureThermometer(m_spTracker.get(), j++, &rce, &rct))
         {
             std::cout << "rc_configureThermometer failed. i:" << i << ".j:" << j << std::endl;
@@ -98,9 +98,9 @@ int TrackerProxy::ReadCalibrationFile(std::string inputFile, std::string * const
         m_tin.push_back(rct);
     }
 
-    if(0 == rc_getCalibration(m_spTracker.get(), &pJson)) 
-    { 
-        std::cout << "rc_getCalibration failed." << std::endl; 
+    if(0 == rc_getCalibration(m_spTracker.get(), &pJson))
+    {
+        std::cout << "rc_getCalibration failed." << std::endl;
         goto END;
     }
     *pFileContents = pJson;

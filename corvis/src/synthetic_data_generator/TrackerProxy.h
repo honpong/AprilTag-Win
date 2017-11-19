@@ -27,11 +27,11 @@ private:
     bool ReadFile(std::string filename, std::string* const contents) const;
     int DescribeCameraHelper(rc_ImageFormat format);
 
-    std::vector<rc_Extrinsics> m_ex; 
+    std::vector<rc_Extrinsics> m_ex;
     std::vector<rc_ExtendedCameraIntrinsics> m_cin;
-    std::vector<rc_GyroscopeIntrinsics> m_win; 
+    std::vector<rc_GyroscopeIntrinsics> m_win;
     std::vector<rc_ThermometerIntrinsics> m_tin;
-    std::vector<rc_AccelerometerIntrinsics> m_ain; 
+    std::vector<rc_AccelerometerIntrinsics> m_ain;
     std::shared_ptr<rc_Tracker> m_spTracker;
 };
 

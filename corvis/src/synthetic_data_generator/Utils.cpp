@@ -34,7 +34,7 @@ void MapVectorFromCameraToWorld(const double v[3], double r[3], const vtkSmartPo
     sp->Transpose();
 }
 
-//Creates a 2D mesh equivalent to the size of desired fisheye image 
+//Creates a 2D mesh equivalent to the size of desired fisheye image
 void meshGrid(Mat &ui, Mat &vi, const CFakeImgCapturer& pcap)
 {
     for (int i = 0; i < pcap.CameraIntrinsics.height_px; i++)
@@ -107,7 +107,7 @@ void KB4Capturer::distortionEquation(Mat &xDistorted, Mat &yDistorted)
 }
 
 
-//FOV model-Inverse Distortion Equation 
+//FOV model-Inverse Distortion Equation
 void FOVCapturer::distortionEquation(Mat &xDistorted, Mat &yDistorted)
 {
     Mat ui = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
@@ -222,7 +222,7 @@ void CFakeImgCapturer::addDistortion(unsigned char* ffd_img, int dims[3], int cu
         distortionEquation(*spXd, *spYd);
         for (int i = 0; i < CameraIntrinsics.height_px; ++i)
         {
-            for (int j = 0; j < CameraIntrinsics.width_px; ++j) 
+            for (int j = 0; j < CameraIntrinsics.width_px; ++j)
             {
                 (*spXd).at<float>(i, j) = (*spXd).at<float>(i, j) + spInputC->GetValue()[0];
                 (*spYd).at<float>(i, j) = (*spYd).at<float>(i, j) + spInputC->GetValue()[1];
@@ -262,7 +262,7 @@ void CFakeImgCapturer::validateFisheyeDistortion(const std::string& szDirectoryN
 
     for (int i = 0; i < CameraIntrinsics.height_px; i++)
     {
-        for (int j = 0; j < CameraIntrinsics.width_px; ++j) 
+        for (int j = 0; j < CameraIntrinsics.width_px; ++j)
         {
             xd.at<float>(i, j) = round(xd.at<float>(i, j) + spInputC->GetValue()[0]);
             yd.at<float>(i, j) = round(yd.at<float>(i, j) + spInputC->GetValue()[1]);

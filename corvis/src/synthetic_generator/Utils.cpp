@@ -495,19 +495,20 @@ CFakeImgCapturer::CFakeImgCapturer()
 
 void PrintUsage()
 {
-    cout << "Usage: \n\tSyntheticDataGenerator\t --mesh name_of_the_mesh_file (Details: required argument. Allowed extensions are .obj or .ply)";
-    cout << "       \n\t                      \t --animation name_of_the_camera_poses_file (Details: required for controller involved scenarios.)";
-    cout << "       \n\t                      \t --calibrationfile name_of_the_calibration_file (Details: required argument.)";
-    cout << "       \n\t                      \t --directory name_of_the_directory (Details: optional argument. Name of the directory which contains output data. Default name is ControllerData)";
-    cout << "       \n\t                      \t --controlleranimation name_of_the_controller_poses_file (Details: optional argument.)";
-    cout << "       \n\t                      \t --record (Details: optional argument. If specified poses are saved accordingly.)";
-    cout << "       \n\t                      \t --texture name_of_the_texture_file (Details: optional argument.)";
-    cout << "       \n\t                      \t --numberofframes value (Details: optional argument. Represents the number of interpolation points for the entire animation. Default is 100.)";
-    cout << "       \n\t                      \t --renderingtimeinterval value (Details: optional argument. Represents the time in ms how often to render a frame. Default is 100ms.)";
-    cout << "       \n\t                      \t --scenario name_of_the_scenario_to_run (Details: By default single controller. Other possible values: multiplecontrollers or interactive)";
-    cout << "       \n\t                      \t --secondcontrolleranimation name_of_the_second_controller_poses_file (Details: optional argument. needs to be used in conjunction with --scenario multiplecontrollers )";
-    cout << "       \n\t                      \t --markeroff value (Details: If specified the first controller won't have the marker. By default, marker is present.)";
-    cout << "       \n\t                      \t --secondmarkeroff value (Details: If specified the first controller won't have the marker. By default, marker is present.)";
+    cout << "Usage: \n\tsynthetic_generator\t --mesh name_of_the_mesh_file (Details: required argument. Allowed extensions are .obj or .ply)";
+    cout << "       \n\t                   \t --animation name_of_the_camera_poses_file (Details: required for controller involved scenarios.)";
+    cout << "       \n\t                   \t --calibrationfile name_of_the_calibration_file (Details: required argument.)";
+    cout << "       \n\t                   \t --directory name_of_the_directory (Details: optional argument. Name of the directory which contains output data. Default name is ControllerData)";
+    cout << "       \n\t                   \t --controlleranimation name_of_the_controller_poses_file (Details: optional argument.)";
+    cout << "       \n\t                   \t --record (Details: optional argument. If specified poses are saved accordingly.)";
+    cout << "       \n\t                   \t --texture name_of_the_texture_file (Details: optional argument.)";
+    cout << "       \n\t                   \t --numberofframes value (Details: optional argument. Represents the number of interpolation points for the entire animation. Default is 100.)";
+    cout << "       \n\t                   \t --renderingtimeinterval value (Details: optional argument. Represents the time in ms how often to render a frame. Default is 100ms.)";
+    cout << "       \n\t                   \t --scenario name_of_the_scenario_to_run (Details: By default single controller. Other possible values: multiplecontrollers or interactive)";
+    cout << "       \n\t                   \t --secondcontrolleranimation name_of_the_second_controller_poses_file (Details: optional argument. needs to be used in conjunction with --scenario multiplecontrollers )";
+    cout << "       \n\t                   \t --markeroff value (Details: If specified the first controller won't have the marker. By default, marker is present.)";
+    cout << "       \n\t                   \t --secondmarkeroff value (Details: If specified the first controller won't have the marker. By default, marker is present.)";
+    cout << "       \n";
 }
 
 void CFakeImgCapturer::SetCameraIntrinsics(const rc_ExtendedCameraIntrinsics& camera)

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5)
 
-project(SyntheticDataGenerator)
+project(synthetic_generator)
 
 set(VTK_MIN_VERSION "7.1.1")
 find_package(VTK QUIET)

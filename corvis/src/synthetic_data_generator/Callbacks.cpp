@@ -653,7 +653,6 @@ void DepthWindowEndCallback::Execute(vtkObject*  pCaller, unsigned long eventId,
             double dp2[3];
             cam2->GetDirectionOfProjection(dp2);
             int dfd_size = sizeof(unsigned short) * m_spDepthCapturer->DepthResolution.width * m_spDepthCapturer->DepthResolution.height * 2;
-            int depth_dims[2] = { m_spDepthCapturer->DepthResolution.width, m_spDepthCapturer->DepthResolution.height };
             std::unique_ptr<unsigned short[]> dfd = std::make_unique<unsigned short[]>(dfd_size);
 
             for (int i = 0; i < m_spDepthCapturer->DepthResolution.width * m_spDepthCapturer->DepthResolution.height; i++)
@@ -733,7 +732,6 @@ void RFisheyeWindowEndCallback::Execute(vtkObject* pCaller, unsigned long eventI
             unsigned char* pFisheyePix2 = (unsigned char*)imgdata->GetScalarPointer();
             int dims[3];
             imgdata->GetDimensions(dims);
-            int ffd_size2 = dims[0] * dims[1] * 4;
             std::unique_ptr<unsigned char[]> ffd2 = std::make_unique<unsigned char[]>(dims[0] * dims[1] * 4);
             for (int i = 0; i < dims[0] * dims[1] * 4; i += 4)
             {

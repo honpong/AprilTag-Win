@@ -52,7 +52,5 @@ int main(int argvc, char** ppArgv)
         spScenario->Execute();
     }
 
-END:
-    spScenario = nullptr;
     return res;
 }

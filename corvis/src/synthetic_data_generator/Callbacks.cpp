@@ -337,8 +337,11 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
 {
     if (vtkCommand::TimerEvent == eventId)
     {
-        if (m_mutex.try_lock())
         {
+            std::unique_lock<std::mutex> lock(m_mutex, std::try_to_lock);
+            if (!lock.owns_lock())
+                return;
+
             CSimulatedWindow* const & pColorWindow = m_spInputTimer->m_pColorWindowTimer.get();
             CSimulatedWindow* const & pLFisheyeWindow = m_spInputTimer->m_pLFisheyeWindowTimer.get();
             CSimulatedWindow* const & pRFisheyeWindow = m_spInputTimer->m_pRFisheyeWindowTimer.get();
@@ -385,7 +388,7 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
                     {
                         std::cout << "Exiting application." << std::endl;
                         (*(m_spInputTimer->m_spInteractorTimer))->TerminateApp();
-                        goto END;
+                        return;
                     }
                 }
 
@@ -547,7 +550,7 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
             {
                 std::cout << "Exiting application." << std::endl;
                 (*(m_spInputTimer->m_spInteractorTimer))->TerminateApp();
-                goto END;
+                return;
             }
 
             cout << "Camera position.x=" << pColorWindow->m_spRenderer->GetActiveCamera()->GetPosition()[0] << ";y=" << pColorWindow->m_spRenderer->GetActiveCamera()->GetPosition()[1] << ";z=" << pColorWindow->m_spRenderer->GetActiveCamera()->GetPosition()[2] << endl;
@@ -598,9 +601,6 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
             }
 
             ++(*m_spInputTimer->m_pFrameIndex);
-
-        END:
-            m_mutex.unlock();
         }
     }
 }

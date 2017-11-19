@@ -494,31 +494,46 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     f_t image_to_depth = 1;
     if(f->has_depth)
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
+
+    for(auto i = f->s.stereo_matches.begin(); i != f->s.stereo_matches.end() && found_feats < newfeats;) {
+        auto view = std::find_if(i->views.begin(), i->views.end(), [&](auto &v) { return &v.camera == &camera; });
+        if (view != i->views.end()) {
+            auto feat = std::make_unique<state_vision_feature>(*view->track, *g);
+            feat->v->set_depth_meters(i->depth_m);
+            auto std_pct = sqrt(state_vision_feature::initial_var/10); // consider using error
+            feat->set_initial_variance(std_pct *std_pct); // assumes log depth
+            feat->status = feature_normal;
+            feat->depth_measured = true;
+            for (auto &v : i->views) {
+                v.camera.tracks.emplace_back(v.camera.id, *feat, std::move(*v.track));
+                v.camera.standby_tracks.erase(v.track);
+            }
+            if(f->map)
+                f->map->triangulated_tracks.erase(feat->feature->id);
+            g->features.children.push_back(std::move(feat));
+            i = f->s.stereo_matches.erase(i);
+            ++found_feats;
+        } else ++i;
+    }
     for(auto i = kp.begin(); i != kp.end() && found_feats < newfeats; found_feats++, i = kp.erase(i)) {
         auto feat = std::make_unique<state_vision_feature>(*i, *g);
-        if(f->map) f->map->triangulated_tracks.erase((*i).feature->id);
-
-        float depth_m = i->depth;
         if(f->has_depth) {
             if (!aligned_undistorted_depth)
                 aligned_undistorted_depth = filter_aligned_depth_to_camera(*f->recent_depth, *f->depths[f->recent_depth->id], camera, camera_sensor);
             
-            depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({i->x, i->y}))));
-        }
-        if(depth_m)
-        {
-            feat->v->set_depth_meters(depth_m);
-            float std_pct = get_stdev_pct_for_depth(depth_m);
-            if(i->error) { // stereo
-                //std_pct = std::max<float>(0.02f, i->error);
-                std_pct = sqrt(state_vision_feature::initial_var/10); // consider using error
+            float depth_m = 0.001f * get_depth_for_point_mm(aligned_undistorted_depth->depth, image_to_depth*camera.intrinsics.unnormalize_feature(camera.intrinsics.undistort_feature(camera.intrinsics.normalize_feature({i->x, i->y}))));
+            if(depth_m) {
+                feat->v->set_depth_meters(depth_m);
+                float std_pct = get_stdev_pct_for_depth(depth_m);
+                //fprintf(stderr, "percent %f\n", std_pct);
+                feat->set_initial_variance(std_pct * std_pct); // assumes log depth
+                feat->status = feature_normal;
+                feat->depth_measured = true;
             }
-            //fprintf(stderr, "percent %f\n", std_pct);
-            feat->set_initial_variance(std_pct * std_pct); // assumes log depth
-            feat->status = feature_normal;
-            feat->depth_measured = true;
         }
 
+        if(f->map)
+            f->map->triangulated_tracks.erase(feat->feature->id);
         camera.tracks.emplace_back(camera.id, *feat, std::move(*i));
         g->features.children.push_back(std::move(feat));
     }
@@ -811,46 +826,45 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         m3 Rw2T = Rw2.transpose();
         std::vector<kp_pre_data> prkpv2;
         for(auto & k2 : kp2)
-            prkpv2.emplace_back(preprocess_keypoint_intersect(camera_state2, feature_t{k2.x, k2.y},Rw2));
-        for(tracker::feature_track & k1 : kp1) {
+            if (k2.feature.use_count() > 1) // already stereo
+                prkpv2.emplace_back();
+            else
+                prkpv2.emplace_back(preprocess_keypoint_intersect(camera_state2, feature_t{k2.x, k2.y},Rw2));
+        for(auto k1 = kp1.begin(); k1 != kp1.end(); ++k1) {
             float second_best_distance = INFINITY;
             float best_distance = INFINITY;
+            if (k1->feature.use_count() > 1) // already stereo
+                continue;
             float best_depth = 0;
             float best_error = 0;
-            tracker::feature_track *best_kp = nullptr;
-            kp_pre_data pre1 = preprocess_keypoint_intersect(camera_state1, feature_t{k1.x, k1.y}, Rw1);
+            auto best_kp = kp2.end();
+            kp_pre_data pre1 = preprocess_keypoint_intersect(camera_state1, feature_t{k1->x, k1->y}, Rw1);
             // try to find a match in im2
-            int i= 0;
-            for(auto & k2 : kp2 ){
-                float error, depth = keypoint_intersect(camera_state1, camera_state2, pre1, prkpv2[i], Rw1T, Rw2T, error);
+            auto prk2 = prkpv2.begin();
+            for(auto k2 = kp2.begin(); k2 != kp2.end(); ++k2, ++prk2){
+                if (k2->feature.use_count() > 1) // already stereo
+                    continue;
+                float error, depth = keypoint_intersect(camera_state1, camera_state2, pre1, *prk2, Rw1T, Rw2T, error);
                 if(depth && error < 0.02f) {
-                    float distance = keypoint_compare(k1, k2);
+                    float distance = keypoint_compare(*k1, *k2);
                     if(distance < best_distance) {
                         second_best_distance = best_distance;
                         best_distance = distance;
                         best_depth = depth;
                         best_error = error;
-                        best_kp = &k2;
+                        best_kp = k2;
                     } else if(distance < second_best_distance){
                         second_best_distance = distance;
                     }
                 }
-                i++;
             }
-            // If we have two candidates, just give up
+            // Only match if we have exactly one candidate
             if(best_distance < DESCRIPTOR::good_track_distance && second_best_distance > DESCRIPTOR::good_track_distance) {
-                best_kp->depth = k1.depth = best_depth;
-                best_kp->error = k1.error = best_error;
-                best_kp->feature = k1.feature;
-            }
-            else {
-                k1.depth = 0;
-                k1.error = 0;
+                best_kp->feature = k1->feature;
+                f->s.stereo_matches.emplace_back(camera_state1, k1, camera_state2, best_kp, best_depth, best_error);
             }
         }
 
-        // Sort features with depth first
-        //kp1.sort([](const tracker::feature_track & f1, const tracker::feature_track &f2) { return f1.depth > f2.depth; });
 #endif
         END_EVENT(SF_STEREO_MATCH, 0)
     }
@@ -990,6 +1004,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             std::cerr << " innov  " << c->inn_stdev << "\n";
     }
 
+    f->s.stereo_matches.remove_if([](const stereo_match &m) {
+            return !m.views[0].track->found() || !m.views[1].track->found();
+    });
     camera_state.process_tracks(f->map.get(), *f->log);
     auto normal_groups = f->s.process_features(f->map.get());
     filter_update_outputs(f, time, normal_groups == 0);

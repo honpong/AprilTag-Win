@@ -133,6 +133,7 @@ size_t state_vision::track_count() const
 
 void state_vision::clear_features_and_groups()
 {
+    stereo_matches.clear();
     for (auto &camera : cameras.children)
     {
         camera->tracks.clear();

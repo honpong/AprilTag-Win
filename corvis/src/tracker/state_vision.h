@@ -264,11 +264,27 @@ struct state_camera: state_branch<state_node*> {
     }
 };
 
+struct stereo_match
+{
+    struct view {
+        state_camera &camera;
+        std::list<tracker::feature_track>::iterator track;
+    };
+    std::array<view,2> views;
+    float depth_m = 0;
+    float error = 0;
+    stereo_match(state_camera &c0, std::list<tracker::feature_track>::iterator &t0,
+                 state_camera &c1, std::list<tracker::feature_track>::iterator &t1,
+                 float depth_m_, float error_)
+        : views({{{c0, t0}, {c1, t1}}}), depth_m(depth_m_), error(error_) {}
+};
+
 class state_vision: public state_motion {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
     state_branch<std::unique_ptr<state_vision_group>> groups;
+    std::list<stereo_match> stereo_matches;
     state_vision(covariance &c, matrix &FP) : state_motion(c, FP) {
         non_orientation.children.push_back(&cameras);
         non_orientation.children.push_back(&groups);

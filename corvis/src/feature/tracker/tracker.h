@@ -28,8 +28,6 @@ struct tracker {
         float dx = 0, dy = 0;
         float pred_x = INFINITY, pred_y = INFINITY;
         float score; // scores are > 0, higher scores are better detections / tracks
-        float depth = 0;
-        float error = 0;
         bool found() const { return x != INFINITY; }
         feature_track(std::shared_ptr<struct feature> &&feature_, float x_, float y_, float score_)
             : feature(std::move(feature_)), x(x_), y(y_), score(score_) {}

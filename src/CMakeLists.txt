@@ -21,6 +21,8 @@ endif ()
 if(MSVC)
   add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
   add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+  add_compile_options(/wd4996 /wd4703)
+
 foreach(flag_var
         CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
         CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
@@ -110,7 +112,6 @@ if(BUILD_SHAPEFIT_DEV_APP)
     add_subdirectory(dev)
 
     if(MSVC)
-        target_compile_options(realsense2 BEFORE PUBLIC /wd4996 /wd4703)
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT shapefit-dev)
 		set(CMAKE_CONFIGURATION_TYPES Release Debug CACHE STRING "" FORCE)
     endif()

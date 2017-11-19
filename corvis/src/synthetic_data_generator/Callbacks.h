@@ -56,7 +56,7 @@ public:
         vtkSmartPointer<vtkRenderWindow>* const m_spRFisheyeRenderwindow;
     };
     virtual void InitializeInputs(std::shared_ptr<CallbackInput> spInput) = 0;
-    virtual void Execute(vtkObject*, unsigned long, void*);
+    virtual void Execute(vtkObject*, unsigned long, void*) override;
 
 protected:
     std::shared_ptr<CallbackInput> m_spInput;
@@ -68,7 +68,7 @@ class ColorWindowStartCallback : public StartCallback
 {
 public:
     vtkTypeMacro(ColorWindowStartCallback, StartCallback);
-    virtual void InitializeInputs(std::shared_ptr<CallbackInput> spInput);
+    virtual void InitializeInputs(std::shared_ptr<CallbackInput> spInput) override;
     static ColorWindowStartCallback* New();
     double GetLastProcessedFrame() const;
 };
@@ -79,7 +79,7 @@ public:
     vtkTypeMacro(ModifiedCameraPosition, vtkCommand);
     virtual ~ModifiedCameraPosition() = default;
     static ModifiedCameraPosition* New();
-    virtual void Execute(vtkObject*, unsigned long, void*);
+    virtual void Execute(vtkObject*, unsigned long, void*) override;
 };
 
 class EndCallback : public vtkCommand
@@ -110,7 +110,7 @@ public:
         vtkSmartPointer<vtkRenderWindow>* const m_spRFisheyeRenderwindow;
     };
     virtual void InitializeInputs(std::shared_ptr<CallbackInput> spInput);
-    virtual void Execute(vtkObject*, unsigned long, void*) = 0;
+    using vtkCommand::Execute;
     double GetLastProcessedFrame() const;
 
 protected:
@@ -131,7 +131,7 @@ class ColorWindowEndCallback : public EndCallback
 {
 public:
     vtkTypeMacro(ColorWindowEndCallback, EndCallback);
-    virtual void Execute(vtkObject*, unsigned long, void*);
+    virtual void Execute(vtkObject*, unsigned long, void*) override;
     static ColorWindowEndCallback *New();
     void Record(unsigned char* const cfd, int cfd_size, int currentFrameIndex, std::shared_ptr<CFakeImgCapturer> spcap, const std::string& szDirectoryName, std::ofstream* const pFramesFile);
 private:
@@ -142,7 +142,7 @@ class DepthWindowEndCallback : public EndCallback
 {
 public:
     vtkTypeMacro(DepthWindowEndCallback, EndCallback);
-    virtual void Execute(vtkObject*, unsigned long, void*);
+    virtual void Execute(vtkObject*, unsigned long, void*) override;
     static DepthWindowEndCallback *New();
     void Record(unsigned short* const dfd, int dfd_size, int currentFrameIndex, std::shared_ptr<CFakeImgCapturer> spcap, const std::string& szDirectoryName, std::ofstream* const pFramesFile);
 private:
@@ -153,7 +153,7 @@ class LFisheyeWindowEndCallback : public EndCallback
 {
 public:
     vtkTypeMacro(LFisheyeWindowEndCallback, EndCallback);
-    virtual void Execute(vtkObject*, unsigned long, void*);
+    virtual void Execute(vtkObject*, unsigned long, void*) override;
     static LFisheyeWindowEndCallback *New();
 private:
     std::shared_ptr<CFakeImgCapturer> m_spLFisheyeCapturer;
@@ -164,18 +164,18 @@ class RFisheyeWindowEndCallback : public EndCallback
 {
 public:
     vtkTypeMacro(RFisheyeWindowEndCallback, EndCallback);
-    virtual void Execute(vtkObject*, unsigned long, void*);
+    virtual void Execute(vtkObject*, unsigned long, void*) override;
     static RFisheyeWindowEndCallback *New();
 private:
     std::shared_ptr<CFakeImgCapturer> m_spRFisheyeCapturer;
 };
 
-class TimerWindowCallback : public vtkCommand 
+class TimerWindowCallback : public vtkCommand
 {
 public:
     vtkTypeMacro(TimerWindowCallback, vtkCommand);
     void SetInput(const std::shared_ptr<TimerInput>& spInput);
-    virtual void Execute(vtkObject*, unsigned long, void*);
+    virtual void Execute(vtkObject*, unsigned long, void*) override;
     static TimerWindowCallback *New();
     void SetWindowsCallbacks(vtkSmartPointer<ColorWindowStartCallback> spSColorWindowCallback, vtkSmartPointer<ColorWindowEndCallback> spEColorWindowCallback,
         vtkSmartPointer<LFisheyeWindowEndCallback> spELFisheyeWindowCallback, vtkSmartPointer<RFisheyeWindowEndCallback> spERFisheyeWindowCallback,

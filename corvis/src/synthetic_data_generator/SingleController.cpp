@@ -133,19 +133,19 @@ void CBannerSimpleScenario::GetControllerActorsCenters(vtkSmartPointer<vtkCoordi
 void CBannerSimpleScenario::HandleDirectoryCreation()
 {
 #ifdef _WIN32
-    m_szDirectoryName = std::string("ControllerData") + std::string("\\");
+    m_szDirectoryName = std::string("ControllerData") + "\\";
     if (m_args.find("--directory") != m_args.end())
     {
-        m_szDirectoryName = m_args["--directory"] + std::string("\\");
+        m_szDirectoryName = m_args["--directory"] + "\\";
     }
     system((std::string("rd /S /Q ") + m_szDirectoryName).c_str());
 #else
-    m_szDirectoryName = string("ControllerData") + string("/");
+    m_szDirectoryName = std::string("ControllerData") + "/";
     if (m_args.find("--directory") != m_args.end())
     {
-        m_szDirectoryName = m_args["--directory"] + string("/");
+        m_szDirectoryName = m_args["--directory"] + "/";
     }
-    system((string("rm -rf ") + m_szDirectoryName).c_str());
+    system((std::string("rm -rf ") + m_szDirectoryName).c_str());
 #endif
     system((std::string("mkdir ") + m_szDirectoryName).c_str());
     system((std::string("mkdir ") + m_szDirectoryName + std::string("color")).c_str());

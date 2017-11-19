@@ -55,7 +55,11 @@ void CSimulatedWindow::Create()
 }
 
 CSimulatedWindow::CSimulatedWindow(unsigned int uWidth, unsigned int uHeight, const vtkSmartPointer<vtkCoordinate>& spPosition, double viewAngle, int projectionValue, const RGBColor& Background, int LightingValue, std::string szName) :
-    m_uWidth(uWidth), m_uHeight(uHeight), m_spPosition(spPosition), m_viewAngle(viewAngle), m_ProjectionValue(projectionValue), m_Background(Background), m_LightingValue(LightingValue), m_szName(szName) {}
+    m_spPosition(spPosition),
+    m_ProjectionValue(projectionValue), m_LightingValue(LightingValue),
+    m_uWidth(uWidth), m_uHeight(uHeight),
+    m_viewAngle(viewAngle), m_Background(Background),
+    m_szName(szName) {}
 
 void CActorSphere::Create()
 {
@@ -83,4 +87,6 @@ void CActorCylinder::Create()
 }
 
 CActorCylinder::CActorCylinder(const vtkSmartPointer<vtkCoordinate>& spCenterCoordinates, double radius, double Resolution, double Height) :
-    m_spCenterCoordinates(spCenterCoordinates), m_radius(radius), m_Resolution(Resolution), m_Height(Height) {}
+    m_spCenterCoordinates(spCenterCoordinates),
+    m_radius(radius), m_Height(Height),
+    m_Resolution(Resolution) {}

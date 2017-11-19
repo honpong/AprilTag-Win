@@ -303,7 +303,20 @@ void TimerWindowCallback::SetInput(const std::shared_ptr<TimerInput>& spInput)
 }
 
 TimerInput::TimerInput(std::map<std::string, std::string> args, std::vector<double> times, int * const pFrameIndex, std::vector<vtkSmartPointer<vtkActorCollection>> spActorCollection, unsigned int NumberFrames, std::vector<vtkSmartPointer<vtkTransformInterpolator>>  spTransformInterpolator, bool* isControllerAnimated, std::vector<std::shared_ptr<CFakeImgCapturer>> spCap, std::shared_ptr<CSimulatedWindow> pColorWindow, std::shared_ptr<CSimulatedWindow> pDepthWindow, std::shared_ptr<CSimulatedWindow> pLFisheyeWindow, std::shared_ptr<CSimulatedWindow> pRFisheyeWindow, std::vector<vtkSmartPointer<vtkCameraInterpolator>> spCamerainterp, vtkSmartPointer<vtkRenderWindowInteractor> * pInteractor) :
-    m_pFrameIndex(pFrameIndex), m_spActorCollection(spActorCollection), m_TotalNumberFrames(NumberFrames), m_pColorWindowTimer(pColorWindow), m_pDepthWindowTimer(pDepthWindow), m_pLFisheyeWindowTimer(pLFisheyeWindow), m_pRFisheyeWindowTimer(pRFisheyeWindow), m_spCamerainterpTimer(spCamerainterp), m_spCapturersTimer(spCap), m_pIsControllerAnimatedTimer(isControllerAnimated), m_spTransformInterpolatorCollection(spTransformInterpolator), m_spInteractorTimer(pInteractor), m_args(args), m_times(times)
+    m_pColorWindowTimer(pColorWindow),
+    m_pDepthWindowTimer(pDepthWindow),
+    m_pLFisheyeWindowTimer(pLFisheyeWindow),
+    m_pRFisheyeWindowTimer(pRFisheyeWindow),
+    m_spCamerainterpTimer(spCamerainterp),
+    m_spCapturersTimer(spCap),
+    m_pIsControllerAnimatedTimer(isControllerAnimated),
+    m_spTransformInterpolatorCollection(spTransformInterpolator),
+    m_TotalNumberFrames(NumberFrames),
+    m_spActorCollection(spActorCollection),
+    m_spInteractorTimer(pInteractor),
+    m_pFrameIndex(pFrameIndex),
+    m_args(args),
+    m_times(times)
 {
     m_Max = VTK_DOUBLE_MIN;
     m_Min = VTK_DOUBLE_MAX;

@@ -1,5 +1,7 @@
 #include "transformation.h"
 
+using rc::map;
+
 bool estimate_transformation(const aligned_vector<v3> & src, const aligned_vector<v3> & dst, transformation & transform)
 {
     if(src.size() != dst.size() || src.size() < 3)
@@ -213,5 +215,5 @@ f_t estimate_3d_point(const aligned_vector<v2> &src, const std::vector<transform
         v2 kpn_p = p3dC.segment<2>(0)/p3dC.z();
         errors_point.push_back((kpn - kpn_p).norm());
     }
-    return ::map(errors_point).mean();
+    return map(errors_point).mean();
 }

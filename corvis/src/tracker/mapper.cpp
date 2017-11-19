@@ -309,14 +309,14 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
 
     if (candidate_frame->keypoints.size() > 0 && current_frame->keypoints.size() > 0) {
         auto match = [&current_frame, &candidate_frame, &features_dbow, &increment_orientation_histogram](
-                const std::vector<unsigned int>& current_keypoint_indexes,
-                const std::vector<unsigned int>& candidate_keypoint_indexes) {
-            for (unsigned int current_point_idx : current_keypoint_indexes) {
-                int best_candidate_point_idx = 0;
+                const std::vector<size_t>& current_keypoint_indexes,
+                const std::vector<size_t>& candidate_keypoint_indexes) {
+            for (auto current_point_idx : current_keypoint_indexes) {
+                size_t best_candidate_point_idx = 0;
                 int best_distance = std::numeric_limits<int>::max();
                 int second_best_distance = std::numeric_limits<int>::max();
                 auto& current_keypoint = *current_frame->keypoints[current_point_idx];
-                for (unsigned int candidate_point_idx : candidate_keypoint_indexes) {
+                for (auto candidate_point_idx : candidate_keypoint_indexes) {
                     auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
                     int dist = orb_descriptor::distance(candidate_keypoint.descriptor,
                                                         current_keypoint.descriptor);
@@ -343,13 +343,13 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
         if (candidate_frame->dbow_direct_file.empty() && current_frame->dbow_direct_file.empty()) {
             // not using dbow direct file to prefilter matches
             auto fill_with_indices = [](size_t N) {
-                std::vector<unsigned int> v;
+                std::vector<size_t> v;
                 v.reserve(N);
                 for (size_t i = 0; i < N; ++i) v.push_back(i);
                 return v;
             };
-            std::vector<unsigned int> current_keypoint_indexes = fill_with_indices(current_frame->keypoints.size());
-            std::vector<unsigned int> candidate_keypoint_indexes = fill_with_indices(candidate_frame->keypoints.size());
+            std::vector<size_t> current_keypoint_indexes = fill_with_indices(current_frame->keypoints.size());
+            std::vector<size_t> candidate_keypoint_indexes = fill_with_indices(candidate_frame->keypoints.size());
             match(current_keypoint_indexes, candidate_keypoint_indexes);
         } else {
             // dbow direct file is used
@@ -390,7 +390,7 @@ void mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_ve
     const f_t sigma_px = 3.0;
     const f_t max_reprojection_error = 2*sigma_px/focal_px;
     const int max_iter = 10; // 10
-    const float confidence = 0.9; //0.9
+    const float confidence = 0.9f; //0.9
     std::default_random_engine rng(-1);
     transformation G_currentframeC_candidateB;
     estimate_transformation(points_3d, points_2d, G_currentframeC_candidateB, rng, max_iter, max_reprojection_error, confidence, 5, &inliers_set);
@@ -584,7 +584,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
                 continue;
 
             // create feature track
-            tracker::feature_track track(f.second.feature, INFINITY, INFINITY, 0);
+            tracker::feature_track track(f.second.feature, INFINITY, INFINITY, 0.0f);
             track.pred_x = kpd.x();
             track.pred_y = kpd.y();
             tracks.emplace_back(std::move(track), f.second.v);

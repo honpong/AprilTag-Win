@@ -49,7 +49,7 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
     feature_points.clear();
     feature_points.reserve(number_desired);
 
-    size_t need = number_desired * 2.3;
+    auto need = static_cast<size_t>(number_desired * 2.3f);
     features.clear();
     features.reserve(need+1);
     int x, y, mx, my, x1, y1, x2, y2;
@@ -149,7 +149,7 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
                         const uint8_t* p = image.image + y*stride + x;
                         uint8_t val = (uint8_t)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
                         if(fast_9_kernel(p, pixel, val, fast_track_threshold)) {
-                            auto score = f.descriptor.distance(x, y, image);
+                            auto score = f.descriptor.distance((float)x, (float)y, image);
                             if(DESCRIPTOR::is_better(score,bestkp.score)) {
                                 bestkp.x = (float)x;
                                 bestkp.y = (float)y;

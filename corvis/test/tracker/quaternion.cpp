@@ -2,7 +2,7 @@
 #include "quaternion.h"
 #include "util.h"
 
-const static quaternion q(.55, -1.2, -.15, 1.6);
+const static quaternion q(.55f, -1.2f, -.15f, 1.6f);
 
 TEST(Quaternion, Identity)
 {

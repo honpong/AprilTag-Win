@@ -49,9 +49,9 @@ template <int size_> class decimator {
     bool decimate(rc_Timestamp &time_us, f_t (&data)[size_]) {
         if(!start_ts)
             start_ts = time_us;
-        accumulator += map(data);
+        accumulator += rc::map(data);
         if(num_samples++ % decimate_by == decimate_by - 1) {
-            map(data) = accumulator/num_samples;
+            rc::map(data) = accumulator/num_samples;
             time_us += (start_ts - time_us)/2;
             reset();
             return true;

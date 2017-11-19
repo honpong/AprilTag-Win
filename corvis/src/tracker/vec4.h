@@ -46,6 +46,7 @@ template <typename T> using aligned_vector = std::vector<T, Eigen::aligned_alloc
 #include <list>
 template <typename T> using aligned_list = std::list<T, Eigen::aligned_allocator<T>>;
 
+namespace rc {
 template <typename T, int R, int C> Eigen::Map<const Eigen::Matrix<T, R, C>, Eigen::Unaligned> map(const T (&a)[R][C]) { return decltype(map(a)) { &a[0][0] }; }
 template <typename T, int R, int C> Eigen::Map<      Eigen::Matrix<T, R, C>, Eigen::Unaligned> map(      T (&a)[R][C]) { return decltype(map(a)) { &a[0][0] }; }
 
@@ -74,6 +75,8 @@ template <typename T, typename S>               Eigen::Map<      Eigen::Matrix<T
 
 template <typename T>                           Eigen::Map<const Eigen::Matrix<T, Eigen::Dynamic, 1>,  Eigen::Unaligned> map(const aligned_vector<T> &a) { return decltype(map(a)) { &a[0], static_cast<Eigen::Index>(a.size()), 1}; }
 template <typename T>                           Eigen::Map<      Eigen::Matrix<T, Eigen::Dynamic, 1>,  Eigen::Unaligned> map(      aligned_vector<T> &a) { return decltype(map(a)) { &a[0], static_cast<Eigen::Index>(a.size()), 1}; }
+
+}
 
 inline static m3 skew(const v3 &v)
 {

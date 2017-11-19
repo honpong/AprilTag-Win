@@ -48,6 +48,7 @@ else()
 endif()
 
 if(MSVC)
+  add_compile_options(-bigobj) # estimate_transformation generates > 2^16 sections
   add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
   add_definitions(-DNOMINMAX) # prevent conflicts with min/max macros
 endif()

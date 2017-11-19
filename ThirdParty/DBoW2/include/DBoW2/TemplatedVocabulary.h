@@ -23,7 +23,7 @@ namespace DBoW2 {
 typedef uint32_t WordId;
 typedef float WordValue;
 typedef std::unordered_map<WordId, WordValue> BowVector;
-typedef std::unordered_map<WordId, std::vector<unsigned int>> FeatureVector;
+typedef std::unordered_map<WordId, std::vector<size_t>> FeatureVector;
 
 enum ScoringType {
   L1_NORM,
@@ -659,7 +659,7 @@ float TemplatedVocabulary<T, type>::score(const BowVector& lhs_,
             }
             case ScoringType::KL:
             {
-                constexpr float LOG_EPSILON = -36.043653389;
+                constexpr float LOG_EPSILON = -36.043653389f;
                 score += vi * (LOG_EPSILON - std::log(wi));
                 break;
             }

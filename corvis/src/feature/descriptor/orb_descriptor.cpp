@@ -145,7 +145,7 @@ orb_descriptor::raw orb_descriptor::raw::mean(
     avg.fill(0);
     if (items.empty()) return avg;
 
-    std::array<int, sizeof(raw) * 8> counters = {};
+    std::array<size_t, sizeof(raw) * 8> counters = {};
     for (auto* item : items) {
         auto counter_it = counters.begin();
         for (uint64_t pack : *item) {
@@ -154,7 +154,7 @@ orb_descriptor::raw orb_descriptor::raw::mean(
             }
         }
     }
-    const int half = items.size() / 2;
+    auto half = items.size() / 2;
     auto counter_it = counters.begin();
     for (uint64_t& pack : avg) {
         for (size_t i = 0; i < sizeof(uint64_t) * 8; ++i, ++counter_it) {
@@ -225,7 +225,7 @@ void orb_descriptor::ic_angle(float x, float y, const tracker::image& image)
         m_01 += v * v_sum;
     }
 
-    float d = std::hypot<float>(m_01,m_10);
+    float d = std::hypot((float)m_01,(float)m_10);
     cos_ = d ? m_10*(1/d) : 1;
     sin_ = d ? m_01*(1/d) : 0;
 }

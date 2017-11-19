@@ -355,7 +355,7 @@ unsigned int CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::s
     std::cout << "Number of items:" << (int)m_spColorWindow.get()->m_spRenderer->GetActors()->GetNumberOfItems() << endl;
     for (unsigned int i = 0; i < m_spColorWindow.get()->m_spRenderer->GetActors()->GetNumberOfItems(); ++i)
     {
-        vtkActor* const pA = m_spColorWindow.get()->m_spRenderer->GetActors()->GetNextActor();
+        //vtkActor* const pA = m_spColorWindow.get()->m_spRenderer->GetActors()->GetNextActor();
     }
 
 

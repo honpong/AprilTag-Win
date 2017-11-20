@@ -13,7 +13,6 @@
 #include <iostream>
 
 using namespace rapidjson;
-using namespace std;
 using rc::map;
 
 static sensor_calibration_imu calibration_convert_imu(const struct calibration_xml::imu & legacy_imu)

@@ -20,8 +20,8 @@ struct rs_sf_camera_stream : rs_sf_image_stream
 			if (list.size() == 0) throw std::runtime_error("No device detected.");
 
 			device = list[0];
-			config.enable_stream(RS_SF_STREAM_DEPTH, w, h, 30, RS_SF_FORMAT_Z16);
-			config.enable_stream(RS_SF_STREAM_INFRARED, w, h, 30, RS_SF_FORMAT_Y8);
+			config.enable_stream(RS_SF_STREAM_DEPTH, 0, w, h, RS_SF_FORMAT_Z16, 30);
+			config.enable_stream(RS_SF_STREAM_COLOR, 0, w, h, RS_SF_FORMAT_RGB8, 30);
 
             auto pprofile = pipe.start(config);
             intrinsics = pprofile.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>().get_intrinsics();
@@ -58,7 +58,10 @@ struct rs_sf_camera_stream : rs_sf_image_stream
             if (frames.size() == 0) return nullptr;
         }
     }
-	catch (const rs2::error & e) { print(e);	return nullptr; }
+	catch (const rs2::error & e) {
+        print(e);	
+        return nullptr; 
+    }
 	
 protected:
     rs_sf_image image[RS_SF_STREAM_COUNT];

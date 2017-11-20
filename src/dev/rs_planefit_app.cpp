@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
         else if (strcmp(argv[i], "-path") == 0) { path = argv[++i]; }
         else if (strcmp(argv[i], "-replay") == 0) { is_live = false; }
         else if (strcmp(argv[i], "-hd") == 0) { capture_size = { 1280,720 }; }
+        else if (strcmp(argv[i], "-shd") == 0) { capture_size = { 640,360 }; }
         else if (strcmp(argv[i], "-vga") == 0) { capture_size = { 640,480 }; }
         else {
             printf("usages:\n rs_shapefit_app [-box|-plane][-live|-replay][-path PATH][-capture][-num_frame NUM] \n");
@@ -148,6 +149,9 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[])
 
     auto* img_d = img + RS_SF_STREAM_DEPTH;
     auto* img_ir = img + RS_SF_STREAM_INFRARED;
+    auto* img_c = img + RS_SF_STREAM_COLOR;
+
+    if (!img_d) img_d = img_ir;
 
     //static std::unique_ptr<float[]> buf;
     //static bool was_tracking = false;
@@ -199,7 +203,7 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[])
     rs_sf_planefit_draw_planes(shapefitter, &rgb_plane);
 
     // display either box wireframe or plane_id
-    if (rs_sf_boxfit_draw_boxes(shapefitter, &rgb_box, img_ir) != RS_SF_SUCCESS) {
+    if (rs_sf_boxfit_draw_boxes(shapefitter, &rgb_box, img_c) != RS_SF_SUCCESS) {
         rs_shapefit_set_option(shapefitter, RS_SF_OPTION_GET_PLANE_ID, 2);
         rgb_box.byte_per_pixel = 1;
         rs_sf_planefit_get_plane_ids(shapefitter, &rgb_box);
@@ -220,6 +224,6 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[])
     //rs_sf_image_write("c:\\temp\\shapefit\\live\\color_" + std::to_string(img->frame_id), &rgb_box);
 
     // gl drawing
-    rs_sf_image show[] = { *img_d, *img_ir, rgb_plane, rgb_box };
+    rs_sf_image show[] = { *img_d, *img_c, rgb_plane, rgb_box };
     return win.imshow(show, 4, text.str().c_str());
 }

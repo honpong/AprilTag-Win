@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
         else if (strcmp(argv[i], "-path") == 0) { path = argv[++i]; }
         else if (strcmp(argv[i], "-replay") == 0) { is_live = false; }
         else if (strcmp(argv[i], "-hd") == 0) { capture_size = { 1280,720 }; }
-        else if (strcmp(argv[i], "-shd") == 0) { capture_size = { 640,360 }; }
+        else if (strcmp(argv[i], "-qhd") == 0) { capture_size = { 640,360 }; }
         else if (strcmp(argv[i], "-vga") == 0) { capture_size = { 640,480 }; }
         else {
             printf("usages:\n rs_shapefit_app [-box|-plane][-live|-replay][-path PATH][-capture][-num_frame NUM] \n");

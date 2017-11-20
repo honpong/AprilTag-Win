@@ -510,14 +510,14 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<
     return ku_d;
 }
 
-void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map, const transformation& G_Bcurrent_Bnow)
+void state_camera::update_feature_tracks(const sensor_data &data, mapper *map, const transformation& G_Bcurrent_Bnow)
 {
     START_EVENT(SF_TRACK, 0);
     tracker::image current_image;
-    current_image.image = (uint8_t *)image.image;
-    current_image.width_px = image.width;
-    current_image.height_px = image.height;
-    current_image.stride_px = image.stride;
+    current_image.image = (uint8_t *)data.image.image;
+    current_image.width_px = data.image.width;
+    current_image.height_px = data.image.height;
+    current_image.stride_px = data.image.stride;
 
     feature_tracker->tracks.clear();
     feature_tracker->tracks.reserve(track_count());
@@ -525,8 +525,8 @@ void state_camera::update_feature_tracks(const rc_ImageData &image, mapper *map,
     for(auto &t:standby_tracks) feature_tracker->tracks.emplace_back(&t);
 
     // create tracks of features visible in inactive map nodes
-    if(map && camera_frame.frame) {
-        map->predict_map_features(camera_frame.camera_id, G_Bcurrent_Bnow);
+    if(map) {
+        map->predict_map_features(data.id, G_Bcurrent_Bnow);
         for(auto &nft : map->map_feature_tracks) {
             for(auto &mft : nft.tracks)
                 feature_tracker->tracks.emplace_back(&mft.track);

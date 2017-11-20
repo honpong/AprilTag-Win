@@ -100,7 +100,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                         sfm.log->info("relocalized");
                 }
 
-                bool update_frame = sfm.map && (sfm.map->current_node_id != std::numeric_limits<uint64_t>::max()); // FIXME: a frame should be calculated either because a new node has just been added to the map
+                bool update_frame = sfm.map && (sfm.map->current_node_id != std::numeric_limits<uint64_t>::max()) && sfm.relocalize; // FIXME: a frame should be calculated either because a new node has just been added to the map
                                                                        // in filter_image_measurement or because we will try to relocalize in the current image.
 
                 // Store frame position wrt current node. Dbow and descriptors are calcualted in a separate thread in filter_detect.
@@ -143,7 +143,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                         sfm.log->info("relocalized");
                 }
 
-                 bool update_frame = sfm.map && (sfm.map->current_node_id != std::numeric_limits<uint64_t>::max()); // FIXME: a frame should be calculated either because a new node has just been added to the map
+                 bool update_frame = sfm.map && (sfm.map->current_node_id != std::numeric_limits<uint64_t>::max()) && sfm.relocalize; // FIXME: a frame should be calculated either because a new node has just been added to the map
                                                                           // in filter_image_measurement or because we will try to relocalize in the current image.
 
                  // Store frame position wrt current node. Dbow and descriptors are calcualted in a separate thread in filter_detect.

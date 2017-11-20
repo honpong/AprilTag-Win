@@ -162,7 +162,7 @@ void mapper::node_finished(nodeid id)
 mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
 {
     nodes_path neighbor_nodes;
-    if(!initialized())
+    if(current_node_id == std::numeric_limits<uint64_t>::max())
         return neighbor_nodes;
 
     queue<node_path> next;
@@ -196,7 +196,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
 mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& searched_nodes)
 {
     nodes_path searched_nodes_path;
-    if(!initialized())
+    if(current_node_id == std::numeric_limits<uint64_t>::max())
         return searched_nodes_path;
 
     queue<node_path> next;

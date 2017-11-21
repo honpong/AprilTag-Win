@@ -33,7 +33,7 @@ int main(int c, char **v)
              << "   [--no-plots] [--no-video] [--no-main] [--no-depth]\n"
              << "   [--render <file.png>] [--incremental-ate]\n"
              << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
-             << "   [--enable-map] [--save-map <map-json>] [--load-map <map-json>]\n"
+             << "   [--disable-map] [--save-map <map-json>] [--load-map <map-json>]\n"
              << "   [--relocalize]\n";
         return 1;
     }
@@ -43,7 +43,7 @@ int main(int c, char **v)
     std::string save_map, load_map;
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
-    bool enable_map = false;
+    bool enable_map = true;
     bool incremental_ate = false;
     bool relocalize = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
@@ -68,7 +68,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--qvga") == 0) qvga = true;
         else if (strcmp(v[i], "--drop-depth") == 0) depth = false;
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
-        else if (strcmp(v[i], "--enable-map") == 0) enable_map = true;
+        else if (strcmp(v[i], "--disable-map") == 0) enable_map = false;
         else if (strcmp(v[i], "--save-map") == 0 && i+1 < c) save_map = v[++i];
         else if (strcmp(v[i], "--load-map") == 0 && i+1 < c) load_map = v[++i];
         else if (strcmp(v[i], "--load") == 0 && i+1 < c) load = v[++i];

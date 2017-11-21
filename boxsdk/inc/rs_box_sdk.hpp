@@ -15,6 +15,7 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 //
 #pragma once
 
+
 #ifndef rs_box_sdk_hpp
 #define rs_box_sdk_hpp
 
@@ -34,12 +35,12 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 extern "C"
 {
 #endif
-    
-    typedef enum rs2_measure_const 
+
+    typedef enum rs2_measure_const
     {
         RS2_MEASURE_BOX_MAXCOUNT = 10
     } rs2_measure_const;
-        
+
     struct rs2_measure_box
     {
         float center[3];   /**< box center in 3d world coordinate           */
@@ -57,6 +58,8 @@ extern "C"
     struct rs2_box_measure;
 
     RS2_MEASURE_DECL void* rs2_box_measure_create(rs2_box_measure** box_measure, rs2_error** e);
+    RS2_MEASURE_DECL void rs2_box_measure_delete(rs2_box_measure* box_measure, rs2_error** e);
+    RS2_MEASURE_DECL void rs2_box_measure_reset(rs2_box_measure* box_measure, rs2_error** e);
     RS2_MEASURE_DECL void rs2_box_measure_set_depth_unit(rs2_box_measure* box_measure, float depth_unit, rs2_error** e);
     RS2_MEASURE_DECL int rs2_box_measure_get_boxes(rs2_box_measure* box_measure, rs2_measure_box* boxes, rs2_error** e);
     RS2_MEASURE_DECL const char* rs2_measure_get_realsense_icon(int* icon_width, int* icon_height, rs2_format* format, rs2_error** e);
@@ -71,6 +74,16 @@ namespace rs2
 {
     inline std::string stri(float v, int p = 2) {
         std::ostringstream ss; ss << std::fixed << std::setprecision(p) << v << " "; return ss.str();
+    }
+
+    static void get_inverse_pose(const float pose[12], float inv_pose[12])
+    {
+        inv_pose[0] = pose[0]; inv_pose[1] = pose[4]; inv_pose[2] = pose[8];
+        inv_pose[3] = -((pose[0] * pose[3]) + (pose[4] * pose[7]) + (pose[8] * pose[11]));
+        inv_pose[4] = pose[1]; inv_pose[5] = pose[5]; inv_pose[6] = pose[9];
+        inv_pose[7] = -((pose[1] * pose[3]) + (pose[5] * pose[7]) + (pose[9] * pose[11]));
+        inv_pose[8] = pose[2]; inv_pose[9] = pose[6]; inv_pose[10] = pose[10];
+        inv_pose[11] = -((pose[2] * pose[3]) + (pose[6] * pose[7]) + (pose[10] * pose[11]));
     }
 
     struct box : public rs2_measure_box
@@ -101,14 +114,15 @@ namespace rs2
                 { { -.5f,-.5f,-.5f },{ -.5f,.5f,-.5f } },{ { -.5f,-.5f,.5f },{ -.5f,.5f,.5f } },{ { .5f,-.5f,-.5f },{ .5f,.5f,-.5f } },{ { .5f,-.5f,.5f },{ .5f,.5f,.5f } },
                 { { -.5f,-.5f,-.5f },{ -.5f,-.5f,.5f } },{ { -.5f,.5f,-.5f },{ -.5f,.5f,.5f } },{ { .5f,-.5f,-.5f },{ .5f,-.5f,.5f } },{ { .5f,.5f,-.5f },{ .5f,.5f,.5f } } };
 
-            wire_frame box_frame; float pt[3];
+            wire_frame box_frame; float pt[3], inv_pose[12];
+            get_inverse_pose(pose, inv_pose);
             for (int l = 0; l < 12; ++l) {
                 for (int i = 0; i < 2; ++i) {
                     for (int d = 0; d < 3; ++d)
                         pt[d] = center[d] + axis[0][d] * line_idx[l][i][0] + axis[1][d] * line_idx[l][i][1] + axis[2][d] * line_idx[l][i][2];
-                    const auto x = pt[0] * pose[0] + pt[1] * pose[4] + pt[2] * pose[8] - pose[3];
-                    const auto y = pt[0] * pose[1] + pt[1] * pose[5] + pt[2] * pose[9] - pose[7];
-                    const auto z = pt[0] * pose[2] + pt[1] * pose[6] + pt[2] * pose[10] - pose[11];
+                    const auto x = pt[0] * inv_pose[0] + pt[1] * inv_pose[1] + pt[2] * inv_pose[2] + inv_pose[3];
+                    const auto y = pt[0] * inv_pose[4] + pt[1] * inv_pose[5] + pt[2] * inv_pose[6] + inv_pose[7];
+                    const auto z = pt[0] * inv_pose[8] + pt[1] * inv_pose[9] + pt[2] * inv_pose[10] + inv_pose[11];
                     const auto iz = fabs(z) <= FLT_EPSILON ? 0 : 1.0f / z;
                     box_frame.end_pt[l][i][0] = x * cam.fx * iz + cam.ppx;
                     box_frame.end_pt[l][i][1] = y * cam.fy * iz + cam.ppy;
@@ -118,8 +132,9 @@ namespace rs2
         }
     };
 
-    struct box_frameset : public frameset
+    class box_frameset : public frameset
     {
+    public:
         box_frameset(frame& f) : frameset(f) {}
 
         const rs2_measure_camera_state* state() const { return (rs2_measure_camera_state*)((*this)[0].get_data()); }
@@ -147,35 +162,45 @@ namespace rs2
 
         typedef std::vector<box> box_vector;
 
-        box_measure(device dev = device()) : _queue(1), _stream_w(0), _stream_h(0)
+        box_measure(device dev = device()) : _queue(1), _stream_w(0), _stream_h(0), _device(dev)
         {
             rs2_error* e = nullptr;
 
             _block = std::shared_ptr<processing_block>((processing_block*)rs2_box_measure_create(&_box_measure, &e));
             error::handle(e);
 
-            if (dev.get()) { try_set_depth_scale(dev); }
+            if (_device.get()) { try_set_depth_scale(_device); }
 
             _block->start(_queue);
+        }
+
+        void reset()
+        {
+            rs2_error *e = nullptr;
+
+            rs2_box_measure_reset(_box_measure, &e);
+            error::handle(e);
         }
 
         config get_camera_config()
         {
             if (_camera_name == "Intel RealSense 410") {
-                _stream_w = 1280 / 2; _stream_h = 720 / 2;
+                _stream_w = 1280 / 2; _stream_h = 960 / 2;
             }
             else if (_camera_name == "Intel RealSense 415") {
-                _stream_w = 1280 / 2; _stream_h = 720 / 2;
+                _stream_w = 1280 / 2; _stream_h = 960 / 2;
             }
             else if (_camera_name == "Intel RealSense SR300") {
                 _stream_w = 640; _stream_h = 480;
             }
-            else
-                throw std::runtime_error(_camera_name + " not supported by Box SDK!");
-
+            else {
+                _stream_w = 640; _stream_h = 480;
+                //throw std::runtime_error(_camera_name + " not supported by Box SDK!");
+            }
             config config;
             config.enable_stream(RS2_STREAM_DEPTH, 0, _stream_w, _stream_h, RS2_FORMAT_Z16);
             config.enable_stream(RS2_STREAM_COLOR, 0, _stream_w, _stream_h, RS2_FORMAT_RGB8);
+
             return config;
         }
 
@@ -231,6 +256,7 @@ namespace rs2
         }
 
     private:
+        rs2::device _device;
         std::shared_ptr<processing_block> _block;
         frame_queue _queue;
 
@@ -240,8 +266,6 @@ namespace rs2
         int _stream_w, _stream_h;
     };
 }
-
-
-#endif
+#endif //__cplusplus
 
 #endif /* rs_box_sdk_hpp */

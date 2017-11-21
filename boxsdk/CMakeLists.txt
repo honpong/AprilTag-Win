@@ -6,24 +6,34 @@ if(BUILD_SHARED_LIB_BOXSDK)
     add_library(box-sdk SHARED
         inc/rs_box_sdk.hpp
         rs_box_api.h
-        rs_box_camera.hpp
+        rs_box_image.hpp
     	rs_box_sdk.cpp
-		rs_icon.h)
+        rs_icon.h
+        rs_sf_pose_tracker.h
+        rs_sf_pose_tracker.cpp)
 else()
     add_library(box-sdk STATIC
         inc/rs_box_sdk.hpp
         rs_box_api.h
-        rs_box_camera.hpp
+        rs_box_image.hpp
     	rs_box_sdk.cpp
-		rs_icon.h)
+	rs_icon.h
+        rs_sf_pose_tracker.h
+        rs_sf_pose_tracker.cpp)
+endif()
+
+find_package(libSP QUIET PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../src/thirdparty/sp/win")
+if(libSP_FOUND)
+    add_definitions(-DlibSP_FOUND)
 endif()
 
 target_include_directories(box-sdk 
-    PUBLIC  inc ${LIBRS_LIBS})
+    PUBLIC  inc ${LIBRS_LIBS} ${libSP_INCLUDE_DIR})
     
+link_directories(${libSP_LIB_DIR})
 target_link_libraries(box-sdk 
     PUBLIC  ${LIBRS_LIBS}
-    PRIVATE ${ALGO_LIB})
+    PRIVATE ${ALGO_LIB} ${libSP_LIB})
 
 add_executable(box-app
     rs-box-app.cpp
@@ -41,9 +51,12 @@ set_property(TARGET box-sdk PROPERTY CXX_STANDARD 14)
 set_property(TARGET box-app PROPERTY CXX_STANDARD 14)
 
 if(MSVC)
-    add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${ALGO_LIB}>" "$<TARGET_FILE_DIR:box-app>")
-    add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:realsense2>"     "$<TARGET_FILE_DIR:box-app>")
-    add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:box-sdk>"        "$<TARGET_FILE_DIR:box-app>")
-#	add_custom_command(TARGET shapefit-dev POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${LIBREALSENSE_BIN_PATH}/${LIBREALSENSE_LIB}.dll" "$<TARGET_FILE_DIR:shapefit-dev>")
+	if(libSP_FOUND)
+	    add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${libSP_BIN_DIR}/RCTracker.dll" "$<TARGET_FILE_DIR:box-app>")
+        add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "${libSP_BIN_DIR}/SP_Core.dll"   "$<TARGET_FILE_DIR:box-app>")
+    endif()
+	add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${ALGO_LIB}>" "$<TARGET_FILE_DIR:box-app>")
+    add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:realsense2>"  "$<TARGET_FILE_DIR:box-app>")
+    add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:box-sdk>"     "$<TARGET_FILE_DIR:box-app>")
 	set_target_properties(box-app PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
 endif()

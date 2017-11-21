@@ -23,6 +23,9 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 #ifndef GL_BGR
 #define GL_BGR GL_BGR_EXT
 #endif
+#ifndef GL_BGRA
+#define GL_BGRA GL_BGRA_EXT
+#endif
 
 //////////////////////////////
 // Basic Data Types         //
@@ -141,7 +144,7 @@ public:
         glRectf(r.x, r.y, r.x + r.w, r.y + r.h);
 
         static int2 dim; rs2_format fm = format;
-        render(icon(dim.w, dim.h, fm), dim.w, dim.h, rect{ r.x + r.w / 4, r.y, r.w / 2, r.h }.adjust_ratio({ float(dim.w),float(dim.h) }), "", fm);
+        render(icon(dim.w, dim.h, fm), dim.w, dim.h, rect{ r.x + r.w / 8, r.y, r.w * 3 / 4, r.h }.adjust_ratio({ float(dim.w),float(dim.h) }), "", fm);
     }
 
     void render(const rs2::video_frame& frame, const rect& r, const char* text = nullptr)
@@ -173,8 +176,8 @@ public:
         case RS2_FORMAT_RGB8:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width = width, _height = height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
             break;
-        case RS2_FORMAT_BGR8:
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width = width, _height = height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+        case RS2_FORMAT_BGRA8:
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width = width, _height = height, 0, GL_BGRA, GL_UNSIGNED_BYTE, data);
             break;
         case RS2_FORMAT_Y8:
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width = width, _height = height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, data);
@@ -337,10 +340,10 @@ public:
         float original_color[4];
         glGetFloatv(GL_CURRENT_COLOR, original_color);
         if (!default_color) glColor3b(color[0], color[1], color[2]);
-        glPushMatrix(); glTranslatef(r.x, r.y, 0.0f); 
+        glPushMatrix(); glTranslatef(r.x, r.y, 0.0f);
         glBegin(GL_LINE_LOOP);
         glVertex2f(0, 0); glVertex2f(r.w, 0.0f); glVertex2f(r.w, r.h); glVertex2f(0.0f, r.h);
-        glEnd(); 
+        glEnd();
         glPopMatrix(); glColor4fv(original_color);
     }
 
@@ -372,6 +375,7 @@ public:
     }
 
     operator GLFWwindow*() { return win; }
+    bool reset_request() { return _reset; }
 
     double _mouse_pos[2] = {};
     const unsigned char bkg_blue[3] = { 0, 66, 128 };

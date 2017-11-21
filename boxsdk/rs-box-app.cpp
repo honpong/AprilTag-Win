@@ -28,21 +28,29 @@ int main(int argc, char* argv[])
     return 0;
 }
 #else 
+
+#if 0
 #define STB_IMAGE_IMPLEMENTATION
 #include "../third-party/stb_image.h"
 #include <fstream>
 void write_icon(){
     int icon_w, icon_h, icon_n;
-    auto *icon_data = stbi_load("C:\\temp\\close_icon.png", &icon_w, &icon_h, &icon_n, 0);
+    auto *icon_data = stbi_load("C:\\temp\\realsense_icon2.bmp", &icon_w, &icon_h, &icon_n, 0);
 
-    std::ofstream myfile; myfile.open("C:\\temp\\close_icon.txt", std::ios::out);
-    for (int y = 0; y < icon_h; ++y, myfile << std::endl)
-        for (int x = 0; x < icon_w; ++x) {
-            char tmp[64];
-            sprintf(tmp, "0x%02x", icon_data[(y*icon_w + x)*icon_n]);
-            myfile << tmp << ", ";
+
+    std::ofstream myfile; myfile.open("C:\\temp\\realsense_icon.txt", std::ios::out);
+    for (int y = 0; y < icon_h; ++y, myfile << std::endl) {
+        for (int x = 0; x < icon_w; ++x, myfile << ",") {
+            myfile << "0x";
+            for (int c = 0; c < icon_n; ++c) {
+                char tmp[32];
+                sprintf(tmp, "%02x", icon_data[(y*icon_w + x) * icon_n + c]);
+                myfile << tmp;
+            }
         }
+    }
 }
+#endif
 
 int main(int argc, char* argv[])
 {
@@ -83,7 +91,7 @@ int main(int argc, char* argv[])
         auto box = boxscan.get_boxes();
 
         app.render_ui(color_map(frameset.get_depth_frame()), frameset.get_color_frame());
-        app.render_ui(box_frame[1], frameset.get_color_frame());
+        //app.render_ui(box_frame[1], frameset.get_color_frame());
 
 
         if (box.size())
@@ -94,8 +102,11 @@ int main(int argc, char* argv[])
             draw_text(0, 15 + app.win_rs_logo().ey(), box_msg.c_str());
         }
 
+      
         //box_frame.draw_pose_text(app.win_rs_logo().middle().x, app.win_rs_logo().ey() + 35, 20, draw_text);
-       
+        if (app.reset_request()) {
+            boxscan.reset();
+       }
     }
 
     return EXIT_SUCCESS;

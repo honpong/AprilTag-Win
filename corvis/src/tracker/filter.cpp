@@ -838,6 +838,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             if(best_distance < DESCRIPTOR::good_track_distance && second_best_distance > DESCRIPTOR::good_track_distance) {
                 best_kp->depth = k1.depth = best_depth;
                 best_kp->error = k1.error = best_error;
+                best_kp->feature = k1.feature;
             }
             else {
                 k1.depth = 0;

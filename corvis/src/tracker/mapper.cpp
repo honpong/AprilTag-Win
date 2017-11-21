@@ -305,6 +305,7 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
         auto match = [&current_frame, &candidate_frame, &increment_orientation_histogram](
                 const std::vector<size_t>& current_keypoint_indexes,
                 const std::vector<size_t>& candidate_keypoint_indexes) {
+            std::unordered_map<size_t, std::pair<size_t, int>> matches;  // candidate -> current, distance
             for (auto current_point_idx : current_keypoint_indexes) {
                 size_t best_candidate_point_idx = 0;
                 int best_distance = std::numeric_limits<int>::max();
@@ -323,12 +324,25 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
 
                 // not match if more than 50 bits are different
                 if (best_distance <= 50 && (best_distance < second_best_distance * 0.6f)) {
-                    auto& best_candidate_keypoint = *candidate_frame->keypoints[best_candidate_point_idx];
-                    size_t bin = calculate_orientation_bin(best_candidate_keypoint.descriptor,
-                                                           current_keypoint.descriptor,
-                                                           num_orientation_bins);
-                    increment_orientation_histogram[bin].push_back(mapper::match(current_point_idx, best_candidate_point_idx));
+                    auto it = matches.find(best_candidate_point_idx);
+                    if (it == matches.end()) {
+                        matches.emplace(std::piecewise_construct,
+                                        std::forward_as_tuple(best_candidate_point_idx),
+                                        std::forward_as_tuple(current_point_idx, best_distance));
+                    } else if (best_distance < it->second.second) {
+                        it->second = {current_point_idx, best_distance};
+                    }
                 }
+            }
+            for (const auto& m : matches) {
+                size_t best_candidate_point_idx = m.first;
+                size_t current_point_idx = m.second.first;
+                auto& current_keypoint = *current_frame->keypoints[current_point_idx];
+                auto& best_candidate_keypoint = *candidate_frame->keypoints[best_candidate_point_idx];
+                size_t bin = calculate_orientation_bin(best_candidate_keypoint.descriptor,
+                                                       current_keypoint.descriptor,
+                                                       num_orientation_bins);
+                increment_orientation_histogram[bin].emplace_back(current_point_idx, best_candidate_point_idx);
             }
         };
 

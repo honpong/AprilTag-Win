@@ -162,9 +162,6 @@ void mapper::node_finished(nodeid id)
 mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
 {
     nodes_path neighbor_nodes;
-    if(!initialized())
-        return neighbor_nodes;
-
     queue<node_path> next;
     next.push(node_path{start, transformation()});
 
@@ -196,9 +193,6 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
 mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& searched_nodes)
 {
     nodes_path searched_nodes_path;
-    if(!initialized())
-        return searched_nodes_path;
-
     queue<node_path> next;
     next.push(node_path{start, transformation()});
 
@@ -557,13 +551,15 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
 
 void mapper::predict_map_features(const uint64_t camera_id_now, const transformation& G_Bcurrent_Bnow) {
     map_feature_tracks.clear();
+    if(current_node_id == std::numeric_limits<uint64_t>::max())
+        return;
+
+    nodes_path neighbors = breadth_first_search(current_node_id, 1);
     // predict features from all nodes that are 1 edge away from current_node_id in the map.
     // increasing this value will try to bring back groups that are not directly connected to current_node_id.
     const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
     const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
-    nodes_path neighbors = breadth_first_search(current_node_id, 1);
     transformation G_CB = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
-
     transformation G_Bnow_Bcurrent = invert(G_Bcurrent_Bnow);
     for(const auto& neighbor : neighbors) {
         map_node& node_neighbor = nodes[neighbor.first];

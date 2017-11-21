@@ -238,7 +238,7 @@ struct state_camera: state_branch<state_node*> {
     camera_frame_t camera_frame;
 
     std::list<state_vision_track> tracks;
-    void update_feature_tracks(const rc_ImageData &image, mapper *map, const transformation &G_Bcurrent_Bnow);
+    void update_feature_tracks(const sensor_data &data, mapper *map, const transformation &G_Bcurrent_Bnow);
     size_t track_count() const;
     int process_tracks(mapper *map, spdlog::logger &log);
 

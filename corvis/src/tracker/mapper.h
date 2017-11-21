@@ -104,7 +104,6 @@ class mapper {
     typedef std::map<nodeid, transformation> nodes_path;
 
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
-    bool initialized() const { return (current_node_id != std::numeric_limits<uint64_t>::max()); }
     void add_node(nodeid node_id, const rc_Sensor camera_id);
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);

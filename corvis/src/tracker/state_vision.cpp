@@ -308,6 +308,15 @@ void state_vision::update_map(mapper *map)
             distance_current_node = g->Tr.v.norm();
             map->current_node_id = g->id;
         }
+
+        // update map edges for all active groups
+        for (auto &g2 : groups.children) {
+            if(g2->id > g->id) {
+                const transformation& Gg_now = *g->Gr;
+                const transformation& Gnow_g2 = invert(*g2->Gr);
+                map->add_edge(g->id, g2->id, Gg_now*Gnow_g2);
+            }
+        }
         for (auto &f : g->features.children) {
             float stdev = (float)f->v->stdev_meters(sqrt(f->variance()));
             float variance_meters = stdev*stdev;
@@ -338,11 +347,6 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
         // add group id to standby_tracks to triangulate
         for (tracker::feature_track &f : camera.standby_tracks) {
             f.group_tracks.push_back({g->id,f.x,f.y});
-        }
-        // add edge in the map between new group and active groups in the filter
-        for(auto& neighbor : groups.children) {
-            const transformation& G_new_neighbor = invert(*neighbor->Gr);
-            map->add_edge(g->id, neighbor->id, G_new_neighbor);
         }
     }
     auto *p = g.get();

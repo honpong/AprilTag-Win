@@ -21,39 +21,22 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 #include "rs_box_api.h"
 #include "rs_icon.h"
 #include "rs_sf_pose_tracker.h"
+#include "rs_box_image.hpp"
 
 namespace rs2
 {
-    static rs_sf_image& operator<<(rs_sf_image& img, video_frame& f)
+    struct camera_tracking
     {
-        static const int stream_type_to_byte[] = { 1,2,3,1,1,1,1,1 };
-        img.byte_per_pixel = stream_type_to_byte[f.get_profile().stream_type()];
-        img.img_h = f.get_height();
-        img.img_w = f.get_width();
-        img.frame_id = f.get_frame_number();
-        img.data = reinterpret_cast<uint8_t*>(const_cast<void *>(f.get_data()));
-        return img;
-    }
-    static rs_sf_image& operator<<(rs_sf_image& img, rs2_intrinsics* intrinsics) { img.intrinsics = (rs_sf_intrinsics*)intrinsics; return img; }
-    static rs_sf_image& operator<<(rs_sf_image& img, float* cam_pose) { img.cam_pose = cam_pose; return img; }
-    static rs_sf_image& operator<<(rs_sf_image& img, unsigned long long frame_id) { img.frame_id = frame_id; return img; }
-    static rs_sf_image& operator<<(rs_sf_image& img, const void* data) { img.data = reinterpret_cast<unsigned char*>(const_cast<void*>(data)); return img; }
+        camera_tracking(const rs2_intrinsics* i, int r_width = 320, int r_height = 240) :
+            _sp_init(rs_sf_setup_scene_perception(i->fx, i->fy, i->ppx, i->ppy, i->width, i->height, r_width, r_height, RS_SF_MED_RESOLUTION)),
+            _sdepth(r_width * r_height * (_sp_init ? 1 : 0)),
+            _scolor(r_width * r_height * (_sp_init ? 3 : 0)) {}
 
-    struct sp_handle
-    {
-        sp_handle(const rs2_intrinsics* i, int r_width = 320, int r_height = 240) : sp_init(
-            rs_sf_setup_scene_perception(i->fx, i->fy, i->ppx, i->ppy, i->width, i->height, r_width, r_height, RS_SF_MED_RESOLUTION)),
-            _sdepth(r_width * r_height * (sp_init ? 1 : 0)), _scolor(r_width * r_height * (sp_init ? 3 : 0)) {}
-        ~sp_handle() { if (sp_init) rs_sf_pose_tracking_release(); }
-
-        bool sp_init, was_tracking = false;
-        std::unique_ptr<float[]> buf;
-        std::vector<unsigned short> _sdepth;
-        std::vector<unsigned char> _scolor;
+        ~camera_tracking() { if (_sp_init) rs_sf_pose_tracking_release(); }
 
         bool track(rs_sf_image& depth_frame, rs_sf_image& color_frame, const rs2_extrinsics& d2c, bool reset_request)
         {
-            if (!sp_init) {
+            if (!_sp_init) {
                 memcpy(depth_frame.cam_pose, std::vector<float>{ 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f }.data(), sizeof(float) * 12);
                 depth_frame.cam_pose = nullptr;
                 return true;
@@ -76,17 +59,19 @@ namespace rs2
             }
 
             // do pose tracking
-            bool track_success = rs_sf_do_scene_perception_tracking(_sdepth.data(), _scolor.data(), reset_request, depth_frame.cam_pose);
-            bool cast_success = rs_sf_do_scene_perception_ray_casting(320, 240, _sdepth.data(), buf);
-            bool switch_track = (track_success && cast_success) != was_tracking;
+            const bool track_success = rs_sf_do_scene_perception_tracking(_sdepth.data(), _scolor.data(), reset_request, depth_frame.cam_pose);
+            const bool cast_success = rs_sf_do_scene_perception_ray_casting(320, 240, _sdepth.data(), _buf);
+            const bool switch_track = (track_success && cast_success) != _was_tracking;
 
             // up-sample depth
-            if (was_tracking = (track_success && cast_success)) {
+            if (_was_tracking = (track_success && cast_success)) {
                 for (int y = 0, p = 0, h = depth_frame.img_h, w = depth_frame.img_w; y < h; ++y) {
                     for (int x = 0; x < w; ++x, ++p) {
                         depth_data[p] = s_depth_data[(y * 240 / h) * 320 + (x * 320 / w)];
                     }
                 }
+
+                // compute color image pose
                 auto* d = depth_frame.cam_pose, *c = color_frame.cam_pose;
                 auto& r = d2c.rotation; auto& t = d2c.translation;
                 c[0] = r[0] * d[0] + r[1] * d[4] + r[2] * d[8];
@@ -102,8 +87,14 @@ namespace rs2
                 c[10] = r[6] * d[2] + r[7] * d[6] + r[8] * d[10];
                 c[11] = r[6] * d[3] + r[7] * d[7] + r[8] * d[11] + t[2];
             }
-            return was_tracking;
+            return _was_tracking;
         }
+
+    private:
+        bool _sp_init, _was_tracking = false;
+        std::unique_ptr<float[]> _buf;
+        std::vector<unsigned short> _sdepth;
+        std::vector<unsigned char> _scolor;
     };
 
     struct box_measure_impl
@@ -127,18 +118,16 @@ namespace rs2
             _depth_to_color = _color_stream_profile->get_extrinsics_to(*_depth_stream_profile);
 
             for (auto i : { 0, 1, 2, 9, 3, 4, 5, 10, 6, 7, 8, 11 })
-                color_image_pose.push_back(((float*)&_depth_to_color)[i]);
+                _color_image_pose.push_back(((float*)&_depth_to_color)[i]);
 
-            for (auto v : { 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f, .0f, .0f, 0.f, 1.0f, 0.f })
-                depth_image_pose.push_back(v);
-            depth_image_pose = { 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f, .0f, .0f, 0.f, 1.0f, 0.f };
+            _depth_image_pose = { 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f, .0f, .0f, 0.f, 1.0f, 0.f };
 
-            _image[BOX_SRC_DEPTH] << input_depth_frame << &_depth_intrinsics << depth_image_pose.data();
-            _image[BOX_SRC_COLOR] << input_color_frame << &_color_intrinsics << color_image_pose.data();
+            _image[BOX_SRC_DEPTH] << input_depth_frame << &_depth_intrinsics << _depth_image_pose.data();
+            _image[BOX_SRC_COLOR] << input_color_frame << &_color_intrinsics << _color_image_pose.data();
             _image[BOX_DST_COLOR] << input_color_frame << &_depth_intrinsics;
 
-            if (_sp) _sp.reset();
-            _sp = std::make_unique<sp_handle>(&_depth_intrinsics);
+            if (_camera_tracker) _camera_tracker.reset();
+            _camera_tracker = std::make_unique<camera_tracking>(&_depth_intrinsics);
 
             return box_detector;
         }
@@ -154,11 +143,11 @@ namespace rs2
 
             if (!box_detector) { box_detector = init_box_detector(input_depth_frame, input_color_frame); }
             else {
-                _image[BOX_SRC_DEPTH] << input_depth_frame.get_frame_number() << input_depth_frame.get_data() << depth_image_pose.data();
+                _image[BOX_SRC_DEPTH] << input_depth_frame.get_frame_number() << input_depth_frame.get_data() << _depth_image_pose.data();
                 _image[BOX_SRC_COLOR] << input_color_frame.get_frame_number() << input_color_frame.get_data();
             }
 
-            if (_sp) { _reset_request |= !_sp->track(_image[BOX_SRC_DEPTH], _image[BOX_SRC_COLOR], _depth_to_color, _reset_request); }
+            if (_camera_tracker) { _reset_request |= !_camera_tracker->track(_image[BOX_SRC_DEPTH], _image[BOX_SRC_COLOR], _depth_to_color, _reset_request); }
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_TRACKING, !_reset_request ? 0 : 1);
             _reset_request = false;
 
@@ -173,8 +162,8 @@ namespace rs2
                 auto cameras = (rs2_measure_camera_state*)output_align_frame.get_data();
                 cameras->color_intrinsics = &_color_intrinsics;
                 cameras->depth_intrinsics = &_depth_intrinsics;
-                memcpy(cameras->depth_pose, depth_image_pose.data(), sizeof(float)*depth_image_pose.size());
-                memcpy(cameras->color_pose, color_image_pose.data(), sizeof(float)*color_image_pose.size());
+                memcpy(cameras->depth_pose, _depth_image_pose.data(), sizeof(float)*_depth_image_pose.size());
+                memcpy(cameras->color_pose, _color_image_pose.data(), sizeof(float)*_color_image_pose.size());
 
                 //rs_sf_planefit_draw_planes(box_detector, &_image[BOX_DST_COLOR]);
                 //rs_sf_boxfit_draw_boxes(box_detector, &_image[BOX_DST_COLOR]);
@@ -224,10 +213,10 @@ namespace rs2
         rs2_extrinsics _depth_to_color;
         std::shared_ptr<video_stream_profile> _depth_stream_profile, _color_stream_profile;
 
-        std::unique_ptr<sp_handle> _sp;
+        std::unique_ptr<camera_tracking> _camera_tracker;
 
         std::shared_ptr<rs_shapefit> _detector;
-        std::vector<float> depth_image_pose, color_image_pose;
+        std::vector<float> _depth_image_pose, _color_image_pose;
         float _depth_unit = 0.001f;
         bool _reset_request = false;
     };

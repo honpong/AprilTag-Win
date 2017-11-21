@@ -302,7 +302,7 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
     mapper::matches current_to_candidate_matches;
 
     if (candidate_frame->keypoints.size() > 0 && current_frame->keypoints.size() > 0) {
-        auto match = [&current_frame, &candidate_frame, &features_dbow, &increment_orientation_histogram](
+        auto match = [&current_frame, &candidate_frame, &increment_orientation_histogram](
                 const std::vector<size_t>& current_keypoint_indexes,
                 const std::vector<size_t>& candidate_keypoint_indexes) {
             for (auto current_point_idx : current_keypoint_indexes) {
@@ -314,9 +314,7 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
                     auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
                     int dist = orb_descriptor::distance(candidate_keypoint.descriptor,
                                                         current_keypoint.descriptor);
-                    if (dist < best_distance
-                        // Use only keypoints with 3D estimation
-                        && features_dbow.find(candidate_keypoint.id) != features_dbow.end()) {
+                    if (dist < best_distance) {
                         second_best_distance = best_distance;
                         best_distance = dist;
                         best_candidate_point_idx = candidate_point_idx;
@@ -336,22 +334,45 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
 
         if (candidate_frame->dbow_direct_file.empty() && current_frame->dbow_direct_file.empty()) {
             // not using dbow direct file to prefilter matches
-            auto fill_with_indices = [](size_t N) {
+            auto indexes_all = [](size_t N) {
                 std::vector<size_t> v;
                 v.reserve(N);
                 for (size_t i = 0; i < N; ++i) v.push_back(i);
                 return v;
             };
-            std::vector<size_t> current_keypoint_indexes = fill_with_indices(current_frame->keypoints.size());
-            std::vector<size_t> candidate_keypoint_indexes = fill_with_indices(candidate_frame->keypoints.size());
+            auto indexes_with_3d = [&features_dbow](
+                    const std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>>& keypoints) {
+                std::vector<size_t> v;
+                v.reserve(keypoints.size());
+                for (size_t i = 0; i < keypoints.size(); ++i) {
+                    if (features_dbow.find(keypoints[i]->id) != features_dbow.end()) {
+                        v.push_back(i);
+                    }
+                }
+                return v;
+            };
+            std::vector<size_t> current_keypoint_indexes = indexes_all(current_frame->keypoints.size());
+            std::vector<size_t> candidate_keypoint_indexes = indexes_with_3d(candidate_frame->keypoints);
             match(current_keypoint_indexes, candidate_keypoint_indexes);
         } else {
             // dbow direct file is used
+            auto indexes_with_3d = [&features_dbow](
+                    const std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>>& keypoints,
+                    const std::vector<size_t>& keypoint_indices) {
+                std::vector<size_t> v;
+                v.reserve(keypoint_indices.size());
+                for (size_t i : keypoint_indices) {
+                    if (features_dbow.find(keypoints[i]->id) != features_dbow.end()) {
+                        v.push_back(i);
+                    }
+                }
+                return v;
+            };
             for (auto it_candidate = candidate_frame->dbow_direct_file.begin();
                  it_candidate != candidate_frame->dbow_direct_file.end(); ++it_candidate) {
                 auto it_current = current_frame->dbow_direct_file.find(it_candidate->first);
                 if (it_current != current_frame->dbow_direct_file.end()) {
-                    const auto& candidate_keypoint_indexes = it_candidate->second;
+                    auto candidate_keypoint_indexes = indexes_with_3d(candidate_frame->keypoints, it_candidate->second);
                     const auto& current_keypoint_indexes = it_current->second;
                     match(current_keypoint_indexes, candidate_keypoint_indexes);
                 }

@@ -324,8 +324,7 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
                     }
                 }
 
-                // not match if more than 50 bits are different
-                if (best_distance <= 50 && (best_distance < second_best_distance * 0.6f)) {
+                if (best_distance < second_best_distance * 0.8f) {
                     auto it = matches.find(best_candidate_point_idx);
                     if (it == matches.end()) {
                         matches.emplace(std::piecewise_construct,

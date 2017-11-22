@@ -10,7 +10,7 @@
 class orb_descriptor
 {
 public:
-    static constexpr int L = 32; // descriptor length
+    static constexpr int L = 8; // descriptor length
     static constexpr int orb_half_patch_size = 15;
     static constexpr int border_size = 19;
     static constexpr float bad_score = INFINITY;

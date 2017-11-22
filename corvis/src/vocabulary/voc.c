@@ -12,7 +12,7 @@ __asm__(
 #endif
     ".global " _"voc" "\n"
     _"voc:\n"
-    ".incbin " "\"" VOC_DIR "voc.bin\"" "\n"
+    ".incbin " "\"" VOC_DIR "voc_k20_L4_64.bin\"" "\n"
     ".global " _"voc_size" "\n"
     _"voc_size:\n"
     "1:\n"

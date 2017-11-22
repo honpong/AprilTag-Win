@@ -24,7 +24,7 @@ ColorWindowStartCallback*  ColorWindowStartCallback::New()
 void ColorWindowStartCallback::InitializeInputs(std::shared_ptr<CallbackInput> spInput)
 {
     m_spInput = spInput;
-    lastProcessedFrame = 0;
+    lastProcessedFrame = -1;
 }
 
 double ColorWindowStartCallback::GetLastProcessedFrame() const
@@ -71,7 +71,7 @@ void EndCallback::InitializeInputs(std::shared_ptr<CallbackInput> spInput)
 {
     m_spInput = spInput;
     m_max = 100000000000000;
-    lastProcessedFrame = 0;
+    lastProcessedFrame = -1;
     // matrices we need
     m_spTi = vtkSmartPointer<vtkMatrix4x4>::New();
     m_spP = vtkSmartPointer<vtkMatrix4x4>::New();
@@ -227,10 +227,14 @@ void ColorWindowEndCallback::Execute(vtkObject*  pCaller, unsigned long eventId,
                     std::cout << "\n";
                 }
             }
+            lastProcessedFrame = m_spInput ? *(m_spInput->m_pframeIndex) : ++lastProcessedFrame;
             m_mutex.unlock();
         }
     }
-    lastProcessedFrame = m_spInput ? *(m_spInput->m_pframeIndex) : ++lastProcessedFrame;
+    else if (*(m_spInput->m_pframeIndex) < 0)
+    {
+        lastProcessedFrame = m_spInput ? *(m_spInput->m_pframeIndex) : ++lastProcessedFrame;
+    }
 }
 
 void ColorWindowEndCallback::Record(unsigned char* const cfd, int cfd_size, int currentFrameIndex, std::shared_ptr<CFakeImgCapturer> spcap, const std::string& szDirectoryName, std::ofstream* const pFramesFile)
@@ -351,9 +355,11 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
     if (vtkCommand::TimerEvent == eventId)
     {
         {
-            std::unique_lock<std::mutex> lock(m_mutex, std::try_to_lock);
+            std::unique_lock<std::mutex> lock(m_mutex,std::try_to_lock);
             if (!lock.owns_lock())
                 return;
+
+            ++(*m_spInputTimer->m_pFrameIndex);
 
             CSimulatedWindow* const & pColorWindow = m_spInputTimer->m_pColorWindowTimer.get();
             CSimulatedWindow* const & pLFisheyeWindow = m_spInputTimer->m_pLFisheyeWindowTimer.get();
@@ -483,7 +489,6 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
 
                 if (m_spDepthCapturer)
                 {
-
                     // set new position for depth camera
                     spCameraPosition->Transpose();
                     double pos2[3] = { 0 };
@@ -526,6 +531,11 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
                     pColorWindow->m_spRenderer->GetActiveCamera()->GetClippingRange(current_clipping_range);
                 }
 
+                if (pDepthWindow)
+                {
+                    pDepthWindow->m_spRenderer->GetActiveCamera()->SetClippingRange(current_clipping_range);
+                }
+
                 if (pLFisheyeWindow)
                 {
                     pLFisheyeWindow->m_spRenderer->GetActiveCamera()->SetClippingRange(current_clipping_range);
@@ -534,11 +544,6 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
                 if (pRFisheyeWindow)
                 {
                     pRFisheyeWindow->m_spRenderer->GetActiveCamera()->SetClippingRange(current_clipping_range);
-                }
-
-                if (pDepthWindow)
-                {
-                    pDepthWindow->m_spRenderer->GetActiveCamera()->SetClippingRange(current_clipping_range);
                 }
 
                 if (*m_spInputTimer->m_pIsControllerAnimatedTimer)
@@ -612,8 +617,6 @@ void TimerWindowCallback::Execute(vtkObject*, unsigned long eventId, void*)
                     std::this_thread::sleep_for(std::chrono::milliseconds(uTimeout));
                 }
             }
-
-            ++(*m_spInputTimer->m_pFrameIndex);
         }
     }
 }
@@ -692,10 +695,10 @@ void DepthWindowEndCallback::Execute(vtkObject*  pCaller, unsigned long eventId,
             }
             Record(dfd.get(), dfd_size, *(m_spInput->m_pframeIndex), m_spDepthCapturer, m_spInput->m_szDirectoryName, m_spInput->m_pFramesFile);
             (*(m_spInput->m_spDepthRenderwindow))->AddObserver(vtkCommand::EndEvent, this);
+            lastProcessedFrame = m_spInput ? *(m_spInput->m_pframeIndex) : ++lastProcessedFrame;
             m_mutex.unlock();
         }
     }
-    lastProcessedFrame = m_spInput ? *(m_spInput->m_pframeIndex) : ++lastProcessedFrame;
 }
 
 LFisheyeWindowEndCallback* LFisheyeWindowEndCallback::New()
@@ -749,10 +752,10 @@ void RFisheyeWindowEndCallback::Execute(vtkObject* pCaller, unsigned long eventI
             }
             *m_spInput->m_pFramesFile << *(m_spInput->m_pframeIndex) << " " << fileName << " " << "\n";
             (*(m_spInput->m_spRFisheyeRenderwindow))->AddObserver(vtkCommand::EndEvent, this);
+            lastProcessedFrame = m_spInput ? *(m_spInput->m_pframeIndex) : ++lastProcessedFrame;
             m_mutex.unlock();
         }
     }
-    lastProcessedFrame = m_spInput ? *(m_spInput->m_pframeIndex) : ++lastProcessedFrame;
 }
 
 void LFisheyeWindowEndCallback::Execute(vtkObject*  pCaller, unsigned long eventId, void* pData)
@@ -800,10 +803,10 @@ void LFisheyeWindowEndCallback::Execute(vtkObject*  pCaller, unsigned long event
             }
             *m_spInput->m_pFramesFile << *(m_spInput->m_pframeIndex) << " " << fileName << " ";
             (*(m_spInput->m_spLFisheyeRenderwindow))->AddObserver(vtkCommand::EndEvent, this);
+            lastProcessedFrame = m_spInput ? *(m_spInput->m_pframeIndex) : ++lastProcessedFrame;
             m_mutex.unlock();
         }
     }
-    lastProcessedFrame = m_spInput ? *(m_spInput->m_pframeIndex) : ++lastProcessedFrame;
 }
 
 ModifiedCameraPosition* ModifiedCameraPosition::New()

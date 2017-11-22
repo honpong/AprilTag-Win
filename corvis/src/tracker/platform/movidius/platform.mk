@@ -43,7 +43,7 @@ SLAM_SOURCES   += $(SLAM_PREFIX)/corvis/src/vocabulary/resource.cpp
 SLAM_C_SOURCES += $(SLAM_PREFIX)/corvis/src/vocabulary/voc.c
 
 $(SLAM_PREFIX)/corvis/src/vocabulary/voc.c: \
-$(SLAM_PREFIX)/corvis/src/vocabulary/voc.bin
+$(SLAM_PREFIX)/corvis/src/vocabulary/voc_k20_L4_64.bin
 
 SLAM_HEADERS := \
 	$(wildcard $(SLAM_PREFIX)/corvis/src/tracker/*.h) \

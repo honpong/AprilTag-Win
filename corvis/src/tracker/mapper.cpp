@@ -319,6 +319,8 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
                         second_best_distance = best_distance;
                         best_distance = dist;
                         best_candidate_point_idx = candidate_point_idx;
+                    } else if (dist < second_best_distance) {
+                        second_best_distance = dist;
                     }
                 }
 

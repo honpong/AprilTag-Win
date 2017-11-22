@@ -1,3 +1,3 @@
 #include "resource.h"
 
-IDR_VOC_FILE VOC_FILE "voc.bin"
+IDR_VOC_FILE VOC_FILE "voc_k20_L4_64.bin"

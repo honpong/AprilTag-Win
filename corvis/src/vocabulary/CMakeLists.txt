@@ -1,7 +1,7 @@
 if(WIN32)
     add_library(vocabulary SHARED resource.cpp resource.rc resource.h)
     set_source_files_properties(resource.rc PROPERTIES LANGUAGE RC)
-    set_source_files_properties(resource.rc OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/voc.bin)
+    set_source_files_properties(resource.rc OBJECT_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/voc_k20_L4_64.bin)
     enable_language(RC)
 else()
     add_library(vocabulary STATIC resource.cpp voc.c)

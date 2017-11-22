@@ -113,7 +113,7 @@ class mapper {
     void get_triangulation_geometry(const nodeid group_id, const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses);
     void add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v);
     nodes_path breadth_first_search(nodeid start, int maxdepth = 1);
-    nodes_path breadth_first_search(nodeid start, const f_t maxdistance); // maxdistance in meters
+    nodes_path breadth_first_search(nodeid start, const f_t maxdistance, const size_t N = 5); // maxdistance in meters, max number of nodes
     nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes);
     v3 get_feature3D(nodeid node_id, uint64_t feature_id); // returns feature wrt node body frame
 

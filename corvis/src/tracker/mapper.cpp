@@ -190,9 +190,10 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
     return neighbor_nodes;
 }
 
-mapper::nodes_path mapper::breadth_first_search(nodeid start, const f_t maxdistance)
+mapper::nodes_path mapper::breadth_first_search(nodeid start, const f_t maxdistance, const size_t N)
 {
     nodes_path neighbor_nodes;
+    list<node_path> candidate_nodes;
     queue<node_path> next;
     next.push(node_path{start, transformation()});
 
@@ -212,10 +213,16 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, const f_t maxdista
                 next.push(node_path{v, Gu*Gv});
             }
         }
-        if(current_path.second.T.norm() < maxdistance)
-            neighbor_nodes.insert(current_path);
+        if(current_path.second.T.norm() < maxdistance &&
+           get_node(u).status == node_status::finished) {
+            // Keep nodes found at a deeper level in the graph
+            candidate_nodes.push_front(std::move(current_path));
+            if(candidate_nodes.size() > N)
+                candidate_nodes.pop_back();
+        }
     }
 
+    neighbor_nodes.insert(candidate_nodes.begin(), candidate_nodes.end());
     return neighbor_nodes;
 }
 
@@ -618,8 +625,9 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
     map_feature_tracks.clear();
     if(current_node_id == std::numeric_limits<uint64_t>::max())
         return;
-    // pick as candidates all nodes at 2 meters distance from current node
-    nodes_path neighbors = breadth_first_search(current_node_id, 2.f);
+    // pick as candidates the 5 finished nodes found deepest in the graph and
+    // within 2 meters from current node
+    nodes_path neighbors = breadth_first_search(current_node_id, 2.f, 4);
 
     const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
     const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
@@ -627,8 +635,6 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
     transformation G_Bnow_Bcurrent = invert(G_Bcurrent_Bnow);
     for(const auto& neighbor : neighbors) {
         map_node& node_neighbor = nodes[neighbor.first];
-        if(node_neighbor.status == node_status::normal)
-            continue; // if node status is normal then node is already in the filter
         std::vector<map_feature_track> tracks;
         const transformation& G_Bnow_Bneighbor = G_Bnow_Bcurrent*neighbor.second;
         transformation G_Cnow_Bneighbor = G_CB*G_Bnow_Bneighbor;

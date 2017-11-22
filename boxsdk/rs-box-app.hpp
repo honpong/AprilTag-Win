@@ -16,6 +16,8 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 #define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
 
+#include <chrono>
+#include <thread>
 #include <string>
 #include <sstream>
 #include <iostream>
@@ -25,6 +27,9 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 #endif
 #ifndef GL_BGRA
 #define GL_BGRA GL_BGRA_EXT
+#endif
+#ifndef GL_CLAMP_TO_EDGE
+#define GL_CLAMP_TO_EDGE GL_CLAMP
 #endif
 
 //////////////////////////////
@@ -86,9 +91,9 @@ struct color_icon
         for (int j = 0; j < 2; ++j) {
             _rgb[j].reserve(_width*_height * 3);
             for (int i = 0, n = _width*_height; i < n; ++i) {
-                _rgb[j].push_back(data[i] / (j + 1) | bkg_color[0]);
-                _rgb[j].push_back(data[i] / (j + 1) | bkg_color[1]);
-                _rgb[j].push_back(data[i] / (j + 1) | bkg_color[2]);
+                _rgb[j].push_back((j ? 0 : data[i]) | bkg_color[0]);
+                _rgb[j].push_back((j ? 0 : data[i]) | bkg_color[1]);
+                _rgb[j].push_back((j ? 0 : data[i]) | bkg_color[2]);
             }
         }
     }
@@ -188,8 +193,8 @@ public:
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
@@ -314,7 +319,7 @@ public:
     operator bool()
     {
         process_event();
-
+        
         glPopMatrix();
         glfwSwapBuffers(win);
 
@@ -363,7 +368,7 @@ public:
 
     void process_event()
     {
-        if (_close) on_key_release('q');
+        if (_close) std::thread([this]{ std::this_thread::sleep_for(std::chrono::milliseconds(100)); on_key_release('q');}).detach();
         if (_tgscn) reset_screen(!_fullscreen, _win_width, _win_height);
         _close = _reset = false;
     }

@@ -97,8 +97,8 @@ int main(int argc, char* argv[])
         if (box.size())
         {
             std::string box_msg = "   Box 1 : " + box[0].str();
-            app._texture_color.draw_box(box_frame.project_box_onto_color(box[0]).end_pt);
-            app._texture_depth.draw_box(box_frame.project_box_onto_depth(box[0]).end_pt);
+            app._texture_color.draw_box(box[0].project_box_onto_frame(box_frame.state(RS2_STREAM_COLOR)).end_pt);
+            app._texture_depth.draw_box(box[0].project_box_onto_frame(box_frame.state(RS2_STREAM_DEPTH)).end_pt);
             draw_text(0, 15 + app.win_rs_logo().ey(), box_msg.c_str());
         }
 

@@ -112,13 +112,17 @@ orb_descriptor::orb_descriptor(float x, float y, const tracker::image &image)
 float orb_descriptor::raw::distance(const orb_descriptor::raw &a,
                                     const orb_descriptor::raw &b)
 {
-    uint64_t dist = 0;
+    orb_descriptor::raw::value_type dist = 0;
     for (auto p1 = a.begin(), p2 = b.begin(); p1 != a.end() && p2 != b.end(); p1++, p2++) {
         auto v = (*p1) ^ (*p2);
 #ifndef __has_builtin
 #define __has_builtin(x) 0
 #endif
 #if defined(__GNUC__) || __has_builtin(__builtin_popcountll)
+        static_assert(std::is_same<unsigned int, decltype(v)>::value ||
+                      std::is_same<unsigned long, decltype(v)>::value ||
+                      std::is_same<unsigned long long, decltype(v)>::value,
+                      "Popcount does not support the ORB type");
         if (std::is_same<unsigned int, decltype(v)>::value)
             dist += __builtin_popcount(v);
         else if (std::is_same<unsigned long, decltype(v)>::value)
@@ -126,10 +130,19 @@ float orb_descriptor::raw::distance(const orb_descriptor::raw &a,
         else if (std::is_same<unsigned long long, decltype(v)>::value)
             dist += __builtin_popcountll(v);
 #elif defined(_WIN64)
-        dist += __popcnt64(v);
+        static_assert(std::is_same<unsigned short, decltype(v)>::value ||
+                      std::is_same<unsigned int, decltype(v)>::value ||
+                      std::is_same<unsigned __int64, decltype(v)>::value,
+                      "Popcount does not support the ORB type");
+        if (std::is_same<unsigned short, decltype(v)>::value)
+            dist += __popcnt16(v);
+        else if (std::is_same<unsigned int, decltype(v)>::value)
+            dist += __popcnt(v);
+        else if (std::is_same<unsigned __int64, decltype(v)>::value)
+            dist += __popcnt64(v);
 #else
         // taken from http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
-        typedef uint64_t T;
+        typedef decltype(v) T;
         v = v - ((v >> 1) & (T)~(T)0/3);
         v = (v & (T)~(T)0/15*3) + ((v >> 2) & (T)~(T)0/15*3);
         v = (v + (v >> 4)) & (T)~(T)0/255*15;
@@ -148,17 +161,18 @@ orb_descriptor::raw orb_descriptor::raw::mean(
     std::array<size_t, sizeof(raw) * 8> counters = {};
     for (auto* item : items) {
         auto counter_it = counters.begin();
-        for (uint64_t pack : *item) {
-            for (size_t i = 0; i < sizeof(uint64_t) * 8; ++i, ++counter_it) {
-                *counter_it += (pack & ((uint64_t)1 << i)) >> i;
+        for (auto pack : *item) {
+            for (size_t i = 0; i < sizeof(pack) * 8; ++i, ++counter_it) {
+                *counter_it += (pack & (decltype(pack)(1) << i)) >> i;
             }
         }
     }
     auto half = items.size() / 2;
     auto counter_it = counters.begin();
-    for (uint64_t& pack : avg) {
-        for (size_t i = 0; i < sizeof(uint64_t) * 8; ++i, ++counter_it) {
-            pack |= static_cast<uint64_t>(*counter_it > half) << i;
+    for (auto& pack : avg) {
+        using T = std::remove_reference<decltype(pack)>::type;
+        for (size_t i = 0; i < sizeof(pack) * 8; ++i, ++counter_it) {
+            pack |= static_cast<T>(*counter_it > half) << i;
         }
     }
     return avg;

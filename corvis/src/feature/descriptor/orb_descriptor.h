@@ -6,18 +6,21 @@
 #include "tracker.h"
 #include <array>
 #include <cmath>
+#include <type_traits>
 
 class orb_descriptor
 {
 public:
-    static constexpr int L = 8; // descriptor length
+    static constexpr int L = 8; // descriptor length in bytes
     static constexpr int orb_half_patch_size = 15;
     static constexpr int border_size = 19;
     static constexpr float bad_score = INFINITY;
     static constexpr float min_score = 200.f;
     static constexpr float good_score = 50.f;
 
-    struct raw : public std::array<uint64_t, L/8> {
+    static_assert(L % 4 == 0, "The ORB descriptor length must be a multiple of 4");
+    using value_type = std::conditional<L % 8 == 0, uint64_t, uint32_t>::type;
+    struct raw : public std::array<value_type, L / sizeof(value_type)> {
         static float distance(const orb_descriptor::raw &a, const orb_descriptor::raw &b);
         static raw mean(const std::vector<const raw*>& items);
     } descriptor;

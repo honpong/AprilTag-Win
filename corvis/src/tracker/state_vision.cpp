@@ -348,6 +348,12 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
         for (tracker::feature_track &f : camera.standby_tracks) {
             f.group_tracks.push_back({g->id,f.x,f.y});
         }
+        // Connect graph again if it got disconnected
+        if(groups.children.empty() && (map->current_node_id != std::numeric_limits<uint64_t>::max())) {
+            transformation G_current_now = invert(map->get_node(map->current_node_id).global_transformation)
+                    *get_transformation();
+            map->add_edge(map->current_node_id, g->id, G_current_now);
+        }
     }
     auto *p = g.get();
     groups.children.push_back(std::move(g));

@@ -43,6 +43,7 @@
 #include <stdint.h>
 #include <climits>
 #include <cmath>
+#include "popcount.h"
 
 #define lrintf(x) ((x) + 0.5f)
 
@@ -114,40 +115,7 @@ float orb_descriptor::raw::distance(const orb_descriptor::raw &a,
 {
     orb_descriptor::raw::value_type dist = 0;
     for (auto p1 = a.begin(), p2 = b.begin(); p1 != a.end() && p2 != b.end(); p1++, p2++) {
-        auto v = (*p1) ^ (*p2);
-#ifndef __has_builtin
-#define __has_builtin(x) 0
-#endif
-#if defined(__GNUC__) || __has_builtin(__builtin_popcountll)
-        static_assert(std::is_same<unsigned int, decltype(v)>::value ||
-                      std::is_same<unsigned long, decltype(v)>::value ||
-                      std::is_same<unsigned long long, decltype(v)>::value,
-                      "Popcount does not support the ORB type");
-        if (std::is_same<unsigned int, decltype(v)>::value)
-            dist += __builtin_popcount(v);
-        else if (std::is_same<unsigned long, decltype(v)>::value)
-            dist += __builtin_popcountl(v);
-        else if (std::is_same<unsigned long long, decltype(v)>::value)
-            dist += __builtin_popcountll(v);
-#elif defined(_WIN64)
-        static_assert(std::is_same<unsigned short, decltype(v)>::value ||
-                      std::is_same<unsigned int, decltype(v)>::value ||
-                      std::is_same<unsigned __int64, decltype(v)>::value,
-                      "Popcount does not support the ORB type");
-        if (std::is_same<unsigned short, decltype(v)>::value)
-            dist += __popcnt16(v);
-        else if (std::is_same<unsigned int, decltype(v)>::value)
-            dist += __popcnt(v);
-        else if (std::is_same<unsigned __int64, decltype(v)>::value)
-            dist += __popcnt64(v);
-#else
-        // taken from http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
-        typedef decltype(v) T;
-        v = v - ((v >> 1) & (T)~(T)0/3);
-        v = (v & (T)~(T)0/15*3) + ((v >> 2) & (T)~(T)0/15*3);
-        v = (v + (v >> 4)) & (T)~(T)0/255*15;
-        dist += (T)(v * ((T)~(T)0/255)) >> (sizeof(T) - 1) * CHAR_BIT;
-#endif
+        dist += popcount((*p1) ^ (*p2));
     }
     return static_cast<float>(dist);
 }

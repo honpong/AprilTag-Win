@@ -9,6 +9,7 @@ add_library(${PROJECT_NAME} STATIC
     descriptor/orb_descriptor.cpp
     descriptor/patch_descriptor.h
     descriptor/patch_descriptor.cpp
+    descriptor/popcount.h
 
     tracker/fast_constants.h
     tracker/fast_tracker.h

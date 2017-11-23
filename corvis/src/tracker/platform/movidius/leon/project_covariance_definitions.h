@@ -1,8 +1,11 @@
 #ifndef PROJECT_COVARIANCE_DEFINITIONS_H_
 #define PROJECT_COVARIANCE_DEFINITIONS_H_
 
+#include "state_size.h"
+
 #define PROJECT_COVARIANCE_FIRST_SHAVE 0
 #define PROJECT_COVARIANE_SHAVES 4
+
 
 struct project_covariance_element_data{
     int index;

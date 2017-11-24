@@ -91,7 +91,7 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
             tracker->sfm.cameras.push_back(std::move(new_camera));
             tracker->queue.require_sensor(rc_SENSOR_TYPE_IMAGE, camera_id, std::chrono::milliseconds(10));
             if (camera_id == tracker->sfm.s.cameras.children.size())
-                tracker->sfm.s.cameras.children.emplace_back(std::make_unique<state_camera>());
+                tracker->sfm.s.cameras.children.emplace_back(std::make_unique<state_camera>(camera_id));
         }
 
         tracker->sfm.cameras[camera_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);

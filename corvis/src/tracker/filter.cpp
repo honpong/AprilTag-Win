@@ -518,7 +518,8 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             feat->status = feature_normal;
             feat->depth_measured = true;
         }
-        camera.tracks.emplace_back(*feat, std::move(*i));
+
+        camera.tracks.emplace_back(camera.id, *feat, std::move(*i));
         g->features.children.push_back(std::move(feat));
     }
 
@@ -1428,12 +1429,12 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                         if(space && ft.track.found()) {
                             --space;
                             feat->status = feature_normal;
-                            camera_state.tracks.emplace_back(*feat, std::move(ft.track));
+                            camera_state.tracks.emplace_back(camera_state.id, *feat, std::move(ft.track));
                             g->features.children.push_back(std::move(feat));
                         } else {
                             // if there is no space or feature not found add to feature_lost
                             feat->status = feature_lost;
-                            camera_state.tracks.emplace_back(*feat, std::move(ft.track));
+                            camera_state.tracks.emplace_back(camera_state.id, *feat, std::move(ft.track));
                             g->lost_features.push_back(std::move(feat));
                         }
                     }

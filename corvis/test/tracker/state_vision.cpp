@@ -9,7 +9,7 @@ struct StateVision : public ::testing::Test {
     state_camera camera;
     std::default_random_engine gen;
     std::uniform_real_distribution<float> normalized_coord;
-    StateVision() : normalized_coord(-1.1, 1.1) {}
+    StateVision() : camera(0), normalized_coord(-1.1, 1.1) {}
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 };
 

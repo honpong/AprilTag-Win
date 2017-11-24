@@ -518,16 +518,16 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             feat->status = feature_normal;
             feat->depth_measured = true;
         }
-
-        camera.tracks.push_back(state_vision_track(*feat, *i));
+        camera.tracks.emplace_back(*feat, std::move(*i));
         g->features.children.push_back(std::move(feat));
     }
 
     if(f->map) {
-        for (auto t: camera.standby_tracks) {
+        for (auto &t: camera.standby_tracks) {
             f->map->initialize_track_triangulation(t, g->id);
         }
     }
+
     f->s.remap();
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after adding features");
@@ -600,9 +600,6 @@ size_t filter_detect(struct filter *f, const sensor_data &data, const std::uniqu
     std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space);
     END_EVENT(SF_DETECT, kp.size());
 
-    // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
-    camera.standby_tracks.insert(camera.standby_tracks.begin(), kp.begin(), kp.end());
-
     for (auto &p : kp)
         camera.feature_tracker->tracks.push_back(&p);
 
@@ -618,6 +615,11 @@ size_t filter_detect(struct filter *f, const sensor_data &data, const std::uniqu
             }
         }
     }
+
+    // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
+    camera.standby_tracks.insert(camera.standby_tracks.begin(),
+                                 std::make_move_iterator(kp.begin()),
+                                 std::make_move_iterator(kp.end()));
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
@@ -1426,12 +1428,12 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                         if(space && ft.track.found()) {
                             --space;
                             feat->status = feature_normal;
-                            camera_state.tracks.push_back(state_vision_track(*feat, ft.track));
+                            camera_state.tracks.emplace_back(*feat, std::move(ft.track));
                             g->features.children.push_back(std::move(feat));
                         } else {
                             // if there is no space or feature not found add to feature_lost
                             feat->status = feature_lost;
-                            camera_state.tracks.push_back(state_vision_track(*feat, ft.track));
+                            camera_state.tracks.emplace_back(*feat, std::move(ft.track));
                             g->lost_features.push_back(std::move(feat));
                         }
                     }

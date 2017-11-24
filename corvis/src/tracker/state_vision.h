@@ -197,7 +197,7 @@ public:
     static f_t outlier_reject;
     static f_t outlier_lost_reject;
     
-    state_vision_track(state_vision_feature &f, tracker::feature_track &t): feature(f), track(t) { if(t.found()) ++feature.tracks_found; }
+    state_vision_track(state_vision_feature &f, tracker::feature_track &&t): feature(f), track(std::move(t)) { if(t.found()) ++feature.tracks_found; }
 };
 
 class state_vision_group: public state_branch<state_node *> {

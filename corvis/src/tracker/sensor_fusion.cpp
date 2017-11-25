@@ -77,7 +77,7 @@ void sensor_fusion::fast_path_catchup()
     END_EVENT(SF_FAST_PATH_CATCHUP, 0);
 }
 
-void sensor_fusion::queue_receive_data(sensor_data &&data)
+void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
 {
     switch(data.type) {
         case rc_SENSOR_TYPE_IMAGE: {
@@ -89,7 +89,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
                 docallback = sfm.s.orientation_initialized;
 
-            if (isProcessingVideo && fast_path) {
+            if (isProcessingVideo && fast_path && catchup) {
                 uint64_t in_queue = queue.data_in_queue(data.type, data.id);
                 if(!in_queue)
                     fast_path_catchup();
@@ -161,8 +161,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 sfm.s.cameras.children[pair.second.id]->detected)
                 filter_stereo_initialize(&sfm, pair.first.id, pair.second.id);
 
-            queue_receive_data(std::move(pair.first));
-            queue_receive_data(std::move(pair.second));
+            queue_receive_data(std::move(pair.first), false);
+            queue_receive_data(std::move(pair.second), !queue.data_in_queue(data.type, data.id));
             END_EVENT(SF_STEREO_RECEIVE, 0);
         } break;
 

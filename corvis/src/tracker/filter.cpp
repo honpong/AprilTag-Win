@@ -968,6 +968,23 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         f->s.remap();
     }
 
+    for(auto &g : f->s.groups.children)
+    {
+        for(auto &feat : g->features.children)
+        {
+            if(!feat->is_good()) continue;
+            feat->tracks.resize(f->s.cameras.children.size());
+            for(size_t i = 0; i < feat->tracks.size(); ++i)
+            {
+                if(feat->tracks[i] == nullptr)
+                {
+                    f->s.cameras.children[i]->tracks.emplace_back(i, *feat, tracker::feature_track(feat->feature, INFINITY, INFINITY, 0));
+                    feat->tracks[i] = &f->s.cameras.children[i]->tracks.back();
+                }
+            }
+        }
+    }
+
     if(show_tuning) {
         for (auto &c : f->cameras)
             std::cerr << " innov  " << c->inn_stdev << "\n";

@@ -33,6 +33,9 @@ struct tracker {
         bool found() const { return x != INFINITY; }
         feature_track(std::shared_ptr<struct feature> &&feature_, float x_, float y_, float score_)
             : feature(std::move(feature_)), x(x_), y(y_), score(score_) {}
+        feature_track(std::shared_ptr<struct feature> &feature_, float x_, float y_, float score_)
+        : feature(feature_), x(x_), y(y_), score(score_) {}
+
         feature_track(feature_track &&) = default;
         feature_track & operator=(feature_track &&) = default;
         feature_track(const feature_track &) = delete;

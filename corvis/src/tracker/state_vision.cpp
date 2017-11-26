@@ -560,7 +560,7 @@ void state_camera::update_feature_tracks(const sensor_data &data)
 
     feature_tracker->tracks.clear();
     feature_tracker->tracks.reserve(track_count());
-    for(auto &feature : tracks) feature_tracker->tracks.emplace_back(&feature.track);
+    for(auto &t:tracks) feature_tracker->tracks.emplace_back(&t.track);
     for(auto &t:standby_tracks) feature_tracker->tracks.emplace_back(&t);
 
     if (feature_tracker->tracks.size())

@@ -207,7 +207,7 @@ void * fnReplay(void * arg)
                 break;
             }
             case packet_arrival_time: {
-                // ignore arrival_time packets for now
+                packet_io_free(packet); // ignore arrival_time packets for now
                 break;
             }
             default:

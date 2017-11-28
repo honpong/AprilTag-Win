@@ -210,9 +210,9 @@ int state_vision::process_features(mapper *map)
 
     //Then: remove tracks based on feature and group status
     for(auto &camera : cameras.children)
-        for(auto t = camera->tracks.begin(); t != camera->tracks.end();)
-            if(t->feature.should_drop() || t->feature.group.status == group_empty) t = camera->tracks.erase(t);
-            else ++t;
+        camera->tracks.remove_if([](auto &t) {
+            return t.feature.should_drop() || t.feature.group.status == group_empty;
+        });
 
     // store info about reference group in case all groups are removed
     transformation G_reference_now;
@@ -222,8 +222,7 @@ int state_vision::process_features(mapper *map)
         G_reference_now = *reference_group->Gr;
     }
 
-    for(auto i = groups.children.begin(); i != groups.children.end();) {
-        auto &g = *i;
+    groups.children.remove_if([&](auto &g) {
         if(map) {
             if(g->id != reference_id) // update map edges
                 map->add_edge(reference_id, g->id, G_reference_now*invert(*g->Gr), type);
@@ -245,22 +244,19 @@ int state_vision::process_features(mapper *map)
             g->unmap();
             g->features.children.clear();
             g->lost_features.clear();
-            i = groups.children.erase(i);
+            return true;
         } else {
             // Delete the features we marked to drop
-            for(auto f = g->features.children.begin(); f != g->features.children.end();) {
-                if((*f)->should_drop()) {
-                    f = g->features.children.erase(f);
-                } else if((*f)->status == feature_lost) {
-                    g->lost_features.push_back(std::move(*f));
-                    f = g->features.children.erase(f);
-                } else {
-                    f++;
+            g->features.children.remove_if([&](auto &f) {
+                if(f->status == feature_lost) {
+                    g->lost_features.push_back(std::move(f));
+                    return true;
                 }
-            }
-            ++i;
+                return f->should_drop();
+            });
+            return false;
         }
-    }
+    });
     return total_health;
 }
 

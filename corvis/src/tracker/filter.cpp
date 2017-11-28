@@ -975,17 +975,15 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         for(auto &g : f->s.groups.children)
         {
             if(!space) break;
-            for(auto f = g->lost_features.begin(); f != g->lost_features.end();)
-            {
-                if(!space) break;
-                if((*f)->tracks_found) {
-                    --space;
-                    (*f)->set_initial_variance(recovered_feature_initial_variance);
-                    (*f)->status = feature_normal;
-                    g->features.children.push_back(std::move(*f));
-                    f = g->lost_features.erase(f);
-                } else ++f;
-            }
+            g->lost_features.remove_if([&](auto &f) {
+                if(!space || !f->tracks_found)
+                    return false;
+                --space;
+                f->set_initial_variance(recovered_feature_initial_variance);
+                f->status = feature_normal;
+                g->features.children.push_back(std::move(f));
+                return true;
+            });
         }
         f->s.remap();
     }

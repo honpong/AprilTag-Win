@@ -37,8 +37,8 @@ std::shared_ptr<rc_Tracker> TrackerProxy::getTracker() const
 int TrackerProxy::ReadCalibrationFile(std::string inputFile, std::string * const pFileContents)
 {
     int res = 1;
-    int i = 0;
-    int j = 0;
+    rc_Sensor i = 0;
+    rc_Sensor j = 0;
     std::string contents;
     const char *pJson = nullptr;
     rc_Extrinsics rce = {};
@@ -112,8 +112,8 @@ END:
 int TrackerProxy::DescribeCameraHelper(rc_ImageFormat format)
 {
     int res = 0;
-    int i = 0;
-    int j = 0;
+    uint8_t i = 0;
+    uint8_t j = 0;
     rc_Extrinsics rce = {};
     rc_CameraIntrinsics rcc = {};
 
@@ -146,7 +146,6 @@ std::vector<rc_Extrinsics> TrackerProxy::getCamerasExtrinsincs() const
 std::vector<rc_ExtendedCameraIntrinsics> TrackerProxy::getCamerasIntrincs() const
 {
     return m_cin;
-
 }
 
 std::vector<rc_GyroscopeIntrinsics> TrackerProxy::getGyroscopeIntrincs() const

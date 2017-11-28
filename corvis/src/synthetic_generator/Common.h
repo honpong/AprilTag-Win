@@ -25,6 +25,7 @@
 #include "VTKCommonHeaders.h"
 #include "TrackerProxy.h"
 
+#define FILE_SIZE_MAX          64U
 #define COLOR_RELATIVE_PATH    "color%04d.png"
 #define DEPTH_RELATIVE_PATH    "depth%04d.png"
 #define LFISHEYE_RELATIVE_PATH "leftFisheye%04d.png"
@@ -58,7 +59,7 @@ struct CFakeImgCapturer
 {
     CFakeImgCapturer();
     virtual ~CFakeImgCapturer() = default;
-    virtual void distortionEquation(cv::Mat &xDistorted, cv::Mat &yDistorted) = 0;
+    virtual void distortionEquation(cv::Mat* const pxDistorted, cv::Mat* const pyDistorted) = 0;
     virtual void InitializeCapturer() = 0;
     virtual void validateFisheyeDistortion(const std::string& szDirectoryName);
     virtual void addDistortion(unsigned char* ffd_img, int dims[3], int currentFrameIndex, const char* filename, const std::string& szDirectoryName);
@@ -89,13 +90,13 @@ struct CFakeImgCapturer
 struct FOVCapturer : public CFakeImgCapturer
 {
     virtual void InitializeCapturer();
-    virtual void distortionEquation(cv::Mat &xDistorted, cv::Mat &yDistorted);
+    virtual void distortionEquation(cv::Mat* const pxDistorted, cv::Mat* const pyDistorted);
 };
 
 struct KB4Capturer : public CFakeImgCapturer
 {
     virtual void InitializeCapturer();
-    virtual void distortionEquation(cv::Mat &xDistorted, cv::Mat &yDistorted);
+    virtual void distortionEquation(cv::Mat* const pxDistorted, cv::Mat* const pyDistorted);
 };
 
 struct RGBColor

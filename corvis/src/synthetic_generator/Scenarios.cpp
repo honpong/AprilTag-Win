@@ -48,18 +48,23 @@ uint8_t IVTKScenario::LoadCalibrationFile(std::map<std::string, std::string> arg
                 }
                 else
                 {
+                    m_spColorCapturer = !m_spColorCapturer ? i : m_spColorCapturer;
                     if (0 == i->CameraIndex)
                     {
                         m_spLFisheyeCapturer = i;
-                        m_spColorCapturer = !m_spColorCapturer ? i : m_spColorCapturer;
                     }
                     else
                     {
                         m_spRFisheyeCapturer = i;
-                        m_spColorCapturer = !m_spColorCapturer ? i : m_spColorCapturer;
                     }
                 }
             }
+        }
+        if (!m_spColorCapturer)
+        {
+            std::cout << "No camera seems to have been specified in the specified calibration file." << std::endl;
+            uRes = 2;
+            return uRes;
         }
     }
     else

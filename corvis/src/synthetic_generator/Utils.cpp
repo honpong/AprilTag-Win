@@ -4,8 +4,6 @@
 #include <future>
 #include <algorithm>
 
-using namespace cv;
-
 inline double getFOV(double imageDimension, double focalLength)
 {
     return ((2 * std::atan(imageDimension / (2 * focalLength)) * 180 / M_PI));
@@ -35,37 +33,37 @@ void MapVectorFromCameraToWorld(const double v[3], double r[3], const vtkSmartPo
 }
 
 //Creates a 2D mesh equivalent to the size of desired fisheye image
-void meshGrid(Mat &ui, Mat &vi, const CFakeImgCapturer& pcap)
+void meshGrid(cv::Mat* const pUi, cv::Mat* const pVi, const CFakeImgCapturer& pcap)
 {
-    for (int i = 0; i < pcap.CameraIntrinsics.height_px; i++)
+    for (uint64_t i = 0; i < pcap.CameraIntrinsics.height_px; i++)
     {
-        for (int j = 0; j < pcap.CameraIntrinsics.width_px; ++j) {
-            ui.at<float>(i, j) = (float)j;
+        for (uint64_t j = 0; j < pcap.CameraIntrinsics.width_px; ++j) {
+            (*pUi).at<float>(i, j) = (float)j;
         }
     }
-    for (int i = 0; i < pcap.CameraIntrinsics.width_px; i++)
+    for (uint64_t i = 0; i < pcap.CameraIntrinsics.width_px; i++)
     {
-        for (int j = 0; j < pcap.CameraIntrinsics.height_px; ++j) {
-            vi.at<float>(j, i) = (float)j;
+        for (uint64_t j = 0; j < pcap.CameraIntrinsics.height_px; ++j) {
+            (*pVi).at<float>(j, i) = (float)j;
         }
     }
 }
 
-void KB4Capturer::distortionEquation(Mat &xDistorted, Mat &yDistorted)
+void KB4Capturer::distortionEquation(cv::Mat* const pxDistorted, cv::Mat* const pyDistorted)
 {
-    Mat ui = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat vi = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat ru = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat xd = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat yd = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat rd = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat thetaImage = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat ku_d = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat ui = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat vi = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat ru = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat xd = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat yd = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat rd = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat thetaImage = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat ku_d = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
 
-    meshGrid(ui, vi,*this);
-    for (int i = 0; i < CameraIntrinsics.height_px; ++i)
+    meshGrid(&ui, &vi,*this);
+    for (uint64_t i = 0; i < CameraIntrinsics.height_px; ++i)
     {
-        for (int j = 0; j < CameraIntrinsics.width_px; ++j) {
+        for (uint64_t j = 0; j < CameraIntrinsics.width_px; ++j) {
             ui.at<float>(i, j) = (ui.at<float>(i, j) - CameraIntrinsics.c_x_px) / CameraIntrinsics.f_x_px;
             vi.at<float>(i, j) = (vi.at<float>(i, j) - CameraIntrinsics.c_y_px) / CameraIntrinsics.f_y_px;
             rd.at<float>(i, j) = sqrt(ui.at<float>(i, j) *ui.at<float>(i, j) + vi.at<float>(i, j) *vi.at<float>(i, j));
@@ -98,29 +96,29 @@ void KB4Capturer::distortionEquation(Mat &xDistorted, Mat &yDistorted)
             ku_d.at<float>(i, j) = ru.at<float>(i, j) / rd.at<float>(i, j);
             xd.at<float>(i, j) = ui.at<float>(i, j) * ku_d.at<float>(i, j);
             yd.at<float>(i, j) = vi.at<float>(i, j) * ku_d.at<float>(i, j);
-            xDistorted.at<float>(i, j) = xd.at<float>(i, j) * spInputFisheyeFocalLength->GetValue()[0];
-            yDistorted.at<float>(i, j) = yd.at<float>(i, j) * spInputFisheyeFocalLength->GetValue()[1];
+            (*pxDistorted).at<float>(i, j) = xd.at<float>(i, j) * spInputFisheyeFocalLength->GetValue()[0];
+            (*pyDistorted).at<float>(i, j) = yd.at<float>(i, j) * spInputFisheyeFocalLength->GetValue()[1];
         }
     }
-    xDistorted.at<float>(CameraIntrinsics.c_y_px, CameraIntrinsics.c_x_px) = 0;
-    yDistorted.at<float>(CameraIntrinsics.c_y_px, CameraIntrinsics.c_x_px) = 0;
+    (*pxDistorted).at<float>(CameraIntrinsics.c_y_px, CameraIntrinsics.c_x_px) = 0;
+    (*pyDistorted).at<float>(CameraIntrinsics.c_y_px, CameraIntrinsics.c_x_px) = 0;
 }
 
 
 //FOV model-Inverse Distortion Equation
-void FOVCapturer::distortionEquation(Mat &xDistorted, Mat &yDistorted)
+void FOVCapturer::distortionEquation(cv::Mat* const pxDistorted, cv::Mat* const pyDistorted)
 {
-    Mat ui = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat vi = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat rd = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat ru = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat xu = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
-    Mat yu = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat ui = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat vi = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat rd = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat ru = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat xu = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
+    cv::Mat yu = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1, 0.0);
 
-    meshGrid(ui, vi, *this);
-    for (int i = 0; i < CameraIntrinsics.height_px; ++i)
+    meshGrid(&ui, &vi, *this);
+    for (uint64_t i = 0; i < CameraIntrinsics.height_px; ++i)
     {
-        for (int j = 0; j < CameraIntrinsics.width_px; ++j) {
+        for (uint64_t j = 0; j < CameraIntrinsics.width_px; ++j) {
             ui.at<float>(i, j) = (ui.at<float>(i, j) - CameraIntrinsics.c_x_px) / CameraIntrinsics.f_x_px;
             vi.at<float>(i, j) = (vi.at<float>(i, j) - CameraIntrinsics.c_y_px) / CameraIntrinsics.f_y_px;
             rd.at<float>(i, j) = sqrt(ui.at<float>(i, j) *ui.at<float>(i, j) + vi.at<float>(i, j) *vi.at<float>(i, j));
@@ -132,20 +130,20 @@ void FOVCapturer::distortionEquation(Mat &xDistorted, Mat &yDistorted)
             ru.at<float>(i, j) = tan(tanArg) / (2 * tan(CameraIntrinsics.w / 2));
             xu.at<float>(i, j) = ui.at<float>(i, j) * ru.at<float>(i, j) / rd.at<float>(i, j);
             yu.at<float>(i, j) = vi.at<float>(i, j) * ru.at<float>(i, j) / rd.at<float>(i, j);
-            xDistorted.at<float>(i, j) = xu.at<float>(i, j) * spInputFisheyeFocalLength->GetValue()[0];
-            yDistorted.at<float>(i, j) = yu.at<float>(i, j) * spInputFisheyeFocalLength->GetValue()[1];
+            (*pxDistorted).at<float>(i, j) = xu.at<float>(i, j) * spInputFisheyeFocalLength->GetValue()[0];
+            (*pyDistorted).at<float>(i, j) = yu.at<float>(i, j) * spInputFisheyeFocalLength->GetValue()[1];
         }
     }
-    xDistorted.at<float>(CameraIntrinsics.c_y_px, CameraIntrinsics.c_x_px) = 0;
-    yDistorted.at<float>(CameraIntrinsics.c_y_px, CameraIntrinsics.c_x_px) = 0;
+    (*pxDistorted).at<float>(CameraIntrinsics.c_y_px, CameraIntrinsics.c_x_px) = 0;
+    (*pyDistorted).at<float>(CameraIntrinsics.c_y_px, CameraIntrinsics.c_x_px) = 0;
 }
 
 //Computes the maximum renderer window size required to get the desired output distorted image.
 void CFakeImgCapturer::fisheyeRenderSizeCompute()
 {
-    Mat xd = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
-    Mat yd = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
-    distortionEquation(xd, yd);
+    cv::Mat xd = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
+    cv::Mat yd = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
+    distortionEquation(&xd, &yd);
     float CxCompute = round(-xd.at<float>(0, 0));
     float CyCompute = round(-yd.at<float>(0, 0));
     if (CxCompute < 0 && CyCompute < 0)
@@ -162,13 +160,13 @@ void CFakeImgCapturer::fisheyeRenderSizeCompute()
         CyCompute *= -1;
     }
 
-    Mat xdCompute = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
-    Mat ydCompute = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
+    cv::Mat xdCompute = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
+    cv::Mat ydCompute = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
     float max_x = 0.00;
     float max_y = 0.00;
-    for (int i = 0; i < CameraIntrinsics.height_px; i++)
+    for (uint64_t i = 0; i < CameraIntrinsics.height_px; i++)
     {
-        for (int j = 0; j < CameraIntrinsics.width_px; ++j) {
+        for (uint64_t j = 0; j < CameraIntrinsics.width_px; ++j) {
             xdCompute.at<float>(i, j) = xd.at<float>(i, j) + CxCompute;
             ydCompute.at<float>(i, j) = yd.at<float>(i, j) + CyCompute;
             if (xdCompute.at<float>(i, j) > max_x)
@@ -211,18 +209,18 @@ void CFakeImgCapturer::PrintCapturer() const
 //Remaps the input image buffer to the distorted coordinates to get the fisheye distorted image
 void CFakeImgCapturer::addDistortion(unsigned char* ffd_img, int dims[3], int currentFrameIndex, const char* filename, const std::string& szDirectoryName)
 {
-    Mat TempMat = Mat(dims[1], dims[0], CV_8UC4);
+    cv::Mat TempMat = cv::Mat(dims[1], dims[0], CV_8UC4);
     TempMat.data = ffd_img;
     cvtColor(TempMat, TempMat, CV_RGBA2GRAY);
 
     if (!spXd || !spYd)
     {
-        spXd = std::make_shared<Mat>(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
-        spYd = std::make_shared<Mat>(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
-        distortionEquation(*spXd, *spYd);
-        for (int i = 0; i < CameraIntrinsics.height_px; ++i)
+        spXd = std::make_shared<cv::Mat>(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
+        spYd = std::make_shared<cv::Mat>(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
+        distortionEquation(spXd.get(), spYd.get());
+        for (uint64_t i = 0; i < CameraIntrinsics.height_px; ++i)
         {
-            for (int j = 0; j < CameraIntrinsics.width_px; ++j)
+            for (uint64_t j = 0; j < CameraIntrinsics.width_px; ++j)
             {
                 (*spXd).at<float>(i, j) = (*spXd).at<float>(i, j) + spInputC->GetValue()[0];
                 (*spYd).at<float>(i, j) = (*spYd).at<float>(i, j) + spInputC->GetValue()[1];
@@ -230,10 +228,10 @@ void CFakeImgCapturer::addDistortion(unsigned char* ffd_img, int dims[3], int cu
         }
     }
 
-    Mat res = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_8UC1);
-    remap(TempMat, res, *spXd, *spYd, INTER_LINEAR, BORDER_CONSTANT, Scalar(1, 0, 0));
+    cv::Mat res = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_8UC1);
+    remap(TempMat, res, *spXd, *spYd, cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(1, 0, 0));
     res.at<uchar>(0, 0) = TempMat.at<uchar>(0, 0);
-    char fileName[1024U] = { 0 };
+    char fileName[FILE_SIZE_MAX] = { 0 };
     if(0 > snprintf(fileName, sizeof(fileName), filename, currentFrameIndex))
     {
         cout << "snprintf failed." << "\nLine:" << __LINE__ << "\nFunction:" << __FUNCTION__ << endl;
@@ -249,20 +247,20 @@ void CFakeImgCapturer::addDistortion(unsigned char* ffd_img, int dims[3], int cu
 void CFakeImgCapturer::validateFisheyeDistortion(const std::string& szDirectoryName) 
 {
     std::string validationImagePath = szDirectoryName + "FisheyeValidation0000.png";
-    Mat validationImage = imread(validationImagePath);
+    cv::Mat validationImage = cv::imread(validationImagePath);
     cvtColor(validationImage, validationImage, CV_RGBA2GRAY);
     std::string fisheyeImagePath = szDirectoryName + "leftFisheye0000.png";
-    Mat fisheyeImage = imread(fisheyeImagePath);
-    cvtColor(fisheyeImage, fisheyeImage, CV_RGBA2GRAY);
-    Mat xd = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
-    Mat yd = Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
-    distortionEquation(xd, yd);
+    cv::Mat fisheyeImage = cv::imread(fisheyeImagePath);
+    cv::cvtColor(fisheyeImage, fisheyeImage, CV_RGBA2GRAY);
+    cv::Mat xd = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
+    cv::Mat yd = cv::Mat(CameraIntrinsics.height_px, CameraIntrinsics.width_px, CV_32FC1);
+    distortionEquation(&xd, &yd);
     float max_x = 0.00;
     float max_y = 0.00;
 
-    for (int i = 0; i < CameraIntrinsics.height_px; i++)
+    for (uint64_t i = 0; i < CameraIntrinsics.height_px; i++)
     {
-        for (int j = 0; j < CameraIntrinsics.width_px; ++j)
+        for (uint64_t j = 0; j < CameraIntrinsics.width_px; ++j)
         {
             xd.at<float>(i, j) = round(xd.at<float>(i, j) + spInputC->GetValue()[0]);
             yd.at<float>(i, j) = round(yd.at<float>(i, j) + spInputC->GetValue()[1]);
@@ -277,10 +275,10 @@ void CFakeImgCapturer::validateFisheyeDistortion(const std::string& szDirectoryN
         }
     }
 
-    Mat mappedImage = Mat(max_y + 1, max_x + 1, CV_8UC1);
-    for (int i = 0; i < CameraIntrinsics.height_px; i++)
+    cv::Mat mappedImage = cv::Mat(max_y + 1, max_x + 1, CV_8UC1);
+    for (uint64_t i = 0; i < CameraIntrinsics.height_px; i++)
     {
-        for (int j = 0; j < CameraIntrinsics.width_px; j++) {
+        for (uint64_t j = 0; j < CameraIntrinsics.width_px; j++) {
             if (isnan(xd.at<float>(i, j)) || isnan(yd.at<float>(i, j)))
             {
                 mappedImage.at<uchar>(i, j) = fisheyeImage.at<uchar>(i, j);
@@ -299,7 +297,7 @@ void CFakeImgCapturer::validateFisheyeDistortion(const std::string& szDirectoryN
         }
     }
     resize(validationImage, validationImage, mappedImage.size());
-    Mat differenceImage = mappedImage - validationImage;
+    cv::Mat differenceImage = mappedImage - validationImage;
 }
 
 void KB4Capturer::InitializeCapturer()

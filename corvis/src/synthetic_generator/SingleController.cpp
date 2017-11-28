@@ -198,9 +198,9 @@ unsigned int CBannerSimpleScenario::ParseUserInput(std::map<std::string, std::st
     if (m_isRecordingEnabled)
     {
         // set files
-        char framesFileName[1024] = { 0 };
-        char referenceFileName[1024] = { 0 };
-        char animationFileName[1024] = { 0 };
+        char framesFileName[FILE_SIZE_MAX] = { 0 };
+        char referenceFileName[FILE_SIZE_MAX] = { 0 };
+        char animationFileName[FILE_SIZE_MAX] = { 0 };
         if (0 > snprintf(framesFileName, sizeof(framesFileName), "%srgbdepthF.txt", m_szDirectoryName.c_str()))
         {
             cout << "snprintf failed." << "\nLine:" << __LINE__ << "\nFunction:" << __FUNCTION__ << endl;
@@ -351,30 +351,22 @@ unsigned int CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::s
         SetupActorsInWindows(m_spRFisheyeWindow.get()->m_spRenderer, m_spRFisheyeWindow.get()->m_spRenderWindow);
     }
 
-    m_spColorWindow.get()->m_spRenderer->GetActors()->InitTraversal();
-    std::cout << "Number of items:" << (int)m_spColorWindow.get()->m_spRenderer->GetActors()->GetNumberOfItems() << endl;
-    for (unsigned int i = 0; i < m_spColorWindow.get()->m_spRenderer->GetActors()->GetNumberOfItems(); ++i)
-    {
-        //vtkActor* const pA = m_spColorWindow.get()->m_spRenderer->GetActors()->GetNextActor();
-    }
-
-
     if (m_isControllerAnimated)
     {
         m_spRendererCollection->InitTraversal();
-        for (int i = 0; i < m_spRendererCollection->GetNumberOfItems(); ++i)
+        for (int k = 0; k < m_spRendererCollection->GetNumberOfItems(); ++k)
         {
             const auto&& pRenderer = m_spRendererCollection->GetNextItem();
 
-            for (uint64_t i = 0; i < static_cast<uint64_t>(m_spActorCollection.size()); ++i)
+            for (uint64_t j = 0; j < static_cast<uint64_t>(m_spActorCollection.size()); ++j)
             {
                 vtkSmartPointer<vtkPolyDataMapper> spMapperSphere = vtkSmartPointer<vtkPolyDataMapper>::New();
                 vtkSmartPointer<vtkPolyDataMapper> spMapperLED = vtkSmartPointer<vtkPolyDataMapper>::New();
-                spMapperSphere->SetInputConnection(m_spOrb[i].get()->m_spPolygonSphereSource->GetOutputPort());
-                spMapperLED->SetInputConnection(m_spLED[i].get()->m_spPolygonSphereSource->GetOutputPort());
-                m_spActorCollection[i]->InitTraversal();
+                spMapperSphere->SetInputConnection(m_spOrb[j].get()->m_spPolygonSphereSource->GetOutputPort());
+                spMapperLED->SetInputConnection(m_spLED[j].get()->m_spPolygonSphereSource->GetOutputPort());
+                m_spActorCollection[j]->InitTraversal();
 
-                vtkActor* const pActorOrb = m_spActorCollection[i]->GetNextActor();
+                vtkActor* const pActorOrb = m_spActorCollection[j]->GetNextActor();
                 pActorOrb->SetMapper(spMapperSphere);
                 pActorOrb->GetProperty()->SetColor(1, 1, 1);
                 pActorOrb->GetProperty()->SetColor(255, 255, 255);
@@ -382,19 +374,19 @@ unsigned int CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::s
                 pRenderer->AddActor(pActorOrb);
                 pRenderer->Modified();
 
-                vtkActor* const pActorLED = m_spActorCollection[i]->GetNextActor();
+                vtkActor* const pActorLED = m_spActorCollection[j]->GetNextActor();
                 pActorLED->SetMapper(spMapperLED);
                 pActorLED->GetProperty()->SetColor(1, 0, 0);
                 pActorLED->GetProperty()->LightingOff();
-                if (m_isMarkerOn[i])
+                if (m_isMarkerOn[j])
                 {
                     pRenderer->AddActor(pActorLED);
                     pRenderer->Modified();
                 }
 
-                vtkActor* const pActorCylinder = m_spActorCollection[i]->GetNextActor();
+                vtkActor* const pActorCylinder = m_spActorCollection[j]->GetNextActor();
                 vtkSmartPointer<vtkPolyDataMapper> spMapperCylinder = vtkSmartPointer<vtkPolyDataMapper>::New();
-                spMapperCylinder->SetInputConnection(m_spControllerBody[i].get()->m_spCylinderSource->GetOutputPort());
+                spMapperCylinder->SetInputConnection(m_spControllerBody[j].get()->m_spCylinderSource->GetOutputPort());
                 pActorCylinder->SetMapper(spMapperCylinder);
                 pActorCylinder->GetProperty()->SetColor(0.0, 1.0, 0.0);
                 pRenderer->AddActor(pActorCylinder);
@@ -540,7 +532,7 @@ void CBannerSimpleScenario::GenerateInterpolations(std::string ControllerAnimati
         m_controllerAnim.push_back(AnimationFile);
 
         {
-            char controllerAnimFileName[1024] = { 0 };
+            char controllerAnimFileName[FILE_SIZE_MAX] = { 0 };
             if (0 > snprintf(controllerAnimFileName, sizeof(controllerAnimFileName), "%scontrollerAnim%d.txt", m_szDirectoryName.c_str(), static_cast<int>(m_controllerAnimationSize.size() - 1)))
             {
                 cout << "snprintf failed." << "\nLine:" << __LINE__ << "\nFunction:" << __FUNCTION__ << endl;

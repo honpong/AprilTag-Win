@@ -17,8 +17,6 @@ Copyright(c) 2011-2015 Intel Corporation. All Rights Reserved.
 #include "Callbacks.h"
 #include "Scenarios.h"
 
-using namespace cv;
-
 int main(int argvc, char** ppArgv)
 {
     int res = 0;

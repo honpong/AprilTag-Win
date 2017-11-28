@@ -1122,9 +1122,9 @@ void world_state::observe_feature(uint64_t timestamp, rc_Sensor camera_id, const
     display_lock.lock();
     if(timestamp > current_feature_timestamp)
         current_feature_timestamp = timestamp;
-    if(features.count(feature.id))
-        f.times_seen = features[feature.id].times_seen+1;
-    features[feature.id] = f;
+    if(features.count(std::make_pair(camera_id,feature.id)))
+        f.times_seen = features[std::make_pair(camera_id,feature.id)].times_seen+1;
+    features[std::make_pair(camera_id,feature.id)] = f;
     display_lock.unlock();
 }
 

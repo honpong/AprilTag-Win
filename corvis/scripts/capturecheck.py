@@ -4,6 +4,7 @@ from collections import defaultdict
 import numpy
 import argparse
 from math import sqrt
+import sys
 
 packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 40:"stereo_raw", 44:"arrival_time"})
 format_types = defaultdict(str, {0:"Y8", 1:"Z16_mm"})
@@ -38,6 +39,7 @@ f = open(args.capture_filename,'rb')
 header_size = 16
 header_str = f.read(header_size)
 prev_packet_str = ""
+total_bytes_read = header_size
 warnings = defaultdict(list)
 exposure_warnings = defaultdict(list)
 imu_warnings = defaultdict(list)
@@ -49,6 +51,9 @@ last_arrival_time = 0
 arrival_time_consumed = True
 while header_str != "":
   (pbytes, ptype, sensor_id, ptime) = unpack('IHHQ', header_str)
+  if pbytes < header_size:
+    print "Error: packet at", total_bytes_read, "bytes, (time,type,id) (", ptime, ",", ptype, ",", sensor_id,") has size ", pbytes, "bytes but minimum packet size is", header_size
+    sys.exit(1)
   got_types[ptype] += 1
   packet_str = packet_types[ptype] + "_" + str(sensor_id)
   if ptype == 1:
@@ -56,6 +61,7 @@ while header_str != "":
   if args.verbose:
       print packet_str, pbytes, ptype, sensor_id, ptime,
   data = f.read(pbytes-header_size)
+  total_bytes_read += pbytes - header_size
 
   if (ptype == accel_type or ptype == gyro_type or
      ptype == image_with_depth or ptype == image_raw_type or ptype == stereo_raw_type):
@@ -125,6 +131,7 @@ while header_str != "":
   last_time = ptime
   prev_packet_str = packet_str
   header_str = f.read(header_size)
+  total_bytes_read += header_size
 
 f.close()
 

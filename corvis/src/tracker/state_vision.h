@@ -269,14 +269,13 @@ struct stereo_match
     struct view {
         state_camera &camera;
         std::list<tracker::feature_track>::iterator track;
+        f_t depth_m;
     };
     std::array<view,2> views;
-    float depth_m = 0;
-    float error = 0;
-    stereo_match(state_camera &c0, std::list<tracker::feature_track>::iterator &t0,
-                 state_camera &c1, std::list<tracker::feature_track>::iterator &t1,
-                 float depth_m_, float error_)
-        : views({{{c0, t0}, {c1, t1}}}), depth_m(depth_m_), error(error_) {}
+    f_t error_percent;
+    stereo_match(state_camera &c0, std::list<tracker::feature_track>::iterator &t0, f_t d0,
+                 state_camera &c1, std::list<tracker::feature_track>::iterator &t1, f_t d1, f_t e)
+                     : views({{{c0, t0, d0}, {c1, t1, d1}}}), error_percent(e) {}
 };
 
 class state_vision: public state_motion {

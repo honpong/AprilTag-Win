@@ -610,6 +610,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
             {
                 rc_Feature rcf;
                 rcf.id = t.feature->id;
+                rcf.camera_id = 0; // no depth, so no camera
                 rcf.image_x = t.x;
                 rcf.image_y = t.y;
                 rcf.image_prediction_x = t.x;

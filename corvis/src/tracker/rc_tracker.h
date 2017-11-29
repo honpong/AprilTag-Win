@@ -125,6 +125,7 @@ typedef enum rc_DataPath
 typedef struct rc_Feature
 {
     uint64_t id;
+    rc_Sensor camera_id; // depth is w.r.t this
     rc_Vector world;
     float image_x, image_y;
     float image_prediction_x, image_prediction_y;

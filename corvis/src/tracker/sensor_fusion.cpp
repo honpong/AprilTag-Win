@@ -217,8 +217,7 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data)
     switch(data.type) {
         case rc_SENSOR_TYPE_ACCELEROMETER: {
             auto start = std::chrono::steady_clock::now();
-            if(filter_mini_accelerometer_measurement(&sfm, sfm.mini->observations, sfm.mini->state, data))
-                update_data(&data);
+            filter_mini_accelerometer_measurement(&sfm, sfm.mini->observations, sfm.mini->state, data);
             auto stop = std::chrono::steady_clock::now();
             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
         } break;

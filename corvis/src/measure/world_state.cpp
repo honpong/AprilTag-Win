@@ -1123,6 +1123,12 @@ void world_state::observe_ate(uint64_t timestamp_us, const float absolute_trajec
     ate = absolute_trajectory_error;
 }
 
+void world_state::observe_rpe(uint64_t timestamp_us, const float relative_pose_error)
+{
+    int p = get_plot_by_name("last rpe_T");
+    observe_plot_item(timestamp_us, p, "last 1s rpe T", (float)relative_pose_error);
+}
+
 void world_state::observe_position_reloc(uint64_t timestamp, const rc_Pose* poses, size_t nposes) {
     Position p;
     p.timestamp = timestamp;

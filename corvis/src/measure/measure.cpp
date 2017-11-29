@@ -205,6 +205,8 @@ int main(int c, char **v)
                 if (enable_gui || render_output)
                     ws.observe_ate(data->time_us, res.errors.ate.rmse);
             }
+            if(res.errors.distances.size())
+                ws.observe_rpe(data->time_us, res.errors.distances.back());
             if (benchmark_relocation) {
                 res.errors.add_edges(reloc_source,
                                      num_reloc_edges,

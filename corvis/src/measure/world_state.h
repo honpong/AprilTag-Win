@@ -144,6 +144,7 @@ public:
     void observe_depth_overlay_image(uint64_t timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
     void observe_map_node(uint64_t timestamp_us, uint64_t id, bool finished, const std::set<uint64_t>& loop_closed, bool is_unlinked, const transformation& T, std::vector<uint64_t>& neighbors, std::vector<Feature>& features);
     void observe_ate(uint64_t timestamp_us, const float absolute_trajectory_error);
+    void observe_rpe(uint64_t timestamp_us, const float relative_pose_error);
     void observe_position_reloc(uint64_t timestamp, const rc_Pose* poses, size_t nposes);
     std::string get_feature_stats();
     float get_feature_lifetime();

@@ -444,10 +444,12 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     observe_plot_item(timestamp_us, p, "groups", (float)group_storage);
     observe_plot_item(timestamp_us, p, "feats", (float)feature_storage);
 
-    p = get_plot_by_name("feature counts");
+    p = get_plot_by_name("track counts");
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {
         const auto &camera = *f->s.cameras.children[i];
-        observe_plot_item(timestamp_us, p, "feats" + std::to_string(i), (float)camera.track_count());
+        int lost = 0, found = 0; for (const auto &t : camera.tracks) { t.track.found() ? found++ : lost++; }
+        observe_plot_item(timestamp_us, p, "lost" + std::to_string(i), lost);
+        observe_plot_item(timestamp_us, p, "found" + std::to_string(i), found);
     }
 
     p = get_plot_by_name("acc timer");

@@ -439,9 +439,8 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     observe_plot_item(timestamp_us, p, "state size", (float)f->s.statesize);
     int group_storage = f->s.groups.children.size() * 6;;
     int feature_storage = 0;
-    for (size_t i=0; i<f->s.cameras.children.size(); i++) {
-        feature_storage += f->s.cameras.children[i]->track_count();
-    }
+    for (const auto &g : f->s.groups.children)
+        feature_storage += g->features.children.size();
     observe_plot_item(timestamp_us, p, "groups", (float)group_storage);
     observe_plot_item(timestamp_us, p, "feats", (float)feature_storage);
 

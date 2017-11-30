@@ -496,7 +496,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
 
     for(auto i = f->s.stereo_matches.begin(); i != f->s.stereo_matches.end() && found_feats < newfeats;) {
-        auto view = std::find_if(i->views.begin(), i->views.end(), [&](auto &v) { return &v.camera == &camera; });
+        auto view = std::find_if(i->views.begin(), i->views.end(), [&](const stereo_match::view &v) { return &v.camera == &camera; });
         if (view != i->views.end()) {
             auto feat = std::make_unique<state_vision_feature>(*view->track, *g);
             feat->v->set_depth_meters(view->depth_m);
@@ -975,7 +975,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         for(auto &g : f->s.groups.children)
         {
             if(!space) break;
-            g->lost_features.remove_if([&](auto &f) {
+            g->lost_features.remove_if([&](std::unique_ptr<state_vision_feature> &f) {
                 if(!space || !f->tracks_found)
                     return false;
                 --space;

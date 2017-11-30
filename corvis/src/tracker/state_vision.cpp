@@ -210,7 +210,7 @@ int state_vision::process_features(mapper *map)
 
     //Then: remove tracks based on feature and group status
     for(auto &camera : cameras.children)
-        camera->tracks.remove_if([](auto &t) {
+        camera->tracks.remove_if([](const state_vision_track &t) {
             return t.feature.should_drop() || t.feature.group.status == group_empty;
         });
 
@@ -222,7 +222,7 @@ int state_vision::process_features(mapper *map)
         G_reference_now = *reference_group->Gr;
     }
 
-    groups.children.remove_if([&](auto &g) {
+    groups.children.remove_if([&](const std::unique_ptr<state_vision_group> &g) {
         if(map) {
             if(g->id != reference_id) // update map edges
                 map->add_edge(reference_id, g->id, G_reference_now*invert(*g->Gr), type);
@@ -247,7 +247,7 @@ int state_vision::process_features(mapper *map)
             return true;
         } else {
             // Delete the features we marked to drop
-            g->features.children.remove_if([&](auto &f) {
+            g->features.children.remove_if([&](std::unique_ptr<state_vision_feature> &f) {
                 if(f->status == feature_lost) {
                     g->lost_features.push_back(std::move(f));
                     return true;
@@ -317,7 +317,7 @@ int state_camera::process_tracks(mapper *map, spdlog::logger &log)
         }
     }
 
-    standby_tracks.remove_if([&map, &log](tracker::feature_track &t) {
+    standby_tracks.remove_if([&map, &log](const tracker::feature_track &t) {
         bool not_found = !t.found();
         if(map && not_found) map->finish_lost_tracks(t);
         return not_found;

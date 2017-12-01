@@ -517,7 +517,7 @@ RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const char *buffer);
 /**
  Start/stop the mapping subsystem. When started, the map is completely empty. The map is build synchronously with rc_receive* startMapping must be called before loadMap
  */
-RCTRACKER_API void rc_startMapping(rc_Tracker *tracker, bool relocalize);
+RCTRACKER_API void rc_startMapping(rc_Tracker *tracker, bool relocalize, bool save_map);
 RCTRACKER_API void rc_stopMapping(rc_Tracker *tracker);
 
 /**

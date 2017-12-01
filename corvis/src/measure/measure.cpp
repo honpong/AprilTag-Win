@@ -97,7 +97,7 @@ int main(int c, char **v)
         if(qvga) rp.enable_qvga();
         if(!depth) rp.disable_depth();
         if(realtime) rp.enable_realtime();
-        if(enable_map) rp.start_mapping(relocalize);
+        if(enable_map) rp.start_mapping(relocalize, !save_map.empty());
         if(fast_path) rp.enable_fast_path();
         if(async) rp.enable_async();
 

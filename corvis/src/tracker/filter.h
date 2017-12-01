@@ -55,6 +55,7 @@ struct filter {
     bool has_converged;
     bool stereo_enabled;
     bool relocalize;
+    bool save_map;
     bool is_relocalized;
 
     std::unique_ptr<mapper> map;

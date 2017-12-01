@@ -408,9 +408,9 @@ void rc_stopTracker(rc_Tracker * tracker)
         tracker->output.stop();
 }
 
-void rc_startMapping(rc_Tracker *tracker, bool relocalize)
+void rc_startMapping(rc_Tracker *tracker, bool relocalize, bool save_map)
 {
-    tracker->start_mapping(relocalize);
+    tracker->start_mapping(relocalize, save_map);
 }
 
 void rc_stopMapping(rc_Tracker *tracker)

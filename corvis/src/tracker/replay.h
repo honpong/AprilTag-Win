@@ -95,7 +95,7 @@ public:
     bool set_reference_from_filename(const std::string &filename);
     bool set_reloc_reference_from_filename(const std::string &filename);
     void zero_biases();
-    void start_mapping(bool relocalize) { rc_startMapping(tracker, relocalize); }
+    void start_mapping(bool relocalize, bool save_map) { rc_startMapping(tracker, relocalize, save_map); }
     void save_map(std::string filename);
     const std::unordered_multimap<rc_Timestamp, std::unordered_set<rc_Timestamp>>& get_reference_edges() const { return ref_relocalization_edges; }
     const tpose_sequence& get_reference_poses() const { return *reference_seq; }

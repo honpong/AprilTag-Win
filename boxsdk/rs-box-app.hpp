@@ -160,20 +160,20 @@ private:
 // Box display code //
 //////////////////////
 
-inline void draw_box_wire(const int width, const int height, const float box_wire_endpt[12][2][2], const rect& r, float line_width)
+inline void draw_box_wire(const int width, const int height, const float box_wire_endpt[12][2][2], const rect& r, const int app_height, float line_width)
 {
     if (width <= 0 || height <= 0 || !box_wire_endpt || r.w <= 0 || r.h <= 0) return;
     const auto sx = r.w / width, sy = r.h / height;
 
     float original_color[4], original_line_width;
-    glScissor(r.x, r.y, r.w, r.h);
-    glEnable(GL_SCISSOR_TEST);
     glGetFloatv(GL_CURRENT_COLOR, original_color);
     glGetFloatv(GL_LINE_WIDTH, &original_line_width);
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(r.x, app_height - r.h - r.y, r.w, r.h);
     glLineWidth(line_width);
     glColor3f(1.0f, 1.0f, 0.0f);
     glBegin(GL_LINES);
@@ -183,11 +183,11 @@ inline void draw_box_wire(const int width, const int height, const float box_wir
         glVertex2f(r.x + box_wire_endpt[l][1][0] * sx, r.y + box_wire_endpt[l][1][1] * sy);
     }
     glEnd();
-    glDisable(GL_BLEND);
-    glDisable(GL_LINE_SMOOTH);
     glDisable(GL_SCISSOR_TEST);
     glColor4fv(original_color);
     glLineWidth(original_line_width);
+    glDisable(GL_BLEND);
+    glDisable(GL_LINE_SMOOTH);
 }
 
 ////////////////////////
@@ -276,10 +276,10 @@ public:
         draw_text(r.x + 15, r.y + 20, text ? text : rs2_stream_to_string(stream));
     }
 
-    void draw_box(const float box_wire_endpt[12][2][2], float line_width = -1.0f)
+    void draw_box(const float box_wire_endpt[12][2][2], int app_height, float line_width = -1.0f)
     {
         if (line_width < 2.5f) { line_width = std::fmax(2.5f, _r.w * 2.5f / _width); }
-        draw_box_wire(_width, _height, box_wire_endpt, _r, line_width);
+        draw_box_wire(_width, _height, box_wire_endpt, _r, app_height, line_width);
     }
 
 private:
@@ -422,6 +422,16 @@ public:
         _texture_reset_button.render(_icon_reset.data(_reset), _icon_close._width, _icon_close._height, win_reset_button().middle(), "");
         render_rect(win_close_button(), !_close, { 128, 128, 128 });
         render_rect(win_reset_button(), !_reset, { 128, 128, 128 });
+    }
+
+    void render_box_on_depth_frame(const float endpt[12][2][2], const int line_width = -1.0f)
+    {
+        _texture_depth.draw_box(endpt, height(), line_width);
+    }
+
+    void render_box_on_color_frame(const float endpt[12][2][2], const int line_width = -1.0f)
+    {
+        _texture_color.draw_box(endpt, height(), line_width);
     }
 
     void render_box_dim(const std::string& box_dim)

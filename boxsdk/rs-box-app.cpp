@@ -100,8 +100,8 @@ int main(int argc, char* argv[])
 
         if (box.size())
         {
-            app._texture_color.draw_box(box[0].project_box_onto_frame(box_frame.state(RS2_STREAM_COLOR)).end_pt);
-            app._texture_depth.draw_box(box[0].project_box_onto_frame(box_frame.state(RS2_STREAM_DEPTH)).end_pt);
+            app.render_box_on_depth_frame(box[0].project_box_onto_frame(box_frame.state(RS2_STREAM_DEPTH)).end_pt);
+            app.render_box_on_color_frame(box[0].project_box_onto_frame(box_frame.state(RS2_STREAM_COLOR)).end_pt);
             app.render_box_dim(box[0].str()); 
         }
 

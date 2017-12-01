@@ -35,14 +35,15 @@ int main(int argc, char* argv[])
 #include <fstream>
 void write_icon(){
     int icon_w, icon_h, icon_n;
-    auto *icon_data = stbi_load("C:\\temp\\realsense_icon2.bmp", &icon_w, &icon_h, &icon_n, 0);
+    auto *icon_data = stbi_load("C:\\temp\\unit.png", &icon_w, &icon_h, &icon_n, 0);
 
 
-    std::ofstream myfile; myfile.open("C:\\temp\\realsense_icon.txt", std::ios::out);
+    std::ofstream myfile; myfile.open("C:\\temp\\unit.txt", std::ios::out);
     for (int y = 0; y < icon_h; ++y, myfile << std::endl) {
+        printf("\r%d", y);
         for (int x = 0; x < icon_w; ++x, myfile << ",") {
             myfile << "0x";
-            for (int c = 0; c < icon_n; ++c) {
+            for (int c = 0; c < 1; ++c) {
                 char tmp[32];
                 sprintf(tmp, "%02x", icon_data[(y*icon_w + x) * icon_n + c]);
                 myfile << tmp;
@@ -50,11 +51,15 @@ void write_icon(){
         }
     }
 }
-#endif
 
 int main(int argc, char* argv[])
 {
-    //write_icon(); return 0;
+    write_icon(); return 0;
+#else
+
+int main(int argc, char* argv[])
+{
+#endif
 
     rs2::context  ctx;
     rs2::pipeline pipe;
@@ -93,17 +98,13 @@ int main(int argc, char* argv[])
         app.render_ui(color_map(frameset.get_depth_frame()), frameset.get_color_frame());
         //app.render_ui(box_frame[1], frameset.get_color_frame());
 
-
         if (box.size())
         {
-            std::string box_msg = "   Box 1 : " + box[0].str();
             app._texture_color.draw_box(box[0].project_box_onto_frame(box_frame.state(RS2_STREAM_COLOR)).end_pt);
             app._texture_depth.draw_box(box[0].project_box_onto_frame(box_frame.state(RS2_STREAM_DEPTH)).end_pt);
-            draw_text(0, 15 + app.win_rs_logo().ey(), box_msg.c_str());
+            app.render_box_dim(box[0].str()); 
         }
 
-      
-        //box_frame.draw_pose_text(app.win_rs_logo().middle().x, app.win_rs_logo().ey() + 35, 20, draw_text);
         if (app.reset_request()) {
             boxscan.reset();
        }

@@ -102,6 +102,60 @@ struct color_icon
     std::vector<unsigned char> _rgb[2];
 };
 
+struct number_icons : public std::vector<unsigned char>
+{
+    number_icons(const unsigned char bkg_color[3]) : _mm3_icon(get_icon(mm3), bkg_color)
+    {
+        auto data = get_icon_data(number);
+        auto palettew = get_icon_width(number);
+        _width = palettew / 11, _height = get_icon_height(number);
+        for (int digit = 0; digit < 12; ++digit) {
+            _data[digit].reserve(_height*_width * 3);
+            for (int y = 0, digit_width = digit*_width; y < _height; ++y)
+                for (int x = 0, y_offset = y*palettew + digit_width; x < _width; ++x) {
+                    const unsigned char v = ((digit == 11) ? 0 : data[y_offset + x]);
+                    _data[digit].push_back(v | bkg_color[0]);
+                    _data[digit].push_back(v | bkg_color[1]);
+                    _data[digit].push_back(v | bkg_color[2]);
+                }
+        }
+    }
+
+    const unsigned char* print(const std::string& text)
+    {
+        _num_char = (int)text.length();
+        std::vector<const unsigned char*> icon; icon.reserve(_num_char);
+        for (auto& c : text) {
+            if (c == 'x') icon.push_back(_data[10].data());
+            else if (c - '0' >= 0 && c - '0' <= 9) icon.push_back(_data[c - '0'].data());
+            else icon.push_back(_data[11].data());
+        }
+
+        const int fullw = width(), _num_char_width = _num_char * _width;
+        resize(fullw * _height * 3);
+        auto _img = data(), _mm3_icon_data = (unsigned char*)_mm3_icon.data();
+        for (int y = 0; y < _height; ++y)
+            for (int c = 0, y_width = y*_width, y_fullw = y*fullw; c < 3; ++c) {
+                for (int d = 0; d < _num_char; ++d) {
+                    for (int x = 0, y_offset = (y_fullw + d*_width) * 3 + c; x < _width; ++x)
+                        _img[y_offset + x * 3] = icon[d][(y_width + x) * 3 + c];
+                }
+                for (int x = 0, y_offset = (y_fullw + _num_char_width) * 3 + c, y_mm3_width = y*_mm3_icon._width; x < _mm3_icon._width; ++x)
+                    _img[y_offset + x * 3] = _mm3_icon_data[(y_mm3_width + x) * 3 + c];
+            }
+
+        return _img;
+    }
+
+    inline int width() const { return _width * _num_char + _mm3_icon._width; }
+    inline int height() const { return _height; }
+
+private:
+    int _width, _height, _num_char;
+    std::vector<unsigned char> _data[12];
+    color_icon _mm3_icon;
+};
+
 //////////////////////
 // Box display code //
 //////////////////////
@@ -112,6 +166,8 @@ inline void draw_box_wire(const int width, const int height, const float box_wir
     const auto sx = r.w / width, sy = r.h / height;
 
     float original_color[4], original_line_width;
+    glScissor(r.x, r.y, r.w, r.h);
+    glEnable(GL_SCISSOR_TEST);
     glGetFloatv(GL_CURRENT_COLOR, original_color);
     glGetFloatv(GL_LINE_WIDTH, &original_line_width);
     glEnable(GL_LINE_SMOOTH);
@@ -129,6 +185,7 @@ inline void draw_box_wire(const int width, const int height, const float box_wir
     glEnd();
     glDisable(GL_BLEND);
     glDisable(GL_LINE_SMOOTH);
+    glDisable(GL_SCISSOR_TEST);
     glColor4fv(original_color);
     glLineWidth(original_line_width);
 }
@@ -172,8 +229,6 @@ public:
             glGenTextures(1, &gl_handle);
         GLenum err = glGetError();
 
-        //stream = frame.get_profile().stream_type();
-
         glBindTexture(GL_TEXTURE_2D, gl_handle);
 
         switch (format)
@@ -196,6 +251,7 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 
@@ -220,8 +276,9 @@ public:
         draw_text(r.x + 15, r.y + 20, text ? text : rs2_stream_to_string(stream));
     }
 
-    void draw_box(const float box_wire_endpt[12][2][2], float line_width = 2.5f)
+    void draw_box(const float box_wire_endpt[12][2][2], float line_width = -1.0f)
     {
+        if (line_width < 2.5f) { line_width = std::fmax(2.5f, _r.w * 2.5f / _width); }
         draw_box_wire(_width, _height, box_wire_endpt, _r, line_width);
     }
 
@@ -249,7 +306,7 @@ public:
                 else if (_mouse_pos[0] <= width() * 3) _reset = true;
     };
 
-    window(int width, int height, const char* title) : _title(title), _icon_close(get_icon(close), bkg_blue), _icon_reset(get_icon(reset), bkg_blue)
+    window(int width, int height, const char* title) : _title(title), _icon_close(get_icon(close), bkg_blue), _icon_reset(get_icon(reset), bkg_blue), _num_icons(bkg_blue)
     {
         glfwInit();
         reset_screen(false, width, height);
@@ -315,6 +372,7 @@ public:
     inline rect win_close_button() const { return{ win_button_area().x + 1, win_button_area().y, win_button_area().w / 2 - 2, win_button_area().h }; }
     inline rect win_reset_button() const { return{ win_close_button().ex() + 1, win_close_button().y, win_close_button().w, win_close_button().h }; }
     inline rect win_color_image()  const { return{ win_left_column().ex(), 0, width() - win_left_column().w, height() }; }
+    inline rect win_box_msg()      const { return{ win_left_column().x + win_left_column().w / 10, win_rs_logo().ey() + win_rs_logo().h / 8, win_left_column().w * 4 / 5, win_rs_logo().h * 3 / 8 }; }
 
     operator bool()
     {
@@ -366,6 +424,11 @@ public:
         render_rect(win_reset_button(), !_reset, { 128, 128, 128 });
     }
 
+    void render_box_dim(const std::string& box_dim)
+    {
+        _texture_box_msg.render(_num_icons.print(box_dim), _num_icons.width(), _num_icons.height(), win_box_msg(), "");
+    }
+
     void process_event()
     {
         if (_close) std::thread([this]{ std::this_thread::sleep_for(std::chrono::milliseconds(100)); on_key_release('q');}).detach();
@@ -392,5 +455,6 @@ private:
     bool _close = false, _reset = false, _tgscn = false, _fullscreen;
     const char* _title;
     color_icon _icon_close, _icon_reset;
-    texture _texture_realsense_logo, _texture_close_button, _texture_reset_button;
+    texture _texture_realsense_logo, _texture_close_button, _texture_reset_button, _texture_box_msg;
+    number_icons _num_icons;
 };

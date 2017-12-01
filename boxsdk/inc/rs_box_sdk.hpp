@@ -73,8 +73,12 @@ extern "C"
 #include <iomanip>
 namespace rs2
 {
-    inline std::string stri(float v, int p = 2) {
-        std::ostringstream ss; ss << std::fixed << std::setprecision(p) << v << " "; return ss.str();
+    static std::string f_str(float v, int p = 2) {
+        std::ostringstream ss; ss << std::fixed << std::setprecision(p) << v; return ss.str();
+    }
+
+    static std::string stri(float v, int w, int p = 0) {
+        std::string s0 = f_str(v, p), s = ""; while ((s + s0).length() < w) { s += " "; } return s + s0;
     }
 
     struct box : public rs2_measure_box
@@ -96,7 +100,7 @@ namespace rs2
 
         inline std::string str() const
         {
-            return stri(dim(0), 0) + "x " + stri(dim(1), 0) + "x " + stri(dim(2), 0) + "mm^3";
+            return stri(dim(0), 4) + "x" + stri(dim(1), 4) + "x" + stri(dim(2), 4);
         }
 
         wireframe project_box_onto_frame(const camera_state& f) const

@@ -20,6 +20,7 @@
 
 #ifdef RELOCALIZATION_DEBUG
 #include <opencv2/imgproc.hpp>
+#include "debug/visual_debug.h"
 #define IMAGE_SHOW_MAP
 //#define SHOW_ALL_CANDIDATES
 #endif
@@ -751,7 +752,6 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
         #endif
 
         #if defined(RELOCALIZATION_DEBUG) && defined(IMAGE_SHOW_MAP)
-
             std::string image_name = "Num candidates: " + std::to_string(candidate_nodes.size()) + ", DBoW candidate: " + std::to_string(nid.first);
             cv::Mat color_candidate_image, color_current_image;
             cv::cvtColor(candidate_node_frame->image, color_candidate_image, CV_GRAY2BGRA);
@@ -801,18 +801,21 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                 cv::line(compound,cv::Point(p1[0],p1[1]),cv::Point(compound.cols-p2[0],p2[1]),color_line,2);
                 matchidx++;
             }
-            debug(std::move(compound), 0, "Relocalized", false);
+
+            visual_debug::batch batch;
+            batch.add(compound, "Relocalized");
 
             for(auto &pc : keypoint_xy_current) {
                 cv::circle(color_current_image, cv::Point(pc[0],pc[1]),3,cv::Scalar{255,0,0,255},2);
             }
-            debug(std::move(color_current_image), 1, "current image keypoints", false);
+            batch.add(color_current_image, "current image keypoints");
 
             for(auto &pc : keypoint_xy_candidates) {
                 cv::circle(color_candidate_image, cv::Point(pc[0],pc[1]),3,cv::Scalar{255,0,0,255},2);
             }
-            debug(std::move(color_candidate_image), 2, "candidate image keypoints", true);
+            batch.add(color_candidate_image, "candidate image keypoints");
 
+            visual_debug::send(batch);
         #endif
     }
     return reloc_info;

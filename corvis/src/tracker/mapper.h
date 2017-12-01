@@ -26,6 +26,7 @@
 #include "descriptor.h"
 #ifdef RELOCALIZATION_DEBUG
 #include <opencv2/core/mat.hpp>
+#include "debug/visual_debug.h"
 #endif
 
 #define MIN_FEATURE_TRACKS 3
@@ -289,11 +290,6 @@ private:
             reference_nodeid(id), state(s) {}
     };
     std::unordered_map<uint64_t, triangulated_track> triangulated_tracks;
-
-
-#ifdef RELOCALIZATION_DEBUG
-    std::function<void(cv::Mat &&image, const uint64_t image_id, const std::string &message, const bool pause)> debug;
-#endif
 };
 
 #endif

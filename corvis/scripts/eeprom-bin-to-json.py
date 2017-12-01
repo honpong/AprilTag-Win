@@ -40,7 +40,7 @@ jsondata = dict()
 
 jsondata["calibration_version"] = 10
 jsondata["device_type"] = "TM2"
-jsondata["device_id"] = '%x' % struct.unpack('Q', eeprom_struct.Info.SN)[0]
+jsondata["device_id"] = ('%x' % struct.unpack('>Q', eeprom_struct.Info.SN)[0])[:-4]
 
 jsondata["depths"] = list()
 

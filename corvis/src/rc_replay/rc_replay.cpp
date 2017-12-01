@@ -329,6 +329,6 @@ bool replay::run()
     return file.eof() && !file.fail();
 }
 
-void replay::start_mapping(bool relocalize) {
-    rc_startMapping(tracker,relocalize);
+void replay::start_mapping(bool relocalize, bool save_map) {
+    rc_startMapping(tracker, relocalize, save_map);
 }

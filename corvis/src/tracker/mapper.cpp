@@ -759,7 +759,7 @@ bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t 
 #define KEY_FRAME_FEAT_DESC_COS "cos"
 void frame_serialize(const std::shared_ptr<frame_t> frame, Value &json, Document::AllocatorType &allocator) {
 
-    assert(frame->keypoints.size() != frame->keypoints_xy.size());
+    assert(frame->keypoints.size() == frame->keypoints_xy.size());
     // add key point
     Value features_json(kArrayType);
     for (SizeType i=0; i<frame->keypoints.size(); ++i) {

@@ -91,6 +91,7 @@ struct rs_sf_file_stream : rs_sf_image_stream
     rs_sf_image* get_images() override
     {
         next_frame_num = get_next_frame_num();
+        for (auto& i : images) i = {};
         for (auto&& stream : { RS_SF_STREAM_DEPTH, RS_SF_STREAM_INFRARED }) {
             const auto file_path = folder_path + file_prefix[stream] + std::to_string(next_frame_num) + file_format[stream];
             images[stream] = *(image[stream] = rs_sf_image_read(file_path, next_frame_num));

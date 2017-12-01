@@ -151,7 +151,7 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[])
     auto* img_ir = img + RS_SF_STREAM_INFRARED;
     auto* img_c = img + RS_SF_STREAM_COLOR;
 
-    if (!img_d) img_d = img_ir;
+    if (!img_c || !img_c->data) img_c = img_ir;
 
     //static std::unique_ptr<float[]> buf;
     //static bool was_tracking = false;

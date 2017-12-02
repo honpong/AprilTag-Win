@@ -786,8 +786,8 @@ static bool keypoint_intersect(state_camera & camera1, kp_pre_data& pre_data1, c
     if(error/cam1_intersect[2] > .05f)
         return false;
 
-    depth1 = cam1_intersect[1];
-    depth2 = cam1_intersect[2];
+    depth1 = cam1_intersect[2];
+    depth2 = cam2_intersect[2];
     return true;
 }
 

@@ -350,9 +350,9 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
         }
         // Connect graph again if it got disconnected
         if(groups.children.empty() && (map->current_node_id != std::numeric_limits<uint64_t>::max())) {
-            mapper::nodes_path path = map->breadth_first_search(0, std::set<mapper::nodeid>{map->current_node_id});
-            transformation& G_0_current = path[map->current_node_id];
-            transformation G_current_now = invert(transformation{map->get_node(0).global_transformation.Q, v3::Zero()}*G_0_current)
+            mapper::nodes_path path = map->breadth_first_search(map->get_node_id_offset(), std::set<mapper::nodeid>{map->current_node_id});
+            transformation& G_init_current = path[map->current_node_id];
+            transformation G_current_now = invert(transformation{map->get_node(map->get_node_id_offset()).global_transformation.Q, v3::Zero()}*G_init_current)
                     *get_transformation();
             map->add_edge(map->current_node_id, g->id, G_current_now);
         }

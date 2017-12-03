@@ -149,16 +149,42 @@ f_t matrix_check_condition(matrix &A)
     return A.map().llt().rcond();
 }
 
+#ifdef ENABLE_SHAVE_CHOLESKY
+#include "cholesky.h"
+
+static void matrix_cholesky_lower(matrix &A)
+{
+    constexpr int N = 4; int r = A.rows(), n = (A.rows() + (N - 1))/N*N;
+    assert(A.rows() == A.cols() && A.get_stride() % N == 0);
+    matrix An(A, 0,0, n,n);
+    An.map().block(0,r,   r, n-r) = m<>::Zero(  r, n-r);
+    An.map().block(r,0, n-r, r  ) = m<>::Zero(n-r, r  );
+    An.map().block(r,r, n-r, n-r) = m<>::Identity(n-r, n-r);
+    potrf_ln(&An(0,0), n, An.get_stride() * sizeof(An(0,0)));
+}
+#endif
+
 bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = L^-T B
 {
-    START_EVENT(SF_MSOLVE, 0);
-    {
     matrix::Map
         A_map { &A(0,0), A.rows(), A.cols(), A.get_stride() },
         B_map { &B(0,0), B.rows(), B.cols(), B.get_stride() };
-    Eigen::LLT< Eigen::Ref<decltype(A_map)>, Eigen::Lower > llt(A_map);
-    if (llt.info() == Eigen::NumericalIssue)
-        return false;
+
+#ifdef ENABLE_SHAVE_CHOLESKY
+    if (A.rows() > 3) {
+        START_EVENT(SF_CHOLESKY_HW, 0);
+        matrix_cholesky_lower(A);
+        END_EVENT(SF_CHOLESKY_HW, A.rows());
+    } else
+#endif
+    {
+        START_EVENT(SF_CHOLESKY, 0);
+        Eigen::LLT< Eigen::Ref<decltype(A_map)>, Eigen::Lower > llt(A_map);
+        END_EVENT(SF_CHOLESKY, A.rows());
+        if (llt.info() != Eigen::Success)
+            return false;
+    }
+
 #if defined(ENABLE_SHAVE_SOLVE) || defined(HAVE_BLIS)
     if (A.rows() > 3) {
         START_EVENT(SF_MSOLVE_HW, A.rows());
@@ -166,9 +192,11 @@ bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = L^-T B
         END_EVENT(SF_MSOLVE_HW, B.cols());
     } else
 #endif
-    llt.matrixL().solveInPlace(B_map);
+    {
+        START_EVENT(SF_MSOLVE, 0);
+        A_map.triangularView<Eigen::Lower>().solveInPlace(B_map);
+        END_EVENT(SF_MSOLVE, 0);
     }
-    END_EVENT(SF_MSOLVE, 0);
     return true;
 }
 
@@ -178,5 +206,5 @@ bool test_posdef(const matrix &m)
     f_t norm = (m.map() - m.map().transpose()).norm();
     if(norm > F_T_EPS)
         return false;
-    return m.map().llt().info() != Eigen::NumericalIssue;
+    return m.map().llt().info() == Eigen::Success;
 }

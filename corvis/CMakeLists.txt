@@ -191,3 +191,5 @@ if (NOT RC_VERSION)
 endif()
 set(CPACK_PACKAGE_VERSION ${RC_VERSION})
 include(CPack)
+
+add_subdirectory(src/synthetic_generator)

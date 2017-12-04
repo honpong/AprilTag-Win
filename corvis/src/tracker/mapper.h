@@ -58,7 +58,7 @@ enum class node_status {normal, finished};
 struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
-    std::unordered_map<uint64_t, map_edge> edges; // key is neighbor_id
+    std::map<uint64_t, map_edge> edges; // key is neighbor_id; we use a map structure to gurantee same order when traversing edges.
     map_edge &get_add_neighbor(uint64_t neighbor);
     void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v, const feature_type type);
     void set_feature_type(const uint64_t id, const feature_type type);

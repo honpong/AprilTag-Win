@@ -202,7 +202,7 @@ namespace rs2
                 // Check if the sensor if a depth sensor
                 if (rs2::depth_sensor dpt = sensor.as<rs2::depth_sensor>())
                 {
-                    return dpt.get_depth_scale();
+                    return std::fmaxf(0.001f, dpt.get_depth_scale());
                 }
             }
             return 0.001f;

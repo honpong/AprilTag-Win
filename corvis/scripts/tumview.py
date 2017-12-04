@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import sys
 import os
 import math
+import argparse
 
 TIME = 0
 X = 1
@@ -95,22 +96,20 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
 
 
 def main() :
-    files = []
-    plot_mode = PLOT_MODE_DIST
-    for c in sys.argv[1:]:
-        if c.strip() == '-p':
-            plot_mode = PLOT_MODE_PROJECTIONS
-        elif c.strip() == '-x':
-            plot_mode = PLOT_MODE_AXIS
-        else:
-            files.append(c.strip())
+    parser = argparse.ArgumentParser('Plot tum/tumx results')
+    parser.add_argument('-p', '--plane', action='store_true', help='Plane projected display mode')
+    parser.add_argument('-x', '--axis', action='store_true', help='Axis display mode')
+    parser.add_argument('-o', '--output', help='output image filename')
+    parser.add_argument('files', nargs='+', help='tum/tumx files')
+    args = parser.parse_args(sys.argv[1:])
 
-    if len(files) == 0:
-        print 'usage: %s [-p -x] files' % sys.argv[0]
-        sys.exit(1)
+    plot_mode = PLOT_MODE_DIST
+    if args.plane: plot_mode = PLOT_MODE_PROJECTIONS
+    elif args.axis: plot_mode = PLOT_MODE_AXIS
+
     fig = plt.Figure()
     datasets = []
-    for f in files:
+    for f in args.files:
         name, data = read_tum(f)
         datasets.append((name, data))
     nitems = 0
@@ -119,7 +118,14 @@ def main() :
 
     for dataset in datasets:
         plot_tum(nitems, dataset[0], dataset[1], fig, plot_mode = plot_mode)
-    plt.show()
+    if args.output == None:
+        plt.show()
+    else:
+        output = args.output
+        ext = os.path.splitext(output)
+        print 'ext:', ext[1]
+        if ext[1] == '': output += '.png'
+        plt.savefig(output)
 
 if __name__ == '__main__':
     main()

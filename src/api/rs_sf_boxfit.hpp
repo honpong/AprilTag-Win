@@ -60,33 +60,45 @@ protected:
 
     parameter m_param;
 
-    template<typename vn>
-    struct state_vn {
-        vn state[3], obse[3], pred[3], resi[3];
-        state_vn(const vn& init) {
-            for (int i = 0; i < 3; ++i)
-                state[i] = obse[i] = pred[i] = resi[i].setZero();
-            state[0] = obse[0] = init;
+    template<int n>
+    struct state_v {
+        v<n> state[3], obse[3], pred[3], resi[3];
+        state_v(const v<n>& init)
+        {
+            for (int d = 0; d < n; ++d) {
+                for (int i = 0; i < 3; ++i)
+                {
+                    state[i][d] = 0;
+                    obse[i][d] = 0;
+                    pred[i][d] = 0;
+                    resi[i][d] = 0;
+                }
+                state[0][d] = obse[0][d] = init[d];
+            }
         }
-        const vn& value() const { return state[0]; }
-        const vn& update(const vn& observation, const float gain) {
-            // update prediction
-            pred[2] = state[2];
-            pred[1] = pred[2] + state[1];
-            pred[0] = pred[1] + state[0];
-            // update observation
-            obse[2] = observation - obse[0] - obse[1];
-            obse[1] = observation - obse[0];
-            obse[0] = observation;
-            // prediction error
-            resi[0] = obse[0] - pred[0];
-            resi[1] = obse[1] - pred[1];
-            resi[2] = obse[2] - pred[2];
-            // update state
-            state[0] = pred[0] + resi[0] * gain;
-            state[1] = pred[1] + resi[1] * gain;
-            state[2] = pred[2] + resi[2] * gain;
-            return state[0];
+        const v<n>& value() const { return state[0]; }
+        const v<n>& update(const v<n>& observation, const float gain)
+        {
+            for (int d = 0; d < n; ++d)
+            {
+                // update prediction
+                pred[2][d] = state[2][d];
+                pred[1][d] = pred[2][d] + state[1][d];
+                pred[0][d] = pred[1][d] + state[0][d];
+                // update observation
+                obse[2][d] = observation[d] - obse[0][d] - obse[1][d];
+                obse[1][d] = observation[d] - obse[0][d];
+                obse[0][d] = observation[d];
+                // prediction error
+                resi[0][d] = obse[0][d] - pred[0][d];
+                resi[1][d] = obse[1][d] - pred[1][d];
+                resi[2][d] = obse[2][d] - pred[2][d];
+                // update state
+                state[0][d] = pred[0][d] + resi[0][d] * gain;
+                state[1][d] = pred[1][d] + resi[1][d] * gain;
+                state[2][d] = pred[2][d] + resi[2][d] * gain;
+                return state[0];
+            }
         }
     };
 
@@ -128,8 +140,8 @@ protected:
     struct tracked_box : public box {
         int pid[3];
         std::list<box> box_history;
-        state_vn<v3> track_pos;
-        state_vn<v4> track_axis;
+        state_v<3> track_pos;
+        state_v<4> track_axis;
         std::chrono::time_point<std::chrono::steady_clock> last_appear;
         tracked_box(const plane_pair& pair, const std::chrono::time_point<std::chrono::steady_clock>& now)
         : box(*pair.new_box),track_pos(center), track_axis(qv3(axis).coeffs()), last_appear(now) {

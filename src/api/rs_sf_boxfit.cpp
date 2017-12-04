@@ -545,7 +545,8 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const paramet
     }
     center = track_pos.update(new_box.center, param.box_state_gain);
     v4 in_rotation = qv3(new_box.axis).coeffs();
-    if (in_rotation.dot(track_axis.value()) < 0) in_rotation = -in_rotation;
+    auto track_axis_value = track_axis.value();
+    if (in_rotation.dot(track_axis_value) < 0) in_rotation = -in_rotation;
     axis = qv3(track_axis.update(in_rotation, param.box_state_gain).data()).matrix();
     return true;
 }

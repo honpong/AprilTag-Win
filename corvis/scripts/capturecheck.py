@@ -30,6 +30,7 @@ image_with_depth = 28
 image_raw_type = 29
 stereo_raw_type = 40
 arrival_time_type = 44
+calibration_type = 43
 got_types = defaultdict(int)
 
 packets = defaultdict(list)
@@ -123,7 +124,7 @@ while header_str != "":
       packet_str = str(ptype)
   if not latest_received or latest_received < ptime:
       latest_received = ptime
-  if ptype != arrival_time_type:
+  if ptype not in (arrival_time_type, calibration_type) :
     latencies[packet_str].append(latest_received - ptime)
     packets[packet_str].append(ptime)
   if not (ptype == accel_type or ptype == gyro_type) and prev_packet_str == packet_str:
@@ -191,6 +192,10 @@ for packet_type in sorted(packets.keys()):
           print "Warning:", packet_type, "at", w[0], "changed by ", w[1], "current: ", w[2], "last:", w[3]
   print ""
 
+if got_types[calibration_type] == 0:
+    print "Warning: Never received calibration packet"
+elif got_types[calibration_type] > 1:
+    print "Error: Got %d calibration packets" % got_types[calibration_type]
 if got_types[arrival_time_type] == 0:
     print "Warning: Never received arrival_time packet"
 else:

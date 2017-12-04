@@ -33,11 +33,14 @@ static const int PLANE_SRC_PID = 255;
 static const float FLOAT_MAX_VALUE = std::numeric_limits<float>::max();
 static const float FLOAT_MIN_VALUE = -FLOAT_MAX_VALUE;
 
-typedef Eigen::Vector2i i2;
-typedef Eigen::Vector4i i4;
-typedef Eigen::Vector2f v2;
-typedef Eigen::Vector3f v3;
-typedef Eigen::Vector4f v4;
+
+template <int Rows = Eigen::Dynamic> using v = Eigen::Matrix<float, Rows, 1>;
+template <int Rows = Eigen::Dynamic> using i = Eigen::Matrix<int, Rows, 1>;
+typedef i<2> i2;
+typedef i<4> i4;
+typedef v<2> v2;
+typedef v<3> v3;
+typedef v<4> v4;
 typedef Eigen::Quaternionf qv3;
 typedef Eigen::Matrix<unsigned char, 3, 1> b3;
 typedef Eigen::Matrix<float, 3, 3, Eigen::RowMajor> m3;

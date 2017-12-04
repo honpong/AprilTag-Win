@@ -138,7 +138,7 @@ class mapper {
     std::map<unsigned int, std::vector<nodeid>> dbow_inverted_index; // given a word it stores the nodes in which it was observed
 
     // temporary store current frame in case we add a new node
-    nodeid current_node_id;
+    nodeid current_node_id = std::numeric_limits<uint64_t>::max();
 
     // for a feature id we associate the corresponding node in which it was detected
     std::map<uint64_t, nodeid> features_dbow;

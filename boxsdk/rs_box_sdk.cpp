@@ -40,8 +40,8 @@ namespace rs2
                 rs_shapefit_delete)).get();
 
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_DEPTH_UNIT, _depth_unit);
-            rs_shapefit_set_option(box_detector, RS_SF_OPTION_ASYNC_WAIT, 500.0);
-            //rs_shapefit_set_option(_detector.get(), RS_SF_OPTION_PLANE_NOISE, 2);
+            rs_shapefit_set_option(box_detector, RS_SF_OPTION_ASYNC_WAIT, 100.0);
+            rs_shapefit_set_option(_detector.get(), RS_SF_OPTION_PLANE_NOISE, 1);
             //rs_shapefit_set_option(_detector.get(), RS_SF_OPTION_PLANE_RES, 1);
 
             _color_stream_profile = std::make_shared<video_stream_profile>(input_color_frame.get_profile());
@@ -58,7 +58,7 @@ namespace rs2
             _image[BOX_DST_COLOR] << input_color_frame << &_depth_intrinsics;
 
             if (_camera_tracker) _camera_tracker.reset();
-            _camera_tracker = std::make_unique<camera_tracker>(&_depth_intrinsics);
+            _camera_tracker = std::make_unique<camera_tracker>(&_depth_intrinsics, RS_SF_MED_RESOLUTION);
 
             return box_detector;
         }

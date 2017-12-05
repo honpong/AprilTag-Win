@@ -40,11 +40,11 @@ namespace rs2
 {
     struct camera_tracker
     {
-        camera_tracker(const rs2_intrinsics* i, int r_width = 320, int r_height = 240) :
-        _sp_init(rs_sf_setup_scene_perception(i->fx, i->fy, i->ppx, i->ppy, i->width, i->height, r_width, r_height, RS_SF_MED_RESOLUTION)),
-        _sdepth(r_width * r_height * (_sp_init ? 1 : 0)),
-        _scolor(r_width * r_height * (_sp_init ? 3 : 0)) {}
-        
+        camera_tracker(const rs2_intrinsics* i, const rs_sf_pose_track_resolution& resolution) :
+            _acc_w(320), _acc_h(240),
+            _sp_init(rs_sf_setup_scene_perception(i->fx, i->fy, i->ppx, i->ppy, i->width, i->height, i->width, i->height, resolution)),
+            _sdepth(_acc_w * _acc_h * (_sp_init ? 1 : 0)) {}
+
         ~camera_tracker() { if (_sp_init) rs_sf_pose_tracking_release(); }
         
         bool track(rs_sf_image& depth_frame, rs_sf_image& color_frame, const rs2_extrinsics& d2c, bool reset_request)
@@ -58,29 +58,20 @@ namespace rs2
             //start_time = std::chrono::steady_clock::now();
             //auto start_pose_track_time = std::chrono::steady_clock::now();
             
-            // down-sample depth
-            auto depth_data = (unsigned short*)depth_frame.data;
-            auto color_data = color_frame.data;
-            auto s_depth_data = _sdepth.data();
-            auto s_color_data = _scolor.data();
-            for (int y = 0, p = 0, p3 = 0, w = depth_frame.img_w, h = depth_frame.img_h; y < 240; ++y) {
-                for (int x = 0; x < 320; ++x, ++p, p3 += 3) {
-                    const int p_src = (y * h / 240) * w + (x * w / 320);
-                    s_depth_data[p] = depth_data[p_src];
-                    memcpy(s_color_data + p3, color_data + p3, 3);
-                }
-            }
+            auto sp_src_depth = (unsigned short*)depth_frame.data;
+            auto sp_src_color = (unsigned char*)color_frame.data;
+            auto sp_dst_depth = _sdepth.data();
             
             // do pose tracking
-            const bool track_success = rs_sf_do_scene_perception_tracking(_sdepth.data(), _scolor.data(), reset_request, depth_frame.cam_pose);
-            const bool cast_success = rs_sf_do_scene_perception_ray_casting(320, 240, _sdepth.data(), _buf);
+            const bool track_success = rs_sf_do_scene_perception_tracking(sp_src_depth, sp_src_color, reset_request, depth_frame.cam_pose);
+            const bool cast_success = rs_sf_do_scene_perception_ray_casting(320, 240, sp_dst_depth, _buf);
             //const bool switch_track = (track_success && cast_success) != _was_tracking;
             
             // up-sample depth
             if ((_was_tracking = (track_success && cast_success))) {
                 for (int y = 0, p = 0, h = depth_frame.img_h, w = depth_frame.img_w; y < h; ++y) {
                     for (int x = 0; x < w; ++x, ++p) {
-                        depth_data[p] = s_depth_data[(y * 240 / h) * 320 + (x * 320 / w)];
+                        sp_src_depth[p] = sp_dst_depth[(y * 240 / h) * 320 + (x * 320 / w)];
                     }
                 }
                 
@@ -104,9 +95,9 @@ namespace rs2
         }
         
     private:
+        const int _acc_w, _acc_h;
         bool _sp_init, _was_tracking = false;
         std::unique_ptr<float[]> _buf;
         std::vector<unsigned short> _sdepth;
-        std::vector<unsigned char> _scolor;
     };
 }

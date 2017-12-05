@@ -35,16 +35,14 @@ void reset_tracking_if_good_input(unsigned short* depth_data, unsigned char* col
     }
 
     // reset depth fusion
-    //float init_pose[12] = { 1, 0, 0, volumeDimension / 2.0f, 0, 1, 0, volumeDimension / 2.0f, 0, 0, 1, 0 };
-    const float init_pose[12] = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
-
     SP_InputStream stream = {};
+    stream.pDepthSrc = depth_data; 
+    stream.pFisheyeOrRGBSrc = color_data;
+    stream.depthTimestamp = g_frame_number = 0;
+    stream.fisheyeOrRGBTimestamp = g_frame_number;
 
-    stream.pDepthSrc = (unsigned short*)g_reset_buffer.get();  // depth_data;
-    stream.pRGBSrc = g_reset_buffer.get(); // color_data;
-    stream.m_dDepthTimeStamp = g_frame_number = 0;
-    stream.m_dRgbTimeStamp = g_frame_number;
-    auto status = SP_reset((const float(*)[12])init_pose, &stream);
+    const float init_pose[12] = { 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f };
+    auto status = SP_reset(reinterpret_cast<const float(*)[12]>(init_pose), &stream);
     reset_request = false;
     return;
 }
@@ -54,12 +52,12 @@ bool _setup_scene_perception(SP_CameraIntrinsics& camera_parameters, rs_sf_pose_
     SP_create();
     SP_setInertialSupport(0);
     SP_setGravitySupport(0);
-    SP_setDoSceneReconstruction(1);
+    //SP_setDoSceneReconstruction(1);
 
     float extrinsics_translation[] = { 0.0f, 0.0f, 0.0f }; // image aligned;
     g_camera_parameters = camera_parameters;
-    g_reset_buffer.reset(new unsigned char[g_camera_parameters.imageHeight*g_camera_parameters.imageWidth * 3]);
-    memset(g_reset_buffer.get(), 0, g_camera_parameters.imageHeight*g_camera_parameters.imageWidth * 3);
+    //g_reset_buffer.reset(new unsigned char[g_camera_parameters.imageHeight*g_camera_parameters.imageWidth * 3]);
+    //memset(g_reset_buffer.get(), 0, g_camera_parameters.imageHeight*g_camera_parameters.imageWidth * 3);
     SP_STATUS SPErr = static_cast<SP_STATUS>(SP_setConfiguration(
         &camera_parameters, &camera_parameters, extrinsics_translation, (SP_Resolution)resolution /*volume resolution*/));
     if (SPErr != SP_STATUS_SUCCESS)
@@ -73,11 +71,12 @@ bool _setup_scene_perception(SP_CameraIntrinsics& camera_parameters, rs_sf_pose_
 bool rs_sf_setup_scene_perception(float rfx, float rfy, float rpx, float rpy,
     unsigned int rw, unsigned int rh, int target_width, int target_height, rs_sf_pose_track_resolution resolution)
 {
-    SP_CameraIntrinsics sp_cam_intrinsics;
+    SP_CameraIntrinsics sp_cam_intrinsics = {};
 
     const float scale_x = (float)target_width / rw;
     const float scale_y = (float)target_height / rh;
 
+    sp_cam_intrinsics.distortionType = SP_UNDISTORTED;
     sp_cam_intrinsics.focalLengthHorizontal = rfx*scale_x;
     sp_cam_intrinsics.focalLengthVertical = rfy*scale_y;
     sp_cam_intrinsics.imageHeight = target_height;
@@ -91,7 +90,7 @@ bool rs_sf_setup_scene_perception(float rfx, float rfy, float rpx, float rpy,
 bool rs_sf_do_scene_perception_tracking(unsigned short* depth_data, unsigned char* color_data, bool& reset_request, float cam_pose[12])
 {
 
-    if (reset_request || SP_TRACKING_ACCURACY::FAILED == g_tracking_status)
+    if (reset_request /* || SP_TRACKING_ACCURACY::FAILED == g_tracking_status*/)
     {
         reset_tracking_if_good_input(depth_data, color_data, reset_request);
     }

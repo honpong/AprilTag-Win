@@ -21,6 +21,7 @@ float get_last_failed_sp_quality(void)
 static int64_t g_frame_number = 0;
 static SP_TRACKING_ACCURACY g_tracking_status = SP_TRACKING_ACCURACY::FAILED;
 static SP_CameraIntrinsics g_camera_parameters = {};
+static const uint64_t g_timestamp_increment = 33000;
 
 void reset_tracking_if_good_input(unsigned short* depth_data, unsigned char* color_data, bool& reset_request)
 {
@@ -56,7 +57,7 @@ bool _setup_scene_perception(SP_CameraIntrinsics& camera_parameters, rs_sf_pose_
     float extrinsics_translation[] = { 0.0f, 0.0f, 0.0f }; // image aligned;
     g_camera_parameters = camera_parameters;
     SP_STATUS SPErr = static_cast<SP_STATUS>(SP_setConfiguration(
-        &camera_parameters, &camera_parameters, extrinsics_translation, (SP_Resolution)resolution /*volume resolution*/));
+        &camera_parameters, /*&camera_parameters, extrinsics_translation,*/ (SP_Resolution)resolution /*volume resolution*/));
     if (SPErr != SP_STATUS_SUCCESS)
     {
         return false;
@@ -87,17 +88,17 @@ bool rs_sf_setup_scene_perception(float rfx, float rfy, float rpx, float rpy,
 bool rs_sf_do_scene_perception_tracking(unsigned short* depth_data, unsigned char* color_data, bool& reset_request, float cam_pose[12])
 {
 
-    if (reset_request || SP_TRACKING_ACCURACY::FAILED == g_tracking_status)
+    if (reset_request || (SP_TRACKING_ACCURACY::FAILED == g_tracking_status && g_frame_number > g_timestamp_increment * 15))
     {
         reset_tracking_if_good_input(depth_data, color_data, reset_request);
     }
 
     SP_InputStream inputStream = {};
     inputStream.pDepthSrc = depth_data;
-    inputStream.pRGBSrc = color_data;
-    g_frame_number += 33000;
-    inputStream.m_dDepthTimeStamp = g_frame_number;
-    inputStream.m_dRgbTimeStamp = g_frame_number;
+    inputStream.pFisheyeOrRGBSrc = color_data;
+    g_frame_number += g_timestamp_increment;
+    inputStream.depthTimestamp = g_frame_number;
+    inputStream.fisheyeOrRGBTimestamp = g_frame_number;
 
     SP_TRACKING_ACCURACY newTrackingStatus;
     SP_STATUS callStatus = static_cast<SP_STATUS>(SP_doTracking(&newTrackingStatus, &inputStream));
@@ -164,7 +165,6 @@ bool rs_sf_do_scene_perception_ray_casting(int image_width, int image_height, un
 void rs_sf_pose_tracking_release()
 {
     SP_release();
-    g_reset_buffer = nullptr;
 }
 
 #else

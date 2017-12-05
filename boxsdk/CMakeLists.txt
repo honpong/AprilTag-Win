@@ -22,7 +22,7 @@ else()
         rs_sf_pose_tracker.cpp)
 endif()
 
-find_package(libSP QUIET PATHS "${CMAKE_CURRENT_SOURCE_DIR}/../src/thirdparty/sp/win")
+find_package(libSP QUIET)
 if(libSP_FOUND)
     add_definitions(-DlibSP_FOUND)
 endif()

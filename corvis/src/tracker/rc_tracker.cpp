@@ -629,6 +629,7 @@ int rc_getMapNodes(rc_Tracker *tracker, rc_MapNode **map_nodes)
                 tracker->map_nodes.push_back(map_node);
             }
         }
+        //std::sort(tracker->map_nodes)
         if (map_nodes) *map_nodes = tracker->map_nodes.data();
         return tracker->map_nodes.size();
     } else {

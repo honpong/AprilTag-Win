@@ -689,6 +689,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         timage.width_px = data.stereo.width;
         timage.height_px = data.stereo.height;
         timage.stride_px = data.stereo.stride2;
+        camera_state2.intrinsics.image_width = data.image.width;
+        camera_state2.intrinsics.image_height = data.image.height;
 
         START_EVENT(SF_STEREO_DETECT2, 1)
         std::vector<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->feature_tracker->detect(timage, existing_features, 200);

@@ -806,6 +806,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         f->log->error("No features for 500ms; switching to orientation only.");
         f->run_state = RCSensorFusionRunStateDynamicInitialization;
         f->s.enable_orientation_only(true);
+        f->s.disable_bias_estimation(true);
     }
 
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {

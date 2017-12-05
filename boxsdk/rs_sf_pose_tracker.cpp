@@ -21,7 +21,6 @@ float get_last_failed_sp_quality(void)
 static int64_t g_frame_number = 0;
 static SP_TRACKING_ACCURACY g_tracking_status = SP_TRACKING_ACCURACY::FAILED;
 static SP_CameraIntrinsics g_camera_parameters = {};
-static std::unique_ptr<unsigned char> g_reset_buffer;
 
 void reset_tracking_if_good_input(unsigned short* depth_data, unsigned char* color_data, bool& reset_request)
 {
@@ -50,14 +49,12 @@ void reset_tracking_if_good_input(unsigned short* depth_data, unsigned char* col
 bool _setup_scene_perception(SP_CameraIntrinsics& camera_parameters, rs_sf_pose_track_resolution resolution)
 {
     SP_create();
-    SP_setInertialSupport(0);
-    SP_setGravitySupport(0);
+    //SP_setInertialSupport(0);
+    //SP_setGravitySupport(0);
     //SP_setDoSceneReconstruction(1);
 
     float extrinsics_translation[] = { 0.0f, 0.0f, 0.0f }; // image aligned;
     g_camera_parameters = camera_parameters;
-    //g_reset_buffer.reset(new unsigned char[g_camera_parameters.imageHeight*g_camera_parameters.imageWidth * 3]);
-    //memset(g_reset_buffer.get(), 0, g_camera_parameters.imageHeight*g_camera_parameters.imageWidth * 3);
     SP_STATUS SPErr = static_cast<SP_STATUS>(SP_setConfiguration(
         &camera_parameters, &camera_parameters, extrinsics_translation, (SP_Resolution)resolution /*volume resolution*/));
     if (SPErr != SP_STATUS_SUCCESS)
@@ -90,7 +87,7 @@ bool rs_sf_setup_scene_perception(float rfx, float rfy, float rpx, float rpy,
 bool rs_sf_do_scene_perception_tracking(unsigned short* depth_data, unsigned char* color_data, bool& reset_request, float cam_pose[12])
 {
 
-    if (reset_request /* || SP_TRACKING_ACCURACY::FAILED == g_tracking_status*/)
+    if (reset_request || SP_TRACKING_ACCURACY::FAILED == g_tracking_status)
     {
         reset_tracking_if_good_input(depth_data, color_data, reset_request);
     }

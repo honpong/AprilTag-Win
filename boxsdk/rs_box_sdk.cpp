@@ -17,11 +17,10 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 
 #include <stdio.h>
 #include "inc/rs_box_sdk.hpp"
-#include "rs_shapefit.h"
+#include "rs_box_image.hpp"
 #include "rs_box_api.h"
 #include "rs_icon.h"
 #include "rs_sf_pose_tracker.h"
-#include "rs_box_image.hpp"
 
 struct rs2_box_measure {};
 

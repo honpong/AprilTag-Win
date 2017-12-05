@@ -18,6 +18,7 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 #define rs_box_image_hpp
 
 #include <cfloat>
+#include "rs_shapefit.h"
 
 namespace rs2
 {

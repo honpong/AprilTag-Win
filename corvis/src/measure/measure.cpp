@@ -27,7 +27,7 @@ int main(int c, char **v)
     if (0) { usage:
 
         cerr << "Usage: " << v[0] << " { <filename> [--no-gui] | --benchmark <directory> [--threads <n>] [--progress] }\n"
-             << "   [--qvga] [--drop-depth] [--realtime] [--async] [--no-fast-path] [--zero-bias]\n"
+             << "   [--qvga] [--qres] [--drop-depth] [--realtime] [--async] [--no-fast-path] [--zero-bias]\n"
              << "   [--trace | --debug | --error | --info | --warn | --none]\n"
              << "   [--pause] [--pause-at <timestamp_us>]\n"
              << "   [--no-plots] [--no-video] [--no-main] [--no-depth]\n"
@@ -41,7 +41,7 @@ int main(int c, char **v)
     bool realtime = false, start_paused = false, benchmark = false, benchmark_relocation = false, calibrate = false, zero_bias = false, fast_path = true, async = false, progress = false;
     const char *save = nullptr, *load = nullptr;
     std::string save_map, load_map;
-    bool qvga = false, depth = true;
+    bool qvga = false, depth = true; int qres = 0;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     bool enable_map = true;
     bool incremental_ate = false;
@@ -66,6 +66,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--pause-at")  == 0 && i+1 < c) pause_at = v[++i];
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
         else if (strcmp(v[i], "--qvga") == 0) qvga = true;
+        else if (strcmp(v[i], "--qres") == 0) qres++;
         else if (strcmp(v[i], "--drop-depth") == 0) depth = false;
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
         else if (strcmp(v[i], "--disable-map") == 0) enable_map = false;
@@ -95,6 +96,7 @@ int main(int c, char **v)
         rp.set_message_level(message_level);
 
         if(qvga) rp.enable_qvga();
+        if(qres) rp.enable_qres(qres);
         if(!depth) rp.disable_depth();
         if(realtime) rp.enable_realtime();
         if(enable_map) rp.start_mapping(relocalize, !save_map.empty());

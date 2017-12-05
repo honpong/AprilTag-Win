@@ -300,8 +300,11 @@ void replay::start(string map_filename)
                     stride = width;
 
                     packet_camera_t *ip = (packet_camera_t *)packet;
-                    if (qvga && width == 640 && height == 480)
+                    if ((qvga && width == 640 && height == 480) ||
+                        (qres == 1 && width % 2 == 0 && height % 2 == 0))
                         scale_down_inplace_y8_by<2,2>(ip->data + 16, width /= 2, height /= 2, stride);
+                    else if (qres == 2 && width % 4 == 0 && height % 4 == 0)
+                        scale_down_inplace_y8_by<4,4>(ip->data + 16, width /= 4, height /= 4, stride);
 
                     if(image_decimate && data_timestamp < last_image) break;
                     if(last_image == sensor_clock::time_point()) last_image = data_timestamp;
@@ -325,8 +328,11 @@ void replay::start(string map_filename)
                         ip->header.sensor_id++; // ref count
                         uint16_t *depth_image = (uint16_t*)(ip->data + ip->width * ip->height);
                         int depth_width = ip->depth_width, depth_height = ip->depth_height, depth_stride = sizeof(uint16_t) * ip->depth_width;
-                        if (qvga && depth_width == 640 && depth_height == 480)
+                        if ((qvga && depth_width == 640 && depth_height == 480) ||
+                            (qres == 1 && depth_width % 2 == 0 && depth_height % 2 == 0))
                             scale_down_inplace_z16_by<2,2>(depth_image, depth_width /= 2, depth_height /= 2, depth_stride);
+                        else if (qres == 2 && depth_width % 4 == 0 && depth_height % 4 == 0)
+                            scale_down_inplace_z16_by<4,4>(depth_image, depth_width /= 4, depth_height /= 4, depth_stride);
                         rc_receiveImage(tracker, 0, rc_FORMAT_DEPTH16, ip->header.time, 0,
                                         depth_width, depth_height, depth_stride, depth_image,
                                         [](void *packet) { if (!--((packet_header_t *)packet)->sensor_id) free(packet); }, packet);
@@ -334,8 +340,11 @@ void replay::start(string map_filename)
 
                     uint8_t *image = ip->data;
                     int width = ip->width, height = ip->height, stride = ip->width;
-                    if (qvga && width == 640 && height == 480)
+                    if ((qvga && width == 640 && height == 480) ||
+                        (qres == 1 && width % 2 == 0 && height % 2 == 0))
                         scale_down_inplace_y8_by<2,2>(image, width /= 2, height /= 2, stride);
+                    else if (qres == 2 && width % 4 == 0 && height % 4 == 0)
+                        scale_down_inplace_y8_by<4,4>(image, width /= 4, height /= 4, stride);
 
                     if(last_image == sensor_clock::time_point()) last_image = data_timestamp;
                     last_image += image_interval;
@@ -354,15 +363,21 @@ void replay::start(string map_filename)
                     if(image_decimate && data_timestamp < last_image) break;
 
                     if (ip->format == rc_FORMAT_GRAY8) {
-                        if (qvga && ip->width == 640 && ip->height == 480)
+                        if ((qvga && ip->width == 640 && ip->height == 480) ||
+                            (qres == 1 && ip->width % 2 == 0 && ip->height % 2 == 0))
                             scale_down_inplace_y8_by<2,2>(ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
+                        else if (qres == 2 && ip->width % 4 == 0 && ip->height % 4 == 0)
+                            scale_down_inplace_y8_by<4,4>(ip->data, ip->width /= 4, ip->height /= 4, ip->stride);
                         rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
                                         ip->width, ip->height, ip->stride, ip->data,
                                         [](void *packet) { free(packet); }, phandle.release());
                     }
                     else if (use_depth && ip->format == rc_FORMAT_DEPTH16) {
-                        if (qvga && ip->width == 640 && ip->height == 480)
-                        scale_down_inplace_z16_by<2,2>((uint16_t*)ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
+                        if ((qvga && ip->width == 640 && ip->height == 480) ||
+                            (qres == 1 && ip->width % 2 == 0 && ip->height % 2 == 0))
+                            scale_down_inplace_z16_by<2,2>((uint16_t*)ip->data, ip->width /= 2, ip->height /= 2, ip->stride);
+                        else if (qres == 2 && ip->width % 4 == 0 && ip->height % 4 == 0)
+                            scale_down_inplace_z16_by<4,4>((uint16_t*)ip->data, ip->width /= 4, ip->height /= 4, ip->stride);
                         rc_receiveImage(tracker, packet->header.sensor_id, rc_FORMAT_DEPTH16, ip->header.time, ip->exposure_time_us,
                                         ip->width, ip->height, ip->stride, ip->data,
                                         [](void *packet) { free(packet); }, phandle.release());
@@ -384,8 +399,17 @@ void replay::start(string map_filename)
                     auto *ip = (packet_stereo_raw_t *)packet;
 
                     if (ip->format == rc_FORMAT_GRAY8) {
+                        auto *data2 = ip->data + ip->stride1*ip->height;
+                        if ((qvga && ip->width == 640 && ip->height == 480) ||
+                            (qres == 1 && ip->width % 2 == 0 && ip->height % 2 == 0)) {
+                            scale_down_inplace_y8_by<2,2>(ip->data, ip->width /= 2, ip->height /= 2, ip->stride1);
+                            scale_down_inplace_y8_by<2,2>(    data2,ip->width     , ip->height     , ip->stride2);
+                        } else if (qres == 2 && ip->width % 4 == 0 && ip->height % 4 == 0) {
+                            scale_down_inplace_y8_by<4,4>(ip->data, ip->width /= 4, ip->height /= 4, ip->stride1);
+                            scale_down_inplace_y8_by<4,4>(    data2,ip->width     , ip->height     , ip->stride2);
+                        }
                         rc_receiveStereo(tracker, packet->header.sensor_id, rc_FORMAT_GRAY8, ip->header.time, ip->exposure_time_us,
-                                         ip->width, ip->height, ip->stride1, ip->stride2, ip->data, (uint8_t *)ip->data + ip->stride1*ip->height,
+                                         ip->width, ip->height, ip->stride1, ip->stride2, ip->data, (uint8_t *)data2,
                                          [](void *packet) { free(packet); }, phandle.release());
                     }
 

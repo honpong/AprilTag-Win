@@ -40,6 +40,7 @@ private:
     std::function<void (rc_Tracker *, const rc_Data *)> data_callback;
     std::function<void (float)> progress_callback;
     bool qvga {false};
+    int qres {0};
     bool async {false};
     bool use_depth {true};
     bool fast_path {false};
@@ -71,6 +72,7 @@ public:
     void enable_realtime() { is_realtime = true; }
     void enable_async() { async = is_realtime = true; }
     void enable_qvga() { qvga = true; }
+    void enable_qres(int qres_) { qres = qres_; }
     void disable_depth() { use_depth = false; }
     void enable_fast_path() { fast_path = true; }
     void decimate_accel(std::chrono::microseconds interval) { accel_decimate = true; accel_interval = interval; }

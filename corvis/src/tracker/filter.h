@@ -59,7 +59,6 @@ struct filter {
     bool is_relocalized;
 
     std::unique_ptr<mapper> map;
-    transformation pose_at_reloc;
 
 #ifdef ENABLE_QR
     qr_detector qr;

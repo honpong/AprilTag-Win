@@ -212,6 +212,8 @@ class state_vision_group: public state_branch<state_node *> {
     int health = 0;
     enum group_flag status = group_normal;
     uint64_t id;
+    uint64_t frames_active = 0;
+    bool reused = false;
 
     state_vision_group(state_camera &camera, uint64_t group_id);
     void make_reference();

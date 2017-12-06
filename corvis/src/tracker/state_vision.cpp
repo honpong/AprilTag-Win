@@ -286,6 +286,7 @@ void state_vision::update_map(mapper *map)
             distance_current_node = g->Tr.v.norm();
             map->current_node = &map->get_node(g->id);
         }
+        g->frames_active++;
 
         // update map edges for all active groups
         for (auto &g2 : groups.children) {

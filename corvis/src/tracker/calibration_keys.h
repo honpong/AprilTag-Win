@@ -6,8 +6,9 @@
 #define KEY_CAMERAS "cameras"
 #define KEY_DEPTHS "depths"
 #define KEY_IMUS "imus"
+#define KEY_VELOCIMETERS "velocimeters"
 
-// applies to cameras, depths, imus
+// applies to cameras, depths, imus, velocimeters
 #define KEY_SENSOR_ID "id"
 #define KEY_SENSOR_NAME "name"
 #define KEY_EXTRINSICS "extrinsics"
@@ -20,11 +21,14 @@
 #define KEY_IMU_ACCELEROMETER "accelerometer"
 #define KEY_IMU_GYROSCOPE "gyroscope"
 #define KEY_IMU_THERMOMETER "thermometer"
-#define KEY_IMU_SCALE_AND_ALIGNMENT "scale_and_alignment"
 #define KEY_IMU_BIAS "bias"
 #define KEY_IMU_BIAS_VARIANCE "bias_variance"
-#define KEY_IMU_NOISE_VARIANCE "noise_variance"
-#define KEY_IMU_DECIMATE_BY "decimate_by"
+
+// applies to imus and velocimeters
+#define KEY_SCALE_AND_ALIGNMENT "scale_and_alignment"
+#define KEY_NOISE_VARIANCE "noise_variance"
+#define KEY_DECIMATE_BY "decimate_by"
+
 
 // applies to cameras, depths
 #define KEY_CAMERA_IMAGE_SIZE "size_px"

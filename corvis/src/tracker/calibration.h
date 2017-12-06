@@ -28,12 +28,14 @@ typedef sensor_calibration<imu_intrinsics> sensor_calibration_imu;
 typedef sensor_calibration<rc_AccelerometerIntrinsics> sensor_calibration_accelerometer;
 typedef sensor_calibration<rc_GyroscopeIntrinsics> sensor_calibration_gyroscope;
 typedef sensor_calibration<rc_ThermometerIntrinsics> sensor_calibration_thermometer;
+typedef sensor_calibration<rc_VelocimeterIntrinsics> sensor_calibration_velocimeter;
 
 struct calibration {
     int version = CALIBRATION_VERSION;
     std::string device_id;
     std::string device_type;
     std::vector<sensor_calibration_imu> imus;
+    std::vector<sensor_calibration_velocimeter> velocimeters;
     std::vector<sensor_calibration_camera> cameras;
     std::vector<sensor_calibration_depth> depths;
 };

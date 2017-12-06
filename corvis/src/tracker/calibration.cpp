@@ -150,7 +150,7 @@ static void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, D
         for(int r = 0; r < 3; r++)
             for(int c = 0; c < 3; c++)
                 scale_and_alignment.PushBack(imu.intrinsics.accelerometer.scale_and_alignment.v[r][c], a);
-        accelerometer.AddMember(KEY_IMU_SCALE_AND_ALIGNMENT, scale_and_alignment, a);
+        accelerometer.AddMember(KEY_SCALE_AND_ALIGNMENT, scale_and_alignment, a);
 
         Value bias(kArrayType);
         for(int i = 0; i < 3; i++) bias.PushBack(imu.intrinsics.accelerometer.bias_m__s2.v[i], a);
@@ -160,10 +160,10 @@ static void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, D
         for(int i = 0; i < 3; i++) bias_variance.PushBack(imu.intrinsics.accelerometer.bias_variance_m2__s4.v[i], a);
         accelerometer.AddMember(KEY_IMU_BIAS_VARIANCE, bias_variance, a);
 
-        accelerometer.AddMember(KEY_IMU_NOISE_VARIANCE, imu.intrinsics.accelerometer.measurement_variance_m2__s4, a);
+        accelerometer.AddMember(KEY_NOISE_VARIANCE, imu.intrinsics.accelerometer.measurement_variance_m2__s4, a);
 
         if (imu.intrinsics.accelerometer.decimate_by > 1)
-            accelerometer.AddMember(KEY_IMU_DECIMATE_BY, (unsigned)imu.intrinsics.accelerometer.decimate_by, a);
+            accelerometer.AddMember(KEY_DECIMATE_BY, (unsigned)imu.intrinsics.accelerometer.decimate_by, a);
     }
     imu_object.AddMember(KEY_IMU_ACCELEROMETER, accelerometer, a);
 
@@ -173,7 +173,7 @@ static void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, D
         for(int r = 0; r < 3; r++)
             for(int c = 0; c < 3; c++)
                 scale_and_alignment.PushBack(imu.intrinsics.gyroscope.scale_and_alignment.v[r][c], a);
-        gyroscope.AddMember(KEY_IMU_SCALE_AND_ALIGNMENT, scale_and_alignment, a);
+        gyroscope.AddMember(KEY_SCALE_AND_ALIGNMENT, scale_and_alignment, a);
 
         Value bias(kArrayType);
         for(int i = 0; i < 3; i++) bias.PushBack(imu.intrinsics.gyroscope.bias_rad__s.v[i], a);
@@ -183,10 +183,10 @@ static void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, D
         for(int i = 0; i < 3; i++) bias_variance.PushBack(imu.intrinsics.gyroscope.bias_variance_rad2__s2.v[i], a);
         gyroscope.AddMember(KEY_IMU_BIAS_VARIANCE, bias_variance, a);
 
-        gyroscope.AddMember(KEY_IMU_NOISE_VARIANCE, imu.intrinsics.gyroscope.measurement_variance_rad2__s2, a);
+        gyroscope.AddMember(KEY_NOISE_VARIANCE, imu.intrinsics.gyroscope.measurement_variance_rad2__s2, a);
 
         if (imu.intrinsics.gyroscope.decimate_by > 1)
-            gyroscope.AddMember(KEY_IMU_DECIMATE_BY, (unsigned)imu.intrinsics.gyroscope.decimate_by, a);
+            gyroscope.AddMember(KEY_DECIMATE_BY, (unsigned)imu.intrinsics.gyroscope.decimate_by, a);
     }
     imu_object.AddMember(KEY_IMU_GYROSCOPE, gyroscope, a);
 
@@ -194,10 +194,10 @@ static void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, D
         Value thermometer(kObjectType);
 
         auto &t = imu.intrinsics.thermometer;
-        thermometer.AddMember(KEY_IMU_SCALE_AND_ALIGNMENT, t.scale_and_alignment, a);
+        thermometer.AddMember(KEY_SCALE_AND_ALIGNMENT, t.scale_and_alignment, a);
         thermometer.AddMember(KEY_IMU_BIAS,                t.bias_C, a);
         thermometer.AddMember(KEY_IMU_BIAS_VARIANCE,       t.bias_variance_C2, a);
-        thermometer.AddMember(KEY_IMU_NOISE_VARIANCE,      t.measurement_variance_C2, a);
+        thermometer.AddMember(KEY_NOISE_VARIANCE,      t.measurement_variance_C2, a);
         imu_object.AddMember(KEY_IMU_THERMOMETER, thermometer, a);
     }
 
@@ -206,6 +206,28 @@ static void copy_imu_to_json(const sensor_calibration_imu & imu, Value & imus, D
     imu_object.AddMember(KEY_EXTRINSICS, extrinsics, a);
 
     imus.PushBack(imu_object, a);
+}
+
+static void copy_velocimeter_to_json(const sensor_calibration_velocimeter & velocimeter, Value & velocimeters, Document::AllocatorType& a)
+{
+    Value velocimeter_object(kObjectType);
+
+    Value scale_and_alignment(kArrayType);
+    for(int r = 0; r < 3; r++)
+        for(int c = 0; c < 3; c++)
+            scale_and_alignment.PushBack(velocimeter.intrinsics.scale_and_alignment.v[r][c], a);
+    velocimeter_object.AddMember(KEY_SCALE_AND_ALIGNMENT, scale_and_alignment, a);
+
+    velocimeter_object.AddMember(KEY_NOISE_VARIANCE, velocimeter.intrinsics.measurement_variance_m2__s2, a);
+
+    if (velocimeter.intrinsics.decimate_by > 1)
+        velocimeter_object.AddMember(KEY_DECIMATE_BY, (unsigned)velocimeter.intrinsics.decimate_by, a);
+
+    Value extrinsics(kObjectType);
+    copy_extrinsics_to_json(velocimeter.extrinsics, extrinsics, a);
+    velocimeter_object.AddMember(KEY_EXTRINSICS, extrinsics, a);
+
+    velocimeters.PushBack(velocimeter_object, a);
 }
 
 static void copy_calibration_to_json(const calibration &cal, Value & json, Document::AllocatorType& a)
@@ -231,6 +253,10 @@ static void copy_calibration_to_json(const calibration &cal, Value & json, Docum
     Value imus(kArrayType);
     for(const auto &imu : cal.imus) copy_imu_to_json(imu, imus, a);
     json.AddMember(KEY_IMUS, imus, a);
+
+    Value velocimeters(kArrayType);
+    for(const auto &velocimeter : cal.velocimeters) copy_velocimeter_to_json(velocimeter, velocimeters, a);
+    json.AddMember(KEY_VELOCIMETERS, velocimeters, a);
 }
 
 static bool require_key(const Value &json, const char * KEY)
@@ -297,33 +323,75 @@ static bool copy_json_to_extrinsics(Value & json, rc_Extrinsics & extrinsics)
     return true;
 }
 
+
+static bool copy_json_to_velocimeter(Value & json, sensor_calibration_velocimeter & velocimeter)
+{
+    if(!json.IsObject()) {
+        fprintf(stderr, "Error: velocimeter is not an object\n");
+        return false;
+    }
+    if(!require_keys(json, {KEY_SCALE_AND_ALIGNMENT, KEY_NOISE_VARIANCE}))
+        return false;
+
+    if(!copy_json_to_rc_matrix(json[KEY_SCALE_AND_ALIGNMENT], velocimeter.intrinsics.scale_and_alignment))
+        return false;
+
+    if(!json[KEY_NOISE_VARIANCE].IsDouble()) {
+        fprintf(stderr, "Error: measurement noise should be a double\n");
+        return false;
+    }
+    velocimeter.intrinsics.measurement_variance_m2__s2 = json[KEY_NOISE_VARIANCE].GetDouble();
+
+    copy_json_to_extrinsics(json[KEY_EXTRINSICS], velocimeter.extrinsics);
+
+    return true;
+}
+
+static bool copy_json_to_velocimeters(Value & json, std::vector<sensor_calibration_velocimeter> & velocimeters)
+{
+    if(!json.IsArray()) {
+        fprintf(stderr, "Error: velocimeters is not an array\n");
+        return false;
+    }
+
+    for(size_t i = 0; i < json.Size(); i++) {
+        sensor_calibration_velocimeter velocimeter;
+        if(!copy_json_to_velocimeter(json[i], velocimeter))
+            return false;
+
+        velocimeters.push_back(velocimeter);
+    }
+    return true;
+}
+
 static bool copy_json_to_gyroscope(Value & json, rc_GyroscopeIntrinsics & gyroscope)
 {
     if(!json.IsObject()) {
         fprintf(stderr, "Error: gyroscope is not an object\n");
         return false;
     }
-    if(!require_keys(json, {KEY_IMU_SCALE_AND_ALIGNMENT, KEY_IMU_BIAS,
-                KEY_IMU_BIAS_VARIANCE, KEY_IMU_NOISE_VARIANCE}))
+    if(!require_keys(json, {KEY_SCALE_AND_ALIGNMENT, KEY_IMU_BIAS,
+                KEY_IMU_BIAS_VARIANCE, KEY_NOISE_VARIANCE}))
         return false;
 
-    if(!copy_json_to_rc_matrix(json[KEY_IMU_SCALE_AND_ALIGNMENT], gyroscope.scale_and_alignment) ||
+    if(!copy_json_to_rc_matrix(json[KEY_SCALE_AND_ALIGNMENT], gyroscope.scale_and_alignment) ||
        !copy_json_to_rc_vector(json[KEY_IMU_BIAS], gyroscope.bias_rad__s) ||
        !copy_json_to_rc_vector(json[KEY_IMU_BIAS_VARIANCE], gyroscope.bias_variance_rad2__s2))
         return false;
 
-    if(!json[KEY_IMU_NOISE_VARIANCE].IsDouble()) {
+    if(!json[KEY_NOISE_VARIANCE].IsDouble()) {
         fprintf(stderr, "Error: measurement noise should be a double\n");
         return false;
     }
 
-    gyroscope.measurement_variance_rad2__s2 = json[KEY_IMU_NOISE_VARIANCE].GetDouble();
+    gyroscope.measurement_variance_rad2__s2 = json[KEY_NOISE_VARIANCE].GetDouble();
 
-    if (json.HasMember(KEY_IMU_DECIMATE_BY) && json[KEY_IMU_DECIMATE_BY].IsInt())
-        gyroscope.decimate_by = json[KEY_IMU_DECIMATE_BY].GetInt();
+    if (json.HasMember(KEY_DECIMATE_BY) && json[KEY_DECIMATE_BY].IsInt())
+        gyroscope.decimate_by = json[KEY_DECIMATE_BY].GetInt();
 
     return true;
 }
+
 
 static bool copy_json_to_accelerometer(Value & json, rc_AccelerometerIntrinsics & accelerometer)
 {
@@ -331,24 +399,24 @@ static bool copy_json_to_accelerometer(Value & json, rc_AccelerometerIntrinsics 
         fprintf(stderr, "Error: accelerometer is not an object\n");
         return false;
     }
-    if(!require_keys(json, {KEY_IMU_SCALE_AND_ALIGNMENT, KEY_IMU_BIAS,
-                KEY_IMU_BIAS_VARIANCE, KEY_IMU_NOISE_VARIANCE}))
+    if(!require_keys(json, {KEY_SCALE_AND_ALIGNMENT, KEY_IMU_BIAS,
+                KEY_IMU_BIAS_VARIANCE, KEY_NOISE_VARIANCE}))
         return false;
 
-    if(!copy_json_to_rc_matrix(json[KEY_IMU_SCALE_AND_ALIGNMENT], accelerometer.scale_and_alignment) ||
+    if(!copy_json_to_rc_matrix(json[KEY_SCALE_AND_ALIGNMENT], accelerometer.scale_and_alignment) ||
        !copy_json_to_rc_vector(json[KEY_IMU_BIAS], accelerometer.bias_m__s2) ||
        !copy_json_to_rc_vector(json[KEY_IMU_BIAS_VARIANCE], accelerometer.bias_variance_m2__s4))
         return false;
 
-    if(!json[KEY_IMU_NOISE_VARIANCE].IsDouble()) {
+    if(!json[KEY_NOISE_VARIANCE].IsDouble()) {
         fprintf(stderr, "Error: measurement noise should be a double\n");
         return false;
     }
 
-    accelerometer.measurement_variance_m2__s4 = json[KEY_IMU_NOISE_VARIANCE].GetDouble();
+    accelerometer.measurement_variance_m2__s4 = json[KEY_NOISE_VARIANCE].GetDouble();
 
-    if (json.HasMember(KEY_IMU_DECIMATE_BY) && json[KEY_IMU_DECIMATE_BY].IsInt())
-        accelerometer.decimate_by = json[KEY_IMU_DECIMATE_BY].GetInt();
+    if (json.HasMember(KEY_DECIMATE_BY) && json[KEY_DECIMATE_BY].IsInt())
+        accelerometer.decimate_by = json[KEY_DECIMATE_BY].GetInt();
 
     return true;
 }
@@ -360,9 +428,9 @@ static bool copy_json_to_thermometer(Value &json, rc_ThermometerIntrinsics &ther
         return false;
     }
 
-    if (json.HasMember(KEY_IMU_NOISE_VARIANCE)) {
-        if(json[KEY_IMU_NOISE_VARIANCE].IsDouble())
-            thermometer.measurement_variance_C2 = json[KEY_IMU_NOISE_VARIANCE].GetDouble();
+    if (json.HasMember(KEY_NOISE_VARIANCE)) {
+        if(json[KEY_NOISE_VARIANCE].IsDouble())
+            thermometer.measurement_variance_C2 = json[KEY_NOISE_VARIANCE].GetDouble();
         else {
             fprintf(stderr, "Error: measurement noise should be a double\n");
             return false;
@@ -514,6 +582,11 @@ static bool copy_json_to_calibration(Value & json, calibration & cal)
 
     if(!copy_json_to_imus(json[KEY_IMUS], cal.imus))
         return false;
+
+    if(json.HasMember(KEY_VELOCIMETERS)){
+        if(!copy_json_to_velocimeters(json[KEY_VELOCIMETERS], cal.velocimeters))
+            return false;
+    }
 
     return true;
 }

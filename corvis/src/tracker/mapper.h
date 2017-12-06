@@ -92,8 +92,9 @@ class mapper {
     typedef std::vector<match> matches;
     typedef std::pair<nodeid, transformation> node_path;
     typedef std::map<nodeid, transformation> nodes_path;
+
  private:
-    aligned_vector<map_node> nodes;
+    std::unordered_map<nodeid, map_node> nodes;
     friend struct map_node;
     bool unlinked{false};
     uint64_t node_id_offset{0};
@@ -122,8 +123,8 @@ class mapper {
     nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes);
     v3 get_feature3D(nodeid node_id, uint64_t feature_id); // returns feature wrt node body frame
 
-    const aligned_vector<map_node> & get_nodes() const { return nodes; }
-    map_node& get_node(nodeid id) { return nodes[id]; }
+    const std::unordered_map<nodeid, map_node> & get_nodes() const { return nodes; }
+    map_node& get_node(nodeid id) { return nodes.at(id); }
     uint64_t get_node_id_offset() { return node_id_offset; }
     uint64_t get_feature_id_offset() { return feature_id_offset; }
 

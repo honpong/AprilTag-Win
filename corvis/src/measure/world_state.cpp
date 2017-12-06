@@ -483,7 +483,9 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
     uint64_t timestamp_us = data->time_us;
 
     if(f->map) {
-        for(auto map_node : f->map->get_nodes()) {
+        auto& nodes = f->map->get_nodes();
+        for(auto& it : nodes) {
+            auto& map_node = it.second;
             std::set<uint64_t> loop_closed;
             std::vector<uint64_t> neighbors;
             for(auto edge : map_node.edges) {

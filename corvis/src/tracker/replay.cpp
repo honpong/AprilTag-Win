@@ -456,6 +456,18 @@ void replay::start(string map_filename)
                     rc_receiveTemperature(tracker, packet->header.sensor_id, packet->header.time, thermometer->temperature_C);
                     break;
                 }
+                case packet_odometry:
+                {   
+                    auto velo = (packet_velocimeter_t *)packet;
+                    const rc_Vector translational_velocity_m__s_left = {{ velo->v[0], 0.0, 0.0 }};
+                    const rc_Vector translational_velocity_m__s_right = {{ velo->v[1], 0.0, 0.0 }};
+
+                    if(use_odometry){
+                        rc_receiveVelocimeter(tracker, packet->header.sensor_id, packet->header.time, translational_velocity_m__s_left);
+                        rc_receiveVelocimeter(tracker, packet->header.sensor_id+1, packet->header.time, translational_velocity_m__s_right);
+                    }
+                    break;
+                }
                 case packet_filter_control:
                 {
                     // this legacy packet used a field in the header

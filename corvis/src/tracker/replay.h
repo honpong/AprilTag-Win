@@ -44,13 +44,15 @@ private:
     bool async {false};
     bool use_depth {true};
     bool fast_path {false};
+    bool use_odometry {false};
     bool accel_decimate {false};
     bool gyro_decimate {false};
     bool image_decimate {false};
     std::chrono::microseconds accel_interval {10000};
     std::chrono::microseconds gyro_interval {10000};
     std::chrono::microseconds image_interval {33333};
-    sensor_clock::time_point last_accel, last_gyro, last_image;
+    std::chrono::microseconds wo_interval {20000};
+    sensor_clock::time_point last_accel, last_gyro, last_image, last_wo;
     bool find_reference_in_filename(const std::string &filename);
     bool load_reference_from_pose_file(const std::string &filename);
     bool load_reloc_reference_from_file(const std::string &filename);
@@ -75,6 +77,7 @@ public:
     void enable_qres(int qres_) { qres = qres_; }
     void disable_depth() { use_depth = false; }
     void enable_fast_path() { fast_path = true; }
+    void enable_odometry() { use_odometry = true; }
     void decimate_accel(std::chrono::microseconds interval) { accel_decimate = true; accel_interval = interval; }
     void decimate_gyro(std::chrono::microseconds interval) { gyro_decimate = true; gyro_interval = interval; }
     void decimate_images(std::chrono::microseconds interval) { image_decimate = true; image_interval = interval; }

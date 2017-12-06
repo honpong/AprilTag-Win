@@ -506,6 +506,16 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
             bool unlinked = f->map->is_unlinked(map_node.id);
             observe_map_node(timestamp_us, map_node.id, map_node.status == node_status::finished, loop_closed, unlinked, map_node.global_transformation, neighbors, features);
         }
+        // remove discarded nodes
+        display_lock.lock();
+        for(auto it = map_nodes.begin(); it != map_nodes.end(); ) {
+            if(nodes.find(it->first) == nodes.end()) {
+                map_nodes.erase(it++);
+            } else {
+                ++it;
+            }
+        }
+        display_lock.unlock();
     }
 }
 

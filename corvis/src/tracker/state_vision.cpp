@@ -184,7 +184,10 @@ int state_vision::process_features(mapper *map)
     for(auto i = groups.children.begin(); i != groups.children.end();) {
         auto &g = *i;
         if(g->status == group_empty) {
-            if (map) map->node_finished(g->id);
+            // node was already in the map or has lasted for 2 seconds at least or is the first node in the session
+//            bool keep_node = g->reused || (g->frames_active > 66) || (g->id == map->get_node_id_offset());
+            bool keep_node = true;
+            if (map) map->node_finished(g->id, keep_node);
             g->unmap();
             g->features.children.clear();
             g->lost_features.clear();

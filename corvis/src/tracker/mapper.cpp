@@ -71,6 +71,11 @@ void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, bool lo
     edge21.G = invert(G12);
 }
 
+void mapper::remove_edge(nodeid id1, nodeid id2) {
+   nodes.at(id1).edges.erase(id2);
+   nodes.at(id2).edges.erase(id1);
+}
+
 void mapper::add_node(nodeid id, const rc_Sensor camera_id)
 {
     nodes[id].id = id;
@@ -98,6 +103,13 @@ void mapper::finish_lost_tracks(const tracker::feature_track& track) {
     } else {
         log->debug("{}/{}) Not enougth support/parallax to add trianguled point with id: {}", track.feature->id);
     }
+}
+
+void mapper::remove_node(nodeid id) {
+    for(auto& f : nodes.at(id).features)
+        features_dbow.erase(f.first);
+    nodes.erase(id);
+    // should we remove elements from dbow_inverted_index?
 }
 
 void mapper::add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
@@ -206,9 +218,49 @@ void mapper::set_node_transformation(nodeid id, const transformation & G)
     nodes.at(id).global_transformation = G;
 }
 
-void mapper::node_finished(nodeid id)
+void mapper::node_finished(nodeid id, bool keep_node)
 {
-    nodes.at(id).status = node_status::finished;
+    if(keep_node)
+        nodes.at(id).status = node_status::finished;
+    else {
+        std::map<uint64_t, map_edge> edges = nodes.at(id).edges;
+        std::set<nodeid> neighbors;
+        for(auto& edge : edges) {
+            neighbors.insert(edge.first);
+            remove_edge(id, edge.first);
+        }
+        remove_node(id);
+
+        // if only 1 neighbor, node removed (id) is a loose end of the graph
+        if(neighbors.size() > 1) {
+            // this could be more efficient if we don't calculate transformations in BFS
+            std::set<nodeid> connected_neighbors;
+            for(auto &path : breadth_first_search(*neighbors.begin(), std::set<nodeid>{neighbors.begin(), neighbors.end()}, false))
+                connected_neighbors.insert(path.first);
+
+            // are neighbors disconnected after removing node id ?
+            if(connected_neighbors.size() < neighbors.size()) {
+                std::vector<nodeid> disconnected_neighbors;
+                std::set_difference(neighbors.begin(), neighbors.end(), connected_neighbors.begin(), connected_neighbors.end(), std::back_inserter(disconnected_neighbors));
+
+                transformation G_id_connected = edges[*connected_neighbors.begin()].G;
+                transformation G_id_disconnected = edges[disconnected_neighbors.front()].G; // pick one of the disconnected nodes
+                add_edge(*connected_neighbors.begin(), disconnected_neighbors.front(), invert(G_id_connected)*G_id_disconnected);
+            }
+        }
+
+        // if node removed is current_node
+        if(current_node->id == id) {
+            current_node = &nodes.at(*neighbors.begin());
+            for(auto& neighbor : neighbors) {
+                // prefer an active node as current_node
+                if(nodes.at(neighbor).status == node_status::normal) {
+                    current_node = &nodes.at(neighbor);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
@@ -278,7 +330,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, const f_t maxdista
     return neighbor_nodes;
 }
 
-mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& searched_nodes)
+mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& searched_nodes, bool expect_graph_connected)
 {
     nodes_path searched_nodes_path;
     queue<node_path> next;
@@ -307,7 +359,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& sear
         }
     }
 
-    if(next.empty())
+    if(expect_graph_connected && next.empty())
         assert(searched_nodes.empty()); // If all graph has been traversed searched_nodes should be empty
 
     return searched_nodes_path;

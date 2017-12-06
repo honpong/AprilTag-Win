@@ -246,6 +246,37 @@ bool rc_describeThermometer(rc_Tracker *tracker, rc_Sensor therm_id, rc_Extrinsi
     return true;
 }
 
+bool rc_configureVelocimeter(rc_Tracker *tracker, rc_Sensor velo_id, const rc_Extrinsics * extrinsics_wrt_origin_m, const rc_VelocimeterIntrinsics * intrinsics)
+{
+    if(!extrinsics_wrt_origin_m || !intrinsics) return false;
+
+    if(velo_id > tracker->sfm.velocimeters.size()) return false;
+    if(velo_id == tracker->sfm.velocimeters.size()) {
+        tracker->queue.require_sensor(rc_SENSOR_TYPE_VELOCIMETER, velo_id, std::chrono::microseconds(600));
+        auto new_velo = std::make_unique<sensor_velocimeter>(velo_id);
+        tracker->sfm.velocimeters.push_back(std::move(new_velo));
+    }
+
+    tracker->sfm.velocimeters[velo_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
+    tracker->sfm.velocimeters[velo_id]->intrinsics = *intrinsics;
+
+    return true;
+}
+
+bool rc_describeVelocimeter(rc_Tracker *tracker, rc_Sensor velo_id, rc_Extrinsics *extrinsics_wrt_origin_m, rc_VelocimeterIntrinsics *intrinsics)
+{
+    if(velo_id >= tracker->sfm.velocimeters.size())
+        return false;
+
+    if (extrinsics_wrt_origin_m)
+        *extrinsics_wrt_origin_m = rc_Extrinsics_from_sensor_extrinsics(tracker->sfm.velocimeters[velo_id]->extrinsics);
+
+    if (intrinsics)
+        *intrinsics = tracker->sfm.velocimeters[velo_id]->intrinsics;
+
+    return true;
+}
+
 void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double longitude_deg, double altitude_m)
 {
     tracker->set_location(latitude_deg, longitude_deg, altitude_m);
@@ -482,6 +513,26 @@ bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat fo
     return true;
 }
 
+
+bool rc_receiveVelocimeter(rc_Tracker *tracker, rc_Sensor velocimeter_id, rc_Timestamp time_us, rc_Vector translational_velocity_m__s)
+{
+    if (velocimeter_id >= tracker->sfm.velocimeters.size())
+        return false;
+
+    if (!tracker->sfm.velocimeters[velocimeter_id]->decimate(time_us, translational_velocity_m__s.v))
+        return true;
+
+    sensor_data data(time_us, rc_SENSOR_TYPE_VELOCIMETER, velocimeter_id, translational_velocity_m__s);
+
+    if(tracker->output.started())
+        tracker->output.push(data.make_copy());
+    if (tracker->started())
+        tracker->receive_data(std::move(data));
+
+    return true;
+}
+
+
 bool rc_receiveAccelerometer(rc_Tracker * tracker, rc_Sensor accelerometer_id, rc_Timestamp time_us, rc_Vector acceleration_m__s2)
 {
     if (accelerometer_id >= tracker->sfm.accelerometers.size())
@@ -706,6 +757,12 @@ size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
         rc_describeAccelerometer(tracker, id, &cal.imus[id].extrinsics, &cal.imus[id].intrinsics.accelerometer);
     }
 
+    size = tracker->sfm.velocimeters.size();
+    cal.velocimeters.resize(size);
+    for (size_t id = 0; id < size; id++) {
+        rc_describeVelocimeter(tracker, id, &cal.velocimeters[id].extrinsics, &cal.velocimeters[id].intrinsics);
+    }
+
     cal.cameras.resize(tracker->sfm.cameras.size());
     for (size_t id = 0; id < tracker->sfm.cameras.size(); id++)
         rc_describeCamera(tracker, id, rc_FORMAT_GRAY8, &cal.cameras[id].extrinsics, &cal.cameras[id].intrinsics);
@@ -733,6 +790,7 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
     tracker->sfm.accelerometers.clear();
     tracker->sfm.gyroscopes.clear();
     tracker->sfm.thermometers.clear();
+    tracker->sfm.velocimeters.clear();
 
     int id = 0;
     for(auto imu : cal.imus) {
@@ -740,6 +798,12 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
         rc_configureGyroscope(tracker, id, &imu.extrinsics, &imu.intrinsics.gyroscope);
         if (imu.intrinsics.thermometer.measurement_variance_C2)
             rc_configureThermometer(tracker, id++, &imu.extrinsics, &imu.intrinsics.thermometer);
+        id++;
+    }
+
+    id = 0;
+    for(auto velocimeter : cal.velocimeters) {
+        rc_configureVelocimeter(tracker, id, &velocimeter.extrinsics, &velocimeter.intrinsics);
         id++;
     }
 

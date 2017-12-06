@@ -340,6 +340,18 @@ RCTRACKER_API bool rc_describeGyroscope( rc_Tracker *tracker, rc_Sensor gyro_id,
 RCTRACKER_API bool rc_configureThermometer(rc_Tracker *tracker, rc_Sensor therm_id, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_ThermometerIntrinsics *intrinsics);
 RCTRACKER_API bool rc_describeThermometer( rc_Tracker *tracker, rc_Sensor therm_id,       rc_Extrinsics *extrinsics_wrt_origin_m,       rc_ThermometerIntrinsics *intrinsics);
 
+/**
+ Configure or describe an velocimeter. When configuring, extrinsics and intrinsics must be set.
+ @param tracker The active rc_Tracker instance
+ @param velo_id The id of the velocimeter to configure/describe. Velocimeter ids start at 0 and must be sequential.
+ @param extrinsics_wrt_origin_m The transformation from the velocimeter to the origin
+ @param intrinsics The intrinsics of the velocimeter
+
+ Must be called before rc_startTracker().
+ */
+RCTRACKER_API bool rc_configureVelocimeter(rc_Tracker *tracker, rc_Sensor velo_id, const rc_Extrinsics *extrinsics_wrt_origin_m, const rc_VelocimeterIntrinsics *intrinsics);
+RCTRACKER_API bool rc_describeVelocimeter( rc_Tracker *tracker, rc_Sensor velo_id,       rc_Extrinsics *extrinsics_wrt_origin_m, rc_VelocimeterIntrinsics *intrinsics);
+
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 /**
@@ -454,6 +466,17 @@ RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
 RCTRACKER_API bool rc_receiveImage(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
 
 RCTRACKER_API bool rc_receiveStereo(rc_Tracker *tracker, rc_Sensor stereo_id, rc_ImageFormat format, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride1, int stride2, const void *image1, const void * image2, void(*completion_callback)(void *callback_handle), void *callback_handle);
+
+
+
+/*
+ @param tracker The active rc_Tracker instance
+ @param velocimeter_id The id of the velocimeter
+ @param time_us Timestamp (in microseconds) corresponding to the middle of the velocimeter data integration time
+ @param translation_m__s Vector of measured velocity in meters/second
+ */
+RCTRACKER_API bool rc_receiveVelocimeter(rc_Tracker *tracker, rc_Sensor velocimeter_id, rc_Timestamp time_us, rc_Vector translational_velocity_m__s);
+
 
 /*
  @param tracker The active rc_Tracker instance

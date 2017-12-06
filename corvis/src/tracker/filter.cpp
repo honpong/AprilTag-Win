@@ -320,6 +320,43 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data_)
     return true;
 }
 
+
+bool filter_velocimeter_measurement(struct filter *f, const sensor_data & data)
+{
+    if(data.id >= f->velocimeters.size() || data.id >= f->s.velocimeters.children.size())  // f->velocimeters sensor and f->s.velocimeters state
+        return false;
+
+    auto start = std::chrono::steady_clock::now();
+    auto timestamp = data.timestamp;
+    auto &velocimeter = *f->velocimeters[data.id];
+    auto &velocimeter_s = *std::next(f->s.velocimeters.children.begin(), data.id)->get();
+
+    v3 meas = map(velocimeter.intrinsics.scale_and_alignment.v) * map(data.translational_velocity_m__s.v);
+
+    if(f->run_state == RCSensorFusionRunStateInactive) return false;
+    if(!f->s.orientation_initialized) return false;
+
+    auto obs_v = std::make_unique<observation_velocimeter>(velocimeter, f->s, velocimeter_s.extrinsics, velocimeter_s.intrinsics);
+    obs_v->meas = meas;
+    obs_v->variance = velocimeter.measurement_variance;
+
+    f->observations.observations.push_back(std::move(obs_v));
+
+    if(show_tuning) fprintf(stderr, "\nvelocimeter:\n");
+    preprocess_observation_queue(f, timestamp);
+    process_observation_queue(f);
+    if(show_tuning) {
+        std::cerr << " meas   " << meas << "\n"
+                  << " innov  " << velocimeter.inn_stdev << "\n"
+                  << " signal " << velocimeter.meas_stdev << "\n";
+    }
+
+    auto stop = std::chrono::steady_clock::now();
+    velocimeter.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    return true;
+}
+
+
 static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
 {
     auto &camera_sensor = *f->cameras[data.id];

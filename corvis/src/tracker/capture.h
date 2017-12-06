@@ -39,6 +39,7 @@ private:
     void write_image_raw(uint16_t sensor_id, uint64_t timestamp_us, uint64_t exposure_time_us,
             const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format);
     void write_temperature_data(uint16_t sensor_id, uint64_t timestamp_us, float temp_C);
+    void write_velocimeter_data(uint16_t sensor_id, uint64_t timestamp_us, const float data[3]);
     void write(std::unique_ptr<sensor_data> data);
 
 public:

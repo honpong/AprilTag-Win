@@ -66,6 +66,15 @@ void capture::write_gyroscope_data(uint16_t sensor_id, uint64_t timestamp_us, co
     free(buf);
 }
 
+void capture::write_velocimeter_data(uint16_t sensor_id, uint64_t timestamp_us, const float data[3])
+{
+    uint32_t bytes = 3*sizeof(float);
+    packet_t *buf = packet_alloc(packet_odometry, bytes, sensor_id, timestamp_us);
+    memcpy(buf->data, data, bytes);
+    write_packet(buf);
+    free(buf);
+}
+
 void capture::write_image_raw(uint16_t sensor_id, uint64_t timestamp_us, uint64_t exposure_time_us, const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format)
 {
     int format_size = sizeof(uint8_t);
@@ -123,6 +132,10 @@ void capture::write(std::unique_ptr<sensor_data> data)
 
         case rc_SENSOR_TYPE_THERMOMETER:
             write_temperature_data(data->id, data->time_us, data->temperature_C);
+            break;
+
+        case rc_SENSOR_TYPE_VELOCIMETER:
+            write_velocimeter_data(data->id, data->time_us, data->translational_velocity_m__s.v);
             break;
     }
 }

@@ -373,10 +373,10 @@ void observation_vision_feature::update_initializing()
     f_t max = 10; //1/.10 for 10cm
     f_t min_d2, max_d2;
     v3 X_inf = Rtot * X0;
-    
+
     v3 X_inf_proj = X_inf / X_inf[2];
     v3 X_0 = X_inf + max * Ttot;
-    
+
     v3 X_0_proj = X_0 / X_0[2];
     v3 delta = (X_inf_proj - X_0_proj);
     auto &intrinsics = curr.camera.intrinsics;
@@ -385,7 +385,7 @@ void observation_vision_feature::update_initializing()
     if(pixelvar > 5.f * 5.f * source.measurement_variance) { //tells us if we have enough baseline
         feature->status = feature_normal;
     }
-    
+
     feature_t bestkp = meas;
     feature_t bestkp_norm = intrinsics.undistort_feature(intrinsics.normalize_feature(bestkp));
 
@@ -707,5 +707,91 @@ observation_data* observation_gyroscope::getData(int index)
     gyro_data.e_estimate = extrinsics.estimate;
     
     return &gyro_data;
+}
+#endif
+
+void observation_velocimeter::predict()
+{
+    pred = extrinsics.Q.v.toRotationMatrix().transpose() * ( state.Q.v.toRotationMatrix().transpose() * state.V.v ) + skew( - extrinsics.Q.v.toRotationMatrix().transpose() * extrinsics.T.v ) * extrinsics.Q.v.toRotationMatrix().transpose() * state.w.v;
+}
+
+void observation_velocimeter::cache_jacobians()
+{
+    dv_dQ = extrinsics.Q.v.toRotationMatrix().transpose() * state.Q.v.toRotationMatrix().transpose() * skew( state.V.v );
+    dv_dw = skew( - extrinsics.Q.v.toRotationMatrix().transpose() * extrinsics.T.v ) * extrinsics.Q.v.toRotationMatrix().transpose();
+    dv_dV = extrinsics.Q.v.toRotationMatrix().transpose() * state.Q.v.toRotationMatrix().transpose();
+
+    if(extrinsics.estimate) {
+        dv_dTv = extrinsics.Q.v.conjugate().toRotationMatrix() * skew(state.w.v);
+        dv_dQv = skew(pred) * extrinsics.Q.v.conjugate().toRotationMatrix();
+    }
+}
+
+void observation_velocimeter::project_covariance(matrix &dst, const matrix &src) const
+{
+    int i=0;
+    i = project_covariance<4>(dst,src,i);
+    i = project_covariance<1>(dst,src,i);
+}
+
+template<int N>
+    int observation_velocimeter::project_covariance(matrix &dst, const matrix &src, int j) const
+{
+    for(; j < dst.cols()/N*N; ++j) {
+        const m<3,N> scov_Q = state.Q.from_row<N>(src, j);
+        const m<3,N> cov_w = state.w.from_row<N>(src, j);
+        const m<3,N> cov_V = state.V.from_row<N>(src, j);
+
+        col<N>(dst, j) = dv_dQ * scov_Q + dv_dw * cov_w + dv_dV * cov_V;
+
+        if (extrinsics.estimate) {
+            const m<3,N> scov_Qv = extrinsics.Q.from_row<N>(src, j);
+            const m<3,N> cov_Tv = extrinsics.T.from_row<N>(src, j);
+            col<N>(dst,j) += dv_dQv * scov_Qv + dv_dTv * cov_Tv;
+        }
+    }
+    return j;
+}
+
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+observation_data* observation_velocimeter::getData(int index)
+{
+    __attribute__((section(".cmx_direct.bss")))
+    static observation_velocimeter_data velo_data;
+    velo_data.size = size;
+
+    velo_data.Q.index   = state.Q.index;
+    velo_data.w.index   = state.w.index;
+    velo_data.V.index   = state.V.index;
+    velo_data.eQ.index  = extrinsics.Q.index;
+    velo_data.eT.index  = extrinsics.Q.index;
+
+    velo_data.Q.initial_covariance  = state.Q.get_initial_covariance();
+    velo_data.w.initial_covariance  = state.w.get_initial_covariance();
+    velo_data.V.initial_covariance  = state.V.get_initial_covariance();
+    velo_data.eQ.initial_covariance = extrinsics.Q.get_initial_covariance();
+    velo_data.eT.initial_covariance = extrinsics.T.get_initial_covariance();
+
+    velo_data.Q.use_single_index    = state.Q.single_index();
+    velo_data.w.use_single_index    = state.w.single_index();
+    velo_data.V.use_single_index    = state.V.single_index();
+    velo_data.eQ.use_single_index   = extrinsics.Q.single_index();
+    velo_data.eT.use_single_index   = extrinsics.T.single_index();
+
+    velo_data.dv_dQ     = dv_dQ.data();
+    velo_data.dv_dV     = dv_dV.data();
+    velo_data.dv_dw     = dv_dw.data();
+    velo_data.dv_dTv    = dv_dTv.data();
+    velo_data.dv_dQv    = dv_dQv.data();
+
+    memcpy(velo_data.dv_dQ, dv_dQ.data(), 9*sizeof(float));
+    memcpy(velo_data.dv_dV, dv_dV.data(), 9*sizeof(float));
+    memcpy(velo_data.dv_dw, dv_dw.data(), 9*sizeof(float));
+    memcpy(velo_data.dv_dTv, dv_dTv.data(), 9*sizeof(float));
+    memcpy(velo_data.dv_dQv, dv_dQv.data(), 9*sizeof(float));
+
+    velo_data.e_estimate = extrinsics.estimate;
+
+    return &velo_data;
 }
 #endif

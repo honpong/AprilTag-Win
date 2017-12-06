@@ -195,6 +195,7 @@ TEST(SensorFusionQueue, FastCatchup)
                 break;
             case rc_SENSOR_TYPE_STEREO:
             case rc_SENSOR_TYPE_DEBUG:
+            case rc_SENSOR_TYPE_VELOCIMETER:
                 break;
         }
     };
@@ -322,6 +323,7 @@ TEST(SensorFusionQueue, Threading)
                 break;
             case rc_SENSOR_TYPE_STEREO:
             case rc_SENSOR_TYPE_DEBUG:
+            case rc_SENSOR_TYPE_VELOCIMETER:
                 break;
         }
     };
@@ -472,6 +474,7 @@ TEST(SensorFusionQueue, SameTime)
             case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
             case rc_SENSOR_TYPE_DEBUG: break;
+            case rc_SENSOR_TYPE_VELOCIMETER: break;
         }
     };
 
@@ -514,6 +517,7 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
             case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
             case rc_SENSOR_TYPE_DEBUG: break;
+            case rc_SENSOR_TYPE_VELOCIMETER: break;
         }
     };
     
@@ -575,6 +579,7 @@ TEST(SensorFusionQueue, BufferNoDispatch)
             case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
             case rc_SENSOR_TYPE_DEBUG: break;
+            case rc_SENSOR_TYPE_VELOCIMETER: break;
         }
     };
 
@@ -622,6 +627,7 @@ TEST(SensorFusionQueue, Buffering)
             case rc_SENSOR_TYPE_THERMOMETER: ++tmprcv; break;
             case rc_SENSOR_TYPE_STEREO: break;
             case rc_SENSOR_TYPE_DEBUG: break;
+            case rc_SENSOR_TYPE_VELOCIMETER: break;
         }
     };
 

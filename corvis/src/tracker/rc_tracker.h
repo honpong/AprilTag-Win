@@ -113,6 +113,7 @@ typedef enum rc_SensorType
     rc_SENSOR_TYPE_STEREO = 4,
     rc_SENSOR_TYPE_THERMOMETER = 5,
     rc_SENSOR_TYPE_DEBUG = 6,
+    rc_SENSOR_TYPE_VELOCIMETER = 7,
 } rc_SensorType;
 
 typedef enum rc_DataPath
@@ -191,6 +192,7 @@ typedef struct rc_Data
         rc_Vector acceleration_m__s2;
         float temperature_C;
         rc_DebugData debug;
+        rc_Vector translational_velocity_m__s;
     };
 } rc_Data;
 

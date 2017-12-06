@@ -251,6 +251,14 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
         observe_plot_item(timestamp_us, p, "g_z" + id, (float)f->observations.recent_g->meas[2]);
     }
 
+    if (f->observations.recent_v.get()) {
+        auto id = std::to_string(f->observations.recent_v->source.id);
+        p = get_plot_by_name("velo obs " + id);
+        observe_plot_item(timestamp_us, p, "v_x" + id, (float)f->observations.recent_v->meas[0]);
+        observe_plot_item(timestamp_us, p, "v_y" + id, (float)f->observations.recent_v->meas[1]);
+        observe_plot_item(timestamp_us, p, "v_z" + id, (float)f->observations.recent_v->meas[2]);
+    }
+
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {
         const auto &camera = *f->s.cameras.children[i];
         if (!camera.intrinsics.estimate) continue;
@@ -299,6 +307,20 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
         observe_plot_item(timestamp_us, p, "Wa" + std::to_string(i) + "_x", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[0]);
         observe_plot_item(timestamp_us, p, "Wa" + std::to_string(i) + "_y", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[1]);
         observe_plot_item(timestamp_us, p, "Wa" + std::to_string(i) + "_z", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[2]);
+    }
+
+    for (size_t i=0; i<f->s.velocimeters.children.size(); i++) {
+        const auto &extrinsics = f->s.velocimeters.children[i]->extrinsics;
+        if (!extrinsics.estimate) continue;
+        p = get_plot_by_name("extrinsics_Tv" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "Tv" + std::to_string(i) + "_x", (float)extrinsics.T.v[0]);
+        observe_plot_item(timestamp_us, p, "Tv" + std::to_string(i) + "_y", (float)extrinsics.T.v[1]);
+        observe_plot_item(timestamp_us, p, "Tv" + std::to_string(i) + "_z", (float)extrinsics.T.v[2]);
+
+        p = get_plot_by_name("extrinsics_Wv" + std::to_string(i));
+        observe_plot_item(timestamp_us, p, "Wv" + std::to_string(i) + "_x", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[0]);
+        observe_plot_item(timestamp_us, p, "Wv" + std::to_string(i) + "_y", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[1]);
+        observe_plot_item(timestamp_us, p, "Wv" + std::to_string(i) + "_z", (float)to_rotation_vector(extrinsics.Q.v).raw_vector()[2]);
     }
 
     p = get_plot_by_name("translation");
@@ -442,6 +464,12 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
         observe_plot_item(timestamp_us, p, "mini gyro timer " + std::to_string(i), f->gyroscopes[i]->fast_path_time_stats.last[0]);
     }
 
+    p = get_plot_by_name("velo timer");
+    for (size_t i=0; i<f->velocimeters.size(); i++) {
+        observe_plot_item(timestamp_us, p, "velo timer " + std::to_string(i), f->velocimeters[i]->measure_time_stats.last[0]);
+        //observe_plot_item(timestamp_us, p, "mini velo timer " + std::to_string(i), f->velocimeters[i]->other_time_stats.last[0]);
+    }
+
     p = get_plot_by_name("image timer");
     for (size_t i=0; i<f->cameras.size(); i++)
         observe_plot_item(timestamp_us, p, "image timer " + std::to_string(i), f->cameras[i]->measure_time_stats.last[0]);
@@ -461,6 +489,10 @@ void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)
     }
     for(const auto & s : f->gyroscopes) {
         observe_sensor(rc_SENSOR_TYPE_GYROSCOPE, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
+                      s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
+    }
+    for(const auto & s : f->velocimeters) {
+        observe_sensor(rc_SENSOR_TYPE_VELOCIMETER, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
                       s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
     }
     for(const auto & s : f->cameras) {
@@ -597,6 +629,17 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
             observe_plot_item(timestamp_us, p, "wmeas_y", (float)data->angular_velocity_rad__s.y);
             observe_plot_item(timestamp_us, p, "wmeas_z", (float)data->angular_velocity_rad__s.z);
             }
+            break;
+
+        case rc_SENSOR_TYPE_VELOCIMETER:
+            {
+            int p = get_plot_by_name("vmeas");
+            if (data->id == 0)
+                observe_plot_item(timestamp_us, p, "vmeas_x"+std::to_string(data->id), (float)data->translational_velocity_m__s.x);
+            else if (data->id == 1)
+                observe_plot_item(timestamp_us, p, "vmeas_x"+std::to_string(data->id), (float)data->translational_velocity_m__s.x);
+            }
+            break;
 
         default:
             break;

@@ -269,6 +269,12 @@ typedef struct {
     float measurement_variance_C2;
 } rc_ThermometerIntrinsics;
 
+typedef struct {
+    rc_Matrix scale_and_alignment;
+    float measurement_variance_m2__s2;
+    uint32_t decimate_by;
+} rc_VelocimeterIntrinsics;
+
 /**
  @param T Translation to the origin
  @param W Rotation vector specifying the rotation to the origin

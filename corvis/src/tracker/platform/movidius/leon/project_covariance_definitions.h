@@ -13,7 +13,7 @@ struct project_covariance_element_data{
     bool use_single_index;
 };
 
-enum observation_type { none, vision_feature, accelerometer, gyroscope };
+enum observation_type { none, vision_feature, accelerometer, gyroscope, velocimeter };
 
 struct project_motion_covariance_data{
     int first_shave = -1;
@@ -119,6 +119,25 @@ struct observation_gyroscope_data : observation_data {
 
     observation_gyroscope_data() : observation_data (0, gyroscope) {}
     observation_gyroscope_data(observation_data& base) : observation_data (base) {}
+};
+
+struct observation_velocimeter_data : observation_data {
+
+    project_covariance_element_data Q = {0, 0, 0};
+    project_covariance_element_data w = {0, 0, 0};
+    project_covariance_element_data V = {0, 0, 0};
+    project_covariance_element_data eQ = {0, 0, 0};
+    project_covariance_element_data eT = {0, 0, 0};
+
+    float* dv_dQ = NULL; //m3
+    float* dv_dw = NULL; //m3
+    float* dv_dV = NULL; //m3
+    float* dv_dQv = NULL; //m3
+    float* dv_dTv = NULL; //m3
+    bool e_estimate = true;
+
+    observation_velocimeter_data() : observation_data (0, velocimeter) {}
+    observation_velocimeter_data(observation_data& base) : observation_data (base) {}
 };
 
 struct project_observation_covariance_data {

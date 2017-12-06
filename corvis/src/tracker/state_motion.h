@@ -57,6 +57,29 @@ struct state_imu: public state_branch<state_node *> {
     }
 };
 
+class state_velocimeter_intrinsics: public state_branch<state_node *>
+{
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+public:
+    void copy_from(const state_velocimeter_intrinsics &other) {
+        if (other.estimate) enable_estimation(); else disable_estimation();
+    }
+};
+
+struct state_velocimeter: public state_branch<state_node *> {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    state_extrinsics extrinsics;
+    state_velocimeter_intrinsics intrinsics;
+    state_velocimeter() : extrinsics("Qv", "Tv", false) {
+        children.push_back(&intrinsics);
+        children.push_back(&extrinsics);
+    }
+    void copy_from(const state_velocimeter &other) {
+        extrinsics.copy_from(other.extrinsics);
+        intrinsics.copy_from(other.intrinsics);
+    }
+};
+
 class state_motion_orientation: public state_root {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -68,6 +91,7 @@ public:
 
     state_branch<state_node *> non_orientation;
     state_branch<std::unique_ptr<state_imu>, std::vector<std::unique_ptr<state_imu>>> imus;
+    state_branch<std::unique_ptr<state_velocimeter>, std::vector<std::unique_ptr<state_velocimeter>>> velocimeters;
 
     state_motion_orientation(covariance &c, matrix &FP): state_root(c, FP) {
         children.push_back(&ddw);
@@ -75,6 +99,7 @@ public:
         children.push_back(&w);
         children.push_back(&Q);
         non_orientation.children.push_back(&imus);
+        non_orientation.children.push_back(&velocimeters);
         children.push_back(&non_orientation);
     }
 

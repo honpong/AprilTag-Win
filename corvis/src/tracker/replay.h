@@ -51,8 +51,8 @@ private:
     std::chrono::microseconds accel_interval {10000};
     std::chrono::microseconds gyro_interval {10000};
     std::chrono::microseconds image_interval {33333};
-    std::chrono::microseconds wo_interval {20000};
-    sensor_clock::time_point last_accel, last_gyro, last_image, last_wo;
+    std::chrono::microseconds velo_interval {20000};
+    sensor_clock::time_point last_accel, last_gyro, last_image, last_velo;
     bool find_reference_in_filename(const std::string &filename);
     bool load_reference_from_pose_file(const std::string &filename);
     bool load_reloc_reference_from_file(const std::string &filename);

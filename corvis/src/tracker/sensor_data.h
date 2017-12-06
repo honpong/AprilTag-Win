@@ -95,9 +95,9 @@ public:
         time_us = timestamp_us;
         if(sensor_type == rc_SENSOR_TYPE_ACCELEROMETER)
             acceleration_m__s2 = data;
-        else if(sensor_type == rc_SENSOR_TYPE_ACCELEROMETER)
+        else if(sensor_type == rc_SENSOR_TYPE_GYROSCOPE)
             angular_velocity_rad__s = data;
-        else  // sensor_type == rc_SENSOR_TYPE_WO
+        else if(sensor_type == rc_SENSOR_TYPE_VELOCIMETER)
             translational_velocity_m__s = data;
     }
 

@@ -210,6 +210,18 @@ void * fnReplay(void * arg)
                 packet_io_free(packet); // ignore arrival_time packets for now
                 break;
             }
+            case packet_odometry: {
+                START_EVENT(EV_SF_REC_VELO, 0);
+                packet_velocimeter_t * velo =
+                        (packet_velocimeter_t *)packet;
+                const rc_Vector translational_velocity_m__s_left = {velo->v[0], 0.0, 0.0};
+                const rc_Vector translational_velocity_m__s_right = {velo->v[1], 0.0, 0.0};
+                rc_receiveVelocimeter(tracker_instance, velo->header.sensor_id, velo->header.time, translational_velocity_m__s_left);
+                rc_receiveVelocimeter(tracker_instance, velo->header.sensor_id+1, velo->header.time, translational_velocity_m__s_right);
+                packet_io_free(packet);
+                END_EVENT(EV_SF_REC_VELO, 0);
+                break;
+            }
             default:
                 printf("Unrecognized data type %d\n", packet->header.type);
                 packet_io_free(packet);

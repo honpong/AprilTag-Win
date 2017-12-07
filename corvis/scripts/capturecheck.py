@@ -12,6 +12,8 @@ format_types = defaultdict(str, {0:"Y8", 1:"Z16_mm"})
 parser = argparse.ArgumentParser(description='Check a capture file.')
 parser.add_argument("-v", "--verbose", action='store_true',
         help="Print more information about every packet")
+parser.add_argument("-p", "--progress", action='store_true',
+        help="Report file read progress every 100MB")
 parser.add_argument("-e", "--exceptions", action='store_true',
         help="Print details when sample dt is more than 5%% away from the median")
 parser.add_argument("-w", "--warnings", action='store_true',
@@ -20,9 +22,13 @@ parser.add_argument("-x", "--exposure_warnings", action='store_true',
         help="Print details when exposure times are less than 1ms or greater than 50ms")
 parser.add_argument("-i", "--imu_warnings", action='store_true',
         help="Print details when accelerometer deltas are > 9m/s^2 or gyro delta is > 2 radians/sec")
+parser.add_argument("-n", "--max-packets", type=int, default=-1,
+        help="number of packets to process")
 parser.add_argument("capture_filename")
 
 args = parser.parse_args()
+if args.max_packets > 0:
+    print "Inspecting the first ", args.max_packets, " packets"
 
 accel_type = 20
 gyro_type = 21
@@ -40,7 +46,6 @@ f = open(args.capture_filename,'rb')
 header_size = 16
 header_str = f.read(header_size)
 prev_packet_str = ""
-total_bytes_read = header_size
 warnings = defaultdict(list)
 exposure_warnings = defaultdict(list)
 imu_warnings = defaultdict(list)
@@ -50,6 +55,9 @@ unconsumed_arrival_time_warnings = []
 last_data = {}
 last_arrival_time = 0
 arrival_time_consumed = True
+packet_count = 0;
+bytes_read = 0
+total_bytes_read = 0
 while header_str != "":
   (pbytes, ptype, sensor_id, ptime) = unpack('IHHQ', header_str)
   if pbytes < header_size:
@@ -62,8 +70,17 @@ while header_str != "":
   if args.verbose:
       print packet_str, pbytes, ptype, sensor_id, ptime,
   data = f.read(pbytes-header_size)
-  total_bytes_read += pbytes - header_size
+  packet_count += 1
+  bytes_read += pbytes;
+  total_bytes_read += pbytes
+  if bytes_read > 1024*1024*100:
+    bytes_read -= 1024*1024*100
+    if args.progress: 
+        sys.stdout.write('.')
+        sys.stdout.flush()
 
+  if args.max_packets > 0  and packet_count > args.max_packets:
+      break
   if (ptype == accel_type or ptype == gyro_type or
      ptype == image_with_depth or ptype == image_raw_type or ptype == stereo_raw_type):
       if arrival_time_consumed:
@@ -132,9 +149,10 @@ while header_str != "":
   last_time = ptime
   prev_packet_str = packet_str
   header_str = f.read(header_size)
-  total_bytes_read += header_size
 
 f.close()
+if args.progress:
+    print ''
 
 def compress_warnings(warning_list):
     output_list = []

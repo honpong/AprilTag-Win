@@ -46,6 +46,7 @@ mapper::~mapper()
 
 void mapper::reset()
 {
+    if(current_node) return;
     log->debug("Map reset");
     nodes.clear();
     feature_id_offset = 0;

@@ -982,7 +982,7 @@ void filter_initialize(struct filter *f)
     f->catchup->observations.observations.clear();
 
     f->s.reset();
-    if (f->map && !f->map->current_node) f->map->reset();
+    if (f->map) f->map->reset();
 
     for (size_t i=0; i<f->s.cameras.children.size() && i<f->cameras.size(); i++) {
         state_camera &camera_state = *f->s.cameras.children[i];

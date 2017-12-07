@@ -573,7 +573,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
 bool filter_relocalize(struct filter *f, const rc_Sensor camera_id, sensor_clock::time_point timestamp)
 {
     camera_frame_t &camera_frame = f->s.cameras.children[camera_id]->camera_frame;
-    if ((f->map->current_node_id == std::numeric_limits<uint64_t>::max()) || !camera_frame.frame)
+    if (!f->map->current_node || !camera_frame.frame)
         return false;
 
     START_EVENT(SF_RELOCALIZE, camera_id);
@@ -833,7 +833,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
 
     // update latest node added with this camera using the frame calculated in filter_detect
-    if(f->map && (f->map->current_node_id != std::numeric_limits<uint64_t>::max()) && camera_state.camera_frame.frame) {
+    if(f->map && f->map->current_node && camera_state.camera_frame.frame) {
         map_node &closest_node = f->map->get_node(camera_state.camera_frame.closest_node);
         if (closest_node.camera_id == data.id && !closest_node.frame) { // node recently added?
             closest_node.frame = camera_state.camera_frame.frame;
@@ -850,8 +850,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
 
     transformation G_Bcurrent_Bnow;
-    if(f->map)
-        f->s.get_closest_group_transformation(f->map->current_node_id, G_Bcurrent_Bnow);
+    if(f->map && f->map->current_node)
+        f->s.get_closest_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow);
     
     preprocess_observation_queue(f, time); // time update filter, then predict locations of current features in the observation queue
     camera_state.update_feature_tracks(data, f->map.get(), G_Bcurrent_Bnow); // track the current features near their predicted locations
@@ -982,7 +982,7 @@ void filter_initialize(struct filter *f)
     f->catchup->observations.observations.clear();
 
     f->s.reset();
-    if (f->map && f->map->current_node_id == std::numeric_limits<uint64_t>::max()) f->map->reset();
+    if (f->map && !f->map->current_node) f->map->reset();
 
     for (size_t i=0; i<f->s.cameras.children.size() && i<f->cameras.size(); i++) {
         state_camera &camera_state = *f->s.cameras.children[i];

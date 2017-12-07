@@ -622,11 +622,11 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
 
 void mapper::predict_map_features(const uint64_t camera_id_now, const transformation& G_Bcurrent_Bnow) {
     map_feature_tracks.clear();
-    if(current_node_id == std::numeric_limits<uint64_t>::max())
+    if(!current_node)
         return;
     // pick as candidates the 5 finished nodes found deepest in the graph and
     // within 2 meters from current node
-    nodes_path neighbors = breadth_first_search(current_node_id, 2.f, 4);
+    nodes_path neighbors = breadth_first_search(current_node->id, 2.f, 4);
 
     const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
     const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];

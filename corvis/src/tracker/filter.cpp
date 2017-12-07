@@ -321,8 +321,9 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data_)
 }
 
 
-bool filter_velocimeter_measurement(struct filter *f, const sensor_data & data)
+bool filter_velocimeter_measurement(struct filter *f, const sensor_data & data_)
 {
+    sensor_data data(data_, sensor_data::stack_copy());
     if(data.id >= f->velocimeters.size() || data.id >= f->s.velocimeters.children.size())  // f->velocimeters sensor and f->s.velocimeters state
         return false;
 
@@ -330,6 +331,9 @@ bool filter_velocimeter_measurement(struct filter *f, const sensor_data & data)
     auto timestamp = data.timestamp;
     auto &velocimeter = *f->velocimeters[data.id];
     auto &velocimeter_s = *std::next(f->s.velocimeters.children.begin(), data.id)->get();
+
+    if (!velocimeter.decimate(data.time_us, data.translational_velocity_m__s.v))
+        return true;
 
     v3 meas = map(velocimeter.intrinsics.scale_and_alignment.v) * map(data.translational_velocity_m__s.v);
 

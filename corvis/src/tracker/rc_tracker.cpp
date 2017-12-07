@@ -519,9 +519,6 @@ bool rc_receiveVelocimeter(rc_Tracker *tracker, rc_Sensor velocimeter_id, rc_Tim
     if (velocimeter_id >= tracker->sfm.velocimeters.size())
         return false;
 
-    if (!tracker->sfm.velocimeters[velocimeter_id]->decimate(time_us, translational_velocity_m__s.v))
-        return true;
-
     sensor_data data(time_us, rc_SENSOR_TYPE_VELOCIMETER, velocimeter_id, translational_velocity_m__s);
 
     if(tracker->output.started())

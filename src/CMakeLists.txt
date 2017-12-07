@@ -45,6 +45,12 @@ set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /NODEFA
 endif()
 
 ############################################################################################################
+list(APPEND CMAKE_MODULE_PATH 
+    ${CMAKE_CURRENT_SOURCE_DIR}/../cmake
+	${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/sp/win
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../sp/win
+)
+
 add_subdirectory(api)
 
 ############################################################################################################

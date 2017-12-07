@@ -16,9 +16,10 @@ endif()
 #######################################################################
 
 list(APPEND CMAKE_MODULE_PATH 
-	${CMAKE_CURRENT_LIST_DIR}/cmake
-	${CMAKE_CURRENT_SOURCE_DIR}/../src/thirdparty/sp/win 
-	${CMAKE_CURRENT_SOURCE_DIR}/../../sp/win)
+	${CMAKE_CURRENT_SOURCE_DIR}/cmake
+	${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/sp/win 
+    ${CMAKE_CURRENT_SOURCE_DIR}/../sp/win
+)
 
 set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/LibRealSense/librealsense)
 

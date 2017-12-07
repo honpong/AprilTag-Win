@@ -114,21 +114,19 @@ shave_tracker::shave_tracker() :
 
 std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image &image, const std::vector<tracker::feature_track *> &features, size_t number_desired)
 {
-    //init
-    if (!mask)
-        mask = std::unique_ptr < scaled_mask
-                > (new scaled_mask(image.width_px, image.height_px));
-    mask->initialize();
-    for (auto &f : features)
-        mask->clear((int) f->x, (int) f->y);
-
     feature_points.clear();
     feature_points.reserve(number_desired);
-
-    //run
-    detectMultipleShave(image);
-    sortFeatures(image, number_desired);
-
+    if (number_desired > 0) {
+        //init
+        if (!mask)
+            mask = std::unique_ptr <scaled_mask>(new scaled_mask(image.width_px, image.height_px));
+        mask->initialize();
+        for (auto &f : features)
+            mask->clear((int)f->x, (int)f->y);
+        //run
+        detectMultipleShave(image);
+        sortFeatures(image, number_desired);
+    }
     return feature_points;
 }
 
@@ -158,10 +156,11 @@ void shave_tracker::sortFeatures(const tracker::image &image, int number_desired
     for (const auto &d : detected_points) {
         if (mask->test((int) d.x, (int) d.y)) {
             mask->clear((int) d.x, (int) d.y);
-            feature_points.emplace_back(
-                std::make_shared<fast_feature<DESCRIPTOR>>(d.x, d.y, image),
-                (float) d.x, (float) d.y, (float) d.score);
-            if (feature_points.size() == number_desired)
+            if (feature_points.size() < number_desired)
+                feature_points.emplace_back(
+                    std::make_shared<fast_feature<DESCRIPTOR>>(d.x, d.y, image),
+                    (float) d.x, (float) d.y, (float) d.score);
+            else
                 break;
         }
     }

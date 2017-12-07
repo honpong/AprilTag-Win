@@ -457,7 +457,7 @@ void replay::start(string map_filename)
                     break;
                 }
                 case packet_odometry:
-                {   
+                {
                     auto velo = (packet_velocimeter_t *)packet;
                     const rc_Vector translational_velocity_m__s_left = {{ velo->v[0], 0.0, 0.0 }};
                     const rc_Vector translational_velocity_m__s_right = {{ velo->v[1], 0.0, 0.0 }};

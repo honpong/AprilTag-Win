@@ -430,8 +430,9 @@ void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
     queue_tracked_box prev_tracked_boxes;
     prev_tracked_boxes.swap(m_box_scene.tracked_boxes);
     for (const auto& box : prev_tracked_boxes) {
-        if ( abs_time_diff_ms(current_time,box.last_appear) < m_param.box_miss_ms)
-            m_box_scene.tracked_boxes.emplace_back(box);
+        if (abs_time_diff_ms(current_time, box.last_appear) < m_param.box_miss_ms)
+            if (box.min_dimension() > m_param.min_box_thickness)
+                m_box_scene.tracked_boxes.emplace_back(box);
     }
 
     // each newly detected box without match

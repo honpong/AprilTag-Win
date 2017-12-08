@@ -110,6 +110,7 @@ class mapper {
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     void add_node(nodeid node_id, const rc_Sensor camera_id);
     void remove_node(nodeid node_id);
+    void remove_node_features(nodeid node_id);
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
     void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
@@ -131,7 +132,7 @@ class mapper {
     uint64_t get_node_id_offset() { return node_id_offset; }
     uint64_t get_feature_id_offset() { return feature_id_offset; }
 
-    void node_finished(nodeid node_id, bool keep_node);
+    void finish_node(nodeid node_id, bool compute_dbow_inverted_index);
     void set_node_transformation(nodeid id, const transformation & G);
 
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);

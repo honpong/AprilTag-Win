@@ -842,11 +842,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     // update latest node added with this camera using the frame calculated in filter_detect
     if(f->map && f->map->current_node && camera_state.camera_frame.frame) {
         map_node &closest_node = f->map->get_node(camera_state.camera_frame.closest_node);
-        if (closest_node.camera_id == data.id && !closest_node.frame) { // node recently added?
+        if (closest_node.camera_id == data.id && !closest_node.frame) // node recently added?
             closest_node.frame = camera_state.camera_frame.frame;
-            for (auto &word : closest_node.frame->dbow_histogram)
-                f->map->dbow_inverted_index[word.first].push_back(closest_node.id); // Add this node to inverted index
-        }
     }
 
     if(f->run_state == RCSensorFusionRunStateRunning)

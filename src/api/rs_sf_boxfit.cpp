@@ -80,10 +80,22 @@ std::vector<rs_sf_box> rs_sf_boxfit::get_boxes() const
     return dst;
 }
 
-bool rs_sf_boxfit::is_valid_box_plane(const plane & p0)
+bool rs_sf_boxfit::is_valid_box_plane(const plane & p0) const
 {
     return (is_valid_past_plane(p0) || is_valid_plane(p0)) &&
         (p0.pid == 0 || !m_bp_map.plane_used[p0.pid]);
+}
+
+bool rs_sf_boxfit::is_valid_box_dimension(const float length) const
+{
+    return length >= m_param.min_box_thickness &&
+        length <= m_param.max_box_thickness;
+}
+
+bool rs_sf_boxfit::is_valid_box_dimension(const box& b) const
+{
+    return is_valid_box_dimension(b.min_dimension()) &&
+        is_valid_box_dimension(b.max_dimension());
 }
 
 void rs_sf_boxfit::detect_new_boxes(box_scene& view)
@@ -337,11 +349,6 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     axis_origin[2] = std::min(width0_range[0], width1_range[0]);
     const auto axis2_length = std::max(width0_range[1], width1_range[1]) - axis_origin[2];
 
-	// reject super thin box
-	if (axis0_length[1] < m_param.min_box_thickness) return false;
-	if (axis1_length[1] < m_param.min_box_thickness) return false;
-	if (axis2_length < m_param.min_box_thickness) return false;
-
     // make new box
     view.boxes.push_back({});
     box* new_box = pair.new_box = &view.boxes.back();
@@ -351,7 +358,12 @@ bool rs_sf_boxfit::form_box_from_two_planes(box_scene& view, plane_pair& pair)
     new_box->dimension << axis0_length[1], axis1_length[1], axis2_length;
     // form the box center by box origin + 1/2 box dimension
     new_box->center << new_box->axis * (axis_origin + (new_box->dimension*0.5f));
-    
+
+    // reject super thin box
+    if (!is_valid_box_dimension(*new_box)) {
+        view.boxes.pop_back();
+        return false;
+    }
     return true;
 }
 
@@ -401,11 +413,18 @@ bool rs_sf_boxfit::refine_box_from_third_plane(box_scene & view, plane_pair & pa
 
     // adjust the box along axis 2
     const float adjust2 = src_coeff2 - dst_coeff2;
-    new_box.center += (adjust2 *0.5f)* axis2;
-    const float cen_coeff2 = new_box.center.dot(axis2);
-    new_box.dimension[2] = std::abs(src_coeff2 - cen_coeff2) * 2.0f;
-    pair.p2 = &p2;
-    return true;
+    const auto new_box_center = new_box.center + (adjust2 *0.5f)* axis2;
+    const float cen_coeff2 = new_box_center.dot(axis2);
+    const float new_box_dimension2 = std::abs(src_coeff2 - cen_coeff2) * 2.0f;
+
+    if (is_valid_box_dimension(new_box_dimension2))
+    {
+        new_box.center = new_box_center;
+        new_box.dimension[2] = new_box_dimension2;
+        pair.p2 = &p2;
+        return true;
+    }
+    return false; //reject poor extension
 }
 
 void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
@@ -431,7 +450,7 @@ void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
     prev_tracked_boxes.swap(m_box_scene.tracked_boxes);
     for (const auto& box : prev_tracked_boxes) {
         if (abs_time_diff_ms(current_time, box.last_appear) < m_param.box_miss_ms)
-            if (box.min_dimension() > m_param.min_box_thickness)
+            if ( is_valid_box_dimension(box))
                 m_box_scene.tracked_boxes.emplace_back(box);
     }
 

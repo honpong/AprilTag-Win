@@ -27,6 +27,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
         float tracked_pair_angle_thr = 0.1f; // max dot product of tracked box plane pair normals
         float plane_intersect_thr = 0.03f;   // points on 2 box planes touch within 30mm
 		float min_box_thickness = 0.03f;     // minimum box thickness in meter
+        float max_box_thickness = 1.00f;     // maximum box thickness in meter
         float max_plane_pt_error = 0.01f;    // max point to box plane error
         float box_state_gain = 0.3f;         // fraction of box update allowed per frame
         float box_miss_ms = 500.0f;          // milliseconds allowed for a tracked box get lost
@@ -44,6 +45,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
         v3 origin() const { return center - axis * dimension * 0.5f; }
         float max_radius() const { return (center - origin()).norm(); }
         float min_dimension() const { return dimension.minCoeff(); }
+        float max_dimension() const { return dimension.maxCoeff(); }
     };
 
     rs_sf_boxfit(const rs_sf_intrinsics* camera);
@@ -86,20 +88,33 @@ protected:
                 pred[2][d] = state[2][d];
                 pred[1][d] = pred[2][d] + state[1][d];
                 pred[0][d] = pred[1][d] + state[0][d];
+            }
+
+            for (int d = 0; d < n; ++d)
+            {
                 // update observation
                 obse[2][d] = observation[d] - obse[0][d] - obse[1][d];
                 obse[1][d] = observation[d] - obse[0][d];
                 obse[0][d] = observation[d];
+            }
+            
+            for (int d = 0; d < n; ++d)
+            {
                 // prediction error
                 resi[0][d] = obse[0][d] - pred[0][d];
                 resi[1][d] = obse[1][d] - pred[1][d];
                 resi[2][d] = obse[2][d] - pred[2][d];
+            }
+            
+            for (int d = 0; d < n; ++d)
+            {
                 // update state
                 state[0][d] = pred[0][d] + resi[0][d] * gain;
                 state[1][d] = pred[1][d] + resi[1][d] * gain;
                 state[2][d] = pred[2][d] + resi[2][d] * gain;
-                return state[0];
             }
+       
+            return state[0];
         }
     };
 
@@ -173,7 +188,9 @@ private:
 
     // per-frame detection
     void detect_new_boxes(box_scene& view);
-    bool is_valid_box_plane(const plane& p0);
+    bool is_valid_box_plane(const plane& p0) const;
+    bool is_valid_box_dimension(const float l) const;
+    bool is_valid_box_dimension(const box& b) const;
     bool form_box_from_two_planes(box_scene& view, plane_pair& pair);
     bool refine_box_from_third_plane(box_scene& view, plane_pair& pair, plane& p2);
 

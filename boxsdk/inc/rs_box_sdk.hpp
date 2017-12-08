@@ -38,7 +38,9 @@ extern "C"
 
     typedef enum rs2_measure_const
     {
-        RS2_MEASURE_BOX_MAXCOUNT = 10
+        RS2_STREAM_POSE = 0,
+        RS2_STREAM_PLANE = 3,
+        RS2_MEASURE_BOX_MAXCOUNT = 10,
     } rs2_measure_const;
 
     struct rs2_measure_box
@@ -61,6 +63,7 @@ extern "C"
     struct rs2_box_measure; /**< box detector object */
 
     RS2_MEASURE_DECL void* rs2_box_measure_create(rs2_box_measure** box_measure, float depth_unit, rs2_error** e);
+    RS2_MEASURE_DECL void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const& out_stream, int flag, rs2_error** e);
     RS2_MEASURE_DECL void rs2_box_measure_reset(rs2_box_measure* box_measure, rs2_error** e);
     RS2_MEASURE_DECL int rs2_box_measure_get_boxes(rs2_box_measure* box_measure, rs2_measure_box* boxes, rs2_error** e);
     RS2_MEASURE_DECL void rs2_box_meausre_project_box_onto_frame(const rs2_measure_box* box, const rs2_measure_camera_state* camera, rs2_measure_box_wireframe* wireframe, rs2_error** e);
@@ -80,6 +83,16 @@ namespace rs2
     static std::string stri(float v, int w, int p = 0) {
         std::string s0 = f_str(v, p), s = ""; while ((s + s0).length() < w) { s += " "; } return s + s0;
     }
+
+    class box_frameset : public frameset
+    {
+    public:
+        box_frameset(frame& f) : frameset(f) {}
+
+        const rs2_measure_camera_state& state(const rs2_stream& s) const { return ((rs2_measure_camera_state*)((*this)[RS2_STREAM_POSE].get_data()))[s]; }
+
+        operator bool() const { return size() > 3; }
+    };
 
     struct box : public rs2_measure_box
     {
@@ -103,37 +116,42 @@ namespace rs2
             return stri(dim(0), 4) + "x" + stri(dim(1), 4) + "x" + stri(dim(2), 4);
         }
 
-        wireframe project_box_onto_frame(const camera_state& f) const
+        inline wireframe project_box_onto_frame(box_frameset& f, const rs2_stream& s) const
+        {
+            return project_box_onto_frame(f.state(s));
+        }
+
+        wireframe project_box_onto_frame(const rs2_measure_camera_state& camera) const
         {
             rs2_error* e = nullptr;
 
             wireframe box_frame;
-            rs2_box_meausre_project_box_onto_frame(this, &f, &box_frame, &e);
+            rs2_box_meausre_project_box_onto_frame(this, &camera, &box_frame, &e);
             error::handle(e);
             
             return box_frame;
         }
     };
 
-    class box_frameset : public frameset
+    struct box_vector : public std::vector<box>
     {
-    public:
-        box_frameset(frame& f) : frameset(f) {}
+        template<typename T>
+        box_vector(T a, T b) : std::vector<box>(a, b) {}
 
-        const rs2_measure_camera_state& state(const rs2_stream& s) const { return ((rs2_measure_camera_state*)((*this)[0].get_data()))[s]; }
+        operator bool() const { return size() > 0; }
     };
 
     class box_measure
     {
     public:
 
-        typedef std::vector<box> box_vector;
-
         box_measure(device dev = device()) : _device(dev), _queue(1), _stream_w(0), _stream_h(0)
         {
             rs2_error* e = nullptr;
             
             float depth_unit = try_get_depth_scale(_device);
+
+            printf("depth unit %f \n", depth_unit);
 
             _block = std::shared_ptr<processing_block>((processing_block*)rs2_box_measure_create(&_box_measure, depth_unit, &e));
             error::handle(e);
@@ -149,6 +167,13 @@ namespace rs2
             error::handle(e);
         }
 
+        void configure(const rs2_measure_const& s, bool flag)
+        {
+            rs2_error *e = nullptr;
+            rs2_box_measure_configure(_box_measure, s, flag ? 1 : 0, &e);
+            error::handle(e);
+        }
+
         config get_camera_config()
         {
             if (_camera_name == "Intel RealSense 410") {
@@ -159,6 +184,7 @@ namespace rs2
             }
             else if (_camera_name == "Intel RealSense SR300") {
                 _stream_w = 640; _stream_h = 480;
+                _depth_unit = 0.00125f;
             }
             else {
                 _stream_w = 640; _stream_h = 480;
@@ -196,13 +222,15 @@ namespace rs2
             // get the device name
             _camera_name = dev.get_info(RS2_CAMERA_INFO_NAME);
 
+            if (_depth_unit != 0.0f) return _depth_unit;
+
             // Go over the device's sensors
             for (rs2::sensor& sensor : dev.query_sensors())
             {
                 // Check if the sensor if a depth sensor
                 if (rs2::depth_sensor dpt = sensor.as<rs2::depth_sensor>())
                 {
-                    return std::fmaxf(0.001f, dpt.get_depth_scale());
+                    return _depth_unit = dpt.get_depth_scale();
                 }
             }
             return 0.001f;
@@ -226,6 +254,7 @@ namespace rs2
         rs2_measure_box _box[RS2_MEASURE_BOX_MAXCOUNT];
         std::string _camera_name;
         int _stream_w, _stream_h;
+        float _depth_unit = 0.0f;
     };
 }
 #endif //__cplusplus

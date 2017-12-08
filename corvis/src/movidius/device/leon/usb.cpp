@@ -90,7 +90,7 @@ void * fnReplay(void * arg)
     bool stereo_configured = false;
 
     __attribute__((section(".cmx.bss"),aligned(64)))
-    static uint8_t rc_tracker_memory[166*1024];
+    static uint8_t rc_tracker_memory[250*1024];
     static size_t rc_tracker_size;
     if (rc_tracker_size || (rc_create_at(nullptr, &rc_tracker_size),
                             rc_tracker_size > sizeof(rc_tracker_memory))) {

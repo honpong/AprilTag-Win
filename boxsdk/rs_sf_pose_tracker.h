@@ -74,30 +74,38 @@ namespace rs2
                         sp_src_depth[p] = sp_dst_depth[(y * 240 / h) * 320 + (x * 320 / w)];
                     }
                 }
-                
+
                 // compute color image pose
                 auto* d = depth_frame.cam_pose, *c = color_frame.cam_pose;
-                auto& r = d2c.rotation; auto& t = d2c.translation;
-                c[0] = r[0] * d[0] + r[1] * d[4] + r[2] * d[8];
-                c[1] = r[0] * d[1] + r[1] * d[5] + r[2] * d[9];
-                c[2] = r[0] * d[2] + r[1] * d[6] + r[2] * d[10];
-                c[3] = r[0] * d[3] + r[1] * d[7] + r[2] * d[11] + t[0];
-                c[4] = r[3] * d[0] + r[4] * d[4] + r[5] * d[8];
-                c[5] = r[3] * d[1] + r[4] * d[5] + r[5] * d[9];
-                c[6] = r[3] * d[2] + r[4] * d[6] + r[5] * d[10];
-                c[7] = r[3] * d[3] + r[4] * d[7] + r[5] * d[11] + t[1];
-                c[8] = r[6] * d[0] + r[7] * d[4] + r[8] * d[8];
-                c[9] = r[6] * d[1] + r[7] * d[5] + r[8] * d[9];
-                c[10] = r[6] * d[2] + r[7] * d[6] + r[8] * d[10];
-                c[11] = r[6] * d[3] + r[7] * d[7] + r[8] * d[11] + t[2];
+                transform(c, d, d2c.rotation, d2c.translation);
             }
+
             return _was_tracking;
         }
         
     private:
+
         const int _acc_w, _acc_h;
         bool _sp_init, _was_tracking = false;
         std::unique_ptr<float[]> _buf;
         std::vector<unsigned short> _sdepth;
+
+        // dst = r * src + t
+        static void transform(float dst[12], const float src[12], const float r[9], const float t[3])
+        {
+            // compute dst image pose
+            dst[0] = r[0] * src[0] + r[1] * src[4] + r[2] * src[8];
+            dst[1] = r[0] * src[1] + r[1] * src[5] + r[2] * src[9];
+            dst[2] = r[0] * src[2] + r[1] * src[6] + r[2] * src[10];
+            dst[3] = r[0] * src[3] + r[1] * src[7] + r[2] * src[11] + t[0];
+            dst[4] = r[3] * src[0] + r[4] * src[4] + r[5] * src[8];
+            dst[5] = r[3] * src[1] + r[4] * src[5] + r[5] * src[9];
+            dst[6] = r[3] * src[2] + r[4] * src[6] + r[5] * src[10];
+            dst[7] = r[3] * src[3] + r[4] * src[7] + r[5] * src[11] + t[1];
+            dst[8] = r[6] * src[0] + r[7] * src[4] + r[8] * src[8];
+            dst[9] = r[6] * src[1] + r[7] * src[5] + r[8] * src[9];
+            dst[10] = r[6] * src[2] + r[7] * src[6] + r[8] * src[10];
+            dst[11] = r[6] * src[3] + r[7] * src[7] + r[8] * src[11] + t[2];
+        }
     };
 }

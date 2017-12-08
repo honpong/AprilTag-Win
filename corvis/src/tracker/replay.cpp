@@ -458,13 +458,16 @@ void replay::start(string map_filename)
                 }
                 case packet_odometry:
                 {
-                    auto velo = (packet_velocimeter_t *)packet;
-                    const rc_Vector translational_velocity_m__s_left = {{ velo->v[0], 0.0, 0.0 }};
-                    const rc_Vector translational_velocity_m__s_right = {{ velo->v[1], 0.0, 0.0 }};
+                    auto diff_drive = (packet_diff_drive_t *)packet;
+                    packet_velocity_t velocity_x_left = {diff_drive->header, diff_drive->v[0]};
+                    diff_drive->header.sensor_id++;
+                    packet_velocity_t velocity_x_right = {diff_drive->header, diff_drive->v[1]};
+                    const rc_Vector velocity_left = {{ velocity_x_left.v, 0.0, 0.0 }};
+                    const rc_Vector velocity_right = {{ velocity_x_right.v, 0.0, 0.0 }};
 
                     if(use_odometry){
-                        rc_receiveVelocimeter(tracker, packet->header.sensor_id, packet->header.time, translational_velocity_m__s_left);
-                        rc_receiveVelocimeter(tracker, packet->header.sensor_id+1, packet->header.time, translational_velocity_m__s_right);
+                        rc_receiveVelocimeter(tracker, velocity_x_left.header.sensor_id, velocity_x_left.header.time, velocity_left);
+                        rc_receiveVelocimeter(tracker, velocity_x_right.header.sensor_id, velocity_x_right.header.time, velocity_right);
                     }
                     break;
                 }

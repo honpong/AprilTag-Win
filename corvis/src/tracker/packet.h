@@ -138,8 +138,13 @@ typedef struct {
 
 typedef struct {
     packet_header_t header;
-    float v[3]; // m/s
-} packet_velocimeter_t;
+    float v;
+} packet_velocity_t;
+
+typedef struct {
+    packet_header_t header;
+    float v[2];
+} packet_diff_drive_t;
 
 typedef struct {
     packet_header_t header;

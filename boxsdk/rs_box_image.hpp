@@ -18,6 +18,7 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 #define rs_box_image_hpp
 
 #include <cfloat>
+#include <vector>
 #include "rs_shapefit.h"
 
 namespace rs2
@@ -36,7 +37,28 @@ namespace rs2
     static rs_sf_image& operator<<(rs_sf_image& img, float* cam_pose) { img.cam_pose = cam_pose; return img; }
     static rs_sf_image& operator<<(rs_sf_image& img, unsigned long long frame_id) { img.frame_id = frame_id; return img; }
     static rs_sf_image& operator<<(rs_sf_image& img, const void* data) { img.data = reinterpret_cast<unsigned char*>(const_cast<void*>(data)); return img; }
-    
+
+    static rs2_measure_camera_state& operator<<(rs2_measure_camera_state& state, const rs_sf_image& img)
+    {
+        memcpy(state.camera_pose, img.cam_pose, img.cam_pose ? sizeof(float) * 12 : 0);
+        state.intrinsics = (rs2_intrinsics*)img.intrinsics;
+        return state;
+    }
+
+    static void set_identity(float pose[12])
+    {
+        const float i[] = { 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f, .0f, .0f, 0.f, 1.0f, 0.f };
+        memcpy(pose, i, sizeof(i));
+    }
+
+    struct rs_sf_pose_data : public std::vector<float>
+    {
+        rs_sf_pose_data() { set_identity(); }
+        void set_identity() {
+            assign({ 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f, .0f, .0f, 0.f, 1.0f, 0.f });
+        }
+    };
+
     static void get_inverse_pose(const float pose[12], float inv_pose[12])
     {
         inv_pose[0] = pose[0]; inv_pose[1] = pose[4]; inv_pose[2] = pose[8];

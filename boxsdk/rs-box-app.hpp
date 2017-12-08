@@ -173,7 +173,7 @@ inline void draw_box_wire(const int width, const int height, const float box_wir
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_SCISSOR_TEST);
-    glScissor(r.x, app_height - r.h - r.y, r.w, r.h);
+    glScissor((int)r.x, (int)(app_height - r.h - r.y), (int)r.w, (int)r.h);
     glLineWidth(line_width);
     glColor3f(1.0f, 1.0f, 0.0f);
     glBegin(GL_LINES);
@@ -301,9 +301,11 @@ public:
     {
         if (click)
             if (_mouse_pos[0] > width() / 3) _tgscn = true;
-            else if (_mouse_pos[1] >= height() * 7 / 8)
-                if (_mouse_pos[0] <= width() / 6) _close = true;
-                else if (_mouse_pos[0] <= width() * 3) _reset = true;
+            else if (_mouse_pos[1] > win_depth_image().y)
+                if (_mouse_pos[1] < height() * 7 / 8) _plane = !_plane;
+                else 
+                    if (_mouse_pos[0] <= width() / 6) _close = true;
+                    else if (_mouse_pos[0] <= width() * 3) _reset = true;
     };
 
     window(int width, int height, const char* title) : _title(title), _icon_close(get_icon(close), bkg_blue), _icon_reset(get_icon(reset), bkg_blue), _num_icons(bkg_blue)
@@ -424,14 +426,14 @@ public:
         render_rect(win_reset_button(), !_reset, { 128, 128, 128 });
     }
 
-    void render_box_on_depth_frame(const float endpt[12][2][2], const int line_width = -1.0f)
+    void render_box_on_depth_frame(const rs2::box::wireframe& wireframe, const int line_width = -1.0f)
     {
-        _texture_depth.draw_box(endpt, height(), line_width);
+        _texture_depth.draw_box(wireframe.end_pt, _height, line_width);
     }
 
-    void render_box_on_color_frame(const float endpt[12][2][2], const int line_width = -1.0f)
+    void render_box_on_color_frame(const rs2::box::wireframe& wireframe, const int line_width = -1.0f)
     {
-        _texture_color.draw_box(endpt, height(), line_width);
+        _texture_color.draw_box(wireframe.end_pt, _height, line_width);
     }
 
     void render_box_dim(const std::string& box_dim)
@@ -453,7 +455,8 @@ public:
     }
 
     operator GLFWwindow*() { return win; }
-    bool reset_request() { return _reset; }
+    bool reset_request() const { return _reset; }
+    bool plane_request() const { return _plane; }
 
     double _mouse_pos[2] = {};
     const unsigned char bkg_blue[3] = { 0, 66, 128 };
@@ -462,7 +465,7 @@ public:
 private:
     GLFWwindow* win = nullptr;
     int _width, _height, _win_width, _win_height;
-    bool _close = false, _reset = false, _tgscn = false, _fullscreen;
+    bool _close = false, _reset = false, _tgscn = false, _fullscreen, _plane = false;
     const char* _title;
     color_icon _icon_close, _icon_reset;
     texture _texture_realsense_logo, _texture_close_button, _texture_reset_button, _texture_box_msg;

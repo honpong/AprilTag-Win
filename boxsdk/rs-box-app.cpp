@@ -81,33 +81,33 @@ int main(int argc, char* argv[])
     rs2::colorizer color_map;
 
     // Start application
-    for(window app(boxscan.stream_w() * 3 / 2, boxscan.stream_h(), header.c_str());app;)
+    for (window app(boxscan.stream_w() * 3 / 2, boxscan.stream_h(), header.c_str()); app; boxscan.configure(RS2_STREAM_PLANE, app.plane_request()))
     {
         rs2::frameset frameset;
 
         while (!frameset.first_or_default(RS2_STREAM_DEPTH)
-            || !frameset.first_or_default(RS2_STREAM_COLOR)
-            )
+            || !frameset.first_or_default(RS2_STREAM_COLOR))
         {
             frameset = pipe.wait_for_frames();
         }
 
-        auto box_frame = boxscan.process(frameset);
-        auto box = boxscan.get_boxes();
-
-        app.render_ui(color_map(frameset.get_depth_frame()), frameset.get_color_frame());
-        //app.render_ui(box_frame[1], frameset.get_color_frame());
-
-        if (box.size() && box_frame.size())
+        if (auto box_frame = boxscan.process(frameset))
         {
-            app.render_box_on_depth_frame(box[0].project_box_onto_frame(box_frame.state(RS2_STREAM_DEPTH)).end_pt);
-            app.render_box_on_color_frame(box[0].project_box_onto_frame(box_frame.state(RS2_STREAM_COLOR)).end_pt);
-            app.render_box_dim(box[0].str()); 
+            app.render_ui(
+                app.plane_request() ? box_frame[RS2_STREAM_PLANE] : color_map(box_frame[RS2_STREAM_DEPTH]),
+                box_frame[RS2_STREAM_COLOR]);
+
+            if (auto box = boxscan.get_boxes())
+            {
+                app.render_box_on_depth_frame(box[0].project_box_onto_frame(box_frame, RS2_STREAM_DEPTH));
+                app.render_box_on_color_frame(box[0].project_box_onto_frame(box_frame, RS2_STREAM_COLOR));
+                app.render_box_dim(box[0].str());
+            }
         }
 
         if (app.reset_request()) {
             boxscan.reset();
-       }
+        }
     }
 
     return EXIT_SUCCESS;

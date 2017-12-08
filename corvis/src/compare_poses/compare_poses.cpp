@@ -5,7 +5,7 @@
 using namespace std;
 int main(int argc, char ** argv)
 {
-    if(argc <= 3) {
+    if(argc < 3) {
         cerr << "Usage: " << argv[0] << " <ground_truth.tum> <pose.tum> [<pose2.tum> ...]\n";
         return 1;
     }

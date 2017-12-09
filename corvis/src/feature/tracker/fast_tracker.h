@@ -23,6 +23,7 @@ public:
               descriptor(x_, y_, image) {}
         fast_feature(uint64_t id, const Descriptor &descriptor_) : feature(id),
               descriptor(descriptor_) {}
+        fast_feature(uint64_t id) : feature(id) {}
         Descriptor descriptor;
     };
 

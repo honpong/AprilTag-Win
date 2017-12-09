@@ -62,8 +62,6 @@ map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
 }
 
 void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, bool loop_closure) {
-    if(nodes.size() <= id1) nodes.resize(id1+1);
-    if(nodes.size() <= id2) nodes.resize(id2+1);
     map_edge& edge12 = nodes[id1].get_add_neighbor(id2);
     edge12.loop_closure = loop_closure;
     edge12.G = G12;
@@ -74,9 +72,14 @@ void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, bool lo
 
 void mapper::add_node(nodeid id, const rc_Sensor camera_id)
 {
+    nodeid current_node_id;
+    if(current_node)
+        current_node_id = current_node->id;
     if(nodes.size() <= id) nodes.resize(id + 1);
     nodes[id].id = id;
     nodes[id].camera_id = camera_id;
+    if(current_node)
+        current_node = &nodes[current_node_id];
 }
 
 void mapper::get_triangulation_geometry(const nodeid group_id, const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses)

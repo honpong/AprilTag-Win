@@ -455,7 +455,8 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
     for(auto i = kp.begin(); i != kp.end() && found_feats < newfeats; found_feats++, i = kp.erase(i)) {
         auto feat = std::make_unique<state_vision_feature>(*i, *g);
-        
+        if(f->map) f->map->triangulated_tracks.erase((*i).feature->id);
+
         float depth_m = i->depth;
         if(f->has_depth) {
             if (!aligned_undistorted_depth)
@@ -476,9 +477,15 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             feat->status = feature_normal;
             feat->depth_measured = true;
         }
-        
+
         camera.tracks.push_back(state_vision_track(*feat, *i));
         g->features.children.push_back(std::move(feat));
+    }
+
+    if(f->map) {
+        for (auto t: camera.standby_tracks) {
+            f->map->initialize_track_triangulation(t, g->id);
+        }
     }
     f->s.remap();
 #ifdef TEST_POSDEF
@@ -533,9 +540,8 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
     END_EVENT(SF_DETECT, kp.size())
 
     // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
-    camera.standby_tracks.insert(camera.standby_tracks.begin(),
-                                 kp.begin(),
-                                 kp.begin() + kp.size());
+    camera.standby_tracks.insert(camera.standby_tracks.begin(), kp.begin(), kp.end());
+
     for (auto &p : kp)
         camera.feature_tracker->tracks.push_back(&p);
 
@@ -807,6 +813,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         f->run_state = RCSensorFusionRunStateDynamicInitialization;
         f->s.enable_orientation_only(true);
         f->s.disable_bias_estimation(true);
+        if(f->map) f->map->triangulated_tracks.clear();
     }
 
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
@@ -897,6 +904,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     auto normal_groups = f->s.process_features(f->map.get());
     filter_update_outputs(f, time, normal_groups == 0);
     f->s.remap();
+
+    filter_update_triangulated_tracks(f, data.id);
 
     filter_bring_groups_back(f, data.id);
 
@@ -1255,6 +1264,22 @@ std::string filter_get_stats(const struct filter *f)
     }
     statstr << "\n";
     return statstr.str();
+}
+
+void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_id)
+{
+    // update triangulated 3d feature with new observation
+    if(f->map && f->map->current_node) {
+        transformation G_Bcurrent_Bnow;
+        f->s.get_closest_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow);
+        auto &c = f->s.cameras.children[camera_id];
+        for(auto &sbt : c->standby_tracks) {
+            auto tp = f->map->triangulated_tracks.find(sbt.feature->id);
+            if(tp != f->map->triangulated_tracks.end() && tp->second.reference_nodeid !=  std::numeric_limits<uint64_t>::max()) {
+                f->map->update_3d_feature(sbt, invert(G_Bcurrent_Bnow), camera_id);
+            }
+        }
+    }
 }
 
 void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)

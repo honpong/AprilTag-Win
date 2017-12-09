@@ -54,6 +54,7 @@ void mapper::reset()
     unlinked = false;
     dbow_inverted_index.clear();
     features_dbow.clear();
+    triangulated_tracks.clear();
 }
 
 map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
@@ -82,40 +83,94 @@ void mapper::add_node(nodeid id, const rc_Sensor camera_id)
         current_node = &nodes[current_node_id];
 }
 
-void mapper::get_triangulation_geometry(const nodeid group_id, const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses)
-{
-    tracks_2d.clear();
-    camera_poses.clear();
-    std::set<nodeid> search_nodes;
-    for (auto &ag : keypoint.group_tracks) {
-        search_nodes.insert(ag.group_id);
-    }
-    nodes_path ref_path = breadth_first_search(group_id, std::move(search_nodes));
-    map_node &ref_node = nodes[group_id];
-    const state_extrinsics* const ref_extrinsics = camera_extrinsics[ref_node.camera_id];
-    transformation G_BR = transformation(ref_extrinsics->Q.v, ref_extrinsics->T.v);
-    // accumulate cameras and 2d tracks to triangulate
-    for (auto &ag : keypoint.group_tracks) {
-        map_node &node = nodes[ag.group_id];
-        const state_extrinsics* const extrinsics = camera_extrinsics[node.camera_id];
-        const state_vision_intrinsics* const intrinsics = camera_intrinsics[node.camera_id];
-        transformation G_BC = transformation(extrinsics->Q.v, extrinsics->T.v);
-        // normalize/undistort 2d point track
-        feature_t kpd = {ag.x, ag.y};
-        feature_t kpn = intrinsics->undistort_feature(intrinsics->normalize_feature(kpd));
-        tracks_2d.push_back(kpn);
-        // read node transformation
-        transformation G_CR = invert(ref_path[ag.group_id] * G_BC) * G_BR;
-        camera_poses.push_back(G_CR);
+void mapper::initialize_track_triangulation(const tracker::feature_track& track, const nodeid node_id) {
+    // init state
+    if(triangulated_tracks.find(track.feature->id) != triangulated_tracks.end())
+        return;
+    std::shared_ptr<log_depth> state_d = std::make_shared<log_depth>();
+    v2 xd = {track.x, track.y};
+    state_d->initial = xd;
+    triangulated_track tt(node_id, state_d);
+    triangulated_tracks.emplace(track.feature->id, std::move(tt));
+}
+
+void mapper::finish_lost_tracks(const tracker::feature_track& track) {
+    auto tp = triangulated_tracks.find(track.feature->id);
+    if (tp != triangulated_tracks.end()) {
+        auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(track.feature);
+            if (tp->second.track_count > MIN_FEATURE_TRACKS && tp->second.parallax > MIN_FEATURE_PARALLAX )
+                add_triangulated_feature_to_group(tp->second.reference_nodeid, f, tp->second.state);
+        triangulated_tracks.erase(track.feature->id);
+    } else {
+        log->debug("{}/{}) Not enougth support/parallax to add trianguled point with id: {}", track.feature->id);
     }
 }
 
 void mapper::add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
-                                               std::shared_ptr<log_depth> v)
-{
+                                               std::shared_ptr<log_depth>& v) {
     map_node &ref_node = nodes[group_id];
     ref_node.add_feature(feature, v, feature_type::triangulated);
     features_dbow[feature->id] = group_id;
+}
+
+void mapper::update_3d_feature(const tracker::feature_track& track, const transformation &&G_Bnow_Bcurrent, const rc_Sensor camera_id_now) {
+
+    auto tp = triangulated_tracks.find(track.feature->id);
+
+    const state_vision_intrinsics* const intrinsics_reference = camera_intrinsics[get_node(tp->second.reference_nodeid).camera_id];
+    const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
+    const state_extrinsics* const extrinsics_reference = camera_extrinsics[get_node(tp->second.reference_nodeid).camera_id];
+    const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
+
+    const f_t focal_px = intrinsics_now->focal_length.v * intrinsics_now->image_height;
+    const f_t sigma2 = 10 / (focal_px*focal_px);
+
+    auto G_Bcurrent_Breference = breadth_first_search(current_node->id, std::set<nodeid>{tp->second.reference_nodeid})[tp->second.reference_nodeid];
+    transformation G_CBnow = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
+    transformation G_BCreference = transformation(extrinsics_reference->Q.v, extrinsics_reference->T.v);
+
+    transformation G_Ck_Ck_1 = G_CBnow * G_Bnow_Bcurrent * G_Bcurrent_Breference * G_BCreference;
+
+    // calculate point prediction on current camera frame
+    std::shared_ptr<log_depth>& state = tp->second.state;
+    v2 xun = intrinsics_reference->undistort_feature(intrinsics_reference->normalize_feature(state->initial));
+    v3 xun_k_1 = xun.homogeneous();
+    float P = tp->second.cov;
+    v3 pk_1 = xun_k_1 * state->depth();
+    m3 Rk_k_1 = G_Ck_Ck_1.Q.toRotationMatrix();
+    v3 pk = Rk_k_1 * pk_1 + G_Ck_Ck_1.T;
+    // features are in front of the camera
+    if(pk.z() < 0.f)
+        return;
+    v2 hk = pk.segment<2>(0)/pk.z();
+    v2 zdk = {track.x,track.y};
+    v2 zuk = intrinsics_now->undistort_feature(intrinsics_now->normalize_feature((zdk)));
+    v2 inn_k = zuk-hk;
+
+    // compute jacobians
+    m<2,3> dhk_dpk = {{1/pk[2], 0,       -pk[0]/(pk[2]*pk[2])},
+                      {0,       1/pk[2], -pk[1]/(pk[2]*pk[2])}};
+    m3 dpk_dpk_1 = Rk_k_1;
+    v3 dpk_1_dv = pk_1;
+    v2 H = dhk_dpk * dpk_dpk_1 * dpk_1_dv;
+
+    // update state and variance
+    m<2,2> R = {{sigma2,0},{0,sigma2}};
+    m<1,2> PH_t = P*H.transpose();
+    m<2,2> S_inv = (H*PH_t + R).inverse();
+    m<1,2> K = PH_t*S_inv;
+
+    // check mahalanobis distance to remove outliers
+    tp->second.parallax = std::acos(xun_k_1.dot(zuk.homogeneous())/(xun_k_1.norm() *zuk.homogeneous().norm()));
+    if(inn_k.dot(S_inv*inn_k) > 5.99f) {
+        return;
+    }
+    tp->second.track_count++;
+
+    // update state
+    state->v = state->v + K*inn_k;
+    P -= K * PH_t.transpose();
+    tp->second.cov = P;
 }
 
 void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,

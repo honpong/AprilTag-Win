@@ -28,6 +28,9 @@
 #include <opencv2/core/mat.hpp>
 #endif
 
+#define MIN_FEATURE_TRACKS 3
+#define MIN_FEATURE_PARALLAX 5.0f/180*M_PI
+
 typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, DBoW2::L1_NORM> orb_vocabulary;
 
 class state_vision_intrinsics;
@@ -82,7 +85,13 @@ struct map_relocalization_info {
     size_t size() const { return vG_node_frame.size(); }
 };
 
-class mapper {   
+class mapper {
+ public:
+    typedef uint64_t nodeid;
+    typedef std::pair<nodeid, nodeid> match;
+    typedef std::vector<match> matches;
+    typedef std::pair<nodeid, transformation> node_path;
+    typedef std::map<nodeid, transformation> nodes_path;
  private:
     aligned_vector<map_node> nodes;
     friend struct map_node;
@@ -97,12 +106,6 @@ class mapper {
     ~mapper();
     void reset();
 
-    typedef uint64_t nodeid;
-    typedef std::pair<nodeid, nodeid> match;
-    typedef std::vector<match> matches;
-    typedef std::pair<nodeid, transformation> node_path;
-    typedef std::map<nodeid, transformation> nodes_path;
-
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     void add_node(nodeid node_id, const rc_Sensor camera_id);
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
@@ -110,8 +113,10 @@ class mapper {
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                      std::shared_ptr<log_depth> v, const feature_type type = feature_type::tracked);
     void set_feature_type(nodeid node_id, uint64_t feature_id, const feature_type type = feature_type::tracked);
-    void get_triangulation_geometry(const nodeid group_id, const tracker::feature_track& keypoint, aligned_vector<v2> &tracks_2d, std::vector<transformation> &camera_poses);
-    void add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v);
+    void initialize_track_triangulation(const tracker::feature_track &track, const nodeid node_id);
+    void finish_lost_tracks(const tracker::feature_track &track);
+    void add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> &v);
+    void update_3d_feature(const tracker::feature_track &track, const transformation &&G_Bcurrent_Bnow, const rc_Sensor camera_id_now);
     nodes_path breadth_first_search(nodeid start, int maxdepth = 1);
     nodes_path breadth_first_search(nodeid start, const f_t maxdistance, const size_t N = 5); // maxdistance in meters, max number of nodes
     nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes);
@@ -169,6 +174,21 @@ class mapper {
     };
     std::vector<node_feature_track> map_feature_tracks;
     void predict_map_features(const uint64_t camera_id_now, const transformation& G_Bcurrent_Bnow);
+
+// triangulated tracks
+    struct triangulated_track
+    {
+        nodeid reference_nodeid = std::numeric_limits<uint64_t>::max();
+        std::shared_ptr<log_depth> state; // pixel coordinates are constant
+        float cov = 0.75f;
+        float parallax = 0;
+        size_t track_count = 0;
+        triangulated_track(const nodeid id,
+                           std::shared_ptr<log_depth> s) :
+            reference_nodeid(id), state(s) {}
+    };
+    std::unordered_map<uint64_t, triangulated_track> triangulated_tracks;
+
 
 #ifdef RELOCALIZATION_DEBUG
     std::function<void(cv::Mat &&image, const uint64_t image_id, const std::string &message, const bool pause)> debug;

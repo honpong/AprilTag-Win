@@ -548,13 +548,15 @@ static size_t filter_available_feature_space(struct filter *f, state_camera &cam
 
 bool filter_create_camera_frame(const struct filter *f, const sensor_data& data, camera_frame_t& camera_frame)
 {
+    bool same_sensor_id = false;
     bool node_is_active = false;
     camera_frame.camera_id = data.id;
     if (f->map) {
         camera_frame.closest_node = f->map->current_node->id;
+        same_sensor_id = (data.id == f->map->get_node(f->map->current_node->id).camera_id);
         node_is_active = f->s.get_closest_group_transformation(f->map->current_node->id, camera_frame.G_closestnode_frame);
     }
-    if (node_is_active) {
+    if (same_sensor_id && node_is_active) {
         camera_frame.frame.reset(new frame_t);
         camera_frame.frame->timestamp = data.timestamp;
 #ifdef RELOCALIZATION_DEBUG

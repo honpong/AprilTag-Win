@@ -808,18 +808,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         std::list<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->standby_tracks;
 
 #ifdef ENABLE_SHAVE_STEREO_MATCHING
-        tracker::feature_track * f1_group[MAX_KP1];
-        const tracker::feature_track * f2_group[MAX_KP2];
-        int i = 0;
-        for(auto & k1 : kp1)
-            f1_group[i++] = &k1;
-
-        i = 0;
-        for(auto & k2 : kp2)
-            f2_group[i++] = &k2;
-
         shave_tracker shave_stereo_o;
-        shave_stereo_o.stereo_matching_full_shave(f1_group, kp1.size(), f2_group, kp2.size(), camera_state1, camera_state2);
+        shave_stereo_o.stereo_matching_full_shave(f, camera1_id, camera2_id);
 #else
         // preprocess data for kp1
         m3 Rw1 = camera_state1.extrinsics.Q.v.toRotationMatrix();

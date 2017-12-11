@@ -102,17 +102,18 @@ bool stereo_matching::l_l_intersect_shave(int i , int j,float4 *pa,float4 *pb)
     return(true);
 }
 
-void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1, float * errors1)
+void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1, float* depths2, float * errors1, int* matched_kp)
 {
   //kp intersect vars
     float4 pa,pb;
     bool success= 0;
-    float depth,error,error_2;
+    float depth1, depth2,error,error_2;
     float4 cam1_intersect,cam2_intersect;
   //kp compare vars
     float second_best_distance = INFINITY;
     float best_distance = INFINITY;
-    float best_depth = 0;
+    float best_depth1 = 0;
+    float best_depth2 = 0;
     float best_error = 0;
     float distance  = INFINITY ;
     unsigned short mean1 , mean2 ;
@@ -150,7 +151,8 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
     {
 
         best_distance = second_best_distance = INFINITY;
-        best_depth = 0;
+        best_depth1 = best_depth2 = 0;
+        int best_kp = -1;
 
         //bring f1 feature
         u8* patch_source =  (u8*) (patches1[i]);
@@ -168,7 +170,7 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
             //ORIGINAL error= fabs(pa[0]-pb[0])+fabs(pa[1]-pb[1])+fabs(pa[2]-pb[2]);
             error_2= mvuDot(pa-pb,pa-pb);
             cam1_intersect= m_mult(R1w_transpose,pa - camera1_extrinsics_T_v);
-            cam2_intersect= m_mult(R2w_transpose,pa - camera2_extrinsics_T_v);
+            cam2_intersect= m_mult(R2w_transpose,pb - camera2_extrinsics_T_v);
 
             if(cam1_intersect[2] <= 0 || cam2_intersect[2] <= 0)
             {
@@ -182,10 +184,11 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
                 DPRINTF("intersection_error_percent too large %f, failing\n",float (error/cam1_intersect[2]));
                 continue;
             }
-            depth = cam1_intersect[2];
+            depth1 = cam1_intersect[2];
+            depth2 = cam2_intersect[2];
 //START COMPARE
             DPRINTF("\t\tkp1 %d, kp2 %d, depth %f, error %f \n",i,j,depth,error);
-            if(depth && intersection_error_percent < 0.02 )
+            if(depth1 && intersection_error_percent < 0.02 )
             {
                 //bring f2 feature
                 u8* patch_source_2 = (u8*) (patches2[j]) ;
@@ -198,8 +201,10 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
                     DPRINTF("\t\t\t After score:kp1 %d, kp2 %d ,shave %d , after mean2:%d, distance %f , depth %f , Error %f\n",i,j, mean1,mean2,distance, depth ,error);
                     second_best_distance = best_distance;
                     best_distance = distance;
-                    best_depth = depth;
+                    best_depth1 = depth1;
+                    best_depth2 = depth2;
                     best_error = intersection_error_percent;
+                    best_kp = j;
                 }
                 else if(distance < second_best_distance)
                     second_best_distance = distance;
@@ -208,8 +213,10 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
 
         if(best_distance < patch_good_track_distance && second_best_distance > patch_good_track_distance)
         {
-            depths1[i] = best_depth;
+            depths1[i] = best_depth1;
+            depths2[i] = best_depth2;
             errors1[i] = best_error;
+            matched_kp[i] = best_kp;
         }
     }//end kp1 loop
 }

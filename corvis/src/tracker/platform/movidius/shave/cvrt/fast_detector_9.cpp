@@ -56,7 +56,6 @@ void fast_detector_9::detect(const u8 *pImage, int bthresh, int winx, int winy, 
 
 xy fast_detector_9::track(u8* im1,
 							const u8* im2,
-							int xcurrent,
 							float predx,
 							float predy,
 							float radius,
@@ -108,7 +107,6 @@ xy fast_detector_9::track(u8* im1,
 			x = (int) *(baseBuffer + 2 + i); // 0 <= x <= 10
             if (x < PADDING || x >= width + PADDING) continue;
 
-			//float score = score_match(pFastLines, xcurrent,x, pBest.score, mean1);
             mean2 = compute_mean7x7_from_pointer_array(x,patch_win_half_width ,pFastLines) ;
             float distance = score_match_from_pointer_array(patch1_pa, pFastLines,patch_win_half_width, x, patch_win_half_width, mean1, mean2);
 
@@ -141,14 +139,12 @@ void fast_detector_9::trackFeature(TrackingData* trackingData,int index, const u
 	xy bestkp = {INFINITY, INFINITY, patch_max_track_distance, 0};
 	if (data.x_dx != INFINITY)
 	    bestkp = track(data.patch, image,
-	                   patch_win_half_width,
 	                   data.x_dx, data.y_dy, fast_track_radius,
 	                   fast_track_threshold, bestkp.score);
 //
 	// Not a good enough match, try the filter prediction
 	if(data.pred_x != INFINITY && bestkp.score > patch_good_track_distance) {
 		xy bestkp2 = track(data.patch, image,
-				patch_win_half_width,
 				data.pred_x, data.pred_y, fast_track_radius,
 				fast_track_threshold, bestkp.score);
 		if(bestkp2.score < bestkp.score)

@@ -45,7 +45,7 @@ public:
 
     virtual std::vector<tracker::feature_track> &detect(const image &image, const std::vector<tracker::feature_track *> &features, size_t number_desired) override;
     virtual void track(const image &image, std::vector<tracker::feature_track *> &predictions) override;
-    void stereo_matching_full_shave(tracker::feature_track * f1_group[], size_t n1, const tracker::feature_track * f2_group[], size_t n2, state_camera & camera1, state_camera & camera2);
+    void stereo_matching_full_shave(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id);
 
 };
 

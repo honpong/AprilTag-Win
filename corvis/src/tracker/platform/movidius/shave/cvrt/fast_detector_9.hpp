@@ -34,7 +34,6 @@ class fast_detector_9 {
     void init(const int image_width, const int image_height, const int image_stride, const int tracker_patch_stride, const int tracker_patch_win_half_width);
     xy track(u8* im1,
     			const u8* im2,
-    			int xcurrent,
     			float predx,
     			float predy,
     			float radius,

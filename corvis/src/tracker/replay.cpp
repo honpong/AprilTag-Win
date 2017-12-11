@@ -456,19 +456,21 @@ void replay::start(string map_filename)
                     rc_receiveTemperature(tracker, packet->header.sensor_id, packet->header.time, thermometer->temperature_C);
                     break;
                 }
-                case packet_odometry:
+                case packet_velocimeter:
                 {
-                    auto diff_drive = (packet_diff_drive_t *)packet;
-                    packet_velocity_t velocity_x_left = {diff_drive->header, diff_drive->v[0]};
-                    diff_drive->header.sensor_id++;
-                    packet_velocity_t velocity_x_right = {diff_drive->header, diff_drive->v[1]};
-                    const rc_Vector velocity_left = {{ velocity_x_left.v, 0.0, 0.0 }};
-                    const rc_Vector velocity_right = {{ velocity_x_right.v, 0.0, 0.0 }};
-
-                    if(use_odometry){
-                        rc_receiveVelocimeter(tracker, velocity_x_left.header.sensor_id, velocity_x_left.header.time, velocity_left);
-                        rc_receiveVelocimeter(tracker, velocity_x_right.header.sensor_id, velocity_x_right.header.time, velocity_right);
-                    }
+                    if(!use_odometry)
+                        break;
+                    auto velocimeter = (packet_velocimeter_t *)packet;
+                    rc_receiveVelocimeter(tracker, velocimeter->header.sensor_id, velocimeter->header.time, rc_Vector{{velocimeter->v[0],velocimeter->v[1], velocimeter->v[2]}});
+                    break;
+                }
+                case packet_diff_velocimeter:
+                {
+                    if(!use_odometry)
+                        break;
+                    auto diff_velocity = (packet_diff_velocimeter_t *)packet;
+                    rc_receiveVelocimeter(tracker, diff_velocity->header.sensor_id,   diff_velocity->header.time, rc_Vector{{diff_velocity->v[0],0,0}});
+                    rc_receiveVelocimeter(tracker, diff_velocity->header.sensor_id+1, diff_velocity->header.time, rc_Vector{{diff_velocity->v[1],0,0}});
                     break;
                 }
                 case packet_filter_control:

@@ -210,16 +210,19 @@ void * fnReplay(void * arg)
                 packet_io_free(packet); // ignore arrival_time packets for now
                 break;
             }
-            case packet_odometry: {
-                START_EVENT(EV_SF_REC_VELO, 0);
-                packet_velocimeter_t * velo =
-                        (packet_velocimeter_t *)packet;
-                const rc_Vector translational_velocity_m__s_left = {velo->v[0], 0.0, 0.0};
-                const rc_Vector translational_velocity_m__s_right = {velo->v[1], 0.0, 0.0};
-                rc_receiveVelocimeter(tracker_instance, velo->header.sensor_id, velo->header.time, translational_velocity_m__s_left);
-                rc_receiveVelocimeter(tracker_instance, velo->header.sensor_id+1, velo->header.time, translational_velocity_m__s_right);
+            case packet_velocimeter: {
+                auto velocimeter = (packet_velocimeter_t *)packet;
+                rc_receiveVelocimeter(tracker_instance, velocimeter->header.sensor_id, velocimeter->header.time, rc_Vector{{velocimeter->v[0],velocimeter->v[1], velocimeter->v[2]}});
                 packet_io_free(packet);
-                END_EVENT(EV_SF_REC_VELO, 0);
+                break;
+            }
+            case packet_diff_velocimeter: {
+                START_EVENT(EV_SF_REC_VELO, 0);
+                auto diff_velocity = (packet_diff_velocimeter_t *)packet;
+                rc_receiveVelocimeter(tracker_instance, diff_velocity->header.sensor_id,   diff_velocity->header.time, rc_Vector{{diff_velocity->v[0],0,0}});
+                rc_receiveVelocimeter(tracker_instance, diff_velocity->header.sensor_id+1, diff_velocity->header.time, rc_Vector{{diff_velocity->v[1],0,0}});
+                packet_io_free(packet);
+                END_EVENT(EV_SF_REC_VELO, diff_velocity->header.sensor_id);
                 break;
             }
             default:

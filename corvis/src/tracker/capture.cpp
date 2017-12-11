@@ -69,7 +69,7 @@ void capture::write_gyroscope_data(uint16_t sensor_id, uint64_t timestamp_us, co
 void capture::write_velocimeter_data(uint16_t sensor_id, uint64_t timestamp_us, const float data[3])
 {
     uint32_t bytes = 3*sizeof(float);
-    packet_t *buf = packet_alloc(packet_odometry, bytes, sensor_id, timestamp_us);
+    packet_t *buf = packet_alloc(packet_velocimeter, bytes, sensor_id, timestamp_us);
     memcpy(buf->data, data, bytes);
     write_packet(buf);
     free(buf);

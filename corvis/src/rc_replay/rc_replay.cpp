@@ -18,8 +18,10 @@ enum packet_type {
     packet_filter_control = 25,
     packet_image_with_depth = 28,
     packet_image_raw = 29,
+    packet_diff_velocimeter = 30,
     packet_thermometer = 31,
     packet_stereo_raw = 40,
+    packet_velocimeter = 45,
 };
 
 typedef struct {
@@ -83,6 +85,16 @@ typedef struct {
     packet_header_t header;
     float temperature_C;
 } packet_thermometer_t;
+
+typedef struct {
+    packet_header_t header;
+    float v[3];
+} packet_velocimeter_t;
+
+typedef struct {
+    packet_header_t header;
+    float v[2]; // m/s in body x for sensor_id, sensor_id+1
+} packet_diff_velocimeter_t;
 
 bool replay::open(const char *name)
 {
@@ -307,6 +319,15 @@ bool replay::run()
                 if(!rc_receiveTemperature(tracker, thermometer->header.sensor_id, thermometer->header.time, thermometer->temperature_C))
                     unconfigured_data.insert(data_pair("temperature", packet->header.sensor_id));
             }   break;
+            case packet_velocimeter: {
+                auto velocimeter = (packet_velocimeter_t *)packet;
+                rc_receiveVelocimeter(tracker, velocimeter->header.sensor_id, velocimeter->header.time, rc_Vector{{velocimeter->v[0], velocimeter->v[1], velocimeter->v[2]}});
+            } break;
+            case packet_diff_velocimeter: {
+                auto diff_velocity = (packet_diff_velocimeter_t *)packet;
+                rc_receiveVelocimeter(tracker, diff_velocity->header.sensor_id,   diff_velocity->header.time, rc_Vector{{diff_velocity->v[0],0,0}});
+                rc_receiveVelocimeter(tracker, diff_velocity->header.sensor_id+1, diff_velocity->header.time, rc_Vector{{diff_velocity->v[1],0,0}});
+            } break;
             case packet_filter_control: {
                 if(header.sensor_id == 1) { //start measuring
                     rc_setPose(tracker, rc_POSE_IDENTITY);

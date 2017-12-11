@@ -1268,15 +1268,16 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
     // update triangulated 3d feature with new observation
     if(f->map && f->map->current_node) {
         transformation G_Bcurrent_Bnow;
-        f->s.get_closest_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow);
-        auto &c = f->s.cameras.children[camera_id];
-        for(auto &sbt : c->standby_tracks) {
-            auto tp = f->map->triangulated_tracks.find(sbt.feature->id);
-            if(tp != f->map->triangulated_tracks.end()) {
-                if(!f->map->node_in_map(tp->second.reference_nodeid)) {
-                    f->map->triangulated_tracks.erase(sbt.feature->id); //if reference node removed, remove triangulated feature too
-                } else if (tp->second.reference_nodeid !=  std::numeric_limits<uint64_t>::max()) {
-                    f->map->update_3d_feature(sbt, invert(G_Bcurrent_Bnow), camera_id);
+        if(f->s.get_closest_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow)) {
+            auto &c = f->s.cameras.children[camera_id];
+            for(auto &sbt : c->standby_tracks) {
+                auto tp = f->map->triangulated_tracks.find(sbt.feature->id);
+                if(tp != f->map->triangulated_tracks.end()) {
+                    if(!f->map->node_in_map(tp->second.reference_nodeid)) {
+                        f->map->triangulated_tracks.erase(sbt.feature->id); //if reference node removed, remove triangulated feature too
+                    } else if (tp->second.reference_nodeid !=  std::numeric_limits<uint64_t>::max()) {
+                        f->map->update_3d_feature(sbt, invert(G_Bcurrent_Bnow), camera_id);
+                    }
                 }
             }
         }

@@ -743,6 +743,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                         best_score = score;
                         best_depth = depth;
                         best_error = error;
+                    } else if(score > second_best_score){
+                        second_best_score = score;
                     }
                 }
                 i++;

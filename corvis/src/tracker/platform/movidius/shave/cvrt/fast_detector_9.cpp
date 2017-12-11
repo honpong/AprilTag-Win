@@ -9,6 +9,7 @@
 #include "fast9M2.h"
 #include "svuCommonShave.h"
 #include <math.h>
+#include <string.h> //memcpy
 
 
 void fast_detector_9::init(const int x, const int y, const int s, const int ps, const int phw)
@@ -151,24 +152,11 @@ xy fast_detector_9::track(u8* im1,
 		pFastLines[i] = pFastLines[i - 1] + paddedWidth;
 	}
 
-    dmaTransactionList_t  dmaFastTask[TOTAL_ROWS];
-    dmaTransactionList_t  dmaSingleFeatureTask[1];
-	dmaTransactionList_t* dmaRef[FAST_ROWS + 1];
-	dmaTransactionList_t* dmaSingleFeature[1];
-
-	u32 dmaRequsterId = dmaInitRequester(1);
-
 	//read 7 lines for the fast algorithm
 	for (int i = 0; i < FAST_ROWS; ++i) {
-		dmaRef[i] = dmaCreateTransaction(dmaRequsterId, &dmaFastTask[i],
-				(u8*) (im2 + (y1 - 3 + i) * stride + x1 - PADDING),
-				pFastLines[i], paddedWidth);
+		memcpy(pFastLines[i], (u8*)(im2 + (y1 - 3 + i) * stride + x1 - PADDING), paddedWidth);
 	}
-	dmaSingleFeature[0] = dmaCreateTransaction(dmaRequsterId, &dmaSingleFeatureTask[0], (u8*) (im1), singleFeatureBuffer, patch_stride * patch_stride);
-	dmaLinkTasks(dmaRef[0], 7, dmaRef[1], dmaRef[2], dmaRef[3], dmaRef[4],
-			dmaRef[5], dmaRef[6], dmaSingleFeature[0]);
-	dmaStartListTask(dmaRef[0]);
-	dmaWaitTask(dmaRef[0]);
+	memcpy(singleFeatureBuffer, (u8*) (im1), patch_stride * patch_stride);
 
 	u8* patch1_pa[7];
 	for(int i = 0; i < 7; ++i){
@@ -178,18 +166,8 @@ xy fast_detector_9::track(u8* im1,
 	for (y = y1; y < y2; y++) {
 		const byte* pSrc = im2 + y * stride;
 
-		//start dma transaction for row 8 - not waiting here
-		dmaRef[FAST_ROWS] = dmaCreateTransaction(dmaRequsterId,
-				&dmaFastTask[FAST_ROWS],
-				(u8*) (pSrc + 4 * stride + x1 - PADDING), pFastLines[FAST_ROWS],
-				paddedWidth);
-		dmaStartListTask(dmaRef[FAST_ROWS]);
-
 		//call fast 9 filter
 		mvcvFast9M2_asm(pFastLines, scoreBuffer, baseBuffer, bthresh, paddedWidth);
-
-		//wait for the next line of data
-		dmaWaitTask(dmaRef[FAST_ROWS]);
 
 		int numberOfScores = *(unsigned int*) scoreBuffer;
 		//for each of the scores found, call score matching
@@ -209,6 +187,8 @@ xy fast_detector_9::track(u8* im1,
 			}
 		}
 
+		//copy row 8
+		memcpy(pFastLines[FAST_ROWS], (u8*) (pSrc + 4 * stride + x1 - PADDING), paddedWidth);
 		//roll buffers
 		u8* temp = pFastLines[0];
 		for (int i = 0; i < FAST_ROWS; ++i) {

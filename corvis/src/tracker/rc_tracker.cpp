@@ -574,7 +574,8 @@ int rc_getMapNodes(rc_Tracker *tracker, rc_MapNode **map_nodes)
         tracker->map_nodes.clear();
         tracker->map_nodes.reserve(nodes.size());
         rc_MapNode map_node;
-        for (auto& node : nodes) {
+        for (auto& it : nodes) {
+            auto& node = it.second;
             if (node.status == node_status::finished && node.frame) {
                 map_node.time_us = sensor_clock::tp_to_micros(node.frame->timestamp);
                 tracker->map_nodes.push_back(map_node);

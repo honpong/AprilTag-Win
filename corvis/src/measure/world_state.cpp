@@ -483,7 +483,9 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
     uint64_t timestamp_us = data->time_us;
 
     if(f->map) {
-        for(auto map_node : f->map->get_nodes()) {
+        auto& nodes = f->map->get_nodes();
+        for(auto& it : nodes) {
+            auto& map_node = it.second;
             std::set<uint64_t> loop_closed;
             std::vector<uint64_t> neighbors;
             for(auto edge : map_node.edges) {
@@ -504,6 +506,16 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
             bool unlinked = f->map->is_unlinked(map_node.id);
             observe_map_node(timestamp_us, map_node.id, map_node.status == node_status::finished, loop_closed, unlinked, map_node.global_transformation, neighbors, features);
         }
+        // remove discarded nodes
+        display_lock.lock();
+        for(auto it = map_nodes.begin(); it != map_nodes.end(); ) {
+            if(nodes.find(it->first) == nodes.end()) {
+                map_nodes.erase(it++);
+            } else {
+                ++it;
+            }
+        }
+        display_lock.unlock();
     }
 }
 

@@ -63,24 +63,23 @@ map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
 }
 
 void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, bool loop_closure) {
-    map_edge& edge12 = nodes[id1].get_add_neighbor(id2);
+    map_edge& edge12 = nodes.at(id1).get_add_neighbor(id2);
     edge12.loop_closure = loop_closure;
     edge12.G = G12;
-    map_edge& edge21 = nodes[id2].get_add_neighbor(id1);
+    map_edge& edge21 = nodes.at(id2).get_add_neighbor(id1);
     edge21.loop_closure = loop_closure;
     edge21.G = invert(G12);
 }
 
+void mapper::remove_edge(nodeid id1, nodeid id2) {
+   nodes.at(id1).edges.erase(id2);
+   nodes.at(id2).edges.erase(id1);
+}
+
 void mapper::add_node(nodeid id, const rc_Sensor camera_id)
 {
-    nodeid current_node_id;
-    if(current_node)
-        current_node_id = current_node->id;
-    if(nodes.size() <= id) nodes.resize(id + 1);
     nodes[id].id = id;
     nodes[id].camera_id = camera_id;
-    if(current_node)
-        current_node = &nodes[current_node_id];
 }
 
 void mapper::initialize_track_triangulation(const tracker::feature_track& track, const nodeid node_id) {
@@ -106,9 +105,14 @@ void mapper::finish_lost_tracks(const tracker::feature_track& track) {
     }
 }
 
+void mapper::remove_node_features(nodeid id) {
+    for(auto& f : nodes.at(id).features)
+        features_dbow.erase(f.first);
+}
+
 void mapper::add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                                                std::shared_ptr<log_depth>& v) {
-    map_node &ref_node = nodes[group_id];
+    map_node &ref_node = nodes.at(group_id);
     ref_node.add_feature(feature, v, feature_type::triangulated);
     features_dbow[feature->id] = group_id;
 }
@@ -189,16 +193,16 @@ void map_node::set_feature_type(const uint64_t id, const feature_type type)
 
 void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                          std::shared_ptr<log_depth> v, const feature_type type) {
-    nodes[groupid].add_feature(feature, v, type);
+    nodes.at(groupid).add_feature(feature, v, type);
     features_dbow[feature->id] = groupid;
 }
 
 void mapper::set_feature_type(nodeid groupid, uint64_t id, const feature_type type) {
-    nodes[groupid].set_feature_type(id, type);
+    nodes.at(groupid).set_feature_type(id, type);
 }
 
 v3 mapper::get_feature3D(nodeid node_id, uint64_t feature_id) {
-    map_node& node = nodes[node_id];
+    map_node& node = nodes.at(node_id);
     auto mf = node.features[feature_id];
     auto intrinsics = camera_intrinsics[node.camera_id];
     auto extrinsics = camera_extrinsics[node.camera_id];
@@ -209,12 +213,58 @@ v3 mapper::get_feature3D(nodeid node_id, uint64_t feature_id) {
 
 void mapper::set_node_transformation(nodeid id, const transformation & G)
 {
-    nodes[id].global_transformation = G;
+    nodes.at(id).global_transformation = G;
 }
 
-void mapper::node_finished(nodeid id)
+void mapper::finish_node(nodeid id, bool compute_dbow_inverted_index) {
+    auto& node = nodes.at(id);
+    node.status = node_status::finished;
+    if(node.frame && compute_dbow_inverted_index) {
+        for (auto &word : node.frame->dbow_histogram)
+            dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index
+    }
+}
+
+void mapper::remove_node(nodeid id)
 {
-    nodes[id].status = node_status::finished;
+    std::map<uint64_t, map_edge> edges = nodes.at(id).edges;
+    std::set<nodeid> neighbors;
+    for(auto& edge : edges) {
+        neighbors.insert(edge.first);
+        remove_edge(id, edge.first);
+    }
+    remove_node_features(id);
+    nodes.erase(id);
+
+    // if only 1 neighbor, node removed (id) is a loose end of the graph
+    if(neighbors.size() > 1) {
+        // this could be more efficient if we don't calculate transformations in BFS
+        std::set<nodeid> connected_neighbors;
+        for(auto &path : breadth_first_search(*neighbors.begin(), std::set<nodeid>{neighbors.begin(), neighbors.end()}, false))
+            connected_neighbors.insert(path.first);
+
+        // are neighbors disconnected after removing node id ?
+        if(connected_neighbors.size() < neighbors.size()) {
+            std::vector<nodeid> disconnected_neighbors;
+            std::set_difference(neighbors.begin(), neighbors.end(), connected_neighbors.begin(), connected_neighbors.end(), std::back_inserter(disconnected_neighbors));
+
+            transformation G_id_connected = edges[*connected_neighbors.begin()].G;
+            transformation G_id_disconnected = edges[disconnected_neighbors.front()].G; // pick one of the disconnected nodes
+            add_edge(*connected_neighbors.begin(), disconnected_neighbors.front(), invert(G_id_connected)*G_id_disconnected);
+        }
+    }
+
+    // if node removed is current_node
+    if(current_node->id == id) {
+        current_node = &nodes.at(*neighbors.begin());
+        for(auto& neighbor : neighbors) {
+            // prefer an active node as current_node
+            if(nodes.at(neighbor).status == node_status::normal) {
+                current_node = &nodes.at(neighbor);
+                break;
+            }
+        }
+    }
 }
 
 mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
@@ -233,7 +283,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
         transformation& Gu = current_path.second;
         next.pop();
         if(!maxdepth || nodes_visited[u] < maxdepth) {
-            for(auto edge : nodes[u].edges) {
+            for(auto edge : nodes.at(u).edges) {
                 const nodeid& v = edge.first;
                 if(nodes_visited.find(v) == nodes_visited.end()) {
                     nodes_visited[v] = nodes_visited[u] + 1;
@@ -263,7 +313,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, const f_t maxdista
         nodeid& u = current_path.first;
         transformation& Gu = current_path.second;
         next.pop();
-        for(auto edge : nodes[u].edges) {
+        for(auto edge : nodes.at(u).edges) {
             const nodeid& v = edge.first;
             if(nodes_visited.find(v) == nodes_visited.end()) {
                 nodes_visited.insert(v);
@@ -284,7 +334,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, const f_t maxdista
     return neighbor_nodes;
 }
 
-mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& searched_nodes)
+mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& searched_nodes, bool expect_graph_connected)
 {
     nodes_path searched_nodes_path;
     queue<node_path> next;
@@ -298,7 +348,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& sear
         nodeid& u = current_path.first;
         transformation& Gu = current_path.second;
         next.pop();
-        for(auto edge : nodes[u].edges) {
+        for(auto edge : nodes.at(u).edges) {
             const nodeid& v = edge.first;
             if(nodes_visited.find(v) == nodes_visited.end()) {
                 nodes_visited.insert(v);
@@ -313,7 +363,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& sear
         }
     }
 
-    if(next.empty())
+    if(expect_graph_connected && next.empty())
         assert(searched_nodes.empty()); // If all graph has been traversed searched_nodes should be empty
 
     return searched_nodes_path;
@@ -321,7 +371,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& sear
 
 std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     const std::shared_ptr<frame_t> current_frame,
-    const aligned_vector<map_node> &nodes,
+    const std::unordered_map<mapper::nodeid, map_node> &nodes,
     const std::map<unsigned int, std::vector<mapper::nodeid>> &dbow_inverted_index,
     const orb_vocabulary* orb_voc
 ) {
@@ -335,7 +385,7 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
         if (word_i == dbow_inverted_index.end())
             continue;
         for (auto nid : word_i->second) {
-            if (nodes[nid].status == node_status::finished) {
+            if (nodes.at(nid).status == node_status::finished) {
                 common_words_per_node[nid]++;
                 // keep maximum number of words shared with current frame
                 if (max_num_shared_words < common_words_per_node[nid]) {
@@ -357,7 +407,7 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     float best_score = 0.0f; // assuming L1 norm
     for (auto& node_candidate : common_words_per_node) {
         if (node_candidate.second > min_num_shared_words) {
-            const map_node& node = nodes[node_candidate.first];
+            const map_node& node = nodes.at(node_candidate.first);
             float dbow_score = static_cast<float>(orb_voc->score(node.frame->dbow_histogram,
                                                                  current_frame->dbow_histogram));
             dbow_scores.push_back(std::make_pair(node_candidate.first, dbow_score));
@@ -539,7 +589,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
     for (const auto& nid : candidate_nodes) {
         bool is_relocalized_in_candidate = false;
-        matches matches_node_candidate = match_2d_descriptors(nodes[nid.first].frame, current_frame, features_dbow);
+        matches matches_node_candidate = match_2d_descriptors(nodes.at(nid.first).frame, current_frame, features_dbow);
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
         if(matches_node_candidate.size() >= min_num_inliers) {
@@ -549,7 +599,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
             // Estimate pose from 3d-2d matches
             auto G_candidate_neighbors = breadth_first_search(nid.first, 1); // all points observed from this candidate node should be created at a node 1 edge away in the graph
 
-            const auto &keypoint_candidates = nodes[nid.first].frame->keypoints;
+            const auto &keypoint_candidates = nodes.at(nid.first).frame->keypoints;
             for (auto m : matches_node_candidate) {
                 auto &candidate = *keypoint_candidates[m.second];
                 uint64_t keypoint_id = candidate.id;
@@ -598,11 +648,11 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
 
             std::string image_name = "Num candidates: " + std::to_string(candidate_nodes.size()) + ", DBoW candidate: " + std::to_string(nid.first);
             cv::Mat color_candidate_image, color_current_image;
-            cv::cvtColor(nodes[nid.first].frame->image, color_candidate_image, CV_GRAY2BGRA);
+            cv::cvtColor(nodes.at(nid.first).frame->image, color_candidate_image, CV_GRAY2BGRA);
             cv::cvtColor(current_frame->image, color_current_image, CV_GRAY2BGRA);
             cv::Mat current_reprojection_image = color_current_image.clone();
             cv::Mat candidate_reprojection_image = color_candidate_image.clone();
-            const auto &keypoint_xy_candidates = nodes[nid.first].frame->keypoints_xy;
+            const auto &keypoint_xy_candidates = nodes.at(nid.first).frame->keypoints_xy;
 
             cv::Mat flipped_color_candidate_image;
             cv::flip(color_candidate_image, flipped_color_candidate_image, 1);
@@ -668,8 +718,8 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
     if (branching_factor > 1 && depth_levels > 0 && !nodes.empty()) {
         voc.reset(new orb_vocabulary);
         voc->train(nodes.begin(), nodes.end(),
-                   [](const map_node& node) -> const std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>>& {
-                       return node.frame->keypoints;
+                   [](const std::pair<nodeid, map_node>& it) -> const std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>>& {
+                       return it.second.frame->keypoints;
                    },
                    [](const std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>& feature) -> const orb_descriptor::raw& {
                        return feature->descriptor.descriptor;
@@ -692,7 +742,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
     transformation G_CB = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
     transformation G_Bnow_Bcurrent = invert(G_Bcurrent_Bnow);
     for(const auto& neighbor : neighbors) {
-        map_node& node_neighbor = nodes[neighbor.first];
+        map_node& node_neighbor = nodes.at(neighbor.first);
         std::vector<map_feature_track> tracks;
         const transformation& G_Bnow_Bneighbor = G_Bnow_Bcurrent*neighbor.second;
         transformation G_Cnow_Bneighbor = G_CB*G_Bnow_Bneighbor;
@@ -983,9 +1033,9 @@ void mapper::serialize(rapidjson::Value &map_json, rapidjson::Document::Allocato
 
     // add map nodes
     Value nodes_json(kArrayType);
-    for (size_t i = 0; i < nodes.size(); i++) {
+    for (auto& it : nodes) {
         Value node_json(kObjectType);
-        nodes[i].serialize(node_json, allocator);
+        it.second.serialize(node_json, allocator);
         nodes_json.PushBack(node_json, allocator);
     }
     map_json.AddMember(KEY_NODES, nodes_json, allocator);
@@ -1033,12 +1083,13 @@ bool mapper::deserialize(const Value &map_json, mapper &map) {
     // get map nodes
     uint64_t max_feature_id = 0;
     uint64_t max_node_id = 0;
-    map.nodes.resize(nodes_json.Size());
     for (SizeType i = 0; i < nodes_json.Size(); i++) {
-        auto &cur_node = map.nodes[i];
+        map_node cur_node;
         HANDLE_IF_FAILED(map_node::deserialize(nodes_json[i], cur_node, max_feature_id), failure_handle)
-        cur_node.frame->calculate_dbow(map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
-        if (max_node_id < cur_node.id) max_node_id = cur_node.id;
+        nodeid cur_node_id = cur_node.id;
+        map.nodes[cur_node_id] = std::move(cur_node);
+        map.nodes[cur_node_id].frame->calculate_dbow(map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
+        if (max_node_id < cur_node_id) max_node_id = cur_node_id;
     }
 
     map.node_id_offset = max_node_id + 1;

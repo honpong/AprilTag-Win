@@ -92,8 +92,9 @@ class mapper {
     typedef std::vector<match> matches;
     typedef std::pair<nodeid, transformation> node_path;
     typedef std::map<nodeid, transformation> nodes_path;
+
  private:
-    aligned_vector<map_node> nodes;
+    std::unordered_map<nodeid, map_node> nodes;
     friend struct map_node;
     bool unlinked{false};
     uint64_t node_id_offset{0};
@@ -108,7 +109,10 @@ class mapper {
 
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     void add_node(nodeid node_id, const rc_Sensor camera_id);
+    void remove_node(nodeid node_id);
+    void remove_node_features(nodeid node_id);
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
+    void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                      std::shared_ptr<log_depth> v, const feature_type type = feature_type::tracked);
@@ -119,15 +123,16 @@ class mapper {
     void update_3d_feature(const tracker::feature_track &track, const transformation &&G_Bcurrent_Bnow, const rc_Sensor camera_id_now);
     nodes_path breadth_first_search(nodeid start, int maxdepth = 1);
     nodes_path breadth_first_search(nodeid start, const f_t maxdistance, const size_t N = 5); // maxdistance in meters, max number of nodes
-    nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes);
+    nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes, bool expect_graph_connected=true);
     v3 get_feature3D(nodeid node_id, uint64_t feature_id); // returns feature wrt node body frame
 
-    const aligned_vector<map_node> & get_nodes() const { return nodes; }
-    map_node& get_node(nodeid id) { return nodes[id]; }
+    const std::unordered_map<nodeid, map_node> & get_nodes() const { return nodes; }
+    map_node& get_node(nodeid id) { return nodes.at(id); }
+    bool node_in_map(nodeid id) { return nodes.find(id) != nodes.end(); }
     uint64_t get_node_id_offset() { return node_id_offset; }
     uint64_t get_feature_id_offset() { return feature_id_offset; }
 
-    void node_finished(nodeid node_id);
+    void finish_node(nodeid node_id, bool compute_dbow_inverted_index);
     void set_node_transformation(nodeid id, const transformation & G);
 
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);

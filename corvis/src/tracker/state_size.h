@@ -1,6 +1,6 @@
 #pragma once
 
-#define MAXSTATESIZE 95
+#define MAXSTATESIZE 92
 
 #define BASEMOTIONSTATES 6
 #define FAKESTATES 2

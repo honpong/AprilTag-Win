@@ -1275,8 +1275,12 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
         auto &c = f->s.cameras.children[camera_id];
         for(auto &sbt : c->standby_tracks) {
             auto tp = f->map->triangulated_tracks.find(sbt.feature->id);
-            if(tp != f->map->triangulated_tracks.end() && tp->second.reference_nodeid !=  std::numeric_limits<uint64_t>::max()) {
-                f->map->update_3d_feature(sbt, invert(G_Bcurrent_Bnow), camera_id);
+            if(tp != f->map->triangulated_tracks.end()) {
+                if(!f->map->node_in_map(tp->second.reference_nodeid)) {
+                    f->map->triangulated_tracks.erase(sbt.feature->id); //if reference node removed, remove triangulated feature too
+                } else if (tp->second.reference_nodeid !=  std::numeric_limits<uint64_t>::max()) {
+                    f->map->update_3d_feature(sbt, invert(G_Bcurrent_Bnow), camera_id);
+                }
             }
         }
     }

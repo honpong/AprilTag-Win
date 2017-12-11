@@ -125,6 +125,7 @@ class mapper {
 
     const std::unordered_map<nodeid, map_node> & get_nodes() const { return nodes; }
     map_node& get_node(nodeid id) { return nodes.at(id); }
+    bool node_in_map(nodeid id) { return nodes.find(id) != nodes.end(); }
     uint64_t get_node_id_offset() { return node_id_offset; }
     uint64_t get_feature_id_offset() { return feature_id_offset; }
 

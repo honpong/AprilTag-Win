@@ -1,4 +1,4 @@
-# Intel SLAM
+# Intel SLAM [![Build Status](http://kilo.iil.intel.com:8080/buildStatus/icon?job=SlamTracker/master)](http://kilo.iil.intel.com:8080/job/SlamTracker/job/master/)
 
 An egomotion estimation library, originaly from RealityCap, now
 developed by the SLAM team.

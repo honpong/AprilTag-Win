@@ -2,8 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 project(synthetic_generator)
 
-set(VTK_MIN_VERSION "7.1.1")
-find_package(VTK QUIET)
+find_package(VTK 7.1.1 QUIET)
 if (NOT VTK_FOUND)
     message(STATUS "VTK not found; disabling ${PROJECT_NAME}")
     return()

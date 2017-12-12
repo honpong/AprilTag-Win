@@ -227,9 +227,20 @@ void mapper::finish_node(nodeid id, bool compute_dbow_inverted_index) {
 
 void mapper::remove_node(nodeid id)
 {
+    // if node removed is current_node
+    bool update_current_node = false;
+    if(current_node->id == id)
+        update_current_node = true;
+
     std::map<uint64_t, map_edge> edges = nodes.at(id).edges;
     std::set<nodeid> neighbors;
+    assert(edges.size());
     for(auto& edge : edges) {
+        if(update_current_node) {
+            current_node = &nodes.at(edge.first);
+            if(current_node->status == node_status::normal) // prefer an active node as current_node
+                update_current_node = false;
+        }
         neighbors.insert(edge.first);
         remove_edge(id, edge.first);
     }
@@ -251,18 +262,6 @@ void mapper::remove_node(nodeid id)
             transformation G_id_connected = edges[*connected_neighbors.begin()].G;
             transformation G_id_disconnected = edges[disconnected_neighbors.front()].G; // pick one of the disconnected nodes
             add_edge(*connected_neighbors.begin(), disconnected_neighbors.front(), invert(G_id_connected)*G_id_disconnected);
-        }
-    }
-
-    // if node removed is current_node
-    if(current_node->id == id) {
-        current_node = &nodes.at(*neighbors.begin());
-        for(auto& neighbor : neighbors) {
-            // prefer an active node as current_node
-            if(nodes.at(neighbor).status == node_status::normal) {
-                current_node = &nodes.at(neighbor);
-                break;
-            }
         }
     }
 }

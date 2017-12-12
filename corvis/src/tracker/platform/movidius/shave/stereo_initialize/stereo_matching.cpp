@@ -203,6 +203,8 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
                     best_depth = depth;
                     best_error = intersection_error_percent;
                 }
+                else if(score > second_best_score)
+                    second_best_score = score;
             }
         } //end kp2 loop
 

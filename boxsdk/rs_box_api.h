@@ -19,6 +19,7 @@
 
 #include <exception>
 #include <type_traits>
+#include <iostream>
 #define LOG_WARNING(...) do { CLOG(WARNING ,"boxsdk") << __VA_ARGS__; } while(false)
 
 #include "librealsense2/rs.hpp"

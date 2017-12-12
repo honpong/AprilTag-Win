@@ -25,14 +25,15 @@ endif()
 find_package(libSP QUIET)
 if(libSP_FOUND)
     add_definitions(-DlibSP_FOUND)
+    set(libSP libSP)
 endif()
 
 target_include_directories(box-sdk 
     PUBLIC  inc ${LIBRS_LIBS} 
-	PRIVATE libSP)
+    PRIVATE ${libSP})
     
 target_link_libraries(box-sdk 
-    PUBLIC  ${LIBRS_LIBS} libSP
+    PUBLIC  ${LIBRS_LIBS} ${libSP}
     PRIVATE ${ALGO_LIB})
 
 add_executable(box-app

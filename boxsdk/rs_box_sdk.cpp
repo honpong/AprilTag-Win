@@ -54,7 +54,14 @@ namespace rs2
 
             _color_stream_profile = std::make_shared<video_stream_profile>(input_color_frame.get_profile());
             _color_intrinsics = _color_stream_profile->get_intrinsics();
-            _depth_to_color = _color_stream_profile->get_extrinsics_to(*_depth_stream_profile);
+
+            try {
+                _depth_to_color = _color_stream_profile->get_extrinsics_to(*_depth_stream_profile);
+            }
+            catch (...) {
+                printf("rs_box_sdk warning! depth to color extrinsics unavailable. \n");
+                set_identity(_depth_to_color);
+            }
 
             reset_poses();
 

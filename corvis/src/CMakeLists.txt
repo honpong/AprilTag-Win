@@ -291,9 +291,9 @@ endif()
 
 find_package(OpenCV QUIET)
 if(ENABLE_RELOCALIZATION_DEBUG AND TARGET opencv_core
-   AND TARGET opencv_highgui AND TARGET opencv_imgcodecs)
+   AND TARGET opencv_highgui AND TARGET opencv_imgcodecs AND TARGET opencv_imgproc)
     target_compile_options(trackeri PRIVATE -DRELOCALIZATION_DEBUG)
-    target_link_libraries(trackeri PRIVATE ${OpenCV_LIBS})
+    target_link_libraries(trackeri PRIVATE opencv_core opencv_highgui opencv_imgcodecs opencv_imgproc)
 endif()
 
 add_subdirectory(feature feature)

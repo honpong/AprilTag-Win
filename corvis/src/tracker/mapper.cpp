@@ -659,7 +659,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
             cv::putText(flipped_color_candidate_image,
                         "candidate image " + std::to_string(nid.first) + " " +  std::to_string(nid.second),
                         cv::Point(30,30),cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(255,0,0,255));
-            cv::putText(flipped_color_candidate_image,"last node added " + std::to_string(nodes.back().id),
+            cv::putText(flipped_color_candidate_image,"last node added " + std::to_string(nodes.size()),
                         cv::Point(30,60),cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(255,0,0,255));
             cv::putText(flipped_color_candidate_image,"number of matches " + std::to_string(matches_node_candidate.size()),
                         cv::Point(30,90),cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(255,0,0,255));

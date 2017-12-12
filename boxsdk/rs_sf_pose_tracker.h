@@ -25,8 +25,8 @@ enum rs_sf_pose_track_resolution : int
 };
 
 bool rs_sf_setup_scene_perception(float rfx, float rfy, float rpx, float rpy, unsigned int rw, unsigned int rh,
-                                  int target_width,
-                                  int target_height,
+                                  int& target_width,
+                                  int& target_height,
                                   rs_sf_pose_track_resolution resolution);
 
 bool rs_sf_do_scene_perception_tracking(unsigned short* depth_data,
@@ -46,8 +46,7 @@ namespace rs2
     struct camera_tracker
     {
         camera_tracker(const rs2_intrinsics* i, const rs_sf_pose_track_resolution& resolution) :
-            _acc_w(320), _acc_h(240),
-            _sp_init(rs_sf_setup_scene_perception(i->fx, i->fy, i->ppx, i->ppy, i->width, i->height, i->width, i->height, resolution)),
+            _sp_init(rs_sf_setup_scene_perception(i->fx, i->fy, i->ppx, i->ppy, i->width, i->height, _acc_w, _acc_h, resolution)),
             _sdepth(_acc_w * _acc_h * (_sp_init ? 1 : 0)) {}
 
         ~camera_tracker() { if (_sp_init) rs_sf_pose_tracking_release(); }
@@ -65,18 +64,22 @@ namespace rs2
             
             auto sp_src_depth = (unsigned short*)depth_frame.data;
             auto sp_src_color = (unsigned char*)color_frame.data;
-            auto sp_dst_depth = _sdepth.data();
+            auto sp_dst_depth = ((_acc_w == depth_frame.img_w) ? sp_src_depth : _sdepth.data());
             
             // do pose tracking
             const bool track_success = rs_sf_do_scene_perception_tracking(sp_src_depth, sp_src_color, reset_request, depth_frame.cam_pose);
-            const bool cast_success = rs_sf_do_scene_perception_ray_casting(320, 240, sp_dst_depth, _buf);
+            const bool cast_success = rs_sf_do_scene_perception_ray_casting(_acc_w, _acc_h, sp_dst_depth, _buf);
             //const bool switch_track = (track_success && cast_success) != _was_tracking;
             
             // up-sample depth
             if ((_was_tracking = (track_success && cast_success))) {
-                for (int y = 0, p = 0, h = depth_frame.img_h, w = depth_frame.img_w; y < h; ++y) {
-                    for (int x = 0; x < w; ++x, ++p) {
-                        sp_src_depth[p] = sp_dst_depth[(y * 240 / h) * 320 + (x * 320 / w)];
+
+                if (sp_dst_depth != sp_src_depth)
+                {
+                    for (int y = 0, p = 0, h = depth_frame.img_h, w = depth_frame.img_w; y < h; ++y) {
+                        for (int x = 0; x < w; ++x, ++p) {
+                            sp_src_depth[p] = sp_dst_depth[(y * _acc_h / h) * _acc_w + (x * _acc_w / w)];
+                        }
                     }
                 }
 
@@ -90,7 +93,7 @@ namespace rs2
         
     private:
 
-        const int _acc_w, _acc_h;
+        int _acc_w = 0, _acc_h = 0;
         bool _sp_init, _was_tracking = false;
         std::unique_ptr<float[]> _buf;
         std::vector<unsigned short> _sdepth;

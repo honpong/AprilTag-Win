@@ -47,7 +47,7 @@ void reset_tracking_if_good_input(unsigned short* depth_data, unsigned char* col
     return;
 }
 
-bool _setup_scene_perception(SP_CameraIntrinsics& camera_parameters, rs_sf_pose_track_resolution resolution)
+bool _setup_scene_perception(const SP_CameraIntrinsics& camera_parameters, rs_sf_pose_track_resolution resolution)
 {
     SP_create();
     //SP_setInertialSupport(0);
@@ -57,7 +57,7 @@ bool _setup_scene_perception(SP_CameraIntrinsics& camera_parameters, rs_sf_pose_
     float extrinsics_translation[] = { 0.0f, 0.0f, 0.0f }; // image aligned;
     g_camera_parameters = camera_parameters;
     SP_STATUS SPErr = static_cast<SP_STATUS>(SP_setConfiguration(
-        &camera_parameters, /*&camera_parameters, extrinsics_translation,*/ (SP_Resolution)resolution /*volume resolution*/));
+        &g_camera_parameters, /*&camera_parameters, extrinsics_translation,*/ (SP_Resolution)resolution /*volume resolution*/));
     if (SPErr != SP_STATUS_SUCCESS)
     {
         return false;
@@ -67,22 +67,27 @@ bool _setup_scene_perception(SP_CameraIntrinsics& camera_parameters, rs_sf_pose_
 }
 
 bool rs_sf_setup_scene_perception(float rfx, float rfy, float rpx, float rpy,
-    unsigned int rw, unsigned int rh, int target_width, int target_height, rs_sf_pose_track_resolution resolution)
+    unsigned int rw, unsigned int rh, int& target_width, int& target_height, rs_sf_pose_track_resolution resolution)
 {
     SP_CameraIntrinsics sp_cam_intrinsics = {};
 
-    const float scale_x = (float)target_width / rw;
-    const float scale_y = (float)target_height / rh;
-
     sp_cam_intrinsics.distortionType = SP_UNDISTORTED;
-    sp_cam_intrinsics.focalLengthHorizontal = rfx*scale_x;
-    sp_cam_intrinsics.focalLengthVertical = rfy*scale_y;
-    sp_cam_intrinsics.imageHeight = target_height;
-    sp_cam_intrinsics.imageWidth = target_width;
-    sp_cam_intrinsics.principalPointCoordU = rpx*scale_x;
-    sp_cam_intrinsics.principalPointCoordV = rpy*scale_y;
+    sp_cam_intrinsics.focalLengthHorizontal = rfx;
+    sp_cam_intrinsics.focalLengthVertical = rfy;
+    sp_cam_intrinsics.imageWidth = rw;
+    sp_cam_intrinsics.imageHeight = rh;
+    sp_cam_intrinsics.principalPointCoordU = rpx;
+    sp_cam_intrinsics.principalPointCoordV = rpy;
 
-    return _setup_scene_perception(sp_cam_intrinsics, resolution);
+    if (_setup_scene_perception(sp_cam_intrinsics, resolution))
+    {
+        SP_getInternalCameraIntrinsics(&sp_cam_intrinsics);
+        target_width = sp_cam_intrinsics.imageWidth;
+        target_height = sp_cam_intrinsics.imageHeight;
+        return true;
+    }
+
+    return false;
 }
 
 bool rs_sf_do_scene_perception_tracking(unsigned short* depth_data, unsigned char* color_data, bool& reset_request, float cam_pose[12])
@@ -171,8 +176,8 @@ void rs_sf_pose_tracking_release()
 
 bool rs_sf_setup_scene_perception(
     float rfx, float rfy, float rpx, float rpy, unsigned int rw, unsigned int rh,
-    int target_width,
-    int target_height,
+    int& target_width,
+    int& target_height,
     rs_sf_pose_track_resolution resolution) {
     return false;
 }

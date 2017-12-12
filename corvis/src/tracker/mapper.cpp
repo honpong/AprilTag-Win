@@ -867,6 +867,7 @@ bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t 
 #define KEY_FRAME_FEAT_DESC_COS "cos"
 void frame_serialize(const std::shared_ptr<frame_t> frame, Value &json, Document::AllocatorType &allocator) {
 
+    if (!frame) return;
     assert(frame->keypoints.size() == frame->keypoints_xy.size());
     // add key point
     Value features_json(kArrayType);
@@ -900,6 +901,7 @@ void frame_serialize(const std::shared_ptr<frame_t> frame, Value &json, Document
 
 bool frame_deserialize(const Value &json, std::shared_ptr<frame_t> &frame) {
 
+    if (!json.HasMember(KEY_FRAME_FEAT)) return true;
     frame = std::make_shared<frame_t>();
     // get key points
     const Value &features_json = json[KEY_FRAME_FEAT];
@@ -1088,7 +1090,8 @@ bool mapper::deserialize(const Value &map_json, mapper &map) {
         HANDLE_IF_FAILED(map_node::deserialize(nodes_json[i], cur_node, max_feature_id), failure_handle)
         nodeid cur_node_id = cur_node.id;
         map.nodes[cur_node_id] = std::move(cur_node);
-        map.nodes[cur_node_id].frame->calculate_dbow(map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
+        if (map.nodes[cur_node_id].frame)
+            map.nodes[cur_node_id].frame->calculate_dbow(map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
         if (max_node_id < cur_node_id) max_node_id = cur_node_id;
     }
 

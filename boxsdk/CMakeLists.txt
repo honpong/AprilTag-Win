@@ -28,21 +28,17 @@ if(libSP_FOUND)
 endif()
 
 target_include_directories(box-sdk 
-    PUBLIC  inc ${LIBRS_LIBS} ${libSP_INCLUDE_DIR})
+    PUBLIC  inc ${LIBRS_LIBS} 
+	PRIVATE libSP)
     
-link_directories(${libSP_LIB_DIR})
 target_link_libraries(box-sdk 
-    PUBLIC  ${LIBRS_LIBS}
-    PRIVATE ${ALGO_LIB} ${libSP_LIB})
+    PUBLIC  ${LIBRS_LIBS} libSP
+    PRIVATE ${ALGO_LIB})
 
 add_executable(box-app
     rs-box-app.cpp
     rs-box-app.hpp
 	rs_icon.h)
-
-include_directories(box-app
-    ${LIBRS_DIR}/common
-    ${LIBRS_DIR}/third-party/imgui)
 
 target_link_libraries(box-app
     PRIVATE box-sdk)
@@ -52,16 +48,21 @@ set_property(TARGET box-app PROPERTY CXX_STANDARD 14)
 
 if(MSVC)
 	if(BUILD_SHARED_LIBS)
-		list(APPEND BOX_APP_DEPENDENCY "$<TARGET_FILE:realsense2>" "$<TARGET_LINKER_FILE:realsense2>")
+		list(APPEND BOX_SDK_DEPENDENCY "$<TARGET_FILE:realsense2>" "$<TARGET_LINKER_FILE:realsense2>")
     endif()
 	if(libSP_FOUND)
-		list(APPEND BOX_APP_DEPENDENCY "${libSP_BIN_DIR}/${libSP_LIB}.dll")
+		list(APPEND BOX_SDK_DEPENDENCY "$<TARGET_FILE:libSP>")
     endif()
 	if(BUILD_SHARED_LIB_BOXSDK)
-		list(APPEND BOX_APP_DEPENDENCY "$<TARGET_FILE:box-sdk>" "$<TARGET_LINKER_FILE:box-sdk>")
+		list(APPEND BOX_SDK_DEPENDENCY "$<TARGET_FILE:box-sdk>" "$<TARGET_LINKER_FILE:box-sdk>")
 	endif()
-	foreach(var IN LISTS BOX_APP_DEPENDENCY)
-		add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:box-app>")
+
+	foreach(var IN LISTS BOX_SDK_DEPENDENCY)
+		if(BUILD_SHARED_LIB_BOXSDK)
+		    add_custom_command(TARGET box-sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:box-sdk>")
+		else()
+			add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:box-app>")
+		endif()
 	endforeach(var)
 	set_target_properties(box-app PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
 endif()

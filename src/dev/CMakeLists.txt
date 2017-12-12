@@ -22,10 +22,12 @@ FILE(GLOB SHAPEFIT_DEV_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h*" )
 add_executable(shapefit-dev
     ${SHAPEFIT_DEV_SRC}
 	${SHAPEFIT_DEV_HDR}
-    ${JSON_SRC})
+    ${JSON_SRC}
+	${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_sf_pose_tracker.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_sf_pose_tracker.h)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
-target_link_libraries(${PROJECT_NAME} shapefit-core ${LIBRS_LIBS} ${libSP_LIB})
-target_include_directories(${PROJECT_NAME} PRIVATE shapefit-core ${LIBRS_LIBS} ${libSP_INCLUDE_DIR})
+target_link_libraries(${PROJECT_NAME} shapefit-core ${LIBRS_LIBS} libSP)
+target_include_directories(${PROJECT_NAME} PRIVATE shapefit-core ${LIBRS_LIBS} libSP ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk)
 
 if(MSVC)
 	if(BUILD_SHARED_LIBS)

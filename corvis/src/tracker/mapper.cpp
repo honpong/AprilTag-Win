@@ -46,6 +46,7 @@ mapper::~mapper()
 
 void mapper::reset()
 {
+    triangulated_tracks.clear();
     if(current_node) return;
     log->debug("Map reset");
     nodes.clear();
@@ -54,7 +55,6 @@ void mapper::reset()
     unlinked = false;
     dbow_inverted_index.clear();
     features_dbow.clear();
-    triangulated_tracks.clear();
 }
 
 map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)

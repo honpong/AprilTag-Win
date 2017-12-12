@@ -181,20 +181,6 @@ namespace rs2
 
         config get_camera_config()
         {
-            if (_camera_name == "Intel RealSense 410") {
-                _stream_w = 1280 / 2; _stream_h = 960 / 2;
-            }
-            else if (_camera_name == "Intel RealSense 415") {
-                _stream_w = 1280 / 2; _stream_h = 960 / 2;
-            }
-            else if (_camera_name == "Intel RealSense SR300") {
-                _stream_w = 640; _stream_h = 480;
-                _depth_unit = 0.00125f;
-            }
-            else {
-                _stream_w = 640; _stream_h = 480;
-                //throw std::runtime_error(_camera_name + " not supported by Box SDK!");
-            }
             config config;
             config.enable_stream(RS2_STREAM_DEPTH, 0, _stream_w, _stream_h, RS2_FORMAT_Z16);
             config.enable_stream(RS2_STREAM_COLOR, 0, _stream_w, _stream_h, RS2_FORMAT_RGB8);
@@ -222,13 +208,38 @@ namespace rs2
             return box_vector(_box, _box + nbox);
         }
 
+        static const char* get_icon(int& w, int &h, rs2_format& format)
+        {
+            rs2_error* e = nullptr;
+            auto icon = rs2_measure_get_realsense_icon(&w, &h, &format, &e);
+            error::handle(e);
+            return icon;
+        }
+
+    protected:
+        
         float try_get_depth_scale(device dev) try
         {
             // get the device name
             _camera_name = dev.get_info(RS2_CAMERA_INFO_NAME);
-
+            
+            if (_camera_name == "Intel RealSense 410") {
+                _stream_w = 1280 / 2; _stream_h = 960 / 2;
+            }
+            else if (_camera_name == "Intel RealSense 415") {
+                _stream_w = 1280 / 2; _stream_h = 960 / 2;
+            }
+            else if (_camera_name == "Intel RealSense SR300") {
+                _stream_w = 640; _stream_h = 480;
+                _depth_unit = 0.000125f;
+            }
+            else {
+                _stream_w = 640; _stream_h = 480;
+                //throw std::runtime_error(_camera_name + " not supported by Box SDK!");
+            }
+            
             if (_depth_unit != 0.0f) return _depth_unit;
-
+            
             // Go over the device's sensors
             for (rs2::sensor& sensor : dev.query_sensors())
             {
@@ -241,16 +252,9 @@ namespace rs2
             return 0.001f;
         }
         catch (...) { return 0.001f; }
-
-        static const char* get_icon(int& w, int &h, rs2_format& format)
-        {
-            rs2_error* e = nullptr;
-            auto icon = rs2_measure_get_realsense_icon(&w, &h, &format, &e);
-            error::handle(e);
-            return icon;
-        }
-
+        
     private:
+        
         rs2::device _device;
         std::shared_ptr<processing_block> _block;
         frame_queue _queue;

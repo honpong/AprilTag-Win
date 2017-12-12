@@ -56,6 +56,13 @@ namespace rs2
         memcpy(pose, i, sizeof(i));
     }
 
+    static void set_identity(rs2_extrinsics& extrinsics)
+    {
+        const float i[] = { 1.0f, .0f, .0f, .0f, 1.0f, .0f, .0f, .0f, 1.0f };
+        memcpy(extrinsics.rotation, i, sizeof(i));
+        memset(extrinsics.translation, 0, sizeof(float) * 3);
+    }
+
     struct rs_sf_pose_data : public std::vector<float>
     {
         rs_sf_pose_data() { set_identity(); }

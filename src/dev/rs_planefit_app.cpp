@@ -2,7 +2,7 @@
 #include "rs_sf_camera.hpp"
 #include "rs_sf_image_io.hpp"
 #include "rs_sf_gl_context.hpp"
-//#include "rs_sf_pose_tracker.h"
+#include "rs_sf_pose_tracker.h"
 
 #include <chrono>
 

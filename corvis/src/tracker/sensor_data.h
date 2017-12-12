@@ -89,14 +89,16 @@ public:
         rc_Data({}),
         timestamp(sensor_clock::micros_to_tp(timestamp_us))
     {
-        assert(sensor_type == rc_SENSOR_TYPE_ACCELEROMETER || sensor_type == rc_SENSOR_TYPE_GYROSCOPE);
+        assert(sensor_type == rc_SENSOR_TYPE_ACCELEROMETER || sensor_type == rc_SENSOR_TYPE_GYROSCOPE || sensor_type == rc_SENSOR_TYPE_VELOCIMETER);
         id = sensor_id;
         type = sensor_type;
         time_us = timestamp_us;
         if(sensor_type == rc_SENSOR_TYPE_ACCELEROMETER)
             acceleration_m__s2 = data;
-        else
+        else if(sensor_type == rc_SENSOR_TYPE_GYROSCOPE)
             angular_velocity_rad__s = data;
+        else if(sensor_type == rc_SENSOR_TYPE_VELOCIMETER)
+            translational_velocity_m__s = data;
     }
 
     sensor_data(rc_Timestamp timestamp_us, rc_SensorType sensor_type, rc_Sensor sensor_id, float temp_C) :

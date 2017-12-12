@@ -339,6 +339,25 @@ void observation_gyroscope_project_covariance(const float* src, float* dst,
     return;
 }
 
+void observation_velocimeter_project_covariance(const float* src, float* dst,
+        int src_rows, int src_cols, int src_stride, int dst_cols, int dst_stride,
+        observation_velocimeter_data* data) {
+
+    for(int i = 0; i < dst_cols; ++i) {
+        float4 scov_Q = from_row(src, i, src_stride, data->Q.index, src_cols, src_rows, data->Q.initial_covariance, data->Q.use_single_index);
+        float4 cov_w = from_row(src, i, src_stride, data->w.index, src_cols, src_rows, data->w.initial_covariance, data->w.use_single_index);
+        float4 cov_V = from_row(src, i, src_stride, data->V.index, src_cols, src_rows, data->V.initial_covariance, data->V.use_single_index);
+        float4 result = mull_m3_v3(data->dv_dQ, scov_Q) + mull_m3_v3(data->dv_dw, cov_w) + mull_m3_v3(data->dv_dV, cov_V);
+        if(data->e_estimate) {
+            float4 scov_Qv = from_row(src, i, src_stride, data->eQ.index, src_cols, src_rows, data->eQ.initial_covariance, data->eQ.use_single_index);
+            float4 cov_Tv = from_row(src, i, src_stride, data->eT.index, src_cols, src_rows, data->eT.initial_covariance, data->eT.use_single_index);
+            result += mull_m3_v3(data->dv_dQv, scov_Qv) + mull_m3_v3(data->dv_dTv, cov_Tv);
+        }
+        to_col3(dst, i, dst_stride, result);
+    }
+    return;
+}
+
 extern "C" void vision_project_observation_covariance(project_observation_covariance_data* data, int start_index) {
 
     int src_rows    = data->src_rows;
@@ -374,6 +393,12 @@ extern "C" void vision_project_observation_covariance(project_observation_covari
             {
                 observation_gyroscope_data* gyro_data = (observation_gyroscope_data*)data->observations[i];
                 observation_gyroscope_project_covariance(data->src, data->dst + index*dst_stride, src_rows, src_cols, src_stride, dst_cols, dst_stride, gyro_data);
+            }
+                break;
+            case velocimeter:
+            {
+                observation_velocimeter_data* velo_data = (observation_velocimeter_data*)data->observations[i];
+                observation_velocimeter_project_covariance(data->dst, data->dst + index*dst_stride, src_rows, src_cols, src_stride, dst_cols, dst_stride, velo_data);
             }
                 break;
             default:

@@ -34,7 +34,7 @@ int main(int c, char **v)
              << "   [--render <file.png>] [--incremental-ate]\n"
              << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
              << "   [--disable-map] [--save-map <map-json>] [--load-map <map-json>]\n"
-             << "   [--relocalize]\n";
+             << "   [--relocalize] [--disable-odometry]\n";
         return 1;
     }
 
@@ -44,6 +44,7 @@ int main(int c, char **v)
     bool qvga = false, depth = true; int qres = 0;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     bool enable_map = true;
+    bool odometry = true;
     bool incremental_ate = false;
     bool relocalize = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
@@ -68,6 +69,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--qvga") == 0) qvga = true;
         else if (strcmp(v[i], "--qres") == 0) qres++;
         else if (strcmp(v[i], "--drop-depth") == 0) depth = false;
+        else if (strcmp(v[i], "--disable-odometry") == 0) odometry = false;
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
         else if (strcmp(v[i], "--disable-map") == 0) enable_map = false;
         else if (strcmp(v[i], "--save-map") == 0 && i+1 < c) save_map = v[++i];
@@ -98,6 +100,7 @@ int main(int c, char **v)
         if(qvga) rp.enable_qvga();
         if(qres) rp.enable_qres(qres);
         if(!depth) rp.disable_depth();
+        if(odometry) rp.enable_odometry();
         if(realtime) rp.enable_realtime();
         if(enable_map) rp.start_mapping(relocalize, !save_map.empty());
         if(fast_path) rp.enable_fast_path();

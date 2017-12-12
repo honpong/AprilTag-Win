@@ -208,6 +208,12 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
         case rc_SENSOR_TYPE_DEBUG: {
         } break;
+
+        case rc_SENSOR_TYPE_VELOCIMETER: {
+            update_status();
+            if (filter_velocimeter_measurement(&sfm, data))
+                update_data(&data);
+        } break;
     }
 }
 
@@ -235,6 +241,7 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data)
         case rc_SENSOR_TYPE_STEREO:
         case rc_SENSOR_TYPE_THERMOMETER:
         case rc_SENSOR_TYPE_DEBUG:
+        case rc_SENSOR_TYPE_VELOCIMETER:
           break;
     }
     data.path = rc_DATA_PATH_SLOW;

@@ -79,9 +79,11 @@ struct filter {
     std::vector<std::unique_ptr<sensor_accelerometer>> accelerometers;
     std::vector<std::unique_ptr<sensor_gyroscope>> gyroscopes;
     std::vector<std::unique_ptr<sensor_thermometer>> thermometers;
+    std::vector<std::unique_ptr<sensor_velocimeter>> velocimeters;
 
     bool got_any_gyroscopes()     const { for (const auto &gyro  :     gyroscopes) if (gyro->got)  return true; return false;}
     bool got_any_accelerometers() const { for (const auto &accel : accelerometers) if (accel->got) return true; return false; }
+    bool got_any_velocimeters() const { for (const auto &velo : velocimeters) if (velo->got) return true; return false; }
 };
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data);
@@ -91,6 +93,7 @@ void filter_detect(struct filter *f, const sensor_data &data, bool update_frame)
 bool filter_relocalize(struct filter *f, const rc_Sensor camera_id, sensor_clock::time_point timestamp);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
+bool filter_velocimeter_measurement(struct filter *f, const sensor_data & data);
 bool filter_mini_accelerometer_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data);
 bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &queue, state_motion &state, const sensor_data &data);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);

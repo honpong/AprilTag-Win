@@ -55,12 +55,14 @@ enum packet_type {
     packet_core_motion = 27,
     packet_image_with_depth = 28,
     packet_image_raw = 29,
+    packet_diff_velocimeter = 30,
     packet_thermometer = 31,
     packet_stereo_raw = 40,
     packet_image_stereo = 41,
     packet_rc_pose = 42,
     packet_calibration_json = 43,
     packet_arrival_time = 44,
+    packet_velocimeter = 45,
 #ifdef MYRIAD2
     packet_pose = 30,
     packet_command_start = 100,
@@ -134,6 +136,16 @@ typedef struct {
     packet_header_t header;
     float temperature_C;
 } packet_thermometer_t;
+
+typedef struct {
+    packet_header_t header;
+    float v[3];
+} packet_velocimeter_t;
+
+typedef struct {
+    packet_header_t header;
+    float v[2]; // m/s in body x for sensor_id, sensor_id+1
+} packet_diff_velocimeter_t;
 
 typedef struct {
     packet_header_t header;

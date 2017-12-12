@@ -118,6 +118,11 @@ struct sensor_gyroscope : public sensor_vector<3> {
     using sensor_vector<3>::sensor_vector;
     sensor_gyroscope(int id_) : sensor_vector<3>(id_, "Gyro") {}
 };
+struct sensor_velocimeter : public sensor_vector<3> {
+    rc_VelocimeterIntrinsics intrinsics;
+    using sensor_vector<3>::sensor_vector;
+    sensor_velocimeter(int _id) : sensor_vector<3>(_id, "Velo" + std::to_string(_id)) {}
+};
 
 struct sensor_thermometer : public sensor_storage<1> {
     rc_ThermometerIntrinsics intrinsics;

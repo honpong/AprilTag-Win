@@ -178,6 +178,35 @@ public:
     observation_gyroscope(sensor_gyroscope &src, const state_motion_orientation &_state, const state_imu &imu): observation_spatial(src), state(_state), extrinsics(imu.extrinsics), intrinsics(imu.intrinsics) {}
 };
 
+class observation_velocimeter: public observation_spatial<3> {
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+protected:
+    const state_motion &state;
+    const state_extrinsics &extrinsics;
+    const state_velocimeter_intrinsics &intrinsics;
+    m3 dv_dQ, dv_dV, dv_dw;
+    m3 dv_dTv, dv_dQv ; // extrinsics
+ public:
+    virtual void predict();
+    virtual bool measure() {
+        source.meas_stdev.data(meas);
+        return observation_spatial::measure();
+    }
+    virtual void compute_measurement_covariance() {
+        source.inn_stdev.data(inn);
+        observation_spatial::compute_measurement_covariance();
+    }
+    virtual void cache_jacobians();
+    template<int N>
+             int project_covariance(matrix &dst, const matrix &src, int i) const;
+    virtual void project_covariance(matrix &dst, const matrix &src) const;
+#ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE
+    virtual observation_data* getData(int index = 0);
+#endif
+    observation_velocimeter(sensor_velocimeter &src, const state_motion &_state, const state_extrinsics &_extrinsics, const state_velocimeter_intrinsics &_intrinsics): observation_spatial(src), state(_state), extrinsics(_extrinsics), intrinsics(_intrinsics) {}
+};
+
 class observation_queue {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -190,6 +219,7 @@ public:
     // keep the most recent measurement of a given type around for plotting, etc
     std::unique_ptr<observation_gyroscope> recent_g;
     std::unique_ptr<observation_accelerometer> recent_a;
+    std::unique_ptr<observation_velocimeter> recent_v;
     std::map<uint64_t, std::unique_ptr<observation_vision_feature>> recent_f_map;
     //std::unique_ptr<std::map<uint64_t, unique_ptr<observation_vision_feature>>> recent_f_map;
     void cache_recent(std::unique_ptr<observation> &&o) {
@@ -200,6 +230,8 @@ public:
             recent_a = std::unique_ptr<observation_accelerometer>(static_cast<observation_accelerometer*>(o.release()));
         else if (dynamic_cast<observation_gyroscope*>(o.get()))
             recent_g = std::unique_ptr<observation_gyroscope>(static_cast<observation_gyroscope*>(o.release()));
+        else if (dynamic_cast<observation_velocimeter*>(o.get()))
+            recent_v = std::unique_ptr<observation_velocimeter>(static_cast<observation_velocimeter*>(o.release()));
 #endif
     }
 

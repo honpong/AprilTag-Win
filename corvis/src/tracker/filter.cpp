@@ -320,6 +320,47 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data_)
     return true;
 }
 
+
+bool filter_velocimeter_measurement(struct filter *f, const sensor_data & data_)
+{
+    sensor_data data(data_, sensor_data::stack_copy());
+    if(data.id >= f->velocimeters.size() || data.id >= f->s.velocimeters.children.size())  // f->velocimeters sensor and f->s.velocimeters state
+        return false;
+
+    auto start = std::chrono::steady_clock::now();
+    auto timestamp = data.timestamp;
+    auto &velocimeter = *f->velocimeters[data.id];
+    auto &velocimeter_s = *std::next(f->s.velocimeters.children.begin(), data.id)->get();
+
+    if (!velocimeter.decimate(data.time_us, data.translational_velocity_m__s.v))
+        return true;
+
+    v3 meas = map(velocimeter.intrinsics.scale_and_alignment.v) * map(data.translational_velocity_m__s.v);
+
+    if(f->run_state == RCSensorFusionRunStateInactive) return false;
+    if(!f->s.orientation_initialized) return false;
+
+    auto obs_v = std::make_unique<observation_velocimeter>(velocimeter, f->s, velocimeter_s.extrinsics, velocimeter_s.intrinsics);
+    obs_v->meas = meas;
+    obs_v->variance = velocimeter.measurement_variance;
+
+    f->observations.observations.push_back(std::move(obs_v));
+
+    if(show_tuning) fprintf(stderr, "\nvelocimeter:\n");
+    preprocess_observation_queue(f, timestamp);
+    process_observation_queue(f);
+    if(show_tuning) {
+        std::cerr << " meas   " << meas << "\n"
+                  << " innov  " << velocimeter.inn_stdev << "\n"
+                  << " signal " << velocimeter.meas_stdev << "\n";
+    }
+
+    auto stop = std::chrono::steady_clock::now();
+    velocimeter.measure_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    return true;
+}
+
+
 static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
 {
     auto &camera_sensor = *f->cameras[data.id];
@@ -968,6 +1009,7 @@ void filter_initialize(struct filter *f)
 
     for (auto &g : f->gyroscopes)     g->init_with_variance(g->intrinsics.measurement_variance_rad2__s2, g->intrinsics.decimate_by);
     for (auto &a : f->accelerometers) a->init_with_variance(a->intrinsics.measurement_variance_m2__s4,   a->intrinsics.decimate_by);
+    for (auto &v : f->velocimeters)   v->init_with_variance(v->intrinsics.measurement_variance_m2__s2,   v->intrinsics.decimate_by);
     for (auto &c : f->cameras)        c->init_with_variance(2 * 2);
     for (auto &d : f->depths)         d->init_with_variance(0);
     for (auto &t : f->thermometers)   t->init_with_variance(t->intrinsics.measurement_variance_C2);
@@ -1092,6 +1134,24 @@ void filter_initialize(struct filter *f)
     }
 
 
+    for (size_t i=f->s.velocimeters.children.size(); i<f->velocimeters.size(); i++)
+        f->s.velocimeters.children.emplace_back(std::make_unique<state_velocimeter>());
+
+    for (size_t i = 0; i < f->s.velocimeters.children.size() && i < f->velocimeters.size(); i++) {
+        auto &s_velocimeter = *f->s.velocimeters.children[i];
+        const auto &velocimeter = *f->velocimeters[i];
+
+        s_velocimeter.extrinsics.Q.v = velocimeter.extrinsics.mean.Q;
+        s_velocimeter.extrinsics.T.v = velocimeter.extrinsics.mean.T;
+
+        s_velocimeter.extrinsics.Q.set_process_noise(0);
+        s_velocimeter.extrinsics.T.set_process_noise(0);
+
+        s_velocimeter.extrinsics.Q.set_initial_variance(velocimeter.extrinsics.variance.Q);
+        s_velocimeter.extrinsics.T.set_initial_variance(velocimeter.extrinsics.variance.T);
+    }
+
+
     f->s.T.set_process_noise(0.);
     f->s.Q.set_process_noise(0.);
     f->s.V.set_process_noise(0.);
@@ -1185,7 +1245,7 @@ void filter_deinitialize(struct filter *f)
         map(gyro.intrinsics.bias_variance_rad2__s2.v) = imu.intrinsics.w_bias.variance();
     }
 
-    for (size_t i = 0; i < f->s.imus.children.size() && i < f->gyroscopes.size(); i++) {
+    for (size_t i = 0; i < f->s.imus.children.size() && i < f->accelerometers.size(); i++) {
         const state_imu &imu = *f->s.imus.children[i];
         sensor_accelerometer &accel = *f->accelerometers[i];
         struct sensor::extrinsics &imu_extrinsics = accel.extrinsics;
@@ -1197,6 +1257,17 @@ void filter_deinitialize(struct filter *f)
         imu_extrinsics.mean.Q =     imu.extrinsics.Q.v;
         imu_extrinsics.variance.Q = imu.extrinsics.Q.variance();
         imu_extrinsics.variance.T = imu.extrinsics.T.variance();
+    }
+
+    for (size_t i = 0; i < f->s.velocimeters.children.size(); i++) {
+        const state_velocimeter &s_velocimeter = *f->s.velocimeters.children[i];
+        sensor_velocimeter &velo = *f->velocimeters[i];
+        struct sensor::extrinsics &velocimeter_extrinsics = velo.extrinsics;
+
+        velocimeter_extrinsics.mean.T =     s_velocimeter.extrinsics.T.v;
+        velocimeter_extrinsics.mean.Q =     s_velocimeter.extrinsics.Q.v;
+        velocimeter_extrinsics.variance.Q = s_velocimeter.extrinsics.Q.variance();
+        velocimeter_extrinsics.variance.T = s_velocimeter.extrinsics.T.variance();
     }
 }
 

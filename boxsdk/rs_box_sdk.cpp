@@ -103,7 +103,7 @@ namespace rs2
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_TRACKING, !_reset_request ? 0 : 1);
             _reset_request = false;
 
-            if (rs_shapefit_depth_image(box_detector, &_image[BOX_SRC_DEPTH]) == RS_SF_SUCCESS)
+            if (rs_shapefit_depth_image(box_detector, &_image[BOX_SRC_DEPTH]) >= RS_SF_SUCCESS)
             {
                 std::vector<rs2::frame> export_frame = {
                     src.allocate_video_frame(*_depth_stream_profile, input_depth_frame, 8, 1, sizeof(rs2_measure_camera_state)*BOX_IMG_COUNT, 1),

@@ -1,4 +1,9 @@
-def message = { status -> "<$BUILD_URL|Build> of ${env.CHANGE_ID ? "<${env.CHANGE_URL}|#${env.CHANGE_ID} ${env.CHANGE_TITLE}> for ${env.CHANGE_TARGET} by ${env.CHANGE_AUTHOR}" : "<${env.GIT_URL}/${env.GIT_BRANCH}/tree/${env.GIT_BRANCH}|${env.BRANCH_NAME}>"} $status" }
+def message = { status ->
+    "<$BUILD_URL|Build> of " + (env.CHANGE_ID
+        ? "<${env.CHANGE_URL}|#${env.CHANGE_ID} ${env.CHANGE_TITLE}> for ${env.CHANGE_TARGET} by ${env.CHANGE_AUTHOR}"
+        : "<${env.GIT_URL}/${env.GIT_BRANCH}/tree/${env.GIT_BRANCH}|${env.BRANCH_NAME}>") +
+    " $status (<${env.BUILD_URL}/artifact/benchmark-details-$BRANCH_NAME-${env.GIT_COMMIT}.txt|benchmark>)"
+}
 
 env.CACHE_BASEDIR = env.WORKSPACE
 
@@ -35,6 +40,7 @@ pipeline {
                     sh 'build/measure --qvga --benchmark $JENKINS_HOME/benchmark_data/new_test_suite/ --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
                     sh 'sed -ne /^Length/,//p benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt                           > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
                     sh 'curl -F file=@benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt -F channels=#slam_build -F token=$SLACK_BENCHMARK_TOKEN https://slack.com/api/files.upload'
+                    archiveArtifacts artifacts: "benchmark-*-$BRANCH_NAME-${GIT_COMMIT}.txt"
                 }
             }
         }

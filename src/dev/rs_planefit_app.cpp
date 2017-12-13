@@ -12,7 +12,7 @@
 #define PATH_SEPARATER '/'
 #endif
 
-const std::string default_path = "c:\\temp\\shapefit\\a\\";
+const std::string default_path = "c:\\temp\\shapefit\\b\\";
 int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2]);
 int run_shapefit_live(const rs_shapefit_capability cap, const int cap_size[2]);
 int run_shapefit_offline(const std::string& path, const rs_shapefit_capability cap);
@@ -61,13 +61,14 @@ int capture_frames(const std::string& path, const int image_set_size, const int 
         auto frames = rs_cam->get_images();
         image_set.push_back({});
         auto depth_data = (unsigned short*)(image_set.back().depth = make_depth_ptr(&frames[RS_SF_STREAM_DEPTH]))->data;
-        auto ir_data = (image_set.back().ir = make_mono_ptr(&frames[RS_SF_STREAM_INFRARED]))->data;
+        //auto ir_data = (image_set.back().ir = make_mono_ptr(&frames[RS_SF_STREAM_INFRARED]))->data;
+        auto color_data = (image_set.back().ir = make_rgb_ptr(&frames[RS_SF_STREAM_COLOR]))->data;
         auto displ_data = (image_set.back().displ = make_mono_ptr(img_w * 2, img_h))->data;
  
         for (int y = 0, p = 0; y < img_h; ++y) {
             for (int x = 0; x < img_w; ++x, ++p) {
                 displ_data[y*img_w * 2 + x] = static_cast<unsigned char>(depth_data[p] * 255.0 / 4000.0);
-                displ_data[(y * 2 + 1)*img_w + x] = ir_data[p];
+                displ_data[(y * 2 + 1)*img_w + x] = color_data[p * 3];
             }
         }
 
@@ -86,7 +87,7 @@ int capture_frames(const std::string& path, const int image_set_size, const int 
     }
     printf("\n");
 
-    rs_sf_file_stream::write_calibration(path, *rs_cam->get_intrinsics(), (int)image_set.size());
+    rs_sf_file_stream::write_calibration(path, *rs_cam->get_intrinsics(), (int)image_set.size(), rs_cam->get_depth_unit());
     return 0;
 }
 
@@ -94,7 +95,7 @@ int run_shapefit_live(rs_shapefit_capability cap, const int cap_size[2]) try
 {
     const int img_w = cap_size[0], img_h = cap_size[1];
     auto rs_cam = rs_sf_create_camera_stream(img_w, img_h);
-    auto shapefit = rs_sf_shapefit_ptr(rs_cam->get_intrinsics(), cap);
+    auto shapefit = rs_sf_shapefit_ptr(rs_cam->get_intrinsics(), cap, rs_cam->get_depth_unit());
 
    // bool sp_init = rs_sf_setup_scene_perception(
    //    intrinsics.fx, intrinsics.fy,
@@ -125,7 +126,7 @@ int run_shapefit_offline(const std::string& path, const rs_shapefit_capability s
     while (true)
     {
         if (!shapefitter) {
-            shapefitter = rs_sf_shapefit_ptr(data.get_intrinsics(), shapefit_capability);
+            shapefitter = rs_sf_shapefit_ptr(data.get_intrinsics(), shapefit_capability, data.get_depth_unit());
             //sp_init = rs_sf_setup_scene_perception(
             //    data.depth_intrinsics.fx, data.depth_intrinsics.fy,
             //    data.depth_intrinsics.ppx, data.depth_intrinsics.ppy,

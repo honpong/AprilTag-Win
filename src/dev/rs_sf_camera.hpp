@@ -19,6 +19,7 @@ struct rs_sf_image_stream
 {
     virtual rs_sf_image* get_images() = 0;
     virtual rs_sf_intrinsics* get_intrinsics() = 0;
+    virtual float get_depth_unit() = 0;
 };
 
 std::unique_ptr<rs_sf_image_stream> rs_sf_create_camera_stream(int w, int h);

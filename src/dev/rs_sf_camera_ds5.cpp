@@ -15,20 +15,25 @@ struct rs_sf_camera_stream : rs_sf_image_stream
 {
     rs_sf_camera_stream(int w, int h) : image{}, curr_depth(w*h * 2), prev_depth(w*h * 2)
 	{
-		try {
-			auto list = ctx.query_devices();
-			if (list.size() == 0) throw std::runtime_error("No device detected.");
+        try {
+            auto list = ctx.query_devices();
+            if (list.size() == 0) throw std::runtime_error("No device detected.");
 
-			device = list[0];
-			config.enable_stream(RS_SF_STREAM_DEPTH, 0, w, h, RS_SF_FORMAT_Z16, 30);
-			config.enable_stream(RS_SF_STREAM_COLOR, 0, w, h, RS_SF_FORMAT_RGB8, 30);
+            device = list[0];
+            std::string camera_name = device.get_info(RS2_CAMERA_INFO_NAME);
+            if (camera_name == "Intel RealSense SR300") { depth_unit = 0.000125f; }
+
+            config.enable_stream(RS_SF_STREAM_DEPTH, 0, w, h, RS_SF_FORMAT_Z16, 30);
+            config.enable_stream(RS_SF_STREAM_COLOR, 0, w, h, RS_SF_FORMAT_RGB8, 30);
 
             auto pprofile = pipe.start(config);
             intrinsics = pprofile.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>().get_intrinsics();
 
-			//device.set_option(RS_OPTION_EMITTER_ENABLED, 1);
-			//device.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
-		}
+            //device.set_option(RS_OPTION_EMITTER_ENABLED, 1);
+            //device.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
+
+      
+        }
 		catch (const rs2::error & e) { print(e); }
 	}
 
@@ -49,12 +54,12 @@ struct rs_sf_camera_stream : rs_sf_image_stream
                 img.byte_per_pixel = stream_to_byte_per_pixel[stream_type];
 
                 if (stream_type == RS_SF_STREAM_DEPTH) {
-                    std::swap(curr_depth, prev_depth);
-                    rs_sf_memcpy(curr_depth.data(), img.data, img.num_char());
-                    img.data = prev_depth.data();
+                  //  std::swap(curr_depth, prev_depth);
+                  //  rs_sf_memcpy(curr_depth.data(), img.data, img.num_char());
+                  //  img.data = prev_depth.data();
                 }
             }
-            if (frames.size() > 1) return image;
+            if (frames.first_or_default(RS2_STREAM_DEPTH) && frames.first_or_default(RS2_STREAM_COLOR)) return image;
             if (frames.size() == 0) return nullptr;
         }
     }
@@ -62,11 +67,16 @@ struct rs_sf_camera_stream : rs_sf_image_stream
         print(e);	
         return nullptr; 
     }
+
+    virtual float get_depth_unit() override {
+        return depth_unit;
+    }
 	
 protected:
     rs_sf_image image[RS_SF_STREAM_COUNT];
     int stream_to_byte_per_pixel[RS_SF_STREAM_COUNT] = { 0,2,3,1,1 };
     std::vector<unsigned char> curr_depth, prev_depth;
+    float depth_unit = 0.001f;
 
 private:
     rs2::context ctx;

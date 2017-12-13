@@ -80,19 +80,21 @@ struct rs_sf_file_stream : rs_sf_image_stream
     std::vector<rs_sf_image_ptr> image;
     rs_sf_image images[RS_SF_STREAM_COUNT];
     rs_sf_intrinsics depth_intrinsics;
+    float depth_unit;
 
     rs_sf_file_stream(const std::string& path) : folder_path(path), total_num_frame(0), next_frame_num(0), image(RS_SF_STREAM_COUNT)
     {
-        depth_intrinsics = read_calibration(folder_path, total_num_frame);
+        depth_intrinsics = read_calibration(folder_path, total_num_frame, depth_unit);
     }
 
     rs_sf_intrinsics* get_intrinsics() override { return &depth_intrinsics; }
+    float get_depth_unit() override { return depth_unit; }
     
     rs_sf_image* get_images() override
     {
         next_frame_num = get_next_frame_num();
         for (auto& i : images) i = {};
-        for (auto&& stream : { RS_SF_STREAM_DEPTH, RS_SF_STREAM_INFRARED }) {
+        for (auto&& stream : { RS_SF_STREAM_DEPTH, RS_SF_STREAM_COLOR, RS_SF_STREAM_INFRARED }) {
             const auto file_path = folder_path + file_prefix[stream] + std::to_string(next_frame_num) + file_format[stream];
             images[stream] = *(image[stream] = rs_sf_image_read(file_path, next_frame_num));
         }
@@ -103,14 +105,14 @@ struct rs_sf_file_stream : rs_sf_image_stream
     bool is_end_of_stream() const { return next_frame_num >= total_num_frame; }
     int get_next_frame_num() const { return next_frame_num % total_num_frame; }
 
-    static void write_frame(const std::string& path, const rs_sf_image* depth, const rs_sf_image* ir, const rs_sf_image* displ)
+    static void write_frame(const std::string& path, const rs_sf_image* depth, const rs_sf_image* color, const rs_sf_image* displ)
     {
         rs_sf_image_write(path + "depth_" + std::to_string(depth->frame_id), depth);
-        rs_sf_image_write(path + "ir_" + std::to_string(ir->frame_id), ir);
+        rs_sf_image_write(path + "color_" + std::to_string(color->frame_id), color);
         rs_sf_image_write(path + "displ_" + std::to_string(displ->frame_id), displ);
     }
 
-    static rs_sf_intrinsics read_calibration(const std::string& path, int& num_frame)
+    static rs_sf_intrinsics read_calibration(const std::string& path, int& num_frame, float& depth_unit)
     {
         rs_sf_intrinsics depth_intrinsics = {};
         Json::Value calibration_data;
@@ -127,10 +129,11 @@ struct rs_sf_file_stream : rs_sf_image_stream
         depth_intrinsics.height = json_depth_intrinsics["height"].asInt();
 
         num_frame = calibration_data["depth_cam"]["num_frame"].asInt();
+        depth_unit = calibration_data["depth_cam"].get("depth_unit", 0.001f).asFloat();
         return depth_intrinsics;
     }
 
-    static void write_calibration(const std::string& path, const rs_sf_intrinsics& intrinsics, int num_frame)
+    static void write_calibration(const std::string& path, const rs_sf_intrinsics& intrinsics, int num_frame, float depth_unit)
     {
         Json::Value json_intr, root;
         json_intr["fx"] = intrinsics.fx;
@@ -144,6 +147,7 @@ struct rs_sf_file_stream : rs_sf_image_stream
             json_intr["coeff"].append(c);
         root["depth_cam"]["intrinsics"] = json_intr;
         root["depth_cam"]["num_frame"] = num_frame;
+        root["depth_cam"]["depth_unit"] = depth_unit;
 
         try {
             Json::StyledStreamWriter writer;

@@ -237,9 +237,11 @@ typedef rs_sf_image_impl<3> rs_sf_image_rgb;
 
 template<rs_shapefit_capability capability = RS_SHAPEFIT_PLANE> struct rs_shapefit_ptr : public std::unique_ptr<rs_shapefit, void(*)(rs_shapefit*)>
 {
-    rs_shapefit_ptr(const rs_sf_intrinsics* camera = nullptr, const rs_shapefit_capability cap = capability) :
+    rs_shapefit_ptr(const rs_sf_intrinsics* camera = nullptr, const rs_shapefit_capability cap = capability, float depth_unit = 0.0f) :
         std::unique_ptr<rs_shapefit, void(*)(rs_shapefit*)>(
-        (camera ? rs_shapefit_create(camera, cap) : nullptr), rs_shapefit_delete) {}
+        (camera ? rs_shapefit_create(camera, cap) : nullptr), rs_shapefit_delete) {
+        if (depth_unit > 0.0f) rs_shapefit_set_option(get(), RS_SF_OPTION_DEPTH_UNIT, depth_unit);
+    }
 };
 
 typedef rs_shapefit_ptr<> rs_sf_shapefit_ptr;

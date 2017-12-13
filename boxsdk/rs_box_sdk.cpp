@@ -57,14 +57,11 @@ namespace rs2
 
             try {
                 _depth_to_color = _color_stream_profile->get_extrinsics_to(*_depth_stream_profile);
-                for (auto f : _depth_to_color.rotation) printf("%.6f,", f); printf("\n");
-                for (auto t : _depth_to_color.translation) printf("%.6f,", t); printf("\n");
-                set_identity(_depth_to_color);
-                _depth_to_color.translation[0] = -0.015f;
             }
             catch (...) {
                 printf("rs_box_sdk warning! depth to color extrinsics unavailable. \n");
                 set_identity(_depth_to_color);
+                _depth_to_color.translation[0] = -0.015f;
             }
 
             reset_poses();

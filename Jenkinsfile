@@ -10,7 +10,7 @@ pipeline {
             steps {
                 slackSend color: "#439FE0", message: message("started")
                 ansiColor('xterm') {
-                    sh 'cmake -Bbuild -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=`git rev-parse HEAD`'
+                    sh 'cmake -Bbuild -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=$GIT_COMMIT'
                     sh 'cmake --build build -- -j'
                 }
             }
@@ -32,9 +32,9 @@ pipeline {
         stage('Run benchmark') {
             steps {
                 withCredentials([string(credentialsId: 'slackBenchmarkToken', variable: 'SLACK_BENCHMARK_TOKEN')]) {
-                    sh 'build/measure --benchmark $JENKINS_HOME/benchmark_data/new_test_suite/ --benchmark-output benchmark-$BRANCH_NAME-`git rev-parse HEAD`.txt --qvga'
-                    sh 'cat benchmark-$BRANCH_NAME-`git rev-parse HEAD`.txt'
-                    sh 'curl -F file=@benchmark-$BRANCH_NAME-`git rev-parse HEAD`.txt -F channels=#slam_build -F token=$SLACK_BENCHMARK_TOKEN https://slack.com/api/files.upload'
+                    sh 'build/measure --benchmark $JENKINS_HOME/benchmark_data/new_test_suite/ --benchmark-output benchmark-$BRANCH_NAME-$GIT_COMMIT.txt --qvga'
+                    sh 'cat benchmark-$BRANCH_NAME-$GIT_COMMIT.txt'
+                    sh 'curl -F file=@benchmark-$BRANCH_NAME-$GIT_COMMIT.txt -F channels=#slam_build -F token=$SLACK_BENCHMARK_TOKEN https://slack.com/api/files.upload'
                 }
             }
         }

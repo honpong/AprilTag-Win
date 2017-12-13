@@ -3,6 +3,7 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <vector>
 #include <opencv2/core/mat.hpp>
@@ -11,6 +12,8 @@
 class sensor_fusion;
 class sensor_data;
 
+/** Thread-safe singleton to display arbitrary images in the gui.
+ */
 class visual_debug {
  public:
     /** Batch of images sent together for visualization.
@@ -82,6 +85,10 @@ class visual_debug {
      */
     visual_debug(const sensor_fusion* parent);
 
+    /** Dispatches a batch. This must be called after locking dispatch_mutex_.
+     */
+    void send_after_lock(batch& b, bool pause, bool erase_previous_images);
+
     static void dispatch_one(const sensor_fusion* parent, const cv::Mat& image,
                              rc_Sensor image_id, const std::string& message,
                              bool pause, bool erase_previous);
@@ -91,6 +98,8 @@ class visual_debug {
 
     const sensor_fusion* parent_;
     std::vector<batch> queue_;
+    mutable std::mutex queue_mutex_;
+    mutable std::mutex dispatch_mutex_;
 };
 
 #endif  // __DEBUG_MANAGER_H

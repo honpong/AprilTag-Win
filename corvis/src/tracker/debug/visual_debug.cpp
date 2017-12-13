@@ -26,47 +26,68 @@ void visual_debug::batch::add(cv::Mat image, const std::string& name) {
 }
 
 void visual_debug::queue(const batch& b) {
-    create_instance().queue_.emplace_back(b);
+    auto& instance = create_instance();
+    std::lock_guard<std::mutex> lock(instance.queue_mutex_);
+    instance.queue_.emplace_back(b);
 }
 
 void visual_debug::queue(batch&& b) {
-    create_instance().queue_.emplace_back(b);
+    auto& instance = create_instance();
+    std::lock_guard<std::mutex> lock(instance.queue_mutex_);
+    instance.queue_.emplace_back(b);
 }
 
 void visual_debug::queue(cv::Mat image, const std::string& name) {
     batch b;
     b.add(image, name);
-    create_instance().queue_.emplace_back(std::move(b));
+    auto& instance = create_instance();
+    {
+        std::lock_guard<std::mutex> lock(instance.queue_mutex_);
+        instance.queue_.emplace_back(std::move(b));
+    }
 }
 
 void visual_debug::dispatch(bool pause, bool erase_previous_images) {
     auto& instance = create_instance();
-    for (size_t i = 0; i < instance.queue_.size(); ++i) {
-        bool first_batch = (i == 0);
-        bool last_batch = (i + 1 == instance.queue_.size());
-        send(instance.queue_[i], pause && last_batch, erase_previous_images && first_batch);
+    decltype(visual_debug::queue_) local_queue;
+    {
+        std::lock_guard<std::mutex> lock(instance.queue_mutex_);
+        std::swap(local_queue, instance.queue_);
     }
-    instance.queue_.clear();
+    {
+        std::lock_guard<std::mutex> lock(instance.dispatch_mutex_);
+        for (size_t i = 0; i < local_queue.size(); ++i) {
+            bool first_batch = (i == 0);
+            bool last_batch = (i + 1 == local_queue.size());
+            instance.send_after_lock(local_queue[i], pause && last_batch,
+                                     erase_previous_images && first_batch);
+        }
+    }
 }
 
 void visual_debug::send(batch& b, bool pause, bool erase_previous_images) {
     auto& instance = create_instance();
     if (instance.parent_ && instance.parent_->data_callback) {
-        if (b.queue_.empty() && pause) {
-            dispatch_one(instance.parent_, cv::Mat(), 0, "", true, true);
-        } else {
-            rc_Sensor id = 0;
-            for (size_t i_group = 0; i_group < b.ordered_names_.size(); ++i_group) {
-                const std::string& name = b.ordered_names_[i_group];
-                auto& group = b.queue_.at(name);
-                for (size_t i = 0; i < group.size(); ++i, ++id) {
-                    cv::Mat image = group[i];
-                    std::string text = name + " (" + std::to_string(i+1) + "/" +
-                            std::to_string(group.size()) + ")";
-                    bool first_image = (i_group == 0 && i == 0);
-                    bool last_image = (i_group + 1 == b.ordered_names_.size()) && (i + 1 == group.size());
-                    dispatch_one(instance.parent_, draw_text(text, image), id, text, pause && last_image, first_image);
-                }
+        std::lock_guard<std::mutex> lock(instance.dispatch_mutex_);
+        instance.send_after_lock(b, pause, erase_previous_images);
+    }
+}
+
+void visual_debug::send_after_lock(batch& b, bool pause, bool erase_previous_images) {
+    if (b.queue_.empty() && pause) {
+        dispatch_one(parent_, cv::Mat(), 0, "", pause, erase_previous_images);
+    } else {
+        rc_Sensor id = 0;
+        for (size_t i_group = 0; i_group < b.ordered_names_.size(); ++i_group) {
+            const std::string& name = b.ordered_names_[i_group];
+            auto& group = b.queue_.at(name);
+            for (size_t i = 0; i < group.size(); ++i, ++id) {
+                cv::Mat image = group[i];
+                std::string text = name + " (" + std::to_string(i+1) + "/" +
+                        std::to_string(group.size()) + ")";
+                bool first_image = (i_group == 0 && i == 0);
+                bool last_image = (i_group + 1 == b.ordered_names_.size()) && (i + 1 == group.size());
+                dispatch_one(parent_, draw_text(text, image), id, text, pause && last_image, first_image);
             }
         }
     }
@@ -76,6 +97,7 @@ void visual_debug::send(cv::Mat image, const std::string& name, rc_Sensor sensor
                          bool pause, bool erase_previous_images) {
     auto& instance = create_instance();
     if (instance.parent_ && instance.parent_->data_callback) {
+        std::lock_guard<std::mutex> lock(instance.dispatch_mutex_);
         dispatch_one(instance.parent_, draw_text(name, image), sensor_id, name, pause, erase_previous_images);
     }
 }

@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                slackSend color: "#439FE0", message: "Build started: $BRANCH_NAME at $BUILD_URL"
+                slackSend color: "#439FE0", message: "<$BUILD_URL|Build> started on $BRANCH_NAME of <${env.CHANGE_URL}|#${env.CHANGE_ID}>"
                 ansiColor('xterm') {
                     sh 'cmake -Bbuild -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=`git rev-parse HEAD`'
                     sh 'cmake --build build -- -j'
@@ -40,10 +40,10 @@ pipeline {
             deleteDir()
         }
         success {
-            slackSend color: "good", message: "Build succeeded: $BRANCH_NAME at $BUILD_URL"
+            slackSend color: "good", message: "<$BUILD_URL|Build> succeeded on $BRANCH_NAME of <${env.CHANGE_URL}|#${env.CHANGE_ID}>"
         }
         failure {
-            slackSend color: "#FF0000", message: "Build failed: $BRANCH_NAME at $BUILD_URL"
+            slackSend color: "#FF0000", message: "<$BUILD_URL|Build> failed on $BRANCH_NAME of <${env.CHANGE_URL}|#${env.CHANGE_ID}>"
         }
     }
 }

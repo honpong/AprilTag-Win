@@ -28,7 +28,7 @@ pipeline {
         stage('Run benchmark') {
             steps {
                 withCredentials([string(credentialsId: 'slackBenchmarkToken', variable: 'SLACK_BENCHMARK_TOKEN')]) {
-                    sh 'build/measure --benchmark /Data/new_test_suite/ --benchmark-output benchmark-$BRANCH_NAME-`git rev-parse HEAD`.txt --qvga'
+                    sh 'build/measure --benchmark $JENKINS_HOME/benchmark_data/new_test_suite/ --benchmark-output benchmark-$BRANCH_NAME-`git rev-parse HEAD`.txt --qvga'
                     sh 'cat benchmark-$BRANCH_NAME-`git rev-parse HEAD`.txt'
                     sh 'curl -F file=@benchmark-$BRANCH_NAME-`git rev-parse HEAD`.txt -F channels=#slam_build -F token=$SLACK_BENCHMARK_TOKEN https://slack.com/api/files.upload'
                 }

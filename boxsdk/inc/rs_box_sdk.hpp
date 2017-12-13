@@ -44,7 +44,8 @@ extern "C"
     typedef enum rs2_measure_const
     {
         RS2_STREAM_POSE = 0,
-        RS2_STREAM_PLANE = 3,
+        RS2_STREAM_DEPTH_DENSE = 3,
+        RS2_STREAM_PLANE = 4,
         RS2_MEASURE_BOX_MAXCOUNT = 10,
     } rs2_measure_const;
 

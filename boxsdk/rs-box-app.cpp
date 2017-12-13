@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
         if (auto box_frame = boxscan.process(frameset))
         {
             app.render_ui(
-                app.plane_request() ? box_frame[RS2_STREAM_PLANE] : color_map(box_frame[RS2_STREAM_DEPTH]),
+                app.plane_request() ? box_frame[RS2_STREAM_PLANE] : color_map(box_frame[RS2_STREAM_DEPTH_DENSE]),
                 box_frame[RS2_STREAM_COLOR]);
 
             if (auto box = boxscan.get_boxes())

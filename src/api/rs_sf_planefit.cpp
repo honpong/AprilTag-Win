@@ -32,7 +32,7 @@ rs_sf_status rs_sf_planefit::set_option(rs_sf_fit_option option, double value)
         m_param.search_around_missing_z = (value > 0);
         m_param.filter_plane_map = (value > 1); break;
     case RS_SF_OPTION_DEPTH_UNIT:
-        m_depth_img_to_meter = value; break;
+        m_depth_img_to_meter = (float)value; break;
     default: break;
     }
     return status;

@@ -51,7 +51,7 @@ namespace rs2
 
         ~camera_tracker() { if (_sp_init) rs_sf_pose_tracking_release(); }
         
-        bool track(rs_sf_image& depth_frame, rs_sf_image& color_frame, const rs2_extrinsics& d2c, bool reset_request)
+        bool track(rs_sf_image& depth_frame, rs_sf_image& color_frame, rs_sf_image& dense_frame, const rs2_extrinsics& d2c, bool reset_request)
         {
             if (!_sp_init) {
                 memcpy(depth_frame.cam_pose, std::vector<float>{ 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f }.data(), depth_frame.cam_pose ? sizeof(float) * 12 : 0);
@@ -64,7 +64,7 @@ namespace rs2
             
             auto sp_src_depth = (unsigned short*)depth_frame.data;
             auto sp_src_color = (unsigned char*)color_frame.data;
-            auto sp_dst_depth = ((_acc_w == depth_frame.img_w) ? sp_src_depth : _sdepth.data());
+            auto sp_dst_depth = (unsigned short*)dense_frame.data;
             
             // do pose tracking
             const bool track_success = rs_sf_do_scene_perception_tracking(sp_src_depth, sp_src_color, reset_request, depth_frame.cam_pose);
@@ -72,17 +72,8 @@ namespace rs2
             //const bool switch_track = (track_success && cast_success) != _was_tracking;
             
             // up-sample depth
-            if ((_was_tracking = (track_success && cast_success))) {
-
-                if (sp_dst_depth != sp_src_depth)
-                {
-                    for (int y = 0, p = 0, h = depth_frame.img_h, w = depth_frame.img_w; y < h; ++y) {
-                        for (int x = 0; x < w; ++x, ++p) {
-                            sp_src_depth[p] = sp_dst_depth[(y * _acc_h / h) * _acc_w + (x * _acc_w / w)];
-                        }
-                    }
-                }
-
+            if ((_was_tracking = (track_success && cast_success)))
+            {
                 // compute color image pose
                 auto* d = depth_frame.cam_pose, *c = color_frame.cam_pose;
                 transform(c, d, d2c.rotation, d2c.translation);

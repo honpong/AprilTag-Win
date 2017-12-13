@@ -28,7 +28,7 @@ namespace rs2
 { 
     struct box_measure_impl : public rs2_box_measure
     {
-        enum { EXPORT_STATE, BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_PLANE, BOX_DST_COLOR, BOX_IMG_COUNT };
+        enum { EXPORT_STATE, BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_DENSE, BOX_DST_PLANE, BOX_DST_COLOR, BOX_IMG_COUNT };
         box_measure_impl(float depth_unit = 0.001f) : _depth_unit(depth_unit) {}
         virtual ~box_measure_impl() {}
 
@@ -48,15 +48,19 @@ namespace rs2
                 rs_shapefit_delete)).get();
 
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_DEPTH_UNIT, _depth_unit);
-            rs_shapefit_set_option(box_detector, RS_SF_OPTION_ASYNC_WAIT, 100.0);
-            rs_shapefit_set_option(_detector.get(), RS_SF_OPTION_PLANE_NOISE, 1);
-            //rs_shapefit_set_option(_detector.get(), RS_SF_OPTION_PLANE_RES, 1);
+            rs_shapefit_set_option(box_detector, RS_SF_OPTION_ASYNC_WAIT, 0.0);
+            rs_shapefit_set_option(box_detector, RS_SF_OPTION_PLANE_NOISE, 1);
+            //rs_shapefit_set_option(box_detector, RS_SF_OPTION_PLANE_RES, 1);
 
             _color_stream_profile = std::make_shared<video_stream_profile>(input_color_frame.get_profile());
             _color_intrinsics = _color_stream_profile->get_intrinsics();
 
             try {
                 _depth_to_color = _color_stream_profile->get_extrinsics_to(*_depth_stream_profile);
+                for (auto f : _depth_to_color.rotation) printf("%.6f,", f); printf("\n");
+                for (auto t : _depth_to_color.translation) printf("%.6f,", t); printf("\n");
+                set_identity(_depth_to_color);
+                _depth_to_color.translation[0] = -0.015f;
             }
             catch (...) {
                 printf("rs_box_sdk warning! depth to color extrinsics unavailable. \n");
@@ -67,11 +71,9 @@ namespace rs2
 
             _image[BOX_SRC_DEPTH] << input_depth_frame << &_depth_intrinsics << _depth_image_pose.data();
             _image[BOX_SRC_COLOR] << input_color_frame << &_color_intrinsics << _color_image_pose.data();
+            _image[BOX_DST_DENSE] << input_depth_frame << &_depth_intrinsics << _depth_image_pose.data();
             _image[BOX_DST_PLANE] << input_color_frame << &_depth_intrinsics;
             _image[BOX_DST_COLOR] << input_color_frame << &_color_intrinsics << _color_image_pose.data();
-
-            for (auto s : { BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_PLANE, BOX_DST_COLOR })
-                _state[s] << _image[s];
 
             if (_camera_tracker) _camera_tracker.reset();
             _camera_tracker = std::make_unique<camera_tracker>(&_depth_intrinsics, RS_SF_MED_RESOLUTION);
@@ -93,31 +95,33 @@ namespace rs2
                 reset_poses();
                 _image[BOX_SRC_DEPTH] << input_depth_frame.get_frame_number() << input_depth_frame.get_data() << _depth_image_pose.data();
                 _image[BOX_SRC_COLOR] << input_color_frame.get_frame_number() << input_color_frame.get_data();
+                _image[BOX_DST_DENSE] << input_depth_frame.get_frame_number() << _depth_image_pose.data();
                 _image[BOX_DST_PLANE] << input_depth_frame.get_frame_number();
                 _image[BOX_DST_COLOR] << input_color_frame.get_frame_number();
             }
 
+            std::vector<rs2::frame> export_frame = {
+                src.allocate_video_frame(*_depth_stream_profile, input_depth_frame, 8, 1, sizeof(rs2_measure_camera_state)*BOX_IMG_COUNT, 1),
+                input_depth_frame,
+                input_color_frame,
+                !_is_export[BOX_DST_DENSE] ? input_depth_frame : src.allocate_video_frame(*_depth_stream_profile, input_depth_frame),
+                !_is_export[BOX_DST_PLANE] ? input_color_frame : src.allocate_video_frame(*_color_stream_profile, input_color_frame),
+                !_is_export[BOX_DST_COLOR] ? input_color_frame : src.allocate_video_frame(*_color_stream_profile, input_color_frame)
+            };
+
+            for (auto s : { BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_DENSE, BOX_DST_PLANE, BOX_DST_COLOR })
+                _image[s] << export_frame[s].get_data();
+
             if (_camera_tracker) {
-                _reset_request |= !_camera_tracker->track(_image[BOX_SRC_DEPTH], _image[BOX_SRC_COLOR], _depth_to_color, _reset_request);
+                _reset_request |= !_camera_tracker->track(_image[BOX_SRC_DEPTH], _image[BOX_SRC_COLOR], _image[BOX_DST_DENSE], _depth_to_color, _reset_request);
             }
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_TRACKING, !_reset_request ? 0 : 1);
             _reset_request = false;
 
             if (rs_shapefit_depth_image(box_detector, &_image[BOX_SRC_DEPTH]) >= RS_SF_SUCCESS)
             {
-                std::vector<rs2::frame> export_frame = {
-                    src.allocate_video_frame(*_depth_stream_profile, input_depth_frame, 8, 1, sizeof(rs2_measure_camera_state)*BOX_IMG_COUNT, 1),
-                    input_depth_frame,
-                    input_color_frame,
-                    !_is_export[BOX_DST_PLANE] ? input_color_frame : src.allocate_video_frame(*_color_stream_profile, input_color_frame),
-                    !_is_export[BOX_DST_COLOR] ? input_color_frame : src.allocate_video_frame(*_color_stream_profile, input_color_frame)
-                };
-
-                for (auto s : { BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_PLANE, BOX_DST_COLOR }) {
-                    if (_is_export[s]) { 
-                        _state[s] << _image[s];
-                        _image[s] << export_frame[s].get_data();
-                    }
+                for (auto s : { BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_DENSE, BOX_DST_PLANE, BOX_DST_COLOR }) {
+                    if (_is_export[s]) { _state[s] << _image[s]; }
                 }
 
                 if (_is_export[BOX_DST_PLANE]) { rs_sf_planefit_draw_planes(box_detector, &_image[BOX_DST_PLANE]); }
@@ -162,7 +166,7 @@ namespace rs2
         processing_block* _host = nullptr;
 
         // image headers
-        bool _is_export[BOX_IMG_COUNT] = { true, true, true, false, false };
+        bool _is_export[BOX_IMG_COUNT] = { true, true, true, true, false, false };
         rs_sf_image _image[BOX_IMG_COUNT] = {};
         rs2_measure_camera_state _state[BOX_IMG_COUNT] = {};
 
@@ -193,7 +197,7 @@ HANDLE_EXCEPTIONS_AND_RETURN(nullptr, box_measure, depth_unit)
 void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const& out_stream, int flag, rs2_error** error) BEGIN_API_CALL
 {
     VALIDATE_NOT_NULL(box_measure);
-    VALIDATE_RANGE(out_stream, rs2::box_measure_impl::BOX_DST_PLANE, rs2::box_measure_impl::BOX_DST_COLOR);
+    VALIDATE_RANGE(out_stream, rs2::box_measure_impl::BOX_DST_DENSE, rs2::box_measure_impl::BOX_DST_COLOR);
 
     ((rs2::box_measure_impl*)box_measure)->set(out_stream, flag);
 }

@@ -46,9 +46,8 @@ namespace rs2
     struct camera_tracker
     {
         camera_tracker(const rs2_intrinsics* i, const rs_sf_pose_track_resolution& resolution) :
-            _sp_init(rs_sf_setup_scene_perception(i->fx, i->fy, i->ppx, i->ppy, i->width, i->height, _acc_w, _acc_h, resolution)),
-            _sdepth(_acc_w * _acc_h * (_sp_init ? 1 : 0)) {}
-
+        _sp_init(rs_sf_setup_scene_perception(i->fx, i->fy, i->ppx, i->ppy, i->width, i->height, _acc_w, _acc_h, resolution)) {}
+        
         ~camera_tracker() { if (_sp_init) rs_sf_pose_tracking_release(); }
         
         bool track(rs_sf_image& depth_frame, rs_sf_image& color_frame, rs_sf_image& dense_frame, const rs2_extrinsics& d2c, bool reset_request)
@@ -82,13 +81,14 @@ namespace rs2
             return _was_tracking;
         }
         
+        bool is_valid() const { return _sp_init; }
+        
     private:
 
         int _acc_w = 0, _acc_h = 0;
         bool _sp_init, _was_tracking = false;
         std::unique_ptr<float[]> _buf;
-        std::vector<unsigned short> _sdepth;
-
+        
         // dst = r * src + t
         static void transform(float dst[12], const float src[12], const float r[9], const float t[3])
         {

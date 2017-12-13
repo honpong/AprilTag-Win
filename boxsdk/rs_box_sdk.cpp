@@ -74,7 +74,8 @@ namespace rs2
 
             if (_camera_tracker) _camera_tracker.reset();
             _camera_tracker = std::make_unique<camera_tracker>(&_depth_intrinsics, RS_SF_MED_RESOLUTION);
-
+            _is_export[BOX_DST_DENSE] = _camera_tracker->is_valid();
+            
             return box_detector;
         }
 

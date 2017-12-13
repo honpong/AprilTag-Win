@@ -1,10 +1,12 @@
+def message = { status -> "<$BUILD_URL|Build> of ${env.CHANGE_ID ? "<${env.CHANGE_URL}|#${env.CHANGE_ID} ${env.CHANGE_TITLE}> for ${env.CHANGE_TARGET} by ${env.CHANGE_AUTHOR}" : "${env.BRANCH_NAME}"} $status" }
+
 pipeline {
     agent any
 
     stages {
         stage('Build') {
             steps {
-                slackSend color: "#439FE0", message: "<$BUILD_URL|Build> started on $BRANCH_NAME of <${env.CHANGE_URL}|#${env.CHANGE_ID}>"
+                slackSend color: "#439FE0", message: message("started")
                 ansiColor('xterm') {
                     sh 'cmake -Bbuild -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=`git rev-parse HEAD`'
                     sh 'cmake --build build -- -j'
@@ -40,10 +42,10 @@ pipeline {
             deleteDir()
         }
         success {
-            slackSend color: "good", message: "<$BUILD_URL|Build> succeeded on $BRANCH_NAME of <${env.CHANGE_URL}|#${env.CHANGE_ID}>"
+            slackSend color: "good", message: message("succeeded")
         }
         failure {
-            slackSend color: "#FF0000", message: "<$BUILD_URL|Build> failed on $BRANCH_NAME of <${env.CHANGE_URL}|#${env.CHANGE_ID}>"
+            slackSend color: "#FF0000", message: message("failed")
         }
     }
 }

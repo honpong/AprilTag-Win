@@ -24,10 +24,15 @@ list(APPEND CMAKE_PREFIX_PATH
 )
 
 set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/LibRealSense/librealsense)
+set(JSON3_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/Json)
+
+add_library(json3 STATIC ${JSON3_DIR}/src/jsoncpp.cpp ${JSON3_DIR}/include/json/json.h)
+target_include_directories(json3 PUBLIC ${JSON3_DIR}/include)
+set_target_properties (json3 PROPERTIES FOLDER "3rd Party")
 
 find_package(Eigen3 REQUIRED)
 find_package(OpenGL REQUIRED)
-set(LIBRS_LIBS realsense2 ${OPENGL_LIBRARIES})
+set(LIBRS_LIBS realsense2 ${OPENGL_LIBRARIES} json3)
 
 if(MSVC)
 

@@ -1,10 +1,3 @@
-def message = { status ->
-    "<$BUILD_URL|Build> of " + (env.CHANGE_ID
-        ? "<${env.CHANGE_URL}|#${env.CHANGE_ID} ${env.CHANGE_TITLE}> for ${env.CHANGE_TARGET} by ${env.CHANGE_AUTHOR}"
-        : "<${env.GIT_URL.replaceAll(/\.git$/,'')}/tree/${env.GIT_BRANCH}|${env.BRANCH_NAME}>") +
-    " $status (<${env.BUILD_URL}/artifact/benchmark-details-$BRANCH_NAME-${env.GIT_COMMIT}.txt|benchmark>)"
-}
-
 env.CACHE_BASEDIR = env.WORKSPACE
 
 pipeline {
@@ -13,7 +6,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                slackSend color: "#439FE0", message: message("started")
+                slackSend color: "#439FE0", message: slack_build_message("started")
                 ansiColor('xterm') {
                     sh 'cmake -Bbuild -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=$GIT_COMMIT'
                     sh 'cmake --build build -- -j'
@@ -50,10 +43,17 @@ pipeline {
             deleteDir()
         }
         success {
-            slackSend color: "good", message: message("succeeded")
+            slackSend color: "good", message: slack_build_message("succeeded")
         }
         failure {
-            slackSend color: "#FF0000", message: message("failed")
+            slackSend color: "#FF0000", message: slack_build_message("failed")
         }
     }
+}
+
+def slack_build_message(status) {
+    "<$BUILD_URL|Build> of " + (env.CHANGE_ID
+        ? "<${env.CHANGE_URL}|#${env.CHANGE_ID} ${env.CHANGE_TITLE}> for ${env.CHANGE_TARGET} by ${env.CHANGE_AUTHOR}"
+        : "<${env.GIT_URL.replaceAll(/\.git$/,'')}/tree/${env.GIT_BRANCH}|${env.BRANCH_NAME}>") +
+    " $status (<${env.BUILD_URL}/artifact/benchmark-details-$BRANCH_NAME-${env.GIT_COMMIT}.txt|benchmark>)"
 }

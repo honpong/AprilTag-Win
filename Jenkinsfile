@@ -32,9 +32,9 @@ pipeline {
         stage('Run benchmark') {
             steps {
                 withCredentials([string(credentialsId: 'slackBenchmarkToken', variable: 'SLACK_BENCHMARK_TOKEN')]) {
-                    sh 'build/measure --benchmark $JENKINS_HOME/benchmark_data/new_test_suite/ --benchmark-output benchmark-$BRANCH_NAME-$GIT_COMMIT.txt --qvga'
-                    sh 'cat benchmark-$BRANCH_NAME-$GIT_COMMIT.txt'
-                    sh 'curl -F file=@benchmark-$BRANCH_NAME-$GIT_COMMIT.txt -F channels=#slam_build -F token=$SLACK_BENCHMARK_TOKEN https://slack.com/api/files.upload'
+                    sh 'build/measure --qvga --benchmark $JENKINS_HOME/benchmark_data/new_test_suite/ --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
+                    sh 'sed -ne /^Length/,//p benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt                           > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
+                    sh 'curl -F file=@benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt -F channels=#slam_build -F token=$SLACK_BENCHMARK_TOKEN https://slack.com/api/files.upload'
                 }
             }
         }

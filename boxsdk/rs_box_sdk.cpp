@@ -95,7 +95,7 @@ namespace rs2
                 _image[BOX_SRC_COLOR] << input_color_frame.get_frame_number() << input_color_frame.get_data();
                 _image[BOX_DST_DENSE] << input_depth_frame.get_frame_number() << _depth_image_pose.data();
                 _image[BOX_DST_PLANE] << input_depth_frame.get_frame_number();
-                _image[BOX_DST_COLOR] << input_color_frame.get_frame_number();
+                _image[BOX_DST_COLOR] << input_color_frame.get_frame_number() << _color_image_pose.data();
             }
 
             std::vector<rs2::frame> export_frame = {
@@ -110,7 +110,7 @@ namespace rs2
             for (auto s : { BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_DENSE, BOX_DST_PLANE, BOX_DST_COLOR })
                 _image[s] << export_frame[s].get_data();
 
-            if (_camera_tracker) {
+            if (_camera_tracker && _is_export[BOX_DST_DENSE]) {
                 _reset_request |= !_camera_tracker->track(_image[BOX_SRC_DEPTH], _image[BOX_SRC_COLOR], _image[BOX_DST_DENSE], _depth_to_color, _reset_request);
             }
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_TRACKING, !_reset_request ? 0 : 1);

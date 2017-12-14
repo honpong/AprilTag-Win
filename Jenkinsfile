@@ -1,7 +1,7 @@
 def message = { status ->
     "<$BUILD_URL|Build> of " + (env.CHANGE_ID
         ? "<${env.CHANGE_URL}|#${env.CHANGE_ID} ${env.CHANGE_TITLE}> for ${env.CHANGE_TARGET} by ${env.CHANGE_AUTHOR}"
-        : "<${env.GIT_URL}/${env.GIT_BRANCH}/tree/${env.GIT_BRANCH}|${env.BRANCH_NAME}>") +
+        : "<${env.GIT_URL.replaceAll(/\.git$/,'')}/tree/${env.GIT_BRANCH}|${env.BRANCH_NAME}>") +
     " $status (<${env.BUILD_URL}/artifact/benchmark-details-$BRANCH_NAME-${env.GIT_COMMIT}.txt|benchmark>)"
 }
 

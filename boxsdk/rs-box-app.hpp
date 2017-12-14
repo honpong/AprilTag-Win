@@ -301,9 +301,10 @@ public:
     {
         if (click)
             if (_mouse_pos[0] > width() / 3) _tgscn = true;
+            else if (_mouse_pos[1] < win_rs_logo().ey()) _dense = !_dense;
             else if (_mouse_pos[1] > win_depth_image().y)
                 if (_mouse_pos[1] < height() * 7 / 8) _plane = !_plane;
-                else 
+                else
                     if (_mouse_pos[0] <= width() / 6) _close = true;
                     else if (_mouse_pos[0] <= width() * 3) _reset = true;
     };
@@ -369,7 +370,7 @@ public:
 
     inline rect win_left_column()  const { return{ 0, 0, width() / 3, height() }; }
     inline rect win_rs_logo()      const { return{ 0, 0, win_left_column().w, win_left_column().h / 6 }; }
-    inline rect win_depth_image()  const { return{ win_left_column().x, win_left_column().y + win_left_column().h / 3, win_left_column().w, win_left_column().h / 2 }; }
+    inline rect win_depth_image()  const { return{ win_left_column().x, win_left_column().y + win_left_column().h * 2 / 7, win_left_column().w, win_left_column().h / 2 }; }
     inline rect win_button_area()  const { return{ win_left_column().x, win_left_column().y + win_left_column().h * 7 / 8, win_left_column().w, win_left_column().h / 10 }; }
     inline rect win_close_button() const { return{ win_button_area().x + 1, win_button_area().y, win_button_area().w / 2 - 2, win_button_area().h }; }
     inline rect win_reset_button() const { return{ win_close_button().ex() + 1, win_close_button().y, win_close_button().w, win_close_button().h }; }
@@ -426,12 +427,12 @@ public:
         render_rect(win_reset_button(), !_reset, { 128, 128, 128 });
     }
 
-    void render_box_on_depth_frame(const rs2::box::wireframe& wireframe, const int line_width = -1.0f)
+    void render_box_on_depth_frame(const rs2::box::wireframe& wireframe, const float line_width = -1.0f)
     {
         _texture_depth.draw_box(wireframe.end_pt, _height, line_width);
     }
 
-    void render_box_on_color_frame(const rs2::box::wireframe& wireframe, const int line_width = -1.0f)
+    void render_box_on_color_frame(const rs2::box::wireframe& wireframe, const float line_width = -1.0f)
     {
         _texture_color.draw_box(wireframe.end_pt, _height, line_width);
     }
@@ -457,6 +458,7 @@ public:
     operator GLFWwindow*() { return win; }
     bool reset_request() const { return _reset; }
     bool plane_request() const { return _plane; }
+    bool dense_request() const { return _dense; }
 
     double _mouse_pos[2] = {};
     const unsigned char bkg_blue[3] = { 0, 66, 128 };
@@ -465,7 +467,7 @@ public:
 private:
     GLFWwindow* win = nullptr;
     int _width, _height, _win_width, _win_height;
-    bool _close = false, _reset = false, _tgscn = false, _fullscreen, _plane = false;
+    bool _close = false, _reset = false, _tgscn = false, _fullscreen, _plane = false, _dense = true;
     const char* _title;
     color_icon _icon_close, _icon_reset;
     texture _texture_realsense_logo, _texture_close_button, _texture_reset_button, _texture_box_msg;

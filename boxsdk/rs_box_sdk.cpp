@@ -116,7 +116,7 @@ namespace rs2
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_TRACKING, !_reset_request ? 0 : 1);
             _reset_request = false;
 
-            if (rs_shapefit_depth_image(box_detector, &_image[BOX_SRC_DEPTH]) >= RS_SF_SUCCESS)
+            if (rs_shapefit_depth_image(box_detector, &_image[BOX_DST_DENSE]) >= RS_SF_SUCCESS)
             {
                 for (auto s : { BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_DENSE, BOX_DST_PLANE, BOX_DST_COLOR }) {
                     if (_is_export[s]) { _state[s] << _image[s]; }

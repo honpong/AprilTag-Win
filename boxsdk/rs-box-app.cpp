@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
     rs2::colorizer color_map;
 
     // Start application
-    for (window app(boxscan.stream_w() * 3 / 2, boxscan.stream_h(), header.c_str()); app; boxscan.configure(RS2_STREAM_PLANE, app.plane_request()))
+    for (window app(boxscan.stream_w() * 3 / 2, boxscan.stream_h(), header.c_str()); app;)
     {
         rs2::frameset frameset;
 
@@ -105,9 +105,9 @@ int main(int argc, char* argv[])
             }
         }
 
-        if (app.reset_request()) {
-            boxscan.reset();
-        }
+        if (app.reset_request()) { boxscan.reset(); }
+        boxscan.configure(RS2_STREAM_PLANE, app.plane_request());
+        boxscan.configure(RS2_STREAM_DEPTH_DENSE, app.dense_request());
     }
 
     return EXIT_SUCCESS;

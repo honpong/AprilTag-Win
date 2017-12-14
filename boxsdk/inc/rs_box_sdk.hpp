@@ -41,7 +41,7 @@ extern "C"
 {
 #endif
 
-    typedef enum rs2_measure_const
+    typedef enum rs2_measure_const : int
     {
         RS2_STREAM_POSE = 0,
         RS2_STREAM_DEPTH_DENSE = 3,
@@ -93,17 +93,18 @@ namespace rs2
     class box_frameset : public frameset
     {
     public:
+        typedef rs2_measure_camera_state camera_state;
+
         box_frameset(frame& f) : frameset(f) {}
 
-        const rs2_measure_camera_state& state(const rs2_stream& s) const { return ((rs2_measure_camera_state*)((*this)[RS2_STREAM_POSE].get_data()))[s]; }
+        const camera_state& state(const rs2_stream& s) const { return ((camera_state*)((*this)[RS2_STREAM_POSE].get_data()))[s]; }
 
-        operator bool() const { return size() > 3; }
+        operator bool() const { return size() > 5; }
     };
 
     struct box : public rs2_measure_box
     {
         typedef rs2_measure_box_wireframe wireframe;
-        typedef rs2_measure_camera_state camera_state;
 
         box(rs2_measure_box& ref) : rs2_measure_box(ref) {}
 
@@ -119,12 +120,12 @@ namespace rs2
 
         inline std::string str() const
         {
-            return stri(dim(0), 4) + "x" + stri(dim(1), 4) + "x" + stri(dim(2), 4);
+            return stri(dim(0), 4) + "x" + stri(dim(1), 4) + "x" + stri(dim(2), 4) + " ";
         }
 
-        inline wireframe project_box_onto_frame(box_frameset& f, const rs2_stream& s) const
+        inline wireframe project_box_onto_frame(box_frameset& f, const int& s) const
         {
-            return project_box_onto_frame(f.state(s));
+            return project_box_onto_frame(f.state((rs2_stream)s));
         }
 
         wireframe project_box_onto_frame(const rs2_measure_camera_state& camera) const
@@ -224,20 +225,11 @@ namespace rs2
             // get the device name
             _camera_name = dev.get_info(RS2_CAMERA_INFO_NAME);
             
-            if (_camera_name == "Intel RealSense 410") {
-                _stream_w = 1280 / 2; _stream_h = 960 / 2;
-            }
-            else if (_camera_name == "Intel RealSense 415") {
-                _stream_w = 1280 / 2; _stream_h = 960 / 2;
-            }
-            else if (_camera_name == "Intel RealSense SR300") {
-                _stream_w = 640; _stream_h = 480;
-                _depth_unit = 0.000125f;
-            }
-            else {
-                _stream_w = 640; _stream_h = 480;
-                //throw std::runtime_error(_camera_name + " not supported by Box SDK!");
-            }
+            // assign stream image sizes
+            if (_camera_name == "Intel RealSense 410") { _stream_w = 640; _stream_h = 480; }
+            else if (_camera_name == "Intel RealSense 415")   { _stream_w = 640; _stream_h = 480; }
+            else if (_camera_name == "Intel RealSense SR300") { _stream_w = 640; _stream_h = 480; _depth_unit = 0.000125f; }
+            else {  _stream_w = 640; _stream_h = 480; /**throw std::runtime_error(_camera_name + " not supported by Box SDK!");*/ }  
             
             if (_depth_unit != 0.0f) return _depth_unit;
             

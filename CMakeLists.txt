@@ -26,13 +26,8 @@ list(APPEND CMAKE_PREFIX_PATH
 set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/LibRealSense/librealsense)
 set(JSON3_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/Json)
 
-add_library(json3 STATIC ${JSON3_DIR}/src/jsoncpp.cpp ${JSON3_DIR}/include/json/json.h)
-target_include_directories(json3 PUBLIC ${JSON3_DIR}/include)
-set_target_properties (json3 PROPERTIES FOLDER "3rd Party")
-
 find_package(Eigen3 REQUIRED)
 find_package(OpenGL REQUIRED)
-set(LIBRS_LIBS realsense2 ${OPENGL_LIBRARIES} json3)
 
 if(MSVC)
 
@@ -100,12 +95,15 @@ elseif(APPLE)
 endif()
 
 #########################################################################
-
 set(BUILD_EXAMPLES            OFF CACHE BOOL "" FORCE)
 set(BUILD_GRAPHICAL_EXAMPLES  OFF CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS         OFF CACHE BOOL "")
 set(BUILD_UNIT_TESTS          OFF CACHE BOOL "" FORCE)
 set(ALGO_LIB algo-core CACHE STRING "")
+
+list(APPEND LIBRS_LIBS realsense2 ${OPENGL_LIBRARIES} json3)
+
+add_subdirectory(${JSON3_DIR})
 add_subdirectory(${LIBRS_DIR})
 add_subdirectory(src/api)
 add_subdirectory(boxsdk)

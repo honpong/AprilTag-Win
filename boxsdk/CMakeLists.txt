@@ -17,7 +17,7 @@ else()
         rs_box_api.h
         rs_box_image.hpp
     	rs_box_sdk.cpp
-	rs_icon.h
+	    rs_icon.h
         rs_sf_pose_tracker.h
         rs_sf_pose_tracker.cpp)
 endif()

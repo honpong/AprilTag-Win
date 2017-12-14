@@ -32,6 +32,12 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 #define GL_CLAMP_TO_EDGE GL_CLAMP
 #endif
 
+#if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
+#define PATH_SEPARATER '\\'
+#else
+#define PATH_SEPARATER '/'
+#endif
+
 //////////////////////////////
 // Basic Data Types         //
 //////////////////////////////
@@ -473,3 +479,84 @@ private:
     texture _texture_realsense_logo, _texture_close_button, _texture_reset_button, _texture_box_msg;
     number_icons _num_icons;
 };
+
+#include <json/json.h>
+#include <fstream>
+static std::shared_ptr<rs2::box_measure::calibration> read_calibration(const std::string& path_name)
+{
+    if (path_name.size() > 1) try
+    {
+        rs2::box_measure::calibration calibration = {};
+        Json::Value calibration_data;
+        std::ifstream infile;
+        infile.open(path_name, std::ifstream::binary);
+        infile >> calibration_data;
+
+        int i = 0;
+        for (auto cam : { "depth_cam" , "color_cam" })
+        {
+            Json::Value intrinsics = calibration_data[cam]["intrinsics"];
+            calibration.intrinsics[i].fx = intrinsics["fx"].asFloat();
+            calibration.intrinsics[i].fy = intrinsics["fy"].asFloat();
+            calibration.intrinsics[i].ppx = intrinsics["ppx"].asFloat();
+            calibration.intrinsics[i].ppy = intrinsics["ppy"].asFloat();
+            calibration.intrinsics[i].width = intrinsics["width"].asInt();
+            calibration.intrinsics[i++].height = intrinsics["height"].asInt();
+        }
+
+        Json::Value extrinsics = calibration_data["color_cam"]["extrinsics"]["depth_cam"];
+        for (auto r : { 0,1,2,3,4,5,6,7,8 })
+            calibration.depth_to_color.rotation[r] = extrinsics["rotation"][r].asFloat();
+        for (auto t : { 0,1,2 })
+            calibration.depth_to_color.translation[t] = extrinsics["translation"][t].asFloat();
+
+        printf(("calibration read from " + path_name + "\n").c_str());
+        return std::make_shared<decltype(calibration)>(calibration);
+    }
+    catch (...) {}
+    return std::shared_ptr<rs2::box_measure::calibration>(nullptr);
+}
+
+static void save_calibration(const std::string& path_name, rs2::pipeline_profile& p)
+{
+    if (path_name.size() > 1) try
+    {
+        auto depth_cam = p.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>();
+        auto color_cam = p.get_stream(RS2_STREAM_COLOR).as<rs2::video_stream_profile>();
+        rs2_intrinsics intrinsics[2] = { depth_cam.get_intrinsics(), color_cam.get_intrinsics() };
+
+        // write intrinsics
+        Json::Value calibration_data;
+        int i = 0;
+        for (auto cam : { "depth_cam", "color_cam" })
+        {
+            calibration_data[cam]["intrinsics"]["fx"] = intrinsics[i].fx;
+            calibration_data[cam]["intrinsics"]["fy"] = intrinsics[i].fy;
+            calibration_data[cam]["intrinsics"]["ppx"] = intrinsics[i].ppx;
+            calibration_data[cam]["intrinsics"]["ppy"] = intrinsics[i].ppy;
+            calibration_data[cam]["intrinsics"]["width"] = intrinsics[i].width;
+            calibration_data[cam]["intrinsics"]["height"] = intrinsics[i++].height;
+        }
+
+        // write extrinsics
+        const auto extrinsics = color_cam.get_extrinsics_to(depth_cam);
+        for (auto r : { 0,1,2,3,4,5,6,7,8 })
+            calibration_data["color_cam"]["extrinsics"]["depth_cam"]["rotation"][r] = extrinsics.rotation[r];
+        for (auto t : { 0,1,2 })
+            calibration_data["color_cam"]["extrinsics"]["depth_cam"]["translation"][t] = extrinsics.translation[t];
+
+        // write device name
+        calibration_data["device"]["name"] = p.get_device().get_info(RS2_CAMERA_INFO_NAME);
+
+        // write file
+        Json::StyledStreamWriter writer;
+        std::ofstream outfile;
+        outfile.open(path_name);
+        writer.write(outfile, calibration_data);
+
+        printf(("calibration written to " + path_name + "\n").c_str());
+    }
+    catch (...) {
+        printf("error in writing calibration files! \n");
+    }
+}

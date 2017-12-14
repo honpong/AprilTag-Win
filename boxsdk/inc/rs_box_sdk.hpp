@@ -68,8 +68,8 @@ extern "C"
 
     struct rs2_box_measure; /**< box detector object */
 
-    RS2_MEASURE_DECL void* rs2_box_measure_create(rs2_box_measure** box_measure, float depth_unit, rs2_error** e);
-    RS2_MEASURE_DECL void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const& out_stream, int flag, rs2_error** e);
+    RS2_MEASURE_DECL void* rs2_box_measure_create(rs2_box_measure** box_measure, float depth_unit, rs2_intrinsics custom[2], rs2_extrinsics* d2c, rs2_error** e);
+    RS2_MEASURE_DECL void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const& out_stream, double flag, rs2_error** e);
     RS2_MEASURE_DECL void rs2_box_measure_reset(rs2_box_measure* box_measure, rs2_error** e);
     RS2_MEASURE_DECL int rs2_box_measure_get_boxes(rs2_box_measure* box_measure, rs2_measure_box* boxes, rs2_error** e);
     RS2_MEASURE_DECL void rs2_box_meausre_project_box_onto_frame(const rs2_measure_box* box, const rs2_measure_camera_state* camera, rs2_measure_box_wireframe* wireframe, rs2_error** e);
@@ -152,7 +152,12 @@ namespace rs2
     {
     public:
 
-        box_measure(device dev = device()) : _device(dev), _queue(1), _stream_w(0), _stream_h(0)
+        struct calibration {
+            rs2_intrinsics intrinsics[2];
+            rs2_extrinsics depth_to_color;
+        };
+
+        box_measure(device dev = device(), calibration* custom = nullptr) : _device(dev), _queue(1), _stream_w(0), _stream_h(0)
         {
             rs2_error* e = nullptr;
             
@@ -160,7 +165,8 @@ namespace rs2
 
             printf("depth unit %f \n", depth_unit);
 
-            _block = std::shared_ptr<processing_block>((processing_block*)rs2_box_measure_create(&_box_measure, depth_unit, &e));
+            _block = std::shared_ptr<processing_block>((processing_block*)rs2_box_measure_create(&_box_measure, depth_unit,
+                custom ? custom->intrinsics : nullptr, custom ? &custom->depth_to_color : nullptr, &e));
             error::handle(e);
 
             _block->start(_queue);

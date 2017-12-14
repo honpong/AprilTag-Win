@@ -17,7 +17,6 @@
 #include <rs_box_sdk.hpp>
 #include "rs-box-app.hpp"
 
-using namespace rs2;
 #if 0
 int main(int argc, char* argv[])
 {
@@ -61,6 +60,16 @@ int main(int argc, char* argv[])
 {
 #endif
 
+    std::string calibration_read_path = "", calibration_save_path = "";
+    for (int i = 1; i < argc; ++i) {
+        if (!strcmp(argv[i], "-c") || !strcmp(argv[i], "-calibration_read")) { calibration_read_path = argv[++i]; }
+        else if (!strcmp(argv[i], "-co") || !strcmp(argv[i], "-calibration_save")) { calibration_save_path = argv[++i]; }
+        else {
+            printf("usages:\n box-app.exe [--calibration FILE]");
+            return 0;
+        }
+    }
+
     rs2::context  ctx;
     rs2::pipeline pipe;
 
@@ -71,11 +80,14 @@ int main(int argc, char* argv[])
     std::string header = std::string(dev.get_info(RS2_CAMERA_INFO_NAME)) + " Box Scan Example ";
    
     // Declare box detection
-    rs2::box_measure boxscan(dev);
+    rs2::box_measure boxscan(dev, read_calibration(calibration_read_path).get());
 
     // Setup camera pipeline
     auto config = boxscan.get_camera_config();
     auto pipeline = pipe.start(config);
+
+    // save calibration if needed
+    save_calibration(calibration_save_path, pipeline);
 
     // Declare depth colorizer for pretty visualization of depth data
     rs2::colorizer color_map;

@@ -77,6 +77,7 @@ for i in itertools.count():
             'bias': [0,0,0],
             'bias_variance': [acc_bias_variance, acc_bias_variance, acc_bias_variance],
             'scale_and_alignment': [ 1,0,0, 0,1,0, 0,0,1 ],
+            'decimate_by': 5,
         },
         'gyroscope':     {
             'noise_variance': s['gyroscope_noise_density'] * s['gyroscope_noise_density'] * s['rate_hz'],

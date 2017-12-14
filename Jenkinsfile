@@ -1,5 +1,7 @@
 def message = { status -> "<$BUILD_URL|Build> of ${env.CHANGE_ID ? "<${env.CHANGE_URL}|#${env.CHANGE_ID} ${env.CHANGE_TITLE}> for ${env.CHANGE_TARGET} by ${env.CHANGE_AUTHOR}" : "${env.BRANCH_NAME}"} $status" }
 
+env.CACHE_BASEDIR = env.WORKSPACE
+
 pipeline {
     agent any
 

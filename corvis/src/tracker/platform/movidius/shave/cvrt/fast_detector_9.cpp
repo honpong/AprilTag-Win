@@ -49,16 +49,8 @@ void fast_detector_9::detect(const u8 *pImage, int bthresh, int winx, int winy, 
 
             dmaWaitTask(&dmaNextRow);
         }
-        int  scoreSize = sizeof(u32) + *(u32*)scoreBuffer * sizeof(u8);
-        int offsetSize = sizeof(u32) + *(u32*)baseBuffer  * sizeof(u16);
-        u8 *pScoresY  =      pScores  + y * (sizeof(u32) + MAX_WIDTH * sizeof(u8));
-        u8 *pOffsetsY = (u8*)pOffsets + y * (sizeof(u32) + MAX_WIDTH * sizeof(u16));
-        dmaTransactionList_t dmaOutScores, dmaOutOffsets;
-        dmaCreateTransaction(dmaId, &dmaOutScores, scoreBuffer, pScoresY, scoreSize);
-        dmaCreateTransaction(dmaId, &dmaOutOffsets, (u8*)baseBuffer, pOffsetsY, offsetSize);
-        dmaLinkTasks(&dmaOutScores, 1, &dmaOutOffsets);
-        dmaStartListTask(&dmaOutScores);
-        dmaWaitTask(&dmaOutScores);
+        memcpy(     pScores  + y * (sizeof(u32) + MAX_WIDTH * sizeof(u8)), scoreBuffer, sizeof(u32) + *(u32*)scoreBuffer * sizeof(u8));
+        memcpy((u8*)pOffsets + y * (sizeof(u32) + MAX_WIDTH * sizeof(u16)), baseBuffer, sizeof(u32) + *(u32*)baseBuffer  * sizeof(u16));
     }
 }
 

@@ -22,102 +22,44 @@ void fast_detector_9::init(const int x, const int y, const int s, const int ps, 
 
 }
 
-void fast_detector_9::detect(const u8* pImage,
-		int bthresh,
-		int winx,
-		int winy,
-		int winwidth,
-		int winheight,
-		u8* pScores,
-		u16* pOffsets) {
-
-
-	byte* pFastLines[TOTAL_ROWS];
-	u8* pFileterLines[FAST_ROWS];
-	int y, x1, y1, x2, y2, paddedWidth, width;
-
-	x1 = (winx < 8) ? 8 : winx;
-	y1 = (winy < 8) ? 8 : winy;
-	x2 = (winx + winwidth > xsize - 8) ? xsize - 8 : winx + winwidth;
-	y2 = (winy + winheight > ysize - 8) ? ysize - 8 : winy + winheight;
-	width = x2-x1;
-	paddedWidth = x2 - x1 + 2 * PADDING;
-#ifdef DEBUG_PRINTS
-	int shaveNum = scGetShaveNumber();
-    if(shaveNum == 1)
-    	printf("shave %d x1 %d x2 %d y1 %d y2 %d width %d paddedwidth %d\n",shaveNum, x1, x2, y1, y2, width, paddedWidth);
-#endif
-    pFastLines[0] = dataBuffer;
-    for(int i = 1; i <= FAST_ROWS; ++i)
-	{
-		pFastLines[i] = pFastLines[i-1] + paddedWidth;
-	}
-
-    dmaTransactionList_t  dmaFastTask[TOTAL_ROWS];
-    dmaTransactionList_t  dmaOutTask[2];
-    dmaTransactionList_t* dmaRef[FAST_ROWS + 1];
-    dmaTransactionList_t* dmaOut[2];
-
-    u32 dmaRequsterId = dmaInitRequester(1);
-    //read 7 lines for the fast algorithm
-    for(int i = 0; i < FAST_ROWS; ++i)
+void fast_detector_9::detect(const u8 *pImage, int bthresh, int winx, int winy, int winwidth, int winheight, u8 *pScores, u16 *pOffsets) {
+    int x1 = (winx < 8) ? 8 : winx;
+    int y1 = (winy < 8) ? 8 : winy;
+    int x2 = (winx + winwidth > xsize - 8) ? xsize - 8 : winx + winwidth;
+    int y2 = (winy + winheight > ysize - 8) ? ysize - 8 : winy + winheight;
+    int width = x2-x1;
+    int paddedWidth = x2 - x1 + 2 * PADDING;
+    u8 *topLeft = const_cast<u8*>(pImage) - 3 * stride + x1 - PADDING;
+    u32 dmaId = dmaInitRequester(1);
     {
-    	dmaRef[i] = dmaCreateTransaction(dmaRequsterId, &dmaFastTask[i], (u8*)(pImage + (y1 - 3 + i) * stride + x1 - PADDING), pFastLines[i], paddedWidth);
+        dmaTransactionList_t dma7Rows;
+        dmaCreateTransactionSrcStride(dmaId, &dma7Rows, topLeft + y1 * stride, dataBuffer, 7 * paddedWidth, paddedWidth, stride);
+        dmaStartListTask(&dma7Rows);
+        dmaWaitTask(&dma7Rows);
     }
-    dmaLinkTasks(dmaRef[0], 6, dmaRef[1],dmaRef[2],dmaRef[3],dmaRef[4],dmaRef[5],dmaRef[6]);
-    dmaStartListTask(dmaRef[0]);
-	dmaWaitTask(dmaRef[0]);
-#ifdef DEBUG_PRINTS
-	if(shaveNum == 1)
-		printf("shaveNum %d got 7 lines\n", shaveNum);
-#endif
+    for (int y = y1, dy = 0; y < y2; y++, dy++) {
+        {
+            dmaTransactionList_t dmaNextRow;
+            dmaStartListTask(dmaCreateTransaction(dmaId, &dmaNextRow, topLeft + (y + 7) * stride, dataBuffer + (dy + 7) % 8 * paddedWidth, paddedWidth));
 
-	for (y = y1; y < y2; y++)
-	{
-		const u8* pSrc = pImage + (y + 4) * stride + x1 - PADDING;
-		u8* pScoresOut = pScores + y * (MAX_WIDTH + 4);
-		u16* pOffsetsOut = pOffsets + y * (MAX_WIDTH + 2);
+            u8 *lines[7];
+            for (int i=0; i<7; i++)
+                lines[i] = dataBuffer + (dy + i) % 8 * paddedWidth + PADDING;
+            mvcvFast9M2_asm(lines, scoreBuffer, baseBuffer, bthresh, width);
 
-		//every eight rows bring a mask line TODO:bring one in advance
-	   /*if(0 == y % 8)
-	   {
-		   dmaRef[DMA_MASK] = dmaCreateTransaction(dmaRequsterId, &dmaTask[DMA_MASK], (u8*)(mask + (y>>3) * xsize + (x1>>3)), maskBuffer, (winwidth>>3));
-		   dmaStartListTask(dmaRef[DMA_MASK]);
-		   dmaWaitTask(dmaRef[DMA_MASK]);
-	   }*/
-
-		//start dma transaction for row 8 - not waiting here
-		dmaRef[FAST_ROWS] = dmaCreateTransaction(dmaRequsterId, &dmaFastTask[FAST_ROWS], (u8*)pSrc, pFastLines[FAST_ROWS], paddedWidth);
-		dmaStartListTask(dmaRef[FAST_ROWS]);
-
-		//call fast 9 filter
-		for(int i = 0; i < FAST_ROWS; ++i){
-			pFileterLines[i] = pFastLines[i] + PADDING;
-		}
-		mvcvFast9M2_asm(pFileterLines, scoreBuffer, baseBuffer, bthresh, width);
-
-		//wait for the next line of data
-		dmaWaitTask(dmaRef[FAST_ROWS]);
-
-		//output dma
-		int numberOfScores = *(unsigned int*)scoreBuffer + 4;
-		int numOfOffsets = *(unsigned int*)baseBuffer * 2 + 4;
-
-		dmaOut[0] = dmaCreateTransaction(dmaRequsterId, &dmaOutTask[0], scoreBuffer, pScoresOut, numberOfScores);
-		dmaOut[1] = dmaCreateTransaction(dmaRequsterId, &dmaOutTask[1], (u8*)baseBuffer, (u8*)pOffsetsOut, numOfOffsets);
-		dmaLinkTasks(dmaOut[0], 1, dmaOut[1]);
-		dmaStartListTask(dmaOut[0]);
-
-		//roll buffers
-		u8* temp = pFastLines[0];
-		for(int i = 0; i < FAST_ROWS; ++i)
-		{
-			pFastLines[i] = pFastLines[i+ 1];
-		}
-		pFastLines[FAST_ROWS] = temp;
-		dmaWaitTask(dmaOut[0]);
-	}
-
+            dmaWaitTask(&dmaNextRow);
+        }
+        int  scoreSize = sizeof(u32) + *(u32*)scoreBuffer * sizeof(u8);
+        int offsetSize = sizeof(u32) + *(u32*)baseBuffer  * sizeof(u16);
+        u8 *pScoresY  =      pScores  + y * (sizeof(u32) + MAX_WIDTH * sizeof(u8));
+        u8 *pOffsetsY = (u8*)pOffsets + y * (sizeof(u32) + MAX_WIDTH * sizeof(u16));
+        dmaTransactionList_t dmaOutScores, dmaOutOffsets;
+        dmaCreateTransaction(dmaId, &dmaOutScores, scoreBuffer, pScoresY, scoreSize);
+        dmaCreateTransaction(dmaId, &dmaOutOffsets, (u8*)baseBuffer, pOffsetsY, offsetSize);
+        dmaLinkTasks(&dmaOutScores, 1, &dmaOutOffsets);
+        dmaStartListTask(&dmaOutScores);
+        dmaWaitTask(&dmaOutScores);
+    }
 }
 
 
@@ -178,7 +120,6 @@ xy fast_detector_9::track(u8* im1,
 			//float score = score_match(pFastLines, xcurrent,x, pBest.score, mean1);
             mean2 = compute_mean7x7_from_pointer_array(x,patch_win_half_width ,pFastLines) ;
             float score = score_match_from_pointer_array(patch1_pa, pFastLines,patch_win_half_width , x,patch_win_half_width,pBest.score ,mean1, mean2);
-  		  	int shaveNum = scGetShaveNumber();
 
 			if (score > pBest.score) {
 				pBest.x = (float) x + x1 - PADDING;

@@ -672,12 +672,12 @@ void filter_wait_for_node_completion(struct filter *f)
     }
 }
 
-bool filter_relocalize(struct filter *f, const camera_frame_t& camera_frame)
+bool filter_relocalize(struct filter *f, camera_frame_t&& camera_frame)
 {
     START_EVENT(SF_RELOCALIZE, camera_frame.camera_id);
-    f->is_relocalized = f->map->relocalize(camera_frame);
-    END_EVENT(SF_RELOCALIZE, f->is_relocalized);
-    return f->is_relocalized;
+    f->relocalization_info = f->map->relocalize(camera_frame);
+    END_EVENT(SF_RELOCALIZE, f->relocalization_info.is_relocalized);
+    return f->relocalization_info.is_relocalized;
 }
 
 bool filter_depth_measurement(struct filter *f, const sensor_data & data)
@@ -1032,7 +1032,7 @@ void filter_initialize(struct filter *f)
     f->max_group_add = std::max<int>(80 / f->cameras.size(), f->min_group_add);
     f->has_depth = false;
     f->stereo_enabled = false;
-    f->is_relocalized = false;
+    f->relocalization_info.is_relocalized = false;
 
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;

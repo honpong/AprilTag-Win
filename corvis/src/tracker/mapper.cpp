@@ -572,19 +572,15 @@ void mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_ve
     G_candidateB_currentframeB = invert(G_BC*G_currentframeC_candidateB);
 }
 
-bool mapper::relocalize(const camera_frame_t& camera_frame) {
-    std::shared_ptr<frame_t> current_frame = camera_frame.frame;
-    if (!current_frame->keypoints.size()) {
-        reloc_info.clear();
-        return false;
-    }
+map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
+    const std::shared_ptr<frame_t>& current_frame = camera_frame.frame;
+    map_relocalization_info reloc_info;
+    reloc_info.frame_timestamp = current_frame->timestamp;
+    if (!current_frame->keypoints.size()) return reloc_info;
 
-    bool is_relocalized = false;
     const size_t min_num_inliers = 12;
     size_t best_num_inliers = 0;
     size_t i = 0;
-    map_relocalization_info local_reloc_info;
-    local_reloc_info.frame_timestamp = current_frame->timestamp;
 
     START_EVENT(SF_FIND_CANDIDATES, 0);
     std::vector<std::pair<nodeid, float>> candidate_nodes =
@@ -626,14 +622,14 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
             estimate_pose(candidate_3d_points, current_2d_points, camera_frame.camera_id, G_candidate_currentframe, inliers_set);
             END_EVENT(SF_ESTIMATE_POSE,inliers_set.size());
             if(inliers_set.size() >= min_num_inliers) {
-                is_relocalized = true;
+                reloc_info.is_relocalized = true;
                 is_relocalized_in_candidate = true;
 
                 if(inliers_set.size() > best_num_inliers) {
                     best_num_inliers = inliers_set.size();
                     auto& node = nodes.at(nid.first);
-                    local_reloc_info.candidates.clear();
-                    local_reloc_info.candidates.emplace_back(G_candidate_currentframe, node.global_transformation, node.frame->timestamp);
+                    reloc_info.candidates.clear();
+                    reloc_info.candidates.emplace_back(G_candidate_currentframe, node.global_transformation, node.frame->timestamp);
                     transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
                     add_edge(nid.first, camera_frame.closest_node,
                              G_candidate_closestnode, true);
@@ -675,7 +671,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
             cv::putText(flipped_color_candidate_image,"number of inliers " + std::to_string(inliers_set.size()),
                         cv::Point(30,120),cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(255,0,0,255));
 
-            if(is_relocalized) {
+            if(reloc_info.is_relocalized) {
                 cv::putText(color_current_image,"RELOCALIZED",
                 cv::Point(30,30),cv::FONT_HERSHEY_COMPLEX,0.8,cv::Scalar(0,255,0,255));
             } else {
@@ -719,8 +715,7 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
         #endif
     }
 
-    std::swap(local_reloc_info, reloc_info);
-    return is_relocalized;
+    return reloc_info;
 }
 
 std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching_factor, int depth_levels) const {

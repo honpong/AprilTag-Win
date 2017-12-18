@@ -98,7 +98,11 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if (sfm.s.cameras.children[data.id]->node_description_future.valid()) {
                     auto camera_frame = sfm.s.cameras.children[data.id]->node_description_future.get();
                     if (sfm.relocalize) {
-                        if (filter_relocalize(&sfm, camera_frame))
+                        auto result = sfm.relocalization_scheduler.process(false,  // ToDo: remove when thread safety is solved,
+                            [this] (camera_frame_t&& camera_frame) {
+                                return filter_relocalize(&sfm, std::move(camera_frame));
+                        }, std::move(camera_frame));
+                        if (result.status == scheduler::RESULT_AVAILABLE && result.value)
                             sfm.log->info("relocalized");
                     }
                 }
@@ -155,7 +159,11 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if (sfm.s.cameras.children[0]->node_description_future.valid()) {
                     auto camera_frame = sfm.s.cameras.children[0]->node_description_future.get();
                     if (sfm.relocalize) {
-                        if (filter_relocalize(&sfm, camera_frame))
+                        auto result = sfm.relocalization_scheduler.process(false,  // ToDo: remove when thread safety is solved,
+                            [this] (camera_frame_t&& camera_frame) {
+                                return filter_relocalize(&sfm, std::move(camera_frame));
+                        }, std::move(camera_frame));
+                        if (result.status == scheduler::RESULT_AVAILABLE && result.value)
                             sfm.log->info("relocalized");
                     }
                 }

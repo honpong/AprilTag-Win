@@ -339,6 +339,9 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
                     *get_transformation();
             map->add_edge(map->current_node->id, g->id, G_current_now);
         }
+        for(auto &group : groups.children) {
+            map->add_covisibility_edge(g->id, group->id);
+        }
     }
     auto *p = g.get();
     groups.children.push_back(std::move(g));

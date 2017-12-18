@@ -46,6 +46,7 @@ class map_node_t {
 public:
     uint64_t id;
     std::map<uint64_t, map_edge_v> edges;
+    std::set<uint64_t> covisibility_edges;
     transformation global_transformation;
     uint64_t camera_id;
     std::shared_ptr<frame_v> frame;

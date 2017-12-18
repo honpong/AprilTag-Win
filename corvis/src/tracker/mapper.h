@@ -63,6 +63,7 @@ struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
     std::map<uint64_t, map_edge> edges; // key is neighbor_id; we use a map structure to gurantee same order when traversing edges.
+    std::set<uint64_t> covisibility_edges;
     map_edge &get_add_neighbor(uint64_t neighbor);
     void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v, const feature_type type);
     void set_feature_type(const uint64_t id, const feature_type type);
@@ -182,8 +183,8 @@ private:
 
     // private functions that are used after acquiring some of the mutexes
     void remove_edge_no_lock(nodeid node_id1, nodeid node_id2);
-    void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12,
-                          bool loop_closure = false);
+    void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
+    void add_covisibility_edge_no_lock(nodeid node_id1, nodeid node_id2);
 
     void remove_node_features(nodeid node_id);
     void add_triangulated_feature_to_group(
@@ -200,6 +201,7 @@ private:
     void add_node(nodeid node_id, const rc_Sensor camera_id);
     void remove_node(nodeid node_id);
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
+    void add_covisibility_edge(nodeid node_id1, nodeid node_id2);
     void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,

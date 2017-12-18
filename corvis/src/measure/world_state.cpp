@@ -98,16 +98,15 @@ void world_state::observe_world(float world_up_x, float world_up_y, float world_
     display_lock.unlock();
 }
 
-void world_state::observe_map_node(uint64_t timestamp, uint64_t node_id, bool finished, const std::set<uint64_t>& loop_closed, bool unlinked, const transformation& position, std::vector<uint64_t>& neighbors, std::vector<Feature>& features)
+void world_state::observe_map_node(uint64_t timestamp, uint64_t node_id, bool finished, bool unlinked, const transformation& position, std::vector<Neighbor>&& neighbors, std::vector<Feature>& features)
 {
     display_lock.lock();
     MapNode n;
     n.id = node_id;
     n.finished = finished;
-    n.loop_closed = loop_closed;
     n.unlinked = unlinked;
     n.position = position;
-    n.neighbors = neighbors;
+    n.neighbors = std::move(neighbors);
     n.features = features;
     map_nodes[node_id] = n;
     display_lock.unlock();
@@ -518,12 +517,15 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
         const auto& nodes = f->map->get_nodes();
         for(const auto& it : nodes) {
             auto& map_node = it.second;
-            std::set<uint64_t> loop_closed;
-            std::vector<uint64_t> neighbors;
-            for(auto edge : map_node.edges) {
-                neighbors.push_back(edge.first);
-                if(edge.second.loop_closure)
-                    loop_closed.insert(edge.first);
+            std::vector<Neighbor> neighbors;
+            for(auto id : map_node.covisibility_edges) {
+                Neighbor neighbor{id, false, false};
+                auto edge_it = map_node.edges.find(id);
+                if(edge_it != map_node.edges.end()) {
+                    neighbor.has_transformation = true;
+                    neighbor.loop_closure = edge_it->second.loop_closure;
+                }
+                neighbors.push_back(neighbor);
             }
             std::vector<Feature> features;
             for(auto &feat : map_node.features) {
@@ -536,7 +538,7 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
                 features.push_back(fw);
             }
             bool unlinked = f->map->is_unlinked(map_node.id);
-            observe_map_node(timestamp_us, map_node.id, map_node.status == node_status::finished, loop_closed, unlinked, map_node.global_transformation, neighbors, features);
+            observe_map_node(timestamp_us, map_node.id, map_node.status == node_status::finished, unlinked, map_node.global_transformation, std::move(neighbors), features);
         }
         // remove discarded nodes
         display_lock.lock();
@@ -861,28 +863,30 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         VertexData v;
         if(!node.finished)
             set_color(&v, 255, 0, 255, alpha);
-        else if(!node.loop_closed.empty())
-            set_color(&v, 255, 0, 0, alpha);
         else
             set_color(&v, 255, 255, 0, alpha);
         v3 v1(node.position.T);
         set_position(&v, v1[0], v1[1], v1[2]);
         map_node_vertex.push_back(v);
-        for(uint64_t neighbor_id : node.neighbors) {
-            if(!node.finished || !map_nodes[neighbor_id].finished) continue;
-
+        for(Neighbor neighbor : node.neighbors) {
             VertexData ve;
-            if(node.loop_closed.find(neighbor_id) != node.loop_closed.end())
-                set_color(&ve, 255, 0, 0, 255);
-            else
+            if(neighbor.has_transformation) {
+                if(neighbor.loop_closure)
+                    set_color(&ve, 255, 0, 0, alpha*0.2);
+                else
+                    set_color(&ve, 0, 255, 0, alpha*0.2);
+            } else
                 set_color(&ve, 255, 0, 255, alpha*0.2);
             set_position(&ve, v1[0], v1[1], v1[2]);
             map_edge_vertex.push_back(ve);
 
-            auto node2 = map_nodes[neighbor_id];
-            if(node.loop_closed.find(neighbor_id) != node.loop_closed.end())
-                set_color(&ve, 255, 0, 0, 255);
-            else
+            auto node2 = map_nodes[neighbor.id];
+            if(neighbor.has_transformation) {
+                if(neighbor.loop_closure)
+                    set_color(&ve, 255, 0, 0, alpha*0.2);
+                else
+                    set_color(&ve, 0, 255, 0, alpha*0.2);
+            } else
                 set_color(&ve, 255, 0, 255, alpha*0.2);
             set_position(&ve, node2.position.T.x(), node2.position.T.y(), node2.position.T.z());
             map_edge_vertex.push_back(ve);
@@ -891,14 +895,10 @@ bool world_state::update_vertex_arrays(bool show_only_good)
             VertexData vf;
             v3 vertex(f.feature.world.x, f.feature.world.y, f.feature.world.z);
             vertex = transformation_apply(node.position, vertex);
-            if(!node.loop_closed.empty())
-                set_color(&vf, 255, 127, 127, 255);
-            else {
-                if (f.is_triangulated) {
-                    set_color(&vf, 255, 153, 0, alpha);
-                } else {
-                    set_color(&vf, 0, 0, 255, alpha);
-                }
+            if (f.is_triangulated) {
+                set_color(&vf, 255, 153, 0, alpha);
+            } else {
+                set_color(&vf, 0, 0, 255, alpha);
             }
             set_position(&vf, vertex[0], vertex[1], vertex[2]);
             map_feature_vertex.push_back(vf);

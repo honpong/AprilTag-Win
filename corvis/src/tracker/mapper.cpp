@@ -78,6 +78,15 @@ void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12,
     edge21.G = invert(G12);
 }
 
+void mapper::add_covisibility_edge(nodeid id1, nodeid id2) {
+    nodes.critical_section(&mapper::add_covisibility_edge_no_lock, this, id1, id2);
+}
+
+void mapper::add_covisibility_edge_no_lock(nodeid id1, nodeid id2) {
+    nodes->at(id1).covisibility_edges.insert(id2);
+    nodes->at(id2).covisibility_edges.insert(id1);
+}
+
 void mapper::remove_edge(nodeid id1, nodeid id2) {
     nodes.critical_section(&mapper::remove_edge_no_lock, this, id1, id2);
 }
@@ -735,6 +744,7 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                     ok = nodes.critical_section([&]() {
                         if (nodes->find(nid.first) != nodes->end() && nodes->find(camera_frame.closest_node) != nodes->end()) {
                             add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, true);
+                            add_covisibility_edge_no_lock(nid.first, camera_frame.closest_node);
                             return true;
                         }
                         return false;
@@ -913,6 +923,7 @@ static bstream_writer & operator << (bstream_writer &content, const map_node &no
     content << node.id << node.camera_id << node.edges << node.global_transformation;
     content << (uint8_t)(node.frame != nullptr);
     if (node.frame) content << node.frame;
+//    content << covisibility_edges;
     return content << node.features;
 }
 

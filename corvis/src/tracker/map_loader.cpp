@@ -64,6 +64,8 @@ static bstream_reader &  operator >> (bstream_reader &content, map_node_v1 &node
         node.frame = make_shared<frame_t>();
         content >> node.frame;
     }
+//    content >> node.covisibility_edges;
+
     return  content >> node.features;
 }
 

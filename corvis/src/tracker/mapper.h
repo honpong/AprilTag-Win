@@ -79,10 +79,17 @@ struct map_node {
 
 struct map_relocalization_info {
     sensor_clock::time_point frame_timestamp;
-    std::vector<uint64_t> node_ids;
-    aligned_vector<transformation> vG_node_frame;
-    void clear() { frame_timestamp = sensor_clock::micros_to_tp(0); node_ids.clear(); vG_node_frame.clear(); }
-    size_t size() const { return vG_node_frame.size(); }
+    struct candidate {
+        transformation G_node_frame;
+        transformation G_world_node;
+        sensor_clock::time_point node_timestamp;
+        candidate() {}
+        candidate(transformation g_node_frame, transformation g_world_node, sensor_clock::time_point node_ts)
+            : G_node_frame(g_node_frame), G_world_node(g_world_node), node_timestamp(node_ts) {}
+    };
+    aligned_vector<candidate> candidates;
+    void clear() { frame_timestamp = sensor_clock::micros_to_tp(0); candidates.clear(); }
+    size_t size() const { return candidates.size(); }
 };
 
 class mapper {

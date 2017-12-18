@@ -579,11 +579,9 @@ int rc_getRelocalizationPoses(rc_Tracker* tracker, rc_Pose **reloc_edges)
         const auto& info = map->get_relocalization_info();
         tracker->relocalization_G_world_body.clear();
         tracker->relocalization_G_world_body.reserve(info.size());
-        for (size_t i = 0; i < info.size(); ++i) {
-            const transformation& G_node_frame = info.vG_node_frame[i];
-            const transformation& G_world_node = map->get_node(info.node_ids[i]).global_transformation;
+        for (auto& c : info.candidates) {
             tracker->relocalization_G_world_body.emplace_back(
-                        to_rc_Pose(G_world_node * G_node_frame));
+                        to_rc_Pose(c.G_world_node * c.G_node_frame));
         }
         if (reloc_edges) *reloc_edges = tracker->relocalization_G_world_body.data();
         return tracker->relocalization_G_world_body.size();
@@ -600,10 +598,10 @@ int rc_getRelocalizationEdges(rc_Tracker *tracker, rc_Timestamp *source, rc_Relo
         tracker->relocalization_edges.clear();
         tracker->relocalization_edges.resize(info.size());
         for (size_t i = 0; i < info.size(); ++i) {
-            const transformation& G_node_frame = info.vG_node_frame[i];
+            const transformation& G_node_frame = info.candidates[i].G_node_frame;
             rc_RelocEdge& edge = tracker->relocalization_edges[i];
             edge.pose_m = to_rc_Pose(G_node_frame);
-            edge.time_destination = sensor_clock::tp_to_micros(map->get_node(info.node_ids[i]).frame->timestamp);
+            edge.time_destination = sensor_clock::tp_to_micros(info.candidates[i].node_timestamp);
         }
         if (source) *source = sensor_clock::tp_to_micros(info.frame_timestamp);
         if (edges) *edges = tracker->relocalization_edges.data();

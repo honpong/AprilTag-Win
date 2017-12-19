@@ -2,8 +2,49 @@
 
 #include <memory>
 #include <string>
+#include <spdlog/fmt/fmt.h>
 
 #include "sinks/sink.h"
+
+#ifdef SLAM_LOG
+    #include "logger/logger.h"
+    #define MODULE_ID HMD_TRACKING
+    #define SLAM_LOG_EVENT(level, level_str, message)                        \
+    {                                                                   \
+        uint64_t now = TimestampNs();                                   \
+        log_event((level), (__LINE__), MODULE_ID, FREE, message, now);  \
+        if(JTAG_LOG_LEVEL >= level) {                                   \
+            printf("[%s] %s\n", level_str, message);                    \
+        }                                                               \
+    }
+#else
+    #define JTAG_LOG_LEVEL DEBUG
+
+    //List of verbosity levels
+    enum log_level {
+            NO_LOG   = 0x0000,
+            LOG_ERR  = 0x0001,
+            INFO     = 0x0002,
+            WARNING  = 0x0003,
+            DEBUG    = 0x0004,
+            VERBOSE  = 0x0005,
+            TRACE    = 0x0006,
+            MAX_LOG_LEVEL
+    };
+
+    #define SLAM_LOG_EVENT(level, level_str, message)        \
+    {                                                   \
+        if(JTAG_LOG_LEVEL >= level) {                   \
+            printf("[%s] %s\n", level_str, message);    \
+        }                                               \
+    }
+#endif
+#define SLAM_LOG_ERR(message) SLAM_LOG_EVENT(LOG_ERR, "ERR", message)
+#define SLAM_LOG_INF(message) SLAM_LOG_EVENT(INFO,    "INF", message)
+#define SLAM_LOG_WRN(message) SLAM_LOG_EVENT(WARNING, "WRN", message)
+#define SLAM_LOG_DBG(message) SLAM_LOG_EVENT(DEBUG,   "DBG", message)
+#define SLAM_LOG_VRB(message) SLAM_LOG_EVENT(VERBOSE, "VRB", message)
+#define SLAM_LOG_TRC(message) SLAM_LOG_EVENT(TRACE,   "TRC", message)
 
 namespace spdlog {
     namespace level {
@@ -44,12 +85,29 @@ namespace spdlog {
         void set_pattern(const char *) {};
 
 
-    template <typename... Args> void trace(const char*, const Args&...) {};
-    template <typename... Args> void debug(const char*, const Args&...) {};
-    template <typename... Args> void info(const char*, const Args&...) {};
-    template <typename... Args> void warn(const char*, const Args&...) {};
-    template <typename... Args> void error(const char*, const Args&...) {};
-    template <typename... Args> void critical(const char*, const Args&...) {};
+    template <typename... Args> void trace(const char* fmt, const Args&... args) {
+        SLAM_LOG_TRC(fmt::format(fmt, args...).c_str());
+    }
+
+    template <typename... Args> void debug(const char* fmt, const Args&... args) {
+        SLAM_LOG_DBG(fmt::format(fmt, args...).c_str());
+    }
+
+    template <typename... Args> void info(const char* fmt, const Args&... args) {
+        SLAM_LOG_INF(fmt::format(fmt, args...).c_str());
+    }
+
+    template <typename... Args> void warn(const char* fmt, const Args&... args) {
+        SLAM_LOG_WRN(fmt::format(fmt, args...).c_str());
+    }
+
+    template <typename... Args> void error(const char* fmt, const Args&... args) {
+        SLAM_LOG_ERR(fmt::format(fmt, args...).c_str());
+    }
+
+    template <typename... Args> void critical(const char* fmt, const Args&... args) {
+       SLAM_LOG_ERR(fmt::format(fmt, args...).c_str());
+    }
 
     template <typename T> void trace(const T&) {};
     template <typename T> void debug(const T&) {};

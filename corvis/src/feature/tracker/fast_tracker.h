@@ -30,8 +30,8 @@ public:
 
     typedef struct { float x, y, score, reserved; } xy;
 
-private:
     static bool xy_comp(const xy &a, const xy &b) { return a.score != b.score ? a.score > b.score : a.y != b.y ? a.y < b.y : a.x < b.x; }
+private:
     int pixel[16];
     int xsize, ysize, stride, patch_stride;
     void init(const int x, const int y, const int s, const int ps);

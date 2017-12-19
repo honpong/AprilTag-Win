@@ -4,6 +4,7 @@
 #include "image_defines.h"
 #include "tracker.h"
 #include "descriptor.h"
+#include "fast_detect.h"
 #include "state_vision.h"
 extern "C" {
 #include "cor_types.h"
@@ -26,8 +27,6 @@ extern "C" {
 // ----------------------------------------------------------------------------
 //## Define Memory useage ##
 //tracker
-static u8 __attribute__((section(".ddr_direct.bss"))) scores[MAX_HEIGHT][MAX_WIDTH + 4];
-static u16 __attribute__((section(".ddr_direct.bss"))) offsets[MAX_HEIGHT][MAX_WIDTH + 2];
 static u8 __attribute__((section(".ddr.bss"))) p_kp1[sizeof(float3_t)*MAX_KP1+sizeof(int)]; //l_float3
 static u8 __attribute__((section(".ddr.bss"))) p_kp2[sizeof(float3_t)*MAX_KP2+sizeof(int)]; //l_float3
 
@@ -41,13 +40,6 @@ __attribute__((section(".cmx_direct.data"))) float depths1[MAX_KP1];
 __attribute__((section(".cmx_direct.data"))) float depths2[MAX_KP1];
 __attribute__((section(".cmx_direct.data"))) float errors1[MAX_KP1];
 __attribute__((section(".cmx_direct.data"))) int matched_kp[MAX_KP1];
-// ----------------------------------------------------------------------------
-// 4: Static Local Data
-//tracker
-extern u32 detect4_fast_detect;
-extern u32 detect8_fast_detect;
-extern u32 detect9_fast_detect;
-extern u32 detect10_fast_detect;
 
 extern u32 track0_fast_track;
 extern u32 track1_fast_track;
@@ -60,14 +52,6 @@ extern u32 stereo_initialize2_stereo_match;
 extern u32 stereo_initialize3_stereo_match;
 
 struct shave_entry_point { int shave; u32 *entry_point; };
-
-#define DETECT_SHAVES 4
-shave_entry_point fast_detect[DETECT_SHAVES] = {
-    {4,  &detect4_fast_detect},
-    {8,  &detect8_fast_detect},
-    {9,  &detect9_fast_detect},
-    {10, &detect10_fast_detect},
-};
 
 #define TRACK_SHAVES 4
 shave_entry_point fast_track[TRACK_SHAVES] = {
@@ -85,108 +69,34 @@ shave_entry_point stereo_matching[STEREO_SHAVES] = {
     {3, &stereo_initialize3_stereo_match},
 };
 
-typedef struct _short_score {
-    _short_score(short _x=0, short _y=0, short _score=0) : x(_x), y(_y), score(_score) {}
-    short x,y,score;
-} short_score;
-
-std::vector<short_score> detected_points;
-
 static volatile ShavekpMatchingSettings *kpMatchingParams =  &stereo_initialize_kpMatchingParams;
 
-// ----------------------------------------------------------------------------
-// 5: Static Function Prototypes
-
-static bool point_comp_vector(const short_score &first, const short_score &second)
-{
-    return first.score > second.score;
-}
 using namespace std;
 
-shave_tracker::shave_tracker() :
-    m_thresholdController(fast_detect_controller_min_features, fast_detect_controller_max_features, fast_detect_threshold,
-                         fast_detect_controller_min_threshold, fast_detect_controller_max_threshold,
-                         fast_detect_controller_threshold_up_step, fast_detect_controller_threshold_down_step,
-                         fast_detect_controller_high_hist, fast_detect_controller_low_hist)
+std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image &image, const std::vector<tracker::feature_position> &current, size_t number_desired)
 {
-}
+    if (!mask)
+        mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
+    mask->initialize();
+    for (auto &f : current)
+        mask->clear((int)f.x, (int)f.y);
 
-std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image &image, const std::vector<tracker::feature_position> &features, size_t number_desired)
-{
+    size_t num_found = 0;
+    fast_tracker::xy *found = platform_fast_detect(image, *mask, static_cast<size_t>(number_desired * 3.2f), num_found);
+
     feature_points.clear();
     feature_points.reserve(number_desired);
-    if (number_desired > 0) {
-        //init
-        if (!mask)
-            mask = std::unique_ptr <scaled_mask>(new scaled_mask(image.width_px, image.height_px));
-        mask->initialize();
-        for (auto &f : features)
-            mask->clear((int)f.x, (int)f.y);
-        //run
-        detectMultipleShave(image);
-        sortFeatures(image, number_desired);
-    }
-    return feature_points;
-}
-
-void shave_tracker::sortFeatures(const tracker::image &image, int number_desired)
-{
-    detected_points.clear();
-    for (int y = 8; y < image.height_px - 8; ++y) {
-        unsigned int numPoints = *(int *) (scores[y]);
-        for (unsigned int j = 0; j < numPoints; ++j) {
-            u16 x = offsets[y][2 + j] + PADDING;
-            u8 score = scores[y][4 + j];
-            if (is_trackable<DESCRIPTOR::border_size>((float) x, (float) y, image.width_px, image.height_px)
-                && mask->test(x, y))
-                detected_points.emplace_back(x, y, score);
-        }
-    }
-
-    std::partial_sort(detected_points.begin(),
-                      detected_points.begin() + std::min<size_t>(detected_points.size(), 8 * number_desired),
-                      detected_points.end(), point_comp_vector);
-
-#if SKIP_THRESHOLD_UPDATE == 0
-    m_thresholdController.update(detected_points.size());
-#endif
-    m_lastDetectedFeatures = int(detected_points.size());
-
-    int i=0;
-    for (const auto &d : detected_points) {
-        if(i++ > 8 * number_desired)
+    for (int i=0; i<num_found; i++) {
+        const auto &d = found[i];
+        if(!is_trackable<DESCRIPTOR::border_size>((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
+            continue;
+        mask->clear((int)d.x, (int)d.y);
+        feature_points.emplace_back(std::make_shared<fast_feature<DESCRIPTOR>>(d.x, d.y, image), d.x, d.y, d.score);
+        if (feature_points.size() == number_desired)
             break;
-        if (mask->test((int) d.x, (int) d.y)) {
-            mask->clear((int) d.x, (int) d.y);
-            if (feature_points.size() < number_desired)
-                feature_points.emplace_back(
-                    std::make_shared<fast_feature<DESCRIPTOR>>(d.x, d.y, image),
-                    (float) d.x, (float) d.y, (float) d.score);
-            else
-                break;
-        }
     }
-}
 
-void shave_tracker::detectMultipleShave(const tracker::image &image)
-{
-    struct int2 { int x,y; } xy, image_size, win_size;
-    for (int i=0; i< DETECT_SHAVES; ++i)
-        Shave::get_handle(fast_detect[i].shave)->start(
-            (u32)fast_detect[i].entry_point, "iiiviivv",
-            scores,
-            offsets,
-            m_thresholdController.control(),
-            &(xy = (int2) { 0, i * image.height_px / DETECT_SHAVES }),
-            image.image,
-            image.stride_px,
-            &(image_size = (int2) { image.width_px, image.height_px }),
-            &(win_size = (int2) { image.width_px, (i+1) * image.height_px / DETECT_SHAVES
-                                                 - i    * image.height_px / DETECT_SHAVES })
-        );
-
-    for (int i = 0; i < DETECT_SHAVES; ++i)
-        Shave::get_handle(fast_detect[i].shave)->wait();
+    return feature_points;
 }
 
 void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,

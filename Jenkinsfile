@@ -53,7 +53,7 @@ pipeline {
 
 def slack_build_message(status) {
     "<$BUILD_URL|Build> of " + (env.CHANGE_ID
-        ? "<${env.CHANGE_URL}|#${env.CHANGE_ID} ${env.CHANGE_TITLE}> for ${env.CHANGE_TARGET} by ${env.CHANGE_AUTHOR}"
+        ? "<${env.CHANGE_URL}|#${env.CHANGE_ID} ${env.CHANGE_TITLE}> for `${env.CHANGE_TARGET}` by `${env.CHANGE_AUTHOR}`"
         : "<${env.GIT_URL.replaceAll(/\.git$/,'')}/tree/${env.GIT_BRANCH}|${env.BRANCH_NAME}>") +
     " $status"
 }

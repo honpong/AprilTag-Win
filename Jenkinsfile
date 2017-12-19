@@ -43,7 +43,7 @@ pipeline {
             deleteDir()
         }
         success {
-            slackSend color: "good", message: slack_build_message("succeeded")
+            slackSend color: "good", message: slack_build_message("succeeded (<${env.BUILD_URL}/artifact/benchmark-details-$BRANCH_NAME-${env.GIT_COMMIT}.txt|benchmark>)")
         }
         failure {
             slackSend color: "#FF0000", message: slack_build_message("failed")
@@ -55,5 +55,5 @@ def slack_build_message(status) {
     "<$BUILD_URL|Build> of " + (env.CHANGE_ID
         ? "<${env.CHANGE_URL}|#${env.CHANGE_ID} ${env.CHANGE_TITLE}> for ${env.CHANGE_TARGET} by ${env.CHANGE_AUTHOR}"
         : "<${env.GIT_URL.replaceAll(/\.git$/,'')}/tree/${env.GIT_BRANCH}|${env.BRANCH_NAME}>") +
-    " $status (<${env.BUILD_URL}/artifact/benchmark-details-$BRANCH_NAME-${env.GIT_COMMIT}.txt|benchmark>)"
+    " $status"
 }

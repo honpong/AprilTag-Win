@@ -95,7 +95,7 @@ struct map_relocalization_info {
 class mapper {
  public:
     typedef uint64_t nodeid;
-    typedef std::pair<nodeid, nodeid> match;
+    typedef std::pair<uint64_t, uint64_t> match;
     typedef std::vector<match> matches;
     typedef std::pair<nodeid, transformation> node_path;
     typedef std::map<nodeid, transformation> nodes_path;
@@ -130,11 +130,11 @@ class mapper {
     nodes_path breadth_first_search(nodeid start, int maxdepth = 1);
     nodes_path breadth_first_search(nodeid start, const f_t maxdistance, const size_t N = 5); // maxdistance in meters, max number of nodes
     nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes, bool expect_graph_connected=true);
-    v3 get_feature3D(nodeid node_id, uint64_t feature_id); // returns feature wrt node body frame
+    v3 get_feature3D(nodeid node_id, uint64_t feature_id) const; // returns feature wrt node body frame
 
     const std::unordered_map<nodeid, map_node> & get_nodes() const { return nodes; }
     map_node& get_node(nodeid id) { return nodes.at(id); }
-    bool node_in_map(nodeid id) { return nodes.find(id) != nodes.end(); }
+    bool node_in_map(nodeid id) const { return nodes.find(id) != nodes.end(); }
     uint64_t get_node_id_offset() { return node_id_offset; }
     uint64_t get_feature_id_offset() { return feature_id_offset; }
 

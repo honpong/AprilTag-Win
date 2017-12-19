@@ -203,9 +203,9 @@ void mapper::set_feature_type(nodeid groupid, uint64_t id, const feature_type ty
     nodes.at(groupid).set_feature_type(id, type);
 }
 
-v3 mapper::get_feature3D(nodeid node_id, uint64_t feature_id) {
-    map_node& node = nodes.at(node_id);
-    auto mf = node.features[feature_id];
+v3 mapper::get_feature3D(nodeid node_id, uint64_t feature_id) const {
+    const map_node& node = nodes.at(node_id);
+    auto mf = node.features.at(feature_id);
     auto intrinsics = camera_intrinsics[node.camera_id];
     auto extrinsics = camera_extrinsics[node.camera_id];
     m3 Rbc = extrinsics->Q.v.toRotationMatrix();
@@ -606,7 +606,7 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
             for (auto m : matches_node_candidate) {
                 auto &candidate = *keypoint_candidates[m.second];
                 uint64_t keypoint_id = candidate.id;
-                nodeid nodeid_keypoint = features_dbow[keypoint_id];
+                nodeid nodeid_keypoint = features_dbow.at(keypoint_id);
 
                 // NOTE: We use 3d features observed from candidate, this does not mean
                 // these features belong to the candidate node (group)

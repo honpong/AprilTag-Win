@@ -45,7 +45,7 @@
 #include <cmath>
 #include "popcount.h"
 
-#define lrintf(x) ((x) + 0.5f)
+#define lrintf(x) (x >= 0) ? (x+0.5f) : (x-0.5f)
 
  //
  // functions taken from OpenCV

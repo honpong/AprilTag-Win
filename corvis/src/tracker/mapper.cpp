@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <limits.h>
+#include <mutex>
 #include <queue>
 #include <unordered_set>
 #include "mapper.h"
@@ -50,12 +51,12 @@ void mapper::reset()
     triangulated_tracks.clear();
     if(current_node) return;
     log->debug("Map reset");
-    nodes.clear();
     feature_id_offset = 0;
     node_id_offset = 0;
     unlinked = false;
-    dbow_inverted_index.clear();
-    features_dbow.clear();
+    nodes.critical_section([&](){ nodes->clear(); });
+    dbow_inverted_index.critical_section([&](){ dbow_inverted_index->clear(); });
+    features_dbow.critical_section([&](){ features_dbow->clear(); });
 }
 
 map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
@@ -64,23 +65,32 @@ map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
 }
 
 void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, bool loop_closure) {
-    map_edge& edge12 = nodes.at(id1).get_add_neighbor(id2);
+    nodes.critical_section(&mapper::add_edge_no_lock, this, id1, id2, G12, loop_closure);
+}
+
+void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12, bool loop_closure) {
+    map_edge& edge12 = nodes->at(id1).get_add_neighbor(id2);
     edge12.loop_closure = loop_closure;
     edge12.G = G12;
-    map_edge& edge21 = nodes.at(id2).get_add_neighbor(id1);
+    map_edge& edge21 = nodes->at(id2).get_add_neighbor(id1);
     edge21.loop_closure = loop_closure;
     edge21.G = invert(G12);
 }
 
 void mapper::remove_edge(nodeid id1, nodeid id2) {
-   nodes.at(id1).edges.erase(id2);
-   nodes.at(id2).edges.erase(id1);
+    nodes.critical_section(&mapper::remove_edge_no_lock, this, id1, id2);
 }
 
-void mapper::add_node(nodeid id, const rc_Sensor camera_id)
-{
-    nodes[id].id = id;
-    nodes[id].camera_id = camera_id;
+void mapper::remove_edge_no_lock(nodeid id1, nodeid id2) {
+    nodes->at(id1).edges.erase(id2);
+    nodes->at(id2).edges.erase(id1);
+}
+
+void mapper::add_node(nodeid id, const rc_Sensor camera_id) {
+    nodes.critical_section([&]() {
+        (*nodes)[id].id = id;
+        (*nodes)[id].camera_id = camera_id;
+    });
 }
 
 void mapper::initialize_track_triangulation(const tracker::feature_track& track, const nodeid node_id) {
@@ -98,8 +108,12 @@ void mapper::finish_lost_tracks(const tracker::feature_track& track) {
     auto tp = triangulated_tracks.find(track.feature->id);
     if (tp != triangulated_tracks.end()) {
         auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(track.feature);
-            if (tp->second.track_count > MIN_FEATURE_TRACKS && tp->second.parallax > MIN_FEATURE_PARALLAX )
-                add_triangulated_feature_to_group(tp->second.reference_nodeid, f, tp->second.state);
+        if (tp->second.track_count > MIN_FEATURE_TRACKS && tp->second.parallax > MIN_FEATURE_PARALLAX) {
+            std::unique_lock<std::mutex> lock1(nodes.mutex(), std::defer_lock);
+            std::unique_lock<std::mutex> lock2(features_dbow.mutex(), std::defer_lock);
+            std::lock(lock1, lock2);
+            add_triangulated_feature_to_group(tp->second.reference_nodeid, f, tp->second.state);
+        }
         triangulated_tracks.erase(track.feature->id);
     } else {
         log->debug("{}/{}) Not enougth support/parallax to add trianguled point with id: {}", track.feature->id);
@@ -107,15 +121,15 @@ void mapper::finish_lost_tracks(const tracker::feature_track& track) {
 }
 
 void mapper::remove_node_features(nodeid id) {
-    for(auto& f : nodes.at(id).features)
-        features_dbow.erase(f.first);
+    for(auto& f : nodes->at(id).features)
+        features_dbow->erase(f.first);
 }
 
-void mapper::add_triangulated_feature_to_group(const nodeid group_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
-                                               std::shared_ptr<log_depth>& v) {
-    map_node &ref_node = nodes.at(group_id);
+void mapper::add_triangulated_feature_to_group(const nodeid group_id, const std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>>& feature,
+                                               const std::shared_ptr<log_depth>& v) {
+    map_node &ref_node = nodes->at(group_id);
     ref_node.add_feature(feature, v, feature_type::triangulated);
-    features_dbow[feature->id] = group_id;
+    (*features_dbow)[feature->id] = group_id;
 }
 
 void mapper::update_3d_feature(const tracker::feature_track& track, const transformation &&G_Bnow_Bcurrent, const rc_Sensor camera_id_now) {
@@ -195,16 +209,20 @@ void map_node::set_feature_type(const uint64_t id, const feature_type type)
 
 void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                          std::shared_ptr<log_depth> v, const feature_type type) {
-    nodes.at(groupid).add_feature(feature, v, type);
-    features_dbow[feature->id] = groupid;
+    nodes.critical_section([&]() {
+        nodes->at(groupid).add_feature(feature, v, type);
+    });
+    features_dbow.critical_section([&]() {
+        (*features_dbow)[feature->id] = groupid;
+    });
 }
 
 void mapper::set_feature_type(nodeid groupid, uint64_t id, const feature_type type) {
-    nodes.at(groupid).set_feature_type(id, type);
+    nodes->at(groupid).set_feature_type(id, type);
 }
 
 v3 mapper::get_feature3D(nodeid node_id, uint64_t feature_id) const {
-    const map_node& node = nodes.at(node_id);
+    const map_node& node = nodes->at(node_id);
     auto mf = node.features.at(feature_id);
     auto intrinsics = camera_intrinsics[node.camera_id];
     auto extrinsics = camera_extrinsics[node.camera_id];
@@ -215,15 +233,21 @@ v3 mapper::get_feature3D(nodeid node_id, uint64_t feature_id) const {
 
 void mapper::set_node_transformation(nodeid id, const transformation & G)
 {
-    nodes.at(id).global_transformation = G;
+    nodes.critical_section([&]() {
+        nodes->at(id).global_transformation = G;
+    });
 }
 
 void mapper::finish_node(nodeid id, bool compute_dbow_inverted_index) {
-    auto& node = nodes.at(id);
-    node.status = node_status::finished;
-    if(node.frame && compute_dbow_inverted_index) {
-        for (auto &word : node.frame->dbow_histogram)
-            dbow_inverted_index[word.first].push_back(id); // Add this node to inverted index
+    auto& node = nodes->at(id);
+    nodes.critical_section([&]() {
+        node.status = node_status::finished;
+    });
+    if (node.frame && compute_dbow_inverted_index) {
+        dbow_inverted_index.critical_section([&]() {
+            for (auto &word : node.frame->dbow_histogram)
+                (*dbow_inverted_index)[word.first].push_back(id); // Add this node to inverted index
+        });
     }
 }
 
@@ -234,20 +258,21 @@ void mapper::remove_node(nodeid id)
     if(current_node->id == id)
         update_current_node = true;
 
-    std::map<uint64_t, map_edge> edges = nodes.at(id).edges;
+    std::lock_guard<std::mutex> lock(nodes.mutex());
+    std::map<uint64_t, map_edge> edges = nodes->at(id).edges;
     std::set<nodeid> neighbors;
     assert(edges.size());
     for(auto& edge : edges) {
         if(update_current_node) {
-            current_node = &nodes.at(edge.first);
+            current_node = &nodes->at(edge.first);
             if(current_node->status == node_status::normal) // prefer an active node as current_node
                 update_current_node = false;
         }
         neighbors.insert(edge.first);
-        remove_edge(id, edge.first);
+        remove_edge_no_lock(id, edge.first);
     }
-    remove_node_features(id);
-    nodes.erase(id);
+    features_dbow.critical_section(&mapper::remove_node_features, this, id);
+    nodes->erase(id);
 
     // if only 1 neighbor, node removed (id) is a loose end of the graph
     if(neighbors.size() > 1) {
@@ -263,7 +288,7 @@ void mapper::remove_node(nodeid id)
 
             transformation G_id_connected = edges[*connected_neighbors.begin()].G;
             transformation G_id_disconnected = edges[disconnected_neighbors.front()].G; // pick one of the disconnected nodes
-            add_edge(*connected_neighbors.begin(), disconnected_neighbors.front(), invert(G_id_connected)*G_id_disconnected);
+            add_edge_no_lock(*connected_neighbors.begin(), disconnected_neighbors.front(), invert(G_id_connected)*G_id_disconnected);
         }
     }
 }
@@ -284,7 +309,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
         transformation& Gu = current_path.second;
         next.pop();
         if(!maxdepth || nodes_visited[u] < maxdepth) {
-            for(auto edge : nodes.at(u).edges) {
+            for(auto edge : nodes->at(u).edges) {
                 const nodeid& v = edge.first;
                 if(nodes_visited.find(v) == nodes_visited.end()) {
                     nodes_visited[v] = nodes_visited[u] + 1;
@@ -314,7 +339,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, const f_t maxdista
         nodeid& u = current_path.first;
         transformation& Gu = current_path.second;
         next.pop();
-        for(auto edge : nodes.at(u).edges) {
+        for(auto edge : nodes->at(u).edges) {
             const nodeid& v = edge.first;
             if(nodes_visited.find(v) == nodes_visited.end()) {
                 nodes_visited.insert(v);
@@ -349,7 +374,7 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& sear
         nodeid& u = current_path.first;
         transformation& Gu = current_path.second;
         next.pop();
-        for(auto edge : nodes.at(u).edges) {
+        for(auto edge : nodes->at(u).edges) {
             const nodeid& v = edge.first;
             if(nodes_visited.find(v) == nodes_visited.end()) {
                 nodes_visited.insert(v);
@@ -370,28 +395,37 @@ mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& sear
     return searched_nodes_path;
 }
 
-std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
-    const std::shared_ptr<frame_t> current_frame,
-    const std::unordered_map<mapper::nodeid, map_node> &nodes,
-    const std::map<unsigned int, std::vector<mapper::nodeid>> &dbow_inverted_index,
-    const orb_vocabulary* orb_voc
-) {
+std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidates(
+    const std::shared_ptr<frame_t>& current_frame)
+{
     std::vector<std::pair<mapper::nodeid, float>> loop_closing_candidates;
 
     // find nodes sharing words with current frame
     std::map<mapper::nodeid,uint32_t> common_words_per_node;
     uint32_t max_num_shared_words = 0;
     for (auto word : current_frame->dbow_histogram) {
-        auto word_i = dbow_inverted_index.find(word.first);
-        if (word_i == dbow_inverted_index.end())
-            continue;
-        for (auto nid : word_i->second) {
-            if (nodes.at(nid).status == node_status::finished) {
-                common_words_per_node[nid]++;
-                // keep maximum number of words shared with current frame
-                if (max_num_shared_words < common_words_per_node[nid]) {
-                    max_num_shared_words = common_words_per_node[nid];
+        std::vector<mapper::nodeid> nodeids = dbow_inverted_index.critical_section([&]() {
+            auto word_i = dbow_inverted_index->find(word.first);
+            return (word_i != dbow_inverted_index->end() ? word_i->second : std::vector<mapper::nodeid>{});
+        });
+        nodes.critical_section([&]() {
+            for (size_t i = 0; i < nodeids.size(); ) {
+                mapper::nodeid nid = nodeids[i];
+                auto it = nodes->find(nid);
+                bool remove = (it == nodes->end() || it->second.status != node_status::finished);
+                if (remove) {
+                    std::swap(nodeids[i], nodeids.back());
+                    nodeids.pop_back();
+                } else {
+                    ++i;
                 }
+            }
+        });
+        for (auto nid : nodeids) {
+            common_words_per_node[nid]++;
+            // keep maximum number of words shared with current frame
+            if (max_num_shared_words < common_words_per_node[nid]) {
+                max_num_shared_words = common_words_per_node[nid];
             }
         }
     }
@@ -406,14 +440,22 @@ std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
     static_assert(orb_vocabulary::scoring_type == DBoW2::ScoringType::L1_NORM,
                   "orb_vocabulary does not use L1 norm");
     float best_score = 0.0f; // assuming L1 norm
-    for (auto& node_candidate : common_words_per_node) {
-        if (node_candidate.second > min_num_shared_words) {
-            const map_node& node = nodes.at(node_candidate.first);
-            float dbow_score = static_cast<float>(orb_voc->score(node.frame->dbow_histogram,
-                                                                 current_frame->dbow_histogram));
-            dbow_scores.push_back(std::make_pair(node_candidate.first, dbow_score));
-            best_score = std::max(dbow_score, best_score);
+    std::vector<std::pair<mapper::nodeid, std::shared_ptr<frame_t>>> candidate_frames;
+    candidate_frames.reserve(common_words_per_node.size());
+    nodes.critical_section([&]() {
+        for (auto& node_candidate : common_words_per_node) {
+            if (node_candidate.second > min_num_shared_words) {
+                auto it = nodes->find(node_candidate.first);
+                if (it != nodes->end())
+                    candidate_frames.emplace_back(node_candidate.first, it->second.frame);
+            }
         }
+    });
+    for (auto& node_candidate : candidate_frames) {
+        float dbow_score = static_cast<float>(orb_voc->score(node_candidate.second->dbow_histogram,
+                                                             current_frame->dbow_histogram));
+        dbow_scores.push_back(std::make_pair(node_candidate.first, dbow_score));
+        best_score = std::max(dbow_score, best_score);
     }
 
     // sort candidates by dbow_score
@@ -438,8 +480,7 @@ static size_t calculate_orientation_bin(const orb_descriptor &a, const orb_descr
     return static_cast<size_t>(((a - b) * (float)M_1_PI + 1) / 2 * num_orientation_bins + 0.5f) % num_orientation_bins;
 }
 
-static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candidate_frame, const std::shared_ptr<frame_t> current_frame,
-                                            std::map<uint64_t, mapper::nodeid> &features_dbow) {
+mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& candidate_frame, const std::shared_ptr<frame_t>& current_frame) {
     //matches per orientationn increment between current frame and node candidate
     static constexpr int num_orientation_bins = 30;
     std::vector<mapper::matches> increment_orientation_histogram(num_orientation_bins);
@@ -500,15 +541,17 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
                 for (size_t i = 0; i < N; ++i) v.push_back(i);
                 return v;
             };
-            auto indexes_with_3d = [&features_dbow](
+            auto indexes_with_3d = [this](
                     const std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>>& keypoints) {
                 std::vector<size_t> v;
                 v.reserve(keypoints.size());
-                for (size_t i = 0; i < keypoints.size(); ++i) {
-                    if (features_dbow.find(keypoints[i]->id) != features_dbow.end()) {
-                        v.push_back(i);
+                features_dbow.critical_section([&]() {
+                    for (size_t i = 0; i < keypoints.size(); ++i) {
+                        if (features_dbow->find(keypoints[i]->id) != features_dbow->end()) {
+                            v.push_back(i);
+                        }
                     }
-                }
+                });
                 return v;
             };
             std::vector<size_t> current_keypoint_indexes = indexes_all(current_frame->keypoints.size());
@@ -516,16 +559,18 @@ static mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t> candi
             match(current_keypoint_indexes, candidate_keypoint_indexes);
         } else {
             // dbow direct file is used
-            auto indexes_with_3d = [&features_dbow](
+            auto indexes_with_3d = [this](
                     const std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>>& keypoints,
                     const std::vector<size_t>& keypoint_indices) {
                 std::vector<size_t> v;
                 v.reserve(keypoint_indices.size());
-                for (size_t i : keypoint_indices) {
-                    if (features_dbow.find(keypoints[i]->id) != features_dbow.end()) {
-                        v.push_back(i);
+                features_dbow.critical_section([&]() {
+                    for (size_t i : keypoint_indices) {
+                        if (features_dbow->find(keypoints[i]->id) != features_dbow->end()) {
+                            v.push_back(i);
+                        }
                     }
-                }
+                });
                 return v;
             };
             for (auto it_candidate = candidate_frame->dbow_direct_file.begin();
@@ -573,6 +618,7 @@ void mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_ve
 }
 
 map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
+    // note: mapper::relocalize can run in parallel to other mapper functions
     const std::shared_ptr<frame_t>& current_frame = camera_frame.frame;
     map_relocalization_info reloc_info;
     reloc_info.frame_timestamp = current_frame->timestamp;
@@ -583,16 +629,31 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
     size_t i = 0;
 
     START_EVENT(SF_FIND_CANDIDATES, 0);
-    std::vector<std::pair<nodeid, float>> candidate_nodes =
-        find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc.get());
+    std::vector<std::pair<nodeid, float>> candidate_nodes = find_loop_closing_candidates(current_frame);
     END_EVENT(SF_FIND_CANDIDATES, candidate_nodes.size());
+
     const auto &keypoint_xy_current = current_frame->keypoints_xy;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
     for (const auto& nid : candidate_nodes) {
         bool is_relocalized_in_candidate = false;
+        std::shared_ptr<frame_t> candidate_node_frame;
+        transformation candidate_node_global_transformation;
+
+        bool ok = nodes.critical_section([&]() {
+            auto it = nodes->find(nid.first);
+            if (it != nodes->end()) {
+                candidate_node_frame = it->second.frame;
+                candidate_node_global_transformation = it->second.global_transformation;
+                return true;
+            }
+            return false;
+        });
+        if (!ok) continue;
+
         START_EVENT(SF_MATCH_DESCRIPTORS, 0);
-        matches matches_node_candidate = match_2d_descriptors(nodes.at(nid.first).frame, current_frame, features_dbow);
+        matches matches_node_candidate = match_2d_descriptors(candidate_node_frame, current_frame);
         END_EVENT(SF_MATCH_DESCRIPTORS, matches_node_candidate.size());
+
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
         if(matches_node_candidate.size() >= min_num_inliers) {
@@ -600,23 +661,46 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
             aligned_vector<v2> current_2d_points;
             transformation G_candidate_currentframe;
             // Estimate pose from 3d-2d matches
-            auto G_candidate_neighbors = breadth_first_search(nid.first, 1); // all points observed from this candidate node should be created at a node 1 edge away in the graph
+            mapper::nodes_path G_candidate_neighbors;
 
-            const auto &keypoint_candidates = nodes.at(nid.first).frame->keypoints;
-            for (auto m : matches_node_candidate) {
-                auto &candidate = *keypoint_candidates[m.second];
-                uint64_t keypoint_id = candidate.id;
-                nodeid nodeid_keypoint = features_dbow.at(keypoint_id);
+            ok = nodes.critical_section([&](){
+                if (nodes->find(nid.first) != nodes->end()) {
+                    G_candidate_neighbors = breadth_first_search(nid.first, 1); // all points observed from this candidate node should be created at a node 1 edge away in the graph
+                    return true;
+                }
+                return false;
+            });
+            if (!ok) continue;
 
-                // NOTE: We use 3d features observed from candidate, this does not mean
-                // these features belong to the candidate node (group)
-                v3 p_candidate = G_candidate_neighbors[nodeid_keypoint] *
-                        get_feature3D(nodeid_keypoint, keypoint_id); // feat is in body frame
-                candidate_3d_points.push_back(p_candidate);
-                //undistort keypoints at current frame
-                feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(keypoint_xy_current[m.first]));
-                current_2d_points.push_back(ukp);
-            }
+            const auto &keypoint_candidates = candidate_node_frame->keypoints;
+            std::vector<std::tuple<uint64_t, uint64_t, nodeid>> candidate_features;  // current_feature_id, candidate_feature_id, node_containing_candidate_feature_id
+            features_dbow.critical_section([&]() {
+                for (auto m : matches_node_candidate) {
+                    auto &candidate = *keypoint_candidates[m.second];
+                    uint64_t keypoint_id = candidate.id;
+                    auto it = features_dbow->find(keypoint_id);
+                    if (it != features_dbow->end()) {
+                        candidate_features.emplace_back(m.first, it->first, it->second);
+                    }
+                }
+            });
+            nodes.critical_section([&]() {
+                for (auto& f : candidate_features) {
+                    uint64_t current_feature_id = std::get<0>(f);
+                    uint64_t keypoint_id = std::get<1>(f);
+                    nodeid nodeid_keypoint = std::get<2>(f);
+                    if (nodes->find(nodeid_keypoint) != nodes->end()) {
+                        // NOTE: We use 3d features observed from candidate, this does not mean
+                        // these features belong to the candidate node (group)
+                        v3 p_candidate = G_candidate_neighbors[nodeid_keypoint] *
+                                get_feature3D(nodeid_keypoint, keypoint_id); // feat is in body frame
+                        candidate_3d_points.push_back(p_candidate);
+                        //undistort keypoints at current frame
+                        feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(keypoint_xy_current[current_feature_id]));
+                        current_2d_points.push_back(ukp);
+                    }
+                }
+            });
             inliers_set.clear();
             START_EVENT(SF_ESTIMATE_POSE,0);
             estimate_pose(candidate_3d_points, current_2d_points, camera_frame.camera_id, G_candidate_currentframe, inliers_set);
@@ -626,13 +710,19 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                 is_relocalized_in_candidate = true;
 
                 if(inliers_set.size() > best_num_inliers) {
-                    best_num_inliers = inliers_set.size();
-                    auto& node = nodes.at(nid.first);
-                    reloc_info.candidates.clear();
-                    reloc_info.candidates.emplace_back(G_candidate_currentframe, node.global_transformation, node.frame->timestamp);
                     transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
-                    add_edge(nid.first, camera_frame.closest_node,
-                             G_candidate_closestnode, true);
+                    ok = nodes.critical_section([&]() {
+                        if (nodes->find(nid.first) != nodes->end() && nodes->find(camera_frame.closest_node) != nodes->end()) {
+                            add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, true);
+                            return true;
+                        }
+                        return false;
+                    });
+                    if (ok) {
+                        best_num_inliers = inliers_set.size();
+                        reloc_info.candidates.clear();
+                        reloc_info.candidates.emplace_back(G_candidate_currentframe, candidate_node_global_transformation, candidate_node_frame->timestamp);
+                    }
                 }
             }
         }
@@ -653,11 +743,11 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
 
             std::string image_name = "Num candidates: " + std::to_string(candidate_nodes.size()) + ", DBoW candidate: " + std::to_string(nid.first);
             cv::Mat color_candidate_image, color_current_image;
-            cv::cvtColor(nodes.at(nid.first).frame->image, color_candidate_image, CV_GRAY2BGRA);
+            cv::cvtColor(candidate_node_frame->image, color_candidate_image, CV_GRAY2BGRA);
             cv::cvtColor(current_frame->image, color_current_image, CV_GRAY2BGRA);
             cv::Mat current_reprojection_image = color_current_image.clone();
             cv::Mat candidate_reprojection_image = color_candidate_image.clone();
-            const auto &keypoint_xy_candidates = nodes.at(nid.first).frame->keypoints_xy;
+            const auto &keypoint_xy_candidates = candidate_node_frame->keypoints_xy;
 
             cv::Mat flipped_color_candidate_image;
             cv::flip(color_candidate_image, flipped_color_candidate_image, 1);
@@ -720,9 +810,9 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
 
 std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching_factor, int depth_levels) const {
     std::unique_ptr<orb_vocabulary> voc;
-    if (branching_factor > 1 && depth_levels > 0 && !nodes.empty()) {
+    if (branching_factor > 1 && depth_levels > 0 && !nodes->empty()) {
         voc.reset(new orb_vocabulary);
-        voc->train(nodes.begin(), nodes.end(),
+        voc->train(nodes->begin(), nodes->end(),
                    [](const std::pair<nodeid, map_node>& it) -> const std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>>& {
                        return it.second.frame->keypoints;
                    },
@@ -747,7 +837,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
     transformation G_CB = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
     transformation G_Bnow_Bcurrent = invert(G_Bcurrent_Bnow);
     for(const auto& neighbor : neighbors) {
-        map_node& node_neighbor = nodes.at(neighbor.first);
+        map_node& node_neighbor = nodes->at(neighbor.first);
         std::vector<map_feature_track> tracks;
         const transformation& G_Bnow_Bneighbor = G_Bnow_Bcurrent*neighbor.second;
         transformation G_Cnow_Bneighbor = G_CB*G_Bnow_Bneighbor;
@@ -1040,7 +1130,7 @@ void mapper::serialize(rapidjson::Value &map_json, rapidjson::Document::Allocato
 
     // add map nodes
     Value nodes_json(kArrayType);
-    for (auto& it : nodes) {
+    for (auto& it : *nodes) {
         Value node_json(kObjectType);
         it.second.serialize(node_json, allocator);
         nodes_json.PushBack(node_json, allocator);
@@ -1049,7 +1139,7 @@ void mapper::serialize(rapidjson::Value &map_json, rapidjson::Document::Allocato
 
     // add dbow_inverted_index
     Value dbow_inverted_indices_json(kArrayType);
-    for (auto &featid_nodeid : dbow_inverted_index) {
+    for (auto &featid_nodeid : *dbow_inverted_index) {
         Value inverted_index_json(kObjectType);
         inverted_index_json.AddMember(KEY_INDEX, featid_nodeid.first, allocator);
 
@@ -1063,7 +1153,7 @@ void mapper::serialize(rapidjson::Value &map_json, rapidjson::Document::Allocato
 
     // add features_dbow
     Value features_dbow_json(kArrayType);
-    for (auto &featid_nodeid : features_dbow) {
+    for (auto &featid_nodeid : *features_dbow) {
         Value featid_nodeid_json(kObjectType);
         featid_nodeid_json.AddMember(KEY_INDEX, featid_nodeid.first, allocator);
         featid_nodeid_json.AddMember(KEY_NODEID, featid_nodeid.second, allocator);
@@ -1094,9 +1184,9 @@ bool mapper::deserialize(const Value &map_json, mapper &map) {
         map_node cur_node;
         HANDLE_IF_FAILED(map_node::deserialize(nodes_json[i], cur_node, max_feature_id), failure_handle)
         nodeid cur_node_id = cur_node.id;
-        map.nodes[cur_node_id] = std::move(cur_node);
-        if (map.nodes[cur_node_id].frame)
-            map.nodes[cur_node_id].frame->calculate_dbow(map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
+        (*map.nodes)[cur_node_id] = std::move(cur_node);
+        if ((*map.nodes)[cur_node_id].frame)
+            (*map.nodes)[cur_node_id].frame->calculate_dbow(map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
         if (max_node_id < cur_node_id) max_node_id = cur_node_id;
     }
 
@@ -1110,7 +1200,7 @@ bool mapper::deserialize(const Value &map_json, mapper &map) {
         auto map_key = dbow_inverted_indices_json[j][KEY_INDEX].GetUint64();
         const Value &node_ids_json = dbow_inverted_indices_json[j][KEY_NODEID];
         HANDLE_IF_FAILED(node_ids_json.IsArray(), failure_handle);
-        auto &node_ids = map.dbow_inverted_index[map_key];
+        auto &node_ids = (*map.dbow_inverted_index)[map_key];
         for (SizeType k = 0; k < node_ids_json.Size(); k++)
             node_ids.push_back(node_ids_json[k].GetUint64());
     }
@@ -1120,7 +1210,7 @@ bool mapper::deserialize(const Value &map_json, mapper &map) {
     HANDLE_IF_FAILED(features_dbow_json.IsArray(), failure_handle);
     for (SizeType j = 0; j < features_dbow_json.Size(); j++) {
         auto map_key = features_dbow_json[j][KEY_INDEX].GetUint64();
-        map.features_dbow[map_key] = features_dbow_json[j][KEY_NODEID].GetUint64();
+        (*map.features_dbow)[map_key] = features_dbow_json[j][KEY_NODEID].GetUint64();
     }
     map.unlinked = true;
     map.log->info("Loaded map with {} nodes and {} features", map.node_id_offset, map.feature_id_offset);

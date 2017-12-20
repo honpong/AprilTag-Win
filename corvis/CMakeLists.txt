@@ -7,7 +7,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/../cmake)
 
 foreach(__lang__ C CXX) # enable assert()s
-  string(REGEX REPLACE "(^| )-DNDEBUG( |$)" "" CMAKE_${__lang__}_FLAGS_RELWITHDEBINFO   "${CMAKE_${__lang__}_FLAGS_RELWITHDEBINFO}")
+  string(REGEX REPLACE "(^| )-DNDEBUG( |$)" " " CMAKE_${__lang__}_FLAGS_RELWITHDEBINFO   "${CMAKE_${__lang__}_FLAGS_RELWITHDEBINFO}")
 endforeach()
 
 find_program(CCACHE NAMES ccache sccache)

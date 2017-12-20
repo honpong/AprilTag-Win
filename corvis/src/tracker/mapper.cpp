@@ -161,12 +161,13 @@ void mapper::update_3d_feature(const tracker::feature_track& track, const transf
     // update state and variance
     m<2,2> R = {{sigma2,0},{0,sigma2}};
     m<1,2> PH_t = P*H.transpose();
-    m<2,2> S_inv = (H*PH_t + R).inverse();
-    m<1,2> K = PH_t*S_inv;
+    m<2,2> S = H*PH_t + R;
+    Eigen::LLT<Eigen::Matrix2f> Sllt = S.llt();
+    m<1,2> K =  Sllt.solve(PH_t.transpose()).transpose();
 
     // check mahalanobis distance to remove outliers
     tp->second.parallax = std::acos(xun_k_1.dot(zuk.homogeneous())/(xun_k_1.norm() *zuk.homogeneous().norm()));
-    if(inn_k.dot(S_inv*inn_k) > 5.99f) {
+    if (inn_k.dot(Sllt.solve(inn_k)) > 5.99f) {
         return;
     }
     tp->second.track_count++;

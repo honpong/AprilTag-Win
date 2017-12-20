@@ -34,7 +34,7 @@ int main(int c, char **v)
              << "   [--render <file.png>] [--incremental-ate]\n"
              << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
              << "   [--disable-map] [--save-map <map-json>] [--load-map <map-json>]\n"
-             << "   [--relocalize] [--disable-odometry]\n";
+             << "   [--relocalize] [--disable-odometry] [--output-tum <pose-file>]\n";
         return 1;
     }
 
@@ -48,7 +48,7 @@ int main(int c, char **v)
     bool incremental_ate = false;
     bool relocalize = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
-    char *pause_at = nullptr;
+    char *pause_at = nullptr, *pose_file = nullptr;
     rc_MessageLevel message_level = rc_MESSAGE_WARN;
     int threads = 0;
     for (int i=1; i<c; i++)
@@ -89,6 +89,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--info") == 0)  message_level = rc_MESSAGE_INFO;
         else if (strcmp(v[i], "--warn") == 0)  message_level = rc_MESSAGE_WARN;
         else if (strcmp(v[i], "--none") == 0)  message_level = rc_MESSAGE_NONE;
+        else if (strcmp(v[i], "--output-tum") == 0) pose_file = v[++i];
         else goto usage;
 
     if (!filename)
@@ -286,8 +287,14 @@ int main(int c, char **v)
     rp.start(load_map);
 #else
     world_state ws;
-    rp.set_data_callback([&ws,&rp,first=true,&res,&data_callback](rc_Tracker * tracker, const rc_Data * data) mutable {
+    std::ofstream pose_fs;
+    if(pose_file) pose_fs.open(pose_file);
+    rp.set_data_callback([&ws,&rp,first=true,&res,&data_callback,&pose_fs](rc_Tracker * tracker, const rc_Data * data) mutable {
         data_callback(ws, rp, first, res, tracker, data);
+        if(pose_fs.is_open() && pose_fs.good()) {
+            const auto &pose_in = rc_getPose(tracker, NULL, NULL, rc_DATA_PATH_SLOW);
+            pose_fs << tpose_tum(pose_in.pose_m.Q.v, pose_in.pose_m.T.v, pose_in.time_us);
+        }
     });
 
     if(enable_gui) { // The GUI must be on the main thread

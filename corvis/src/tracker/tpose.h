@@ -4,12 +4,15 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include "platform/sensor_clock.h"
 #include "transformation.h"
 
 struct tpose_tum {
     double t_s; v3 T_m; quaternion Q;
     tpose_tum() : t_s(0), T_m(v3::Zero()), Q(quaternion::Identity()) {}
+    tpose_tum(const float qua[4], const float t[3], uint64_t time_us) :
+        t_s(time_us / 1.e6), T_m(t[0], t[1], t[2]), Q(qua[0], qua[1], qua[2], qua[3]) {};
     tpose_tum(const char *line) : tpose_tum() {
         size_t end = 0;
         // the +1s below skip the ',' delimiter
@@ -23,6 +26,13 @@ struct tpose_tum {
     }
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
+
+static inline std::ostream& operator<<(std::ostream &stream, const tpose_tum &tp)
+{
+    return stream  << std::setprecision(9) << std::fixed << tp.t_s << " " <<
+        tp.T_m.x() << " " << tp.T_m.y() << " " << tp.T_m.z() << " " <<
+        tp.Q.x()   << " " << tp.Q.y()   << " " << tp.Q.z()   << " " << tp.Q.w() << "\n";
+}
 
 struct tpose_vicon {
     uint64_t t_s, t_ns, seq_no; v3 T_m; quaternion Q;

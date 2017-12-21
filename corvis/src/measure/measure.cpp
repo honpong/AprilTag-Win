@@ -177,11 +177,8 @@ int main(int c, char **v)
             std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
-    auto data_callback = [&enable_gui, &incremental_ate, &benchmark_relocation, &render_output, &threads]
+    auto data_callback = [&enable_gui, &incremental_ate, &benchmark_relocation, &render_output, &fast_path, &threads]
         (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data, std::ostream *pose_st) {
-        rc_PoseTime current = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
-        auto timestamp = sensor_clock::micros_to_tp(current.time_us);
-        tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current.pose_m));
         rc_RelocEdge* reloc_edges = nullptr;
         rc_Timestamp reloc_source;
         rc_MapNode* map_nodes = nullptr;
@@ -191,14 +188,17 @@ int main(int c, char **v)
             num_reloc_edges = rc_getRelocalizationEdges(tracker, &reloc_source, &reloc_edges);
         }
 
-        bool success = rp.get_reference_pose(timestamp, ref_tpose);
-        if (success) {
+        rc_PoseTime current_pose = rc_getPose(tracker, nullptr, nullptr, data->path);
+        auto timestamp = sensor_clock::micros_to_tp(current_pose.time_us);
+        tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current_pose.pose_m));
+        bool has_reference = rp.get_reference_pose(timestamp, ref_tpose);
+        if (has_reference) {
             if (enable_gui || render_output)
                 ws.observe_position_gt(sensor_clock::tp_to_micros(ref_tpose.t),
                                        ref_tpose.G.T.x(), ref_tpose.G.T.y(), ref_tpose.G.T.z(),
                                        ref_tpose.G.Q.w(), ref_tpose.G.Q.x(), ref_tpose.G.Q.y(), ref_tpose.G.Q.z());
         }
-        if(success && data->path == rc_DATA_PATH_SLOW) {
+        if(has_reference && data->path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW)) {
             if (first) {
                 first = false;
                 // transform reference trajectory to tracker world frame
@@ -223,8 +223,8 @@ int main(int c, char **v)
                                      rp.get_reference_poses());
             }
         }
-        if(pose_st)
-            *pose_st << tpose_tum(current.time_us/1e6, to_transformation(current.pose_m));
+        if(pose_st && data->path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW))
+            *pose_st << tpose_tum(current_pose.time_us/1e6, to_transformation(current_pose.pose_m));
         if (enable_gui || render_output)
             ws.rc_data_callback(tracker, data);
         if (enable_gui && data->type == rc_SENSOR_TYPE_DEBUG && data->debug.pause)

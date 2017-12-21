@@ -65,7 +65,6 @@ void sensor_fusion::fast_path_catchup()
     // updates on the catchup state
     queue.dispatch_buffered([this,&mini_lock](sensor_data &data) {
         mini_lock.unlock();
-        if(data.type == rc_SENSOR_TYPE_ACCELEROMETER) filter_mini_accelerometer_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data);
         if(data.type == rc_SENSOR_TYPE_GYROSCOPE)     filter_mini_gyroscope_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data);
         mini_lock.lock();
     });

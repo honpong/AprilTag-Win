@@ -12,7 +12,8 @@
     #define SLAM_LOG_EVENT(level, level_str, message)                        \
     {                                                                   \
         uint64_t now = TimestampNs();                                   \
-        log_event((level), (__LINE__), MODULE_ID, FREE, message, now);  \
+        if(level == LOG_ERR || level == WARNING)                        \
+            log_event((level), (__LINE__), MODULE_ID, FREE, message, now);  \
         if(JTAG_LOG_LEVEL >= level) {                                   \
             printf("[%s] %s\n", level_str, message);                    \
         }                                                               \

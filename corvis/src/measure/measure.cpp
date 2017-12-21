@@ -31,10 +31,10 @@ int main(int c, char **v)
              << "   [--trace | --debug | --error | --info | --warn | --none]\n"
              << "   [--pause] [--pause-at <timestamp_us>]\n"
              << "   [--no-plots] [--no-video] [--no-main] [--no-depth]\n"
-             << "   [--render <file.png>] [--incremental-ate]\n"
+             << "   [--render-output <file.png>] [--pose-output <pose-file>] [--benchmark-output <results-file>]\n"
              << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
              << "   [--disable-map] [--save-map <map-json>] [--load-map <map-json>]\n"
-             << "   [--relocalize] [--disable-odometry] [--output-tum <pose-file>]\n";
+             << "   [--relocalize] [--disable-odometry] [--incremental-ate]\n";
         return 1;
     }
 
@@ -47,8 +47,8 @@ int main(int c, char **v)
     bool odometry = true;
     bool incremental_ate = false;
     bool relocalize = false;
-    char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr;
-    char *pause_at = nullptr, *pose_file = nullptr;
+    char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr, *pose_output = nullptr;
+    char *pause_at = nullptr;
     rc_MessageLevel message_level = rc_MESSAGE_WARN;
     int threads = 0;
     for (int i=1; i<c; i++)
@@ -78,6 +78,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--benchmark") == 0) benchmark = true;
         else if (strcmp(v[i], "--benchmark-output") == 0 && i+1 < c) benchmark_output = v[++i];
         else if (strcmp(v[i], "--render-output") == 0 && i+1 < c) render_output = v[++i];
+        else if (strcmp(v[i], "--pose-output") == 0 && i+1 < c) pose_output = v[++i];
         else if (strcmp(v[i], "--calibrate") == 0) calibrate = true;
         else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
         else if (strcmp(v[i], "--progress") == 0) progress = true;
@@ -89,7 +90,6 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--info") == 0)  message_level = rc_MESSAGE_INFO;
         else if (strcmp(v[i], "--warn") == 0)  message_level = rc_MESSAGE_WARN;
         else if (strcmp(v[i], "--none") == 0)  message_level = rc_MESSAGE_NONE;
-        else if (strcmp(v[i], "--output-tum") == 0) pose_file = v[++i];
         else goto usage;
 
     if (!filename)
@@ -287,8 +287,7 @@ int main(int c, char **v)
     rp.start(load_map);
 #else
     world_state ws;
-    std::ofstream pose_fs;
-    if(pose_file) pose_fs.open(pose_file);
+    std::ofstream pose_fs; if(pose_output) pose_fs.open(pose_output);
     rp.set_data_callback([&ws,&rp,first=true,&res,&data_callback,&pose_fs](rc_Tracker * tracker, const rc_Data * data) mutable {
         data_callback(ws, rp, first, res, tracker, data);
         if(pose_fs.is_open() && pose_fs.good()) {

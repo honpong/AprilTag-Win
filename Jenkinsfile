@@ -6,7 +6,6 @@ pipeline {
             steps {
                 slackSend color: "#439FE0", message: slack_build_message("started")
                 withEnv(["CCACHE_BASEDIR=${env.WORKSPACE}"]) {
-                    sh 'env'
                     sh 'cmake -Bbuild -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=$GIT_COMMIT'
                     sh 'cmake --build build -- -j'
                 }

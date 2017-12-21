@@ -41,9 +41,9 @@
     }
 #endif
 #define SLAM_LOG_ERR(message) SLAM_LOG_EVENT(LOG_ERR, "ERR", message)
-#define SLAM_LOG_INF(message) SLAM_LOG_EVENT(INFO,    "INF", message)
+#define SLAM_LOG_INF(message) SLAM_LOG_EVENT(DEBUG,   "INF", message)
 #define SLAM_LOG_WRN(message) SLAM_LOG_EVENT(WARNING, "WRN", message)
-#define SLAM_LOG_DBG(message) SLAM_LOG_EVENT(DEBUG,   "DBG", message)
+#define SLAM_LOG_DBG(message) SLAM_LOG_EVENT(VERBOSE, "DBG", message)
 #define SLAM_LOG_VRB(message) SLAM_LOG_EVENT(VERBOSE, "VRB", message)
 #define SLAM_LOG_TRC(message) SLAM_LOG_EVENT(TRACE,   "TRC", message)
 

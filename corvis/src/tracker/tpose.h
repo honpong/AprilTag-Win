@@ -1,7 +1,6 @@
 #pragma once
 
 #include <string>
-#include <sstream>
 #include <fstream>
 #include <iostream>
 #include <iomanip>
@@ -11,8 +10,7 @@
 struct tpose_tum {
     double t_s; v3 T_m; quaternion Q;
     tpose_tum() : t_s(0), T_m(v3::Zero()), Q(quaternion::Identity()) {}
-    tpose_tum(const float qua[4], const float t[3], uint64_t time_us) :
-        t_s(time_us / 1.e6), T_m(t[0], t[1], t[2]), Q(qua[0], qua[1], qua[2], qua[3]) {};
+    tpose_tum(double t_s_, const transformation &G_m) : t_s(t_s_), T_m(G_m.T), Q(G_m.Q) {};
     tpose_tum(const char *line) : tpose_tum() {
         size_t end = 0;
         // the +1s below skip the ',' delimiter

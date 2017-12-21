@@ -292,7 +292,7 @@ int main(int c, char **v)
         data_callback(ws, rp, first, res, tracker, data);
         if(pose_fs.is_open() && pose_fs.good()) {
             const auto &pose_in = rc_getPose(tracker, NULL, NULL, rc_DATA_PATH_SLOW);
-            pose_fs << tpose_tum(pose_in.pose_m.Q.v, pose_in.pose_m.T.v, pose_in.time_us);
+            pose_fs << tpose_tum(pose_in.time_us/1e6, to_transformation(pose_in.pose_m));
         }
     });
 

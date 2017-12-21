@@ -49,7 +49,7 @@ int main(int c, char **v)
     bool relocalize = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr, *pose_output = nullptr;
     char *pause_at = nullptr;
-    rc_MessageLevel message_level = rc_MESSAGE_WARN;
+    rc_MessageLevel message_level = rc_MESSAGE_INFO;
     int threads = 0;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];

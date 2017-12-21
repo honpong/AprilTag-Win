@@ -143,7 +143,7 @@ namespace rs2
 
         void set(const int& s, const double flag)
         {
-            _is_export[s] = (flag > 0);
+            _is_export[s] = (flag > 0.0);
         }
 
         void set_reset_request()
@@ -194,7 +194,7 @@ void* rs2_box_measure_create(rs2_box_measure** box_measure, float depth_unit, rs
 }
 HANDLE_EXCEPTIONS_AND_RETURN(nullptr, box_measure, depth_unit)
 
-void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const& out_stream, double flag, rs2_error** error) BEGIN_API_CALL
+void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const out_stream, double flag, rs2_error** error) BEGIN_API_CALL
 {
     VALIDATE_NOT_NULL(box_measure);
     VALIDATE_RANGE(out_stream, rs2::box_measure_impl::BOX_DST_DENSE, rs2::box_measure_impl::BOX_DST_COLOR);

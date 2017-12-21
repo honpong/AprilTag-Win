@@ -506,9 +506,9 @@ static std::shared_ptr<rs2::box_measure::calibration> read_calibration(const std
 
         Json::Value extrinsics = calibration_data["color_cam"]["extrinsics"]["depth_cam"];
         for (auto r : { 0,1,2,3,4,5,6,7,8 })
-            calibration.depth_to_color.rotation[r] = extrinsics["rotation"][r].asFloat();
+            calibration.color_to_depth.rotation[r] = extrinsics["rotation"][r].asFloat();
         for (auto t : { 0,1,2 })
-            calibration.depth_to_color.translation[t] = extrinsics["translation"][t].asFloat();
+            calibration.color_to_depth.translation[t] = extrinsics["translation"][t].asFloat();
 
         printf(("calibration read from " + path_name + "\n").c_str());
         return std::make_shared<decltype(calibration)>(calibration);

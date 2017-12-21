@@ -74,8 +74,9 @@ int main(int argc, char* argv[])
     rs2::pipeline pipe;
 
     auto list = ctx.query_devices();
-    if (list.size() <= 0) std::runtime_error("No device detected.");
+    if (list.size() <= 0) { std::runtime_error("No device detected."); return EXIT_FAILURE; }
 
+    // Assume the first device is our depth camera
     auto dev = list[0];
     std::string header = std::string(dev.get_info(RS2_CAMERA_INFO_NAME)) + " Box Scan Example ";
    
@@ -95,31 +96,33 @@ int main(int argc, char* argv[])
     // Start application
     for (window app(boxscan.stream_w() * 3 / 2, boxscan.stream_h(), header.c_str()); app;)
     {
-        rs2::frameset frameset;
+        rs2::frameset frameset; //frame set container
 
         while (!frameset.first_or_default(RS2_STREAM_DEPTH)
             || !frameset.first_or_default(RS2_STREAM_COLOR))
         {
-            frameset = pipe.wait_for_frames();
+            frameset = pipe.wait_for_frames(); //wait until a pair of frames.
         }
 
-        if (auto box_frame = boxscan.process(frameset))
+        if (auto box_frame = boxscan.process(frameset)) //process new frame pair
         {
+            // display the selected output frames
             app.render_ui(
                 app.plane_request() ? box_frame[RS2_STREAM_PLANE] : color_map(box_frame[RS2_STREAM_DEPTH_DENSE]),
                 box_frame[RS2_STREAM_COLOR]);
 
-            if (auto box = boxscan.get_boxes())
+            // draw box wireframe and text info if any
+            if (auto box = boxscan.get_boxes()) 
             {
-                app.render_box_on_depth_frame(box[0].project_box_onto_frame(box_frame, RS2_STREAM_DEPTH));
-                app.render_box_on_color_frame(box[0].project_box_onto_frame(box_frame, RS2_STREAM_COLOR));
-                app.render_box_dim(box[0].str());
+                app.render_box_on_depth_frame(box[0].project_box_onto_frame(box_frame, RS2_STREAM_DEPTH)); //draw wireframe on depth image
+                app.render_box_on_color_frame(box[0].project_box_onto_frame(box_frame, RS2_STREAM_COLOR)); //draw wireframe on color image
+                app.render_box_dim(box[0].str()); //draw box information text
             }
         }
 
-        if (app.reset_request()) { boxscan.reset(); }
-        boxscan.configure(RS2_STREAM_PLANE, app.plane_request());
-        boxscan.configure(RS2_STREAM_DEPTH_DENSE, app.dense_request());
+        if (app.reset_request()) { boxscan.reset(); } //if reset button clicked
+        boxscan.configure(RS2_STREAM_PLANE, app.plane_request());       //update output request
+        boxscan.configure(RS2_STREAM_DEPTH_DENSE, app.dense_request()); //update output request
     }
 
     return EXIT_SUCCESS;

@@ -41,38 +41,89 @@ extern "C"
 {
 #endif
 
+    /** \brief Constant definitions for measurement */
     typedef enum rs2_measure_const : int
     {
-        RS2_STREAM_POSE = 0,
-        RS2_STREAM_DEPTH_DENSE = 3,
-        RS2_STREAM_PLANE = 4,
-        RS2_MEASURE_BOX_MAXCOUNT = 10,
+        RS2_STREAM_POSE = 0,           /**< mandatory output (data) stream from box measure */
+        RS2_STREAM_DEPTH_DENSE = 3,    /**< optional dense depth stream from box measure    */
+        RS2_STREAM_PLANE = 4,          /**< optional plane id stream from box measure       */
+        RS2_MEASURE_BOX_MAXCOUNT = 10, /**< maximum number of boxes from box measure        */
     } rs2_measure_const;
 
-    struct rs2_measure_box
+    /** \brief Primary data structure for box */
+    typedef struct rs2_measure_box
     {
         float center[3];   /**< box center in 3d world coordinate           */
         float axis[3][3];  /**< box axis and lengths in 3d world coordinate */
-    };
+    } rs2_measure_box;
     
-    struct rs2_measure_box_wireframe
+    /** \brief Auxilary data structure to display box on a 2d image */
+    typedef struct rs2_measure_box_wireframe
     {
         float end_pt[12][2][2]; /**< 12 lines by 12 pairs of 2d pixel coorindate */
-    };
+    } rs2_measure_box_wireframe;
     
-    struct rs2_measure_camera_state
+    /** \brief Camera state info returned by box measure */
+    typedef struct rs2_measure_camera_state
     {
         rs2_intrinsics* intrinsics;
         float camera_pose[12];
-    };
+    } rs2_measure_camera_state;
 
-    struct rs2_box_measure; /**< box detector object */
+    /** \brief Box measure object internal to a processing_block*/
+    typedef struct rs2_box_measure rs2_box_measure; 
 
+    /**
+    * Creates box measure processing block.
+    * \param[out] box_measure pointer to box_measure object inside the returned processing_block. Do not delete directly.
+    * \param[in]  depth_unit  number of meters represented by a single depth unit, see RS2_OPTION_DEPTH_UNITS enum.
+    * \param[in]  custom      array of camera instrinsics for input [0] depth and [1] color image.
+    * \param[in]  d2c         depth to color image extrinsics.
+    * \param[out] error       if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
+    * \return processing_block object newly created. User is responsible for deleting this object.
+    */
     RS2_MEASURE_DECL void* rs2_box_measure_create(rs2_box_measure** box_measure, float depth_unit, rs2_intrinsics custom[2], rs2_extrinsics* d2c, rs2_error** e);
-    RS2_MEASURE_DECL void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const& out_stream, double flag, rs2_error** e);
+
+    /**
+    * Configure box measure object to enable specific optional output stream.
+    * \param[in]  box_measure pointer to box_measure object inside a processing_block.
+    * \param[in]  out_stream  either RS2_STREAM_DEPTH_DENSE or RS2_STREAM_PLANE.  
+    * \param[in]  flag        either set 0 as off or set 1 as on.
+    * \param[out] error       if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
+    */
+    RS2_MEASURE_DECL void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const out_stream, double flag, rs2_error** e);
+
+    /**
+    * Reset box measure.
+    * \parma[out] error if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
+    */
     RS2_MEASURE_DECL void rs2_box_measure_reset(rs2_box_measure* box_measure, rs2_error** e);
+
+    /**
+    * Get boxes.
+    * \param[in]  box_measure pointer to box_measure object inside a processing_block.
+    * \param[out] boxes       array of output boxes.
+    * \param[out] error       if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
+    * \return number of valid boxes in the boxes array.
+    */
     RS2_MEASURE_DECL int rs2_box_measure_get_boxes(rs2_box_measure* box_measure, rs2_measure_box* boxes, rs2_error** e);
+
+    /**
+    * Project box onto a frame.
+    * \param[in] box        a box returned from box_measure to be drawn on a target 2d image.
+    * \param[in] camera     camera state of the target 2d image.
+    * \param[out] wireframe the output box wireframe for rendering.
+    * \param[out] error       if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
+    */
     RS2_MEASURE_DECL void rs2_box_meausre_project_box_onto_frame(const rs2_measure_box* box, const rs2_measure_camera_state* camera, rs2_measure_box_wireframe* wireframe, rs2_error** e);
+
+    /**
+    * Get a Intel(c) RealSense(TM) icon image.
+    * \param[out] icon_width  returns width of RealSense icon in number of pixels.
+    * \param[out] icon_height returns height of RealSense icon in number of pixels.
+    * \param[out] error       if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
+    * \return icon image data in RGB format.
+    */
     RS2_MEASURE_DECL const char* rs2_measure_get_realsense_icon(int* icon_width, int* icon_height, rs2_format* format, rs2_error** e);
 
 #ifdef __cplusplus
@@ -90,16 +141,29 @@ namespace rs2
         std::string s0 = f_str(v, p), s = ""; while ((s + s0).length() < w) { s += " "; } return s + s0;
     }
 
+    /** \brief output data structure from box_measure class. 
+    * box_frameset[RS2_STREAM_POSE]  stores metadata of this box_frameset.
+    * box_frameset[RS2_STREAM_DEPTH] forwards the depth input of box_measure::process().
+    * box_frameset[RS2_STREAM_COLOR] forwards the color input of box_measure::process().
+    * box_frameset[RS2_STREAM_DEPTH_DENSE] shares newly created dense depth image (optional), \see box_measure::configure().
+    *                                      if RS2_STREAM_DEPTH_DENSE not configured, it repeats RS2_STREAM_DEPTH.
+    * box_frameset[RS2_STREAM_PLANE] shares newly created plane id image (optional), \see box_measure::configure().
+    *                                if RS2_STREAM_PLANE not configured, it repeats RS2_STREAM_COLOR.
+    *
+    */
     class box_frameset : public frameset
     {
     public:
         typedef rs2_measure_camera_state camera_state;
 
-        box_frameset(frame& f) : frameset(f) {}
-
         const camera_state& state(const rs2_stream& s) const { return ((camera_state*)((*this)[RS2_STREAM_POSE].get_data()))[s]; }
 
-        operator bool() const { return size() > 5; }
+        operator bool() const { return size() > RS2_STREAM_PLANE; }
+        
+    protected:
+        box_frameset(frame& f) : frameset(f) {}
+
+        friend class box_measure;
     };
 
     struct box : public rs2_measure_box
@@ -108,26 +172,47 @@ namespace rs2
 
         box(rs2_measure_box& ref) : rs2_measure_box(ref) {}
 
-        inline float dim_sqr(int a) const /**< squared box dimension along axis a in meter */
+        /** Squared box dimension along axis a in meter 
+         * \param[in] a  either 0, 1 or 2 selection of dimension. Order of dimension is arbitary. 
+         * \return squared box dimension algon axis a.
+         */
+        inline float dim_sqr(int a) const 
         {
             return axis[a][0] * axis[a][0] + axis[a][1] * axis[a][1] + axis[a][2] * axis[a][2];
         }
 
-        inline float dim(int a, float scale = 1000.0f) const /**< box dimension alogn axis a in meter */
+        /** Box dimension along axis a in default millimeter 
+         * \param[in] a     either 0, 1 or 2 selection of dimension. Order of dimension is arbitary.
+         * \param[in] scale factor to change the output unit.
+         * \return box dimension along axis a.
+         */
+        inline float dim(int a, float scale = 1000.0f) const 
         {
             return std::sqrt(dim_sqr(a)) * scale;
         }
 
+        /** Box dimension in millimeter in string format. */
         inline std::string str() const
         {
             return stri(dim(0), 4) + "x" + stri(dim(1), 4) + "x" + stri(dim(2), 4) + " ";
         }
 
-        inline wireframe project_box_onto_frame(box_frameset& f, const int& s) const
+        /**
+        * Project this box onto a frame to get a 2d wireframe.
+        * \param[in] fs         target frameset where the box to be drawn.
+        * \param[in] s          stream enum selects the stream in target frameset, e.g. RS2_STREAM_COLOR or RS2_STREAM_DEPTH.
+        * \return the output box wireframe for rendering on the target frame.
+        */
+        inline wireframe project_box_onto_frame(box_frameset& fs, const int& s) const
         {
-            return project_box_onto_frame(f.state((rs2_stream)s));
+            return project_box_onto_frame(fs.state((rs2_stream)s));
         }
 
+        /**
+        * Project this box onto a frame to get a 2d wireframe.
+        * \param[in] camera     state of the camera of the target frame.
+        * \return the output box wireframe for rendering on the target frame.
+        */
         wireframe project_box_onto_frame(const rs2_measure_camera_state& camera) const
         {
             rs2_error* e = nullptr;
@@ -152,11 +237,19 @@ namespace rs2
     {
     public:
 
-        struct calibration {
-            rs2_intrinsics intrinsics[2];
-            rs2_extrinsics depth_to_color;
+        /** \brief calibration data for box_measure. */
+        struct calibration
+        {
+            rs2_intrinsics intrinsics[2];  /**< intrinsics of [0] depth and [1] color streams. */
+            rs2_extrinsics color_to_depth; /**< color to depth stream extrinsics.              */
         };
 
+        /**
+        * Construct a box_measure object.
+        * Width and height of depth and color streams are assumed to be the same.
+        * \param[in] dev    device source of the depth and color streams.
+        * \param[in] custom optional calibration data override the hardware calibrations. 
+        */
         box_measure(device dev = device(), calibration* custom = nullptr) : _device(dev), _queue(1), _stream_w(0), _stream_h(0)
         {
             rs2_error* e = nullptr;
@@ -166,12 +259,13 @@ namespace rs2
             printf("depth unit %f \n", depth_unit);
 
             _block = std::shared_ptr<processing_block>((processing_block*)rs2_box_measure_create(&_box_measure, depth_unit,
-                custom ? custom->intrinsics : nullptr, custom ? &custom->depth_to_color : nullptr, &e));
+                custom ? custom->intrinsics : nullptr, custom ? &custom->color_to_depth : nullptr, &e));
             error::handle(e);
 
             _block->start(_queue);
         }
 
+        /** Reset box_measure */
         void reset()
         {
             rs2_error *e = nullptr;
@@ -180,6 +274,11 @@ namespace rs2
             error::handle(e);
         }
 
+        /**
+        * Configure box_measure object to enable specific optional output stream. 
+        * \param[in]  s       either RS2_STREAM_DEPTH_DENSE or RS2_STREAM_PLANE.
+        * \param[in]  flag    set true/false to enable/disable respectively.
+        */
         void configure(const rs2_measure_const& s, bool flag)
         {
             rs2_error *e = nullptr;
@@ -187,7 +286,11 @@ namespace rs2
             error::handle(e);
         }
 
-        config get_camera_config()
+        /**
+        * Get the required camera configuration for librealsense camera pipeline.
+        * \return required camera configuration.
+        */
+        config get_camera_config() const
         {
             config config;
             config.enable_stream(RS2_STREAM_DEPTH, 0, _stream_w, _stream_h, RS2_FORMAT_Z16);
@@ -196,17 +299,30 @@ namespace rs2
             return config;
         }
 
+        /** \return width of the box_measure frame. */
         int stream_w() const { return _stream_w; }
+        /** \return height of the box_measure frame. */
         int stream_h() const { return _stream_h; }
 
-        box_frameset process(frameset frame)
+        /**
+        * Process a new frameset which aligns the stream definitions in get_camera_config(). 
+        * The output frameset is a shared copy of the input image pair plus additional stream enabled by configure().
+        *
+        * \param[in] frames new frameset to be processed by box_measure, must follow get_camera_config() definitions.
+        * \return output frameset from box_measure.
+        */
+        box_frameset process(frameset frames)
         {
-            (*_block)(frame);
+            (*_block)(frames);
             rs2::frame f;
             _queue.poll_for_frame(&f);
             return box_frameset(f);
         }
 
+        /**
+        * Get boxes.
+        * \return vector of boxes from box_measure.
+        */
         box_vector get_boxes()
         {
             rs2_error* e = nullptr;
@@ -216,6 +332,7 @@ namespace rs2
             return box_vector(_box, _box + nbox);
         }
 
+        /** Get image data of a Intel(c) RealSense(TM) icon. */
         static const char* get_icon(int& w, int &h, rs2_format& format)
         {
             rs2_error* e = nullptr;

@@ -521,11 +521,13 @@ void state_camera::update_feature_tracks(const sensor_data &data, mapper *map, c
 
     // create tracks of features visible in inactive map nodes
     if(map) {
+        START_EVENT(SF_PREDICT_MAP, 0);
         map->predict_map_features(data.id, G_Bcurrent_Bnow);
         for(auto &nft : map->map_feature_tracks) {
             for(auto &mft : nft.tracks)
                 feature_tracker->tracks.emplace_back(&mft.track);
         }
+        END_EVENT(SF_PREDICT_MAP, map->map_feature_tracks.size());
     }
 
     if (feature_tracker->tracks.size())

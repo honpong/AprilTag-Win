@@ -15,6 +15,7 @@
 #include "quaternion.h"
 #include "fast_tracker.h"
 #include "descriptor.h"
+#include "Trace.h"
 
 #ifdef RELOCALIZATION_DEBUG
 #include <opencv2/imgproc.hpp>
@@ -585,13 +586,17 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
     map_relocalization_info local_reloc_info;
     local_reloc_info.frame_timestamp = current_frame->timestamp;
 
+    START_EVENT(SF_FIND_CANDIDATES, 0);
     std::vector<std::pair<nodeid, float>> candidate_nodes =
         find_loop_closing_candidates(current_frame, nodes, dbow_inverted_index, orb_voc.get());
+    END_EVENT(SF_FIND_CANDIDATES, candidate_nodes.size());
     const auto &keypoint_xy_current = current_frame->keypoints_xy;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
     for (const auto& nid : candidate_nodes) {
         bool is_relocalized_in_candidate = false;
+        START_EVENT(SF_MATCH_DESCRIPTORS, 0);
         matches matches_node_candidate = match_2d_descriptors(nodes.at(nid.first).frame, current_frame, features_dbow);
+        END_EVENT(SF_MATCH_DESCRIPTORS, matches_node_candidate.size());
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
         if(matches_node_candidate.size() >= min_num_inliers) {
@@ -616,7 +621,10 @@ bool mapper::relocalize(const camera_frame_t& camera_frame) {
                 feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(keypoint_xy_current[m.first]));
                 current_2d_points.push_back(ukp);
             }
+            inliers_set.clear();
+            START_EVENT(SF_ESTIMATE_POSE,0);
             estimate_pose(candidate_3d_points, current_2d_points, camera_frame.camera_id, G_candidate_currentframe, inliers_set);
+            END_EVENT(SF_ESTIMATE_POSE,inliers_set.size());
             if(inliers_set.size() >= min_num_inliers) {
                 is_relocalized = true;
                 is_relocalized_in_candidate = true;

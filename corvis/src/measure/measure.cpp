@@ -178,7 +178,7 @@ int main(int c, char **v)
     };
 
     auto data_callback = [&enable_gui, &incremental_ate, &benchmark_relocation, &render_output, &threads]
-        (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data) {
+        (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data, std::ostream *pose_st) {
         rc_PoseTime current = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
         auto timestamp = sensor_clock::micros_to_tp(current.time_us);
         tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current.pose_m));
@@ -223,6 +223,8 @@ int main(int c, char **v)
                                      rp.get_reference_poses());
             }
         }
+        if(pose_st)
+            *pose_st << tpose_tum(current.time_us/1e6, to_transformation(current.pose_m));
         if (enable_gui || render_output)
             ws.rc_data_callback(tracker, data);
         if (enable_gui && data->type == rc_SENSOR_TYPE_DEBUG && data->debug.pause)
@@ -247,7 +249,7 @@ int main(int c, char **v)
             world_state * ws = new world_state();
             res.user_data = render_output ? ws : nullptr;
             rp.set_data_callback([ws,&rp,first=true,&res,&data_callback](rc_Tracker * tracker, const rc_Data * data) mutable {
-                data_callback(*ws, rp, first, res, tracker, data);
+                data_callback(*ws, rp, first, res, tracker, data, nullptr);
             });
 
             if (progress) std::cout << "Running  " << capture_file << std::endl;
@@ -289,11 +291,7 @@ int main(int c, char **v)
     world_state ws;
     std::ofstream pose_fs; if(pose_output) pose_fs.open(pose_output);
     rp.set_data_callback([&ws,&rp,first=true,&res,&data_callback,&pose_fs](rc_Tracker * tracker, const rc_Data * data) mutable {
-        data_callback(ws, rp, first, res, tracker, data);
-        if(pose_fs.is_open() && pose_fs.good()) {
-            const auto &pose_in = rc_getPose(tracker, NULL, NULL, rc_DATA_PATH_SLOW);
-            pose_fs << tpose_tum(pose_in.time_us/1e6, to_transformation(pose_in.pose_m));
-        }
+        data_callback(ws, rp, first, res, tracker, data, &pose_fs);
     });
 
     if(enable_gui) { // The GUI must be on the main thread

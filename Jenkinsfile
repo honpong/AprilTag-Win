@@ -49,7 +49,7 @@ pipeline {
             slackSend color: "good", message: slack_build_message("succeeded (<${env.BUILD_URL}/artifact/benchmark-details-$BRANCH_NAME-${env.GIT_COMMIT}.txt|benchmark>)")
         }
         failure {
-            slackSend color: "#FF0000", message: slack_build_message("failed")
+            slackSend color: "#FF0000", message: slack_build_message("<$BUILD_URL/console|failed>")
         }
     }
 }

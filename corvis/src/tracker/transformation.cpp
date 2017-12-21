@@ -177,7 +177,7 @@ protected:
 
 #include <ransac.h>
 
-f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<v2> &dst, transformation &transform, std::default_random_engine &gen,
+f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<v2> &dst, transformation &transform, std::minstd_rand &gen,
                             int max_iterations, f_t max_reprojection_error, f_t confidence, unsigned min_matches, std::set<size_t> *inliers)
 {
     if (src.size() != dst.size() || src.size() < 5)

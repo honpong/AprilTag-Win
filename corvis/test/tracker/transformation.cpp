@@ -129,7 +129,7 @@ TEST(Transformation, EPnP)
 
 TEST(Transformation, EPnPRansac)
 {
-    std::default_random_engine gen(100);
+    std::minstd_rand gen(100);
     std::uniform_real_distribution<float> r;
     std::uniform_int_distribution<int> b(0,1);
     auto s = [&b,&gen](float n) { return (b(gen) ? -1 : 1) * n; };

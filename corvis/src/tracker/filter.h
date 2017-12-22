@@ -59,7 +59,6 @@ struct filter {
     bool is_relocalized;
 
     std::unique_ptr<mapper> map;
-    transformation pose_at_reloc;
 
 #ifdef ENABLE_QR
     qr_detector qr;
@@ -89,8 +88,11 @@ struct filter {
 bool filter_depth_measurement(struct filter *f, const sensor_data & data);
 bool filter_image_measurement(struct filter *f, const sensor_data & data);
 bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data);
-void filter_detect(struct filter *f, const sensor_data &data, bool update_frame);
-bool filter_relocalize(struct filter *f, const rc_Sensor camera_id, sensor_clock::time_point timestamp);
+bool filter_create_camera_frame(const struct filter *f, const sensor_data& data, camera_frame_t& camera_frame);
+void filter_detect(struct filter *f, const sensor_data &data, const std::shared_ptr<frame_t>& frame);
+bool filter_compute_orb_and_dbow(struct filter *f, const sensor_data &data, camera_frame_t& camera_frame);
+void filter_wait_for_node_completion(struct filter *f);
+bool filter_relocalize(struct filter *f, const camera_frame_t& camera_frame);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
 bool filter_velocimeter_measurement(struct filter *f, const sensor_data & data);

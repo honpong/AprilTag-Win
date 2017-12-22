@@ -95,30 +95,44 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 update_data(&data);
 
             if (data.id < sfm.s.cameras.children.size()) {
-                // Note that this relocalizes based on the data from the previous frame (which is now done)
-                if (sfm.relocalize && sfm.map) {
-                    if (filter_relocalize(&sfm, data.id, data.timestamp))
-                        sfm.log->info("relocalized");
+                if (sfm.s.cameras.children[data.id]->node_description_future.valid()) {
+                    auto camera_frame = sfm.s.cameras.children[data.id]->node_description_future.get();
+                    if (sfm.relocalize) {
+                        if (filter_relocalize(&sfm, camera_frame))
+                            sfm.log->info("relocalized");
+                    }
                 }
 
-                bool update_frame = sfm.map && sfm.map->current_node && (sfm.relocalize || sfm.save_map); // FIXME: a frame should be calculated either because a new node has just been added to the map
-                                                                       // in filter_image_measurement or because we will try to relocalize in the current image.
+                bool compute_descriptors_now = [&]() {
+                    constexpr bool new_group_created = true;  // FIXME: this must be given by filter_image_measurement
+                    if (sfm.map && sfm.map->current_node) {
+                        return sfm.relocalize || (sfm.save_map && new_group_created);
+                    }
+                    return false;
+                }();
 
-                // Store frame position wrt current node. Dbow and descriptors are calcualted in a separate thread in filter_detect.
-                if(update_frame) {
-                    state_camera& camera = *sfm.s.cameras.children[data.id];
-                    camera.camera_frame.closest_node = sfm.map->current_node->id;
-                    update_frame = sfm.s.get_closest_group_transformation(sfm.map->current_node->id, camera.camera_frame.G_closestnode_frame);
-                }
+                if (sfm.s.cameras.children[data.id]->detecting_space || compute_descriptors_now) {
+                    camera_frame_t camera_frame;
+                    if (compute_descriptors_now)
+                        filter_create_camera_frame(&sfm, data, camera_frame);
 
-                if(sfm.s.cameras.children[data.id]->detecting_space || update_frame)
                     sfm.s.cameras.children[data.id]->detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
-                        [this, update_frame] (struct filter *f, const sensor_data &&data) {
+                        [this] (sensor_data &&data, camera_frame_t&& camera_frame) {
                             auto start = std::chrono::steady_clock::now();
-                            filter_detect(&sfm, std::move(data), update_frame);
+                            filter_detect(&sfm, data, camera_frame.frame);
                             auto stop = std::chrono::steady_clock::now();
                             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-                        }, &sfm, std::move(data));
+
+                            if (camera_frame.frame) {
+                                sfm.s.cameras.children[data.id]->node_description_future =
+                                        std::async(threaded ? std::launch::async : std::launch::deferred,
+                                                   [this] (sensor_data &&data, camera_frame_t &&camera_frame) {
+                                    filter_compute_orb_and_dbow(&sfm, data, camera_frame);
+                                    return camera_frame;
+                                }, std::move(data), std::move(camera_frame));
+                            }
+                        }, std::move(data), std::move(camera_frame));
+                }
             }
         } break;
 
@@ -138,33 +152,44 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if(docallback)
                     update_data(&image_data); // TODO: visualize stereo data directly so we don't have a data callback here
 
-                // Note that this relocalizes based on the data from the previous frame (which is now done)
-                if (sfm.relocalize && sfm.map) {
-                    if (filter_relocalize(&sfm, data.id, data.timestamp))
-                        sfm.log->info("relocalized");
+                if (sfm.s.cameras.children[0]->node_description_future.valid()) {
+                    auto camera_frame = sfm.s.cameras.children[0]->node_description_future.get();
+                    if (sfm.relocalize) {
+                        if (filter_relocalize(&sfm, camera_frame))
+                            sfm.log->info("relocalized");
+                    }
                 }
 
-                 bool update_frame = sfm.map && sfm.map->current_node && (sfm.relocalize || sfm.save_map); // FIXME: a frame should be calculated either because a new node has just been added to the map
-                                                                          // in filter_image_measurement or because we will try to relocalize in the current image.
+                bool compute_descriptors_now = [&]() {
+                    constexpr bool new_group_created = true;  // FIXME: this must be given by filter_image_measurement
+                    if (sfm.map && sfm.map->current_node) {
+                        return sfm.relocalize || (sfm.save_map && new_group_created);
+                    }
+                    return false;
+                }();
 
-                 // Store frame position wrt current node. Dbow and descriptors are calcualted in a separate thread in filter_detect.
-                 if(update_frame) {
-                     state_camera& camera = *sfm.s.cameras.children[data.id];
-                     camera.camera_frame.closest_node = sfm.map->current_node->id;
-                     update_frame = sfm.s.get_closest_group_transformation(sfm.map->current_node->id, camera.camera_frame.G_closestnode_frame);
-                 }
+                if(sfm.s.cameras.children[0]->detecting_space || compute_descriptors_now) {
+                    camera_frame_t camera_frame;
+                    if (compute_descriptors_now)
+                        filter_create_camera_frame(&sfm, data, camera_frame);
 
-                if(sfm.s.cameras.children[0]->detecting_space || update_frame) {
                     sfm.s.cameras.children[0]->detection_future = std::async(threaded ? std::launch::deferred : std::launch::deferred,
-                    [this, update_frame] (struct filter *f, const sensor_data &&data) {
+                    [this] (const sensor_data &&data, camera_frame_t&& camera_frame) {
                             START_EVENT(SF_STEREO_DETECT1, 0);
                             auto start = std::chrono::steady_clock::now();
-                            filter_detect(&sfm, std::move(data), update_frame);
+                            filter_detect(&sfm, data, camera_frame.frame);
                             auto stop = std::chrono::steady_clock::now();
                             auto global_id = sensor_data::get_global_id_by_type_id(rc_SENSOR_TYPE_STEREO, 0); //"data" is of type IMAGE, but truly should report stats to STEREO stream
                             queue.stats.find(global_id)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
                             END_EVENT(SF_STEREO_DETECT1, 0);
-                        }, &sfm, std::move(image_data));
+                            if (camera_frame.frame) {
+                                filter_compute_orb_and_dbow(&sfm, data, camera_frame);
+                                sfm.s.cameras.children[0]->node_description_future =
+                                        std::async(std::launch::deferred,
+                                                   [](camera_frame_t&& camera_frame) { return camera_frame; },
+                                        std::move(camera_frame));
+                            }
+                        }, std::move(image_data), std::move(camera_frame));
                     // since image_data is a wrapper type here that
                     // does't have a copy, we need to be sure we are
                     // finished using it before the end of this case

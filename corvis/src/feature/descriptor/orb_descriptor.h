@@ -26,6 +26,7 @@ public:
     } descriptor;
     float cos_, sin_;
 
+    orb_descriptor() {}
     orb_descriptor(const raw &d, float c, float s) : descriptor(d), cos_(c), sin_(s) {}
     orb_descriptor(float x, float y, const tracker::image& image);
     static bool is_better(const float distance1, const float distance2) {return distance1 < distance2;}

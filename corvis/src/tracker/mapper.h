@@ -38,11 +38,13 @@ class log_depth;
 struct frame_t;
 struct camera_frame_t;
 
+enum class edge_type { filter, relocalization, dead_reckoning, original };
+
 struct map_edge {
-    bool loop_closure = false;
+    edge_type type;
     transformation G;
     map_edge() = default;
-    map_edge(bool lc, transformation G_) : loop_closure(lc), G(G_) {};
+    map_edge(edge_type type_, transformation G_) : type(type_), G(G_) {};
 };
 
 enum class feature_type { tracked, triangulated };
@@ -183,7 +185,7 @@ private:
 
     // private functions that are used after acquiring some of the mutexes
     void remove_edge_no_lock(nodeid node_id1, nodeid node_id2);
-    void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
+    void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::original);
     void add_covisibility_edge_no_lock(nodeid node_id1, nodeid node_id2);
 
     void remove_node_features(nodeid node_id);
@@ -200,7 +202,7 @@ private:
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     void add_node(nodeid node_id, const rc_Sensor camera_id);
     void remove_node(nodeid node_id);
-    void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
+    void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::original);
     void add_covisibility_edge(nodeid node_id1, nodeid node_id2);
     void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);

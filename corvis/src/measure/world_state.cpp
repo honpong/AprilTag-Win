@@ -517,16 +517,32 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
         const auto& nodes = f->map->get_nodes();
         for(const auto& it : nodes) {
             auto& map_node = it.second;
+            auto covisible_nodes = map_node.covisibility_edges;
             std::vector<Neighbor> neighbors;
-            for(auto id : map_node.covisibility_edges) {
-                Neighbor neighbor{id, false, false};
-                auto edge_it = map_node.edges.find(id);
-                if(edge_it != map_node.edges.end()) {
-                    neighbor.has_transformation = true;
-                    neighbor.loop_closure = edge_it->second.loop_closure;
+            auto it_node = std::find(f->map->canonical_path.begin(), f->map->canonical_path.end(),
+                                     map_node.id);
+            bool node_in_canonical_path = (it_node != f->map->canonical_path.end());
+            for(auto& edge : map_node.edges) {
+                Neighbor neighbor(edge.first);
+                neighbor.type = edge.second.type;
+                neighbor.in_canonical_path = false;
+                if(node_in_canonical_path) {
+                    auto it_neighbor = std::find(f->map->canonical_path.begin(), f->map->canonical_path.end(),
+                                                 edge.first);
+                    if(it_neighbor != f->map->canonical_path.end()) {
+                        if(it_node == it_neighbor+1 || it_node == it_neighbor-1)
+                            neighbor.in_canonical_path = true;
+                    }
                 }
+                covisible_nodes.erase(edge.first);
                 neighbors.push_back(neighbor);
             }
+
+            for(auto& covisible_node : covisible_nodes) {
+                Neighbor neighbor(covisible_node);
+                neighbors.push_back(neighbor);
+            }
+
             std::vector<Feature> features;
             for(auto &feat : map_node.features) {
                 Feature fw;
@@ -870,24 +886,32 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         map_node_vertex.push_back(v);
         for(Neighbor neighbor : node.neighbors) {
             VertexData ve;
-            if(neighbor.has_transformation) {
-                if(neighbor.loop_closure)
-                    set_color(&ve, 255, 0, 0, alpha*0.2);
-                else
-                    set_color(&ve, 0, 255, 0, alpha*0.2);
-            } else
+            if(neighbor.type == edge_type::original)
                 set_color(&ve, 255, 0, 255, alpha*0.2);
+            else if(neighbor.type == edge_type::dead_reckoning)
+                set_color(&ve, 255, 0, 0, alpha);
+            else if(neighbor.type == edge_type::relocalization)
+                set_color(&ve, 0, 255, 0, alpha);
+            else if(neighbor.in_canonical_path)
+                set_color(&ve, 255, 255, 0, alpha*0.4);
+            else
+                set_color(&ve, 0, 255, 0, alpha*0.2);
+
             set_position(&ve, v1[0], v1[1], v1[2]);
             map_edge_vertex.push_back(ve);
 
             auto node2 = map_nodes[neighbor.id];
-            if(neighbor.has_transformation) {
-                if(neighbor.loop_closure)
-                    set_color(&ve, 255, 0, 0, alpha*0.2);
-                else
-                    set_color(&ve, 0, 255, 0, alpha*0.2);
-            } else
+            if(neighbor.type == edge_type::original)
                 set_color(&ve, 255, 0, 255, alpha*0.2);
+            else if(neighbor.type == edge_type::dead_reckoning)
+                set_color(&ve, 255, 0, 0, alpha);
+            else if(neighbor.type == edge_type::relocalization)
+                set_color(&ve, 0, 255, 0, alpha);
+            else if(neighbor.in_canonical_path)
+                set_color(&ve, 255, 255, 0, alpha*0.4);
+            else
+                set_color(&ve, 0, 255, 0, alpha*0.2);
+
             set_position(&ve, node2.position.T.x(), node2.position.T.y(), node2.position.T.z());
             map_edge_vertex.push_back(ve);
         }

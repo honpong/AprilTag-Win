@@ -31,7 +31,7 @@ struct map_edge;
 struct map_node;
 
 struct map_edge_v1 {
-    bool loop_closure = false;
+    edge_type type;
     transformation G;
 };
 

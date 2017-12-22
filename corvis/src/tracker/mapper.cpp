@@ -65,17 +65,19 @@ map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
     return edges.emplace(neighbor, map_edge{}).first->second;
 }
 
-void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, bool loop_closure) {
-    nodes.critical_section(&mapper::add_edge_no_lock, this, id1, id2, G12, loop_closure);
+void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, edge_type type) {
+    nodes.critical_section(&mapper::add_edge_no_lock, this, id1, id2, G12, type);
 }
 
-void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12, bool loop_closure) {
+void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12, edge_type type) {
     map_edge& edge12 = nodes->at(id1).get_add_neighbor(id2);
-    edge12.loop_closure = loop_closure;
     edge12.G = G12;
     map_edge& edge21 = nodes->at(id2).get_add_neighbor(id1);
-    edge21.loop_closure = loop_closure;
     edge21.G = invert(G12);
+    if(type != edge_type::original) {
+        edge12.type = type;
+        edge21.type = type;
+    }
 }
 
 void mapper::add_covisibility_edge(nodeid id1, nodeid id2) {
@@ -743,7 +745,7 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                     transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
                     ok = nodes.critical_section([&]() {
                         if (nodes->find(nid.first) != nodes->end() && nodes->find(camera_frame.closest_node) != nodes->end()) {
-                            add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, true);
+                            add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, edge_type::relocalization);
                             add_covisibility_edge_no_lock(nid.first, camera_frame.closest_node);
                             return true;
                         }
@@ -902,7 +904,7 @@ static bstream_writer & operator << (bstream_writer& content, const v2 &vec) {
 }
 
 static bstream_writer &operator << (bstream_writer &content, const map_edge &edge) {
-    return content << edge.loop_closure << edge.G;
+    return content << static_cast<uint8_t>(edge.type) << edge.G;
 }
 
 static bstream_writer & operator << (bstream_writer& content, const std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> &feat) {

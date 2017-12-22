@@ -151,6 +151,7 @@ int state_vision::process_features(mapper *map)
     state_vision_group *best_group = 0;
     state_vision_group *reference_group = 0;
     int best_health = -1;
+    edge_type type = edge_type::original;
 
     //First: process groups, mark additional features for deletion
     for(auto &g : groups.children) {
@@ -187,12 +188,13 @@ int state_vision::process_features(mapper *map)
             map->canonical_path.resize((++it) - map->canonical_path.begin());
 
         if(reference_group) {
+            type = edge_type::filter;
             // remove edges between active groups and dropped reference group
             // we will connect them to the new reference group below
             for(auto &g : groups.children) {
                 if(g->id != reference_group->id) {
                     if(g->reused) { // if group reused preserve edges. TODO: preserve only original edges
-                        map->add_edge(reference_group->id, g->id, (*reference_group->Gr) * invert(*g->Gr));
+                        map->add_edge(reference_group->id, g->id, (*reference_group->Gr) * invert(*g->Gr), type);
                     } else {
                         map->remove_edge(reference_group->id, g->id);
                     }
@@ -220,7 +222,7 @@ int state_vision::process_features(mapper *map)
         auto &g = *i;
         if(map) {
             if(g->id != reference_id) // update map edges
-                map->add_edge(reference_id, g->id, G_reference_now*invert(*g->Gr));
+                map->add_edge(reference_id, g->id, G_reference_now*invert(*g->Gr), type);
             // update transform to first reference group created in this session. TODO: Fix problem with first node flying around
             if(g->id == map->get_node_id_offset() && !g->reused)
                 map->G_W_firstnode = get_transformation()*invert(*g->Gr);
@@ -373,10 +375,10 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
         }
 
         if(reference_group)
-            map->add_edge(reference_group->id, g->id, (*reference_group->Gr) * invert(*g->Gr));
+            map->add_edge(reference_group->id, g->id, (*reference_group->Gr) * invert(*g->Gr), edge_type::filter);
         else if(map->reference_node) // connect graph again using dead reckoning
-            map->add_edge(map->reference_node->id, g->id, invert(map->reference_node->global_transformation) * get_transformation());
-
+            map->add_edge(map->reference_node->id, g->id,
+                          invert(map->reference_node->global_transformation) * get_transformation(), edge_type::dead_reckoning);
     }
     auto *p = g.get();
     groups.children.push_back(std::move(g));

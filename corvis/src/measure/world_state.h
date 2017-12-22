@@ -41,8 +41,9 @@ typedef struct _ImageData {
 
 typedef struct _Neighbor {
     uint64_t id;
-    bool has_transformation;
-    bool loop_closure;
+    edge_type type = edge_type::original;
+    bool in_canonical_path = false;
+    _Neighbor(uint64_t id_) : id(id_) {}
 } Neighbor;
 
 typedef struct _mapnode {

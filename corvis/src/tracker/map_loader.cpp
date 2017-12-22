@@ -39,7 +39,7 @@ static bstream_reader & operator >> (bstream_reader &content, shared_ptr<frame_t
 }
 
 static bstream_reader & operator >> (bstream_reader &content, map_edge_v1 &edge) {
-    return content >> edge.loop_closure >> edge.G;
+    return content >> (uint8_t &) edge.type >> edge.G;
 }
 
 uint64_t map_feature_v1::max_loaded_featid = 0;
@@ -77,7 +77,7 @@ void assign<map_node_v1>(map_node &node, map_node_v1 &loaded_node) {
     node.edges.clear();
     for (auto &ed : loaded_node.edges) {
         node.edges.emplace(piecewise_construct, forward_as_tuple(ed.first),
-            forward_as_tuple(ed.second.loop_closure, ed.second.G));
+            forward_as_tuple(ed.second.type, ed.second.G));
     }
     loaded_node.edges.clear();
     node.global_transformation = loaded_node.global_transformation;

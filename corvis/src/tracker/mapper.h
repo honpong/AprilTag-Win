@@ -84,7 +84,7 @@ struct map_relocalization_info {
         transformation G_world_node;
         sensor_clock::time_point node_timestamp;
         candidate() {}
-        candidate(transformation g_node_frame, transformation g_world_node, sensor_clock::time_point node_ts)
+        candidate(const transformation &g_node_frame, const transformation &g_world_node, sensor_clock::time_point node_ts)
             : G_node_frame(g_node_frame), G_world_node(g_world_node), node_timestamp(node_ts) {}
     };
     aligned_vector<candidate> candidates;

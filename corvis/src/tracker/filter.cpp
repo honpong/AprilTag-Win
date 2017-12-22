@@ -29,6 +29,7 @@
 #ifdef MYRIAD2
 #include "shave_tracker.h"
 #include "platform_defines.h"
+#include "orb.h"
 #endif // MYRIAD2
 
 using rc::map;
@@ -656,6 +657,18 @@ bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_
         timage.stride_px = image.stride;
 
         START_EVENT(SF_ORB, 0);
+#ifdef ENABLE_SHAVE_ORB
+        fast_tracker::fast_feature<patch_orb_descriptor>* keypoints_shave[camera_frame.frame->keypoints.size()];
+        for(size_t i = 0; i < camera_frame.frame->keypoints.size(); ++i) {
+            keypoints_shave[i] = camera_frame.frame->keypoints[i].get();
+        }
+        const v2* keypoints_xy_shave[camera_frame.frame->keypoints_xy.size()];
+        for(size_t i = 0; i < camera_frame.frame->keypoints_xy.size(); ++i) {
+            const v2& kpxy = camera_frame.frame->keypoints_xy[i];
+            keypoints_xy_shave[i] = &(camera_frame.frame->keypoints_xy[i]);
+        }
+        compute_orb_multiple_shaves(timage, keypoints_shave, keypoints_xy_shave, camera_frame.frame->keypoints.size());
+#else
         for (size_t i = 0; i < camera_frame.frame->keypoints.size(); ++i) {
             const v2& p = camera_frame.frame->keypoints_xy[i];
             auto& feature = camera_frame.frame->keypoints[i];
@@ -664,6 +677,7 @@ bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_
                 feature->descriptor.orb_computed = true;
             }
         }
+#endif
         END_EVENT(SF_ORB, camera_frame.frame->keypoints.size());
     }
     return true;

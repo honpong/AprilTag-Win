@@ -655,7 +655,7 @@ bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_
         timage.width_px = image.width;
         timage.height_px = image.height;
         timage.stride_px = image.stride;
-
+        int actual_num_descriptors = 0;
         START_EVENT(SF_ORB, 0);
 #ifdef ENABLE_SHAVE_ORB
         fast_tracker::fast_feature<patch_orb_descriptor>* keypoints_shave[camera_frame.frame->keypoints.size()];
@@ -667,7 +667,7 @@ bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_
             const v2& kpxy = camera_frame.frame->keypoints_xy[i];
             keypoints_xy_shave[i] = &(camera_frame.frame->keypoints_xy[i]);
         }
-        compute_orb_multiple_shaves(timage, keypoints_shave, keypoints_xy_shave, camera_frame.frame->keypoints.size());
+        compute_orb_multiple_shaves(timage, keypoints_shave, keypoints_xy_shave, camera_frame.frame->keypoints.size(), actual_num_descriptors);
 #else
         for (size_t i = 0; i < camera_frame.frame->keypoints.size(); ++i) {
             const v2& p = camera_frame.frame->keypoints_xy[i];
@@ -675,10 +675,11 @@ bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_
             if(!feature->descriptor.orb_computed) {
                 feature->descriptor.orb = orb_descriptor(p.x(), p.y(), timage);
                 feature->descriptor.orb_computed = true;
+                actual_num_descriptors++;
             }
         }
 #endif
-        END_EVENT(SF_ORB, camera_frame.frame->keypoints.size());
+        END_EVENT(SF_ORB, actual_num_descriptors);
     }
     return true;
 }

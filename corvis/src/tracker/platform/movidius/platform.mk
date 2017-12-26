@@ -93,9 +93,10 @@ SLAM_SHAVE_CCOPT := -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-stri
    -I$(SLAM_PREFIX)/corvis/src/feature/tracker \
    -I$(SLAM_PLATFORM_PREFIX)/shared \
    -I$(SLAM_PLATFORM_PREFIX)/leon \
+   -I$(SLAM_PLATFORM_PREFIX)/ \
    -I$(SLAM_PREFIX)/corvis/src/tracker
 
-SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -I$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++ -mno-replace-jmp-with-bra-peephole
+SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -isystem$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++ -isystem$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include -mno-replace-jmp-with-bra-peephole
 
 SHAVE_SEARCH_PATH = $(SLAM_PLATFORM_PREFIX)/shave
 
@@ -104,12 +105,14 @@ ENTRYPOINTS_track = fast_track
 ENTRYPOINTS_stereo_initialize = stereo_match
 ENTRYPOINTS_project_covariance = vision_project_motion_covariance vision_project_observation_covariance
 ENTRYPOINTS_blis = startSGEMM startSGEMMTRSM_LL startSGEMMTRSM_LU startSGEMMTRSM_RU startSGEMMTRSM_RL
+ENTRYPOINTS_orb = compute_descriptors
 ENTRYPOINTS_cholesky = potrf_ln
 SHAVES_IDX_detect             = 4 8 9 10
 SHAVES_IDX_track              = 0 1 2 3
 SHAVES_IDX_stereo_initialize  = 0 1 2 3
 SHAVES_IDX_project_covariance = 0 1 2 3
 SHAVES_IDX_blis               = 0 1 2 3
+SHAVES_IDX_orb                = 4 8 9 10
 SHAVES_IDX_cholesky           = 0
 
 SHAVE_CPP_AUTOSTAT_SOURCES_detect += $(SHAVE_SEARCH_PATH)/stereo_initialize/common_shave.cpp

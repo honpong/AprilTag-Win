@@ -25,7 +25,12 @@
 // Pointer to Buffer where all tracing info for memory logger component will be stored.
 Node_t* memLogBuffer;
 u32 bufferSize;
-const u32 sysTick32ShiftRightNum = 3;
+
+// sys clock divider shift (exponent) (from 600Mhz in TM2)
+// in general events clocks time accuracy is 1/sys_clock * 2^divider_shift
+// which translates for TM2 with divider shift of 7 into:
+// 1/600Mhz * 2^7 = 0.21 usec
+const u32 sysTick32ShiftRightNum = 7;
 
 // 4: Static Local Data 
 // ----------------------------------------------------------------------------
@@ -79,8 +84,8 @@ void dbgMemLogInit(u8* memPtr, u32 size)
 	    memLogBuffer[0].id = *((u32*)(&tsDiff));
     }
 
-	// no data here
-    memLogBuffer[0].data = 0;
+	// Indicate the divider from base sys clock (600Mhz for TM2)
+    memLogBuffer[0].data = sysTick32ShiftRightNum;
 
     return;
 }

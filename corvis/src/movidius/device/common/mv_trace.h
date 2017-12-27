@@ -17,7 +17,6 @@
 #define COMPONENT_PROFILE (1 << 8)
 #define DETAIL_PROFILE (2 << 8)
 #define DEBUG_PROFILE (3 << 8)
-#define RELOC_PROFILE (4 << 8)
 
 // Trace EVENTS
 

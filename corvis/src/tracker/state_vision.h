@@ -106,6 +106,7 @@ struct frame_t {
 };
 
 struct camera_frame_t {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     rc_Sensor camera_id;
     std::shared_ptr<frame_t> frame;
     uint64_t closest_node;

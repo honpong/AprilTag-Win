@@ -173,7 +173,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                         filter_create_camera_frame(&sfm, pair.first, camera_frame);
 
                     sfm.s.cameras.children[0]->detection_future = std::async(threaded ? std::launch::deferred : std::launch::deferred,
-                    [this] (const sensor_data &&data, camera_frame_t&& camera_frame) {
+                        [this] (sensor_data &&data, camera_frame_t&& camera_frame) {
                             START_EVENT(SF_STEREO_DETECT1, 0);
                             auto start = std::chrono::steady_clock::now();
                             filter_detect(&sfm, data, camera_frame.frame);
@@ -182,11 +182,13 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                             queue.stats.find(global_id)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
                             END_EVENT(SF_STEREO_DETECT1, 0);
                             if (camera_frame.frame) {
-                                filter_compute_orb_and_dbow(&sfm, data, camera_frame);
                                 sfm.s.cameras.children[0]->node_description_future =
-                                        std::async(std::launch::deferred,
-                                                   [](camera_frame_t&& camera_frame) { return camera_frame; },
-                                        std::move(camera_frame));
+                                    std::async(threaded ? std::launch::async : std::launch::deferred,
+                                               [this](const sensor_data &&data, camera_frame_t&& camera_frame) {
+                                                   filter_compute_orb_and_dbow(&sfm, data, camera_frame);
+                                                   return camera_frame;
+                                               },
+                                               std::move(data), std::move(camera_frame));
                             }
                         }, std::move(pair.first), std::move(camera_frame));
                     sfm.s.cameras.children[0]->detection_future.wait();

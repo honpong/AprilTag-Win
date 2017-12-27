@@ -79,6 +79,7 @@ public:
 };
 
 struct frame_t {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     sensor_clock::time_point timestamp;
     std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>> keypoints;
     std::vector<v2> keypoints_xy;

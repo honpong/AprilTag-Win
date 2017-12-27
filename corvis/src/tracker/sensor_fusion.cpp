@@ -139,19 +139,17 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
         case rc_SENSOR_TYPE_STEREO: {
             bool docallback = true;
             if(isProcessingVideo) {
-                START_EVENT(SF_STEREO_RECEIVE, 0);
-                std::unique_ptr<void, void(*)(void *)> im_copy(const_cast<void*>(data.stereo.image1), [](void *){});
-                sensor_data image_data(data.time_us, rc_SENSOR_TYPE_IMAGE, 0, data.stereo.shutter_time_us,
-                       data.stereo.width, data.stereo.height, data.stereo.stride1, data.stereo.format, data.stereo.image1, std::move(im_copy));
+                START_EVENT(SF_STEREO_RECEIVE, data.id);
+                auto pair { sensor_data::split(std::move(data)) };
                 uint64_t groups = sfm.s.group_counter;
-                docallback = filter_image_measurement(&sfm, image_data);
+                docallback = filter_image_measurement(&sfm, pair.first);
 
                 if (fast_path && !queue.data_in_queue(data.type, data.id))
                     fast_path_catchup();
 
                 update_status();
                 if(docallback)
-                    update_data(&image_data); // TODO: visualize stereo data directly so we don't have a data callback here
+                    update_data(&pair.first); // TODO: visualize stereo data directly so we don't have a data callback here
 
                 if (sfm.s.cameras.children[0]->node_description_future.valid()) {
                     auto camera_frame = sfm.s.cameras.children[0]->node_description_future.get();
@@ -172,7 +170,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if(sfm.s.cameras.children[0]->detecting_space || compute_descriptors_now) {
                     camera_frame_t camera_frame;
                     if (compute_descriptors_now)
-                        filter_create_camera_frame(&sfm, data, camera_frame);
+                        filter_create_camera_frame(&sfm, pair.first, camera_frame);
 
                     sfm.s.cameras.children[0]->detection_future = std::async(threaded ? std::launch::deferred : std::launch::deferred,
                     [this] (const sensor_data &&data, camera_frame_t&& camera_frame) {
@@ -190,18 +188,15 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                                                    [](camera_frame_t&& camera_frame) { return camera_frame; },
                                         std::move(camera_frame));
                             }
-                        }, std::move(image_data), std::move(camera_frame));
-                    // since image_data is a wrapper type here that
-                    // does't have a copy, we need to be sure we are
-                    // finished using it before the end of this case
-                    // statement
+                        }, std::move(pair.first), std::move(camera_frame));
                     sfm.s.cameras.children[0]->detection_future.wait();
-                    filter_stereo_initialize(&sfm, 0, 1, data);
+                    filter_stereo_initialize(&sfm, 0, 1, pair.second);
                 }
 
                 update_status();
                 if(docallback)
                     update_data(&data);
+
                 END_EVENT(SF_STEREO_RECEIVE, 0);
             }
             else

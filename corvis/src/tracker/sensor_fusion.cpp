@@ -80,6 +80,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
     switch(data.type) {
         case rc_SENSOR_TYPE_IMAGE: {
             bool docallback = true;
+            uint64_t groups = sfm.s.group_counter;
             if(isProcessingVideo)
                 docallback = filter_image_measurement(&sfm, data);
             else
@@ -103,7 +104,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 }
 
                 bool compute_descriptors_now = [&]() {
-                    constexpr bool new_group_created = true;  // FIXME: this must be given by filter_image_measurement
+                    const bool new_group_created = sfm.s.group_counter > groups;
                     if (sfm.map && sfm.map->current_node) {
                         return sfm.relocalize || (sfm.save_map && new_group_created);
                     }
@@ -142,6 +143,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 std::unique_ptr<void, void(*)(void *)> im_copy(const_cast<void*>(data.stereo.image1), [](void *){});
                 sensor_data image_data(data.time_us, rc_SENSOR_TYPE_IMAGE, 0, data.stereo.shutter_time_us,
                        data.stereo.width, data.stereo.height, data.stereo.stride1, data.stereo.format, data.stereo.image1, std::move(im_copy));
+                uint64_t groups = sfm.s.group_counter;
                 docallback = filter_image_measurement(&sfm, image_data);
 
                 if (fast_path && !queue.data_in_queue(data.type, data.id))
@@ -160,7 +162,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 }
 
                 bool compute_descriptors_now = [&]() {
-                    constexpr bool new_group_created = true;  // FIXME: this must be given by filter_image_measurement
+                    const bool new_group_created = sfm.s.group_counter > groups;
                     if (sfm.map && sfm.map->current_node) {
                         return sfm.relocalize || (sfm.save_map && new_group_created);
                     }

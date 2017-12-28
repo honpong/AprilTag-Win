@@ -57,6 +57,7 @@ void mapper::reset()
     nodes.critical_section([&](){ nodes->clear(); });
     dbow_inverted_index.critical_section([&](){ dbow_inverted_index->clear(); });
     features_dbow.critical_section([&](){ features_dbow->clear(); });
+    partially_finished_nodes.clear();
 }
 
 map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
@@ -243,11 +244,32 @@ void mapper::finish_node(nodeid id, bool compute_dbow_inverted_index) {
     nodes.critical_section([&]() {
         node.status = node_status::finished;
     });
-    if (node.frame && compute_dbow_inverted_index) {
-        dbow_inverted_index.critical_section([&]() {
-            for (auto &word : node.frame->dbow_histogram)
-                (*dbow_inverted_index)[word.first].push_back(id); // Add this node to inverted index
-        });
+    if (compute_dbow_inverted_index) partially_finished_nodes.emplace(id);
+}
+
+void mapper::index_finished_nodes() {
+    for (auto it = partially_finished_nodes.begin(); it != partially_finished_nodes.end(); ) {
+        nodeid id = *it;
+        bool update_index = false, remove_node = false;
+        auto node_it = nodes->find(id);
+        if (node_it == nodes->end()) {
+            remove_node = true;
+        } else if (node_it->second.frame) {
+            update_index = true;
+            remove_node = true;
+        }
+        if (update_index) {
+            const auto& frame = node_it->second.frame;
+            dbow_inverted_index.critical_section([&]() {
+                for (auto &word : frame->dbow_histogram)
+                    (*dbow_inverted_index)[word.first].push_back(id);
+            });
+        }
+        if (remove_node) {
+            it = partially_finished_nodes.erase(it);
+        } else {
+            ++it;
+        }
     }
 }
 
@@ -273,6 +295,7 @@ void mapper::remove_node(nodeid id)
     }
     features_dbow.critical_section(&mapper::remove_node_features, this, id);
     nodes->erase(id);
+    partially_finished_nodes.erase(id);
 
     // if only 1 neighbor, node removed (id) is a loose end of the graph
     if(neighbors.size() > 1) {

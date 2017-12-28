@@ -168,6 +168,10 @@ class mapper {
     // for a feature id we associate the corresponding node in which it was detected
     concurrent<std::map<uint64_t, nodeid>> features_dbow;
 
+    // nodes whose status is finished but which do not have a frame yet,
+    // so their addition to dbow_inverted_index is deferred.
+    std::unordered_set<nodeid> partially_finished_nodes;
+
 private:
     // private functions that lock mutexes internally
     std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
@@ -177,7 +181,6 @@ private:
                                          const std::shared_ptr<frame_t>& current_frame);
 
     // private functions that are used after acquiring some of the mutexes
-    //struct already_locked {};
     void remove_edge_no_lock(nodeid node_id1, nodeid node_id2);
     void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12,
                           bool loop_closure = false);
@@ -218,6 +221,7 @@ private:
 
     void finish_node(nodeid node_id, bool compute_dbow_inverted_index);
     void set_node_transformation(nodeid id, const transformation & G);
+    void index_finished_nodes();
 
     void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
     static bool deserialize(const rapidjson::Value &json, mapper &map);

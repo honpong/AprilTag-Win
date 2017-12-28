@@ -9,6 +9,7 @@
 #include <future>
 #include "sensor_fusion.h"
 #include "filter.h"
+#include "priority.h"
 #include "Trace.h"
 
 transformation sensor_fusion::get_transformation() const
@@ -101,6 +102,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                     if (sfm.relocalize) {
                         auto result = sfm.relocalization_scheduler.process(threaded,
                             [this] (camera_frame_t&& camera_frame) {
+                                set_priority(PRIORITY_SLAM_RELOCALIZE);
                                 return filter_relocalize(&sfm, std::move(camera_frame));
                         }, std::move(camera_frame));
                         if (result.status == scheduler::RESULT_AVAILABLE && result.value)
@@ -123,15 +125,16 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
                     sfm.s.cameras.children[data.id]->detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                         [this] (sensor_data &&data, camera_frame_t&& camera_frame) {
+                            set_priority(PRIORITY_SLAM_DETECT);
                             auto start = std::chrono::steady_clock::now();
                             filter_detect(&sfm, data, camera_frame.frame);
                             auto stop = std::chrono::steady_clock::now();
                             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 
                             if (camera_frame.frame) {
-                                sfm.s.cameras.children[data.id]->node_description_future =
-                                        std::async(threaded ? std::launch::async : std::launch::deferred,
-                                                   [this] (sensor_data &&data, camera_frame_t &&camera_frame) {
+                                sfm.s.cameras.children[data.id]->node_description_future = std::async(threaded ? std::launch::async : std::launch::deferred,
+                                [this] (sensor_data &&data, camera_frame_t &&camera_frame) {
+                                    set_priority(PRIORITY_SLAM_ORB);
                                     filter_compute_orb_and_dbow(&sfm, data, camera_frame);
                                     return camera_frame;
                                 }, std::move(data), std::move(camera_frame));
@@ -162,6 +165,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                     if (sfm.relocalize) {
                         auto result = sfm.relocalization_scheduler.process(threaded,
                             [this] (camera_frame_t&& camera_frame) {
+                                set_priority(PRIORITY_SLAM_RELOCALIZE);
                                 return filter_relocalize(&sfm, std::move(camera_frame));
                         }, std::move(camera_frame));
                         if (result.status == scheduler::RESULT_AVAILABLE && result.value)
@@ -184,6 +188,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
                     sfm.s.cameras.children[0]->detection_future = std::async(threaded ? std::launch::deferred : std::launch::deferred,
                         [this] (sensor_data &&data, camera_frame_t&& camera_frame) {
+                            set_priority(PRIORITY_SLAM_DETECT);
                             START_EVENT(SF_STEREO_DETECT1, 0);
                             auto start = std::chrono::steady_clock::now();
                             filter_detect(&sfm, data, camera_frame.frame);
@@ -195,6 +200,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                                 sfm.s.cameras.children[0]->node_description_future =
                                     std::async(threaded ? std::launch::async : std::launch::deferred,
                                                [this](const sensor_data &&data, camera_frame_t&& camera_frame) {
+                                                   set_priority(PRIORITY_SLAM_ORB);
                                                    filter_compute_orb_and_dbow(&sfm, data, camera_frame);
                                                    return camera_frame;
                                                },
@@ -291,6 +297,8 @@ void sensor_fusion::start(bool thread, bool fast_path_)
     filter_initialize(&sfm);
     filter_start(&sfm);
     queue.start(thread);
+    set_priority(PRIORITY_SLAM_FASTPATH);
+    queue.dispatch_async([this]() { set_priority(PRIORITY_SLAM_SLOWPATH); });
 }
 
 void sensor_fusion::pause_and_reset_position()

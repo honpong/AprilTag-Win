@@ -2,6 +2,36 @@ cmake_minimum_required(VERSION 3.7.0 FATAL_ERROR)
 
 project(measure C CXX)
 
+list(APPEND CMAKE_MODULE_PATH 
+	${CMAKE_CURRENT_SOURCE_DIR}/cmake
+)
+list(APPEND CMAKE_PREFIX_PATH
+    ${CMAKE_CURRENT_SOURCE_DIR}/../sp/win
+	${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/sp/win
+)
+
+######################################################################
+
+set(LIBRS_GIT https://github.com/IntelRealSense/librealsense.git)
+set(LIBRS_VER v2.8.1)
+set(LIBRS_PAR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/LibRealSense)
+set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/LibRealSense/librealsense)
+set(JSON3_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/Json)
+
+if(NOT EXISTS ${LIBRS_DIR})
+    message(STATUS "cloning librealsense ...")
+    find_package(Git)
+    if(Git_FOUND)
+        message(STATUS "${GIT_EXECUTABLE} clone -b ${LIBRS_VER} ${LIBRS_GIT}")
+        execute_process(COMMAND ${GIT_EXECUTABLE} clone -b ${LIBRS_VER} ${LIBRS_GIT}
+                        WORKING_DIRECTORY ${LIBRS_PAR})
+    endif()
+    
+    if(NOT EXISTS ${LIBRS_DIR})
+        message(FATAL_ERROR "Cannot clone librealsense! Please checkout ${LIBRS_GIT} into ${LIBRS_PAR} and try again.")
+    endif()
+endif()
+
 ######################################################################
 
 include(CheckCXXCompilerFlag)
@@ -13,18 +43,7 @@ else()
     message(FATAL_ERROR "Compiler does not support C++14!")
 endif()
 
-#######################################################################
-
-list(APPEND CMAKE_MODULE_PATH 
-	${CMAKE_CURRENT_SOURCE_DIR}/cmake
-)
-list(APPEND CMAKE_PREFIX_PATH
-    ${CMAKE_CURRENT_SOURCE_DIR}/../sp/win
-	${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/sp/win
-)
-
-set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/LibRealSense/librealsense)
-set(JSON3_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/Json)
+######################################################################
 
 find_package(Eigen3 REQUIRED)
 find_package(OpenGL REQUIRED)

@@ -97,6 +97,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             if (data.id < sfm.s.cameras.children.size()) {
                 if (sfm.s.cameras.children[data.id]->node_description_future.valid()) {
                     auto camera_frame = sfm.s.cameras.children[data.id]->node_description_future.get();
+                    filter_update_map_index(&sfm, camera_frame);
                     if (sfm.relocalize) {
                         auto result = sfm.relocalization_scheduler.process(threaded,
                             [this] (camera_frame_t&& camera_frame) {
@@ -157,6 +158,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
                 if (sfm.s.cameras.children[0]->node_description_future.valid()) {
                     auto camera_frame = sfm.s.cameras.children[0]->node_description_future.get();
+                    filter_update_map_index(&sfm, camera_frame);
                     if (sfm.relocalize) {
                         auto result = sfm.relocalization_scheduler.process(threaded,
                             [this] (camera_frame_t&& camera_frame) {

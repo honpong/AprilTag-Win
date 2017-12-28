@@ -648,28 +648,16 @@ bool filter_compute_orb_and_dbow(struct filter *f, const sensor_data& data, came
     camera_frame.frame->calculate_dbow(f->map->orb_voc.get());
     END_EVENT(SF_DBOW_TRANSFORM, camera_frame.frame->keypoints.size());
 
-    assert(f->map->node_in_map(camera_frame.closest_node));
+    return true;
+}
+
+void filter_update_map_index(struct filter *f, const camera_frame_t& camera_frame)
+{
     map_node& node = f->map->get_node(camera_frame.closest_node);
     if (node.camera_id == camera_frame.camera_id && !node.frame) {
         node.frame = camera_frame.frame;
     }
-
-    return true;
-}
-
-void filter_wait_for_node_completion(struct filter *f)
-{
-    std::set<uint64_t> camera_ids;
-    for(auto i = f->s.groups.children.begin(); i != f->s.groups.children.end(); ++i) {
-        auto &g = *i;
-        if(g->status == group_empty)  // the node with group id g->id may need to be completed
-            camera_ids.insert(f->map->get_node(g->id).camera_id);
-    }
-    for(auto camera_id : camera_ids) {
-        const auto& camera = f->s.cameras.children[camera_id];
-        if(camera->node_description_future.valid())
-            camera->node_description_future.wait();
-    }
+    f->map->index_finished_nodes();
 }
 
 bool filter_relocalize(struct filter *f, camera_frame_t&& camera_frame)
@@ -983,7 +971,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
 
     camera_state.process_tracks(f->map.get(), *f->log);
-    if (f->map) filter_wait_for_node_completion(f);  // process_features needs nodes to be completed
     auto normal_groups = f->s.process_features(f->map.get());
     filter_update_outputs(f, time, normal_groups == 0);
     f->s.remap();

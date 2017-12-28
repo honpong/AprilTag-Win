@@ -93,7 +93,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
 bool filter_create_camera_frame(const struct filter *f, const sensor_data& data, camera_frame_t& camera_frame);
 void filter_detect(struct filter *f, const sensor_data &data, const std::shared_ptr<frame_t>& frame);
 bool filter_compute_orb_and_dbow(struct filter *f, const sensor_data &data, camera_frame_t& camera_frame);
-void filter_wait_for_node_completion(struct filter *f);
+void filter_update_map_index(struct filter *f, const camera_frame_t& camera_frame);
 bool filter_relocalize(struct filter *f, camera_frame_t&& camera_frame);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);

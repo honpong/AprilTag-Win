@@ -767,7 +767,7 @@ static float keypoint_compare(const tracker::feature_track & t1, const tracker::
     return DESCRIPTOR::distance(f1->descriptor, f2->descriptor);
 }
 
-bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data)
+bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data2)
 {
 
     if(f->s.cameras.children[camera1_id]->detection_future.valid()) {
@@ -778,13 +778,15 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
 
         const std::vector<tracker::feature_track *> existing_features;
 
+        const rc_ImageData &image = data2.image;
         tracker::image timage;
-        timage.image = (uint8_t *)data.stereo.image2;
-        timage.width_px = data.stereo.width;
-        timage.height_px = data.stereo.height;
-        timage.stride_px = data.stereo.stride2;
-        camera_state2.intrinsics.image_width = data.image.width;
-        camera_state2.intrinsics.image_height = data.image.height;
+        timage.image = (uint8_t *)image.image;
+        timage.width_px = image.width;
+        timage.height_px = image.height;
+        timage.stride_px = image.stride;
+
+        camera_state2.intrinsics.image_width = image.width;
+        camera_state2.intrinsics.image_height = image.height;
 
         START_EVENT(SF_STEREO_DETECT2, 1)
         std::vector<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->feature_tracker->detect(timage, existing_features, 200);

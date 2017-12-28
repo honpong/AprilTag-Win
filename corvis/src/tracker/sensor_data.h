@@ -12,6 +12,7 @@
 #include <memory>
 #include <cstring>
 #include <cstdlib>
+#include <atomic>
 #include <assert.h>
 #include "rc_tracker.h"
 #include "platform/sensor_clock.h"
@@ -141,15 +142,30 @@ public:
     {
         return std::make_unique<sensor_data>(*this, data_copy());
     }
-    
+
+    static std::pair<sensor_data,sensor_data> split(sensor_data &&d) {
+        assert(d.type == rc_SENSOR_TYPE_STEREO);
+        struct counted_handle {
+            std::atomic<int> count;
+            std::unique_ptr<void, void(*)(void *)> handle;
+        } *handle = new counted_handle{{2}, std::move(d.image_handle)};
+        auto release = [](void*p) { auto h = (counted_handle *)p; if (!--h->count) delete h; };
+        d.stereo.handle = nullptr;
+        d.stereo.release = nullptr;
+        return std::pair<sensor_data,sensor_data>(
+            sensor_data{d.time_us, rc_SENSOR_TYPE_IMAGE, rc_Sensor(d.id+0), d.stereo.shutter_time_us, d.stereo.width, d.stereo.height, d.stereo.stride1, d.stereo.format, d.stereo.image1, {handle, release}},
+            sensor_data{d.time_us, rc_SENSOR_TYPE_IMAGE, rc_Sensor(d.id+1), d.stereo.shutter_time_us, d.stereo.width, d.stereo.height, d.stereo.stride2, d.stereo.format, d.stereo.image2, {handle, release}}
+        );
+    }
+
     const static rc_Sensor MAX_SENSORS = 64;
-    
+
     static uint64_t get_global_id_by_type_id(rc_SensorType type, rc_Sensor id) { return type * MAX_SENSORS + id; }
 
     static rc_SensorType get_type_by_global_id(uint64_t global_id) { return static_cast<rc_SensorType>(global_id / MAX_SENSORS); }
-    
+
     static rc_Sensor get_id_by_global_id(uint64_t global_id) { return global_id % MAX_SENSORS; }
-    
+
     uint64_t global_id() const { return get_global_id_by_type_id(type, id); }
 };
 

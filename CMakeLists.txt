@@ -19,7 +19,7 @@ set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/LibRealSense/librealsen
 set(JSON3_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/Json)
 
 if(NOT EXISTS ${LIBRS_DIR})
-    message(STATUS "cloning librealsense ...")
+    message(STATUS "cloning librealsense into ${LIBRS_PAR} ...")
     find_package(Git)
     if(Git_FOUND)
         message(STATUS "${GIT_EXECUTABLE} clone -b ${LIBRS_VER} ${LIBRS_GIT}")

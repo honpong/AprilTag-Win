@@ -15,6 +15,7 @@
 #include "storage.h"
 #include "state_size.h"
 #include "tpose.h"
+#include "task_scheduler.h"
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -56,9 +57,10 @@ struct filter {
     bool stereo_enabled;
     bool relocalize;
     bool save_map;
-    bool is_relocalized;
+    map_relocalization_info relocalization_info;
 
     std::unique_ptr<mapper> map;
+    task_scheduler<bool> relocalization_scheduler;
 
 #ifdef ENABLE_QR
     qr_detector qr;
@@ -92,7 +94,7 @@ bool filter_create_camera_frame(const struct filter *f, const sensor_data& data,
 void filter_detect(struct filter *f, const sensor_data &data, const std::shared_ptr<frame_t>& frame);
 bool filter_compute_orb_and_dbow(struct filter *f, const sensor_data &data, camera_frame_t& camera_frame);
 void filter_wait_for_node_completion(struct filter *f);
-bool filter_relocalize(struct filter *f, const camera_frame_t& camera_frame);
+bool filter_relocalize(struct filter *f, camera_frame_t&& camera_frame);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
 bool filter_velocimeter_measurement(struct filter *f, const sensor_data & data);

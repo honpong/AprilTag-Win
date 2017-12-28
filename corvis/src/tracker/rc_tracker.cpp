@@ -574,9 +574,8 @@ bool rc_receiveTemperature(rc_Tracker * tracker, rc_Sensor therm_id, rc_Timestam
 
 int rc_getRelocalizationPoses(rc_Tracker* tracker, rc_Pose **reloc_edges)
 {
-    if (tracker && tracker->sfm.map && tracker->sfm.is_relocalized) {
-        const auto& map = tracker->sfm.map;
-        const auto& info = map->get_relocalization_info();
+    if (tracker && tracker->sfm.map && tracker->sfm.relocalization_info.is_relocalized) {
+        const auto& info = tracker->sfm.relocalization_info;
         tracker->relocalization_G_world_body.clear();
         tracker->relocalization_G_world_body.reserve(info.size());
         for (auto& c : info.candidates) {
@@ -592,9 +591,8 @@ int rc_getRelocalizationPoses(rc_Tracker* tracker, rc_Pose **reloc_edges)
 }
 
 int rc_getRelocalizationEdges(rc_Tracker *tracker, rc_Timestamp *source, rc_RelocEdge **edges) {
-    if (tracker && tracker->sfm.map && tracker->sfm.is_relocalized) {
-        const auto& map = tracker->sfm.map;
-        const auto& info = map->get_relocalization_info();
+    if (tracker && tracker->sfm.map && tracker->sfm.relocalization_info.is_relocalized) {
+        const auto& info = tracker->sfm.relocalization_info;
         tracker->relocalization_edges.clear();
         tracker->relocalization_edges.resize(info.size());
         for (size_t i = 0; i < info.size(); ++i) {

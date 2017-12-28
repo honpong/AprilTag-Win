@@ -650,6 +650,7 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
     START_EVENT(SF_FIND_CANDIDATES, 0);
     std::vector<std::pair<nodeid, float>> candidate_nodes = find_loop_closing_candidates(current_frame);
     END_EVENT(SF_FIND_CANDIDATES, candidate_nodes.size());
+    reloc_info.rstatus = relocalization_status::find_candidates;
 
     const auto &keypoint_xy_current = current_frame->keypoints_xy;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
@@ -672,6 +673,7 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
         START_EVENT(SF_MATCH_DESCRIPTORS, 0);
         matches matches_node_candidate = match_2d_descriptors(candidate_node_frame, current_frame);
         END_EVENT(SF_MATCH_DESCRIPTORS, matches_node_candidate.size());
+        reloc_info.rstatus = relocalization_status::match_descriptors;
 
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
@@ -724,10 +726,10 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
             START_EVENT(SF_ESTIMATE_POSE,0);
             estimate_pose(candidate_3d_points, current_2d_points, camera_frame.camera_id, G_candidate_currentframe, inliers_set);
             END_EVENT(SF_ESTIMATE_POSE,inliers_set.size());
+            reloc_info.rstatus = relocalization_status::estimate_EPnP;
             if(inliers_set.size() >= min_num_inliers) {
                 reloc_info.is_relocalized = true;
                 is_relocalized_in_candidate = true;
-
                 if(inliers_set.size() > best_num_inliers) {
                     transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
                     ok = nodes.critical_section([&]() {
@@ -745,7 +747,6 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                 }
             }
         }
-
         if (!inliers_set.size())
             log->debug("{}/{}) candidate nid: {:3} score: {:.5f}, matches: {:2}",
                        i++, candidate_nodes.size(), nid.first, nid.second, matches_node_candidate.size());
@@ -823,7 +824,6 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
 
         #endif
     }
-
     return reloc_info;
 }
 

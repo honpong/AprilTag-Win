@@ -66,7 +66,7 @@ public:
     stdev<size_> meas_stdev, inn_stdev, stability;
     v<size_> last_meas;
     f_t measurement_variance;
-    stdev<1> measure_time_stats;
+    stdev<1> measure_time_stats, reloc_time_stats;
     using sensor::sensor;
     void init_with_variance(f_t variance) {
         got = false;
@@ -75,6 +75,7 @@ public:
         stability = stdev<size_>();
         last_meas = v<size_>::Zero();
         measure_time_stats = decltype(measure_time_stats) {};
+        reloc_time_stats = decltype(reloc_time_stats) {};
         measurement_variance = variance;
     }
 };

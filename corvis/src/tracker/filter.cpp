@@ -664,9 +664,18 @@ void filter_update_map_index(struct filter *f, const camera_frame_t& camera_fram
 
 bool filter_relocalize(struct filter *f, const camera_frame_t& camera_frame)
 {
+    auto start = std::chrono::steady_clock::now();
+    auto &camera_sensor = *f->cameras[camera_frame.camera_id];
     START_EVENT(SF_RELOCALIZE, camera_frame.camera_id);
     f->relocalization_info = f->map->relocalize(camera_frame);
     END_EVENT(SF_RELOCALIZE, f->relocalization_info.is_relocalized);
+    auto stop  = std::chrono::steady_clock::now();
+    float elapsed_time = static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count());
+    camera_sensor.reloc_time_stats.data(v<1> {elapsed_time});
+    if (f->relocalization_info.rstatus > relocalization_status::match_descriptors)
+        f->log->info("      status {:2}, elapsed time [us]: {:.3f}", (int)f->relocalization_info.rstatus, elapsed_time);
+    else
+        f->log->debug("      status {:2}, elapsed time [us]: {:.3f}", (int)f->relocalization_info.rstatus, elapsed_time);
     return f->relocalization_info.is_relocalized;
 }
 
@@ -1349,6 +1358,7 @@ std::string filter_get_stats(const struct filter *f)
     {
         statstr << i->name << "\t (measure): " << i->measure_time_stats << "\n";
         statstr << i->name << "\t (detect):  " << i->detect_time_stats << "\n";
+        statstr << i->name << "\t (reloc):   " << i->reloc_time_stats << "\n";
     }
     for(auto &i:f->accelerometers)
     {

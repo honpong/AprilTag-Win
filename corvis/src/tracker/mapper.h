@@ -47,6 +47,7 @@ struct map_edge {
 };
 
 enum class feature_type { tracked, triangulated };
+enum class relocalization_status {begining, find_candidates, match_descriptors, estimate_EPnP};
 
 struct map_feature {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -81,6 +82,7 @@ struct map_node {
 struct map_relocalization_info {
     bool is_relocalized = false;
     sensor_clock::time_point frame_timestamp;
+    relocalization_status rstatus{relocalization_status::begining};
     struct candidate {
         transformation G_node_frame;
         transformation G_world_node;

@@ -15,7 +15,7 @@
 #include "storage.h"
 #include "state_size.h"
 #include "tpose.h"
-#include "task_scheduler.h"
+#include "future_every_n.h"
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -60,7 +60,7 @@ struct filter {
     map_relocalization_info relocalization_info;
 
     std::unique_ptr<mapper> map;
-    task_scheduler<bool> relocalization_scheduler;
+    future_every_n<bool, 1> relocalization_future;
 
 #ifdef ENABLE_QR
     qr_detector qr;

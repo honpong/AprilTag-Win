@@ -98,15 +98,18 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             if (data.id < sfm.s.cameras.children.size()) {
                 if (sfm.s.cameras.children[data.id]->node_description_future.valid()) {
                     auto camera_frame = sfm.s.cameras.children[data.id]->node_description_future.get();
+
+                    if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
+                        if (sfm.relocalization_future.get())
+                            sfm.log->info("relocalized");
+                    }
                     filter_update_map_index(&sfm, camera_frame);
-                    if (sfm.relocalize) {
-                        auto result = sfm.relocalization_scheduler.process(threaded,
+                    if (sfm.relocalize && !sfm.relocalization_future.valid()) {
+                        sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                             [this] (camera_frame_t&& camera_frame) {
                                 set_priority(PRIORITY_SLAM_RELOCALIZE);
                                 return filter_relocalize(&sfm, std::move(camera_frame));
                         }, std::move(camera_frame));
-                        if (result.status == scheduler::RESULT_AVAILABLE && result.value)
-                            sfm.log->info("relocalized");
                     }
                 }
 
@@ -161,15 +164,18 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
                 if (sfm.s.cameras.children[0]->node_description_future.valid()) {
                     auto camera_frame = sfm.s.cameras.children[0]->node_description_future.get();
+
+                    if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
+                        if (sfm.relocalization_future.get())
+                            sfm.log->info("relocalized");
+                    }
                     filter_update_map_index(&sfm, camera_frame);
-                    if (sfm.relocalize) {
-                        auto result = sfm.relocalization_scheduler.process(threaded,
+                    if (sfm.relocalize && !sfm.relocalization_future.valid()) {
+                        sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                             [this] (camera_frame_t&& camera_frame) {
                                 set_priority(PRIORITY_SLAM_RELOCALIZE);
                                 return filter_relocalize(&sfm, std::move(camera_frame));
                         }, std::move(camera_frame));
-                        if (result.status == scheduler::RESULT_AVAILABLE && result.value)
-                            sfm.log->info("relocalized");
                     }
                 }
 

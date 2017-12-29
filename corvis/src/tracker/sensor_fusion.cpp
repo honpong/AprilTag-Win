@@ -88,8 +88,13 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
                 docallback = sfm.s.orientation_initialized;
 
-            if (isProcessingVideo && fast_path && !queue.data_in_queue(data.type, data.id))
-                fast_path_catchup();
+            if (isProcessingVideo && fast_path) {
+                uint64_t in_queue = queue.data_in_queue(data.type, data.id);
+                if(!in_queue)
+                    fast_path_catchup();
+                else
+                    sfm.log->warn("Skipped catchup at {}, {} of {} left in queue", sensor_clock::tp_to_micros(data.timestamp), in_queue, data.type);
+            }
 
             update_status();
             if(docallback)
@@ -155,8 +160,13 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 uint64_t groups = sfm.s.group_counter;
                 docallback = filter_image_measurement(&sfm, pair.first);
 
-                if (fast_path && !queue.data_in_queue(data.type, data.id))
-                    fast_path_catchup();
+                if (fast_path) {
+                    uint64_t in_queue = queue.data_in_queue(data.type, data.id);
+                    if(!in_queue)
+                        fast_path_catchup();
+                    else
+                        sfm.log->warn("Skipped catchup at {}, {} of {} left in queue", sensor_clock::tp_to_micros(data.timestamp), in_queue, data.type);
+                }
 
                 update_status();
                 if(docallback)

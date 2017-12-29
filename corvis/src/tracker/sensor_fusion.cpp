@@ -136,7 +136,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                         [this] (sensor_data &&data, std::unique_ptr<camera_frame_t>&& camera_frame) {
                             set_priority(PRIORITY_SLAM_DETECT);
                             auto start = std::chrono::steady_clock::now();
-                            filter_detect(&sfm, data, camera_frame);
+                            size_t found = filter_detect(&sfm, data, camera_frame);
                             auto stop = std::chrono::steady_clock::now();
                             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 
@@ -148,6 +148,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                                     return std::move(camera_frame);
                                 }, std::move(data), std::move(camera_frame));
                             }
+                            return found;
                         }, std::move(data), std::move(camera_frame));
                 }
             }
@@ -208,7 +209,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                             set_priority(PRIORITY_SLAM_DETECT);
                             START_EVENT(SF_STEREO_DETECT1, 0);
                             auto start = std::chrono::steady_clock::now();
-                            filter_detect(&sfm, data, camera_frame);
+                            size_t found = filter_detect(&sfm, data, camera_frame);
                             auto stop = std::chrono::steady_clock::now();
                             auto global_id = sensor_data::get_global_id_by_type_id(rc_SENSOR_TYPE_STEREO, 0); //"data" is of type IMAGE, but truly should report stats to STEREO stream
                             queue.stats.find(global_id)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
@@ -223,9 +224,12 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                                                },
                                                std::move(data), std::move(camera_frame));
                             }
+                            return found;
                         }, std::move(pair.first), std::move(camera_frame));
-                    sfm.s.cameras.children[0]->detection_future.wait();
-                    filter_stereo_initialize(&sfm, 0, 1, pair.second);
+                    size_t found = sfm.s.cameras.children[0]->detection_future.get();
+                    sfm.s.cameras.children[0]->detection_future = std::async(std::launch::deferred, [=]() { return found; });
+                    if (found)
+                        filter_stereo_initialize(&sfm, 0, 1, pair.second);
                 }
 
                 update_status();

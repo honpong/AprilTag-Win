@@ -566,7 +566,7 @@ std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *
     return camera_frame;
 }
 
-void filter_detect(struct filter *f, const sensor_data &data, const std::unique_ptr<camera_frame_t>& camera_frame)
+size_t filter_detect(struct filter *f, const sensor_data &data, const std::unique_ptr<camera_frame_t>& camera_frame)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
@@ -579,7 +579,7 @@ void filter_detect(struct filter *f, const sensor_data &data, const std::unique_
     camera.detecting_space = 0;
 
     auto space = std::max(0, detect_count - standby_count);
-    if(!space && !camera_frame) return; // FIXME: what min number is worth detecting?
+    if(!space && !camera_frame) return 0; // FIXME: what min number is worth detecting?
 
     camera.feature_tracker->tracks.reserve(track_count + space);
 
@@ -625,6 +625,7 @@ void filter_detect(struct filter *f, const sensor_data &data, const std::unique_
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    return kp.size();
 }
 
 bool filter_compute_orb_and_dbow(struct filter *f, const sensor_data& data, camera_frame_t& camera_frame) {
@@ -758,8 +759,7 @@ static float keypoint_compare(const tracker::feature_track & t1, const tracker::
 
 bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data2)
 {
-
-    if(f->s.cameras.children[camera1_id]->detection_future.valid()) {
+    {
         START_EVENT(SF_STEREO_MEAS, 0)
         state_camera &camera_state1 = *f->s.cameras.children[camera1_id];
         state_camera &camera_state2 = *f->s.cameras.children[camera2_id];
@@ -843,11 +843,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         //kp1.sort([](const tracker::feature_track & f1, const tracker::feature_track &f2) { return f1.depth > f2.depth; });
 #endif
         END_EVENT(SF_STEREO_MATCH, 2)
-
-        f->s.cameras.children[camera1_id]->detection_future = std::async(std::launch::deferred, []() {});
         END_EVENT(SF_STEREO_MEAS, 0)
     }
-
     return true;
 }
 

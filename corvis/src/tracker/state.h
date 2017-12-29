@@ -604,6 +604,8 @@ public:
         remap_from(other.cov); // copy covariance
     }
 
+    sensor_clock::time_point get_current_time() { return current_time; }
+
     void print_matrix_with_state_labels(matrix &state) const {
         if(state.rows() >= dynamic_statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::dynamic);
         if(state.rows() >= statesize) state_branch<state_node *>::print_matrix_with_state_labels(state, node_type::constant);

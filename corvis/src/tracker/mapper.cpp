@@ -55,8 +55,8 @@ void mapper::reset()
     node_id_offset = 0;
     unlinked = false;
     nodes.critical_section([&](){ nodes->clear(); });
-    dbow_inverted_index.critical_section([&](){ dbow_inverted_index->clear(); });
     features_dbow.critical_section([&](){ features_dbow->clear(); });
+    dbow_inverted_index.clear();
     partially_finished_nodes.clear();
 }
 
@@ -259,11 +259,8 @@ void mapper::index_finished_nodes() {
             remove_node = true;
         }
         if (update_index) {
-            const auto& frame = node_it->second.frame;
-            dbow_inverted_index.critical_section([&]() {
-                for (auto &word : frame->dbow_histogram)
-                    (*dbow_inverted_index)[word.first].push_back(id);
-            });
+            for (auto &word : node_it->second.frame->dbow_histogram)
+                dbow_inverted_index[word.first].push_back(id);
         }
         if (remove_node) {
             it = partially_finished_nodes.erase(it);
@@ -427,10 +424,9 @@ std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidate
     std::map<mapper::nodeid,uint32_t> common_words_per_node;
     uint32_t max_num_shared_words = 0;
     for (auto word : current_frame->dbow_histogram) {
-        std::vector<mapper::nodeid> nodeids = dbow_inverted_index.critical_section([&]() {
-            auto word_i = dbow_inverted_index->find(word.first);
-            return (word_i != dbow_inverted_index->end() ? word_i->second : std::vector<mapper::nodeid>{});
-        });
+        auto word_i = dbow_inverted_index.find(word.first);
+        if (word_i == dbow_inverted_index.end()) continue;
+        std::vector<mapper::nodeid> nodeids = word_i->second;
         nodes.critical_section([&]() {
             for (size_t i = 0; i < nodeids.size(); ) {
                 mapper::nodeid nid = nodeids[i];
@@ -1162,7 +1158,7 @@ void mapper::serialize(rapidjson::Value &map_json, rapidjson::Document::Allocato
 
     // add dbow_inverted_index
     Value dbow_inverted_indices_json(kArrayType);
-    for (auto &featid_nodeid : *dbow_inverted_index) {
+    for (auto &featid_nodeid : dbow_inverted_index) {
         Value inverted_index_json(kObjectType);
         inverted_index_json.AddMember(KEY_INDEX, featid_nodeid.first, allocator);
 
@@ -1223,7 +1219,7 @@ bool mapper::deserialize(const Value &map_json, mapper &map) {
         auto map_key = dbow_inverted_indices_json[j][KEY_INDEX].GetUint64();
         const Value &node_ids_json = dbow_inverted_indices_json[j][KEY_NODEID];
         HANDLE_IF_FAILED(node_ids_json.IsArray(), failure_handle);
-        auto &node_ids = (*map.dbow_inverted_index)[map_key];
+        auto &node_ids = map.dbow_inverted_index[map_key];
         for (SizeType k = 0; k < node_ids_json.Size(); k++)
             node_ids.push_back(node_ids_json[k].GetUint64());
     }

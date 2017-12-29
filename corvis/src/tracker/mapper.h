@@ -163,7 +163,7 @@ class mapper {
     uint64_t feature_id_offset{0};
 
     // given a word it stores the nodes in which it was observed
-    concurrent<std::map<unsigned int, std::vector<nodeid>>> dbow_inverted_index;
+    std::map<unsigned int, std::vector<nodeid>> dbow_inverted_index;
 
     // for a feature id we associate the corresponding node in which it was detected
     concurrent<std::map<uint64_t, nodeid>> features_dbow;

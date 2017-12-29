@@ -58,6 +58,7 @@ void sensor_fusion::fast_path_catchup()
     START_EVENT(SF_FAST_PATH_CATCHUP, 0);
     auto start = std::chrono::steady_clock::now();
     sfm.catchup->state.copy_from(sfm.s);
+    sfm.catchup->slow_path_timestamp = sfm.catchup->state.get_current_time();
     std::unique_lock<std::recursive_mutex> mini_lock(mini_mutex);
     // hold the mini_mutex while we manipulate the mini
     // state *and* while we manipulate the queue during
@@ -283,6 +284,8 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data)
                 update_data(&data);
             auto stop = std::chrono::steady_clock::now();
             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+            auto prediction_time = (data.timestamp - sfm.mini->slow_path_timestamp);
+            queue.time_since_catchup_stats.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(prediction_time).count())});
         } break;
         case rc_SENSOR_TYPE_ACCELEROMETER:
         case rc_SENSOR_TYPE_DEPTH:

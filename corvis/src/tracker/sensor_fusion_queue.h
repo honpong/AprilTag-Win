@@ -242,6 +242,7 @@ public:
     sensor_clock::time_point newest_received{};
     std::unordered_map<uint64_t, sensor_stats> stats;
     stdev<1> catchup_stats {};
+    stdev<1> time_since_catchup_stats {};
 
 private:
     stdev<1> queue_latency{};

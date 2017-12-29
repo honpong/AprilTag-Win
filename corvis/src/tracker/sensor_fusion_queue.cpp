@@ -120,6 +120,7 @@ std::string fusion_queue::get_stats()
     }
     
     statstr << "Catchup time(us): " << catchup_stats << "\n\n";
+    statstr << "Fast path time since catchup(us): " << time_since_catchup_stats << "\n\n";
 
     statstr << "Queue latency: " << queue_latency << "\n\n";
 

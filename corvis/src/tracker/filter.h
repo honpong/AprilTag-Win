@@ -39,6 +39,7 @@ struct filter {
         observation_queue observations{store.x, store.y, store.R, store.HP, store.S};
         covariance cov{store.maxstatesize, store.P, store.Q, store.iP, store.iQ};
         state_motion state{cov, store.FP};
+        sensor_clock::time_point slow_path_timestamp;
         bool valid{false};
     } _mini[2], *mini = &_mini[0], *catchup = &_mini[1];
 

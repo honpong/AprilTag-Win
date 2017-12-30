@@ -57,7 +57,7 @@ float patch_descriptor::distance(const patch_descriptor &a,
                                  const patch_descriptor &b) {
     // constant patches can't be matched
     if (a.variance < FLT_EPSILON || b.variance < FLT_EPSILON)
-        return min_score;
+        return INFINITY;
 
     uint8_t w[full_patch_size];
     for (int i=0; i<full_patch_size; i++)
@@ -75,9 +75,9 @@ float patch_descriptor::distance(const patch_descriptor &a,
     }
 
     if (distance < 0.f)
-        return min_score;
+        return INFINITY;
 
-    return distance*distance/(a.variance*b.variance);
+    return 1 - distance*distance/(a.variance*b.variance);
 }
 
 float patch_descriptor::distance(float x, float y, const tracker::image &image) const {
@@ -106,7 +106,7 @@ float patch_descriptor::distance(float x, float y, const tracker::image &image) 
 
     // constant patches can't be matched
     if (variance < FLT_EPSILON || variance2 < FLT_EPSILON || top < 0.f)
-        return min_score;
+        return INFINITY;
 
-    return top*top/(variance*variance2);
+    return 1 - top*top/(variance*variance2);
 }

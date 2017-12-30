@@ -522,7 +522,7 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
                 auto& current_keypoint = *current_frame->keypoints[current_point_idx];
                 for (auto candidate_point_idx : candidate_keypoint_indexes) {
                     auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
-                    int dist = orb_descriptor::distance(candidate_keypoint.descriptor,
+                    int dist = orb_descriptor::distance_reloc(candidate_keypoint.descriptor,
                                                         current_keypoint.descriptor);
                     if (dist < best_distance) {
                         second_best_distance = best_distance;

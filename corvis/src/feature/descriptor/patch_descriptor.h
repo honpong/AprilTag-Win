@@ -28,6 +28,7 @@ public:
 
     patch_descriptor(float x, float y, const tracker::image& image);
     patch_descriptor(const std::array<unsigned char, L> &d);
-    static float distance(const patch_descriptor &a, const patch_descriptor &b);
-    float distance(float x, float y, const tracker::image& image) const;
+    static float distance_reloc(const patch_descriptor &a, const patch_descriptor &b) { return  distance_stereo(a, b); }
+    static float distance_stereo(const patch_descriptor &a, const patch_descriptor &b);
+    float distance_track(float x, float y, const tracker::image& image) const;
 };

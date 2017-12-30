@@ -53,8 +53,8 @@ patch_descriptor::patch_descriptor(const std::array<unsigned char, L> &d) : desc
     variance = variance - area*mean*mean;
 }
 
-float patch_descriptor::distance(const patch_descriptor &a,
-                                 const patch_descriptor &b) {
+float patch_descriptor::distance_stereo(const patch_descriptor &a,
+                                       const patch_descriptor &b) {
     // constant patches can't be matched
     if (a.variance < FLT_EPSILON || b.variance < FLT_EPSILON)
         return INFINITY;
@@ -80,7 +80,7 @@ float patch_descriptor::distance(const patch_descriptor &a,
     return 1 - distance*distance/(a.variance*b.variance);
 }
 
-float patch_descriptor::distance(float x, float y, const tracker::image &image) const {
+float patch_descriptor::distance_track(float x, float y, const tracker::image &image) const {
     uint8_t w[full_patch_size];
     for (int i=0; i<full_patch_size; i++)
         w[i] = std::abs(i - half_patch_size) <= 1 ? 2 : 1;

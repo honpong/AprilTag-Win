@@ -752,7 +752,7 @@ static float keypoint_compare(const tracker::feature_track & t1, const tracker::
 {
     auto f1 = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t1.feature);
     auto f2 = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t2.feature);
-    return DESCRIPTOR::distance(f1->descriptor, f2->descriptor);
+    return DESCRIPTOR::distance_stereo(f1->descriptor, f2->descriptor);
 }
 
 bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data2)

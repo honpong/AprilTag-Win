@@ -149,7 +149,7 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
                         const uint8_t* p = image.image + y*stride + x;
                         uint8_t val = (uint8_t)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
                         if(fast_9_kernel(p, pixel, val, fast_track_threshold)) {
-                            auto score = f.descriptor.distance((float)x, (float)y, image);
+                            auto score = f.descriptor.distance_track((float)x, (float)y, image);
                             if(score < bestkp.score) {
                                 bestkp.x = (float)x;
                                 bestkp.y = (float)y;

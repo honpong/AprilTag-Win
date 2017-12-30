@@ -28,11 +28,14 @@ public:
     orb_descriptor() {}
     orb_descriptor(const raw &d, float c, float s) : descriptor(d), cos_(c), sin_(s) {}
     orb_descriptor(float x, float y, const tracker::image& image);
-    static float distance(const orb_descriptor &a, const orb_descriptor &b) {
+    static float distance_reloc(const orb_descriptor &a, const orb_descriptor &b) {
         return raw::distance(a.descriptor, b.descriptor);
     }
-    float distance(float x, float y, const tracker::image& image) const {
-        return orb_descriptor::distance(*this, orb_descriptor(x,y,image));
+    static float distance_stereo(const orb_descriptor &a, const orb_descriptor &b) {
+        return raw::distance(a.descriptor, b.descriptor);
+    }
+    float distance_track(float x, float y, const tracker::image& image) const {
+        return raw::distance(descriptor, orb_descriptor(x,y,image).descriptor);
     }
 
     float operator-(const orb_descriptor &o) const {

@@ -13,8 +13,7 @@
 // 2:  Source Specific #defines and types  (typedef,enum,struct)
 #include "stereo_commonDefs.hpp"
 #include "common_shave.h"
-
-static const float fast_good_match = 0.65f*0.65f;
+#include "patch_constants.h"
 
 // ----------------------------------------------------------------------------
 // 3: Global Data (Only if absolutely necessary)
@@ -111,12 +110,11 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
     float depth,error,error_2;
     float4 cam1_intersect,cam2_intersect;
   //kp compare vars
-    float second_best_score = fast_good_match;
-    float best_score = fast_good_match;
+    float second_best_distance = INFINITY;
+    float best_distance = INFINITY;
     float best_depth = 0;
     float best_error = 0;
-    float score  = 0 ;
-    float min_score = 0;
+    float distance  = INFINITY ;
     unsigned short mean1 , mean2 ;
     //DMA - bring KP1 - KP2
     dmaTransactionList_t* dmaRef[2];
@@ -151,7 +149,7 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
     for (int i=start_index ; i < end_index ; i++)
     {
 
-        best_score = second_best_score = fast_good_match;
+        best_distance = second_best_distance = INFINITY;
         best_depth = 0;
 
         //bring f1 feature
@@ -194,21 +192,21 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
                 memcpy(f2_FeatureBuffer,patch_source_2,patch_buffer_size);
 
                 mean2 = compute_mean7x7_from_pointer_array(patch_win_half_width,patch_win_half_width ,patch2_pa) ;
-                score = score_match_from_pointer_array( patch1_pa, patch2_pa,patch_win_half_width,patch_win_half_width,patch_win_half_width,min_score,mean1, mean2) ;
-                if(score > best_score)
+                distance = score_match_from_pointer_array( patch1_pa, patch2_pa,patch_win_half_width,patch_win_half_width,patch_win_half_width,mean1, mean2) ;
+                if(distance < best_distance)
                 {
-                    DPRINTF("\t\t\t After score:kp1 %d, kp2 %d ,shave %d , after mean2:%d, score %f , depth %f , Error %f\n",i,j, mean1,mean2,score, depth ,error);
-                    second_best_score = best_score;
-                    best_score = score;
+                    DPRINTF("\t\t\t After score:kp1 %d, kp2 %d ,shave %d , after mean2:%d, distance %f , depth %f , Error %f\n",i,j, mean1,mean2,distance, depth ,error);
+                    second_best_distance = best_distance;
+                    best_distance = distance;
                     best_depth = depth;
                     best_error = intersection_error_percent;
                 }
-                else if(score > second_best_score)
-                    second_best_score = score;
+                else if(distance < second_best_distance)
+                    second_best_distance = distance;
             }
         } //end kp2 loop
 
-        if(best_depth && second_best_score == fast_good_match)
+        if(best_distance < patch_good_track_distance && second_best_distance > patch_good_track_distance)
         {
             depths1[i] = best_depth;
             errors1[i] = best_error;

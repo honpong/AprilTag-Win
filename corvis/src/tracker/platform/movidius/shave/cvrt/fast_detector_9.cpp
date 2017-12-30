@@ -11,7 +11,6 @@
 #include <math.h>
 #include <string.h> //memcpy
 
-
 void fast_detector_9::init(const int x, const int y, const int s, const int ps, const int phw)
 {
     xsize = x;
@@ -62,10 +61,10 @@ xy fast_detector_9::track(u8* im1,
 							float predy,
 							float radius,
 							int bthresh,
-							float min_score) {
+							float max_distance) {
 
 	int x, y, x1, y1, x2, y2, paddedWidth, width;
-	xy pBest = {INFINITY, INFINITY, min_score, 0};
+	xy pBest = {INFINITY, INFINITY, max_distance, 0};
 	unsigned short mean1, mean2;
 	x1 = (int) (predx - radius + 0.5);
 	x2 = (int) (predx + radius - 0.5);
@@ -111,12 +110,12 @@ xy fast_detector_9::track(u8* im1,
 
 			//float score = score_match(pFastLines, xcurrent,x, pBest.score, mean1);
             mean2 = compute_mean7x7_from_pointer_array(x,patch_win_half_width ,pFastLines) ;
-            float score = score_match_from_pointer_array(patch1_pa, pFastLines,patch_win_half_width , x,patch_win_half_width,pBest.score ,mean1, mean2);
+            float distance = score_match_from_pointer_array(patch1_pa, pFastLines,patch_win_half_width, x, patch_win_half_width, mean1, mean2);
 
-			if (score > pBest.score) {
+			if (distance < pBest.score) {
 				pBest.x = (float) x + x1 - PADDING;
 				pBest.y = (float) y;
-				pBest.score = score;
+				pBest.score = distance;
 			}
 		}
 
@@ -139,7 +138,7 @@ xy fast_detector_9::track(u8* im1,
 void fast_detector_9::trackFeature(TrackingData* trackingData,int index, const uint8_t* image, xy* out)
 {
 	TrackingData& data = trackingData[index];
-	xy bestkp = {INFINITY, INFINITY, patch_min_score, 0};
+	xy bestkp = {INFINITY, INFINITY, patch_max_track_distance, 0};
 	if (data.x_dx != INFINITY)
 	    bestkp = track(data.patch, image,
 	                   patch_win_half_width,
@@ -147,12 +146,12 @@ void fast_detector_9::trackFeature(TrackingData* trackingData,int index, const u
 	                   fast_track_threshold, bestkp.score);
 //
 	// Not a good enough match, try the filter prediction
-	if(data.pred_x != INFINITY && bestkp.score < patch_good_score) {
+	if(data.pred_x != INFINITY && bestkp.score > patch_good_track_distance) {
 		xy bestkp2 = track(data.patch, image,
 				patch_win_half_width,
 				data.pred_x, data.pred_y, fast_track_radius,
 				fast_track_threshold, bestkp.score);
-		if(bestkp2.score > bestkp.score)
+		if(bestkp2.score < bestkp.score)
 			bestkp = bestkp2;
 	}
 

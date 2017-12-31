@@ -23,8 +23,8 @@
 #include <cmath>
 #include <memory>
 
-#define log_enabled (0) // Only used in state.h now
-#define show_tuning (0)
+static constexpr bool log_enabled = false; // Only used in state.h now
+static constexpr bool show_tuning = false;
 
 class state_node {
 public:

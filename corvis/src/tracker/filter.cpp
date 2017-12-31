@@ -610,13 +610,9 @@ void filter_detect(struct filter *f, const sensor_data &data, const std::shared_
         frame->keypoints.reserve(camera.feature_tracker->tracks.size());
         frame->keypoints_xy.reserve(camera.feature_tracker->tracks.size());
         for (auto &p : camera.feature_tracker->tracks) {
-            if (std::is_same<DESCRIPTOR, orb_descriptor>::value) {
-                frame->keypoints.emplace_back(std::static_pointer_cast<fast_tracker::fast_feature<orb_descriptor>>(p->feature));
-                frame->keypoints_xy.emplace_back(p->x, p->y);
-            }
-            else if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, timage.width_px, timage.height_px)) {
-                // empty orb
-                frame->keypoints.emplace_back(std::make_shared<fast_tracker::fast_feature<orb_descriptor>>(p->feature->id));
+            auto feature = std::static_pointer_cast<fast_tracker::fast_feature<patch_orb_descriptor>>(p->feature);
+            if (feature->descriptor.orb_computed || fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, timage.width_px, timage.height_px)) {
+                frame->keypoints.emplace_back(std::move(feature));
                 frame->keypoints_xy.emplace_back(p->x, p->y);
             }
         }
@@ -639,7 +635,10 @@ bool filter_compute_orb_and_dbow(struct filter *f, const sensor_data& data, came
         for (size_t i = 0; i < camera_frame.frame->keypoints.size(); ++i) {
             const v2& p = camera_frame.frame->keypoints_xy[i];
             auto& feature = camera_frame.frame->keypoints[i];
-            feature->descriptor = orb_descriptor(p.x(), p.y(), timage);
+            if(!feature->descriptor.orb_computed) {
+                feature->descriptor.orb = orb_descriptor(p.x(), p.y(), timage);
+                feature->descriptor.orb_computed = true;
+            }
         }
         END_EVENT(SF_ORB, camera_frame.frame->keypoints.size());
     }

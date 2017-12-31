@@ -23,6 +23,8 @@ public:
     bool orb_computed {false};
     patch_orb_descriptor(float x, float y, const tracker::image& image): patch(x, y, image), orb_computed(false) {}
     patch_orb_descriptor(const patch_descriptor &p): patch(p), orb_computed(false) {}
+    //TODO: this should be fine for the mapper, but is sort of degenerate, should remove later and get rid of default constructor for patch_descriptor too
+    patch_orb_descriptor(const orb_descriptor &o): orb(o), patch(), orb_computed(false) {}
     static float distance_reloc(const patch_orb_descriptor &a, const patch_orb_descriptor &b)
     {
         return a.orb_computed && b.orb_computed ?

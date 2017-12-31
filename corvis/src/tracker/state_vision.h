@@ -81,7 +81,7 @@ public:
 struct frame_t {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     sensor_clock::time_point timestamp;
-    std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>> keypoints;
+    std::vector<std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>>> keypoints;
     std::vector<v2> keypoints_xy;
     DBoW2::BowVector dbow_histogram;       // histogram describing image
     DBoW2::FeatureVector dbow_direct_file;  // direct file if used, empty otherwise
@@ -90,7 +90,7 @@ struct frame_t {
         // copy pyramid descriptors to a vector of descriptors
         constexpr int direct_file_level = std::numeric_limits<int>::max();  // change to enable
         auto get_descriptor = [](const decltype(keypoints)::value_type &kp) -> const orb_descriptor::raw & {
-                return kp->descriptor.descriptor;
+                return kp->descriptor.orb.descriptor;
         };
         if (direct_file_level < orb_voc->getDepthLevels()) {
             dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor,

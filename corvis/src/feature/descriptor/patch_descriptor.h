@@ -26,6 +26,7 @@ public:
     std::array<unsigned char, L> descriptor;
     float mean{0}, variance{0};
 
+    patch_descriptor() {}
     patch_descriptor(float x, float y, const tracker::image& image);
     patch_descriptor(const std::array<unsigned char, L> &d);
     static float distance_reloc(const patch_descriptor &a, const patch_descriptor &b) { return  distance_stereo(a, b); }

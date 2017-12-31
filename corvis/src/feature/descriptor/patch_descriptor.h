@@ -16,10 +16,10 @@ Pedro Pinies, Lina Paz
 class patch_descriptor
 {
 public:
-    static const int L = full_patch_width * full_patch_width; // descriptor length
-    static const int full_patch_size = full_patch_width;
-    static const int half_patch_size = half_patch_width;
-    static const int border_size = half_patch_size;
+    static constexpr int L = full_patch_width * full_patch_width; // descriptor length
+    static constexpr int full_patch_size = full_patch_width;
+    static constexpr int half_patch_size = half_patch_width;
+    static constexpr int border_size = half_patch_size;
     static constexpr float max_track_distance = patch_max_track_distance;
     static constexpr float good_track_distance = patch_good_track_distance;
 

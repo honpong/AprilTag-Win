@@ -944,7 +944,7 @@ void map_feature::serialize(Value &feature_json, Document::AllocatorType &alloca
     // add feature descriptor
     Value desc_json(kObjectType);
     Value desc_raw_json(kArrayType);
-    for (auto v : feature->descriptor.descriptor)
+    for (auto v : feature->descriptor.patch.descriptor)
         desc_raw_json.PushBack(v, allocator);
 
     desc_json.AddMember(KEY_FRAME_FEAT_DESC_RAW, desc_raw_json, allocator);
@@ -973,7 +973,7 @@ bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t 
     for (SizeType d = 0; d < desc_raw_json.Size(); d++)
         raw_desc[d] = static_cast<unsigned char>(desc_raw_json[d].GetUint64());
 
-    feature.feature = std::make_shared<fast_tracker::fast_feature<patch_descriptor>>(id, raw_desc);
+    feature.feature = std::make_shared<fast_tracker::fast_feature<patch_orb_descriptor>>(id, patch_descriptor(raw_desc));
     return true;
 }
 

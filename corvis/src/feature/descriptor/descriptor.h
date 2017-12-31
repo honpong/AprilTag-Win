@@ -1,7 +1,7 @@
 #pragma once
 
 #ifndef DESCRIPTOR
-#define DESCRIPTOR patch_descriptor
+#define DESCRIPTOR patch_orb_descriptor
 #endif
 
 #define TO_STR(d) #d

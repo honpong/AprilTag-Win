@@ -1,10 +1,10 @@
 #pragma once
 
-#define PRIORITY_SLAM_FASTPATH   12
+#define PRIORITY_SLAM_FASTPATH   16
 #define PRIORITY_SLAM_SLOWPATH    8
-#define PRIORITY_SLAM_DETECT      7
-#define PRIORITY_SLAM_ORB         6
-#define PRIORITY_SLAM_RELOCALIZE  5
+#define PRIORITY_SLAM_DETECT      6
+#define PRIORITY_SLAM_ORB         4
+#define PRIORITY_SLAM_RELOCALIZE  2
 
 #ifdef MYRIAD2
 #include "thread_priorities.h"

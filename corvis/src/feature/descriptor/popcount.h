@@ -1,5 +1,9 @@
 #pragma once
 
+#if defined(_WIN64)
+#include <intrin.h>
+#endif
+
 #ifndef __has_builtin
 #define __has_builtin(x) 0
 #endif

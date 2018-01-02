@@ -13,6 +13,13 @@ pipeline {
                         sh "cmake --build build -- -j"
                     }
                 }
+                stage('Windows') {
+                    agent { label 'windows' }
+                    steps {
+                        bat "cmake -Bbuild -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT}"
+                        bat "cmake --build build"
+                    }
+                }
             }
         }
         stage('Test') {

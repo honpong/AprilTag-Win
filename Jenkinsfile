@@ -5,10 +5,14 @@ pipeline {
     }
     stages {
         stage('Build') {
-            steps {
-                slackSend color: "#439FE0", message: slack_build_message("started")
-                sh 'cmake -Bbuild -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=$GIT_COMMIT'
-                sh 'cmake --build build -- -j'
+            parallel {
+                stage('Linux') {
+                    steps {
+                        slackSend color: "#439FE0", message: slack_build_message("started")
+                        sh "cmake -Bbuild -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT}"
+                        sh "cmake --build build -- -j"
+                    }
+                }
             }
         }
         stage('Test') {

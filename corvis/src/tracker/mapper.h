@@ -113,10 +113,10 @@ class mapper {
          * The calling thread is blocked if necessary.
          */
         template<typename Fun, typename... Args>
-        typename std::result_of<Fun&&(Args&&...)>::type
-        critical_section(const Fun& fun, Args... args) {
+        typename std::result_of<typename std::decay<Fun>::type(typename std::decay<Args>::type...)>::type
+        critical_section(Fun &&fun, Args &&...args) {
             std::lock_guard<M> lock(mutex_);
-            return fun(std::forward<Args>(args)...);
+            return std::forward<Fun>(fun)(std::forward<Args>(args)...);
         }
 
         template<typename Result, typename Obj, typename ...MArgs, typename ...Args>

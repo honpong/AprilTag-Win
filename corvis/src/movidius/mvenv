@@ -27,7 +27,7 @@ if [[ ! -d $MDK_INSTALL_DIR/$MDK_CANONICAL ]]; then
         cd $TMP
         if [[ ! -f $MDK_NAME ]]; then
             echo "Downloading MDK..."
-            curl -O $MDK_URL
+            curl $(tty -s || echo -s) -O $MDK_URL
         fi
         echo "Untaring MDK..."
         tar xzf $MDK_NAME

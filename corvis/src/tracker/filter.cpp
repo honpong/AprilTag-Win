@@ -546,11 +546,12 @@ static size_t filter_available_feature_space(struct filter *f, state_camera &cam
     return space;
 }
 
-bool filter_create_camera_frame(const struct filter *f, const sensor_data& data, std::unique_ptr<camera_frame_t>& camera_frame)
+std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *f, const sensor_data& data)
 {
     transformation G_closestnode_frame;
     bool node_is_active = f->s.get_closest_group_transformation(f->map->current_node->id, G_closestnode_frame);
     bool same_sensor_id = (data.id == f->map->current_node->camera_id);
+    std::unique_ptr<camera_frame_t> camera_frame;
     if (node_is_active && same_sensor_id) {
         camera_frame.reset(new camera_frame_t);
         camera_frame->camera_id = data.id;
@@ -561,9 +562,8 @@ bool filter_create_camera_frame(const struct filter *f, const sensor_data& data,
 #ifdef RELOCALIZATION_DEBUG
         camera_frame->frame->image = cv::Mat(data.image.height, data.image.width, CV_8UC1, (uint8_t*)data.image.image, data.image.stride).clone();
 #endif
-        return true;
     }
-    return false;
+    return camera_frame;
 }
 
 void filter_detect(struct filter *f, const sensor_data &data, const std::unique_ptr<camera_frame_t>& camera_frame)

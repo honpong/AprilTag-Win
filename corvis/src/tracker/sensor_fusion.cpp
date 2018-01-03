@@ -130,7 +130,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if (sfm.s.cameras.children[data.id]->detecting_space || compute_descriptors_now) {
                     std::unique_ptr<camera_frame_t> camera_frame;
                     if (compute_descriptors_now)
-                        filter_create_camera_frame(&sfm, data, camera_frame);
+                        camera_frame = filter_create_camera_frame(&sfm, data);
 
                     sfm.s.cameras.children[data.id]->detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                         [this] (sensor_data &&data, std::unique_ptr<camera_frame_t>&& camera_frame) {
@@ -201,7 +201,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if(sfm.s.cameras.children[0]->detecting_space || compute_descriptors_now) {
                     std::unique_ptr<camera_frame_t> camera_frame;
                     if (compute_descriptors_now)
-                        filter_create_camera_frame(&sfm, pair.first, camera_frame);
+                        camera_frame = filter_create_camera_frame(&sfm, pair.first);
 
                     sfm.s.cameras.children[0]->detection_future = std::async(threaded ? std::launch::deferred : std::launch::deferred,
                         [this] (sensor_data &&data, std::unique_ptr<camera_frame_t>&& camera_frame) {

@@ -119,12 +119,11 @@ class mapper {
             return fun(std::forward<Args>(args)...);
         }
 
-        template<typename Fun, typename U, typename... Args>
-        typename std::enable_if<std::is_member_pointer<Fun>::value,
-                                typename std::result_of<Fun&&(U*,Args&&...)>::type>::type
-        critical_section(const Fun& fun, U* obj, Args... args) {
+        template<typename Result, typename Obj, typename ...MArgs, typename ...Args>
+        Result
+        critical_section(Result (Obj::*m)(MArgs...), Obj *obj, Args &&...args) {
             std::lock_guard<M> lock(mutex_);
-            return (obj->*fun)(std::forward<Args>(args)...);
+            return (obj->*m)(std::forward<Args>(args)...);
         }
 
         /** Access to data. Unsafe unless used inside critical_section.

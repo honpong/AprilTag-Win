@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent { label 'linux' }
     environment {
         CCACHE_BASEDIR = "${env.WORKSPACE}"
     }

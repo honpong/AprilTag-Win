@@ -28,14 +28,14 @@ class future_every_n : public std::future<T> {
         index_ = rhs.index_;
         rhs.index_ = 0;
     }
-    future_every_n<T>& operator=(future_every_n&& rhs) {
+    future_every_n<T,N>& operator=(future_every_n&& rhs) {
         std::future<T>::operator=(std::move(rhs));
         index_ = rhs.index_;
         rhs.index_ = 0;
         return *this;
     }
     future_every_n(std::future<T>&& rhs) : std::future<T>(std::move(rhs)), index_(0) {}
-    future_every_n<T>& operator=(std::future<T>&& rhs) {
+    future_every_n<T,N>& operator=(std::future<T>&& rhs) {
         std::future<T>::operator=(std::move(rhs));
         index_ = 0;
         return *this;

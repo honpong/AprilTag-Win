@@ -1,6 +1,6 @@
 
 #include "common_shave.h"
-
+#include <math.h>
 
 /*
  * compute the mean of a 7x7 patch
@@ -29,7 +29,7 @@ unsigned short compute_mean7x7_from_pointer_array(int x_offset_center_from_point
     return mean;
 }
 
-float score_match_from_pointer_array(u8 **pPatch1_pa, u8 **pPatch2_pa,int x1_offset_center_from_pointer , int x2_offset_center_from_pointer,int patch_win_half_width, float max_error, unsigned short mean1, unsigned short mean2)
+float score_match_from_pointer_array(u8 **pPatch1_pa, u8 **pPatch2_pa,int x1_offset_center_from_pointer , int x2_offset_center_from_pointer,int patch_win_half_width, unsigned short mean1, unsigned short mean2)
 {
     const unsigned char *p1 ;
     const unsigned char *p2 ;
@@ -64,7 +64,7 @@ float score_match_from_pointer_array(u8 **pPatch1_pa, u8 **pPatch2_pa,int x1_off
     // constant patches can't be matched
     if(sumBottom1 < 1e-15 || sumBottom2 < 1e-15 || sumTop < 0.f)
     {
-    	return max_error;
+        return INFINITY;
     }
-    return (float) (sumTop * sumTop)/(sumBottom1 * sumBottom2);
+    return (float) 1 - (sumTop * sumTop)/(sumBottom1 * sumBottom2);
 }

@@ -518,7 +518,7 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
                 auto& current_keypoint = *current_frame->keypoints[current_point_idx];
                 for (auto candidate_point_idx : candidate_keypoint_indexes) {
                     auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
-                    int dist = orb_descriptor::distance(candidate_keypoint.descriptor,
+                    int dist = current_keypoint.descriptor.distance_reloc(candidate_keypoint.descriptor,
                                                         current_keypoint.descriptor);
                     if (dist < best_distance) {
                         second_best_distance = best_distance;
@@ -545,8 +545,8 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
                 size_t current_point_idx = m.second.first;
                 auto& current_keypoint = *current_frame->keypoints[current_point_idx];
                 auto& best_candidate_keypoint = *candidate_frame->keypoints[best_candidate_point_idx];
-                size_t bin = calculate_orientation_bin(best_candidate_keypoint.descriptor,
-                                                       current_keypoint.descriptor,
+                size_t bin = calculate_orientation_bin(best_candidate_keypoint.descriptor.orb,
+                                                       current_keypoint.descriptor.orb,
                                                        num_orientation_bins);
                 increment_orientation_histogram[bin].emplace_back(current_point_idx, best_candidate_point_idx);
             }
@@ -561,7 +561,7 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
                 return v;
             };
             auto indexes_with_3d = [this](
-                    const std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>>& keypoints) {
+                    const std::vector<std::shared_ptr<fast_tracker::fast_feature<patch_orb_descriptor>>>& keypoints) {
                 std::vector<size_t> v;
                 v.reserve(keypoints.size());
                 features_dbow.critical_section([&]() {
@@ -579,7 +579,7 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
         } else {
             // dbow direct file is used
             auto indexes_with_3d = [this](
-                    const std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>>& keypoints,
+                    const std::vector<std::shared_ptr<fast_tracker::fast_feature<patch_orb_descriptor>>>& keypoints,
                     const std::vector<size_t>& keypoint_indices) {
                 std::vector<size_t> v;
                 v.reserve(keypoint_indices.size());
@@ -832,11 +832,11 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
     if (branching_factor > 1 && depth_levels > 0 && !nodes->empty()) {
         voc.reset(new orb_vocabulary);
         voc->train(nodes->begin(), nodes->end(),
-                   [](const std::pair<nodeid, map_node>& it) -> const std::vector<std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>>& {
+                   [](const std::pair<nodeid, map_node>& it) -> const std::vector<std::shared_ptr<fast_tracker::fast_feature<patch_orb_descriptor>>>& {
                        return it.second.frame->keypoints;
                    },
-                   [](const std::shared_ptr<fast_tracker::fast_feature<orb_descriptor>>& feature) -> const orb_descriptor::raw& {
-                       return feature->descriptor.descriptor;
+                   [](const std::shared_ptr<fast_tracker::fast_feature<patch_orb_descriptor>>& feature) -> const orb_descriptor::raw& {
+                       return feature->descriptor.orb.descriptor;
                    },
             branching_factor, depth_levels);
     }
@@ -940,7 +940,7 @@ void map_feature::serialize(Value &feature_json, Document::AllocatorType &alloca
     // add feature descriptor
     Value desc_json(kObjectType);
     Value desc_raw_json(kArrayType);
-    for (auto v : feature->descriptor.descriptor)
+    for (auto v : feature->descriptor.patch.descriptor)
         desc_raw_json.PushBack(v, allocator);
 
     desc_json.AddMember(KEY_FRAME_FEAT_DESC_RAW, desc_raw_json, allocator);
@@ -969,7 +969,7 @@ bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t 
     for (SizeType d = 0; d < desc_raw_json.Size(); d++)
         raw_desc[d] = static_cast<unsigned char>(desc_raw_json[d].GetUint64());
 
-    feature.feature = std::make_shared<fast_tracker::fast_feature<patch_descriptor>>(id, raw_desc);
+    feature.feature = std::make_shared<fast_tracker::fast_feature<patch_orb_descriptor>>(id, patch_descriptor(raw_desc));
     return true;
 }
 
@@ -994,10 +994,10 @@ void frame_serialize(const std::shared_ptr<frame_t> frame, Value &json, Document
 
         // add descriptor
         Value descriptor_json(kObjectType);
-        descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_SIN, fast_feat->descriptor.sin_, allocator);
-        descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_COS, fast_feat->descriptor.cos_, allocator);
+        descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_SIN, fast_feat->descriptor.orb.sin_, allocator);
+        descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_COS, fast_feat->descriptor.orb.cos_, allocator);
         Value desc_raw_json(kArrayType);
-        for (auto v : fast_feat->descriptor.descriptor)
+        for (auto v : fast_feat->descriptor.orb.descriptor)
             desc_raw_json.PushBack(v, allocator);
         descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_RAW, desc_raw_json, allocator);
         feat_json.AddMember(KEY_FRAME_FEAT_DESC, descriptor_json, allocator);
@@ -1034,7 +1034,7 @@ bool frame_deserialize(const Value &json, std::shared_ptr<frame_t> &frame) {
         float desc_cos = (float)desc_json[KEY_FRAME_FEAT_DESC_COS].GetDouble();
         float desc_sin = (float)desc_json[KEY_FRAME_FEAT_DESC_SIN].GetDouble();
         //get feature values
-        frame->keypoints[j] = std::make_shared<fast_tracker::fast_feature<orb_descriptor>>(
+        frame->keypoints[j] = std::make_shared<fast_tracker::fast_feature<patch_orb_descriptor>>(
             features_json[j][KEY_FRAME_FEAT_ID].GetUint64(),
             //features_json[j][KEY_FRAME_FEAT_LEVEL].GetInt(),
             orb_descriptor(raw_desc, desc_cos, desc_sin)

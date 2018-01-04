@@ -133,7 +133,7 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
         if(t.x      != INFINITY) preds[pred_count++] = {t.x+t.dx, t.y+t.dy, 0, 0};
         if(t.pred_x != INFINITY) preds[pred_count++] = {t.pred_x, t.pred_y, 0, 0};
 
-        xy bestkp {INFINITY, INFINITY, DESCRIPTOR::min_score, 0};
+        xy bestkp {INFINITY, INFINITY, DESCRIPTOR::max_track_distance, 0};
         for(int i = 0; i < pred_count; ++i) {
             int x, y;
             int x1 = (int)ceilf(preds[i].x - fast_track_radius);
@@ -149,8 +149,8 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
                         const uint8_t* p = image.image + y*stride + x;
                         uint8_t val = (uint8_t)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
                         if(fast_9_kernel(p, pixel, val, fast_track_threshold)) {
-                            auto score = f.descriptor.distance((float)x, (float)y, image);
-                            if(DESCRIPTOR::is_better(score,bestkp.score)) {
+                            auto score = f.descriptor.distance_track((float)x, (float)y, image);
+                            if(score < bestkp.score) {
                                 bestkp.x = (float)x;
                                 bestkp.y = (float)y;
                                 bestkp.score = score;
@@ -159,7 +159,7 @@ void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
                     }
                 }
             }
-            if(DESCRIPTOR::is_better(bestkp.score, DESCRIPTOR::good_score)) break;
+            if(bestkp.score < DESCRIPTOR::good_track_distance) break;
         }
 
         if(bestkp.x != INFINITY && t.x != INFINITY) {

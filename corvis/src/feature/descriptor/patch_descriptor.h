@@ -16,20 +16,20 @@ Pedro Pinies, Lina Paz
 class patch_descriptor
 {
 public:
-    static const int L = full_patch_width * full_patch_width; // descriptor length
-    static const int full_patch_size = full_patch_width;
-    static const int half_patch_size = half_patch_width;
-    static const int border_size = half_patch_size;
-    static constexpr float bad_score = 0;
-    static constexpr float min_score = patch_min_score;
-    static constexpr float good_score = patch_good_score;
+    static constexpr int L = full_patch_width * full_patch_width; // descriptor length
+    static constexpr int full_patch_size = full_patch_width;
+    static constexpr int half_patch_size = half_patch_width;
+    static constexpr int border_size = half_patch_size;
+    static constexpr float max_track_distance = patch_max_track_distance;
+    static constexpr float good_track_distance = patch_good_track_distance;
 
     std::array<unsigned char, L> descriptor;
     float mean{0}, variance{0};
 
+    patch_descriptor() {}
     patch_descriptor(float x, float y, const tracker::image& image);
     patch_descriptor(const std::array<unsigned char, L> &d);
-    static bool is_better(const float score1, const float score2) {return score1 > score2;}
-    static float distance(const patch_descriptor &a, const patch_descriptor &b);
-    float distance(float x, float y, const tracker::image& image) const;
+    static float distance_reloc(const patch_descriptor &a, const patch_descriptor &b) { return  distance_stereo(a, b); }
+    static float distance_stereo(const patch_descriptor &a, const patch_descriptor &b);
+    float distance_track(float x, float y, const tracker::image& image) const;
 };

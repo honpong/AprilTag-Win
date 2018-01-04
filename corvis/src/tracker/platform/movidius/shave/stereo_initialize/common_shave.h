@@ -21,6 +21,6 @@ int shaveNum = scGetShaveNumber();
 #endif
 
 unsigned short compute_mean7x7_from_pointer_array(int x_offset_center_from_pointer,int patch_win_half_width ,u8 **pPatch);
-float score_match_from_pointer_array(u8 **pPatch1_pa, u8 **pPatch2_pa,int x1_offset_center_from_pointer , int x2_offset_center_from_pointer,int patch_win_half_width, float max_error, unsigned short mean1, unsigned short mean2);
+float score_match_from_pointer_array(u8 **pPatch1_pa, u8 **pPatch2_pa,int x1_offset_center_from_pointer , int x2_offset_center_from_pointer,int patch_win_half_width, unsigned short mean1, unsigned short mean2);
 
 #endif /* CORE_TARGET_SHAVE_STEREO_INITIALIZE_COMMON_SHAVE_H_ */

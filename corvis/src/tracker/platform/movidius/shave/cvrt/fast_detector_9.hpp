@@ -17,7 +17,6 @@ typedef unsigned char byte;
 class fast_detector_9 {
  private:
     int xsize, ysize, stride, patch_stride, patch_win_half_width;
-    float inline score_match(byte **pFastLines, const int x1, const int x2, float max_error, unsigned short mean1);
 
     void detectC(u8** pFastLines, u8* pscores, u16* pOffsets, int bthresh,  int width);
  public:

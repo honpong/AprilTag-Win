@@ -611,13 +611,9 @@ size_t filter_detect(struct filter *f, const sensor_data &data, const std::uniqu
         frame->keypoints.reserve(camera.feature_tracker->tracks.size());
         frame->keypoints_xy.reserve(camera.feature_tracker->tracks.size());
         for (auto &p : camera.feature_tracker->tracks) {
-            if (std::is_same<DESCRIPTOR, orb_descriptor>::value) {
-                frame->keypoints.emplace_back(std::static_pointer_cast<fast_tracker::fast_feature<orb_descriptor>>(p->feature));
-                frame->keypoints_xy.emplace_back(p->x, p->y);
-            }
-            else if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, timage.width_px, timage.height_px)) {
-                // empty orb
-                frame->keypoints.emplace_back(std::make_shared<fast_tracker::fast_feature<orb_descriptor>>(p->feature->id));
+            auto feature = std::static_pointer_cast<fast_tracker::fast_feature<patch_orb_descriptor>>(p->feature);
+            if (feature->descriptor.orb_computed || fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, timage.width_px, timage.height_px)) {
+                frame->keypoints.emplace_back(std::move(feature));
                 frame->keypoints_xy.emplace_back(p->x, p->y);
             }
         }
@@ -641,7 +637,10 @@ bool filter_compute_orb_and_dbow(struct filter *f, const sensor_data& data, came
         for (size_t i = 0; i < camera_frame.frame->keypoints.size(); ++i) {
             const v2& p = camera_frame.frame->keypoints_xy[i];
             auto& feature = camera_frame.frame->keypoints[i];
-            feature->descriptor = orb_descriptor(p.x(), p.y(), timage);
+            if(!feature->descriptor.orb_computed) {
+                feature->descriptor.orb = orb_descriptor(p.x(), p.y(), timage);
+                feature->descriptor.orb_computed = true;
+            }
         }
         END_EVENT(SF_ORB, camera_frame.frame->keypoints.size());
     }
@@ -763,7 +762,7 @@ static float keypoint_compare(const tracker::feature_track & t1, const tracker::
 {
     auto f1 = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t1.feature);
     auto f2 = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t2.feature);
-    return DESCRIPTOR::distance(f1->descriptor, f2->descriptor);
+    return DESCRIPTOR::distance_stereo(f1->descriptor, f2->descriptor);
 }
 
 bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id, const sensor_data & data2)
@@ -815,8 +814,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         for(auto & k2 : kp2)
             prkpv2.emplace_back(preprocess_keypoint_intersect(camera_state2, feature_t{k2.x, k2.y},Rw2));
         for(tracker::feature_track & k1 : kp1) {
-            float second_best_score = DESCRIPTOR::bad_score;
-            float best_score = DESCRIPTOR::bad_score;
+            float second_best_distance = INFINITY;
+            float best_distance = INFINITY;
             float best_depth = 0;
             float best_error = 0;
             kp_pre_data pre1 = preprocess_keypoint_intersect(camera_state1, feature_t{k1.x, k1.y}, Rw1);
@@ -825,20 +824,20 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             for(auto & k2 : kp2 ){
                 float error, depth = keypoint_intersect(camera_state1, camera_state2, pre1, prkpv2[i], Rw1T, Rw2T, error);
                 if(depth && error < 0.02f) {
-                    float score = keypoint_compare(k1, k2);
-                    if(score > best_score) {
-                        second_best_score = best_score;
-                        best_score = score;
+                    float distance = keypoint_compare(k1, k2);
+                    if(distance < best_distance) {
+                        second_best_distance = best_distance;
+                        best_distance = distance;
                         best_depth = depth;
                         best_error = error;
-                    } else if(score > second_best_score){
-                        second_best_score = score;
+                    } else if(distance < second_best_distance){
+                        second_best_distance = distance;
                     }
                 }
                 i++;
             }
             // If we have two candidates, just give up
-            if(best_score >= DESCRIPTOR::good_score && second_best_score < DESCRIPTOR::good_score) {
+            if(best_distance < DESCRIPTOR::good_track_distance && second_best_distance > DESCRIPTOR::good_track_distance) {
                 k1.depth = best_depth;
                 k1.error = best_error;
             }

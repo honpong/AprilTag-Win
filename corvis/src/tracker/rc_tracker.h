@@ -551,8 +551,8 @@ RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const char *buffer);
 RCTRACKER_API void rc_startMapping(rc_Tracker *tracker, bool relocalize, bool save_map);
 RCTRACKER_API void rc_stopMapping(rc_Tracker *tracker);
 
-typedef int32_t(*rc_SaveCallback)(void *handle, const void *buffer, size_t length);
-typedef int32_t(*rc_LoadCallback)(void *handle, void *buffer, size_t length);
+typedef void   (*rc_SaveCallback)(void *handle, const void *buffer, size_t length);
+typedef size_t (*rc_LoadCallback)(void *handle, void *buffer, size_t length);
 /**
  Save/load a map to use.
  */

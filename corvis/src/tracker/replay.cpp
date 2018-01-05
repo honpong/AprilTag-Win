@@ -526,15 +526,15 @@ struct stream_position
     string json;
 };
 
-int32_t load_map_callback(void * handle, void *buffer, size_t length)
+size_t load_map_callback(void * handle, void *buffer, size_t length)
 {
     struct stream_position * stream = (struct stream_position *)handle;
-  
+
     const auto substr = stream->json.substr(stream->position, length);
     memcpy(buffer, substr.c_str(), substr.size());
     stream->position += substr.size();
-    
-    return (int32_t)substr.size();
+
+    return substr.size();
 }
 
 bool replay::load_map(string filename)
@@ -553,11 +553,10 @@ bool replay::load_map(string filename)
     return true;
 }
 
-int32_t save_map_callback(void *handle, const void *buffer, size_t length)
+void save_map_callback(void *handle, const void *buffer, size_t length)
 {
     std::ofstream * out = (std::ofstream *)handle;
     out->write((const char *)buffer, length);
-    return out->good() ? (int32_t)length : -1;
 }
 
 void replay::save_map(string filename)

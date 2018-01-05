@@ -59,21 +59,20 @@ public:
 
     bstream_writer& write(const char* data, size_t length) {
         if (offset + length > max_offset) { //need to flush buffer
-            is_good = is_good && (offset == out_func(handle, buffer.get(), offset));
+            out_func(handle, buffer.get(), offset);
             offset = 0;
         }
-        if (is_good) {
-            memcpy(buffer.get() + offset, (const char*)data, length);
-            offset += length;
-            total_io_bytes += length;
-        }
+        memcpy(buffer.get() + offset, (const char*)data, length);
+        offset += length;
+        total_io_bytes += length;
         return *this;
     }
 
     /// generate an end stream callback (e.g. writing a zero length buffer).
     void end_stream() {
         if (out_func) {
-            if (offset > 0) is_good = is_good && (offset == out_func(handle, buffer.get(), offset));
+            if (offset > 0)
+                out_func(handle, buffer.get(), offset);
             out_func(handle, buffer.get(), 0); //signal end of data
             offset = 0;
             out_func = nullptr;

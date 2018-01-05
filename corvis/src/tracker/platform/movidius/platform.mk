@@ -16,11 +16,13 @@ SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/corvis/src/tracker/, \
     sensor_fusion.cpp \
     capture.cpp \
     replay.cpp \
+    bstream.cpp \
     feature_descriptor.cpp \
     mapper.cpp \
     dictionary.cpp \
     remapper.cpp \
     transformation.cpp \
+    map_loader.cpp \
 )
 SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/feature_tracker.cpp
 SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/scaled_mask.cpp

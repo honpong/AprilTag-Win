@@ -529,17 +529,17 @@ struct stream_position
 size_t load_map_callback(void * handle, void *buffer, size_t length)
 {
     struct stream_position * stream = (struct stream_position *)handle;
-  
+
     const auto substr = stream->json.substr(stream->position, length);
     memcpy(buffer, substr.c_str(), substr.size());
     stream->position += substr.size();
-    
+
     return substr.size();
 }
 
 bool replay::load_map(string filename)
 {
-    ifstream file_handle(filename);
+    ifstream file_handle(filename, ios_base::binary);
     if(file_handle.fail())
         return false;
 
@@ -561,6 +561,6 @@ void save_map_callback(void *handle, const void *buffer, size_t length)
 
 void replay::save_map(string filename)
 {
-    std::ofstream out(filename);
+    std::ofstream out(filename, ios_base::binary);
     rc_saveMap(tracker, save_map_callback, &out);
 }

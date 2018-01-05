@@ -397,30 +397,22 @@ void sensor_fusion::stop_mapping()
     sfm.map = nullptr;
 }
 
-#include "jsonstream.h"
-#include "rapidjson/writer.h"
-
-void sensor_fusion::save_map(void (*write)(void *handle, const void *buffer, size_t length), void *handle)
+void sensor_fusion::save_map(rc_SaveCallback write, void *handle)
 {
     if (!sfm.map)
         return;
-    rapidjson::Document map_json;
-    sfm.map->serialize(map_json, map_json.GetAllocator());
-    save_stream stream(write, handle);
-    rapidjson::Writer<save_stream> writer(stream);
-    map_json.Accept(writer);
+    sfm.map->serialize(write, handle);
 }
 
-bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t length), void *handle)
+bool sensor_fusion::load_map(rc_LoadCallback read, void *handle)
 {
-    if(!sfm.map)
+    if (!sfm.map)
         return false;
-    load_stream stream(read, handle);
-    rapidjson::Document doc;
-    bool deserialize_status = mapper::deserialize(doc.ParseStream(stream), *sfm.map);
-    sfm.s.group_counter = sfm.map->get_node_id_offset();
-    tracker::feature::next_id = sfm.map->get_feature_id_offset();
-
+    bool deserialize_status = false;
+    if ((deserialize_status = mapper::deserialize(read, handle, *sfm.map))) {
+        sfm.s.group_counter = sfm.map->get_node_id_offset();
+        tracker::feature::next_id = sfm.map->get_feature_id_offset();
+    }
     return deserialize_status;
 }
 

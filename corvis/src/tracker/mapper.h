@@ -22,7 +22,6 @@
 #include "state.h"
 #include "rc_tracker.h"
 #include "orb_descriptor.h"
-#include "rapidjson/document.h"
 #include "DBoW2/TemplatedVocabulary.h"
 #include "descriptor.h"
 #ifdef RELOCALIZATION_DEBUG
@@ -42,8 +41,8 @@ struct camera_frame_t;
 struct map_edge {
     bool loop_closure = false;
     transformation G;
-    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
-    static void deserialize(const rapidjson::Value &json, map_edge &node);
+    map_edge() = default;
+    map_edge(bool lc, transformation G_) : loop_closure(lc), G(G_) {};
 };
 
 enum class feature_type { tracked, triangulated };
@@ -51,11 +50,11 @@ enum class relocalization_status {begining, find_candidates, match_descriptors, 
 
 struct map_feature {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    map_feature() = default;
+    map_feature(std::shared_ptr<log_depth> v_, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feat_) : v(v_), feature(feat_) {};
     std::shared_ptr<log_depth> v;
-    feature_type type;
+    feature_type type{ feature_type::tracked };
     std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
-    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
-    static bool deserialize(const rapidjson::Value &json, map_feature &feature, uint64_t &max_loaded_featid);
 };
 
 enum class node_status {normal, finished};
@@ -75,8 +74,6 @@ struct map_node {
     std::shared_ptr<frame_t> frame;
     std::map<uint64_t,map_feature> features;
     node_status status{node_status::normal};
-    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
-    static bool deserialize(const rapidjson::Value &json, map_node &node, uint64_t &max_loaded_featid);
 };
 
 struct map_relocalization_info {
@@ -159,12 +156,14 @@ class mapper {
 
     concurrent<std::unordered_map<nodeid, map_node>> nodes;
     friend struct map_node;
+    template<template <class map_feature_v, class...> class map_node_v, class map_feature_v, class... TArgs>
+    friend class mapper_t;
     bool unlinked{false};
     uint64_t node_id_offset{0};
     uint64_t feature_id_offset{0};
 
     // given a word it stores the nodes in which it was observed
-    std::map<unsigned int, std::vector<nodeid>> dbow_inverted_index;
+    std::map<uint64_t, std::vector<nodeid>> dbow_inverted_index;
 
     // for a feature id we associate the corresponding node in which it was detected
     concurrent<std::map<uint64_t, nodeid>> features_dbow;
@@ -224,8 +223,8 @@ private:
     void set_node_transformation(nodeid id, const transformation & G);
     void index_finished_nodes();
 
-    void serialize(rapidjson::Value &json, rapidjson::Document::AllocatorType &allocator);
-    static bool deserialize(const rapidjson::Value &json, mapper &map);
+    bool serialize(rc_SaveCallback func, void *handle) const;
+    static bool deserialize(rc_LoadCallback func, void *handle, mapper &map);
 
     std::unique_ptr<orb_vocabulary> create_vocabulary_from_map(int branching_factor, int depth_levels) const;
 

@@ -1,0 +1,89 @@
+/********************************************************************************
+
+INTEL CORPORATION PROPRIETARY INFORMATION This software is supplied under the
+terms of a license agreement or nondisclosure agreement with Intel Corporation
+and may not be copied or disclosed except in accordance with the terms of that
+agreement.
+Copyright(c) 2016-2017 Intel Corporation. All Rights Reserved.
+
+*********************************************************************************/
+
+#pragma once
+
+#include <vector>
+#include <map>
+#include <unordered_map>
+#include <stdbool.h>
+
+#include "transformation.h"
+#include <spdlog/spdlog.h>
+#include "spdlog/sinks/null_sink.h"
+#include "fast_tracker.h"
+#include "rc_tracker.h"
+#include "orb_descriptor.h"
+#include "descriptor.h"
+#include "mapper.h"
+#include "bstream.h"
+
+class log_depth;
+struct frame_t;
+struct map_edge;
+struct map_node;
+
+struct map_edge_v1 {
+    bool loop_closure = false;
+    transformation G;
+};
+
+struct map_feature_v1 {
+    std::shared_ptr<log_depth> v;
+    std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
+    static uint64_t max_loaded_featid;
+};
+
+template<typename map_feature_v, typename map_edge_v, typename frame_v>
+class map_node_t {
+public:
+    uint64_t id;
+    std::map<uint64_t, map_edge_v> edges;
+    transformation global_transformation;
+    uint64_t camera_id;
+    std::shared_ptr<frame_v> frame;
+    std::map<uint64_t, map_feature_v> features;
+};
+
+/// interface for loading a map file
+class map_loader {
+public:
+    virtual bool deserialize(bstream_reader &cur_stream) = 0;
+    virtual void set(mapper &cur_map) = 0;
+};
+
+/// loading data into mapper data structures version v1.
+template<template <class map_feature_v, class...> class map_node_v, class map_feature_v, class... TArgs>
+class mapper_t : public map_loader {
+public:
+    mapper_t() {};
+    typedef uint64_t nodeid;
+    std::unordered_map<nodeid, map_node_v<map_feature_v, TArgs...>> nodes;
+    friend struct map_node;
+    std::map<uint64_t, std::vector<nodeid>> dbow_inverted_index;
+    std::map<uint64_t, nodeid> features_dbow;
+    virtual void set(mapper &cur_map) override {
+        for (auto ele : nodes)
+            assign((*cur_map.nodes)[ele.first], ele.second);
+        cur_map.dbow_inverted_index = move(dbow_inverted_index);
+        *(cur_map.features_dbow) = move(features_dbow);
+    }
+    virtual bool deserialize(bstream_reader &cur_stream) override {
+        map_feature_v::max_loaded_featid = 0;
+        cur_stream >> nodes >> dbow_inverted_index >> features_dbow;
+        return cur_stream.good();
+    }
+};
+
+template<typename map_node_v>
+static inline void assign(map_node &node, map_node_v &loaded_node);
+
+/// get a class instance of map_load corresponding to specified version.
+map_loader *get_map_load(uint8_t version);

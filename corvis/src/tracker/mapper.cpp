@@ -881,357 +881,86 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
     }
 }
 
-using namespace rapidjson;
-
-#define KEY_INDEX "index"
-#define RETURN_IF_FAILED(R) {bool ret = R; if (!ret) return ret;}
-
-#define KEY_NODE_EDGE_LOOP_CLOSURE "closure"
-#define KEY_NODE_EDGE_TRANSLATION "T"
-#define KEY_NODE_EDGE_QUATERNION "Q"
-void map_edge::serialize(Value &json, Document::AllocatorType & allocator) {
-    json.AddMember(KEY_NODE_EDGE_LOOP_CLOSURE, loop_closure, allocator);
-
-    // add edge transformation
-    Value translation_json(kArrayType);
-    translation_json.PushBack(G.T[0], allocator);
-    translation_json.PushBack(G.T[1], allocator);
-    translation_json.PushBack(G.T[2], allocator);
-    json.AddMember(KEY_NODE_EDGE_TRANSLATION, translation_json, allocator);
-
-    Value rotation_json(kArrayType);
-    rotation_json.PushBack(G.Q.w(), allocator);
-    rotation_json.PushBack(G.Q.x(), allocator);
-    rotation_json.PushBack(G.Q.y(), allocator);
-    rotation_json.PushBack(G.Q.z(), allocator);
-    json.AddMember(KEY_NODE_EDGE_QUATERNION, rotation_json, allocator);
-}
-
-void map_edge::deserialize(const Value &json, map_edge &edge) {
-    edge.loop_closure = json[KEY_NODE_EDGE_LOOP_CLOSURE].GetBool();
-
-    // get edge transformation
-    transformation &G = edge.G;
-    const Value & translation = json[KEY_NODE_EDGE_TRANSLATION];
-    for (SizeType j = 0; j < G.T.size() && j < translation.Size(); j++) {
-        G.T[j] = (float)translation[j].GetDouble();
-    }
-    const Value & rotation = json[KEY_NODE_EDGE_QUATERNION];
-    G.Q.w() = (float)rotation[0].GetDouble();
-    G.Q.x() = (float)rotation[1].GetDouble();
-    G.Q.y() = (float)rotation[2].GetDouble();
-    G.Q.z() = (float)rotation[3].GetDouble();
-}
-
-#define KEY_FEATURE_ID "id"
-#define KEY_FEATURE_LOG_DEPTH "log_depth"
-#define KEY_FRAME_FEAT_PATCH "patch"
-#define KEY_FRAME_FEAT_DESC_RAW "raw"
-void map_feature::serialize(Value &feature_json, Document::AllocatorType &allocator) {
-    feature_json.AddMember(KEY_FEATURE_ID, feature->id, allocator);
-
-    // add feature log_depth
-    Value log_depth_json(kArrayType);
-    log_depth_json.PushBack(v->initial[0], allocator); // x
-    log_depth_json.PushBack(v->initial[1], allocator); // y
-    log_depth_json.PushBack(v->v, allocator); // log_depth
-    feature_json.AddMember(KEY_FEATURE_LOG_DEPTH, log_depth_json, allocator);
-
-    // add feature descriptor
-    Value desc_json(kObjectType);
-    Value desc_raw_json(kArrayType);
-    for (auto v : feature->descriptor.patch.descriptor)
-        desc_raw_json.PushBack(v, allocator);
-
-    desc_json.AddMember(KEY_FRAME_FEAT_DESC_RAW, desc_raw_json, allocator);
-    feature_json.AddMember(KEY_FRAME_FEAT_PATCH, desc_json, allocator);
-}
-
-bool map_feature::deserialize(const Value &json, map_feature &feature, uint64_t &max_loaded_featid) {
-    uint64_t id = json[KEY_FEATURE_ID].GetUint64();
-    if (id > max_loaded_featid) max_loaded_featid = id;
-
-    // get feature initial coordinates
-    feature.v = std::make_shared<log_depth>();
-    const Value &log_depth_json = json[KEY_FEATURE_LOG_DEPTH];
-    RETURN_IF_FAILED(log_depth_json.IsArray())
-    RETURN_IF_FAILED(log_depth_json.Size() == 3)
-    feature.v->initial[0] = (f_t) log_depth_json[0].GetDouble(); // x
-    feature.v->initial[1] = (f_t) log_depth_json[1].GetDouble(); // y
-    feature.v->v = (f_t) log_depth_json[2].GetDouble(); // log_depth
-
-    // get descriptor values
-    const Value &desc_json = json[KEY_FRAME_FEAT_PATCH];
-    const Value &desc_raw_json = desc_json[KEY_FRAME_FEAT_DESC_RAW];
-    RETURN_IF_FAILED(desc_raw_json.IsArray())
-    std::array<unsigned char, patch_descriptor::L> raw_desc;
-    RETURN_IF_FAILED(raw_desc.size() == desc_raw_json.Size())
-    for (SizeType d = 0; d < desc_raw_json.Size(); d++)
-        raw_desc[d] = static_cast<unsigned char>(desc_raw_json[d].GetUint64());
-
-    feature.feature = std::make_shared<fast_tracker::fast_feature<patch_orb_descriptor>>(id, patch_descriptor(raw_desc));
-    return true;
-}
-
-#define KEY_FRAME_FEAT "features"
-#define KEY_FRAME_FEAT_ID "id"
-#define KEY_FRAME_FEAT_DESC "descriptor"
-#define KEY_FRAME_FEAT_XY "xy"
-#define KEY_FRAME_FEAT_DESC_SIN "sin"
-#define KEY_FRAME_FEAT_DESC_COS "cos"
-void frame_serialize(const std::shared_ptr<frame_t> frame, Value &json, Document::AllocatorType &allocator) {
-
-    if (!frame) return;
-    assert(frame->keypoints.size() == frame->keypoints_xy.size());
-    // add key point
-    Value features_json(kArrayType);
-    for (SizeType i=0; i<frame->keypoints.size(); ++i) {
-        auto &fast_feat = frame->keypoints[i];
-        auto &feat_xy = frame->keypoints_xy[i];
-        Value feat_json(kObjectType);
-        feat_json.AddMember(KEY_FRAME_FEAT_ID, fast_feat->id, allocator);
-        //feat_json.AddMember(KEY_FRAME_FEAT_LEVEL, fast_feat->level, allocator);
-
-        // add descriptor
-        Value descriptor_json(kObjectType);
-        descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_SIN, fast_feat->descriptor.orb.sin_, allocator);
-        descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_COS, fast_feat->descriptor.orb.cos_, allocator);
-        Value desc_raw_json(kArrayType);
-        for (auto v : fast_feat->descriptor.orb.descriptor)
-            desc_raw_json.PushBack(v, allocator);
-        descriptor_json.AddMember(KEY_FRAME_FEAT_DESC_RAW, desc_raw_json, allocator);
-        feat_json.AddMember(KEY_FRAME_FEAT_DESC, descriptor_json, allocator);
-
-        // add xy coordinates
-        Value xy_json(kArrayType);
-        xy_json.PushBack(feat_xy[0], allocator);
-        xy_json.PushBack(feat_xy[1], allocator);
-        feat_json.AddMember(KEY_FRAME_FEAT_XY, xy_json, allocator);
-
-        features_json.PushBack(feat_json, allocator);
-    }
-    json.AddMember(KEY_FRAME_FEAT, features_json, allocator);
-}
-
-bool frame_deserialize(const Value &json, std::shared_ptr<frame_t> &frame) {
-
-    if (!json.HasMember(KEY_FRAME_FEAT)) return true;
-    frame = std::make_shared<frame_t>();
-    // get key points
-    const Value &features_json = json[KEY_FRAME_FEAT];
-    RETURN_IF_FAILED(features_json.IsArray())
-    frame->keypoints.resize(features_json.Size(), nullptr);
-    frame->keypoints_xy.resize(features_json.Size());
-    for (SizeType j = 0; j < features_json.Size(); j++) {
-        // get descriptor values
-        const Value &desc_json = features_json[j][KEY_FRAME_FEAT_DESC];
-        const Value &desc_raw_json = desc_json[KEY_FRAME_FEAT_DESC_RAW];
-        RETURN_IF_FAILED(desc_raw_json.IsArray())
-        orb_descriptor::raw raw_desc;
-        RETURN_IF_FAILED(raw_desc.size() == desc_raw_json.Size())
-        for (SizeType d = 0; d < desc_raw_json.Size(); d++)
-            raw_desc[d] = desc_raw_json[d].GetUint64();
-        float desc_cos = (float)desc_json[KEY_FRAME_FEAT_DESC_COS].GetDouble();
-        float desc_sin = (float)desc_json[KEY_FRAME_FEAT_DESC_SIN].GetDouble();
-        //get feature values
-        frame->keypoints[j] = std::make_shared<fast_tracker::fast_feature<patch_orb_descriptor>>(
-            features_json[j][KEY_FRAME_FEAT_ID].GetUint64(),
-            //features_json[j][KEY_FRAME_FEAT_LEVEL].GetInt(),
-            orb_descriptor(raw_desc, desc_cos, desc_sin)
-        );
-        // xy coordinates
-        const Value &xy_json = features_json[j][KEY_FRAME_FEAT_XY];
-        frame->keypoints_xy[j] = v2{(float)xy_json[0].GetDouble(), (float)xy_json[1].GetDouble()};
-    }
-    return true;
-}
-
-#define KEY_NODE_ID "id"
-#define KEY_FRAME_CAMERA_ID "camera_id"
-#define KEY_NODE_EDGE "edges"
-#define KEY_NODE_FEATURES "features"
-#define KEY_NODE_FRAME "map_frame"
-#define KEY_NODE_TRANSLATION "T"
-#define KEY_NODE_QUATERNION "Q"
-void map_node::serialize(Value &json, Document::AllocatorType & allocator) {
-    json.AddMember(KEY_NODE_ID, id, allocator);
-    json.AddMember(KEY_FRAME_CAMERA_ID, camera_id, allocator);
-    // add edges
-    Value edges_json(kArrayType);
-    for (auto &edge : edges) {
-        Value edge_json(kObjectType);
-        edge.second.serialize(edge_json, allocator);
-        edge_json.AddMember(KEY_INDEX, edge.first, allocator);
-        edges_json.PushBack(edge_json, allocator);
-    }
-    json.AddMember(KEY_NODE_EDGE, edges_json, allocator);
-    // add global transformation
-    Value translation_json(kArrayType);
-    translation_json.PushBack(global_transformation.T[0], allocator);
-    translation_json.PushBack(global_transformation.T[1], allocator);
-    translation_json.PushBack(global_transformation.T[2], allocator);
-    json.AddMember(KEY_NODE_TRANSLATION, translation_json, allocator);
-
-    Value rotation_json(kArrayType);
-    rotation_json.PushBack(global_transformation.Q.w(), allocator);
-    rotation_json.PushBack(global_transformation.Q.x(), allocator);
-    rotation_json.PushBack(global_transformation.Q.y(), allocator);
-    rotation_json.PushBack(global_transformation.Q.z(), allocator);
-    json.AddMember(KEY_NODE_QUATERNION, rotation_json, allocator);
-    // add map_frame
-    Value map_frame_json = Value(kObjectType);
-    frame_serialize(frame, map_frame_json, allocator);
-    json.AddMember(KEY_NODE_FRAME, map_frame_json, allocator);
-
-    Value features_json(kArrayType);
-    for (auto &feat : features) {
-        Value feature_json(kObjectType);
-        feat.second.serialize(feature_json, allocator);
-        feature_json.AddMember(KEY_INDEX, feat.first, allocator);
-        features_json.PushBack(feature_json, allocator);
-    }
-    json.AddMember(KEY_NODE_FEATURES, features_json, allocator);
-}
-
-bool map_node::deserialize(const Value &json, map_node &node, uint64_t &max_loaded_featid) {
-    node.id = json[KEY_NODE_ID].GetUint64();
-    node.camera_id = json[KEY_FRAME_CAMERA_ID].GetUint64();
-    // get edges
-    const Value & edges_json = json[KEY_NODE_EDGE];
-    RETURN_IF_FAILED(edges_json.IsArray())
-    for (SizeType j = 0; j < edges_json.Size(); j++) {
-        const Value& edge_json = edges_json[j];
-        uint64_t unordered_map_index = edge_json[KEY_INDEX].GetUint64();
-        map_edge::deserialize(edge_json, node.edges[unordered_map_index]);
-    }
-    // get global transformation
-    transformation &G = node.global_transformation;
-    const Value & translation = json[KEY_NODE_TRANSLATION];
-    RETURN_IF_FAILED(translation.IsArray())
-        for (SizeType j = 0; j < G.T.size() && j < translation.Size(); j++) {
-            G.T[j] = (float)translation[j].GetDouble();
-        }
-    const Value & rotation = json[KEY_NODE_QUATERNION];
-    G.Q.w() = (float)rotation[0].GetDouble();
-    G.Q.x() = (float)rotation[1].GetDouble();
-    G.Q.y() = (float)rotation[2].GetDouble();
-    G.Q.z() = (float)rotation[3].GetDouble();
-
-    // get map frame
-    RETURN_IF_FAILED(frame_deserialize(json[KEY_NODE_FRAME], node.frame))
-    const Value & features_json = json[KEY_NODE_FEATURES];
-    RETURN_IF_FAILED(features_json.IsArray())
-    for (SizeType j = 0; j < features_json.Size(); j++) {
-        const Value &feature_json = features_json[j];
-        uint64_t map_index = feature_json[KEY_INDEX].GetUint64();
-        RETURN_IF_FAILED(map_feature::deserialize(feature_json, node.features[map_index], max_loaded_featid))
-    }
-    node.status = node_status::finished;
-    return true;
-}
-
-#include "rapidjson/writer.h"
-#include "rapidjson/stringbuffer.h"
-#include <iostream>
-#include <fstream>
-#include <sys/stat.h>
+/// --------------------- S T R E A M I N G   O F   M A P   S T R U C T U R E S ------------------//
 #define MAPPER_SERIALIZED_VERSION 2
-#define KEY_VERSION "version"
-#define KEY_NODEID "node_id"
-#define KEY_MAP_DBOW_INVERTED_INDICES "inverted_indices"
-#define KEY_MAP_DBOW_FEATURES "dbow_features"
-#define KEY_NODES "nodes"
 
-void mapper::serialize(rapidjson::Value &map_json, rapidjson::Document::AllocatorType &allocator) {
-    Value version(MAPPER_SERIALIZED_VERSION);
-    map_json.SetObject();
-    map_json.AddMember(KEY_VERSION, version, allocator);
+#include "map_loader.h"
+#include "bstream.h"
 
-    // add map nodes
-    Value nodes_json(kArrayType);
-    for (auto& it : *nodes) {
-        Value node_json(kObjectType);
-        it.second.serialize(node_json, allocator);
-        nodes_json.PushBack(node_json, allocator);
-    }
-    map_json.AddMember(KEY_NODES, nodes_json, allocator);
-
-    // add dbow_inverted_index
-    Value dbow_inverted_indices_json(kArrayType);
-    for (auto &featid_nodeid : dbow_inverted_index) {
-        Value inverted_index_json(kObjectType);
-        inverted_index_json.AddMember(KEY_INDEX, featid_nodeid.first, allocator);
-
-        Value node_ids_json(kArrayType);
-        for (auto &node_entry : featid_nodeid.second)
-            node_ids_json.PushBack(node_entry, allocator);
-        inverted_index_json.AddMember(KEY_NODEID, node_ids_json, allocator);
-        dbow_inverted_indices_json.PushBack(inverted_index_json, allocator);
-    }
-    map_json.AddMember(KEY_MAP_DBOW_INVERTED_INDICES, dbow_inverted_indices_json, allocator);
-
-    // add features_dbow
-    Value features_dbow_json(kArrayType);
-    for (auto &featid_nodeid : *features_dbow) {
-        Value featid_nodeid_json(kObjectType);
-        featid_nodeid_json.AddMember(KEY_INDEX, featid_nodeid.first, allocator);
-        featid_nodeid_json.AddMember(KEY_NODEID, featid_nodeid.second, allocator);
-        features_dbow_json.PushBack(featid_nodeid_json, allocator);
-    }
-    map_json.AddMember(KEY_MAP_DBOW_FEATURES, features_dbow_json, allocator);
+static bstream_writer & operator << (bstream_writer& content, const v2 &vec) {
+    return content << vec[0] << vec[1];
 }
 
-#define HANDLE_IF_FAILED(condition, handle_func) { bool ret = condition; if (!ret) {handle_func(); return false; } }
+static bstream_writer &operator << (bstream_writer &content, const map_edge &edge) {
+    return content << edge.loop_closure << edge.G;
+}
 
-bool mapper::deserialize(const Value &map_json, mapper &map) {
-    auto failure_handle = [&]() {map.reset(); map.log->critical("Failed to load map!");};
+static bstream_writer & operator << (bstream_writer& content, const std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> &feat) {
+    content << feat->id << feat->descriptor.orb.sin_ << feat->descriptor.orb.cos_;
+    return content << (std::array<uint8_t, orb_descriptor::L> &)feat->descriptor.orb.descriptor;
+}
 
-    int version = map_json[KEY_VERSION].GetInt();
-    if (version != MAPPER_SERIALIZED_VERSION) {
-        map.log->error("mapper version mismatch.  Found {}, but xpected {}", version, MAPPER_SERIALIZED_VERSION);
+static bstream_writer & operator << (bstream_writer &content, const map_feature &feat) {
+    content << feat.v->initial[0] << feat.v->initial[1] << feat.v->v;
+    return content << feat.feature->id << (std::array<uint8_t, patch_descriptor::L> &)feat.feature->descriptor.patch.descriptor;
+}
+
+static bstream_writer & operator << (bstream_writer &content, const std::shared_ptr<frame_t> &frame) {
+    return content << frame->keypoints << frame->keypoints_xy;
+}
+
+static bstream_writer & operator << (bstream_writer &content, const map_node &node) {
+    content << node.id << node.camera_id << node.edges << node.global_transformation;
+    content << (uint8_t)(node.frame != nullptr);
+    if (node.frame) content << node.frame;
+    return content << node.features;
+}
+
+static const char magic_file_format_num[5] = { 'R', 'C', 'M', '\0' }; //R C Map File
+
+bool mapper::serialize(rc_SaveCallback func, void *handle) const {
+    bstream_writer cur_stream(func, handle);
+    cur_stream.write(magic_file_format_num, sizeof(magic_file_format_num));
+    cur_stream << (uint8_t)MAPPER_SERIALIZED_VERSION;
+    cur_stream << *nodes << dbow_inverted_index << *features_dbow;
+    cur_stream.end_stream();
+    return cur_stream.good();
+}
+
+bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
+    bstream_reader cur_stream(func, handle);
+
+    char format_num[sizeof(magic_file_format_num)] = {};
+    cur_stream.read(format_num, sizeof(format_num));
+    if (strcmp(magic_file_format_num, format_num)) {
+        cur_map.log->error("file format is not supported.");
         return false;
     }
-    const Value & nodes_json = map_json[KEY_NODES];
-    HANDLE_IF_FAILED(nodes_json.IsArray(), failure_handle)
+    uint8_t version = 0;
+    cur_stream >> version;
+    std::unique_ptr<map_loader> loaded_map(get_map_load(version));
+    if (!loaded_map) {
+        cur_map.log->error("mapper version {} is not supported.", version);
+        return false;
+    }
+    if (!loaded_map->deserialize(cur_stream)) {
+        cur_map.log->error("failed to load map file.");
+        return false;
+    }
+    loaded_map->set(cur_map);
+    loaded_map.reset();
 
-    map.reset();
-
-    // get map nodes
-    uint64_t max_feature_id = 0;
     uint64_t max_node_id = 0;
-    for (SizeType i = 0; i < nodes_json.Size(); i++) {
-        map_node cur_node;
-        HANDLE_IF_FAILED(map_node::deserialize(nodes_json[i], cur_node, max_feature_id), failure_handle)
-        nodeid cur_node_id = cur_node.id;
-        (*map.nodes)[cur_node_id] = std::move(cur_node);
-        if ((*map.nodes)[cur_node_id].frame)
-            (*map.nodes)[cur_node_id].frame->calculate_dbow(map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
-        if (max_node_id < cur_node_id) max_node_id = cur_node_id;
+    for (auto &ele : *cur_map.nodes) {
+        if (ele.second.frame)
+            ele.second.frame->calculate_dbow(cur_map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
+        ele.second.status = node_status::finished;
+        if (max_node_id < ele.second.id) max_node_id = ele.second.id;
     }
-
-    map.node_id_offset = max_node_id + 1;
-    map.feature_id_offset = max_feature_id + 1;
-
-    // get dbow_inverted_index
-    const Value &dbow_inverted_indices_json = map_json[KEY_MAP_DBOW_INVERTED_INDICES];
-    HANDLE_IF_FAILED(dbow_inverted_indices_json.IsArray(), failure_handle);
-    for (SizeType j = 0; j < dbow_inverted_indices_json.Size(); j++) {
-        auto map_key = dbow_inverted_indices_json[j][KEY_INDEX].GetUint64();
-        const Value &node_ids_json = dbow_inverted_indices_json[j][KEY_NODEID];
-        HANDLE_IF_FAILED(node_ids_json.IsArray(), failure_handle);
-        auto &node_ids = map.dbow_inverted_index[map_key];
-        for (SizeType k = 0; k < node_ids_json.Size(); k++)
-            node_ids.push_back(node_ids_json[k].GetUint64());
-    }
-
-    // get features_dbow
-    const Value &features_dbow_json = map_json[KEY_MAP_DBOW_FEATURES];
-    HANDLE_IF_FAILED(features_dbow_json.IsArray(), failure_handle);
-    for (SizeType j = 0; j < features_dbow_json.Size(); j++) {
-        auto map_key = features_dbow_json[j][KEY_INDEX].GetUint64();
-        (*map.features_dbow)[map_key] = features_dbow_json[j][KEY_NODEID].GetUint64();
-    }
-    map.unlinked = true;
-    map.log->info("Loaded map with {} nodes and {} features", map.node_id_offset, map.feature_id_offset);
+    cur_map.unlinked = true;
+    cur_map.node_id_offset = max_node_id + 1;
+    cur_map.feature_id_offset = map_feature_v1::max_loaded_featid + 1;
+    cur_map.log->info("Loaded map with {} nodes and {} features", cur_map.node_id_offset, cur_map.feature_id_offset);
     return true;
 }
+

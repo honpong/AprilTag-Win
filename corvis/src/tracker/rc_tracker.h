@@ -551,11 +551,13 @@ RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const char *buffer);
 RCTRACKER_API void rc_startMapping(rc_Tracker *tracker, bool relocalize, bool save_map);
 RCTRACKER_API void rc_stopMapping(rc_Tracker *tracker);
 
+typedef int32_t(*rc_SaveCallback)(void *handle, const void *buffer, size_t length);
+typedef int32_t(*rc_LoadCallback)(void *handle, void *buffer, size_t length);
 /**
  Save/load a map to use.
  */
-RCTRACKER_API void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, const void *buffer, size_t length), void *handle);
-RCTRACKER_API bool rc_loadMap(rc_Tracker *tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle);
+RCTRACKER_API void rc_saveMap(rc_Tracker *tracker, rc_SaveCallback write, void *handle);
+RCTRACKER_API bool rc_loadMap(rc_Tracker *tracker, rc_LoadCallback read, void *handle);
 
 #include <math.h>
 #include <float.h>

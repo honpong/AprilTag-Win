@@ -81,9 +81,9 @@ public:
     void start_mapping(bool relocalize, bool save_map);
     void stop_mapping();
 
-    void save_map(void (*write)(void *handle, const void *buffer, size_t length), void *handle);
+    void save_map(rc_SaveCallback write, void *handle);
 
-    bool load_map(size_t (*read)(void *handle, void *buffer, size_t length), void *handle);
+    bool load_map(rc_LoadCallback read, void *handle);
 
 
     //*************Not yet implemented:

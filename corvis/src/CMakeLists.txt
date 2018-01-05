@@ -53,6 +53,8 @@ set(TRACKER_SOURCES
     tracker/mapper.cpp
     tracker/dictionary.cpp
     tracker/remapper.cpp
+    tracker/bstream.cpp
+    tracker/map_loader.cpp
     ${TRACKERI_HEADERS}
 )
 if(WIN32)

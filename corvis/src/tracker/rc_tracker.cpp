@@ -449,12 +449,12 @@ void rc_stopMapping(rc_Tracker *tracker)
     tracker->stop_mapping();
 }
 
-bool rc_loadMap(rc_Tracker *tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle)
+bool rc_loadMap(rc_Tracker *tracker, rc_LoadCallback read, void *handle)
 {
     return tracker->load_map(read, handle);
 }
 
-void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, const void *buffer, size_t length), void *handle)
+void rc_saveMap(rc_Tracker *tracker, rc_SaveCallback write, void *handle)
 {
     tracker->save_map(write, handle);
 }

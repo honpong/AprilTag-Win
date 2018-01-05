@@ -156,7 +156,8 @@ class mapper {
 
     concurrent<std::unordered_map<nodeid, map_node>> nodes;
     friend struct map_node;
-    friend class mapper_v1;
+    template<template <class map_feature_v, class...> class map_node_v, class map_feature_v, class... TArgs>
+    friend class mapper_t;
     bool unlinked{false};
     uint64_t node_id_offset{0};
     uint64_t feature_id_offset{0};

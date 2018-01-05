@@ -11,11 +11,13 @@ Copyright(c) 2016-2017 Intel Corporation. All Rights Reserved.
 #include <iostream>
 #include <mutex>
 #include "map_loader.h"
-#include "mapper.h"
 #include "state_vision.h"
-#include "bstream.h"
+
 
 using namespace std;
+
+typedef class map_node_t<map_feature_v1, map_edge_v1, frame_t> map_node_v1;
+typedef class mapper_t<map_node_t, map_feature_v1, map_edge_v1, frame_t> mapper_v1;
 
 static bstream_reader & operator >> (bstream_reader& content, shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> &feat) {
     uint64_t id = 0;
@@ -65,15 +67,10 @@ static bstream_reader &  operator >> (bstream_reader &content, map_node_v1 &node
     return  content >> node.features;
 }
 
-bool mapper_v1::b_deserialize(bstream_reader &cur_stream) {
-    map_feature_v1::max_loaded_featid = 0;
-    cur_stream >> nodes >> dbow_inverted_index >> features_dbow;
-    return cur_stream.good();
-}
-
 /// assign/transfer values to map_node and also clear container elements in map_node_v1,
 /// hence, state of map_node_v1 element is not defined after the function.
-static void assign(map_node &node, map_node_v1 &loaded_node) {
+template<>
+void assign<map_node_v1>(map_node &node, map_node_v1 &loaded_node) {
     node.id = loaded_node.id;
     node.edges.clear();
     for (auto &ed : loaded_node.edges) {
@@ -92,12 +89,6 @@ static void assign(map_node &node, map_node_v1 &loaded_node) {
     loaded_node.features.clear();
 }
 
-void mapper_v1::set(mapper &cur_map) {
-    for (auto ele : nodes)
-        assign((*cur_map.nodes)[ele.first], ele.second);
-    cur_map.dbow_inverted_index = move(dbow_inverted_index);
-    *(cur_map.features_dbow) = move(features_dbow);
-}
 
 map_loader *get_map_load(uint8_t version) {
     switch (version) {

@@ -943,7 +943,7 @@ bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
         cur_map.log->error("mapper version {} is not supported.", version);
         return false;
     }
-    if (!loaded_map->b_deserialize(cur_stream)) {
+    if (!loaded_map->deserialize(cur_stream)) {
         cur_map.log->error("failed to load map file.");
         return false;
     }

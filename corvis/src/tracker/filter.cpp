@@ -913,8 +913,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization) return true; //frame was "processed" so that callbacks still get called
 
-    if(camera_state.detection_future.valid()) {
-        camera_state.detection_future.get();
+    if(camera_state.detected > 0) {
+        camera_state.detected = 0;
         auto active_features = f->s.track_count();
         if(active_features < state_vision_group::min_feats) {
             f->log->info("detector failure: only {} features after add", active_features);

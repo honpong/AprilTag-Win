@@ -238,9 +238,8 @@ struct state_camera: state_branch<state_node*> {
     state_vision_intrinsics intrinsics;
     std::unique_ptr<tracker> feature_tracker;
     std::list<tracker::feature_track> standby_tracks;
-    std::future<size_t> detection_future;
-    std::future<std::unique_ptr<camera_frame_t>> node_description_future;
-
+    size_t detected;
+    std::unique_ptr<camera_frame_t> camera_frame;
     std::list<state_vision_track> tracks;
     void update_feature_tracks(const sensor_data &data, mapper *map, const transformation &G_Bcurrent_Bnow);
     size_t track_count() const;

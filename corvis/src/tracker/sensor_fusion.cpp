@@ -102,9 +102,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 update_data(&data);
 
             if (data.id < sfm.s.cameras.children.size()) {
-                if (sfm.s.cameras.children[data.id]->node_description_future.valid()) {
-                    std::unique_ptr<camera_frame_t> camera_frame = sfm.s.cameras.children[data.id]->node_description_future.get();
-
+                auto camera_frame = std::move(sfm.s.cameras.children[data.id]->camera_frame);
+                if (camera_frame) {
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
                         if (sfm.relocalization_future.get())
                             sfm.log->info("relocalized");
@@ -132,24 +131,15 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                     if (compute_descriptors_now)
                         camera_frame = filter_create_camera_frame(&sfm, data);
 
-                    sfm.s.cameras.children[data.id]->detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
-                        [this] (sensor_data &&data, std::unique_ptr<camera_frame_t>&& camera_frame) {
-                            set_priority(PRIORITY_SLAM_DETECT);
-                            auto start = std::chrono::steady_clock::now();
-                            size_t found = filter_detect(&sfm, data, camera_frame);
-                            auto stop = std::chrono::steady_clock::now();
-                            queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+                    auto start = std::chrono::steady_clock::now();
+                    sfm.s.cameras.children[data.id]->detected = filter_detect(&sfm, data, camera_frame);
+                    auto stop = std::chrono::steady_clock::now();
+                    queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 
-                            if (camera_frame) {
-                                sfm.s.cameras.children[data.id]->node_description_future = std::async(threaded ? std::launch::async : std::launch::deferred,
-                                [this] (sensor_data &&data, std::unique_ptr<camera_frame_t> &&camera_frame) {
-                                    set_priority(PRIORITY_SLAM_ORB);
-                                    filter_compute_orb_and_dbow(&sfm, data, *camera_frame);
-                                    return std::move(camera_frame);
-                                }, std::move(data), std::move(camera_frame));
-                            }
-                            return found;
-                        }, std::move(data), std::move(camera_frame));
+                    if (camera_frame) {
+                        filter_compute_orb_and_dbow(&sfm, data, *camera_frame);
+                    }
+                    sfm.s.cameras.children[data.id]->camera_frame = std::move(camera_frame);
                 }
             }
         } break;
@@ -174,8 +164,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if(docallback)
                     update_data(&pair.first); // TODO: visualize stereo data directly so we don't have a data callback here
 
-                if (sfm.s.cameras.children[0]->node_description_future.valid()) {
-                    std::unique_ptr<camera_frame_t> camera_frame = sfm.s.cameras.children[0]->node_description_future.get();
+                auto camera_frame = std::move(sfm.s.cameras.children[0]->camera_frame);
+                if (camera_frame) {
 
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
                         if (sfm.relocalization_future.get())
@@ -206,23 +196,17 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
                     START_EVENT(SF_STEREO_DETECT1, 0);
                     auto start = std::chrono::steady_clock::now();
-                    size_t found = filter_detect(&sfm, pair.first, camera_frame);
+                    sfm.s.cameras.children[0]->detected = filter_detect(&sfm, pair.first, camera_frame);
                     auto stop = std::chrono::steady_clock::now();
                     auto global_id = sensor_data::get_global_id_by_type_id(rc_SENSOR_TYPE_STEREO, 0); //"data" is of type IMAGE, but truly should report stats to STEREO stream
                     queue.stats.find(global_id)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
                     END_EVENT(SF_STEREO_DETECT1, 0);
                     if (camera_frame) {
-                        sfm.s.cameras.children[0]->node_description_future =
-                            std::async(threaded ? std::launch::async : std::launch::deferred,
-                                       [this](const sensor_data &&data, std::unique_ptr<camera_frame_t>&& camera_frame) {
-                                           set_priority(PRIORITY_SLAM_ORB);
-                                           filter_compute_orb_and_dbow(&sfm, data, *camera_frame);
-                                           return std::move(camera_frame);
-                                       },
-                                       std::move(pair.first), std::move(camera_frame));
+                        filter_compute_orb_and_dbow(&sfm, std::move(pair.first), *camera_frame);
                     }
-                    sfm.s.cameras.children[0]->detection_future = std::async(std::launch::deferred, [=]() { return found; });
-                    if (found)
+                    sfm.s.cameras.children[data.id]->camera_frame = std::move(camera_frame);
+
+                    if (sfm.s.cameras.children[0]->detected)
                         filter_stereo_initialize(&sfm, 0, 1, pair.second);
                 }
 

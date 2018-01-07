@@ -987,10 +987,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             for(size_t i = 0; i < feat->tracks.size(); ++i)
             {
                 if(feat->tracks[i] == nullptr)
-                {
                     f->s.cameras.children[i]->tracks.emplace_back(i, *feat, tracker::feature_track(feat->feature, INFINITY, INFINITY, 0));
-                    feat->tracks[i] = &f->s.cameras.children[i]->tracks.back();
-                }
             }
         }
     }

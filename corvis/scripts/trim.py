@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from struct import *
 from collections import defaultdict
+from packet import Packet, PacketType
 
 packets = defaultdict(list)
 
@@ -18,21 +18,14 @@ outfilename = sys.argv[4]
 f = open(filename, "rb")
 fout = open(outfilename, "wb")
 
-header_size = 16
-header_str = f.read(header_size)
-while header_str != "":
-  (pbytes, ptype, user, ptime) = unpack('IHHQ', header_str)
-  if ptype == 1:
-    ptime += 16667
-  print pbytes, ptype, user, float(ptime)/1e6
-  packets[ptype].append(ptime)
-  data = f.read(pbytes-header_size)
-  if float(ptime) > float(starttime):
-      fout.write(header_str)
-      fout.write(data)
-  if float(ptime) > float(endtime):
+p = Packet.from_file(f)
+while p is not None:
+  packets[p.header.type].append(p.header.time)
+  if p.timestamp() > int(starttime):
+      p.to_file(fout)
+  if p.timestamp() > int(endtime):
       break
-  header_str = f.read(header_size)
+  p = Packet.from_file(f)
 
 f.close()
 fout.close()

@@ -112,8 +112,11 @@ while header_str != "":
           camera_str = "%d %dx%d grey, %dx%d depth, %d exposure, %d adjusted time" % (sensor_id, width, height, depth_w, depth_h, exposure, ptime)
           print "\t", camera_str
 
-  elif ptype == image_raw_type:
-      (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
+  elif ptype == image_raw_type or ptype == stereo_raw_type:
+      if ptype == image_raw_type:
+          (exposure, width, height, stride, camera_format) = unpack('QHHHH', data[:16])
+      else:
+          (exposure, width, height, stride, stride2, camera_format) = unpack('QHHHHH', data[:18])
       type_str = format_types[camera_format]
       packet_str += "_" + type_str
       if exposure < 1000 or exposure > 50000:

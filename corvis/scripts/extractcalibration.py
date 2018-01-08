@@ -1,25 +1,23 @@
 #!/usr/bin/env python
-from struct import *
-
+from packet import Packet, PacketType
 import sys
 
 if len(sys.argv) < 2:
-  print "Usage:", sys.argv[0], "<capture file>"
-  sys.exit(1)
+    print "Usage:", sys.argv[0], "<capture file>"
+    sys.exit(1)
 
 filename = sys.argv[1]
 
 f = open(filename, "rb")
 
-header_size = 16
-header_str = f.read(header_size)
-while header_str != "":
-  (pbytes, ptype, user, ptime) = unpack('IHHQ', header_str)
-  data = f.read(pbytes-header_size)
-  if ptype == 43: # packet_calibration_json
-     print data 
-     sys.exit(0)
-  header_str = f.read(header_size)
+p = Packet.from_file(f)
+while p is not None:
+    if p.header.type == PacketType.calibration_json:
+        print p.data
+        f.close()
+        sys.exit(0)
+
+    p = Packet.from_file(f)
 
 f.close()
 

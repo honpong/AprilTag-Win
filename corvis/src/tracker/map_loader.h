@@ -25,13 +25,8 @@ Copyright(c) 2016-2017 Intel Corporation. All Rights Reserved.
 #include "mapper.h"
 #include "bstream.h"
 
-class log_depth;
-struct frame_t;
-struct map_edge;
-struct map_node;
-
 struct map_edge_v1 {
-    bool loop_closure = false;
+    edge_type type;
     transformation G;
 };
 
@@ -46,6 +41,7 @@ class map_node_t {
 public:
     uint64_t id;
     std::map<uint64_t, map_edge_v> edges;
+    std::set<uint64_t> covisibility_edges;
     transformation global_transformation;
     uint64_t camera_id;
     std::shared_ptr<frame_v> frame;

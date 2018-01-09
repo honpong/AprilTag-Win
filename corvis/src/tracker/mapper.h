@@ -38,11 +38,13 @@ class log_depth;
 struct frame_t;
 struct camera_frame_t;
 
+enum class edge_type { filter, relocalization, dead_reckoning, original };
+
 struct map_edge {
-    bool loop_closure = false;
+    edge_type type;
     transformation G;
     map_edge() = default;
-    map_edge(bool lc, transformation G_) : loop_closure(lc), G(G_) {};
+    map_edge(edge_type type_, transformation G_) : type(type_), G(G_) {};
 };
 
 enum class feature_type { tracked, triangulated };
@@ -57,17 +59,18 @@ struct map_feature {
     std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
 };
 
-enum class node_status {normal, finished};
+enum class node_status {reference, normal, finished};
 
 struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
     std::map<uint64_t, map_edge> edges; // key is neighbor_id; we use a map structure to gurantee same order when traversing edges.
+    std::set<uint64_t> covisibility_edges;
     map_edge &get_add_neighbor(uint64_t neighbor);
     void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v, const feature_type type);
     void set_feature_type(const uint64_t id, const feature_type type);
 
-    transformation global_transformation;
+    transformation global_transformation; // dead reckoning pose
 
     // relocalization
     uint64_t camera_id;
@@ -97,8 +100,14 @@ class mapper {
     typedef uint64_t nodeid;
     typedef std::pair<uint64_t, uint64_t> match;
     typedef std::vector<match> matches;
-    typedef std::pair<nodeid, transformation> node_path;
-    typedef std::map<nodeid, transformation> nodes_path;
+    struct node_path {
+        node_path(){}
+        node_path(nodeid id_, transformation G_, f_t distance_) : id(id_), G(G_), distance(distance_) {}
+        nodeid id;
+        transformation G;
+        f_t distance; // metric used in dijkstra to find shortest path
+    };
+    typedef std::vector<node_path> nodes_path;
 
  private:
     /** Auxiliary class to represent data shared among threads and protected
@@ -182,8 +191,8 @@ private:
 
     // private functions that are used after acquiring some of the mutexes
     void remove_edge_no_lock(nodeid node_id1, nodeid node_id2);
-    void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12,
-                          bool loop_closure = false);
+    void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::original);
+    void add_covisibility_edge_no_lock(nodeid node_id1, nodeid node_id2);
 
     void remove_node_features(nodeid node_id);
     void add_triangulated_feature_to_group(
@@ -199,7 +208,8 @@ private:
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     void add_node(nodeid node_id, const rc_Sensor camera_id);
     void remove_node(nodeid node_id);
-    void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, bool loop_closure = false);
+    void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::original);
+    void add_covisibility_edge(nodeid node_id1, nodeid node_id2);
     void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
@@ -208,10 +218,9 @@ private:
     void initialize_track_triangulation(const tracker::feature_track &track, const nodeid node_id);
     void finish_lost_tracks(const tracker::feature_track &track);
     void update_3d_feature(const tracker::feature_track &track, const transformation &&G_Bcurrent_Bnow, const rc_Sensor camera_id_now);
-    nodes_path breadth_first_search(nodeid start, int maxdepth = 1);
-    nodes_path breadth_first_search(nodeid start, const f_t maxdistance, const size_t N = 5); // maxdistance in meters, max number of nodes
-    nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes, bool expect_graph_connected=true);
     v3 get_feature3D(nodeid node_id, uint64_t feature_id) const; // returns feature wrt node body frame
+    mapper::nodes_path dijkstra_shortest_path(const node_path &start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path &)> is_node_searched,
+                                              std::function<bool(const node_path &)> finish_search);
 
     const std::unordered_map<nodeid, map_node> & get_nodes() const { return *nodes; }
     map_node& get_node(nodeid id) { return nodes->at(id); }
@@ -235,6 +244,9 @@ private:
 
     // temporary point to current node
     map_node* current_node = nullptr;
+    map_node* reference_node = nullptr; // points to node corresponding to latest active reference group in the filter
+    transformation G_W_firstnode; // store filter's estimate of first session node pose wrt World origin
+    std::vector<nodeid> canonical_path;
 
     //we need the camera intrinsics
     std::vector<state_vision_intrinsics*> camera_intrinsics;

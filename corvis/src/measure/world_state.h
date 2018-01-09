@@ -39,13 +39,19 @@ typedef struct _ImageData {
     bool luminance;
 } ImageData;
 
+typedef struct _Neighbor {
+    uint64_t id;
+    edge_type type = edge_type::original;
+    bool in_canonical_path = false;
+    _Neighbor(uint64_t id_) : id(id_) {}
+} Neighbor;
+
 typedef struct _mapnode {
     uint64_t id;
     bool finished;
-    std::set<uint64_t> loop_closed;
     bool unlinked;
     transformation position;
-    std::vector<uint64_t> neighbors;
+    std::vector<Neighbor> neighbors;
     std::vector<Feature> features;
 } MapNode;
 
@@ -142,7 +148,7 @@ public:
     void observe_image(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data, std::vector<overlay_data> &cameras);
     void observe_depth(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data);
     void observe_depth_overlay_image(uint64_t timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
-    void observe_map_node(uint64_t timestamp_us, uint64_t id, bool finished, const std::set<uint64_t>& loop_closed, bool is_unlinked, const transformation& T, std::vector<uint64_t>& neighbors, std::vector<Feature>& features);
+    void observe_map_node(uint64_t timestamp, uint64_t node_id, bool finished, bool unlinked, const transformation& position, std::vector<Neighbor>&& neighbors, std::vector<Feature>& features);
     void observe_ate(uint64_t timestamp_us, const float absolute_trajectory_error);
     void observe_rpe(uint64_t timestamp_us, const float relative_pose_error);
     void observe_position_reloc(uint64_t timestamp, const rc_Pose* poses, size_t nposes);

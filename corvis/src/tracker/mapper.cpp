@@ -65,17 +65,28 @@ map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
     return edges.emplace(neighbor, map_edge{}).first->second;
 }
 
-void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, bool loop_closure) {
-    nodes.critical_section(&mapper::add_edge_no_lock, this, id1, id2, G12, loop_closure);
+void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, edge_type type) {
+    nodes.critical_section(&mapper::add_edge_no_lock, this, id1, id2, G12, type);
 }
 
-void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12, bool loop_closure) {
+void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12, edge_type type) {
     map_edge& edge12 = nodes->at(id1).get_add_neighbor(id2);
-    edge12.loop_closure = loop_closure;
     edge12.G = G12;
     map_edge& edge21 = nodes->at(id2).get_add_neighbor(id1);
-    edge21.loop_closure = loop_closure;
     edge21.G = invert(G12);
+    if(type != edge_type::original) {
+        edge12.type = type;
+        edge21.type = type;
+    }
+}
+
+void mapper::add_covisibility_edge(nodeid id1, nodeid id2) {
+    nodes.critical_section(&mapper::add_covisibility_edge_no_lock, this, id1, id2);
+}
+
+void mapper::add_covisibility_edge_no_lock(nodeid id1, nodeid id2) {
+    nodes->at(id1).covisibility_edges.insert(id2);
+    nodes->at(id2).covisibility_edges.insert(id1);
 }
 
 void mapper::remove_edge(nodeid id1, nodeid id2) {
@@ -145,7 +156,17 @@ void mapper::update_3d_feature(const tracker::feature_track& track, const transf
     const f_t focal_px = intrinsics_now->focal_length.v * intrinsics_now->image_height;
     const f_t sigma2 = 10 / (focal_px*focal_px);
 
-    auto G_Bcurrent_Breference = breadth_first_search(current_node->id, std::set<nodeid>{tp->second.reference_nodeid})[tp->second.reference_nodeid];
+    // distance # edges traversed
+    auto distance = [](const map_edge& edge) { return 1; };
+    // select node if it is the searched node
+    auto is_node_searched = [&tp](const node_path& path) { return path.id == tp->second.reference_nodeid; };
+    // finish search when node is found
+    auto finish_search = is_node_searched;
+
+    nodes_path searched_node = dijkstra_shortest_path(node_path{current_node->id, transformation(), 0},
+                                                      distance, is_node_searched, finish_search);
+    assert(searched_node.size() == 1);
+    auto& G_Bcurrent_Breference = searched_node.front().G;
     transformation G_CBnow = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
     transformation G_BCreference = transformation(extrinsics_reference->Q.v, extrinsics_reference->T.v);
 
@@ -296,10 +317,25 @@ void mapper::remove_node(nodeid id)
 
     // if only 1 neighbor, node removed (id) is a loose end of the graph
     if(neighbors.size() > 1) {
-        // this could be more efficient if we don't calculate transformations in BFS
+        auto searched_neighbors = neighbors;
+        // distance # edges traversed
+        auto distance = [](const map_edge& edge) { return 1; };
+        // select node if it is one of the searched nodes
+        auto is_node_searched = [&searched_neighbors](const node_path& path) {
+            auto it = searched_neighbors.find(path.id);
+            if( it != searched_neighbors.end()) {
+                searched_neighbors.erase(it);
+                return true;
+            } else
+                return false;
+            };
+        // finish search when all searched nodes are found
+        auto finish_search = [&searched_neighbors](const node_path& path) { return searched_neighbors.empty(); };
+
+        // this could be more efficient if we don't calculate transformations in dijkstra
         std::set<nodeid> connected_neighbors;
-        for(auto &path : breadth_first_search(*neighbors.begin(), std::set<nodeid>{neighbors.begin(), neighbors.end()}, false))
-            connected_neighbors.insert(path.first);
+        for(auto &path : dijkstra_shortest_path(node_path{*neighbors.begin(), transformation(), 0}, distance, is_node_searched, finish_search))
+            connected_neighbors.insert(path.id);
 
         // are neighbors disconnected after removing node id ?
         if(connected_neighbors.size() < neighbors.size()) {
@@ -313,113 +349,46 @@ void mapper::remove_node(nodeid id)
     }
 }
 
-mapper::nodes_path mapper::breadth_first_search(nodeid start, int maxdepth)
+mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path& path)> is_node_searched,
+                                                  std::function<bool(const node_path& path)> finish_search)
 {
-    nodes_path neighbor_nodes;
-    queue<node_path> next;
-    next.push(node_path{start, transformation()});
+    auto cmp = [](const node_path& path1, const node_path& path2) {
+      return path1.distance > path2.distance;
+    };
+    priority_queue<node_path, std::vector<node_path>, decltype(cmp)> next(cmp);
 
-    typedef int depth;
-    unordered_map<nodeid, depth> nodes_visited;
-    nodes_visited[start] = 0;
-
-    while (!next.empty()) {
-        node_path current_path = next.front();
-        nodeid& u = current_path.first;
-        transformation& Gu = current_path.second;
+    next.push(start);
+    unordered_set<nodeid> nodes_done;
+    nodes_path searched_nodes;
+    bool stop = false;
+    while(!stop && !next.empty()) {
+        node_path path = next.top();
         next.pop();
-        if(!maxdepth || nodes_visited[u] < maxdepth) {
+        const nodeid& u = path.id;
+        if(nodes_done.find(u) == nodes_done.end()) {
+            nodes_done.insert(u);
+            if(is_node_searched(path)) {
+                searched_nodes.push_back(path);
+                stop = finish_search(path);
+            }
+            const transformation& G_start_u = path.G;
+            const float& distance_u = path.distance;
             for(auto edge : nodes->at(u).edges) {
                 const nodeid& v = edge.first;
-                if(nodes_visited.find(v) == nodes_visited.end()) {
-                    nodes_visited[v] = nodes_visited[u] + 1;
-                    const transformation& Gv = edge.second.G;
-                    next.push(node_path{v, Gu*Gv});
-                }
+                const transformation& G_u_v = edge.second.G;
+                f_t distance_uv = distance(edge.second);
+                next.emplace(v, G_start_u*G_u_v, distance_u + distance_uv);
             }
-        }
-        neighbor_nodes.insert(current_path);
-    }
-
-    return neighbor_nodes;
-}
-
-mapper::nodes_path mapper::breadth_first_search(nodeid start, const f_t maxdistance, const size_t N)
-{
-    nodes_path neighbor_nodes;
-    list<node_path> candidate_nodes;
-    queue<node_path> next;
-    next.push(node_path{start, transformation()});
-
-    unordered_set<nodeid> nodes_visited;
-    nodes_visited.insert(start);
-
-    while (!next.empty()) {
-        node_path current_path = next.front();
-        nodeid& u = current_path.first;
-        transformation& Gu = current_path.second;
-        next.pop();
-        for(auto edge : nodes->at(u).edges) {
-            const nodeid& v = edge.first;
-            if(nodes_visited.find(v) == nodes_visited.end()) {
-                nodes_visited.insert(v);
-                const transformation& Gv = edge.second.G;
-                next.push(node_path{v, Gu*Gv});
-            }
-        }
-        if(current_path.second.T.norm() < maxdistance &&
-           get_node(u).status == node_status::finished) {
-            // Keep nodes found at a deeper level in the graph
-            candidate_nodes.push_front(std::move(current_path));
-            if(candidate_nodes.size() > N)
-                candidate_nodes.pop_back();
         }
     }
 
-    neighbor_nodes.insert(candidate_nodes.begin(), candidate_nodes.end());
-    return neighbor_nodes;
-}
-
-mapper::nodes_path mapper::breadth_first_search(nodeid start, set<nodeid>&& searched_nodes, bool expect_graph_connected)
-{
-    nodes_path searched_nodes_path;
-    queue<node_path> next;
-    next.push(node_path{start, transformation()});
-
-    unordered_set<nodeid> nodes_visited;
-    nodes_visited.insert(start);
-
-    while (!next.empty() && !searched_nodes.empty()) {
-        node_path current_path = next.front();
-        nodeid& u = current_path.first;
-        transformation& Gu = current_path.second;
-        next.pop();
-        for(auto edge : nodes->at(u).edges) {
-            const nodeid& v = edge.first;
-            if(nodes_visited.find(v) == nodes_visited.end()) {
-                nodes_visited.insert(v);
-                const transformation& Gv = edge.second.G;
-                next.push(node_path{v, Gu*Gv});
-            }
-        }
-
-        if(searched_nodes.find(u) != searched_nodes.end()) {
-            searched_nodes_path.insert(current_path);
-            searched_nodes.erase(u);
-        }
-    }
-
-    if(expect_graph_connected && next.empty())
-        assert(searched_nodes.empty()); // If all graph has been traversed searched_nodes should be empty
-
-    return searched_nodes_path;
+    return searched_nodes;
 }
 
 std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidates(
     const std::shared_ptr<frame_t>& current_frame)
 {
     std::vector<std::pair<mapper::nodeid, float>> loop_closing_candidates;
-
     // find nodes sharing words with current frame
     std::map<mapper::nodeid,uint32_t> common_words_per_node;
     uint32_t max_num_shared_words = 0;
@@ -682,11 +651,28 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
             aligned_vector<v2> current_2d_points;
             transformation G_candidate_currentframe;
             // Estimate pose from 3d-2d matches
-            mapper::nodes_path G_candidate_neighbors;
-
+            std::unordered_map<nodeid, transformation> G_candidate_neighbors;
             ok = nodes.critical_section([&](){
-                if (nodes->find(nid.first) != nodes->end()) {
-                    G_candidate_neighbors = breadth_first_search(nid.first, 1); // all points observed from this candidate node should be created at a node 1 edge away in the graph
+                auto it_node = nodes->find(nid.first);
+                if (it_node != nodes->end()) {
+                    auto covisible_neighbors = it_node->second.covisibility_edges; // some of trhe points observed from this candidate node should be found in the covisible nodes
+                    // distance # edges traversed
+                    auto distance = [](const map_edge& edge) { return 1; };
+                    // select node if it is one of the covisible nodes
+                    auto is_node_searched = [&covisible_neighbors](const node_path& path) {
+                        auto it_neighbor = covisible_neighbors.find(path.id);
+                        if( it_neighbor != covisible_neighbors.end()) {
+                            covisible_neighbors.erase(it_neighbor);
+                            return true;
+                        } else
+                            return false;
+                        };
+                    // finish search when all covisible nodes are found
+                    auto finish_search = [&covisible_neighbors](const node_path& path) { return covisible_neighbors.empty(); };
+
+                    G_candidate_neighbors[nid.first] = transformation();
+                    for(auto &path : dijkstra_shortest_path(node_path{nid.first, transformation(), 0}, distance, is_node_searched, finish_search))
+                        G_candidate_neighbors[path.id] = path.G;
                     return true;
                 }
                 return false;
@@ -713,7 +699,11 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                     if (nodes->find(nodeid_keypoint) != nodes->end()) {
                         // NOTE: We use 3d features observed from candidate, this does not mean
                         // these features belong to the candidate node (group)
-                        v3 p_candidate = G_candidate_neighbors[nodeid_keypoint] *
+                        auto it_G = G_candidate_neighbors.find(nodeid_keypoint);
+                        if(it_G == G_candidate_neighbors.end()) {// TODO: all features observed from the candidate node should be represented wrt one of the covisible nodes but it does not happen ....
+                            continue;
+                        }
+                        v3 p_candidate = it_G->second *
                                 get_feature3D(nodeid_keypoint, keypoint_id); // feat is in body frame
                         candidate_3d_points.push_back(p_candidate);
                         //undistort keypoints at current frame
@@ -734,7 +724,8 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                     transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
                     ok = nodes.critical_section([&]() {
                         if (nodes->find(nid.first) != nodes->end() && nodes->find(camera_frame.closest_node) != nodes->end()) {
-                            add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, true);
+                            add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, edge_type::relocalization);
+                            add_covisibility_edge_no_lock(nid.first, camera_frame.closest_node);
                             return true;
                         }
                         return false;
@@ -847,22 +838,39 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
     map_feature_tracks.clear();
     if(!current_node)
         return;
-    // pick as candidates the 5 finished nodes found deepest in the graph and
-    // within 2 meters from current node
-    nodes_path neighbors = breadth_first_search(current_node->id, 2.f, 4);
+    // distance # edges traversed
+    auto distance = [](const map_edge& edge) { return 1; };
+    // select node if it is finished and within 2 meters from current pose
+    auto is_node_searched = [this](const node_path& path) {
+      if( (get_node(path.id).status == node_status::finished) && (path.G.T.norm() < 2.f) )
+          return true;
+      else
+          return false;
+    };
+    // search all graph
+    auto finish_search = [](const node_path& path) { return false; };
 
+    nodes_path neighbors = dijkstra_shortest_path(node_path{current_node->id, invert(G_Bcurrent_Bnow), 0},
+                                                  distance, is_node_searched, finish_search);
+
+    std::sort(neighbors.begin(), neighbors.end(), [](const node_path& path1, const node_path& path2){
+        return path1.G.T.norm() < path2.G.T.norm();
+    });
+
+    if(neighbors.size() > 4)
+        neighbors.resize(4);
     const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
     const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
     transformation G_CB = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
-    transformation G_Bnow_Bcurrent = invert(G_Bcurrent_Bnow);
+
     for(const auto& neighbor : neighbors) {
-        map_node& node_neighbor = nodes->at(neighbor.first);
+        map_node& node_neighbor = nodes->at(neighbor.id);
         std::vector<map_feature_track> tracks;
-        const transformation& G_Bnow_Bneighbor = G_Bnow_Bcurrent*neighbor.second;
+        const transformation& G_Bnow_Bneighbor = neighbor.G;
         transformation G_Cnow_Bneighbor = G_CB*G_Bnow_Bneighbor;
         for(const auto& f : node_neighbor.features) {
             // predict feature in current camera pose
-            v3 p3dC = G_Cnow_Bneighbor * get_feature3D(neighbor.first, f.second.feature->id);
+            v3 p3dC = G_Cnow_Bneighbor * get_feature3D(neighbor.id, f.second.feature->id);
             if(p3dC.z() < 0)
                 continue;
             feature_t kpn = p3dC.segment<2>(0)/p3dC.z();
@@ -877,7 +885,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
             track.pred_y = kpd.y();
             tracks.emplace_back(std::move(track), f.second.v);
         }
-        map_feature_tracks.emplace_back(neighbor.first, invert(G_Bnow_Bneighbor), std::move(tracks));
+        map_feature_tracks.emplace_back(neighbor.id, invert(G_Bnow_Bneighbor), std::move(tracks));
     }
 }
 
@@ -892,7 +900,7 @@ static bstream_writer & operator << (bstream_writer& content, const v2 &vec) {
 }
 
 static bstream_writer &operator << (bstream_writer &content, const map_edge &edge) {
-    return content << edge.loop_closure << edge.G;
+    return content << static_cast<uint8_t>(edge.type) << edge.G;
 }
 
 static bstream_writer & operator << (bstream_writer& content, const std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> &feat) {
@@ -913,7 +921,7 @@ static bstream_writer & operator << (bstream_writer &content, const map_node &no
     content << node.id << node.camera_id << node.edges << node.global_transformation;
     content << (uint8_t)(node.frame != nullptr);
     if (node.frame) content << node.frame;
-    return content << node.features;
+    return content << node.covisibility_edges << node.features;
 }
 
 static const char magic_file_format_num[5] = { 'R', 'C', 'M', '\0' }; //R C Map File

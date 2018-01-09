@@ -57,7 +57,7 @@ struct map_feature {
     std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
 };
 
-enum class node_status {normal, finished};
+enum class node_status {reference, normal, finished};
 
 struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -68,7 +68,7 @@ struct map_node {
     void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v, const feature_type type);
     void set_feature_type(const uint64_t id, const feature_type type);
 
-    transformation global_transformation;
+    transformation global_transformation; // dead reckoning pose
 
     // relocalization
     uint64_t camera_id;
@@ -237,6 +237,9 @@ private:
 
     // temporary point to current node
     map_node* current_node = nullptr;
+    map_node* reference_node = nullptr; // points to node corresponding to latest active reference group in the filter
+    transformation G_W_firstnode; // store filter's estimate of first session node pose wrt World origin
+    std::vector<nodeid> canonical_path;
 
     //we need the camera intrinsics
     std::vector<state_vision_intrinsics*> camera_intrinsics;

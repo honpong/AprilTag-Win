@@ -1431,11 +1431,10 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                             g->lost_features.push_back(std::move(feat));
                         }
                     }
-                    const transformation& G_gold_now = *g->Gr;
                     for(auto &neighbor : f->s.groups.children) {
-                        const transformation& G_now_neighbor = invert(*neighbor->Gr);
-                        transformation G_gold_neighbor = G_gold_now*G_now_neighbor;
-                        f->map->add_edge(g->id, neighbor->id, G_gold_neighbor);
+                        if(neighbor->status == group_reference)
+                            f->map->add_edge(g->id, neighbor->id, (*g->Gr)*invert(*neighbor->Gr));
+                        f->map->add_covisibility_edge(g->id, neighbor->id);
                     }
                     f->s.groups.children.push_back(std::move(g));
                     f->s.remap();

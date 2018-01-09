@@ -149,6 +149,7 @@ int state_vision::process_features(mapper *map)
     int total_health = 0;
     bool need_reference = true;
     state_vision_group *best_group = 0;
+    state_vision_group *reference_group = 0;
     int best_health = -1;
 
     //First: process groups, mark additional features for deletion
@@ -156,6 +157,9 @@ int state_vision::process_features(mapper *map)
         int health = 0;
         for(auto &f : g->features.children)
             if(!f->should_drop() && f->status != feature_lost) ++health;
+
+        // store current reference group (even in case it is removed)
+        if(g->status == group_reference) reference_group = g.get();
         
         if(health < state_vision_group::min_feats)
             g->status = group_empty;
@@ -171,8 +175,32 @@ int state_vision::process_features(mapper *map)
                 best_health = g->health;
             }
         }
+        g->frames_active++;
     }
-    if(best_group && need_reference) best_group->make_reference();
+    if(best_group && need_reference) {
+        best_group->make_reference();
+        map->reference_node = &map->get_node(best_group->id);
+        auto it = std::find(map->canonical_path.begin(), map->canonical_path.end(), best_group->id);
+        if(it == map->canonical_path.end())
+            map->canonical_path.push_back(best_group->id);
+        else // don't add loops to canonical path
+            map->canonical_path.resize((++it) - map->canonical_path.begin());
+
+        if(reference_group) {
+            // remove edges between active groups and dropped reference group
+            // we will connect them to the new reference group below
+            for(auto &g : groups.children) {
+                if(g->id != reference_group->id) {
+                    if(g->reused) { // if group reused preserve edges. TODO: preserve only original edges
+                        map->add_edge(reference_group->id, g->id, (*reference_group->Gr) * invert(*g->Gr));
+                    } else {
+                        map->remove_edge(reference_group->id, g->id);
+                    }
+                }
+            }
+        }
+        reference_group = best_group;
+    }
 
     //Then: remove tracks based on feature and group status
     for(auto &camera : cameras.children)
@@ -180,9 +208,24 @@ int state_vision::process_features(mapper *map)
             if(t->feature.should_drop() || t->feature.group.status == group_empty) t = camera->tracks.erase(t);
             else ++t;
 
-    //Finally: remove features and groups
+    // store info about reference group in case all groups are removed
+    transformation G_reference_now;
+    uint64_t reference_id{0};
+    if(reference_group) {
+        reference_id = reference_group->id;
+        G_reference_now = *reference_group->Gr;
+    }
+
     for(auto i = groups.children.begin(); i != groups.children.end();) {
         auto &g = *i;
+        if(map) {
+            if(g->id != reference_id) // update map edges
+                map->add_edge(reference_id, g->id, G_reference_now*invert(*g->Gr));
+            // update transform to first reference group created in this session. TODO: Fix problem with first node flying around
+            if(g->id == map->get_node_id_offset() && !g->reused)
+                map->G_W_firstnode = get_transformation()*invert(*g->Gr);
+        }
+        //Finally: remove features and groups
         if(g->status == group_empty) {
             if (map) {
                 // node was already in the map or has lasted for 2 seconds at least or is the first node in the session
@@ -294,16 +337,6 @@ void state_vision::update_map(mapper *map)
             distance_current_node = g->Tr.v.norm();
             map->current_node = &map->get_node(g->id);
         }
-        g->frames_active++;
-
-        // update map edges for all active groups
-        for (auto &g2 : groups.children) {
-            if(g2->id > g->id) {
-                const transformation& Gg_now = *g->Gr;
-                const transformation& Gnow_g2 = invert(*g2->Gr);
-                map->add_edge(g->id, g2->id, Gg_now*Gnow_g2);
-            }
-        }
         for (auto &f : g->features.children) {
             float stdev = (float)f->v->stdev_meters(sqrt(f->variance()));
             float variance_meters = stdev*stdev;
@@ -331,17 +364,19 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     auto g = std::make_unique<state_vision_group>(camera, group_counter++);
     if(map) {
         map->add_node(g->id, camera_id);
-        // Connect graph again if it got disconnected
-        if(groups.children.empty() && map->current_node) {
-            mapper::nodes_path path = map->breadth_first_search(map->get_node_id_offset(), std::set<mapper::nodeid>{map->current_node->id});
-            transformation& G_init_current = path[map->current_node->id];
-            transformation G_current_now = invert(transformation{map->get_node(map->get_node_id_offset()).global_transformation.Q, v3::Zero()}*G_init_current)
-                    *get_transformation();
-            map->add_edge(map->current_node->id, g->id, G_current_now);
-        }
+
+        state_vision_group *reference_group = nullptr;
         for(auto &group : groups.children) {
             map->add_covisibility_edge(g->id, group->id);
+            if(group->status == group_reference)
+                reference_group = group.get();
         }
+
+        if(reference_group)
+            map->add_edge(reference_group->id, g->id, (*reference_group->Gr) * invert(*g->Gr));
+        else if(map->reference_node) // connect graph again using dead reckoning
+            map->add_edge(map->reference_node->id, g->id, invert(map->reference_node->global_transformation) * get_transformation());
+
     }
     auto *p = g.get();
     groups.children.push_back(std::move(g));

@@ -136,6 +136,7 @@ MVCCOPT += $(addprefix -I,$(wildcard \
    $(MV_COMMON_BASE)/components/kernelLib/LAMA/kernels/strsm*/shave/include \
    $(MV_COMMON_BASE)/components/kernelLib/MvCV/include \
 ))
+MVCOPT      += -I$(SLAM_PLATFORM_PREFIX)/shave/blis
 MVCCOPT     += -I$(SLAM_PLATFORM_PREFIX)/shave/blis
 MVCCOPT_LRT += -I$(SLAM_PLATFORM_PREFIX)/shave/blis
 MVCCOPT     += -I$(SLAM_PLATFORM_PREFIX)/shared

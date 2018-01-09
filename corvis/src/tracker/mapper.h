@@ -100,8 +100,14 @@ class mapper {
     typedef uint64_t nodeid;
     typedef std::pair<uint64_t, uint64_t> match;
     typedef std::vector<match> matches;
-    typedef std::pair<nodeid, transformation> node_path;
-    typedef std::map<nodeid, transformation> nodes_path;
+    struct node_path {
+        node_path(){}
+        node_path(nodeid id_, transformation G_, f_t distance_) : id(id_), G(G_), distance(distance_) {}
+        nodeid id;
+        transformation G;
+        f_t distance; // metric used in dijkstra to find shortest path
+    };
+    typedef std::vector<node_path> nodes_path;
 
  private:
     /** Auxiliary class to represent data shared among threads and protected
@@ -212,10 +218,9 @@ private:
     void initialize_track_triangulation(const tracker::feature_track &track, const nodeid node_id);
     void finish_lost_tracks(const tracker::feature_track &track);
     void update_3d_feature(const tracker::feature_track &track, const transformation &&G_Bcurrent_Bnow, const rc_Sensor camera_id_now);
-    nodes_path breadth_first_search(nodeid start, int maxdepth = 1);
-    nodes_path breadth_first_search(nodeid start, const f_t maxdistance, const size_t N = 5); // maxdistance in meters, max number of nodes
-    nodes_path breadth_first_search(nodeid start, std::set<nodeid>&& searched_nodes, bool expect_graph_connected=true);
     v3 get_feature3D(nodeid node_id, uint64_t feature_id) const; // returns feature wrt node body frame
+    mapper::nodes_path dijkstra_shortest_path(const node_path &start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path &)> is_node_searched,
+                                              std::function<bool(const node_path &)> finish_search);
 
     const std::unordered_map<nodeid, map_node> & get_nodes() const { return *nodes; }
     map_node& get_node(nodeid id) { return nodes->at(id); }

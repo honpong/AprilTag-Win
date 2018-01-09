@@ -15,7 +15,7 @@ class TrackerProxy
 {
 public:
     TrackerProxy();
-    int ReadCalibrationFile(std::string inputFile, std::string * const fileContents);
+    size_t ReadCalibrationFile(std::string inputFile, std::string * const fileContents);
     std::shared_ptr<rc_Tracker> getTracker() const;
     std::vector<rc_Extrinsics> getCamerasExtrinsincs() const;
     std::vector<rc_ExtendedCameraIntrinsics> getCamerasIntrincs() const;
@@ -25,7 +25,7 @@ public:
 
 private:
     bool ReadFile(std::string filename, std::string* const contents) const;
-    int DescribeCameraHelper(rc_ImageFormat format);
+    size_t DescribeCameraHelper(rc_ImageFormat format);
 
     std::vector<rc_Extrinsics> m_ex;
     std::vector<rc_ExtendedCameraIntrinsics> m_cin;

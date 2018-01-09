@@ -23,9 +23,9 @@ class IVTKScenario
 public:
     virtual ~IVTKScenario() = default;
     virtual void Execute() = 0;
-    virtual unsigned int InitializeSetup(std::map<std::string, std::string> args) = 0;
+    virtual size_t InitializeSetup(std::map<std::string, std::string> args) = 0;
     virtual void SetupActorsInWindows(vtkRenderer* const &pRenderer, vtkRenderWindow* const & pWindow);
-    virtual uint8_t LoadCalibrationFile(std::map<std::string, std::string> args);
+    virtual size_t LoadCalibrationFile(std::map<std::string, std::string> args);
 
 protected:
     std::map<std::string, std::string> m_args;
@@ -63,13 +63,13 @@ class CBannerSimpleScenario : public IVTKScenario
 {
 public:
     enum class WindowIndex { COLOR = 0, DEPTH = 1, LFISHEYE = 2, RFISHEYE = 3 };
-    virtual void Execute();
-    virtual unsigned int InitializeSetup(std::map<std::string, std::string> args);
+    virtual void Execute() override;
+    virtual size_t InitializeSetup(std::map<std::string, std::string> args) override;
     CBannerSimpleScenario();
     ~CBannerSimpleScenario() = default;
-    unsigned int ParseUserInput(std::map<std::string, std::string> args);
+    size_t ParseUserInput(std::map<std::string, std::string> args);
     void CreateCameraWindows();
-    void AddControllerInWindow(vtkSmartPointer<vtkCoordinate> spOrbCenterCoordinates, vtkSmartPointer<vtkCoordinate> spLEDCenterCoordinates, vtkSmartPointer<vtkCoordinate> spBodyCenterCoordinates, bool isMarkerOn);
+    size_t AddControllerInWindow(vtkSmartPointer<vtkCoordinate> spControllerCenterCoordinates, uint64_t uIndex);
     bool isControllerAnimated() const;
     void GenerateInterpolations(std::string ControllerAnimationFile, vtkSmartPointer<vtkTransformInterpolator> * const spTransformInterpolator);
     void StartScenario();
@@ -77,11 +77,11 @@ public:
     void AddNewControllerInterpolation(vtkSmartPointer<vtkTransformInterpolator> spNewInterpolation);
     bool isAnimationEnabled() const;
     void CreateCamerasCallbacks();
-    void GetControllerActorsCenters(vtkSmartPointer<vtkCoordinate>* const spOrbCenterCoordinates, vtkSmartPointer<vtkCoordinate>* const spLEDCenterCoordinates, vtkSmartPointer<vtkCoordinate>* const spBodyCenterCoordinates,int index) const;
 
 protected:
     friend TimerWindowCallback;
     void HandleDirectoryCreation();
+	size_t HandleControllerFile(const vtkSmartPointer<vtkCoordinate>& spOrbCenterCoordinates, uint64_t uIndex);
 
     enum
     {
@@ -90,9 +90,6 @@ protected:
     };
 
     vtkSmartPointer<vtkRendererCollection> m_spRendererCollection;
-    std::vector<std::shared_ptr<CActorSphere>> m_spOrb;
-    std::vector<std::shared_ptr<CActorSphere>> m_spLED;
-    std::vector<std::shared_ptr<CActorCylinder>> m_spControllerBody;
     vtkSmartPointer<ColorWindowStartCallback> m_spSColorWindowCallback;
     vtkSmartPointer<ColorWindowEndCallback> m_spEColorWindowCallback;
     vtkSmartPointer<LFisheyeWindowEndCallback> m_spELFisheyeWindowCallback;
@@ -101,7 +98,6 @@ protected:
     bool m_isAnimationEnabled;
     bool m_isRecordingEnabled;
     bool m_isFisheyeStereoRecordingEnabled;
-    std::vector<bool> m_isMarkerOn;
     std::string m_szDirectoryName;
     std::vector<std::shared_ptr<std::ofstream>> m_spControllerAnimFile;
     std::ofstream m_framesFile;
@@ -112,8 +108,8 @@ protected:
 class CBannerTwoControllersScenario : public IVTKScenario
 {
 public:
-    virtual void Execute();
-    virtual unsigned int InitializeSetup(std::map<std::string, std::string> args);
+    virtual void Execute() override;
+    virtual size_t InitializeSetup(std::map<std::string, std::string> args) override;
     CBannerTwoControllersScenario();
     ~CBannerTwoControllersScenario() = default;
 
@@ -125,8 +121,8 @@ protected:
 class CInteractiveScenario : public IVTKScenario
 {
 public:
-    virtual void Execute();
-    virtual unsigned int InitializeSetup(std::map<std::string, std::string> args);
+    virtual void Execute() override;
+    virtual size_t InitializeSetup(std::map<std::string, std::string> args) override;
     ~CInteractiveScenario() = default;
 private:
     vtkSmartPointer<ModifiedCameraPosition> m_spCameraPosition;

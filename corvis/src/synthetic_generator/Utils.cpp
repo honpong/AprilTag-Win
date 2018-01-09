@@ -504,14 +504,12 @@ void PrintUsage()
     cout << "       \n\t                   \t --renderingtimeinterval value (Details: optional argument. Represents the time in ms how often to render a frame. Default is 100ms.)";
     cout << "       \n\t                   \t --scenario name_of_the_scenario_to_run (Details: By default single controller. Other possible values: multiplecontrollers or interactive)";
     cout << "       \n\t                   \t --secondcontrolleranimation name_of_the_second_controller_poses_file (Details: optional argument. needs to be used in conjunction with --scenario multiplecontrollers )";
-    cout << "       \n\t                   \t --markeroff value (Details: If specified the first controller won't have the marker. By default, marker is present.)";
-    cout << "       \n\t                   \t --secondmarkeroff value (Details: If specified the first controller won't have the marker. By default, marker is present.)";
-    cout << "       \n";
+	cout << "       \n\t                   \t --controllerfile name_of_the_controller_mesh_model (Details: required argument for any controller scenario. Needs to be of .stl format)";
+	cout << "       \n";
 }
 
 void CFakeImgCapturer::SetCameraIntrinsics(const rc_ExtendedCameraIntrinsics& camera)
 {
-    //CameraIntrinsics = camera.cameraintrinsics;
     CameraIndex = camera.index;
     ImageFormat = camera.format;
 }

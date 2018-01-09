@@ -34,7 +34,7 @@ std::shared_ptr<rc_Tracker> TrackerProxy::getTracker() const
     return m_spTracker;
 }
 
-int TrackerProxy::ReadCalibrationFile(std::string inputFile, std::string * const pFileContents)
+size_t TrackerProxy::ReadCalibrationFile(std::string inputFile, std::string * const pFileContents)
 {
     int res = 1;
     rc_Sensor i = 0;
@@ -109,7 +109,7 @@ END:
     return res;
 }
 
-int TrackerProxy::DescribeCameraHelper(rc_ImageFormat format)
+size_t TrackerProxy::DescribeCameraHelper(rc_ImageFormat format)
 {
     int res = 0;
     uint8_t i = 0;

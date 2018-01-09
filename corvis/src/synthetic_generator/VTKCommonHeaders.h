@@ -64,6 +64,7 @@
 #include <vtkVector.h>
 #include <vtkMath.h>
 #include <vtkImageReader2Factory.h>
+#include <vtkSTLReader.h>
 // For compatibility with new VTK generic data arrays
 #ifdef vtkGenericDataArray_h
 #define InsertNextTupleValue InsertNextTypedTuple

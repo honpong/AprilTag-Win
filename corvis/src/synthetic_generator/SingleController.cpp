@@ -29,107 +29,6 @@ bool CBannerSimpleScenario::isAnimationEnabled() const
     return m_isAnimationEnabled;
 }
 
-void CBannerSimpleScenario::GetControllerActorsCenters(vtkSmartPointer<vtkCoordinate>* const spOrbCenterCoordinates,
-    vtkSmartPointer<vtkCoordinate>* const spLEDCenterCoordinates, vtkSmartPointer<vtkCoordinate>* const spBodyCenterCoordinates, int index) const
-{
-    *spOrbCenterCoordinates = vtkSmartPointer<vtkCoordinate>::New();
-    *spLEDCenterCoordinates = vtkSmartPointer<vtkCoordinate>::New();
-    *spBodyCenterCoordinates = vtkSmartPointer<vtkCoordinate>::New();
-    double actororbx  = 0 == index ? 0.0f     : 0.01f;
-    double actororby  = 0 == index ? 0.006f   : 0.008f;
-    double actororbz  = 0 == index ? 0.00f    : 0.05f;
-    double actorbodyx = 0 == index ? 0.0f     : 0.01f;
-    double actorbodyy = 0 == index ? 0.002f   : 0.004f;
-    double actorbodyz = 0 == index ? 0.00f    : 0.05f;
-    double actorledx  = 0 == index ? 0.0f     : 0.01f;
-    double actorledy  = 0 == index ? -0.0015f : 0.00f;
-    double actorledz  = 0 == index ? 0.00f    : 0.05f;
-
-    if (0 == index && m_args.find("--orbx") != m_args.end())
-    {
-        actororbx = stod(m_args.at("--orbx"));
-    }
-    else if (1 == index && m_args.find("--secondorbx") != m_args.end())
-    {
-        actororbx = stod(m_args.at("--secondorbx"));
-    }
-
-    if (0 == index && m_args.find("--orby") != m_args.end())
-    {
-        actororby = stod(m_args.at("--orby"));
-    }
-    else if (1 == index && m_args.find("--secondorby") != m_args.end())
-    {
-        actororby = stod(m_args.at("--secondorby"));
-    }
-
-    if (0 == index && m_args.find("--orbz") != m_args.end())
-    {
-        actororbz = stod(m_args.at("--orbz"));
-    }
-    else if (1 == index && m_args.find("--secondorbz") != m_args.end())
-    {
-        actororbz = stod(m_args.at("--secondorbz"));
-    }
-    (*spOrbCenterCoordinates)->SetValue(actororbx, actororby, actororbz);
-
-    if (0 == index && m_args.find("--bodyx") != m_args.end())
-    {
-        actorbodyx = stod(m_args.at("--bodyx"));
-    }
-    else if (1 == index && m_args.find("--secondbodyx") != m_args.end())
-    {
-        actorbodyx = stod(m_args.at("--secondbodyx"));
-    }
-
-    if (0 == index && m_args.find("--bodyy") != m_args.end())
-    {
-        actorbodyy = stod(m_args.at("--bodyy"));
-    }
-    else if (1 == index && m_args.find("--secondbodyy") != m_args.end())
-    {
-        actorbodyy = stod(m_args.at("--secondbodyy"));
-    }
-
-    if (0 == index && m_args.find("--bodyz") != m_args.end())
-    {
-        actorbodyz = stod(m_args.at("--bodyz"));
-    }
-    else if (1 == index && m_args.find("--secondbodyz") != m_args.end())
-    {
-        actorbodyz = stod(m_args.at("--secondbodyz"));
-    }
-    (*spBodyCenterCoordinates)->SetValue(actorbodyx, actorbodyy, actorbodyz);
-
-    if (0 == index && m_args.find("--ledx") != m_args.end())
-    {
-        actorledx = stod(m_args.at("--ledx"));
-    }
-    else if (1 == index && m_args.find("--secondledx") != m_args.end())
-    {
-        actorledx = stod(m_args.at("--secondledx"));
-    }
-
-    if (0 == index && m_args.find("--ledy") != m_args.end())
-    {
-        actorledy = stod(m_args.at("--ledy"));
-    }
-    else if (1 == index && m_args.find("--secondledy") != m_args.end())
-    {
-        actorledy = stod(m_args.at("--secondledy"));
-    }
-
-    if (0 == index && m_args.find("--ledz") != m_args.end())
-    {
-        actorledz = stod(m_args.at("--ledz"));
-    }
-    else if (1 == index && m_args.find("--secondledz") != m_args.end())
-    {
-        actorledz = stod(m_args.at("--secondledz"));
-    }
-    (*spLEDCenterCoordinates)->SetValue(actorledx, actorledy, actorledz);
-}
-
 void CBannerSimpleScenario::HandleDirectoryCreation()
 {
 #ifdef _WIN32
@@ -154,16 +53,15 @@ void CBannerSimpleScenario::HandleDirectoryCreation()
     system((std::string("mkdir ") + m_szDirectoryName + std::string("fisheye_1")).c_str());
 }
 
-unsigned int CBannerSimpleScenario::ParseUserInput(std::map<std::string, std::string> args)
+size_t CBannerSimpleScenario::ParseUserInput(std::map<std::string, std::string> args)
 {
-    unsigned int uRes = 0;
+    size_t res = 0;
     m_args = args;
 
-    if (0 != LoadCalibrationFile(m_args))
+    if (0 != (res = LoadCalibrationFile(m_args)))
     {
         std::cout << "Load calibration file failed." << std::endl;
-        uRes = 1;
-        return uRes;
+        return res;
     }
 
     m_spMesh = std::make_shared<CMesh>(m_args);
@@ -172,15 +70,6 @@ unsigned int CBannerSimpleScenario::ParseUserInput(std::map<std::string, std::st
     if (m_args.find("--controlleranimation") != m_args.end())
     {
         m_isControllerAnimated = true;
-        if (args.find("--markeroff") != args.end())
-        {
-            cout << "Marker disabled." << endl;
-            m_isMarkerOn.push_back(false);
-        }
-        else
-        {
-            m_isMarkerOn.push_back(true);
-        }
     }
 
     HandleDirectoryCreation();
@@ -226,8 +115,8 @@ unsigned int CBannerSimpleScenario::ParseUserInput(std::map<std::string, std::st
     {
         std::cout << "Animation file is required for non interactive scenarios." << std::endl;
         PrintUsage();
-        uRes = 2;
-        return uRes;
+        res = 2;
+        return res;
     }
 
     if (args.find("--numberofframes") != args.end())
@@ -247,7 +136,7 @@ unsigned int CBannerSimpleScenario::ParseUserInput(std::map<std::string, std::st
     {
         m_RenderingTimeInterval = DEFAULT_RENDERING_TIME_INTERVAL;
     }
-    return uRes;
+    return res;
 }
 
 void CBannerSimpleScenario::CreateCameraWindows()
@@ -301,51 +190,55 @@ void CBannerSimpleScenario::CreateCameraWindows()
     }
 }
 
-unsigned int CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::string> args)
+size_t CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::string> args)
 {
-    unsigned int uRes = 0;
-    uRes = ParseUserInput(args);
-    if (0 != uRes)
+    size_t res = 0;
+
+	if (0 != (res = ParseUserInput(args)))
     {
-        return uRes;
+        return res;
     }
 
     CreateCameraWindows();
 
     if (m_isControllerAnimated)
     {
+		double controller1x = 0.002f, controller1y = 0.002f, controller1z = 0.002f;
         m_spActorCollection.push_back(vtkSmartPointer<vtkActorCollection>::New());
-        vtkSmartPointer<vtkCoordinate> spOrbCenterCoordinates = vtkSmartPointer<vtkCoordinate>::New();
-        vtkSmartPointer<vtkCoordinate> spLEDCenterCoordinates = vtkSmartPointer<vtkCoordinate>::New();
-        vtkSmartPointer<vtkCoordinate> spBodyCenterCoordinates = vtkSmartPointer<vtkCoordinate>::New();
-        GetControllerActorsCenters(&spOrbCenterCoordinates, &spLEDCenterCoordinates, &spBodyCenterCoordinates, 0);
-
-        m_spOrb.push_back(std::make_shared<CActorSphere>(spOrbCenterCoordinates, 0.02 / 16, 30, 30));
-        m_spOrb.back()->Create();
-
-        m_spControllerBody.push_back(std::make_shared<CActorCylinder>(spBodyCenterCoordinates, 0.02 / 16, 100 / 5, 0.08 / 12));
-        m_spControllerBody.back()->Create();
-
-        m_spLED.push_back(std::make_shared<CActorSphere>(spLEDCenterCoordinates, 0.01 / 16, 30, 30));
-        m_spLED.back()->Create();
-
-        m_spActorCollection.back()->AddItem(m_spOrb.back().get()->m_spActorSphere = vtkSmartPointer<vtkActor>::New());
-        m_spActorCollection.back()->AddItem(m_spLED.back().get()->m_spActorSphere = vtkSmartPointer<vtkActor>::New());
-        m_spActorCollection.back()->AddItem(m_spControllerBody.back().get()->m_spActorCylinder = vtkSmartPointer<vtkActor>::New());
+		vtkSmartPointer<vtkCoordinate> spControllerCenterCoordinates = vtkSmartPointer<vtkCoordinate>::New();
+		if (m_args.end() != m_args.find("--controller1"))
+		{
+			size_t end = 0;
+			const char * s = m_args.at("--controller1").c_str();
+			controller1x = std::stod(s, &end); // the +1s below skip the user's delimiter
+			s += end + 1;
+			controller1y = std::stod(s, &end);
+			s += end + 1;
+			controller1z = std::stod(s, &end);
+		}
+		std::cout << std::fixed << setw(12) << std::setprecision(8) << "Controller1 initial position:(" << controller1x << "," << controller1y << "," << controller1z << ")" << std::endl;
+		spControllerCenterCoordinates->SetValue(controller1x, controller1y, controller1z);
+		if (0 != (res = HandleControllerFile(spControllerCenterCoordinates, 0/*Controller index in window*/)))
+		{
+			return res;
+		}
     }
 
     if (m_spColorWindow)
     {
         SetupActorsInWindows(m_spColorWindow.get()->m_spRenderer, m_spColorWindow.get()->m_spRenderWindow);
     }
+
     if (m_spDepthWindow)
     {
         SetupActorsInWindows(m_spDepthWindow.get()->m_spRenderer, m_spDepthWindow.get()->m_spRenderWindow);
     }
+
     if (m_spLFisheyeWindow)
     {
         SetupActorsInWindows(m_spLFisheyeWindow.get()->m_spRenderer, m_spLFisheyeWindow.get()->m_spRenderWindow);
     }
+
     if (m_spRFisheyeWindow)
     {
         SetupActorsInWindows(m_spRFisheyeWindow.get()->m_spRenderer, m_spRFisheyeWindow.get()->m_spRenderWindow);
@@ -360,36 +253,10 @@ unsigned int CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::s
 
             for (uint64_t j = 0; j < static_cast<uint64_t>(m_spActorCollection.size()); ++j)
             {
-                vtkSmartPointer<vtkPolyDataMapper> spMapperSphere = vtkSmartPointer<vtkPolyDataMapper>::New();
-                vtkSmartPointer<vtkPolyDataMapper> spMapperLED = vtkSmartPointer<vtkPolyDataMapper>::New();
-                spMapperSphere->SetInputConnection(m_spOrb[j].get()->m_spPolygonSphereSource->GetOutputPort());
-                spMapperLED->SetInputConnection(m_spLED[j].get()->m_spPolygonSphereSource->GetOutputPort());
                 m_spActorCollection[j]->InitTraversal();
-
-                vtkActor* const pActorOrb = m_spActorCollection[j]->GetNextActor();
-                pActorOrb->SetMapper(spMapperSphere);
-                pActorOrb->GetProperty()->SetColor(1, 1, 1);
-                pActorOrb->GetProperty()->SetColor(255, 255, 255);
-                pActorOrb->GetProperty()->LightingOff();
-                pRenderer->AddActor(pActorOrb);
-                pRenderer->Modified();
-
-                vtkActor* const pActorLED = m_spActorCollection[j]->GetNextActor();
-                pActorLED->SetMapper(spMapperLED);
-                pActorLED->GetProperty()->SetColor(1, 0, 0);
-                pActorLED->GetProperty()->LightingOff();
-                if (m_isMarkerOn[j])
-                {
-                    pRenderer->AddActor(pActorLED);
-                    pRenderer->Modified();
-                }
-
-                vtkActor* const pActorCylinder = m_spActorCollection[j]->GetNextActor();
-                vtkSmartPointer<vtkPolyDataMapper> spMapperCylinder = vtkSmartPointer<vtkPolyDataMapper>::New();
-                spMapperCylinder->SetInputConnection(m_spControllerBody[j].get()->m_spCylinderSource->GetOutputPort());
-                pActorCylinder->SetMapper(spMapperCylinder);
-                pActorCylinder->GetProperty()->SetColor(0.0, 1.0, 0.0);
-                pRenderer->AddActor(pActorCylinder);
+                vtkActor* const pControllerActor = m_spActorCollection[j]->GetNextActor();
+				pControllerActor->GetProperty()->LightingOff();
+                pRenderer->AddActor(pControllerActor);
                 pRenderer->Modified();
             }
         }
@@ -410,6 +277,7 @@ unsigned int CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::s
     {
         m_spLFisheyeWindow.get()->m_spRenderWindow->AddObserver(vtkCommand::EndEvent, m_spELFisheyeWindowCallback);
     }
+
     if (m_spRFisheyeWindow)
     {
         m_spRFisheyeWindow.get()->m_spRenderWindow->AddObserver(vtkCommand::EndEvent, m_spERFisheyeWindowCallback);
@@ -421,7 +289,7 @@ unsigned int CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::s
         GenerateInterpolations(m_args["--controlleranimation"].c_str(), &m_spTransformInterpolatorCollection.back());
     }
 
-    return uRes;
+    return res;
 }
 
 void CBannerSimpleScenario::CreateCamerasCallbacks()
@@ -447,10 +315,12 @@ void CBannerSimpleScenario::CreateCamerasCallbacks()
     }
 
     std::vector<vtkSmartPointer<vtkActor>> spIMUOnController;
-    for (auto & i : m_spControllerBody)
+    for (size_t i = 0; i < m_spActorCollection.size(); ++i)
     {
-        spIMUOnController.push_back(i.get()->m_spActorCylinder);
+		m_spActorCollection[i]->InitTraversal();
+        spIMUOnController.push_back(m_spActorCollection[i]->GetNextActor());
     }
+
     std::shared_ptr<StartCallback::CallbackInput> spStartInput = std::make_shared<StartCallback::CallbackInput>(m_spControllerAnimFile, &m_frameIndex, &m_isControllerAnimated, spIMUOnController,
         &(m_spColorWindow.get()->m_spRenderWindow), &(m_spDepthWindow.get()->m_spRenderWindow), &(m_spLFisheyeWindow.get()->m_spRenderWindow), &(m_spRFisheyeWindow.get()->m_spRenderWindow));
     if (m_spSColorWindowCallback)
@@ -459,65 +329,62 @@ void CBannerSimpleScenario::CreateCamerasCallbacks()
     }
 }
 
-void CBannerSimpleScenario::AddControllerInWindow(vtkSmartPointer<vtkCoordinate> spOrbCenterCoordinates, vtkSmartPointer<vtkCoordinate> spLEDCenterCoordinates, vtkSmartPointer<vtkCoordinate> spBodyCenterCoordinates, bool isMarkerOn)
+size_t CBannerSimpleScenario::HandleControllerFile(const vtkSmartPointer<vtkCoordinate>& spOrbCenterCoordinates, uint64_t uIndex)
 {
+	double scale = 0.00008;
+	size_t ret = 0;
+	vtkSmartPointer<vtkSTLReader> spControllerFileReader = vtkSmartPointer<vtkSTLReader>::New();
+	vtkSmartPointer<vtkActor> spControllerActor = vtkSmartPointer<vtkActor>::New();
+	vtkSmartPointer<vtkPolyDataMapper> spControllerMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+	if (m_args.end() == m_args.find("--controllerfile"))
+	{
+		std::cout << "Controller file is missing. Please specify switch --controllerfile <name_of_.stl_file>" << std::endl;
+		ret = 3;
+		return ret;
+	}
+
+	spControllerFileReader->SetFileName(m_args["--controllerfile"].c_str());
+	spControllerFileReader->Update();
+	spControllerMapper->SetInputConnection(spControllerFileReader->GetOutputPort());
+	spControllerActor->SetMapper(spControllerMapper);
+	spControllerActor->SetPosition(spOrbCenterCoordinates->GetValue());
+	if (m_args.end() != m_args.find("--controllerscale"))
+	{
+		scale = stod(m_args.at("--controllerscale"));
+	}
+	spControllerActor->SetScale(scale);
+	if (0 == uIndex)
+	{
+		spControllerActor->GetProperty()->SetColor(1, 0, 0);
+	}
+	m_spActorCollection.back()->AddItem(spControllerActor);
+	return ret;
+}
+
+size_t CBannerSimpleScenario::AddControllerInWindow(vtkSmartPointer<vtkCoordinate> spControllerCenterCoordinates, uint64_t uIndex)
+{
+	size_t ret = 0;
     if (m_isControllerAnimated)
     {
-        m_spActorCollection.push_back(vtkSmartPointer<vtkActorCollection>::New());
-        m_spOrb.push_back(std::make_shared<CActorSphere>(spOrbCenterCoordinates, 0.02 / 16, 30, 30));
-        m_spOrb.back()->Create();
-
-        m_spControllerBody.push_back(std::make_shared<CActorCylinder>(spBodyCenterCoordinates, 0.02 / 16, 100 / 5, 0.08 / 12));
-        m_spControllerBody.back()->Create();
-
-        m_spLED.push_back(std::make_shared<CActorSphere>(spLEDCenterCoordinates, 0.01 / 16, 30, 30));
-        m_spLED.back()->Create();
-
-        m_spActorCollection.back()->AddItem(m_spOrb.back().get()->m_spActorSphere = vtkSmartPointer<vtkActor>::New());
-        m_spActorCollection.back()->AddItem(m_spLED.back().get()->m_spActorSphere = vtkSmartPointer<vtkActor>::New());
-        m_spActorCollection.back()->AddItem(m_spControllerBody.back().get()->m_spActorCylinder = vtkSmartPointer<vtkActor>::New());
-        m_isMarkerOn.push_back(isMarkerOn);
-
+		m_spActorCollection.push_back(vtkSmartPointer<vtkActorCollection>::New());
+		if (0 != (ret = HandleControllerFile(spControllerCenterCoordinates, uIndex)))
+		{
+			return ret;
+		}
         m_spRendererCollection->InitTraversal();
         for (int i = 0; i < m_spRendererCollection->GetNumberOfItems(); ++i)
         {
             const auto&& pRenderer = m_spRendererCollection->GetNextItem();
-
-            for (uint64_t j = 0; j < static_cast<uint64_t>(m_spActorCollection.size()); ++j)
+            for (size_t j = 0; j < m_spActorCollection.size(); ++j)
             {
-                vtkSmartPointer<vtkPolyDataMapper> spMapperSphere = vtkSmartPointer<vtkPolyDataMapper>::New();
-                vtkSmartPointer<vtkPolyDataMapper> spMapperLED = vtkSmartPointer<vtkPolyDataMapper>::New();
-                spMapperSphere->SetInputConnection(m_spOrb.back().get()->m_spPolygonSphereSource->GetOutputPort());
-                spMapperLED->SetInputConnection(m_spLED.back().get()->m_spPolygonSphereSource->GetOutputPort());
                 m_spActorCollection.back()->InitTraversal();
-                vtkActor* const pActorOrb = m_spActorCollection.back()->GetNextActor();
-                pActorOrb->SetMapper(spMapperSphere);
-                pActorOrb->GetProperty()->SetColor(1, 1, 1);
-                pActorOrb->GetProperty()->SetColor(255, 255, 255);
-                pActorOrb->GetProperty()->LightingOff();
-                pRenderer->AddActor(pActorOrb);
-                pRenderer->Modified();
-
-                vtkActor* const pActorLED = m_spActorCollection.back()->GetNextActor();
-                pActorLED->SetMapper(spMapperLED);
-                pActorLED->GetProperty()->SetColor(1, 0, 0);
-                pActorLED->GetProperty()->LightingOff();
-                if (m_isMarkerOn.back())
-                {
-                    pRenderer->AddActor(pActorLED);
-                    pRenderer->Modified();
-                }
-
-                vtkActor* const pActorCylinder = m_spActorCollection.back()->GetNextActor();
-                vtkSmartPointer<vtkPolyDataMapper> spMapperCylinder = vtkSmartPointer<vtkPolyDataMapper>::New();
-                spMapperCylinder->SetInputConnection(m_spControllerBody.back().get()->m_spCylinderSource->GetOutputPort());
-                pActorCylinder->SetMapper(spMapperCylinder);
-                pActorCylinder->GetProperty()->SetColor(0.0, 1.0, 0.0);
-                pRenderer->AddActor(pActorCylinder);
+                vtkActor* const pControllerActor = m_spActorCollection.back()->GetNextActor();
+                pRenderer->AddActor(pControllerActor);
                 pRenderer->Modified();
             }
         }
     }
+	return ret;
 }
 
 void CBannerSimpleScenario::GenerateInterpolations(std::string ControllerAnimationFile, vtkSmartPointer<vtkTransformInterpolator> * const spTransformInterpolator)

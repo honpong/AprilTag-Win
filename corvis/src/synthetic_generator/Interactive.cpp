@@ -8,15 +8,14 @@
 #include <chrono>
 #include "Scenarios.h"
 
-unsigned int CInteractiveScenario::InitializeSetup(std::map<std::string, std::string> args)
+size_t CInteractiveScenario::InitializeSetup(std::map<std::string, std::string> args)
 {
-    unsigned int uRes = 0;
+    size_t res = 0;
 
-    if (0 != LoadCalibrationFile(args))
+    if (0 != (res = LoadCalibrationFile(args)))
     {
-        uRes = 1;
         std::cout << "Loading calibration file failed." << std::endl;
-        return uRes;
+        return res;
     }
 
     for (const auto& i : m_spCapturers)
@@ -30,9 +29,9 @@ unsigned int CInteractiveScenario::InitializeSetup(std::map<std::string, std::st
 
     if (!m_spColorCapturer)
     {
-        uRes = 2;
+        res = 2;
         std::cout << "Interactive mode is to be used with a calibration file with depth/color cameras enabled." << std::endl;
-        return uRes;
+        return res;
     }
 
     m_args = args;
@@ -46,7 +45,7 @@ unsigned int CInteractiveScenario::InitializeSetup(std::map<std::string, std::st
     SetupActorsInWindows(m_spColorWindow->m_spRenderer, m_spColorWindow->m_spRenderWindow);
     m_spCameraPosition = vtkSmartPointer<ModifiedCameraPosition>::New();
     m_spColorWindow->m_spRenderer->GetActiveCamera()->AddObserver(vtkCommand::ModifiedEvent, m_spCameraPosition);
-    return uRes;
+    return res;
 }
 
 void CInteractiveScenario::Execute()

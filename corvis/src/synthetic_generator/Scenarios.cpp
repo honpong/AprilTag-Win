@@ -8,18 +8,19 @@
 #include <chrono>
 #include "Scenarios.h"
 
-uint8_t IVTKScenario::LoadCalibrationFile(std::map<std::string, std::string> args)
+size_t IVTKScenario::LoadCalibrationFile(std::map<std::string, std::string> args)
 {
-    uint8_t uRes = 0;
+    uint8_t res = 0;
+
     if (args.find("--calibrationfile") != args.end())
     {
         m_spProxy = std::make_unique<TrackerProxy>();
-        if (0 != m_spProxy->ReadCalibrationFile(args["--calibrationfile"], &m_szCalibrationContents))
+        if (0 != (res = m_spProxy->ReadCalibrationFile(args["--calibrationfile"], &m_szCalibrationContents)))
         {
-            uRes = 1;
             std::cout << "Reading calibration file failed." << std::endl;
-            return uRes;
+            return res;
         }
+
         for (const auto& i : m_spProxy->getCamerasIntrincs())
         {
             std::shared_ptr<CFakeImgCapturer> spCapturer;
@@ -63,17 +64,17 @@ uint8_t IVTKScenario::LoadCalibrationFile(std::map<std::string, std::string> arg
         if (!m_spColorCapturer)
         {
             std::cout << "No camera seems to have been specified in the specified calibration file." << std::endl;
-            uRes = 2;
-            return uRes;
+            res = 2;
+            return res;
         }
     }
     else
     {
         std::cout << "Please check that the calibration file was specified with --calibrationfile switch and that it was accessible." << std::endl;
-        uRes = 1;
-        return uRes;
+        res = 1;
+        return res;
     }
-    return uRes;
+    return res;
 }
 
 void IVTKScenario::SetupActorsInWindows(vtkRenderer* const &pRenderer, vtkRenderWindow* const & pWindow)

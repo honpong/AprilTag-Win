@@ -41,6 +41,7 @@ struct camera_frame_t;
 enum class edge_type { filter, relocalization, dead_reckoning, original };
 
 struct map_edge {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     edge_type type;
     transformation G;
     map_edge() = default;

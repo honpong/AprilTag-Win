@@ -180,23 +180,25 @@ int state_vision::process_features(mapper *map)
     }
     if(best_group && need_reference) {
         best_group->make_reference();
-        map->reference_node = &map->get_node(best_group->id);
-        auto it = std::find(map->canonical_path.begin(), map->canonical_path.end(), best_group->id);
-        if(it == map->canonical_path.end())
-            map->canonical_path.push_back(best_group->id);
-        else // don't add loops to canonical path
-            map->canonical_path.resize((++it) - map->canonical_path.begin());
+        if(map) {
+            map->reference_node = &map->get_node(best_group->id);
+            auto it = std::find(map->canonical_path.begin(), map->canonical_path.end(), best_group->id);
+            if(it == map->canonical_path.end())
+                map->canonical_path.push_back(best_group->id);
+            else // don't add loops to canonical path
+                map->canonical_path.resize((++it) - map->canonical_path.begin());
 
-        if(reference_group) {
-            type = edge_type::filter;
-            // remove edges between active groups and dropped reference group
-            // we will connect them to the new reference group below
-            for(auto &g : groups.children) {
-                if(g->id != reference_group->id) {
-                    if(g->reused) { // if group reused preserve edges. TODO: preserve only original edges
-                        map->add_edge(reference_group->id, g->id, (*reference_group->Gr) * invert(*g->Gr), type);
-                    } else {
-                        map->remove_edge(reference_group->id, g->id);
+            if(reference_group) {
+                type = edge_type::filter;
+                // remove edges between active groups and dropped reference group
+                // we will connect them to the new reference group below
+                for(auto &g : groups.children) {
+                    if(g->id != reference_group->id) {
+                        if(g->reused) { // if group reused preserve edges. TODO: preserve only original edges
+                            map->add_edge(reference_group->id, g->id, (*reference_group->Gr) * invert(*g->Gr), type);
+                        } else {
+                            map->remove_edge(reference_group->id, g->id);
+                        }
                     }
                 }
             }

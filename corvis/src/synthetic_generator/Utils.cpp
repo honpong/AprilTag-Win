@@ -279,7 +279,7 @@ void CFakeImgCapturer::validateFisheyeDistortion(const std::string& szDirectoryN
     for (uint64_t i = 0; i < CameraIntrinsics.height_px; i++)
     {
         for (uint64_t j = 0; j < CameraIntrinsics.width_px; j++) {
-            if (isnan(xd.at<float>(i, j)) || isnan(yd.at<float>(i, j)))
+            if (std::isnan(xd.at<float>(i, j)) || std::isnan(yd.at<float>(i, j)))
             {
                 mappedImage.at<uchar>(i, j) = fisheyeImage.at<uchar>(i, j);
             }

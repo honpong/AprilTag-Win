@@ -25,11 +25,6 @@ Copyright(c) 2016-2017 Intel Corporation. All Rights Reserved.
 #include "mapper.h"
 #include "bstream.h"
 
-class log_depth;
-struct frame_t;
-struct map_edge;
-struct map_node;
-
 struct map_edge_v1 {
     edge_type type;
     transformation G;

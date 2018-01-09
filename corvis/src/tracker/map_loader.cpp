@@ -39,7 +39,10 @@ static bstream_reader & operator >> (bstream_reader &content, shared_ptr<frame_t
 }
 
 static bstream_reader & operator >> (bstream_reader &content, map_edge_v1 &edge) {
-    return content >> (uint8_t &) edge.type >> edge.G;
+    uint8_t e_type = 0;
+    content >> e_type;
+    edge.type = (edge_type)e_type;
+    return content >> edge.G;
 }
 
 uint64_t map_feature_v1::max_loaded_featid = 0;
@@ -64,9 +67,7 @@ static bstream_reader &  operator >> (bstream_reader &content, map_node_v1 &node
         node.frame = make_shared<frame_t>();
         content >> node.frame;
     }
-//    content >> node.covisibility_edges;
-
-    return  content >> node.features;
+    return content >> node.covisibility_edges >> node.features;
 }
 
 /// assign/transfer values to map_node and also clear container elements in map_node_v1,

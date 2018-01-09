@@ -925,8 +925,7 @@ static bstream_writer & operator << (bstream_writer &content, const map_node &no
     content << node.id << node.camera_id << node.edges << node.global_transformation;
     content << (uint8_t)(node.frame != nullptr);
     if (node.frame) content << node.frame;
-//    content << covisibility_edges;
-    return content << node.features;
+    return content << node.covisibility_edges << node.features;
 }
 
 static const char magic_file_format_num[5] = { 'R', 'C', 'M', '\0' }; //R C Map File

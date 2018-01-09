@@ -41,7 +41,7 @@ public:
     template <template <class, class, class...> class TMap, class Key, class T, class... TArgs>
     bstream_writer& operator << (const TMap<Key, T, TArgs...> &c) {
         *this << (uint64_t)c.size();
-        for (auto itr = c.begin(); itr != c.end(); itr++) { *this << itr->first; *this << itr->second; }
+        for (const auto &ele : c) *this << ele;
         return *this;
     }
 
@@ -104,6 +104,8 @@ private:
         for (auto itr = from_itr; itr != to_itr; itr++) { *this << *itr; }
         return *this;
     }
+    template <class Key, class T>
+    bstream_writer& operator << (const std::pair<Key, T> &ele) { return *this << ele.first << ele.second; }
     bstream_writer() = delete;
 };
 
@@ -132,11 +134,7 @@ public:
         if (!is_good) return *this;
         uint64_t c_size = 0;
         read(c_size);
-        for (size_t i = 0; i < c_size; i++) {
-            std::pair<Key, T> ele;
-            *this >> ele.first >> ele.second;
-            c.insert(std::move(ele));
-        }
+        for (size_t i = 0; i < c_size; i++) { c.insert(std::move(read_ele<typename TMap<Key, T, TArgs...>::value_type, Key, T>())); }
         return *this;
     }
 
@@ -194,6 +192,21 @@ private:
         for (auto itr = c.begin(); is_good && itr != c.end(); itr++) { *this >> *itr; }
         return *this;
     }
+
+    template <typename E, class Key, class T, typename std::enable_if<!std::is_fundamental<E>::value, int>::type = 0>
+    E read_ele() {
+        std::pair<Key, T> ele;
+        *this >> ele.first >> ele.second;
+        return ele;
+    }
+
+    template <typename E, typename..., typename std::enable_if<std::is_fundamental<E>::value, int>::type = 0>
+    E read_ele() {
+        E ele;
+        *this >> ele;
+        return ele;
+    }
+
     bstream_reader() = delete;
 };
 

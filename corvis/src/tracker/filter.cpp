@@ -983,7 +983,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     filter_update_triangulated_tracks(f, data.id);
 
-    filter_bring_groups_back(f, data.id);
+    if(!f->s.groups.children.empty()) // we only bring a group back if the graph is connected
+        filter_bring_groups_back(f, data.id);
 
     space = filter_available_feature_space(f, camera_state);
     if(space >= f->min_group_add && camera_state.standby_tracks.size() >= f->min_group_add)

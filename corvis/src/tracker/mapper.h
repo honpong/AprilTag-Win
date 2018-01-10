@@ -104,12 +104,12 @@ class mapper {
     struct node_path {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         node_path(){}
-        node_path(nodeid id_, transformation G_, f_t distance_) : id(id_), G(G_), distance(distance_) {}
+        node_path(nodeid id_, const transformation &G_, f_t distance_) : id(id_), G(G_), distance(distance_) {}
         nodeid id;
         transformation G;
         f_t distance; // metric used in dijkstra to find shortest path
     };
-    typedef std::vector<node_path> nodes_path;
+    typedef aligned_vector<node_path> nodes_path;
 
  private:
     /** Auxiliary class to represent data shared among threads and protected

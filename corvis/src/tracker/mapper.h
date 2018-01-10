@@ -102,6 +102,7 @@ class mapper {
     typedef std::pair<uint64_t, uint64_t> match;
     typedef std::vector<match> matches;
     struct node_path {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         node_path(){}
         node_path(nodeid id_, transformation G_, f_t distance_) : id(id_), G(G_), distance(distance_) {}
         nodeid id;

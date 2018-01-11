@@ -53,6 +53,7 @@ class map_loader {
 public:
     virtual bool deserialize(bstream_reader &cur_stream) = 0;
     virtual void set(mapper &cur_map) = 0;
+    virtual ~map_loader() {}
 };
 
 /// loading data into mapper data structures version v1.

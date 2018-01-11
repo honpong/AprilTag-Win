@@ -84,6 +84,7 @@ void assign<map_node_v1>(map_node &node, map_node_v1 &loaded_node) {
     node.global_transformation = loaded_node.global_transformation;
     node.camera_id = loaded_node.camera_id;
     node.frame = loaded_node.frame;
+    node.covisibility_edges = loaded_node.covisibility_edges;
     node.features.clear();
     for (auto &feat : loaded_node.features) {
         node.features.emplace(piecewise_construct, forward_as_tuple(feat.first),

@@ -53,6 +53,16 @@ pipeline {
                 sh 'build/generate_loop_gt benchmark_data/new_test_suite/'
             }
         }
+        stage('Check options') {
+            steps {
+                sh 'build/measure --benchmark benchmark_data/minimal_test_suite/'
+                sh 'build/measure --disable-map --benchmark benchmark_data/minimal_test_suite/'
+                sh 'build/measure --no-fast-path --benchmark benchmark_data/minimal_test_suite/'
+                sh 'build/measure --async --benchmark benchmark_data/minimal_test_suite/'
+                sh 'build/measure --no-gui --relocalize --save-map test.map benchmark_data/new_test_suite/WW50/VR_with_ctrl/Building/VR_RM_with_ctrl_yossi_3.stereo.rc'
+                sh 'build/measure --relocalize --load-map test.map --benchmark benchmark_data/minimal_test_suite/'
+            }
+        }
         stage('Run benchmark') {
             steps {
                 sh 'build/measure --qvga --relocalize --benchmark benchmark_data/new_test_suite/  --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'

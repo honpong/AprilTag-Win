@@ -116,6 +116,13 @@ private:
     bstream_writer() = delete;
 };
 
+
+template <typename T>
+struct is_std_pair : std::false_type { };
+
+template <typename Key, typename T>
+struct is_std_pair<std::pair<Key, T>> : std::true_type { };
+
 /**
 takes a stream of char[] representation and populates values for given data structures.
 */
@@ -204,14 +211,14 @@ private:
         return *this;
     }
 
-    template <typename E, class Key, class T, typename std::enable_if<!std::is_fundamental<E>::value, int>::type = 0>
+    template <typename E, class Key, class T, typename std::enable_if<is_std_pair<E>::value, int>::type = 0>
     E read_ele() {
         std::pair<Key, T> ele;
         *this >> ele.first >> ele.second;
         return ele;
     }
 
-    template <typename E, typename..., typename std::enable_if<std::is_fundamental<E>::value, int>::type = 0>
+    template <typename E, typename..., typename std::enable_if<!is_std_pair<E>::value, int>::type = 0>
     E read_ele() {
         E ele;
         *this >> ele;

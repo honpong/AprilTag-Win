@@ -37,9 +37,8 @@ pipeline {
         stage('Build slam_client') {
             steps {
                 sh '''#!/bin/bash
-                    source ./corvis/src/movidius/mvenv
-                    cd ./corvis/src/movidius/device
-                    make -j
+                    source  corvis/src/movidius/mvenv
+                    make -C corvis/src/movidius/device -j
                 '''
             }
         }

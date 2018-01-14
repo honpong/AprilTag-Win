@@ -482,13 +482,13 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
             std::unordered_map<size_t, std::pair<size_t, int>> matches;  // candidate -> current, distance
             for (auto current_point_idx : current_keypoint_indexes) {
                 size_t best_candidate_point_idx = 0;
-                int best_distance = std::numeric_limits<int>::max();
-                int second_best_distance = std::numeric_limits<int>::max();
+                auto best_distance = std::numeric_limits<float>::max();
+                auto second_best_distance = std::numeric_limits<float>::max();
                 auto& current_keypoint = *current_frame->keypoints[current_point_idx];
                 for (auto candidate_point_idx : candidate_keypoint_indexes) {
                     auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
-                    int dist = current_keypoint.descriptor.distance_reloc(candidate_keypoint.descriptor,
-                                                        current_keypoint.descriptor);
+                    float dist = current_keypoint.descriptor.distance_reloc(candidate_keypoint.descriptor,
+                                                                            current_keypoint.descriptor);
                     if (dist < best_distance) {
                         second_best_distance = best_distance;
                         best_distance = dist;

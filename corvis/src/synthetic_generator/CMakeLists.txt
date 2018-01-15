@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.5)
 
 project(synthetic_generator)
 
-find_package(VTK 7.1.1 QUIET)
-if (NOT VTK_FOUND)
-    message(STATUS "VTK not found; disabling ${PROJECT_NAME}")
+find_package(VTK QUIET)
+if (NOT VTK_FOUND OR VTK_MAJOR_VERSION LESS 7)
+    message(STATUS "VTK not found or version is too low; disabling ${PROJECT_NAME}")
     return()
 endif()
 find_package(OpenCV REQUIRED COMPONENTS

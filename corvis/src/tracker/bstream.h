@@ -68,13 +68,12 @@ public:
         return *this;
     }
 
-    /// generate an end stream callback (e.g. writing a zero length buffer).
+    /// flush writing and generate an end stream callback (e.g. writing a zero length buffer).
+    /// Note: required call to complete the current writing in multi-sessions writing
     void end_stream() {
+        flush_stream();
         if (out_func) {
-            if (offset > 0)
-                out_func(handle, buffer.get(), offset);
             out_func(handle, buffer.get(), 0); //signal end of data
-            offset = 0;
             out_func = nullptr;
         }
     }
@@ -83,7 +82,8 @@ public:
         end_stream();
     }
 
-    bool good() { return is_good; }
+    void set_failed() { is_good = false; }
+    bool good() { flush_stream(); return is_good; }
 
     uint64_t total_io_bytes{ 0 }; /// total bytes read or written, for debugging
 private:
@@ -92,6 +92,13 @@ private:
     void *handle{ nullptr };
     std::unique_ptr<char[]> buffer{ new char[STREAM_BUFFER_SIZE] };
     size_t offset{ 0 }, max_offset{ 0 }; //streaming offset from the start of buffer
+
+    void flush_stream() {
+        if (out_func && offset > 0) {
+            out_func(handle, buffer.get(), offset);
+            offset = 0;
+        }
+    }
 
     template<typename T>
     bstream_writer& write(const T& data) { return write((const char *)&data, sizeof(T)); }
@@ -134,7 +141,8 @@ public:
         if (!is_good) return *this;
         uint64_t c_size = 0;
         read(c_size);
-        for (size_t i = 0; i < c_size; i++) { c.insert(std::move(read_ele<typename TMap<Key, T, TArgs...>::value_type, Key, T>())); }
+        for (size_t i = 0; is_good && i < c_size; i++)
+            c.insert(read_ele<typename TMap<Key, T, TArgs...>::value_type, Key, T>());
         return *this;
     }
 
@@ -167,6 +175,9 @@ public:
         }
         return *this;
     }
+
+    /// set failure status to stop loading as appropriate.
+    void set_failed() { is_good = false; }
 
     bool good() { return is_good; }
 

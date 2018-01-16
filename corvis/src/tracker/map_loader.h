@@ -33,7 +33,9 @@ struct map_edge_v1 {
 struct map_feature_v1 {
     std::shared_ptr<log_depth> v;
     std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
+    // loading implementation specific data
     static uint64_t max_loaded_featid;
+    static std::map<uint64_t, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>>> lookup_features;// look up feature data based on id.
 };
 
 template<typename map_feature_v, typename map_edge_v, typename frame_v>
@@ -46,6 +48,7 @@ public:
     uint64_t camera_id;
     std::shared_ptr<frame_v> frame;
     std::map<uint64_t, map_feature_v> features;
+    typedef map_feature_v feature_type;
 };
 
 /// interface for loading a map file
@@ -63,7 +66,6 @@ public:
     mapper_t() {};
     typedef uint64_t nodeid;
     std::unordered_map<nodeid, map_node_v<map_feature_v, TArgs...>> nodes;
-    friend struct map_node;
     std::map<uint64_t, std::vector<nodeid>> dbow_inverted_index;
     std::map<uint64_t, nodeid> features_dbow;
     virtual void set(mapper &cur_map) override {
@@ -75,12 +77,17 @@ public:
     virtual bool deserialize(bstream_reader &cur_stream) override {
         map_feature_v::max_loaded_featid = 0;
         cur_stream >> nodes >> dbow_inverted_index >> features_dbow;
-        return cur_stream.good();
+        return cur_stream.good() && validate_map_compatible(nodes);
     }
 };
 
 template<typename map_node_v>
 static inline void assign(map_node &node, map_node_v &loaded_node);
+
+/// validate the assumption that shared_ptr of map_node.features are the same as in map_node.frame->keypoints.
+/// so map_node.features only need to serialize feature id.
+template <class TMap>
+extern inline bool validate_map_compatible(const TMap &nodes);
 
 /// get a class instance of map_load corresponding to specified version.
 map_loader *get_map_load(uint8_t version);

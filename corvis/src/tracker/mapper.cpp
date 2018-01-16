@@ -905,12 +905,13 @@ static bstream_writer &operator << (bstream_writer &content, const map_edge &edg
 
 static bstream_writer & operator << (bstream_writer& content, const std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> &feat) {
     content << feat->id << feat->descriptor.orb.sin_ << feat->descriptor.orb.cos_;
-    return content << (std::array<uint8_t, orb_descriptor::L> &)feat->descriptor.orb.descriptor;
+    content << (std::array<uint8_t, orb_descriptor::L> &)feat->descriptor.orb.descriptor;
+    return content << (std::array<uint8_t, patch_descriptor::L> &)feat->descriptor.patch.descriptor;
 }
 
 static bstream_writer & operator << (bstream_writer &content, const map_feature &feat) {
-    content << feat.v->initial[0] << feat.v->initial[1] << feat.v->v;
-    return content << feat.feature->id << (std::array<uint8_t, patch_descriptor::L> &)feat.feature->descriptor.patch.descriptor;
+    content << feat.v->initial[0] << feat.v->initial[1] << feat.v->v << feat.feature->id;// skip saving patch descriptor as generated data
+    return content;
 }
 
 static bstream_writer & operator << (bstream_writer &content, const std::shared_ptr<frame_t> &frame) {
@@ -927,11 +928,16 @@ static bstream_writer & operator << (bstream_writer &content, const map_node &no
 static const char magic_file_format_num[5] = { 'R', 'C', 'M', '\0' }; //R C Map File
 
 bool mapper::serialize(rc_SaveCallback func, void *handle) const {
+    if (!validate_map_compatible(*nodes)) {
+        log->error("map is not compatible for saving.");
+        return false;
+    }
     bstream_writer cur_stream(func, handle);
     cur_stream.write(magic_file_format_num, sizeof(magic_file_format_num));
     cur_stream << (uint8_t)MAPPER_SERIALIZED_VERSION;
     cur_stream << *nodes << dbow_inverted_index << *features_dbow;
     cur_stream.end_stream();
+    if (!cur_stream.good()) log->error("map was not saved successfully.");
     return cur_stream.good();
 }
 
@@ -952,7 +958,7 @@ bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
         return false;
     }
     if (!loaded_map->deserialize(cur_stream)) {
-        cur_map.log->error("failed to load map file.");
+        cur_map.log->error("failed to load map content.");
         return false;
     }
     loaded_map->set(cur_map);

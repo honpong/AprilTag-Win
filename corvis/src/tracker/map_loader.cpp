@@ -23,10 +23,17 @@ static bstream_reader & operator >> (bstream_reader& content, shared_ptr<fast_tr
     uint64_t id = 0;
     float sin_ = 0, cos_ = 0;
     content >> id >> sin_ >> cos_;
-    orb_descriptor::raw des;
-    content >> (array<uint8_t, orb_descriptor::L> &)des;
-    orb_descriptor loaded_des(des, cos_, sin_);
-    feat = make_shared<fast_tracker::fast_feature<DESCRIPTOR>>(id, orb_descriptor(loaded_des));
+    orb_descriptor::raw orb_des;
+    if (sizeof(orb_descriptor::raw) != sizeof(array < uint8_t, orb_descriptor::L>)) {
+        content.set_failed();
+        return content;
+    }
+    content >> (array<uint8_t, orb_descriptor::L> &)orb_des;
+    feat = make_shared<fast_tracker::fast_feature<DESCRIPTOR>>(id, orb_descriptor(orb_des, cos_, sin_));
+    feat->descriptor.orb_computed = true;
+    array<uint8_t, patch_descriptor::L> patch_raw;
+    content >> patch_raw;
+    feat->descriptor.patch = patch_descriptor(patch_raw);
     return content;
 }
 
@@ -46,15 +53,15 @@ static bstream_reader & operator >> (bstream_reader &content, map_edge_v1 &edge)
 }
 
 uint64_t map_feature_v1::max_loaded_featid = 0;
+map<uint64_t, shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>>> map_feature_v1::lookup_features;// look up feature data based on id.
 
 static bstream_reader & operator >> (bstream_reader &content, map_feature_v1 &feat) {
     feat.v = make_shared<log_depth>();
-    content >> feat.v->initial[0] >> feat.v->initial[1] >> feat.v->v;
     uint64_t id = 0;
-    array<uint8_t, patch_descriptor::L> raw_desc;
-    content >> id >> raw_desc;
+    content >> feat.v->initial[0] >> feat.v->initial[1] >> feat.v->v >> id;
+    auto found_itr = map_feature_v1::lookup_features.find(id);
+    feat.feature = (found_itr != map_feature_v1::lookup_features.end()) ? found_itr->second : nullptr;
     if (map_feature_v1::max_loaded_featid < id)  map_feature_v1::max_loaded_featid = id;
-    feat.feature = make_shared<fast_tracker::fast_feature<DESCRIPTOR>>(id, patch_descriptor(raw_desc));
     return content;
 }
 
@@ -66,6 +73,9 @@ static bstream_reader &  operator >> (bstream_reader &content, map_node_v1 &node
     if (has_frame) {
         node.frame = make_shared<frame_t>();
         content >> node.frame;
+        map_node_v1::feature_type::lookup_features.clear();
+        for (auto &kp : node.frame->keypoints) // must be called prior to loading features
+            if (kp) map_node_v1::feature_type::lookup_features.insert(pair<uint64_t, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>>>(kp->id, kp));
     }
     return content >> node.covisibility_edges >> node.features;
 }
@@ -93,6 +103,32 @@ void assign<map_node_v1>(map_node &node, map_node_v1 &loaded_node) {
     loaded_node.features.clear();
 }
 
+template <class TMap>
+bool validate_map_compatible(const TMap &nodes)
+{
+    bool is_found = true, correct_values = true;
+    for (auto node_entry = nodes.begin(); correct_values && node_entry != nodes.end(); node_entry++) {
+        for (auto feat_entry = node_entry->second.features.begin();
+            correct_values && feat_entry != node_entry->second.features.end(); feat_entry++) {
+            is_found = false;
+            if (node_entry->second.frame) {
+                for (auto &kp : node_entry->second.frame->keypoints) {
+                    if (kp->id == feat_entry->second.feature->id) {
+                        is_found = true;
+                        if (kp.get() != feat_entry->second.feature.get())
+                            correct_values = false;
+                        break;
+                    }
+                }
+            }
+            if (!is_found) correct_values = false;
+        }
+    }
+    return (is_found && correct_values);
+}
+
+template bool validate_map_compatible(const unordered_map<mapper::nodeid, map_node_v1> &);
+template bool validate_map_compatible(const unordered_map<mapper::nodeid, map_node> &);
 
 map_loader *get_map_load(uint8_t version) {
     switch (version) {

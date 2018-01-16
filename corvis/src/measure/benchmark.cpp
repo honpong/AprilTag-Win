@@ -186,6 +186,8 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
                 recall_reloc.push_back(r.errors.relocalization.recall*100);
             else
                 recall_anomalies++;
+            stream << "\t               Correct/Detected\t" << r.errors.relocalization.true_positives << "/" << r.errors.relocalization.true_positives + r.errors.relocalization.false_positives << "\n";
+            stream << "\t               Missed\t" << r.errors.relocalization.false_negatives << "\n";
             if (!std::isnan(r.errors.reloc_rpe_T.rmse)) {
                 stream << "\t               Translational RPE\t" << r.errors.reloc_rpe_T.rmse << "m\n";
                 reloc_rpe_T_errors_m.push_back(r.errors.reloc_rpe_T.rmse);

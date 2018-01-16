@@ -209,7 +209,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     std::vector<double> rpe_T_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
     std::vector<double> rpe_R_edges = {0, 0.05, 0.1, 0.5, 1, 5};
     std::vector<double> precision_edges = {0, 60, 80, 95, 99, 100};
-    std::vector<double> recall_edges = {0, 2, 5, 10, 20, 50};
+    std::vector<double> recall_edges = {0, 0.05, 0.1, 0.2, 1, 5};
     std::vector<double> reloc_rpe_T_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
     std::vector<double> reloc_rpe_R_edges = {0, 0.05, 0.1, 0.5, 1, 5};
     std::vector<double> reloc_times_edges = {0, 1, 2, 3, 5, 10};

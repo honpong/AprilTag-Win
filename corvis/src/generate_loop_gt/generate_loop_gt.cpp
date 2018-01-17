@@ -598,7 +598,7 @@ bool configuration::read(int argc, char *argv[]) {
             cache_index = true;
         } else if (strcmp(argv[i], "--save-associations") == 0) {
             save_associations = true;
-        } else {
+        } else if (argv[i][0] != '-' && capture_file.empty()) {
             capture_file = argv[i];
         }
     }

@@ -3,9 +3,11 @@ add_executable(generate_loop_gt
   image_reader.cpp
   image_reader.h
   symmetric_matrix.h
+  ../measure/for_each_file.cpp
 )
 set_property(TARGET generate_loop_gt PROPERTY CXX_STANDARD 14)
 target_link_libraries(generate_loop_gt trackeri)
+target_include_directories(generate_loop_gt PRIVATE ../measure)
 
 find_package(TBB QUIET)
 if (TARGET tbb)

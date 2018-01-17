@@ -15,6 +15,7 @@
 #include "calibration.h"
 #include "rc_compat.h"
 #include "DBoW2/endianness.h"
+#include "for_each_file.h"
 
 #ifdef HAVE_TBB
 #include <tbb/parallel_for_each.h>
@@ -105,6 +106,17 @@ int main(int argc, char *argv[]) {
     gt_generator generator;
     if (!generator.configure(config)) return 1;
 
+    if (config.capture_file.back() == '/') {
+        for_each_file(config.capture_file.c_str(), [&](const char *file_) {
+            std::string file(file_);
+            if (generator.load_data(file, false)) {
+                generator.run();
+                generator.save(file);
+            }
+
+        });
+        return 0;
+    }
     std::cout << "Loading dataset..." << std::endl;
     if (!generator.load_data(config.capture_file, true)) return 1;
 

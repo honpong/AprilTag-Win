@@ -87,7 +87,7 @@ static inline void assign(map_node &node, map_node_v &loaded_node);
 /// validate the assumption that shared_ptr of map_node.features are the same as in map_node.frame->keypoints.
 /// so map_node.features only need to serialize feature id.
 template <class TMap>
-extern inline bool validate_map_compatible(const TMap &nodes);
+extern bool validate_map_compatible(const TMap &nodes);
 
 /// get a class instance of map_load corresponding to specified version.
 map_loader *get_map_load(uint8_t version);

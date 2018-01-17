@@ -620,12 +620,5 @@ bool configuration::read(int argc, char *argv[]) {
 
 bool gt_generator::configure(configuration config) {
     config_ = config;
-
-    std::ofstream file(config.output_file);
-    if (!file.is_open()) {
-        std::cout << "Could not open output file " << config.output_file
-                  << std::endl;
-        return false;
-    }
     return true;
 }

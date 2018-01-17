@@ -50,7 +50,7 @@ class gt_generator {
     bool configure(configuration config);
     bool load_data(const std::string &capture_file, bool verbose);
     void run();
-    void save(const std::string &capture_file) const;
+    bool save(const std::string &capture_file) const;
 
  private:
     struct frustum {
@@ -107,23 +107,22 @@ int main(int argc, char *argv[]) {
     if (!generator.configure(config)) return 1;
 
     if (config.capture_file.back() == '/') {
+        bool ok = true;
         for_each_file(config.capture_file.c_str(), [&](const char *file_) {
             std::string file(file_);
             if (generator.load_data(file, false)) {
                 generator.run();
-                generator.save(file);
+                ok &= generator.save(file);
             }
-
         });
-        return 0;
+        return ok ? 0 : 1;
     }
     std::cout << "Loading dataset..." << std::endl;
     if (!generator.load_data(config.capture_file, true)) return 1;
 
     std::cout << "Generating loop groundtruth..." << std::endl;
     generator.run();
-    generator.save(config.capture_file);
-    return 0;
+    return generator.save(config.capture_file) ? 0 : 1;
 }
 
 bool gt_generator::load_data(const std::string &capture_file, bool verbose) {
@@ -526,7 +525,7 @@ void gt_generator::get_connected_components(const SymmetricMatrix<bool>& associa
     }
 }
 
-void gt_generator::save(const std::string &capture_file) const {
+bool gt_generator::save(const std::string &capture_file) const {
     using save_function = std::function<void(std::ofstream&, rc_Timestamp, rc_Timestamp, size_t)>;
     save_function save_ascii = [](std::ofstream& file, rc_Timestamp cur_t, rc_Timestamp prev_t, size_t label) {
         // format: newer_timestamp older_timestamp group_id
@@ -545,6 +544,10 @@ void gt_generator::save(const std::string &capture_file) const {
     auto mode = (config_.format == configuration::binary ?
                      std::ios::out | std::ios::binary : std::ios::out);
     std::ofstream file(capture_file + ".loop", mode);
+    if (!file) {
+        std::cerr << "error: unable to write to " << (capture_file + ".loop") << std::endl;
+        return false;
+    }
     for (int col = 1; col < labels_.cols(); ++col) {
         const auto& cur = interpolated_poses_[col];
         for (int row = 0; row < col; ++row) {
@@ -560,6 +563,10 @@ void gt_generator::save(const std::string &capture_file) const {
 
     if (config_.save_associations) {
         std::ofstream file(capture_file + ".mat");
+        if (!file) {
+            std::cerr << "error: unable to write to " << (capture_file + ".mat") << std::endl;
+            return false;
+        }
         for (int row = 0; row < labels_.rows(); ++row) {
             for (int col = 0; col < labels_.cols(); ++col) {
                 file << labels_.get(row, col) << " ";
@@ -567,6 +574,7 @@ void gt_generator::save(const std::string &capture_file) const {
             file << "\n";
         }
     }
+    return true;
 }
 
 bool configuration::read(int argc, char *argv[]) {

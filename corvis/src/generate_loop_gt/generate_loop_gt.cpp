@@ -23,13 +23,13 @@
 
 static void show_usage(char *argv0) {
     std::cout << argv0 <<
-                 " capture_file "
+                 " <capture_file> "
                  "[--fov 80] "
                  "[--format binary | ascii] "
                  "[--cache-image-index] "
                  "[--save-associations] "
                  "\n"
-                 "fov of camera in degrees.\n"
+                 "fov:               field of view of camera in degrees.\n"
                  "cache-image-index: save cache of image timestamps.\n"
                  "save-associations: create a file to display associations in matlab.\n";
 }

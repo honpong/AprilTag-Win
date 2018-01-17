@@ -600,6 +600,8 @@ bool configuration::read(int argc, char *argv[]) {
             save_associations = true;
         } else if (argv[i][0] != '-' && capture_file.empty()) {
             capture_file = argv[i];
+        } else {
+            return false;
         }
     }
 

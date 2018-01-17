@@ -45,7 +45,7 @@ struct map_edge {
     edge_type type;
     transformation G;
     map_edge() = default;
-    map_edge(edge_type type_, transformation G_) : type(type_), G(G_) {};
+    map_edge(edge_type type_, const transformation &G_) : type(type_), G(G_) {};
 };
 
 enum class feature_type { tracked, triangulated };

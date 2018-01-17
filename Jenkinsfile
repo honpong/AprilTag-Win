@@ -48,6 +48,11 @@ pipeline {
                 sh 'rsync -a --chmod=ug+w                              $JENKINS_HOME/benchmark_data/ $(realpath .)/benchmark_data/ --include "*.json" --include "*.loop" --include "*/"'
             }
         }
+        stage('Generate Ground Truth') {
+            steps {
+                sh 'build/generate_loop_gt benchmark_data/new_test_suite/'
+            }
+        }
         stage('Run benchmark') {
             steps {
                 sh 'build/measure --qvga --benchmark benchmark_data/new_test_suite/               --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'

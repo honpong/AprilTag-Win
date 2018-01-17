@@ -610,8 +610,9 @@ bool configuration::read(int argc, char *argv[]) {
         if (desired_format == "ascii") format = configuration::ascii;
         output_file = (desired_output.empty() ? capture_file + ".loop" :
                                                 desired_output);
-        associations_file = (desired_output.empty() ? capture_file + ".mat" :
-                                                      desired_output + ".mat");
+        if (save_associations)
+            associations_file = (desired_output.empty() ? capture_file + ".mat" :
+                                                          desired_output + ".mat");
         return true;
     } else {
         return false;

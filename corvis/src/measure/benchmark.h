@@ -61,11 +61,15 @@ struct benchmark_result {
         } ate, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R;
 
         struct matching_statistics {
+            int true_positives = 0, false_positives = 0, false_negatives = 0;
             f_t precision = 0, recall = 0;
 
-            void compute_pr(int tp, int fp, int fn) {
-                precision =  !(tp + fp) ? std::numeric_limits<float>::quiet_NaN() : static_cast<float>(tp) / (tp + fp);
-                recall = !(tp + fn) ? std::numeric_limits<float>::quiet_NaN() : static_cast<float>(tp) / (tp + fn);
+            bool compute_pr() {
+                precision =  !(true_positives + false_positives) ? std::numeric_limits<f_t>::quiet_NaN() :
+                                                                   static_cast<float>(true_positives) / (true_positives + false_positives);
+                recall = !(true_positives + false_negatives) ? std::numeric_limits<f_t>::quiet_NaN() :
+                                                               static_cast<float>(true_positives) / (true_positives + false_negatives);
+                return true_positives + false_positives + false_negatives != 0;
             }
 
             template <typename Stream>
@@ -82,8 +86,6 @@ struct benchmark_result {
         v3 T_ref_mean = v3::Zero();
         v3 T_error_mean = v3::Zero();
         int nposes = 0;
-        int true_positives = 0, true_negatives = 0, false_positives = 0, false_negatives = 0;
-        bool there_is_reloc_info = false;
 
         // RPE variables
         aligned_vector<v3> T_current_all, T_ref_all;
@@ -133,8 +135,7 @@ struct benchmark_result {
         }
 
         bool calculate_precision_recall(){
-            if (there_is_reloc_info) {
-                relocalization.compute_pr(true_positives,false_positives,false_negatives);
+            if (relocalization.compute_pr()) {
                 if (!std::isnan(relocalization.precision) && !std::isnan(relocalization.recall)) {
                     reloc_rpe_T.compute(distances_reloc);
                     reloc_rpe_R.compute(angles_reloc);
@@ -201,10 +202,9 @@ struct benchmark_result {
                 fp = num_reloc_edges - tp;
             }
 
-            true_positives += tp;
-            false_positives += fp;
-            false_negatives += ref_mapnode_edges.size() - tp;
-            there_is_reloc_info = true;
+            relocalization.true_positives += tp;
+            relocalization.false_positives += fp;
+            relocalization.false_negatives += ref_mapnode_edges.size() - tp;
 
             return true;
         }

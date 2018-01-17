@@ -117,9 +117,9 @@ TEST(Bstream, Stream_Std_containers)
     unordered_map<int64_t, basic_type> save_uo_map, load_uo_map;
     set<unique_basic> save_set, load_set;
     unordered_set<unique_basic> save_uo_set, load_uo_set;
-    for (int i = 0; i < num_ele; i++) {
-        save_map.insert(make_pair(i, basic_type(seed++)));
-        save_uo_map.insert(make_pair(i, basic_type(seed++)));
+    for (uint64_t i = 0; i < num_ele; i++) {
+        save_map.emplace(i, basic_type(seed++));
+        save_uo_map.emplace(i, basic_type(seed++));
         save_set.insert(unique_basic(seed++));
         save_uo_set.insert(unique_basic(seed++));
     }

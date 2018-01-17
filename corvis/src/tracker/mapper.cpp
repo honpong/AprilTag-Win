@@ -722,11 +722,11 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                 reloc_info.is_relocalized = true;
                 is_relocalized_in_candidate = true;
                 if(inliers_set.size() > best_num_inliers) {
-                    transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
+                    //transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
                     ok = nodes.critical_section([&]() {
                         if (nodes->find(nid.first) != nodes->end() && nodes->find(camera_frame.closest_node) != nodes->end()) {
-                            add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, edge_type::relocalization);
-                            add_covisibility_edge_no_lock(nid.first, camera_frame.closest_node);
+                            //add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, edge_type::relocalization);
+                            //add_covisibility_edge_no_lock(nid.first, camera_frame.closest_node);
                             return true;
                         }
                         return false;

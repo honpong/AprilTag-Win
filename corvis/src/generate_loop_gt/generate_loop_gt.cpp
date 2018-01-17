@@ -24,7 +24,6 @@ static void show_usage(char *argv0) {
     std::cout << argv0 <<
                  " capture_file "
                  "[--fov 80] "
-                 "[--output capture_file.loop] "
                  "[--format binary | ascii] "
                  "[--cache-image-index] "
                  "[--save-associations] "
@@ -36,8 +35,7 @@ static void show_usage(char *argv0) {
 
 struct configuration {
     std::string capture_file;
-    std::string output_file;
-    std::string associations_file;
+    bool save_associations;
     double fov_rad;
     enum { binary, ascii } format;
     bool cache_index;  // save cache file for image timestamps
@@ -534,7 +532,7 @@ void gt_generator::save() const {
 
     auto mode = (config_.format == configuration::binary ?
                      std::ios::out | std::ios::binary : std::ios::out);
-    std::ofstream file(config_.output_file, mode);
+    std::ofstream file(config_.capture_file + ".loop", mode);
     for (int col = 1; col < labels_.cols(); ++col) {
         const auto& cur = interpolated_poses_[col];
         for (int row = 0; row < col; ++row) {
@@ -548,8 +546,8 @@ void gt_generator::save() const {
         }
     }
 
-    if (!config_.associations_file.empty()) {
-        std::ofstream file(config_.associations_file);
+    if (config_.save_associations) {
+        std::ofstream file(config_.capture_file + ".mat");
         for (int row = 0; row < labels_.rows(); ++row) {
             for (int col = 0; col < labels_.cols(); ++col) {
                 file << labels_.get(row, col) << " ";
@@ -579,8 +577,8 @@ bool configuration::read(int argc, char *argv[]) {
     };
 
     double fov_deg = 80;  // default
-    std::string desired_output, desired_format;
-    bool save_associations = false;
+    std::string desired_format;
+    save_associations = false;
     capture_file.clear();
     format = configuration::binary;
     cache_index = false;
@@ -589,8 +587,6 @@ bool configuration::read(int argc, char *argv[]) {
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--fov") == 0) {
             if (!parse_double(++i, fov_deg)) return false;
-        } else if (strcmp(argv[i], "--output") == 0) {
-            if (!parse_string(++i, desired_output)) return false;
         } else if (strcmp(argv[i], "--format") == 0) {
             if (!parse_string(++i, desired_format)) return false;
             if (desired_format != "binary" && desired_format != "ascii") return false;
@@ -608,11 +604,6 @@ bool configuration::read(int argc, char *argv[]) {
     if (!capture_file.empty()) {
         fov_rad = fov_deg * M_PI / 180;
         if (desired_format == "ascii") format = configuration::ascii;
-        output_file = (desired_output.empty() ? capture_file + ".loop" :
-                                                desired_output);
-        if (save_associations)
-            associations_file = (desired_output.empty() ? capture_file + ".mat" :
-                                                          desired_output + ".mat");
         return true;
     } else {
         return false;

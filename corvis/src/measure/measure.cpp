@@ -167,6 +167,8 @@ int main(int c, char **v)
             std::cout << res.errors.reloc_rpe_T << "\n";
             std::cout << "\t rotation RPE [deg]:\n";
             std::cout << res.errors.reloc_rpe_R*(180.f/M_PI) << "\n";
+            std::cout << "\t time between relocalizations [sec]:\n";
+            std::cout << res.errors.reloc_time_sec << "\n";
         }
 
         if(rc_getConfidence(rp.tracker) >= rc_E_CONFIDENCE_MEDIUM && calibrate) {

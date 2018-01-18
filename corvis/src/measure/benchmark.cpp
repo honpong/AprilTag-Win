@@ -116,7 +116,8 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
         first++;
     }
 
-    std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m, rpe_T_errors_m, rpe_R_errors_deg, reloc_rpe_T_errors_m, reloc_rpe_R_errors_deg, precision_reloc, recall_reloc;
+    std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m, rpe_T_errors_m, rpe_R_errors_deg,
+            reloc_rpe_T_errors_m, reloc_rpe_R_errors_deg, precision_reloc, recall_reloc, reloc_times_sec;
     uint32_t precision_anomalies = 0, recall_anomalies = 0;
     bool has_reloc = false;
 
@@ -193,6 +194,10 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
                 stream << "\t               Rotational RPE\t" << r.errors.reloc_rpe_R.rmse*(180.f/M_PI) << "deg\n";
                 reloc_rpe_R_errors_deg.push_back(r.errors.reloc_rpe_R.rmse*(180.f/M_PI));
             }
+            if (!std::isnan(r.errors.reloc_time_sec.rmse)) {
+                stream << "\t               Time between relocalizations\t" << r.errors.reloc_time_sec.rmse << "sec\n";
+                reloc_times_sec.push_back(r.errors.reloc_time_sec.rmse);
+            }
         }
     }
 
@@ -205,6 +210,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     std::vector<double> recall_edges = {0, 2, 5, 10, 20, 50};
     std::vector<double> reloc_rpe_T_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
     std::vector<double> reloc_rpe_R_edges = {0, 0.05, 0.1, 0.5, 1, 5};
+    std::vector<double> reloc_times_edges = {0, 1, 2, 3, 5, 10};
     typedef histogram<double, false, true> error_histogram;
     typedef histogram<double, true, false> error_histogram_pr;
 
@@ -252,6 +258,10 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
         stream << "Relocalization RPE (Rotation) histogram (" << reloc_rpe_R_errors_deg.size() << " sequences)\n";
         error_histogram reloc_rpe_R_hist(reloc_rpe_R_errors_deg, reloc_rpe_R_edges, 2, "deg");
         stream << reloc_rpe_R_hist << "\n";
+
+        stream << "Time between relocalizations (" << reloc_times_sec.size() << " sequences)\n";
+        error_histogram reloc_time_hist(reloc_times_sec, reloc_times_edges, 2, "sec");
+        stream << reloc_time_hist << "\n";
     }
 
     struct stat { size_t n; double sum, mean, median; } pe_le50 = {0, 0, 0, 0};

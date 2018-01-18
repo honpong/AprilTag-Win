@@ -58,7 +58,7 @@ struct benchmark_result {
                 e.max = error.max * scale;
                 return e;
             }
-        } ate, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R;
+        } ate, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R, reloc_time_sec;
 
         struct matching_statistics {
             int true_positives = 0, false_positives = 0, false_negatives = 0;
@@ -77,6 +77,11 @@ struct benchmark_result {
                 return stream << "\t precision "  << error.precision*100 << " recall "  << error.recall*100;
             }
         } relocalization;
+
+        struct relocalization_time_statistics {
+            uint64_t last_reloc_us = 0;
+            aligned_vector<f_t> elapsed_times_sec;
+        } relocalization_time;
 
         // ATE variables
         m3 W = m3::Zero();
@@ -143,6 +148,7 @@ struct benchmark_result {
                     reloc_rpe_T = reloc_rpe_T*std::numeric_limits<float>::quiet_NaN();
                     reloc_rpe_R = reloc_rpe_R*std::numeric_limits<float>::quiet_NaN();
                 }
+                reloc_time_sec.compute(relocalization_time.elapsed_times_sec);
                 return true;
             } else {
                 return false;
@@ -205,6 +211,12 @@ struct benchmark_result {
             relocalization.true_positives += tp;
             relocalization.false_positives += fp;
             relocalization.false_negatives += ref_mapnode_edges.size() - tp;
+
+            if (num_reloc_edges > 0) {
+                if (relocalization_time.last_reloc_us)
+                    relocalization_time.elapsed_times_sec.emplace_back((current_frame_timestamp - relocalization_time.last_reloc_us) * 1e-6);
+                relocalization_time.last_reloc_us = current_frame_timestamp;
+            }
 
             return true;
         }

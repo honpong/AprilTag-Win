@@ -74,7 +74,7 @@ static const auto & get_3dw_points() {
         default_random_engine gen(300);
         uniform_real_distribution<float> xy_range(-3.0f, 3.0f), z_range(0.f, 4.0f);
         uniform_int_distribution<int> pixel_range(0, 255);
-        array<uint8_t, orb_block_w * orb_block_w> orb_block = { 0 };
+        array<uint8_t, orb_block_w * orb_block_w> orb_block = {{ 0 }};
         tracker::image img = { &orb_block[0], orb_block_w, orb_block_w, orb_block_w };
         for (int p = 0; p < NUM_WORLD_POINTS; p++) {
             for (auto &val : orb_block) val = (uint8_t)(pixel_range(gen));

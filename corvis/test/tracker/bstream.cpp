@@ -109,7 +109,7 @@ TEST(Bstream, Stream_Std_containers)
     const int num_ele = 10;
     int seed = 0;
     // populate test data
-    array<basic_type, num_ele> save_array = { basic_type(seed+=2) }, load_array = { basic_type(seed+1) };
+    array<basic_type, num_ele> save_array = {{ basic_type(seed+=2) }}, load_array = {{ basic_type(seed+1) }};
     vector<basic_type> save_vector(num_ele, basic_type(seed+=2)), load_vector(num_ele, basic_type(seed+1));
     deque<basic_type> save_deque(num_ele, basic_type(seed+=2)), load_deque(num_ele, basic_type(seed+1));
     list<basic_type> save_list(num_ele, basic_type(seed+=2)), load_list(num_ele, basic_type(seed+1));

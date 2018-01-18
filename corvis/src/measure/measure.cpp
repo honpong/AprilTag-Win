@@ -38,7 +38,7 @@ int main(int c, char **v)
         return 1;
     }
 
-    bool realtime = false, start_paused = false, benchmark = false, benchmark_relocation = false, calibrate = false, zero_bias = false, fast_path = true, async = false, progress = false;
+    bool realtime = false, start_paused = false, benchmark = false, calibrate = false, zero_bias = false, fast_path = true, async = false, progress = false;
     const char *save = nullptr, *load = nullptr;
     std::string save_map, load_map;
     bool qvga = false, depth = true; int qres = 0;
@@ -135,7 +135,7 @@ int main(int c, char **v)
 
         if(zero_bias) rp.zero_biases();
 
-        benchmark_relocation = relocalize && rp.set_reloc_reference_from_filename(capture_file);
+        rp.set_reloc_reference_from_filename(capture_file);
 
         if(!rp.set_reference_from_filename(capture_file) && benchmark) {
             cerr << capture_file << ": unable to find a reference to measure against\n";
@@ -177,13 +177,14 @@ int main(int c, char **v)
             std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
-    auto data_callback = [&enable_gui, &incremental_ate, &benchmark_relocation, &render_output, &fast_path, &threads]
+    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &fast_path, &threads]
         (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data, std::ostream *pose_st) {
         rc_RelocEdge* reloc_edges = nullptr;
         rc_Timestamp reloc_source;
         rc_MapNode* map_nodes = nullptr;
         int num_mapnodes = 0, num_reloc_edges = 0;
-        if (benchmark_relocation) {
+        const bool benchmark_relocalization = !rp.get_reference_edges().empty();
+        if (benchmark_relocalization) {
             num_mapnodes = rc_getMapNodes(tracker, &map_nodes);
             num_reloc_edges = rc_getRelocalizationEdges(tracker, &reloc_source, &reloc_edges);
         }
@@ -213,7 +214,7 @@ int main(int c, char **v)
             }
             if(res.errors.distances.size())
                 ws.observe_rpe(data->time_us, res.errors.distances.back());
-            if (benchmark_relocation) {
+            if (benchmark_relocalization) {
                 res.errors.add_edges(reloc_source,
                                      num_reloc_edges,
                                      num_mapnodes,

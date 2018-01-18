@@ -103,13 +103,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    gt_generator generator;
-    if (!generator.configure(config)) return 1;
-
     if (config.capture_file.back() == '/') {
         bool ok = true;
         for_each_file(config.capture_file.c_str(), [&](const char *file_) {
             std::string file(file_);
+            gt_generator generator;
+            generator.configure(config);
             if (generator.load_data(file, false)) {
                 generator.run();
                 ok &= generator.save(file);
@@ -117,6 +116,9 @@ int main(int argc, char *argv[]) {
         });
         return ok ? 0 : 1;
     }
+    gt_generator generator;
+    generator.configure(config);
+
     std::cout << "Loading dataset..." << std::endl;
     if (!generator.load_data(config.capture_file, true)) return 1;
 

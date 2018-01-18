@@ -27,9 +27,9 @@ bool image_reader::create_index(std::function<void(float)> callback) {
     while (!file_.bad() && !file_.eof()) {
         if (header.type == packet_image_raw || header.type == packet_stereo_raw) {
             auto header_pos = file_.tellg() - std::ifstream::pos_type(header_size);
-            sensor_data image;
-            if (read_image(header, image)) {
-                index_[sensor_clock::tp_to_micros(image.timestamp)] = header_pos;
+            uint64_t image_timestamp;
+            if (read_image_timestamp(header, image_timestamp)) {
+                index_[image_timestamp] = header_pos;
             } else {
                 break;
             }
@@ -75,6 +75,22 @@ bool image_reader::read_image(const packet_header_t& header, sensor_data& image)
                                 ip->exposure_time_us, ip->width, ip->height, ip->stride,
                                 rc_FORMAT_GRAY8, ip->data, std::move(phandle));
         }
+        return true;
+    }
+    return false;
+}
+
+bool image_reader::read_image_timestamp(const packet_header_t& header,
+                                        uint64_t& image_timestamp_us) {
+    static_assert(offsetof(packet_image_raw_t, exposure_time_us) == sizeof(packet_header_t),
+                  "Offset of packet_image_raw_t::exposure_time_us is not as expected");
+    static_assert(offsetof(packet_stereo_raw_t, exposure_time_us) == sizeof(packet_header_t),
+                  "Offset of packet_stereo_raw_t::exposure_time_us is not as expected");
+    uint64_t exposure_time_us;
+    file_.read((char *)&exposure_time_us, sizeof(exposure_time_us));
+    file_.seekg(header.bytes - 16 - sizeof(exposure_time_us), std::ios::cur);
+    if (!file_.bad() && !file_.eof()) {
+        image_timestamp_us = header.time + exposure_time_us / 2; // as sensor_data
         return true;
     }
     return false;

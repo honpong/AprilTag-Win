@@ -23,6 +23,7 @@ class image_reader {
     }
  private:
     bool read_image(const packet_header_t& header, sensor_data& image);
+    bool read_image_timestamp(const packet_header_t& header, uint64_t& image_timestamp_us);
     std::ifstream file_;
     std::unordered_map<rc_Timestamp, std::ifstream::pos_type> index_;
 };

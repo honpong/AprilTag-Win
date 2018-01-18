@@ -44,19 +44,19 @@ public:
     template <typename T, std::size_t N>
     bstream_writer& operator << (const std::array<T, N> &c) { return write_array((const char*)c.data(), N * sizeof(T)); }
 
-    template <template <class, class, class...> class TMap, class Key, class T, class... TArgs>
-    bstream_writer& operator << (const TMap<Key, T, TArgs...> &c) {
+    template <template <class, class, class, class...> class TMap, class Key, class T, class Comp, class... TArgs>
+    bstream_writer& operator << (const TMap<Key, T, Comp, TArgs...> &c) {
         *this << (uint64_t)c.size();
         if (!save_sorted)
             for (const auto &ele : c) *this << ele;
         else { // sort iterators before saving
-            typedef typename TMap<Key, T, TArgs...>::const_iterator cont_itr;
+            typedef typename TMap<Key, T, Comp, TArgs...>::const_iterator cont_itr;
             std::vector<cont_itr> sorted_ele;
             uint32_t idx = 0;
             for (auto itr = c.begin(); itr != c.end(); itr++, idx++) sorted_ele.push_back(itr);
             std::sort(sorted_ele.begin(), sorted_ele.end(), [](const cont_itr &e1, const cont_itr &e2)->bool {
-                return (get_key<typename TMap<Key, T, TArgs...>::value_type, Key>(*e1) <
-                    get_key<typename TMap<Key, T, TArgs...>::value_type, Key>(*e2)); });
+                return (get_key<typename TMap<Key, T, Comp, TArgs...>::value_type, Key>(*e1) <
+                        get_key<typename TMap<Key, T, Comp, TArgs...>::value_type, Key>(*e2)); });
             for (const auto &ele : sorted_ele) *this << *ele;
         }
         return *this;
@@ -161,13 +161,13 @@ public:
     template <typename T, std::size_t N>
     bstream_reader& operator >> (std::array<T, N> &c) { return read_array((char*)c.data(), N * sizeof(T)); }
 
-    template <template <class, class, class...> class TMap, class Key, class T, class... TArgs>
-    bstream_reader& operator >> (TMap<Key, T, TArgs...> &c) {
+    template <template <class, class, class, class...> class TMap, class Key, class T, class Comp, class... TArgs>
+    bstream_reader& operator >> (TMap<Key, T, Comp, TArgs...> &c) {
         if (!is_good) return *this;
         uint64_t c_size = 0;
         read(c_size);
         for (size_t i = 0; is_good && i < c_size; i++)
-            c.insert(read_ele<typename TMap<Key, T, TArgs...>::value_type, Key, T>());
+            c.insert(read_ele<typename TMap<Key, T, Comp, TArgs...>::value_type, Key, T>());
         return *this;
     }
 

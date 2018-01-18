@@ -152,7 +152,7 @@ class mapper {
         M mutex_;
     };
 
- private:
+ protected:
     // Note about concurrency:
     // The concurrent functions are:
     // relocalize: (read-access) in background thread,

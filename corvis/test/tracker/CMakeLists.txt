@@ -12,14 +12,16 @@ add_executable(spec
   calibration_json.cpp
   tpose.cpp
   dictionary.cpp
-  #mapper.cpp
+  mapper.cpp
   fast_tracker.cpp
   sensor_fusion_queue.cpp
   $<$<BOOL:${ENABLE_QR}>:
      homography.cpp
   >
+  bstream.cpp
 )
 target_link_libraries(spec util gtest gtest_main trackeri)
+
 add_test(NAME spec COMMAND spec)
 
 add_executable(spec_intel

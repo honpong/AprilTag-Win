@@ -25,7 +25,7 @@ bool image_reader::create_index(std::function<void(float)> callback) {
     if (file_.bad() || file_.eof()) return false;
 
     while (!file_.bad() && !file_.eof()) {
-        if (header.type == packet_image_raw) {
+        if (header.type == packet_image_raw || header.type == packet_stereo_raw) {
             auto header_pos = file_.tellg() - std::ifstream::pos_type(header_size);
             sensor_data image;
             if (read_image(header, image)) {
@@ -64,10 +64,17 @@ bool image_reader::read_image(const packet_header_t& header, sensor_data& image)
     file_.read((char *)(packet)->data, header.bytes - 16);
     if (!file_.bad() && !file_.eof()) {
         packet->header = header;
-        packet_image_raw_t *ip = (packet_image_raw_t *)packet;
-        image = sensor_data(ip->header.time, rc_SENSOR_TYPE_IMAGE, ip->header.sensor_id,
-                            ip->exposure_time_us, ip->width, ip->height, ip->stride,
-                            rc_FORMAT_GRAY8, ip->data, std::move(phandle));
+        if (header.type == packet_stereo_raw) {
+            auto *ip = (packet_stereo_raw_t *)packet;
+            image = sensor_data(ip->header.time, rc_SENSOR_TYPE_IMAGE, ip->header.sensor_id,
+                                ip->exposure_time_us, ip->width, ip->height, ip->stride1,
+                                rc_FORMAT_GRAY8, ip->data, std::move(phandle));
+        } else {
+            auto *ip = (packet_image_raw_t *)packet;
+            image = sensor_data(ip->header.time, rc_SENSOR_TYPE_IMAGE, ip->header.sensor_id,
+                                ip->exposure_time_us, ip->width, ip->height, ip->stride,
+                                rc_FORMAT_GRAY8, ip->data, std::move(phandle));
+        }
         return true;
     }
     return false;

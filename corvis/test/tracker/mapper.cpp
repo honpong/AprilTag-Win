@@ -101,14 +101,20 @@ static auto observable(const feature_t &pix, const state_vision_intrinsics &intr
 
 class mapper_check {
 public:
-    template <typename T, typename std::enable_if<is_floating_point<T>::value, int>::type = 0>
+    template <typename T, typename enable_if<is_floating_point<T>::value, int>::type = 0>
     static void expect_eq(const T   &obj1, const T &obj2) {
         EXPECT_FLOAT_EQ(             obj1,         obj2);
     }
 
-    template <typename T, typename std::enable_if<is_fundamental<T>::value && !is_floating_point<T>::value, int>::type = 0>
+    template <typename T, typename enable_if<is_fundamental<T>::value && !is_floating_point<T>::value, int>::type = 0>
     static void expect_eq(const T   &obj1, const T &obj2) {
         EXPECT_EQ(                   obj1,          obj2);
+    }
+
+    template<typename Key, typename T>
+    static void expect_eq(const pair<Key, T>    &entry1, const pair<Key, T> &entry2) {
+        EXPECT_EQ(                               entry1.first,               entry2.first);
+        expect_eq(                               entry1.second,              entry2.second);
     }
 
     static void expect_eq(const v2 &entry1, const v2    &entry2) {
@@ -174,23 +180,24 @@ public:
         return expect_eq<vector, T, Alloc>(          obj1,                           obj2);
     }
 
-    template <class... TArgs>
-    static void expect_eq(const map<TArgs...>   &obj1, const map<TArgs...>  &obj2) {
-        expect_eq(                               obj1,                       obj2,
-                                        [](auto   &p1, auto                   &p2) {
-                                        EXPECT_EQ( p1.first,                   p2.first);
-                                        expect_eq( p1.second,                  p2.second);
-        });
+    template <template <class...> class TContainer, class E, class...TArgs, typename std::enable_if<!is_std_pair<E>::value, int>::type = 0>
+    static auto find(const TContainer<TArgs...> &obj, const E    &entry) {
+        return obj.find(entry);
     }
 
-    template <class... TArgs>
-    static void expect_eq(const unordered_map<TArgs...> &obj1, const unordered_map<TArgs...> &obj2) {
-        expect_eq(                                       obj1,                                obj2,
-                                        [&](auto          &p1, auto                            &p2) {
-                                            auto           p1_itr2 = obj2.find(p1.first);
-                                            EXPECT_NE(     p1_itr2,                           obj2.end());
-                                            if (p1_itr2 != obj2.end())
-                                                expect_eq( p1.second,                      p1_itr2->second);
+    template <template <class...> class TContainer, class E, class...TArgs, typename std::enable_if<is_std_pair<E>::value, int>::type = 0>
+    static auto find(const TContainer<TArgs...> &obj, const E    &entry) {
+        return obj.find(entry.first);
+    }
+
+    template <template <class, class, class...> class TContainer, class Key, class T, class... TArgs>
+    static void expect_eq(const TContainer<Key, T, TArgs...>   &obj1, const TContainer<Key, T, TArgs...>  &obj2) {
+        expect_eq(                                              obj1,                                obj2,
+                                               [&](auto          &p1, auto                            &p2) {
+                                                   auto           p1_itr2 = find(obj2, p1);
+                                                   EXPECT_NE(     p1_itr2,                           obj2.end());
+                                                   if (           p1_itr2 !=                         obj2.end())
+                                                       expect_eq( p1,                            *p1_itr2);
         });
     }
 
@@ -212,13 +219,13 @@ public:
         expect_eq(                      e1.dbow_direct_file,     e2.dbow_direct_file);
     }
 
-    static void expect_eq(const map_node &e1, const map_node         &e2) {
+    static void expect_eq(const map_node &e1, const map_node        &e2) {
         EXPECT_EQ(                        e1.id,                      e2.id);
         expect_eq(                        e1.edges,                   e2.edges);
-        //expect_eq(                        e1.covisibility_edges,     e2.covisibility_edges);
+        expect_eq(                        e1.covisibility_edges,      e2.covisibility_edges);
         EXPECT_TRUE(                      e1.global_transformation == e2.global_transformation);
         EXPECT_EQ(                        e1.camera_id,               e2.camera_id);
-        //EXPECT_EQ(                       e1.status,                  e2.status); //loaded status is finished
+        //EXPECT_EQ(                        e1.status,                 e2.status); //loaded status is finished
         EXPECT_EQ(                        e1.frame != nullptr,        e2.frame != nullptr);
         if                               (e1.frame != nullptr &&      e2.frame != nullptr)
             expect_eq(                   *e1.frame,                  *e2.frame);
@@ -484,8 +491,8 @@ TEST(Mapper, Deserialize_Corrupted_Stream)
             EXPECT_FALSE(deserialize_map_content(corrupted, fail_deserialized));
         }
     }
-    catch (std::bad_alloc& ba)
+    catch (bad_alloc& ba)
     {
-        std::cerr << "bad_alloc caught during loading corrupted map" << ba.what() << '\n';
+        cerr << "bad_alloc caught during loading corrupted map" << ba.what() << '\n';
     }
 }

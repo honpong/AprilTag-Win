@@ -15,6 +15,7 @@
 #include "calibration.h"
 #include "rc_compat.h"
 #include "DBoW2/endianness.h"
+#include "for_each_file.h"
 
 #ifdef HAVE_TBB
 #include <tbb/parallel_for_each.h>
@@ -22,22 +23,20 @@
 
 static void show_usage(char *argv0) {
     std::cout << argv0 <<
-                 " capture_file "
+                 " <capture_file> "
                  "[--fov 80] "
-                 "[--output capture_file.loop] "
                  "[--format binary | ascii] "
                  "[--cache-image-index] "
                  "[--save-associations] "
                  "\n"
-                 "fov of camera in degrees.\n"
+                 "fov:               field of view of camera in degrees.\n"
                  "cache-image-index: save cache of image timestamps.\n"
                  "save-associations: create a file to display associations in matlab.\n";
 }
 
 struct configuration {
     std::string capture_file;
-    std::string output_file;
-    std::string associations_file;
+    bool save_associations;
     double fov_rad;
     enum { binary, ascii } format;
     bool cache_index;  // save cache file for image timestamps
@@ -49,9 +48,9 @@ struct configuration {
 class gt_generator {
  public:
     bool configure(configuration config);
-    bool load_data();
+    bool load_data(const std::string &capture_file, bool verbose);
     void run();
-    void save() const;
+    bool save(const std::string &capture_file) const;
 
  private:
     struct frustum {
@@ -104,29 +103,41 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    if (config.capture_file.back() == '/') {
+        bool ok = true;
+        for_each_file(config.capture_file.c_str(), [&](const char *file_) {
+            std::string file(file_);
+            gt_generator generator;
+            generator.configure(config);
+            if (generator.load_data(file, false)) {
+                generator.run();
+                ok &= generator.save(file);
+            }
+        });
+        return ok ? 0 : 1;
+    }
     gt_generator generator;
-    if (!generator.configure(config)) return 1;
+    generator.configure(config);
 
     std::cout << "Loading dataset..." << std::endl;
-    if (!generator.load_data()) return 1;
+    if (!generator.load_data(config.capture_file, true)) return 1;
 
     std::cout << "Generating loop groundtruth..." << std::endl;
     generator.run();
-    generator.save();
+    return generator.save(config.capture_file) ? 0 : 1;
 }
 
-bool gt_generator::load_data() {
-    if (!load_calibration(config_.capture_file)) {
-        std::cout << "No calibration file found" << std::endl;
+bool gt_generator::load_data(const std::string &capture_file, bool verbose) {
+    if (!load_calibration(capture_file)) {
+        if (verbose) std::cout << "No calibration file found for " << capture_file << std::endl;
         return false;
     }
-    if (!load_reference_gt(config_.capture_file)) {
-        std::cout << "No reference groundtruth file found" << std::endl;
+    if (!load_reference_gt(capture_file)) {
+        if (verbose) std::cout << "No reference groundtruth file found for " << capture_file << std::endl;
         return false;
     }
-    if (!load_image_timestamps(config_.capture_file)) {
-        std::cout << "Error reading the capture file " << config_.capture_file
-                  << std::endl;
+    if (!load_image_timestamps(capture_file)) {
+        if (verbose) std::cout << "Error reading the capture file " << capture_file << std::endl;
         return false;
     }
     return true;
@@ -516,7 +527,7 @@ void gt_generator::get_connected_components(const SymmetricMatrix<bool>& associa
     }
 }
 
-void gt_generator::save() const {
+bool gt_generator::save(const std::string &capture_file) const {
     using save_function = std::function<void(std::ofstream&, rc_Timestamp, rc_Timestamp, size_t)>;
     save_function save_ascii = [](std::ofstream& file, rc_Timestamp cur_t, rc_Timestamp prev_t, size_t label) {
         // format: newer_timestamp older_timestamp group_id
@@ -534,7 +545,11 @@ void gt_generator::save() const {
 
     auto mode = (config_.format == configuration::binary ?
                      std::ios::out | std::ios::binary : std::ios::out);
-    std::ofstream file(config_.output_file, mode);
+    std::ofstream file(capture_file + ".loop", mode);
+    if (!file) {
+        std::cerr << "error: unable to write to " << (capture_file + ".loop") << std::endl;
+        return false;
+    }
     for (int col = 1; col < labels_.cols(); ++col) {
         const auto& cur = interpolated_poses_[col];
         for (int row = 0; row < col; ++row) {
@@ -548,8 +563,12 @@ void gt_generator::save() const {
         }
     }
 
-    if (!config_.associations_file.empty()) {
-        std::ofstream file(config_.associations_file);
+    if (config_.save_associations) {
+        std::ofstream file(capture_file + ".mat");
+        if (!file) {
+            std::cerr << "error: unable to write to " << (capture_file + ".mat") << std::endl;
+            return false;
+        }
         for (int row = 0; row < labels_.rows(); ++row) {
             for (int col = 0; col < labels_.cols(); ++col) {
                 file << labels_.get(row, col) << " ";
@@ -557,6 +576,7 @@ void gt_generator::save() const {
             file << "\n";
         }
     }
+    return true;
 }
 
 bool configuration::read(int argc, char *argv[]) {
@@ -579,8 +599,8 @@ bool configuration::read(int argc, char *argv[]) {
     };
 
     double fov_deg = 80;  // default
-    std::string desired_output, desired_format;
-    bool save_associations = false;
+    std::string desired_format;
+    save_associations = false;
     capture_file.clear();
     format = configuration::binary;
     cache_index = false;
@@ -589,8 +609,6 @@ bool configuration::read(int argc, char *argv[]) {
     for (int i = 1; i < argc; ++i) {
         if (strcmp(argv[i], "--fov") == 0) {
             if (!parse_double(++i, fov_deg)) return false;
-        } else if (strcmp(argv[i], "--output") == 0) {
-            if (!parse_string(++i, desired_output)) return false;
         } else if (strcmp(argv[i], "--format") == 0) {
             if (!parse_string(++i, desired_format)) return false;
             if (desired_format != "binary" && desired_format != "ascii") return false;
@@ -598,18 +616,16 @@ bool configuration::read(int argc, char *argv[]) {
             cache_index = true;
         } else if (strcmp(argv[i], "--save-associations") == 0) {
             save_associations = true;
-        } else {
+        } else if (argv[i][0] != '-' && capture_file.empty()) {
             capture_file = argv[i];
+        } else {
+            return false;
         }
     }
 
     if (!capture_file.empty()) {
         fov_rad = fov_deg * M_PI / 180;
         if (desired_format == "ascii") format = configuration::ascii;
-        output_file = (desired_output.empty() ? capture_file + ".loop" :
-                                                desired_output);
-        associations_file = (desired_output.empty() ? capture_file + ".mat" :
-                                                      desired_output + ".mat");
         return true;
     } else {
         return false;
@@ -618,12 +634,5 @@ bool configuration::read(int argc, char *argv[]) {
 
 bool gt_generator::configure(configuration config) {
     config_ = config;
-
-    std::ofstream file(config.output_file);
-    if (!file.is_open()) {
-        std::cout << "Could not open output file " << config.output_file
-                  << std::endl;
-        return false;
-    }
     return true;
 }

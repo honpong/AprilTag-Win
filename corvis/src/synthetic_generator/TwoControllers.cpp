@@ -18,7 +18,7 @@ size_t CBannerTwoControllersScenario::InitializeSetup(std::map<std::string, std:
     size_t res = 0;
     m_args = args;
 
-	res = m_spBannerMainScenario->InitializeSetup(m_args);
+    res = m_spBannerMainScenario->InitializeSetup(m_args);
     if (0 != res)
     {
         return res;
@@ -26,20 +26,20 @@ size_t CBannerTwoControllersScenario::InitializeSetup(std::map<std::string, std:
 
     if (m_spBannerMainScenario->isControllerAnimated())
     {
-		double controller2x = 0.002f, controller2y = 0.009f, controller2z = 0.028f;
+        double controller2x = 0.002f, controller2y = 0.009f, controller2z = 0.028f;
         vtkSmartPointer<vtkCoordinate> spControllerCenterCoordinates = vtkSmartPointer<vtkCoordinate>::New();
-		if (m_args.end() != m_args.find("--controller2"))
-		{
-			size_t end = 0;
-			const char * s = m_args.at("--controller2").c_str();
-			controller2x = std::stod(s, &end); // the +1s below skip the user's delimiter
-			s += end + 1;
-			controller2y = std::stod(s, &end);
-			s += end + 1;
-			controller2z = std::stod(s, &end);
-		}
-		std::cout << std::fixed << setw(12) << std::setprecision(8) << "Controller2 initial position:(" << controller2x << "," << controller2y << "," << controller2z << ")" << std::endl;
-		spControllerCenterCoordinates->SetValue(controller2x, controller2y, controller2z);
+        if (m_args.end() != m_args.find("--controller2"))
+        {
+            size_t end = 0;
+            const char * s = m_args.at("--controller2").c_str();
+            controller2x = std::stod(s, &end); // the +1s below skip the user's delimiter
+            s += end + 1;
+            controller2y = std::stod(s, &end);
+            s += end + 1;
+            controller2z = std::stod(s, &end);
+        }
+        std::cout << std::fixed << setw(12) << std::setprecision(8) << "Controller2 initial position:(" << controller2x << "," << controller2y << "," << controller2z << ")" << std::endl;
+        spControllerCenterCoordinates->SetValue(controller2x, controller2y, controller2z);
         m_spBannerMainScenario->AddControllerInWindow(spControllerCenterCoordinates,1/*Controller index in window*/);
     }
     return res;

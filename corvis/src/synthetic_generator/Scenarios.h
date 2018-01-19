@@ -81,7 +81,7 @@ public:
 protected:
     friend TimerWindowCallback;
     void HandleDirectoryCreation();
-	size_t HandleControllerFile(const vtkSmartPointer<vtkCoordinate>& spOrbCenterCoordinates, uint64_t uIndex);
+    size_t HandleControllerFile(const vtkSmartPointer<vtkCoordinate>& spOrbCenterCoordinates, uint64_t uIndex);
 
     enum
     {

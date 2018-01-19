@@ -52,12 +52,11 @@ static bstream_reader & operator >> (bstream_reader &content, map_edge_v1 &edge)
     return content >> edge.G;
 }
 
-uint64_t map_feature_v1::max_loaded_featid = 0;
-
 static bstream_reader & operator >> (bstream_reader &content, map_feature_v1 &feat) {
     feat.v = make_shared<log_depth>();
     content >> feat.v->initial[0] >> feat.v->initial[1] >> feat.v->v >> feat.feature;
-    map_feature_v1::max_loaded_featid = std::max(feat.feature->id, map_feature_v1::max_loaded_featid);
+    auto map_reader = static_cast<map_stream_reader *>(&content); // should be dynamic_cast
+    map_reader->max_loaded_featid = std::max(feat.feature->id, map_reader->max_loaded_featid);
     return content;
 }
 

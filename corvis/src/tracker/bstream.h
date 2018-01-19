@@ -206,6 +206,7 @@ public:
 
     bool good() { return is_good; }
 
+    virtual ~bstream_reader() {};
 private:
     const rc_LoadCallback in_func{ nullptr };
     bool is_good{ true };

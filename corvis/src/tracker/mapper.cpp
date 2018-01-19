@@ -941,7 +941,7 @@ bool mapper::serialize(rc_SaveCallback func, void *handle) const {
 }
 
 bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
-    bstream_reader cur_stream(func, handle);
+    map_stream_reader cur_stream(func, handle);
 
     char format_num[sizeof(magic_file_format_num)] = {};
     cur_stream.read(format_num, sizeof(format_num));
@@ -972,7 +972,7 @@ bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
     }
     cur_map.unlinked = true;
     cur_map.node_id_offset = max_node_id + 1;
-    cur_map.feature_id_offset = map_feature_v1::max_loaded_featid + 1;
+    cur_map.feature_id_offset = cur_stream.max_loaded_featid + 1;
     cur_map.log->info("Loaded map with {} nodes and {} features", cur_map.node_id_offset, cur_map.feature_id_offset);
     return true;
 }

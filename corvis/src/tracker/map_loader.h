@@ -33,8 +33,6 @@ struct map_edge_v1 {
 struct map_feature_v1 {
     std::shared_ptr<log_depth> v;
     std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
-    // loading implementation specific data
-    static uint64_t max_loaded_featid;
 };
 
 template<typename map_feature_v, typename map_edge_v, typename frame_v>
@@ -47,13 +45,19 @@ public:
     uint64_t camera_id;
     std::shared_ptr<frame_v> frame;
     std::map<uint64_t, map_feature_v> features;
-    typedef map_feature_v feature_type;
+};
+
+class map_stream_reader : public bstream_reader {
+public:
+    map_stream_reader(const rc_LoadCallback func_, void *handle_) : bstream_reader(func_, handle_) {};
+    uint64_t max_loaded_featid{ 0 };
+    map_stream_reader() = delete;
 };
 
 /// interface for loading a map file
 class map_loader {
 public:
-    virtual bool deserialize(bstream_reader &cur_stream) = 0;
+    virtual bool deserialize(map_stream_reader &cur_stream) = 0;
     virtual void set(mapper &cur_map) = 0;
     virtual ~map_loader() {}
 };
@@ -73,8 +77,8 @@ public:
         cur_map.dbow_inverted_index = move(dbow_inverted_index);
         *(cur_map.features_dbow) = move(features_dbow);
     }
-    virtual bool deserialize(bstream_reader &cur_stream) override {
-        map_feature_v::max_loaded_featid = 0;
+    virtual bool deserialize(map_stream_reader &cur_stream) override {
+        cur_stream.max_loaded_featid = 0;
         cur_stream >> nodes >> dbow_inverted_index >> features_dbow;
         return cur_stream.good();
     }

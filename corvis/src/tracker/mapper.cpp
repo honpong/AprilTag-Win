@@ -913,7 +913,7 @@ static bstream_writer & operator << (bstream_writer& content, const std::shared_
 }
 
 static bstream_writer & operator << (bstream_writer &content, const map_feature &feat) {
-    content << feat.v->initial[0] << feat.v->initial[1] << feat.v->v << feat.feature->id;// skip saving patch descriptor as generated data
+    content << feat.v->initial[0] << feat.v->initial[1] << feat.v->v << feat.feature; //NOTE: redundant saving of same feature
     return content;
 }
 
@@ -931,10 +931,6 @@ static bstream_writer & operator << (bstream_writer &content, const map_node &no
 static const char magic_file_format_num[5] = { 'R', 'C', 'M', '\0' }; //R C Map File
 
 bool mapper::serialize(rc_SaveCallback func, void *handle) const {
-    if (!validate_map_compatible(*nodes)) {
-        log->error("map is not compatible for saving.");
-        return false;
-    }
     bstream_writer cur_stream(func, handle);
     cur_stream.write(magic_file_format_num, sizeof(magic_file_format_num));
     cur_stream << (uint8_t)MAPPER_SERIALIZED_VERSION;

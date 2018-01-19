@@ -150,7 +150,7 @@ public:
 
     static void expect_eq(const map_edge    &entry1, const map_edge     &entry2) {
         EXPECT_EQ(                           entry1.type,                entry2.type);
-        EXPECT_EQ(                           entry1.G,                   entry2.G);
+        EXPECT_TRUE(                         entry1.G ==                 entry2.G);
     }
 
     template<typename T, typename Func>
@@ -212,17 +212,17 @@ public:
         expect_eq(                      e1.dbow_direct_file,     e2.dbow_direct_file);
     }
 
-    static void expect_eq(const map_node &e1, const map_node       &e2) {
-        EXPECT_EQ(                       e1.id,                     e2.id);
-        expect_eq(                       e1.edges,                  e2.edges);
-        //expect_eq(                       e1.covisibility_edges,     e2.covisibility_edges);
-        EXPECT_EQ(                       e1.global_transformation,  e2.global_transformation);
-        EXPECT_EQ(                       e1.camera_id,              e2.camera_id);
-        //EXPECT_EQ(                       e1.status,                 e2.status); //loaded status is finished
-        EXPECT_EQ(                       e1.frame != nullptr,       e2.frame != nullptr);
-        if                              (e1.frame != nullptr &&     e2.frame != nullptr)
-            expect_eq(                  *e1.frame,                 *e2.frame);
-        expect_eq(                       e1.features,               e2.features);
+    static void expect_eq(const map_node &e1, const map_node         &e2) {
+        EXPECT_EQ(                        e1.id,                      e2.id);
+        expect_eq(                        e1.edges,                   e2.edges);
+        //expect_eq(                        e1.covisibility_edges,     e2.covisibility_edges);
+        EXPECT_TRUE(                      e1.global_transformation == e2.global_transformation);
+        EXPECT_EQ(                        e1.camera_id,               e2.camera_id);
+        //EXPECT_EQ(                       e1.status,                  e2.status); //loaded status is finished
+        EXPECT_EQ(                        e1.frame != nullptr,        e2.frame != nullptr);
+        if                               (e1.frame != nullptr &&      e2.frame != nullptr)
+            expect_eq(                   *e1.frame,                  *e2.frame);
+        expect_eq(                        e1.features,                e2.features);
     }
 private:
     static bool compare_orb; //whether to compare orb descriptor.
@@ -415,7 +415,7 @@ TEST(Mapper, Deserialize)
     EXPECT_TRUE(map_deserialized.is_unlinked());
 
     // De-serialized map is equivalent to original map
-    EXPECT_EQ(map, map_deserialized);
+    EXPECT_TRUE(map == map_deserialized);
 }
 
 TEST(Mapper, Repeatable_Deserialization)
@@ -429,7 +429,7 @@ TEST(Mapper, Repeatable_Deserialization)
     deserialize_map_content(map_content, map_deserialized2);
 
     // de-serialization gives consistent map
-    EXPECT_EQ(map_deserialized, map_deserialized2);
+    EXPECT_TRUE(map_deserialized == map_deserialized2);
 
     // de-serialized maps produce same serialization outputs
     string map_content1 = serialize_map_content(map_deserialized);
@@ -445,7 +445,7 @@ TEST(Mapper, Serialize_Deserialize_Empty_Map)
 
     t_mapper empty_map_deserialized;
     deserialize_map_content(map_content, empty_map_deserialized);
-    EXPECT_EQ(empty_map, empty_map_deserialized);
+    EXPECT_TRUE(empty_map == empty_map_deserialized);
 }
 
 TEST(Mapper, Deserialize_Serialize)

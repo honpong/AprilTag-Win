@@ -196,8 +196,8 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
             }
             if (!std::isnan(r.errors.reloc_time_sec.rmse)) {
                 stream << "\t               Time between relocalizations\t" << r.errors.reloc_time_sec.rmse << "sec\n";
-                reloc_times_sec.push_back(r.errors.reloc_time_sec.rmse);
             }
+            reloc_times_sec.insert(reloc_times_sec.end(), r.errors.relocalization_time.elapsed_times_sec.begin(), r.errors.relocalization_time.elapsed_times_sec.end());
         }
     }
 
@@ -259,7 +259,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
         error_histogram reloc_rpe_R_hist(reloc_rpe_R_errors_deg, reloc_rpe_R_edges, 2, "deg");
         stream << reloc_rpe_R_hist << "\n";
 
-        stream << "Time between relocalizations (" << reloc_times_sec.size() << " sequences)\n";
+        stream << "Time between relocalizations (" << reloc_times_sec.size() << " events)\n";
         error_histogram reloc_time_hist(reloc_times_sec, reloc_times_edges, 2, "sec");
         stream << reloc_time_hist << "\n";
     }

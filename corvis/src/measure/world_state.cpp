@@ -591,6 +591,8 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
         case rc_SENSOR_TYPE_DEBUG:
             if (data->debug.message)
                 std::cout << "debug(" << data->id << "): " << data->debug.message << "\n";
+            if (data->debug.erase_previous_debug_images)
+                debug_cameras.clear();
             observe_image(timestamp_us, data->id, data->debug.image, debug_cameras);
             break;
         case rc_SENSOR_TYPE_IMAGE:

@@ -176,6 +176,7 @@ typedef struct rc_DebugData {
     rc_ImageData image;
     const char *message;
     bool pause;
+    bool erase_previous_debug_images;
 } rc_DebugData;
 
 typedef struct rc_Data

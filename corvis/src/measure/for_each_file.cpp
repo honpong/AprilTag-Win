@@ -26,11 +26,12 @@ void for_each_file(const char *file_or_dir, std::function<void (const char *file
         FindClose(h);
 #else
         DIR *dir = opendir(file_or_dir);
-        if (dir)
+        if (dir) {
             for (struct dirent *dirent; (dirent = readdir(dir)); )
                 if (dirent->d_name[0] != '.')
                     for_each_file((path + "/" + dirent->d_name).c_str(), call);
-        closedir(dir);
+            closedir(dir);
+        }
 #endif
     }
 }

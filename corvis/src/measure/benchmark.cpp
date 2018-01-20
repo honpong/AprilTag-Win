@@ -264,11 +264,12 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
         stream << reloc_time_hist << "\n";
     }
 
-    struct stat { size_t n; double sum, mean, median; } pe_le50 = {0, 0, 0, 0};
+    struct stat { size_t n; double sum, mean, median; } pe_le50 = {0, 0, 0, std::numeric_limits<double>::quiet_NaN()};
     std::sort(primary_errors_percent.begin(), primary_errors_percent.end());
     for(auto &pe : primary_errors_percent) if (pe < 50) { pe_le50.n++; pe_le50.sum += pe; }
     pe_le50.mean = pe_le50.sum / pe_le50.n;
-    pe_le50.median = primary_errors_percent[primary_errors_percent.size()/2];
+    if (primary_errors_percent.size())
+        pe_le50.median = primary_errors_percent[primary_errors_percent.size()/2];
 
     stream << std::fixed << std::setprecision(2);
     stream << "Mean of " << pe_le50.n << " primary errors that are less than 50% is " << pe_le50.mean << "% and the median of all errors is " << pe_le50.median << "%\n";

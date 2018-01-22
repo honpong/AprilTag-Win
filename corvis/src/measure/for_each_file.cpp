@@ -11,8 +11,10 @@
 
 void for_each_file(const char *file_or_dir, std::function<void (const char *file)> call)
 {
-    struct stat st; bool is_dir = stat(file_or_dir, &st) == 0 && (st.st_mode&S_IFMT) == S_IFDIR;
-    if (!is_dir)
+    struct stat st;
+    if (stat(file_or_dir, &st) != 0)
+        return;
+    if ((st.st_mode&S_IFMT) != S_IFDIR)
         call(file_or_dir);
     else {
         std::string path(file_or_dir);

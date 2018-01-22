@@ -857,6 +857,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             }
             // Only match if we have exactly one candidate
             if(best_distance < DESCRIPTOR::good_track_distance && second_best_distance > DESCRIPTOR::good_track_distance) {
+                if (f->map)
+                    f->map->triangulated_tracks.erase(best_k2->feature->id); // FIXME: check if triangulated_tracks is more accurate than stereo match
                 best_k2->feature = k1->feature;
                 f->s.stereo_matches.emplace_back(camera_state1,      k1, best_depth1,
                                                  camera_state2, best_k2, best_depth2, best_error);

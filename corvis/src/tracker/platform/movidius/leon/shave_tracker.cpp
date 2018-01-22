@@ -368,6 +368,8 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
             auto k2 = kp2.begin();
             for(int j = 0; k2 != kp2.end(), j < matched_kp[i]; ++k2, ++j);
             if (k2 != kp2.end() && k2->feature.use_count() <= 1) {//not already stereo
+                if (f->map)
+                    f->map->triangulated_tracks.erase(k2->feature->id); // FIXME: check if triangulated_tracks is more accurate than stereo match
                 k2->feature = k1->feature;
                 f->s.stereo_matches.emplace_back(camera1, k1, depths1[i], camera2, k2, depths2[i],  errors1[i]);
             }

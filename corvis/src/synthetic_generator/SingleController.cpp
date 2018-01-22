@@ -194,7 +194,7 @@ size_t CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::string>
 {
     size_t res = 0;
 
-	if (0 != (res = ParseUserInput(args)))
+    if (0 != (res = ParseUserInput(args)))
     {
         return res;
     }
@@ -203,25 +203,25 @@ size_t CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::string>
 
     if (m_isControllerAnimated)
     {
-		double controller1x = 0.002f, controller1y = 0.002f, controller1z = 0.002f;
+        double controller1x = 0.002f, controller1y = 0.002f, controller1z = 0.002f;
         m_spActorCollection.push_back(vtkSmartPointer<vtkActorCollection>::New());
-		vtkSmartPointer<vtkCoordinate> spControllerCenterCoordinates = vtkSmartPointer<vtkCoordinate>::New();
-		if (m_args.end() != m_args.find("--controller1"))
-		{
-			size_t end = 0;
-			const char * s = m_args.at("--controller1").c_str();
-			controller1x = std::stod(s, &end); // the +1s below skip the user's delimiter
-			s += end + 1;
-			controller1y = std::stod(s, &end);
-			s += end + 1;
-			controller1z = std::stod(s, &end);
-		}
-		std::cout << std::fixed << setw(12) << std::setprecision(8) << "Controller1 initial position:(" << controller1x << "," << controller1y << "," << controller1z << ")" << std::endl;
-		spControllerCenterCoordinates->SetValue(controller1x, controller1y, controller1z);
-		if (0 != (res = HandleControllerFile(spControllerCenterCoordinates, 0/*Controller index in window*/)))
-		{
-			return res;
-		}
+        vtkSmartPointer<vtkCoordinate> spControllerCenterCoordinates = vtkSmartPointer<vtkCoordinate>::New();
+        if (m_args.end() != m_args.find("--controller1"))
+        {
+            size_t end = 0;
+            const char * s = m_args.at("--controller1").c_str();
+            controller1x = std::stod(s, &end); // the +1s below skip the user's delimiter
+            s += end + 1;
+            controller1y = std::stod(s, &end);
+            s += end + 1;
+            controller1z = std::stod(s, &end);
+        }
+        std::cout << std::fixed << setw(12) << std::setprecision(8) << "Controller1 initial position:(" << controller1x << "," << controller1y << "," << controller1z << ")" << std::endl;
+        spControllerCenterCoordinates->SetValue(controller1x, controller1y, controller1z);
+        if (0 != (res = HandleControllerFile(spControllerCenterCoordinates, 0/*Controller index in window*/)))
+        {
+            return res;
+        }
     }
 
     if (m_spColorWindow)
@@ -255,7 +255,7 @@ size_t CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::string>
             {
                 m_spActorCollection[j]->InitTraversal();
                 vtkActor* const pControllerActor = m_spActorCollection[j]->GetNextActor();
-				pControllerActor->GetProperty()->LightingOff();
+                pControllerActor->GetProperty()->LightingOff();
                 pRenderer->AddActor(pControllerActor);
                 pRenderer->Modified();
             }
@@ -317,7 +317,7 @@ void CBannerSimpleScenario::CreateCamerasCallbacks()
     std::vector<vtkSmartPointer<vtkActor>> spIMUOnController;
     for (size_t i = 0; i < m_spActorCollection.size(); ++i)
     {
-		m_spActorCollection[i]->InitTraversal();
+        m_spActorCollection[i]->InitTraversal();
         spIMUOnController.push_back(m_spActorCollection[i]->GetNextActor());
     }
 
@@ -331,46 +331,46 @@ void CBannerSimpleScenario::CreateCamerasCallbacks()
 
 size_t CBannerSimpleScenario::HandleControllerFile(const vtkSmartPointer<vtkCoordinate>& spOrbCenterCoordinates, uint64_t uIndex)
 {
-	double scale = 0.00008;
-	size_t ret = 0;
-	vtkSmartPointer<vtkSTLReader> spControllerFileReader = vtkSmartPointer<vtkSTLReader>::New();
-	vtkSmartPointer<vtkActor> spControllerActor = vtkSmartPointer<vtkActor>::New();
-	vtkSmartPointer<vtkPolyDataMapper> spControllerMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-	if (m_args.end() == m_args.find("--controllerfile"))
-	{
-		std::cout << "Controller file is missing. Please specify switch --controllerfile <name_of_.stl_file>" << std::endl;
-		ret = 3;
-		return ret;
-	}
+    double scale = 0.00008;
+    size_t ret = 0;
+    vtkSmartPointer<vtkSTLReader> spControllerFileReader = vtkSmartPointer<vtkSTLReader>::New();
+    vtkSmartPointer<vtkActor> spControllerActor = vtkSmartPointer<vtkActor>::New();
+    vtkSmartPointer<vtkPolyDataMapper> spControllerMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    if (m_args.end() == m_args.find("--controllerfile"))
+    {
+        std::cout << "Controller file is missing. Please specify switch --controllerfile <name_of_.stl_file>" << std::endl;
+        ret = 3;
+        return ret;
+    }
 
-	spControllerFileReader->SetFileName(m_args["--controllerfile"].c_str());
-	spControllerFileReader->Update();
-	spControllerMapper->SetInputConnection(spControllerFileReader->GetOutputPort());
-	spControllerActor->SetMapper(spControllerMapper);
-	spControllerActor->SetPosition(spOrbCenterCoordinates->GetValue());
-	if (m_args.end() != m_args.find("--controllerscale"))
-	{
-		scale = stod(m_args.at("--controllerscale"));
-	}
-	spControllerActor->SetScale(scale);
-	if (0 == uIndex)
-	{
-		spControllerActor->GetProperty()->SetColor(1, 0, 0);
-	}
-	m_spActorCollection.back()->AddItem(spControllerActor);
-	return ret;
+    spControllerFileReader->SetFileName(m_args["--controllerfile"].c_str());
+    spControllerFileReader->Update();
+    spControllerMapper->SetInputConnection(spControllerFileReader->GetOutputPort());
+    spControllerActor->SetMapper(spControllerMapper);
+    spControllerActor->SetPosition(spOrbCenterCoordinates->GetValue());
+    if (m_args.end() != m_args.find("--controllerscale"))
+    {
+        scale = stod(m_args.at("--controllerscale"));
+    }
+    spControllerActor->SetScale(scale);
+    if (0 == uIndex)
+    {
+        spControllerActor->GetProperty()->SetColor(1, 0, 0);
+    }
+    m_spActorCollection.back()->AddItem(spControllerActor);
+    return ret;
 }
 
 size_t CBannerSimpleScenario::AddControllerInWindow(vtkSmartPointer<vtkCoordinate> spControllerCenterCoordinates, uint64_t uIndex)
 {
-	size_t ret = 0;
+    size_t ret = 0;
     if (m_isControllerAnimated)
     {
-		m_spActorCollection.push_back(vtkSmartPointer<vtkActorCollection>::New());
-		if (0 != (ret = HandleControllerFile(spControllerCenterCoordinates, uIndex)))
-		{
-			return ret;
-		}
+        m_spActorCollection.push_back(vtkSmartPointer<vtkActorCollection>::New());
+        if (0 != (ret = HandleControllerFile(spControllerCenterCoordinates, uIndex)))
+        {
+            return ret;
+        }
         m_spRendererCollection->InitTraversal();
         for (int i = 0; i < m_spRendererCollection->GetNumberOfItems(); ++i)
         {
@@ -384,7 +384,7 @@ size_t CBannerSimpleScenario::AddControllerInWindow(vtkSmartPointer<vtkCoordinat
             }
         }
     }
-	return ret;
+    return ret;
 }
 
 void CBannerSimpleScenario::GenerateInterpolations(std::string ControllerAnimationFile, vtkSmartPointer<vtkTransformInterpolator> * const spTransformInterpolator)

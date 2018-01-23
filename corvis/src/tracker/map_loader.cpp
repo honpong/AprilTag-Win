@@ -42,7 +42,29 @@ static bstream_reader & operator >> (bstream_reader& content, v2 &vec) {
 }
 
 static bstream_reader & operator >> (bstream_reader &content, shared_ptr<frame_t> frame) {
-    return content >> frame->keypoints >> frame->keypoints_xy;
+    uint64_t frame_ts = 0;
+    content >> frame->keypoints >> frame->keypoints_xy;
+    uint8_t has_image = 0;
+    content >> has_image; //has image data
+    if (has_image) {
+        uint32_t col = 0, row = 0, stride = 0;
+        static vector<char> img_data;
+        static int img_size = 0;
+        content >> col >> row >> stride;
+        if (img_size != stride * row) {
+            img_size = stride * row;
+            img_data.resize(img_size);
+        }
+        content.read(img_data.data(), row * stride);
+        content >> frame_ts;
+#ifdef RELOCALIZATION_DEBUG
+        frame->image = cv::Mat(row, col, CV_8UC1, (uint8_t*)img_data.data(), stride).clone();
+        frame->timestamp = sensor_clock::micros_to_tp(frame_ts);
+#endif
+    }
+    else
+        content >> frame_ts;
+    return content;
 }
 
 static bstream_reader & operator >> (bstream_reader &content, map_edge_v1 &edge) {

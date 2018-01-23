@@ -918,7 +918,21 @@ static bstream_writer & operator << (bstream_writer &content, const map_feature 
 }
 
 static bstream_writer & operator << (bstream_writer &content, const std::shared_ptr<frame_t> &frame) {
-    return content << frame->keypoints << frame->keypoints_xy;
+    content << frame->keypoints << frame->keypoints_xy;
+    uint64_t frame_ts = 0;
+#ifdef RELOCALIZATION_DEBUG
+    if (!frame->image.empty() && frame->image.isContinuous()) {
+        content << (uint8_t)1U; //has image data
+        content << (uint32_t)frame->image.cols << (uint32_t)frame->image.rows << (uint32_t)frame->image.step[0];
+        size_t img_size = (size_t)(frame->image.rows * frame->image.step[0]);
+        content.write((const char *)frame->image.data, img_size);
+        frame_ts = sensor_clock::tp_to_micros(frame->timestamp);
+    }
+    else
+#endif
+    content << (uint8_t)0U;
+
+    return content << frame_ts;
 }
 
 static bstream_writer & operator << (bstream_writer &content, const map_node &node) {

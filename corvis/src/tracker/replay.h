@@ -56,6 +56,7 @@ private:
     bool find_reference_in_filename(const std::string &filename);
     bool load_reference_from_pose_file(const std::string &filename);
     bool load_reloc_reference_from_file(const std::string &filename);
+    bool load_internal_calibration(const std::string &filename);
     bool load_map(std::string filename);
 
 public:

@@ -89,6 +89,22 @@ void replay::zero_biases()
     }
 }
 
+bool replay::load_internal_calibration(const std::string &filename)
+{
+    ifstream rc(filename);
+    packet_header_t header = {};
+    rc.read((char *)&header, sizeof(header));
+    if (!rc || header.bytes <= sizeof(header) || header.type != packet_calibration_json)
+        return false;
+    std::string json;
+    json.resize(header.bytes - sizeof(header));
+    rc.read(&json[0], header.bytes - sizeof(header));
+    if (!rc || !rc_setCalibration(tracker, json.c_str()))
+        return false;
+    calibration_file = filename + ".json"; // avoid the default save file being the rc file itself
+    return true;
+}
+
 bool replay::load_calibration(const std::string &filename)
 {
     ifstream file_handle(filename);
@@ -123,7 +139,8 @@ bool replay::set_calibration_from_filename(const char *filename)
     if(!load_calibration(json = fn + ".json")) {
         auto found = fn.find_last_of("/\\");
         string path = fn.substr(0, found+1);
-        if(!load_calibration(json = path + "calibration.json"))
+        if(!load_calibration(json = path + "calibration.json") &&
+           !load_internal_calibration(filename))
             return false;
     }
     return true;
@@ -288,6 +305,8 @@ void replay::start(string map_filename)
 
             switch(header.type)
             {
+                case packet_calibration_json:
+                    break;
                 case packet_camera:
                 {
                     int width, height, stride;

@@ -310,7 +310,7 @@ typedef struct {
 
 typedef struct {
     packet_header_t header;
-    uint8_t data[];
+    char data[];
 } packet_calibration_json_t;
 
 typedef struct {

@@ -198,7 +198,7 @@ bool replay::load_reloc_reference_from_file(const std::string &filename)
                 uint64_t time_old = le64toh(time[1]);
                 node_id = le32toh(node_id);
                 if (it == ref_relocalization_edges.end() || static_cast<uint64_t>(it->first) != time_new) {
-                    it = ref_relocalization_edges.emplace(time_new, std::unordered_set<rc_Timestamp>());
+                    it = std::get<0>(ref_relocalization_edges.emplace(time_new, std::unordered_set<rc_Timestamp>()));
                 }
                 it->second.emplace(time_old);
             }

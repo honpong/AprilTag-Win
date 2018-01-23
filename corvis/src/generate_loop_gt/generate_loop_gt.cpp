@@ -82,7 +82,7 @@ class gt_generator {
                                         const transformation &G_world_camera_B) const;
     bool covisible_by_frustum_overlap(const frustum& discretized_frustum_lhs, const frustum& rhs) const;
 
-    void get_connected_components(const SymmetricMatrix<bool>& associations,
+    void get_connected_components(const SymmetricMatrix<char>& associations,
                                   SymmetricMatrix<size_t>& labels) const;
 
  private:
@@ -91,7 +91,7 @@ class gt_generator {
     tpose_sequence gt_poses_;  // all from 6dog groundtruth
     std::vector<tpose> interpolated_poses_;  // used by associations_ and labels_
     image_reader reader_;
-    SymmetricMatrix<bool> associations_;
+    SymmetricMatrix<char> associations_;  // (chars used as bools)
     SymmetricMatrix<size_t> labels_;
     static constexpr size_t no_label = std::numeric_limits<size_t>::max();
 };
@@ -418,7 +418,7 @@ bool gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
     return numerical_frustums_intersection(lhs, rhs);
 }
 
-void gt_generator::get_connected_components(const SymmetricMatrix<bool>& associations,
+void gt_generator::get_connected_components(const SymmetricMatrix<char>& associations,
                                             SymmetricMatrix<size_t>& labels) const {
     std::unordered_map<size_t, size_t> lookup;
     labels.create(associations.rows(), no_label);

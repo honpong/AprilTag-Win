@@ -45,6 +45,9 @@ typedef Eigen::Quaternion<f_t> quaternion;
 template <typename T> using aligned_vector = std::vector<T, Eigen::aligned_allocator<T>>;
 #include <list>
 template <typename T> using aligned_list = std::list<T, Eigen::aligned_allocator<T>>;
+#include <memory>
+template< class T, class... Args >
+static inline std::shared_ptr<T> make_aligned_shared(Args&&... args) { return std::allocate_shared<T>(Eigen::aligned_allocator<T>(), args...); }
 
 namespace rc {
 template <typename T, int R, int C> Eigen::Map<const Eigen::Matrix<T, R, C>, Eigen::Unaligned> map(const T (&a)[R][C]) { return decltype(map(a)) { &a[0][0] }; }

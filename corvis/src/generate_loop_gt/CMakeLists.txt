@@ -1,5 +1,6 @@
 add_executable(generate_loop_gt
   generate_loop_gt.cpp
+  gt_generator.cpp
   image_reader.cpp
   image_reader.h
   symmetric_matrix.h
@@ -11,7 +12,7 @@ target_include_directories(generate_loop_gt PRIVATE ../measure)
 
 find_package(TBB QUIET)
 if (TARGET tbb)
-    set_source_files_properties(generate_loop_gt.cpp
+    set_source_files_properties(gt_generator.cpp
         PROPERTIES COMPILE_DEFINITIONS HAVE_TBB=1)
     target_link_libraries(generate_loop_gt tbb)
 endif ()

@@ -89,7 +89,7 @@ void replay::zero_biases()
     }
 }
 
-bool replay::load_calibration(std::string filename)
+bool replay::load_calibration(const std::string &filename)
 {
     ifstream file_handle(filename);
     if(file_handle.fail())
@@ -104,7 +104,7 @@ bool replay::load_calibration(std::string filename)
     return true;
 }
 
-bool replay::save_calibration(std::string filename)
+bool replay::save_calibration(const std::string &filename)
 {
     const char * buffer = nullptr;
     size_t bytes = rc_getCalibration(tracker, &buffer);

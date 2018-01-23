@@ -65,8 +65,8 @@ public:
     ~replay() { rc_destroy(tracker); }
     bool open(const char *filename);
     std::string calibration_file;
-    bool load_calibration(std::string filename);
-    bool save_calibration(std::string filename);
+    bool load_calibration(const std::string &filename);
+    bool save_calibration(const std::string &filename);
     bool set_calibration_from_filename(const char *filename);
     void setup_filter();
     void set_progress_callback(std::function<void (float)> progress_callback) { this->progress_callback = progress_callback; }

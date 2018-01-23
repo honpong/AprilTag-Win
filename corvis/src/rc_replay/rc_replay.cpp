@@ -139,8 +139,8 @@ bool replay::set_calibration_from_filename(const std::string &fn)
     if(!read_file(fn + ".json", calibration)) {
         auto found = fn.find_last_of("/\\");
         std::string path = fn.substr(0, found+1);
-        if(!read_file(path + "calibration.json", calibration) &&
-           !read_calibration_packet(fn, calibration))
+        if(!read_calibration_packet(fn, calibration) &&
+           !read_file(path + "calibration.json", calibration))
             return false;
     }
     return rc_setCalibration(tracker, calibration.c_str());

@@ -139,8 +139,8 @@ bool replay::set_calibration_from_filename(const char *filename)
     if(!load_calibration(json = fn + ".json")) {
         auto found = fn.find_last_of("/\\");
         string path = fn.substr(0, found+1);
-        if(!load_calibration(json = path + "calibration.json") &&
-           !load_internal_calibration(filename))
+        if(!load_internal_calibration(filename) &&
+           !load_calibration(json = path + "calibration.json"))
             return false;
     }
     return true;

@@ -21,6 +21,7 @@ enum packet_type {
     packet_diff_velocimeter = 30,
     packet_thermometer = 31,
     packet_stereo_raw = 40,
+    packet_calibration_json = 43,
     packet_velocimeter = 45,
 };
 
@@ -111,6 +112,19 @@ bool replay::open(const char *name)
     return true;
 }
 
+static bool read_calibration_packet(const std::string &filename, std::string &contents)
+{
+    std::ifstream rc(filename);
+    if (!rc) return false;
+    packet_header_t header = {};
+    rc.read((char *)&header, sizeof(header));
+    if (!rc || header.bytes <= 16 || header.type != packet_calibration_json)
+        return false;
+    contents.resize(header.bytes - 16, '\0');
+    rc.read(&contents[0], header.bytes - 16);
+    return !!rc;
+}
+
 static bool read_file(const std::string name, std::string &contents)
 {
     std::ifstream t(name);
@@ -125,7 +139,8 @@ bool replay::set_calibration_from_filename(const std::string &fn)
     if(!read_file(fn + ".json", calibration)) {
         auto found = fn.find_last_of("/\\");
         std::string path = fn.substr(0, found+1);
-        if(!read_file(path + "calibration.json", calibration))
+        if(!read_file(path + "calibration.json", calibration) &&
+           !read_calibration_packet(fn, calibration))
             return false;
     }
     return rc_setCalibration(tracker, calibration.c_str());

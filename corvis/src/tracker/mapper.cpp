@@ -356,7 +356,7 @@ mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::f
     auto cmp = [](const node_path& path1, const node_path& path2) {
       return path1.distance > path2.distance;
     };
-    priority_queue<node_path, std::vector<node_path>, decltype(cmp)> next(cmp);
+    priority_queue<node_path, nodes_path, decltype(cmp)> next(cmp);
 
     next.push(start);
     unordered_set<nodeid> nodes_done;

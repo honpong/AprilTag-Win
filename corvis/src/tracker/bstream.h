@@ -47,6 +47,7 @@ public:
     template <template <class, class, class, class...> class TMap, class Key, class T, class Comp, class... TArgs>
     bstream_writer& operator << (const TMap<Key, T, Comp, TArgs...> &c) {
         *this << (uint64_t)c.size();
+        total_io_bytes += sizeof(uint64_t);
         if (!save_sorted)
             for (const auto &ele : c) *this << ele;
         else { // sort iterators before saving
@@ -65,23 +66,14 @@ public:
     template<typename T>
     bstream_writer& write_array(const T *data, size_t length) {
         *this << (uint64_t)length;
-        size_t bytes_done = 0, bytes_transfer = 0;
-        while (bytes_done < length) {
-            bytes_transfer = std::min(length - bytes_done, max_offset);
-            write((const char*)data + bytes_done, bytes_transfer);
-            bytes_done += bytes_transfer;
-        }
+        total_io_bytes += sizeof(uint64_t);
+        write(data, length);
         return *this;
     }
 
     bstream_writer& write(const char* data, size_t length) {
-        if (offset + length > max_offset) { //need to flush buffer
-            out_func(handle, buffer.get(), offset);
-            offset = 0;
-        }
-        memcpy(buffer.get() + offset, (const char*)data, length);
-        offset += length;
-        total_io_bytes += length;
+        for (size_t written = 0, chunk = 0; written < length; written += chunk)
+            write_part(data + written, chunk = std::min(length - written, max_offset));
         return *this;
     }
 
@@ -126,8 +118,18 @@ private:
     template<typename T>
     bstream_writer& write_container(T from_itr, T to_itr) {
         *this << (uint64_t)std::distance(from_itr, to_itr);
+        total_io_bytes += sizeof(uint64_t);
         for (auto itr = from_itr; itr != to_itr; itr++) { *this << *itr; }
         return *this;
+    }
+    void write_part(const char* data, size_t length) {
+        if (offset + length > max_offset) { //need to flush buffer
+            out_func(handle, buffer.get(), offset);
+            offset = 0;
+        }
+        memcpy(buffer.get() + offset, (const char*)data, length);
+        offset += length;
+        total_io_bytes += length;
     }
     template <class Key, class T>
     bstream_writer& operator << (const std::pair<const Key, T> &ele) { return *this << ele.first << ele.second; }
@@ -176,28 +178,13 @@ public:
         uint64_t c_size = 0;
         read(c_size);
         is_good = is_good && (c_size == length);
-        size_t bytes_done = 0, bytes_transfer = 0;
-        while (bytes_done < length) {
-            bytes_transfer = std::min(length - bytes_done, (size_t)STREAM_BUFFER_SIZE);
-            read((char*)data + bytes_done, bytes_transfer);
-            bytes_done += bytes_transfer;
-        }
+        read(data, length);
         return *this;
     }
 
     bstream_reader& read(char* data, size_t length) {
-        size_t remain = max_offset - offset;
-        if (remain < length) { //need to update buffer
-            if (remain > 0) memmove(buffer.get(), buffer.get() + offset, remain); //move unread content to start
-            int32_t bytes_read = in_func(handle, buffer.get() + remain, STREAM_BUFFER_SIZE - remain);
-            max_offset = remain + bytes_read;
-            offset = 0;
-            is_good = is_good && (bytes_read > 0) && (length <= max_offset);
-        }
-        if (is_good) {
-            memcpy(data, buffer.get() + offset, length);
-            offset += length;
-        }
+        for (size_t read_bytes = 0, chunk = 0; read_bytes < length; read_bytes += chunk)
+            read_part(data + read_bytes, chunk = std::min(length - read_bytes, (size_t)STREAM_BUFFER_SIZE));
         return *this;
     }
 
@@ -227,6 +214,22 @@ private:
         read(c_size);
         is_good = is_good && sizing(c_size);
         for (auto itr = c.begin(); is_good && itr != c.end(); itr++) { *this >> *itr; }
+        return *this;
+    }
+
+    bstream_reader& read_part(char* data, size_t length) {
+        size_t remain = max_offset - offset;
+        if (remain < length) { //need to update buffer
+            if (remain > 0) memmove(buffer.get(), buffer.get() + offset, remain); //move unread content to start
+            int32_t bytes_read = in_func(handle, buffer.get() + remain, STREAM_BUFFER_SIZE - remain);
+            max_offset = remain + bytes_read;
+            offset = 0;
+            is_good = is_good && (bytes_read > 0) && (length <= max_offset);
+        }
+        if (is_good) {
+            memcpy(data, buffer.get() + offset, length);
+            offset += length;
+        }
         return *this;
     }
 

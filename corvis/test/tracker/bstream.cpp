@@ -178,6 +178,9 @@ TEST(Bstream, Stream_Std_containers)
     bstream_writer write_stream(save_map_callback, &write_ss);
     write_stream << save_array << save_vector << save_deque << save_list << save_map << save_uo_map;
     write_stream << save_set << save_uo_set;
+    const int img_size = (int)(STREAM_BUFFER_SIZE * 2.5f);
+    vector<char> img_content(img_size, 1);
+    write_stream.write_array(img_content.data(), img_size);
     write_stream.end_stream();
     EXPECT_TRUE(write_stream.good());
 
@@ -185,8 +188,10 @@ TEST(Bstream, Stream_Std_containers)
     bstream_reader read_stream(load_map_callback, &read_ss);
     read_stream >> load_array >> load_vector >> load_deque >> load_list >> load_map >> load_uo_map;
     read_stream >> load_set >> load_uo_set;
+    vector<char> loaded_img_content(img_size, 0);
+    read_stream.read_array(loaded_img_content.data(), img_size);
     EXPECT_TRUE(read_stream.good());
-    
+
     EXPECT_EQ(save_array, load_array);
     EXPECT_EQ(save_vector, load_vector);
     EXPECT_EQ(save_deque, load_deque);
@@ -195,4 +200,5 @@ TEST(Bstream, Stream_Std_containers)
     EXPECT_EQ(save_uo_map, load_uo_map);
     EXPECT_EQ(save_set, load_set);
     EXPECT_EQ(save_uo_set, load_uo_set);
+    EXPECT_EQ(img_content, loaded_img_content);
 }

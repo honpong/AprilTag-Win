@@ -66,7 +66,7 @@ static bstream_reader &  operator >> (bstream_reader &content, map_node_v1 &node
     uint8_t has_frame = 0;
     content >> has_frame;
     if (has_frame) {
-        node.frame = make_shared<frame_t>();
+        node.frame = std::allocate_shared<frame_t>(Eigen::aligned_allocator<frame_t>());
         content >> node.frame;
     }
     return content >> node.covisibility_edges >> node.features;

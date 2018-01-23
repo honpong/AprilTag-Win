@@ -300,7 +300,7 @@ void mapper::remove_node(nodeid id)
         update_current_node = true;
 
     std::lock_guard<std::mutex> lock(nodes.mutex());
-    std::map<uint64_t, map_edge> edges = nodes->at(id).edges;
+    aligned_map<uint64_t, map_edge> edges = nodes->at(id).edges;
     std::set<nodeid> neighbors;
     assert(edges.size());
     for(auto& edge : edges) {

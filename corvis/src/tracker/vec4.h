@@ -48,6 +48,10 @@ template <typename T> using aligned_list = std::list<T, Eigen::aligned_allocator
 #include <memory>
 template< class T, class... Args >
 static inline std::shared_ptr<T> make_aligned_shared(Args&&... args) { return std::allocate_shared<T>(Eigen::aligned_allocator<T>(), args...); }
+#include <unordered_map>
+template <typename Key, typename T, class Hash = std::hash<Key>, typename Pred = std::equal_to<Key>> using aligned_unordered_map = std::unordered_map<Key, T, Hash, Pred, Eigen::aligned_allocator<std::pair<const Key,T>>>;
+#include <map>
+template <typename Key, typename T, typename Pred = std::less<Key>> using aligned_map = std::map<Key, T, Pred, Eigen::aligned_allocator<std::pair<const Key,T>>>;
 
 namespace rc {
 template <typename T, int R, int C> Eigen::Map<const Eigen::Matrix<T, R, C>, Eigen::Unaligned> map(const T (&a)[R][C]) { return decltype(map(a)) { &a[0][0] }; }

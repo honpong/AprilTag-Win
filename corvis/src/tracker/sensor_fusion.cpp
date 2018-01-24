@@ -148,7 +148,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             bool docallback = true;
             if(isProcessingVideo) {
                 START_EVENT(SF_STEREO_RECEIVE, data.id);
-                auto pair { sensor_data::split(std::move(data)) };
+                auto pair = sensor_data::split(std::move(data));
                 uint64_t groups = sfm.s.group_counter;
                 docallback = filter_image_measurement(&sfm, pair.first);
 

@@ -180,11 +180,11 @@ protected:
 f_t estimate_transformation(const aligned_vector<v3> &src, const aligned_vector<v2> &dst, transformation &transform, std::minstd_rand &gen,
                             int max_iterations, f_t max_reprojection_error, f_t confidence, unsigned min_matches, std::set<size_t> *inliers)
 {
-    if (src.size() != dst.size() || src.size() < 5)
+    if (src.size() != dst.size() || src.size() < 6)
         return false;
     aligned_vector<size_t> indices(src.size()); for (size_t i=0; i<src.size(); i++) indices[i] = i;
     struct estimated_transformation::state state = { src, dst, max_reprojection_error };
-    estimated_transformation best = ransac<5,estimated_transformation>(state, indices.begin(), indices.end(), gen, max_iterations, confidence, min_matches);
+    estimated_transformation best = ransac<6,estimated_transformation>(state, indices.begin(), indices.end(), gen, max_iterations, confidence, min_matches);
     transform = best.transform();
     if (inliers) { inliers->clear(); for (auto i : best.indices) inliers->insert(i); }
     return best.reprojection_error();

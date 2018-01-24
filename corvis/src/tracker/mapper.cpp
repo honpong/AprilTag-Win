@@ -604,7 +604,7 @@ void mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_ve
     const float confidence = 0.9f; //0.9
     std::minstd_rand rng(-1);
     transformation G_currentframeC_candidateB;
-    estimate_transformation(points_3d, points_2d, G_currentframeC_candidateB, rng, max_iter, max_reprojection_error, confidence, 5, &inliers_set);
+    estimate_transformation(points_3d, points_2d, G_currentframeC_candidateB, rng, max_iter, max_reprojection_error, confidence, 6, &inliers_set);
     G_candidateB_currentframeB = invert(G_BC*G_currentframeC_candidateB);
 }
 

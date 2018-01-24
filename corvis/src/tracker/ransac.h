@@ -19,7 +19,8 @@ template <size_t N, typename Model, typename State, typename ForwardIt, typename
                  float confidence = .99f, unsigned min_matches = 1, unsigned max_matches = std::numeric_limits<unsigned>::max()) {
     static_assert(N > 0,"N>0"); assert(begin + N <= end); assert(0 <= confidence && confidence < 1);
     Model best_model(state, begin, begin);
-    for (int n=max_iterations, i = 0; i < n; i++) {
+    int n = max_iterations;
+    for (int i = 0; i < n; i++) {
         // Split [begin,end) into up to N random maybe_inliers and the rest: [begin,maybe_inliers) and [maybe_inliers, end)
         auto maybe_inliers = random_n(begin, end, N, gen);
         Model maybe_model(state, begin, maybe_inliers);
@@ -43,6 +44,10 @@ template <size_t N, typename Model, typename State, typename ForwardIt, typename
         float inlier_fraction = (float)(also_inliers-begin)/(end-begin);
         float n_ = logf(1-confidence)/logf(1 - powf(inlier_fraction,N));
         n = std::min<int>(std::round(n_), n);
+    }
+    if (n == max_iterations) {
+        Model model_not_found(state, begin, begin); // sets reprojection error to infinity
+        best_model = std::move(model_not_found);
     }
     return best_model;
 }

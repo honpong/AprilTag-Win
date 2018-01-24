@@ -48,13 +48,8 @@ static bstream_reader & operator >> (bstream_reader &content, shared_ptr<frame_t
     content >> has_image; //has image data
     if (has_image) {
         uint32_t col = 0, row = 0, stride = 0;
-        static vector<char> img_data;
-        static int img_size = 0;
-        content >> col >> row >> stride;
-        if (img_size != stride * row) {
-            img_size = stride * row;
-            img_data.resize(img_size);
-        }
+        vector<char> img_data;
+        img_data.resize(row * stride);
         content.read(img_data.data(), row * stride);
         content >> frame_ts;
 #ifdef RELOCALIZATION_DEBUG

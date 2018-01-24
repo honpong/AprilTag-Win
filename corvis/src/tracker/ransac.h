@@ -30,11 +30,11 @@ template <size_t N, typename Model, typename State, typename ForwardIt, typename
                 std::iter_swap(also_inliers++, mi);
         if (also_inliers - begin >= min_matches) {
             if (also_inliers == maybe_inliers) {
-                if (best_model < maybe_model)
+                if (maybe_model.reprojection_error() < state.threshold && best_model < maybe_model)
                     best_model = std::move(maybe_model); // FIXME: remove this case?  Seems like a pointless optimization
             } else {
                 Model maybe_better_model(state, begin, also_inliers);
-                if (best_model < maybe_better_model)
+                if (maybe_better_model.reprojection_error() < state.threshold && best_model < maybe_better_model)
                     best_model = std::move(maybe_better_model);
             }
         }

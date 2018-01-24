@@ -376,9 +376,11 @@ mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::f
             const float& distance_u = path.distance;
             for(auto edge : nodes->at(u).edges) {
                 const nodeid& v = edge.first;
-                const transformation& G_u_v = edge.second.G;
-                f_t distance_uv = distance(edge.second);
-                next.emplace(v, G_start_u*G_u_v, distance_u + distance_uv);
+                if(nodes_done.find(v) == nodes_done.end()) {
+                    const transformation& G_u_v = edge.second.G;
+                    f_t distance_uv = distance(edge.second);
+                    next.emplace(v, G_start_u*G_u_v, distance_u + distance_uv);
+                }
             }
         }
     }

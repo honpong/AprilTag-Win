@@ -600,7 +600,7 @@ bool mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_ve
     const f_t focal_px = intrinsics->focal_length.v * intrinsics->image_height;
     const f_t sigma_px = 3.0;
     const f_t max_reprojection_error = 2*sigma_px/focal_px;
-    const int max_iter = 10; // 10
+    const int max_iter = 40; // 40
     const float confidence = 0.9f; //0.9
     std::minstd_rand rng(-1);
     transformation G_currentframeC_candidateB;

@@ -256,7 +256,7 @@ private:
     std::vector<state_extrinsics*> camera_extrinsics;
 
     map_relocalization_info relocalize(const camera_frame_t& camera_frame);
-    void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
+    bool estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
 
     // reuse map features in filter
     struct map_feature_track {

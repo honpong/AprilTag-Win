@@ -942,7 +942,7 @@ static bstream_writer & operator << (bstream_writer &content, const map_node &no
     return content << node.covisibility_edges << node.features;
 }
 
-static const char magic_file_format_num[5] = { 'R', 'C', 'M', '\0' }; //R C Map File
+static const char magic_file_format_num[4] = { 'R', 'C', 'M', '\0' }; // RC Map
 
 bool mapper::serialize(rc_SaveCallback func, void *handle) const {
     bstream_writer cur_stream(func, handle);

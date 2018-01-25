@@ -890,7 +890,8 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
             track.pred_y = kpd.y();
             tracks.emplace_back(std::move(track), f.second.v);
         }
-        map_feature_tracks.emplace_back(neighbor.id, invert(G_Bnow_Bneighbor), std::move(tracks));
+        if(tracks.size() >= 10)
+            map_feature_tracks.emplace_back(neighbor.id, invert(G_Bnow_Bneighbor), std::move(tracks));
     }
 }
 

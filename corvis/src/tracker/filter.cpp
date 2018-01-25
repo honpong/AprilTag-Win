@@ -624,7 +624,8 @@ size_t filter_detect(struct filter *f, const sensor_data &data, const std::uniqu
     return kp.size();
 }
 
-bool filter_compute_orb_and_dbow(struct filter *f, const sensor_data& data, camera_frame_t& camera_frame) {
+bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_t& camera_frame)
+{
     if (!std::is_same<DESCRIPTOR, orb_descriptor>::value) {
         const rc_ImageData &image = data.image;
         tracker::image timage;
@@ -644,20 +645,29 @@ bool filter_compute_orb_and_dbow(struct filter *f, const sensor_data& data, came
         }
         END_EVENT(SF_ORB, camera_frame.frame->keypoints.size());
     }
+    return true;
+}
 
+bool filter_node_requires_frame(struct filter *f, const camera_frame_t& camera_frame)
+{
+    map_node& node = f->map->get_node(camera_frame.closest_node);
+    return (node.camera_id == camera_frame.camera_id && !node.frame);
+}
+
+void filter_compute_dbow(struct filter *f, camera_frame_t& camera_frame)
+{
     START_EVENT(SF_DBOW_TRANSFORM, 0);
     camera_frame.frame->calculate_dbow(f->map->orb_voc.get());
     END_EVENT(SF_DBOW_TRANSFORM, camera_frame.frame->keypoints.size());
 
-    return true;
-}
-
-void filter_update_map_index(struct filter *f, const camera_frame_t& camera_frame)
-{
     map_node& node = f->map->get_node(camera_frame.closest_node);
     if (node.camera_id == camera_frame.camera_id && !node.frame) {
         node.frame = camera_frame.frame;
     }
+}
+
+void filter_update_map_index(struct filter *f)
+{
     f->map->index_finished_nodes();
 }
 

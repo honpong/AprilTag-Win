@@ -108,7 +108,11 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                         if (sfm.relocalization_future.get())
                             sfm.log->info("relocalized");
                     }
-                    filter_update_map_index(&sfm, *camera_frame);
+                    if ((sfm.relocalize && !sfm.relocalization_future.valid()) ||
+                            filter_node_requires_frame(&sfm, *camera_frame)) {
+                        filter_compute_dbow(&sfm, *camera_frame);
+                    }
+                    filter_update_map_index(&sfm);
                     if (sfm.relocalize && !sfm.relocalization_future.valid()) {
                         sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                             [this] (std::unique_ptr<camera_frame_t>&& camera_frame) {
@@ -119,8 +123,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 }
 
                 bool compute_descriptors_now = [&]() {
-                    const bool new_group_created = sfm.s.group_counter > groups;
                     if (sfm.map && sfm.map->current_node) {
+                        const bool new_group_created = sfm.s.group_counter > groups;
                         return sfm.relocalize || (sfm.save_map && new_group_created);
                     }
                     return false;
@@ -137,7 +141,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                     queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 
                     if (camera_frame) {
-                        filter_compute_orb_and_dbow(&sfm, data, *camera_frame);
+                        filter_compute_orb(&sfm, data, *camera_frame);
                     }
                     sfm.s.cameras.children[data.id]->camera_frame = std::move(camera_frame);
                 }
@@ -166,12 +170,15 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
 
                 auto camera_frame = std::move(sfm.s.cameras.children[0]->camera_frame);
                 if (camera_frame) {
-
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
                         if (sfm.relocalization_future.get())
                             sfm.log->info("relocalized");
                     }
-                    filter_update_map_index(&sfm, *camera_frame);
+                    if ((sfm.relocalize && !sfm.relocalization_future.valid()) ||
+                            filter_node_requires_frame(&sfm, *camera_frame)) {
+                        filter_compute_dbow(&sfm, *camera_frame);
+                    }
+                    filter_update_map_index(&sfm);
                     if (sfm.relocalize && !sfm.relocalization_future.valid()) {
                         sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                             [this] (std::unique_ptr<camera_frame_t>&& camera_frame) {
@@ -182,8 +189,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 }
 
                 bool compute_descriptors_now = [&]() {
-                    const bool new_group_created = sfm.s.group_counter > groups;
                     if (sfm.map && sfm.map->current_node) {
+                        const bool new_group_created = sfm.s.group_counter > groups;
                         return sfm.relocalize || (sfm.save_map && new_group_created);
                     }
                     return false;
@@ -202,7 +209,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                     queue.stats.find(global_id)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
                     END_EVENT(SF_STEREO_DETECT1, 0);
                     if (camera_frame) {
-                        filter_compute_orb_and_dbow(&sfm, std::move(pair.first), *camera_frame);
+                        filter_compute_orb(&sfm, std::move(pair.first), *camera_frame);
                     }
                     sfm.s.cameras.children[data.id]->camera_frame = std::move(camera_frame);
 

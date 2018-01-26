@@ -646,6 +646,7 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
 
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
+        size_t best_num_inliers = 0;
         if(matches_node_candidate.size() >= min_num_inliers) {
             aligned_vector<v3> candidate_3d_points;
             aligned_vector<v2> current_2d_points;
@@ -729,6 +730,11 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                 });
                 if (ok) {
                     reloc_info.candidates.emplace_back(G_candidate_currentframe, candidate_node_global_transformation, candidate_node_frame->timestamp);
+                    if (inliers_set.size() > best_num_inliers) {
+                        // keep the best relocalization the first of the list
+                        best_num_inliers = inliers_set.size();
+                        std::swap(reloc_info.candidates[0], reloc_info.candidates.back());
+                    }
                     reloc_info.is_relocalized = true;
                     is_relocalized_in_candidate = true;
                 }

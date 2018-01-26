@@ -572,7 +572,7 @@ void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
 void world_state::update_relocalization(rc_Tracker * tracker, const rc_Data * data) {
     rc_Pose* poses;
     size_t n = rc_getRelocalizationPoses(tracker, &poses);
-    observe_position_reloc(data->time_us, poses, n);
+    observe_position_reloc(data->time_us, poses, (n > 0 ? 1 : 0));
 }
 
 void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)

@@ -614,7 +614,6 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
     if (!current_frame->keypoints.size()) return reloc_info;
 
     const size_t min_num_inliers = 12;
-    size_t best_num_inliers = 0;
     size_t i = 0;
 
     START_EVENT(SF_FIND_CANDIDATES, 0);
@@ -719,22 +718,19 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
             END_EVENT(SF_ESTIMATE_POSE,inliers_set.size());
             reloc_info.rstatus = relocalization_status::estimate_EPnP;
             if(inliers_set.size() >= min_num_inliers) {
-                if(inliers_set.size() > best_num_inliers) {
-                    //transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
-                    ok = nodes.critical_section([&]() {
-                        if (nodes->find(nid.first) != nodes->end() && nodes->find(camera_frame.closest_node) != nodes->end()) {
-                            //add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, edge_type::relocalization);
-                            //add_covisibility_edge_no_lock(nid.first, camera_frame.closest_node);
-                            return true;
-                        }
-                        return false;
-                    });
-                    if (ok) {
-                        best_num_inliers = inliers_set.size();
-                        reloc_info.candidates.emplace_back(G_candidate_currentframe, candidate_node_global_transformation, candidate_node_frame->timestamp);
-                        reloc_info.is_relocalized = true;
-                        is_relocalized_in_candidate = true;
+                //transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
+                ok = nodes.critical_section([&]() {
+                    if (nodes->find(nid.first) != nodes->end() && nodes->find(camera_frame.closest_node) != nodes->end()) {
+                        //add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, edge_type::relocalization);
+                        //add_covisibility_edge_no_lock(nid.first, camera_frame.closest_node);
+                        return true;
                     }
+                    return false;
+                });
+                if (ok) {
+                    reloc_info.candidates.emplace_back(G_candidate_currentframe, candidate_node_global_transformation, candidate_node_frame->timestamp);
+                    reloc_info.is_relocalized = true;
+                    is_relocalized_in_candidate = true;
                 }
             }
         }

@@ -598,13 +598,10 @@ bool mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_ve
     transformation G_BC = transformation(extrinsics->Q.v, extrinsics->T.v);
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_id];
     const f_t focal_px = intrinsics->focal_length.v * intrinsics->image_height;
-    const f_t sigma_px = 3.0;
     const f_t max_reprojection_error = 2*sigma_px/focal_px;
-    const int max_iter = 40; // 40
-    const float confidence = 0.9f; //0.9
     std::minstd_rand rng(-1);
     transformation G_currentframeC_candidateB;
-    auto reprojection_error = estimate_transformation(points_3d, points_2d, G_currentframeC_candidateB, rng, max_iter, max_reprojection_error, confidence, 6, &inliers_set);
+    auto reprojection_error = estimate_transformation(points_3d, points_2d, G_currentframeC_candidateB, rng, max_iter, max_reprojection_error, confidence, min_num_inliers, &inliers_set);
     if(reprojection_error < max_reprojection_error) {
         G_candidateB_currentframeB = invert(G_BC*G_currentframeC_candidateB);
         return true;
@@ -620,7 +617,6 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
     reloc_info.frame_timestamp = current_frame->timestamp;
     if (!current_frame->keypoints.size()) return reloc_info;
 
-    const size_t min_num_inliers = 12;
     size_t i = 0;
 
     START_EVENT(SF_FIND_CANDIDATES, 0);

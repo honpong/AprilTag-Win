@@ -1038,7 +1038,7 @@ void filter_initialize(struct filter *f)
 {
     //changing these two doesn't affect much.
     f->min_group_add = 16;
-    f->min_group_map_add = 10;
+    f->min_group_map_add = 11;
     f->max_group_add = std::max<int>(80 / f->cameras.size(), f->min_group_add);
     f->has_depth = false;
     f->stereo_enabled = false;

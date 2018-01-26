@@ -15,6 +15,9 @@ public:
     std::vector<size_t> bins; // invariant: edges.size() + 1 == bin.size()
     int output_precision;
     std::string bin_units;
+    T inlier_sum = 0;
+    size_t inlier_count = 0;
+    T inlier_threshold;
 
     histogram(const std::vector<T> &data, const std::vector<T> &bin_edges, int precision = 1, std::string units = "%") :
         output_precision(precision), bin_units(units)
@@ -34,7 +37,12 @@ public:
 
         bins = std::vector<size_t>(edges.size()-1, 0);
 
+        inlier_threshold = bin_edges[bin_edges.size()-2];
         for (auto &d : data) { // FIXME: makes this O(log(n)) instead of O(n) ?
+            if(d < inlier_threshold) {
+                inlier_sum += d;
+                inlier_count++;
+            }
             size_t i; for (i=0; i < bins.size()-1; i++)
                 if (edges[i] <= d && d < edges[i+1])
                     bins[i]++;
@@ -62,6 +70,12 @@ static inline std::ostream& operator<<(std::ostream &stream, const histogram<T, 
         for (int i=h.bins.size()-1; i>=0; i--)
             stream << (i<h.bins.size()-1 ? "\t" : "") << h.bins[i];
     }
+    size_t score = 0;
+    for (size_t i=0; i < h.bins.size(); i++)
+        score += i * h.bins[i];
+    stream << "\nHistogram score (lower is better): " << score << "\n";
+    stream << std::fixed << std::setprecision(2);
+    stream << "Mean of " << h.inlier_count << " inliers (<" << h.inlier_threshold << h.bin_units << ") is " << h.inlier_sum/h.inlier_count << h.bin_units;
     return stream << "\n";
 }
 
@@ -265,25 +279,4 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
         error_histogram reloc_time_hist(reloc_times_sec, reloc_times_edges, 2, "sec");
         stream << reloc_time_hist << "\n";
     }
-
-    struct stat { size_t n; double sum, mean, median; } pe_le50 = {0, 0, 0, std::numeric_limits<double>::quiet_NaN()};
-    std::sort(primary_errors_percent.begin(), primary_errors_percent.end());
-    for(auto &pe : primary_errors_percent) if (pe < 50) { pe_le50.n++; pe_le50.sum += pe; }
-    pe_le50.mean = pe_le50.sum / pe_le50.n;
-    if (primary_errors_percent.size())
-        pe_le50.median = primary_errors_percent[primary_errors_percent.size()/2];
-
-    stream << std::fixed << std::setprecision(2);
-    stream << "Mean of " << pe_le50.n << " primary errors that are less than 50% is " << pe_le50.mean << "% and the median of all errors is " << pe_le50.median << "%\n";
-
-    size_t score = 0;
-    for (size_t i=0; i < pri_hist.bins.size(); i++)
-        score += i * pri_hist.bins[i];
-
-    size_t altscore = 0;
-    for (size_t i=0; i < alt_hist.bins.size(); i++)
-        altscore += i * alt_hist.bins[i];
-
-    stream << "Histogram score (lower is better) is " << score << "\n";
-    stream << "Alternate histogram score (lower is better) is " << altscore << "\n";
 }

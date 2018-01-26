@@ -102,10 +102,12 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 update_data(&data);
 
             if (data.id < sfm.s.cameras.children.size()) {
+                sfm.relocalization_info = {};
                 auto camera_frame = std::move(sfm.s.cameras.children[data.id]->camera_frame);
                 if (camera_frame) {
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
-                        if (sfm.relocalization_future.get())
+                        sfm.relocalization_info = sfm.relocalization_future.get();
+                        if (sfm.relocalization_info.is_relocalized)
                             sfm.log->info("relocalized");
                     }
                     if ((sfm.relocalize && !sfm.relocalization_future.valid()) ||
@@ -169,9 +171,11 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                     update_data(&pair.first); // TODO: visualize stereo data directly so we don't have a data callback here
 
                 auto camera_frame = std::move(sfm.s.cameras.children[0]->camera_frame);
+                sfm.relocalization_info = {};
                 if (camera_frame) {
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
-                        if (sfm.relocalization_future.get())
+                        sfm.relocalization_info = sfm.relocalization_future.get();
+                        if (sfm.relocalization_info.is_relocalized)
                             sfm.log->info("relocalized");
                     }
                     if ((sfm.relocalize && !sfm.relocalization_future.valid()) ||

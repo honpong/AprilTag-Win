@@ -275,7 +275,7 @@ private:
             : group_id(id_), G_neighbor_now(G), tracks(tracks_) {}
     };
     std::vector<node_feature_track> map_feature_tracks;
-    void predict_map_features(const uint64_t camera_id_now, const transformation& G_Bcurrent_Bnow);
+    void predict_map_features(const uint64_t camera_id_now, const size_t min_gorup_map_add, const transformation& G_Bcurrent_Bnow);
 
 // triangulated tracks
     struct triangulated_track

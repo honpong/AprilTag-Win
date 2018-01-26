@@ -942,12 +942,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         fprintf(stderr, "\nvision:\n");
     }
 
-    transformation G_Bcurrent_Bnow;
-    if(f->map && f->map->current_node)
-        f->s.get_closest_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow);
-    
     preprocess_observation_queue(f, time); // time update filter, then predict locations of current features in the observation queue
-    camera_state.update_feature_tracks(data, f->map.get(), G_Bcurrent_Bnow); // track the current features near their predicted locations
+    camera_state.update_feature_tracks(data); // track the current features near their predicted locations
     process_observation_queue(f); // update state and covariance based on current location of tracked features
 
     for(auto &g : f->s.groups.children) {
@@ -993,10 +989,18 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     filter_update_triangulated_tracks(f, data.id);
 
-    if(!f->s.groups.children.empty()) // we only bring a group back if the graph is connected
-        filter_bring_groups_back(f, data.id);
-
     space = filter_available_feature_space(f);
+    // bring groups back
+    if(f->map && f->map->current_node && space >= f->min_group_map_add && !f->s.groups.children.empty()) {
+        transformation G_Bcurrent_Bnow;
+        f->s.get_closest_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow);
+        camera_state.update_map_tracks(data, f->map.get(), f->min_group_map_add, G_Bcurrent_Bnow);
+        if(f->map->map_feature_tracks.size()) {
+            filter_bring_groups_back(f, data.id);
+            space = filter_available_feature_space(f);
+        }
+    }
+
     if(space >= f->min_group_add && camera_state.standby_tracks.size() >= f->min_group_add)
     {
 #ifdef TEST_POSDEF
@@ -1412,8 +1416,8 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
             auto &camera_node_state = *f->s.cameras.children[node.camera_id];
 
             auto space = filter_available_feature_space(f);
-            if(space > f->min_group_map_add) {
-                if(mft.found > f->min_group_map_add) {
+            if(space >= f->min_group_map_add) {
+                if(mft.found >= f->min_group_map_add) {
                     auto g = std::make_unique<state_vision_group>(camera_node_state, mft.group_id);
                     g->Tr.v = mft.G_neighbor_now.T;
                     g->Qr.v = mft.G_neighbor_now.Q;

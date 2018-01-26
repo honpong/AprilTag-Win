@@ -548,7 +548,7 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<
     return ku_d;
 }
 
-void state_camera::update_feature_tracks(const sensor_data &data, mapper *map, const transformation& G_Bcurrent_Bnow)
+void state_camera::update_feature_tracks(const sensor_data &data)
 {
     START_EVENT(SF_TRACK, 0);
     tracker::image current_image;
@@ -562,28 +562,48 @@ void state_camera::update_feature_tracks(const sensor_data &data, mapper *map, c
     for(auto &feature : tracks) feature_tracker->tracks.emplace_back(&feature.track);
     for(auto &t:standby_tracks) feature_tracker->tracks.emplace_back(&t);
 
-    // create tracks of features visible in inactive map nodes
-    if(map) {
-        START_EVENT(SF_PREDICT_MAP, 0);
-        map->predict_map_features(data.id, G_Bcurrent_Bnow);
-        for(auto &nft : map->map_feature_tracks) {
-            for(auto &mft : nft.tracks)
-                feature_tracker->tracks.emplace_back(&mft.track);
-        }
-        END_EVENT(SF_PREDICT_MAP, map->map_feature_tracks.size());
-    }
-
     if (feature_tracker->tracks.size())
         feature_tracker->track(current_image, feature_tracker->tracks);
 
-    // sort map tracks according to number of features found
-    if(map) {
-        for (auto &nft : map->map_feature_tracks)
-            for (auto &mft : nft.tracks)
+    END_EVENT(SF_TRACK, feature_tracker->tracks.size())
+}
+
+void state_camera::update_map_tracks(const sensor_data &data, mapper *map,
+                                     const size_t min_group_map_add, const transformation &G_Bcurrent_Bnow) {
+    START_EVENT(SF_TRACK, 0);
+    tracker::image current_image;
+    current_image.image = (uint8_t *)data.image.image;
+    current_image.width_px = data.image.width;
+    current_image.height_px = data.image.height;
+    current_image.stride_px = data.image.stride;
+
+    feature_tracker->tracks.clear();
+    START_EVENT(SF_PREDICT_MAP, 0);
+    // create tracks of features visible in inactive map nodes
+    map->predict_map_features(data.id, min_group_map_add, G_Bcurrent_Bnow);
+    for(auto &nft : map->map_feature_tracks) {
+        for(auto &mft : nft.tracks)
+            feature_tracker->tracks.emplace_back(&mft.track);
+    }
+    END_EVENT(SF_PREDICT_MAP, map->map_feature_tracks.size());
+
+    if (feature_tracker->tracks.size()) {
+        feature_tracker->track(current_image, feature_tracker->tracks);
+        // sort map tracks according to number of features found
+        for (auto &nft : map->map_feature_tracks) {
+            for (auto &mft : nft.tracks) {
                 nft.found += mft.track.found();
+            }
+        }
+        auto it = std::remove_if(map->map_feature_tracks.begin(), map->map_feature_tracks.end(),
+                                 [&min_group_map_add](mapper::node_feature_track& nft) {
+                                    return nft.found < min_group_map_add;
+                                 });
+        map->map_feature_tracks.erase(it, map->map_feature_tracks.end());
+
         std::sort(map->map_feature_tracks.begin(), map->map_feature_tracks.end(),
                   [](const mapper::node_feature_track &a, const mapper::node_feature_track &b) {
-                      return a.found > b.found;
+                    return a.found > b.found;
                   });
     }
 

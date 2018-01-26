@@ -841,11 +841,18 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
     map_feature_tracks.clear();
     if(!current_node)
         return;
+
+    const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
+    const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
+    transformation G_CB = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
+
     // distance # edges traversed
     auto distance = [](const map_edge& edge) { return 1; };
     // select node if it is finished and within 2 meters from current pose
-    auto is_node_searched = [this](const node_path& path) {
-      if( (get_node(path.id).status == node_status::finished) && (path.G.T.norm() < 2.f) )
+    auto is_node_searched = [this, &G_CB](const node_path& path) {
+      f_t cos_z = v3{0,0,1}.dot(G_CB.Q*path.G.Q*G_CB.Q.conjugate()*v3{0,0,1});
+      // check if candidate is in a 2m radius and points to the same half-space direction cos(M_PI/2) = 0
+      if( (get_node(path.id).status == node_status::finished) && (path.G.T.norm() < 2) && (cos_z > 0) )
           return true;
       else
           return false;
@@ -862,9 +869,6 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
 
     if(neighbors.size() > 4)
         neighbors.resize(4);
-    const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
-    const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
-    transformation G_CB = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
 
     for(const auto& neighbor : neighbors) {
         map_node& node_neighbor = nodes->at(neighbor.id);

@@ -173,7 +173,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if(docallback)
                     update_data(&pair.first); // TODO: visualize stereo data directly so we don't have a data callback here
 
-                auto camera_frame = std::move(sfm.s.cameras.children[0]->camera_frame);
+
+                auto camera_frame = std::move(sfm.s.cameras.children[pair.first.id]->camera_frame);
                 if (camera_frame) {
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
                         if (sfm.relocalization_future.get())
@@ -201,14 +202,14 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                     return false;
                 }();
 
-                if(sfm.s.cameras.children[0]->detecting_space || compute_descriptors_now) {
+                if(sfm.s.cameras.children[pair.first.id]->detecting_space || compute_descriptors_now) {
                     std::unique_ptr<camera_frame_t> camera_frame;
                     if (compute_descriptors_now)
                         camera_frame = filter_create_camera_frame(&sfm, pair.first);
 
                     START_EVENT(SF_STEREO_DETECT1, 0);
                     auto start = std::chrono::steady_clock::now();
-                    sfm.s.cameras.children[0]->detected = filter_detect(&sfm, pair.first, camera_frame);
+                    sfm.s.cameras.children[pair.first.id]->detected = filter_detect(&sfm, pair.first, camera_frame);
                     auto stop = std::chrono::steady_clock::now();
                     auto global_id = sensor_data::get_global_id_by_type_id(rc_SENSOR_TYPE_STEREO, 0); //"data" is of type IMAGE, but truly should report stats to STEREO stream
                     queue.stats.find(global_id)->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
@@ -216,10 +217,10 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                     if (camera_frame) {
                         filter_compute_orb(&sfm, std::move(pair.first), *camera_frame);
                     }
-                    sfm.s.cameras.children[data.id]->camera_frame = std::move(camera_frame);
+                    sfm.s.cameras.children[pair.first.id]->camera_frame = std::move(camera_frame);
 
                     if (sfm.s.cameras.children[0]->detected)
-                        filter_stereo_initialize(&sfm, 0, 1, pair.second);
+                        filter_stereo_initialize(&sfm, pair.first.id, pair.second.id, pair.second);
                 }
 
                 update_status();

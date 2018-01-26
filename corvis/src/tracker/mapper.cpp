@@ -376,9 +376,11 @@ mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::f
             const float& distance_u = path.distance;
             for(auto edge : nodes->at(u).edges) {
                 const nodeid& v = edge.first;
-                const transformation& G_u_v = edge.second.G;
-                f_t distance_uv = distance(edge.second);
-                next.emplace(v, G_start_u*G_u_v, distance_u + distance_uv);
+                if(nodes_done.find(v) == nodes_done.end()) {
+                    const transformation& G_u_v = edge.second.G;
+                    f_t distance_uv = distance(edge.second);
+                    next.emplace(v, G_start_u*G_u_v, distance_u + distance_uv);
+                }
             }
         }
     }
@@ -837,7 +839,8 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
     return voc;
 }
 
-void mapper::predict_map_features(const uint64_t camera_id_now, const transformation& G_Bcurrent_Bnow) {
+void mapper::predict_map_features(const uint64_t camera_id_now, const size_t min_group_map_add,
+                                  const transformation& G_Bcurrent_Bnow) {
     map_feature_tracks.clear();
     if(!current_node)
         return;
@@ -892,7 +895,8 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const transforma
             track.pred_y = kpd.y();
             tracks.emplace_back(std::move(track), f.second.v);
         }
-        map_feature_tracks.emplace_back(neighbor.id, invert(G_Bnow_Bneighbor), std::move(tracks));
+        if(tracks.size() >= min_group_map_add)
+            map_feature_tracks.emplace_back(neighbor.id, invert(G_Bnow_Bneighbor), std::move(tracks));
     }
 }
 

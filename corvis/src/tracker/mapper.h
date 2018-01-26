@@ -66,7 +66,7 @@ enum class node_status {reference, normal, finished};
 struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
-    std::map<uint64_t, map_edge> edges; // key is neighbor_id; we use a map structure to gurantee same order when traversing edges.
+    aligned_map<uint64_t, map_edge> edges; // key is neighbor_id; we use a map structure to gurantee same order when traversing edges.
     std::set<uint64_t> covisibility_edges;
     map_edge &get_add_neighbor(uint64_t neighbor);
     void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v, const feature_type type);
@@ -77,7 +77,7 @@ struct map_node {
     // relocalization
     uint64_t camera_id;
     std::shared_ptr<frame_t> frame;
-    std::map<uint64_t,map_feature> features;
+    aligned_map<uint64_t,map_feature> features;
     node_status status{node_status::normal};
 };
 
@@ -166,7 +166,7 @@ class mapper {
     // Other functions that only read concurrent member objects
     // do not need to lock mutexes.
 
-    concurrent<std::unordered_map<nodeid, map_node>> nodes;
+    concurrent<aligned_unordered_map<nodeid, map_node>> nodes;
     friend struct map_node;
     template<template <class map_feature_v, class...> class map_node_v, class map_feature_v, class... TArgs>
     friend class mapper_t;
@@ -225,7 +225,7 @@ private:
     mapper::nodes_path dijkstra_shortest_path(const node_path &start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path &)> is_node_searched,
                                               std::function<bool(const node_path &)> finish_search);
 
-    const std::unordered_map<nodeid, map_node> & get_nodes() const { return *nodes; }
+    const aligned_unordered_map<nodeid, map_node> &get_nodes() const { return *nodes; }
     map_node& get_node(nodeid id) { return nodes->at(id); }
     bool node_in_map(nodeid id) const { return nodes->find(id) != nodes->end(); }
     uint64_t get_node_id_offset() { return node_id_offset; }

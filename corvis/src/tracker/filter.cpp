@@ -535,7 +535,7 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
     return found_feats;
 }
 
-static size_t filter_available_feature_space(struct filter *f, state_camera &camera)
+static size_t filter_available_feature_space(struct filter *f)
 {
     auto space = f->store.maxstatesize - f->s.statesize;
     //leave space for the group
@@ -961,7 +961,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         for(auto &i : c->tracks)
             if(i.track.found()) ++i.feature.tracks_found;
 
-    auto space = filter_available_feature_space(f, camera_state);
+    auto space = filter_available_feature_space(f);
     if(space) {
         for(auto &g : f->s.groups.children)
         {
@@ -996,7 +996,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(!f->s.groups.children.empty()) // we only bring a group back if the graph is connected
         filter_bring_groups_back(f, data.id);
 
-    space = filter_available_feature_space(f, camera_state);
+    space = filter_available_feature_space(f);
     if(space >= f->min_group_add && camera_state.standby_tracks.size() >= f->min_group_add)
     {
 #ifdef TEST_POSDEF
@@ -1010,14 +1010,14 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             f->run_state = RCSensorFusionRunStateRunning;
             f->log->trace("When moving from steady init to running:");
             print_calibration(f);
-            space = filter_available_feature_space(f, camera_state);
+            space = filter_available_feature_space(f);
         }
         filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
     }
 
     f->s.update_map(f->map.get());
 
-    space = filter_available_feature_space(f, camera_state);
+    space = filter_available_feature_space(f);
     if(space >= f->min_group_add && camera_state.standby_tracks.size() < f->max_group_add) {
         camera_state.detecting_space = f->max_group_add;
     }
@@ -1411,7 +1411,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
             map_node &node = f->map->get_node(mft.group_id);
             auto &camera_node_state = *f->s.cameras.children[node.camera_id];
 
-            auto space = filter_available_feature_space(f, camera_node_state);
+            auto space = filter_available_feature_space(f);
             if(space > f->min_group_map_add) {
                 if(mft.found > f->min_group_map_add) {
                     auto g = std::make_unique<state_vision_group>(camera_node_state, mft.group_id);

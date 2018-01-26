@@ -42,9 +42,20 @@ pipeline {
                 '''
             }
         }
+        stage('Prepare Benchmark') {
+            steps {
+                sh 'rsync -a --link-dest=$JENKINS_HOME/benchmark_data/ $JENKINS_HOME/benchmark_data/ $(realpath .)/benchmark_data/ --exclude "*.json" --exclude "*.loop"'
+                sh 'rsync -a --chmod=ug+w                              $JENKINS_HOME/benchmark_data/ $(realpath .)/benchmark_data/ --include "*.json" --include "*.loop" --include "*/"'
+            }
+        }
+        stage('Generate Ground Truth') {
+            steps {
+                sh 'build/generate_loop_gt benchmark_data/new_test_suite/'
+            }
+        }
         stage('Run benchmark') {
             steps {
-                sh 'build/measure --qvga --benchmark $JENKINS_HOME/benchmark_data/new_test_suite/ --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
+                sh 'build/measure --qvga --relocalize --benchmark benchmark_data/new_test_suite/  --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
                 sh 'sed -ne /^Length/,//p benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt                           > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
                 copyArtifacts projectName: "SlamTracker/master", filter: "benchmark-summary-master-*", target: "base"
                 sh 'diff -u base/benchmark-summary-master-* benchmark-summary-$BRANCH_NAME-* | sed  s@base/@@g | tee benchmark-changes-$BRANCH_NAME-$GIT_COMMIT.txt'

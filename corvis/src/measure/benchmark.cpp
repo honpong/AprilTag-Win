@@ -219,13 +219,13 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
 
     std::vector<double> std_edges = {0, 3, 10, 25, 50, 100};
     std::vector<double> alt_edges = {0, 4, 12, 30, 65, 100};
-    std::vector<double> ate_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
-    std::vector<double> rpe_T_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
-    std::vector<double> rpe_R_edges = {0, 0.05, 0.1, 0.5, 1, 5};
+    std::vector<double> ate_edges = {0, 0.02, 0.05, 0.1, 0.2, 0.5};
+    std::vector<double> rpe_T_edges = {0, 0.02, 0.04, 0.06, 0.1, 0.15};
+    std::vector<double> rpe_R_edges = {0, 0.2, 0.3, 0.4, 0.5, 1};
     std::vector<double> precision_edges = {0, 60, 80, 95, 99, 100};
     std::vector<double> recall_edges = {0, 0.05, 0.1, 0.2, 1, 5};
-    std::vector<double> reloc_rpe_T_edges = {0, 0.01, 0.05, 0.1, 0.5, 1};
-    std::vector<double> reloc_rpe_R_edges = {0, 0.05, 0.1, 0.5, 1, 5};
+    std::vector<double> reloc_rpe_T_edges = {0, 0.02, 0.04, 0.06, 0.1, 0.15};
+    std::vector<double> reloc_rpe_R_edges = {0, 0.2, 0.3, 0.4, 0.5, 1};
     std::vector<double> reloc_times_edges = {0, 1, 2, 3, 5, 10};
     typedef histogram<double, false, true> error_histogram;
     typedef histogram<double, true, false> error_histogram_pr;

@@ -107,8 +107,6 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if (camera_frame) {
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
                         sfm.relocalization_info = sfm.relocalization_future.get();
-                        if (sfm.relocalization_info.is_relocalized)
-                            sfm.log->info("relocalized");
                     }
                     if ((sfm.relocalize && !sfm.relocalization_future.valid()) ||
                             filter_node_requires_frame(&sfm, *camera_frame)) {
@@ -175,8 +173,6 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 if (camera_frame) {
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
                         sfm.relocalization_info = sfm.relocalization_future.get();
-                        if (sfm.relocalization_info.is_relocalized)
-                            sfm.log->info("relocalized");
                     }
                     if ((sfm.relocalize && !sfm.relocalization_future.valid()) ||
                             filter_node_requires_frame(&sfm, *camera_frame)) {

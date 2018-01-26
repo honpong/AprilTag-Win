@@ -153,6 +153,11 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
             if(isProcessingVideo) {
                 START_EVENT(SF_STEREO_RECEIVE, data.id);
                 auto pair = sensor_data::split(std::move(data));
+
+                if (pair.first.id >= sfm.s.cameras.children.size() &&
+                    pair.second.id >= sfm.s.cameras.children.size())
+                    break;
+
                 uint64_t groups = sfm.s.group_counter;
                 docallback = filter_image_measurement(&sfm, pair.first);
 

@@ -154,7 +154,10 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                 START_EVENT(SF_STEREO_RECEIVE, data.id);
                 auto pair = sensor_data::split(std::move(data));
 
-                if (pair.first.id >= sfm.s.cameras.children.size() &&
+                if ((pair.first.id < sfm.s.cameras.children.size()) ^ (pair.second.id < sfm.s.cameras.children.size()))
+                    sfm.log->critical("Stereo packet with only one camera ({} but not {}) defined\n", pair.first.id, pair.second.id);
+
+                if (pair.first.id >= sfm.s.cameras.children.size() ||
                     pair.second.id >= sfm.s.cameras.children.size())
                     break;
 

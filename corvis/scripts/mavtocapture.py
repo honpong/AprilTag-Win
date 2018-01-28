@@ -10,10 +10,7 @@ import sys
 import math
 import re
 from os import path
-
-accel_type = 20
-gyro_type = 21
-image_raw_type = 29
+from packet import Packet, PacketType
 
 # defined in rc_tracker.h
 rc_IMAGE_GRAY8 = 0
@@ -88,8 +85,8 @@ for i in itertools.count():
         'extrinsics': compute_extrinsics(s['T_BS']),
     })
     for d in sensor.data:
-        data.append({ 'ptype':gyro_type,  'id':i, 'time_ns':int(d['timestamp [ns]']), 'w':tuple(map(float,(d['w_RS_S_x [rad s^-1]'], d['w_RS_S_y [rad s^-1]'], d['w_RS_S_z [rad s^-1]']))) })
-        data.append({ 'ptype':accel_type, 'id':i, 'time_ns':int(d['timestamp [ns]']), 'a':tuple(map(float,(d['a_RS_S_x [m s^-2]'],   d['a_RS_S_y [m s^-2]'],   d['a_RS_S_z [m s^-2]']  ))) })
+        data.append({ 'ptype':PacketType.gyroscope,  'id':i, 'time_ns':int(d['timestamp [ns]']), 'w':tuple(map(float,(d['w_RS_S_x [rad s^-1]'], d['w_RS_S_y [rad s^-1]'], d['w_RS_S_z [rad s^-1]']))) })
+        data.append({ 'ptype':PacketType.accelerometer, 'id':i, 'time_ns':int(d['timestamp [ns]']), 'a':tuple(map(float,(d['a_RS_S_x [m s^-2]'],   d['a_RS_S_y [m s^-2]'],   d['a_RS_S_z [m s^-2]']  ))) })
 
 for i in itertools.count():
     cam = input_dir + "/cam"+str(i)
@@ -105,7 +102,7 @@ for i in itertools.count():
         'extrinsics': compute_extrinsics(s['T_BS']),
     })
     for d in sensor.data:
-        data.append({ 'ptype':image_raw_type,'id':i, 'time_ns':int(d['timestamp [ns]']), 'name': cam + '/data/' + d['filename'], 'rate_hz': float(s['rate_hz']) })
+        data.append({ 'ptype':PacketType.image_raw,'id':i, 'time_ns':int(d['timestamp [ns]']), 'name': cam + '/data/' + d['filename'], 'rate_hz': float(s['rate_hz']) })
 
 groundtruth = []
 for i in itertools.count():
@@ -173,7 +170,7 @@ with open(output_filename, "wb") as f:
   for p in sorted(data, key=lambda x: x['time_ns']):
     ptype, time_us, sensor_id = p['ptype'], int(p['time_ns']/1000), p['id']
 
-    if ptype == image_raw_type:
+    if ptype == PacketType.image_raw:
         im = Image.open(p['name'])
         (w,h) = im.size
         b = 1
@@ -181,16 +178,15 @@ with open(output_filename, "wb") as f:
         d = im.tobytes()
         assert len(d) == stride*h
         data = pack('QHHHH', 0, w, h, stride, rc_IMAGE_GRAY8) + d
-    elif ptype == gyro_type:
+    elif ptype == PacketType.gyroscope:
         data = pack('fff', *p['w'])
-    elif ptype == accel_type:
+    elif ptype == PacketType.accelerometer:
         data = pack('fff', *p['a'])
     else:
         print("Unexpected data type", ptype)
 
-    pbytes = len(data) + 16
-    header_str = pack('IHHQ', pbytes, ptype, sensor_id, time_us)
-    f.write(header_str)
-    f.write(data)
+    pbytes = len(data) + Packet.header_size
+    header = Packet.Header.from_components(pbytes, ptype, sensor_id, time_us)
+    Packet(header, data).to_file(f)
     wrote_packets[ptype] += 1
     wrote_bytes += len(header_str) + len(data)

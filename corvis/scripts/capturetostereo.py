@@ -3,6 +3,7 @@ from struct import unpack, pack
 import sys
 import os, shutil
 import errno
+from packet import Packet, PacketType
 
 def ensure_path(path):
     try:
@@ -32,9 +33,9 @@ class image_frame:
                 self.camera_format) = unpack('QHHHH', data[:16])
         self.image_data = data[16:]
 
-def write_stereo_frame(f_out, frame1, frame2):
+def stereo_frame(f_out, frame1, frame2):
     if frame2.sensor_id < frame1.sensor_id:
-        return write_stereo_frame(f_out, frame2, frame1)
+        return stereo_frame(f_out, frame2, frame1)
 
     time_us = min(frame1.time_us, frame2.time_us)
     #print "write stereo frame", time_us, frame1.time_us, frame2.time_us
@@ -44,32 +45,27 @@ def write_stereo_frame(f_out, frame1, frame2):
     #print len(data_header)
     packet_bytes = len(data_header) + 16 + len(frame1.image_data) + len(frame2.image_data)
     header = pack('IHHQ', packet_bytes, stereo_raw_type, 0, time_us)
-    f_out.write(header)
-    f_out.write(data_header)
-    f_out.write(frame1.image_data)
-    f_out.write(frame2.image_data)
+    return Packet(Packet.Header(header), data_header+frame1.image_data+frame2.image_data)
 
 f = open(capture_filename, "rb")
 f_out = open(output_filename, "wb")
-header_size = 16
-header_str = f.read(header_size)
+p = Packet.from_file(f)
 last_frame = None
-while header_str != "":
-    (pbytes, ptype, sensor_id, ptime) = unpack('IHHQ', header_str)
-    data = f.read(pbytes-header_size)
-    if (not ptype == image_raw_type) or (ptype == image_raw_type and sensor_id >= 2):
-        f_out.write(header_str)
-        f_out.write(data)
-        
+while p is not None:
+    if (not p.header.type == PacketType.image_raw) or \
+       (p.header.type == PacketType.image_raw and p.header.sensor_id >= 2):
+        p.to_file(f_out)
     else:
-        this_frame = image_frame(sensor_id, ptime, data)
+        this_frame = image_frame(p.header.sensor_id, p.header.time, p.data)
 
         if last_frame and last_frame.sensor_id != this_frame.sensor_id and abs(last_frame.time_us - this_frame.time_us) < 1000:
-            write_stereo_frame(f_out, last_frame, this_frame)
+            stereo_packet = stereo_frame(f_out, last_frame, this_frame)
+            stereo_packet.arrival_time = p.arrival_time
+            stereo_packet.to_file(f_out)
 
         last_frame = this_frame
 
-    header_str = f.read(header_size)
+    p = Packet.from_file(f)
 
 f.close()
 f_out.close()

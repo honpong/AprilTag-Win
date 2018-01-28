@@ -1,4 +1,5 @@
 from __future__ import print_function
+from packet import Packet, PacketType
 
 def read_imu(file, type):
     import csv
@@ -19,10 +20,6 @@ def read_images(directory, type, id):
         data.append({ 'time_us': int(m.group('ReportedTimestamp'))/1000, 'type': type, 'id': id, 'filename': os.path.join(directory, png), 'exposure_us': 0 })
     return data
 
-accel_type = 20
-gyro_type = 21
-image_raw_type = 29
-
 # defined in rc_tracker.h
 rc_IMAGE_GRAY8 = 0
 rc_IMAGE_DEPTH16 = 1
@@ -33,7 +30,7 @@ def packets_write(data, output_filename):
     with open(output_filename, "wb") as f:
       for d in data:
         if d['type'] == 'image':
-            ptype, image_type = image_raw_type, rc_IMAGE_GRAY8
+            ptype, image_type = PacketType.image_raw, rc_IMAGE_GRAY8
             im = Image.open(d['filename']).convert("L")
             w,h = im.size
             bytes = im.tobytes()
@@ -41,17 +38,16 @@ def packets_write(data, output_filename):
             stride = w
             data = pack('QHHHH', d['exposure_us'], w, h, stride, image_type) + bytes
         elif d['type'] == 'gyro':
-            ptype = gyro_type
+            ptype = PacketType.gyroscope
             data = pack('fff', *d['value'])
         elif d['type'] == 'accel':
-            ptype = accel_type
+            ptype = PacketType.accelerometer
             data = pack('fff', *d['value'])
         else:
             print("Unexpected data type", type)
-        pbytes = len(data) + 16
-        header_str = pack('IHHQ', pbytes, ptype, int(d['id']), int(d['time_us']))
-        f.write(header_str)
-        f.write(data)
+        pbytes = len(data) + Packet.header_size
+        header = Packet.Header.from_components(pbytes, ptype, int(d['id']), int(d['time_us']))
+        Packet(header, data).to_file(f)
 
 if __name__ == "__main__":
     import sys,os

@@ -44,13 +44,8 @@ pipeline {
         }
         stage('Prepare Benchmark') {
             steps {
-                sh 'rsync -a --link-dest=$JENKINS_HOME/benchmark_data/ $JENKINS_HOME/benchmark_data/ $(realpath .)/benchmark_data/ --exclude "*.json" --exclude "*.loop"'
-                sh 'rsync -a --chmod=ug+w                              $JENKINS_HOME/benchmark_data/ $(realpath .)/benchmark_data/ --include "*.json" --include "*.loop" --include "*/"'
-            }
-        }
-        stage('Generate Ground Truth') {
-            steps {
-                sh 'build/generate_loop_gt benchmark_data/new_test_suite/'
+                sh 'rsync -a --link-dest=$JENKINS_HOME/benchmark_data/ $JENKINS_HOME/benchmark_data/ $(realpath .)/benchmark_data/ --exclude "*.json"'
+                sh 'rsync -a --chmod=ug+w                              $JENKINS_HOME/benchmark_data/ $(realpath .)/benchmark_data/ --include "*.json" --include "*/"'
             }
         }
         stage('Check options') {

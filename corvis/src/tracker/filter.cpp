@@ -1420,6 +1420,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
             auto space = filter_available_feature_space(f);
             if(space >= f->min_group_map_add) {
                 if(mft.found >= f->min_group_map_add) {
+                    TRACE_EVENT(SF_ADD_MAP_GROUP, mft.found);
                     auto g = std::make_unique<state_vision_group>(camera_node_state, mft.group_id);
                     g->Tr.v = mft.G_neighbor_now.T;
                     g->Qr.v = mft.G_neighbor_now.Q;

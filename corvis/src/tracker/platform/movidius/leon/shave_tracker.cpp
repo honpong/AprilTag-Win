@@ -44,15 +44,15 @@ __attribute__((section(".cmx_direct.data"))) int matched_kp[MAX_KP1];
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
 //tracker
-extern u32 cvrt4_fast_detect;
-extern u32 cvrt8_fast_detect;
-extern u32 cvrt9_fast_detect;
-extern u32 cvrt10_fast_detect;
+extern u32 detect4_fast_detect;
+extern u32 detect8_fast_detect;
+extern u32 detect9_fast_detect;
+extern u32 detect10_fast_detect;
 
-extern u32 cvrt0_fast_track;
-extern u32 cvrt1_fast_track;
-extern u32 cvrt2_fast_track;
-extern u32 cvrt3_fast_track;
+extern u32 track0_fast_track;
+extern u32 track1_fast_track;
+extern u32 track2_fast_track;
+extern u32 track3_fast_track;
 //stereo
 extern u32 stereo_initialize0_stereo_match;
 extern u32 stereo_initialize1_stereo_match;
@@ -63,18 +63,18 @@ struct shave_entry_point { int shave; u32 *entry_point; };
 
 #define DETECT_SHAVES 4
 shave_entry_point fast_detect[DETECT_SHAVES] = {
-    {4,  &cvrt4_fast_detect},
-    {8,  &cvrt8_fast_detect},
-    {9,  &cvrt9_fast_detect},
-    {10, &cvrt10_fast_detect},
+    {4,  &detect4_fast_detect},
+    {8,  &detect8_fast_detect},
+    {9,  &detect9_fast_detect},
+    {10, &detect10_fast_detect},
 };
 
 #define TRACK_SHAVES 4
 shave_entry_point fast_track[TRACK_SHAVES] = {
-    {0, &cvrt0_fast_track},
-    {1, &cvrt1_fast_track},
-    {2, &cvrt2_fast_track},
-    {3, &cvrt3_fast_track},
+    {0, &track0_fast_track},
+    {1, &track1_fast_track},
+    {2, &track2_fast_track},
+    {3, &track3_fast_track},
 };
 
 #define STEREO_SHAVES STEREO_SHAVES_USED // FIXME

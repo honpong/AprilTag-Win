@@ -97,18 +97,23 @@ SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-st
 
 SHAVE_SEARCH_PATH = $(SLAM_PLATFORM_PREFIX)/shave
 
-ENTRYPOINTS_cvrt = fast_detect fast_track
+ENTRYPOINTS_detect = fast_detect
+ENTRYPOINTS_track = fast_track
 ENTRYPOINTS_stereo_initialize = stereo_match
 ENTRYPOINTS_project_covariance = vision_project_motion_covariance vision_project_observation_covariance
 ENTRYPOINTS_blis = startSGEMM startSGEMMTRSM_LL startSGEMMTRSM_LU startSGEMMTRSM_RU startSGEMMTRSM_RL
 ENTRYPOINTS_cholesky = potrf_ln
-SHAVES_IDX_cvrt               = 0 1 2 3 4 8 9 10
+SHAVES_IDX_detect             = 4 8 9 10
+SHAVES_IDX_track              = 0 1 2 3
 SHAVES_IDX_stereo_initialize  = 0 1 2 3
 SHAVES_IDX_project_covariance = 0 1 2 3
 SHAVES_IDX_blis               = 0 1 2 3
 SHAVES_IDX_cholesky           = 0
 
-SHAVE_CPP_AUTOSTAT_SOURCES_cvrt += $(SHAVE_SEARCH_PATH)/stereo_initialize/common_shave.cpp
+SHAVE_CPP_AUTOSTAT_SOURCES_detect += $(SHAVE_SEARCH_PATH)/stereo_initialize/common_shave.cpp
+SHAVE_ASM_AUTOSTAT_SOURCES_detect += $(SLAM_PLATFORM_PREFIX)/shared/fast9M2.asm
+SHAVE_CPP_AUTOSTAT_SOURCES_track += $(SHAVE_SEARCH_PATH)/stereo_initialize/common_shave.cpp
+SHAVE_ASM_AUTOSTAT_SOURCES_track += $(SLAM_PLATFORM_PREFIX)/shared/fast9M2.asm
 
 SHAVE_CPP_AUTOSTAT_SOURCES_blis += $(shell realpath --relative-to=$$(pwd) $(wildcard \
   $(MV_COMMON_BASE)/components/kernelLib/LAMA/kernels/sgemm*/shave/src/cpp/*.cpp \

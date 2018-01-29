@@ -4,6 +4,7 @@
 #include "gui.h"
 #include "benchmark.h"
 #include "rc_compat.h"
+#include "gt_generator.h"
 #include <iomanip>
 
 #ifdef WIN32
@@ -135,11 +136,14 @@ int main(int c, char **v)
 
         if(zero_bias) rp.zero_biases();
 
-        rp.set_reloc_reference_from_filename(capture_file);
-
         if(!rp.set_reference_from_filename(capture_file) && benchmark) {
             cerr << capture_file << ": unable to find a reference to measure against\n";
             return false;
+        }
+
+        gt_generator loop_gt_gen;
+        if (loop_gt_gen.generate(capture_file)) {
+            rp.set_reference_edges(loop_gt_gen.get_loop_gt());
         }
 
         return true;

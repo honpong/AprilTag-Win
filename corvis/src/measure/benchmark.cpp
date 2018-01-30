@@ -263,12 +263,12 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
 
     if (has_reloc) {
         stream << "Precision histogram (" << precision_reloc.size() << " sequences)\n";
-        error_histogram_pr precision_hist(precision_reloc, precision_edges, 2);
+        error_histogram_pr precision_hist(precision_reloc, precision_edges);
         stream << precision_hist;
         stream << "Undefined precision: " << precision_anomalies << " sequences\n\n";
 
         stream << "Recall histogram (" << recall_reloc.size() << " sequences)\n";
-        error_histogram_pr recall_hist(recall_reloc, recall_edges, 2);
+        error_histogram_pr recall_hist(recall_reloc, recall_edges);
         stream << recall_hist;
         stream << "Undefined recall: " << recall_anomalies << " sequences\n\n";
 

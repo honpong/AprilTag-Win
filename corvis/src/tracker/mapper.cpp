@@ -882,7 +882,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const size_t min
         std::vector<map_feature_track> tracks;
         const transformation& G_Bnow_Bneighbor = neighbor.G;
         transformation G_Cnow_Bneighbor = G_CB*G_Bnow_Bneighbor;
-        int potential = node_neighbor.features.size();
+        size_t potential = node_neighbor.features.size();
         for(const auto& f : node_neighbor.features) {
             // predict feature in current camera pose
             v3 p3dC = G_Cnow_Bneighbor * get_feature3D(neighbor.id, f.second.feature->id);

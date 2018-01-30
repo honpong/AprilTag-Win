@@ -152,7 +152,7 @@ TEST(Transformation, EPnPRansac)
 
         transformation estimate;
         f_t reprojection_error = estimate_transformation(src, dst, estimate, gen);
-        EXPECT_NEAR(reprojection_error, 0, 125*F_T_EPS);
+        EXPECT_NEAR(reprojection_error, 0, 150*F_T_EPS);
         EXPECT_QUATERNION_NEAR(g.Q, estimate.Q, 25*F_T_EPS);
         EXPECT_V3_NEAR(g.T, estimate.T, std::max(g.T.norm()*0.005, F_T_EPS*4.));
     }

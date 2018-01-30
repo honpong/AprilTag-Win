@@ -593,19 +593,21 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
     return current_to_candidate_matches;
 }
 
-void mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_currentframeB, std::set<size_t>& inliers_set) {
+bool mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_currentframeB, std::set<size_t>& inliers_set) {
     state_extrinsics* const extrinsics = camera_extrinsics[camera_id];
     transformation G_BC = transformation(extrinsics->Q.v, extrinsics->T.v);
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_id];
     const f_t focal_px = intrinsics->focal_length.v * intrinsics->image_height;
-    const f_t sigma_px = 3.0;
     const f_t max_reprojection_error = 2*sigma_px/focal_px;
-    const int max_iter = 10; // 10
-    const float confidence = 0.9f; //0.9
     std::minstd_rand rng(-1);
     transformation G_currentframeC_candidateB;
-    estimate_transformation(points_3d, points_2d, G_currentframeC_candidateB, rng, max_iter, max_reprojection_error, confidence, 5, &inliers_set);
-    G_candidateB_currentframeB = invert(G_BC*G_currentframeC_candidateB);
+    auto reprojection_error = estimate_transformation(points_3d, points_2d, G_currentframeC_candidateB, rng, max_iter, max_reprojection_error, confidence, min_num_inliers, &inliers_set);
+    if(reprojection_error < max_reprojection_error) {
+        G_candidateB_currentframeB = invert(G_BC*G_currentframeC_candidateB);
+        return true;
+    } else {
+        return false;
+    }
 }
 
 map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
@@ -615,7 +617,6 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
     reloc_info.frame_timestamp = current_frame->timestamp;
     if (!current_frame->keypoints.size()) return reloc_info;
 
-    const size_t min_num_inliers = 12;
     size_t i = 0;
 
     START_EVENT(SF_FIND_CANDIDATES, 0);
@@ -717,10 +718,10 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
             });
             inliers_set.clear();
             START_EVENT(SF_ESTIMATE_POSE,0);
-            estimate_pose(candidate_3d_points, current_2d_points, camera_frame.camera_id, G_candidate_currentframe, inliers_set);
+            bool pose_found = estimate_pose(candidate_3d_points, current_2d_points, camera_frame.camera_id, G_candidate_currentframe, inliers_set);
             END_EVENT(SF_ESTIMATE_POSE,inliers_set.size());
             reloc_info.rstatus = relocalization_status::estimate_EPnP;
-            if(inliers_set.size() >= min_num_inliers) {
+            if(pose_found && inliers_set.size() >= min_num_inliers) {
                 //transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
                 ok = nodes.critical_section([&]() {
                     if (nodes->find(nid.first) != nodes->end() && nodes->find(camera_frame.closest_node) != nodes->end()) {

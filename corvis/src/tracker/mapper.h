@@ -32,6 +32,12 @@
 #define MIN_FEATURE_TRACKS 3
 #define MIN_FEATURE_PARALLAX 5.0f/180*M_PI
 
+// Constant relocalization parameters
+constexpr static f_t sigma_px = 3.0;
+constexpr static int max_iter = 40; // 40
+constexpr static float confidence = 0.9f; //0.9
+constexpr static size_t min_num_inliers = 12;
+
 typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, DBoW2::L1_NORM> orb_vocabulary;
 
 class state_vision_intrinsics;
@@ -256,7 +262,7 @@ private:
     std::vector<state_extrinsics*> camera_extrinsics;
 
     map_relocalization_info relocalize(const camera_frame_t& camera_frame);
-    void estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
+    bool estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
 
     // reuse map features in filter
     struct map_feature_track {

@@ -863,22 +863,26 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const size_t min
     };
     // search all graph
     auto finish_search = [](const node_path& path) { return false; };
-
+    START_EVENT(SF_DIJKSTRA, 0);
     nodes_path neighbors = dijkstra_shortest_path(node_path{current_node->id, invert(G_Bcurrent_Bnow), 0},
                                                   distance, is_node_searched, finish_search);
 
     std::sort(neighbors.begin(), neighbors.end(), [](const node_path& path1, const node_path& path2){
         return path1.G.T.norm() < path2.G.T.norm();
     });
-
-    if(neighbors.size() > 4)
-        neighbors.resize(4);
-
+    END_EVENT(SF_DIJKSTRA, neighbors.size());
+    //performance tradeof:
+    //too many neighbors -> long loop time
+    //too few -> we might end up not adding features at all
+    if(neighbors.size() > 8)
+        neighbors.resize(8);
+    int groups_added = 0;
     for(const auto& neighbor : neighbors) {
         map_node& node_neighbor = nodes->at(neighbor.id);
         std::vector<map_feature_track> tracks;
         const transformation& G_Bnow_Bneighbor = neighbor.G;
         transformation G_Cnow_Bneighbor = G_CB*G_Bnow_Bneighbor;
+        int potential = node_neighbor.features.size();
         for(const auto& f : node_neighbor.features) {
             // predict feature in current camera pose
             v3 p3dC = G_Cnow_Bneighbor * get_feature3D(neighbor.id, f.second.feature->id);
@@ -887,17 +891,26 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const size_t min
             feature_t kpn = p3dC.segment<2>(0)/p3dC.z();
             feature_t kpd = intrinsics_now->unnormalize_feature(intrinsics_now->distort_feature(kpn));
             if(kpd.x() < 0 || kpd.x() > intrinsics_now->image_width ||
-               kpd.y() < 0 || kpd.y() > intrinsics_now->image_height)
+               kpd.y() < 0 || kpd.y() > intrinsics_now->image_height){
+                potential--;
+                //early exit if not enough features
+                if(potential < min_group_map_add) {
+                    break;
+                }
                 continue;
-
+            }
             // create feature track
             tracker::feature_track track(f.second.feature, INFINITY, INFINITY, 0.0f);
             track.pred_x = kpd.x();
             track.pred_y = kpd.y();
             tracks.emplace_back(std::move(track), f.second.v);
         }
-        if(tracks.size() >= min_group_map_add)
+        if(tracks.size() >= min_group_map_add){
             map_feature_tracks.emplace_back(neighbor.id, invert(G_Bnow_Bneighbor), std::move(tracks));
+            groups_added++;
+        }
+        //more than 4 will create a long tracking time
+        if(groups_added >= 4) break;
     }
 }
 

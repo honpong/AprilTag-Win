@@ -29,7 +29,7 @@ private:
     double path_length{0}; double reference_path_length{NAN};
     double length{0}; double reference_length{NAN};
     std::unique_ptr<tpose_sequence> reference_seq;
-    std::unordered_multimap<rc_Timestamp, std::unordered_set<rc_Timestamp>> ref_relocalization_edges;
+    std::unordered_map<rc_Timestamp, std::unordered_set<rc_Timestamp>> ref_relocalization_edges;
     std::atomic<bool> should_reset{false};
     std::atomic<bool> is_running{false};
     std::atomic<bool> is_paused{false};
@@ -55,7 +55,6 @@ private:
     sensor_clock::time_point last_accel, last_gyro, last_image, last_velo;
     bool find_reference_in_filename(const std::string &filename);
     bool load_reference_from_pose_file(const std::string &filename);
-    bool load_reloc_reference_from_file(const std::string &filename);
     bool load_internal_calibration(const std::string &filename);
     bool load_map(std::string filename);
 
@@ -99,11 +98,11 @@ public:
     double get_reference_path_length() { return reference_path_length; }
     double get_reference_length() { return reference_length; }
     bool set_reference_from_filename(const std::string &filename);
-    bool set_reloc_reference_from_filename(const std::string &filename);
     void zero_biases();
     void start_mapping(bool relocalize, bool save_map) { rc_startMapping(tracker, relocalize, save_map); }
     void save_map(std::string filename);
-    const std::unordered_multimap<rc_Timestamp, std::unordered_set<rc_Timestamp>>& get_reference_edges() const { return ref_relocalization_edges; }
+    const std::unordered_map<rc_Timestamp, std::unordered_set<rc_Timestamp>>& get_reference_edges() const { return ref_relocalization_edges; }
+    void set_reference_edges(std::unordered_map<rc_Timestamp, std::unordered_set<rc_Timestamp>> loop_gt) { ref_relocalization_edges = loop_gt; }
     const tpose_sequence& get_reference_poses() const { return *reference_seq; }
 };
 

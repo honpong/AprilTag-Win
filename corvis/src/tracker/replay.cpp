@@ -176,38 +176,6 @@ bool replay::load_reference_from_pose_file(const string &filename)
     return false;
 }
 
-bool replay::set_reloc_reference_from_filename(const string &filename)
-{
-    return load_reloc_reference_from_file(filename + ".loop");
-}
-
-bool replay::load_reloc_reference_from_file(const std::string &filename)
-{
-    ref_relocalization_edges.clear();
-    std::ifstream ref_reloc_file(filename, std::ios::in | std::ios::binary);
-    if (ref_reloc_file.is_open()) {
-        auto it = ref_relocalization_edges.end();
-        uint64_t time[2];
-        uint32_t node_id;
-        while (!ref_reloc_file.bad() && !ref_reloc_file.eof()) {
-            // stored in little endian
-            ref_reloc_file.read(reinterpret_cast<char*>(time), sizeof(uint64_t) * 2);
-            ref_reloc_file.read(reinterpret_cast<char*>(&node_id), sizeof(uint32_t));
-            if (!ref_reloc_file.bad() && !ref_reloc_file.eof()) {
-                uint64_t time_new = le64toh(time[0]);
-                uint64_t time_old = le64toh(time[1]);
-                node_id = le32toh(node_id);
-                if (it == ref_relocalization_edges.end() || static_cast<uint64_t>(it->first) != time_new) {
-                    it = ref_relocalization_edges.emplace(time_new, std::unordered_set<rc_Timestamp>());
-                }
-                it->second.emplace(time_old);
-            }
-        }
-        return true;
-    }
-    return false;
-}
-
 static bool find_prefixed_number(const std::string in, const std::string &prefix, double &n)
 {
     smatch m; if (!regex_search(in, m, regex(prefix + "(\\d+(?:\\.\\d*)?)"))) return false;

@@ -162,7 +162,7 @@ struct benchmark_result {
                        const int num_mapnodes,
                        const rc_RelocEdge* reloc_edges,
                        const rc_MapNode* map_nodes,
-                       const std::unordered_multimap<rc_Timestamp, std::unordered_set<rc_Timestamp>>& ref_edges,
+                       const std::unordered_map<rc_Timestamp, std::unordered_set<rc_Timestamp>>& ref_edges,
                        const tpose_sequence& ref_poses) {
 
             std::unordered_set<rc_Timestamp> ref_mapnode_edges;

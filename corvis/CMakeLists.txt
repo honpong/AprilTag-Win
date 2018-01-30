@@ -159,6 +159,7 @@ if(ENABLE_MGL)
 endif()
 target_include_directories(measure PUBLIC measure)
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
+target_link_libraries(measure PUBLIC loop_gt_generator)
 
 endif()
 

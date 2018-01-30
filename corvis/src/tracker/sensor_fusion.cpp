@@ -172,12 +172,13 @@ void sensor_fusion::queue_receive_data(sensor_data &&data)
                         sfm.log->warn("Skipped catchup at {}, {} of {} left in queue", sensor_clock::tp_to_micros(data.timestamp), in_queue, data.type);
                 }
 
+                sfm.relocalization_info = {};
+
                 update_status();
                 if(docallback)
                     update_data(&pair.first); // TODO: visualize stereo data directly so we don't have a data callback here
 
                 auto camera_frame = std::move(sfm.s.cameras.children[pair.first.id]->camera_frame);
-                sfm.relocalization_info = {};
                 if (camera_frame) {
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
                         sfm.relocalization_info = sfm.relocalization_future.get();

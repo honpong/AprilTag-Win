@@ -37,9 +37,14 @@ public:
 
         bins = std::vector<size_t>(edges.size()-1, 0);
 
-        inlier_threshold = bin_edges[bin_edges.size()-2];
+        if(add_back)
+            inlier_threshold = bin_edges[bin_edges.size()-2];
+        else if(add_front)
+            inlier_threshold = bin_edges[1];
+
         for (auto &d : data) { // FIXME: makes this O(log(n)) instead of O(n) ?
-            if(d < inlier_threshold) {
+            if((add_back && d < inlier_threshold) ||
+               (add_front && d > inlier_threshold)) {
                 inlier_sum += d;
                 inlier_count++;
             }

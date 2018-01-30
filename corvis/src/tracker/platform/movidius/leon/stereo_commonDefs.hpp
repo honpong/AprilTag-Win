@@ -4,8 +4,9 @@
 */
 #ifndef STEREO_COMMON_COMMONDEFS2_HPP_
 	#define STEREO_COMMON_COMMONDEFS2_HPP_
-	#define MAX_KP1 40
-	#define MAX_KP2 200
+	#include "state_size.h"
+	#define MAX_KP1 MAX_STANDBY_TRACKS
+	#define MAX_KP2 MAX_STANDBY_TRACKS
 	#define STEREO_SHAVES_USED 4
 
 	typedef float float4_t[4];

@@ -61,7 +61,7 @@ struct filter {
     map_relocalization_info relocalization_info;
 
     std::unique_ptr<mapper> map;
-    future_every_n<map_relocalization_info, 8> relocalization_future;
+    future_every_n<map_relocalization_info, 16> relocalization_future;
 
 #ifdef ENABLE_QR
     qr_detector qr;

@@ -151,8 +151,10 @@ TEST(Transformation, EPnPRansac)
         { std::default_random_engine gen(seed); std::shuffle(dst.begin(),dst.end(),gen); }
 
         transformation estimate;
-        f_t reprojection_error = estimate_transformation(src, dst, estimate, gen);
-        EXPECT_NEAR(reprojection_error, 0, 150*F_T_EPS);
+        int max_iterations = 20;
+        f_t max_reprojection_error = 150*F_T_EPS;
+        f_t reprojection_error = estimate_transformation(src, dst, estimate, gen, max_iterations, max_reprojection_error);
+        EXPECT_NEAR(reprojection_error, 0, max_reprojection_error);
         EXPECT_QUATERNION_NEAR(g.Q, estimate.Q, 25*F_T_EPS);
         EXPECT_V3_NEAR(g.T, estimate.T, std::max(g.T.norm()*0.005, F_T_EPS*4.));
     }

@@ -3,7 +3,7 @@
 #include <fstream>
 #include <type_traits>
 #include <utility>
-#include "gt_generator.h"
+#include "batch_gt_generator.h"
 #include "image_reader.h"
 #include "symmetric_matrix.h"
 #include "calibration.h"
@@ -14,19 +14,19 @@
 #include <tbb/parallel_for_each.h>
 #endif
 
-gt_generator::gt_generator() {}
+batch_gt_generator::batch_gt_generator() {}
 
-gt_generator::gt_generator(const std::string& capture_file,
+batch_gt_generator::batch_gt_generator(const std::string& capture_file,
                            struct camera camera, bool verbose) {
     generate(capture_file, camera, verbose);
 }
 
-gt_generator::gt_generator(const std::string& capture_file, loop_gt& gt,
+batch_gt_generator::batch_gt_generator(const std::string& capture_file, loop_gt& gt,
                            struct camera camera, bool verbose) {
     generate(capture_file, gt, camera, verbose);
 }
 
-bool gt_generator::generate(const std::string& capture_file,
+bool batch_gt_generator::generate(const std::string& capture_file,
                             struct camera camera, bool verbose) {
     camera_ = camera;
     verbose_ = verbose;
@@ -35,7 +35,7 @@ bool gt_generator::generate(const std::string& capture_file,
     return true;
 }
 
-bool gt_generator::generate(const std::string& capture_file, loop_gt& gt,
+bool batch_gt_generator::generate(const std::string& capture_file, loop_gt& gt,
                             struct camera camera, bool verbose) {
     camera_ = camera;
     verbose_ = verbose;
@@ -45,7 +45,7 @@ bool gt_generator::generate(const std::string& capture_file, loop_gt& gt,
     return true;
 }
 
-bool gt_generator::load_data(const std::string &capture_file) {
+bool batch_gt_generator::load_data(const std::string &capture_file) {
     if (!load_calibration(capture_file)) {
         if (verbose_) std::cout << "No calibration file found for " << capture_file << std::endl;
         return false;
@@ -61,7 +61,7 @@ bool gt_generator::load_data(const std::string &capture_file) {
     return true;
 }
 
-bool gt_generator::load_calibration(const std::string& capture_file) {
+bool batch_gt_generator::load_calibration(const std::string& capture_file) {
     calibration cal;
     auto load = [&cal](const std::string& filename) {
         std::ifstream file_handle(filename);
@@ -89,7 +89,7 @@ bool gt_generator::load_calibration(const std::string& capture_file) {
     return success;
 }
 
-bool gt_generator::load_reference_gt(const std::string& capture_file) {
+bool batch_gt_generator::load_reference_gt(const std::string& capture_file) {
     auto load = [](const std::string& filename) {
         tpose_sequence tum_poses;
         return (tum_poses.load_from_file(filename) ? tum_poses : tpose_sequence());
@@ -100,7 +100,7 @@ bool gt_generator::load_reference_gt(const std::string& capture_file) {
     return tum_gt_poses_.size() != 0;
 }
 
-bool gt_generator::load_image_timestamps(const std::string& capture_file) {
+bool batch_gt_generator::load_image_timestamps(const std::string& capture_file) {
     image_reader reader;
     if (reader.open(capture_file) && reader.create_index()) {
         const auto& image_index = reader.get_raw_index();
@@ -112,7 +112,7 @@ bool gt_generator::load_image_timestamps(const std::string& capture_file) {
     return false;
 }
 
-void gt_generator::run() {
+void batch_gt_generator::run() {
     interpolated_poses_ = interpolate_poses();
     if (interpolated_poses_.empty()) {
         associations_.clear();
@@ -184,7 +184,7 @@ void gt_generator::run() {
     get_connected_components();
 }
 
-std::vector<tpose> gt_generator::interpolate_poses() const {
+std::vector<tpose> batch_gt_generator::interpolate_poses() const {
     std::vector<tpose> poses;
     poses.reserve(rc_image_timestamps_.size());
     for (const auto& image_timestamp : rc_image_timestamps_) {
@@ -203,7 +203,7 @@ std::vector<tpose> gt_generator::interpolate_poses() const {
     return poses;
 }
 
-gt_generator::covisibility gt_generator::covisible_by_proximity(
+batch_gt_generator::covisibility batch_gt_generator::covisible_by_proximity(
         const transformation &G_world_camera_A,
         const transformation &G_world_camera_B) const {
     constexpr double in_distance = 0.5;  // m
@@ -229,7 +229,7 @@ gt_generator::covisibility gt_generator::covisible_by_proximity(
     }
 }
 
-bool gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
+bool batch_gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
                                                 const frustum& rhs) const {
     static auto point_to_segment_projection = [](const v3& p, const segment& s) {
         f_t t = (p-s.p).dot(s.v)/s.v.squaredNorm();
@@ -326,7 +326,7 @@ bool gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
     return numerical_frustums_intersection(lhs, rhs);
 }
 
-void gt_generator::get_connected_components() {
+void batch_gt_generator::get_connected_components() {
     std::unordered_map<size_t, size_t> lookup;
     labels_.create(associations_.rows(), no_label);
 
@@ -434,7 +434,7 @@ void gt_generator::get_connected_components() {
     }
 }
 
-gt_generator::loop_gt gt_generator::get_loop_gt() const {
+batch_gt_generator::loop_gt batch_gt_generator::get_loop_gt() const {
     loop_gt gt;
     for (int col = 1; col < associations_.cols(); ++col) {
         const auto& cur = interpolated_poses_[col];
@@ -450,7 +450,7 @@ gt_generator::loop_gt gt_generator::get_loop_gt() const {
     return gt;
 }
 
-bool gt_generator::save_loop_file(const std::string& capture_file, bool binary_format) const {
+bool batch_gt_generator::save_loop_file(const std::string& capture_file, bool binary_format) const {
     using save_function = std::function<void(std::ofstream&, rc_Timestamp, rc_Timestamp, size_t)>;
     save_function save_ascii = [](std::ofstream& file, rc_Timestamp cur_t, rc_Timestamp prev_t, size_t label) {
         // format: newer_timestamp older_timestamp group_id
@@ -487,7 +487,7 @@ bool gt_generator::save_loop_file(const std::string& capture_file, bool binary_f
     return true;
 }
 
-bool gt_generator::save_mat_file(const std::string& capture_file) const {
+bool batch_gt_generator::save_mat_file(const std::string& capture_file) const {
     std::ofstream file(capture_file + ".mat");
     if (!file) {
         std::cerr << "error: unable to write to " << (capture_file + ".mat") << std::endl;

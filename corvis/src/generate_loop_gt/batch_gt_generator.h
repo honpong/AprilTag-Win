@@ -13,7 +13,7 @@
 
 /** Generates loop groundtruth for a single sequence.
  */
-class gt_generator {
+class batch_gt_generator {
  public:
     struct camera {
         double fov_rad;  // field of view (radians)
@@ -29,10 +29,10 @@ class gt_generator {
 
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    gt_generator();
-    gt_generator(const std::string& capture_file,
+    batch_gt_generator();
+    batch_gt_generator(const std::string& capture_file,
                  struct camera camera = {}, bool verbose = false);
-    gt_generator(const std::string& capture_file, loop_gt& gt,
+    batch_gt_generator(const std::string& capture_file, loop_gt& gt,
                  struct camera camera = {}, bool verbose = false);
 
     bool generate(const std::string& capture_file,

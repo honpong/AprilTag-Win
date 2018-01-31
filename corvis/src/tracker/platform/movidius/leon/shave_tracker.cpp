@@ -2,10 +2,9 @@
 #include <DrvLeonL2C.h>
 #include <algorithm>
 #include "commonDefs.hpp"
-#include "mv_trace.h"
 #include "tracker.h"
 #include "descriptor.h"
-
+#include "state_vision.h"
 extern "C" {
 #include "cor_types.h"
 }
@@ -36,10 +35,12 @@ volatile __attribute__((section(".cmx_direct.data")))  ShavekpMatchingSettings s
 
 __attribute__((section(".cmx_direct.data"))) fast_tracker::xy tracked_features[512];
 
-__attribute__((section(".cmx_direct.data"))) uint8_t * patches1[MAX_KP1];
-__attribute__((section(".cmx_direct.data"))) uint8_t * patches2[MAX_KP2];
+__attribute__((section(".cmx_direct.data"))) uint8_t* patches1[MAX_KP1];
+__attribute__((section(".cmx_direct.data"))) uint8_t* patches2[MAX_KP2];
 __attribute__((section(".cmx_direct.data"))) float depths1[MAX_KP1];
+__attribute__((section(".cmx_direct.data"))) float depths2[MAX_KP1];
 __attribute__((section(".cmx_direct.data"))) float errors1[MAX_KP1];
+__attribute__((section(".cmx_direct.data"))) int matched_kp[MAX_KP1];
 // ----------------------------------------------------------------------------
 // 4: Static Local Data
 //tracker
@@ -77,7 +78,7 @@ shave_entry_point fast_track[TRACK_SHAVES] = {
 };
 
 #define STEREO_SHAVES STEREO_SHAVES_USED // FIXME
-shave_entry_point stereo_match[STEREO_SHAVES] = {
+shave_entry_point stereo_matching[STEREO_SHAVES] = {
     {0, &stereo_initialize0_stereo_match},
     {1, &stereo_initialize1_stereo_match},
     {2, &stereo_initialize2_stereo_match},
@@ -247,8 +248,25 @@ void shave_tracker::track(const tracker::image &image, std::vector<tracker::feat
     processTrackingResult(predictions);
 }
 
-void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group[], size_t n1, const tracker::feature_track * f2_group[], size_t n2, state_camera & camera1, state_camera & camera2)
+void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id)
 {
+    state_camera &camera1 = *f->s.cameras.children[camera1_id];
+    state_camera &camera2 = *f->s.cameras.children[camera2_id];
+    std::list<tracker::feature_track> &kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
+    std::list<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->standby_tracks;
+
+    tracker::feature_track * f1_group[MAX_KP1];
+    tracker::feature_track * f2_group[MAX_KP2];
+    int i = 0;
+    for(auto & k1 : kp1)
+        f1_group[i++] = &k1;
+
+    i = 0;
+    for(auto & k2 : kp2)
+        f2_group[i++] = &k2;
+
+    int n1 = kp1.size();
+    int n2 = kp2.size();
 
     feature_t f1_n,f2_n;
     v3 p2_calibrated,p2_cal_transformed,p1_calibrated,p1_cal_transformed;
@@ -284,6 +302,7 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
         patches1[i] = f->descriptor.patch.descriptor.data();
         depths1[i] = 0;
         errors1[i] = 0;
+        matched_kp[i] = -1;
 
         auto * k1 = f1_group[i];
         feature_t f1(k1->x,k1->y);
@@ -326,24 +345,35 @@ void shave_tracker::stereo_matching_full_shave(tracker::feature_track * f1_group
 	kpMatchingParams->EPS=1e-14;
 	kpMatchingParams->patch_stride=full_patch_width;
 	kpMatchingParams->patch_win_half_width=half_patch_width;
-
-	for (int i = 0; i < STEREO_SHAVES; ++i)
-        Shave::get_handle(stereo_match[i].shave)->start(
-                (u32)stereo_match[i].entry_point,
-                "iiiiiii",
-                kpMatchingParams,
-                p_kp1,
-                p_kp2,
-                patches1,
-                patches2,
-                depths1,
-                errors1);
-
-    for (int i = 0; i < STEREO_SHAVES; ++i)
-        Shave::get_handle(stereo_match[i].shave)->wait();
-
-    for(int i = 0; i < n1; i++) {
-        f1_group[i]->depth = depths1[i];
-        f1_group[i]->error = errors1[i];
+	kpMatchingParams->kp1 = p_kp1;
+	kpMatchingParams->kp2 = p_kp2;
+	kpMatchingParams->patches1 = patches1;
+	kpMatchingParams->patches2 = patches2;
+	kpMatchingParams->depth1 = depths1;
+	kpMatchingParams->depth2 = depths2;
+	kpMatchingParams->errors1 = errors1;
+	kpMatchingParams->matched_kp = matched_kp;
+	for (int i = 0; i < STEREO_SHAVES; ++i){
+        Shave::get_handle(stereo_matching[i].shave)->start(
+                (u32)stereo_matching[i].entry_point,
+                "i",
+                kpMatchingParams);
     }
+    for (int i = 0; i < STEREO_SHAVES; ++i){
+        Shave::get_handle(stereo_matching[i].shave)->wait();
+    }
+    i = 0;
+    for(auto k1 = kp1.begin(); k1 != kp1.end() && k1->feature.use_count() <= 1; ++k1, ++i) {
+        if(matched_kp[i] >= 0){
+            auto k2 = kp2.begin();
+            for(int j = 0; k2 != kp2.end(), j < matched_kp[i]; ++k2, ++j);
+            if (k2 != kp2.end() && k2->feature.use_count() <= 1) {//not already stereo
+                if (f->map)
+                    f->map->triangulated_tracks.erase(k2->feature->id); // FIXME: check if triangulated_tracks is more accurate than stereo match
+                k2->feature = k1->feature;
+                f->s.stereo_matches.emplace_back(camera1, k1, depths1[i], camera2, k2, depths2[i],  errors1[i]);
+            }
+        }
+    }
+
 }

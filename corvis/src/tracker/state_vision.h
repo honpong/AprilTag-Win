@@ -114,6 +114,7 @@ struct camera_frame_t {
 };
 
 class state_vision_group;
+class state_vision_track;
 struct state_camera;
 
 class state_vision_feature: public state_leaf<1> {
@@ -122,6 +123,7 @@ class state_vision_feature: public state_leaf<1> {
     std::shared_ptr<log_depth> v;
     std::shared_ptr<tracker::feature> feature;
     state_vision_group &group;
+    std::vector<state_vision_track *> tracks;
     size_t tracks_found {0};
     v3 body = v3(0, 0, 0);
 
@@ -197,7 +199,12 @@ public:
     static f_t outlier_reject;
     static f_t outlier_lost_reject;
     
-    state_vision_track(state_vision_feature &f, tracker::feature_track &t): feature(f), track(t) { if(t.found()) ++feature.tracks_found; }
+    state_vision_track(size_t camera_id, state_vision_feature &f, tracker::feature_track &&t): feature(f), track(std::move(t)) {
+        if(t.found()) ++feature.tracks_found;
+        if(f.tracks.size() <= camera_id) f.tracks.resize(camera_id + 1);
+        assert(f.tracks[camera_id] == nullptr);
+        f.tracks[camera_id] = this;
+    }
 };
 
 class state_vision_group: public state_branch<state_node *> {
@@ -240,6 +247,8 @@ struct state_camera: state_branch<state_node*> {
     std::list<tracker::feature_track> standby_tracks;
     size_t detected;
     std::unique_ptr<camera_frame_t> camera_frame;
+    size_t id;
+
     std::list<state_vision_track> tracks;
     void update_feature_tracks(const sensor_data &data);
     void update_map_tracks(const sensor_data &data, mapper *map, const size_t min_group_map_add, const transformation &G_Bcurrent_Bnow);
@@ -248,11 +257,25 @@ struct state_camera: state_branch<state_node*> {
 
     int detecting_space = 0;
 
-    state_camera() : extrinsics("Qc", "Tc", false), intrinsics(false) {
+    state_camera(size_t id_) : extrinsics("Qc", "Tc", false), intrinsics(false), id(id_) {
         reset();
         children.push_back(&extrinsics);
         children.push_back(&intrinsics);
     }
+};
+
+struct stereo_match
+{
+    struct view {
+        state_camera &camera;
+        std::list<tracker::feature_track>::iterator track;
+        f_t depth_m;
+    };
+    std::array<view,2> views;
+    f_t error_percent;
+    stereo_match(state_camera &c0, std::list<tracker::feature_track>::iterator &t0, f_t d0,
+                 state_camera &c1, std::list<tracker::feature_track>::iterator &t1, f_t d1, f_t e)
+                     : views({{{c0, t0, d0}, {c1, t1, d1}}}), error_percent(e) {}
 };
 
 class state_vision: public state_motion {
@@ -260,6 +283,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
     state_branch<std::unique_ptr<state_vision_group>> groups;
+    std::list<stereo_match> stereo_matches;
     state_vision(covariance &c, matrix &FP) : state_motion(c, FP) {
         non_orientation.children.push_back(&cameras);
         non_orientation.children.push_back(&groups);

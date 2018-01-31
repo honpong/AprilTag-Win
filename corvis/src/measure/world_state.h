@@ -79,7 +79,7 @@ private:
     std::unordered_map<std::string, size_t> plots_by_name;
     std::map<int, std::map<uint16_t, Sensor, std::less<uint16_t>, Eigen::aligned_allocator<std::pair<const uint16_t, Sensor> > > > sensors;
     std::map<uint64_t, MapNode> map_nodes;
-    std::map<uint64_t, Feature> features;
+    std::map<std::pair<rc_Sensor,uint64_t>, Feature> features;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_reloc;
     std::vector<Position, Eigen::aligned_allocator<Position> > path;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_mini;

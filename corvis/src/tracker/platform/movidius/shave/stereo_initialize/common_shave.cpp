@@ -42,7 +42,7 @@ float score_match_from_pointer_array(u8 **pPatch1_pa, u8 **pPatch2_pa,int x1_off
         t1 = t1 - (int)mean1;
         int8 t2 = {p2[0], p2[1], p2[2], p2[3], p2[4], p2[5], p2[6], 0};
         t2 = t2 - (int)mean2;
-        int8 t12 = t1 *t2;;
+        int8 t12 = t1 *t2;
         top += t12;
         int8 t1square = t1 * t1;
         int8 t2square = t2 * t2;

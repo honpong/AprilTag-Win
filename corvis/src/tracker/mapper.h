@@ -269,7 +269,11 @@ private:
         tracker::feature_track track;
         std::shared_ptr<log_depth> v;
         map_feature_track(tracker::feature_track &&track_, std::shared_ptr<log_depth> v_)
-            : track(track_), v(v_) {}
+            : track(std::move(track_)), v(v_) {}
+        map_feature_track(map_feature_track &&) = default;
+        map_feature_track & operator=(map_feature_track &&) = default;
+        map_feature_track(const map_feature_track &) = delete;
+        map_feature_track & operator=(const map_feature_track &) = delete;
     };
 
     struct node_feature_track {
@@ -278,7 +282,11 @@ private:
         std::vector<map_feature_track> tracks;
         size_t found = 0;
         node_feature_track(nodeid id_, const transformation &G, std::vector<map_feature_track> &&tracks_)
-            : group_id(id_), G_neighbor_now(G), tracks(tracks_) {}
+            : group_id(id_), G_neighbor_now(G), tracks(std::move(tracks_)) {}
+        node_feature_track(node_feature_track &&) = default;
+        node_feature_track & operator=(node_feature_track &&) = default;
+        node_feature_track(const node_feature_track &) = delete;
+        node_feature_track & operator=(const node_feature_track &) = delete;
     };
     std::vector<node_feature_track> map_feature_tracks;
     void predict_map_features(const uint64_t camera_id_now, const size_t min_gorup_map_add, const transformation& G_Bcurrent_Bnow);

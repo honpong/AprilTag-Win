@@ -91,7 +91,7 @@ bool rc_configureCamera(rc_Tracker *tracker, rc_Sensor camera_id, rc_ImageFormat
             tracker->sfm.cameras.push_back(std::move(new_camera));
             tracker->queue.require_sensor(rc_SENSOR_TYPE_IMAGE, camera_id, std::chrono::milliseconds(10));
             if (camera_id == tracker->sfm.s.cameras.children.size())
-                tracker->sfm.s.cameras.children.emplace_back(std::make_unique<state_camera>());
+                tracker->sfm.s.cameras.children.emplace_back(std::make_unique<state_camera>(camera_id));
         }
 
         tracker->sfm.cameras[camera_id]->extrinsics = rc_Extrinsics_to_sensor_extrinsics(*extrinsics_wrt_origin_m);
@@ -673,6 +673,7 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
             if(!i->is_valid() || !t.track.found()) continue;
             rc_Feature feat;
             feat.id = i->feature->id;
+            feat.camera_id = i->group.camera.id;
             feat.image_x = static_cast<decltype(feat.image_x)>(t.track.x);
             feat.image_y = static_cast<decltype(feat.image_y)>(t.track.y);
             feat.image_prediction_x = static_cast<decltype(feat.image_prediction_x)>(t.track.pred_x);

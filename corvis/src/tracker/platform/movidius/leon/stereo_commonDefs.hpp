@@ -4,8 +4,9 @@
 */
 #ifndef STEREO_COMMON_COMMONDEFS2_HPP_
 	#define STEREO_COMMON_COMMONDEFS2_HPP_
-	#define MAX_KP1 40
-	#define MAX_KP2 200
+	#include "state_size.h"
+	#define MAX_KP1 MAX_STANDBY_TRACKS
+	#define MAX_KP2 MAX_STANDBY_TRACKS
 	#define STEREO_SHAVES_USED 4
 
 	typedef float float4_t[4];
@@ -56,10 +57,25 @@
 		float3_t p_o1_transformed;
 		float3_t p_o2_transformed;
 		float EPS;
-	    int patch_stride;
-	    int patch_win_half_width;
+		int patch_stride;
+		int patch_win_half_width;
+		uint8_t* kp1;
+		uint8_t* kp2;
+		uint8_t** patches1;
+		uint8_t** patches2;
+		float*   depth1;
+		float*   depth2;
+		float*   errors1;
+		int*     matched_kp;
 
-		ShavekpMatchingSettings( float4x4_t I_R1w_transpose , float4x4_t I_R2w_transpose , float4_t I_camera1_extrinsics_T_v , 	float4_t I_camera2_extrinsics_T_v  ,  float3_t I_p_o1_transformed ,  float3_t I_p_o2_transformed, float I_EPS, int half_patch_width)
+		ShavekpMatchingSettings( float4x4_t I_R1w_transpose, float4x4_t I_R2w_transpose,
+				float4_t I_camera1_extrinsics_T_v, float4_t I_camera2_extrinsics_T_v,
+				float3_t I_p_o1_transformed, float3_t I_p_o2_transformed,
+				float I_EPS, int half_patch_width, uint8_t* _kp1, uint8_t* _kp2,
+				uint8_t** _patches1, uint8_t** _patches2, float* _depth1, float* _depth2,
+				float* _errors1, int* _matched_kp) :
+					kp1(_kp1), kp2(_kp2), patches1(_patches1), patches2(_patches2),
+					depth1(_depth1), depth2(_depth2), errors1(_errors1), matched_kp(_matched_kp)
 		{
 			l_float4x4_copy (R1w_transpose , I_R1w_transpose );
 			l_float4x4_copy (R2w_transpose , I_R2w_transpose );
@@ -93,11 +109,5 @@
 			patch_stride =0 ;
 		}
 	};
-
-	struct kp_out_t {
-		int index;
-		float depth;
-	};
-
 
 #endif /* COMMON_COMMONDEFS_HPP_ */

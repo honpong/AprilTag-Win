@@ -439,16 +439,17 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     observe_plot_item(timestamp_us, p, "state size", (float)f->s.statesize);
     int group_storage = f->s.groups.children.size() * 6;;
     int feature_storage = 0;
-    for (size_t i=0; i<f->s.cameras.children.size(); i++) {
-        feature_storage += f->s.cameras.children[i]->track_count();
-    }
+    for (const auto &g : f->s.groups.children)
+        feature_storage += g->features.children.size();
     observe_plot_item(timestamp_us, p, "groups", (float)group_storage);
     observe_plot_item(timestamp_us, p, "feats", (float)feature_storage);
 
-    p = get_plot_by_name("feature counts");
+    p = get_plot_by_name("track counts");
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {
         const auto &camera = *f->s.cameras.children[i];
-        observe_plot_item(timestamp_us, p, "feats" + std::to_string(i), (float)camera.track_count());
+        int lost = 0, found = 0; for (const auto &t : camera.tracks) { t.track.found() ? found++ : lost++; }
+        observe_plot_item(timestamp_us, p, "lost" + std::to_string(i), lost);
+        observe_plot_item(timestamp_us, p, "found" + std::to_string(i), found);
     }
 
     p = get_plot_by_name("acc timer");
@@ -609,6 +610,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
             {
                 rc_Feature rcf;
                 rcf.id = t.feature->id;
+                rcf.camera_id = 0; // no depth, so no camera
                 rcf.image_x = t.x;
                 rcf.image_y = t.y;
                 rcf.image_prediction_x = t.x;
@@ -1122,9 +1124,9 @@ void world_state::observe_feature(uint64_t timestamp, rc_Sensor camera_id, const
     display_lock.lock();
     if(timestamp > current_feature_timestamp)
         current_feature_timestamp = timestamp;
-    if(features.count(feature.id))
-        f.times_seen = features[feature.id].times_seen+1;
-    features[feature.id] = f;
+    if(features.count(std::make_pair(camera_id,feature.id)))
+        f.times_seen = features[std::make_pair(camera_id,feature.id)].times_seen+1;
+    features[std::make_pair(camera_id,feature.id)] = f;
     display_lock.unlock();
 }
 

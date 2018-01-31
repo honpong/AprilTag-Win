@@ -121,15 +121,6 @@ void batch_gt_generator::run() {
 
     associations_.create(interpolated_poses_.size(), false);
 
-    aligned_vector<transformation> G_world_cameras = [this](){
-        aligned_vector<transformation> G_world_cameras;
-        G_world_cameras.reserve(interpolated_poses_.size());
-        for (const auto& pose : interpolated_poses_) {
-            G_world_cameras.emplace_back(pose.G * G_body_camera0_);
-        }
-        return G_world_cameras;
-    }();
-
     aligned_vector<frustum> frustums = [this]() {
         aligned_vector<frustum> frustums;
         frustums.reserve(interpolated_poses_.size());
@@ -140,18 +131,15 @@ void batch_gt_generator::run() {
         return frustums;
     }();
 
-    auto check_loop = [this, &frustums, &G_world_cameras]
-            (const std::pair<size_t, size_t>& pair) {
+    auto check_loop = [this, &frustums](const std::pair<size_t, size_t>& pair) {
         size_t cur_idx = pair.first;
         size_t prev_idx = pair.second;
         const frustum& cur_frustum = frustums[cur_idx];
         const frustum& prev_frustum = frustums[prev_idx];
-        const transformation& cur_G_world_camera = G_world_cameras[cur_idx];
-        const transformation& prev_G_world_camera = G_world_cameras[prev_idx];
 
         bool is_loop;
-        covisibility covisible = covisible_by_proximity(cur_G_world_camera,
-                                                        prev_G_world_camera);
+        covisibility covisible = covisible_by_proximity(cur_frustum, prev_frustum);
+
         switch (covisible) {
         case is_covisible:
             is_loop = true;
@@ -204,20 +192,19 @@ std::vector<tpose> batch_gt_generator::interpolate_poses() const {
 }
 
 batch_gt_generator::covisibility batch_gt_generator::covisible_by_proximity(
-        const transformation &G_world_camera_A,
-        const transformation &G_world_camera_B) const {
+        const frustum &G_world_camera_A,
+        const frustum &G_world_camera_B) const {
     constexpr double in_distance = 0.5;  // m
     constexpr double in_cos_angle = 0.866025403784439;  // cos(30 deg)
     constexpr double out_cos_angle = 0;  // cos(90 deg)
     const double out_distance = camera_.far_z_m * 2;  // m
 
-    double distance = (G_world_camera_A.T - G_world_camera_B.T).norm();
+    double distance = (G_world_camera_A.center - G_world_camera_B.center).norm();
     if (distance > out_distance) {
         return no_covisible;
     } else {
-        v3 optical_axis_A = G_world_camera_A.Q * v3{0, 0, 1};
-        v3 optical_axis_B = G_world_camera_B.Q * v3{0, 0, 1};
-        double cos_angle = optical_axis_A.dot(optical_axis_B);
+        double cos_angle = (G_world_camera_A.optical_axis.dot(
+                                G_world_camera_B.optical_axis));
 
         if (distance <= in_distance && cos_angle >= in_cos_angle) {
             return is_covisible;
@@ -230,7 +217,7 @@ batch_gt_generator::covisibility batch_gt_generator::covisible_by_proximity(
 }
 
 bool batch_gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
-                                                const frustum& rhs) const {
+                                                      const frustum& rhs) const {
     static auto point_to_segment_projection = [](const v3& p, const segment& s) {
         f_t t = (p-s.p).dot(s.v)/s.v.squaredNorm();
         if(t > 0.f && t < 1.f) {

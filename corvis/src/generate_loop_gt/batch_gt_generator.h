@@ -74,8 +74,8 @@ class batch_gt_generator {
 
     void run();
     std::vector<tpose> interpolate_poses() const;
-    covisibility covisible_by_proximity(const transformation &G_world_camera_A,
-                                        const transformation &G_world_camera_B) const;
+    covisibility covisible_by_proximity(const frustum &G_world_camera_A,
+                                        const frustum &G_world_camera_B) const;
     bool covisible_by_frustum_overlap(const frustum& lhs, const frustum& rhs) const;
 
     void get_connected_components();

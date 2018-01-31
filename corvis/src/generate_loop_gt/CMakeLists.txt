@@ -1,6 +1,8 @@
 add_library(loop_gt_generator STATIC
     batch_gt_generator.cpp
     batch_gt_generator.h
+    gt_generator.cpp
+    gt_generator.h
     loop_tester.cpp
     loop_tester.h
     image_reader.cpp

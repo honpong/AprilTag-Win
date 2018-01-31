@@ -44,7 +44,7 @@ extern "C"
     /** \brief Constant definitions for measurement */
     typedef enum rs2_measure_const : int
     {
-        RS2_STREAM_POSE = 0,           /**< mandatory output (data) stream from box measure */
+        RS2_STREAM_CAM_STATE = 0,           /**< mandatory output (data) stream from box measure */
         RS2_STREAM_DEPTH_DENSE = 3,    /**< optional dense depth stream from box measure    */
         RS2_STREAM_PLANE = 4,          /**< optional plane id stream from box measure       */
         RS2_MEASURE_BOX_MAXCOUNT = 10, /**< maximum number of boxes from box measure        */
@@ -142,7 +142,7 @@ namespace rs2
     }
 
     /** \brief output data structure from box_measure class. 
-    * box_frameset[RS2_STREAM_POSE]  stores metadata of this box_frameset.
+    * box_frameset[RS2_STREAM_CAM_STATE]  stores metadata of this box_frameset.
     * box_frameset[RS2_STREAM_DEPTH] forwards the depth input of box_measure::process().
     * box_frameset[RS2_STREAM_COLOR] forwards the color input of box_measure::process().
     * box_frameset[RS2_STREAM_DEPTH_DENSE] shares newly created dense depth image (optional), \see box_measure::configure().
@@ -156,7 +156,7 @@ namespace rs2
     public:
         typedef rs2_measure_camera_state camera_state;
 
-        const camera_state& state(const rs2_stream& s) const { return ((camera_state*)((*this)[RS2_STREAM_POSE].get_data()))[s]; }
+        const camera_state& state(const rs2_stream& s) const { return ((camera_state*)((*this)[RS2_STREAM_CAM_STATE].get_data()))[s]; }
 
         operator bool() const { return size() > RS2_STREAM_PLANE; }
         

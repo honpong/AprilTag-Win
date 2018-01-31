@@ -215,8 +215,8 @@ gt_generator::covisibility gt_generator::covisible_by_proximity(
     if (distance > out_distance) {
         return no_covisible;
     } else {
-        v3 optical_axis_A = G_world_camera_A * (v3() << 0, 0, 1).finished();
-        v3 optical_axis_B = G_world_camera_B * (v3() << 0, 0, 1).finished();
+        v3 optical_axis_A = G_world_camera_A.Q * (v3() << 0, 0, 1).finished();
+        v3 optical_axis_B = G_world_camera_B.Q * (v3() << 0, 0, 1).finished();
         double cos_angle = (optical_axis_A.dot(optical_axis_B) /
                             optical_axis_A.norm() / optical_axis_B.norm());
 

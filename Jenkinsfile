@@ -9,21 +9,21 @@ pipeline {
                 stage('Linux') {
                     steps {
                         slackSend color: "#439FE0", message: slack_build_message("started")
-                        sh "cmake -Bbuild -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT}"
+                        sh "cmake -Bbuild -Hcorvis -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT}"
                         sh "cmake --build build -- -j"
                     }
                 }
                 stage('Windows 32') {
                     agent { label 'windows' }
                     steps {
-                        bat "cmake -Bbuild-x32 -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A Win32"
+                        bat "cmake -Bbuild-x32 -Hcorvis -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A Win32"
                         bat "cmake --build build-x32 --config RelWithDebInfo"
                     }
                 }
                 stage('Windows 64') {
                     agent { label 'windows' }
                     steps {
-                        bat "cmake -Bbuild-x64 -Hcorvis -DMKLROOT=False -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A x64"
+                        bat "cmake -Bbuild-x64 -Hcorvis -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A x64"
                         bat "cmake --build build-x64 --config RelWithDebInfo"
                     }
                 }

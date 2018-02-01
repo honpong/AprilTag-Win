@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <utility>
 #include "batch_gt_generator.h"
+#include "loop_tester.h"
 #include "image_reader.h"
 #include "symmetric_matrix.h"
 #include "calibration.h"
@@ -17,18 +18,18 @@
 batch_gt_generator::batch_gt_generator() {}
 
 batch_gt_generator::batch_gt_generator(const std::string& capture_file,
-                           struct camera camera, bool verbose) {
-    generate(capture_file, camera, verbose);
+                                       camera cam, bool verbose) {
+    generate(capture_file, cam, verbose);
 }
 
 batch_gt_generator::batch_gt_generator(const std::string& capture_file, loop_gt& gt,
-                           struct camera camera, bool verbose) {
-    generate(capture_file, gt, camera, verbose);
+                                       camera cam, bool verbose) {
+    generate(capture_file, gt, cam, verbose);
 }
 
 bool batch_gt_generator::generate(const std::string& capture_file,
-                            struct camera camera, bool verbose) {
-    camera_ = camera;
+                                  camera cam, bool verbose) {
+    camera_ = cam;
     verbose_ = verbose;
     if (!load_data(capture_file)) return false;
     run();
@@ -36,8 +37,8 @@ bool batch_gt_generator::generate(const std::string& capture_file,
 }
 
 bool batch_gt_generator::generate(const std::string& capture_file, loop_gt& gt,
-                            struct camera camera, bool verbose) {
-    camera_ = camera;
+                                  camera cam, bool verbose) {
+    camera_ = cam;
     verbose_ = verbose;
     if (!load_data(capture_file)) return false;
     run();
@@ -121,8 +122,8 @@ void batch_gt_generator::run() {
 
     associations_.create(interpolated_poses_.size(), false);
 
-    aligned_vector<frustum> frustums = [this]() {
-        aligned_vector<frustum> frustums;
+    aligned_vector<loop_tester::frustum> frustums = [this]() {
+        aligned_vector<loop_tester::frustum> frustums;
         frustums.reserve(interpolated_poses_.size());
         for (const auto& pose : interpolated_poses_) {
             transformation G_world_camera = pose.G * G_body_camera0_;
@@ -134,24 +135,7 @@ void batch_gt_generator::run() {
     auto check_loop = [this, &frustums](const std::pair<size_t, size_t>& pair) {
         size_t cur_idx = pair.first;
         size_t prev_idx = pair.second;
-        const frustum& cur_frustum = frustums[cur_idx];
-        const frustum& prev_frustum = frustums[prev_idx];
-
-        bool is_loop;
-        covisibility covisible = covisible_by_proximity(cur_frustum, prev_frustum);
-
-        switch (covisible) {
-        case is_covisible:
-            is_loop = true;
-            break;
-        case no_covisible:
-            is_loop = false;
-            break;
-        case maybe_covisible:
-            is_loop = covisible_by_frustum_overlap(cur_frustum, prev_frustum);
-            break;
-        }
-        if (is_loop) {
+        if (loop_tester::is_loop(frustums[cur_idx], frustums[prev_idx], camera_)) {
             associations_.set(prev_idx, cur_idx, true);
         }
     };
@@ -189,128 +173,6 @@ std::vector<tpose> batch_gt_generator::interpolate_poses() const {
         }
     }
     return poses;
-}
-
-batch_gt_generator::covisibility batch_gt_generator::covisible_by_proximity(
-        const frustum &G_world_camera_A,
-        const frustum &G_world_camera_B) const {
-    constexpr double in_distance = 0.5;  // m
-    constexpr double in_cos_angle = 0.866025403784439;  // cos(30 deg)
-    constexpr double out_cos_angle = 0;  // cos(90 deg)
-    const double out_distance = camera_.far_z_m * 2;  // m
-
-    double distance = (G_world_camera_A.center - G_world_camera_B.center).norm();
-    if (distance > out_distance) {
-        return no_covisible;
-    } else {
-        double cos_angle = (G_world_camera_A.optical_axis.dot(
-                                G_world_camera_B.optical_axis));
-
-        if (distance <= in_distance && cos_angle >= in_cos_angle) {
-            return is_covisible;
-        } else if (cos_angle < out_cos_angle) {
-            return no_covisible;
-        } else {
-            return maybe_covisible;
-        }
-    }
-}
-
-bool batch_gt_generator::covisible_by_frustum_overlap(const frustum& lhs,
-                                                      const frustum& rhs) const {
-    static auto point_to_segment_projection = [](const v3& p, const segment& s) {
-        f_t t = (p-s.p).dot(s.v)/s.v.squaredNorm();
-        if(t > 0.f && t < 1.f) {
-            v3 p_projection = s.p + t*s.v;
-            return std::pair<f_t, v3>{(p-p_projection).norm(), std::move(p_projection)};
-        }
-        return std::pair<f_t, v3>{std::numeric_limits<float>::max(), v3{}};
-    };
-
-    const double tan_half_fov = std::tan(camera_.fov_rad / 2);
-    // plane is defined by frustum optical axis and point p
-    auto plane_frustum_intersection = [this, tan_half_fov](const v3& p, const frustum& f) {
-        f_t l = camera_.near_z_m * tan_half_fov;
-        f_t L = camera_.far_z_m * tan_half_fov;
-        f_t h = camera_.far_z_m - camera_.near_z_m;
-        const v3& c = f.center + camera_.near_z_m * f.optical_axis;
-        const v3& y = f.optical_axis;
-        v3 x = ((p-c) - ((p-c).dot(y)) * y).normalized();
-        if(x.sum() == 0) // if point p on optical axis select yz plane
-            x = v3{1.f, 0.f, 0.f};
-        // plane intersects frustum (truncated cone) in 4 corners
-        std::vector<v3> intersection = {c-l*x, c+l*x, c+h*y+L*x, c+h*y-L*x};
-        return intersection;
-    };
-
-    auto point_to_frustum_projection = [&plane_frustum_intersection](const v3& p, const frustum& f) {
-        f_t min_distance = std::numeric_limits<float>::max();
-        v3 p_projected;
-
-        // distance to plane-cone intersection corners
-        std::vector<v3> points = plane_frustum_intersection(p, f);
-        for(int i=0; i<4; ++i) {
-            f_t distance = (p-points[i]).norm();
-            if(distance < min_distance) {
-                min_distance = distance;
-                p_projected = points[i];
-            }
-        }
-
-        // distance to plane-cone intersection segments
-        for(int i=0; i<4; ++i) {
-            segment s(points[i], points[(i+1)%4]);
-            std::pair<f_t, v3> distance_point = point_to_segment_projection(p, s);
-            if(distance_point.first < min_distance) {
-                min_distance = distance_point.first;
-                p_projected = distance_point.second;
-            }
-        }
-
-        return p_projected;
-    };
-
-    const double min_cos_angle = std::cos(camera_.fov_rad / 2);
-    auto point_inside_frustum = [this, min_cos_angle](const v3& p, const frustum& f) {
-        v3 point_axis = p - f.center;
-        double distance = point_axis.norm();
-        double cos_point_angle = point_axis.dot(f.optical_axis) / distance;
-        if (cos_point_angle >= min_cos_angle) {
-            double min_distance = camera_.near_z_m / cos_point_angle;
-            double max_distance = camera_.far_z_m / cos_point_angle;
-            return (min_distance <= distance && distance <= max_distance);
-        }
-        return false;
-    };
-
-    auto numerical_frustums_intersection = [this, &point_to_frustum_projection, &point_inside_frustum](
-            const frustum& lhs, const frustum& rhs) {
-      f_t distance = std::numeric_limits<f_t>::max();
-      std::vector<const frustum*> frustums = {&lhs, &rhs};
-
-      v3 p = rhs.center + camera_.near_z_m * rhs.optical_axis;
-      bool point_covisible = point_inside_frustum(p, lhs);
-      bool stop = point_covisible;
-      int iteration = 0;
-      while (!stop && iteration < 10) {
-          v3 p_new = point_to_frustum_projection(p, *frustums[iteration%2]);
-          point_covisible = point_inside_frustum(p, *frustums[1-(iteration%2)]);
-          f_t distance_new = (p_new-p).norm();
-          if (point_covisible || std::abs(distance-distance_new) < 1e-3 || distance_new < 1e-3) // in theory distance >= distance_new always
-              stop = true;
-
-          distance = distance_new;
-          p = p_new;
-          iteration++;
-      }
-
-      if (point_covisible || distance < 1e-3)
-          return true;
-
-      return false;
-    };
-
-    return numerical_frustums_intersection(lhs, rhs);
 }
 
 void batch_gt_generator::get_connected_components() {

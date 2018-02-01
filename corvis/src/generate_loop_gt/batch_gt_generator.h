@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
+#include "loop_tester.h"
 #include "symmetric_matrix.h"
 #include "rc_tracker.h"
 #include "vec4.h"
@@ -15,15 +16,7 @@
  */
 class batch_gt_generator {
  public:
-    struct camera {
-        double fov_rad;  // field of view (radians)
-        double near_z_m;  // frustum near plane (meters)
-        double far_z_m;  // frustum far plane (meters)
-        camera(double fov_rad = 80. * M_PI / 180.,
-               double near_z_m = 1., double far_z_m = 5.) :
-            fov_rad(fov_rad), near_z_m(near_z_m), far_z_m(far_z_m) {}
-    };
-
+    using camera = loop_tester::fov;
     // newer timestamp --> older timestamp matches
     using loop_gt = std::unordered_map<rc_Timestamp, std::unordered_set<rc_Timestamp>>;
 
@@ -31,14 +24,14 @@ class batch_gt_generator {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     batch_gt_generator();
     batch_gt_generator(const std::string& capture_file,
-                 struct camera camera = {}, bool verbose = false);
+                       camera cam = {}, bool verbose = false);
     batch_gt_generator(const std::string& capture_file, loop_gt& gt,
-                 struct camera camera = {}, bool verbose = false);
+                       camera cam = {}, bool verbose = false);
 
     bool generate(const std::string& capture_file,
-                  struct camera camera = {}, bool verbose = false);
+                  camera cam = {}, bool verbose = false);
     bool generate(const std::string& capture_file, loop_gt& gt,
-                  struct camera camera = {}, bool verbose = false);
+                  camera cam = {}, bool verbose = false);
 
     loop_gt get_loop_gt() const;
 
@@ -47,26 +40,6 @@ class batch_gt_generator {
     bool save_mat_file(const std::string& capture_file) const;
 
  private:
-    struct frustum {
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        v3 center;
-        v3 optical_axis;
-        frustum() {}
-        frustum(const transformation& G_world_camera) :
-            center(G_world_camera.T),
-            optical_axis(G_world_camera.Q * v3{0, 0, 1}) {}
-    };
-
-    struct segment {
-        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        segment(const v3& p1, const v3& p2) : p{p1}, v{p2-p1} {}
-        v3 p, v;
-    };
-
-    enum covisibility {
-        is_covisible, maybe_covisible, no_covisible
-    };
-
     bool load_data(const std::string &capture_file);
     bool load_calibration(const std::string& capture_file);
     bool load_reference_gt(const std::string& capture_file);
@@ -74,10 +47,6 @@ class batch_gt_generator {
 
     void run();
     std::vector<tpose> interpolate_poses() const;
-    covisibility covisible_by_proximity(const frustum &G_world_camera_A,
-                                        const frustum &G_world_camera_B) const;
-    bool covisible_by_frustum_overlap(const frustum& lhs, const frustum& rhs) const;
-
     void get_connected_components();
 
     bool verbose_;

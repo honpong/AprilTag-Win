@@ -280,6 +280,19 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
+bool state_vision::get_closest_group_transformation(uint64_t &group_id, transformation& G) const {
+    float min_group_distance = std::numeric_limits<float>::max();
+    for (auto &g : groups.children) {
+        if(g->Tr.v.norm() <= min_group_distance) {
+            min_group_distance = g->Tr.v.norm();
+            group_id = g->id;
+            G = *g->Gr;
+        }
+    }
+
+    return min_group_distance < std::numeric_limits<float>::max();
+}
+
 bool state_vision::get_group_transformation(const uint64_t group_id, transformation& G) const
 {
     for (auto &g : groups.children) {

@@ -296,6 +296,7 @@ public:
     int process_features(mapper *map);
     state_vision_group *add_group(const rc_Sensor camera_id, mapper *map);
     transformation get_transformation() const;
+    bool get_closest_group_transformation(uint64_t& group_id, transformation& G) const;
     bool get_group_transformation(const uint64_t group_id, transformation& G) const;
 
     void update_map(mapper *map);

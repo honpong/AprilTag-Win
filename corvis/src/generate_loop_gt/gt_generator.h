@@ -54,7 +54,7 @@ class gt_generator {
         frustum() {}
         frustum(const transformation& G_world_camera) :
             center(G_world_camera.T),
-            optical_axis((G_world_camera.Q * (v3() << 0, 0, 1).finished()).normalized()) {}
+            optical_axis(G_world_camera.Q * v3{0, 0, 1}) {}
     };
 
     struct segment {

@@ -185,16 +185,6 @@ int main(int c, char **v)
 
     auto data_callback = [&enable_gui, &incremental_ate, &render_output, &fast_path, &threads]
         (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data, std::ostream *pose_st) {
-        rc_RelocEdge* reloc_edges = nullptr;
-        rc_Timestamp reloc_source;
-        rc_MapNode* map_nodes = nullptr;
-        int num_mapnodes = 0, num_reloc_edges = 0;
-        const bool benchmark_relocalization = !rp.get_reference_edges().empty();
-        if (benchmark_relocalization) {
-            num_mapnodes = rc_getMapNodes(tracker, &map_nodes);
-            num_reloc_edges = rc_getRelocalizationEdges(tracker, &reloc_source, &reloc_edges);
-        }
-
         rc_PoseTime current_pose = rc_getPose(tracker, nullptr, nullptr, data->path);
         auto timestamp = sensor_clock::micros_to_tp(current_pose.time_us);
         tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current_pose.pose_m));
@@ -220,7 +210,14 @@ int main(int c, char **v)
             }
             if(res.errors.distances.size())
                 ws.observe_rpe(data->time_us, res.errors.distances.back());
-            if (benchmark_relocalization) {
+        }
+        if(!first && !rp.get_reference_edges().empty() && data->type == rc_SENSOR_TYPE_IMAGE) {
+            rc_RelocEdge* reloc_edges = nullptr;
+            rc_Timestamp reloc_source;
+            int num_reloc_edges = rc_getRelocalizationEdges(tracker, &reloc_source, &reloc_edges);
+            if (reloc_source) {
+                rc_MapNode* map_nodes = nullptr;
+                int num_mapnodes = rc_getMapNodes(tracker, &map_nodes);
                 res.errors.add_edges(reloc_source,
                                      num_reloc_edges,
                                      num_mapnodes,

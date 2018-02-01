@@ -294,7 +294,11 @@ namespace rs2
         {
             config config;
             config.enable_stream(RS2_STREAM_DEPTH, 0, _stream_w, _stream_h, RS2_FORMAT_Z16);
-            config.enable_stream(RS2_STREAM_COLOR, 0, _stream_w, _stream_h, RS2_FORMAT_RGB8);
+
+            if (_camera_name == "Intel RealSense 410")
+                config.enable_stream(RS2_STREAM_INFRARED, 0, _stream_w, _stream_h, RS2_FORMAT_RGB8);
+            else
+                config.enable_stream(RS2_STREAM_COLOR, 0, _stream_w, _stream_h, RS2_FORMAT_RGB8);
 
             return config;
         }

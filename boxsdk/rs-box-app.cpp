@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
         rs2::frameset frameset; //frame set container
 
         while (!frameset.first_or_default(RS2_STREAM_DEPTH)
-            || !frameset.first_or_default(RS2_STREAM_COLOR))
+            || (!frameset.first_or_default(RS2_STREAM_COLOR) && !frameset.first_or_default(RS2_STREAM_INFRARED)))
         {
             frameset = pipe.wait_for_frames(); //wait until a pair of frames.
         }

@@ -39,7 +39,7 @@ pipeline {
                 sh '''#!/bin/bash
                     source  corvis/src/movidius/mvenv
                     export MV_TOOLS_DIR=$JENKINS_HOME/mdk/tools
-                    make -C corvis/src/movidius/device -j
+                    make -C corvis/src/movidius/device -j DirAppRelativeMdk=/corvis/src/movidius/device
                 '''
             }
         }

@@ -50,7 +50,7 @@ mapper::~mapper()
 void mapper::reset()
 {
     triangulated_tracks.clear();
-    if(current_node) return;
+    if(nodes->size()) return;
     log->debug("Map reset");
     feature_id_offset = 0;
     node_id_offset = 0;

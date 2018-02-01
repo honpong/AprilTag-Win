@@ -221,10 +221,12 @@ private:
         size_t remain = max_offset - offset;
         if (remain < length) { //need to update buffer
             if (remain > 0) memmove(buffer.get(), buffer.get() + offset, remain); //move unread content to start
-            int32_t bytes_read = in_func(handle, buffer.get() + remain, STREAM_BUFFER_SIZE - remain);
-            max_offset = remain + bytes_read;
             offset = 0;
-            is_good = is_good && (bytes_read > 0) && (length <= max_offset);
+            max_offset = remain;
+            for (size_t bytes_read = 0; max_offset < length; max_offset += bytes_read) //continue to get sufficient data
+                if (!(bytes_read = in_func(handle, buffer.get() + max_offset, STREAM_BUFFER_SIZE - max_offset)))
+                    break;
+            is_good = is_good && (length <= max_offset);
         }
         if (is_good) {
             memcpy(data, buffer.get() + offset, length);

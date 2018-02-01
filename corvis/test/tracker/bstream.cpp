@@ -129,7 +129,7 @@ TEST(Bstream, Stream_Std_containers)
     {
         ostringstream write_ss;
         bstream_writer write_stream(save_map_callback, &write_ss);
-        write_stream << save_array;
+        write_stream << save_array << save_map;
         write_stream.end_stream();
         EXPECT_TRUE(write_stream.good());
         stream_content = write_ss.str();
@@ -159,14 +159,9 @@ TEST(Bstream, Stream_Std_containers)
 
     // reading in wrong order of data items should fail
     {
-        ostringstream write_ss;
-        bstream_writer write_stream(save_map_callback, &write_ss);
-        write_stream << save_array << save_map;
-        write_stream.end_stream();
-
         array<basic_type, num_ele> load_array2 = load_array;
         map<int64_t, basic_type> load_map2 = load_map;
-        istringstream read_ss(write_ss.str(), ios_base::in);
+        istringstream read_ss(stream_content, ios_base::in);
         bstream_reader read_stream(load_map_callback, &read_ss);
         read_stream >> load_map2 >> load_array2;
         EXPECT_NE(save_array, load_array2);
@@ -201,4 +196,62 @@ TEST(Bstream, Stream_Std_containers)
     EXPECT_EQ(save_set, load_set);
     EXPECT_EQ(save_uo_set, load_uo_set);
     EXPECT_EQ(img_content, loaded_img_content);
+}
+
+template<size_t data_size>
+static size_t load_small_data_callback(void *handle, void *buffer, size_t length)
+{
+    istringstream * out = (istringstream *)handle;
+    auto cpy_size = std::min(data_size, length);
+    out->read((char *)buffer, cpy_size);
+    return (*out) ? cpy_size : out->gcount();
+}
+
+TEST(Bstream, Load_Callback)
+{
+    const int num_ele = 10;
+    deque<basic_type> save_deque(num_ele, basic_type(2)), load_deque(num_ele, basic_type(1));
+
+    // write succeeds
+    ostringstream write_ss;
+    bstream_writer write_stream(save_map_callback, &write_ss);
+    write_stream << save_deque;
+    write_stream.end_stream();
+    EXPECT_TRUE(write_stream.good());
+    string stream_content = write_ss.str();
+
+    { // loading fails when load callback function does not pick up data
+        deque<basic_type> load_deque2(load_deque);
+        istringstream read_ss(stream_content, ios_base::in);
+        bstream_reader read_stream(load_small_data_callback<0>, &read_ss);
+        read_stream >> load_deque2;
+        EXPECT_FALSE(read_stream.good());
+    }
+
+    {  // succeeds when load function picks up minimum data
+        deque<basic_type> load_deque2(load_deque);
+        istringstream read_ss(stream_content, ios_base::in);
+        bstream_reader read_stream(load_small_data_callback<1>, &read_ss);
+        read_stream >> load_deque2;
+        EXPECT_TRUE(read_stream.good());
+        EXPECT_EQ(save_deque, load_deque2);
+    }
+
+    {  // succeeds when load function picks up same size as each element
+        deque<basic_type> load_deque2(load_deque);
+        istringstream read_ss(stream_content, ios_base::in);
+        bstream_reader read_stream(load_small_data_callback<sizeof(basic_type)>, &read_ss);
+        read_stream >> load_deque2;
+        EXPECT_TRUE(read_stream.good());
+        EXPECT_EQ(save_deque, load_deque2);
+    }
+
+    { // succeeds when load function's pick up size is bigger than an element size.
+        deque<basic_type> load_deque2(load_deque);
+        istringstream read_ss(stream_content, ios_base::in);
+        bstream_reader read_stream(load_small_data_callback<(size_t)(sizeof(basic_type) * 1.7)>, &read_ss);
+        read_stream >> load_deque2;
+        EXPECT_TRUE(read_stream.good());
+        EXPECT_EQ(save_deque, load_deque2);
+    }
 }

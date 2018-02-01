@@ -280,7 +280,7 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
-bool state_vision::get_closest_group_transformation(const uint64_t group_id, transformation& G) const
+bool state_vision::get_group_transformation(const uint64_t group_id, transformation& G) const
 {
     for (auto &g : groups.children) {
         if(g->id == group_id) {

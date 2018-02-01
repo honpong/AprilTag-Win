@@ -566,7 +566,7 @@ static size_t filter_available_feature_space(struct filter *f)
 std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *f, const sensor_data& data)
 {
     transformation G_closestnode_frame;
-    bool node_is_active = f->s.get_closest_group_transformation(f->map->current_node->id, G_closestnode_frame);
+    bool node_is_active = f->s.get_group_transformation(f->map->current_node->id, G_closestnode_frame);
     bool same_sensor_id = (data.id == f->map->current_node->camera_id);
     std::unique_ptr<camera_frame_t> camera_frame;
     if (node_is_active && same_sensor_id) {
@@ -1013,7 +1013,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     // bring groups back
     if(f->map && f->map->current_node && space >= f->min_group_map_add && !f->s.groups.children.empty()) {
         transformation G_Bcurrent_Bnow;
-        f->s.get_closest_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow);
+        f->s.get_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow);
         camera_state.update_map_tracks(data, f->map.get(), f->min_group_map_add, G_Bcurrent_Bnow);
         if(f->map->map_feature_tracks.size()) {
             filter_bring_groups_back(f, data.id);
@@ -1413,7 +1413,7 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
     // update triangulated 3d feature with new observation
     if(f->map && f->map->current_node) {
         transformation G_Bcurrent_Bnow;
-        bool valid_transformation = f->s.get_closest_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow);
+        bool valid_transformation = f->s.get_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow);
         auto &c = f->s.cameras.children[camera_id];
         for(auto &sbt : c->standby_tracks) {
             auto tp = f->map->triangulated_tracks.find(sbt.feature->id);

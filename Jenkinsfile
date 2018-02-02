@@ -38,7 +38,9 @@ pipeline {
             steps {
                 sh '''#!/bin/bash
                     source  corvis/src/movidius/mvenv
-                    make -C corvis/src/movidius/device -j
+                    export MV_TOOLS_DIR=$JENKINS_HOME/mdk/tools
+                    export MV_COMMON_BASE="$(realpath --relative-to=corvis/src/movidius/device "$MV_COMMON_BASE")"
+                    make -C corvis/src/movidius/device -j DirAppRelativeMdk=/corvis/src/movidius/device
                 '''
             }
         }

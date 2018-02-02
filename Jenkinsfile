@@ -13,20 +13,6 @@ pipeline {
                         sh "cmake --build build -- -j"
                     }
                 }
-                stage('Windows 32') {
-                    agent { label 'windows' }
-                    steps {
-                        bat "cmake -Bbuild-x32 -Hcorvis -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A Win32"
-                        bat "cmake --build build-x32 --config RelWithDebInfo"
-                    }
-                }
-                stage('Windows 64') {
-                    agent { label 'windows' }
-                    steps {
-                        bat "cmake -Bbuild-x64 -Hcorvis -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A x64"
-                        bat "cmake --build build-x64 --config RelWithDebInfo"
-                    }
-                }
             }
         }
         stage('Test') {
@@ -60,15 +46,33 @@ pipeline {
                 sh 'build/measure --relocalize --load-map test.map --benchmark benchmark_data/minimal_test_suite/'
             }
         }
-        stage('Run benchmark') {
-            steps {
-                sh 'build/measure --qvga --relocalize --benchmark benchmark_data/new_test_suite/  --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
-                sh 'sed -ne /^Length/,//p benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt                           > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
-                copyArtifacts projectName: "SlamTracker/master", filter: "benchmark-summary-master-*", target: "base"
-                sh 'diff -u base/benchmark-summary-master-* benchmark-summary-$BRANCH_NAME-* | sed  s@base/@@g | tee benchmark-changes-$BRANCH_NAME-$GIT_COMMIT.txt'
-                archiveArtifacts artifacts: "benchmark-*-$BRANCH_NAME-${GIT_COMMIT}.txt"
-                withCredentials([string(credentialsId: 'slackBenchmarkToken', variable: 'SLACK_BENCHMARK_TOKEN')]) {
-                    sh 'curl -s -F file=@benchmark-changes-$BRANCH_NAME-$GIT_COMMIT.txt -F channels=#slam_build -F token=$SLACK_BENCHMARK_TOKEN https://slack.com/api/files.upload'
+        stage('Verify') {
+            parallel {
+                stage('Run benchmark') {
+                    steps {
+                        sh 'build/measure --qvga --relocalize --benchmark benchmark_data/new_test_suite/  --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        sh 'sed -ne /^Length/,//p benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt                           > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        copyArtifacts projectName: "SlamTracker/master", filter: "benchmark-summary-master-*", target: "base"
+                        sh 'diff -u base/benchmark-summary-master-* benchmark-summary-$BRANCH_NAME-* | sed  s@base/@@g | tee benchmark-changes-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        archiveArtifacts artifacts: "benchmark-*-$BRANCH_NAME-${GIT_COMMIT}.txt"
+                        withCredentials([string(credentialsId: 'slackBenchmarkToken', variable: 'SLACK_BENCHMARK_TOKEN')]) {
+                            sh 'curl -s -F file=@benchmark-changes-$BRANCH_NAME-$GIT_COMMIT.txt -F channels=#slam_build -F token=$SLACK_BENCHMARK_TOKEN https://slack.com/api/files.upload'
+                        }
+                    }
+                }
+                stage('Windows 32') {
+                    agent { label 'windows' }
+                    steps {
+                        bat "cmake -Bbuild-x32 -Hcorvis -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A Win32"
+                        bat "cmake --build build-x32 --config RelWithDebInfo"
+                    }
+                }
+                stage('Windows 64') {
+                    agent { label 'windows' }
+                    steps {
+                        bat "cmake -Bbuild-x64 -Hcorvis -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A x64"
+                        bat "cmake --build build-x64 --config RelWithDebInfo"
+                    }
                 }
             }
         }

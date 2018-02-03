@@ -37,8 +37,8 @@ pipeline {
         stage('Build slam_client') {
             steps {
                 sh '''#!/bin/bash
-                    source  corvis/src/movidius/mvenv
-                    export MV_TOOLS_DIR=$JENKINS_HOME/mdk/tools
+                    source corvis/src/movidius/mvenv
+                    export MV_TOOLS_DIR=$HOME/mdk/tools
                     export MV_COMMON_BASE="$(realpath --relative-to=corvis/src/movidius/device "$MV_COMMON_BASE")"
                     make -C corvis/src/movidius/device -j DirAppRelativeMdk=/corvis/src/movidius/device
                 '''
@@ -46,8 +46,8 @@ pipeline {
         }
         stage('Prepare Benchmark') {
             steps {
-                sh 'rsync -a --link-dest=$JENKINS_HOME/benchmark_data/ $JENKINS_HOME/benchmark_data/ $(realpath .)/benchmark_data/ --exclude "*.json"'
-                sh 'rsync -a --chmod=ug+w                              $JENKINS_HOME/benchmark_data/ $(realpath .)/benchmark_data/ --include "*.json" --include "*/"'
+                sh 'rsync -a --link-dest=$HOME/benchmark_data/ $HOME/benchmark_data/ $(realpath .)/benchmark_data/ --exclude "*.json"'
+                sh 'rsync -a --chmod=ug+w                      $HOME/benchmark_data/ $(realpath .)/benchmark_data/ --include "*.json" --include "*/"'
             }
         }
         stage('Check options') {

@@ -141,11 +141,6 @@ int main(int c, char **v)
             return false;
         }
 
-        gt_generator loop_gt_gen;
-        if (loop_gt_gen.generate(capture_file)) {
-            rp.set_reference_edges(loop_gt_gen.get_loop_gt());
-        }
-
         return true;
     };
 
@@ -184,7 +179,7 @@ int main(int c, char **v)
     };
 
     auto data_callback = [&enable_gui, &incremental_ate, &render_output, &fast_path, &threads]
-        (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, rc_Tracker *tracker, const rc_Data *data, std::ostream *pose_st) {
+        (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, gt_generator &loop_gt, rc_Tracker *tracker, const rc_Data *data, std::ostream *pose_st) {
         rc_PoseTime current_pose = rc_getPose(tracker, nullptr, nullptr, data->path);
         auto timestamp = sensor_clock::micros_to_tp(current_pose.time_us);
         tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current_pose.pose_m));
@@ -198,6 +193,10 @@ int main(int c, char **v)
         if(has_reference && data->path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW)) {
             if (first) {
                 first = false;
+                rc_Extrinsics extrinsics;
+                rc_describeCamera(rp.tracker, 0, rc_FORMAT_GRAY8, &extrinsics, nullptr);
+                loop_gt.set_camera(extrinsics);
+                loop_gt.add_reference_poses(rp.get_reference_poses());
                 // transform reference trajectory to tracker world frame
                 rp.set_relative_pose(timestamp, current_tpose);
                 ref_tpose.G = current_tpose.G;
@@ -211,20 +210,19 @@ int main(int c, char **v)
             if(res.errors.distances.size())
                 ws.observe_rpe(data->time_us, res.errors.distances.back());
         }
-        if(!first && !rp.get_reference_edges().empty() && data->type == rc_SENSOR_TYPE_IMAGE) {
+        if(!first && data->type == rc_SENSOR_TYPE_IMAGE) {
             rc_RelocEdge* reloc_edges = nullptr;
             rc_Timestamp reloc_source;
             int num_reloc_edges = rc_getRelocalizationEdges(tracker, &reloc_source, &reloc_edges);
             if (reloc_source) {
                 rc_MapNode* map_nodes = nullptr;
                 int num_mapnodes = rc_getMapNodes(tracker, &map_nodes);
+                loop_gt.update_map(map_nodes, num_mapnodes);
                 res.errors.add_edges(reloc_source,
-                                     num_reloc_edges,
-                                     num_mapnodes,
                                      reloc_edges,
-                                     map_nodes,
-                                     rp.get_reference_edges(),
-                                     rp.get_reference_poses());
+                                     num_reloc_edges,
+                                     loop_gt.get_reference_edges(reloc_source),
+                                     loop_gt.get_reference_poses());
             }
         }
         if(pose_st && data->path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW))
@@ -252,8 +250,11 @@ int main(int c, char **v)
 
             world_state * ws = new world_state();
             res.user_data = render_output ? ws : nullptr;
-            rp.set_data_callback([ws,&rp,first=true,&res,&data_callback](rc_Tracker * tracker, const rc_Data * data) mutable {
-                data_callback(*ws, rp, first, res, tracker, data, nullptr);
+
+            gt_generator loop_gt;
+
+            rp.set_data_callback([ws,&rp,first=true,&res,&loop_gt,&data_callback](rc_Tracker * tracker, const rc_Data * data) mutable {
+                data_callback(*ws, rp, first, res, loop_gt, tracker, data, nullptr);
             });
 
             if (progress) std::cout << "Running  " << capture_file << std::endl;
@@ -293,9 +294,10 @@ int main(int c, char **v)
     rp.start(load_map);
 #else
     world_state ws;
+    gt_generator loop_gt;
     std::ofstream pose_fs; if(pose_output) pose_fs.open(pose_output);
-    rp.set_data_callback([&ws,&rp,first=true,&res,&data_callback,&pose_fs](rc_Tracker * tracker, const rc_Data * data) mutable {
-        data_callback(ws, rp, first, res, tracker, data, &pose_fs);
+    rp.set_data_callback([&ws,&rp,first=true,&res,&loop_gt,&data_callback,&pose_fs](rc_Tracker * tracker, const rc_Data * data) mutable {
+        data_callback(ws, rp, first, res, loop_gt, tracker, data, &pose_fs);
     });
 
     if(enable_gui) { // The GUI must be on the main thread

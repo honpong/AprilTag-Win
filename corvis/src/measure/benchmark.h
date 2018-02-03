@@ -157,36 +157,15 @@ struct benchmark_result {
 
         inline bool is_valid() { return nposes > 0; }
 
-        bool add_edges(const rc_Timestamp current_frame_timestamp,
-                       const int num_reloc_edges,
-                       const int num_mapnodes,
+        void add_edges(const rc_Timestamp current_frame_timestamp,
                        const rc_RelocEdge* reloc_edges,
-                       const rc_MapNode* map_nodes,
-                       const std::unordered_map<rc_Timestamp, std::unordered_set<rc_Timestamp>>& ref_edges,
+                       const int num_reloc_edges,
+                       const std::unordered_set<rc_Timestamp>& ref_edges,
                        const tpose_sequence& ref_poses) {
-
-            std::unordered_set<rc_Timestamp> ref_mapnode_edges;
-            {
-                // search for map node timestamps in a subset of reference edges
-                static auto lt = [](const rc_MapNode& lhs, const rc_MapNode& rhs) {
-                    return lhs.time_us < rhs.time_us;
-                };
-                auto it = ref_edges.find(current_frame_timestamp);
-                if (it != ref_edges.end()) {
-                    for (rc_Timestamp destination : it->second) {
-                        rc_MapNode map_node;
-                        map_node.time_us = destination;
-                        if (std::binary_search(map_nodes, map_nodes + num_mapnodes, map_node, lt)) {
-                            ref_mapnode_edges.emplace(destination);
-                        }
-                    }
-                }
-            }
-
             int tp = 0, fp = 0;
             transformation relative_error;
             // maybe all reloc edges are false positive
-            if (!ref_mapnode_edges.size()) {
+            if (!ref_edges.size()) {
                 fp = num_reloc_edges;
             } else {
                 // traverse all relocalization mapnode timestamps and check if they are in canditate timestamps
@@ -194,7 +173,7 @@ struct benchmark_result {
                 tpose ref_tpose_current(current_frame_tp);
                 bool success = ref_poses.get_pose(current_frame_tp, ref_tpose_current);
                 for (int i = 0; i < num_reloc_edges; ++i) {
-                    tp += ref_mapnode_edges.count(reloc_edges[i].time_destination);
+                    tp += ref_edges.count(reloc_edges[i].time_destination);
                     auto mapnode_tp = sensor_clock::micros_to_tp(reloc_edges[i].time_destination);
                     tpose ref_tpose_mapnode(mapnode_tp);
                     transformation reloc_pose =  to_transformation(reloc_edges[i].pose_m);
@@ -210,15 +189,13 @@ struct benchmark_result {
 
             relocalization.true_positives += tp;
             relocalization.false_positives += fp;
-            relocalization.false_negatives += ref_mapnode_edges.size() - tp;
+            relocalization.false_negatives += ref_edges.size() - tp;
 
             if (num_reloc_edges > 0) {
                 if (relocalization_time.last_reloc_us)
                     relocalization_time.elapsed_times_sec.emplace_back((current_frame_timestamp - relocalization_time.last_reloc_us) * 1e-6);
                 relocalization_time.last_reloc_us = current_frame_timestamp;
             }
-
-            return true;
         }
     } errors;
 };

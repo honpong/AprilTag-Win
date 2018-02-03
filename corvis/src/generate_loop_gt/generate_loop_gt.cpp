@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "gt_generator.h"
+#include "batch_gt_generator.h"
 #include "for_each_file.h"
 
 static void show_usage(char *argv0) {
@@ -36,13 +36,13 @@ int main(int argc, char *argv[]) {
         show_usage(argv[0]);
         return 1;
     }
-    gt_generator::camera camera(config.fov_rad, config.near_z, config.far_z);
+    batch_gt_generator::camera camera(config.fov_rad, config.near_z, config.far_z);
 
     if (config.capture_file.back() == '/') {
         bool ok = true;
         for_each_file(config.capture_file.c_str(), [&](const char *file_) {
             std::string file(file_);
-            gt_generator generator;
+            batch_gt_generator generator;
             if (generator.generate(file, camera, false)) {
                 ok &= generator.save_loop_file(file, config.format == configuration::binary);
                 if (config.save_associations)
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
         return ok ? 0 : 1;
     }
 
-    gt_generator generator;
+    batch_gt_generator generator;
     std::cout << "Generating loop groundtruth..." << std::endl;
     if (!generator.generate(config.capture_file, camera, true))
         return 1;

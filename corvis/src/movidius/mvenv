@@ -21,6 +21,10 @@ fi
 if [[ ! -d $MDK_INSTALL_DIR/$MDK_CANONICAL ]]; then
     echo "No MDK found in $MDK_INSTALL_DIR/$MDK_CANONICAL."
     MDK_TAR=$HOME/.$MDK_NAME
+    if [[ ! -f $MDK_TAR && -f $MDK_ROOT/external/.mdk/$MDK_NAME ]]; then
+        echo "Caching $MDK_ROOT/external/.mdk/$MDK_NAME as $MDK_TAR"
+        ln $MDK_ROOT/external/.mdk/$MDK_NAME $MDK_TAR # backward compat
+    fi
     if [[ ! -f $MDK_TAR ]]; then
         echo "Downloading MDK... $MDK_URL"
         curl $(tty -s || echo -s) -o $MDK_TAR.$$ -O $MDK_URL &&

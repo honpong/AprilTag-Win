@@ -108,12 +108,20 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
                         sfm.relocalization_info = sfm.relocalization_future.get();
                     }
-                    if ((sfm.relocalize && !sfm.relocalization_future.valid()) ||
-                            filter_node_requires_frame(&sfm, *camera_frame)) {
+
+
+                    bool node_without_frame = camera_frame->frame_for_new_group;
+                    // want to relocalize in current frame?
+                    bool relocalize_now = sfm.relocalize && !sfm.relocalization_future.valid();
+                    // dbow is calculated either because we want to relocalize in current frame or because a node was created
+                    // and it doesn't have a valid frame yet
+                    bool calculate_dbow = relocalize_now || node_without_frame;
+
+                    if (calculate_dbow) {
                         filter_compute_dbow(&sfm, *camera_frame);
                     }
                     filter_update_map_index(&sfm);
-                    if (sfm.relocalize && !sfm.relocalization_future.valid()) {
+                    if (relocalize_now) {
                         sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                             [this] (std::unique_ptr<camera_frame_t>&& camera_frame) {
                                 set_priority(PRIORITY_SLAM_RELOCALIZE);
@@ -122,10 +130,11 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     }
                 }
 
+                const bool new_group_created = sfm.s.group_counter > groups;
                 bool compute_descriptors_now = [&]() {
-                    if (sfm.map && sfm.map->current_node) {
-                        const bool new_group_created = sfm.s.group_counter > groups;
-                        return sfm.relocalize || (sfm.save_map && new_group_created);
+                    if (sfm.map) {
+                        bool filter_has_groups = !sfm.s.groups.children.empty();
+                        return filter_has_groups && (sfm.relocalize || (sfm.save_map && new_group_created));
                     }
                     return false;
                 }();
@@ -133,7 +142,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                 if (sfm.s.cameras.children[data.id]->detecting_space || compute_descriptors_now) {
                     std::unique_ptr<camera_frame_t> camera_frame;
                     if (compute_descriptors_now)
-                        camera_frame = filter_create_camera_frame(&sfm, data);
+                        camera_frame = filter_create_camera_frame(&sfm, data, new_group_created);
 
                     auto start = std::chrono::steady_clock::now();
                     sfm.s.cameras.children[data.id]->detected = filter_detect(&sfm, data, camera_frame);

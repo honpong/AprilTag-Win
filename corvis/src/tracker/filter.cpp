@@ -563,23 +563,24 @@ static size_t filter_available_feature_space(struct filter *f)
     return space;
 }
 
-std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *f, const sensor_data& data)
+std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *f, const sensor_data& data, bool new_group_created)
 {
-    transformation G_closestnode_frame;
-    bool node_is_active = f->s.get_closest_group_transformation(f->map->current_node->id, G_closestnode_frame);
-    bool same_sensor_id = (data.id == f->map->current_node->camera_id);
     std::unique_ptr<camera_frame_t> camera_frame;
-    if (node_is_active && same_sensor_id) {
+    uint64_t closest_group_id;
+    transformation G_Bclosest_Bnow;
+    if(f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow)) {
         camera_frame.reset(new camera_frame_t);
         camera_frame->camera_id = data.id;
-        camera_frame->G_closestnode_frame = std::move(G_closestnode_frame);
-        camera_frame->closest_node = f->map->current_node->id;
+        camera_frame->G_closestnode_frame = std::move(G_Bclosest_Bnow);
+        camera_frame->closest_node = closest_group_id;
+        camera_frame->frame_for_new_group = new_group_created;
         camera_frame->frame.reset(new frame_t);
         camera_frame->frame->timestamp = data.timestamp;
 #ifdef RELOCALIZATION_DEBUG
         camera_frame->frame->image = cv::Mat(data.image.height, data.image.width, CV_8UC1, (uint8_t*)data.image.image, data.image.stride).clone();
 #endif
     }
+
     return camera_frame;
 }
 
@@ -667,20 +668,14 @@ bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_
     return true;
 }
 
-bool filter_node_requires_frame(struct filter *f, const camera_frame_t& camera_frame)
-{
-    map_node& node = f->map->get_node(camera_frame.closest_node);
-    return (node.camera_id == camera_frame.camera_id && !node.frame);
-}
-
 void filter_compute_dbow(struct filter *f, camera_frame_t& camera_frame)
 {
     START_EVENT(SF_DBOW_TRANSFORM, 0);
     camera_frame.frame->calculate_dbow(f->map->orb_voc.get());
     END_EVENT(SF_DBOW_TRANSFORM, camera_frame.frame->keypoints.size());
 
-    map_node& node = f->map->get_node(camera_frame.closest_node);
-    if (node.camera_id == camera_frame.camera_id && !node.frame) {
+    if(camera_frame.frame_for_new_group) {
+        map_node& node = f->map->get_node(camera_frame.closest_node);
         node.frame = camera_frame.frame;
     }
 }
@@ -1011,13 +1006,15 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     space = filter_available_feature_space(f);
     // bring groups back
-    if(f->map && f->map->current_node && space >= f->min_group_map_add && !f->s.groups.children.empty()) {
-        transformation G_Bcurrent_Bnow;
-        f->s.get_closest_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow);
-        camera_state.update_map_tracks(data, f->map.get(), f->min_group_map_add, G_Bcurrent_Bnow);
-        if(f->map->map_feature_tracks.size()) {
-            filter_bring_groups_back(f, data.id);
-            space = filter_available_feature_space(f);
+    if(f->map && space >= f->min_group_map_add) {
+        uint64_t closest_group_id;
+        transformation G_Bclosest_Bnow;
+        if(f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow)) {
+            camera_state.update_map_tracks(data, f->map.get(), f->min_group_map_add, closest_group_id, G_Bclosest_Bnow);
+            if(f->map->map_feature_tracks.size()) {
+                filter_bring_groups_back(f, data.id);
+                space = filter_available_feature_space(f);
+            }
         }
     }
 
@@ -1411,17 +1408,18 @@ std::string filter_get_stats(const struct filter *f)
 void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_id)
 {
     // update triangulated 3d feature with new observation
-    if(f->map && f->map->current_node) {
-        transformation G_Bcurrent_Bnow;
-        bool valid_transformation = f->s.get_closest_group_transformation(f->map->current_node->id, G_Bcurrent_Bnow);
+    if(f->map) {
+        uint64_t closest_group_id;
+        transformation G_Bclosest_Bnow;
+        bool valid_transformation = f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow);
         auto &c = f->s.cameras.children[camera_id];
         for(auto &sbt : c->standby_tracks) {
             auto tp = f->map->triangulated_tracks.find(sbt.feature->id);
             if(tp != f->map->triangulated_tracks.end()) {
                 if(!f->map->node_in_map(tp->second.reference_nodeid)) {
                     f->map->triangulated_tracks.erase(sbt.feature->id); //if reference node removed, remove triangulated feature too
-                } else if (valid_transformation && tp->second.reference_nodeid !=  std::numeric_limits<uint64_t>::max()) {
-                    f->map->update_3d_feature(sbt, invert(G_Bcurrent_Bnow), camera_id);
+                } else if (valid_transformation && tp->second.reference_nodeid != std::numeric_limits<uint64_t>::max()) {
+                    f->map->update_3d_feature(sbt, closest_group_id, invert(G_Bclosest_Bnow), camera_id);
                 }
             }
         }

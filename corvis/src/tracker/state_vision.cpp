@@ -233,13 +233,7 @@ int state_vision::process_features(mapper *map)
         //Finally: remove features and groups
         if(g->status == group_empty) {
             if (map) {
-                // node was already in the map or has lasted for 2 seconds at least or is the first node in the session
-//                bool keep_node = g->reused || (g->frames_active > 66) || (g->id == map->get_node_id_offset());
-                bool keep_node = true;
-                if(keep_node)
-                    map->finish_node(g->id, !g->reused);
-                else
-                    map->remove_node(g->id);
+                map->finish_node(g->id, !g->reused);
             }
             g->unmap();
             g->features.children.clear();
@@ -280,7 +274,20 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
-bool state_vision::get_closest_group_transformation(const uint64_t group_id, transformation& G) const
+bool state_vision::get_closest_group_transformation(uint64_t &group_id, transformation& G) const {
+    float min_group_distance = std::numeric_limits<float>::max();
+    for (auto &g : groups.children) {
+        if(g->Tr.v.norm() <= min_group_distance) {
+            min_group_distance = g->Tr.v.norm();
+            group_id = g->id;
+            G = *g->Gr;
+        }
+    }
+
+    return min_group_distance < std::numeric_limits<float>::max();
+}
+
+bool state_vision::get_group_transformation(const uint64_t group_id, transformation& G) const
 {
     for (auto &g : groups.children) {
         if(g->id == group_id) {
@@ -331,14 +338,8 @@ int state_camera::process_tracks(mapper *map, spdlog::logger &log)
 void state_vision::update_map(mapper *map)
 {
     if (!map) return;
-    float distance_current_node = std::numeric_limits<float>::max();
     for (auto &g : groups.children) {
         map->set_node_transformation(g->id, get_transformation()*invert(*g->Gr));
-        // Set current node as the closest active group to current pose
-        if(g->Tr.v.norm() <= distance_current_node) {
-            distance_current_node = g->Tr.v.norm();
-            map->current_node = &map->get_node(g->id);
-        }
         for (auto &f : g->features.children) {
             float stdev = (float)f->v->stdev_meters(sqrt(f->variance()));
             float variance_meters = stdev*stdev;
@@ -566,7 +567,8 @@ void state_camera::update_feature_tracks(const sensor_data &data)
 }
 
 void state_camera::update_map_tracks(const sensor_data &data, mapper *map,
-                                     const size_t min_group_map_add, const transformation &G_Bcurrent_Bnow) {
+                                     const size_t min_group_map_add, const uint64_t closest_group_id,
+                                     const transformation &G_Bclosest_Bnow) {
     START_EVENT(SF_TRACK, 0);
     tracker::image current_image;
     current_image.image = (uint8_t *)data.image.image;
@@ -577,7 +579,7 @@ void state_camera::update_map_tracks(const sensor_data &data, mapper *map,
     feature_tracker->tracks.clear();
     START_EVENT(SF_PREDICT_MAP, 0);
     // create tracks of features visible in inactive map nodes
-    map->predict_map_features(data.id, min_group_map_add, G_Bcurrent_Bnow);
+    map->predict_map_features(data.id, min_group_map_add, closest_group_id, G_Bclosest_Bnow);
     for(auto &nft : map->map_feature_tracks) {
         for(auto &mft : nft.tracks)
             feature_tracker->tracks.emplace_back(&mft.track);

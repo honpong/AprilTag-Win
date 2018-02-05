@@ -313,7 +313,6 @@ public:
             (*features_dbow)[kp->id] = nid;
         }
         finish_node(nid, true);
-        current_node = &(nodes->at(nid));
         return true;
     }
 

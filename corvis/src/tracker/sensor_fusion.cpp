@@ -122,9 +122,9 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     }
                 }
 
+                const bool new_group_created = sfm.s.group_counter > groups;
                 bool compute_descriptors_now = [&]() {
-                    if (sfm.map && sfm.map->current_node) {
-                        const bool new_group_created = sfm.s.group_counter > groups;
+                    if (sfm.map) {
                         return sfm.relocalize || (sfm.save_map && new_group_created);
                     }
                     return false;
@@ -133,7 +133,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                 if (sfm.s.cameras.children[data.id]->detecting_space || compute_descriptors_now) {
                     std::unique_ptr<camera_frame_t> camera_frame;
                     if (compute_descriptors_now)
-                        camera_frame = filter_create_camera_frame(&sfm, data);
+                        camera_frame = filter_create_camera_frame(&sfm, data, new_group_created);
 
                     auto start = std::chrono::steady_clock::now();
                     sfm.s.cameras.children[data.id]->detected = filter_detect(&sfm, data, camera_frame);

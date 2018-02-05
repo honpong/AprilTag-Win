@@ -111,6 +111,7 @@ struct camera_frame_t {
     std::shared_ptr<frame_t> frame;
     uint64_t closest_node;
     transformation G_closestnode_frame;
+    bool frame_for_new_group;
 };
 
 class state_vision_group;
@@ -251,7 +252,7 @@ struct state_camera: state_branch<state_node*> {
 
     std::list<state_vision_track> tracks;
     void update_feature_tracks(const sensor_data &data);
-    void update_map_tracks(const sensor_data &data, mapper *map, const size_t min_group_map_add, const transformation &G_Bcurrent_Bnow);
+    void update_map_tracks(const sensor_data &data, mapper *map, const size_t min_group_map_add, const uint64_t closest_group_id, const transformation &G_Bclosest_Bnow);
     size_t track_count() const;
     int process_tracks(mapper *map, spdlog::logger &log);
 

@@ -145,7 +145,8 @@ void mapper::add_triangulated_feature_to_group(const nodeid group_id, const std:
     (*features_dbow)[feature->id] = group_id;
 }
 
-void mapper::update_3d_feature(const tracker::feature_track& track, const transformation &&G_Bnow_Bcurrent, const rc_Sensor camera_id_now) {
+void mapper::update_3d_feature(const tracker::feature_track& track, const uint64_t closest_group_id,
+                               const transformation &&G_Bnow_Bclosest, const rc_Sensor camera_id_now) {
 
     auto tp = triangulated_tracks.find(track.feature->id);
 
@@ -164,14 +165,14 @@ void mapper::update_3d_feature(const tracker::feature_track& track, const transf
     // finish search when node is found
     auto finish_search = is_node_searched;
 
-    nodes_path searched_node = dijkstra_shortest_path(node_path{current_node->id, transformation(), 0},
+    nodes_path searched_node = dijkstra_shortest_path(node_path{closest_group_id, transformation(), 0},
                                                       distance, is_node_searched, finish_search);
     assert(searched_node.size() == 1);
-    auto& G_Bcurrent_Breference = searched_node.front().G;
+    auto& G_Bclosest_Breference = searched_node.front().G;
     transformation G_CBnow = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
     transformation G_BCreference = transformation(extrinsics_reference->Q.v, extrinsics_reference->T.v);
 
-    transformation G_Ck_Ck_1 = G_CBnow * G_Bnow_Bcurrent * G_Bcurrent_Breference * G_BCreference;
+    transformation G_Ck_Ck_1 = G_CBnow * G_Bnow_Bclosest * G_Bclosest_Breference * G_BCreference;
 
     // calculate point prediction on current camera frame
     std::shared_ptr<log_depth>& state = tp->second.state;
@@ -784,10 +785,8 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
 }
 
 void mapper::predict_map_features(const uint64_t camera_id_now, const size_t min_group_map_add,
-                                  const transformation& G_Bcurrent_Bnow) {
+                                  const uint64_t closest_group_id, const transformation& G_Bclosest_Bnow) {
     map_feature_tracks.clear();
-    if(!current_node)
-        return;
 
     const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
     const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
@@ -807,7 +806,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const size_t min
     // search all graph
     auto finish_search = [](const node_path& path) { return false; };
     START_EVENT(SF_DIJKSTRA, 0);
-    nodes_path neighbors = dijkstra_shortest_path(node_path{current_node->id, invert(G_Bcurrent_Bnow), 0},
+    nodes_path neighbors = dijkstra_shortest_path(node_path{closest_group_id, invert(G_Bclosest_Bnow), 0},
                                                   distance, is_node_searched, finish_search);
 
     std::sort(neighbors.begin(), neighbors.end(), [](const node_path& path1, const node_path& path2){

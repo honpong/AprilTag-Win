@@ -233,13 +233,7 @@ int state_vision::process_features(mapper *map)
         //Finally: remove features and groups
         if(g->status == group_empty) {
             if (map) {
-                // node was already in the map or has lasted for 2 seconds at least or is the first node in the session
-//                bool keep_node = g->reused || (g->frames_active > 66) || (g->id == map->get_node_id_offset());
-                bool keep_node = true;
-                if(keep_node)
-                    map->finish_node(g->id, !g->reused);
-                else
-                    map->remove_node(g->id);
+                map->finish_node(g->id, !g->reused);
             }
             g->unmap();
             g->features.children.clear();

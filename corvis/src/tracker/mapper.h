@@ -216,7 +216,6 @@ private:
 
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     void add_node(nodeid node_id, const rc_Sensor camera_id);
-    void remove_node(nodeid node_id);
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::original);
     void add_covisibility_edge(nodeid node_id1, nodeid node_id2);
     void remove_edge(nodeid node_id1, nodeid node_id2);

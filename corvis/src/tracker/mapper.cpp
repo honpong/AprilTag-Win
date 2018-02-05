@@ -292,64 +292,6 @@ void mapper::index_finished_nodes() {
     }
 }
 
-void mapper::remove_node(nodeid id)
-{
-    // if node removed is current_node
-    bool update_current_node = false;
-    if(current_node->id == id)
-        update_current_node = true;
-
-    std::lock_guard<std::mutex> lock(nodes.mutex());
-    aligned_map<uint64_t, map_edge> edges = nodes->at(id).edges;
-    std::set<nodeid> neighbors;
-    assert(edges.size());
-    for(auto& edge : edges) {
-        if(update_current_node) {
-            current_node = &nodes->at(edge.first);
-            if(current_node->status == node_status::normal) // prefer an active node as current_node
-                update_current_node = false;
-        }
-        neighbors.insert(edge.first);
-        remove_edge_no_lock(id, edge.first);
-    }
-    features_dbow.critical_section(&mapper::remove_node_features, this, id);
-    nodes->erase(id);
-    partially_finished_nodes.erase(id);
-
-    // if only 1 neighbor, node removed (id) is a loose end of the graph
-    if(neighbors.size() > 1) {
-        auto searched_neighbors = neighbors;
-        // distance # edges traversed
-        auto distance = [](const map_edge& edge) { return 1; };
-        // select node if it is one of the searched nodes
-        auto is_node_searched = [&searched_neighbors](const node_path& path) {
-            auto it = searched_neighbors.find(path.id);
-            if( it != searched_neighbors.end()) {
-                searched_neighbors.erase(it);
-                return true;
-            } else
-                return false;
-            };
-        // finish search when all searched nodes are found
-        auto finish_search = [&searched_neighbors](const node_path& path) { return searched_neighbors.empty(); };
-
-        // this could be more efficient if we don't calculate transformations in dijkstra
-        std::set<nodeid> connected_neighbors;
-        for(auto &path : dijkstra_shortest_path(node_path{*neighbors.begin(), transformation(), 0}, distance, is_node_searched, finish_search))
-            connected_neighbors.insert(path.id);
-
-        // are neighbors disconnected after removing node id ?
-        if(connected_neighbors.size() < neighbors.size()) {
-            std::vector<nodeid> disconnected_neighbors;
-            std::set_difference(neighbors.begin(), neighbors.end(), connected_neighbors.begin(), connected_neighbors.end(), std::back_inserter(disconnected_neighbors));
-
-            transformation G_id_connected = edges[*connected_neighbors.begin()].G;
-            transformation G_id_disconnected = edges[disconnected_neighbors.front()].G; // pick one of the disconnected nodes
-            add_edge_no_lock(*connected_neighbors.begin(), disconnected_neighbors.front(), invert(G_id_connected)*G_id_disconnected);
-        }
-    }
-}
-
 mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path& path)> is_node_searched,
                                                   std::function<bool(const node_path& path)> finish_search)
 {

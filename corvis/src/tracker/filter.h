@@ -69,7 +69,7 @@ struct filter {
     qr_benchmark qr_bench;
     bool qr_origin_gravity_aligned;
 #endif
-    
+
     transformation origin;
     bool origin_set;
 

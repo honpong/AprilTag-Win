@@ -668,11 +668,6 @@ bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_
     return true;
 }
 
-bool filter_node_requires_frame(struct filter *f, const camera_frame_t& camera_frame)
-{
-    return camera_frame.closest_node != camera_frame_t::no_node;
-}
-
 void filter_compute_dbow(struct filter *f, camera_frame_t& camera_frame)
 {
     START_EVENT(SF_DBOW_TRANSFORM, 0);

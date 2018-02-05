@@ -95,7 +95,6 @@ std::unique_ptr<camera_frame_t> filter_create_camera_frame(const filter *f, cons
 size_t filter_detect(struct filter *f, const sensor_data &data, const std::unique_ptr<camera_frame_t>& camera_frame);
 bool filter_compute_orb(struct filter *f, const sensor_data &data, camera_frame_t& camera_frame);
 void filter_compute_dbow(struct filter *f, camera_frame_t& camera_frame);
-bool filter_node_requires_frame(struct filter *f, const camera_frame_t& camera_frame);
 void filter_update_map_index(struct filter *f);
 map_relocalization_info filter_relocalize(struct filter *f, const camera_frame_t& camera_frame);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);

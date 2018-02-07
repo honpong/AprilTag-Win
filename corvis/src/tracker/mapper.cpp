@@ -698,6 +698,8 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
 
 #if defined(RELOCALIZATION_DEBUG)
         const auto &keypoint_xy_candidates = candidate_node_frame->keypoints_xy;
+        const auto &keypoint_candidates = candidate_node_frame->keypoints;
+        assert(keypoint_candidates.size() == keypoint_xy_candidates.size());
         cv::Mat color_candidate_image, color_current_image;
         cv::cvtColor(candidate_node_frame->image, color_candidate_image, CV_GRAY2BGRA);
         cv::cvtColor(current_frame->image, color_current_image, CV_GRAY2BGRA);
@@ -747,11 +749,15 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
 
         cv::Mat compound_keypoints(rows, 2*cols, type);
         for(auto &pc : keypoint_xy_current) {
-            cv::circle(color_current_image, cv::Point(pc[0],pc[1]),3,cv::Scalar{255,0,0,255},2);
+            cv::circle(color_current_image, cv::Point(pc[0],pc[1]),3,cv::Scalar{0,255,0,255},2);
         }
 
-        for(auto &pc : keypoint_xy_candidates) {
-            cv::circle(flipped_color_candidate_image, cv::Point(flipped_color_candidate_image.cols-pc[0],pc[1]),3,cv::Scalar{255,0,0,255},2);
+        for(size_t i=0; i<keypoint_xy_candidates.size(); ++i) {
+            cv::Scalar color{0,255,0,255};
+            if (features_dbow->find(keypoint_candidates[i]->id) == features_dbow->end())
+                color = cv::Scalar{255,0,0,255};
+            auto &pc = keypoint_xy_candidates[i];
+            cv::circle(flipped_color_candidate_image, cv::Point(flipped_color_candidate_image.cols-pc[0],pc[1]),3,color,2);
         }
         color_current_image.copyTo(compound_keypoints(cv::Rect(0, 0, cols, rows)));
         flipped_color_candidate_image.copyTo(compound_keypoints(cv::Rect(cols, 0, cols, rows)));

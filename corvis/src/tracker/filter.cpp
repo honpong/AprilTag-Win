@@ -496,15 +496,16 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
         image_to_depth = f_t(f->recent_depth->image.height)/image_height;
 
     for(auto i = f->s.stereo_matches.begin(); i != f->s.stereo_matches.end() && found_feats < newfeats;) {
-        auto view = std::find_if(i->views.begin(), i->views.end(), [&](const stereo_match::view &v) { return &v.camera == &camera; });
-        if (view != i->views.end()) {
+        auto &m = i->second;
+        auto view = std::find_if(m.views.begin(), m.views.end(), [&](const stereo_match::view &v) { return &v.camera == &camera; });
+        if (view != m.views.end()) {
             auto feat = std::make_unique<state_vision_feature>(*view->track, *g);
             feat->v->set_depth_meters(view->depth_m);
             auto std_pct = sqrt(state_vision_feature::initial_var/10); // consider using error
             feat->set_initial_variance(std_pct *std_pct); // assumes log depth
             feat->status = feature_normal;
             feat->depth_measured = true;
-            for (auto &v : i->views) {
+            for (auto &v : m.views) {
                 v.camera.tracks.emplace_back(v.camera.id, *feat, std::move(*v.track));
                 v.camera.standby_tracks.erase(v.track);
             }
@@ -814,14 +815,14 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         m3 Rw2T = Rw2.transpose();
         std::vector<kp_pre_data> prkpv2;
         for(auto & k2 : kp2)
-            if (k2.feature.use_count() > 1) // already stereo
+            if (f->s.stereo_matches.count(k2.feature->id)) // already stereo
                 prkpv2.emplace_back();
             else
                 prkpv2.emplace_back(preprocess_keypoint_intersect(camera_state2, feature_t{k2.x, k2.y},Rw2));
         for(auto k1 = kp1.begin(); k1 != kp1.end(); ++k1) {
             float second_best_distance = INFINITY;
             float best_distance = INFINITY;
-            if (k1->feature.use_count() > 1) // already stereo
+            if (f->s.stereo_matches.count(k1->feature->id)) // already stereo
                 continue;
             float best_depth1 = 0;
             float best_depth2 = 0;
@@ -831,7 +832,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             // try to find a match in im2
             auto prk2 = prkpv2.begin();
             for(auto k2 = kp2.begin(); k2 != kp2.end(); ++k2, ++prk2){
-                if (k2->feature.use_count() > 1) // already stereo
+                if (f->s.stereo_matches.count(k2->feature->id)) // already stereo
                     continue;
                 float depth1, depth2, error_percent;
                 if (keypoint_intersect(camera_state1,  pre1, Rw1T, depth1,
@@ -855,8 +856,9 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                 if (f->map)
                     f->map->triangulated_tracks.erase(best_k2->feature->id); // FIXME: check if triangulated_tracks is more accurate than stereo match
                 best_k2->feature = k1->feature;
-                f->s.stereo_matches.emplace_back(camera_state1,      k1, best_depth1,
-                                                 camera_state2, best_k2, best_depth2, best_error);
+                f->s.stereo_matches.emplace(k1->feature->id,
+                                            stereo_match(camera_state1,      k1, best_depth1,
+                                                         camera_state2, best_k2, best_depth2, best_error));
             }
         }
 
@@ -994,9 +996,12 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             std::cerr << " innov  " << c->inn_stdev << "\n";
     }
 
-    f->s.stereo_matches.remove_if([](const stereo_match &m) {
-            return !m.views[0].track->found() || !m.views[1].track->found();
-    });
+    for (auto i = f->s.stereo_matches.begin(); i != f->s.stereo_matches.end(); )
+        if (!i->second.views[0].track->found() || !i->second.views[1].track->found())
+            i = f->s.stereo_matches.erase(i);
+        else
+            ++i;
+
     camera_state.process_tracks(f->map.get(), *f->log);
     auto normal_groups = f->s.process_features(f->map.get());
     filter_update_outputs(f, time, normal_groups == 0);

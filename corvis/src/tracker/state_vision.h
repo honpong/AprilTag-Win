@@ -284,7 +284,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
     state_branch<std::unique_ptr<state_vision_group>> groups;
-    std::list<stereo_match> stereo_matches;
+    std::map<uint64_t,stereo_match> stereo_matches;
     state_vision(covariance &c, matrix &FP) : state_motion(c, FP) {
         non_orientation.children.push_back(&cameras);
         non_orientation.children.push_back(&groups);

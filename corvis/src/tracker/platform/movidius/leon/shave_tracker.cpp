@@ -364,16 +364,16 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
     }
     i = 0;
     for (auto k1 = kp1.begin(); k1 != kp1.end(); ++k1, ++i) {
-        if (matched_kp[i] < 0 || k1->feature.use_count() > 1) // didn't match or already stereo
+        if (matched_kp[i] < 0 || f->s.stereo_matches.count(k1->feature->id)) // didn't match or already stereo
             continue;
         auto k2 = kp2.begin(); std::advance(k2, matched_kp[i]);
-        if (k2 == kp2.end() && k2->feature.use_count() > 1) // internal error or already stereo
+        if (k2 == kp2.end() || f->s.stereo_matches.count(k2->feature->id)) // internal error or already stereo
             continue;
         if (f->map)
             f->map->triangulated_tracks.erase(k2->feature->id); // FIXME: check if triangulated_tracks is more accurate than stereo match
         k2->feature = k1->feature;
-        f->s.stereo_matches.emplace_back(camera1, k1, depths1[i],
-                                         camera2, k2, depths2[i],  errors1[i]);
+        f->s.stereo_matches.emplace(k1->feature->id,
+                                    stereo_match(camera1, k1, depths1[i],
+                                                 camera2, k2, depths2[i], errors1[i]));
     }
-
 }

@@ -135,8 +135,8 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_F:        write_frame();
              break; case GLFW_KEY_V:        if (!(mods & GLFW_MOD_SHIFT)) show_video = !show_video;
                                             else                          current_camera = 1+current_camera < state->cameras.size() ? 1+current_camera : 0;
-             break; case GLFW_KEY_C:        if (!(mods & GLFW_MOD_SHIFT)) show_debug = !show_debug;
-                                            else                          current_debug = 1+current_debug < state->debug_cameras.size() ? 1+current_debug : 0;
+             break; case GLFW_KEY_C:        if (!(mods & GLFW_MOD_SHIFT)) current_debug = 1+current_debug < state->debug_cameras.size() ? 1+current_debug : 0;
+                                            else                          current_debug = current_debug != 0 ? current_debug-1 : state->debug_cameras.size()-1;
              break; case GLFW_KEY_D:        if (!(mods & GLFW_MOD_SHIFT)) show_depth = !show_depth;
                                             else                          current_depth  = 1+current_depth  < state->depths.size()  ? 1+current_depth  : 0;
              break; case GLFW_KEY_M:        show_main = !show_main;

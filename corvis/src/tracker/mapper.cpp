@@ -757,7 +757,6 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
         flipped_color_candidate_image.copyTo(compound_keypoints(cv::Rect(cols, 0, cols, rows)));
 
         std::string batch_name;
-        bool stop = false;
         if (!is_relocalized_in_candidate) {
             if(matches_node_candidate.size() < min_num_inliers) {
                 batch_name = "BoWs";
@@ -766,7 +765,6 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
             }
         } else {
             batch_name = "Relocalized";
-            stop = true;
         }
 
         batch.add(compound_matches, batch_name);

@@ -75,7 +75,7 @@ public:
         for (auto ele : nodes)
             assign((*cur_map.nodes)[ele.first], ele.second);
         cur_map.dbow_inverted_index = move(dbow_inverted_index);
-        *(cur_map.features_dbow) = move(features_dbow);
+        *cur_map.features_dbow = move(features_dbow);
     }
     virtual bool deserialize(map_stream_reader &cur_stream) override {
         cur_stream.max_loaded_featid = 0;

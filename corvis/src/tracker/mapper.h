@@ -118,6 +118,12 @@ class mapper {
     };
     typedef aligned_vector<node_path> nodes_path;
 
+    struct map_origin {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+        std::unique_ptr<std::string> name;
+        transformation G_world_origin;
+    };
+
  private:
     /** Auxiliary class to represent data shared among threads and protected
      * with a mutex.
@@ -189,6 +195,12 @@ class mapper {
     // nodes whose status is finished but which do not have a frame yet,
     // so their addition to dbow_inverted_index is deferred.
     std::unordered_set<nodeid> partially_finished_nodes;
+
+public:
+    concurrent<map_origin> origin;
+    void set_origin(map_origin &&o) {
+        origin.critical_section([&](){ std::move(*origin) = std::move(o); });
+    }
 
 private:
     // private functions that lock mutexes internally

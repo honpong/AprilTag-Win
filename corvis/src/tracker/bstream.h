@@ -43,6 +43,12 @@ public:
     bstream_writer& operator << (const std::vector<T, Alloc>& c) { return operator << <std::vector, T, Alloc>(c); }
     template <typename T, std::size_t N>
     bstream_writer& operator << (const std::array<T, N> &c) { return write_array((const char*)c.data(), N * sizeof(T)); }
+    template <typename T, std::size_t N>
+    bstream_writer& operator << (const T (&c)[N]) { return write_array((const char*)&c[0], N * sizeof(T)); }
+    template <typename T>
+    bstream_writer& operator << (const std::basic_string<T> &c) { *this << (uint32_t)c.size(); return write_array(c.data(),c.size()); }
+    template <typename T>
+    bstream_writer& operator << (const std::unique_ptr<T> &c) { *this << uint8_t(c?1:0); if (c) *this << *c; return *this; }
 
     template <template <class, class, class, class...> class TMap, class Key, class T, class Comp, class... TArgs>
     bstream_writer& operator << (const TMap<Key, T, Comp, TArgs...> &c) {
@@ -162,6 +168,12 @@ public:
     bstream_reader& operator >> (std::vector<T, Alloc> &c) { return operator >> <std::vector, T, Alloc>(c); }
     template <typename T, std::size_t N>
     bstream_reader& operator >> (std::array<T, N> &c) { return read_array((char*)c.data(), N * sizeof(T)); }
+    template <typename T, std::size_t N>
+    bstream_reader& operator >> (T(&c)[N]) { return read_array((char*)&c[0], N * sizeof(T)); }
+    template <typename T>
+    bstream_reader& operator >> (std::basic_string<T> &c) { uint32_t s=0; *this >> s; c.resize(s); return read_array((char*)c.data(), s * sizeof(T)); }
+    template <typename T>
+    bstream_reader& operator >> (std::unique_ptr<T> &c) { uint8_t p=0; *this >> p; if (p) { c = std::make_unique<T>(); *this >> *c; } return *this; }
 
     template <template <class, class, class, class...> class TMap, class Key, class T, class Comp, class... TArgs>
     bstream_reader& operator >> (TMap<Key, T, Comp, TArgs...> &c) {
@@ -213,7 +225,7 @@ private:
         uint64_t c_size = 0;//size_t is not compatible
         read(c_size);
         is_good = is_good && sizing(c_size);
-        for (auto itr = c.begin(); is_good && itr != c.end(); itr++) { *this >> *itr; }
+        for (auto itr = std::begin(c); is_good && itr != std::end(c); itr++) { *this >> *itr; }
         return *this;
     }
 

@@ -267,7 +267,6 @@ private:
     std::thread thread;
     
     std::function<void(sensor_data &&)> data_receiver;
-    std::function<void(sensor_data &, bool)> fast_data_receiver;
     
     std::vector<uint64_t> required_sensors;
     sorted_ring_buffer<sensor_data, 256> queue;

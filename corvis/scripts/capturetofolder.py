@@ -75,7 +75,7 @@ depth_frame_file_handles = {}
 
 p = Packet.from_file(f)
 while p is not None:
-    (sensor_id, ptime) = (packet.header.sensor_id, packet.header.time)
+    (sensor_id, ptime) = (p.header.sensor_id, p.header.time)
     if p.header.type == PacketType.accelerometer or p.header.type == PacketType.gyroscope:
         # packets are padded to 8 byte boundary
         (x, y, z) = unpack('fff', p.data[:12])

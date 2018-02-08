@@ -366,8 +366,7 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
     for (auto k1 = kp1.begin(); k1 != kp1.end(); ++k1, ++i) {
         if (matched_kp[i] < 0 || k1->feature.use_count() > 1) // didn't match or already stereo
             continue;
-        auto k2 = kp2.begin();
-        for(int j = 0; k2 != kp2.end(), j < matched_kp[i]; ++k2, ++j);
+        auto k2 = kp2.begin(); std::advance(k2, matched_kp[i]);
         if (k2 == kp2.end() && k2->feature.use_count() > 1) // internal error or already stereo
             continue;
         if (f->map)

@@ -38,6 +38,9 @@ pipeline {
         }
         stage('Check options') {
             steps {
+                sh "build/rc_replay --output-tum benchmark_data/minimal_test_suite/monocular/table_bookcase_calib_L150 > a"
+                sh "build/rc_replay --output-tum benchmark_data/minimal_test_suite/monocular/table_bookcase_calib_L150{,} > aa"
+                sh "diff -u $(<cat a a) aa | tee aaa.patch"
                 sh 'build/measure --benchmark benchmark_data/minimal_test_suite/'
                 sh 'build/measure --disable-map --benchmark benchmark_data/minimal_test_suite/'
                 sh 'build/measure --no-fast-path --benchmark benchmark_data/minimal_test_suite/'

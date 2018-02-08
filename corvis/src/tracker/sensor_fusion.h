@@ -36,6 +36,7 @@ public:
     
     std::function<void(const sensor_data *)> data_callback;
     std::function<bool()> status_callback;
+    std::function<void(const mapper::map_origin &origin, const transformation &)> origin_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
     
@@ -141,6 +142,7 @@ private:
     friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere
     void update_status();
     void update_data(const sensor_data * data);
+    void update_origin(const mapper::map_origin &origin, const transformation &G_currentworld_nodeworld);
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning;
     bool threaded;
     bool fast_path = false;

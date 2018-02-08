@@ -45,6 +45,11 @@ void sensor_fusion::update_data(const sensor_data * data)
         data_callback(data);
 }
 
+void sensor_fusion::update_origin(const mapper::map_origin &origin, const transformation &G_currentworld_nodeworld) {
+    if(origin_callback)
+        origin_callback(origin, G_currentworld_nodeworld);
+}
+
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     : queue([this](sensor_data &&data) { queue_receive_data(std::move(data)); },
             strategy, std::chrono::milliseconds(500)),
@@ -107,6 +112,11 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                 if (camera_frame) {
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
                         sfm.relocalization_info = sfm.relocalization_future.get();
+                        if (sfm.relocalization_info.is_relocalized) {
+                            transformation G_Bframe_Bbody;
+                            if (sfm.s.get_group_transformation(camera_frame->closest_node, G_Bframe_Bbody))
+                                update_origin(*sfm.map->origin, get_transformation() * invert(G_Bframe_Bbody) * sfm.relocalization_info.candidates[0].G_frame_nodeworld);
+                        }
                     }
 
                     bool node_without_frame = camera_frame->frame_for_new_group;

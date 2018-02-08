@@ -206,6 +206,7 @@ typedef struct rc_Tracker rc_Tracker;
 typedef void(*rc_DataCallback)(void *handle, rc_Tracker * tracker, const rc_Data * data);
 typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence);
 typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, const char * message, size_t len);
+typedef void(*rc_StaticNodeCallback)(void *handle, const char *description, const rc_Pose pose_m);
 
 RCTRACKER_API const char *rc_version();
 RCTRACKER_API rc_Tracker *rc_create();
@@ -391,11 +392,30 @@ RCTRACKER_API bool rc_configureQueueStrategy(rc_Tracker *tracker, rc_TrackerQueu
 RCTRACKER_API bool rc_describeQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy * strategy);
 
 /**
+ rc_setStaticNode creates a map relative reference frame by passing
+ the pose of the origin of the frame with respect to the current
+ tracker world coordinates and associating a string with it.
+
+ Must only be called from the rc_DataCallback(rc Data *data).
+ */
+RCTRACKER_API bool rc_setStaticNode(rc_Tracker *tracker, const char  *description, const rc_Pose pose_m);
+
+/**
+ rc_getStaticNode will return true and a pose for the map relative
+ reference frame, for a given "name", relative to the current trackers
+ world coordinates.
+
+ Must only be called from the rc_DataCallback(rc Data *data).
+ */
+RCTRACKER_API bool rc_getStaticNode(rc_Tracker *tracker, const char **description,       rc_Pose *pose_m);
+
+/**
   WARNING: These callbacks are synchronous with the the filter thread. Don't do significant work in them!
 */
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback callback, void *handle, rc_MessageLevel maximum_level);
+RCTRACKER_API void rc_setStaticNodeCallback(rc_Tracker *tracker, rc_StaticNodeCallback callback, void *handle);
 
 typedef enum rc_TrackerRunFlags
 {

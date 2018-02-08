@@ -572,6 +572,45 @@ bool rc_receiveTemperature(rc_Tracker * tracker, rc_Sensor therm_id, rc_Timestam
     return true;
 }
 
+bool rc_setStaticNode(rc_Tracker *tracker, const char *name, const rc_Pose pose_m)
+{
+    if (!tracker || !tracker->sfm.map)
+        return false;
+    tracker->sfm.map->set_origin(mapper::map_origin{
+        name ? std::make_unique<std::string>(name) : std::unique_ptr<std::string>(),
+        to_transformation(pose_m),
+    });
+    return true;
+}
+
+bool rc_getStaticNode(rc_Tracker *tracker, const char **name,     rc_Pose *pose_m)
+{
+    if (!tracker || !tracker->sfm.map)
+        return false;
+
+    auto &o = *tracker->sfm.map->origin;
+
+    if (name != nullptr && strcmp(o.name->c_str(), *name) != 0)
+        return false;
+
+    if (name)
+        *name = o.name ? o.name->c_str() : nullptr;
+
+    if (pose_m)
+        *pose_m = to_rc_Pose(o.G_world_origin);
+
+    return true;
+}
+
+void rc_setStaticNodeCallback(rc_Tracker *tracker, rc_StaticNodeCallback callback, void *handle)
+{
+    if (!callback) tracker->origin_callback = nullptr;
+    else           tracker->origin_callback = [=](const mapper::map_origin &origin, const transformation &G_currentworld_nodeworld) {
+        callback(handle, origin.name ? origin.name->c_str() : nullptr,
+                 to_rc_Pose(G_currentworld_nodeworld * origin.G_world_origin));
+    };
+}
+
 int rc_getRelocalizationPoses(rc_Tracker* tracker, rc_Pose **reloc_edges)
 {
     if (tracker && tracker->sfm.map && tracker->sfm.relocalization_info.is_relocalized) {

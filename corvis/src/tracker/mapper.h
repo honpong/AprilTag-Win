@@ -94,10 +94,11 @@ struct map_relocalization_info {
     struct candidate {
         transformation G_node_frame;
         transformation G_world_node;
+        transformation G_frame_nodeworld;
         sensor_clock::time_point node_timestamp;
         candidate() {}
-        candidate(const transformation &g_node_frame, const transformation &g_world_node, sensor_clock::time_point node_ts)
-            : G_node_frame(g_node_frame), G_world_node(g_world_node), node_timestamp(node_ts) {}
+        candidate(const transformation &g_node_frame, const transformation &g_world_node, const transformation &g_frame_nodeworld, sensor_clock::time_point node_ts)
+            : G_node_frame(g_node_frame), G_world_node(g_world_node), G_frame_nodeworld(g_frame_nodeworld), node_timestamp(node_ts) {}
     };
     aligned_vector<candidate> candidates;
     size_t size() const { return candidates.size(); }

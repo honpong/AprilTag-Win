@@ -363,7 +363,9 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
         Shave::get_handle(stereo_matching[i].shave)->wait();
     }
     i = 0;
-    for(auto k1 = kp1.begin(); k1 != kp1.end() && k1->feature.use_count() <= 1; ++k1, ++i) {
+    for (auto k1 = kp1.begin(); k1 != kp1.end(); ++k1, ++i) {
+        if (k1->feature.use_count() > 1) // already stereo
+            continue;
         if(matched_kp[i] >= 0){
             auto k2 = kp2.begin();
             for(int j = 0; k2 != kp2.end(), j < matched_kp[i]; ++k2, ++j);

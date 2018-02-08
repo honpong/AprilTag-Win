@@ -73,12 +73,15 @@ void fusion_queue::reset()
 {
     stop_immediately();
     wait_until_finished();
+
     thread = std::thread();
     clear();
 
     control_func = nullptr;
     active = false;
     last_dispatched = sensor_clock::time_point();
+    buffer_time = {};
+    buffering = false;
 }
 
 fusion_queue::~fusion_queue()
@@ -214,10 +217,18 @@ bool fusion_queue::run_control()
 void fusion_queue::clear()
 {
     std::lock_guard<std::mutex> data_guard(data_mutex);
+    required_sensors.clear();
     queue.clear();
     stats.clear();
     total_in = 0;
     total_out = 0;
+
+    singlethreaded = false;
+
+    queue_latency = {};
+    newest_received = {};
+    catchup_stats            = stdev<1>();
+    time_since_catchup_stats = stdev<1>();
 }
 
 void fusion_queue::runloop()

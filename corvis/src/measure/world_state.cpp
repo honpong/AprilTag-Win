@@ -999,6 +999,43 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         set_position(&v, (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
         reloc_vertex.push_back(v);
     }
+
+    static auto cube_vertices = [](){
+        static constexpr f_t L = 0.20;  // side length = L*2
+        return std::array<v3, 30> {{
+                {-L, -L, -L}, {L, -L, -L}, {L, -L, -L}, { L,  L, -L},
+                { L,  L, -L}, {-L, L, -L}, {-L, L, -L}, {-L, -L, -L},
+                {-L, -L, -L}, {-L, -L, L}, {-L, -L, L}, { L, -L,  L},
+                { L, -L,  L}, { L, L,  L}, { L, L,  L}, {-L,  L,  L},
+                {-L,  L,  L}, {-L, -L, L}, {-L, -L, L}, { L, -L,  L},
+                { L, -L,  L}, {L, -L, -L}, {L, -L, -L}, { L,  L, -L},
+                { L,  L, -L}, { L, L,  L}, { L, L,  L}, {-L,  L,  L},
+                {-L,  L,  L}, {-L, L, -L}
+        }};
+    }();
+    virtual_object_vertex.clear();
+    virtual_object_vertex.reserve(virtual_objects.size() * (cube_vertices.size() + 6));
+    for(auto& it : virtual_objects) {
+        const Position& p = it.second;
+        for(int i = 0; i < 6; i++) {
+            virtual_object_vertex.emplace_back();
+            VertexData& v = virtual_object_vertex.back();
+            v3 vertex(0.5*axis_vertex[i].position[0],
+                      0.5*axis_vertex[i].position[1],
+                      0.5*axis_vertex[i].position[2]);
+            vertex = p.g*vertex;
+            set_position(&v, vertex[0], vertex[1], vertex[2]);
+            set_color(&v, axis_vertex[i].color[0], axis_vertex[i].color[1], axis_vertex[i].color[2], axis_vertex[i].color[3]);
+        }
+        for (auto& cube_vertex : cube_vertices) {
+            virtual_object_vertex.emplace_back();
+            VertexData& v = virtual_object_vertex.back();
+            v3 vertex = p.g*cube_vertex;
+            set_position(&v, vertex[0], vertex[1], vertex[2]);
+            set_color(&v, 255, 255, 255, 255);
+        }
+    }
+
     dirty = false;
     return true;
 }
@@ -1226,5 +1263,14 @@ void world_state::observe_position_reloc(uint64_t timestamp, const rc_Pose* pose
     path_reloc.insert(path_reloc.end(),
                       std::make_move_iterator(additional_reloc.begin()),
                       std::make_move_iterator(additional_reloc.end()));
+    display_lock.unlock();
+}
+
+void world_state::observe_virtual_object(uint64_t timestamp, const std::string& uuid, const rc_Pose& pose) {
+    Position p;
+    p.timestamp = timestamp;
+    p.g = to_transformation(pose);
+    display_lock.lock();
+    virtual_objects[uuid] = std::move(p);
     display_lock.unlock();
 }

@@ -80,6 +80,7 @@ private:
     std::map<int, std::map<uint16_t, Sensor, std::less<uint16_t>, Eigen::aligned_allocator<std::pair<const uint16_t, Sensor> > > > sensors;
     std::map<uint64_t, MapNode> map_nodes;
     std::map<std::pair<rc_Sensor,uint64_t>, Feature> features;
+    std::map<std::string, Position> virtual_objects;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_reloc;
     std::vector<Position, Eigen::aligned_allocator<Position> > path;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_mini;
@@ -121,6 +122,7 @@ public:
     std::vector<VertexData> reloc_vertex;
     std::vector<VertexData> sensor_vertex;
     std::vector<VertexData> sensor_axis_vertex;
+    std::vector<VertexData> virtual_object_vertex;
     std::vector<overlay_data> cameras;
     std::vector<overlay_data> debug_cameras;
     std::vector<ImageData> depths;
@@ -152,6 +154,7 @@ public:
     void observe_ate(uint64_t timestamp_us, const float absolute_trajectory_error);
     void observe_rpe(uint64_t timestamp_us, const float relative_pose_error);
     void observe_position_reloc(uint64_t timestamp, const rc_Pose* poses, size_t nposes);
+    void observe_virtual_object(uint64_t timestamp, const std::string& uuid, const rc_Pose& pose);
     std::string get_feature_stats();
     float get_feature_lifetime();
     int get_feature_depth_measurements();

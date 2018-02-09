@@ -132,6 +132,7 @@ void world_state_render(world_state * world, float * view_matrix, float * projec
     render.draw_array(world->path_axis_vertex.data(), world->path_axis_vertex.size(), GL_LINES);
     glPointSize(8.0f);
     render.draw_array(world->sensor_vertex.data(), world->sensor_vertex.size(), GL_POINTS);
+    render.draw_array(world->virtual_object_vertex.data(), world->virtual_object_vertex.size(), GL_LINES);
 
 #if !(TARGET_OS_IPHONE)
     glPointSize(10.0f);

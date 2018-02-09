@@ -41,7 +41,7 @@ typedef struct _ImageData {
 
 typedef struct _Neighbor {
     uint64_t id;
-    edge_type type = edge_type::original;
+    edge_type type = edge_type::filter;
     bool in_canonical_path = false;
     _Neighbor(uint64_t id_) : id(id_) {}
 } Neighbor;

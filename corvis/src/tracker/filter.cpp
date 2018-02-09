@@ -1472,7 +1472,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                     }
                     for(auto &neighbor : f->s.groups.children) {
                         if(neighbor->status == group_reference)
-                            f->map->add_edge(g->id, neighbor->id, (*g->Gr)*invert(*neighbor->Gr), edge_type::relocalization);
+                            f->map->add_edge(g->id, neighbor->id, (*g->Gr)*invert(*neighbor->Gr), edge_type::filter);
                         f->map->add_covisibility_edge(g->id, neighbor->id);
                     }
                     f->s.groups.children.push_back(std::move(g));

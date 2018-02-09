@@ -45,11 +45,11 @@ class log_depth;
 struct frame_t;
 struct camera_frame_t;
 
-enum class edge_type { filter, relocalization, dead_reckoning, original };
+enum class edge_type { filter, map, relocalization, dead_reckoning };
 
 struct map_edge {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    edge_type type;
+    edge_type type = edge_type::filter;
     transformation G;
     map_edge() = default;
     map_edge(edge_type type_, const transformation &G_) : type(type_), G(G_) {};
@@ -248,7 +248,7 @@ private:
 
     // private functions that are used after acquiring some of the mutexes
     void remove_edge_no_lock(nodeid node_id1, nodeid node_id2);
-    void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::original);
+    void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::filter);
     void add_covisibility_edge_no_lock(nodeid node_id1, nodeid node_id2);
 
     void remove_node_features(nodeid node_id);
@@ -261,10 +261,9 @@ private:
 
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     void add_node(nodeid node_id, const rc_Sensor camera_id);
-    void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::original);
+    void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::filter);
     void add_covisibility_edge(nodeid node_id1, nodeid node_id2);
     void remove_edge(nodeid node_id1, nodeid node_id2);
-    void add_loop_closure_edge(nodeid node_id1, nodeid node_id2, const transformation &G12);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                      std::shared_ptr<log_depth> v, const feature_type type = feature_type::tracked);
     void set_feature_type(nodeid node_id, uint64_t feature_id, const feature_type type = feature_type::tracked);
@@ -280,6 +279,7 @@ private:
     bool node_in_map(nodeid id) const { return nodes->find(id) != nodes->end(); }
     uint64_t get_node_id_offset() { return node_id_offset; }
     uint64_t get_feature_id_offset() { return feature_id_offset; }
+    bool edge_in_map(nodeid id1, nodeid id2, edge_type& type);
 
     void finish_node(nodeid node_id, bool compute_dbow_inverted_index);
     void set_node_transformation(nodeid id, const transformation & G);
@@ -298,7 +298,6 @@ private:
     // temporary pointer to reference node
     map_node* reference_node = nullptr; // points to node corresponding to latest active reference group in the filter
     transformation G_W_firstnode; // store filter's estimate of first session node pose wrt World origin
-    std::vector<nodeid> canonical_path;
 
     //we need the camera intrinsics
     std::vector<state_vision_intrinsics*> camera_intrinsics;

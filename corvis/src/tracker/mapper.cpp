@@ -73,7 +73,19 @@ void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12,
     edge12.G = G12;
     map_edge& edge21 = nodes->at(id2).get_add_neighbor(id1);
     edge21.G = invert(G12);
-    if(type != edge_type::original) {
+
+    // There are four edge types: map, filter, relocalization, dead_reckoning
+    // Edge conversion rules:
+    // 1- map edges never change type
+    // 2- filter edges and dead-reckoning edges get converted to input type
+    // 3- when relocalization edges are reused by the filter they immidiately become map edges
+    if(edge12.type == edge_type::filter || edge12.type == edge_type::dead_reckoning) {
+        edge12.type = type;
+        edge21.type = type;
+    }
+
+    if(edge12.type == edge_type::relocalization && type == edge_type::filter){
+//        type = edge_type::mapper; // comment this out to avoid affecting the filter
         edge12.type = type;
         edge21.type = type;
     }
@@ -101,6 +113,18 @@ void mapper::add_node(nodeid id, const rc_Sensor camera_id) {
     nodes.critical_section([&]() {
         (*nodes)[id].id = id;
         (*nodes)[id].camera_id = camera_id;
+    });
+}
+
+bool mapper::edge_in_map(nodeid id1, nodeid id2, edge_type& type) {
+    return nodes.critical_section([&]() {
+        auto it = nodes->at(id1).edges.find(id2);
+        if(it != nodes->at(id1).edges.end()) {
+            type = it->second.type;
+            return true;
+        } else {
+            return false;
+        }
     });
 }
 
@@ -147,7 +171,7 @@ void mapper::update_3d_feature(const tracker::feature_track& track, const uint64
     const f_t sigma2 = 10 / (focal_px*focal_px);
 
     // distance # edges traversed
-    auto distance = [](const map_edge& edge) { return 1; };
+    auto distance = [](const map_edge& edge) { return edge.type != edge_type::relocalization ? edge.G.T.norm() : std::numeric_limits<float>::infinity(); };
     // select node if it is the searched node
     auto is_node_searched = [&tp](const node_path& path) { return path.id == tp->second.reference_nodeid; };
     // finish search when node is found
@@ -310,7 +334,8 @@ mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::f
                 if(nodes_done.find(v) == nodes_done.end()) {
                     const transformation& G_u_v = edge.second.G;
                     f_t distance_uv = distance(edge.second);
-                    next.emplace(v, G_start_u*G_u_v, distance_u + distance_uv);
+                    if (distance_uv < std::numeric_limits<float>::infinity()) // Relocalization edges don't affect the filter
+                        next.emplace(v, G_start_u*G_u_v, distance_u + distance_uv);
                 }
             }
         }
@@ -584,6 +609,12 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
     const auto &keypoint_xy_current = current_frame->keypoints_xy;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
     for (const auto& nid : candidate_nodes) {
+        edge_type type;
+        if(edge_in_map(camera_frame.closest_node, nid.first, type)) { // if nodes already connected with a map edge don't relocalize
+            if(type == edge_type::map) {
+                continue;
+            }
+        }
         bool is_relocalized_in_candidate = false;
         std::shared_ptr<frame_t> candidate_node_frame;
         transformation candidate_node_global_transformation;
@@ -618,7 +649,7 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                 if (it_node != nodes->end()) {
                     auto covisible_neighbors = it_node->second.covisibility_edges; // some of trhe points observed from this candidate node should be found in the covisible nodes
                     // distance # edges traversed
-                    auto distance = [](const map_edge& edge) { return 1; };
+                    auto distance = [](const map_edge& edge) { return edge.type != edge_type::relocalization ? edge.G.T.norm() : std::numeric_limits<float>::infinity(); };
                     // select node if it is one of the covisible nodes
                     auto is_node_searched = [&covisible_neighbors](const node_path& path) {
                         auto it_neighbor = covisible_neighbors.find(path.id);
@@ -679,11 +710,11 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
             END_EVENT(SF_ESTIMATE_POSE,inliers_set.size());
             reloc_info.rstatus = relocalization_status::estimate_EPnP;
             if(pose_found && inliers_set.size() >= min_num_inliers) {
-                //transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
+                transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
                 ok = nodes.critical_section([&]() {
                     if (nodes->find(nid.first) != nodes->end() && nodes->find(camera_frame.closest_node) != nodes->end()) {
-                        //add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, edge_type::relocalization);
-                        //add_covisibility_edge_no_lock(nid.first, camera_frame.closest_node);
+                        add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, edge_type::relocalization);
+                        add_covisibility_edge_no_lock(nid.first, camera_frame.closest_node);
                         return true;
                     }
                     return false;
@@ -737,9 +768,9 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
 
         int rows = color_current_image.rows;
         int cols = color_current_image.cols;
-        int type = color_current_image.type();
+        int image_type = color_current_image.type();
 
-        cv::Mat compound_matches(rows, 2*cols, type);
+        cv::Mat compound_matches(rows, 2*cols, image_type);
         color_current_image.copyTo(compound_matches(cv::Rect(0, 0, cols, rows)));
         flipped_color_candidate_image.copyTo(compound_matches(cv::Rect(cols, 0, cols, rows)));
         int matchidx=0;
@@ -758,7 +789,7 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
             matchidx++;
         }
 
-        cv::Mat compound_keypoints(rows, 2*cols, type);
+        cv::Mat compound_keypoints(rows, 2*cols, image_type);
         for(auto &pc : keypoint_xy_current) {
             cv::circle(color_current_image, cv::Point(pc[0],pc[1]),3,cv::Scalar{0,255,0,255},2);
         }
@@ -823,7 +854,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const size_t min
     transformation G_CB = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
 
     // distance # edges traversed
-    auto distance = [](const map_edge& edge) { return 1; };
+    auto distance = [](const map_edge& edge) { return edge.type != edge_type::relocalization ? edge.G.T.norm() : std::numeric_limits<float>::infinity(); };
     // select node if it is finished and within 2 meters from current pose
     auto is_node_searched = [this, &G_CB](const node_path& path) {
       f_t cos_z = v3{0,0,1}.dot(G_CB.Q*path.G.Q*G_CB.Q.conjugate()*v3{0,0,1});

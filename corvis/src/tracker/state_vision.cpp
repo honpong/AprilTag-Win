@@ -153,7 +153,6 @@ int state_vision::process_features(mapper *map)
     state_vision_group *best_group = 0;
     state_vision_group *reference_group = 0;
     int best_health = -1;
-    edge_type type = edge_type::original;
 
     //First: process groups, mark additional features for deletion
     for(auto &g : groups.children) {
@@ -184,22 +183,18 @@ int state_vision::process_features(mapper *map)
         best_group->make_reference();
         if(map) {
             map->reference_node = &map->get_node(best_group->id);
-            auto it = std::find(map->canonical_path.begin(), map->canonical_path.end(), best_group->id);
-            if(it == map->canonical_path.end())
-                map->canonical_path.push_back(best_group->id);
-            else // don't add loops to canonical path
-                map->canonical_path.resize((++it) - map->canonical_path.begin());
-
             if(reference_group) {
-                type = edge_type::filter;
-                // remove edges between active groups and dropped reference group
+                // remove filter edges between active groups and dropped reference group
                 // we will connect them to the new reference group below
                 for(auto &g : groups.children) {
                     if(g->id != reference_group->id) {
-                        if(g->reused) { // if group reused preserve edges. TODO: preserve only original edges
-                            map->add_edge(reference_group->id, g->id, (*reference_group->Gr) * invert(*g->Gr), type);
-                        } else {
-                            map->remove_edge(reference_group->id, g->id);
+                        edge_type type;
+                        if(map->edge_in_map(reference_group->id, g->id, type)) {
+                            assert(type != edge_type::relocalization);
+                            assert(type != edge_type::dead_reckoning);
+                            if(type == edge_type::filter) {
+                                map->remove_edge(reference_group->id, g->id);
+                            }
                         }
                     }
                 }
@@ -224,8 +219,11 @@ int state_vision::process_features(mapper *map)
 
     groups.children.remove_if([&](const std::unique_ptr<state_vision_group> &g) {
         if(map) {
-            if(g->id != reference_id) // update map edges
+            if(g->id != reference_id) {
+                // update map edges
+                edge_type type = g->status == group_empty ? edge_type::map : edge_type::filter;
                 map->add_edge(reference_id, g->id, G_reference_now*invert(*g->Gr), type);
+            }
             // update transform to first reference group created in this session. TODO: Fix problem with first node flying around
             if(g->id == map->get_node_id_offset() && !g->reused)
                 map->G_W_firstnode = get_transformation()*invert(*g->Gr);

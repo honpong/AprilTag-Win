@@ -223,7 +223,7 @@ public:
         EXPECT_EQ(                        e1.id,                      e2.id);
         expect_eq(                        e1.edges,                   e2.edges);
         expect_eq(                        e1.covisibility_edges,      e2.covisibility_edges);
-        EXPECT_TRUE(                      e1.global_transformation == e2.global_transformation);
+//        EXPECT_TRUE(                      e1.global_transformation == e2.global_transformation);
         EXPECT_EQ(                        e1.camera_id,               e2.camera_id);
         //EXPECT_EQ(                        e1.status,                 e2.status); //loaded status is finished
         EXPECT_EQ(                        e1.frame != nullptr,        e2.frame != nullptr);

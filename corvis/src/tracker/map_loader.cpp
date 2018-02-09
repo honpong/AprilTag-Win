@@ -83,7 +83,7 @@ static bstream_reader & operator >> (bstream_reader &content, map_feature_v1 &fe
 }
 
 static bstream_reader &  operator >> (bstream_reader &content, map_node_v1 &node) {
-    content >> node.id >> node.camera_id >> node.edges >> node.global_transformation;
+    content >> node.id >> node.camera_id >> node.edges;
     if (!content.good()) return content;
     uint8_t has_frame = 0;
     content >> has_frame;
@@ -105,7 +105,6 @@ void assign<map_node_v1>(map_node &node, map_node_v1 &loaded_node) {
             forward_as_tuple(ed.second.type, ed.second.G));
     }
     loaded_node.edges.clear();
-    node.global_transformation = loaded_node.global_transformation;
     node.camera_id = loaded_node.camera_id;
     node.frame = loaded_node.frame;
     node.covisibility_edges = loaded_node.covisibility_edges;

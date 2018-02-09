@@ -720,6 +720,18 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                     return false;
                 });
                 if (ok) {
+                    if(unlinked && nid.first < get_node_id_offset()) { // represent loaded map wrt current one
+                        auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
+                        auto is_node_searched = [this](const mapper::node_path& path) { return path.id < this->get_node_id_offset(); };
+                        auto finish_search = [](const mapper::node_path& path) { return false; };
+                        auto loaded_map_nodes = dijkstra_shortest_path(mapper::node_path{camera_frame.closest_node, get_node(camera_frame.closest_node).global_transformation, 0},
+                                                                       distance, is_node_searched, finish_search);
+                        for(auto& loaded_map_node : loaded_map_nodes) {
+                            set_node_transformation(loaded_map_node.id, loaded_map_node.G);
+                        }
+                        unlinked = false;
+                    }
+
                     reloc_info.candidates.emplace_back(nid.first, G_candidate_currentframe, candidate_node_global_transformation, candidate_node_frame->timestamp);
                     if (inliers_set.size() > best_num_inliers) {
                         // keep the best relocalization the first of the list
@@ -965,7 +977,7 @@ static bstream_writer & operator << (bstream_writer &content, const std::shared_
 }
 
 static bstream_writer & operator << (bstream_writer &content, const map_node &node) {
-    content << node.id << node.camera_id << node.edges << node.global_transformation;
+    content << node.id << node.camera_id << node.edges;
     content << (uint8_t)(node.frame != nullptr);
     if (node.frame) content << node.frame;
     return content << node.covisibility_edges << node.features;
@@ -1017,6 +1029,18 @@ bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
     cur_map.unlinked = true;
     cur_map.node_id_offset = max_node_id + 1;
     cur_map.feature_id_offset = cur_stream.max_loaded_featid + 1;
+
+    if(!cur_map.nodes->empty()) {
+        auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
+        auto is_node_searched = [&cur_map](const mapper::node_path& path) { return true; };
+        auto finish_search = [](const mapper::node_path& path) { return false; };
+        auto loaded_map_nodes = cur_map.dijkstra_shortest_path(mapper::node_path{0, transformation(quaternion::Identity(), v3(-10, 0, 0)), 0},
+                                                               distance, is_node_searched, finish_search);
+        for(auto& loaded_map_node : loaded_map_nodes) {
+            cur_map.set_node_transformation(loaded_map_node.id, loaded_map_node.G);
+        }
+    }
+
     cur_map.log->info("Loaded map with {} nodes and {} features", cur_map.node_id_offset, cur_map.feature_id_offset);
     return true;
 }

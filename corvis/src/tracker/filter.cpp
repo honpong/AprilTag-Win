@@ -615,12 +615,8 @@ size_t filter_detect(struct filter *f, const sensor_data &data, const std::uniqu
     timage.height_px = image.height;
     timage.stride_px = image.stride;
 
-    int add_relocalization_space = 0;
-    if(camera_frame && !camera_frame->frame_for_new_group)
-        add_relocalization_space = std::max(0, 400-space);
-
     START_EVENT(SF_DETECT, 0);
-    std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space + add_relocalization_space);
+    std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space);
     END_EVENT(SF_DETECT, kp.size());
 
     for (auto &p : kp)
@@ -640,14 +636,13 @@ size_t filter_detect(struct filter *f, const sensor_data &data, const std::uniqu
     }
 
     // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
-    space = std::min(space, (int) kp.size());
     camera.standby_tracks.insert(camera.standby_tracks.begin(),
                                  std::make_move_iterator(kp.begin()),
-                                 std::make_move_iterator(kp.begin()+space));
+                                 std::make_move_iterator(kp.end()));
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-    return space;
+    return kp.size();
 }
 
 bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_t& camera_frame)

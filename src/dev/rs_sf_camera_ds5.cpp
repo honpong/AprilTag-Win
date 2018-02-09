@@ -6,6 +6,7 @@ struct rs_sf_camera_stream : rs_sf_image_stream
     rs_sf_camera_stream(int w, int h) {}
     virtual rs_sf_image* get_images() { return nullptr; }
     virtual rs_sf_intrinsics* get_intrinsics() { return nullptr; }
+    virtual float get_depth_unit() { return 0.001f; }
 };
 #else
 

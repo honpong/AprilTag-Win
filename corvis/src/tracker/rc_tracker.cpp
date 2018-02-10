@@ -585,7 +585,7 @@ bool rc_getStaticNode(rc_Tracker *tracker, const char **name,     rc_Pose *pose_
 
     auto &o = *tracker->sfm.map->origin;
 
-    if (name != nullptr && strcmp(o.name->c_str(), *name) != 0)
+    if (name != nullptr && *name && strcmp(o.name->c_str(), *name) != 0)
         return false;
 
     if (name)

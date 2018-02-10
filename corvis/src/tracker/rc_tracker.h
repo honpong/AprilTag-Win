@@ -399,7 +399,7 @@ RCTRACKER_API bool rc_describeQueueStrategy(rc_Tracker *tracker, rc_TrackerQueue
  Must be called when the tracker is running in rc_E_CONFIDENCE_HIGH.
  Can be called asynchronously.
  */
-RCTRACKER_API bool rc_setStage(rc_Tracker *tracker, const char  *description, const rc_Pose pose_m);
+RCTRACKER_API bool rc_setStage(rc_Tracker *tracker, const char  *name, const rc_Pose pose_m);
 
 /**
  rc_getStage will return true and a pose for the map relative
@@ -408,7 +408,7 @@ RCTRACKER_API bool rc_setStage(rc_Tracker *tracker, const char  *description, co
 
  Must only be called from the rc_DataCallback(rc Data *data).
  */
-RCTRACKER_API bool rc_getStage(rc_Tracker *tracker, const char **description,       rc_Pose *pose_m);
+RCTRACKER_API bool rc_getStage(rc_Tracker *tracker, const char **name,       rc_Pose *pose_m);
 
 /**
   WARNING: These callbacks are synchronous with the the filter thread. Don't do significant work in them!

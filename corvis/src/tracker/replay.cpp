@@ -199,6 +199,13 @@ void replay::setup_filter()
             this_replay->data_callback(tracker, data);
         }, this);
     }
+    if(static_node_callback)
+    {
+        rc_setStaticNodeCallback(tracker, [](void *handle, const char *description, const rc_Pose pose_m) {
+            replay * this_replay = (replay *)handle;
+            this_replay->static_node_callback(description, pose_m);
+        }, this);
+    }
     rc_setMessageCallback(tracker, log_to_stderr, nullptr, message_level);
     rc_startTracker(tracker, (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) | (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
 }

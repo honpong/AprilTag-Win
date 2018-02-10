@@ -84,6 +84,13 @@ void world_state::observe_sensor(int sensor_type, uint16_t sensor_id, float x, f
     display_lock.unlock();
 }
 
+void world_state::observe_camera_intrinsics(uint16_t sensor_id, const state_vision_intrinsics& intrinsics)
+{
+    display_lock.lock();
+    camera_intrinsics[sensor_id] = &intrinsics;
+    display_lock.unlock();
+}
+
 void world_state::observe_world(float world_up_x, float world_up_y, float world_up_z,
                    float world_forward_x, float world_forward_y, float world_forward_z,
                    float body_forward_x, float body_forward_y, float body_forward_z)
@@ -499,6 +506,9 @@ void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)
         observe_sensor(rc_SENSOR_TYPE_IMAGE, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
                       s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
     }
+    for(const auto & s : f->s.cameras.children) {
+        observe_camera_intrinsics(s->id, s->intrinsics);
+    }
     for(const auto & s : f->depths) {
         observe_sensor(rc_SENSOR_TYPE_DEPTH, s->id, s->extrinsics.mean.T[0], s->extrinsics.mean.T[1], s->extrinsics.mean.T[2],
                       s->extrinsics.mean.Q.w(), s->extrinsics.mean.Q.x(), s->extrinsics.mean.Q.y(), s->extrinsics.mean.Q.z());
@@ -801,6 +811,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         c.feature_projection_vertex.clear();
         c.feature_ellipse_vertex.clear();
         c.feature_residual_vertex.clear();
+        c.virtual_objects_vertex.clear();
     }
 
     for(auto const & item : features) {
@@ -1000,39 +1011,67 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         reloc_vertex.push_back(v);
     }
 
-    static auto cube_vertices = [](){
-        static constexpr f_t L = 0.20;  // side length = L*2
-        return std::array<v3, 30> {{
-                {-L, -L, -L}, {L, -L, -L}, {L, -L, -L}, { L,  L, -L},
-                { L,  L, -L}, {-L, L, -L}, {-L, L, -L}, {-L, -L, -L},
-                {-L, -L, -L}, {-L, -L, L}, {-L, -L, L}, { L, -L,  L},
-                { L, -L,  L}, { L, L,  L}, { L, L,  L}, {-L,  L,  L},
-                {-L,  L,  L}, {-L, -L, L}, {-L, -L, L}, { L, -L,  L},
-                { L, -L,  L}, {L, -L, -L}, {L, -L, -L}, { L,  L, -L},
-                { L,  L, -L}, { L, L,  L}, { L, L,  L}, {-L,  L,  L},
-                {-L,  L,  L}, {-L, L, -L}
-        }};
-    }();
     virtual_object_vertex.clear();
-    virtual_object_vertex.reserve(virtual_objects.size() * (cube_vertices.size() + 6));
     for(auto& it : virtual_objects) {
-        const Position& p = it.second;
+        const VirtualObject& vo = it.second;
         for(int i = 0; i < 6; i++) {
             virtual_object_vertex.emplace_back();
             VertexData& v = virtual_object_vertex.back();
             v3 vertex(0.5*axis_vertex[i].position[0],
                       0.5*axis_vertex[i].position[1],
                       0.5*axis_vertex[i].position[2]);
-            vertex = p.g*vertex;
+            vertex = vo.pose.g*vertex;
             set_position(&v, vertex[0], vertex[1], vertex[2]);
             set_color(&v, axis_vertex[i].color[0], axis_vertex[i].color[1], axis_vertex[i].color[2], axis_vertex[i].color[3]);
         }
-        for (auto& cube_vertex : cube_vertices) {
-            virtual_object_vertex.emplace_back();
-            VertexData& v = virtual_object_vertex.back();
-            v3 vertex = p.g*cube_vertex;
-            set_position(&v, vertex[0], vertex[1], vertex[2]);
-            set_color(&v, 255, 255, 255, 255);
+        if (vo.vertex_indices.size() > 1) {
+            aligned_vector<v3> world_vertices;
+            world_vertices.reserve(vo.vertices.size());
+            for(const v3& v : vo.vertices)
+                world_vertices.emplace_back(vo.pose.g * v);
+            for(size_t i = 0; i < vo.vertex_indices.size(); ++i) {
+                virtual_object_vertex.emplace_back();
+                VertexData& v = virtual_object_vertex.back();
+                const v3& vertex = world_vertices[vo.vertex_indices[i]];
+                set_position(&v, vertex[0], vertex[1], vertex[2]);
+                set_color(&v, vo.rgba[0], vo.rgba[1], vo.rgba[2], vo.rgba[3]);
+                if (i > 0 && i + 1 < vo.vertex_indices.size())  // replicate last point
+                    virtual_object_vertex.emplace_back(v);
+            }
+        }
+    }
+
+    if(!path_mini.empty() || !path.empty()) {
+        const transformation& G_world_body = (path.empty() ? path_mini.back().g : path.back().g);
+        for(auto& cit : camera_intrinsics) {
+            uint16_t sensor_id = cit.first;
+            const state_vision_intrinsics* intrinsics = cit.second;
+            const transformation& G_body_camera = sensors.at(rc_SENSOR_TYPE_IMAGE).at(sensor_id).extrinsics;
+            transformation G_camera_world = invert(G_world_body * G_body_camera);
+            auto& vertices = cameras[sensor_id].virtual_objects_vertex;
+            for(auto& vit : virtual_objects) {
+                const VirtualObject& vo = vit.second;
+                aligned_vector<v2> projection = vo.project(G_camera_world, intrinsics);
+                for(v2& vertex : projection) {
+                    vertices.emplace_back();
+                    VertexData& v = vertices.back();
+                    set_position(&v, vertex[0], vertex[1], vertex[2]);
+                    set_color(&v, vo.rgba[0], vo.rgba[1], vo.rgba[2], vo.rgba[3]);
+                }
+                for(int i = 0; i < axis_vertex.size(); i += 2) {
+                    auto& a = axis_vertex[i];
+                    auto& b = axis_vertex[i+1];
+                    projection = vo.project_axis({a.position[0], a.position[1], a.position[2]},
+                                                 {b.position[0], b.position[1], b.position[2]},
+                                                 G_camera_world, intrinsics);
+                    for(auto& vertex : projection) {
+                        vertices.emplace_back();
+                        VertexData& v = vertices.back();
+                        set_position(&v, vertex[0], vertex[1], vertex[2]);
+                        set_color(&v, axis_vertex[i].color[0], axis_vertex[i].color[1], axis_vertex[i].color[2], axis_vertex[i].color[3]);
+                    }
+                }
+            }
         }
     }
 
@@ -1267,10 +1306,123 @@ void world_state::observe_position_reloc(uint64_t timestamp, const rc_Pose* pose
 }
 
 void world_state::observe_virtual_object(uint64_t timestamp, const std::string& uuid, const rc_Pose& pose) {
-    Position p;
-    p.timestamp = timestamp;
-    p.g = to_transformation(pose);
     display_lock.lock();
-    virtual_objects[uuid] = std::move(p);
+    auto it = virtual_objects.lower_bound(uuid);
+    if (it == virtual_objects.end() || it->first != uuid) {
+        it = virtual_objects.emplace_hint(it, uuid, VirtualObject::make_cube());
+        it->second.rgba[0] = 255;
+        it->second.rgba[1] = 165;
+        it->second.rgba[2] = 0;
+        it->second.rgba[3] = 255;
+    }
+    it->second.pose.timestamp = timestamp;
+    it->second.pose.g = to_transformation(pose);
     display_lock.unlock();
+}
+
+_virtual_object _virtual_object::make_cube(f_t side_length) {
+    const f_t L = side_length / 2.;
+    struct _virtual_object vo;
+    vo.vertices = {
+        {-L, -L, -L}, {L, -L, -L}, { L,  L, -L}, {-L, L, -L},
+        {-L, -L,  L}, {L, -L,  L}, { L,  L,  L}, {-L, L,  L}
+    };
+    vo.vertex_indices = {0, 1, 2, 3, 0, 4, 5, 6, 7, 4, 5, 1, 2, 6, 7, 3};
+    return vo;
+}
+
+_virtual_object _virtual_object::make_tetrahedron(f_t side_length) {
+    const f_t L = side_length / 2.;
+    struct _virtual_object vo;
+    vo.vertices = {
+        {-L, -L, 0}, {L, -L, 0}, { L, L, 0}, {-L, L, 0}, { 0, 0, L }
+    };
+    vo.vertex_indices = {0, 1, 2, 3, 0, 4, 1, 4, 2, 4, 3};
+    return vo;
+}
+
+aligned_vector<v2> _virtual_object::project(const transformation& G_camera_world,
+                                            const state_vision_intrinsics* intrinsics) const {
+    return project_points(this->vertices, this->vertex_indices, this->bounding_box, G_camera_world * this->pose.g, intrinsics);
+}
+
+aligned_vector<v2> _virtual_object::project_axes(const transformation& G_camera_world,
+                                                 const state_vision_intrinsics* intrinsics) const {
+    aligned_vector<v3> p3d;
+    p3d.reserve(6);
+    for (int i = 0; i < 6; ++i)
+        p3d.emplace_back(axis_data[i].position[0], axis_data[i].position[1], axis_data[i].position[2]);
+    return project_points(p3d, {0, 1, 2, 3, 4, 5}, {}, G_camera_world * this->pose.g, intrinsics);
+}
+
+aligned_vector<v2> _virtual_object::project_axis(
+        const v3& vo_p, const v3& vo_q, const transformation& G_camera_world,
+        const state_vision_intrinsics* intrinsics) const {
+    aligned_vector<v3> p3d = {vo_p, vo_q};
+    return project_points(p3d, {0, 1}, {}, G_camera_world * this->pose.g, intrinsics);
+}
+
+aligned_vector<v2> _virtual_object::project_points(
+        const aligned_vector<v3>& vo_points, const std::vector<size_t>& point_indices,
+        const aligned_vector<v3>& vo_bounding_box, const transformation& G_camera_vo,
+        const state_vision_intrinsics* intrinsics) {
+    auto project_point = [intrinsics](const v3& p3d, v2& p2d) {
+        if (p3d.z() > 0) {
+            p2d = intrinsics->unnormalize_feature(intrinsics->distort_feature({p3d.x() / p3d.z(), p3d.y() / p3d.z()}));
+            return true;
+        }
+        return false;
+    };
+    auto in_image = [intrinsics](const v2& p) {
+        int x = static_cast<int>(p.x());
+        int y = static_cast<int>(p.y());
+        return (x >= 0 && x < intrinsics->image_width && y >= 0 && y < intrinsics->image_height);
+    };
+    auto discretize_line = [](const v3& from, const v3& to, aligned_vector<v3>& ps) {
+        constexpr f_t step = 0.05;
+        const int N = static_cast<int>((to - from).norm() / step) + 1;
+        const v3 vstep = (to - from) / (N - 1);
+        v3 p = from;
+        for (int i = 0; i < N; ++i, p += vstep) ps.emplace_back(p);
+        if (!p.isApprox(to)) ps.emplace_back(to);
+    };
+
+    bool maybe_visible = [&]() {
+        if (vo_bounding_box.empty()) return true;
+        v2 p;
+        for (const v3& v : vo_bounding_box)
+            if (project_point(G_camera_vo * v, p) && in_image(p))
+                return true;
+        return false;
+    }();
+
+    aligned_vector<v2> projection;
+    if (maybe_visible) {
+        aligned_vector<v3> discretized_lines;
+        for (size_t i = 1; i < point_indices.size(); ++i) {
+            auto& from = vo_points[point_indices[i-1]];
+            auto& to = vo_points[point_indices[i]];
+            discretize_line(from, to, discretized_lines);
+        }
+
+        if (!discretized_lines.empty()) {
+            v2 from, to;
+            bool valid_from = false;
+            for (const v3& v : discretized_lines) {
+                if (project_point(G_camera_vo * v, to) && in_image(to)) {
+                    if (!valid_from) {
+                        from = to;
+                        valid_from = true;
+                    } else {
+                        projection.emplace_back(from);
+                        projection.emplace_back(to);
+                        from = to;
+                    }
+                } else {
+                    valid_from = false;
+                }
+            }
+        }
+    }
+    return projection;
 }

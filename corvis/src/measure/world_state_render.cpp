@@ -52,6 +52,7 @@ void world_state_render_video(world_state * world, rc_Sensor id, int viewport_wi
     frame_render.draw_overlay(c.feature_ellipse_vertex.data(), c.feature_ellipse_vertex.size(), GL_LINES, c.image.width, c.image.height, viewport_width, viewport_height);
     frame_render.draw_overlay(c.feature_projection_vertex.data(), c.feature_projection_vertex.size(), GL_POINTS, c.image.width, c.image.height, viewport_width, viewport_height);
     frame_render.draw_overlay(c.feature_residual_vertex.data(), c.feature_residual_vertex.size(), GL_LINES, c.image.width, c.image.height, viewport_width, viewport_height);
+    frame_render.draw_overlay(c.virtual_objects_vertex.data(), c.virtual_objects_vertex.size(), GL_LINES, c.image.width, c.image.height, viewport_width, viewport_height);
     world->image_lock.unlock();
     world->display_lock.unlock();
 }

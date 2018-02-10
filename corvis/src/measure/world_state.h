@@ -59,6 +59,30 @@ typedef struct _sensor {
     transformation extrinsics;
 } Sensor;
 
+typedef struct _virtual_object {
+    Position pose;  // pose in the world (i.e. G_world_object)
+    unsigned char rgba[4];  // edge color
+    aligned_vector<v3> vertices;  // local coordinates, meters
+    std::vector<size_t> vertex_indices;  // order of vertices to draw the object
+    aligned_vector<v3> bounding_box;  // if not empty, "project" uses it to decide
+                                      // faster if the object is in the image
+
+    static _virtual_object make_cube(f_t side_length = 0.4);
+    static _virtual_object make_tetrahedron(f_t side_length = 0.4);
+
+    aligned_vector<v2> project(const transformation& G_camera_vo,
+                               const state_vision_intrinsics* intrinsics) const;
+    aligned_vector<v2> project_axes(const transformation& G_camera_vo,
+                                    const state_vision_intrinsics* intrinsics) const;
+    aligned_vector<v2> project_axis(
+            const v3& vo_p, const v3& vo_q, const transformation& G_camera_world,
+            const state_vision_intrinsics* intrinsics) const;
+    static aligned_vector<v2> project_points(
+            const aligned_vector<v3>& vo_points, const std::vector<size_t>& point_indices,
+            const aligned_vector<v3>& vo_bounding_box, const transformation& G_camera_wo,
+            const state_vision_intrinsics* intrinsics);
+} VirtualObject;
+
 typedef std::pair<uint64_t, float> plot_item;
 typedef std::list<plot_item > plot_data;
 
@@ -71,6 +95,7 @@ public:
         std::vector<VertexData> feature_ellipse_vertex;
         std::vector<VertexData> feature_projection_vertex;
         std::vector<VertexData> feature_residual_vertex;
+        std::vector<VertexData> virtual_objects_vertex;
         ImageData image;
     };
 
@@ -78,9 +103,10 @@ public:
 private:
     std::unordered_map<std::string, size_t> plots_by_name;
     std::map<int, std::map<uint16_t, Sensor, std::less<uint16_t>, Eigen::aligned_allocator<std::pair<const uint16_t, Sensor> > > > sensors;
+    std::map<uint16_t, const state_vision_intrinsics*, std::less<uint16_t>, Eigen::aligned_allocator<std::pair<const uint16_t, const state_vision_intrinsics*> > > camera_intrinsics;
     std::map<uint64_t, MapNode> map_nodes;
     std::map<std::pair<rc_Sensor,uint64_t>, Feature> features;
-    std::map<std::string, Position> virtual_objects;
+    std::map<std::string, VirtualObject> virtual_objects;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_reloc;
     std::vector<Position, Eigen::aligned_allocator<Position> > path;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_mini;
@@ -140,6 +166,7 @@ public:
 
     void rc_data_callback(rc_Tracker * tracker, const rc_Data * data);
     void observe_sensor(int sensor_type, uint16_t sensor_id, float x, float y, float z, float qw, float qx, float qy, float qz);
+    void observe_camera_intrinsics(uint16_t sensor_id, const state_vision_intrinsics& intrinsics);
     void observe_world(float world_up_x, float world_up_y, float world_up_z,
                        float world_forward_x, float world_forward_y, float world_forward_z,
                        float body_forward_x, float body_forward_y, float body_forward_z);

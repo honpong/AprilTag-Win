@@ -122,7 +122,9 @@ class mapper {
     struct map_origin {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         std::unique_ptr<std::string> name;
-        transformation G_world_origin;
+        nodeid closest_id;
+        transformation Gr_closest_stage;
+        transformation G_world_origin/*debugging only*/;
     };
 
  private:
@@ -199,8 +201,10 @@ class mapper {
 
 public:
     concurrent<map_origin> origin;
-    void set_origin(map_origin &&o) {
-        origin.critical_section([&](){ std::move(*origin) = std::move(o); });
+    void set_origin(std::unique_ptr<std::string> name, nodeid closest_id, const transformation &Gr_closest_stage, const transformation &G_world_stage) {
+        origin.critical_section([&]() {
+            std::move(*origin) = map_origin{std::move(name), closest_id, Gr_closest_stage, G_world_stage};
+        });
     }
 
 private:

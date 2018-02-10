@@ -574,13 +574,8 @@ bool rc_receiveTemperature(rc_Tracker * tracker, rc_Sensor therm_id, rc_Timestam
 
 bool rc_setStaticNode(rc_Tracker *tracker, const char *name, const rc_Pose pose_m)
 {
-    if (!tracker || !tracker->sfm.map)
-        return false;
-    tracker->sfm.map->set_origin(mapper::map_origin{
-        name ? std::make_unique<std::string>(name) : std::unique_ptr<std::string>(),
-        to_transformation(pose_m),
-    });
-    return true;
+    return tracker && tracker->set_stage(name ? std::make_unique<std::string>(name) : std::unique_ptr<std::string>(),
+                                         to_transformation(pose_m));
 }
 
 bool rc_getStaticNode(rc_Tracker *tracker, const char **name,     rc_Pose *pose_m)

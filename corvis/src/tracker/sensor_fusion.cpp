@@ -258,6 +258,21 @@ void sensor_fusion::set_location(double latitude_degrees, double longitude_degre
     });
 }
 
+bool sensor_fusion::set_stage(std::unique_ptr<std::string> name_, const transformation &G_world_stage) {
+    if (!sfm.map)
+        return false;
+    std::unique_ptr<std::string> name = std::move(name_);
+    queue.dispatch_async([this, &name, G_world_stage]() {
+        uint64_t closest_id; transformation Gr_closest_now;
+        if (sfm.s.get_closest_group_transformation(closest_id, Gr_closest_now)) {
+            transformation G_closest_stage = Gr_closest_now * invert(get_transformation()) * G_world_stage;
+            sfm.map->set_origin(std::move(name), closest_id, G_closest_stage, G_world_stage/*debugging*/);
+        } else
+            sfm.log->error("tried to create a stage when there were no closests!\n");
+    });
+    return true;
+}
+
 void sensor_fusion::start(bool thread, bool fast_path_)
 {
     threaded = thread;

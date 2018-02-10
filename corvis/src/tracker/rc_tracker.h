@@ -392,11 +392,11 @@ RCTRACKER_API bool rc_configureQueueStrategy(rc_Tracker *tracker, rc_TrackerQueu
 RCTRACKER_API bool rc_describeQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy * strategy);
 
 /**
- rc_setStaticNode creates a map relative reference frame by passing
- the pose of the origin of the frame with respect to the current
- tracker world coordinates and associating a string with it.
+ rc_setStaticNode creates a environment relative reference frame by
+ passing the pose of the origin of the frame with respect to the
+ current tracker world coordinates and associating a string with it.
 
- Must only be called from the rc_DataCallback(rc Data *data).
+ Must be called when the tracker is running.  Can be called asynchronously.
  */
 RCTRACKER_API bool rc_setStaticNode(rc_Tracker *tracker, const char  *description, const rc_Pose pose_m);
 

@@ -49,6 +49,8 @@ public:
      @param altitude_meters Altitude above sea level, in meters.
      */
     void set_location(double latitude_degrees, double longitude_degrees, double altitude_meters);
+
+    bool set_stage(std::unique_ptr<std::string> name, const transformation &G_world_stage);
     
     //These may all run async
     

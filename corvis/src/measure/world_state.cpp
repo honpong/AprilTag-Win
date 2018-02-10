@@ -598,7 +598,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
 
     rc_Pose stage_pose; const char *stage_name = nullptr;
     if(rc_getStage(tracker, &stage_name, &stage_pose))
-        observe_virtual_object(0, stage_name ?: "(null)", stage_pose);
+        observe_virtual_object(0, stage_name ? stage_name : "(null)", stage_pose);
 
     if(data->path == rc_DATA_PATH_FAST) return;
 

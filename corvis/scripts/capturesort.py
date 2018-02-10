@@ -17,7 +17,7 @@ def capture_packets(filename):
           data = f.read(pbytes - 16)
           yield { 'type': ptype, 'user': user, 'time': ptime, 'header': header, 'data': data, 'exposure': unpack_from('Q', data)[0] if ptype in (28,29) else 0 }
 
-packets = list(capture_packets(src))
+packets = list(capture_packets(args.source))
 
 if args.destination is not None:
   with open(args.destination, "wb") as d:

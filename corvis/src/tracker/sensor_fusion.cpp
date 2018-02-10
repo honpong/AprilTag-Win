@@ -107,57 +107,19 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
             if(docallback)
                 update_data(&data);
 
+            sfm.relocalization_info = {};
             if (data.id < sfm.s.cameras.children.size()) {
-                sfm.relocalization_info = {};
-                auto camera_frame = std::move(sfm.s.cameras.children[data.id]->camera_frame);
-                if (camera_frame) {
-                    if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
-                        auto result = sfm.relocalization_future.get();
-                        filter_add_relocalization_edges(&sfm, result.edges);
-                        sfm.relocalization_info = std::move(result.info);
-                        if (sfm.relocalization_info.is_relocalized) {
-                            transformation G_Bframe_Bbody;
-                            if (sfm.s.get_group_transformation(camera_frame->closest_node, G_Bframe_Bbody))
-                                update_stages(get_transformation() * invert(G_Bframe_Bbody), sfm.relocalization_info.candidates[0]);
-                        }
-                    }
-
-                    bool node_without_frame = camera_frame->frame_for_new_group;
-                    bool relocalization_is_running = sfm.relocalization_future.valid();
-                    // want to relocalize in current frame?
-                    bool relocalize_now = sfm.relocalize && !relocalization_is_running;
-                    // dbow is calculated either because we want to relocalize in current frame or because a node was created
-                    // and it doesn't have a valid frame yet
-                    bool calculate_dbow = relocalize_now || node_without_frame;
-
-                    if (calculate_dbow) {
-                        filter_compute_dbow(&sfm, *camera_frame);
-                    }
-                    if (!relocalization_is_running) {
-                        filter_update_map_index(&sfm);
-                    }
-                    if (relocalize_now) {
-                        sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,
-                            [this] (std::unique_ptr<camera_frame_t>&& camera_frame) {
-                                set_priority(PRIORITY_SLAM_RELOCALIZE);
-                                return filter_relocalize(&sfm, *camera_frame);
-                        }, std::move(camera_frame));
-                    }
-                }
-
+                const bool relocalize_now = sfm.map && sfm.relocalize &&
+                        !sfm.s.groups.children.empty() &&
+                        (!sfm.relocalization_future.valid() || sfm.relocalization_future.valid_n());
                 const bool new_group_created = sfm.s.group_counter > groups;
-                bool compute_descriptors_now = [&]() {
-                    if (sfm.map) {
-                        bool filter_has_groups = !sfm.s.groups.children.empty();
-                        return filter_has_groups && (sfm.relocalize || (sfm.save_map && new_group_created));
-                    }
-                    return false;
-                }();
+                const bool compute_descriptors_now = (sfm.map && sfm.relocalize) ||
+                        (sfm.map && sfm.save_map && new_group_created);
 
                 if (sfm.s.cameras.children[data.id]->detecting_space || compute_descriptors_now) {
                     std::unique_ptr<camera_frame_t> camera_frame;
                     if (compute_descriptors_now)
-                        camera_frame = filter_create_camera_frame(&sfm, data, new_group_created);
+                        camera_frame = filter_create_camera_frame(&sfm, data);
 
                     auto start = std::chrono::steady_clock::now();
                     sfm.s.cameras.children[data.id]->detected = filter_detect(&sfm, data, camera_frame);
@@ -166,8 +128,27 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
 
                     if (camera_frame) {
                         filter_compute_orb(&sfm, data, *camera_frame);
+                        if (new_group_created || relocalize_now) filter_compute_dbow(&sfm, *camera_frame);
+                        if (new_group_created) filter_assign_frame(&sfm, *camera_frame);
+                        if (relocalize_now) {
+                            if (sfm.relocalization_future.valid()) {
+                                auto result = sfm.relocalization_future.get();
+                                filter_add_relocalization_edges(&sfm, result.edges);
+                                sfm.relocalization_info = std::move(result.info);
+                                if (sfm.relocalization_info.is_relocalized) {
+                                    transformation G_Bframe_Bbody;
+                                    if (sfm.s.get_group_transformation(camera_frame->closest_node, G_Bframe_Bbody))
+                                        update_stages(get_transformation() * invert(G_Bframe_Bbody), sfm.relocalization_info.candidates[0]);
+                                }
+                            }
+                            filter_update_map_index(&sfm);
+                            sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,
+                                [this] (std::unique_ptr<camera_frame_t>&& camera_frame) {
+                                    set_priority(PRIORITY_SLAM_RELOCALIZE);
+                                    return filter_relocalize(&sfm, *camera_frame);
+                            }, std::move(camera_frame));
+                        }
                     }
-                    sfm.s.cameras.children[data.id]->camera_frame = std::move(camera_frame);
                 }
             }
         } break;

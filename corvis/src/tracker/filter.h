@@ -91,10 +91,11 @@ struct filter {
 bool filter_depth_measurement(struct filter *f, const sensor_data & data);
 bool filter_image_measurement(struct filter *f, const sensor_data & data);
 bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id);
-std::unique_ptr<camera_frame_t> filter_create_camera_frame(const filter *f, const sensor_data& data, bool new_group_created);
+std::unique_ptr<camera_frame_t> filter_create_camera_frame(const filter *f, const sensor_data& data);
 size_t filter_detect(struct filter *f, const sensor_data &data, const std::unique_ptr<camera_frame_t>& camera_frame);
 bool filter_compute_orb(struct filter *f, const sensor_data &data, camera_frame_t& camera_frame);
 void filter_compute_dbow(struct filter *f, camera_frame_t& camera_frame);
+void filter_assign_frame(struct filter *f, const camera_frame_t& camera_frame);
 void filter_update_map_index(struct filter *f);
 map_relocalization_result filter_relocalize(struct filter *f, const camera_frame_t& camera_frame);
 void filter_add_relocalization_edges(struct filter *f, const aligned_vector<map_relocalization_edge>& edges);

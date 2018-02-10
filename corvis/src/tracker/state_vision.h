@@ -111,7 +111,6 @@ struct camera_frame_t {
     std::shared_ptr<frame_t> frame;
     uint64_t closest_node;
     transformation G_closestnode_frame;
-    bool frame_for_new_group;
 };
 
 class state_vision_group;
@@ -247,7 +246,6 @@ struct state_camera: state_branch<state_node*> {
     std::unique_ptr<tracker> feature_tracker;
     std::list<tracker::feature_track> standby_tracks;
     size_t detected;
-    std::unique_ptr<camera_frame_t> camera_frame;
     size_t id;
 
     std::list<state_vision_track> tracks;

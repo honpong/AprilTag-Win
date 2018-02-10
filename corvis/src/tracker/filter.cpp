@@ -564,7 +564,7 @@ static size_t filter_available_feature_space(struct filter *f)
     return space;
 }
 
-std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *f, const sensor_data& data, bool new_group_created)
+std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *f, const sensor_data& data)
 {
     std::unique_ptr<camera_frame_t> camera_frame;
     uint64_t closest_group_id;
@@ -574,7 +574,6 @@ std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *
         camera_frame->camera_id = data.id;
         camera_frame->G_closestnode_frame = std::move(G_Bclosest_Bnow);
         camera_frame->closest_node = closest_group_id;
-        camera_frame->frame_for_new_group = new_group_created;
         camera_frame->frame.reset(new frame_t);
         camera_frame->frame->timestamp = data.timestamp;
 #ifdef RELOCALIZATION_DEBUG
@@ -674,11 +673,13 @@ void filter_compute_dbow(struct filter *f, camera_frame_t& camera_frame)
     START_EVENT(SF_DBOW_TRANSFORM, 0);
     camera_frame.frame->calculate_dbow(f->map->orb_voc.get());
     END_EVENT(SF_DBOW_TRANSFORM, camera_frame.frame->keypoints.size());
+}
 
-    if(camera_frame.frame_for_new_group) {
-        map_node& node = f->map->get_node(camera_frame.closest_node);
-        node.frame = camera_frame.frame;
-    }
+void filter_assign_frame(struct filter *f, const camera_frame_t& camera_frame)
+{
+    map_node& node = f->map->get_node(camera_frame.closest_node);
+    assert(!node.frame);
+    node.frame = camera_frame.frame;
 }
 
 void filter_update_map_index(struct filter *f)

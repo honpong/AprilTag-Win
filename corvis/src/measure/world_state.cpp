@@ -1309,11 +1309,11 @@ void world_state::observe_position_reloc(uint64_t timestamp, const rc_Pose* pose
     display_lock.unlock();
 }
 
-void world_state::observe_virtual_object(uint64_t timestamp, const std::string& uuid, const rc_Pose& pose) {
+void world_state::observe_virtual_object(uint64_t timestamp, const std::string &name, const rc_Pose& pose) {
     display_lock.lock();
-    auto it = virtual_objects.lower_bound(uuid);
-    if (it == virtual_objects.end() || it->first != uuid) {
-        it = virtual_objects.emplace_hint(it, uuid, VirtualObject::make_cube());
+    auto it = virtual_objects.lower_bound(name);
+    if (it == virtual_objects.end() || it->first != name) {
+        it = virtual_objects.emplace_hint(it, name, VirtualObject::make_cube());
         it->second.rgba[0] = 255;
         it->second.rgba[1] = 165;
         it->second.rgba[2] = 0;

@@ -119,12 +119,12 @@ class mapper {
     };
     typedef aligned_vector<node_path> nodes_path;
 
-    struct map_origin {
+    struct map_stage {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
         std::unique_ptr<std::string> name;
         nodeid closest_id;
         transformation Gr_closest_stage;
-        transformation G_world_origin/*debugging only*/;
+        transformation G_world_stage/*debugging only*/;
     };
 
  private:
@@ -200,10 +200,10 @@ class mapper {
     std::unordered_set<nodeid> partially_finished_nodes;
 
 public:
-    concurrent<map_origin> origin;
-    void set_origin(std::unique_ptr<std::string> name, nodeid closest_id, const transformation &Gr_closest_stage, const transformation &G_world_stage) {
-        origin.critical_section([&]() {
-            std::move(*origin) = map_origin{std::move(name), closest_id, Gr_closest_stage, G_world_stage};
+    concurrent<map_stage> stage;
+    void set_stage(std::unique_ptr<std::string> name, nodeid closest_id, const transformation &Gr_closest_stage, const transformation &G_world_stage) {
+        stage.critical_section([&]() {
+            std::move(*stage) = map_stage{std::move(name), closest_id, Gr_closest_stage, G_world_stage};
         });
     }
 

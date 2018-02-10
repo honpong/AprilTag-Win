@@ -45,9 +45,9 @@ void sensor_fusion::update_data(const sensor_data * data)
         data_callback(data);
 }
 
-void sensor_fusion::update_origin(const mapper::map_origin &origin, const transformation &G_currentworld_nodeworld) {
-    if(origin_callback)
-        origin_callback(origin, G_currentworld_nodeworld);
+void sensor_fusion::update_stage(const mapper::map_stage &stage, const transformation &G_currentworld_nodeworld) {
+    if(stage_callback)
+        stage_callback(stage, G_currentworld_nodeworld);
 }
 
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
@@ -115,7 +115,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                         if (sfm.relocalization_info.is_relocalized) {
                             transformation G_Bframe_Bbody;
                             if (sfm.s.get_group_transformation(camera_frame->closest_node, G_Bframe_Bbody))
-                                update_origin(*sfm.map->origin, get_transformation() * invert(G_Bframe_Bbody) * sfm.relocalization_info.candidates[0].G_frame_nodeworld);
+                                update_stage(*sfm.map->stage, get_transformation() * invert(G_Bframe_Bbody) * sfm.relocalization_info.candidates[0].G_frame_nodeworld);
                         }
                     }
 
@@ -266,7 +266,7 @@ bool sensor_fusion::set_stage(std::unique_ptr<std::string> name_, const transfor
         uint64_t closest_id; transformation Gr_closest_now;
         if (sfm.s.get_closest_group_transformation(closest_id, Gr_closest_now)) {
             transformation G_closest_stage = Gr_closest_now * invert(get_transformation()) * G_world_stage;
-            sfm.map->set_origin(std::move(name), closest_id, G_closest_stage, G_world_stage/*debugging*/);
+            sfm.map->set_stage(std::move(name), closest_id, G_closest_stage, G_world_stage/*debugging*/);
         } else
             sfm.log->error("tried to create a stage when there were no closests!\n");
     });

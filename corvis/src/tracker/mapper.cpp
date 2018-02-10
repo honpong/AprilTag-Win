@@ -933,7 +933,7 @@ bool mapper::serialize(rc_SaveCallback func, void *handle) const {
     cur_stream.write(magic_file_format_num, sizeof(magic_file_format_num));
     cur_stream << (uint8_t)MAPPER_SERIALIZED_VERSION;
     cur_stream << *nodes << dbow_inverted_index << *features_dbow;
-    cur_stream << origin->name << origin->G_world_origin;
+    cur_stream << stage->name << stage->G_world_stage;
     cur_stream.end_stream();
     if (!cur_stream.good()) log->error("map was not saved successfully.");
     return cur_stream.good();

@@ -583,7 +583,7 @@ bool rc_getStage(rc_Tracker *tracker, const char **name,     rc_Pose *pose_m)
     if (!tracker || !tracker->sfm.map)
         return false;
 
-    auto &o = *tracker->sfm.map->origin;
+    auto &o = *tracker->sfm.map->stage;
 
     if (name != nullptr && *name && strcmp(o.name->c_str(), *name) != 0)
         return false;
@@ -592,17 +592,17 @@ bool rc_getStage(rc_Tracker *tracker, const char **name,     rc_Pose *pose_m)
         *name = o.name ? o.name->c_str() : nullptr;
 
     if (pose_m)
-        *pose_m = to_rc_Pose(o.G_world_origin);
+        *pose_m = to_rc_Pose(o.G_world_stage);
 
     return true;
 }
 
 void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback callback, void *handle)
 {
-    if (!callback) tracker->origin_callback = nullptr;
-    else           tracker->origin_callback = [=](const mapper::map_origin &origin, const transformation &G_currentworld_nodeworld) {
-        callback(handle, origin.name ? origin.name->c_str() : nullptr,
-                 to_rc_Pose(G_currentworld_nodeworld * origin.G_world_origin));
+    if (!callback) tracker->stage_callback = nullptr;
+    else           tracker->stage_callback = [=](const mapper::map_stage &stage, const transformation &G_currentworld_nodeworld) {
+        callback(handle, stage.name ? stage.name->c_str() : nullptr,
+                 to_rc_Pose(G_currentworld_nodeworld * stage.G_world_stage));
     };
 }
 

@@ -395,6 +395,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &control_lock, boo
 void fusion_queue::dispatch_singlethread(bool force)
 {
     std::unique_lock<std::mutex> lock(control_mutex);
+    run_control();
     while(dispatch_next(lock, force)); //always be greedy - could have multiple pieces of data buffered
     lock.unlock();
 }

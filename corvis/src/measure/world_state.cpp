@@ -1019,14 +1019,14 @@ bool world_state::update_vertex_arrays(bool show_only_good)
     for(auto& it : virtual_objects) {
         const VirtualObject& vo = it.second;
         for(int i = 0; i < 6; i++) {
-            virtual_object_vertex.emplace_back();
-            VertexData& v = virtual_object_vertex.back();
+            VertexData v;
             v3 vertex(0.5*axis_vertex[i].position[0],
                       0.5*axis_vertex[i].position[1],
                       0.5*axis_vertex[i].position[2]);
             vertex = vo.pose.g*vertex;
             set_position(&v, vertex[0], vertex[1], vertex[2]);
             set_color(&v, axis_vertex[i].color[0], axis_vertex[i].color[1], axis_vertex[i].color[2], axis_vertex[i].color[3]);
+            virtual_object_vertex.emplace_back(v);
         }
         if (vo.vertex_indices.size() > 1) {
             aligned_vector<v3> world_vertices;
@@ -1034,11 +1034,11 @@ bool world_state::update_vertex_arrays(bool show_only_good)
             for(const v3& v : vo.vertices)
                 world_vertices.emplace_back(vo.pose.g * v);
             for(size_t i = 0; i < vo.vertex_indices.size(); ++i) {
-                virtual_object_vertex.emplace_back();
-                VertexData& v = virtual_object_vertex.back();
+                VertexData v;
                 const v3& vertex = world_vertices[vo.vertex_indices[i]];
                 set_position(&v, vertex[0], vertex[1], vertex[2]);
                 set_color(&v, vo.rgba[0], vo.rgba[1], vo.rgba[2], vo.rgba[3]);
+                virtual_object_vertex.emplace_back(v);
                 if (i > 0 && i + 1 < vo.vertex_indices.size())  // replicate last point
                     virtual_object_vertex.emplace_back(v);
             }
@@ -1057,10 +1057,10 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                 const VirtualObject& vo = vit.second;
                 aligned_vector<v2> projection = vo.project(G_camera_world, intrinsics);
                 for(v2& vertex : projection) {
-                    vertices.emplace_back();
-                    VertexData& v = vertices.back();
+                    VertexData v;
                     set_position(&v, vertex[0], vertex[1], vertex[2]);
                     set_color(&v, vo.rgba[0], vo.rgba[1], vo.rgba[2], vo.rgba[3]);
+                    vertices.emplace_back(v);
                 }
                 for(int i = 0; i < axis_vertex.size(); i += 2) {
                     auto& a = axis_vertex[i];
@@ -1069,10 +1069,10 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                                                  {b.position[0], b.position[1], b.position[2]},
                                                  G_camera_world, intrinsics);
                     for(auto& vertex : projection) {
-                        vertices.emplace_back();
-                        VertexData& v = vertices.back();
+                        VertexData v;
                         set_position(&v, vertex[0], vertex[1], vertex[2]);
                         set_color(&v, axis_vertex[i].color[0], axis_vertex[i].color[1], axis_vertex[i].color[2], axis_vertex[i].color[3]);
+                        vertices.emplace_back(v);
                     }
                 }
             }

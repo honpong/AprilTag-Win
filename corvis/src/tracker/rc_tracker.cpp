@@ -572,13 +572,13 @@ bool rc_receiveTemperature(rc_Tracker * tracker, rc_Sensor therm_id, rc_Timestam
     return true;
 }
 
-bool rc_setStaticNode(rc_Tracker *tracker, const char *name, const rc_Pose pose_m)
+bool rc_setStage(rc_Tracker *tracker, const char *name, const rc_Pose pose_m)
 {
     return tracker && tracker->set_stage(name ? std::make_unique<std::string>(name) : std::unique_ptr<std::string>(),
                                          to_transformation(pose_m));
 }
 
-bool rc_getStaticNode(rc_Tracker *tracker, const char **name,     rc_Pose *pose_m)
+bool rc_getStage(rc_Tracker *tracker, const char **name,     rc_Pose *pose_m)
 {
     if (!tracker || !tracker->sfm.map)
         return false;
@@ -597,7 +597,7 @@ bool rc_getStaticNode(rc_Tracker *tracker, const char **name,     rc_Pose *pose_
     return true;
 }
 
-void rc_setStaticNodeCallback(rc_Tracker *tracker, rc_StaticNodeCallback callback, void *handle)
+void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback callback, void *handle)
 {
     if (!callback) tracker->origin_callback = nullptr;
     else           tracker->origin_callback = [=](const mapper::map_origin &origin, const transformation &G_currentworld_nodeworld) {

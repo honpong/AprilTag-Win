@@ -38,7 +38,7 @@ private:
     bool is_realtime = false;
     std::function<void (rc_Tracker *, const rc_Data *)> data_callback;
     std::function<void (float)> progress_callback;
-    std::function<void (const char * , const rc_Pose)> static_node_callback;
+    std::function<void (const char * , const rc_Pose)> stage_callback;
     bool qvga {false};
     int qres {0};
     bool async {false};
@@ -71,7 +71,7 @@ public:
     void setup_filter();
     void set_progress_callback(std::function<void (float)> progress_callback) { this->progress_callback = progress_callback; }
     void set_data_callback(std::function<void (rc_Tracker *, const rc_Data *)> data_callback) { this->data_callback = data_callback; }
-    void set_static_node_callback(std::function<void (const char *, const rc_Pose)> static_node_callback) { this->static_node_callback = static_node_callback; }
+    void set_stage_callback(std::function<void (const char *, const rc_Pose)> stage_callback) { this->stage_callback = stage_callback; }
     void enable_realtime() { is_realtime = true; }
     void enable_async() { async = is_realtime = true; }
     void enable_qvga() { qvga = true; }

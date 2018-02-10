@@ -199,11 +199,11 @@ void replay::setup_filter()
             this_replay->data_callback(tracker, data);
         }, this);
     }
-    if(static_node_callback)
+    if(stage_callback)
     {
-        rc_setStaticNodeCallback(tracker, [](void *handle, const char *description, const rc_Pose pose_m) {
+        rc_setStageCallback(tracker, [](void *handle, const char *description, const rc_Pose pose_m) {
             replay * this_replay = (replay *)handle;
-            this_replay->static_node_callback(description, pose_m);
+            this_replay->stage_callback(description, pose_m);
         }, this);
     }
     rc_setMessageCallback(tracker, log_to_stderr, nullptr, message_level);
@@ -561,5 +561,5 @@ void replay::save_map(string filename)
 
 void replay::set_stage() {
     rc_PoseTime pose = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
-    rc_setStaticNode(tracker, nullptr, pose.pose_m);
+    rc_setStage(tracker, nullptr, pose.pose_m);
 }

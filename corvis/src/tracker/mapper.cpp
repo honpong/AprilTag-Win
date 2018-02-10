@@ -668,7 +668,7 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
             END_EVENT(SF_ESTIMATE_POSE,inliers_set.size());
             reloc_info.rstatus = relocalization_status::estimate_EPnP;
             if(pose_found && inliers_set.size() >= min_num_inliers) {
-                transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
+                //transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
                 ok = nodes.critical_section([&]() {
                     if (nodes->find(nid.first) != nodes->end() && nodes->find(camera_frame.closest_node) != nodes->end()) {
                         //add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, edge_type::relocalization);

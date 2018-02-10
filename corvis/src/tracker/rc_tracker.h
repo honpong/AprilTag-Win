@@ -396,7 +396,8 @@ RCTRACKER_API bool rc_describeQueueStrategy(rc_Tracker *tracker, rc_TrackerQueue
  passing the pose of the origin of the frame with respect to the
  current tracker world coordinates and associating a string with it.
 
- Must be called when the tracker is running.  Can be called asynchronously.
+ Must be called when the tracker is running in rc_E_CONFIDENCE_HIGH.
+ Can be called asynchronously.
  */
 RCTRACKER_API bool rc_setStage(rc_Tracker *tracker, const char  *description, const rc_Pose pose_m);
 

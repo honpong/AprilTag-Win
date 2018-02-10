@@ -103,6 +103,7 @@ public:
     void start_mapping(bool relocalize, bool save_map) { rc_startMapping(tracker, relocalize, save_map); }
     void save_map(std::string filename);
     const tpose_sequence& get_reference_poses() const { return *reference_seq; }
+    void set_stage();
 };
 
 #endif /* defined(__RC3DK__replay__) */

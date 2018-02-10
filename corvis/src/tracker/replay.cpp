@@ -558,3 +558,8 @@ void replay::save_map(string filename)
     std::ofstream out(filename, ios_base::binary);
     rc_saveMap(tracker, save_map_callback, &out);
 }
+
+void replay::set_stage() {
+    rc_PoseTime pose = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
+    rc_setStaticNode(tracker, nullptr, pose.pose_m);
+}

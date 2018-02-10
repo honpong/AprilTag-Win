@@ -596,6 +596,10 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
     observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z(), data->path == rc_DATA_PATH_FAST);
     update_sensors(tracker, data);
 
+    rc_Pose stage_pose;
+    if(rc_getStaticNode(tracker, nullptr, &stage_pose))
+        observe_virtual_object(0, "", stage_pose);
+
     if(data->path == rc_DATA_PATH_FAST) return;
 
     switch(data->type) {

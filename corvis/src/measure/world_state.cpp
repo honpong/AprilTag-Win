@@ -1057,7 +1057,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                 aligned_vector<v2> projection = vo.project(G_camera_world, intrinsics);
                 for(v2& vertex : projection) {
                     VertexData v;
-                    set_position(&v, vertex[0], vertex[1], vertex[2]);
+                    set_position(&v, vertex[0], vertex[1], 1);
                     set_color(&v, vo.rgba[0], vo.rgba[1], vo.rgba[2], vo.rgba[3]);
                     vertices.emplace_back(v);
                 }
@@ -1069,7 +1069,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                                                  G_camera_world, intrinsics);
                     for(auto& vertex : projection) {
                         VertexData v;
-                        set_position(&v, vertex[0], vertex[1], vertex[2]);
+                        set_position(&v, vertex[0], vertex[1], 1);
                         set_color(&v, axis_vertex[i].color[0], axis_vertex[i].color[1], axis_vertex[i].color[2], axis_vertex[i].color[3]);
                         vertices.emplace_back(v);
                     }

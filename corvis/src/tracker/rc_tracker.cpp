@@ -574,35 +574,31 @@ bool rc_receiveTemperature(rc_Tracker * tracker, rc_Sensor therm_id, rc_Timestam
 
 bool rc_setStage(rc_Tracker *tracker, const char *name, const rc_Pose pose_m)
 {
-    return tracker && tracker->set_stage(name ? std::make_unique<std::string>(name) : std::unique_ptr<std::string>(),
-                                         to_transformation(pose_m));
+    return tracker && tracker->set_stage(name, to_transformation(pose_m));
 }
 
-bool rc_getStage(rc_Tracker *tracker, const char **name,     rc_Pose *pose_m)
+bool rc_getStage(rc_Tracker *tracker, const char *name, rc_Stage *stage)
 {
     if (!tracker || !tracker->sfm.map)
         return false;
 
-    auto &o = *tracker->sfm.map->stage;
-
-    if (name != nullptr && *name && strcmp(o.name->c_str(), *name) != 0)
-        return false;
-
+    bool ok = false; mapper::stage::output current_stage;
     if (name)
-        *name = o.name ? o.name->c_str() : nullptr;
+        ok = tracker->get_stage(false, name, current_stage);
+    else if (stage)
+        ok = tracker->get_stage(true, stage->name, current_stage);
 
-    if (pose_m)
-        *pose_m = to_rc_Pose(o.G_world_stage);
+    if (stage)
+        *stage = { current_stage.name, to_rc_Pose(current_stage.G_world_stage) };
 
-    return true;
+    return ok;
 }
 
 void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback callback, void *handle)
 {
     if (!callback) tracker->stage_callback = nullptr;
-    else           tracker->stage_callback = [=](const mapper::map_stage &stage, const transformation &G_currentworld_nodeworld) {
-        callback(handle, stage.name ? stage.name->c_str() : nullptr,
-                 to_rc_Pose(G_currentworld_nodeworld * stage.G_world_stage));
+    else           tracker->stage_callback = [=](const mapper::stage::output &current_stage) {
+        callback(handle, rc_Stage { current_stage.name, to_rc_Pose(current_stage.G_world_stage) });
     };
 }
 

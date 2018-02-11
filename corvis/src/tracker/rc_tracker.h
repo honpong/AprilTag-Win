@@ -198,13 +198,18 @@ typedef struct rc_Data
     };
 } rc_Data;
 
+typedef struct rc_Stage {
+    const char *name;
+    rc_Pose pose_m;
+} rc_Stage;
+
 typedef struct rc_Tracker rc_Tracker;
 
 /**
   The callbacks are called synchronously with the filter thread
  */
 typedef void(*rc_DataCallback)(void *handle, rc_Tracker * tracker, const rc_Data * data);
-typedef void(*rc_StageCallback)(void *handle, const char *description, const rc_Pose pose_m);
+typedef void(*rc_StageCallback)(void *handle, rc_Stage stage);
 typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence);
 typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, const char * message, size_t len);
 
@@ -392,23 +397,30 @@ RCTRACKER_API bool rc_configureQueueStrategy(rc_Tracker *tracker, rc_TrackerQueu
 RCTRACKER_API bool rc_describeQueueStrategy(rc_Tracker *tracker, rc_TrackerQueueStrategy * strategy);
 
 /**
- rc_setStage creates a environment relative reference frame by
- passing the pose of the origin of the frame with respect to the
- current tracker world coordinates and associating a string with it.
+ Updates or creates a named stage, an environment fixed coordinate
+ frame, relative to tracker world coordinates.
 
- Must be called when the tracker is running in rc_E_CONFIDENCE_HIGH.
- Can be called asynchronously.
+ May only be called when the tracker is running with rc_E_CONFIDENCE_HIGH.
+
+ May be called asynchronously.
  */
 RCTRACKER_API bool rc_setStage(rc_Tracker *tracker, const char  *name, const rc_Pose pose_m);
 
 /**
- rc_getStage will return true and a pose for the map relative
- reference frame, for a given "name", relative to the current
- tracker world coordinates.
+ Returns the pose of a named stage, an environment fixed coordinate
+ frame, relative to the current tracker world coordinates.
 
- Must only be called from the rc_DataCallback(rc Data *data).
+     if (rc_getStage(tracker, "name", &stage))
+         ; // do something with stage
+
+ If name is NULL, then it returns the next stage after stage.name.
+
+     for (rc_Stage stage = {NULL}; rc_getStage(tracker, NULL, &stage); )
+         ; // do something with stage
+
+ May only be called from the rc_DataCallback(rc Data *data).
  */
-RCTRACKER_API bool rc_getStage(rc_Tracker *tracker, const char **name,       rc_Pose *pose_m);
+RCTRACKER_API bool rc_getStage(rc_Tracker *tracker, const char *name, rc_Stage *stage);
 
 /**
   WARNING: These callbacks are synchronous with the the filter thread. Don't do significant work in them!

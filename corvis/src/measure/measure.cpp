@@ -299,8 +299,8 @@ int main(int c, char **v)
     rp.set_data_callback([&ws,&rp,first=true,&res,&loop_gt,&data_callback,&pose_fs](rc_Tracker * tracker, const rc_Data * data) mutable {
         data_callback(ws, rp, first, res, loop_gt, tracker, data, &pose_fs);
     });
-    rp.set_stage_callback([&ws](const char * description, const rc_Pose pose_m) {
-        ws.observe_virtual_object(0, description ? description : "(nullptr)", pose_m);
+    rp.set_stage_callback([&ws](const rc_Stage stage) {
+        ws.observe_virtual_object(0, stage.name, stage.pose_m);
     });
 
     if(enable_gui) { // The GUI must be on the main thread

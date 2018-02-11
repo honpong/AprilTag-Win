@@ -63,6 +63,10 @@ static bstream_reader & operator >> (bstream_reader &content, shared_ptr<frame_t
     return content;
 }
 
+static bstream_reader & operator >> (bstream_reader &content, mapper::stage &stage) {
+    return content >> stage.closest_id >> stage.Gr_closest_stage;
+}
+
 static bstream_reader & operator >> (bstream_reader &content, map_edge_v1 &edge) {
     uint8_t e_type = 0;
     content >> e_type;

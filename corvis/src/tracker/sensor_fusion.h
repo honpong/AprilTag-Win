@@ -36,7 +36,7 @@ public:
     
     std::function<void(const sensor_data *)> data_callback;
     std::function<bool()> status_callback;
-    std::function<void(const mapper::map_stage &stage, const transformation &)> stage_callback;
+    std::function<void(const mapper::stage::output &current_stage)> stage_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
     
@@ -50,8 +50,9 @@ public:
      */
     void set_location(double latitude_degrees, double longitude_degrees, double altitude_meters);
 
-    bool set_stage(std::unique_ptr<std::string> name, const transformation &G_world_stage);
-    
+    bool set_stage(const char *name, const transformation &G_world_stage);
+    bool get_stage(bool next, const char *name, mapper::stage::output &stage);
+
     //These may all run async
     
     /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
@@ -144,7 +145,7 @@ private:
     friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere
     void update_status();
     void update_data(const sensor_data * data);
-    void update_stage(const mapper::map_stage &stage, const transformation &G_currentworld_nodeworld);
+    void update_stages(const transformation &G_currentworld_frame, const map_relocalization_info::candidate &candidate);
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning;
     bool threaded;
     bool fast_path = false;

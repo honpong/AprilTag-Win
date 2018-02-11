@@ -551,6 +551,27 @@ bool mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_ve
     }
 }
 
+bool mapper::get_stage(const std::string &name, stage &stage, nodeid current_id, const transformation &G_world_current, stage::output &current_stage) {
+    if (stage.current_id != current_id) {
+        bool ok = nodes.critical_section([&]() {
+            auto distance = [](const map_edge& edge) { return 1; }; // # edges traversed
+            auto returned = [&](const node_path& path) { return path.id == stage.closest_id; };
+            auto finished = returned; // finish search when node is found
+            nodes_path searched_node = dijkstra_shortest_path(node_path{current_id, transformation(), 0},
+                                                              distance, returned, finished);
+            if (!searched_node.size())
+                return false;
+            stage.current_id = current_id;
+            stage.G_current_closest = searched_node.front().G;
+            return true;
+        });
+        if (!ok)
+            return false;
+    }
+    current_stage = { name.c_str(), G_world_current * stage.G_current_closest * stage.Gr_closest_stage };
+    return true;
+}
+
 map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
 
 #if defined(RELOCALIZATION_DEBUG)
@@ -678,8 +699,7 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
                     return false;
                 });
                 if (ok) {
-                    transformation G_currentframe_candidateworld = invert(candidate_node_global_transformation * G_candidate_currentframe);
-                    reloc_info.candidates.emplace_back(G_candidate_currentframe, candidate_node_global_transformation, G_currentframe_candidateworld, candidate_node_frame->timestamp);
+                    reloc_info.candidates.emplace_back(nid.first, G_candidate_currentframe, candidate_node_global_transformation, candidate_node_frame->timestamp);
                     if (inliers_set.size() > best_num_inliers) {
                         // keep the best relocalization the first of the list
                         best_num_inliers = inliers_set.size();
@@ -890,6 +910,10 @@ static bstream_writer &operator << (bstream_writer &content, const map_edge &edg
     return content << static_cast<uint8_t>(edge.type) << edge.G;
 }
 
+static bstream_writer &operator << (bstream_writer &content, const mapper::stage &stage) {
+    return content << stage.closest_id << stage.Gr_closest_stage;
+}
+
 static bstream_writer & operator << (bstream_writer& content, const std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> &feat) {
     content << feat->id << feat->descriptor.orb.sin_ << feat->descriptor.orb.cos_;
     content << (std::array<uint8_t, orb_descriptor::L> &)feat->descriptor.orb.descriptor;
@@ -933,7 +957,7 @@ bool mapper::serialize(rc_SaveCallback func, void *handle) const {
     cur_stream.write(magic_file_format_num, sizeof(magic_file_format_num));
     cur_stream << (uint8_t)MAPPER_SERIALIZED_VERSION;
     cur_stream << *nodes << dbow_inverted_index << *features_dbow;
-    cur_stream << stage->name << stage->G_world_stage;
+    cur_stream << *stages;
     cur_stream.end_stream();
     if (!cur_stream.good()) log->error("map was not saved successfully.");
     return cur_stream.good();

@@ -71,18 +71,18 @@ public:
     std::unordered_map<nodeid, map_node_v<map_feature_v, TArgs...>> nodes;
     std::map<uint64_t, std::vector<nodeid>> dbow_inverted_index;
     std::map<uint64_t, nodeid> features_dbow;
-    mapper::map_stage stage;
+    aligned_map<std::string,mapper::stage> stages;
     virtual void set(mapper &cur_map) override {
         for (auto ele : nodes)
             assign((*cur_map.nodes)[ele.first], ele.second);
         cur_map.dbow_inverted_index = move(dbow_inverted_index);
         *cur_map.features_dbow = move(features_dbow);
-        *cur_map.stage = std::move(stage);
+        *cur_map.stages = std::move(stages);
     }
     virtual bool deserialize(map_stream_reader &cur_stream) override {
         cur_stream.max_loaded_featid = 0;
         cur_stream >> nodes >> dbow_inverted_index >> features_dbow;
-        cur_stream >> stage.name >> stage.G_world_stage;
+        cur_stream >> stages;
         return cur_stream.good();
     }
 };

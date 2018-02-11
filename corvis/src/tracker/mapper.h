@@ -92,13 +92,13 @@ struct map_relocalization_info {
     sensor_clock::time_point frame_timestamp;
     relocalization_status rstatus{relocalization_status::begining};
     struct candidate {
+        uint64_t node_id;
         transformation G_node_frame;
         transformation G_world_node;
-        transformation G_frame_nodeworld;
         sensor_clock::time_point node_timestamp;
         candidate() {}
-        candidate(const transformation &g_node_frame, const transformation &g_world_node, const transformation &g_frame_nodeworld, sensor_clock::time_point node_ts)
-            : G_node_frame(g_node_frame), G_world_node(g_world_node), G_frame_nodeworld(g_frame_nodeworld), node_timestamp(node_ts) {}
+        candidate(uint64_t id, const transformation &g_node_frame, const transformation &g_world_node, sensor_clock::time_point node_ts)
+            : node_id(id), G_node_frame(g_node_frame), G_world_node(g_world_node), node_timestamp(node_ts) {}
     };
     aligned_vector<candidate> candidates;
     size_t size() const { return candidates.size(); }
@@ -119,12 +119,22 @@ class mapper {
     };
     typedef aligned_vector<node_path> nodes_path;
 
-    struct map_stage {
+    struct stage {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-        std::unique_ptr<std::string> name;
-        nodeid closest_id;
+        nodeid closest_id = std::numeric_limits<nodeid>::max();
         transformation Gr_closest_stage;
-        transformation G_world_stage/*debugging only*/;
+        nodeid current_id = std::numeric_limits<nodeid>::max();
+        transformation G_current_closest;
+        stage() {}
+        stage(nodeid closest_id_, const transformation &Gr_closest_stage_)
+            : closest_id(closest_id_), Gr_closest_stage(Gr_closest_stage_) {}
+        struct output {
+            const char *name = nullptr;
+            transformation G_world_stage;
+            output() {}
+            output(const char *name_, const transformation &G_world_stage_)
+                : name(name_), G_world_stage(G_world_stage_) {}
+        };
     };
 
  private:
@@ -200,13 +210,34 @@ class mapper {
     std::unordered_set<nodeid> partially_finished_nodes;
 
 public:
-    concurrent<map_stage> stage;
-    void set_stage(std::unique_ptr<std::string> name, nodeid closest_id, const transformation &Gr_closest_stage, const transformation &G_world_stage) {
-        stage.critical_section([&]() {
-            std::move(*stage) = map_stage{std::move(name), closest_id, Gr_closest_stage, G_world_stage};
+    concurrent<aligned_map<std::string,stage>> stages;
+
+    void set_stage(std::string &&name, nodeid closest_id, const transformation &Gr_closest_stage, const transformation &G_world_stage) {
+        stages.critical_section([&]() {
+            (*stages)[std::move(name)] = stage{closest_id, Gr_closest_stage};
         });
     }
-
+    bool get_stage(const std::string &name, stage &stage, nodeid current_id, const transformation &G_world_current, stage::output &current_stage);
+    bool get_stage(bool next, const char *name, nodeid current_id, const transformation &G_world_current, stage::output &current_stage) {
+        return stages.critical_section([&]() {
+            auto it = name ? stages->find(name) : stages->begin();
+            if (it == stages->end() || (name && next && ++it == stages->end()))
+                return false;
+            bool ok;
+            do ok = get_stage(it->first, it->second, current_id, G_world_current, current_stage);
+            while (next && !ok && ++it != stages->end());
+            return ok;
+        });
+    }
+    void update_stages(nodeid current_id, const transformation &G_world_current, const std::function<void(const stage::output&)> &stage_callback) {
+        stages.critical_section([&]() {
+            for (auto ns : *stages) {
+                mapper::stage::output current_stage;
+                if (get_stage(ns.first, ns.second, current_id, G_world_current, current_stage))
+                    stage_callback(current_stage);
+            }
+       });
+    }
 private:
     // private functions that lock mutexes internally
     std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(

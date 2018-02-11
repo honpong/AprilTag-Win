@@ -201,9 +201,8 @@ void replay::setup_filter()
     }
     if(stage_callback)
     {
-        rc_setStageCallback(tracker, [](void *handle, const char *description, const rc_Pose pose_m) {
-            replay * this_replay = (replay *)handle;
-            this_replay->stage_callback(description, pose_m);
+        rc_setStageCallback(tracker, [](void *handle, rc_Stage stage) {
+            ((replay *)handle)->stage_callback(stage);
         }, this);
     }
     rc_setMessageCallback(tracker, log_to_stderr, nullptr, message_level);
@@ -560,6 +559,10 @@ void replay::save_map(string filename)
 }
 
 void replay::set_stage() {
+    static int x; std::string name = "stage" + std::to_string(x++);
     rc_PoseTime pose = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW);
-    rc_setStage(tracker, nullptr, pose.pose_m);
+    if (rc_setStage(tracker, name.c_str(), pose.pose_m))
+        std::cout << "created --stage=" << name << "=" << pose.time_us << "\n";
+    else
+        std::cout << "Error: can't create stage; has the filter converged?\n";
 }

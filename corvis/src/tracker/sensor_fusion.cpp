@@ -172,8 +172,12 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                 sfm.s.cameras.children[pair.second.id]->detected)
                 filter_stereo_initialize(&sfm, pair.first.id, pair.second.id);
 
+            uint64_t in_queue = queue.data_in_queue(data.type, data.id);
             queue_receive_data(std::move(pair.first), false);
-            queue_receive_data(std::move(pair.second), !queue.data_in_queue(data.type, data.id));
+            queue_receive_data(std::move(pair.second), !in_queue);
+            if (in_queue)
+                sfm.log->warn("Skipped stereo catchup at {}, {} in queue", sensor_clock::tp_to_micros(data.timestamp), in_queue);
+
             END_EVENT(SF_STEREO_RECEIVE, 0);
         } break;
 

@@ -120,10 +120,7 @@ void mapper::finish_lost_tracks(const tracker::feature_track& track) {
     if (tp != triangulated_tracks.end()) {
         auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(track.feature);
         if (tp->second.track_count > MIN_FEATURE_TRACKS && tp->second.parallax > MIN_FEATURE_PARALLAX) {
-            std::unique_lock<std::mutex> lock1(nodes.mutex(), std::defer_lock);
-            std::unique_lock<std::mutex> lock2(features_dbow.mutex(), std::defer_lock);
-            std::lock(lock1, lock2);
-            add_triangulated_feature_to_group(tp->second.reference_nodeid, f, tp->second.state);
+            add_feature(tp->second.reference_nodeid, f, tp->second.state, feature_type::triangulated);
         }
         triangulated_tracks.erase(track.feature->id);
     } else {
@@ -134,13 +131,6 @@ void mapper::finish_lost_tracks(const tracker::feature_track& track) {
 void mapper::remove_node_features(nodeid id) {
     for(auto& f : nodes->at(id).features)
         features_dbow->erase(f.first);
-}
-
-void mapper::add_triangulated_feature_to_group(const nodeid group_id, const std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>>& feature,
-                                               const std::shared_ptr<log_depth>& v) {
-    map_node &ref_node = nodes->at(group_id);
-    ref_node.add_feature(feature, v, feature_type::triangulated);
-    (*features_dbow)[feature->id] = group_id;
 }
 
 void mapper::update_3d_feature(const tracker::feature_track& track, const uint64_t closest_group_id,

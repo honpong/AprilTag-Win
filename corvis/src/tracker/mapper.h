@@ -252,9 +252,6 @@ private:
     void add_covisibility_edge_no_lock(nodeid node_id1, nodeid node_id2);
 
     void remove_node_features(nodeid node_id);
-    void add_triangulated_feature_to_group(
-            const nodeid group_id, const std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>>& feature,
-            const std::shared_ptr<log_depth> &v);
 
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;

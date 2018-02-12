@@ -574,7 +574,7 @@ bool rc_receiveTemperature(rc_Tracker * tracker, rc_Sensor therm_id, rc_Timestam
 
 bool rc_setStage(rc_Tracker *tracker, const char *name, const rc_Pose pose_m)
 {
-    return tracker && tracker->set_stage(name, to_transformation(pose_m));
+    return tracker && rc_getConfidence(tracker) == rc_E_CONFIDENCE_HIGH && tracker->set_stage(name, to_transformation(pose_m));
 }
 
 bool rc_getStage(rc_Tracker *tracker, const char *name, rc_Stage *stage)

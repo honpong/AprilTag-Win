@@ -45,19 +45,19 @@ size_t IVTKScenario::LoadCalibrationFile(std::map<std::string, std::string> args
                 if (rc_FORMAT_RGBA8 == i->ImageFormat)
                 {
                     m_spColorCapturer = i;
-                    mkdir((m_szDirectoryName + std::string("/color")).c_str());
+                    mkdir((m_szDirectoryName + std::string("/color")).c_str(), 0777);
                     m_spColorCapturer->SetDirectoryName(m_szDirectoryName + std::string("/color/") + std::string(COLOR_RELATIVE_PATH));
                 }
                 else if (rc_FORMAT_DEPTH16 == i->ImageFormat)
                 {
                     m_spDepthCapturer = i;
-                    mkdir((m_szDirectoryName + std::string("/depth")).c_str());
+                    mkdir((m_szDirectoryName + std::string("/depth")).c_str(), 0777);
                     m_spDepthCapturer->SetDirectoryName(m_szDirectoryName + std::string("/depth/") + std::string(DEPTH_RELATIVE_PATH));
                 }
                 else if(rc_FORMAT_GRAY8 == i->ImageFormat)
                 {
                     const std::string szFisheye = std::string("/fisheye") + std::string("_") + std::to_string(uFisheyeIndex) + std::string("/");
-                    mkdir((m_szDirectoryName + szFisheye).c_str());
+                    mkdir((m_szDirectoryName + szFisheye).c_str(), 0777);
 
                     if (0 == i->CameraIndex)
                     {

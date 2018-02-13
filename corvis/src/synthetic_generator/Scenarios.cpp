@@ -11,7 +11,6 @@
 size_t IVTKScenario::LoadCalibrationFile(std::map<std::string, std::string> args)
 {
     uint8_t res = 0;
-
     if (args.find("--calibrationfile") != args.end())
     {
         m_spProxy = std::make_unique<TrackerProxy>();
@@ -37,35 +36,50 @@ size_t IVTKScenario::LoadCalibrationFile(std::map<std::string, std::string> args
             spCapturer->fisheyeRenderSizeCompute();
             m_spCapturers.push_back(spCapturer);
         }
-            
+        
+        size_t uFisheyeIndex = 0;
         if ((!m_spColorCapturer) || (!m_spDepthCapturer) || (!m_spLFisheyeCapturer) || (!m_spRFisheyeCapturer))
         {
             for (const auto& i : m_spCapturers)
             {
-                if (rc_FORMAT_DEPTH16 == i->ImageFormat)
+                if (rc_FORMAT_RGBA8 == i->ImageFormat)
                 {
                     m_spColorCapturer = i;
-                    m_spDepthCapturer = i;
+                    mkdir((m_szDirectoryName + std::string("/color")).c_str());
+                    m_spColorCapturer->SetDirectoryName(m_szDirectoryName + std::string("/color/") + std::string(COLOR_RELATIVE_PATH));
                 }
-                else
+                else if (rc_FORMAT_DEPTH16 == i->ImageFormat)
                 {
-                    m_spColorCapturer = !m_spColorCapturer ? i : m_spColorCapturer;
+                    m_spDepthCapturer = i;
+                    mkdir((m_szDirectoryName + std::string("/depth")).c_str());
+                    m_spDepthCapturer->SetDirectoryName(m_szDirectoryName + std::string("/depth/") + std::string(DEPTH_RELATIVE_PATH));
+                }
+                else if(rc_FORMAT_GRAY8 == i->ImageFormat)
+                {
+                    const std::string szFisheye = std::string("/fisheye") + std::string("_") + std::to_string(uFisheyeIndex) + std::string("/");
+                    mkdir((m_szDirectoryName + szFisheye).c_str());
+
                     if (0 == i->CameraIndex)
                     {
+                        i->SetDirectoryName(m_szDirectoryName + szFisheye + std::string(LFISHEYE_RELATIVE_PATH));
                         m_spLFisheyeCapturer = i;
                     }
                     else
                     {
+                        i->SetDirectoryName(m_szDirectoryName + szFisheye + std::string(RFISHEYE_RELATIVE_PATH));
                         m_spRFisheyeCapturer = i;
                     }
+                    uFisheyeIndex++;
                 }
             }
-        }
-        if (!m_spColorCapturer)
-        {
-            std::cout << "No camera seems to have been specified in the specified calibration file." << std::endl;
-            res = 2;
-            return res;
+            if (!m_spColorCapturer && m_spLFisheyeCapturer)
+            {
+                m_spColorCapturer = m_spLFisheyeCapturer;
+            }
+            else if (!m_spColorCapturer && m_spDepthCapturer)
+            {
+                m_spColorCapturer = m_spDepthCapturer;
+            }
         }
     }
     else

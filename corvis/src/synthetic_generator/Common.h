@@ -31,16 +31,11 @@
 #define LFISHEYE_RELATIVE_PATH "leftFisheye%04d.png"
 #define RFISHEYE_RELATIVE_PATH "rightFisheye%04d.png"
 
-#ifdef _WIN32
-#define COLOR_FILE_PATH         (std::string("\\color\\") + std::string(COLOR_RELATIVE_PATH))
-#define DEPTH_FILE_PATH         (std::string("\\depth\\") + std::string(DEPTH_RELATIVE_PATH))
-#define LFISHEYE_FILE_PATH      (std::string("\\fisheye_0\\") + std::string(LFISHEYE_RELATIVE_PATH))
-#define RFISHEYE_FILE_PATH      (std::string("\\fisheye_1\\") + std::string(RFISHEYE_RELATIVE_PATH))
+#ifdef WIN32
+#include <direct.h>
+#define mkdir(dir,mode) _mkdir(dir)
 #else
-#define COLOR_FILE_PATH         (std::string("/color/") + std::string(COLOR_RELATIVE_PATH))
-#define DEPTH_FILE_PATH         (std::string("/depth/") + std::string(DEPTH_RELATIVE_PATH))
-#define LFISHEYE_FILE_PATH      (std::string("/fisheye_0/") + std::string(LFISHEYE_RELATIVE_PATH))
-#define RFISHEYE_FILE_PATH      (std::string("/fisheye_1/") + std::string(RFISHEYE_RELATIVE_PATH))
+#include <sys/stat.h>
 #endif
 
 struct Resolution
@@ -62,10 +57,13 @@ struct CFakeImgCapturer
     virtual void distortionEquation(cv::Mat* const pxDistorted, cv::Mat* const pyDistorted) = 0;
     virtual void InitializeCapturer() = 0;
     virtual void validateFisheyeDistortion(const std::string& szDirectoryName);
-    virtual void addDistortion(unsigned char* ffd_img, int dims[3], int currentFrameIndex, const char* filename, const std::string& szDirectoryName);
+    virtual void addDistortion(unsigned char* ffd_img, int dims[3], int currentFrameIndex);
     virtual void fisheyeRenderSizeCompute();
     virtual void SetCameraIntrinsics(const rc_ExtendedCameraIntrinsics& camera);
     virtual void PrintCapturer() const;
+    virtual void SetDirectoryName(const std::string& szDirectory);
+    virtual std::string GetDirectoryName() const;
+
     MatrixParameters FirstFisheye;
     MatrixParameters SecondFisheye;
     Resolution ColorResolution;
@@ -85,6 +83,7 @@ struct CFakeImgCapturer
     rc_CameraIntrinsics CameraIntrinsics;
     rc_ImageFormat ImageFormat;
     uint8_t CameraIndex;
+    std::string m_szDirectoryPath;
 };
 
 struct FOVCapturer : public CFakeImgCapturer

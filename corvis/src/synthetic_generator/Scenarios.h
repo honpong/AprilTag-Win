@@ -57,6 +57,7 @@ protected:
     vtkSmartPointer<vtkTexture> m_spTexture;
     std::unique_ptr<TrackerProxy> m_spProxy;
     std::string m_szCalibrationContents;
+    std::string m_szDirectoryName;
 };
 
 class CBannerSimpleScenario : public IVTKScenario
@@ -98,7 +99,6 @@ protected:
     bool m_isAnimationEnabled;
     bool m_isRecordingEnabled;
     bool m_isFisheyeStereoRecordingEnabled;
-    std::string m_szDirectoryName;
     std::vector<std::shared_ptr<std::ofstream>> m_spControllerAnimFile;
     std::ofstream m_framesFile;
     std::ofstream m_referenceFile;

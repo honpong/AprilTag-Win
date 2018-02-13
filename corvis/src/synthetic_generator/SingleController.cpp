@@ -31,32 +31,25 @@ bool CBannerSimpleScenario::isAnimationEnabled() const
 
 void CBannerSimpleScenario::HandleDirectoryCreation()
 {
-#ifdef _WIN32
-    m_szDirectoryName = std::string("ControllerData") + "\\";
+    m_szDirectoryName = std::string("ControllerData");
     if (m_args.find("--directory") != m_args.end())
     {
-        m_szDirectoryName = m_args["--directory"] + "\\";
+        m_szDirectoryName = m_args["--directory"];
     }
+#ifdef _WIN32
     system((std::string("rd /S /Q ") + m_szDirectoryName).c_str());
 #else
-    m_szDirectoryName = std::string("ControllerData") + "/";
-    if (m_args.find("--directory") != m_args.end())
-    {
-        m_szDirectoryName = m_args["--directory"] + "/";
-    }
     system((std::string("rm -rf ") + m_szDirectoryName).c_str());
 #endif
-    system((std::string("mkdir ") + m_szDirectoryName).c_str());
-    system((std::string("mkdir ") + m_szDirectoryName + std::string("color")).c_str());
-    system((std::string("mkdir ") + m_szDirectoryName + std::string("depth")).c_str());
-    system((std::string("mkdir ") + m_szDirectoryName + std::string("fisheye_0")).c_str());
-    system((std::string("mkdir ") + m_szDirectoryName + std::string("fisheye_1")).c_str());
+    mkdir(m_szDirectoryName.c_str(), 0777);
 }
 
 size_t CBannerSimpleScenario::ParseUserInput(std::map<std::string, std::string> args)
 {
     size_t res = 0;
     m_args = args;
+
+    HandleDirectoryCreation();
 
     if (0 != (res = LoadCalibrationFile(m_args)))
     {
@@ -71,8 +64,6 @@ size_t CBannerSimpleScenario::ParseUserInput(std::map<std::string, std::string> 
     {
         m_isControllerAnimated = true;
     }
-
-    HandleDirectoryCreation();
 
     if (args.find("--record") != args.end())
     {
@@ -90,17 +81,17 @@ size_t CBannerSimpleScenario::ParseUserInput(std::map<std::string, std::string> 
         char framesFileName[FILE_SIZE_MAX] = { 0 };
         char referenceFileName[FILE_SIZE_MAX] = { 0 };
         char animationFileName[FILE_SIZE_MAX] = { 0 };
-        if (0 > snprintf(framesFileName, sizeof(framesFileName), "%srgbdepthF.txt", m_szDirectoryName.c_str()))
+        if (0 > snprintf(framesFileName, sizeof(framesFileName), "%s/rgbdepthF.txt", m_szDirectoryName.c_str()))
         {
             cout << "snprintf failed." << "\nLine:" << __LINE__ << "\nFunction:" << __FUNCTION__ << endl;
         }
         m_framesFile.open(framesFileName);
-        if (0 > snprintf(referenceFileName, sizeof(referenceFileName), "%sOCLRefLogFileF.txt", m_szDirectoryName.c_str()))
+        if (0 > snprintf(referenceFileName, sizeof(referenceFileName), "%s/OCLRefLogFileF.txt", m_szDirectoryName.c_str()))
         {
             cout << "snprintf failed." << "\nLine:" << __LINE__ << "\nFunction:" << __FUNCTION__ << endl;
         }
         m_referenceFile.open(referenceFileName);
-        if (0 > snprintf(animationFileName, sizeof(animationFileName), "%sanim.txt", m_szDirectoryName.c_str()))
+        if (0 > snprintf(animationFileName, sizeof(animationFileName), "%s/anim.txt", m_szDirectoryName.c_str()))
         {
             cout << "snprintf failed." << "\nLine:" << __LINE__ << "\nFunction:" << __FUNCTION__ << endl;
         }
@@ -294,7 +285,7 @@ size_t CBannerSimpleScenario::InitializeSetup(std::map<std::string, std::string>
 
 void CBannerSimpleScenario::CreateCamerasCallbacks()
 {
-    std::shared_ptr<EndCallback::CallbackInput> spEndInput = std::make_shared<EndCallback::CallbackInput>(m_spCapturers, m_szDirectoryName, &m_framesFile, &m_referenceFile, &m_animationFile, m_spSColorWindowCallback.GetPointer(), &m_frameIndex, m_NumberOfFrames, &m_isFisheyeStereoRecordingEnabled, &m_isRecordingEnabled,
+    std::shared_ptr<EndCallback::CallbackInput> spEndInput = std::make_shared<EndCallback::CallbackInput>(m_spCapturers, &m_framesFile, &m_referenceFile, &m_animationFile, m_spSColorWindowCallback.GetPointer(), &m_frameIndex, m_NumberOfFrames, &m_isFisheyeStereoRecordingEnabled, &m_isRecordingEnabled,
         &(m_spColorWindow.get()->m_spRenderer), &(m_spDepthWindow.get()->m_spRenderer), &(m_spColorWindow.get()->m_spRenderWindow), &(m_spDepthWindow.get()->m_spRenderWindow),
         &(m_spLFisheyeWindow.get()->m_spRenderWindow), &(m_spRFisheyeWindow.get()->m_spRenderWindow));
     if (m_spEColorWindowCallback)
@@ -400,7 +391,7 @@ void CBannerSimpleScenario::GenerateInterpolations(std::string ControllerAnimati
 
         {
             char controllerAnimFileName[FILE_SIZE_MAX] = { 0 };
-            if (0 > snprintf(controllerAnimFileName, sizeof(controllerAnimFileName), "%scontrollerAnim%d.txt", m_szDirectoryName.c_str(), static_cast<int>(m_controllerAnimationSize.size() - 1)))
+            if (0 > snprintf(controllerAnimFileName, sizeof(controllerAnimFileName), "%s/controllerAnim%d.txt", m_szDirectoryName.c_str(), static_cast<int>(m_controllerAnimationSize.size() - 1)))
             {
                 cout << "snprintf failed." << "\nLine:" << __LINE__ << "\nFunction:" << __FUNCTION__ << endl;
             }
@@ -444,7 +435,7 @@ void CBannerSimpleScenario::CreateTimerWindowCallback()
     {
         std::vector<double> Times;
         m_spCamerainterp.push_back(vtkSmartPointer<vtkCameraInterpolator>::New());
-        CreateCameraInterpolator(m_args["--animation"].c_str(), m_spColorCapturer->spColorFOV->GetValue()[1], &m_spCamerainterp.back(),&Times);
+        CreateCameraInterpolator(m_args["--animation"].c_str(), m_spLFisheyeCapturer->spColorFOV->GetValue()[1], &m_spCamerainterp.back(),&Times);
         m_spTimerInput = std::make_shared<TimerInput>(m_args,Times, &m_frameIndex, m_spActorCollection, m_NumberOfFrames, m_spTransformInterpolatorCollection, &m_isControllerAnimated, m_spCapturers, m_spColorWindow,
             m_spDepthWindow, m_spLFisheyeWindow, m_spRFisheyeWindow, m_spCamerainterp, &(m_spInteractors[0]));
     }

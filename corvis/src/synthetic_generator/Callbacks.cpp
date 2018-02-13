@@ -55,9 +55,9 @@ void StartCallback::Execute(vtkObject*, unsigned long, void*)
     lastProcessedFrame = m_spInput ? *(m_spInput->m_pframeIndex) : ++lastProcessedFrame;
 }
 
-EndCallback::CallbackInput::CallbackInput(std::vector<std::shared_ptr<CFakeImgCapturer>> spCap, const std::string& szDirectoryName, std::ofstream* const pFramesFile, std::ofstream* const pReferenceFile, std::ofstream* const pAnimationFile, vtkCommand* const pStartCallback, int* const pframeIndex, int MaximumFrames, const bool* const pIsFisheyeStereoRecordingEnabled, const bool* const pIsRecordingEnabled, vtkSmartPointer<vtkRenderer>* const spColorRenderer, vtkSmartPointer<vtkRenderer>* const spDepthRenderer,
+EndCallback::CallbackInput::CallbackInput(std::vector<std::shared_ptr<CFakeImgCapturer>> spCap, std::ofstream* const pFramesFile, std::ofstream* const pReferenceFile, std::ofstream* const pAnimationFile, vtkCommand* const pStartCallback, int* const pframeIndex, int MaximumFrames, const bool* const pIsFisheyeStereoRecordingEnabled, const bool* const pIsRecordingEnabled, vtkSmartPointer<vtkRenderer>* const spColorRenderer, vtkSmartPointer<vtkRenderer>* const spDepthRenderer,
     vtkSmartPointer<vtkRenderWindow>* const spColorRenderwindow, vtkSmartPointer<vtkRenderWindow>* const spDepthRenderwindow, vtkSmartPointer<vtkRenderWindow>* const spLFisheyeRenderwindow, vtkSmartPointer<vtkRenderWindow>* const spRFisheyeRenderwindow) :
-    m_spCapturers(spCap), m_szDirectoryName(szDirectoryName), m_pFramesFile(pFramesFile), m_pReferenceFile(pReferenceFile), m_pAnimationFile(pAnimationFile), m_pStartCallback(pStartCallback), m_pframeIndex(pframeIndex), m_MaximumFrames(MaximumFrames), m_pIsFisheyeStereoRecordingEnabled(pIsFisheyeStereoRecordingEnabled), m_pIsRecordingEnabled(pIsRecordingEnabled), m_spColorRenderer(spColorRenderer), m_spDepthRenderer(spDepthRenderer),
+    m_spCapturers(spCap), m_pFramesFile(pFramesFile), m_pReferenceFile(pReferenceFile), m_pAnimationFile(pAnimationFile), m_pStartCallback(pStartCallback), m_pframeIndex(pframeIndex), m_MaximumFrames(MaximumFrames), m_pIsFisheyeStereoRecordingEnabled(pIsFisheyeStereoRecordingEnabled), m_pIsRecordingEnabled(pIsRecordingEnabled), m_spColorRenderer(spColorRenderer), m_spDepthRenderer(spDepthRenderer),
     m_spColorRenderwindow(spColorRenderwindow), m_spDepthRenderwindow(spDepthRenderwindow), m_spLFisheyeRenderwindow(spLFisheyeRenderwindow), m_spRFisheyeRenderwindow(spRFisheyeRenderwindow)
 {
 }
@@ -105,15 +105,17 @@ void ColorWindowEndCallback::Execute(vtkObject*, unsigned long, void*)
         {
             if (!m_spColorCapturer)
             {
+                std::shared_ptr<CFakeImgCapturer> spFisheye;
                 for (const auto& i : m_spInput->m_spCapturers)
                 {
                     if (rc_FORMAT_DEPTH16 == i->ImageFormat)
                     {
                         m_spColorCapturer = i;
+                        break;
                     }
-                    else
+                    else if ((rc_FORMAT_RGBA8 == i->ImageFormat) && (0 == i->CameraIndex))
                     {
-                        m_spColorCapturer = !m_spColorCapturer ? i : m_spColorCapturer;
+                        m_spColorCapturer = i;
                     }
                 }
             }
@@ -144,23 +146,13 @@ void ColorWindowEndCallback::Execute(vtkObject*, unsigned long, void*)
                     (*(m_spInput->m_spColorRenderwindow))->AddObserver(vtkCommand::StartEvent, m_spInput->m_pStartCallback);
 
                     // write data
-                    Record(cfd.get(), cfd_size, *(m_spInput->m_pframeIndex), m_spColorCapturer, m_spInput->m_szDirectoryName, m_spInput->m_pFramesFile);
+                    Record(cfd.get(), cfd_size, *(m_spInput->m_pframeIndex), m_spColorCapturer, m_spInput->m_pFramesFile);
 
                     // Write the pose information to file streams
                     vtkMatrix4x4::Multiply4x4(m_spCoordR, (*m_spInput->m_spColorRenderer)->GetActiveCamera()->GetModelViewTransformMatrix(), m_spTi);
                     m_spTi->Invert();
                     if (*(m_spInput->m_pframeIndex) == 0)
                     {
-                        std::ofstream ofile(m_spInput->m_szDirectoryName + "initial_pose.txt");
-                        ofile.setf(ios::right, ios::adjustfield);
-                        ofile << std::fixed << setw(12) << std::setprecision(8) << m_spTi->GetElement(0, 0) << " " << m_spTi->GetElement(0,
-                            1) << " " << m_spTi->GetElement(0, 2) << " " << m_spTi->GetElement(0, 3) << "\n";
-                        ofile << std::fixed << setw(12) << std::setprecision(8) << m_spTi->GetElement(1, 0) << " " << m_spTi->GetElement(1,
-                            1) << " " << m_spTi->GetElement(1, 2) << " " << m_spTi->GetElement(1, 3) << "\n";
-                        ofile << std::fixed << setw(12) << std::setprecision(8) << m_spTi->GetElement(2, 0) << " " << m_spTi->GetElement(2,
-                            1) << " " << m_spTi->GetElement(2, 2) << " " << m_spTi->GetElement(2, 3) << "\n";
-                        ofile.close();
-
                         m_spInvT0->DeepCopy(m_spTi);
                         m_spInvT0->Invert();
                     }
@@ -230,24 +222,23 @@ void ColorWindowEndCallback::Execute(vtkObject*, unsigned long, void*)
     }
 }
 
-void ColorWindowEndCallback::Record(unsigned char* const cfd, int cfd_size, int currentFrameIndex, std::shared_ptr<CFakeImgCapturer> spcap, const std::string& szDirectoryName, std::ofstream* const pFramesFile)
+void ColorWindowEndCallback::Record(unsigned char* const cfd, int cfd_size, int currentFrameIndex, std::shared_ptr<CFakeImgCapturer> spcap, std::ofstream* const pFramesFile)
 {
     vtkSmartPointer<vtkImageImport> spImporter = vtkSmartPointer<vtkImageImport>::New();
     vtkSmartPointer<vtkPNGWriter> spWriter = vtkSmartPointer<vtkPNGWriter>::New();
     char fileName[FILE_SIZE_MAX] = { 0 };
-    if (0 > snprintf(fileName, sizeof(fileName), COLOR_FILE_PATH.c_str(), currentFrameIndex))
+    if (0 > snprintf(fileName, sizeof(fileName), spcap->GetDirectoryName().c_str(), currentFrameIndex))
     {
         cout << "snprintf failed." << "\nLine:" << __LINE__ << "\nFunction:" << __FUNCTION__ << endl;
     }
 
-    std::string filePath = szDirectoryName + std::string(fileName);
     spImporter->CopyImportVoidPointer(cfd, static_cast<int>(cfd_size));
     spImporter->SetDataScalarTypeToUnsignedChar();
     spImporter->SetNumberOfScalarComponents(4);
     spImporter->SetWholeExtent(0, spcap->ColorResolution.width - 1, 0, spcap->ColorResolution.height - 1, 0, 0);
     spImporter->SetDataExtentToWholeExtent();
     spImporter->Update();
-    spWriter->SetFileName(filePath.c_str());
+    spWriter->SetFileName(fileName);
     spWriter->SetInputConnection(spImporter->GetOutputPort());
     spWriter->Write();
     if(0 > snprintf(fileName, sizeof(fileName), COLOR_RELATIVE_PATH, currentFrameIndex))
@@ -258,23 +249,22 @@ void ColorWindowEndCallback::Record(unsigned char* const cfd, int cfd_size, int 
     *pFramesFile << currentFrameIndex << " " << fileName;
 }
 
-void DepthWindowEndCallback::Record(unsigned short* const dfd, int dfd_size, int currentFrameIndex, std::shared_ptr<CFakeImgCapturer> spcap, const std::string& szDirectoryName, std::ofstream* const pFramesFile)
+void DepthWindowEndCallback::Record(unsigned short* const dfd, int dfd_size, int currentFrameIndex, std::shared_ptr<CFakeImgCapturer> spcap, std::ofstream* const pFramesFile)
 {
     vtkSmartPointer<vtkImageImport> spImporter = vtkSmartPointer<vtkImageImport>::New();
     vtkSmartPointer<vtkPNGWriter> spWriter = vtkSmartPointer<vtkPNGWriter>::New();
     char fileName[FILE_SIZE_MAX] = { 0 };
-    if(0 > snprintf(fileName, sizeof(fileName), DEPTH_FILE_PATH.c_str(), currentFrameIndex))
+    if(0 > snprintf(fileName, sizeof(fileName), spcap->GetDirectoryName().c_str(), currentFrameIndex))
     {
         cout << "snprintf failed." << "\nLine:" << __LINE__ << "\nFunction:" << __FUNCTION__ << endl;
     }
-    std::string filePath = szDirectoryName + std::string(fileName);
     spImporter->CopyImportVoidPointer(dfd, static_cast<int>(dfd_size));
     spImporter->SetDataScalarTypeToUnsignedShort();
     spImporter->SetNumberOfScalarComponents(1);
     spImporter->SetWholeExtent(0, spcap->DepthResolution.width - 1, 0, spcap->DepthResolution.height - 1, 0, 0);
     spImporter->SetDataExtentToWholeExtent();
     spImporter->Update();
-    spWriter->SetFileName(filePath.c_str());
+    spWriter->SetFileName(fileName);
     spWriter->SetInputConnection(spImporter->GetOutputPort());
     spWriter->Write();
     if(0 > snprintf(fileName, sizeof(fileName), DEPTH_RELATIVE_PATH, currentFrameIndex))
@@ -686,7 +676,7 @@ void DepthWindowEndCallback::Execute(vtkObject*, unsigned long, void*)
                 dfd[i] = static_cast<unsigned short>(z * 5000 + 0.5);
                 m_max = std::min(m_max, double(dfd[i]));
             }
-            Record(dfd.get(), dfd_size, *(m_spInput->m_pframeIndex), m_spDepthCapturer, m_spInput->m_szDirectoryName, m_spInput->m_pFramesFile);
+            Record(dfd.get(), dfd_size, *(m_spInput->m_pframeIndex), m_spDepthCapturer, m_spInput->m_pFramesFile);
             (*(m_spInput->m_spDepthRenderwindow))->AddObserver(vtkCommand::EndEvent, this);
             lastProcessedFrame = m_spInput ? *(m_spInput->m_pframeIndex) : ++lastProcessedFrame;
             m_mutex.unlock();
@@ -715,7 +705,6 @@ void RFisheyeWindowEndCallback::Execute(vtkObject*, unsigned long, void*)
                 if ((rc_FORMAT_DEPTH16 != i->ImageFormat) && (0 != i->CameraIndex))
                 {
                     m_spRFisheyeCapturer = i;
-                    break;
                 }
             }
             vtkSmartPointer<vtkWindowToImageFilter> spWindowToImage;
@@ -738,7 +727,7 @@ void RFisheyeWindowEndCallback::Execute(vtkObject*, unsigned long, void*)
                 ffd2[i + 3] = pFisheyePix2[i + 3];
 
             }
-            m_spRFisheyeCapturer->addDistortion(ffd2.get(), dims, *(m_spInput->m_pframeIndex), RFISHEYE_FILE_PATH.c_str(), m_spInput->m_szDirectoryName);
+            m_spRFisheyeCapturer->addDistortion(ffd2.get(), dims, *(m_spInput->m_pframeIndex));
             char fileName[FILE_SIZE_MAX] = { 0 };
             if (0 > snprintf(fileName, sizeof(fileName), RFISHEYE_RELATIVE_PATH, *(m_spInput->m_pframeIndex)))
             {
@@ -790,7 +779,7 @@ void LFisheyeWindowEndCallback::Execute(vtkObject*, unsigned long, void*)
                 ffd[i + 2] = pFisheyePix[i + 2];
                 ffd[i + 3] = pFisheyePix[i + 3];
             }
-            m_spLFisheyeCapturer->addDistortion(ffd.get(), dims, *(m_spInput->m_pframeIndex), LFISHEYE_FILE_PATH.c_str(), m_spInput->m_szDirectoryName);
+            m_spLFisheyeCapturer->addDistortion(ffd.get(), dims, *(m_spInput->m_pframeIndex));
             char fileName[FILE_SIZE_MAX] = { 0 };
             if (0 > snprintf(fileName, sizeof(fileName), LFISHEYE_RELATIVE_PATH, *(m_spInput->m_pframeIndex)))
             {

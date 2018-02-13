@@ -138,6 +138,12 @@ void FOVCapturer::distortionEquation(cv::Mat* const pxDistorted, cv::Mat* const 
     (*pyDistorted).at<float>(CameraIntrinsics.c_y_px, CameraIntrinsics.c_x_px) = 0;
 }
 
+void CFakeImgCapturer::SetDirectoryName(const std::string& szDirectory)
+{
+    m_szDirectoryPath = szDirectory;
+}
+
+
 //Computes the maximum renderer window size required to get the desired output distorted image.
 void CFakeImgCapturer::fisheyeRenderSizeCompute()
 {
@@ -206,8 +212,13 @@ void CFakeImgCapturer::PrintCapturer() const
     std::cout << "                  \n\tw: " << CameraIntrinsics.w << std::endl;
 }
 
+std::string CFakeImgCapturer::GetDirectoryName() const
+{
+    return m_szDirectoryPath;
+}
+
 //Remaps the input image buffer to the distorted coordinates to get the fisheye distorted image
-void CFakeImgCapturer::addDistortion(unsigned char* ffd_img, int dims[3], int currentFrameIndex, const char* filename, const std::string& szDirectoryName)
+void CFakeImgCapturer::addDistortion(unsigned char* ffd_img, int dims[3], int currentFrameIndex)
 {
     cv::Mat TempMat = cv::Mat(dims[1], dims[0], CV_8UC4);
     TempMat.data = ffd_img;
@@ -232,15 +243,14 @@ void CFakeImgCapturer::addDistortion(unsigned char* ffd_img, int dims[3], int cu
     remap(TempMat, res, *spXd, *spYd, cv::INTER_LINEAR, cv::BORDER_CONSTANT, cv::Scalar(1, 0, 0));
     res.at<uchar>(0, 0) = TempMat.at<uchar>(0, 0);
     char fileName[FILE_SIZE_MAX] = { 0 };
-    if(0 > snprintf(fileName, sizeof(fileName), filename, currentFrameIndex))
+    if(0 > snprintf(fileName, sizeof(fileName), m_szDirectoryPath.c_str(), currentFrameIndex))
     {
         cout << "snprintf failed." << "\nLine:" << __LINE__ << "\nFunction:" << __FUNCTION__ << endl;
     }
-    std::string filePath = szDirectoryName + std::string(fileName);
     transpose(res, res);
     flip(res, res, 1);
     transpose(res, res);
-    imwrite(filePath, res);
+    imwrite(fileName, res);
 }
 
 //Validates the distortion by comapring the saved renderer input image to the undistorted image

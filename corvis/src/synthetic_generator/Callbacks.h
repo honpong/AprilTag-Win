@@ -89,11 +89,10 @@ public:
     virtual ~EndCallback() = default;
     struct CallbackInput
     {
-        CallbackInput(std::vector<std::shared_ptr<CFakeImgCapturer>> spCapturers, const std::string& szDirectoryName, std::ofstream* const pFramesFile, std::ofstream* const pReferenceFile, std::ofstream* const pAnimationFile, vtkCommand* const pStartCallback, int* const pframeIndex, int MaximumFrames, const bool* const pIsFisheyeStereoRecordingEnabled, const bool* const pIsRecordingEnabled, vtkSmartPointer<vtkRenderer>* const spColorRenderer, vtkSmartPointer<vtkRenderer>* const spDepthRenderer,
+        CallbackInput(std::vector<std::shared_ptr<CFakeImgCapturer>> spCapturers, std::ofstream* const pFramesFile, std::ofstream* const pReferenceFile, std::ofstream* const pAnimationFile, vtkCommand* const pStartCallback, int* const pframeIndex, int MaximumFrames, const bool* const pIsFisheyeStereoRecordingEnabled, const bool* const pIsRecordingEnabled, vtkSmartPointer<vtkRenderer>* const spColorRenderer, vtkSmartPointer<vtkRenderer>* const spDepthRenderer,
             vtkSmartPointer<vtkRenderWindow>* const spColorRenderwindow, vtkSmartPointer<vtkRenderWindow>* const spDepthRenderwindow, vtkSmartPointer<vtkRenderWindow>* const spLFisheyeRenderwindow, vtkSmartPointer<vtkRenderWindow>* const spRFisheyeRenderwindow);
 
         std::vector<std::shared_ptr<CFakeImgCapturer>> m_spCapturers;
-        const std::string m_szDirectoryName;
         std::ofstream* const m_pFramesFile;
         std::ofstream* const m_pReferenceFile;
         std::ofstream* const m_pAnimationFile;
@@ -133,7 +132,7 @@ public:
     vtkTypeMacro(ColorWindowEndCallback, EndCallback);
     virtual void Execute(vtkObject*, unsigned long, void*) override;
     static ColorWindowEndCallback *New();
-    void Record(unsigned char* const cfd, int cfd_size, int currentFrameIndex, std::shared_ptr<CFakeImgCapturer> spcap, const std::string& szDirectoryName, std::ofstream* const pFramesFile);
+    void Record(unsigned char* const cfd, int cfd_size, int currentFrameIndex, std::shared_ptr<CFakeImgCapturer> spcap, std::ofstream* const pFramesFile);
 private:
     std::shared_ptr<CFakeImgCapturer> m_spColorCapturer;
 };
@@ -144,7 +143,7 @@ public:
     vtkTypeMacro(DepthWindowEndCallback, EndCallback);
     virtual void Execute(vtkObject*, unsigned long, void*) override;
     static DepthWindowEndCallback *New();
-    void Record(unsigned short* const dfd, int dfd_size, int currentFrameIndex, std::shared_ptr<CFakeImgCapturer> spcap, const std::string& szDirectoryName, std::ofstream* const pFramesFile);
+    void Record(unsigned short* const dfd, int dfd_size, int currentFrameIndex, std::shared_ptr<CFakeImgCapturer> spcap, std::ofstream* const pFramesFile);
 private:
     std::shared_ptr<CFakeImgCapturer> m_spDepthCapturer;
 };

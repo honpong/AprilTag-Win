@@ -127,7 +127,7 @@ void mapper::add_node(nodeid id, const rc_Sensor camera_id) {
     });
 }
 
-bool mapper::edge_in_map(nodeid id1, nodeid id2, edge_type& type) {
+bool mapper::edge_in_map(nodeid id1, nodeid id2, edge_type& type) const {
     return nodes.critical_section([&]() {
         auto it = nodes->at(id1).edges.find(id2);
         if(it != nodes->at(id1).edges.end()) {
@@ -317,7 +317,7 @@ void mapper::index_finished_nodes() {
 }
 
 mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path& path)> is_node_searched,
-                                                  std::function<bool(const node_path& path)> finish_search)
+                                                  std::function<bool(const node_path& path)> finish_search) const
 {
     auto cmp = [](const node_path& path1, const node_path& path2) {
       return path1.distance > path2.distance;
@@ -356,7 +356,7 @@ mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::f
 }
 
 std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidates(
-    const std::shared_ptr<frame_t>& current_frame)
+    const std::shared_ptr<frame_t>& current_frame) const
 {
     std::vector<std::pair<mapper::nodeid, float>> loop_closing_candidates;
     // find nodes sharing words with current frame
@@ -438,7 +438,7 @@ static size_t calculate_orientation_bin(const orb_descriptor &a, const orb_descr
     return static_cast<size_t>(((a - b) * (float)M_1_PI + 1) / 2 * num_orientation_bins + 0.5f) % num_orientation_bins;
 }
 
-mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& candidate_frame, const std::shared_ptr<frame_t>& current_frame) {
+mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& candidate_frame, const std::shared_ptr<frame_t>& current_frame) const {
     //matches per orientationn increment between current frame and node candidate
     static constexpr int num_orientation_bins = 30;
     std::vector<mapper::matches> increment_orientation_histogram(num_orientation_bins);
@@ -560,7 +560,7 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
     return current_to_candidate_matches;
 }
 
-bool mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_currentframeB, std::set<size_t>& inliers_set) {
+bool mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_currentframeB, std::set<size_t>& inliers_set) const {
     state_extrinsics* const extrinsics = camera_extrinsics[camera_id];
     transformation G_BC = transformation(extrinsics->Q.v, extrinsics->T.v);
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_id];
@@ -598,7 +598,7 @@ bool mapper::get_stage(const std::string &name, stage &stage, nodeid current_id,
     return true;
 }
 
-map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame) {
+map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame) const {
 
 #if defined(RELOCALIZATION_DEBUG)
     visual_debug::batch batch;

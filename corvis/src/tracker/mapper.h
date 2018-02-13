@@ -163,14 +163,14 @@ class mapper {
          */
         template<typename Fun, typename... Args>
         typename std::result_of<typename std::decay<Fun>::type(typename std::decay<Args>::type...)>::type
-        critical_section(Fun &&fun, Args &&...args) {
+        critical_section(Fun &&fun, Args &&...args) const {
             std::lock_guard<M> lock(mutex_);
             return std::forward<Fun>(fun)(std::forward<Args>(args)...);
         }
 
         template<typename Result, typename Obj, typename ...MArgs, typename ...Args>
         Result
-        critical_section(Result (Obj::*m)(MArgs...), Obj *obj, Args &&...args) {
+        critical_section(Result (Obj::*m)(MArgs...), Obj *obj, Args &&...args) const {
             std::lock_guard<M> lock(mutex_);
             return (obj->*m)(std::forward<Args>(args)...);
         }
@@ -188,7 +188,7 @@ class mapper {
 
      private:
         T object_;
-        M mutex_;
+        mutable M mutex_;
     };
 
  protected:
@@ -254,10 +254,10 @@ public:
 private:
     // private functions that lock mutexes internally
     std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
-        const std::shared_ptr<frame_t>& current_frame);
+        const std::shared_ptr<frame_t>& current_frame) const;
 
     mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t>& candidate_frame,
-                                         const std::shared_ptr<frame_t>& current_frame);
+                                         const std::shared_ptr<frame_t>& current_frame) const;
 
     // private functions that are used after acquiring some of the mutexes
     void remove_edge_no_lock(nodeid node_id1, nodeid node_id2);
@@ -288,14 +288,14 @@ private:
     void update_3d_feature(const tracker::feature_track &track, const uint64_t closest_group_id, const transformation &&G_Bnow_Bclosest, const rc_Sensor camera_id_now);
     v3 get_feature3D(nodeid node_id, uint64_t feature_id) const; // returns feature wrt node body frame
     mapper::nodes_path dijkstra_shortest_path(const node_path &start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path &)> is_node_searched,
-                                              std::function<bool(const node_path &)> finish_search);
+                                              std::function<bool(const node_path &)> finish_search) const;
 
     const aligned_unordered_map<nodeid, map_node> &get_nodes() const { return *nodes; }
     map_node& get_node(nodeid id) { return nodes->at(id); }
     bool node_in_map(nodeid id) const { return nodes->find(id) != nodes->end(); }
     uint64_t get_node_id_offset() { return node_id_offset; }
     uint64_t get_feature_id_offset() { return feature_id_offset; }
-    bool edge_in_map(nodeid id1, nodeid id2, edge_type& type);
+    bool edge_in_map(nodeid id1, nodeid id2, edge_type& type) const;
 
     void finish_node(nodeid node_id, bool compute_dbow_inverted_index);
     void set_node_transformation(nodeid id, const transformation & G);
@@ -319,8 +319,8 @@ private:
     std::vector<state_vision_intrinsics*> camera_intrinsics;
     std::vector<state_extrinsics*> camera_extrinsics;
 
-    map_relocalization_result relocalize(const camera_frame_t& camera_frame);
-    bool estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
+    map_relocalization_result relocalize(const camera_frame_t& camera_frame) const;
+    bool estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set) const;
 
     // reuse map features in filter
     struct map_feature_track {

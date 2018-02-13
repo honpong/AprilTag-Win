@@ -258,11 +258,11 @@ void sensor_fusion::set_location(double latitude_degrees, double longitude_degre
     });
 }
 
-bool sensor_fusion::set_stage(const char *name_, const transformation &G_world_stage) {
+bool sensor_fusion::set_stage(const char *name_, const transformation &G_world_stage_) {
     if (!sfm.map)
         return false;
-    std::string name(name_);
-    queue.dispatch_async([this, &name, G_world_stage]() {
+    std::string name(name_); transformation G_world_stage = G_world_stage_;
+    queue.dispatch_async([this, &name, &G_world_stage]() {
         uint64_t closest_id; transformation Gr_closest_now;
         if (sfm.s.get_closest_group_transformation(closest_id, Gr_closest_now)) {
             transformation G_closest_stage = Gr_closest_now * invert(get_transformation()) * G_world_stage;

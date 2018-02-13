@@ -111,7 +111,9 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                 auto camera_frame = std::move(sfm.s.cameras.children[data.id]->camera_frame);
                 if (camera_frame) {
                     if (sfm.relocalize && sfm.relocalization_future.valid_n()) {
-                        sfm.relocalization_info = sfm.relocalization_future.get();
+                        auto result = sfm.relocalization_future.get();
+                        filter_add_relocalization_edges(&sfm, result.edges);
+                        sfm.relocalization_info = std::move(result.info);
                         if (sfm.relocalization_info.is_relocalized) {
                             transformation G_Bframe_Bbody;
                             if (sfm.s.get_group_transformation(camera_frame->closest_node, G_Bframe_Bbody))

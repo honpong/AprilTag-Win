@@ -104,6 +104,19 @@ struct map_relocalization_info {
     size_t size() const { return candidates.size(); }
 };
 
+struct map_relocalization_edge : public map_edge {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    uint64_t id1;
+    uint64_t id2;
+    map_relocalization_edge(uint64_t _id1, uint64_t _id2, const transformation& _G12, edge_type _type) :
+        map_edge(_type, _G12), id1(_id1), id2(_id2) {}
+};
+
+struct map_relocalization_result {
+    map_relocalization_info info;
+    aligned_vector<map_relocalization_edge> edges;
+};
+
 class mapper {
  public:
     typedef uint64_t nodeid;
@@ -259,9 +272,12 @@ private:
     ~mapper();
     void reset();
 
+    bool is_map_unlinked() const { return unlinked; }
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
+    bool link_map(const map_relocalization_edge& edge);
     void add_node(nodeid node_id, const rc_Sensor camera_id);
     void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::filter);
+    void add_relocalization_edges(const aligned_vector<map_relocalization_edge>& edges);
     void add_covisibility_edge(nodeid node_id1, nodeid node_id2);
     void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
@@ -303,7 +319,7 @@ private:
     std::vector<state_vision_intrinsics*> camera_intrinsics;
     std::vector<state_extrinsics*> camera_extrinsics;
 
-    map_relocalization_info relocalize(const camera_frame_t& camera_frame);
+    map_relocalization_result relocalize(const camera_frame_t& camera_frame);
     bool estimate_pose(const aligned_vector<v3>& points_3d, const aligned_vector<v2>& points_2d, const rc_Sensor camera_id, transformation& G_candidateB_nowB, std::set<size_t>& inliers_set);
 
     // reuse map features in filter

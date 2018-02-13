@@ -68,6 +68,17 @@ void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, edge_ty
     nodes.critical_section(&mapper::add_edge_no_lock, this, id1, id2, G12, type);
 }
 
+void mapper::add_relocalization_edges(const aligned_vector<map_relocalization_edge>& edges) {
+    nodes.critical_section([&]() {
+        for (auto& edge : edges) {
+            if (nodes->find(edge.id1) != nodes->end() && nodes->find(edge.id2) != nodes->end()) {
+                add_edge_no_lock(edge.id1, edge.id2, edge.G, edge.type);
+                add_covisibility_edge_no_lock(edge.id1, edge.id2);
+            }
+        }
+    });
+}
+
 void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12, edge_type type) {
     map_edge& edge12 = nodes->at(id1).get_add_neighbor(id2);
     edge12.G = G12;
@@ -587,7 +598,7 @@ bool mapper::get_stage(const std::string &name, stage &stage, nodeid current_id,
     return true;
 }
 
-map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
+map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame) {
 
 #if defined(RELOCALIZATION_DEBUG)
     visual_debug::batch batch;
@@ -595,16 +606,16 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
 
     // note: mapper::relocalize can run in parallel to other mapper functions
     const std::shared_ptr<frame_t>& current_frame = camera_frame.frame;
-    map_relocalization_info reloc_info;
-    reloc_info.frame_timestamp = current_frame->timestamp;
-    if (!current_frame->keypoints.size()) return reloc_info;
+    map_relocalization_result reloc_result;
+    reloc_result.info.frame_timestamp = current_frame->timestamp;
+    if (!current_frame->keypoints.size()) return reloc_result;
 
     size_t i = 0;
 
     START_EVENT(SF_FIND_CANDIDATES, 0);
     std::vector<std::pair<nodeid, float>> candidate_nodes = find_loop_closing_candidates(current_frame);
     END_EVENT(SF_FIND_CANDIDATES, candidate_nodes.size());
-    reloc_info.rstatus = relocalization_status::find_candidates;
+    reloc_result.info.rstatus = relocalization_status::find_candidates;
 
     const auto &keypoint_xy_current = current_frame->keypoints_xy;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
@@ -633,7 +644,7 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
         START_EVENT(SF_MATCH_DESCRIPTORS, 0);
         matches matches_node_candidate = match_2d_descriptors(candidate_node_frame, current_frame);
         END_EVENT(SF_MATCH_DESCRIPTORS, matches_node_candidate.size());
-        reloc_info.rstatus = relocalization_status::match_descriptors;
+        reloc_result.info.rstatus = relocalization_status::match_descriptors;
 
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
@@ -708,39 +719,19 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
             START_EVENT(SF_ESTIMATE_POSE,0);
             bool pose_found = estimate_pose(candidate_3d_points, current_2d_points, camera_frame.camera_id, G_candidate_currentframe, inliers_set);
             END_EVENT(SF_ESTIMATE_POSE,inliers_set.size());
-            reloc_info.rstatus = relocalization_status::estimate_EPnP;
+            reloc_result.info.rstatus = relocalization_status::estimate_EPnP;
             if(pose_found && inliers_set.size() >= min_num_inliers) {
                 transformation G_candidate_closestnode = G_candidate_currentframe*invert(camera_frame.G_closestnode_frame);
-                ok = nodes.critical_section([&]() {
-                    if (nodes->find(nid.first) != nodes->end() && nodes->find(camera_frame.closest_node) != nodes->end()) {
-                        add_edge_no_lock(nid.first, camera_frame.closest_node, G_candidate_closestnode, edge_type::relocalization);
-                        add_covisibility_edge_no_lock(nid.first, camera_frame.closest_node);
-                        return true;
-                    }
-                    return false;
-                });
-                if (ok) {
-                    if(unlinked && nid.first < get_node_id_offset()) { // represent loaded map wrt current one
-                        auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
-                        auto is_node_searched = [this](const mapper::node_path& path) { return path.id < this->get_node_id_offset(); };
-                        auto finish_search = [](const mapper::node_path& path) { return false; };
-                        auto loaded_map_nodes = dijkstra_shortest_path(mapper::node_path{camera_frame.closest_node, get_node(camera_frame.closest_node).global_transformation, 0},
-                                                                       distance, is_node_searched, finish_search);
-                        for(auto& loaded_map_node : loaded_map_nodes) {
-                            set_node_transformation(loaded_map_node.id, loaded_map_node.G);
-                        }
-                        unlinked = false;
-                    }
-
-                    reloc_info.candidates.emplace_back(nid.first, G_candidate_currentframe, candidate_node_global_transformation, candidate_node_frame->timestamp);
-                    if (inliers_set.size() > best_num_inliers) {
-                        // keep the best relocalization the first of the list
-                        best_num_inliers = inliers_set.size();
-                        std::swap(reloc_info.candidates[0], reloc_info.candidates.back());
-                    }
-                    reloc_info.is_relocalized = true;
-                    is_relocalized_in_candidate = true;
+                reloc_result.edges.emplace_back(nid.first, camera_frame.closest_node, G_candidate_closestnode, edge_type::relocalization);
+                reloc_result.info.candidates.emplace_back(nid.first, G_candidate_currentframe, candidate_node_global_transformation, candidate_node_frame->timestamp);
+                if (inliers_set.size() > best_num_inliers) {
+                    // keep the best relocalization the first of the list
+                    best_num_inliers = inliers_set.size();
+                    std::swap(reloc_result.info.candidates[0], reloc_result.info.candidates.back());
+                    std::swap(reloc_result.edges[0], reloc_result.edges.back());
                 }
+                reloc_result.info.is_relocalized = true;
+                is_relocalized_in_candidate = true;
             }
         }
         if (!inliers_set.size())
@@ -834,11 +825,31 @@ map_relocalization_info mapper::relocalize(const camera_frame_t& camera_frame) {
     }
 
 #if defined(RELOCALIZATION_DEBUG)
-    visual_debug::send(batch, reloc_info.is_relocalized);
+    visual_debug::send(batch, reloc_result.info.is_relocalized);
 #endif
 
 
-    return reloc_info;
+    return reloc_result;
+}
+
+bool mapper::link_map(const map_relocalization_edge& edge) {
+    const auto source_id = edge.id2;
+    return nodes.critical_section([&, source_id]() {
+        auto it = nodes->find(source_id);
+        if (it != nodes->end()) {
+            auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
+            auto is_node_searched = [this](const mapper::node_path& path) { return path.id < this->get_node_id_offset(); };
+            auto finish_search = [](const mapper::node_path&) { return false; };
+            auto loaded_map_nodes = dijkstra_shortest_path(mapper::node_path{source_id, it->second.global_transformation, 0},
+                                                           distance, is_node_searched, finish_search);
+            for(auto& loaded_map_node : loaded_map_nodes) {
+                nodes->at(loaded_map_node.id).global_transformation = loaded_map_node.G;
+            }
+            unlinked = false;
+            return true;
+        }
+        return false;
+    });
 }
 
 std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching_factor, int depth_levels) const {

@@ -61,7 +61,7 @@ struct filter {
     map_relocalization_info relocalization_info;
 
     std::unique_ptr<mapper> map;
-    future_every_n<map_relocalization_info, 60> relocalization_future;
+    future_every_n<map_relocalization_result, 60> relocalization_future;
 
 #ifdef ENABLE_QR
     qr_detector qr;
@@ -96,7 +96,8 @@ size_t filter_detect(struct filter *f, const sensor_data &data, const std::uniqu
 bool filter_compute_orb(struct filter *f, const sensor_data &data, camera_frame_t& camera_frame);
 void filter_compute_dbow(struct filter *f, camera_frame_t& camera_frame);
 void filter_update_map_index(struct filter *f);
-map_relocalization_info filter_relocalize(struct filter *f, const camera_frame_t& camera_frame);
+map_relocalization_result filter_relocalize(struct filter *f, const camera_frame_t& camera_frame);
+void filter_add_relocalization_edges(struct filter *f, const aligned_vector<map_relocalization_edge>& edges);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);
 bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data);
 bool filter_velocimeter_measurement(struct filter *f, const sensor_data & data);

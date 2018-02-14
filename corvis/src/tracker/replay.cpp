@@ -53,6 +53,9 @@ replay::replay(bool start_paused): is_paused(start_paused)
 
 bool replay::open(const char *name)
 {
+    const int buffer_bytes = 128*1024;
+    buffer = std::unique_ptr<char[]>(new char[buffer_bytes]);
+    file.rdbuf()->pubsetbuf(buffer.get(), buffer_bytes);
     file.open(name, ios::binary);
     if(!file.is_open())
     {

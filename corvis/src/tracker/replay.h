@@ -23,6 +23,7 @@ class replay
 private:
     std::ifstream file;
     std::ifstream::pos_type size;
+    std::unique_ptr<char[]> buffer;
     std::atomic<uint64_t> packets_dispatched{0};
     std::atomic<uint64_t> bytes_dispatched{0};
     std::mutex lengths_mutex;

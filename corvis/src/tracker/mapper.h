@@ -225,7 +225,7 @@ class mapper {
 public:
     concurrent<aligned_map<std::string,stage>> stages;
 
-    void set_stage(std::string &&name, nodeid closest_id, const transformation &Gr_closest_stage, const transformation &G_world_stage) {
+    void set_stage(std::string &&name, nodeid closest_id, const transformation &Gr_closest_stage) {
         stages.critical_section([&]() {
             (*stages)[std::move(name)] = stage{closest_id, Gr_closest_stage};
         });

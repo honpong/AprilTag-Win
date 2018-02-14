@@ -10,6 +10,7 @@
 #include "sensor_fusion.h"
 #include "filter.h"
 #include "priority.h"
+#include "rc_compat.h"
 #include "Trace.h"
 
 transformation sensor_fusion::get_transformation() const
@@ -260,15 +261,14 @@ void sensor_fusion::set_location(double latitude_degrees, double longitude_degre
     });
 }
 
-bool sensor_fusion::set_stage(const char *name_, const transformation &G_world_stage_) {
+bool sensor_fusion::set_stage(const char *name, const rc_Pose &G_world_stage) {
     if (!sfm.map)
         return false;
-    std::string name(name_); transformation G_world_stage = G_world_stage_;
-    queue.dispatch_async([this, &name, &G_world_stage]() {
+    queue.dispatch_async([this, name=std::string(name), G_world_stage]() mutable {
         uint64_t closest_id; transformation Gr_closest_now;
         if (sfm.s.get_closest_group_transformation(closest_id, Gr_closest_now)) {
-            transformation G_closest_stage = Gr_closest_now * invert(get_transformation()) * G_world_stage;
-            sfm.map->set_stage(std::move(name), closest_id, G_closest_stage, G_world_stage/*debugging*/);
+            transformation G_closest_stage = Gr_closest_now * invert(get_transformation()) * to_transformation(G_world_stage);
+            sfm.map->set_stage(std::move(name), closest_id, G_closest_stage);
         } else
             sfm.log->error("tried to create a stage when there were no closests!\n");
     });

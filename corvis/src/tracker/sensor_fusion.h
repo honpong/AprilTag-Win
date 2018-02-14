@@ -50,7 +50,7 @@ public:
      */
     void set_location(double latitude_degrees, double longitude_degrees, double altitude_meters);
 
-    bool set_stage(const char *name, const transformation &G_world_stage);
+    bool set_stage(const char *name, const rc_Pose &G_world_stage);
     bool get_stage(bool next, const char *name, mapper::stage::output &stage);
 
     //These may all run async

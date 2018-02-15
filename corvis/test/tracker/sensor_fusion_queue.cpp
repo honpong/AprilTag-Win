@@ -2,7 +2,7 @@
 #include "sensor_fusion_queue.h"
 #include "util.h"
 
-std::unique_ptr<fusion_queue> setup_queue(std::function<void(sensor_data && x)> dataf, fusion_queue::latency_strategy strategy, uint64_t max_latency_us)
+std::unique_ptr<fusion_queue> setup_queue(std::function<void(sensor_data && x)> dataf, fusion_queue::latency_strategy strategy, rc_Timestamp max_latency_us)
 {
     std::unique_ptr<fusion_queue> q = std::make_unique<fusion_queue>(dataf, strategy, std::chrono::microseconds(max_latency_us));
     q->require_sensor(rc_SENSOR_TYPE_IMAGE, 0, std::chrono::microseconds(0));
@@ -13,7 +13,7 @@ std::unique_ptr<fusion_queue> setup_queue(std::function<void(sensor_data && x)> 
     return q;
 }
 
-sensor_data depth16_for_time(uint64_t timestamp_us)
+sensor_data depth16_for_time(rc_Timestamp timestamp_us)
 {
     std::unique_ptr<void, void(*)(void *)> nothing{nullptr, nullptr};
     sensor_data d(timestamp_us, rc_SENSOR_TYPE_DEPTH, 0 /* id */,
@@ -24,7 +24,7 @@ sensor_data depth16_for_time(uint64_t timestamp_us)
     return d;
 }
 
-sensor_data gray8_for_time(uint64_t timestamp_us)
+sensor_data gray8_for_time(rc_Timestamp timestamp_us)
 {
     std::unique_ptr<void, void(*)(void *)> nothing{nullptr, nullptr};
     sensor_data d(timestamp_us, rc_SENSOR_TYPE_IMAGE, 0 /* id */,
@@ -34,21 +34,21 @@ sensor_data gray8_for_time(uint64_t timestamp_us)
     return d;
 }
 
-sensor_data accel_for_time(uint64_t timestamp_us)
+sensor_data accel_for_time(rc_Timestamp timestamp_us)
 {
     rc_Vector v = {};
     sensor_data d(timestamp_us, rc_SENSOR_TYPE_ACCELEROMETER, 0 /* id */, v);
     return d;
 }
 
-sensor_data gyro_for_time(uint64_t timestamp_us)
+sensor_data gyro_for_time(rc_Timestamp timestamp_us)
 {
     rc_Vector v = {};
     sensor_data d(timestamp_us, rc_SENSOR_TYPE_GYROSCOPE, 0 /* id */, v);
     return d;
 }
 
-sensor_data temp_for_time(uint64_t timestamp_us)
+sensor_data temp_for_time(rc_Timestamp timestamp_us)
 {
     float t = {};
     sensor_data d(timestamp_us, rc_SENSOR_TYPE_THERMOMETER, 0 /* id */, t);
@@ -119,7 +119,7 @@ TEST(SensorFusionQueue, RingBuffer)
 
 TEST(SensorFusionQueue, Reorder)
 {
-    uint64_t last_time = 0;
+    rc_Timestamp last_time = 0;
     auto dataf = [&last_time](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time);
         last_time = x.time_us;
@@ -149,15 +149,15 @@ TEST(SensorFusionQueue, Reorder)
     q->receive_sensor_data(gyro_for_time(50000));
 
     q->stop();
-    ASSERT_EQ(q->total_in, 18);
-    ASSERT_EQ(q->total_out, 18);
+    ASSERT_EQ(q->total_in, 18u);
+    ASSERT_EQ(q->total_out, 18u);
 }
 
 #include <iostream>
 
 TEST(SensorFusionQueue, FastCatchup)
 {
-    const uint64_t maximum_latency_us = 500000;
+    const rc_Timestamp maximum_latency_us = 500000;
 
     int camrcv = 0;
     int deprcv = 0;
@@ -265,18 +265,18 @@ TEST(SensorFusionQueue, FastCatchup)
 
 TEST(SensorFusionQueue, Threading)
 {
-    uint64_t last_cam_time = 0;
-    uint64_t last_dep_time = 0;
-    uint64_t last_acc_time = 0;
-    uint64_t last_gyr_time = 0;
-    uint64_t last_tmp_time = 0;
+    rc_Timestamp last_cam_time = 0;
+    rc_Timestamp last_dep_time = 0;
+    rc_Timestamp last_acc_time = 0;
+    rc_Timestamp last_gyr_time = 0;
+    rc_Timestamp last_tmp_time = 0;
     
     //Times in us
     //Thread time isn't really how long we'll spend since we just sleep for interval us
     auto thread_time = std::chrono::microseconds(100000);
     const sensor_clock::duration camera_interval = std::chrono::microseconds(66);
     const sensor_clock::duration inertial_interval = std::chrono::microseconds(20);
-    const uint64_t maximum_latency_us = 10;
+    const rc_Timestamp maximum_latency_us = 10;
     const sensor_clock::duration cam_latency = std::chrono::microseconds(10);
     const sensor_clock::duration in_latency = std::chrono::microseconds(2);
 
@@ -392,7 +392,7 @@ TEST(SensorFusionQueue, Threading)
 
 TEST(SensorFusionQueue, DropOrder)
 {
-    uint64_t last_time = 0;
+    rc_Timestamp last_time = 0;
     auto dataf = [&last_time](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time);
         last_time = x.time_us;
@@ -415,7 +415,7 @@ TEST(SensorFusionQueue, DropOrder)
 
 TEST(ThreadedDispatch, DropLate)
 {
-    uint64_t last_time = 0;
+    rc_Timestamp last_time = 0;
     auto dataf = [&last_time](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time);
         last_time = x.time_us;
@@ -461,7 +461,7 @@ TEST(SensorFusionQueue, SameTime)
     int gyrrcv = 0;
     int accrcv = 0;
     int tmprcv = 0;
-    uint64_t last_time = 0;
+    rc_Timestamp last_time = 0;
 
     auto dataf = [&last_time, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time);
@@ -504,7 +504,7 @@ TEST(SensorFusionQueue, MaxLatencyDispatch)
     int gyrrcv = 0;
     int accrcv = 0;
     int tmprcv = 0;
-    uint64_t last_time = 0;
+    rc_Timestamp last_time = 0;
 
     auto dataf = [&last_time, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time);
@@ -564,9 +564,9 @@ TEST(SensorFusionQueue, BufferNoDispatch)
     int gyrrcv = 0;
     int accrcv = 0;
     int tmprcv = 0;
-    uint64_t buffer_time_us = 50000;
-    uint64_t start_time_us = 1000000;
-    uint64_t last_time_us = 0;
+    rc_Timestamp buffer_time_us = 50000;
+    rc_Timestamp start_time_us = 1000000;
+    rc_Timestamp last_time_us = 0;
 
     auto dataf = [&last_time_us, &start_time_us, &buffer_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time_us);
@@ -587,7 +587,7 @@ TEST(SensorFusionQueue, BufferNoDispatch)
 
     q->start_buffering(std::chrono::microseconds(buffer_time_us));
 
-    uint64_t time_us;
+    rc_Timestamp time_us;
     for(time_us = 0; time_us < start_time_us; time_us += 2000) {
         q->receive_sensor_data(gyro_for_time(time_us));
         q->receive_sensor_data(accel_for_time(time_us));
@@ -610,10 +610,10 @@ TEST(SensorFusionQueue, Buffering)
     int gyrrcv = 0;
     int accrcv = 0;
     int tmprcv = 0;
-    uint64_t buffer_time_us = 50'000; //'
-    uint64_t start_time_us = 1'000'000;
-    uint64_t last_time_us = 0;
-    uint64_t extra_time_us = 100'000; //'
+    rc_Timestamp buffer_time_us = 50'000; //'
+    rc_Timestamp start_time_us = 1'000'000;
+    rc_Timestamp last_time_us = 0;
+    rc_Timestamp extra_time_us = 100'000; //'
 
     auto dataf = [&last_time_us, &start_time_us, &buffer_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv](sensor_data && x) {
         EXPECT_GE(x.time_us, start_time_us - buffer_time_us);
@@ -635,7 +635,7 @@ TEST(SensorFusionQueue, Buffering)
 
     q->start_buffering(std::chrono::microseconds(buffer_time_us));
 
-    uint64_t time_us;
+    rc_Timestamp time_us;
     int packets = 0;
     for(time_us = 0; time_us <= start_time_us; time_us += 2000) {
         q->receive_sensor_data(gyro_for_time(time_us));

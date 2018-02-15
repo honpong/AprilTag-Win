@@ -111,13 +111,14 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                 const bool compute_descriptors_now = relocalize_now ||
                         (sfm.map && (sfm.save_map || sfm.relocalize) && new_group_created);
 
-                if (sfm.s.cameras.children[data.id]->detecting_space || compute_descriptors_now) {
+                state_camera& camera = *sfm.s.cameras.children[data.id];
+                if (camera.detecting_space || compute_descriptors_now) {
                     std::unique_ptr<camera_frame_t> camera_frame;
                     if (compute_descriptors_now)
                         camera_frame = filter_create_camera_frame(&sfm, data);
 
                     auto start = std::chrono::steady_clock::now();
-                    sfm.s.cameras.children[data.id]->detected = filter_detect(&sfm, data, camera_frame);
+                    camera.detected = filter_detect(&sfm, data, camera_frame);
                     auto stop = std::chrono::steady_clock::now();
                     queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 

@@ -285,6 +285,16 @@ void mapper::set_node_transformation(nodeid id, const transformation & G)
     });
 }
 
+void mapper::set_node_frame(nodeid id, std::shared_ptr<frame_t> frame) {
+    nodes.critical_section([&]() {
+        auto it = nodes->find(id);
+        if (it != nodes->end()) {
+            assert(!it->second.frame);
+            it->second.frame = frame;
+        }
+    });
+}
+
 void mapper::finish_node(nodeid id, bool compute_dbow_inverted_index) {
     auto& node = nodes->at(id);
     nodes.critical_section([&]() {

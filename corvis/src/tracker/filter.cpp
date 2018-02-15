@@ -677,9 +677,7 @@ void filter_compute_dbow(struct filter *f, camera_frame_t& camera_frame)
 
 void filter_assign_frame(struct filter *f, const camera_frame_t& camera_frame)
 {
-    map_node& node = f->map->get_node(camera_frame.closest_node);
-    assert(!node.frame);
-    node.frame = camera_frame.frame;
+    f->map->set_node_frame(camera_frame.closest_node, camera_frame.frame);
 }
 
 void filter_update_map_index(struct filter *f)

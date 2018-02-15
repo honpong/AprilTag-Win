@@ -21,7 +21,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU|Intel")
    add_compile_options(-Wall -Wextra)
    add_compile_options(-Wunreachable-code  -Wunused-macros)
    if(NOT CMAKE_GENERATOR STREQUAL "Xcode")
-      add_compile_options(-Wdeprecated -Wfloat-equal -Wswitch-enum)
+      add_compile_options(-Wdeprecated -Wswitch-enum)
    endif()
    #add_compile_options(-Wweak-vtables -Wcast-align -Wextra-semi -Wdouble-promotion) # noisy, but should be considered in the future
    add_compile_options(-Wno-missing-field-initializers -Wno-unused-parameter) # TODO: components of -Wextra that are not clean yet

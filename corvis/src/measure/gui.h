@@ -52,9 +52,9 @@ private:
 
     float plot_scale = 1;
 
-    std::atomic<rc_Sensor> current_camera{0};
-    std::atomic<rc_Sensor> current_debug{0};
-    std::atomic<rc_Sensor> current_depth{0};
+    std::atomic<size_t> current_camera{0};
+    std::atomic<size_t> current_debug{0};
+    std::atomic<size_t> current_depth{0};
     std::atomic<size_t> current_plot{0};
     std::atomic<size_t> current_plot_key{(size_t)-1};
 

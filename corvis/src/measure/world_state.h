@@ -17,7 +17,7 @@ typedef struct _VertexData {
 
 typedef struct _feature {
     rc_Feature feature;
-    uint64_t last_seen;
+    rc_Timestamp last_seen;
     int times_seen;
     float cx, cy, ctheta;
     bool good;
@@ -29,13 +29,13 @@ typedef struct _feature {
 
 typedef struct _position {
     transformation g;
-    uint64_t timestamp;
+    rc_Timestamp timestamp;
 } Position;
 
 typedef struct _ImageData {
     uint8_t * image;
     int width, height;
-    uint64_t timestamp;
+    rc_Timestamp timestamp;
     bool luminance;
 } ImageData;
 
@@ -83,7 +83,7 @@ typedef struct _virtual_object {
             const state_vision_intrinsics* intrinsics);
 } VirtualObject;
 
-typedef std::pair<uint64_t, float> plot_item;
+typedef std::pair<rc_Timestamp, float> plot_item;
 typedef std::list<plot_item > plot_data;
 
 class replay_output;
@@ -112,16 +112,16 @@ private:
     std::vector<Position, Eigen::aligned_allocator<Position> > path;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_mini;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_gt;
-    uint64_t current_feature_timestamp{0};
-    uint64_t current_timestamp{0};
+    rc_Timestamp current_feature_timestamp{0};
+    rc_Timestamp current_timestamp{0};
     void build_grid_vertex_data();
     void generate_feature_ellipse(const Feature & feat, std::vector<VertexData> & feature_ellipse_vertex, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
     void generate_innovation_line(const Feature &feat, std::vector<VertexData> &feature_residual_vertex, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
 
-    void update_current_timestamp(const uint64_t & timestamp);
+    void update_current_timestamp(const rc_Timestamp & timestamp);
     void update_plots(rc_Tracker * tracker, const rc_Data * data);
     void update_sensors(rc_Tracker * tracker, const rc_Data * data);
-    void update_map(rc_Tracker * tracker, uint64_t timestamp_us);
+    void update_map(rc_Tracker * tracker, rc_Timestamp timestamp_us);
     void update_relocalization(rc_Tracker * tracker, const rc_Data * data);
 
     size_t get_plot_by_name(std::string plot_name);
@@ -156,7 +156,7 @@ public:
     float up[3] = {0,0,1};
     float ate = 0;
 
-    uint64_t max_plot_history_us = 30e6;
+    rc_Timestamp max_plot_history_us = 30e6;
 
     world_state();
     ~world_state();
@@ -171,24 +171,24 @@ public:
     void observe_world(float world_up_x, float world_up_y, float world_up_z,
                        float world_forward_x, float world_forward_y, float world_forward_z,
                        float body_forward_x, float body_forward_y, float body_forward_z);
-    void observe_feature(uint64_t timestamp, rc_Sensor camera_id, const rc_Feature & feature);
-    void observe_position(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz, bool fast);
-    void observe_position_gt(uint64_t timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
-    void observe_plot_item(uint64_t timestamp_us, size_t plot_index, std::string plot_name, float value);
-    void observe_image(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data, std::vector<overlay_data> &cameras);
-    void observe_depth(uint64_t timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data);
-    void observe_depth_overlay_image(uint64_t timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
-    void observe_map_node(uint64_t timestamp, uint64_t node_id, bool finished, bool unlinked, const transformation& position, std::vector<Neighbor>&& neighbors, std::vector<Feature>& features);
-    void observe_ate(uint64_t timestamp_us, const float absolute_trajectory_error);
-    void observe_rpe(uint64_t timestamp_us, const float relative_pose_error);
-    void observe_position_reloc(uint64_t timestamp, const rc_Pose* poses, size_t nposes);
-    void observe_virtual_object(uint64_t timestamp, const std::string& uuid, const rc_Pose& pose);
+    void observe_feature(rc_Timestamp timestamp, rc_Sensor camera_id, const rc_Feature & feature);
+    void observe_position(rc_Timestamp timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz, bool fast);
+    void observe_position_gt(rc_Timestamp timestamp_us, float x, float y, float z, float qw, float qx, float qy, float qz);
+    void observe_plot_item(rc_Timestamp timestamp_us, size_t plot_index, std::string plot_name, float value);
+    void observe_image(rc_Timestamp timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data, std::vector<overlay_data> &cameras);
+    void observe_depth(rc_Timestamp timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data);
+    void observe_depth_overlay_image(rc_Timestamp timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
+    void observe_map_node(rc_Timestamp timestamp, uint64_t node_id, bool finished, bool unlinked, const transformation& position, std::vector<Neighbor>&& neighbors, std::vector<Feature>& features);
+    void observe_ate(rc_Timestamp timestamp_us, const float absolute_trajectory_error);
+    void observe_rpe(rc_Timestamp timestamp_us, const float relative_pose_error);
+    void observe_position_reloc(rc_Timestamp timestamp, const rc_Pose* poses, size_t nposes);
+    void observe_virtual_object(rc_Timestamp timestamp, const std::string& uuid, const rc_Pose& pose);
     std::string get_feature_stats();
     float get_feature_lifetime();
     int get_feature_depth_measurements();
 
     void get_bounding_box(float min[3], float max[3]);
-    uint64_t get_current_timestamp();
+    rc_Timestamp get_current_timestamp();
 
     void reset() {
         display_lock.lock();

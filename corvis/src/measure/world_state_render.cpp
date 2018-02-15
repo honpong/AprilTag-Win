@@ -178,7 +178,7 @@ static void create_plot(world_state * state, size_t plot_index, size_t key_index
         gr.Alpha(false);
         gr.Clf('w');
         gr.SubPlot(1,1,0,"T");
-        uint64_t mint = std::numeric_limits<uint64_t>::max(), maxt = std::numeric_limits<uint64_t>::min();
+        rc_Timestamp mint = std::numeric_limits<rc_Timestamp>::max(), maxt = std::numeric_limits<rc_Timestamp>::min();
         float miny = std::numeric_limits<float>::max(), maxy = std::numeric_limits<float>::min();
         std::string names;
         const char *colors[] = {"r","g","b"};
@@ -192,7 +192,7 @@ static void create_plot(world_state * state, size_t plot_index, size_t key_index
             //    continue;
 
             for(auto data : kvi->second) {
-                uint64_t t = data.first;
+                rc_Timestamp t = data.first;
                 if(t < mint) mint = t;
                 if(t > maxt) maxt = t;
 

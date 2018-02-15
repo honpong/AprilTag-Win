@@ -132,11 +132,11 @@ static void update_image_size(const rc_ImageData & src, ImageData & dst)
     dst.luminance = src_luminance;
 }
 
-void world_state::observe_image(uint64_t timestamp, rc_Sensor camera_id, const rc_ImageData &data,
+void world_state::observe_image(rc_Timestamp timestamp, rc_Sensor camera_id, const rc_ImageData &data,
                                 std::vector<overlay_data> &cameras)
 {
     image_lock.lock();
-    if(cameras.size() < camera_id+1)
+    if(cameras.size() < (size_t)camera_id+1)
         cameras.resize(camera_id+1);
 
     ImageData & image = cameras[camera_id].image;
@@ -151,11 +151,11 @@ void world_state::observe_image(uint64_t timestamp, rc_Sensor camera_id, const r
 
 #define MAX_DEPTH 8191
 
-void world_state::observe_depth(uint64_t timestamp, rc_Sensor camera_id, const rc_ImageData & data)
+void world_state::observe_depth(rc_Timestamp timestamp, rc_Sensor camera_id, const rc_ImageData & data)
 {
     depth_lock.lock();
 
-    if(depths.size() < camera_id+1)
+    if(depths.size() < (size_t)camera_id+1)
         depths.resize(camera_id+1);
 
     ImageData & image = depths[camera_id];
@@ -1069,7 +1069,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                     set_color(&v, vo.rgba[0], vo.rgba[1], vo.rgba[2], vo.rgba[3]);
                     vertices.emplace_back(v);
                 }
-                for(int i = 0; i < axis_vertex.size(); i += 2) {
+                for(size_t i = 0; i < axis_vertex.size(); i += 2) {
                     auto& a = axis_vertex[i];
                     auto& b = axis_vertex[i+1];
                     projection = vo.project_axis({a.position[0], a.position[1], a.position[2]},

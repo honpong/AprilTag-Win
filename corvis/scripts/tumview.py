@@ -45,7 +45,10 @@ def read_tum(filename) :
             continue
         device_id = 0
         if len(data) > 8:
-            device_id = int(data[8])
+            try:
+                device_id = int(data[8])
+            except ValueError:
+                device_id = 0
         if (device_id in d.keys()) == False:
             d[device_id] = { TIME: [], X:[], Y:[], Z:[], D:[] }
 

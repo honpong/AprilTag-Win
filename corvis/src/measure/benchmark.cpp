@@ -7,6 +7,10 @@
 #include <iomanip>
 #include <cmath>
 #include <sstream>
+#ifdef _MSC_VER
+#include <BaseTsd.h>
+typedef SSIZE_T ssize_t;
+#endif
 
 template <typename T, bool add_front = false, bool add_back = false>
 struct histogram { // follows the semantics of numpy.histogram
@@ -69,10 +73,10 @@ static inline std::ostream& operator<<(std::ostream &stream, const histogram<T, 
             stream << (i ? "\t" : "") << h.bins[i];
     }
     if (add_front) {
-        for (int i=h.bins.size(); i>0; i--)
+        for (ssize_t i=h.bins.size(); i>0; i--)
             stream << (i<h.bins.size() ? "\t" : "") << h.edges[i] << h.bin_units;
         stream <<  "-" << "\n";
-        for (int i=h.bins.size()-1; i>=0; i--)
+        for (ssize_t i=h.bins.size()-1; i>=0; i--)
             stream << (i<h.bins.size()-1 ? "\t" : "") << h.bins[i];
     }
     size_t score = 0;

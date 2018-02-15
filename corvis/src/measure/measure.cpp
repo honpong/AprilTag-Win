@@ -41,7 +41,7 @@ int main(int c, char **v)
 
     bool realtime = false, start_paused = false, benchmark = false, calibrate = false, zero_bias = false, fast_path = true, async = false, progress = false;
     const char *save = nullptr, *load = nullptr;
-    std::string save_map, load_map;
+    const char *save_map = nullptr, *load_map = nullptr;
     bool qvga = false, depth = true; int qres = 0;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     bool enable_map = true;
@@ -104,7 +104,7 @@ int main(int c, char **v)
         if(!depth) rp.disable_depth();
         if(odometry) rp.enable_odometry();
         if(realtime) rp.enable_realtime();
-        if(enable_map) rp.start_mapping(relocalize, !save_map.empty());
+        if(enable_map) rp.start_mapping(relocalize, save_map != nullptr);
         if(fast_path) rp.enable_fast_path();
         if(async) rp.enable_async();
 
@@ -156,7 +156,7 @@ int main(int c, char **v)
             std::cout << "\t RPE translation [m]:\n";
             std::cout << res.errors.rpe_T << "\n";
             std::cout << "\t RPE rotation [deg]:\n";
-            std::cout << res.errors.rpe_R*(180.f/M_PI) << "\n";
+            std::cout << res.errors.rpe_R*(f_t)(180/M_PI) << "\n";
         }
         if (res.errors.calculate_precision_recall()) {
             std::cout << "Relocalization Statistics :\n";
@@ -165,14 +165,14 @@ int main(int c, char **v)
             std::cout << "\t translation RPE [m]:\n";
             std::cout << res.errors.reloc_rpe_T << "\n";
             std::cout << "\t rotation RPE [deg]:\n";
-            std::cout << res.errors.reloc_rpe_R*(180.f/M_PI) << "\n";
+            std::cout << res.errors.reloc_rpe_R*(f_t)(180/M_PI) << "\n";
             std::cout << "\t time between relocalizations [sec]:\n";
             std::cout << res.errors.reloc_time_sec << "\n";
         }
 
         if(rc_getConfidence(rp.tracker) >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
             std::cout << "Updating " << rp.calibration_file << "\n";
-            rp.save_calibration(rp.calibration_file);
+            rp.save_calibration(rp.calibration_file.c_str());
         }
         else
             std::cout << "Respected " << rp.calibration_file << "\n";
@@ -320,12 +320,9 @@ int main(int c, char **v)
     std::cout << ws.get_feature_stats();
 #endif
 
-    if (!save_map.empty()) {
-        rp.save_map(save_map);
-    }
+    if (save_map) rp.save_map(save_map);
 
-    if (save)
-        rp.save_calibration(save);
+    if (save) rp.save_calibration(save);
 
     std::cout << rc_getTimingStats(rp.tracker);
     print_results(rp,res,filename);

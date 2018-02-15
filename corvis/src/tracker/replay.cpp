@@ -108,8 +108,10 @@ bool replay::load_internal_calibration(const std::string &filename)
     return true;
 }
 
-bool replay::load_calibration(const std::string &filename)
+bool replay::load_calibration(const char *filename)
 {
+    if (!filename) return false;
+
     ifstream file_handle(filename);
     if(file_handle.fail())
         return false;
@@ -123,8 +125,9 @@ bool replay::load_calibration(const std::string &filename)
     return true;
 }
 
-bool replay::save_calibration(const std::string &filename)
+bool replay::save_calibration(const char *filename)
 {
+    if (!filename) return false;
     const char * buffer = nullptr;
     size_t bytes = rc_getCalibration(tracker, &buffer);
 
@@ -139,11 +142,11 @@ bool replay::save_calibration(const std::string &filename)
 bool replay::set_calibration_from_filename(const char *filename)
 {
     string fn(filename), json;
-    if(!load_calibration(json = fn + ".json")) {
+    if(!load_calibration((json = fn + ".json").c_str())) {
         auto found = fn.find_last_of("/\\");
         string path = fn.substr(0, found+1);
         if(!load_internal_calibration(filename) &&
-           !load_calibration(json = path + "calibration.json"))
+           !load_calibration((json = path + "calibration.json").c_str()))
             return false;
     }
     return true;
@@ -212,10 +215,10 @@ void replay::setup_filter()
     rc_startTracker(tracker, (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) | (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
 }
 
-void replay::start(string map_filename)
+void replay::start(const char *map_filename)
 {
     setup_filter();
-    if (!map_filename.empty())
+    if (map_filename)
         load_map(map_filename);
     is_running = true;
     path_length = 0;
@@ -533,8 +536,9 @@ size_t load_map_callback(void * handle, void *buffer, size_t length)
     return substr.size();
 }
 
-bool replay::load_map(string filename)
+bool replay::load_map(const char *filename)
 {
+    if (!filename) return false;
     ifstream file_handle(filename, ios_base::binary);
     if(file_handle.fail())
         return false;
@@ -555,7 +559,7 @@ void save_map_callback(void *handle, const void *buffer, size_t length)
     out->write((const char *)buffer, length);
 }
 
-void replay::save_map(string filename)
+void replay::save_map(const char *filename)
 {
     std::ofstream out(filename, ios_base::binary);
     rc_saveMap(tracker, save_map_callback, &out);

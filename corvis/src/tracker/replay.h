@@ -57,7 +57,7 @@ private:
     bool find_reference_in_filename(const std::string &filename);
     bool load_reference_from_pose_file(const std::string &filename);
     bool load_internal_calibration(const std::string &filename);
-    bool load_map(std::string filename);
+    bool load_map(const char *filename);
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -66,8 +66,8 @@ public:
     ~replay() { rc_destroy(tracker); }
     bool open(const char *filename);
     std::string calibration_file;
-    bool load_calibration(const std::string &filename);
-    bool save_calibration(const std::string &filename);
+    bool load_calibration(const char *filename);
+    bool save_calibration(const char *filename);
     bool set_calibration_from_filename(const char *filename);
     void setup_filter();
     void set_progress_callback(std::function<void (float)> progress_callback) { this->progress_callback = progress_callback; }
@@ -83,7 +83,7 @@ public:
     void decimate_accel(std::chrono::microseconds interval) { accel_decimate = true; accel_interval = interval; }
     void decimate_gyro(std::chrono::microseconds interval) { gyro_decimate = true; gyro_interval = interval; }
     void decimate_images(std::chrono::microseconds interval) { image_decimate = true; image_interval = interval; }
-    void start(std::string map_filename = std::string());
+    void start(const char *map_filename);
     void stop();
     void reset() { should_reset = true; }
     void toggle_pause() { is_paused = !is_paused; }
@@ -102,7 +102,7 @@ public:
     bool set_reference_from_filename(const std::string &filename);
     void zero_biases();
     void start_mapping(bool relocalize, bool save_map) { rc_startMapping(tracker, relocalize, save_map); }
-    void save_map(std::string filename);
+    void save_map(const char *filename);
     const tpose_sequence& get_reference_poses() const { return *reference_seq; }
     void set_stage();
 };

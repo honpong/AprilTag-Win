@@ -519,10 +519,9 @@ void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)
                   f->s.body_forward[0], f->s.body_forward[1], f->s.body_forward[2]);
 }
 
-void world_state::update_map(rc_Tracker * tracker, const rc_Data * data)
+void world_state::update_map(rc_Tracker * tracker, uint64_t timestamp_us)
 {
     const struct filter * f = &((sensor_fusion *)tracker)->sfm;
-    uint64_t timestamp_us = data->time_us;
 
     if(f->map) {
         const auto& nodes = f->map->get_nodes();
@@ -584,11 +583,13 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
 
     switch(data->type) {
         case rc_SENSOR_TYPE_DEBUG:
+            {
             if (data->debug.message)
                 std::cout << "debug(" << data->id << "): " << data->debug.message << "\n";
             if (data->debug.erase_previous_debug_images)
                 debug_cameras.clear();
             observe_image(timestamp_us, data->id, data->debug.image, debug_cameras);
+            }
             break;
         case rc_SENSOR_TYPE_IMAGE:
 
@@ -621,13 +622,13 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
 
             // Map update is slow and loop closure checks only happen
             // on images, so only update on image updates
-            update_map(tracker, data);
+            update_map(tracker, data->time_us);
             update_relocalization(tracker, data);
             }
             break;
 
         case rc_SENSOR_TYPE_DEPTH:
-
+            {
             if(f->has_depth) {
                 observe_depth(timestamp_us, data->id, data->depth);
 
@@ -637,6 +638,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
                     observe_depth_overlay_image(sensor_clock::tp_to_micros(depth_overlay->timestamp), depth_overlay->image, depth_overlay->width, depth_overlay->height, depth_overlay->stride);
                 }
 #endif
+            }
             }
             break;
 
@@ -802,7 +804,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         //auto feature_id = item.first;
         auto f = item.second;
         VertexData v, vp;
-        if (f.last_seen == cameras[f.camera_id].image.timestamp) {
+        if (cameras.size() && f.last_seen == cameras[f.camera_id].image.timestamp) {
             if(f.depth_measured) {
                 generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 247, 247, 98, 255);
                 set_color(&v, 247, 247, 98, 255);
@@ -831,6 +833,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                 set_color(&vp, 247, 88, 98, 255);
             }
             generate_innovation_line(f,cameras[f.camera_id].feature_residual_vertex, 1, 130, 220, 255);
+            cameras[f.camera_id].feature_projection_vertex.push_back(vp);
         }
         else {
             if (show_only_good && !f.good)
@@ -839,7 +842,6 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         }
         set_position(&v, f.feature.world.x, f.feature.world.y, f.feature.world.z);
         feature_vertex.push_back(v);
-        cameras[f.camera_id].feature_projection_vertex.push_back(vp);
     }
 
     path_vertex.clear();

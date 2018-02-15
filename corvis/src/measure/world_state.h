@@ -120,7 +120,7 @@ private:
     void update_current_timestamp(const uint64_t & timestamp);
     void update_plots(rc_Tracker * tracker, const rc_Data * data);
     void update_sensors(rc_Tracker * tracker, const rc_Data * data);
-    void update_map(rc_Tracker * tracker, const rc_Data * data);
+    void update_map(rc_Tracker * tracker, uint64_t timestamp_us);
     void update_relocalization(rc_Tracker * tracker, const rc_Data * data);
 
     size_t get_plot_by_name(std::string plot_name);

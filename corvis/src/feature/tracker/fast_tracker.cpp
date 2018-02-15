@@ -49,7 +49,7 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
     feature_points.clear();
     feature_points.reserve(number_desired);
 
-    auto need = static_cast<size_t>(number_desired * 2.3f);
+    auto need = static_cast<size_t>(number_desired * 3.2f);
     features.clear();
     features.reserve(need+1);
     int x, y, mx, my, x1, y1, x2, y2;

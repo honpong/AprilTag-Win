@@ -1,24 +1,15 @@
-/********************************************************************************
-
-INTEL CORPORATION PROPRIETARY INFORMATION This software is supplied under the
-terms of a license agreement or nondisclosure agreement with Intel Corporation
-and may not be copied or disclosed except in accordance with the terms of that
-agreement.
-Copyright(c) 2016-2017 Intel Corporation. All Rights Reserved.
-
-*********************************************************************************/
-
 #pragma once
 
 #include <array>
 #include <tuple>
 #include <vector>
 #include <memory>
+#include <algorithm>
 #include <string.h>
-#include <rc_tracker.h>
-#include "transformation.h"
+#include "rc_tracker.h"
 
 #define STREAM_BUFFER_SIZE 10240 //a reasonable compromise of file i/o vs. memory consumption
+class host_stream;
 
 template <typename T>
 struct is_std_pair : std::false_type { };
@@ -264,5 +255,113 @@ private:
     bstream_reader() = delete;
 };
 
-bstream_reader & operator >> (bstream_reader & cur_stream, transformation &transform);
-bstream_writer & operator << (bstream_writer & cur_stream, const transformation &transform);
+size_t mem_load_callback(void * handle, void *buffer, size_t length);
+
+class pose_feature_output {
+public:
+    const rc_PoseTime &rc_getPose(rc_DataPath path, rc_PoseVelocity *v = nullptr,
+        rc_PoseAcceleration *a = nullptr) const;
+    void rc_setPose(rc_DataPath path, const rc_PoseTime &&pt, const rc_PoseVelocity *v = nullptr,
+        const rc_PoseAcceleration *a = nullptr);
+    /// reuse the memory pointed to by parameter feat, hence memory must remain valid.
+    void rc_setFeatures(rc_Feature *feat, uint32_t num_feat);
+    void rc_resetFeatures();
+    /// if replay_output object is brought up from a stream, features are available up to max_save_features.
+    uint32_t rc_getFeatures(rc_Feature **feat) const;
+    typedef enum class output_mode { POSE_ONLY = 0, POSE_FEATURE = 1 } output_mode;
+    bool set_data(bstream_reader &cur_stream);
+    size_t get_data(bstream_writer &cur_stream) const;
+    size_t get_feature_size() const;
+    virtual ~pose_feature_output() {};
+protected:
+    output_mode output_type{ output_mode::POSE_ONLY };
+    struct {
+        struct rc_PoseOutput {
+            rc_PoseTime pose_time;
+            rc_PoseVelocity veloc;
+            rc_PoseAcceleration accel;
+        } fast, slow;
+    } poses;
+private:
+    /// re-use pointer to features by rc_tracker, is mutually exclusive with features.
+    rc_Feature * reuse_features_ptr{ nullptr };
+    /// allocated pointer to hold features, mutually exclusive with reuse_features_ptr.
+    std::unique_ptr<rc_Feature[]> features;
+    uint32_t num_features{ 0 }, max_save_features{ 30 };
+};
+
+/// holds tracking output that includes camera poses, pose velocity, pose acceleration, and confidence,
+/// (traveled) path length and timestamp, type, data path of the sensor data associated with the pose.
+/// It optionally includes features detected on the camera input.
+class replay_output: public pose_feature_output {
+public:
+    host_stream *host{ nullptr }; /// variable used if device and host are in the same memory system.
+    rc_Tracker *tracker{ nullptr };  /// variable used if device and host are in the same memory system.
+
+    void(*on_track_output)(const replay_output *output, const rc_Data *data) { nullptr };
+
+    replay_output();
+    size_t get_buffer_size() const;
+    /// if enable output of features, a maximum of max_save_features is saved and loaded.
+    bool get(void **data, size_t *size) const;
+    bool set(void *data, size_t size);
+    void set_pose_output(const replay_output &other);
+    output_mode get_output_type() const { return pose_feature_output::output_type; }
+    void set_output_type(output_mode type);
+
+    rc_Timestamp sensor_time_us{ 0 };
+    rc_SensorType sensor_type{ rc_SENSOR_TYPE_GYROSCOPE };
+    float path_length{ 0 };
+    rc_DataPath data_path{ rc_DATA_PATH_SLOW };
+    int8_t confidence{ 0 };
+    void print_pose(uint8_t data_path) const;
+
+    class bstream_buffer {
+    public:
+        bstream_buffer(size_t pos_, size_t len_, void *data) : position(pos_), length(len_), content(data) {};
+        bstream_buffer(size_t pos_, size_t len_, std::unique_ptr<void, decltype(&free)> &data) : position(pos_), length(len_),
+            unique_content(&data) {
+            content = unique_content->get();
+        };
+
+        size_t copy_to(void *buffer, size_t length_) {
+            size_t copy_size = std::min(length_, length - position);
+            memcpy(buffer, (char *)content + position, copy_size);
+            position += copy_size;
+            return copy_size;
+        }
+
+        void copy_from(const void *buffer, size_t length_) {
+            if (length_ > length - position)
+                resize((size_t)(std::max(position + length_ * 1.2, length * 1.2)));
+            memcpy((char *)content + position, buffer, length_);
+            position += length_;
+        }
+
+        size_t get_length() { return length; }
+    private:
+        size_t position;
+        size_t length;
+        void *content{ nullptr };
+        std::unique_ptr<void, decltype(&free)> *unique_content{ nullptr };
+        bstream_buffer() = delete;
+        void resize(size_t new_length) {
+            length = new_length;
+            content = realloc(content, new_length);
+            if (unique_content) {
+                unique_content->release();
+                *unique_content = { content, free };
+            }
+        }
+    };
+
+private:
+    mutable size_t buffer_size{ 0 }; /// size of buffer to hold persistence data
+    mutable std::unique_ptr<void, decltype(&free)> write_buffer{ nullptr, free }; /// buffer used for writing out to memory
+    std::unique_ptr<char, decltype(&free)> packet_header; /// dummy header to reserve space in streaming packet
+
+    bool set_data(bstream_buffer &&pos);
+    size_t get_data(bstream_buffer &&pos) const;
+    size_t get_data(bstream_buffer &pos) const { return get_data(std::move(pos)); }
+    replay_output& operator=(const replay_output &other) = delete;
+};

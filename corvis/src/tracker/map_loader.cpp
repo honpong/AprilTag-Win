@@ -13,8 +13,13 @@ Copyright(c) 2016-2017 Intel Corporation. All Rights Reserved.
 #include "map_loader.h"
 #include "state_vision.h"
 
-
 using namespace std;
+
+static bstream_reader & operator >> (bstream_reader & cur_stream, transformation &transform) {
+    cur_stream >> transform.T[0] >> transform.T[1] >> transform.T[2];
+    cur_stream >> transform.Q.w() >> transform.Q.x() >> transform.Q.y() >> transform.Q.z();
+    return cur_stream;
+}
 
 typedef class map_node_t<map_feature_v1, map_edge_v1, frame_t> map_node_v1;
 typedef class mapper_t<map_node_t, map_feature_v1, map_edge_v1, frame_t> mapper_v1;

@@ -86,6 +86,7 @@ typedef struct _virtual_object {
 typedef std::pair<uint64_t, float> plot_item;
 typedef std::list<plot_item > plot_data;
 
+class replay_output;
 class world_state
 {
 public:
@@ -120,7 +121,7 @@ private:
     void update_current_timestamp(const uint64_t & timestamp);
     void update_plots(rc_Tracker * tracker, const rc_Data * data);
     void update_sensors(rc_Tracker * tracker, const rc_Data * data);
-    void update_map(rc_Tracker * tracker, const rc_Data * data);
+    void update_map(rc_Tracker * tracker, uint64_t timestamp_us);
     void update_relocalization(rc_Tracker * tracker, const rc_Data * data);
 
     size_t get_plot_by_name(std::string plot_name);
@@ -164,7 +165,7 @@ public:
     size_t change_plot(size_t plot_index);
     size_t change_plot_key(size_t plot_index, size_t key_index);
 
-    void rc_data_callback(rc_Tracker * tracker, const rc_Data * data);
+    void rc_data_callback(const replay_output *output, const rc_Data * data);
     void observe_sensor(int sensor_type, uint16_t sensor_id, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_camera_intrinsics(uint16_t sensor_id, const state_vision_intrinsics& intrinsics);
     void observe_world(float world_up_x, float world_up_y, float world_up_z,

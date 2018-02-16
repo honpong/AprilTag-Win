@@ -9,6 +9,7 @@ Copyright(c) 2017-2018 Intel Corporation. All Rights Reserved.
 *********************************************************************************/
 
 #include <queue>
+#include <list>
 #include <unordered_set>
 #include <unordered_map>
 #include "gtest/gtest.h"

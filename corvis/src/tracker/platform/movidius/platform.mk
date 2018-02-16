@@ -15,7 +15,7 @@ SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/corvis/src/tracker/, \
     calibration_json.cpp \
     sensor_fusion.cpp \
     capture.cpp \
-    replay.cpp \
+    replay_device.cpp \
     bstream.cpp \
     feature_descriptor.cpp \
     mapper.cpp \
@@ -24,6 +24,7 @@ SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/corvis/src/tracker/, \
     transformation.cpp \
     map_loader.cpp \
 )
+SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/tracker/platform/shell/sensor_clock.cpp
 SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/feature_tracker.cpp
 SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/scaled_mask.cpp
 SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/fast_tracker.cpp
@@ -60,6 +61,7 @@ SLAM_CCOPT   := \
 	-Idummy \
 	-I$(SLAM_PLATFORM_PREFIX) \
 	-I$(SLAM_PLATFORM_PREFIX)/leon/ \
+	-I$(SLAM_PREFIX)/corvis/src/tracker/platform \
 	-I$(SLAM_PREFIX)/corvis/src/tracker/platform/movidius/ \
 	-I$(SLAM_PREFIX)/corvis/src/tracker \
 	-I$(SLAM_PREFIX)/corvis/src/feature/descriptor \

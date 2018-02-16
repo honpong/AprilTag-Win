@@ -560,6 +560,11 @@ RCTRACKER_API rc_TrackerError rc_getError(const rc_Tracker *tracker);
 RCTRACKER_API int rc_getRelocalizationEdges(rc_Tracker* tracker, rc_Timestamp *source, rc_RelocEdge **edges);
 RCTRACKER_API int rc_getRelocalizationPoses(rc_Tracker* tracker, rc_Pose **poses);
 RCTRACKER_API int rc_getMapNodes(rc_Tracker* tracker, rc_MapNode **mapnodes_timestamps);
+/**
+.Returns total length of the travelling path.
+@param tracker The active rc_Tracker instance
+*/
+RCTRACKER_API float rc_getPathLength(rc_Tracker* tracker);
 
 /**
  Returns a string with statistics on sensor timing

@@ -1,79 +1,120 @@
-#include <math.h>
-#include <signal.h>  // capture sigint
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <getopt.h>
-#include <cinttypes>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <thread>
-#include "packet.h"
-#include "usb_host.h"
+/********************************************************************************
 
-static std::thread thread_6dof, thread_replay;
-static bool        enable_replay = false;
-static char *      replay_filename;
-static FILE *      replay_file        = nullptr;
+INTEL CORPORATION PROPRIETARY INFORMATION This software is supplied under the
+terms of a license agreement or nondisclosure agreement with Intel Corporation
+and may not be copied or disclosed except in accordance with the terms of that
+agreement.
+Copyright(c) 2017 Intel Corporation. All Rights Reserved.
+
+*********************************************************************************/
+
+#include <getopt.h>
+
+#include <tpose.h>
+#include "usb_definitions.h"
+#include "tm2_host_stream.h"
+#include "replay.h"
+#include "rc_compat.h"
+
+#define USE_FAST_PATH rc_RUN_FAST_PATH
+
 static char        calibration_filename_default[] = "calibration.json";
-static char *      calibration_filename = calibration_filename_default;
-static bool        enable_pose_output = true;
-static char *      pose_filename;
-static FILE *      pose_file         = stderr;
+static char *      calibration_filename = calibration_filename_default, *replay_filename = nullptr, 
+                   *map_save_filename = nullptr, *map_load_filename = nullptr, *pose_filename = nullptr;
 static uint16_t    replay_flags      = REPLAY_SYNC;
 static uint16_t    sixdof_flags      = SIXDOF_FLAG_MULTI_THREADED;
 
-void shutdown(int _unused = 0)
+using namespace std;
+
+/// check if file input option is valid.
+bool check_file_input_option(const char *file_name, int mode, const char *file_type)
 {
-    usb_shutdown(0);
-    if(replay_file) fclose(replay_file);
-    if(pose_file) fclose(pose_file);
+    if (!file_name) return false;
+    bool is_error = false;
+    if (!strcmp(file_name, "-")) {
+        cerr << "Missing " << file_type << " file name" << endl;
+        is_error = true;
+    }
+    else {
+        fstream file_str(file_name, (ios_base::openmode) mode);
+        if (!file_str.is_open()) {
+            cerr << "Unable to open " << file_type << " file: " << file_name << endl;
+            is_error = true;
+        }
+        else cout << file_type << " file: " << file_name << endl;
+    }
+    return is_error;
 }
 
-using namespace std;
+/// function wrapper to calculate transfer bandwidth, requiring input function to
+/// provide the number of packets and number of bytes been transferred.
+template<typename Func, class ... Types>
+bool measure_bw(const char *type_name, Func func, Types ... args) {
+    uint64_t        num_packets = 0, total_bytes = 0;
+    auto            start_ts = std::chrono::steady_clock::now();
+
+    bool val = func(total_bytes, num_packets, args...); //execute the function
+
+    auto end_ts = std::chrono::steady_clock::now();
+    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(end_ts - start_ts);
+    float rate_mb__sec = total_bytes * 1.f / micros.count();  // bytes / microsecond = megabytes / sec
+    printf("%s: sent %" PRIu64 " packets with %" PRIu64 " bytes in %.2f MB/sec\n",
+        type_name, num_packets, total_bytes, rate_mb__sec);
+    return val;
+}
+
+void print_usage(const char *program_name) {
+    cerr << "Usage: " << program_name
+        << " [-p <replay_filename>] [-6 <6dof_filename>] [-r] [-s] -c <calibration_filename>"
+        << " [-m <map_save_filename>] [-l <map_load_filename>]\n";
+    cerr << "switches:\n";
+    cerr << "\t -p <replay_filename>: file to replay\n";
+    cerr << "\t -6 <6dof_filename>: print tum format poses to 6dof_file "
+        "(default stdout)\n";
+    //cerr << "\t -r: enable real-time playback\n";
+    //cerr << "\t -s: enable single threaded mode (disables realtime playback)\n";
+    cerr << "\t -c <calibration_filename>: calibration file, required if replay is"
+        << " enabled and no calibration.json file exists\n";
+    cerr << "\t -m <map_save_filename>: map saving file\n";
+    cerr << "\t -l <map_load_filename>: map load file.\n";
+    exit(1);
+}
+
 int main(int argc, char ** argv)
 {
-    const char *  optstring = "rsp:6:c:";
+    const char *  optstring = "rsp:6:c:l:m:";
     extern int    optind, optopt;
     extern char * optarg;
     bool          option_error = false;
     int           c;
+    bool          start_paused = false;
     while((c = getopt(argc, argv, optstring)) != -1) {
         switch(c) {
             case 'r':
-                replay_flags = REPLAY_REALTIME;
+                //replay_flags = REPLAY_REALTIME;
                 break;
             case 's':
-                sixdof_flags = SIXDOF_FLAG_SINGLE_THREADED;
+                //sixdof_flags = SIXDOF_FLAG_SINGLE_THREADED;
                 break;
-            case 'p':
-                enable_replay   = true;
+            case 'p': {
+                option_error = check_file_input_option(optarg, ios_base::binary | ios_base::in, "replay");
                 replay_filename = optarg;
-                replay_file     = fopen(replay_filename, "rb");
-                cout << "Replaying from " << replay_filename << "\n";
-                if(!replay_file) {
-                    cerr << "Unable to open " << replay_filename << "\n";
-                    option_error = true;
-                }
                 break;
+            }
             case 'c':
                 calibration_filename = optarg;
                 break;
             case '6':
-                enable_pose_output = true;
-                pose_filename      = optarg;
-                if(!strcmp(pose_filename, "-")) {
-                    pose_file = stderr;
-                }
-                else {
-                    pose_file = fopen(pose_filename, "w");
-                }
-                cout << "Writing poses to " << pose_filename << "\n";
-                if(!pose_file) {
-                    cerr << "Unable to open " << pose_filename << "\n";
-                    option_error = true;
-                }
+                option_error = check_file_input_option(optarg, ios_base::out, "pose");
+                pose_filename = optarg;
+                break;
+            case 'l':
+                option_error = check_file_input_option(optarg, ios_base::binary | ios_base::in, "load map");
+                map_load_filename = optarg;
+                break;
+            case 'm':
+                option_error = check_file_input_option(optarg, ios_base::binary | ios_base::out, "save map");
+                map_save_filename = optarg;
                 break;
             case ':':
                 cerr << "Option -" << (char)optopt << " requires an operand\n";
@@ -84,126 +125,64 @@ int main(int argc, char ** argv)
                 option_error = true;
                 break;
         }
+        if (option_error) break;
     }
+    option_error = option_error || check_file_input_option(calibration_filename, ios_base::in, "calibration");
 
-    if(option_error || optind != argc) {
-        cerr << "Usage: " << argv[0]
-             << " [-p <replay_filename>] [-6 <6dof_filename>] [-r] [-s]\n";
-        cerr << "switches:\n";
-        cerr << "\t -p <replay_filename>: file to replay\n";
-        cerr << "\t -6 <6dof_filename>: print tum format poses to 6dof_file "
-                "(default stdout)\n";
-        cerr << "\t -r: enable real-time playback\n";
-        cerr << "\t -s: enable single threaded mode (disables realtime "
-                "playback)\n";
-        exit(1);
-    }
+    if (option_error || optind != argc) print_usage(argv[0]);
 
-    usb_init();
-    signal(SIGINT, shutdown);
-
-    if(enable_replay && !(replay_flags == REPLAY_REALTIME))
+    if(replay_filename && !(replay_flags == REPLAY_REALTIME))
         sixdof_flags = SIXDOF_FLAG_SINGLE_THREADED;
 
-    if(!usb_send_control(CONTROL_MESSAGE_START, 0, 0, 0)) {
+    auto rp = std::make_unique<replay>(new tm2_host_stream(replay_filename), start_paused);
+    if (!rp->init()) {
         cerr << "Failed to start!\n";
         exit(1);
     }
+    if (replay_flags == REPLAY_REALTIME) rp->enable_realtime();
+    if (map_save_filename || map_load_filename) rp->start_mapping(true, map_save_filename != NULL); // needs to happen before enable pose thread
+    rp->enable_fast_path();
 
-    // 6dof capture
-    if(enable_pose_output) {
-        thread_6dof = std::thread([] {
-            printf("6dof Capture started\n");
-            int poses_read = 0;
-            while(1) {
-                packet_rc_pose_t pose_in = usb_read_6dof();
-                // Quit if we receive done from the device
-                if(pose_in.header.type == packet_filter_control &&
-                   pose_in.header.sensor_id == 0)
-                    break;
-
-                fprintf(pose_file, "%.9f ",
-                        pose_in.header.time / 1.e6);  // seconds
-                fprintf(pose_file, "%.9f %.9f %.9f ", pose_in.pose.T.x,
-                        pose_in.pose.T.y, pose_in.pose.T.z);
-                fprintf(pose_file, "%.9f %.9f %.9f %.9f\n", pose_in.pose.Q.x,
-                        pose_in.pose.Q.y, pose_in.pose.Q.z, pose_in.pose.Q.w);
-                poses_read++;
+    std::ofstream pose_fs;
+    if (pose_filename) {
+        pose_fs.open(pose_filename);
+        rp->set_data_callback([&pose_fs](const replay_output *rp_output, const rc_Data *data) {
+            // only output fast path poses when using the fast path
+            if ((rc_DATA_PATH_FAST == rp_output->data_path && rc_RUN_FAST_PATH != USE_FAST_PATH) ||
+                (rc_DATA_PATH_SLOW == rp_output->data_path && rc_RUN_NO_FAST_PATH != USE_FAST_PATH))
+                return;
+            if (pose_fs.is_open() && pose_fs.good()) {
+                auto &pose = rp_output->rc_getPose(rp_output->data_path);
+                pose_fs << tpose_tum(pose.time_us / 1.e6, to_transformation(pose.pose_m));
             }
         });
     }
 
-    // replay thread
-    if(enable_replay) {
-        thread_replay = std::thread([] {
-            printf("Replay started\n");
-            uint64_t        packets     = 0;
-            uint64_t        total_bytes = 0;
-            packet_header_t header;
-            auto            start_ts    = std::chrono::steady_clock::now();
-
-            // write calibration
-            std::ifstream calibration_file(calibration_filename);
-
-            if(!calibration_file) {
-                cerr << "Failed to open " << calibration_filename << "\n";
-                exit(1);
+    if(replay_filename) {
+        rp->set_progress_callback([](float perc) {
+            static float thres_hold = 0.099f;
+            if (perc >= thres_hold) {
+                printf("%.0f%% sensor data processed\n", std::ceil(10 * perc) * 10);
+                thres_hold += 0.1f;
             }
-            cout << "Loading " << calibration_filename << "\n";
-            std::stringstream calibration_buffer;
-            calibration_buffer << calibration_file.rdbuf();
-            size_t calibration_bytes = calibration_buffer.str().length();
-            packet_calibration_json_t * packet = (packet_calibration_json_t *)malloc(calibration_bytes + sizeof(packet_header_t) + 1);
-            packet->header.bytes = calibration_bytes + sizeof(packet_header_t) + 1;
-            packet->header.type = packet_calibration_json;
-            packet->header.time = 0;
-            packet->header.sensor_id = 0;
-            memcpy(packet->data, calibration_buffer.str().c_str(), calibration_bytes + 1);
-            usb_write_packet((packet_t *)packet);
-            free(packet);
-
-            while(fread(&header, sizeof(packet_header_t), 1, replay_file)) {
-                packet_t * packet = (packet_t *)malloc(header.bytes);
-                packet->header    = header;
-                if (packet->header.bytes > sizeof(packet_header_t)) {
-                    size_t count =
-                            fread(&packet->data,
-                                  packet->header.bytes - sizeof(packet_header_t), 1,
-                                  replay_file);
-                    if(count != 1) {
-                        perror("fread");
-                        fprintf(stderr, "count = %lu: Error reading replay file, exiting\n", count);
-                        exit(1);
-                    }
-                }
-                if(packets % 1000 == 0) {
-                    printf("%" PRIu64 " packets written\n", packets);
-                }
-                //printf("writing a packet %u bytes with time %lu\n", packet->header.bytes, packet->header.time);
-                usb_write_packet(packet);
-                total_bytes += packet->header.bytes;
-                free(packet);
-                packets++;
-            }
-            auto end_ts       = std::chrono::steady_clock::now();
-            auto micros = std::chrono::duration_cast<std::chrono::microseconds>(
-                    end_ts - start_ts);
-            float rate_mb__sec =
-                    total_bytes * 1.f /
-                    micros.count();  // bytes / microsecond = megabytes / sec
-            printf("sent %" PRIu64 " packets with %" PRIu64 " bytes in %.2f MB/sec\n",
-                   packets, total_bytes, rate_mb__sec);
-            // Send done to the device
-            header.bytes = sizeof(packet_header_t);
-            header.type = packet_filter_control;
-            header.sensor_id = 0; // use 0 for done
-            usb_write_packet((packet_t *)&header);
         });
+        if (calibration_filename) rp->load_calibration(calibration_filename);
+        if (map_load_filename) rp->load_map(map_load_filename);
+        printf("Replay started\n");
+        if (!measure_bw("Sensor Data",
+                [](uint64_t &total_bytes, uint64_t &number_packets, replay *rp_instance)->bool {
+                rp_instance->start();
+                total_bytes = rp_instance->get_bytes_dispatched();
+                number_packets = rp_instance->get_packets_dispatched();
+                return true;
+            }, rp.get()))
+        {
+            cerr << "Error: reading replay file, exiting.\n";
+            exit(1);
+        }
     }
-
-    if(enable_pose_output) thread_6dof.join();
-    if(enable_replay) thread_replay.join();
-
-    shutdown();
+    if (map_save_filename) rp->save_map(map_save_filename);
+    printf("Timing:\n%s\n", rp->get_track_stat().c_str());
+    rp->end();
     return 0;
 }

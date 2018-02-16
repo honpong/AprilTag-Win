@@ -846,3 +846,7 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
 
     return true;
 }
+
+float rc_getPathLength(rc_Tracker* tracker) {
+    return ((sensor_fusion *)tracker)->sfm.s.total_distance;
+}

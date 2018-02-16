@@ -11,6 +11,7 @@ Copyright(c) 2017-2018 Intel Corporation. All Rights Reserved.
 #include <queue>
 #include <unordered_set>
 #include <unordered_map>
+#include <list>
 #include "gtest/gtest.h"
 #include "bstream.h"
 

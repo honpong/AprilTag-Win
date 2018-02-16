@@ -8,6 +8,8 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 #include "rc_tracker.h"
 
 #ifdef MYRIAD2
@@ -24,7 +26,7 @@
 
 //WARNING: Do not change the order of this enum, or insert new packet types in the middle
 //Only append new packet types after the last one previously defined.
-enum packet_type {
+typedef enum packet_type {
     packet_none = 0,
     packet_camera = 1,
     packet_imu = 2,
@@ -63,21 +65,20 @@ enum packet_type {
     packet_calibration_json = 43,
     packet_arrival_time = 44,
     packet_velocimeter = 45,
-#ifdef MYRIAD2
-    packet_pose = 30,
+    packet_pose = 46,
+    packet_control = 47,
     packet_command_start = 100,
     packet_command_stop = 101,
-#endif
-};
+} packet_type;
 
-typedef struct {
+typedef struct packet_header_t {
     uint32_t bytes; //size of packet including header
     uint16_t type;  //id of packet
     uint16_t sensor_id;  //id of sensor
     uint64_t time;  //time in microseconds
 } packet_header_t;
 
-typedef struct {
+typedef struct packet_t {
     packet_header_t header;
     uint8_t data[];
 } packet_t;
@@ -316,6 +317,19 @@ typedef struct {
 typedef struct {
     packet_header_t header; // header::timestamp is packet arrival time (To algo), header::sensor_id is not used
 } packet_arrival_time_t;
+
+typedef struct packet_control_t {
+    struct {
+        uint32_t bytes; //size of packet including header
+        uint16_t type;  //id of packet
+        union {
+            uint16_t sensor_id;  //id of sensor
+            uint16_t control_type;  //id of control packet
+        };
+        uint64_t time;  //time in microseconds
+    } header;
+    uint8_t data[];
+} packet_control_t;
 
 #ifdef WIN32
 #pragma warning (pop)

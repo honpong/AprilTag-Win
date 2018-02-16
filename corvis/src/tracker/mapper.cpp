@@ -950,6 +950,12 @@ static bstream_writer & operator << (bstream_writer& content, const v2 &vec) {
     return content << vec[0] << vec[1];
 }
 
+static bstream_writer & operator << (bstream_writer & cur_stream, const transformation &transform) {
+    cur_stream << transform.T[0] << transform.T[1] << transform.T[2];
+    cur_stream << transform.Q.w() << transform.Q.x() << transform.Q.y() << transform.Q.z();
+    return cur_stream;
+}
+
 static bstream_writer &operator << (bstream_writer &content, const map_edge &edge) {
     return content << static_cast<uint8_t>(edge.type) << edge.G;
 }

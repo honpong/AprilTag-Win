@@ -1,6 +1,7 @@
 #include "world_state.h"
 #include "sensor_fusion.h"
 #include "rc_compat.h"
+#include "bstream.h"
 
 static const VertexData axis_data[] = {
     {{0, 0, 0}, {255, 0, 0, 255}},
@@ -566,20 +567,44 @@ void world_state::update_relocalization(rc_Tracker * tracker, const rc_Data * da
     observe_position_reloc(data->time_us, poses, (n > 0 ? 1 : 0));
 }
 
-void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
-{
-    const struct filter * f = &((sensor_fusion *)tracker)->sfm;
+template<size_t idx>
+static rc_ImageData get_rc_image(const rc_StereoData &data) {
+    return rc_ImageData{
+        data.shutter_time_us, data.width, data.height,
+        idx ? data.stride2 : data.stride1, data.format,
+        idx ? data.image2 : data.image1, nullptr, nullptr };
+}
 
-    rc_PoseTime pt = rc_getPose(tracker, nullptr, nullptr, data->path);
+void world_state::rc_data_callback(const replay_output *output, const rc_Data * data)
+{
+    rc_Tracker *tracker = output->tracker;
+    auto &pt = output->rc_getPose(data->path);
     uint64_t timestamp_us = pt.time_us;
     transformation G = to_transformation(pt.pose_m);
     observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z(), data->path == rc_DATA_PATH_FAST);
-    update_sensors(tracker, data);
+    if(tracker) update_sensors(tracker, data);
 
     for (rc_Stage stage = {}; rc_getStage(tracker, NULL, &stage); )
         observe_virtual_object(0, stage.name, stage.pose_m);
 
     if(data->path == rc_DATA_PATH_FAST) return;
+
+    if (output->get_output_type() == replay_output::output_mode::POSE_FEATURE) {
+        rc_Feature * img_feats;
+        int nfeatures = output->rc_getFeatures(&img_feats);
+        for (int i = 0; i < nfeatures; i++)
+            observe_feature(timestamp_us, data->id, img_feats[i]);
+        // if tracker, called subsequently instead
+        if (!tracker) {
+            if (data->type == rc_SENSOR_TYPE_IMAGE) {
+                observe_image(timestamp_us, data->id, data->image, cameras);
+            }
+            else if (data->type == rc_SENSOR_TYPE_STEREO) {
+                observe_image(timestamp_us, data->id + 0, get_rc_image<0>(data->stereo), cameras);
+                //observe_image(timestamp_us, data->id + 1, get_rc_image<1>(data->stereo), cameras); //TODO support second image
+            }
+        }
+    }
 
     switch(data->type) {
         case rc_SENSOR_TYPE_DEBUG:
@@ -592,13 +617,9 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
             }
             break;
         case rc_SENSOR_TYPE_IMAGE:
-
+        case rc_SENSOR_TYPE_STEREO:
             {
-            rc_Feature * features;
-            int nfeatures = rc_getFeatures(tracker, data->id, &features);
-
-            for(int i = 0; i < nfeatures; i++)
-                observe_feature(timestamp_us, data->id, features[i]);
+            if (!tracker) break;
 
             const struct filter * f = &((sensor_fusion *)tracker)->sfm;
             for(const auto &t: f->s.cameras.children[data->id]->standby_tracks)
@@ -618,7 +639,13 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
                 observe_feature(timestamp_us, data->id, rcf);
             }
 
-            observe_image(timestamp_us, data->id, data->image, cameras);
+            if (data->type == rc_SENSOR_TYPE_IMAGE) {
+                observe_image(timestamp_us, data->id, data->image, cameras);
+            }
+            else {
+                observe_image(timestamp_us, data->id + 0, get_rc_image<0>(data->stereo), cameras);
+                //observe_image(timestamp_us, data->id + 1, get_rc_image<1>(data->stereo), cameras);  //TODO support second image
+            }
 
             // Map update is slow and loop closure checks only happen
             // on images, so only update on image updates
@@ -629,7 +656,9 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
 
         case rc_SENSOR_TYPE_DEPTH:
             {
-            if(f->has_depth) {
+            if (!tracker) break;
+            const struct filter * f = &((sensor_fusion *)tracker)->sfm;
+            if (f->has_depth) {
                 observe_depth(timestamp_us, data->id, data->depth);
 
 #if 0
@@ -675,7 +704,7 @@ void world_state::rc_data_callback(rc_Tracker * tracker, const rc_Data * data)
             break;
     }
 
-    update_plots(tracker, data);
+    if(tracker) update_plots(tracker, data);
 }
 
 world_state::world_state()

@@ -55,6 +55,8 @@ set(TRACKER_SOURCES
     tracker/remapper.cpp
     tracker/bstream.cpp
     tracker/map_loader.cpp
+    tracker/file_stream.cpp
+    tracker/replay_device.cpp
     ${TRACKERI_HEADERS}
 )
 if(WIN32)

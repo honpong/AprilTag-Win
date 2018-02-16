@@ -5,6 +5,7 @@
 #include "benchmark.h"
 #include "rc_compat.h"
 #include "gt_generator.h"
+#include "file_stream.h"
 #include <iomanip>
 
 #ifdef WIN32
@@ -97,6 +98,7 @@ int main(int c, char **v)
         goto usage;
 
     auto configure = [&](replay &rp, const char *capture_file) -> bool {
+        if (!rp.init()) return false;
         rp.set_message_level(message_level);
 
         if(qvga) rp.enable_qvga();
@@ -107,10 +109,7 @@ int main(int c, char **v)
         if(enable_map) rp.start_mapping(relocalize, save_map != nullptr);
         if(fast_path) rp.enable_fast_path();
         if(async) rp.enable_async();
-
-        if(!rp.open(capture_file))
-            return false;
-
+        if(!benchmark && enable_gui) rp.enable_feature_output();
         if(pause_at) {
             uint64_t pause_time = 0;
             try {
@@ -127,6 +126,7 @@ int main(int c, char **v)
             cerr << "unable to load calibration: " << load << "\n";
             return false;
           }
+          rp.calibration_file = load;
         } else {
           if(!rp.set_calibration_from_filename(capture_file)) {
             cerr << "calibration not found: " << capture_file << ".json nor calibration.json\n";
@@ -141,13 +141,15 @@ int main(int c, char **v)
             return false;
         }
 
+        if (load_map) rp.load_map(load_map);
         return true;
     };
 
-    auto print_results = [&calibrate](replay &rp, struct benchmark_result &res, const char *capture_file) {
+    rc_TrackerConfidence tracking_confidence = rc_TrackerConfidence::rc_E_CONFIDENCE_NONE; //updated by pose callback.
+    auto print_results = [&calibrate,tracking_confidence](replay &rp, struct benchmark_result &res, const char *capture_file) {
         std::cout << std::fixed << std::setprecision(2);
         std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
-        std::cout << "Computed  Straight-line length is " << 100*rp.get_length()           << " cm, total path length " << 100*rp.get_path_length()           << " cm\n";
+        std::cout << "Computed  Straight-line length is " << res.length_cm.measured        << " cm, total path length " << res.path_length_cm.measured        << " cm\n";
         std::cout << "Dispatched " << rp.get_packets_dispatched() << " packets " << rp.get_bytes_dispatched()/1.e6 << " Mbytes\n";
         if (res.errors.calculate_ate()) {
             std::cout << "Trajectory Statistics :\n";
@@ -170,7 +172,7 @@ int main(int c, char **v)
             std::cout << res.errors.reloc_time_sec << "\n";
         }
 
-        if(rc_getConfidence(rp.tracker) >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
+        if(tracking_confidence >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
             std::cout << "Updating " << rp.calibration_file << "\n";
             rp.save_calibration(rp.calibration_file.c_str());
         }
@@ -178,9 +180,11 @@ int main(int c, char **v)
             std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
-    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &fast_path, &threads]
-        (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, gt_generator &loop_gt, rc_Tracker *tracker, const rc_Data *data, std::ostream *pose_st) {
-        rc_PoseTime current_pose = rc_getPose(tracker, nullptr, nullptr, data->path);
+    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &fast_path, &threads, &tracking_confidence]
+        (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, gt_generator &loop_gt, const replay_output *rp_output, const rc_Data *data, std::ostream *pose_st) {
+        tracking_confidence = (rc_TrackerConfidence) rp_output->confidence;
+        rc_PoseTime current_pose = rp_output->rc_getPose(rp_output->data_path);
+
         auto timestamp = sensor_clock::micros_to_tp(current_pose.time_us);
         tpose ref_tpose(timestamp), current_tpose(timestamp, to_transformation(current_pose.pose_m));
         bool has_reference = rp.get_reference_pose(timestamp, ref_tpose);
@@ -190,11 +194,12 @@ int main(int c, char **v)
                                        ref_tpose.G.T.x(), ref_tpose.G.T.y(), ref_tpose.G.T.z(),
                                        ref_tpose.G.Q.w(), ref_tpose.G.Q.x(), ref_tpose.G.Q.y(), ref_tpose.G.Q.z());
         }
-        if(has_reference && data->path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW)) {
+
+        if(has_reference && rp_output->tracker && rp_output->data_path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW)) {
             if (first) {
                 first = false;
                 rc_Extrinsics extrinsics;
-                rc_describeCamera(rp.tracker, 0, rc_FORMAT_GRAY8, &extrinsics, nullptr);
+                rc_describeCamera(rp_output->tracker, 0, rc_FORMAT_GRAY8, &extrinsics, nullptr);
                 loop_gt.set_camera(extrinsics);
                 loop_gt.add_reference_poses(rp.get_reference_poses());
                 // transform reference trajectory to tracker world frame
@@ -205,18 +210,18 @@ int main(int c, char **v)
             if (incremental_ate) {
                 res.errors.calculate_ate();
                 if (enable_gui || render_output)
-                    ws.observe_ate(data->time_us, res.errors.ate.rmse);
+                    ws.observe_ate(rp_output->sensor_time_us, res.errors.ate.rmse);
             }
             if(res.errors.distances.size())
                 ws.observe_rpe(data->time_us, res.errors.distances.back());
         }
-        if(!first && data->type == rc_SENSOR_TYPE_IMAGE) {
+        if(!first && rp_output->tracker && data->type == rc_SENSOR_TYPE_IMAGE) {
             rc_RelocEdge* reloc_edges = nullptr;
             rc_Timestamp reloc_source;
-            int num_reloc_edges = rc_getRelocalizationEdges(tracker, &reloc_source, &reloc_edges);
+            int num_reloc_edges = rc_getRelocalizationEdges(rp_output->tracker, &reloc_source, &reloc_edges);
             if (reloc_source) {
                 rc_MapNode* map_nodes = nullptr;
-                int num_mapnodes = rc_getMapNodes(tracker, &map_nodes);
+                int num_mapnodes = rc_getMapNodes(rp_output->tracker, &map_nodes);
                 loop_gt.update_map(map_nodes, num_mapnodes);
                 res.errors.add_edges(reloc_source,
                                      reloc_edges,
@@ -225,12 +230,14 @@ int main(int c, char **v)
                                      loop_gt.get_reference_poses());
             }
         }
-        if(pose_st && data->path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW))
+        if(pose_st && rp_output->data_path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW))
             *pose_st << tpose_tum(current_pose.time_us/1e6, to_transformation(current_pose.pose_m));
         if (enable_gui || render_output)
-            ws.rc_data_callback(tracker, data);
-        if (enable_gui && data->type == rc_SENSOR_TYPE_DEBUG && data->debug.pause)
+            ws.rc_data_callback(rp_output, data);
+        if (enable_gui && rp_output->sensor_type == rc_SENSOR_TYPE_DEBUG && data->debug.pause)
             rp.pause();
+        res.path_length_cm.measured = 100 * rp_output->path_length;
+        res.length_cm.measured      = 100 * v3(rp_output->rc_getPose(rc_DATA_PATH_SLOW).pose_m.T.v).norm();
     };
 
     if (benchmark) {
@@ -244,8 +251,9 @@ int main(int c, char **v)
 
         benchmark_run(stream, filename, threads,
         [&](const char *capture_file, struct benchmark_result &res) -> bool {
-            auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
-
+            auto rp_ = std::make_unique<replay>(  // avoid blowing the stack when threaded or on Windows
+                (host_stream *)(new file_stream(capture_file)), start_paused);
+            replay &rp = *rp_;
             if (!configure(rp, capture_file)) return false;
 
             world_state * ws = new world_state();
@@ -253,19 +261,17 @@ int main(int c, char **v)
 
             gt_generator loop_gt;
 
-            rp.set_data_callback([ws,&rp,first=true,&res,&loop_gt,&data_callback](rc_Tracker * tracker, const rc_Data * data) mutable {
-                data_callback(*ws, rp, first, res, loop_gt, tracker, data, nullptr);
+            rp.set_data_callback([ws,&rp,first=true,&res, &loop_gt,&data_callback](const replay_output * output, const rc_Data * data) mutable {
+                data_callback(*ws, rp, first, res, loop_gt, output, data, nullptr);
             });
 
             if (progress) std::cout << "Running  " << capture_file << std::endl;
-            rp.start(load_map);
+            rp.start();
             if (progress) std::cout << "Finished " << capture_file << std::endl;
-
-            res.length_cm.reference = 100*rp.get_reference_length();  res.path_length_cm.reference = 100*rp.get_reference_path_length();
-            res.length_cm.measured  = 100*rp.get_length();            res.path_length_cm.measured  = 100*rp.get_path_length();
+            res.length_cm.reference = 100*rp.get_reference_length();res.path_length_cm.reference = 100*rp.get_reference_path_length();
 
             if (progress) print_results(rp, res, capture_file);
-
+            rp.end();
             return true;
         },
         [&](const char *capture_file, struct benchmark_result &res) -> void {
@@ -283,7 +289,9 @@ int main(int c, char **v)
         return 0;
     }
 
-    auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
+    auto rp_ = std::make_unique<replay>(
+        (host_stream *)(new file_stream(filename)), start_paused);
+    replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
 
     if (!configure(rp, filename))
         return 2;
@@ -291,13 +299,13 @@ int main(int c, char **v)
  benchmark_result res;
 
 #ifndef HAVE_GLFW
-    rp.start(load_map);
+    rp.start();
 #else
     world_state ws;
     gt_generator loop_gt;
-    std::ofstream pose_fs; if(pose_output) pose_fs.open(pose_output);
-    rp.set_data_callback([&ws,&rp,first=true,&res,&loop_gt,&data_callback,&pose_fs](rc_Tracker * tracker, const rc_Data * data) mutable {
-        data_callback(ws, rp, first, res, loop_gt, tracker, data, &pose_fs);
+    std::ofstream pose_fs; if (pose_output) pose_fs.open(pose_output);
+    rp.set_data_callback([&ws,&rp,first=true,&res, &loop_gt,&data_callback,&pose_fs](const replay_output * output, const rc_Data * data) mutable {
+        data_callback(ws, rp, first, res, loop_gt, output, data, &pose_fs);
     });
     rp.set_stage_callback([&ws](const rc_Stage stage) {
         ws.observe_virtual_object(0, stage.name, stage.pose_m);
@@ -305,12 +313,11 @@ int main(int c, char **v)
 
     if(enable_gui) { // The GUI must be on the main thread
         gui vis(&ws, show_main, show_video, show_depth, show_plots);
-        std::thread replay_thread([&](void) { rp.start(load_map); });
+        rp.start_async();
         vis.start(&rp);
         rp.stop();
-        replay_thread.join();
     } else {
-        rp.start(load_map);
+        rp.start();
     }
 
     if(rendername && !offscreen_render_to_file(rendername, &ws)) {
@@ -324,7 +331,8 @@ int main(int c, char **v)
 
     if (save) rp.save_calibration(save);
 
-    std::cout << rc_getTimingStats(rp.tracker);
+    std::cout << rp.get_track_stat();
     print_results(rp,res,filename);
+    rp.end();
     return 0;
 }

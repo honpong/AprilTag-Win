@@ -46,11 +46,6 @@ void sensor_fusion::update_data(const sensor_data * data)
         data_callback(data);
 }
 
-void sensor_fusion::update_stages(const transformation &G_currentworld_frame, const map_relocalization_info::candidate &candidate) {
-    if(stage_callback)
-        sfm.map->update_stages(candidate.node_id, G_currentworld_frame * invert(candidate.G_node_frame), stage_callback);
-}
-
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     : queue([this](sensor_data &&data) { queue_receive_data(std::move(data)); },
             strategy, std::chrono::milliseconds(500)),
@@ -135,11 +130,6 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                                 auto result = sfm.relocalization_future.get();
                                 filter_add_relocalization_edges(&sfm, result.edges);
                                 sfm.relocalization_info = std::move(result.info);
-                                if (sfm.relocalization_info.is_relocalized) {
-                                    transformation G_Bframe_Bbody;
-                                    if (sfm.s.get_group_transformation(camera_frame->closest_node, G_Bframe_Bbody))
-                                        update_stages(get_transformation() * invert(G_Bframe_Bbody), sfm.relocalization_info.candidates[0]);
-                                }
                             }
                             filter_update_map_index(&sfm);
                             sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,

@@ -86,15 +86,6 @@ bool file_stream::read_header(packet_header_t *header, bool control_only) {
                 device_stream::save_handle = &save_file;
                 break;
             }
-            case packet_enable_stage_callback: {
-                if (host_stage_callback) {
-                    device_stream::stage_callback = [](void *handle, rc_Stage stage) {
-                        ((file_stream *)handle)->host_stage_callback(stage);
-                    };
-                    device_stream::stage_handle = this;
-                }
-                break;
-            }
             case packet_command_stop: {
                 enable_sensor = false;
                 break;

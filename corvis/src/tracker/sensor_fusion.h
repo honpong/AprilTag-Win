@@ -36,7 +36,6 @@ public:
     
     std::function<void(const sensor_data *)> data_callback;
     std::function<bool()> status_callback;
-    std::function<void(const mapper::stage::output &current_stage)> stage_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
     

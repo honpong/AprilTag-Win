@@ -209,7 +209,6 @@ typedef struct rc_Tracker rc_Tracker;
   The callbacks are called synchronously with the filter thread
  */
 typedef void(*rc_DataCallback)(void *handle, rc_Tracker * tracker, const rc_Data * data);
-typedef void(*rc_StageCallback)(void *handle, rc_Stage stage);
 typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence);
 typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, const char * message, size_t len);
 
@@ -426,7 +425,6 @@ RCTRACKER_API bool rc_getStage(rc_Tracker *tracker, const char *name, rc_Stage *
   WARNING: These callbacks are synchronous with the the filter thread. Don't do significant work in them!
 */
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
-RCTRACKER_API void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback callback, void *handle);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback callback, void *handle, rc_MessageLevel maximum_level);
 

@@ -376,11 +376,6 @@ void replay_device::process_control(const packet_control_t *packet) {
         break;
     }
     case packet_set_stage: { set_stage(); break; }
-    case packet_enable_stage_callback: {
-        if (stream->stage_callback && stream->stage_handle)
-            rc_setStageCallback(tracker.get(), stream->stage_callback, stream->stage_handle);
-        break;
-    }
     case packet_command_stop: {
         rc_stopTracker(tracker.get());
         stream->put_device_packet(packet_command_alloc(packet_command_stop));

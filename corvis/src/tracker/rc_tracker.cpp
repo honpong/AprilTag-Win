@@ -594,14 +594,6 @@ bool rc_getStage(rc_Tracker *tracker, const char *name, rc_Stage *stage)
     return ok;
 }
 
-void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback callback, void *handle)
-{
-    if (!callback) tracker->stage_callback = nullptr;
-    else           tracker->stage_callback = [=](const mapper::stage::output &current_stage) {
-        callback(handle, rc_Stage { current_stage.name, to_rc_Pose(current_stage.G_world_stage) });
-    };
-}
-
 int rc_getRelocalizationPoses(rc_Tracker* tracker, rc_Pose **reloc_edges)
 {
     if (tracker && tracker->sfm.map && tracker->sfm.relocalization_info.is_relocalized) {

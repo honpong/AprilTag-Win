@@ -321,9 +321,6 @@ int main(int c, char **v)
     rp.set_data_callback([&ws,&rp,first=true,&res, &loop_gt,&data_callback,&pose_fs](const replay_output * output, const rc_Data * data) mutable {
         data_callback(ws, rp, first, res, loop_gt, output, data, &pose_fs);
     });
-    rp.set_stage_callback([&ws](const rc_Stage stage) {
-        ws.observe_virtual_object(0, stage.name, stage.pose_m);
-    });
 
     if(enable_gui) { // The GUI must be on the main thread
         gui vis(&ws, show_main, show_video, show_depth, show_plots);

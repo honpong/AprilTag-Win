@@ -242,15 +242,6 @@ public:
             return ok;
         });
     }
-    void update_stages(nodeid current_id, const transformation &G_world_current, const std::function<void(const stage::output&)> &stage_callback) {
-        stages.critical_section([&]() {
-            for (auto ns : *stages) {
-                mapper::stage::output current_stage;
-                if (get_stage(ns.first, ns.second, current_id, G_world_current, current_stage))
-                    stage_callback(current_stage);
-            }
-       });
-    }
 private:
     // private functions that lock mutexes internally
     std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(

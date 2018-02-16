@@ -161,6 +161,13 @@ target_include_directories(measure PUBLIC measure)
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 target_link_libraries(measure PUBLIC loop_gt_generator)
 
+add_subdirectory(src/movidius/host)
+if (TARGET slam_usb)
+  message(STATUS "Enabling TM2 support in measure")
+  target_link_libraries(measure PRIVATE slam_usb)
+  target_compile_definitions(measure PRIVATE ENABLE_TM2_PLAYBACK)
+endif()
+
 endif()
 
 add_subdirectory(src/rc_replay)
@@ -183,8 +190,6 @@ install(FILES
   COMPONENT example-sources
 )
 endif()
-
-add_subdirectory(src/movidius/host)
 
 add_executable(alloy_merge src/tools/alloy_merge.cpp)
 set_property(TARGET alloy_merge PROPERTY CXX_STANDARD 14)

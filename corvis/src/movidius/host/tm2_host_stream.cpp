@@ -1,0 +1,199 @@
+#include <signal.h>  // capture sigint
+#include "tm2_host_stream.h"
+#include "usb_host.h"
+
+using namespace std;
+using namespace std::chrono;
+
+uint64_t bulk_packet_size = 20000;
+
+template<uint8_t packet_type>
+static bool async_stream_file(const char* filename) {
+    ifstream file_handle(filename, ios_base::binary);
+    const string file_content((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
+    uint64_t total_bytes = file_content.size();
+
+    rc_packet_t transfer_packet = packet_control_alloc(packet_type, (const char*)&total_bytes, sizeof(uint64_t));
+    usb_write_packet(transfer_packet); //first packet of total transfer size
+
+    size_t transferred_bytes = 0;
+    transfer_packet = rc_packet_t((packet_t *)malloc(bulk_packet_size + sizeof(packet_header_t)), free);
+    while (transferred_bytes < total_bytes) {
+        size_t transfer_size = std::min(total_bytes - transferred_bytes, bulk_packet_size);
+        set_control_packet((packet_control_t *)transfer_packet.get(), packet_type,
+            file_content.c_str() + transferred_bytes, transfer_size);
+        usb_write_packet(transfer_packet);
+        transferred_bytes += transfer_size;
+    }
+    return true;
+}
+
+template<uint8_t packet_type>
+static bool sync_stream_file(const char *filename) {
+    async_stream_file<packet_type>(filename);
+    rc_packet_t ack_packet((packet_t*)malloc(sizeof(packet_t)), free);
+    usb_read_interrupt_packet(ack_packet);
+    if (get_packet_type(ack_packet) != packet_ack) {
+        printf("Error: failed to stream of type %d from file %s.\n", packet_type, filename);
+        return false;
+    }
+    return true;
+}
+
+static void save_stream_to_file(const packet_t* save_packet, ofstream &stream) {
+    if (save_packet->header.bytes > sizeof(packet_header_t)) {
+        stream.write((const char *)save_packet->data, save_packet->header.bytes - sizeof(packet_header_t));
+    }
+    else //empty body signals end of saving
+        stream.close();
+}
+
+tm2_host_stream::tm2_host_stream(const char*filename) {
+    sensor_file.open(filename, ios_base::ate | ios::binary);
+    sensor_data_size = (size_t)sensor_file.tellg();
+    sensor_file.seekg(ios_base::beg);
+};
+
+void shutdown(int _unused = 0) {
+    usb_shutdown(0);
+}
+
+bool tm2_host_stream::init_stream() {
+    usb_init();
+    signal(SIGINT, shutdown);
+    return usb_send_control(CONTROL_MESSAGE_START, 0, 0, 0);
+}
+
+bool tm2_host_stream::start_stream() {
+    //separate thread to read usb data from device
+    thread_6dof_output = thread([this] {
+        size_t packet_size = track_output.get_buffer_size();
+        rc_packet_t output_pkt((packet_t *)malloc(packet_size), free);
+        output_pkt->header.bytes = packet_size;
+        while (1) {
+            //use different transfer mode than other packet types.
+            bool is_read = usb_read_interrupt_packet(output_pkt);
+            if (!is_read || get_packet_type(output_pkt) == packet_command_end) break;
+            else if (host_data_callback){
+                track_output.set((char *)output_pkt.get(), output_pkt->header.bytes);
+                rc_Data *passed_data = nullptr;
+                {
+                    lock_guard<mutex> lk(image_queue_mtx);
+                    auto found_itr = find_if(sensor_queue.begin(), sensor_queue.end(),
+                        [&](auto &ele) {
+                        return (ele->time_us == track_output.sensor_time_us) && (ele->type == rc_SENSOR_TYPE_STEREO) ?
+                            (track_output.sensor_type == rc_SENSOR_TYPE_IMAGE || track_output.sensor_type == rc_SENSOR_TYPE_STEREO) :
+                            (ele->type == track_output.sensor_type); });
+                    if (found_itr != sensor_queue.end()) {
+                        passed_data = found_itr->get();
+                        passed_data->path = track_output.data_path;
+                    }
+                    else
+                        printf("not find data with ts %lu, type %d\n", (unsigned long)track_output.sensor_time_us,
+                            track_output.sensor_type);
+                }
+
+                if (passed_data) host_data_callback(&track_output, passed_data);
+
+                if (track_output.sensor_type == rc_SENSOR_TYPE_IMAGE || track_output.sensor_type == rc_SENSOR_TYPE_STEREO)
+                {
+                    lock_guard<mutex> lk(image_queue_mtx);
+                    sensor_queue.remove_if([&](auto &ele) { return ele->time_us < track_output.sensor_time_us; }); // keep current
+                }
+            }
+        }
+    });
+
+    thread_receive_device = thread([this] {
+        rc_packet_t output_pkt( nullptr, free );
+        replay_output track_output;
+        while (1) {
+            output_pkt = usb_read_packet();
+            if (!output_pkt || get_packet_type(output_pkt) == packet_command_end) break;
+            else {
+                switch (get_packet_type(output_pkt)) {
+                case packet_save_data: { save_stream_to_file(output_pkt.get(), save_file); break; }
+                case packet_timing_stat: { tracking_stat.assign((const char*)output_pkt->data); break; }
+                }
+                {//inform waiting host upon new packet from device
+                    lock_guard<mutex> lk(host_stream::wait_device_mtx);
+                    host_stream::arrived_type = get_packet_type(output_pkt);
+                }
+                host_stream::device_response.notify_all();
+            }
+        }
+    });
+    //streaming out sensor data.
+    auto last_progress = high_resolution_clock::now();
+    sensor_file.seekg(0, ios::beg);
+    bool sts = !sensor_file.bad() && !sensor_file.eof();
+    rc_packet_t cur_packet(nullptr, free);
+    packet_header_t header;
+    while (enable_sensor && sts) {
+        sensor_file.read((char *)&header, sizeof(packet_header_t));
+        if (!(sts = !sensor_file.eof())) {
+            put_host_packet(packet_command_alloc(packet_command_stop));
+        }
+        if ((sts = !sensor_file.bad())) {
+            cur_packet = rc_packet_t((packet_t *)malloc(header.bytes), free);
+            cur_packet->header = header;
+            sensor_file.read(reinterpret_cast<char *>(&cur_packet->data[0]),
+                cur_packet->header.bytes - sizeof(packet_header_t));
+            if ((sts = !sensor_file.bad() && !sensor_file.eof())) {
+                bytes_dispatched += cur_packet->header.bytes;
+                packets_dispatched++;
+                {
+                    lock_guard<mutex> lk(image_queue_mtx);
+                    auto data_rc_format = create_rc_Data(cur_packet);
+                    if (data_rc_format) sensor_queue.emplace_back(move(data_rc_format));
+                }
+                put_host_packet(move(cur_packet)); //send sensor packets to device
+                if (progress_callback) {  // Update progress at most at 30Hz or if we are almost done
+                    auto now = high_resolution_clock::now();
+                    if (duration<double, milli>(now - last_progress) > milliseconds(33) ||
+                        (float)bytes_dispatched / sensor_data_size > 0.99) {
+                        last_progress = now;
+                        progress_callback((float)bytes_dispatched / sensor_data_size);
+                    }
+                }
+            }
+        }
+    }
+    return sts;
+}
+
+void tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
+    if (!post_packet) return;
+
+    std::lock_guard<std::mutex> lk(put_mutex);
+    static bool stop_usb_packet = false; //discontinues usb communication, used at tear down.
+    if (stop_usb_packet) return;
+    bool write_packet = true;
+    packet = move(post_packet); //free prior packet
+    switch (get_packet_type(packet)) {
+    case packet_load_map: {
+        async_stream_file<packet_load_map>((const char*)packet->data);
+        write_packet = false;
+        break;
+    }
+    case packet_save_calibration:
+    case packet_save_map: {
+        if (save_file.is_open()) save_file.close();
+        save_file.open((const char*)packet->data, ios_base::binary);
+        break;
+    }
+    case packet_enable_features_output: {
+        track_output.set_output_type(replay_output::output_mode::POSE_FEATURE);
+        break;
+    }
+    case packet_command_end: stop_usb_packet = true;
+    case packet_command_stop: enable_sensor = false;
+    }
+    if (write_packet) usb_write_packet(packet);
+}
+
+tm2_host_stream::~tm2_host_stream() {
+    if (thread_6dof_output.joinable()) thread_6dof_output.join();
+    if (thread_receive_device.joinable()) thread_receive_device.join();
+    shutdown();
+}

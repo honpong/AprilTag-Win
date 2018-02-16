@@ -6,6 +6,9 @@
 #include "rc_compat.h"
 #include "gt_generator.h"
 #include "file_stream.h"
+#ifdef ENABLE_TM2_PLAYBACK
+#include "tm2_host_stream.h"
+#endif
 #include <iomanip>
 
 #ifdef WIN32
@@ -36,6 +39,9 @@ int main(int c, char **v)
              << "   [--render-output <file.png>] [--pose-output <pose-file>] [--benchmark-output <results-file>]\n"
              << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
              << "   [--disable-map] [--save-map <map-json>] [--load-map <map-json>]\n"
+#ifdef ENABLE_TM2_PLAYBACK
+             << "   [--tm2]\n"
+#endif
              << "   [--relocalize] [--disable-odometry] [--incremental-ate]\n";
         return 1;
     }
@@ -49,6 +55,7 @@ int main(int c, char **v)
     bool odometry = true;
     bool incremental_ate = false;
     bool relocalize = false;
+    bool tm2_playback = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr, *pose_output = nullptr;
     char *pause_at = nullptr;
     rc_MessageLevel message_level = rc_MESSAGE_INFO;
@@ -92,6 +99,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--info") == 0)  message_level = rc_MESSAGE_INFO;
         else if (strcmp(v[i], "--warn") == 0)  message_level = rc_MESSAGE_WARN;
         else if (strcmp(v[i], "--none") == 0)  message_level = rc_MESSAGE_NONE;
+        else if (strcmp(v[i], "--tm2") == 0)   tm2_playback = true;
         else goto usage;
 
     if (!filename)
@@ -242,7 +250,7 @@ int main(int c, char **v)
 
     if (benchmark) {
         enable_gui = false; if (realtime || start_paused) goto usage;
-
+        threads = tm2_playback ? 1 : threads; // support only one thread on TM2
         std::ofstream benchmark_ofstream;
         std::ostream &stream = benchmark_output ? benchmark_ofstream.open(benchmark_output), benchmark_ofstream : std::cout;
 
@@ -252,6 +260,9 @@ int main(int c, char **v)
         benchmark_run(stream, filename, threads,
         [&](const char *capture_file, struct benchmark_result &res) -> bool {
             auto rp_ = std::make_unique<replay>(  // avoid blowing the stack when threaded or on Windows
+#ifdef  ENABLE_TM2_PLAYBACK
+                tm2_playback ? new tm2_host_stream(capture_file) :
+#endif
                 (host_stream *)(new file_stream(capture_file)), start_paused);
             replay &rp = *rp_;
             if (!configure(rp, capture_file)) return false;
@@ -290,13 +301,16 @@ int main(int c, char **v)
     }
 
     auto rp_ = std::make_unique<replay>(
+#ifdef  ENABLE_TM2_PLAYBACK
+        tm2_playback ? new tm2_host_stream(filename) :
+#endif
         (host_stream *)(new file_stream(filename)), start_paused);
     replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
 
     if (!configure(rp, filename))
         return 2;
 
- benchmark_result res;
+    benchmark_result res;
 
 #ifndef HAVE_GLFW
     rp.start();

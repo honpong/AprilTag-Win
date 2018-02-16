@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.2.2)
 project( slam_client )
 
 find_package(Threads REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 find_path(GETOPT_INC getopt.h)
 include(FindPackageHandleStandardArgs)
@@ -34,13 +35,17 @@ endif()
 add_library(slam_usb
    usb_host.cpp
    usb_host.h
+   tm2_host_stream.cpp
+   ../../tracker/replay.cpp
+   ../../tracker/bstream.cpp
 )
 
-target_link_libraries(slam_usb PUBLIC usb getopt Threads::Threads)
+target_link_libraries(slam_usb PUBLIC usb getopt Threads::Threads Eigen3::Eigen)
 
 target_include_directories(slam_usb PUBLIC
     ../common/                                  # for usb_definitions.h & get_pose.h
     ../../tracker/ # for packet.h
+    .
 )
 set_property(TARGET slam_usb PROPERTY CXX_STANDARD 14)
 

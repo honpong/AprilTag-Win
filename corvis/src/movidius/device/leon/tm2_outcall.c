@@ -486,10 +486,10 @@ bool usb_blocking_read(uint32_t endpoint, uint8_t * buffer, uint32_t size)
     //printf("got it\n");
 }
 
-bool usb_blocking_write(uint32_t endpoint, uint8_t * buffer, uint32_t size)
+bool usb_blocking_write(uint32_t endpoint, const uint8_t * buffer, uint32_t size)
 {
     //printf("start write to %p of %u bytes\n", buffer, size);
-    pSelf->wBuff[endpoint] = (char *)buffer;
+    pSelf->wBuff[endpoint] = (const char *)buffer;
     pSelf->wSize[endpoint] = size;
     UsbPumpVscAppI_StartWrite(pSelf, endpoint);
     //blocking write

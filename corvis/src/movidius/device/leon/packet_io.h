@@ -1,18 +1,10 @@
 #pragma once
 
+#include <memory>
 #include "packet.h"
 
-#include "tm2_outcall.h"
-#include "usb_definitions.h"
+typedef std::unique_ptr<packet_t, decltype(&free)> rc_packet_t;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-bool packet_io_write(packet_t * packet);
-bool packet_io_read(packet_t ** packet);
-void packet_io_free(packet_t * packet);
-
-#ifdef __cplusplus
-}
-#endif
+bool packet_io_write(const rc_packet_t &packet);
+bool packet_io_write_parts(const packet_header_t *header, const uint8_t *content);
+bool packet_io_read(rc_packet_t &packet);

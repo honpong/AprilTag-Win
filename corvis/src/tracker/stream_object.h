@@ -163,3 +163,52 @@ static inline uint8_t get_packet_type(const rc_packet_t &packet) {
     else return (uint8_t)packet->header.type;
 }
 
+static void delete_rc_data(void *data) {
+    if (!data) return;
+    rc_Data *rc_data = (rc_Data *)data;
+    if (rc_data->type == rc_SensorType::rc_SENSOR_TYPE_IMAGE) delete[](char *)rc_data->image.image;
+    else if (rc_data->type == rc_SensorType::rc_SENSOR_TYPE_STEREO) delete[](char *) rc_data->stereo.image1; //image2 is with the same allocation
+    delete rc_data;
+}
+
+static inline std::unique_ptr<rc_Data, void(*)(void *)> create_rc_Data(const rc_packet_t &packet) {
+    rc_Data *new_data = nullptr;
+    switch (get_packet_type(packet)) {
+    case packet_image_raw: {
+        auto *ip = (packet_image_raw_t *)packet.get();
+        char *content = new char[ip->stride * ip->height];
+        memcpy(content, ip->data, ip->stride * ip->height);
+        new_data = new rc_Data{ packet->header.sensor_id, rc_SensorType::rc_SENSOR_TYPE_IMAGE,
+            (rc_Timestamp)ip->header.time, rc_DataPath::rc_DATA_PATH_SLOW, {} };
+        new_data->image = rc_ImageData{ (rc_Timestamp)ip->exposure_time_us, ip->width, ip->height, ip->stride,
+            (rc_ImageFormat)ip->format, content, NULL, NULL };
+        break;
+    }
+    case packet_stereo_raw: {
+        auto *ip = (packet_stereo_raw_t *)packet.get();
+        char *content = new char[ip->height * (ip->stride1 + ip->stride2)];
+        memcpy(content, ip->data, ip->height * (ip->stride1 + ip->stride2));
+        new_data = new rc_Data{ (rc_Sensor)ip->header.sensor_id, rc_SensorType::rc_SENSOR_TYPE_STEREO,
+            (rc_Timestamp)ip->header.time, rc_DataPath::rc_DATA_PATH_SLOW, {} };
+        new_data->stereo = { (rc_Timestamp)ip->exposure_time_us, ip->width, ip->height, ip->stride1, ip->stride2,
+            (rc_ImageFormat)ip->format, content, content + ip->stride1*ip->height, NULL, NULL };
+        break;
+    }
+    case packet_accelerometer: {
+        auto *ip = (packet_accelerometer_t *)packet.get();
+        new_data = new rc_Data{ (rc_Sensor)ip->header.sensor_id, rc_SensorType::rc_SENSOR_TYPE_ACCELEROMETER,
+            (rc_Timestamp)ip->header.time, rc_DataPath::rc_DATA_PATH_SLOW,{} };
+        new_data->acceleration_m__s2 = {{ ip->a[0], ip->a[1], ip->a[2] }};
+        break;
+    }
+    case packet_gyroscope: {
+        auto *ip = (packet_gyroscope_t *)packet.get();
+        new_data = new rc_Data{ (rc_Sensor)ip->header.sensor_id, rc_SensorType::rc_SENSOR_TYPE_GYROSCOPE,
+            (rc_Timestamp)ip->header.time, rc_DataPath::rc_DATA_PATH_SLOW,{} };
+        new_data->angular_velocity_rad__s = {{ ip->w[0], ip->w[1], ip->w[2] }};
+        break;
+    }
+    }
+    return { new_data, delete_rc_data };
+}
+

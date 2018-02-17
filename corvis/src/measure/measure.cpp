@@ -119,7 +119,7 @@ int main(int c, char **v)
         if(async) rp.enable_async();
         if(!benchmark && enable_gui) rp.enable_feature_output();
         if(pause_at) {
-            uint64_t pause_time = 0;
+            rc_Timestamp pause_time = 0;
             try {
                 pause_time = std::stoull(pause_at);
             } catch (...) {

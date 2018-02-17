@@ -63,7 +63,7 @@ size_t world_state::get_plot_by_name(std::string plot_name)
     return inserted.first->second;
 }
 
-void world_state::observe_plot_item(uint64_t timestamp, size_t index, std::string name, float value)
+void world_state::observe_plot_item(rc_Timestamp timestamp, size_t index, std::string name, float value)
 {
     plot_lock.lock();
     if (index+1 > plots.size())
@@ -106,7 +106,7 @@ void world_state::observe_world(float world_up_x, float world_up_y, float world_
     display_lock.unlock();
 }
 
-void world_state::observe_map_node(uint64_t timestamp, uint64_t node_id, bool finished, bool unlinked, const transformation& position, std::vector<Neighbor>&& neighbors, std::vector<Feature>& features)
+void world_state::observe_map_node(rc_Timestamp timestamp, uint64_t node_id, bool finished, bool unlinked, const transformation& position, std::vector<Neighbor>&& neighbors, std::vector<Feature>& features)
 {
     display_lock.lock();
     MapNode n;
@@ -132,11 +132,11 @@ static void update_image_size(const rc_ImageData & src, ImageData & dst)
     dst.luminance = src_luminance;
 }
 
-void world_state::observe_image(uint64_t timestamp, rc_Sensor camera_id, const rc_ImageData &data,
+void world_state::observe_image(rc_Timestamp timestamp, rc_Sensor camera_id, const rc_ImageData &data,
                                 std::vector<overlay_data> &cameras)
 {
     image_lock.lock();
-    if(cameras.size() < camera_id+1)
+    if(cameras.size() < (size_t)camera_id+1)
         cameras.resize(camera_id+1);
 
     ImageData & image = cameras[camera_id].image;
@@ -151,11 +151,11 @@ void world_state::observe_image(uint64_t timestamp, rc_Sensor camera_id, const r
 
 #define MAX_DEPTH 8191
 
-void world_state::observe_depth(uint64_t timestamp, rc_Sensor camera_id, const rc_ImageData & data)
+void world_state::observe_depth(rc_Timestamp timestamp, rc_Sensor camera_id, const rc_ImageData & data)
 {
     depth_lock.lock();
 
-    if(depths.size() < camera_id+1)
+    if(depths.size() < (size_t)camera_id+1)
         depths.resize(camera_id+1);
 
     ImageData & image = depths[camera_id];
@@ -169,7 +169,7 @@ void world_state::observe_depth(uint64_t timestamp, rc_Sensor camera_id, const r
     depth_lock.unlock();
 }
 
-void world_state::observe_depth_overlay_image(uint64_t timestamp, uint16_t *aligned_depth, int width, int height, int stride)
+void world_state::observe_depth_overlay_image(rc_Timestamp timestamp, uint16_t *aligned_depth, int width, int height, int stride)
 {
     /*
     depth_lock.lock();
@@ -222,13 +222,13 @@ static inline void compute_covariance_ellipse(float x, float y, float xy, float 
     ctheta = (float)theta; // rotate
 }
 
-uint64_t world_state::get_current_timestamp()
+rc_Timestamp world_state::get_current_timestamp()
 {
     std::lock_guard<std::mutex> lock(time_lock);
     return current_timestamp;
 }
 
-void world_state::update_current_timestamp(const uint64_t & timestamp)
+void world_state::update_current_timestamp(const rc_Timestamp &timestamp)
 {
     std::lock_guard<std::mutex> lock(time_lock);
     if(timestamp > current_timestamp)
@@ -238,7 +238,7 @@ void world_state::update_current_timestamp(const uint64_t & timestamp)
 void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
 {
     const struct filter * f = &((sensor_fusion *)tracker)->sfm;
-    uint64_t timestamp_us = data->time_us;
+    rc_Timestamp timestamp_us = data->time_us;
 
     int p;
 
@@ -520,7 +520,7 @@ void world_state::update_sensors(rc_Tracker * tracker, const rc_Data * data)
                   f->s.body_forward[0], f->s.body_forward[1], f->s.body_forward[2]);
 }
 
-void world_state::update_map(rc_Tracker * tracker, uint64_t timestamp_us)
+void world_state::update_map(rc_Tracker * tracker, rc_Timestamp timestamp_us)
 {
     const struct filter * f = &((sensor_fusion *)tracker)->sfm;
 
@@ -579,7 +579,7 @@ void world_state::rc_data_callback(const replay_output *output, const rc_Data * 
 {
     rc_Tracker *tracker = output->tracker;
     auto &pt = output->rc_getPose(data->path);
-    uint64_t timestamp_us = pt.time_us;
+    rc_Timestamp timestamp_us = pt.time_us;
     transformation G = to_transformation(pt.pose_m);
     observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z(), data->path == rc_DATA_PATH_FAST);
     if(tracker) update_sensors(tracker, data);
@@ -816,7 +816,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
     /*
      * Build vertex arrays for feature and path data
      */
-    uint64_t now = get_current_timestamp();
+    rc_Timestamp now = get_current_timestamp();
     std::lock_guard<std::mutex> lock(display_lock);
     if(!dirty)
         return false;
@@ -1069,7 +1069,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                     set_color(&v, vo.rgba[0], vo.rgba[1], vo.rgba[2], vo.rgba[3]);
                     vertices.emplace_back(v);
                 }
-                for(int i = 0; i < axis_vertex.size(); i += 2) {
+                for(size_t i = 0; i < axis_vertex.size(); i += 2) {
                     auto& a = axis_vertex[i];
                     auto& b = axis_vertex[i+1];
                     projection = vo.project_axis({a.position[0], a.position[1], a.position[2]},
@@ -1192,7 +1192,7 @@ std::string world_state::get_feature_stats()
     return os.str();
 }
 
-void world_state::observe_feature(uint64_t timestamp, rc_Sensor camera_id, const rc_Feature & feature)
+void world_state::observe_feature(rc_Timestamp timestamp, rc_Sensor camera_id, const rc_Feature & feature)
 {
     float cx, cy, ctheta;
     compute_covariance_ellipse(feature.innovation_variance_x, feature.innovation_variance_y, feature.innovation_variance_xy, cx, cy, ctheta);
@@ -1217,7 +1217,7 @@ void world_state::observe_feature(uint64_t timestamp, rc_Sensor camera_id, const
     display_lock.unlock();
 }
 
-void world_state::observe_position(uint64_t timestamp, float x, float y, float z, float qw, float qx, float qy, float qz, bool fast)
+void world_state::observe_position(rc_Timestamp timestamp, float x, float y, float z, float qw, float qx, float qy, float qz, bool fast)
 {
     Position p;
     p.timestamp = timestamp;
@@ -1277,7 +1277,7 @@ void world_state::get_bounding_box(float min[3], float max[3])
     }
 }
 
-void world_state::observe_position_gt(uint64_t timestamp, float x, float y, float z, float qw, float qx, float qy, float qz)
+void world_state::observe_position_gt(rc_Timestamp timestamp, float x, float y, float z, float qw, float qx, float qy, float qz)
 {
     Position p;
     p.timestamp = timestamp;
@@ -1288,18 +1288,18 @@ void world_state::observe_position_gt(uint64_t timestamp, float x, float y, floa
     display_lock.unlock();
 }
 
-void world_state::observe_ate(uint64_t timestamp_us, const float absolute_trajectory_error)
+void world_state::observe_ate(rc_Timestamp timestamp_us, const float absolute_trajectory_error)
 {
     ate = absolute_trajectory_error;
 }
 
-void world_state::observe_rpe(uint64_t timestamp_us, const float relative_pose_error)
+void world_state::observe_rpe(rc_Timestamp timestamp_us, const float relative_pose_error)
 {
     int p = get_plot_by_name("last rpe_T");
     observe_plot_item(timestamp_us, p, "last 1s rpe T", (float)relative_pose_error);
 }
 
-void world_state::observe_position_reloc(uint64_t timestamp, const rc_Pose* poses, size_t nposes) {
+void world_state::observe_position_reloc(rc_Timestamp timestamp, const rc_Pose* poses, size_t nposes) {
     Position p;
     p.timestamp = timestamp;
     decltype(path_reloc) additional_reloc;
@@ -1316,7 +1316,7 @@ void world_state::observe_position_reloc(uint64_t timestamp, const rc_Pose* pose
     display_lock.unlock();
 }
 
-void world_state::observe_virtual_object(uint64_t timestamp, const std::string &name, const rc_Pose& pose) {
+void world_state::observe_virtual_object(rc_Timestamp timestamp, const std::string &name, const rc_Pose& pose) {
     display_lock.lock();
     auto it = virtual_objects.lower_bound(name);
     if (it == virtual_objects.end() || it->first != name) {

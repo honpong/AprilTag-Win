@@ -79,7 +79,7 @@ struct benchmark_result {
         } relocalization;
 
         struct relocalization_time_statistics {
-            uint64_t last_reloc_us = 0;
+            rc_Timestamp last_reloc_us = 0;
             aligned_vector<f_t> elapsed_times_sec;
         } relocalization_time;
 

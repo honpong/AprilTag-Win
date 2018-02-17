@@ -365,27 +365,17 @@ std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidate
     for (auto word : current_frame->dbow_histogram) {
         auto word_i = dbow_inverted_index.find(word.first);
         if (word_i == dbow_inverted_index.end()) continue;
-        std::vector<mapper::nodeid> nodeids = word_i->second;
         nodes.critical_section([&]() {
-            for (size_t i = 0; i < nodeids.size(); ) {
-                mapper::nodeid nid = nodeids[i];
+            for (auto nid : word_i->second) {
                 auto it = nodes->find(nid);
-                bool remove = (it == nodes->end() || it->second.status != node_status::finished);
-                if (remove) {
-                    std::swap(nodeids[i], nodeids.back());
-                    nodeids.pop_back();
-                } else {
-                    ++i;
+                if (it != nodes->end() && it->second.status == node_status::finished) {
+                    common_words_per_node[nid]++;
+                    // keep maximum number of words shared with current frame
+                    if (max_num_shared_words < common_words_per_node[nid])
+                        max_num_shared_words = common_words_per_node[nid];
                 }
             }
         });
-        for (auto nid : nodeids) {
-            common_words_per_node[nid]++;
-            // keep maximum number of words shared with current frame
-            if (max_num_shared_words < common_words_per_node[nid]) {
-                max_num_shared_words = common_words_per_node[nid];
-            }
-        }
     }
 
     // if no common_words, return

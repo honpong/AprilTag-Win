@@ -128,7 +128,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
 
                     if (camera_frame) {
                         filter_compute_orb(&sfm, data, *camera_frame);
-                        filter_compute_dbow(&sfm, *camera_frame);
+                        if (sfm.relocalize) filter_compute_dbow(&sfm, *camera_frame);
                         if (new_group_created) filter_assign_frame(&sfm, *camera_frame);
                         if (relocalize_now) {
                             if (sfm.relocalization_future.valid()) {

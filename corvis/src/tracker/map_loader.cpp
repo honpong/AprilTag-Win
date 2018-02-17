@@ -57,14 +57,12 @@ static bstream_reader & operator >> (bstream_reader &content, shared_ptr<frame_t
         vector<char> img_data;
         img_data.resize(row * stride);
         content.read(img_data.data(), row * stride);
-        content >> frame_ts;
 #ifdef RELOCALIZATION_DEBUG
         frame->image = cv::Mat(row, col, CV_8UC1, (uint8_t*)img_data.data(), stride).clone();
-        frame->timestamp = sensor_clock::micros_to_tp(frame_ts);
 #endif
     }
-    else
-        content >> frame_ts;
+    content >> frame_ts;
+    frame->timestamp = sensor_clock::micros_to_tp(frame_ts);
     return content;
 }
 

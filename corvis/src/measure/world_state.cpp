@@ -266,6 +266,26 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
         observe_plot_item(timestamp_us, p, "v_z" + id, (float)f->observations.recent_v->meas[2]);
     }
 
+    p = get_plot_by_name("state velocity");
+    observe_plot_item(timestamp_us, p, "sv_x", (float)f->s.V.v[0]);
+    observe_plot_item(timestamp_us, p, "sv_y", (float)f->s.V.v[1]);
+    observe_plot_item(timestamp_us, p, "sv_z", (float)f->s.V.v[2]);
+
+    p = get_plot_by_name("state acceleration");
+    observe_plot_item(timestamp_us, p, "sa_x", (float)f->s.a.v[0]);
+    observe_plot_item(timestamp_us, p, "sa_y", (float)f->s.a.v[1]);
+    observe_plot_item(timestamp_us, p, "sa_z", (float)f->s.a.v[2]);
+
+    p = get_plot_by_name("state rotational velocity");
+    observe_plot_item(timestamp_us, p, "sw_x", (float)f->s.w.v[0]);
+    observe_plot_item(timestamp_us, p, "sw_y", (float)f->s.w.v[1]);
+    observe_plot_item(timestamp_us, p, "sw_z", (float)f->s.w.v[2]);
+
+    p = get_plot_by_name("state rotational acceleration");
+    observe_plot_item(timestamp_us, p, "sdw_x", (float)f->s.dw.v[0]);
+    observe_plot_item(timestamp_us, p, "sdw_y", (float)f->s.dw.v[1]);
+    observe_plot_item(timestamp_us, p, "sdw_z", (float)f->s.dw.v[2]);
+
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {
         const auto &camera = *f->s.cameras.children[i];
         if (!camera.intrinsics.estimate) continue;

@@ -34,24 +34,8 @@ static void scale_down_inplace_z16_by(uint16_t *image, int final_width, int fina
         }
 }
 
-static unique_ptr<rc_Tracker, decltype(&rc_destroy)> create_rc_instance() {
-#ifdef MYRIAD2
-    __attribute__((section(".cmx.bss"), aligned(64)))
-        static uint8_t rc_tracker_memory[250 * 1024];
-    static size_t rc_tracker_size = 0;
-    if (rc_tracker_size || (rc_create_at(nullptr, &rc_tracker_size), rc_tracker_size > sizeof(rc_tracker_memory))) {
-        printf("\e[31;1mWarning\e[m: reserved %td for rc_Tracker in CMX, but needed %td; using DDR\n", sizeof(rc_tracker_memory), rc_tracker_size);
-        return{ rc_create(), &rc_destroy };
-    }
-    else
-        return{ rc_create_at(rc_tracker_memory, nullptr), &rc_destroy };
-#else
-    return{ rc_create(), &rc_destroy };
-#endif
-}
-
-bool replay_device::init(device_stream *_stream_object) {
-    tracker = create_rc_instance();
+bool replay_device::init(device_stream *_stream_object, std::unique_ptr <rc_Tracker, decltype(&rc_destroy)> tracker_) {
+    tracker = std::move(tracker_);
     if (!tracker) {
         printf("Error: failed to create tracker instance\n");
         return false;

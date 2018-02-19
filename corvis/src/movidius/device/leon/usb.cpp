@@ -27,8 +27,15 @@ static replay_device rp_device;
 
 void * fnReplay(void * arg)
 {
-    rp_device.init(tm2_pb_stream::get_instance());
     rtems_object_set_name(rtems_task_self(), __func__);
+    __attribute__((section(".cmx.bss"), aligned(64)))
+    static uint8_t rc_tracker_memory[250 * 1024];
+    static size_t rc_tracker_size = 0;
+    if (rc_tracker_size || (rc_create_at(nullptr, &rc_tracker_size), rc_tracker_size > sizeof(rc_tracker_memory))) {
+        printf("\e[31;1mWarning\e[m: reserved %td for rc_Tracker in CMX, but needed %td; using DDR\n", sizeof(rc_tracker_memory), rc_tracker_size);
+        rp_device.init(tm2_pb_stream::get_instance(), { rc_create(), rc_destroy });
+    } else
+        rp_device.init(tm2_pb_stream::get_instance(), { rc_create_at(rc_tracker_memory, nullptr), rc_destroy });
     rp_device.start();
     printf("Destroying tracker and exiting\n");
     return 0;

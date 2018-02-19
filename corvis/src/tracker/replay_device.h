@@ -29,7 +29,7 @@ private:
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     replay_device() {};
-    bool init(device_stream *_stream_object);
+    bool init(device_stream *_stream_object, std::unique_ptr<rc_Tracker, decltype(&rc_destroy)> tracker);
     void start();
     void stop() { is_running = false; }
     void zero_bias();

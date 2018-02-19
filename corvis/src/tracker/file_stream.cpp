@@ -42,7 +42,7 @@ bool file_stream::init_stream() {
     sensor_file.seekg(0, ios::end);
     sensor_data_size = (float)sensor_file.tellg();
     sensor_file.seekg(0, ios::beg);
-    rp_device->init(this);
+    rp_device->init(this, {rc_create(), rc_destroy});
     return !sensor_file.bad() && !sensor_file.eof();
 }
 

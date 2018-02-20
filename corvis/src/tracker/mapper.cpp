@@ -1005,7 +1005,7 @@ bool mapper::serialize(rc_SaveCallback func, void *handle) const {
     bstream_writer cur_stream(func, handle);
     cur_stream.write(magic_file_format_num, sizeof(magic_file_format_num));
     cur_stream << (uint8_t)MAPPER_SERIALIZED_VERSION;
-    cur_stream << *nodes << dbow_inverted_index << *features_dbow;
+    cur_stream << *nodes << *features_dbow;
     cur_stream << *stages;
     cur_stream.end_stream();
     if (!cur_stream.good()) log->error("map was not saved successfully.");
@@ -1037,8 +1037,12 @@ bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
 
     uint64_t max_node_id = 0;
     for (auto &ele : *cur_map.nodes) {
-        if (ele.second.frame)
+        if (ele.second.frame) {
             ele.second.frame->calculate_dbow(cur_map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
+            for (auto &word : ele.second.frame->dbow_histogram) {
+                cur_map.dbow_inverted_index[word.first].push_back(ele.first);
+            }
+        }
         ele.second.status = node_status::finished;
         if (max_node_id < ele.second.id) max_node_id = ele.second.id;
     }

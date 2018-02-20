@@ -169,6 +169,9 @@ f.close()
 if args.progress:
     print ''
 
+error_text = ""
+total_warnings = 0
+
 def compress_warnings(warning_list):
     output_list = []
     i = 0
@@ -213,6 +216,9 @@ for packet_type in sorted(packets.keys()):
       print len(exposure_warnings[packet_type]), "exposure warnings"
   if len(imu_warnings[packet_type]):
       print len(imu_warnings[packet_type]), "IMU warnings"
+
+  total_warnings += len(exceptions) + len(latency_warnings) + len(warnings[packet_type]) + len(exposure_warnings[packet_type]) + len(imu_warnings[packet_type])
+
   for l in latency_warnings:
       if platencies[l] > 50000:
           error_text += "Latency higher than 50ms for " + packet_type + "\n"
@@ -242,23 +248,36 @@ for packet_type in sorted(packets.keys()):
 
 if got_types[calibration_type] == 0:
     print "Warning: Never received calibration packet"
+    total_warnings += 1
 elif got_types[calibration_type] > 1:
-    print "Error: Got %d calibration packets" % got_types[calibration_type]
+    error_text += "Too many calibration packets\n"
 if got_types[arrival_time_type] == 0:
     print "Warning: Never received arrival_time packet"
+    total_warnings += 1
 else:
     if len(out_of_order_warnings) > 0 :
         print "Warning: %d packets arrival_time is out of order" % len(out_of_order_warnings)
+        total_warnings += len(out_of_order_warnings)
     if len(missing_arrival_time_warnings) > 0 :
         print "Warning: %d packets missing arrival time data" % len(missing_arrival_time_warnings)
+        total_warnings += len(missing_arrival_time_warnings)
     if len(unconsumed_arrival_time_warnings) > 0 :
         print "Warning: %d unconsumed arrival-time packets" % len(unconsumed_arrival_time_warnings)
+        total_warnings += len(unconsumed_arrival_time_warnings)
 
 if got_types[accel_type] == 0:
-    print "Error: Never received any accelerometer data"
+    error_text += "Error: Never received any accelerometer data\n"
 if got_types[gyro_type] == 0:
-    print "Error: Never received any gyro data"
+    error_text += "Error: Never received any gyro data\n"
 if got_types[image_raw_type] == 0 and \
    got_types[image_with_depth] == 0 and \
    got_types[stereo_raw_type] == 0:
-    print "Error: Never received any image data"
+    error_text += "Error: Never received any image data\n"
+
+if len(error_text) > 0:
+    print "Failing errors:\n" + error_text
+    print "capturecheck result: Failed!"
+elif total_warnings > 20:
+    print "capturecheck result: Failed, with", total_warnings, "warnings!"
+else:
+    print "capturecheck result: Passed, with", total_warnings, "warnings"

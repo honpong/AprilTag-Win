@@ -207,8 +207,8 @@ for packet_type in sorted(packets.keys()):
       print len(exposure_warnings[packet_type]), "exposure warnings"
   if len(imu_warnings[packet_type]):
       print len(imu_warnings[packet_type]), "IMU warnings"
-  if args.exceptions:
-      for e in exceptions:
+  for e in exceptions:
+      if args.exceptions or deltas[e] > median_delta * 2:
           print "Exception: t t+1 delta", timestamps[e], timestamps[e+1], deltas[e]
   if args.warnings:
       compressed_warnings = compress_warnings(warnings[packet_type])

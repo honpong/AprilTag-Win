@@ -39,6 +39,8 @@ constexpr static float confidence = 0.9f; //0.9
 constexpr static size_t min_num_inliers = 12;
 
 typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, DBoW2::L1_NORM> orb_vocabulary;
+typedef uint64_t nodeid;
+typedef uint64_t featureid;
 
 class state_vision_intrinsics;
 class log_depth;
@@ -119,7 +121,6 @@ struct map_relocalization_result {
 
 class mapper {
  public:
-    typedef uint64_t nodeid;
     typedef std::pair<uint64_t, uint64_t> match;
     typedef std::vector<match> matches;
     struct node_path {
@@ -244,7 +245,7 @@ public:
     }
 private:
     // private functions that lock mutexes internally
-    std::vector<std::pair<mapper::nodeid,float>> find_loop_closing_candidates(
+    std::vector<std::pair<nodeid,float>> find_loop_closing_candidates(
         const std::shared_ptr<frame_t>& current_frame) const;
 
     mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t>& candidate_frame,

@@ -59,7 +59,7 @@ void mapper::reset()
     partially_finished_nodes.clear();
 }
 
-map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
+map_edge &map_node::get_add_neighbor(nodeid neighbor)
 {
     return edges.emplace(neighbor, map_edge{}).first->second;
 }
@@ -355,12 +355,12 @@ mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::f
     return searched_nodes;
 }
 
-std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidates(
+std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
     const std::shared_ptr<frame_t>& current_frame) const
 {
-    std::vector<std::pair<mapper::nodeid, float>> loop_closing_candidates;
+    std::vector<std::pair<nodeid, float>> loop_closing_candidates;
     // find nodes sharing words with current frame
-    std::map<mapper::nodeid,uint32_t> common_words_per_node;
+    std::map<nodeid,uint32_t> common_words_per_node;
     uint32_t max_num_shared_words = 0;
     for (auto word : current_frame->dbow_histogram) {
         auto word_i = dbow_inverted_index.find(word.first);
@@ -384,11 +384,11 @@ std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidate
 
     // keep candidates with at least min_num_shared_words
     size_t min_num_shared_words = static_cast<int>(max_num_shared_words * 0.8f);
-    std::vector<std::pair<mapper::nodeid, float> > dbow_scores;
+    std::vector<std::pair<nodeid, float> > dbow_scores;
     static_assert(orb_vocabulary::scoring_type == DBoW2::ScoringType::L1_NORM,
                   "orb_vocabulary does not use L1 norm");
     float best_score = 0.0f; // assuming L1 norm
-    std::vector<std::pair<mapper::nodeid, std::shared_ptr<frame_t>>> candidate_frames;
+    std::vector<std::pair<nodeid, std::shared_ptr<frame_t>>> candidate_frames;
     candidate_frames.reserve(common_words_per_node.size());
     nodes.critical_section([&]() {
         for (auto& node_candidate : common_words_per_node) {
@@ -407,7 +407,7 @@ std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidate
     }
 
     // sort candidates by dbow_score
-    auto compare_dbow_scores = [](const std::pair<mapper::nodeid, float>& p1, const std::pair<mapper::nodeid, float>& p2) {
+    auto compare_dbow_scores = [](const std::pair<nodeid, float>& p1, const std::pair<nodeid, float>& p2) {
         return (p1.second > p2.second);
     };
     std::sort(dbow_scores.begin(), dbow_scores.end(), compare_dbow_scores);

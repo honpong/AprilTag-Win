@@ -25,7 +25,7 @@ typedef class map_node_t<map_feature_v1, map_edge_v1, frame_t> map_node_v1;
 typedef class mapper_t<map_node_t, map_feature_v1, map_edge_v1, frame_t> mapper_v1;
 
 static bstream_reader & operator >> (bstream_reader& content, shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> &feat) {
-    uint64_t id = 0;
+    featureid id = 0;
     float sin_ = 0, cos_ = 0;
     content >> id >> sin_ >> cos_;
     orb_descriptor::raw orb_des;

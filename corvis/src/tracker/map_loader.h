@@ -38,19 +38,19 @@ struct map_feature_v1 {
 template<typename map_feature_v, typename map_edge_v, typename frame_v>
 class map_node_t {
 public:
-    uint64_t id;
-    std::map<uint64_t, map_edge_v> edges;
-    std::set<uint64_t> covisibility_edges;
+    nodeid id;
+    std::map<nodeid, map_edge_v> edges;
+    std::set<nodeid> covisibility_edges;
     transformation global_transformation;
     uint64_t camera_id;
     std::shared_ptr<frame_v> frame;
-    std::map<uint64_t, map_feature_v> features;
+    std::map<featureid, map_feature_v> features;
 };
 
 class map_stream_reader : public bstream_reader {
 public:
     map_stream_reader(const rc_LoadCallback func_, void *handle_) : bstream_reader(func_, handle_) {};
-    uint64_t max_loaded_featid{ 0 };
+    featureid max_loaded_featid{ 0 };
     map_stream_reader() = delete;
 };
 
@@ -67,9 +67,8 @@ template<template <class map_feature_v, class...> class map_node_v, class map_fe
 class mapper_t : public map_loader {
 public:
     mapper_t() {};
-    typedef uint64_t nodeid;
     std::unordered_map<nodeid, map_node_v<map_feature_v, TArgs...>> nodes;
-    std::map<uint64_t, nodeid> features_dbow;
+    std::map<featureid, nodeid> features_dbow;
     aligned_map<std::string,mapper::stage> stages;
     virtual void set(mapper &cur_map) override {
         for (auto ele : nodes)

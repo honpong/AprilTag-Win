@@ -207,6 +207,7 @@ public:
     }
 };
 
+typedef nodeid groupid;
 class state_vision_group: public state_branch<state_node *> {
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

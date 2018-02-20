@@ -243,7 +243,12 @@ public:
      //do not compare compute-intermediate members or members populated by map loading such as orb_voc,
      //node_id_offset, feature_id_offset and unlinked.
     auto operator==(const test_mapper &rhs) const {
-        mapper_check::expect_eq(dbow_inverted_index, rhs.dbow_inverted_index);
+        static auto sort = [](const std::map<uint64_t, std::vector<nodeid>>& in) {
+            auto out = in;
+            for (auto& it : out) std::sort(it.second.begin(), it.second.end());
+            return out;
+        };
+        mapper_check::expect_eq(sort(dbow_inverted_index), sort(rhs.dbow_inverted_index));
         mapper_check::expect_eq(*features_dbow, *rhs.features_dbow);
         mapper_check::expect_eq(*nodes, *rhs.nodes);
         return true;

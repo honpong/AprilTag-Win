@@ -121,7 +121,7 @@ while header_str != "":
           (exposure, width, height, stride, stride2, camera_format) = unpack('QHHHHH', data[:18])
       type_str = format_types[camera_format]
       packet_str += "_" + type_str
-      if exposure < 1000 or exposure > 50000:
+      if exposure < 10 or exposure > 30000:
           exposure_warnings[packet_str].append((ptime, exposure))
       ptime += exposure/2
       if args.verbose:

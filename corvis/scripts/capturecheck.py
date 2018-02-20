@@ -18,6 +18,8 @@ parser.add_argument("-e", "--exceptions", action='store_true',
         help="Print details when sample dt is more than 5%% away from the median")
 parser.add_argument("-w", "--warnings", action='store_true',
         help="Print details when multiple image frames arrive without an imu frame in between")
+parser.add_argument("-l", "--latency_warnings", action='store_true',
+        help="Print details when latency exceeds 33ms for any sensor")
 parser.add_argument("-x", "--exposure_warnings", action='store_true',
         help="Print details when exposure times are less than 1ms or greater than 50ms")
 parser.add_argument("-i", "--imu_warnings", action='store_true',
@@ -200,13 +202,24 @@ for packet_type in sorted(packets.keys()):
   print "\tstart (s) finish (s):", numpy.min(timestamps)/1e6, numpy.max(timestamps)/1e6
   print "\tlength (s):", (numpy.max(timestamps) - numpy.min(timestamps))/1e6
   exceptions = numpy.flatnonzero(numpy.logical_or(deltas > median_delta*1.05, deltas < median_delta*0.95))
+  latency_warnings = numpy.flatnonzero(platencies > 33333)
+
   print len(exceptions), "samples are more than 5% from median"
+  if len(latency_warnings):
+      print len(latency_warnings), "packet latency warnings"
   if len(warnings[packet_type]):
       print len(warnings[packet_type]), "latency warnings"
   if len(exposure_warnings[packet_type]):
       print len(exposure_warnings[packet_type]), "exposure warnings"
   if len(imu_warnings[packet_type]):
       print len(imu_warnings[packet_type]), "IMU warnings"
+  for l in latency_warnings:
+      if platencies[l] > 50000:
+          error_text += "Latency higher than 50ms for " + packet_type + "\n"
+          break;
+  for l in latency_warnings:
+      if args.latency_warnings or platencies[l] > 50000:
+          print "High latency:", platencies[l], "us at", timestamps[l]
   for e in exceptions:
       if args.exceptions or deltas[e] > median_delta * 2:
           print "Exception: t t+1 delta", timestamps[e], timestamps[e+1], deltas[e]

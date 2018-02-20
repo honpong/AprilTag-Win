@@ -221,6 +221,10 @@ for packet_type in sorted(packets.keys()):
       if args.latency_warnings or platencies[l] > 50000:
           print "High latency:", platencies[l], "us at", timestamps[l]
   for e in exceptions:
+      if deltas[e] > median_delta * 2:
+          error_text += "Missing " + packet_type + " data (deltas too large)\n"
+          break
+  for e in exceptions:
       if args.exceptions or deltas[e] > median_delta * 2:
           print "Exception: t t+1 delta", timestamps[e], timestamps[e+1], deltas[e]
   if args.warnings:

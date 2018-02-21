@@ -287,7 +287,7 @@ private:
     rc_Feature * reuse_features_ptr{ nullptr };
     /// allocated pointer to hold features, mutually exclusive with reuse_features_ptr.
     std::unique_ptr<rc_Feature[]> features;
-    uint32_t num_features{ 0 }, max_save_features{ 30 };
+    uint32_t num_features{ 0 }, max_save_features{ 100 };
 };
 
 /// holds tracking output that includes camera poses, pose velocity, pose acceleration, and confidence,

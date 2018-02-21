@@ -609,9 +609,11 @@ void world_state::rc_data_callback(const replay_output *output, const rc_Data * 
 
     if(data->path == rc_DATA_PATH_FAST) return;
 
-    if (output->get_output_type() == replay_output::output_mode::POSE_FEATURE) {
+    if (output->get_output_type() == replay_output::output_mode::POSE_FEATURE &&
+        (data->type == rc_SENSOR_TYPE_IMAGE || data->type == rc_SENSOR_TYPE_STEREO)) {
         rc_Feature * img_feats;
         int nfeatures = output->rc_getFeatures(&img_feats);
+
         for (int i = 0; i < nfeatures; i++)
             observe_feature(timestamp_us, data->id, img_feats[i]);
         // if tracker, called subsequently instead
@@ -619,7 +621,7 @@ void world_state::rc_data_callback(const replay_output *output, const rc_Data * 
             if (data->type == rc_SENSOR_TYPE_IMAGE) {
                 observe_image(timestamp_us, data->id, data->image, cameras);
             }
-            else if (data->type == rc_SENSOR_TYPE_STEREO) {
+            else {
                 observe_image(timestamp_us, data->id + 0, get_rc_image<0>(data->stereo), cameras);
                 //observe_image(timestamp_us, data->id + 1, get_rc_image<1>(data->stereo), cameras); //TODO support second image
             }

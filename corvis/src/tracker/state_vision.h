@@ -255,6 +255,7 @@ struct state_camera: state_branch<state_node*> {
     int process_tracks(mapper *map, spdlog::logger &log);
 
     int detecting_space = 0;
+    int detector_failed = false;
 
     state_camera(size_t id_) : extrinsics("Qc", "Tc", false), intrinsics(false), id(id_) {
         reset();
@@ -290,7 +291,6 @@ public:
     ~state_vision();
     uint64_t group_counter = 0;
 
-    size_t track_count() const;
     void clear_features_and_groups();
     int process_features(mapper *map);
     state_vision_group *add_group(const rc_Sensor camera_id, mapper *map);

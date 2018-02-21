@@ -124,13 +124,6 @@ void state_vision::reset()
     state_motion::reset();
 }
 
-size_t state_vision::track_count() const
-{
-    int res = 0;
-    for (auto &camera : cameras.children) res += camera->track_count();
-    return res;
-}
-
 void state_vision::clear_features_and_groups()
 {
     stereo_matches.clear();

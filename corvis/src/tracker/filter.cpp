@@ -941,12 +941,18 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     if(camera_state.detected > 0) {
         camera_state.detected = 0;
-        auto active_features = f->s.track_count();
+        auto active_features = camera_state.track_count();
         if(active_features < state_vision_group::min_feats) {
-            f->log->info("detector failure: only {} features after add", active_features);
-            if(!f->detector_failed) f->detector_failed_time = time;
-            f->detector_failed = true;
+            f->log->info("detector failure: only {} features after add on camera {}", active_features, camera_state.id);
+            camera_state.detector_failed = true;
+            bool all_failed = true; for (const auto &c : f->s.cameras.children) all_failed &= c->detector_failed;
+            if(all_failed) {
+                f->log->info("failed to detect in all cameras\n");
+                if(!f->detector_failed) f->detector_failed_time = time;
+                f->detector_failed = true;
+            }
         } else if(active_features >= f->min_group_add) {
+            camera_state.detector_failed = false;
             f->detector_failed = false;
         }
     }
@@ -1105,6 +1111,8 @@ void filter_initialize(struct filter *f)
     f->want_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->run_state = RCSensorFusionRunStateInactive;
 
+    for (auto &c : f->s.cameras.children)
+        c->detector_failed = false;
     f->detector_failed = false;
     f->tracker_failed = false;
     f->tracker_warned = false;

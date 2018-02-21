@@ -73,19 +73,19 @@ enum class node_status {reference, normal, finished};
 
 struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    uint64_t id;
-    aligned_map<uint64_t, map_edge> edges; // key is neighbor_id; we use a map structure to gurantee same order when traversing edges.
-    std::set<uint64_t> covisibility_edges;
-    map_edge &get_add_neighbor(uint64_t neighbor);
+    nodeid id;
+    aligned_map<nodeid, map_edge> edges; // key is neighbor_id; we use a map structure to gurantee same order when traversing edges.
+    std::set<nodeid> covisibility_edges;
+    map_edge &get_add_neighbor(nodeid neighbor);
     void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v, const feature_type type);
-    void set_feature_type(const uint64_t id, const feature_type type);
+    void set_feature_type(const featureid id, const feature_type type);
 
     transformation global_transformation; // dead reckoning pose
 
     // relocalization
     uint64_t camera_id;
     std::shared_ptr<frame_t> frame;
-    aligned_map<uint64_t,map_feature> features;
+    aligned_map<featureid,map_feature> features;
     node_status status{node_status::normal};
 };
 
@@ -94,12 +94,12 @@ struct map_relocalization_info {
     sensor_clock::time_point frame_timestamp;
     relocalization_status rstatus{relocalization_status::begining};
     struct candidate {
-        uint64_t node_id;
+        nodeid node_id;
         transformation G_node_frame;
         transformation G_world_node;
         sensor_clock::time_point node_timestamp;
         candidate() {}
-        candidate(uint64_t id, const transformation &g_node_frame, const transformation &g_world_node, sensor_clock::time_point node_ts)
+        candidate(nodeid id, const transformation &g_node_frame, const transformation &g_world_node, sensor_clock::time_point node_ts)
             : node_id(id), G_node_frame(g_node_frame), G_world_node(g_world_node), node_timestamp(node_ts) {}
     };
     aligned_vector<candidate> candidates;
@@ -108,9 +108,9 @@ struct map_relocalization_info {
 
 struct map_relocalization_edge : public map_edge {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    uint64_t id1;
-    uint64_t id2;
-    map_relocalization_edge(uint64_t _id1, uint64_t _id2, const transformation& _G12, edge_type _type) :
+    nodeid id1;
+    nodeid id2;
+    map_relocalization_edge(nodeid _id1, nodeid _id2, const transformation& _G12, edge_type _type) :
         map_edge(_type, _G12), id1(_id1), id2(_id2) {}
 };
 
@@ -210,14 +210,14 @@ class mapper {
     template<template <class map_feature_v, class...> class map_node_v, class map_feature_v, class... TArgs>
     friend class mapper_t;
     bool unlinked{false};
-    uint64_t node_id_offset{0};
-    uint64_t feature_id_offset{0};
+    nodeid node_id_offset{0};
+    featureid feature_id_offset{0};
 
     // given a word it stores the nodes in which it was observed
     std::map<uint64_t, std::vector<nodeid>> dbow_inverted_index;
 
     // for a feature id we associate the corresponding node in which it was detected
-    concurrent<std::map<uint64_t, nodeid>> features_dbow;
+    concurrent<std::map<featureid, nodeid>> features_dbow;
 
     // nodes whose status is finished but which do not have a frame yet,
     // so their addition to dbow_inverted_index is deferred.
@@ -274,19 +274,19 @@ private:
     void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                      std::shared_ptr<log_depth> v, const feature_type type = feature_type::tracked);
-    void set_feature_type(nodeid node_id, uint64_t feature_id, const feature_type type = feature_type::tracked);
+    void set_feature_type(nodeid node_id, featureid feature_id, const feature_type type = feature_type::tracked);
     void initialize_track_triangulation(const tracker::feature_track &track, const nodeid node_id);
     void finish_lost_tracks(const tracker::feature_track &track);
-    void update_3d_feature(const tracker::feature_track &track, const uint64_t closest_group_id, const transformation &&G_Bnow_Bclosest, const rc_Sensor camera_id_now);
-    v3 get_feature3D(nodeid node_id, uint64_t feature_id) const; // returns feature wrt node body frame
+    void update_3d_feature(const tracker::feature_track &track, const nodeid closest_group_id, const transformation &&G_Bnow_Bclosest, const rc_Sensor camera_id_now);
+    v3 get_feature3D(nodeid node_id, featureid feature_id) const; // returns feature wrt node body frame
     mapper::nodes_path dijkstra_shortest_path(const node_path &start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path &)> is_node_searched,
                                               std::function<bool(const node_path &)> finish_search) const;
 
     const aligned_unordered_map<nodeid, map_node> &get_nodes() const { return *nodes; }
     map_node& get_node(nodeid id) { return nodes->at(id); }
     bool node_in_map(nodeid id) const { return nodes->find(id) != nodes->end(); }
-    uint64_t get_node_id_offset() { return node_id_offset; }
-    uint64_t get_feature_id_offset() { return feature_id_offset; }
+    nodeid get_node_id_offset() { return node_id_offset; }
+    featureid get_feature_id_offset() { return feature_id_offset; }
     bool edge_in_map(nodeid id1, nodeid id2, edge_type& type) const;
 
     void finish_node(nodeid node_id, bool compute_dbow_inverted_index);
@@ -339,12 +339,12 @@ private:
         node_feature_track & operator=(const node_feature_track &) = delete;
     };
     std::vector<node_feature_track> map_feature_tracks;
-    void predict_map_features(const uint64_t camera_id_now, const size_t min_gorup_map_add, const uint64_t closest_group_id, const transformation& G_Bclosest_Bnow);
+    void predict_map_features(const uint64_t camera_id_now, const size_t min_gorup_map_add, const nodeid closest_group_id, const transformation& G_Bclosest_Bnow);
 
 // triangulated tracks
     struct triangulated_track
     {
-        nodeid reference_nodeid = std::numeric_limits<uint64_t>::max();
+        nodeid reference_nodeid = std::numeric_limits<nodeid>::max();
         std::shared_ptr<log_depth> state; // pixel coordinates are constant
         float cov = 0.75f;
         float parallax = 0;
@@ -353,7 +353,7 @@ private:
                            std::shared_ptr<log_depth> s) :
             reference_nodeid(id), state(s) {}
     };
-    std::unordered_map<uint64_t, triangulated_track> triangulated_tracks;
+    std::unordered_map<featureid, triangulated_track> triangulated_tracks;
 };
 
 #endif

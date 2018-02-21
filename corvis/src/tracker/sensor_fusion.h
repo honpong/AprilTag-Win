@@ -26,7 +26,7 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     struct feature_point
     {
-        uint64_t id;
+        featureid id;
         f_t x, y;
         f_t original_depth;
         f_t stdev;

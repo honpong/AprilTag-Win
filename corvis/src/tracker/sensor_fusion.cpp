@@ -83,7 +83,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
     switch(data.type) {
         case rc_SENSOR_TYPE_IMAGE: {
             bool docallback = true;
-            uint64_t groups = sfm.s.group_counter;
+            groupid groups = sfm.s.group_counter;
             if(isProcessingVideo)
                 docallback = filter_image_measurement(&sfm, data);
             else
@@ -236,7 +236,7 @@ bool sensor_fusion::set_stage(const char *name, const rc_Pose &G_world_stage) {
     if (!sfm.map)
         return false;
     queue.dispatch_async([this, name=std::string(name), G_world_stage]() mutable {
-        uint64_t closest_id; transformation Gr_closest_now;
+        groupid closest_id; transformation Gr_closest_now;
         if (sfm.s.get_closest_group_transformation(closest_id, Gr_closest_now)) {
             transformation G_closest_stage = Gr_closest_now * invert(get_transformation()) * to_transformation(G_world_stage);
             sfm.map->set_stage(std::move(name), closest_id, G_closest_stage);
@@ -249,7 +249,7 @@ bool sensor_fusion::set_stage(const char *name, const rc_Pose &G_world_stage) {
 bool sensor_fusion::get_stage(bool next, const char *name, mapper::stage::output &current_stage) {
     if (!sfm.map)
         return false;
-    uint64_t closest_id; transformation Gr_closest_now;
+    groupid closest_id; transformation Gr_closest_now;
     if (!sfm.s.get_closest_group_transformation(closest_id, Gr_closest_now))
         return false;
     return sfm.map->get_stage(next, name, closest_id, get_transformation() * invert(Gr_closest_now), current_stage);

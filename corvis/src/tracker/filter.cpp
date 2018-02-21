@@ -567,7 +567,7 @@ static size_t filter_available_feature_space(struct filter *f)
 std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *f, const sensor_data& data)
 {
     std::unique_ptr<camera_frame_t> camera_frame;
-    uint64_t closest_group_id;
+    groupid closest_group_id;
     transformation G_Bclosest_Bnow;
     if(f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow)) {
         camera_frame.reset(new camera_frame_t);
@@ -1026,7 +1026,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     space = filter_available_feature_space(f);
     // bring groups back
     if(f->map && space >= f->min_group_map_add) {
-        uint64_t closest_group_id;
+        groupid closest_group_id;
         transformation G_Bclosest_Bnow;
         if(f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow)) {
             camera_state.update_map_tracks(data, f->map.get(), f->min_group_map_add, closest_group_id, G_Bclosest_Bnow);
@@ -1428,7 +1428,7 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
 {
     // update triangulated 3d feature with new observation
     if(f->map) {
-        uint64_t closest_group_id;
+        groupid closest_group_id;
         transformation G_Bclosest_Bnow;
         bool valid_transformation = f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow);
         auto &c = f->s.cameras.children[camera_id];
@@ -1437,7 +1437,7 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
             if(tp != f->map->triangulated_tracks.end()) {
                 if(!f->map->node_in_map(tp->second.reference_nodeid)) {
                     f->map->triangulated_tracks.erase(sbt.feature->id); //if reference node removed, remove triangulated feature too
-                } else if (valid_transformation && tp->second.reference_nodeid != std::numeric_limits<uint64_t>::max()) {
+                } else if (valid_transformation && tp->second.reference_nodeid != std::numeric_limits<nodeid>::max()) {
                     f->map->update_3d_feature(sbt, closest_group_id, invert(G_Bclosest_Bnow), camera_id);
                 }
             }

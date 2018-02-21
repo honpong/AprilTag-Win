@@ -59,7 +59,7 @@ void mapper::reset()
     partially_finished_nodes.clear();
 }
 
-map_edge &map_node::get_add_neighbor(mapper::nodeid neighbor)
+map_edge &map_node::get_add_neighbor(nodeid neighbor)
 {
     return edges.emplace(neighbor, map_edge{}).first->second;
 }
@@ -168,7 +168,7 @@ void mapper::remove_node_features(nodeid id) {
         features_dbow->erase(f.first);
 }
 
-void mapper::update_3d_feature(const tracker::feature_track& track, const uint64_t closest_group_id,
+void mapper::update_3d_feature(const tracker::feature_track& track, const nodeid closest_group_id,
                                const transformation &&G_Bnow_Bclosest, const rc_Sensor camera_id_now) {
 
     auto tp = triangulated_tracks.find(track.feature->id);
@@ -249,7 +249,7 @@ void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR
     features.emplace(feature->id, mf);
 }
 
-void map_node::set_feature_type(const uint64_t id, const feature_type type)
+void map_node::set_feature_type(const featureid id, const feature_type type)
 {
     features[id].type = type;
 }
@@ -264,11 +264,11 @@ void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feat
     });
 }
 
-void mapper::set_feature_type(nodeid groupid, uint64_t id, const feature_type type) {
-    nodes->at(groupid).set_feature_type(id, type);
+void mapper::set_feature_type(nodeid group_id, featureid id, const feature_type type) {
+    nodes->at(group_id).set_feature_type(id, type);
 }
 
-v3 mapper::get_feature3D(nodeid node_id, uint64_t feature_id) const {
+v3 mapper::get_feature3D(nodeid node_id, featureid feature_id) const {
     const map_node& node = nodes->at(node_id);
     auto mf = node.features.at(feature_id);
     auto intrinsics = camera_intrinsics[node.camera_id];
@@ -355,12 +355,12 @@ mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::f
     return searched_nodes;
 }
 
-std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidates(
+std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
     const std::shared_ptr<frame_t>& current_frame) const
 {
-    std::vector<std::pair<mapper::nodeid, float>> loop_closing_candidates;
+    std::vector<std::pair<nodeid, float>> loop_closing_candidates;
     // find nodes sharing words with current frame
-    std::map<mapper::nodeid,uint32_t> common_words_per_node;
+    std::map<nodeid,uint32_t> common_words_per_node;
     uint32_t max_num_shared_words = 0;
     for (auto word : current_frame->dbow_histogram) {
         auto word_i = dbow_inverted_index.find(word.first);
@@ -384,11 +384,11 @@ std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidate
 
     // keep candidates with at least min_num_shared_words
     size_t min_num_shared_words = static_cast<int>(max_num_shared_words * 0.8f);
-    std::vector<std::pair<mapper::nodeid, float> > dbow_scores;
+    std::vector<std::pair<nodeid, float> > dbow_scores;
     static_assert(orb_vocabulary::scoring_type == DBoW2::ScoringType::L1_NORM,
                   "orb_vocabulary does not use L1 norm");
     float best_score = 0.0f; // assuming L1 norm
-    std::vector<std::pair<mapper::nodeid, std::shared_ptr<frame_t>>> candidate_frames;
+    std::vector<std::pair<nodeid, std::shared_ptr<frame_t>>> candidate_frames;
     candidate_frames.reserve(common_words_per_node.size());
     nodes.critical_section([&]() {
         for (auto& node_candidate : common_words_per_node) {
@@ -407,7 +407,7 @@ std::vector<std::pair<mapper::nodeid,float>> mapper::find_loop_closing_candidate
     }
 
     // sort candidates by dbow_score
-    auto compare_dbow_scores = [](const std::pair<mapper::nodeid, float>& p1, const std::pair<mapper::nodeid, float>& p2) {
+    auto compare_dbow_scores = [](const std::pair<nodeid, float>& p1, const std::pair<nodeid, float>& p2) {
         return (p1.second > p2.second);
     };
     std::sort(dbow_scores.begin(), dbow_scores.end(), compare_dbow_scores);
@@ -536,8 +536,8 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
         std::partial_sort(increment_orientation_histogram.begin(),
                           increment_orientation_histogram.begin()+3,
                           increment_orientation_histogram.end(),
-                          [](const std::vector<std::pair<uint64_t, uint64_t>>&v1,
-                          const std::vector<std::pair<uint64_t, uint64_t>>&v2) {
+                          [](const std::vector<std::pair<featureidx, featureidx>>&v1,
+                          const std::vector<std::pair<featureidx, featureidx>>&v2) {
             return (v1.size() > v2.size());});
 
         for(int i=0; i<3; ++i) {
@@ -673,11 +673,11 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
             if (!ok) continue;
 
             const auto &keypoint_candidates = candidate_node_frame->keypoints;
-            std::vector<std::tuple<uint64_t, uint64_t, nodeid>> candidate_features;  // current_feature_id, candidate_feature_id, node_containing_candidate_feature_id
+            std::vector<std::tuple<featureidx, featureid, nodeid>> candidate_features;  // current_feature_index, candidate_feature_id, node_containing_candidate_feature_id
             features_dbow.critical_section([&]() {
                 for (auto m : matches_node_candidate) {
                     auto &candidate = *keypoint_candidates[m.second];
-                    uint64_t keypoint_id = candidate.id;
+                    featureid keypoint_id = candidate.id;
                     auto it = features_dbow->find(keypoint_id);
                     if (it != features_dbow->end()) {
                         candidate_features.emplace_back(m.first, it->first, it->second);
@@ -686,8 +686,8 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
             });
             nodes.critical_section([&]() {
                 for (auto& f : candidate_features) {
-                    uint64_t current_feature_id = std::get<0>(f);
-                    uint64_t keypoint_id = std::get<1>(f);
+                    featureidx current_feature_index = std::get<0>(f);
+                    featureid keypoint_id = std::get<1>(f);
                     nodeid nodeid_keypoint = std::get<2>(f);
                     if (nodes->find(nodeid_keypoint) != nodes->end()) {
                         // NOTE: We use 3d features observed from candidate, this does not mean
@@ -700,7 +700,7 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
                                 get_feature3D(nodeid_keypoint, keypoint_id); // feat is in body frame
                         candidate_3d_points.push_back(p_candidate);
                         //undistort keypoints at current frame
-                        feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(keypoint_xy_current[current_feature_id]));
+                        feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(keypoint_xy_current[current_feature_index]));
                         current_2d_points.push_back(ukp);
                     }
                 }
@@ -859,7 +859,7 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
 }
 
 void mapper::predict_map_features(const uint64_t camera_id_now, const size_t min_group_map_add,
-                                  const uint64_t closest_group_id, const transformation& G_Bclosest_Bnow) {
+                                  const nodeid closest_group_id, const transformation& G_Bclosest_Bnow) {
     map_feature_tracks.clear();
 
     const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
@@ -1025,7 +1025,7 @@ bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
     loaded_map->set(cur_map);
     loaded_map.reset();
 
-    uint64_t max_node_id = 0;
+    nodeid max_node_id = 0;
     for (auto &ele : *cur_map.nodes) {
         if (ele.second.frame) {
             ele.second.frame->calculate_dbow(cur_map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file

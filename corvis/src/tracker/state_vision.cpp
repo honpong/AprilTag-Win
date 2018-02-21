@@ -74,7 +74,7 @@ bool state_vision_feature::force_initialize()
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
 
-state_vision_group::state_vision_group(state_camera &camera_, uint64_t group_id): Gr (make_aligned_shared<transformation>()), Tr(Gr->T, "Tr", dynamic), Qr(Gr->Q, "Qr", dynamic),  camera(camera_)
+state_vision_group::state_vision_group(state_camera &camera_, groupid group_id): Gr (make_aligned_shared<transformation>()), Tr(Gr->T, "Tr", dynamic), Qr(Gr->Q, "Qr", dynamic),  camera(camera_)
 {
     id = group_id;
     children.push_back(&Qr);
@@ -211,7 +211,7 @@ int state_vision::process_features(mapper *map)
 
     // store info about reference group in case all groups are removed
     transformation G_reference_now;
-    uint64_t reference_id{0};
+    groupid reference_id{0};
     if(reference_group) {
         reference_id = reference_group->id;
         G_reference_now = *reference_group->Gr;
@@ -272,7 +272,7 @@ transformation state_vision::get_transformation() const
     return loop_offset*transformation(Q.v, T.v);
 }
 
-bool state_vision::get_closest_group_transformation(uint64_t &group_id, transformation& G) const {
+bool state_vision::get_closest_group_transformation(groupid &group_id, transformation& G) const {
     float min_group_distance = std::numeric_limits<float>::max();
     for (auto &g : groups.children) {
         if(g->Tr.v.norm() <= min_group_distance) {
@@ -285,7 +285,7 @@ bool state_vision::get_closest_group_transformation(uint64_t &group_id, transfor
     return min_group_distance < std::numeric_limits<float>::max();
 }
 
-bool state_vision::get_group_transformation(const uint64_t group_id, transformation& G) const
+bool state_vision::get_group_transformation(const groupid group_id, transformation& G) const
 {
     for (auto &g : groups.children) {
         if(g->id == group_id) {
@@ -565,7 +565,7 @@ void state_camera::update_feature_tracks(const sensor_data &data)
 }
 
 void state_camera::update_map_tracks(const sensor_data &data, mapper *map,
-                                     const size_t min_group_map_add, const uint64_t closest_group_id,
+                                     const size_t min_group_map_add, const groupid closest_group_id,
                                      const transformation &G_Bclosest_Bnow) {
     START_EVENT(SF_TRACK, 0);
     tracker::image current_image;

@@ -109,7 +109,7 @@ struct camera_frame_t {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     rc_Sensor camera_id;
     std::shared_ptr<frame_t> frame;
-    uint64_t closest_node;
+    nodeid closest_node;
     transformation G_closestnode_frame;
 };
 
@@ -221,11 +221,11 @@ class state_vision_group: public state_branch<state_node *> {
     std::list<std::unique_ptr<state_vision_feature>> lost_features;
     int health = 0;
     enum group_flag status = group_normal;
-    uint64_t id;
+    groupid id;
     uint64_t frames_active = 0;
     bool reused = false;
 
-    state_vision_group(state_camera &camera, uint64_t group_id);
+    state_vision_group(state_camera &camera, groupid group_id);
     void make_reference();
     static f_t ref_noise;
     static f_t min_feats;
@@ -251,7 +251,7 @@ struct state_camera: state_branch<state_node*> {
 
     std::list<state_vision_track> tracks;
     void update_feature_tracks(const sensor_data &data);
-    void update_map_tracks(const sensor_data &data, mapper *map, const size_t min_group_map_add, const uint64_t closest_group_id, const transformation &G_Bclosest_Bnow);
+    void update_map_tracks(const sensor_data &data, mapper *map, const size_t min_group_map_add, const groupid closest_group_id, const transformation &G_Bclosest_Bnow);
     size_t track_count() const;
     int process_tracks(mapper *map, spdlog::logger &log);
 
@@ -283,21 +283,21 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     state_branch<std::unique_ptr<state_camera>, std::vector<std::unique_ptr<state_camera>>> cameras;
     state_branch<std::unique_ptr<state_vision_group>> groups;
-    std::map<uint64_t,stereo_match> stereo_matches;
+    std::map<featureid,stereo_match> stereo_matches;
     state_vision(covariance &c, matrix &FP) : state_motion(c, FP) {
         non_orientation.children.push_back(&cameras);
         non_orientation.children.push_back(&groups);
     }
     ~state_vision();
-    uint64_t group_counter = 0;
+    groupid group_counter = 0;
 
     size_t track_count() const;
     void clear_features_and_groups();
     int process_features(mapper *map);
     state_vision_group *add_group(const rc_Sensor camera_id, mapper *map);
     transformation get_transformation() const;
-    bool get_closest_group_transformation(uint64_t& group_id, transformation& G) const;
-    bool get_group_transformation(const uint64_t group_id, transformation& G) const;
+    bool get_closest_group_transformation(groupid &group_id, transformation& G) const;
+    bool get_group_transformation(const groupid group_id, transformation& G) const;
 
     void update_map(mapper *map);
 

@@ -41,6 +41,7 @@ constexpr static size_t min_num_inliers = 12;
 typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, DBoW2::L1_NORM> orb_vocabulary;
 typedef uint64_t nodeid;
 typedef uint64_t featureid;
+typedef size_t featureidx;
 
 class state_vision_intrinsics;
 class log_depth;

@@ -536,8 +536,8 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
         std::partial_sort(increment_orientation_histogram.begin(),
                           increment_orientation_histogram.begin()+3,
                           increment_orientation_histogram.end(),
-                          [](const std::vector<std::pair<uint64_t, uint64_t>>&v1,
-                          const std::vector<std::pair<uint64_t, uint64_t>>&v2) {
+                          [](const std::vector<std::pair<featureidx, featureidx>>&v1,
+                          const std::vector<std::pair<featureidx, featureidx>>&v2) {
             return (v1.size() > v2.size());});
 
         for(int i=0; i<3; ++i) {
@@ -673,7 +673,7 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
             if (!ok) continue;
 
             const auto &keypoint_candidates = candidate_node_frame->keypoints;
-            std::vector<std::tuple<uint64_t, featureid, nodeid>> candidate_features;  // current_feature_index, candidate_feature_id, node_containing_candidate_feature_id
+            std::vector<std::tuple<featureidx, featureid, nodeid>> candidate_features;  // current_feature_index, candidate_feature_id, node_containing_candidate_feature_id
             features_dbow.critical_section([&]() {
                 for (auto m : matches_node_candidate) {
                     auto &candidate = *keypoint_candidates[m.second];
@@ -686,7 +686,7 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
             });
             nodes.critical_section([&]() {
                 for (auto& f : candidate_features) {
-                    uint64_t current_feature_index = std::get<0>(f);
+                    featureidx current_feature_index = std::get<0>(f);
                     featureid keypoint_id = std::get<1>(f);
                     nodeid nodeid_keypoint = std::get<2>(f);
                     if (nodes->find(nodeid_keypoint) != nodes->end()) {

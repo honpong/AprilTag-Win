@@ -122,7 +122,7 @@ struct map_relocalization_result {
 
 class mapper {
  public:
-    typedef std::pair<uint64_t, uint64_t> match;
+    typedef std::pair<featureidx, featureidx> match;
     typedef std::vector<match> matches;
     struct node_path {
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW

@@ -16,7 +16,10 @@ public:
     bool start_stream() override;
     uint64_t get_bytes_dispatched() override { return bytes_dispatched; };
     uint64_t get_packets_dispatched() override { return packets_dispatched; };
-    void put_host_packet(rc_packet_t &&post_packet) override;
+    bool put_host_packet(rc_packet_t &&post_packet) override;
+    void wait_device_packet(const std::vector<uint32_t> &pkt_types) override {
+        if (is_usb_ok) host_stream::wait_device_packet(pkt_types);
+    }
     ~tm2_host_stream();
 private:
     std::ifstream sensor_file;
@@ -32,4 +35,5 @@ private:
     replay_output track_output;
     std::list<std::unique_ptr<rc_Data, void(*)(void *)>> sensor_queue;
     std::mutex image_queue_mtx;
+    bool is_usb_ok{ false };
 };

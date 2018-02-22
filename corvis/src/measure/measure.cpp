@@ -106,7 +106,10 @@ int main(int c, char **v)
         goto usage;
 
     auto configure = [&](replay &rp, const char *capture_file) -> bool {
-        if (!rp.init()) return false;
+        if (!rp.init()) {
+            cerr << "Error: failed to init streaming" << std::endl;
+            return false;
+        }
         rp.set_message_level(message_level);
 
         if(qvga) rp.enable_qvga();
@@ -297,7 +300,6 @@ int main(int c, char **v)
         });
         return 0;
     }
-
     auto rp_ = std::make_unique<replay>(
 #ifdef  ENABLE_TM2_PLAYBACK
         tm2_playback ? new tm2_host_stream(filename) :

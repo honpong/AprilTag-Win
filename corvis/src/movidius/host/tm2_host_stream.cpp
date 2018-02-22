@@ -55,13 +55,14 @@ tm2_host_stream::tm2_host_stream(const char*filename) {
 };
 
 void shutdown(int _unused = 0) {
-    usb_shutdown(0);
+    usb_shutdown();
 }
 
 bool tm2_host_stream::init_stream() {
-    usb_init();
+    is_usb_ok = usb_init();
     signal(SIGINT, shutdown);
-    return usb_send_control(CONTROL_MESSAGE_START, 0, 0, 0);
+    is_usb_ok = is_usb_ok && usb_send_control(CONTROL_MESSAGE_START, 0, 0, 0);
+    return is_usb_ok;
 }
 
 bool tm2_host_stream::start_stream() {
@@ -151,7 +152,7 @@ bool tm2_host_stream::start_stream() {
                     auto data_rc_format = create_rc_Data(cur_packet);
                     if (data_rc_format) sensor_queue.emplace_back(move(data_rc_format));
                 }
-                put_host_packet(move(cur_packet)); //send sensor packets to device
+                enable_sensor = put_host_packet(move(cur_packet)); //send sensor packets to device
                 if (progress_callback) {  // Update progress at most at 30Hz or if we are almost done
                     auto now = high_resolution_clock::now();
                     if (duration<double, milli>(now - last_progress) > milliseconds(33) ||
@@ -166,12 +167,11 @@ bool tm2_host_stream::start_stream() {
     return sts;
 }
 
-void tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
-    if (!post_packet) return;
+bool tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
+    static bool stop_sending_packet = false; //discontinues usb communication, used at tear down.
+    if (!is_usb_ok || !post_packet || stop_sending_packet) return false;
 
     std::lock_guard<std::mutex> lk(put_mutex);
-    static bool stop_usb_packet = false; //discontinues usb communication, used at tear down.
-    if (stop_usb_packet) return;
     bool write_packet = true;
     packet = move(post_packet); //free prior packet
     switch (get_packet_type(packet)) {
@@ -190,10 +190,21 @@ void tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
         track_output.set_output_type(replay_output::output_mode::POSE_FEATURE);
         break;
     }
-    case packet_command_end: stop_usb_packet = true;
+    case packet_command_end: stop_sending_packet = true;
     case packet_command_stop: enable_sensor = false;
     }
-    if (write_packet) usb_write_packet(packet);
+
+    if (write_packet)
+        if (!usb_write_packet(packet)) is_usb_ok = false;
+
+    if (!is_usb_ok) {
+        {//inform waiting host to stop waiting
+            lock_guard<mutex> lk(host_stream::wait_device_mtx);
+            host_stream::arrived_type = packet_invalid_usb;
+        }
+        host_stream::device_response.notify_all();
+    }
+    return is_usb_ok;
 }
 
 tm2_host_stream::~tm2_host_stream() {

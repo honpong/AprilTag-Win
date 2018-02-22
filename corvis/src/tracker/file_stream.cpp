@@ -123,13 +123,14 @@ bool file_stream::read_header(packet_header_t *header, bool control_only) {
     return sts;
 }
 
-void file_stream::put_host_packet(rc_packet_t &&new_packet) {
-    if (!new_packet) return;
+bool file_stream::put_host_packet(rc_packet_t &&new_packet) {
+    if (!new_packet) return true; //skip empty packet in host_queue
     {
         lock_guard<mutex> lk(host_queue_mtx);
         host_queue.push_back(move(new_packet));
     }
     control_packet_cond.notify_one();
+    return true;
 }
 
 void file_stream::put_device_packet(const rc_packet_t &device_packet) {

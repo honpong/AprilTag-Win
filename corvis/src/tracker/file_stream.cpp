@@ -135,7 +135,11 @@ void file_stream::put_host_packet(rc_packet_t &&new_packet) {
 void file_stream::put_device_packet(const rc_packet_t &device_packet) {
     if (!device_packet) return;
     switch (get_packet_type(device_packet)) {
-    case packet_timing_stat: tracking_stat.assign((const char*)device_packet->data);
+    case packet_timing_stat: { tracking_stat.assign((const char*)device_packet->data); break; }
+    case packet_camera_extrinsics: {
+        memcpy(&camera_extrinsics[0], device_packet->data, 2 * sizeof(rc_Extrinsics));
+        break;
+    }
     }
     {   //inform waiting host upon new packet from device
         lock_guard<mutex> lk(host_stream::wait_device_mtx);

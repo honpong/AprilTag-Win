@@ -47,6 +47,7 @@ public:
     }
     /// tracking statistics.
     std::string tracking_stat;
+    rc_Extrinsics camera_extrinsics[2] = { rc_Extrinsics{} };
     virtual ~host_stream() {};
 protected:
     std::mutex wait_device_mtx;
@@ -128,6 +129,7 @@ typedef enum replay_packet_type {
     packet_save_data, //packet used by device to send for saving
     packet_save_end, //packet used by device to send for saving
     packet_set_stage,
+    packet_camera_extrinsics,
 } replay_packet_type;
 
 static inline rc_packet_t packet_control_alloc(uint8_t control_type, const char *load, size_t load_size) {

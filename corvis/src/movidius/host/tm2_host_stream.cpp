@@ -114,6 +114,10 @@ bool tm2_host_stream::start_stream() {
                 switch (get_packet_type(output_pkt)) {
                 case packet_save_data: { save_stream_to_file(output_pkt.get(), save_file); break; }
                 case packet_timing_stat: { tracking_stat.assign((const char*)output_pkt->data); break; }
+                case packet_camera_extrinsics: {
+                    memcpy(&camera_extrinsics[0], output_pkt->data, 2 * sizeof(rc_Extrinsics));
+                    break;
+                }
                 }
                 {//inform waiting host upon new packet from device
                     lock_guard<mutex> lk(host_stream::wait_device_mtx);

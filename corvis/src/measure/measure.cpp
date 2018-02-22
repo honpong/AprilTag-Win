@@ -203,12 +203,10 @@ int main(int c, char **v)
                                        ref_tpose.G.Q.w(), ref_tpose.G.Q.x(), ref_tpose.G.Q.y(), ref_tpose.G.Q.z());
         }
 
-        if(has_reference && rp_output->tracker && rp_output->data_path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW)) {
+        if(has_reference && rp_output->data_path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW)) {
             if (first) {
                 first = false;
-                rc_Extrinsics extrinsics;
-                rc_describeCamera(rp_output->tracker, 0, rc_FORMAT_GRAY8, &extrinsics, nullptr);
-                loop_gt.set_camera(extrinsics);
+                loop_gt.set_camera(rp.get_camera_extrinsics(0));
                 loop_gt.add_reference_poses(rp.get_reference_poses());
                 // transform reference trajectory to tracker world frame
                 rp.set_relative_pose(timestamp, current_tpose);

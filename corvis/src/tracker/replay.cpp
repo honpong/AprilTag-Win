@@ -66,6 +66,7 @@ void replay::start_async(){
         request(packet_command_start);
         is_started = true;
     }
+    request(packet_camera_extrinsics);
     if (start_paused) toggle_pause();
     replay_thread = std::thread([&]() {stream->start_stream(); }); //thread is needed for supporting with file_stream
 }
@@ -156,6 +157,11 @@ std::string replay::get_track_stat() {
     request(packet_timing_stat);
     stream->wait_device_packet({ packet_timing_stat });
     return stream->tracking_stat;
+}
+
+rc_Extrinsics replay::get_camera_extrinsics(uint8_t camera_id) {
+    if (camera_id >= 2) return rc_Extrinsics();
+    return stream->camera_extrinsics[camera_id];
 }
 
 replay::~replay() {

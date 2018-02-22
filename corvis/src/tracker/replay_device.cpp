@@ -300,10 +300,10 @@ void replay_device::process_control(const packet_control_t *packet) {
         break; 
     }
     case packet_enable_odometry: { use_odometry = true; break; }
-    case packet_enable_mesg_level: { 
-        message_level = (rc_MessageLevel)((uint64_t *)packet->data)[0]; 
-        if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, nullptr, message_level);
-        break; 
+    case packet_enable_mesg_level: {
+        auto *packet_mesg = (uint64_t *)packet->data;
+        if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, nullptr, (rc_MessageLevel)packet_mesg[0]);
+        break;
     }
     case packet_enable_mapping: { 
         uint8_t save_map = ((uint8_t *)packet->data)[0];
@@ -345,7 +345,11 @@ void replay_device::process_control(const packet_control_t *packet) {
         break;
     }
     case packet_command_step: { is_paused = is_stepping = true; break; }
-    case packet_command_next_pause: { next_pause = ((uint64_t *)packet->data)[0]; break; }
+    case packet_command_next_pause: {
+        auto *packet_command = (uint64_t *)packet->data;
+        next_pause = packet_command[0];
+        break;
+    }
     case packet_command_toggle_pause: { is_paused = !is_paused; break; }
     case packet_command_reset: {
         fprintf(stderr, "Resetting...");
@@ -363,6 +367,13 @@ void replay_device::process_control(const packet_control_t *packet) {
     case packet_command_stop: {
         rc_stopTracker(tracker.get());
         stream->put_device_packet(packet_command_alloc(packet_command_stop));
+        break;
+    }
+    case packet_camera_extrinsics: {
+        rc_Extrinsics extrinsics[2] = { rc_Extrinsics{} };
+        rc_describeCamera(tracker.get(), 0, rc_FORMAT_GRAY8, &extrinsics[0], nullptr);
+        rc_describeCamera(tracker.get(), 1, rc_FORMAT_GRAY8, &extrinsics[1], nullptr);
+        stream->put_device_packet(packet_control_alloc(packet_camera_extrinsics, (char *)&extrinsics, 2 * sizeof(rc_Extrinsics)));
         break;
     }
     case packet_command_end: { is_running = false; }

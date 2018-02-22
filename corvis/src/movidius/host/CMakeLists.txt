@@ -55,3 +55,7 @@ add_executable( slam_client
 set_property(TARGET slam_client PROPERTY CXX_STANDARD 14)
 
 target_link_libraries( slam_client slam_usb ${OpenCV_LIBS})
+
+add_executable(tm2_reset tm2_reset.cpp)
+target_link_libraries(tm2_reset slam_usb)
+set_property(TARGET tm2_reset PROPERTY CXX_STANDARD 14)

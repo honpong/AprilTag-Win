@@ -2,9 +2,9 @@
 
 #include <memory>
 
-#include "packet.h"
 #include "usb_definitions.h"
 
+struct packet_t;
 typedef std::unique_ptr<packet_t, decltype(&free)> rc_packet_t;
 
 bool usb_init();

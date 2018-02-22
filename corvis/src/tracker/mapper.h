@@ -286,7 +286,7 @@ private:
     const aligned_unordered_map<nodeid, map_node> &get_nodes() const { return *nodes; }
     map_node& get_node(nodeid id) { return nodes->at(id); }
     bool node_in_map(nodeid id) const { return nodes->find(id) != nodes->end(); }
-    nodeid get_node_id_offset() { return node_id_offset; }
+    nodeid get_node_id_offset() const { return node_id_offset; }
     featureid get_feature_id_offset() { return feature_id_offset; }
     bool edge_in_map(nodeid id1, nodeid id2, edge_type& type) const;
 

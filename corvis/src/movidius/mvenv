@@ -2,9 +2,10 @@
 
 SLAM_ROOT=$(cd $(dirname "$BASH_SOURCE") && pwd)
 MDK_ROOT=$(pwd)
-MDK_NAME=mdk-17.04.5.tar.gz
-MDK_CANONICAL=mdk_release_17.04.5_general_purpose
-MDK_URL=http://artifactoryperc01.iil.intel.com:8081/artifactory/libs-release-local/movidius/mdk/mdk/17.04.05/$MDK_NAME
+MDK_NAME=mdk-17.04.05_hotfix.tar.gz
+MDK_ORIG_NAME=mdk_release_17.04.5_general_purpose
+MDK_CANONICAL=mdk_release_17.04.5_hotfix_general_purpose
+MDK_URL=http://artifactoryperc01.iil.intel.com:8081/artifactory/libs-release-local/movidius/mdk/mdk/17.04.05_hotfix/$MDK_NAME
 
 export MDK_INSTALL_DIR=$MDK_ROOT/external/
 
@@ -33,7 +34,7 @@ if [[ ! -d $MDK_INSTALL_DIR/$MDK_CANONICAL ]]; then
     echo "Untaring MDK..."
     mkdir -p $MDK_INSTALL_DIR/.mdk &&
     tar   -C $MDK_INSTALL_DIR/.mdk -zxf $MDK_TAR &&
-    mv       $MDK_INSTALL_DIR/.mdk/$MDK_CANONICAL $MDK_INSTALL_DIR/$MDK_CANONICAL
+    mv       $MDK_INSTALL_DIR/.mdk/$MDK_ORIG_NAME $MDK_INSTALL_DIR/$MDK_CANONICAL
 fi
 
 type -p quilt > /dev/null || {

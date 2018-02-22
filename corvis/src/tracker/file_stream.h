@@ -33,6 +33,6 @@ public:
     void put_device_packet(const rc_packet_t &post_packet) override;
     uint64_t get_bytes_dispatched() override { return bytes_dispatched; };
     uint64_t get_packets_dispatched()override { return packets_dispatched; };
-    void put_host_packet(rc_packet_t &&post_packet) override;
+    bool put_host_packet(rc_packet_t &&post_packet) override;
     ~file_stream();
 };

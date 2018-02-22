@@ -90,6 +90,7 @@ public:
         if (replay_thread.joinable()) replay_thread.join();
     }
     void set_stage() { request(packet_set_stage); }
+    rc_Extrinsics get_camera_extrinsics(uint8_t camera_id);
     uint64_t get_bytes_dispatched() { return stream ? stream->get_bytes_dispatched() : 0; }
     uint64_t get_packets_dispatched() { return  stream ? stream->get_packets_dispatched() : 0; }
     void set_relative_pose(const sensor_clock::time_point & timestamp, const tpose & pose);

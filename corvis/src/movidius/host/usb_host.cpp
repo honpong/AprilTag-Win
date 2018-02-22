@@ -16,7 +16,7 @@ using namespace std;
 static libusb_context *       context;
 static libusb_device_handle * device_handle;
 
-void usb_write_packet(const rc_packet_t & packet)
+bool usb_write_packet(const rc_packet_t & packet)
 {
     int r, bytes_written;
     int bytes_to_write = sizeof(packet_header_t);
@@ -25,18 +25,20 @@ void usb_write_packet(const rc_packet_t & packet)
                              &bytes_written, USB_TIMEOUT);
     if(r) {
         cerr << "bulk write header failed " << r << "\n";
-        exit(1);
+        return false;
     }
 
     bytes_to_write = packet->header.bytes - sizeof(packet_header_t);
-    if (bytes_to_write == 0) return;
+    if (bytes_to_write == 0)
+        return true;
     r              = libusb_bulk_transfer(device_handle, ENDPOINT_HOST_OUT,
                              (uint8_t *)&packet->data, bytes_to_write,
                              &bytes_written, USB_TIMEOUT);
     if(r) {
         cerr << "bulk write packet failed " << r << "\n";
-        exit(1);
+        return false;
     }
+    return true;
 }
 
 rc_packet_t usb_read_packet()
@@ -51,7 +53,7 @@ rc_packet_t usb_read_packet()
                              &bytes_read, USB_TIMEOUT);
     if(r) {
         cerr << "bulk transfer failed " << r << "\n";
-        exit(1);
+        return { nullptr, free };
     }
 
     rc_packet_t packet((packet_t *)malloc(packet_header.bytes), free);
@@ -64,7 +66,7 @@ rc_packet_t usb_read_packet()
                                  &bytes_read, USB_TIMEOUT);
         if(r) {
             cerr << "bulk transfer failed " << r << "\n";
-            exit(1);
+            return{ nullptr, free };
         }
     }
     return packet;
@@ -78,47 +80,48 @@ bool usb_send_control(uint8_t control_message, uint16_t value, uint16_t index,
             control_message, value, index, NULL, 0, timeout);
     if(r) {
         std::cerr << "Control transfer error" << r << "\n";
-        exit(1);
         return false;
     }
     return true;
 }
 
-void usb_shutdown(int _unused)
+void usb_shutdown()
 {
-    if(!device_handle) return;
-
-    if(!usb_send_control(CONTROL_MESSAGE_STOP_AND_RESET, 0, 0, 500)) {
-        fprintf(stderr, "Error: unable to stop usb cleanly, exiting\n");
+    if (device_handle) {
+        if (!usb_send_control(CONTROL_MESSAGE_STOP_AND_RESET, 0, 0, 500)) {
+            fprintf(stderr, "Error: unable to stop usb cleanly, exiting\n");
+        }
+        libusb_release_interface(device_handle, 0);
+        libusb_close(device_handle);
+        device_handle = NULL;
     }
-
-    libusb_release_interface(device_handle, 0);
-    libusb_close(device_handle);
-    libusb_exit(context);
-    device_handle = NULL;
-    context       = NULL;
+    if (context) libusb_exit(context);
+    context = NULL;
 }
 
-void usb_init()
+bool usb_init()
 {
     libusb_init(&context);
     libusb_set_debug(context, 3);
-    std::cout << "Opening device handle ";
-    while(!device_handle) {
-        device_handle = libusb_open_device_with_vid_pid(context, USB_VENDOR_ID,
-                                                        USB_PRODUCT_ID);
-        sleep(1);
-        std::cout << ".";
+    device_handle = libusb_open_device_with_vid_pid(context, USB_VENDOR_ID, USB_PRODUCT_ID);
+    if (!device_handle) {
+        std::cerr << "\nError: failed to open USB3 device\n";
+        usb_shutdown();
+        return false;
     }
-    std::cout << "\nDevice open\n";
+    std::cout << "\nDevice opened\n";
     libusb_device* dev = libusb_get_device(device_handle);
-    if(libusb_get_device_speed(dev) != LIBUSB_SPEED_SUPER)
-        std::cout << "Warning: Device is not connected via USB3\n";
-
-    if(libusb_claim_interface(device_handle, 0)) {
-        std::cerr << "Failed to claim interface\n";
-        exit(1);
+    if (libusb_get_device_speed(dev) != LIBUSB_SPEED_SUPER) {
+        std::cout << "Error: device is not connected via USB3\n";
+        usb_shutdown();
+        return false;
     }
+    if(libusb_claim_interface(device_handle, 0)) {
+        std::cerr << "Error: failed to claim interface\n";
+        usb_shutdown();
+        return false;
+    }
+    return true;
 }
 
 bool usb_read_interrupt_packet(rc_packet_t &fixed_pkt)

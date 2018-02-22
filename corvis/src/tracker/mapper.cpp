@@ -359,6 +359,28 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
     const std::shared_ptr<frame_t>& current_frame) const
 {
     std::vector<std::pair<nodeid, float>> loop_closing_candidates;
+    // find nodes with 3d features in common with current frame so that we don't try to relocalize against them
+    std::unordered_set<nodeid> nodes_with_common_3dfeatures;
+    features_dbow.critical_section([&]() {
+        for (auto& keypoint : current_frame->keypoints) {
+            auto it = features_dbow->find(keypoint->id);
+            if (it != features_dbow->end()) {
+                nodes_with_common_3dfeatures.insert(it->second);
+            }
+        }
+    });
+
+    std::unordered_set<nodeid> discarded_nodes;
+    nodes.critical_section([&]() {
+        for(auto& node_id : nodes_with_common_3dfeatures) {
+            auto it = nodes->find(node_id);
+            if(it != nodes->end()) {
+                discarded_nodes.insert(node_id);
+                discarded_nodes.insert(it->second.covisibility_edges.begin(), it->second.covisibility_edges.end());
+            }
+        }
+    });
+
     // find nodes sharing words with current frame
     std::map<nodeid,uint32_t> common_words_per_node;
     uint32_t max_num_shared_words = 0;
@@ -368,7 +390,7 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
         nodes.critical_section([&]() {
             for (auto nid : word_i->second) {
                 auto it = nodes->find(nid);
-                if (it != nodes->end() && it->second.status == node_status::finished) {
+                if (it != nodes->end() && it->second.status == node_status::finished && discarded_nodes.find(nid) == discarded_nodes.end()) {
                     common_words_per_node[nid]++;
                     // keep maximum number of words shared with current frame
                     if (max_num_shared_words < common_words_per_node[nid])

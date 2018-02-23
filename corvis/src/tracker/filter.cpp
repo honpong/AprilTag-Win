@@ -225,7 +225,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data_
     else {
         v3 accel_delta = (meas - accelerometer.last_meas);
         if (fabs(accel_delta[0]) > max_accel_delta || fabs(accel_delta[1]) > max_accel_delta || fabs(accel_delta[2]) > max_accel_delta)
-            f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
+            f->log->warn("Extreme jump in accelerometer {} {} {} at {}", accel_delta[0], accel_delta[1], accel_delta[2], sensor_clock::tp_to_micros(timestamp));
     }
     accelerometer.last_meas = meas;
 
@@ -288,7 +288,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data_)
     else {
         v3 gyro_delta = meas - gyroscope.last_meas;
         if(fabs(gyro_delta[0]) > max_gyro_delta || fabs(gyro_delta[1]) > max_gyro_delta || fabs(gyro_delta[2]) > max_gyro_delta)
-            f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
+            f->log->warn("Extreme jump in gyro {} {} {} at {}", gyro_delta[0], gyro_delta[1], gyro_delta[2], sensor_clock::tp_to_micros(timestamp));
     }
     gyroscope.last_meas = meas;
 

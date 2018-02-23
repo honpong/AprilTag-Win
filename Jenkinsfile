@@ -56,6 +56,10 @@ pipeline {
                     steps {
                         sh 'build/measure --qvga --relocalize --benchmark benchmark_data/new_test_suite/  --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'sed -ne /^Length/,//p benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt                           > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        sh 'build/measure --benchmark benchmark_data/kpis/ --pose-output %s.cpu.tum --relocalize'
+                        sh './run_kpis.py > kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        sh 'tail -n9 kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt >> benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        archiveArtifacts artifacts: "kpi-*-$BRANCH_NAME-${GIT_COMMIT}.txt"
                         copyArtifacts projectName: "SlamTracker/master", filter: "benchmark-summary-master-*", target: "base"
                         sh 'diff -u base/benchmark-summary-master-* benchmark-summary-$BRANCH_NAME-* | sed  s@base/@@g | tee benchmark-changes-$BRANCH_NAME-$GIT_COMMIT.txt'
                         archiveArtifacts artifacts: "benchmark-*-$BRANCH_NAME-${GIT_COMMIT}.txt"

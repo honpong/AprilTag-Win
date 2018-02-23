@@ -64,10 +64,10 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time, bool
     f->speed_failed = false;
     f_t speed = f->s.V.v.norm();
     if(speed > 3.f) { //1.4m/s is normal walking speed
-        if (!old_speedfail) f->log->info("Velocity {} m/s exceeds max bound", speed);
+        if (!old_speedfail) f->log->info("Velocity {} m/s exceeds max bound at {}", speed, sensor_clock::tp_to_micros(time));
         f->speed_failed = true;
     } else if(speed > 2.f) {
-        if (!f->speed_warning) f->log->info("High velocity ({} m/s)", speed);
+        if (!f->speed_warning) f->log->info("High velocity ({} m/s) at {}", speed, sensor_clock::tp_to_micros(time));
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
@@ -76,16 +76,16 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time, bool
         if (!old_speedfail) f->log->info("Acceleration exceeds max bound");
         f->speed_failed = true;
     } else if(accel > 5.f) { //max in mine is 6.
-        if (!f->speed_warning) f->log->info("High acceleration ({} m/s^2)", accel);
+        if (!f->speed_warning) f->log->info("High acceleration ({} m/s^2) at {}", accel, sensor_clock::tp_to_micros(time));
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t ang_vel = f->s.w.v.norm();
     if(ang_vel > 5.f) { //sensor saturation - 250/180*pi
-        if (!old_speedfail) f->log->info("Angular velocity exceeds max bound");
+        if (!old_speedfail) f->log->info("Angular velocity exceeds max bound at {}", sensor_clock::tp_to_micros(time));
         f->speed_failed = true;
     } else if(ang_vel > 2.f) { // max in mine is 1.6
-        if (!f->speed_warning) f->log->info("High angular velocity");
+        if (!f->speed_warning) f->log->info("High angular velocity at {}", sensor_clock::tp_to_micros(time));
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
@@ -225,7 +225,7 @@ bool filter_accelerometer_measurement(struct filter *f, const sensor_data &data_
     else {
         v3 accel_delta = (meas - accelerometer.last_meas);
         if (fabs(accel_delta[0]) > max_accel_delta || fabs(accel_delta[1]) > max_accel_delta || fabs(accel_delta[2]) > max_accel_delta)
-            f->log->warn("Extreme jump in accelerometer {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
+            f->log->warn("Extreme jump in accelerometer {} {} {} at {}", accel_delta[0], accel_delta[1], accel_delta[2], sensor_clock::tp_to_micros(timestamp));
     }
     accelerometer.last_meas = meas;
 
@@ -288,7 +288,7 @@ bool filter_gyroscope_measurement(struct filter *f, const sensor_data & data_)
     else {
         v3 gyro_delta = meas - gyroscope.last_meas;
         if(fabs(gyro_delta[0]) > max_gyro_delta || fabs(gyro_delta[1]) > max_gyro_delta || fabs(gyro_delta[2]) > max_gyro_delta)
-            f->log->warn("Extreme jump in gyro {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
+            f->log->warn("Extreme jump in gyro {} {} {} at {}", gyro_delta[0], gyro_delta[1], gyro_delta[2], sensor_clock::tp_to_micros(timestamp));
     }
     gyroscope.last_meas = meas;
 

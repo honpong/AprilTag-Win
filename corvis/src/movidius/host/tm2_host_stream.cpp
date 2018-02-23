@@ -73,7 +73,7 @@ bool tm2_host_stream::start_stream() {
         output_pkt->header.bytes = packet_size;
         while (1) {
             //use different transfer mode than other packet types.
-            bool is_read = usb_read_interrupt_packet(output_pkt);
+            bool is_read = usb_read_interrupt_packet(output_pkt); //require same size packets
             if (!is_read || get_packet_type(output_pkt) == packet_command_end) break;
             else if (host_data_callback){
                 track_output.set((char *)output_pkt.get(), output_pkt->header.bytes);

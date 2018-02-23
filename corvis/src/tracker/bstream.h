@@ -298,6 +298,7 @@ public:
     host_stream *host{ nullptr }; /// variable used if device and host are in the same memory system.
     rc_Tracker *tracker{ nullptr };  /// variable used if device and host are in the same memory system.
 
+    /// function that takes a pointer to a SINGLE replay output object
     void(*on_track_output)(const replay_output *output, const rc_Data *data) { nullptr };
 
     replay_output();

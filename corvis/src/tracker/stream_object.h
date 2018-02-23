@@ -114,7 +114,7 @@ public:
 };
 
 static inline void pose_data_callback(void * handle, rc_Tracker * tracker, const rc_Data * data) {
-    replay_output *output = (replay_output *)handle;
+    replay_output *output = &((replay_output *)handle)[data->path]; //get corresponding pose object to path or slow path.
     output->confidence = (int8_t)rc_getConfidence(tracker);
     output->path_length = rc_getPathLength(tracker);
     output->sensor_time_us = data->time_us;
@@ -141,7 +141,7 @@ static inline rc_packet_t packet_control_alloc(uint8_t control_type, const char 
     new_packet->header.time = 0; //not used yet
     new_packet->header.bytes = (uint32_t)(sizeof(packet_header_t) + load_size);
     if (load) memcpy(new_packet->data, load, load_size);
-    return rc_packet_t((packet_t *)new_packet, free);
+    return { (packet_t *)new_packet, free };
 }
 
 static inline rc_packet_t packet_command_alloc(uint8_t control_type) {

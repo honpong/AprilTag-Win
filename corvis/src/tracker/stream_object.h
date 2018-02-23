@@ -72,11 +72,12 @@ public:
         device_response.wait(lk, [&] {
             if (arrived_type == packet_invalid_usb) return true; //release wait
             bool arrived = false;
-            for (auto type : pkt_types)
+            for (auto type : pkt_types) {
                 if (arrived_type == type) {
                     arrived = true;
                     break;
                 }
+            }
             return arrived;
         });
     }
@@ -120,6 +121,7 @@ static inline void pose_data_callback(void * handle, rc_Tracker * tracker, const
     output->sensor_time_us = data->time_us;
     output->data_path = data->path;
     output->sensor_type = data->type;
+    output->sensor_id = data->id;
     // update for both fast and slow path to match internal changes in tracker
     output->rc_setPose(rc_DATA_PATH_FAST, rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_FAST));
     output->rc_setPose(rc_DATA_PATH_SLOW, rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW));
@@ -168,11 +170,12 @@ static void delete_rc_data(void *data) {
     if (!data) return;
     rc_Data *rc_data = (rc_Data *)data;
     if (rc_data->type == rc_SensorType::rc_SENSOR_TYPE_IMAGE) delete[](char *)rc_data->image.image;
-    else if (rc_data->type == rc_SensorType::rc_SENSOR_TYPE_STEREO) delete[](char *) rc_data->stereo.image1; //image2 is with the same allocation
     delete rc_data;
 }
 
-static inline std::unique_ptr<rc_Data, void(*)(void *)> create_rc_Data(const rc_packet_t &packet) {
+/// for packet of type packet_stereo_raw, two rc_Data items of type rc_SENSOR_TYPE_IMAGE  is created.
+/// cam_id is used to select which corresponding image is created.
+static inline std::unique_ptr<rc_Data, void(*)(void *)> create_rc_Data(const rc_packet_t &packet, int cam_id = 0) {
     rc_Data *new_data = nullptr;
     switch (get_packet_type(packet)) {
     case packet_image_raw: {
@@ -185,14 +188,16 @@ static inline std::unique_ptr<rc_Data, void(*)(void *)> create_rc_Data(const rc_
             (rc_ImageFormat)ip->format, content, NULL, NULL };
         break;
     }
-    case packet_stereo_raw: {
+    case packet_stereo_raw: { //generate one rc_SENSOR_TYPE_IMAGE at a time
         auto *ip = (packet_stereo_raw_t *)packet.get();
-        char *content = new char[ip->height * (ip->stride1 + ip->stride2)];
-        memcpy(content, ip->data, ip->height * (ip->stride1 + ip->stride2));
-        new_data = new rc_Data{ (rc_Sensor)ip->header.sensor_id, rc_SensorType::rc_SENSOR_TYPE_STEREO,
+        auto img_stride = cam_id ? ip->stride2 : ip->stride1;
+        auto data_ptr = ip->data + (cam_id ? ip->height * ip->stride1 : 0);
+        char *img_content = new char[ip->height * img_stride];
+        memcpy(img_content, data_ptr, ip->height * img_stride);
+        new_data = new rc_Data{ (rc_Sensor)(ip->header.sensor_id + cam_id), rc_SensorType::rc_SENSOR_TYPE_IMAGE,
             (rc_Timestamp)ip->header.time, rc_DataPath::rc_DATA_PATH_SLOW, {} };
-        new_data->stereo = { (rc_Timestamp)ip->exposure_time_us, ip->width, ip->height, ip->stride1, ip->stride2,
-            (rc_ImageFormat)ip->format, content, content + ip->stride1*ip->height, NULL, NULL };
+        new_data->image = rc_ImageData{ (rc_Timestamp)ip->exposure_time_us, ip->width, ip->height, img_stride,
+            (rc_ImageFormat)ip->format, img_content, NULL, NULL };
         break;
     }
     case packet_accelerometer: {

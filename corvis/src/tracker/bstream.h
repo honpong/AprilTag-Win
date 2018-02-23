@@ -312,6 +312,7 @@ public:
 
     rc_Timestamp sensor_time_us{ 0 };
     rc_SensorType sensor_type{ rc_SENSOR_TYPE_GYROSCOPE };
+    rc_Sensor sensor_id{ 0 };
     float path_length{ 0 };
     rc_DataPath data_path{ rc_DATA_PATH_SLOW };
     int8_t confidence{ 0 };

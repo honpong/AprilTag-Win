@@ -82,16 +82,16 @@ bool tm2_host_stream::start_stream() {
                     lock_guard<mutex> lk(image_queue_mtx);
                     auto found_itr = find_if(sensor_queue.begin(), sensor_queue.end(),
                         [&](auto &ele) {
-                        return (ele->time_us == track_output.sensor_time_us) && (ele->type == rc_SENSOR_TYPE_STEREO) ?
-                            (track_output.sensor_type == rc_SENSOR_TYPE_IMAGE || track_output.sensor_type == rc_SENSOR_TYPE_STEREO) :
-                            (ele->type == track_output.sensor_type); });
+                            return (ele->time_us == track_output.sensor_time_us) && (ele->type == track_output.sensor_type) &&
+                            ((ele->type == rc_SENSOR_TYPE_IMAGE) ? (track_output.sensor_id == ele->id) : true);
+                        });
                     if (found_itr != sensor_queue.end()) {
                         passed_data = found_itr->get();
                         passed_data->path = track_output.data_path;
                     }
                     else
-                        printf("not find data with ts %lu, type %d\n", (unsigned long)track_output.sensor_time_us,
-                            track_output.sensor_type);
+                        printf("Error: rc data with ts %lu, type %d, id %d not found\n", (unsigned long)track_output.sensor_time_us,
+                            track_output.sensor_type, track_output.sensor_id);
                 }
 
                 if (passed_data) host_data_callback(&track_output, passed_data);
@@ -150,7 +150,11 @@ bool tm2_host_stream::start_stream() {
                 {
                     lock_guard<mutex> lk(image_queue_mtx);
                     auto data_rc_format = create_rc_Data(cur_packet);
-                    if (data_rc_format) sensor_queue.emplace_back(move(data_rc_format));
+                    if (data_rc_format) {
+                        sensor_queue.emplace_back(move(data_rc_format));
+                        if (get_packet_type(cur_packet) == packet_stereo_raw) //queue second single image
+                            sensor_queue.emplace_back(create_rc_Data(cur_packet, 1));
+                    }
                 }
                 enable_sensor = put_host_packet(move(cur_packet)); //send sensor packets to device
                 if (progress_callback) {  // Update progress at most at 30Hz or if we are almost done

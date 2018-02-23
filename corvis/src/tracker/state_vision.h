@@ -131,6 +131,7 @@ class state_vision_feature: public state_leaf<1> {
     bool is_in_map{false};
 
     bool depth_measured{false};
+    bool recovered{false};
 
     static f_t initial_depth_meters;
     static f_t initial_var;

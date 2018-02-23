@@ -657,6 +657,7 @@ void world_state::rc_data_callback(const replay_output *output, const rc_Data * 
                 rcf.stdev = 100;
                 rcf.depth = 100;
                 rcf.depth_measured = false;
+                rcf.recovered = false;
                 rcf.innovation_variance_x = rcf.innovation_variance_y = rcf.innovation_variance_xy = 0;
                 observe_feature(timestamp_us, data->id, rcf);
             }
@@ -862,6 +863,13 @@ bool world_state::update_vertex_arrays(bool show_only_good)
 
                 set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
                 set_color(&vp, 247, 247, 98, 255);
+            }
+            else if(f.feature.recovered) {
+                generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 255, 140, 0, 255);
+                set_color(&v, 255, 140, 0, 255);
+
+                set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
+                set_color(&vp, 255, 140, 0, 255);
             }
             else if(f.good) {
                 generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 88, 247, 98, 255);

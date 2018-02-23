@@ -134,6 +134,7 @@ typedef struct rc_Feature
     float stdev;
     float innovation_variance_x, innovation_variance_y, innovation_variance_xy;
     bool depth_measured;
+    bool recovered;
 } rc_Feature;
 
 typedef enum rc_MessageLevel

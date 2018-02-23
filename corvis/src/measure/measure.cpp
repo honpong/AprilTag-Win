@@ -105,6 +105,14 @@ int main(int c, char **v)
     if (!filename)
         goto usage;
 
+    auto replace = [](const char* hay, const char* needle, const char* text) {
+        std::string str(hay);
+        auto p = str.find(needle);
+        if (p != std::string::npos)
+            str.replace(p, std::strlen(needle), text);
+        return str;
+    };
+
     auto configure = [&](replay &rp, const char *capture_file) -> bool {
         if (!rp.init()) {
             cerr << "Error: failed to init streaming" << std::endl;
@@ -152,7 +160,7 @@ int main(int c, char **v)
             return false;
         }
 
-        if (load_map) rp.load_map(load_map);
+        if (load_map) rp.load_map(replace(load_map, "%s", capture_file).c_str());
         return true;
     };
 
@@ -283,6 +291,7 @@ int main(int c, char **v)
             res.length_cm.reference = 100*rp.get_reference_length();res.path_length_cm.reference = 100*rp.get_reference_path_length();
 
             if (progress) print_results(rp, res, capture_file);
+            if (save_map) rp.save_map(replace(save_map, "%s", capture_file).c_str());
             rp.end();
             return true;
         },
@@ -338,7 +347,7 @@ int main(int c, char **v)
     std::cout << ws.get_feature_stats();
 #endif
 
-    if (save_map) rp.save_map(save_map);
+    if (save_map) rp.save_map(replace(save_map, "%s", filename).c_str());
 
     if (save) rp.save_calibration(save);
 

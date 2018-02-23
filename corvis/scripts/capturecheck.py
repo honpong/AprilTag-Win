@@ -256,14 +256,11 @@ if got_types[arrival_time_type] == 0:
     total_warnings += 1
 else:
     if len(out_of_order_warnings) > 0 :
-        print "Warning: %d packets arrival_time is out of order" % len(out_of_order_warnings)
-        total_warnings += len(out_of_order_warnings)
+        error_text += "Error: %d packets arrival_time is out of order\n" % len(out_of_order_warnings)
     if len(missing_arrival_time_warnings) > 0 :
-        print "Warning: %d packets missing arrival time data" % len(missing_arrival_time_warnings)
-        total_warnings += len(missing_arrival_time_warnings)
+        error_text += "Error: %d packets missing arrival time data\n" % len(missing_arrival_time_warnings)
     if len(unconsumed_arrival_time_warnings) > 0 :
-        print "Warning: %d unconsumed arrival-time packets" % len(unconsumed_arrival_time_warnings)
-        total_warnings += len(unconsumed_arrival_time_warnings)
+        error_text += "Error: %d unconsumed arrival-time packets\n" % len(unconsumed_arrival_time_warnings)
 
 if got_types[accel_type] == 0:
     error_text += "Error: Never received any accelerometer data\n"

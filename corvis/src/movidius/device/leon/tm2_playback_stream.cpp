@@ -39,7 +39,7 @@ static USBPUMP_APPLICATION_RTEMS_CONFIGURATION sg_DataPump_AppConfig =
     /* fCacheEnabled */ USBPUMP_MDK_CACHE_ENABLE,
     /* DebugMask */ UDMASK_ANY | UDMASK_ERRORS);
 
-static bool blocking_write(packet_t *pkt) {
+static bool blocking_write_same_size_pkt(packet_t *pkt) {
     return usb_blocking_write(ENDPOINT_DEV_INT_OUT, (uint8_t *)pkt, pkt->header.bytes);
 }
 
@@ -92,6 +92,7 @@ static void status_callback(void * handle, rc_TrackerState state, rc_TrackerErro
     printf("Status change: state %d error %d confidence %d\n", state, error, confidence);
 }
 
+/// output only includes the correct pose type
 static void transfer_track_output(const replay_output *output, const rc_Data *data) {
     START_EVENT(EV_REPLAY_TRANSFER, 0);
     size_t data_size = 0;
@@ -100,14 +101,15 @@ static void transfer_track_output(const replay_output *output, const rc_Data *da
     static rc_packet_t pose_pkt = packet_command_alloc(packet_rc_pose);
     output_packet->header = pose_pkt->header;
     output_packet->header.bytes = (uint32_t)(data_size);
-    if (!blocking_write(output_packet))
+    if (!blocking_write_same_size_pkt(output_packet))
         printf("Error writing 6dof\n");
     END_EVENT(EV_REPLAY_TRANSFER, 0);
 }
 
-tm2_pb_stream::tm2_pb_stream(): str_buf(new stream_buffer()), track_output(new replay_output()){
-    track_output->on_track_output = transfer_track_output;
-    device_stream::pose_handle = track_output.get();
+tm2_pb_stream::tm2_pb_stream(): str_buf(new stream_buffer()) {
+    track_output[rc_DATA_PATH_FAST].on_track_output = transfer_track_output;
+    track_output[rc_DATA_PATH_SLOW].on_track_output = transfer_track_output;
+    device_stream::pose_handle = &track_output;
     device_stream::pose_callback = pose_data_callback;
     device_stream::status_callback = status_callback;
     device_stream::save_callback = usb_save_callback;
@@ -132,7 +134,11 @@ bool tm2_pb_stream::read_header(packet_header_t *header, bool control_type) {
         return false;
     }
     switch (get_packet_type(packet)) {
-    case packet_enable_features_output: { track_output->set_output_type(replay_output::output_mode::POSE_FEATURE); break; }
+    case packet_enable_features_output: {
+        track_output[rc_DATA_PATH_SLOW].set_output_type(replay_output::output_mode::POSE_FEATURE);
+        track_output[rc_DATA_PATH_FAST].set_output_type(replay_output::output_mode::POSE_FEATURE); //need to be of same size
+        break;
+    }
     case packet_load_map: {
         ((stream_buffer *)device_stream::map_load_handle)->total_bytes = ((uint64_t *)packet->data)[0];
         break;
@@ -148,8 +154,8 @@ void tm2_pb_stream::put_device_packet(const rc_packet_t &device_packet) {
         printf("Error: failed to post device packet.\n");
     if (get_packet_type(device_packet) == packet_command_end) {
         rc_packet_t pose_pkt = packet_control_alloc(packet_command_end, NULL,
-            track_output->get_buffer_size() - sizeof(packet_header_t));
-        if (!blocking_write(pose_pkt.get()))
+            track_output[rc_DATA_PATH_SLOW].get_buffer_size() - sizeof(packet_header_t));
+        if (!blocking_write_same_size_pkt(pose_pkt.get()))
             printf("Error writing 6dof\n");
     }
 }

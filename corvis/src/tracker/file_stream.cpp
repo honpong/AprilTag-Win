@@ -20,15 +20,17 @@ static void log_to_stderr(void *handle, rc_MessageLevel message_level, const cha
     cerr << message;
 }
 
-file_stream::file_stream(const char *name): track_output(new replay_output()) {
+file_stream::file_stream(const char *name) {
     const int buffer_bytes = 128 * 1024;
     buffer = std::unique_ptr<char[]>(new char[buffer_bytes]);
     sensor_file.rdbuf()->pubsetbuf(buffer.get(), buffer_bytes);
     sensor_file.open(name, ios::binary);
     rp_device = new replay_device();
-    track_output->host = this;
-    track_output->on_track_output = process_track_output;
-    device_stream::pose_handle = track_output.get();
+    track_output[rc_DATA_PATH_FAST].host = this;
+    track_output[rc_DATA_PATH_FAST].on_track_output = process_track_output;
+    track_output[rc_DATA_PATH_SLOW].host = this;
+    track_output[rc_DATA_PATH_SLOW].on_track_output = process_track_output;
+    device_stream::pose_handle = &track_output;
     device_stream::pose_callback = pose_data_callback;
     device_stream::message_callback = log_to_stderr;
     device_stream::map_load_callback = mem_load_callback;
@@ -69,7 +71,10 @@ bool file_stream::read_header(packet_header_t *header, bool control_only) {
                 last_progress = sensor_clock::now();
                 break;
             }
-            case packet_enable_features_output: { track_output->set_output_type(replay_output::output_mode::POSE_FEATURE); break; }
+            case packet_enable_features_output: {
+                track_output[rc_DATA_PATH_SLOW].set_output_type(replay_output::output_mode::POSE_FEATURE);
+                break;
+            }
             case packet_load_map: {
                 ifstream file_handle(string((const char *)packet->data), ifstream::ate | ios_base::binary);
                 size_t map_size_bytes = file_handle.tellg();

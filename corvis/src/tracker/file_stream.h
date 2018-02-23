@@ -18,7 +18,7 @@ private:
     uint64_t packets_dispatched{ 0 };
     sensor_clock::time_point last_progress;
     std::unique_ptr<replay_output::bstream_buffer> stream_handle;
-    std::unique_ptr<replay_output> track_output;
+    replay_output track_output[2];
     std::deque<rc_packet_t> host_queue;
     std::mutex host_queue_mtx;
     std::condition_variable control_packet_cond;

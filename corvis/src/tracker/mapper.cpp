@@ -73,7 +73,7 @@ void mapper::add_relocalization_edges(const aligned_vector<map_relocalization_ed
         for (auto& edge : edges) {
             if (nodes->find(edge.id1) != nodes->end() && nodes->find(edge.id2) != nodes->end()) {
                 add_edge_no_lock(edge.id1, edge.id2, edge.G, edge.type);
-                add_covisibility_edge_no_lock(edge.id1, edge.id2);
+//                add_covisibility_edge_no_lock(edge.id1, edge.id2);
             }
         }
     });

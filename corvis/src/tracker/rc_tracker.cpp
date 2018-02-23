@@ -709,6 +709,7 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Sensor camera_id, rc_Feature **featu
             feat.innovation_variance_y = t.innovation_variance_y;
             feat.innovation_variance_xy = t.innovation_variance_xy;
             feat.depth_measured = i->depth_measured;
+            feat.recovered = i->recovered;
             feat.initialized =  i->is_initialized();
             feat.depth = i->v->depth();
             features.push_back(feat);

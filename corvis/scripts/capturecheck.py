@@ -237,6 +237,8 @@ for packet_type in sorted(packets.keys()):
       compressed_warnings = compress_warnings(warnings[packet_type])
       for w in compressed_warnings:
           print "Warning: ", len(w), "images at timestamps:", w
+  if len(exposure_warnings[packet_type]):
+      error_text += "Error: Exposure problems with " + packet_type + "\n"
   if args.exposure_warnings:
       for w in exposure_warnings[packet_type]:
           print "Warning: Image at", w[0], "had exposure of", w[1], "microseconds"

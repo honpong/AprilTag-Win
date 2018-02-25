@@ -33,7 +33,6 @@ def cosc(x,x2):
 def to_rotation_vector(quaternion_in):
 
     q = np.array(list(quaternion_in))
-    #print q
     if q[3] < 0:
         q *= -1  # return [0,pi] instead of [0,2pi]
     S = np.linalg.norm(q[0:3])
@@ -112,7 +111,6 @@ for i in xrange(len(jsondata["cameras"])):
 
 
     camera.Extrinsics.pose_m.T.v = type(camera.Extrinsics.pose_m.T.v)(*jsondata["cameras"][i]["extrinsics"]["T"])
-    #print to_quaternion(jsondata["cameras"][i]["extrinsics"]["W"])
     camera.Extrinsics.pose_m.Q.v = type(camera.Extrinsics.pose_m.Q.v)(*to_quaternion(jsondata["cameras"][i]["extrinsics"]["W"]))
     for j in 0,1,2:
         camera.Extrinsics.pose_m.R.v[j] = type(camera.Extrinsics.pose_m.R.v[j])(*to_rotation_matrix(jsondata["cameras"][i]["extrinsics"]["W"])[j,:])
@@ -125,8 +123,6 @@ for i in xrange(len(jsondata["cameras"])):
 eeprom_struct.Kb4.Header.NumOfImus = len(jsondata["imus"])
 for i in xrange(eeprom_struct.Kb4.Header.NumOfImus):
     imu = eeprom_struct.Kb4.Imu[i]
-
-    #print to_quaternion(jsondata["imus"][i]["extrinsics"]["W"])
 
     imu.Extrinsics.pose_m.T.v = type(imu.Extrinsics.pose_m.T.v)(*jsondata["imus"][i]["extrinsics"]["T"])
     imu.Extrinsics.pose_m.Q.v = type(imu.Extrinsics.pose_m.Q.v)(*to_quaternion(jsondata["imus"][i]["extrinsics"]["W"]))

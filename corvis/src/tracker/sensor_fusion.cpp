@@ -68,6 +68,7 @@ void sensor_fusion::fast_path_catchup()
     // updates on the catchup state
     queue.dispatch_buffered([this,&mini_lock](sensor_data &data) {
         mini_lock.unlock();
+        if(data.type == rc_SENSOR_TYPE_ACCELEROMETER) filter_mini_accelerometer_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data);
         if(data.type == rc_SENSOR_TYPE_GYROSCOPE)     filter_mini_gyroscope_measurement(&sfm, sfm.catchup->observations, sfm.catchup->state, data);
         mini_lock.lock();
     });
@@ -204,6 +205,13 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data)
     if(!isSensorFusionRunning || sfm.run_state != RCSensorFusionRunStateRunning || !fast_path || !sfm.mini->valid) return;
     data.path = rc_DATA_PATH_FAST;
     switch(data.type) {
+        case rc_SENSOR_TYPE_ACCELEROMETER: {
+            auto start = std::chrono::steady_clock::now();
+            filter_mini_accelerometer_measurement(&sfm, sfm.mini->observations, sfm.mini->state, data);
+            auto stop = std::chrono::steady_clock::now();
+            queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+        } break;
+
         case rc_SENSOR_TYPE_GYROSCOPE: {
             auto start = std::chrono::steady_clock::now();
             if(filter_mini_gyroscope_measurement(&sfm, sfm.mini->observations, sfm.mini->state, data))
@@ -213,7 +221,6 @@ void sensor_fusion::queue_receive_data_fast(sensor_data &data)
             auto prediction_time = (data.timestamp - sfm.mini->slow_path_timestamp);
             queue.time_since_catchup_stats.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(prediction_time).count())});
         } break;
-        case rc_SENSOR_TYPE_ACCELEROMETER:
         case rc_SENSOR_TYPE_DEPTH:
         case rc_SENSOR_TYPE_IMAGE:
         case rc_SENSOR_TYPE_STEREO:

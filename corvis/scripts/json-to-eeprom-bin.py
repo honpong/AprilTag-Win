@@ -24,6 +24,11 @@ def sinc(x, x2):
     else:
         return np.sin(x)/x;
 
+def cosc(x,x2):
+    if x2 < np.sqrt(720 * np.finfo(float).eps):
+        return 1.0/2.0 - 1.0/24.0 * x2
+    else:
+        return (1.0 - np.cos(x)) / x2
 
 def to_rotation_vector(quaternion_in):
 
@@ -38,6 +43,17 @@ def to_rotation_vector(quaternion_in):
     scale = 2 * atan2c(S,C,S2); # robust version of 2 asin(S)/S
     return (scale * q[0:3]).tolist(); # 2 log(q)
 
+def to_rotation_matrix(rotation_vector_in):
+    x, y, z = rotation_vector_in
+    v = np.array(rotation_vector_in)
+    th2 = np.dot(v,v)
+    th = np.sqrt(th2)
+    S, C = sinc(th, th2), cosc(th, th2)
+    return np.array([
+        [1 - C*(y*y+z*z), C*x*y - S*z, C*x*z + S*y],
+        [C*y*x + S*z, 1 - C*(x*x+z*z), C*y*z - S*x],
+        [C*z*x - S*y, C*z*y + S*x, 1 - C*(x*x+y*y)]
+    ])
 
 def to_quaternion(rotation_vector_in):
     w = np.array(rotation_vector_in)/2.0
@@ -98,6 +114,8 @@ for i in xrange(len(jsondata["cameras"])):
     camera.Extrinsics.pose_m.T.v = type(camera.Extrinsics.pose_m.T.v)(*jsondata["cameras"][i]["extrinsics"]["T"])
     #print to_quaternion(jsondata["cameras"][i]["extrinsics"]["W"])
     camera.Extrinsics.pose_m.Q.v = type(camera.Extrinsics.pose_m.Q.v)(*to_quaternion(jsondata["cameras"][i]["extrinsics"]["W"]))
+    for j in 0,1,2:
+        camera.Extrinsics.pose_m.R.v[j] = type(camera.Extrinsics.pose_m.R.v[j])(*to_rotation_matrix(jsondata["cameras"][i]["extrinsics"]["W"])[j,:])
 
     camera.Extrinsics.variance_m2.T.v = type(camera.Extrinsics.variance_m2.T.v)(*jsondata["cameras"][i]["extrinsics"]["T_variance"])
     camera.Extrinsics.variance_m2.W.v = type(camera.Extrinsics.variance_m2.W.v)(*jsondata["cameras"][i]["extrinsics"]["W_variance"])
@@ -112,6 +130,9 @@ for i in xrange(eeprom_struct.Kb4.Header.NumOfImus):
 
     imu.Extrinsics.pose_m.T.v = type(imu.Extrinsics.pose_m.T.v)(*jsondata["imus"][i]["extrinsics"]["T"])
     imu.Extrinsics.pose_m.Q.v = type(imu.Extrinsics.pose_m.Q.v)(*to_quaternion(jsondata["imus"][i]["extrinsics"]["W"]))
+    for j in 0,1,2:
+        imu.Extrinsics.pose_m.R.v[j] = type(imu.Extrinsics.pose_m.R.v[j])(*to_rotation_matrix(jsondata["imus"][i]["extrinsics"]["W"])[j,:])
+
     imu.Extrinsics.variance_m2.T.v = type(imu.Extrinsics.variance_m2.T.v)(*jsondata["imus"][i]["extrinsics"]["T_variance"])
     imu.Extrinsics.variance_m2.W.v = type(imu.Extrinsics.variance_m2.W.v)(*jsondata["imus"][i]["extrinsics"]["W_variance"])
 

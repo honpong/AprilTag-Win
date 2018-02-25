@@ -119,7 +119,6 @@ void state_vision::reset()
     clear_features_and_groups();
     for (auto &camera : cameras.children) {
         camera->detecting_space = 0;
-        camera->detected = 0;
     }
     state_motion::reset();
 }

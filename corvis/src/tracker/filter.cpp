@@ -677,9 +677,7 @@ void filter_compute_dbow(struct filter *f, camera_frame_t& camera_frame)
 
 void filter_assign_frame(struct filter *f, const camera_frame_t& camera_frame)
 {
-    map_node& node = f->map->get_node(camera_frame.closest_node);
-    assert(!node.frame);
-    node.frame = camera_frame.frame;
+    f->map->set_node_frame(camera_frame.closest_node, camera_frame.frame);
 }
 
 void filter_update_map_index(struct filter *f)
@@ -939,21 +937,27 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization) return true; //frame was "processed" so that callbacks still get called
 
-    if(camera_state.detected > 0) {
-        camera_state.detected = 0;
-        auto active_features = camera_state.track_count();
-        if(active_features < state_vision_group::min_feats) {
-            f->log->info("detector failure: only {} features after add on camera {}", active_features, camera_state.id);
-            camera_state.detector_failed = true;
-            bool all_failed = true; for (const auto &c : f->s.cameras.children) all_failed &= c->detector_failed;
-            if(all_failed) {
-                f->log->info("failed to detect in all cameras\n");
-                if(!f->detector_failed) f->detector_failed_time = time;
-                f->detector_failed = true;
+    for(auto &camera : f->s.cameras.children) {
+        if(camera->detection_future.valid()) camera->detection_future.wait();
+    }
+
+    if (camera_state.detection_future.valid()) {
+        size_t detected = camera_state.detection_future.get();
+        if (detected > 0) {
+            auto active_features = camera_state.track_count();
+            if(active_features < state_vision_group::min_feats) {
+                f->log->info("detector failure: only {} features after add on camera {}", active_features, camera_state.id);
+                camera_state.detector_failed = true;
+                bool all_failed = true; for (const auto &c : f->s.cameras.children) all_failed &= c->detector_failed;
+                if(all_failed) {
+                    f->log->info("failed to detect in all cameras\n");
+                    if(!f->detector_failed) f->detector_failed_time = time;
+                    f->detector_failed = true;
+                }
+            } else if(active_features >= f->min_group_add) {
+                camera_state.detector_failed = false;
+                f->detector_failed = false;
             }
-        } else if(active_features >= f->min_group_add) {
-            camera_state.detector_failed = false;
-            f->detector_failed = false;
         }
     }
 

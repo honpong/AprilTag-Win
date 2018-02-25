@@ -292,6 +292,7 @@ private:
 
     void finish_node(nodeid node_id, bool compute_dbow_inverted_index);
     void set_node_transformation(nodeid id, const transformation & G);
+    void set_node_frame(nodeid id, std::shared_ptr<frame_t> frame);
     void index_finished_nodes();
 
     bool serialize(rc_SaveCallback func, void *handle) const;

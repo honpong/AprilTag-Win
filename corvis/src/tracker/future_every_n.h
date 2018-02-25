@@ -14,9 +14,7 @@ class future_every_n : public std::future<T> {
      */
     bool valid_n() {
         if (std::future<T>::valid()) {
-            bool yes = (++index_ >= N);
-            if (yes) index_ = 0;
-            return yes;
+            return (index_ >= N || ++index_ >= N);
         } else {
             return false;
         }

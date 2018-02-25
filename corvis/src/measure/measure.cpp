@@ -105,6 +105,14 @@ int main(int c, char **v)
     if (!filename)
         goto usage;
 
+    auto replace = [](const char* hay, const char* needle, const char* text) {
+        std::string str(hay);
+        auto p = str.find(needle);
+        if (p != std::string::npos)
+            str.replace(p, std::strlen(needle), text);
+        return str;
+    };
+
     auto configure = [&](replay &rp, const char *capture_file) -> bool {
         if (!rp.init()) {
             cerr << "Error: failed to init streaming" << std::endl;
@@ -133,7 +141,7 @@ int main(int c, char **v)
         }
 
         if (load) {
-          if(!rp.load_calibration(load)) {
+          if(!rp.load_calibration(replace(load, "%s", capture_file).c_str())) {
             cerr << "unable to load calibration: " << load << "\n";
             return false;
           }
@@ -152,12 +160,12 @@ int main(int c, char **v)
             return false;
         }
 
-        if (load_map) rp.load_map(load_map);
+        if (load_map) rp.load_map(replace(load_map, "%s", capture_file).c_str());
         return true;
     };
 
     rc_TrackerConfidence tracking_confidence = rc_TrackerConfidence::rc_E_CONFIDENCE_NONE; //updated by pose callback.
-    auto print_results = [&calibrate,tracking_confidence](replay &rp, struct benchmark_result &res, const char *capture_file) {
+    auto print_results = [&calibrate,tracking_confidence,&replace](replay &rp, struct benchmark_result &res, const char *capture_file) {
         std::cout << std::fixed << std::setprecision(2);
         std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
         std::cout << "Computed  Straight-line length is " << res.length_cm.measured        << " cm, total path length " << res.path_length_cm.measured        << " cm\n";
@@ -185,7 +193,7 @@ int main(int c, char **v)
 
         if(tracking_confidence >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
             std::cout << "Updating " << rp.calibration_file << "\n";
-            rp.save_calibration(rp.calibration_file.c_str());
+            rp.save_calibration(replace(rp.calibration_file.c_str(), "%s", capture_file).c_str());
         }
         else
             std::cout << "Respected " << rp.calibration_file << "\n";
@@ -272,9 +280,10 @@ int main(int c, char **v)
             res.user_data = render_output ? ws : nullptr;
 
             gt_generator loop_gt;
+            std::ofstream pose_fs; if (pose_output) pose_fs.open(replace(pose_output, "%s", capture_file).c_str());
 
-            rp.set_data_callback([ws,&rp,first=true,&res, &loop_gt,&data_callback](const replay_output * output, const rc_Data * data) mutable {
-                data_callback(*ws, rp, first, res, loop_gt, output, data, nullptr);
+            rp.set_data_callback([ws,&rp,first=true,&res, &loop_gt,&data_callback,&pose_fs](const replay_output * output, const rc_Data * data) mutable {
+                data_callback(*ws, rp, first, res, loop_gt, output, data, &pose_fs);
             });
 
             if (progress) std::cout << "Running  " << capture_file << std::endl;
@@ -283,6 +292,9 @@ int main(int c, char **v)
             res.length_cm.reference = 100*rp.get_reference_length();res.path_length_cm.reference = 100*rp.get_reference_path_length();
 
             if (progress) print_results(rp, res, capture_file);
+            if (save_map) rp.save_map(replace(save_map, "%s", capture_file).c_str());
+            if (save) rp.save_calibration(replace(save, "%s", capture_file).c_str());
+
             rp.end();
             return true;
         },
@@ -317,7 +329,8 @@ int main(int c, char **v)
 #else
     world_state ws;
     gt_generator loop_gt;
-    std::ofstream pose_fs; if (pose_output) pose_fs.open(pose_output);
+    std::ofstream pose_fs; if (pose_output) pose_fs.open(replace(pose_output, "%s", filename));
+
     rp.set_data_callback([&ws,&rp,first=true,&res, &loop_gt,&data_callback,&pose_fs](const replay_output * output, const rc_Data * data) mutable {
         data_callback(ws, rp, first, res, loop_gt, output, data, &pose_fs);
     });
@@ -338,9 +351,8 @@ int main(int c, char **v)
     std::cout << ws.get_feature_stats();
 #endif
 
-    if (save_map) rp.save_map(save_map);
-
-    if (save) rp.save_calibration(save);
+    if (save_map) rp.save_map(replace(save_map, "%s", filename).c_str());
+    if (save) rp.save_calibration(replace(save, "%s", filename).c_str());
 
     std::cout << rp.get_track_stat();
     print_results(rp,res,filename);

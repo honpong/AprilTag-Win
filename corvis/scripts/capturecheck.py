@@ -191,19 +191,23 @@ def compress_warnings(warning_list):
         output_list.append(current_list)
     return output_list
 
+start_s = {}
+end_s = {}
 for packet_type in sorted(packets.keys()):
   if packet_type == arrival_time_type: continue
   timestamps = numpy.array(packets[packet_type])
   platencies = numpy.array(latencies[packet_type])
   deltas = timestamps[1:] - timestamps[:-1]
   median_delta = numpy.median(deltas)
+  start_s[packet_type] = numpy.min(timestamps)/1e6
+  end_s[packet_type] = numpy.max(timestamps)/1e6
   print packet_type, len(packets[packet_type]), "packets"
   print "\tRate:", 1/(median_delta/1e6), "hz"
   print "\tmedian dt (us):", median_delta
   print "\tstd dt (us):", numpy.std(deltas)
   print "\trelative latency (us): %.3f min, %.3f median, %.3f max, %.3f std" % (numpy.min(platencies), numpy.median(platencies), numpy.max(platencies), numpy.std(platencies))
-  print "\tstart (s) finish (s):", numpy.min(timestamps)/1e6, numpy.max(timestamps)/1e6
-  print "\tlength (s):", (numpy.max(timestamps) - numpy.min(timestamps))/1e6
+  print "\tstart (s) finish (s):", start_s[packet_type], end_s[packet_type]
+  print "\tlength (s):", end_s[packet_type] - start_s[packet_type]
   exceptions = numpy.flatnonzero(numpy.logical_or(deltas > median_delta*1.05, deltas < median_delta*0.95))
   latency_warnings = numpy.flatnonzero(platencies > 33333)
 
@@ -247,6 +251,17 @@ for packet_type in sorted(packets.keys()):
       for w in imu_warnings[packet_type]:
           print "Warning:", packet_type, "at", w[0], "changed by ", w[1], "current: ", w[2], "last:", w[3]
   print ""
+
+start_times_s = numpy.array([start_s[key] for key in start_s])
+if numpy.max(start_times_s) - numpy.min(start_times_s) > 5:
+    error_text += "Error: Sensor start times differed by more than 5 seconds"
+
+end_times_s = numpy.array([end_s[key] for key in end_s])
+if numpy.max(end_times_s) - numpy.min(end_times_s) > 5:
+    error_text += "Error: Sensor end times differed by more than 5 seconds"
+
+total_time_s = numpy.max(end_times_s) - numpy.min(start_times_s)
+print "Total capture time: %.2fs" % total_time_s
 
 if got_types[calibration_type] == 0:
     print "Warning: Never received calibration packet"

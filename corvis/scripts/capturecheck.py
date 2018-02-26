@@ -288,10 +288,11 @@ if got_types[image_raw_type] == 0 and \
    got_types[stereo_raw_type] == 0:
     error_text += "Error: Never received any image data\n"
 
+max_warnings = max(10*total_time_s/60, 10) # 10 warnings per minute
 if len(error_text) > 0:
     print "Failing errors:\n" + error_text
     print "capturecheck result: Failed!"
-elif total_warnings > 20:
+elif total_warnings > max_warnings:
     print "capturecheck result: Failed, with", total_warnings, "warnings!"
 else:
     print "capturecheck result: Passed, with", total_warnings, "warnings"

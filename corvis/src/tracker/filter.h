@@ -1,6 +1,7 @@
 #ifndef __FILTER_H
 #define __FILTER_H
 
+#include <future>
 #include "state_vision.h"
 #include "observation.h"
 #include "transformation.h"
@@ -15,7 +16,6 @@
 #include "storage.h"
 #include "state_size.h"
 #include "tpose.h"
-#include "future_every_n.h"
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -60,8 +60,20 @@ struct filter {
     bool save_map;
     map_relocalization_info relocalization_info;
 
+    template<int N>
+    class every_n {
+        int index_ = 0;
+     public:
+        bool ready() {
+            bool yes = (index_ == 0);
+            index_ = (index_ + 1 == N ? 0 : index_ + 1);
+            return yes;
+        }
+    };
+
     std::unique_ptr<mapper> map;
-    future_every_n<map_relocalization_result, 60> relocalization_future;
+    std::future<map_relocalization_result> relocalization_future;
+    every_n<60> relocalization_every_n;
 
 #ifdef ENABLE_QR
     qr_detector qr;

@@ -126,7 +126,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
 
                 const bool relocalize_now = sfm.map && sfm.relocalize &&
                         !sfm.s.groups.children.empty() &&
-                        (!sfm.relocalization_future.valid() || sfm.relocalization_future.valid_n());
+                        sfm.relocalization_every_n.ready();
                 const bool new_group_created = sfm.s.group_counter > groups;
                 const bool compute_descriptors_now = relocalize_now ||
                         (sfm.map && (sfm.save_map || sfm.relocalize) && new_group_created);

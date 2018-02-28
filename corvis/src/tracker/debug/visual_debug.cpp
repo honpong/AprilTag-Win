@@ -113,7 +113,7 @@ cv::Mat& visual_debug::draw_text(const std::string& name, cv::Mat& image) {
     const auto font_face = cv::FONT_HERSHEY_PLAIN;
     const double font_scale = 1.6;
     const int thickness = 1;
-    const cv::Scalar color = (image.channels() == 1 ? cv::Scalar(0) : cv::Scalar(0, 255, 0, 255));
+    const cv::Scalar color = (image.channels() == 1 ? cv::Scalar(255) : cv::Scalar(0, 255, 0, 255));
     int baseline;
     cv::Size sz = cv::getTextSize(name, font_face, font_scale, thickness, &baseline);
     cv::putText(image, name, cv::Point(10, image.rows - sz.height - 5), font_face, font_scale, color, thickness);

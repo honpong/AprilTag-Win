@@ -135,7 +135,7 @@ int main(int c, char **v)
         if(pause_at) {
             rc_Timestamp pause_time = 0;
             try {
-                pause_time = std::stoull(pause_at);
+                pause_time = std::stoll(pause_at);
             } catch (...) {
                 cerr << "invalid timestamp: " << pause_at << "\n";
                 return false;

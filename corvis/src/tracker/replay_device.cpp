@@ -345,7 +345,8 @@ void replay_device::process_control(const packet_control_t *packet) {
         break;
     }
     case packet_delay_start: {
-        delay_start = ((uint64_t *)packet->data)[0];
+        auto *packet_mesg = (uint64_t *)packet->data;
+        delay_start = packet_mesg[0];
         break;
     }
     case packet_command_step: { is_paused = is_stepping = true; break; }
@@ -418,7 +419,7 @@ void replay_device::start() {
             else {
                 if (delay_start && !first_data_timestamp)
                     first_data_timestamp = header.time;
-                if (delay_start == 0 || header.time >= first_data_timestamp + delay_start) {
+                if (header.time >= first_data_timestamp + delay_start) {
                     process_data(phandle);
                 }
             }

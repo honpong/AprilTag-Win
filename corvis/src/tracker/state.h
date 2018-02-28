@@ -432,6 +432,7 @@ public:
         if(index < 0 || index >= state.cols()) return;
         w = rotation_vector(state[index+0], state[index+1], state[index+2]);
         v = to_quaternion(w) * v;
+        v.normalize();
     }
 
     virtual std::ostream &print_to(std::ostream & s) const {

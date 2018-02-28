@@ -344,6 +344,10 @@ void replay_device::process_control(const packet_control_t *packet) {
         }
         break;
     }
+    case packet_delay_start: {
+        delay_start = ((uint64_t *)packet->data)[0];
+        break;
+    }
     case packet_command_step: { is_paused = is_stepping = true; break; }
     case packet_command_next_pause: {
         auto *packet_command = (uint64_t *)packet->data;
@@ -384,6 +388,7 @@ void replay_device::start() {
     if (!stream) return;
     setup_filter();
 
+    uint64_t first_data_timestamp = 0;
     packet_header_t header = { 0 };
     is_running = stream->read_header(&header, true);
     auto phandle = stream->get_host_packet();
@@ -410,7 +415,13 @@ void replay_device::start() {
         if (phandle) {
             if (phandle->header.type == packet_control)
                 process_control((packet_control_t *)phandle.get());
-            else process_data(phandle);
+            else {
+                if (delay_start && !first_data_timestamp)
+                    first_data_timestamp = header.time;
+                if (delay_start == 0 || header.time >= first_data_timestamp + delay_start) {
+                    process_data(phandle);
+                }
+            }
         }
           ////waiting for next control packet if late
         if (is_running && !stream->read_header(&header)) {

@@ -16,6 +16,7 @@ private:
     // configuration members
     std::atomic<bool> should_reset{false}, is_running{false}, is_paused{false}, is_stepping{false};
     std::atomic<uint64_t> next_pause{0};
+    std::atomic<uint64_t> delay_start{0};
     rc_MessageLevel message_level = rc_MESSAGE_WARN;
     bool is_realtime{ false }, qvga{ false }, async{ false }, use_depth{ true };
     bool fast_path{ false }, to_zero_biases{ false }, use_odometry{ false }, stereo_configured{ false };

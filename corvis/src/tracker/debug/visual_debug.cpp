@@ -121,8 +121,10 @@ cv::Mat& visual_debug::draw_text(const std::string& name, cv::Mat& image) {
 }
 
 void visual_debug::cv_to_sensor_data(const cv::Mat& image, rc_Sensor image_id, const std::string& message,
-                                      bool pause, bool erase_previous, sensor_data& debug_data) {
+                                     bool pause, bool erase_previous, sensor_data& debug_data) {
     debug_data.type = rc_SENSOR_TYPE_DEBUG;
+    debug_data.path = rc_DATA_PATH_SLOW;
+    debug_data.time_us = 0;
     debug_data.debug.pause = pause;
     debug_data.debug.erase_previous_debug_images = erase_previous;
     debug_data.debug.message = (message.empty() ? nullptr : message.data());

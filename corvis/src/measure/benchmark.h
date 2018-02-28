@@ -60,6 +60,42 @@ struct benchmark_result {
             }
         } ate, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R, reloc_time_sec;
 
+        struct ate_state {
+            // ATE variables
+            m3 W = m3::Zero();
+            m3 R = m3::Identity();
+            v3 T = v3::Zero();
+            v3 T_current_mean = v3::Zero();
+            v3 T_ref_mean = v3::Zero();
+            v3 T_error_mean = v3::Zero();
+            int nposes = 0;
+            aligned_vector<v3> T_current_all, T_ref_all;
+
+            void add_pose(const tpose &current_tpose,const tpose &ref_tpose) {
+                // calculate the incremental mean of translations
+                T_current_mean = (current_tpose.G.T + T_current_mean*nposes) / (nposes + 1);
+                T_ref_mean = (ref_tpose.G.T +  T_ref_mean*nposes) / (nposes + 1);
+                T_ref_all.emplace_back(ref_tpose.G.T);
+                T_current_all.emplace_back(current_tpose.G.T);
+                W = W + (ref_tpose.G.T - T_ref_mean) * (current_tpose.G.T - T_current_mean).transpose();
+                nposes++;
+            }
+
+            //solve for Horn's Rotation and translation. It uses a closed form solution
+            //(no approximation is applied, but it is subject to the svd implementation).
+            bool calculate_ate(statistics &statistics) {
+                using rc::map;
+                R = project_rotation(W.transpose());
+                T = T_current_mean - R * T_ref_mean;
+                m<3,Eigen::Dynamic> T_ref_aligned = R*map(T_ref_all).transpose() + T.replicate(1,nposes);
+                m<3,Eigen::Dynamic> T_errors = T_ref_aligned - map(T_current_all).transpose();
+                v<Eigen::Dynamic> rse = T_errors.colwise().norm(); // ||T_error||_l2
+                aligned_vector<f_t> rse_v(rse.data(),rse.data() + rse.cols()*rse.rows());
+                statistics.compute(rse_v);
+                return nposes;
+            }
+        };
+
         struct matching_statistics {
             int true_positives = 0, false_positives = 0, false_negatives = 0;
             f_t precision = 0, recall = 0;
@@ -83,17 +119,10 @@ struct benchmark_result {
             aligned_vector<f_t> elapsed_times_sec;
         } relocalization_time;
 
-        // ATE variables
-        m3 W = m3::Zero();
-        m3 R = m3::Identity();
-        v3 T = v3::Zero();
-        v3 T_current_mean = v3::Zero();
-        v3 T_ref_mean = v3::Zero();
-        v3 T_error_mean = v3::Zero();
+        ate_state ate_s;
         int nposes = 0;
 
         // RPE variables
-        aligned_vector<v3> T_current_all, T_ref_all;
         aligned_vector<f_t> distances, angles, distances_reloc, angles_reloc;
         std::unique_ptr<tpose> current_tpose_ptr, ref_tpose_ptr;
 
@@ -102,12 +131,7 @@ struct benchmark_result {
             if (!current_tpose_ptr) current_tpose_ptr = std::make_unique<tpose>(current_tpose);
             if (!ref_tpose_ptr) ref_tpose_ptr = std::make_unique<tpose>(ref_tpose);
 
-            // calculate the incremental mean of translations
-            T_current_mean = (current_tpose.G.T + T_current_mean*nposes) / (nposes + 1);
-            T_ref_mean = (ref_tpose.G.T +  T_ref_mean*nposes) / (nposes + 1);
-            T_ref_all.emplace_back(ref_tpose.G.T);
-            T_current_all.emplace_back(current_tpose.G.T);
-            W = W + (ref_tpose.G.T - T_ref_mean) * (current_tpose.G.T - T_current_mean).transpose();
+            ate_s.add_pose(current_tpose, ref_tpose);
             nposes++;
             // Calculate the Relative Pose Error (RPE) between two relative poses
             std::chrono::duration<f_t> delta_ref = ref_tpose.t - ref_tpose_ptr->t;
@@ -125,18 +149,8 @@ struct benchmark_result {
             }
         }
 
-        //solve for Horn's Rotation and translation. It uses a closed form solution
-        //(no approximation is applied, but it is subject to the svd implementation).
         bool calculate_ate() {
-            using rc::map;
-            R = project_rotation(W.transpose());
-            T = T_current_mean - R * T_ref_mean;
-            m<3,Eigen::Dynamic> T_ref_aligned = R*map(T_ref_all).transpose() + T.replicate(1,nposes);
-            m<3,Eigen::Dynamic> T_errors = T_ref_aligned - map(T_current_all).transpose();
-            v<Eigen::Dynamic> rse = T_errors.colwise().norm(); // ||T_error||_l2
-            aligned_vector<f_t> rse_v(rse.data(),rse.data() + rse.cols()*rse.rows());
-            ate.compute(rse_v);
-            return nposes;
+            return ate_s.calculate_ate(ate);
         }
 
         bool calculate_precision_recall(){

@@ -58,7 +58,7 @@ struct benchmark_result {
                 e.max = error.max * scale;
                 return e;
             }
-        } ate, ate_chunked, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R, reloc_time_sec;
+        } ate, ate_60s, ate_600ms, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R, reloc_time_sec;
 
         struct chunk_state {
             // ATE variables
@@ -170,8 +170,8 @@ struct benchmark_result {
         } relocalization_time;
 
         chunk_state ate_s;
-        chunk_group ate_minute_s { std::chrono::seconds(60), 1 };
-        chunk_group rpe_second_s { std::chrono::seconds(1), 1 };
+        chunk_group chunks_60s { std::chrono::seconds(60), 1 };
+        chunk_group chunks_600ms { std::chrono::milliseconds(600), 1 };
         int nposes = 0;
         // RPE variables
         aligned_vector<f_t> distances_reloc, angles_reloc;
@@ -180,24 +180,30 @@ struct benchmark_result {
         void add_pose(const tpose &current_tpose,const tpose &ref_tpose) {
             nposes++;
             ate_s.add_pose(current_tpose, ref_tpose);
-            ate_minute_s.add_pose(current_tpose, ref_tpose);
-            rpe_second_s.add_pose(current_tpose, ref_tpose);
+            chunks_60s.add_pose(current_tpose, ref_tpose);
+            chunks_600ms.add_pose(current_tpose, ref_tpose);
         }
 
         bool calculate_ate() {
             return ate_s.calculate_ate(ate);
         }
 
-        bool calculate_ate_chunked() {
-            if(!ate_minute_s.ate_chunk_results.size()) return false;
-            ate_chunked.compute(ate_minute_s.ate_chunk_results);
+        bool calculate_ate_60s() {
+            if(!chunks_60s.ate_chunk_results.size()) return false;
+            ate_60s.compute(chunks_60s.ate_chunk_results);
             return true;
         }
 
-        bool calculate_rpe() {
-            if(!rpe_second_s.rpe_T_chunk_results.size()) return false;
-            rpe_T.compute(rpe_second_s.rpe_T_chunk_results);
-            rpe_R.compute(rpe_second_s.rpe_R_chunk_results);
+        bool calculate_ate_600ms() {
+            if(!chunks_600ms.ate_chunk_results.size()) return false;
+            ate_600ms.compute(chunks_600ms.ate_chunk_results);
+            return true;
+        }
+
+        bool calculate_rpe_600ms() {
+            if(!chunks_600ms.rpe_T_chunk_results.size()) return false;
+            rpe_T.compute(chunks_600ms.rpe_T_chunk_results);
+            rpe_R.compute(chunks_600ms.rpe_R_chunk_results);
             return true;
         }
 

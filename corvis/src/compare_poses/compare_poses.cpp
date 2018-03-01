@@ -29,7 +29,7 @@ int main(int argc, char ** argv)
             cerr << "There was a problem calculating the ATE, exiting\n";
             return 1;
         }
-        if(!result.errors.calculate_rpe()) {
+        if(!result.errors.calculate_rpe_600ms()) {
             cerr << "There was a problem calculating the RPE, exiting\n";
             return 1;
         }
@@ -39,10 +39,12 @@ int main(int argc, char ** argv)
         cout << "RPE-T (m):" << result.errors.rpe_T << "\n";
         cout << "RPE-R (deg):" << result.errors.rpe_R * (180.f / M_PI) << "\n\n";
 
-        if(result.errors.calculate_ate_chunked()) {
-            cout << "ATE (60s chunks) (m):" << result.errors.ate_chunked << "m\n";
+        if(result.errors.calculate_ate_60s()) {
+            cout << "ATE (60s chunks) (m):" << result.errors.ate_60s << "m\n";
         }
-
+        if(result.errors.calculate_ate_600ms()) {
+            cout << "ATE (600ms chunks) (m):" << result.errors.ate_600ms << "m\n";
+        }
     }
 
     return 0;

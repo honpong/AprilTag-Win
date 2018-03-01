@@ -168,6 +168,10 @@ int main(int c, char **v)
             std::cout << "\t RPE rotation [deg]:\n";
             std::cout << res.errors.rpe_R*(f_t)(180/M_PI) << "\n";
         }
+        if(res.errors.calculate_ate_chunked()) {
+            std::cout << "\t ATE (60s chunks) [m] : \n";
+            std::cout << res.errors.ate_chunked << "\n";
+        }
         if (res.errors.calculate_precision_recall()) {
             std::cout << "Relocalization Statistics :\n";
             std::cout << "\t Precision-Recall [%] : \n";

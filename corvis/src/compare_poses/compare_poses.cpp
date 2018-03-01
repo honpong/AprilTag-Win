@@ -34,6 +34,11 @@ int main(int argc, char ** argv)
         cout << "ATE (m):" << result.errors.ate << "\n";
         cout << "RPE-T (m):" << result.errors.rpe_T << "\n";
         cout << "RPE-R (deg):" << result.errors.rpe_R * (180.f / M_PI) << "\n\n";
+
+        if(result.errors.calculate_ate_chunked()) {
+            cout << "ATE (60s chunks) (m):" << result.errors.ate_chunked << "m\n";
+        }
+
     }
 
     return 0;

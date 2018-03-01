@@ -140,7 +140,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
         first++;
     }
 
-    std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m, rpe_T_errors_m, rpe_R_errors_deg,
+    std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m, ate_chunked_errors_m, rpe_T_errors_m, rpe_R_errors_deg,
             reloc_rpe_T_errors_m, reloc_rpe_R_errors_deg, precision_reloc, recall_reloc, reloc_times_sec;
     uint32_t precision_anomalies = 0, recall_anomalies = 0;
     bool has_reloc = false;
@@ -197,6 +197,10 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
             rpe_T_errors_m.push_back(r.errors.rpe_T.rmse);
             stream << "\tRotational RPE\t" << r.errors.rpe_R.rmse*(180.f/M_PI) << "deg\n";
             rpe_R_errors_deg.push_back(r.errors.rpe_R.rmse*(180.f/M_PI));
+        }
+        if(r.errors.calculate_ate_chunked()) {
+            stream << "\tATE (60s chunks)\t" << r.errors.ate_chunked.mean << "m\n";
+            ate_chunked_errors_m.push_back(r.errors.ate_chunked.mean);
         }
         if (r.errors.calculate_precision_recall()) {
             has_reloc = true;
@@ -265,6 +269,10 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     stream << "RPE (Rotation) histogram (" << rpe_R_errors_deg.size() << " sequences)\n";
     error_histogram rpe_R_hist(rpe_R_errors_deg, rpe_R_edges, 2, "deg");
     stream << rpe_R_hist << "\n";
+
+    stream << "ATE (60s chunks) histogram (" << ate_chunked_errors_m.size() << " sequences)\n";
+    error_histogram ate_chunked_hist(ate_chunked_errors_m, ate_edges, 2, "m");
+    stream << ate_chunked_hist << "\n";
 
     if (has_reloc) {
         stream << "Precision histogram (" << precision_reloc.size() << " sequences)\n";

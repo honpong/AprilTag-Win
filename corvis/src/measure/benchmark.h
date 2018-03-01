@@ -58,7 +58,7 @@ struct benchmark_result {
                 e.max = error.max * scale;
                 return e;
             }
-        } ate, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R, reloc_time_sec;
+        } ate, ate_chunked, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R, reloc_time_sec;
 
         struct ate_state {
             // ATE variables
@@ -121,6 +121,9 @@ struct benchmark_result {
 
         ate_state ate_s;
         int nposes = 0;
+        sensor_clock::time_point last_ate_chunk_start;
+        std::list<ate_state> ate_chunks;
+        aligned_vector<f_t> ate_chunk_results;
 
         // RPE variables
         aligned_vector<f_t> distances, angles, distances_reloc, angles_reloc;
@@ -147,10 +150,27 @@ struct benchmark_result {
                 rpe_T.compute(distances);
                 rpe_R.compute(angles);
             }
+            if(ate_chunks.size() == 0 || current_tpose.t - last_ate_chunk_start > std::chrono::seconds(60)) {
+                last_ate_chunk_start = current_tpose.t;
+                ate_chunks.emplace_back();
+                if(ate_chunks.size() > 1) {
+                    statistics s;
+                    ate_chunks.front().calculate_ate(s);
+                    ate_chunks.pop_front();
+                    ate_chunk_results.emplace_back(s.rmse);
+                }
+            }
+            for(auto &i : ate_chunks) i.add_pose(current_tpose, ref_tpose);
         }
 
         bool calculate_ate() {
             return ate_s.calculate_ate(ate);
+        }
+
+        bool calculate_ate_chunked() {
+            if(!ate_chunk_results.size()) return false;
+            ate_chunked.compute(ate_chunk_results);
+            return true;
         }
 
         bool calculate_precision_recall(){

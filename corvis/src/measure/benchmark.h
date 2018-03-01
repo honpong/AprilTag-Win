@@ -60,7 +60,7 @@ struct benchmark_result {
             }
         } ate, ate_chunked, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R, reloc_time_sec;
 
-        struct ate_state {
+        struct chunk_state {
             // ATE variables
             m3 W = m3::Zero();
             m3 R = m3::Identity();
@@ -96,6 +96,32 @@ struct benchmark_result {
             }
         };
 
+        struct chunk_group {
+            chunk_group(sensor_clock::duration i, size_t o): start_interval(i), overlap_count(o) {}
+
+            sensor_clock::duration start_interval;
+            size_t overlap_count;
+            sensor_clock::duration length() { return start_interval * overlap_count; }
+            std::list<chunk_state> chunks;
+            sensor_clock::time_point last_chunk_start;
+
+            aligned_vector<f_t> ate_chunk_results;
+
+            void add_pose(const tpose &current_tpose,const tpose &ref_tpose) {
+                if(chunks.size() == 0 || current_tpose.t - last_chunk_start > start_interval) {
+                    last_chunk_start = current_tpose.t;
+                    chunks.emplace_back();
+                    if(chunks.size() > overlap_count) {
+                        statistics s;
+                        chunks.front().calculate_ate(s);
+                        chunks.pop_front();
+                        ate_chunk_results.emplace_back(s.rmse);
+                    }
+                }
+                for(auto &i : chunks) i.add_pose(current_tpose, ref_tpose);
+            }
+        };
+
         struct matching_statistics {
             int true_positives = 0, false_positives = 0, false_negatives = 0;
             f_t precision = 0, recall = 0;
@@ -119,12 +145,9 @@ struct benchmark_result {
             aligned_vector<f_t> elapsed_times_sec;
         } relocalization_time;
 
-        ate_state ate_s;
+        chunk_state ate_s;
+        chunk_group ate_minute_s { std::chrono::seconds(60), 1 };
         int nposes = 0;
-        sensor_clock::time_point last_ate_chunk_start;
-        std::list<ate_state> ate_chunks;
-        aligned_vector<f_t> ate_chunk_results;
-
         // RPE variables
         aligned_vector<f_t> distances, angles, distances_reloc, angles_reloc;
         std::unique_ptr<tpose> current_tpose_ptr, ref_tpose_ptr;
@@ -134,8 +157,9 @@ struct benchmark_result {
             if (!current_tpose_ptr) current_tpose_ptr = std::make_unique<tpose>(current_tpose);
             if (!ref_tpose_ptr) ref_tpose_ptr = std::make_unique<tpose>(ref_tpose);
 
-            ate_s.add_pose(current_tpose, ref_tpose);
             nposes++;
+            ate_s.add_pose(current_tpose, ref_tpose);
+            ate_minute_s.add_pose(current_tpose, ref_tpose);
             // Calculate the Relative Pose Error (RPE) between two relative poses
             std::chrono::duration<f_t> delta_ref = ref_tpose.t - ref_tpose_ptr->t;
             if ( delta_ref > std::chrono::seconds(1) ) {
@@ -150,17 +174,6 @@ struct benchmark_result {
                 rpe_T.compute(distances);
                 rpe_R.compute(angles);
             }
-            if(ate_chunks.size() == 0 || current_tpose.t - last_ate_chunk_start > std::chrono::seconds(60)) {
-                last_ate_chunk_start = current_tpose.t;
-                ate_chunks.emplace_back();
-                if(ate_chunks.size() > 1) {
-                    statistics s;
-                    ate_chunks.front().calculate_ate(s);
-                    ate_chunks.pop_front();
-                    ate_chunk_results.emplace_back(s.rmse);
-                }
-            }
-            for(auto &i : ate_chunks) i.add_pose(current_tpose, ref_tpose);
         }
 
         bool calculate_ate() {
@@ -168,8 +181,8 @@ struct benchmark_result {
         }
 
         bool calculate_ate_chunked() {
-            if(!ate_chunk_results.size()) return false;
-            ate_chunked.compute(ate_chunk_results);
+            if(!ate_minute_s.ate_chunk_results.size()) return false;
+            ate_chunked.compute(ate_minute_s.ate_chunk_results);
             return true;
         }
 

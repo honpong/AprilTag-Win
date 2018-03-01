@@ -24,7 +24,7 @@ template <size_t N, typename Model, typename State, typename ForwardIt, typename
         // Split [begin,end) into up to N random maybe_inliers and the rest: [begin,maybe_inliers) and [maybe_inliers, end)
         auto maybe_inliers = random_n(begin, end, N, gen);
         Model maybe_model(state, begin, maybe_inliers);
-        if (maybe_model.reprojection_error() > state.threshold)
+        if (!maybe_model)
             continue;
         // Split [maybe_inliers, end) into [maybe_inliers, also_inliers) and [also_inliers, end)
         auto also_inliers = maybe_inliers;
@@ -39,7 +39,7 @@ template <size_t N, typename Model, typename State, typename ForwardIt, typename
                     best_model = std::move(maybe_model); // FIXME: remove this case?  Seems like a pointless optimization
             } else {
                 Model maybe_better_model(state, begin, also_inliers);
-                if (maybe_better_model.reprojection_error() < state.threshold && best_model < maybe_better_model)
+                if (best_model < maybe_better_model)
                     best_model = std::move(maybe_better_model);
             }
         }

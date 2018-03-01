@@ -1097,7 +1097,7 @@ void filter_initialize(struct filter *f)
 #endif
     state_vision_feature::initial_var = .75;
     state_vision_feature::initial_process_noise = 1.e-20;
-    state_vision_track::outlier_thresh = 1;
+    state_vision_track::outlier_thresh = 2;
     state_vision_track::outlier_reject = 30.;
     state_vision_track::outlier_lost_reject = 5.;
     state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
@@ -1107,7 +1107,7 @@ void filter_initialize(struct filter *f)
     for (auto &g : f->gyroscopes)     g->init_with_variance(g->intrinsics.measurement_variance_rad2__s2, g->intrinsics.decimate_by);
     for (auto &a : f->accelerometers) a->init_with_variance(a->intrinsics.measurement_variance_m2__s4,   a->intrinsics.decimate_by);
     for (auto &v : f->velocimeters)   v->init_with_variance(v->intrinsics.measurement_variance_m2__s2,   v->intrinsics.decimate_by);
-    for (auto &c : f->cameras)        c->init_with_variance(2 * 2);
+    for (auto &c : f->cameras)        c->init_with_variance(1 * 1);
     for (auto &d : f->depths)         d->init_with_variance(0);
     for (auto &t : f->thermometers)   t->init_with_variance(t->intrinsics.measurement_variance_C2);
 

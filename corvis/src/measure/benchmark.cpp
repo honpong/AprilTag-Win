@@ -193,6 +193,8 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
         if (r.errors.calculate_ate()) {
             stream << "\tATE\t" << r.errors.ate.rmse << "m\n";
             ate_errors_m.push_back(r.errors.ate.rmse);
+        }
+        if(r.errors.calculate_rpe()) {
             stream << "\tTranslational RPE\t" << r.errors.rpe_T.rmse << "m\n";
             rpe_T_errors_m.push_back(r.errors.rpe_T.rmse);
             stream << "\tRotational RPE\t" << r.errors.rpe_R.rmse*(180.f/M_PI) << "deg\n";

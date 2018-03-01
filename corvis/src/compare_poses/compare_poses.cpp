@@ -29,6 +29,10 @@ int main(int argc, char ** argv)
             cerr << "There was a problem calculating the ATE, exiting\n";
             return 1;
         }
+        if(!result.errors.calculate_rpe()) {
+            cerr << "There was a problem calculating the RPE, exiting\n";
+            return 1;
+        }
 
         cout << "Compared " << result.errors.nposes << " poses\n";
         cout << "ATE (m):" << result.errors.ate << "\n";

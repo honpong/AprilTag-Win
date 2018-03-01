@@ -71,7 +71,17 @@ struct benchmark_result {
             int nposes = 0;
             aligned_vector<v3> T_current_all, T_ref_all;
 
+            //RPE
+            transformation G_ref_1, G_our_1, G_ref_2, G_our_2;
+
             void add_pose(const tpose &current_tpose,const tpose &ref_tpose) {
+                if(!nposes) {
+                    G_ref_1 = ref_tpose.G;
+                    G_our_1 = current_tpose.G;
+                }
+                G_ref_2 = ref_tpose.G;
+                G_our_2 = current_tpose.G;
+
                 // calculate the incremental mean of translations
                 T_current_mean = (current_tpose.G.T + T_current_mean*nposes) / (nposes + 1);
                 T_ref_mean = (ref_tpose.G.T +  T_ref_mean*nposes) / (nposes + 1);
@@ -94,6 +104,16 @@ struct benchmark_result {
                 statistics.compute(rse_v);
                 return nposes;
             }
+
+            bool calculate_rpe(float &distance, float &angle) {
+                // Calculate the Relative Pose Error (RPE) between two relative poses
+                transformation G_ref_kp1_k = invert(G_ref_2)*G_ref_1;
+                transformation G_current_kp1_k = invert(G_our_2)*G_our_1;
+                transformation G_current_ref_kk = invert(G_current_kp1_k)*G_ref_kp1_k;
+                distance = G_current_ref_kk.T.norm();
+                angle = std::acos(std::min(std::max((G_current_ref_kk.Q.toRotationMatrix().trace()-1)/2, -1.0f),1.0f));
+                return nposes > 1;
+            }
         };
 
         struct chunk_group {
@@ -105,7 +125,7 @@ struct benchmark_result {
             std::list<chunk_state> chunks;
             sensor_clock::time_point last_chunk_start;
 
-            aligned_vector<f_t> ate_chunk_results;
+            aligned_vector<f_t> ate_chunk_results, rpe_T_chunk_results, rpe_R_chunk_results;
 
             void add_pose(const tpose &current_tpose,const tpose &ref_tpose) {
                 if(chunks.size() == 0 || current_tpose.t - last_chunk_start > start_interval) {
@@ -113,9 +133,13 @@ struct benchmark_result {
                     chunks.emplace_back();
                     if(chunks.size() > overlap_count) {
                         statistics s;
+                        float distance, angle;
                         chunks.front().calculate_ate(s);
+                        chunks.front().calculate_rpe(distance, angle);
                         chunks.pop_front();
                         ate_chunk_results.emplace_back(s.rmse);
+                        rpe_T_chunk_results.emplace_back(distance);
+                        rpe_R_chunk_results.emplace_back(angle);
                     }
                 }
                 for(auto &i : chunks) i.add_pose(current_tpose, ref_tpose);
@@ -147,33 +171,17 @@ struct benchmark_result {
 
         chunk_state ate_s;
         chunk_group ate_minute_s { std::chrono::seconds(60), 1 };
+        chunk_group rpe_second_s { std::chrono::seconds(1), 1 };
         int nposes = 0;
         // RPE variables
-        aligned_vector<f_t> distances, angles, distances_reloc, angles_reloc;
-        std::unique_ptr<tpose> current_tpose_ptr, ref_tpose_ptr;
+        aligned_vector<f_t> distances_reloc, angles_reloc;
 
         //append the current and ref translations to matrices
         void add_pose(const tpose &current_tpose,const tpose &ref_tpose) {
-            if (!current_tpose_ptr) current_tpose_ptr = std::make_unique<tpose>(current_tpose);
-            if (!ref_tpose_ptr) ref_tpose_ptr = std::make_unique<tpose>(ref_tpose);
-
             nposes++;
             ate_s.add_pose(current_tpose, ref_tpose);
             ate_minute_s.add_pose(current_tpose, ref_tpose);
-            // Calculate the Relative Pose Error (RPE) between two relative poses
-            std::chrono::duration<f_t> delta_ref = ref_tpose.t - ref_tpose_ptr->t;
-            if ( delta_ref > std::chrono::seconds(1) ) {
-                transformation G_ref_kp1_k = invert(ref_tpose.G)*ref_tpose_ptr->G;
-                transformation G_current_kp1_k = invert(current_tpose.G)*current_tpose_ptr->G;
-                transformation G_current_ref_kk = invert(G_current_kp1_k)*G_ref_kp1_k;
-                distances.emplace_back(G_current_ref_kk.T.norm());
-                angles.emplace_back(std::acos(std::min(std::max((G_current_ref_kk.Q.toRotationMatrix().trace()-1)/2, -1.0f),1.0f)));
-                // update pose
-                *current_tpose_ptr = current_tpose;
-                *ref_tpose_ptr = ref_tpose;
-                rpe_T.compute(distances);
-                rpe_R.compute(angles);
-            }
+            rpe_second_s.add_pose(current_tpose, ref_tpose);
         }
 
         bool calculate_ate() {
@@ -183,6 +191,13 @@ struct benchmark_result {
         bool calculate_ate_chunked() {
             if(!ate_minute_s.ate_chunk_results.size()) return false;
             ate_chunked.compute(ate_minute_s.ate_chunk_results);
+            return true;
+        }
+
+        bool calculate_rpe() {
+            if(!rpe_second_s.rpe_T_chunk_results.size()) return false;
+            rpe_T.compute(rpe_second_s.rpe_T_chunk_results);
+            rpe_R.compute(rpe_second_s.rpe_R_chunk_results);
             return true;
         }
 

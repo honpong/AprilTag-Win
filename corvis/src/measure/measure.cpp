@@ -163,12 +163,14 @@ int main(int c, char **v)
             std::cout << "Trajectory Statistics :\n";
             std::cout << "\t ATE [m] : \n";
             std::cout << res.errors.ate << "\n";
+        }
+        if (res.errors.calculate_rpe()) {
             std::cout << "\t RPE translation [m]:\n";
             std::cout << res.errors.rpe_T << "\n";
             std::cout << "\t RPE rotation [deg]:\n";
             std::cout << res.errors.rpe_R*(f_t)(180/M_PI) << "\n";
         }
-        if(res.errors.calculate_ate_chunked()) {
+        if (res.errors.calculate_ate_chunked()) {
             std::cout << "\t ATE (60s chunks) [m] : \n";
             std::cout << res.errors.ate_chunked << "\n";
         }
@@ -224,8 +226,8 @@ int main(int c, char **v)
                 if (enable_gui || render_output)
                     ws.observe_ate(rp_output->sensor_time_us, res.errors.ate.rmse);
             }
-            if(res.errors.distances.size())
-                ws.observe_rpe(data->time_us, res.errors.distances.back());
+            if(res.errors.rpe_second_s.rpe_T_chunk_results.size())
+                ws.observe_rpe(data->time_us, res.errors.rpe_second_s.rpe_T_chunk_results.back());
         }
         if(!first && rp_output->tracker && data->type == rc_SENSOR_TYPE_IMAGE) {
             rc_RelocEdge* reloc_edges = nullptr;

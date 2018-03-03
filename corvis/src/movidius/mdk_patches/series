@@ -11,3 +11,4 @@
 009_mdk_release_17.04.5_sipp_interrupt_disable_remove.patch
 010_mdk_release_17.04.5_sampleProfiler.patch
 011_mdk_release_17.04.5_dma_link_tr_va_list.patch
+012_mdk_release_17.04.5_no_blis_l2_invalidate.patch

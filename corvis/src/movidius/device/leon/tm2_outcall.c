@@ -267,6 +267,14 @@ Returns:
 
 */
 
+#include <unistd.h>
+#include <pthread.h>
+static void *delay_and_reset(void *x) {
+    usleep(50000);
+    SET_REG_WORD(CPR_MAS_RESET_ADR, 0x00);
+    return NULL;
+}
+
 static BOOL UsbPumpVscAppI_SetupProcess(VOID * ClientHandle,
                                         CONST USETUP * pSetup, VOID * pBuffer,
                                         UINT16 nBuffer)
@@ -289,10 +297,11 @@ static BOOL UsbPumpVscAppI_SetupProcess(VOID * ClientHandle,
                 UsbPump_Rtems_DataPump_RestartDevice(50);
                 stopReplay();
                 break;
-            case CONTROL_MESSAGE_USB_RESET:
+            case CONTROL_MESSAGE_USB_RESET: {
                 printf("CONTROL_MESSAGE_USB_RESET\n");
-                SET_REG_WORD(CPR_MAS_RESET_ADR, 0x00);
-                break;
+                pthread_t thread;
+                pthread_create(&thread, NULL, delay_and_reset, 0);
+            }   break;
             default:
                 pSelf->fAcceptSetup = FALSE;
                 break;

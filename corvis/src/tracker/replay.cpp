@@ -47,6 +47,26 @@ bool replay::load_reference_from_pose_file(const string &filename)
     return false;
 }
 
+bool replay::set_loaded_map_reference_from_file(const char *filename) {
+    if (!filename) return false;
+    string name(filename);
+    auto p = name.find_last_of('.');
+    if (p != string::npos)
+        name = name.substr(0, p);  // remove map-json extension
+
+    auto load_from_file = [](const std::string& file) {
+        unique_ptr<tpose_sequence> seq = make_unique<tpose_sequence>();
+        return (seq->load_from_file(file) ? std::move(seq) : nullptr);
+    };
+
+    loaded_map_reference_seq = load_from_file(name + ".tum");
+    if (!loaded_map_reference_seq)
+        loaded_map_reference_seq = load_from_file(name + ".pose");
+    if (!loaded_map_reference_seq)
+        loaded_map_reference_seq = load_from_file(name + ".vicon");
+    return static_cast<bool>(loaded_map_reference_seq);
+}
+
 static bool find_prefixed_number(const std::string in, const std::string &prefix, double &n)
 {
     smatch m; if (!regex_search(in, m, regex(prefix + "(\\d+(?:\\.\\d*)?)"))) return false;

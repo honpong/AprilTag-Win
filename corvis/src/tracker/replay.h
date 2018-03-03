@@ -31,7 +31,7 @@ private:
     bool is_started{ false }; /// keep track of API call order of rc_startTracker, rc_loadMap
     double reference_path_length{ NAN };
     double reference_length{ NAN };
-    std::unique_ptr<tpose_sequence> reference_seq;
+    std::unique_ptr<tpose_sequence> reference_seq, loaded_map_reference_seq;
     std::thread replay_thread;
     bool find_reference_in_filename(const std::string &filename);
     bool load_reference_from_pose_file(const std::string &filename);
@@ -100,5 +100,7 @@ public:
     double get_reference_length() { return reference_length; }
     bool set_reference_from_filename(const char *filename);
     const tpose_sequence& get_reference_poses() const { return *reference_seq; }
+    bool set_loaded_map_reference_from_file(const char *filename);
+    const std::unique_ptr<tpose_sequence>& get_loaded_map_reference_poses() const { return loaded_map_reference_seq; }
     ~replay();
 };

@@ -69,7 +69,7 @@ if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     add_compile_options(/sdl)
     add_subdirectory(${LIBRS_DIR}/third-party/glfw)
-    list(APPEND LIBRS_LIBS glfw3)
+    list(APPEND LIBRS_APP_LIBS glfw3)
 
 elseif(APPLE)
 
@@ -109,18 +109,20 @@ elseif(APPLE)
         /usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
         /usr/X11R6/lib)
 
-    list(APPEND LIBRS_LIBS m ${LIBUSB1_LIBRARIES} ${GLFW_LIBRARIES})
+    list(APPEND LIBRS_LIBS m ${LIBUSB1_LIBRARIES})
+	list(APPEND LIBRS_LIBS ${GLFW_LIBRARIES})
     include_directories(${GLFW_INCLUDE_DIR})
 endif()
 
 #########################################################################
-set(BUILD_EXAMPLES            OFF CACHE BOOL "" FORCE)
-set(BUILD_GRAPHICAL_EXAMPLES  OFF CACHE BOOL "" FORCE)
+set(BUILD_EXAMPLES            OFF CACHE BOOL "")
+set(BUILD_GRAPHICAL_EXAMPLES  OFF CACHE BOOL "")
 set(BUILD_SHARED_LIBS         OFF CACHE BOOL "")
 set(BUILD_UNIT_TESTS          OFF CACHE BOOL "" FORCE)
 set(ALGO_LIB algo-core CACHE STRING "")
 
-list(APPEND LIBRS_LIBS realsense2 ${OPENGL_LIBRARIES} json3)
+list(APPEND LIBRS_APP_LIBS json3 ${OPENGL_LIBRARIES})
+list(APPEND LIBRS_LIBS realsense2)
 
 add_subdirectory(${JSON3_DIR})
 add_subdirectory(${LIBRS_DIR})

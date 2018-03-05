@@ -100,17 +100,17 @@ void usb_shutdown()
     context = NULL;
 }
 
-bool usb_init()
+bool usb_init(int vendor_id, int product_id)
 {
     libusb_init(&context);
     libusb_set_debug(context, 3);
-    device_handle = libusb_open_device_with_vid_pid(context, USB_VENDOR_ID, USB_PRODUCT_ID);
+    device_handle = libusb_open_device_with_vid_pid(context, vendor_id, product_id);
     if (!device_handle) {
-        std::cerr << "\nError: failed to open USB3 device\n";
+        std::cerr << "Error: failed to open a TM2 device ("<< std::hex << std::setw(4) << std::setfill('0') << vendor_id << ":" << std::setw(4) << std::setfill('0') << product_id << ")\n";
         usb_shutdown();
         return false;
     }
-    std::cout << "\nDevice opened\n";
+    std::cout << "TM2 Found ("<< std::hex << std::setw(4) << std::setfill('0') << vendor_id << ":" << std::setw(4) << std::setfill('0') << product_id << ")\n";
     libusb_device* dev = libusb_get_device(device_handle);
     if (libusb_get_device_speed(dev) != LIBUSB_SPEED_SUPER) {
         std::cout << "Error: device is not connected via USB3\n";

@@ -1,0 +1,5 @@
+,TM Total Rotation,Robot Total Rotation,Rotation Error,Scale Factor,Scale Error
+Rotation_roll (avg), 44.931667, 45.016696, 0.818252, 0.998261, 0.018162
+Rotation_roll (intrval 0), 44.485670, 45.388950, 0.903281, 0.980099, 0.019901
+Rotation_roll (intrval 1), 45.377664, 44.644441, 0.733223, 1.016424, 0.016424
+

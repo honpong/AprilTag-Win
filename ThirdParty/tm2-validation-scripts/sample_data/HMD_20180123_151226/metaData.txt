@@ -1,0 +1,6 @@
+Serial Number: 0
+FW Version: 0.0.11.802056
+Host Version: 6.0.65535.65535
+Central Version: 0.0.0.65535
+Boot Loader Version: 0.0.0.65535
+

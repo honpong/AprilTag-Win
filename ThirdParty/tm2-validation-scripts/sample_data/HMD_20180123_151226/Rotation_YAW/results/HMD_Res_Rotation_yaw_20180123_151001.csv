@@ -1,0 +1,5 @@
+,TM Total Rotation,Robot Total Rotation,Rotation Error,Scale Factor,Scale Error
+Rotation_yaw (avg), 71.978596, 72.101849, 0.335909, 0.998278, 0.004663
+Rotation_yaw (intrval 0), 71.453123, 71.912285, 0.459162, 0.993615, 0.006385
+Rotation_yaw (intrval 1), 72.504068, 72.291412, 0.212656, 1.002942, 0.002942
+

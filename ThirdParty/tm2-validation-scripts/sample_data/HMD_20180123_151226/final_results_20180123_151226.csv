@@ -1,0 +1,84 @@
+Static Noise – Translation(avg) (mm), 3.235275
+Static Noise – Rotation(max) (deg), 0.159829
+Zero Drift – Translation Total Error(avg) (mm), 4.776078
+X Axis Avg, 2.629241
+X Axis Max, 2.629241
+Y Axis Avg, 2.421916
+Y Axis Max, 2.421916
+Z Axis Avg, 1.953442
+Z Axis Max, 1.953442
+Zero Drift – Rotation(max) (deg), 0.331621
+VR Translation Front-Face - Average Translation Scale Error (%), 0.027500
+VR Translation Front-Face - Average Translation Error Ratio (%), 2.032100
+Rotation - Max Rotation Error (deg),0.615194
+
+
+Zero Drift:
+(out of 1 result files)
+Average of Translation X Avg, Max of Translation X Avg, Average of Translation Y Avg, Max of Translation Y Avg, Average of Translation Z Avg, Max of Translation Z Avg, Average of Translation Dist Avg, Average of Rotation Max
+2.629241,2.629241,2.421916,2.421916,1.953442,1.953442,4.776078,0.331621
+
+
+Static Noise:
+(out of 1 result files)
+Average of Translation Dist Avg, Average of Rotation Max
+3.235275,0.159829
+
+
+VR Translation Front-Face:
+(out of 1 result files)
+Average of Scale Factor,Average of X Scale Factor,Average of Y Scale Factor,Average of Z Scale Factor,Average of Translation Error Ratio X,Average of Translation Error Ratio Y,Average of Translation Error Ratio Z,Average of Average Translation Error Ratio,Average of Average Translation Scale Error,
+1.000275,0.992873,1.002859,1.006383,0.030332,0.022011,0.008620,0.020321,0.000275,
+
+
+Rotation_PITCH:
+(out of 1 result files)
+Average of TM Total Rotation,Average of Robot Total Rotation,Average of Rotation Error,Average of Scale Factor,Average of Scale Error,
+53.581862,53.774134,0.691421,0.995571,0.013145,
+
+
+Rotation_ROLL:
+(out of 1 result files)
+Average of TM Total Rotation,Average of Robot Total Rotation,Average of Rotation Error,Average of Scale Factor,Average of Scale Error,
+44.931667,45.016696,0.818252,0.998261,0.018162,
+
+
+Rotation_YAW:
+(out of 1 result files)
+Average of TM Total Rotation,Average of Robot Total Rotation,Average of Rotation Error,Average of Scale Factor,Average of Scale Error,
+71.978596,72.101849,0.335909,0.998278,0.004663,
+
+
+
+
+Zero Drift:
+,Translation X Avg,Translation X Max,Translation X Min,Translation X Std,Translation Y Avg,Translation Y Max,Translation Y Min,Translation Y Std,Translation Z Avg,Translation Z Max,Translation Z Min,Translation Z Std,Rotation Avg,Rotation Max,Rotation Min,Rotation Std,Translation Dist Avg,Translation Dist Max,Translation Dist Min,Translation Dist Std
+HMD_Res_ZDrift_SNoise_20180123_150925.csv,2.629241,3.372355,1.517892,0.704680,2.421916,8.287920,0.141065,2.993486,1.953442,5.891123,0.473154,1.988336,0.222342,0.331621,0.121481,0.072715,4.776078,9.001745,1.596173,2.682278
+
+
+Static Noise:
+,Translation X Avg,Translation X Max,Translation X Min,Translation X Std,Translation Y Avg,Translation Y Max,Translation Y Min,Translation Y Std,Translation Z Avg,Translation Z Max,Translation Z Min,Translation Z Std,Rotation Avg,Rotation Max,Rotation Min,Rotation Std,Translation Dist Avg,Translation Dist Max,Translation Dist Min,Translation Dist Std
+HMD_Res_ZDrift_SNoise_20180123_150925.csv,0.746486,1.700184,0.000129,0.388013,1.460039,2.309638,0.002753,0.555042,2.627777,3.947512,0.000919,0.951780,0.081139,0.159829,0.000000,0.043516,3.235275,4.810251,0.031536,1.152652
+
+
+VR Translation Front-Face:
+,Scale Factor,X Scale Factor,Y Scale Factor,Z Scale Factor,Translation Error Ratio X,Translation Error Ratio Y,Translation Error Ratio Z,Average Translation Error Ratio,Average Translation Scale Error
+HMD_Res_Translation_FF_20180123_151224.csv,1.000275,0.992873,1.002859,1.006383,0.030332,0.022011,0.008620,0.020321,0.000275
+
+
+Rotation_PITCH:
+,TM Total Rotation,Robot Total Rotation,Rotation Error,Scale Factor,Scale Error
+HMD_Res_Rotation_pitch_20180123_151032.csv,53.581862,53.774134,0.691421,0.995571,0.013145
+
+
+Rotation_ROLL:
+,TM Total Rotation,Robot Total Rotation,Rotation Error,Scale Factor,Scale Error
+HMD_Res_Rotation_roll_20180123_151102.csv,44.931667,45.016696,0.818252,0.998261,0.018162
+
+
+Rotation_YAW:
+,TM Total Rotation,Robot Total Rotation,Rotation Error,Scale Factor,Scale Error
+HMD_Res_Rotation_yaw_20180123_151001.csv,71.978596,72.101849,0.335909,0.998278,0.004663
+
+
+

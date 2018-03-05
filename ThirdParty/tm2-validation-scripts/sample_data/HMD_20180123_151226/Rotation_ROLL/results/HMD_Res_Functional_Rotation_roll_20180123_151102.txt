@@ -1,0 +1,5 @@
+Intervals Mean: 4
+Max Interval: 5
+Num Outliers (5%): 4400
+[Interval - Timestamp difference between two consecutive poses]
+

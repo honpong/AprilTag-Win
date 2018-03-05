@@ -1,0 +1,28 @@
+@PACKAGE_INIT@
+
+set_and_check(box-sdk_INCLUDE_DIR "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
+
+include("${CMAKE_CURRENT_LIST_DIR}/realsense2Targets.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/box-sdkTargets.cmake")
+set(BOX_SDK_VERSION_MAJOR "@BOX_SDK_VERSION_MAJOR@")
+set(BOX_SDK_VERSION_MINOR "@BOX_SDK_VERSION_MINOR@")
+set(BOX_SDK_VERSION_PATCH "@BOX_SDK_VERSION_PATCH@")
+set(BOX_SDK_VERSION_STRING ${BOX_SDK_VERSION_MAJOR}.${BOX_SDK_VERSION_MINOR}.${BOX_SDK_VERSION_PATCH})
+message(STATUS "info: BOX_SDK_VERSION_STRING=${BOX_SDK_VERSION_STRING}")
+
+if(WIN32)
+    add_library(libSP SHARED IMPORTED)
+    set_target_properties(libSP PROPERTIES 
+        IMPORTED_LOCATION    "@PACKAGE_CMAKE_INSTALL_BINDIR@/DenseReconstruction.dll"
+		IMPORTED_IMPLIB      "@PACKAGE_CMAKE_INSTALL_LIBDIR@/box-sdk.lib"
+    )
+
+    macro(box_sdk_link_libraries_copy target)
+	    if(MSVC)
+    	    get_target_property(__libs__ box-sdk INTERFACE_LINK_LIBRARIES)
+	        foreach( __lib__ ${__libs__} box-sdk)
+   	            add_custom_command(TARGET ${target} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:${__lib__}>" "$<TARGET_FILE_DIR:${target}>")
+            endforeach()
+		endif()
+	endmacro()
+endif()

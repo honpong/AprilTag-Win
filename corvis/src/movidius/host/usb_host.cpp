@@ -8,6 +8,7 @@
 #include <thread>
 #include <string.h>
 #include <stream_object.h>
+#include "packet.h"
 
 #define USB_TIMEOUT 0
 

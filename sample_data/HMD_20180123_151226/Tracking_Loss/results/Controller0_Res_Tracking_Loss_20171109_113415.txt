@@ -1,0 +1,8 @@
+,Number Of Tracking Loss,Tracking Loss Ratio,Average Translation Error
+Tracking_Loss (avg), 0.000000, 0.000000, 0.000000
+Tracking_Loss (round 0), 0.000000, 0.000000, 0.000000
+Tracking_Loss (round 1), 0.000000, 0.000000, 0.000000
+Tracking_Loss (round 2), 0.000000, 0.000000, 0.000000
+Tracking_Loss (round 3), 0.000000, 0.000000, 0.000000
+Tracking_Loss (round 4), 0.000000, 0.000000, 0.000000
+

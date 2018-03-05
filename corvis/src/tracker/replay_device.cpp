@@ -301,8 +301,9 @@ void replay_device::process_control(const packet_control_t *packet) {
     }
     case packet_enable_odometry: { use_odometry = true; break; }
     case packet_enable_mesg_level: {
-        auto *packet_mesg = (uint64_t *)packet->data;
-        if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, nullptr, (rc_MessageLevel)packet_mesg[0]);
+        uint64_t msg_level;
+        memcpy(&msg_level, packet->data, sizeof(uint64_t));
+        if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, nullptr, (rc_MessageLevel)msg_level);
         break;
     }
     case packet_enable_mapping: { 
@@ -345,8 +346,7 @@ void replay_device::process_control(const packet_control_t *packet) {
         break;
     }
     case packet_delay_start: {
-        auto *packet_mesg = (uint64_t *)packet->data;
-        delay_start = packet_mesg[0];
+        memcpy(&delay_start, packet->data, sizeof(uint64_t));
         break;
     }
     case packet_command_step: { is_paused = is_stepping = true; break; }

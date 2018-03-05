@@ -10,6 +10,8 @@ list(APPEND CMAKE_PREFIX_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/sp/win
 )
 
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
+
 ######################################################################
 
 set(LIBRS_GIT https://github.com/IntelRealSense/librealsense.git)

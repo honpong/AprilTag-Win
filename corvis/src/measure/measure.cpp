@@ -35,6 +35,7 @@ int main(int c, char **v)
              << "   [--qvga] [--qres] [--drop-depth] [--realtime] [--async] [--no-fast-path] [--zero-bias]\n"
              << "   [--trace | --debug | --error | --info | --warn | --none]\n"
              << "   [--pause] [--pause-at <timestamp_us>]\n"
+             << "   [--skip <seconds>]\n"
              << "   [--no-plots] [--no-video] [--no-main] [--no-depth]\n"
              << "   [--render-output <file.png>] [--pose-output <pose-file>] [--benchmark-output <results-file>]\n"
              << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
@@ -58,6 +59,7 @@ int main(int c, char **v)
     bool tm2_playback = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr, *pose_output = nullptr;
     char *pause_at = nullptr;
+    float skip_secs = 0.f;
     rc_MessageLevel message_level = rc_MESSAGE_INFO;
     int threads = 0;
     for (int i=1; i<c; i++)
@@ -74,6 +76,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--threads") == 0 && i+1 < c) threads = std::atoi(v[++i]);
         else if (strcmp(v[i], "--pause")  == 0) start_paused  = true;
         else if (strcmp(v[i], "--pause-at")  == 0 && i+1 < c) pause_at = v[++i];
+        else if (strcmp(v[i], "--skip") == 0 && i+1 < c) skip_secs = std::strtof(v[++i], nullptr);
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
         else if (strcmp(v[i], "--qvga") == 0) qvga = true;
         else if (strcmp(v[i], "--qres") == 0) qres++;
@@ -132,12 +135,19 @@ int main(int c, char **v)
         if(pause_at) {
             rc_Timestamp pause_time = 0;
             try {
-                pause_time = std::stoull(pause_at);
+                pause_time = std::stoll(pause_at);
             } catch (...) {
                 cerr << "invalid timestamp: " << pause_at << "\n";
                 return false;
             }
             rp.set_pause(pause_time);
+        }
+        if(skip_secs != 0.f) {
+            if (skip_secs < 0 || skip_secs == HUGE_VALF) {
+                cerr << "invalid skip value\n";
+                return false;
+            }
+            rp.delay_start(skip_secs * 1000000);
         }
 
         if (load) {

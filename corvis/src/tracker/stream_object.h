@@ -46,6 +46,7 @@ typedef enum replay_packet_type {
     packet_save_end, //packet used by device to send for saving
     packet_set_stage,
     packet_camera_extrinsics,
+    packet_delay_start,
     packet_invalid_usb, //last entry
 } replay_packet_type;
 

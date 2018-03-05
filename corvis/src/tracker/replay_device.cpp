@@ -301,8 +301,9 @@ void replay_device::process_control(const packet_control_t *packet) {
     }
     case packet_enable_odometry: { use_odometry = true; break; }
     case packet_enable_mesg_level: {
-        auto *packet_mesg = (uint64_t *)packet->data;
-        if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, nullptr, (rc_MessageLevel)packet_mesg[0]);
+        uint64_t msg_level;
+        memcpy(&msg_level, packet->data, sizeof(uint64_t));
+        if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, nullptr, (rc_MessageLevel)msg_level);
         break;
     }
     case packet_enable_mapping: { 
@@ -342,6 +343,10 @@ void replay_device::process_control(const packet_control_t *packet) {
             stream->save_callback(stream->save_handle, buffer, bytes);
             stream->put_device_packet(packet_command_alloc(packet_save_end));
         }
+        break;
+    }
+    case packet_delay_start: {
+        memcpy(&delay_start, packet->data, sizeof(uint64_t));
         break;
     }
     case packet_command_step: { is_paused = is_stepping = true; break; }
@@ -384,6 +389,7 @@ void replay_device::start() {
     if (!stream) return;
     setup_filter();
 
+    uint64_t first_data_timestamp = 0;
     packet_header_t header = { 0 };
     is_running = stream->read_header(&header, true);
     auto phandle = stream->get_host_packet();
@@ -410,7 +416,13 @@ void replay_device::start() {
         if (phandle) {
             if (phandle->header.type == packet_control)
                 process_control((packet_control_t *)phandle.get());
-            else process_data(phandle);
+            else {
+                if (delay_start && !first_data_timestamp)
+                    first_data_timestamp = header.time;
+                if (header.time >= first_data_timestamp + delay_start) {
+                    process_data(phandle);
+                }
+            }
         }
           ////waiting for next control packet if late
         if (is_running && !stream->read_header(&header)) {

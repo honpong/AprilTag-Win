@@ -24,6 +24,11 @@
 #ifndef rs_box_sdk_hpp
 #define rs_box_sdk_hpp
 
+#define RS2_BOX_SDK_MAJOR_VERSION    2
+#define RS2_BOX_SDK_MINOR_VERSION    0
+#define RS2_BOX_SDK_PATCH_VERSION    0
+#define RS2_BOX_SDK_BUILD_VERSION    0
+
 #ifdef RS2_MEASURE_EXPORTS
 #if (defined(WIN32) || defined(WIN64) || defined(_WIN32) || defined(_WIN64))
 #define RS2_MEASURE_DECL __declspec(dllexport)

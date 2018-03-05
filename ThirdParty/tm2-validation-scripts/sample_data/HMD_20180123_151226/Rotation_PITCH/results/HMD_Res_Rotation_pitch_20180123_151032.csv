@@ -1,0 +1,5 @@
+,TM Total Rotation,Robot Total Rotation,Rotation Error,Scale Factor,Scale Error
+Rotation_pitch (avg), 53.581862, 53.774134, 0.691421, 0.995571, 0.013145
+Rotation_pitch (intrval 0), 49.400715, 50.284408, 0.883693, 0.982426, 0.017574
+Rotation_pitch (intrval 1), 57.763010, 57.263860, 0.499150, 1.008717, 0.008717
+

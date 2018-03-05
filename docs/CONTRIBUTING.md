@@ -1,6 +1,6 @@
 # C++11
 
-We use C++11, with the addition of `make_unique` from C++14.
+We use C++14.
 
 # Coding style
 

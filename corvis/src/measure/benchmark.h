@@ -160,8 +160,8 @@ struct benchmark_result {
         void add_edges(const rc_Timestamp current_frame_timestamp,
                        const rc_RelocEdge* reloc_edges,
                        const int num_reloc_edges,
-                       const std::unordered_set<rc_Timestamp>& ref_edges,
-                       const tpose_sequence& ref_poses) {
+                       const std::set<rc_SessionTimestamp>& ref_edges,
+                       const std::vector<tpose_sequence>& ref_poses) {
             int tp = 0, fp = 0;
             transformation relative_error;
             // maybe all reloc edges are false positive
@@ -171,13 +171,13 @@ struct benchmark_result {
                 // traverse all relocalization mapnode timestamps and check if they are in canditate timestamps
                 auto current_frame_tp = sensor_clock::micros_to_tp(current_frame_timestamp);
                 tpose ref_tpose_current(current_frame_tp);
-                bool success = ref_poses.get_pose(current_frame_tp, ref_tpose_current);
+                bool success = ref_poses[rc_SESSION_CURRENT_SESSION].get_pose(current_frame_tp, ref_tpose_current);
                 for (int i = 0; i < num_reloc_edges; ++i) {
                     tp += ref_edges.count(reloc_edges[i].time_destination);
-                    auto mapnode_tp = sensor_clock::micros_to_tp(reloc_edges[i].time_destination);
+                    auto mapnode_tp = sensor_clock::micros_to_tp(reloc_edges[i].time_destination.time_us);
                     tpose ref_tpose_mapnode(mapnode_tp);
                     transformation reloc_pose =  to_transformation(reloc_edges[i].pose_m);
-                    if (success && ref_poses.get_pose(mapnode_tp, ref_tpose_mapnode)) {
+                    if (success && ref_poses[reloc_edges[i].time_destination.session_id].get_pose(mapnode_tp, ref_tpose_mapnode)) {
                         transformation ref_relative_pose = invert(ref_tpose_mapnode.G) * ref_tpose_current.G;
                         relative_error = ref_relative_pose * invert(reloc_pose);
                         distances_reloc.emplace_back(relative_error.T.norm());

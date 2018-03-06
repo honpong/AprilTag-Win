@@ -234,9 +234,9 @@ int main(int c, char **v)
             if (first) {
                 first = false;
                 loop_gt.set_camera(rp.get_camera_extrinsics(0));
-                loop_gt.add_reference_poses(rp.get_reference_poses());
                 if (rp.get_loaded_map_reference_poses())
-                    loop_gt.add_reference_poses(*rp.get_loaded_map_reference_poses());
+                    loop_gt.add_reference_poses(*rp.get_loaded_map_reference_poses(), rc_SESSION_PREVIOUS_SESSION);
+                loop_gt.add_reference_poses(rp.get_reference_poses(), rc_SESSION_CURRENT_SESSION);
                 // transform reference trajectory to tracker world frame
                 rp.set_relative_pose(timestamp, current_tpose);
                 ref_tpose.G = current_tpose.G;

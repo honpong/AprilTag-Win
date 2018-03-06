@@ -107,6 +107,10 @@ static const rc_Pose rc_POSE_IDENTITY = {
       {0, 1, 0},
       {0, 0, 1}}},
 };
+inline bool operator< (const rc_SessionTimestamp& lhs, const rc_SessionTimestamp& rhs) {
+    return lhs.session_id < rhs.session_id ||
+            (lhs.session_id == rhs.session_id && lhs.time_us < rhs.time_us);
+}
 #endif
 
 typedef uint16_t rc_Sensor;

@@ -651,9 +651,7 @@ int rc_getMapNodes(rc_Tracker *tracker, rc_MapNode **map_nodes)
         }
         std::sort(tracker->map_nodes.begin(), tracker->map_nodes.end(),
                   [](const rc_MapNode& lhs, const rc_MapNode& rhs) {
-            return lhs.time.session_id < rhs.time.session_id ||
-                    (lhs.time.session_id == rhs.time.session_id &&
-                     lhs.time.time_us < rhs.time.time_us);
+            return lhs.time < rhs.time;
         });
         if (map_nodes) *map_nodes = tracker->map_nodes.data();
         return tracker->map_nodes.size();

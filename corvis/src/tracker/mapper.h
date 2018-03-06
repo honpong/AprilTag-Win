@@ -289,6 +289,9 @@ private:
     nodeid get_node_id_offset() const { return node_id_offset; }
     featureid get_feature_id_offset() { return feature_id_offset; }
     bool edge_in_map(nodeid id1, nodeid id2, edge_type& type) const;
+    rc_SessionId get_node_session(nodeid id) const {
+        return (id < node_id_offset ? rc_SESSION_PREVIOUS_SESSION : rc_SESSION_CURRENT_SESSION);
+    }
 
     void finish_node(nodeid node_id, bool compute_dbow_inverted_index);
     void set_node_transformation(nodeid id, const transformation & G);

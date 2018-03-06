@@ -621,7 +621,8 @@ int rc_getRelocalizationEdges(rc_Tracker *tracker, rc_Timestamp *source, rc_Relo
             const transformation& G_node_frame = info.candidates[i].G_node_frame;
             rc_RelocEdge& edge = tracker->relocalization_edges[i];
             edge.pose_m = to_rc_Pose(G_node_frame);
-            edge.time_destination = sensor_clock::tp_to_micros(info.candidates[i].node_timestamp);
+            edge.time_destination.time_us = sensor_clock::tp_to_micros(info.candidates[i].node_timestamp);
+            edge.time_destination.session_id = tracker->sfm.map->get_node_session(info.candidates[i].node_id);
         }
         if (source) *source = sensor_clock::tp_to_micros(info.frame_timestamp);
         if (edges) *edges = (info.is_relocalized ? tracker->relocalization_edges.data() : nullptr);
@@ -643,13 +644,16 @@ int rc_getMapNodes(rc_Tracker *tracker, rc_MapNode **map_nodes)
         for (auto& it : nodes) {
             auto& node = it.second;
             if (node.status == node_status::finished && node.frame) {
-                map_node.time_us = sensor_clock::tp_to_micros(node.frame->timestamp);
+                map_node.time.time_us = sensor_clock::tp_to_micros(node.frame->timestamp);
+                map_node.time.session_id = tracker->sfm.map->get_node_session(node.id);
                 tracker->map_nodes.push_back(map_node);
             }
         }
         std::sort(tracker->map_nodes.begin(), tracker->map_nodes.end(),
                   [](const rc_MapNode& lhs, const rc_MapNode& rhs) {
-            return lhs.time_us < rhs.time_us;
+            return lhs.time.session_id < rhs.time.session_id ||
+                    (lhs.time.session_id == rhs.time.session_id &&
+                     lhs.time.time_us < rhs.time.time_us);
         });
         if (map_nodes) *map_nodes = tracker->map_nodes.data();
         return tracker->map_nodes.size();

@@ -270,7 +270,7 @@ Returns:
 #include <unistd.h>
 #include <pthread.h>
 static void *delay_and_reset(void *x) {
-    usleep(50000);
+    usleep(1500);
     SET_REG_WORD(CPR_MAS_RESET_ADR, 0x00);
     return NULL;
 }

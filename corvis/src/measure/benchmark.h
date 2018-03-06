@@ -74,7 +74,9 @@ struct benchmark_result {
 
             template <typename Stream>
             friend Stream& operator<<(Stream &stream, const matching_statistics &error) {
-                return stream << "\t precision "  << error.precision*100 << " recall "  << error.recall*100;
+                return stream << "\t precision "  << error.precision*100 << " recall "  << error.recall*100 << "\n"
+                              << "\t correct/detected\t" << error.true_positives << "/" << error.true_positives + error.false_positives << "\n"
+                              << "\t missed\t" << error.false_negatives;
             }
         } relocalization;
 

@@ -1,0 +1,28 @@
+cmake_minimum_required(VERSION 3.7.0 FATAL_ERROR)
+
+set(my-proj my-box-app)
+project(${my-proj})
+
+if(MSVC)
+    foreach(flag_var
+        CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+        CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+        CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+        CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
+        if(${flag_var} MATCHES "/MD")
+            string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+        endif(${flag_var} MATCHES "/MD")
+    endforeach(flag_var)
+endif()
+	
+message(STATUS "loading cmake config files from ${CMAKE_CURRENT_SOURCE_DIR}/../lib/cmake/realsense2 ...")
+list(APPEND CMAKE_PREFIX_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../lib/cmake/realsense2)
+
+find_package(box-sdk REQUIRED)
+
+add_executable(${my-proj} my-box-app.cpp)
+target_link_libraries(${my-proj} PRIVATE box-sdk)
+box_sdk_link_libraries_copy(${my-proj})
+
+set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT ${my-proj})
+set_target_properties(${my-proj} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")

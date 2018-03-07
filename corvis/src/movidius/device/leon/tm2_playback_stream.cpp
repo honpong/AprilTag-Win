@@ -102,13 +102,14 @@ bool tm2_pb_stream::read_header(packet_header_t *header, bool control_type) {
         ((stream_buffer *)device_stream::map_load_handle)->transfer_bytes = 0;
         break;
     }
+    case packet_command_start: is_started = true;
     };
     if (header) *header = packet->header;
     return true;
 }
 
 void tm2_pb_stream::put_device_packet(const rc_packet_t &device_packet) {
-    if (!device_packet) return;
+    if (!device_packet || !is_started) return;
     if (!packet_io_write(device_packet))
         printf("Error: failed to post device packet.\n");
     if (get_packet_type(device_packet) == packet_command_end) {

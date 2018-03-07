@@ -21,4 +21,5 @@ private:
     rc_packet_t packet{ nullptr, free };
     std::unique_ptr<stream_buffer> str_buf;
     replay_output track_output[2];
+    bool is_started{ false };/// if tracker is started
 };

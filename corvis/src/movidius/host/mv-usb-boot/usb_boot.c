@@ -594,7 +594,7 @@ static int send_stdin(usb_han han) {
 			highres_gettime(&t1);
 			res = usb_bulk_write(han, ep_out, p, wb, &wbr, write_timeout);
 			if((res < 0) || (wbr != wb)) {
-				fprintf(stderr, "bulk write: %s\n", usb_last_bulk_errmsg());
+				fprintf(stderr, "bulk write: %s (previously transfered %d, current transfer %zu/%zu)\n", usb_last_bulk_errmsg(), filesize, wbr, wb);
 				if(ignore_errors)
 					break;
 				return 1;
@@ -668,7 +668,7 @@ static int send_file(usb_han han, const char *fname) {
 			break;
 		highres_gettime(&t2);
 		if((res < 0) || (wb != wbr)) {
-			fprintf(stderr, "bulk write: %s\n", usb_last_bulk_errmsg());
+			fprintf(stderr, "bulk write: %s (previously transfered %zu, current transfer %zu/%zu, left to transfer %lu)\n", usb_last_bulk_errmsg(), twb, wbr, wb, filesize - twb - wb);
 			if(!ignore_errors) {
 				free(tx_buf);
 				return 1;

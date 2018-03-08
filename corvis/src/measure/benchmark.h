@@ -111,7 +111,7 @@ struct benchmark_result {
                 transformation G_current_kp1_k = invert(G_our_2)*G_our_1;
                 transformation G_current_ref_kk = invert(G_current_kp1_k)*G_ref_kp1_k;
                 distance = G_current_ref_kk.T.norm();
-                angle = std::acos(std::min(std::max((G_current_ref_kk.Q.toRotationMatrix().trace()-1)/2, -1.0f),1.0f));
+                angle = to_rotation_vector(G_current_ref_kk.Q).raw_vector().norm(); // [0,pi]
                 return nposes > 1;
             }
         };

@@ -205,7 +205,8 @@ static USBPUMP_PROTO_VSC2_SETUP_STATUS UsbPumpVscAppI_SetupValidate(
         Status              = USBPUMP_PROTO_VSC2_SETUP_STATUS_ACCEPTED;
         switch(pSetup->uc_bRequest) {
             case CONTROL_MESSAGE_START:
-            case CONTROL_MESSAGE_STOP_AND_RESET:
+            case CONTROL_MESSAGE_STOP:
+            case CONTROL_MESSAGE_RESET:
             case CONTROL_MESSAGE_USB_RESET:
                 break;
             default:
@@ -292,9 +293,12 @@ static BOOL UsbPumpVscAppI_SetupProcess(VOID * ClientHandle,
                 printf("CONTROL_MESSAGE_START\n");
                 startReplay();
                 break;
-            case CONTROL_MESSAGE_STOP_AND_RESET:
-                printf("CONTROL_MESSAGE_STOP_AND_RESET\n");
+            case CONTROL_MESSAGE_RESET:
+                printf("CONTROL_MESSAGE_RESET\n");
                 UsbPump_Rtems_DataPump_RestartDevice(50);
+                break;
+            case CONTROL_MESSAGE_STOP:
+                printf("CONTROL_MESSAGE_STOP\n");
                 stopReplay();
                 break;
             case CONTROL_MESSAGE_USB_RESET: {
@@ -303,6 +307,7 @@ static BOOL UsbPumpVscAppI_SetupProcess(VOID * ClientHandle,
                 pthread_create(&thread, NULL, delay_and_reset, 0);
             }   break;
             default:
+                printf("ERROR: unknown control message of code %d\n", pSetup->uc_bRequest);
                 pSelf->fAcceptSetup = FALSE;
                 break;
         }

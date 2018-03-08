@@ -55,13 +55,14 @@ tm2_host_stream::tm2_host_stream(const char*filename) {
 };
 
 void shutdown(int _unused = 0) {
+    usb_reset();
     usb_shutdown();
 }
 
 bool tm2_host_stream::init_stream() {
     is_usb_ok = usb_init();
     signal(SIGINT, shutdown);
-    is_usb_ok = is_usb_ok && usb_send_control(CONTROL_MESSAGE_START, 0, 0, 0);
+    if (is_usb_ok) usb_send_control(CONTROL_MESSAGE_START, 0, 0, 0);
     return is_usb_ok;
 }
 
@@ -89,9 +90,6 @@ bool tm2_host_stream::start_stream() {
                         passed_data = found_itr->get();
                         passed_data->path = track_output.data_path;
                     }
-                    else
-                        printf("Error: rc data with ts %lu, type %d, id %d not found\n", (unsigned long)track_output.sensor_time_us,
-                            track_output.sensor_type, track_output.sensor_id);
                 }
 
                 if (passed_data) host_data_callback(&track_output, passed_data);
@@ -136,10 +134,8 @@ bool tm2_host_stream::start_stream() {
     packet_header_t header;
     while (enable_sensor && sts) {
         sensor_file.read((char *)&header, sizeof(packet_header_t));
-        if (!(sts = !sensor_file.eof())) {
-            put_host_packet(packet_command_alloc(packet_command_stop));
-        }
-        if ((sts = !sensor_file.bad())) {
+        sts = !sensor_file.eof();
+        if ((sts = sts && !sensor_file.bad())) {
             cur_packet = rc_packet_t((packet_t *)malloc(header.bytes), free);
             cur_packet->header = header;
             sensor_file.read(reinterpret_cast<char *>(&cur_packet->data[0]),
@@ -167,13 +163,13 @@ bool tm2_host_stream::start_stream() {
                 }
             }
         }
+        if (!sts) put_host_packet(packet_command_alloc(packet_command_stop));
     }
     return sts;
 }
 
 bool tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
-    static bool stop_sending_packet = false; //discontinues usb communication, used at tear down.
-    if (!is_usb_ok || !post_packet || stop_sending_packet) return false;
+    if (!is_usb_ok || !post_packet || stop_host_sending) return false;
 
     std::lock_guard<std::mutex> lk(put_mutex);
     bool write_packet = true;
@@ -194,7 +190,7 @@ bool tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
         track_output.set_output_type(replay_output::output_mode::POSE_FEATURE);
         break;
     }
-    case packet_command_end: stop_sending_packet = true;
+    case packet_command_end: stop_host_sending = true;
     case packet_command_stop: enable_sensor = false;
     }
 
@@ -214,5 +210,5 @@ bool tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
 tm2_host_stream::~tm2_host_stream() {
     if (thread_6dof_output.joinable()) thread_6dof_output.join();
     if (thread_receive_device.joinable()) thread_receive_device.join();
-    shutdown();
+    usb_shutdown();
 }

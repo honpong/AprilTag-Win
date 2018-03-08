@@ -1,43 +1,10 @@
 #include <stdlib.h>
 #include <iostream>
-#include <mqueue.h>
-#include <sys/ioctl.h>
-#include <bsp.h>
-#include <mv_types.h>
-#include <rtems.h>
-#include <inttypes.h>
-
-#include "Trace.h"
-#include "tm2_playback_stream.h"
-#include "usbpump_application_rtems_api.h"
-#include "usbpumpdebug.h"
 #include "tm2_outcall.h"
 #include "packet_io.h"
-#include "usbpump_vsc2app.h"
-#include "resource.h"
 #include "usb_definitions.h"
-
-#ifndef DISABLE_LEON_DCACHE
-#define USBPUMP_MDK_CACHE_ENABLE 1
-#else
-#define USBPUMP_MDK_CACHE_ENABLE 0
-#endif
-
-// USB VSC Handler
-extern USBPUMP_VSC2APP_CONTEXT *               pSelf;
-
-static USBPUMP_APPLICATION_RTEMS_CONFIGURATION sg_DataPump_AppConfig = 
-    USBPUMP_APPLICATION_RTEMS_CONFIGURATION_INIT_V1(
-    /* nEventQueue */ 64,
-    /* pMemoryPool */ NULL,
-    /* nMemoryPool */ 0,
-    /* DataPumpTaskPriority */ 100,
-    /* DebugTaskPriority */ 200,
-    /* UsbInterruptPriority */ 10,
-    /* pDeviceSerialNumber */ NULL,
-    /* pUseBusPowerFn */ NULL,
-    /* fCacheEnabled */ USBPUMP_MDK_CACHE_ENABLE,
-    /* DebugMask */ UDMASK_ANY | UDMASK_ERRORS);
+#include "mv_trace.h"
+#include "tm2_playback_stream.h"
 
 static bool blocking_write_same_size_pkt(packet_t *pkt) {
     return usb_blocking_write(ENDPOINT_DEV_INT_OUT, (uint8_t *)pkt, pkt->header.bytes);
@@ -62,9 +29,8 @@ static size_t get_next_packet(tm2_pb_stream::stream_buffer &s)
 /// the size of internal loading buffer.
 static size_t usb_load_callback(void * handle, void * buffer, size_t length)
 {
-    static size_t transferred_bytes = 0;
     tm2_pb_stream::stream_buffer * stream = (tm2_pb_stream::stream_buffer *)handle;
-    if (stream->content.empty() && transferred_bytes < stream->total_bytes) transferred_bytes += get_next_packet(*stream);
+    if (stream->content.empty() && stream->transfer_bytes < stream->total_bytes) stream->transfer_bytes += get_next_packet(*stream);
 
     size_t buffer_copy_size = 0;
     if (!stream->content.empty()) {
@@ -85,8 +51,6 @@ static void usb_save_callback(void * handle, const void * buffer, size_t length)
     if (!packet_io_write_parts(&save_packet_header, (const uint8_t *)buffer))
         printf("Error: failed to send packet for saving\n");
 }
-
-std::unique_ptr<tm2_pb_stream> tm2_pb_stream::singleton;
 
 static void status_callback(void * handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence) {
     printf("Status change: state %d error %d confidence %d\n", state, error, confidence);
@@ -118,12 +82,6 @@ tm2_pb_stream::tm2_pb_stream(): str_buf(new stream_buffer()) {
 }
 
 bool tm2_pb_stream::init_device() {
-    void * r = UsbPump_Rtems_DataPump_Startup(&sg_DataPump_AppConfig);
-    if (!r) {
-        printf("ERR: [usbInit] UPF_DataPump_Startup() failed: %p\n", r);
-        return false;
-    }
-    usb_init();
     return true;
 }
 
@@ -141,15 +99,17 @@ bool tm2_pb_stream::read_header(packet_header_t *header, bool control_type) {
     }
     case packet_load_map: {
         ((stream_buffer *)device_stream::map_load_handle)->total_bytes = ((uint64_t *)packet->data)[0];
+        ((stream_buffer *)device_stream::map_load_handle)->transfer_bytes = 0;
         break;
     }
+    case packet_command_start: is_started = true;
     };
     if (header) *header = packet->header;
     return true;
 }
 
 void tm2_pb_stream::put_device_packet(const rc_packet_t &device_packet) {
-    if (!device_packet) return;
+    if (!device_packet || !is_started) return;
     if (!packet_io_write(device_packet))
         printf("Error: failed to post device packet.\n");
     if (get_packet_type(device_packet) == packet_command_end) {

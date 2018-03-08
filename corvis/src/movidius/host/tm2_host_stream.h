@@ -36,4 +36,5 @@ private:
     std::list<std::unique_ptr<rc_Data, void(*)(void *)>> sensor_queue;
     std::mutex image_queue_mtx;
     bool is_usb_ok{ false };
+    bool stop_host_sending{ false }; //discontinues usb communication, used at tear down.
 };

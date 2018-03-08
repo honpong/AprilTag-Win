@@ -89,8 +89,8 @@ bool usb_send_control(uint8_t control_message, uint16_t value, uint16_t index,
 void usb_shutdown()
 {
     if (device_handle) {
-        if (!usb_send_control(CONTROL_MESSAGE_STOP_AND_RESET, 0, 0, 500)) {
-            fprintf(stderr, "Error: unable to stop usb cleanly, exiting\n");
+        if (!usb_send_control(CONTROL_MESSAGE_STOP, 0, 0, 0)) {
+            std::cerr << "Error: unable to stop replay cleanly\n";
         }
         libusb_release_interface(device_handle, 0);
         libusb_close(device_handle);
@@ -100,25 +100,36 @@ void usb_shutdown()
     context = NULL;
 }
 
+void usb_reset()
+{
+    if (device_handle && !usb_send_control(CONTROL_MESSAGE_RESET, 0, 0, 500))
+        std::cerr << "Error: unable to reset usb cleanly\n";
+}
+
 bool usb_init(int vendor_id, int product_id)
 {
     libusb_init(&context);
     libusb_set_debug(context, 3);
     device_handle = libusb_open_device_with_vid_pid(context, vendor_id, product_id);
+    bool is_failure = false;
     if (!device_handle) {
         std::cerr << "Error: failed to open a TM2 device ("<< std::hex << std::setw(4) << std::setfill('0') << vendor_id << ":" << std::setw(4) << std::setfill('0') << product_id << ")\n";
-        usb_shutdown();
-        return false;
+        is_failure = true;
     }
-    std::cout << "TM2 Found ("<< std::hex << std::setw(4) << std::setfill('0') << vendor_id << ":" << std::setw(4) << std::setfill('0') << product_id << ")\n";
-    libusb_device* dev = libusb_get_device(device_handle);
-    if (libusb_get_device_speed(dev) != LIBUSB_SPEED_SUPER) {
-        std::cout << "Error: device is not connected via USB3\n";
-        usb_shutdown();
-        return false;
+    else {
+        std::cout << "TM2 Found (" << std::hex << std::setw(4) << std::setfill('0') << vendor_id << ":" << std::setw(4) << std::setfill('0') << product_id << ")\n";
+        libusb_device* dev = libusb_get_device(device_handle);
+        if (libusb_get_device_speed(dev) != LIBUSB_SPEED_SUPER) {
+            std::cout << "Error: device is not connected via USB3\n";
+            is_failure = true;
+        }
+        else if (libusb_claim_interface(device_handle, 0)) {
+            std::cerr << "Error: failed to claim interface\n";
+            is_failure = true;
+        }
     }
-    if(libusb_claim_interface(device_handle, 0)) {
-        std::cerr << "Error: failed to claim interface\n";
+    if (is_failure) {
+        usb_reset();
         usb_shutdown();
         return false;
     }

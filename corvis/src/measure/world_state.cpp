@@ -2,6 +2,7 @@
 #include "sensor_fusion.h"
 #include "rc_compat.h"
 #include "bstream.h"
+#include <array>
 
 static const VertexData axis_data[] = {
     {{0, 0, 0}, {255, 0, 0, 255}},
@@ -823,15 +824,17 @@ void world_state::generate_innovation_line(const Feature & feat, std::vector<Ver
         feat.feature.image_prediction_y - feat.feature.image_y
     };
     float nees = v_inn.dot(S.llt().solve(v_inn)) / chi_square_95_2df;
-    if (nees > 1.f) {
-        VertexData v_meas, v_pred;
-        set_position(&v_meas, feat.feature.image_x, feat.feature.image_y, 0);
-        set_color(&v_meas, r, g, b, alpha);
-        set_position(&v_pred, feat.feature.image_prediction_x, feat.feature.image_prediction_y, 0);
-        set_color(&v_pred, r, g, b, alpha);
-        feature_residual_vertex.push_back(v_meas);
-        feature_residual_vertex.push_back(v_pred);
+    if (nees > 1.f || !(feat.feature.innovation_variance_x  && feat.feature.innovation_variance_y)) {
+        r = 0; g = 191; b = 255; alpha = 255;
     }
+
+    VertexData v_meas, v_pred;
+    set_position(&v_meas, feat.feature.image_x, feat.feature.image_y, 0);
+    set_color(&v_meas, r, g, b, alpha);
+    set_position(&v_pred, feat.feature.image_prediction_x, feat.feature.image_prediction_y, 0);
+    set_color(&v_pred, r, g, b, alpha);
+    feature_residual_vertex.push_back(v_meas);
+    feature_residual_vertex.push_back(v_pred);
 }
 
 bool world_state::update_vertex_arrays(bool show_only_good)
@@ -857,41 +860,28 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         auto f = item.second;
         VertexData v, vp;
         if (cameras.size() && f.last_seen == cameras[f.camera_id].image.timestamp) {
+            std::array<unsigned char,4> feature_color;
             if(f.depth_measured) {
-                generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 247, 247, 98, 255);
-                set_color(&v, 247, 247, 98, 255);
-
-                set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
-                set_color(&vp, 247, 247, 98, 255);
+                feature_color = {247, 247, 98, 255};
             }
             else if(f.feature.recovered) {
-                generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 255, 140, 0, 255);
-                set_color(&v, 255, 140, 0, 255);
-
-                set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
-                set_color(&vp, 255, 140, 0, 255);
+                feature_color = {255, 140, 0, 255};
             }
             else if(f.good) {
-                generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 88, 247, 98, 255);
-                set_color(&v, 88, 247, 98, 255);
-
-                set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
-                set_color(&vp, 88, 247, 98, 255);
+                feature_color = {88, 247, 98, 255};
             }
             else if(f.not_in_filter) {
-                generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 88, 98, 247, 255);
-                set_color(&v, 88, 98, 247, 255);
-
-                set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
-                set_color(&vp, 88, 98, 247, 255);
+                feature_color = {88, 98, 247, 255};
             } else {
-                generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, 247, 88, 98, 255);
-                set_color(&v, 247, 88, 98, 255);
-
-                set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
-                set_color(&vp, 247, 88, 98, 255);
+                feature_color = {247, 88, 98, 255};
             }
-            generate_innovation_line(f,cameras[f.camera_id].feature_residual_vertex, 1, 130, 220, 255);
+            generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, feature_color[0], feature_color[1], feature_color[2], feature_color[3]);
+            set_color(&v, feature_color[0], feature_color[1], feature_color[2], feature_color[3]);
+
+            set_position(&vp, f.feature.image_x, f.feature.image_y, 0);
+            set_color(&vp, feature_color[0], feature_color[1], feature_color[2], feature_color[3]);
+
+            generate_innovation_line(f,cameras[f.camera_id].feature_residual_vertex, feature_color[0], feature_color[1], feature_color[2], feature_color[3]);
             cameras[f.camera_id].feature_projection_vertex.push_back(vp);
         }
         else {

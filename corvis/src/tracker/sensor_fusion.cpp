@@ -163,6 +163,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
         case rc_SENSOR_TYPE_STEREO: {
             START_EVENT(SF_STEREO_RECEIVE, data.id);
             auto pair = sensor_data::split(std::move(data));
+             bool docallback = true;
 
             if ((pair.first.id < sfm.s.cameras.children.size()) ^ (pair.second.id < sfm.s.cameras.children.size()))
                 sfm.log->critical("Stereo packet with only one camera ({} but not {}) defined\n", pair.first.id, pair.second.id);
@@ -175,8 +176,12 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     sfm.s.cameras.children[pair.first.id ]->detection_future.wait();
                 if (sfm.s.cameras.children[pair.second.id]->detection_future.valid())
                     sfm.s.cameras.children[pair.second.id]->detection_future.wait();
-                filter_stereo_initialize(&sfm, pair.first.id, pair.second.id);
+                docallback = filter_stereo_initialize(&sfm, pair.first.id, pair.second.id);
             }
+
+            update_status();
+            if(docallback)
+                update_data(&data);
 
             uint64_t in_queue = queue.data_in_queue(data.type, data.id);
             queue_receive_data(std::move(pair.first), false);

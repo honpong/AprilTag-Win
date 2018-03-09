@@ -861,11 +861,11 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         VertexData v, vp;
         if (cameras.size() && f.last_seen == cameras[f.camera_id].image.timestamp) {
             std::array<unsigned char,4> feature_color;
-            if     (f.depth_measured)      feature_color = {{247, 247,  98, 255}};
-            else if(f.feature.recovered)   feature_color = {{255, 140,   0, 255}};
-            else if(f.good)                feature_color = {{88,  247,  98, 255}};
-            else if(f.not_in_filter)       feature_color = {{88,   98, 247, 255}};
-            else                           feature_color = {{247,  88,  98, 255}};
+            if     (f.depth_measured)      feature_color = {{247, 247,  98, 255}}; // white
+            else if(f.feature.recovered)   feature_color = {{255, 140,   0, 255}}; // purple
+            else if(f.good)                feature_color = {{88,  247,  98, 255}}; // green
+            else if(f.not_in_filter)       feature_color = {{88,   98, 247, 255}}; // blue
+            else                           feature_color = {{247,  88,  98, 255}}; // red
 
             generate_feature_ellipse(f, cameras[f.camera_id].feature_ellipse_vertex, feature_color[0], feature_color[1], feature_color[2], feature_color[3]);
             set_color(&v, feature_color[0], feature_color[1], feature_color[2], feature_color[3]);

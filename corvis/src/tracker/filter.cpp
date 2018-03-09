@@ -700,7 +700,7 @@ map_relocalization_result filter_relocalize(struct filter *f, const camera_frame
     else
         f->log->debug("      status {:2}, elapsed time [us]: {:.3f}", (int)reloc_result.info.rstatus, elapsed_time);
     if (reloc_result.info.is_relocalized)
-        f->log->info("relocalized");
+        f->log->debug("relocalized");
     return reloc_result;
 }
 

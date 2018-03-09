@@ -77,7 +77,6 @@ bool replay_device::load_calibration(const char *calib_data)
 void replay_device::setup_filter()
 {
     if (stream->pose_callback) rc_setDataCallback(tracker.get(), stream->pose_callback, stream->pose_handle);
-    if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, nullptr, message_level);
     if (stream->status_callback) rc_setStatusCallback(tracker.get(), stream->status_callback, tracker.get());
 #ifdef MYRIAD2
     rc_configureQueueStrategy(tracker.get(), rc_QUEUE_MINIMIZE_DROPS);
@@ -300,12 +299,7 @@ void replay_device::process_control(const packet_control_t *packet) {
         break; 
     }
     case packet_enable_odometry: { use_odometry = true; break; }
-    case packet_enable_mesg_level: {
-        uint64_t msg_level;
-        memcpy(&msg_level, packet->data, sizeof(uint64_t));
-        if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, nullptr, (rc_MessageLevel)msg_level);
-        break;
-    }
+    case packet_enable_mesg_level: { message_level = (rc_MessageLevel)((const uint8_t *)packet->data)[0]; break; }
     case packet_enable_mapping: { 
         uint8_t save_map = ((uint8_t *)packet->data)[0];
         rc_startMapping(tracker.get(), false, save_map);
@@ -313,6 +307,7 @@ void replay_device::process_control(const packet_control_t *packet) {
     }
     case packet_enable_relocalization: { rc_startMapping(tracker.get(), true, true); break; }
     case packet_command_start: {
+        if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, nullptr, message_level);
         rc_startTracker(tracker.get(), (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) |
             (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH));
         break;

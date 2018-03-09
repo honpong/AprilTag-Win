@@ -159,7 +159,7 @@ void mapper::finish_lost_tracks(const tracker::feature_track& track) {
         }
         triangulated_tracks.erase(track.feature->id);
     } else {
-        log->debug("{}/{}) Not enougth support/parallax to add trianguled point with id: {}", track.feature->id);
+        log->debug("Not enough support/parallax to add triangulated point with id: {}", track.feature->id);
     }
 }
 
@@ -760,7 +760,7 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
             log->debug("{}/{}) candidate nid: {:3} score: {:.5f}, matches: {:2}",
                        i++, candidate_nodes.size(), nid.first, nid.second, matches_node_candidate.size());
         else
-            log->info(" {}/{}) candidate nid: {:3} score: {:.5f}, matches: {:2}, EPnP inliers: {}",
+            log->debug(" {}/{}) candidate nid: {:3} score: {:.5f}, matches: {:2}, EPnP inliers: {}",
                       i++, candidate_nodes.size(), nid.first, nid.second, matches_node_candidate.size(), inliers_set.size());
 
 #if defined(RELOCALIZATION_DEBUG)

@@ -53,8 +53,8 @@ public:
     void zero_biases() { request(packet_enable_zero_biases); }
     void delay_start(uint64_t delay_us) { request(packet_delay_start, &delay_us, sizeof(uint64_t)); }
     void set_message_level(rc_MessageLevel level) {
-        uint64_t msg_level = level;
-        request(packet_enable_mesg_level, (const char*)&msg_level, sizeof(uint64_t));
+        uint8_t msg_level = level;
+        request(packet_enable_mesg_level, (const char*)&msg_level, sizeof(uint8_t));
     }
     void enable_feature_output() { request(packet_enable_features_output); }
 

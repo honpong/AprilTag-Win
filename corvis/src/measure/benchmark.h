@@ -58,7 +58,93 @@ struct benchmark_result {
                 e.max = error.max * scale;
                 return e;
             }
-        } ate, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R, reloc_time_sec;
+        } ate, ate_60s, ate_600ms, rpe_T, rpe_R, reloc_rpe_T, reloc_rpe_R, reloc_time_sec;
+
+        struct chunk_state {
+            // ATE variables
+            m3 W = m3::Zero();
+            m3 R = m3::Identity();
+            v3 T = v3::Zero();
+            v3 T_current_mean = v3::Zero();
+            v3 T_ref_mean = v3::Zero();
+            v3 T_error_mean = v3::Zero();
+            int nposes = 0;
+            aligned_vector<v3> T_current_all, T_ref_all;
+
+            //RPE
+            transformation G_ref_1, G_our_1, G_ref_2, G_our_2;
+
+            void add_pose(const tpose &current_tpose,const tpose &ref_tpose) {
+                if(!nposes) {
+                    G_ref_1 = ref_tpose.G;
+                    G_our_1 = current_tpose.G;
+                }
+                G_ref_2 = ref_tpose.G;
+                G_our_2 = current_tpose.G;
+
+                // calculate the incremental mean of translations
+                T_current_mean = (current_tpose.G.T + T_current_mean*nposes) / (nposes + 1);
+                T_ref_mean = (ref_tpose.G.T +  T_ref_mean*nposes) / (nposes + 1);
+                T_ref_all.emplace_back(ref_tpose.G.T);
+                T_current_all.emplace_back(current_tpose.G.T);
+                W = W + (ref_tpose.G.T - T_ref_mean) * (current_tpose.G.T - T_current_mean).transpose();
+                nposes++;
+            }
+
+            //solve for Horn's Rotation and translation. It uses a closed form solution
+            //(no approximation is applied, but it is subject to the svd implementation).
+            bool calculate_ate(statistics &statistics) {
+                using rc::map;
+                R = project_rotation(W.transpose());
+                T = T_current_mean - R * T_ref_mean;
+                m<3,Eigen::Dynamic> T_ref_aligned = R*map(T_ref_all).transpose() + T.replicate(1,nposes);
+                m<3,Eigen::Dynamic> T_errors = T_ref_aligned - map(T_current_all).transpose();
+                v<Eigen::Dynamic> rse = T_errors.colwise().norm(); // ||T_error||_l2
+                aligned_vector<f_t> rse_v(rse.data(),rse.data() + rse.cols()*rse.rows());
+                statistics.compute(rse_v);
+                return nposes;
+            }
+
+            bool calculate_rpe(float &distance, float &angle) {
+                // Calculate the Relative Pose Error (RPE) between two relative poses
+                transformation G_ref_kp1_k = invert(G_ref_2)*G_ref_1;
+                transformation G_current_kp1_k = invert(G_our_2)*G_our_1;
+                transformation G_current_ref_kk = invert(G_current_kp1_k)*G_ref_kp1_k;
+                distance = G_current_ref_kk.T.norm();
+                angle = to_rotation_vector(G_current_ref_kk.Q).raw_vector().norm(); // [0,pi]
+                return nposes > 1;
+            }
+        };
+
+        struct chunk_group {
+            chunk_group(sensor_clock::duration i, size_t o): start_interval(i), overlap_count(o) {}
+
+            sensor_clock::duration start_interval;
+            size_t overlap_count;
+            sensor_clock::duration length() { return start_interval * overlap_count; }
+            std::list<chunk_state> chunks;
+            sensor_clock::time_point last_chunk_start;
+
+            aligned_vector<f_t> ate_chunk_results, rpe_T_chunk_results, rpe_R_chunk_results;
+
+            void add_pose(const tpose &current_tpose,const tpose &ref_tpose) {
+                if(chunks.size() == 0 || current_tpose.t - last_chunk_start > start_interval) {
+                    last_chunk_start = current_tpose.t;
+                    chunks.emplace_back();
+                    if(chunks.size() > overlap_count) {
+                        statistics s;
+                        float distance, angle;
+                        chunks.front().calculate_ate(s);
+                        chunks.front().calculate_rpe(distance, angle);
+                        chunks.pop_front();
+                        ate_chunk_results.emplace_back(s.rmse);
+                        rpe_T_chunk_results.emplace_back(distance);
+                        rpe_R_chunk_results.emplace_back(angle);
+                    }
+                }
+                for(auto &i : chunks) i.add_pose(current_tpose, ref_tpose);
+            }
+        };
 
         struct matching_statistics {
             int true_positives = 0, false_positives = 0, false_negatives = 0;
@@ -83,60 +169,42 @@ struct benchmark_result {
             aligned_vector<f_t> elapsed_times_sec;
         } relocalization_time;
 
-        // ATE variables
-        m3 W = m3::Zero();
-        m3 R = m3::Identity();
-        v3 T = v3::Zero();
-        v3 T_current_mean = v3::Zero();
-        v3 T_ref_mean = v3::Zero();
-        v3 T_error_mean = v3::Zero();
+        chunk_state ate_s;
+        chunk_group chunks_60s { std::chrono::seconds(60), 1 };
+        chunk_group chunks_600ms { std::chrono::milliseconds(600), 1 };
         int nposes = 0;
-
         // RPE variables
-        aligned_vector<v3> T_current_all, T_ref_all;
-        aligned_vector<f_t> distances, angles, distances_reloc, angles_reloc;
-        std::unique_ptr<tpose> current_tpose_ptr, ref_tpose_ptr;
+        aligned_vector<f_t> distances_reloc, angles_reloc;
 
         //append the current and ref translations to matrices
         void add_pose(const tpose &current_tpose,const tpose &ref_tpose) {
-            if (!current_tpose_ptr) current_tpose_ptr = std::make_unique<tpose>(current_tpose);
-            if (!ref_tpose_ptr) ref_tpose_ptr = std::make_unique<tpose>(ref_tpose);
-
-            // calculate the incremental mean of translations
-            T_current_mean = (current_tpose.G.T + T_current_mean*nposes) / (nposes + 1);
-            T_ref_mean = (ref_tpose.G.T +  T_ref_mean*nposes) / (nposes + 1);
-            T_ref_all.emplace_back(ref_tpose.G.T);
-            T_current_all.emplace_back(current_tpose.G.T);
-            W = W + (ref_tpose.G.T - T_ref_mean) * (current_tpose.G.T - T_current_mean).transpose();
             nposes++;
-            // Calculate the Relative Pose Error (RPE) between two relative poses
-            std::chrono::duration<f_t> delta_ref = ref_tpose.t - ref_tpose_ptr->t;
-            if ( delta_ref > std::chrono::seconds(1) ) {
-                transformation G_ref_kp1_k = invert(ref_tpose.G)*ref_tpose_ptr->G;
-                transformation G_current_kp1_k = invert(current_tpose.G)*current_tpose_ptr->G;
-                transformation G_current_ref_kk = invert(G_current_kp1_k)*G_ref_kp1_k;
-                distances.emplace_back(G_current_ref_kk.T.norm());
-                angles.emplace_back(std::acos(std::min(std::max((G_current_ref_kk.Q.toRotationMatrix().trace()-1)/2, -1.0f),1.0f)));
-                // update pose
-                *current_tpose_ptr = current_tpose;
-                *ref_tpose_ptr = ref_tpose;
-                rpe_T.compute(distances);
-                rpe_R.compute(angles);
-            }
+            ate_s.add_pose(current_tpose, ref_tpose);
+            chunks_60s.add_pose(current_tpose, ref_tpose);
+            chunks_600ms.add_pose(current_tpose, ref_tpose);
         }
 
-        //solve for Horn's Rotation and translation. It uses a closed form solution
-        //(no approximation is applied, but it is subject to the svd implementation).
         bool calculate_ate() {
-            using rc::map;
-            R = project_rotation(W.transpose());
-            T = T_current_mean - R * T_ref_mean;
-            m<3,Eigen::Dynamic> T_ref_aligned = R*map(T_ref_all).transpose() + T.replicate(1,nposes);
-            m<3,Eigen::Dynamic> T_errors = T_ref_aligned - map(T_current_all).transpose();
-            v<Eigen::Dynamic> rse = T_errors.colwise().norm(); // ||T_error||_l2
-            aligned_vector<f_t> rse_v(rse.data(),rse.data() + rse.cols()*rse.rows());
-            ate.compute(rse_v);
-            return nposes;
+            return ate_s.calculate_ate(ate);
+        }
+
+        bool calculate_ate_60s() {
+            if(!chunks_60s.ate_chunk_results.size()) return false;
+            ate_60s.compute(chunks_60s.ate_chunk_results);
+            return true;
+        }
+
+        bool calculate_ate_600ms() {
+            if(!chunks_600ms.ate_chunk_results.size()) return false;
+            ate_600ms.compute(chunks_600ms.ate_chunk_results);
+            return true;
+        }
+
+        bool calculate_rpe_600ms() {
+            if(!chunks_600ms.rpe_T_chunk_results.size()) return false;
+            rpe_T.compute(chunks_600ms.rpe_T_chunk_results);
+            rpe_R.compute(chunks_600ms.rpe_R_chunk_results);
+            return true;
         }
 
         bool calculate_precision_recall(){

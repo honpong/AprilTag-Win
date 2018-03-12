@@ -152,7 +152,10 @@ void shave_tracker::sortFeatures(const tracker::image &image, int number_desired
 #endif
     m_lastDetectedFeatures = int(detected_points.size());
 
+    int i=0;
     for (const auto &d : detected_points) {
+        if(i++ > 8 * number_desired)
+            break;
         if (mask->test((int) d.x, (int) d.y)) {
             mask->clear((int) d.x, (int) d.y);
             if (feature_points.size() < number_desired)

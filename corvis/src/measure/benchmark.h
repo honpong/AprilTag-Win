@@ -249,7 +249,7 @@ struct benchmark_result {
                         transformation ref_relative_pose = invert(ref_tpose_mapnode.G) * ref_tpose_current.G;
                         relative_error = ref_relative_pose * invert(reloc_pose);
                         distances_reloc.emplace_back(relative_error.T.norm());
-                        angles_reloc.emplace_back(std::acos(std::min(std::max((relative_error.Q.toRotationMatrix().trace()-1)/2, -1.0f),1.0f)));
+                        angles_reloc.emplace_back(to_rotation_vector(relative_error.Q).raw_vector().norm());
                     }
                 }
                 fp = num_reloc_edges - tp;

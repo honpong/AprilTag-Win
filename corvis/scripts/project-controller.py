@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 from __future__ import print_function
 import numpy as np
 import transformations as tm
@@ -10,11 +10,11 @@ def read_tum(filename):
 
 def tm_from_pose(pose):
     (x, y, z, qx, qy, qz, qw) = pose[:7]; assert(np.isclose(1, qx*qx + qy*qy + qz*qz + qw*qw))
-    return tm.translation_matrix([x, y, z]) @ tm.quaternion_matrix([qw, qx, qy, qz])
+    return np.dot(tm.translation_matrix([x, y, z]), tm.quaternion_matrix([qw, qx, qy, qz]))
 
 def pose_from_tm(m):
     qw,qx,qy,qz = tm.quaternion_from_matrix(m)
-    return (*m[:3,3], qx, qy, qz, qw)
+    return (m[0,3], m[1, 3], m[2,3], qx, qy, qz, qw)
 
 def project_controllers_to_hmd(hmd_poses, controller_poses, hmd_relative_controller_poses, verbose=False):
     hmd_poses                  = list(read_tum(hmd_poses))
@@ -32,7 +32,7 @@ def project_controllers_to_hmd(hmd_poses, controller_poses, hmd_relative_control
                 assert(j+1 < len(hmd_poses))
                 j = j + 1
                 if abs(hmd_poses[j][0] - ctrl_ts) > abs(hmd_ts - ctrl_ts):
-                    inv_hmd_ctrl = np.linalg.inv(hmd_pose) @ ctrl_pose
+                    inv_hmd_ctrl = np.dot(np.linalg.inv(hmd_pose), ctrl_pose)
                     if verbose: print('hic', ctrl_ts,*pose_from_tm(inv_hmd_ctrl))
                     print(ctrl_ts,*pose_from_tm(inv_hmd_ctrl), file=output)
                     break

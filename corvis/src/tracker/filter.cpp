@@ -1107,7 +1107,7 @@ void filter_initialize(struct filter *f)
     for (auto &g : f->gyroscopes)     g->init_with_variance(g->intrinsics.measurement_variance_rad2__s2, g->intrinsics.decimate_by);
     for (auto &a : f->accelerometers) a->init_with_variance(a->intrinsics.measurement_variance_m2__s4,   a->intrinsics.decimate_by);
     for (auto &v : f->velocimeters)   v->init_with_variance(v->intrinsics.measurement_variance_m2__s2,   v->intrinsics.decimate_by);
-    for (auto &c : f->cameras)        c->init_with_variance(1 * 1);
+    for (auto &c : f->cameras)        c->init_with_variance(2 * 2);
     for (auto &d : f->depths)         d->init_with_variance(0);
     for (auto &t : f->thermometers)   t->init_with_variance(t->intrinsics.measurement_variance_C2);
 

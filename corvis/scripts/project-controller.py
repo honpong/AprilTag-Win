@@ -24,17 +24,17 @@ def project_controllers_to_hmd(hmd_poses, controller_poses, hmd_relative_control
         j = 0
         for c in controller_poses:
             if verbose: print('c', c)
-            ctrl_ts, ctrl_pose = c[0], tm_from_pose(c[1:8])
+            ctrl_ts, G_world_ctrl = c[0], tm_from_pose(c[1:8])
             while True:
                 h = hmd_poses[j]
                 if verbose: print('h', h)
-                hmd_ts, hmd_pose = h[0], tm_from_pose(h[1:8])
+                hmd_ts, G_world_hmd = h[0], tm_from_pose(h[1:8])
                 assert(j+1 < len(hmd_poses))
                 j = j + 1
                 if abs(hmd_poses[j][0] - ctrl_ts) > abs(hmd_ts - ctrl_ts):
-                    inv_hmd_ctrl = np.dot(np.linalg.inv(hmd_pose), ctrl_pose)
-                    if verbose: print('hic', ctrl_ts,*pose_from_tm(inv_hmd_ctrl))
-                    print(ctrl_ts,*pose_from_tm(inv_hmd_ctrl), file=output)
+                    G_hmd_ctrl = np.dot(np.linalg.inv(G_world_hmd), G_world_ctrl)
+                    if verbose: print('hic', ctrl_ts,*pose_from_tm(G_hmd_ctrl))
+                    print(ctrl_ts,*pose_from_tm(G_hmd_ctrl), file=output)
                     break
 
 if __name__ == "__main__":

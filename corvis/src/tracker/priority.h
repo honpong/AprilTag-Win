@@ -5,6 +5,7 @@
 #define PRIORITY_SLAM_DETECT      6
 #define PRIORITY_SLAM_ORB         4
 #define PRIORITY_SLAM_RELOCALIZE  2
+#define PRIORITY_SLAM_SAVE_MAP    2
 
 #ifdef MYRIAD2
 #include "thread_priorities.h"

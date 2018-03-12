@@ -38,6 +38,7 @@ public:
     std::function<bool()> status_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
+    ~sensor_fusion();
     
     /** Sets the current location of the device.
      
@@ -145,6 +146,7 @@ private:
     void update_status();
     void update_data(const sensor_data * data);
     void update_stages(const transformation &G_currentworld_frame, const map_relocalization_info::candidate &candidate);
+    void stop_threads();
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning;
     bool threaded;
     bool fast_path = false;
@@ -155,6 +157,7 @@ private:
     bool buffering = true;
 
     std::recursive_mutex mini_mutex;
+    std::thread save_map_thread;
 };
 
 #endif /* defined(__RC3DK__sensor_fusion__) */

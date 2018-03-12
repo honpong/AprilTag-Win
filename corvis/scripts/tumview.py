@@ -89,7 +89,7 @@ def read_tum(filename, args) :
             print '%s : device: %d timestamp is not monotonic current: %f last: %f' % (name, device_id, d[device_id][TIME], last_time)
         last_time = d[device_id]
 
-        (x, y, z, qi, qj, qk, qw) = (f in float(data[1:8])
+        (x, y, z, qi, qj, qk, qw) = (f in float(data[1:8]))
         dist = math.sqrt(x * x + y * y + z * z)
         ax,ay,az = QtoEuler(qi, qj, qk, qw)
 

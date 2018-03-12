@@ -44,7 +44,6 @@ public:
     template <template <class, class, class, class...> class TMap, class Key, class T, class Comp, class... TArgs>
     bstream_writer& operator << (const TMap<Key, T, Comp, TArgs...> &c) {
         *this << (uint64_t)c.size();
-        total_io_bytes += sizeof(uint64_t);
         if (!save_sorted)
             for (const auto &ele : c) *this << ele;
         else { // sort iterators before saving
@@ -63,7 +62,6 @@ public:
     template<typename T>
     bstream_writer& write_array(const T *data, size_t length) {
         *this << (uint64_t)length;
-        total_io_bytes += sizeof(uint64_t);
         write(data, length);
         return *this;
     }
@@ -115,7 +113,6 @@ private:
     template<typename T>
     bstream_writer& write_container(T from_itr, T to_itr) {
         *this << (uint64_t)std::distance(from_itr, to_itr);
-        total_io_bytes += sizeof(uint64_t);
         for (auto itr = from_itr; itr != to_itr; itr++) { *this << *itr; }
         return *this;
     }

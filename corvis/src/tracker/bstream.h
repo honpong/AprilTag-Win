@@ -8,7 +8,7 @@
 #include <string.h>
 #include "rc_tracker.h"
 
-#define STREAM_BUFFER_SIZE 10240 //a reasonable compromise of file i/o vs. memory consumption
+#define DEFAULT_STREAM_BUFFER_SIZE 10240 //a reasonable compromise of file i/o vs. memory consumption
 class host_stream;
 
 template <typename T>
@@ -22,7 +22,9 @@ converts values of a given data structure into char[] representation before stre
 */
 class bstream_writer {
 public:
-    bstream_writer(rc_SaveCallback func_, void *handle_) : out_func(func_), handle(handle_), max_offset(STREAM_BUFFER_SIZE) {};
+    bstream_writer(rc_SaveCallback func_, void *handle_, size_t buffer_size_ = DEFAULT_STREAM_BUFFER_SIZE) : out_func(func_), handle(handle_), max_offset(buffer_size_) {
+        buffer.reset(new char[buffer_size_]);
+    }
 
     template <typename T> 
     typename std::enable_if<std::is_fundamental<T>::value, bstream_writer&>::type operator << (const T& data) { return write((const char*)&data, sizeof(T)); }
@@ -93,6 +95,10 @@ public:
         end_stream();
     }
 
+    size_t get_buffer_size() const {
+        return max_offset;
+    }
+
     void set_failed() { is_good = false; }
     bool good() { flush_stream(); return is_good; }
 
@@ -102,7 +108,7 @@ private:
     rc_SaveCallback out_func{ nullptr };
     bool is_good{ true };
     void *handle{ nullptr };
-    std::unique_ptr<char[]> buffer{ new char[STREAM_BUFFER_SIZE] };
+    std::unique_ptr<char[]> buffer;
     size_t offset{ 0 }, max_offset{ 0 }; //streaming offset from the start of buffer
 
     template<typename T>
@@ -142,7 +148,9 @@ takes a stream of char[] representation and populates values for given data stru
 */
 class bstream_reader {
 public:
-    bstream_reader(const rc_LoadCallback func_, void *handle_) : in_func(func_), handle(handle_) {};
+    bstream_reader(const rc_LoadCallback func_, void *handle_, size_t buffer_size_ = DEFAULT_STREAM_BUFFER_SIZE) : in_func(func_), handle(handle_), buffer_size(buffer_size_) {
+        buffer.reset(new char[buffer_size_]);
+    }
     template <typename T>
     typename std::enable_if<std::is_fundamental<T>::value, bstream_reader&>::type operator >> (T& data) { return read(data); }
     template <typename T>
@@ -184,7 +192,7 @@ public:
 
     bstream_reader& read(char* data, size_t length) {
         for (size_t read_bytes = 0, chunk = 0; read_bytes < length; read_bytes += chunk)
-            read_part(data + read_bytes, chunk = std::min(length - read_bytes, (size_t)STREAM_BUFFER_SIZE));
+            read_part(data + read_bytes, chunk = std::min(length - read_bytes, buffer_size));
         return *this;
     }
 
@@ -198,7 +206,8 @@ private:
     const rc_LoadCallback in_func{ nullptr };
     bool is_good{ true };
     void *handle{ nullptr };
-    std::unique_ptr<char[]> buffer{ new char[STREAM_BUFFER_SIZE] };
+    std::unique_ptr<char[]> buffer;
+    size_t buffer_size{ 0 };
     size_t offset{ 0 }, max_offset{ 0 }; //streaming offset from the start of buffer
 
     template<typename T>
@@ -224,7 +233,7 @@ private:
             offset = 0;
             max_offset = remain;
             for (size_t bytes_read = 0; max_offset < length; max_offset += bytes_read) //continue to get sufficient data
-                if (!(bytes_read = in_func(handle, buffer.get() + max_offset, STREAM_BUFFER_SIZE - max_offset)))
+                if (!(bytes_read = in_func(handle, buffer.get() + max_offset, buffer_size - max_offset)))
                     break;
             is_good = is_good && (length <= max_offset);
         }

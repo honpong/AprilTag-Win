@@ -82,6 +82,13 @@ public:
         }
     }
 
+    void flush_stream() {
+        if (out_func && offset > 0) {
+            out_func(handle, buffer.get(), offset);
+            offset = 0;
+        }
+    }
+
     ~bstream_writer() {
         end_stream();
     }
@@ -97,13 +104,6 @@ private:
     void *handle{ nullptr };
     std::unique_ptr<char[]> buffer{ new char[STREAM_BUFFER_SIZE] };
     size_t offset{ 0 }, max_offset{ 0 }; //streaming offset from the start of buffer
-
-    void flush_stream() {
-        if (out_func && offset > 0) {
-            out_func(handle, buffer.get(), offset);
-            offset = 0;
-        }
-    }
 
     template<typename T>
     bstream_writer& write(const T& data) { return write((const char *)&data, sizeof(T)); }

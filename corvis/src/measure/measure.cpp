@@ -118,7 +118,7 @@ int main(int c, char **v)
 
     auto configure = [&](replay &rp, const char *capture_file) -> bool {
         if (!rp.init()) {
-            cerr << "Error: failed to init streaming" << std::endl;
+            cerr << "Error: failed to init streaming: " << capture_file << std::endl;
             return false;
         }
         rp.set_message_level(message_level);

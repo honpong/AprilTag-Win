@@ -695,7 +695,9 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
                 continue;
             }
         }
+#if defined(RELOCALIZATION_DEBUG)
         bool is_relocalized_in_candidate = false;
+#endif
         std::shared_ptr<frame_t> candidate_node_frame;
         transformation candidate_node_global_transformation;
         state_vision_intrinsics* node_intrinsics;
@@ -806,7 +808,9 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
                     std::swap(reloc_result.edges[0], reloc_result.edges.back());
                 }
                 reloc_result.info.is_relocalized = true;
+#if defined(RELOCALIZATION_DEBUG)
                 is_relocalized_in_candidate = true;
+#endif
             }
         }
         if (!inliers_set.size())

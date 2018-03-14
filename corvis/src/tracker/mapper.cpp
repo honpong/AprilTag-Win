@@ -770,11 +770,15 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
                     featureidx current_feature_index = std::get<0>(f);
                     featureid keypoint_id = std::get<1>(f);
                     nodeid nodeid_keypoint = std::get<2>(f);
-                    if (nodes->find(nodeid_keypoint) != nodes->end()) {
+                    auto it_node = nodes->find(nodeid_keypoint);
+                    if (it_node != nodes->end()) {
                         // NOTE: We use 3d features observed from candidate, this does not mean
                         // these features belong to the candidate node (group)
                         auto it_G = G_candidate_neighbors.find(nodeid_keypoint);
                         if(it_G == G_candidate_neighbors.end()) {// TODO: all features observed from the candidate node should be represented wrt one of the covisible nodes but it does not happen ....
+                            continue;
+                        }
+                        if (!it_node->second.features.count(keypoint_id)) {
                             continue;
                         }
                         v3 p_candidate = it_G->second *

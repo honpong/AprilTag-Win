@@ -71,11 +71,16 @@ for rotation_type in ["Yaw", "Pitch", "Roll"]:
 print "Rotation errors: ", rotation_errors
 
 print ""
-print "KPI Summary:"
-print "Static noise - Translation (target < 1mm):", np.mean(sn_translation)
-print "Static noise - Rotation (target < 0.1deg):", np.mean(sn_rotation)
-print "Zero drift - Translation (target < 3mm):", np.mean(zd_translation)
-print "Zero drift - Rotation (target < 0.5deg):", np.mean(zd_rotation)
-print "Translation scale (target < 5%):", np.mean(tr_scale)
-print "Translation error ratio (target < 1%):", np.mean(tr_error)
-print "Rotation error (target < 1deg):", np.mean(rotation_errors)
+print "KPI Summary - mean (std)"
+print "============================="
+print "Static noise:"
+print "  Translation (target < 1mm):  %0.2f (%0.3f)" % (np.mean(sn_translation), np.std(sn_translation))
+print "  Rotation (target < 0.1deg):  %0.2f (%0.3f)" % (np.mean(sn_rotation), np.std(sn_rotation))
+print "Zero drift:"
+print "  Translation (target < 3mm):  %0.2f (%0.3f)" % (np.mean(zd_translation), np.std(zd_translation))
+print "  Rotation (target < 0.5deg):  %0.2f (%0.3f)" % (np.mean(zd_rotation), np.std(zd_rotation))
+print "VR Translation:"
+print "  Scale (target < 5%%):         %0.2f (%0.3f)" % (np.mean(tr_scale), np.std(tr_scale))
+print "  Error ratio (target < 1%%):   %0.2f (%0.3f)" % (np.mean(tr_error), np.std(tr_error))
+print "Rotation test:"
+print "  Max error (target < 1deg):   %0.2f (%0.3f)" % (np.mean(rotation_errors), np.std(rotation_errors))

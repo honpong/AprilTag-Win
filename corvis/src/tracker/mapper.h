@@ -249,8 +249,8 @@ private:
     std::vector<std::pair<nodeid,float>> find_loop_closing_candidates(
         const std::shared_ptr<frame_t>& current_frame) const;
 
-    mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t>& candidate_frame,
-                                         const std::shared_ptr<frame_t>& current_frame) const;
+    mapper::matches match_2d_descriptors(const std::shared_ptr<frame_t>& candidate_frame, state_vision_intrinsics* const candidate_intrinsics,
+                                         const std::shared_ptr<frame_t>& current_frame, state_vision_intrinsics* const current_intrinsics) const;
 
     // private functions that are used after acquiring some of the mutexes
     void remove_edge_no_lock(nodeid node_id1, nodeid node_id2);

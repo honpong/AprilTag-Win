@@ -57,6 +57,9 @@ public:
         request(packet_enable_mesg_level, (const char*)&msg_level, sizeof(uint8_t));
     }
     void set_replay_output_mode(uint8_t mode) { request(packet_enable_output_mode, &mode, sizeof(uint8_t)); }
+    void set_queue_strategy(rc_TrackerQueueStrategy strategy) {
+        request(packet_set_queue_strategy, (const char*)&strategy, sizeof(rc_TrackerQueueStrategy));
+    }
 
     bool init() { return stream->init_stream(); }
     std::string calibration_file;

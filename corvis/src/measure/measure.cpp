@@ -40,6 +40,7 @@ int main(int c, char **v)
              << "   [--render-output <file.png>] [--pose-output <pose-file>] [--benchmark-output <results-file>]\n"
              << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
              << "   [--disable-map] [--save-map <map-json>] [--load-map <map-json>]\n"
+             << "   [--minimize-drops | --minimize-latency]\n"
 #ifdef ENABLE_TM2_PLAYBACK
              << "   [--tm2] [--show-no-map] [--show-no-feature]\n"
 #endif
@@ -55,6 +56,7 @@ int main(int c, char **v)
     bool show_feature = true, show_map = true; // enabling displaying features or map when replaying over TM2
     bool enable_map = true;
     bool odometry = true;
+    rc_TrackerQueueStrategy queue_strategy = rc_QUEUE_MINIMIZE_DROPS;
     bool incremental_ate = false;
     bool relocalize = false;
     bool tm2_playback = false;
@@ -103,6 +105,8 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--info") == 0)  message_level = rc_MESSAGE_INFO;
         else if (strcmp(v[i], "--warn") == 0)  message_level = rc_MESSAGE_WARN;
         else if (strcmp(v[i], "--none") == 0)  message_level = rc_MESSAGE_NONE;
+        else if (strcmp(v[i], "--minimize-drops") == 0)  queue_strategy = rc_QUEUE_MINIMIZE_DROPS;
+        else if (strcmp(v[i], "--minimize-latency") == 0)  queue_strategy = rc_QUEUE_MINIMIZE_LATENCY;
         else if (strcmp(v[i], "--tm2") == 0)   tm2_playback = true;
         else if (strcmp(v[i], "--show-no-feature") == 0 ) show_feature = false;
         else if (strcmp(v[i], "--show-no-map") == 0) show_map = false;
@@ -125,6 +129,7 @@ int main(int c, char **v)
             return false;
         }
         rp.set_message_level(message_level);
+        rp.set_queue_strategy(queue_strategy);
 
         if(qvga) rp.enable_qvga();
         if(qres) rp.enable_qres(qres);

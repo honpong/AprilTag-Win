@@ -305,6 +305,12 @@ void replay_device::process_control(const packet_control_t *packet) {
         rc_startMapping(tracker.get(), false, save_map);
         break; 
     }
+    case packet_set_queue_strategy: {
+        rc_TrackerQueueStrategy strategy;
+        memcpy(&strategy, packet->data, sizeof(rc_TrackerQueueStrategy));
+        rc_configureQueueStrategy(tracker.get(), strategy);
+        break;
+    }
     case packet_enable_relocalization: { rc_startMapping(tracker.get(), true, true); break; }
     case packet_command_start: {
         if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, nullptr, message_level);

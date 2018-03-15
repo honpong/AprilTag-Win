@@ -77,7 +77,7 @@ install(TARGETS box-sdk
 include(CMakePackageConfigHelpers)
 configure_package_config_file(../cmake/box-sdkConfig.cmake.in box-sdkConfig.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/realsense2
-    INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/bin
+    INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
     PATH_VARS CMAKE_INSTALL_BINDIR CMAKE_INSTALL_LIBDIR CMAKE_INSTALL_INCLUDEDIR)
 
 install(TARGETS box-app RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})

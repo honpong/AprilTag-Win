@@ -10,7 +10,9 @@ list(APPEND CMAKE_PREFIX_PATH
 	${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/sp/win
 )
 
-set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/install)
+string(TIMESTAMP time_str "%Y%m%d%H%M")
+set(CMAKE_INSTALL_PREFIX ${CMAKE_BINARY_DIR}/boxsdk2_${time_str})
+message(STATUS "boxsdk_install ${CMAKE_INSTALL_PREFIX}")
 
 ######################################################################
 

@@ -82,13 +82,28 @@ nop 6
 //void fastExclude(UInt8** row, UInt32* posValid, UInt32 *nrOfPoints, UInt32 thresh, UInt32 width)
 .lalign
 fast9CvPoint_asm:
+
+LSU0.LDIL i1 0x98 ||LSU1.LDIH i1 0x00 
+IAU.SUB i19 i19 i1
+LSU0.STO.64.L v24 , i19 , 0x00 || LSU1.STO.64.H v24, i19, 0x08
+LSU0.STO.64.L v25 , i19 , 0x10 || LSU1.STO.64.H v25, i19, 0x18
+LSU0.STO.64.L v26 , i19 , 0x20 || LSU1.STO.64.H v26, i19, 0x28
+LSU0.STO.64.L v27 , i19 , 0x30 || LSU1.STO.64.H v27, i19, 0x38
+LSU0.STO.64.L v28 , i19 , 0x40 || LSU1.STO.64.H v28, i19, 0x48
+LSU0.STO.64.L v29 , i19 , 0x50 || LSU1.STO.64.H v29, i19, 0x58
+LSU0.STO.64.L v30 , i19 , 0x60 || LSU1.STO.64.H v30, i19, 0x68
+LSU0.STO.64.L v31 , i19 , 0x70 || LSU1.STO.64.H v31, i19, 0x78
+LSU0.STO.32 i20 , i19, 0x80    || LSU1.STO.32 i21, i19, 0x84
+LSU0.STO.32 i22 , i19, 0x88    || LSU1.STO.32 i23, i19, 0x8C
+LSU0.STO.32 i24 , i19, 0x90    || LSU1.STO.32 i25, i19, 0x94
+
 cmu.cpii i5, i17 ||lsu0.ldil i17, fast9u16score_posValid || lsu1.ldih i17, fast9u16score_posValid
 
 lsu0.ld.32 i17 i17
 nop 6
 bru.bra fastExclude1 	|| iau.shl i0, i14, 2 				||lsu0.ldo.32 i1, i18, 0x00	||lsu1.ldo.32 i2, i18, 0x0C// score// alocate space for posValid
-iau.sub i19, i19, i0    ||cmu.cpii i13, i16 				||lsu1.ldo.32 i3, i18, 0x18
-lsu0.sto.32 i0 , i19, -8 //||cmu.cpii i17, i19
+iau.sub i19, i19, i0    ||cmu.cpii i13, i16 				||lsu1.ldo.32 i3, i18, 0x18 ||lsu0.ldo.32 i20, i18, 0x08//line 2
+lsu0.sto.32 i0 , i19, -8                            ||lsu1.ldo.32 i21, i18, 0x10 //||cmu.cpii i17, i19
 iau.sub i16, i19, 4		||cmu.cpiv.x32 v7.0, i30			||lsu0.ldil i4, fast9u16score_FAST_Exclude     ||  lsu1.ldih i4, fast9u16score_FAST_Exclude
 cmu.cpiv.x32 v7.1, i4	||lsu0.ldil i4, returnfastExclude   ||  lsu1.ldih i4, returnfastExclude
 cmu.cpiv.x32 v7.2, i4	//||lsu1.st.32 i12, i13
@@ -129,9 +144,25 @@ returnfastBitFlag:
 exitfast9u16score:
 
 lsu0.ldo.32 i16, i19, -8 ||cmu.cpvi.x32 i30, v7.0
-bru.jmp i30
+LSU0.LDIL i1 0x98 || LSU1.LDIH i1 0x00
 nop 5
 iau.add i19, i19, i16
+
+
+LSU0.LDO.64.L v24 , i19 , 0x00 || LSU1.LDO.64.H v24, i19, 0x08
+LSU0.LDO.64.L v25 , i19 , 0x10 || LSU1.LDO.64.H v25, i19, 0x18
+LSU0.LDO.64.L v26 , i19 , 0x20 || LSU1.LDO.64.H v26, i19, 0x28
+LSU0.LDO.64.L v27 , i19 , 0x30 || LSU1.LDO.64.H v27, i19, 0x38
+LSU0.LDO.64.L v28 , i19 , 0x40 || LSU1.LDO.64.H v28, i19, 0x48
+LSU0.LDO.64.L v29 , i19 , 0x50 || LSU1.LDO.64.H v29, i19, 0x58
+LSU0.LDO.64.L v30 , i19 , 0x60 || LSU1.LDO.64.H v30, i19, 0x68
+LSU0.LDO.64.L v31 , i19 , 0x70 || LSU1.LDO.64.H v31, i19, 0x78
+LSU0.LDO.32 i20 , i19, 0x80    || LSU1.LDO.32 i21, i19, 0x84
+LSU0.LDO.32 i22 , i19, 0x88    || LSU1.LDO.32 i23, i19, 0x8C
+LSU0.LDO.32 i24 , i19, 0x90    || LSU1.LDO.32 i25, i19, 0x94 || IAU.ADD i19 i19 i1
+bru.jmp i30
+nop 6
+
 
 
 //                       i18            i17             i16             i15              i14
@@ -143,8 +174,9 @@ iau.add i19, i19, i16
 //
 //	for (posx = 0// posx < width// posx++)
 //	{
-//		if (((adiff(row[3][posx], row[0][posx]) <= threshL) && (adiff(row[3][posx], row[6][posx]) <= threshL)) ||
-//            ((adiff(row[3][posx], row[3][posx + 3]) <= threshL) && (adiff(row[3][posx], row[3][posx - 3]) <= threshL)))
+//		u8 val = (u8)(((u16)row[3][posx] + (((u16)row[2][posx] + (u16)row[4][posx] + (u16)row[3][posx - 1] + (u16)row[3][posx + 1]) >> 2)) >> 1);
+//		if (((adiff(val, row[0][posx]) <= threshL) && (adiff(val, row[6][posx]) <= threshL)) ||
+//            ((adiff(val, row[3][posx + 3]) <= threshL) && (adiff(val, row[3][posx - 3]) <= threshL)))
 //		{
 //			continue//
 //		}
@@ -157,45 +189,54 @@ iau.add i19, i19, i16
 //}i5
 //i4, , i6, i7, i8, i9, i10, i11, i12, i13
 fastExclude1:// v23, v22,  v17, v16, v15, v14, v13, v12, v11
-LSU0.LDo.64.l v5, i2 , -8 		||LSU1.LDo.64.h v5, i2 , 0
+LSU0.LDo.64.l v5, i2 , -8 	||LSU1.LDo.64.h v5, i2 , 0
 
 LSU0.LDo.64.l v6, i2 , 8		||LSU1.LDo.64.h v6, i2 , 16 		||iau.add i2, i2, 24
-LSU0.LDI.64.l v0, i1 			||LSU1.LDI.64.l v4, i3
-LSU0.LDI.64.h v0, i1 			||LSU1.LDI.64.h v4, i3
-iau.sub i14, i14, 0x10 			||lsu0.ldil i12, 0x00 				||lsu1.ldil i0, 0x0044// load and intialized nr of points found to 0
-peu.pc1i LTE 					||bru.bra returnfastExclude 		|| lsu0.st.32 i12, i16 // exit code
+LSU0.LDI.64.l v0, i1, 			||LSU1.LDI.64.l v4, i3
+LSU0.LDI.64.h v0, i1 			  ||LSU1.LDI.64.h v4, i3
+LSU0.LDI.64.l v24, i20      ||LSU1.LDI.64.l v25, i21
+LSU0.LDI.64.h v24, i20      ||LSU1.LDI.64.h v25, i21
+iau.sub i14, i14, 0x10 			||lsu0.ldil i12, 0x00 				      ||lsu1.ldil i0, 0x0044// load and intialized nr of points found to 0
+peu.pc1i LTE 					      ||bru.bra returnfastExclude 		    || lsu0.st.32 i12, i16 // exit code
 lsu0.ldil i0, possitionsOffsets ||lsu1.ldih i0, possitionsOffsets 	||CMU.CPIVR.x16 v17, i0 // clear meask, keep just lt position// offset load
-LSU0.LDO.64.l v18, i0, 0x00 	||LSU1.LDO.64.h v18, i0, 0x08
-LSU0.LDO.64.l v19, i0, 0x10 	||LSU1.LDO.64.h v19, i0, 0x18		||iau.add i15, i15, 1
-LSU0.LDO.64.l v20, i0, 0x20 	||LSU1.LDO.64.h v20, i0, 0x28		||CMU.CPIVR.x8 v22, i15 // put thereshold in a vector
-LSU0.LDO.64.l v21, i0, 0x30 	||LSU1.LDO.64.h v21, i0, 0x38 		||iau.sub i0, i0, i0// width initialization with 0
+LSU0.LDO.64.l v18, i0, 0x00 	||LSU1.LDO.64.h v18, i0, 0x08                             
+LSU0.LDO.64.l v19, i0, 0x10 	||LSU1.LDO.64.h v19, i0, 0x18		  ||iau.add i15, i15, 1   
+LSU0.LDO.64.l v20, i0, 0x20 	||LSU1.LDO.64.h v20, i0, 0x28		  ||CMU.CPIVR.x8 v22, i15 // put thereshold in a vector
+LSU0.LDO.64.l v21, i0, 0x30 	||LSU1.LDO.64.h v21, i0, 0x38 		||iau.sub i0, i0, i0    // width initialization with 0
 //loop start
- fast9u16score_FAST_Exclude:
- 
-cmu.alignvec v2, v5, v6, 8	||LSU1.LDI.64.l v0, i1
-VAU.ADIFF.u8 v8,   v2,  v0  ||cmu.alignvec v1, v5, v6, 5 	||LSU1.LDI.64.h v0, i1
-VAU.ADIFF.u8 v9,   v2,  v4	||cmu.alignvec v3, v5, v6, 11 	|| iau.subsu i14, i14, i0 		||LSU1.LDI.64.l v6, i2
-CMU.CMVV.u8 v8,  v22 		||VAU.ADIFF.u8 v10,  v2,  v1 	||peu.pcix.EQ  0x20 			||lsu1.cp i30, v7.2
-PEU.ANDACC         			|| CMU.CMVV.u8 v9,  v22  		||VAU.ADIFF.u8 v11,  v2,  v3  	||iau.add i14, i14, i0 	||LSU1.LDI.64.h v6, i2// abs diff calculate
-PEU.PC16C.AND LT  			|| BRU.jmp i30        			|| IAU.add i0, i0, 0x10 		|| cmu.cpvv v10, v22 // ultra early rejection, invalidate the second branch
-CMU.CPTI i9 C_CMU0	    	||LSU1.LD.64.l v4, i3  ||iau.incs i3, 0x08
-CMU.CPTI i10 C_CMU1 		||LSU1.LDI.64.h v4, i3 			||lsu0.cp v5, v6
-CMU.CMVV.u8 v10,  v22   	||lsu0.cp v16.2 i0 				||lsu1.st.32 i12, i16 // exit code
-PEU.ANDACC         			|| CMU.CMVV.u8 v11,  v22		||lsu1.cp v16.3 i0
-PEU.PC16C.AND LT  			|| BRU.jmp i30        			|| IAU.add i0, i0, 0x10  // ultra early rejection
+fast9u16score_FAST_Exclude:
+cmu.alignvec v8, v5, v6, 7  || VAU.AVG.X8 v24, v24, v25 
+cmu.alignvec v2, v5, v6, 9
+VAU.AVG.X8   v2, v2, v8 
+ nop
+vau.avg.x8   v24, v24, v2
+cmu.alignvec  v2,  v5, v6, 8
+VAU.AVG.X8 v2, v24, v2  ||LSU0.LDI.64.l v24, i20  ||LSU1.LDI.64.l v25, i21 
+                          LSU0.LDI.64.h v24, i20  ||LSU1.LDI.64.h v25, i21
+                                                              LSU1.LDI.64.l v0, i1
+VAU.ADIFF.u8 v8,   v2,  v0  ||cmu.alignvec v1, v5, v6, 5 	  ||LSU1.LDI.64.h v0, i1
+VAU.ADIFF.u8 v9,   v2,  v4	||cmu.alignvec v3, v5, v6, 11 	||iau.subsu i14, i14, i0 		||LSU1.LDI.64.l v6, i2
+VAU.ADIFF.u8 v10,  v2,  v1  ||CMU.CMVV.u8 v8,  v22   ||peu.pcix.EQ  0x20 			        ||lsu1.cp i30, v7.2
+PEU.ANDACC         			||VAU.ADIFF.u8 v11,  v2,  v3 || CMU.CMVV.u8 v9,  v22  		 	    ||iau.add i14, i14, i0 	||LSU1.LDI.64.h v6, i2// abs diff calculate
+PEU.PC16C.AND LT  			|| BRU.jmp i30        			 || IAU.add i0, i0, 0x10 		        ||cmu.cpvv v10, v22 // ultra early rejection, invalidate the second branch
+CMU.CPTI i9 C_CMU0	    ||LSU1.LD.64.l v4, i3        ||iau.incs i3, 0x08 
+CMU.CPTI i10 C_CMU1 		||LSU1.LDI.64.h v4, i3 			 ||lsu0.cp v5, v6
+CMU.CMVV.u8 v10,  v22   ||lsu0.cp v16.2 i0 				   ||lsu1.st.32 i12, i16 // exit code
+PEU.ANDACC         			|| CMU.CMVV.u8 v11,  v22		 ||lsu1.cp v16.3 i0
+PEU.PC16C.AND LT  			|| BRU.jmp i30        			 || IAU.add i0, i0, 0x10  // ultra early rejection
 CMU.CPTI i7 C_CMU0  		||lsu1.cp v16.1 i0
 __end_loop_ultra_early_exit1:
 CMU.CPTI i8 C_CMU1 			||iau.or i7, i9, i7 			||lsu0.cp v16.0 i0
 iau.or i8, i10, i8 			||lsu0.cp v23.0, i7 // copy the values in vrf for faster procesing and create validation mask
-lsu1.cp v23.1, i8			||vau.add.i32 v12, v18, v16
+lsu1.cp v23.1, i8			  ||vau.add.i32 v12, v18, v16
 cmu.cpvv.u8.u16 v23, v23
 VAU.and v23, v23, v17 // keep jut lt position
 __end_loop_ultra_early_exit2:
-BRU.jmp i30  				||vau.shl.x16 v23, v23, 4
-lsu0.ldil i6, 0x0 			|| lsu1.ldih i6, 0xFFFF 		||vau.add.i32 v13, v19, v16// mask for enable bits, we have 4 vau that will be wrote
-CMU.VNZ.x8 i6, v23, 0 		||vau.add.i32 v14, v20, v16// create a bit mask from vrf
+BRU.jmp i30  				    ||vau.shl.x16 v23, v23, 4
+lsu0.ldil i6, 0x0 			||lsu1.ldih i6, 0xFFFF 		||vau.add.i32 v13, v19, v16// mask for enable bits, we have 4 vau that will be wrote
+CMU.VNZ.x8 i6, v23, 0 	||vau.add.i32 v14, v20, v16// create a bit mask from vrf
 
-iau.not i6, i6 				||vau.add.i32 v15, v21, v16
+iau.not i6, i6 				  ||vau.add.i32 v15, v21, v16
 iau.ones i4, i6   			||LSU0.STCV.x32 v12 i17 i6 0xC
 iau.shl i4, i4, 2 			||sau.add.i32  i12, i12, i4 // increment number of values found
 iau.add i17, i17, i4 		||sau.add.i32  i0, i0, 0x10

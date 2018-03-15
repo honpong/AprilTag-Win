@@ -122,22 +122,32 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     std::sort(files.begin(), files.end());
 
     struct benchmark_data { std::string basename, file; struct benchmark_result result; std::future<bool> ok; };
+
+    threads = std::max<signed>(1, threads ? threads : std::thread::hardware_concurrency());
+    std::cerr << "Using " << threads << " threads.\n";
+    std::list<benchmark_data> thread_pool;
     std::vector<benchmark_data> results; results.reserve(files.size()); // avoid reallocing below
 
-    int first=0, last=0; // a poor man's thread pool (works best with fixed size units of work)
     for (auto &file : files) {
-        results.push_back(benchmark_data { file.substr(strlen(directory) + 1), file });
-        results.back().ok = std::async(std::launch::async, measure_file, results.back().file.c_str(), std::ref(results.back().result));
-        if ((++last - first) >= std::max<signed>(1, threads ? threads : std::thread::hardware_concurrency())) {
-          results[first].ok.wait();
-          measure_done(results[first].file.c_str(), results[first].result);
-          first++;
+        std::cerr << "Launching " << file << "\n";
+        thread_pool.emplace_back(benchmark_data { file.substr(strlen(directory) + 1), file });
+        thread_pool.back().ok = std::async(std::launch::async, measure_file, thread_pool.back().file.c_str(), std::ref(thread_pool.back().result));
+        while(thread_pool.size() >= threads) {
+            for(auto i = thread_pool.begin(); i != thread_pool.end();) {
+                if(i->ok.wait_for(std::chrono::milliseconds(100)) == std::future_status::ready) {
+                    std::cerr << "Finished " << i->file << "\n";
+                    measure_done(i->file.c_str(), i->result);
+                    results.emplace_back(std::move(*i));
+                    i = thread_pool.erase(i);
+                } else ++i;
+            }
         }
     }
-    while (first < last) {
-        results[first].ok.wait();
-        measure_done(results[first].file.c_str(), results[first].result);
-        first++;
+    for(auto i = thread_pool.begin(); i != thread_pool.end();) {
+        i->ok.wait();
+        measure_done(i->file.c_str(), i->result);
+        results.emplace_back(std::move(*i));
+        i = thread_pool.erase(i);
     }
 
     std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m, ate_60s_errors_m, ate_600ms_errors_m, rpe_T_errors_m, rpe_R_errors_deg,

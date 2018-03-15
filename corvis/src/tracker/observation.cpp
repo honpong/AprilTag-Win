@@ -449,7 +449,7 @@ void observation_vision_feature::compute_measurement_covariance()
     f_t robust_mc;
     f_t thresh = source.measurement_variance * ot;
     if(badness > thresh) {
-        f_t ratio = badness / thresh;
+        f_t ratio = sqrt(badness / thresh);
         robust_mc = ratio * source.measurement_variance;
         track.outlier += ratio;
     } else {

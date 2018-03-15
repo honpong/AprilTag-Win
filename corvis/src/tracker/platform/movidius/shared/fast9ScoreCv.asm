@@ -192,7 +192,7 @@ fastExclude1:// v23, v22,  v17, v16, v15, v14, v13, v12, v11
 LSU0.LDo.64.l v5, i2 , -8 	||LSU1.LDo.64.h v5, i2 , 0
 
 LSU0.LDo.64.l v6, i2 , 8		||LSU1.LDo.64.h v6, i2 , 16 		||iau.add i2, i2, 24
-LSU0.LDI.64.l v0, i1, 			||LSU1.LDI.64.l v4, i3
+LSU0.LDI.64.l v0, i1 			||LSU1.LDI.64.l v4, i3
 LSU0.LDI.64.h v0, i1 			  ||LSU1.LDI.64.h v4, i3
 LSU0.LDI.64.l v24, i20      ||LSU1.LDI.64.l v25, i21
 LSU0.LDI.64.h v24, i20      ||LSU1.LDI.64.h v25, i21

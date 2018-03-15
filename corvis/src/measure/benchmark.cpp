@@ -224,11 +224,12 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
             stream << "\t               Missed\t" << r.errors.relocalization.false_negatives << "\n";
             if (!std::isnan(r.errors.reloc_rpe_T.rmse)) {
                 stream << "\t               Translational RPE\t" << r.errors.reloc_rpe_T.rmse << "m\n";
-                reloc_rpe_T_errors_m.push_back(r.errors.reloc_rpe_T.rmse);
+                reloc_rpe_T_errors_m.insert(reloc_rpe_T_errors_m.end(), r.errors.distances_reloc.begin(), r.errors.distances_reloc.end());
             }
             if (!std::isnan(r.errors.reloc_rpe_R.rmse)) {
                 stream << "\t               Rotational RPE\t" << r.errors.reloc_rpe_R.rmse*(180.f/M_PI) << "deg\n";
-                reloc_rpe_R_errors_deg.push_back(r.errors.reloc_rpe_R.rmse*(180.f/M_PI));
+                for(auto& angle_error : r.errors.angles_reloc)
+                    reloc_rpe_R_errors_deg.push_back(angle_error*(180.f/M_PI));
             }
             if (!std::isnan(r.errors.reloc_time_sec.rmse)) {
                 stream << "\t               Time between relocalizations\t" << r.errors.reloc_time_sec.rmse << "sec\n";
@@ -295,11 +296,11 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
         stream << recall_hist;
         stream << "Undefined recall: " << recall_anomalies << " sequences\n\n";
 
-        stream << "Relocalization RPE (Translation) histogram (" << reloc_rpe_T_errors_m.size() << " sequences)\n";
+        stream << "Relocalization RPE (Translation) histogram (" << reloc_rpe_T_errors_m.size() << " events)\n";
         error_histogram reloc_rpe_T_hist(reloc_rpe_T_errors_m, reloc_rpe_T_edges, 2, "m");
         stream << reloc_rpe_T_hist << "\n";
 
-        stream << "Relocalization RPE (Rotation) histogram (" << reloc_rpe_R_errors_deg.size() << " sequences)\n";
+        stream << "Relocalization RPE (Rotation) histogram (" << reloc_rpe_R_errors_deg.size() << " events)\n";
         error_histogram reloc_rpe_R_hist(reloc_rpe_R_errors_deg, reloc_rpe_R_edges, 2, "deg");
         stream << reloc_rpe_R_hist << "\n";
 

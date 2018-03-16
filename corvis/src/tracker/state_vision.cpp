@@ -129,6 +129,8 @@ void state_vision::clear_features_and_groups()
     for (auto &camera : cameras.children)
     {
         camera->tracks.clear();
+        if(camera->detection_future.valid())
+            camera->detection_future.wait();
         camera->standby_tracks.clear();
     }
     for(auto &g : groups.children) { //This shouldn't be necessary, but keep to remind us to clear if features move

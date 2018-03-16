@@ -1107,7 +1107,7 @@ void filter_initialize(struct filter *f)
     for (auto &g : f->gyroscopes)     g->init_with_variance(g->intrinsics.measurement_variance_rad2__s2, g->intrinsics.decimate_by);
     for (auto &a : f->accelerometers) a->init_with_variance(a->intrinsics.measurement_variance_m2__s4,   a->intrinsics.decimate_by);
     for (auto &v : f->velocimeters)   v->init_with_variance(v->intrinsics.measurement_variance_m2__s2,   v->intrinsics.decimate_by);
-    for (auto &c : f->cameras)        c->init_with_variance(2 * 2);
+    for (auto &c : f->cameras)        c->init_with_variance(.75 * .75);
     for (auto &d : f->depths)         d->init_with_variance(0);
     for (auto &t : f->thermometers)   t->init_with_variance(t->intrinsics.measurement_variance_C2);
 
@@ -1268,9 +1268,9 @@ void filter_initialize(struct filter *f)
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(10);
     f->s.dw.set_initial_variance(10);
-    f->s.ddw.set_initial_variance(466*466);
+    f->s.ddw.set_initial_variance(400*400);
     f->s.a.set_initial_variance(10);
-    f->s.da.set_initial_variance(9*9);
+    f->s.da.set_initial_variance(26*26);
 
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);

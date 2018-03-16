@@ -186,8 +186,9 @@ bool tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
         save_file.open((const char*)packet->data, ios_base::binary);
         break;
     }
-    case packet_enable_features_output: {
-        track_output.set_output_type(replay_output::output_mode::POSE_FEATURE);
+    case packet_enable_output_mode: {
+        auto mode = (replay_output::output_mode)((const uint8_t *)packet->data)[0];
+        track_output.set_output_type(mode);
         break;
     }
     case packet_command_end: stop_host_sending = true;

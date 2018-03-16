@@ -255,6 +255,13 @@ private:
 size_t mem_load_callback(void * handle, void *buffer, size_t length);
 
 class pose_feature_output {
+private:
+    // ---- C O N F I G U R A T I O N---------------
+    // upper limits for transferring out of TM2 in order to keep USB message size constant.
+    //----------------------------------------------
+
+    const uint32_t max_reloc_pose = 10; ///max number of relocalization candidates out of TM2
+    const uint32_t max_features = 70; /// max number of image features out of TM2
 public:
     const rc_PoseTime &rc_getPose(rc_DataPath path, rc_PoseVelocity *v = nullptr,
         rc_PoseAcceleration *a = nullptr) const;
@@ -265,10 +272,20 @@ public:
     void rc_resetFeatures();
     /// if replay_output object is brought up from a stream, features are available up to max_save_features.
     uint32_t rc_getFeatures(rc_Feature **feat) const;
-    typedef enum class output_mode { POSE_ONLY = 0, POSE_FEATURE = 1 } output_mode;
+    typedef enum class output_mode {
+        POSE_ONLY = 0, POSE_FEATURE, POSE_MAP, POSE_FEATURE_MAP
+    } output_mode;
     bool set_data(bstream_reader &cur_stream);
     size_t get_data(bstream_writer &cur_stream) const;
     size_t get_feature_size() const;
+
+    /// reuse the memory pointed to by parameter pose, hence memory must remain valid.
+    void rc_setRelocPoses(rc_Pose *reloc_pose, uint32_t num_poses);
+    void rc_resetRelocPoses();
+    /// if replay_output object is brought up from a stream, poses are available up to max_reloc_pose.
+    uint32_t rc_getRelocPoses(rc_Pose **reloc_pose) const;
+    size_t get_reloc_poses_size() const;
+
     virtual ~pose_feature_output() {};
 protected:
     output_mode output_type{ output_mode::POSE_ONLY };
@@ -284,7 +301,12 @@ private:
     rc_Feature * reuse_features_ptr{ nullptr };
     /// allocated pointer to hold features, mutually exclusive with reuse_features_ptr.
     std::unique_ptr<rc_Feature[]> features;
-    uint32_t num_features{ 0 }, max_save_features{ 100 };
+    uint32_t num_features{ 0 };
+    /// re-use pointer to relocalization poses by rc_tracker, is mutually exclusive with reloc_poses.
+    rc_Pose *reuse_reloc_poses_ptr{ nullptr };
+    /// allocated pointer to hold features, mutually exclusive with reuse_features_ptr.
+    std::unique_ptr<rc_Pose[]> reloc_poses;
+    uint32_t num_reloc_poses{ 0 };
 };
 
 /// holds tracking output that includes camera poses, pose velocity, pose acceleration, and confidence,
@@ -314,7 +336,6 @@ public:
     rc_DataPath data_path{ rc_DATA_PATH_SLOW };
     int8_t confidence{ 0 };
     void print_pose(uint8_t data_path) const;
-
     class bstream_buffer {
     public:
         bstream_buffer(size_t pos_, size_t len_, void *data) : position(pos_), length(len_), content(data) {};

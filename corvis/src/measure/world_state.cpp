@@ -582,10 +582,10 @@ void world_state::update_map(rc_Tracker * tracker, rc_Timestamp timestamp_us)
     }
 }
 
-void world_state::update_relocalization(rc_Tracker * tracker, const rc_Data * data) {
+void world_state::update_relocalization(const replay_output *output) {
     rc_Pose* poses;
-    size_t n = rc_getRelocalizationPoses(tracker, &poses);
-    observe_position_reloc(data->time_us, poses, (n > 0 ? 1 : 0));
+    size_t n = output->rc_getRelocPoses(&poses);
+    observe_position_reloc(output->sensor_time_us, poses, (n > 0 ? 1 : 0));
 }
 
 template<size_t idx>
@@ -610,22 +610,22 @@ void world_state::rc_data_callback(const replay_output *output, const rc_Data * 
 
     if(data->path == rc_DATA_PATH_FAST) return;
 
-    if (output->get_output_type() == replay_output::output_mode::POSE_FEATURE &&
-        (data->type == rc_SENSOR_TYPE_IMAGE || data->type == rc_SENSOR_TYPE_STEREO)) {
-        rc_Feature * img_feats;
-        int nfeatures = output->rc_getFeatures(&img_feats);
-
-        for (int i = 0; i < nfeatures; i++)
-            observe_feature(timestamp_us, data->id, img_feats[i]);
-        // if tracker, called subsequently instead
-        if (!tracker) {
-            if (data->type == rc_SENSOR_TYPE_IMAGE) {
-                observe_image(timestamp_us, data->id, data->image, cameras);
-            }
-            else {
-                observe_image(timestamp_us, data->id + 0, get_rc_image<0>(data->stereo), cameras);
-                //observe_image(timestamp_us, data->id + 1, get_rc_image<1>(data->stereo), cameras); //TODO support second image
-            }
+    if (data->type == rc_SENSOR_TYPE_IMAGE || data->type == rc_SENSOR_TYPE_STEREO) {
+        auto output_type = output->get_output_type();
+        if (output_type == replay_output::output_mode::POSE_FEATURE || output_type == replay_output::output_mode::POSE_FEATURE_MAP) {
+            rc_Feature * img_feats;
+            int nfeatures = output->rc_getFeatures(&img_feats);
+            for (int i = 0; i < nfeatures; i++)
+                observe_feature(timestamp_us, data->id, img_feats[i]);
+        }
+        if (output_type == replay_output::output_mode::POSE_MAP || output_type == replay_output::output_mode::POSE_FEATURE_MAP) {
+            update_relocalization(output);
+        }
+        if (data->type == rc_SENSOR_TYPE_IMAGE)
+            observe_image(timestamp_us, data->id, data->image, cameras);
+        else {
+            observe_image(timestamp_us, data->id + 0, get_rc_image<0>(data->stereo), cameras);
+            ///observe_image(timestamp_us, data->id + 1, get_rc_image<1>(data->stereo), cameras); //TODO support second image
         }
     }
 
@@ -663,18 +663,9 @@ void world_state::rc_data_callback(const replay_output *output, const rc_Data * 
                 observe_feature(timestamp_us, data->id, rcf);
             }
 
-            if (data->type == rc_SENSOR_TYPE_IMAGE) {
-                observe_image(timestamp_us, data->id, data->image, cameras);
-            }
-            else {
-                observe_image(timestamp_us, data->id + 0, get_rc_image<0>(data->stereo), cameras);
-                //observe_image(timestamp_us, data->id + 1, get_rc_image<1>(data->stereo), cameras);  //TODO support second image
-            }
-
             // Map update is slow and loop closure checks only happen
             // on images, so only update on image updates
             update_map(tracker, data->time_us);
-            update_relocalization(tracker, data);
             }
             break;
 

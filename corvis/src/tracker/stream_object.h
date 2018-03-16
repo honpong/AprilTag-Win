@@ -35,7 +35,7 @@ typedef enum replay_packet_type {
     packet_enable_mesg_level,
     packet_enable_mapping,
     packet_enable_relocalization,
-    packet_enable_features_output,
+    packet_enable_output_mode,
     packet_enable_odometry,
     packet_timing_stat,
     packet_load_calibration,
@@ -126,11 +126,19 @@ static inline void pose_data_callback(void * handle, rc_Tracker * tracker, const
     // update for both fast and slow path to match internal changes in tracker
     output->rc_setPose(rc_DATA_PATH_FAST, rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_FAST));
     output->rc_setPose(rc_DATA_PATH_SLOW, rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW));
-    if (output->get_output_type() == replay_output::output_mode::POSE_FEATURE) {
-        if (data->type == rc_SENSOR_TYPE_IMAGE || data->type == rc_SENSOR_TYPE_STEREO) {
+    auto output_type = output->get_output_type();
+    if (data->type == rc_SENSOR_TYPE_IMAGE || data->type == rc_SENSOR_TYPE_STEREO) {
+        if (output_type == replay_output::output_mode::POSE_FEATURE ||
+            output_type == replay_output::output_mode::POSE_FEATURE_MAP) {
             rc_Feature *cur_feat = nullptr;
             uint32_t num_features = rc_getFeatures(tracker, data->id, &cur_feat);
             output->rc_setFeatures(cur_feat, num_features);
+        }
+        if (output_type == replay_output::output_mode::POSE_MAP ||
+            output_type == replay_output::output_mode::POSE_FEATURE_MAP) {
+            rc_Pose *cur_reloc_poses = nullptr;
+            uint32_t num_reloc_poses = rc_getRelocalizationPoses(tracker, &cur_reloc_poses);
+            output->rc_setRelocPoses(cur_reloc_poses, num_reloc_poses);
         }
     }
     output->tracker = tracker;

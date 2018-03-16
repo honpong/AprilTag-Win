@@ -541,19 +541,13 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<
 void state_camera::update_feature_tracks(const sensor_data &data)
 {
     START_EVENT(SF_TRACK, 0);
-    tracker::image current_image;
-    current_image.image = (uint8_t *)data.image.image;
-    current_image.width_px = data.image.width;
-    current_image.height_px = data.image.height;
-    current_image.stride_px = data.image.stride;
-
     feature_tracker->tracks.clear();
     feature_tracker->tracks.reserve(track_count());
     for(auto &t:tracks) feature_tracker->tracks.emplace_back(&t.track);
     for(auto &t:standby_tracks) feature_tracker->tracks.emplace_back(&t);
 
     if (feature_tracker->tracks.size())
-        feature_tracker->track(current_image, feature_tracker->tracks);
+        feature_tracker->track(data.tracker_image(), feature_tracker->tracks);
 
     END_EVENT(SF_TRACK, feature_tracker->tracks.size())
 }
@@ -562,12 +556,6 @@ void state_camera::update_map_tracks(const sensor_data &data, mapper *map,
                                      const size_t min_group_map_add, const groupid closest_group_id,
                                      const transformation &G_Bclosest_Bnow) {
     START_EVENT(SF_TRACK, 0);
-    tracker::image current_image;
-    current_image.image = (uint8_t *)data.image.image;
-    current_image.width_px = data.image.width;
-    current_image.height_px = data.image.height;
-    current_image.stride_px = data.image.stride;
-
     feature_tracker->tracks.clear();
     START_EVENT(SF_PREDICT_MAP, 0);
     // create tracks of features visible in inactive map nodes
@@ -579,7 +567,7 @@ void state_camera::update_map_tracks(const sensor_data &data, mapper *map,
     END_EVENT(SF_PREDICT_MAP, map->map_feature_tracks.size());
 
     if (feature_tracker->tracks.size()) {
-        feature_tracker->track(current_image, feature_tracker->tracks);
+        feature_tracker->track(data.tracker_image(), feature_tracker->tracks);
         // sort map tracks according to number of features found
         for (auto &nft : map->map_feature_tracks) {
             for (auto &mft : nft.tracks) {

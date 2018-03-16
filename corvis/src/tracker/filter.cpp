@@ -589,7 +589,6 @@ size_t filter_detect(struct filter *f, const sensor_data &data, const std::uniqu
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
     auto start = std::chrono::steady_clock::now();
-    const rc_ImageData &image = data.image;
     camera.feature_tracker->tracks.clear();
     int standby_count = camera.standby_tracks.size(),
         detect_count = camera.detecting_space,
@@ -607,15 +606,8 @@ size_t filter_detect(struct filter *f, const sensor_data &data, const std::uniqu
     for(auto &t: camera.standby_tracks)
         camera.feature_tracker->tracks.emplace_back(&t);
 
-    // Run detector
-    tracker::image timage;
-    timage.image = (uint8_t *)image.image;
-    timage.width_px = image.width;
-    timage.height_px = image.height;
-    timage.stride_px = image.stride;
-
     START_EVENT(SF_DETECT, 0);
-    std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space);
+    std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(data.tracker_image(), camera.feature_tracker->tracks, space);
     END_EVENT(SF_DETECT, kp.size());
 
     for (auto &p : kp)
@@ -623,7 +615,7 @@ size_t filter_detect(struct filter *f, const sensor_data &data, const std::uniqu
 
     if (camera_frame)
         for (const auto &p : camera.feature_tracker->tracks)
-            camera_frame->frame->add_track(*p, timage.width_px, timage.height_px);
+            camera_frame->frame->add_track(*p, data.image.width, data.image.height);
 
     // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
     camera.standby_tracks.insert(camera.standby_tracks.begin(),

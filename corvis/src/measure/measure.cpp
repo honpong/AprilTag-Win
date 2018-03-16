@@ -36,12 +36,12 @@ int main(int c, char **v)
              << "   [--trace | --debug | --error | --info | --warn | --none]\n"
              << "   [--pause] [--pause-at <timestamp_us>]\n"
              << "   [--skip <seconds>]\n"
-             << "   [--no-plots] [--no-video] [--no-main] [--no-depth]\n"
+             << "   [--show-no-plots] [--show-no-video] [--show-no-main] [--show-no-depth]\n"
              << "   [--render-output <file.png>] [--pose-output <pose-file>] [--benchmark-output <results-file>]\n"
              << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
              << "   [--disable-map] [--save-map <map-json>] [--load-map <map-json>]\n"
 #ifdef ENABLE_TM2_PLAYBACK
-             << "   [--tm2]\n"
+             << "   [--tm2] [--show-no-map] [--show-no-feature]\n"
 #endif
              << "   [--relocalize] [--disable-odometry] [--incremental-ate]\n";
         return 1;
@@ -52,6 +52,7 @@ int main(int c, char **v)
     const char *save_map = nullptr, *load_map = nullptr;
     bool qvga = false, depth = true; int qres = 0;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
+    bool show_feature = true, show_map = true; // enabling displaying features or map when replaying over TM2
     bool enable_map = true;
     bool odometry = true;
     bool incremental_ate = false;
@@ -69,10 +70,10 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--async") == 0) async = true;
         else if (strcmp(v[i], "--no-realtime") == 0) realtime = false;
         else if (strcmp(v[i], "--no-fast-path")  == 0) fast_path  = false;
-        else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;
-        else if (strcmp(v[i], "--no-depth") == 0) show_depth = false;
-        else if (strcmp(v[i], "--no-video") == 0) show_video = false;
-        else if (strcmp(v[i], "--no-main")  == 0) show_main  = false;
+        else if (strcmp(v[i], "--show-no-plots") == 0) show_plots = false;
+        else if (strcmp(v[i], "--show-no-depth") == 0) show_depth = false;
+        else if (strcmp(v[i], "--show-no-video") == 0) show_video = false;
+        else if (strcmp(v[i], "--show-no-main")  == 0) show_main  = false;
         else if (strcmp(v[i], "--threads") == 0 && i+1 < c) threads = std::atoi(v[++i]);
         else if (strcmp(v[i], "--pause")  == 0) start_paused  = true;
         else if (strcmp(v[i], "--pause-at")  == 0 && i+1 < c) pause_at = v[++i];
@@ -103,6 +104,8 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--warn") == 0)  message_level = rc_MESSAGE_WARN;
         else if (strcmp(v[i], "--none") == 0)  message_level = rc_MESSAGE_NONE;
         else if (strcmp(v[i], "--tm2") == 0)   tm2_playback = true;
+        else if (strcmp(v[i], "--show-no-feature") == 0 ) show_feature = false;
+        else if (strcmp(v[i], "--show-no-map") == 0) show_map = false;
         else goto usage;
 
     if (!filename)
@@ -131,7 +134,9 @@ int main(int c, char **v)
         if(enable_map) rp.start_mapping(relocalize, save_map != nullptr);
         if(fast_path) rp.enable_fast_path();
         if(async) rp.enable_async();
-        if(!benchmark && enable_gui) rp.enable_feature_output();
+        if(!benchmark && enable_gui)
+            rp.set_replay_output_mode((show_feature ? (uint8_t)replay_output::output_mode::POSE_FEATURE : 0)
+                + (show_map ? (uint8_t)replay_output::output_mode::POSE_MAP : 0));
         if(pause_at) {
             rc_Timestamp pause_time = 0;
             try {

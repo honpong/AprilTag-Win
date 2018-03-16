@@ -92,9 +92,10 @@ bool tm2_pb_stream::read_header(packet_header_t *header, bool control_type) {
         return false;
     }
     switch (get_packet_type(packet)) {
-    case packet_enable_features_output: {
-        track_output[rc_DATA_PATH_SLOW].set_output_type(replay_output::output_mode::POSE_FEATURE);
-        track_output[rc_DATA_PATH_FAST].set_output_type(replay_output::output_mode::POSE_FEATURE); //need to be of same size
+    case packet_enable_output_mode: {
+        auto mode = (replay_output::output_mode)((const uint8_t *)packet->data)[0];
+        track_output[rc_DATA_PATH_SLOW].set_output_type(mode);
+        track_output[rc_DATA_PATH_FAST].set_output_type(mode); //need to be of same size
         break;
     }
     case packet_load_map: {

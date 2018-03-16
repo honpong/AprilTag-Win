@@ -56,7 +56,7 @@ public:
         uint8_t msg_level = level;
         request(packet_enable_mesg_level, (const char*)&msg_level, sizeof(uint8_t));
     }
-    void enable_feature_output() { request(packet_enable_features_output); }
+    void set_replay_output_mode(uint8_t mode) { request(packet_enable_output_mode, &mode, sizeof(uint8_t)); }
 
     bool init() { return stream->init_stream(); }
     std::string calibration_file;

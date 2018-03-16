@@ -71,8 +71,9 @@ bool file_stream::read_header(packet_header_t *header, bool control_only) {
                 last_progress = sensor_clock::now();
                 break;
             }
-            case packet_enable_features_output: {
-                track_output[rc_DATA_PATH_SLOW].set_output_type(replay_output::output_mode::POSE_FEATURE);
+            case packet_enable_output_mode: {
+                auto mode = (replay_output::output_mode)((const uint8_t *)packet->data)[0];
+                track_output[rc_DATA_PATH_SLOW].set_output_type(mode);
                 break;
             }
             case packet_load_map: {

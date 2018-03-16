@@ -621,18 +621,9 @@ size_t filter_detect(struct filter *f, const sensor_data &data, const std::uniqu
     for (auto &p : kp)
         camera.feature_tracker->tracks.push_back(&p);
 
-    if (camera_frame) {
-        auto& frame = camera_frame->frame;
-        frame->keypoints.reserve(camera.feature_tracker->tracks.size());
-        frame->keypoints_xy.reserve(camera.feature_tracker->tracks.size());
-        for (auto &p : camera.feature_tracker->tracks) {
-            auto feature = std::static_pointer_cast<fast_tracker::fast_feature<patch_orb_descriptor>>(p->feature);
-            if (feature->descriptor.orb_computed || fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, timage.width_px, timage.height_px)) {
-                frame->keypoints.emplace_back(std::move(feature));
-                frame->keypoints_xy.emplace_back(p->x, p->y);
-            }
-        }
-    }
+    if (camera_frame)
+        for (const auto &p : camera.feature_tracker->tracks)
+            camera_frame->frame->add_track(*p, timage.width_px, timage.height_px);
 
     // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
     camera.standby_tracks.insert(camera.standby_tracks.begin(),

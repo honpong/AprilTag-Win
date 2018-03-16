@@ -1,5 +1,5 @@
-#ifndef __fast9ScoreCv_H__
-#define __fast9ScoreCv_H__
+#ifndef __FAST9M2_H__
+#define __FAST9M2_H__
 
 #include <mv_types.h>
 #include <mvcv_macro.h>
@@ -13,8 +13,7 @@
 /// @param[in] width     - Width of the input lines
 /// @return    Nothing
 
-MVCV_FUNC(void, mvcvfast9ScoreCv, u8** row, u8* score, u16 *base, unsigned int thresh, unsigned int width, void* bulkBuff)
+MVCV_FUNC(void, mvcvFast9M2, u8** row, u8* score, u16 *base, unsigned int thresh, unsigned int width)
 //!@}
-
-
-#endif //__fast9ScoreCv_H__
+	
+#endif //__FAST9M2_H__

@@ -1,11 +1,9 @@
 #include "fast_detector_9.hpp"
 #include "swcCdma.h"
-#include "fast9ScoreCv.h"
+#include "fast9M2.h"
 #include "svuCommonShave.h"
 #include <math.h>
 #include <string.h> //memcpy
-
-u8* bulkBuff[20*MAX_WIDTH];
 
 void fast_detector_9::detect(const u8 *pImage, int bthresh, int winx, int winy, int winwidth, int winheight, u8 *pScores, u16 *pOffsets, const int xsize, const int ysize, const int stride) {
     int x1 = (winx < 8) ? 8 : winx;
@@ -30,7 +28,7 @@ void fast_detector_9::detect(const u8 *pImage, int bthresh, int winx, int winy, 
             u8 *lines[7];
             for (int i=0; i<7; i++)
                 lines[i] = dataBuffer + (dy + i) % 8 * paddedWidth + PADDING;
-            mvcvfast9ScoreCv_asm(lines, scoreBuffer, baseBuffer, bthresh, width, (void*)bulkBuff);
+            mvcvFast9M2_asm(lines, scoreBuffer, baseBuffer, bthresh, width);
 
             dmaWaitTask(&dmaNextRow);
         }

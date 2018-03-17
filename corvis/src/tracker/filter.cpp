@@ -835,6 +835,23 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
     return true;
 }
 
+static void filter_update_detection_status(struct filter *f, state_camera &camera_state, int detected, sensor_clock::time_point detection_time) {
+    auto active_features = camera_state.track_count();
+    if(active_features < state_vision_group::min_feats) {
+        f->log->info("detector failure: only {} features after add on camera {}", active_features, camera_state.id);
+        camera_state.detector_failed = true;
+        bool all_failed = true; for (const auto &c : f->s.cameras.children) all_failed &= c->detector_failed;
+        if(all_failed) {
+            f->log->info("failed to detect in all cameras\n");
+            if(!f->detector_failed) f->detector_failed_time = detection_time;
+            f->detector_failed = true;
+        }
+    } else if(active_features >= f->min_group_add) {
+        camera_state.detector_failed = false;
+        f->detector_failed = false;
+    }
+}
+
 bool filter_image_measurement(struct filter *f, const sensor_data & data)
 {
     START_EVENT(SF_IMAGE_MEAS, 0);
@@ -896,25 +913,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         if(camera->detection_future.valid()) camera->detection_future.wait();
     }
 
-    if (camera_state.detection_future.valid()) {
-        size_t detected = camera_state.detection_future.get();
-        if (detected > 0) {
-            auto active_features = camera_state.track_count();
-            if(active_features < state_vision_group::min_feats) {
-                f->log->info("detector failure: only {} features after add on camera {}", active_features, camera_state.id);
-                camera_state.detector_failed = true;
-                bool all_failed = true; for (const auto &c : f->s.cameras.children) all_failed &= c->detector_failed;
-                if(all_failed) {
-                    f->log->info("failed to detect in all cameras\n");
-                    if(!f->detector_failed) f->detector_failed_time = time;
-                    f->detector_failed = true;
-                }
-            } else if(active_features >= f->min_group_add) {
-                camera_state.detector_failed = false;
-                f->detector_failed = false;
-            }
-        }
-    }
+    if (camera_state.detection_future.valid())
+        if (size_t detected = camera_state.detection_future.get())
+            filter_update_detection_status(f, camera_state, detected, time);
 
     if(f->run_state == RCSensorFusionRunStateRunning)
         filter_setup_next_frame(f, data); // put current features into observation queue as potential things to measure

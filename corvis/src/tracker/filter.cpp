@@ -584,47 +584,19 @@ std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *
     return camera_frame;
 }
 
-size_t filter_detect(struct filter *f, const sensor_data &data, const std::unique_ptr<camera_frame_t>& camera_frame)
+std::vector<tracker::feature_track> &filter_detect(struct filter *f, const sensor_data &data, const std::vector<tracker::feature_track*> &avoid, size_t detect)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
     auto start = std::chrono::steady_clock::now();
-    camera.feature_tracker->tracks.clear();
-    int standby_count = camera.standby_tracks.size(),
-        detect_count = camera.detecting_space,
-        track_count = camera.track_count();
-    camera.detecting_space = 0;
-
-    auto space = std::max(0, detect_count - standby_count);
-    if(!space && !camera_frame) return 0; // FIXME: what min number is worth detecting?
-
-    camera.feature_tracker->tracks.reserve(track_count + space);
-
-    for(auto &i : camera.tracks)
-        if(i.track.found()) camera.feature_tracker->tracks.emplace_back(&i.track);
-
-    for(auto &t: camera.standby_tracks)
-        camera.feature_tracker->tracks.emplace_back(&t);
 
     START_EVENT(SF_DETECT, 0);
-    std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(data.tracker_image(), camera.feature_tracker->tracks, space);
+    auto &kp = camera.feature_tracker->detect(data.tracker_image(), avoid, detect);
     END_EVENT(SF_DETECT, kp.size());
-
-    for (auto &p : kp)
-        camera.feature_tracker->tracks.push_back(&p);
-
-    if (camera_frame)
-        for (const auto &p : camera.feature_tracker->tracks)
-            camera_frame->frame->add_track(*p, data.image.width, data.image.height);
-
-    // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
-    camera.standby_tracks.insert(camera.standby_tracks.begin(),
-                                 std::make_move_iterator(kp.begin()),
-                                 std::make_move_iterator(kp.end()));
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-    return kp.size();
+    return kp;
 }
 
 bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_t& camera_frame)
@@ -1051,9 +1023,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     f->s.update_map(f->map.get());
 
     space = filter_available_feature_space(f);
-    if(space >= f->min_group_add && camera_state.standby_tracks.size() < f->max_group_add) {
-        camera_state.detecting_space = f->max_group_add;
-    }
+    if(space >= f->min_group_add && f->max_group_add > camera_state.standby_tracks.size())
+        camera_state.detecting_space = f->max_group_add - camera_state.standby_tracks.size();
+
     END_EVENT(SF_IMAGE_MEAS, data.time_us / 1000);
 
     auto stop = std::chrono::steady_clock::now();

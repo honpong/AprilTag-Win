@@ -1,7 +1,7 @@
 #include "shave_tracker.h"
 #include <DrvLeonL2C.h>
 #include <algorithm>
-#include "commonDefs.hpp"
+#include "image_defines.h"
 #include "tracker.h"
 #include "descriptor.h"
 #include "state_vision.h"

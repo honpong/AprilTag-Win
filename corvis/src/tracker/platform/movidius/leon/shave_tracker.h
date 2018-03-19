@@ -10,7 +10,7 @@
 
 #include "fast_tracker.h"
 #include "filter.h"
-#include "commonDefs.hpp"
+#include "image_defines.h"
 #include "stereo_commonDefs.hpp"
 #include "adaptive_controller.h"
 #include "Shave.h"

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <mv_types.h>
-#include "commonDefs.hpp"
+#include "image_defines.h"
 #include "../stereo_initialize/common_shave.h"
 
 typedef unsigned char byte;

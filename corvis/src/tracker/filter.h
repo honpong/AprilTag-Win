@@ -30,7 +30,6 @@ struct filter {
     kalman_storage<MAXSTATESIZE, MAXOBSERVATIONSIZE, FAKESTATESIZE> store;
     observation_queue observations{store.x, store.y, store.R, store.HP, store.S};
     covariance cov{store.maxstatesize, store.P, store.Q, store.iP, store.iQ};
-    state s{cov, store.FP};
 
     struct {
         // maxobservationsize is 3, but due to a bug in BLIS we need
@@ -94,6 +93,8 @@ struct filter {
     std::vector<std::unique_ptr<sensor_gyroscope>> gyroscopes;
     std::vector<std::unique_ptr<sensor_thermometer>> thermometers;
     std::vector<std::unique_ptr<sensor_velocimeter>> velocimeters;
+
+    state s{cov, store.FP};
 
     bool got_any_gyroscopes()     const { for (const auto &gyro  :     gyroscopes) if (gyro->got)  return true; return false;}
     bool got_any_accelerometers() const { for (const auto &accel : accelerometers) if (accel->got) return true; return false; }

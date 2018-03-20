@@ -44,6 +44,7 @@ got_types = defaultdict(int)
 
 packets = defaultdict(list)
 latencies = defaultdict(list)
+arrivals = defaultdict(list)
 latest_received = None
 f = open(args.capture_filename,'rb')
 header_size = 16
@@ -159,6 +160,7 @@ while header_str != "":
   if ptype not in (arrival_time_type, calibration_type) :
     latencies[packet_str].append(latest_received - ptime)
     packets[packet_str].append(ptime)
+    arrivals[packet_str].append(last_arrival_time)
   if not (ptype == accel_type or ptype == gyro_type) and prev_packet_str == packet_str:
       warnings[packet_str].append((last_time, ptime))
   last_time = ptime
@@ -198,6 +200,9 @@ for packet_type in sorted(packets.keys()):
   timestamps = numpy.array(packets[packet_type])
   platencies = numpy.array(latencies[packet_type])
   deltas = timestamps[1:] - timestamps[:-1]
+  if len(arrivals[packet_type]) > 0:
+    parrivals = numpy.array(arrivals[packet_type])
+    arrivals_deltas = parrivals[1:] - parrivals[:-1]
   median_delta = numpy.median(deltas)
   start_s[packet_type] = numpy.min(timestamps)/1e6
   end_s[packet_type] = numpy.max(timestamps)/1e6
@@ -208,6 +213,10 @@ for packet_type in sorted(packets.keys()):
   print "\trelative latency (us): %.3f min, %.3f median, %.3f max, %.3f std" % (numpy.min(platencies), numpy.median(platencies), numpy.max(platencies), numpy.std(platencies))
   print "\tstart (s) finish (s):", start_s[packet_type], end_s[packet_type]
   print "\tlength (s):", end_s[packet_type] - start_s[packet_type]
+  if len(arrivals[packet_type]) > 0:
+    print "\tarrival (us): min: %.0f median: %.0f max: %.0f std: %.0f" % (numpy.min(arrivals_deltas), numpy.median(arrivals_deltas), numpy.max(arrivals_deltas), numpy.std(arrivals_deltas))
+  else:
+    print "\tNo arrival time data"
   exceptions = numpy.flatnonzero(numpy.logical_or(deltas > median_delta*1.05, deltas < median_delta*0.95))
   latency_warnings = numpy.flatnonzero(platencies > 33333)
 

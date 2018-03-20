@@ -14,6 +14,7 @@ export MV_TOOLS_DIR=$MDK_ROOT/external/$MDK_CANONICAL/tools
 export MV_TOOLS_VERSION=00.83.4
 #export MV_SOC_REV=ma2450
 export MV_SOC_REV=ma2150
+export MV_SRV_EXTRA_OPT=-freq:15000
 if type -p ccache 1>/dev/null 2>/dev/null; then
     export MV_USE_CCACHE=1
 fi

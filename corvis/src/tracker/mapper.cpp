@@ -90,7 +90,7 @@ void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12,
     // 1- map edges never change type
     // 2- filter edges and dead-reckoning edges get converted to input type
     // 3- when relocalization edges are reused by the filter they immidiately become map edges
-    if(edge12.type == edge_type::filter || edge12.type == edge_type::dead_reckoning) {
+    if(edge12.type == edge_type::filter || (edge12.type == edge_type::dead_reckoning && type != edge_type::relocalization)) { // TODO: the && have to be removed once we start using relocalization edges
         edge12.type = type;
         edge21.type = type;
     }

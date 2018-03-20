@@ -103,7 +103,7 @@ lsu0.ld.32 i17 i17
 nop 6
 bru.bra fastExclude1 	|| iau.shl i0, i14, 2 				||lsu0.ldo.32 i1, i18, 0x00	||lsu1.ldo.32 i2, i18, 0x0C// score// alocate space for posValid
 iau.sub i19, i19, i0    ||cmu.cpii i13, i16 				||lsu1.ldo.32 i3, i18, 0x18 ||lsu0.ldo.32 i20, i18, 0x08//line 2
-lsu0.sto.32 i0 , i19, -8                            ||lsu1.ldo.32 i21, i18, 0x10 //||cmu.cpii i17, i19
+lsu1.sto.32 i0 , i19, -8                            ||lsu0.ldo.32 i21, i18, 0x10 //||cmu.cpii i17, i19
 iau.sub i16, i19, 4		||cmu.cpiv.x32 v7.0, i30			||lsu0.ldil i4, fast9u16score_FAST_Exclude     ||  lsu1.ldih i4, fast9u16score_FAST_Exclude
 cmu.cpiv.x32 v7.1, i4	||lsu0.ldil i4, returnfastExclude   ||  lsu1.ldih i4, returnfastExclude
 cmu.cpiv.x32 v7.2, i4	//||lsu1.st.32 i12, i13

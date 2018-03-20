@@ -5,7 +5,7 @@
 #include <math.h>
 #include <string.h> //memcpy
 
-u8* bulkBuff[20*MAX_WIDTH];
+u8 bulkBuff[20*MAX_WIDTH];
 
 void fast_detector_9::detect(const u8 *pImage, int bthresh, int winx, int winy, int winwidth, int winheight, u8 *pScores, u16 *pOffsets, const int xsize, const int ysize, const int stride) {
     int x1 = (winx < 8) ? 8 : winx;

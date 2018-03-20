@@ -20,7 +20,6 @@ private:
     static constexpr int FAST_ROWS = 7;
     static constexpr int TOTAL_ROWS = FAST_ROWS + 1;
 
-    byte dataBuffer[TOTAL_ROWS * MAX_WIDTH]; //8 lines
     byte singleFeatureBuffer[128];
     u8 scoreBuffer[MAX_WIDTH + 4];
     u16 baseBuffer[MAX_WIDTH + 2];

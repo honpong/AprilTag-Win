@@ -5,8 +5,6 @@
 #include <math.h>
 #include <string.h> //memcpy
 
-u8* bulkBuff[20*MAX_PATCH_WIDTH];
-
 void fast_tracker_9::init(const int x, const int y, const int s, const int ps, const int phw)
 {
     xsize = x;
@@ -32,6 +30,8 @@ xy fast_tracker_9::track(u8* im1, const u8* im2, float predx, float predy, float
 	width = x2 - x1;
 	paddedWidth = x2 - x1 + 2 * PADDING;
 
+	u8 bulkBuff[20*MAX_PATCH_WIDTH];
+	byte dataBuffer[TOTAL_ROWS * MAX_PATCH_WIDTH]; //8 lines
 	byte *pFastLines[TOTAL_ROWS];
 
     pFastLines[0] = dataBuffer;

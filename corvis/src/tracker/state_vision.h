@@ -209,7 +209,7 @@ public:
     static f_t outlier_lost_reject;
     
     state_vision_track(size_t camera_id, state_vision_feature &f, tracker::feature_track &&t): feature(f), track(std::move(t)) {
-        if(t.found()) ++feature.tracks_found;
+        if(track.found()) ++feature.tracks_found;
         if(f.tracks.size() <= camera_id) f.tracks.resize(camera_id + 1);
         assert(f.tracks[camera_id] == nullptr);
         f.tracks[camera_id] = this;

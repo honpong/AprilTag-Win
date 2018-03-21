@@ -30,7 +30,7 @@ xy fast_tracker_9::track(u8* im1, const u8* im2, float predx, float predy, float
 	width = x2 - x1;
 	paddedWidth = x2 - x1 + 2 * PADDING;
 
-	u8 bulkBuff[20*MAX_PATCH_WIDTH];
+	u8 bulkBuff[8 + 20*MAX_PATCH_WIDTH];
 	byte dataBuffer[TOTAL_ROWS * MAX_PATCH_WIDTH]; //8 lines
 	byte *pFastLines[TOTAL_ROWS];
 

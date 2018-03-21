@@ -1,19 +1,36 @@
 #!/usr/bin/env python
 
+import os
 import sys
 import subprocess, csv
 import numpy as np
+
+if len(sys.argv) != 2:
+    print "Usage:", sys.argv[0], "<result extension>"
+    sys.exit(1)
+
+result_extension = sys.argv[1]
+
+def enumerate_all_files_matching(path, extension):
+    for dirpath, dirnames, filenames in os.walk(path):
+        dirnames.sort()
+        filenames.sort()
+        for filename in [f for f in filenames if f.endswith(extension)]:
+            yield os.path.join(dirpath, filename)
+
 
 zd_translation = []
 zd_rotation = []
 sn_translation = []
 sn_rotation = []
-for i in range(1,11):
-    filename = "benchmark_data/kpis/zero-drift/%d-ZeroDriftStaticNoise_L0.stereo.rc" % i
+for filename in enumerate_all_files_matching("benchmark_data/kpis/zero-drift","stereo.rc"):
+    cpu_output = filename + result_extension
+    kpi_output = filename + result_extension + ".result.csv"
+    if not os.path.isfile(cpu_output):
+        print "Warning: Skipping", filename
+        continue
     print filename
     interval = filename + ".intervals.txt"
-    cpu_output = filename + ".cpu.tum"
-    kpi_output = filename + ".cpu.result.csv"
     command = ["./ThirdParty/tm2-validation-scripts/M1-staticnoise-standalone.py", cpu_output, interval, kpi_output]
     subprocess.call(command)
     with open(kpi_output, "rb") as csvfile:
@@ -30,18 +47,18 @@ print "Zero drift rotations:", zd_rotation
 print "Static noise translations:", sn_translation
 print "Static noise rotations:", sn_rotation
 
-
-
 tr_scale = []
 tr_error = []
-for i in range(1,11):
-    filename = "benchmark_data/kpis/vr-translation/%d-VRTranslationFrontFacePerAxis_L0.stereo.rc" % i
+for filename in enumerate_all_files_matching("benchmark_data/kpis/vr-translation","stereo.rc"):
+    cpu_output = filename + result_extension
+    kpi_output = filename + result_extension + ".result.csv"
+    if not os.path.isfile(cpu_output):
+        print "Warning: Skipping", filename
+        continue
     print filename
     interval = filename + ".intervals.txt"
     axes = filename + ".robotaxes.txt"
     robot = filename + ".robotposes.txt"
-    cpu_output = filename + ".cpu.tum"
-    kpi_output = filename + ".cpu.result.csv"
     command = ["./ThirdParty/tm2-validation-scripts/M2-VR_translation.py", cpu_output, interval, axes, robot, kpi_output]
     subprocess.call(command)
     with open(kpi_output, "rb") as csvfile:
@@ -54,19 +71,20 @@ print "Translation error ratios:", tr_error
 
 
 rotation_errors = []
-for rotation_type in ["Yaw", "Pitch", "Roll"]:
-    for i in range(1,11):
-        filename = "benchmark_data/kpis/rotation/%d-Rotation%s_L0.stereo.rc" % (i, rotation_type)
-        print filename
-        interval = filename + ".intervals.txt"
-        robot = filename + ".robotposes.txt"
-        cpu_output = filename + ".cpu.tum"
-        kpi_output = filename + ".cpu.result.csv"
-        command = ["./ThirdParty/tm2-validation-scripts/M3-rotation_metric.py", cpu_output, interval, robot, kpi_output]
-        subprocess.call(command)
-        with open(kpi_output, "rb") as csvfile:
-            for row in csv.DictReader(csvfile, delimiter=","):
-                rotation_errors.append(float(row['Rotation Error']))
+for filename in enumerate_all_files_matching("benchmark_data/kpis/rotation","stereo.rc"):
+    cpu_output = filename + result_extension
+    kpi_output = filename + result_extension + ".result.csv"
+    if not os.path.isfile(cpu_output):
+        print "Warning: Skipping", filename
+        continue
+    print filename
+    interval = filename + ".intervals.txt"
+    robot = filename + ".robotposes.txt"
+    command = ["./ThirdParty/tm2-validation-scripts/M3-rotation_metric.py", cpu_output, interval, robot, kpi_output]
+    subprocess.call(command)
+    with open(kpi_output, "rb") as csvfile:
+        for row in csv.DictReader(csvfile, delimiter=","):
+            rotation_errors.append(float(row['Rotation Error']))
 
 print "Rotation errors: ", rotation_errors
 

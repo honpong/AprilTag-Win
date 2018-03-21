@@ -116,7 +116,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
 {
     std::vector<std::string> files;
     for_each_file(directory, [&files](const char *file) {
-        if (0 == strstr(file, ".json") && 0 == strstr(file, ".pose") && 0 == strstr(file, ".vicon") && 0 == strstr(file, ".tum") && 0 == strstr(file,".loop"))
+        if (0 == strstr(file, ".json") && 0 == strstr(file, ".pose") && 0 == strstr(file, ".vicon") && 0 == strstr(file, ".tum") && 0 == strstr(file,".loop") && 0 == strstr(file, ".txt") && 0 == strstr(file, ".csv") && 0 == strstr(file, ".jpg"))
             files.push_back(file);
     });
     std::sort(files.begin(), files.end());

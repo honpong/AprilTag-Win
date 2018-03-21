@@ -42,11 +42,6 @@ for filename in enumerate_all_files_matching("benchmark_data/kpis/zero-drift","s
                 sn_translation.append(float(row["Translation Dist Avg"]))
                 sn_rotation.append(float(row["Rotation Max"]))
 
-print "Zero drift translations:", zd_translation
-print "Zero drift rotations:", zd_rotation
-print "Static noise translations:", sn_translation
-print "Static noise rotations:", sn_rotation
-
 tr_scale = []
 tr_error = []
 for filename in enumerate_all_files_matching("benchmark_data/kpis/vr-translation","stereo.rc"):
@@ -66,10 +61,6 @@ for filename in enumerate_all_files_matching("benchmark_data/kpis/vr-translation
             tr_scale.append(float(row['Average Translation Scale Error'])*100)
             tr_error.append(float(row['Average Translation Error Ratio'])*100)
 
-print "Translation scales:", tr_scale
-print "Translation error ratios:", tr_error
-
-
 rotation_errors = []
 for filename in enumerate_all_files_matching("benchmark_data/kpis/rotation","stereo.rc"):
     cpu_output = filename + result_extension
@@ -86,7 +77,16 @@ for filename in enumerate_all_files_matching("benchmark_data/kpis/rotation","ste
         for row in csv.DictReader(csvfile, delimiter=","):
             rotation_errors.append(float(row['Rotation Error']))
 
-print "Rotation errors: ", rotation_errors
+def format_list(fmt_string, l):
+    return " ".join([fmt_string % i for i in l])
+
+print "Zero drift translations:", format_list("%.2f", zd_translation)
+print "Zero drift rotations:", format_list("%.2f", zd_rotation)
+print "Static noise translations:", format_list("%.2f", sn_translation)
+print "Static noise rotations:", format_list("%.2f", sn_rotation)
+print "Translation scales:", format_list("%.2f", tr_scale)
+print "Translation error ratios:", format_list("%.2f", tr_error)
+print "Rotation errors: ", format_list("%.2f", rotation_errors)
 
 print ""
 print "KPI Summary - mean (std)"

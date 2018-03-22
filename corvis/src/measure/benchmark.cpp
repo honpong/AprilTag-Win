@@ -155,6 +155,10 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     uint32_t precision_anomalies = 0, recall_anomalies = 0;
     bool has_reloc = false;
 
+    std::sort(results.begin(), results.end(), [](const benchmark_data &lhs, const benchmark_data &rhs) {
+        return lhs.basename < rhs.basename;
+    });
+
     for (auto &bm : results) {
         if (!bm.ok.get()) {
             stream << "FAILED " << bm.basename << "\n";

@@ -136,9 +136,9 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     if (compute_descriptors_now)
                         camera_frame = filter_create_camera_frame(&sfm, data);
 
-                    auto &avoid = camera.feature_tracker->tracks;        avoid.clear();
-                    for (auto &st : camera.tracks) if (st.track.found()) avoid.push_back(&st.track);
-                    for (auto &t  : camera.standby_tracks)               avoid.push_back(&t);
+                    auto &avoid = camera.feature_tracker->avoid;         avoid.clear();
+                    for (auto &st : camera.tracks) if (st.track.found()) avoid.push_back(st.track);
+                    for (auto &t  : camera.standby_tracks)               avoid.push_back(t);
 
                     camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                         [this, &camera, &avoid, new_group_created, relocalize_now] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) {
@@ -148,8 +148,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                             auto &detected = filter_detect(&sfm, data, avoid, camera.detecting_space);
 
                             if (camera_frame) {
-                                for (const auto &t : avoid)    camera_frame->frame->add_track(*t, data.image.width, data.image.height);
-                                for (const auto &t : detected) camera_frame->frame->add_track( t, data.image.width, data.image.height);
+                                for (const auto &t : avoid)    camera_frame->frame->add_track(t, data.image.width, data.image.height);
+                                for (const auto &t : detected) camera_frame->frame->add_track(t, data.image.width, data.image.height);
                             }
 
                             // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)

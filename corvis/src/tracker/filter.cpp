@@ -584,7 +584,7 @@ std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *
     return camera_frame;
 }
 
-std::vector<tracker::feature_track> &filter_detect(struct filter *f, const sensor_data &data, const std::vector<tracker::feature_track*> &avoid, size_t detect)
+std::vector<tracker::feature_track> &filter_detect(struct filter *f, const sensor_data &data, const std::vector<tracker::feature_position> &avoid, size_t detect)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];

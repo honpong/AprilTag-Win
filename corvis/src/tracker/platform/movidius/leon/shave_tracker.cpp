@@ -111,7 +111,7 @@ shave_tracker::shave_tracker() :
 {
 }
 
-std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image &image, const std::vector<tracker::feature_track *> &features, size_t number_desired)
+std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image &image, const std::vector<tracker::feature_position> &features, size_t number_desired)
 {
     feature_points.clear();
     feature_points.reserve(number_desired);
@@ -121,7 +121,7 @@ std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image
             mask = std::unique_ptr <scaled_mask>(new scaled_mask(image.width_px, image.height_px));
         mask->initialize();
         for (auto &f : features)
-            mask->clear((int)f->x, (int)f->y);
+            mask->clear((int)f.x, (int)f.y);
         //run
         detectMultipleShave(image);
         sortFeatures(image, number_desired);

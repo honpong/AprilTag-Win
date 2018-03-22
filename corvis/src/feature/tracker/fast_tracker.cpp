@@ -36,13 +36,13 @@ void fast_tracker::init(const int x, const int y, const int s, const int ps)
     make_offsets(pixel, stride);
 }
 
-vector<tracker::feature_track> &fast_tracker::detect(const image &image, const std::vector<feature_track *> &current, size_t number_desired)
+vector<tracker::feature_track> &fast_tracker::detect(const image &image, const std::vector<feature_position> &current, size_t number_desired)
 {
     if (!mask)
         mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
     mask->initialize();
     for (auto &f : current)
-        mask->clear((int)f->x, (int)f->y);
+        mask->clear((int)f.x, (int)f.y);
 
     init(image.width_px, image.height_px, image.stride_px, full_patch_width);
 

@@ -15,6 +15,7 @@
 #include <atomic>
 #include <assert.h>
 #include "rc_tracker.h"
+#include "tracker.h"
 #include "platform/sensor_clock.h"
 
 class sensor_data : public rc_Data
@@ -141,6 +142,16 @@ public:
     std::unique_ptr<sensor_data> make_copy() const
     {
         return std::make_unique<sensor_data>(*this, data_copy());
+    }
+
+    tracker::image tracker_image() const {
+        assert(type == rc_SENSOR_TYPE_IMAGE);
+        tracker::image timage;
+        timage.image = (uint8_t *)image.image;
+        timage.width_px = image.width;
+        timage.height_px = image.height;
+        timage.stride_px = image.stride;
+        return timage;
     }
 
     static std::pair<sensor_data,sensor_data> split(sensor_data &&d) {

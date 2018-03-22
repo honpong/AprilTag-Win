@@ -136,13 +136,27 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     if (compute_descriptors_now)
                         camera_frame = filter_create_camera_frame(&sfm, data);
 
+                    auto &avoid = camera.feature_tracker->avoid;         avoid.clear();
+                    for (auto &st : camera.tracks) if (st.track.found()) avoid.push_back(st.track);
+                    for (auto &t  : camera.standby_tracks)               avoid.push_back(t);
+
                     camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
-                        [this, &camera, new_group_created, relocalize_now] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) {
+                        [this, &camera, &avoid, new_group_created, relocalize_now] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) {
                             set_priority(PRIORITY_SLAM_DETECT);
                             auto start = std::chrono::steady_clock::now();
-                            size_t detected = filter_detect(&sfm, data, camera_frame);
-                            auto stop = std::chrono::steady_clock::now();
-                            queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+
+                            auto &detected = filter_detect(&sfm, data, avoid, camera.detecting_space);
+
+                            if (camera_frame) {
+                                for (const auto &t : avoid)    camera_frame->frame->add_track(t, data.image.width, data.image.height);
+                                for (const auto &t : detected) camera_frame->frame->add_track(t, data.image.width, data.image.height);
+                            }
+
+                            // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
+                            camera.standby_tracks.insert(camera.standby_tracks.begin(),
+                                                         std::make_move_iterator(detected.begin()),
+                                                         std::make_move_iterator(detected.begin() + std::min(camera.detecting_space, detected.size())));
+                            camera.detecting_space = 0;
 
                             if (camera_frame) {
                                 camera.orb_future = std::async(threaded ? std::launch::async : std::launch::deferred,
@@ -154,7 +168,10 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                                         return (relocalize_now ? std::move(camera_frame) : std::unique_ptr<camera_frame_t>{});
                                 }, std::move(data), std::move(camera_frame));
                             }
-                            return detected;
+
+                            auto stop = std::chrono::steady_clock::now();
+                            queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+                            return detected.size();
                     }, std::move(data), std::move(camera_frame));
                 }
             }

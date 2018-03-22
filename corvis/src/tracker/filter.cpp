@@ -585,64 +585,19 @@ std::unique_ptr<camera_frame_t> filter_create_camera_frame(const struct filter *
     return camera_frame;
 }
 
-size_t filter_detect(struct filter *f, const sensor_data &data, const std::unique_ptr<camera_frame_t>& camera_frame)
+std::vector<tracker::feature_track> &filter_detect(struct filter *f, const sensor_data &data, const std::vector<tracker::feature_position> &avoid, size_t detect)
 {
     sensor_grey &camera_sensor = *f->cameras[data.id];
     state_camera &camera = *f->s.cameras.children[data.id];
     auto start = std::chrono::steady_clock::now();
-    const rc_ImageData &image = data.image;
-    camera.feature_tracker->tracks.clear();
-    int standby_count = camera.standby_tracks.size(),
-        detect_count = camera.detecting_space,
-        track_count = camera.track_count();
-    camera.detecting_space = 0;
-
-    auto space = std::max(0, detect_count - standby_count);
-    if(!space && !camera_frame) return 0; // FIXME: what min number is worth detecting?
-
-    camera.feature_tracker->tracks.reserve(track_count + space);
-
-    for(auto &i : camera.tracks)
-        if(i.track.found()) camera.feature_tracker->tracks.emplace_back(&i.track);
-
-    for(auto &t: camera.standby_tracks)
-        camera.feature_tracker->tracks.emplace_back(&t);
-
-    // Run detector
-    tracker::image timage;
-    timage.image = (uint8_t *)image.image;
-    timage.width_px = image.width;
-    timage.height_px = image.height;
-    timage.stride_px = image.stride;
 
     START_EVENT(SF_DETECT, 0);
-    std::vector<tracker::feature_track> &kp = camera.feature_tracker->detect(timage, camera.feature_tracker->tracks, space);
+    auto &kp = camera.feature_tracker->detect(data.tracker_image(), avoid, detect);
     END_EVENT(SF_DETECT, kp.size());
-
-    for (auto &p : kp)
-        camera.feature_tracker->tracks.push_back(&p);
-
-    if (camera_frame) {
-        auto& frame = camera_frame->frame;
-        frame->keypoints.reserve(camera.feature_tracker->tracks.size());
-        frame->keypoints_xy.reserve(camera.feature_tracker->tracks.size());
-        for (auto &p : camera.feature_tracker->tracks) {
-            auto feature = std::static_pointer_cast<fast_tracker::fast_feature<patch_orb_descriptor>>(p->feature);
-            if (feature->descriptor.orb_computed || fast_tracker::is_trackable<orb_descriptor::border_size>((int)p->x, (int)p->y, timage.width_px, timage.height_px)) {
-                frame->keypoints.emplace_back(std::move(feature));
-                frame->keypoints_xy.emplace_back(p->x, p->y);
-            }
-        }
-    }
-
-    // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
-    camera.standby_tracks.insert(camera.standby_tracks.begin(),
-                                 std::make_move_iterator(kp.begin()),
-                                 std::make_move_iterator(kp.end()));
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
-    return kp.size();
+    return kp;
 }
 
 bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_t& camera_frame)
@@ -881,6 +836,23 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
     return true;
 }
 
+static void filter_update_detection_status(struct filter *f, state_camera &camera_state, int detected, sensor_clock::time_point detection_time) {
+    auto active_features = camera_state.track_count();
+    if(active_features < state_vision_group::min_feats) {
+        f->log->info("detector failure: only {} features after add on camera {}", active_features, camera_state.id);
+        camera_state.detector_failed = true;
+        bool all_failed = true; for (const auto &c : f->s.cameras.children) all_failed &= c->detector_failed;
+        if(all_failed) {
+            f->log->info("failed to detect in all cameras\n");
+            if(!f->detector_failed) f->detector_failed_time = detection_time;
+            f->detector_failed = true;
+        }
+    } else if(active_features >= f->min_group_add) {
+        camera_state.detector_failed = false;
+        f->detector_failed = false;
+    }
+}
+
 bool filter_image_measurement(struct filter *f, const sensor_data & data)
 {
     START_EVENT(SF_IMAGE_MEAS, 0);
@@ -938,29 +910,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization) return true; //frame was "processed" so that callbacks still get called
 
-    for(auto &camera : f->s.cameras.children) {
-        if(camera->detection_future.valid()) camera->detection_future.wait();
-    }
-
-    if (camera_state.detection_future.valid()) {
-        size_t detected = camera_state.detection_future.get();
-        if (detected > 0) {
-            auto active_features = camera_state.track_count();
-            if(active_features < state_vision_group::min_feats) {
-                f->log->info("detector failure: only {} features after add on camera {}", active_features, camera_state.id);
-                camera_state.detector_failed = true;
-                bool all_failed = true; for (const auto &c : f->s.cameras.children) all_failed &= c->detector_failed;
-                if(all_failed) {
-                    f->log->info("failed to detect in all cameras\n");
-                    if(!f->detector_failed) f->detector_failed_time = time;
-                    f->detector_failed = true;
-                }
-            } else if(active_features >= f->min_group_add) {
-                camera_state.detector_failed = false;
-                f->detector_failed = false;
-            }
-        }
-    }
+    if (camera_state.detection_future.valid())
+        if (size_t detected = camera_state.detection_future.get())
+            filter_update_detection_status(f, camera_state, detected, time);
 
     if(f->run_state == RCSensorFusionRunStateRunning)
         filter_setup_next_frame(f, data); // put current features into observation queue as potential things to measure
@@ -1069,9 +1021,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     f->s.update_map(f->map.get());
 
     space = filter_available_feature_space(f);
-    if(space >= f->min_group_add && camera_state.standby_tracks.size() < f->max_group_add) {
-        camera_state.detecting_space = f->max_group_add;
-    }
+    if(space >= f->min_group_add && f->max_group_add > camera_state.standby_tracks.size())
+        camera_state.detecting_space = f->max_group_add - camera_state.standby_tracks.size();
+
     END_EVENT(SF_IMAGE_MEAS, data.time_us / 1000);
 
     auto stop = std::chrono::steady_clock::now();

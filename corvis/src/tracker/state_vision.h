@@ -86,6 +86,14 @@ struct frame_t {
     DBoW2::BowVector dbow_histogram;       // histogram describing image
     DBoW2::FeatureVector dbow_direct_file;  // direct file if used, empty otherwise
 
+    void add_track(const tracker::feature_position &t, int width_px, int height_px) {
+        auto feature = std::static_pointer_cast<fast_tracker::fast_feature<patch_orb_descriptor>>(t.feature);
+        if (feature->descriptor.orb_computed || fast_tracker::is_trackable<orb_descriptor::border_size>((int)t.x, (int)t.y, width_px, height_px)) {
+            keypoints.emplace_back(std::move(feature));
+            keypoints_xy.emplace_back(t.x, t.y);
+        }
+    }
+
     inline void calculate_dbow(const orb_vocabulary *orb_voc) {
         // copy pyramid descriptors to a vector of descriptors
         constexpr int direct_file_level = std::numeric_limits<int>::max();  // change to enable
@@ -201,7 +209,7 @@ public:
     static f_t outlier_lost_reject;
     
     state_vision_track(size_t camera_id, state_vision_feature &f, tracker::feature_track &&t): feature(f), track(std::move(t)) {
-        if(t.found()) ++feature.tracks_found;
+        if(track.found()) ++feature.tracks_found;
         if(f.tracks.size() <= camera_id) f.tracks.resize(camera_id + 1);
         assert(f.tracks[camera_id] == nullptr);
         f.tracks[camera_id] = this;
@@ -257,7 +265,7 @@ struct state_camera: state_branch<state_node*> {
     size_t track_count() const;
     int process_tracks(mapper *map, spdlog::logger &log);
 
-    int detecting_space = 0;
+    size_t detecting_space = 0;
     int detector_failed = false;
 
     state_camera(size_t id_) : extrinsics("Qc", "Tc", false), intrinsics(false), id(id_) {

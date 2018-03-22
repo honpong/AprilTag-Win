@@ -22,17 +22,24 @@ struct tracker {
         virtual ~feature() {}
     };
 
-    struct feature_track{
+    struct feature_position {
         std::shared_ptr<struct feature> feature;
         float x, y;
+        feature_position(std::shared_ptr<struct feature> &&feature_, float x_, float y_)
+            : feature(std::move(feature_)), x(x_), y(y_) {}
+        feature_position(std::shared_ptr<struct feature> &feature_, float x_, float y_)
+            : feature(feature_), x(x_), y(y_) {}
+    };
+
+    struct feature_track : public feature_position {
         float dx = 0, dy = 0;
         float pred_x = INFINITY, pred_y = INFINITY;
         float score; // scores are > 0, higher scores are better detections / tracks
         bool found() const { return x != INFINITY; }
         feature_track(std::shared_ptr<struct feature> &&feature_, float x_, float y_, float score_)
-            : feature(std::move(feature_)), x(x_), y(y_), score(score_) {}
+            : feature_position(std::move(feature_), x_, y_), score(score_) {}
         feature_track(std::shared_ptr<struct feature> &feature_, float x_, float y_, float score_)
-        : feature(feature_), x(x_), y(y_), score(score_) {}
+            : feature_position(feature_, x_, y_), score(score_) {}
 
         feature_track(feature_track &&) = default;
         feature_track & operator=(feature_track &&) = default;
@@ -50,7 +57,8 @@ struct tracker {
     std::unique_ptr<scaled_mask> mask;
 
     std::vector<feature_track> feature_points;
-    std::vector<feature_track *> tracks; // reusable storage passed to track() and detect()
+    std::vector<tracker::feature_position> avoid; // reusable storage passed to detect()
+    std::vector<feature_track *> tracks; // reusable storage passed to track()
     /*
      @param image  The image to use for feature detection
      @param number_desired  The desired number of features, function can return less or more
@@ -58,7 +66,7 @@ struct tracker {
 
      Returns a reference to a vector (using feature_points above for storage) of newly detected features with higher scored points being preferred
      */
-    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_track *> &current_features, size_t number_desired) = 0;
+    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_position> &current_features, size_t number_desired) = 0;
 
     /*
      @param current_image The image to track in

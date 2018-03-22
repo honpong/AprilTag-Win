@@ -30,7 +30,6 @@ struct filter {
     kalman_storage<MAXSTATESIZE, MAXOBSERVATIONSIZE, FAKESTATESIZE> store;
     observation_queue observations{store.x, store.y, store.R, store.HP, store.S};
     covariance cov{store.maxstatesize, store.P, store.Q, store.iP, store.iQ};
-    state s{cov, store.FP};
 
     struct {
         // maxobservationsize is 3, but due to a bug in BLIS we need
@@ -95,6 +94,8 @@ struct filter {
     std::vector<std::unique_ptr<sensor_thermometer>> thermometers;
     std::vector<std::unique_ptr<sensor_velocimeter>> velocimeters;
 
+    state s{cov, store.FP};
+
     bool got_any_gyroscopes()     const { for (const auto &gyro  :     gyroscopes) if (gyro->got)  return true; return false;}
     bool got_any_accelerometers() const { for (const auto &accel : accelerometers) if (accel->got) return true; return false; }
     bool got_any_velocimeters() const { for (const auto &velo : velocimeters) if (velo->got) return true; return false; }
@@ -104,7 +105,7 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data);
 bool filter_image_measurement(struct filter *f, const sensor_data & data);
 bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id);
 std::unique_ptr<camera_frame_t> filter_create_camera_frame(const filter *f, const sensor_data& data);
-size_t filter_detect(struct filter *f, const sensor_data &data, const std::unique_ptr<camera_frame_t>& camera_frame);
+std::vector<tracker::feature_track> &filter_detect(struct filter *f, const sensor_data &data, const std::vector<tracker::feature_position> &avoid, size_t detect);
 bool filter_compute_orb(struct filter *f, const sensor_data &data, camera_frame_t& camera_frame);
 void filter_compute_dbow(struct filter *f, camera_frame_t& camera_frame);
 void filter_assign_frame(struct filter *f, const camera_frame_t& camera_frame);

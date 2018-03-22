@@ -227,12 +227,12 @@ public:
         std::swap(prev, next);
     }
 
-    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_track *> &current, size_t number_desired) override {
+    virtual std::vector<feature_track> &detect(const image &image, const std::vector<feature_position> &current, size_t number_desired) override {
         if (!mask)
             mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
         mask->initialize();
         for (auto &f : current)
-            mask->clear((int)f->x, (int)f->y);
+            mask->clear((int)f.x, (int)f.y);
 
         prev.pyramid.set(image);
 

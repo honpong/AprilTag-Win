@@ -6,7 +6,7 @@ import argparse
 from math import sqrt
 import sys
 
-packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 30:"odometry", 40:"stereo_raw", 43:"calibration_json", 44:"arrival_time"})
+packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 30:"odometry", 31:"thermometer", 40:"stereo_raw", 43:"calibration_json", 44:"arrival_time"})
 format_types = defaultdict(str, {0:"Y8", 1:"Z16_mm"})
 
 parser = argparse.ArgumentParser(description='Check a capture file.')
@@ -37,6 +37,7 @@ gyro_type = 21
 image_with_depth = 28
 image_raw_type = 29
 odometry_type = 30
+thermometer_type = 31
 stereo_raw_type = 40
 arrival_time_type = 44
 calibration_type = 43
@@ -292,6 +293,8 @@ if got_types[accel_type] == 0:
     error_text += "Error: Never received any accelerometer data\n"
 if got_types[gyro_type] == 0:
     error_text += "Error: Never received any gyro data\n"
+if got_types[thermometer_type] == 0:
+    error_text += "Error: Never received any thermometer data\n"
 if got_types[image_raw_type] == 0 and \
    got_types[image_with_depth] == 0 and \
    got_types[stereo_raw_type] == 0:

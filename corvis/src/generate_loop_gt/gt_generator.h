@@ -14,17 +14,17 @@ class gt_generator {
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     void set_camera(const rc_Extrinsics& extrinsics, const loop_tester::fov& fov = {});
-    void add_reference_poses(const tpose_sequence& poses_G_world_body);
+    void add_reference_poses(const tpose_sequence& poses_G_world_body, rc_SessionId sid);
     void update_map(rc_MapNode* map_nodes, int num_map_nodes);
     void clear();
-    std::unordered_set<rc_Timestamp> get_reference_edges(rc_Timestamp query_frame_us) const;
-    const tpose_sequence& get_reference_poses() const { return ref_poses_; }
+    std::set<rc_SessionTimestamp> get_reference_edges(rc_Timestamp query_frame_us) const;
+    const std::vector<tpose_sequence>& get_reference_poses() const { return ref_poses_; }
 
  private:
     transformation G_body_camera0_;
     loop_tester::fov fov_;
-    tpose_sequence ref_poses_;  // G_world_body
-    std::map<rc_Timestamp, loop_tester::frustum> map_;
+    std::vector<tpose_sequence> ref_poses_;  // G_world_body indexed by session id
+    std::vector<std::map<rc_Timestamp, loop_tester::frustum>> map_;
 };
 
 #endif // GT_GENERATOR_H

@@ -73,6 +73,12 @@ typedef enum rc_TrackerQueueStrategy
  */
 typedef int64_t rc_Timestamp;
 
+typedef enum rc_SessionId
+{
+    rc_SESSION_CURRENT_SESSION = 0,
+    rc_SESSION_PREVIOUS_SESSION = 1,
+} rc_SessionId;
+
 typedef struct { float v[3][3]; } rc_Matrix;
 typedef union { struct { float x,y,z;   }; float v[3]; } rc_Vector;
 typedef union { struct { float x,y,z,w; }; float v[4]; } rc_Quaternion;
@@ -81,8 +87,9 @@ typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVelocity; // Q is the spatia
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseAcceleration; // derivative of rc_PoseVelocity
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVariance; // this is not the full variance yet
 typedef struct { rc_Pose pose_m; rc_Timestamp time_us; } rc_PoseTime;
-typedef struct { rc_Pose pose_m; rc_Timestamp time_destination; } rc_RelocEdge;
-typedef struct { rc_Timestamp time_us; } rc_MapNode;
+typedef struct { rc_Timestamp time_us; rc_SessionId session_id; } rc_SessionTimestamp;
+typedef struct { rc_Pose pose_m; rc_SessionTimestamp time_destination; } rc_RelocEdge;
+typedef struct { rc_SessionTimestamp time; } rc_MapNode;
 
 #if __cplusplus
 static const rc_Matrix rc_MATRIX_IDENTITY = {
@@ -100,6 +107,10 @@ static const rc_Pose rc_POSE_IDENTITY = {
       {0, 1, 0},
       {0, 0, 1}}},
 };
+inline bool operator< (const rc_SessionTimestamp& lhs, const rc_SessionTimestamp& rhs) {
+    return lhs.session_id < rhs.session_id ||
+            (lhs.session_id == rhs.session_id && lhs.time_us < rhs.time_us);
+}
 #endif
 
 typedef uint16_t rc_Sensor;

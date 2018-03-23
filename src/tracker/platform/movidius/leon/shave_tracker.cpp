@@ -68,7 +68,7 @@ std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image
     init_mask(image, current);
 
     size_t num_found = 0;
-    fast_tracker::xy *found = platform_fast_detect(id, image, *mask, static_cast<size_t>(number_desired * 3.2f), num_found);
+    fast_tracker::xy *found = platform_fast_detect(id, image, *mask, static_cast<size_t>((number_desired == 200 ? number_desired : number_desired * 3.2f)), num_found);
 
     return finalize_detect(found, found + num_found, image, number_desired);
 }

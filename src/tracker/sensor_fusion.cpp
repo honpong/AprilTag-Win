@@ -125,10 +125,10 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     }, std::move(camera.orb_future));
                 }
 
-                const bool relocalize_now = sfm.map && sfm.relocalize &&
-                        !sfm.s.groups.children.empty() &&
-                        sfm.relocalization_every_n.ready();
                 const bool new_group_created = sfm.s.group_counter > groups;
+                const bool relocalize_now = sfm.map && sfm.relocalize &&
+                        !sfm.s.groups.children.empty() && !new_group_created &&
+                        sfm.relocalization_every_n.ready();
                 const bool compute_descriptors_now = relocalize_now ||
                         (sfm.map && (sfm.save_map || sfm.relocalize) && new_group_created);
 
@@ -147,7 +147,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                             set_priority(PRIORITY_SLAM_DETECT);
                             auto start = std::chrono::steady_clock::now();
 
-                            auto &detected = filter_detect(&sfm, data, avoid, camera.detecting_space);
+                            auto &detected = filter_detect(&sfm, data, avoid, relocalize_now ? 200 : camera.detecting_space);
 
                             if (camera_frame) {
                                 for (const auto &t : avoid)    camera_frame->frame->add_track(t, data.image.width, data.image.height);

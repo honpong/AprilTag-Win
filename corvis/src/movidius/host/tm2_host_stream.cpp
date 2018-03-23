@@ -152,7 +152,7 @@ bool tm2_host_stream::start_stream() {
                             sensor_queue.emplace_back(create_rc_Data(cur_packet, 1));
                     }
                 }
-                enable_sensor = put_host_packet(move(cur_packet)); //send sensor packets to device
+                enable_sensor = enable_sensor && put_host_packet(move(cur_packet)); //send sensor packets to device
                 if (progress_callback) {  // Update progress at most at 30Hz or if we are almost done
                     auto now = high_resolution_clock::now();
                     if (duration<double, milli>(now - last_progress) > milliseconds(33) ||
@@ -165,13 +165,16 @@ bool tm2_host_stream::start_stream() {
         }
         if (!sts) put_host_packet(packet_command_alloc(packet_command_stop));
     }
+    if (thread_6dof_output.joinable()) thread_6dof_output.join();
+    if (thread_receive_device.joinable()) thread_receive_device.join();
+    usb_shutdown();
     return sts;
 }
 
 bool tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
+    std::lock_guard<std::mutex> lk(put_mutex);
     if (!is_usb_ok || !post_packet || stop_host_sending) return false;
 
-    std::lock_guard<std::mutex> lk(put_mutex);
     bool write_packet = true;
     packet = move(post_packet); //free prior packet
     switch (get_packet_type(packet)) {
@@ -200,16 +203,10 @@ bool tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
 
     if (!is_usb_ok) {
         {//inform waiting host to stop waiting
-            lock_guard<mutex> lk(host_stream::wait_device_mtx);
+            lock_guard<mutex> wait_lk(host_stream::wait_device_mtx);
             host_stream::arrived_type = packet_invalid_usb;
         }
         host_stream::device_response.notify_all();
     }
     return is_usb_ok;
-}
-
-tm2_host_stream::~tm2_host_stream() {
-    if (thread_6dof_output.joinable()) thread_6dof_output.join();
-    if (thread_receive_device.joinable()) thread_receive_device.join();
-    usb_shutdown();
 }

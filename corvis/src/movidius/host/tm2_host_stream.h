@@ -6,6 +6,7 @@
 #include <mutex>
 #include <list>
 #include <fstream>
+#include <atomic>
 
 #include "stream_object.h"
 
@@ -20,7 +21,6 @@ public:
     void wait_device_packet(const std::vector<uint32_t> &pkt_types) override {
         if (is_usb_ok) host_stream::wait_device_packet(pkt_types);
     }
-    ~tm2_host_stream();
 private:
     std::ifstream sensor_file;
     std::ofstream save_file;
@@ -31,7 +31,7 @@ private:
     std::thread thread_receive_device; //to receive flow control and non-pose APIs
     std::thread thread_6dof_output; //to receive tracking results
     std::mutex put_mutex; //serialize posting of packets
-    bool enable_sensor{ true }; //control delivery of sensor packets
+    std::atomic<bool> enable_sensor{ true }; //control delivery of sensor packets
     replay_output track_output;
     std::list<std::unique_ptr<rc_Data, void(*)(void *)>> sensor_queue;
     std::mutex image_queue_mtx;

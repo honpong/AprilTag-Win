@@ -434,6 +434,7 @@ void replay_device::start() {
         phandle = stream->get_host_packet();
     } //while
     rc_stopTracker(tracker.get());
+    tracker = nullptr;
     stream->put_device_packet(packet_command_alloc(packet_command_end)); // signal any usb waiting call to end
 }
 

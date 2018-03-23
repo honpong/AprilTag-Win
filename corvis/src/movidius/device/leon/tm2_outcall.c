@@ -290,16 +290,16 @@ static BOOL UsbPumpVscAppI_SetupProcess(VOID * ClientHandle,
         pSelf->fAcceptSetup = TRUE;
         switch(pSetup->uc_bRequest) {
             case CONTROL_MESSAGE_START:
-                printf("CONTROL_MESSAGE_START\n");
                 startReplay();
+                printf("CONTROL_MESSAGE_START\n");
                 break;
             case CONTROL_MESSAGE_RESET:
-                printf("CONTROL_MESSAGE_RESET\n");
                 UsbPump_Rtems_DataPump_RestartDevice(50);
+                printf("CONTROL_MESSAGE_RESET\n");
                 break;
             case CONTROL_MESSAGE_STOP:
-                printf("CONTROL_MESSAGE_STOP\n");
                 stopReplay();
+                printf("CONTROL_MESSAGE_STOP\n");
                 break;
             case CONTROL_MESSAGE_USB_RESET: {
                 printf("CONTROL_MESSAGE_USB_RESET\n");

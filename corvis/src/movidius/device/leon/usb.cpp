@@ -54,7 +54,6 @@ void * fnReplay(void * arg)
     } else
         rp_device->init(tm2_stream.get(), { rc_create_at(rc_tracker_memory, nullptr), rc_destroy });
     rp_device->start();
-    printf("Destroying tracker and exiting\n");
     return 0;
 }
 
@@ -86,9 +85,10 @@ int startReplay()
 void stopReplay()
 {
     if (rp_device) rp_device->stop();
+    pthread_join(thReplay, NULL);
     rp_device = nullptr;
     tm2_stream = nullptr;
-    pthread_join(thReplay, NULL);
+    printf("Destroying tracker and exiting\n");
 }
 
 int usbInit()

@@ -85,20 +85,18 @@ void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12,
     map_edge& edge21 = nodes->at(id2).get_add_neighbor(id1);
     edge21.G = invert(G12);
 
-    // There are four edge types: map, filter, relocalization, dead_reckoning
+    // There are five edge types: map, filter, relocalization, dead_reckoning, new_edge
     // Edge conversion rules:
-    // 1- map edges never change type
-    // 2- filter edges and dead-reckoning edges get converted to input type
-    // 3- when relocalization edges are reused by the filter they immidiately become map edges
-    if(edge12.type == edge_type::filter || (edge12.type == edge_type::dead_reckoning && type != edge_type::relocalization)) { // TODO: the && have to be removed once we start using relocalization edges
-        edge12.type = type;
-        edge21.type = type;
-    }
-
-    if(edge12.type == edge_type::relocalization && type == edge_type::filter){
-//        type = edge_type::mapper; // comment this out to avoid affecting the filter
-        edge12.type = type;
-        edge21.type = type;
+    // 1- new_edge -> to any other type
+    // 2- dead_reckoning -> filter or map (relocalization is not allowed temporarily)
+    // 3- relocalization -> filter or map
+    // 4- filter -> map
+    // 5- map: never changes
+    if(edge12.type < type) {
+        if(!(edge12.type == edge_type::dead_reckoning && type == edge_type::relocalization)) {
+            edge12.type = type;
+            edge21.type = type;
+        }
     }
 }
 

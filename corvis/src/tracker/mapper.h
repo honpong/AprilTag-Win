@@ -48,11 +48,14 @@ class log_depth;
 struct frame_t;
 struct camera_frame_t;
 
-enum class edge_type { filter, map, relocalization, dead_reckoning };
+enum class edge_type : uint8_t { new_edge, dead_reckoning, relocalization, filter, map };
+constexpr bool operator<(edge_type x, edge_type y) {
+    return static_cast<std::underlying_type<edge_type>::type>(x) < static_cast<std::underlying_type<edge_type>::type>(y);
+}
 
 struct map_edge {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    edge_type type = edge_type::filter;
+    edge_type type = edge_type::new_edge;
     transformation G;
     map_edge() = default;
     map_edge(edge_type type_, const transformation &G_) : type(type_), G(G_) {};
@@ -254,7 +257,7 @@ private:
 
     // private functions that are used after acquiring some of the mutexes
     void remove_edge_no_lock(nodeid node_id1, nodeid node_id2);
-    void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::filter);
+    void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type);
     void add_covisibility_edge_no_lock(nodeid node_id1, nodeid node_id2);
 
     void remove_node_features(nodeid node_id);
@@ -269,7 +272,7 @@ private:
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }
     bool link_map(const map_relocalization_edge& edge);
     void add_node(nodeid node_id, const rc_Sensor camera_id);
-    void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type = edge_type::filter);
+    void add_edge(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type);
     void add_relocalization_edges(const aligned_vector<map_relocalization_edge>& edges);
     void add_covisibility_edge(nodeid node_id1, nodeid node_id2);
     void remove_edge(nodeid node_id1, nodeid node_id2);

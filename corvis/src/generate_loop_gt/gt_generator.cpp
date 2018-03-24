@@ -52,7 +52,8 @@ void gt_generator::update_map(rc_MapNode* map_nodes, int num_map_nodes) {
             }
         }
     } else {
-        map_.clear();
+        if (rc_SESSION_CURRENT_SESSION < map_.size())
+            map_[rc_SESSION_CURRENT_SESSION].clear();
     }
 }
 

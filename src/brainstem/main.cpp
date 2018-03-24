@@ -2,7 +2,6 @@
 #include "BrainStem2/BrainStem-all.h"
 #include <list>
 #include <iostream>
-#include <unistd.h>
 #include <map>
 #include <string>
 #include <algorithm>
@@ -29,7 +28,7 @@ aErr DisableEnableCommon(USBClass* const pUsbClass, const std::string& action, s
         {
             std::cout<< action <<"failed with error:" << err << "and port" << port << std::endl;
         }
-        sleep(delay);
+        aTime_MSSleep(delay);
         pPort += end;
         if (pPort != pEnd)
         {

@@ -5,11 +5,11 @@ import sys
 import subprocess, csv
 import numpy as np
 
-if len(sys.argv) != 2:
-    print "Usage:", sys.argv[0], "<result extension>"
+if len(sys.argv) != 3:
+    print "Usage:", sys.argv[0], "<kpi-dir> <result-extension>"
     sys.exit(1)
 
-result_extension = sys.argv[1]
+kpi_dir, result_extension = sys.argv[1], sys.argv[2]
 
 def enumerate_all_files_matching(path, extension):
     for dirpath, dirnames, filenames in os.walk(path):
@@ -23,7 +23,7 @@ zd_translation = []
 zd_rotation = []
 sn_translation = []
 sn_rotation = []
-for filename in enumerate_all_files_matching("benchmark_data/kpis/zero-drift","stereo.rc"):
+for filename in enumerate_all_files_matching(kpi_dir+"/zero-drift","stereo.rc"):
     cpu_output = filename + result_extension
     kpi_output = filename + result_extension + ".result.csv"
     if not os.path.isfile(cpu_output):
@@ -44,7 +44,7 @@ for filename in enumerate_all_files_matching("benchmark_data/kpis/zero-drift","s
 
 tr_scale = []
 tr_error = []
-for filename in enumerate_all_files_matching("benchmark_data/kpis/vr-translation","stereo.rc"):
+for filename in enumerate_all_files_matching(kpi_dir+"/vr-translation","stereo.rc"):
     cpu_output = filename + result_extension
     kpi_output = filename + result_extension + ".result.csv"
     if not os.path.isfile(cpu_output):
@@ -62,7 +62,7 @@ for filename in enumerate_all_files_matching("benchmark_data/kpis/vr-translation
             tr_error.append(float(row['Average Translation Error Ratio'])*100)
 
 rotation_errors = []
-for filename in enumerate_all_files_matching("benchmark_data/kpis/rotation","stereo.rc"):
+for filename in enumerate_all_files_matching(kpi_dir+"/rotation","stereo.rc"):
     cpu_output = filename + result_extension
     kpi_output = filename + result_extension + ".result.csv"
     if not os.path.isfile(cpu_output):

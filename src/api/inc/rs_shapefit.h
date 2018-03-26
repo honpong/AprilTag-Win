@@ -161,8 +161,9 @@ extern "C"
     * @param[in]     obj          shapefit object with plane fitting capability. 
     * @param[in|out] rgb          optional rgb image buffer for drawing plane contours in white.
     * @param[in|out] planes       optional array of rs_sf_plane buffers.
-    * @param[in]     point_buffer float buffer for contour 3d positions will assign to the planes[.].pos pointers.
+    * @param[in]     point_buffer optional float buffer for contour 3d positions will assign to the planes[.].pos pointers.
     *                             length of this buffer should be at least 3x number of pixels in input depth image. 
+                                  if no buffer provided, returned planes[.].pos will be nullptr and .num_points = 0.
     * @return RS_SF_SUCCESS if no error. */
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_planefit_get_planes(const rs_shapefit* obj, rs_sf_image* rgb = nullptr, rs_sf_plane planes[RS_SF_MAX_PLANE_COUNT] = nullptr, float* point_buffer = nullptr);
 

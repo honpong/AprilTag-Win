@@ -48,10 +48,7 @@ class log_depth;
 struct frame_t;
 struct camera_frame_t;
 
-enum class edge_type : uint8_t { new_edge, dead_reckoning, relocalization, filter, map };
-constexpr bool operator<(edge_type x, edge_type y) {
-    return static_cast<std::underlying_type<edge_type>::type>(x) < static_cast<std::underlying_type<edge_type>::type>(y);
-}
+enum class edge_type { new_edge, dead_reckoning, relocalization, filter, map };
 
 struct map_edge {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;

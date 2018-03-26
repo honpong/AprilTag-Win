@@ -92,7 +92,7 @@ void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12,
     // 3- relocalization -> filter or map
     // 4- filter -> map
     // 5- map: never changes
-    if(edge12.type < type) {
+    if((std::underlying_type<edge_type>::type)edge12.type < (std::underlying_type<edge_type>::type)type) {
         if(!(edge12.type == edge_type::dead_reckoning && type == edge_type::relocalization)) {
             edge12.type = type;
             edge21.type = type;

@@ -209,18 +209,22 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
             ate_errors_m.push_back(r.errors.ate.rmse);
         }
         if(r.errors.calculate_rpe_600ms()) {
+            auto prec = stream.precision(); stream.precision(prec+1); // 600ms is so small, we need an extra digit
             stream << "\tTranslational RPE (600ms)\t" << r.errors.rpe_T.rmse << "m\n";
             rpe_T_errors_m.push_back(r.errors.rpe_T.rmse);
             stream << "\tRotational RPE (600ms)\t" << r.errors.rpe_R.rmse*(180.f/M_PI) << "deg\n";
             rpe_R_errors_deg.push_back(r.errors.rpe_R.rmse*(180.f/M_PI));
+            stream.precision(prec);
         }
         if(r.errors.calculate_ate_60s()) {
             stream << "\tATE (60s)\t" << r.errors.ate_60s.rmse << "m\n";
             ate_60s_errors_m.push_back(r.errors.ate_60s.rmse);
         }
         if(r.errors.calculate_ate_600ms()) {
+            auto prec = stream.precision(); stream.precision(prec+1); // 600ms is so small, we need an extra digit
             stream << "\tATE (600ms)\t" << r.errors.ate_600ms.rmse << "m\n";
             ate_600ms_errors_m.push_back(r.errors.ate_600ms.rmse);
+            stream.precision(prec);
         }
         if (r.errors.calculate_precision_recall()) {
             has_reloc = true;
@@ -255,6 +259,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     std::vector<double> std_edges = {0, 3, 10, 25, 50, 100};
     std::vector<double> alt_edges = {0, 4, 12, 30, 65, 100};
     std::vector<double> ate_edges = {0, 0.02, 0.05, 0.1, 0.2, 0.5};
+    std::vector<double> ate_600ms_edges = {0, 0.002, 0.005, 0.01, 0.02, 0.05};
     std::vector<double> rpe_T_edges = {0, 0.02, 0.04, 0.06, 0.1, 0.15};
     std::vector<double> rpe_R_edges = {0, 0.1, 0.25, 0.5, 1, 2};
     std::vector<double> precision_edges = {0, 60, 80, 95, 99, 100};
@@ -296,7 +301,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     stream << ate_60s_hist << "\n";
 
     stream << "ATE (600ms) histogram (" << ate_600ms_errors_m.size() << " sequences)\n";
-    error_histogram ate_600ms_hist(ate_600ms_errors_m, ate_edges, 2, "m");
+    error_histogram ate_600ms_hist(ate_600ms_errors_m, ate_600ms_edges, 2, "m");
     stream << ate_600ms_hist << "\n";
 
     if (has_reloc) {

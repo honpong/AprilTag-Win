@@ -1,6 +1,6 @@
 #include "fast_tracker_9.hpp"
 #include "swcCdma.h"
-#include "fast9M2.h"
+#include "fast9ScoreCv.h"
 #include "svuCommonShave.h"
 #include <math.h>
 #include <string.h> //memcpy
@@ -30,6 +30,8 @@ xy fast_tracker_9::track(u8* im1, const u8* im2, float predx, float predy, float
 	width = x2 - x1;
 	paddedWidth = x2 - x1 + 2 * PADDING;
 
+	u8 bulkBuff[8 + 20*MAX_PATCH_WIDTH];
+	byte dataBuffer[TOTAL_ROWS * MAX_PATCH_WIDTH]; //8 lines
 	byte *pFastLines[TOTAL_ROWS];
 
     pFastLines[0] = dataBuffer;
@@ -53,7 +55,7 @@ xy fast_tracker_9::track(u8* im1, const u8* im2, float predx, float predy, float
 		const byte* pSrc = im2 + y * stride;
 
 		//call fast 9 filter
-		mvcvFast9M2_asm(pFastLines, scoreBuffer, baseBuffer, bthresh, paddedWidth);
+		mvcvfast9ScoreCv_asm(pFastLines, scoreBuffer, baseBuffer, bthresh, paddedWidth, (void*)bulkBuff);
 
 		int numberOfScores = *(unsigned int*) scoreBuffer;
 		//for each of the scores found, call score matching

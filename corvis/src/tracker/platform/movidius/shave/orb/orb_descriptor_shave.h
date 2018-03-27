@@ -2,7 +2,6 @@
 #include <moviVectorTypes.h>
 #include <array>
 #include <cmath>
-#include "commonDefs.hpp"
 #include "tracker.h"
 #include "orb_descriptor.h"
 

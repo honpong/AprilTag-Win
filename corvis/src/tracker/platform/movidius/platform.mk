@@ -116,9 +116,10 @@ SHAVES_IDX_orb                = 4 8 9 10
 SHAVES_IDX_cholesky           = 0
 
 SHAVE_CPP_AUTOSTAT_SOURCES_detect += $(SHAVE_SEARCH_PATH)/stereo_initialize/common_shave.cpp
-SHAVE_ASM_AUTOSTAT_SOURCES_detect += $(SLAM_PLATFORM_PREFIX)/shared/fast9M2.asm
+#SHAVE_CPP_AUTOSTAT_SOURCES_detect += $(SLAM_PLATFORM_PREFIX)/shared/fast9ScoreCv.cpp
+SHAVE_ASM_AUTOSTAT_SOURCES_detect += $(SLAM_PLATFORM_PREFIX)/shared/fast9ScoreCv.asm
 SHAVE_CPP_AUTOSTAT_SOURCES_track += $(SHAVE_SEARCH_PATH)/stereo_initialize/common_shave.cpp
-SHAVE_ASM_AUTOSTAT_SOURCES_track += $(SLAM_PLATFORM_PREFIX)/shared/fast9M2.asm
+SHAVE_ASM_AUTOSTAT_SOURCES_track += $(SLAM_PLATFORM_PREFIX)/shared/fast9ScoreCv.asm
 
 SHAVE_CPP_AUTOSTAT_SOURCES_blis += $(shell realpath --relative-to=$$(pwd) $(wildcard \
   $(MV_COMMON_BASE)/components/kernelLib/LAMA/kernels/sgemm*/shave/src/cpp/*.cpp \
@@ -136,6 +137,7 @@ MVCCOPT += $(addprefix -I,$(wildcard \
    $(MV_COMMON_BASE)/components/kernelLib/LAMA/kernels/strsm*/shave/include \
    $(MV_COMMON_BASE)/components/kernelLib/MvCV/include \
 ))
+MVCOPT      += -I$(SLAM_PLATFORM_PREFIX)/shave/blis
 MVCCOPT     += -I$(SLAM_PLATFORM_PREFIX)/shave/blis
 MVCCOPT_LRT += -I$(SLAM_PLATFORM_PREFIX)/shave/blis
 MVCCOPT     += -I$(SLAM_PLATFORM_PREFIX)/shared

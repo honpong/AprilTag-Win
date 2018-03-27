@@ -49,13 +49,9 @@ static void save_stream_to_file(const packet_t* save_packet, ofstream &stream) {
 }
 
 tm2_host_stream::tm2_host_stream(const char*filename) {
-    sensor_file.rdbuf()->pubsetbuf(buffer.get(), file_buffer_bytes);
     sensor_file.open(filename, ios_base::ate | ios::binary);
-    if ((stream_sts = sensor_file.is_open())) {
-        sensor_data_size = (size_t)sensor_file.tellg();
-        sensor_file.seekg(0, ios::beg);
-        stream_sts = sensor_file.good();
-    }
+    sensor_data_size = (size_t)sensor_file.tellg();
+    sensor_file.seekg(ios_base::beg);
 };
 
 void shutdown(int _unused = 0) {
@@ -64,7 +60,7 @@ void shutdown(int _unused = 0) {
 }
 
 bool tm2_host_stream::init_stream() {
-    is_usb_ok = stream_sts && usb_init();
+    is_usb_ok = usb_init();
     signal(SIGINT, shutdown);
     if (is_usb_ok) usb_send_control(CONTROL_MESSAGE_START, 0, 0, 0);
     return is_usb_ok;
@@ -132,12 +128,13 @@ bool tm2_host_stream::start_stream() {
     });
     //streaming out sensor data.
     auto last_progress = high_resolution_clock::now();
-    bool sts = stream_sts;
+    sensor_file.seekg(0, ios::beg);
+    bool sts = !sensor_file.bad() && !sensor_file.eof();
     rc_packet_t cur_packet(nullptr, free);
     packet_header_t header;
     while (enable_sensor && sts) {
         sensor_file.read((char *)&header, sizeof(packet_header_t));
-        sts = !sensor_file.eof() && header.bytes < max_packet_size;
+        sts = !sensor_file.eof();
         if ((sts = sts && !sensor_file.bad())) {
             cur_packet = rc_packet_t((packet_t *)malloc(header.bytes), free);
             cur_packet->header = header;

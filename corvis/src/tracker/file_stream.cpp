@@ -21,13 +21,10 @@ static void log_to_stderr(void *handle, rc_MessageLevel message_level, const cha
 }
 
 file_stream::file_stream(const char *name) {
-    sensor_file.rdbuf()->pubsetbuf(buffer.get(), file_buffer_bytes);
-    sensor_file.open(name, ios_base::ate | ios::binary);
-    if ((stream_sts = sensor_file.is_open())) {
-        sensor_data_size = (float)sensor_file.tellg();
-        sensor_file.seekg(0, ios::beg);
-        stream_sts = sensor_file.good();
-    }
+    const int buffer_bytes = 128 * 1024;
+    buffer = std::unique_ptr<char[]>(new char[buffer_bytes]);
+    sensor_file.rdbuf()->pubsetbuf(buffer.get(), buffer_bytes);
+    sensor_file.open(name, ios::binary);
     rp_device = new replay_device();
     track_output[rc_DATA_PATH_FAST].host = this;
     track_output[rc_DATA_PATH_FAST].on_track_output = process_track_output;
@@ -43,7 +40,12 @@ file_stream::file_stream(const char *name) {
 ////////////////   H O S T    S T R E A M     ////////////////////////
 
 bool file_stream::init_stream() {
-    return (stream_sts = stream_sts && rp_device->init(this, { rc_create(), rc_destroy }));
+    if (!sensor_file.is_open()) return false;
+    sensor_file.seekg(0, ios::end);
+    sensor_data_size = (float)sensor_file.tellg();
+    sensor_file.seekg(0, ios::beg);
+    rp_device->init(this, {rc_create(), rc_destroy});
+    return !sensor_file.bad() && !sensor_file.eof();
 }
 
 bool file_stream::start_stream() {
@@ -102,7 +104,7 @@ bool file_stream::read_header(packet_header_t *header, bool control_only) {
 
     if (!sts && enable_sensor && !control_only) { //reading sensor data
         sensor_file.read((char *)header, sizeof(packet_header_t));
-        if (!(sts = !sensor_file.eof()) || header->bytes > max_packet_size) {
+        if (!(sts = !sensor_file.eof())) {
             enable_sensor = false;
             packet = packet_command_alloc(packet_command_stop);
         }

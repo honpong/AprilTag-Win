@@ -91,10 +91,6 @@ protected:
     std::mutex wait_device_mtx;
     std::condition_variable device_response;
     uint32_t arrived_type{ 0 }; ///type of control packet sent by device program.
-    const size_t max_packet_size{ 10 * 1000000 }; //maximum size of a packet
-    const int file_buffer_bytes = 128 * 1024;
-    bool stream_sts{ false };
-    std::unique_ptr<char[]> buffer = std::make_unique<char[]>(file_buffer_bytes);
 };
 
 

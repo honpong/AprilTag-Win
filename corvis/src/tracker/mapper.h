@@ -159,6 +159,8 @@ class mapper {
     template<typename T, typename M = std::mutex>
     class concurrent {
      public:
+        typedef T value_type;
+
         /** Runs an arbitrary function after acquiring the mutex.
          * The given function can safely use the concurrent data.
          * The calling thread is blocked if necessary.
@@ -186,7 +188,7 @@ class mapper {
 
         /* Returns the mutex.
          */
-        M& mutex() { return mutex_; }
+        M& mutex() const { return mutex_; }
 
      private:
         T object_;

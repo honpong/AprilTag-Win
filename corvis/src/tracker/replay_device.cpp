@@ -327,8 +327,14 @@ void replay_device::process_control(const packet_control_t *packet) {
     }
     case packet_save_map: {
         if (stream->save_callback) {
-            rc_saveMap(tracker.get(), stream->save_callback, stream->save_handle);
-            stream->put_device_packet(packet_command_alloc(packet_save_end));
+            rc_saveMap(tracker.get(), [](void *handle, const void *buffer, size_t length) {
+                device_stream *stream = (device_stream *)handle;
+                if (length) {
+                    stream->save_callback(stream->save_handle, buffer, length);
+                } else {
+                    stream->put_device_packet(packet_command_alloc(packet_save_end));
+                }
+            }, stream);
         }
         break;
     }

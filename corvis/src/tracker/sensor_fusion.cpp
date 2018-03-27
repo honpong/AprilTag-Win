@@ -53,6 +53,10 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 {
 }
 
+sensor_fusion::~sensor_fusion() {
+    stop_threads();
+}
+
 void sensor_fusion::fast_path_catchup()
 {
     START_EVENT(SF_FAST_PATH_CATCHUP, 0);
@@ -350,6 +354,12 @@ void sensor_fusion::stop()
     filter_deinitialize(&sfm);
     isSensorFusionRunning = false;
     isProcessingVideo = false;
+    stop_threads();
+}
+
+void sensor_fusion::stop_threads()
+{
+    if (save_map_thread.joinable()) save_map_thread.join();
 }
 
 void sensor_fusion::flush_and_reset()
@@ -393,7 +403,11 @@ void sensor_fusion::save_map(rc_SaveCallback write, void *handle)
 {
     if (!sfm.map)
         return;
-    sfm.map->serialize(write, handle);
+    if (save_map_thread.joinable()) save_map_thread.join();
+    save_map_thread = std::thread([this, write, handle]() {
+        set_priority(PRIORITY_SLAM_SAVE_MAP);
+        sfm.map->serialize(write, handle);
+    });
 }
 
 bool sensor_fusion::load_map(rc_LoadCallback read, void *handle)

@@ -174,7 +174,7 @@ TEST(Bstream, Stream_Std_containers)
     bstream_writer write_stream(save_map_callback, &write_ss);
     write_stream << save_array << save_vector << save_deque << save_list << save_map << save_uo_map;
     write_stream << save_set << save_uo_set;
-    const int img_size = (int)(STREAM_BUFFER_SIZE * 2.5f);
+    const int img_size = (int)(write_stream.get_buffer_size() * 2.5f);
     vector<char> img_content(img_size, 1);
     write_stream.write_array(img_content.data(), img_size);
     write_stream.end_stream();

@@ -1082,8 +1082,43 @@ bool mapper::serialize(rc_SaveCallback func, void *handle) const {
     bstream_writer cur_stream(func, handle);
     cur_stream.write(magic_file_format_num, sizeof(magic_file_format_num));
     cur_stream << (uint8_t)MAPPER_SERIALIZED_VERSION;
-    cur_stream << *nodes << *features_dbow;
-    cur_stream << *stages;
+
+    decltype(nodes)::value_type local_nodes;
+    decltype(features_dbow)::value_type local_features_dbow;
+    decltype(stages)::value_type local_stages;
+
+    // note: mdk 17.04.5 contains a bug in std::lock and it can't be used.
+    // An update is expected by mid April'18.
+#define WITH_STD_LOCK 0
+#if WITH_STD_LOCK
+    {
+        std::lock(nodes.mutex(), features_dbow.mutex(), stages.mutex());
+        std::lock_guard<std::mutex> lock1(nodes.mutex(), std::adopt_lock);
+        std::lock_guard<std::mutex> lock2(features_dbow.mutex(), std::adopt_lock);
+        std::lock_guard<std::mutex> lock3(stages.mutex(), std::adopt_lock);
+        local_nodes = *nodes;
+        local_features_dbow = *features_dbow;
+        local_stages = *stages;
+    }
+#else
+    // this implementation is correct as long as nodes can't be removed from map
+    local_nodes = nodes.critical_section([this]() { return *nodes; });
+    local_features_dbow = features_dbow.critical_section([this]() { return *features_dbow; });
+    local_stages = stages.critical_section([this]() { return *stages; });
+    for (auto it = local_features_dbow.begin(); it != local_features_dbow.end();) {
+        if (local_nodes.count(it->second))
+            ++it;
+        else
+            it = local_features_dbow.erase(it);
+    }
+    for (auto it = local_stages.begin(); it != local_stages.end();) {
+        if (local_nodes.count(it->second.closest_id))
+            ++it;
+        else
+            it = local_stages.erase(it);
+    }
+#endif
+    cur_stream << local_nodes << local_features_dbow << local_stages;
     cur_stream.end_stream();
     if (!cur_stream.good()) log->error("map was not saved successfully.");
     return cur_stream.good();

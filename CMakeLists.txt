@@ -172,6 +172,7 @@ endif()
 
 add_subdirectory(src/rc_replay)
 add_subdirectory(src/compare_poses)
+add_subdirectory(src/check_radius)
 
 add_subdirectory(src/create_vocabulary)
 

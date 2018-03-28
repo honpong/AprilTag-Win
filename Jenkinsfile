@@ -56,6 +56,9 @@ pipeline {
                     steps {
                         sh 'build/measure --qvga --relocalize --benchmark benchmark_data/new_test_suite/  --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'sed -ne /^Length/,//p benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt                           > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        sh 'build/measure --benchmark benchmark_data/new_test_suite/WW50/VR_ctrl_dynamic/ --pose-output %s.cpu.tum --relocalize'
+                        sh 'build/measure --benchmark benchmark_data/new_test_suite/WW50/VR_with_ctrl/ --pose-output %s.cpu.tum --relocalize'
+                        sh './run_safety_kpi.py benchmark_data/new_test_suite/WW50/ .cpu.tum > kpi-safety-ww50-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'build/measure --benchmark benchmark_data/kpis/ --pose-output %s.cpu.tum --relocalize'
                         sh './run_kpis.py benchmark_data/kpis .cpu.tum > kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'tail -n14 kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt >> benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'

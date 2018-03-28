@@ -301,7 +301,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
     stream << ate_60s_hist << "\n";
 
     stream << "ATE (600ms) histogram (" << ate_600ms_errors_m.size() << " sequences)\n";
-    error_histogram ate_600ms_hist(ate_600ms_errors_m, ate_600ms_edges, 2, "m");
+    error_histogram ate_600ms_hist(ate_600ms_errors_m, ate_600ms_edges, 3, "m");
     stream << ate_600ms_hist << "\n";
 
     if (has_reloc) {

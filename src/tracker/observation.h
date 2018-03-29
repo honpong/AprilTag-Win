@@ -83,6 +83,7 @@ class observation_vision_feature: public observation_storage<2> {
         m<2,4> dx_dk;
     } orig, curr;
 
+    state_motion &state;
     state_vision_feature *const feature;
     state_vision_track &track;
 
@@ -101,8 +102,8 @@ class observation_vision_feature: public observation_storage<2> {
 #endif
     void update_initializing();
 
-    observation_vision_feature(sensor_grey &src, const state_camera &camera, state_vision_feature &f, state_vision_track &t)
-        : observation_storage(src), orig(f.group.camera), curr(camera), feature(&f), track(t) {}
+    observation_vision_feature(state_motion &s, sensor_grey &src, const state_camera &camera, state_vision_feature &f, state_vision_track &t)
+        : observation_storage(src), orig(f.group.camera), curr(camera), state(s), feature(&f), track(t) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

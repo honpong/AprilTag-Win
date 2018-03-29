@@ -368,7 +368,7 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
     auto &camera_state = *f->s.cameras.children[data.id];
 
     for(auto &track : camera_state.tracks) {
-        auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, track.feature, track);
+        auto obs = std::make_unique<observation_vision_feature>(f->s, camera_sensor, camera_state, track.feature, track);
         f->observations.observations.push_back(std::move(obs));
     }
 }

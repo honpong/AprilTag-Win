@@ -258,6 +258,7 @@ struct state_camera: state_branch<state_node*> {
     size_t id;
     std::future<size_t> detection_future;
     std::future<std::unique_ptr<camera_frame_t>> orb_future;
+    bool orb_future_for_relocalization;
 
     std::list<state_vision_track> tracks;
     void update_feature_tracks(const sensor_data &data);

@@ -21,7 +21,7 @@ fout = open(outfilename, "wb")
 p = Packet.from_file(f)
 while p is not None:
   packets[p.header.type].append(p.header.time)
-  if p.timestamp() > int(starttime):
+  if p.timestamp() > int(starttime) or p.header.type == PacketType.calibration_json:
       p.to_file(fout)
   if p.timestamp() > int(endtime):
       break

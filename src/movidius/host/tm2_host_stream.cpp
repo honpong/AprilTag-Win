@@ -214,3 +214,7 @@ bool tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
     }
     return is_usb_ok;
 }
+
+tm2_host_stream::~tm2_host_stream() {
+    usb_shutdown();
+}

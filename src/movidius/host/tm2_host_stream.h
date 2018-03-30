@@ -21,6 +21,7 @@ public:
     void wait_device_packet(const std::vector<uint32_t> &pkt_types) override {
         if (is_usb_ok) host_stream::wait_device_packet(pkt_types);
     }
+    ~tm2_host_stream();
 private:
     std::ifstream sensor_file;
     std::ofstream save_file;

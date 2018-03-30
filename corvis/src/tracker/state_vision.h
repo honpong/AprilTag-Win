@@ -241,7 +241,7 @@ class state_vision_group: public state_branch<state_node *> {
     
     //cached data
     m3 dQrp_s_dW;
-    m3 dTrp_ddT, dTrp_dQ_s;
+    m3 dTrp_ddT, dTrp_dQ_s, dTrp_dQr_s;
 
     virtual std::ostream &print_to(std::ostream & s) const
     {

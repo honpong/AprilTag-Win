@@ -623,9 +623,10 @@ void state_vision::cache_jacobians(f_t dt)
 
     for(auto &g : groups.children) {
         m3 Rr = g->Qr.v.toRotationMatrix();
-        g->dTrp_ddT = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
-        m3 xRrRtdT = skew(g->dTrp_ddT * dT);
-        g->dTrp_dQ_s   = xRrRtdT;
+        m3 RrRt = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
+        g->dTrp_ddT = RrRt;
+        g->dTrp_dQ_s = RrRt * skew(dT);
+        g->dTrp_dQr_s = skew(RrRt * -dT);
         g->dQrp_s_dW = Rr * JdW_s;
     }
 
@@ -684,6 +685,7 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         data.tr[camera_count].use_single_index = g->Tr.single_index();
         data.qr[camera_count].use_single_index = g->Qr.single_index();
         data.dTrp_dQ_s_matrix[camera_count] = g->dTrp_dQ_s.data();
+        data.dTrp_dQr_s_matrix[camera_count] = g->dTrp_dQr_s.data();
         data.dQrp_s_dW_matrix[camera_count] = g->dQrp_s_dW.data();
         data.dTrp_ddT_matrix[camera_count] = g->dTrp_ddT.data();
         camera_count++;
@@ -723,7 +725,7 @@ int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t 
             const auto cov_Tr = g->Tr.from_row<N>(src, i);
             const auto scov_Qr = g->Qr.from_row<N>(src, i);
             g->Qr.to_col<N>(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
-            g->Tr.to_col<N>(dst, i) = cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT;
+            g->Tr.to_col<N>(dst, i) =  cov_Tr + g->dTrp_dQ_s * scov_Q + g->dTrp_dQr_s * scov_Qr + g->dTrp_ddT * cov_dT;
         }
     }
     return i;

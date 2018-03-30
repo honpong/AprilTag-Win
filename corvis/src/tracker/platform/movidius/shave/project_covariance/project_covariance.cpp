@@ -242,8 +242,10 @@ inline float4 mull_v3_f(const float* mat, float v)
             float4 cov_Tr = from_row(data->src, i, src_stride, data->tr[j].index, src_cols, src_rows, data->tr[j].initial_covariance, data->tr[j].use_single_index);
             float4 scov_Qr = from_row(data->src, i, src_stride, data->qr[j].index, src_cols, src_rows, data->qr[j].initial_covariance, data->qr[j].use_single_index);
 
-            float4 result7 = cov_Tr + mull_m3_v3(data->dTrp_dQ_s_matrix[j], (scov_Q - scov_Qr))
-                    + mull_m3_v3(data->dTrp_ddT_matrix[j], cov_dT);
+            float4 result7 = cov_Tr
+                + mull_m3_v3(data->dTrp_dQr_s_matrix[j], scov_Qr)
+                + mull_m3_v3(data->dTrp_dQ_s_matrix[j], scov_Q)
+                + mull_m3_v3(data->dTrp_ddT_matrix[j], cov_dT);
             to_col(data->dst, i, dst_stride, data->tr[j].index, dst_rows, result7);
             float4 result8 = scov_Qr + mull_m3_v3(data->dQrp_s_dW_matrix[j], cov_dW);
             to_col(data->dst, i, dst_stride, data->qr[j].index, dst_rows, result8);

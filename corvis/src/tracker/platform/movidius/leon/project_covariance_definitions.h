@@ -39,6 +39,7 @@ struct project_motion_covariance_data{
     project_covariance_element_data tr[MAX_GROUPS] = {};
     project_covariance_element_data qr[MAX_GROUPS] = {};
     float* dTrp_dQ_s_matrix[MAX_GROUPS] = {};
+    float* dTrp_dQr_s_matrix[MAX_GROUPS] = {};
     float* dQrp_s_dW_matrix[MAX_GROUPS] = {};
     float* dTrp_ddT_matrix[MAX_GROUPS] = {};
     float dt = 0.f;

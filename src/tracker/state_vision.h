@@ -234,14 +234,10 @@ class state_vision_group: public state_branch<state_node *> {
     uint64_t frames_active = 0;
     bool reused = false;
 
-    state_vision_group(state_camera &camera, groupid group_id);
+    state_vision_group(const transformation &G, state_camera &camera, groupid group_id);
     void make_reference();
     static f_t ref_noise;
     static f_t min_feats;
-    
-    //cached data
-    m3 dQrp_s_dW;
-    m3 dTrp_ddT, dTrp_dQ_s, dTrp_dQr_s;
 
     virtual std::ostream &print_to(std::ostream & s) const
     {
@@ -327,6 +323,7 @@ public:
 
     void clear_features_and_groups();
     int process_features(mapper *map);
+    template<int N> int project_new_group_covariance(const state_vision_group &g, int i);
     state_vision_group *add_group(const rc_Sensor camera_id, mapper *map);
     transformation get_transformation() const;
     bool get_closest_group_transformation(groupid &group_id, transformation& G) const;
@@ -338,13 +335,6 @@ public:
     
     virtual void enable_orientation_only(bool remap = true);
     virtual void reset();
-
-protected:
-    virtual void evolve_state(f_t dt);
-    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const;
-    virtual void cache_jacobians(f_t dt);
-    template<int N>
-    int project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const;
 };
 
 typedef state_vision state;

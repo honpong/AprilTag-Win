@@ -1009,7 +1009,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     space = filter_available_feature_space(f);
     // bring groups back
-    if(f->map && space >= f->min_group_map_add) {
+    /*if(f->map && space >= f->min_group_map_add) {
         groupid closest_group_id;
         transformation G_Bclosest_Bnow;
         if(f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow)) {
@@ -1019,7 +1019,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 space = filter_available_feature_space(f);
             }
         }
-    }
+    }*/
 
     if(space >= f->min_group_add && camera_state.standby_tracks.size() >= f->min_group_add)
     {
@@ -1477,7 +1477,9 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
             if(space >= f->min_group_map_add) {
                 if(mft.found >= f->min_group_map_add) {
                     TRACE_EVENT(SF_ADD_MAP_GROUP, mft.found);
-                    auto g = std::make_unique<state_vision_group>(camera_node_state, mft.group_id);
+                    //TODO: this is wrong
+                    transformation G;
+                    auto g = std::make_unique<state_vision_group>(G, camera_node_state, mft.group_id);
                     g->Tr.v = mft.G_neighbor_now.T;
                     g->Qr.v = mft.G_neighbor_now.Q;
                     g->reused = true;

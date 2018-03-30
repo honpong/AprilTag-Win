@@ -74,17 +74,12 @@ bool state_vision_feature::force_initialize()
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
 
-state_vision_group::state_vision_group(state_camera &camera_, groupid group_id): Gr (make_aligned_shared<transformation>()), Tr(Gr->T, "Tr", dynamic), Qr(Gr->Q, "Qr", dynamic),  camera(camera_)
+state_vision_group::state_vision_group(const transformation &G, state_camera &camera_, groupid group_id): Gr (make_aligned_shared<transformation>(G)), Tr(Gr->T, "Tr", constant), Qr(Gr->Q, "Qr", constant),  camera(camera_)
 {
     id = group_id;
     children.push_back(&Qr);
     children.push_back(&Tr);
     children.push_back(&features);
-    Tr.v = v3(0, 0, 0);
-    Qr.v = quaternion::Identity();
-    f_t near_zero = F_T_EPS * 100;
-    Tr.set_initial_variance({near_zero, near_zero, near_zero});
-    Qr.set_initial_variance({near_zero, near_zero, near_zero});
     Tr.set_process_noise(ref_noise);
     Qr.set_process_noise(ref_noise);
 }
@@ -325,7 +320,7 @@ void state_vision::update_map(mapper *map)
 {
     if (!map) return;
     for (auto &g : groups.children) {
-        map->set_node_transformation(g->id, get_transformation()*invert(*g->Gr));
+        map->set_node_transformation(g->id, *g->Gr);
         for (auto &f : g->features.children) {
             float stdev = (float)f->v->stdev_meters(sqrt(f->variance()));
             float variance_meters = stdev*stdev;
@@ -347,10 +342,27 @@ void state_vision::update_map(mapper *map)
     }
 }
 
+template<int N>
+int state_vision::project_new_group_covariance(const state_vision_group &g, int i)
+{
+    //Note: this only works to fill in the covariance for Tr, Wr because it fills in cov(T,Tr) etc first (then copies that to cov(Tr,Tr).
+    for(; i < cov.cov.rows(); i += N)
+    {
+        const m<3, N> cov_T = T.from_row<N>(cov.cov, i);
+        g.Tr.to_col<N>(cov.cov, i) = cov_T;
+        g.Tr.to_row<N>(cov.cov, i) = cov_T;
+        const m<3, N> cov_Q = Q.from_row<N>(cov.cov, i);
+        g.Qr.to_col<N>(cov.cov, i) = cov_Q;
+        g.Qr.to_row<N>(cov.cov, i) = cov_Q;
+    }
+    return i;
+}
+
 state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *map)
 {
     state_camera& camera = *cameras.children[camera_id];
-    auto g = std::make_unique<state_vision_group>(camera, group_counter++);
+    transformation G(Q.v, T.v);
+    auto g = std::make_unique<state_vision_group>(G, camera, group_counter++);
     if(map) {
         map->add_node(g->id, camera_id);
 
@@ -369,6 +381,9 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     }
     auto *p = g.get();
     groups.children.push_back(std::move(g));
+    remap();
+    auto i = project_new_group_covariance<4>(*p, 0);
+    project_new_group_covariance<1>(*p, i);
     return p;
 }
 
@@ -608,30 +623,6 @@ float state_vision::median_depth_variance()
     return median_variance;
 }
 
-void state_vision::evolve_state(f_t dt)
-{
-    for(auto &g : groups.children) {
-        g->Tr.v += g->dTrp_ddT * dT;
-        g->Qr.v *= to_quaternion(rotation_vector(dW));
-    }
-    state_motion::evolve_state(dt);
-}
-
-void state_vision::cache_jacobians(f_t dt)
-{
-    state_motion::cache_jacobians(dt);
-
-    for(auto &g : groups.children) {
-        m3 Rr = g->Qr.v.toRotationMatrix();
-        m3 RrRt = (g->Qr.v * Q.v.conjugate()).toRotationMatrix();
-        g->dTrp_ddT = RrRt;
-        g->dTrp_dQ_s = RrRt * skew(dT);
-        g->dTrp_dQr_s = skew(RrRt * -dT);
-        g->dQrp_s_dW = Rr * JdW_s;
-    }
-
-}
-
 #ifdef ENABLE_SHAVE_PROJECT_MOTION_COVARIANCE
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
@@ -702,43 +693,4 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
 
 #else
 
-template<int N>
-int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt, int i) const
-{
-    //NOTE: Any changes here must also be reflected in state_motion:project_motion_covariance
-    for(; i < (N > 1 ? std::min(src.cols(),dst.cols())/N*N : dst.cols()); i+=N) {
-        const m<3,N> cov_w = w.from_row<N>(src, i);
-        const m<3,N> cov_dw = dw.from_row<N>(src, i);
-        const m<3,N> cov_ddw = ddw.from_row<N>(src, i);
-        const m<3,N> cov_dW = dt * (cov_w + dt/2 * (cov_dw + dt/3 * cov_ddw));
-        const m<3,N> scov_Q = Q.from_row<N>(src, i);
-        dw.to_col<N>(dst, i) = cov_dw + dt * cov_ddw;
-        w.to_col<N>(dst, i) = cov_w + dt * (cov_dw + dt/2 * cov_ddw);
-        Q.to_col<N>(dst, i) = scov_Q + dQp_s_dW * cov_dW;
-        const m<3,N> cov_V = V.from_row<N>(src, i);
-        const m<3,N> cov_a = a.from_row<N>(src, i);
-        const m<3,N> cov_T = T.from_row<N>(src, i);
-        const m<3,N> cov_da = da.from_row<N>(src, i);
-        const m<3,N> cov_dT = dt * (cov_V + dt/2 * (cov_a + dt/3 * cov_da));
-        a.to_col<N>(dst, i) = cov_a + dt * cov_da;
-        V.to_col<N>(dst, i) = cov_V + dt * (cov_a + dt/2 * cov_da);
-        T.to_col<N>(dst, i) = cov_T + cov_dT;
-        for(auto &g : groups.children) {
-            const auto cov_Tr = g->Tr.from_row<N>(src, i);
-            const auto scov_Qr = g->Qr.from_row<N>(src, i);
-            g->Qr.to_col<N>(dst, i) = scov_Qr + g->dQrp_s_dW * cov_dW;
-            g->Tr.to_col<N>(dst, i) =  cov_Tr + g->dTrp_dQ_s * scov_Q + g->dTrp_dQr_s * scov_Qr + g->dTrp_ddT * cov_dT;
-        }
-    }
-    return i;
-}
-
-void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
-{
-    START_EVENT(SF_PROJECT_MOTION_COVARIANCE, std::min(src.cols(),dst.cols()));
-    int i = 0;
-    i = project_motion_covariance<4>(dst, src, dt, i);
-    i = project_motion_covariance<1>(dst, src, dt, i);
-    END_EVENT(SF_PROJECT_MOTION_COVARIANCE, std::min(src.cols(),dst.cols()));
-}
 #endif

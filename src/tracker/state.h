@@ -161,6 +161,15 @@ template <int _size> class state_leaf: public state_leaf_base, public state_node
         else                                   return map { &c(index,j), inner_stride<Rows>(c.get_stride()) };
     }
 
+    template<int Cols = 1>
+    inline Eigen::Map< m<_size, Cols>, Eigen::Unaligned, outer_stride<Cols>> to_row(matrix &c, int i) const
+    {
+        typedef decltype(to_row<Cols>(c,i)) map;
+        static f_t scratch[_size*Cols];
+        if((index < 0) || (index >= c.rows())) return map { &scratch[0], outer_stride<Cols>(1) };
+        else                                   return map { &c(i,index), outer_stride<Cols>(c.get_stride()) };
+    }
+
     void set_process_noise(f_t x)
     {
         for(int i = 0; i < size; ++i) process_noise[i] = x;

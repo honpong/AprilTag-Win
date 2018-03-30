@@ -611,8 +611,7 @@ void state_vision::evolve_state(f_t dt)
 {
     for(auto &g : groups.children) {
         g->Tr.v += g->dTrp_ddT * dT;
-        rotation_vector dWr(dW[0], dW[1], dW[2]);
-        g->Qr.v *= to_quaternion(dWr); // FIXME: cache this?
+        g->Qr.v *= to_quaternion(rotation_vector(dW));
     }
     state_motion::evolve_state(dt);
 }

@@ -1069,7 +1069,7 @@ void filter_initialize(struct filter *f)
     state_vision_track::outlier_reject = 30.;
     state_vision_track::outlier_lost_reject = 5.;
     state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
-    state_vision_group::ref_noise = 1.e-30;
+    state_vision_group::ref_noise = 0;
     state_vision_group::min_feats = 4;
 
     for (auto &g : f->gyroscopes)     g->init_with_variance(g->intrinsics.measurement_variance_rad2__s2, g->intrinsics.decimate_by);
@@ -1123,8 +1123,8 @@ void filter_initialize(struct filter *f)
         camera_state.intrinsics.k.v[3] = camera_sensor.intrinsics.k4;
         camera_state.intrinsics.type = camera_sensor.intrinsics.type;
 
-        camera_state.extrinsics.Q.set_process_noise(1.e-30);
-        camera_state.extrinsics.T.set_process_noise(1.e-30);
+        camera_state.extrinsics.Q.set_process_noise(0);
+        camera_state.extrinsics.T.set_process_noise(0);
 
         camera_state.intrinsics.focal_length.set_process_noise(2.3e-3 / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);
         camera_state.intrinsics.center.set_process_noise(      2.3e-3 / camera_sensor.intrinsics.height_px / camera_sensor.intrinsics.height_px);

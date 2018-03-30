@@ -104,7 +104,6 @@ void replay_device::process_data(rc_packet_t &phandle) {
     if (is_realtime && data_timestamp + realtime_offset - now > chrono::microseconds(0)) {
         device_sleep(data_timestamp + realtime_offset - now);
     }
-
     switch (get_packet_type(phandle))
     {
     case packet_calibration_json: break;
@@ -416,7 +415,6 @@ void replay_device::start() {
                 }
                 finish_pause = sensor_clock::now();
             }
-            //printf("\n pause time %d", (int)(finish_pause - start_pause).count());
             realtime_offset += finish_pause - start_pause;
         }
 

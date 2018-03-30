@@ -92,9 +92,9 @@ protected:
     std::condition_variable device_response;
     uint32_t arrived_type{ 0 }; ///type of control packet sent by device program.
     static constexpr size_t max_packet_size{ 10 * 1000000 }; //maximum size of a packet
-    static constexpr int file_buffer_bytes = 128 * 1024;
     bool stream_sts{ false };
-    std::unique_ptr<char[]> buffer;
+    static constexpr int file_buffer_bytes = 128 * 1024;
+    std::unique_ptr<char[]> buffer{ new char[file_buffer_bytes] };
 };
 
 

@@ -21,7 +21,6 @@ static void log_to_stderr(void *handle, rc_MessageLevel message_level, const cha
 }
 
 file_stream::file_stream(const char *name) {
-    buffer = make_unique<char[]>(file_buffer_bytes);
     sensor_file.rdbuf()->pubsetbuf(buffer.get(), file_buffer_bytes);
     sensor_file.open(name, ios::binary);
     if ((stream_sts = sensor_file.is_open())) {

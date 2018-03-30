@@ -49,7 +49,6 @@ static void save_stream_to_file(const packet_t* save_packet, ofstream &stream) {
 }
 
 tm2_host_stream::tm2_host_stream(const char*filename) {
-    buffer = make_unique<char[]>(file_buffer_bytes);
     sensor_file.rdbuf()->pubsetbuf(buffer.get(), file_buffer_bytes);
     sensor_file.open(filename, ios::binary);
     if ((stream_sts = sensor_file.is_open())) {

@@ -2,9 +2,9 @@
 
 SLAM_ROOT=$(cd $(dirname "$BASH_SOURCE") && pwd)
 MDK_ROOT=$(pwd)
-MDK_NAME=mdk-17.04.05_hotfix.tar.gz
+MDK_NAME=mdk-17.04.05_hotfix_usb31_winusb.tar.gz
 MDK_ORIG_NAME=mdk_release_17.04.5_general_purpose
-MDK_CANONICAL=mdk_release_17.04.5_hotfix_general_purpose
+MDK_CANONICAL=mdk_release_17.04.5_general_purpose_hotfix_usb31_winusb
 MDK_URL=http://artifactoryperc01.iil.intel.com:8081/artifactory/libs-release-local/movidius/mdk/mdk/17.04.05_hotfix/$MDK_NAME
 
 export MDK_INSTALL_DIR=$MDK_ROOT/external/

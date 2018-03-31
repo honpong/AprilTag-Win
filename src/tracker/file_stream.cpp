@@ -146,6 +146,11 @@ void file_stream::put_device_packet(const rc_packet_t &device_packet) {
         memcpy(&camera_extrinsics[0], device_packet->data, 2 * sizeof(rc_Extrinsics));
         break;
     }
+    case packet_command_end: { //ensure share poitner to tracker's features are cleared
+        track_output[rc_DATA_PATH_SLOW].rc_resetFeatures();
+        track_output[rc_DATA_PATH_FAST].rc_resetFeatures();
+        break;
+    }
     }
     {   //inform waiting host upon new packet from device
         lock_guard<mutex> lk(host_stream::wait_device_mtx);

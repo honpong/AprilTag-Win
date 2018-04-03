@@ -273,7 +273,7 @@ void observation_vision_feature::cache_jacobians()
     // d Ttot = Ttot^ Rc' (dRc Rc')v  - Rc' Tc^ (dRc Rc')v + (Rc' Rr' Rc) Rc' (To - Tr)^ (dRr Rr')v + Rc' Rr' (dTo - dTr) - Rc dTc
     v3 RtotX0 = Rtot * X0;
     m3 dRtotX0_dQr = skew(RtotX0) * Rct * Rrt;
-    m3 dTtot_dQr = Rtot * (Rct * skew(orig.camera.extrinsics.T.v - feature->group.Tr.v));
+    m3 dTtot_dQr =  (Rct * Rrt) * skew(orig.camera.extrinsics.T.v - feature->group.Tr.v);
     m3 dTtot_dTr = -(Rct * Rrt);
 
     dx_dQr = dx_dX * (dTtot_dQr * invrho + dRtotX0_dQr);

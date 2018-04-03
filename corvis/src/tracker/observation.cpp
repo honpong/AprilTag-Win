@@ -235,7 +235,7 @@ void observation_vision_feature::predict()
     feature->body = Rb * X0 * feature->v->depth() + Tb;
 
     X = Rtot * X0 + Ttot * feature->v->invdepth();
-    v2 Xu = X.segment<2>(0) / X[2];
+    v2 Xu = X.head<2>() / X[2];
     pred = curr.camera.intrinsics.unnormalize_feature(curr.camera.intrinsics.distort_feature(Xu));
     track.track.pred_x = pred.x();
     track.track.pred_y = pred.y();
@@ -253,7 +253,7 @@ void observation_vision_feature::cache_jacobians()
     // v4 X = Rtot * X0 + Ttot / depth
     // v4 dX = dRtot * X0 + Rtot * dX0 + dTtot / depth - Tot / depth / depth ddepth
 
-    v2 Xu = X.segment<2>(0) / X[2];
+    v2 Xu = X.head<2>() / X[2];
     m<1,2> dkd_u_dXu;
     m<1,4> dkd_u_dk;
     f_t kd_u = curr.camera.intrinsics.get_distortion_factor(Xu, &dkd_u_dXu, &dkd_u_dk);
@@ -273,7 +273,7 @@ void observation_vision_feature::cache_jacobians()
     // d Ttot = Ttot^ Rc' (dRc Rc')v  - Rc' Tc^ (dRc Rc')v + (Rc' Rr' Rc) Rc' (To - Tr)^ (dRr Rr')v + Rc' Rr' (dTo - dTr) - Rc dTc
     v3 RtotX0 = Rtot * X0;
     m3 dRtotX0_dQr = skew(RtotX0) * Rct * Rrt;
-    m3 dTtot_dQr = Rtot * (Rct * skew(orig.camera.extrinsics.T.v - feature->group.Tr.v));
+    m3 dTtot_dQr =  (Rct * Rrt) * skew(orig.camera.extrinsics.T.v - feature->group.Tr.v);
     m3 dTtot_dTr = -(Rct * Rrt);
 
     dx_dQr = dx_dX * (dTtot_dQr * invrho + dRtotX0_dQr);
@@ -362,7 +362,7 @@ template<int N>
 
 f_t observation_vision_feature::projection_residual(const v3 & X, const feature_t & found_undistorted)
 {
-    v2 Xu = X.segment<2>(0) / X[2];
+    v2 Xu = X.head<2>() / X[2];
     return (Xu - found_undistorted).squaredNorm();
 }
 

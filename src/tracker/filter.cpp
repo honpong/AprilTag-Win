@@ -170,6 +170,7 @@ static void process_observation_queue(struct filter *f)
         f->numeric_failed = true;
         f->log->error("Numerical error at {}", sensor_clock::tp_to_micros(f->last_time));
     }
+
     f->s.integrate_distance();
 }
 
@@ -919,6 +920,35 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     auto healthy_features = f->s.process_features(f->map.get());
     filter_update_outputs(f, time, healthy_features == 0);
     f->s.remap();
+
+    // allow jump
+    if(f->map && f->allow_jumps && !f->s.groups.children.empty()) {
+        nodeid init_node = f->map->get_node_id_offset();
+        groupid closest_group_id;
+        transformation G_Bclosest_Bnow;
+        bool valid_transformation = f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow);
+        if(valid_transformation) {
+            // distance # edges traversed
+            auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
+            // select node if it is the searched node
+            auto is_node_searched = [&closest_group_id](const mapper::node_path& path) { return path.id == closest_group_id; };
+            // finish search when node is found
+            auto finish_search = is_node_searched;
+
+            transformation G_W_Bnow = transformation{f->s.Q.v, f->s.T.v};
+            mapper::nodes_path searched_node = f->map->dijkstra_shortest_path(mapper::node_path{init_node, transformation(), 0},
+                                                              distance, is_node_searched, finish_search);
+            assert(searched_node.size() == 1);
+            transformation G_W_initnode = G_W_Bnow * invert(searched_node.front().G * G_Bclosest_Bnow);
+            v3 dT = G_W_initnode.T;
+
+            for(auto &g : f->s.groups.children) {
+                g->Tr.v = g->Tr.v - dT;
+            }
+            f->s.T.v = f->s.T.v - dT;
+        }
+    }
+
 
     filter_update_triangulated_tracks(f, data.id);
 

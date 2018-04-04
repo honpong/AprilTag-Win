@@ -75,6 +75,7 @@ f_t state_vision_group::min_feats;
 
 state_vision_group::state_vision_group(const transformation &G, state_camera &camera_, groupid group_id): Gr (make_aligned_shared<transformation>(G)), Tr(Gr->T, "Tr", constant), Qr(Gr->Q, "Qr", constant),  camera(camera_)
 {
+    *Gr = G;
     id = group_id;
     children.push_back(&Qr);
     children.push_back(&Tr);

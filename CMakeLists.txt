@@ -18,8 +18,8 @@ message(STATUS "boxsdk_install ${CMAKE_INSTALL_PREFIX}")
 
 set(LIBRS_GIT https://github.com/IntelRealSense/librealsense.git)
 set(LIBRS_VER v2.8.1)
-set(LIBRS_PAR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/LibRealSense)
-set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/LibRealSense/librealsense)
+set(LIBRS_PAR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/librealsense)
+set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/librealsense/librealsense)
 set(JSON3_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/Json)
 
 if(NOT EXISTS ${LIBRS_DIR})

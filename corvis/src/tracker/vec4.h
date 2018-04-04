@@ -47,7 +47,7 @@ template <typename T> using aligned_vector = std::vector<T, Eigen::aligned_alloc
 template <typename T> using aligned_list = std::list<T, Eigen::aligned_allocator<T>>;
 #include <memory>
 template< class T, class... Args >
-static inline std::shared_ptr<T> make_aligned_shared(Args&&... args) { return std::allocate_shared<T>(Eigen::aligned_allocator<T>(), args...); }
+static inline std::shared_ptr<T> make_aligned_shared(Args&&... args) { return std::allocate_shared<T>(Eigen::aligned_allocator<T>(), std::forward<Args>(args)...); }
 #include <unordered_map>
 template <typename Key, typename T, class Hash = std::hash<Key>, typename Pred = std::equal_to<Key>> using aligned_unordered_map = std::unordered_map<Key, T, Hash, Pred, Eigen::aligned_allocator<std::pair<const Key,T>>>;
 #include <map>

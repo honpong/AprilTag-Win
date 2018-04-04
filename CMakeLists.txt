@@ -26,8 +26,8 @@ if(NOT EXISTS ${LIBRS_DIR})
     message(STATUS "cloning librealsense into ${LIBRS_PAR} ...")
     find_package(Git)
     if(Git_FOUND)
-        message(STATUS "${GIT_EXECUTABLE} clone -b ${LIBRS_VER} ${LIBRS_GIT}")
-        execute_process(COMMAND ${GIT_EXECUTABLE} clone -b ${LIBRS_VER} ${LIBRS_GIT}
+        message(STATUS "${GIT_EXECUTABLE} clone —progress -v -b ${LIBRS_VER} ${LIBRS_GIT} ${LIBRS_DIR}")
+        execute_process(COMMAND "${GIT_EXECUTABLE} clone --progress -v -b ${LIBRS_VER} ${LIBRS_GIT} ${LIBRS_DIR}"
                         WORKING_DIRECTORY ${LIBRS_PAR})
     endif()
     

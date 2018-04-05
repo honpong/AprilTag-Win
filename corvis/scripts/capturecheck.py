@@ -130,6 +130,11 @@ while header_str != "":
           camera_str = "%s %d (%d) %dx%d, %d stride, %d exposure, %d adjusted time" % (type_str, sensor_id, camera_format, width, height, stride, exposure, ptime)
           print "\t", camera_str
 
+  elif ptype == thermometer_type:
+      if args.verbose:
+          (temp_C) = unpack('f', data[:4])
+          print "\t%.2fC" % (temp_C)
+
   elif ptype == arrival_time_type:
       if arrival_time_consumed == False:
           if args.verbose: print "warning : Unconsumed arrival time"

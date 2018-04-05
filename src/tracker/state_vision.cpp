@@ -193,18 +193,18 @@ int state_vision::process_features(mapper *map)
         });
 
     // store info about reference group in case all groups are removed
-    transformation G_reference_now;
+    transformation G_reference_W;
     groupid reference_id{0};
     if(reference_group) {
         reference_id = reference_group->id;
-        G_reference_now = *reference_group->Gr;
+        G_reference_W = invert(*reference_group->Gr);
     }
 
     groups.children.remove_if([&](const std::unique_ptr<state_vision_group> &g) {
         if(map && g->id != reference_id) {
             // update map edges
             edge_type type = g->status == group_empty ? edge_type::map : edge_type::filter;
-            map->add_edge(reference_id, g->id, G_reference_now*invert(*g->Gr), type);
+            map->add_edge(reference_id, g->id, G_reference_W*(*g->Gr), type);
         }
         //Finally: remove features and groups
         if(g->status == group_empty) {

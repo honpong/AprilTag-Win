@@ -201,15 +201,10 @@ int state_vision::process_features(mapper *map)
     }
 
     groups.children.remove_if([&](const std::unique_ptr<state_vision_group> &g) {
-        if(map) {
-            if(g->id != reference_id) {
-                // update map edges
-                edge_type type = g->status == group_empty ? edge_type::map : edge_type::filter;
-                map->add_edge(reference_id, g->id, G_reference_now*invert(*g->Gr), type);
-            }
-            // update transform to first reference group created in this session. TODO: Fix problem with first node flying around
-            if(g->id == map->get_node_id_offset() && !g->reused)
-                map->G_W_firstnode = get_transformation()*invert(*g->Gr);
+        if(map && g->id != reference_id) {
+            // update map edges
+            edge_type type = g->status == group_empty ? edge_type::map : edge_type::filter;
+            map->add_edge(reference_id, g->id, G_reference_now*invert(*g->Gr), type);
         }
         //Finally: remove features and groups
         if(g->status == group_empty) {

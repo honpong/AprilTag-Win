@@ -312,7 +312,6 @@ private:
 
     // temporary pointer to reference node
     map_node* reference_node = nullptr; // points to node corresponding to latest active reference group in the filter
-    transformation G_W_firstnode; // store filter's estimate of first session node pose wrt World origin
 
     //we need the camera intrinsics
     std::vector<state_vision_intrinsics*> camera_intrinsics;

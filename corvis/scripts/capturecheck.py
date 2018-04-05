@@ -59,7 +59,7 @@ missing_arrival_time_warnings = []
 unconsumed_arrival_time_warnings = []
 last_data = {}
 last_arrival_time = 0
-arrival_time_consumed = True
+last_ptype = None
 packet_count = 0;
 bytes_read = 0
 total_bytes_read = 0
@@ -86,12 +86,14 @@ while header_str != "":
 
   if args.max_packets > 0  and packet_count > args.max_packets:
       break
-  if (ptype == accel_type or ptype == gyro_type or
-     ptype == image_with_depth or ptype == image_raw_type or ptype == stereo_raw_type):
-      if arrival_time_consumed:
-          missing_arrival_time_warnings.append((ptime))
-          if args.verbose: print "warning: missing data packet arrival_time"
-      arrival_time_consumed = True
+
+  if ptype == arrival_time_type and last_ptype == arrival_time_type:
+      if args.verbose: print "Warning: Unconsumed arrival time"
+      unconsumed_arrival_time_warnings.append((ptime))
+  if last_ptype is not None and ptype != arrival_time_type and last_ptype != arrival_time_type:
+      missing_arrival_time_warnings.append((ptime))
+      if args.verbose: print "warning: missing data packet arrival_time"
+  last_ptype = ptype
 
   if ptype == accel_type or ptype == gyro_type:
       # packets are padded to 8 byte boundary
@@ -136,10 +138,6 @@ while header_str != "":
           print "\t%.2fC" % (temp_C)
 
   elif ptype == arrival_time_type:
-      if arrival_time_consumed == False:
-          if args.verbose: print "warning : Unconsumed arrival time"
-          unconsumed_arrival_time_warnings.append((ptime))
-      arrival_time_consumed = False;
       if last_arrival_time > ptime:
           out_of_order_warnings.append((ptime, last_arrival_time))
       last_arrival_time = ptime

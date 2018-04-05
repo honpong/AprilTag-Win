@@ -1480,8 +1480,11 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                     transformation G = transformation(f->s.Q.v, f->s.T.v) * invert(mft.G_neighbor_now);
                     auto g = std::make_unique<state_vision_group>(G, camera_node_state, mft.group_id);
                     g->reused = true;
-                    // g->Tr.set_initial_variance({0.1,0.1,0.1});
-                    // g->Qr.set_initial_variance({0.1,0.1,0.1});
+
+                    auto var_T = f->s.cov.cov.map().block(f->s.T.index, f->s.T.index, 3, 3).diagonal().maxCoeff();
+                    auto var_Q = f->s.cov.cov.map().block(f->s.Q.index, f->s.Q.index, 3, 3).diagonal().maxCoeff();
+                    g->Tr.set_initial_variance(10 * var_T * v3{1.0,1.0,1.0});
+                    g->Qr.set_initial_variance(10 * var_Q * v3{1.0,1.0,1.0});
                     node.status = node_status::normal;
 
                     for(auto &ft : mft.tracks) {

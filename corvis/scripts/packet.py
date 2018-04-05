@@ -19,7 +19,7 @@ class Packet:
         @staticmethod
         def from_file(file_handle):
             header_str = file_handle.read(Packet.header_size)
-            if header_str == "": return None
+            if len(header_str) == 0: return None
             return Packet.Header(header_str)
 
         @staticmethod

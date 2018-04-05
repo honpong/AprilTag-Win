@@ -369,10 +369,10 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
         }
 
         if(reference_group)
-            map->add_edge(reference_group->id, g->id, (*reference_group->Gr) * invert(*g->Gr), edge_type::filter);
+            map->add_edge(reference_group->id, g->id, invert(*reference_group->Gr) * (*g->Gr), edge_type::filter);
         else if(map->reference_node) // connect graph again using dead reckoning
             map->add_edge(map->reference_node->id, g->id,
-                          invert(map->reference_node->global_transformation) * get_transformation(), edge_type::dead_reckoning);
+                          invert(map->reference_node->global_transformation) * (*g->Gr), edge_type::dead_reckoning);
     }
     auto *p = g.get();
     groups.children.push_back(std::move(g));

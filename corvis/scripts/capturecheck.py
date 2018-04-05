@@ -289,12 +289,14 @@ else:
     if len(unconsumed_arrival_time_warnings) > 0 :
         error_text += "Error: %d unconsumed arrival-time packets\n" % len(unconsumed_arrival_time_warnings)
 
+if got_types[thermometer_type] == 0:
+    print "Warning: Never received any thermometer data\n"
+    total_warnings += 1
+
 if got_types[accel_type] == 0:
     error_text += "Error: Never received any accelerometer data\n"
 if got_types[gyro_type] == 0:
     error_text += "Error: Never received any gyro data\n"
-if got_types[thermometer_type] == 0:
-    error_text += "Error: Never received any thermometer data\n"
 if got_types[image_raw_type] == 0 and \
    got_types[image_with_depth] == 0 and \
    got_types[stereo_raw_type] == 0:

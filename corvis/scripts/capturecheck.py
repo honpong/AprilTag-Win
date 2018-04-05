@@ -223,6 +223,11 @@ for packet_type in sorted(packets.keys()):
     print "\tarrival (us): min: %.0f median: %.0f max: %.0f std: %.0f" % (numpy.min(arrivals_deltas), numpy.median(arrivals_deltas), numpy.max(arrivals_deltas), numpy.std(arrivals_deltas))
   else:
     print "\tNo arrival time data"
+
+  if packet_type.startswith("thermometer"):
+      print "Skipping packet frequency analysis for this sensor"
+      continue
+
   exceptions = numpy.flatnonzero(numpy.logical_or(deltas > median_delta*1.05, deltas < median_delta*0.95))
   latency_warnings = numpy.flatnonzero(platencies > 33333)
 

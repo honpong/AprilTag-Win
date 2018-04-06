@@ -22,6 +22,10 @@
 #include "sensor_data.h"
 #include "orb_descriptor.h"
 
+#ifdef MYRIAD2
+    #include "platform_defines.h"
+#endif
+
 enum group_flag {
     group_empty = 0,
     group_normal,
@@ -335,6 +339,10 @@ public:
     
     virtual void enable_orientation_only(bool remap = true);
     virtual void reset();
+protected:
+#ifdef ENABLE_SHAVE_PROJECT_MOTION_COVARIANCE
+    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const;
+#endif
 };
 
 typedef state_vision state;

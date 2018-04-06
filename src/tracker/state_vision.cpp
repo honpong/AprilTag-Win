@@ -10,7 +10,6 @@
 #include <limits>
 
 #ifdef MYRIAD2
-    #include "platform_defines.h"
     #include "covariance_projector.h"
 #endif
 
@@ -623,6 +622,7 @@ float state_vision::median_depth_variance()
     return median_variance;
 }
 
+//NOTE: Any changes here must also be reflected in state_motion:project_motion_covariance
 #ifdef ENABLE_SHAVE_PROJECT_MOTION_COVARIANCE
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
@@ -668,21 +668,6 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
 
     data.dQp_s_dW = dQp_s_dW.data();
     data.dt = dt;
-    int camera_count = 0;
-    for(const auto &g : groups.children) {
-        data.tr[camera_count].index = g->Tr.index;
-        data.qr[camera_count].index = g->Qr.index;
-        data.tr[camera_count].initial_covariance = g->Tr.get_initial_covariance();
-        data.qr[camera_count].initial_covariance = g->Qr.get_initial_covariance();
-        data.tr[camera_count].use_single_index = g->Tr.single_index();
-        data.qr[camera_count].use_single_index = g->Qr.single_index();
-        data.dTrp_dQ_s_matrix[camera_count] = g->dTrp_dQ_s.data();
-        data.dTrp_dQr_s_matrix[camera_count] = g->dTrp_dQr_s.data();
-        data.dQrp_s_dW_matrix[camera_count] = g->dQrp_s_dW.data();
-        data.dTrp_ddT_matrix[camera_count] = g->dTrp_ddT.data();
-        camera_count++;
-    }
-    data.camera_count = camera_count;
 
     __attribute__((section(".cmx_direct.bss")))
     static covariance_projector projector;
@@ -690,7 +675,4 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
 
     END_EVENT(SF_PROJECT_MOTION_COVARIANCE, std::min(src.cols(),dst.cols()));
 }
-
-#else
-
 #endif

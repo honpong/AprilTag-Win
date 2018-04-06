@@ -237,19 +237,6 @@ inline float4 mull_v3_f(const float* mat, float v)
         to_col(data->dst, i, dst_stride, data->V.index, dst_rows, result5);
         float4 result6 = cov_a + dt * cov_da;
         to_col(data->dst, i, dst_stride, data->a.index, dst_rows, result6);
-
-        for (int j = 0; j < data->camera_count; ++j) {
-            float4 cov_Tr = from_row(data->src, i, src_stride, data->tr[j].index, src_cols, src_rows, data->tr[j].initial_covariance, data->tr[j].use_single_index);
-            float4 scov_Qr = from_row(data->src, i, src_stride, data->qr[j].index, src_cols, src_rows, data->qr[j].initial_covariance, data->qr[j].use_single_index);
-
-            float4 result7 = cov_Tr
-                + mull_m3_v3(data->dTrp_dQr_s_matrix[j], scov_Qr)
-                + mull_m3_v3(data->dTrp_dQ_s_matrix[j], scov_Q)
-                + mull_m3_v3(data->dTrp_ddT_matrix[j], cov_dT);
-            to_col(data->dst, i, dst_stride, data->tr[j].index, dst_rows, result7);
-            float4 result8 = scov_Qr + mull_m3_v3(data->dQrp_s_dW_matrix[j], cov_dW);
-            to_col(data->dst, i, dst_stride, data->qr[j].index, dst_rows, result8);
-        }
     }
 
     SHAVE_HALT;
@@ -265,8 +252,10 @@ void observation_vision_feature_project_covariance(const float* src, float* dst,
          float cov_feat = from_row1(src, i, src_stride, data->feature.index, src_cols, src_rows, data->feature.initial_covariance, data->feature.use_single_index);
          float4 scov_Qr = from_row(src, i, src_stride, data->Qr.index, src_cols, src_rows, data->Qr.initial_covariance, data->Qr.use_single_index);
          float4 cov_Tr = from_row(src, i, src_stride, data->Tr.index, src_cols, src_rows, data->Tr.initial_covariance, data->Tr.use_single_index);
+         float4 scov_Q = from_row(src, i, src_stride, data->Q.index, src_cols, src_rows, data->Q.initial_covariance, data->Q.use_single_index);
+         float4 cov_T = from_row(src, i, src_stride, data->T.index, src_cols, src_rows, data->T.initial_covariance, data->T.use_single_index);
 
-         float2 result = mull_v2_f(data->dx_dp, cov_feat) + mull_m23_v3(data->dx_dQr, scov_Qr) +  mull_m23_v3(data->dx_dTr, cov_Tr);
+         float2 result = mull_v2_f(data->dx_dp, cov_feat) + mull_m23_v3(data->dx_dQr, scov_Qr) +  mull_m23_v3(data->dx_dTr, cov_Tr) + mull_m23_v3(data->dx_dQ, scov_Q) + mull_m23_v3(data->dx_dT, cov_T);
 
          if (data->curr.e_estimate) {
             float4 scov_Q = from_row(src, i, src_stride, data->curr.Q.index, src_cols, src_rows, data->curr.Q.initial_covariance, data->curr.Q.use_single_index);

@@ -110,22 +110,20 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
             if (data.id < sfm.s.cameras.children.size()) {
                 state_camera& camera = *sfm.s.cameras.children[data.id];
 
-                if (camera.orb_future.valid()) {
-                    auto camera_frame = camera.orb_future.get();
-                    if (camera_frame) {
-                        if (sfm.relocalization_future.valid()) {
-                            auto result = sfm.relocalization_future.get();
-                            filter_add_relocalization_edges(&sfm, result.edges);
-                            sfm.relocalization_info = std::move(result.info);
-                        }
-                        filter_update_map_index(&sfm);
-
-                        sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,
-                            [this](std::unique_ptr<camera_frame_t>&& camera_frame) {
-                                set_priority(PRIORITY_SLAM_RELOCALIZE);
-                                return filter_relocalize(&sfm, *camera_frame);
-                        }, std::move(camera_frame));
+                if (camera.orb_future.valid() && camera.orb_future_for_relocalization) {
+                    if (sfm.relocalization_future.valid()) {
+                        auto result = sfm.relocalization_future.get();
+                        filter_add_relocalization_edges(&sfm, result.edges);
+                        sfm.relocalization_info = std::move(result.info);
                     }
+                    filter_update_map_index(&sfm);
+
+                    sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,
+                        [this](std::future<std::unique_ptr<camera_frame_t>>&& orb_future) {
+                            set_priority(PRIORITY_SLAM_RELOCALIZE);
+                            auto camera_frame = orb_future.get();
+                            return filter_relocalize(&sfm, *camera_frame);
+                    }, std::move(camera.orb_future));
                 }
 
                 const bool relocalize_now = sfm.map && sfm.relocalize &&
@@ -163,13 +161,15 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                             camera.detecting_space = 0;
 
                             if (camera_frame) {
+                                if (camera.orb_future.valid()) camera.orb_future.get();
+                                camera.orb_future_for_relocalization = relocalize_now;
                                 camera.orb_future = std::async(threaded ? std::launch::async : std::launch::deferred,
-                                    [this, new_group_created, relocalize_now] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) {
+                                    [this, new_group_created] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) {
                                         set_priority(PRIORITY_SLAM_ORB);
                                         filter_compute_orb(&sfm, data, *camera_frame);
                                         if (sfm.relocalize) filter_compute_dbow(&sfm, *camera_frame);
                                         if (new_group_created) filter_assign_frame(&sfm, *camera_frame);
-                                        return (relocalize_now ? std::move(camera_frame) : std::unique_ptr<camera_frame_t>{});
+                                        return std::move(camera_frame);
                                 }, std::move(data), std::move(camera_frame));
                             }
 

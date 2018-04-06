@@ -1078,6 +1078,32 @@ static bstream_writer & operator << (bstream_writer &content, const map_node &no
 
 static const char magic_file_format_num[4] = { 'R', 'C', 'M', '\0' }; // RC Map
 
+template<typename T0, typename T1, typename ... T2>
+void multiple_lock(int i, T0& m0, T1& m1, T2& ...m2) {
+    // mdk std::lock may hang on TM2 when no round robin scheduling
+    while (true) {
+        switch(i) {
+        case 0:
+            i = std::try_lock(m0, m1, m2...);
+            break;
+        case 1:
+            i = std::try_lock(m1, m2..., m0);
+            break;
+        default:
+            multiple_lock(i - 2, m2..., m0, m1);
+            return;
+        }
+        if (i == -1) return;
+        i = (i == sizeof...(m2) + 1 ? 0 : i + 1);
+        std::this_thread::yield();
+    }
+}
+
+template<typename T0, typename T1, typename ... T2>
+void multiple_lock(T0& m0, T1& m1, T2& ...m2) {
+    multiple_lock(0, m0, m1, m2...);
+}
+
 bool mapper::serialize(rc_SaveCallback func, void *handle) const {
     bstream_writer cur_stream(func, handle);
     cur_stream.write(magic_file_format_num, sizeof(magic_file_format_num));
@@ -1086,13 +1112,8 @@ bool mapper::serialize(rc_SaveCallback func, void *handle) const {
     decltype(nodes)::value_type local_nodes;
     decltype(features_dbow)::value_type local_features_dbow;
     decltype(stages)::value_type local_stages;
-
-    // note: mdk 17.04.5 contains a bug in std::lock and it can't be used.
-    // An update is expected by mid April'18.
-#define WITH_STD_LOCK 0
-#if WITH_STD_LOCK
     {
-        std::lock(nodes.mutex(), features_dbow.mutex(), stages.mutex());
+        multiple_lock(nodes.mutex(), features_dbow.mutex(), stages.mutex());
         std::lock_guard<std::mutex> lock1(nodes.mutex(), std::adopt_lock);
         std::lock_guard<std::mutex> lock2(features_dbow.mutex(), std::adopt_lock);
         std::lock_guard<std::mutex> lock3(stages.mutex(), std::adopt_lock);
@@ -1100,24 +1121,6 @@ bool mapper::serialize(rc_SaveCallback func, void *handle) const {
         local_features_dbow = *features_dbow;
         local_stages = *stages;
     }
-#else
-    // this implementation is correct as long as nodes can't be removed from map
-    local_nodes = nodes.critical_section([this]() { return *nodes; });
-    local_features_dbow = features_dbow.critical_section([this]() { return *features_dbow; });
-    local_stages = stages.critical_section([this]() { return *stages; });
-    for (auto it = local_features_dbow.begin(); it != local_features_dbow.end();) {
-        if (local_nodes.count(it->second))
-            ++it;
-        else
-            it = local_features_dbow.erase(it);
-    }
-    for (auto it = local_stages.begin(); it != local_stages.end();) {
-        if (local_nodes.count(it->second.closest_id))
-            ++it;
-        else
-            it = local_stages.erase(it);
-    }
-#endif
     cur_stream << local_nodes << local_features_dbow << local_stages;
     cur_stream.end_stream();
     if (!cur_stream.good()) log->error("map was not saved successfully.");

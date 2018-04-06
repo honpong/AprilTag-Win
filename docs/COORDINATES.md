@@ -77,7 +77,7 @@ poses.
 
 If we want to predict ahead in time, we can follow the prediction code
 in `rc_predictPose` defined in
-[rc_tracker.h](../corvis/src/tracker/rc_tracker.h) which uses both the
+[rc_tracker.h](../src/tracker/rc_tracker.h) which uses both the
 current estimate of the acceleration and velocity to predict a pose in
 the future. Note that this predicted pose should be computed in the
 same reference frame as the 6DoF pose above.

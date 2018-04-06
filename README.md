@@ -9,7 +9,7 @@ cameras into an estimate of the rotation and translation of the device
 itself.
 
 The main interface to the library can be found in
-[rc_tracker.h](corvis/src/tracker/rc_tracker.h).
+[rc_tracker.h](src/tracker/rc_tracker.h).
 
 Please read [docs/COORDINATES.md](docs/COORDINATES.md) to understand
 how poses might be used in your application.
@@ -114,10 +114,10 @@ dnf install libXcursor-devel libXinerama-devel libXrender-devel libXrandr-devel 
 ## Running
 
 To load a captured sequence and print out poses using a minimal
-wrapper around the [official interface](corvis/src/tracker/rc_tracker.h).
+wrapper around the [official interface](src/tracker/rc_tracker.h).
 
-    ./corvis/rc_replay --output-summary --output-poses path/to/capture/file
+    ./rc_replay --output-summary --output-poses path/to/capture/file
 
 To see a rendering of the data while the program runs try
 
-    ./corvis/measure --realtime path/to/capture/file
+    ./measure --realtime path/to/capture/file

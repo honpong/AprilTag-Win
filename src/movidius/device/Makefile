@@ -86,8 +86,8 @@ CCOPT    += -D'CMX_DATA=__attribute__((section(".cmx.data")))'
 
 # ------------------------------[ SLAM ]-------------------------------------------#
 
-SLAM_PREFIX := ../../../..
-include $(SLAM_PREFIX)/corvis/src/tracker/platform/movidius/platform.mk
+SLAM_PREFIX := ../../..
+include $(SLAM_PREFIX)/src/tracker/platform/movidius/platform.mk
 
 LEON_APP_CPP_SOURCES += $(SLAM_SOURCES)
 LEON_APP_C_SOURCES   += $(SLAM_C_SOURCES)
@@ -127,7 +127,7 @@ LEON_HEADERS_LRT +=	$(wildcard ../common/*.h)
 # Include the generic Makefile
 include $(MV_COMMON_BASE)/generic.mk	
 
-include $(SLAM_PREFIX)/corvis/src/tracker/platform/movidius/platform_after.mk
+include $(SLAM_PREFIX)/src/tracker/platform/movidius/platform_after.mk
 
 #LRT_PROJECT_LIBS += --start-group $(SLAM_LEON_LIBS) --end-group
 AllLibs += --start-group $(SLAM_LEON_LIBS) --end-group

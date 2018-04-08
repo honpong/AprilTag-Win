@@ -1,83 +1,52 @@
-
 #include "BrainStem2/BrainStem-all.h"
-#include <list>
+#include <sstream>
+#include <vector>
 #include <iostream>
-#include <map>
-#include <string>
-#include <algorithm>
 
-aErr DisableEnableCommon(USBClass* const pUsbClass, const std::string& action, std::map<std::string, std::string>& args,bool bEnable)
-{
-    const char* pPort = args.at(action).c_str();
-    size_t port = 0;
-    const char* const pEnd = pPort + args.at(action).size();
-    size_t delay = 5; 
-    size_t end = 0;
-    aErr err = aErrNone;
 
-    if(args.end() != args.find("--delay"))
-    {
-        delay = std::stod(args["--delay"]);
+int main(int c, const char *v[]) {
+    if (0) { usage:
+        std::cerr << "Usage: " << v[0] << " [--enableport <port>{,<port>}...] [--disableport <port>{,<port>}...] [--delay <ms>]\n";
+        return 1;
     }
 
-    do
-    {
-        port = std::stod(pPort,&end);
-        err = bEnable ? pUsbClass->setPortEnable(port) : pUsbClass->setPortDisable(port);
-        if (aErrNone != err)
-        {
-            std::cout<< action <<"failed with error:" << err << "and port" << port << std::endl;
+    int delay = 0, port; char delim; std::vector<int> enable, disable;
+    for (int i=1; i<c; i++)
+        if      (strcmp(v[i], "--enableport")  == 0 && i+1 < c) for (std::stringstream ss(v[++i]); ss>>port; ss>>delim)  enable.push_back(port);
+        else if (strcmp(v[i], "--disableport") == 0 && i+1 < c) for (std::stringstream ss(v[++i]); ss>>port; ss>>delim) disable.push_back(port);
+        else if (strcmp(v[i], "--delay") == 0 && i+1 < c) delay = std::atoi(v[++i]);
+        else goto usage;
+
+    if (enable.size() == 0 && disable.size() == 0)
+        goto usage;
+
+    aUSBHub3p stem;
+    if (aErr err = stem.discoverAndConnect(USB)) {
+        std::cerr << v[0] << ": discover and connect failed: " << aError_GetErrorText(err) << "\n";
+        return 1;
+    }
+
+    USBClass usb;
+    usb.init(&stem,0);
+
+    for (auto port : disable)
+        if (aErr err = stem.usb.setPortDisable(port)) {
+            std::cerr << v[0] << ": failed to disable port " << port << ": " << aError_GetErrorText(err) << "\n";
+            return 1;
         }
-        aTime_MSSleep(delay);
-        pPort += end;
-        if (pPort != pEnd)
-        {
-            pPort += 1;
+
+    aTime_MSSleep(delay);
+
+    for (auto port : enable)
+        if (aErr err = stem.usb.setPortEnable(port)) {
+            std::cerr << v[0] << ": failed to enable port " << port << ": " << aError_GetErrorText(err) << "\n";
+            return 1;
         }
-    }while(pPort != pEnd);
-    return err;
-}
 
-int main(int argc, const char * argv[]) {
-    aErr err = aErrNone;
-    a40PinModule stem;
-    USBClass usbclass;
-    err = stem.discoverAndConnect(USB);
-    if (aErrNone != err) 
-    {
-        std::cout <<"discoverAndConnect failed with error:" << err << std::endl;
-        return err;
-    }
+    aTime_MSSleep(delay);
 
-    Module* const pModule = dynamic_cast<Module*>(&stem);
-    if(!pModule)
-    {
-        err = aErrNotFound; 
-        std::cout <<"Module not found:" << err << std::endl;
-    }
-    usbclass.init(pModule,0);
-
-    std::map<std::string, std::string> args;
-    for (int i = 1; i < argc - 1; i += 2)
-    {
-        std::string userArg = std::string(argv[i]);
-        std::transform(userArg.begin(), userArg.end(), userArg.begin(), ::tolower);
-        args.insert(std::pair<std::string, std::string>(userArg, std::string(argv[i + 1])));
-    }
-
-    if(args.end() != args.find("--disableport"))
-    {
-        err = DisableEnableCommon(&usbclass, "--disableport", args,false /*disable*/);
-    }
-
-    if(args.end() != args.find("--enableport"))
-    {
-        err = DisableEnableCommon(&usbclass, "--enableport", args,true/*enable*/);
-    }
-
-    // Disconnect from the module
     stem.disconnect();
-    return err; 
+    return 0;
 }
 
 

@@ -71,15 +71,15 @@ pipeline {
                 stage('Windows 32') {
                     agent { label 'windows' }
                     steps {
-                        bat "cmake -Bbuild-x32 -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A Win32"
-                        bat "cmake --build build-x32 --config RelWithDebInfo"
+                        bat "cmake -Bbuild32 -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A Win32"
+                        bat "cmake --build build32 --config RelWithDebInfo"
                     }
                 }
                 stage('Windows 64') {
                     agent { label 'windows' }
                     steps {
-                        bat "cmake -Bbuild-x64 -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A x64"
-                        bat "cmake --build build-x64 --config RelWithDebInfo"
+                        bat "cmake -Bbuild64 -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A x64"
+                        bat "cmake --build build64 --config RelWithDebInfo"
                     }
                 }
             }

@@ -1,8 +1,8 @@
 MAKEDEPEND = yes
 
 # SLAM_PREFIX must be defined before including this makefile
-SLAM_PLATFORM_PREFIX := $(SLAM_PREFIX)/corvis/src/tracker/platform/movidius
-SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/corvis/src/tracker/, \
+SLAM_PLATFORM_PREFIX := $(SLAM_PREFIX)/src/tracker/platform/movidius
+SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/src/tracker/, \
     rc_tracker.cpp \
     sensor_fusion_queue.cpp \
     rotation_vector.cpp \
@@ -24,12 +24,12 @@ SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/corvis/src/tracker/, \
     transformation.cpp \
     map_loader.cpp \
 )
-SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/tracker/platform/shell/sensor_clock.cpp
-SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/feature_tracker.cpp
-SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/scaled_mask.cpp
-SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/tracker/fast_tracker.cpp
-SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/descriptor/patch_descriptor.cpp
-SLAM_SOURCES += $(SLAM_PREFIX)/corvis/src/feature/descriptor/orb_descriptor.cpp
+SLAM_SOURCES += $(SLAM_PREFIX)/src/tracker/platform/shell/sensor_clock.cpp
+SLAM_SOURCES += $(SLAM_PREFIX)/src/feature/tracker/feature_tracker.cpp
+SLAM_SOURCES += $(SLAM_PREFIX)/src/feature/tracker/scaled_mask.cpp
+SLAM_SOURCES += $(SLAM_PREFIX)/src/feature/tracker/fast_tracker.cpp
+SLAM_SOURCES += $(SLAM_PREFIX)/src/feature/descriptor/patch_descriptor.cpp
+SLAM_SOURCES += $(SLAM_PREFIX)/src/feature/descriptor/orb_descriptor.cpp
 SLAM_SOURCES += $(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.cpp)
 
 SLAM_C_SOURCES := $(addprefix $(SLAM_PREFIX)/ThirdParty/vlfeat-0.9.18/vl/, \
@@ -42,17 +42,17 @@ SLAM_C_SOURCES := $(addprefix $(SLAM_PREFIX)/ThirdParty/vlfeat-0.9.18/vl/, \
 SLAM_C_SOURCES += $(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.c)
 
 #Commented out to prevent loading vocabulary in TM2 project
-SLAM_SOURCES   += $(SLAM_PREFIX)/corvis/src/vocabulary/resource.cpp
-SLAM_C_SOURCES += $(SLAM_PREFIX)/corvis/src/vocabulary/voc.c
+SLAM_SOURCES   += $(SLAM_PREFIX)/src/vocabulary/resource.cpp
+SLAM_C_SOURCES += $(SLAM_PREFIX)/src/vocabulary/voc.c
 
-$(SLAM_PREFIX)/corvis/src/vocabulary/voc.c: \
-$(SLAM_PREFIX)/corvis/src/vocabulary/voc_k20_L4_64.bin
+$(SLAM_PREFIX)/src/vocabulary/voc.c: \
+$(SLAM_PREFIX)/src/vocabulary/voc_k20_L4_64.bin
 
 SLAM_HEADERS := \
-	$(wildcard $(SLAM_PREFIX)/corvis/src/tracker/*.h) \
+	$(wildcard $(SLAM_PREFIX)/src/tracker/*.h) \
 	$(wildcard $(SLAM_PREFIX)/ThirdParty/DBoW2/include/*.h) \
-	$(wildcard $(SLAM_PREFIX)/corvis/src/feature/detector/*.h) \
-	$(wildcard $(SLAM_PREFIX)/corvis/src/feature/descriptor/*.h) \
+	$(wildcard $(SLAM_PREFIX)/src/feature/detector/*.h) \
+	$(wildcard $(SLAM_PREFIX)/src/feature/descriptor/*.h) \
 	$(wildcard $(SLAM_PLATFORM_PREFIX)/*.h) \
 	$(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.h) \
 	$(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.hpp)
@@ -61,13 +61,13 @@ SLAM_CCOPT   := \
 	-Idummy \
 	-I$(SLAM_PLATFORM_PREFIX) \
 	-I$(SLAM_PLATFORM_PREFIX)/leon/ \
-	-I$(SLAM_PREFIX)/corvis/src/tracker/platform \
-	-I$(SLAM_PREFIX)/corvis/src/tracker/platform/movidius/ \
-	-I$(SLAM_PREFIX)/corvis/src/tracker \
-	-I$(SLAM_PREFIX)/corvis/src/feature/descriptor \
-	-I$(SLAM_PREFIX)/corvis/src/feature/detector \
-	-I$(SLAM_PREFIX)/corvis/src/feature/tracker \
-	-I$(SLAM_PREFIX)/corvis/src/vocabulary \
+	-I$(SLAM_PREFIX)/src/tracker/platform \
+	-I$(SLAM_PREFIX)/src/tracker/platform/movidius/ \
+	-I$(SLAM_PREFIX)/src/tracker \
+	-I$(SLAM_PREFIX)/src/feature/descriptor \
+	-I$(SLAM_PREFIX)/src/feature/detector \
+	-I$(SLAM_PREFIX)/src/feature/tracker \
+	-I$(SLAM_PREFIX)/src/vocabulary \
 	-I$(SLAM_PREFIX)/ThirdParty/DBoW2/include \
 	-isystem$(SLAM_PREFIX)/ThirdParty/eigen \
 	-isystem$(SLAM_PREFIX)/ThirdParty/spdlog/include \
@@ -78,7 +78,7 @@ SLAM_CCOPT   := \
 	-Wno-unused-parameter \
 	-Wno-sign-compare \
 	-fno-strict-aliasing \
-	-DVOC_DIR='"$(SLAM_PREFIX)/corvis/src/vocabulary/"' \
+	-DVOC_DIR='"$(SLAM_PREFIX)/src/vocabulary/"' \
 	-DRAPIDJSON_64BIT=1 \
 	-DEIGEN_STACK_ALLOCATION_LIMIT=1024 \
 	-MD \
@@ -88,13 +88,13 @@ SLAM_CCOPT   := \
 SLAM_CPPOPT  := -std=gnu++14 -fpermissive -fno-exceptions -Wno-reorder -Wno-missing-field-initializers -fno-strict-aliasing
 
 SLAM_SHAVE_CCOPT := -nostdinc -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon \
-   -I$(SLAM_PREFIX)/corvis/src/feature/descriptor \
-   -I$(SLAM_PREFIX)/corvis/src/feature/detector \
-   -I$(SLAM_PREFIX)/corvis/src/feature/tracker \
+   -I$(SLAM_PREFIX)/src/feature/descriptor \
+   -I$(SLAM_PREFIX)/src/feature/detector \
+   -I$(SLAM_PREFIX)/src/feature/tracker \
+   -I$(SLAM_PREFIX)/src/tracker \
    -I$(SLAM_PLATFORM_PREFIX)/shared \
    -I$(SLAM_PLATFORM_PREFIX)/leon \
-   -I$(SLAM_PLATFORM_PREFIX)/ \
-   -I$(SLAM_PREFIX)/corvis/src/tracker
+   -I$(SLAM_PLATFORM_PREFIX)/
 
 SLAM_SHAVE_CPPOPT := -std=c++11 -Wno-c++11-extensions -Wno-literal-range -fno-strict-aliasing -fno-exceptions -Iinclude -Ieigen -Ileon -I$(SLAM_PLATFORM_PREFIX)/leon/ -isystem$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include/c++ -isystem$(MV_TOOLS_DIR)/$(MV_TOOLS_VERSION)/common/moviCompile/include -mno-replace-jmp-with-bra-peephole
 

@@ -1,19 +1,19 @@
 add_library(vlfeat STATIC
-   ../../ThirdParty/vlfeat-0.9.18/vl/generic.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/host.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/gmm.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/mathop.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/random.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/vlad.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/kmeans.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/kdtree.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/liop.c
-   ../../ThirdParty/vlfeat-0.9.18/vl/imopv.c
+   ../ThirdParty/vlfeat-0.9.18/vl/generic.c
+   ../ThirdParty/vlfeat-0.9.18/vl/host.c
+   ../ThirdParty/vlfeat-0.9.18/vl/gmm.c
+   ../ThirdParty/vlfeat-0.9.18/vl/mathop.c
+   ../ThirdParty/vlfeat-0.9.18/vl/random.c
+   ../ThirdParty/vlfeat-0.9.18/vl/vlad.c
+   ../ThirdParty/vlfeat-0.9.18/vl/kmeans.c
+   ../ThirdParty/vlfeat-0.9.18/vl/kdtree.c
+   ../ThirdParty/vlfeat-0.9.18/vl/liop.c
+   ../ThirdParty/vlfeat-0.9.18/vl/imopv.c
    $<$<BOOL:${ENABLE_STEREO}>:
-   ../../ThirdParty/vlfeat-0.9.18/vl/sift.c
+   ../ThirdParty/vlfeat-0.9.18/vl/sift.c
    >
 )
-target_include_directories(vlfeat SYSTEM INTERFACE ../../ThirdParty/vlfeat-0.9.18)
+target_include_directories(vlfeat SYSTEM INTERFACE ../ThirdParty/vlfeat-0.9.18)
 target_compile_options(vlfeat PRIVATE $<$<BOOL:${MSVC}>:/wd4244>)
 set_target_properties(vlfeat PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
@@ -93,8 +93,8 @@ find_package(Eigen3 REQUIRED)
 target_link_libraries(trackeri PUBLIC Threads::Threads Eigen3::Eigen)
 
 target_include_directories(trackeri SYSTEM PUBLIC
-    ../../ThirdParty/rapidjson/include
-    ../../ThirdParty/spdlog/include
+    ../ThirdParty/rapidjson/include
+    ../ThirdParty/spdlog/include
 )
 target_compile_definitions(trackeri PUBLIC SPDLOG_NO_DATETIME SPDLOG_NO_THREAD_ID)
 
@@ -238,13 +238,13 @@ install(EXPORT tracker NAMESPACE DESTINATION cmake EXPORT_LINK_INTERFACE_LIBRARI
 
 if(ENABLE_QR)
     file(GLOB_RECURSE LIBZXING_FILES
-        "../../ThirdParty/libzxing-cpp/zxing/*.cpp"
-        "../../ThirdParty/libzxing-cpp/bigint/*.cpp"
+        "../ThirdParty/libzxing-cpp/zxing/*.cpp"
+        "../ThirdParty/libzxing-cpp/bigint/*.cpp"
     )
     add_library(libzxing STATIC ${LIBZXING_FILES})
     target_compile_definitions(libzxing PRIVATE NO_ICONV)
     target_include_directories(libzxing
-      PUBLIC ../../ThirdParty/libzxing-cpp
+      PUBLIC ../ThirdParty/libzxing-cpp
     )
 
     target_link_libraries(trackeri PRIVATE libzxing)
@@ -257,7 +257,7 @@ if(NOT Boost_FOUND)
 endif()
 
 if(ENABLE_STEREO)
-    add_subdirectory(../../ThirdParty/qhull qhull)
+    add_subdirectory(../ThirdParty/qhull qhull)
 
     add_library(stereo STATIC
       stereo/stereo.cpp
@@ -275,11 +275,11 @@ set_target_properties(trackeri PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if(ENABLE_STEREO)
     foreach(f alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp daialg.cpp properties.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
-      list(APPEND DAI_FILES "../../ThirdParty/libDAI-0.3.1/src/${f}")
+      list(APPEND DAI_FILES "../ThirdParty/libDAI-0.3.1/src/${f}")
     endforeach(f)
     add_library(DAI STATIC ${DAI_FILES})
     target_include_directories(DAI PUBLIC
-      ../../ThirdParty/libDAI-0.3.1/include
+      ../ThirdParty/libDAI-0.3.1/include
       "${Boost_INCLUDE_DIRS}"
     )
     # -DMACOSX forces libDAI to include boost using <boost/tr1/*>
@@ -305,9 +305,11 @@ add_subdirectory(vocabulary vocabulary)
 target_link_libraries(trackeri PUBLIC vocabulary)
 
 set(DBOW2_FILES
-    ../../ThirdParty/DBoW2/include/DBoW2/TemplatedVocabulary.h
-#   ../../ThirdParty/DBoW2/src/train.cpp
+    ../ThirdParty/DBoW2/include/DBoW2/TemplatedVocabulary.h
+#   ../ThirdParty/DBoW2/src/train.cpp
 )
 add_library(dbow2 INTERFACE)
-target_include_directories(dbow2 INTERFACE ../../ThirdParty/DBoW2/include/)
+target_include_directories(dbow2 INTERFACE
+    ../ThirdParty/DBoW2/include
+)
 target_link_libraries(trackeri PUBLIC dbow2)

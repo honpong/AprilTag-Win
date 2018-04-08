@@ -125,6 +125,8 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
 
 void fast_tracker::track(const image &image, vector<feature_track *> &tracks)
 {
+    init(image.width_px, image.height_px, image.stride_px, full_patch_width);
+
     for(auto &tp : tracks) {
         auto &t = *tp;
         fast_feature<DESCRIPTOR> &f = *static_cast<fast_feature<DESCRIPTOR>*>(t.feature.get());

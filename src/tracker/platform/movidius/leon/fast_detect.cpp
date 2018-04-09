@@ -22,13 +22,19 @@ static shave_entry_point fast_detect[DETECT_SHAVES] = {
 
 fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, scaled_mask &mask, size_t need, size_t &found)
 {
-    __attribute__((section(".cmx_direct.data"))) static unsigned threshold;
-    __attribute__((section(".cmx_direct.data"))) static fast_tracker::xy cmx_features[500];
-    __attribute__((section(".cmx_direct.data"))) static size_t cmx_features_size = sizeof(cmx_features)/sizeof(*cmx_features);
-    assert(sizeof(cmx_features)/sizeof(*cmx_features) >= need + 1); // Note that features should have at least need+1 entries on entry (as we use a heap and need to push (before we can pop) when full)
+    __attribute__((section(".cmx_direct.data")))
+    static struct cmx_storage {
+        unsigned threshold;
+        fast_tracker::xy features[500];
+        size_t features_size;
+    } cmx_[2];
+    struct cmx_storage *cmx = &cmx_[id];
 
-    threshold = fast_detect_threshold;
-    cmx_features_size = 0;
+    assert(id < size_t(cmx_)/sizeof(*cmx_));
+    assert(sizeof(cmx::features)/sizeof(*cmx::features) >= need + 1); // Note that features should have at least need+1 entries on entry (as we use a heap and need to push (before we can pop) when full)
+
+    cmx->threshold = fast_detect_threshold;
+    cmx->features_size = 0;
     for (int i=0; i< DETECT_SHAVES; ++i) {
         struct int2 { int x,y; } image_size, win_xy, win_size;
         DrvSvuL1DataCacheCtrl(fast_detect[i].shave, SVUL1DATACACHE_INVALIDATE_ALL);
@@ -43,10 +49,10 @@ fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, s
             &(win_size = (int2) { image.width_px, (i+1) * image.height_px / DETECT_SHAVES
                                                  - i    * image.height_px / DETECT_SHAVES }),
             need,
-            cmx_features,
-            &cmx_features_size,
+            cmx->features,
+            &cmx->features_size,
 
-            &threshold,
+            &cmx->threshold,
             &mask.mask[0],
             mask.scaled_width
         );
@@ -54,8 +60,8 @@ fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, s
     for (int i = 0; i < DETECT_SHAVES; ++i)
         Shave::get_handle(fast_detect[i].shave)->wait();
 
-    std::sort_heap(cmx_features, cmx_features+cmx_features_size, fast_tracker::xy_comp);
+    std::sort_heap(cmx->features, cmx->features+cmx->features_size, fast_tracker::xy_comp);
 
-    found = cmx_features_size;
-    return cmx_features;
+    found = cmx->features_size;
+    return cmx->features;
 }

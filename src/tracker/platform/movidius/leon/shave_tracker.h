@@ -18,7 +18,6 @@ class shave_tracker : public fast_tracker
 {
 
 private:
-    uint64_t next_id = 0;
     void trackMultipleShave(std::vector<TrackingData>& trackingData, const image& image);
     void prepTrackingData(std::vector<TrackingData>& trackingData, std::vector<tracker::feature_track *> &predictions);
     void processTrackingResult(std::vector<tracker::feature_track *> &predictions);

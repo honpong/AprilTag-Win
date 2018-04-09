@@ -313,3 +313,5 @@ target_include_directories(dbow2 INTERFACE
     ../ThirdParty/DBoW2/include
 )
 target_link_libraries(trackeri PUBLIC dbow2)
+
+add_subdirectory(brainstem brainstem)

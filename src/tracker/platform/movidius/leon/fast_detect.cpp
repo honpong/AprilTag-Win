@@ -20,7 +20,7 @@ static shave_entry_point fast_detect[DETECT_SHAVES] = {
     {10, &detect10_fast_detect},
 };
 
-fast_tracker::xy *platform_fast_detect(const tracker::image &image, scaled_mask &mask, size_t need, size_t &found)
+fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, scaled_mask &mask, size_t need, size_t &found)
 {
     __attribute__((section(".cmx_direct.data"))) static unsigned threshold;
     __attribute__((section(".cmx_direct.data"))) static fast_tracker::xy cmx_features[500];

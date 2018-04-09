@@ -1139,7 +1139,7 @@ void filter_initialize(struct filter *f)
 
 #ifdef MYRIAD2
 #ifdef ENABLE_SHAVE_TRACKER
-        camera_state.feature_tracker = std::make_unique<shave_tracker>();
+        camera_state.feature_tracker = std::make_unique<shave_tracker>(i);
 #else
         camera_state.feature_tracker = std::make_unique<fast_tracker>();
 #endif

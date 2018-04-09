@@ -60,7 +60,6 @@ tm2_host_stream::tm2_host_stream(const char*filename) {
 };
 
 void shutdown(int _unused = 0) {
-    usb_reset();
     usb_shutdown();
 }
 

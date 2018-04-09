@@ -92,12 +92,14 @@ void usb_shutdown()
         if (!usb_send_control(CONTROL_MESSAGE_STOP, 0, 0, 0)) {
             std::cerr << "Error: unable to stop replay cleanly\n";
         }
+        usb_reset();
         libusb_release_interface(device_handle, 0);
         libusb_close(device_handle);
         device_handle = NULL;
     }
     if (context) libusb_exit(context);
     context = NULL;
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000)); //wait for complete USB shutdown before potential bringup
 }
 
 void usb_reset()
@@ -129,7 +131,6 @@ bool usb_init(int vendor_id, int product_id)
         }
     }
     if (is_failure) {
-        usb_reset();
         usb_shutdown();
         return false;
     }

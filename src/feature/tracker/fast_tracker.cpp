@@ -36,18 +36,20 @@ void fast_tracker::init(const int x, const int y, const int s, const int ps)
     make_offsets(pixel, stride);
 }
 
-vector<tracker::feature_track> &fast_tracker::detect(const image &image, const std::vector<feature_position> &current, size_t number_desired)
+void fast_tracker::init_mask(const image &image, const std::vector<feature_position> &current)
 {
     if (!mask)
         mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
     mask->initialize();
     for (auto &f : current)
         mask->clear((int)f.x, (int)f.y);
+}
+
+vector<tracker::feature_track> &fast_tracker::detect(const image &image, const std::vector<feature_position> &current, size_t number_desired)
+{
+    init_mask(image, current);
 
     init(image.width_px, image.height_px, image.stride_px, full_patch_width);
-
-    feature_points.clear();
-    feature_points.reserve(number_desired);
 
     auto need = static_cast<size_t>(number_desired * 3.2f);
     features.clear();
@@ -110,9 +112,21 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
             }
         }
     }
-    sort_heap(features.begin(), features.end(), xy_comp);
-    
-    for(const auto &d : features) {
+    return finalize_detect(features.data(), features.data() + features.size(), image, number_desired);
+}
+
+vector<tracker::feature_track> &fast_tracker::finalize_detect(xy *heap_begin, xy *heap_end, const image &image, size_t number_desired) {
+    sort_heap(heap_begin, heap_end, xy_comp);
+    return non_maximum_suppression(heap_begin, heap_end, image, number_desired);
+}
+
+vector<tracker::feature_track> &fast_tracker::non_maximum_suppression(xy *features_begin, xy *features_end, const image &image, size_t number_desired)
+{
+    feature_points.clear();
+    feature_points.reserve(number_desired);
+
+    for (; features_begin != features_end; ++features_begin) {
+        auto &d = *features_begin;
         if(!is_trackable<DESCRIPTOR::border_size>((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
             continue;
         mask->clear((int)d.x, (int)d.y);

@@ -31,7 +31,7 @@ fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, s
     struct cmx_storage *cmx = &cmx_[id];
 
     assert(id < size_t(cmx_)/sizeof(*cmx_));
-    assert(sizeof(cmx::features)/sizeof(*cmx::features) >= need + 1); // Note that features should have at least need+1 entries on entry (as we use a heap and need to push (before we can pop) when full)
+    assert(need + 1 < sizeof(cmx::features)/sizeof(*cmx::features)); // Note that features should have at least need+1 entries on entry (as we use a heap and need to push (before we can pop) when full)
 
     cmx->threshold = fast_detect_threshold;
     cmx->features_size = 0;

@@ -18,15 +18,16 @@ class shave_tracker : public fast_tracker
 {
 
 private:
-    uint64_t next_id = 0;
+    size_t id;
     void trackMultipleShave(std::vector<TrackingData>& trackingData, const image& image);
     void prepTrackingData(std::vector<TrackingData>& trackingData, std::vector<tracker::feature_track *> &predictions);
     void processTrackingResult(std::vector<tracker::feature_track *> &predictions);
 
 public:
+    shave_tracker(size_t id_) : id(id_) {}
     virtual std::vector<tracker::feature_track> &detect(const image &image, const std::vector<tracker::feature_position> &features, size_t number_desired) override;
     virtual void track(const image &image, std::vector<tracker::feature_track *> &predictions) override;
-    void stereo_matching_full_shave(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id);
+    static void stereo_matching_full_shave(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id);
 
 };
 

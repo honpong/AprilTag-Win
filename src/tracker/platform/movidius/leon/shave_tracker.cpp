@@ -6,16 +6,6 @@
 #include "descriptor.h"
 #include "fast_detect.h"
 #include "state_vision.h"
-extern "C" {
-#include "cor_types.h"
-}
-
-
-// LOG threshold values
-#define LOG_THRESHOLD 0
-
-// Set to 1 to skip detection threshold update so initial threshold will be used. 
-#define SKIP_THRESHOLD_UPDATE 0
 
 #if 0 // Configure debug prints
 #define DPRINTF(...) printf(__VA_ARGS__)
@@ -82,7 +72,9 @@ std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image
         mask->clear((int)f.x, (int)f.y);
 
     size_t num_found = 0;
-    fast_tracker::xy *found = platform_fast_detect(image, *mask, static_cast<size_t>(number_desired * 3.2f), num_found);
+    fast_tracker::xy *found = platform_fast_detect(id, image, *mask, static_cast<size_t>(number_desired * 3.2f), num_found);
+
+    std::sort_heap(found, found + num_found, fast_tracker::xy_comp);
 
     feature_points.clear();
     feature_points.reserve(number_desired);
@@ -249,24 +241,24 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
     float4_t camera2_extrinsics_T_v = { E_camera2_extrinsics_T_v[0],E_camera2_extrinsics_T_v[1],E_camera2_extrinsics_T_v[2] };
 
     //copy to  cvrt; //todo : direcrt copy without local step;
-	l_float4x4_copy (kpMatchingParams->R1w_transpose,R1w_transpose );
-	l_float4x4_copy (kpMatchingParams->R2w_transpose,R2w_transpose );
-	l_float4_copy   (kpMatchingParams->camera1_extrinsics_T_v,camera1_extrinsics_T_v );
-	l_float4_copy   (kpMatchingParams->camera2_extrinsics_T_v,camera2_extrinsics_T_v );
-	l_float3_copy   (kpMatchingParams->p_o1_transformed,p_o1_transformed);
-	l_float3_copy   (kpMatchingParams->p_o2_transformed,p_o2_transformed);
-	kpMatchingParams->EPS=1e-14;
-	kpMatchingParams->patch_stride=full_patch_width;
-	kpMatchingParams->patch_win_half_width=half_patch_width;
-	kpMatchingParams->kp1 = p_kp1;
-	kpMatchingParams->kp2 = p_kp2;
-	kpMatchingParams->patches1 = patches1;
-	kpMatchingParams->patches2 = patches2;
-	kpMatchingParams->depth1 = depths1;
-	kpMatchingParams->depth2 = depths2;
-	kpMatchingParams->errors1 = errors1;
-	kpMatchingParams->matched_kp = matched_kp;
-	for (int i = 0; i < STEREO_SHAVES; ++i){
+    l_float4x4_copy (kpMatchingParams->R1w_transpose,R1w_transpose );
+    l_float4x4_copy (kpMatchingParams->R2w_transpose,R2w_transpose );
+    l_float4_copy   (kpMatchingParams->camera1_extrinsics_T_v,camera1_extrinsics_T_v );
+    l_float4_copy   (kpMatchingParams->camera2_extrinsics_T_v,camera2_extrinsics_T_v );
+    l_float3_copy   (kpMatchingParams->p_o1_transformed,p_o1_transformed);
+    l_float3_copy   (kpMatchingParams->p_o2_transformed,p_o2_transformed);
+    kpMatchingParams->EPS=1e-14;
+    kpMatchingParams->patch_stride=full_patch_width;
+    kpMatchingParams->patch_win_half_width=half_patch_width;
+    kpMatchingParams->kp1 = p_kp1;
+    kpMatchingParams->kp2 = p_kp2;
+    kpMatchingParams->patches1 = patches1;
+    kpMatchingParams->patches2 = patches2;
+    kpMatchingParams->depth1 = depths1;
+    kpMatchingParams->depth2 = depths2;
+    kpMatchingParams->errors1 = errors1;
+    kpMatchingParams->matched_kp = matched_kp;
+    for (int i = 0; i < STEREO_SHAVES; ++i){
         Shave::get_handle(stereo_matching[i].shave)->start(
                 (u32)stereo_matching[i].entry_point,
                 "i",

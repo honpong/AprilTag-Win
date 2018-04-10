@@ -24,16 +24,17 @@ fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, s
 {
     std::mutex detect_shaves_mutex; std::lock_guard<std::mutex> lock(detect_shaves_mutex); // avoid other ids clearing our L1 cache below
 
-    __attribute__((section(".cmx_direct.data")))
-    static struct cmx_storage {
+    struct feature_storage {
         unsigned threshold;
-        fast_tracker::xy features[500];
+        std::array<fast_tracker::xy, 500> features;
         size_t features_size;
-    } cmx_[2];
-    struct cmx_storage *cmx = &cmx_[id];
+    };
+    __attribute__((section(".cmx_direct.data")))
+    static std::array<feature_storage, 2> storage;
+    feature_storage *cmx = &storage[id];
 
-    assert(id < size_t(cmx_)/sizeof(*cmx_));
-    assert(need + 1 < sizeof(cmx::features)/sizeof(*cmx::features)); // Note that features should have at least need+1 entries on entry (as we use a heap and need to push (before we can pop) when full)
+    assert(id < storage.size());
+    assert(need + 1 < cmx->features.size()); // Note that features should have at least need+1 entries on entry (as we use a heap and need to push (before we can pop) when full)
 
     cmx->threshold = fast_detect_threshold;
     cmx->features_size = 0;
@@ -51,7 +52,7 @@ fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, s
             &(win_size = (int2) { image.width_px, (i+1) * image.height_px / DETECT_SHAVES
                                                  - i    * image.height_px / DETECT_SHAVES }),
             need,
-            cmx->features,
+            cmx->features.data(),
             &cmx->features_size,
 
             &cmx->threshold,
@@ -63,5 +64,5 @@ fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, s
         Shave::get_handle(fast_detect[i].shave)->wait();
 
     found = cmx->features_size;
-    return cmx->features;
+    return cmx->features.data();
 }

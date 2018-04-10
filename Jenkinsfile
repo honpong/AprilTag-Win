@@ -68,13 +68,6 @@ pipeline {
                        }
                     }
                 }
-                stage('Run TM2 benchmark') {
-                    steps {
-                        sh 'build/hub --disableport 0,1 --enableport 0,1 --delay 5000'
-                        sh 'build/mv-usb-boot src/movidius/device/output/device.mvcmd'
-                        sh 'build/measure --tm2 --no-gui --relocalize "benchmark_data/new_test_suite/WW50/VR_with_ctrl/Shooter(Raw_Data)/VR_RD_with_ctrl_1.stereo.rc"'
-                    }
-                }
                 stage('Windows 32') {
                     agent { label 'windows' }
                     steps {

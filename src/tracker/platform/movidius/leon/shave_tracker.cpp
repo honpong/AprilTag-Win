@@ -10,13 +10,6 @@ extern "C" {
 #include "cor_types.h"
 }
 
-
-// LOG threshold values
-#define LOG_THRESHOLD 0
-
-// Set to 1 to skip detection threshold update so initial threshold will be used.
-#define SKIP_THRESHOLD_UPDATE 0
-
 #if 0 // Configure debug prints
 #define DPRINTF(...) printf(__VA_ARGS__)
 #else

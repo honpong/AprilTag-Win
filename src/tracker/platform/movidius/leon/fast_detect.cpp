@@ -60,8 +60,6 @@ fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, s
     for (int i = 0; i < DETECT_SHAVES; ++i)
         Shave::get_handle(fast_detect[i].shave)->wait();
 
-    std::sort_heap(cmx->features, cmx->features+cmx->features_size, fast_tracker::xy_comp);
-
     found = cmx->features_size;
     return cmx->features;
 }

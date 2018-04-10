@@ -74,6 +74,8 @@ std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image
     size_t num_found = 0;
     fast_tracker::xy *found = platform_fast_detect(id, image, *mask, static_cast<size_t>(number_desired * 3.2f), num_found);
 
+    std::sort_heap(found, found + num_found, fast_tracker::xy_comp);
+
     feature_points.clear();
     feature_points.reserve(number_desired);
     for (int i=0; i<num_found; i++) {

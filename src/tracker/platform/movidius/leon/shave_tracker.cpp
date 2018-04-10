@@ -6,9 +6,6 @@
 #include "descriptor.h"
 #include "fast_detect.h"
 #include "state_vision.h"
-extern "C" {
-#include "cor_types.h"
-}
 
 #if 0 // Configure debug prints
 #define DPRINTF(...) printf(__VA_ARGS__)

@@ -22,7 +22,7 @@ static shave_entry_point fast_detect[DETECT_SHAVES] = {
 
 fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, scaled_mask &mask, size_t need, size_t &found)
 {
-    std::mutex detect_shaves_mutex; std::lock_guard<std::mutex> lock(detect_shaves_mutex); // avoid other ids clearing our L1 cache below
+    static std::mutex detect_shaves_mutex; std::lock_guard<std::mutex> lock(detect_shaves_mutex); // avoid other ids clearing our L1 cache below
 
     struct feature_storage {
         unsigned threshold;

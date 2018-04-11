@@ -30,7 +30,7 @@ def ensure_path(path):
         if exception.errno != errno.EEXIST:
             raise
 
-def convert(capture_filename, output_folder, drop_images, drop_accel, drop_gyro):
+def convert(capture_filename, output_folder, drop_images, drop_accel, drop_gyro, drop_image_ids):
     frame_name = "fisheye"
     depth_name = "depth"
     depth_folder = os.path.join(output_folder, "depth")
@@ -81,7 +81,7 @@ def convert(capture_filename, output_folder, drop_images, drop_accel, drop_gyro)
             if p.header.type == PacketType.accelerometer and not drop_accel: accel_file.write(line)
             if p.header.type == PacketType.gyroscope and not drop_gyro: gyro_file.write(line)
 
-        if p.header.type == PacketType.image_raw and not drop_images:
+        if p.header.type == PacketType.image_raw and not drop_images and sensor_id not in drop_image_ids:
             (exposure, width, height, stride, camera_format) = unpack('QHHHH', p.data[:16])
             ptime += exposure//2
             if camera_format == rc_IMAGE_GRAY8:
@@ -114,8 +114,9 @@ def convert(capture_filename, output_folder, drop_images, drop_accel, drop_gyro)
     f.close()
 
     # link old fisheye to fisheye_0
-    os.symlink("fisheye_0", os.path.join(output_folder, "fisheye"));
-    os.symlink("fisheye_0_timestamps.txt", os.path.join(output_folder, "fisheye_timestamps.txt"));
+    if not drop_images and not 0 in drop_image_ids:
+        os.symlink("fisheye_0", os.path.join(output_folder, "fisheye"));
+        os.symlink("fisheye_0_timestamps.txt", os.path.join(output_folder, "fisheye_timestamps.txt"));
 
     if not drop_accel:
         accel_file.close()
@@ -136,7 +137,8 @@ if __name__ == '__main__':
                         help='', default=False, action="store_true")
     parser.add_argument('--drop_accel', help='', default=False, action="store_true")
     parser.add_argument('--drop_gyro', help='', default=False, action="store_true")
+    parser.add_argument('--drop_image_ids', nargs='+', type=int)
 
     args = parser.parse_args()
 
-    convert(args.capture_filename, args.output_folder, args.drop_images, args.drop_accel, args.drop_gyro)
+    convert(args.capture_filename, args.output_folder, args.drop_images, args.drop_accel, args.drop_gyro, args.drop_image_ids)

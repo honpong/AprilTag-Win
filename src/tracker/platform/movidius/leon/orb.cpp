@@ -30,6 +30,8 @@ shave_entry_point compute_descriptors[ORB_SHAVES] = {
 
 void compute_orb_multiple_shaves(const tracker::image &image, fast_tracker::fast_feature<patch_orb_descriptor>* keypoints[], const v2* keypoints_xy[],  size_t num_kpoints, int& actual_num_descriptors)
 {
+    static std::mutex orb_shaves_mutex; std::lock_guard<std::mutex> lock(orb_shaves_mutex);
+
     int dsize = (int)sizeof(keypoints[0]->descriptor.orb.descriptor);
     for(int i = 0; i < num_kpoints; ++i) {
         // check if descriptor has to be computed and update actual number of descriptors

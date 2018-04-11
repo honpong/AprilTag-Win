@@ -1,0 +1,16 @@
+Index: mdk_release_17.04.5_general_purpose_hotfix_usb31_winusb/mdk/common/scripts/ld/myriad2memorySections/arch/ma2150/myriad2_arch_defaults.ldscript
+===================================================================
+--- mdk_release_17.04.5_general_purpose_hotfix_usb31_winusb.orig/mdk/common/scripts/ld/myriad2memorySections/arch/ma2150/myriad2_arch_defaults.ldscript
++++ mdk_release_17.04.5_general_purpose_hotfix_usb31_winusb/mdk/common/scripts/ld/myriad2memorySections/arch/ma2150/myriad2_arch_defaults.ldscript
+@@ -2,11 +2,6 @@ CMX_SIZE = 16*128K;
+ 
+ MEMORY
+ {
+-  CMX_UNCACHED_OTHER (wx) : ORIGIN = 0x78000000 , LENGTH = 16 * 128K
+-}
+-
+-MEMORY
+-{
+     /* following define is used only for checking if uncached ddr region
+      * is still inside a valid address space, changing this
+      * will not move code position.

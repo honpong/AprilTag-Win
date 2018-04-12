@@ -22,7 +22,7 @@ static shave_entry_point fast_detect[DETECT_SHAVES] = {
 
 fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, scaled_mask &mask, size_t need, size_t &found)
 {
-    static std::mutex detect_shaves_mutex; std::lock_guard<std::mutex> lock(detect_shaves_mutex); // avoid other ids clearing our L1 cache below
+    static std::mutex detect_shaves_mutex; std::lock_guard<std::mutex> lock(detect_shaves_mutex);
 
     struct feature_storage {
         unsigned threshold;
@@ -40,8 +40,6 @@ fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, s
     cmx->features_size = 0;
     for (int i=0; i< DETECT_SHAVES; ++i) {
         struct int2 { int x,y; } image_size, win_xy, win_size;
-        DrvSvuL1DataCacheCtrl(fast_detect[i].shave, SVUL1DATACACHE_INVALIDATE_ALL);
-        //OsDrvShaveL2CachePartitionInvalidate(DETECT_PARTITION);
         Shave::get_handle(fast_detect[i].shave)->start(
             (u32)fast_detect[i].entry_point, "ivi" "vv" "iii" "iii",
             image.image,

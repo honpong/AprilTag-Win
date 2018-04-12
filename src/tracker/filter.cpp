@@ -1037,6 +1037,10 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(space >= f->min_group_add && f->max_group_add > camera_state.standby_tracks.size())
         camera_state.detecting_space = f->max_group_add - camera_state.standby_tracks.size();
 
+    for (auto &c : f->s.cameras.children)
+        if (c->extrinsics.estimate && c->extrinsics.Q.variance().maxCoeff() < f->extrinsic_Q_var_thresh)
+            c->extrinsics.disable_estimation();
+
     END_EVENT(SF_IMAGE_MEAS, data.time_us / 1000);
 
     auto stop = std::chrono::steady_clock::now();
@@ -1056,6 +1060,7 @@ void filter_initialize(struct filter *f)
     f->stereo_enabled = false;
     f->relocalization_info.is_relocalized = false;
 
+    f->extrinsic_Q_var_thresh = 0.0000009;
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;
 #else
@@ -1346,6 +1351,12 @@ void filter_start_inertial_only(struct filter *f)
 {
     f->run_state = RCSensorFusionRunStateInertialOnly;
     f->s.enable_orientation_only();
+}
+
+void filter_start_dynamic_calibration(struct filter *f)
+{
+    for (auto &camera : f->s.cameras.children)
+        camera->extrinsics.enable_estimation();
 }
 
 void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned)

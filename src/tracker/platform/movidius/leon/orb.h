@@ -6,4 +6,9 @@
 #include "orb_constants.h"
 #include "Shave.h"
 
-void compute_orb_multiple_shaves(const tracker::image &image, fast_tracker::fast_feature<patch_orb_descriptor>* keypoints[], const v2* keypoints_xy[], size_t num_kpoints, int& actual_num_descriptors);
+typedef struct orb_desc_keypoint {
+    fast_tracker::fast_feature<patch_orb_descriptor>* kp;
+    v2 xy;
+} orb_desc_keypoint;
+
+void compute_orb_multiple_shaves(const tracker::image &image, orb_desc_keypoint *keypoints, size_t num_keypoints);

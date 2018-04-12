@@ -311,10 +311,15 @@ if got_types[image_raw_type] == 0 and \
     error_text += "Error: Never received any image data\n"
 
 max_warnings = max(10*total_time_s/60, 10) # 10 warnings per minute
+exit_code=0
 if len(error_text) > 0:
     print "Failing errors:\n" + error_text
     print "capturecheck result: Failed!"
+    exit_code = 1
 elif total_warnings > max_warnings:
     print "capturecheck result: Failed, with", total_warnings, "warnings!"
+    exit_code = 2
 else:
     print "capturecheck result: Passed, with", total_warnings, "warnings"
+sys.exit(exit_code)
+

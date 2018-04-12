@@ -282,6 +282,7 @@ void replay_device::process_data(rc_packet_t &phandle) {
         printf("Unrecognized data type %d\n", packet->header.type);
         break;
     }
+    stream->device_ack(sensor_clock::tp_to_micros(data_timestamp));
 }
 
 void replay_device::process_control(const packet_control_t *packet) {

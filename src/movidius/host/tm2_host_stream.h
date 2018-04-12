@@ -38,4 +38,5 @@ private:
     std::mutex image_queue_mtx;
     bool is_usb_ok{ false };
     bool stop_host_sending{ false }; //discontinues usb communication, used at tear down.
+    bool usb_sync{ false }; //enable sync processing over USB per packet
 };

@@ -24,6 +24,7 @@ typedef enum replay_packet_type {
     packet_command_next_pause,
     packet_command_step,
     packet_ack, //acknowledgment
+    packet_sensor_ack, //acknowledgment of sensor packet
     packet_transfer_end,
     packet_enable_realtime,
     packet_enable_qvga,
@@ -37,6 +38,7 @@ typedef enum replay_packet_type {
     packet_enable_relocalization,
     packet_enable_output_mode,
     packet_enable_odometry,
+    packet_enable_usb_sync, //enable synchronous processing per packet over USB
     packet_timing_stat,
     packet_load_calibration,
     packet_save_calibration,
@@ -77,6 +79,7 @@ public:
             for (auto type : pkt_types) {
                 if (arrived_type == type) {
                     arrived = true;
+                    arrived_type = packet_none;
                     break;
                 }
             }
@@ -111,6 +114,8 @@ public:
     /// post a packet to the stream object that will be queued and read back later.
     /// after packet is read back and processed, its allocation will be freed by user. 
     virtual void put_device_packet(const rc_packet_t &post_packet) = 0;
+    /// acknowledge receipt of packet
+    virtual void device_ack(uint64_t ack_us) {};
     rc_LoadCallback map_load_callback{ nullptr };
     rc_SaveCallback save_callback{ nullptr };
     rc_DataCallback pose_callback{ nullptr };

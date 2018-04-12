@@ -165,6 +165,7 @@ bool tm2_host_stream::start_stream() {
                         progress_callback((float)bytes_dispatched / sensor_data_size);
                     }
                 }
+                if (usb_sync) host_stream::wait_device_packet({ packet_sensor_ack });
             }
         }
         if (!sts) put_host_packet(packet_command_alloc(packet_command_stop));
@@ -198,6 +199,7 @@ bool tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
         track_output.set_output_type(mode);
         break;
     }
+    case packet_enable_usb_sync: { usb_sync = true; break; }
     case packet_command_end: stop_host_sending = true;
     case packet_command_stop: enable_sensor = false;
     }

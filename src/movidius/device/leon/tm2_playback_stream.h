@@ -17,9 +17,11 @@ public:
     bool read_header(packet_header_t *header, bool control_type = false) override;
     rc_packet_t get_host_packet() override { return std::move(packet); }
     void put_device_packet(const rc_packet_t &post_packet) override;
+    void device_ack(uint64_t ack_us) override;
 private:
     rc_packet_t packet{ nullptr, free };
     std::unique_ptr<stream_buffer> str_buf;
     replay_output track_output[2];
     bool is_started{ false };/// if tracker is started
+    bool usb_sync{ false }; //enable sync processing over USB per packet
 };

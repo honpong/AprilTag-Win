@@ -28,32 +28,24 @@ shave_entry_point compute_descriptors[ORB_SHAVES] = {
     {10, &orb10_compute_descriptors},
 };
 
-void compute_orb_multiple_shaves(const tracker::image &image, fast_tracker::fast_feature<patch_orb_descriptor>* keypoints[], const v2* keypoints_xy[],  size_t num_kpoints, int& actual_num_descriptors)
+void compute_orb_multiple_shaves(const tracker::image &image, orb_desc_keypoint *keypoints, size_t num_keypoints)
 {
     assert(num_kpoints <= MAX_NUM_DESC);
     static std::mutex orb_shaves_mutex; std::lock_guard<std::mutex> lock(orb_shaves_mutex);
-
-    int dsize = (int)sizeof(keypoints[0]->descriptor.orb.descriptor);
-    for(int i = 0; i < num_kpoints; ++i) {
-        // check if descriptor has to be computed and update actual number of descriptors
-        if(!keypoints[i]->descriptor.orb_computed) {
-            kp_xy[i] = (float2_t*)keypoints_xy[i]->data();
-            actual_num_descriptors++;
-        }
-    }
+    for(size_t i = 0; i < num_keypoints; ++i)
+        kp_xy[i] = (float2_t*)keypoints[i].xy.data();
 
     // at least one descriptor to compute
-    if (actual_num_descriptors) {
+    if (num_keypoints) {
         // distribute keypoints among shaves
         for (int i = 0; i< ORB_SHAVES; ++i) {
             // launch orb computation on shave
-            struct int2 { int x,y; } image_size;
             Shave::get_handle(compute_descriptors[i].shave)->start(
                     (u32)compute_descriptors[i].entry_point, "iiii",
-                    &descriptors[i* actual_num_descriptors / ORB_SHAVES],
-                    kp_xy[i * actual_num_descriptors / ORB_SHAVES],
+                    &descriptors[i* num_keypoints / ORB_SHAVES],
+                    kp_xy[i * num_keypoints / ORB_SHAVES],
                     image,
-                    actual_num_descriptors*(i+1)/ORB_SHAVES-actual_num_descriptors*i/ORB_SHAVES);
+                    num_keypoints*(i+1)/ORB_SHAVES-num_keypoints*i/ORB_SHAVES);
         }
 
         // wait until all shaves finish
@@ -61,15 +53,12 @@ void compute_orb_multiple_shaves(const tracker::image &image, fast_tracker::fast
             Shave::get_handle(compute_descriptors[i].shave)->wait();
 
         // copy in the same order of keypoints
-        int j = 0;
-        for(int i = 0; i < num_kpoints; ++i) {
-            if(!keypoints[i]->descriptor.orb_computed) {
-                keypoints[i]->descriptor.orb_computed = true;
-                memcpy(keypoints[i]->descriptor.orb.descriptor.data(), descriptors[j].d.data(), orb_length);
-                keypoints[i]->descriptor.orb.cos_ = descriptors[j].cos_;
-                keypoints[i]->descriptor.orb.sin_ = descriptors[j].sin_;
-                j++;
-            }
+        for(size_t i = 0; i < num_keypoints; ++i) {
+            auto &orb_dec = keypoints[i].kp->descriptor;
+            orb_dec.orb_computed = true;
+            memcpy(orb_dec.orb.descriptor.data(), descriptors[i].d.data(), orb_length);
+            orb_dec.orb.cos_ = descriptors[i].cos_;
+            orb_dec.orb.sin_ = descriptors[i].sin_;
         }
     }
 }

@@ -175,6 +175,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
 
                             auto stop = std::chrono::steady_clock::now();
                             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+
+                            camera.detected_features = detected.size();
                             return detected.size();
                     }, std::move(data), std::move(camera_frame));
                 }
@@ -191,14 +193,16 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
             if (pair.first.id >= sfm.s.cameras.children.size() || pair.second.id >= sfm.s.cameras.children.size())
                 break;
 
-            if (sfm.s.cameras.children[pair.first.id ]->detection_future.valid() ||
-                sfm.s.cameras.children[pair.second.id]->detection_future.valid()) {
-                if (sfm.s.cameras.children[pair.first.id ]->detection_future.valid())
-                    sfm.s.cameras.children[pair.first.id ]->detection_future.wait();
-                if (sfm.s.cameras.children[pair.second.id]->detection_future.valid())
-                    sfm.s.cameras.children[pair.second.id]->detection_future.wait();
-                docallback = filter_stereo_initialize(&sfm, pair.first.id, pair.second.id);
+            std::array<state_camera*, 2> cameras {{ sfm.s.cameras.children[pair.first.id].get(), sfm.s.cameras.children[pair.second.id].get() }};
+            bool skip_stereo_matching = true;
+            for (int i = 0; i < 2; ++i) {
+                if (cameras[i]->detection_future.valid()) {
+                    cameras[i]->detection_future.wait();
+                    skip_stereo_matching &= cameras[i]->detected_features == 0;
+                }
             }
+            if(!skip_stereo_matching)
+                docallback = filter_stereo_initialize(&sfm, pair.first.id, pair.second.id);
 
             update_status();
             if(docallback)

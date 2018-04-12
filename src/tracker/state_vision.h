@@ -267,6 +267,7 @@ struct state_camera: state_branch<state_node*> {
     int process_tracks(mapper *map, spdlog::logger &log);
 
     size_t detecting_space = 0;
+    size_t detected_features = 0;
     int detector_failed = false;
 
     state_camera(size_t id_) : extrinsics("Qc", "Tc", false), intrinsics(false), id(id_) {

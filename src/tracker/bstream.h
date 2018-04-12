@@ -51,8 +51,7 @@ public:
         else { // sort iterators before saving
             typedef typename TMap<Key, T, Comp, TArgs...>::const_iterator cont_itr;
             std::vector<cont_itr> sorted_ele;
-            uint32_t idx = 0;
-            for (auto itr = c.begin(); itr != c.end(); itr++, idx++) sorted_ele.push_back(itr);
+            for (auto itr = c.begin(); itr != c.end(); itr++) sorted_ele.push_back(itr);
             std::sort(sorted_ele.begin(), sorted_ele.end(), [](const cont_itr &e1, const cont_itr &e2)->bool {
                 return (get_key<typename TMap<Key, T, Comp, TArgs...>::value_type, Key>(*e1) <
                         get_key<typename TMap<Key, T, Comp, TArgs...>::value_type, Key>(*e2)); });

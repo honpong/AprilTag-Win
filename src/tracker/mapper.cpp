@@ -1041,10 +1041,11 @@ static bstream_writer &operator << (bstream_writer &content, const mapper::stage
     return content << stage.closest_id << stage.Gr_closest_stage;
 }
 
-static bstream_writer & operator << (bstream_writer& content, const std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> &feat) {
-    content << feat->id << feat->descriptor.orb.sin_ << feat->descriptor.orb.cos_;
-    content << (std::array<uint8_t, orb_descriptor::L> &)feat->descriptor.orb.descriptor;
-    return content << (std::array<uint8_t, patch_descriptor::L> &)feat->descriptor.patch.descriptor;
+static bstream_writer & operator << (bstream_writer& content, const std::shared_ptr<fast_tracker::fast_feature<patch_orb_descriptor>> &feat) {
+    content << feat->id << (std::array<uint8_t, patch_descriptor::L> &)feat->descriptor.patch.descriptor << feat->descriptor.orb_computed;
+    if (feat->descriptor.orb_computed)
+        content << (std::array<uint8_t, orb_descriptor::L> &)feat->descriptor.orb.descriptor << feat->descriptor.orb.cos_ << feat->descriptor.orb.sin_;
+    return content;
 }
 
 static bstream_writer & operator << (bstream_writer &content, const map_feature &feat) {

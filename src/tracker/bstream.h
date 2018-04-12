@@ -26,6 +26,7 @@ public:
         buffer.reset(new char[buffer_size_]);
     }
 
+    bstream_writer& operator << (const bool &c) { return *this << uint8_t(c); } // portable bool size
     template <typename T> 
     typename std::enable_if<std::is_fundamental<T>::value, bstream_writer&>::type operator << (const T& data) { return write((const char*)&data, sizeof(T)); }
     template <typename T> 
@@ -150,6 +151,7 @@ public:
     bstream_reader(const rc_LoadCallback func_, void *handle_, size_t buffer_size_ = DEFAULT_STREAM_BUFFER_SIZE) : in_func(func_), handle(handle_), buffer_size(buffer_size_) {
         buffer.reset(new char[buffer_size_]);
     }
+    bstream_reader& operator >> (bool &c) { uint8_t b; *this >> b; c = b; return *this; } // portable bool size
     template <typename T>
     typename std::enable_if<std::is_fundamental<T>::value, bstream_reader&>::type operator >> (T& data) { return read(data); }
     template <typename T>

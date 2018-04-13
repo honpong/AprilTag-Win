@@ -24,21 +24,29 @@ static bstream_reader & operator >> (bstream_reader & cur_stream, transformation
 typedef class map_node_t<map_feature_v1, map_edge_v1, frame_t> map_node_v1;
 typedef class mapper_t<map_node_t, map_feature_v1, map_edge_v1, frame_t> mapper_v1;
 
-static bstream_reader & operator >> (bstream_reader& content, shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> &feat) {
-    featureid id = 0;
-    float sin_ = 0, cos_ = 0;
-    content >> id >> sin_ >> cos_;
-    orb_descriptor::raw orb_des;
-    if (sizeof(orb_descriptor::raw) != sizeof(array < uint8_t, orb_descriptor::L>)) {
-        content.set_failed();
-        return content;
-    }
-    content >> (array<uint8_t, orb_descriptor::L> &)orb_des;
-    feat = make_shared<fast_tracker::fast_feature<DESCRIPTOR>>(id, orb_descriptor(orb_des, cos_, sin_));
-    feat->descriptor.orb_computed = true;
+
+static bstream_reader & operator >> (bstream_reader& content, orb_descriptor &orb) {
+    orb_descriptor::raw raw; float cos_, sin_;
+    content >>  (array_&)raw >> cos_ >> sin_;
+    orb = orb_descriptor(raw,cos_,sin_);
+    return content;
+}
+
+static bstream_reader & operator >> (bstream_reader& content, patch_descriptor &patch) {
     array<uint8_t, patch_descriptor::L> patch_raw;
     content >> patch_raw;
-    feat->descriptor.patch = patch_descriptor(patch_raw);
+    patch = patch_descriptor(patch_raw);
+    return content;
+}
+
+static bstream_reader & operator >> (bstream_reader& content, shared_ptr<fast_tracker::fast_feature<patch_orb_descriptor>> &feat) {
+    featureid id = 0;
+    patch_descriptor patch;
+    content >> id >> patch;
+    feat = make_shared<fast_tracker::fast_feature<patch_orb_descriptor>>(id, patch);
+    content >> feat->descriptor.orb_computed;
+    if (feat->descriptor.orb_computed)
+        content >> feat->descriptor.orb;
     return content;
 }
 

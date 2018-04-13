@@ -26,6 +26,7 @@ public:
         buffer.reset(new char[buffer_size_]);
     }
 
+    bstream_writer& operator << (const bool &c) { return *this << uint8_t(c); } // portable bool size
     template <typename T> 
     typename std::enable_if<std::is_fundamental<T>::value, bstream_writer&>::type operator << (const T& data) { return write((const char*)&data, sizeof(T)); }
     template <typename T> 
@@ -51,8 +52,7 @@ public:
         else { // sort iterators before saving
             typedef typename TMap<Key, T, Comp, TArgs...>::const_iterator cont_itr;
             std::vector<cont_itr> sorted_ele;
-            uint32_t idx = 0;
-            for (auto itr = c.begin(); itr != c.end(); itr++, idx++) sorted_ele.push_back(itr);
+            for (auto itr = c.begin(); itr != c.end(); itr++) sorted_ele.push_back(itr);
             std::sort(sorted_ele.begin(), sorted_ele.end(), [](const cont_itr &e1, const cont_itr &e2)->bool {
                 return (get_key<typename TMap<Key, T, Comp, TArgs...>::value_type, Key>(*e1) <
                         get_key<typename TMap<Key, T, Comp, TArgs...>::value_type, Key>(*e2)); });
@@ -151,6 +151,7 @@ public:
     bstream_reader(const rc_LoadCallback func_, void *handle_, size_t buffer_size_ = DEFAULT_STREAM_BUFFER_SIZE) : in_func(func_), handle(handle_), buffer_size(buffer_size_) {
         buffer.reset(new char[buffer_size_]);
     }
+    bstream_reader& operator >> (bool &c) { uint8_t b; *this >> b; c = b; return *this; } // portable bool size
     template <typename T>
     typename std::enable_if<std::is_fundamental<T>::value, bstream_reader&>::type operator >> (T& data) { return read(data); }
     template <typename T>

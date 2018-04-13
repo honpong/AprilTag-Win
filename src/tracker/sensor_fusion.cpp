@@ -142,6 +142,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     for (auto &st : camera.tracks) if (st.track.found()) avoid.push_back(st.track);
                     for (auto &t  : camera.standby_tracks)               avoid.push_back(t);
 
+                    if (camera.detection_future.valid()) camera.detection_future.get();
                     camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                         [this, &camera, &avoid, new_group_created, relocalize_now] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) {
                             set_priority(PRIORITY_SLAM_DETECT);

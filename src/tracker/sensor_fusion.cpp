@@ -359,6 +359,11 @@ void sensor_fusion::stop()
 
 void sensor_fusion::stop_threads()
 {
+    for (auto& camera : sfm.s.cameras.children)
+        if (camera->detection_future.valid()) camera->detection_future.get();
+    for (auto& camera : sfm.s.cameras.children)
+        if (camera->orb_future.valid()) camera->orb_future.get();
+    if (sfm.relocalization_future.valid()) sfm.relocalization_future.get();
     if (save_map_thread.joinable()) save_map_thread.join();
 }
 

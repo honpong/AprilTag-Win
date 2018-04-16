@@ -269,7 +269,7 @@ struct state_camera: state_branch<state_node*> {
     size_t detecting_space = 0;
     int detector_failed = false;
 
-    state_camera(size_t id_) : extrinsics("Qc", "Tc", false), intrinsics(false), id(id_) {
+    state_camera(size_t id_) : extrinsics("Qc", "Tc", false, false), intrinsics(false), id(id_) {
         reset();
         children.push_back(&extrinsics);
         children.push_back(&intrinsics);

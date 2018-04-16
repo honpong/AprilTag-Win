@@ -59,7 +59,7 @@ public:
      
      This method should be called when you are ready to begin receiving sensor fusion updates and the user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receive_image, receive_accelerometer, and receive_gyro respectively. Full processing will not begin until the user has held the device steady for a brief initialization period (this occurs concurrently with focusing the camera). The device does not need to be perfectly still; minor shake from the device being held in hand is acceptable.
      */
-    void start(bool threaded, bool fast_path);
+    void start(bool threaded, bool fast_path, bool estimate_extrinsics);
 
     void pause_and_reset_position();
     void unpause();

@@ -545,10 +545,11 @@ public:
     state_quaternion Q;
     state_vector<3> T;
 
-    state_extrinsics(const char *Qx, const char *Tx, bool estimate_) : Q(Qx, constant), T(Tx, constant) {
+    state_extrinsics(const char *Qx, const char *Tx, bool estimate_, bool estimate_translation = true) : Q(Qx, constant), T(Tx, constant) {
         estimate = estimate_;
         children.push_back(&Q);
-        children.push_back(&T);
+        if (estimate_translation)
+            children.push_back(&T);
     }
     void copy_from(const state_extrinsics &other) {
         Q = other.Q;

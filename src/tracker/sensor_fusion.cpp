@@ -309,7 +309,7 @@ bool sensor_fusion::get_stage(bool next, const char *name, mapper::stage::output
     return sfm.map->get_stage(next, name, closest_id, get_transformation() * invert(Gr_closest_now), current_stage);
 }
 
-void sensor_fusion::start(bool thread, bool fast_path_)
+void sensor_fusion::start(bool thread, bool fast_path_, bool dynamic_calibration)
 {
     threaded = thread;
     buffering = false;
@@ -317,6 +317,8 @@ void sensor_fusion::start(bool thread, bool fast_path_)
     isSensorFusionRunning = true;
     isProcessingVideo = true;
     filter_initialize(&sfm);
+    if (dynamic_calibration)
+        filter_start_dynamic_calibration(&sfm);
     filter_start(&sfm);
     queue.start(thread);
     set_priority(PRIORITY_SLAM_FASTPATH);

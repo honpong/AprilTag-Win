@@ -51,6 +51,7 @@ struct filter {
     sensor_clock::time_point detector_failed_time;
     sensor_clock::time_point speed_warning_time;
 
+    float extrinsic_Q_var_thresh;
     float max_velocity;
     float median_depth_variance;
     bool has_converged;
@@ -131,6 +132,7 @@ void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
 #endif
 void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned);
+void filter_start_dynamic_calibration(struct filter *f);
 
 void filter_initialize(struct filter *f);
 void filter_deinitialize(struct filter *f);

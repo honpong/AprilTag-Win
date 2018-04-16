@@ -31,6 +31,7 @@ typedef enum replay_packet_type {
     packet_enable_async,
     packet_enable_no_depth,
     packet_enable_fast_path,
+    packet_enable_dynamic_calibration,
     packet_enable_zero_biases,
     packet_enable_mesg_level,
     packet_enable_mapping,

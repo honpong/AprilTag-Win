@@ -449,6 +449,9 @@ typedef enum rc_TrackerRunFlags
     /** rc_Tracker should process IMU without waiting for image data. */
     rc_RUN_FAST_PATH = 2,
     rc_RUN_NO_FAST_PATH = 0,
+    /** rc_Tracker should dynamically estimate extrinsics, etc. for each camera. */
+    rc_RUN_DYNAMIC_CALIBRATION = 4,
+    rc_RUN_STATIC_CALIBRATION = 0,
 } rc_TrackerRunFlags;
 
 #if __cplusplus

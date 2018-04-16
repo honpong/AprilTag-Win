@@ -19,7 +19,7 @@ private:
     uint64_t delay_start{0};
     rc_MessageLevel message_level = rc_MESSAGE_WARN;
     bool is_realtime{ false }, qvga{ false }, async{ false }, use_depth{ true };
-    bool fast_path{ false }, to_zero_biases{ false }, use_odometry{ false }, stereo_configured{ false };
+    bool fast_path{ false }, to_zero_biases{ false }, use_odometry{ false }, stereo_configured{ false }, dynamic_calibration{ false };
     uint8_t qres{ 0 };
     std::chrono::microseconds realtime_offset{ 0 };
     void setup_filter();

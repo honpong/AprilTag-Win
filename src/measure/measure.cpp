@@ -41,6 +41,7 @@ int main(int c, char **v)
              << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
              << "   [--disable-map] [--save-map <map-json>] [--load-map <map-json>]\n"
              << "   [--minimize-drops | --minimize-latency]\n"
+             << "   [--dynamic-calibration]\n"
 #ifdef ENABLE_TM2_PLAYBACK
              << "   [--tm2] [--show-no-map] [--show-no-feature]\n"
 #endif
@@ -48,7 +49,8 @@ int main(int c, char **v)
         return 1;
     }
 
-    bool realtime = false, start_paused = false, benchmark = false, calibrate = false, zero_bias = false, fast_path = true, async = false, progress = false;
+    bool realtime = false, start_paused = false, benchmark = false, calibrate = false, zero_bias = false;
+    bool fast_path = true, async = false, progress = false, dynamic_calibration = false;
     const char *save = nullptr, *load = nullptr;
     const char *save_map = nullptr, *load_map = nullptr;
     bool qvga = false, depth = true; int qres = 0;
@@ -72,6 +74,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--async") == 0) async = true;
         else if (strcmp(v[i], "--no-realtime") == 0) realtime = false;
         else if (strcmp(v[i], "--no-fast-path")  == 0) fast_path  = false;
+        else if (strcmp(v[i], "--dynamic-calibration") == 0) dynamic_calibration = true;
         else if (strcmp(v[i], "--show-no-plots") == 0) show_plots = false;
         else if (strcmp(v[i], "--show-no-depth") == 0) show_depth = false;
         else if (strcmp(v[i], "--show-no-video") == 0) show_video = false;
@@ -138,6 +141,7 @@ int main(int c, char **v)
         if(realtime) rp.enable_realtime();
         if(enable_map) rp.start_mapping(relocalize, save_map != nullptr);
         if(fast_path) rp.enable_fast_path();
+        if (dynamic_calibration) rp.enable_dynamic_calibration();
         if(async) rp.enable_async();
         if(!benchmark && enable_gui)
             rp.set_replay_output_mode((show_feature ? (uint8_t)replay_output::output_mode::POSE_FEATURE : 0)

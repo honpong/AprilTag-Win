@@ -48,6 +48,7 @@ public:
     void enable_qvga() { request(packet_enable_qvga); }
     void disable_depth() { request(packet_enable_no_depth); }
     void enable_fast_path() { request(packet_enable_fast_path); }
+    void enable_dynamic_calibration() { request(packet_enable_dynamic_calibration);}
     void enable_odometry() { request(packet_enable_odometry); }
     void enable_qres(uint8_t qres_) { request(packet_enable_qres, &qres_, sizeof(uint8_t)); }
     void zero_biases() { request(packet_enable_zero_biases); }

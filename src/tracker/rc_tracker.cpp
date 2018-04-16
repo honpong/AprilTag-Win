@@ -427,7 +427,7 @@ bool rc_startBuffering(rc_Tracker * tracker)
 bool rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
     if(!is_configured(tracker)) return false;
-    tracker->start(run_flags & rc_RUN_ASYNCHRONOUS, run_flags & rc_RUN_FAST_PATH);
+    tracker->start(run_flags & rc_RUN_ASYNCHRONOUS, run_flags & rc_RUN_FAST_PATH, run_flags & rc_RUN_DYNAMIC_CALIBRATION);
     return true;
 }
 

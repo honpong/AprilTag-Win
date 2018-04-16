@@ -68,6 +68,9 @@ struct filter {
             index_ = (index_ + 1 == N ? 0 : index_ + 1);
             return yes;
         }
+        void reset() {
+            index_ = 0;
+        }
     };
 
     std::unique_ptr<mapper> map;

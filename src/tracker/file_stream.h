@@ -9,7 +9,6 @@ class replay_device;
 class file_stream : public device_stream, public host_stream {
 private:
     std::ifstream sensor_file;
-    std::unique_ptr<char[]> buffer;
     std::ofstream save_file;
     bool enable_sensor = false; //initially disable sensor packets
     float sensor_data_size{ 1 };

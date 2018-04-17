@@ -10,6 +10,12 @@ static bool blocking_write_same_size_pkt(packet_t *pkt) {
     return usb_blocking_write(ENDPOINT_DEV_INT_OUT, (uint8_t *)pkt, pkt->header.bytes);
 }
 
+static bool blocking_write_ack_pkt(uint64_t ack_us) {
+    static rc_packet_t ack_pkt = packet_command_alloc(packet_sensor_ack);
+    ack_pkt->header.time = ack_us;
+    return usb_blocking_write(ENDPOINT_DEV_OUT, (uint8_t *)ack_pkt.get(), ack_pkt->header.bytes);
+}
+
 static size_t get_next_packet(tm2_pb_stream::stream_buffer &s)
 {
     rc_packet_t usb_packet(nullptr, free);
@@ -87,10 +93,7 @@ bool tm2_pb_stream::init_device() {
 
 bool tm2_pb_stream::read_header(packet_header_t *header, bool control_type) {
     packet = { nullptr, free };
-    if (!packet_io_read(packet)) {
-        printf("Error: failed to read packet.\n");
-        return false;
-    }
+    if (!packet_io_read(packet)) return false;
     switch (get_packet_type(packet)) {
     case packet_enable_output_mode: {
         auto mode = (replay_output::output_mode)((const uint8_t *)packet->data)[0];
@@ -103,7 +106,8 @@ bool tm2_pb_stream::read_header(packet_header_t *header, bool control_type) {
         ((stream_buffer *)device_stream::map_load_handle)->transfer_bytes = 0;
         break;
     }
-    case packet_command_start: is_started = true;
+    case packet_command_start: { is_started = true; break; }
+    case packet_enable_usb_sync: { usb_sync = true; break; }
     };
     if (header) *header = packet->header;
     return true;
@@ -114,6 +118,8 @@ void tm2_pb_stream::put_device_packet(const rc_packet_t &device_packet) {
     if (!packet_io_write(device_packet))
         printf("Error: failed to post device packet.\n");
     if (get_packet_type(device_packet) == packet_command_end) {
+        track_output[rc_DATA_PATH_SLOW].rc_resetFeatures();
+        track_output[rc_DATA_PATH_FAST].rc_resetFeatures();
         rc_packet_t pose_pkt = packet_control_alloc(packet_command_end, NULL,
             track_output[rc_DATA_PATH_SLOW].get_buffer_size() - sizeof(packet_header_t));
         if (!blocking_write_same_size_pkt(pose_pkt.get()))
@@ -121,3 +127,6 @@ void tm2_pb_stream::put_device_packet(const rc_packet_t &device_packet) {
     }
 }
 
+void tm2_pb_stream::device_ack(uint64_t ack_us) {
+    if (usb_sync) blocking_write_ack_pkt(ack_us);
+}

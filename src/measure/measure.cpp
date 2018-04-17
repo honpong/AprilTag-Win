@@ -43,7 +43,7 @@ int main(int c, char **v)
              << "   [--minimize-drops | --minimize-latency]\n"
              << "   [--dynamic-calibration]\n"
 #ifdef ENABLE_TM2_PLAYBACK
-             << "   [--tm2] [--show-no-map] [--show-no-feature]\n"
+             << "   [--tm2] [--show-no-map] [--show-no-feature] [--usb-sync]\n"
 #endif
              << "   [--relocalize] [--disable-odometry] [--incremental-ate]\n";
         return 1;
@@ -61,7 +61,7 @@ int main(int c, char **v)
     rc_TrackerQueueStrategy queue_strategy = rc_QUEUE_MINIMIZE_DROPS;
     bool incremental_ate = false;
     bool relocalize = false;
-    bool tm2_playback = false;
+    bool tm2_playback = false, usb_sync = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr, *pose_output = nullptr;
     char *pause_at = nullptr;
     float skip_secs = 0.f;
@@ -113,6 +113,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--tm2") == 0)   tm2_playback = true;
         else if (strcmp(v[i], "--show-no-feature") == 0 ) show_feature = false;
         else if (strcmp(v[i], "--show-no-map") == 0) show_map = false;
+        else if (strcmp(v[i], "--usb-sync") == 0) usb_sync = true;
         else goto usage;
 
     if (!filename)
@@ -143,6 +144,7 @@ int main(int c, char **v)
         if(fast_path) rp.enable_fast_path();
         if (dynamic_calibration) rp.enable_dynamic_calibration();
         if(async) rp.enable_async();
+        if(usb_sync) rp.enable_usb_sync();
         if(!benchmark && enable_gui)
             rp.set_replay_output_mode((show_feature ? (uint8_t)replay_output::output_mode::POSE_FEATURE : 0)
                 + (show_map ? (uint8_t)replay_output::output_mode::POSE_MAP : 0));

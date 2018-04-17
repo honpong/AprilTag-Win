@@ -51,6 +51,8 @@ public:
     void enable_dynamic_calibration() { request(packet_enable_dynamic_calibration);}
     void enable_odometry() { request(packet_enable_odometry); }
     void enable_qres(uint8_t qres_) { request(packet_enable_qres, &qres_, sizeof(uint8_t)); }
+    /// applicable to playback on TM2, enable synchronous processing per packet
+    void enable_usb_sync() { request(packet_enable_usb_sync); }
     void zero_biases() { request(packet_enable_zero_biases); }
     void delay_start(uint64_t delay_us) { request(packet_delay_start, &delay_us, sizeof(uint64_t)); }
     void set_message_level(rc_MessageLevel level) {

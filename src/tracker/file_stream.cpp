@@ -21,7 +21,6 @@ static void log_to_stderr(void *handle, rc_MessageLevel message_level, const cha
 }
 
 file_stream::file_stream(const char *name) {
-    buffer = make_unique<char[]>(file_buffer_bytes);
     sensor_file.rdbuf()->pubsetbuf(buffer.get(), file_buffer_bytes);
     sensor_file.open(name, ios::binary);
     if ((stream_sts = sensor_file.is_open())) {
@@ -145,6 +144,11 @@ void file_stream::put_device_packet(const rc_packet_t &device_packet) {
     case packet_timing_stat: { tracking_stat.assign((const char*)device_packet->data); break; }
     case packet_camera_extrinsics: {
         memcpy(&camera_extrinsics[0], device_packet->data, 2 * sizeof(rc_Extrinsics));
+        break;
+    }
+    case packet_command_end: { //ensure share poitner to tracker's features are cleared
+        track_output[rc_DATA_PATH_SLOW].rc_resetFeatures();
+        track_output[rc_DATA_PATH_FAST].rc_resetFeatures();
         break;
     }
     }

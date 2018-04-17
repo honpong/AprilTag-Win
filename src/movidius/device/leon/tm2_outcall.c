@@ -441,6 +441,7 @@ static VOID UsbPumpVscAppI_ReadTransferDone(UDEVICE * pDevice, UENDPOINT * pUep,
 
     if(pQe->uqe_status != USTAT_OK) {
         last_read_state[endPoint - 1] = false;
+        printf("Error: failed usb reading, error %d\n", pQe->uqe_status);
         TTUSB_PLATFORM_PRINTF((pSelf->pPlatform, UDMASK_ERRORS,
                                "?UsbPumpVscAppI_ReadTransferDone:", pRequest,
                                UsbPumpStatus_Name(pQe->uqe_status),

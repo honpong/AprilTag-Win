@@ -1101,9 +1101,9 @@ void filter_initialize(struct filter *f)
     f->detector_failed_time = sensor_clock::time_point(sensor_clock::duration(0));
     f->speed_warning_time = sensor_clock::time_point(sensor_clock::duration(0));
 
-    f->observations.observations.clear();
-    f->mini->observations.observations.clear();
-    f->catchup->observations.observations.clear();
+    f->observations.reset();
+    f->mini->observations.reset();
+    f->catchup->observations.reset();
 
     f->s.reset();
     if (f->map) f->map->reset();

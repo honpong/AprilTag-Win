@@ -215,6 +215,9 @@ public:
     void preprocess(state_root &s, sensor_clock::time_point time);
     bool process(state_root &s, bool run_on_shave = false);
     std::vector<std::unique_ptr<observation>> observations;
+    void reset() {
+        observations.clear();
+    }
 
     // keep the most recent measurement of a given type around for plotting, etc
     std::unique_ptr<observation_gyroscope> recent_g;

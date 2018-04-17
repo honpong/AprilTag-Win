@@ -30,7 +30,8 @@ shave_entry_point compute_descriptors[ORB_SHAVES] = {
 
 void compute_orb_multiple_shaves(const tracker::image &image, fast_tracker::fast_feature<patch_orb_descriptor>* keypoints[], float *keypoint_xy, size_t num_keypoints)
 {
-    assert(num_kpoints <= MAX_NUM_DESC);
+    assert(num_keypoints <= MAX_NUM_DESC);
+    num_keypoints = std::min(num_keypoints, static_cast<size_t>(MAX_NUM_DESC));
     static std::mutex orb_shaves_mutex; std::lock_guard<std::mutex> lock(orb_shaves_mutex);
     memcpy(kp_xy, keypoint_xy, num_keypoints * sizeof(float) * 2);
 

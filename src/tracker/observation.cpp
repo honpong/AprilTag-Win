@@ -140,8 +140,10 @@ bool observation_queue::update_state_and_covariance(matrix &x, matrix &P, const 
 
     matrix HP_y (HP, 0,0, meas_size, statesize+1);
     HP_y.map().rightCols(1) = -y.map().transpose();
-    if (!matrix_half_solve(S, HP_y)) // S = L L^T; HP_y = L^-1 [ HP -y ]
+    if (!matrix_cholesky(S)) // S = L L^T;
         return false;
+
+    matrix_half_solve(S , HP_y); // HP_y = L^-1 [ HP -y ]
     matrix_product(Px, HP_y, HP, true, false, -1); // [P ; x ] -= (L^-1 [HP -y])' * (L^-1 HP)
 
     P.map().triangularView<Eigen::StrictlyUpper>() = P.map().triangularView<Eigen::StrictlyLower>().transpose();

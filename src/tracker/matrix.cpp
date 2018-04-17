@@ -164,11 +164,10 @@ static void matrix_cholesky_lower(matrix &A)
 }
 #endif
 
-bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = L^-T B
+bool matrix_cholesky(matrix &A) // A = L L^T; B = L^-T B
 {
     matrix::Map
-        A_map { &A(0,0), A.rows(), A.cols(), A.get_stride() },
-        B_map { &B(0,0), B.rows(), B.cols(), B.get_stride() };
+        A_map { &A(0,0), A.rows(), A.cols(), A.get_stride() };
 
 #ifdef ENABLE_SHAVE_CHOLESKY
     if (A.rows() > 3) {
@@ -184,6 +183,14 @@ bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = L^-T B
         if (llt.info() != Eigen::Success)
             return false;
     }
+    return true;
+}
+
+void matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = L^-T B
+{
+    matrix::Map
+        A_map { &A(0,0), A.rows(), A.cols(), A.get_stride() },
+        B_map { &B(0,0), B.rows(), B.cols(), B.get_stride() };
 
 #if defined(ENABLE_SHAVE_SOLVE) || defined(HAVE_BLIS)
     if (A.rows() > 3) {
@@ -197,7 +204,6 @@ bool matrix_half_solve(matrix &A, matrix &B) // A = L L^T; B = L^-T B
         A_map.triangularView<Eigen::Lower>().solveInPlace(B_map);
         END_EVENT(SF_MSOLVE, 0);
     }
-    return true;
 }
 
 //need to put this test around every operation that affects cov. (possibly with #defines, google test?)

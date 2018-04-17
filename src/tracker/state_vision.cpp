@@ -117,9 +117,8 @@ state_vision::~state_vision()
 void state_vision::reset()
 {
     clear_features_and_groups();
-    for (auto &camera : cameras.children) {
-        camera->detecting_space = 0;
-    }
+    for (auto &camera : cameras.children)
+        camera->reset();
     state_motion::reset();
 }
 
@@ -127,12 +126,7 @@ void state_vision::clear_features_and_groups()
 {
     stereo_matches.clear();
     for (auto &camera : cameras.children)
-    {
-        camera->tracks.clear();
-        if(camera->detection_future.valid())
-            camera->detection_future.wait();
-        camera->standby_tracks.clear();
-    }
+        camera->clear();
     for(auto &g : groups.children) { //This shouldn't be necessary, but keep to remind us to clear if features move
         g->features.children.clear();
         g->lost_features.clear();

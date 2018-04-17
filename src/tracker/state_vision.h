@@ -270,6 +270,19 @@ struct state_camera: state_branch<state_node*> {
     size_t detected_features = 0;
     int detector_failed = false;
 
+    void clear() {
+        tracks.clear();
+        if (detection_future.valid())
+            detection_future.wait();
+        standby_tracks.clear();
+    }
+
+    void reset() {
+        clear();
+        detecting_space = 0;
+        state_branch<state_node*>::reset();
+    }
+
     state_camera(size_t id_) : extrinsics("Qc", "Tc", false, false), intrinsics(false), id(id_) {
         reset();
         children.push_back(&extrinsics);

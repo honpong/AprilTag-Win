@@ -633,11 +633,12 @@ void state_vision::cache_jacobians(f_t dt)
 }
 
 #ifdef ENABLE_SHAVE_PROJECT_MOTION_COVARIANCE
-__attribute__((section(".cmx_direct.data"))) project_motion_covariance_data data;
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
     START_EVENT(SF_PROJECT_MOTION_COVARIANCE, std::min(src.cols(),dst.cols()));
 
+    __attribute__((section(".cmx_direct.data")))
+    static project_motion_covariance_data data;
     data.src = src.Data();
     data.src_rows = src.rows();
     data.src_cols = src.cols();

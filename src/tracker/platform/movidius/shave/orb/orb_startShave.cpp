@@ -7,9 +7,9 @@
 
 extern "C"
 __attribute__((dllexport))
-void compute_descriptors(orb_data descriptors[], float2* xy, const tracker::image &image, const int num_orb)
+void compute_descriptors(orb_data descriptors[], float* xy, const tracker::image &image, const int num_orb)
 {
     for (int i = 0; i < num_orb; ++i) {
-        orb_shave orbs(xy[i][0], xy[i][1], image, &descriptors[i]);
+        orb_shave orbs(xy[i * 2], xy[i*2 + 1], image, &descriptors[i]);
     }
 }

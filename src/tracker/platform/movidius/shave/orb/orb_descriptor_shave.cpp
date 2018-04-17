@@ -22,9 +22,7 @@ orb_shave::orb_shave(float x, float y,  const tracker::image &image, orb_data* o
     binary_test_asm(center, image.stride_px, sin_, cos_, (float*)&orb_bit_pattern_31_, d, dsize);
    // binary_test(center, dsize, d);
 
-    for (int j = 0; j < L; ++j) {
-        output_descriptor->d[j] = descriptor[j];
-    }
+    output_descriptor->d = descriptor;
     output_descriptor->sin_ = sin_;
     output_descriptor->cos_ = cos_;
 }

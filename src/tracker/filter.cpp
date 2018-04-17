@@ -613,15 +613,19 @@ bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_
         int actual_num_descriptors = 0;
         START_EVENT(SF_ORB, 0);
 #ifdef ENABLE_SHAVE_ORB
-        std::vector<orb_desc_keypoint> keypoints_shave;
-        for(size_t i = 0; i < camera_frame.frame->keypoints.size(); ++i) {
+        std::vector<fast_tracker::fast_feature<patch_orb_descriptor>*> keypoints_desc;
+        std::vector<float> keypoints_xy;
+        for (size_t i = 0; i < camera_frame.frame->keypoints.size(); ++i) {
             const v2& kpxy = camera_frame.frame->keypoints_xy[i];
             auto& feature = camera_frame.frame->keypoints[i];
-            if (!feature->descriptor.orb_computed)
-                keypoints_shave.push_back({ feature.get(), kpxy });
+            if (!feature->descriptor.orb_computed) {
+                keypoints_desc.push_back(feature.get());
+                keypoints_xy.push_back(kpxy.x());
+                keypoints_xy.push_back(kpxy.y());
+            }
         }
-        compute_orb_multiple_shaves(timage, keypoints_shave.data(), keypoints_shave.size());
-        actual_num_descriptors = keypoints_shave.size();
+        compute_orb_multiple_shaves(timage, keypoints_desc.data(), keypoints_xy.data(), keypoints_desc.size());
+        actual_num_descriptors = keypoints_desc.size();
 #else
         for (size_t i = 0; i < camera_frame.frame->keypoints.size(); ++i) {
             const v2& p = camera_frame.frame->keypoints_xy[i];

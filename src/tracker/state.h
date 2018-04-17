@@ -16,6 +16,7 @@
 #include "platform/sensor_clock.h"
 #include "spdlog/spdlog.h"
 #include "spdlog/sinks/null_sink.h"
+#include "stdev.h"
 
 #include <vector>
 #include <list>
@@ -619,12 +620,15 @@ public:
         s << "state: "; return state_branch<state_node*>::print_to(s);
     }
 
+    stdev<1> project_stats;
     virtual void reset() {
         cov.reset();
         state_branch<state_node *>::reset();
         current_time = sensor_clock::micros_to_tp(0);
 
         g.v = gravity_magnitude;
+
+        project_stats = stdev<1>();
     }
 
     void evolve(f_t dt)
@@ -640,7 +644,12 @@ public:
 
         FP.resize(dynamic_statesize, cov.size() + fake_statesize);
 
-        project_motion_covariance(FP, cov.cov, dt);
+        {
+            auto start = std::chrono::steady_clock::now();
+            project_motion_covariance(FP, cov.cov, dt);
+            auto stop = std::chrono::steady_clock::now();
+            project_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+        }
 
         //fill in the UR and LL matrices
         auto cov_LL = cov.cov.map().block(dynamic_statesize,0, cov.size()-dynamic_statesize,dynamic_statesize);
@@ -650,7 +659,13 @@ public:
 
         //compute the UL matrix
         matrix ul(cov.cov, 0, 0, dynamic_statesize, dynamic_statesize);
-        project_motion_covariance(ul, FP, dt);
+
+        {
+            auto start = std::chrono::steady_clock::now();
+            project_motion_covariance(ul, FP, dt);
+            auto stop = std::chrono::steady_clock::now();
+            project_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+        }
 
         //enforce symmetry
         //for(int i = 0; i < dynamic_statesize; ++i)

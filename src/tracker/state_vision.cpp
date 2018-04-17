@@ -540,8 +540,12 @@ void state_camera::update_feature_tracks(const sensor_data &data)
     for(auto &t:tracks) feature_tracker->tracks.emplace_back(&t.track);
     for(auto &t:standby_tracks) feature_tracker->tracks.emplace_back(&t);
 
-    if (feature_tracker->tracks.size())
+    if (feature_tracker->tracks.size()) {
+        auto start = std::chrono::steady_clock::now();
         feature_tracker->track(data.tracker_image(), feature_tracker->tracks);
+        auto stop = std::chrono::steady_clock::now();
+        track_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    }
 
     END_EVENT(SF_TRACK, feature_tracker->tracks.size())
 }
@@ -561,7 +565,10 @@ void state_camera::update_map_tracks(const sensor_data &data, mapper *map,
     END_EVENT(SF_PREDICT_MAP, map->map_feature_tracks.size());
 
     if (feature_tracker->tracks.size()) {
+        auto start = std::chrono::steady_clock::now();
         feature_tracker->track(data.tracker_image(), feature_tracker->tracks);
+        auto stop = std::chrono::steady_clock::now();
+        map_track_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
         // sort map tracks according to number of features found
         for (auto &nft : map->map_feature_tracks) {
             for (auto &mft : nft.tracks) {
@@ -629,7 +636,7 @@ void state_vision::cache_jacobians(f_t dt)
 __attribute__((section(".cmx_direct.data"))) project_motion_covariance_data data;
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
-    START_EVENT(SF_PROJECT_MOTION_COVARIANCE, 0);
+    START_EVENT(SF_PROJECT_MOTION_COVARIANCE, std::min(src.cols(),dst.cols()));
 
     data.src = src.Data();
     data.src_rows = src.rows();
@@ -685,10 +692,11 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
     }
     data.camera_count = camera_count;
 
+    __attribute__((section(".cmx_direct.bss")))
     static covariance_projector projector;
     projector.project_motion_covariance(data);
 
-    END_EVENT(SF_PROJECT_MOTION_COVARIANCE, 0);
+    END_EVENT(SF_PROJECT_MOTION_COVARIANCE, std::min(src.cols(),dst.cols()));
 }
 
 #else
@@ -726,10 +734,10 @@ int state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t 
 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
-    START_EVENT(SF_PROJECT_MOTION_COVARIANCE, 0);
+    START_EVENT(SF_PROJECT_MOTION_COVARIANCE, std::min(src.cols(),dst.cols()));
     int i = 0;
     i = project_motion_covariance<4>(dst, src, dt, i);
     i = project_motion_covariance<1>(dst, src, dt, i);
-    END_EVENT(SF_PROJECT_MOTION_COVARIANCE, 0);
+    END_EVENT(SF_PROJECT_MOTION_COVARIANCE, std::min(src.cols(),dst.cols()));
 }
 #endif

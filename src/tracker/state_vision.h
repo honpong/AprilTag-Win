@@ -270,6 +270,8 @@ struct state_camera: state_branch<state_node*> {
     size_t detected_features = 0;
     int detector_failed = false;
 
+    stdev<1> detect_stats, orb_stats, track_stats, map_track_stats;
+
     void clear() {
         tracks.clear();
         if (detection_future.valid())
@@ -280,6 +282,12 @@ struct state_camera: state_branch<state_node*> {
     void reset() {
         clear();
         detecting_space = 0;
+
+        detect_stats    = stdev<1>();
+        orb_stats       = stdev<1>();
+        track_stats     = stdev<1>();
+        map_track_stats = stdev<1>();
+
         state_branch<state_node*>::reset();
     }
 

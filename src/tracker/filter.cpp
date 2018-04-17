@@ -598,6 +598,7 @@ std::vector<tracker::feature_track> &filter_detect(struct filter *f, const senso
 
     auto stop = std::chrono::steady_clock::now();
     camera_sensor.detect_time_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    camera.detect_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
     return kp;
 }
 
@@ -611,6 +612,7 @@ bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_
         timage.height_px = image.height;
         timage.stride_px = image.stride;
         int actual_num_descriptors = 0;
+        auto start = std::chrono::steady_clock::now();
         START_EVENT(SF_ORB, 0);
 #ifdef ENABLE_SHAVE_ORB
         std::vector<fast_tracker::fast_feature<patch_orb_descriptor>*> keypoints_desc;
@@ -638,6 +640,8 @@ bool filter_compute_orb(struct filter *f, const sensor_data& data, camera_frame_
         }
 #endif
         END_EVENT(SF_ORB, actual_num_descriptors);
+        auto stop = std::chrono::steady_clock::now();
+        f->s.cameras.children[data.id]->orb_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
     }
     return true;
 }
@@ -1414,6 +1418,29 @@ std::string filter_get_stats(const struct filter *f)
         statstr << i->name << "\t (measure): " << i->measure_time_stats << "\n";
         statstr << i->name << "\t (fast):    " << i->fast_path_time_stats << "\n";
     }
+
+    for(auto &i:f->s.cameras.children) {
+        statstr << "Detect" << i->id << "\t (slow): " << i->detect_stats << "\n";
+        statstr << "Orb"    << i->id << "\t (slow): " << i->orb_stats << "\n";
+        statstr << "Track " << i->id << "\t (slow): " << i->track_stats << "\n";
+        statstr << "MTrack" << i->id << "\t (slow): " << i->map_track_stats << "\n";
+    }
+    statstr << "HPHt   " << "\t (slow): " << f->observations.project_stats << "\n";
+    statstr << "GEMM   " << "\t (slow): " << f->observations.multiply_stats << "\n";
+    statstr << "CHOL   " << "\t (slow): " << f->observations.cholesky_stats << "\n";
+    statstr << "TRSM   " << "\t (slow): " << f->observations.solve_stats << "\n";
+    statstr << "FP     " << "\t (slow): " << f->s.project_stats << "\n";
+    statstr << "meas   " << "\t (slow): " << f->observations.meas_size_stats << "\n";
+    statstr << "state  " << "\t (slow): " << f->observations.state_size_stats << "\n";
+
+    statstr << "HPHt   " << "\t (fast): " << f->mini->observations.project_stats << "\n";
+    statstr << "GEMM   " << "\t (fast): " << f->mini->observations.multiply_stats << "\n";
+    statstr << "CHOL   " << "\t (fast): " << f->mini->observations.cholesky_stats << "\n";
+    statstr << "TRSM   " << "\t (fast): " << f->mini->observations.solve_stats << "\n";
+    statstr << "FP     " << "\t (fast): " << f->mini->state.project_stats << "\n";
+    statstr << "meas   " << "\t (fast): " << f->mini->observations.meas_size_stats << "\n";
+    statstr << "state  " << "\t (fast): " << f->mini->observations.state_size_stats << "\n";
+
     statstr << "\n";
     return statstr.str();
 }

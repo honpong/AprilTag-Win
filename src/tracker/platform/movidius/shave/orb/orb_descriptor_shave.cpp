@@ -20,7 +20,7 @@ orb_shave::orb_shave(float x, float y,  const tracker::image &image, orb_data* o
     int dsize = (int)sizeof(descriptor);
 
     binary_test_asm(center, image.stride_px, sin_, cos_, (float*)&orb_bit_pattern_31_, d, dsize);
-   // binary_test(center, dsize, d);
+   // binary_test(center, image.stride_px, d);
 
     output_descriptor->d = descriptor;
     output_descriptor->sin_ = sin_;

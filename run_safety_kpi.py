@@ -4,6 +4,7 @@ import os
 import sys
 import subprocess
 import numpy as np
+from collections import defaultdict
 
 if len(sys.argv) != 3:
     print "Usage:", sys.argv[0], "<kpi-dir> <result-extension>"
@@ -18,15 +19,15 @@ def enumerate_all_files_matching(path, extension):
         for filename in [f for f in filenames if f.endswith(extension)]:
             yield os.path.join(dirpath, filename)
 
-radii = ["0.5", "0.75", "1"]
-margin = ["0.075", "0.10", "0.15"]
+radii = ["0.50", "0.75", "1.00"]
+margin = ["0.075", "0.100", "0.150"]
 
+kpis = defaultdict(dict)
 for r in radii:
+    # for the same radii, the number of total GT crossing events will be the same but the total number of TM2 crossings will be different
     for m in margin:
         total_result = None
-        result = "result_%sm_%sm.txt" % (r, m)
-        print result
-        res_file = open(result, "w")
+        print "\nRadius %sm with margin %sm" % (r, m)
         for filename in enumerate_all_files_matching(kpi_dir,"stereo.rc.tum"):
             if "samer" in filename or "mapping" in filename:
                 print "Excluding", filename, "based on name which implies non VR gameplay"
@@ -48,10 +49,12 @@ for r in radii:
                     else:
                         total_result = total_result + np.array(result)
                     print result
-            res_file.write(result_text)
-        result_string  = "Summary:\n";
-        result_string += "%.2fs of data, with %.2fs outside %sm + %sm\n" % (total_result[0], total_result[1], r, m)
-        result_string += "%d GT crossings of %sm + %sm, %d had TM2 > %sm (%.0f%%)\n" % (total_result[2], r, m, total_result[3], r, total_result[3]*100/(total_result[2]+0.0001))
-        result_string += "%d TM2 crossings of %sm, %d had GT > %sm - %sm (%.0f%%)\n" % (total_result[5], r, total_result[6], r, m, total_result[6]*100/(total_result[5]+0.0001))
-        print result_string
-        res_file.write(result_string)
+        kpis[r][m] = total_result
+
+result_string  = "\nSummary: Safety KPI calculated on %s which had %.2fs of data\n" % (kpi_dir, kpis[radii[0]][margin[0]][0])
+result_string += "radius\tmargin\tt outside\tGT crossings\tfalse negatives (%)\tTM2 crossings\tfalse positives (%)\n"
+for r in radii:
+    for m in margin:
+        (total_time, time_outside, gt, tp, fn, tm2, tn, fp) = kpis[r][m]
+        result_string += "%6s\t%6s\t%9.2f\t       %5d\t    %5d (%6.2f%%) \t        %5d\t    %5d (%6.2f%%)\n" % (r, m, time_outside, gt, fn, 100*fn/(gt+0.0001), tm2, fp, 100*fp/(tm2+0.0001))
+print result_string,

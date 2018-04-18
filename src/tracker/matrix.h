@@ -89,17 +89,13 @@ public:
 
     friend void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t scale);
     friend f_t matrix_check_condition(matrix &A);
-    friend bool matrix_half_solve(matrix &A, matrix &B);
+    friend bool matrix_cholesky(matrix &A); // A = L L^T;
+    friend void matrix_half_solve(matrix &L, matrix &B); // B = L^-T B
     friend bool test_posdef(const matrix &m);
 
     friend class covariance;
     friend class state_motion;
 };
-
-void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1 = false, bool trans2 = false, const f_t scale = 1.0);
-f_t matrix_check_condition(matrix &A);
-bool matrix_solve(matrix &A, matrix &B);
-bool test_posdef(const matrix &m);
 
 #ifdef DEBUG
 //#define TEST_POSDEF

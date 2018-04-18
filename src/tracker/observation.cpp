@@ -55,9 +55,11 @@ void observation_queue::compute_measurement_covariance(matrix &m_cov)
 
 void observation_queue::compute_prediction_covariance_shave(const matrix &cov, int statesize, int meas_size)
 {
+    auto start = std::chrono::steady_clock::now();
+
     __attribute__((section(".cmx_direct.bss")))
     static project_observation_covariance_data queue_data;
-    START_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE, 0);
+    START_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE, cov.rows());
     queue_data.src_rows     = cov.rows();
     queue_data.src_cols     = cov.cols();
     queue_data.src_stride   = cov.get_stride();
@@ -96,13 +98,16 @@ void observation_queue::compute_prediction_covariance_shave(const matrix &cov, i
     projector.project_observation_covariance(queue_data, start_index);
 
     observation_datas.clear();
-    END_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE, 0);
+    END_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE, meas_size);
+    auto stop = std::chrono::steady_clock::now();
+    project_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 }
 #endif
 
 void observation_queue::compute_prediction_covariance(const matrix &cov, int statesize, int meas_size)
 {
-    START_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE_LEON, 0);
+    auto start = std::chrono::steady_clock::now();
+    START_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE_LEON, cov.rows());
     int index = 0;
     for(auto &o : observations) {
         matrix dst(HP, index, 0, o->size, statesize);
@@ -117,7 +122,9 @@ void observation_queue::compute_prediction_covariance(const matrix &cov, int sta
         o->project_covariance(dst, HP); // res_cov = H * (H * P')' = H * P * H'
         index += o->size;
     }
-    END_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE_LEON, 0);
+    END_EVENT(SF_PROJECT_OBSERVATION_COVARIANCE_LEON, meas_size);
+    auto stop = std::chrono::steady_clock::now();
+    project_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 }
 
 void observation_queue::compute_innovation_covariance(const matrix &m_cov)
@@ -138,12 +145,34 @@ bool observation_queue::update_state_and_covariance(matrix &x, matrix &P, const 
     matrix Px(P, 0,0, statesize+1, statesize); // [ P ; x ]
     Px.map().bottomRows(1) = x.map();
 
+    if (meas_size != 3)
+        meas_size_stats.data(v<1> { (float)meas_size });
+    state_size_stats.data(v<1> { (float)statesize });
     matrix HP_y (HP, 0,0, meas_size, statesize+1);
     HP_y.map().rightCols(1) = -y.map().transpose();
-    if (!matrix_half_solve(S, HP_y)) // S = L L^T; HP_y = L^-1 [ HP -y ]
+    bool ok;
+    {
+        auto start = std::chrono::steady_clock::now();
+        ok = matrix_cholesky(S); // S = L L^T;
+        auto stop = std::chrono::steady_clock::now();
+        cholesky_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    }
+    if (!ok)
         return false;
-    matrix_product(Px, HP_y, HP, true, false, -1); // [P ; x ] -= (L^-1 [HP -y])' * (L^-1 HP)
 
+    {
+        auto start = std::chrono::steady_clock::now();
+        matrix_half_solve(S , HP_y); // HP_y = L^-1 [ HP -y ]
+        auto stop = std::chrono::steady_clock::now();
+        solve_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    }
+
+    {
+        auto start = std::chrono::steady_clock::now();
+        matrix_product(Px, HP_y, HP, true, false, -1); // [P ; x ] -= (L^-1 [HP -y])' * (L^-1 HP)
+        auto stop = std::chrono::steady_clock::now();
+        multiply_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
+    }
     P.map().triangularView<Eigen::StrictlyUpper>() = P.map().triangularView<Eigen::StrictlyLower>().transpose();
 
     x.map() = Px.map().bottomRows(1); // write back the updated state

@@ -215,6 +215,16 @@ public:
     void preprocess(state_root &s, sensor_clock::time_point time);
     bool process(state_root &s, bool run_on_shave = false);
     std::vector<std::unique_ptr<observation>> observations;
+    stdev<1> project_stats, solve_stats, cholesky_stats, multiply_stats, state_size_stats, meas_size_stats;
+    void reset() {
+        observations.clear();
+        project_stats = stdev<1>();
+        solve_stats = stdev<1>();
+        cholesky_stats = stdev<1>();
+        multiply_stats = stdev<1>();
+        meas_size_stats = stdev<1>();
+        state_size_stats = stdev<1>();
+    }
 
     // keep the most recent measurement of a given type around for plotting, etc
     std::unique_ptr<observation_gyroscope> recent_g;
@@ -246,7 +256,7 @@ protected:
     void compute_prediction_covariance_shave(const matrix &cov, int statesize, int meas_size);
 #endif
     void compute_innovation_covariance(const matrix &m_cov);
-    static bool update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn, matrix &HP, matrix &res_cov);
+    bool update_state_and_covariance(matrix &state, matrix &cov, const matrix &inn, matrix &HP, matrix &res_cov);
 
     matrix &state, &inn, &m_cov, &HP, &res_cov;
 #ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE

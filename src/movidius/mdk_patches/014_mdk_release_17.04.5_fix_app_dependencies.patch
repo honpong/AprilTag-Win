@@ -1,0 +1,37 @@
+Index: mdk_release_17.04.5_general_purpose_hotfix_usb31_winusb/mdk/common/commonsources.mk
+===================================================================
+--- mdk_release_17.04.5_general_purpose_hotfix_usb31_winusb.orig/mdk/common/commonsources.mk
++++ mdk_release_17.04.5_general_purpose_hotfix_usb31_winusb/mdk/common/commonsources.mk
+@@ -408,6 +408,8 @@ PROJECTCLEAN += $$(SHAVE_GENASMS_AUTOSTA
+ #Uncomment below to reject generated shave as intermediary files (consider them secondary)
+ PROJECTINTERM += $$(SHAVE_GENASMS_AUTOSTAT_$(1))
+ 
++SHAVE_APP_OBJS += $$(SHAVE_$(1)_AUTOSTAT_OBJS)
++
+ #--------------------------[ Shave applications section ]--------------------------#
+ SHAVE_APP_LIBS += $$(DirAppOutput)/$(1).mvlib
+ $$(foreach idx,$$(or $$(SHAVES_IDX_$(1)),$$(SHAVES_IDX)),$$(eval $$(call shaveAddApp,$(1),$$(idx))))
+@@ -762,13 +764,15 @@ endif
+ ###################################################################
+ 
+ ifeq ($(MAKEDEPEND),yes)
+-  LEON_APP_DEPS  += $(patsubst %.o,$(DirAppObjBase)%.d,$(filter %.o,$(LEON_SHARED_OBJECTS_REQUIRED)))
+-  LEON_RT_DEPS   += $(patsubst %.o,$(DirAppObjBase)%.d,$(filter %.o,$(LEON_SHARED_OBJECTS_REQUIRED_LRT)))
+-  SHAVE_APP_DEPS += $(patsubst %_shave.o,$(DirAppObjBase)%.d,$(filter %_shave.o,$(SHAVE_COMPONENT_OBJS)))
+-  SHAVE_APP_DEPS += $(patsubst %_shave.o,$(DirAppObjBase)%.d,$(filter %_shave.o,$(SH_SWCOMMON_OBJS)))
+-  SHAVE_APP_DEPS += $(patsubst %.c,$(DirAppObjBase)%.d,$(filter %.c,$(wildcard $(DirAppRoot)/shave/*.c)))
+-  SHAVE_APP_DEPS += $(patsubst %.c,$(DirAppObjBase)%.d,$(filter %.c,$(wildcard $(DirAppRoot)/shave/*/*.c)))
+-  SHAVE_APP_DEPS += $(patsubst %.cpp,$(DirAppObjBase)%.d,$(filter %.cpp,$(wildcard $(DirAppRoot)/shave/*.cpp)))
+-  SHAVE_APP_DEPS += $(patsubst %.cpp,$(DirAppObjBase)%.d,$(filter %.cpp,$(wildcard $(DirAppRoot)/shave/*/*.cpp)))
++  LEON_APP_DEPS  += $(patsubst %.o,%.d,$(filter %.o,$(LEON_APP_OBJECTS_REQUIRED)))
++  LEON_APP_DEPS  += $(patsubst %.o,%.d,$(filter %.o,$(LEON_SHARED_OBJECTS_REQUIRED)))
++  LEON_RT_DEPS   += $(patsubst %.o,%.d,$(filter %.o,$(LEON_SHARED_OBJECTS_REQUIRED_LRT)))
++  SHAVE_APP_DEPS += $(patsubst %_shave.o,%.d,$(filter %_shave.o,$(SHAVE_APP_OBJS)))
++  SHAVE_APP_DEPS += $(patsubst %_shave.o,%.d,$(filter %_shave.o,$(SHAVE_COMPONENT_OBJS)))
++  SHAVE_APP_DEPS += $(patsubst %_shave.o,%.d,$(filter %_shave.o,$(SH_SWCOMMON_OBJS)))
++  SHAVE_APP_DEPS += $(patsubst %.c,%.d,$(filter %.c,$(wildcard $(DirAppRoot)/shave/*.c)))
++  SHAVE_APP_DEPS += $(patsubst %.c,%.d,$(filter %.c,$(wildcard $(DirAppRoot)/shave/*/*.c)))
++  SHAVE_APP_DEPS += $(patsubst %.cpp,%.d,$(filter %.cpp,$(wildcard $(DirAppRoot)/shave/*.cpp)))
++  SHAVE_APP_DEPS += $(patsubst %.cpp,%.d,$(filter %.cpp,$(wildcard $(DirAppRoot)/shave/*/*.cpp)))
+ endif
+ 

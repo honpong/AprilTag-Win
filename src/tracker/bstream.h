@@ -376,8 +376,10 @@ public:
         std::unique_ptr<void, decltype(&free)> *unique_content{ nullptr };
         bstream_buffer() = delete;
         void resize(size_t new_length) {
-            length = new_length;
-            content = realloc(content, new_length);
+            if (void* temp = realloc(content, new_length)){
+                length = new_length;
+                content = temp;
+            }
             if (unique_content) {
                 unique_content->release();
                 *unique_content = { content, free };

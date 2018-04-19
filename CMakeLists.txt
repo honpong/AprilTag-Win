@@ -34,10 +34,14 @@ if(NOT EXISTS ${LIBRS_DIR})
     if(NOT EXISTS ${LIBRS_DIR})
         message(FATAL_ERROR "Cannot clone librealsense! Please checkout ${LIBRS_GIT} into ${LIBRS_PAR} and try again.")
     endif()
+
+	if(WIN32) #for error C3861: "__cpuid": identifier not found.
+	    file(APPEND ${LIBRS_DIR}/src/image.h 
+	        "\n#ifndef LIBREALSENSE_INTRIN_H\n#define LIBREALSENSE_INTRIN_H\n#include <intrin.h>\n#endif\n")
+	endif()
 endif()
 
 ######################################################################
-
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
 if(COMPILER_SUPPORTS_CXX14)

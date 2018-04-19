@@ -254,11 +254,12 @@ bool state_vision::get_closest_group_transformation(groupid &group_id, transform
     float min_group_distance = std::numeric_limits<float>::max();
     transformation G_now = transformation(Q.v,T.v);
     for (auto &g : groups.children) {
-        G = invert(*g->Gr)*G_now;
-        float distance = G.T.norm();
+        auto temp = invert(*g->Gr)*G_now;
+        float distance = temp.T.norm();
         if(distance <= min_group_distance) {
             min_group_distance = distance;
             group_id = g->id;
+            G = temp;
         }
     }
 

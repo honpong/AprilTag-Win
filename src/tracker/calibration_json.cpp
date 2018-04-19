@@ -99,7 +99,7 @@ static void copy_json_to_imu(Value &json, struct calibration_xml::imu &imu, Docu
                                    json[KEY_ABIASVAR1].GetDouble(),
                                    json[KEY_ABIASVAR2].GetDouble());
 
-    if (json.HasMember(KEY_WBIASVAR0) && json.HasMember(KEY_WBIASVAR0) && json.HasMember(KEY_WBIASVAR0))
+    if (json.HasMember(KEY_WBIASVAR0) && json.HasMember(KEY_WBIASVAR1) && json.HasMember(KEY_WBIASVAR2))
         imu.w_bias_var_rad2__s2 = v3(json[KEY_WBIASVAR0].GetDouble(),
                                      json[KEY_WBIASVAR1].GetDouble(),
                                      json[KEY_WBIASVAR2].GetDouble());

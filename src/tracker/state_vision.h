@@ -91,11 +91,8 @@ struct frame_t {
     DBoW2::FeatureVector dbow_direct_file;  // direct file if used, empty otherwise
 
     void add_track(const tracker::feature_position &t, int width_px, int height_px) {
-        auto feature_old = std::static_pointer_cast<fast_tracker::fast_feature<patch_orb_descriptor>>(t.feature);
-        auto feature_new = std::make_shared<fast_tracker::fast_feature<patch_orb_descriptor>>(feature_old->id, feature_old->descriptor.patch);
-        auto &feature = feature_new;
-        if (feature->descriptor.orb_computed || fast_tracker::is_trackable<orb_descriptor::border_size>((int)t.x, (int)t.y, width_px, height_px)) {
-            keypoints.emplace_back(std::move(feature));
+        if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)t.x, (int)t.y, width_px, height_px)) {
+            keypoints.emplace_back(std::make_shared<fast_tracker::fast_feature<patch_orb_descriptor>>(t.feature->id, patch_descriptor{}));
             keypoints_xy.emplace_back(t.x, t.y);
         }
     }

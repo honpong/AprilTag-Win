@@ -65,30 +65,12 @@ using namespace std;
 
 std::vector<tracker::feature_track> & shave_tracker::detect(const tracker::image &image, const std::vector<tracker::feature_position> &current, size_t number_desired)
 {
-    if (!mask)
-        mask = std::make_unique<scaled_mask>(image.width_px, image.height_px);
-    mask->initialize();
-    for (auto &f : current)
-        mask->clear((int)f.x, (int)f.y);
+    init_mask(image, current);
 
     size_t num_found = 0;
     fast_tracker::xy *found = platform_fast_detect(id, image, *mask, static_cast<size_t>(number_desired * 3.2f), num_found);
 
-    std::sort_heap(found, found + num_found, fast_tracker::xy_comp);
-
-    feature_points.clear();
-    feature_points.reserve(number_desired);
-    for (int i=0; i<num_found; i++) {
-        const auto &d = found[i];
-        if(!is_trackable<DESCRIPTOR::border_size>((int)d.x, (int)d.y, image.width_px, image.height_px) || !mask->test((int)d.x, (int)d.y))
-            continue;
-        mask->clear((int)d.x, (int)d.y);
-        feature_points.emplace_back(std::make_shared<fast_feature<DESCRIPTOR>>(d.x, d.y, image), d.x, d.y, d.score);
-        if (feature_points.size() == number_desired)
-            break;
-    }
-
-    return feature_points;
+    return finalize_detect(found, found + num_found, image, number_desired);
 }
 
 void shave_tracker::trackMultipleShave(std::vector<TrackingData>& trackingData,

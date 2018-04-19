@@ -95,11 +95,10 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                 docallback = sfm.s.orientation_initialized;
 
             if (isProcessingVideo && fast_path && catchup) {
-                uint64_t in_queue = queue.data_in_queue(data.type, data.id);
-                if(!in_queue)
-                    fast_path_catchup();
-                else
+                if (uint64_t in_queue = queue.data_in_queue(data.type, data.id))
                     sfm.log->warn("Skipped catchup at {}, {} of {} left in queue", sensor_clock::tp_to_micros(data.timestamp), in_queue, data.type);
+                else
+                    fast_path_catchup();
             }
 
             update_status();
@@ -209,11 +208,13 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
             if(docallback)
                 update_data(&data);
 
-            uint64_t in_queue = queue.data_in_queue(data.type, data.id);
             queue_receive_data(std::move(pair.first), false);
-            queue_receive_data(std::move(pair.second), !in_queue);
-            if (in_queue)
+            queue_receive_data(std::move(pair.second), false);
+
+            if (uint64_t in_queue = queue.data_in_queue(data.type, data.id))
                 sfm.log->warn("Skipped stereo catchup at {}, {} in queue", sensor_clock::tp_to_micros(data.timestamp), in_queue);
+            else
+                fast_path_catchup();
 
             END_EVENT(SF_STEREO_RECEIVE, 0);
         } break;

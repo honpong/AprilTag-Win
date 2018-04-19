@@ -51,7 +51,7 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
 
     init(image.width_px, image.height_px, image.stride_px, full_patch_width);
 
-    auto need = static_cast<size_t>(number_desired == 200 ? number_desired : number_desired * 3.2f);
+    size_t need = std::min(200.f, number_desired * 3.2f);
     features.clear();
     features.reserve(need+1);
     int x, y, mx, my, x1, y1, x2, y2;

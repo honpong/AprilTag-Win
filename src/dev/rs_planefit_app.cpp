@@ -219,6 +219,8 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[])
     rs_sf_box box = {};
     if (rs_sf_boxfit_get_box(shapefitter, 0, &box) == RS_SF_SUCCESS) {
         text << ", box " << int(std::sqrt(box.dim_sqr(0)) * 1000) << " x " << int(std::sqrt(box.dim_sqr(1)) * 1000) << " x " << int(std::sqrt(box.dim_sqr(2)) * 1000) << " mm^3";
+
+        //rs_sf_boxfit_raycast_boxes(shapefitter, &box, img_d);
     }
 
     //rs_sf_image_write("c:\\temp\\shapefit\\live\\plane_"" + std::to_string(img->frame_id), &pid);

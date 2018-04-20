@@ -49,9 +49,10 @@ extern "C"
     /** \brief Constant definitions for measurement */
     typedef enum rs2_measure_const : int
     {
-        RS2_STREAM_CAM_STATE = 0,           /**< mandatory output (data) stream from box measure */
+        RS2_STREAM_CAM_STATE = 0,      /**< mandatory output (data) stream from box measure */
         RS2_STREAM_DEPTH_DENSE = 3,    /**< optional dense depth stream from box measure    */
         RS2_STREAM_PLANE = 4,          /**< optional plane id stream from box measure       */
+        RS2_STREAM_BOXCAST = 5,    /**< optional raycasted box depth from box measure   */
         RS2_MEASURE_BOX_MAXCOUNT = 10, /**< maximum number of boxes from box measure        */
     } rs2_measure_const;
 
@@ -118,9 +119,19 @@ extern "C"
     * \param[in] box        a box returned from box_measure to be drawn on a target 2d image.
     * \param[in] camera     camera state of the target 2d image.
     * \param[out] wireframe the output box wireframe for rendering.
-    * \param[out] error       if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
+    * \param[out] error     if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
     */
     RS2_MEASURE_DECL void rs2_box_meausre_project_box_onto_frame(const rs2_measure_box* box, const rs2_measure_camera_state* camera, rs2_measure_box_wireframe* wireframe, rs2_error** e);
+
+    /**
+    * Create a virtual depth image of box. 
+    * \param[in] box        a box returned from box_measure to be raycasted.
+    * \param[in] camera     camera state of the image.
+    * \param[in|out] img    depth image buffer for raycasting.
+    * \param[in] reset      set 1 to clear the img buffer before raycasting.
+    * \param[out] error     if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
+    */
+    RS2_MEASURE_DECL void rs2_box_measure_raycast_box_onto_frame(const rs2_box_measure* box_measure, const rs2_measure_box* box, const rs2_measure_camera_state* camera, rs2_frame* img, double reset, rs2_error** e);
 
     /**
     * Get a Intel(c) RealSense(TM) icon image.
@@ -339,6 +350,24 @@ namespace rs2
             error::handle(e);
 
             return box_vector(_box, _box + nbox);
+        }
+
+        /**
+        * Get an ideal depth image of box.
+        *
+        * \param[in] b  box to be raycasted.
+        * \param[in] fs box frameset given by box_measure as output buffer.
+        * \param[in] s  buffer select either RS2_STREAM_DEPTH or RS2_STREAM_DEPTH_DENSE.
+        * \return box depth image.
+        */
+        frame raycast_box_onto_frame(const box& b, box_frameset& fs, const int& s) const
+        {
+            rs2_error* e = nullptr;
+
+            rs2_box_measure_raycast_box_onto_frame(_box_measure, &b, &fs.state((rs2_stream)s), fs[s].get(), 1, &e);
+            error::handle(e);
+
+            return fs[s];
         }
 
         /** Get image data of a Intel(c) RealSense(TM) icon. */

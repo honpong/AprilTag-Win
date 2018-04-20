@@ -47,6 +47,7 @@ typedef Eigen::Matrix<float, 3, 3, Eigen::RowMajor> m3;
 typedef Eigen::Map<v3> v3_map;
 typedef Eigen::Map<Eigen::Matrix<float, 3, 3, Eigen::ColMajor>> m3_axis_map;
 typedef std::vector<i2> contour;
+typedef std::array<v3, 4> box_plane;
 
 struct rs_shapefit
 {
@@ -115,7 +116,9 @@ void rs_sf_util_remap_plane_ids(rs_sf_image * map);
 void rs_sf_util_draw_line_rgb(rs_sf_image * rgb, const v2& p0, const v2& p1, const b3& color, const int size = 4);
 void rs_sf_util_draw_plane_contours(rs_sf_image *rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const rs_sf_plane planes[RS_SF_MAX_PLANE_COUNT], const int pt_per_line =1);
 void rs_sf_util_draw_boxes(rs_sf_image* rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes, const b3& color);
-rs_sf_intrinsics rs_sf_util_match_intrinsics(rs_sf_image* img, const rs_sf_intrinsics& ref);
+box_plane rs_sf_util_get_box_plane(const rs_sf_box& box, int plane_id);
+void rs_sf_util_raycast_boxes(rs_sf_image * depth, const pose_t& pose, const float depth_unit_in_meter, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes);
+rs_sf_intrinsics rs_sf_util_match_intrinsics(const rs_sf_image* img, const rs_sf_intrinsics& ref);
 inline int rs_sf_util_image_to_line_width(const rs_sf_image *img) { return std::max(1, img->img_w / 320); }
 
 void eigen_3x3_real_symmetric(float D[6], float u[3], float v[3][3]);

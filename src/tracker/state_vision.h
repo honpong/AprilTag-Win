@@ -91,14 +91,14 @@ struct frame_t {
     DBoW2::FeatureVector dbow_direct_file;  // direct file if used, empty otherwise
 
     void add_track(const tracker::feature_position &t, int width_px, int height_px) {
-        auto feature = std::static_pointer_cast<fast_tracker::fast_feature<patch_orb_descriptor>>(t.feature);
-        if (feature->descriptor.orb_computed || fast_tracker::is_trackable<orb_descriptor::border_size>((int)t.x, (int)t.y, width_px, height_px)) {
-            keypoints.emplace_back(std::move(feature));
+        if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)t.x, (int)t.y, width_px, height_px)) {
+            keypoints.emplace_back(std::make_shared<fast_tracker::fast_feature<patch_orb_descriptor>>(t.feature->id, patch_descriptor{}));
             keypoints_xy.emplace_back(t.x, t.y);
         }
     }
 
     inline void calculate_dbow(const orb_vocabulary *orb_voc) {
+        return; // disable for now
         // copy pyramid descriptors to a vector of descriptors
         constexpr int direct_file_level = std::numeric_limits<int>::max();  // change to enable
         auto get_descriptor = [](const decltype(keypoints)::value_type &kp) -> const orb_descriptor::raw & {

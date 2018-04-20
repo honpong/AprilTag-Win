@@ -389,6 +389,18 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
         }
     });
 
+    if (current_frame->dbow_histogram.size() == 0 || current_frame->keypoints.size() == 0) { // if BoW is disabled (or we can't tell)
+        // try all nodes with no features in common with current frame
+        nodes.critical_section([&]() {
+                for(auto& node : *nodes) {
+                    if(node.second.status == node_status::finished && node.second.frame && discarded_nodes.find(node.first) == discarded_nodes.end()) {
+                        loop_closing_candidates.push_back(std::pair<nodeid, float>(node.first, 1.f));
+                    }
+                }
+            });
+        return loop_closing_candidates;
+    }
+
     // find nodes sharing words with current frame
     std::map<nodeid,uint32_t> common_words_per_node;
     uint32_t max_num_shared_words = 0;
@@ -810,6 +822,8 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
                 is_relocalized_in_candidate = true;
 #endif
             }
+        } else {
+            continue;
         }
         if (!inliers_set.size())
             log->debug("{}/{}) candidate nid: {:3} score: {:.5f}, matches: {:2}",

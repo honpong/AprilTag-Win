@@ -97,6 +97,8 @@ int main(int argc, char* argv[])
     for (window app(boxscan.stream_w() * 3 / 2, boxscan.stream_h(), header.c_str()); app;)
     {
         rs2::frameset frameset; //frame set container
+        int max_depth_tolerance = 50; // definition of box depth fitness in mm
+        float box_error_ratio = 0.0f, err_ratio_tolerance = 0.15f; //percentage of error pixel allowed if boxcast requested
 
         while (!frameset.first_or_default(RS2_STREAM_DEPTH)
             || (!frameset.first_or_default(RS2_STREAM_COLOR) && !frameset.first_or_default(RS2_STREAM_INFRARED)))
@@ -106,21 +108,22 @@ int main(int argc, char* argv[])
 
         if (auto box_frame = boxscan.process(frameset)) //process new frame pair
         {
+            auto depth_display = color_map(box_frame[app.plane_request() ? RS2_STREAM_PLANE : RS2_STREAM_DEPTH_DENSE]);
+
             // display the selected output frames
-            app.render_ui(
-                app.plane_request() ? box_frame[RS2_STREAM_PLANE] : color_map(box_frame[RS2_STREAM_DEPTH_DENSE]),
-                box_frame[RS2_STREAM_COLOR]);
+            app.render_ui(depth_display, box_frame[RS2_STREAM_COLOR]);
 
             // draw box wireframe and text info if any
             if (auto box = boxscan.get_boxes()) 
             {
+                if(app.boxca_request()) box_error_ratio = app.render_raycast_depth_frame(boxscan, box_frame, box[0], depth_display, max_depth_tolerance); //check box fitness
                 app.render_box_on_depth_frame(box[0].project_box_onto_frame(box_frame, RS2_STREAM_DEPTH)); //draw wireframe on depth image
                 app.render_box_on_color_frame(box[0].project_box_onto_frame(box_frame, RS2_STREAM_COLOR)); //draw wireframe on color image
                 app.render_box_dim(box[0].str()); //draw box information text
             }
         }
 
-        if (app.reset_request()) { boxscan.reset(); } //if reset button clicked
+        if (app.reset_request() || box_error_ratio > err_ratio_tolerance) { boxscan.reset(); } //if reset button clicked or bad box does not fit
         boxscan.configure(RS2_STREAM_PLANE, app.plane_request());       //update output request
         boxscan.configure(RS2_STREAM_DEPTH_DENSE, app.dense_request()); //update output request
     }

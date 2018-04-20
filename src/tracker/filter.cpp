@@ -368,7 +368,7 @@ static void filter_setup_next_frame(struct filter *f, const sensor_data &data)
     auto &camera_state = *f->s.cameras.children[data.id];
 
     for(auto &track : camera_state.tracks) {
-        auto obs = std::make_unique<observation_vision_feature>(camera_sensor, camera_state, track.feature, track);
+        auto obs = std::make_unique<observation_vision_feature>(f->s, camera_sensor, camera_state, track.feature, track);
         f->observations.observations.push_back(std::move(obs));
     }
 }
@@ -1477,12 +1477,12 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
             if(space >= f->min_group_map_add) {
                 if(mft.found >= f->min_group_map_add) {
                     TRACE_EVENT(SF_ADD_MAP_GROUP, mft.found);
-                    auto g = std::make_unique<state_vision_group>(camera_node_state, mft.group_id);
-                    g->Tr.v = mft.G_neighbor_now.T;
-                    g->Qr.v = mft.G_neighbor_now.Q;
+                    transformation G = transformation(f->s.Q.v, f->s.T.v) * invert(mft.G_neighbor_now);
+                    auto g = std::make_unique<state_vision_group>(G, camera_node_state, mft.group_id);
                     g->reused = true;
-                    // g->Tr.set_initial_variance({0.1,0.1,0.1});
-                    // g->Qr.set_initial_variance({0.1,0.1,0.1});
+
+                    g->Tr.set_initial_variance(v3{0,0,0});
+                    g->Qr.set_initial_variance(v3{0,0,0});
                     node.status = node_status::normal;
 
                     for(auto &ft : mft.tracks) {
@@ -1508,7 +1508,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                     }
                     for(auto &neighbor : f->s.groups.children) {
                         if(neighbor->status == group_reference)
-                            f->map->add_edge(g->id, neighbor->id, (*g->Gr)*invert(*neighbor->Gr), edge_type::filter);
+                            f->map->add_edge(g->id, neighbor->id, invert(*g->Gr)*(*neighbor->Gr), edge_type::filter);
                         f->map->add_covisibility_edge(g->id, neighbor->id);
                     }
                     f->s.groups.children.push_back(std::move(g));

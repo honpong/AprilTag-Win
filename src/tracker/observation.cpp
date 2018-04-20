@@ -251,11 +251,14 @@ void observation_vision_feature::innovation_covariance_hook(const matrix &cov, i
 
 void observation_vision_feature::predict()
 {
-    Rrt = feature->group.Qr.v.toRotationMatrix().transpose();
+    Rt = state.Q.v.toRotationMatrix().transpose();
+    Rr = feature->group.Qr.v.toRotationMatrix();
     Rct = curr.camera.extrinsics.Q.v.toRotationMatrix().transpose();
     m3 Ro = orig.camera.extrinsics.Q.v.toRotationMatrix();
-    m3 Rb = Rrt * Ro;
-    v3 Tb = Rrt * (orig.camera.extrinsics.T.v - feature->group.Tr.v);
+    Rw = Rr * Ro;
+    m3 Rb = Rt * Rw;
+    Tw = Rr * orig.camera.extrinsics.T.v + feature->group.Tr.v;
+    v3 Tb = Rt * (Tw - state.T.v);
     Rtot = Rct * Rb;
     Ttot = Rct * (Tb - curr.camera.extrinsics.T.v);
 
@@ -301,12 +304,18 @@ void observation_vision_feature::cache_jacobians()
     // d(Rtot X0) = (Rc' Rr' Ro X0)^ Rc' (dRc Rc')v + (Rc' Rr' Ro X0)^ Rc' Rr' (dRr Rr')v  - (Rr' Rc' Ro X0)^ Rc' Rr' (dRo Ro')v + Rtot dX0
     // d Ttot = Ttot^ Rc' (dRc Rc')v  - Rc' Tc^ (dRc Rc')v + (Rc' Rr' Rc) Rc' (To - Tr)^ (dRr Rr')v + Rc' Rr' (dTo - dTr) - Rc dTc
     v3 RtotX0 = Rtot * X0;
-    m3 dRtotX0_dQr = skew(RtotX0) * Rct * Rrt;
-    m3 dTtot_dQr =  (Rct * Rrt) * skew(orig.camera.extrinsics.T.v - feature->group.Tr.v);
-    m3 dTtot_dTr = -(Rct * Rrt);
+    m3 dRtotX0_dQr = skew(-RtotX0) * (Rct * Rt);
+    m3 dRtotX0_dQ = skew(RtotX0) * (Rct * Rt);
+
+    m3 dTtot_dQr = (Rct * Rt) * skew(Rr * -orig.camera.extrinsics.T.v);
+    m3 dTtot_dQ = (Rct * Rt) * skew(Rr * orig.camera.extrinsics.T.v + feature->group.Tr.v - state.T.v);
+    m3 dTtot_dTr = (Rct * Rt);
+    m3 dTtot_dT = -(Rct * Rt);
 
     dx_dQr = dx_dX * (dTtot_dQr * invrho + dRtotX0_dQr);
+    dx_dQ  = dx_dX * (dTtot_dQ  * invrho + dRtotX0_dQ );
     dx_dTr = dx_dX *  dTtot_dTr * invrho;
+    dx_dT  = dx_dX *  dTtot_dT  * invrho;
 
     if(orig.camera.intrinsics.estimate) {
         m<1,2> dku_d_dXd;
@@ -337,8 +346,8 @@ void observation_vision_feature::cache_jacobians()
 
     if (orig.camera.extrinsics.estimate) {
         m3 dTtot_dQo = m3::Zero();
-        m3 dTtot_dTo = Rct * Rrt;
-        m3 dRtotX0_dQo = -(skew(RtotX0) * Rct * Rrt);
+        m3 dTtot_dTo = Rct * Rt * Rr;
+        m3 dRtotX0_dQo = skew(-RtotX0) * (Rct * Rt * Rr);
         orig.dx_dQ = dx_dX * (dTtot_dQo * invrho + dRtotX0_dQo);
         orig.dx_dT = dx_dX *  dTtot_dTo * invrho;
     }
@@ -358,7 +367,9 @@ template<int N>
         const m<1,N> cov_feat = feature->from_row<N>(src, j);
         const m<3,N> scov_Qr  = feature->group.Qr.from_row<N>(src, j);
         const m<3,N> cov_Tr  = feature->group.Tr.from_row<N>(src, j);
-        col<N>(dst, j) = dx_dp * cov_feat + dx_dQr * scov_Qr + dx_dTr * cov_Tr;
+        const m<3,N> scov_Q  = state.Q.from_row<N>(src, j);
+        const m<3,N> cov_T  = state.T.from_row<N>(src, j);
+        col<N>(dst, j) = dx_dp * cov_feat + dx_dQr * scov_Qr + dx_dTr * cov_Tr + dx_dQ * scov_Q + dx_dT * cov_T;
 
         if (curr.camera.extrinsics.estimate) {
             const m<3,N> scov_Qc = curr.camera.extrinsics.Q.from_row<N>(src, j);
@@ -507,6 +518,8 @@ observation_data* observation_vision_feature::getData(int index)
     vision_datas[index].feature.index              = feature->index;
     vision_datas[index].Qr.index                   = feature->group.Qr.index;
     vision_datas[index].Tr.index                   = feature->group.Tr.index;
+    vision_datas[index].Q.index                    = state.Q.index;
+    vision_datas[index].T.index                    = state.T.index;
     vision_datas[index].orig.Q.index               = orig.camera.extrinsics.Q.index;
     vision_datas[index].orig.T.index               = orig.camera.extrinsics.T.index;
     vision_datas[index].orig.focal_length.index    = orig.camera.intrinsics.focal_length.index;
@@ -521,6 +534,8 @@ observation_data* observation_vision_feature::getData(int index)
     vision_datas[index].feature.initial_covariance             = feature->get_initial_covariance();
     vision_datas[index].Qr.initial_covariance                  = feature->group.Qr.get_initial_covariance();
     vision_datas[index].Tr.initial_covariance                  = feature->group.Tr.get_initial_covariance();
+    vision_datas[index].Q.initial_covariance                   = state.Q.get_initial_covariance();
+    vision_datas[index].T.initial_covariance                   = state.T.get_initial_covariance();
     vision_datas[index].orig.Q.initial_covariance              = orig.camera.extrinsics.Q.get_initial_covariance();
     vision_datas[index].orig.T.initial_covariance              = orig.camera.extrinsics.T.get_initial_covariance();
     vision_datas[index].orig.focal_length.initial_covariance   = orig.camera.intrinsics.focal_length.get_initial_covariance();
@@ -535,6 +550,8 @@ observation_data* observation_vision_feature::getData(int index)
     vision_datas[index].feature.use_single_index           = feature->single_index();
     vision_datas[index].Qr.use_single_index                = feature->group.Qr.single_index();
     vision_datas[index].Tr.use_single_index                = feature->group.Tr.single_index();
+    vision_datas[index].Q.use_single_index                 = state.Q.single_index();
+    vision_datas[index].T.use_single_index                 = state.T.single_index();
     vision_datas[index].orig.Q.use_single_index            = orig.camera.extrinsics.Q.single_index();
     vision_datas[index].orig.T.use_single_index            = orig.camera.extrinsics.T.single_index();
     vision_datas[index].orig.focal_length.use_single_index = orig.camera.intrinsics.focal_length.single_index();
@@ -549,6 +566,8 @@ observation_data* observation_vision_feature::getData(int index)
     memcpy(vision_datas[index].dx_dp, dx_dp.data(), 2*sizeof(float));
     memcpy(vision_datas[index].dx_dQr, dx_dQr.data(), 6*sizeof(float));
     memcpy(vision_datas[index].dx_dTr, dx_dTr.data(), 6*sizeof(float));
+    memcpy(vision_datas[index].dx_dQ, dx_dQ.data(), 6*sizeof(float));
+    memcpy(vision_datas[index].dx_dT, dx_dT.data(), 6*sizeof(float));
     memcpy(vision_datas[index].orig.dx_dQ, orig.dx_dQ.data(), 6*sizeof(float));
     memcpy(vision_datas[index].orig.dx_dT, orig.dx_dT.data(), 6*sizeof(float));
     memcpy(vision_datas[index].orig.dx_dF, orig.dx_dF.data(), 2*sizeof(float));

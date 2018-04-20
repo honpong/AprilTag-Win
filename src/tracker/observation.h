@@ -67,13 +67,14 @@ class observation_vision_feature: public observation_storage<2> {
  private:
     f_t projection_residual(const v3 & X, const feature_t &found);
  public:
-    m3 Rrt, Rct;
+    m3 Rt, Rr, Rw, Rct;
+    v3 Tw;
     v3 X0, X;
     m3 Rtot;
     v3 Ttot;
 
     m<2,1> dx_dp;
-    m<2,3> dx_dQr, dx_dTr;
+    m<2,3> dx_dQr, dx_dQ, dx_dTr, dx_dT;
     struct camera_derivative {
         camera_derivative(const state_camera &c) : camera(c) {}
         const state_camera &camera;
@@ -83,6 +84,7 @@ class observation_vision_feature: public observation_storage<2> {
         m<2,4> dx_dk;
     } orig, curr;
 
+    state_motion &state;
     state_vision_feature *const feature;
     state_vision_track &track;
 
@@ -101,8 +103,8 @@ class observation_vision_feature: public observation_storage<2> {
 #endif
     void update_initializing();
 
-    observation_vision_feature(sensor_grey &src, const state_camera &camera, state_vision_feature &f, state_vision_track &t)
-        : observation_storage(src), orig(f.group.camera), curr(camera), feature(&f), track(t) {}
+    observation_vision_feature(state_motion &s, sensor_grey &src, const state_camera &camera, state_vision_feature &f, state_vision_track &t)
+        : observation_storage(src), orig(f.group.camera), curr(camera), state(s), feature(&f), track(t) {}
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

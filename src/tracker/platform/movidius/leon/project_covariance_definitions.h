@@ -35,13 +35,6 @@ struct project_motion_covariance_data{
     project_covariance_element_data da = {0, 0, 0};
     project_covariance_element_data Q = {0, 0, 0};
     const float *dQp_s_dW = NULL;
-    int camera_count = 0;
-    project_covariance_element_data tr[MAX_GROUPS] = {};
-    project_covariance_element_data qr[MAX_GROUPS] = {};
-    float* dTrp_dQ_s_matrix[MAX_GROUPS] = {};
-    float* dTrp_dQr_s_matrix[MAX_GROUPS] = {};
-    float* dQrp_s_dW_matrix[MAX_GROUPS] = {};
-    float* dTrp_ddT_matrix[MAX_GROUPS] = {};
     float dt = 0.f;
 };
 
@@ -57,10 +50,14 @@ struct observation_vision_feature_data : observation_data {
     project_covariance_element_data feature = {0, 0, 0};
     project_covariance_element_data Qr = {0, 0, 0};
     project_covariance_element_data Tr = {0, 0, 0};
+    project_covariance_element_data Q = {0, 0, 0};
+    project_covariance_element_data T = {0, 0, 0};
 
     float dx_dp[2]  = {0}; //m<2,1>
     float dx_dQr[6] = {0}; //m<2,3>
     float dx_dTr[6] = {0}; //m<2,3>
+    float dx_dQ[6] = {0}; //m<2,3>
+    float dx_dT[6] = {0}; //m<2,3>
 
     struct camera_derivative {
         project_covariance_element_data Q = {0, 0, 0};

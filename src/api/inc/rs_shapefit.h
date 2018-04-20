@@ -190,6 +190,16 @@ extern "C"
     * @return RS_SF_SUCCESS if no error. */
     RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit* obj, rs_sf_image* rgb, const rs_sf_image* bkg = nullptr, const unsigned char color[3] = nullptr);
    
+    /** Create a virtual depth image of boxes.
+    * @param[in]     obj          optional shapefit object with box fitting capability.
+    * @param[in]     box          box to be raycasted.
+    * @param[out]    depth        uint16_t image buffer for virtual depth image.
+    *                             either obj or depth->intrinsics must be available.
+    * @param[in]     init         optional initial depth values for the output.
+    *                             set to nullptr to initialize a zero depth image.
+    * @return RS_SF_SUCCESS if no error. */
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_raycast_boxes(const rs_shapefit* obj, const rs_sf_box* box, rs_sf_image* depth, const rs_sf_image* init = nullptr);
+
 #ifdef __cplusplus
 }
 

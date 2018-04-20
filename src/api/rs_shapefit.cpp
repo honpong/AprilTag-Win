@@ -144,3 +144,21 @@ rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, rs_sf_image * rgb,
 
     return RS_SF_SUCCESS;
 }
+
+rs_sf_status rs_sf_boxfit_raycast_boxes(const rs_shapefit * obj, const rs_sf_box* box, rs_sf_image* depth, const rs_sf_image* init)
+{
+    if (!obj || !depth || depth->byte_per_pixel != 2) return RS_SF_INVALID_ARG;
+    auto bf = dynamic_cast<const rs_sf_boxfit*>(obj);
+    if (!box && !bf) return RS_SF_INVALID_OBJ_HANDLE;
+    
+    if (!init) { rs_sf_util_set_to_zeros(depth); }
+    else if (init != depth) {
+        rs_sf_memcpy(depth->data, init->data, std::min(depth->num_char(), init->num_char()));
+    }
+
+    pose_t pose; pose.set_pose(depth->cam_pose);
+    auto boxes = (box ? std::vector<rs_sf_box>{*box} : bf->get_boxes());
+    rs_sf_util_raycast_boxes(depth, pose, (float)obj->m_param[RS_SF_OPTION_DEPTH_UNIT], rs_sf_util_match_intrinsics(depth, obj->m_intrinsics), boxes);
+
+    return RS_SF_SUCCESS;
+}

@@ -327,7 +327,6 @@ public:
 
     void clear_features_and_groups();
     int process_features(mapper *map);
-    template<int N> int project_new_group_covariance(const state_vision_group &g, int i);
     state_vision_group *add_group(const rc_Sensor camera_id, mapper *map);
     transformation get_transformation() const;
     bool get_closest_group_transformation(groupid &group_id, transformation& G) const;
@@ -340,6 +339,8 @@ public:
     virtual void enable_orientation_only(bool remap = true);
     virtual void reset();
 protected:
+    template<int N> int project_new_group_covariance(const state_vision_group &g, int i);
+    void project_new_group_covariance(const state_vision_group &g);
 #ifdef ENABLE_SHAVE_PROJECT_MOTION_COVARIANCE
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const;
 #endif

@@ -356,6 +356,13 @@ int state_vision::project_new_group_covariance(const state_vision_group &g, int 
     return i;
 }
 
+void state_vision::project_new_group_covariance(const state_vision_group &g)
+{
+    size_t i = 0;
+    i = project_new_group_covariance<4>(g, i);
+    i = project_new_group_covariance<1>(g, i);
+}
+
 state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *map)
 {
     state_camera& camera = *cameras.children[camera_id];
@@ -380,8 +387,7 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     auto *p = g.get();
     groups.children.push_back(std::move(g));
     remap();
-    auto i = project_new_group_covariance<4>(*p, 0);
-    project_new_group_covariance<1>(*p, i);
+    project_new_group_covariance(*p);
     return p;
 }
 

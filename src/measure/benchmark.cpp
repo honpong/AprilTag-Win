@@ -109,23 +109,46 @@ struct measurement {
 #include <thread>
 #include <algorithm>
 #include <string.h>
+#include <cctype>
+
+static std::string dirname(const std::string& file_name) {
+    size_t lastindex = file_name.find_last_of("/\\");
+    return (lastindex == std::string::npos ? "" : file_name.substr(0, lastindex));
+}
 
 static std::string basename(const std::string& file_name) {
     size_t lastindex = file_name.find_last_of("/\\");
     return (lastindex == std::string::npos ? file_name : file_name.substr(lastindex + 1));
 }
 
-void benchmark_run(std::ostream &stream, const char *directory, int threads,
+static std::string find_common_dir(const std::vector<std::string>& files) {
+    if (files.empty()) return "";
+    std::string common = files[0];
+    for (auto it = std::next(files.begin()); it != files.end() && !common.empty(); ++it) {
+        const std::string& file = *it;
+        auto len = std::min(common.size(), file.size());
+        auto m = std::mismatch(common.begin(), common.begin() + len, file.begin(), file.begin() + len);
+        if (m.first != common.begin() + common.size()) {
+            common = common.substr(0, m.first - common.begin());
+        }
+    }
+    return dirname(common);
+}
+
+void benchmark_run(std::ostream &stream, const std::vector<const char *> &filenames, int threads,
         std::function<bool (const char *file, struct benchmark_result &result)> measure_file,
         std::function<void (const char *file, struct benchmark_result &result)> measure_done)
 {
     std::vector<std::string> files;
-    for_each_file(directory, [&files](const char *file) {
-        std::string base = basename(file);
-        auto p = base.find_last_of('.');
-        if (p == std::string::npos || base.substr(p + 1) == "rc" || base.substr(p + 1, 7) == "capture" || base.substr(p + 1, 5) == "later")  // backwards compatibility
-            files.push_back(file);
-    });
+    for (const char *file_or_dir : filenames) {
+        for_each_file(file_or_dir, [&files](const char *file) {
+            std::string base = basename(file);
+            auto p = base.find_last_of('.');
+            if (p == std::string::npos || base.substr(p + 1) == "rc" || base.substr(p + 1, 7) == "capture" || base.substr(p + 1, 5) == "later")  // backwards compatibility
+                files.push_back(file);
+        });
+    }
+    std::string common_directory = find_common_dir(files);
     std::sort(files.begin(), files.end());
 
     struct benchmark_data { std::string basename, file; struct benchmark_result result; std::future<bool> ok; };
@@ -137,7 +160,7 @@ void benchmark_run(std::ostream &stream, const char *directory, int threads,
 
     for (auto &file : files) {
         std::cerr << "Launching " << file << "\n";
-        thread_pool.emplace_back(benchmark_data { file.substr(strlen(directory) + 1), file });
+        thread_pool.emplace_back(benchmark_data { file.substr(common_directory.size() + 1), file });
         thread_pool.back().ok = std::async(std::launch::async, measure_file, thread_pool.back().file.c_str(), std::ref(thread_pool.back().result));
         while(thread_pool.size() >= threads) {
             for(auto i = thread_pool.begin(); i != thread_pool.end();) {

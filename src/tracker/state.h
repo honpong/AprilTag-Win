@@ -296,7 +296,7 @@ class state_vector_ref : public state_leaf<size_> {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
     ::v<size_> &v;
-    state_vector_ref(::v<size_> &_v, const char *_name, state_node::node_type nt): state_leaf<size_>(_name, nt), v(_v) { reset(); }
+    state_vector_ref(::v<size_> &_v, const char *_name, state_node::node_type nt): state_leaf<size_>(_name, nt), v(_v) { }
 
     using state_leaf<size_>::set_initial_variance;
     using state_leaf<size_>::cov;
@@ -459,7 +459,7 @@ class state_quaternion_ref: public state_leaf<3>
 public:
     quaternion &v;
 
-    state_quaternion_ref(quaternion &q, const char *_name, node_type nt): state_leaf(_name, nt), v(q) { reset(); }
+    state_quaternion_ref(quaternion &q, const char *_name, node_type nt): state_leaf(_name, nt), v(q) { }
 
     using state_leaf::set_initial_variance;
 

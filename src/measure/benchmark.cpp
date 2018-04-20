@@ -110,13 +110,20 @@ struct measurement {
 #include <algorithm>
 #include <string.h>
 
+static std::string basename(const std::string& file_name) {
+    size_t lastindex = file_name.find_last_of("/\\");
+    return (lastindex == std::string::npos ? file_name : file_name.substr(lastindex + 1));
+}
+
 void benchmark_run(std::ostream &stream, const char *directory, int threads,
         std::function<bool (const char *file, struct benchmark_result &result)> measure_file,
         std::function<void (const char *file, struct benchmark_result &result)> measure_done)
 {
     std::vector<std::string> files;
     for_each_file(directory, [&files](const char *file) {
-        if (0 == strstr(file, ".json") && 0 == strstr(file, ".pose") && 0 == strstr(file, ".vicon") && 0 == strstr(file, ".tum") && 0 == strstr(file,".loop") && 0 == strstr(file, ".txt") && 0 == strstr(file, ".csv") && 0 == strstr(file, ".jpg"))
+        std::string base = basename(file);
+        auto p = base.find_last_of('.');
+        if (p == std::string::npos || base.substr(p + 1) == "rc" || base.substr(p + 1, 7) == "capture" || base.substr(p + 1, 5) == "later")  // backwards compatibility
             files.push_back(file);
     });
     std::sort(files.begin(), files.end());

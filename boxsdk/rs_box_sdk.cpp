@@ -128,7 +128,7 @@ namespace rs2
 
                 if (_is_export[BOX_DST_PLANE]) { rs_sf_planefit_draw_planes(box_detector, &_image[BOX_DST_PLANE]); }
                 if (_is_export[BOX_DST_COLOR]) { rs_sf_boxfit_draw_boxes(box_detector, &_image[BOX_DST_COLOR], &_image[BOX_SRC_COLOR]); }
-                if (_is_export[BOX_DST_RAYCA]) { rs_sf_boxfit_raycast_boxes(box_detector, nullptr, &_image[BOX_DST_RAYCA]); }
+                if (_is_export[BOX_DST_RAYCA]) { rs_sf_boxfit_raycast_boxes(box_detector, nullptr, -1, &_image[BOX_DST_RAYCA]); }
 
                 memcpy((void*)export_frame[EXPORT_STATE].get_data(), _state, sizeof(rs2_measure_camera_state)*BOX_IMG_COUNT);
                 src.frame_ready(src.allocate_composite_frame(export_frame));

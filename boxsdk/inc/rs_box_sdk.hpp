@@ -258,6 +258,50 @@ namespace rs2
         operator bool() const { return size() > 0; }
     };
 
+    /** \brief box raycasting utility for box_measure only. */
+    class box_raycast
+    {
+        /**
+        * Construct a box raycasting processing object by a box_measure only.
+        * \param[in] host parent box_measure handler.
+        */
+        box_raycast(rs2_box_measure* host) : _host(host)
+        {
+            rs2_error* e = nullptr;
+            _block = (processing_block*)rs2_box_measure_raycast_create(_host, &e);
+            error::handle(e);
+
+            _block->start(_queue);
+        }
+
+        /**
+        * Perform raycasting of a box detected from a frameset to create an ideal box depth image.
+        * The output depth image is in the RS_STREAM_BOXCAST channel of the input frameset.
+        * New depth buffer will be created if not provided by input frameset.
+        * This function is for box_measure only.
+        * \param[in] b  target box.
+        * \param[in] fs box frameset from where the box was detected.
+        * \return frameset where RS_STREAM_BOXCAST channel contains the output box depth image.
+        */
+        frameset proc(const box& b, box_frameset& fs)
+        {
+            rs2_error* e = nullptr;
+            rs2_box_measure_raycast_set_boxes(_host, &b, 1, &e);
+            error::handle(e);
+
+            (*_block)(fs);
+            frameset dst;
+            _queue.poll_for_frame(&dst);
+            return dst;
+        }
+
+        rs2_box_measure* _host;
+        processing_block* _block;
+        frame_queue _queue;
+
+        friend class box_measure;
+    };
+
     class box_measure
     {
     public:
@@ -366,17 +410,12 @@ namespace rs2
         *
         * \param[in] b  box to be raycasted.
         * \param[in] fs box frameset given by box_measure as output buffer.
-        * \param[in] s  buffer select either RS2_STREAM_DEPTH or RS2_STREAM_DEPTH_DENSE.
         * \return box depth image.
         */
-        frame raycast_box_onto_frame(const box& b, box_frameset& fs, const int& s) const
+        box_frameset raycast_box_onto_frame(const box& b, box_frameset fs)
         {
-            rs2_error* e = nullptr;
-
-            rs2_box_measure_raycast_box_onto_frame(_box_measure, &b, &fs.state((rs2_stream)s), fs[s].get(), 1, &e);
-            error::handle(e);
-
-            return fs[s];
+            if (!_boxcast) { _boxcast.reset(new box_raycast(this->_box_measure)); }
+            return box_frameset(_boxcast->proc(b, fs));
         }
 
         /** Get image data of a Intel(c) RealSense(TM) icon. */
@@ -427,6 +466,8 @@ namespace rs2
         std::string _camera_name;
         int _stream_w, _stream_h;
         float _depth_unit = 0.0f;
+
+        std::unique_ptr<box_raycast> _boxcast;
     };
 }
 #endif //__cplusplus

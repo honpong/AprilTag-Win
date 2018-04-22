@@ -162,7 +162,7 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
         std::cerr << "Launching " << file << "\n";
         thread_pool.emplace_back(benchmark_data { file.substr(common_directory.size() + 1), file });
         thread_pool.back().ok = std::async(std::launch::async, measure_file, thread_pool.back().file.c_str(), std::ref(thread_pool.back().result));
-        while(thread_pool.size() >= threads) {
+        while(static_cast<int>(thread_pool.size()) >= threads) {
             for(auto i = thread_pool.begin(); i != thread_pool.end();) {
                 if(i->ok.wait_for(std::chrono::milliseconds(100)) == std::future_status::ready) {
                     std::cerr << "Finished " << i->file << "\n";

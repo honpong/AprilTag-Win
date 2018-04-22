@@ -124,14 +124,22 @@ extern "C"
     RS2_MEASURE_DECL void rs2_box_meausre_project_box_onto_frame(const rs2_measure_box* box, const rs2_measure_camera_state* camera, rs2_measure_box_wireframe* wireframe, rs2_error** e);
 
     /**
-    * Create a virtual depth image of box. 
-    * \param[in] box        a box returned from box_measure to be raycasted.
-    * \param[in] camera     camera state of the image.
-    * \param[in|out] img    depth image buffer for raycasting.
-    * \param[in] reset      set 1 to clear the img buffer before raycasting.
-    * \param[out] error     if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
+    * Create a box raycasting processing block from box_measure. Do not delete directly.
+    * The return block will be deleted automatically by the box_measure host.
+    * \param[in] box_measure pointer to box_measure object.
+    * \param[out] error      if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
+    * \return processing block for box raycasting, do not delete directly.
     */
-    RS2_MEASURE_DECL void rs2_box_measure_raycast_box_onto_frame(const rs2_box_measure* box_measure, const rs2_measure_box* box, const rs2_measure_camera_state* camera, rs2_frame* img, double reset, rs2_error** e);
+    RS2_MEASURE_DECL void* rs2_box_measure_raycast_create(rs2_box_measure* box_measure, rs2_error** e);
+
+    /** 
+    * Set box raycasting target boxes. rs2_box_measure_raycast_create() must be called before.
+    * \param[in]  box_measure pointer to box_measure object contains raycasting object.
+    * \param[in]  boxes       array of target boxes.
+    * \param[in]  num_box     number of boxes in the boxes array.
+    * \param[out] error       if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
+    */
+    RS2_MEASURE_DECL void rs2_box_measure_raycast_set_boxes(rs2_box_measure* box_measure, const rs2_measure_box* boxes, int num_box, rs2_error** e);
 
     /**
     * Get a Intel(c) RealSense(TM) icon image.

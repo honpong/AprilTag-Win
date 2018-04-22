@@ -292,16 +292,23 @@ void rs2_box_meausre_project_box_onto_frame(const rs2_measure_box* box, const rs
 }
 HANDLE_EXCEPTIONS_AND_RETURN(, box, camera, wireframe)
 
-void rs2_box_measure_raycast_box_onto_frame(const rs2_box_measure * box_measure, const rs2_measure_box* box, const rs2_measure_camera_state* camera, rs2_frame* img, double reset, rs2_error** error) BEGIN_API_CALL
+void* rs2_box_measure_raycast_create(rs2_box_measure* box_measure, rs2_error** error) BEGIN_API_CALL
 {
     VALIDATE_NOT_NULL(box_measure);
-    VALIDATE_NOT_NULL(box);
-    VALIDATE_NOT_NULL(camera);
-    VALIDATE_NOT_NULL(img);
-
-    ((rs2::box_measure_impl*)box_measure)->raycast_box_onto_frame(*box, *camera, rs2::video_frame(rs2::frame(img)), reset == 1);
+    return ((rs2::box_measure_impl*)box_measure)->box_raycast_create();
 }
-HANDLE_EXCEPTIONS_AND_RETURN(, box_measure, box, camera, img, reset)
+HANDLE_EXCEPTIONS_AND_RETURN(nullptr, box_measure)
+
+void rs2_box_measure_raycast_set_boxes(rs2_box_measure* box_measure, const rs2_measure_box* boxes, int num_box, rs2_error** error) BEGIN_API_CALL
+{
+    VALIDATE_NOT_NULL(box_measure);
+    VALIDATE_NOT_NULL(boxes);
+    VALIDATE_RANGE(num_box, 0, RS2_MEASURE_BOX_MAXCOUNT);
+
+    ((rs2::box_measure_impl*)box_measure)->box_raycast_set_boxes(boxes, num_box);
+
+}
+HANDLE_EXCEPTIONS_AND_RETURN(, box_measure, boxes, num_box)
 
 const char* rs2_measure_get_realsense_icon(int* icon_width, int* icon_height, rs2_format* format, rs2_error ** error) BEGIN_API_CALL
 {

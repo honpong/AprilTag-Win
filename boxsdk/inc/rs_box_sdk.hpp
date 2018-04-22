@@ -52,7 +52,7 @@ extern "C"
         RS2_STREAM_CAM_STATE = 0,      /**< mandatory output (data) stream from box measure */
         RS2_STREAM_DEPTH_DENSE = 3,    /**< optional dense depth stream from box measure    */
         RS2_STREAM_PLANE = 4,          /**< optional plane id stream from box measure       */
-        RS2_STREAM_BOXCAST = 5,    /**< optional raycasted box depth from box measure   */
+        RS2_STREAM_BOXCAST = 5,        /**< optional raycasted box depth from box measure   */
         RS2_MEASURE_BOX_MAXCOUNT = 10, /**< maximum number of boxes from box measure        */
     } rs2_measure_const;
 
@@ -165,7 +165,8 @@ namespace rs2
     *                                      if RS2_STREAM_DEPTH_DENSE not configured, it repeats RS2_STREAM_DEPTH.
     * box_frameset[RS2_STREAM_PLANE] shares newly created plane id image (optional), \see box_measure::configure().
     *                                if RS2_STREAM_PLANE not configured, it repeats RS2_STREAM_COLOR.
-    *
+    * box_frameset[RS2_STREAM_BOXCAST] shares newly created raycasted box depth image. 
+    *                                  \see box_measure::raycast_box_onto_frame().
     */
     class box_frameset : public frameset
     {

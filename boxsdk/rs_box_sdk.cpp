@@ -161,12 +161,19 @@ namespace rs2
             return _host = host;
         }
 
-        void raycast_box_onto_frame(const rs2_measure_box& box, const rs2_measure_camera_state& cam, video_frame& depth_image, bool reset)
+        processing_block* box_raycast_create()
         {
-            rs_sf_image depth; depth << depth_image;
-            depth.cam_pose = (float*)cam.camera_pose;
-            depth.intrinsics = (rs_sf_intrinsics*)cam.intrinsics;
-            rs_sf_boxfit_raycast_boxes(_detector.get(), (rs_sf_box*)&box, &depth, reset ? nullptr : &depth);
+            if (!_boxcast) {
+                _boxcast.reset(new box_raycast_impl(
+                    [this](frame f, frame_source& src) { _boxcast->proc(f, src, _detector.get()); }));
+            }
+            return _boxcast.get();
+        }
+
+        void box_raycast_set_boxes(const rs2_measure_box* boxes, int num_box)
+        {
+            if (!_boxcast) return;
+            _boxcast->set_boxes(boxes, num_box);
         }
 
     private:
@@ -192,6 +199,49 @@ namespace rs2
         std::shared_ptr<rs_shapefit> _detector;
         rs_sf_pose_data _depth_image_pose, _color_image_pose;
         float _depth_unit;
+
+        // box raycast utility
+        struct box_raycast_impl : public processing_block
+        {
+            template<typename T>
+            box_raycast_impl(T proc) : processing_block(proc) {}
+
+            void set_boxes(const rs2_measure_box* boxes, int num_box)
+            {
+                std::lock_guard<std::recursive_mutex> lock(_mutex);
+                _boxes.assign((rs_sf_box*)boxes, (rs_sf_box*)boxes + num_box);
+            }
+            void proc(frame f, frame_source& src, rs_shapefit* detector)
+            {
+                std::lock_guard<std::recursive_mutex> lock(_mutex);
+
+                struct box_raycast_frameset : public box_frameset {
+                    box_raycast_frameset(frame& f) : box_frameset(f) {}
+                } fs(f);
+
+                auto cam = fs.state(RS2_STREAM_DEPTH);
+                _depth_buf.cam_pose = cam.camera_pose;
+                _depth_buf.intrinsics = (rs_sf_intrinsics*)cam.intrinsics;
+
+                std::vector<rs2::frame> dst(BOX_IMG_COUNT);
+                for (int i = 0; i < (int)dst.size(); ++i) { dst[i] = fs[i]; }
+
+                rs_sf_image* bkg_buf = &_depth_buf;
+                if (fs[RS2_STREAM_BOXCAST].get_data() == fs[RS2_STREAM_DEPTH].get_data()) {
+                    dst[RS2_STREAM_BOXCAST] = src.allocate_video_frame(fs[RS2_STREAM_DEPTH].get_profile(), fs[RS2_STREAM_DEPTH]);
+                    bkg_buf = nullptr;
+                }
+                video_frame vf(dst[RS2_STREAM_BOXCAST]);
+                _depth_buf << vf;
+                rs_sf_boxfit_raycast_boxes(detector, _boxes.data(), (int)_boxes.size(), &_depth_buf, bkg_buf);
+
+                src.frame_ready(src.allocate_composite_frame(dst));
+            }
+            std::recursive_mutex _mutex;
+            std::vector<rs_sf_box> _boxes;
+            rs_sf_image _depth_buf;
+        };
+        std::unique_ptr<box_raycast_impl> _boxcast;
     };
 }
 

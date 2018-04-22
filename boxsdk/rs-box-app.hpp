@@ -451,38 +451,41 @@ public:
         _texture_box_msg.render(_num_icons.print(box_dim), _num_icons.width(), _num_icons.height(), win_box_msg(), "");
     }
 
-    float render_raycast_depth_frame(const rs2::box_measure& boxscan, rs2::box_frameset& fs, rs2::box& box, rs2::frame& depth_display, int tolerance)
+    float render_raycast_depth_frame(rs2::box_measure& boxscan, rs2::box_frameset& fs, rs2::box& box, rs2::frame& depth_display)
     {
-        static std::vector<unsigned short> depth_buf(boxscan.stream_w() * boxscan.stream_h());
-        auto src_depth = (uint16_t*)fs[RS2_STREAM_DEPTH].get_data();
-        auto box_depth = (uint16_t*)fs[RS2_STREAM_BOXCAST].get_data();
+        const int max_depth_tolerance = 50;          // definition of box depth fitness in mm
+        const float mismatch_ratio_tolerance = 0.4f; // percentage of mismatched pixel allowed if boxcast requested
+        auto fs2 = boxscan.raycast_box_onto_frame(box, fs); // do box raycasting
+
+        auto src_depth = (const uint16_t*)fs2[RS2_STREAM_DEPTH].get_data();
+        auto box_depth = (const uint16_t*)fs2[RS2_STREAM_BOXCAST].get_data();
         auto dst_color = (uint8_t*)depth_display.get_data();
-
-        if (src_depth == box_depth) {
-            memcpy(src_depth = depth_buf.data(), fs[RS2_STREAM_DEPTH].get_data(), depth_buf.size() * 2);
-            box_depth = (uint16_t*)boxscan.raycast_box_onto_frame(box, fs, RS2_STREAM_DEPTH).get_data();
-        }
-
-        int num_box_pix = 0, num_box_err = 0;
-        for (int p = (int)depth_buf.size() - 1, p3 = p*3; p >= 0; --p, p3-=3) {
+        
+        int num_box_pix = 0, num_box_err = 0, num_pix = boxscan.stream_h()*boxscan.stream_w();
+        for (int p = num_pix - 1, p3 = p * 3; p >= 0; --p, p3 -= 3) {
             if (box_depth[p] != 0) {
                 ++num_box_pix;
-                if (std::abs(src_depth[p] - box_depth[p]) > tolerance) {
+                if (std::abs(src_depth[p] - box_depth[p]) > max_depth_tolerance) {
                     ++num_box_err;
-                    dst_color[p3] = dst_color[p3 + 1] = dst_color[p3 + 2] = 255;
+                    memset(dst_color + p3, 255, 3); // mark bad pixel white
                 }
             }
-            else { dst_color[p3] = dst_color[p3 + 1] = dst_color[p3 + 2] = 0; }
+            else { memset(dst_color + p3, 0, 3); } // mark non-box pixel black
         }
-        const float conf = ((float)num_box_err / std::max(1, num_box_pix));
-        _texture_depth.render(depth_display, win_depth_image(), (std::string("conf ") + std::to_string(conf)).c_str());
-        return conf;
+
+        const float mismatch = (float)num_box_err / std::max(1, num_box_pix);
+        _texture_depth.render(depth_display, win_depth_image(), (std::to_string((int)(mismatch * 100 + .5f)) + "% mismatch").c_str());
+
+        // request reset if too many frames having high box detection errors
+        if (mismatch > mismatch_ratio_tolerance && ++_high_mismatch_count > 30) { _reset = true; }
+        return mismatch;
     }
 
     void process_event()
     {
         if (_close) std::thread([this]{ std::this_thread::sleep_for(std::chrono::milliseconds(100)); on_key_release('q');}).detach();
         if (_tgscn) reset_screen(!_fullscreen, _win_width, _win_height);
+        if (_reset) { _high_mismatch_count = 0; }
         _close = _reset = false;
     }
 
@@ -504,7 +507,7 @@ public:
 
 private:
     GLFWwindow* win = nullptr;
-    int _width, _height, _win_width, _win_height, _dwin_opt = 0;
+    int _width, _height, _win_width, _win_height, _dwin_opt = 0, _high_mismatch_count = 0;
     bool _close = false, _reset = false, _tgscn = false, _fullscreen, _dense = true;
     const char* _title;
     color_icon _icon_close, _icon_reset;

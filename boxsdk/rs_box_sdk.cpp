@@ -101,7 +101,7 @@ namespace rs2
                 _image[BOX_DST_COLOR] << input_color_frame.get_frame_number() << _color_image_pose.data();
             }
 
-            std::vector<rs2::frame> export_frame = {
+            std::vector<frame> export_frame = {
                 src.allocate_video_frame(*_depth_stream_profile, input_depth_frame, 8, 1, sizeof(rs2_measure_camera_state)*BOX_IMG_COUNT, 1),
                 input_depth_frame,
                 input_color_frame,

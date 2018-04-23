@@ -23,7 +23,7 @@ void for_each_file(const char *file_or_dir, std::function<void (const char *file
         WIN32_FIND_DATA data;
         if ((h = FindFirstFile((path + (*path.rbegin() ==  '/' ? "*" : "/*")).c_str(), &data)) != INVALID_HANDLE_VALUE)
             do if (data.cFileName[0] != '.')
-                for_each_file((path + '\\' + data.cFileName).c_str(), call);
+                for_each_file((path + (*path.rbegin() != '/' && *path.rbegin() != '\\' ? "\\" : "") + data.cFileName).c_str(), call);
             while (FindNextFile(h, &data));
         FindClose(h);
 #else
@@ -31,7 +31,7 @@ void for_each_file(const char *file_or_dir, std::function<void (const char *file
         if (dir) {
             for (struct dirent *dirent; (dirent = readdir(dir)); )
                 if (dirent->d_name[0] != '.')
-                    for_each_file((path + "/" + dirent->d_name).c_str(), call);
+                    for_each_file((path + (*path.rbegin() != '/' ? "/" : "") + dirent->d_name).c_str(), call);
             closedir(dir);
         }
 #endif

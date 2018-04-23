@@ -31,7 +31,7 @@ int main(int c, char **v)
     using std::cerr;
     if (0) { usage:
 
-        cerr << "Usage: " << v[0] << " { <filename> [--no-gui] | --benchmark <directory> [--threads <n>] [--progress] }\n"
+        cerr << "Usage: " << v[0] << " { <filename> [--no-gui] | --benchmark <directory | filename1 [filename2 ...]> [--threads <n>] [--progress] | --benchmark }\n"
              << "   [--qvga] [--qres] [--drop-depth] [--realtime] [--async] [--no-fast-path] [--zero-bias]\n"
              << "   [--trace | --debug | --error | --info | --warn | --none]\n"
              << "   [--pause] [--pause-at <timestamp_us>]\n"
@@ -62,13 +62,14 @@ int main(int c, char **v)
     bool incremental_ate = false;
     bool relocalize = false;
     bool tm2_playback = false, usb_sync = false;
-    char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr, *pose_output = nullptr;
+    char *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr, *pose_output = nullptr;
+    std::vector<const char*> filenames;
     char *pause_at = nullptr;
     float skip_secs = 0.f;
     rc_MessageLevel message_level = rc_MESSAGE_INFO;
     int threads = 0;
     for (int i=1; i<c; i++)
-        if      (v[i][0] != '-' && !filename) filename = v[i];
+        if      (v[i][0] != '-') filenames.emplace_back(v[i]);
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
         else if (strcmp(v[i], "--realtime") == 0) realtime = true;
         else if (strcmp(v[i], "--async") == 0) async = true;
@@ -116,7 +117,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--usb-sync") == 0) usb_sync = true;
         else goto usage;
 
-    if (!filename)
+    if (filenames.empty() || (filenames.size() > 1 && !benchmark))
         goto usage;
 
     auto replace = [](const char* hay, const char* needle, const char* text) {
@@ -310,7 +311,7 @@ int main(int c, char **v)
         if (render_output)
             mkdir(render_output, 0777);
 
-        benchmark_run(stream, filename, threads,
+        benchmark_run(stream, filenames, threads,
         [&](const char *capture_file, struct benchmark_result &res) -> bool {
             auto rp_ = std::make_unique<replay>(  // avoid blowing the stack when threaded or on Windows
 #ifdef  ENABLE_TM2_PLAYBACK
@@ -346,7 +347,7 @@ int main(int c, char **v)
 #ifdef HAVE_GLFW
             if(render_output && res.user_data) {
                 world_state * ws = (world_state *)res.user_data;
-                std::string render_filename = render_filename_from_filename(filename, render_output, capture_file);
+                std::string render_filename = render_filename_from_filename(filenames[0], render_output, capture_file);
 
                 if(!offscreen_render_to_file(render_filename.c_str(), ws))
                     cerr << "Failed to render " << render_filename << "\n";
@@ -356,6 +357,7 @@ int main(int c, char **v)
         });
         return 0;
     }
+    auto filename = filenames[0];
     auto rp_ = std::make_unique<replay>(
 #ifdef  ENABLE_TM2_PLAYBACK
         tm2_playback ? new tm2_host_stream(filename) :

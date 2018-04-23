@@ -45,8 +45,48 @@ typedef size_t featureidx;
 
 class state_vision_intrinsics;
 class log_depth;
-struct frame_t;
-struct camera_frame_t;
+
+struct frame_t {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    sensor_clock::time_point timestamp;
+    std::vector<std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>>> keypoints;
+    std::vector<v2> keypoints_xy;
+    DBoW2::BowVector dbow_histogram;       // histogram describing image
+    DBoW2::FeatureVector dbow_direct_file;  // direct file if used, empty otherwise
+
+    void add_track(const tracker::feature_position &t, int width_px, int height_px) {
+        if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)t.x, (int)t.y, width_px, height_px)) {
+            keypoints.emplace_back(std::make_shared<fast_tracker::fast_feature<patch_orb_descriptor>>(t.feature->id, patch_descriptor{}));
+            keypoints_xy.emplace_back(t.x, t.y);
+        }
+    }
+
+    inline void calculate_dbow(const orb_vocabulary *orb_voc) {
+        // copy pyramid descriptors to a vector of descriptors
+        constexpr int direct_file_level = std::numeric_limits<int>::max();  // change to enable
+        auto get_descriptor = [](const decltype(keypoints)::value_type &kp) -> const orb_descriptor::raw & {
+                return kp->descriptor.orb.descriptor;
+        };
+        if (direct_file_level < orb_voc->getDepthLevels()) {
+            dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor,
+                                                dbow_direct_file, direct_file_level);
+        } else {
+            dbow_direct_file.clear();
+            dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor);
+        }
+    }
+#ifdef RELOCALIZATION_DEBUG
+    cv::Mat image; // for debugging purposes
+#endif
+};
+
+struct camera_frame_t {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+    rc_Sensor camera_id;
+    std::shared_ptr<frame_t> frame;
+    nodeid closest_node;
+    transformation G_closestnode_frame;
+};
 
 enum class edge_type { new_edge, dead_reckoning, relocalization, filter, map };
 

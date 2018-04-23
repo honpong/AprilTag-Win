@@ -25,11 +25,12 @@ The top level header is [`boxsdk/inc/rs_box_sdk.hpp`](boxsdk/inc/rs_box_sdk.hpp)
 - The default SDK build directory is `C:\temp\boxsdk2\`, defined by the `dst_dir` path variable in the build scripts. 
 - The default example application is `C:\temp\boxsdk2\my-box-app\`.
 
+Graphical illustration of the above can be found [`here`](doc/BoxSDK_build_demo.pdf).
 Advanced builds can be done through CMake from the top level.
 
 ## Select specific Intel® RealSense™ SDK version
 
-Switch to specific Intel® RealSense™ SDK can be found in [CMakeList.txt](CMakeList.txt) `set(LIBRS_VER v2.8.3)`, changed `v2.8.3` to a compatible version of your choice.
+Switch to specific Intel® RealSense™ SDK can be found in [CMakeLists.txt](CMakeLists.txt#L20) `set(LIBRS_VER v2.x.x)`, changed `v2.x.x` to a compatible version of your choice.
 
 # shapefit
 
@@ -38,4 +39,4 @@ A light-weight online shape fitting utility for real-time applications. Currentl
 To use, you may either cmake build the binary in `src/` or just import sources and headers from `src/api/` and `src/thirdparty/eigen/` to your project. 
 Primary header is `src/api/inc/rs_shapefit.h`. Recommend to use Intel C++ Compiler 17.0. OpenCV is optional.
 
-The example application is based on librealsense 2.3.3 samples, having the same UI dependencies
+The example application is based on librealsense 2.3.3 samples, having the same UI dependencies.

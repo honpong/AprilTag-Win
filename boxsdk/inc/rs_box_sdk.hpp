@@ -364,7 +364,8 @@ namespace rs2
             config config;
             config.enable_stream(RS2_STREAM_DEPTH, 0, _stream_w, _stream_h, RS2_FORMAT_Z16);
 
-            if (_camera_name == "Intel RealSense 410")
+            if (_camera_name == "Intel RealSense 410" ||
+                _camera_name == "Intel RealSense D410")
                 config.enable_stream(RS2_STREAM_INFRARED, 0, _stream_w, _stream_h, RS2_FORMAT_RGB8);
             else
                 config.enable_stream(RS2_STREAM_COLOR, 0, _stream_w, _stream_h, RS2_FORMAT_RGB8);
@@ -435,8 +436,10 @@ namespace rs2
             _camera_name = dev.get_info(RS2_CAMERA_INFO_NAME);
             
             // assign stream image sizes
-            if (_camera_name == "Intel RealSense 410") { _stream_w = 640; _stream_h = 480; }
-            else if (_camera_name == "Intel RealSense 415")   { _stream_w = 640; _stream_h = 480; }
+            if (_camera_name == "Intel RealSense 410" ||
+                _camera_name == "Intel RealSense D410") { _stream_w = 640; _stream_h = 480; }
+            else if (_camera_name == "Intel RealSense 415" ||
+                     _camera_name == "Intel RealSense D415") { _stream_w = 640; _stream_h = 480; }
             else if (_camera_name == "Intel RealSense SR300") { _stream_w = 640; _stream_h = 480; _depth_unit = 0.000125f; }
             else {  _stream_w = 640; _stream_h = 480; /**throw std::runtime_error(_camera_name + " not supported by Box SDK!");*/ }  
             

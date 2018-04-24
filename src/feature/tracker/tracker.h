@@ -13,6 +13,11 @@ struct tracker {
     struct feature {
         uint64_t id;
         static std::atomic_uint_fast64_t next_id;
+        static void update_next_id(uint_fast64_t id) {
+            // next_id = max(next_id, id)
+            uint_fast64_t cur_id = next_id;
+            while(cur_id < id && !next_id.compare_exchange_weak(cur_id, id));
+        }
         feature(): id(next_id++) {}
         feature(uint64_t id_): id(id_) {}
         feature(feature &&) = default;

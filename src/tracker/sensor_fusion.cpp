@@ -430,7 +430,7 @@ bool sensor_fusion::load_map(rc_LoadCallback read, void *handle)
     bool deserialize_status = false;
     if ((deserialize_status = mapper::deserialize(read, handle, *sfm.map))) {
         sfm.s.group_counter = sfm.map->get_node_id_offset();
-        tracker::feature::next_id = sfm.map->get_feature_id_offset();
+        tracker::feature::update_next_id(sfm.map->get_feature_id_offset());
     }
     return deserialize_status;
 }

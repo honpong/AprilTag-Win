@@ -2,7 +2,7 @@
 
 An extension to the [Intel® RealSense™ SDK](https://github.com/IntelRealSensen/librealsense) with box detection capability for Windows applications.
 
-## Pre-requisites
+## Prerequisites
 
 1. [Intel® RealSense™ Depth Camera D410 / D415](https://www.intel.com/realsense)
 2. Microsoft Windows 10
@@ -26,11 +26,12 @@ The top level header is [`boxsdk/inc/rs_box_sdk.hpp`](boxsdk/inc/rs_box_sdk.hpp)
 - The default example application is `C:\temp\boxsdk2\my-box-app\`.
 
 Graphical illustration of the above can be found [`here`](doc/BoxSDK_build_demo.pdf).
+
 Advanced builds can be done through CMake from the top level.
 
 ## Select specific Intel® RealSense™ SDK version
 
-Switch to specific Intel® RealSense™ SDK can be found in [CMakeLists.txt](CMakeLists.txt#L20) `set(LIBRS_VER v2.x.x)`, changed `v2.x.x` to a compatible version of your choice.
+Switch to specific Intel® RealSense™ SDK can be found in [CMakeLists.txt](CMakeLists.txt#L20) `set(LIBRS_VER v2.x.x)`, change `v2.x.x` to a compatible version of your choice.
 
 # shapefit
 

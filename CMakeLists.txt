@@ -37,7 +37,7 @@ if(NOT EXISTS ${LIBRS_DIR})
 
     if(WIN32) #for error C3861: "__cpuid": identifier not found.
         file(APPEND ${LIBRS_DIR}/src/image.h
-            "\n#ifndef LIBREALSENSE_INTRIN_H\n#define LIBREALSENSE_INTRIN_H\n#include <intrin.h>\n#endif\n")
+            "\n#ifndef LIBREALSENSE_INTRIN_H\n#define LIBREALSENSE_INTRIN_H\n#ifdef WIN32\n#include <intrin.h>\n#endif\n#endif\n")
     endif()
 endif()
 

@@ -232,7 +232,7 @@ void rs_sf_util_raycast_boxes(rs_sf_image * depth, const pose_t& pose, const flo
             auto box_pt3d = rs_sf_util_get_box_plane(box, pid); 
             
             // box corners in depth image coorindates
-            auto pc = std::array<v2, 4>{ proj(box_pt3d[0]), proj(box_pt3d[1]), proj(box_pt3d[2]), proj(box_pt3d[3]) };
+            auto pc = std::array<v2, 4>{ {proj(box_pt3d[0]), proj(box_pt3d[1]), proj(box_pt3d[2]), proj(box_pt3d[3])}};
 
             // plane equation
             auto plnor = to_cam.rotation * v3(box.axis[pid / 2]); // plane normal by rs_sf_util_get_box_plane()

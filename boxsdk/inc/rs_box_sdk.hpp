@@ -388,7 +388,7 @@ namespace rs2
         box_frameset process(frameset frames)
         {
             (*_block)(frames);
-            rs2::frame f;
+            frame f;
             _queue.poll_for_frame(&f);
             return box_frameset(f);
         }
@@ -416,7 +416,8 @@ namespace rs2
         box_frameset raycast_box_onto_frame(const box& b, box_frameset fs)
         {
             if (!_boxcast) { _boxcast.reset(new box_raycast(this->_box_measure)); }
-            return box_frameset(_boxcast->proc(b, fs));
+            frame dst = _boxcast->proc(b,fs);
+            return box_frameset(dst);
         }
 
         /** Get image data of a Intel(c) RealSense(TM) icon. */

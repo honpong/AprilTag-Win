@@ -22,7 +22,7 @@ infoValue(BOX_SDK_VERSION_STRING)
 set(BUILD_SHARED_LIB_ALGO OFF CACHE BOOL "" FORCE)
 option(BUILD_SHARED_LIB_BOXSDK "Build Box SDK SHARED LIBRARY" ON)
 if(BUILD_SHARED_LIB_BOXSDK)
-	set(BUILD_SHARED_LIB ON CACHE BOOL "" FORCE)
+    set(BUILD_SHARED_LIB ON CACHE BOOL "" FORCE)
     add_library(box-sdk SHARED
         inc/rs_box_sdk.hpp
         rs_box_api.h
@@ -50,7 +50,7 @@ endif()
 
 target_include_directories(box-sdk 
     PUBLIC  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/inc>
-	        $<INSTALL_INTERFACE:include>
+            $<INSTALL_INTERFACE:include>
     PRIVATE ${LIBRS_LIBS} ${libSP})
     
 target_link_libraries(box-sdk 
@@ -70,7 +70,7 @@ set_property(TARGET box-app PROPERTY CXX_STANDARD 14)
 
 install(TARGETS box-sdk
     EXPORT box-sdkTargets
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} 
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
@@ -89,23 +89,23 @@ install(FILES my-box-app.cpp DESTINATION ${CMAKE_INSTALL_PREFIX}/example)
 install(DIRECTORY ../doc DESTINATION ${CMAKE_INSTALL_PREFIX})
 
 if(MSVC)
-	if(BUILD_SHARED_LIBS)
-		list(APPEND BOX_SDK_DEPENDENCY "$<TARGET_FILE:realsense2>" "$<TARGET_LINKER_FILE:realsense2>")
+    if(BUILD_SHARED_LIBS)
+        list(APPEND BOX_SDK_DEPENDENCY "$<TARGET_FILE:realsense2>" "$<TARGET_LINKER_FILE:realsense2>")
     endif()
-	if(libSP_FOUND)
-		list(APPEND BOX_SDK_DEPENDENCY "$<TARGET_FILE:libSP>")
-		install(FILES "$<TARGET_FILE:libSP>" DESTINATION ${CMAKE_INSTALL_BINDIR})
+    if(libSP_FOUND)
+        list(APPEND BOX_SDK_DEPENDENCY "$<TARGET_FILE:libSP>")
+        install(FILES "$<TARGET_FILE:libSP>" DESTINATION ${CMAKE_INSTALL_BINDIR})
     endif()
-	if(BUILD_SHARED_LIB_BOXSDK)
-		list(APPEND BOX_SDK_DEPENDENCY "$<TARGET_FILE:box-sdk>" "$<TARGET_LINKER_FILE:box-sdk>")
-	endif()
+    if(BUILD_SHARED_LIB_BOXSDK)
+        list(APPEND BOX_SDK_DEPENDENCY "$<TARGET_FILE:box-sdk>" "$<TARGET_LINKER_FILE:box-sdk>")
+    endif()
 
-	foreach(var IN LISTS BOX_SDK_DEPENDENCY)
-		if(BUILD_SHARED_LIB_BOXSDK)
-		    add_custom_command(TARGET box-sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:box-sdk>")
-		else()
-			add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:box-app>")
-		endif()
-	endforeach(var)
-	set_target_properties(box-app PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
+    foreach(var IN LISTS BOX_SDK_DEPENDENCY)
+        if(BUILD_SHARED_LIB_BOXSDK)
+            add_custom_command(TARGET box-sdk POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:box-sdk>")
+        else()
+            add_custom_command(TARGET box-app POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:box-app>")
+        endif()
+    endforeach(var)
+    set_target_properties(box-app PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
 endif()

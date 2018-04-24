@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.7.0 FATAL_ERROR)
 project(measure C CXX)
 
 list(APPEND CMAKE_MODULE_PATH 
-	${CMAKE_CURRENT_SOURCE_DIR}/cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake
 )
 list(APPEND CMAKE_PREFIX_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/../sp/win
-	${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/sp/win
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/thirdparty/sp/win
 )
 
 string(TIMESTAMP time_str "%Y%m%d%H%M")
@@ -35,10 +35,10 @@ if(NOT EXISTS ${LIBRS_DIR})
         message(FATAL_ERROR "Cannot clone librealsense! Please checkout ${LIBRS_GIT} into ${LIBRS_PAR} and try again.")
     endif()
 
-	if(WIN32) #for error C3861: "__cpuid": identifier not found.
-	    file(APPEND ${LIBRS_DIR}/src/image.h 
-	        "\n#ifndef LIBREALSENSE_INTRIN_H\n#define LIBREALSENSE_INTRIN_H\n#include <intrin.h>\n#endif\n")
-	endif()
+    if(WIN32) #for error C3861: "__cpuid": identifier not found.
+        file(APPEND ${LIBRS_DIR}/src/image.h
+            "\n#ifndef LIBREALSENSE_INTRIN_H\n#define LIBREALSENSE_INTRIN_H\n#include <intrin.h>\n#endif\n")
+    endif()
 endif()
 
 ######################################################################
@@ -118,7 +118,7 @@ elseif(APPLE)
         /usr/X11R6/lib)
 
     list(APPEND LIBRS_LIBS m ${LIBUSB1_LIBRARIES})
-	list(APPEND LIBRS_LIBS ${GLFW_LIBRARIES})
+    list(APPEND LIBRS_LIBS ${GLFW_LIBRARIES})
     include_directories(${GLFW_INCLUDE_DIR})
 endif()
 

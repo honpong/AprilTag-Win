@@ -22,7 +22,7 @@ infoValue(BOX_SDK_VERSION_STRING)
 set(BUILD_SHARED_LIB_ALGO OFF CACHE BOOL "" FORCE)
 option(BUILD_SHARED_LIB_BOXSDK "Build Box SDK SHARED LIBRARY" ON)
 if(BUILD_SHARED_LIB_BOXSDK)
-    set(BUILD_SHARED_LIB ON CACHE BOOL "" FORCE)
+    set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
     add_library(box-sdk SHARED
         inc/rs_box_sdk.hpp
         rs_box_api.h
@@ -68,25 +68,27 @@ target_link_libraries(box-app
 set_property(TARGET box-sdk PROPERTY CXX_STANDARD 14)
 set_property(TARGET box-app PROPERTY CXX_STANDARD 14)
 
-install(TARGETS box-sdk
-    EXPORT box-sdkTargets
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} 
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+if (BUILD_SHARED_LIB_BOXSDK)
+    install(TARGETS box-sdk
+        EXPORT box-sdkTargets
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-include(CMakePackageConfigHelpers)
-configure_package_config_file(../cmake/box-sdkConfig.cmake.in box-sdkConfig.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/realsense2
-    INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
-    PATH_VARS CMAKE_INSTALL_BINDIR CMAKE_INSTALL_LIBDIR CMAKE_INSTALL_INCLUDEDIR)
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file(../cmake/box-sdkConfig.cmake.in box-sdkConfig.cmake
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/realsense2
+        INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}
+        PATH_VARS CMAKE_INSTALL_BINDIR CMAKE_INSTALL_LIBDIR CMAKE_INSTALL_INCLUDEDIR)
 
-install(TARGETS box-app RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-install(DIRECTORY inc/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}) 
-install(EXPORT box-sdkTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/realsense2)
-install(FILES "${CMAKE_CURRENT_BINARY_DIR}/box-sdkConfig.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/realsense2)
-install(FILES ../cmake/my-box-appCMakeLists.txt DESTINATION ${CMAKE_INSTALL_PREFIX}/example RENAME CMakeLists.txt)
-install(FILES my-box-app.cpp DESTINATION ${CMAKE_INSTALL_PREFIX}/example)
-install(DIRECTORY ../doc DESTINATION ${CMAKE_INSTALL_PREFIX})
+    install(TARGETS box-app RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+    install(DIRECTORY inc/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+    install(EXPORT box-sdkTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/realsense2)
+    install(FILES "${CMAKE_CURRENT_BINARY_DIR}/box-sdkConfig.cmake" DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/realsense2)
+    install(FILES ../cmake/my-box-appCMakeLists.txt DESTINATION ${CMAKE_INSTALL_PREFIX}/example RENAME CMakeLists.txt)
+    install(FILES my-box-app.cpp DESTINATION ${CMAKE_INSTALL_PREFIX}/example)
+    install(DIRECTORY ../doc DESTINATION ${CMAKE_INSTALL_PREFIX})
+endif()
 
 if(MSVC)
     if(BUILD_SHARED_LIBS)

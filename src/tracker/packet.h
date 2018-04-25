@@ -68,6 +68,7 @@ typedef enum packet_type {
     packet_pose = 46,
     packet_control = 47,
     packet_calibration_bin = 48,
+    packet_exposure = 49,
     packet_command_start = 100,
     packet_command_stop = 101,
 } packet_type;
@@ -112,6 +113,12 @@ typedef struct {
     uint16_t format; // enum { Y8, Z16_mm };
     uint8_t data[]; // image2 starts at data + height*stride1
 } packet_stereo_raw_t;
+
+typedef struct {
+    packet_header_t header;
+    uint64_t exposure_time_us;
+    float gain;
+} packet_exposure_t;
 
 typedef struct {
     packet_header_t header;

@@ -459,6 +459,24 @@ namespace rs2
         }
         catch (...) { return 0.001f; }
         
+        /**
+         * Set better depth generation parameters for the depth camera.
+         * \param[in] mode : "Custom","Default","Hand","High Accuracy" or "High Density"
+         */
+        std::string set_sensor_options(const std::string& mode = "High Density") const try
+        {
+            for (auto& s : _device.query_sensors())
+                if (auto ds = s.as<depth_sensor>())
+                {
+                    auto range = ds.get_option_range(RS2_OPTION_VISUAL_PRESET);
+                    for (auto i = range.min; i < range.max; i += range.step)
+                        if (std::string(ds.get_option_value_description(RS2_OPTION_VISUAL_PRESET, i)) == mode)
+                            ds.set_option(RS2_OPTION_VISUAL_PRESET, i);
+                            }
+            return mode;
+        }
+        catch (...) { return "Unavailable"; }
+        
     private:
         
         rs2::device _device;

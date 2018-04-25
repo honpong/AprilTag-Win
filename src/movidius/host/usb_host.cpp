@@ -92,7 +92,7 @@ void usb_shutdown()
         if (!usb_send_control(CONTROL_MESSAGE_STOP, 0, 0, 0)) {
             std::cerr << "Error: unable to stop replay cleanly\n";
         }
-        usb_reset();
+        libusb_reset_device(device_handle); 
         libusb_release_interface(device_handle, 0);
         libusb_close(device_handle);
         device_handle = NULL;

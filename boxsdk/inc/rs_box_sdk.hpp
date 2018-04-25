@@ -326,7 +326,7 @@ namespace rs2
             float depth_unit = try_get_depth_scale(_device);
             auto mode = set_sensor_options();
 
-            printf("depth unit %f, sensor mode: %s\n", depth_unit, mode.c_str());
+            printf("box sdk:     %d.%d.%d,\ndepth unit:  %f,\nsensor mode: %s\n", RS2_BOX_SDK_MAJOR_VERSION, RS2_BOX_SDK_MINOR_VERSION, RS2_BOX_SDK_PATCH_VERSION, depth_unit, mode.c_str());
 
             _block = std::shared_ptr<processing_block>((processing_block*)rs2_box_measure_create(&_box_measure, depth_unit,
                 custom ? custom->intrinsics : nullptr, custom ? &custom->color_to_depth : nullptr, &e));

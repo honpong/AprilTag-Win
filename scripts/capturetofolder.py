@@ -78,8 +78,8 @@ def convert(capture_filename, output_folder, drop_images, drop_accel, drop_gyro,
             # packets are padded to 8 byte boundary
             (x, y, z) = unpack('fff', p.data[:12])
             line = imu_to_str(ptime,x,y,z)
-            if p.header.type == PacketType.accelerometer and not drop_accel: accel_file.write(line)
-            if p.header.type == PacketType.gyroscope and not drop_gyro: gyro_file.write(line)
+            if p.header.type == PacketType.accelerometer and sensor_id == 0 and not drop_accel: accel_file.write(line)
+            if p.header.type == PacketType.gyroscope and sensor_id == 0 and not drop_gyro: gyro_file.write(line)
 
         if p.header.type == PacketType.image_raw and not drop_images and sensor_id not in drop_image_ids:
             (exposure, width, height, stride, camera_format) = unpack('QHHHH', p.data[:16])

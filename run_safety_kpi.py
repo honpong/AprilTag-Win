@@ -6,11 +6,14 @@ import subprocess
 import numpy as np
 from collections import defaultdict
 
-if len(sys.argv) != 3:
-    print "Usage:", sys.argv[0], "<kpi-dir> <result-extension>"
+if len(sys.argv) < 3:
+    print "Usage:", sys.argv[0], "<kpi-dir> [<kpi-dir2> ...] <result-extension>"
     sys.exit(1)
 
-kpi_dir, result_extension = sys.argv[1], sys.argv[2]
+kpi_dirs = sys.argv[1:-1]
+result_extension = sys.argv[-1]
+print kpi_dirs
+print result_extension
 
 def enumerate_all_files_matching(path, extension):
     for dirpath, dirnames, filenames in os.walk(path):
@@ -28,30 +31,31 @@ for r in radii:
     for m in margin:
         total_result = None
         print "\nRadius %sm with margin %sm" % (r, m)
-        for filename in enumerate_all_files_matching(kpi_dir,"stereo.rc.tum"):
-            if "samer" in filename or "mapping" in filename:
-                print "Excluding", filename, "based on name which implies non VR gameplay"
-                continue
-            gt = filename
-            cpu_output = filename[:-4] + result_extension
-            if not os.path.isfile(cpu_output) or not os.path.isfile(gt):
-                print "Warning: Skipping", filename
-                continue
-            print filename
-            command = "build/check_radius \"%s\" \"%s\" %s %s" % (gt, cpu_output, r, m)
+        for kpi_dir in kpi_dirs:
+            for filename in enumerate_all_files_matching(kpi_dir,"stereo.rc.tum"):
+                if "samer" in filename or "mapping" in filename:
+                    print "Excluding", filename, "based on name which implies non VR gameplay"
+                    continue
+                gt = filename
+                cpu_output = filename[:-4] + result_extension
+                if not os.path.isfile(cpu_output) or not os.path.isfile(gt):
+                    print "Warning: Skipping", filename
+                    continue
+                print filename
+                command = "build/check_radius \"%s\" \"%s\" %s %s" % (gt, cpu_output, r, m)
 
-            result_text = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-            for line in result_text.splitlines():
-                if line.startswith("CSVContent"):
-                    result = [float(i) for i in line.split(",")[1:]]
-                    if total_result is None:
-                        total_result = np.array(result)
-                    else:
-                        total_result = total_result + np.array(result)
-                    print result
+                result_text = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+                for line in result_text.splitlines():
+                    if line.startswith("CSVContent"):
+                        result = [float(i) for i in line.split(",")[1:]]
+                        if total_result is None:
+                            total_result = np.array(result)
+                        else:
+                            total_result = total_result + np.array(result)
+                        print result
         kpis[r][m] = total_result
 
-result_string  = "\nSummary: Safety KPI calculated on %s which had %.2fs of data\n" % (kpi_dir, kpis[radii[0]][margin[0]][0])
+result_string  = "\nSummary: Safety KPI calculated on %s which had %.2fs of data\n" % (kpi_dirs, kpis[radii[0]][margin[0]][0])
 result_string += "radius\tmargin\tt outside\tGT crossings\tfalse negatives (%)\tTM2 crossings\tfalse positives (%)\n"
 for r in radii:
     for m in margin:

@@ -447,10 +447,10 @@ namespace rs2
             if (_depth_unit != 0.0f) return _depth_unit;
             
             // Go over the device's sensors
-            for (rs2::sensor& sensor : dev.query_sensors())
+            for (sensor& sensor : dev.query_sensors())
             {
                 // Check if the sensor if a depth sensor
-                if (rs2::depth_sensor dpt = sensor.as<rs2::depth_sensor>())
+                if (depth_sensor dpt = sensor.as<depth_sensor>())
                 {
                     return _depth_unit = std::fmaxf(0.001f, dpt.get_depth_scale());
                 }

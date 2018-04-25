@@ -473,7 +473,7 @@ namespace rs2
                     for (auto i = range.min; i < range.max; i += range.step)
                         if (std::string(ds.get_option_value_description(RS2_OPTION_VISUAL_PRESET, i)) == mode)
                             ds.set_option(RS2_OPTION_VISUAL_PRESET, i);
-                            }
+                }
             return mode;
         }
         catch (...) { return "Unavailable"; }

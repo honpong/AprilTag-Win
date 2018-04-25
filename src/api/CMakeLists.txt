@@ -7,7 +7,7 @@ else()
     set(PROJECT_NAME shapefit-core)
     option(BUILD_SHARED_LIB_SHAPEFIT "Build Shared Shapefit Library" ON)
     if(BUILD_SHARED_LIB_SHAPEFIT)
-        set(BUILD_SHARED_LIB_ALGO 1 CACHE STRING "")
+        set(BUILD_SHARED_LIB_ALGO ON CACHE STRING "")
     endif()
 endif()
 

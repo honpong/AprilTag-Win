@@ -17,7 +17,8 @@ static void process_track_output(const replay_output *output, const rc_Data *dat
 }
 
 static void log_to_stderr(void *handle, rc_MessageLevel message_level, const char * message, size_t len) {
-    cerr << message;
+    file_stream * stream = (file_stream *)handle;
+    cerr << stream->name << ": " << message;
 }
 
 file_stream::file_stream(const char *name) {
@@ -37,6 +38,7 @@ file_stream::file_stream(const char *name) {
     device_stream::name = name;
     device_stream::pose_handle = &track_output;
     device_stream::pose_callback = pose_data_callback;
+    device_stream::message_handle = this;
     device_stream::message_callback = log_to_stderr;
     device_stream::map_load_callback = mem_load_callback;
     device_stream::save_callback = file_save_callback;

@@ -34,6 +34,7 @@ file_stream::file_stream(const char *name) {
     track_output[rc_DATA_PATH_FAST].on_track_output = process_track_output;
     track_output[rc_DATA_PATH_SLOW].host = this;
     track_output[rc_DATA_PATH_SLOW].on_track_output = process_track_output;
+    device_stream::name = name;
     device_stream::pose_handle = &track_output;
     device_stream::pose_callback = pose_data_callback;
     device_stream::message_callback = log_to_stderr;

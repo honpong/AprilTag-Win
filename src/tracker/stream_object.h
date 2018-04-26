@@ -104,6 +104,7 @@ protected:
 
 class device_stream {
 public:
+    std::string name{};
     /// make stream object ready for streaming.
     virtual bool init_device() = 0;
     /// allocates a new packet and assigns header of the next packet in the stream.

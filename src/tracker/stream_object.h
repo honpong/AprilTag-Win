@@ -121,6 +121,7 @@ public:
     rc_SaveCallback save_callback{ nullptr };
     rc_DataCallback pose_callback{ nullptr };
     rc_MessageCallback message_callback{ nullptr };
+    void * message_handle { nullptr };
     rc_StatusCallback status_callback{ nullptr };
     void *map_load_handle{ nullptr }, *save_handle{ nullptr }, *pose_handle{ nullptr };
     virtual ~device_stream() {};

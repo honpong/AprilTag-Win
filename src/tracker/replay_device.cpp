@@ -314,7 +314,7 @@ void replay_device::process_control(const packet_control_t *packet) {
     }
     case packet_enable_relocalization: { rc_startMapping(tracker.get(), true, true); break; }
     case packet_command_start: {
-        if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, nullptr, message_level);
+        if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, stream->message_handle, message_level);
         rc_startTracker(tracker.get(),
                         (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) |
                         (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH) |

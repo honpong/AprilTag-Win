@@ -75,7 +75,7 @@ int main(int argc, char ** argv)
                 first_tm2_pose = pose;
                 first_gt_pose = gt_interp;
                 dR2 = (first_tm2_pose.G.Q*first_gt_pose.G.Q.inverse()).toRotationMatrix();
-                tm2_center_offset = -dR2*gt_center;
+                tm2_center_offset = -dR2*(gt_center - first_gt_pose.G.T);
             }
 
             v3 dt_now = pose.G.T - first_tm2_pose.G.T + tm2_center_offset;

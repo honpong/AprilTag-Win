@@ -51,7 +51,7 @@ public:
     f_t depth() { return exp(v); }
     f_t invdepth() { return exp(-v); }
     f_t invdepth_jacobian() { return -exp(-v); }
-    f_t stdev_meters(f_t stdev) { return exp(v + stdev) - exp(v); }
+    f_t stdev_meters(f_t stdev) { return exp(v) * stdev; }
     void set_depth_meters(f_t initial_depth) { v = (initial_depth > 0) ? log(initial_depth) : 0; }
     log_depth(): v(0) {}
 };

@@ -233,7 +233,7 @@ public:
 
         if (!gl_handle)
             glGenTextures(1, &gl_handle);
-        GLenum err = glGetError();
+        if (GLenum err = glGetError()){ return; };
 
         glBindTexture(GL_TEXTURE_2D, gl_handle);
 
@@ -305,14 +305,17 @@ public:
     std::function<void(int)>            on_key_release = [this](int key) { if (key == 'q' || key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(win, GL_TRUE); };
     std::function<void(bool)>           on_left_mouse = [this](bool click)
     {
-        if (click)
-            if (_mouse_pos[0] > width() / 3) _tgscn = true;
-            else if (_mouse_pos[1] < win_rs_logo().ey()) _dense = !_dense;
-            else if (_mouse_pos[1] > win_depth_image().y)
-                if (_mouse_pos[1] < height() * 7 / 8) _dwin_opt = (_dwin_opt + 1) % 3;
-                else
-                    if (_mouse_pos[0] <= width() / 6) _close = true;
-                    else if (_mouse_pos[0] <= width() * 3) _reset = true;
+        if (click) {
+            if (_mouse_pos[0] > width() / 3) { _tgscn = true; }
+            else if (_mouse_pos[1] < win_rs_logo().ey()) { _dense = !_dense; }
+            else if (_mouse_pos[1] > win_depth_image().y) {
+                if (_mouse_pos[1] < height() * 7 / 8) { _dwin_opt = (_dwin_opt + 1) % 3; }
+                else {
+                    if (_mouse_pos[0] <= width() / 6) { _close = true; }
+                    else if (_mouse_pos[0] <= width() * 3) { _reset = true; }
+                }
+            }
+        }
     };
 
     window(int width, int height, const char* title) : _title(title), _icon_close(get_icon(close), bkg_blue), _icon_reset(get_icon(reset), bkg_blue), _num_icons(bkg_blue)
@@ -545,7 +548,7 @@ static std::shared_ptr<rs2::box_measure::calibration> read_calibration(const std
         for (auto t : { 0,1,2 })
             calibration.color_to_depth.translation[t] = extrinsics["translation"][t].asFloat();
 
-        printf(("calibration read from " + path_name + "\n").c_str());
+        printf("calibration read from %s\n", path_name.c_str());
         return std::make_shared<decltype(calibration)>(calibration);
     }
     catch (...) {}
@@ -589,7 +592,7 @@ static void save_calibration(const std::string& path_name, rs2::pipeline_profile
         outfile.open(path_name);
         writer.write(outfile, calibration_data);
 
-        printf(("calibration written to " + path_name + "\n").c_str());
+        printf("calibration written to %s\n", path_name.c_str());
     }
     catch (...) {
         printf("error in writing calibration files! \n");

@@ -77,11 +77,10 @@ int main(int argc, char* argv[])
     if (list.size() <= 0) { std::runtime_error("No device detected."); return EXIT_FAILURE; }
 
     // Assume the first device is our depth camera
-    auto dev = list[0];
-    std::string header = std::string(dev.get_info(RS2_CAMERA_INFO_NAME)) + " Box Scan Example ";
+    std::string header = std::string(list[0].get_info(RS2_CAMERA_INFO_NAME)) + " Box Scan Example ";
    
     // Declare box detection
-    rs2::box_measure boxscan(dev, read_calibration(calibration_read_path).get());
+    rs2::box_measure boxscan(list[0], read_calibration(calibration_read_path).get());
 
     // Setup camera pipeline
     auto config = boxscan.get_camera_config();
@@ -92,7 +91,6 @@ int main(int argc, char* argv[])
 
     // Declare depth colorizer for pretty visualization of depth data
     rs2::colorizer color_map;
-
 
     // Start application
     for (window app(boxscan.stream_w() * 3 / 2, boxscan.stream_h(), header.c_str()); app;)

@@ -214,7 +214,7 @@ void rs_sf_util_raycast_boxes(rs_sf_image * depth, const pose_t& pose, const flo
             (pt3d.y() * cam.fy) / pt3d.z() + cam.ppy };
     };
 
-    auto in_plane = [](const v2 pl[4], i2 pt) {
+    auto in_plane = [](const v2 pl[4], const i2& pt) {
         for (int i = 0, j = 1, pos_d = 0, neg_d = 0; i < 4; ++i, j = (i + 1) % 4) {
             const auto d = (pt.x() - pl[i].x())*(pl[j].y() - pl[i].y()) - (pt.y() - pl[i].y())*(pl[j].x() - pl[i].x());
             pos_d += ((d > 0) & 0x1);
@@ -229,27 +229,27 @@ void rs_sf_util_raycast_boxes(rs_sf_image * depth, const pose_t& pose, const flo
         for (int pid = 0; pid < 6; ++pid)  // for each box plane
         {
             // box corners in world coordinates
-            auto box_pt3d = rs_sf_util_get_box_plane(box, pid); 
+            const auto box_pt3d = rs_sf_util_get_box_plane(box, pid);
             
             // box corners in depth image coorindates
-            auto pc = std::array<v2, 4>{ {proj(box_pt3d[0]), proj(box_pt3d[1]), proj(box_pt3d[2]), proj(box_pt3d[3])}};
+            const v2 pc[4] = {proj(box_pt3d[0]), proj(box_pt3d[1]), proj(box_pt3d[2]), proj(box_pt3d[3])};
 
             // plane equation
-            auto plnor = to_cam.rotation * v3(box.axis[pid / 2]); // plane normal by rs_sf_util_get_box_plane()
-            auto pl_c0 = -plnor.dot(to_cam.transform(box_pt3d[0])) / depth_unit_in_meter;// plane intercept
+            const v3 plnor = to_cam.rotation * v3(box.axis[pid / 2]); // plane normal by rs_sf_util_get_box_plane()
+            const float pl_c0 = -plnor.dot(to_cam.transform(box_pt3d[0])) / depth_unit_in_meter;// plane intercept
 
             // box plane ROI
-            auto min_i = std::max((int)(.5f + std::min({ pc[0].x(),pc[1].x(),pc[2].x(),pc[3].x() })), 0);
-            auto max_i = std::min((int)(.5f + std::max({ pc[0].x(),pc[1].x(),pc[2].x(),pc[3].x() })), depth->img_w - 1);
-            auto min_j = std::max((int)(.5f + std::min({ pc[0].y(),pc[1].y(),pc[2].y(),pc[3].y() })), 0);
-            auto max_j = std::min((int)(.5f + std::max({ pc[0].y(),pc[1].y(),pc[2].y(),pc[3].y() })), depth->img_h - 1);
+            const auto min_i = std::max((int)(.5f + std::min({ pc[0].x(),pc[1].x(),pc[2].x(),pc[3].x() })), 0);
+            const auto max_i = std::min((int)(.5f + std::max({ pc[0].x(),pc[1].x(),pc[2].x(),pc[3].x() })), depth->img_w - 1);
+            const auto min_j = std::max((int)(.5f + std::min({ pc[0].y(),pc[1].y(),pc[2].y(),pc[3].y() })), 0);
+            const auto max_j = std::min((int)(.5f + std::max({ pc[0].y(),pc[1].y(),pc[2].y(),pc[3].y() })), depth->img_h - 1);
 
             // generate depth within box plane ROI
             for (int j = min_j; j <= max_j; ++j) {
                 for (int i = min_i; i <= max_i; ++i) {
-                    if (in_plane(pc.data(), i2(i, j))) {
+                    if (in_plane(pc, i2(i, j))) {
                         // plane-ray intersection
-                        const auto z = -pl_c0 / ( 
+                        const float z = -pl_c0 / ( 
                             plnor[0] * (i - camera.ppx) / camera.fx +
                             plnor[1] * (j - camera.ppy) / camera.fy + plnor[2]);
 

@@ -319,13 +319,7 @@ void state_vision::update_map(mapper *map)
     for (auto &g : groups.children) {
         map->set_node_transformation(g->id, *g->Gr);
         for (auto &f : g->features.children) {
-            float stdev = (float)f->v->stdev_meters(sqrt(f->variance()));
-            float variance_meters = stdev*stdev;
-            const float measurement_var = 1.e-3f*1.e-3f;
-            if (variance_meters < measurement_var)
-                variance_meters = measurement_var;
-            
-            bool good = stdev / f->v->depth() < .05f;
+            bool good = f->variance() < .05f*.05f; // f->variance() is equivalent to (stdev_meters/depth)^2
             if (good) {
                 if(f->is_in_map) {
                     map->set_feature_type(g->id, f->feature->id, feature_type::tracked);

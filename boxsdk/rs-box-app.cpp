@@ -26,9 +26,9 @@ int main(int argc, char* argv[])
     pipe.start();
     return 0;
 }
-#else 
-
+#else
 #if 0
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "../third-party/stb_image.h"
 #include <fstream>
@@ -51,15 +51,12 @@ void write_icon(){
     }
 }
 
-int main(int argc, char* argv[])
-{
-    write_icon(); return 0;
-#else
-
-int main(int argc, char* argv[])
-{
 #endif
 
+
+    
+int main(int argc, char* argv[])
+{
     std::string calibration_read_path = "", calibration_save_path = "";
     for (int i = 1; i < argc; ++i) {
         if (!strcmp(argv[i], "-c") || !strcmp(argv[i], "-calibration_read")) { calibration_read_path = argv[++i]; }
@@ -91,6 +88,9 @@ int main(int argc, char* argv[])
 
     // Declare depth colorizer for pretty visualization of depth data
     rs2::colorizer color_map;
+    
+    box_depth_stablize stablize;
+    rs2::box_vector box = boxscan.get_boxes();
 
     // Start application
     for (window app(boxscan.stream_w() * 3 / 2, boxscan.stream_h(), header.c_str()); app;)
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
             frameset = pipe.wait_for_frames(); //wait until a pair of frames.
         }
 
-        if (auto box_frame = boxscan.process(frameset)) //process new frame pair
+        if (auto box_frame = boxscan.process(box.size()?stablize(frameset):frameset)) //process new frame pair
         {
             // select depth display on the smaller left window
             auto depth_display = color_map(box_frame[app.plane_request() ? RS2_STREAM_PLANE : RS2_STREAM_DEPTH_DENSE]);
@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
             app.render_ui(depth_display, box_frame[RS2_STREAM_COLOR]);
 
             // draw box wireframe and text info if any
-            if (auto box = boxscan.get_boxes()) 
+            if ((box = boxscan.get_boxes()))
             {
                 // check box fitness and update depth display on the left window
                 if (app.boxca_request()) { app.render_raycast_depth_frame(boxscan, box_frame, box[0], depth_display); }
@@ -120,6 +120,7 @@ int main(int argc, char* argv[])
                 app.render_box_on_depth_frame(box[0].project_box_onto_frame(box_frame, RS2_STREAM_DEPTH)); //draw wireframe on depth image
                 app.render_box_on_color_frame(box[0].project_box_onto_frame(box_frame, RS2_STREAM_COLOR)); //draw wireframe on color image
                 app.render_box_dim(box[0].str()); //draw box information text
+                
             }
         }
 
@@ -130,5 +131,4 @@ int main(int argc, char* argv[])
 
     return EXIT_SUCCESS;
 }
-
 #endif

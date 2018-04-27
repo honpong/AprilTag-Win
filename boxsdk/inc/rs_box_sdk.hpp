@@ -480,7 +480,6 @@ namespace rs2
         
     private:
         
-        rs2::device _device;
         std::shared_ptr<processing_block> _block;
         frame_queue _queue;
 

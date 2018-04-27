@@ -319,13 +319,13 @@ namespace rs2
         * \param[in] dev    device source of the depth and color streams.
         * \param[in] custom optional calibration data override the hardware calibrations. 
         */
-        box_measure(device dev = device(), calibration* custom = nullptr) : _device(dev), _queue(1), _stream_w(0), _stream_h(0)
+        box_measure(device dev = device(), calibration* custom = nullptr) : _queue(1), _stream_w(0), _stream_h(0)
         {
             rs2_error* e = nullptr;
             
-            float depth_unit = try_get_depth_scale(_device);
-            auto mode = set_sensor_options();
-
+            float depth_unit = try_get_depth_scale(dev);
+            auto mode = set_sensor_options(dev);
+        
             printf("box sdk:     %d.%d.%d,\ndepth unit:  %f,\nsensor mode: %s\n", RS2_BOX_SDK_MAJOR_VERSION, RS2_BOX_SDK_MINOR_VERSION, RS2_BOX_SDK_PATCH_VERSION, depth_unit, mode.c_str());
 
             _block = std::shared_ptr<processing_block>((processing_block*)rs2_box_measure_create(&_box_measure, depth_unit,
@@ -464,9 +464,9 @@ namespace rs2
          * Set better depth generation parameters for the depth camera.
          * \param[in] mode : "Custom","Default","Hand","High Accuracy" or "High Density"
          */
-        std::string set_sensor_options(const std::string& mode = "High Density") const try
+        std::string set_sensor_options(device dev, const std::string& mode = "High Density") const try
         {
-            for (auto& s : _device.query_sensors())
+            for (auto& s : dev.query_sensors())
                 if (auto ds = s.as<depth_sensor>())
                 {
                     auto range = ds.get_option_range(RS2_OPTION_VISUAL_PRESET);

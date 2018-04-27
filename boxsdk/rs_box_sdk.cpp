@@ -224,7 +224,7 @@ namespace rs2
                 _depth_buf.cam_pose = cam.camera_pose;
                 _depth_buf.intrinsics = (rs_sf_intrinsics*)cam.intrinsics;
 
-                std::vector<rs2::frame> dst(BOX_IMG_COUNT);
+                std::vector<frame> dst(BOX_IMG_COUNT);
                 for (int i = 0; i < (int)dst.size(); ++i) { dst[i] = fs[i]; }
 
                 rs_sf_image* bkg_buf = &_depth_buf;
@@ -307,7 +307,6 @@ void rs2_box_measure_raycast_set_boxes(rs2_box_measure* box_measure, const rs2_m
     VALIDATE_RANGE(num_box, 0, RS2_MEASURE_BOX_MAXCOUNT);
 
     ((rs2::box_measure_impl*)box_measure)->box_raycast_set_boxes(boxes, num_box);
-
 }
 HANDLE_EXCEPTIONS_AND_RETURN(, box_measure, boxes, num_box)
 

@@ -598,3 +598,91 @@ static void save_calibration(const std::string& path_name, rs2::pipeline_profile
         printf("error in writing calibration files! \n");
     }
 }
+
+using namespace rs2;
+class box_depth_stablize
+{
+public:
+    box_depth_stablize(int mov_color_thr = 15, float mov_percent = 0.02f)
+    {
+        set_thresholds(mov_color_thr, mov_percent);
+        _block = std::make_unique<processing_block>([this](frame f, frame_source& fs){proc(f,fs);});
+        _block->start(_queue);
+    }
+    
+    frameset operator()(frame f)
+    {
+        (*_block)(f);
+        frame dst;
+        _queue.poll_for_frame(&dst);
+        return rs2::frameset(dst);
+    }
+    
+    void set_thresholds(int mov_color_thr, float mov_percent)
+    {
+        _mov_color_pixel_thr = mov_color_thr;
+        _mov_color_pixel_min_percent = mov_percent;
+    }
+    
+protected:
+    static void copy_to(const video_frame& src, frame& dst)
+    {
+        memcpy((void*)dst.get_data(), src.get_data(), src.get_width() * src.get_height() * src.get_bytes_per_pixel());
+    }
+    
+    bool detect_motion_in_color(const video_frame curr_c)
+    {
+        const int width = curr_c.get_width(), height = curr_c.get_height();
+        const int num_pix = width * height;
+        const int min_mov_pixel = (int)(num_pix * _mov_color_pixel_min_percent);
+        auto* c0 = (uint8_t*)_prev_c.get_data();
+        auto* c1 = (uint8_t*)curr_c.get_data();
+        for (int i = 0, i3 = 0, num_mov_pix = 0; i < num_pix; ++i, i3+=3 )
+        {
+            if (std::abs(c0[i3+0]-c1[i3+0]) > _mov_color_pixel_thr ||
+                std::abs(c0[i3+1]-c1[i3+1]) > _mov_color_pixel_thr ||
+                std::abs(c0[i3+2]-c1[i3+2]) > _mov_color_pixel_thr )
+            {
+                if(++num_mov_pix > min_mov_pixel)
+                {
+                    _no_mov_frame_count = 0;
+                    return true;
+                }
+            }
+        }
+        ++_no_mov_frame_count;
+        return false;
+    }
+    
+    void proc(frame f, frame_source& src)
+    {
+        frameset fs = f.as<frameset>();
+        
+        depth_frame curr_d = fs.get_depth_frame();
+        video_frame curr_c = fs.get_color_frame();
+        if (!_prev_d || !_prev_c) {
+            _prev_d = src.allocate_video_frame(curr_d.get_profile(), curr_d, 0,0,0,0, RS2_EXTENSION_DEPTH_FRAME);
+            _prev_c = src.allocate_video_frame(curr_c.get_profile(), curr_c);
+        }
+        
+        if (detect_motion_in_color(curr_c) || _no_mov_frame_count < 30)
+        {
+            copy_to(curr_c, _prev_c);
+            copy_to(curr_d, _prev_d);
+            src.frame_ready(f);
+        }
+        else
+        {
+            std::vector<frame> dst{_prev_d, curr_c};
+            src.frame_ready(src.allocate_composite_frame(dst));
+        }
+    }
+    
+private:
+    std::unique_ptr<processing_block> _block;
+    frame _prev_d, _prev_c;
+    frame_queue _queue;
+    int _no_mov_frame_count = 0;
+    int _mov_color_pixel_thr;           // motion color pixel threshold
+    float _mov_color_pixel_min_percent; // minimum percent of moving color pixel
+};

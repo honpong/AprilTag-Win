@@ -105,9 +105,9 @@ namespace rs2
                 src.allocate_video_frame(*_depth_stream_profile, input_depth_frame, 8, 1, sizeof(rs2_measure_camera_state)*BOX_IMG_COUNT, 1),
                 input_depth_frame,
                 input_color_frame,
-                !_is_export[BOX_DST_DENSE] ? input_depth_frame : src.allocate_video_frame(*_depth_stream_profile, input_depth_frame),
+                !_is_export[BOX_DST_DENSE] ? input_depth_frame : src.allocate_video_frame(*_depth_stream_profile, input_depth_frame, 0, 0, 0, 0, RS2_EXTENSION_DEPTH_FRAME),
                 !_is_export[BOX_DST_PLANE] ? input_color_frame : src.allocate_video_frame(*_color_stream_profile, input_color_frame),
-                !_is_export[BOX_DST_RAYCA] ? input_depth_frame : src.allocate_video_frame(*_depth_stream_profile, input_depth_frame),
+                !_is_export[BOX_DST_RAYCA] ? input_depth_frame : src.allocate_video_frame(*_depth_stream_profile, input_depth_frame, 0, 0, 0, 0, RS2_EXTENSION_DEPTH_FRAME),
                 !_is_export[BOX_DST_COLOR] ? input_color_frame : src.allocate_video_frame(*_color_stream_profile, input_color_frame),
             };
 
@@ -228,7 +228,7 @@ namespace rs2
 
                 rs_sf_image* bkg_buf = &_depth_buf;
                 if (fs[RS2_STREAM_BOXCAST].get_data() == fs[RS2_STREAM_DEPTH].get_data()) {
-                    dst[RS2_STREAM_BOXCAST] = src.allocate_video_frame(fs[RS2_STREAM_DEPTH].get_profile(), fs[RS2_STREAM_DEPTH]);
+                    dst[RS2_STREAM_BOXCAST] = src.allocate_video_frame(fs[RS2_STREAM_DEPTH].get_profile(), fs[RS2_STREAM_DEPTH], 0, 0, 0, 0, RS2_EXTENSION_DEPTH_FRAME);
                     bkg_buf = nullptr;
                 }
                 video_frame vf(dst[RS2_STREAM_BOXCAST]);

@@ -765,7 +765,7 @@ static inline void set_color(VertexData * vertex, unsigned char r, unsigned char
 
 static inline void set_indexed_color(VertexData * vertex, int index)
 {
-    int ci = index % sizeof(indexed_colors);
+    int ci = index % (sizeof(indexed_colors) / sizeof(indexed_colors[0]));
     set_color(vertex, indexed_colors[ci][0], indexed_colors[ci][1], indexed_colors[ci][2], indexed_colors[ci][3]);
 }
 

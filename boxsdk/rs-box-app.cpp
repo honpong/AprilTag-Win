@@ -93,7 +93,6 @@ int main(int argc, char* argv[])
     // Declare depth colorizer for pretty visualization of depth data
     rs2::colorizer color_map;
 
-    int bad_detection = 0;
 
     // Start application
     for (window app(boxscan.stream_w() * 3 / 2, boxscan.stream_h(), header.c_str()); app;)

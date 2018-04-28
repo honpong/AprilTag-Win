@@ -71,7 +71,8 @@ namespace rs2
                 rs_shapefit_delete)).get();
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_DEPTH_UNIT, _depth_unit);
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_ASYNC_WAIT, 0.0);
-            rs_shapefit_set_option(box_detector, RS_SF_OPTION_PLANE_NOISE, 1);
+            rs_shapefit_set_option(box_detector, RS_SF_OPTION_PLANE_NOISE, 2);
+            rs_shapefit_set_option(box_detector, RS_SF_OPTION_BOX_PLANE_RES, 2);
             //rs_shapefit_set_option(box_detector, RS_SF_OPTION_PLANE_RES, 1);
 
             if (_camera_tracker) _camera_tracker.reset();

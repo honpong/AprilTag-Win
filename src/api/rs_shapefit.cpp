@@ -119,16 +119,21 @@ rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * r
     return status;
 }
 
-
-rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit * obj, int box_id, rs_sf_box * box)
+rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit * obj, int box_id, rs_sf_box * box, float *maturity)
 {
     if (!obj || !box) return RS_SF_INVALID_ARG;
     auto bf = dynamic_cast<const rs_sf_boxfit*>(obj);
     if (!bf) return RS_SF_INVALID_OBJ_HANDLE;
 
     if (0 < box_id || box_id >= bf->num_detected_boxes()) return RS_SF_INDEX_OUT_OF_BOUND;
-    *box = bf->get_box(box_id);
-    return RS_SF_SUCCESS;
+    float history_progress;
+    *box = bf->get_box(box_id, history_progress);
+    if (maturity) { *maturity = history_progress; }
+#ifdef _DEBUG
+    return history_progress >= 0.0f ? RS_SF_SUCCESS : RS_SF_ITEM_NOT_READY;
+#else 
+    return history_progress >= 1.0f ? RS_SF_SUCCESS : RS_SF_ITEM_NOT_READY;
+#endif
 }
 
 rs_sf_status rs_sf_boxfit_draw_boxes(const rs_shapefit * obj, rs_sf_image * rgb, const rs_sf_image * bkg, const unsigned char color[3])

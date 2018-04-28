@@ -95,6 +95,7 @@ extern "C"
         RS_SF_SUCCESS = 0,
         RS_SF_BUSY = 1,
         RS_SF_INDEX_OUT_OF_BOUND = 2,
+        RS_SF_ITEM_NOT_READY = 3
     };
 
     enum rs_shapefit_capability
@@ -179,8 +180,9 @@ extern "C"
     * @param[in]     obj          shapefit object with box fitting capability. 
     * @param[in]     box_id       box identifier, 0-based.
     * @param[in]     box          return buffer for the box.
+    * @oaram[out]    maturity     0-1 indicates length of history of this box.
     * @return RS_SF_SUCCESS if no error. */
-    RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit* obj, int box_id, rs_sf_box* box);
+    RS_SHAPEFIT_DECL rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit* obj, int box_id, rs_sf_box* box, float* maturity = nullptr);
 
     /** Draw box wireframes in an rgb image. 
     * @param[in]     obj          shapefit object with box fitting capability.

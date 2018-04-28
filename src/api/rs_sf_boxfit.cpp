@@ -154,7 +154,7 @@ struct rs_sf_boxfit::box_plane_t
         height_min = FLOAT_MAX_VALUE;
         height_max.fill(FLOAT_MIN_VALUE);
         n_bins = sizeof(box_axis_bin) / sizeof(float);
-        upper_bin = n_bins * 3 / 4;
+        upper_bin = n_bins / 2 - 1;  // take median length
     }
 
     void project_pts_on_plane(const v3& _normal, const float _d, const float max_plane_pt_error)

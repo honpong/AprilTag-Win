@@ -162,7 +162,7 @@ namespace rs2
     }
 
     static std::string stri(float v, int w, int p = 0) {
-        std::string s0 = f_str(v, p), s = ""; while ((s + s0).length() < w) { s += " "; } return s + s0;
+        std::string s0 = f_str(v, p), s = ""; while ((int)(s + s0).length() < w) { s += " "; } return s + s0;
     }
 
     /** \brief output data structure from box_measure class. 

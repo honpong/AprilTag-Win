@@ -546,7 +546,7 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const paramet
     pid[1] = pair.p1->pid;
     pid[2] = pair.p2 ? pair.p2->pid : 0;
     box_history.push_back(new_box);
-    while (box_history.size() > param.max_box_history)
+    while ((int)box_history.size() > param.max_box_history)
         box_history.pop_front();
 
     const int num_boxes = (int)box_history.size();

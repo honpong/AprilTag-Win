@@ -58,7 +58,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
     rs_sf_status track_depth_image() override;
 
     int num_detected_boxes() const { return (int)m_box_ref_scene.tracked_boxes.size(); }
-    rs_sf_box get_box(int box_id) const { return m_box_ref_scene.tracked_boxes[box_id].to_rs_sf_box(); }
+    rs_sf_box get_box(int box_id, float& history_progress) const { return m_box_ref_scene.get_tracked_box(box_id, history_progress, m_param.max_box_history); }
     std::vector<rs_sf_box> get_boxes() const;
 
 protected:
@@ -181,6 +181,10 @@ protected:
         inline void swap(box_scene& ref) {
             plane_pairs.swap(ref.plane_pairs);
             boxes.swap(ref.boxes);
+        }
+        rs_sf_box get_tracked_box(int id, float& history_progress, int max_hist) const {
+            history_progress = (float)tracked_boxes[id].box_history.size() / max_hist;
+            return tracked_boxes[id].to_rs_sf_box();
         }
     } m_box_scene, m_box_ref_scene;
 

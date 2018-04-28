@@ -118,10 +118,10 @@ namespace rs2
                 _reset_request |= !_camera_tracker->track(_image[BOX_SRC_DEPTH], _image[BOX_SRC_COLOR], _image[BOX_DST_DENSE], _color_to_depth, _reset_request);
             }
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_TRACKING, !_reset_request ? 0 : 1);
-            _reset_request = false;
 
-            if (rs_shapefit_depth_image(box_detector, &_image[BOX_DST_DENSE]) >= RS_SF_SUCCESS)
-            {
+            auto status = rs_shapefit_depth_image(box_detector, &_image[BOX_DST_DENSE]);
+            if (status == RS_SF_SUCCESS) { _reset_request = false; }
+            if (status >= RS_SF_SUCCESS) {
                 for (auto s : { BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_DENSE, BOX_DST_PLANE, BOX_DST_RAYCA, BOX_DST_COLOR }) {
                     if (_is_export[s]) { _state[s] << _image[s]; }
                 }
@@ -135,8 +135,8 @@ namespace rs2
             }
         }
 
-        int get_boxes(rs2_measure_box box[]) {
-
+        int get_boxes(rs2_measure_box box[])
+        {
             std::lock_guard<std::recursive_mutex> lock(_mutex);
             int _num_box = 0;
             for (auto box_detector = _detector.get(); _num_box < RS2_MEASURE_BOX_MAXCOUNT; ++_num_box)

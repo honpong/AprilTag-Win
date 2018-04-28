@@ -291,7 +291,7 @@ void rs_sf_planefit::init_img_pt_groups(scene& view)
 // this is a protected function, use m_view instead of m_ref_view
 rs_sf_planefit::plane * rs_sf_planefit::get_tracked_plane(int pid) const 
 {
-    if (pid <= INVALID_PID || m_view.tracked_pid.size() <= pid) return nullptr; //okay to use m_view here
+    if (pid <= INVALID_PID || (int)m_view.tracked_pid.size() <= pid) return nullptr; //okay to use m_view here
     return m_view.tracked_pid[pid];
 }
 

@@ -164,8 +164,8 @@ protected:
     int src_w() const { return m_intrinsics.width; }
     int num_pixels() const { return src_h()*src_w(); }
     int num_pixel_groups() const { return m_grid_h * m_grid_w; }
-    bool is_valid_new_plane(const plane& new_plane) const { return new_plane.pts.size() > m_param.min_num_plane_pt; }
-    bool is_valid_plane(const plane& plane) const { return plane.best_pts.size() > m_param.min_num_plane_pt; }
+    bool is_valid_new_plane(const plane& new_plane) const { return (int)new_plane.pts.size() > m_param.min_num_plane_pt; }
+    bool is_valid_plane(const plane& plane) const { return (int)plane.best_pts.size() > m_param.min_num_plane_pt; }
     bool is_valid_past_plane(const plane& past_plane) const { return past_plane.pid > INVALID_PID && past_plane.non_empty(); }
     void refine_plane_boundary(plane& dst);
 

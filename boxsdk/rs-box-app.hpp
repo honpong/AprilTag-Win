@@ -284,7 +284,7 @@ public:
 
     void draw_box(const float box_wire_endpt[12][2][2], int app_height, float line_width = -1.0f)
     {
-        if (line_width < 2.5f) { line_width = std::fmax(2.5f, _r.w * 2.5f / _width); }
+        if (line_width < 2.5f) { line_width = std::fmax(4.0f, _r.w * 4.0f / _width); }
         draw_box_wire(_width, _height, box_wire_endpt, _r, app_height, line_width);
     }
 

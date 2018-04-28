@@ -139,7 +139,7 @@ void rs_sf_boxfit::detect_new_boxes(box_scene& view)
 // box plane helper
 struct rs_sf_boxfit::box_plane_t
 {
-    typedef std::array<float, 11> box_axis_bin;
+    typedef std::array<float, NUM_BOX_PLANE_BIN> box_axis_bin;
     const plane* src;
     vec_pt3d pts;
     v3 normal, width_axis, height_axis;

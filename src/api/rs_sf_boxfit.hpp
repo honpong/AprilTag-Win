@@ -19,6 +19,8 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 
 #include "rs_sf_planefit.hpp"
 
+#define NUM_BOX_PLANE_BIN 21 //for future enhancement to dynamic bin count
+
 struct rs_sf_boxfit : public rs_sf_planefit
 {
     struct parameter

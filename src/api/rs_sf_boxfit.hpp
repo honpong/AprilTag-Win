@@ -30,8 +30,8 @@ struct rs_sf_boxfit : public rs_sf_planefit
         float plane_intersect_thr = 0.03f;   // points on 2 box planes touch within 30mm
         float min_box_thickness = 0.03f;     // minimum box thickness in meter
         float max_box_thickness = 1.00f;     // maximum box thickness in meter
-        float max_plane_pt_error = 0.01f;    // max point to box plane error
-        float box_state_gain = 0.3f;         // fraction of box update allowed per frame
+        float max_plane_pt_error = 0.005f;   // max point to box plane error
+        float box_state_gain = 0.1f;         // fraction of box update allowed per frame
         float box_miss_ms = 500.0f;          // milliseconds allowed for a tracked box get lost
         int max_box_history = 31;            // length of box history per tracked box
         bool refine_box_plane = false;       // flag to refine box edge

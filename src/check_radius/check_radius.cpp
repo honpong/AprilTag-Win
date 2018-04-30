@@ -65,8 +65,6 @@ int main(int argc, char ** argv)
     sensor_clock::time_point tm2_crossed_time;
     bool gt_outside = false;
     bool tm2_outside = false;
-    uint64_t found_gt_crossings = 0;
-    uint64_t false_tm2_crossings = 0;
     for(auto &pose : pose_sequence.tposes) {
         tpose gt_interp(pose.t);
         if(gt_sequence.get_pose(pose.t, gt_interp)) {

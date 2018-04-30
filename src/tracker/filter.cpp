@@ -857,7 +857,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
     return true;
 }
 
-static void filter_update_detection_status(struct filter *f, state_camera &camera_state, int detected, sensor_clock::time_point detection_time) {
+void filter_update_detection_status(struct filter *f, state_camera &camera_state, int detected, sensor_clock::time_point detection_time) {
     auto active_features = camera_state.track_count();
     if(active_features < state_vision_group::min_feats) {
         f->log->info("detector failure: only {} features after add on camera {}", active_features, camera_state.id);
@@ -930,10 +930,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         } else return true;
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization) return true; //frame was "processed" so that callbacks still get called
-
-    if (camera_state.detection_future.valid())
-        if (camera_state.detection_future.get())
-            filter_update_detection_status(f, camera_state, camera_state.detected_features, time);
 
     if(f->run_state == RCSensorFusionRunStateRunning)
         filter_setup_next_frame(f, data); // put current features into observation queue as potential things to measure

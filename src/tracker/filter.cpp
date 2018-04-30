@@ -1110,7 +1110,6 @@ void filter_initialize(struct filter *f)
     f->catchup->observations.reset();
 
     f->s.reset();
-    if (f->map) f->map->reset();
     f->relocalization_every_n.reset();
 
     for (size_t i=0; i<f->s.cameras.children.size() && i<f->cameras.size(); i++) {

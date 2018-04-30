@@ -891,7 +891,6 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
 
     sensor_clock::time_point time = data.timestamp;
 
-    if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!f->got_any_accelerometers() || !f->got_any_gyroscopes()) return false;
     if(!f->stereo_enabled && time - f->want_start < camera_wait_time) {
         for(auto &camera : f->cameras) if(!camera->got) return false;
@@ -912,15 +911,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     }
 #endif
 
-    if(f->run_state == RCSensorFusionRunStateRunning && f->detector_failed && time - f->detector_failed_time > max_detector_failed_time) {
-        f->log->error("No features for 500ms; switching to orientation only.");
-        f->run_state = RCSensorFusionRunStateDynamicInitialization;
-        f->s.enable_orientation_only(true);
-        f->s.disable_bias_estimation(true);
-        if(f->map) f->map->triangulated_tracks.clear();
-    }
-
-    if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
+    switch (f->run_state) {
+    case RCSensorFusionRunStateDynamicInitialization: {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;
         f->last_time = time;
         v3 non_up_var = f->s.Q.variance() - f->s.world.up * f->s.world.up.dot(f->s.Q.variance());
@@ -928,11 +920,22 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         if(inertial_converged) {
             f->log->debug("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
         } else return true;
+    }   break;
+    case RCSensorFusionRunStateRunning: {
+        if (f->detector_failed && time - f->detector_failed_time > max_detector_failed_time) {
+            f->log->error("No features for 500ms; switching to orientation only.");
+            f->run_state = RCSensorFusionRunStateDynamicInitialization;
+            f->s.enable_orientation_only(true);
+            f->s.disable_bias_estimation(true);
+            if(f->map) f->map->triangulated_tracks.clear();
+        } else
+            filter_setup_next_frame(f, data); // put current features into observation queue as potential things to measure
+    }   break;
+    case RCSensorFusionRunStateInactive:
+        return false;
+    case RCSensorFusionRunStateInertialOnly:
+        return true;
     }
-    if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization) return true; //frame was "processed" so that callbacks still get called
-
-    if(f->run_state == RCSensorFusionRunStateRunning)
-        filter_setup_next_frame(f, data); // put current features into observation queue as potential things to measure
 
     if(show_tuning) {
         fprintf(stderr, "\nvision:\n");

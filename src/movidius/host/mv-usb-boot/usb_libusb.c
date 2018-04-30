@@ -296,10 +296,11 @@ void usb_set_msgfile(FILE *file) {
 
 void usb_set_verbose(int value) {
 	verbose = value;
-	if(verbose >= 2)
-		libusb_set_debug(NULL, 3);
-	else
-		libusb_set_debug(NULL, 0);
+#if LIBUSB_API_VERSION >= 0x01000106
+	libusb_set_option(NULL, LIBUSB_OPTION_LOG_LEVEL, verbose >= 2 ? 3 : 0);
+#else
+	libusb_set_debug(NULL, verbose >= 2 ? 3 : 0);
+#endif
 }
 
 void usb_set_ignoreerrors(int value) {

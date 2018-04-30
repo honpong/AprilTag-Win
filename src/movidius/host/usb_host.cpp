@@ -111,7 +111,11 @@ void usb_reset()
 bool usb_init(int vendor_id, int product_id)
 {
     libusb_init(&context);
+#if LIBUSB_API_VERSION >= 0x01000106
+    libusb_set_option(context, LIBUSB_OPTION_LOG_LEVEL, 3);
+#else
     libusb_set_debug(context, 3);
+#endif
     device_handle = libusb_open_device_with_vid_pid(context, vendor_id, product_id);
     bool is_failure = false;
     if (!device_handle) {

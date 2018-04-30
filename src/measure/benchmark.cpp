@@ -85,7 +85,7 @@ static inline std::ostream& operator<<(std::ostream &stream, const histogram<T, 
     stream << "\nHistogram score (lower is better): " << score << "\n";
     stream << std::fixed << std::setprecision(h.output_precision+1);
     char inlier_char = add_back ? '<' : '>';
-    stream << "Mean of " << h.inlier_count << " inliers (" << inlier_char << h.inlier_threshold << h.bin_units << ") is " << h.inlier_sum/h.inlier_count << h.bin_units;
+    stream << "Mean of " << h.inlier_count << " inliers (" << inlier_char << h.inlier_threshold << h.bin_units << ") is " << (double)h.inlier_sum/h.inlier_count << h.bin_units;
     return stream << "\n";
 }
 

@@ -932,8 +932,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization) return true; //frame was "processed" so that callbacks still get called
 
     if (camera_state.detection_future.valid())
-        if (size_t detected = camera_state.detection_future.get())
-            filter_update_detection_status(f, camera_state, detected, time);
+        if (camera_state.detection_future.get())
+            filter_update_detection_status(f, camera_state, camera_state.detected_features, time);
 
     if(f->run_state == RCSensorFusionRunStateRunning)
         filter_setup_next_frame(f, data); // put current features into observation queue as potential things to measure

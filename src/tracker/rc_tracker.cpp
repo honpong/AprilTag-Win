@@ -661,6 +661,29 @@ int rc_getMapNodes(rc_Tracker *tracker, rc_MapNode **map_nodes)
     }
 }
 
+rc_StorageStats rc_getStorageStats(rc_Tracker* tracker)
+{
+    rc_StorageStats ret {};
+    if (tracker && tracker->sfm.map) {
+        auto& nodes = tracker->sfm.map->get_nodes();
+        std::unordered_set<void*> unique_features;
+        ret.nodes = nodes.size();
+        for (auto& it : nodes) {
+            auto& node = it.second;
+            ret.edges += node.edges.size() + node.covisibility_edges.size();
+            ret.features += node.features.size();
+            if (node.frame) {
+                ret.relocalization_bins += node.frame->dbow_histogram.size();
+                for (auto& f : node.frame->keypoints)
+                    unique_features.insert(f.get());
+                ret.unique_features += node.frame->keypoints.size();
+            }
+        }
+        ret.unique_features = unique_features.size();
+    }
+    return ret;
+}
+
 rc_PoseTime rc_getPose(rc_Tracker * tracker, rc_PoseVelocity *v, rc_PoseAcceleration *a, rc_DataPath path)
 {
     const state_motion &s = path == rc_DATA_PATH_FAST ? tracker->sfm.mini->state : tracker->sfm.s;

@@ -98,7 +98,6 @@ struct frame_t {
     }
 
     inline void calculate_dbow(const orb_vocabulary *orb_voc) {
-        return; // disable for now
         // copy pyramid descriptors to a vector of descriptors
         constexpr int direct_file_level = std::numeric_limits<int>::max();  // change to enable
         auto get_descriptor = [](const decltype(keypoints)::value_type &kp) -> const orb_descriptor::raw & {

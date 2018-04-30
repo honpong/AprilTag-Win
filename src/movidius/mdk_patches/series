@@ -13,4 +13,7 @@
 011_mdk_release_17.04.5_dma_link_tr_va_list.patch
 012_mdk_release_17.04.5_no_blis_l2_invalidate.patch
 013_mdk_release_17.04.5_cmx_uncached_other.patch
+013_mdk_release_17.04.5_shave_power_gating_mutex.patch
 014_mdk_release_17.04.5_fix_app_dependencies.patch
+015_mdk_release_17.04.5_sipp_ae_any_slice.patch
+016_mdk_release_17.04.5_irq_gpio_disable.patch

@@ -1,0 +1,38 @@
+diff --git a/common/drivers/myriad2/socDrivers/leon/hgl/src/HglCpr.c b/common/drivers/myriad2/socDrivers/leon/hgl/src/HglCpr.c
+index 0063f57..dc3b544 100644
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/hgl/src/HglCpr.c
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/drivers/myriad2/socDrivers/leon/hgl/src/HglCpr.c
+@@ -15,10 +15,11 @@
+ #include "DrvRegUtils.h"
+ #include "swcWhoAmI.h"
+ #include "assert.h"
+-
++#include "DrvMutex.h"
+ 
+ // 2:  Source Specific #defines and types  (typedef,enum,struct)
+ // ----------------------------------------------------------------------------
++#define HGLCPR_SHAVE_MASK_MUTEX_USED 25
+ // 3: Global Data (Only if absolutely necessary)
+ // ----------------------------------------------------------------------------
+ extern u32 trickleTicksArray[];
+@@ -580,16 +581,20 @@ tyHglCprPllState HglCprGetPllStatus(tyHglCprPll pll)
+ 
+ void HglCprTurnOnShaveMask(u32 shave_mask)
+ {
++    DrvMutexLock(HGLCPR_SHAVE_MASK_MUTEX_USED);
+     HglCprPowerTurnOnIslandsRaw(((shave_mask & 0xFFF) << 3), trickleTicksArray[3], TURN_ON_ENABLE_TICKS);
+     HglCprChangeClks(UPA_DOMAIN, ENABLE_CLKS, (shave_mask & 0xFFF));
+     HglCprResetDevices(UPA_DOMAIN, PULSE_RESET, (u64)(shave_mask & 0xFFF));
++    DrvMutexUnlock(HGLCPR_SHAVE_MASK_MUTEX_USED);
+ }
+ 
+ void HglCprTurnOffShaveMask(u32 shave_mask)
+ {
++    DrvMutexLock(HGLCPR_SHAVE_MASK_MUTEX_USED);
+     HglCprResetDevices(UPA_DOMAIN, ASSERT_RESET, (u64)(shave_mask & 0xFFF));
+     HglCprChangeClks(UPA_DOMAIN, DISABLE_CLKS, (shave_mask & 0xFFF));
+     HglCprPowerTurnOffIslandsRaw(((shave_mask & 0xFFF) << 3), TURN_OFF_ISO_TICKS, TURN_OFF_DISABLE_TICKS);
++    DrvMutexUnlock(HGLCPR_SHAVE_MASK_MUTEX_USED);
+ }
+ 
+ u64  HglCprGetResetStatus(tyHglCprClockDomain domain)

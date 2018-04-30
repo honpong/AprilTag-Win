@@ -1,0 +1,48 @@
+diff -ru mdk_release_17.04.5_general_purpose_prev/mdk/common/components/sipp/arch/ma2x5x/src/leon/sippApiInternal.c mdk_release_17.04.5_general_purpose/mdk/common/components/sipp/arch/ma2x5x/src/leon/sippApiInternal.c
+--- mdk_release_17.04.5_general_purpose_prev/mdk/common/components/sipp/arch/ma2x5x/src/leon/sippApiInternal.c	2017-04-14 09:52:31.000000000 +0300
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/sipp/arch/ma2x5x/src/leon/sippApiInternal.c	2017-11-08 11:59:47.351276375 +0200
+@@ -124,25 +124,27 @@
+ {
+     u32           uIdx;
+     u32           localSliceFirst, localSliceLast;
++    u32           localNumSlices;
+     pSippPipeline pPipe = (pSippPipeline)ptSPipe;
+ 
+     localSliceFirst      = sliceFirst;
+     localSliceLast       = sliceLast;
++    localNumSlices = mbinImg ? SIPP_NUM_SVUS : SIPP_NUM_CMX_SLICES;
+ 
+-    if (localSliceFirst > (SIPP_NUM_SVUS - 1))
++    if (localSliceFirst > (localNumSlices - 1))
+     {
+-        sippPalTrace (SIPP_API_TL_ERROR, "SIPP: sippInitPipeline : Bad value of first slice %d, setting to %d\n", localSliceFirst, SIPP_NUM_SVUS - 1);
+-        localSliceFirst = SIPP_NUM_SVUS - 1;
++        sippPalTrace (SIPP_API_TL_ERROR, "SIPP: sippInitPipeline : Bad value of first slice %d, setting to %d\n", localSliceFirst, localNumSlices - 1);
++        localSliceFirst = localNumSlices - 1;
+         if (localSliceFirst > localSliceLast)
+         {
+             sippPalTrace (SIPP_API_TL_ERROR, "SIPP: sippInitPipeline : Modifying last slice to %d due to change in first slice\n", localSliceFirst);
+             localSliceLast = localSliceFirst;
+         }
+     }
+-    if (localSliceLast > (SIPP_NUM_SVUS - 1))
++    if (localSliceLast > (localNumSlices - 1))
+     {
+-        sippPalTrace (SIPP_API_TL_ERROR, "SIPP: sippInitPipeline : Bad value of last slice %d, setting to %d\n", localSliceLast, SIPP_NUM_SVUS - 1);
+-        localSliceLast = SIPP_NUM_SVUS - 1;
++        sippPalTrace (SIPP_API_TL_ERROR, "SIPP: sippInitPipeline : Bad value of last slice %d, setting to %d\n", localSliceLast, localNumSlices - 1);
++        localSliceLast = localNumSlices - 1;
+     }
+ 
+     pPipe->svuCmd        = 0; // Tell Master-Shave to stay IDLE
+diff -ru mdk_release_17.04.5_general_purpose_prev/mdk/common/components/sipp/arch/ma2x5x/src/leon/sippCfg.h mdk_release_17.04.5_general_purpose/mdk/common/components/sipp/arch/ma2x5x/src/leon/sippCfg.h
+--- mdk_release_17.04.5_general_purpose_prev/mdk/common/components/sipp/arch/ma2x5x/src/leon/sippCfg.h	2017-04-14 09:52:31.000000000 +0300
++++ mdk_release_17.04.5_general_purpose/mdk/common/components/sipp/arch/ma2x5x/src/leon/sippCfg.h	2017-11-08 16:25:50.503053267 +0200
+@@ -32,6 +32,7 @@
+ #define SIPP_SE_MAX_CONSUMERS             0x6
+ #endif                                              /* combination with SW kernels */
+ 
++#define SIPP_NUM_CMX_SLICES               16
+ #define SIPP_NUM_SVUS                     12
+ #define SIPP_MAX_SE_PER_PIPE              SIPP_MAX_FILTERS_PER_PIPELINE
+ 

@@ -1,0 +1,125 @@
+diff --git a/common/drivers/myriad2/socDrivers/leon/bm/include/DrvGpio.h b/common/drivers/myriad2/socDrivers/leon/bm/include/DrvGpio.h
+index 0ac0ee7c..f3258bff 100644
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/bm/include/DrvGpio.h
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/drivers/myriad2/socDrivers/leon/bm/include/DrvGpio.h
+@@ -432,6 +432,12 @@ s32 DrvGpioIrqConfigAnyGpio(u32 gpioNum, u32 irqSrc, u32 irqType, u32 priority,
+ /// @return    < 0 if it fails, 0 on success
+ s32 DrvGpioIrqJustConfigAnyGpio(u32 gpioNum, u32 irqSrc);
+ 
++/// Function to get the source interrupt based on gpio number
++///
++/// The function will return the interrupt source based on the gpio number
++/// @param[in] gpioNum - gpio number
++/// @return    interupt source
++s32 DrvGPIOGetSourceInterrupt(u32 gpioNum);
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/common/drivers/myriad2/socDrivers/leon/bm/src/DrvGpio.c b/common/drivers/myriad2/socDrivers/leon/bm/src/DrvGpio.c
+index c8c19eb7..48640950 100644
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/bm/src/DrvGpio.c
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/drivers/myriad2/socDrivers/leon/bm/src/DrvGpio.c
+@@ -101,7 +101,45 @@ s32 DrvGpioIrqDisable(u32 gpioNum, u32 irqSrc)
+     /// GPIO removed from the acctive gpio sources
+     return 0;
+ }
++s32 DrvGPIOGetSourceInterrupt(u32 gpioNum)
++{
++    s32 irqSrc = 0;
++
++    /// Check for valid GPIO
++    assert(gpioNum < GPIO_NUM_PINS);
+ 
++    for (u32 i = 0; i < GPIO_MAX_IRQ_SRCS; i++)
++    {
++
++        u32 tmp = GET_REG_WORD_VAL(GPIO_INT0_CFG_ADR + 4*i);
++        /// Check if gpioNum is used as first GPIO to trigger an interrupt
++        if (((tmp & D_GPIO_INT_GPIO_MASK_0) == gpioNum) &&
++            (tmp & D_GPIO_INT_EN_0))
++        {
++            irqSrc=i;
++        }
++        /// Check if gpioNum is used as second GPIO to trigger an interrupt
++        if (((tmp & D_GPIO_INT_GPIO_MASK_1) == gpioNum) &&
++                 (tmp & D_GPIO_INT_EN_1))
++        {
++            irqSrc=i;
++        }
++        /// Check if gpioNum is used as third GPIO to trigger an interrupt
++        if (((tmp & D_GPIO_INT_GPIO_MASK_2) == gpioNum) &&
++                 (tmp & D_GPIO_INT_EN_2))
++        {
++           irqSrc=i;
++        }
++        /// Check if gpioNum is used as forth GPIO to trigger an interrupt
++        if (((tmp & D_GPIO_INT_GPIO_MASK_3) == gpioNum) &&
++                 (tmp & D_GPIO_INT_EN_3))
++        {
++           irqSrc=i;
++        }
++    }
++    return irqSrc;
++
++}
+ s32 DrvGpioIrqDisableAny(u32 gpioNum)
+ {
+     u32 irqSrc = 0;
+diff --git a/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvGpio.c b/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvGpio.c
+index 30f32017..f8b6dc7c 100644
+--- mdk_release_17.04.5_general_purpose/mdk/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvGpio.c
++++ mdk_release_17.04.5_general_purpose_patched/mdk/common/drivers/myriad2/socDrivers/leon/rtems/src/OsDrvGpio.c
+@@ -499,7 +499,7 @@ static OS_MYRIAD_DRIVER_STATUS_CODE osDrvGpioEnableInterrupt(
+ {
+     char irqName[] = "IRQ_GPIO_0";
+     s32 irqSrc=-1, i;
+-
++    int sc;
+     // Gpio marked as taken by me(rtems_task_self())?
+     if (!osDrvGpioIsOwner(osDrvGpioControl, gpioNum, rtems_task_self()))
+     {
+@@ -537,22 +537,32 @@ static OS_MYRIAD_DRIVER_STATUS_CODE osDrvGpioEnableInterrupt(
+     BSP_Clear_interrupt(IRQ_GPIO_0 + irqSrc);
+     BSP_Set_interrupt_type_priority(IRQ_GPIO_0 + irqSrc, interrupt->type,
+                                     interrupt->priority);
++
+     BSP_interrupt_register(IRQ_GPIO_0 + irqSrc, irqName, (rtems_interrupt_handler) interrupt->handler, interrupt->context);
++
+     bsp_interrupt_vector_enable(IRQ_GPIO_0 + irqSrc);
+ 
+     return OS_MYR_DRV_SUCCESS;
+ }
+ 
+-static OS_MYRIAD_DRIVER_STATUS_CODE osDrvGpioDisableInterrupt(u8 gpioNum)
++static OS_MYRIAD_DRIVER_STATUS_CODE osDrvGpioDisableInterrupt(
++    u8 gpioNum,gpioInterruptHndl_t *interrupt)
+ {
++    int sc;
+     // Gpio marked as taken by me(rtems_task_self())?
+     if (osDrvGpioIsOwner(osDrvGpioControl, gpioNum, rtems_task_self()))
+     {
++        u32 irqSrc =  DrvGPIOGetSourceInterrupt(gpioNum);
++
++        BSP_interrupt_unregister(IRQ_GPIO_0 + irqSrc, (rtems_interrupt_handler) interrupt->handler, interrupt->context);
++
++        bsp_interrupt_vector_disable(IRQ_GPIO_0 + irqSrc);
++ 
+         if (DrvGpioIrqDisableAny(gpioNum) != 0)
+         {
+             OS_GPIO_DPRINTF1("Error: Gpio %d was not configured "
+-                             "to trigger an interrupt\n",
+-                             gpioNum);
++                                "to trigger an interrupt\n",
++                                gpioNum);
+             return OS_MYR_DRV_ERROR;
+         }
+         return OS_MYR_DRV_SUCCESS;
+@@ -718,7 +728,7 @@ rtems_device_driver gpio_block_control(rtems_device_major_number major,
+         res=osDrvGpioEnableInterrupt(gpioNum, (gpioInterruptHndl_t *) ctl->buffer);
+         break;
+     case GPIO_IRQ_DISABLE:
+-        res=osDrvGpioDisableInterrupt(gpioNum);
++        res=osDrvGpioDisableInterrupt(gpioNum,(gpioInterruptHndl_t *) ctl->buffer );
+         break;
+     case GPIO_IRQ_DISABLE_SPECIFIC:
+         res=osDrvGpioDisableSpecificInterrupt(gpioNum, *(u32*) ctl->buffer);

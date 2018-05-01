@@ -158,6 +158,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
 
                             // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
                             camera.standby_tracks.insert(camera.standby_tracks.begin(), std::make_move_iterator(detected.begin()), std::make_move_iterator(detected.end()));
+                            bool detecting_space = camera.detecting_space;
                             camera.detecting_space = 0;
 
                             if (camera_frame) {
@@ -177,7 +178,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 
                             camera.detected_features = detected.size();
-                            return detected.size();
+                            return detecting_space;
                     }, std::move(data), std::move(camera_frame));
                 }
             }

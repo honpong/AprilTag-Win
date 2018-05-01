@@ -117,6 +117,7 @@ bool tm2_host_stream::start_stream() {
                 switch (get_packet_type(output_pkt)) {
                 case packet_save_data: { save_stream_to_file(output_pkt.get(), save_file); break; }
                 case packet_timing_stat: { tracking_stat.assign((const char*)output_pkt->data); break; }
+                case packet_storage_stat: { memcpy(&storage_stat, output_pkt->data, sizeof(rc_StorageStats)); break; }
                 case packet_camera_extrinsics: {
                     memcpy(&camera_extrinsics[0], output_pkt->data, 2 * sizeof(rc_Extrinsics));
                     break;

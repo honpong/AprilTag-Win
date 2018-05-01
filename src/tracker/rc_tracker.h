@@ -90,7 +90,7 @@ typedef struct { rc_Pose pose_m; rc_Timestamp time_us; } rc_PoseTime;
 typedef struct { rc_Timestamp time_us; rc_SessionId session_id; } rc_SessionTimestamp;
 typedef struct { rc_Pose pose_m; rc_SessionTimestamp time_destination; } rc_RelocEdge;
 typedef struct { rc_SessionTimestamp time; } rc_MapNode;
-typedef union { struct { size_t nodes, edges, features, unique_features, relocalization_bins; }; size_t items[5]; } rc_StorageStats;
+typedef union { struct { uint32_t nodes, edges, features, unique_features, relocalization_bins; }; uint32_t items[5]; } rc_StorageStats;
 
 #if __cplusplus
 static const rc_Matrix rc_MATRIX_IDENTITY = {

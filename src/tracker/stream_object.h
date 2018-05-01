@@ -41,6 +41,7 @@ typedef enum replay_packet_type {
     packet_enable_odometry,
     packet_enable_usb_sync, //enable synchronous processing per packet over USB
     packet_timing_stat,
+    packet_storage_stat,
     packet_load_calibration,
     packet_save_calibration,
     packet_load_map,
@@ -89,6 +90,7 @@ public:
     }
     /// tracking statistics.
     std::string tracking_stat;
+    rc_StorageStats storage_stat;
     rc_Extrinsics camera_extrinsics[2] = { rc_Extrinsics{} };
     virtual ~host_stream() {};
 protected:

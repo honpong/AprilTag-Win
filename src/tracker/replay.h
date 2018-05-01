@@ -79,6 +79,7 @@ public:
     }
     void set_track_stat(std::string stat) { tracking_stat = stat; }
     std::string get_track_stat();
+    rc_StorageStats get_storage_stat();
     void start();
     void start_async();
     void stop() { request(packet_command_stop); stream->wait_device_packet({ packet_command_stop }); };

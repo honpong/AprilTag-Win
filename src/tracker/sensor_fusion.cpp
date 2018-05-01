@@ -36,6 +36,7 @@ void sensor_fusion::update_status()
         sfm.s.T.v = last_transform.T;
         sfm.s.Q.v = last_transform.Q;
         filter_start(&sfm);
+        if(sfm.map) sfm.map->clean_map_after_filter_reset();
     }
 }
 
@@ -381,6 +382,7 @@ void sensor_fusion::flush_and_reset()
     stop();
     queue.reset();
     filter_initialize(&sfm);
+    if (sfm.map) sfm.map->reset();
 }
 
 void sensor_fusion::reset(sensor_clock::time_point time)

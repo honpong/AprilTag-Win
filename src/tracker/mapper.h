@@ -246,6 +246,11 @@ public:
             return ok;
         });
     }
+    void reset_stages() {
+        stages.critical_section([&]() {
+           stages->clear();
+        });
+    }
 private:
     // private functions that lock mutexes internally
     std::vector<std::pair<nodeid,float>> find_loop_closing_candidates(
@@ -266,6 +271,7 @@ private:
     mapper();
     ~mapper();
     void reset();
+    void clean_map_after_filter_reset() { triangulated_tracks.clear(); }
 
     bool is_map_unlinked() const { return unlinked; }
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }

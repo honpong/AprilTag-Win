@@ -40,6 +40,7 @@
 #endif
 
 #include "librealsense2/rs.hpp"
+#include "librealsense2/rs_advanced_mode.hpp"
 
 #ifdef __cplusplus
 extern "C"
@@ -466,6 +467,13 @@ namespace rs2
          */
         std::string set_sensor_options(device dev, const std::string& mode = "High Density") const try
         {
+            if (dev.is<rs400::advanced_mode>()){
+                auto advanced_mode_dev = dev.as<rs400::advanced_mode>();
+                if (!advanced_mode_dev.is_enabled()){ //advanced mode not enabled
+                    advanced_mode_dev.toggle_advanced_mode(true); // enable advanced mode
+                }
+            }
+            
             for (auto& s : dev.query_sensors())
                 if (auto ds = s.as<depth_sensor>())
                 {

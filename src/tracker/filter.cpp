@@ -917,9 +917,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         f->last_time = time;
         v3 non_up_var = f->s.Q.variance() - f->s.world.up * f->s.world.up.dot(f->s.Q.variance());
         bool inertial_converged = non_up_var[0] < dynamic_W_thresh_variance && non_up_var[1] < dynamic_W_thresh_variance && non_up_var[2] < dynamic_W_thresh_variance;
-        if(inertial_converged) {
-            f->log->debug("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
-        } else return true;
+        if(!inertial_converged)
+            return true;
+        f->log->debug("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
     }   break;
     case RCSensorFusionRunStateRunning: {
         if (f->detector_failed && time - f->detector_failed_time > max_detector_failed_time) {

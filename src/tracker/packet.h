@@ -69,6 +69,7 @@ typedef enum packet_type {
     packet_control = 47,
     packet_calibration_bin = 48,
     packet_exposure = 49,
+    packet_controler_physical_info = 50,
     packet_command_start = 100,
     packet_command_stop = 101,
 } packet_type;
@@ -326,6 +327,11 @@ typedef struct {
     packet_header_t header;
     uint8_t data[];
 } packet_calibration_bin_t;
+
+typedef struct {
+    packet_header_t header;
+    uint8_t data[];
+} packet_physical_info_t;
 
 typedef struct {
     packet_header_t header; // header::timestamp is packet arrival time (To algo), header::sensor_id is not used

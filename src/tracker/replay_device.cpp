@@ -1,4 +1,6 @@
 #include <string.h>
+#include <cinttypes>
+#include <thread>
 #include <regex>
 #include "replay_device.h"
 #include "file_stream.h"

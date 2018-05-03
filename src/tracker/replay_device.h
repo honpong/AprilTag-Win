@@ -5,7 +5,6 @@
 #include <functional>
 #include "tpose.h"
 #include "rc_tracker.h"
-#include "sensor_fusion.h"
 #include "stream_object.h"
 
 class replay_device

@@ -48,7 +48,7 @@ bool state_vision_feature::should_drop() const
 
 bool state_vision_feature::is_valid() const
 {
-    return (status == feature_initializing || status == feature_ready || status == feature_normal);
+    return (status == feature_initializing || status == feature_normal);
 }
 
 bool state_vision_feature::is_good() const
@@ -61,9 +61,6 @@ bool state_vision_feature::force_initialize()
     if(status == feature_initializing) {
         //not ready yet, so reset
         reset();
-        status = feature_normal;
-        return true;
-    } else if(status == feature_ready) {
         status = feature_normal;
         return true;
     }

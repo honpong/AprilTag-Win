@@ -36,7 +36,6 @@ enum feature_flag {
     feature_empty = 0,
     feature_gooddrop,
     feature_normal,
-    feature_ready,
     feature_initializing,
     feature_single,
     feature_revived,

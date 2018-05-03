@@ -449,12 +449,14 @@ void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
     queue_tracked_box prev_tracked_boxes, immatured_tracked_boxes;
     prev_tracked_boxes.swap(m_box_scene.tracked_boxes);
     for (const auto& box : prev_tracked_boxes) {
-        if (abs_time_diff_ms(current_time, box.last_appear) < m_param.box_miss_ms)
-            if (is_valid_box_dimension(box))
-                if ((int)box.box_history.size() < m_param.max_box_history)
-                    immatured_tracked_boxes.emplace_back(box);
-                else
-                    m_box_scene.tracked_boxes.emplace_back(box);
+        if (abs_time_diff_ms(current_time, box.last_appear) < m_param.box_miss_ms) {
+            if (is_valid_box_dimension(box)) {
+                if ((int)box.box_history.size() < m_param.max_box_history) {
+                    immatured_tracked_boxes.emplace_back(box); }
+                else {
+                    m_box_scene.tracked_boxes.emplace_back(box); }
+            }
+        }
     }
 
     // put back immatured_tracked_boxes

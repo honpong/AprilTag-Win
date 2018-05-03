@@ -137,7 +137,8 @@ int state_vision::process_features(mapper *map)
     for(auto &g : groups.children) {
         int health = 0;
         for(auto &f : g->features.children)
-            if(!f->should_drop() && f->status != feature_lost) ++health;
+            if(f->is_valid())
+                ++health;
 
         // store current reference group (even in case it is removed)
         if(g->status == group_reference) reference_group = g.get();

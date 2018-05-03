@@ -129,8 +129,8 @@ int state_vision::process_features(mapper *map)
 {
     int total_health = 0;
     bool need_reference = true;
-    state_vision_group *best_group = 0;
-    state_vision_group *reference_group = 0;
+    state_vision_group *best_group = nullptr;
+    state_vision_group *reference_group = nullptr;
     int best_health = -1;
 
     //First: process groups, mark additional features for deletion

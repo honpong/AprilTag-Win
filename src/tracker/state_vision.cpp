@@ -278,7 +278,6 @@ bool state_vision::get_group_transformation(const groupid group_id, transformati
 
 int state_camera::process_tracks(mapper *map, spdlog::logger &log)
 {
-    int useful_drops = 0;
     int total_feats = 0;
     int outliers = 0;
     int track_fail = 0;
@@ -287,7 +286,6 @@ int state_camera::process_tracks(mapper *map, spdlog::logger &log)
         {
             // Drop tracking failures
             ++track_fail;
-            if(t.feature.is_good()) ++useful_drops;
             if(t.feature.is_good() && t.outlier < t.outlier_lost_reject)
                 t.feature.make_lost();
             else

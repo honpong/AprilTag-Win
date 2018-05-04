@@ -233,7 +233,8 @@ int main(int c, char **v)
             std::cout << "\t time between relocalizations [sec]:\n";
             std::cout << res.errors.reloc_time_sec << "\n";
         }
-        std::cout << "Storage Statistics :\n" << res.storage << "\n";
+        if (std::any_of(std::begin(res.storage.items), std::end(res.storage.items), [](auto i) { return i > 0; }))
+            std::cout << "Storage Statistics :\n" << res.storage << "\n";
 
         if(tracking_confidence >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
             std::cout << "Updating " << rp.calibration_file << "\n";

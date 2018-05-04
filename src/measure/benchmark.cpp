@@ -365,10 +365,10 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
 
     constexpr size_t N = std::extent<decltype(rc_StorageStats::items)>::value;
     std::array<const char*, N> names = {{"nodes", "edges", "features", "keypoints", "words"}};
-    for (size_t i = 0; i < N; ++i) {
-        std::vector<size_t> v; v.reserve(storage_items.size());
-        for (auto& s : storage_items) v.emplace_back(s.items[i]);
-        stream << "Storage (" << names[i] << ") histogram (" << storage_items.size() << " sequences)\n"
-               << storage_histogram(v, storage_edges, 2, "") << "\n";
-    }
+    if (storage_items.size())
+        for (size_t i = 0; i < N; ++i) {
+            std::vector<size_t> v; v.reserve(storage_items.size());
+            for (auto& s : storage_items) v.emplace_back(s.items[i]);
+            stream << "Storage (" << names[i] << ") histogram (" << storage_items.size() << " sequences)\n" << storage_histogram(v, storage_edges, 2, "") << "\n";
+        }
 }

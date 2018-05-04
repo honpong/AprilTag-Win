@@ -203,6 +203,10 @@ for packet_type in sorted(packets.keys()):
   if packet_type == arrival_time_type: continue
   timestamps = numpy.array(packets[packet_type])
   platencies = numpy.array(latencies[packet_type])
+  print packet_type, len(packets[packet_type]), "packets"
+  if len(packets[packet_type]) == 1:
+      print ""
+      continue
   deltas = timestamps[1:] - timestamps[:-1]
   if len(arrivals[packet_type]) > 0:
     parrivals = numpy.array(arrivals[packet_type])
@@ -210,7 +214,6 @@ for packet_type in sorted(packets.keys()):
   median_delta = numpy.median(deltas)
   start_s[packet_type] = numpy.min(timestamps)/1e6
   end_s[packet_type] = numpy.max(timestamps)/1e6
-  print packet_type, len(packets[packet_type]), "packets"
   print "\tRate:", 1/(median_delta/1e6), "hz"
   print "\tmedian dt (us):", median_delta
   print "\tstd dt (us):", numpy.std(deltas)

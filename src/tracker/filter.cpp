@@ -1000,8 +1000,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             ++i;
 
     camera_state.process_tracks(f->map.get(), *f->log);
-    auto normal_groups = f->s.process_features(f->map.get());
-    filter_update_outputs(f, time, normal_groups == 0);
+    auto healthy_features = f->s.process_features(f->map.get());
+    filter_update_outputs(f, time, healthy_features == 0);
     f->s.remap();
 
     filter_update_triangulated_tracks(f, data.id);

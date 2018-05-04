@@ -48,7 +48,7 @@ bool state_vision_feature::should_drop() const
 
 bool state_vision_feature::is_valid() const
 {
-    return (status == feature_initializing || status == feature_ready || status == feature_normal);
+    return (status == feature_initializing || status == feature_normal);
 }
 
 bool state_vision_feature::is_good() const
@@ -61,9 +61,6 @@ bool state_vision_feature::force_initialize()
     if(status == feature_initializing) {
         //not ready yet, so reset
         reset();
-        status = feature_normal;
-        return true;
-    } else if(status == feature_ready) {
         status = feature_normal;
         return true;
     }
@@ -132,15 +129,16 @@ int state_vision::process_features(mapper *map)
 {
     int total_health = 0;
     bool need_reference = true;
-    state_vision_group *best_group = 0;
-    state_vision_group *reference_group = 0;
+    state_vision_group *best_group = nullptr;
+    state_vision_group *reference_group = nullptr;
     int best_health = -1;
 
     //First: process groups, mark additional features for deletion
     for(auto &g : groups.children) {
         int health = 0;
         for(auto &f : g->features.children)
-            if(!f->should_drop() && f->status != feature_lost) ++health;
+            if(f->is_valid())
+                ++health;
 
         // store current reference group (even in case it is removed)
         if(g->status == group_reference) reference_group = g.get();
@@ -278,7 +276,6 @@ bool state_vision::get_group_transformation(const groupid group_id, transformati
 
 int state_camera::process_tracks(mapper *map, spdlog::logger &log)
 {
-    int useful_drops = 0;
     int total_feats = 0;
     int outliers = 0;
     int track_fail = 0;
@@ -287,7 +284,6 @@ int state_camera::process_tracks(mapper *map, spdlog::logger &log)
         {
             // Drop tracking failures
             ++track_fail;
-            if(t.feature.is_good()) ++useful_drops;
             if(t.feature.is_good() && t.outlier < t.outlier_lost_reject)
                 t.feature.make_lost();
             else

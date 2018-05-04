@@ -33,7 +33,7 @@ int main(int c, char **v)
 
         cerr << "Usage: " << v[0] << " { <filename> [--no-gui] | --benchmark <directory | filename1 [filename2 ...]> [--threads <n>] [--progress] | --benchmark }\n"
              << "   [--qvga] [--qres] [--drop-depth] [--realtime] [--async] [--no-fast-path] [--zero-bias]\n"
-             << "   [--trace | --debug | --error | --info | --warn | --none]\n"
+             << "   [--trace | --debug | --error | --info | --warn | --none] [--stats]\n"
              << "   [--pause] [--pause-at <timestamp_us>]\n"
              << "   [--skip <seconds>]\n"
              << "   [--show-no-plots] [--show-no-video] [--show-no-main] [--show-no-depth]\n"
@@ -58,6 +58,7 @@ int main(int c, char **v)
     bool show_feature = true, show_map = true; // enabling displaying features or map when replaying over TM2
     bool enable_map = true;
     bool odometry = true;
+    bool stats = false;
     rc_TrackerQueueStrategy queue_strategy = rc_QUEUE_MINIMIZE_DROPS;
     bool incremental_ate = false;
     bool relocalize = false;
@@ -115,6 +116,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--show-no-feature") == 0 ) show_feature = false;
         else if (strcmp(v[i], "--show-no-map") == 0) show_map = false;
         else if (strcmp(v[i], "--usb-sync") == 0) usb_sync = true;
+        else if (strcmp(v[i], "--stats") == 0) stats = true;
         else goto usage;
 
     if (filenames.empty() || (filenames.size() > 1 && !benchmark))
@@ -394,13 +396,15 @@ int main(int c, char **v)
         cerr << "Failed to render\n";
         return 1;
     }
-    std::cout << ws.get_feature_stats();
+    if (stats)
+        std::cout << ws.get_feature_stats();
 #endif
 
     if (save_map) rp.save_map(replace(save_map, "%s", filename).c_str());
     if (save) rp.save_calibration(replace(save, "%s", filename).c_str());
 
-    std::cout << rp.get_track_stat();
+    if (stats)
+        std::cout << rp.get_track_stat();
     print_results(rp,res,filename);
     rp.end();
     return 0;

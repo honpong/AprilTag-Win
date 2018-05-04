@@ -60,7 +60,7 @@ void mapper::reset()
 }
 
 void mapper::clean_map_after_filter_reset() {
-    triangulated_tracks.clear();
+    triangulated_tracks.clear(); 
     nodes.critical_section([&]() {
         for(auto& node : *nodes)
             node.second.status = node_status::finished;

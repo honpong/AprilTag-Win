@@ -87,6 +87,15 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
 {
     switch(data.type) {
         case rc_SENSOR_TYPE_IMAGE: {
+            if (data.id >= sfm.s.cameras.children.size())
+                break;
+
+            state_camera &camera = *sfm.s.cameras.children[data.id];
+
+            if (camera.detection_future.valid())
+                if (camera.detection_future.get())
+                    filter_update_detection_status(&sfm, camera, camera.detected_features, data.timestamp);
+
             bool docallback = true;
             groupid groups = sfm.s.group_counter;
             if(isProcessingVideo)
@@ -107,9 +116,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                 update_data(&data);
 
             sfm.relocalization_info = {};
-            if (data.id < sfm.s.cameras.children.size()) {
-                state_camera& camera = *sfm.s.cameras.children[data.id];
-
+            {
                 if (camera.orb_future.valid() && camera.orb_future_for_relocalization) {
                     if (sfm.relocalization_future.valid()) {
                         auto result = sfm.relocalization_future.get();
@@ -142,7 +149,6 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     for (auto &st : camera.tracks) if (st.track.found()) avoid.push_back(st.track);
                     for (auto &t  : camera.standby_tracks)               avoid.push_back(t);
 
-                    if (camera.detection_future.valid()) camera.detection_future.get();
                     camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                         [this, &camera, &avoid, new_group_created, relocalize_now] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) {
                             set_priority(PRIORITY_SLAM_DETECT);

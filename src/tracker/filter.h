@@ -124,6 +124,7 @@ bool filter_mini_gyroscope_measurement(struct filter * f, observation_queue &que
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start(struct filter *f);
 void filter_start_inertial_only(struct filter *f);
+void filter_update_detection_status(struct filter *f, state_camera &camera_state, int detected, sensor_clock::time_point detection_time);
 void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_id);
 void filter_bring_groups_back(struct filter *f, const rc_Sensor camera_id);
 #ifdef ENABLE_QR

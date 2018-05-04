@@ -41,6 +41,7 @@ thermometer_type = 31
 stereo_raw_type = 40
 arrival_time_type = 44
 calibration_type = 43
+calibration_bin_type = 48
 got_types = defaultdict(int)
 
 packets = defaultdict(list)
@@ -284,10 +285,10 @@ if numpy.max(end_times_s) - numpy.min(end_times_s) > 5:
 total_time_s = numpy.max(end_times_s) - numpy.min(start_times_s)
 print "Total capture time: %.2fs" % total_time_s
 
-if got_types[calibration_type] == 0:
+if got_types[calibration_type] == 0 and got_types[calibration_bin_type] == 0:
     print "Warning: Never received calibration packet"
     total_warnings += 1
-elif got_types[calibration_type] > 1:
+elif got_types[calibration_type] + got_types[calibration_bin_type] > 1:
     error_text += "Too many calibration packets\n"
 if got_types[arrival_time_type] == 0:
     print "Warning: Never received arrival_time packet"

@@ -1,6 +1,7 @@
 #include "benchmark.h"
 #include "for_each_file.h"
 
+#include <array>
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -85,7 +86,7 @@ static inline std::ostream& operator<<(std::ostream &stream, const histogram<T, 
     stream << "\nHistogram score (lower is better): " << score << "\n";
     stream << std::fixed << std::setprecision(h.output_precision+1);
     char inlier_char = add_back ? '<' : '>';
-    stream << "Mean of " << h.inlier_count << " inliers (" << inlier_char << h.inlier_threshold << h.bin_units << ") is " << h.inlier_sum/h.inlier_count << h.bin_units;
+    stream << "Mean of " << h.inlier_count << " inliers (" << inlier_char << h.inlier_threshold << h.bin_units << ") is " << (double)h.inlier_sum/h.inlier_count << h.bin_units;
     return stream << "\n";
 }
 
@@ -182,6 +183,7 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
 
     std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent, ate_errors_m, ate_60s_errors_m, ate_600ms_errors_m, rpe_T_errors_m, rpe_R_errors_deg,
             reloc_rpe_T_errors_m, reloc_rpe_R_errors_deg, precision_reloc, recall_reloc, reloc_times_sec;
+    std::vector<rc_StorageStats> storage_items;
     uint32_t precision_anomalies = 0, recall_anomalies = 0;
     bool has_reloc = false;
 
@@ -284,6 +286,7 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
             }
             reloc_times_sec.insert(reloc_times_sec.end(), r.errors.relocalization_time.elapsed_times_sec.begin(), r.errors.relocalization_time.elapsed_times_sec.end());
         }
+        storage_items.emplace_back(r.storage);
     }
 
     std::vector<double> std_edges = {0, 3, 10, 25, 50, 100};
@@ -297,8 +300,10 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
     std::vector<double> reloc_rpe_T_edges = {0, 0.02, 0.04, 0.06, 0.1, 0.15};
     std::vector<double> reloc_rpe_R_edges = {0, 0.25, 0.5, 1, 2, 5};
     std::vector<double> reloc_times_edges = {0, 1, 2, 3, 5, 10};
+    std::vector<size_t> storage_edges = {0, 50, 100, 200, 500, 1000};
     typedef histogram<double, false, true> error_histogram;
     typedef histogram<double, true, false> error_histogram_pr;
+    typedef histogram<size_t, false, true> storage_histogram;
 
     stream << "Length error histogram (" << L_errors_percent.size() << " sequences)\n";
     stream << error_histogram(L_errors_percent, std_edges) << "\n";
@@ -357,4 +362,13 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
         error_histogram reloc_time_hist(reloc_times_sec, reloc_times_edges, 2, "sec");
         stream << reloc_time_hist << "\n";
     }
+
+    constexpr size_t N = std::extent<decltype(rc_StorageStats::items)>::value;
+    std::array<const char*, N> names = {{"nodes", "edges", "features", "keypoints", "words"}};
+    if (storage_items.size())
+        for (size_t i = 0; i < N; ++i) {
+            std::vector<size_t> v; v.reserve(storage_items.size());
+            for (auto& s : storage_items) v.emplace_back(s.items[i]);
+            stream << "Storage (" << names[i] << ") histogram (" << storage_items.size() << " sequences)\n" << storage_histogram(v, storage_edges, 2, "") << "\n";
+        }
 }

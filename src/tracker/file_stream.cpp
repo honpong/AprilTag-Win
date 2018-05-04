@@ -145,6 +145,7 @@ void file_stream::put_device_packet(const rc_packet_t &device_packet) {
     if (!device_packet) return;
     switch (get_packet_type(device_packet)) {
     case packet_timing_stat: { tracking_stat.assign((const char*)device_packet->data); break; }
+    case packet_storage_stat: { memcpy(&storage_stat, device_packet->data, sizeof(rc_StorageStats)); break; }
     case packet_camera_extrinsics: {
         memcpy(&camera_extrinsics[0], device_packet->data, 2 * sizeof(rc_Extrinsics));
         break;

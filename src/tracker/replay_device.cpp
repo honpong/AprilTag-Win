@@ -383,6 +383,11 @@ void replay_device::process_control(const packet_control_t *packet) {
         stream->put_device_packet(packet_control_alloc(packet_timing_stat, timing_stat.c_str(), timing_stat.size() + 1));
         break;
     }
+    case packet_storage_stat: {
+        rc_StorageStats storage_stat = rc_getStorageStats(tracker.get());
+        stream->put_device_packet(packet_control_alloc(packet_storage_stat, (char *)&storage_stat, sizeof(rc_StorageStats)));
+        break;
+    }
     case packet_set_stage: { set_stage(); break; }
     case packet_command_stop: {
         rc_stopTracker(tracker.get());

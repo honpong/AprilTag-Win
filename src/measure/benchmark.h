@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <limits>
+#include "rc_tracker.h"
 
 struct benchmark_result {
     struct { double reference, measured; } length_cm, path_length_cm; void * user_data;
@@ -268,7 +269,16 @@ struct benchmark_result {
             }
         }
     } errors;
+
+    rc_StorageStats storage;
 };
+
+template <typename Stream>
+Stream& operator<<(Stream &stream, const rc_StorageStats &s) {
+    return stream << "\t nodes "   << s.nodes  << " edges " << s.edges
+                  << " features " << s.features << " keypoints " << s.unique_features
+                  << " words " << s.relocalization_bins;
+}
 
 void benchmark_run(std::ostream &stream, const std::vector<const char *> &filenames, int threads,
         std::function<bool (const char *file, struct benchmark_result &result)> measure_file,

@@ -179,6 +179,12 @@ std::string replay::get_track_stat() {
     return stream->tracking_stat;
 }
 
+rc_StorageStats replay::get_storage_stat() {
+    request(packet_storage_stat);
+    stream->wait_device_packet({ packet_storage_stat });
+    return stream->storage_stat;
+}
+
 rc_Extrinsics replay::get_camera_extrinsics(uint8_t camera_id) {
     if (camera_id >= 2) return rc_Extrinsics();
     return stream->camera_extrinsics[camera_id];

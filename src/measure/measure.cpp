@@ -235,6 +235,8 @@ int main(int c, char **v)
             std::cout << "\t time between relocalizations [sec]:\n";
             std::cout << res.errors.reloc_time_sec << "\n";
         }
+        if (std::any_of(std::begin(res.storage.items), std::end(res.storage.items), [](auto i) { return i > 0; }))
+            std::cout << "Storage Statistics :\n" << res.storage << "\n";
 
         if(tracking_confidence >= rc_E_CONFIDENCE_MEDIUM && calibrate) {
             std::cout << "Updating " << rp.calibration_file << "\n";
@@ -337,6 +339,7 @@ int main(int c, char **v)
             rp.start();
             if (progress) std::cout << "Finished " << capture_file << std::endl;
             res.length_cm.reference = 100*rp.get_reference_length();res.path_length_cm.reference = 100*rp.get_reference_path_length();
+            res.storage = rp.get_storage_stat();
 
             if (progress) print_results(rp, res, capture_file);
             if (save_map) rp.save_map(replace(save_map, "%s", capture_file).c_str());
@@ -403,8 +406,10 @@ int main(int c, char **v)
     if (save_map) rp.save_map(replace(save_map, "%s", filename).c_str());
     if (save) rp.save_calibration(replace(save, "%s", filename).c_str());
 
-    if (stats)
+    if (stats) {
         std::cout << rp.get_track_stat();
+        std::cout << rp.get_track_stat();
+    }
     print_results(rp,res,filename);
     rp.end();
     return 0;

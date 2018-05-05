@@ -47,7 +47,7 @@ void state_vision_feature::make_outlier()
 
 bool state_vision_feature::should_drop() const
 {
-    return status == feature_outlier || status == feature_empty || status == feature_gooddrop;
+    return status == feature_outlier || status == feature_empty;
 }
 
 bool state_vision_feature::is_valid() const

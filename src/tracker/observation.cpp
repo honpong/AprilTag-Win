@@ -472,7 +472,7 @@ bool observation_vision_feature::measure()
     // The covariance will become ill-conditioned if either the original predict()ion
     // or the predict()ion in update_initializing() lead to huge or non-sensical pred[]s
     if (X[2] < .01f) { // throw away features that are predicted to be too close to or even behind the camera
-        feature->drop();
+        feature->make_outlier();
         return false;
     }
 

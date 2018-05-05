@@ -30,8 +30,7 @@ state_vision_feature::state_vision_feature(const tracker::feature_track &track_,
 
 void state_vision_feature::drop()
 {
-    if(is_good()) status = feature_gooddrop;
-    else status = feature_empty;
+    status = feature_empty;
 }
 
 void state_vision_feature::make_lost()

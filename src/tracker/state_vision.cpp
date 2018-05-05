@@ -41,9 +41,14 @@ void state_vision_feature::make_lost()
     index = -1;
 }
 
+void state_vision_feature::make_outlier()
+{
+    status = feature_outlier;
+}
+
 bool state_vision_feature::should_drop() const
 {
-    return status == feature_empty || status == feature_gooddrop;
+    return status == feature_outlier || status == feature_empty || status == feature_gooddrop;
 }
 
 bool state_vision_feature::is_valid() const
@@ -285,7 +290,7 @@ void state_camera::process_tracks(mapper *map, spdlog::logger &log)
                 t.feature.drop();
         } else if(t.outlier > t.outlier_reject)
             // Drop outliers
-            t.feature.status = feature_empty;
+            t.feature.make_outlier();
     }
 
     standby_tracks.remove_if([&map, &log](const tracker::feature_track &t) {

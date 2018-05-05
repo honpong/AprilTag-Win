@@ -37,6 +37,7 @@ enum feature_flag {
     feature_gooddrop,
     feature_normal,
     feature_initializing,
+    feature_outlier,
     feature_lost
 };
 
@@ -110,6 +111,7 @@ class state_vision_feature: public state_leaf<1> {
     bool is_good() const;
     void drop();
     void make_lost();
+    void make_outlier();
     bool is_initialized() const { return status == feature_normal; }
     bool force_initialize();
 //private:

@@ -289,9 +289,8 @@ void state_camera::process_tracks(mapper *map, spdlog::logger &log)
     }
 
     standby_tracks.remove_if([&map, &log](const tracker::feature_track &t) {
-        bool not_found = !t.found();
-        if(map && not_found) map->finish_lost_tracks(t);
-        return not_found;
+        if(map && !t.found()) map->finish_lost_tracks(t);
+        return !t.found();
     });
 }
 

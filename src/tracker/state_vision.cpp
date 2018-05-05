@@ -274,28 +274,18 @@ bool state_vision::get_group_transformation(const groupid group_id, transformati
     return false;
 }
 
-int state_camera::process_tracks(mapper *map, spdlog::logger &log)
+void state_camera::process_tracks(mapper *map, spdlog::logger &log)
 {
-    int total_feats = 0;
-    int outliers = 0;
-    int track_fail = 0;
     for(auto &t : tracks) {
-        if(!t.feature.tracks_found)
-        {
+        if(!t.feature.tracks_found) {
             // Drop tracking failures
-            ++track_fail;
             if(t.feature.is_good() && t.outlier < t.outlier_lost_reject)
                 t.feature.make_lost();
             else
                 t.feature.drop();
-        } else {
+        } else if(t.outlier > t.outlier_reject)
             // Drop outliers
-            if(t.feature.status == feature_normal) ++total_feats;
-            if(t.outlier > t.outlier_reject) {
-                t.feature.status = feature_empty;
-                ++outliers;
-            }
-        }
+            t.feature.status = feature_empty;
     }
 
     standby_tracks.remove_if([&map, &log](const tracker::feature_track &t) {
@@ -303,10 +293,6 @@ int state_camera::process_tracks(mapper *map, spdlog::logger &log)
         if(map && not_found) map->finish_lost_tracks(t);
         return not_found;
     });
-
-    if(track_fail && !total_feats) log.warn("Tracker failed! {} features dropped.", track_fail);
-    //    log.warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);
-    return total_feats;
 }
 
 void state_vision::update_map(mapper *map)

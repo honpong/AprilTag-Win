@@ -33,9 +33,9 @@ enum group_flag {
 };
 
 enum feature_flag {
-    feature_empty = 0,
-    feature_normal,
     feature_initializing,
+    feature_normal,
+    feature_empty,
     feature_outlier,
     feature_lost
 };

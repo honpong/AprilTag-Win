@@ -1,6 +1,6 @@
 get_filename_component(libSP_CONFIG_PATH "${CMAKE_CURRENT_LIST_FILE}" DIRECTORY CACHE)
 
-set(libSP_VERSION "20171211" CACHE STRING "Choose either trunk / gold2 / 20171211")
+set(libSP_VERSION "20180507" CACHE STRING "Choose either trunk / gold2 / 20171211 / 20180507")
 
 if(WIN32)
 

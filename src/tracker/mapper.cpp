@@ -184,9 +184,9 @@ void mapper::update_3d_feature(const tracker::feature_track& track, const nodeid
 
     auto tp = triangulated_tracks.find(track.feature->id);
 
-    const state_vision_intrinsics* const intrinsics_reference = camera_intrinsics[get_node(tp->second.reference_nodeid).camera_id];
+    const state_vision_intrinsics* const intrinsics_ref = camera_intrinsics[get_node(tp->second.reference_nodeid).camera_id];
     const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
-    const state_extrinsics* const extrinsics_reference = camera_extrinsics[get_node(tp->second.reference_nodeid).camera_id];
+    const state_extrinsics* const extrinsics_ref = camera_extrinsics[get_node(tp->second.reference_nodeid).camera_id];
     const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
 
     const f_t focal_px = intrinsics_now->focal_length.v * intrinsics_now->image_height;
@@ -202,20 +202,20 @@ void mapper::update_3d_feature(const tracker::feature_track& track, const nodeid
     nodes_path searched_node = dijkstra_shortest_path(node_path{closest_group_id, transformation(), 0},
                                                       distance, is_node_searched, finish_search);
     assert(searched_node.size() == 1);
-    auto& G_Bclosest_Breference = searched_node.front().G;
+    auto& G_Bclosest_Bref = searched_node.front().G;
     transformation G_CBnow = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
-    transformation G_BCreference = transformation(extrinsics_reference->Q.v, extrinsics_reference->T.v);
+    transformation G_BCref = transformation(extrinsics_ref->Q.v, extrinsics_ref->T.v);
 
-    transformation G_Ck_Ck_1 = G_CBnow * G_Bnow_Bclosest * G_Bclosest_Breference * G_BCreference;
+    transformation G_Cnow_Cref = G_CBnow * G_Bnow_Bclosest * G_Bclosest_Bref * G_BCref;
 
     // calculate point prediction on current camera frame
     std::shared_ptr<log_depth>& state = tp->second.state;
-    v2 xun = intrinsics_reference->undistort_feature(intrinsics_reference->normalize_feature(state->initial));
+    v2 xun = intrinsics_ref->undistort_feature(intrinsics_ref->normalize_feature(state->initial));
     v3 xun_k_1 = xun.homogeneous();
     float P = tp->second.cov;
     v3 pk_1 = xun_k_1 * state->depth();
-    m3 Rk_k_1 = G_Ck_Ck_1.Q.toRotationMatrix();
-    v3 pk = Rk_k_1 * pk_1 + G_Ck_Ck_1.T;
+    m3 Rk_k_1 = G_Cnow_Cref.Q.toRotationMatrix();
+    v3 pk = Rk_k_1 * pk_1 + G_Cnow_Cref.T;
     // features are in front of the camera
     if(pk.z() < 0.f)
         return;

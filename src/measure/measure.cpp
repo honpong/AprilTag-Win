@@ -403,13 +403,14 @@ int main(int c, char **v)
         std::cout << ws.get_feature_stats();
 #endif
 
+    res.storage = rp.get_storage_stat();
+
     if (save_map) rp.save_map(replace(save_map, "%s", filename).c_str());
     if (save) rp.save_calibration(replace(save, "%s", filename).c_str());
 
-    if (stats) {
+    if (stats)
         std::cout << rp.get_track_stat();
-        std::cout << rp.get_track_stat();
-    }
+
     print_results(rp,res,filename);
     rp.end();
     return 0;

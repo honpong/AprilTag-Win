@@ -5,7 +5,9 @@
 #include <fstream>
 #include <vector>
 #include <string>
+#if HAVE_OPENCV
 #include <opencv2/highgui.hpp>
+#endif
 #include "orb_descriptor.h"
 #include "tracker.h"
 #include "fast_tracker.h"
@@ -16,7 +18,7 @@ static void show_usage(char *argv0) {
     std::cout << "Usage: " << argv0 <<
                  " [rc_file0 [rc_file1 ...]] [-i image_list.txt] -o output_dir -k k_0 L_0 [-k k_1 L_1 ... -k k_N L_N]\n\n"
                  "rc_file is a capture file\n"
-                 "image_list.txt contains a list of paths to images\n"
+                 "image_list.txt contains a list of paths to images (only available if compiled with OpenCV)\n"
                  "Vocabularies are stored in output_dir/voc_k{k_i}_L{L_i}.bin\n";
 }
 
@@ -82,6 +84,7 @@ int main(int argc, char* argv[]) {
 
 template<typename T>
 void trainer<T>::add_training_descriptors_from_images(const std::vector<std::string>& image_filenames) {
+#if HAVE_OPENCV
     for (auto& filename : image_filenames) {
         cv::Mat image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
         if (!image.empty()) {
@@ -96,6 +99,7 @@ void trainer<T>::add_training_descriptors_from_images(const std::vector<std::str
             extract_features(im, training_descriptors.back());
         }
     }
+#endif
 }
 
 template<typename T>
@@ -217,6 +221,13 @@ bool configuration::read(int argc, char* argv[]) {
         show_usage(argv[0]);
         return false;
     }
+#if !defined(HAVE_OPENCV) || !HAVE_OPENCV
+    if (!list_filename.empty()) {
+        std::cout << "The -i option is only available when compiling with OpenCV" << std::endl;
+        show_usage(argv[0]);
+        return false;
+    }
+#endif
     return true;
 }
 

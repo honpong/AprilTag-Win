@@ -178,7 +178,7 @@ inline void draw_box_wire(const int width, const int height, const float box_wir
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-#ifndef APPLE
+#ifndef __APPLE__
     glEnable(GL_SCISSOR_TEST);
 #endif
     glScissor((int)r.x, (int)(app_height - r.h - r.y), (int)r.w, (int)r.h);
@@ -191,7 +191,7 @@ inline void draw_box_wire(const int width, const int height, const float box_wir
         glVertex2f(r.x + box_wire_endpt[l][1][0] * sx, r.y + box_wire_endpt[l][1][1] * sy);
     }
     glEnd();
-#ifndef APPLE
+#ifndef __APPLE__
     glDisable(GL_SCISSOR_TEST);
 #endif
     glColor4fv(original_color);

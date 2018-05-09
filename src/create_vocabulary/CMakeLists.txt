@@ -1,6 +1,6 @@
 find_package(OpenCV QUIET COMPONENTS core highgui imgcodecs)
 if(TARGET opencv_core AND TARGET opencv_highgui AND TARGET opencv_imgcodecs)
     add_executable(create_vocabulary create_vocabulary.cpp)
-    set_property(TARGET create_vocabulary PROPERTY CXX_STANDARD 11)
-    target_link_libraries(create_vocabulary trackeri tracker ${OpenCV_LIBS})
+    set_property(TARGET create_vocabulary PROPERTY CXX_STANDARD 14)
+    target_link_libraries(create_vocabulary trackeri tracker loop_gt_generator ${OpenCV_LIBS})
 endif()

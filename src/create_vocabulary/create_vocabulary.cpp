@@ -10,10 +10,12 @@
 #include "tracker.h"
 #include "fast_tracker.h"
 #include "DBoW2/TemplatedVocabulary.h"
+#include "image_reader.h"
 
 static void show_usage(char *argv0) {
     std::cout << "Usage: " << argv0 <<
-                 " -i image_list.txt -o output_dir -k k_0 L_0 [-k k_1 L_1 ... -k k_N L_N]\n\n"
+                 " [rc_file0 [rc_file1 ...]] [-i image_list.txt] -o output_dir -k k_0 L_0 [-k k_1 L_1 ... -k k_N L_N]\n\n"
+                 "rc_file is a capture file\n"
                  "image_list.txt contains a list of paths to images\n"
                  "Vocabularies are stored in output_dir/voc_k{k_i}_L{L_i}.bin\n";
 }
@@ -26,6 +28,7 @@ struct vocabulary_size {
 
 struct configuration {
     std::string list_filename;
+    std::vector<std::string> rc_filenames;
     std::vector<vocabulary_size> sizes;
     std::string output_dir;
     bool read(int argc, char* argv[]);
@@ -36,8 +39,11 @@ class trainer {
  public:
     using vocabulary = DBoW2::TemplatedVocabulary<T, DBoW2::L1_NORM>;
 
-    void compute_training_descriptors(const std::vector<std::string>& image_filenames);
+    void add_training_descriptors_from_images(const std::vector<std::string>& image_filenames);
+    void add_training_descriptors_from_captures(const std::vector<std::string>& rc_filenames);
     std::unique_ptr<vocabulary> create_vocabulary(vocabulary_size sz);
+    size_t get_training_images() const;
+    size_t get_training_features() const;
 
  private:
     void extract_features(const tracker::image& image, std::vector<T>& features) const;
@@ -51,16 +57,20 @@ int main(int argc, char* argv[]) {
     configuration config;
     if (!config.read(argc, argv)) return 1;
 
-    std::cout << "Reading image filenames..." << std::endl;
     std::vector<std::string> image_filenames;
-    if (!read_filenames(config, image_filenames)) {
-        std::cout << "Could not read file " << config.list_filename << std::endl;
-        return 1;
+    if (!config.list_filename.empty()) {
+        std::cout << "Reading images..." << std::endl;
+        if (!read_filenames(config, image_filenames)) {
+            std::cout << "Could not read file " << config.list_filename << std::endl;
+            return 1;
+        }
     }
-
     std::cout << "Computing descriptors..." << std::endl;
     trainer<orb_descriptor::raw> trainer;
-    trainer.compute_training_descriptors(image_filenames);
+    trainer.add_training_descriptors_from_images(image_filenames);
+    trainer.add_training_descriptors_from_captures(config.rc_filenames);
+    std::cout << trainer.get_training_images() << " images, " <<
+                 trainer.get_training_features() << " features" << std::endl;
     for (auto& sz : config.sizes) {
         std::cout << "Creating vocabulary k" << sz.k << " L" << sz.L << "..." << std::endl;
         auto voc = trainer.create_vocabulary(sz);
@@ -71,9 +81,7 @@ int main(int argc, char* argv[]) {
 }
 
 template<typename T>
-void trainer<T>::compute_training_descriptors(const std::vector<std::string>& image_filenames) {
-    unsigned int total_features = 0;
-    training_descriptors.clear();
+void trainer<T>::add_training_descriptors_from_images(const std::vector<std::string>& image_filenames) {
     for (auto& filename : image_filenames) {
         cv::Mat image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
         if (!image.empty()) {
@@ -86,12 +94,53 @@ void trainer<T>::compute_training_descriptors(const std::vector<std::string>& im
 
             training_descriptors.emplace_back();
             extract_features(im, training_descriptors.back());
-
-            total_features += training_descriptors.back().size();
         }
     }
-    std::cout << training_descriptors.size() << " images, " <<
-                 total_features << " features" << std::endl;
+}
+
+template<typename T>
+void trainer<T>::add_training_descriptors_from_captures(const std::vector<std::string>& rc_filenames) {
+    constexpr int interval_us = 500000;  // gap between images in microseconds
+    for (auto& filename : rc_filenames) {
+        image_reader reader;
+        if (reader.open(filename)) {
+            reader.create_index();
+            std::vector<rc_Timestamp> timestamps = [&reader]() {
+                std::vector<rc_Timestamp> timestamps;
+                timestamps.reserve(reader.get_raw_index().size());
+                for (auto it = reader.get_raw_index().begin(); it != reader.get_raw_index().end(); ++it)
+                    timestamps.emplace_back(it->first);
+                std::sort(timestamps.begin(), timestamps.end());
+                return timestamps;
+            }();
+            for (auto it = timestamps.begin(); it != timestamps.end(); ) {
+                sensor_data image;
+                reader.query(*it, image);
+                if (image.type == rc_SENSOR_TYPE_STEREO)
+                    image = std::move(sensor_data::split(std::move(image)).first);
+                training_descriptors.emplace_back();
+                extract_features(image.tracker_image(), training_descriptors.back());
+                auto target = *it + interval_us;
+                auto end = it + 1;
+                for (int skip = 2; end != timestamps.end() && *end < target; skip *= 2) {
+                    it = end;
+                    end = (end - timestamps.begin() + skip < static_cast<int>(timestamps.size()) ? end + skip : timestamps.end());
+                }
+                it = std::lower_bound(it, end, target);
+            }
+        }
+    }
+}
+
+template<typename T>
+size_t trainer<T>::get_training_images() const {
+    return training_descriptors.size();
+}
+
+template<typename T>
+size_t trainer<T>::get_training_features() const {
+    return std::accumulate(training_descriptors.begin(), training_descriptors.end(), (size_t)0,
+                           [](size_t n, const std::vector<T>& v) { return n + v.size(); });
 }
 
 template<>
@@ -132,6 +181,7 @@ bool read_filenames(const configuration& config, std::vector<std::string>& image
 
 bool configuration::read(int argc, char* argv[]) {
     list_filename.clear();
+    rc_filenames.clear();
     output_dir.clear();
     sizes.clear();
     for (int i = 1; i < argc; ++i) {
@@ -159,9 +209,11 @@ bool configuration::read(int argc, char* argv[]) {
                     return false;
                 }
             }
+        } else {
+            rc_filenames.emplace_back(arg);
         }
     }
-    if (list_filename.empty() || output_dir.empty() || sizes.empty()) {
+    if ((list_filename.empty() && rc_filenames.empty()) || output_dir.empty() || sizes.empty()) {
         show_usage(argv[0]);
         return false;
     }

@@ -132,7 +132,7 @@ rs_sf_status rs_sf_boxfit_get_box(const rs_shapefit * obj, int box_id, rs_sf_box
 #ifdef _DEBUG
     return history_progress >= 0.0f ? RS_SF_SUCCESS : RS_SF_ITEM_NOT_READY;
 #else 
-    return history_progress >= 1.0f ? RS_SF_SUCCESS : RS_SF_ITEM_NOT_READY;
+    return history_progress >= 0.5f ? RS_SF_SUCCESS : RS_SF_ITEM_NOT_READY;
 #endif
 }
 

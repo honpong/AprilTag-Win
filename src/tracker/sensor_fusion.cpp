@@ -30,7 +30,7 @@ void sensor_fusion::update_status()
 
     // queue actions related to failures before queuing callbacks to the sdk client.
     if(sfm.numeric_failed) {
-        sfm.log->error("Numerical error; filter reset.");
+        sfm.log->error("Numerical error at {}; filter reset.", sensor_clock::tp_to_micros(sfm.last_time));
         transformation last_transform{sfm.s.Q.v, sfm.s.T.v};
         filter_initialize(&sfm);
         sfm.s.T.v = last_transform.T;

@@ -113,7 +113,8 @@ extern "C"
         RS_SF_OPTION_BOX_PLANE_RES = 4,     /**< 0:LOW,           2:HIGH       */
         RS_SF_OPTION_GET_PLANE_ID = 5,      /**< 0:ORIGINAL, 1:SCALED, 2:REMAP */
         RS_SF_OPTION_DEPTH_UNIT = 6,        /**< depth pixel unit in meter, default 0.001f */
-        RS_SF_OPTION_COUNT = 7,
+        RS_SF_OPTION_BOX_SCAN_MODE = 7,     /**< 0:ORIGINAL, 1:EXTENSION       */
+        RS_SF_OPTION_COUNT = 8,
         RS_SF_MAX_PLANE_COUNT = 256,        /**< required buffers by rs_sf_planefit_get_planes() */
     };
 

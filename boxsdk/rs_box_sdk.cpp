@@ -118,6 +118,7 @@ namespace rs2
                 _reset_request |= !_camera_tracker->track(_image[BOX_SRC_DEPTH], _image[BOX_SRC_COLOR], _image[BOX_DST_DENSE], _color_to_depth, _reset_request);
             }
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_TRACKING, !_reset_request ? 0 : 1);
+            rs_shapefit_set_option(box_detector, RS_SF_OPTION_BOX_SCAN_MODE, _is_export[BOX_DST_DENSE] ? 1 : 0);
 
             auto status = rs_shapefit_depth_image(box_detector, &_image[BOX_DST_DENSE]);
             if (status == RS_SF_SUCCESS) { _reset_request = false; }

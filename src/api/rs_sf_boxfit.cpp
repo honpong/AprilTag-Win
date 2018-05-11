@@ -28,8 +28,10 @@ rs_sf_status rs_sf_boxfit::set_option(rs_sf_fit_option option, double value)
     auto status = rs_sf_planefit::set_option(option, value);
     switch (option) {
     case RS_SF_OPTION_BOX_PLANE_RES:
-            m_param.refine_box_plane = (value > 0); break;
-        default: break;
+        m_param.refine_box_plane = (value > 0); break;
+    case RS_SF_OPTION_BOX_SCAN_MODE:
+        m_param.extend_on_scan = (value > 0); break;
+    default: break;
     }
     return status;
 }
@@ -436,7 +438,7 @@ void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
         if (pair.new_box != nullptr) //new box
         {
             for (auto& old_box : m_box_scene.tracked_boxes) {
-                if (old_box.try_update(pair, m_param)) {
+                if (old_box.try_update(pair, m_param, m_param.extend_on_scan)) {
                     pair.new_box = nullptr;
                     old_box.last_appear = current_time;
                     break;
@@ -528,7 +530,7 @@ rs_sf_box rs_sf_boxfit::box::to_rs_sf_box() const
     return dst;
 }
 
-bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const parameter& param)
+bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const parameter& param, bool extend_on_scan)
 {
     // center not overlap
     auto& new_observed_box = *pair.new_box;
@@ -558,21 +560,52 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const paramet
     while ((int)box_history.size() > param.max_box_history)
         box_history.pop_front();
 
-    const int num_boxes = (int)box_history.size();
-    const int half_n_boxes = num_boxes / 2;
-
     // filter box states
-    std::vector<float> sort_dim[3];
-    for (int d = 0; d < 3; ++d)
-        sort_dim[d].reserve(num_boxes);
-    for (const auto& bh : box_history)
-        for (int d = 0; d < 3; ++d)
-            sort_dim[d].emplace_back(bh.dimension[d]);
-    for (int d = 0; d < 3; ++d) {
-        std::sort(sort_dim[d].begin(), sort_dim[d].end());
-        dimension[d] = sort_dim[d][half_n_boxes];
+    if (!extend_on_scan) // box fully inside FOV (safe)
+    {
+        const int num_boxes = (int)box_history.size();
+        const int half_n_boxes = num_boxes / 2;
+        for (int d = 0; d < 3; ++d){
+            std::vector<float> sort_dim;
+            sort_dim.reserve(num_boxes);
+            for (const auto& bh : box_history)
+                sort_dim.emplace_back(bh.dimension[d]);
+            std::sort(sort_dim.begin(), sort_dim.end());
+            dimension[d] = sort_dim[half_n_boxes]; // median
+        }
+        center = track_pos.update(new_box.center, param.box_state_gain);
     }
-    center = track_pos.update(new_box.center, param.box_state_gain);
+    else // box extension mode (risky)
+    {
+        const int num_boxes = (int)box_history.size();
+        const int third_quarter_n_boxes = num_boxes * 3 / 4;
+        float new_coeff[3];
+        for (int d = 0; d < 3; ++d)
+        {
+            std::vector<float> sort_pos_dim, sort_neg_dim;
+            sort_pos_dim.reserve(num_boxes);
+            sort_neg_dim.reserve(num_boxes);
+            for (const auto& bh : box_history){
+                auto pos_dim = (bh.center + axis.col(d) * bh.dimension[d] * 0.5f - center).norm();
+                auto neg_dim = (bh.center - axis.col(d) * bh.dimension[d] * 0.5f - center).norm();
+                sort_pos_dim.emplace_back(pos_dim);
+                sort_neg_dim.emplace_back(neg_dim);
+            }
+            // sort axis d ranges
+            std::sort(sort_pos_dim.begin(), sort_pos_dim.end());
+            std::sort(sort_neg_dim.begin(), sort_neg_dim.end());
+            // length is max of previous stable max and current 75% high.
+            v3 pos_end = center + axis.col(d) * std::max(dimension[d] * 0.5f, sort_pos_dim[third_quarter_n_boxes]);
+            v3 neg_end = center - axis.col(d) * std::max(dimension[d] * 0.5f, sort_neg_dim[third_quarter_n_boxes]);
+            // reform length
+            dimension[d] = (pos_end - neg_end).norm();
+            new_coeff[d] = (pos_end + neg_end).dot(axis.col(d)) * 0.5f;
+        }
+        // new center
+        center = new_coeff[0] * axis.col(0) + new_coeff[1] * axis.col(1) + new_coeff[2] * axis.col(2);
+    }
+    
+    // match latest rotation
     v4 in_rotation = qv3(new_box.axis).coeffs();
     auto track_axis_value = track_axis.value();
     if (in_rotation.dot(track_axis_value) < 0) in_rotation = -in_rotation;

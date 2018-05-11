@@ -35,6 +35,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
         float box_miss_ms = 500.0f;          // milliseconds allowed for a tracked box get lost
         int max_box_history = 11;            // length of box history per tracked box
         bool refine_box_plane = false;       // flag to refine box edge
+        bool extend_on_scan = false;         // flag to enable box extension (experimental)
     };
 
     struct box
@@ -167,7 +168,7 @@ protected:
             pid[1] = pair.p1->pid;
             pid[2] = (pair.p2 ? pair.p2->pid : 0);
         }
-        bool try_update(const plane_pair& pair, const parameter& param);
+        bool try_update(const plane_pair& pair, const parameter& param, bool extend_on_scan);
     };
     typedef std::deque<tracked_box> queue_tracked_box;
 

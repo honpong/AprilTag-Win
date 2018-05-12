@@ -30,8 +30,7 @@ namespace rs2
 {
     static rs_sf_image& operator<<(rs_sf_image& img, video_frame& f)
     {
-        static const int stream_type_to_byte[] = { 1,2,3,1,1,1,1,1 };
-        img.byte_per_pixel = stream_type_to_byte[f.get_profile().stream_type()];
+        img.byte_per_pixel = f.get_bytes_per_pixel();
         img.img_h = f.get_height();
         img.img_w = f.get_width();
         img.frame_id = f.get_frame_number();

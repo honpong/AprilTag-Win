@@ -8,6 +8,9 @@
 
 #include "cor_types.h"
 
+#ifdef EIGEN_CORE_H
+#error "You must include this file before any <Eigen/*> header so we can consistently set our options below"
+#endif
 
 //Don't use GPL-licensed pieces of eigen
 #define EIGEN_MPL2_ONLY

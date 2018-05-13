@@ -575,7 +575,7 @@ rs_sf_boxfit::box_record::box_record(const box& ref, const pose_t& pose, const r
             const int vis3 = (vis_pl[a][s] || vis_pl[b][1] || vis_pl[c][1] ? 1 : 0); //plane corner 3 visibility 
                                                                                      // we clear (lock) the direction, i.e. count a 1/2 length toward final measurement, when the 
                                                                                      // number of visible corner not touching margin > number of visible planes.
-            clear_dir[a][s] = (in_fov(p0)*vis0 + in_fov(p1)*vis1 + in_fov(p2)*vis2 + in_fov(p3)*vis3 >= num_visible_plane ? true : false);
+            clear_dir[a][s] = (in_fov(p0)*vis0 + in_fov(p1)*vis1 + in_fov(p2)*vis2 + in_fov(p3)*vis3 >= 3 ? true : false);
         }
     }
 }

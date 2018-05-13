@@ -33,9 +33,9 @@ struct rs_sf_boxfit : public rs_sf_planefit
         float max_plane_pt_error = 0.015f;   // max point to box plane error
         float box_state_gain = 0.1f;         // fraction of box update allowed per frame
         float box_miss_ms = 500.0f;          // milliseconds allowed for a tracked box get lost
+        float fov_margin = 2.f;              // extend box length outside fov (0 no extension)
         int max_box_history = 11;            // length of box history per tracked box
         bool refine_box_plane = false;       // flag to refine box edge
-        bool extend_on_scan = false;         // flag to enable box extension (experimental)
     };
 
     struct box
@@ -156,19 +156,28 @@ protected:
         }
     } m_bp_map;
 
+    struct box_record : public box {
+        box_record(const box& ref, const pose_t& pose, const rs_sf_intrinsics& cam, float margin);
+        pose_t cam_pose;
+        int num_visible_plane = 0;
+        bool vis_pl[3][2];    // visible planes[axis][sign] of this box
+        bool clear_dir[3][2]; // is end point detected within fov
+        v3 half_dir(int a) const { return axis.col(a) * dimension[a] * 0.5f; }
+    };
+
     struct tracked_box : public box {
         int pid[3];
-        std::list<box> box_history;
+        std::list<box_record> box_history;
         state_v<3> track_pos;
         state_v<4> track_axis;
         std::chrono::time_point<std::chrono::steady_clock> last_appear;
         tracked_box(const plane_pair& pair, const std::chrono::time_point<std::chrono::steady_clock>& now)
-        : box(*pair.new_box),track_pos(center), track_axis(qv3(axis).coeffs()), last_appear(now) {
+            : box(*pair.new_box), track_pos(center), track_axis(qv3(axis).coeffs()), last_appear(now) {
             pid[0] = pair.p0->pid;
             pid[1] = pair.p1->pid;
             pid[2] = (pair.p2 ? pair.p2->pid : 0);
         }
-        bool try_update(const plane_pair& pair, const parameter& param, bool extend_on_scan);
+        bool try_update(const plane_pair& pair, const pose_t& pose, const rs_sf_intrinsics& cam, const parameter& param);
     };
     typedef std::deque<tracked_box> queue_tracked_box;
 

@@ -30,7 +30,7 @@ rs_sf_status rs_sf_boxfit::set_option(rs_sf_fit_option option, double value)
     case RS_SF_OPTION_BOX_PLANE_RES:
         m_param.refine_box_plane = (value > 0); break;
     case RS_SF_OPTION_BOX_SCAN_MODE:
-        m_param.extend_on_scan = (value > 0); break;
+        m_param.fov_margin = (value > 0 ? parameter().fov_margin : 0); break;
     default: break;
     }
     return status;
@@ -438,7 +438,7 @@ void rs_sf_boxfit::update_tracked_boxes(box_scene & view)
         if (pair.new_box != nullptr) //new box
         {
             for (auto& old_box : m_box_scene.tracked_boxes) {
-                if (old_box.try_update(pair, m_param, m_param.extend_on_scan)) {
+                if (old_box.try_update(pair, view.plane_scene->cam_pose, m_intrinsics, m_param)) {
                     pair.new_box = nullptr;
                     old_box.last_appear = current_time;
                     break;
@@ -530,7 +530,57 @@ rs_sf_box rs_sf_boxfit::box::to_rs_sf_box() const
     return dst;
 }
 
-bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const parameter& param, bool extend_on_scan)
+rs_sf_boxfit::box_record::box_record(const box& ref, const pose_t& pose, const rs_sf_intrinsics& cam, float margin)
+    : box(ref), cam_pose(pose)
+{
+    auto to_cam = cam_pose.invert();
+    // check if box plane orthogonal to a box axis is visible and mark in the record
+    auto record_visible_box_dir = [this, &to_cam = to_cam](int a, int sign) {
+        const auto plane_cen = center + half_dir(a) * sign;
+        const bool visible = vis_pl[a][(1 - sign) / 2] =
+            to_cam.transform(plane_cen).normalized().dot(to_cam.rotation * axis.col(a) * sign) < 0;
+        return visible ? 1 : 0;
+    };
+    // check if an image point with fov
+    auto out_img_fov = [min_x = margin, max_x = (float)cam.width - margin, min_y = margin, max_y = (float)cam.height - margin](const v2& pt){
+        return pt.x() < min_x || max_x < pt.x() || pt.y() < min_y || max_y < pt.y();
+    };
+    // check if a 3d point in world inside fov of image
+    auto in_fov = [&to_cam = to_cam, &cam = cam, &out_img_fov = out_img_fov](const v3& pt) {
+        const auto pt3d = to_cam.transform(pt);
+        const v2 img_pt = { (pt3d.x() * cam.fx) / pt3d.z() + cam.ppx, (pt3d.y() * cam.fy) / pt3d.z() + cam.ppy };
+        return out_img_fov(img_pt) ? 0 : 1;
+    };
+    // count number of visible box planes
+    for (auto a : { 0, 1, 2 }) {
+        for (auto sign : { 1, -1 }) {
+            num_visible_plane += record_visible_box_dir(a, sign);
+        }
+    }
+    // check clearance of axis towards two ends.
+    // an axis direction is cleared when its end point is not touching image margin.
+    for (auto a : { 0, 1, 2 }) {
+        for (auto s : { 0, 1 }) {
+            const int b = (a + 1) % 3, c = (a + 2) % 3; // symbols for other two axis
+            const auto pl_cen = center + half_dir(a) * (s == 0 ? 1 : -1); // pos, neg, plane center
+                                                                          // each axis direction has 4 end points defined by the other two axis.
+            const auto p0 = pl_cen + half_dir(b) + half_dir(c); // box plane corner 0 orthogonal to signed axis d 
+            const auto p1 = pl_cen + half_dir(b) - half_dir(c); // box plane corner 1 orthogonal to signed axis d
+            const auto p2 = pl_cen - half_dir(b) + half_dir(c); // box plane corner 2 orthogonal to signed axis d
+            const auto p3 = pl_cen - half_dir(b) - half_dir(c); // box plane corner 3 orthogonal to signed axis d
+                                                                // a box corner is visible when any one of the planes containing that corner is visible.
+            const int vis0 = (vis_pl[a][s] || vis_pl[b][0] || vis_pl[c][0] ? 1 : 0); //plane corner 0 visibility
+            const int vis1 = (vis_pl[a][s] || vis_pl[b][0] || vis_pl[c][1] ? 1 : 0); //plane corner 1 visibility
+            const int vis2 = (vis_pl[a][s] || vis_pl[b][1] || vis_pl[c][0] ? 1 : 0); //plane corner 2 visibility
+            const int vis3 = (vis_pl[a][s] || vis_pl[b][1] || vis_pl[c][1] ? 1 : 0); //plane corner 3 visibility 
+                                                                                     // we clear (lock) the direction, i.e. count a 1/2 length toward final measurement, when the 
+                                                                                     // number of visible corner not touching margin > number of visible planes.
+            clear_dir[a][s] = (in_fov(p0)*vis0 + in_fov(p1)*vis1 + in_fov(p2)*vis2 + in_fov(p3)*vis3 >= num_visible_plane ? true : false);
+        }
+    }
+}
+
+bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const pose_t& pose, const rs_sf_intrinsics& cam, const parameter& param)
 {
     // center not overlap
     auto& new_observed_box = *pair.new_box;
@@ -547,7 +597,7 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const paramet
     const m3 match_select = (match_table.cwiseAbs2().array().round());
 
     // change axis
-    box new_box = *this;
+    box_record new_box(*this, pose, cam, param.fov_margin);
     new_box.center = new_observed_box.center;
     new_box.axis = new_observed_box.axis * (match_select.cwiseProduct(match_table.cwiseSign()));
     new_box.dimension = new_observed_box.dimension.transpose() * match_select;
@@ -560,12 +610,18 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const paramet
     while ((int)box_history.size() > param.max_box_history)
         box_history.pop_front();
 
+    // match latest rotation
+    v4 in_rotation = qv3(new_box.axis).coeffs();
+    auto track_axis_value = track_axis.value();
+    if (in_rotation.dot(track_axis_value) < 0) in_rotation = -in_rotation;
+    axis = qv3(track_axis.update(in_rotation, param.box_state_gain).data()).matrix();
+
     // filter box states
-    if (!extend_on_scan) // box fully inside FOV (safe)
+    if (param.fov_margin == 0) // box fully inside FOV (safe)
     {
         const int num_boxes = (int)box_history.size();
         const int half_n_boxes = num_boxes / 2;
-        for (int d = 0; d < 3; ++d){
+        for (int d = 0; d < 3; ++d) {
             std::vector<float> sort_dim;
             sort_dim.reserve(num_boxes);
             for (const auto& bh : box_history)
@@ -575,40 +631,49 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const paramet
         }
         center = track_pos.update(new_box.center, param.box_state_gain);
     }
-    else // box extension mode (risky)
+    else // box extension mode (suffer from optical illusion)
     {
-        const int num_boxes = (int)box_history.size();
-        const int third_quarter_n_boxes = num_boxes * 3 / 4;
         float new_coeff[3];
+        const int num_boxes = (int)box_history.size();
         for (int d = 0; d < 3; ++d)
         {
-            std::vector<float> sort_pos_dim, sort_neg_dim;
-            sort_pos_dim.reserve(num_boxes);
-            sort_neg_dim.reserve(num_boxes);
-            for (const auto& bh : box_history){
-                auto pos_dim = (bh.center + axis.col(d) * bh.dimension[d] * 0.5f - center).norm();
-                auto neg_dim = (bh.center - axis.col(d) * bh.dimension[d] * 0.5f - center).norm();
-                sort_pos_dim.emplace_back(pos_dim);
-                sort_neg_dim.emplace_back(neg_dim);
+            v3 end_pt_d[2];                 // two end points of boxes along axis d
+            for (const auto s : { 0, 1 }) { // each end point direction
+                std::vector<float> sort_half_dim; //sort half dimension
+                sort_half_dim.reserve(num_boxes);
+                // axis d direction
+                v3 dir_d = (s == 0 ? 1 : -1) * axis.col(d);
+                // for each box history
+                for (const auto& bh : box_history) {
+                    if (bh.clear_dir[d][s]) {
+                        // 3 box axis in actual length
+                        const auto u = bh.half_dir((d + 1) % 3);
+                        const auto v = bh.half_dir((d + 2) % 3);
+                        const auto w = bh.half_dir(d) * (s == 0 ? 1 : -1);
+                        const v3 pl[] = { u + v + w, u - v + w, -u + v + w, -u - v + w };
+                        float c_min = std::numeric_limits<float>::max();
+                        // rotate old boxes to new axis to prevent historical lengths extended by axis rotation
+                        for (const auto& c : pl) {
+                            c_min = std::min(c_min, (c + bh.center - center).dot(dir_d));
+                        }
+                        // only sort dimension measured within fov
+                        sort_half_dim.emplace_back(c_min);
+                    }
+                }
+                // sort axis d half ranges
+                std::sort(sort_half_dim.begin(), sort_half_dim.end());
+                // take stable median
+                const int half_sort_boxes = (int)sort_half_dim.size() / 2;
+                // length is the median of lengths within fov
+                end_pt_d[s] = center + dir_d * (sort_half_dim.size() ? sort_half_dim[half_sort_boxes] : dimension[d] * 0.5f);
             }
-            // sort axis d ranges
-            std::sort(sort_pos_dim.begin(), sort_pos_dim.end());
-            std::sort(sort_neg_dim.begin(), sort_neg_dim.end());
-            // length is max of previous stable max and current 75% high.
-            v3 pos_end = center + axis.col(d) * std::max(dimension[d] * 0.5f, sort_pos_dim[third_quarter_n_boxes]);
-            v3 neg_end = center - axis.col(d) * std::max(dimension[d] * 0.5f, sort_neg_dim[third_quarter_n_boxes]);
-            // reform length
-            dimension[d] = (pos_end - neg_end).norm();
-            new_coeff[d] = (pos_end + neg_end).dot(axis.col(d)) * 0.5f;
+            // reform length from end points along axis d
+            dimension[d] = (end_pt_d[0] - end_pt_d[1]).norm();
+            new_coeff[d] = (end_pt_d[0] + end_pt_d[1]).dot(axis.col(d)) * 0.5f;
         }
         // new center
-        center = new_coeff[0] * axis.col(0) + new_coeff[1] * axis.col(1) + new_coeff[2] * axis.col(2);
+        const auto new_center = new_coeff[0] * axis.col(0) + new_coeff[1] * axis.col(1) + new_coeff[2] * axis.col(2);
+        center = track_pos.update(new_center, param.box_state_gain);
     }
-    
-    // match latest rotation
-    v4 in_rotation = qv3(new_box.axis).coeffs();
-    auto track_axis_value = track_axis.value();
-    if (in_rotation.dot(track_axis_value) < 0) in_rotation = -in_rotation;
-    axis = qv3(track_axis.update(in_rotation, param.box_state_gain).data()).matrix();
     return true;
 }

@@ -76,8 +76,10 @@ def rotation_metric(tm2_static_intervals,tm2_poses,robot_poses):
         tm_translation = np.dot(tm_poses_avg1_inv,tm_poses_avg2)
         tm_rotation_magintude = cu.rotation_magnitude(tm_translation)
 
-        robot_poses_1 = cu.vector_to_transform_matrix(cu.vector_degree_to_rad(robot_poses[2*i]))
-        robot_poses_2 = cu.vector_to_transform_matrix(cu.vector_degree_to_rad(robot_poses[2*i +1]))
+        #robot_poses_1 = cu.vector_to_transform_matrix(cu.vector_degree_to_rad(robot_poses[2*i]))
+        #robot_poses_2 = cu.vector_to_transform_matrix(cu.vector_degree_to_rad(robot_poses[2*i +1]))
+        robot_poses_1 = cu.euler_to_transform_matrix(cu.vector_degree_to_rad(robot_poses[2*i]))
+        robot_poses_2 = cu.euler_to_transform_matrix(cu.vector_degree_to_rad(robot_poses[2*i +1]))
         
         robot_poses_1_inv = np.linalg.inv(robot_poses_1)
         robot_translation = np.dot(robot_poses_1_inv,robot_poses_2)

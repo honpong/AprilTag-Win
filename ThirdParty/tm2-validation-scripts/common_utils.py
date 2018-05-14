@@ -82,9 +82,17 @@ def pose_to_transform_matrix(pose):
     T = tm.translation_matrix([x, y, z])
     return np.dot(T,R)
     
+# convert vector pose (axis-angle representation dividing axis by angle) to transformation matrix pose      
 def vector_to_transform_matrix(pose):
     (x, y, z, q1, q2, q3) = pose[:6]
     R = tm.rotation_matrix_from_vector([q1, q2, q3])
+    T = tm.translation_matrix([x, y, z])
+    return np.dot(T,R)
+
+# convert euler angle pose to transformation matrix pose. default is 'sxyz' order (static and xyz order)
+def euler_to_transform_matrix(pose, axes='sxyz'):
+    (x, y, z, q1, q2, q3) = pose[:6]
+    R = tm.euler_matrix(q1, q2, q3, axes)
     T = tm.translation_matrix([x, y, z])
     return np.dot(T,R)
 

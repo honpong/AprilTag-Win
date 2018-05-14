@@ -397,68 +397,41 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
         });
     }
 
-    // find nodes sharing words with current frame
-    std::map<nodeid,uint32_t> common_words_per_node;
-    uint32_t max_num_shared_words = 0;
-    for (auto& word : current_frame->dbow_histogram) {
-        auto word_i = dbow_inverted_index.find(word.first);
-        if (word_i == dbow_inverted_index.end()) continue;
+    std::vector<std::pair<nodeid, float>> dbow_scores;
+    {
+        std::unordered_map<nodeid, std::shared_ptr<frame_t>> candidate_frames;
         nodes.critical_section([&]() {
-            for (auto nid : word_i->second) {
-                auto it = nodes->find(nid);
-                if (it != nodes->end() && it->second.status == node_status::finished && discarded_nodes.find(nid) == discarded_nodes.end()) {
-                    common_words_per_node[nid]++;
-                    // keep maximum number of words shared with current frame
-                    if (max_num_shared_words < common_words_per_node[nid])
-                        max_num_shared_words = common_words_per_node[nid];
+            for (auto& word : current_frame->dbow_histogram) {
+                auto word_i = dbow_inverted_index.find(word.first);
+                if (word_i == dbow_inverted_index.end()) continue;
+                for (auto nid : word_i->second) {
+                    if (candidate_frames.count(nid) || discarded_nodes.count(nid)) continue;
+                    auto it = nodes->find(nid);
+                    if (it != nodes->end() && it->second.status == node_status::finished) {
+                        candidate_frames.emplace(nid, it->second.frame);
+                    }
                 }
             }
         });
-    }
-
-    // if no common_words, return
-    std::vector<std::pair<nodeid, float>> loop_closing_candidates;
-    if (!max_num_shared_words)
-        return loop_closing_candidates;
-
-    // keep candidates with at least min_num_shared_words
-    size_t min_num_shared_words = static_cast<int>(max_num_shared_words * 0.8f);
-    std::vector<std::pair<nodeid, float> > dbow_scores;
-    static_assert(orb_vocabulary::scoring_type == DBoW2::ScoringType::L1_NORM,
-                  "orb_vocabulary does not use L1 norm");
-    float best_score = 0.0f; // assuming L1 norm
-    std::vector<std::pair<nodeid, std::shared_ptr<frame_t>>> candidate_frames;
-    candidate_frames.reserve(common_words_per_node.size());
-    nodes.critical_section([&]() {
-        for (auto& node_candidate : common_words_per_node) {
-            if (node_candidate.second > min_num_shared_words) {
-                auto it = nodes->find(node_candidate.first);
-                if (it != nodes->end())
-                    candidate_frames.emplace_back(node_candidate.first, it->second.frame);
-            }
+        for (auto& it : candidate_frames) {
+            dbow_scores.emplace_back(it.first, orb_voc->score(it.second->dbow_histogram, current_frame->dbow_histogram));
         }
-    });
-    for (auto& node_candidate : candidate_frames) {
-        float dbow_score = orb_voc->score(node_candidate.second->dbow_histogram, current_frame->dbow_histogram);
-        dbow_scores.push_back(std::make_pair(node_candidate.first, dbow_score));
-        best_score = std::max(dbow_score, best_score);
     }
 
     // sort candidates by dbow_score
-    std::sort(dbow_scores.begin(), dbow_scores.end(), [](const std::pair<nodeid, float>& p1, const std::pair<nodeid, float>& p2) {
-        return (p1.second > p2.second);
-    });
-
-    // keep good candidates according to a minimum score
-    float min_score = std::max(best_score * 0.75f, 0.0f); // assuming L1 norm
-    for (auto& dbow_score : dbow_scores) {
-        if (dbow_score.second > min_score) {
-            loop_closing_candidates.push_back(dbow_score);
-        } else {
-            break;
+    constexpr size_t max_candidates = 10;
+    auto max_it = dbow_scores.begin() + std::min(dbow_scores.size(), max_candidates);
+    std::partial_sort(dbow_scores.begin(), max_it, dbow_scores.end(), [](const std::pair<nodeid, float>& p1, const std::pair<nodeid, float>& p2) {
+        switch (orb_vocabulary::scoring_type) {
+        case DBoW2::ScoringType::KL:
+        case DBoW2::ScoringType::CHI_SQUARE:
+            return p1.second < p2.second;
+        default:
+            return p1.second > p2.second;
         }
-    }
-    return loop_closing_candidates;
+    });
+    dbow_scores.erase(max_it, dbow_scores.end());
+    return dbow_scores;
 }
 
 static size_t calculate_orientation_bin(const orb_descriptor &a, const orb_descriptor &b, const size_t num_orientation_bins) {

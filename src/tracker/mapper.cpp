@@ -374,33 +374,33 @@ mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::f
 std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
     const std::shared_ptr<frame_t>& current_frame) const
 {
-    std::vector<std::pair<nodeid, float>> loop_closing_candidates;
-    // find nodes with 3d features in common with current frame so that we don't try to relocalize against them
-    std::unordered_set<nodeid> nodes_with_common_3dfeatures;
-    features_dbow.critical_section([&]() {
-        for (auto& keypoint : current_frame->keypoints) {
-            auto it = features_dbow->find(keypoint->id);
-            if (it != features_dbow->end()) {
-                nodes_with_common_3dfeatures.insert(it->second);
-            }
-        }
-    });
-
     std::unordered_set<nodeid> discarded_nodes;
-    nodes.critical_section([&]() {
-        for(auto& node_id : nodes_with_common_3dfeatures) {
-            auto it = nodes->find(node_id);
-            if(it != nodes->end()) {
-                discarded_nodes.insert(node_id);
-                discarded_nodes.insert(it->second.covisibility_edges.begin(), it->second.covisibility_edges.end());
+    {
+        // find nodes with 3d features in common with current frame so that we don't try to relocalize against them
+        std::unordered_set<nodeid> nodes_with_common_3dfeatures;
+        features_dbow.critical_section([&]() {
+            for (auto& keypoint : current_frame->keypoints) {
+                auto it = features_dbow->find(keypoint->id);
+                if (it != features_dbow->end()) {
+                    nodes_with_common_3dfeatures.insert(it->second);
+                }
             }
-        }
-    });
+        });
+        nodes.critical_section([&]() {
+            for(auto& node_id : nodes_with_common_3dfeatures) {
+                auto it = nodes->find(node_id);
+                if(it != nodes->end()) {
+                    discarded_nodes.insert(node_id);
+                    discarded_nodes.insert(it->second.covisibility_edges.begin(), it->second.covisibility_edges.end());
+                }
+            }
+        });
+    }
 
     // find nodes sharing words with current frame
     std::map<nodeid,uint32_t> common_words_per_node;
     uint32_t max_num_shared_words = 0;
-    for (auto word : current_frame->dbow_histogram) {
+    for (auto& word : current_frame->dbow_histogram) {
         auto word_i = dbow_inverted_index.find(word.first);
         if (word_i == dbow_inverted_index.end()) continue;
         nodes.critical_section([&]() {
@@ -417,6 +417,7 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
     }
 
     // if no common_words, return
+    std::vector<std::pair<nodeid, float>> loop_closing_candidates;
     if (!max_num_shared_words)
         return loop_closing_candidates;
 
@@ -438,17 +439,15 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
         }
     });
     for (auto& node_candidate : candidate_frames) {
-        float dbow_score = static_cast<float>(orb_voc->score(node_candidate.second->dbow_histogram,
-                                                             current_frame->dbow_histogram));
+        float dbow_score = orb_voc->score(node_candidate.second->dbow_histogram, current_frame->dbow_histogram);
         dbow_scores.push_back(std::make_pair(node_candidate.first, dbow_score));
         best_score = std::max(dbow_score, best_score);
     }
 
     // sort candidates by dbow_score
-    auto compare_dbow_scores = [](const std::pair<nodeid, float>& p1, const std::pair<nodeid, float>& p2) {
+    std::sort(dbow_scores.begin(), dbow_scores.end(), [](const std::pair<nodeid, float>& p1, const std::pair<nodeid, float>& p2) {
         return (p1.second > p2.second);
-    };
-    std::sort(dbow_scores.begin(), dbow_scores.end(), compare_dbow_scores);
+    });
 
     // keep good candidates according to a minimum score
     float min_score = std::max(best_score * 0.75f, 0.0f); // assuming L1 norm
@@ -685,8 +684,6 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
     reloc_result.info.frame_timestamp = current_frame->timestamp;
     if (!current_frame->keypoints.size()) return reloc_result;
 
-    size_t i = 0;
-
     START_EVENT(SF_FIND_CANDIDATES, 0);
     std::vector<std::pair<nodeid, float>> candidate_nodes = find_loop_closing_candidates(current_frame);
     END_EVENT(SF_FIND_CANDIDATES, candidate_nodes.size());
@@ -694,7 +691,8 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
 
     const auto &keypoint_xy_current = current_frame->keypoints_xy;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
-    for (const auto& nid : candidate_nodes) {
+    for (size_t idx = 0; idx < candidate_nodes.size(); ++idx) {
+        const auto& nid = candidate_nodes[idx];
         edge_type type;
         if(edge_in_map(camera_frame.closest_node, nid.first, type)) { // if nodes already connected with a map edge don't relocalize
             if(type == edge_type::map) {
@@ -821,10 +819,10 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
         }
         if (!inliers_set.size())
             log->debug("{}/{}) candidate nid: {:3} score: {:.5f}, matches: {:2}",
-                       i++, candidate_nodes.size(), nid.first, nid.second, matches_node_candidate.size());
+                       idx, candidate_nodes.size(), nid.first, nid.second, matches_node_candidate.size());
         else
             log->debug(" {}/{}) candidate nid: {:3} score: {:.5f}, matches: {:2}, EPnP inliers: {}",
-                      i++, candidate_nodes.size(), nid.first, nid.second, matches_node_candidate.size(), inliers_set.size());
+                      idx, candidate_nodes.size(), nid.first, nid.second, matches_node_candidate.size(), inliers_set.size());
 
 #if defined(RELOCALIZATION_DEBUG)
         const auto &keypoint_xy_candidates = candidate_node_frame->keypoints_xy;

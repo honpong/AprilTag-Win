@@ -861,13 +861,13 @@ bool TemplatedVocabulary<T, type>::SerializerLegacyVersion::load(
         }
     };
 
-    if (number_of_nodes - 1 < voc.m_k) {
+    if (static_cast<int>(number_of_nodes) - 1 < voc.m_k) {
         read_recursively(0, number_of_nodes - 1, 0);
     } else {
         read_recursively(0, voc.m_k, 0);
     }
 
-    if (number_of_nodes < voc.m_k) {
+    if (static_cast<int>(number_of_nodes) < voc.m_k) {
         // special case for very few nodes
         for (int i = number_of_nodes; i < voc.m_k; ++i) {
             voc.m_nodes_pool[i].descriptor = voc.m_nodes_pool[0].descriptor;

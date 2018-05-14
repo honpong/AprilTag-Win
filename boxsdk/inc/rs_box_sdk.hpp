@@ -465,7 +465,7 @@ namespace rs2
          * Set better depth generation parameters for the depth camera.
          * \param[in] mode : "Custom","Default","Hand","High Accuracy" or "High Density"
          */
-        std::string set_sensor_options(device dev, const std::string& mode = "High Density") const try
+        std::string set_sensor_options(device dev, const std::string& mode = "High Accuracy") const try
         {
             if (dev.is<rs400::advanced_mode>()){
                 auto advanced_mode_dev = dev.as<rs400::advanced_mode>();

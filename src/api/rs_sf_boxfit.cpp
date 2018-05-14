@@ -663,9 +663,9 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const pose_t&
                 // sort axis d half ranges
                 std::sort(sort_half_dim.begin(), sort_half_dim.end());
                 // take stable median
-                const int half_sort_boxes = (int)sort_half_dim.size() / 2;
+                const int third_quarter = (int)sort_half_dim.size() * 3 / 4;
                 // length is the median of lengths within fov
-                end_pt_d[s] = center + dir_d * (sort_half_dim.size() ? sort_half_dim[half_sort_boxes] : dimension[d] * 0.5f);
+                end_pt_d[s] = center + dir_d * (sort_half_dim.size() ? sort_half_dim[third_quarter] : dimension[d] * 0.5f);
             }
             // reform length from end points along axis d
             dimension[d] = (end_pt_d[0] - end_pt_d[1]).norm();

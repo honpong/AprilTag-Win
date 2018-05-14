@@ -676,7 +676,7 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const pose_t&
         }
         // new center
         const auto new_center = new_coeff[0] * axis.col(0) + new_coeff[1] * axis.col(1) + new_coeff[2] * axis.col(2);
-        center = track_pos.update(new_center, param.box_state_gain);
+        center = new_center; // track_pos.update(new_center, param.box_state_gain);
     }
     return true;
 }

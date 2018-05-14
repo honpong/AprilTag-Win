@@ -563,18 +563,21 @@ rs_sf_boxfit::box_record::box_record(const box& ref, const pose_t& pose, const r
         for (auto s : { 0, 1 }) {
             const int b = (a + 1) % 3, c = (a + 2) % 3; // symbols for other two axis
             const auto pl_cen = center + half_dir(a) * (s == 0 ? 1 : -1); // pos, neg, plane center
-                                                                          // each axis direction has 4 end points defined by the other two axis.
+            
+            // each axis direction has 4 end points defined by the other two axis.
             const auto p0 = pl_cen + half_dir(b) + half_dir(c); // box plane corner 0 orthogonal to signed axis d 
             const auto p1 = pl_cen + half_dir(b) - half_dir(c); // box plane corner 1 orthogonal to signed axis d
             const auto p2 = pl_cen - half_dir(b) + half_dir(c); // box plane corner 2 orthogonal to signed axis d
             const auto p3 = pl_cen - half_dir(b) - half_dir(c); // box plane corner 3 orthogonal to signed axis d
-                                                                // a box corner is visible when any one of the planes containing that corner is visible.
+            
+            // a box corner is visible when any one of the planes containing that corner is visible.
             const int vis0 = (vis_pl[a][s] || vis_pl[b][0] || vis_pl[c][0] ? 1 : 0); //plane corner 0 visibility
             const int vis1 = (vis_pl[a][s] || vis_pl[b][0] || vis_pl[c][1] ? 1 : 0); //plane corner 1 visibility
             const int vis2 = (vis_pl[a][s] || vis_pl[b][1] || vis_pl[c][0] ? 1 : 0); //plane corner 2 visibility
             const int vis3 = (vis_pl[a][s] || vis_pl[b][1] || vis_pl[c][1] ? 1 : 0); //plane corner 3 visibility 
-                                                                                     // we clear (lock) the direction, i.e. count a 1/2 length toward final measurement, when the 
-                                                                                     // number of visible corner not touching margin > number of visible planes.
+
+            // we clear (lock) the direction, i.e. count a 1/2 length toward final measurement, when the 
+            // number of visible corner not touching margin > 3.
             clear_dir[a][s] = (in_fov(p0)*vis0 + in_fov(p1)*vis1 + in_fov(p2)*vis2 + in_fov(p3)*vis3 >= 3 ? true : false);
         }
     }

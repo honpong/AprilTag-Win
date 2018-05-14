@@ -76,7 +76,6 @@ if(MSVC)
     add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     add_compile_options(/sdl)
-    add_subdirectory(${LIBRS_DIR}/third-party/glfw)
     list(APPEND LIBRS_APP_LIBS glfw3)
 
 elseif(APPLE)
@@ -134,6 +133,9 @@ list(APPEND LIBRS_LIBS realsense2)
 
 add_subdirectory(${JSON3_DIR})
 add_subdirectory(${LIBRS_DIR})
+if(NOT TARGET glfw3)
+    add_subdirectory(${LIBRS_DIR}/third-party/glfw)
+endif()
 add_subdirectory(src/api)
 add_subdirectory(boxsdk)
 

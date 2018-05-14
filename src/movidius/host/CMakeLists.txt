@@ -42,7 +42,7 @@ add_library(slam_usb
    ../../tracker/bstream.cpp
 )
 
-target_link_libraries(slam_usb PUBLIC usb getopt Threads::Threads Eigen3::Eigen)
+target_link_libraries(slam_usb PUBLIC usb getopt Threads::Threads Eigen3::Eigen mv_libusb)
 
 target_include_directories(slam_usb PUBLIC
     ../common/                                  # for usb_definitions.h & get_pose.h

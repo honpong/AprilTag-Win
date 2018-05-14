@@ -41,5 +41,6 @@ extern const char *usb_last_bulk_errmsg(void);
 extern void usb_set_msgfile(FILE *file);
 extern void usb_set_verbose(int value);
 extern void usb_set_ignoreerrors(int value);
+extern int usb_boot(int argc, char *argv[]);
 
 #endif//_USB_COMMON_H

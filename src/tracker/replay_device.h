@@ -22,6 +22,7 @@ private:
     uint8_t qres{ 0 };
     std::chrono::microseconds realtime_offset{ 0 };
     rc_TrackerQueueStrategy queue_strategy{ rc_QUEUE_MINIMIZE_DROPS };
+    bool strategy_override{ false };
     void setup_filter();
     void process_data(rc_packet_t &phandle);
     void process_control(const packet_control_t *packet);

@@ -289,11 +289,7 @@ void replay_device::process_control(const packet_control_t *packet) {
     case packet_enable_realtime: { is_realtime = true; break; }
     case packet_enable_qvga: { qvga = true; break; }
     case packet_enable_qres: { qres = get_packet_item(packet); break; }
-    case packet_enable_async: {
-        async = is_realtime = true;
-        queue_strategy = rc_QUEUE_MINIMIZE_LATENCY;
-        break;
-    }
+    case packet_enable_async: { async = is_realtime = true; break; }
     case packet_enable_no_depth: { use_depth = false; break; }
     case packet_enable_fast_path: { fast_path = true; break; }
     case packet_enable_dynamic_calibration: { dynamic_calibration = true; break; }
@@ -305,11 +301,16 @@ void replay_device::process_control(const packet_control_t *packet) {
     case packet_enable_odometry: { use_odometry = true; break; }
     case packet_enable_mesg_level: { message_level = get_packet_item(packet); break; }
     case packet_enable_mapping: { rc_startMapping(tracker.get(), false, get_packet_item(packet)); break; }
-    case packet_set_queue_strategy: { queue_strategy = get_packet_item(packet); break; }
+    case packet_set_queue_strategy: {
+        queue_strategy = get_packet_item(packet);
+        strategy_override = true;
+        break;
+    }
     case packet_enable_relocalization: { rc_startMapping(tracker.get(), true, true); break; }
     case packet_command_start: {
         if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, stream->message_handle, message_level);
-        rc_configureQueueStrategy(tracker.get(), queue_strategy);
+        rc_configureQueueStrategy(tracker.get(), (strategy_override) ? queue_strategy :
+                                  (async ? rc_QUEUE_MINIMIZE_LATENCY : queue_strategy));
         rc_startTracker(tracker.get(),
                         (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) |
                         (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH) |

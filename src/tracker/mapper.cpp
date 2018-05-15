@@ -1060,32 +1060,6 @@ static bstream_writer & operator << (bstream_writer &content, const map_node &no
 
 static const char magic_file_format_num[4] = { 'R', 'C', 'M', '\0' }; // RC Map
 
-template<typename T0, typename T1, typename ... T2>
-void multiple_lock(int i, T0& m0, T1& m1, T2& ...m2) {
-    // mdk std::lock may hang on TM2 when no round robin scheduling
-    while (true) {
-        switch(i) {
-        case 0:
-            i = std::try_lock(m0, m1, m2...);
-            break;
-        case 1:
-            i = std::try_lock(m1, m2..., m0);
-            break;
-        default:
-            multiple_lock(i - 2, m2..., m0, m1);
-            return;
-        }
-        if (i == -1) return;
-        i = (i == sizeof...(m2) + 1 ? 0 : i + 1);
-        std::this_thread::yield();
-    }
-}
-
-template<typename T0, typename T1, typename ... T2>
-void multiple_lock(T0& m0, T1& m1, T2& ...m2) {
-    multiple_lock(0, m0, m1, m2...);
-}
-
 bool mapper::serialize(rc_SaveCallback func, void *handle) const {
     bstream_writer cur_stream(func, handle);
     cur_stream.write(magic_file_format_num, sizeof(magic_file_format_num));

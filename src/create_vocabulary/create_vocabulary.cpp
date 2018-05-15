@@ -16,9 +16,11 @@
 
 static void show_usage(char *argv0) {
     std::cout << "Usage: " << argv0 <<
-                 " [rc_file0 [rc_file1 ...]] [-i image_list.txt] -o output_dir -k k_0 L_0 [-k k_1 L_1 ... -k k_N L_N]\n\n"
+                 " [rc_file0 [rc_file1 ...]] [-i image_list.txt] -o output_dir -k k_0 L_0 [-k k_1 L_1 ... -k k_N L_N] [-qres] [-mix-qres]\n\n"
                  "rc_file is a capture file\n"
                  "image_list.txt contains a list of paths to images (only available if compiled with OpenCV)\n"
+                 "qres downsamples the image as measure does\n"
+                 "mix-qres downsamples every other image only\n"
                  "Vocabularies are stored in output_dir/voc_k{k_i}_L{L_i}.bin\n";
 }
 
@@ -33,6 +35,8 @@ struct configuration {
     std::vector<std::string> rc_filenames;
     std::vector<vocabulary_size> sizes;
     std::string output_dir;
+    int qres;
+    bool mix_qres;
     bool read(int argc, char* argv[]);
 };
 
@@ -41,6 +45,7 @@ class trainer {
  public:
     using vocabulary = DBoW2::TemplatedVocabulary<T, DBoW2::L1_NORM>;
 
+    void set_qres(int qres, bool mixed) { qres_ = qres; mix_qres_ = mixed; }
     void add_training_descriptors_from_images(const std::vector<std::string>& image_filenames);
     void add_training_descriptors_from_captures(const std::vector<std::string>& rc_filenames);
     std::unique_ptr<vocabulary> create_vocabulary(vocabulary_size sz);
@@ -49,8 +54,11 @@ class trainer {
 
  private:
     void extract_features(const tracker::image& image, std::vector<T>& features) const;
+    void scale(tracker::image& image) const;
 
     std::vector<std::vector<T>> training_descriptors;
+    int qres_ = 0;
+    bool mix_qres_ = false;
 };
 
 bool read_filenames(const configuration& config, std::vector<std::string>& image_filenames);
@@ -69,6 +77,7 @@ int main(int argc, char* argv[]) {
     }
     std::cout << "Computing descriptors..." << std::endl;
     trainer<orb_descriptor::raw> trainer;
+    trainer.set_qres(config.qres, config.mix_qres);
     trainer.add_training_descriptors_from_images(image_filenames);
     trainer.add_training_descriptors_from_captures(config.rc_filenames);
     std::cout << trainer.get_training_images() << " images, " <<
@@ -85,6 +94,7 @@ int main(int argc, char* argv[]) {
 template<typename T>
 void trainer<T>::add_training_descriptors_from_images(const std::vector<std::string>& image_filenames) {
 #if HAVE_OPENCV
+    bool scale_now = false;
     for (auto& filename : image_filenames) {
         cv::Mat image = cv::imread(filename, cv::IMREAD_GRAYSCALE);
         if (!image.empty()) {
@@ -94,6 +104,8 @@ void trainer<T>::add_training_descriptors_from_images(const std::vector<std::str
             im.width_px = image.cols;
             im.stride_px = image.step1();
             im.image = image.data;
+            if ((scale_now = qres_ != 0 && (!mix_qres_ || !scale_now)))
+                scale(im);
 
             training_descriptors.emplace_back();
             extract_features(im, training_descriptors.back());
@@ -117,13 +129,17 @@ void trainer<T>::add_training_descriptors_from_captures(const std::vector<std::s
                 std::sort(timestamps.begin(), timestamps.end());
                 return timestamps;
             }();
+            bool scale_now = false;
             for (auto it = timestamps.begin(); it != timestamps.end(); ) {
                 sensor_data image;
                 reader.query(*it, image);
                 if (image.type == rc_SENSOR_TYPE_STEREO)
                     image = std::move(sensor_data::split(std::move(image)).first);
+                auto im = image.tracker_image();
+                if ((scale_now = qres_ != 0 && (!mix_qres_ || !scale_now)))
+                    scale(im);
                 training_descriptors.emplace_back();
-                extract_features(image.tracker_image(), training_descriptors.back());
+                extract_features(im, training_descriptors.back());
                 auto target = *it + interval_us;
                 auto end = it + 1;
                 for (int skip = 2; end != timestamps.end() && *end < target; skip *= 2) {
@@ -145,6 +161,27 @@ template<typename T>
 size_t trainer<T>::get_training_features() const {
     return std::accumulate(training_descriptors.begin(), training_descriptors.end(), (size_t)0,
                            [](size_t n, const std::vector<T>& v) { return n + v.size(); });
+}
+
+template <int by_x, int by_y>
+static void scale_down_inplace_y8_by(uint8_t *image, int final_width, int final_height, int stride) {
+    for (int y=0; y<final_height; y++)
+        for (int x = 0; x <final_width; x++) {
+            int sum = 0; // FIXME: by_x * by_y / 2;
+            for (int i=0; i<by_y; i++)
+                for (int j=0; j<by_x; j++)
+                    sum += image[stride * (by_y*y + i) + by_x*x + j];
+            image[stride * y + x] = sum / (by_x * by_y);
+        }
+}
+
+template<typename T>
+void trainer<T>::scale(tracker::image& im) const {
+    uint8_t* data = const_cast<uint8_t*>(im.image);
+    if (qres_ == 1 && im.width_px % 2 == 0 && im.height_px % 2 == 0)
+        scale_down_inplace_y8_by<2, 2>(data, im.width_px /= 2, im.height_px /= 2, im.stride_px);
+    else if (qres_ == 2 && im.width_px % 4 == 0 && im.height_px % 4 == 0)
+        scale_down_inplace_y8_by<4, 4>(data, im.width_px /= 4, im.height_px /= 4, im.stride_px);
 }
 
 template<>
@@ -188,6 +225,8 @@ bool configuration::read(int argc, char* argv[]) {
     rc_filenames.clear();
     output_dir.clear();
     sizes.clear();
+    qres = 0;
+    mix_qres = false;
     for (int i = 1; i < argc; ++i) {
         std::string arg(argv[i]);
         if (arg == "-i") {
@@ -213,6 +252,11 @@ bool configuration::read(int argc, char* argv[]) {
                     return false;
                 }
             }
+        } else if (arg == "-qres") {
+            ++qres;
+        } else if (arg == "-mix-qres") {
+            ++qres;
+            mix_qres = true;
         } else {
             rc_filenames.emplace_back(arg);
         }

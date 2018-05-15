@@ -66,8 +66,8 @@ f_t estimate_fundamental(const aligned_vector<v2> &src, const aligned_vector<v2>
 class transformation_cov {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-    transformation_cov() : cov(m<6,6>::Identity()) {};
-    transformation_cov(const transformation& G_, const m<6,6>& cov_) : G(G_.Q, G_.T), cov(cov_) {};
+    transformation_cov() : cov(m<6,6>::Zero()) {};
+    transformation_cov(const transformation& G_, const m<6,6>& cov_ = m<6,6>::Zero()) : G(G_.Q, G_.T), cov(cov_) {};
 
     transformation G;
     m<6,6> cov;
@@ -117,4 +117,31 @@ static inline transformation_cov invert(const transformation_cov& G12)
     P.block<3,3>(3,3) = P.block<3,3>(3,3)*R21.transpose();
 
     return G21;
+}
+
+static inline transformation_cov compose(const transformation_cov &G1, const transformation_cov &G2, const m<6,6> &cov12) {
+    // G3 = G1*G2, cov = [J1 J2] [cov1 cov12; cov12^T cov2] [J1^T; J2^T] = J1 cov1 J1^T + J2 cov2 J2^T + J1 cov12 J2^T + J2 cov21 J1^T
+    // we compute the first sumands J1 cov1 J1^T + J2 cov2 J2^T
+    transformation_cov G3 = G1*G2;
+
+    // we add the reamining components of the covariance that depend on the correlation: ... + J1 cov12 J2^T + J2 cov21 J1^T
+    m3 R1T = G1.G.Q.toRotationMatrix().transpose();
+    m3 S = -skew(G1.G.Q * G2.G.T);
+    m<6,6> J1_cov12_J2T;
+    J1_cov12_J2T.block<3,3>(0,0) = (cov12.block<3,3>(0,0) + S * cov12.block<3,3>(3,0)) * R1T;
+    J1_cov12_J2T.block<3,3>(0,3) = (cov12.block<3,3>(0,3) + S * cov12.block<3,3>(3,3)) * R1T;
+    J1_cov12_J2T.block<3,3>(3,0) = cov12.block<3,3>(3,0) * R1T;
+    J1_cov12_J2T.block<3,3>(3,3) = cov12.block<3,3>(3,3) * R1T;
+
+    G3.cov += J1_cov12_J2T + J1_cov12_J2T.transpose();
+
+    return G3;
+}
+
+static inline transformation_cov operator*(const transformation_cov& G1, const transformation& G2) {
+    return G1*transformation_cov(G2);
+}
+
+static inline transformation_cov operator*(const transformation& G1, const transformation_cov& G2) {
+    return transformation_cov(G1)*G2;
 }

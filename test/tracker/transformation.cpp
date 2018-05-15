@@ -231,3 +231,42 @@ TEST(Transformation, TransformationCovInverse)
     }
     EXPECT_NEAR(Jinv_JinvT_err, 0, 1e-2); // with double precission this can be reduced to 1e-8
 }
+
+TEST(Transformation, TransformationCovCompose)
+{
+    const int num_tests = 100;
+    f_t cov_err = 0.f;
+    for(int test = 0; test < num_tests; ++test) {
+        // input data
+        m<12,12> cov = m<12,12>::Random();
+        cov = cov.transpose()*cov;
+
+        transformation_cov G1(transformation(rotation_vector(v3::Random()), v3::Random()), cov.block<6,6>(0,0));
+        transformation_cov G2(transformation(rotation_vector(v3::Random()), v3::Random()), cov.block<6,6>(6,6));
+
+        const auto& cov12 = cov.block<6,6>(0,6);
+
+        // jacobians
+        m3 R1 = G1.G.Q.toRotationMatrix();
+        m3 S = -skew(G1.G.Q * G2.G.T);
+
+        m<6,6> J1(m<6,6>::Identity());
+        J1.block<3,3>(0,3) = S;
+
+        m<6,6> J2(m<6,6>::Zero());
+        J2.block<3,3>(0,0) = R1;
+        J2.block<3,3>(3,3) = R1;
+
+        m<6,12> J;
+        J.block<6,6>(0,0) = J1;
+        J.block<6,6>(0,6) = J2;
+
+        // calculate covariance with correlation
+        m<6,6> cov_gt = J*cov*J.transpose(); // analytical
+        transformation_cov G3 = compose(G1, G2, cov12);
+
+        // test
+        cov_err = fmax(cov_err, (cov_gt - G3.cov).array().abs().maxCoeff());
+    }
+    EXPECT_NEAR(cov_err, 0, 1e-5);
+}

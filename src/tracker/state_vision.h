@@ -187,7 +187,6 @@ class state_vision_group: public state_branch<state_node *> {
     state_camera &camera;
     state_branch<std::unique_ptr<state_vision_feature>> features;
     std::list<std::unique_ptr<state_vision_feature>> lost_features;
-    int health = 0;
     enum group_flag status = group_normal;
     groupid id;
     uint64_t frames_active = 0;

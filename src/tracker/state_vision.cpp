@@ -135,7 +135,6 @@ int state_vision::process_features(mapper *map)
     bool need_reference = true;
     state_vision_group *best_group = nullptr;
     state_vision_group *reference_group = nullptr;
-    int best_health = -1;
 
     //First: process groups, mark additional features for deletion
     for(auto &g : groups.children) {
@@ -156,10 +155,7 @@ int state_vision::process_features(mapper *map)
         if(g->status == group_reference) need_reference = false;
         
         if(g->status == group_normal) {
-            if(health > best_health) {
-                best_group = g.get();
-                best_health = g->health;
-            }
+            best_group = g.get();
         }
         g->frames_active++;
     }

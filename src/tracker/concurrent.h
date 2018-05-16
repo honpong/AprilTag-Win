@@ -30,6 +30,32 @@ void multiple_lock(T0& m0, T1& m1, T2& ...m2) {
     multiple_lock(0, m0, m1, m2...);
 }
 
+template<typename T0, typename Fun, typename... Args>
+typename std::result_of<typename std::decay<Fun>::type(typename std::decay<Args>::type...)>::type
+critical_section(T0& m0, Fun &&fun, Args &&...args) {
+    std::lock_guard<T0> lock0(m0);
+    return std::forward<Fun>(fun)(std::forward<Args>(args)...);
+}
+
+template<typename T0, typename T1, typename Fun, typename... Args>
+typename std::result_of<typename std::decay<Fun>::type(typename std::decay<Args>::type...)>::type
+critical_section(T0& m0, T1& m1, Fun &&fun, Args &&...args) {
+    multiple_lock(0, m0, m1);
+    std::lock_guard<T0> lock0(m0, std::adopt_lock);
+    std::lock_guard<T1> lock1(m1, std::adopt_lock);
+    return std::forward<Fun>(fun)(std::forward<Args>(args)...);
+}
+
+template<typename T0, typename T1, typename T2, typename Fun, typename... Args>
+typename std::result_of<typename std::decay<Fun>::type(typename std::decay<Args>::type...)>::type
+critical_section(T0& m0, T1& m1, T2& m2, Fun &&fun, Args &&...args) {
+    multiple_lock(0, m0, m1, m2);
+    std::lock_guard<T0> lock0(m0, std::adopt_lock);
+    std::lock_guard<T1> lock1(m1, std::adopt_lock);
+    std::lock_guard<T2> lock2(m2, std::adopt_lock);
+    return std::forward<Fun>(fun)(std::forward<Args>(args)...);
+}
+
 /** Auxiliary class to represent data shared among threads and protected
  * with a mutex.
  */
@@ -66,6 +92,12 @@ class concurrent {
     /* Returns the mutex.
      */
     M& mutex() const { return mutex_; }
+
+    /** Implements Lockable interface
+     */
+    void lock() const { mutex_.lock(); }
+    void unlock() const { mutex_.unlock(); }
+    bool try_lock() const { return mutex_.try_lock(); }
 
  private:
     T object_;

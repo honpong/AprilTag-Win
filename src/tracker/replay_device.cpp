@@ -80,9 +80,6 @@ void replay_device::setup_filter()
 {
     if (stream->pose_callback) rc_setDataCallback(tracker.get(), stream->pose_callback, stream->pose_handle);
     if (stream->status_callback) rc_setStatusCallback(tracker.get(), stream->status_callback, tracker.get());
-#ifdef MYRIAD2
-    rc_configureQueueStrategy(tracker.get(), rc_QUEUE_MINIMIZE_DROPS);
-#endif
 }
 
 #ifdef MYRIAD2
@@ -291,8 +288,12 @@ void replay_device::process_control(const packet_control_t *packet) {
     switch (packet->header.control_type) {
     case packet_enable_realtime: { is_realtime = true; break; }
     case packet_enable_qvga: { qvga = true; break; }
-    case packet_enable_qres: { qres = ((uint8_t *)packet->data)[0]; break; }
-    case packet_enable_async: { async = is_realtime = true; break; }
+    case packet_enable_qres: { qres = get_packet_item(packet); break; }
+    case packet_enable_async: {
+        async = is_realtime = true;
+        queue_strategy = rc_QUEUE_MINIMIZE_LATENCY;
+        break;
+    }
     case packet_enable_no_depth: { use_depth = false; break; }
     case packet_enable_fast_path: { fast_path = true; break; }
     case packet_enable_dynamic_calibration: { dynamic_calibration = true; break; }
@@ -302,21 +303,13 @@ void replay_device::process_control(const packet_control_t *packet) {
         break; 
     }
     case packet_enable_odometry: { use_odometry = true; break; }
-    case packet_enable_mesg_level: { message_level = (rc_MessageLevel)((const uint8_t *)packet->data)[0]; break; }
-    case packet_enable_mapping: { 
-        uint8_t save_map = ((uint8_t *)packet->data)[0];
-        rc_startMapping(tracker.get(), false, save_map);
-        break; 
-    }
-    case packet_set_queue_strategy: {
-        rc_TrackerQueueStrategy strategy;
-        memcpy(&strategy, packet->data, sizeof(rc_TrackerQueueStrategy));
-        rc_configureQueueStrategy(tracker.get(), strategy);
-        break;
-    }
+    case packet_enable_mesg_level: { message_level = get_packet_item(packet); break; }
+    case packet_enable_mapping: { rc_startMapping(tracker.get(), false, get_packet_item(packet)); break; }
+    case packet_set_queue_strategy: { queue_strategy = get_packet_item(packet); break; }
     case packet_enable_relocalization: { rc_startMapping(tracker.get(), true, true); break; }
     case packet_command_start: {
         if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, stream->message_handle, message_level);
+        rc_configureQueueStrategy(tracker.get(), queue_strategy);
         rc_startTracker(tracker.get(),
                         (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) |
                         (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH) |
@@ -357,14 +350,11 @@ void replay_device::process_control(const packet_control_t *packet) {
         }
         break;
     }
-    case packet_delay_start: {
-        memcpy(&delay_start, packet->data, sizeof(uint64_t));
-        break;
-    }
+    case packet_delay_start: { delay_start = get_packet_item(packet); break; }
     case packet_command_step: { is_paused = is_stepping = true; break; }
     case packet_command_next_pause: {
-        auto *packet_command = (uint64_t *)packet->data;
-        next_pause = packet_command[0];
+        rc_Timestamp pause_time = get_packet_item(packet);
+        next_pause = pause_time;
         break;
     }
     case packet_command_toggle_pause: { is_paused = !is_paused; break; }
@@ -385,7 +375,7 @@ void replay_device::process_control(const packet_control_t *packet) {
     }
     case packet_storage_stat: {
         rc_StorageStats storage_stat = rc_getStorageStats(tracker.get());
-        stream->put_device_packet(packet_control_alloc(packet_storage_stat, (char *)&storage_stat, sizeof(rc_StorageStats)));
+        stream->put_device_packet(packet_single_control_alloc(packet_storage_stat, storage_stat));
         break;
     }
     case packet_set_stage: { set_stage(); break; }

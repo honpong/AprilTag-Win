@@ -74,8 +74,7 @@ bool file_stream::read_header(packet_header_t *header, bool control_only) {
                 break;
             }
             case packet_enable_output_mode: {
-                auto mode = (replay_output::output_mode)((const uint8_t *)packet->data)[0];
-                track_output[rc_DATA_PATH_SLOW].set_output_type(mode);
+                track_output[rc_DATA_PATH_SLOW].set_output_type(get_packet_item(packet));
                 break;
             }
             case packet_load_map: {
@@ -145,7 +144,7 @@ void file_stream::put_device_packet(const rc_packet_t &device_packet) {
     if (!device_packet) return;
     switch (get_packet_type(device_packet)) {
     case packet_timing_stat: { tracking_stat.assign((const char*)device_packet->data); break; }
-    case packet_storage_stat: { memcpy(&storage_stat, device_packet->data, sizeof(rc_StorageStats)); break; }
+    case packet_storage_stat: { storage_stat = get_packet_item(device_packet); break; }
     case packet_camera_extrinsics: {
         memcpy(&camera_extrinsics[0], device_packet->data, 2 * sizeof(rc_Extrinsics));
         break;

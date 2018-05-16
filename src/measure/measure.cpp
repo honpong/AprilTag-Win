@@ -148,9 +148,12 @@ int main(int c, char **v)
         if (dynamic_calibration) rp.enable_dynamic_calibration();
         if(async) rp.enable_async();
         if(usb_sync) rp.enable_usb_sync();
-        if(!benchmark && enable_gui)
-            rp.set_replay_output_mode((show_feature ? (uint8_t)replay_output::output_mode::POSE_FEATURE : 0)
-                + (show_map ? (uint8_t)replay_output::output_mode::POSE_MAP : 0));
+        if (!benchmark && enable_gui) {
+            typedef replay_output::output_mode om;
+            om mode = show_map ?    (show_feature ? om::POSE_FEATURE_MAP    : om::POSE_MAP) :
+                                    (show_feature ? om::POSE_FEATURE        : om::POSE_ONLY);
+            rp.set_replay_output_mode(mode);
+        }
         if(pause_at) {
             rc_Timestamp pause_time = 0;
             try {

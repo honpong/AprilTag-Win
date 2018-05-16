@@ -21,6 +21,7 @@ private:
     bool fast_path{ false }, to_zero_biases{ false }, use_odometry{ false }, stereo_configured{ false }, dynamic_calibration{ false };
     uint8_t qres{ 0 };
     std::chrono::microseconds realtime_offset{ 0 };
+    rc_TrackerQueueStrategy queue_strategy{ rc_QUEUE_MINIMIZE_DROPS };
     void setup_filter();
     void process_data(rc_packet_t &phandle);
     void process_control(const packet_control_t *packet);

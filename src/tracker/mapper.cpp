@@ -1176,7 +1176,7 @@ bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
 
     if(!cur_map.nodes->empty()) {
         auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
-        auto is_node_searched = [&cur_map](const mapper::node_path& path) { return true; };
+        auto is_node_searched = [](const mapper::node_path& path) { return true; };
         auto finish_search = [](const mapper::node_path& path) { return false; };
         auto loaded_map_nodes = cur_map.dijkstra_shortest_path(mapper::node_path{0, transformation(quaternion::Identity(), v3(-10, 0, 0)), 0},
                                                                distance, is_node_searched, finish_search);

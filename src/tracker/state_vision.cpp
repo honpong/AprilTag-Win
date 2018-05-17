@@ -274,7 +274,7 @@ bool state_vision::get_group_transformation(const groupid group_id, transformati
     return false;
 }
 
-void state_camera::process_tracks(mapper *map, spdlog::logger &log)
+void state_camera::process_tracks(mapper *map)
 {
     for(auto &t : tracks) {
         if(!t.feature.tracks_found) {
@@ -288,7 +288,7 @@ void state_camera::process_tracks(mapper *map, spdlog::logger &log)
             t.feature.make_outlier();
     }
 
-    standby_tracks.remove_if([&map, &log](const tracker::feature_track &t) {
+    standby_tracks.remove_if([&map](const tracker::feature_track &t) {
         if(map && !t.found()) map->finish_lost_tracks(t);
         return !t.found();
     });

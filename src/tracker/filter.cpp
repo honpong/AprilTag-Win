@@ -999,7 +999,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         else
             ++i;
 
-    camera_state.process_tracks(f->map.get(), *f->log);
+    camera_state.process_tracks(f->map.get());
     auto healthy_features = f->s.process_features(f->map.get());
     filter_update_outputs(f, time, healthy_features == 0);
     f->s.remap();

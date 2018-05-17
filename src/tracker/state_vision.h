@@ -220,7 +220,7 @@ struct state_camera: state_branch<state_node*> {
     void update_feature_tracks(const sensor_data &data);
     void update_map_tracks(const sensor_data &data, mapper *map, const size_t min_group_map_add, const groupid closest_group_id, const transformation &G_Bclosest_Bnow);
     size_t track_count() const;
-    void process_tracks(mapper *map, spdlog::logger &log);
+    void process_tracks(mapper *map);
 
     size_t detecting_space = 0;
     size_t detected_features = 0;

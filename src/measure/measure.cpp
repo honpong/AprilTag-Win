@@ -246,7 +246,7 @@ int main(int c, char **v)
             std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
-    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &fast_path, &threads, &tracking_confidence]
+    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &fast_path, &tracking_confidence]
         (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, gt_generator &loop_gt, const replay_output *rp_output, const rc_Data *data, std::ostream *pose_st) {
         tracking_confidence = (rc_TrackerConfidence) rp_output->confidence;
         rc_PoseTime current_pose = rp_output->rc_getPose(rp_output->data_path);

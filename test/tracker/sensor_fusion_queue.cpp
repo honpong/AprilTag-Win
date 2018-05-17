@@ -568,7 +568,7 @@ TEST(SensorFusionQueue, BufferNoDispatch)
     rc_Timestamp start_time_us = 1000000;
     rc_Timestamp last_time_us = 0;
 
-    auto dataf = [&last_time_us, &start_time_us, &buffer_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv](sensor_data && x) {
+    auto dataf = [&last_time_us, &camrcv, &deprcv, &accrcv, &gyrrcv, &tmprcv](sensor_data && x) {
         EXPECT_GE(x.time_us, last_time_us);
         last_time_us = x.time_us;
         switch(x.type) {

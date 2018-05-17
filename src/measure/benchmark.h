@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <algorithm>
+#include <set>
 #include <vec4.h>
 #include <tpose.h>
 #include <rc_tracker.h>

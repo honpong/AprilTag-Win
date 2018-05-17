@@ -336,7 +336,7 @@ void sensor_fusion::start(bool thread, bool fast_path_, bool dynamic_calibration
     filter_start(&sfm);
     queue.start(thread);
     set_priority(PRIORITY_SLAM_FASTPATH);
-    queue.dispatch_async([this]() { set_priority(PRIORITY_SLAM_SLOWPATH); });
+    queue.dispatch_async([]() { set_priority(PRIORITY_SLAM_SLOWPATH); });
 }
 
 void sensor_fusion::pause_and_reset_position()

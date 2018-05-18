@@ -18,6 +18,7 @@
 #include "rs-box-app.hpp"
 
 #if 0
+
 int main(int argc, char* argv[])
 {
     rs2::context ctx;
@@ -26,35 +27,9 @@ int main(int argc, char* argv[])
     pipe.start();
     return 0;
 }
+
 #else
-#if 0
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "../third-party/stb_image.h"
-#include <fstream>
-void write_icon(){
-    int icon_w, icon_h, icon_n;
-    auto *icon_data = stbi_load("C:\\temp\\unit.png", &icon_w, &icon_h, &icon_n, 0);
-
-
-    std::ofstream myfile; myfile.open("C:\\temp\\unit.txt", std::ios::out);
-    for (int y = 0; y < icon_h; ++y, myfile << std::endl) {
-        printf("\r%d", y);
-        for (int x = 0; x < icon_w; ++x, myfile << ",") {
-            myfile << "0x";
-            for (int c = 0; c < 1; ++c) {
-                char tmp[32];
-                sprintf(tmp, "%02x", icon_data[(y*icon_w + x) * icon_n + c]);
-                myfile << tmp;
-            }
-        }
-    }
-}
-
-#endif
-
-
-    
 int main(int argc, char* argv[])
 {
     std::string calibration_read_path = "", calibration_save_path = "";

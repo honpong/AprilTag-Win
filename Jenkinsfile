@@ -95,6 +95,7 @@ pipeline {
                 }
                 stage('Run TM2 benchmark') {
                     agent { label 'tm2' }
+                    options { skipDefaultCheckout() }
                     steps {
                         timeout(time: 10, unit: 'MINUTES') {
                             unstash 'hub'

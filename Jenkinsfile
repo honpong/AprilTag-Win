@@ -11,6 +11,12 @@ pipeline {
                         slackSend color: "#439FE0", message: slack_build_message("started")
                         sh "cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT}"
                         sh "cmake --build build -- -j"
+                        stash includes: 'build/measure', name: 'measure'
+                        stash includes: 'build/mv-usb-boot', name: 'mv-usb-boot'
+                        stash includes: 'build/hub', name: 'hub'
+                        dir("build/src") {
+                            stash includes: 'libtracker.so', name: 'libtracker'
+                        }
                     }
                 }
             }
@@ -28,6 +34,9 @@ pipeline {
                     export MV_COMMON_BASE="$(realpath --relative-to=src/movidius/device "$MV_COMMON_BASE")"
                     make -C src/movidius/device -j DirAppRelativeMdk=/src/movidius/device
                 '''
+                dir("src/movidius/device/output") {
+                    stash name: 'device.mvcmd', includes: 'device.mvcmd'
+                }
             }
         }
         stage('Prepare Benchmark') {
@@ -82,6 +91,22 @@ pipeline {
                     steps {
                         bat "cmake -Bbuild64 -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A x64"
                         bat "cmake --build build64 --config RelWithDebInfo"
+                    }
+                }
+                stage('Run TM2 benchmark') {
+                    agent { label 'tm2' }
+                    steps {
+                        timeout(time: 10, unit: 'MINUTES') {
+                            unstash 'hub'
+                            sh 'build/hub --disableport 0,1 --enableport 0,1 --delay 100'
+                            unstash 'mv-usb-boot'
+                            unstash 'device.mvcmd'
+                            sh 'build/mv-usb-boot device.mvcmd'
+                            unstash 'measure'
+                            unstash 'libtracker'
+                            sh 'build/mv-usb-boot -v 0x040E -p 0xF63B :re'
+                            sh 'build/measure --tm2 --no-gui --relocalize "$HOME/benchmark_data/new_test_suite/WW50/VR_with_ctrl/Shooter(Raw_Data)/VR_RD_with_ctrl_1.stereo.rc"'
+                        }
                     }
                 }
             }

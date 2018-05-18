@@ -124,6 +124,9 @@ pipeline {
         failure {
             slackSend color: "#FF0000", message: slack_build_message("<$BUILD_URL/console|failed>")
         }
+        aborted {
+            slackSend color: "#FF00FF", message: slack_build_message("<$BUILD_URL/console|aborted>")
+        }
     }
 }
 

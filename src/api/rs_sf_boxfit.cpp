@@ -648,6 +648,7 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const pose_t&
                 v3 dir_d = (s == 0 ? 1 : -1) * axis.col(d);
                 // for each box history
                 for (const auto& bh : box_history) {
+                    // only sort dimension measured within fov
                     if (bh.clear_dir[d][s]) {
                         // 3 box axis in actual length
                         const auto u = bh.half_dir((d + 1) % 3);
@@ -659,7 +660,6 @@ bool rs_sf_boxfit::tracked_box::try_update(const plane_pair& pair, const pose_t&
                         for (const auto& c : pl) {
                             c_min = std::min(c_min, (c + bh.center - center).dot(dir_d));
                         }
-                        // only sort dimension measured within fov
                         sort_half_dim.emplace_back(c_min);
                     }
                 }

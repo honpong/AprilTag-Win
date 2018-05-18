@@ -12,6 +12,8 @@
  implied warranties, other than those that are expressly stated in the License.
 
 *******************************************************************************/
+#pragma once
+
 #ifndef rs_icon_h
 #define rs_icon_h
 
@@ -30,5 +32,4 @@ extern const unsigned char icon_number_data[73][674][1];
 
 extern const unsigned char icon_mm3_data[73][194][1];
 
-
-#endif
+#endif /* rs_icoh_h*/

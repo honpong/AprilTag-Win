@@ -12,6 +12,8 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 //  boxsdk
 //
 #pragma once
+#ifndef rs_box_app_hpp
+#define rs_box_app_hpp
 
 #define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
@@ -690,3 +692,4 @@ private:
     int _mov_color_pixel_thr;           // motion color pixel threshold
     float _mov_color_pixel_min_percent; // minimum percent of moving color pixel
 };
+#endif /* rs_box_app_hpp */

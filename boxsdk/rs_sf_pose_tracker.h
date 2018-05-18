@@ -13,6 +13,10 @@
  
  *******************************************************************************/
 #pragma once
+
+#ifndef rs_sf_pose_tracker_h
+#define rs_sf_pose_tracker_h
+
 #include <memory>
 #include "librealsense2/rs.hpp"
 #include "rs_shapefit.h"
@@ -108,3 +112,4 @@ namespace rs2
         }
     };
 }
+#endif /* rs_sf_pose_tracker_h */

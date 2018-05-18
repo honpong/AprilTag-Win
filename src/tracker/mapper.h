@@ -63,16 +63,17 @@ struct frame_t {
 
     inline void calculate_dbow(const orb_vocabulary *orb_voc) {
         // copy pyramid descriptors to a vector of descriptors
-        constexpr int direct_file_level = std::numeric_limits<int>::max();  // change to enable
+        constexpr int levelsup = std::numeric_limits<int>::max();  // consider all the tree
+        constexpr bool use_direct_file = false;
         auto get_descriptor = [](const decltype(keypoints)::value_type &kp) -> const orb_descriptor::raw & {
                 return kp->descriptor.orb.descriptor;
         };
-        if (direct_file_level < orb_voc->getDepthLevels()) {
+        if (use_direct_file) {
             dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor,
-                                                dbow_direct_file, direct_file_level);
+                                                dbow_direct_file, levelsup);
         } else {
             dbow_direct_file.clear();
-            dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor);
+            dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor, levelsup);
         }
     }
 #ifdef RELOCALIZATION_DEBUG

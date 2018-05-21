@@ -159,11 +159,11 @@ void mapper::initialize_track_triangulation(const tracker::feature_track& track,
 void mapper::finish_lost_tracks(const tracker::feature_track& track) {
     auto tp = triangulated_tracks.find(track.feature->id);
     if (tp != triangulated_tracks.end()) {
-        auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(track.feature);
         if (tp->second.track_count > MIN_FEATURE_TRACKS && tp->second.parallax > MIN_FEATURE_PARALLAX) {
-            add_feature(tp->second.reference_nodeid, f, tp->second.state, feature_type::triangulated);
+            add_feature(tp->second.reference_nodeid, std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(track.feature),
+                        tp->second.state, feature_type::triangulated);
         }
-        triangulated_tracks.erase(track.feature->id);
+        triangulated_tracks.erase(tp);
     } else {
         log->debug("Not enough support/parallax to add triangulated point with id: {}", track.feature->id);
     }

@@ -8,16 +8,16 @@
 struct shave_entry_point { int shave; u32 *entry_point; };
 
 extern u32 detect4_fast_detect;
-extern u32 detect8_fast_detect;
-extern u32 detect9_fast_detect;
-extern u32 detect10_fast_detect;
+extern u32 detect5_fast_detect;
+extern u32 detect6_fast_detect;
+extern u32 detect7_fast_detect;
 
 #define DETECT_SHAVES 4
 static shave_entry_point fast_detect[DETECT_SHAVES] = {
     {4,  &detect4_fast_detect},
-    {8,  &detect8_fast_detect},
-    {9,  &detect9_fast_detect},
-    {10, &detect10_fast_detect},
+    {5,  &detect5_fast_detect},
+    {6,  &detect6_fast_detect},
+    {7,  &detect7_fast_detect},
 };
 
 fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, scaled_mask &mask, size_t need, size_t &found)

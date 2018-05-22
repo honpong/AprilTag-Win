@@ -14,18 +14,18 @@ __attribute__((section(".cmx_direct.data"))) orb_data descriptors[MAX_NUM_DESC];
 __attribute__((section(".cmx_direct.data"))) float kp_xy[MAX_NUM_DESC * 2];
 
 extern u32 orb4_compute_descriptors;
-extern u32 orb8_compute_descriptors;
-extern u32 orb9_compute_descriptors;
-extern u32 orb10_compute_descriptors;
+extern u32 orb5_compute_descriptors;
+extern u32 orb6_compute_descriptors;
+extern u32 orb7_compute_descriptors;
 
 #define ORB_SHAVES 4
 struct shave_entry_point { int shave; u32 *entry_point; };
 
 shave_entry_point compute_descriptors[ORB_SHAVES] = {
-    {4,  &orb4_compute_descriptors},
-    {8,  &orb8_compute_descriptors},
-    {9,  &orb9_compute_descriptors},
-    {10, &orb10_compute_descriptors},
+    {4, &orb4_compute_descriptors},
+    {5, &orb5_compute_descriptors},
+    {6, &orb6_compute_descriptors},
+    {7, &orb7_compute_descriptors},
 };
 
 void compute_orb_multiple_shaves(const tracker::image &image, fast_tracker::fast_feature<patch_orb_descriptor>* keypoints[], float *keypoint_xy, size_t num_keypoints)

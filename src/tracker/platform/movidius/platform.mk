@@ -107,12 +107,12 @@ ENTRYPOINTS_project_covariance = vision_project_motion_covariance vision_project
 ENTRYPOINTS_blis = startSGEMM startSGEMMTRSM_LL startSGEMMTRSM_LU startSGEMMTRSM_RU startSGEMMTRSM_RL
 ENTRYPOINTS_orb = compute_descriptors
 ENTRYPOINTS_cholesky = potrf_ln
-SHAVES_IDX_detect             = 4 8 9 10
+SHAVES_IDX_detect             = 4 5 6 7
 SHAVES_IDX_track              = 0 1 2 3
 SHAVES_IDX_stereo_initialize  = 0 1 2 3
 SHAVES_IDX_project_covariance = 0 1 2 3
 SHAVES_IDX_blis               = 0 1 2 3
-SHAVES_IDX_orb                = 4 8 9 10
+SHAVES_IDX_orb                = 4 5 6 7
 SHAVES_IDX_cholesky           = 0
 
 SHAVE_CPP_AUTOSTAT_SOURCES_detect += $(SHAVE_SEARCH_PATH)/stereo_initialize/common_shave.cpp

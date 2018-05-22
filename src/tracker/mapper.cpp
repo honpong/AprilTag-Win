@@ -426,7 +426,9 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
         case DBoW2::ScoringType::KL:
         case DBoW2::ScoringType::CHI_SQUARE:
             return p1.second < p2.second;
-        default:
+        case DBoW2::ScoringType::L1_NORM:
+        case DBoW2::ScoringType::L2_NORM:
+        case DBoW2::ScoringType::BHATTACHARYYA:
             return p1.second > p2.second;
         }
     });

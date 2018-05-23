@@ -24,6 +24,7 @@
 #include "orb_descriptor.h"
 #include "DBoW2/TemplatedVocabulary.h"
 #include "descriptor.h"
+#include "concurrent.h"
 #ifdef RELOCALIZATION_DEBUG
 #include <opencv2/core/mat.hpp>
 #include "debug/visual_debug.h"
@@ -193,49 +194,6 @@ class mapper {
         };
     };
 
- private:
-    /** Auxiliary class to represent data shared among threads and protected
-     * with a mutex.
-     */
-    template<typename T, typename M = std::mutex>
-    class concurrent {
-     public:
-        typedef T value_type;
-
-        /** Runs an arbitrary function after acquiring the mutex.
-         * The given function can safely use the concurrent data.
-         * The calling thread is blocked if necessary.
-         */
-        template<typename Fun, typename... Args>
-        typename std::result_of<typename std::decay<Fun>::type(typename std::decay<Args>::type...)>::type
-        critical_section(Fun &&fun, Args &&...args) const {
-            std::lock_guard<M> lock(mutex_);
-            return std::forward<Fun>(fun)(std::forward<Args>(args)...);
-        }
-
-        template<typename Result, typename Obj, typename ...MArgs, typename ...Args>
-        Result
-        critical_section(Result (Obj::*m)(MArgs...), Obj *obj, Args &&...args) const {
-            std::lock_guard<M> lock(mutex_);
-            return (obj->*m)(std::forward<Args>(args)...);
-        }
-
-        /** Access to data. Unsafe unless used inside critical_section.
-         */
-        T* operator->() { return &object_; }
-        const T* operator->() const { return &object_; }
-        T& operator*() { return object_; }
-        const T& operator*() const { return object_; }
-
-        /* Returns the mutex.
-         */
-        M& mutex() const { return mutex_; }
-
-     private:
-        T object_;
-        mutable M mutex_;
-    };
-
  protected:
     // Note about concurrency:
     // The concurrent functions are:
@@ -324,6 +282,7 @@ private:
     void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                      std::shared_ptr<log_depth> v, const feature_type type = feature_type::tracked);
+    void remove_feature(nodeid node_id, featureid feature_id);
     void set_feature_type(nodeid node_id, featureid feature_id, const feature_type type = feature_type::tracked);
     void initialize_track_triangulation(const tracker::feature_track &track, const nodeid node_id);
     void finish_lost_tracks(const tracker::feature_track &track);

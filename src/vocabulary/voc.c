@@ -1,3 +1,6 @@
+// update this line whenever the file pointed to by incbin has changed
+static const int voc_version = 2;
+
 #ifndef _MSC_VER
 __asm__(
 #ifdef __APPLE__

@@ -2,6 +2,7 @@ pipeline {
     agent { label 'linux' }
     environment {
         CCACHE_BASEDIR = "${env.WORKSPACE}"
+        CTEST_OUTPUT_ON_FAILURE = 1
     }
     stages {
         stage('Build') {

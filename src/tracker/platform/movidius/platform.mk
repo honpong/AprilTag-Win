@@ -49,6 +49,8 @@ SLAM_C_SOURCES += $(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.c)
 SLAM_SOURCES   += $(SLAM_PREFIX)/src/vocabulary/resource.cpp
 SLAM_C_SOURCES += $(SLAM_PREFIX)/src/vocabulary/voc.c
 
+VOC_VERSION := $(md5sum $(SLAM_PREFIX)/src/vocabulary/voc_k20_L4_64.bin)
+
 $(SLAM_PREFIX)/src/vocabulary/voc.c: \
 $(SLAM_PREFIX)/src/vocabulary/voc_k20_L4_64.bin
 
@@ -83,6 +85,7 @@ SLAM_CCOPT   := \
 	-Wno-sign-compare \
 	-fno-strict-aliasing \
 	-DVOC_DIR='"$(SLAM_PREFIX)/src/vocabulary/"' \
+	-DVOC_VERSION='"$(VOC_VERSION)"' \
 	-DRAPIDJSON_64BIT=1 \
 	-DEIGEN_STACK_ALLOCATION_LIMIT=1024 \
 	-MD \

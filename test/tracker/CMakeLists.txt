@@ -4,7 +4,9 @@ add_executable(spec
   vec4.cpp
   rotation_vector.cpp
   quaternion.cpp
-  transformation.cpp
+  transformation_cov.cpp
+  estimate_horn.cpp
+  estimate_epnp.cpp
   matrix.cpp
   remapper.cpp
   utils.cpp

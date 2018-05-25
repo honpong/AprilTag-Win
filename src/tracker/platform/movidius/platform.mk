@@ -21,7 +21,11 @@ SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/src/tracker/, \
     mapper.cpp \
     dictionary.cpp \
     remapper.cpp \
-    transformation.cpp \
+    transformation_cov.cpp \
+    estimate_horn.cpp \
+    estimate_epnp.cpp \
+    estimate_fundamental.cpp \
+    estimate_3d_point.cpp \
     map_loader.cpp \
 )
 SLAM_SOURCES += $(SLAM_PREFIX)/src/tracker/platform/shell/sensor_clock.cpp

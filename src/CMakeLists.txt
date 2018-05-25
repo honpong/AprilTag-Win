@@ -39,7 +39,11 @@ set(TRACKER_SOURCES
     tracker/sensor_fusion_queue.cpp
     tracker/rotation_vector.cpp
     tracker/matrix.cpp
-    tracker/transformation.cpp
+    tracker/transformation_cov.cpp
+    tracker/estimate_horn.cpp
+    tracker/estimate_epnp.cpp
+    tracker/estimate_fundamental.cpp
+    tracker/estimate_3d_point.cpp
     tracker/filter.cpp
     tracker/state_vision.cpp
     tracker/state_motion.cpp

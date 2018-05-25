@@ -14,6 +14,7 @@
 #include "resource.h"
 #include "state_vision.h"
 #include "quaternion.h"
+#include "estimate.h"
 #include "fast_tracker.h"
 #include "descriptor.h"
 #include "Trace.h"

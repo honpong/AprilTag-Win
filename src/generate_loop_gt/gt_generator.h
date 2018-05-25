@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <tuple>
+#include <set>
 #include <unordered_set>
 #include "loop_tester.h"
 #include "rc_tracker.h"

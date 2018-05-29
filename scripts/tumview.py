@@ -77,6 +77,8 @@ def read_tum(filename, args) :
         if args.tum == False:
             if len(data) > 8:
                 device_id = int(data[8])
+            if len(data) > 9:
+                confidence = int(data[9])
         if (device_id in d.keys()) == False:
             d[device_id] = { TIME: [], X:[], Y:[], Z:[], D:[], AX:[], AY: [], AZ: []}
 

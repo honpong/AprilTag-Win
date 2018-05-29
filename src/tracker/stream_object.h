@@ -184,7 +184,6 @@ union packet_aligned_item {
 template<typename T>
 static inline rc_packet_t packet_single_control_alloc(uint8_t control_type, const T &data) {
     union packet_aligned_item<T> transfer = {};
-    memset(&transfer.aligned, 0, sizeof(transfer.aligned));
     transfer.data = data;
     return packet_control_alloc(control_type, (char *)&transfer, sizeof(transfer));
 }

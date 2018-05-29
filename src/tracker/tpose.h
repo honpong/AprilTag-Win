@@ -8,9 +8,9 @@
 #include "transformation.h"
 
 struct tpose_tum {
-    double t_s; v3 T_m; quaternion Q;
-    tpose_tum() : t_s(0), T_m(v3::Zero()), Q(quaternion::Identity()) {}
-    tpose_tum(double t_s_, const transformation &G_m) : t_s(t_s_), T_m(G_m.T), Q(G_m.Q) {};
+    double t_s; v3 T_m; quaternion Q; int id; int confidence;
+    tpose_tum() : t_s(0), T_m(v3::Zero()), Q(quaternion::Identity()), id(0), confidence(0) {}
+    tpose_tum(double t_s_, const transformation &G_m, int id_ = 0, int confidence_ = 0) : t_s(t_s_), T_m(G_m.T), Q(G_m.Q), id(id_), confidence(confidence_) {};
     tpose_tum(const char *line) : tpose_tum() {
         size_t end = 0;
         // the +1s below skip the ',' delimiter
@@ -21,6 +21,16 @@ struct tpose_tum {
         Q.y() = (f_t)std::stod(line+=end+1, &end);
         Q.z() = (f_t)std::stod(line+=end+1, &end);
         Q.w() = (f_t)std::stod(line+=end+1, &end);
+
+#ifndef MYRIAD2 // Doesn't support exceptions
+        try {
+#endif
+            id         = std::stoi(line+=end+1, &end);
+            confidence = std::stoi(line+=end+1, &end);
+#ifndef MYRIAD2
+        } catch (const std::exception&) {} // invalid_argument or out_of_range
+#endif
+
     }
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -28,8 +38,9 @@ struct tpose_tum {
 static inline std::ostream& operator<<(std::ostream &stream, const tpose_tum &tp)
 {
     return stream  << std::setprecision(9) << std::fixed << tp.t_s << " " <<
-        tp.T_m.x() << " " << tp.T_m.y() << " " << tp.T_m.z() << " " <<
-        tp.Q.x()   << " " << tp.Q.y()   << " " << tp.Q.z()   << " " << tp.Q.w() << "\n";
+        tp.T_m.x() << " " << tp.T_m.y()    << " " << tp.T_m.z() << " " <<
+        tp.Q.x()   << " " << tp.Q.y()      << " " << tp.Q.z()   << " " << tp.Q.w() << " " <<
+        tp.id      << " " << tp.confidence << "\n";
 }
 
 struct tpose_vicon {
@@ -71,9 +82,9 @@ struct tpose_raw {
 };
 
 struct tpose {
-    tpose(const tpose_raw &r) : t(sensor_clock::ns100_to_tp(r.t_100ns)), G(to_quaternion(r.R), r.T_mm / 1000) {}
-    tpose(const tpose_vicon &v) : t(sensor_clock::s_ns_to_tp(v.t_s, v.t_ns)), G(v.Q, v.T_m) {}
-    tpose(const tpose_tum &v) : t(sensor_clock::s_to_tp(v.t_s)), G(v.Q, v.T_m) {}
+    tpose(const tpose_raw &r) : t(sensor_clock::ns100_to_tp(r.t_100ns)), G(to_quaternion(r.R), r.T_mm / 1000), id(0), confidence(0) {}
+    tpose(const tpose_vicon &v) : t(sensor_clock::s_ns_to_tp(v.t_s, v.t_ns)), G(v.Q, v.T_m), id(0), confidence(0) {}
+    tpose(const tpose_tum &v) : t(sensor_clock::s_to_tp(v.t_s)), G(v.Q, v.T_m), id(v.id), confidence(v.confidence) {}
     tpose(sensor_clock::time_point t_) : t(t_) {}
     tpose(const sensor_clock::time_point & t_, const transformation & G_) : t(t_), G(G_) {}
     tpose(const sensor_clock::time_point & t_, const tpose &tp0, const tpose &tp1) : t(t_) {
@@ -83,6 +94,8 @@ struct tpose {
     }
     sensor_clock::time_point t;
     transformation G;
+    int id;
+    int confidence;
     bool operator<(const struct tpose &tp) const {
         return t < tp.t;
     };

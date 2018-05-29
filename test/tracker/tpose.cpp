@@ -129,7 +129,36 @@ TEST(TPoseSequence, TumParse)
     EXPECT_EQ(ts.tposes.front().t, sensor_clock::s_to_tp(1403636580.838555098));
     EXPECT_EQ(ts.tposes.back().t, sensor_clock::s_to_tp(1403636580.883554935));
 
+    EXPECT_EQ(ts.tposes.front().confidence, 0);
+    EXPECT_EQ(ts.tposes.front().id, 0);
+
     EXPECT_NEAR(ts.get_length(), 0.0364296101033687592, .00001);
     EXPECT_NEAR(ts.get_path_length(), 0.0364296846091747284, .00001);
 
+}
+
+static const std::string tumx_pose_data =
+"1403636580.838555098 4.688319206 -1.786937952 0.783338010 -0.153028995 -0.827382982 -0.082152002 0.534107983 0 1\n"
+"1403636580.843554974 4.688177109 -1.786769986 0.787349999 -0.152989998 -0.826976001 -0.082863003 0.534640014 0 2\n"
+"1403636580.848555088 4.688027859 -1.786597967 0.791382015 -0.152944997 -0.826561987 -0.083604999 0.535178006 1 3\n";
+
+TEST(TPoseSequence, TumXParse)
+{
+    std::string data(tumx_pose_data);
+    std::stringstream f(data);
+    tpose_sequence ts;
+    ts.format = tpose_sequence::FORMAT_TUM;
+    f >> ts;
+    EXPECT_TRUE(f.eof());
+    EXPECT_FALSE(f.fail());
+    EXPECT_FALSE(f.bad());
+    EXPECT_EQ(ts.tposes.size(), 3);
+
+    EXPECT_EQ(ts.tposes.front().t, sensor_clock::s_to_tp(1403636580.838555098));
+    EXPECT_EQ(ts.tposes.back().t, sensor_clock::s_to_tp(1403636580.848555088));
+
+    EXPECT_EQ(ts.tposes.front().confidence, 1);
+    EXPECT_EQ(ts.tposes.back().confidence, 3);
+    EXPECT_EQ(ts.tposes.front().id, 0);
+    EXPECT_EQ(ts.tposes.back().id, 1);
 }

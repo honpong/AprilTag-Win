@@ -299,8 +299,9 @@ int main(int c, char **v)
                                      loop_gt.get_reference_poses());
             }
         }
+        const int device_id = 0;
         if(pose_st && rp_output->data_path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW))
-            *pose_st << tpose_tum(current_pose.time_us/1e6, to_transformation(current_pose.pose_m));
+            *pose_st << tpose_tum(current_pose.time_us/1e6, to_transformation(current_pose.pose_m), device_id, tracking_confidence);
         if (enable_gui || render_output)
             ws.rc_data_callback(rp_output, data);
         if (enable_gui && rp_output->sensor_type == rc_SENSOR_TYPE_DEBUG && data->debug.pause)

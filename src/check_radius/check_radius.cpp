@@ -20,37 +20,38 @@ int main(int argc, char ** argv)
     float margin = stof(argv[4]);
     cout << "Comparing " << argv[1] << " and " << argv[2] << " with radius " << radius << "m and margin " << margin << "m\n";
 
-    bool first_pose = false;
     tpose first_tm2_pose(sensor_clock::s_to_tp(0));
-    tpose first_gt_pose(sensor_clock::s_to_tp(0));
 
     uint64_t poses = 0;
     uint64_t total_time_us = 0;
     float max_dist = 0;
     float max_dist_gt = 0;
-    std::vector<uint64_t> unsafe_intervals;
     std::vector<uint64_t> gt_outside_times;
     std::vector<uint64_t> tm2_outside_times;
     tpose_sequence shifted_tm2;
     tpose_sequence shifted_gt;
-    m3 dR, dR2;
-    v3 tm2_center_offset;
+
+    transformation G;
+    for(auto &pose : pose_sequence.tposes) {
+        tpose gt_interp(pose.t);
+        if(gt_sequence.get_pose(pose.t, gt_interp)) {
+            first_tm2_pose = pose;
+            G = pose.G*invert(gt_interp.G);
+            break;
+        }
+    }
 
     v3 gt_center(0,0,0);
     uint64_t gt_count = 0;
-    uint64_t middle_pose = pose_sequence.tposes.size()/2;
     for(auto &pose : pose_sequence.tposes) {
         tpose gt_interp(pose.t);
         if(gt_sequence.get_pose(pose.t, gt_interp)) {
             gt_count++;
             gt_center += gt_interp.G.T;
         }
-        if(gt_count == middle_pose) {
-            dR = (pose.G.Q*gt_interp.G.Q.inverse()).toRotationMatrix();
-        }
     }
     gt_center /= gt_count;
-
+    transformation G_tm2_center(quaternion::Identity(), -(G*gt_center));
 
     struct stat {
         int total, good;
@@ -68,26 +69,17 @@ int main(int argc, char ** argv)
     for(auto &pose : pose_sequence.tposes) {
         tpose gt_interp(pose.t);
         if(gt_sequence.get_pose(pose.t, gt_interp)) {
-            if(!first_pose) {
-                first_pose = true;
-                first_tm2_pose = pose;
-                first_gt_pose = gt_interp;
-                dR2 = (first_tm2_pose.G.Q*first_gt_pose.G.Q.inverse()).toRotationMatrix();
-                tm2_center_offset = -dR2*(gt_center - first_gt_pose.G.T);
-            }
-
-            v3 dt_now = pose.G.T - first_tm2_pose.G.T + tm2_center_offset;
-            v3 dt_now_gt = dR2*(gt_interp.G.T - first_gt_pose.G.T) + tm2_center_offset;
             tpose now(pose.t);
             tpose now_gt(pose.t);
-            now.G = transformation(quaternion(1,0,0,0), dt_now);
-            now_gt.G = transformation(quaternion(1,0,0,0), dt_now_gt);
+            now.G = G_tm2_center*pose.G;
+            now_gt.G = G_tm2_center*G*gt_interp.G;
+
             shifted_tm2.tposes.push_back(now);
             shifted_gt.tposes.push_back(now_gt);
             poses++;
 
-            float tm2_dist = sqrt(dt_now[0]*dt_now[0] + dt_now[1]*dt_now[1]);
-            float gt_dist = sqrt(dt_now_gt[0]*dt_now_gt[0] + dt_now_gt[1]*dt_now_gt[1]);
+            float tm2_dist = now.G.T.head(2).norm();
+            float gt_dist = now_gt.G.T.head(2).norm();
 
             if(gt_dist > max_dist_gt) max_dist_gt = gt_dist;
             if(tm2_dist > max_dist) max_dist = tm2_dist;

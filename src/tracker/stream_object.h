@@ -183,8 +183,7 @@ union packet_aligned_item {
 /// creates a packet for a single data type.
 template<typename T>
 static inline rc_packet_t packet_single_control_alloc(uint8_t control_type, const T &data) {
-    union packet_aligned_item<T> transfer = {};
-    transfer.data = data;
+    union packet_aligned_item<T> transfer = {data};
     return packet_control_alloc(control_type, (char *)&transfer, sizeof(transfer));
 }
 

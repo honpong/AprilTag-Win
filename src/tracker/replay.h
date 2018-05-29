@@ -40,6 +40,8 @@ private:
     void request(uint8_t type, const void *load, size_t load_size) {
         stream->put_host_packet(packet_control_alloc(type, (const char *)load, load_size));
     }
+    template<typename T>
+    void request(uint8_t type, const T &data) { stream->put_host_packet(packet_single_control_alloc(type, data)); }
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     replay(host_stream *host_stream_, bool start_paused = false);
@@ -50,24 +52,19 @@ public:
     void enable_fast_path() { request(packet_enable_fast_path); }
     void enable_dynamic_calibration() { request(packet_enable_dynamic_calibration);}
     void enable_odometry() { request(packet_enable_odometry); }
-    void enable_qres(uint8_t qres_) { request(packet_enable_qres, &qres_, sizeof(uint8_t)); }
+    void enable_qres(uint8_t qres) { request(packet_enable_qres, qres); }
     /// applicable to playback on TM2, enable synchronous processing per packet
     void enable_usb_sync() { request(packet_enable_usb_sync); }
     void zero_biases() { request(packet_enable_zero_biases); }
-    void delay_start(uint64_t delay_us) { request(packet_delay_start, &delay_us, sizeof(uint64_t)); }
-    void set_message_level(rc_MessageLevel level) {
-        uint8_t msg_level = level;
-        request(packet_enable_mesg_level, (const char*)&msg_level, sizeof(uint8_t));
-    }
-    void set_replay_output_mode(uint8_t mode) { request(packet_enable_output_mode, &mode, sizeof(uint8_t)); }
-    void set_queue_strategy(rc_TrackerQueueStrategy strategy) {
-        request(packet_set_queue_strategy, (const char*)&strategy, sizeof(rc_TrackerQueueStrategy));
-    }
+    void delay_start(uint64_t delay_us) { request(packet_delay_start, delay_us); }
+    void set_message_level(rc_MessageLevel level) { request(packet_enable_mesg_level, level); }
+    void set_replay_output_mode(replay_output::output_mode mode) { request(packet_enable_output_mode, mode); }
+    void set_queue_strategy(rc_TrackerQueueStrategy strategy) { request(packet_set_queue_strategy, strategy); }
 
     bool init() { return stream->init_stream(); }
     std::string calibration_file;
     /// location of vocabulary file is optional when running on host system
-    void start_mapping(bool relocalize, uint8_t save_map = false);
+    void start_mapping(bool relocalize, bool save_map = false);
     bool save_map(const char *filename);
     bool load_map(const char *filename);
     bool load_calibration(const char *filename);
@@ -91,7 +88,7 @@ public:
             start_paused = true;
         }
     }
-    void set_pause(uint64_t timestamp) { request(packet_command_next_pause, (const char*)&timestamp, sizeof(timestamp)); }
+    void set_pause(rc_Timestamp timestamp) { request(packet_command_next_pause, timestamp); }
     void step() { request(packet_command_step); }
     void end() {
         request(packet_command_end);

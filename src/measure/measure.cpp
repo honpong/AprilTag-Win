@@ -60,6 +60,7 @@ int main(int c, char **v)
     bool odometry = true;
     bool stats = false;
     rc_TrackerQueueStrategy queue_strategy = rc_QUEUE_MINIMIZE_DROPS;
+    bool strategy_override = false;
     bool incremental_ate = false;
     bool relocalize = false;
     bool tm2_playback = false, usb_sync = false;
@@ -110,8 +111,8 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--info") == 0)  message_level = rc_MESSAGE_INFO;
         else if (strcmp(v[i], "--warn") == 0)  message_level = rc_MESSAGE_WARN;
         else if (strcmp(v[i], "--none") == 0)  message_level = rc_MESSAGE_NONE;
-        else if (strcmp(v[i], "--minimize-drops") == 0)  queue_strategy = rc_QUEUE_MINIMIZE_DROPS;
-        else if (strcmp(v[i], "--minimize-latency") == 0)  queue_strategy = rc_QUEUE_MINIMIZE_LATENCY;
+        else if (strcmp(v[i], "--minimize-drops") == 0) { queue_strategy = rc_QUEUE_MINIMIZE_DROPS; strategy_override = true; }
+        else if (strcmp(v[i], "--minimize-latency") == 0) { queue_strategy = rc_QUEUE_MINIMIZE_LATENCY; strategy_override = true; }
         else if (strcmp(v[i], "--tm2") == 0)   tm2_playback = true;
         else if (strcmp(v[i], "--show-no-feature") == 0 ) show_feature = false;
         else if (strcmp(v[i], "--show-no-map") == 0) show_map = false;
@@ -131,13 +132,12 @@ int main(int c, char **v)
     };
 
     auto configure = [&](replay &rp, const char *capture_file) -> bool {
-        if (!rp.init()) {
+        if(!rp.init()) {
             cerr << "Error: failed to init streaming: " << capture_file << std::endl;
             return false;
         }
         rp.set_message_level(message_level);
-        rp.set_queue_strategy(queue_strategy);
-
+        if(strategy_override) rp.set_queue_strategy(queue_strategy);
         if(qvga) rp.enable_qvga();
         if(qres) rp.enable_qres(qres);
         if(!depth) rp.disable_depth();
@@ -145,12 +145,15 @@ int main(int c, char **v)
         if(realtime) rp.enable_realtime();
         if(enable_map) rp.start_mapping(relocalize, save_map != nullptr);
         if(fast_path) rp.enable_fast_path();
-        if (dynamic_calibration) rp.enable_dynamic_calibration();
+        if(dynamic_calibration) rp.enable_dynamic_calibration();
         if(async) rp.enable_async();
         if(usb_sync) rp.enable_usb_sync();
-        if(!benchmark && enable_gui)
-            rp.set_replay_output_mode((show_feature ? (uint8_t)replay_output::output_mode::POSE_FEATURE : 0)
-                + (show_map ? (uint8_t)replay_output::output_mode::POSE_MAP : 0));
+        if(!benchmark && enable_gui) {
+            typedef replay_output::output_mode om;
+            om mode = show_map ?    (show_feature ? om::POSE_FEATURE_MAP    : om::POSE_MAP) :
+                                    (show_feature ? om::POSE_FEATURE        : om::POSE_ONLY);
+            rp.set_replay_output_mode(mode);
+        }
         if(pause_at) {
             rc_Timestamp pause_time = 0;
             try {
@@ -169,7 +172,7 @@ int main(int c, char **v)
             rp.delay_start(skip_secs * 1000000);
         }
 
-        if (load) {
+        if(load) {
           if(!rp.load_calibration(replace(load, "%s", capture_file).c_str())) {
             cerr << "unable to load calibration: " << load << "\n";
             return false;
@@ -189,7 +192,7 @@ int main(int c, char **v)
             return false;
         }
 
-        if (load_map) {
+        if(load_map) {
             std::string map_filename = replace(load_map, "%s", capture_file);
             rp.load_map(map_filename.c_str());
             if(!rp.set_loaded_map_reference_from_file(map_filename.c_str()) && benchmark) {

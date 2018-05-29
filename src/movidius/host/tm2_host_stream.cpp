@@ -195,8 +195,7 @@ bool tm2_host_stream::put_host_packet(rc_packet_t &&post_packet) {
         break;
     }
     case packet_enable_output_mode: {
-        auto mode = (replay_output::output_mode)((const uint8_t *)packet->data)[0];
-        track_output.set_output_type(mode);
+        track_output.set_output_type(get_packet_item(packet));
         break;
     }
     case packet_enable_usb_sync: { usb_sync = true; break; }

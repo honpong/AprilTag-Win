@@ -173,6 +173,36 @@ static inline rc_packet_t packet_control_alloc(uint8_t control_type, const char 
 static inline rc_packet_t packet_command_alloc(uint8_t control_type) {
     return packet_control_alloc(control_type, NULL, 0);
 }
+/// provides a type whose storage size is an upper bound in multiple of 4 bytes
+template <typename T, size_t S = ((sizeof(T) + 3) / 4 * 4)>
+union packet_aligned_item {
+    T data;
+    typename std::aligned_storage<S, alignof(T)>::type aligned;
+};
+
+/// creates a packet for a single data type.
+template<typename T>
+static inline rc_packet_t packet_single_control_alloc(uint8_t control_type, const T &data) {
+    union packet_aligned_item<T> transfer = {data};
+    return packet_control_alloc(control_type, (char *)&transfer, sizeof(transfer));
+}
+
+/// helper class to return data of a given type
+struct packet_item_type {
+    packet_item_type(const packet_t *packet_) : packet(packet_) {};
+    const packet_t *packet;
+    template <class T>
+    operator T() {
+        union packet_aligned_item<T> transfer;
+        memcpy(&transfer, packet->data, sizeof(transfer));
+        return transfer.data;
+    }
+};
+
+/// get a single data item in the control packet whose type depends on the return type
+static inline packet_item_type get_packet_item(const packet_control_t *packet) { return packet_item_type((packet_t *)packet); }
+/// get a single data item in the control packet whose type depends on the return type
+static inline packet_item_type get_packet_item(const rc_packet_t &packet) { return packet_item_type(packet.get()); }
 
 static inline void set_control_packet(packet_control_t *packet, uint8_t type, const char *load,
     size_t load_size) {

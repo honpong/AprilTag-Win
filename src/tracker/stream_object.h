@@ -176,14 +176,14 @@ static inline rc_packet_t packet_command_alloc(uint8_t control_type) {
 /// provides a type whose storage size is an upper bound in multiple of 4 bytes
 template <typename T, size_t S = ((sizeof(T) + 3) / 4 * 4)>
 union packet_aligned_item {
-    T data;
-    typename std::aligned_storage<S, alignof(T)>::type aligned;
+    T value;
+    typename std::aligned_storage<S, alignof(T)>::type data;
 };
 
 /// creates a packet for a single data type.
 template<typename T>
-static inline rc_packet_t packet_single_control_alloc(uint8_t control_type, const T &data) {
-    union packet_aligned_item<T> transfer = {data};
+static inline rc_packet_t packet_single_control_alloc(uint8_t control_type, const T &value) {
+    union packet_aligned_item<T> transfer = {value};
     return packet_control_alloc(control_type, (char *)&transfer, sizeof(transfer));
 }
 
@@ -195,7 +195,7 @@ struct packet_item_type {
     operator T() {
         union packet_aligned_item<T> transfer;
         memcpy(&transfer, packet->data, sizeof(transfer));
-        return transfer.data;
+        return transfer.value;
     }
 };
 

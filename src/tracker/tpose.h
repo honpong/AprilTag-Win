@@ -104,7 +104,7 @@ struct tpose {
 
 static inline std::ostream& operator<<(std::ostream &stream, const tpose &tp)
 {
-    return stream << "{" << tp.t.time_since_epoch().count() << ", " << tp.G << "}";
+    return stream << tpose_tum(sensor_clock::tp_to_micros(tp.t)/1.e6 , tp.G, tp.id, tp.confidence);
 }
 
 struct tpose_sequence {
@@ -203,4 +203,11 @@ inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {
     if (file.eof() && !file.bad()) // getline() can set fail on eof() :(
         file.clear(file.rdstate() & ~std::ios::failbit);
     return file;
+}
+
+static inline std::ostream& operator<<(std::ostream &stream, const tpose_sequence &s)
+{
+    for(const auto & tp : s.tposes)
+        stream << tp;
+    return stream;
 }

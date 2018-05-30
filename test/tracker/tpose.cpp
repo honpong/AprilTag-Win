@@ -162,3 +162,20 @@ TEST(TPoseSequence, TumXParse)
     EXPECT_EQ(ts.tposes.front().id, 0);
     EXPECT_EQ(ts.tposes.back().id, 1);
 }
+
+TEST(TPoseSequence, TumXOutput)
+{
+    std::string data(tumx_pose_data);
+    std::stringstream f(data);
+    tpose_sequence ts;
+    ts.format = tpose_sequence::FORMAT_TUM;
+    f >> ts;
+    EXPECT_TRUE(f.eof());
+    EXPECT_FALSE(f.fail());
+    EXPECT_FALSE(f.bad());
+    EXPECT_EQ(ts.tposes.size(), 3);
+
+    std::stringstream fout;
+    fout << ts;
+    EXPECT_EQ(fout.str(), tumx_pose_data);
+}

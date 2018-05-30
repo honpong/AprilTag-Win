@@ -282,6 +282,8 @@ private:
     void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                      std::shared_ptr<log_depth> v, const feature_type type = feature_type::tracked);
+    void remove_feature(nodeid node_id, featureid feature_id);
+    void remove_feature(featureid feature_id);
     void set_feature_type(nodeid node_id, featureid feature_id, const feature_type type = feature_type::tracked);
     void initialize_track_triangulation(const tracker::feature_track &track, const nodeid node_id);
     void finish_lost_tracks(const tracker::feature_track &track);

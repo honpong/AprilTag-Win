@@ -271,6 +271,31 @@ void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feat
     });
 }
 
+void mapper::remove_feature(nodeid groupid, featureid fid) {
+    features_dbow.critical_section([&]() {
+        features_dbow->erase(fid);
+    });
+    nodes.critical_section([&]() {
+        nodes->at(groupid).features.erase(fid);
+    });
+}
+
+void mapper::remove_feature(featureid fid) {
+    nodeid nid = std::numeric_limits<nodeid>::max();
+    features_dbow.critical_section([&]() {
+        auto it = features_dbow->find(fid);
+        if (it != features_dbow->end()) {
+            nid = it->second;
+            features_dbow->erase(it);
+        }
+    });
+    if (nid < std::numeric_limits<nodeid>::max()) {
+        nodes.critical_section([&]() {
+            nodes->at(nid).features.erase(fid);
+        });
+    }
+}
+
 void mapper::set_feature_type(nodeid group_id, featureid id, const feature_type type) {
     nodes.critical_section([&]() { nodes->at(group_id).set_feature_type(id, type); });
 }

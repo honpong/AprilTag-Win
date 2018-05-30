@@ -263,16 +263,11 @@ void map_node::set_feature_type(const featureid id, const feature_type type)
 
 void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                          std::shared_ptr<log_depth> v, const feature_type type) {
-    critical_section(nodes, features_dbow, [&]() {
+    nodes.critical_section([&]() {
         nodes->at(groupid).add_feature(feature, v, type);
-        (*features_dbow)[feature->id] = groupid;
     });
-}
-
-void mapper::remove_feature(nodeid node_id, featureid feature_id) {
-    critical_section(nodes, features_dbow, [&]() {
-        nodes->at(node_id).features.erase(feature_id);
-        features_dbow->erase(feature_id);
+    features_dbow.critical_section([&]() {
+        (*features_dbow)[feature->id] = groupid;
     });
 }
 
@@ -745,6 +740,9 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
                             // these features belong to the candidate node (group)
                             auto it_G = G_candidate_neighbors.find(nodeid_keypoint);
                             if(it_G == G_candidate_neighbors.end()) {// TODO: all features observed from the candidate node should be represented wrt one of the covisible nodes but it does not happen ....
+                                continue;
+                            }
+                            if (!it_node->second.features.count(keypoint_id)) {
                                 continue;
                             }
                             candidate_3d_points.emplace_back(it_G->second * get_feature3D(nodeid_keypoint, keypoint_id)); // feat is in body frame

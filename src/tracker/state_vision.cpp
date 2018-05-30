@@ -297,6 +297,7 @@ void state_vision::update_map(mapper *map)
     if (!map) return;
     for (auto &g : groups.children) {
         map->set_node_transformation(g->id, *g->Gr);
+        map->get_node(g->id).frames_active = g->frames_active;
         for (auto &f : g->features.children) {
             bool good = f->variance() < .05f*.05f; // f->variance() is equivalent to (stdev_meters/depth)^2
             if (good) {
@@ -360,6 +361,25 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     groups.children.push_back(std::move(g));
     remap();
     project_new_group_covariance(*p);
+
+    // if number of nodes is bigger than 40 remove 10 nodes with the lowest number of active frames
+    constexpr size_t max_nodes = 40;
+    constexpr size_t num_nodes_removed = 10;
+    if(map && map->get_nodes().size() >= max_nodes) {
+        std::vector<std::pair<nodeid, uint64_t>> nodes_frames_active;
+        for(auto& node : map->get_nodes()) {
+            if(node.second.status == node_status::finished && node.second.id != map->get_node_id_offset())
+                nodes_frames_active.emplace_back(node.second.id, node.second.frames_active);
+        }
+
+        std::partial_sort(nodes_frames_active.begin(), nodes_frames_active.begin() + num_nodes_removed, nodes_frames_active.end(), [](std::pair<nodeid, uint64_t>& n1, std::pair<nodeid, uint64_t>& n2) {
+            return n1.second < n2.second;});
+
+        nodes_frames_active.resize(num_nodes_removed);
+        for(auto& remove_node : nodes_frames_active) {
+            map->remove_node(remove_node.first);
+        }
+    }
     return p;
 }
 

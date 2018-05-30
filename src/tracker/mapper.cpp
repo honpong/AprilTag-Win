@@ -136,9 +136,12 @@ void mapper::add_node(nodeid id, const rc_Sensor camera_id) {
 
 bool mapper::edge_in_map(nodeid id1, nodeid id2, edge_type& type) const {
     return nodes.critical_section([&]() {
-        auto it = nodes->at(id1).edges.find(id2);
-        if(it != nodes->at(id1).edges.end()) {
-            type = it->second.type;
+        auto it1 = nodes->find(id1);
+        if(it1 == nodes->end())
+            return false;
+        auto it2 = it1->second.edges.find(id2);
+        if(it2 != it1->second.edges.end()) {
+            type = it2->second.type;
             return true;
         } else {
             return false;
@@ -263,12 +266,15 @@ void map_node::set_feature_type(const featureid id, const feature_type type)
 
 void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                          std::shared_ptr<log_depth> v, const feature_type type) {
-    nodes.critical_section([&]() {
-        nodes->at(groupid).add_feature(feature, v, type);
-    });
-    features_dbow.critical_section([&]() {
-        (*features_dbow)[feature->id] = groupid;
-    });
+    auto it = nodes->find(groupid);
+    if(it != nodes->end()) {
+        nodes.critical_section([&]() {
+            it->second.add_feature(feature, v, type);
+        });
+        features_dbow.critical_section([&]() {
+            (*features_dbow)[feature->id] = groupid;
+        });
+    }
 }
 
 void mapper::remove_feature(nodeid groupid, featureid fid) {

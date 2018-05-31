@@ -136,9 +136,12 @@ void mapper::add_node(nodeid id, const rc_Sensor camera_id) {
 
 bool mapper::edge_in_map(nodeid id1, nodeid id2, edge_type& type) const {
     return nodes.critical_section([&]() {
-        auto it = nodes->at(id1).edges.find(id2);
-        if(it != nodes->at(id1).edges.end()) {
-            type = it->second.type;
+        auto it1 = nodes->find(id1);
+        if(it1 == nodes->end())
+            return false;
+        auto it2 = it1->second.edges.find(id2);
+        if(it2 != it1->second.edges.end()) {
+            type = it2->second.type;
             return true;
         } else {
             return false;
@@ -263,12 +266,15 @@ void map_node::set_feature_type(const featureid id, const feature_type type)
 
 void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                          std::shared_ptr<log_depth> v, const feature_type type) {
-    nodes.critical_section([&]() {
-        nodes->at(groupid).add_feature(feature, v, type);
-    });
-    features_dbow.critical_section([&]() {
-        (*features_dbow)[feature->id] = groupid;
-    });
+    auto it = nodes->find(groupid);
+    if(it != nodes->end()) {
+        nodes.critical_section([&]() {
+            it->second.add_feature(feature, v, type);
+        });
+        features_dbow.critical_section([&]() {
+            (*features_dbow)[feature->id] = groupid;
+        });
+    }
 }
 
 void mapper::remove_feature(nodeid groupid, featureid fid) {
@@ -333,6 +339,68 @@ void mapper::finish_node(nodeid id, bool compute_dbow_inverted_index) {
         node.status = node_status::finished;
     });
     if (compute_dbow_inverted_index) partially_finished_nodes.emplace(id);
+}
+
+void mapper::remove_node(nodeid id)
+{
+    auto node_it = nodes->find(id);
+    aligned_map<nodeid, map_edge> edges = node_it->second.edges;
+    std::set<nodeid> neighbors;
+    for(auto& edge : edges) {
+        neighbors.insert(edge.first);
+        remove_edge(id, edge.first);
+    }
+
+    features_dbow.critical_section([&]() {
+        for(auto& feature : node_it->second.features)
+            features_dbow->erase(feature.first);
+    });
+
+    // this is run in case all groups are dropped
+    if(reference_node->id == id) {
+        auto& edge = *edges.begin();
+        auto& neighbor = nodes->at(edge.first);
+        if(neighbor.status == node_status::finished) {
+            neighbor.global_transformation = reference_node->global_transformation * edge.second.G;
+        }
+        reference_node = &neighbor;
+    }
+    nodes.critical_section([&]() { nodes->erase(node_it); });
+
+    // if only 1 neighbor, removed node (id) is a loose end of the graph so we don't need to reconnect anything
+    if(neighbors.size() > 1) {
+        auto searched_neighbors = neighbors;
+        // distance # edges traversed
+        auto distance = [](const map_edge& edge) { return 1; };
+        // select node if it is one of the searched nodes
+        auto is_node_searched = [&searched_neighbors](const node_path& path) {
+            auto it = searched_neighbors.find(path.id);
+            if( it != searched_neighbors.end()) {
+                searched_neighbors.erase(it);
+                return true;
+            } else
+                return false;
+        };
+        // finish search when all searched nodes are found
+        auto finish_search = [&searched_neighbors](const node_path& path) { return searched_neighbors.empty(); };
+
+        std::set<nodeid> connected_neighbors;
+        while (connected_neighbors.size() < neighbors.size()) {
+            // this could be more efficient if we don't calculate transformations in dijkstra
+            for(auto &path : dijkstra_shortest_path(node_path{*neighbors.begin(), transformation(), 0}, distance, is_node_searched, finish_search))
+                connected_neighbors.insert(path.id);
+
+            // are neighbors disconnected after removing node id ?
+            if(connected_neighbors.size() < neighbors.size()) {
+                std::vector<nodeid> disconnected_neighbors;
+                std::set_difference(neighbors.begin(), neighbors.end(), connected_neighbors.begin(), connected_neighbors.end(), std::back_inserter(disconnected_neighbors));
+
+                transformation G_id_connected = edges[*connected_neighbors.begin()].G;
+                transformation G_id_disconnected = edges[disconnected_neighbors.front()].G; // pick one of the disconnected nodes
+                add_edge(*connected_neighbors.begin(), disconnected_neighbors.front(), invert(G_id_connected)*G_id_disconnected, edge_type::dead_reckoning);
+            }
+        }
+    }
 }
 
 void mapper::index_finished_nodes() {

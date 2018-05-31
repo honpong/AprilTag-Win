@@ -130,6 +130,8 @@ struct map_node {
     std::shared_ptr<frame_t> frame;
     aligned_map<featureid,map_feature> features;
     node_status status{node_status::normal};
+
+    uint64_t frames_active;
 };
 
 struct map_relocalization_info {
@@ -284,6 +286,7 @@ private:
                      std::shared_ptr<log_depth> v, const feature_type type = feature_type::tracked);
     void remove_feature(nodeid node_id, featureid feature_id);
     void remove_feature(featureid feature_id);
+    void remove_node(nodeid node_id);
     void set_feature_type(nodeid node_id, featureid feature_id, const feature_type type = feature_type::tracked);
     void initialize_track_triangulation(const tracker::feature_track &track, const nodeid node_id);
     void finish_lost_tracks(const tracker::feature_track &track);

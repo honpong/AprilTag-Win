@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <OsDrvCpr.h>
 #include "Shave.h" 
+#include "Trace.h"
 
 #define SHAVE_DEBUG_PRINTS
 #ifdef SHAVE_DEBUG_PRINTS
@@ -121,6 +122,7 @@ void Shave::vstart(Shave *s, unsigned int ptr, const char* fmt, va_list a_list)
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: failed setting shave stack %lu\n", sc);
     }
+    START_EVENT(EV_SHAVE0 + s->id, 0);
     sc = OsDrvSvuStartShaveCC2(&handlers[s->id], ptr, fmt, a_list);
     if (OS_MYR_DRV_SUCCESS != sc) {
         DPRINTF("Error: failed starting shave %lu\n", sc);
@@ -144,6 +146,7 @@ void Shave::wait(void)
     if (0 != running) {
         DPRINTF("Error: wait shave %lu is running\n", running);
     }
+    END_EVENT(EV_SHAVE0 + id, 0);
 }
 
 void shave_wait(unsigned int i)

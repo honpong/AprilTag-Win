@@ -62,6 +62,19 @@
 #define EV_SF_REC_VELO          (CORE_BASE | DETAIL_PROFILE | 0x26)
 #define EV_REPLAY_TRANSFER      (CORE_BASE | DETAIL_PROFILE | 0x28)
 
+#define EV_SHAVE0               (CORE_BASE | BASIC_PROFILE  | 0x38)
+#define EV_SHAVE1               (CORE_BASE | BASIC_PROFILE  | 0x39)
+#define EV_SHAVE2               (CORE_BASE | BASIC_PROFILE  | 0x3A)
+#define EV_SHAVE3               (CORE_BASE | BASIC_PROFILE  | 0x3B)
+#define EV_SHAVE4               (CORE_BASE | BASIC_PROFILE  | 0x3C)
+#define EV_SHAVE5               (CORE_BASE | BASIC_PROFILE  | 0x3D)
+#define EV_SHAVE6               (CORE_BASE | BASIC_PROFILE  | 0x3E)
+#define EV_SHAVE7               (CORE_BASE | BASIC_PROFILE  | 0x3F)
+#define EV_SHAVE8               (CORE_BASE | BASIC_PROFILE  | 0x40)
+#define EV_SHAVE9               (CORE_BASE | BASIC_PROFILE  | 0x41)
+#define EV_SHAVE10               (CORE_BASE | BASIC_PROFILE  | 0x42)
+#define EV_SHAVE11               (CORE_BASE | BASIC_PROFILE  | 0x43)
+
 #define EVENT_GENERIC 0
 #define EVENT_START_BITS (1 << 30)
 #define EVENT_END_BITS   (2 << 30)

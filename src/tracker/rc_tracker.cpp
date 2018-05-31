@@ -767,6 +767,9 @@ rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker)
     if(tracker->sfm.run_state == RCSensorFusionRunStateRunning)
     {
         if(tracker->sfm.detector_failed) confidence = rc_E_CONFIDENCE_LOW;
+        else if(Eigen::isnan(tracker->sfm.s.Q.v.coeffs().array()).any() || Eigen::isnan(tracker->sfm.s.T.v.array()).any() ||
+                Eigen::isinf(tracker->sfm.s.Q.v.coeffs().array()).any() || Eigen::isinf(tracker->sfm.s.T.v.array()).any())
+            confidence = rc_E_CONFIDENCE_LOW;
         else if(tracker->sfm.has_converged) confidence = rc_E_CONFIDENCE_HIGH;
         else confidence = rc_E_CONFIDENCE_MEDIUM;
     }

@@ -26,6 +26,11 @@ pipeline {
             steps {
                 sh 'cmake --build build --target test'
             }
+            post {
+                always {
+                   junit testResults: 'build/**/*.xml', keepLongStdio: true
+                }
+            }
         }
         stage('Build slam_client') {
             steps {

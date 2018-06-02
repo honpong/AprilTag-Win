@@ -11,26 +11,14 @@ struct tpose_tum {
     double t_s; v3 T_m; quaternion Q; int id; int confidence;
     tpose_tum() : t_s(0), T_m(v3::Zero()), Q(quaternion::Identity()), id(0), confidence(0) {}
     tpose_tum(double t_s_, const transformation &G_m, int id_ = 0, int confidence_ = 0) : t_s(t_s_), T_m(G_m.T), Q(G_m.Q), id(id_), confidence(confidence_) {};
-    tpose_tum(const char *line) : tpose_tum() {
-        size_t end = 0;
-        // the +1s below skip the ',' delimiter
-        t_s = std::stod(line+=end, &end);
-        for(int i=0; i<3; i++)
-            T_m(i) = (f_t)std::stod(line+=end+1, &end);
-        Q.x() = (f_t)std::stod(line+=end+1, &end);
-        Q.y() = (f_t)std::stod(line+=end+1, &end);
-        Q.z() = (f_t)std::stod(line+=end+1, &end);
-        Q.w() = (f_t)std::stod(line+=end+1, &end);
-
-#ifndef MYRIAD2 // Doesn't support exceptions
-        try {
+    tpose_tum(const std::string &line) : tpose_tum() {
+        std::stringstream ss(line);
+        ss >> t_s >> T_m(0) >> T_m(1) >> T_m(2) >> Q.x() >> Q.y() >> Q.z() >> Q.w();
+#if defined(__cpp_exceptions)
+        if (!ss)
+            throw std::invalid_argument(line);
 #endif
-            id         = std::stoi(line+=end+1, &end);
-            confidence = std::stoi(line+=end+1, &end);
-#ifndef MYRIAD2
-        } catch (const std::exception&) {} // invalid_argument or out_of_range
-#endif
-
+        ss >> id >> confidence;
     }
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -46,18 +34,13 @@ static inline std::ostream& operator<<(std::ostream &stream, const tpose_tum &tp
 struct tpose_vicon {
     uint64_t t_s, t_ns, seq_no; v3 T_m; quaternion Q;
     tpose_vicon() : t_s(0), t_ns(0), seq_no(0), T_m(v3::Zero()), Q(quaternion::Identity()) {}
-    tpose_vicon(const char *line) : tpose_vicon() {
-        size_t end = 0;
-        // the +1s below skip the ',' delimiter
-        t_s = std::stoull(line+=end, &end);
-        t_ns = std::stoull(line+=end+1, &end);
-        seq_no = std::stoull(line+=end+1, &end);
-        for(int i=0; i<3; i++)
-            T_m(i) = (f_t)std::stod(line+=end+1, &end);
-        Q.x() = (f_t)std::stod(line+=end+1, &end);
-        Q.y() = (f_t)std::stod(line+=end+1, &end);
-        Q.z() = (f_t)std::stod(line+=end+1, &end);
-        Q.w() = (f_t)std::stod(line+=end+1, &end);
+    tpose_vicon(const std::string &line) : tpose_vicon() {
+        std::stringstream ss(line);
+        ss >> t_s >> t_ns >> seq_no >> T_m(0) >> T_m(1) >> T_m(2) >> Q.x() >> Q.y() >> Q.z() >> Q.w();
+#if defined(__cpp_exceptions)
+        if (!ss)
+            throw std::invalid_argument(line);
+#endif
     }
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -65,18 +48,26 @@ struct tpose_vicon {
 struct tpose_raw {
     uint64_t t_100ns; m3 R; v3 T_mm;
     tpose_raw() : t_100ns(0), R(m3::Identity()), T_mm(v3::Zero()) {}
-    tpose_raw(const char *line) : tpose_raw() {
-        size_t end = 0;
-        auto t_ms = std::stod(line+=end, &end);
-        if(memchr(line, '.', end))
-            t_100ns = (decltype(t_100ns))(t_ms * 10000);
-        else
-            t_100ns = std::stoull(line, &end);
-        for (int i=0; i<3; i++) {
-            for (int j=0; j<3; j++)
-                R(i,j) = (f_t)std::stod(line+=end, &end);
-            T_mm(i) = (f_t)std::stod(line+=end, &end);
+    tpose_raw(const std::string &line) : tpose_raw() {
+        std::stringstream ss(line);
+
+        {
+            std::string s_t;
+            ss >> s_t;
+            if (s_t.find('.') != std::string::npos)
+                t_100ns = std::stod(s_t.c_str()) * 10000; // floating => ms
+            else
+                t_100ns = std::stoull(s_t.c_str()); // integer => 100ns
         }
+
+        ss  >> R(0,0) >> R(0,1) >> R(0,2) >> T_mm(0)
+        /**/>> R(1,0) >> R(1,1) >> R(1,2) >> T_mm(1)
+        /**/>> R(2,0) >> R(2,1) >> R(2,2) >> T_mm(2);
+
+#if defined(__cpp_exceptions)
+        if (!ss)
+            throw std::invalid_argument(line);
+#endif
     }
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
@@ -174,7 +165,7 @@ inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {
         if(s.format == tpose_sequence::FORMAT_VICON && num == 1) continue; // skip header row
         if (line.find("NA") != std::string::npos)
             continue;
-#ifndef MYRIAD2 // Doesn't support exceptions
+#if defined(__cpp_exceptions)
         try {
 #endif
             switch(s.format) {
@@ -192,7 +183,7 @@ inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {
                     s.tposes.emplace_back(p);
                 break;
             }
-#ifndef MYRIAD2
+#if defined(__cpp_exceptions)
         } catch (const std::exception&) { // invalid_argument or out_of_range
             std::cerr << "error on line "<< num <<": " << line << "\n";
             file.setstate(std::ios_base::failbit);

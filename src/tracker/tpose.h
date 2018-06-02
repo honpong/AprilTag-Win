@@ -8,10 +8,10 @@
 #include "transformation.h"
 
 struct tpose_tum {
-    double t_s; v3 T_m; quaternion Q; int id; int confidence;
-    tpose_tum() : t_s(0), T_m(v3::Zero()), Q(quaternion::Identity()), id(0), confidence(0) {}
+    double t_s = 0; v3 T_m = v3::Zero(); quaternion Q = quaternion::Identity(); int id = 0; int confidence = 0;
+    tpose_tum() {}
     tpose_tum(double t_s_, const transformation &G_m, int id_ = 0, int confidence_ = 0) : t_s(t_s_), T_m(G_m.T), Q(G_m.Q), id(id_), confidence(confidence_) {};
-    tpose_tum(const std::string &line) : tpose_tum() {
+    tpose_tum(const std::string &line) {
         std::stringstream ss(line);
         ss >> t_s >> T_m(0) >> T_m(1) >> T_m(2) >> Q.x() >> Q.y() >> Q.z() >> Q.w();
 #if defined(__cpp_exceptions)

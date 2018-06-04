@@ -53,11 +53,11 @@ pipeline {
                 sh 'cat a a > a_a'
                 sh 'diff -u a_a aa'
                 sh 'build/measure --benchmark benchmark_data/minimal_test_suite/'
-                sh 'build/measure --disable-map --benchmark benchmark_data/minimal_test_suite/'
-                sh 'build/measure --no-fast-path --benchmark benchmark_data/minimal_test_suite/'
-                sh 'build/measure --async --benchmark benchmark_data/minimal_test_suite/'
-                sh 'build/measure --no-gui --relocalize --save-map test.map benchmark_data/new_test_suite/WW50/VR_with_ctrl/Building/VR_RM_with_ctrl_yossi_3.stereo.rc'
-                sh 'build/measure --relocalize --load-map test.map --benchmark benchmark_data/minimal_test_suite/'
+                sh 'build/measure --benchmark benchmark_data/minimal_test_suite/ --disable-map'
+                sh 'build/measure --benchmark benchmark_data/minimal_test_suite/ --no-fast-path'
+                sh 'build/measure --benchmark benchmark_data/minimal_test_suite/ --async'
+                sh 'build/measure             benchmark_data/new_test_suite/WW50/VR_with_ctrl/Building/VR_RM_with_ctrl_yossi_3.stereo.rc --no-gui --relocalize --save-map test.map'
+                sh 'build/measure --benchmark benchmark_data/minimal_test_suite/ --relocalize --load-map test.map'
             }
         }
         stage('Verify') {

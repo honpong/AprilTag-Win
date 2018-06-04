@@ -98,15 +98,15 @@ pipeline {
                     agent { label 'tm2' }
                     options { skipDefaultCheckout() }
                     steps {
+                        unstash 'hub'
+                        sh 'build/hub --disableport 0,1 --enableport 0,1 --delay 100'
+                        unstash 'mv-usb-boot'
+                        unstash 'device.mvcmd'
+                        sh 'build/mv-usb-boot device.mvcmd'
+                        unstash 'measure'
+                        unstash 'libtracker'
+                        sh 'build/mv-usb-boot -v 0x040E -p 0xF63B :re'
                         timeout(time: 10, unit: 'MINUTES') {
-                            unstash 'hub'
-                            sh 'build/hub --disableport 0,1 --enableport 0,1 --delay 100'
-                            unstash 'mv-usb-boot'
-                            unstash 'device.mvcmd'
-                            sh 'build/mv-usb-boot device.mvcmd'
-                            unstash 'measure'
-                            unstash 'libtracker'
-                            sh 'build/mv-usb-boot -v 0x040E -p 0xF63B :re'
                             sh 'build/measure --tm2 --no-gui --relocalize "$HOME/benchmark_data/new_test_suite/WW50/VR_with_ctrl/Shooter(Raw_Data)/VR_RD_with_ctrl_1.stereo.rc"'
                         }
                     }

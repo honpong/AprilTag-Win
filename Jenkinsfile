@@ -42,8 +42,8 @@ pipeline {
         }
         stage('Prepare Benchmark') {
             steps {
-                sh 'rsync -a --link-dest=$HOME/benchmark_data/ $HOME/benchmark_data/ $(realpath .)/benchmark_data/ --exclude "*.json"'
-                sh 'rsync -a --chmod=ug+w                      $HOME/benchmark_data/ $(realpath .)/benchmark_data/ --include "*.json" --include "*/"'
+                sh 'cp -as                $HOME/benchmark_data/ $(realpath .)/benchmark_data/'
+                sh 'rsync -a --chmod=ug+w $HOME/benchmark_data/ $(realpath .)/benchmark_data/ --include "*.json" --include "*/" --exclude "*"'
             }
         }
         stage('Check options') {

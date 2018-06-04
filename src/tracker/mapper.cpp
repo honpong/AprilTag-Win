@@ -549,7 +549,7 @@ static size_t calculate_orientation_bin(const orb_descriptor &a, const orb_descr
     return static_cast<size_t>(((a - b) * (float)M_1_PI + 1) / 2 * num_orientation_bins + 0.5f) % num_orientation_bins;
 }
 
-mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& candidate_frame,  state_vision_intrinsics* const candidate_intrinsics,
+mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& candidate_frame, state_vision_intrinsics* const candidate_intrinsics,
                                              const std::shared_ptr<frame_t>& current_frame, state_vision_intrinsics* const current_intrinsics) const {
     //matches per orientationn increment between current frame and node candidate
     static constexpr int num_orientation_bins = 30;
@@ -610,7 +610,7 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
                           increment_orientation_histogram.begin()+3,
                           increment_orientation_histogram.end(),
                           [](const std::vector<std::pair<featureidx, featureidx>>&v1,
-                          const std::vector<std::pair<featureidx, featureidx>>&v2) {
+                             const std::vector<std::pair<featureidx, featureidx>>&v2) {
             return (v1.size() > v2.size());});
 
         for(int i=0; i<3; ++i) {
@@ -669,19 +669,19 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
                         v2 p_candidate = candidate_intrinsics->unnormalize_feature(
                                     candidate_intrinsics->undistort_feature(candidate_intrinsics->normalize_feature(candidate_frame->keypoints_xy[candidate_point_idx])));
                         v3 line = Fcurrent_candidate * v3{p_candidate[0], p_candidate[1], 1.f};
-                    line = line/sqrtf(line[0]*line[0] + line[1]*line[1]);
-                    int current_point_idx;
-                    for(auto& current_match : current_points_matched) {
-                        v2 p_current = current_intrinsics->unnormalize_feature(
-                                    current_intrinsics->undistort_feature(current_intrinsics->normalize_feature(current_frame->keypoints_xy[current_match.first])));
-                        float distance = std::abs(line.dot(v3{p_current[0], p_current[1], 1.f}));
-                        if(distance < 3.f && distance < best_distance) {
-                            best_distance = distance;
-                            current_point_idx = current_match.first;
+                        line = line/sqrtf(line[0]*line[0] + line[1]*line[1]);
+                        int current_point_idx;
+                        for(auto& current_match : current_points_matched) {
+                            v2 p_current = current_intrinsics->unnormalize_feature(
+                                current_intrinsics->undistort_feature(current_intrinsics->normalize_feature(current_frame->keypoints_xy[current_match.first])));
+                            float distance = std::abs(line.dot(v3{p_current[0], p_current[1], 1.f}));
+                            if(distance < 3.f && distance < best_distance) {
+                                best_distance = distance;
+                                current_point_idx = current_match.first;
+                            }
                         }
-                    }
-                    if(best_distance < std::numeric_limits<float>::infinity())
-                        current_to_candidate_matches.emplace_back(current_point_idx, candidate_point_idx);
+                        if(best_distance < std::numeric_limits<float>::infinity())
+                            current_to_candidate_matches.emplace_back(current_point_idx, candidate_point_idx);
                     }
                 };
 

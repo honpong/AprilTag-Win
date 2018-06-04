@@ -187,7 +187,6 @@ class state_vision_group: public state_branch<state_node *> {
     std::list<std::unique_ptr<state_vision_feature>> lost_features;
     enum group_flag status = group_normal;
     groupid id;
-    uint64_t frames_active = 0;
     bool reused = false;
 
     state_vision_group(const transformation &G, state_camera &camera, groupid group_id);

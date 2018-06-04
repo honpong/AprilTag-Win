@@ -1476,7 +1476,6 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                     transformation G = transformation(f->s.Q.v, f->s.T.v) * invert(mft.G_neighbor_now);
                     auto g = std::make_unique<state_vision_group>(G, camera_node_state, mft.group_id);
                     g->reused = true;
-                    g->frames_active = node.frames_active;
 
                     g->Tr.set_initial_variance(v3{0,0,0});
                     g->Qr.set_initial_variance(v3{0,0,0});

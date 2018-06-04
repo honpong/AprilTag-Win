@@ -558,36 +558,15 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
     mapper::matches current_to_candidate_matches;
 
     if (candidate_frame->keypoints.size() > 0 && current_frame->keypoints.size() > 0) {
-        auto indexes_all = [](size_t N) {
-            std::vector<size_t> v;
-            v.reserve(N);
-            for (size_t i = 0; i < N; ++i) v.push_back(i);
-            return v;
-        };
-        auto indexes_with_3d = [this](
-                const std::vector<std::shared_ptr<fast_tracker::fast_feature<patch_orb_descriptor>>>& keypoints) {
-            std::vector<size_t> v;
-            v.reserve(keypoints.size());
-            features_dbow.critical_section([&]() {
-                for (size_t i = 0; i < keypoints.size(); ++i) {
-                    if (features_dbow->find(keypoints[i]->id) != features_dbow->end()) {
-                        v.push_back(i);
-                    }
-                }
-            });
-            return v;
-        };
 
-        auto match_fundamental = [&current_frame, &candidate_frame, &increment_orientation_histogram](
-                const std::vector<size_t>& current_keypoint_indexes,
-                const std::vector<size_t>& candidate_keypoint_indexes) {
+        auto match_fundamental = [&current_frame, &candidate_frame, &increment_orientation_histogram]() {
             std::unordered_map<size_t, std::pair<size_t, int>> matches;  // candidate -> current, distance
-            for (auto current_point_idx : current_keypoint_indexes) {
+            for (size_t current_point_idx = 0; current_point_idx < current_frame->keypoints.size(); ++current_point_idx) {
                 size_t best_candidate_point_idx = 0;
                 auto best_distance = std::numeric_limits<float>::max();
                 auto second_best_distance = std::numeric_limits<float>::max();
                 auto& current_keypoint = *current_frame->keypoints[current_point_idx];
-                for (auto candidate_point_idx : candidate_keypoint_indexes) {
+                for (size_t candidate_point_idx = 0; candidate_point_idx < candidate_frame->keypoints.size(); ++candidate_point_idx) {
                     auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
                     float dist = current_keypoint.descriptor.distance_reloc(candidate_keypoint.descriptor,
                                                                             current_keypoint.descriptor);
@@ -624,10 +603,7 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
         };
 
         mapper::matches fundamental_current_to_candidate_matches;
-        std::vector<size_t> current_keypoint_indexes_all = indexes_all(current_frame->keypoints.size());
-        std::vector<size_t> candidate_keypoint_indexes_all = indexes_all(candidate_frame->keypoints.size());
-
-        match_fundamental(current_keypoint_indexes_all, candidate_keypoint_indexes_all);
+        match_fundamental();
 
         // Check orientations to prune wrong matches (just keep best 3)
         std::partial_sort(increment_orientation_histogram.begin(),
@@ -666,11 +642,9 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
 
             if(reprojection_error < max_reprojection_error) {
                 typedef std::pair<size_t, float> index_distance;
-                const int matches_per_candidate = 3;
+                constexpr size_t matches_per_candidate = 3;
 
-                auto match = [&](
-                        const std::vector<size_t>& current_keypoint_indexes,
-                        const std::vector<size_t>& candidate_keypoint_indexes) {
+                auto match = [&](const std::vector<size_t>& candidate_keypoint_indexes) {
 
                     auto keypoint_comp = [](const index_distance& p1, const index_distance& p2) {
                         return p1.second < p2.second;
@@ -679,7 +653,8 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
                     for (auto candidate_point_idx : candidate_keypoint_indexes) {
                         auto& candidate_keypoint = *candidate_frame->keypoints[candidate_point_idx];
                         std::vector<index_distance> current_points_matched;
-                        for (auto current_point_idx : current_keypoint_indexes) {
+                        current_points_matched.reserve(std::min(current_frame->keypoints.size(), matches_per_candidate + 1));
+                        for (size_t current_point_idx = 0; current_point_idx < current_frame->keypoints.size(); ++current_point_idx) {
                             auto& current_keypoint = *current_frame->keypoints[current_point_idx];
                             float dist = current_keypoint.descriptor.distance_reloc(candidate_keypoint.descriptor,
                                                                                     current_keypoint.descriptor);
@@ -710,8 +685,21 @@ mapper::matches mapper::match_2d_descriptors(const std::shared_ptr<frame_t>& can
                     }
                 };
 
-                std::vector<size_t> candidate_keypoint_indexes_3d = indexes_with_3d(candidate_frame->keypoints);
-                match(current_keypoint_indexes_all, candidate_keypoint_indexes_3d);
+                auto indexes_with_3d = [this](
+                        const std::vector<std::shared_ptr<fast_tracker::fast_feature<patch_orb_descriptor>>>& keypoints) {
+                    std::vector<size_t> v;
+                    v.reserve(keypoints.size());
+                    features_dbow.critical_section([&]() {
+                        for (size_t i = 0; i < keypoints.size(); ++i) {
+                            if (features_dbow->find(keypoints[i]->id) != features_dbow->end()) {
+                                v.push_back(i);
+                            }
+                        }
+                    });
+                    return v;
+                };
+
+                match(indexes_with_3d(candidate_frame->keypoints));
             }
         }
     }

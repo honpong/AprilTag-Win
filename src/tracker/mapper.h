@@ -130,8 +130,7 @@ struct map_node {
     std::shared_ptr<frame_t> frame;
     aligned_map<featureid,map_feature> features;
     node_status status{node_status::normal};
-
-    uint64_t frames_active;
+    uint64_t frames_active = 0;
 };
 
 struct map_relocalization_info {

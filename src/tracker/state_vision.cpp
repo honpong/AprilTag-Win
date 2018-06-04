@@ -157,7 +157,6 @@ int state_vision::process_features(mapper *map)
         if(g->status == group_normal) {
             best_group = g.get();
         }
-        g->frames_active++;
     }
     if(best_group && need_reference) {
         best_group->make_reference();
@@ -297,7 +296,6 @@ void state_vision::update_map(mapper *map)
     if (!map) return;
     for (auto &g : groups.children) {
         map->set_node_transformation(g->id, *g->Gr);
-        map->get_node(g->id).frames_active = g->frames_active;
         for (auto &f : g->features.children) {
             bool good = f->variance() < .05f*.05f; // f->variance() is equivalent to (stdev_meters/depth)^2
             if (good) {

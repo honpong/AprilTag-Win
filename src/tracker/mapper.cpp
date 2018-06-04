@@ -492,6 +492,7 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
         });
     }
 
+    constexpr size_t max_candidates = 10;
     std::vector<std::pair<nodeid, float>> dbow_scores;
     {
         std::unordered_map<nodeid, std::shared_ptr<frame_t>> candidate_frames;
@@ -508,26 +509,39 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
                 }
             }
         });
-        for (auto& it : candidate_frames) {
-            dbow_scores.emplace_back(it.first, orb_voc->score(it.second->dbow_histogram, current_frame->dbow_histogram));
+        if (!candidate_frames.empty()) {
+            constexpr auto better_item = [](const std::pair<nodeid, float>& p1, const std::pair<nodeid, float>& p2) {
+                switch (orb_vocabulary::scoring_type) {
+                case DBoW2::ScoringType::KL:
+                case DBoW2::ScoringType::CHI_SQUARE:  // the lower the better
+                    return p1.second < p2.second;
+                case DBoW2::ScoringType::L1_NORM:
+                case DBoW2::ScoringType::L2_NORM:
+                case DBoW2::ScoringType::BHATTACHARYYA:  // the higher the better
+                    return p1.second > p2.second;
+                }
+            };
+            dbow_scores.reserve(std::min(candidate_frames.size(), max_candidates));
+            auto it = candidate_frames.begin();
+            for (size_t i = 0; i < max_candidates && it != candidate_frames.end(); ++it, ++i) {
+                dbow_scores.emplace_back(it->first, orb_voc->score(it->second->dbow_histogram, current_frame->dbow_histogram));
+            }
+            if (it != candidate_frames.end()) {
+                std::make_heap(dbow_scores.begin(), dbow_scores.end(), better_item);
+                for (; it != candidate_frames.end(); ++it) {
+                    std::pair<nodeid, float> candidate {it->first, orb_voc->score(it->second->dbow_histogram, current_frame->dbow_histogram)};
+                    if (better_item(candidate, dbow_scores.front())) {
+                        std::pop_heap(dbow_scores.begin(), dbow_scores.end(), better_item);
+                        dbow_scores.back() = candidate;
+                        std::push_heap(dbow_scores.begin(), dbow_scores.end(), better_item);
+                    }
+                }
+                std::sort_heap(dbow_scores.begin(), dbow_scores.end(), better_item);
+            } else {
+                std::sort(dbow_scores.begin(), dbow_scores.end(), better_item);
+            }
         }
     }
-
-    // sort candidates by dbow_score
-    constexpr size_t max_candidates = 10;
-    auto max_it = dbow_scores.begin() + std::min(dbow_scores.size(), max_candidates);
-    std::partial_sort(dbow_scores.begin(), max_it, dbow_scores.end(), [](const std::pair<nodeid, float>& p1, const std::pair<nodeid, float>& p2) {
-        switch (orb_vocabulary::scoring_type) {
-        case DBoW2::ScoringType::KL:
-        case DBoW2::ScoringType::CHI_SQUARE:
-            return p1.second < p2.second;
-        case DBoW2::ScoringType::L1_NORM:
-        case DBoW2::ScoringType::L2_NORM:
-        case DBoW2::ScoringType::BHATTACHARYYA:
-            return p1.second > p2.second;
-        }
-    });
-    dbow_scores.erase(max_it, dbow_scores.end());
     return dbow_scores;
 }
 

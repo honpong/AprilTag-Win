@@ -55,6 +55,11 @@ struct frame_t {
     DBoW2::BowVector dbow_histogram;       // histogram describing image
     DBoW2::FeatureVector dbow_direct_file;  // direct file if used, empty otherwise
 
+    void reserve(size_t sz) {
+        keypoints.reserve(sz);
+        keypoints_xy.reserve(sz);
+    }
+
     void add_track(const tracker::feature_position &t, int width_px, int height_px) {
         if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)t.x, (int)t.y, width_px, height_px)) {
             keypoints.emplace_back(std::make_shared<fast_tracker::fast_feature<patch_orb_descriptor>>(t.feature->id, patch_descriptor{}));

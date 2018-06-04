@@ -53,7 +53,6 @@ struct frame_t {
     std::vector<std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>>> keypoints;
     std::vector<v2> keypoints_xy;
     DBoW2::BowVector dbow_histogram;       // histogram describing image
-    DBoW2::FeatureVector dbow_direct_file;  // direct file if used, empty otherwise
 
     void reserve(size_t sz) {
         keypoints.reserve(sz);
@@ -70,17 +69,10 @@ struct frame_t {
     inline void calculate_dbow(const orb_vocabulary *orb_voc) {
         // copy pyramid descriptors to a vector of descriptors
         constexpr int levelsup = std::numeric_limits<int>::max();  // consider all the tree
-        constexpr bool use_direct_file = false;
         auto get_descriptor = [](const decltype(keypoints)::value_type &kp) -> const orb_descriptor::raw & {
                 return kp->descriptor.orb.descriptor;
         };
-        if (use_direct_file) {
-            dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor,
-                                                dbow_direct_file, levelsup);
-        } else {
-            dbow_direct_file.clear();
-            dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor, levelsup);
-        }
+        dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor, levelsup);
     }
 #ifdef RELOCALIZATION_DEBUG
     cv::Mat image; // for debugging purposes

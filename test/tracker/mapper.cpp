@@ -216,7 +216,6 @@ public:
         expect_eq(                      e1.keypoints,            e2.keypoints);
         expect_eq(                      e1.keypoints_xy,         e2.keypoints_xy);
         expect_eq(                      e1.dbow_histogram,       e2.dbow_histogram);
-        expect_eq(                      e1.dbow_direct_file,     e2.dbow_direct_file);
     }
 
     static void expect_eq(const map_node &e1, const map_node        &e2) {

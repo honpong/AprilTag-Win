@@ -103,7 +103,8 @@ enum class relocalization_status {begining, find_candidates, match_descriptors, 
 struct map_feature {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     map_feature() = default;
-    map_feature(std::shared_ptr<log_depth> v_, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feat_) : v(v_), feature(feat_) {};
+    map_feature(std::shared_ptr<log_depth> v_, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feat_) : v(std::move(v_)), feature(std::move(feat_)) {}
+    map_feature(std::shared_ptr<log_depth> v_, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feat_, feature_type type_) : v(std::move(v_)), type(type_), feature(std::move(feat_)) {}
     std::shared_ptr<log_depth> v;
     feature_type type{ feature_type::tracked };
     std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
@@ -331,7 +332,7 @@ private:
         tracker::feature_track track;
         std::shared_ptr<log_depth> v;
         map_feature_track(tracker::feature_track &&track_, std::shared_ptr<log_depth> v_)
-            : track(std::move(track_)), v(v_) {}
+            : track(std::move(track_)), v(std::move(v_)) {}
         map_feature_track(map_feature_track &&) = default;
         map_feature_track & operator=(map_feature_track &&) = default;
         map_feature_track(const map_feature_track &) = delete;
@@ -363,7 +364,7 @@ private:
         size_t track_count = 0;
         triangulated_track(const nodeid id,
                            std::shared_ptr<log_depth> s) :
-            reference_nodeid(id), state(s) {}
+            reference_nodeid(id), state(std::move(s)) {}
     };
     std::unordered_map<featureid, triangulated_track> triangulated_tracks;
 };

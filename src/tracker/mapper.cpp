@@ -154,10 +154,10 @@ void mapper::initialize_track_triangulation(const tracker::feature_track& track,
     if(triangulated_tracks.find(track.feature->id) != triangulated_tracks.end())
         return;
     std::shared_ptr<log_depth> state_d = std::make_shared<log_depth>();
-    v2 xd = {track.x, track.y};
-    state_d->initial = xd;
-    triangulated_track tt(node_id, state_d);
-    triangulated_tracks.emplace(track.feature->id, std::move(tt));
+    state_d->initial = {track.x, track.y};
+    triangulated_tracks.emplace(std::piecewise_construct,
+                                std::forward_as_tuple(track.feature->id),
+                                std::forward_as_tuple(node_id, std::move(state_d)));
 }
 
 void mapper::finish_lost_tracks(const tracker::feature_track& track) {
@@ -252,11 +252,10 @@ void mapper::update_3d_feature(const tracker::feature_track& track, const nodeid
 
 void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                            std::shared_ptr<log_depth> v, const feature_type type) {
-    map_feature mf;
-    mf.v = v;
-    mf.feature = feature;
-    mf.type = type;
-    features.emplace(feature->id, mf);
+    auto fid = feature->id;
+    features.emplace(std::piecewise_construct,
+                     std::forward_as_tuple(fid),
+                     std::forward_as_tuple(std::move(v), std::move(feature), type));
 }
 
 void map_node::set_feature_type(const featureid id, const feature_type type)
@@ -268,11 +267,12 @@ void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feat
                          std::shared_ptr<log_depth> v, const feature_type type) {
     auto it = nodes->find(groupid);
     if(it != nodes->end()) {
+        auto fid = feature->id;
         nodes.critical_section([&]() {
-            it->second.add_feature(feature, v, type);
+            it->second.add_feature(std::move(feature), std::move(v), type);
         });
         features_dbow.critical_section([&]() {
-            (*features_dbow)[feature->id] = groupid;
+            (*features_dbow)[fid] = groupid;
         });
     }
 }
@@ -329,7 +329,7 @@ void mapper::set_node_frame(nodeid id, std::shared_ptr<frame_t> frame) {
         auto it = nodes->find(id);
         if (it != nodes->end()) {
             assert(!it->second.frame);
-            it->second.frame = frame;
+            it->second.frame = std::move(frame);
         }
     });
 }

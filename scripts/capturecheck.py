@@ -215,7 +215,7 @@ for packet_type in sorted(packets.keys()):
   median_delta = numpy.median(deltas)
   start_s[packet_type] = numpy.min(timestamps)/1e6
   end_s[packet_type] = numpy.max(timestamps)/1e6
-  print "\tRate:", 1/(median_delta/1e6), "hz"
+  print "\tRate:", numpy.float64(1)/(median_delta/1e6), "Hz"
   print "\tmedian dt (us):", median_delta
   print "\tstd dt (us):", numpy.std(deltas)
   print "\trelative latency (us): %.3f min, %.3f median, %.3f max, %.3f std" % (numpy.min(platencies), numpy.median(platencies), numpy.max(platencies), numpy.std(platencies))

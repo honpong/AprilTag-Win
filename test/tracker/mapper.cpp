@@ -242,12 +242,6 @@ public:
      //do not compare compute-intermediate members or members populated by map loading such as orb_voc,
      //node_id_offset, feature_id_offset and unlinked.
     auto operator==(const test_mapper &rhs) const {
-        static auto sort = [](const std::map<uint64_t, std::vector<nodeid>>& in) {
-            auto out = in;
-            for (auto& it : out) std::sort(it.second.begin(), it.second.end());
-            return out;
-        };
-        mapper_check::expect_eq(sort(dbow_inverted_index), sort(rhs.dbow_inverted_index));
         mapper_check::expect_eq(*features_dbow, *rhs.features_dbow);
         mapper_check::expect_eq(*nodes, *rhs.nodes);
         return true;
@@ -316,7 +310,7 @@ public:
             add_feature(nid, kp, map_depth[kp->id]);
             (*features_dbow)[kp->id] = nid;
         }
-        finish_node(nid, true);
+        finish_node(nid);
         return true;
     }
 
@@ -336,7 +330,6 @@ public:
             }
             else removed.push_back(tran);
         }
-        mapper::index_finished_nodes();
         for (auto rem : removed)
             g_trans.erase(rem);
     }

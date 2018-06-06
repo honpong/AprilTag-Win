@@ -123,8 +123,6 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                         filter_add_relocalization_edges(&sfm, result.edges);
                         sfm.relocalization_info = std::move(result.info);
                     }
-                    filter_update_map_index(&sfm);
-
                     sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,
                         [this](std::future<std::unique_ptr<camera_frame_t>>&& orb_future) {
                             set_priority(PRIORITY_SLAM_RELOCALIZE);

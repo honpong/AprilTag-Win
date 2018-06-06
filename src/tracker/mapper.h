@@ -214,15 +214,8 @@ class mapper {
     nodeid node_id_offset{0};
     featureid feature_id_offset{0};
 
-    // given a word it stores the nodes in which it was observed
-    std::map<uint64_t, std::vector<nodeid>> dbow_inverted_index;
-
     // for a feature id we associate the corresponding node in which it was detected
     concurrent<std::map<featureid, nodeid>> features_dbow;
-
-    // nodes whose status is finished but which do not have a frame yet,
-    // so their addition to dbow_inverted_index is deferred.
-    std::unordered_set<nodeid> partially_finished_nodes;
 
 public:
     concurrent<aligned_map<std::string,stage>> stages;
@@ -302,10 +295,9 @@ private:
         return (id < node_id_offset ? rc_SESSION_PREVIOUS_SESSION : rc_SESSION_CURRENT_SESSION);
     }
 
-    void finish_node(nodeid node_id, bool compute_dbow_inverted_index);
+    void finish_node(nodeid node_id);
     void set_node_transformation(nodeid id, const transformation & G);
     void set_node_frame(nodeid id, std::shared_ptr<frame_t> frame);
-    void index_finished_nodes();
 
     bool serialize(rc_SaveCallback func, void *handle) const;
     static bool deserialize(rc_LoadCallback func, void *handle, mapper &map);

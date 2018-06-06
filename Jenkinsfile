@@ -42,8 +42,8 @@ pipeline {
         }
         stage('Prepare Benchmark') {
             steps {
-                sh 'cp -as                $HOME/benchmark_data/ $(realpath .)/benchmark_data/'
-                sh 'rsync -a --chmod=ug+w $HOME/benchmark_data/ $(realpath .)/benchmark_data/ --include "*.json" --include "*/" --exclude "*"'
+                sh 'cp -asf --no-preserve=mode $HOME/benchmark_data/ $(realpath .)'
+                sh 'rsync -a --chmod=ug+w      $HOME/benchmark_data/ $(realpath .)/benchmark_data/ --include "*.json" --include "*/" --exclude "*"'
             }
         }
         stage('Check options') {

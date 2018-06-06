@@ -1134,10 +1134,7 @@ bool mapper::serialize(rc_SaveCallback func, void *handle) const {
     decltype(features_dbow)::value_type local_features_dbow;
     decltype(stages)::value_type local_stages;
     {
-        multiple_lock(nodes.mutex(), features_dbow.mutex(), stages.mutex());
-        std::lock_guard<std::mutex> lock1(nodes.mutex(), std::adopt_lock);
-        std::lock_guard<std::mutex> lock2(features_dbow.mutex(), std::adopt_lock);
-        std::lock_guard<std::mutex> lock3(stages.mutex(), std::adopt_lock);
+        multiple_lock_guard<std::mutex, std::mutex, std::mutex> lock(nodes.mutex(), features_dbow.mutex(), stages.mutex());
         local_nodes = *nodes;
         local_features_dbow = *features_dbow;
         local_stages = *stages;

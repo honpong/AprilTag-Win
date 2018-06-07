@@ -157,6 +157,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                             auto &detected = filter_detect(&sfm, data, avoid, relocalize_now ? 200 : camera.detecting_space);
 
                             if (camera_frame) {
+                                camera_frame->frame->reserve(avoid.size() + detected.size());
                                 for (const auto &t : avoid)    camera_frame->frame->add_track(t, data.image.width, data.image.height);
                                 for (const auto &t : detected) camera_frame->frame->add_track(t, data.image.width, data.image.height);
                             }

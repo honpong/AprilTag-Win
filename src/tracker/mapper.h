@@ -53,7 +53,11 @@ struct frame_t {
     std::vector<std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>>> keypoints;
     std::vector<v2> keypoints_xy;
     DBoW2::BowVector dbow_histogram;       // histogram describing image
-    DBoW2::FeatureVector dbow_direct_file;  // direct file if used, empty otherwise
+
+    void reserve(size_t sz) {
+        keypoints.reserve(sz);
+        keypoints_xy.reserve(sz);
+    }
 
     void add_track(const tracker::feature_position &t, int width_px, int height_px) {
         if (fast_tracker::is_trackable<orb_descriptor::border_size>((int)t.x, (int)t.y, width_px, height_px)) {
@@ -65,17 +69,10 @@ struct frame_t {
     inline void calculate_dbow(const orb_vocabulary *orb_voc) {
         // copy pyramid descriptors to a vector of descriptors
         constexpr int levelsup = std::numeric_limits<int>::max();  // consider all the tree
-        constexpr bool use_direct_file = false;
         auto get_descriptor = [](const decltype(keypoints)::value_type &kp) -> const orb_descriptor::raw & {
                 return kp->descriptor.orb.descriptor;
         };
-        if (use_direct_file) {
-            dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor,
-                                                dbow_direct_file, levelsup);
-        } else {
-            dbow_direct_file.clear();
-            dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor, levelsup);
-        }
+        dbow_histogram = orb_voc->transform(keypoints.begin(), keypoints.end(), get_descriptor, levelsup);
     }
 #ifdef RELOCALIZATION_DEBUG
     cv::Mat image; // for debugging purposes
@@ -106,7 +103,8 @@ enum class relocalization_status {begining, find_candidates, match_descriptors, 
 struct map_feature {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     map_feature() = default;
-    map_feature(std::shared_ptr<log_depth> v_, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feat_) : v(v_), feature(feat_) {};
+    map_feature(std::shared_ptr<log_depth> v_, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feat_) : v(std::move(v_)), feature(std::move(feat_)) {}
+    map_feature(std::shared_ptr<log_depth> v_, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feat_, feature_type type_) : v(std::move(v_)), type(type_), feature(std::move(feat_)) {}
     std::shared_ptr<log_depth> v;
     feature_type type{ feature_type::tracked };
     std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
@@ -334,7 +332,7 @@ private:
         tracker::feature_track track;
         std::shared_ptr<log_depth> v;
         map_feature_track(tracker::feature_track &&track_, std::shared_ptr<log_depth> v_)
-            : track(std::move(track_)), v(v_) {}
+            : track(std::move(track_)), v(std::move(v_)) {}
         map_feature_track(map_feature_track &&) = default;
         map_feature_track & operator=(map_feature_track &&) = default;
         map_feature_track(const map_feature_track &) = delete;
@@ -366,7 +364,7 @@ private:
         size_t track_count = 0;
         triangulated_track(const nodeid id,
                            std::shared_ptr<log_depth> s) :
-            reference_nodeid(id), state(s) {}
+            reference_nodeid(id), state(std::move(s)) {}
     };
     std::unordered_map<featureid, triangulated_track> triangulated_tracks;
 };

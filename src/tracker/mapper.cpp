@@ -763,6 +763,7 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
 
     const auto &keypoint_xy_current = current_frame->keypoints_xy;
     state_vision_intrinsics* const intrinsics = camera_intrinsics[camera_frame.camera_id];
+    size_t best_num_inliers = 0;
     for (size_t idx = 0; idx < candidate_nodes.size(); ++idx) {
         const auto& nid = candidate_nodes[idx];
         edge_type type;
@@ -797,7 +798,6 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
 
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
-        size_t best_num_inliers = 0;
         if(matches_node_candidate.size() >= min_num_inliers) {
             aligned_vector<v3> candidate_3d_points;
             aligned_vector<v2> current_2d_points;

@@ -73,7 +73,6 @@ public:
     virtual void set(mapper &cur_map) override {
         for (auto ele : nodes)
             assign((*cur_map.nodes)[ele.first], ele.second);
-        cur_map.dbow_inverted_index.clear();
         *cur_map.features_dbow = move(features_dbow);
         *cur_map.stages = std::move(stages);
     }

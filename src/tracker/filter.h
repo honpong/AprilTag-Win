@@ -113,7 +113,6 @@ std::vector<tracker::feature_track> &filter_detect(struct filter *f, const senso
 bool filter_compute_orb(struct filter *f, const sensor_data &data, camera_frame_t& camera_frame);
 void filter_compute_dbow(struct filter *f, camera_frame_t& camera_frame);
 void filter_assign_frame(struct filter *f, const camera_frame_t& camera_frame);
-void filter_update_map_index(struct filter *f);
 map_relocalization_result filter_relocalize(struct filter *f, const camera_frame_t& camera_frame);
 void filter_add_relocalization_edges(struct filter *f, const aligned_vector<map_relocalization_edge>& edges);
 bool filter_accelerometer_measurement(struct filter *f, const sensor_data & data);

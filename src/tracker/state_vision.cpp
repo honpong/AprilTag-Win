@@ -203,7 +203,7 @@ int state_vision::process_features(mapper *map)
         //Finally: remove features and groups
         if(g->status == group_empty) {
             if (map) {
-                map->finish_node(g->id, !g->reused);
+                map->finish_node(g->id);
             }
             g->unmap();
             g->features.children.clear();

@@ -55,8 +55,6 @@ void mapper::reset()
     unlinked = false;
     nodes.critical_section([&](){ nodes->clear(); });
     features_dbow.critical_section([&](){ features_dbow->clear(); });
-    dbow_inverted_index.clear();
-    partially_finished_nodes.clear();
     reset_stages();
 }
 
@@ -334,12 +332,11 @@ void mapper::set_node_frame(nodeid id, std::shared_ptr<frame_t> frame) {
     });
 }
 
-void mapper::finish_node(nodeid id, bool compute_dbow_inverted_index) {
+void mapper::finish_node(nodeid id) {
     auto& node = nodes->at(id);
     nodes.critical_section([&]() {
         node.status = node_status::finished;
     });
-    if (compute_dbow_inverted_index) partially_finished_nodes.emplace(id);
 }
 
 void mapper::remove_node(nodeid id)
@@ -400,29 +397,6 @@ void mapper::remove_node(nodeid id)
                 transformation G_id_disconnected = edges[disconnected_neighbors.front()].G; // pick one of the disconnected nodes
                 add_edge(*connected_neighbors.begin(), disconnected_neighbors.front(), invert(G_id_connected)*G_id_disconnected, edge_type::dead_reckoning);
             }
-        }
-    }
-}
-
-void mapper::index_finished_nodes() {
-    for (auto it = partially_finished_nodes.begin(); it != partially_finished_nodes.end(); ) {
-        nodeid id = *it;
-        bool update_index = false, remove_node = false;
-        auto node_it = nodes->find(id);
-        if (node_it == nodes->end()) {
-            remove_node = true;
-        } else if (node_it->second.frame) {
-            update_index = true;
-            remove_node = true;
-        }
-        if (update_index) {
-            for (auto &word : node_it->second.frame->dbow_histogram)
-                dbow_inverted_index[word.first].push_back(id);
-        }
-        if (remove_node) {
-            it = partially_finished_nodes.erase(it);
-        } else {
-            ++it;
         }
     }
 }
@@ -497,15 +471,9 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
     {
         std::unordered_map<nodeid, std::shared_ptr<frame_t>> candidate_frames;
         nodes.critical_section([&]() {
-            for (auto& word : current_frame->dbow_histogram) {
-                auto word_i = dbow_inverted_index.find(word.first);
-                if (word_i == dbow_inverted_index.end()) continue;
-                for (auto nid : word_i->second) {
-                    if (candidate_frames.count(nid) || discarded_nodes.count(nid)) continue;
-                    auto it = nodes->find(nid);
-                    if (it != nodes->end() && it->second.status == node_status::finished) {
-                        candidate_frames.emplace(nid, it->second.frame);
-                    }
+            for (auto& it : *nodes) {
+                if (it.second.status == node_status::finished && it.second.frame && !discarded_nodes.count(it.first)) {
+                    candidate_frames.emplace(it.first, it.second.frame);
                 }
             }
         });
@@ -523,7 +491,7 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
             };
             dbow_scores.reserve(std::min(candidate_frames.size(), max_candidates));
             auto it = candidate_frames.begin();
-            for (size_t i = 0; i < max_candidates && it != candidate_frames.end(); ++it, ++i) {
+            for (; dbow_scores.size() < max_candidates && it != candidate_frames.end(); ++it) {
                 dbow_scores.emplace_back(it->first, orb_voc->score(it->second->dbow_histogram, current_frame->dbow_histogram));
             }
             if (it != candidate_frames.end()) {
@@ -1207,9 +1175,6 @@ bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
     for (auto &ele : *cur_map.nodes) {
         if (ele.second.frame) {
             ele.second.frame->calculate_dbow(cur_map.orb_voc.get()); // populate map_frame's dbow_histogram and dbow_direct_file
-            for (auto &word : ele.second.frame->dbow_histogram) {
-                cur_map.dbow_inverted_index[word.first].push_back(ele.first);
-            }
         }
         ele.second.status = node_status::finished;
         if (max_node_id < ele.second.id) max_node_id = ele.second.id;

@@ -656,11 +656,6 @@ void filter_assign_frame(struct filter *f, const camera_frame_t& camera_frame)
     f->map->set_node_frame(camera_frame.closest_node, camera_frame.frame);
 }
 
-void filter_update_map_index(struct filter *f)
-{
-    f->map->index_finished_nodes();
-}
-
 map_relocalization_result filter_relocalize(struct filter *f, const camera_frame_t& camera_frame)
 {
     auto start = std::chrono::steady_clock::now();

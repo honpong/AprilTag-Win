@@ -9,6 +9,7 @@ class PacketType:
     stereo_raw = 40
     arrival_time = 44
     calibration_json = 43
+    calibration_bin = 48
 
 class Packet:
     header_size = 16

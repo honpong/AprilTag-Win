@@ -59,7 +59,7 @@ def convert(capture_filename, output_folder, drop_images, drop_accel, drop_gyro,
         return  "%s %f\n" % (path, float(t_us)/1e3)
 
     def camera_to_pgm_header(width, height, max_val):
-        return "P5\n%d %d\n%d\n" % (width, height, max_val)
+        return ("P5\n%d %d\n%d\n" % (width, height, max_val)).encode('ASCII')
 
     # defined in rc_tracker.h
     rc_IMAGE_GRAY8 = 0
@@ -137,7 +137,7 @@ if __name__ == '__main__':
                         help='', default=False, action="store_true")
     parser.add_argument('--drop_accel', help='', default=False, action="store_true")
     parser.add_argument('--drop_gyro', help='', default=False, action="store_true")
-    parser.add_argument('--drop_image_ids', nargs='+', type=int)
+    parser.add_argument('--drop_image_ids', nargs='+', type=int, default=list())
 
     args = parser.parse_args()
 

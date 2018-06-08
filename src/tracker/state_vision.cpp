@@ -145,12 +145,12 @@ int state_vision::process_features(mapper *map)
 
         // store current reference group (even in case it is removed)
         if(g->status == group_reference) reference_group = g.get();
-        
+
         if(health < state_vision_group::min_feats)
             g->status = group_empty;
         else
             total_health += health;
-        
+
         // Found our reference group
         if(g->status == group_reference) need_reference = false;
         
@@ -160,26 +160,24 @@ int state_vision::process_features(mapper *map)
     }
     if(best_group && need_reference) {
         best_group->make_reference();
+        reference_group = best_group;
         if(map) {
-            map->reference_node = &map->get_node(best_group->id);
-            if(reference_group) {
+            if(map->reference_node) {
                 // remove filter edges between active groups and dropped reference group
                 // we will connect them to the new reference group below
                 for(auto &g : groups.children) {
-                    if(g->id != reference_group->id) {
+                    if(g->id != map->reference_node->id && g->id != reference_group->id) {
                         edge_type type;
-                        if(map->edge_in_map(reference_group->id, g->id, type)) {
-                            assert(type != edge_type::relocalization);
-                            assert(type != edge_type::dead_reckoning);
+                        if(map->edge_in_map(map->reference_node->id, g->id, type)) {
                             if(type == edge_type::filter) {
-                                map->remove_edge(reference_group->id, g->id);
+                                map->remove_edge(map->reference_node->id, g->id);
                             }
                         }
                     }
                 }
             }
+            map->reference_node = &map->get_node(reference_group->id);
         }
-        reference_group = best_group;
     }
 
     //Then: remove tracks based on feature and group status
@@ -190,7 +188,6 @@ int state_vision::process_features(mapper *map)
 
     // store info about reference group in case all groups are removed
     if(map && reference_group) {
-        map->reference_node->id = reference_group->id;
         map->reference_node->global_transformation = *reference_group->Gr;
     }
 

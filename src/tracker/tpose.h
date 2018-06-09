@@ -133,8 +133,6 @@ struct tpose_sequence {
         return true;
     }
     bool load_from_file(const std::string &filename) {
-        std::ifstream file(filename);
-
         if(filename.find(".tum") != std::string::npos)
             format = FORMAT_TUM;
         else if(filename.find(".vicon") != std::string::npos)

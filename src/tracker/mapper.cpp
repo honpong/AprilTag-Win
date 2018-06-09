@@ -265,37 +265,26 @@ void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feat
                          std::shared_ptr<log_depth> v, const feature_type type) {
     auto it = nodes->find(groupid);
     if(it != nodes->end()) {
-        auto fid = feature->id;
-        nodes.critical_section([&]() {
+        critical_section(nodes, features_dbow, [&]() {
+            (*features_dbow)[feature->id] = groupid;
             it->second.add_feature(std::move(feature), std::move(v), type);
-        });
-        features_dbow.critical_section([&]() {
-            (*features_dbow)[fid] = groupid;
         });
     }
 }
 
 void mapper::remove_feature(nodeid groupid, featureid fid) {
-    features_dbow.critical_section([&]() {
+    critical_section(nodes, features_dbow, [&]() {
         features_dbow->erase(fid);
-    });
-    nodes.critical_section([&]() {
         nodes->at(groupid).features.erase(fid);
     });
 }
 
 void mapper::remove_feature(featureid fid) {
-    nodeid nid = std::numeric_limits<nodeid>::max();
-    features_dbow.critical_section([&]() {
-        auto it = features_dbow->find(fid);
-        if (it != features_dbow->end()) {
-            nid = it->second;
+    auto it = features_dbow->find(fid);
+    if (it != features_dbow->end()) {
+        critical_section(nodes, features_dbow, [&]() {
+            nodes->at(it->second).features.erase(fid);
             features_dbow->erase(it);
-        }
-    });
-    if (nid < std::numeric_limits<nodeid>::max()) {
-        nodes.critical_section([&]() {
-            nodes->at(nid).features.erase(fid);
         });
     }
 }
@@ -446,21 +435,13 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
     std::unordered_set<nodeid> discarded_nodes;
     {
         // find nodes with 3d features in common with current frame so that we don't try to relocalize against them
-        std::unordered_set<nodeid> nodes_with_common_3dfeatures;
-        features_dbow.critical_section([&]() {
+        critical_section(nodes, features_dbow, [&]() {
             for (auto& keypoint : current_frame->keypoints) {
                 auto it = features_dbow->find(keypoint->id);
                 if (it != features_dbow->end()) {
-                    nodes_with_common_3dfeatures.insert(it->second);
-                }
-            }
-        });
-        nodes.critical_section([&]() {
-            for(auto& node_id : nodes_with_common_3dfeatures) {
-                auto it = nodes->find(node_id);
-                if(it != nodes->end()) {
-                    discarded_nodes.insert(node_id);
-                    discarded_nodes.insert(it->second.covisibility_edges.begin(), it->second.covisibility_edges.end());
+                    const map_node& node = nodes->at(it->second);
+                    discarded_nodes.insert(node.id);
+                    discarded_nodes.insert(node.covisibility_edges.begin(), node.covisibility_edges.end());
                 }
             }
         });
@@ -767,9 +748,6 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
         // Just keep candidates with more than a min number of mathces
         std::set<size_t> inliers_set;
         if(matches_node_candidate.size() >= min_num_inliers) {
-            aligned_vector<v3> candidate_3d_points;
-            aligned_vector<v2> current_2d_points;
-            transformation G_candidate_currentframe;
             // Estimate pose from 3d-2d matches
             std::unordered_map<nodeid, transformation> G_candidate_neighbors;
             ok = nodes.critical_section([&](){
@@ -799,43 +777,31 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
             });
             if (!ok) continue;
 
-            const auto &keypoint_candidates = candidate_node_frame->keypoints;
-            std::vector<std::tuple<featureidx, featureid, nodeid>> candidate_features;  // current_feature_index, candidate_feature_id, node_containing_candidate_feature_id
-            features_dbow.critical_section([&]() {
-                for (auto m : matches_node_candidate) {
-                    auto &candidate = *keypoint_candidates[m.second];
+            aligned_vector<v3> candidate_3d_points;
+            aligned_vector<v2> current_2d_points;
+            critical_section(nodes, features_dbow, [&]() {
+                for (const auto& m : matches_node_candidate) {
+                    auto &candidate = *candidate_node_frame->keypoints[m.second];
                     featureid keypoint_id = candidate.id;
                     auto it = features_dbow->find(keypoint_id);
                     if (it != features_dbow->end()) {
-                        candidate_features.emplace_back(m.first, it->first, it->second);
+                        featureidx current_feature_index = m.first;
+                        nodeid nodeid_keypoint = it->second;
+                        auto it_node = nodes->find(nodeid_keypoint);
+                        if (it_node != nodes->end()) {
+                            // NOTE: We use 3d features observed from candidate, this does not mean
+                            // these features belong to the candidate node (group)
+                            auto it_G = G_candidate_neighbors.find(nodeid_keypoint);
+                            if(it_G == G_candidate_neighbors.end()) {// TODO: all features observed from the candidate node should be represented wrt one of the covisible nodes but it does not happen ....
+                                continue;
+                            }
+                            candidate_3d_points.emplace_back(it_G->second * get_feature3D(nodeid_keypoint, keypoint_id)); // feat is in body frame
+                            current_2d_points.emplace_back(intrinsics->undistort_feature(intrinsics->normalize_feature(keypoint_xy_current[current_feature_index]))); //undistort keypoints at current frame
+                        }
                     }
                 }
             });
-            nodes.critical_section([&]() {
-                for (auto& f : candidate_features) {
-                    featureidx current_feature_index = std::get<0>(f);
-                    featureid keypoint_id = std::get<1>(f);
-                    nodeid nodeid_keypoint = std::get<2>(f);
-                    auto it_node = nodes->find(nodeid_keypoint);
-                    if (it_node != nodes->end()) {
-                        // NOTE: We use 3d features observed from candidate, this does not mean
-                        // these features belong to the candidate node (group)
-                        auto it_G = G_candidate_neighbors.find(nodeid_keypoint);
-                        if(it_G == G_candidate_neighbors.end()) {// TODO: all features observed from the candidate node should be represented wrt one of the covisible nodes but it does not happen ....
-                            continue;
-                        }
-                        if (!it_node->second.features.count(keypoint_id)) {
-                            continue;
-                        }
-                        v3 p_candidate = it_G->second *
-                                get_feature3D(nodeid_keypoint, keypoint_id); // feat is in body frame
-                        candidate_3d_points.push_back(p_candidate);
-                        //undistort keypoints at current frame
-                        feature_t ukp = intrinsics->undistort_feature(intrinsics->normalize_feature(keypoint_xy_current[current_feature_index]));
-                        current_2d_points.push_back(ukp);
-                    }
-                }
-            });
+            transformation G_candidate_currentframe;
             inliers_set.clear();
             START_EVENT(SF_ESTIMATE_POSE,0);
             bool pose_found = estimate_pose(candidate_3d_points, current_2d_points, camera_frame.camera_id, G_candidate_currentframe, inliers_set);
@@ -1129,20 +1095,10 @@ bool mapper::serialize(rc_SaveCallback func, void *handle) const {
     bstream_writer cur_stream(func, handle);
     cur_stream.write(magic_file_format_num, sizeof(magic_file_format_num));
     cur_stream << (uint8_t)MAPPER_SERIALIZED_VERSION;
-
-    decltype(nodes)::value_type local_nodes;
-    decltype(features_dbow)::value_type local_features_dbow;
-    decltype(stages)::value_type local_stages;
-    {
-        multiple_lock(nodes.mutex(), features_dbow.mutex(), stages.mutex());
-        std::lock_guard<std::mutex> lock1(nodes.mutex(), std::adopt_lock);
-        std::lock_guard<std::mutex> lock2(features_dbow.mutex(), std::adopt_lock);
-        std::lock_guard<std::mutex> lock3(stages.mutex(), std::adopt_lock);
-        local_nodes = *nodes;
-        local_features_dbow = *features_dbow;
-        local_stages = *stages;
-    }
-    cur_stream << local_nodes << local_features_dbow << local_stages;
+    auto t = critical_section(nodes, features_dbow, stages, [&]() {
+        return std::make_tuple(*nodes, *features_dbow, *stages);
+    });
+    cur_stream << std::get<0>(t) << std::get<1>(t) << std::get<2>(t);
     cur_stream.end_stream();
     if (!cur_stream.good()) log->error("map was not saved successfully.");
     return cur_stream.good();

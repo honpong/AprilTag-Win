@@ -70,6 +70,6 @@ while p is not None:
 f.close()
 f_out.close()
 
-for ext in [".json", ".tum", ".loop"]:
+for ext in [".json", ".tum"]:
     if os.path.isfile(capture_filename + ext):
         shutil.copy(capture_filename + ext, output_filename + ext)

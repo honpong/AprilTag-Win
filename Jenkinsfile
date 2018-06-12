@@ -47,34 +47,33 @@ pipeline {
         }
         stage('Prepare Benchmark') {
             steps {
-                sh 'cp -asf --no-preserve=mode $HOME/benchmark_data/ $(realpath .)'
-                sh 'rsync -a --chmod=ug+w      $HOME/benchmark_data/ $(realpath .)/benchmark_data/ --include "*.json" --include "*/" --exclude "*"'
+                sh 'cp -asf --no-preserve=mode $HOME/data/ $(realpath .)'
+                sh 'rsync -a --chmod=ug+w      $HOME/data/ $(realpath .)/data/ --include "*.json" --include "*/" --exclude "*"'
             }
         }
         stage('Check options') {
             steps {
-                sh 'build/rc_replay --output-tum benchmark_data/minimal_test_suite/monocular/table_bookcase_calib_L150 > a'
-                sh 'build/rc_replay --output-tum benchmark_data/minimal_test_suite/monocular/table_bookcase_calib_L150 benchmark_data/minimal_test_suite/monocular/table_bookcase_calib_L150 > aa'
+                sh 'build/rc_replay --output-tum data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 > a'
+                sh 'build/rc_replay --output-tum data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 > aa'
                 sh 'cat a a > a_a'
                 sh 'diff -u a_a aa'
-                sh 'build/measure --benchmark benchmark_data/minimal_test_suite/'
-                sh 'build/measure --benchmark benchmark_data/minimal_test_suite/ --disable-map'
-                sh 'build/measure --benchmark benchmark_data/minimal_test_suite/ --no-fast-path'
-                sh 'build/measure --benchmark benchmark_data/minimal_test_suite/ --async'
-                sh 'build/measure             benchmark_data/new_test_suite/WW50/VR_with_ctrl/Building/VR_RM_with_ctrl_yossi_3.stereo.rc --no-gui --relocalize --save-map test.map'
-                sh 'build/measure --benchmark benchmark_data/minimal_test_suite/ --relocalize --load-map test.map'
+                sh 'build/measure --benchmark data/other/minimal_test_suite/'
+                sh 'build/measure --benchmark data/other/minimal_test_suite/ --disable-map'
+                sh 'build/measure --benchmark data/other/minimal_test_suite/ --no-fast-path'
+                sh 'build/measure --benchmark data/other/minimal_test_suite/ --async'
+                sh 'build/measure             data/vr/WW50/VR_with_ctrl/Building/VR_RM_with_ctrl_yossi_3.stereo.rc --no-gui --relocalize --save-map test.map'
+                sh 'build/measure --benchmark data/other/minimal_test_suite/ --relocalize --load-map test.map'
             }
         }
         stage('Verify') {
             parallel {
                 stage('Run benchmark') {
                     steps {
-                        sh 'build/measure --qvga --relocalize --benchmark benchmark_data/new_test_suite/ benchmark_data/home_recordings/ --pose-output %s.cpu.tum --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        sh 'build/measure --qvga --relocalize --benchmark data/ --pose-output %s.cpu.tum --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'sed -ne /^Length/,//p benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt                           > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
-                        sh './run_safety_kpi.py benchmark_data/new_test_suite/WW50/VR_ctrl_dynamic benchmark_data/new_test_suite/WW50/VR_with_ctrl benchmark_data/home_recordings/ .cpu.tum > kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        sh './run_safety_kpi.py data/vr .cpu.tum > kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'tail -n12 kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt >> benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
-                        sh 'build/measure --benchmark benchmark_data/kpis/ --pose-output %s.cpu.tum --relocalize'
-                        sh './run_kpis.py benchmark_data/kpis .cpu.tum > kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        sh './run_kpis.py data/kpis .cpu.tum > kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'tail -n14 kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt >> benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
                         archiveArtifacts artifacts: "kpi-*-$BRANCH_NAME-${GIT_COMMIT}.txt"
                         copyArtifacts projectName: "SlamTracker/master", filter: "benchmark-summary-master-*", target: "base"

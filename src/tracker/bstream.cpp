@@ -139,8 +139,8 @@ size_t replay_output::get_data(bstream_buffer &&pos) const {
 bool replay_output::set_data(bstream_buffer &&pos) {
     bstream_reader cur_stream(mem_load_callback, &pos);
     cur_stream.read(packet_header.get(), sizeof(packet_header_t));
-    cur_stream >> read_as<uint8_t,rc_DataPath>(data_path) >> path_length >> sensor_time_us;
-    cur_stream >> read_as<uint8_t,rc_SensorType>(sensor_type) >> sensor_id >> read_as<uint8_t,rc_TrackerConfidence>(confidence);
+    cur_stream >> read_as<uint8_t>(data_path) >> path_length >> sensor_time_us;
+    cur_stream >> read_as<uint8_t>(sensor_type) >> sensor_id >> read_as<uint8_t>(confidence);
     return pose_feature_output::set_data(cur_stream);
 }
 

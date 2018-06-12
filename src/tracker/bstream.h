@@ -264,13 +264,18 @@ private:
 };
 
 template <typename As, typename T>
-struct read_as {
+struct read_as_t {
     T &ref;
-    read_as(T &v) : ref(v) {}
-    friend bstream_reader& operator>>(bstream_reader& r, const read_as<As,T> &ra) {
+    read_as_t(T &v) : ref(v) {}
+    friend bstream_reader& operator>>(bstream_reader& r, const read_as_t<As,T> &ra) {
         As as{}; if (r >> as) ra.ref = static_cast<T>(as); return r;
     }
 };
+
+template <typename As, typename T>
+read_as_t<As, T> read_as(T& v) {
+    return read_as_t<As, T>(v);
+}
 
 size_t mem_load_callback(void * handle, void *buffer, size_t length);
 

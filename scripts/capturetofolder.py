@@ -108,6 +108,23 @@ def convert(capture_filename, output_folder, drop_images, drop_accel, drop_gyro,
             frame.write(pgm_header)
             frame.write(frame_data)
             frame.close()
+        elif p.header.type == PacketType.stereo_raw and not drop_images and sensor_id not in drop_image_ids:
+            (exposure, width, height, stride0, stride1, camera_format) = unpack('QHHHHH', p.data[:18])
+            assert(stride0 == stride1 and stride0 == width and camera_format == rc_IMAGE_GRAY8)
+            for sensor_id, offset in (sensor_id, 18), (sensor_id+1, 18+width*height):
+                if sensor_id not in frame_file_handles:
+                    frame_file_handles[sensor_id] = open(os.path.join(output_folder, "%s_%d_timestamps.txt" % (frame_name, sensor_id)), "w")
+                    ensure_path(os.path.join(output_folder, "%s_%d" % (frame_name, sensor_id)))
+                image_filename = "%s_%d/image_%06d.pgm" % (frame_name, sensor_id, frame_numbers[sensor_id])
+                line = camera_to_str(ptime, image_filename)
+                pgm_header = camera_to_pgm_header(width, height, 255)
+                frame_data = p.data[offset:offset+width*height]
+                assert(len(frame_data) == width*height)
+                frame_file_handles[sensor_id].write(line)
+                frame_numbers[sensor_id] += 1
+                with open(os.path.join(output_folder, image_filename), "wb") as frame:
+                    frame.write(pgm_header)
+                    frame.write(frame_data)
 
         p = Packet.from_file(f)
 

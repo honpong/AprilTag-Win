@@ -399,11 +399,11 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
 
         if(key.empty()) continue; // skip root dir results to aggregate at top level
         stream << "\nSummary for " << key << "\n";
-        stream << "ATE (m) RMSE: " << rmses_ate << "\n";
+        stream << "ATE   (m)   RMSE: " << rmses_ate << "\n";
         stream << "RPE-R (deg) RMSE: " << rmses_rpe_R << "\n";
     }
 
     stream << "\nSummary for all data\n";
-    stream << "ATE (m) RMSE: " << rmses_ate_all << "\n";
+    stream << "ATE   (m)   RMSE: " << rmses_ate_all << "\n";
     stream << "RPE-R (deg) RMSE: " << rmses_rpe_R_all << "\n";
 }

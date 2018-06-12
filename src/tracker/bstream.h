@@ -201,6 +201,7 @@ public:
     void set_failed() { is_good = false; }
 
     bool good() { return is_good; }
+    operator bool() { return is_good; }
 
     virtual ~bstream_reader() {};
 private:
@@ -260,6 +261,15 @@ private:
     }
 
     bstream_reader() = delete;
+};
+
+template <typename As, typename T>
+struct read_as {
+    T &ref;
+    read_as(T &v) : ref(v) {}
+    friend bstream_reader& operator>>(bstream_reader& r, const read_as<As,T> &ra) {
+        As as{}; if (r >> as) ra.ref = static_cast<T>(as); return r;
+    }
 };
 
 size_t mem_load_callback(void * handle, void *buffer, size_t length);

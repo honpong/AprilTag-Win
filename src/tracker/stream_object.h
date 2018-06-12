@@ -132,7 +132,7 @@ public:
 
 static inline void pose_data_callback(void * handle, rc_Tracker * tracker, const rc_Data * data) {
     replay_output *output = &((replay_output *)handle)[data->path]; //get corresponding pose object to path or slow path.
-    output->confidence = (int8_t)rc_getConfidence(tracker);
+    output->confidence = rc_getConfidence(tracker);
     output->path_length = rc_getPathLength(tracker);
     output->sensor_time_us = data->time_us;
     output->data_path = data->path;

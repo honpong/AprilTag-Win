@@ -344,7 +344,7 @@ public:
     rc_Sensor sensor_id{ 0 };
     float path_length{ 0 };
     rc_DataPath data_path{ rc_DATA_PATH_SLOW };
-    int8_t confidence{ 0 };
+    rc_TrackerConfidence confidence{ rc_E_CONFIDENCE_NONE };
     void print_pose(uint8_t data_path) const;
     class bstream_buffer {
     public:

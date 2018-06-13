@@ -16,6 +16,8 @@ fout = open(outfilename, "wb")
 p = Packet.from_file(f)
 while p is not None:
     skip = (p.header.type == PacketType.image_raw and p.header.sensor_id > 1) or \
+           (p.header.type == PacketType.exposure_info and p.header.sensor_id > 1) or \
+           (p.header.type == PacketType.thermometer and p.header.sensor_id > 0) or \
            (p.header.type == PacketType.accelerometer and p.header.sensor_id > 0) or \
            (p.header.type == PacketType.gyroscope and p.header.sensor_id > 0)
     if not skip:

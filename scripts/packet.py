@@ -6,10 +6,12 @@ class PacketType:
     image_raw = 29
     accelerometer = 20
     gyroscope = 21
+    thermometer = 31
     stereo_raw = 40
     arrival_time = 44
     calibration_json = 43
     calibration_bin = 48
+    exposure_info = 49
 
 class Packet:
     header_size = 16

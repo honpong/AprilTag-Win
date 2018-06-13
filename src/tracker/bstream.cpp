@@ -130,7 +130,7 @@ size_t replay_output::get_data(bstream_buffer &&pos) const {
     bstream_writer cur_stream(mem_save_callback, &pos);
     cur_stream.write(packet_header.get(), sizeof(packet_header_t));
     cur_stream << (uint8_t)data_path << path_length << sensor_time_us;
-    cur_stream << (uint8_t)sensor_type << sensor_id << confidence;
+    cur_stream << (uint8_t)sensor_type << sensor_id << (uint8_t)confidence;
     pose_feature_output::get_data(cur_stream);
     cur_stream.end_stream(); //call to complete delayed writing.
     return cur_stream.total_io_bytes;
@@ -139,8 +139,8 @@ size_t replay_output::get_data(bstream_buffer &&pos) const {
 bool replay_output::set_data(bstream_buffer &&pos) {
     bstream_reader cur_stream(mem_load_callback, &pos);
     cur_stream.read(packet_header.get(), sizeof(packet_header_t));
-    cur_stream >> (uint8_t &)data_path >> path_length >> sensor_time_us;
-    cur_stream >> (uint8_t &)sensor_type >> sensor_id >> confidence;
+    cur_stream >> read_as<uint8_t>(data_path) >> path_length >> sensor_time_us;
+    cur_stream >> read_as<uint8_t>(sensor_type) >> sensor_id >> read_as<uint8_t>(confidence);
     return pose_feature_output::set_data(cur_stream);
 }
 

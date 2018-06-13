@@ -202,8 +202,7 @@ int main(int c, char **v)
         return true;
     };
 
-    rc_TrackerConfidence tracking_confidence = rc_TrackerConfidence::rc_E_CONFIDENCE_NONE; //updated by pose callback.
-    auto print_results = [&calibrate,tracking_confidence,&replace](replay &rp, struct benchmark_result &res, const char *capture_file) {
+    auto print_results = [&calibrate,&replace](replay &rp, struct benchmark_result &res, const char *capture_file, rc_TrackerConfidence tracking_confidence) {
         std::cout << std::fixed << std::setprecision(2);
         std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
         std::cout << "Computed  Straight-line length is " << res.length_cm.measured        << " cm, total path length " << res.path_length_cm.measured        << " cm\n";
@@ -249,9 +248,8 @@ int main(int c, char **v)
             std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
-    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &fast_path, &tracking_confidence]
+    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &fast_path]
         (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, gt_generator &loop_gt, const replay_output *rp_output, const rc_Data *data, std::ostream *pose_st) {
-        tracking_confidence = (rc_TrackerConfidence) rp_output->confidence;
         rc_PoseTime current_pose = rp_output->rc_getPose(rp_output->data_path);
 
         auto timestamp = sensor_clock::micros_to_tp(current_pose.time_us);
@@ -301,7 +299,7 @@ int main(int c, char **v)
         }
         const int device_id = 0;
         if(pose_st && rp_output->data_path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW))
-            *pose_st << tpose_tum(current_pose.time_us/1e6, to_transformation(current_pose.pose_m), device_id, tracking_confidence);
+            *pose_st << tpose_tum(current_pose.time_us/1e6, to_transformation(current_pose.pose_m), device_id, rp_output->confidence);
         if (enable_gui || render_output)
             ws.rc_data_callback(rp_output, data);
         if (enable_gui && rp_output->sensor_type == rc_SENSOR_TYPE_DEBUG && data->debug.pause)
@@ -320,7 +318,7 @@ int main(int c, char **v)
             mkdir(render_output, 0777);
 
         benchmark_run(stream, filenames, threads,
-        [&](const char *capture_file, struct benchmark_result &res) -> bool {
+        [&, confidence=rc_TrackerConfidence::rc_E_CONFIDENCE_NONE](const char *capture_file, struct benchmark_result &res) mutable -> bool {
             auto rp_ = std::make_unique<replay>(  // avoid blowing the stack when threaded or on Windows
 #ifdef  ENABLE_TM2_PLAYBACK
                 tm2_playback ? new tm2_host_stream(capture_file) :
@@ -335,7 +333,8 @@ int main(int c, char **v)
             gt_generator loop_gt;
             std::ofstream pose_fs; if (pose_output) pose_fs.open(replace(pose_output, "%s", capture_file).c_str());
 
-            rp.set_data_callback([ws,&rp,first=true,&res, &loop_gt,&data_callback,&pose_fs](const replay_output * output, const rc_Data * data) mutable {
+            rp.set_data_callback([ws,&rp,first=true,&res, &loop_gt,&data_callback,&pose_fs,&confidence](const replay_output * output, const rc_Data * data) mutable {
+                confidence = output->confidence;
                 data_callback(*ws, rp, first, res, loop_gt, output, data, &pose_fs);
             });
 
@@ -345,7 +344,7 @@ int main(int c, char **v)
             res.length_cm.reference = 100*rp.get_reference_length();res.path_length_cm.reference = 100*rp.get_reference_path_length();
             res.storage = rp.get_storage_stat();
 
-            if (progress) print_results(rp, res, capture_file);
+            if (progress) print_results(rp, res, capture_file, confidence);
             if (save_map) rp.save_map(replace(save_map, "%s", capture_file).c_str());
             if (save) rp.save_calibration(replace(save, "%s", capture_file).c_str());
 
@@ -385,8 +384,10 @@ int main(int c, char **v)
     world_state ws;
     gt_generator loop_gt;
     std::ofstream pose_fs; if (pose_output) pose_fs.open(replace(pose_output, "%s", filename));
+    rc_TrackerConfidence confidence = rc_E_CONFIDENCE_NONE;
 
-    rp.set_data_callback([&ws,&rp,first=true,&res, &loop_gt,&data_callback,&pose_fs](const replay_output * output, const rc_Data * data) mutable {
+    rp.set_data_callback([&ws,&rp,first=true,&res, &loop_gt,&data_callback,&pose_fs,&confidence](const replay_output * output, const rc_Data * data) mutable {
+        confidence = output->confidence;
         data_callback(ws, rp, first, res, loop_gt, output, data, &pose_fs);
     });
 
@@ -415,7 +416,7 @@ int main(int c, char **v)
     if (stats)
         std::cout << rp.get_track_stat();
 
-    print_results(rp,res,filename);
+    print_results(rp,res,filename,confidence);
     rp.end();
     return 0;
 }

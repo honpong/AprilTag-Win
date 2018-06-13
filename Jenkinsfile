@@ -70,7 +70,7 @@ pipeline {
                 stage('Run benchmark') {
                     steps {
                         sh 'build/measure --qvga --relocalize --benchmark data/ --pose-output %s.cpu.tum --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
-                        sh 'sed -ne /^Length/,//p benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt                           > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        sh 'sed -ne \'/^Summary/,$p\' benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh './run_safety_kpi.py data/vr .cpu.tum > kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'tail -n12 kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt >> benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh './run_kpis.py data/kpis .cpu.tum > kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt'

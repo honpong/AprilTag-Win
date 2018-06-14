@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from packet import Packet, PacketType
 import sys
+import re
 
 if len(sys.argv) not in (2,3):
     print "Usage:", sys.argv[0], "<capture file> [<output-file.(json|bin)>]"

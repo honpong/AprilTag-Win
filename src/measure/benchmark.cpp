@@ -122,6 +122,11 @@ static std::string basename(const std::string& file_name) {
     return (lastindex == std::string::npos ? file_name : file_name.substr(lastindex + 1));
 }
 
+static std::string basedir(const std::string& file_name) {
+    size_t firstindex = file_name.find_first_of("/\\");
+    return (firstindex == std::string::npos ? "" : file_name.substr(0, firstindex));
+}
+
 static std::string find_common_dir(const std::vector<std::string>& files) {
     if (files.empty()) return "";
     std::string common = files[0];
@@ -191,6 +196,7 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
         return lhs.basename < rhs.basename;
     });
 
+    std::map<std::string, std::vector<std::pair<double,double> > > rmse_results;
     for (auto &bm : results) {
         if (!bm.ok.get()) {
             stream << "FAILED " << bm.basename << "\n";
@@ -199,6 +205,7 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
             stream << "Result " << bm.basename << "\n";
 
         auto &r = bm.result;
+        std::string res_basedir = basedir(bm.basename);
 
         double L  = r.length_cm.measured,      base_L  = r.length_cm.reference;
         double PL = r.path_length_cm.measured, base_PL = r.path_length_cm.reference;
@@ -248,6 +255,10 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
             rpe_R_errors_deg.push_back(r.errors.rpe_R.rmse*(180.f/M_PI));
             stream.precision(prec);
         }
+        if (r.errors.calculate_ate() && r.errors.calculate_rpe_600ms()) {
+            rmse_results[res_basedir].push_back({r.errors.ate.rmse, r.errors.rpe_R.rmse*(180./M_PI)});
+        }
+
         if(r.errors.calculate_ate_60s()) {
             stream << "\tATE (60s)\t" << r.errors.ate_60s.rmse << "m\n";
             ate_60s_errors_m.push_back(r.errors.ate_60s.rmse);
@@ -371,4 +382,28 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
             for (auto& s : storage_items) v.emplace_back(s.items[i]);
             stream << "Storage (" << names[i] << ") histogram (" << storage_items.size() << " sequences)\n" << storage_histogram(v, storage_edges, 2, "") << "\n";
         }
+
+    stdev<1> rmses_ate_all;
+    stdev<1> rmses_rpe_R_all;
+    for (auto & item : rmse_results) {
+        const auto & key = item.first;
+        const auto & values = item.second;
+        stdev<1> rmses_ate;
+        stdev<1> rmses_rpe_R;
+        for(const std::pair<double, double> & rmse : values) {
+            rmses_ate.data(v<1>(rmse.first));
+            rmses_rpe_R.data(v<1>(rmse.second));
+            rmses_ate_all.data(v<1>(rmse.first));
+            rmses_rpe_R_all.data(v<1>(rmse.second));
+        }
+
+        if(key.empty()) continue; // skip root dir results to aggregate at top level
+        stream << "\nSummary for " << key << "\n";
+        stream << "ATE   (m)   RMSE: " << rmses_ate << "\n";
+        stream << "RPE-R (deg) RMSE: " << rmses_rpe_R << "\n";
+    }
+
+    stream << "\nSummary for all data\n";
+    stream << "ATE   (m)   RMSE: " << rmses_ate_all << "\n";
+    stream << "RPE-R (deg) RMSE: " << rmses_rpe_R_all << "\n";
 }

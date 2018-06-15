@@ -168,7 +168,7 @@ while header_str != "":
       packet_str = str(ptype)
   if not latest_received or latest_received < ptime:
       latest_received = ptime
-  if ptype not in (arrival_time_type, calibration_type) :
+  if ptype not in (arrival_time_type, calibration_type, calibration_bin_type) :
     latencies[packet_str].append(latest_received - ptime)
     packets[packet_str].append(ptime)
     arrivals[packet_str].append(last_arrival_time)

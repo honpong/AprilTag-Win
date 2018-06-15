@@ -111,7 +111,7 @@ pipeline {
                         unstash 'libtracker'
                         sh 'build/mv-usb-boot -v 0x040E -p 0xF63B :re'
                         timeout(time: 10, unit: 'MINUTES') {
-                            sh 'build/measure --tm2 --no-gui --relocalize "$HOME/benchmark_data/new_test_suite/WW50/VR_with_ctrl/Shooter(Raw_Data)/VR_RD_with_ctrl_1.stereo.rc"'
+                            sh 'build/measure --tm2 --no-gui --relocalize "$HOME/data/vr/WW50/VR_with_ctrl/Shooter(Raw_Data)/VR_RD_with_ctrl_1.stereo.rc"'
                         }
                     }
                 }

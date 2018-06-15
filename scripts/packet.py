@@ -12,6 +12,7 @@ class PacketType:
     calibration_json = 43
     calibration_bin = 48
     exposure_info = 49
+    controller_physical_info = 50
 
 class Packet:
     header_size = 16

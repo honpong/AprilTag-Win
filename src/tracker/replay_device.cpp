@@ -254,6 +254,10 @@ void replay_device::process_data(rc_packet_t &phandle) {
          // ignore controller_physical_info packets for now
         break;
     }
+    case packet_exposure: {
+         // ignore exposure packets for now
+        break;
+    }
     case packet_velocimeter:
     {
         if (!use_odometry)

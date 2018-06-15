@@ -72,7 +72,7 @@ uint32_t pose_feature_output::rc_getRelocPoses(rc_Pose **reloc_pose) const {
 
 bool pose_feature_output::set_data(bstream_reader &cur_stream) {
     rc_resetFeatures();
-    cur_stream >> binary_array(poses) >> (uint8_t &)output_type;
+    cur_stream >> binary_array(poses) >> read_as<uint8_t>(output_type);
     cur_stream >> num_features;
     if (num_features > 0 &&
         (output_type == output_mode::POSE_FEATURE || output_type == output_mode::POSE_FEATURE_MAP)) {

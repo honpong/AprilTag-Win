@@ -102,10 +102,13 @@ public:
 
     typedef std::map<std::string, plot_data> plot;
 private:
+    typedef std::chrono::steady_clock wall_clock;
+    typedef wall_clock::time_point wall_time_point;
     std::unordered_map<std::string, size_t> plots_by_name;
     std::map<int, std::map<uint16_t, Sensor, std::less<uint16_t>, Eigen::aligned_allocator<std::pair<const uint16_t, Sensor> > > > sensors;
     std::map<uint16_t, const state_vision_intrinsics*, std::less<uint16_t>, Eigen::aligned_allocator<std::pair<const uint16_t, const state_vision_intrinsics*> > > camera_intrinsics;
     std::map<uint64_t, MapNode> map_nodes;
+    std::map<wall_time_point, std::vector<MapNode>> removed_map_nodes;
     std::map<std::pair<rc_Sensor,uint64_t>, Feature> features;
     std::map<std::string, VirtualObject> virtual_objects;
     std::vector<Position, Eigen::aligned_allocator<Position> > path_reloc;
@@ -146,6 +149,8 @@ public:
     std::vector<VertexData> map_node_vertex;
     std::vector<VertexData> map_edge_vertex;
     std::vector<VertexData> map_feature_vertex;
+    std::vector<VertexData> removed_map_node_vertex;
+    std::vector<VertexData> removed_map_feature_vertex;
     std::vector<VertexData> reloc_vertex;
     std::vector<VertexData> sensor_vertex;
     std::vector<VertexData> sensor_axis_vertex;
@@ -178,7 +183,6 @@ public:
     void observe_image(rc_Timestamp timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data, std::vector<overlay_data> &cameras);
     void observe_depth(rc_Timestamp timestamp_us, rc_Sensor sensor_id, const rc_ImageData & data);
     void observe_depth_overlay_image(rc_Timestamp timestamp_us, uint16_t * aligned_depth, int width, int height, int stride);
-    void observe_map_node(rc_Timestamp timestamp, uint64_t node_id, bool finished, bool unlinked, const transformation& position, std::vector<Neighbor>&& neighbors, std::vector<Feature>& features);
     void observe_ate(rc_Timestamp timestamp_us, const float absolute_trajectory_error);
     void observe_rpe(rc_Timestamp timestamp_us, const float relative_pose_error);
     void observe_position_reloc(rc_Timestamp timestamp, const rc_Pose* poses, size_t nposes);

@@ -107,20 +107,6 @@ void world_state::observe_world(float world_up_x, float world_up_y, float world_
     display_lock.unlock();
 }
 
-void world_state::observe_map_node(rc_Timestamp timestamp, uint64_t node_id, bool finished, bool unlinked, const transformation& position, std::vector<Neighbor>&& neighbors, std::vector<Feature>& features)
-{
-    display_lock.lock();
-    MapNode n;
-    n.id = node_id;
-    n.finished = finished;
-    n.unlinked = unlinked;
-    n.position = position;
-    n.neighbors = std::move(neighbors);
-    n.features = features;
-    map_nodes[node_id] = n;
-    display_lock.unlock();
-}
-
 static void update_image_size(const rc_ImageData & src, ImageData & dst)
 {
     bool src_luminance = src.format == rc_FORMAT_GRAY8 || src.format == rc_FORMAT_DEPTH16; // both rendered as grey
@@ -546,6 +532,10 @@ void world_state::update_map(rc_Tracker * tracker, rc_Timestamp timestamp_us)
     const struct filter * f = &((sensor_fusion *)tracker)->sfm;
 
     if(f->map) {
+        std::map<uint64_t, MapNode> current_map_nodes;
+        std::vector<MapNode> current_removed_map_nodes;
+        wall_time_point wall_time = wall_clock::now();
+
         const auto& nodes = f->map->get_nodes();
         for(const auto& it : nodes) {
             auto& map_node = it.second;
@@ -559,26 +549,53 @@ void world_state::update_map(rc_Tracker * tracker, rc_Timestamp timestamp_us)
             std::vector<Feature> features;
             for(auto &feat : map_node.features) {
                 Feature fw;
-                v3 feature = f->map->get_feature3D(map_node.id, feat.second.feature->id);
-                fw.feature.world.x = feature[0];
-                fw.feature.world.y = feature[1];
-                fw.feature.world.z = feature[2];
+                v3 G_node_feature = f->map->get_feature3D(map_node.id, feat.second.feature->id);
+                v3 G_world_feature = transformation_apply(map_node.global_transformation, G_node_feature);
+                fw.feature.id = feat.second.feature->id;
+                fw.feature.world.x = G_world_feature[0];
+                fw.feature.world.y = G_world_feature[1];
+                fw.feature.world.z = G_world_feature[2];
                 fw.is_triangulated = feat.second.type == feature_type::triangulated;
                 features.push_back(fw);
             }
-            bool unlinked = f->map->is_unlinked(map_node.id);
-            observe_map_node(timestamp_us, map_node.id, map_node.status == node_status::finished, unlinked, map_node.global_transformation, std::move(neighbors), features);
+
+            MapNode n;
+            n.id = map_node.id;
+            n.finished = map_node.status == node_status::finished;
+            n.unlinked = f->map->is_unlinked(map_node.id);
+            n.position = map_node.global_transformation;
+            n.neighbors = std::move(neighbors);
+            n.features = std::move(features);
+            current_map_nodes.emplace(map_node.id, std::move(n));
         }
-        // remove discarded nodes
-        display_lock.lock();
-        for(auto it = map_nodes.begin(); it != map_nodes.end(); ) {
-            if(nodes.find(it->first) == nodes.end()) {
-                map_nodes.erase(it++);
+
+        // find removed nodes and features
+        MapNode virtual_removed_node;  // fake node that contains the features that are removed from live nodes
+        virtual_removed_node.id = std::numeric_limits<decltype(virtual_removed_node.id)>::max();
+        for(auto it = map_nodes.begin(); it != map_nodes.end(); ++it) {
+            auto node_it = nodes.find(it->first);
+            if(node_it == nodes.end()) {
+                current_removed_map_nodes.emplace_back(std::move(it->second));
             } else {
-                ++it;
+                auto& map_node = node_it->second;
+                std::vector<Feature>& features = it->second.features;
+                features.erase(
+                    std::remove_if(features.begin(), features.end(), [&map_node, &virtual_removed_node](Feature& fw) {
+                        if(map_node.features.find(fw.feature.id) == map_node.features.end()) {
+                            virtual_removed_node.features.emplace_back(std::move(fw));
+                            return true;
+                        }
+                        return false;
+                    }), features.end());
             }
         }
-        display_lock.unlock();
+        if (!virtual_removed_node.features.empty())
+            current_removed_map_nodes.emplace_back(std::move(virtual_removed_node));
+
+        std::lock_guard<std::mutex> lock(display_lock);
+        map_nodes = std::move(current_map_nodes);
+        if (!current_removed_map_nodes.empty())
+            removed_map_nodes[wall_time] = std::move(current_removed_map_nodes);
     }
 }
 
@@ -946,15 +963,41 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         }
         for(Feature f : node.features) {
             VertexData vf;
-            v3 vertex(f.feature.world.x, f.feature.world.y, f.feature.world.z);
-            vertex = transformation_apply(node.position, vertex);
             if (f.is_triangulated) {
                 set_color(&vf, 255, 153, 0, alpha);
             } else {
                 set_color(&vf, 0, 0, 255, alpha);
             }
-            set_position(&vf, vertex[0], vertex[1], vertex[2]);
+            set_position(&vf, f.feature.world.x, f.feature.world.y, f.feature.world.z);
             map_feature_vertex.push_back(vf);
+        }
+    }
+
+    constexpr float decay_seconds = 3.f;
+    wall_time_point wall_time = std::chrono::steady_clock::now();
+    wall_time_point old_time = wall_time -  std::chrono::duration_cast<wall_clock::duration>(std::chrono::duration<float>(decay_seconds));
+    removed_map_nodes.erase(removed_map_nodes.begin(), removed_map_nodes.lower_bound(old_time));
+
+    removed_map_node_vertex.clear();
+    removed_map_feature_vertex.clear();
+    for (auto& it : removed_map_nodes) {
+        float elapsed_seconds = std::chrono::duration_cast<std::chrono::duration<float>>(wall_time - it.first).count();
+        const unsigned char alpha = (1.f - elapsed_seconds / decay_seconds) * 255.f;
+        constexpr unsigned char color[3] = {255, 0, 0};  // red
+
+        removed_map_node_vertex.reserve(removed_map_node_vertex.size() + it.second.size());
+        for (MapNode& n : it.second) {
+            if (n.id != std::numeric_limits<decltype(n.id)>::max()) {  // special value we have to ignore
+                removed_map_node_vertex.emplace_back();
+                set_position(&removed_map_node_vertex.back(), n.position.T[0], n.position.T[1], n.position.T[2]);
+                set_color(&removed_map_node_vertex.back(), color[0], color[1], color[2], alpha);
+            }
+            removed_map_feature_vertex.reserve(removed_map_feature_vertex.size() + n.features.size());
+            for (Feature& f : n.features) {
+                removed_map_feature_vertex.emplace_back();
+                set_position(&removed_map_feature_vertex.back(), f.feature.world.x, f.feature.world.y, f.feature.world.z);
+                set_color(&removed_map_feature_vertex.back(), color[0], color[1], color[2], alpha);
+            }
         }
     }
 

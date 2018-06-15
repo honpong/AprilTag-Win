@@ -139,11 +139,13 @@ void world_state_render(world_state * world, float * view_matrix, float * projec
     glPointSize(10.0f);
 #endif
     render.draw_array(world->map_node_vertex.data(), world->map_node_vertex.size(), GL_POINTS);
+    render.draw_array(world->removed_map_node_vertex.data(), world->removed_map_node_vertex.size(), GL_POINTS);
     glLineWidth(4.0f);
     render.draw_array(world->map_edge_vertex.data(), world->map_edge_vertex.size(), GL_LINES);
 #if !(TARGET_OS_IPHONE)
     glPointSize(5.0f);
 #endif
+    render.draw_array(world->removed_map_feature_vertex.data(), world->removed_map_feature_vertex.size(), GL_POINTS);
     render.draw_array(world->map_feature_vertex.data(), world->map_feature_vertex.size(), GL_POINTS);
 
     world->display_lock.unlock();

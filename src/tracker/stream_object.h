@@ -42,6 +42,7 @@ typedef enum replay_packet_type {
     packet_enable_usb_sync, //enable synchronous processing per packet over USB
     packet_timing_stat,
     packet_storage_stat,
+    packet_load_calibration_bin,
     packet_load_calibration,
     packet_save_calibration,
     packet_load_map,

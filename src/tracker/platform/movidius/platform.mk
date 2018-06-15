@@ -13,6 +13,7 @@ SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/src/tracker/, \
     observation.cpp \
     calibration.cpp \
     calibration_json.cpp \
+    calibration_tm2.cpp \
     sensor_fusion.cpp \
     capture.cpp \
     replay_device.cpp \

@@ -68,14 +68,6 @@ void replay_device::zero_bias() {
     }
 }
 
-bool replay_device::load_calibration(const char *calib_data)
-{
-    if (!rc_setCalibration(tracker.get(), calib_data))
-        return false;
-    if (to_zero_biases) zero_bias();
-    return true;
-}
-
 void replay_device::setup_filter()
 {
     if (stream->pose_callback) rc_setDataCallback(tracker.get(), stream->pose_callback, stream->pose_handle);
@@ -345,9 +337,18 @@ void replay_device::process_control(const packet_control_t *packet) {
         }
         break;
     }
+    case packet_load_calibration_bin: {
+        if (!rc_setCalibrationTM2(tracker.get(), (const char *)packet->data, packet->header.bytes))
+            fprintf(stderr, "Error: failed to load binary calibration...\n");
+        else if (to_zero_biases)
+            zero_bias();
+        break;
+    }
     case packet_load_calibration: {
-        if (!load_calibration((const char *)packet->data))
-            fprintf(stderr, "Error: failed to load calibration...\n");
+        if (!rc_setCalibration(tracker.get(), (const char *)packet->data))
+            fprintf(stderr, "Error: failed to load JSON calibration...\n");
+        else if (to_zero_biases)
+            zero_bias();
         break;
     }
     case packet_save_calibration: {

@@ -26,7 +26,6 @@ private:
     void setup_filter();
     void process_data(rc_packet_t &phandle);
     void process_control(const packet_control_t *packet);
-    bool load_calibration(const char *calib_data);
     void set_stage();
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;

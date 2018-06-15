@@ -85,6 +85,7 @@ add_library(trackeri STATIC ${TRACKER_SOURCES})
 
 add_library(tracker SHARED
     tracker/rc_tracker.h
+    tracker/calibration_tm2.cpp
     tracker/rc_tracker.cpp)
 target_link_libraries(tracker PRIVATE trackeri)
 target_include_directories(tracker PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/tracker> $<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>)

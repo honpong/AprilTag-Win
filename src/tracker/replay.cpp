@@ -129,13 +129,16 @@ bool replay::load_internal_calibration(const string &filename)
     ifstream rc(filename);
     packet_header_t header = {};
     rc.read((char *)&header, sizeof(header));
-    if (!rc || header.bytes <= sizeof(header) || header.type != packet_calibration_json)
+    if (!rc || header.bytes <= sizeof(header) || (header.type != packet_calibration_json && header.type != packet_calibration_bin))
         return false;
     std::string json;
+    calibration_file = filename + ".json"; // avoid the default save file being the rc file itself
     json.resize(header.bytes - sizeof(header));
     rc.read(&json[0], header.bytes - sizeof(header));
-    calibration_file = filename + ".json"; // avoid the default save file being the rc file itself
-    request(packet_load_calibration, json.c_str(), json.size() + 1);
+    if (header.type == packet_calibration_json)
+        request(packet_load_calibration, json.c_str(), json.size() + 1);
+    else if (header.type == packet_calibration_bin)
+        request(packet_load_calibration_bin, &json[0], json.size());
     return true;
 }
 

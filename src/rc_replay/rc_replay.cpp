@@ -23,6 +23,7 @@ enum packet_type {
     packet_stereo_raw = 40,
     packet_calibration_json = 43,
     packet_velocimeter = 45,
+    packet_calibration_bin = 48,
 };
 
 typedef struct {
@@ -112,13 +113,13 @@ bool replay::open(const char *name)
     return true;
 }
 
-static bool read_calibration_packet(const std::string &filename, std::string &contents)
+static bool read_calibration_packet(const std::string &filename, std::string &contents, bool &bin)
 {
     std::ifstream rc(filename);
     if (!rc) return false;
     packet_header_t header = {};
     rc.read((char *)&header, sizeof(header));
-    if (!rc || header.bytes <= 16 || header.type != packet_calibration_json)
+    if (!rc || header.bytes <= 16 || (header.type != packet_calibration_json && header.type != packet_calibration_bin))
         return false;
     contents.resize(header.bytes - 16, '\0');
     rc.read(&contents[0], header.bytes - 16);
@@ -136,14 +137,18 @@ static bool read_file(const std::string name, std::string &contents)
 bool replay::set_calibration_from_filename(const std::string &fn)
 {
     std::string calibration;
+    bool bin = false;
     if(!read_file(fn + ".json", calibration)) {
         auto found = fn.find_last_of("/\\");
         std::string path = fn.substr(0, found+1);
-        if(!read_calibration_packet(fn, calibration) &&
+        if(!read_calibration_packet(fn, calibration, bin) &&
            !read_file(path + "calibration.json", calibration))
             return false;
     }
-    return rc_setCalibration(tracker, calibration.c_str());
+    if (bin)
+        return rc_setCalibrationTM2(tracker, &calibration[0], calibration.size());
+    else
+        return rc_setCalibration(tracker, calibration.c_str());
 }
 
 static bool find_prefixed_number(const std::string in, const std::string &prefix, double &n)

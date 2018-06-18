@@ -28,6 +28,8 @@ int main(int argc, char ** argv)
     float max_dist_gt = 0;
     std::vector<uint64_t> gt_outside_times;
     std::vector<uint64_t> tm2_outside_times;
+    std::vector<uint64_t> gt_bad_timestamps;
+    std::vector<uint64_t> tm2_bad_timestamps;
     tpose_sequence shifted_tm2;
     tpose_sequence shifted_gt;
 
@@ -90,6 +92,8 @@ int main(int argc, char ** argv)
                 gt_crossings.push_back(gt_crossed_time);
                 if(tm2_dist > radius - margin)
                     gt_stat.good++;
+                else
+                    gt_bad_timestamps.push_back(sensor_clock::tp_to_micros(pose.t));
             }
             if(gt_outside && gt_dist < radius) {
                 gt_outside = false;
@@ -103,6 +107,8 @@ int main(int argc, char ** argv)
                 tm2_stat.total++;
                 if(gt_dist > radius - 2*margin)
                     tm2_stat.good++;
+                else
+                    tm2_bad_timestamps.push_back(sensor_clock::tp_to_micros(pose.t));
             }
             if(tm2_outside && tm2_dist < radius - margin) {
                 tm2_outside = false;
@@ -116,7 +122,13 @@ int main(int argc, char ** argv)
     gt_stat.total  = gt_crossings.size();
 
     printf("GT: %d total %d good\n", gt_stat.total, gt_stat.good);
+    printf("GT bad timestamps: ");
+    for(auto t : gt_bad_timestamps) printf("%" PRIu64 " ", t);
+    printf("\n");
     printf("TM2: %d total %d good\n", tm2_stat.total, tm2_stat.good);
+    printf("TM2 bad timestamps: ");
+    for(auto t : tm2_bad_timestamps) printf("%" PRIu64 " ", t);
+    printf("\n");
 
     uint64_t outside_us = 0;
     for(const auto & dt : gt_outside_times)

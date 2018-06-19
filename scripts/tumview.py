@@ -140,32 +140,34 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
     l = 0
     for k in data.keys():
         l += 1
-        if plot_mode in [PLOT_MODE_AXIS, PLOT_MODE_DIST,PLOT_MODE_ANGLES, PLOT_MODE_3D]:
+        if plot_mode == PLOT_MODE_AXIS:
             xy_plt = plt.subplot(nkeys, 1, l)
-            if plot_mode == PLOT_MODE_AXIS:
-                xy_plt.plot(data[k][TIME], data[k][X], label="X_%s_%d" % (name, k))
-                xy_plt.plot(data[k][TIME], data[k][Y], label="Y_%s_%d" % (name, k))
-                xy_plt.plot(data[k][TIME], data[k][Z], label="Z_%s_%d" % (name, k))
-            elif plot_mode == PLOT_MODE_ANGLES:
-                xy_plt.plot(data[k][TIME], data[k][AX], label="AX_%s_%d" % (name, k))
-                xy_plt.plot(data[k][TIME], data[k][AY], label="AY_%s_%d" % (name, k))
-                xy_plt.plot(data[k][TIME], data[k][AZ], label="AZ_%s_%d" % (name, k))
-            elif plot_mode == PLOT_MODE_3D:
-                print "plot mode 3d"
-                ax3d = plt.gca(projection='3d')
-                ax3d.plot(data[k][X], data[k][Y], data[k][Z], label=name, linewidth=1)
-                ax3d.mouse_init()
-                set_axes_equal(ax3d)
-                #ax3d.set_aspect('equal', 'datalim')
-                ax3d.set_xlabel("X")
-                ax3d.set_ylabel("Y")
-                ax3d.set_zlabel("Z")
-                ax3d.legend()
-            else:
-                xy_plt.plot(data[k][TIME], data[k][D], label="%s_%d" % (name, k))
-
+            xy_plt.plot(data[k][TIME], data[k][X], label="X_%s_%d" % (name, k))
+            xy_plt.plot(data[k][TIME], data[k][Y], label="Y_%s_%d" % (name, k))
+            xy_plt.plot(data[k][TIME], data[k][Z], label="Z_%s_%d" % (name, k))
             xy_plt.legend(loc='upper right')
-        else:
+        elif plot_mode == PLOT_MODE_ANGLES:
+            xy_plt = plt.subplot(nkeys, 1, l)
+            xy_plt.plot(data[k][TIME], data[k][AX], label="AX_%s_%d" % (name, k))
+            xy_plt.plot(data[k][TIME], data[k][AY], label="AY_%s_%d" % (name, k))
+            xy_plt.plot(data[k][TIME], data[k][AZ], label="AZ_%s_%d" % (name, k))
+            xy_plt.legend(loc='upper right')
+        elif plot_mode == PLOT_MODE_DIST:
+            xy_plt = plt.subplot(nkeys, 1, l)
+            xy_plt.plot(data[k][TIME], data[k][D], label="%s_%d" % (name, k))
+            xy_plt.legend(loc='upper right')
+        elif plot_mode == PLOT_MODE_3D:
+            print "plot mode 3d"
+            ax3d = plt.gca(projection='3d')
+            ax3d.plot(data[k][X], data[k][Y], data[k][Z], label=name, linewidth=1)
+            ax3d.mouse_init()
+            set_axes_equal(ax3d)
+            #ax3d.set_aspect('equal', 'datalim')
+            ax3d.set_xlabel("X")
+            ax3d.set_ylabel("Y")
+            ax3d.set_zlabel("Z")
+            ax3d.legend()
+        else: # PLOT_MODE_PROJECTIONS
             xy_plt = plt.subplot(3, nkeys, l + nkeys * 0)
             xy_plt.set_title('dev: %d [Y / X] ' % k)
             xy_plt.plot(data[k][X], data[k][Y], label = name, linewidth=1)

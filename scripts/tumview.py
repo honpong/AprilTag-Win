@@ -11,6 +11,7 @@ seperatly.
 '''
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import sys
 import os
 import math
@@ -30,8 +31,38 @@ PLOT_MODE_AXIS = 0 # X,Y,Z trajectories
 PLOT_MODE_DIST = 1 # distance from origin
 PLOT_MODE_PROJECTIONS = 2 # plane projections
 PLOT_MODE_ANGLES = 3 # Angles
+PLOT_MODE_3D = 4
 
 RAD_TO_DEG = 180.0 / math.pi
+
+def set_axes_equal(ax):
+    '''Make axes of 3D plot have equal scale so that spheres appear as spheres,
+    cubes as cubes, etc..  This is one possible solution to Matplotlib's
+    ax.set_aspect('equal') and ax.axis('equal') not working for 3D.
+
+    Input
+      ax: a matplotlib axis, e.g., as output from plt.gca().
+    '''
+
+    x_limits = ax.get_xlim3d()
+    y_limits = ax.get_ylim3d()
+    z_limits = ax.get_zlim3d()
+
+    x_range = abs(x_limits[1] - x_limits[0])
+    x_middle = sum(x_limits)/len(x_limits)
+    y_range = abs(y_limits[1] - y_limits[0])
+    y_middle = sum(y_limits)/len(y_limits)
+    z_range = abs(z_limits[1] - z_limits[0])
+    z_middle = sum(z_limits)/len(z_limits)
+
+    # The plot bounding box is a sphere in the sense of the infinity
+    # norm, hence I call half the max range the plot radius.
+    plot_radius = 0.5*max([x_range, y_range, z_range])
+
+    ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
+    ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
+    ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
+
 def QtoEuler(qx, qy, qz, qw):
     '''
     Calclulate yaw, pitch, roll from Quaternion
@@ -109,7 +140,7 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
     l = 0
     for k in data.keys():
         l += 1
-        if plot_mode in [PLOT_MODE_AXIS, PLOT_MODE_DIST ,PLOT_MODE_ANGLES]:
+        if plot_mode in [PLOT_MODE_AXIS, PLOT_MODE_DIST,PLOT_MODE_ANGLES, PLOT_MODE_3D]:
             xy_plt = plt.subplot(nkeys, 1, l)
             if plot_mode == PLOT_MODE_AXIS:
                 xy_plt.plot(data[k][TIME], data[k][X], label="X_%s_%d" % (name, k))
@@ -119,6 +150,17 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
                 xy_plt.plot(data[k][TIME], data[k][AX], label="AX_%s_%d" % (name, k))
                 xy_plt.plot(data[k][TIME], data[k][AY], label="AY_%s_%d" % (name, k))
                 xy_plt.plot(data[k][TIME], data[k][AZ], label="AZ_%s_%d" % (name, k))
+            elif plot_mode == PLOT_MODE_3D:
+                print "plot mode 3d"
+                ax3d = plt.gca(projection='3d')
+                ax3d.plot(data[k][X], data[k][Y], data[k][Z], label=name, linewidth=1)
+                ax3d.mouse_init()
+                set_axes_equal(ax3d)
+                #ax3d.set_aspect('equal', 'datalim')
+                ax3d.set_xlabel("X")
+                ax3d.set_ylabel("Y")
+                ax3d.set_zlabel("Z")
+                ax3d.legend()
             else:
                 xy_plt.plot(data[k][TIME], data[k][D], label="%s_%d" % (name, k))
 
@@ -147,6 +189,7 @@ def main() :
     parser.add_argument('-p', '--plane', action='store_true', help='Plane projected display mode')
     parser.add_argument('-x', '--axis', action='store_true', help='Axis display mode')
     parser.add_argument('-a', '--angles', action='store_true', help='Angles display mode')
+    parser.add_argument('-3', '--three', action='store_true', help='3D display mode')
     parser.add_argument('-t', '--tum', action='store_true', help='Read as tum file')
     parser.add_argument('-n', '--sample-number', action='store_true', help='Use sample number for timeline')
     parser.add_argument('-o', '--output', help='output image filename')
@@ -157,6 +200,7 @@ def main() :
     if args.plane: plot_mode = PLOT_MODE_PROJECTIONS
     elif args.axis: plot_mode = PLOT_MODE_AXIS
     elif args.angles: plot_mode = PLOT_MODE_ANGLES
+    elif args.three: plot_mode = PLOT_MODE_3D
 
     fig = plt.Figure()
     datasets = []

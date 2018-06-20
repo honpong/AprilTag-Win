@@ -38,20 +38,16 @@ static float4 m_mult ( float4x4 A, float4 B)
 void stereo_matching::init(ShavekpMatchingSettings kpMatchingParams)
 {
     //kp intersect
-    camera1_extrinsics_T_v=  { kpMatchingParams.camera1_extrinsics_T_v[0], kpMatchingParams.camera1_extrinsics_T_v[1], kpMatchingParams.camera1_extrinsics_T_v[2], kpMatchingParams.camera1_extrinsics_T_v[3] };
-    camera2_extrinsics_T_v=  { kpMatchingParams.camera2_extrinsics_T_v[0], kpMatchingParams.camera2_extrinsics_T_v[1], kpMatchingParams.camera2_extrinsics_T_v[2], kpMatchingParams.camera2_extrinsics_T_v[3] };
     p_o1_transformed= { kpMatchingParams.p_o1_transformed[0], kpMatchingParams.p_o1_transformed[1], kpMatchingParams.p_o1_transformed[2] ,0};
     p_o2_transformed= { kpMatchingParams.p_o2_transformed[0], kpMatchingParams.p_o2_transformed[1], kpMatchingParams.p_o2_transformed[2] ,0};
     EPS= kpMatchingParams.EPS;
    //todo: Amir - castinig works,consider convert all other also!!!
-    R1w_transpose= * (float4x4*) kpMatchingParams.R1w_transpose;
-    R2w_transpose= * (float4x4*) kpMatchingParams.R2w_transpose;
     //compare
     patch_stride = kpMatchingParams.patch_stride;
     patch_win_half_width = kpMatchingParams.patch_win_half_width;
 }
 
-bool stereo_matching::l_l_intersect_shave(int i , int j,float4 *pa,float4 *pb)
+bool stereo_matching::l_l_intersect_shave(int i , int j,float4 *pa,float4 *pb, float *mua, float *mub)
 {
 // From http://paulbourke.net/geometry/pointlineplane/lineline.c
 // line 1 is p1 to p2, line 2 is p3 to p4
@@ -92,11 +88,11 @@ bool stereo_matching::l_l_intersect_shave(int i , int j,float4 *pa,float4 *pb)
     double d1321= mvuDot( p13, p21 );
 
     double numer= d1343 * d4321 - d1321 * d4343;
-    float mua= numer / denom;
-    float mub= (d1343 + d4321 * mua) / d4343;
+    *mua= numer / denom;
+    *mub= (d1343 + d4321 * *mua) / d4343;
 
-    *pa= p1 + mua * p21;
-    *pb= p3 + mub * p43;
+    *pa= p1 + *mua * p21;
+    *pb= p3 + *mub * p43;
     pa[3]= 1 ;
     pb[3]= 1 ;
     return(true);
@@ -161,7 +157,7 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
 
         for ( int j=0; j< n_kp2; j++)
         {
-            success= l_l_intersect_shave(i,j, &pa, &pb);
+            success= l_l_intersect_shave(i,j, &pa, &pb, &depth1, &depth2);
             if(!success)
             {
                 DPRINTF( "Failed intersect\n");
@@ -169,23 +165,19 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
             }
             //ORIGINAL error= fabs(pa[0]-pb[0])+fabs(pa[1]-pb[1])+fabs(pa[2]-pb[2]);
             error_2= mvuDot(pa-pb,pa-pb);
-            cam1_intersect= m_mult(R1w_transpose,pa - camera1_extrinsics_T_v);
-            cam2_intersect= m_mult(R2w_transpose,pb - camera2_extrinsics_T_v);
 
-            if(cam1_intersect[2] <= 0 || cam2_intersect[2] <= 0)
+            if(depth1 <= 0 || depth2 <= 0)
             {
                 DPRINTF("Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
                 continue;        // TODO: set minz and maxz or at least bound error when close to / far away from camera
             }
             error = sqrt(error_2);
-            float intersection_error_percent = error/cam1_intersect[2];
+            float intersection_error_percent = error/depth1;
             if(intersection_error_percent > 0.05)
             {
                 DPRINTF("intersection_error_percent too large %f, failing\n",float (error/cam1_intersect[2]));
                 continue;
             }
-            depth1 = cam1_intersect[2];
-            depth2 = cam2_intersect[2];
 //START COMPARE
             DPRINTF("\t\tkp1 %d, kp2 %d, depth %f, error %f \n",i,j,depth,error);
             if(depth1 && intersection_error_percent < 0.02 )

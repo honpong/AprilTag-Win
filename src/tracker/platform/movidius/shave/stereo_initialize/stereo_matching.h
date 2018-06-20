@@ -31,14 +31,10 @@ struct feature_t
         //compare
         int patch_stride, patch_win_half_width;
         //kp_intersect
-        float4x4 R1w_transpose;
-        float4x4 R2w_transpose;
-        float4 camera1_extrinsics_T_v;
-        float4 camera2_extrinsics_T_v;
         float4 p_o1_transformed;
         float4 p_o2_transformed;
         float EPS;
-        bool l_l_intersect_shave(int i , int j ,float4 *pa,float4 *pb);
+        bool l_l_intersect_shave(int i , int j ,float4 *pa,float4 *pb, float *mua, float *mub);
 
     public:
         void init(ShavekpMatchingSettings kpMatchingParams);

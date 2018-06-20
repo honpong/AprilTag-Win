@@ -205,29 +205,7 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
     *((int*)p_kp2)=n2;
 
     DPRINTF("\t\t AS:nk1 : %d, nk2: %d \n ",n1,n2);
-    //Eigen types
-    m3 E_R1w_t=R1w.transpose();
-    m3 E_R2w_t=R2w.transpose();
-    v3 E_camera1_extrinsics_T_v = camera1.extrinsics.T.v;
-    v3 E_camera2_extrinsics_T_v = camera2.extrinsics.T.v;
-    //local array vector type
-    float4x4_t R1w_transpose { {E_R1w_t(0,0), E_R1w_t(0,1),E_R1w_t(0,2),0 },
-                               {E_R1w_t(1,0), E_R1w_t(1,1),E_R1w_t(1,2),0 },
-                               {E_R1w_t(2,0), E_R1w_t(2,1),E_R1w_t(2,2),0 },
-                               { 0, 0, 0, 0 } };
-
-    float4x4_t R2w_transpose {{ E_R2w_t(0,0), E_R2w_t(0,1),E_R2w_t(0,2),0 },
-                               {E_R2w_t(1,0), E_R2w_t(1,1),E_R2w_t(1,2),0 },
-                               {E_R2w_t(2,0), E_R2w_t(2,1),E_R2w_t(2,2),0 },
-                               { 0, 0, 0, 0 }};
-    float4_t camera1_extrinsics_T_v = { E_camera1_extrinsics_T_v[0],E_camera1_extrinsics_T_v[1],E_camera1_extrinsics_T_v[2] };
-    float4_t camera2_extrinsics_T_v = { E_camera2_extrinsics_T_v[0],E_camera2_extrinsics_T_v[1],E_camera2_extrinsics_T_v[2] };
-
     //copy to  cvrt; //todo : direcrt copy without local step;
-    l_float4x4_copy (kpMatchingParams->R1w_transpose,R1w_transpose );
-    l_float4x4_copy (kpMatchingParams->R2w_transpose,R2w_transpose );
-    l_float4_copy   (kpMatchingParams->camera1_extrinsics_T_v,camera1_extrinsics_T_v );
-    l_float4_copy   (kpMatchingParams->camera2_extrinsics_T_v,camera2_extrinsics_T_v );
     l_float3_copy   (kpMatchingParams->p_o1_transformed,p_o1_transformed);
     l_float3_copy   (kpMatchingParams->p_o2_transformed,p_o2_transformed);
     kpMatchingParams->EPS=1e-14;

@@ -141,7 +141,7 @@ TEST_F(StateVision, NormalizeIdentity)
     camera.intrinsics.image_height = 480;
     camera.intrinsics.focal_length.v = 400.f/camera.intrinsics.image_height;
     camera.intrinsics.center.v.x() = (320 - camera.intrinsics.image_width / 2. + .5) / camera.intrinsics.image_height;
-    camera.intrinsics.center.v.y() = (240 - camera.intrinsics.image_width / 2. + .5) / camera.intrinsics.image_height;
+    camera.intrinsics.center.v.y() = (240 - camera.intrinsics.image_height / 2. + .5) / camera.intrinsics.image_height;
 
     for (int i=0; i<1000; i++) {
         feature_t p = { normalized_coord(gen), normalized_coord(gen) };

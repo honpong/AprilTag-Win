@@ -36,7 +36,7 @@ int main(int argc, char ** argv)
     transformation G;
     for(auto &pose : pose_sequence.tposes) {
         tpose gt_interp(pose.t);
-        if(gt_sequence.get_pose(pose.t, gt_interp)) {
+        if(gt_sequence.get_pose(pose.t, gt_interp) && pose.confidence == rc_E_CONFIDENCE_HIGH) {
             first_tm2_pose = pose;
             G = pose.G*invert(gt_interp.G);
             break;

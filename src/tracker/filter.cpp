@@ -169,6 +169,7 @@ static void process_observation_queue(struct filter *f)
     bool run_on_shave = true;
     if(!f->observations.process(f->s, run_on_shave)) {
         f->numeric_failed = true;
+        f->log->error("Numerical error at {}", sensor_clock::tp_to_micros(f->last_time));
     }
     f->s.integrate_distance();
 }

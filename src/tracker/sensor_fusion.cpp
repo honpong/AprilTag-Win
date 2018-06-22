@@ -27,17 +27,6 @@ void sensor_fusion::update_status()
 {
     if(status_callback)
         status_callback();
-
-    // queue actions related to failures before queuing callbacks to the sdk client.
-    if(sfm.numeric_failed) {
-        sfm.log->error("Numerical error at {}; filter reset.", sensor_clock::tp_to_micros(sfm.last_time));
-        transformation last_transform{sfm.s.Q.v, sfm.s.T.v};
-        filter_initialize(&sfm);
-        sfm.s.T.v = last_transform.T;
-        sfm.s.Q.v = last_transform.Q;
-        filter_start(&sfm);
-        if(sfm.map) sfm.map->clean_map_after_filter_reset();
-    }
 }
 
 void sensor_fusion::update_data(const sensor_data * data)

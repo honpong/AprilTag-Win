@@ -85,7 +85,7 @@ def QtoEuler(qx, qy, qz, qw):
     yaw = math.atan2(t3, t4)
     return yaw,pitch,roll
 
-def read_tum(filename, args) :
+def read_tum(filename, strict_tum = False, sample_number = False):
     '''
     Read tum file, return a generic name and dictinary of the form:
     d[device_id] = { TIME: [], X:[], Y:[], Z:[], D:[], AX:[], AY: [], AZ: []}
@@ -105,7 +105,7 @@ def read_tum(filename, args) :
             print data
             continue
         device_id = 0
-        if args.tum == False:
+        if strict_tum == False:
             if len(data) > 8:
                 device_id = int(data[8])
             if len(data) > 9:
@@ -113,7 +113,7 @@ def read_tum(filename, args) :
         if (device_id in d.keys()) == False:
             d[device_id] = { TIME: [], X:[], Y:[], Z:[], D:[], AX:[], AY: [], AZ: []}
 
-        if args.sample_number:
+        if sample_number:
             d[device_id][TIME].append(lc)
         else:
             d[device_id][TIME].append( float(data[0]))
@@ -207,7 +207,7 @@ def main() :
     fig = plt.Figure()
     datasets = []
     for f in args.files:
-        name, data = read_tum(f, args)
+        name, data = read_tum(f, args.tum, args.sample_number)
         datasets.append((name, data))
     nitems = 0
     for d in datasets:

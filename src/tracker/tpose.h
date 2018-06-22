@@ -73,8 +73,8 @@ struct tpose_raw {
 };
 
 struct tpose {
-    tpose(const tpose_raw &r) : t(sensor_clock::ns100_to_tp(r.t_100ns)), G(to_quaternion(r.R), r.T_mm / 1000), id(0), confidence(0) {}
-    tpose(const tpose_vicon &v) : t(sensor_clock::s_ns_to_tp(v.t_s, v.t_ns)), G(v.Q, v.T_m), id(0), confidence(0) {}
+    tpose(const tpose_raw &r) : t(sensor_clock::ns100_to_tp(r.t_100ns)), G(to_quaternion(r.R), r.T_mm / 1000) {}
+    tpose(const tpose_vicon &v) : t(sensor_clock::s_ns_to_tp(v.t_s, v.t_ns)), G(v.Q, v.T_m) {}
     tpose(const tpose_tum &v) : t(sensor_clock::s_to_tp(v.t_s)), G(v.Q, v.T_m), id(v.id), confidence(v.confidence) {}
     tpose(sensor_clock::time_point t_) : t(t_) {}
     tpose(const sensor_clock::time_point & t_, const transformation & G_) : t(t_), G(G_) {}
@@ -85,8 +85,8 @@ struct tpose {
     }
     sensor_clock::time_point t;
     transformation G;
-    int id;
-    int confidence;
+    int id{0};
+    int confidence{0};
     bool operator<(const struct tpose &tp) const {
         return t < tp.t;
     };

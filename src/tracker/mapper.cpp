@@ -258,11 +258,13 @@ void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR
 
 void map_node::set_feature_type(const featureid id, const feature_type type)
 {
-    features[id].type = type;
+    assert(features.find(id) != features.end());
+    features.at(id).type = type;
 }
 
 void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                          std::shared_ptr<log_depth> v, const feature_type type) {
+    assert(feature && features_dbow->find(feature->id) == features_dbow->end());
     auto it = nodes->find(groupid);
     if(it != nodes->end()) {
         critical_section(nodes, features_dbow, [&]() {

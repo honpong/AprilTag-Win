@@ -459,7 +459,7 @@ std::vector<std::pair<nodeid,float>> mapper::find_loop_closing_candidates(
             }
         });
         if (!candidate_frames.empty()) {
-            constexpr auto better_item = [](const std::pair<nodeid, float>& p1, const std::pair<nodeid, float>& p2) {
+            const auto better_item = [](const std::pair<nodeid, float>& p1, const std::pair<nodeid, float>& p2) {
                 switch (orb_vocabulary::scoring_type) {
                 case DBoW2::ScoringType::KL:
                 case DBoW2::ScoringType::CHI_SQUARE:  // the lower the better

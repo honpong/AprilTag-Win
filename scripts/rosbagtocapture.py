@@ -2,6 +2,8 @@
 
 from __future__ import print_function
 
+import packet
+
 
 def read_all(file,d_topics):
     data = []
@@ -21,10 +23,10 @@ def read_all(file,d_topics):
     return data
 
 
-accel_type = 20
-gyro_type = 21
-image_raw_type = 29
-odom_type = 31
+accel_type = packet.PacketType.accelerometer
+gyro_type = packet.PacketType.gyroscope
+image_raw_type = packet.PacketType.image_raw
+odom_type = packet.PacketType.velocimeter
 
 # see rc_tracker.h
 rc_IMAGE_GRAY8 = 0

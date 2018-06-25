@@ -6,7 +6,7 @@ import argparse
 from math import sqrt
 import sys
 
-packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 30:"odometry", 31:"thermometer", 40:"stereo_raw", 42:"pose", 43:"calibration_json", 44:"arrival_time", 48:"calibration_bin", 49:"exposure", 50:"controller_physical_info"})
+packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 30:"odometry", 31:"thermometer", 40:"stereo_raw", 42:"pose", 43:"calibration_json", 44:"arrival_time", 45:"velocimeter", 48:"calibration_bin", 49:"exposure", 50:"controller_physical_info"})
 format_types = defaultdict(str, {0:"Y8", 1:"Z16_mm"})
 
 parser = argparse.ArgumentParser(description='Check a capture file.')
@@ -42,6 +42,7 @@ stereo_raw_type = 40
 arrival_time_type = 44
 calibration_type = 43
 calibration_bin_type = 48
+velocimeter_type = 45
 got_types = defaultdict(int)
 
 packets = defaultdict(list)
@@ -149,6 +150,11 @@ while header_str != "":
       (x, y) = unpack('ff', data[:8])
       if args.verbose:
           print "\t", x, y
+
+  elif ptype == velocimeter_type:
+      (x, y, z) = unpack('fff', data[:12])
+      if args.verbose:
+          print "\t", sensor_id, x, y, z
 
   elif ptype == calibration_type:
       if args.verbose:

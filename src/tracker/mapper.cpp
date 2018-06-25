@@ -170,7 +170,8 @@ void mapper::initialize_track_triangulation(const tracker::feature_track& track,
 void mapper::finish_lost_tracks(const tracker::feature_track& track) {
     auto tp = triangulated_tracks.find(track.feature->id);
     if (tp != triangulated_tracks.end()) {
-        if (tp->second.track_count > MIN_FEATURE_TRACKS && tp->second.parallax > MIN_FEATURE_PARALLAX) {
+        if (tp->second.track_count > MIN_FEATURE_TRACKS && tp->second.parallax > MIN_FEATURE_PARALLAX &&
+                node_in_map(tp->second.reference_nodeid) && !feature_in_map(track.feature->id)) {
             add_feature(tp->second.reference_nodeid, std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(track.feature),
                         tp->second.state, feature_type::triangulated);
         }

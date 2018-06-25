@@ -68,6 +68,8 @@ def convert(capture_filename, output_folder, drop_images, drop_accel, drop_gyro,
     f = open(capture_filename, "rb")
     frame_numbers = defaultdict(int)
     frame_file_handles = {}
+    gyro_file_handles = {0:gyro_file}
+    accel_file_handles = {0:accel_file}
     depth_frame_number = 0
     depth_frame_file_handles = {}
 
@@ -78,8 +80,14 @@ def convert(capture_filename, output_folder, drop_images, drop_accel, drop_gyro,
             # packets are padded to 8 byte boundary
             (x, y, z) = unpack('fff', p.data[:12])
             line = imu_to_str(ptime,x,y,z)
-            if p.header.type == PacketType.accelerometer and sensor_id == 0 and not drop_accel: accel_file.write(line)
-            if p.header.type == PacketType.gyroscope and sensor_id == 0 and not drop_gyro: gyro_file.write(line)
+            if p.header.type == PacketType.accelerometer and not drop_accel:
+                if sensor_id not in accel_file_handles:
+                    accel_file_handles[sensor_id] = open(os.path.join(output_folder, "accel_%d.txt" % (sensor_id)), "w")
+                accel_file_handles[sensor_id].write(line)
+            if p.header.type == PacketType.gyroscope and not drop_gyro:
+                if sensor_id not in gyro_file_handles:
+                    gyro_file_handles[sensor_id] = open(os.path.join(output_folder, "gyro_%d.txt" % (sensor_id)), "w")
+                gyro_file_handles[sensor_id].write(line)
 
         if p.header.type == PacketType.image_raw and not drop_images and sensor_id not in drop_image_ids:
             (exposure, width, height, stride, camera_format) = unpack('QHHHH', p.data[:16])
@@ -135,10 +143,18 @@ def convert(capture_filename, output_folder, drop_images, drop_accel, drop_gyro,
         os.symlink("fisheye_0", os.path.join(output_folder, "fisheye"));
         os.symlink("fisheye_0_timestamps.txt", os.path.join(output_folder, "fisheye_timestamps.txt"));
 
+    if not drop_images:
+        for f in frame_file_handles.values():
+            f.close()
+
     if not drop_accel:
-        accel_file.close()
+        for f in accel_file_handles.values():
+            f.close()
+
     if not drop_gyro:
-        gyro_file.close()
+        for f in gyro_file_handles.values():
+            f.close()
+
     if depth_frame_number:
         depth_file.close()
 

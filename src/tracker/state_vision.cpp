@@ -299,8 +299,11 @@ void state_vision::update_map(mapper *map)
         for (auto &f : g->features.children) {
             bool good = f->variance() < .05f*.05f; // f->variance() is equivalent to (stdev_meters/depth)^2
             if (good) {
-                if(map->feature_in_map(f->feature->id)) {
-                    map->set_feature_type(g->id, f->feature->id, feature_type::tracked);
+                nodeid current_node;
+                if(map->feature_in_map(f->feature->id, &current_node)) {
+                    map->set_feature_type(current_node, f->feature->id, feature_type::tracked);
+                    if (current_node != g->id)
+                        map->move_feature(f->feature->id, current_node, g->id);
                 } else {
                     auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->feature);
                     map->add_feature(g->id, feature, f->v);

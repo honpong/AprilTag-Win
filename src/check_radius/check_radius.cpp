@@ -6,8 +6,8 @@
 using namespace std;
 int main(int argc, char ** argv)
 {
-    if(argc != 5) {
-        cerr << "Usage: " << argv[0] << " <ground_truth.tum> <pose.tum> <safe_radius_m> <margin_m>\n";
+    if(argc != 5 && argc != 7) {
+        cerr << "Usage: " << argv[0] << " <ground_truth.tum> <pose.tum> <safe_radius_m> <margin_m> [<aligned_gt_output.tum> <aligned_tm2_output.tum>]\n";
         return 1;
     }
     tpose_sequence gt_sequence;
@@ -144,6 +144,12 @@ int main(int argc, char ** argv)
             gt_stat.total, gt_stat.good, gt_stat.total - gt_stat.good,
             tm2_stat.total, tm2_stat.good, tm2_stat.total - tm2_stat.good);
 
+    if(argc == 7) {
+        ofstream f_gt (argv[5]);
+        f_gt << shifted_gt;
+        ofstream f_tm2 (argv[6]);
+        f_tm2 << shifted_tm2;
+    }
 
     return 0;
 }

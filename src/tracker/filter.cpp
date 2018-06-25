@@ -1486,7 +1486,6 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                         feat->set_initial_variance(std_pct * std_pct); // assumes log depth
                         feat->depth_measured = false;
                         feat->recovered = true;
-                        feat->is_in_map = true;
 
                         auto &camera_state = *f->s.cameras.children[camera_id];
                         if(space && ft.track.found()) {

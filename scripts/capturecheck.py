@@ -233,7 +233,7 @@ for packet_type in sorted(packets.keys()):
     print "\tNo arrival time data"
 
   if packet_type.startswith("thermometer"):
-      print "Skipping packet frequency analysis for this sensor"
+      print "Skipping packet frequency analysis for this sensor\n"
       continue
 
   exceptions = numpy.flatnonzero(numpy.logical_or(deltas > median_delta*1.05, deltas < median_delta*0.95))

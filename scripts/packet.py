@@ -6,9 +6,11 @@ class PacketType:
     image_raw = 29
     accelerometer = 20
     gyroscope = 21
+    odometry = 30
     thermometer = 31
     stereo_raw = 40
     arrival_time = 44
+    velocimeter = 45
     calibration_json = 43
     calibration_bin = 48
     exposure_info = 49

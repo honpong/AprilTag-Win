@@ -70,6 +70,7 @@ typedef enum packet_type {
     packet_calibration_bin = 48,
     packet_exposure = 49,
     packet_controller_physical_info = 50,
+    packet_led_intensity = 51,
     packet_command_start = 100,
     packet_command_stop = 101,
 } packet_type;
@@ -177,6 +178,12 @@ typedef struct {
     packet_header_t header;
     uint8_t status[];
 } packet_feature_status_t;
+
+typedef struct {
+    packet_header_t header;
+    uint32_t led_id;
+    uint32_t intensity; // [0-100]
+} packet_led_intensity_t;
 
 typedef struct {
     packet_header_t header;

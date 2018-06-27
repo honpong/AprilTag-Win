@@ -28,17 +28,18 @@ def one_kpi(args_tuple):
     aligned_gt_filename = cpu_output + ".aligned." + r + "-" + m + ".tum"
     aligned_tm2_filename = gt + ".aligned." + r + "-" + m + ".tum"
     vis_filename = cpu_output + "." + r + "-" + m + ".safetyvis.pdf"
+    intervals_filename = cpu_output + "." + r + "-" + m + ".intervals.txt"
 
     result = None
     try:
-        command = ["build/check_radius", gt, cpu_output, r, m, aligned_gt_filename, aligned_tm2_filename]
+        command = ["build/check_radius", gt, cpu_output, r, m, aligned_gt_filename, aligned_tm2_filename, intervals_filename]
         result_text = subprocess.check_output(command, stderr=subprocess.STDOUT)
         for line in result_text.splitlines():
             if line.startswith("CSVContent"):
                 result = np.array([float(i) for i in line.split(",")[1:]])
                 break
 
-        command = ["scripts/safetyvis.py", aligned_gt_filename, aligned_tm2_filename, r, m, vis_filename]
+        command = ["scripts/safetyvis.py", aligned_gt_filename, aligned_tm2_filename, intervals_filename, r, m, vis_filename]
         result_text = subprocess.check_output(command, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         print "Error:", e.cmd, "returned code", e.returncode

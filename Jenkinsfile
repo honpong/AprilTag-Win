@@ -48,7 +48,7 @@ pipeline {
         stage('Prepare Benchmark') {
             steps {
                 sh 'cp -asf --no-preserve=mode $HOME/data/ $(realpath .)'
-                sh 'rsync -a --chmod=ug+w      $HOME/data/ $(realpath .)/data/ --include "*.json" --include "*/" --exclude "*"'
+                sh 'rsync -a --chmod=ug+rw     $HOME/data/ $(realpath .)/data/ --include "*.json" --include "*/" --exclude "*"'
             }
         }
         stage('Check options') {

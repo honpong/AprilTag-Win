@@ -73,8 +73,15 @@ pipeline {
                         sh 'sed -ne \'/^Summary/,$p\' benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh './run_safety_kpi.py data/vr .cpu.tum > kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'tail -n12 kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt >> benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
-                        sh 'rsync -a --chmod=ug+rw $(realpath .)/data/ /tmp/data-$GIT_COMMIT/ --include "*.pdf" --include "*/" --exclude "*"'
-                        sh 'echo "Visualization written to /tmp/data-$GIT_COMMIT/" >> kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        sh 'find data/vr -type f -name "*.safetyvis.pdf" -print0 | tar -czf safetyvis-$GIT_COMMIT.tar.gz --null -T -'
+                        script  {
+                            if (env.BRANCH_NAME == 'master') {
+                                archiveArtifacts artifacts: "safetyvis-$GIT_COMMIT.tar.gz"
+                            } else {
+                                sh 'echo "Visualization written to /tmp/safetyvis-$GIT_COMMIT.tar.gz" >> kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt'
+                                sh 'rsync -a safetyvis-$GIT_COMMIT.tar.gz /tmp/'
+                            }
+                        }
                         sh './run_kpis.py data/kpis .cpu.tum > kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'tail -n14 kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt >> benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
                         archiveArtifacts artifacts: "kpi-*-$BRANCH_NAME-${GIT_COMMIT}.txt"

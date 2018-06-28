@@ -6,8 +6,8 @@
 using namespace std;
 int main(int argc, char ** argv)
 {
-    if(argc != 5) {
-        cerr << "Usage: " << argv[0] << " <ground_truth.tum> <pose.tum> <safe_radius_m> <margin_m>\n";
+    if(argc != 5 && argc != 8) {
+        cerr << "Usage: " << argv[0] << " <ground_truth.tum> <pose.tum> <safe_radius_m> <margin_m> [<aligned_gt_output.tum> <aligned_tm2_output.tum> <intervals.txt>]\n";
         return 1;
     }
     tpose_sequence gt_sequence;
@@ -26,10 +26,6 @@ int main(int argc, char ** argv)
     uint64_t total_time_us = 0;
     float max_dist = 0;
     float max_dist_gt = 0;
-    std::vector<uint64_t> gt_outside_times;
-    std::vector<uint64_t> tm2_outside_times;
-    std::vector<uint64_t> gt_bad_timestamps;
-    std::vector<uint64_t> tm2_bad_timestamps;
     tpose_sequence shifted_tm2;
     tpose_sequence shifted_gt;
 
@@ -55,22 +51,26 @@ int main(int argc, char ** argv)
     gt_center /= gt_count;
     transformation G_tm2_center(quaternion::Identity(), -(G*gt_center));
 
-    struct stat {
-        int total, good;
-    };
-    struct stat gt_stat{0};
-    struct stat tm2_stat{0};
+    enum stat_type {GT_TYPE = 0, TM2_TYPE};
+    typedef struct stat_interval {
+        enum stat_type type;
+        uint64_t start, stop;
+        bool good;
+        stat_interval(enum stat_type _type, uint64_t _start, bool _good) : type(_type), start(_start), stop(_start), good(_good) {}
+    } stat_interval;
+    std::vector<stat_interval> intervals;
 
-    std::vector<sensor_clock::time_point> gt_crossings;
-    std::vector<sensor_clock::time_point> tm2_crossings;
+    stat_interval gt_interval(GT_TYPE, 0, false);
+    bool gt_started = false;
 
-    sensor_clock::time_point gt_crossed_time;
-    sensor_clock::time_point tm2_crossed_time;
-    bool gt_outside = false;
-    bool tm2_outside = false;
+    stat_interval tm2_interval(TM2_TYPE, 0, false);
+    bool tm2_started = false;
+
+    uint64_t now_us = 0;
     for(auto &pose : pose_sequence.tposes) {
         tpose gt_interp(pose.t);
         if(gt_sequence.get_pose(pose.t, gt_interp)) {
+            now_us = sensor_clock::tp_to_micros(pose.t);
             tpose now(pose.t);
             tpose now_gt(pose.t);
             now.G = G_tm2_center*pose.G;
@@ -86,53 +86,67 @@ int main(int argc, char ** argv)
             if(gt_dist > max_dist_gt) max_dist_gt = gt_dist;
             if(tm2_dist > max_dist) max_dist = tm2_dist;
 
-            if(!gt_outside && gt_dist > radius) {
-                gt_outside = true;
-                gt_crossed_time = pose.t;
-                gt_crossings.push_back(gt_crossed_time);
+            if(!gt_started && gt_dist > radius) {
+                gt_started = true;
                 if(tm2_dist > radius - margin)
-                    gt_stat.good++;
+                    gt_interval = stat_interval(GT_TYPE, now_us, true);
                 else
-                    gt_bad_timestamps.push_back(sensor_clock::tp_to_micros(pose.t));
+                    gt_interval = stat_interval(GT_TYPE, now_us, false);
             }
-            if(gt_outside && gt_dist < radius) {
-                gt_outside = false;
-                uint64_t d = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(pose.t - gt_crossed_time).count());
-                gt_outside_times.push_back(d);
+            if(gt_started && gt_dist < radius) {
+                gt_interval.stop = now_us;
+                intervals.push_back(gt_interval);
+                gt_started = false;
             }
 
-            if(!tm2_outside && tm2_dist > radius - margin) {
-                tm2_outside = true;
-                tm2_crossed_time = pose.t;
-                tm2_stat.total++;
+            if(!tm2_started && tm2_dist > radius - margin) {
+                tm2_started = true;
                 if(gt_dist > radius - 2*margin)
-                    tm2_stat.good++;
+                    tm2_interval = stat_interval(TM2_TYPE, now_us, true);
                 else
-                    tm2_bad_timestamps.push_back(sensor_clock::tp_to_micros(pose.t));
+                    tm2_interval = stat_interval(TM2_TYPE, now_us, false);
             }
-            if(tm2_outside && tm2_dist < radius - margin) {
-                tm2_outside = false;
-                uint64_t d = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(pose.t - tm2_crossed_time).count());
-                tm2_outside_times.push_back(d);
+            if(tm2_started && tm2_dist < radius - margin) {
+                tm2_interval.stop = now_us;
+                intervals.push_back(tm2_interval);
+                tm2_started = false;
             }
         }
-        total_time_us = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(pose.t - first_tm2_pose.t).count());
+    }
+    total_time_us = now_us - sensor_clock::tp_to_micros(first_tm2_pose.t);
+    if(tm2_started) {
+        tm2_interval.stop = now_us;
+        intervals.push_back(tm2_interval);
+    }
+    if(gt_started) {
+        gt_interval.stop = now_us;
+        intervals.push_back(gt_interval);
     }
 
-    gt_stat.total  = gt_crossings.size();
+    struct stat {
+        int total, good;
+    };
+    struct stat gt_stat{0};
+    struct stat tm2_stat{0};
+
+    for(const auto & i : intervals) {
+        if(i.type == TM2_TYPE) {
+            tm2_stat.total++;
+            if(i.good) tm2_stat.good++;
+        }
+        else {
+            gt_stat.total++;
+            if(i.good) gt_stat.good++;
+        }
+    }
 
     printf("GT: %d total %d good\n", gt_stat.total, gt_stat.good);
-    printf("GT bad timestamps: ");
-    for(auto t : gt_bad_timestamps) printf("%" PRIu64 " ", t);
-    printf("\n");
     printf("TM2: %d total %d good\n", tm2_stat.total, tm2_stat.good);
-    printf("TM2 bad timestamps: ");
-    for(auto t : tm2_bad_timestamps) printf("%" PRIu64 " ", t);
-    printf("\n");
 
     uint64_t outside_us = 0;
-    for(const auto & dt : gt_outside_times)
-        outside_us += dt;
+    for(const auto & i : intervals)
+        if(i.type == GT_TYPE)
+            outside_us += (i.stop - i.start);
 
     printf("Total time outside playarea: %.2fs\n", outside_us/1.e6);
 
@@ -143,6 +157,16 @@ int main(int argc, char ** argv)
     printf("CSVContent,%.2f,%.2f,%d,%d,%d,%d,%d,%d\n", total_time_us/1.e6, outside_us/1.e6,
             gt_stat.total, gt_stat.good, gt_stat.total - gt_stat.good,
             tm2_stat.total, tm2_stat.good, tm2_stat.total - tm2_stat.good);
+
+    if(argc == 8) {
+        ofstream f_gt (argv[5]);
+        f_gt << shifted_gt;
+        ofstream f_tm2 (argv[6]);
+        f_tm2 << shifted_tm2;
+        ofstream f_intervals (argv[7]);
+        for(const auto & interval : intervals)
+            f_intervals << interval.start << " " << interval.stop << " " << interval.type << " " << interval.good << "\n";
+    }
 
 
     return 0;

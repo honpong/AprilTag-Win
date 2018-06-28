@@ -4,6 +4,7 @@ import os
 import sys
 import subprocess
 import numpy as np
+from multiprocessing import Pool
 from collections import defaultdict
 
 if len(sys.argv) < 3:
@@ -22,15 +23,41 @@ def enumerate_all_files_matching(path, extension):
         for filename in [f for f in filenames if f.endswith(extension)]:
             yield os.path.join(dirpath, filename)
 
+def one_kpi(args_tuple):
+    (gt, cpu_output, r, m) = args_tuple
+    aligned_gt_filename = cpu_output + ".aligned." + r + "-" + m + ".tum"
+    aligned_tm2_filename = gt + ".aligned." + r + "-" + m + ".tum"
+    vis_filename = cpu_output + "." + r + "-" + m + ".safetyvis.pdf"
+    intervals_filename = cpu_output + "." + r + "-" + m + ".intervals.txt"
+
+    result = None
+    try:
+        command = ["build/check_radius", gt, cpu_output, r, m, aligned_gt_filename, aligned_tm2_filename, intervals_filename]
+        result_text = subprocess.check_output(command, stderr=subprocess.STDOUT)
+        for line in result_text.splitlines():
+            if line.startswith("CSVContent"):
+                result = np.array([float(i) for i in line.split(",")[1:]])
+                break
+
+        command = ["scripts/safetyvis.py", aligned_gt_filename, aligned_tm2_filename, intervals_filename, r, m, vis_filename]
+        result_text = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        print "Error:", e.cmd, "returned code", e.returncode
+        print "Output was:", e.output
+    return (result, args_tuple)
+
 radii = ["0.50", "0.75", "1.00"]
 margin = ["0.075", "0.100", "0.150"]
 
 kpis = defaultdict(dict)
+worker_pool = Pool()
 for r in radii:
     # for the same radii, the number of total GT crossing events will be the same but the total number of TM2 crossings will be different
     for m in margin:
         total_result = None
         print "\nRadius %sm with margin %sm" % (r, m)
+
+        args = list()
         for kpi_dir in kpi_dirs:
             for filename in enumerate_all_files_matching(kpi_dir,"stereo.rc.tum"):
                 if "samer" in filename or "mapping" in filename:
@@ -41,18 +68,23 @@ for r in radii:
                 if not os.path.isfile(cpu_output) or not os.path.isfile(gt):
                     print "Warning: Skipping", filename
                     continue
-                print filename
-                command = "build/check_radius \"%s\" \"%s\" %s %s" % (gt, cpu_output, r, m)
+                args.append((gt, cpu_output, r, m))
 
-                result_text = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
-                for line in result_text.splitlines():
-                    if line.startswith("CSVContent"):
-                        result = [float(i) for i in line.split(",")[1:]]
-                        if total_result is None:
-                            total_result = np.array(result)
-                        else:
-                            total_result = total_result + np.array(result)
-                        print result
+        #for arg in args:
+        #    result = one_kpi(arg)
+        print "Processing", len(args), "files for radius", r, "margin", m
+        for result_tuple in worker_pool.map(one_kpi, args):
+            (result, arg) = result_tuple
+            if result is None:
+                print "Error: Problem with", arg
+                continue
+            print "Result for", arg[1]
+            print result
+            if total_result is None:
+                total_result = result
+            else:
+                total_result += result
+
         kpis[r][m] = total_result
 
 result_string  = "\nSummary: Safety KPI calculated on %s which had %.2fs of data\n" % (kpi_dirs, kpis[radii[0]][margin[0]][0])

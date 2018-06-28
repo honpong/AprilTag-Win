@@ -147,6 +147,15 @@ bool mapper::edge_in_map(nodeid id1, nodeid id2, edge_type& type) const {
     });
 }
 
+bool mapper::feature_in_map(featureid id, nodeid* nid) const {
+    auto it = features_dbow->find(id);
+    if (it != features_dbow->end()) {
+        if (nid) *nid = it->second;
+        return true;
+    }
+    return false;
+}
+
 void mapper::initialize_track_triangulation(const tracker::feature_track& track, const nodeid node_id) {
     // init state
     if(triangulated_tracks.find(track.feature->id) != triangulated_tracks.end())
@@ -161,7 +170,8 @@ void mapper::initialize_track_triangulation(const tracker::feature_track& track,
 void mapper::finish_lost_tracks(const tracker::feature_track& track) {
     auto tp = triangulated_tracks.find(track.feature->id);
     if (tp != triangulated_tracks.end()) {
-        if (tp->second.track_count > MIN_FEATURE_TRACKS && tp->second.parallax > MIN_FEATURE_PARALLAX) {
+        if (tp->second.track_count > MIN_FEATURE_TRACKS && tp->second.parallax > MIN_FEATURE_PARALLAX &&
+                node_in_map(tp->second.reference_nodeid) && !feature_in_map(track.feature->id)) {
             add_feature(tp->second.reference_nodeid, std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(track.feature),
                         tp->second.state, feature_type::triangulated);
         }
@@ -258,11 +268,13 @@ void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR
 
 void map_node::set_feature_type(const featureid id, const feature_type type)
 {
-    features[id].type = type;
+    assert(features.find(id) != features.end());
+    features.at(id).type = type;
 }
 
 void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                          std::shared_ptr<log_depth> v, const feature_type type) {
+    assert(feature && features_dbow->find(feature->id) == features_dbow->end());
     auto it = nodes->find(groupid);
     if(it != nodes->end()) {
         critical_section(nodes, features_dbow, [&]() {
@@ -270,6 +282,18 @@ void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feat
             it->second.add_feature(std::move(feature), std::move(v), type);
         });
     }
+}
+
+void mapper::move_feature(featureid feature_id, nodeid from, nodeid to) {
+    map_node& from_node = nodes->at(from);
+    map_node& to_node = nodes->at(to);
+    auto from_it = from_node.features.find(feature_id);
+    auto fit = features_dbow->find(feature_id);
+    critical_section(nodes, features_dbow, [&]() {
+        fit->second = to;
+        to_node.features.emplace(std::piecewise_construct, std::forward_as_tuple(from_it->first), std::forward_as_tuple(std::move(from_it->second)));
+        from_node.features.erase(from_it);
+    });
 }
 
 void mapper::remove_feature(nodeid groupid, featureid fid) {

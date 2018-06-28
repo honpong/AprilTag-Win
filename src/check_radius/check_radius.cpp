@@ -66,9 +66,11 @@ int main(int argc, char ** argv)
     stat_interval tm2_interval(TM2_TYPE, 0, false);
     bool tm2_started = false;
 
+    uint64_t now_us = 0;
     for(auto &pose : pose_sequence.tposes) {
         tpose gt_interp(pose.t);
         if(gt_sequence.get_pose(pose.t, gt_interp)) {
+            now_us = sensor_clock::tp_to_micros(pose.t);
             tpose now(pose.t);
             tpose now_gt(pose.t);
             now.G = G_tm2_center*pose.G;
@@ -87,12 +89,12 @@ int main(int argc, char ** argv)
             if(!gt_started && gt_dist > radius) {
                 gt_started = true;
                 if(tm2_dist > radius - margin)
-                    gt_interval = stat_interval(GT_TYPE, sensor_clock::tp_to_micros(pose.t), true);
+                    gt_interval = stat_interval(GT_TYPE, now_us, true);
                 else
-                    gt_interval = stat_interval(GT_TYPE, sensor_clock::tp_to_micros(pose.t), false);
+                    gt_interval = stat_interval(GT_TYPE, now_us, false);
             }
             if(gt_started && gt_dist < radius) {
-                gt_interval.stop = sensor_clock::tp_to_micros(pose.t);
+                gt_interval.stop = now_us;
                 intervals.push_back(gt_interval);
                 gt_started = false;
             }
@@ -100,17 +102,25 @@ int main(int argc, char ** argv)
             if(!tm2_started && tm2_dist > radius - margin) {
                 tm2_started = true;
                 if(gt_dist > radius - 2*margin)
-                    tm2_interval = stat_interval(TM2_TYPE, sensor_clock::tp_to_micros(pose.t), true);
+                    tm2_interval = stat_interval(TM2_TYPE, now_us, true);
                 else
-                    tm2_interval = stat_interval(TM2_TYPE, sensor_clock::tp_to_micros(pose.t), false);
+                    tm2_interval = stat_interval(TM2_TYPE, now_us, false);
             }
             if(tm2_started && tm2_dist < radius - margin) {
-                tm2_interval.stop = sensor_clock::tp_to_micros(pose.t);
+                tm2_interval.stop = now_us;
                 intervals.push_back(tm2_interval);
                 tm2_started = false;
             }
         }
-        total_time_us = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::microseconds>(pose.t - first_tm2_pose.t).count());
+    }
+    total_time_us = now_us - sensor_clock::tp_to_micros(first_tm2_pose.t);
+    if(tm2_started) {
+        tm2_interval.stop = now_us;
+        intervals.push_back(tm2_interval);
+    }
+    if(gt_started) {
+        gt_interval.stop = now_us;
+        intervals.push_back(gt_interval);
     }
 
     struct stat {

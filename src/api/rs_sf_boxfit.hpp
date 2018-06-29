@@ -1,12 +1,12 @@
 /*******************************************************************************
-
-INTEL CORPORATION PROPRIETARY INFORMATION
-This software is supplied under the terms of a license agreement or nondisclosure
-agreement with Intel Corporation and may not be copied or disclosed except in
-accordance with the terms of that agreement
-Copyright(c) 2017 Intel Corporation. All Rights Reserved.
-
-*******************************************************************************/
+ 
+ INTEL CORPORATION PROPRIETARY INFORMATION
+ This software is supplied under the terms of a license agreement or nondisclosure
+ agreement with Intel Corporation and may not be copied or disclosed except in
+ accordance with the terms of that agreement
+ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
+ 
+ *******************************************************************************/
 //
 //  rs_sf_boxfit.hpp
 //  algo-core
@@ -25,53 +25,53 @@ struct rs_sf_boxfit : public rs_sf_planefit
 {
     struct parameter
     {
-        float plane_pair_angle_thr = 0.03f;  // max dot product of box plane pair normals
-        float tracked_pair_angle_thr = 0.05f;// max dot product of tracked box plane pair normals
-        float plane_intersect_thr = 0.03f;   // points on 2 box planes touch within 30mm
-        float min_box_thickness = 0.06f;     // minimum box thickness in meter
-        float max_box_thickness = 1.50f;     // maximum box thickness in meter
-        float max_plane_pt_error = 0.015f;   // max point to box plane error
-        float box_state_gain = 0.1f;         // fraction of box update allowed per frame
-        float box_miss_ms = 500.0f;          // milliseconds allowed for a tracked box get lost
-        float fov_margin = 2.f;              // extend box length outside fov (0 no extension)
-        int   max_box_history = 11;          // length of box history per tracked box
-        bool  refine_box_plane = false;      // flag to refine box edge
-
+        float plane_pair_angle_thr   = 0.030f; // max dot product of box plane pair normals
+        float tracked_pair_angle_thr = 0.050f; // max dot product of tracked box plane pair normals
+        float plane_intersect_thr    = 0.030f; // points on 2 box planes touch within 30mm
+        float min_box_thickness      = 0.060f; // minimum box thickness in meter
+        float max_box_thickness      = 1.500f; // maximum box thickness in meter
+        float max_plane_pt_error     = 0.015f; // max point to box plane error
+        float box_state_gain         = 0.100f; // fraction of box update allowed per frame
+        float box_miss_ms            = 500.0f; // milliseconds allowed for a tracked box get lost
+        float fov_margin             = 2.000f; // extend box length outside fov (0 no extension)
+        int   max_box_history        = 11;     // length of box history per tracked box
+        bool  refine_box_plane       = false;  // flag to refine box edge
+        
         parameter get_preset(rs_sf_param_preset s) const {
             if (s==RS_SF_PRESET_BOX_S) { return {0.03f,0.05f,0.03f,0.03f,1.10f,0.015f,0.1f,500.0f,fov_margin,11,refine_box_plane}; }
             if (s==RS_SF_PRESET_BOX_L) { return {0.03f,0.05f,0.03f,0.30f,2.00f,0.015f,0.1f,500.0f,fov_margin,31,refine_box_plane}; }
             return                              {0.03f,0.05f,0.03f,0.06f,1.50f,0.015f,0.1f,500.0f,fov_margin,11,refine_box_plane};
         }
     };
-
+    
     struct box
     {
         v3 center;
         v3 dimension;
         m3 axis;
-
+        
         rs_sf_box to_rs_sf_box() const;
         v3 origin() const { return center - axis * dimension * 0.5f; }
         float max_radius() const { return (center - origin()).norm(); }
         float min_dimension() const { return dimension.minCoeff(); }
         float max_dimension() const { return dimension.maxCoeff(); }
     };
-
+    
     rs_sf_boxfit(const rs_sf_intrinsics* camera);
     ~rs_sf_boxfit() override { run_task(-1); }
     rs_sf_status set_option(rs_sf_fit_option option, double value) override;
     rs_sf_status set_locked_outputs() override;
     rs_sf_status process_depth_image() override;
     rs_sf_status track_depth_image() override;
-
+    
     int num_detected_boxes() const { return (int)m_box_ref_scene.tracked_boxes.size(); }
     rs_sf_box get_box(int box_id, float& history_progress) const { return m_box_ref_scene.get_tracked_box(box_id, history_progress, m_param.max_box_history); }
     std::vector<rs_sf_box> get_boxes() const;
-
+    
 protected:
-
+    
     parameter m_param;
-
+    
     template<int n>
     struct state_v {
         v<n> state[3], obse[3], pred[3], resi[3];
@@ -98,7 +98,7 @@ protected:
                 pred[1][d] = pred[2][d] + state[1][d];
                 pred[0][d] = pred[1][d] + state[0][d];
             }
-
+            
             for (int d = 0; d < n; ++d)
             {
                 // update observation
@@ -122,18 +122,18 @@ protected:
                 state[1][d] = pred[1][d] + resi[1][d] * gain;
                 state[2][d] = pred[2][d] + resi[2][d] * gain;
             }
-       
+            
             return state[0];
         }
     };
-
+    
     struct tracked_box;
     struct plane_pair {
         plane *p0, *p1, *p2; box *new_box; tracked_box* prev_box;
         plane_pair(plane* _p0, plane* _p1, tracked_box* _pb = nullptr, box *_nb = nullptr)
         : p0(_p0), p1(_p1), p2(nullptr), new_box(_nb), prev_box(_pb) {}
     };
-
+    
     struct box_plane_map
     {
         static const int MVP2 = MAX_VALID_PID + 2;
@@ -161,7 +161,7 @@ protected:
             return plane_pair(p0, p1, get(p0->pid, p1->pid));
         }
     } m_bp_map;
-
+    
     struct box_record : public box {
         box_record(const box& ref, const pose_t& pose, const rs_sf_intrinsics& cam, float margin);
         pose_t cam_pose;
@@ -170,7 +170,7 @@ protected:
         bool clear_dir[3][2]; // is end point detected within fov
         v3 half_dir(int a) const { return axis.col(a) * dimension[a] * 0.5f; }
     };
-
+    
     struct tracked_box : public box {
         int pid[3];
         std::list<box_record> box_history;
@@ -178,7 +178,7 @@ protected:
         state_v<4> track_axis;
         std::chrono::time_point<std::chrono::steady_clock> last_appear;
         tracked_box(const plane_pair& pair, const std::chrono::time_point<std::chrono::steady_clock>& now)
-            : box(*pair.new_box), track_pos(center), track_axis(qv3(axis).coeffs()), last_appear(now) {
+        : box(*pair.new_box), track_pos(center), track_axis(qv3(axis).coeffs()), last_appear(now) {
             pid[0] = pair.p0->pid;
             pid[1] = pair.p1->pid;
             pid[2] = (pair.p2 ? pair.p2->pid : 0);
@@ -186,13 +186,13 @@ protected:
         bool try_update(const plane_pair& pair, const pose_t& pose, const rs_sf_intrinsics& cam, const parameter& param);
     };
     typedef std::deque<tracked_box> queue_tracked_box;
-
+    
     struct box_scene {
         scene* plane_scene;
         std::vector<plane_pair> plane_pairs;
         std::vector<box> boxes;
         queue_tracked_box tracked_boxes;
-
+        
         inline void clear() { plane_pairs.clear(); boxes.clear(); tracked_boxes.clear(); }
         inline void swap(box_scene& ref) {
             plane_pairs.swap(ref.plane_pairs);
@@ -203,11 +203,11 @@ protected:
             return tracked_boxes[id].to_rs_sf_box();
         }
     } m_box_scene, m_box_ref_scene;
-
+    
 private:
-
+    
     struct box_plane_t;
-
+    
     // per-frame detection
     void detect_new_boxes(box_scene& view);
     bool is_valid_box_plane(const plane& p0) const;
@@ -215,12 +215,13 @@ private:
     bool is_valid_box_dimension(const box& b) const;
     bool form_box_from_two_planes(box_scene& view, plane_pair& pair);
     bool refine_box_from_third_plane(box_scene& view, plane_pair& pair, plane& p2);
-
+    
     // manage box list
     void update_tracked_boxes(box_scene& view);
-
+    
     // debug
     void draw_box(const std::string& name, const box& src, const box_plane_t* p0 = nullptr, const box_plane_t* p1 = nullptr) const;
 };
 
 #endif // ! rs_sf_boxfit_hpp
+

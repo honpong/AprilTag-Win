@@ -120,7 +120,8 @@ namespace rs2
             }
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_TRACKING, !_reset_request ? 0 : 1);
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_BOX_SCAN_MODE, _is_export[BOX_DST_DENSE] ? 1 : 0);
-
+            rs_shapefit_set_option(box_detector, RS_SF_OPTION_PARAM_PRESET, _param_preset);
+            
             auto status = rs_shapefit_depth_image(box_detector, &_image[BOX_DST_DENSE]);
             if (status == RS_SF_SUCCESS) { _reset_request = false; }
             if (status >= RS_SF_SUCCESS) {
@@ -147,9 +148,10 @@ namespace rs2
             return _num_box;
         }
 
-        void set(const int& s, const double flag)
+        void set(const int& s, const double value)
         {
-            _is_export[s] = (flag > 0.0);
+            if (s==RS2_MEASURE_PARAM_PRESET){ _param_preset = value; }
+            else {                            _is_export[s] = (value > 0.0); }
         }
 
         void set_reset_request()
@@ -200,6 +202,7 @@ namespace rs2
         std::unique_ptr<camera_tracker> _camera_tracker;
         std::shared_ptr<rs_shapefit> _detector;
         rs_sf_pose_data _depth_image_pose, _color_image_pose;
+        double _param_preset = 0;
         float _depth_unit;
 
         // box raycast utility
@@ -258,14 +261,14 @@ void* rs2_box_measure_create(rs2_box_measure** box_measure, float depth_unit, rs
 }
 HANDLE_EXCEPTIONS_AND_RETURN(nullptr, box_measure, depth_unit)
 
-void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const out_stream, double flag, rs2_error** error) BEGIN_API_CALL
+void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const config, double value, rs2_error** error) BEGIN_API_CALL
 {
     VALIDATE_NOT_NULL(box_measure);
-    VALIDATE_RANGE(out_stream, rs2::box_measure_impl::BOX_DST_DENSE, rs2::box_measure_impl::BOX_IMG_COUNT - 1);
+    VALIDATE_RANGE(config, rs2::box_measure_impl::BOX_DST_DENSE, rs2::box_measure_impl::BOX_IMG_COUNT);
 
-    ((rs2::box_measure_impl*)box_measure)->set(out_stream, flag);
+    ((rs2::box_measure_impl*)box_measure)->set(config, value);
 }
-HANDLE_EXCEPTIONS_AND_RETURN(, box_measure, out_stream, flag)
+HANDLE_EXCEPTIONS_AND_RETURN(, box_measure, config, value)
 
 void rs2_box_measure_reset(rs2_box_measure* box_measure, rs2_error** error) BEGIN_API_CALL
 {

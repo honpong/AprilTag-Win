@@ -54,6 +54,7 @@ extern "C"
         RS2_STREAM_DEPTH_DENSE = 3,    /**< optional dense depth stream from box measure    */
         RS2_STREAM_PLANE = 4,          /**< optional plane id stream from box measure       */
         RS2_STREAM_BOXCAST = 5,        /**< optional raycasted box depth from box measure   */
+        RS2_MEASURE_PARAM_PRESET = 6,  /**< configure preset parameters for box measure     */
         RS2_MEASURE_BOX_MAXCOUNT = 10, /**< maximum number of boxes from box measure        */
     } rs2_measure_const;
 
@@ -78,8 +79,8 @@ extern "C"
     } rs2_measure_camera_state;
 
     /** \brief Box measure object internal to a processing_block*/
-    typedef struct rs2_box_measure rs2_box_measure; 
-
+    typedef struct rs2_box_measure rs2_box_measure;
+    
     /**
     * Creates box measure processing block.
     * \param[out] box_measure pointer to box_measure object inside the returned processing_block. Do not delete directly.
@@ -92,13 +93,18 @@ extern "C"
     RS2_MEASURE_DECL void* rs2_box_measure_create(rs2_box_measure** box_measure, float depth_unit, rs2_intrinsics custom[2], rs2_extrinsics* d2c, rs2_error** e);
 
     /**
-    * Configure box measure object to enable specific optional output stream.
+    * Configure box measure object. Available configuration includes:
+    *  RS2_MEASURE_PARAM_PRESET...flag 1: small, 2: medium, 3: large boxes parameter preset
+    *  RS2_STREAM_DEPTH_DENSE.....flag 0: OFF,   1: ON dense depth output
+    *  RS2_STREAM_PLANE...........flag 0: OFF,   1: ON plane index output
+    *
+    * to enable specific optional output stream.
     * \param[in]  box_measure pointer to box_measure object inside a processing_block.
-    * \param[in]  out_stream  either RS2_STREAM_DEPTH_DENSE or RS2_STREAM_PLANE.  
-    * \param[in]  flag        either set 0 as off or set 1 as on.
+    * \param[in]  config      configuration option.
+    * \param[in]  value       configuration value.
     * \param[out] error       if non-null, receives any error that occurs during this call, otherwise, errors are ignored.
     */
-    RS2_MEASURE_DECL void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const out_stream, double flag, rs2_error** e);
+    RS2_MEASURE_DECL void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const config, double value, rs2_error** e);
 
     /**
     * Reset box measure.

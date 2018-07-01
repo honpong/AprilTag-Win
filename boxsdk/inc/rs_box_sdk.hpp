@@ -352,16 +352,25 @@ namespace rs2
         }
 
         /**
-        * Configure box_measure object to enable specific optional output stream. 
-        * \param[in]  s       either RS2_STREAM_DEPTH_DENSE or RS2_STREAM_PLANE.
-        * \param[in]  flag    set true/false to enable/disable respectively.
-        */
-        void configure(const rs2_measure_const& s, bool flag)
+         * Configure box measure object. Available configuration includes:
+         *  RS2_MEASURE_PARAM_PRESET...flag 1: small, 2: medium, 3: large boxes parameter preset
+         *  RS2_STREAM_DEPTH_DENSE.....flag 0: OFF,   1: ON dense depth output
+         *  RS2_STREAM_PLANE...........flag 0: OFF,   1: ON plane index output
+         *
+         * to enable specific optional output stream.
+         * \param[in]  box_measure pointer to box_measure object inside a processing_block.
+         * \param[in]  config      configuration option.
+         * \param[in]  value       configuration value.
+         */
+        void configure(const rs2_measure_const& config, double value)
         {
             rs2_error *e = nullptr;
-            rs2_box_measure_configure(_box_measure, s, flag ? 1 : 0, &e);
+            rs2_box_measure_configure(_box_measure, config, value, &e);
             error::handle(e);
         }
+        inline void configure(const rs2_measure_const& config, bool flag){ configure(config, flag ? 1.0 : 0.0); }
+        inline void configure(const rs2_measure_const& config, int value){ configure(config, (double)value); }
+        
 
         /**
         * Get the required camera configuration for librealsense camera pipeline.

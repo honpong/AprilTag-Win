@@ -102,6 +102,7 @@ int main(int argc, char* argv[])
         if (app.reset_request()) { boxscan.reset(); } //if reset button clicked or bad box does not fit
         boxscan.configure(RS2_STREAM_PLANE, app.plane_request());       //update output request
         boxscan.configure(RS2_STREAM_DEPTH_DENSE, app.dense_request()); //update output request
+        boxscan.configure(RS2_MEASURE_PARAM_PRESET, 2);                 //update input box parameters 1: small, 2: medium, 3: large
     }
 
     return EXIT_SUCCESS;

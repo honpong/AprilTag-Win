@@ -284,7 +284,7 @@ void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feat
     }
 }
 
-bool mapper::move_feature(featureid feature_id, nodeid src_node_id, nodeid dst_node_id, const transformation& G_Bdst_Bsrc) {
+bool mapper::move_feature(featureid feature_id, nodeid src_node_id, nodeid dst_node_id, const transformation* G_Bdst_Bsrc) {
     map_node& node_src = nodes->at(src_node_id);
     map_node& node_dst = nodes->at(dst_node_id);
     auto node_src_features_it = node_src.features.find(feature_id);
@@ -293,7 +293,7 @@ bool mapper::move_feature(featureid feature_id, nodeid src_node_id, nodeid dst_n
     auto extrinsics_dst = camera_extrinsics[node_dst.camera_id];
     transformation G_CB = invert(transformation(extrinsics_dst->Q.v, extrinsics_dst->T.v));
 
-    v3 p3dC = G_CB * G_Bdst_Bsrc * get_feature3D(src_node_id, feature_id);
+    v3 p3dC = G_CB * (G_Bdst_Bsrc ? *G_Bdst_Bsrc : find_relative_pose(dst_node_id, src_node_id)) * get_feature3D(src_node_id, feature_id);
     if(p3dC.z() < 0)
         return false;
     feature_t kpn = p3dC.segment<2>(0)/p3dC.z();
@@ -427,6 +427,19 @@ void mapper::remove_node(nodeid id)
             }
         }
     }
+}
+
+transformation mapper::find_relative_pose(nodeid source, nodeid target) const {
+    // returns transformation G_Bsource_Btarget
+    assert(nodes->find(source) != nodes->end());
+    assert(nodes->find(target) != nodes->end());
+    auto distance = [](const map_edge& edge) { return edge.type != edge_type::relocalization ? edge.G.T.norm() : std::numeric_limits<float>::infinity(); };
+    auto is_node_searched = [target](const node_path& path) { return path.id == target; };
+    auto finish_search = is_node_searched;
+
+    nodes_path paths = dijkstra_shortest_path(node_path{source, transformation(), 0}, distance, is_node_searched, finish_search);
+    assert(!paths.empty());
+    return paths[0].G;
 }
 
 mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path& path)> is_node_searched,

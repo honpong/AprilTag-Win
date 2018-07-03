@@ -274,7 +274,7 @@ private:
     void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                      std::shared_ptr<log_depth> v, const feature_type type = feature_type::tracked);
-    void move_feature(featureid feature_id, nodeid from, nodeid to);
+    bool move_feature(featureid feature_id, nodeid src_node_id, nodeid dst_node_id, const transformation& G_Bdst_Bsrc);
     void remove_feature(nodeid node_id, featureid feature_id);
     void remove_feature(featureid feature_id);
     void remove_node(nodeid node_id);

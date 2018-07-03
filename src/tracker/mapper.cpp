@@ -284,16 +284,31 @@ void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feat
     }
 }
 
-void mapper::move_feature(featureid feature_id, nodeid from, nodeid to) {
-    map_node& from_node = nodes->at(from);
-    map_node& to_node = nodes->at(to);
-    auto from_it = from_node.features.find(feature_id);
-    auto fit = features_dbow->find(feature_id);
+bool mapper::move_feature(featureid feature_id, nodeid src_node_id, nodeid dst_node_id, const transformation& G_Bdst_Bsrc) {
+    map_node& node_src = nodes->at(src_node_id);
+    map_node& node_dst = nodes->at(dst_node_id);
+    auto node_src_features_it = node_src.features.find(feature_id);
+    auto features_dbow_it = features_dbow->find(feature_id);
+    auto intrinsics_dst = camera_intrinsics[node_dst.camera_id];
+    auto extrinsics_dst = camera_extrinsics[node_dst.camera_id];
+    transformation G_CB = invert(transformation(extrinsics_dst->Q.v, extrinsics_dst->T.v));
+
+    v3 p3dC = G_CB * G_Bdst_Bsrc * get_feature3D(src_node_id, feature_id);
+    if(p3dC.z() < 0)
+        return false;
+    feature_t kpn = p3dC.segment<2>(0)/p3dC.z();
+    feature_t kpd = intrinsics_dst->unnormalize_feature(intrinsics_dst->distort_feature(kpn));
+
     critical_section(nodes, features_dbow, [&]() {
-        fit->second = to;
-        to_node.features.emplace(std::piecewise_construct, std::forward_as_tuple(from_it->first), std::forward_as_tuple(std::move(from_it->second)));
-        from_node.features.erase(from_it);
+        map_feature& f = node_src_features_it->second;
+        f.v->set_depth_meters(p3dC.z());
+        f.v->initial = kpd;
+        features_dbow_it->second = dst_node_id;
+        node_dst.features.emplace(std::piecewise_construct, std::forward_as_tuple(feature_id), std::forward_as_tuple(std::move(f)));
+        node_src.features.erase(node_src_features_it);
     });
+
+    return true;
 }
 
 void mapper::remove_feature(nodeid groupid, featureid fid) {

@@ -43,6 +43,7 @@ arrival_time_type = 44
 calibration_type = 43
 calibration_bin_type = 48
 velocimeter_type = 45
+controller_physical_info_type = 50
 got_types = defaultdict(int)
 
 packets = defaultdict(list)
@@ -290,6 +291,20 @@ if numpy.max(end_times_s) - numpy.min(end_times_s) > 5:
 
 total_time_s = numpy.max(end_times_s) - numpy.min(start_times_s)
 print "Total capture time: %.2fs" % total_time_s
+
+for sensor_id in [1,2]:
+    required_packets = [packet_types[p] + "_" + str(sensor_id) for p in [gyro_type, accel_type, controller_physical_info_type]]
+    has_controller = numpy.any([c in packets for c in required_packets])
+    if has_controller:
+        required_packets += [packet_types[image_raw_type] + "_" + str(im_id) + "_Y8" for im_id in [2, 3]]
+        missing = [c for c in required_packets if c not in packets]
+        for m in missing:
+            error_text += "Error: Controller %d is missing %s\n" % (sensor_id, m)
+
+        optional_packets = [packet_types[thermometer_type] + "_" + str(sensor_id)]
+        missing = [c for c in optional_packets if c not in packets]
+        for m in missing:
+            print "Warning: Controller %d is missing %s\n" % (sensor_id, m)
 
 if got_types[calibration_type] == 0 and got_types[calibration_bin_type] == 0:
     print "Warning: Never received calibration packet"

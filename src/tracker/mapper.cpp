@@ -66,9 +66,18 @@ void mapper::clean_map_after_filter_reset() {
     });
 }
 
-map_edge &map_node::get_add_neighbor(nodeid neighbor)
+void map_node::get_add_neighbor(nodeid neighbor, const transformation& G, const edge_type type)
 {
-    return edges.emplace(neighbor, map_edge{}).first->second;
+    if(type != edge_type::relocalization) {
+        auto& edge = edges.emplace(neighbor, map_edge{}).first->second;
+        edge.G = G;
+        if((type != edge_type::filter) || ((std::underlying_type<edge_type>::type)type > (std::underlying_type<edge_type>::type)edge.type))
+            edge.type = type;
+    } else {
+        auto& edge = relocalization_edges.emplace(neighbor, map_edge{}).first->second;
+        edge.G = G;
+        edge.type = type;
+    }
 }
 
 void mapper::add_edge(nodeid id1, nodeid id2, const transformation& G12, edge_type type) {
@@ -87,24 +96,8 @@ void mapper::add_relocalization_edges(const aligned_vector<map_relocalization_ed
 }
 
 void mapper::add_edge_no_lock(nodeid id1, nodeid id2, const transformation &G12, edge_type type) {
-    map_edge& edge12 = nodes->at(id1).get_add_neighbor(id2);
-    edge12.G = G12;
-    map_edge& edge21 = nodes->at(id2).get_add_neighbor(id1);
-    edge21.G = invert(G12);
-
-    // There are five edge types: map, filter, relocalization, dead_reckoning, new_edge
-    // Edge conversion rules:
-    // 1- new_edge -> to any other type
-    // 2- dead_reckoning -> filter or map (relocalization is not allowed temporarily)
-    // 3- relocalization -> filter or map
-    // 4- filter -> map
-    // 5- map: never changes
-    if((std::underlying_type<edge_type>::type)edge12.type < (std::underlying_type<edge_type>::type)type) {
-        if(!(edge12.type == edge_type::dead_reckoning && type == edge_type::relocalization)) {
-            edge12.type = type;
-            edge21.type = type;
-        }
-    }
+    nodes->at(id1).get_add_neighbor(id2, G12, type);
+    nodes->at(id2).get_add_neighbor(id1, invert(G12), type);
 }
 
 void mapper::add_covisibility_edge(nodeid id1, nodeid id2) {
@@ -419,10 +412,16 @@ void mapper::remove_node(nodeid id)
             if(connected_neighbors.size() < neighbors.size()) {
                 std::vector<nodeid> disconnected_neighbors;
                 std::set_difference(neighbors.begin(), neighbors.end(), connected_neighbors.begin(), connected_neighbors.end(), std::back_inserter(disconnected_neighbors));
-
                 transformation G_id_connected = edges[*connected_neighbors.begin()].G;
+                edge_type type_connected = edges[*connected_neighbors.begin()].type;
                 transformation G_id_disconnected = edges[disconnected_neighbors.front()].G; // pick one of the disconnected nodes
-                add_edge(*connected_neighbors.begin(), disconnected_neighbors.front(), invert(G_id_connected)*G_id_disconnected, edge_type::dead_reckoning);
+                edge_type type_disconnected = edges[disconnected_neighbors.front()].type;
+
+                edge_type type = edge_type::composition;
+                if(type_connected == edge_type::dead_reckoning || type_disconnected == edge_type::dead_reckoning)
+                    type = edge_type::dead_reckoning;
+
+                add_edge(*connected_neighbors.begin(), disconnected_neighbors.front(), invert(G_id_connected)*G_id_disconnected, type);
             }
         }
     }
@@ -766,12 +765,7 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
     size_t best_num_inliers = 0;
     for (size_t idx = 0; idx < candidate_nodes.size(); ++idx) {
         const auto& nid = candidate_nodes[idx];
-        edge_type type;
-        if(edge_in_map(camera_frame.closest_node, nid.first, type)) { // if nodes already connected with a map edge don't relocalize
-            if(type == edge_type::map) {
-                continue;
-            }
-        }
+
 #if defined(RELOCALIZATION_DEBUG)
         bool is_relocalized_in_candidate = false;
 #endif

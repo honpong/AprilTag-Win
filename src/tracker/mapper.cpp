@@ -307,7 +307,6 @@ void mapper::set_node_transformation(nodeid id, const transformation & G)
 {
     nodes.critical_section([&]() {
         nodes->at(id).global_transformation = G;
-        nodes->at(id).frames_active++;
     });
 }
 

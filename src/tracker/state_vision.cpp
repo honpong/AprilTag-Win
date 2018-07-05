@@ -293,6 +293,7 @@ void state_vision::update_map(mapper *map)
     if (!map) return;
     for (auto &g : groups.children) {
         map->set_node_transformation(g->id, *g->Gr);
+        map->get_node(g->id).frames_active++;
         for (auto &f : g->features.children) {
             bool good = f->variance() < .05f*.05f; // f->variance() is equivalent to (stdev_meters/depth)^2
             if (good) {

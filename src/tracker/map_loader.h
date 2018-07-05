@@ -43,6 +43,7 @@ public:
     std::set<nodeid> covisibility_edges;
     transformation global_transformation;
     uint64_t camera_id;
+    uint64_t frames_active;
     std::shared_ptr<frame_v> frame;
     std::map<featureid, map_feature_v> features;
 };

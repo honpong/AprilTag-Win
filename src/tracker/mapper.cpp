@@ -1082,7 +1082,7 @@ static bstream_writer & operator << (bstream_writer &content, const std::shared_
 }
 
 static bstream_writer & operator << (bstream_writer &content, const map_node &node) {
-    content << node.id << node.camera_id << node.edges;
+    content << node.id << node.camera_id << node.frames_active << node.edges;
     content << (uint8_t)(node.frame != nullptr);
     if (node.frame) content << node.frame;
     return content << node.covisibility_edges << node.features;

@@ -293,6 +293,7 @@ void state_vision::update_map(mapper *map)
     if (!map) return;
     for (auto &g : groups.children) {
         map->set_node_transformation(g->id, *g->Gr);
+        map->get_node(g->id).frames_active++;
         for (auto &f : g->features.children) {
             bool good = f->variance() < .05f*.05f; // f->variance() is equivalent to (stdev_meters/depth)^2
             if (good) {
@@ -360,11 +361,15 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     project_new_group_covariance(*p);
 
     // if number of nodes is bigger than 40 remove 10 nodes with the lowest number of active frames
-    constexpr size_t max_nodes = 40;
+    size_t max_nodes = 40;
+    if (map && map->is_map_unlinked())
+        max_nodes += map->get_node_id_offset();
     constexpr size_t num_nodes_removed = 10;
     if(map && map->get_nodes().size() >= max_nodes) {
         std::vector<std::pair<nodeid, uint64_t>> nodes_frames_active;
         for(auto& node : map->get_nodes()) {
+            if(map->is_map_unlinked() && node.second.id < map->get_node_id_offset())
+                continue;
             if(node.second.status == node_status::finished && node.second.id != map->get_node_id_offset())
                 nodes_frames_active.emplace_back(node.second.id, node.second.frames_active);
         }

@@ -94,7 +94,7 @@ static bstream_reader & operator >> (bstream_reader &content, map_feature_v1 &fe
 }
 
 static bstream_reader &  operator >> (bstream_reader &content, map_node_v1 &node) {
-    content >> node.id >> node.camera_id >> node.edges;
+    content >> node.id >> node.camera_id >> node.frames_active >> node.edges;
     if (!content.good()) return content;
     uint8_t has_frame = 0;
     content >> has_frame;
@@ -117,6 +117,7 @@ void assign<map_node_v1>(map_node &node, map_node_v1 &loaded_node) {
     }
     loaded_node.edges.clear();
     node.camera_id = loaded_node.camera_id;
+    node.frames_active = loaded_node.frames_active;
     node.frame = loaded_node.frame;
     node.covisibility_edges = loaded_node.covisibility_edges;
     node.features.clear();

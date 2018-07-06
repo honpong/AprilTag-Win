@@ -5,20 +5,16 @@ pipeline {
         CTEST_OUTPUT_ON_FAILURE = 1
     }
     stages {
-        stage('Build') {
-            parallel {
-                stage('Linux') {
-                    steps {
-                        slackSend color: "#439FE0", message: slack_build_message("started")
-                        sh "cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT}"
-                        sh "cmake --build build -- -j"
-                        stash includes: 'build/measure', name: 'measure'
-                        stash includes: 'build/mv-usb-boot', name: 'mv-usb-boot'
-                        stash includes: 'build/hub', name: 'hub'
-                        dir("build/src") {
-                            stash includes: 'libtracker.so', name: 'libtracker'
-                        }
-                    }
+        stage('Linux') {
+            steps {
+                slackSend color: "#439FE0", message: slack_build_message("started")
+                sh "cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT}"
+                sh "cmake --build build -- -j"
+                stash includes: 'build/measure', name: 'measure'
+                stash includes: 'build/mv-usb-boot', name: 'mv-usb-boot'
+                stash includes: 'build/hub', name: 'hub'
+                dir("build/src") {
+                    stash includes: 'libtracker.so', name: 'libtracker'
                 }
             }
         }

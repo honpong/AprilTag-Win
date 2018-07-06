@@ -47,18 +47,26 @@ pipeline {
                 sh 'rsync -a --chmod=ug+rw     $HOME/data/ $(realpath .)/data/ --include "*.json" --include "*/" --exclude "*"'
             }
         }
-        stage('Check options') {
-            steps {
-                sh 'build/rc_replay --output-tum data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 > a'
-                sh 'build/rc_replay --output-tum data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 > aa'
-                sh 'cat a a > a_a'
-                sh 'diff -u a_a aa'
-                sh 'build/measure --benchmark data/other/minimal_test_suite/'
-                sh 'build/measure --benchmark data/other/minimal_test_suite/ --disable-map'
-                sh 'build/measure --benchmark data/other/minimal_test_suite/ --no-fast-path'
-                sh 'build/measure --benchmark data/other/minimal_test_suite/ --async'
-                sh 'build/measure             data/vr/WW50/VR_with_ctrl/Building/VR_RM_with_ctrl_yossi_3.stereo.rc --no-gui --relocalize --save-map test.map'
-                sh 'build/measure --benchmark data/other/minimal_test_suite/ --relocalize --load-map test.map'
+        stage('Check') {
+            parallel {
+                stage('Sync') {
+                    steps {
+                        sh 'build/rc_replay --output-tum data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 > a'
+                        sh 'build/rc_replay --output-tum data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 > aa'
+                        sh 'cat a a > a_a'
+                        sh 'diff -u a_a aa'
+                        sh 'build/measure --benchmark data/other/minimal_test_suite/'
+                        sh 'build/measure --benchmark data/other/minimal_test_suite/ --disable-map'
+                        sh 'build/measure --benchmark data/other/minimal_test_suite/ --no-fast-path'
+                        sh 'build/measure             data/vr/WW50/VR_with_ctrl/Building/VR_RM_with_ctrl_yossi_3.stereo.rc --no-gui --relocalize --save-map test.map'
+                        sh 'build/measure --benchmark data/other/minimal_test_suite/ --relocalize --load-map test.map'
+                    }
+                }
+                stage('Async') {
+                    steps {
+                        sh 'build/measure --benchmark data/other/minimal_test_suite/ --async'
+                    }
+                }
             }
         }
         stage('Verify') {

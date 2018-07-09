@@ -69,9 +69,9 @@ pipeline {
                 }
             }
         }
-        stage('Verify') {
+        stage('Benchmark') {
             parallel {
-                stage('Run benchmark') {
+                stage('CPU') {
                     steps {
                         sh 'build/measure --qvga --relocalize --benchmark data/ --pose-output %s.cpu.tum --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'sed -ne \'/^Summary/,$p\' benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
@@ -105,7 +105,7 @@ pipeline {
                         bat "cmake --build build64 --config RelWithDebInfo"
                     }
                 }
-                stage('Run TM2 benchmark') {
+                stage('TM2') {
                     agent { label 'tm2' }
                     options { skipDefaultCheckout() }
                     steps {

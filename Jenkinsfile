@@ -28,7 +28,7 @@ pipeline {
                 }
             }
         }
-        stage('Build slam_client') {
+        stage('Movidius') {
             steps {
                 sh '''#!/bin/bash
                     source src/movidius/mvenv

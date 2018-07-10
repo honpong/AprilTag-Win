@@ -107,6 +107,7 @@ def read_tum(filename, strict_tum = False, sample_number = False):
             print(data)
             continue
         device_id = 0
+        confidence = 3
         if strict_tum == False:
             if len(data) > 8:
                 device_id = int(data[8])

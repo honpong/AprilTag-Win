@@ -45,6 +45,8 @@ int main(int argc, char ** argv)
         if(result.errors.calculate_ate_600ms()) {
             cout << "ATE (600ms chunks) (m):" << result.errors.ate_600ms << "m\n";
         }
+        cout << "SpaceSeparated" << " " << result.errors.nposes << " " << pose_sequence.tposes.size() << " " << result.errors.ate.rmse << " " << result.errors.ate.max;
+        cout << " " << result.errors.rpe_R.rmse * (180.f / M_PI) << " " << result.errors.rpe_R.max * (180.f / M_PI) << "\n";
     }
 
     return 0;

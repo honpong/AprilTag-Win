@@ -193,7 +193,7 @@ void mapper::update_3d_feature(const tracker::feature_track& track, const nodeid
     const f_t sigma2 = 10 / (focal_px*focal_px);
 
     // distance # edges traversed
-    auto distance = [](const map_edge& edge) { return edge.type != edge_type::relocalization ? edge.G.T.norm() : std::numeric_limits<float>::infinity(); };
+    auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
     // select node if it is the searched node
     auto is_node_searched = [&tp](const node_path& path) { return path.id == tp->second.reference_nodeid; };
     // finish search when node is found
@@ -431,7 +431,7 @@ transformation mapper::find_relative_pose(nodeid source, nodeid target) const {
     // returns transformation G_Bsource_Btarget
     assert(nodes->find(source) != nodes->end());
     assert(nodes->find(target) != nodes->end());
-    auto distance = [](const map_edge& edge) { return edge.type != edge_type::relocalization ? edge.G.T.norm() : std::numeric_limits<float>::infinity(); };
+    auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
     auto is_node_searched = [target](const node_path& path) { return path.id == target; };
     auto finish_search = is_node_searched;
 
@@ -800,7 +800,7 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
                 if (it_node != nodes->end()) {
                     auto covisible_neighbors = it_node->second.covisibility_edges; // some of trhe points observed from this candidate node should be found in the covisible nodes
                     // distance # edges traversed
-                    auto distance = [](const map_edge& edge) { return edge.type != edge_type::relocalization ? edge.G.T.norm() : std::numeric_limits<float>::infinity(); };
+                    auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
                     // select node if it is one of the covisible nodes
                     auto is_node_searched = [&covisible_neighbors](const node_path& path) {
                         auto it_neighbor = covisible_neighbors.find(path.id);
@@ -1011,7 +1011,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const size_t min
     transformation G_CB = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
 
     // distance # edges traversed
-    auto distance = [](const map_edge& edge) { return edge.type != edge_type::relocalization ? edge.G.T.norm() : std::numeric_limits<float>::infinity(); };
+    auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
     // select node if it is finished and within 2 meters from current pose
     auto is_node_searched = [this, &G_CB](const node_path& path) {
       f_t cos_z = v3{0,0,1}.dot(G_CB.Q*path.G.Q*G_CB.Q.conjugate()*v3{0,0,1});

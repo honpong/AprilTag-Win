@@ -92,7 +92,7 @@ def read_tum(filename, strict_tum = False, sample_number = False):
     Read tum file, return a generic name and dictinary of the form:
     d[device_id] = { TIME: [], X:[], Y:[], Z:[], D:[], AX:[], AY: [], AZ: []}
     '''
-    d = {}
+    d = defaultdict(lambda: { TIME: [], X:[], Y:[], Z:[], D:[], AX:[], AY: [], AZ: []})
     name = os.path.basename(filename)
     name = os.path.splitext(name)[0]
     fp = open(filename)
@@ -112,8 +112,6 @@ def read_tum(filename, strict_tum = False, sample_number = False):
                 device_id = int(data[8])
             if len(data) > 9:
                 confidence = int(data[9])
-        if device_id not in d:
-            d[device_id] = { TIME: [], X:[], Y:[], Z:[], D:[], AX:[], AY: [], AZ: []}
 
         if sample_number:
             d[device_id][TIME].append(lc)

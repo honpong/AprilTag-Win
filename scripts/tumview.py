@@ -17,6 +17,7 @@ import sys
 import os
 import math
 import argparse
+from collections import defaultdict
 
 TIME = 0
 X = 1
@@ -96,7 +97,7 @@ def read_tum(filename, strict_tum = False, sample_number = False):
     name = os.path.splitext(name)[0]
     fp = open(filename)
     lc = 0
-    last_time = 0.0
+    last_time = defaultdict(lambda: 0.0)
     for l in fp.readlines():
         lc += 1
         data = l.split()
@@ -119,9 +120,9 @@ def read_tum(filename, strict_tum = False, sample_number = False):
         else:
             d[device_id][TIME].append( float(data[0]))
 
-        if last_time > 0.0 and d[device_id][TIME] < last_time:
-            print('%s : device: %d timestamp is not monotonic current: %f last: %f' % (name, device_id, d[device_id][TIME], last_time))
-        last_time = d[device_id]
+        if last_time[device_id] > 0.0 and d[device_id][TIME][-1] < last_time[device_id]:
+            print('%s : device: %d timestamp is not monotonic current: %f last: %f' % (name, device_id, d[device_id][TIME][-1], last_time[device_id]))
+        last_time[device_id] = d[device_id][TIME][-1]
 
         (x, y, z, qi, qj, qk, qw) = (float(f) for f in data[1:8])
         dist = math.sqrt(x * x + y * y + z * z)

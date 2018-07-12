@@ -112,7 +112,7 @@ def read_tum(filename, strict_tum = False, sample_number = False):
                 device_id = int(data[8])
             if len(data) > 9:
                 confidence = int(data[9])
-        if (device_id in d.keys()) == False:
+        if device_id not in d:
             d[device_id] = { TIME: [], X:[], Y:[], Z:[], D:[], AX:[], AY: [], AZ: []}
 
         if sample_number:

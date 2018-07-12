@@ -10,6 +10,7 @@ In addition, tumview can use 9th field device-id data if exists to visualize eac
 seperatly.
 '''
 
+from __future__ import print_function
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import sys
@@ -101,8 +102,8 @@ def read_tum(filename, strict_tum = False, sample_number = False):
         data = l.split()
         if len(data) == 0: continue
         if len(data) < 8:
-            print '%s: misformatted line at %d' % (filename, lc)
-            print data
+            print('%s: misformatted line at %d' % (filename, lc))
+            print(data)
             continue
         device_id = 0
         if strict_tum == False:
@@ -119,7 +120,7 @@ def read_tum(filename, strict_tum = False, sample_number = False):
             d[device_id][TIME].append( float(data[0]))
 
         if last_time > 0.0 and d[device_id][TIME] < last_time:
-            print '%s : device: %d timestamp is not monotonic current: %f last: %f' % (name, device_id, d[device_id][TIME], last_time)
+            print('%s : device: %d timestamp is not monotonic current: %f last: %f' % (name, device_id, d[device_id][TIME], last_time))
         last_time = d[device_id]
 
         (x, y, z, qi, qj, qk, qw) = (float(f) for f in data[1:8])
@@ -157,7 +158,7 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
             xy_plt.plot(data[k][TIME], data[k][D], label="%s_%d" % (name, k))
             xy_plt.legend(loc='upper right')
         elif plot_mode == PLOT_MODE_3D:
-            print "plot mode 3d"
+            print("plot mode 3d")
             ax3d = plt.gca(projection='3d')
             ax3d.plot(data[k][X], data[k][Y], data[k][Z], label=name, linewidth=1)
             ax3d.mouse_init()
@@ -220,7 +221,7 @@ def main() :
     else:
         output = args.output
         ext = os.path.splitext(output)
-        print 'ext:', ext[1]
+        print('ext:', ext[1])
         if ext[1] == '': output += '.png'
         plt.savefig(output)
 

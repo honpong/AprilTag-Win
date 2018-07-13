@@ -57,8 +57,8 @@ while p is not None:
         p.to_file(f_out)
     else:
         st = stereo_frame(p.data) 
-        frame0 = image_frame(p.header.sensor_id, p.header.time, st.mono_header(0), st.mono_data(0))
-        frame1 = image_frame(p.header.sensor_id + 1, p.header.time, st.mono_header(1), st.mono_data(1))
+        frame0 = image_frame(p.header.sensor_id * 2 + 0, p.header.time, st.mono_header(0), st.mono_data(0))
+        frame1 = image_frame(p.header.sensor_id * 2 + 1, p.header.time, st.mono_header(1), st.mono_data(1))
         frame0.to_file(f_out)
         frame1.to_file(f_out) 
 

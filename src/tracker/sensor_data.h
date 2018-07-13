@@ -164,8 +164,8 @@ public:
         d.stereo.handle = nullptr;
         d.stereo.release = nullptr;
         return std::pair<sensor_data,sensor_data>(
-            sensor_data{d.time_us, rc_SENSOR_TYPE_IMAGE, rc_Sensor(d.id+0), d.stereo.shutter_time_us, d.stereo.width, d.stereo.height, d.stereo.stride1, d.stereo.format, d.stereo.image1, {handle, release}},
-            sensor_data{d.time_us, rc_SENSOR_TYPE_IMAGE, rc_Sensor(d.id+1), d.stereo.shutter_time_us, d.stereo.width, d.stereo.height, d.stereo.stride2, d.stereo.format, d.stereo.image2, {handle, release}}
+            sensor_data{d.time_us, rc_SENSOR_TYPE_IMAGE, rc_Sensor(d.id*2+0), d.stereo.shutter_time_us, d.stereo.width, d.stereo.height, d.stereo.stride1, d.stereo.format, d.stereo.image1, {handle, release}},
+            sensor_data{d.time_us, rc_SENSOR_TYPE_IMAGE, rc_Sensor(d.id*2+1), d.stereo.shutter_time_us, d.stereo.width, d.stereo.height, d.stereo.stride2, d.stereo.format, d.stereo.image2, {handle, release}}
         );
     }
 

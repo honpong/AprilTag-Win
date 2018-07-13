@@ -44,7 +44,8 @@ def stereo_frame(f_out, frame1, frame2):
             frame1.camera_format)
     #print len(data_header)
     packet_bytes = len(data_header) + 16 + len(frame1.image_data) + len(frame2.image_data)
-    header = pack('IHHQ', packet_bytes, stereo_raw_type, 0, time_us)
+    assert(frame1.sensor_id/2 == frame2.sensor_id/2)
+    header = pack('IHHQ', packet_bytes, stereo_raw_type, frame1.sensor_id/2, time_us)
     return Packet(Packet.Header(header), data_header+frame1.image_data+frame2.image_data)
 
 f = open(capture_filename, "rb")
@@ -52,18 +53,17 @@ f_out = open(output_filename, "wb")
 p = Packet.from_file(f)
 last_frame = None
 while p is not None:
-    if (not p.header.type == PacketType.image_raw) or \
-       (p.header.type == PacketType.image_raw and p.header.sensor_id >= 2):
+    if not p.header.type == PacketType.image_raw:
         p.to_file(f_out)
     else:
         this_frame = image_frame(p.header.sensor_id, p.header.time, p.data)
-
         if last_frame and last_frame.sensor_id != this_frame.sensor_id and abs(last_frame.time_us - this_frame.time_us) < 1000:
             stereo_packet = stereo_frame(f_out, last_frame, this_frame)
             stereo_packet.arrival_time = p.arrival_time
             stereo_packet.to_file(f_out)
-
-        last_frame = this_frame
+            last_frame = None
+        else:
+            last_frame = this_frame
 
     p = Packet.from_file(f)
 

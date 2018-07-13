@@ -545,6 +545,11 @@ void world_state::update_map(rc_Tracker * tracker, rc_Timestamp timestamp_us)
                 neighbor.type = edge.second.type;
                 neighbors.push_back(neighbor);
             }
+            for(auto& edge : map_node.relocalization_edges) {
+                Neighbor neighbor(edge.first);
+                neighbor.type = edge.second.type;
+                neighbors.push_back(neighbor);
+            }
 
             std::vector<Feature> features;
             for(auto &feat : map_node.features) {
@@ -937,9 +942,11 @@ bool world_state::update_vertex_arrays(bool show_only_good)
         for(Neighbor neighbor : node.neighbors) {
             VertexData ve;
             if(neighbor.type == edge_type::filter)
-                set_color(&ve, 255, 255, 0, alpha*0.2);
+                set_color(&ve, 255, 0, 255, alpha*0.2);
             else if(neighbor.type == edge_type::map)
                 set_color(&ve, 0, 255, 0, alpha*0.2);
+            else if(neighbor.type == edge_type::composition)
+                set_color(&ve, 255, 140, 0, alpha);
             else if(neighbor.type == edge_type::dead_reckoning)
                 set_color(&ve, 255, 0, 0, alpha);
             else if(neighbor.type == edge_type::relocalization)
@@ -950,9 +957,11 @@ bool world_state::update_vertex_arrays(bool show_only_good)
 
             auto node2 = map_nodes[neighbor.id];
             if(neighbor.type == edge_type::filter)
-                set_color(&ve, 255, 255, 0, alpha*0.2);
+                set_color(&ve, 255, 0, 255, alpha*0.2);
             else if(neighbor.type == edge_type::map)
                 set_color(&ve, 0, 255, 0, alpha*0.2);
+            else if(neighbor.type == edge_type::composition)
+                set_color(&ve, 255, 140, 0, alpha*0.2);
             else if(neighbor.type == edge_type::dead_reckoning)
                 set_color(&ve, 255, 0, 0, alpha);
             else if(neighbor.type == edge_type::relocalization)

@@ -87,7 +87,7 @@ struct camera_frame_t {
     transformation G_closestnode_frame;
 };
 
-enum class edge_type { new_edge, dead_reckoning, relocalization, filter, map };
+enum class edge_type { new_edge, dead_reckoning, filter, composition, map, relocalization};
 
 struct map_edge {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -116,8 +116,9 @@ struct map_node {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     nodeid id;
     aligned_map<nodeid, map_edge> edges; // key is neighbor_id; we use a map structure to gurantee same order when traversing edges.
+    aligned_map<nodeid, map_edge> relocalization_edges;
     std::set<nodeid> covisibility_edges;
-    map_edge &get_add_neighbor(nodeid neighbor);
+    void get_add_neighbor(nodeid neighbor, const transformation& G, const edge_type type);
     void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v, const feature_type type);
     void set_feature_type(const featureid id, const feature_type type);
 

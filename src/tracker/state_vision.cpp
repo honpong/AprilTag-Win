@@ -563,14 +563,13 @@ void state_camera::update_feature_tracks(const sensor_data &data)
     END_EVENT(SF_TRACK, feature_tracker->tracks.size())
 }
 
-void state_camera::update_map_tracks(const sensor_data &data, mapper *map,
-                                     const size_t min_group_map_add, const groupid closest_group_id,
-                                     const transformation &G_Bclosest_Bnow) {
+void state_camera::update_map_tracks(const sensor_data &data, mapper *map, const mapper::nodes_path& neighbors,
+                                     const size_t min_group_map_add) {
     START_EVENT(SF_TRACK, 0);
     feature_tracker->tracks.clear();
     START_EVENT(SF_PREDICT_MAP, 0);
     // create tracks of features visible in inactive map nodes
-    map->predict_map_features(data.id, min_group_map_add, closest_group_id, G_Bclosest_Bnow);
+    map->predict_map_features(data.id, neighbors, min_group_map_add);
     for(auto &nft : map->map_feature_tracks) {
         for(auto &mft : nft.tracks)
             feature_tracker->tracks.emplace_back(&mft.track);

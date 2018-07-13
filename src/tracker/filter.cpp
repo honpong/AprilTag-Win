@@ -928,11 +928,36 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         groupid closest_group_id;
         transformation G_Bclosest_Bnow;
         if(f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow)) {
+            // Try to relocalize in groups based on geometry (using map edges)
             auto neighbors = f->map->find_neighbor_nodes(mapper::node_path{closest_group_id, invert(G_Bclosest_Bnow), 0}, data.id);
             camera_state.update_map_tracks(data, f->map.get(), neighbors, f->min_group_map_add);
             if(f->map->map_feature_tracks.size()) {
                 filter_bring_groups_back(f, data.id);
                 space = filter_available_feature_space(f);
+            }
+
+            // Try to relocalize in groups based on appearance (using relocalization edges)
+            if(space >= f->min_group_map_add) {
+                transformation G_Bnow_W = invert(transformation(f->s.Q.v, f->s.T.v));
+                for (auto &g : f->s.groups.children) {
+                    if(space < f->min_group_map_add) break;
+                    transformation G_Bnow_Bg = G_Bnow_W * (*g->Gr);
+                    auto& reloc_edges = f->map->get_node(g->id).relocalization_edges;
+                    for(auto it_reloc = reloc_edges.begin(); it_reloc != reloc_edges.end(); ) {
+                        if(f->map->get_node(it_reloc->first).status == node_status::finished) {
+                            mapper::nodes_path neighbor{{it_reloc->first, G_Bnow_Bg * it_reloc->second.G, 0}};
+                            camera_state.update_map_tracks(data, f->map.get(), neighbor, f->min_group_map_add);
+                            if(f->map->map_feature_tracks.size() && f->map->map_feature_tracks[0].found >= f->min_group_map_add) {
+                                filter_bring_groups_back(f, data.id);
+                                space = filter_available_feature_space(f);
+                            }
+                        }
+                        auto& neighbor = f->map->get_node(it_reloc->first);
+                        neighbor.relocalization_edges.erase(g->id);
+                        it_reloc = reloc_edges.erase(it_reloc);
+                        if(space < f->min_group_map_add) break;
+                    }
+                }
             }
         }
     }

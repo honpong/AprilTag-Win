@@ -440,6 +440,39 @@ transformation mapper::find_relative_pose(nodeid source, nodeid target) const {
     return paths[0].G;
 }
 
+mapper::nodes_path mapper::find_neighbor_nodes(const node_path& start, const uint64_t camera_id_now) {
+    const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
+    transformation G_CB = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
+
+    // distance # edges traversed
+    auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
+    // select node if it is finished and within 2 meters from current pose
+    auto is_node_searched = [this, &G_CB](const node_path& path) {
+      f_t cos_z = v3{0,0,1}.dot(G_CB.Q*path.G.Q*G_CB.Q.conjugate()*v3{0,0,1});
+      // check if candidate is in a 2m radius and points to the same half-space direction cos(M_PI/2) = 0
+      if( (get_node(path.id).status == node_status::finished) && (path.G.T.norm() < 2) && (cos_z > 0) )
+          return true;
+      else
+          return false;
+    };
+    // search all graph
+    auto finish_search = [](const node_path& path) { return false; };
+    START_EVENT(SF_DIJKSTRA, 0);
+    nodes_path neighbors = dijkstra_shortest_path(start, distance, is_node_searched, finish_search);
+
+    std::sort(neighbors.begin(), neighbors.end(), [](const node_path& path1, const node_path& path2){
+        return path1.G.T.norm() < path2.G.T.norm();
+    });
+    END_EVENT(SF_DIJKSTRA, neighbors.size());
+    //performance tradeof:
+    //too many neighbors -> long loop time
+    //too few -> we might end up not adding features at all
+    if(neighbors.size() > 8)
+        neighbors.resize(8);
+
+    return neighbors;
+}
+
 mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path& path)> is_node_searched,
                                                   std::function<bool(const node_path& path)> finish_search) const
 {
@@ -1002,40 +1035,13 @@ std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching
     return voc;
 }
 
-void mapper::predict_map_features(const uint64_t camera_id_now, const size_t min_group_map_add,
-                                  const nodeid closest_group_id, const transformation& G_Bclosest_Bnow) {
+void mapper::predict_map_features(const uint64_t camera_id_now, const mapper::nodes_path& neighbors, const size_t min_group_map_add) {
     map_feature_tracks.clear();
 
     const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
     const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
     transformation G_CB = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
 
-    // distance # edges traversed
-    auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
-    // select node if it is finished and within 2 meters from current pose
-    auto is_node_searched = [this, &G_CB](const node_path& path) {
-      f_t cos_z = v3{0,0,1}.dot(G_CB.Q*path.G.Q*G_CB.Q.conjugate()*v3{0,0,1});
-      // check if candidate is in a 2m radius and points to the same half-space direction cos(M_PI/2) = 0
-      if( (get_node(path.id).status == node_status::finished) && (path.G.T.norm() < 2) && (cos_z > 0) )
-          return true;
-      else
-          return false;
-    };
-    // search all graph
-    auto finish_search = [](const node_path& path) { return false; };
-    START_EVENT(SF_DIJKSTRA, 0);
-    nodes_path neighbors = dijkstra_shortest_path(node_path{closest_group_id, invert(G_Bclosest_Bnow), 0},
-                                                  distance, is_node_searched, finish_search);
-
-    std::sort(neighbors.begin(), neighbors.end(), [](const node_path& path1, const node_path& path2){
-        return path1.G.T.norm() < path2.G.T.norm();
-    });
-    END_EVENT(SF_DIJKSTRA, neighbors.size());
-    //performance tradeof:
-    //too many neighbors -> long loop time
-    //too few -> we might end up not adding features at all
-    if(neighbors.size() > 8)
-        neighbors.resize(8);
     int groups_added = 0;
     for(const auto& neighbor : neighbors) {
         map_node& node_neighbor = nodes->at(neighbor.id);

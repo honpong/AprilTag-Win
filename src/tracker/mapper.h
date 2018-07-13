@@ -287,6 +287,7 @@ private:
     mapper::nodes_path dijkstra_shortest_path(const node_path &start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path &)> is_node_searched,
                                               std::function<bool(const node_path &)> finish_search) const;
     transformation find_relative_pose(nodeid source, nodeid target) const;
+    nodes_path find_neighbor_nodes(const node_path& start, const uint64_t camera_id_now);
 
     const aligned_unordered_map<nodeid, map_node> &get_nodes() const { return *nodes; }
     map_node& get_node(nodeid id) { return nodes->at(id); }
@@ -348,7 +349,7 @@ private:
         node_feature_track & operator=(const node_feature_track &) = delete;
     };
     std::vector<node_feature_track> map_feature_tracks;
-    void predict_map_features(const uint64_t camera_id_now, const size_t min_gorup_map_add, const nodeid closest_group_id, const transformation& G_Bclosest_Bnow);
+    void predict_map_features(const uint64_t camera_id_now, const nodes_path &neighbors, const size_t min_gorup_map_add);
 
 // triangulated tracks
     struct triangulated_track

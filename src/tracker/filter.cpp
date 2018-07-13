@@ -1006,7 +1006,8 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         groupid closest_group_id;
         transformation G_Bclosest_Bnow;
         if(f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow)) {
-            camera_state.update_map_tracks(data, f->map.get(), f->min_group_map_add, closest_group_id, G_Bclosest_Bnow);
+            auto neighbors = f->map->find_neighbor_nodes(mapper::node_path{closest_group_id, invert(G_Bclosest_Bnow), 0}, data.id);
+            camera_state.update_map_tracks(data, f->map.get(), neighbors, f->min_group_map_add);
             if(f->map->map_feature_tracks.size()) {
                 filter_bring_groups_back(f, data.id);
                 space = filter_available_feature_space(f);

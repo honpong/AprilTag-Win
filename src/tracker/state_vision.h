@@ -214,7 +214,7 @@ struct state_camera: state_branch<state_node*> {
 
     std::list<state_vision_track> tracks;
     void update_feature_tracks(const sensor_data &data);
-    void update_map_tracks(const sensor_data &data, mapper *map, const size_t min_group_map_add, const groupid closest_group_id, const transformation &G_Bclosest_Bnow);
+    void update_map_tracks(const sensor_data &data, mapper *map, const mapper::nodes_path &neighbors, const size_t min_group_map_add);
     size_t track_count() const;
     void process_tracks(mapper *map);
 

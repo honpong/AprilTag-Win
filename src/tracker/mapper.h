@@ -43,7 +43,6 @@ typedef size_t featureidx;
 
 class state_vision_intrinsics;
 class log_depth;
-class triangulated_track;
 
 struct frame_t {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -278,7 +277,6 @@ private:
     void remove_feature(featureid feature_id);
     void remove_node(nodeid node_id);
     void set_feature_type(nodeid node_id, featureid feature_id, const feature_type type = feature_type::tracked);
-    void update_3d_feature(triangulated_track &track, const nodeid closest_group_id, const transformation &&G_Bnow_Bclosest, const rc_Sensor camera_id_now);
     v3 get_feature3D(nodeid node_id, featureid feature_id) const; // returns feature wrt node body frame
     mapper::nodes_path dijkstra_shortest_path(const node_path &start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path &)> is_node_searched,
                                               std::function<bool(const node_path &)> finish_search) const;

@@ -152,39 +152,6 @@ void mapper::remove_node_features(nodeid id) {
         features_dbow->erase(f.first);
 }
 
-void mapper::update_3d_feature(triangulated_track& track, const nodeid closest_group_id,
-                               const transformation &&G_Bnow_Bclosest, const rc_Sensor camera_id_now) {
-
-    const state_vision_intrinsics* const intrinsics_ref = camera_intrinsics[get_node(track.reference_node()).camera_id];
-    const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
-    const state_extrinsics* const extrinsics_ref = camera_extrinsics[get_node(track.reference_node()).camera_id];
-    const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
-
-    const f_t focal_px = intrinsics_now->focal_length.v * intrinsics_now->image_height;
-    const f_t sigma2 = 10 / (focal_px*focal_px);
-
-    // distance # edges traversed
-    auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
-    // select node if it is the searched node
-    auto is_node_searched = [&track](const node_path& path) { return path.id == track.reference_node(); };
-    // finish search when node is found
-    auto finish_search = is_node_searched;
-
-    nodes_path searched_node = dijkstra_shortest_path(node_path{closest_group_id, transformation(), 0},
-                                                      distance, is_node_searched, finish_search);
-    assert(searched_node.size() == 1);
-    auto& G_Bclosest_Bref = searched_node.front().G;
-    transformation G_CBnow = invert(transformation(extrinsics_now->Q.v, extrinsics_now->T.v));
-    transformation G_BCref = transformation(extrinsics_ref->Q.v, extrinsics_ref->T.v);
-
-    transformation G_Cnow_Cref = G_CBnow * G_Bnow_Bclosest * G_Bclosest_Bref * G_BCref;
-
-    track.measure(G_Cnow_Cref,
-                  intrinsics_ref->undistort_feature(intrinsics_ref->normalize_feature(track.v()->initial)),
-                  intrinsics_now->undistort_feature(intrinsics_now->normalize_feature({track.x,track.y})),
-                  sigma2);
-}
-
 void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                            std::shared_ptr<log_depth> v, const feature_type type) {
     auto fid = feature->id;

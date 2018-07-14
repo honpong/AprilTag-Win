@@ -1443,11 +1443,27 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
         transformation G_Bclosest_Bnow;
         bool valid_transformation = f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow);
         auto &c = f->s.cameras.children[camera_id];
+        auto &intrinsics_now = c->intrinsics;
+        auto &extrinsics_now = c->extrinsics;
+        const f_t focal_px = intrinsics_now.focal_length.v * intrinsics_now.image_height;
+        const f_t sigma2 = 10 / (focal_px*focal_px);
+        const transformation G_Bnow_Bclosest = invert(G_Bclosest_Bnow);
+        const transformation G_CBnow = invert(transformation(extrinsics_now.Q.v, extrinsics_now.T.v));
+
         for(auto &sbt : c->standby_tracks) {
-            if(!f->map->node_in_map(sbt.reference_node())) {
+            const map_node* node = f->map->fetch_node(sbt.reference_node());
+            if(node && valid_transformation) {
+                auto &intrinsics_ref = f->s.cameras.children[node->camera_id]->intrinsics;
+                auto &extrinsics_ref = f->s.cameras.children[node->camera_id]->extrinsics;
+                transformation G_BCref = transformation(extrinsics_ref.Q.v, extrinsics_ref.T.v);
+                transformation G_Bclosest_Bref = f->map->find_relative_pose(closest_group_id, sbt.reference_node());
+                transformation G_Cnow_Cref = G_CBnow * G_Bnow_Bclosest * G_Bclosest_Bref * G_BCref;
+                sbt.measure(G_Cnow_Cref,
+                            intrinsics_ref.undistort_feature(intrinsics_ref.normalize_feature(sbt.v()->initial)),
+                            intrinsics_now.undistort_feature(intrinsics_now.normalize_feature({sbt.x,sbt.y})),
+                            sigma2);
+            } else if(!node) {
                 sbt.reset_state();
-            } else if (valid_transformation) {
-                f->map->update_3d_feature(sbt, closest_group_id, invert(G_Bclosest_Bnow), camera_id);
             }
         }
     }

@@ -674,3 +674,48 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
     END_EVENT(SF_PROJECT_MOTION_COVARIANCE, std::min(src.cols(),dst.cols()));
 }
 #endif
+
+bool triangulated_track::measure(const transformation &G_now_ref, const v2 &X_un_ref, const v2 &X_un_now, f_t sigma2) {
+    v2 xun = X_un_ref;
+    v3 xun_k_1 = xun.homogeneous();
+    v3 pk_1 = xun_k_1 * state->v->depth();
+    m3 Rk_k_1 = G_now_ref.Q.toRotationMatrix();
+    v3 pk = Rk_k_1 * pk_1 + G_now_ref.T;
+    // features are in front of the camera
+    if(pk.z() < 0.f)
+        return false;
+    v2 hk = pk.segment<2>(0)/pk.z();
+    v2 zuk = X_un_now;
+    v2 inn_k = zuk-hk;
+
+    // compute jacobians
+    m<2,3> dhk_dpk = {{1/pk[2], 0,       -pk[0]/(pk[2]*pk[2])},
+                      {0,       1/pk[2], -pk[1]/(pk[2]*pk[2])}};
+    m3 dpk_dpk_1 = Rk_k_1;
+    v3 dpk_1_dv = pk_1;
+    v2 H = dhk_dpk * dpk_dpk_1 * dpk_1_dv;
+
+    // update state and variance
+    m<2,2> R = {{sigma2,0},{0,sigma2}};
+    m<1,2> PH_t = state->P*H.transpose();
+    m<2,2> S = H*PH_t + R;
+    Eigen::LLT<Eigen::Matrix2f> Sllt = S.llt();
+    m<1,2> K =  Sllt.solve(PH_t.transpose()).transpose();
+
+    // check mahalanobis distance to remove outliers
+    state->parallax = std::acos(xun_k_1.dot(zuk.homogeneous())/(xun_k_1.norm() *zuk.homogeneous().norm()));
+    if (inn_k.dot(Sllt.solve(inn_k)) > 5.99f) {
+        return false;
+    }
+    state->track_count++;
+
+    // update state
+    state->v->v += K*inn_k;
+    state->P -= K * PH_t.transpose();
+    return true;
+}
+
+void triangulated_track::merge(const triangulated_track& rhs) {
+    feature = rhs.feature;
+    state = rhs.state;
+}

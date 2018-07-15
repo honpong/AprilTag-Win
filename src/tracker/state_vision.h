@@ -199,6 +199,48 @@ class state_vision_group: public state_branch<state_node *> {
     }
 };
 
+class triangulated_track : public tracker::feature_track {
+ public:
+    triangulated_track(tracker::feature_track &&track) : feature_track(std::move(track)), state(std::make_shared<state_t>(std::make_shared<log_depth>())) {}
+    triangulated_track(tracker::feature_track &&track, std::shared_ptr<log_depth>&& v, f_t cov) : feature_track(std::move(track)), state(std::make_shared<state_t>(std::move(v), cov)) {}
+
+    bool has_reference() const { return state->reference_id != std::numeric_limits<nodeid>::max(); }
+    void set_reference(nodeid id) { state->reference_id = id; state->v->initial = v2{x,y}; }
+    nodeid reference_node() const { return state->reference_id; }
+    const std::shared_ptr<log_depth>& v() const { return state->v; }
+
+    bool measure(const transformation &G_now_ref, const v2 &X_un_ref, const v2 &X_un_now, f_t sigma2);
+    void merge(const triangulated_track& rhs);
+
+    bool state_shared() const { return state.use_count() > 1; }
+    void reset_state() { state->reset(); }
+    bool good() const {
+        constexpr size_t min_features_tracks = 3;
+        constexpr f_t min_feature_parallax = 5./180.*M_PI;
+        return (state->track_count > min_features_tracks && state->parallax > min_feature_parallax);
+    }
+
+ private:
+    struct state_t {
+        std::shared_ptr<log_depth> v;
+        f_t P;
+        f_t parallax;
+        size_t track_count;
+        nodeid reference_id;
+
+        void reset(std::shared_ptr<log_depth>&& default_v = std::make_shared<log_depth>(), f_t default_P = 0.75) {
+            v = std::move(default_v);
+            P = default_P;
+            parallax = 0;
+            track_count = 0;
+            reference_id = std::numeric_limits<nodeid>::max();
+        }
+        state_t(std::shared_ptr<log_depth>&& v_) { reset(std::move(v_)); }
+        state_t(std::shared_ptr<log_depth>&& v_, f_t P_) { reset(std::move(v_), P_); }
+    };
+    std::shared_ptr<state_t> state;  // this shared_ptr must not be exposed
+};
+
 struct camera_frame_t;
 
 struct state_camera: state_branch<state_node*> {

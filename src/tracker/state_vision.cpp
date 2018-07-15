@@ -282,8 +282,11 @@ void state_camera::process_tracks(mapper *map)
             t.feature.make_outlier();
     }
 
-    standby_tracks.remove_if([&map](const tracker::feature_track &t) {
-        if(map && !t.found()) map->finish_lost_tracks(t);
+    standby_tracks.remove_if([&map](triangulated_track &t) {
+        if(map && !t.found()) {
+            map->finish_lost_tracks(t);
+            t.reset_state();
+        }
         return !t.found();
     });
 }

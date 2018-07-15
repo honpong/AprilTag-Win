@@ -49,7 +49,6 @@ mapper::~mapper()
 void mapper::reset()
 {
     log->debug("Map reset");
-    triangulated_tracks.clear();
     feature_id_offset = 0;
     node_id_offset = 0;
     unlinked = false;
@@ -59,7 +58,6 @@ void mapper::reset()
 }
 
 void mapper::clean_map_after_filter_reset() {
-    triangulated_tracks.clear();
     nodes.critical_section([&]() {
         for(auto& node : *nodes)
             node.second.status = node_status::finished;
@@ -149,26 +147,10 @@ bool mapper::feature_in_map(featureid id, nodeid* nid) const {
     return false;
 }
 
-void mapper::initialize_track_triangulation(const tracker::feature_track& track, const nodeid node_id) {
-    // init state
-    if(triangulated_tracks.find(track.feature->id) != triangulated_tracks.end())
-        return;
-    std::shared_ptr<log_depth> state_d = std::make_shared<log_depth>();
-    state_d->initial = {track.x, track.y};
-    triangulated_tracks.emplace(std::piecewise_construct,
-                                std::forward_as_tuple(track.feature->id),
-                                std::forward_as_tuple(node_id, std::move(state_d)));
-}
-
-void mapper::finish_lost_tracks(const tracker::feature_track& track) {
-    auto tp = triangulated_tracks.find(track.feature->id);
-    if (tp != triangulated_tracks.end()) {
-        if (tp->second.track_count > MIN_FEATURE_TRACKS && tp->second.parallax > MIN_FEATURE_PARALLAX &&
-                node_in_map(tp->second.reference_nodeid) && !feature_in_map(track.feature->id)) {
-            add_feature(tp->second.reference_nodeid, std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(track.feature),
-                        tp->second.state, feature_type::triangulated);
-        }
-        triangulated_tracks.erase(tp);
+void mapper::finish_lost_tracks(const triangulated_track& track) {
+    if (track.good() && node_in_map(track.reference_node()) && !feature_in_map(track.feature->id)) {
+        add_feature(track.reference_node(), std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(track.feature),
+                    track.v(), feature_type::triangulated);
     } else {
         log->debug("Not enough support/parallax to add triangulated point with id: {}", track.feature->id);
     }
@@ -179,14 +161,12 @@ void mapper::remove_node_features(nodeid id) {
         features_dbow->erase(f.first);
 }
 
-void mapper::update_3d_feature(const tracker::feature_track& track, const nodeid closest_group_id,
+void mapper::update_3d_feature(triangulated_track& track, const nodeid closest_group_id,
                                const transformation &&G_Bnow_Bclosest, const rc_Sensor camera_id_now) {
 
-    auto tp = triangulated_tracks.find(track.feature->id);
-
-    const state_vision_intrinsics* const intrinsics_ref = camera_intrinsics[get_node(tp->second.reference_nodeid).camera_id];
+    const state_vision_intrinsics* const intrinsics_ref = camera_intrinsics[get_node(track.reference_node()).camera_id];
     const state_vision_intrinsics* const intrinsics_now = camera_intrinsics[camera_id_now];
-    const state_extrinsics* const extrinsics_ref = camera_extrinsics[get_node(tp->second.reference_nodeid).camera_id];
+    const state_extrinsics* const extrinsics_ref = camera_extrinsics[get_node(track.reference_node()).camera_id];
     const state_extrinsics* const extrinsics_now = camera_extrinsics[camera_id_now];
 
     const f_t focal_px = intrinsics_now->focal_length.v * intrinsics_now->image_height;
@@ -195,7 +175,7 @@ void mapper::update_3d_feature(const tracker::feature_track& track, const nodeid
     // distance # edges traversed
     auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
     // select node if it is the searched node
-    auto is_node_searched = [&tp](const node_path& path) { return path.id == tp->second.reference_nodeid; };
+    auto is_node_searched = [&track](const node_path& path) { return path.id == track.reference_node(); };
     // finish search when node is found
     auto finish_search = is_node_searched;
 
@@ -208,47 +188,10 @@ void mapper::update_3d_feature(const tracker::feature_track& track, const nodeid
 
     transformation G_Cnow_Cref = G_CBnow * G_Bnow_Bclosest * G_Bclosest_Bref * G_BCref;
 
-    // calculate point prediction on current camera frame
-    std::shared_ptr<log_depth>& state = tp->second.state;
-    v2 xun = intrinsics_ref->undistort_feature(intrinsics_ref->normalize_feature(state->initial));
-    v3 xun_k_1 = xun.homogeneous();
-    float P = tp->second.cov;
-    v3 pk_1 = xun_k_1 * state->depth();
-    m3 Rk_k_1 = G_Cnow_Cref.Q.toRotationMatrix();
-    v3 pk = Rk_k_1 * pk_1 + G_Cnow_Cref.T;
-    // features are in front of the camera
-    if(pk.z() < 0.f)
-        return;
-    v2 hk = pk.segment<2>(0)/pk.z();
-    v2 zdk = {track.x,track.y};
-    v2 zuk = intrinsics_now->undistort_feature(intrinsics_now->normalize_feature((zdk)));
-    v2 inn_k = zuk-hk;
-
-    // compute jacobians
-    m<2,3> dhk_dpk = {{1/pk[2], 0,       -pk[0]/(pk[2]*pk[2])},
-                      {0,       1/pk[2], -pk[1]/(pk[2]*pk[2])}};
-    m3 dpk_dpk_1 = Rk_k_1;
-    v3 dpk_1_dv = pk_1;
-    v2 H = dhk_dpk * dpk_dpk_1 * dpk_1_dv;
-
-    // update state and variance
-    m<2,2> R = {{sigma2,0},{0,sigma2}};
-    m<1,2> PH_t = P*H.transpose();
-    m<2,2> S = H*PH_t + R;
-    Eigen::LLT<Eigen::Matrix2f> Sllt = S.llt();
-    m<1,2> K =  Sllt.solve(PH_t.transpose()).transpose();
-
-    // check mahalanobis distance to remove outliers
-    tp->second.parallax = std::acos(xun_k_1.dot(zuk.homogeneous())/(xun_k_1.norm() *zuk.homogeneous().norm()));
-    if (inn_k.dot(Sllt.solve(inn_k)) > 5.99f) {
-        return;
-    }
-    tp->second.track_count++;
-
-    // update state
-    state->v = state->v + K*inn_k;
-    P -= K * PH_t.transpose();
-    tp->second.cov = P;
+    track.measure(G_Cnow_Cref,
+                  intrinsics_ref->undistort_feature(intrinsics_ref->normalize_feature(track.v()->initial)),
+                  intrinsics_now->undistort_feature(intrinsics_now->normalize_feature({track.x,track.y})),
+                  sigma2);
 }
 
 void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,

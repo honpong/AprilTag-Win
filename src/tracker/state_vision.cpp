@@ -284,7 +284,10 @@ void state_camera::process_tracks(mapper *map)
 
     standby_tracks.remove_if([&map](triangulated_track &t) {
         if(map && !t.found()) {
-            map->finish_lost_tracks(t);
+            if (t.good() && map->node_in_map(t.reference_node()) && !map->feature_in_map(t.feature->id)) {
+                map->add_feature(t.reference_node(), std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature),
+                            t.v(), feature_type::triangulated);
+            }
             t.reset_state();
         }
         return !t.found();

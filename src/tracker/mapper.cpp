@@ -147,15 +147,6 @@ bool mapper::feature_in_map(featureid id, nodeid* nid) const {
     return false;
 }
 
-void mapper::finish_lost_tracks(const triangulated_track& track) {
-    if (track.good() && node_in_map(track.reference_node()) && !feature_in_map(track.feature->id)) {
-        add_feature(track.reference_node(), std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(track.feature),
-                    track.v(), feature_type::triangulated);
-    } else {
-        log->debug("Not enough support/parallax to add triangulated point with id: {}", track.feature->id);
-    }
-}
-
 void mapper::remove_node_features(nodeid id) {
     for(auto& f : nodes->at(id).features)
         features_dbow->erase(f.first);

@@ -545,6 +545,9 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             f->map->initialize_track_triangulation(t, g->id);
         }
     }
+    for (auto &t : camera.standby_tracks)
+        if (!t.has_reference())
+            t.set_reference(g->id);
 
     f->s.remap();
 #ifdef TEST_POSDEF
@@ -784,8 +787,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         START_EVENT(SF_STEREO_MATCH, camera1_id)
         state_camera &camera_state1 = *f->s.cameras.children[camera1_id];
         state_camera &camera_state2 = *f->s.cameras.children[camera2_id];
-        std::list<tracker::feature_track> &kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
-        std::list<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->standby_tracks;
+        auto &kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
+        auto &kp2 = f->s.cameras.children[camera2_id]->standby_tracks;
 
 #ifdef ENABLE_SHAVE_STEREO_MATCHING
         shave_tracker::stereo_matching_full_shave(f, camera1_id, camera2_id);

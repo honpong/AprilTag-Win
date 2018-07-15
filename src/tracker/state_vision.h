@@ -248,7 +248,7 @@ struct state_camera: state_branch<state_node*> {
     state_extrinsics extrinsics;
     state_vision_intrinsics intrinsics;
     std::unique_ptr<tracker> feature_tracker;
-    std::list<tracker::feature_track> standby_tracks;
+    std::list<triangulated_track> standby_tracks;
     size_t id;
     std::future<bool> detection_future; // true if detected_features is valid
     std::future<std::unique_ptr<camera_frame_t>> orb_future;
@@ -296,13 +296,13 @@ struct stereo_match
 {
     struct view {
         state_camera &camera;
-        std::list<tracker::feature_track>::iterator track;
+        std::list<triangulated_track>::iterator track;
         f_t depth_m;
     };
     std::array<view,2> views;
     f_t error_percent;
-    stereo_match(state_camera &c0, std::list<tracker::feature_track>::iterator &t0, f_t d0,
-                 state_camera &c1, std::list<tracker::feature_track>::iterator &t1, f_t d1, f_t e)
+    stereo_match(state_camera &c0, std::list<triangulated_track>::iterator &t0, f_t d0,
+                 state_camera &c1, std::list<triangulated_track>::iterator &t1, f_t d1, f_t e)
                      : views({{{c0, t0, d0}, {c1, t1, d1}}}), error_percent(e) {}
 };
 

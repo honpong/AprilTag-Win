@@ -140,8 +140,8 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
 {
     state_camera &camera1 = *f->s.cameras.children[camera1_id];
     state_camera &camera2 = *f->s.cameras.children[camera2_id];
-    std::list<tracker::feature_track> &kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
-    std::list<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->standby_tracks;
+    auto &kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
+    auto &kp2 = f->s.cameras.children[camera2_id]->standby_tracks;
 
     tracker::feature_track * f1_group[MAX_KP1];
     tracker::feature_track * f2_group[MAX_KP2];

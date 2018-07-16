@@ -216,22 +216,22 @@ class triangulated_track : public tracker::feature_track {
     void reset_state() { state->reset(); }
     bool good() const {
         constexpr size_t min_features_tracks = 3;
-        constexpr f_t min_feature_parallax = 5./180.*M_PI;
-        return (state->track_count > min_features_tracks && state->parallax > min_feature_parallax);
+        constexpr f_t max_feature_cos_parallax = 0.99619469809;  // cos(5deg)
+        return (state->track_count > min_features_tracks && state->cos_parallax < max_feature_cos_parallax);
     }
 
  private:
     struct state_t {
         std::shared_ptr<log_depth> v;
         f_t P;
-        f_t parallax;
+        f_t cos_parallax;
         size_t track_count;
         nodeid reference_id;
 
         void reset(std::shared_ptr<log_depth>&& default_v = std::make_shared<log_depth>(), f_t default_P = 0.75) {
             v = std::move(default_v);
             P = default_P;
-            parallax = 0;
+            cos_parallax = 1;
             track_count = 0;
             reference_id = std::numeric_limits<nodeid>::max();
         }

@@ -509,8 +509,6 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
                 v.camera.tracks.emplace_back(v.camera.id, *feat, std::move(*v.track));
                 v.camera.standby_tracks.erase(v.track);
             }
-            if(f->map)
-                f->map->triangulated_tracks.erase(feat->feature->id);
             g->features.children.push_back(std::move(feat));
             i = f->s.stereo_matches.erase(i);
             ++found_feats;
@@ -534,17 +532,13 @@ static int filter_add_detected_features(struct filter * f, state_camera &camera,
             }
         }
 
-        if(f->map)
-            f->map->triangulated_tracks.erase(feat->feature->id);
         camera.tracks.emplace_back(camera.id, *feat, std::move(*i));
         g->features.children.push_back(std::move(feat));
     }
 
-    if(f->map) {
-        for (auto &t: camera.standby_tracks) {
-            f->map->initialize_track_triangulation(t, g->id);
-        }
-    }
+    for (auto &t : camera.standby_tracks)
+        if (!t.has_reference())
+            t.set_reference(g->id);
 
     f->s.remap();
 #ifdef TEST_POSDEF
@@ -784,8 +778,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
         START_EVENT(SF_STEREO_MATCH, camera1_id)
         state_camera &camera_state1 = *f->s.cameras.children[camera1_id];
         state_camera &camera_state2 = *f->s.cameras.children[camera2_id];
-        std::list<tracker::feature_track> &kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
-        std::list<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->standby_tracks;
+        auto &kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
+        auto &kp2 = f->s.cameras.children[camera2_id]->standby_tracks;
 
 #ifdef ENABLE_SHAVE_STEREO_MATCHING
         shave_tracker::stereo_matching_full_shave(f, camera1_id, camera2_id);
@@ -836,9 +830,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             }
             // Only match if we have exactly one candidate
             if(best_distance < DESCRIPTOR::good_track_distance && second_best_distance > DESCRIPTOR::good_track_distance) {
-                if (f->map)
-                    f->map->triangulated_tracks.erase(best_k2->feature->id); // FIXME: check if triangulated_tracks is more accurate than stereo match
-                best_k2->feature = k1->feature;
+                best_k2->merge(*k1);
                 f->s.stereo_matches.emplace(k1->feature->id,
                                             stereo_match(camera_state1,      k1, best_depth1,
                                                          camera_state2, best_k2, best_depth2, best_error));
@@ -921,7 +913,9 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             f->run_state = RCSensorFusionRunStateDynamicInitialization;
             f->s.enable_orientation_only(true);
             f->s.disable_bias_estimation(true);
-            if(f->map) f->map->triangulated_tracks.clear();
+            for (auto &c : f->s.cameras.children)
+                for (auto &t : c->standby_tracks)
+                    t.reset_state();
         } else
             filter_setup_next_frame(f, data); // put current features into observation queue as potential things to measure
     }   break;
@@ -1163,6 +1157,9 @@ void filter_initialize(struct filter *f)
             f->map->camera_intrinsics.push_back(&camera_state.intrinsics);
             f->map->camera_extrinsics.push_back(&camera_state.extrinsics);
         }
+
+        for (auto& t : camera_state.standby_tracks)
+            t.reset_state();
     }
 
     for (size_t i=f->s.imus.children.size(); i<f->gyroscopes.size(); i++)
@@ -1446,14 +1443,34 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
         transformation G_Bclosest_Bnow;
         bool valid_transformation = f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow);
         auto &c = f->s.cameras.children[camera_id];
+        auto &intrinsics_now = c->intrinsics;
+        auto &extrinsics_now = c->extrinsics;
+        const f_t focal_px = intrinsics_now.focal_length.v * intrinsics_now.image_height;
+        const f_t sigma2 = 10 / (focal_px*focal_px);
+        const transformation G_Bnow_Bclosest = invert(G_Bclosest_Bnow);
+        const transformation G_CBnow = invert(extrinsics_now.G_body_device());
+
+        // single-shot cache
+        nodeid cached_reference_node = std::numeric_limits<nodeid>::max();
+        transformation G_Cnow_Cref;
+        state_vision_intrinsics* intrinsics_ref = nullptr;
         for(auto &sbt : c->standby_tracks) {
-            auto tp = f->map->triangulated_tracks.find(sbt.feature->id);
-            if(tp != f->map->triangulated_tracks.end()) {
-                if(!f->map->node_in_map(tp->second.reference_nodeid)) {
-                    f->map->triangulated_tracks.erase(sbt.feature->id); //if reference node removed, remove triangulated feature too
-                } else if (valid_transformation && tp->second.reference_nodeid != std::numeric_limits<nodeid>::max()) {
-                    f->map->update_3d_feature(sbt, closest_group_id, invert(G_Bclosest_Bnow), camera_id);
+            const map_node* node = f->map->fetch_node(sbt.reference_node());
+            if(node && valid_transformation) {
+                if (cached_reference_node != node->id) {
+                    cached_reference_node = node->id;
+                    intrinsics_ref = &f->s.cameras.children[node->camera_id]->intrinsics;
+                    auto &extrinsics_ref = f->s.cameras.children[node->camera_id]->extrinsics;
+                    transformation G_BCref = extrinsics_ref.G_body_device();
+                    transformation G_Bclosest_Bref = f->map->find_relative_pose(closest_group_id, node->id);
+                    G_Cnow_Cref = G_CBnow * G_Bnow_Bclosest * G_Bclosest_Bref * G_BCref;
                 }
+                sbt.measure(G_Cnow_Cref,
+                            intrinsics_ref->undistort_feature(intrinsics_ref->normalize_feature(sbt.v()->initial)),
+                            intrinsics_now.undistort_feature(intrinsics_now.normalize_feature({sbt.x,sbt.y})),
+                            sigma2);
+            } else if(!node) {
+                sbt.reset_state();
             }
         }
     }

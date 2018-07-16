@@ -30,9 +30,6 @@
 #include "debug/visual_debug.h"
 #endif
 
-#define MIN_FEATURE_TRACKS 3
-#define MIN_FEATURE_PARALLAX 5.0f/180*M_PI
-
 // Constant relocalization parameters
 constexpr static f_t sigma_px = 3.0;
 constexpr static int max_iter = 40; // 40
@@ -280,9 +277,6 @@ private:
     void remove_feature(featureid feature_id);
     void remove_node(nodeid node_id);
     void set_feature_type(nodeid node_id, featureid feature_id, const feature_type type = feature_type::tracked);
-    void initialize_track_triangulation(const tracker::feature_track &track, const nodeid node_id);
-    void finish_lost_tracks(const tracker::feature_track &track);
-    void update_3d_feature(const tracker::feature_track &track, const nodeid closest_group_id, const transformation &&G_Bnow_Bclosest, const rc_Sensor camera_id_now);
     v3 get_feature3D(nodeid node_id, featureid feature_id) const; // returns feature wrt node body frame
     mapper::nodes_path dijkstra_shortest_path(const node_path &start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path &)> is_node_searched,
                                               std::function<bool(const node_path &)> finish_search) const;
@@ -291,6 +285,7 @@ private:
 
     const aligned_unordered_map<nodeid, map_node> &get_nodes() const { return *nodes; }
     map_node& get_node(nodeid id) { return nodes->at(id); }
+    const map_node* fetch_node(nodeid id) const { auto it = nodes->find(id); return it != nodes->end() ? &it->second : nullptr; }
     bool node_in_map(nodeid id) const { return nodes->find(id) != nodes->end(); }
     bool feature_in_map(featureid id, nodeid* nid = nullptr) const;
     nodeid get_node_id_offset() const { return node_id_offset; }
@@ -350,20 +345,6 @@ private:
     };
     std::vector<node_feature_track> map_feature_tracks;
     void predict_map_features(const uint64_t camera_id_now, const nodes_path &neighbors, const size_t min_gorup_map_add);
-
-// triangulated tracks
-    struct triangulated_track
-    {
-        nodeid reference_nodeid = std::numeric_limits<nodeid>::max();
-        std::shared_ptr<log_depth> state; // pixel coordinates are constant
-        float cov = 0.75f;
-        float parallax = 0;
-        size_t track_count = 0;
-        triangulated_track(const nodeid id,
-                           std::shared_ptr<log_depth> s) :
-            reference_nodeid(id), state(std::move(s)) {}
-    };
-    std::unordered_map<featureid, triangulated_track> triangulated_tracks;
 };
 
 #endif

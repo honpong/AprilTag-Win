@@ -565,6 +565,9 @@ public:
         Q = other.Q;
         T = other.T;
     }
+    transformation G_body_device() const {
+        return { Q.v, T.v };
+    }
 };
 
 class state_root: public state_branch<state_node *> {

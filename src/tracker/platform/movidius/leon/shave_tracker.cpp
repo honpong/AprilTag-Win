@@ -140,8 +140,8 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
 {
     state_camera &camera1 = *f->s.cameras.children[camera1_id];
     state_camera &camera2 = *f->s.cameras.children[camera2_id];
-    std::list<tracker::feature_track> &kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
-    std::list<tracker::feature_track> &kp2 = f->s.cameras.children[camera2_id]->standby_tracks;
+    auto &kp1 = f->s.cameras.children[camera1_id]->standby_tracks;
+    auto &kp2 = f->s.cameras.children[camera2_id]->standby_tracks;
 
     tracker::feature_track * f1_group[MAX_KP1];
     tracker::feature_track * f2_group[MAX_KP2];
@@ -257,9 +257,7 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
         auto k2 = kp2.begin(); std::advance(k2, matched_kp[i]);
         if (k2 == kp2.end() || f->s.stereo_matches.count(k2->feature->id)) // internal error or already stereo
             continue;
-        if (f->map)
-            f->map->triangulated_tracks.erase(k2->feature->id); // FIXME: check if triangulated_tracks is more accurate than stereo match
-        k2->feature = k1->feature;
+        k2->merge(*k1);
         f->s.stereo_matches.emplace(k1->feature->id,
                                     stereo_match(camera1, k1, depths1[i],
                                                  camera2, k2, depths2[i], errors1[i]));

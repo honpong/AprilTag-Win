@@ -1422,8 +1422,7 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
         auto &extrinsics_now = c->extrinsics;
         const f_t focal_px = intrinsics_now.focal_length.v * intrinsics_now.image_height;
         const f_t sigma2 = 10 / (focal_px*focal_px);
-        const transformation G_Bnow_Bclosest = invert(G_Bclosest_Bnow);
-        const transformation G_CBnow = invert(extrinsics_now.G_body_device());
+        const transformation G_Cnow_Bclosest = invert(G_Bclosest_Bnow * extrinsics_now.G_body_device());
 
         // single-shot cache
         nodeid cached_reference_node = std::numeric_limits<nodeid>::max();
@@ -1436,9 +1435,8 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
                     cached_reference_node = node->id;
                     intrinsics_ref = &f->s.cameras.children[node->camera_id]->intrinsics;
                     auto &extrinsics_ref = f->s.cameras.children[node->camera_id]->extrinsics;
-                    transformation G_BCref = extrinsics_ref.G_body_device();
                     transformation G_Bclosest_Bref = f->map->find_relative_pose(closest_group_id, node->id);
-                    G_Cnow_Cref = G_CBnow * G_Bnow_Bclosest * G_Bclosest_Bref * G_BCref;
+                    G_Cnow_Cref = G_Cnow_Bclosest * G_Bclosest_Bref * extrinsics_ref.G_body_device();
                 }
                 sbt.measure(G_Cnow_Cref,
                             intrinsics_ref->undistort_feature(intrinsics_ref->normalize_feature(sbt.v()->initial)),

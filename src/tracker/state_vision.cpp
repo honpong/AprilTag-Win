@@ -704,7 +704,7 @@ bool triangulated_track::measure(const transformation &G_now_ref, const v2 &X_un
     m<1,2> K =  Sllt.solve(HP).transpose();
 
     // check mahalanobis distance to remove outliers
-    state->cos_parallax = X_un_ref.homogeneous().normalized().dot(X_un_now.homogeneous().normalized());
+    state->cos_parallax = std::min(state->cos_parallax, X_un_ref.homogeneous().normalized().dot(X_un_now.homogeneous().normalized()));
     if (inn.dot(Sllt.solve(inn)) > 5.99f)
         return false;
     state->track_count++;

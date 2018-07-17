@@ -272,8 +272,7 @@ public:
         for (uint64_t point_idx = 0; point_idx < points_3dw.size(); point_idx++) {
             auto point_3d_c = G_CW * get<0>(points_3dw[point_idx]);
             if (point_3d_c.z() > 0) {
-                feature_t p2d_c = point_3d_c.segment<2>(0) / point_3d_c.z();
-                auto p_projected = intrinsics.unnormalize_feature(intrinsics.distort_feature(p2d_c));
+                auto p_projected = intrinsics.project_feature(point_3d_c);
                 if (observable(p_projected, intrinsics)) {
                     frame.keypoints.emplace_back(make_shared<track_feat_t>(g_kp_id,
                         permute(points_3dw[point_idx], desc_change_byte))); //minor random change to descriptor

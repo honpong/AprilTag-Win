@@ -197,8 +197,7 @@ bool mapper::move_feature(featureid feature_id, nodeid src_node_id, nodeid dst_n
     v3 p3dC = G_CB * (G_Bdst_Bsrc ? *G_Bdst_Bsrc : find_relative_pose(dst_node_id, src_node_id)) * get_feature3D(src_node_id, feature_id);
     if(p3dC.z() < 0)
         return false;
-    feature_t kpn = p3dC.segment<2>(0)/p3dC.z();
-    feature_t kpd = intrinsics_dst->unnormalize_feature(intrinsics_dst->distort_feature(kpn));
+    feature_t kpd = intrinsics_dst->project_feature(p3dC);
 
     critical_section(nodes, features_dbow, [&]() {
         map_feature& f = node_src_features_it->second;
@@ -239,8 +238,8 @@ v3 mapper::get_feature3D(nodeid node_id, featureid feature_id) const {
     auto intrinsics = camera_intrinsics[node.camera_id];
     auto extrinsics = camera_extrinsics[node.camera_id];
     m3 Rbc = extrinsics->Q.v.toRotationMatrix();
-    v2 pn = intrinsics->undistort_feature(intrinsics->normalize_feature(mf.v->initial));
-    return Rbc*(mf.v->depth()*pn.homogeneous()) + extrinsics->T.v;
+    v3 pn = intrinsics->unproject_feature(mf.v->initial);
+    return Rbc*(mf.v->depth()*pn) + extrinsics->T.v;
 }
 
 void mapper::set_node_transformation(nodeid id, const transformation & G)
@@ -967,8 +966,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const mapper::no
             v3 p3dC = G_Cnow_Bneighbor * get_feature3D(neighbor.id, f.second.feature->id);
             if(p3dC.z() < 0)
                 continue;
-            feature_t kpn = p3dC.segment<2>(0)/p3dC.z();
-            feature_t kpd = intrinsics_now->unnormalize_feature(intrinsics_now->distort_feature(kpn));
+            feature_t kpd = intrinsics_now->project_feature(p3dC);
             if(kpd.x() < 0 || kpd.x() > intrinsics_now->image_width ||
                kpd.y() < 0 || kpd.y() > intrinsics_now->image_height){
                 potential--;

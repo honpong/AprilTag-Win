@@ -77,6 +77,8 @@ public:
     f_t   get_distortion_factor(const feature_t &feat_u, m<1,2> *dkd_u_dfeat_u = nullptr, m<1,4> *dkd_u_dk = nullptr) const;
     feature_t normalize_feature(const feature_t &feat) const;
     feature_t unnormalize_feature(const feature_t &feat) const;
+    feature_t project_feature(const v3 &X) const;
+    v3 unproject_feature(const feature_t &feat) const;
 };
 
 class state_vision_group;

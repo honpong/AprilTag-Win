@@ -1434,7 +1434,7 @@ aligned_vector<v2> _virtual_object::project_points(
         const state_vision_intrinsics* intrinsics) {
     auto project_point = [intrinsics](const v3& p3d, v2& p2d) {
         if (p3d.z() > 0) {
-            p2d = intrinsics->unnormalize_feature(intrinsics->distort_feature({p3d.x() / p3d.z(), p3d.y() / p3d.z()}));
+            p2d = intrinsics->project_feature(p3d);
             return true;
         }
         return false;

@@ -546,6 +546,16 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, m<
     return ku_d;
 }
 
+feature_t state_vision_intrinsics::project_feature(const v3 &ray) const
+{
+    return unnormalize_feature(distort_feature(ray.head<2>() / ray.z()));
+}
+
+v3 state_vision_intrinsics::unproject_feature(const feature_t &pix) const
+{
+    return undistort_feature(normalize_feature(pix)).homogeneous();
+}
+
 void state_camera::update_feature_tracks(const sensor_data &data)
 {
     START_EVENT(SF_TRACK, 0);

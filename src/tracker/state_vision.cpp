@@ -696,22 +696,21 @@ bool triangulated_track::measure(const transformation &G_now_ref, const v2 &X_un
     v3 dX_now_dv = G_now_ref.T * state->v->invdepth_jacobian();
     v2 H = dh_dX_now * dX_now_dv;
 
-    // update state and variance
+    if (inn.squaredNorm() > sigma2)
+        sigma2 = inn.squaredNorm();
+
     auto R = v2{sigma2,sigma2}.asDiagonal();
     m<2,1> HP = H*state->P;
     m<2,2> S = HP*H.transpose(); S += R;
     Eigen::LLT<m<2,2>> Sllt = S.llt();
     m<1,2> K =  Sllt.solve(HP).transpose();
 
-    // check mahalanobis distance to remove outliers
-    if (inn.dot(Sllt.solve(inn)) > 5.99f)
-        return false;
-
     state->v->v += K*inn;
     state->P -= K * HP;
     state->track_count++;
     state->cos_parallax = std::min(state->cos_parallax, X_un_ref.homogeneous().normalized().dot(X_un_now.homogeneous().normalized()));
-    return true;
+
+    return inn.dot(Sllt.solve(inn)) < 6; // check mahalanobis distance to remove outliers
 }
 
 void triangulated_track::merge(const triangulated_track& rhs) {

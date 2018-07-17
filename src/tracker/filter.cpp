@@ -458,31 +458,6 @@ static std::unique_ptr<sensor_data> filter_aligned_depth_to_camera(const sensor_
     return aligned_depth;
 }
 
-/*
-static std::unique_ptr<image_depth16> filter_aligned_depth_overlay(const struct filter *f, const image_depth16 &depth, const image_gray8 & image)
-{
-    state_camera &grey = f->s.cameras[image.id];
-    sensor_depth &depth_sensor = f->depths[depth.id];
-    std::unique_ptr<image_depth16> aligned_depth = filter_aligned_depth_to_camera(depth, depth_sensor, grey, grey_sensor);
-
-    auto aligned_distorted_depth = make_unique<image_depth16>(image.width, image.height, 0);
-    auto out = aligned_distorted_depth->image;
-    int out_stride = aligned_distorted_depth->stride / sizeof(*out);
-    // This assumes depth and image have the same aspect ratio
-    f_t image_to_depth = f_t(depth.height)/image.height;
-    for(int y_image = 0; y_image < image.height; y_image++) {
-        for(int x_image = 0; x_image < image.width; x_image++) {
-            feature_t kp_i = {(f_t)x_image, (f_t)y_image};
-            feature_t kp_d = image_to_depth*grey.intrinsics.unnormalize_feature(grey.intrinsics.undistort_feature(grey.intrinsics.normalize_feature(kp_i)));
-            uint16_t depth_mm = get_depth_for_point_mm(*aligned_depth.get(), kp_d);
-            out[y_image * out_stride + x_image] = depth_mm;
-        }
-    }
-
-    return aligned_distorted_depth;
-}
-*/
-
 static int filter_add_detected_features(struct filter * f, state_camera &camera, sensor_grey &camera_sensor, size_t newfeats, int image_height, sensor_clock::time_point time)
 {
     auto &kp = camera.standby_tracks;

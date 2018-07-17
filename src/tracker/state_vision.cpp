@@ -288,7 +288,8 @@ void state_camera::process_tracks(mapper *map)
                 map->add_feature(t.reference_node(), std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature),
                             t.v(), feature_type::triangulated);
             }
-            t.reset_state();
+            if (t.is_outlier())
+                t.reset_state();
         }
         return !t.found();
     });
@@ -696,8 +697,12 @@ bool triangulated_track::measure(const transformation &G_now_ref, const v2 &X_un
     v3 dX_now_dv = G_now_ref.T * state->v->invdepth_jacobian();
     v2 H = dh_dX_now * dX_now_dv;
 
-    if (inn.squaredNorm() > sigma2)
+    if (inn.squaredNorm() > sigma2) {
+        state->track_count = 0;
+        outlier += inn.squaredNorm() / sigma2;
         sigma2 = inn.squaredNorm();
+    } else
+        outlier = 0;
 
     auto R = v2{sigma2,sigma2}.asDiagonal();
     m<2,1> HP = H*state->P;

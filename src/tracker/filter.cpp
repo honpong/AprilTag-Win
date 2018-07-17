@@ -719,8 +719,10 @@ static bool keypoint_intersect(kp_pre_data& pre_data1, f_t &depth1,
                                kp_pre_data& pre_data2, f_t &depth2, float &intersection_error_percent)
 {
     v3 pa, pb; // pa (pb) is the point on the first (second) line closest to the intersection
+    if((pre_data1.p_cal_transformed-pre_data1.o_transformed).z() <= 0) return false;
+    if((pre_data2.p_cal_transformed-pre_data2.o_transformed).z() <= 0) return false;
     bool success = l_l_intersect(pre_data1.o_transformed, pre_data1.p_cal_transformed, pre_data2.o_transformed, pre_data2.p_cal_transformed, pa, pb, depth1, depth2);
-    if(!success || depth1 < 0 || depth2 < 0)
+    if(!success || depth1 <= 0 || depth2 <= 0)
         return false;
 
     // TODO: set minz and maxz or at least bound error when close to / far away from camera

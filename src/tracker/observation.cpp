@@ -483,21 +483,14 @@ void observation_vision_feature::compute_measurement_covariance()
 {
     source.inn_stdev.data(inn);
     f_t ot = track.outlier_thresh * track.outlier_thresh * (curr.camera.intrinsics.image_height/240.f)*(curr.camera.intrinsics.image_height/240.f);
-
-    f_t residual = inn[0]*inn[0] + inn[1]*inn[1];
-    f_t badness = residual; //outlier_count <= 0  ? outlier_inn[i] : outlier_ess[i];
-    f_t robust_mc;
-    f_t thresh = source.measurement_variance * ot;
-    if(badness > thresh) {
-        f_t ratio = badness / thresh;
-        robust_mc = ratio * source.measurement_variance;
-        track.outlier += ratio;
+    f_t residual = inn.squaredNorm();
+    if(residual / ot > source.measurement_variance) {
+        m_cov = v2::Constant(residual / ot);
+        track.outlier += residual / ot / source.measurement_variance;
     } else {
-        robust_mc =         source.measurement_variance;
+        m_cov = v2::Constant(source.measurement_variance);
         track.outlier = 0.;
     }
-    m_cov[0] = robust_mc;
-    m_cov[1] = robust_mc;
 }
 
 #ifdef ENABLE_SHAVE_PROJECT_OBSERVATION_COVARIANCE

@@ -283,11 +283,11 @@ for packet_type in sorted(packets.keys()):
 
 start_times_s = numpy.array([start_s[key] for key in start_s])
 if numpy.max(start_times_s) - numpy.min(start_times_s) > 5:
-    error_text += "Error: Sensor start times differed by more than 5 seconds"
+    error_text += "Error: Sensor start times differed by more than 5 seconds\n"
 
 end_times_s = numpy.array([end_s[key] for key in end_s])
 if numpy.max(end_times_s) - numpy.min(end_times_s) > 5:
-    error_text += "Error: Sensor end times differed by more than 5 seconds"
+    error_text += "Error: Sensor end times differed by more than 5 seconds\n"
 
 total_time_s = numpy.max(end_times_s) - numpy.min(start_times_s)
 print "Total capture time: %.2fs" % total_time_s

@@ -108,7 +108,7 @@ while header_str != "":
           norm = numpy.linalg.norm(last_data[packet_str] - current_data)
           if ptype == gyro_type and norm > 6:
               imu_warnings[packet_str].append((ptime, norm, current_data, last_data[packet_str]))
-          if ptype == accel_type and norm > 9:
+          if ptype == accel_type and norm > 18:
               imu_warnings[packet_str].append((ptime, norm, current_data, last_data[packet_str]))
       last_data[packet_str] = current_data
 

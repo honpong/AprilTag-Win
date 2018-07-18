@@ -233,6 +233,10 @@ for packet_type in sorted(packets.keys()):
   else:
     print "\tNo arrival time data"
 
+  duplicate_timestamps = numpy.flatnonzero(deltas == 0)
+  if len(duplicate_timestamps):
+      error_text += "%d duplicate timestamps for %s\n" % (len(duplicate_timestamps), packet_type)
+
   if packet_type.startswith("thermometer"):
       print "Skipping packet frequency analysis for this sensor\n"
       continue

@@ -214,12 +214,12 @@ class triangulated_track : public tracker::feature_track {
 
     bool state_shared() const { return state.use_count() > 1; }
     void reset_state() { outlier = 0; state->reset(); }
-    bool is_outlier() const { return outlier > state_vision_track::outlier_reject; }
     bool good() const {
         constexpr size_t min_features_tracks = 3;
         constexpr f_t max_feature_cos_parallax = 0.99619469809;  // cos(5deg)
         return (state->track_count > min_features_tracks && state->cos_parallax < max_feature_cos_parallax);
     }
+    f_t outlier = 0;
 
  private:
     struct state_t {
@@ -240,7 +240,6 @@ class triangulated_track : public tracker::feature_track {
         state_t(std::shared_ptr<log_depth>&& v_, f_t P_) { reset(std::move(v_), P_); }
     };
     std::shared_ptr<state_t> state;  // this shared_ptr must not be exposed
-    f_t outlier = 0;
 };
 
 struct camera_frame_t;

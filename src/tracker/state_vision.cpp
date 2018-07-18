@@ -284,11 +284,11 @@ void state_camera::process_tracks(mapper *map)
 
     standby_tracks.remove_if([&map](triangulated_track &t) {
         if(map && !t.found()) {
-            if (t.good() && map->node_in_map(t.reference_node()) && !map->feature_in_map(t.feature->id)) {
-                map->add_feature(t.reference_node(), std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature),
-                            t.v(), feature_type::triangulated);
-            }
-            if (t.is_outlier())
+            if (t.good() && t.outlier < state_vision_track::outlier_reject) {
+                if (!t.state_shared() && map->node_in_map(t.reference_node()) && !map->feature_in_map(t.feature->id))
+                    map->add_feature(t.reference_node(), std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature),
+                                     t.v(), feature_type::triangulated);
+            } else
                 t.reset_state();
         }
         return !t.found();

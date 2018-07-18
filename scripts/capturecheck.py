@@ -106,7 +106,7 @@ while header_str != "":
           print "\t", sensor_id, x, y, z, sqrt(x*x + y*y + z*z)
       if packet_str in last_data:
           norm = numpy.linalg.norm(last_data[packet_str] - current_data)
-          if ptype == gyro_type and norm > 2:
+          if ptype == gyro_type and norm > 6:
               imu_warnings[packet_str].append((ptime, norm, current_data, last_data[packet_str]))
           if ptype == accel_type and norm > 9:
               imu_warnings[packet_str].append((ptime, norm, current_data, last_data[packet_str]))

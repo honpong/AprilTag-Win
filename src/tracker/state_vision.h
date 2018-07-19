@@ -259,7 +259,7 @@ struct state_camera: state_branch<state_node*> {
     void update_feature_tracks(const sensor_data &data);
     void update_map_tracks(const sensor_data &data, mapper *map, const mapper::nodes_path &neighbors, const size_t min_group_map_add);
     size_t track_count() const;
-    void process_tracks(mapper *map);
+    std::vector<triangulated_track> process_tracks();
 
     size_t detecting_space = 0;
     size_t detected_features = 0;
@@ -327,7 +327,7 @@ public:
     bool get_closest_group_transformation(groupid &group_id, transformation& G) const;
     bool get_group_transformation(const groupid group_id, transformation& G) const;
 
-    void update_map(mapper *map);
+    void update_map(mapper *map, const std::vector<triangulated_track>& lost_triangulated_tracks);
 
     float median_depth_variance();
     

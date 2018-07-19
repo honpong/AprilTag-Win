@@ -268,7 +268,7 @@ bool state_vision::get_group_transformation(const groupid group_id, transformati
     return false;
 }
 
-void state_camera::process_tracks(mapper *map)
+std::vector<triangulated_track> state_camera::process_tracks()
 {
     for(auto &t : tracks) {
         if(!t.feature.tracks_found) {
@@ -282,19 +282,19 @@ void state_camera::process_tracks(mapper *map)
             t.feature.make_outlier();
     }
 
-    standby_tracks.remove_if([&map](triangulated_track &t) {
-        if(map && !t.found()) {
-            if (t.good() && t.outlier < state_vision_track::outlier_reject) {
-                if (!t.state_shared())
-                    map->add_feature(t.reference_node(), std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature),
-                                     t.v(), feature_type::triangulated);
+    std::vector<triangulated_track> lost_triangulated_tracks;
+    standby_tracks.remove_if([&lost_triangulated_tracks](triangulated_track &t) {
+        if(!t.found()) {
+            if (t.good() && t.outlier < state_vision_track::outlier_reject && !t.state_shared()) {
+                lost_triangulated_tracks.emplace_back(std::move(t));
             }
         }
         return !t.found();
     });
+    return lost_triangulated_tracks;
 }
 
-void state_vision::update_map(mapper *map)
+void state_vision::update_map(mapper *map, const std::vector<triangulated_track> &lost_triangulated_tracks)
 {
     if (!map) return;
     for (auto &g : groups.children) {
@@ -314,6 +314,9 @@ void state_vision::update_map(mapper *map)
             }
         }
     }
+    for (auto &t : lost_triangulated_tracks)
+        map->add_feature(t.reference_node(), std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature),
+                         t.v(), feature_type::triangulated);
 }
 
 template<int N>

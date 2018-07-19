@@ -962,7 +962,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         else
             ++i;
 
-    camera_state.process_tracks(f->map.get());
+    auto lost_triangulated_tracks = camera_state.process_tracks();
     auto healthy_features = f->s.process_features(f->map.get());
     filter_update_outputs(f, time, healthy_features == 0);
     f->s.remap();
@@ -1002,7 +1002,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
     }
 
-    f->s.update_map(f->map.get());
+    f->s.update_map(f->map.get(), lost_triangulated_tracks);
 
     space = filter_available_feature_space(f);
     if(space >= f->min_group_add && f->max_group_add > camera_state.standby_tracks.size())

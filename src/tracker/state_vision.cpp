@@ -285,7 +285,7 @@ std::vector<triangulated_track> state_camera::process_tracks()
     std::vector<triangulated_track> lost_triangulated_tracks;
     standby_tracks.remove_if([&lost_triangulated_tracks](triangulated_track &t) {
         if(!t.found()) {
-            if (t.good() && t.outlier < state_vision_track::outlier_reject && !t.state_shared()) {
+            if (t.good() && t.outlier < state_vision_track::outlier_lost_reject && !t.state_shared()) {
                 lost_triangulated_tracks.emplace_back(std::move(t));
             }
         }

@@ -79,7 +79,7 @@ pipeline {
                         sh 'tail -n12 kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt >> benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'find data/vr -type f -name "*.safetyvis.pdf" -print0 | tar -czf safetyvis-$GIT_COMMIT.tar.gz --null -T -'
                         sh 'echo "Visualization written to /tmp/safetyvis-$GIT_COMMIT.tar.gz" >> kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt'
-                        sh 'rsync -a safetyvis-$GIT_COMMIT.tar.gz /tmp/'
+                        sh 'rsync -a --chmod=ug+r safetyvis-$GIT_COMMIT.tar.gz /tmp/'
                         sh './run_kpis.py data/kpis .cpu.tum > kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'tail -n14 kpi-details-$BRANCH_NAME-$GIT_COMMIT.txt >> benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
                         archiveArtifacts artifacts: "kpi-*-$BRANCH_NAME-${GIT_COMMIT}.txt"

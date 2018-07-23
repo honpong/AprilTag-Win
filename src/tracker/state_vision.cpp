@@ -268,7 +268,7 @@ bool state_vision::get_group_transformation(const groupid group_id, transformati
     return false;
 }
 
-void state_camera::process_tracks(mapper *map)
+std::vector<triangulated_track> state_camera::process_tracks()
 {
     for(auto &t : tracks) {
         if(!t.feature.tracks_found) {
@@ -282,19 +282,19 @@ void state_camera::process_tracks(mapper *map)
             t.feature.make_outlier();
     }
 
-    standby_tracks.remove_if([&map](triangulated_track &t) {
-        if(map && !t.found()) {
-            if (t.good() && map->node_in_map(t.reference_node()) && !map->feature_in_map(t.feature->id)) {
-                map->add_feature(t.reference_node(), std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature),
-                            t.v(), feature_type::triangulated);
+    std::vector<triangulated_track> lost_triangulated_tracks;
+    standby_tracks.remove_if([&lost_triangulated_tracks](triangulated_track &t) {
+        if(!t.found()) {
+            if (t.good() && t.outlier < state_vision_track::outlier_lost_reject && !t.state_shared()) {
+                lost_triangulated_tracks.emplace_back(std::move(t));
             }
-            t.reset_state();
         }
         return !t.found();
     });
+    return lost_triangulated_tracks;
 }
 
-void state_vision::update_map(mapper *map)
+void state_vision::update_map(mapper *map, const std::vector<triangulated_track> &lost_triangulated_tracks)
 {
     if (!map) return;
     for (auto &g : groups.children) {
@@ -304,10 +304,9 @@ void state_vision::update_map(mapper *map)
             bool good = f->variance() < .05f*.05f; // f->variance() is equivalent to (stdev_meters/depth)^2
             if (good) {
                 nodeid current_node;
-                if(map->feature_in_map(f->feature->id, &current_node)) {
+                if (map->feature_in_map(f->feature->id, &current_node)) {
+                    assert(g->id == current_node);
                     map->set_feature_type(current_node, f->feature->id, feature_type::tracked);
-                    if (current_node != g->id)
-                        map->move_feature(f->feature->id, current_node, g->id);
                 } else {
                     auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->feature);
                     map->add_feature(g->id, feature, f->v);
@@ -315,6 +314,9 @@ void state_vision::update_map(mapper *map)
             }
         }
     }
+    for (auto &t : lost_triangulated_tracks)
+        map->add_feature(t.reference_node(), std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature),
+                         t.v(), feature_type::triangulated);
 }
 
 template<int N>
@@ -682,43 +684,39 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
 #endif
 
 bool triangulated_track::measure(const transformation &G_now_ref, const v2 &X_un_ref, const v2 &X_un_now, f_t sigma2) {
-    v2 xun = X_un_ref;
-    v3 xun_k_1 = xun.homogeneous();
-    v3 pk_1 = xun_k_1 * state->v->depth();
-    m3 Rk_k_1 = G_now_ref.Q.toRotationMatrix();
-    v3 pk = Rk_k_1 * pk_1 + G_now_ref.T;
+    // calculate point prediction on current camera frame
+    v3 X_now = G_now_ref.Q * X_un_ref.homogeneous() + G_now_ref.T * state->v->invdepth();
     // features are in front of the camera
-    if(pk.z() < 0.f)
+    if (X_now.z() < 0)
         return false;
-    v2 hk = pk.segment<2>(0)/pk.z();
-    v2 zuk = X_un_now;
-    v2 inn_k = zuk-hk;
+    v2 h = X_now.head<2>() * (1/X_now.z());
+    v2 inn = X_un_now-h;
 
     // compute jacobians
-    m<2,3> dhk_dpk = {{1/pk[2], 0,       -pk[0]/(pk[2]*pk[2])},
-                      {0,       1/pk[2], -pk[1]/(pk[2]*pk[2])}};
-    m3 dpk_dpk_1 = Rk_k_1;
-    v3 dpk_1_dv = pk_1;
-    v2 H = dhk_dpk * dpk_dpk_1 * dpk_1_dv;
+    m<2,3> dh_dX_now = {{1/X_now.z(), 0,           -h.x() * (1/X_now.z())},
+                        {0,           1/X_now.z(), -h.y() * (1/X_now.z())}};
+    v3 dX_now_dv = G_now_ref.T * state->v->invdepth_jacobian();
+    v2 H = dh_dX_now * dX_now_dv;
 
-    // update state and variance
-    m<2,2> R = {{sigma2,0},{0,sigma2}};
-    m<1,2> PH_t = state->P*H.transpose();
-    m<2,2> S = H*PH_t + R;
-    Eigen::LLT<Eigen::Matrix2f> Sllt = S.llt();
-    m<1,2> K =  Sllt.solve(PH_t.transpose()).transpose();
+    if (inn.squaredNorm() > sigma2) {
+        state->track_count = 0;
+        outlier += inn.squaredNorm() / sigma2;
+        sigma2 = inn.squaredNorm();
+    } else
+        outlier = 0;
 
-    // check mahalanobis distance to remove outliers
-    state->parallax = std::acos(xun_k_1.dot(zuk.homogeneous())/(xun_k_1.norm() *zuk.homogeneous().norm()));
-    if (inn_k.dot(Sllt.solve(inn_k)) > 5.99f) {
-        return false;
-    }
+    auto R = v2{sigma2,sigma2}.asDiagonal();
+    m<2,1> HP = H*state->P;
+    m<2,2> S = HP*H.transpose(); S += R;
+    Eigen::LLT<m<2,2>> Sllt = S.llt();
+    m<1,2> K =  Sllt.solve(HP).transpose();
+
+    state->v->v += K*inn;
+    state->P -= K * HP;
     state->track_count++;
+    state->cos_parallax = std::min(state->cos_parallax, X_un_ref.homogeneous().normalized().dot(X_un_now.homogeneous().normalized()));
 
-    // update state
-    state->v->v += K*inn_k;
-    state->P -= K * PH_t.transpose();
-    return true;
+    return inn.dot(Sllt.solve(inn)) < 6; // check mahalanobis distance to remove outliers
 }
 
 void triangulated_track::merge(const triangulated_track& rhs) {

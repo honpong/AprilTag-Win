@@ -962,7 +962,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         else
             ++i;
 
-    camera_state.process_tracks(f->map.get());
+    auto lost_triangulated_tracks = camera_state.process_tracks();
     auto healthy_features = f->s.process_features(f->map.get());
     filter_update_outputs(f, time, healthy_features == 0);
     f->s.remap();
@@ -1002,7 +1002,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         filter_add_detected_features(f, camera_state, camera_sensor, space, data.image.height, time);
     }
 
-    f->s.update_map(f->map.get());
+    f->s.update_map(f->map.get(), lost_triangulated_tracks);
 
     space = filter_available_feature_space(f);
     if(space >= f->min_group_add && f->max_group_add > camera_state.standby_tracks.size())
@@ -1422,8 +1422,7 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
         auto &extrinsics_now = c->extrinsics;
         const f_t focal_px = intrinsics_now.focal_length.v * intrinsics_now.image_height;
         const f_t sigma2 = 10 / (focal_px*focal_px);
-        const transformation G_Bnow_Bclosest = invert(G_Bclosest_Bnow);
-        const transformation G_CBnow = invert(extrinsics_now.G_body_device());
+        const transformation G_Cnow_Bclosest = invert(G_Bclosest_Bnow * extrinsics_now.G_body_device());
 
         // single-shot cache
         nodeid cached_reference_node = std::numeric_limits<nodeid>::max();
@@ -1436,9 +1435,8 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
                     cached_reference_node = node->id;
                     intrinsics_ref = &f->s.cameras.children[node->camera_id]->intrinsics;
                     auto &extrinsics_ref = f->s.cameras.children[node->camera_id]->extrinsics;
-                    transformation G_BCref = extrinsics_ref.G_body_device();
                     transformation G_Bclosest_Bref = f->map->find_relative_pose(closest_group_id, node->id);
-                    G_Cnow_Cref = G_CBnow * G_Bnow_Bclosest * G_Bclosest_Bref * G_BCref;
+                    G_Cnow_Cref = G_Cnow_Bclosest * G_Bclosest_Bref * extrinsics_ref.G_body_device();
                 }
                 sbt.measure(G_Cnow_Cref,
                             intrinsics_ref->undistort_feature(intrinsics_ref->normalize_feature(sbt.v()->initial)),

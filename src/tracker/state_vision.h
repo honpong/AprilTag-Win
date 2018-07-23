@@ -213,25 +213,26 @@ class triangulated_track : public tracker::feature_track {
     void merge(const triangulated_track& rhs);
 
     bool state_shared() const { return state.use_count() > 1; }
-    void reset_state() { state->reset(); }
+    void reset_state() { outlier = 0; state->reset(); }
     bool good() const {
         constexpr size_t min_features_tracks = 3;
-        constexpr f_t min_feature_parallax = 5./180.*M_PI;
-        return (state->track_count > min_features_tracks && state->parallax > min_feature_parallax);
+        constexpr f_t max_feature_cos_parallax = 0.99619469809;  // cos(5deg)
+        return (state->track_count > min_features_tracks && state->cos_parallax < max_feature_cos_parallax);
     }
+    f_t outlier = 0;
 
  private:
     struct state_t {
         std::shared_ptr<log_depth> v;
         f_t P;
-        f_t parallax;
+        f_t cos_parallax;
         size_t track_count;
         nodeid reference_id;
 
         void reset(std::shared_ptr<log_depth>&& default_v = std::make_shared<log_depth>(), f_t default_P = 0.75) {
             v = std::move(default_v);
             P = default_P;
-            parallax = 0;
+            cos_parallax = 1;
             track_count = 0;
             reference_id = std::numeric_limits<nodeid>::max();
         }
@@ -258,7 +259,7 @@ struct state_camera: state_branch<state_node*> {
     void update_feature_tracks(const sensor_data &data);
     void update_map_tracks(const sensor_data &data, mapper *map, const mapper::nodes_path &neighbors, const size_t min_group_map_add);
     size_t track_count() const;
-    void process_tracks(mapper *map);
+    std::vector<triangulated_track> process_tracks();
 
     size_t detecting_space = 0;
     size_t detected_features = 0;
@@ -326,7 +327,7 @@ public:
     bool get_closest_group_transformation(groupid &group_id, transformation& G) const;
     bool get_group_transformation(const groupid group_id, transformation& G) const;
 
-    void update_map(mapper *map);
+    void update_map(mapper *map, const std::vector<triangulated_track>& lost_triangulated_tracks);
 
     float median_depth_variance();
     

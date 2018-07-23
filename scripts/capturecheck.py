@@ -43,6 +43,7 @@ arrival_time_type = 44
 calibration_type = 43
 calibration_bin_type = 48
 velocimeter_type = 45
+controller_physical_info_type = 50
 got_types = defaultdict(int)
 
 packets = defaultdict(list)
@@ -105,9 +106,9 @@ while header_str != "":
           print "\t", sensor_id, x, y, z, sqrt(x*x + y*y + z*z)
       if packet_str in last_data:
           norm = numpy.linalg.norm(last_data[packet_str] - current_data)
-          if ptype == gyro_type and norm > 2:
+          if ptype == gyro_type and norm > 6:
               imu_warnings[packet_str].append((ptime, norm, current_data, last_data[packet_str]))
-          if ptype == accel_type and norm > 9:
+          if ptype == accel_type and norm > 18:
               imu_warnings[packet_str].append((ptime, norm, current_data, last_data[packet_str]))
       last_data[packet_str] = current_data
 
@@ -221,7 +222,7 @@ for packet_type in sorted(packets.keys()):
   median_delta = numpy.median(deltas)
   start_s[packet_type] = numpy.min(timestamps)/1e6
   end_s[packet_type] = numpy.max(timestamps)/1e6
-  print "\tRate:", numpy.float64(1)/(median_delta/1e6), "Hz"
+  print "\tRate:", numpy.float64(1)/((median_delta+1)/1e6), "Hz"
   print "\tmedian dt (us):", median_delta
   print "\tstd dt (us):", numpy.std(deltas)
   print "\trelative latency (us): %.3f min, %.3f median, %.3f max, %.3f std" % (numpy.min(platencies), numpy.median(platencies), numpy.max(platencies), numpy.std(platencies))
@@ -231,6 +232,10 @@ for packet_type in sorted(packets.keys()):
     print "\tarrival (us): min: %.0f median: %.0f max: %.0f std: %.0f" % (numpy.min(arrivals_deltas), numpy.median(arrivals_deltas), numpy.max(arrivals_deltas), numpy.std(arrivals_deltas))
   else:
     print "\tNo arrival time data"
+
+  duplicate_timestamps = numpy.flatnonzero(deltas == 0)
+  if len(duplicate_timestamps):
+      error_text += "%d duplicate timestamps for %s\n" % (len(duplicate_timestamps), packet_type)
 
   if packet_type.startswith("thermometer"):
       print "Skipping packet frequency analysis for this sensor\n"
@@ -282,14 +287,28 @@ for packet_type in sorted(packets.keys()):
 
 start_times_s = numpy.array([start_s[key] for key in start_s])
 if numpy.max(start_times_s) - numpy.min(start_times_s) > 5:
-    error_text += "Error: Sensor start times differed by more than 5 seconds"
+    error_text += "Error: Sensor start times differed by more than 5 seconds\n"
 
 end_times_s = numpy.array([end_s[key] for key in end_s])
 if numpy.max(end_times_s) - numpy.min(end_times_s) > 5:
-    error_text += "Error: Sensor end times differed by more than 5 seconds"
+    error_text += "Error: Sensor end times differed by more than 5 seconds\n"
 
 total_time_s = numpy.max(end_times_s) - numpy.min(start_times_s)
 print "Total capture time: %.2fs" % total_time_s
+
+for sensor_id in [1,2]:
+    required_packets = [packet_types[p] + "_" + str(sensor_id) for p in [gyro_type, accel_type, controller_physical_info_type]]
+    has_controller = numpy.any([c in packets for c in required_packets])
+    if has_controller:
+        required_packets += [packet_types[image_raw_type] + "_" + str(im_id) + "_Y8" for im_id in [2, 3]]
+        missing = [c for c in required_packets if c not in packets]
+        for m in missing:
+            error_text += "Error: Controller %d is missing %s\n" % (sensor_id, m)
+
+        optional_packets = [packet_types[thermometer_type] + "_" + str(sensor_id)]
+        missing = [c for c in optional_packets if c not in packets]
+        for m in missing:
+            print "Warning: Controller %d is missing %s\n" % (sensor_id, m)
 
 if got_types[calibration_type] == 0 and got_types[calibration_bin_type] == 0:
     print "Warning: Never received calibration packet"

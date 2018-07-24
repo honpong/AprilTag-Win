@@ -556,6 +556,45 @@ v3 state_vision_intrinsics::unproject_feature(const feature_t &pix) const
     return undistort_feature(normalize_feature(pix)).homogeneous();
 }
 
+m<2,3> state_vision_intrinsics::dproject_dX(const v3 &X) const
+{
+    // xu = X/X[2]
+    // xd = kd_u * xu
+    // project = (Xd * F + C) * h + {w-1,h-1}/2
+    v2 xu = X.head<2>() / X[2];
+    m<1,2> dkd_u_dxu;
+    f_t kd_u = get_distortion_factor(xu, &dkd_u_dxu, nullptr);
+    f_t invZ = 1/X[2];
+    m<2,3> dxu_dX = {{ invZ,    0, -xu[0] * invZ },
+                     {    0, invZ, -xu[1] * invZ }};
+    m<1,3> dkd_u_dX = dkd_u_dxu * dxu_dX;
+    return image_height * focal_length.v * (xu * dkd_u_dX + dxu_dX * kd_u);
+}
+
+void state_vision_intrinsics::dproject_dintrinsics(const v3 &X, m<2,2> &dx_dc, m<2,1> &dx_dF, m<2,4> &dx_dk) const
+{
+    m<1,4> dkd_u_dk;
+    v2 Xu = X.head<2>() / X[2];
+    f_t kd_u = get_distortion_factor(Xu, nullptr, &dkd_u_dk);
+    dx_dF = image_height * Xu * kd_u;
+    dx_dk = image_height * focal_length.v * Xu * dkd_u_dk;
+    dx_dc = image_height * m<2,2>::Identity();
+}
+
+void state_vision_intrinsics::dunproject_dintrinsics(const feature_t &feat, m<3,2> &dX_dc, m<3,1> &dX_dF, m<3,4> &dX_dk) const
+{
+    // xd = ((project - {w-1,h-1}/2) / h - C) / F
+    // xu = ku_d * xd
+    // X = xu.homogeneous()
+    m<1,2> dku_d_dxd;
+    f_t ku_d; m<1,4> dku_d_dk;
+    auto xd = normalize_feature(feat);
+    ku_d = get_undistortion_factor(xd, &dku_d_dxd, &dku_d_dk);
+    dX_dc = (v3(xd.x(), xd.y(), 0) *  dku_d_dxd +      ku_d * m<3,2>::Identity()) / -focal_length.v;
+    dX_dF =  v3(xd.x(), xd.y(), 0) * (dku_d_dxd * xd + ku_d * m<1,1>::Identity()) / -focal_length.v;
+    dX_dk =  v3(xd.x(), xd.y(), 0) *  dku_d_dk;
+}
+
 void state_camera::update_feature_tracks(const sensor_data &data)
 {
     START_EVENT(SF_TRACK, 0);

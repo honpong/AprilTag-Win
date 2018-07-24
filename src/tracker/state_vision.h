@@ -78,7 +78,10 @@ public:
     feature_t normalize_feature(const feature_t &feat) const;
     feature_t unnormalize_feature(const feature_t &feat) const;
     feature_t project_feature(const v3 &X) const;
+    m<2,3> dproject_dX(const v3 &X) const;
+    void dproject_dintrinsics(const v3 &X, m<2,2> &dx_dc, m<2,1> &dx_dF, m<2,4> &dx_dk) const;
     v3 unproject_feature(const feature_t &feat) const;
+    void dunproject_dintrinsics(const feature_t &feat, m<3,2> &dX_dc, m<3,1> &dX_dF, m<3,4> &dX_dk) const;
 };
 
 class state_vision_group;

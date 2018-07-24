@@ -274,32 +274,13 @@ void observation_vision_feature::predict()
 
 void observation_vision_feature::cache_jacobians()
 {
-    // v4 Xd = ((point - size/2 + .5) / height - C) / F
-    // v4 dXd = - dC / F - Xd / F dF
-    // v4 Xd_dXd = - Xd.dC / F - Xd.Xd / F dF
-    // v4 X0 = ku_d * Xd
-    // m4 dX0 = dku_d * Xd + ku_d * dXd = (dku_d_drd * Xd_dXd/rd + dku_d_dk * dk) * Xd - ku_d/F dC - X0/F dF
-    // f_t drd = d sqrt(Xd.Xd) = Xd.dXd/sqrt(Xd.Xd) = Xd_dXd/rd
-    // f_t dku_d = dku_d_dk dk + dku_d_drd * drd
-    // v4 X = Rtot * X0 + Ttot / depth
-    // v4 dX = dRtot * X0 + Rtot * dX0 + dTtot / depth - Tot / depth / depth ddepth
-
-    v2 Xu = X.head<2>() / X[2];
-    m<1,2> dkd_u_dXu;
-    m<1,4> dkd_u_dk;
-    f_t kd_u = curr.camera.intrinsics.get_distortion_factor(Xu, &dkd_u_dXu, &dkd_u_dk);
-    //dx_dX = height * focal_length * d(kd_u * Xu + center)_dX
-    //= height * focal_length * (dkd_u_dX * Xu + kd_u * dXu_dX)
-    //= height * focal_length * (dkd_u_dXu * dXu_dX * Xu + kd_u * dXu_dX)
-    f_t invZ = 1/X[2];
-    m<2,3> dXu_dX = {{ invZ, 0, -Xu[0] * invZ },
-                     { 0, invZ, -Xu[1] * invZ }};
-    m<1,3> dkd_u_dX = dkd_u_dXu * dXu_dX;
-    m<2,3> dx_dX = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * (Xu * dkd_u_dX + dXu_dX * kd_u);
+    m<2,3> dx_dX = curr.camera.intrinsics.dproject_dX(X);
     v3 dX_dp = Ttot * (feature->is_initialized() ? feature->v->invdepth_jacobian() : 0);
     dx_dp = dx_dX * dX_dp;
     f_t invrho = feature->is_initialized() ? feature->v->invdepth() : 0;
 
+    // X = Rtot * X0 + Ttot / depth
+    // dX = dRtot * X0 + Rtot * dX0 + dTtot / depth - Tot / depth / depth ddepth
     // d(Rtot X0) = (Rc' Rr' Ro X0)^ Rc' (dRc Rc')v + (Rc' Rr' Ro X0)^ Rc' Rr' (dRr Rr')v  - (Rr' Rc' Ro X0)^ Rc' Rr' (dRo Ro')v + Rtot dX0
     // d Ttot = Ttot^ Rc' (dRc Rc')v  - Rc' Tc^ (dRc Rc')v + (Rc' Rr' Rc) Rc' (To - Tr)^ (dRr Rr')v + Rc' Rr' (dTo - dTr) - Rc dTc
     v3 RtotX0 = Rtot * X0;
@@ -317,22 +298,17 @@ void observation_vision_feature::cache_jacobians()
     dx_dT  = dx_dX *  dTtot_dT  * invrho;
 
     if(orig.camera.intrinsics.estimate) {
-        m<1,2> dku_d_dXd;
-        f_t ku_d; m<1,4> dku_d_dk;
-        ku_d = orig.camera.intrinsics.get_undistortion_factor(Xd, &dku_d_dXd, &dku_d_dk);
-        m<3,2> dX_dc = Rtot * (v3(Xd.x(), Xd.y(), 0) *  dku_d_dXd +      ku_d * m<3,2>::Identity()) / -orig.camera.intrinsics.focal_length.v;
-        m<3,1> dX_dF = Rtot *  v3(Xd.x(), Xd.y(), 0) * (dku_d_dXd * Xd + ku_d * m<1,1>::Identity()) / -orig.camera.intrinsics.focal_length.v;
-        m<3,4> dX_dk = Rtot *  v3(Xd.x(), Xd.y(), 0) *  dku_d_dk;
-
-        orig.dx_dF = dx_dX * dX_dF;
-        orig.dx_dk = dx_dX * dX_dk;
-        orig.dx_dc = dx_dX * dX_dc;
+        m<3,2> dX0_dc;
+        m<3,1> dX0_dF;
+        m<3,4> dX0_dk;
+        orig.camera.intrinsics.dunproject_dintrinsics(feature->v->initial, dX0_dc, dX0_dF, dX0_dk);
+        orig.dx_dF = dx_dX * Rtot * dX0_dF;
+        orig.dx_dk = dx_dX * Rtot * dX0_dk;
+        orig.dx_dc = dx_dX * Rtot * dX0_dc;
     }
 
     if (curr.camera.intrinsics.estimate) {
-        curr.dx_dF = curr.camera.intrinsics.image_height * Xu * kd_u;
-        curr.dx_dk = curr.camera.intrinsics.image_height * curr.camera.intrinsics.focal_length.v * Xu * dkd_u_dk;
-        curr.dx_dc = curr.camera.intrinsics.image_height * m<2,2>::Identity();
+        curr.camera.intrinsics.dproject_dintrinsics(X, curr.dx_dc, curr.dx_dF, curr.dx_dk);
     }
 
     if (curr.camera.extrinsics.estimate) {

@@ -113,11 +113,6 @@ dnf install libXcursor-devel libXinerama-devel libXrender-devel libXrandr-devel 
 
 ## Running
 
-To load a captured sequence and print out poses using a minimal
-wrapper around the [official interface](src/tracker/rc_tracker.h).
-
-    ./rc_replay --output-summary --output-poses path/to/capture/file
-
 To see a rendering of the data while the program runs try
 
     ./measure --realtime path/to/capture/file

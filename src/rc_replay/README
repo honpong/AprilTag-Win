@@ -1,8 +1,0 @@
-To run this on Android:
-
-   adb root
-   adb push rc_replay /data/app/com.realitycap.android.rcutility-1/lib/x86_64/
-   adb shell
-      export LD_LIBRARY_PATH=/data/app/com.realitycap.android.rcutility-1/lib/x86_64
-      export PATH=/data/app/com.realitycap.android.rcutility-1/lib/x86_64:$PATH
-      rc_replay

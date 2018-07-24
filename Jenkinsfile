@@ -51,10 +51,6 @@ pipeline {
             parallel {
                 stage('Sync') {
                     steps {
-                        sh 'build/rc_replay --output-tum data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 > a'
-                        sh 'build/rc_replay --output-tum data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 data/other/minimal_test_suite/monocular/table_bookcase_calib_L150 > aa'
-                        sh 'cat a a > a_a'
-                        sh 'diff -u a_a aa'
                         sh 'build/measure --benchmark data/other/minimal_test_suite/'
                         sh 'build/measure --benchmark data/other/minimal_test_suite/ --disable-map'
                         sh 'build/measure --benchmark data/other/minimal_test_suite/ --no-fast-path'

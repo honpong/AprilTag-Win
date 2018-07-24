@@ -170,7 +170,6 @@ endif()
 
 endif()
 
-add_subdirectory(src/rc_replay)
 add_subdirectory(src/compare_poses)
 add_subdirectory(src/check_radius)
 
@@ -181,14 +180,6 @@ add_subdirectory(src/generate_loop_gt)
 include(TargetLinkLibrariesCopied RESULT_VARIABLE TARGET_LINK_LIBRARIES_COPIED)
 if(ENABLE_SOURCES)
 install(FILES ${TARGET_LINK_LIBRARIES_COPIED} DESTINATION lib/cmake COMPONENT example-sources)
-install(FILES
-  src/rc_replay/CMakeLists.txt
-  src/rc_replay/main.cpp
-  src/rc_replay/rc_replay.h
-  src/rc_replay/rc_replay.cpp
-  DESTINATION src/rc_replay
-  COMPONENT example-sources
-)
 endif()
 
 add_executable(alloy_merge src/tools/alloy_merge.cpp)

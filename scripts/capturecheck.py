@@ -300,10 +300,11 @@ for sensor_id in [1,2]:
     required_packets = [packet_types[p] + "_" + str(sensor_id) for p in [gyro_type, accel_type, controller_physical_info_type]]
     has_controller = numpy.any([c in packets for c in required_packets])
     if has_controller:
-        required_packets += [packet_types[image_raw_type] + "_" + str(im_id) + "_Y8" for im_id in [2, 3]]
         missing = [c for c in required_packets if c not in packets]
         for m in missing:
             error_text += "Error: Controller %d is missing %s\n" % (sensor_id, m)
+        if "stereo_raw_1_Y8" not in packets and ("image_raw_2_Y8" not in packets or "image_raw_3_Y8" not in packets):
+            error_text += "Error: Controller %d is missing stereo_raw_1_Y8 and didn't have both image_raw_2_Y8 and image_raw_3_Y8"
 
         optional_packets = [packet_types[thermometer_type] + "_" + str(sensor_id)]
         missing = [c for c in optional_packets if c not in packets]

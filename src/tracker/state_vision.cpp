@@ -340,6 +340,14 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
     size_t i = 0;
     i = project_new_group_covariance<4>(g, i);
     i = project_new_group_covariance<1>(g, i);
+
+    cov.cov.map()(g.Tr.index, g.Tr.index) *= 1.1;
+    cov.cov.map()(g.Tr.index + 1, g.Tr.index + 1) *= 1.1;
+    cov.cov.map()(g.Tr.index + 2, g.Tr.index + 2) *= 1.1;
+
+    cov.cov.map()(g.Qr.index, g.Qr.index) *= 1.1;
+    cov.cov.map()(g.Qr.index + 1, g.Qr.index + 1) *= 1.1;
+    cov.cov.map()(g.Qr.index + 2, g.Qr.index + 2) *= 1.1;
 }
 
 state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *map)

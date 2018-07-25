@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.2.2)
-project( slam_client )
+project( slam_movidius_host )
 
 find_package(Threads REQUIRED)
 find_package(Eigen3 REQUIRED)
@@ -13,7 +13,7 @@ if (GETOPT_FOUND)
 endif()
 
 if (NOT TARGET getopt)
-  message(STATUS "slam_usb and slam_client will not be built; requires getopt")
+  message(STATUS "slam_usb will not be built; requires getopt")
   return()
 endif()
 
@@ -28,7 +28,7 @@ if (USB_FOUND AND NOT TARGET usb)
 endif()
 
 if (NOT TARGET usb)
-  message(STATUS "slam_usb and slam_client will not be built; requires libusb")
+  message(STATUS "slam_usb will not be built; requires libusb")
   return()
 endif()
 
@@ -50,13 +50,6 @@ target_include_directories(slam_usb PUBLIC
     .
 )
 set_property(TARGET slam_usb PROPERTY CXX_STANDARD 14)
-
-add_executable( slam_client
-    slam_client.cpp
-)
-set_property(TARGET slam_client PROPERTY CXX_STANDARD 14)
-
-target_link_libraries( slam_client slam_usb ${OpenCV_LIBS})
 
 add_executable(tm2_reset tm2_reset.cpp)
 target_link_libraries(tm2_reset slam_usb)

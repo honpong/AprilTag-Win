@@ -19,6 +19,7 @@ f_t state_vision_feature::initial_process_noise;
 f_t state_vision_track::outlier_thresh;
 f_t state_vision_track::outlier_reject;
 f_t state_vision_track::outlier_lost_reject;
+f_t state_vision_feature::good_variance;
 f_t state_vision_feature::max_variance;
 
 state_vision_feature::state_vision_feature(const tracker::feature_track &track_, state_vision_group &group_):
@@ -47,7 +48,7 @@ void state_vision_feature::make_outlier()
 
 bool state_vision_feature::should_drop() const
 {
-    return status == feature_outlier || status == feature_empty;
+    return status == feature_outlier || status == feature_empty || variance() > max_variance;
 }
 
 bool state_vision_feature::is_valid() const
@@ -57,7 +58,7 @@ bool state_vision_feature::is_valid() const
 
 bool state_vision_feature::is_good() const
 {
-    return is_valid() && variance() < max_variance;
+    return is_valid() && variance() < good_variance;
 }
 
 bool state_vision_feature::force_initialize()

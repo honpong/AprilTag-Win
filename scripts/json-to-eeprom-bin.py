@@ -153,6 +153,6 @@ eeprom_struct.Header.Crc32 = zlib.crc32(ctypes.string_at(ctypes.addressof(eeprom
 
 #write bin
 #buf = (ctypes.c_char * ctypes.sizeof(eeprom_struct)).from_address(eeprom_struct)
-with open(sys.argv[2], 'w') as outfile:
+with open(sys.argv[2], 'wb') as outfile:
     outfile.write(ctypes.string_at(ctypes.addressof(eeprom_struct),ctypes.sizeof(eeprom_struct)))
     #json.dump(jsondata, outfile, indent=4, ensure_ascii=False)

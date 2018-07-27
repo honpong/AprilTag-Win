@@ -100,6 +100,7 @@ class state_vision_feature: public state_leaf<1> {
     static f_t initial_var;
     static f_t initial_process_noise;
     static f_t good_variance;
+    static f_t max_variance;
 
     state_vision_feature(const tracker::feature_track &track, state_vision_group &group);
     bool should_drop() const;

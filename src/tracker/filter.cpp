@@ -1043,6 +1043,7 @@ void filter_initialize(struct filter *f)
     state_vision_track::outlier_reject = 30.;
     state_vision_track::outlier_lost_reject = 5.;
     state_vision_feature::good_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
+    state_vision_feature::max_variance = 10 * 10;  //because of log-depth, the standard deviation is approximately a percentage (so 1000%)
     state_vision_group::ref_noise = 0;
     state_vision_group::min_feats = 4;
 

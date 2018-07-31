@@ -116,3 +116,12 @@ dnf install libXcursor-devel libXinerama-devel libXrender-devel libXrandr-devel 
 To see a rendering of the data while the program runs try
 
     ./measure --realtime path/to/capture/file
+
+## Doxygen documentation
+run
+
+    doxygen Doxyfile
+
+output at:
+
+    docs/doxygen/html/index.html

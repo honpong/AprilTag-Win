@@ -49,7 +49,7 @@ class Packet:
     exposure where applicable
     """
     def timestamp(self):
-        if self.header.type == PacketType.image_raw:
+        if self.header.type == PacketType.image_raw or self.header.type == PacketType.stereo_raw:
             (exposure_time, width, height) = unpack('QHH', self.data[:12])
             return int(self.header.time + exposure_time/2)
         else:

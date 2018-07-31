@@ -153,27 +153,28 @@ void mapper::remove_node_features(nodeid id) {
 }
 
 void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
-                           std::shared_ptr<log_depth> v, const feature_type type) {
+                           std::shared_ptr<log_depth> v, f_t v_var, const feature_type type) {
     auto fid = feature->id;
     features.emplace(std::piecewise_construct,
                      std::forward_as_tuple(fid),
-                     std::forward_as_tuple(std::move(v), std::move(feature), type));
+                     std::forward_as_tuple(std::move(v), std::move(feature), v_var, type));
 }
 
-void map_node::set_feature_type(const featureid id, const feature_type type)
+void map_node::set_feature_type(const featureid id, f_t v_var, const feature_type type)
 {
     assert(features.find(id) != features.end());
+    features.at(id).v_var = v_var;
     features.at(id).type = type;
 }
 
 void mapper::add_feature(nodeid groupid, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
-                         std::shared_ptr<log_depth> v, const feature_type type) {
+                         std::shared_ptr<log_depth> v, f_t v_var, const feature_type type) {
     assert(feature && features_dbow->find(feature->id) == features_dbow->end());
     auto it = nodes->find(groupid);
     if(it != nodes->end()) {
         critical_section(nodes, features_dbow, [&]() {
             (*features_dbow)[feature->id] = groupid;
-            it->second.add_feature(std::move(feature), std::move(v), type);
+            it->second.add_feature(std::move(feature), std::move(v), v_var, type);
         });
     }
 }
@@ -222,8 +223,8 @@ void mapper::remove_feature(featureid fid) {
     }
 }
 
-void mapper::set_feature_type(nodeid group_id, featureid id, const feature_type type) {
-    nodes.critical_section([&]() { nodes->at(group_id).set_feature_type(id, type); });
+void mapper::set_feature_type(nodeid group_id, featureid id, f_t v_var, const feature_type type) {
+    nodes.critical_section([&]() { nodes->at(group_id).set_feature_type(id, v_var, type); });
 }
 
 v3 mapper::get_feature3D(nodeid node_id, featureid feature_id) const {
@@ -970,7 +971,7 @@ void mapper::predict_map_features(const uint64_t camera_id_now, const mapper::no
             tracker::feature_track track(f.second.feature, INFINITY, INFINITY, 0.0f);
             track.pred_x = kpd.x();
             track.pred_y = kpd.y();
-            tracks.emplace_back(std::move(track), f.second.v);
+            tracks.emplace_back(std::move(track), f.second.v, f.second.v_var);
         }
         if(tracks.size() >= min_group_map_add){
             map_feature_tracks.emplace_back(neighbor.id, invert(G_Bnow_Bneighbor), std::move(tracks));

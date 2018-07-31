@@ -1471,8 +1471,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                     for(auto &ft : mft.tracks) {
                         auto feat = std::make_unique<state_vision_feature>(ft.track, *g);
                         feat->v = ft.v;
-                        float std_pct = get_stdev_pct_for_depth(feat->v->depth());
-                        feat->set_initial_variance(std_pct * std_pct); // assumes log depth
+                        feat->set_initial_variance(ft.v_var); // assumes log depth
                         feat->depth_measured = false;
                         feat->recovered = true;
 

@@ -209,6 +209,7 @@ class triangulated_track : public tracker::feature_track {
     void set_reference(nodeid id) { state->reference_id = id; state->v->initial = v2{x,y}; }
     nodeid reference_node() const { return state->reference_id; }
     const std::shared_ptr<log_depth>& v() const { return state->v; }
+    f_t v_var() const { return state->P; }
 
     bool measure(const transformation &G_now_ref, const v2 &X_un_ref, const v2 &X_un_now, f_t sigma2);
     void merge(const triangulated_track& rhs);

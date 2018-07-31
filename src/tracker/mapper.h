@@ -101,8 +101,9 @@ struct map_feature {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     map_feature() = default;
     map_feature(std::shared_ptr<log_depth> v_, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feat_) : v(std::move(v_)), feature(std::move(feat_)) {}
-    map_feature(std::shared_ptr<log_depth> v_, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feat_, feature_type type_) : v(std::move(v_)), type(type_), feature(std::move(feat_)) {}
+    map_feature(std::shared_ptr<log_depth> v_, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feat_, f_t v_var_, feature_type type_) : v(std::move(v_)), v_var(v_var_), type(type_), feature(std::move(feat_)) {}
     std::shared_ptr<log_depth> v;
+    f_t v_var; // feature variance
     feature_type type{ feature_type::tracked };
     std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
 };
@@ -116,8 +117,8 @@ struct map_node {
     aligned_map<nodeid, map_edge> relocalization_edges;
     std::set<nodeid> covisibility_edges;
     void get_add_neighbor(nodeid neighbor, const transformation& G, const edge_type type);
-    void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v, const feature_type type);
-    void set_feature_type(const featureid id, const feature_type type);
+    void add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature, std::shared_ptr<log_depth> v, f_t v_var, const feature_type type);
+    void set_feature_type(const featureid id, f_t v_var, const feature_type type);
 
     transformation global_transformation; // dead reckoning pose
 
@@ -271,12 +272,12 @@ private:
     void add_covisibility_edge(nodeid node_id1, nodeid node_id2);
     void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
-                     std::shared_ptr<log_depth> v, const feature_type type = feature_type::tracked);
+                     std::shared_ptr<log_depth> v, f_t v_var, const feature_type type = feature_type::tracked);
     bool move_feature(featureid feature_id, nodeid src_node_id, nodeid dst_node_id, const transformation* G_Bdst_Bsrc = nullptr);
     void remove_feature(nodeid node_id, featureid feature_id);
     void remove_feature(featureid feature_id);
     void remove_node(nodeid node_id);
-    void set_feature_type(nodeid node_id, featureid feature_id, const feature_type type = feature_type::tracked);
+    void set_feature_type(nodeid node_id, featureid feature_id, f_t v_var, const feature_type type = feature_type::tracked);
     v3 get_feature3D(nodeid node_id, featureid feature_id) const; // returns feature wrt node body frame
     mapper::nodes_path dijkstra_shortest_path(const node_path &start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path &)> is_node_searched,
                                               std::function<bool(const node_path &)> finish_search) const;
@@ -323,8 +324,9 @@ private:
     struct map_feature_track {
         tracker::feature_track track;
         std::shared_ptr<log_depth> v;
-        map_feature_track(tracker::feature_track &&track_, std::shared_ptr<log_depth> v_)
-            : track(std::move(track_)), v(std::move(v_)) {}
+        f_t v_var; // feature variance
+        map_feature_track(tracker::feature_track &&track_, std::shared_ptr<log_depth> v_, f_t v_var_)
+            : track(std::move(track_)), v(std::move(v_)), v_var(v_var_) {}
         map_feature_track(map_feature_track &&) = default;
         map_feature_track & operator=(map_feature_track &&) = default;
         map_feature_track(const map_feature_track &) = delete;

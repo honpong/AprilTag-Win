@@ -307,17 +307,17 @@ void state_vision::update_map(mapper *map, const std::vector<triangulated_track>
                 nodeid current_node;
                 if (map->feature_in_map(f->feature->id, &current_node)) {
                     assert(g->id == current_node);
-                    map->set_feature_type(current_node, f->feature->id, feature_type::tracked);
+                    map->set_feature_type(current_node, f->feature->id, f->variance(), feature_type::tracked);
                 } else {
                     auto feature = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f->feature);
-                    map->add_feature(g->id, feature, f->v);
+                    map->add_feature(g->id, feature, f->v, f->variance());
                 }
             }
         }
     }
     for (auto &t : lost_triangulated_tracks)
         map->add_feature(t.reference_node(), std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(t.feature),
-                         t.v(), feature_type::triangulated);
+                         t.v(), t.v_var(), feature_type::triangulated);
 }
 
 template<int N>

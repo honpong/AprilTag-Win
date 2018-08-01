@@ -7,7 +7,7 @@ import argparse
 from math import sqrt
 import sys
 
-packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 30:"odometry", 31:"thermometer", 40:"stereo_raw", 42:"pose", 43:"calibration_json", 44:"arrival_time", 45:"velocimeter", 48:"calibration_bin", 49:"exposure", 50:"controller_physical_info"})
+packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 30:"odometry", 31:"thermometer", 40:"stereo_raw", 42:"pose", 43:"calibration_json", 44:"arrival_time", 45:"velocimeter", 48:"calibration_bin", 49:"exposure", 50:"controller_physical_info", 51:"led_intensity"})
 format_types = defaultdict(str, {0:"Y8", 1:"Z16_mm"})
 
 parser = argparse.ArgumentParser(description='Check a capture file.')
@@ -238,7 +238,7 @@ for packet_type in sorted(packets.keys()):
   if len(duplicate_timestamps):
       error_text += "%d duplicate timestamps for %s\n" % (len(duplicate_timestamps), packet_type)
 
-  if packet_type.startswith("thermometer"):
+  if packet_type.startswith("thermometer") or packet_type.startswith("led_intensity"):
       print("Skipping packet frequency analysis for this sensor\n")
       continue
 
@@ -286,11 +286,11 @@ for packet_type in sorted(packets.keys()):
           print("Warning:", packet_type, "at", w[0], "changed by ", w[1], "current: ", w[2], "last:", w[3])
   print("")
 
-start_times_s = numpy.array([start_s[key] for key in start_s])
+start_times_s = numpy.array([start_s[key] for key in start_s if not key.startswith("led_intensity")])
 if numpy.max(start_times_s) - numpy.min(start_times_s) > 5:
     error_text += "Error: Sensor start times differed by more than 5 seconds\n"
 
-end_times_s = numpy.array([end_s[key] for key in end_s])
+end_times_s = numpy.array([end_s[key] for key in end_s if not key.startswith("led_intensity")])
 if numpy.max(end_times_s) - numpy.min(end_times_s) > 5:
     error_text += "Error: Sensor end times differed by more than 5 seconds\n"
 

@@ -9,7 +9,7 @@ import zlib
 import ctypes
 
 if len(sys.argv) != 3:
-    print "Usage:", sys.argv[0], "/path/to/input.json" "/path/to/output_eeprom.bin"
+    print "Usage:", sys.argv[0], "/path/to/input.json", "/path/to/output_eeprom.bin"
     sys.exit(1)
 
 def atan2c(sin, cos, sin2):

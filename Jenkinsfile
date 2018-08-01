@@ -87,20 +87,20 @@ pipeline {
                        }
                     }
                 }
-                //stage('Windows 32') {
-                //    agent { label 'windows' }
-                //    steps {
-                //        bat "cmake -Bbuild32 -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A Win32"
-                //        bat "cmake --build build32 --config RelWithDebInfo"
-                //    }
-                //}
-                //stage('Windows 64') {
-                //    agent { label 'windows' }
-                //    steps {
-                //        bat "cmake -Bbuild64 -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A x64"
-                //        bat "cmake --build build64 --config RelWithDebInfo"
-                //    }
-                //}
+                stage('Windows 32') {
+                    agent { label 'windows' }
+                    steps {
+                        bat "cmake -Bbuild32 -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A Win32"
+                        bat "cmake --build build32 --config RelWithDebInfo"
+                    }
+                }
+                stage('Windows 64') {
+                    agent { label 'windows' }
+                    steps {
+                        bat "cmake -Bbuild64 -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A x64"
+                        bat "cmake --build build64 --config RelWithDebInfo"
+                    }
+                }
                 stage('TM2') {
                     agent { label 'tm2' }
                     options { skipDefaultCheckout() }

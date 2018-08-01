@@ -307,7 +307,7 @@ public:
         nodes->at(nid).frame = new_frame;
 
         for (auto &kp : nodes->at(nid).frame->keypoints) {
-            add_feature(nid, kp, map_depth[kp->id]);
+            add_feature(nid, kp, map_depth[kp->id], 1e-3);
             (*features_dbow)[kp->id] = nid;
         }
         finish_node(nid);

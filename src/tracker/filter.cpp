@@ -43,7 +43,6 @@ const static f_t max_accel_delta = 20.; //This is biggest jump seen in hard shak
 const static f_t max_gyro_delta = 5.; //This is biggest jump seen in hard shaking of device
 const static f_t convergence_minimum_velocity = 0.3; //Minimum speed (m/s) that the user must have traveled to consider the filter converged
 const static f_t convergence_maximum_depth_variance = .001; //Median feature depth must have been under this to consider the filter converged
-const static f_t recovered_feature_initial_variance = .05; //When features are recovered, set their initial variance to this
 
 void filter_update_outputs(struct filter *f, sensor_clock::time_point time, bool failed)
 {
@@ -928,7 +927,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 if(!space || !f->tracks_found)
                     return false;
                 --space;
-                f->set_initial_variance(recovered_feature_initial_variance);
+                // use covariance stored in initial_covariance (when a feature is lost it stores its latest covariance in that variable)
                 f->status = feature_normal;
                 g->features.children.push_back(std::move(f));
                 return true;
@@ -1472,8 +1471,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
                     for(auto &ft : mft.tracks) {
                         auto feat = std::make_unique<state_vision_feature>(ft.track, *g);
                         feat->v = ft.v;
-                        float std_pct = get_stdev_pct_for_depth(feat->v->depth());
-                        feat->set_initial_variance(std_pct * std_pct); // assumes log depth
+                        feat->set_initial_variance(ft.v_var); // assumes log depth
                         feat->depth_measured = false;
                         feat->recovered = true;
 

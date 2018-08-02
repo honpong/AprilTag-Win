@@ -271,6 +271,11 @@ void mapper::remove_node(nodeid id)
         remove_edge(id, edge.first);
     }
 
+    for(const auto& reloc_edge : node_it->second.relocalization_edges) {
+        auto& neighbor = nodes->at(reloc_edge.first);
+        neighbor.relocalization_edges.erase(node_it->first);
+    }
+
     features_dbow.critical_section([&]() {
         for(auto& feature : node_it->second.features)
             features_dbow->erase(feature.first);

@@ -32,9 +32,8 @@ mlen =  array([len(meas) for meas in measurements])
 print mlen
 print rnum, "rows and", mlen.sum(), "measurements to use"
 
-# w is measurements augmented with a 1
 nrows = mlen.sum()
-w = ones([nrows, 4])
+w = zeros([nrows, 4])
 Y = zeros([nrows, 3])
 row = 0
 for i in range(0, len(buckets)):
@@ -42,6 +41,7 @@ for i in range(0, len(buckets)):
         w[row, 0] = m[0]
         w[row, 1] = m[1]
         w[row, 2] = m[2]
+        w[row, 3] = -1
         Y[row, 0] = buckets[i][0]
         Y[row, 1] = buckets[i][1]
         Y[row, 2] = buckets[i][2]

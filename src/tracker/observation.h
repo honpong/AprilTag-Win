@@ -195,10 +195,7 @@ protected:
         source.meas_stdev.data(meas);
         return observation_spatial::measure();
     }
-    virtual void compute_measurement_covariance() {
-        source.inn_stdev.data(inn);
-        observation_spatial::compute_measurement_covariance();
-    }
+    virtual void compute_measurement_covariance();
     virtual void cache_jacobians();
     template<int N>
              int project_covariance(matrix &dst, const matrix &src, int i) const;

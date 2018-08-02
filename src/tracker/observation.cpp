@@ -768,6 +768,12 @@ void observation_velocimeter::cache_jacobians()
     }
 }
 
+void observation_velocimeter::compute_measurement_covariance()
+{
+    source.inn_stdev.data(inn);
+    m_cov = v3::Constant(std::max(inn.squaredNorm(), source.measurement_variance));
+}
+
 void observation_velocimeter::project_covariance(matrix &dst, const matrix &src) const
 {
     int i=0;

@@ -173,7 +173,6 @@ bool observation_queue::update_state_and_covariance(matrix &x, matrix &P, const 
         auto stop = std::chrono::steady_clock::now();
         multiply_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
     }
-    P.map().triangularView<Eigen::StrictlyUpper>() = P.map().triangularView<Eigen::StrictlyLower>().transpose();
 
     x.map() = Px.map().bottomRows(1); // write back the updated state
 
@@ -223,6 +222,8 @@ bool observation_queue::process(state_root &s, bool run_on_shave)
     } else if(orig_meas_size && orig_meas_size != 3) {
         //s.log->warn("In Kalman update, original measurement size was {}, ended up with 0 measurements!\n", orig_meas_size);
     }
+
+    s.cov.cov.map().triangularView<Eigen::StrictlyUpper>() = s.cov.cov.map().triangularView<Eigen::StrictlyLower>().transpose();
 
     recent_f_map.clear();
     for (auto &o : observations)

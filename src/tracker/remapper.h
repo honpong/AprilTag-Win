@@ -63,10 +63,10 @@ class remapper {
         if (compiled) return; else compiled = true;
 #ifndef NDEBUG
         // Assume updates[] initially ordered by .to w/ no holes
-        { int   to_end = 0; for (const auto &u : updates) { assert(to_end == u.to); to_end = u.to+u.size; } }
+        { int    to_end = 0; for (const auto &u : updates) { assert(to_end == u.to); to_end = u.to+u.size; } }
 
         // Assume moves create no cycles (i.e. we *can* sort below)
-        { int from_end = 0; for (const auto &u : updates) if (u.type == update::move) { assert(from_end <= u.from); from_end = u.from+u.size; } }
+        { int from_prev = 0; for (const auto &u : updates) if (u.type == update::move) { assert(from_prev <= u.from); from_prev = u.from; } }
 #endif
         // Sort based on operator< (i.e. "must happen before"); can't use std::sort because operator< is not transitive.
         for (auto unswapped = updates.begin(), i = updates.begin(); i != updates.end(); ++i) {

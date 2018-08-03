@@ -82,6 +82,10 @@ class remapper {
                 }
             }
         }
+
+#ifndef NDEBUG
+        for (const auto &a : updates) for (const auto &b : updates) if (&a < &b) assert(!(b < a));
+#endif
     }
 
     void remap_vector(int size, matrix &Pn) {

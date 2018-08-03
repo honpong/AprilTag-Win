@@ -322,28 +322,8 @@ void state_vision::update_map(mapper *map, const std::vector<triangulated_track>
                          t.v(), t.v_var(), feature_type::triangulated);
 }
 
-template<int N>
-int state_vision::project_new_group_covariance(const state_vision_group &g, int i)
-{
-    //Note: this only works to fill in the covariance for Tr, Wr because it fills in cov(T,Tr) etc first (then copies that to cov(Tr,Tr).
-    for(; i < cov.cov.rows(); i += N)
-    {
-        const m<3, N> cov_T = T.from_row<N>(cov.cov, i);
-        g.Tr.to_col<N>(cov.cov, i) = cov_T;
-        g.Tr.to_row<N>(cov.cov, i) = cov_T;
-        const m<3, N> cov_Q = Q.from_row<N>(cov.cov, i);
-        g.Qr.to_col<N>(cov.cov, i) = cov_Q;
-        g.Qr.to_row<N>(cov.cov, i) = cov_Q;
-    }
-    return i;
-}
-
 void state_vision::project_new_group_covariance(const state_vision_group &g)
 {
-    size_t i = 0;
-    i = project_new_group_covariance<4>(g, i);
-    i = project_new_group_covariance<1>(g, i);
-
     cov.cov.map()(g.Tr.index, g.Tr.index) *= 1.1;
     cov.cov.map()(g.Tr.index + 1, g.Tr.index + 1) *= 1.1;
     cov.cov.map()(g.Tr.index + 2, g.Tr.index + 2) *= 1.1;
@@ -358,6 +338,8 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     state_camera& camera = *cameras.children[camera_id];
     transformation G(Q.v, T.v);
     auto g = std::make_unique<state_vision_group>(G, camera, group_counter++);
+    g->Tr.index = T.index;
+    g->Qr.index = Q.index;
     if(map) {
         map->add_node(g->id, camera_id);
 

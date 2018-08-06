@@ -64,25 +64,17 @@ class remapper {
 #ifndef NDEBUG
         // Assume updates[] initially ordered by .to w/ no holes
         { int    to_end = 0; for (const auto &u : updates) { assert(to_end == u.to); to_end = u.to+u.size; } }
-
-        // Assume moves create no cycles (i.e. we *can* sort below)
-        { int from_prev = 0; for (const auto &u : updates) if (u.type == update::move) { assert(from_prev <= u.from); from_prev = u.from; } }
 #endif
-        // Sort based on operator< (i.e. "must happen before"); can't use std::sort because operator< is not transitive.
-        for (auto unswapped = updates.begin(), i = updates.begin(); i != updates.end(); ++i) {
+        // Topological sort based on operator< (i.e. "must happen before"); can't use std::sort because operator< is not transitive.
+        for (auto i = updates.begin(); i != updates.end(); ++i) {
           again:
             for (auto j=i+1; j != updates.end(); ++j) {
-                // avoid O(n^2) comparisons by not checking (unswapped) items that can't satisfy operator<
-                if (j >= unswapped && (j->type == update::move && j->from >= i->to + i->size))
-                    break; // => !(*k < *i) for all k >= j
                 if (*j < *i) {
-                    if (unswapped <= j+1) unswapped = j+1; // ensure [unswapped,updates.end()) remains ordered w.r.t ->to
                     std::iter_swap(i,j);
                     goto again;
                 }
             }
         }
-
 #ifndef NDEBUG
         for (const auto &a : updates) for (const auto &b : updates) if (&a < &b) assert(!(b < a));
 #endif

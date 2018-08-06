@@ -61,7 +61,7 @@ def merge(accel,gyro):
 def ensure_dir(dirname):
     import errno
     try:
-        os.mkdir(dirname, 0777)
+        os.mkdir(dirname, 0o777)
     except OSError as e:
         if e.errno == errno.EEXIST and os.path.isdir(dirname):
             pass
@@ -79,18 +79,18 @@ def convert_images(dirname, sensor_id, data, last_imu_timestamp):
 
 def read_images(filename):
     d = []
-    with open(filename, 'rb') as f:
-        for line in f.xreadlines():
+    with open(filename, 'r') as f:
+        for line in f:
             n,t = line.split()
             d.append((float(t), n))
     return d
 
 def read_imu(filename):
     d = []
-    with open(filename, 'rb') as f:
-        for line in f.xreadlines():
+    with open(filename, 'r') as f:
+        for line in f:
             (t,x,y,z) = line.split(",")
-            d.append(map(float,(t,x,y,z)))
+            d.append(list(map(float,(t,x,y,z))))
     return d
 
 def write_csv(filename, data):

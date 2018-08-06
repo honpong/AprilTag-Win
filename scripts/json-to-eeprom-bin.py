@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+from __future__ import print_function
 import sys
 import struct
 import json
@@ -9,7 +9,7 @@ import zlib
 import ctypes
 
 if len(sys.argv) != 3:
-    print "Usage:", sys.argv[0], "/path/to/input.json", "/path/to/output_eeprom.bin"
+    print("Usage:", sys.argv[0], "/path/to/input.json", "/path/to/output_eeprom.bin")
     sys.exit(1)
 
 def atan2c(sin, cos, sin2):
@@ -97,7 +97,7 @@ eeprom_struct.Info.SN = type(eeprom_struct.Info.SN)(*[int(SN[i:i+2],16) for i in
 
 #jsondata["cameras"]=list()
 eeprom_struct.Kb4.Header.NumOfCameras = len(jsondata["cameras"])
-for i in xrange(len(jsondata["cameras"])):
+for i in range(len(jsondata["cameras"])):
     camera = eeprom_struct.Kb4.Cameras[i]
     #jsondata["cameras"].append(dict())
 
@@ -121,7 +121,7 @@ for i in xrange(len(jsondata["cameras"])):
 
 
 eeprom_struct.Kb4.Header.NumOfImus = len(jsondata["imus"])
-for i in xrange(eeprom_struct.Kb4.Header.NumOfImus):
+for i in range(eeprom_struct.Kb4.Header.NumOfImus):
     imu = eeprom_struct.Kb4.Imu[i]
 
     imu.Extrinsics.pose_m.T.v = type(imu.Extrinsics.pose_m.T.v)(*jsondata["imus"][i]["extrinsics"]["T"])
@@ -133,7 +133,7 @@ for i in xrange(eeprom_struct.Kb4.Header.NumOfImus):
     imu.Extrinsics.variance_m2.W.v = type(imu.Extrinsics.variance_m2.W.v)(*jsondata["imus"][i]["extrinsics"]["W_variance"])
 
     
-    for j in xrange(3):
+    for j in range(3):
         imu.AccIntrinsics.scale_and_alignment.v[j] = type(imu.AccIntrinsics.scale_and_alignment.v[j])(*jsondata["imus"][i]["accelerometer"]["scale_and_alignment"][j*3:j*3+3])
 
     imu.AccIntrinsics.bias_m__s2.v = type(imu.AccIntrinsics.bias_m__s2.v)(*jsondata["imus"][i]["accelerometer"]["bias"])
@@ -141,7 +141,7 @@ for i in xrange(eeprom_struct.Kb4.Header.NumOfImus):
     imu.AccIntrinsics.measurement_variance_m2__s4 = jsondata["imus"][i]["accelerometer"]["noise_variance"]
 
 
-    for j in xrange(3):
+    for j in range(3):
         imu.GyroIntrinsics.scale_and_alignment.v[j] = type(imu.GyroIntrinsics.scale_and_alignment.v[j])(*jsondata["imus"][i]["gyroscope"]["scale_and_alignment"][j*3:j*3+3])
 
     imu.GyroIntrinsics.bias_rad__s.v = type(imu.GyroIntrinsics.bias_rad__s.v)(*jsondata["imus"][i]["gyroscope"]["bias"])

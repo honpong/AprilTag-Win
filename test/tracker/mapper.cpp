@@ -190,7 +190,7 @@ public:
         return obj.find(entry.first);
     }
 
-    template <template <class, class, class...> class TContainer, class Key, class T, class... TArgs>
+    template <template <class, class, class, class...> class TContainer, class Key, class T, class... TArgs>
     static void expect_eq(const TContainer<Key, T, TArgs...>   &obj1, const TContainer<Key, T, TArgs...>  &obj2) {
         expect_eq(                                              obj1,                                obj2,
                                                [&](auto          &p1, auto                            &p2) {

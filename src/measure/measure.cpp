@@ -377,10 +377,6 @@ int main(int c, char **v)
         return 2;
 
     benchmark_result res;
-
-#ifndef HAVE_GLFW
-    rp.start();
-#else
     world_state ws;
     gt_generator loop_gt;
     std::ofstream pose_fs; if (pose_output) pose_fs.open(replace(pose_output, "%s", filename));
@@ -391,6 +387,9 @@ int main(int c, char **v)
         data_callback(ws, rp, first, res, loop_gt, output, data, &pose_fs);
     });
 
+#ifndef HAVE_GLFW
+    rp.start();
+#else
     if(enable_gui) { // The GUI must be on the main thread
         gui vis(&ws, show_main, show_video, show_depth, show_plots);
         rp.start_async();
@@ -404,9 +403,9 @@ int main(int c, char **v)
         cerr << "Failed to render\n";
         return 1;
     }
+#endif
     if (stats)
         std::cout << ws.get_feature_stats();
-#endif
 
     res.storage = rp.get_storage_stat();
 

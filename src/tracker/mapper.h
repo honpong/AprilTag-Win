@@ -30,12 +30,6 @@
 #include "debug/visual_debug.h"
 #endif
 
-// Constant relocalization parameters
-constexpr static f_t sigma_px = 3.0;
-constexpr static int max_iter = 40; // 40
-constexpr static float confidence = 0.9f; //0.9
-constexpr static size_t min_num_inliers = 12;
-
 typedef DBoW2::TemplatedVocabulary<orb_descriptor::raw, DBoW2::L1_NORM> orb_vocabulary;
 typedef uint64_t nodeid;
 typedef uint64_t featureid;

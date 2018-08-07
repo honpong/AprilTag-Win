@@ -6,6 +6,7 @@
 #include <deque>
 #include <vector>
 #include <iomanip>
+#include <functional>
 
 #include "bstream.h"
 #include "packet.h"

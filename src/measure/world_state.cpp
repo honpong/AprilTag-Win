@@ -1,6 +1,7 @@
 #include "world_state.h"
 #include "sensor_fusion.h"
 #include "rc_compat.h"
+#include "rc_internal.h"
 #include "bstream.h"
 #include <array>
 
@@ -273,6 +274,14 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     observe_plot_item(timestamp_us, p, "sdw_y", (float)f->s.dw.v[1]);
     observe_plot_item(timestamp_us, p, "sdw_z", (float)f->s.dw.v[2]);
 
+    if (data->path == rc_DATA_PATH_SLOW) {
+        rc_StorageStats storage = rc_getStorageStats(tracker);
+        p = get_plot_by_name("map size");
+        observe_plot_item(timestamp_us, p, "nodes", storage.nodes);
+        observe_plot_item(timestamp_us, p, "features", storage.features);
+        observe_plot_item(timestamp_us, p, "edges", storage.edges);
+    }
+
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {
         const auto &camera = *f->s.cameras.children[i];
         if (!camera.intrinsics.estimate) continue;
@@ -451,7 +460,7 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     observe_plot_item(timestamp_us, p, "median-depth-var", (float)f->median_depth_variance);
 
     p = get_plot_by_name("state-size");
-    observe_plot_item(timestamp_us, p, "state size", (float)f->s.statesize);
+    observe_plot_item(timestamp_us, p, "state-size", (float)f->s.statesize);
     int group_storage = f->s.groups.children.size() * 6;;
     int feature_storage = 0;
     for (const auto &g : f->s.groups.children)

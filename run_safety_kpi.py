@@ -78,8 +78,13 @@ for r in radii:
             if result is None:
                 print "Error: Problem with", arg
                 continue
+            # Append sequence failure result (at least one false negative)
+            if result[4] > 0: result = np.append(result, 1)
+            else:             result = np.append(result, 0)
+
             print "Result for", arg[1]
             print result
+
             if total_result is None:
                 total_result = result
             else:
@@ -88,9 +93,9 @@ for r in radii:
         kpis[r][m] = total_result
 
 result_string  = "\nSummary: Safety KPI calculated on %s which had %.2fs of data\n" % (kpi_dirs, kpis[radii[0]][margin[0]][0])
-result_string += "radius\tmargin\tt outside\tGT crossings\tfalse negatives (%)\tTM2 crossings\tfalse positives (%)\n"
+result_string += "radius|margin|#bad|t outside|GT crossings|false negatives (%)|TM2 crossings|false positives (%)\n"
 for r in radii:
     for m in margin:
-        (total_time, time_outside, gt, tp, fn, tm2, tn, fp) = kpis[r][m]
-        result_string += "%6s\t%6s\t%9.2f\t       %5d\t    %5d (%6.2f%%) \t        %5d\t    %5d (%6.2f%%)\n" % (r, m, time_outside, gt, fn, 100*fn/(gt+0.0001), tm2, fp, 100*fp/(tm2+0.0001))
+        (total_time, time_outside, gt, tp, fn, tm2, tn, fp, failed_sequences) = kpis[r][m]
+        result_string += "%6s %6s %4d %9.2f        %5d     %5d (%6.2f%%)         %5d     %5d (%6.2f%%)\n" % (r, m, failed_sequences, time_outside, gt, fn, 100*fn/(gt+0.0001), tm2, fp, 100*fp/(tm2+0.0001))
 print result_string,

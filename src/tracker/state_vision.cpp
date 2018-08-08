@@ -83,8 +83,6 @@ state_vision_group::state_vision_group(const transformation &G, state_camera &ca
     children.push_back(&features);
     Tr.set_process_noise(ref_noise);
     Qr.set_process_noise(ref_noise);
-    Tr.set_initial_variance(v3::Constant(-1)); // unused
-    Qr.set_initial_variance(v3::Constant(-1));
 }
 
 void state_vision_group::make_reference()
@@ -340,6 +338,9 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     auto g = std::make_unique<state_vision_group>(G, camera, group_counter++);
     g->Tr.index = T.index;
     g->Qr.index = Q.index;
+    g->Tr.set_initial_variance(T.initial_covariance.diagonal()); // Used when both T and Tr are added at the same time wo/remap() between
+    g->Qr.set_initial_variance(Q.initial_covariance.diagonal());
+
     if(map) {
         map->add_node(g->id, camera_id);
 

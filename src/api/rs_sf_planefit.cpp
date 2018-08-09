@@ -34,7 +34,7 @@ rs_sf_status rs_sf_planefit::set_option(rs_sf_fit_option option, double value)
     case RS_SF_OPTION_DEPTH_UNIT:
         m_depth_img_to_meter = (float)value; break;
     case RS_SF_OPTION_PARAM_PRESET:
-        m_param.min_num_plane_pt = ((rs_sf_param_preset)value == RS_SF_PRESET_BOX_S) ? 150 : parameter().min_num_plane_pt; break;
+        m_param.min_num_plane_pt = ((rs_sf_param_preset)(int)value == RS_SF_PRESET_BOX_S) ? 150 : parameter().min_num_plane_pt; break;
     default: break;
     }
     return status;

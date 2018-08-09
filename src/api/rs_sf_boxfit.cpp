@@ -32,7 +32,7 @@ rs_sf_status rs_sf_boxfit::set_option(rs_sf_fit_option option, double value)
         case RS_SF_OPTION_BOX_SCAN_MODE:
             m_param.fov_margin = (value > 0 ? parameter().fov_margin : 0); break;
         case RS_SF_OPTION_PARAM_PRESET:
-            m_param = m_param.get_preset((rs_sf_param_preset)value); break;
+            m_param = m_param.get_preset((rs_sf_param_preset)(int)value); break;
         default: break;
     }
     return status;

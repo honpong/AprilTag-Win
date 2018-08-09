@@ -38,9 +38,16 @@ struct rs_sf_boxfit : public rs_sf_planefit
         bool  refine_box_plane       = false;  // flag to refine box edge
         
         parameter get_preset(rs_sf_param_preset s) const {
-            if (s==RS_SF_PRESET_BOX_S) { return {0.03f,0.05f,0.03f,0.03f,1.10f,0.015f,0.1f,500.0f,fov_margin,11,refine_box_plane}; }
-            if (s==RS_SF_PRESET_BOX_L) { return {0.03f,0.05f,0.03f,0.30f,2.00f,0.015f,0.1f,500.0f,fov_margin,31,refine_box_plane}; }
-            return                              {0.03f,0.05f,0.03f,0.06f,1.50f,0.015f,0.1f,500.0f,fov_margin,11,refine_box_plane};
+            //if (s==RS_SF_PRESET_BOX_S) { return {0.03f,0.05f,0.03f,0.03f,1.10f,0.015f,0.1f,500.0f,fov_margin,11,refine_box_plane}; }
+            //if (s==RS_SF_PRESET_BOX_L) { return {0.03f,0.05f,0.03f,0.30f,2.00f,0.015f,0.1f,500.0f,fov_margin,31,refine_box_plane}; }
+            //return                              {0.03f,0.05f,0.03f,0.06f,1.50f,0.015f,0.1f,500.0f,fov_margin,11,refine_box_plane};
+
+            parameter dst;
+            dst.fov_margin = fov_margin;
+            dst.refine_box_plane = refine_box_plane;
+            if (s == RS_SF_PRESET_BOX_S) { dst.min_box_thickness = 0.03f; dst.max_box_thickness = 1.10f; }
+            if (s == RS_SF_PRESET_BOX_L) { dst.min_box_thickness = 0.30f; dst.max_box_thickness = 2.00f; dst.max_box_history = 31; }
+            return dst;
         }
     };
     

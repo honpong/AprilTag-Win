@@ -1,9 +1,10 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from packet import Packet, PacketType
 import sys
 
 if len(sys.argv) < 3:
-  print "Usage:", sys.argv[0], "<capture file> <output file>"
+  print("Usage:", sys.argv[0], "<capture file> <output file>")
   sys.exit(1)
 
 filename = sys.argv[1]

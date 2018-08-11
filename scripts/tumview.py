@@ -188,6 +188,7 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
 
 def main() :
     parser = argparse.ArgumentParser('Plot tum/tumx results')
+    parser.add_argument('-d', '--distance', action='store_true', help='Distance display mode (default)')
     parser.add_argument('-p', '--plane', action='store_true', help='Plane projected display mode')
     parser.add_argument('-x', '--axis', action='store_true', help='Axis display mode')
     parser.add_argument('-a', '--angles', action='store_true', help='Angles display mode')

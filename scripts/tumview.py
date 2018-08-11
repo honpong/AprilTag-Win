@@ -200,22 +200,16 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
 
 def main() :
     parser = argparse.ArgumentParser('Plot tum/tumx results')
-    parser.add_argument('-d', '--distance', action='store_true', help='Distance display mode (default)')
-    parser.add_argument('-p', '--plane', action='store_true', help='Plane projected display mode')
-    parser.add_argument('-x', '--axis', action='store_true', help='Axis display mode')
-    parser.add_argument('-a', '--angles', action='store_true', help='Angles display mode')
-    parser.add_argument('-3', '--three', action='store_true', help='3D display mode')
+    parser.add_argument('-d', '--distance', dest='plot_mode', action='store_const', const=PLOT_MODE_DIST, default=PLOT_MODE_DIST, help='Distance display mode (default)')
+    parser.add_argument('-p', '--plane',    dest='plot_mode', action='store_const', const=PLOT_MODE_PROJECTIONS,                  help='Plane projected display mode')
+    parser.add_argument('-x', '--axis',     dest='plot_mode', action='store_const', const=PLOT_MODE_AXIS,                         help='Axis display mode')
+    parser.add_argument('-a', '--angles',   dest='plot_mode', action='store_const', const=PLOT_MODE_ANGLES,                       help='Angles display mode')
+    parser.add_argument('-3', '--three',    dest='plot_mode', action='store_const', const=PLOT_MODE_3D,                           help='3D display mode')
     parser.add_argument('-t', '--tum', action='store_true', help='Read as tum file')
     parser.add_argument('-n', '--sample-number', action='store_true', help='Use sample number for timeline')
     parser.add_argument('-o', '--output', help='output image filename')
     parser.add_argument('files', nargs='+', help='tum/tumx files')
     args = parser.parse_args(sys.argv[1:])
-
-    plot_mode = PLOT_MODE_DIST
-    if args.plane: plot_mode = PLOT_MODE_PROJECTIONS
-    elif args.axis: plot_mode = PLOT_MODE_AXIS
-    elif args.angles: plot_mode = PLOT_MODE_ANGLES
-    elif args.three: plot_mode = PLOT_MODE_3D
 
     fig = plt.Figure()
     datasets = []
@@ -227,7 +221,7 @@ def main() :
         if len(d[1].keys()) > nitems: nitems = len(d[1].keys())
 
     for dataset in datasets:
-        plot_tum(nitems, dataset[0], dataset[1], fig, plot_mode = plot_mode)
+        plot_tum(nitems, dataset[0], dataset[1], fig, plot_mode = args.plot_mode)
     if args.output == None:
         plt.show()
     else:

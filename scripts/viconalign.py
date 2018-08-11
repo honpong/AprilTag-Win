@@ -1,10 +1,11 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import sys
 import csv
 import os.path
 import numpy
 if len(sys.argv) != 4:
-    print "Usage:", sys.argv[0], "<vicon.log> <capture_folder> <shifted_vicon.log>"
+    print("Usage:", sys.argv[0], "<vicon.log> <capture_folder> <shifted_vicon.log>")
     sys.exit(1)
 
 vicon_file = sys.argv[1]

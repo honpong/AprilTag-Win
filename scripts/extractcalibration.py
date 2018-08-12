@@ -1,10 +1,11 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from packet import Packet, PacketType
 import sys
 import re
 
 if len(sys.argv) not in (2,3):
-    print "Usage:", sys.argv[0], "<capture file> [<output-file.(json|bin)>]"
+    print("Usage:", sys.argv[0], "<capture file> [<output-file.(json|bin)>]")
     sys.exit(1)
 
 filename = sys.argv[1]
@@ -37,5 +38,5 @@ while p is not None:
 
 f.close()
 
-print "Error: No packet_calibration_json found!"
+print("Error: No packet_calibration_json found!")
 sys.exit(1)

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import print_function
 import sys
 import matplotlib
 # Force matplotlib to not use any Xwindows backend.
@@ -9,7 +9,7 @@ from tumview import read_tum
 from bisect import bisect
 
 if len(sys.argv) != 7:
-    print "Usage:", sys.argv[0], "<centered_gt.tum> <centered_tm2.tum> <intervals.txt> <radius_m> <margin_m> <output.pdf>"
+    print("Usage:", sys.argv[0], "<centered_gt.tum> <centered_tm2.tum> <intervals.txt> <radius_m> <margin_m> <output.pdf>")
     sys.exit(1)
 
 def read_intervals(filename):
@@ -26,13 +26,13 @@ highlights = []
 for i in intervals:
     if i[2] == 0 and i[3] == 0: # gt_type and bad
         highlights.append([float(i[0])/1e6, float(i[1])/1e6])
-print highlights
+print(highlights)
 radius = float(sys.argv[4])
 margin = float(sys.argv[5])
 output_filename = sys.argv[6]
 
 if 0 not in gt or 0 not in tm2:
-    print "Missing device id 0 in GT or TM2"
+    print("Missing device id 0 in GT or TM2")
     sys.exit(1)
 
 fig, ax = plt.subplots()

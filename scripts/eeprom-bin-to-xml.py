@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+from __future__ import print_function
 import sys
 import struct
 import json
@@ -7,7 +7,7 @@ import numpy as np
 import read_eeprom
 
 if len(sys.argv) != 3:
-    print "Usage:", sys.argv[0], "/path/to/eeprom.bin" "/path/to/output.xml"
+    print("Usage:", sys.argv[0], "/path/to/eeprom.bin" "/path/to/output.xml")
     sys.exit(1)
 
 xml_file = open(sys.argv[2], "w")
@@ -37,7 +37,7 @@ distortion_type_strings = ["unknown", "fisheye", "polynomial", "undistorted", "k
 
 xml_file.write("<rig>\n")
 
-for i in xrange(eeprom_struct.Kb4.Header.NumOfCameras):
+for i in range(eeprom_struct.Kb4.Header.NumOfCameras):
     camera = eeprom_struct.Kb4.Cameras[i]
     xml_file.write("    <camera>\n")
     if distortion_type_strings[camera.Intrinsics.type] == 'kannalabrandt4':

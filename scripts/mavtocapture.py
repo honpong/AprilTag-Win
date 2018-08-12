@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from PIL import Image
 from struct import pack
 from collections import defaultdict

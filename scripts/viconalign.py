@@ -35,7 +35,7 @@ def read_csv_floats(filename, header=False):
     rows = []
     with open(filename, 'rb') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
-        if header: reader.next() # skip header
+        if header: next(reader) # skip header
         for row in reader:
             float_row = [float(r) for r in row]
             rows.append(float_row)
@@ -50,15 +50,15 @@ last_timestamp_ms = max(gyro_data[-1][0], accel_data[-1][0])
 vicon_start_s = vicon_data[0][0]
 vicon_start_ns = vicon_data[0][1]
 
-print "IMU data had", (last_timestamp_ms - first_timestamp_ms)/1e3, "seconds"
-print "Vicon had", vicon_data[-1][0] - vicon_data[0][0], "seconds"
+print("IMU data had", (last_timestamp_ms - first_timestamp_ms)/1e3, "seconds")
+print("Vicon had", vicon_data[-1][0] - vicon_data[0][0], "seconds")
 
 def gyro_offset(gyro_data, threshold):
     for meas in gyro_data:
         if (meas[1]*meas[1] + meas[2]*meas[2] + meas[3]*meas[3]) > threshold*threshold:
-            print "Gyro", meas
+            print("Gyro", meas)
             return meas[0] - first_timestamp_ms
-    print "ERROR, didn't find an offset"
+    print("ERROR, didn't find an offset")
 
 import numpy, math
 def accel_offset(accel_data, low_pass, threshold):
@@ -68,9 +68,9 @@ def accel_offset(accel_data, low_pass, threshold):
         acc = acc * (1-low_pass) + numpy.array(meas[1:])*low_pass
         delta = acc - meas[1:]
         if delta.dot(delta) > threshold*threshold:
-            print "Accel delta", delta
+            print("Accel delta", delta)
             return meas[0] - first_timestamp_ms
-    print "ERROR, didn't find an offset"
+    print("ERROR, didn't find an offset")
 
 def vicon_offset(vicon_data, rotation_thresh, translation_m):
     T_start = numpy.array(vicon_data[0][3:6])
@@ -81,25 +81,25 @@ def vicon_offset(vicon_data, rotation_thresh, translation_m):
         dT = T_now - T_start
         dR = w_now - w_start
         if dT.dot(dT) > translation_m*translation_m or dR.dot(dR) > rotation_thresh*rotation_thresh:
-            print "Vicon", dT, dR
+            print("Vicon", dT, dR)
             return meas[0] - vicon_start_s, meas[1] - vicon_start_ns
-    print "ERROR, didn't find an offset"
+    print("ERROR, didn't find an offset")
 
 gyro_time_offset_ms = gyro_offset(gyro_data, 0.5)
 accel_time_offset_ms = accel_offset(accel_data, 0.1, 3)
 translation_m = 0.01
 rotation_thresh = 2 * math.pi / 180 # for small angles norm is similar to angle between rotations
 (vicon_time_offset_s, vicon_time_offset_ns) = vicon_offset(vicon_data, rotation_thresh, translation_m)
-print "Offsets: ", gyro_time_offset_ms/1e3, accel_time_offset_ms/1e3
-print "Vicon offsets:", vicon_time_offset_s, vicon_time_offset_ns
+print("Offsets: ", gyro_time_offset_ms/1e3, accel_time_offset_ms/1e3)
+print("Vicon offsets:", vicon_time_offset_s, vicon_time_offset_ns)
 
-print "First was:", first_timestamp_ms/1e3
+print("First was:", first_timestamp_ms/1e3)
 imu_offset_ms = first_timestamp_ms + min(gyro_time_offset_ms, accel_time_offset_ms)
 imu_offset_s = math.floor(imu_offset_ms/1e3)
 imu_offset_ns = (imu_offset_ms/1e3 - imu_offset_s)*1e9
 vicon_to_imu_s = imu_offset_s - vicon_start_s - vicon_time_offset_s
 vicon_to_imu_ns = imu_offset_ns - vicon_start_ns - vicon_time_offset_ns
-print "S, ns", vicon_to_imu_s, vicon_to_imu_ns, imu_offset_ms, imu_offset_ns
+print("S, ns", vicon_to_imu_s, vicon_to_imu_ns, imu_offset_ms, imu_offset_ns)
 
 def write_offset_vicon(original_filename, output_filename, offset_s, offset_ns):
     #time_sec,time_nsec,seq,x,y,z,qx,qy,qz,qw
@@ -109,7 +109,7 @@ def write_offset_vicon(original_filename, output_filename, offset_s, offset_ns):
         reader = csv.reader(csvfile, delimiter=',')
         with open(output_filename, 'wb') as csvout:
             writer = csv.writer(csvout, delimiter=',')
-            writer.writerow(reader.next()) # write header
+            writer.writerow(next(reader)) # write header
             for row in reader:
                 row_s = int(row[0]) + offset_s
                 row_ns = int(row[1]) + offset_ns

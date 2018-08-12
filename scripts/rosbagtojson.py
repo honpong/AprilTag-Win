@@ -81,7 +81,7 @@ def read_param_cam(file):
     bag = rosbag.Bag(file)
 
     topics = bag.read_messages('/camera/fisheye/camera_info')
-    topic0 = topics.next()
+    topic0 = next(topics)
     msg = topic0.message
 
     data["size_px"] = [ msg.width, msg.height ]
@@ -134,7 +134,7 @@ def read_param_imu( file, topicname ):
     data = OrderedDict()  # {}
     bag = rosbag.Bag(file)
     topics = bag.read_messages(topics=topicname)
-    topic0 = topics.next()
+    topic0 = next(topics)
     msg = topic0.message
 
     data["scale_and_alignment"] = [1.0,0.0,0.0, 0.0,1.0,0.0, 0.0,0.0,1.0]  # dummy
@@ -152,7 +152,7 @@ def read_extrinsics( file ):
     data = OrderedDict()  # {}
     bag = rosbag.Bag(file)
     topics = bag.read_messages()  # todo: check where to find #topics=topicname)
-    topic0 = topics.next()
+    topic0 = next(topics)
     msg = topic0.message
 
     # todo: read from /camera/extrinsics/fisheye2imu

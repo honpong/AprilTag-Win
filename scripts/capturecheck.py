@@ -6,6 +6,7 @@ import numpy
 import argparse
 from math import sqrt
 import sys
+import os
 
 packet_types = defaultdict(str, {1:"camera", 20:"accelerometer", 21:"gyro", 28:"image_with_depth", 29:"image_raw", 30:"odometry", 31:"thermometer", 40:"stereo_raw", 42:"pose", 43:"calibration_json", 44:"arrival_time", 45:"velocimeter", 48:"calibration_bin", 49:"exposure", 50:"controller_physical_info", 51:"led_intensity"})
 format_types = defaultdict(str, {0:"Y8", 1:"Z16_mm"})
@@ -52,6 +53,7 @@ latencies = defaultdict(list)
 arrivals = defaultdict(list)
 latest_received = None
 f = open(args.capture_filename,'rb')
+f_size = os.fstat(f.fileno()).st_size
 header_size = 16
 header_str = f.read(header_size)
 prev_packet_str = ""
@@ -85,8 +87,7 @@ while len(header_str) > 0:
   if bytes_read > 1024*1024*100:
     bytes_read -= 1024*1024*100
     if args.progress:
-        sys.stdout.write('.')
-        sys.stdout.flush()
+        print("%.1f%%" % (float(total_bytes_read)/f_size*100))
 
   if args.max_packets > 0  and packet_count > args.max_packets:
       break

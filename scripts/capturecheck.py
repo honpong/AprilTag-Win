@@ -46,6 +46,7 @@ calibration_type = 43
 calibration_bin_type = 48
 velocimeter_type = 45
 controller_physical_info_type = 50
+led_intensity_type = 51
 got_types = defaultdict(int)
 
 packets = defaultdict(list)
@@ -162,6 +163,10 @@ while len(header_str) > 0:
   elif ptype == calibration_type:
       if args.verbose:
           print("\t", data)
+
+  elif ptype == led_intensity_type:
+      if args.verbose:
+          print("\t", *unpack('II',data[:8]))
 
   else:
       if args.verbose:

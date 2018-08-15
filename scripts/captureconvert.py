@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from struct import pack
 import csv
 from collections import defaultdict
@@ -29,8 +30,8 @@ try:
         elif o in ("-s", "--scale-units"):
             scale_units = True
 except Exception as e:
-    print e
-    print sys.argv[0], "[--no-depth] [--wait-for-image] [--scale-units] <intel_folder> <output_filename>"
+    print(e)
+    print(sys.argv[0], "[--no-depth] [--wait-for-image] [--scale-units] <intel_folder> <output_filename>")
     sys.exit(1)
 
 def read_image_timestamps(filename, image_type, sensor_id):
@@ -38,7 +39,7 @@ def read_image_timestamps(filename, image_type, sensor_id):
     with open(filename, 'rb') as f:
         has_header = csv.Sniffer().has_header(f.read(1024))
         f.seek(0)
-        for line in f.xreadlines():
+        for line in f:
             if has_header:
                 has_header = False
                 continue
@@ -71,18 +72,18 @@ def read_csv_timestamps(filename, ptype, sensor_id):
             rows.append({'time_ms': float(timestamp), 'user': sensor_id, 'ptype': ptype, 'vector': [float(x), float(y), float(z)]})
     return rows
 
-import StringIO
+import io
 def read_pgm(filename, offset=0, length=None):
     with open(filename, 'rb') as fi:
         fi.seek(offset) if offset else None
-        return parse_pgm(fi if length is None else StringIO.StringIO(fi.read(length)))
+        return parse_pgm(fi if length is None else io.StringIO(fi.read(length)))
 
 def parse_pgm(f):
         assert f.read(1) == 'P', '%s is a pgm' % filename
         P = f.readline()
         while len(P.split()) < 4:
             P += f.readline()
-        P = map(int,P.split())
+        P = list(map(int,P.split()))
         w, h, b, d = P[1], P[2], int(math.log(P[3]+1,2)/8), f.read()
         assert h * w * b == len(d), "%d x %d %d bytes/pixel == %d bytes" % (h , w, b, len(d))
         return (w,h,b,d)
@@ -130,11 +131,11 @@ with open(output_filename, "wb") as f:
             stride = b*w
             data = pack('QHHHH', 0*33333333, w, h, stride, image_type) + d
         elif ptype == gyro_type:
-            data = pack('fff', *map(lambda x: x * (math.pi / 1280 if scale_units else 1), d['vector']))
+            data = pack('fff', *[x * (math.pi / 1280 if scale_units else 1) for x in d['vector']])
         elif ptype == accel_type:
-            data = pack('fff', *map(lambda x: x * (9.8065         if scale_units else 1), d['vector']))
+            data = pack('fff', *[x * (9.8065         if scale_units else 1) for x in d['vector']])
         else:
-            print "Unexpected data type", ptype
+            print("Unexpected data type", ptype)
         pbytes = len(data) + 16
         header_str = pack('IHHQ', pbytes, ptype, user, microseconds)
         f.write(header_str)
@@ -142,9 +143,9 @@ with open(output_filename, "wb") as f:
         wrote_packets[ptype] += 1
         wrote_bytes += len(header_str) + len(data)
 
-print "Wrote", wrote_bytes/1e6, "Mbytes"
+print("Wrote", wrote_bytes/1e6, "Mbytes")
 for key in wrote_packets:
-    print "Type", key, "-", wrote_packets[key], "packets"
+    print("Type", key, "-", wrote_packets[key], "packets")
 
 
 
@@ -174,10 +175,10 @@ if os.path.isfile(path + "CameraParameters.txt"):
                 for camera in root.findall("camera/camera_model"):
                     if camera.attrib["type"] == "calibu_fu_fv_u0_v0_k1_k2_k3" and camera.find("height").text == "720":
                         ds4_color_index = camera.attrib["index"]
-                        print "Found ds4 color at", ds4_color_index
+                        print("Found ds4 color at", ds4_color_index)
                     if camera.attrib["type"] == "calibu_fu_fv_u0_v0_w":
                         fisheye_index = camera.attrib["index"]
-                        print "Found fisheye at", fisheye_index
+                        print("Found fisheye at", fisheye_index)
                         params = camera.find("params").text
                         width = camera.find("width").text
                         height = camera.find("height").text
@@ -196,23 +197,23 @@ if os.path.isfile(path + "CameraParameters.txt"):
                         (cal['Tc0'], cal['Tc1'], cal['Tc2']) = (tf[3], tf[7], tf[11])
                         (cal['Wc0'], cal['Wc1'], cal['Wc2']) = (0, 0, 0)
                         # should be about [0.005 0 0] on e6t
-                        print "Fisheye tc", tf[3], tf[7], tf[11]
+                        print("Fisheye tc", tf[3], tf[7], tf[11])
                     if extrinsic.attrib["frame_B_id"] == ds4_color_index:
                         atb = extrinsic.find("A_T_B").text
                         tf = [float(a) for a in atb.translate(None, '[];,').split()]
                         imu_to_ds4_color = [tf[3], tf[7], tf[11]]
                         # should be about [0.095 0 0] on e6t
-                        print "Color camera Tc", tf[3], tf[7], tf[11]
+                        print("Color camera Tc", tf[3], tf[7], tf[11])
 
             #print "d_e_c", d_e_c
             # should be about [-0.058 0 0] on e6t
-            ds4_color_to_depth = map(lambda x: x/1000., map(float,d_e_c[6:9]))
+            ds4_color_to_depth = [x/1000. for x in map(float,d_e_c[6:9])]
             depth_Wc = [0, 0, 0]
             depth_Tc = transform(depth_Wc, imu_to_ds4_color, ds4_color_to_depth)
             if not 'depth' in cal or not 'Tc0' in cal['depth']:
-                cal['depth'] = dict(zip("imageWidth imageHeight Fx Fy Cx Cy Wc0 Wc1 Wc2 Tc0 Tc1 Tc2".split(), map(int,d_e_c[:2]) + map(float,d_e_c[2:6]) + depth_Wc + depth_Tc))
-                print "Added depth intrinsics and extrinsics to " + output_filename + ".json"
-                print cal['depth']
+                cal['depth'] = dict(list(zip("imageWidth imageHeight Fx Fy Cx Cy Wc0 Wc1 Wc2 Tc0 Tc1 Tc2".split(), list(map(int,d_e_c[:2])) + list(map(float,d_e_c[2:6])) + depth_Wc + depth_Tc)))
+                print("Added depth intrinsics and extrinsics to " + output_filename + ".json")
+                print(cal['depth'])
             with open(output_filename + ".json", 'w') as t:
                  t.write(json.dumps(cal, sort_keys=True, indent=4,separators=(',', ': ')))
 else:

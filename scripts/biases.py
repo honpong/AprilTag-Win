@@ -1,11 +1,12 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import json
 from collections import defaultdict
 from numpy import *
 import sys
 
 if len(sys.argv) <= 1:
-  print "Usage:", sys.argv[0], "<cal1> (<cal2> ... <caln>)"
+  print("Usage:", sys.argv[0], "<cal1> (<cal2> ... <caln>)")
   sys.exit(1)
 
 filenames = sys.argv[1:]
@@ -18,8 +19,8 @@ for fn in filenames:
       if str(key).find('bias') != -1:
           biases[key].append(cal[key])
 
-keys = biases.keys()
+keys = list(biases.keys())
 keys.sort()
 for key in keys:
-  print key, average(biases[key]), std(biases[key])
-  print "\t", ", ".join(["%.2g" % (i) for i in biases[key]])
+  print(key, average(biases[key]), std(biases[key]))
+  print("\t", ", ".join(["%.2g" % (i) for i in biases[key]]))

@@ -8,7 +8,7 @@ import packet
 def read_all(file,d_topics):
     data = []
     bag = rosbag.Bag(file)
-    for topic, msg, t in bag.read_messages(topics=d_topics.values()):
+    for topic, msg, t in bag.read_messages(topics=list(d_topics.values())):
         if topic == d_topics['image0']:
             data.append({'time_us': msg.header.stamp.to_nsec()/1e3, 'type': 'image', 'id': 0, 'values': msg.data, 'exposure_us': 0, 'width': msg.width, 'height': msg.height})  # fe0, no exposure time
         elif topic == d_topics['image1']:

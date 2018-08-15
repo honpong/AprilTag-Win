@@ -1,11 +1,11 @@
 #!/usr/bin/python
-
+from __future__ import print_function
 from numpy import *
 from numpy.linalg import norm, inv, lstsq
 import sys
 
 if len(sys.argv) != 2:
-    print "Usage:", sys.argv[0], "/path/to/accel.txt"
+    print("Usage:", sys.argv[0], "/path/to/accel.txt")
     sys.exit(1)
 
 g = 9.80665 # matches what we use in filter.h and state_motion.h
@@ -29,8 +29,8 @@ with open(sys.argv[1], 'rb') as csvfile:
         rnum += 1
 
 mlen =  array([len(meas) for meas in measurements])
-print mlen
-print rnum, "rows and", mlen.sum(), "measurements to use"
+print(mlen)
+print(rnum, "rows and", mlen.sum(), "measurements to use")
 
 nrows = mlen.sum()
 w = zeros([nrows, 4])
@@ -48,10 +48,10 @@ for i in range(0, len(buckets)):
         row += 1
 
 X, residuals, rank, singular = lstsq(w, Y)
-print X
-print "residuals:", residuals
-print "rank:", rank
-print "singular:", singular
+print(X)
+print("residuals:", residuals)
+print("rank:", rank)
+print("singular:", singular)
 """
 wtw = dot(transpose(w),w)
 wtwi = inv(wtw)

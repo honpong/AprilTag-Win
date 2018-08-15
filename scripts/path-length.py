@@ -1,4 +1,5 @@
 #!/usr/bin/python
+from __future__ import print_function
 import numpy as np
 
 class Poses(object):
@@ -24,4 +25,4 @@ class Poses(object):
 if __name__ == '__main__':
     import sys
     data = Poses(sys.argv[1])
-    print "PL%d_L%d" % (data.PL_cm(), data.L_cm())
+    print("PL%d_L%d" % (data.PL_cm(), data.L_cm()))

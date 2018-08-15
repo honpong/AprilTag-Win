@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 from collections import defaultdict
 from packet import Packet, PacketType
 
@@ -7,7 +8,7 @@ packets = defaultdict(list)
 import sys
 
 if len(sys.argv) < 4:
-  print "Usage:", sys.argv[0], "<capture file> <starttime> <endtime> <output file>"
+  print("Usage:", sys.argv[0], "<capture file> <starttime> <endtime> <output file>")
   sys.exit(1)
 
 filename = sys.argv[1]
@@ -31,4 +32,4 @@ f.close()
 fout.close()
 
 for packet_type in packets:
-  print "type:", packet_type, "number:", len(packets[packet_type])
+  print("type:", packet_type, "number:", len(packets[packet_type]))

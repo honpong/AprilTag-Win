@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+from __future__ import print_function
 import sys
 import struct
 import json
@@ -7,7 +7,7 @@ import numpy as np
 import read_eeprom
 
 if len(sys.argv) != 3:
-    print "Usage:", sys.argv[0], "/path/to/eeprom.bin" "/path/to/output.json"
+    print("Usage:", sys.argv[0], "/path/to/eeprom.bin" "/path/to/output.json")
     sys.exit(1)
 
 def atan2c(sin, cos, sin2):
@@ -45,7 +45,7 @@ jsondata["device_id"] = ('%x' % struct.unpack('>Q', eeprom_struct.Info.SN)[0])[:
 jsondata["depths"] = list()
 
 jsondata["cameras"]=list()
-for i in xrange(eeprom_struct.Kb4.Header.NumOfCameras):
+for i in range(eeprom_struct.Kb4.Header.NumOfCameras):
     camera = eeprom_struct.Kb4.Cameras[i]
     jsondata["cameras"].append(dict())
 
@@ -66,7 +66,7 @@ for i in xrange(eeprom_struct.Kb4.Header.NumOfCameras):
 
 
 jsondata["imus"]=list()
-for i in xrange(eeprom_struct.Kb4.Header.NumOfImus):
+for i in range(eeprom_struct.Kb4.Header.NumOfImus):
     imu = eeprom_struct.Kb4.Imu[i]
 
     jsondata["imus"].append(dict())

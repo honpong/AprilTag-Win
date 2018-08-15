@@ -28,6 +28,12 @@ pipeline {
                 }
             }
         }
+        stage('Python') {
+            steps {
+                sh 'python2.7 -m py_compile scripts/*.py'
+                sh 'python3   -m py_compile scripts/*.py'
+            }
+        }
         stage('Movidius') {
             steps {
                 sh '''#!/bin/bash

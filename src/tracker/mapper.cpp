@@ -281,6 +281,10 @@ void mapper::remove_node(nodeid id)
         neighbor.relocalization_edges.erase(node_it->first);
     }
 
+    for (nodeid covisible_neighbor : node_it->second.covisibility_edges) {
+        nodes->at(covisible_neighbor).covisibility_edges.erase(node_it->first);
+    }
+
     features_dbow.critical_section([&]() {
         for(auto& feature : node_it->second.features)
             features_dbow->erase(feature.first);

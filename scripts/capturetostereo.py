@@ -44,8 +44,8 @@ def stereo_frame(f_out, frame1, frame2):
             frame1.camera_format)
     #print len(data_header)
     packet_bytes = len(data_header) + 16 + len(frame1.image_data) + len(frame2.image_data)
-    assert(frame1.sensor_id/2 == frame2.sensor_id/2)
-    header = pack('IHHQ', packet_bytes, stereo_raw_type, frame1.sensor_id/2, time_us)
+    assert(frame1.sensor_id//2 == frame2.sensor_id//2)
+    header = pack('IHHQ', packet_bytes, stereo_raw_type, frame1.sensor_id//2, time_us)
     return Packet(Packet.Header(header), data_header+frame1.image_data+frame2.image_data)
 
 f = open(capture_filename, "rb")

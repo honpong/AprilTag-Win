@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function, division
 from struct import unpack, pack
 import sys
 import os, shutil
@@ -38,11 +39,11 @@ def stereo_frame(f_out, frame1, frame2):
         return stereo_frame(f_out, frame2, frame1)
 
     time_us = min(frame1.time_us, frame2.time_us)
-    #print "write stereo frame", time_us, frame1.time_us, frame2.time_us
+    #print("write stereo frame", time_us, frame1.time_us, frame2.time_us)
     data_header = pack('QHHHHH', frame1.exposure_us, frame1.width_px,
             frame1.height_px, frame1.stride, frame2.stride,
             frame1.camera_format)
-    #print len(data_header)
+    #print(len(data_header))
     packet_bytes = len(data_header) + 16 + len(frame1.image_data) + len(frame2.image_data)
     assert(frame1.sensor_id//2 == frame2.sensor_id//2)
     header = pack('IHHQ', packet_bytes, stereo_raw_type, frame1.sensor_id//2, time_us)

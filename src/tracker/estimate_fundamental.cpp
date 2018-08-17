@@ -14,7 +14,7 @@ static m3 normalization_transform(const aligned_vector<v2>& points) {
      };
 }
 
-f_t estimate_fundamental(const aligned_vector<v2> &src, const aligned_vector<v2> &dst, m3& fundamental)
+static f_t estimate_fundamental(const aligned_vector<v2> &src, const aligned_vector<v2> &dst, m3& fundamental)
 {
     f_t reprojection_error = std::numeric_limits<f_t>::infinity();
     if (src.size() != dst.size() || src.size() < 8)

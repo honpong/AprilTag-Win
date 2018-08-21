@@ -94,6 +94,7 @@ def compare_poses(pose_gt_filename, pose_live_filename):
     print("Error: compare_poses failed, do you need to build it?")
     sys.exit(1)
 
+print(" " * len("Result " + pose_basename + ".hmd" + ".gt.tum"), "# cmp, # live, ATE rmse, ATE max, RPE rmse, RPE max")
 for extension in [".hmd", ".c1", ".c2"]:
     pose_results = []
     if extension in [".c1", ".c2"]:

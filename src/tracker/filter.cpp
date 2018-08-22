@@ -666,52 +666,26 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
     return true;
 }
 
-// From http://paulbourke.net/geometry/pointlineplane/lineline.c
-// line 1 is p1 to p2, line 2 is p3 to p4
-static bool l_l_intersect(const v3& p1, const v3& p2, const v3& p3, const v3& p4, v3 & pa, v3 & pb, f_t & mua, f_t & mub)
+static bool l_l_intersect(const v3& p1, const v3& v1, const v3& p2, const v3& v2, v3 &P1, v3 &P2, f_t &s1, f_t &s2)
 {
-    v3 p13,p43,p21;
-    f_t d1343,d4321,d1321,d4343,d2121;
-    f_t numer,denom;
-
-    p13 = p1 - p3;
-    p43 = p4 - p3;
-    if (fabs(p43[0]) < F_T_EPS && fabs(p43[1]) < F_T_EPS && fabs(p43[2]) < F_T_EPS)
-      return false;
-
-    p21 = p2 - p1;
-    if (fabs(p21[0]) < F_T_EPS && fabs(p21[1]) < F_T_EPS && fabs(p21[2]) < F_T_EPS)
-      return false;
-
-    d1343 = p13.dot(p43); //p13.x * p43.x + p13.y * p43.y + p13.z * p43.z;
-    d4321 = p43.dot(p21); //p43.x * p21.x + p43.y * p21.y + p43.z * p21.z;
-    d1321 = p13.dot(p21); //p13.x * p21.x + p13.y * p21.y + p13.z * p21.z;
-    d4343 = p43.dot(p43); //p43.x * p43.x + p43.y * p43.y + p43.z * p43.z;
-    d2121 = p21.dot(p21); //p21.x * p21.x + p21.y * p21.y + p21.z * p21.z;
-
-    denom = d2121 * d4343 - d4321 * d4321;
-    if (fabs(denom) < F_T_EPS)
-      return false;
-    numer = d1343 * d4321 - d1321 * d4343;
-
-    mua = numer / denom;
-    mub = (d1343 + d4321 * mua) / d4343;
-
-    pa = p1 + mua*p21;
-    pb = p3 + mub*p43;
-
-    return true;
+    // Minimize D(s1,s2) = ||P1(s1)-P2(s2)|| by solving D' = 0
+    auto det = v1.dot(v1) * v2.dot(v2) - v1.dot(v2) * v1.dot(v2);
+    s1 = ((p2-p1).dot(v1) * v2.dot(v2) - (p2-p1).dot(v2) * v1.dot(v2)) / det;
+    s2 = ((p2-p1).dot(v1) * v1.dot(v2) - (p2-p1).dot(v2) * v1.dot(v1)) / det;
+    P1 = p1 + s1 * v1;
+    P2 = p2 + s2 * v2;
+    return std::abs(det) > F_T_EPS;
 }
 
 struct kp_pre_data{
-    v3 p_cal_transformed, o_transformed;
+    v3 p, v;
 };
 
 // Triangulates a point in the body reference frame from two views
 static kp_pre_data preprocess_keypoint_intersect(const state_camera & camera, const feature_t& f,const m3& Rw)
 {
     v3 p_calibrated = camera.intrinsics.unproject_feature(f);
-    return { Rw*p_calibrated + camera.extrinsics.T.v, camera.extrinsics.T.v };
+    return { camera.extrinsics.T.v, Rw*p_calibrated };
 }
 
 // Triangulates a point in the body reference frame from two views
@@ -719,9 +693,9 @@ static bool keypoint_intersect(kp_pre_data& pre_data1, f_t &depth1,
                                kp_pre_data& pre_data2, f_t &depth2, float &intersection_error_percent)
 {
     v3 pa, pb; // pa (pb) is the point on the first (second) line closest to the intersection
-    if((pre_data1.p_cal_transformed-pre_data1.o_transformed).z() <= 0) return false;
-    if((pre_data2.p_cal_transformed-pre_data2.o_transformed).z() <= 0) return false;
-    bool success = l_l_intersect(pre_data1.o_transformed, pre_data1.p_cal_transformed, pre_data2.o_transformed, pre_data2.p_cal_transformed, pa, pb, depth1, depth2);
+    if(pre_data1.v.z() <= 0 || pre_data2.v.z() <= 0)
+        return false;
+    bool success = l_l_intersect(pre_data1.p, pre_data1.v, pre_data2.p, pre_data2.v, pa, pb, depth1, depth2);
     if(!success || depth1 <= 0 || depth2 <= 0)
         return false;
 

@@ -167,8 +167,6 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
 
     float3_t* p_kp2_transformed = (float3_t*) (p_kp2+sizeof(int));
     float3_t* p_kp1_transformed = (float3_t*) (p_kp1+sizeof(int));
-    R1w = camera1.extrinsics.Q.v.toRotationMatrix();
-    R2w = camera2.extrinsics.Q.v.toRotationMatrix();
 
     //prepare p_kp2_transformed
     for(int i = 0; i < n2; i++) {

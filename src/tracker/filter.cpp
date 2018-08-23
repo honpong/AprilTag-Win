@@ -669,9 +669,10 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
 static bool l_l_intersect(const v3& p1, const v3& v1, const v3& p2, const v3& v2, v3 &P1, v3 &P2, f_t &s1, f_t &s2)
 {
     // Minimize D(s1,s2) = ||P1(s1)-P2(s2)|| by solving D' = 0
-    auto det = v1.dot(v1) * v2.dot(v2) - v1.dot(v2) * v1.dot(v2);
-    s1 = ((p2-p1).dot(v1) * v2.dot(v2) - (p2-p1).dot(v2) * v1.dot(v2)) / det;
-    s2 = ((p2-p1).dot(v1) * v1.dot(v2) - (p2-p1).dot(v2) * v1.dot(v1)) / det;
+    auto v11 = v1.dot(v1), v22 = v2.dot(v2), v12 = v1.dot(v2), p21_1 = (p2-p1).dot(v1), p12_2 = (p1-p2).dot(v2);
+    auto det = v11 * v22 - v12 * v12;
+    s1 = (p21_1 * v22 + p12_2 * v12) / det;
+    s2 = (p21_1 * v12 + p12_2 * v11) / det;
     P1 = p1 + s1 * v1;
     P2 = p2 + s2 * v2;
     return std::abs(det) > F_T_EPS;

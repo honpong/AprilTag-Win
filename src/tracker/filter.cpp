@@ -683,15 +683,8 @@ static bool keypoint_intersect(v3 &T1, v3 &RwP1, f_t &depth1,
 {
     v3 pa, pb; // pa (pb) is the point on the first (second) line closest to the intersection
     bool success = l_l_intersect(T1, RwP1, T2, RwP2, pa, pb, depth1, depth2);
-    if(!success || depth1 <= 0 || depth2 <= 0)
-        return false;
-
-    // TODO: set minz and maxz or at least bound error when close to / far away from camera
-    intersection_error_percent = (pa - pb).norm() / depth1;
-    if(intersection_error_percent > .05)
-        return false;
-
-    return true;
+    intersection_error_percent = (pa - pb).norm() / ((depth1 + depth2) / 2);
+    return success && depth1 > 0 && depth2 > 0;
 }
 
 static float keypoint_compare(const tracker::feature_track & t1, const tracker::feature_track & t2)

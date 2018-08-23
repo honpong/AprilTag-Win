@@ -157,30 +157,19 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
     int n2 = kp2.size();
 
     feature_t f1_n,f2_n;
-    v3 p2_calibrated,p2_cal_transformed,p1_calibrated,p1_cal_transformed;
-    v3 o1_transformed = camera1.extrinsics.T.v;
-    v3 o2_transformed = camera2.extrinsics.T.v;
-    float3_t p_o1_transformed = {o1_transformed[0],o1_transformed[1],o1_transformed[2]};
-    float3_t p_o2_transformed = {o2_transformed[0],o2_transformed[1],o2_transformed[2]};
     m3 R1w = camera1.extrinsics.Q.v.toRotationMatrix();
     m3 R2w = camera2.extrinsics.Q.v.toRotationMatrix();
 
-    float3_t* p_kp2_transformed = (float3_t*) (p_kp2+sizeof(int));
-    float3_t* p_kp1_transformed = (float3_t*) (p_kp1+sizeof(int));
+    static_assert(alignof(v3) == sizeof(int), "");
+
+    auto p_kp2_transformed = (v3*) (p_kp2+sizeof(int));
+    auto p_kp1_transformed = (v3*) (p_kp1+sizeof(int));
 
     //prepare p_kp2_transformed
     for(int i = 0; i < n2; i++) {
-        auto * k2 = f2_group[i];
-        feature_t f2(k2->x,k2->y);
-        f2_n=camera2.intrinsics.undistort_feature(camera2.intrinsics.normalize_feature(f2));
-        p2_calibrated << f2_n.x(), f2_n.y(), 1;
-        p2_cal_transformed = R2w*p2_calibrated + camera2.extrinsics.T.v;
         auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f2_group[i]->feature);
         patches2[i] = f->descriptor.patch.descriptor.data();
-
-        p_kp2_transformed[i][0] = p2_cal_transformed(0); // todo : Amir : check if we can skip the v3;
-        p_kp2_transformed[i][1] = p2_cal_transformed(1);
-        p_kp2_transformed[i][2] = p2_cal_transformed(2);
+        p_kp2_transformed[i] = R2w * camera2.intrinsics.unproject_feature({f2_group[i]->x, f2_group[i]->y});
     }
     //prepare p_kp1_transformed
     for(int i = 0; i < n1; i++) {
@@ -189,23 +178,14 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
         depths1[i] = 0;
         errors1[i] = 0;
         matched_kp[i] = -1;
-
-        auto * k1 = f1_group[i];
-        feature_t f1(k1->x,k1->y);
-        f1_n=camera1.intrinsics.undistort_feature(camera1.intrinsics.normalize_feature(f1));
-        p1_calibrated  << f1_n.x(),f1_n.y(),1;
-        p1_cal_transformed = R1w*p1_calibrated + camera1.extrinsics.T.v;
-        p_kp1_transformed[i][0] = p1_cal_transformed(0);
-        p_kp1_transformed[i][1] = p1_cal_transformed(1);
-        p_kp1_transformed[i][2] = p1_cal_transformed(2);
+        p_kp1_transformed[i] = R1w * camera1.intrinsics.unproject_feature({f1_group[i]->x,f1_group[i]->y});
     }
     *((int*)p_kp1)=n1;
     *((int*)p_kp2)=n2;
 
     DPRINTF("\t\t AS:nk1 : %d, nk2: %d \n ",n1,n2);
-    //copy to  cvrt; //todo : direcrt copy without local step;
-    l_float3_copy   (kpMatchingParams->p_o1_transformed,p_o1_transformed);
-    l_float3_copy   (kpMatchingParams->p_o2_transformed,p_o2_transformed);
+    l_float3_copy(kpMatchingParams->p_o1_transformed, &camera1.extrinsics.T.v[0]);
+    l_float3_copy(kpMatchingParams->p_o2_transformed, &camera2.extrinsics.T.v[0]);
     kpMatchingParams->EPS=1e-14;
     kpMatchingParams->patch_stride=full_patch_width;
     kpMatchingParams->patch_win_half_width=half_patch_width;

@@ -34,7 +34,7 @@ struct feature_t
         float4 p_o1_transformed;
         float4 p_o2_transformed;
         float EPS;
-        bool l_l_intersect_shave(int i , int j ,float4 *pa,float4 *pb, float *mua, float *mub);
+        bool l_l_intersect_shave(int i , int j ,float4 &P1,float4 &P2, float &s1, float &s2);
 
     public:
         void init(ShavekpMatchingSettings kpMatchingParams);

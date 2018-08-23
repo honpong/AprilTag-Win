@@ -9,6 +9,7 @@
 #include <svuCommonShave.h>
 #include <swcSIMDUtils.h>
 #include <string.h>
+#include <cmath>
 
 // 2:  Source Specific #defines and types  (typedef,enum,struct)
 #include "stereo_commonDefs.hpp"
@@ -47,55 +48,24 @@ void stereo_matching::init(ShavekpMatchingSettings kpMatchingParams)
     patch_win_half_width = kpMatchingParams.patch_win_half_width;
 }
 
-bool stereo_matching::l_l_intersect_shave(int i , int j,float4 *pa,float4 *pb, float *mua, float *mub)
+bool stereo_matching::l_l_intersect_shave(int i , int j,float4 &P1,float4 &P2, float &s1, float &s2)
 {
-// From http://paulbourke.net/geometry/pointlineplane/lineline.c
-// line 1 is p1 to p2, line 2 is p3 to p4
-        /*
-           Calculate the line segment PaPb that is the shortest route between
-           two lines P1P2 and P3P4. Calculate also the values of mua and mub where
-              Pa= P1 + mua (P2 - P1)
-              Pb= P3 + mub (P4 - P3)
-           Return FALSE if no solution exists.
-        */
     float3_t* kp1=(float3_t*)(p_kp1_Buffer+sizeof(int));
     float3_t* kp2=(float3_t*)(p_kp2_Buffer+sizeof(int));
-    float4 p1_cal_transformed= {kp1[i][0],kp1[i][1],kp1[i][2],0};
-    float4 p2_cal_transformed= {kp2[j][0],kp2[j][1],kp2[j][2],0};
+    float4 v1 = {kp1[i][0],kp1[i][1],kp1[i][2],0};
+    float4 v2 = {kp2[j][0],kp2[j][1],kp2[j][2],0};
+    float4 p1 = p_o1_transformed;
+    float4 p2 = p_o2_transformed;
 
-    float4 p1=p_o1_transformed;
-    float4 p2=p1_cal_transformed;
-    float4 p3=p_o2_transformed;
-    float4 p4=p2_cal_transformed;
-
-    float4 p43=p4 -p3;
-    if (fabs(p43[0]) < EPS &fabs(p43[1]) < EPS &fabs(p43[2]) < EPS) //todo: Amir convert to SIMD
-        return (false);
-    float4 p21=p2 -p1 ;
-    if (fabs(p21[0]) < EPS &fabs(p21[1]) < EPS &fabs(p21[2]) < EPS)
-      return (false);
-    float4 p13= p1 -p3;
-
-
-    double d4321= mvuDot( p43, p21 );
-    double d4343= mvuDot( p43, p43 );
-    double d2121= mvuDot( p21, p21 );
-
-    double denom= d2121 * d4343 - d4321 * d4321;
-    if (fabs(denom) < EPS)
-        return(false);
-    double d1343= mvuDot( p13, p43 );
-    double d1321= mvuDot( p13, p21 );
-
-    double numer= d1343 * d4321 - d1321 * d4343;
-    *mua= numer / denom;
-    *mub= (d1343 + d4321 * *mua) / d4343;
-
-    *pa= p1 + *mua * p21;
-    *pb= p3 + *mub * p43;
-    pa[3]= 1 ;
-    pb[3]= 1 ;
-    return(true);
+    // Minimize D(s1,s2) = ||P1(s1)-P2(s2)|| by solving D' = 0
+    auto p21_1 = mvuDot(p2-p1,v1), v11 = mvuDot(v1,v1), v12 = mvuDot(v1,v2);
+    auto p21_2 = mvuDot(p2-p1,v2), v22 = mvuDot(v2,v2);
+    auto det = v11 * v22 - v12 * v12;
+    s1 = (p21_1 * v22 - p21_2 * v12) / det;
+    s2 = (p21_1 * v12 - p21_2 * v11) / det;
+    P1 = p1 + s1 * v1;
+    P2 = p2 + s2 * v2;
+    return std::fabs(det) > EPS;
 }
 
 void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1, float* depths2, float * errors1, int* matched_kp)
@@ -157,8 +127,7 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
 
         for ( int j=0; j< n_kp2; j++)
         {
-            success= l_l_intersect_shave(i,j, &pa, &pb, &depth1, &depth2);
-            if(!success)
+            if (!l_l_intersect_shave(i,j, pa, pb, depth1, depth2))
             {
                 DPRINTF( "Failed intersect\n");
                 continue;

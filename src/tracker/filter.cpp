@@ -682,8 +682,6 @@ static bool keypoint_intersect(v3 &T1, v3 &RwP1, f_t &depth1,
                                v3 &T2, v3 &RwP2, f_t &depth2, float &intersection_error_percent)
 {
     v3 pa, pb; // pa (pb) is the point on the first (second) line closest to the intersection
-    if(RwP1.z() <= 0 || RwP1.z() <= 0)
-        return false;
     bool success = l_l_intersect(T1, RwP1, T2, RwP2, pa, pb, depth1, depth2);
     if(!success || depth1 <= 0 || depth2 <= 0)
         return false;

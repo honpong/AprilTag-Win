@@ -141,7 +141,7 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
                 continue;        // TODO: set minz and maxz or at least bound error when close to / far away from camera
             }
             error = sqrt(error_2);
-            float intersection_error_percent = error/depth1;
+            float intersection_error_percent = error/((depth1+depth2)/2);
             if(intersection_error_percent > 0.05)
             {
                 DPRINTF("intersection_error_percent too large %f, failing\n",float (error/cam1_intersect[2]));

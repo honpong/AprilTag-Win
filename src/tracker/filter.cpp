@@ -681,7 +681,7 @@ static bool l_l_intersect(const v3& p1, const v3& v1, const v3& p2, const v3& v2
 
 // Triangulates a point in the body reference frame from two views
 static bool keypoint_intersect(v3 &T1, v3 &RwP1, f_t &depth1,
-                               v3 &T2, v3 &RwP2, f_t &depth2, float &intersection_error_percent)
+                               v3 &T2, v3 &RwP2, f_t &depth2, f_t &intersection_error_percent)
 {
     v3 pa, pb; // pa (pb) is the point on the first (second) line closest to the intersection
     bool success = l_l_intersect(T1, RwP1, T2, RwP2, pa, pb, depth1, depth2);
@@ -723,7 +723,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                 continue;
             f_t best_depth1 = 0;
             f_t best_depth2 = 0;
-            float best_error = 0;
+            f_t best_error = 0;
             auto best_k2 = kp2.end();
             v3 pre1 = Rw1 * camera_state1.intrinsics.unproject_feature({k1->x, k1->y});
             // try to find a match in im2
@@ -732,7 +732,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                 if (f->s.stereo_matches.count(k2->feature->id)) // already stereo
                     continue;
                 f_t depth1, depth2;
-                float error_percent;
+                f_t error_percent;
                 if (keypoint_intersect(camera_state1.extrinsics.T.v,  pre1, depth1,
                                        camera_state2.extrinsics.T.v, *prk2, depth2, error_percent)
                     && error_percent < 0.02f) {

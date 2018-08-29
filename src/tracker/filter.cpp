@@ -680,11 +680,11 @@ static bool l_l_intersect(const v3& p1, const v3& v1, const v3& p2, const v3& v2
 }
 
 // Triangulates a point in the body reference frame from two views
-static bool keypoint_intersect(v3 &T1, v3 &RwP1, f_t &depth1,
-                               v3 &T2, v3 &RwP2, f_t &depth2, f_t &intersection_error_percent)
+static bool keypoint_intersect(v3 &Tc1, v3 &Rc1P, f_t &depth1,
+                               v3 &Tc2, v3 &Rc2P, f_t &depth2, f_t &intersection_error_percent)
 {
     v3 pa, pb; // pa (pb) is the point on the first (second) line closest to the intersection
-    bool success = l_l_intersect(T1, RwP1, T2, RwP2, pa, pb, depth1, depth2);
+    bool success = l_l_intersect(Tc1, Rc1P, Tc2, Rc2P, pa, pb, depth1, depth2);
     intersection_error_percent = (pa - pb).norm() / ((depth1 + depth2) / 2);
     return success && depth1 > 0 && depth2 > 0;
 }
@@ -708,14 +708,14 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
 #ifdef ENABLE_SHAVE_STEREO_MATCHING
         shave_tracker::stereo_matching_full_shave(f, camera1_id, camera2_id);
 #else
-        m3 Rw1 = camera_state1.extrinsics.Q.v.toRotationMatrix();
-        m3 Rw2 = camera_state2.extrinsics.Q.v.toRotationMatrix();
-        aligned_vector<v3> prkpv2;
+        m3 Rc1 = camera_state1.extrinsics.Q.v.toRotationMatrix();
+        m3 Rc2 = camera_state2.extrinsics.Q.v.toRotationMatrix();
+        aligned_vector<v3> Rc2Ps;
         for(auto & k2 : kp2)
             if (f->s.stereo_matches.count(k2.feature->id)) // already stereo
-                prkpv2.emplace_back();
+                Rc2Ps.emplace_back();
             else
-                prkpv2.emplace_back(Rw2 * camera_state2.intrinsics.unproject_feature({k2.x, k2.y}));
+                Rc2Ps.emplace_back(Rc2 * camera_state2.intrinsics.unproject_feature({k2.x, k2.y}));
         for(auto k1 = kp1.begin(); k1 != kp1.end(); ++k1) {
             float second_best_distance = INFINITY;
             float best_distance = INFINITY;
@@ -725,16 +725,15 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             f_t best_depth2 = 0;
             f_t best_error = 0;
             auto best_k2 = kp2.end();
-            v3 pre1 = Rw1 * camera_state1.intrinsics.unproject_feature({k1->x, k1->y});
+            v3 Rc1P = Rc1 * camera_state1.intrinsics.unproject_feature({k1->x, k1->y});
             // try to find a match in im2
-            auto prk2 = prkpv2.begin();
-            for(auto k2 = kp2.begin(); k2 != kp2.end(); ++k2, ++prk2){
+            auto Rc2Pi = Rc2Ps.begin();
+            for(auto k2 = kp2.begin(); k2 != kp2.end(); ++k2, ++Rc2Pi) {
                 if (f->s.stereo_matches.count(k2->feature->id)) // already stereo
                     continue;
-                f_t depth1, depth2;
-                f_t error_percent;
-                if (keypoint_intersect(camera_state1.extrinsics.T.v,  pre1, depth1,
-                                       camera_state2.extrinsics.T.v, *prk2, depth2, error_percent)
+                f_t depth1, depth2, error_percent;
+                if (keypoint_intersect(camera_state1.extrinsics.T.v,  Rc1P,  depth1,
+                                       camera_state2.extrinsics.T.v, *Rc2Pi, depth2, error_percent)
                     && error_percent < 0.02f) {
                     float distance = keypoint_compare(*k1, *k2);
                     if(distance < best_distance) {

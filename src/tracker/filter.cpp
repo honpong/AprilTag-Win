@@ -666,77 +666,27 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
     return true;
 }
 
-// From http://paulbourke.net/geometry/pointlineplane/lineline.c
-// line 1 is p1 to p2, line 2 is p3 to p4
-static bool l_l_intersect(const v3& p1, const v3& p2, const v3& p3, const v3& p4, v3 & pa, v3 & pb)
+static bool l_l_intersect(const v3& p1, const v3& v1, const v3& p2, const v3& v2, v3 &P1, v3 &P2, f_t &s1, f_t &s2)
 {
-    v3 p13,p43,p21;
-    f_t d1343,d4321,d1321,d4343,d2121;
-    f_t numer,denom;
-
-    p13 = p1 - p3;
-    p43 = p4 - p3;
-    if (fabs(p43[0]) < F_T_EPS && fabs(p43[1]) < F_T_EPS && fabs(p43[2]) < F_T_EPS)
-      return false;
-
-    p21 = p2 - p1;
-    if (fabs(p21[0]) < F_T_EPS && fabs(p21[1]) < F_T_EPS && fabs(p21[2]) < F_T_EPS)
-      return false;
-
-    d1343 = p13.dot(p43); //p13.x * p43.x + p13.y * p43.y + p13.z * p43.z;
-    d4321 = p43.dot(p21); //p43.x * p21.x + p43.y * p21.y + p43.z * p21.z;
-    d1321 = p13.dot(p21); //p13.x * p21.x + p13.y * p21.y + p13.z * p21.z;
-    d4343 = p43.dot(p43); //p43.x * p43.x + p43.y * p43.y + p43.z * p43.z;
-    d2121 = p21.dot(p21); //p21.x * p21.x + p21.y * p21.y + p21.z * p21.z;
-
-    denom = d2121 * d4343 - d4321 * d4321;
-    if (fabs(denom) < F_T_EPS)
-      return false;
-    numer = d1343 * d4321 - d1321 * d4343;
-
-    float mua = numer / denom;
-    float mub = (d1343 + d4321 * mua) / d4343;
-
-    pa = p1 + mua*p21;
-    pb = p3 + mub*p43;
-
-    return true;
-}
-
-struct kp_pre_data{
-    v3 p_cal_transformed, o_transformed;
-};
-
-// Triangulates a point in the body reference frame from two views
-static kp_pre_data preprocess_keypoint_intersect(const state_camera & camera, const feature_t& f,const m3& Rw)
-{
-    v3 p_calibrated = camera.intrinsics.unproject_feature(f);
-    return { Rw*p_calibrated + camera.extrinsics.T.v, camera.extrinsics.T.v };
+    // Minimize D(s1,s2) = ||P1(s1)-P2(s2)|| by solving D' = 0
+    auto p21_1 = (p2-p1).dot(v1), v11 = v1.dot(v1), v12 = v1.dot(v2);
+    auto p21_2 = (p2-p1).dot(v2), v22 = v2.dot(v2);
+    auto det = v11 * v22 - v12 * v12;
+    s1 = (p21_1 * v22 - p21_2 * v12) / det;
+    s2 = (p21_1 * v12 - p21_2 * v11) / det;
+    P1 = p1 + s1 * v1;
+    P2 = p2 + s2 * v2;
+    return std::abs(det) > F_T_EPS;
 }
 
 // Triangulates a point in the body reference frame from two views
-static bool keypoint_intersect(state_camera & camera1, kp_pre_data& pre_data1, const m3& Rw1T, f_t &depth1,
-                               state_camera & camera2, kp_pre_data& pre_data2, const m3& Rw2T, f_t &depth2, float &intersection_error_percent)
+static bool keypoint_intersect(v3 &T1, v3 &RwP1, f_t &depth1,
+                               v3 &T2, v3 &RwP2, f_t &depth2, f_t &intersection_error_percent)
 {
     v3 pa, pb; // pa (pb) is the point on the first (second) line closest to the intersection
-    bool success = l_l_intersect(pre_data1.o_transformed, pre_data1.p_cal_transformed, pre_data2.o_transformed, pre_data2.p_cal_transformed, pa, pb);
-    if(!success)
-        return false;
-
-    v3 cam1_intersect = Rw1T * (pa - camera1.extrinsics.T.v);
-    v3 cam2_intersect = Rw2T * (pb - camera2.extrinsics.T.v);
-    if(cam1_intersect[2] < 0 || cam2_intersect[2] < 0)
-        return false;
-
-    // TODO: set minz and maxz or at least bound error when close to / far away from camera
-    float error = (pa - pb).norm();
-    intersection_error_percent = error/cam1_intersect[2];
-    if(error/cam1_intersect[2] > .05f)
-        return false;
-
-    depth1 = cam1_intersect[2];
-    depth2 = cam2_intersect[2];
-    return true;
+    bool success = l_l_intersect(T1, RwP1, T2, RwP2, pa, pb, depth1, depth2);
+    intersection_error_percent = (pa - pb).norm() / ((depth1 + depth2) / 2);
+    return success && depth1 > 0 && depth2 > 0;
 }
 
 static float keypoint_compare(const tracker::feature_track & t1, const tracker::feature_track & t2)
@@ -758,36 +708,33 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
 #ifdef ENABLE_SHAVE_STEREO_MATCHING
         shave_tracker::stereo_matching_full_shave(f, camera1_id, camera2_id);
 #else
-        // preprocess data for kp1
         m3 Rw1 = camera_state1.extrinsics.Q.v.toRotationMatrix();
-        m3 Rw1T = Rw1.transpose();
-        // preprocess data for kp2
         m3 Rw2 = camera_state2.extrinsics.Q.v.toRotationMatrix();
-        m3 Rw2T = Rw2.transpose();
-        std::vector<kp_pre_data> prkpv2;
+        aligned_vector<v3> prkpv2;
         for(auto & k2 : kp2)
             if (f->s.stereo_matches.count(k2.feature->id)) // already stereo
                 prkpv2.emplace_back();
             else
-                prkpv2.emplace_back(preprocess_keypoint_intersect(camera_state2, feature_t{k2.x, k2.y},Rw2));
+                prkpv2.emplace_back(Rw2 * camera_state2.intrinsics.unproject_feature({k2.x, k2.y}));
         for(auto k1 = kp1.begin(); k1 != kp1.end(); ++k1) {
             float second_best_distance = INFINITY;
             float best_distance = INFINITY;
             if (f->s.stereo_matches.count(k1->feature->id)) // already stereo
                 continue;
-            float best_depth1 = 0;
-            float best_depth2 = 0;
-            float best_error = 0;
+            f_t best_depth1 = 0;
+            f_t best_depth2 = 0;
+            f_t best_error = 0;
             auto best_k2 = kp2.end();
-            kp_pre_data pre1 = preprocess_keypoint_intersect(camera_state1, feature_t{k1->x, k1->y}, Rw1);
+            v3 pre1 = Rw1 * camera_state1.intrinsics.unproject_feature({k1->x, k1->y});
             // try to find a match in im2
             auto prk2 = prkpv2.begin();
             for(auto k2 = kp2.begin(); k2 != kp2.end(); ++k2, ++prk2){
                 if (f->s.stereo_matches.count(k2->feature->id)) // already stereo
                     continue;
-                float depth1, depth2, error_percent;
-                if (keypoint_intersect(camera_state1,  pre1, Rw1T, depth1,
-                                       camera_state2, *prk2, Rw2T, depth2, error_percent)
+                f_t depth1, depth2;
+                f_t error_percent;
+                if (keypoint_intersect(camera_state1.extrinsics.T.v,  pre1, depth1,
+                                       camera_state2.extrinsics.T.v, *prk2, depth2, error_percent)
                     && error_percent < 0.02f) {
                     float distance = keypoint_compare(*k1, *k2);
                     if(distance < best_distance) {

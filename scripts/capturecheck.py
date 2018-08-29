@@ -80,7 +80,7 @@ while len(header_str) > 0:
   if ptype == 1:
     ptime += 16667
   if args.verbose:
-      print(packet_str, pbytes, ptype, sensor_id, ptime),
+      print(packet_str, pbytes, ptype, sensor_id, ptime, end='')
   data = f.read(pbytes-header_size)
   packet_count += 1
   bytes_read += pbytes;

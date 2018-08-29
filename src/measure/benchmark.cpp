@@ -112,6 +112,7 @@ struct measurement {
 #include <string.h>
 #include <cctype>
 
+namespace fs {
 static std::string dirname(const std::string& file_name) {
     size_t lastindex = file_name.find_last_of("/\\");
     return (lastindex == std::string::npos ? "" : file_name.substr(0, lastindex));
@@ -126,6 +127,7 @@ static std::string basedir(const std::string& file_name) {
     size_t firstindex = file_name.find_first_of("/\\");
     return (firstindex == std::string::npos ? "" : file_name.substr(0, firstindex));
 }
+} // namespace fs
 
 static std::string find_common_dir(const std::vector<std::string>& files) {
     if (files.empty()) return "";
@@ -138,7 +140,7 @@ static std::string find_common_dir(const std::vector<std::string>& files) {
             common = common.substr(0, m.first - common.begin());
         }
     }
-    return dirname(common);
+    return fs::dirname(common);
 }
 
 void benchmark_run(std::ostream &stream, const std::vector<const char *> &filenames, int threads,
@@ -148,7 +150,7 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
     std::vector<std::string> files;
     for (const char *file_or_dir : filenames) {
         for_each_file(file_or_dir, [&files](const char *file) {
-            std::string base = basename(file);
+            std::string base = fs::basename(file);
             auto p = base.find_last_of('.');
             if (p == std::string::npos || base.substr(p + 1) == "rc" || base.substr(p + 1, 7) == "capture" || base.substr(p + 1, 5) == "later")  // backwards compatibility
                 files.push_back(file);
@@ -205,7 +207,7 @@ void benchmark_run(std::ostream &stream, const std::vector<const char *> &filena
             stream << "Result " << bm.basename << "\n";
 
         auto &r = bm.result;
-        std::string res_basedir = basedir(bm.basename);
+        std::string res_basedir = fs::basedir(bm.basename);
 
         double L  = r.length_cm.measured,      base_L  = r.length_cm.reference;
         double PL = r.path_length_cm.measured, base_PL = r.path_length_cm.reference;

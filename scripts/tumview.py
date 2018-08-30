@@ -212,7 +212,10 @@ def main() :
     parser.add_argument('files', nargs='+', help='tum/tumx files')
     args = parser.parse_args(sys.argv[1:])
 
+    plt.rcParams["figure.figsize"] = (11, 8.5)
+
     fig = plt.Figure()
+
     datasets = []
     for f in args.files:
         name, data = read_tum(f, args.tum, args.sample_number)
@@ -230,7 +233,7 @@ def main() :
         ext = os.path.splitext(output)
         print('ext:', ext[1])
         if ext[1] == '': output += '.png'
-        plt.savefig(output)
+        plt.savefig(output, dpi=fig.dpi)
 
 if __name__ == '__main__':
     main()

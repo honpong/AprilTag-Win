@@ -70,8 +70,10 @@ def extract_pose_offset(gt_filename, live_filename, live_device_id):
         if int(fields['Pose Index']) != live_device_id:
             continue
         live_fw_time_s   = float(fields['FW Timestamp (NanoSec)'])/1.e9
-        #live_host_time_s = float(fields['Host Correlated Timestamp (NanoSec)'])/1.e9
-        live_host_time_s = float(fields['Host Correlated to FW Timestamp (NanoSec)'])/1.e9
+        try:
+            live_host_time_s = float(fields['Host Correlated Timestamp (NanoSec)'])/1.e9
+        except KeyError:
+            live_host_time_s = float(fields['Host Correlated to FW Timestamp (NanoSec)'])/1.e9
         break
     if live_fw_time_s is None:
         print("Error: No valid timestamp in", live_filename, live_device_id)

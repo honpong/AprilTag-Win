@@ -42,6 +42,8 @@ namespace rs2
             _color_image_pose.clear();
             for (auto i : { 0, 1, 2, 9, 3, 4, 5, 10, 6, 7, 8, 11 })
                 _color_image_pose.push_back(((float*)&_color_to_depth)[i]);
+            for (auto& s : _state)
+                set_identity(s.camera_pose);
         }
         
         rs_shapefit* init_box_detector(video_frame& input_depth_frame, video_frame& input_color_frame)

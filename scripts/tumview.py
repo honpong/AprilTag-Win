@@ -231,7 +231,6 @@ def main() :
     else:
         output = args.output
         ext = os.path.splitext(output)
-        print('ext:', ext[1])
         if ext[1] == '': output += '.png'
         plt.savefig(output, dpi=fig.dpi)
 

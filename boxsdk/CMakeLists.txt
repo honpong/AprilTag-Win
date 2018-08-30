@@ -28,7 +28,7 @@ if(BUILD_SHARED_LIB_BOXSDK)
         rs_box_api.h
         rs_box_image.hpp
         rs_box_sdk.cpp
-		rs_icon.cpp
+        rs_icon.cpp
         rs_icon.h
         rs_sf_pose_tracker.h
         rs_sf_pose_tracker.cpp)
@@ -38,7 +38,7 @@ else()
         rs_box_api.h
         rs_box_image.hpp
         rs_box_sdk.cpp
-		rs_icon.cpp
+        rs_icon.cpp
         rs_icon.h
         rs_sf_pose_tracker.h
         rs_sf_pose_tracker.cpp)
@@ -62,7 +62,7 @@ target_link_libraries(box-sdk
 add_executable(box-app
     rs-box-app.cpp
     rs-box-app.hpp
-	rs_icon.cpp
+    rs_icon.cpp
     rs_icon.h)
 
 target_link_libraries(box-app

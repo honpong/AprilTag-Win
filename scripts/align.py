@@ -94,6 +94,11 @@ def compare_poses(pose_gt_filename, pose_live_filename):
     print("Error: compare_poses failed, do you need to build it?")
     sys.exit(1)
 
+def create_plots(pose_live_filename):
+    for mode, extension in [["-x", "XYZ.pdf"],["-a", "RPY.pdf"]]:
+        command = [sys.executable, os.path.join(os.path.dirname(os.path.realpath(__file__)),"tumview.py"), pose_live_filename + "_gt_ate.tum", pose_live_filename , mode, "-o", pose_live_filename + extension]
+        subprocess.call(command)
+
 print(" " * len("Result " + pose_basename + ".hmd" + ".gt.tum"), "# cmp, # live, ATE rmse, ATE max, RPE rmse, RPE max")
 for extension in [".hmd", ".c1", ".c2"]:
     pose_results = []
@@ -107,3 +112,4 @@ for extension in [".hmd", ".c1", ".c2"]:
     else:
         pose_results = compare_poses(pose_basename + extension + ".gt.tum", pose_basename + extension + ".live.tum")
     print("Result", pose_basename + extension + ".gt.tum", " ".join([str(f) for f in pose_results]))
+    create_plots(pose_basename + extension + ".live.tum")

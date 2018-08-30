@@ -489,6 +489,14 @@ public:
         if (mismatch > mismatch_ratio_tolerance && ++_high_mismatch_count > 30) { _reset = true; }
         return mismatch;
     }
+    
+    void validate_dense_depth_request(const rs2_measure_camera_state& dense_depth_state)
+    {
+        if ( !_dense ) return;
+        for( auto& pose_val : dense_depth_state.camera_pose )
+            if ( pose_val != 0 ) return; //if dense depth available, pose must not all zeros
+        _dense = false; //all zero pose means camera tracker not available
+    }
 
     void process_event()
     {

@@ -97,6 +97,8 @@ int main(int argc, char* argv[])
                 app.render_box_dim(box[0].str()); //draw box information text
                 
             }
+            // switch to static camera mode if no camera tracker available
+            app.validate_dense_depth_request(box_frame.state((rs2_stream)RS2_STREAM_DEPTH_DENSE));
         }
 
         if (app.reset_request()) { boxscan.reset(); } //if reset button clicked or bad box does not fit

@@ -278,7 +278,7 @@ void rs2_box_measure_reset(rs2_box_measure* box_measure, rs2_error** error) BEGI
 }
 HANDLE_EXCEPTIONS_AND_RETURN(, box_measure)
 
-int rs2_box_measure_get_boxes(rs2_box_measure * box_measure, rs2_measure_box * boxes, rs2_error ** error) BEGIN_API_CALL
+int rs2_box_measure_get_boxes(rs2_box_measure* box_measure, rs2_measure_box* boxes, rs2_error** error) BEGIN_API_CALL
 {
     VALIDATE_NOT_NULL(box_measure);
     VALIDATE_NOT_NULL(boxes);

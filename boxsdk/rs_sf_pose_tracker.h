@@ -74,7 +74,6 @@ namespace rs2
             const bool cast_success = rs_sf_do_scene_perception_ray_casting(_acc_w, _acc_h, sp_dst_depth, _buf);
             //const bool switch_track = (track_success && cast_success) != _was_tracking;
             
-            // up-sample depth
             if ((_was_tracking = (track_success && cast_success)))
             {
                 // compute color image pose

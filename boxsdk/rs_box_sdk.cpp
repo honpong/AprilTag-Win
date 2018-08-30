@@ -130,7 +130,7 @@ namespace rs2
                 for (auto s : { BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_DENSE, BOX_DST_PLANE, BOX_DST_RAYCA, BOX_DST_COLOR }) {
                     if (_is_export[s]) { _state[s] << _image[s]; }
                 }
-                
+                if (!_camera_tracker->is_valid()) { memset(_state[BOX_DST_DENSE].camera_pose,0,sizeof(_state[BOX_DST_DENSE].camera_pose)); }
                 if (_is_export[BOX_DST_PLANE]) { rs_sf_planefit_draw_planes(box_detector, &_image[BOX_DST_PLANE]); }
                 if (_is_export[BOX_DST_COLOR]) { rs_sf_boxfit_draw_boxes(box_detector, &_image[BOX_DST_COLOR], &_image[BOX_SRC_COLOR]); }
                 if (_is_export[BOX_DST_RAYCA]) { rs_sf_boxfit_raycast_boxes(box_detector, nullptr, -1, &_image[BOX_DST_RAYCA]); }

@@ -57,8 +57,7 @@ namespace rs2
         bool track(rs_sf_image& depth_frame, rs_sf_image& color_frame, rs_sf_image& dense_frame, const rs2_extrinsics& d2c, bool reset_request)
         {
             if (!_sp_init) {
-                memcpy(depth_frame.cam_pose, std::vector<float>{ 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f, .0f, .0f, .0f, 1.0f, .0f }.data(), depth_frame.cam_pose ? sizeof(float) * 12 : 0);
-                depth_frame.cam_pose = nullptr;
+                depth_frame.cam_pose = color_frame.cam_pose = nullptr;
                 return true;
             }
             

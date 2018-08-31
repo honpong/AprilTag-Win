@@ -67,8 +67,8 @@ def set_axes_equal(ax):
 
 def QtoEuler(qx, qy, qz, qw):
     '''
-    Calclulate yaw, pitch, roll from Quaternion
-    returns yaw,pitch,roll
+    Calclulate roll, pitch, yaw from Quaternion
+    returns roll,pitch,yaw
     source: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
     roll, pitch, yaw is defined as in the article
     '''
@@ -85,7 +85,7 @@ def QtoEuler(qx, qy, qz, qw):
     t3 = 2 * (qw * qz + qx * qy)
     t4 = 1.0 - 2 * (ysqr + qz * qz)
     yaw = math.atan2(t3, t4)
-    return yaw,pitch,roll
+    return roll,pitch,yaw
 
 def read_tum(filename, strict_tum = False, sample_number = False):
     '''

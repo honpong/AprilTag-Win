@@ -86,7 +86,7 @@ struct tpose {
     sensor_clock::time_point t;
     transformation G;
     int id{0};
-    int confidence{0};
+    int confidence{3};
     bool operator<(const struct tpose &tp) const {
         return t < tp.t;
     };

@@ -18,6 +18,7 @@ import os
 import math
 import argparse
 from collections import defaultdict
+from cycler import cycler
 
 TIME = 0
 X = 1
@@ -36,6 +37,10 @@ PLOT_MODE_ANGLES = 3 # Angles
 PLOT_MODE_3D = 4
 
 RAD_TO_DEG = 180.0 / math.pi
+
+linestyles = ['-',  ':', '--', '-.']
+plt.rcParams['lines.linestyle'] = '-.'
+plt.rcParams['axes.prop_cycle'] = cycler('color', ['#1f77b4', '#ff7f0e', '#2ca02c','#2cabff','#eeaf00', '#3bd93b', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
 
 def set_axes_equal(ax):
     '''Make axes of 3D plot have equal scale so that spheres appear as spheres,
@@ -67,8 +72,8 @@ def set_axes_equal(ax):
 
 def QtoEuler(qx, qy, qz, qw):
     '''
-    Calclulate yaw, pitch, roll from Quaternion
-    returns yaw,pitch,roll
+    Calclulate roll, pitch, yaw from Quaternion
+    returns roll,pitch,yaw
     source: https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
     roll, pitch, yaw is defined as in the article
     '''
@@ -85,7 +90,7 @@ def QtoEuler(qx, qy, qz, qw):
     t3 = 2 * (qw * qz + qx * qy)
     t4 = 1.0 - 2 * (ysqr + qz * qz)
     yaw = math.atan2(t3, t4)
-    return yaw,pitch,roll
+    return roll,pitch,yaw
 
 def read_tum(filename, strict_tum = False, sample_number = False):
     '''
@@ -107,6 +112,7 @@ def read_tum(filename, strict_tum = False, sample_number = False):
             print(data)
             continue
         device_id = 0
+        confidence = 3
         if strict_tum == False:
             if len(data) > 8:
                 device_id = int(data[8])
@@ -138,6 +144,7 @@ def read_tum(filename, strict_tum = False, sample_number = False):
 
 def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
     l = 0
+    plt.rcParams['lines.linestyle'] = linestyles[(linestyles.index(plt.rcParams['lines.linestyle']) + 1) % len(linestyles)]
     for k in data.keys():
         l += 1
         if plot_mode == PLOT_MODE_AXIS:
@@ -211,7 +218,10 @@ def main() :
     parser.add_argument('files', nargs='+', help='tum/tumx files')
     args = parser.parse_args(sys.argv[1:])
 
+    plt.rcParams["figure.figsize"] = (11, 8.5)
+
     fig = plt.Figure()
+
     datasets = []
     for f in args.files:
         name, data = read_tum(f, args.tum, args.sample_number)
@@ -227,9 +237,8 @@ def main() :
     else:
         output = args.output
         ext = os.path.splitext(output)
-        print('ext:', ext[1])
         if ext[1] == '': output += '.png'
-        plt.savefig(output)
+        plt.savefig(output, dpi=fig.dpi)
 
 if __name__ == '__main__':
     main()

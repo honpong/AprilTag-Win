@@ -4,6 +4,7 @@ from __future__ import print_function
 import sys
 import os, errno
 from tumutil import write_tum, extract_csv_poses, extract_vive_csv_poses, offset_poses, apply_handeye, extract_pose_offset, read_handeye
+import subprocess
 
 if len(sys.argv) != 3:
     print("Usage:", sys.argv[0], "<input_folder> <output_folder>")
@@ -38,6 +39,26 @@ def one_file_ending_with(path, suffix):
         print("Error: more than one file found ending with", suffix, "in", path)
         sys.exit(1)
     return os.path.join(path, files[0])
+
+def compare_poses(pose_gt_filename, pose_live_filename, aligned_output=False):
+    if "COMPARE_POSES" in os.environ.keys():
+        compare_path = os.environ["COMPARE_POSES"]
+    else:
+        compare_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../build/compare_poses")
+    command = [compare_path, pose_gt_filename, pose_live_filename]
+    if aligned_output: command.append("-a")
+    result_text = subprocess.check_output(command, stderr=subprocess.STDOUT)
+    for line in result_text.splitlines():
+        if line.startswith(b"SpaceSeparated"):
+            fields = line.split()
+            return [float(f) for f in fields[1:]]
+    print("Error: compare_poses failed, do you need to build it?")
+    sys.exit(1)
+
+def create_plots(pose_live_filename):
+    for mode, extension in [["-x", "XYZ.pdf"],["-a", "RPY.pdf"]]:
+        command = [sys.executable, os.path.join(os.path.dirname(os.path.realpath(__file__)),"tumview.py"), pose_live_filename + "_gt_ate.tum", pose_live_filename , mode, "-o", pose_live_filename + extension]
+        subprocess.call(command)
 
 ensure_path(output_folder)
 
@@ -78,27 +99,6 @@ c2_gt_poses  = apply_handeye(c2_gt_raw_poses, hec_controller2)
 write_tum(pose_basename + ".hmd.gt.tum", hmd_gt_poses)
 write_tum(pose_basename + ".c1.gt.tum", c1_gt_poses)
 write_tum(pose_basename + ".c2.gt.tum", c2_gt_poses)
-
-import subprocess
-def compare_poses(pose_gt_filename, pose_live_filename, aligned_output=False):
-    if "COMPARE_POSES" in os.environ.keys():
-        compare_path = os.environ["COMPARE_POSES"]
-    else:
-        compare_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../build/compare_poses")
-    command = [compare_path, pose_gt_filename, pose_live_filename]
-    if aligned_output: command.append("-a")
-    result_text = subprocess.check_output(command, stderr=subprocess.STDOUT)
-    for line in result_text.splitlines():
-        if line.startswith(b"SpaceSeparated"):
-            fields = line.split()
-            return [float(f) for f in fields[1:]]
-    print("Error: compare_poses failed, do you need to build it?")
-    sys.exit(1)
-
-def create_plots(pose_live_filename):
-    for mode, extension in [["-x", "XYZ.pdf"],["-a", "RPY.pdf"]]:
-        command = [sys.executable, os.path.join(os.path.dirname(os.path.realpath(__file__)),"tumview.py"), pose_live_filename + "_gt_ate.tum", pose_live_filename , mode, "-o", pose_live_filename + extension]
-        subprocess.call(command)
 
 print(" " * len("Result " + pose_basename + ".hmd" + ".gt.tum"), "# cmp, # live, ATE rmse, ATE max, RPE rmse, RPE max")
 

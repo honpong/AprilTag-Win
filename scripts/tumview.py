@@ -18,6 +18,7 @@ import os
 import math
 import argparse
 from collections import defaultdict
+from cycler import cycler
 
 TIME = 0
 X = 1
@@ -36,6 +37,10 @@ PLOT_MODE_ANGLES = 3 # Angles
 PLOT_MODE_3D = 4
 
 RAD_TO_DEG = 180.0 / math.pi
+
+linestyles = ['-',  ':', '--', '-.']
+plt.rcParams['lines.linestyle'] = '-.'
+plt.rcParams['axes.prop_cycle'] = cycler('color', ['#1f77b4', '#ff7f0e', '#2ca02c','#2cabff','#eeaf00', '#3bd93b', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'])
 
 def set_axes_equal(ax):
     '''Make axes of 3D plot have equal scale so that spheres appear as spheres,
@@ -139,6 +144,7 @@ def read_tum(filename, strict_tum = False, sample_number = False):
 
 def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
     l = 0
+    plt.rcParams['lines.linestyle'] = linestyles[(linestyles.index(plt.rcParams['lines.linestyle']) + 1) % len(linestyles)]
     for k in data.keys():
         l += 1
         if plot_mode == PLOT_MODE_AXIS:

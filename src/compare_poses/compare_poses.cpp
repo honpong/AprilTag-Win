@@ -5,17 +5,26 @@
 using namespace std;
 int main(int argc, char ** argv)
 {
-    if(argc < 3) {
-        cerr << "Usage: " << argv[0] << " <ground_truth.tum> <pose.tum> [<pose2.tum> ...]\n";
+    std::vector<std::string> sequence_filenames;
+    bool align_output = false;
+
+    for(int i = 1; i < argc; i++) {
+        if(strcmp(argv[i], "-a") == 0) align_output = true;
+        else                           sequence_filenames.push_back(argv[i]);
+    }
+
+    if(sequence_filenames.size() < 2) {
+        cerr << "Usage: " << argv[0] << "[-a] <ground_truth.tum> <pose.tum> [<pose2.tum> ...]\n";
         return 1;
     }
-    tpose_sequence gt_sequence;
-    gt_sequence.load_from_file(argv[1]);
 
-    for(int i = 2; i < argc; i++) {
-        cout << "Comparing " << argv[1] << " and " << argv[i] << "\n";
+    tpose_sequence gt_sequence;
+    gt_sequence.load_from_file(sequence_filenames[0]);
+
+    for(size_t i = 1; i < sequence_filenames.size(); i++) {
+        cout << "Comparing " << sequence_filenames[0] << " and " << sequence_filenames[i] << "\n";
         tpose_sequence pose_sequence;
-        pose_sequence.load_from_file(argv[i]);
+        pose_sequence.load_from_file(sequence_filenames[i]);
 
         benchmark_result result;
         for(auto &pose : pose_sequence.tposes) {
@@ -28,22 +37,6 @@ int main(int argc, char ** argv)
         if(!result.errors.calculate_ate()) {
             cerr << "There was a problem calculating the ATE, exiting\n";
             return 1;
-        }
-
-        //save the ground truth after ate registration
-        tpose_sequence gt_with_current_ate_sequence;
-        gt_with_current_ate_sequence.tposes = gt_sequence.tposes;
-
-        tpose ate_registration{ gt_sequence.tposes.at(0).t, transformation(result.errors.ate_s.R, result.errors.ate_s.T)*gt_sequence.tposes.at(0).G };
-
-
-        gt_with_current_ate_sequence.set_relative_pose(gt_sequence.tposes.at(0).t, ate_registration);
-
-        {
-            ofstream pose_st(std::string(argv[i]) + "_gt_ate.tum");
-            for (auto &pose : gt_with_current_ate_sequence.tposes) {
-                pose_st << tpose_tum(sensor_clock::tp_to_micros(pose.t) / 1e6, pose.G, 0, 3);
-            }
         }
 
         if(!result.errors.calculate_rpe_600ms()) {
@@ -64,6 +57,17 @@ int main(int argc, char ** argv)
         }
         cout << "SpaceSeparated" << " " << result.errors.nposes << " " << pose_sequence.tposes.size() << " " << result.errors.ate.rmse << " " << result.errors.ate.max;
         cout << " " << result.errors.rpe_R.rmse * (180.f / M_PI) << " " << result.errors.rpe_R.max * (180.f / M_PI) << "\n";
+
+        //save the ground truth after ate registration
+        if(align_output) {
+            tpose_sequence gt_sequence_aligned;
+            gt_sequence_aligned.tposes = gt_sequence.tposes;
+
+            tpose ate_registration{ gt_sequence.tposes.at(0).t, transformation(result.errors.ate_s.R, result.errors.ate_s.T)*gt_sequence.tposes.at(0).G };
+            gt_sequence_aligned.set_relative_pose(gt_sequence.tposes.at(0).t, ate_registration);
+            ofstream pose_st(std::string(sequence_filenames[i]) + "_gt_ate.tum");
+            pose_st << gt_sequence_aligned;
+        }
     }
 
     return 0;

@@ -80,12 +80,13 @@ write_tum(pose_basename + ".c1.gt.tum", c1_gt_poses)
 write_tum(pose_basename + ".c2.gt.tum", c2_gt_poses)
 
 import subprocess
-def compare_poses(pose_gt_filename, pose_live_filename):
+def compare_poses(pose_gt_filename, pose_live_filename, aligned_output=False):
     if "COMPARE_POSES" in os.environ.keys():
         compare_path = os.environ["COMPARE_POSES"]
     else:
         compare_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../build/compare_poses")
     command = [compare_path, pose_gt_filename, pose_live_filename]
+    if aligned_output: command.append("-a")
     result_text = subprocess.check_output(command, stderr=subprocess.STDOUT)
     for line in result_text.splitlines():
         if line.startswith(b"SpaceSeparated"):
@@ -100,16 +101,18 @@ def create_plots(pose_live_filename):
         subprocess.call(command)
 
 print(" " * len("Result " + pose_basename + ".hmd" + ".gt.tum"), "# cmp, # live, ATE rmse, ATE max, RPE rmse, RPE max")
-for extension in [".hmd", ".c1", ".c2"]:
-    pose_results = []
-    if extension in [".c1", ".c2"]:
-        pose_results_c = [compare_poses(pose_basename + extension + ".gt.tum", pose_basename + ".c1.live.tum"), \
-                          compare_poses(pose_basename + extension + ".gt.tum", pose_basename + ".c2.live.tum")]
-        if extension == ".c1" and pose_results_c[1][4] < pose_results_c[0][4] or \
-           extension == ".c2" and pose_results_c[0][4] < pose_results_c[1][4]:
-               print("Warning: best RPE alignment found when comparing live", extension, "to switched GT")
-        pose_results = sorted(pose_results_c, key=lambda res: res[4])[0]
-    else:
-        pose_results = compare_poses(pose_basename + extension + ".gt.tum", pose_basename + extension + ".live.tum")
-    print("Result", pose_basename + extension + ".gt.tum", " ".join([str(f) for f in pose_results]))
+
+pose_results = compare_poses(pose_basename + ".hmd.gt.tum", pose_basename + ".hmd.live.tum", aligned_output=True)
+print("Result", pose_basename + ".hmd.gt.tum", " ".join([str(f) for f in pose_results]))
+create_plots(pose_basename + ".hmd.live.tum")
+
+for extension in [".c1", ".c2"]:
+    if extension == ".c1": swapped = ".c2"
+    else:                  swapped = ".c1"
+    result         = compare_poses(pose_basename + extension + ".gt.tum", pose_basename + extension + ".live.tum", aligned_output=True)
+    swapped_result = compare_poses(pose_basename + swapped   + ".gt.tum", pose_basename + extension + ".live.tum")
+    if swapped_result[4] < result[4]:
+        print("Warning: best RPE alignment found when comparing live", extension, "to switched GT")
+        result = compare_poses(pose_basename + swapped + ".gt.tum", pose_basename + extension + ".live.tum", aligned_output=True)
+    print("Result", pose_basename + extension + ".gt.tum", " ".join([str(f) for f in result]))
     create_plots(pose_basename + extension + ".live.tum")

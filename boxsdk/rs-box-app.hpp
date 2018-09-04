@@ -682,12 +682,12 @@ protected:
         {
             copy_to(curr_c, _prev_c);
             copy_to(curr_d, _prev_d);
-            src.frame_ready(f);
+            src.frame_ready(std::move(f));
         }
         else
         {
             std::vector<frame> dst{_prev_d, curr_c};
-            src.frame_ready(src.allocate_composite_frame(dst));
+            src.frame_ready(src.allocate_composite_frame(std::move(dst)));
         }
     }
     

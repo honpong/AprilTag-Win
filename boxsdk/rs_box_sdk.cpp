@@ -136,7 +136,7 @@ namespace rs2
                 if (_is_export[BOX_DST_RAYCA]) { rs_sf_boxfit_raycast_boxes(box_detector, nullptr, -1, &_image[BOX_DST_RAYCA]); }
                 
                 memcpy((void*)export_frame[EXPORT_STATE].get_data(), _state, sizeof(rs2_measure_camera_state)*BOX_IMG_COUNT);
-                src.frame_ready(src.allocate_composite_frame(export_frame));
+                src.frame_ready(src.allocate_composite_frame(std::move(export_frame)));
             }
         }
         
@@ -242,7 +242,7 @@ namespace rs2
                 _depth_buf << vf;
                 rs_sf_boxfit_raycast_boxes(detector, _boxes.data(), (int)_boxes.size(), &_depth_buf, bkg_buf);
                 
-                src.frame_ready(src.allocate_composite_frame(dst));
+                src.frame_ready(src.allocate_composite_frame(std::move(dst)));
             }
             std::recursive_mutex _mutex;
             std::vector<rs_sf_box> _boxes;

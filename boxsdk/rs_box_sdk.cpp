@@ -16,6 +16,7 @@
 #define RS2_MEASURE_EXPORTS
 
 #include <stdio.h>
+#include <mutex>
 #include "inc/rs_box_sdk.hpp"
 #include "rs_box_image.hpp"
 #include "rs_box_api.h"

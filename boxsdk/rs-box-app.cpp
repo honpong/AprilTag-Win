@@ -78,10 +78,11 @@ int main(int argc, char* argv[])
             frameset = pipe.wait_for_frames(); //wait until a pair of frames.
         }
 
+        
         if (auto box_frame = boxscan.process(box.size()&&!app.dense_request()?stablize(frameset):frameset)) //process new frame pair
         {
             // select depth display on the smaller left window
-            auto depth_display = color_map(box_frame[app.plane_request() ? RS2_STREAM_PLANE : RS2_STREAM_DEPTH_DENSE]);
+            auto depth_display = color_map.process(box_frame[app.plane_request() ? RS2_STREAM_PLANE : RS2_STREAM_DEPTH_DENSE]);
 
             // display the selected output frames
             app.render_ui(depth_display, box_frame[RS2_STREAM_COLOR]);

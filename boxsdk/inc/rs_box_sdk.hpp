@@ -296,10 +296,11 @@ namespace rs2
             rs2_box_measure_raycast_set_boxes(_host, &b, 1, &e);
             error::handle(e);
             
-            (*_block)(fs);
-            frameset dst;
+            _block->invoke(fs);
+            
+            frame dst;
             _queue.poll_for_frame(&dst);
-            return dst;
+            return frameset(dst);
         }
         
         rs2_box_measure* _host;
@@ -404,7 +405,7 @@ namespace rs2
          */
         box_frameset process(frameset frames)
         {
-            (*_block)(frames);
+            _block->invoke(frames);
             frame f;
             _queue.poll_for_frame(&f);
             return box_frameset(f);

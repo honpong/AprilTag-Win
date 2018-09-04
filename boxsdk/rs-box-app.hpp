@@ -626,9 +626,8 @@ public:
     
     frameset operator()(frame f)
     {
-        (*_block)(f);
-        frame dst;
-        _queue.poll_for_frame(&dst);
+        _block->invoke(f);
+        frame dst = _queue.wait_for_frame();
         return rs2::frameset(dst);
     }
     

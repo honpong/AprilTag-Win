@@ -758,7 +758,8 @@ rc_TrackerState rc_getState(const rc_Tracker *tracker)
         case RCSensorFusionRunStateInertialOnly:
             return rc_E_INERTIAL_ONLY;
     }
-    assert(0);
+    assert(false && "Invalid tracker state");
+    return rc_E_INACTIVE;
 }
 
 rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker)

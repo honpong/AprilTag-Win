@@ -26,14 +26,6 @@ static u8 f1_FeatureBuffer[128];
 static u8 f2_FeatureBuffer[128];
 
 // ----------------------------------------------------------------------------
-// 5: Static Function Prototypes
-static float4 m_mult ( float4x4 A, float4 B)
-{
-    float4 res= {mvuDot(A.rows[0],B), mvuDot(A.rows[1],B), mvuDot(A.rows[2],B), mvuDot(A.rows[3],B) };
-    return (res);
-}
-
-// ----------------------------------------------------------------------------
 // 6: Functions Implementation
 // ----------------------------------------------------------------------------
 void stereo_matching::init(ShavekpMatchingSettings kpMatchingParams)
@@ -72,9 +64,7 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
 {
   //kp intersect vars
     float4 pa,pb;
-    bool success= 0;
     float depth1, depth2,error,error_2;
-    float4 cam1_intersect,cam2_intersect;
   //kp compare vars
     float second_best_distance = INFINITY;
     float best_distance = INFINITY;

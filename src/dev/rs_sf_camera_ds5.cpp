@@ -1,13 +1,7 @@
 #include "rs_sf_camera.hpp"
 
-#if defined(__APPLE__) | defined(__OSX__) | defined(APPLE)
-struct rs_sf_camera_stream : rs_sf_image_stream
-{
-    rs_sf_camera_stream(int w, int h) {}
-    virtual rs_sf_image* get_images() { return nullptr; }
-    virtual rs_sf_intrinsics* get_intrinsics() { return nullptr; }
-    virtual float get_depth_unit() { return 0.001f; }
-};
+#if 0
+//defined(__APPLE__) | defined(__OSX__) | defined(APPLE)
 #else
 
 #include <librealsense2/rsutil.h>

@@ -79,15 +79,18 @@ struct rs_sf_file_stream : rs_sf_image_stream
     int total_num_frame, next_frame_num;
     std::vector<rs_sf_image_ptr> image;
     rs_sf_image images[RS_SF_STREAM_COUNT];
-    rs_sf_intrinsics depth_intrinsics;
+    rs_sf_intrinsics intrinsics[RS_SF_STREAM_COUNT];
+    rs_sf_extrinsics color_to_depth;
     float depth_unit;
 
     rs_sf_file_stream(const std::string& path) : folder_path(path), total_num_frame(0), next_frame_num(0), image(RS_SF_STREAM_COUNT)
     {
-        depth_intrinsics = read_calibration(folder_path, total_num_frame, depth_unit);
+        intrinsics[RS_SF_STREAM_DEPTH] = read_depth_calibration(folder_path, total_num_frame, depth_unit);
+        intrinsics[RS_SF_STREAM_COLOR] = read_color_calibration(folder_path, total_num_frame, color_to_depth);
     }
 
-    rs_sf_intrinsics* get_intrinsics() override { return &depth_intrinsics; }
+    rs_sf_intrinsics* get_intrinsics(int stream = RS_SF_STREAM_DEPTH) override { return &intrinsics[stream]; }
+    rs_sf_extrinsics* get_extrinsics(int from, int to) override { return &color_to_depth; }
     float get_depth_unit() override { return depth_unit; }
     
     rs_sf_image* get_images() override
@@ -111,52 +114,94 @@ struct rs_sf_file_stream : rs_sf_image_stream
         rs_sf_image_write(path + "color_" + std::to_string(color->frame_id), color);
         rs_sf_image_write(path + "displ_" + std::to_string(displ->frame_id), displ);
     }
-
-    static rs_sf_intrinsics read_calibration(const std::string& path, int& num_frame, float& depth_unit)
+    
+    static Json::Value read_json(const std::string& path)
     {
-        rs_sf_intrinsics depth_intrinsics = {};
-        Json::Value calibration_data;
+        Json::Value json_data;
         std::ifstream infile;
         infile.open(path + "calibration.json", std::ifstream::binary);
-        infile >> calibration_data;
-
-        Json::Value json_depth_intrinsics = calibration_data["depth_cam"]["intrinsics"];
-        depth_intrinsics.fx = json_depth_intrinsics["fx"].asFloat();
-        depth_intrinsics.fy = json_depth_intrinsics["fy"].asFloat();
-        depth_intrinsics.ppx = json_depth_intrinsics["ppx"].asFloat();
-        depth_intrinsics.ppy = json_depth_intrinsics["ppy"].asFloat();
-        depth_intrinsics.width = json_depth_intrinsics["width"].asInt();
-        depth_intrinsics.height = json_depth_intrinsics["height"].asInt();
-
-        num_frame = calibration_data["depth_cam"]["num_frame"].asInt();
-        depth_unit = calibration_data["depth_cam"].get("depth_unit", 0.001f).asFloat();
-        return depth_intrinsics;
+        infile >> json_data;
+        return json_data;
+    }
+    
+    static rs_sf_intrinsics read_intrinsics(const Json::Value json_intr)
+    {
+        rs_sf_intrinsics intrinsics = {};
+        intrinsics.fx    = json_intr["fx"].asFloat();
+        intrinsics.fy    = json_intr["fy"].asFloat();
+        intrinsics.ppx   = json_intr["ppx"].asFloat();
+        intrinsics.ppy   = json_intr["ppy"].asFloat();
+        intrinsics.width = json_intr["width"].asInt();
+        intrinsics.height= json_intr["height"].asInt();
+        intrinsics.model = (rs_sf_distortion)json_intr["model"].asInt();
+        for (int c = 0; c < json_intr["coeff"].size(); ++c)
+            intrinsics.coeffs[c] = json_intr["coeff"][c].asFloat();
+        return intrinsics;
     }
 
-    static void write_calibration(const std::string& path, const rs_sf_intrinsics& intrinsics, int num_frame, float depth_unit)
+    static rs_sf_intrinsics read_depth_calibration(const std::string& path, int& num_frame, float& depth_unit)
     {
-        Json::Value json_intr, root;
-        json_intr["fx"] = intrinsics.fx;
-        json_intr["fy"] = intrinsics.fy;
-        json_intr["ppx"] = intrinsics.ppx;
-        json_intr["ppy"] = intrinsics.ppy;
-        json_intr["model"] = intrinsics.model;
-        json_intr["height"] = intrinsics.height;
-        json_intr["width"] = intrinsics.width;
-        for (const auto& c : intrinsics.coeffs)
-            json_intr["coeff"].append(c);
-        root["depth_cam"]["intrinsics"] = json_intr;
-        root["depth_cam"]["num_frame"] = num_frame;
+        Json::Value json_data = read_json(path);
+        num_frame = json_data["depth_cam"]["num_frame"].asInt();
+        depth_unit = json_data["depth_cam"].get("depth_unit", 0.001f).asFloat();
+        return read_intrinsics(json_data["depth_cam"]["intrinsics"]);
+    }
+    
+    static rs_sf_intrinsics read_color_calibration(const std::string& path, int& num_frame, rs_sf_extrinsics& color_to_depth)
+    {
+        Json::Value json_data = read_json(path);
+        
+        num_frame = json_data["color_cam"]["num_frame"].asInt();
+        for (int r = 0; r < 9; ++r ){ color_to_depth.rotation[r] = json_data["color_cam"]["to_depth"]["rotation"][r].asFloat(); }
+        for (int t = 0; t < 3; ++t ){ color_to_depth.translation[t] = json_data["color_cam"]["to_depth"]["translation"][t].asFloat(); }
+        
+        return read_intrinsics(json_data["color_cam"]["intrinsics"]);
+    }
+    
+    static void write_calibration(const std::string& path,
+                                  const rs_sf_intrinsics& depth_intrinsics,
+                                  const rs_sf_intrinsics& color_intrinsics,
+                                  const rs_sf_extrinsics& color_to_depth,
+                                  int num_frame, float depth_unit)
+    {
+        auto write_intr = [](const rs_sf_intrinsics& intr){
+            Json::Value json_intr;
+            json_intr["fx"]     = intr.fx;
+            json_intr["fy"]     = intr.fy;
+            json_intr["ppx"]    = intr.ppx;
+            json_intr["ppy"]    = intr.ppy;
+            json_intr["height"] = intr.height;
+            json_intr["width"]  = intr.width;
+            json_intr["model"]  = intr.model;
+            for (const auto& c : intr.coeffs)
+                json_intr["coeff"].append(c);
+            return json_intr;
+        };
+        
+        Json::Value root;
+        root["calibration_file_version"] = 1;
+        root["depth_cam"]["intrinsics"] = write_intr(depth_intrinsics);
         root["depth_cam"]["depth_unit"] = depth_unit;
+        root["depth_cam"]["num_frame"] = num_frame;
 
+        root["color_cam"]["intrinsics"] = write_intr(color_intrinsics);
+        root["color_cam"]["num_frame"] = num_frame;
+        for (const auto& r : color_to_depth.rotation)
+            root["color_cam"]["to_depth"]["rotation"].append(r);
+        for (const auto& t : color_to_depth.translation)
+            root["color_cam"]["to_depth"]["translation"].append(t);
+        
         try {
             Json::StyledStreamWriter writer;
             std::ofstream outfile;
             outfile.open(path + "calibration.json");
             writer.write(outfile, root);
         }
-        catch (...) {}
+        catch (...) {
+            printf("fail to write calibration to %s \n",path.c_str());
+        }
     }
+    
 };
 
 

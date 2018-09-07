@@ -33,10 +33,9 @@ struct rs_sf_camera_stream : rs_sf_image_stream
             //device.set_option(RS_OPTION_EMITTER_ENABLED, 1);
             //device.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
 
-      
         }
-		catch (const rs2::error & e) { print(e); }
-	}
+        catch (const rs2::error & e) { print(e); }
+    }
 
     virtual rs_sf_intrinsics* get_intrinsics() override { return (rs_sf_intrinsics*)&intrinsics; }
 
@@ -64,15 +63,15 @@ struct rs_sf_camera_stream : rs_sf_image_stream
             if (frames.size() == 0) return nullptr;
         }
     }
-	catch (const rs2::error & e) {
-        print(e);	
+    catch (const rs2::error & e) {
+        print(e);
         return nullptr; 
     }
 
     virtual float get_depth_unit() override {
         return depth_unit;
     }
-	
+
 protected:
     rs_sf_image image[RS_SF_STREAM_COUNT];
     int stream_to_byte_per_pixel[RS_SF_STREAM_COUNT] = { 0,2,3,1,1 };
@@ -86,10 +85,9 @@ private:
     rs2::config config;
     rs2_intrinsics intrinsics;
 
-
-	void print(const rs2::error& e) {
-		std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
-	}
+    void print(const rs2::error& e) {
+        std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
+    }
 };
 
 #endif // realsense defined only

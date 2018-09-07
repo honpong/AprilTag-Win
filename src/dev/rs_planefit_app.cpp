@@ -8,11 +8,12 @@
 
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
+#define DEFAULT_PATH "c:\\temp\\shapefit\\b\\"
 #else
 #define PATH_SEPARATER '/'
+#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
 #endif
 
-const std::string default_path = "c:\\temp\\shapefit\\b\\";
 int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2]);
 int run_shapefit_live(const rs_shapefit_capability cap, const int cap_size[2]);
 int run_shapefit_offline(const std::string& path, const rs_shapefit_capability cap);
@@ -21,7 +22,7 @@ bool run_shapefit(rs_shapefit* planefitter, rs_sf_image img[]);
 int main(int argc, char* argv[])
 {
     bool is_live = false, is_capture = false;
-    std::string path = default_path;
+    std::string path = DEFAULT_PATH;
     int num_frames = 200; std::vector<int> capture_size = { 640,480 };
     rs_shapefit_capability sf_option = RS_SHAPEFIT_PLANE;
 
@@ -87,7 +88,7 @@ int capture_frames(const std::string& path, const int image_set_size, const int 
     }
     printf("\n");
 
-    rs_sf_file_stream::write_calibration(path, *rs_cam->get_intrinsics(), (int)image_set.size(), rs_cam->get_depth_unit());
+    rs_sf_file_stream::write_calibration(path, *rs_cam->get_intrinsics(RS_SF_STREAM_DEPTH), *rs_cam->get_intrinsics(RS_SF_STREAM_COLOR), *rs_cam->get_extrinsics(RS_SF_STREAM_COLOR, RS_SF_STREAM_DEPTH), (int)image_set.size(), rs_cam->get_depth_unit());
     return 0;
 }
 

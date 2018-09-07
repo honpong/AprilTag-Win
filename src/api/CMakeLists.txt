@@ -26,7 +26,7 @@ endif()
 
 #############################################################################################
 FILE(GLOB ALGO_CORE_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
-FILE(GLOB ALGO_CORE_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp" "${ALGO_CORE_HDR_DIR}/*")
+FILE(GLOB ALGO_CORE_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h*" "${ALGO_CORE_HDR_DIR}/*")
 if(BUILD_SHARED_LIB_ALGO)
     add_library(${PROJECT_NAME} SHARED
         ${ALGO_CORE_SRC}

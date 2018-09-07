@@ -50,6 +50,12 @@ extern "C"
         rs_sf_distortion model;  /* distortion model of the image */
         float         coeffs[5]; /* distortion coefficients */
     };
+    
+    struct rs_sf_extrinsics
+    {
+        float rotation[9];    /**< column-major 3x3 rotation matrix            */
+        float translation[3]; /**< three-element translation vector, in meters */
+    };
 
     struct rs_sf_image
     {

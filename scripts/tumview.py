@@ -92,7 +92,7 @@ def QtoEuler(qx, qy, qz, qw):
     yaw = math.atan2(t3, t4)
     return roll,pitch,yaw
 
-def read_tum(filename, strict_tum = False, sample_number = False):
+def read_tum(filename, strict_tum = False, sample_number = False, selected_ids = []):
     '''
     Read tum file, return a generic name and dictinary of the form:
     d[device_id] = { TIME: [], X:[], Y:[], Z:[], D:[], AX:[], AY: [], AZ: []}
@@ -116,6 +116,8 @@ def read_tum(filename, strict_tum = False, sample_number = False):
         if strict_tum == False:
             if len(data) > 8:
                 device_id = int(data[8])
+                if selected_ids and device_id not in selected_ids:
+                    continue
             if len(data) > 9:
                 confidence = int(data[9])
 
@@ -214,6 +216,7 @@ def main() :
     parser.add_argument('-3', '--three',    dest='plot_mode', action='store_const', const=PLOT_MODE_3D,                           help='3D display mode')
     parser.add_argument('-t', '--tum', action='store_true', help='Read as tum file')
     parser.add_argument('-n', '--sample-number', action='store_true', help='Use sample number for timeline')
+    parser.add_argument('-i', '--ids', nargs='+', type=int, help='Display the devices with the given ids only')
     parser.add_argument('-o', '--output', help='output image filename')
     parser.add_argument('files', nargs='+', help='tum/tumx files')
     args = parser.parse_args(sys.argv[1:])
@@ -224,7 +227,7 @@ def main() :
 
     datasets = []
     for f in args.files:
-        name, data = read_tum(f, args.tum, args.sample_number)
+        name, data = read_tum(f, args.tum, args.sample_number, args.ids)
         datasets.append((name, data))
     nitems = 0
     for d in datasets:

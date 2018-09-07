@@ -92,7 +92,7 @@ def QtoEuler(qx, qy, qz, qw):
     yaw = math.atan2(t3, t4)
     return roll,pitch,yaw
 
-def read_tum(filename, strict_tum = False, sample_number = False):
+def read_tum(filename, strict_tum = False, sample_number = False, selected_ids = []):
     '''
     Read tum file, return a generic name and dictinary of the form:
     d[device_id] = { TIME: [], X:[], Y:[], Z:[], D:[], AX:[], AY: [], AZ: []}
@@ -116,6 +116,8 @@ def read_tum(filename, strict_tum = False, sample_number = False):
         if strict_tum == False:
             if len(data) > 8:
                 device_id = int(data[8])
+                if selected_ids and device_id not in selected_ids:
+                    continue
             if len(data) > 9:
                 confidence = int(data[9])
 
@@ -142,13 +144,26 @@ def read_tum(filename, strict_tum = False, sample_number = False):
 
     return name, d
 
-def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
-    l = 0
+def prepare_plot(nkeys, plot_mode) :
+    plt.rcParams["figure.figsize"] = (11, 8.5)
+    if plot_mode == PLOT_MODE_3D:
+        fig, axes = plt.subplots(1, 1, subplot_kw={'projection': '3d'})
+        axes = [axes]
+    elif plot_mode == PLOT_MODE_PROJECTIONS:
+        fig, axes = plt.subplots(3, nkeys)
+        if nkeys == 1:
+            axes = [[ax] for ax in axes]
+    else:
+        fig, axes = plt.subplots(nkeys, 1)
+        if nkeys == 1:
+            axes = [axes]
+    return fig, axes
+
+def plot_tum(axes, name, data, fig, plot_mode) :
     plt.rcParams['lines.linestyle'] = linestyles[(linestyles.index(plt.rcParams['lines.linestyle']) + 1) % len(linestyles)]
-    for k in data.keys():
-        l += 1
+    for l, k in enumerate(data.keys()):
         if plot_mode == PLOT_MODE_AXIS:
-            xy_plt = plt.subplot(nkeys, 1, l)
+            xy_plt = axes[l]
             xy_plt.plot(data[k][TIME], data[k][X], label="X_%s_%d" % (name, k))
             xy_plt.plot(data[k][TIME], data[k][Y], label="Y_%s_%d" % (name, k))
             xy_plt.plot(data[k][TIME], data[k][Z], label="Z_%s_%d" % (name, k))
@@ -156,7 +171,7 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
             xy_plt.set_ylabel('axis (m)')
             xy_plt.legend(loc='upper right')
         elif plot_mode == PLOT_MODE_ANGLES:
-            xy_plt = plt.subplot(nkeys, 1, l)
+            xy_plt = axes[l]
             xy_plt.plot(data[k][TIME], data[k][AX], label="AX_%s_%d" % (name, k))
             xy_plt.plot(data[k][TIME], data[k][AY], label="AY_%s_%d" % (name, k))
             xy_plt.plot(data[k][TIME], data[k][AZ], label="AZ_%s_%d" % (name, k))
@@ -164,14 +179,14 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
             xy_plt.set_ylabel('angle (deg)')
             xy_plt.legend(loc='upper right')
         elif plot_mode == PLOT_MODE_DIST:
-            xy_plt = plt.subplot(nkeys, 1, l)
+            xy_plt = axes[l]
             xy_plt.plot(data[k][TIME], data[k][D], label="%s_%d" % (name, k))
             xy_plt.set_xlabel('time (s)')
             xy_plt.set_ylabel('distance (m)')
             xy_plt.legend(loc='upper right')
         elif plot_mode == PLOT_MODE_3D:
             print("plot mode 3d")
-            ax3d = plt.gca(projection='3d')
+            ax3d = axes[0]
             ax3d.plot(data[k][X], data[k][Y], data[k][Z], label=name, linewidth=1)
             ax3d.mouse_init()
             set_axes_equal(ax3d)
@@ -181,7 +196,7 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
             ax3d.set_zlabel("Z")
             ax3d.legend()
         else: # PLOT_MODE_PROJECTIONS
-            xy_plt = plt.subplot(3, nkeys, l + nkeys * 0)
+            xy_plt = axes[0][l]
             xy_plt.set_title('dev: %d [Y / X] ' % k)
             xy_plt.plot(data[k][X], data[k][Y], label = name, linewidth=1)
             xy_plt.set_xlabel('X (m)')
@@ -189,7 +204,7 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
             xy_plt.legend(loc='upper right')
             xy_plt.set_aspect('equal', 'datalim')
 
-            xz_plt = plt.subplot(3, nkeys, l + nkeys * 1)
+            xz_plt = axes[1][l]
             xz_plt.set_title('dev: %d [Z / X]' % k)
             xz_plt.plot(data[k][X], data[k][Z], label=name, linewidth=1)
             xz_plt.set_xlabel('X (m)')
@@ -197,7 +212,7 @@ def plot_tum(nkeys, name, data, fig, plot_mode = PLOT_MODE_AXIS) :
             xz_plt.legend(loc='upper right')
             xz_plt.set_aspect('equal', 'datalim')
 
-            yz_plt = plt.subplot(3, nkeys, l + nkeys * 2)
+            yz_plt = axes[2][l]
             yz_plt.set_title('dev: %d [Z / Y]' % k)
             yz_plt.plot(data[k][Y], data[k][Z], label=name, linewidth=1)
             yz_plt.set_xlabel('Y (m)')
@@ -214,24 +229,22 @@ def main() :
     parser.add_argument('-3', '--three',    dest='plot_mode', action='store_const', const=PLOT_MODE_3D,                           help='3D display mode')
     parser.add_argument('-t', '--tum', action='store_true', help='Read as tum file')
     parser.add_argument('-n', '--sample-number', action='store_true', help='Use sample number for timeline')
+    parser.add_argument('-i', '--ids', nargs='+', type=int, help='Display the devices with the given ids only')
     parser.add_argument('-o', '--output', help='output image filename')
     parser.add_argument('files', nargs='+', help='tum/tumx files')
     args = parser.parse_args(sys.argv[1:])
 
-    plt.rcParams["figure.figsize"] = (11, 8.5)
-
-    fig = plt.Figure()
-
     datasets = []
     for f in args.files:
-        name, data = read_tum(f, args.tum, args.sample_number)
+        name, data = read_tum(f, args.tum, args.sample_number, args.ids)
         datasets.append((name, data))
     nitems = 0
     for d in datasets:
         if len(d[1].keys()) > nitems: nitems = len(d[1].keys())
 
+    fig, axes = prepare_plot(nitems, args.plot_mode)
     for dataset in datasets:
-        plot_tum(nitems, dataset[0], dataset[1], fig, plot_mode = args.plot_mode)
+        plot_tum(axes, dataset[0], dataset[1], fig, plot_mode = args.plot_mode)
     if args.output == None:
         plt.show()
     else:

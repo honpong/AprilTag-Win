@@ -8,8 +8,8 @@
 #include <iostream>
 struct rs_sf_camera_stream : rs_sf_image_stream
 {
-    rs_sf_camera_stream(int w, int h) : image{}, curr_depth(w*h * 2), prev_depth(w*h * 2)
-	{
+    rs_sf_camera_stream(int w, int h) : image{}, curr_depth(w*h * 2), prev_depth(w*h * 2), intrinsics{}, extrinsics{}
+    {
         try {
             auto list = ctx.query_devices();
             if (list.size() == 0) throw std::runtime_error("No device detected.");
@@ -22,8 +22,22 @@ struct rs_sf_camera_stream : rs_sf_image_stream
             config.enable_stream(RS_SF_STREAM_COLOR, 0, w, h, RS_SF_FORMAT_RGB8, 30);
 
             auto pprofile = pipe.start(config);
-            intrinsics = pprofile.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>().get_intrinsics();
-
+            auto depth_profile = pprofile.get_stream(RS2_STREAM_DEPTH).as<rs2::video_stream_profile>();
+            auto color_profile = pprofile.get_stream(RS2_STREAM_COLOR).as<rs2::video_stream_profile>();
+            
+            intrinsics[RS_SF_STREAM_DEPTH] = depth_profile.get_intrinsics();
+            intrinsics[RS_SF_STREAM_COLOR] = color_profile.get_intrinsics();
+            extrinsics[RS_SF_STREAM_DEPTH][RS_SF_STREAM_COLOR] = depth_profile.get_extrinsics_to(color_profile);
+            extrinsics[RS_SF_STREAM_COLOR][RS_SF_STREAM_DEPTH] = color_profile.get_extrinsics_to(depth_profile);
+            
+            // Go over the device's sensors
+            for (rs2::sensor& sensor : device.query_sensors()){
+                // Check if the sensor if a depth sensor
+                if (auto dpt = sensor.as<rs2::depth_sensor>()){
+                    depth_unit = std::max(0.001f, dpt.get_depth_scale());
+                }
+            }
+            
             //device.set_option(RS_OPTION_EMITTER_ENABLED, 1);
             //device.set_option(RS_OPTION_ENABLE_AUTO_EXPOSURE, 1);
 
@@ -31,7 +45,8 @@ struct rs_sf_camera_stream : rs_sf_image_stream
         catch (const rs2::error & e) { print(e); }
     }
 
-    virtual rs_sf_intrinsics* get_intrinsics() override { return (rs_sf_intrinsics*)&intrinsics; }
+    virtual rs_sf_intrinsics* get_intrinsics(int stream) override { return (rs_sf_intrinsics*)&intrinsics[stream]; }
+    virtual rs_sf_extrinsics* get_extrinsics(int from, int to) override { return (rs_sf_extrinsics*)&extrinsics[from][to]; }
 
     virtual rs_sf_image* get_images() override try
     {
@@ -77,7 +92,8 @@ private:
     rs2::device device;
     rs2::pipeline pipe;
     rs2::config config;
-    rs2_intrinsics intrinsics;
+    rs2_intrinsics intrinsics[RS_SF_STREAM_COUNT];
+    rs2_extrinsics extrinsics[RS_SF_STREAM_COUNT][RS_SF_STREAM_COUNT];
 
     void print(const rs2::error& e) {
         std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;

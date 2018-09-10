@@ -200,7 +200,7 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[])
     std::chrono::duration<float, std::milli> last_frame_compute_time = std::chrono::steady_clock::now() - start_time;
 
     // color display buffer
-    rs_sf_image_rgb rgb_plane(img_d->img_w/2,img_d->img_h/2, img_d->frame_id, nullptr, img_d->cam_pose, img_d->intrinsics), rgb_box(&rgb_plane);
+    rs_sf_image_rgb rgb_plane(img_d->img_w/2,img_d->img_h/2, img_d->frame_id, nullptr, img_d->cam_pose, img_d->intrinsics), rgb_box(img_c);
 
     // draw plane color
     rs_sf_planefit_draw_planes(shapefitter, &rgb_plane);
@@ -212,7 +212,8 @@ bool run_shapefit(rs_shapefit * shapefitter, rs_sf_image img[])
         rs_sf_planefit_get_plane_ids(shapefitter, &rgb_box);
     } 
     // display plane contours
-    rs_sf_planefit_get_planes(shapefitter, &rgb_plane);
+    //rs_sf_planefit_get_planes(shapefitter, &rgb_plane);
+    rs_sf_boxfit_draw_boxes(shapefitter, &rgb_plane);
 
     // time measure
     std::ostringstream text; 

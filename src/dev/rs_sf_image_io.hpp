@@ -87,6 +87,7 @@ struct rs_sf_file_stream : rs_sf_image_stream
     {
         intrinsics[RS_SF_STREAM_DEPTH] = read_depth_calibration(folder_path, total_num_frame, depth_unit);
         intrinsics[RS_SF_STREAM_COLOR] = read_color_calibration(folder_path, total_num_frame, color_to_depth);
+        intrinsics[RS_SF_STREAM_INFRARED] = intrinsics[RS_SF_STREAM_COLOR];
     }
 
     rs_sf_intrinsics* get_intrinsics(int stream = RS_SF_STREAM_DEPTH) override { return &intrinsics[stream]; }
@@ -100,7 +101,9 @@ struct rs_sf_file_stream : rs_sf_image_stream
         for (auto&& stream : { RS_SF_STREAM_DEPTH, RS_SF_STREAM_COLOR, RS_SF_STREAM_INFRARED }) {
             const auto file_path = folder_path + file_prefix[stream] + std::to_string(next_frame_num) + file_format[stream];
             images[stream] = *(image[stream] = rs_sf_image_read(file_path, next_frame_num));
+            images[stream].intrinsics = image[stream]->intrinsics = get_intrinsics(stream);
         }
+        images[RS_SF_STREAM_COLOR] = image[RS_SF_STREAM_COLOR]->set_pose(color_to_depth);
         ++next_frame_num;
         return images;
     }

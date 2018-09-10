@@ -128,6 +128,7 @@ int run_shapefit_offline(const std::string& path, const rs_shapefit_capability s
     {
         if (!shapefitter) {
             shapefitter = rs_sf_shapefit_ptr(data.get_intrinsics(), shapefit_capability, data.get_depth_unit());
+            rs_shapefit_set_option(shapefitter.get(), RS_SF_OPTION_ASYNC_WAIT, -1);
             //sp_init = rs_sf_setup_scene_perception(
             //    data.depth_intrinsics.fx, data.depth_intrinsics.fy,
             //    data.depth_intrinsics.ppx, data.depth_intrinsics.ppy,

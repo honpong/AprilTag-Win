@@ -230,8 +230,14 @@ struct rs_sf_image_auto : public rs_sf_image
     virtual ~rs_sf_image_auto() {}
     rs_sf_image_auto& set_pose(const float p[12]) { 
         if (p) rs_sf_memcpy(cam_pose = cam_pose_data, p, sizeof(float) * 12);
-        else cam_pose = nullptr; 
-		return *this;
+        else cam_pose = nullptr;
+        return *this;
+    }
+    rs_sf_image_auto& set_pose(const rs_sf_extrinsics& extr) {
+        auto* p = (const float*)&extr;
+        for (auto i : {0,1,2,4,5,6,8,9,10,3,7,11})
+            cam_pose_data[i] = *p++;
+        return set_pose(cam_pose_data);
     }
     rs_sf_image_auto& set_intrinsics(const rs_sf_intrinsics* intr) {
         if (intr) rs_sf_memcpy(intrinsics = &intrinsics_data, intr, sizeof(rs_sf_intrinsics));

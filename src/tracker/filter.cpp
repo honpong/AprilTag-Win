@@ -666,27 +666,35 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
     return true;
 }
 
-static bool l_l_intersect(const v3& p1, const v3& v1, const v3& p2, const v3& v2, v3 &P1, v3 &P2, f_t &s1, f_t &s2)
+static bool l_l_intersect(const v3& p1, const v3& v1, const v3& p2, const v3& v2, v3 &P1, v3 &P2, f_t &s1, f_t &s2, f_t &det)
 {
     // Minimize D(s1,s2) = ||P1(s1)-P2(s2)|| by solving D' = 0
     auto p21_1 = (p2-p1).dot(v1), v11 = v1.dot(v1), v12 = v1.dot(v2);
     auto p21_2 = (p2-p1).dot(v2), v22 = v2.dot(v2);
-    auto det = v11 * v22 - v12 * v12;
-    s1 = (p21_1 * v22 - p21_2 * v12) / det;
-    s2 = (p21_1 * v12 - p21_2 * v11) / det;
-    P1 = p1 + s1 * v1;
-    P2 = p2 + s2 * v2;
+    det = v11 * v22 - v12 * v12;
+    s1 = p21_1 * v22 - p21_2 * v12;
+    s2 = p21_1 * v12 - p21_2 * v11;
+    P1 = det * p1 + s1 * v1;
+    P2 = det * p2 + s2 * v2;
     return std::abs(det) > F_T_EPS;
 }
 
 // Triangulates a point in the body reference frame from two views
 static bool keypoint_intersect(v3 &Tc1, v3 &Rc1P, f_t &depth1,
-                               v3 &Tc2, v3 &Rc2P, f_t &depth2, f_t &intersection_error_percent)
+                               v3 &Tc2, v3 &Rc2P, f_t &depth2, f_t intersection_error_percent_threshold)
 {
-    v3 pa, pb; // pa (pb) is the point on the first (second) line closest to the intersection
-    bool success = l_l_intersect(Tc1, Rc1P, Tc2, Rc2P, pa, pb, depth1, depth2);
-    intersection_error_percent = (pa - pb).norm() / ((depth1 + depth2) / 2);
-    return success && depth1 > 0 && depth2 > 0;
+    v3 P1, P2; // P1 (P2) is the point on the first (second) line closest to the intersection
+    f_t d1, d2, det, thresh2 = intersection_error_percent_threshold * intersection_error_percent_threshold;
+    // intersection_error_percent = |pa - pb| / mean(depth1,depth2)
+    if (l_l_intersect(Tc1, Rc1P, Tc2, Rc2P, P1, P2, d1, d2, det)
+        && d1*det > 0
+        && d2*det > 0
+        && (P1 - P2).dot(P1 - P2) < thresh2 * (((d1 + d2) / 2) * ((d1 + d2) / 2))) {
+        depth1 = d1 / det;
+        depth2 = d2 / det;
+        return true;
+    } else
+        return false;
 }
 
 static float keypoint_compare(const tracker::feature_track & t1, const tracker::feature_track & t2)
@@ -731,10 +739,9 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
             for(auto k2 = kp2.begin(); k2 != kp2.end(); ++k2, ++Rc2Pi) {
                 if (f->s.stereo_matches.count(k2->feature->id)) // already stereo
                     continue;
-                f_t depth1, depth2, error_percent;
+                f_t depth1, depth2;
                 if (keypoint_intersect(camera_state1.extrinsics.T.v,  Rc1P,  depth1,
-                                       camera_state2.extrinsics.T.v, *Rc2Pi, depth2, error_percent)
-                    && error_percent < 0.02f) {
+                                       camera_state2.extrinsics.T.v, *Rc2Pi, depth2, 0.02f)) {
                     float distance = keypoint_compare(*k1, *k2);
                     if(distance < best_distance) {
                         second_best_distance = best_distance;

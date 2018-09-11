@@ -308,10 +308,9 @@ struct stereo_match
         f_t depth_m;
     };
     std::array<view,2> views;
-    f_t error_percent;
     stereo_match(state_camera &c0, std::list<triangulated_track>::iterator &t0, f_t d0,
-                 state_camera &c1, std::list<triangulated_track>::iterator &t1, f_t d1, f_t e)
-                     : views({{{c0, t0, d0}, {c1, t1, d1}}}), error_percent(e) {}
+                 state_camera &c1, std::list<triangulated_track>::iterator &t1, f_t d1)
+                     : views({{{c0, t0, d0}, {c1, t1, d1}}}) {}
 };
 
 class state_vision: public state_motion {

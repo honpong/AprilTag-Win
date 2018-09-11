@@ -724,7 +724,6 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                 continue;
             f_t best_depth1 = 0;
             f_t best_depth2 = 0;
-            f_t best_error = 0;
             auto best_k2 = kp2.end();
             v3 Rc1P = Rc1 * camera_state1.intrinsics.unproject_feature({k1->x, k1->y});
             // try to find a match in im2
@@ -742,7 +741,6 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                         best_distance = distance;
                         best_depth1 = depth1;
                         best_depth2 = depth2;
-                        best_error = error_percent;
                         best_k2 = k2;
                     } else if(distance < second_best_distance){
                         second_best_distance = distance;
@@ -754,7 +752,7 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
                 best_k2->merge(*k1);
                 f->s.stereo_matches.emplace(k1->feature->id,
                                             stereo_match(camera_state1,      k1, best_depth1,
-                                                         camera_state2, best_k2, best_depth2, best_error));
+                                                         camera_state2, best_k2, best_depth2));
             }
         }
 

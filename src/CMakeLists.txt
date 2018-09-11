@@ -50,7 +50,7 @@ list(APPEND CMAKE_MODULE_PATH
 )
 
 list(APPEND CMAKE_PREFIX_PATH
-	${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/sp/win
+    ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/sp/win
     ${CMAKE_CURRENT_SOURCE_DIR}/../../sp/win
 )
 
@@ -122,6 +122,6 @@ if(BUILD_SHAPEFIT_DEV_APP)
 
     if(MSVC)
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT shapefit-dev)
-		set(CMAKE_CONFIGURATION_TYPES Release Debug CACHE STRING "" FORCE)
+        set(CMAKE_CONFIGURATION_TYPES Release Debug CACHE STRING "" FORCE)
     endif()
 endif()

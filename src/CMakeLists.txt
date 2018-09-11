@@ -5,35 +5,35 @@ project(shapefit C CXX)
 # SDL (Security Development Lifecycle) Requirements
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 if (MSVC)
-  add_compile_options(/sdl)
+    add_compile_options(/sdl)
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "Intel|GNU|Clang")
-  if (NOT APPLE) # not supported by Apple's linker
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -z relro -z now -z noexecstack -pie")
-  endif()
-  add_definitions(-D_FORTIFY_SOURCE=2)
-  add_compile_options(-ffunction-sections)
-  add_compile_options(-fstack-protector-strong)
-  add_compile_options(-Wformat -Wformat-security)
-  add_compile_options(-fvisibility=hidden)
-  add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>)
+    if (NOT APPLE) # not supported by Apple's linker
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -z relro -z now -z noexecstack -pie")
+     endif()
+    add_definitions(-D_FORTIFY_SOURCE=2)
+    add_compile_options(-ffunction-sections)
+    add_compile_options(-fstack-protector-strong)
+    add_compile_options(-Wformat -Wformat-security)
+    add_compile_options(-fvisibility=hidden)
+    add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>)
 endif ()
 
 if(MSVC)
-  add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
-  add_definitions(-D_CRT_SECURE_NO_WARNINGS)
-  add_compile_options(/wd4996 /wd4703)
+    add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+    add_compile_options(/wd4996 /wd4703)
 
 foreach(flag_var
         CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
         CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO
         CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
         CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-  if(${flag_var} MATCHES "/MD")
-    string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-  endif()
-  if(${flag_var} MATCHES "/MDd")
-    string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
-  endif()
+    if(${flag_var} MATCHES "/MD")
+        string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+    endif()
+    if(${flag_var} MATCHES "/MDd")
+        string(REGEX REPLACE "/MDd" "/MTd" ${flag_var} "${${flag_var}}")
+    endif()
 endforeach(flag_var)
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB:atlthunk.lib /NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:msvcrtd.lib")
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:libcmt.lib /NODEFAULTLIB:libcpmt.lib")

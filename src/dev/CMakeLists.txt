@@ -22,10 +22,10 @@ FILE(GLOB SHAPEFIT_DEV_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB SHAPEFIT_DEV_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h*" )
 add_executable(shapefit-dev
     ${SHAPEFIT_DEV_SRC}
-	${SHAPEFIT_DEV_HDR}
+    ${SHAPEFIT_DEV_HDR}
     ${JSON_SRC}
-	${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_sf_pose_tracker.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_sf_pose_tracker.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_sf_pose_tracker.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_sf_pose_tracker.h)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 target_link_libraries(${PROJECT_NAME} shapefit-core ${LIBRS_LIBS} ${libSP})
 target_include_directories(${PROJECT_NAME} PRIVATE shapefit-core ${LIBRS_LIBS} ${libSP} 
@@ -34,19 +34,19 @@ target_include_directories(${PROJECT_NAME} PRIVATE shapefit-core ${LIBRS_LIBS} $
     ${THIRDPARTY_DIR}/librealsense/librealsense/third-party)
 
 if(MSVC)
-	if(BUILD_SHARED_LIBS)
-		list(APPEND APP_DEPENDENCY "$<TARGET_FILE:realsense2>" "$<TARGET_LINKER_FILE:realsense2>")
+    if(BUILD_SHARED_LIBS)
+        list(APPEND APP_DEPENDENCY "$<TARGET_FILE:realsense2>" "$<TARGET_LINKER_FILE:realsense2>")
     endif()
     if(BUILD_SHARED_LIB_ALGO)
         list(APPEND APP_DEPENDENCY "$<TARGET_FILE:shapefit-core>")
     endif()
     if(libSP_FOUND)
-		list(APPEND APP_DEPENDENCY "$<TARGET_FILE:libSP>")
+        list(APPEND APP_DEPENDENCY "$<TARGET_FILE:libSP>")
     endif()
 
-	foreach(var IN LISTS APP_DEPENDENCY)
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
-	endforeach(var)
+    foreach(var IN LISTS APP_DEPENDENCY)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+    endforeach(var)
 
-	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
+    set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
 endif(MSVC)

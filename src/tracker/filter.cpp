@@ -698,6 +698,7 @@ static float keypoint_compare(const tracker::feature_track & t1, const tracker::
 
 bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor camera2_id)
 {
+    auto start = std::chrono::steady_clock::now();
     {
         START_EVENT(SF_STEREO_MATCH, camera1_id)
         state_camera &camera_state1 = *f->s.cameras.children[camera1_id];
@@ -760,6 +761,8 @@ bool filter_stereo_initialize(struct filter *f, rc_Sensor camera1_id, rc_Sensor 
 #endif
         END_EVENT(SF_STEREO_MATCH, 0)
     }
+    auto stop = std::chrono::steady_clock::now();
+    f->stereo_stats.data(v<1> { static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
     return true;
 }
 
@@ -1163,6 +1166,8 @@ void filter_initialize(struct filter *f)
     f->s.a.set_initial_variance(10);
     f->s.da.set_initial_variance(26*26);
 
+    f->stereo_stats = stdev<1>{};
+
 #ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);
     f->qr_origin_gravity_aligned = true;
@@ -1336,6 +1341,7 @@ std::string filter_get_stats(const struct filter *f)
         statstr << "Track " << i->id << "\t (slow): " << i->track_stats << "\n";
         statstr << "MTrack" << i->id << "\t (slow): " << i->map_track_stats << "\n";
     }
+    statstr << "Stereo " << "\t (slow): " << f->stereo_stats << "\n";
     statstr << "HPHt   " << "\t (slow): " << f->observations.project_stats << "\n";
     statstr << "GEMM   " << "\t (slow): " << f->observations.multiply_stats << "\n";
     statstr << "CHOL   " << "\t (slow): " << f->observations.cholesky_stats << "\n";

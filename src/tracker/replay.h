@@ -68,6 +68,7 @@ public:
     bool save_map(const char *filename);
     bool load_map(const char *filename);
     bool load_calibration(const char *filename);
+    bool append_calibration(const char *filename);
     bool save_calibration(const char *filename);
     bool set_calibration_from_filename(const char *filename);
     void set_progress_callback(std::function<void(float)> progress_callback_) { stream->progress_callback = progress_callback_; }

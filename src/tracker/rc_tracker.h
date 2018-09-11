@@ -602,6 +602,11 @@ RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const char *buffer);
 RCTRACKER_API bool rc_setCalibrationTM2(rc_Tracker *tracker, const void *table, size_t size);
 
 /**
+    Loads a JSON string representing calibration data into the tracker and appends it in case of any existing calibration.
+*/
+RCTRACKER_API bool rc_appendCalibration(rc_Tracker *tracker, const char *buffer);
+
+/**
  Start/stop the mapping subsystem. When started, the map is completely empty. The map is build synchronously with rc_receive* startMapping must be called before loadMap
  */
 RCTRACKER_API void rc_startMapping(rc_Tracker *tracker, bool relocalize, bool save_map);

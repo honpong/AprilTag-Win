@@ -42,3 +42,4 @@ struct calibration {
 
 bool calibration_serialize(const calibration &cal, std::string &jsonString);
 bool calibration_deserialize(const std::string &jsonString, calibration &cal);
+bool calibration_append_deserialize(const std::string &jsonString, calibration &cal);

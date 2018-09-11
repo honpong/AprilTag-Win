@@ -351,6 +351,11 @@ void replay_device::process_control(const packet_control_t *packet) {
             zero_bias();
         break;
     }
+    case packet_calibration_json_extra: {
+        if (!rc_appendCalibration(tracker.get(), (const char *)packet->data))
+            fprintf(stderr, "Error: failed to load JSON velocimeter calibration...\n");
+        break;
+    }
     case packet_save_calibration: {
         if (stream->save_callback) {
             const char * buffer = nullptr;

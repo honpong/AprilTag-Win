@@ -54,6 +54,7 @@ typedef enum replay_packet_type {
     packet_camera_extrinsics,
     packet_delay_start,
     packet_set_queue_strategy,
+    packet_calibration_json_extra,
     packet_invalid_usb, //last entry
 } replay_packet_type;
 

@@ -154,6 +154,17 @@ bool replay::load_calibration(const char *filename) {
     return true;
 }
 
+bool replay::append_calibration(const char *filename) {
+    if (!filename) return false;
+    ifstream file_handle(filename);
+    if (file_handle.fail())
+        return false;
+    string calib_str((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
+    if (calib_str.empty()) return false;
+    request(packet_calibration_json_extra, calib_str.c_str(), calib_str.size() + 1);
+    return true;
+}
+
 bool replay::set_calibration_from_filename(const char *filename) {
     if (!filename) return false;
     string fn(filename), json;

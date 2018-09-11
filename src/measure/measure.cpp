@@ -38,7 +38,7 @@ int main(int c, char **v)
              << "   [--skip <seconds>]\n"
              << "   [--show-no-plots] [--show-no-video] [--show-no-main] [--show-no-depth]\n"
              << "   [--render-output <file.png>] [--pose-output <pose-file>] [--benchmark-output <results-file>]\n"
-             << "   [(--save | --load) <calibration-json>] [--calibrate]\n"
+             << "   [(--save | --load) <calibration-json>] [--append <calibration-append-json>] [--calibrate]\n"
              << "   [--disable-map] [--save-map <map-json>] [--load-map <map-json>]\n"
              << "   [--minimize-drops | --minimize-latency]\n"
              << "   [--dynamic-calibration]\n"
@@ -51,7 +51,7 @@ int main(int c, char **v)
 
     bool realtime = false, start_paused = false, benchmark = false, calibrate = false, zero_bias = false;
     bool fast_path = true, async = false, progress = false, dynamic_calibration = false;
-    const char *save = nullptr, *load = nullptr;
+    const char *save = nullptr, *load = nullptr, *append = nullptr;
     const char *save_map = nullptr, *load_map = nullptr;
     bool qvga = false, depth = true; int qres = 0;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
@@ -96,6 +96,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--save-map") == 0 && i+1 < c) save_map = v[++i];
         else if (strcmp(v[i], "--load-map") == 0 && i+1 < c) load_map = v[++i];
         else if (strcmp(v[i], "--load") == 0 && i+1 < c) load = v[++i];
+        else if (strcmp(v[i], "--append") == 0 && i+1 < c) append = v[++i];
         else if (strcmp(v[i], "--benchmark") == 0) benchmark = true;
         else if (strcmp(v[i], "--benchmark-output") == 0 && i+1 < c) benchmark_output = v[++i];
         else if (strcmp(v[i], "--render-output") == 0 && i+1 < c) render_output = v[++i];
@@ -186,6 +187,13 @@ int main(int c, char **v)
         }
 
         if(zero_bias) rp.zero_biases();
+
+        if(append) {
+          if(!rp.append_calibration(append)) {
+            cerr << "unable to append calibration: " << append << "\n";
+            return false;
+          }
+        }
 
         if(!rp.set_reference_from_filename(capture_file) && benchmark) {
             cerr << capture_file << ": unable to find a reference to measure against\n";

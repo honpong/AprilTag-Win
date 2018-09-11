@@ -870,6 +870,21 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
     return true;
 }
 
+bool rc_appendCalibration(rc_Tracker *tracker, const char *buffer)
+{
+    calibration cal;
+    if(!calibration_append_deserialize(buffer, cal))
+        return false;
+
+    int id = 0;
+    for(auto velocimeter : cal.velocimeters) {
+        rc_configureVelocimeter(tracker, id, &velocimeter.extrinsics, &velocimeter.intrinsics);
+        id++;
+    }
+
+    return true;
+}
+
 float rc_getPathLength(rc_Tracker* tracker) {
     return ((sensor_fusion *)tracker)->sfm.s.total_distance;
 }

@@ -591,6 +591,16 @@ static bool copy_json_to_calibration(Value & json, calibration & cal)
     return true;
 }
 
+static bool append_calibration(Value & json, calibration &cal)
+{
+    if(json.HasMember(KEY_VELOCIMETERS)){
+        if(!copy_json_to_velocimeters(json[KEY_VELOCIMETERS], cal.velocimeters))
+            return false;
+    }
+
+    return true;
+}
+
 bool calibration_serialize(const calibration &cal, std::string &jsonString)
 {
     Document json;
@@ -629,4 +639,15 @@ bool calibration_deserialize(const std::string &jsonString, calibration &cal)
     }
 
     return copy_json_to_calibration(json, cal);
+}
+
+bool calibration_append_deserialize(const std::string &jsonString, calibration &cal)
+{
+    Document json;
+    if (json.Parse(jsonString.c_str()).HasParseError()) {
+        std::cout << "JSON parse error (" << json.GetParseError() << ") at offset " << json.GetErrorOffset() << "\n";
+        return false;
+    }
+
+    return append_calibration(json, cal);
 }

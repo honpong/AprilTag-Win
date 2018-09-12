@@ -44,6 +44,7 @@ set(TRACKER_SOURCES
     tracker/estimate_epnp.cpp
     tracker/estimate_fundamental.cpp
     tracker/estimate_3d_point.cpp
+    tracker/estimate_five_point.cpp
     tracker/filter.cpp
     tracker/state_vision.cpp
     tracker/state_motion.cpp

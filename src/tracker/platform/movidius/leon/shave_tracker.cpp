@@ -28,7 +28,6 @@ __attribute__((section(".cmx_direct.data"))) uint8_t* patches1[MAX_KP1];
 __attribute__((section(".cmx_direct.data"))) uint8_t* patches2[MAX_KP2];
 __attribute__((section(".cmx_direct.data"))) float depths1[MAX_KP1];
 __attribute__((section(".cmx_direct.data"))) float depths2[MAX_KP1];
-__attribute__((section(".cmx_direct.data"))) float errors1[MAX_KP1];
 __attribute__((section(".cmx_direct.data"))) int matched_kp[MAX_KP1];
 
 extern u32 track0_fast_track;
@@ -176,7 +175,6 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
         auto f = std::static_pointer_cast<fast_tracker::fast_feature<DESCRIPTOR>>(f1_group[i]->feature);
         patches1[i] = f->descriptor.patch.descriptor.data();
         depths1[i] = 0;
-        errors1[i] = 0;
         matched_kp[i] = -1;
         p_kp1_transformed[i] = R1w * camera1.intrinsics.unproject_feature({f1_group[i]->x,f1_group[i]->y});
     }
@@ -195,7 +193,6 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
     kpMatchingParams->patches2 = patches2;
     kpMatchingParams->depth1 = depths1;
     kpMatchingParams->depth2 = depths2;
-    kpMatchingParams->errors1 = errors1;
     kpMatchingParams->matched_kp = matched_kp;
     for (int i = 0; i < STEREO_SHAVES; ++i){
         Shave::get_handle(stereo_matching[i].shave)->start(
@@ -216,6 +213,6 @@ void shave_tracker::stereo_matching_full_shave(struct filter *f, rc_Sensor camer
         k2->merge(*k1);
         f->s.stereo_matches.emplace(k1->feature->id,
                                     stereo_match(camera1, k1, depths1[i],
-                                                 camera2, k2, depths2[i], errors1[i]));
+                                                 camera2, k2, depths2[i]));
     }
 }

@@ -59,7 +59,6 @@ struct ShavekpMatchingSettings {
     uint8_t** patches2;
     float*   depth1;
     float*   depth2;
-    float*   errors1;
     int*     matched_kp;
 
     ShavekpMatchingSettings(float4x4_t I_R1w_transpose, float4x4_t I_R2w_transpose,
@@ -67,9 +66,9 @@ struct ShavekpMatchingSettings {
                             float3_t I_p_o1_transformed, float3_t I_p_o2_transformed,
                             float I_EPS, int half_patch_width, uint8_t* _kp1, uint8_t* _kp2,
                             uint8_t** _patches1, uint8_t** _patches2, float* _depth1, float* _depth2,
-                            float* _errors1, int* _matched_kp) :
+                            int* _matched_kp) :
         kp1(_kp1), kp2(_kp2), patches1(_patches1), patches2(_patches2),
-        depth1(_depth1), depth2(_depth2), errors1(_errors1), matched_kp(_matched_kp)
+        depth1(_depth1), depth2(_depth2), matched_kp(_matched_kp)
     {
         l_float4x4_copy (R1w_transpose , I_R1w_transpose );
         l_float4x4_copy (R2w_transpose , I_R2w_transpose );

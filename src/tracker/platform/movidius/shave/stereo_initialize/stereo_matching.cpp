@@ -60,7 +60,7 @@ bool stereo_matching::l_l_intersect_shave(int i , int j,float4 &P1,float4 &P2, f
     return std::fabs(det) > EPS;
 }
 
-void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1, float* depths2, float * errors1, int* matched_kp)
+void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1, float* depths2, int* matched_kp)
 {
   //kp intersect vars
     float4 pa,pb;
@@ -70,7 +70,6 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
     float best_distance = INFINITY;
     float best_depth1 = 0;
     float best_depth2 = 0;
-    float best_error = 0;
     float distance  = INFINITY ;
     unsigned short mean1 , mean2 ;
     //DMA - bring KP1 - KP2
@@ -154,7 +153,6 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
                     best_distance = distance;
                     best_depth1 = depth1;
                     best_depth2 = depth2;
-                    best_error = intersection_error_percent;
                     best_kp = j;
                 }
                 else if(distance < second_best_distance)
@@ -166,7 +164,6 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
         {
             depths1[i] = best_depth1;
             depths2[i] = best_depth2;
-            errors1[i] = best_error;
             matched_kp[i] = best_kp;
         }
     }//end kp1 loop

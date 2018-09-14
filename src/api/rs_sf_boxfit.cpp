@@ -138,6 +138,9 @@ void rs_sf_boxfit::detect_new_boxes(box_scene& view)
             }
         }
     }
+    
+    // for child class to further enhance the result
+    refit_boxes(view);
 }
 
 // box plane helper

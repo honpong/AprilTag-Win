@@ -211,6 +211,8 @@ protected:
         }
     } m_box_scene, m_box_ref_scene;
     
+    virtual rs_sf_status refit_boxes(box_scene& view) { return RS_SF_SUCCESS; };
+    
 private:
     
     struct box_plane_t;

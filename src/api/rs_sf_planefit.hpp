@@ -123,11 +123,13 @@ protected:
     typedef std::vector<plane*> vec_plane_ref;
     typedef std::vector<pt3d_group> vec_pt3d_group;
     typedef std::unique_ptr<rs_sf_image_depth> image_depth_ptr;
+    typedef std::unique_ptr<rs_sf_image_rgb>   image_color_ptr;
 
     struct scene {
         bool is_full_pt_cloud;
         pose_t cam_pose;
         image_depth_ptr src_depth_img;
+        image_color_ptr src_color_img;
         vec_pt3d pt_img;
         vec_pt3d_group pt_grp;
         vec_plane planes;
@@ -136,6 +138,7 @@ protected:
             std::swap(is_full_pt_cloud, ref.is_full_pt_cloud);
             std::swap(cam_pose, ref.cam_pose);
             std::swap(src_depth_img, ref.src_depth_img);
+            std::swap(src_color_img, ref.src_color_img);
             pt_img.swap(ref.pt_img);
             pt_grp.swap(ref.pt_grp);
             planes.swap(ref.planes);

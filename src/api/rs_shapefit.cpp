@@ -17,12 +17,14 @@ Copyright(c) 2017 Intel Corporation. All Rights Reserved.
 #include "rs_shapefit.h"
 #include "rs_sf_planefit.hpp"
 #include "rs_sf_boxfit.hpp"
+#include "rs_sf_boxfit_color.hpp"
 
 rs_shapefit * rs_shapefit_create(const rs_sf_intrinsics * camera, rs_shapefit_capability capability)
 {
     switch (capability) {
     case RS_SHAPEFIT_PLANE: return new rs_sf_planefit(camera);
     case RS_SHAPEFIT_BOX: return new rs_sf_boxfit(camera);
+    case RS_SHAPEFIT_BOX_COLOR: return new rs_sf_boxfit_color(camera);
     default: return nullptr;
     }
 }

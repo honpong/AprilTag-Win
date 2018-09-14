@@ -110,6 +110,7 @@ inline void print_box(const rs_sf_box& box)
 void rs_sf_util_set_to_zeros(rs_sf_image* img);
 void rs_sf_util_convert_to_rgb_image(rs_sf_image* rgb, const rs_sf_image* src);
 void rs_sf_util_copy_depth_image(rs_sf_image_depth& dst, const rs_sf_image* src);
+void rs_sf_util_copy_color_image(rs_sf_image_rgb& dst, const rs_sf_image* src);
 void rs_sf_util_draw_plane_ids(rs_sf_image* rgb, const rs_sf_image* map, bool overwrite_rgb = false, const unsigned char(*rgb_table)[3] = nullptr);
 void rs_sf_util_scale_plane_ids(rs_sf_image* map, int max_pid);
 void rs_sf_util_remap_plane_ids(rs_sf_image * map);

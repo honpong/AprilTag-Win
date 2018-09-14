@@ -47,6 +47,13 @@ void rs_sf_util_copy_depth_image(rs_sf_image_depth & dst, const rs_sf_image * sr
     memcpy(dst.data, src->data, dst.num_char());
 }
 
+void rs_sf_util_copy_color_image(rs_sf_image_rgb& dst, const rs_sf_image* src)
+{
+    dst.frame_id = src->frame_id;
+    dst.set_pose(src->cam_pose);
+    rs_sf_util_convert_to_rgb_image(&dst, src);
+}
+
 void rs_sf_util_draw_plane_ids(rs_sf_image * rgb, const rs_sf_image * map, bool overwrite_rgb, const unsigned char(*rgb_table)[3])
 {
     static unsigned char default_rgb_table[MAX_VALID_PID + 2][3] = {};

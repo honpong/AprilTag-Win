@@ -258,7 +258,7 @@ struct state_camera: state_branch<state_node*> {
     std::unique_ptr<tracker> feature_tracker;
     std::list<triangulated_track> standby_tracks;
     size_t id;
-    std::future<std::pair<std::vector<tracker::feature_track>&, bool>> detection_future;
+    std::future<std::vector<tracker::feature_track>&> detection_future;
     std::future<std::unique_ptr<camera_frame_t>> orb_future;
     bool orb_future_for_relocalization;
 

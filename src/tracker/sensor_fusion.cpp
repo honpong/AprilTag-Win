@@ -81,9 +81,12 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
 
             state_camera &camera = *sfm.s.cameras.children[data.id];
 
-            if (camera.detection_future.valid())
-                if (camera.detection_future.get())
-                    filter_update_detection_status(&sfm, camera, camera.detected_features, data.timestamp);
+            if (camera.detection_future.valid()) {
+                auto ret = camera.detection_future.get();
+                camera.add_detected_features(ret.first);
+                if (ret.second)
+                    filter_update_detection_status(&sfm, camera, ret.first.size(), data.timestamp);
+            }
 
             bool docallback = true;
             groupid groups = sfm.s.group_counter;
@@ -137,7 +140,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     for (auto &t  : camera.standby_tracks)               avoid.push_back(t);
 
                     camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
-                        [this, &camera, &avoid, new_group_created, relocalize_now] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) {
+                        [this, &camera, &avoid, new_group_created, relocalize_now] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) -> std::pair<std::vector<tracker::feature_track>&, bool> {
                             set_priority(PRIORITY_SLAM_DETECT);
                             auto start = std::chrono::steady_clock::now();
 
@@ -151,8 +154,6 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                             if (detected.size() > camera.detecting_space)
                                 detected.erase(detected.begin() + camera.detecting_space, detected.end());
 
-                            // insert (newest w/highest score first) up to detect_count features (so as to not let mapping affect tracking)
-                            camera.standby_tracks.insert(camera.standby_tracks.begin(), std::make_move_iterator(detected.begin()), std::make_move_iterator(detected.end()));
                             bool detecting_space = camera.detecting_space;
                             camera.detecting_space = 0;
 
@@ -172,8 +173,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                             auto stop = std::chrono::steady_clock::now();
                             queue.stats.find(data.global_id())->second.bg.data(v<1>{ static_cast<f_t>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
 
-                            camera.detected_features = detected.size();
-                            return detecting_space;
+                            return { detected, detecting_space };
                     }, std::move(data), std::move(camera_frame));
                 }
             }
@@ -182,7 +182,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
         case rc_SENSOR_TYPE_STEREO: {
             START_EVENT(SF_STEREO_RECEIVE, data.id);
             auto pair = sensor_data::split(std::move(data));
-             bool docallback = true;
+            bool docallback = true;
 
             if ((pair.first.id < sfm.s.cameras.children.size()) ^ (pair.second.id < sfm.s.cameras.children.size()))
                 sfm.log->critical("Stereo packet with only one camera ({} but not {}) defined\n", pair.first.id, pair.second.id);
@@ -193,8 +193,10 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
             bool skip_stereo_matching = true;
             for (int i = 0; i < 2; ++i) {
                 if (cameras[i]->detection_future.valid()) {
-                    cameras[i]->detection_future.wait();
-                    skip_stereo_matching &= cameras[i]->detected_features == 0;
+                    auto ret = cameras[i]->detection_future.get();
+                    cameras[i]->add_detected_features(ret.first);
+                    filter_update_detection_status(&sfm, *cameras[i], ret.first.size(), data.timestamp);
+                    skip_stereo_matching &= ret.first.size() == 0;
                 }
             }
             if(!skip_stereo_matching)

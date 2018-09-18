@@ -247,7 +247,6 @@ static void usage(char *argv0) {
 static void parse_args(int argc, char *argv[]) {
 	int i;
 	char *p;
-	extern int  optind;
 	optind = 1;
 	static char opt_list[] = "v:p:gI:Ss:nlbt:T:i:N:B:x:aAc:r:qLEVh";
 	while((i = getopt(argc, argv, opt_list)) != -1) {

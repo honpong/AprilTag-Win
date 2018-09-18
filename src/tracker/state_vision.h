@@ -258,7 +258,7 @@ struct state_camera: state_branch<state_node*> {
     std::unique_ptr<tracker> feature_tracker;
     std::list<triangulated_track> standby_tracks;
     size_t id;
-    std::future<bool> detection_future; // true if detected_features is valid
+    std::future<std::vector<tracker::feature_track>&> detection_future;
     std::future<std::unique_ptr<camera_frame_t>> orb_future;
     bool orb_future_for_relocalization;
 
@@ -267,9 +267,9 @@ struct state_camera: state_branch<state_node*> {
     void update_map_tracks(const sensor_data &data, mapper *map, const mapper::nodes_path &neighbors, const size_t min_group_map_add);
     size_t track_count() const;
     std::vector<triangulated_track> process_tracks();
+    void add_detected_features(std::vector<tracker::feature_track> &detected);
 
     size_t detecting_space = 0;
-    size_t detected_features = 0;
     int detector_failed = false;
 
     stdev<1> detect_stats, orb_stats, track_stats, map_track_stats;

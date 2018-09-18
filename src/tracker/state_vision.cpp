@@ -653,6 +653,11 @@ void state_camera::update_map_tracks(const sensor_data &data, mapper *map, const
     END_EVENT(SF_TRACK, feature_tracker->tracks.size())
 }
 
+void state_camera::add_detected_features(std::vector<tracker::feature_track> &detected) {
+    // insert (newest w/highest score first)
+    standby_tracks.insert(standby_tracks.begin(), std::make_move_iterator(detected.begin()), std::make_move_iterator(detected.end()));
+}
+
 float state_vision::median_depth_variance()
 {
     float median_variance = 1;

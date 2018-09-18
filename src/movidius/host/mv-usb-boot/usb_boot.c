@@ -28,6 +28,7 @@
 #include "rom_checksum.h"
 #include "dumphex.h"
 #include "usb_common.h"
+#include "usb_boot.h"
 
 #define USB_BOOT_VERSION			"4.1"
 #define DEFAULT_VID					0x03E7
@@ -51,6 +52,7 @@ typedef enum _readback_mode {
 
 static void usage(char *argv0);
 static void parse_args(int argc, char *argv[]);
+static void reset_variables();
 static usb_dev find_dev(int loud);
 static usb_han open_dev(usb_dev dev);
 static int wait_findopen(int as_reconnect, int timeout, usb_dev *dev_out, usb_han *han_out);
@@ -75,7 +77,7 @@ static long stdin_buflen = DEFAULT_STDINBUFLEN;
 unsigned int bulk_chunklen = DEFAULT_CHUNKSZ;
 static int do_log = 0, always_null = 0, bin_data = 0;
 static int wait_for_device = 0, loop_commands = 0, ignore_errors = 0;
-int quiet = 0, verbose = 0;
+static int quiet = 0, verbose = 0;
 FILE *msgdev;
 static int write_timeout = DEFAULT_WRITE_TIMEOUT, read_timeout = DEFAULT_READ_TIMEOUT;
 static int initialread_timeout = DEFAULT_INITIALREAD_TIMEOUT;
@@ -84,12 +86,13 @@ static int connect_timeout = DEFAULT_CONNECT_TIMEOUT, reconnect_timeout = DEFAUL
 
 static char last_open_dev_err[128];
 
-int main(int argc, char *argv[]) {
+int usb_boot(int argc, char *argv[]) {
 	int exitcode = 1;
 	int argind;
 	usb_dev dev = USB_DEV_NONE;
 	usb_han han = USB_HAN_NONE;
 
+	reset_variables();
 	parse_args(argc, argv);
 	if(do_list_devices) {
 		usb_init();
@@ -244,6 +247,7 @@ static void usage(char *argv0) {
 static void parse_args(int argc, char *argv[]) {
 	int i;
 	char *p;
+	optind = 1;
 	static char opt_list[] = "v:p:gI:Ss:nlbt:T:i:N:B:x:aAc:r:qLEVh";
 	while((i = getopt(argc, argv, opt_list)) != -1) {
 		switch(i) {
@@ -690,3 +694,33 @@ static int send_file(usb_han han, const char *fname) {
 	return 0;
 }
 
+static void reset_variables() {
+	device_address = NULL;
+	do_list_devices = 0;
+	use_guid = 0;
+	ep_in = 0x81;
+	ep_out = 0x01;
+	ep_in_sz = 0;
+	ep_out_sz = 0;
+	bulk_buflen = DEFAULT_BUFLEN;
+	stdin_buflen = DEFAULT_STDINBUFLEN;
+	do_log = 0; always_null = 0; bin_data = 0;
+	wait_for_device = 0;
+	loop_commands = 0;
+	ignore_errors = 0;
+	quiet = 0;
+	verbose = 0;
+	msgdev = NULL;
+	write_timeout = DEFAULT_WRITE_TIMEOUT;
+	read_timeout = DEFAULT_READ_TIMEOUT;
+	initialread_timeout = DEFAULT_INITIALREAD_TIMEOUT;
+	null_timeout = DEFAULT_NULL_TIMEOUT;
+	connect_timeout = DEFAULT_CONNECT_TIMEOUT;
+	reconnect_timeout = DEFAULT_RECONNECT_TIMEOUT;
+	memset(last_open_dev_err, 0, sizeof(last_open_dev_err));
+}
+
+int load_fw(const char* fw_file) {
+	char *argv[] = { "load_fw", "-a", "-x 2", "-q", (char *)fw_file };
+	return usb_boot(sizeof(argv) / sizeof(char *), argv);
+}

@@ -40,7 +40,7 @@ void stereo_matching::init(ShavekpMatchingSettings kpMatchingParams)
     patch_win_half_width = kpMatchingParams.patch_win_half_width;
 }
 
-bool stereo_matching::l_l_intersect_shave(int i , int j,float4 &P1,float4 &P2, float &s1, float &s2, float &det)
+void stereo_matching::l_l_intersect_shave(int i , int j,float4 &P1,float4 &P2, float &s1, float &s2, float &det) const
 {
     float3_t* kp1=(float3_t*)(p_kp1_Buffer+sizeof(int));
     float3_t* kp2=(float3_t*)(p_kp2_Buffer+sizeof(int));
@@ -57,7 +57,6 @@ bool stereo_matching::l_l_intersect_shave(int i , int j,float4 &P1,float4 &P2, f
     s2 = (p21_1 * v12 - p21_2 * v11);
     P1 = det * p1 + s1 * v1;
     P2 = det * p2 + s2 * v2;
-    return std::fabs(det) > EPS;
 }
 
 void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1, float* depths2, int* matched_kp)
@@ -116,12 +115,8 @@ void stereo_matching::stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * 
         for ( int j=0; j< n_kp2; j++)
         {
             float d1, d2, det;
-            if (!l_l_intersect_shave(i,j, pa, pb, d1, d2, det))
-            {
-                DPRINTF( "Failed intersect\n");
-                continue;
-            }
-            if(d1*det <= 0 || d2*det <= 0)
+            l_l_intersect_shave(i,j, pa, pb, d1, d2, det);
+            if(d1*det < 0 || d2*det < 0 || d1*d2 <= 0)
             {
                 DPRINTF("Lines were %.2fcm from intersecting at a depth of %.2fcm\n", sqrt(mvuDot(pa-pb,pa-pb))*100, cam1_intersect[2]*100);
                 continue;        // TODO: set minz and maxz or at least bound error when close to / far away from camera

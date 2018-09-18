@@ -666,7 +666,7 @@ bool filter_depth_measurement(struct filter *f, const sensor_data & data)
     return true;
 }
 
-static bool l_l_intersect(const v3& p1, const v3& v1, const v3& p2, const v3& v2, v3 &P1, v3 &P2, f_t &s1, f_t &s2, f_t &det)
+static void l_l_intersect(const v3& p1, const v3& v1, const v3& p2, const v3& v2, v3 &P1, v3 &P2, f_t &s1, f_t &s2, f_t &det)
 {
     // Minimize D(s1,s2) = ||P1(s1)-P2(s2)|| by solving D' = 0
     auto p21_1 = (p2-p1).dot(v1), v11 = v1.dot(v1), v12 = v1.dot(v2);
@@ -676,20 +676,20 @@ static bool l_l_intersect(const v3& p1, const v3& v1, const v3& p2, const v3& v2
     s2 = p21_1 * v12 - p21_2 * v11;
     P1 = det * p1 + s1 * v1;
     P2 = det * p2 + s2 * v2;
-    return std::abs(det) > F_T_EPS;
 }
 
 // Triangulates a point in the body reference frame from two views
 static bool keypoint_intersect(v3 &Tc1, v3 &Rc1P, f_t &depth1,
-                               v3 &Tc2, v3 &Rc2P, f_t &depth2, f_t intersection_error_percent_threshold)
+                               v3 &Tc2, v3 &Rc2P, f_t &depth2,
+                               f_t intersection_error_percent_threshold)
 {
-    v3 P1, P2; // P1 (P2) is the point on the first (second) line closest to the intersection
-    f_t d1, d2, det, thresh2 = intersection_error_percent_threshold * intersection_error_percent_threshold;
-    // intersection_error_percent = |pa - pb| / mean(depth1,depth2)
-    if (l_l_intersect(Tc1, Rc1P, Tc2, Rc2P, P1, P2, d1, d2, det)
-        && d1*det > 0
-        && d2*det > 0
-        && (P1 - P2).dot(P1 - P2) < thresh2 * (((d1 + d2) / 2) * ((d1 + d2) / 2))) {
+    v3 P1, P2, P21; // P1 (P2) is the point on the first (second) line closest to the intersection
+    f_t d1, d2, det, iept = intersection_error_percent_threshold;
+    l_l_intersect(Tc1, Rc1P, Tc2, Rc2P, P1, P2, d1, d2, det);
+    // w/o dividing or assuming det!=0, check:
+    //  depth1 > 0 && depth2 > 0 && (intersection_error_percent = |P1 - P2| / mean(depth1,depth2)) < intersection_error_percent_threshold
+    if (d1*det >= 0 && d2*det >= 0 && d1*d2 > 0 &&
+        (P1 - P2).dot(P1 - P2) < (iept*iept) * (((d1 + d2) / 2) * ((d1 + d2) / 2))) {
         depth1 = d1 / det;
         depth2 = d2 / det;
         return true;

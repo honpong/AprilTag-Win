@@ -36,7 +36,7 @@ extern "C" void stereo_match(ShavekpMatchingSettings *kpMatchingParams)
     stereo_matching_o.init(*kpMatchingParams);
     stereo_matching_o.stereo_kp_matching_and_compare(kpMatchingParams->kp1, kpMatchingParams->kp2,
             kpMatchingParams->patches1, kpMatchingParams->patches2, kpMatchingParams->depth1,
-            kpMatchingParams->depth2, kpMatchingParams->errors1, kpMatchingParams->matched_kp);
+            kpMatchingParams->depth2, kpMatchingParams->matched_kp);
 
 SHAVE_HALT;
 return;

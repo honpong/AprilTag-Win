@@ -91,6 +91,8 @@ struct filter {
     std::unique_ptr<sensor_data> recent_depth; //TODOMSM - per depth
     bool has_depth; //TODOMSM - per depth
 
+    stdev<1> stereo_stats;
+
     std::vector<std::unique_ptr<sensor_grey>> cameras;
     std::vector<std::unique_ptr<sensor_depth>> depths;
     std::vector<std::unique_ptr<sensor_accelerometer>> accelerometers;

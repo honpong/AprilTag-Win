@@ -34,10 +34,10 @@ struct feature_t
         float4 p_o1_transformed;
         float4 p_o2_transformed;
         float EPS;
-        bool l_l_intersect_shave(int i , int j ,float4 &P1,float4 &P2, float &s1, float &s2);
+        void l_l_intersect_shave(int i , int j ,float4 &P1,float4 &P2, float &s1, float &s2, float &det) const;
 
     public:
         void init(ShavekpMatchingSettings kpMatchingParams);
-        void stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1, float* depth2, float * errors1, int* matched_kp);
+        void stereo_kp_matching_and_compare(u8* p_kp1, u8* p_kp2, u8 * patches1[] , u8 * patches2[], float * depths1, float* depth2, int* matched_kp);
 };
 #endif /* CORE_TARGET_SHAVE_STEREO_MATCHING_H_ */

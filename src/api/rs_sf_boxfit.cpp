@@ -548,7 +548,7 @@ rs_sf_boxfit::box_record::box_record(const box& ref, const pose_t& pose, const r
     };
     // check if an image point with fov
     auto out_img_fov = [min_x = margin, max_x = (float)cam.width - margin, min_y = margin, max_y = (float)cam.height - margin](const v2& pt){
-        return pt.x() < min_x || max_x < pt.x() || pt.y() < min_y || max_y < pt.y();
+        return pt.x() < min_x || max_x <= pt.x() || pt.y() < min_y || max_y <= pt.y();
     };
     // check if a 3d point in world inside fov of image
     auto in_fov = [&to_cam, &cam, &out_img_fov](const v3& pt) {

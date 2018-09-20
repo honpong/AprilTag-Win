@@ -36,6 +36,7 @@ public:
     
     std::function<void(const sensor_data *)> data_callback;
     std::function<bool()> status_callback;
+    std::function<void()> stage_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
     virtual ~sensor_fusion();
@@ -145,7 +146,7 @@ private:
     friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere
     void update_status();
     void update_data(const sensor_data * data);
-    void update_stages(const transformation &G_currentworld_frame, const map_relocalization_info::candidate &candidate);
+    void update_stages();
     void stop_threads();
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning;
     bool threaded;

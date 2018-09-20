@@ -35,6 +35,12 @@ void sensor_fusion::update_data(const sensor_data * data)
         data_callback(data);
 }
 
+void sensor_fusion::update_stages()
+{
+    if(stage_callback)
+        stage_callback();
+}
+
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     : queue([this](sensor_data &&data) { queue_receive_data(std::move(data)); },
             strategy, std::chrono::milliseconds(500)),
@@ -104,8 +110,10 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
             }
 
             update_status();
-            if(docallback)
+            if(docallback) {
                 update_data(&data);
+                update_stages();
+            }
 
             sfm.relocalization_info = {};
             {

@@ -408,6 +408,15 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
     };
 }
 
+RCTRACKER_API void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback callback, void *handle)
+{
+    if(callback) tracker->stage_callback = [callback, handle, tracker]() {
+        for (rc_Stage stage = {}; rc_getStage(tracker, nullptr, &stage); )
+            callback(handle, tracker, &stage);
+    };
+    else tracker->stage_callback = nullptr;
+}
+
 void rc_pauseAndResetPosition(rc_Tracker * tracker)
 {
     tracker->pause_and_reset_position();

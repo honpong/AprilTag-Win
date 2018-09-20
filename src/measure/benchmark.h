@@ -12,6 +12,7 @@
 #include <unordered_set>
 #include <limits>
 #include "rc_tracker.h"
+#include "rc_internal.h"
 
 struct benchmark_result {
     struct { double reference, measured; } length_cm, path_length_cm; void * user_data;

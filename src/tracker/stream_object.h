@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <functional>
 
+#include "rc_internal.h"
 #include "bstream.h"
 #include "packet.h"
 

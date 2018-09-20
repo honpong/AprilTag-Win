@@ -3,6 +3,7 @@
 #endif
 #include "rc_tracker.h"
 #include "rc_compat.h"
+#include "rc_internal.h"
 #include "sensor_fusion.h"
 #include "capture.h"
 #include "calibration.h"

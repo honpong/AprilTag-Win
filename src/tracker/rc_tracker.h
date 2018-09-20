@@ -87,10 +87,6 @@ typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVelocity; // Q is the spatia
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseAcceleration; // derivative of rc_PoseVelocity
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVariance; // this is not the full variance yet
 typedef struct { rc_Pose pose_m; rc_Timestamp time_us; } rc_PoseTime;
-typedef struct { rc_Timestamp time_us; rc_SessionId session_id; } rc_SessionTimestamp;
-typedef struct { rc_Pose pose_m; rc_SessionTimestamp time_destination; } rc_RelocEdge;
-typedef struct { rc_SessionTimestamp time; } rc_MapNode;
-typedef union { struct { uint32_t nodes, edges, features, unique_features, relocalization_bins; }; uint32_t items[5]; } rc_StorageStats;
 
 #if __cplusplus
 static const rc_Matrix rc_MATRIX_IDENTITY = {
@@ -108,10 +104,6 @@ static const rc_Pose rc_POSE_IDENTITY = {
       {0, 1, 0},
       {0, 0, 1}}},
 };
-inline bool operator< (const rc_SessionTimestamp& lhs, const rc_SessionTimestamp& rhs) {
-    return lhs.session_id < rhs.session_id ||
-            (lhs.session_id == rhs.session_id && lhs.time_us < rhs.time_us);
-}
 #endif
 
 typedef uint16_t rc_Sensor;
@@ -571,10 +563,6 @@ RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Sensor camera_id, rc_Fe
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerError rc_getError(const rc_Tracker *tracker);
-RCTRACKER_API int rc_getRelocalizationEdges(rc_Tracker* tracker, rc_Timestamp *source, rc_RelocEdge **edges);
-RCTRACKER_API int rc_getRelocalizationPoses(rc_Tracker* tracker, rc_Pose **poses);
-RCTRACKER_API int rc_getMapNodes(rc_Tracker* tracker, rc_MapNode **mapnodes_timestamps);
-RCTRACKER_API rc_StorageStats rc_getStorageStats(rc_Tracker* tracker);
 /**
 .Returns total length of the travelling path.
 @param tracker The active rc_Tracker instance

@@ -597,6 +597,16 @@ void world_state::update_map(rc_Tracker * tracker, rc_Timestamp timestamp_us)
         if (!virtual_removed_node.features.empty())
             current_removed_map_nodes.emplace_back(std::move(virtual_removed_node));
 
+        for (const auto& it : *f->map->stages) {
+            const auto& name = it.first;
+            const auto& stage = it.second;
+            auto node_it = current_map_nodes.find(stage.closest_id);
+            if (node_it != current_map_nodes.end())
+                observe_virtual_object(timestamp_us, name, to_rc_Pose(node_it->second.position * stage.Gr_closest_stage), node_it->second.unlinked);
+            else
+                unobserve_virtual_object(name);
+        }
+
         std::lock_guard<std::mutex> lock(display_lock);
         map_nodes = std::move(current_map_nodes);
         if (!current_removed_map_nodes.empty())
@@ -626,9 +636,6 @@ void world_state::rc_data_callback(const replay_output *output, const rc_Data * 
     transformation G = to_transformation(pt.pose_m);
     observe_position(timestamp_us, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z(), data->path == rc_DATA_PATH_FAST);
     if(tracker) update_sensors(tracker, data);
-
-    for (rc_Stage stage = {}; rc_getStage(tracker, NULL, &stage); )
-        observe_virtual_object(0, stage.name, stage.pose_m);
 
     if(data->path == rc_DATA_PATH_FAST) return;
 
@@ -1080,6 +1087,9 @@ bool world_state::update_vertex_arrays(bool show_only_good)
     virtual_object_vertex.clear();
     for(auto& it : virtual_objects) {
         const VirtualObject& vo = it.second;
+        auto clip_alpha = [&vo](unsigned char alpha) {
+            return std::min<unsigned char>((vo.unlinked ? 50 : 255), alpha);
+        };
         for(int i = 0; i < 6; i++) {
             VertexData v;
             v3 vertex(0.5*axis_vertex[i].position[0],
@@ -1087,7 +1097,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                       0.5*axis_vertex[i].position[2]);
             vertex = vo.pose.g*vertex;
             set_position(&v, vertex[0], vertex[1], vertex[2]);
-            set_color(&v, axis_vertex[i].color[0], axis_vertex[i].color[1], axis_vertex[i].color[2], axis_vertex[i].color[3]);
+            set_color(&v, axis_vertex[i].color[0], axis_vertex[i].color[1], axis_vertex[i].color[2], clip_alpha(axis_vertex[i].color[3]));
             virtual_object_vertex.emplace_back(v);
         }
         if (vo.vertex_indices.size() > 1) {
@@ -1099,7 +1109,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
                 VertexData v;
                 const v3& vertex = world_vertices[vo.vertex_indices[i]];
                 set_position(&v, vertex[0], vertex[1], vertex[2]);
-                set_color(&v, vo.rgba[0], vo.rgba[1], vo.rgba[2], vo.rgba[3]);
+                set_color(&v, vo.rgba[0], vo.rgba[1], vo.rgba[2], clip_alpha(vo.rgba[3]));
                 virtual_object_vertex.emplace_back(v);
                 if (i > 0 && i + 1 < vo.vertex_indices.size())  // replicate last point
                     virtual_object_vertex.emplace_back(v);
@@ -1117,6 +1127,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
             auto& vertices = cameras[sensor_id].virtual_objects_vertex;
             for(auto& vit : virtual_objects) {
                 const VirtualObject& vo = vit.second;
+                if (vo.unlinked) continue;
                 aligned_vector<v2> projection = vo.project(G_camera_world, intrinsics);
                 for(v2& vertex : projection) {
                     VertexData v;
@@ -1371,7 +1382,7 @@ void world_state::observe_position_reloc(rc_Timestamp timestamp, const rc_Pose* 
     display_lock.unlock();
 }
 
-void world_state::observe_virtual_object(rc_Timestamp timestamp, const std::string &name, const rc_Pose& pose) {
+void world_state::observe_virtual_object(rc_Timestamp timestamp, const std::string &name, const rc_Pose& pose, bool unlinked) {
     display_lock.lock();
     auto it = virtual_objects.lower_bound(name);
     if (it == virtual_objects.end() || it->first != name) {
@@ -1381,8 +1392,15 @@ void world_state::observe_virtual_object(rc_Timestamp timestamp, const std::stri
         it->second.rgba[2] = 0;
         it->second.rgba[3] = 255;
     }
+    it->second.unlinked = unlinked;
     it->second.pose.timestamp = timestamp;
     it->second.pose.g = to_transformation(pose);
+    display_lock.unlock();
+}
+
+void world_state::unobserve_virtual_object(const std::string &name) {
+    display_lock.lock();
+    virtual_objects.erase(name);
     display_lock.unlock();
 }
 

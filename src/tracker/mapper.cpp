@@ -269,6 +269,39 @@ void mapper::finish_node(nodeid id) {
 void mapper::remove_node(nodeid id)
 {
     auto node_it = nodes->find(id);
+
+    // move node stages to nearest neighbor
+    stages.critical_section([&, this]() {
+        for(auto stage_it = stages->begin(); stage_it != stages->end(); ) {
+            stage& st = stage_it->second;
+            if(st.closest_id == node_it->first) {
+                auto neighbor_it = [node_it]() {
+                    const auto &edges = node_it->second.edges;
+                    auto best_edge_it = edges.begin();
+                    f_t best_distance = std::numeric_limits<f_t>::infinity();
+                    for(auto edge_it = edges.begin(); edge_it != edges.end(); ++edge_it) {
+                        f_t sq_distance = edge_it->second.G.T.dot(edge_it->second.G.T);
+                        if(sq_distance < best_distance) {
+                            best_edge_it = edge_it;
+                            best_distance = sq_distance;
+                        }
+                    }
+                    return best_edge_it;
+                }();
+                if(neighbor_it != node_it->second.edges.end()) {
+                    st.closest_id = neighbor_it->first;
+                    st.Gr_closest_stage = invert(neighbor_it->second.G) * st.Gr_closest_stage;
+                    st.current_id = std::numeric_limits<nodeid>::max();
+                } else {
+                    // the node doesn't have neighbors, we have to delete stages
+                    stage_it = stages->erase(stage_it);
+                    continue;
+                }
+            }
+            ++stage_it;
+        }
+    });
+
     aligned_map<nodeid, map_edge> edges = node_it->second.edges;
     std::set<nodeid> neighbors;
     for(auto& edge : edges) {

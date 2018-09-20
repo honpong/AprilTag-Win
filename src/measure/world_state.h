@@ -53,6 +53,7 @@ typedef struct _mapnode {
     transformation position;
     std::vector<Neighbor> neighbors;
     std::vector<Feature> features;
+    std::vector<transformation> virtual_object_links;
 } MapNode;
 
 typedef struct _sensor {

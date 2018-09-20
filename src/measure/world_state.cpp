@@ -601,9 +601,11 @@ void world_state::update_map(rc_Tracker * tracker, rc_Timestamp timestamp_us)
             const auto& name = it.first;
             const auto& stage = it.second;
             auto node_it = current_map_nodes.find(stage.closest_id);
-            if (node_it != current_map_nodes.end())
-                observe_virtual_object(timestamp_us, name, to_rc_Pose(node_it->second.position * stage.Gr_closest_stage), node_it->second.unlinked);
-            else
+            if (node_it != current_map_nodes.end()) {
+                transformation G_world_stage = node_it->second.position * stage.Gr_closest_stage;
+                node_it->second.virtual_object_links.emplace_back(G_world_stage);
+                observe_virtual_object(timestamp_us, name, to_rc_Pose(G_world_stage), node_it->second.unlinked);
+            } else
                 unobserve_virtual_object(name);
         }
 
@@ -986,6 +988,14 @@ bool world_state::update_vertex_arrays(bool show_only_good)
             }
             set_position(&vf, f.feature.world.x, f.feature.world.y, f.feature.world.z);
             map_feature_vertex.push_back(vf);
+        }
+        for(transformation& t : node.virtual_object_links) {
+            VertexData ve;
+            set_color(&ve, 255, 165, 0, alpha);
+            set_position(&ve, v1[0], v1[1], v1[2]);
+            map_edge_vertex.push_back(ve);
+            set_position(&ve, t.T[0], t.T[1], t.T[2]);
+            map_edge_vertex.push_back(ve);
         }
     }
 

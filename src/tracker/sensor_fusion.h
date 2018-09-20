@@ -38,7 +38,7 @@ public:
     std::function<bool()> status_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
-    ~sensor_fusion();
+    virtual ~sensor_fusion();
     
     /** Sets the current location of the device.
      

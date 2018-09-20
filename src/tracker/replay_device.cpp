@@ -462,7 +462,12 @@ void replay_device::start() {
 }
 
 void replay_device::set_stage() {
-    static int x; std::string name = "stage" + std::to_string(x++);
+    static int x = [this]() {
+        int n = 0;
+        for (rc_Stage stage = {}; rc_getStage(tracker.get(), nullptr, &stage); ++n);
+        return n;
+    }();
+    std::string name = "stage" + std::to_string(x++);
     rc_PoseTime pose = rc_getPose(tracker.get(), nullptr, nullptr, rc_DATA_PATH_SLOW);
     if (rc_setStage(tracker.get(), name.c_str(), pose.pose_m))
         printf("created --stage=%s=%" PRId64 "\n", name.c_str(), pose.time_us);

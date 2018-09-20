@@ -72,6 +72,7 @@ void replay_device::setup_filter()
 {
     if (stream->pose_callback) rc_setDataCallback(tracker.get(), stream->pose_callback, stream->pose_handle);
     if (stream->status_callback) rc_setStatusCallback(tracker.get(), stream->status_callback, tracker.get());
+    if (stream->stage_callback) rc_setStageCallback(tracker.get(), stream->stage_callback, stream->stage_handle);
 }
 
 #ifdef MYRIAD2

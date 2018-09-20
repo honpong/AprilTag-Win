@@ -16,6 +16,12 @@ static void process_track_output(const replay_output *output, const rc_Data *dat
     output->host->host_data_callback(output, data);
 }
 
+static void process_stage(void *handle, rc_Tracker * tracker, const rc_Stage * stage) {
+    const replay_output *output = (const replay_output *)handle;
+    if (output->host->stage_callback)
+        output->host->stage_callback(stage);
+}
+
 static void log_to_stderr(void *handle, rc_MessageLevel message_level, const char * message, size_t len) {
     file_stream * stream = (file_stream *)handle;
     cerr << stream->name << ": " << message;
@@ -42,6 +48,8 @@ file_stream::file_stream(const char *name) {
     device_stream::message_callback = log_to_stderr;
     device_stream::map_load_callback = mem_load_callback;
     device_stream::save_callback = file_save_callback;
+    device_stream::stage_handle = &track_output[rc_DATA_PATH_SLOW];
+    device_stream::stage_callback = process_stage;
 }
 
 ////////////////   H O S T    S T R E A M     ////////////////////////

@@ -41,6 +41,18 @@ void sensor_fusion::update_stages()
         stage_callback();
 }
 
+void sensor_fusion::update_relocalizations(const map_relocalization_info & info)
+{
+    if(relocalization_callback && info.is_relocalized) {
+        rc_Relocalization reloc;
+        reloc.time_us = sensor_clock::tp_to_micros(info.frame_timestamp);
+        for(auto& c : info.candidates) {
+            reloc.session = sfm.map->get_node_session(c.node_id);
+            relocalization_callback(reloc);
+        }
+    }
+}
+
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     : queue([this](sensor_data &&data) { queue_receive_data(std::move(data)); },
             strategy, std::chrono::milliseconds(500)),
@@ -121,6 +133,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     if (sfm.relocalization_future.valid()) {
                         auto result = sfm.relocalization_future.get();
                         filter_add_relocalization_edges(&sfm, result.edges);
+                        update_relocalizations(result.info);
                         sfm.relocalization_info = std::move(result.info);
                     }
                     sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,

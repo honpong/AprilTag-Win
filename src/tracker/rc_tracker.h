@@ -87,6 +87,7 @@ typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVelocity; // Q is the spatia
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseAcceleration; // derivative of rc_PoseVelocity
 typedef struct { rc_Vector W; rc_Vector T; } rc_PoseVariance; // this is not the full variance yet
 typedef struct { rc_Pose pose_m; rc_Timestamp time_us; } rc_PoseTime;
+typedef struct { rc_Timestamp time_us; rc_SessionId session; } rc_Relocalization;
 
 #if __cplusplus
 static const rc_Matrix rc_MATRIX_IDENTITY = {
@@ -217,6 +218,7 @@ typedef void(*rc_DataCallback)(void *handle, rc_Tracker * tracker, const rc_Data
 typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence);
 typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, const char * message, size_t len);
 typedef void(*rc_StageCallback)(void *handle, rc_Tracker * tracker, const rc_Stage * stage);
+typedef void(*rc_RelocalizationCallback)(void *handle, rc_Tracker * tracker, const rc_Relocalization * relocalization);
 
 RCTRACKER_API const char *rc_version();
 RCTRACKER_API rc_Tracker *rc_create();
@@ -434,6 +436,7 @@ RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callb
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback callback, void *handle, rc_MessageLevel maximum_level);
 RCTRACKER_API void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback callback, void *handle);
+RCTRACKER_API void rc_setRelocalizationCallback(rc_Tracker *tracker, rc_RelocalizationCallback callback, void *handle);
 
 typedef enum rc_TrackerRunFlags
 {

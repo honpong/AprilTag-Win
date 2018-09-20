@@ -417,6 +417,15 @@ RCTRACKER_API void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback cal
     else tracker->stage_callback = nullptr;
 }
 
+RCTRACKER_API void rc_setRelocalizationCallback(rc_Tracker *tracker, rc_RelocalizationCallback callback, void *handle)
+{
+    if(callback) tracker->relocalization_callback = [callback, handle, tracker](const rc_Relocalization &reloc) {
+        callback(handle, tracker, &reloc);
+    };
+    else
+        tracker->relocalization_callback = nullptr;
+}
+
 void rc_pauseAndResetPosition(rc_Tracker * tracker)
 {
     tracker->pause_and_reset_position();

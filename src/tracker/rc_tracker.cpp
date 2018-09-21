@@ -3,6 +3,7 @@
 #endif
 #include "rc_tracker.h"
 #include "rc_compat.h"
+#include "rc_internal.h"
 #include "sensor_fusion.h"
 #include "capture.h"
 #include "calibration.h"
@@ -405,6 +406,24 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
             callback(handle, current.run_state, current.error, current.confidence);
         return diff;
     };
+}
+
+RCTRACKER_API void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback callback, void *handle)
+{
+    if(callback) tracker->stage_callback = [callback, handle, tracker]() {
+        for (rc_Stage stage = {}; rc_getStage(tracker, nullptr, &stage); )
+            callback(handle, tracker, &stage);
+    };
+    else tracker->stage_callback = nullptr;
+}
+
+RCTRACKER_API void rc_setRelocalizationCallback(rc_Tracker *tracker, rc_RelocalizationCallback callback, void *handle)
+{
+    if(callback) tracker->relocalization_callback = [callback, handle, tracker](const rc_Relocalization &reloc) {
+        callback(handle, tracker, &reloc);
+    };
+    else
+        tracker->relocalization_callback = nullptr;
 }
 
 void rc_pauseAndResetPosition(rc_Tracker * tracker)

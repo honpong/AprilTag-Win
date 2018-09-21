@@ -7,6 +7,7 @@
 #include <unordered_set>
 #include "loop_tester.h"
 #include "rc_tracker.h"
+#include "rc_internal.h"
 #include "tpose.h"
 
 /** Generates loop groundtruth online.

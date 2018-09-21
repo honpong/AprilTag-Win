@@ -75,6 +75,8 @@ public:
     void set_data_callback(std::function<void(const replay_output *, const rc_Data *)> data_callback) {
         stream->host_data_callback = data_callback;
     }
+    void set_stage_callback(std::function<void(const rc_Stage *)> stage_callback) { stream->stage_callback = stage_callback; }
+    void set_relocalization_callback(std::function<void(const rc_Relocalization *)> reloc_callback) { stream->relocalization_callback = reloc_callback; }
     void set_track_stat(std::string stat) { tracking_stat = stat; }
     std::string get_track_stat();
     rc_StorageStats get_storage_stat();

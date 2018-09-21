@@ -36,9 +36,11 @@ public:
     
     std::function<void(const sensor_data *)> data_callback;
     std::function<bool()> status_callback;
+    std::function<void()> stage_callback;
+    std::function<void(const rc_Relocalization&)> relocalization_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
-    ~sensor_fusion();
+    virtual ~sensor_fusion();
     
     /** Sets the current location of the device.
      
@@ -145,7 +147,8 @@ private:
     friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere
     void update_status();
     void update_data(const sensor_data * data);
-    void update_stages(const transformation &G_currentworld_frame, const map_relocalization_info::candidate &candidate);
+    void update_stages();
+    void update_relocalizations(const map_relocalization_info & info);
     void stop_threads();
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning;
     bool threaded;

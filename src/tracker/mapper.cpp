@@ -1118,7 +1118,7 @@ bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
         }
     }
 
-    cur_map.log->info("Loaded map with {} nodes and {} feature offset", cur_map.node_id_offset, cur_map.feature_id_offset);
+    cur_map.log->info("Loaded map with {} nodes, {} feature offset and {} stages", cur_map.node_id_offset, cur_map.feature_id_offset, cur_map.stages->size());
     return true;
 }
 

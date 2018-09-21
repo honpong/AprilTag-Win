@@ -53,6 +53,7 @@ typedef struct _mapnode {
     transformation position;
     std::vector<Neighbor> neighbors;
     std::vector<Feature> features;
+    std::vector<transformation> virtual_object_links;
 } MapNode;
 
 typedef struct _sensor {
@@ -61,6 +62,7 @@ typedef struct _sensor {
 
 typedef struct _virtual_object {
     Position pose;  // pose in the world (i.e. G_world_object)
+    bool unlinked;  // unlinked to main map, as nodes
     unsigned char rgba[4];  // edge color
     aligned_vector<v3> vertices;  // local coordinates, meters
     std::vector<size_t> vertex_indices;  // order of vertices to draw the object
@@ -186,7 +188,8 @@ public:
     void observe_ate(rc_Timestamp timestamp_us, const float absolute_trajectory_error);
     void observe_rpe(rc_Timestamp timestamp_us, const float relative_pose_error);
     void observe_position_reloc(rc_Timestamp timestamp, const rc_Pose* poses, size_t nposes);
-    void observe_virtual_object(rc_Timestamp timestamp, const std::string& uuid, const rc_Pose& pose);
+    void observe_virtual_object(rc_Timestamp timestamp, const std::string& uuid, const rc_Pose& pose, bool unlinked = false);
+    void unobserve_virtual_object(const std::string &name);
     std::string get_feature_stats();
     float get_feature_lifetime();
     int get_feature_depth_measurements();

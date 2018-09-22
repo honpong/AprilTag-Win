@@ -30,6 +30,7 @@ struct rs_sf_camera_stream : rs_sf_image_stream
             intrinsics[RS_SF_STREAM_COLOR] = color_profile.get_intrinsics();
             extrinsics[RS_SF_STREAM_DEPTH][RS_SF_STREAM_COLOR] = depth_profile.get_extrinsics_to(color_profile);
             extrinsics[RS_SF_STREAM_COLOR][RS_SF_STREAM_DEPTH] = color_profile.get_extrinsics_to(depth_profile);
+            buffer(extrinsics[RS_SF_STREAM_COLOR][RS_SF_STREAM_DEPTH]);
             
             // Go over the device's sensors
             for (rs2::sensor& sensor : device.query_sensors()){
@@ -90,7 +91,12 @@ private:
     rs2::config config;
     rs2_intrinsics intrinsics[RS_SF_STREAM_COUNT];
     rs2_extrinsics extrinsics[RS_SF_STREAM_COUNT][RS_SF_STREAM_COUNT];
-
+    float color_pose_buf[12];
+    void buffer(const rs2_extrinsics& extr){
+        const float* src = (const float*)&extr;
+        for(int p : {0,1,2,4,5,6,8,9,10,3,7,11}){ color_pose_buf[p] = *src++; }
+    }
+    
     void print(const rs2::error& e) {
         std::cerr << "RealSense error calling " << e.get_failed_function() << "(" << e.get_failed_args() << "):\n    " << e.what() << std::endl;
     }

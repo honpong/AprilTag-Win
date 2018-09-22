@@ -174,8 +174,13 @@ protected:
         pose_t cam_pose;
         int num_visible_plane = 0;
         bool vis_pl[3][2];    // visible planes[axis][sign] of this box
-        bool clear_dir[3][2]; // is end point detected within fov
+        bool vis_pt[3][2][4]; // visible corners[axis][sign][corner]
+        bool fov_pt[3][2][4]; // is point detected within fov
+        bool clear_dir[3][2]; // is direction of this box cleared
+        v3 pt[3][2][4];       // box corners[axis][sign][corner]
         v3 half_dir(int a) const { return axis.col(a) * dimension[a] * 0.5f; }
+        bool is_visible_line(int axis, int sign, int l) const { return vis_pt[axis][sign][l] && vis_pt[axis][sign][(l+1)%4]; }
+        bool is_fov_line(int axis, int sign, int l) const { return fov_pt[axis][sign][l] && fov_pt[axis][sign][(l+1)%4]; }
     };
     
     struct tracked_box : public box {

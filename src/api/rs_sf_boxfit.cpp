@@ -570,20 +570,29 @@ rs_sf_boxfit::box_record::box_record(const box& ref, const pose_t& pose, const r
             const auto pl_cen = center + half_dir(a) * (s == 0 ? 1 : -1); // pos, neg, plane center
             
             // each axis direction has 4 end points defined by the other two axis.
-            const auto p0 = pl_cen + half_dir(b) + half_dir(c); // box plane corner 0 orthogonal to signed axis d
-            const auto p1 = pl_cen + half_dir(b) - half_dir(c); // box plane corner 1 orthogonal to signed axis d
-            const auto p2 = pl_cen - half_dir(b) + half_dir(c); // box plane corner 2 orthogonal to signed axis d
-            const auto p3 = pl_cen - half_dir(b) - half_dir(c); // box plane corner 3 orthogonal to signed axis d
+            const auto p0 = pt[a][s][0] = pl_cen + half_dir(b) + half_dir(c); // box plane corner 0 orthogonal to signed axis d
+            const auto p1 = pt[a][s][1] = pl_cen + half_dir(b) - half_dir(c); // box plane corner 1 orthogonal to signed axis d
+            const auto p2 = pt[a][s][2] = pl_cen - half_dir(b) - half_dir(c); // box plane corner 2 orthogonal to signed axis d
+            const auto p3 = pt[a][s][3] = pl_cen - half_dir(b) + half_dir(c); // box plane corner 3 orthogonal to signed axis d
             
             // a box corner is visible when any one of the planes containing that corner is visible.
-            const int vis0 = (vis_pl[a][s] || vis_pl[b][0] || vis_pl[c][0] ? 1 : 0); //plane corner 0 visibility
-            const int vis1 = (vis_pl[a][s] || vis_pl[b][0] || vis_pl[c][1] ? 1 : 0); //plane corner 1 visibility
-            const int vis2 = (vis_pl[a][s] || vis_pl[b][1] || vis_pl[c][0] ? 1 : 0); //plane corner 2 visibility
-            const int vis3 = (vis_pl[a][s] || vis_pl[b][1] || vis_pl[c][1] ? 1 : 0); //plane corner 3 visibility
+            vis_pt[a][s][0] = (vis_pl[a][s] || vis_pl[b][0] || vis_pl[c][0] ? 1 : 0); //plane corner 0 visibility
+            vis_pt[a][s][1] = (vis_pl[a][s] || vis_pl[b][0] || vis_pl[c][1] ? 1 : 0); //plane corner 1 visibility
+            vis_pt[a][s][2] = (vis_pl[a][s] || vis_pl[b][1] || vis_pl[c][1] ? 1 : 0); //plane corner 2 visibility
+            vis_pt[a][s][3] = (vis_pl[a][s] || vis_pl[b][1] || vis_pl[c][0] ? 1 : 0); //plane corner 3 visibility
+            
+            // a box corner inside fov of image
+            fov_pt[a][s][0] = in_fov(p0);
+            fov_pt[a][s][1] = in_fov(p1);
+            fov_pt[a][s][2] = in_fov(p2);
+            fov_pt[a][s][3] = in_fov(p3);
             
             // we clear (lock) the direction, i.e. count a 1/2 length toward final measurement, when the
-            // number of visible corner not touching margin > 3.
-            clear_dir[a][s] = (in_fov(p0)*vis0 + in_fov(p1)*vis1 + in_fov(p2)*vis2 + in_fov(p3)*vis3 >= 3 ? true : false);
+            // number of visible corner not touching margin > 2
+            clear_dir[s][s] = ((is_visible_line(a,s,0) && is_fov_line(a,s,0)) ||
+                               (is_visible_line(a,s,1) && is_fov_line(a,s,1)) ||
+                               (is_visible_line(a,s,2) && is_fov_line(a,s,2)) ||
+                               (is_visible_line(a,s,3) && is_fov_line(a,s,3)));
         }
     }
 }

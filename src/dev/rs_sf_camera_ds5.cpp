@@ -6,9 +6,10 @@
 
 #include <librealsense2/rsutil.h>
 #include <iostream>
+
 struct rs_sf_camera_stream : rs_sf_image_stream
 {
-    rs_sf_camera_stream(int w, int h) : image{}, curr_depth(w*h * 2), prev_depth(w*h * 2), intrinsics{}, extrinsics{}
+    rs_sf_camera_stream(int w, int h) : image{}, intrinsics{}, extrinsics{}
     {
         try {
             auto list = ctx.query_devices();
@@ -62,11 +63,7 @@ struct rs_sf_camera_stream : rs_sf_image_stream
                 img.frame_id = f.get_frame_number();
                 img.byte_per_pixel = stream_to_byte_per_pixel[stream_type];
 
-                if (stream_type == RS_SF_STREAM_DEPTH) {
-                  //  std::swap(curr_depth, prev_depth);
-                  //  rs_sf_memcpy(curr_depth.data(), img.data, img.num_char());
-                  //  img.data = prev_depth.data();
-                }
+                if (stream_type == RS_SF_STREAM_COLOR){ img.cam_pose = color_pose_buf; }
             }
             if (frames.first_or_default(RS2_STREAM_DEPTH) && frames.first_or_default(RS2_STREAM_COLOR)) return image;
             if (frames.size() == 0) return nullptr;
@@ -84,7 +81,6 @@ struct rs_sf_camera_stream : rs_sf_image_stream
 protected:
     rs_sf_image image[RS_SF_STREAM_COUNT];
     int stream_to_byte_per_pixel[RS_SF_STREAM_COUNT] = { 0,2,3,1,1 };
-    std::vector<unsigned char> curr_depth, prev_depth;
     float depth_unit = 0.001f;
 
 private:

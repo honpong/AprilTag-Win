@@ -26,6 +26,13 @@ target_link_libraries(spec util gtest gtest_main trackeri)
 
 add_test(NAME spec COMMAND spec --gtest_output=xml:spec.xml)
 
+add_executable(spec_integration
+    stages.cpp
+)
+target_link_libraries(spec_integration util gtest gtest_main trackeri tracker)
+set_property(TARGET spec_integration PROPERTY CXX_STANDARD 14)
+add_test(NAME spec_integration COMMAND spec_integration --gtest_output=xml:spec_integration.xml WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+
 add_executable(spec_intel
   rc_tracker_tests.cpp
   prediction.cpp

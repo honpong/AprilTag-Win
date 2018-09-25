@@ -143,7 +143,6 @@ void fusion_queue::dispatch_async(std::function<void()> fn)
     std::unique_lock<std::mutex> lock(control_mutex);
     control_func = fn;
     lock.unlock();
-    if(singlethreaded) dispatch_singlethread(false);
 }
 
 void fusion_queue::start_buffering(sensor_clock::duration _buffer_time)

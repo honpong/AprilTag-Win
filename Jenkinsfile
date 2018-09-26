@@ -18,6 +18,12 @@ pipeline {
                 }
             }
         }
+        stage('Prepare Benchmark') {
+            steps {
+                sh 'cp -asf --no-preserve=mode $HOME/data/ $(realpath .)'
+                sh 'rsync -a --chmod=ug+rw     $HOME/data/ $(realpath .)/data/ --include "*.json" --include "*/" --exclude "*"'
+            }
+        }
         stage('Test') {
             steps {
                 sh 'cmake --build build --target test'
@@ -45,12 +51,6 @@ pipeline {
                 dir("src/movidius/device/output") {
                     stash name: 'device.mvcmd', includes: 'device.mvcmd'
                 }
-            }
-        }
-        stage('Prepare Benchmark') {
-            steps {
-                sh 'cp -asf --no-preserve=mode $HOME/data/ $(realpath .)'
-                sh 'rsync -a --chmod=ug+rw     $HOME/data/ $(realpath .)/data/ --include "*.json" --include "*/" --exclude "*"'
             }
         }
         stage('Check') {

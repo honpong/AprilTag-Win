@@ -108,6 +108,7 @@ extern "C"
     {
         RS_SHAPEFIT_PLANE = 0,
         RS_SHAPEFIT_BOX = 1,
+        RS_SHAPEFIT_BOX_COLOR = 2,
     };
 
     enum rs_sf_fit_option

@@ -70,7 +70,8 @@ namespace rs2
             _image[BOX_DST_RAYCA] << input_depth_frame << &_depth_intrinsics;
             _image[BOX_DST_COLOR] << input_color_frame << &_color_intrinsics << _color_image_pose.data();
             
-            auto box_detector = (_detector = std::shared_ptr<rs_shapefit>(rs_shapefit_create((rs_sf_intrinsics*)&_depth_intrinsics, RS_SHAPEFIT_BOX),
+            auto capability   = (_use_color>0? RS_SHAPEFIT_BOX_COLOR : RS_SHAPEFIT_BOX);
+            auto box_detector = (_detector = std::shared_ptr<rs_shapefit>(rs_shapefit_create((rs_sf_intrinsics*)&_depth_intrinsics, capability),
                                                                           rs_shapefit_delete)).get();
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_DEPTH_UNIT, _depth_unit);
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_ASYNC_WAIT, 0.0);
@@ -155,6 +156,10 @@ namespace rs2
         void set(const int& s, const double value)
         {
             if (s==RS2_MEASURE_PARAM_PRESET){ _param_preset = value; }
+            else if(s==RS2_MEASURE_USE_COLOR){
+                if(_detector){ throw std::runtime_error("Cannot initialize color stream processing after 1st frame\n"); }
+                else{ _use_color = value; }
+            }
             else {                            _is_export[s] = (value > 0.0); }
         }
         
@@ -206,7 +211,7 @@ namespace rs2
         std::unique_ptr<camera_tracker> _camera_tracker;
         std::shared_ptr<rs_shapefit> _detector;
         rs_sf_pose_data _depth_image_pose, _color_image_pose;
-        double _param_preset = 0;
+        double _param_preset = 0, _use_color = 0.0;
         float _depth_unit;
         
         // box raycast utility
@@ -268,7 +273,7 @@ HANDLE_EXCEPTIONS_AND_RETURN(nullptr, box_measure, depth_unit)
 void rs2_box_measure_configure(rs2_box_measure* box_measure, const rs2_measure_const config, double value, rs2_error** error) BEGIN_API_CALL
 {
     VALIDATE_NOT_NULL(box_measure);
-    VALIDATE_RANGE(config, rs2::box_measure_impl::BOX_DST_DENSE, rs2::box_measure_impl::BOX_IMG_COUNT);
+    VALIDATE_RANGE(config, rs2::box_measure_impl::BOX_SRC_COLOR, rs2::box_measure_impl::BOX_IMG_COUNT);
     
     ((rs2::box_measure_impl*)box_measure)->set(config, value);
 }

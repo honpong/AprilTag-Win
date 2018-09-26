@@ -55,6 +55,7 @@ extern "C"
         RS2_STREAM_PLANE = 4,          /**< optional plane id stream from box measure       */
         RS2_STREAM_BOXCAST = 5,        /**< optional raycasted box depth from box measure   */
         RS2_MEASURE_PARAM_PRESET = 6,  /**< configure preset parameters for box measure     */
+        RS2_MEASURE_USE_COLOR = 2,     /**< initialize color stream process in box measure  */
         RS2_MEASURE_BOX_MAXCOUNT = 10, /**< maximum number of boxes from box measure        */
     } rs2_measure_const;
     
@@ -95,6 +96,7 @@ extern "C"
     /**
      * Configure box measure object. Available configuration includes:
      *  RS2_MEASURE_PARAM_PRESET...flag 1: small, 2: medium, 3: large boxes parameter preset
+     *  RS2_MEASURE_USE_COLOR......flag 0: OFF,   1: color edge fitting (must init before 1st frame)
      *  RS2_STREAM_DEPTH_DENSE.....flag 0: OFF,   1: ON dense depth output
      *  RS2_STREAM_PLANE...........flag 0: OFF,   1: ON plane index output
      *
@@ -338,6 +340,7 @@ namespace rs2
             
             _block = std::shared_ptr<processing_block>((processing_block*)rs2_box_measure_create(&_box_measure, depth_unit,
                                                                                                  custom ? custom->intrinsics : nullptr, custom ? &custom->color_to_depth : nullptr, &e));
+            if (_use_color){ configure(RS2_MEASURE_USE_COLOR,1); }
             error::handle(e);
             
             _block->start(_queue);
@@ -458,7 +461,9 @@ namespace rs2
             if (_camera_name == "Intel RealSense 410" ||
                 _camera_name == "Intel RealSense D410") { _stream_w = 640; _stream_h = 480; }
             else if (_camera_name == "Intel RealSense 415" ||
-                     _camera_name == "Intel RealSense D415") { _stream_w = 640; _stream_h = 480; }
+                     _camera_name == "Intel RealSense D415") { _stream_w = 640; _stream_h = 480; _use_color = true; }
+            else if (_camera_name == "Intel RealSense 435" ||
+                     _camera_name == "Intel RealSense D435") { _stream_w = 640; _stream_h = 480; _use_color = true; }
             else if (_camera_name == "Intel RealSense SR300") { _stream_w = 640; _stream_h = 480; _depth_unit = 0.000125f; }
             else {  _stream_w = 640; _stream_h = 480; /**throw std::runtime_error(_camera_name + " not supported by Box SDK!");*/ }
             
@@ -512,6 +517,7 @@ namespace rs2
         std::string _camera_name;
         int _stream_w, _stream_h;
         float _depth_unit = 0.0f;
+        bool _use_color = false;
         
         std::unique_ptr<box_raycast> _boxcast;
     };

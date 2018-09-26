@@ -125,7 +125,8 @@ namespace rs2
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_BOX_SCAN_MODE, _is_export[BOX_DST_DENSE] ? 1 : 0);
             rs_shapefit_set_option(box_detector, RS_SF_OPTION_PARAM_PRESET, _param_preset);
             
-            auto status = rs_shapefit_depth_image(box_detector, &_image[BOX_DST_DENSE]);
+            rs_sf_image images[] = {_image[BOX_DST_DENSE],_image[BOX_SRC_COLOR]};
+            auto status = rs_shapefit_depth_image(box_detector, images);
             if (status == RS_SF_SUCCESS) { _reset_request = false; }
             if (status >= RS_SF_SUCCESS) {
                 for (auto s : { BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_DENSE, BOX_DST_PLANE, BOX_DST_RAYCA, BOX_DST_COLOR }) {

@@ -322,11 +322,11 @@ void state_vision::update_map(mapper *map, const std::vector<triangulated_track>
 
 void state_vision::project_new_group_covariance(const state_vision_group &g)
 {
-    cov.cov.map()(g.Tr.index, g.Tr.index) *= 1.1;
+    cov.cov.map()(g.Tr.index + 0, g.Tr.index + 0) *= 1.1;
     cov.cov.map()(g.Tr.index + 1, g.Tr.index + 1) *= 1.1;
     cov.cov.map()(g.Tr.index + 2, g.Tr.index + 2) *= 1.1;
 
-    cov.cov.map()(g.Qr.index, g.Qr.index) *= 1.1;
+    cov.cov.map()(g.Qr.index + 0, g.Qr.index + 0) *= 1.1;
     cov.cov.map()(g.Qr.index + 1, g.Qr.index + 1) *= 1.1;
     cov.cov.map()(g.Qr.index + 2, g.Qr.index + 2) *= 1.1;
 }

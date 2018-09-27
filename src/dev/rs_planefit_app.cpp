@@ -27,18 +27,19 @@ int main(int argc, char* argv[])
     rs_shapefit_capability sf_option = RS_SHAPEFIT_PLANE;
 
     for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "--box") == 0) { sf_option = RS_SHAPEFIT_BOX; }
+        if (strcmp(argv[i], "--cbox") == 0) { sf_option = RS_SHAPEFIT_BOX_COLOR; }
+        else if (strcmp(argv[i], "--box") == 0) { sf_option = RS_SHAPEFIT_BOX; }
         else if (strcmp(argv[i], "--plane") == 0) { sf_option = RS_SHAPEFIT_PLANE; }
         else if (strcmp(argv[i], "--live") == 0) { is_live = true; }
         else if (strcmp(argv[i], "--capture") == 0) { is_capture = true; is_live = false; }
-        else if (strcmp(argv[i], "--num_frames") == 0) { num_frames = atoi(argv[++i]); }
+        else if (strcmp(argv[i], "--num_frame") == 0) { num_frames = atoi(argv[++i]); }
         else if (strcmp(argv[i], "--path") == 0) { path = argv[++i]; }
         else if (strcmp(argv[i], "--replay") == 0) { is_live = false; }
         else if (strcmp(argv[i], "--hd") == 0) { capture_size = { 1280,720 }; }
         else if (strcmp(argv[i], "--qhd") == 0) { capture_size = { 640,360 }; }
         else if (strcmp(argv[i], "--vga") == 0) { capture_size = { 640,480 }; }
         else {
-            printf("usages:\n rs_shapefit_app [--box|--plane][--live|--replay][--path PATH][--capture][--num_frame NUM] \n");
+            printf("usages:\n rs_shapefit_app [--cbox|--box|--plane][--live|--replay][--path PATH][--capture][--num_frame NUM] \n");
             return 0;
         }
     }

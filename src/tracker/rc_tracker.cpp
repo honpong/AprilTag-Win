@@ -410,9 +410,9 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
 
 RCTRACKER_API void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback callback, void *handle)
 {
-    if(callback) tracker->stage_callback = [callback, handle, tracker]() {
+    if(callback) tracker->stage_callback = [callback, handle, tracker](rc_Timestamp time_us) {
         for (rc_Stage stage = {}; rc_getStage(tracker, nullptr, &stage); )
-            callback(handle, tracker, &stage);
+            callback(handle, tracker, &stage, time_us);
     };
     else tracker->stage_callback = nullptr;
 }

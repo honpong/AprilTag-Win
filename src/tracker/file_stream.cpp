@@ -16,10 +16,10 @@ static void process_track_output(const replay_output *output, const rc_Data *dat
     output->host->host_data_callback(output, data);
 }
 
-static void process_stage(void *handle, rc_Tracker * tracker, const rc_Stage * stage) {
+static void process_stage(void *handle, rc_Tracker * tracker, const rc_Stage * stage, rc_Timestamp time_us) {
     const replay_output *output = (const replay_output *)handle;
     if (output->host->stage_callback)
-        output->host->stage_callback(stage);
+        output->host->stage_callback(stage, time_us);
 }
 
 static void process_relocalization(void *handle, rc_Tracker * tracker, const rc_Relocalization * reloc) {

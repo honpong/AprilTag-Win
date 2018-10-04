@@ -217,7 +217,7 @@ typedef struct rc_Tracker rc_Tracker;
 typedef void(*rc_DataCallback)(void *handle, rc_Tracker * tracker, const rc_Data * data);
 typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence);
 typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, const char * message, size_t len);
-typedef void(*rc_StageCallback)(void *handle, rc_Tracker * tracker, const rc_Stage * stage);
+typedef void(*rc_StageCallback)(void *handle, rc_Tracker * tracker, const rc_Stage * stage, rc_Timestamp time_us);
 typedef void(*rc_RelocalizationCallback)(void *handle, rc_Tracker * tracker, const rc_Relocalization * relocalization);
 
 RCTRACKER_API const char *rc_version();

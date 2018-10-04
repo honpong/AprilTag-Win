@@ -363,25 +363,27 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     project_new_group_covariance(*p);
 
     // if number of nodes is bigger than 40 remove 10 nodes with the lowest number of active frames
-    size_t max_nodes = 40;
-    if (map && map->is_map_unlinked())
-        max_nodes += map->get_node_id_offset();
+    constexpr size_t max_nodes = 40;
     constexpr size_t num_nodes_removed = 10;
     if(map && map->get_nodes().size() >= max_nodes) {
         std::vector<std::pair<nodeid, uint64_t>> nodes_frames_active;
+        size_t nodes_current_session = 0;
         for(auto& node : map->get_nodes()) {
-            if(map->is_map_unlinked() && node.second.id < map->get_node_id_offset())
-                continue;
-            if(node.second.status == node_status::finished && node.second.id != map->get_node_id_offset())
-                nodes_frames_active.emplace_back(node.second.id, node.second.frames_active);
+            if(!map->is_unlinked(node.second.id)) {
+                ++nodes_current_session;
+                if(node.second.status == node_status::finished && !map->is_root(node.second.id))
+                    nodes_frames_active.emplace_back(node.second.id, node.second.frames_active);
+            }
         }
-
-        std::partial_sort(nodes_frames_active.begin(), nodes_frames_active.begin() + num_nodes_removed, nodes_frames_active.end(), [](std::pair<nodeid, uint64_t>& n1, std::pair<nodeid, uint64_t>& n2) {
-            return n1.second < n2.second;});
-
-        nodes_frames_active.resize(num_nodes_removed);
-        for(auto& remove_node : nodes_frames_active) {
-            map->remove_node(remove_node.first);
+        if(nodes_current_session >= max_nodes) {
+            if (nodes_frames_active.size() > num_nodes_removed) {
+                std::partial_sort(nodes_frames_active.begin(), nodes_frames_active.begin() + num_nodes_removed, nodes_frames_active.end(), [](std::pair<nodeid, uint64_t>& n1, std::pair<nodeid, uint64_t>& n2) {
+                    return n1.second < n2.second;});
+                nodes_frames_active.resize(num_nodes_removed);
+            }
+            for(auto& remove_node : nodes_frames_active) {
+                map->remove_node(remove_node.first);
+            }
         }
     }
     return p;

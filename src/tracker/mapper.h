@@ -283,6 +283,7 @@ private:
     const map_node* fetch_node(nodeid id) const { auto it = nodes->find(id); return it != nodes->end() ? &it->second : nullptr; }
     bool node_in_map(nodeid id) const { return nodes->find(id) != nodes->end(); }
     bool feature_in_map(featureid id, nodeid* nid = nullptr) const;
+    bool is_root(nodeid node_id) const { return node_id == node_id_offset; }
     nodeid get_node_id_offset() const { return node_id_offset; }
     featureid get_feature_id_offset() { return feature_id_offset; }
     bool edge_in_map(nodeid id1, nodeid id2, edge_type& type) const;

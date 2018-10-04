@@ -718,16 +718,12 @@ bool mapper::estimate_pose(const aligned_vector<v3>& points_3d, const aligned_ve
 bool mapper::get_stage(const std::string &name, stage &stage, nodeid current_id, const transformation &G_world_current, stage::output &current_stage) {
     if (stage.current_id != current_id) {
         bool ok = nodes.critical_section([&]() {
-            auto distance = [](const map_edge& edge) { return 1; }; // # edges traversed
-            auto returned = [&](const node_path& path) { return path.id == stage.closest_id; };
-            auto finished = returned; // finish search when node is found
-            nodes_path searched_node = dijkstra_shortest_path(node_path{current_id, transformation(), 0},
-                                                              distance, returned, finished);
-            if (!searched_node.size())
+            if(find_relative_pose(current_id, stage.closest_id, stage.G_current_closest)) {
+                stage.current_id = current_id;
+                return true;
+            } else {
                 return false;
-            stage.current_id = current_id;
-            stage.G_current_closest = searched_node.front().G;
-            return true;
+            }
         });
         if (!ok)
             return false;

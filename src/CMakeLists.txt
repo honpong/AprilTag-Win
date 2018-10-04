@@ -80,6 +80,7 @@ if(ENABLE_QR)
 endif()
 
 set_source_files_properties(tracker/remapper.cpp PROPERTIES COMPILE_DEFINITIONS_DEBUG _SCL_SECURE_NO_WARNINGS)
+set_source_files_properties(tracker/state_vision.cpp PROPERTIES COMPILE_DEFINITIONS _ENABLE_EXTENDED_ALIGNED_STORAGE)
 
 add_library(trackeri STATIC ${TRACKER_SOURCES})
 

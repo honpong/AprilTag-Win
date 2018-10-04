@@ -35,10 +35,10 @@ void sensor_fusion::update_data(const sensor_data * data)
         data_callback(data);
 }
 
-void sensor_fusion::update_stages()
+void sensor_fusion::update_stages(rc_Timestamp time_us)
 {
     if(stage_callback)
-        stage_callback();
+        stage_callback(time_us);
 }
 
 void sensor_fusion::update_relocalizations(const map_relocalization_info & info)
@@ -124,7 +124,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
             update_status();
             if(docallback) {
                 update_data(&data);
-                update_stages();
+                update_stages(sensor_clock::tp_to_micros(data.timestamp));
             }
 
             sfm.relocalization_info = {};

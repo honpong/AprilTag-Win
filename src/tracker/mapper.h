@@ -267,7 +267,7 @@ private:
     void remove_edge(nodeid node_id1, nodeid node_id2);
     void add_feature(nodeid node_id, std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                      std::shared_ptr<log_depth> v, f_t v_var, const feature_type type = feature_type::tracked);
-    bool move_feature(featureid feature_id, nodeid src_node_id, nodeid dst_node_id, const transformation* G_Bdst_Bsrc = nullptr);
+    bool move_feature(featureid feature_id, nodeid src_node_id, nodeid dst_node_id, const transformation* G_Bdst_Bsrc_ptr = nullptr);
     void remove_feature(nodeid node_id, featureid feature_id);
     void remove_feature(featureid feature_id);
     void remove_node(nodeid node_id);
@@ -275,7 +275,7 @@ private:
     v3 get_feature3D(nodeid node_id, featureid feature_id) const; // returns feature wrt node body frame
     mapper::nodes_path dijkstra_shortest_path(const node_path &start, std::function<float(const map_edge& edge)> distance, std::function<bool(const node_path &)> is_node_searched,
                                               std::function<bool(const node_path &)> finish_search) const;
-    transformation find_relative_pose(nodeid source, nodeid target) const;
+    bool find_relative_pose(nodeid source, nodeid target, transformation &G) const;
     nodes_path find_neighbor_nodes(const node_path& start, const uint64_t camera_id_now);
 
     const aligned_unordered_map<nodeid, map_node> &get_nodes() const { return *nodes; }

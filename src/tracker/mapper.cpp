@@ -453,8 +453,7 @@ mapper::nodes_path mapper::dijkstra_shortest_path(const node_path& start, std::f
                 if(nodes_done.find(v) == nodes_done.end()) {
                     const transformation& G_u_v = edge.second.G;
                     f_t distance_uv = distance(edge.second);
-                    if (distance_uv < std::numeric_limits<float>::infinity()) // Relocalization edges don't affect the filter
-                        next.emplace(v, G_start_u*G_u_v, distance_u + distance_uv);
+                    next.emplace(v, G_start_u*G_u_v, distance_u + distance_uv);
                 }
             }
         }

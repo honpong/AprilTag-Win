@@ -96,15 +96,21 @@ pipeline {
                 stage('Windows 32') {
                     agent { label 'windows' }
                     steps {
-                        bat "cmake -Bbuild32 -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A Win32"
-                        bat "cmake --build build32 --config RelWithDebInfo"
+                        bat ([
+                            '"%VS2017INSTALLDIR%/VC/Auxiliary/Build/vcvars32.bat"', 
+                            'cmake -GNinja -Bbuild32 -H. -DCMAKE_BUILD_TYPE=Release -DRC_BUILD=${env.GIT_COMMIT}', 
+                            'cmake --build build32 --config Release',
+                            ].join(' && '))
                     }
                 }
                 stage('Windows 64') {
                     agent { label 'windows' }
                     steps {
-                        bat "cmake -Bbuild64 -H. -DCMAKE_BUILD_TYPE=RelWithDebInfo -DRC_BUILD=${env.GIT_COMMIT} -A x64"
-                        bat "cmake --build build64 --config RelWithDebInfo"
+                        bat ([
+                            '"%VS2017INSTALLDIR%/VC/Auxiliary/Build/vcvars64.bat"',
+                            'cmake -GNinja -Bbuild64 -H. -DCMAKE_BUILD_TYPE=Release -DRC_BUILD=${env.GIT_COMMIT}', 
+                            'cmake --build build64 --config Release',
+                            ].join(' && '))
                     }
                 }
                 stage('TM2') {

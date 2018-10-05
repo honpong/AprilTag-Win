@@ -55,7 +55,6 @@ fusion_queue::fusion_queue(const std::function<void(sensor_data &&)> data_func,
                            sensor_clock::duration maximum_latency):
                 strategy(s),
                 data_receiver(data_func),
-                control_func(nullptr),
                 active(false),
                 singlethreaded(false),
                 max_latency(maximum_latency)
@@ -77,7 +76,7 @@ void fusion_queue::reset()
     thread = std::thread();
     clear();
 
-    control_func = nullptr;
+    control_queue.clear();
     active = false;
     last_dispatched = sensor_clock::time_point();
     buffer_time = {};
@@ -141,7 +140,7 @@ void fusion_queue::receive_sensor_data(sensor_data && x)
 void fusion_queue::dispatch_async(std::function<void()> fn)
 {
     std::unique_lock<std::mutex> lock(control_mutex);
-    control_func = fn;
+    control_queue.emplace_back(std::move(fn));
     lock.unlock();
 }
 
@@ -207,9 +206,10 @@ void fusion_queue::wait_until_finished()
 
 bool fusion_queue::run_control()
 {
-    if(!control_func) return false;
+    if(control_queue.empty()) return false;
+    auto& control_func = control_queue.front();
     control_func();
-    control_func = nullptr;
+    control_queue.pop_front();
     return true;
 }
 

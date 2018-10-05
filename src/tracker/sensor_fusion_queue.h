@@ -9,6 +9,7 @@
 #define __sensor_fusion_queue__
 
 #include <array>
+#include <deque>
 #include <mutex>
 #include <thread>
 #include <atomic>
@@ -271,7 +272,7 @@ private:
     std::vector<uint64_t> required_sensors;
     sorted_ring_buffer<sensor_data, 256> queue;
 
-    std::function<void()> control_func;
+    std::deque<std::function<void()>> control_queue;
     bool active;
     bool singlethreaded;
     

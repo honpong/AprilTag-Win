@@ -19,16 +19,17 @@ class image_frame:
     image_data = None
     (sensor_id, time_us) = (0,0)
     (exposure_us, width_px, height_px, stride, camera_format) = (0,0,0,0,0)
-    def __init__(self, sensor_id, time_us, header, data):
+    def __init__(self, sensor_id, time_us, header, data, arrival_time):
         self.sensor_id = sensor_id
         self.time_us = time_us
         (self.exposure_us, self.width_px, self.height_px, self.stride, self.camera_format) = header
         self.image_data = data
+        self.arrival_time = arrival_time
     def to_file(self, f_out):
         data_header = pack('QHHHH', self.exposure_us, self.width_px, self.height_px, self.stride, self.camera_format)
         packet_bytes = 16 + len(data_header) + len(self.image_data)
         header = pack('IHHQ', packet_bytes, PacketType.image_raw, self.sensor_id, self.time_us)
-        Packet(Packet.Header(header), data_header+self.image_data).to_file(f_out)
+        Packet(Packet.Header(header), data_header+self.image_data, self.arrival_time).to_file(f_out)
 
 class stereo_frame:
     image_data = None
@@ -57,8 +58,8 @@ while p is not None:
         p.to_file(f_out)
     else:
         st = stereo_frame(p.data) 
-        frame0 = image_frame(p.header.sensor_id * 2 + 0, p.header.time, st.mono_header(0), st.mono_data(0))
-        frame1 = image_frame(p.header.sensor_id * 2 + 1, p.header.time, st.mono_header(1), st.mono_data(1))
+        frame0 = image_frame(p.header.sensor_id * 2 + 0, p.header.time, st.mono_header(0), st.mono_data(0), p.arrival_time)
+        frame1 = image_frame(p.header.sensor_id * 2 + 1, p.header.time, st.mono_header(1), st.mono_data(1), p.arrival_time)
         frame0.to_file(f_out)
         frame1.to_file(f_out) 
 

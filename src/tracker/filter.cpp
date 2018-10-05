@@ -1417,7 +1417,8 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
                     cached_reference_node = node->id;
                     intrinsics_ref = &f->s.cameras.children[node->camera_id]->intrinsics;
                     auto &extrinsics_ref = f->s.cameras.children[node->camera_id]->extrinsics;
-                    transformation G_Bclosest_Bref = f->map->find_relative_pose(closest_group_id, node->id);
+                    transformation G_Bclosest_Bref;
+                    assert(f->map->find_relative_pose(closest_group_id, node->id, G_Bclosest_Bref));
                     G_Cnow_Cref = G_Cnow_Bclosest * G_Bclosest_Bref * extrinsics_ref.G_body_device();
                 }
                 sbt.measure(G_Cnow_Cref,

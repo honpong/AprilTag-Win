@@ -32,7 +32,7 @@ typedef sensor_calibration<rc_ThermometerIntrinsics> sensor_calibration_thermome
 typedef sensor_calibration<rc_VelocimeterIntrinsics> sensor_calibration_velocimeter;
 
 struct calibration_coordinates {
-    rc_Vector world_up, world_initial_forward, body_forward;
+    rc_Vector world_up={{0,0,1}}, world_initial_forward={{0,1,0}}, body_forward={{0,0,1}};
 };
 
 struct calibration {

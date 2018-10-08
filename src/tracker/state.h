@@ -584,9 +584,9 @@ public:
     covariance &cov;
     std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", std::make_shared<spdlog::sinks::null_sink_st> ());
 
-    struct world { v3 up{0,0,1}, initial_forward{0,1,0}, initial_left{-1,0,0}; } world;
+    struct world { v3 up{0,1,0}, initial_forward{0,0,-1}, initial_left{-1,0,0}; } world;
     Eigen::Map<m3> world_up_initial_forward_left{world.up.data()};
-    v3 body_forward = {0,0,1};
+    v3 body_forward = {0,0,-1};
 
     int remap() {
         return remap_from(cov);

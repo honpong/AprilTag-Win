@@ -907,6 +907,9 @@ bool rc_appendCalibration(rc_Tracker *tracker, const char *buffer)
         id++;
     }
 
+    if (cal.coordinates.first)
+        rc_configureWorld(tracker, cal.coordinates.second.world_up, cal.coordinates.second.world_initial_forward, cal.coordinates.second.body_forward);
+
     return true;
 }
 

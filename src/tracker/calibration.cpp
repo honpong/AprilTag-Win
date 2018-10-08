@@ -587,6 +587,19 @@ static bool copy_json_to_coordinates(Value & json,  calibration_coordinates &coo
     return true;
 }
 
+static bool copy_json_to_append_calibration(Value & json, calibration &cal)
+{
+    if(json.HasMember(KEY_VELOCIMETERS))
+        if(!copy_json_to_velocimeters(json[KEY_VELOCIMETERS], cal.velocimeters))
+            return false;
+
+    if(json.HasMember(KEY_COORDINATES))
+        if (!(cal.coordinates.first = copy_json_to_coordinates(json[KEY_COORDINATES], cal.coordinates.second)))
+           return false;
+
+    return true;
+}
+
 static bool copy_json_to_calibration(Value & json, calibration & cal)
 {
     if(!require_keys(json, {KEY_DEVICE_ID, KEY_DEVICE_TYPE, KEY_VERSION, KEY_CAMERAS, KEY_DEPTHS, KEY_IMUS}))
@@ -604,26 +617,7 @@ static bool copy_json_to_calibration(Value & json, calibration & cal)
     if(!copy_json_to_imus(json[KEY_IMUS], cal.imus))
         return false;
 
-    if(json.HasMember(KEY_VELOCIMETERS)){
-        if(!copy_json_to_velocimeters(json[KEY_VELOCIMETERS], cal.velocimeters))
-            return false;
-    }
-
-    if(json.HasMember(KEY_COORDINATES))
-        if (!(cal.coordinates.first = copy_json_to_coordinates(json[KEY_COORDINATES], cal.coordinates.second)))
-           return false;
-
-    return true;
-}
-
-static bool append_calibration(Value & json, calibration &cal)
-{
-    if(json.HasMember(KEY_VELOCIMETERS)){
-        if(!copy_json_to_velocimeters(json[KEY_VELOCIMETERS], cal.velocimeters))
-            return false;
-    }
-
-    return true;
+    return copy_json_to_append_calibration(json, cal);
 }
 
 bool calibration_serialize(const calibration &cal, std::string &jsonString)
@@ -674,5 +668,5 @@ bool calibration_append_deserialize(const std::string &jsonString, calibration &
         return false;
     }
 
-    return append_calibration(json, cal);
+    return copy_json_to_append_calibration(json, cal);
 }

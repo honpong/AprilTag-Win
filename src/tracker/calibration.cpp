@@ -230,6 +230,13 @@ static void copy_velocimeter_to_json(const sensor_calibration_velocimeter & velo
     velocimeters.PushBack(velocimeter_object, a);
 }
 
+static void copy_coordiates_to_json(const calibration_coordinates &coords, Value &coordinates, Document::AllocatorType &a)
+{
+    rc_vector_to_json_array(coords.world_up,              KEY_WORLD_UP,              coordinates, a);
+    rc_vector_to_json_array(coords.world_initial_forward, KEY_WORLD_INITIAL_FORWARD, coordinates, a);
+    rc_vector_to_json_array(coords.body_forward,          KEY_BODY_FORWARD,          coordinates, a);
+}
+
 static void copy_calibration_to_json(const calibration &cal, Value & json, Document::AllocatorType& a)
 {
     Value id(kStringType);
@@ -257,6 +264,12 @@ static void copy_calibration_to_json(const calibration &cal, Value & json, Docum
     Value velocimeters(kArrayType);
     for(const auto &velocimeter : cal.velocimeters) copy_velocimeter_to_json(velocimeter, velocimeters, a);
     json.AddMember(KEY_VELOCIMETERS, velocimeters, a);
+
+    if ((true)/*cal.coordinates.first*/) {
+        Value coordinates(kObjectType);
+        copy_coordiates_to_json(cal.coordinates.second, coordinates, a);
+        json.AddMember(KEY_COORDINATES, coordinates, a);
+    }
 }
 
 static bool require_key(const Value &json, const char * KEY)
@@ -566,6 +579,14 @@ static bool copy_json_to_cameras(Value & json, std::vector<sensor_calibration_ca
     return true;
 }
 
+static bool copy_json_to_coordinates(Value & json,  calibration_coordinates &coords)
+{
+    if (json.HasMember(KEY_WORLD_UP))              if (!copy_json_to_rc_vector(json[KEY_WORLD_UP],              coords.world_up))              return false;
+    if (json.HasMember(KEY_WORLD_INITIAL_FORWARD)) if (!copy_json_to_rc_vector(json[KEY_WORLD_INITIAL_FORWARD], coords.world_initial_forward)) return false;
+    if (json.HasMember(KEY_BODY_FORWARD))          if (!copy_json_to_rc_vector(json[KEY_BODY_FORWARD],          coords.body_forward))          return false;
+    return true;
+}
+
 static bool copy_json_to_calibration(Value & json, calibration & cal)
 {
     if(!require_keys(json, {KEY_DEVICE_ID, KEY_DEVICE_TYPE, KEY_VERSION, KEY_CAMERAS, KEY_DEPTHS, KEY_IMUS}))
@@ -587,6 +608,10 @@ static bool copy_json_to_calibration(Value & json, calibration & cal)
         if(!copy_json_to_velocimeters(json[KEY_VELOCIMETERS], cal.velocimeters))
             return false;
     }
+
+    if(json.HasMember(KEY_COORDINATES))
+        if (!(cal.coordinates.first = copy_json_to_coordinates(json[KEY_COORDINATES], cal.coordinates.second)))
+           return false;
 
     return true;
 }

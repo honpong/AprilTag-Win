@@ -842,6 +842,9 @@ size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
     for (size_t id = 0; id < tracker->sfm.depths.size(); id++)
         rc_describeCamera(tracker, id, rc_FORMAT_DEPTH16, &cal.depths[id].extrinsics, &cal.depths[id].intrinsics);
 
+    rc_describeWorld(tracker, &cal.coordinates.second.world_up, &cal.coordinates.second.world_initial_forward, &cal.coordinates.second.body_forward);
+    cal.coordinates.first = true;
+
     std::string json;
     if (!calibration_serialize(cal, json))
         return 0;
@@ -885,6 +888,9 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
     id = 0;
     for(auto depth : cal.depths)
         rc_configureCamera(tracker, id++, rc_FORMAT_DEPTH16, &depth.extrinsics, &depth.intrinsics);
+
+    if (cal.coordinates.first)
+        rc_configureWorld(tracker, cal.coordinates.second.world_up, cal.coordinates.second.world_initial_forward, cal.coordinates.second.body_forward);
 
     return true;
 }

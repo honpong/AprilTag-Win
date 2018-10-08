@@ -96,26 +96,22 @@ enum replay_options {
     LOAD_MAP = 8
 };
 
-std::unique_ptr<replay> create_replay(int options = DEFAULT) {
-    static bool failed = false;
-    if (failed) return nullptr;
-
-    auto rp = std::make_unique<replay>((host_stream *)(new file_stream(dataset_filename)));
+std::unique_ptr<replay> create_replay(int options = DEFAULT, const char* dataset = dataset_filename, const char* map_name = map_filename) {
+    auto rp = std::make_unique<replay>((host_stream *)(new file_stream(dataset)));
 
     if (!rp->init()) {
-        std::cerr << "Warning: file " << dataset_filename << " could not be replayed. Skipping test" << std::endl;
-        failed = true;
+        std::cerr << "Warning: file " << dataset << " could not be replayed. Skipping test" << std::endl;
         return nullptr;
     }
 
-    rp->set_calibration_from_filename(dataset_filename);
+    rp->set_calibration_from_filename(dataset);
     rp->set_message_level(rc_MESSAGE_ERROR);
     rp->start_mapping(options & RELOCALIZE, options & SAVE_MAP);
     rp->enable_fast_path();
     if (options & ASYNC)
         rp->enable_async();
     if (options & LOAD_MAP)
-        EXPECT_TRUE(rp->load_map(map_filename));
+        EXPECT_TRUE(rp->load_map(map_name));
 
     return rp;
 }
@@ -254,4 +250,48 @@ TEST(Stages, LoadAndCheckStages)
 
     rp->start();
     rp->end();
+}
+
+TEST(Stages, RelocalizeSaveMap)
+{
+    auto rp_save = create_replay(SAVE_MAP, "data/other/WW50/rectangles/strafe/strafe_9.stereo.rc");
+    if (!rp_save) return;
+
+    bool stage_set = false;
+    rc_Tracker* tracker = nullptr;
+    rp_save->set_data_callback([&stage_set, &tracker](const replay_output *output, const rc_Data *data) {
+        if (data->path != rc_DATA_PATH_SLOW) return;
+        if(stage_set) return;
+        tracker = output->tracker;
+        rc_Pose pose_m = rc_getPose(tracker, nullptr, nullptr, rc_DATA_PATH_SLOW).pose_m;
+        if(rc_setStage(tracker, "stage", pose_m))
+            stage_set = true;
+    });
+    rp_save->start();
+    ASSERT_TRUE(rp_save->save_map(map_filename));
+    ASSERT_TRUE(tracker);
+    rc_Stage stage = {}; ASSERT_TRUE(rc_getStage(tracker, "stage", &stage));
+    rp_save->end();
+}
+
+TEST(Stages, RelocalizeLoadMap)
+{
+    auto rp_load = create_replay(LOAD_MAP | RELOCALIZE, "data/other/WW50/rectangles/strafe/strafe_8.stereo.rc");
+    if (!rp_load) return;
+
+    bool stage_found = false;
+    rc_Tracker* tracker = nullptr;
+    rp_load->set_data_callback([&stage_found, &tracker](const replay_output *output, const rc_Data *) {
+        if(stage_found)
+            return;
+        tracker = output->tracker;
+        rc_Stage stage = {};
+        if(rc_getStage(tracker, "stage", &stage)) {
+            stage_found = true;
+            rc_stopTracker(tracker);
+        }
+    });
+    rp_load->start();
+    rp_load->end();
+    ASSERT_TRUE(stage_found);
 }

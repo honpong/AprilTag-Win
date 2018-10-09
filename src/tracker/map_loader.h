@@ -32,6 +32,7 @@ struct map_edge_v1 {
 
 struct map_feature_v1 {
     std::shared_ptr<log_depth> v;
+    f_t v_var;
     std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature;
 };
 

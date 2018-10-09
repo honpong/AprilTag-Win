@@ -87,7 +87,7 @@ static bstream_reader & operator >> (bstream_reader &content, map_edge_v1 &edge)
 
 static bstream_reader & operator >> (bstream_reader &content, map_feature_v1 &feat) {
     feat.v = make_shared<log_depth>();
-    content >> feat.v->initial[0] >> feat.v->initial[1] >> feat.v->v >> feat.feature;
+    content >> feat.v->initial[0] >> feat.v->initial[1] >> feat.v->v >> feat.v_var >> feat.feature;
     auto map_reader = static_cast<map_stream_reader *>(&content); // should be dynamic_cast
     map_reader->max_loaded_featid = std::max(feat.feature->id, map_reader->max_loaded_featid);
     return content;
@@ -123,7 +123,7 @@ void assign<map_node_v1>(map_node &node, map_node_v1 &loaded_node) {
     node.features.clear();
     for (auto &feat : loaded_node.features) {
         node.features.emplace(piecewise_construct, forward_as_tuple(feat.first),
-            forward_as_tuple(feat.second.v, feat.second.feature));
+            forward_as_tuple(feat.second.v, feat.second.feature, feat.second.v_var, feature_type::tracked));
     }
     loaded_node.features.clear();
 }

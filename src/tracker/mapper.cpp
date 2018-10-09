@@ -1066,7 +1066,7 @@ static bstream_writer & operator << (bstream_writer& content, const std::shared_
 }
 
 static bstream_writer & operator << (bstream_writer &content, const map_feature &feat) {
-    content << feat.v->initial[0] << feat.v->initial[1] << feat.v->v << feat.feature; //NOTE: redundant saving of same feature
+    content << feat.v->initial[0] << feat.v->initial[1] << feat.v->v << feat.v_var << feat.feature; //NOTE: redundant saving of same feature
     return content;
 }
 

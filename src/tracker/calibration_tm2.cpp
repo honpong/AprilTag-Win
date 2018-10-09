@@ -27,6 +27,9 @@ bool rc_setCalibrationTM2(rc_Tracker *tracker, const void *calibration, size_t s
 
     memcpy(&tm2, calibration, sizeof(tm2));
 
+    if (tm2.header.table_major == 4 && tm2.header.table_minor == 0)
+        rc_configureWorld(tracker, rc_Vector{{0,0,1}}, rc_Vector{{0,1,0}}, rc_Vector{{0,0,1}}); // Old non-Oculus coordinates
+
     {
         int i=0;
         for (const auto &cam : {tm2.cam0, tm2.cam1}) {

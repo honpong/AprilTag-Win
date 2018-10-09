@@ -87,10 +87,8 @@ static inline quaternion rotation_between_two_vectors_normalized(const v3 &a, co
             res = quaternion(0., 0., -a[2], a[1]);
         }
     } else { // normal case
-        f_t s = sqrt(2 * (1 + d));
-
         v3 axis = a.cross(b);
-        res = quaternion(s / 2, axis[0] / s, axis[1] / s, axis[2] / s);
+        res = quaternion(1+d, axis[0], axis[1], axis[2]);
     }
     return res.normalized();
 }

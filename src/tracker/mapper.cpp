@@ -197,7 +197,8 @@ bool mapper::move_feature(featureid feature_id, nodeid src_node_id, nodeid dst_n
     if(G_Bdst_Bsrc_ptr) {
         G_Bdst_Bsrc = *G_Bdst_Bsrc_ptr;
     } else {
-        assert(find_relative_pose(dst_node_id, src_node_id, G_Bdst_Bsrc));
+        bool rt = find_relative_pose(dst_node_id, src_node_id, G_Bdst_Bsrc);
+        assert(rt);
     }
 
     v3 p3dC = G_CB * G_Bdst_Bsrc * get_feature3D(src_node_id, feature_id);

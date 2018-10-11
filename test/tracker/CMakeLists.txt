@@ -13,7 +13,6 @@ add_executable(spec
   state_vision.cpp
   calibration_json.cpp
   tpose.cpp
-  dictionary.cpp
   mapper.cpp
   fast_tracker.cpp
   sensor_fusion_queue.cpp

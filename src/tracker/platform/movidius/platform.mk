@@ -18,9 +18,7 @@ SLAM_SOURCES := $(addprefix $(SLAM_PREFIX)/src/tracker/, \
     capture.cpp \
     replay_device.cpp \
     bstream.cpp \
-    feature_descriptor.cpp \
     mapper.cpp \
-    dictionary.cpp \
     remapper.cpp \
     transformation_cov.cpp \
     estimate_horn.cpp \
@@ -37,13 +35,6 @@ SLAM_SOURCES += $(SLAM_PREFIX)/src/feature/descriptor/patch_descriptor.cpp
 SLAM_SOURCES += $(SLAM_PREFIX)/src/feature/descriptor/orb_descriptor.cpp
 SLAM_SOURCES += $(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.cpp)
 
-SLAM_C_SOURCES := $(addprefix $(SLAM_PREFIX)/ThirdParty/vlfeat-0.9.18/vl/, \
-    liop.c \
-    imopv.c \
-    kmeans.c \
-    generic.c \
-    mathop.c \
-)
 SLAM_C_SOURCES += $(wildcard $(SLAM_PLATFORM_PREFIX)/leon/*.c)
 
 #Commented out to prevent loading vocabulary in TM2 project
@@ -79,7 +70,6 @@ SLAM_CCOPT   := \
 	-isystem$(SLAM_PREFIX)/ThirdParty/eigen \
 	-isystem$(SLAM_PREFIX)/ThirdParty/spdlog/include \
 	-isystem$(SLAM_PREFIX)/ThirdParty/rapidjson/include/ \
-	-isystem$(SLAM_PREFIX)/ThirdParty/vlfeat-0.9.18 \
 	-Wno-unused-function \
 	-Wno-unused-variable \
 	-Wno-unused-parameter \

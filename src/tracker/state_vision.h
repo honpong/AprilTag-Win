@@ -17,7 +17,6 @@
 #include "state_motion.h"
 #include "tracker.h"
 #include "platform/sensor_clock.h"
-#include "feature_descriptor.h"
 #include "mapper.h"
 #include "sensor_data.h"
 #include "orb_descriptor.h"

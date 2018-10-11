@@ -1,22 +1,3 @@
-add_library(vlfeat STATIC
-   ../ThirdParty/vlfeat-0.9.18/vl/generic.c
-   ../ThirdParty/vlfeat-0.9.18/vl/host.c
-   ../ThirdParty/vlfeat-0.9.18/vl/gmm.c
-   ../ThirdParty/vlfeat-0.9.18/vl/mathop.c
-   ../ThirdParty/vlfeat-0.9.18/vl/random.c
-   ../ThirdParty/vlfeat-0.9.18/vl/vlad.c
-   ../ThirdParty/vlfeat-0.9.18/vl/kmeans.c
-   ../ThirdParty/vlfeat-0.9.18/vl/kdtree.c
-   ../ThirdParty/vlfeat-0.9.18/vl/liop.c
-   ../ThirdParty/vlfeat-0.9.18/vl/imopv.c
-   $<$<BOOL:${ENABLE_STEREO}>:
-   ../ThirdParty/vlfeat-0.9.18/vl/sift.c
-   >
-)
-target_include_directories(vlfeat SYSTEM INTERFACE ../ThirdParty/vlfeat-0.9.18)
-target_compile_options(vlfeat PRIVATE $<$<BOOL:${MSVC}>:/wd4244>)
-set_target_properties(vlfeat PROPERTIES POSITION_INDEPENDENT_CODE ON)
-
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU|Intel")
    add_compile_options(-Wall -Wextra)
    add_compile_options(-Wunreachable-code  -Wunused-macros)
@@ -53,9 +34,7 @@ set(TRACKER_SOURCES
     tracker/sensor_fusion.cpp
     tracker/capture.cpp
     tracker/replay.cpp
-    tracker/feature_descriptor.cpp
     tracker/mapper.cpp
-    tracker/dictionary.cpp
     tracker/remapper.cpp
     tracker/bstream.cpp
     tracker/map_loader.cpp
@@ -103,8 +82,6 @@ target_include_directories(trackeri SYSTEM PUBLIC
     ../ThirdParty/spdlog/include
 )
 target_compile_definitions(trackeri PUBLIC SPDLOG_NO_DATETIME SPDLOG_NO_THREAD_ID)
-
-target_link_libraries(trackeri PUBLIC vlfeat)
 
 function(find_intel_root TYPE) # [REQUIRED]
     set(VAR ${TYPE}ROOT)

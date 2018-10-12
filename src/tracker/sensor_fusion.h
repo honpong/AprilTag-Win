@@ -84,7 +84,7 @@ public:
      */
     void receive_data(sensor_data && data);
     
-    void start_mapping(bool relocalize, bool save_map);
+    void start_mapping(bool relocalize, bool save_map, bool allow_jumps);
     void stop_mapping();
 
     void save_map(rc_SaveCallback write, void *handle);

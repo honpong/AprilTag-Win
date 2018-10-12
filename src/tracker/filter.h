@@ -58,6 +58,7 @@ struct filter {
     bool stereo_enabled;
     bool relocalize;
     bool save_map;
+    bool allow_jumps;
     map_relocalization_info relocalization_info;
 
     template<int N>

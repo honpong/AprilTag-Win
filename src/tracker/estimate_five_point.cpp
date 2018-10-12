@@ -133,17 +133,30 @@ f_t estimate_five_point(const aligned_vector<v2> &src, const aligned_vector<v2> 
     return best.reprojection_error();
 }
 
-// {e1, e2, e3, e4} = Array[#, {3, 3}, 0]& /@ {E1, E2, E3, E4};
-// e = e1 x + e2 y + e3 z + e4;
-// EE = {Det[e], 2 e.Transpose[e].e - Tr[e.Transpose[e]] e} // Flatten;
-// TT = Values@CoefficientRules[#, {x, y, z}, "DegreeLexicographic"] & /@ EE;
-// ex = MapThread[HoldForm[Set[#1, #2]] &, {Array[T, {10, 20}, 0], TT}, 2] // Flatten;
-// c = StringJoin @@ ("    " <> ToString[#, CForm] <> ";\n" & /@ (ex /. {x_^3 -> HoldForm[x x x], x_^2 -> HoldForm[x x]}));
-// With[{cpp = OpenWrite["compute-template.cpp"]}, WriteString[cpp, c]; Close[cpp]]
+// from __future__ import print_function, division
+// import sympy as sp
+//
+// x, y, z = sp.symbols('x y z')
+// E1 = sp.Matrix(sp.MatrixSymbol('E1', 3, 3))
+// E2 = sp.Matrix(sp.MatrixSymbol('E2', 3, 3))
+// E3 = sp.Matrix(sp.MatrixSymbol('E3', 3, 3))
+// E4 = sp.Matrix(sp.MatrixSymbol('E4', 3, 3))
+//
+// E = x*E1 + y*E2 + z*E3 + E4
+//
+// T = sp.Matrix([
+//     sp.poly(e, x,y,z).coeffs(order='grlex') for e in sp.flatten([
+//         E.det(), 2*E*E.T*E - E*(E*E.T).trace()
+//     ])
+// ]);
+//
+// TT = sp.MatrixSymbol('T', 10,20)
+//
+// with open('compute-template.cpp', 'w') as f:
+//     f.write(sp.printing.cxxcode(T, assign_to=TT, standard='C++17'))
 
-static m<10, 20> compute_template(const m3 &E1, const m3 &E2, const m3 &E3, const m3 &E4) {
-    m<10,20> T;
+static m<10, 20> compute_template(const m3 &E1_, const m3 &E2_, const m3 &E3_, const m3 &E4_) {
+    m<10,20> T_; f_t *T = T_.data(); const f_t *E1 = E1_.data(), *E2 = E2_.data(), *E3 = E3_.data(), *E4 = E4_.data();
 #include "compute-template.cpp"
-    ;
-    return T;
+    return T_;
 }

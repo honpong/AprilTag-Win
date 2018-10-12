@@ -45,7 +45,7 @@ int main(int c, char **v)
 #ifdef ENABLE_TM2_PLAYBACK
              << "   [--tm2] [--show-no-map] [--show-no-feature] [--usb-sync]\n"
 #endif
-             << "   [--relocalize] [--disable-odometry] [--incremental-ate]\n";
+             << "   [--disable-relocalize] [--disable-odometry] [--incremental-ate]\n";
         return 1;
     }
 
@@ -62,7 +62,7 @@ int main(int c, char **v)
     rc_TrackerQueueStrategy queue_strategy = rc_QUEUE_MINIMIZE_DROPS;
     bool strategy_override = false;
     bool incremental_ate = false;
-    bool relocalize = false;
+    bool relocalize = true;
     bool tm2_playback = false, usb_sync = false;
     char *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr, *pose_output = nullptr;
     std::vector<const char*> filenames;
@@ -105,7 +105,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
         else if (strcmp(v[i], "--progress") == 0) progress = true;
         else if (strcmp(v[i], "--incremental-ate") == 0) incremental_ate = true;
-        else if (strcmp(v[i], "--relocalize") == 0) relocalize = true;
+        else if (strcmp(v[i], "--disable-relocalize") == 0) relocalize = false;
         else if (strcmp(v[i], "--trace") == 0) message_level = rc_MESSAGE_TRACE;
         else if (strcmp(v[i], "--debug") == 0) message_level = rc_MESSAGE_DEBUG;
         else if (strcmp(v[i], "--error") == 0) message_level = rc_MESSAGE_ERROR;

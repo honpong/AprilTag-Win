@@ -59,9 +59,10 @@ pipeline {
                     steps {
                         sh 'build/measure --benchmark data/other/minimal_test_suite/'
                         sh 'build/measure --benchmark data/other/minimal_test_suite/ --disable-map'
+                        sh 'build/measure --benchmark data/other/minimal_test_suite/ --disable-relocalize'
                         sh 'build/measure --benchmark data/other/minimal_test_suite/ --no-fast-path'
-                        sh 'build/measure             data/vr/WW50/VR_with_ctrl/Building/VR_RM_with_ctrl_yossi_3.stereo.rc --no-gui --relocalize --save-map test.map'
-                        sh 'build/measure --benchmark data/other/minimal_test_suite/ --relocalize --load-map test.map'
+                        sh 'build/measure             data/vr/WW50/VR_with_ctrl/Building/VR_RM_with_ctrl_yossi_3.stereo.rc --no-gui --save-map test.map'
+                        sh 'build/measure --benchmark data/other/minimal_test_suite/ --load-map test.map'
                     }
                 }
                 stage('Async') {
@@ -75,7 +76,7 @@ pipeline {
             parallel {
                 stage('CPU') {
                     steps {
-                        sh 'build/measure --qvga --relocalize --benchmark data/ --pose-output %s.cpu.tum --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
+                        sh 'build/measure --qvga --benchmark data/ --pose-output %s.cpu.tum --benchmark-output benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'sed -ne \'/^Summary/,$p\' benchmark-details-$BRANCH_NAME-$GIT_COMMIT.txt > benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh './run_safety_kpi.py data/vr .cpu.tum > kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt'
                         sh 'tail -n12 kpi-safety-$BRANCH_NAME-$GIT_COMMIT.txt >> benchmark-summary-$BRANCH_NAME-$GIT_COMMIT.txt'
@@ -126,7 +127,7 @@ pipeline {
                         unstash 'libtracker'
                         sh 'build/mv-usb-boot -v 0x040E -p 0xF63B :re'
                         timeout(time: 10, unit: 'MINUTES') {
-                            sh 'build/measure --tm2 --no-gui --relocalize "$HOME/data/vr/WW50/VR_with_ctrl/Shooter(Raw_Data)/VR_RD_with_ctrl_1.stereo.rc"'
+                            sh 'build/measure --tm2 --no-gui "$HOME/data/vr/WW50/VR_with_ctrl/Shooter(Raw_Data)/VR_RD_with_ctrl_1.stereo.rc"'
                         }
                     }
                 }

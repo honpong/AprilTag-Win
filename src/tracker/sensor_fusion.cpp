@@ -413,12 +413,13 @@ void sensor_fusion::reset(sensor_clock::time_point time)
 #include "debug/visual_debug.h"
 #endif
 
-void sensor_fusion::start_mapping(bool relocalize, bool save_map)
+void sensor_fusion::start_mapping(bool relocalize, bool save_map, bool allow_jumps)
 {
     if (!sfm.map) {
         sfm.map = std::make_unique<mapper>();
         sfm.relocalize = relocalize;
         sfm.save_map = save_map;
+        sfm.allow_jumps = allow_jumps;
 #ifdef RELOCALIZATION_DEBUG
         visual_debug::create_instance(this);
 #endif

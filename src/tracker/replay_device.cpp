@@ -302,13 +302,14 @@ void replay_device::process_control(const packet_control_t *packet) {
     }
     case packet_enable_odometry: { use_odometry = true; break; }
     case packet_enable_mesg_level: { message_level = get_packet_item(packet); break; }
-    case packet_enable_mapping: { rc_startMapping(tracker.get(), false, get_packet_item(packet)); break; }
+    case packet_enable_mapping: { rc_startMapping(tracker.get(), false, get_packet_item(packet), false); break; }
     case packet_set_queue_strategy: {
         queue_strategy = get_packet_item(packet);
         strategy_override = true;
         break;
     }
-    case packet_enable_relocalization: { rc_startMapping(tracker.get(), true, true); break; }
+    case packet_enable_relocalization: { rc_startMapping(tracker.get(), true, true, false); break; }
+    case packet_enable_relocalization_jump: { rc_startMapping(tracker.get(), true, true, true); break; }
     case packet_command_start: {
         if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, stream->message_handle, message_level);
         rc_configureQueueStrategy(tracker.get(), (strategy_override) ? queue_strategy :

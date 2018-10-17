@@ -76,6 +76,14 @@ static void transfer_track_output(const replay_output *output, const rc_Data *da
     END_EVENT(EV_REPLAY_TRANSFER, 0);
 }
 
+static void process_relocalization(void *, rc_Tracker *, const rc_Relocalization *reloc) {
+    rc_packet_t reloc_pkt = packet_control_alloc(packet_rc_relocalization, nullptr, sizeof(packet_rc_relocalization_t) - sizeof(packet_header_t));
+    packet_rc_relocalization_t* reloc_pkt_p = (packet_rc_relocalization_t*)reloc_pkt.get();
+    reloc_pkt_p->timestamp = reloc->time_us;
+    reloc_pkt_p->sessionid = reloc->session;
+    packet_io_write(reloc_pkt);
+}
+
 tm2_pb_stream::tm2_pb_stream(): str_buf(new stream_buffer()) {
     track_output[rc_DATA_PATH_FAST].on_track_output = transfer_track_output;
     track_output[rc_DATA_PATH_SLOW].on_track_output = transfer_track_output;
@@ -85,6 +93,7 @@ tm2_pb_stream::tm2_pb_stream(): str_buf(new stream_buffer()) {
     device_stream::save_callback = usb_save_callback;
     device_stream::map_load_callback = usb_load_callback;
     device_stream::map_load_handle = str_buf.get();
+    device_stream::relocalization_callback = process_relocalization;
 }
 
 bool tm2_pb_stream::init_device() {

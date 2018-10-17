@@ -153,7 +153,11 @@ f_t estimate_five_point(const aligned_vector<v2> &src, const aligned_vector<v2> 
 // TT = sp.MatrixSymbol('T', 10,20)
 //
 // with open('compute-template.cpp', 'w') as f:
-//     f.write(sp.printing.cxxcode(T, assign_to=TT, standard='C++17'))
+//     f.write(sp.printing.ccode(T, assign_to=TT, standard='C11'))
+
+#undef pow
+static constexpr f_t pow_n(f_t x, int n) { return n == 1 ? x : n == 2 ? x*x : n == 3 ? x*x*x : (assert(0),0); }
+#define pow pow_n
 
 static m<10, 20> compute_template(const m3 &E1_, const m3 &E2_, const m3 &E3_, const m3 &E4_) {
     m<10,20> T_; f_t *T = T_.data(); const f_t *E1 = E1_.data(), *E2 = E2_.data(), *E3 = E3_.data(), *E4 = E4_.data();

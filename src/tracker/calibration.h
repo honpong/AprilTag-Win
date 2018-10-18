@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <vector>
+#include <utility>
 
 #include "rc_tracker.h"
 
@@ -30,10 +31,15 @@ typedef sensor_calibration<rc_GyroscopeIntrinsics> sensor_calibration_gyroscope;
 typedef sensor_calibration<rc_ThermometerIntrinsics> sensor_calibration_thermometer;
 typedef sensor_calibration<rc_VelocimeterIntrinsics> sensor_calibration_velocimeter;
 
+struct calibration_coordinates {
+    rc_Vector world_up, world_initial_forward, body_forward;
+};
+
 struct calibration {
     int version = CALIBRATION_VERSION;
     std::string device_id;
     std::string device_type;
+    std::pair<bool, calibration_coordinates> coordinates = {false,{}}; // FIXME: use std::optional
     std::vector<sensor_calibration_imu> imus;
     std::vector<sensor_calibration_velocimeter> velocimeters;
     std::vector<sensor_calibration_camera> cameras;

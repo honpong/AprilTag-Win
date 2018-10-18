@@ -9,16 +9,23 @@ bool rc_setCalibrationTM2(rc_Tracker *tracker, const void *calibration, size_t s
 {
     if (size < sizeof(tm2_calibration_table))
         return false;
-    tm2_calibration_table tm2 = {}; memcpy(&tm2, calibration, sizeof(tm2));
+    tm2_calibration_table tm2 = {};
+
+    memcpy(&tm2.header.header_size, calibration, sizeof(tm2.header.header_size));
 
     if (tm2.header.header_size != sizeof(tm2.header))
         return false;
+
+    memcpy(&tm2.header, calibration, sizeof(tm2.header));
+
     if (tm2.header.header_major != HEADER_MAJOR)
         return false;
     if (tm2.header.table_major != QS_CAL_MAJOR)
         return false;
     if (tm2.header.header_size + tm2.header.table_size != sizeof(tm2))
         return false;
+
+    memcpy(&tm2, calibration, sizeof(tm2));
 
     {
         int i=0;

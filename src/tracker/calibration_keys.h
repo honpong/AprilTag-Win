@@ -3,10 +3,16 @@
 #define KEY_VERSION "calibration_version"
 #define KEY_DEVICE_TYPE "device_type"
 #define KEY_DEVICE_ID "device_id"
+#define KEY_COORDINATES "coordinates"
 #define KEY_CAMERAS "cameras"
 #define KEY_DEPTHS "depths"
 #define KEY_IMUS "imus"
 #define KEY_VELOCIMETERS "velocimeters"
+
+// applies to coordinates
+#define KEY_WORLD_UP "world_up"
+#define KEY_WORLD_INITIAL_FORWARD "world_initial_forward"
+#define KEY_BODY_FORWARD "body_forward"
 
 // applies to cameras, depths, imus, velocimeters
 #define KEY_SENSOR_ID "id"

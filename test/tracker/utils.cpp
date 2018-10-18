@@ -17,7 +17,7 @@ static void check_initial_orientation_from_gravity(const v3 &world_up,     const
     // The rotation should align body_forward in the general direction we should be facing
     EXPECT_GE((q * body_forward).dot(world_facing), 0);
 
-    // such that is not no conponent in the third world direction
+    // such that there is no component in the third world direction
     EXPECT_NEAR((q * body_forward).dot(world_up.cross(world_facing)), 0, 6*F_T_EPS);
 }
 

@@ -70,6 +70,11 @@ void mapper::clean_map_after_filter_reset() {
     });
 }
 
+void mapper::close_map(nodeid id) {
+    unlinked = true;
+    node_id_offset = id;
+}
+
 void map_node::get_add_neighbor(nodeid neighbor, const transformation& G, const edge_type type)
 {
     if(type != edge_type::relocalization) {

@@ -256,6 +256,7 @@ private:
     ~mapper();
     void reset();
     void clean_map_after_filter_reset();
+    void close_map(nodeid id);
 
     bool is_map_unlinked() const { return unlinked; }
     bool is_unlinked(nodeid node_id) const { return (unlinked && node_id < node_id_offset); }

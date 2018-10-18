@@ -77,8 +77,8 @@ static inline rotation_vector to_rotation_vector(const m3 &R)
 static inline quaternion rotation_between_two_vectors_normalized(const v3 &a, const v3 &b)
 {
     quaternion res;
-    f_t d = a.dot(b);
-    if(d < f_t(-1 + 1.e-6)) //the two vector are (nearly) opposite, pick an arbitrary orthogonal axis
+    f_t ab1 = a.dot(b) + 1;
+    if(ab1 < F_T_EPS) //the two vector are (nearly) opposite, pick an arbitrary orthogonal axis
     {
         if(fabs(a[0]) > fabs(a[2])) //make sure we have a non-zero element
         {
@@ -88,7 +88,7 @@ static inline quaternion rotation_between_two_vectors_normalized(const v3 &a, co
         }
     } else { // normal case
         v3 axis = a.cross(b);
-        res = quaternion(1+d, axis[0], axis[1], axis[2]);
+        res = quaternion(ab1, axis[0], axis[1], axis[2]);
     }
     return res.normalized();
 }

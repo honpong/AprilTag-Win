@@ -158,11 +158,6 @@ bool mapper::feature_in_map(featureid id, nodeid* nid) const {
     return false;
 }
 
-void mapper::remove_node_features(nodeid id) {
-    for(auto& f : nodes->at(id).features)
-        features_dbow->erase(f.first);
-}
-
 void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                            std::shared_ptr<log_depth> v, f_t v_var, const feature_type type) {
     auto fid = feature->id;

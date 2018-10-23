@@ -381,6 +381,8 @@ void sensor_fusion::stop()
     isSensorFusionRunning = false;
     isProcessingVideo = false;
     stop_threads();
+    if(sfm.map)
+        sfm.map->close_map(sfm.s.group_counter);
 }
 
 void sensor_fusion::stop_threads()

@@ -70,6 +70,11 @@ void mapper::clean_map_after_filter_reset() {
     });
 }
 
+void mapper::close_map(nodeid id) {
+    unlinked = true;
+    node_id_offset = id;
+}
+
 void map_node::get_add_neighbor(nodeid neighbor, const transformation& G, const edge_type type)
 {
     if(type != edge_type::relocalization) {
@@ -961,15 +966,18 @@ bool mapper::link_map(const map_relocalization_edge& edge) {
         auto it = nodes->find(source_id);
         if (it != nodes->end()) {
             auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
-            auto is_node_searched = [this](const mapper::node_path& path) { return path.id < this->get_node_id_offset(); };
+            auto is_node_searched = [this](const mapper::node_path& path) { return true; };
             auto finish_search = [](const mapper::node_path&) { return false; };
             auto loaded_map_nodes = dijkstra_shortest_path(mapper::node_path{source_id, it->second.global_transformation, 0},
                                                            distance, is_node_searched, finish_search);
-            for(auto& loaded_map_node : loaded_map_nodes) {
-                nodes->at(loaded_map_node.id).global_transformation = loaded_map_node.G;
+            if(loaded_map_nodes.size() == nodes->size()) {
+                for(auto& loaded_map_node : loaded_map_nodes) {
+                    if(loaded_map_node.id < this->get_node_id_offset())
+                        nodes->at(loaded_map_node.id).global_transformation = loaded_map_node.G;
+                }
+                unlinked = false;
+                return true;
             }
-            unlinked = false;
-            return true;
         }
         return false;
     });

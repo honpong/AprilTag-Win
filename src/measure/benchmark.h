@@ -150,6 +150,7 @@ struct benchmark_result {
         };
 
         struct matching_statistics {
+            int detections = 0;
             int true_positives = 0, false_positives = 0, false_negatives = 0;
             f_t precision = 0, recall = 0;
 
@@ -163,9 +164,14 @@ struct benchmark_result {
 
             template <typename Stream>
             friend Stream& operator<<(Stream &stream, const matching_statistics &error) {
-                return stream << "\t precision "  << error.precision*100 << " recall "  << error.recall*100 << "\n"
-                              << "\t correct/detected\t" << error.true_positives << "/" << error.true_positives + error.false_positives << "\n"
-                              << "\t missed\t" << error.false_negatives;
+                stream << "\t detections " << error.detections;
+                if (error.true_positives + error.false_positives + error.false_negatives != 0) {
+                    stream << "\n"
+                           << "\t precision "  << error.precision*100 << " recall "  << error.recall*100 << "\n"
+                           << "\t correct " << error.true_positives << "\n"
+                           << "\t missed " << error.false_negatives;
+                }
+                return stream;
             }
         } relocalization;
 
@@ -213,6 +219,7 @@ struct benchmark_result {
         }
 
         bool calculate_precision_recall(){
+            reloc_time_sec.compute(relocalization_time.elapsed_times_sec);
             if (relocalization.compute_pr()) {
                 if (!std::isnan(relocalization.precision) && !std::isnan(relocalization.recall)) {
                     reloc_rpe_T.compute(distances_reloc);
@@ -221,7 +228,6 @@ struct benchmark_result {
                     reloc_rpe_T = reloc_rpe_T*std::numeric_limits<float>::quiet_NaN();
                     reloc_rpe_R = reloc_rpe_R*std::numeric_limits<float>::quiet_NaN();
                 }
-                reloc_time_sec.compute(relocalization_time.elapsed_times_sec);
                 return true;
             } else {
                 return false;
@@ -229,6 +235,14 @@ struct benchmark_result {
         }
 
         inline bool is_valid() { return nposes > 0; }
+
+        void add_relocalization(const rc_Relocalization& reloc) {
+            ++relocalization.detections;
+            if (relocalization_time.last_reloc_us != reloc.time_us) {
+                relocalization_time.elapsed_times_sec.emplace_back((reloc.time_us - relocalization_time.last_reloc_us) * 1e-6);
+                relocalization_time.last_reloc_us = reloc.time_us;
+            }
+        }
 
         void add_edges(const rc_Timestamp current_frame_timestamp,
                        const rc_RelocEdge* reloc_edges,
@@ -263,12 +277,6 @@ struct benchmark_result {
             relocalization.true_positives += tp;
             relocalization.false_positives += fp;
             relocalization.false_negatives += ref_edges.size() - tp;
-
-            if (num_reloc_edges > 0) {
-                if (relocalization_time.last_reloc_us)
-                    relocalization_time.elapsed_times_sec.emplace_back((current_frame_timestamp - relocalization_time.last_reloc_us) * 1e-6);
-                relocalization_time.last_reloc_us = current_frame_timestamp;
-            }
         }
     } errors;
 

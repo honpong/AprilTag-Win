@@ -122,6 +122,14 @@ bool tm2_host_stream::start_stream() {
                     memcpy(&camera_extrinsics[0], output_pkt->data, 2 * sizeof(rc_Extrinsics));
                     break;
                 }
+                case packet_rc_relocalization: {
+                    if (relocalization_callback) {
+                        const packet_rc_relocalization_t* reloc_pkt = (packet_rc_relocalization_t*)output_pkt.get();
+                        rc_Relocalization relocalization = { static_cast<rc_Timestamp>(reloc_pkt->timestamp), static_cast<enum rc_SessionId>(reloc_pkt->sessionid) };
+                        relocalization_callback(&relocalization);
+                    }
+                    break;
+                }
                 }
                 {//inform waiting host upon new packet from device
                     lock_guard<mutex> lk(host_stream::wait_device_mtx);

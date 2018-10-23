@@ -210,7 +210,7 @@ int main(int c, char **v)
         return true;
     };
 
-    auto print_results = [&calibrate,&replace](replay &rp, struct benchmark_result &res, const char *capture_file, rc_TrackerConfidence tracking_confidence) {
+    auto print_results = [&calibrate,&replace,relocalize](replay &rp, struct benchmark_result &res, const char *capture_file, rc_TrackerConfidence tracking_confidence) {
         std::cout << std::fixed << std::setprecision(2);
         std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
         std::cout << "Computed  Straight-line length is " << res.length_cm.measured        << " cm, total path length " << res.path_length_cm.measured        << " cm\n";
@@ -234,17 +234,22 @@ int main(int c, char **v)
             std::cout << "\t ATE (600ms) [m] : \n";
             std::cout << res.errors.ate_600ms << "\n";
         }
-        if (res.errors.calculate_precision_recall()) {
+        if (relocalize) {
             std::cout << "Relocalization Statistics :\n";
-            std::cout << "\t Precision-Recall [%] : \n";
-            std::cout << res.errors.relocalization << "\n";
-            std::cout << "\t translation RPE [m]:\n";
-            std::cout << res.errors.reloc_rpe_T << "\n";
-            std::cout << "\t rotation RPE [deg]:\n";
-            std::cout << res.errors.reloc_rpe_R*(f_t)(180/M_PI) << "\n";
+            if (res.errors.calculate_precision_recall()) {
+                std::cout << "\t Precision-Recall [%] : \n";
+                std::cout << res.errors.relocalization << "\n";
+                std::cout << "\t translation RPE [m]:\n";
+                std::cout << res.errors.reloc_rpe_T << "\n";
+                std::cout << "\t rotation RPE [deg]:\n";
+                std::cout << res.errors.reloc_rpe_R*(f_t)(180/M_PI) << "\n";
+            } else {
+                std::cout << res.errors.relocalization << "\n";
+            }
             std::cout << "\t time between relocalizations [sec]:\n";
             std::cout << res.errors.reloc_time_sec << "\n";
         }
+
         if (std::any_of(std::begin(res.storage.items), std::end(res.storage.items), [](auto i) { return i > 0; }))
             std::cout << "Storage Statistics :\n" << res.storage << "\n";
 
@@ -316,6 +321,10 @@ int main(int c, char **v)
         res.length_cm.measured      = 100 * v3(rp_output->rc_getPose(rc_DATA_PATH_SLOW).pose_m.T.v).norm();
     };
 
+    auto relocalization_callback = [](struct benchmark_result &res, const rc_Relocalization &reloc) {
+        res.errors.add_relocalization(reloc);
+    };
+
     if (benchmark) {
         enable_gui = false; if (realtime || start_paused) goto usage;
         threads = tm2_playback ? 1 : threads; // support only one thread on TM2
@@ -344,6 +353,9 @@ int main(int c, char **v)
             rp.set_data_callback([ws,&rp,first=true,&res, &loop_gt,&data_callback,&pose_fs,&confidence](const replay_output * output, const rc_Data * data) mutable {
                 confidence = output->confidence;
                 data_callback(*ws, rp, first, res, loop_gt, output, data, &pose_fs);
+            });
+            rp.set_relocalization_callback([&res,&relocalization_callback](const rc_Relocalization* reloc) {
+                relocalization_callback(res, *reloc);
             });
 
             if (progress) std::cout << "Running  " << capture_file << std::endl;
@@ -393,6 +405,9 @@ int main(int c, char **v)
     rp.set_data_callback([&ws,&rp,first=true,&res, &loop_gt,&data_callback,&pose_fs,&confidence](const replay_output * output, const rc_Data * data) mutable {
         confidence = output->confidence;
         data_callback(ws, rp, first, res, loop_gt, output, data, &pose_fs);
+    });
+    rp.set_relocalization_callback([&res,&relocalization_callback](const rc_Relocalization* reloc) {
+        relocalization_callback(res, *reloc);
     });
 
 #ifndef HAVE_GLFW

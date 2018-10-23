@@ -417,14 +417,13 @@ void sensor_fusion::start_mapping(bool relocalize, bool save_map, bool allow_jum
 {
     if (!sfm.map) {
         sfm.map = std::make_unique<mapper>();
-        sfm.relocalize = relocalize;
-        sfm.save_map = save_map;
-        sfm.allow_jumps = allow_jumps;
 #ifdef RELOCALIZATION_DEBUG
         visual_debug::create_instance(this);
 #endif
     }
-    sfm.map->reset();
+    sfm.relocalize = relocalize;
+    sfm.save_map = save_map;
+    sfm.allow_jumps = allow_jumps;
 }
 
 void sensor_fusion::stop_mapping()

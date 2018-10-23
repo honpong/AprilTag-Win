@@ -601,6 +601,9 @@ RCTRACKER_API bool rc_appendCalibration(rc_Tracker *tracker, const char *buffer)
 
 /**
  Start/stop the mapping subsystem. When started, the map is completely empty. The map is build synchronously with rc_receive* startMapping must be called before loadMap
+ There is only one possible instance of mapping subsystem per tracking instance.
+ Subsequent calls to rc_startMapping do not create new instance nor reset mapping but apply other input parameters.
+ rc_stopMapping removes existing mapping sub-system.
  */
 RCTRACKER_API void rc_startMapping(rc_Tracker *tracker, bool relocalize, bool save_map, bool allow_jumps);
 RCTRACKER_API void rc_stopMapping(rc_Tracker *tracker);

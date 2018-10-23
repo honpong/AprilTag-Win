@@ -56,9 +56,9 @@ struct filter {
     float median_depth_variance;
     bool has_converged;
     bool stereo_enabled;
-    bool relocalize;
-    bool save_map;
-    bool allow_jumps;
+    bool relocalize; /*!< usage: value may be set during mapping session .*/
+    bool save_map; /*!< usage: value may be set during mapping session .*/
+    bool allow_jumps; /*!< usage: value may be set during mapping session .*/
     map_relocalization_info relocalization_info;
 
     template<int N>

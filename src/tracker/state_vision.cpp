@@ -362,28 +362,32 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     remap();
     project_new_group_covariance(*p);
 
-    // if number of nodes is bigger than 40 remove 10 nodes with the lowest number of active frames
-    constexpr size_t max_nodes = 40;
+    // if the total number of finished nodes is bigger than 150 (for example: current session + unlinked loaded map) or the
+    // local number of finished nodes is bigger than 40 (just current session) remove 10 nodes with the lowest number of active frames
+    constexpr size_t global_max_nodes = 150;
+    constexpr size_t local_max_nodes = 40;
     constexpr size_t num_nodes_removed = 10;
-    if(map && map->get_nodes().size() >= max_nodes) {
-        std::vector<std::pair<nodeid, uint64_t>> nodes_frames_active;
-        size_t nodes_current_session = 0;
+    static_assert(global_max_nodes > local_max_nodes, "Global max number of nodes should be bigger than Local max nodes");
+    static_assert(local_max_nodes > num_nodes_removed, "Local max number of nodes should be bigger than Num nodes removed");
+    if(map && map->get_nodes().size() >= local_max_nodes) {
+        std::vector<std::pair<nodeid, uint64_t>> removable_nodes;
+        removable_nodes.reserve(num_nodes_removed + 1);
+        auto frames_active_comp = [](std::pair<nodeid, uint64_t>& n1, std::pair<nodeid, uint64_t>& n2) {
+                              return n1.second < n2.second;};
         for(auto& node : map->get_nodes()) {
-            if(!map->is_unlinked(node.second.id)) {
-                ++nodes_current_session;
-                if(node.second.status == node_status::finished && !map->is_root(node.second.id))
-                    nodes_frames_active.emplace_back(node.second.id, node.second.frames_active);
+            if(map->get_nodes().size() > global_max_nodes || !map->is_unlinked(node.second.id)) {
+                if(node.second.status == node_status::finished && !map->is_root(node.second.id)) {
+                    removable_nodes.emplace_back(node.second.id, node.second.frames_active);
+                    push_heap(removable_nodes.begin(), removable_nodes.end(), frames_active_comp);
+                    if(removable_nodes.size() > num_nodes_removed) {
+                        pop_heap(removable_nodes.begin(), removable_nodes.end(), frames_active_comp);
+                        removable_nodes.pop_back();
+                    }
+                }
             }
         }
-        if(nodes_current_session >= max_nodes) {
-            if (nodes_frames_active.size() > num_nodes_removed) {
-                std::partial_sort(nodes_frames_active.begin(), nodes_frames_active.begin() + num_nodes_removed, nodes_frames_active.end(), [](std::pair<nodeid, uint64_t>& n1, std::pair<nodeid, uint64_t>& n2) {
-                    return n1.second < n2.second;});
-                nodes_frames_active.resize(num_nodes_removed);
-            }
-            for(auto& remove_node : nodes_frames_active) {
-                map->remove_node(remove_node.first);
-            }
+        for(auto& remove_node : removable_nodes) {
+            map->remove_node(remove_node.first);
         }
     }
     return p;

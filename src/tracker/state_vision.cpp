@@ -759,7 +759,7 @@ bool triangulated_track::measure(const transformation &G_now_ref, const v2 &X_un
     } else
         outlier = 0;
 
-    auto R = v2{sigma2,sigma2}.asDiagonal();
+    m<2,2> R = v2{sigma2,sigma2}.asDiagonal();
     m<2,1> HP = H*state->P;
     m<2,2> S = HP*H.transpose(); S += R;
     Eigen::LLT<m<2,2>> Sllt = S.llt();

@@ -30,7 +30,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 target_link_libraries(${PROJECT_NAME} shapefit-core ${LIBRS_LIBS} ${libSP})
 target_include_directories(${PROJECT_NAME} PRIVATE shapefit-core ${LIBRS_LIBS} ${libSP} 
     ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk
-    ${THIRDPARTY_DIR}/LibRealSense/librealsense/third-party
+    ${THIRDPARTY_DIR}/librealsense/librealsense/third-party
     ${THIRDPARTY_DIR}/librealsense/librealsense/third-party)
 
 if(MSVC)

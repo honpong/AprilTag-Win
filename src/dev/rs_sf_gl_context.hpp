@@ -8,6 +8,7 @@ struct rs_sf_gl_context
     GLFWwindow* win = nullptr;
     std::string key;
     texture_buffer texture;
+    bool init_moved = false;
 
     rs_sf_gl_context(const std::string& _key, int w = 1280, int h = 480 * 2) : key(_key) {
         glfwInit();
@@ -61,6 +62,16 @@ struct rs_sf_gl_context
 
             glPopMatrix();
             glfwSwapBuffers(win);
+            
+#ifdef __APPLE__
+            if(!init_moved){
+                int x, y;
+                glfwGetWindowPos(win, &x, &y);
+                glfwSetWindowPos(win, ++x, y);
+                glfwSetWindowPos(win, --x, y);
+                init_moved=true;
+            }
+#endif //__APPLE__
 
             return true;
         }

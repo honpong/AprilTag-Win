@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <mutex>
 #include <future>
+#include <float.h>
 
 //Don't use GPL-licensed pieces of eigen
 #define EIGEN_MPL2_ONLY

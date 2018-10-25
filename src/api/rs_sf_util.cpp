@@ -175,11 +175,11 @@ void rs_sf_util_to_box_frame(const rs_sf_box& box, v3 box_frame[12][2])
 
 void rs_sf_util_draw_boxes(rs_sf_image * rgb, const pose_t& pose, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes, const b3& color)
 {
-    auto proj = [to_cam = pose.invert(), &cam = camera](const v3& pt) {
+    auto proj = [to_cam = pose.invert(), &camera](const v3& pt) {
         const auto pt3d = to_cam.rotation * pt + to_cam.translation;
         return v2{
-            (pt3d.x() * cam.fx) / pt3d.z() + cam.ppx,
-            (pt3d.y() * cam.fy) / pt3d.z() + cam.ppy };
+            (pt3d.x() * camera.fx) / pt3d.z() + camera.ppx,
+            (pt3d.y() * camera.fy) / pt3d.z() + camera.ppy };
     };
 
     v3 box_frame[12][2];
@@ -214,11 +214,11 @@ box_plane rs_sf_util_get_box_plane(const rs_sf_box& box, int pid)
 void rs_sf_util_raycast_boxes(rs_sf_image * depth, const pose_t& pose, const float depth_unit_in_meter, const rs_sf_intrinsics& camera, const std::vector<rs_sf_box>& boxes)
 {
     auto to_cam = pose.invert();
-    auto proj = [to_cam = to_cam, &cam = camera](const v3& pt) {
+    auto proj = [to_cam = to_cam, &camera](const v3& pt) {
         const auto pt3d = to_cam.rotation * pt + to_cam.translation;
         return v2{
-            (pt3d.x() * cam.fx) / pt3d.z() + cam.ppx,
-            (pt3d.y() * cam.fy) / pt3d.z() + cam.ppy };
+            (pt3d.x() * camera.fx) / pt3d.z() + camera.ppx,
+            (pt3d.y() * camera.fy) / pt3d.z() + camera.ppy };
     };
 
     auto in_plane = [](const v2 pl[4], const i2& pt) {

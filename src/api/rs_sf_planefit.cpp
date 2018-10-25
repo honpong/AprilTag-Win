@@ -216,8 +216,8 @@ rs_sf_status rs_sf_planefit::get_planes(rs_sf_plane dst[RS_SF_MAX_PLANE_COUNT], 
 
 void rs_sf_planefit::parameter_updated()
 {
-    m_grid_h = (int)(std::ceilf((float)src_h() / m_param.img_y_dn_sample));
-    m_grid_w = (int)(std::ceilf((float)src_w() / m_param.img_x_dn_sample));
+    m_grid_h = (int)(std::ceil((float)src_h() / m_param.img_y_dn_sample));
+    m_grid_w = (int)(std::ceil((float)src_w() / m_param.img_x_dn_sample));
     m_grid_neighbor[0] = -1;
     m_grid_neighbor[1] = 1;
     m_grid_neighbor[2] = -m_grid_w;

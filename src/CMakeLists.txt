@@ -76,6 +76,10 @@ if(BUILD_SHAPEFIT_DEV_APP)
         add_subdirectory(thirdparty/glfw)
         list(APPEND LIBRS_LIBS glfw3)
     else()
+        find_package(glfw3 REQUIRED)
+        message(STATUS "${GLFW3_INCLUDE_DIR} ${GLFW3_LIBRARIES}")
+        link_libraries(glfw)
+
         if(APPLE)
             add_definitions(-DAPPLE)
             set(BUILD_WITH_OPENMP OFF CACHE BOOL "" FORCE)
@@ -94,30 +98,6 @@ if(BUILD_SHAPEFIT_DEV_APP)
         else()
             message(FATAL_ERROR "Failed to find libusb-1.0" )
         endif(LIBUSB1_FOUND)
-
-        # Find glfw header
-        find_path(GLFW_INCLUDE_DIR NAMES GLFW/glfw3.h
-            PATHS /usr/X11R6/include
-                /usr/include/X11
-                /opt/graphics/OpenGL/include
-                /opt/graphics/OpenGL/contrib/libglfw
-                /usr/local/include
-                /usr/include/GL
-                /usr/include
-        )
-        # Find glfw library
-        find_library(GLFW_LIBRARIES NAMES glfw glfw3
-                PATHS /usr/lib64
-                    /usr/lib
-                    /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}
-                    /usr/local/lib64
-                    /usr/local/lib
-                    /usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
-                    /usr/X11R6/lib
-        )
-
-        list(APPEND LIBRS_LIBS m ${GLFW_LIBRARIES} ${LIBUSB1_LIBRARIES})
-        include_directories(${GLFW_INCLUDE_DIR})
     endif()
     
     add_subdirectory(${LIBRS_DIR})

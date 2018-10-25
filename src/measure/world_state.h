@@ -60,12 +60,16 @@ typedef struct _sensor {
     transformation extrinsics;
 } Sensor;
 
+typedef struct _polyhedron_coordinates {
+    aligned_vector<v3> vertices;  // local coordinates, meters
+    std::vector<size_t> vertex_indices;  // order of vertices to draw the polyhedron
+} PolyhedronCoordinates;
+
 typedef struct _virtual_object {
     Position pose;  // pose in the world (i.e. G_world_object)
     bool unlinked;  // unlinked to main map, as nodes
     unsigned char rgba[4];  // edge color
-    aligned_vector<v3> vertices;  // local coordinates, meters
-    std::vector<size_t> vertex_indices;  // order of vertices to draw the object
+    _polyhedron_coordinates coords;
     aligned_vector<v3> bounding_box;  // if not empty, "project" uses it to decide
                                       // faster if the object is in the image
 

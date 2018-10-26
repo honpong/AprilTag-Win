@@ -223,6 +223,7 @@ extern "C"
 }
 
 #include <memory>
+#include <string.h>
 inline void rs_sf_memcpy(void* dst, const void* src, size_t len) { memcpy(dst, src, len); }
 
 struct rs_sf_image_auto : public rs_sf_image

@@ -551,7 +551,7 @@ rs_sf_boxfit::box_record::box_record(const box& ref, const pose_t& pose, const r
         return pt.x() < min_x || max_x < pt.x() || pt.y() < min_y || max_y < pt.y();
     };
     // check if a 3d point in world inside fov of image
-    auto in_fov = [&to_cam = to_cam, &cam = cam, &out_img_fov = out_img_fov](const v3& pt) {
+    auto in_fov = [&to_cam, &cam, &out_img_fov](const v3& pt) {
         const auto pt3d = to_cam.transform(pt);
         const v2 img_pt = { (pt3d.x() * cam.fx) / pt3d.z() + cam.ppx, (pt3d.y() * cam.fy) / pt3d.z() + cam.ppy };
         return out_img_fov(img_pt) ? 0 : 1;

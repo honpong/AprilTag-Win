@@ -646,20 +646,23 @@ protected:
     bool detect_motion_in_color(const video_frame curr_c)
     {
         const int width = curr_c.get_width(), height = curr_c.get_height();
+        const int num_channel = curr_c.get_bytes_per_pixel();
         const int num_pix = width * height;
         const int min_mov_pixel = (int)(num_pix * _mov_color_pixel_min_percent);
         auto* c0 = (uint8_t*)_prev_c.get_data();
         auto* c1 = (uint8_t*)curr_c.get_data();
-        for (int i = 0, i3 = 0, num_mov_pix = 0; i < num_pix; ++i, i3+=3 )
+        for (int i = 0, i3 = 0, num_mov_pix = 0; i < num_pix; ++i, i3+=num_channel )
         {
-            if (std::abs(c0[i3+0]-c1[i3+0]) > _mov_color_pixel_thr ||
-                std::abs(c0[i3+1]-c1[i3+1]) > _mov_color_pixel_thr ||
-                std::abs(c0[i3+2]-c1[i3+2]) > _mov_color_pixel_thr )
+            for ( int c=0; c<num_channel; ++c)
             {
-                if(++num_mov_pix > min_mov_pixel)
+                if( std::abs(c0[i3+c]-c1[i3+c]) > _mov_color_pixel_thr )
                 {
-                    _no_mov_frame_count = 0;
-                    return true;
+                    if( ++num_mov_pix > min_mov_pixel)
+                    {
+                        _no_mov_frame_count = 0;
+                        return true;
+                    }
+                    break;
                 }
             }
         }
@@ -673,6 +676,7 @@ protected:
         
         depth_frame curr_d = fs.get_depth_frame();
         video_frame curr_c = fs.get_color_frame();
+        if(!curr_c){ curr_c = fs.get_infrared_frame(); }
         if (!_prev_d || !_prev_c) {
             _prev_d = src.allocate_video_frame(curr_d.get_profile(), curr_d, 0,0,0,0, RS2_EXTENSION_DEPTH_FRAME);
             _prev_c = src.allocate_video_frame(curr_c.get_profile(), curr_c);

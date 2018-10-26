@@ -388,6 +388,8 @@ namespace rs2
             if (_camera_name == "Intel RealSense 410" ||
                 _camera_name == "Intel RealSense D410")
                 config.enable_stream(RS2_STREAM_INFRARED, 0, _stream_w, _stream_h, RS2_FORMAT_RGB8);
+            else if (_camera_name == "Intel RealSense D430 with Tracking Module")
+                config.enable_stream(RS2_STREAM_INFRARED, 1, _stream_w, _stream_h, RS2_FORMAT_Y8);
             else
                 config.enable_stream(RS2_STREAM_COLOR, 0, _stream_w, _stream_h, RS2_FORMAT_RGB8);
             
@@ -465,6 +467,7 @@ namespace rs2
             else if (_camera_name == "Intel RealSense 435" ||
                      _camera_name == "Intel RealSense D435") { _stream_w = 640; _stream_h = 480; _use_color = true; }
             else if (_camera_name == "Intel RealSense SR300") { _stream_w = 640; _stream_h = 480; _depth_unit = 0.000125f; }
+            else if (_camera_name == "Intel RealSense D430 with Tracking Module") { _stream_w = 640; _stream_h = 480; }
             else {  _stream_w = 640; _stream_h = 480; /**throw std::runtime_error(_camera_name + " not supported by Box SDK!");*/ }
             
             if (_depth_unit != 0.0f) return _depth_unit;

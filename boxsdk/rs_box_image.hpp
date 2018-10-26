@@ -41,6 +41,7 @@ namespace rs2
     static rs_sf_image& operator<<(rs_sf_image& img, float* cam_pose) { img.cam_pose = cam_pose; return img; }
     static rs_sf_image& operator<<(rs_sf_image& img, unsigned long long frame_id) { img.frame_id = frame_id; return img; }
     static rs_sf_image& operator<<(rs_sf_image& img, const void* data) { img.data = reinterpret_cast<unsigned char*>(const_cast<void*>(data)); return img; }
+    static rs_sf_image& operator<<(rs_sf_image& img, const int bbp) { img.byte_per_pixel = bbp; return img; }
 
     static rs2_measure_camera_state& operator<<(rs2_measure_camera_state& state, const rs_sf_image& img)
     {

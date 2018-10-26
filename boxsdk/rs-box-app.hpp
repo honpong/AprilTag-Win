@@ -413,6 +413,17 @@ public:
         glfwGetWindowSize(win, &_width, &_height);
         glOrtho(0, _width, _height, 0, -1, +1);
         
+#ifdef __APPLE__
+        static bool init_moved = false;
+        if(!init_moved){
+            int x, y;
+            glfwGetWindowPos(win, &x, &y);
+            glfwSetWindowPos(win, ++x, y);
+            glfwSetWindowPos(win, --x, y);
+            init_moved=true;
+        }
+#endif //__APPLE__
+        
         return res;
     }
     

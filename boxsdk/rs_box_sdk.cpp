@@ -93,6 +93,7 @@ namespace rs2
             auto fs = f.as<frameset>();
             auto input_depth_frame = fs.get_depth_frame();
             auto input_color_frame = fs.get_color_frame();
+            if (!input_color_frame){ input_color_frame = fs.get_infrared_frame(); }
             auto box_detector = _detector.get();
             
             if (!box_detector) { box_detector = init_box_detector(input_depth_frame, input_color_frame); }

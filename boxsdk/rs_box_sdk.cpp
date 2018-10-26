@@ -51,6 +51,7 @@ namespace rs2
         {
             _depth_stream_profile = std::make_shared<video_stream_profile>(input_depth_frame.get_profile());
             _color_stream_profile = std::make_shared<video_stream_profile>(input_color_frame.get_profile());
+            _color_output_profile = std::make_shared<video_stream_profile>(_color_stream_profile->clone(_color_stream_profile->stream_type(), _color_stream_profile->stream_index(), RS2_FORMAT_RGB8));
             if (!_custom_intrinsics) { _depth_intrinsics = _depth_stream_profile->get_intrinsics(); }
             if (!_custom_intrinsics) { _color_intrinsics = _color_stream_profile->get_intrinsics(); }
             if (!_custom_extrinsics) {
@@ -112,13 +113,13 @@ namespace rs2
                 input_depth_frame,
                 input_color_frame,
                 !_is_export[BOX_DST_DENSE] ? input_depth_frame : src.allocate_video_frame(*_depth_stream_profile, input_depth_frame, 0, 0, 0, 0, RS2_EXTENSION_DEPTH_FRAME),
-                !_is_export[BOX_DST_PLANE] ? input_color_frame : src.allocate_video_frame(*_color_stream_profile, input_color_frame),
+                !_is_export[BOX_DST_PLANE] ? input_color_frame : src.allocate_video_frame(*_color_output_profile, input_color_frame, 3, 0, 0, 0, RS2_EXTENSION_VIDEO_FRAME),
                 !_is_export[BOX_DST_RAYCA] ? input_depth_frame : src.allocate_video_frame(*_depth_stream_profile, input_depth_frame, 0, 0, 0, 0, RS2_EXTENSION_DEPTH_FRAME),
-                !_is_export[BOX_DST_COLOR] ? input_color_frame : src.allocate_video_frame(*_color_stream_profile, input_color_frame),
+                !_is_export[BOX_DST_COLOR] ? input_color_frame : src.allocate_video_frame(*_color_output_profile, input_color_frame, 3, 0, 0, 0, RS2_EXTENSION_VIDEO_FRAME),
             };
             
             for (auto s : { BOX_SRC_DEPTH, BOX_SRC_COLOR, BOX_DST_DENSE, BOX_DST_PLANE, BOX_DST_RAYCA, BOX_DST_COLOR })
-                _image[s] << export_frame[s].get_data();
+                _image[s] << export_frame[s].get_data() << export_frame[s].as<video_frame>().get_bytes_per_pixel();
             
             if (_camera_tracker && _is_export[BOX_DST_DENSE]) {
                 _reset_request |= !_camera_tracker->track(_image[BOX_SRC_DEPTH], _image[BOX_SRC_COLOR], _image[BOX_DST_DENSE], _color_to_depth, _reset_request);
@@ -206,7 +207,7 @@ namespace rs2
         bool _custom_intrinsics = false, _custom_extrinsics = false;
         rs2_intrinsics _depth_intrinsics, _color_intrinsics;
         rs2_extrinsics _color_to_depth;
-        std::shared_ptr<video_stream_profile> _depth_stream_profile, _color_stream_profile;
+        std::shared_ptr<video_stream_profile> _depth_stream_profile, _color_stream_profile, _color_output_profile;
         
         // algorithm related
         std::unique_ptr<camera_tracker> _camera_tracker;

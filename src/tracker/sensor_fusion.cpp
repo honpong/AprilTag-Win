@@ -442,8 +442,10 @@ void sensor_fusion::stop_mapping()
 
 void sensor_fusion::save_map(rc_SaveCallback write, void *handle)
 {
-    if (!sfm.map)
+    if (!sfm.map) {
+        if (write) write(handle, 0, 0);
         return;
+    }
     if (save_map_thread.joinable()) save_map_thread.join();
     save_map_thread = std::thread([this, write, handle]() {
         set_priority(PRIORITY_SLAM_SAVE_MAP);

@@ -239,7 +239,8 @@ struct benchmark_result {
         void add_relocalization(const rc_Relocalization& reloc) {
             ++relocalization.detections;
             if (relocalization_time.last_reloc_us != reloc.time_us) {
-                relocalization_time.elapsed_times_sec.emplace_back((reloc.time_us - relocalization_time.last_reloc_us) * 1e-6);
+                if (relocalization_time.last_reloc_us != 0)
+                    relocalization_time.elapsed_times_sec.emplace_back((reloc.time_us - relocalization_time.last_reloc_us) * 1e-6);
                 relocalization_time.last_reloc_us = reloc.time_us;
             }
         }

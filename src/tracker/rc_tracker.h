@@ -438,6 +438,7 @@ RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback
 RCTRACKER_API void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback callback, void *handle);
 RCTRACKER_API void rc_setRelocalizationCallback(rc_Tracker *tracker, rc_RelocalizationCallback callback, void *handle);
 
+/// all enum values must be 2^n.
 typedef enum rc_TrackerRunFlags
 {
     /** rc_Tracker should process data on the callers thread. */

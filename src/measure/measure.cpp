@@ -50,7 +50,7 @@ int main(int c, char **v)
     }
 
     bool realtime = false, start_paused = false, benchmark = false, calibrate = false, zero_bias = false;
-    bool fast_path = true, async = false, progress = false, dynamic_calibration = false;
+    bool progress = false;
     const char *save = nullptr, *load = nullptr, *append = nullptr;
     const char *save_map = nullptr, *load_map = nullptr;
     bool qvga = false, depth = true; int qres = 0;
@@ -70,14 +70,15 @@ int main(int c, char **v)
     float skip_secs = 0.f;
     rc_MessageLevel message_level = rc_MESSAGE_INFO;
     int threads = 0;
+    int32_t run_flags = rc_RUN_SYNCHRONOUS | rc_RUN_FAST_PATH | rc_RUN_STATIC_CALIBRATION;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-') filenames.emplace_back(v[i]);
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
         else if (strcmp(v[i], "--realtime") == 0) realtime = true;
-        else if (strcmp(v[i], "--async") == 0) async = true;
+        else if (strcmp(v[i], "--async") == 0) run_flags |= rc_RUN_ASYNCHRONOUS;
         else if (strcmp(v[i], "--no-realtime") == 0) realtime = false;
-        else if (strcmp(v[i], "--no-fast-path")  == 0) fast_path  = false;
-        else if (strcmp(v[i], "--dynamic-calibration") == 0) dynamic_calibration = true;
+        else if (strcmp(v[i], "--no-fast-path")  == 0) run_flags &= ~(rc_RUN_FAST_PATH);
+        else if (strcmp(v[i], "--dynamic-calibration") == 0) run_flags |= rc_RUN_DYNAMIC_CALIBRATION;
         else if (strcmp(v[i], "--show-no-plots") == 0) show_plots = false;
         else if (strcmp(v[i], "--show-no-depth") == 0) show_depth = false;
         else if (strcmp(v[i], "--show-no-video") == 0) show_video = false;
@@ -145,10 +146,8 @@ int main(int c, char **v)
         if(odometry) rp.enable_odometry();
         if(realtime) rp.enable_realtime();
         if(enable_map) rp.start_mapping(relocalize, save_map != nullptr);
-        if(fast_path) rp.enable_fast_path();
-        if(dynamic_calibration) rp.enable_dynamic_calibration();
-        if(async) rp.enable_async();
         if(usb_sync) rp.enable_usb_sync();
+        rp.set_run_flags((rc_TrackerRunFlags)run_flags);
         if(!benchmark && enable_gui) {
             typedef replay_output::output_mode om;
             om mode = show_map ?    (show_feature ? om::POSE_FEATURE_MAP    : om::POSE_MAP) :
@@ -261,7 +260,7 @@ int main(int c, char **v)
             std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
-    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &fast_path]
+    auto data_callback = [&enable_gui, &incremental_ate, &render_output, &run_flags]
         (world_state &ws, replay &rp, bool &first, struct benchmark_result &res, gt_generator &loop_gt, const replay_output *rp_output, const rc_Data *data, std::ostream *pose_st) {
         rc_PoseTime current_pose = rp_output->rc_getPose(rp_output->data_path);
 
@@ -275,7 +274,7 @@ int main(int c, char **v)
                                        ref_tpose.G.Q.w(), ref_tpose.G.Q.x(), ref_tpose.G.Q.y(), ref_tpose.G.Q.z());
         }
 
-        if(has_reference && rp_output->data_path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW)) {
+        if(has_reference && rp_output->data_path == ((run_flags & rc_RUN_FAST_PATH) ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW)) {
             if (first) {
                 first = false;
                 loop_gt.set_camera(rp.get_camera_extrinsics(0));
@@ -311,7 +310,7 @@ int main(int c, char **v)
             }
         }
         const int device_id = 0;
-        if(pose_st && rp_output->data_path == (fast_path ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW))
+        if(pose_st && rp_output->data_path == ((run_flags & rc_RUN_FAST_PATH) ? rc_DATA_PATH_FAST : rc_DATA_PATH_SLOW))
             *pose_st << tpose_tum(current_pose.time_us/1e6, to_transformation(current_pose.pose_m), device_id, rp_output->confidence);
         if (enable_gui || render_output)
             ws.rc_data_callback(rp_output, data);

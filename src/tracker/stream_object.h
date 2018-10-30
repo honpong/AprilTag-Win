@@ -31,10 +31,8 @@ typedef enum replay_packet_type {
     packet_enable_realtime,
     packet_enable_qvga,
     packet_enable_qres, //w. downscaling ratio by 0
-    packet_enable_async,
+    packet_run_flags,
     packet_enable_no_depth,
-    packet_enable_fast_path,
-    packet_enable_dynamic_calibration,
     packet_enable_zero_biases,
     packet_enable_mesg_level,
     packet_enable_mapping,

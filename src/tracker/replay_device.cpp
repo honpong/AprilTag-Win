@@ -291,10 +291,7 @@ void replay_device::process_control(const packet_control_t *packet) {
     case packet_enable_realtime: { is_realtime = true; break; }
     case packet_enable_qvga: { qvga = true; break; }
     case packet_enable_qres: { qres = get_packet_item(packet); break; }
-    case packet_enable_async: { async = is_realtime = true; break; }
     case packet_enable_no_depth: { use_depth = false; break; }
-    case packet_enable_fast_path: { fast_path = true; break; }
-    case packet_enable_dynamic_calibration: { dynamic_calibration = true; break; }
     case packet_enable_zero_biases: {
         zero_bias();
         to_zero_biases = true; // used if load calibration happens after
@@ -310,14 +307,14 @@ void replay_device::process_control(const packet_control_t *packet) {
     }
     case packet_enable_relocalization: { rc_startMapping(tracker.get(), true, true, false); break; }
     case packet_enable_relocalization_jump: { rc_startMapping(tracker.get(), true, true, true); break; }
+    case packet_run_flags: { run_flags = get_packet_item(packet); break; }
     case packet_command_start: {
         if (stream->message_callback) rc_setMessageCallback(tracker.get(), stream->message_callback, stream->message_handle, message_level);
-        rc_configureQueueStrategy(tracker.get(), (strategy_override) ? queue_strategy :
-                                  (async ? rc_QUEUE_MINIMIZE_LATENCY : queue_strategy));
-        rc_startTracker(tracker.get(),
-                        (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) |
-                        (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH) |
-                        (dynamic_calibration? rc_RUN_DYNAMIC_CALIBRATION : rc_RUN_STATIC_CALIBRATION));
+        is_realtime = is_realtime || (run_flags & rc_RUN_ASYNCHRONOUS); //use real time under async
+        queue_strategy = (strategy_override) ? queue_strategy :
+            ((run_flags & rc_RUN_ASYNCHRONOUS ? rc_QUEUE_MINIMIZE_LATENCY : queue_strategy));
+        rc_configureQueueStrategy(tracker.get(), queue_strategy);
+        rc_startTracker(tracker.get(), run_flags);
         break;
     }
     case packet_load_map: {
@@ -379,10 +376,7 @@ void replay_device::process_control(const packet_control_t *packet) {
     case packet_command_reset: {
         fprintf(stderr, "Resetting...");
         rc_stopTracker(tracker.get());
-        rc_startTracker(tracker.get(),
-                        (async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) |
-                        (fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH) |
-                        (dynamic_calibration ? rc_RUN_DYNAMIC_CALIBRATION : rc_RUN_STATIC_CALIBRATION));
+        rc_startTracker(tracker.get(), run_flags);
         fprintf(stderr, "done\n");
         break;
     }

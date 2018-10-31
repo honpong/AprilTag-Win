@@ -88,7 +88,7 @@ void replay::start_async(){
     }
     request(packet_camera_extrinsics);
     if (start_paused) toggle_pause();
-    replay_thread = std::thread([&]() {stream->start_stream(); }); //thread is needed for supporting with file_stream
+    if (!replay_thread.joinable()) replay_thread = std::thread([&]() {stream->start_stream(); }); //thread is needed for supporting with file_stream
 }
 
 void replay::start() {

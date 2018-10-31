@@ -45,7 +45,7 @@ int main(int c, char **v)
 #ifdef ENABLE_TM2_PLAYBACK
              << "   [--tm2] [--show-no-map] [--show-no-feature] [--usb-sync]\n"
 #endif
-             << "   [--disable-relocalize] [--disable-odometry] [--incremental-ate]\n";
+             << "   [--disable-relocalize] [--allow-jumps] [--disable-odometry] [--incremental-ate]\n";
         return 1;
     }
 
@@ -105,6 +105,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--progress") == 0) progress = true;
         else if (strcmp(v[i], "--incremental-ate") == 0) incremental_ate = true;
         else if (strcmp(v[i], "--disable-relocalize") == 0) run_flags &= ~(rc_RUN_RELOCALIZATION);
+        else if (strcmp(v[i], "--allow-jumps") == 0) run_flags |= rc_RUN_POSE_JUMP;
         else if (strcmp(v[i], "--trace") == 0) message_level = rc_MESSAGE_TRACE;
         else if (strcmp(v[i], "--debug") == 0) message_level = rc_MESSAGE_DEBUG;
         else if (strcmp(v[i], "--error") == 0) message_level = rc_MESSAGE_ERROR;

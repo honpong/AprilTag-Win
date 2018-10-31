@@ -1,3 +1,6 @@
 [submodule "src/thirdparty/librealsense/librealsense"]
 	path = src/thirdparty/librealsense/librealsense
 	url = https://github.com/IntelRealSense/librealsense.git
+[submodule "src/thirdparty/tracker"]
+	path = src/thirdparty/tracker
+url=https://github.com/honpong/tracker.git

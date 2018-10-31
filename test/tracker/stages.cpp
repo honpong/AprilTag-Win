@@ -107,7 +107,8 @@ std::unique_ptr<replay> create_replay(int options = DEFAULT, const char* dataset
     rp->set_calibration_from_filename(dataset);
     rp->set_message_level(rc_MESSAGE_ERROR);
     uint32_t run_flags = rc_RUN_FAST_PATH;
-    rp->start_mapping(options & RELOCALIZE, options & SAVE_MAP);
+    if (options & SAVE_MAP) run_flags |= rc_RUN_SAVE_MAP;
+    if (options & RELOCALIZE) run_flags |= rc_RUN_RELOCALIZATION;
     if (options & ASYNC) run_flags |= rc_RUN_ASYNCHRONOUS;
     if (options & LOAD_MAP)
         EXPECT_TRUE(rp->load_map(map_name));

@@ -96,11 +96,6 @@ void replay::start() {
     stream->wait_device_packet({ packet_command_stop });
 }
 
-void replay::start_mapping(bool relocalize, bool save_map) {
-    if (relocalize) request(packet_enable_relocalization); //implicitly enabling save_map
-    else request(packet_enable_mapping, save_map);
-}
-
 bool replay::load_map(const char *filename) {
     if (!filename) return false;
     ifstream file_handle(filename, std::ios_base::binary);

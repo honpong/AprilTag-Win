@@ -438,7 +438,6 @@ RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback
 RCTRACKER_API void rc_setStageCallback(rc_Tracker *tracker, rc_StageCallback callback, void *handle);
 RCTRACKER_API void rc_setRelocalizationCallback(rc_Tracker *tracker, rc_RelocalizationCallback callback, void *handle);
 
-/// all enum values must be 2^n.
 typedef enum rc_TrackerRunFlags
 {
     /** rc_Tracker should process data on the callers thread. */
@@ -446,11 +445,19 @@ typedef enum rc_TrackerRunFlags
     /** rc_Tracker should process data on its own thread, returning immediately from all calls. */
     rc_RUN_ASYNCHRONOUS = 1,
     /** rc_Tracker should process IMU without waiting for image data. */
-    rc_RUN_FAST_PATH = 2,
+    rc_RUN_FAST_PATH = 1 << 1,
     rc_RUN_NO_FAST_PATH = 0,
     /** rc_Tracker should dynamically estimate extrinsics, etc. for each camera. */
-    rc_RUN_DYNAMIC_CALIBRATION = 4,
+    rc_RUN_DYNAMIC_CALIBRATION = 1 << 2,
     rc_RUN_STATIC_CALIBRATION = 0,
+    /** rc_Tracker should disable mapping.*/
+    rc_RUN_NO_MAP = 1 << 3,
+    /** rc_Tracker should have an ability to save a map if run with mapping.*/
+    rc_RUN_SAVE_MAP = 1 << 4,
+    /** rc_Tracker should run with mapping and relocalization.*/
+    rc_RUN_RELOCALIZATION = 1 << 5,
+    /** rc_Tracker should run with mapping and/or relocalization and apply pose jumping for correction.*/
+    rc_RUN_POSE_JUMP = 1 << 6,
 } rc_TrackerRunFlags;
 
 #if __cplusplus
@@ -612,9 +619,14 @@ RCTRACKER_API void rc_stopMapping(rc_Tracker *tracker);
 typedef void   (*rc_SaveCallback)(void *handle, const void *buffer, size_t length);
 typedef size_t (*rc_LoadCallback)(void *handle, void *buffer, size_t length);
 /**
- Save/load a map to use.
- */
+rc_saveMap saves out mapping data.
+Calling rc_saveMap should be made after rc_startTracker and prior to any call to rc_reset.
+*/
 RCTRACKER_API void rc_saveMap(rc_Tracker *tracker, rc_SaveCallback write, void *handle);
+/**
+rc_loadMap loads a map to use.
+Calling rc_loadMap should be made prior to rc_startTracker.
+*/
 RCTRACKER_API bool rc_loadMap(rc_Tracker *tracker, rc_LoadCallback read, void *handle);
 
 #include <math.h>

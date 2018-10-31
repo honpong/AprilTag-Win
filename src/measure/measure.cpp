@@ -56,13 +56,11 @@ int main(int c, char **v)
     bool qvga = false, depth = true; int qres = 0;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     bool show_feature = true, show_map = true; // enabling displaying features or map when replaying over TM2
-    bool enable_map = true;
     bool odometry = true;
     bool stats = false;
     rc_TrackerQueueStrategy queue_strategy = rc_QUEUE_MINIMIZE_DROPS;
     bool strategy_override = false;
     bool incremental_ate = false;
-    bool relocalize = true;
     bool tm2_playback = false, usb_sync = false;
     char *rendername = nullptr, *benchmark_output = nullptr, *render_output = nullptr, *pose_output = nullptr;
     std::vector<const char*> filenames;
@@ -70,7 +68,7 @@ int main(int c, char **v)
     float skip_secs = 0.f;
     rc_MessageLevel message_level = rc_MESSAGE_INFO;
     int threads = 0;
-    int32_t run_flags = rc_RUN_SYNCHRONOUS | rc_RUN_FAST_PATH | rc_RUN_STATIC_CALIBRATION;
+    int32_t run_flags = rc_RUN_SYNCHRONOUS | rc_RUN_FAST_PATH | rc_RUN_STATIC_CALIBRATION | rc_RUN_RELOCALIZATION;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-') filenames.emplace_back(v[i]);
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
@@ -93,9 +91,9 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--drop-depth") == 0) depth = false;
         else if (strcmp(v[i], "--disable-odometry") == 0) odometry = false;
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
-        else if (strcmp(v[i], "--disable-map") == 0) enable_map = false;
-        else if (strcmp(v[i], "--save-map") == 0 && i+1 < c) save_map = v[++i];
-        else if (strcmp(v[i], "--load-map") == 0 && i+1 < c) load_map = v[++i];
+        else if (strcmp(v[i], "--disable-map") == 0) { run_flags |= rc_RUN_NO_MAP; }
+        else if (strcmp(v[i], "--save-map") == 0 && i+1 < c) { save_map = v[++i]; run_flags |= rc_RUN_SAVE_MAP; }
+        else if (strcmp(v[i], "--load-map") == 0 && i+1 < c) { load_map = v[++i]; }
         else if (strcmp(v[i], "--load") == 0 && i+1 < c) load = v[++i];
         else if (strcmp(v[i], "--append") == 0 && i+1 < c) append = v[++i];
         else if (strcmp(v[i], "--benchmark") == 0) benchmark = true;
@@ -106,7 +104,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
         else if (strcmp(v[i], "--progress") == 0) progress = true;
         else if (strcmp(v[i], "--incremental-ate") == 0) incremental_ate = true;
-        else if (strcmp(v[i], "--disable-relocalize") == 0) relocalize = false;
+        else if (strcmp(v[i], "--disable-relocalize") == 0) run_flags &= ~(rc_RUN_RELOCALIZATION);
         else if (strcmp(v[i], "--trace") == 0) message_level = rc_MESSAGE_TRACE;
         else if (strcmp(v[i], "--debug") == 0) message_level = rc_MESSAGE_DEBUG;
         else if (strcmp(v[i], "--error") == 0) message_level = rc_MESSAGE_ERROR;
@@ -145,7 +143,6 @@ int main(int c, char **v)
         if(!depth) rp.disable_depth();
         if(odometry) rp.enable_odometry();
         if(realtime) rp.enable_realtime();
-        if(enable_map) rp.start_mapping(relocalize, save_map != nullptr);
         if(usb_sync) rp.enable_usb_sync();
         rp.set_run_flags((rc_TrackerRunFlags)run_flags);
         if(!benchmark && enable_gui) {
@@ -209,6 +206,7 @@ int main(int c, char **v)
         return true;
     };
 
+    bool relocalize = run_flags & rc_RUN_RELOCALIZATION;
     auto print_results = [&calibrate,&replace,relocalize](replay &rp, struct benchmark_result &res, const char *capture_file, rc_TrackerConfidence tracking_confidence) {
         std::cout << std::fixed << std::setprecision(2);
         std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";

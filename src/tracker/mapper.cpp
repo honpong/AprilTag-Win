@@ -957,25 +957,23 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
 
 bool mapper::link_map(const map_relocalization_edge& edge) {
     const auto source_id = edge.id2;
-    return nodes.critical_section([&, source_id]() {
-        auto it = nodes->find(source_id);
-        if (it != nodes->end()) {
-            auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
-            auto is_node_searched = [](const mapper::node_path&) { return true; };
-            auto finish_search = [](const mapper::node_path&) { return false; };
-            auto loaded_map_nodes = dijkstra_shortest_path(mapper::node_path{source_id, it->second.global_transformation, 0},
-                                                           distance, is_node_searched, finish_search);
-            if(loaded_map_nodes.size() == nodes->size()) {
-                for(auto& loaded_map_node : loaded_map_nodes) {
-                    if(loaded_map_node.id < this->get_node_id_offset())
-                        nodes->at(loaded_map_node.id).global_transformation = loaded_map_node.G;
-                }
-                unlinked = false;
-                return true;
+    auto it = nodes->find(source_id);
+    if (it != nodes->end()) {
+        auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
+        auto is_node_searched = [](const mapper::node_path&) { return true; };
+        auto finish_search = [](const mapper::node_path&) { return false; };
+        auto loaded_map_nodes = dijkstra_shortest_path(mapper::node_path{source_id, it->second.global_transformation, 0},
+                                                       distance, is_node_searched, finish_search);
+        if(loaded_map_nodes.size() == nodes->size()) {
+            for(auto& loaded_map_node : loaded_map_nodes) {
+                if(loaded_map_node.id < this->get_node_id_offset())
+                    nodes->at(loaded_map_node.id).global_transformation = loaded_map_node.G;
             }
+            unlinked = false;
+            return true;
         }
-        return false;
-    });
+    }
+    return false;
 }
 
 std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching_factor, int depth_levels) const {

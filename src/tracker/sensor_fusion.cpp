@@ -419,6 +419,7 @@ void sensor_fusion::start_mapping(bool relocalize, bool save_map, bool allow_jum
 {
     if (!sfm.map) {
         sfm.map = std::make_unique<mapper>();
+        sfm.map->set_node_id_offset(sfm.s.group_counter);
 #ifdef RELOCALIZATION_DEBUG
         visual_debug::create_instance(this);
 #endif

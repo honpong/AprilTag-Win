@@ -939,13 +939,15 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             mapper::nodes_path searched_node = f->map->dijkstra_shortest_path(mapper::node_path{init_node, transformation(), 0},
                                                               distance, is_node_searched, finish_search);
             assert(searched_node.size() == 1);
-            transformation G_W_initnode = G_W_Bnow * invert(searched_node.front().G * G_Bclosest_Bnow);
-            v3 dT = G_W_initnode.T;
+            if (searched_node.size() == 1) {
+                transformation G_W_initnode = G_W_Bnow * invert(searched_node.front().G * G_Bclosest_Bnow);
+                v3 dT = G_W_initnode.T;
 
-            for(auto &g : f->s.groups.children) {
-                g->Tr.v = g->Tr.v - dT;
+                for (auto &g : f->s.groups.children) {
+                    g->Tr.v = g->Tr.v - dT;
+                }
+                f->s.T.v = f->s.T.v - dT;
             }
-            f->s.T.v = f->s.T.v - dT;
         }
     }
 

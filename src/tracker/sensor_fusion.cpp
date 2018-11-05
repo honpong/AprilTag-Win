@@ -385,14 +385,19 @@ void sensor_fusion::stop()
         sfm.map->close_map(sfm.s.group_counter);
 }
 
-void sensor_fusion::stop_threads()
+void sensor_fusion::stop_mapping_threads()
 {
-    for (auto& camera : sfm.s.cameras.children)
-        if (camera->detection_future.valid()) camera->detection_future.get();
     for (auto& camera : sfm.s.cameras.children)
         if (camera->orb_future.valid()) camera->orb_future.get();
     if (sfm.relocalization_future.valid()) sfm.relocalization_future.get();
     if (save_map_thread.joinable()) save_map_thread.join();
+}
+
+void sensor_fusion::stop_threads()
+{
+    for (auto& camera : sfm.s.cameras.children)
+        if (camera->detection_future.valid()) camera->detection_future.get();
+    stop_mapping_threads();
 }
 
 void sensor_fusion::flush_and_reset()
@@ -430,6 +435,7 @@ void sensor_fusion::start_mapping(bool relocalize, bool save_map, bool allow_jum
 
 void sensor_fusion::stop_mapping()
 {
+    stop_mapping_threads();
     sfm.map = nullptr;
 }
 

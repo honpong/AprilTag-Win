@@ -427,19 +427,6 @@ void replay_device::start() {
             next_pause = 0;
             is_paused = true;
         }
-        {
-            auto start_pause = sensor_clock::now();
-            auto finish_pause = start_pause;
-            while (is_paused && !is_stepping && is_running) { //wait until next toggled pause
-                if (stream->read_header(&header, true)) { //read only control type
-                    auto phandle = stream->get_host_packet();
-                    process_control((packet_control_t *)phandle.get());
-                }
-                finish_pause = sensor_clock::now();
-            }
-            realtime_offset += finish_pause - start_pause;
-        }
-
         if (phandle) {
             if (phandle->header.type == packet_control)
                 process_control((packet_control_t *)phandle.get());
@@ -450,6 +437,18 @@ void replay_device::start() {
                     process_data(phandle);
                 }
             }
+        }
+        if (is_paused) { //wait until unpause
+            auto start_pause = sensor_clock::now();
+            auto finish_pause = start_pause;
+            while (is_paused && !is_stepping && is_running) { //wait until next toggled pause
+                if (stream->read_header(&header, true)) { //read only control type
+                    auto phandle = stream->get_host_packet();
+                    process_control((packet_control_t *)phandle.get());
+                }
+            }
+            finish_pause = sensor_clock::now();
+            realtime_offset += finish_pause - start_pause;
         }
           ////waiting for next control packet if late
         if (is_running && !stream->read_header(&header)) {

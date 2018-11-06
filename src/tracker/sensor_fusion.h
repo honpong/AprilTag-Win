@@ -150,6 +150,7 @@ private:
     void update_stages(rc_Timestamp time_us);
     void update_relocalizations(const map_relocalization_info & info);
     void stop_threads();
+    void stop_mapping_threads();
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning;
     bool threaded;
     bool fast_path = false;

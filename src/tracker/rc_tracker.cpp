@@ -458,16 +458,6 @@ void rc_stopTracker(rc_Tracker * tracker)
         tracker->output.stop();
 }
 
-void rc_startMapping(rc_Tracker *tracker, bool relocalize, bool save_map, bool allow_jumps)
-{
-    tracker->start_mapping(relocalize, save_map, allow_jumps);
-}
-
-void rc_stopMapping(rc_Tracker *tracker)
-{
-    tracker->stop_mapping();
-}
-
 bool rc_loadMap(rc_Tracker *tracker, rc_LoadCallback read, void *handle)
 {
     return tracker->load_map(read, handle);

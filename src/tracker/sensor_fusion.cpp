@@ -434,6 +434,11 @@ void sensor_fusion::start_mapping(bool relocalize, bool save_map, bool allow_jum
     sfm.allow_jumps = allow_jumps;
 }
 
+void sensor_fusion::destroy_mapping()
+{
+    sfm.map = nullptr;
+}
+
 void sensor_fusion::save_map(rc_SaveCallback write, void *handle)
 {
     if (!sfm.map) {

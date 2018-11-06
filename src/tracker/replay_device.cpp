@@ -299,15 +299,6 @@ void replay_device::process_control(const packet_control_t *packet) {
     }
     case packet_enable_odometry: { use_odometry = true; break; }
     case packet_enable_mesg_level: { message_level = get_packet_item(packet); break; }
-    case packet_enable_mapping: {
-        uint8_t mapping = get_packet_item(packet);
-        if (mapping) run_flags = (rc_TrackerRunFlags)((int32_t)run_flags & ~rc_RUN_NO_MAP);
-        else {
-            if (!is_started) run_flags = (rc_TrackerRunFlags)((int32_t)run_flags | rc_RUN_NO_MAP);
-            rc_stopMapping(tracker.get());
-        }
-        break;
-    }
     case packet_set_queue_strategy: {
         queue_strategy = get_packet_item(packet);
         strategy_override = true;
@@ -320,10 +311,6 @@ void replay_device::process_control(const packet_control_t *packet) {
         queue_strategy = (strategy_override) ? queue_strategy :
             ((run_flags & rc_RUN_ASYNCHRONOUS) ? rc_QUEUE_MINIMIZE_LATENCY : queue_strategy);
         rc_configureQueueStrategy(tracker.get(), queue_strategy);
-        if (!(run_flags & rc_RUN_NO_MAP))
-            rc_startMapping(tracker.get(), run_flags & rc_RUN_RELOCALIZATION,
-                run_flags & (rc_RUN_RELOCALIZATION | rc_RUN_SAVE_MAP),
-                run_flags & rc_RUN_POSE_JUMP);
         rc_startTracker(tracker.get(), run_flags);
         is_started = true;
         break;
@@ -387,10 +374,6 @@ void replay_device::process_control(const packet_control_t *packet) {
     case packet_command_reset: {
         fprintf(stderr, "Resetting...");
         rc_stopTracker(tracker.get());
-        if (!(run_flags & rc_RUN_NO_MAP))
-            rc_startMapping(tracker.get(), run_flags & rc_RUN_RELOCALIZATION,
-                run_flags & (rc_RUN_RELOCALIZATION | rc_RUN_SAVE_MAP),
-                run_flags & rc_RUN_POSE_JUMP);
         rc_startTracker(tracker.get(), run_flags);
         fprintf(stderr, "done\n");
         break;

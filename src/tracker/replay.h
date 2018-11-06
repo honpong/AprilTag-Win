@@ -61,8 +61,6 @@ public:
 
     bool init() { return stream->init_stream(); }
     std::string calibration_file;
-    void start_mapping() { request(packet_enable_mapping, true); }
-    void stop_mapping() { request(packet_enable_mapping, false); }
     bool save_map(const char *filename);
     bool load_map(const char *filename);
     bool load_calibration(const char *filename);

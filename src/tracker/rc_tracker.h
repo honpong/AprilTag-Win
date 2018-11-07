@@ -496,6 +496,13 @@ RCTRACKER_API bool rc_startBuffering(rc_Tracker *tracker);
 
 /**
  Starts the tracker.
+
+ Unless run_flags contains rc_RUN_NO_MAP, a mapping subsystem that allows relocalization is activated. When started, the map is completely empty. The map is built synchronously with rc_receive*.
+ If run_flags contains rc_RUN_RELOCALIZATION, the mapping subsystem performs relocalization when possible. A previous map loaded by rc_loadMap may be linked again by a relocalization.
+ If run_flags contains rc_RUN_NO_MAP, any previous map loaded by rc_loadMap is deallocated.
+
+ Subsequent calls to rc_startTracker are allowed only after invoking rc_stopTracker or rc_reset. Otherwise, behavior is undefined.
+ If the tracker is not reset by rc_reset and run_flags does not contain rc_RUN_NO_MAP, subsequent calls to rc_startTracker reuse the existing map. Otherwise, the map is deallocated.
  */
 RCTRACKER_API bool rc_startTracker(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
 RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);

@@ -15,6 +15,7 @@
 #endif
 
 int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2]);
+int capture_frames2(const std::string& path, const int image_set_size, const int cap_size[2]);
 int run_shapefit_live(const rs_shapefit_capability cap, const int cap_size[2]);
 int run_shapefit_offline(const std::string& path, const rs_shapefit_capability cap);
 bool run_shapefit(rs_shapefit* planefitter, rs_sf_image img[]);
@@ -44,9 +45,23 @@ int main(int argc, char* argv[])
         }
     }
     if (path.back() != '\\' && path.back() != '/'){ path.push_back(PATH_SEPARATER); }
-    if (is_capture) capture_frames(path, num_frames, capture_size.data());
+    if (is_capture) capture_frames2(path, num_frames, capture_size.data());
     if (is_live) return run_shapefit_live(sf_option, capture_size.data());
     return run_shapefit_offline(path, sf_option);
+}
+
+int capture_frames2(const std::string& path, const int image_set_size, const int cap_size[2])
+{
+    const int img_w = 640, img_h = 480;
+    auto rs_data_src = rs_sf_create_camera_imu_stream(img_w, img_h);
+    
+    rs_sf_gl_context win("capture", img_w * 2, img_h);
+    int count = 0;
+    while(++count > 30){
+        auto data = rs_data_src->get_data();
+    }
+    std::exit(0);
+    return 0;
 }
 
 int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2]) {

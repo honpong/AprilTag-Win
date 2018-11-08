@@ -39,7 +39,8 @@ extern "C"
 
     typedef enum rs_sf_distortion { MODEL_COUNT = 5 } rs_sf_distortion;
     typedef unsigned long long rs_sf_timestamp;
-    typedef unsigned short rs_sf_uint16_t;
+    typedef unsigned long long rs_sf_serial_number;
+    typedef unsigned short     rs_sf_uint16_t;
     
     struct rs_sf_intrinsics
     {
@@ -138,23 +139,37 @@ extern "C"
     
     enum rs_sf_sensor_t
     {
-        RS_SF_SENSOR_DEPTH = 0,
-        RS_SF_SENSOR_COLOR = 1,
-        RS_SF_SENSOR_ACCEL = 2,
-        RS_SF_SENSOR_GYRO  = 3,
-        RS_SF_SENSOR_STEREO = 4,
+        RS_SF_SENSOR_ANY      = 0x0,
+        RS_SF_SENSOR_DEPTH    = 0x1,
+        RS_SF_SENSOR_COLOR    = 0x2,
+        RS_SF_SENSOR_INFRARED = 0x3,
+        RS_SF_SENSOR_ACCEL    = 0x5,
+        RS_SF_SENSOR_GYRO     = 0x6,
+        RS_SF_SENSOR_STEREO   = 0xa,
+        RS_SF_SENSOR_LASER_ON           = 0x00,
+        RS_SF_SENSOR_LASER_OFF          = 0x10,
+        RS_SF_SENSOR_DEPTH_LASER_ON     = 0x01,
+        RS_SF_SENSOR_DEPTH_LASER_OFF    = 0x11,
+        RS_SF_SENSOR_COLOR_LASER_ON     = 0x02,
+        RS_SF_SENSOR_COLOR_LASER_OFF    = 0x12,
+        RS_SF_SENSOR_INFRARED_LASER_ON  = 0x03,
+        RS_SF_SENSOR_INFRARED_LASER_OFF = 0x13,
+        RS_SF_SENSOR_STEREO_LASER_ON    = 0x0a,
+        RS_SF_SENSOR_STEREO_LASER_OFF   = 0x1a,
+        RS_SF_SENSOR_TYPE_COUNT         = 0x15
     };
     
     struct rs_sf_data
     {
-        rs_sf_uint16_t  sensor_id;
-        rs_sf_sensor_t  sensor_type;
-        rs_sf_timestamp timestamp_us;
-        int             reserved;
+        rs_sf_uint16_t      sensor_index;
+        rs_sf_sensor_t      sensor_type;
+        rs_sf_timestamp     timestamp_us;
+        rs_sf_serial_number serial_number;
+        rs_sf_serial_number frame_number;
         union {
             rs_sf_image image;
-            rs_sf_image depth;
             float       vec[3];
+            rs_sf_data* stereo[2];
         };
     };
 

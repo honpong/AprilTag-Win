@@ -11,18 +11,19 @@
 #define DEFAULT_PATH "c:\\temp\\shapefit\\b\\"
 #else
 #define PATH_SEPARATER '/'
-#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
+//#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
+#define DEFAULT_PATH (std::string(getenv("HOME"))+"/Desktop/temp/data/")
 #endif
 
 int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2]);
-int capture_frames2(const std::string& path, const int image_set_size, const int cap_size[2]);
+int capture_frames2(const std::string& path, const int image_set_size, const int cap_size[2], int laser_option);
 int run_shapefit_live(const rs_shapefit_capability cap, const int cap_size[2]);
 int run_shapefit_offline(const std::string& path, const rs_shapefit_capability cap);
 bool run_shapefit(rs_shapefit* planefitter, rs_sf_image img[]);
 
 int main(int argc, char* argv[])
 {
-    bool is_live = false, is_capture = false;
+    bool is_live = false, is_capture = false; int laser_option = 2;
     std::string path = DEFAULT_PATH;
     int num_frames = 200; std::vector<int> capture_size = { 640,480 };
     rs_shapefit_capability sf_option = RS_SHAPEFIT_PLANE;
@@ -39,27 +40,54 @@ int main(int argc, char* argv[])
         else if (strcmp(argv[i], "--hd") == 0) { capture_size = { 1280,720 }; }
         else if (strcmp(argv[i], "--qhd") == 0) { capture_size = { 640,360 }; }
         else if (strcmp(argv[i], "--vga") == 0) { capture_size = { 640,480 }; }
+        else if (strcmp(argv[i], "--laser_off") == 0) { laser_option = 0; }
+        else if (strcmp(argv[i], "--laser_on") == 0) { laser_option = 1; }
         else {
-            printf("usages:\n rs_shapefit_app [--cbox|--box|--plane][--live|--replay][--path PATH][--capture][--num_frame NUM] \n");
+            printf("usages:\n shapefit-dev [--cbox|--box|--plane][--live|--replay][--path PATH][--capture][--num_frame NUM] \n");
+            printf("                       [--hd|--qhd|--vga][--laser_off|--laser_on] \n");
             return 0;
         }
     }
     if (path.back() != '\\' && path.back() != '/'){ path.push_back(PATH_SEPARATER); }
-    if (is_capture) capture_frames2(path, num_frames, capture_size.data());
+    if (is_capture) capture_frames2(path, num_frames, capture_size.data(), laser_option);
     if (is_live) return run_shapefit_live(sf_option, capture_size.data());
     return run_shapefit_offline(path, sf_option);
 }
 
-int capture_frames2(const std::string& path, const int image_set_size, const int cap_size[2])
+int capture_frames2(const std::string& path, const int image_set_size, const int cap_size[2], int laser_option)
 {
     const int img_w = 640, img_h = 480;
-    auto rs_data_src = rs_sf_create_camera_imu_stream(img_w, img_h);
+    rs_sf_gl_context win("capture", img_w * 3, img_h * 3);
     
-    rs_sf_gl_context win("capture", img_w * 2, img_h);
-    int count = 0;
-    while(++count > 30){
-        auto data = rs_data_src->get_data();
+    std::unique_ptr<rs_sf_data_writer> recorder;
+    rs_sf_data_ptr laser[2][3];
+ 
+    for(auto rs_data_src = rs_sf_create_camera_imu_stream(img_w, img_h, laser_option);;)
+    //for(auto rs_data_src = rs_sf_create_camera_imu_stream(path);;)
+    {
+        auto buf = rs_data_src->wait_for_data(std::chrono::milliseconds(330));
+        //if(buf.empty()){ recorder.reset(); rs_data_src = rs_sf_create_camera_imu_stream(path); continue;}
+        
+        if(!recorder){ recorder = rs_sf_create_data_writer(rs_data_src.get(), path);}
+        recorder->write(buf);
+        
+        if(!buf[0].empty()&&!buf[1].empty()&&!buf[2].empty()&&!buf[3].empty()){
+            for(auto s : {0,1,2}){
+                laser[(buf[s][0]->sensor_type&RS_SF_SENSOR_LASER_OFF)?1:0][s]=buf[s][0];
+            }
+            if(laser[0][0]&&laser[0][1]&&laser[0][2]){
+                std::vector<rs_sf_image> images = {laser[0][0]->image,laser[0][1]->image,laser[0][2]->image};
+                if(laser[1][0]&&laser[1][1]&&laser[1][2]){
+                    images.emplace_back(laser[1][0]->image);
+                    images.emplace_back(laser[1][1]->image);
+                    images.emplace_back(laser[1][2]->image);
+                }
+                images.emplace_back(buf[3][0]->image);
+                if(!win.imshow(images.data(),images.size())){break;}
+            }
+        }
     }
+    recorder.reset();
     std::exit(0);
     return 0;
 }

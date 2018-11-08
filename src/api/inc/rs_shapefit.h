@@ -38,7 +38,9 @@ extern "C"
 #endif
 
     typedef enum rs_sf_distortion { MODEL_COUNT = 5 } rs_sf_distortion;
-
+    typedef unsigned long long rs_sf_timestamp;
+    typedef unsigned short rs_sf_uint16_t;
+    
     struct rs_sf_intrinsics
     {
         int           width;     /* width of the image in pixels */
@@ -132,6 +134,28 @@ extern "C"
         RS_SF_PRESET_BOX_S   = 1,
         RS_SF_PRESET_BOX_M   = 2,
         RS_SF_PRESET_BOX_L   = 3,
+    };
+    
+    enum rs_sf_sensor_t
+    {
+        RS_SF_SENSOR_DEPTH = 0,
+        RS_SF_SENSOR_COLOR = 1,
+        RS_SF_SENSOR_ACCEL = 2,
+        RS_SF_SENSOR_GYRO  = 3,
+        RS_SF_SENSOR_STEREO = 4,
+    };
+    
+    struct rs_sf_data
+    {
+        rs_sf_uint16_t  sensor_id;
+        rs_sf_sensor_t  sensor_type;
+        rs_sf_timestamp timestamp_us;
+        int             reserved;
+        union {
+            rs_sf_image image;
+            rs_sf_image depth;
+            float       vec[3];
+        };
     };
 
     /// Object manipulation -------------------------------------------------------------------------------------

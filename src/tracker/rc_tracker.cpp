@@ -464,7 +464,6 @@ void rc_stopTracker(rc_Tracker * tracker)
 
 bool rc_loadMap(rc_Tracker *tracker, rc_LoadCallback read, void *handle)
 {
-    if(!tracker->sfm.map) tracker->start_mapping(false, false, false);
     return tracker->load_map(read, handle);
 }
 

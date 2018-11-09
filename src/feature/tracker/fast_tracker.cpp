@@ -112,11 +112,11 @@ vector<tracker::feature_track> &fast_tracker::detect(const image &image, const s
             }
         }
     }
+    sort_heap(features.begin(), features.end(), xy_comp);
     return finalize_detect(features.data(), features.data() + features.size(), image, number_desired);
 }
 
 vector<tracker::feature_track> &fast_tracker::finalize_detect(xy *heap_begin, xy *heap_end, const image &image, size_t number_desired) {
-    sort_heap(heap_begin, heap_end, xy_comp);
     return non_maximum_suppression(heap_begin, heap_end, image, number_desired);
 }
 

@@ -446,6 +446,10 @@ bool rc_startBuffering(rc_Tracker * tracker)
 bool rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
     if(!is_configured(tracker)) return false;
+    if(run_flags & rc_RUN_NO_MAP)
+        tracker->destroy_mapping();
+    else
+        tracker->start_mapping(run_flags & rc_RUN_RELOCALIZATION, run_flags & rc_RUN_SAVE_MAP, run_flags & rc_RUN_POSE_JUMP);
     tracker->start(run_flags & rc_RUN_ASYNCHRONOUS, run_flags & rc_RUN_FAST_PATH, run_flags & rc_RUN_DYNAMIC_CALIBRATION);
     return true;
 }
@@ -456,16 +460,6 @@ void rc_stopTracker(rc_Tracker * tracker)
         tracker->stop();
     if(tracker->output.started())
         tracker->output.stop();
-}
-
-void rc_startMapping(rc_Tracker *tracker, bool relocalize, bool save_map, bool allow_jumps)
-{
-    tracker->start_mapping(relocalize, save_map, allow_jumps);
-}
-
-void rc_stopMapping(rc_Tracker *tracker)
-{
-    tracker->stop_mapping();
 }
 
 bool rc_loadMap(rc_Tracker *tracker, rc_LoadCallback read, void *handle)

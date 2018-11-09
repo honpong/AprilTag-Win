@@ -434,16 +434,17 @@ void sensor_fusion::start_mapping(bool relocalize, bool save_map, bool allow_jum
     sfm.allow_jumps = allow_jumps;
 }
 
-void sensor_fusion::stop_mapping()
+void sensor_fusion::destroy_mapping()
 {
-    stop_mapping_threads();
     sfm.map = nullptr;
 }
 
 void sensor_fusion::save_map(rc_SaveCallback write, void *handle)
 {
-    if (!sfm.map)
+    if (!sfm.map) {
+        if (write) write(handle, 0, 0);
         return;
+    }
     if (save_map_thread.joinable()) save_map_thread.join();
     save_map_thread = std::thread([this, write, handle]() {
         set_priority(PRIORITY_SLAM_SAVE_MAP);
@@ -453,8 +454,11 @@ void sensor_fusion::save_map(rc_SaveCallback write, void *handle)
 
 bool sensor_fusion::load_map(rc_LoadCallback read, void *handle)
 {
-    if (!sfm.map)
+    if (isSensorFusionRunning) {
+        if (read) read(handle, 0, 0);
         return false;
+    }
+    if (!sfm.map) start_mapping(false, false, false);
     bool deserialize_status = false;
     if ((deserialize_status = mapper::deserialize(read, handle, *sfm.map))) {
         sfm.s.group_counter = sfm.map->get_node_id_offset();

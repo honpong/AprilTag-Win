@@ -445,11 +445,19 @@ typedef enum rc_TrackerRunFlags
     /** rc_Tracker should process data on its own thread, returning immediately from all calls. */
     rc_RUN_ASYNCHRONOUS = 1,
     /** rc_Tracker should process IMU without waiting for image data. */
-    rc_RUN_FAST_PATH = 2,
+    rc_RUN_FAST_PATH = 1 << 1,
     rc_RUN_NO_FAST_PATH = 0,
     /** rc_Tracker should dynamically estimate extrinsics, etc. for each camera. */
-    rc_RUN_DYNAMIC_CALIBRATION = 4,
+    rc_RUN_DYNAMIC_CALIBRATION = 1 << 2,
     rc_RUN_STATIC_CALIBRATION = 0,
+    /** rc_Tracker should disable mapping.*/
+    rc_RUN_NO_MAP = 1 << 3,
+    /** rc_Tracker should have an ability to save a map if run with mapping.*/
+    rc_RUN_SAVE_MAP = 1 << 4,
+    /** rc_Tracker should run with mapping and relocalization.*/
+    rc_RUN_RELOCALIZATION = 1 << 5,
+    /** rc_Tracker should run with mapping and/or relocalization and apply pose jumping for correction.*/
+    rc_RUN_POSE_JUMP = 1 << 6,
 } rc_TrackerRunFlags;
 
 #if __cplusplus
@@ -488,6 +496,13 @@ RCTRACKER_API bool rc_startBuffering(rc_Tracker *tracker);
 
 /**
  Starts the tracker.
+
+ Unless run_flags contains rc_RUN_NO_MAP, a mapping subsystem that allows relocalization is activated. When started, the map is completely empty. The map is built synchronously with rc_receive*.
+ If run_flags contains rc_RUN_RELOCALIZATION, the mapping subsystem performs relocalization when possible. A previous map loaded by rc_loadMap may be linked again by a relocalization.
+ If run_flags contains rc_RUN_NO_MAP, any previous map loaded by rc_loadMap is deallocated.
+
+ Subsequent calls to rc_startTracker are allowed only after invoking rc_stopTracker or rc_reset. Otherwise, behavior is undefined.
+ If the tracker is not reset by rc_reset and run_flags does not contain rc_RUN_NO_MAP, subsequent calls to rc_startTracker reuse the existing map. Otherwise, the map is deallocated.
  */
 RCTRACKER_API bool rc_startTracker(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
 RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
@@ -599,21 +614,17 @@ RCTRACKER_API bool rc_setCalibrationTM2(rc_Tracker *tracker, const void *table, 
 */
 RCTRACKER_API bool rc_appendCalibration(rc_Tracker *tracker, const char *buffer);
 
-/**
- Start/stop the mapping subsystem. When started, the map is completely empty. The map is build synchronously with rc_receive* startMapping must be called before loadMap
- There is only one possible instance of mapping subsystem per tracking instance.
- Subsequent calls to rc_startMapping do not create new instance nor reset mapping but apply other input parameters.
- rc_stopMapping removes existing mapping sub-system.
- */
-RCTRACKER_API void rc_startMapping(rc_Tracker *tracker, bool relocalize, bool save_map, bool allow_jumps);
-RCTRACKER_API void rc_stopMapping(rc_Tracker *tracker);
-
 typedef void   (*rc_SaveCallback)(void *handle, const void *buffer, size_t length);
 typedef size_t (*rc_LoadCallback)(void *handle, void *buffer, size_t length);
 /**
- Save/load a map to use.
- */
+rc_saveMap saves out mapping data.
+Calling rc_saveMap should be made after rc_startTracker and prior to any call to rc_reset.
+*/
 RCTRACKER_API void rc_saveMap(rc_Tracker *tracker, rc_SaveCallback write, void *handle);
+/**
+rc_loadMap loads a map to use.
+Calling rc_loadMap should be made prior to rc_startTracker.
+*/
 RCTRACKER_API bool rc_loadMap(rc_Tracker *tracker, rc_LoadCallback read, void *handle);
 
 #include <math.h>

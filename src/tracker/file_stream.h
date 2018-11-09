@@ -16,6 +16,7 @@ private:
     uint64_t bytes_dispatched{ 0 };
     uint64_t packets_dispatched{ 0 };
     sensor_clock::time_point last_progress;
+    rc_packet_t map_data{ nullptr, free };
     std::unique_ptr<replay_output::bstream_buffer> stream_handle;
     replay_output track_output[2];
     std::deque<rc_packet_t> host_queue;

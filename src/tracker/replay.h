@@ -46,11 +46,9 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     replay(host_stream *host_stream_, bool start_paused = false);
     void enable_realtime() { request(packet_enable_realtime); }
-    void enable_async() { request(packet_enable_async); }
     void enable_qvga() { request(packet_enable_qvga); }
     void disable_depth() { request(packet_enable_no_depth); }
-    void enable_fast_path() { request(packet_enable_fast_path); }
-    void enable_dynamic_calibration() { request(packet_enable_dynamic_calibration);}
+    void set_run_flags(rc_TrackerRunFlags flags) { request(packet_run_flags, flags); }
     void enable_odometry() { request(packet_enable_odometry); }
     void enable_qres(uint8_t qres) { request(packet_enable_qres, qres); }
     /// applicable to playback on TM2, enable synchronous processing per packet
@@ -63,8 +61,6 @@ public:
 
     bool init() { return stream->init_stream(); }
     std::string calibration_file;
-    /// location of vocabulary file is optional when running on host system
-    void start_mapping(bool relocalize, bool save_map = false);
     bool save_map(const char *filename);
     bool load_map(const char *filename);
     bool load_calibration(const char *filename);

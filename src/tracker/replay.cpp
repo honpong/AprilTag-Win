@@ -88,7 +88,7 @@ void replay::start_async(){
     }
     request(packet_camera_extrinsics);
     if (start_paused) toggle_pause();
-    replay_thread = std::thread([&]() {stream->start_stream(); }); //thread is needed for supporting with file_stream
+    if (!replay_thread.joinable()) replay_thread = std::thread([&]() {stream->start_stream(); }); //thread is needed for supporting with file_stream
 }
 
 void replay::start() {
@@ -96,20 +96,11 @@ void replay::start() {
     stream->wait_device_packet({ packet_command_stop });
 }
 
-void replay::start_mapping(bool relocalize, bool save_map) {
-    if (relocalize) request(packet_enable_relocalization); //implicitly enabling save_map
-    else request(packet_enable_mapping, save_map);
-}
-
 bool replay::load_map(const char *filename) {
     if (!filename) return false;
     ifstream file_handle(filename, std::ios_base::binary);
     if (file_handle.fail())
         return false;
-    if (!is_started) { //requires prior rc_startTracking call
-        request(packet_command_start);
-        is_started = true;
-    }
     request(packet_load_map, filename, strlen(filename) + 1);
     return true;
 }

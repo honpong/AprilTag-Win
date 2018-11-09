@@ -632,9 +632,9 @@ RCTRACKER_API bool rc_loadMap(rc_Tracker *tracker, rc_LoadCallback read, void *h
 #include <float.h>
 inline rc_Quaternion rc_quaternionExp(rc_Vector v)
 {
-    rc_Vector w = {{ v.x/2, v.y/2, v.z/2 }};
-    float th2, th = sqrtf(th2 = w.x*w.x + w.y*w.y + w.z*w.z), c = cosf(th), s = th2 < sqrtf(120*FLT_EPSILON) ? 1-th2/6 : sinf(th)/th;
-    rc_Quaternion Q = {{ s*w.x, s*w.y, s*w.z, c }};
+    float x = v.x/2, y = v.y/2, z = v.z/2, th2, th = sqrtf(th2 = x*x + y*y + z*z);
+    float c = cosf(th), s = th2 < sqrtf(120*FLT_EPSILON) ? 1-th2/6 : sinf(th)/th;
+    rc_Quaternion Q = {{ s*x, s*y, s*z, c }};
     return Q;
 }
 

@@ -316,10 +316,14 @@ void replay_device::process_control(const packet_control_t *packet) {
         break;
     }
     case packet_load_map: {
-        if (rc_loadMap(tracker.get(), stream->map_load_callback, stream->map_load_handle))
-            printf("Done loading relocalization map.\n");
-        else
-            printf("Error: failed to load map file!\n");
+        if (is_started) {
+            printf("Error: cannot load map as tracker runs\n");
+        } else {
+            if (rc_loadMap(tracker.get(), stream->map_load_callback, stream->map_load_handle))
+                printf("Done loading relocalization map.\n");
+            else
+                printf("Error: failed to load map file!\n");
+        }
         break;
     }
     case packet_save_map: {

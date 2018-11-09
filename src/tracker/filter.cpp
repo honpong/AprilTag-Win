@@ -964,7 +964,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
             auto neighbors = f->map->find_neighbor_nodes(mapper::node_path{closest_group_id, invert(G_Bclosest_Bnow), 0}, data.id);
             camera_state.update_map_tracks(data, f->map.get(), neighbors, f->min_group_map_add);
             if(f->map->map_feature_tracks.size()) {
-                filter_bring_groups_back(f, data.id);
+                f->brought_back_groups = filter_bring_groups_back(f, data.id);
                 space = filter_available_feature_space(f);
             }
 
@@ -1465,8 +1465,9 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
     }
 }
 
-void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
+std::vector<nodeid> filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
 {
+    std::vector<nodeid> groups_back;
     if (f->map) {
         for(auto &mft : f->map->map_feature_tracks) {
             map_node &node = f->map->get_node(mft.group_id);
@@ -1476,6 +1477,7 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
             if(space >= f->min_group_map_add) {
                 if(mft.found >= f->min_group_map_add) {
                     TRACE_EVENT(SF_ADD_MAP_GROUP, mft.found);
+                    groups_back.push_back(mft.group_id);
                     transformation G = transformation(f->s.Q.v, f->s.T.v) * invert(mft.G_neighbor_now);
                     auto g = std::make_unique<state_vision_group>(G, camera_node_state, mft.group_id);
                     g->reused = true;
@@ -1520,4 +1522,5 @@ void filter_bring_groups_back(filter *f, const rc_Sensor camera_id)
             }
         }
     }
+    return groups_back;
 }

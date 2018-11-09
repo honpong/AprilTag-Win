@@ -149,6 +149,7 @@ private:
     void update_data(const sensor_data * data);
     void update_stages(rc_Timestamp time_us);
     void update_relocalizations(const map_relocalization_info & info);
+    void update_relocalizations(const std::vector<nodeid>& brought_back_groups, rc_Timestamp time_us);
     void stop_threads();
     void stop_mapping_threads();
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning;

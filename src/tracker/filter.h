@@ -60,6 +60,7 @@ struct filter {
     bool save_map; /*!< usage: value may be set during mapping session .*/
     bool allow_jumps; /*!< usage: value may be set during mapping session .*/
     map_relocalization_info relocalization_info;
+    std::vector<nodeid> brought_back_groups;
 
     template<int N>
     class every_n {
@@ -128,7 +129,7 @@ void filter_start(struct filter *f);
 void filter_start_inertial_only(struct filter *f);
 void filter_update_detection_status(struct filter *f, state_camera &camera_state, int detected, sensor_clock::time_point detection_time);
 void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_id);
-void filter_bring_groups_back(struct filter *f, const rc_Sensor camera_id);
+std::vector<nodeid> filter_bring_groups_back(struct filter *f, const rc_Sensor camera_id);
 #ifdef ENABLE_QR
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);

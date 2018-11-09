@@ -53,6 +53,19 @@ void sensor_fusion::update_relocalizations(const map_relocalization_info & info)
     }
 }
 
+void sensor_fusion::update_relocalizations(const std::vector<nodeid>& brought_back_groups, rc_Timestamp time_us)
+{
+    if(relocalization_callback) {
+        rc_Relocalization reloc;
+        reloc.time_us = time_us;
+        for(auto& id : brought_back_groups) {
+            reloc.session = sfm.map->get_node_session(id);
+            if (reloc.session != rc_SESSION_CURRENT_SESSION)
+                relocalization_callback(reloc);
+        }
+    }
+}
+
 sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     : queue([this](sensor_data &&data) { queue_receive_data(std::move(data)); },
             strategy, std::chrono::milliseconds(500)),
@@ -121,10 +134,13 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     fast_path_catchup();
             }
 
+            auto brought_back_groups = std::move(sfm.brought_back_groups);
             update_status();
             if(docallback) {
+                auto time_us = sensor_clock::tp_to_micros(data.timestamp);
                 update_data(&data);
-                update_stages(sensor_clock::tp_to_micros(data.timestamp));
+                update_stages(time_us);
+                update_relocalizations(brought_back_groups, time_us);
             }
 
             sfm.relocalization_info = {};

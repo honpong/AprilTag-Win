@@ -966,7 +966,7 @@ bool mapper::link_map(const map_relocalization_edge& edge) {
         auto it = nodes->find(source_id);
         if (it != nodes->end()) {
             auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
-            auto is_node_searched = [this](const mapper::node_path& path) { return true; };
+            auto is_node_searched = [](const mapper::node_path& path) { return true; };
             auto finish_search = [](const mapper::node_path&) { return false; };
             auto loaded_map_nodes = dijkstra_shortest_path(mapper::node_path{source_id, it->second.global_transformation, 0},
                                                            distance, is_node_searched, finish_search);

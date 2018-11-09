@@ -101,10 +101,6 @@ bool replay::load_map(const char *filename) {
     ifstream file_handle(filename, std::ios_base::binary);
     if (file_handle.fail())
         return false;
-    if (!is_started) { //requires prior rc_startTracking call
-        request(packet_command_start);
-        is_started = true;
-    }
     request(packet_load_map, filename, strlen(filename) + 1);
     return true;
 }

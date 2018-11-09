@@ -95,10 +95,10 @@ bool file_stream::read_header(packet_header_t *header, bool control_only) {
             case packet_load_map: {
                 ifstream file_handle(string((const char *)packet->data), ifstream::ate | ios_base::binary);
                 size_t map_size_bytes = file_handle.tellg();
-                packet = packet_control_alloc(packet_load_map, NULL, map_size_bytes);
+                map_data = packet_control_alloc(packet_load_map, NULL, map_size_bytes);
                 file_handle.seekg(ios_base::beg);
-                file_handle.read((char *)packet->data, map_size_bytes);
-                stream_handle = make_unique<replay_output::bstream_buffer>(0, map_size_bytes, (char *)packet->data);
+                file_handle.read((char *)map_data->data, map_size_bytes);
+                stream_handle = make_unique<replay_output::bstream_buffer>(0, map_size_bytes, map_data->data);
                 device_stream::map_load_handle = stream_handle.get();
                 break;
             }

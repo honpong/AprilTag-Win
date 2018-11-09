@@ -88,15 +88,7 @@ TEST(Stages, stage_t)
     EXPECT_EQ(stages[2].name, stages[2].name_buffer.c_str());
 }
 
-enum replay_options {
-    DEFAULT = 0,  // sync, no relocalize, no save, no load
-    ASYNC = 1,
-    RELOCALIZE = 2,
-    SAVE_MAP = 4,
-    LOAD_MAP = 8
-};
-
-std::unique_ptr<replay> create_replay(int options = DEFAULT, const char* dataset = dataset_filename, const char* map_name = map_filename) {
+std::unique_ptr<replay> create_replay(int additional_options = 0, const char* dataset = dataset_filename, const char* load_filename = nullptr) {
     auto rp = std::make_unique<replay>((host_stream *)(new file_stream(dataset)));
 
     if (!rp->init()) {
@@ -106,19 +98,17 @@ std::unique_ptr<replay> create_replay(int options = DEFAULT, const char* dataset
 
     rp->set_calibration_from_filename(dataset);
     rp->set_message_level(rc_MESSAGE_ERROR);
-    uint32_t run_flags = rc_RUN_FAST_PATH;
-    if (options & SAVE_MAP) run_flags |= rc_RUN_SAVE_MAP;
-    if (options & RELOCALIZE) run_flags |= rc_RUN_RELOCALIZATION;
-    if (options & ASYNC) run_flags |= rc_RUN_ASYNCHRONOUS;
-    if (options & LOAD_MAP)
-        EXPECT_TRUE(rp->load_map(map_name));
+    uint32_t run_flags = rc_RUN_SYNCHRONOUS | rc_RUN_FAST_PATH | additional_options;
+    if (load_filename) {
+        EXPECT_TRUE(rp->load_map(load_filename));
+    }
 
     rp->set_run_flags((rc_TrackerRunFlags)run_flags);
     return rp;
 }
 
 void run_CreateStages_test(bool sync_replay, bool sync_stages) {
-    auto rp = create_replay(sync_replay ? DEFAULT : ASYNC);
+    auto rp = create_replay(sync_replay ? 0 : rc_RUN_ASYNCHRONOUS);
     if (!rp) return;
 
     std::future<void> worker;
@@ -189,7 +179,7 @@ static std::vector<stage_t> persistent_stages_;
 
 TEST(Stages, CreateAndCheckStages)
 {
-    auto rp = create_replay(SAVE_MAP);
+    auto rp = create_replay(rc_RUN_SAVE_MAP);
     if (!rp) return;
 
     std::vector<stage_t> stages;
@@ -238,7 +228,7 @@ TEST(Stages, CreateAndCheckStages)
 
 TEST(Stages, LoadAndCheckStages)
 {
-    auto rp = create_replay(RELOCALIZE | LOAD_MAP);
+    auto rp = create_replay(rc_RUN_RELOCALIZATION, dataset_filename, map_filename);
     if (!rp) return;
 
     rp->set_data_callback([](const replay_output *output, const rc_Data *) {
@@ -255,7 +245,7 @@ TEST(Stages, LoadAndCheckStages)
 
 TEST(Stages, RelocalizeSaveMap)
 {
-    auto rp_save = create_replay(SAVE_MAP, "data/other/WW50/rectangles/strafe/strafe_9.stereo.rc");
+    auto rp_save = create_replay(rc_RUN_SAVE_MAP, "data/other/WW50/rectangles/strafe/strafe_9.stereo.rc");
     if (!rp_save) return;
 
     bool stage_set = false;
@@ -277,7 +267,7 @@ TEST(Stages, RelocalizeSaveMap)
 
 TEST(Stages, RelocalizeLoadMap)
 {
-    auto rp_load = create_replay(LOAD_MAP | RELOCALIZE, "data/other/WW50/rectangles/strafe/strafe_8.stereo.rc");
+    auto rp_load = create_replay(rc_RUN_RELOCALIZATION, "data/other/WW50/rectangles/strafe/strafe_8.stereo.rc", map_filename);
     if (!rp_load) return;
 
     bool stage_found = false;

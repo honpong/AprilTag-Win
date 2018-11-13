@@ -463,10 +463,11 @@ typedef enum rc_TrackerRunFlags
 #if __cplusplus
 }
 #include <type_traits>
-constexpr rc_TrackerRunFlags operator|(rc_TrackerRunFlags x, rc_TrackerRunFlags y) {
-    return static_cast<rc_TrackerRunFlags>(static_cast<typename std::underlying_type<rc_TrackerRunFlags>::type>(x) |
-                                           static_cast<typename std::underlying_type<rc_TrackerRunFlags>::type>(y));
+inline rc_TrackerRunFlags &operator|=(rc_TrackerRunFlags &x, rc_TrackerRunFlags y) {
+    return x = static_cast<rc_TrackerRunFlags>(static_cast<typename std::underlying_type<rc_TrackerRunFlags>::type>(x) |
+                                               static_cast<typename std::underlying_type<rc_TrackerRunFlags>::type>(y));
 }
+inline rc_TrackerRunFlags operator|(rc_TrackerRunFlags x, rc_TrackerRunFlags y) { return x |= y; }
 extern "C" {
 #endif
 

@@ -2,6 +2,12 @@
 #include <sched.h>
 #include <assert.h>
 
+static inline int get_thread_priority()
+{
+    struct sched_param param; int policy;
+    return pthread_getschedparam(pthread_self(), &policy, &param) == 0 ? param.sched_priority : 0;
+}
+
 static inline void set_thread_priority(int priority)
 {
     struct sched_param param;

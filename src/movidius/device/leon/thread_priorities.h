@@ -2,7 +2,7 @@
 #include <sched.h>
 #include <assert.h>
 
-static inline void set_thread_priority(int priority, int policy_)
+static inline void set_thread_priority(int priority)
 {
     struct sched_param param;
     int e, policy;

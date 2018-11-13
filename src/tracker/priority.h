@@ -9,7 +9,7 @@
 
 #ifdef MYRIAD2
 #include "thread_priorities.h"
-#define set_priority(p) set_thread_priority((p), SCHED_FIFO)
+#define set_priority(p) set_thread_priority(p)
 #else
 #define set_priority(p)
 #endif

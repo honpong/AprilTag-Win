@@ -5,9 +5,7 @@
 static inline void set_thread_priority(int priority)
 {
     struct sched_param param;
-    int e, policy;
-
-    e = pthread_getschedparam(pthread_self(), &policy, &param);
+    int policy, e = pthread_getschedparam(pthread_self(), &policy, &param);
     assert(e == 0);
     if (e) return;
 

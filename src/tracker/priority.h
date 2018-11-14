@@ -9,12 +9,33 @@
 #define PRIORITY_SLAM_SAVE_MAP    2
 
 #ifdef MYRIAD2
-#include "thread_priorities.h"
-#define set_priority(p) set_thread_priority(p)
-#define get_priority()  get_thread_priority()
+#include <pthread.h>
+#include <sched.h>
+#include <assert.h>
+inline int get_priority()
+{
+    struct sched_param param; int policy;
+    return pthread_getschedparam(pthread_self(), &policy, &param) == 0 ? param.sched_priority : 0;
+}
+
+inline void set_priority(int priority)
+{
+    struct sched_param param;
+    int policy, e = pthread_getschedparam(pthread_self(), &policy, &param);
+    assert(e == 0);
+    if (e) return;
+
+    param.sched_priority = priority;
+
+    assert(sched_get_priority_min(policy) <= param.sched_priority && param.sched_priority <= sched_get_priority_max(policy));
+
+    e = pthread_setschedparam(pthread_self(), policy, &param);
+    assert(e == 0);
+    if (e) return;
+}
 #else
-#define set_priority(p) (void)(p)
-#define get_priority() 0
+inline void set_priority(int) { }
+inline int get_priority() { return 0; }
 #endif
 
 #include <future>

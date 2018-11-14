@@ -197,6 +197,7 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                                 camera.orb_future = async_w_priority(PRIORITY_SLAM_ORB, threaded ? std::launch::async : std::launch::deferred,
                                     [this, new_group_created] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) {
                                         filter_compute_orb(&sfm, data, *camera_frame);
+                                        set_priority(PRIORITY_SLAM_DBOW);
                                         if (sfm.relocalize) filter_compute_dbow(&sfm, *camera_frame);
                                         if (new_group_created) filter_assign_frame(&sfm, *camera_frame);
                                         return std::move(camera_frame);

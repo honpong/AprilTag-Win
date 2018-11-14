@@ -45,7 +45,7 @@ public:
 
 protected:
     void init_mask(const image &image, const std::vector<feature_position> &current);
-    std::vector<feature_track> &finalize_detect(xy *heap_begin, xy *heap_end, const image &image, size_t number_desired);
+    std::vector<feature_track> &finalize_detect(xy *features_begin, xy *features_end, const image &image, size_t number_desired);
     std::vector<feature_track> &non_maximum_suppression(xy *features_begin, xy *features_end, const image& image, size_t number_desired);
 };
 

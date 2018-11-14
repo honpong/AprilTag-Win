@@ -928,6 +928,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
         transformation G_Bclosest_Bnow;
         bool valid_transformation = f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow);
         if(valid_transformation) {
+            START_EVENT(SF_COMPUTE_JUMPS, 0);
             // distance # edges traversed
             auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
             // select node if it is the searched node
@@ -948,6 +949,7 @@ bool filter_image_measurement(struct filter *f, const sensor_data & data)
                 }
                 f->s.T.v = f->s.T.v - dT;
             }
+            END_EVENT(SF_COMPUTE_JUMPS, searched_node.size());
         }
     }
 
@@ -1428,6 +1430,7 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
 {
     // update triangulated 3d feature with new observation
     if(f->map) {
+        START_EVENT(SF_UPDATE_TRIANGULATED, camera_id);
         groupid closest_group_id;
         transformation G_Bclosest_Bnow;
         bool valid_transformation = f->s.get_closest_group_transformation(closest_group_id, G_Bclosest_Bnow);
@@ -1462,6 +1465,7 @@ void filter_update_triangulated_tracks(const filter *f, const rc_Sensor camera_i
                 sbt.reset_state();
             }
         }
+        END_EVENT(SF_UPDATE_TRIANGULATED, c->standby_tracks.size());
     }
 }
 

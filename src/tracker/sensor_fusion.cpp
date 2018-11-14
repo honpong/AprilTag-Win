@@ -152,9 +152,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                         update_relocalizations(result.info);
                         sfm.relocalization_info = std::move(result.info);
                     }
-                    sfm.relocalization_future = std::async(threaded ? std::launch::async : std::launch::deferred,
+                    sfm.relocalization_future = async_w_priority(PRIORITY_SLAM_RELOCALIZE, threaded ? std::launch::async : std::launch::deferred,
                         [this](std::future<std::unique_ptr<camera_frame_t>>&& orb_future) {
-                            set_priority(PRIORITY_SLAM_RELOCALIZE);
                             auto camera_frame = orb_future.get();
                             return filter_relocalize(&sfm, *camera_frame);
                     }, std::move(camera.orb_future));
@@ -176,9 +175,8 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                     for (auto &st : camera.tracks) if (st.track.found()) avoid.push_back(st.track);
                     for (auto &t  : camera.standby_tracks)               avoid.push_back(t);
 
-                    camera.detection_future = std::async(threaded ? std::launch::async : std::launch::deferred,
+                    camera.detection_future = async_w_priority(PRIORITY_SLAM_DETECT, threaded ? std::launch::async : std::launch::deferred,
                         [this, &camera, &avoid, new_group_created, relocalize_now] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) -> auto& {
-                            set_priority(PRIORITY_SLAM_DETECT);
                             auto start = std::chrono::steady_clock::now();
 
                             auto &detected = filter_detect(&sfm, data, avoid, relocalize_now ? 200 : camera.detecting_space);
@@ -196,10 +194,10 @@ void sensor_fusion::queue_receive_data(sensor_data &&data, bool catchup)
                             if (camera_frame) {
                                 if (camera.orb_future.valid()) camera.orb_future.get();
                                 camera.orb_future_for_relocalization = relocalize_now;
-                                camera.orb_future = std::async(threaded ? std::launch::async : std::launch::deferred,
+                                camera.orb_future = async_w_priority(PRIORITY_SLAM_ORB, threaded ? std::launch::async : std::launch::deferred,
                                     [this, new_group_created] (sensor_data&& data, std::unique_ptr<camera_frame_t>&& camera_frame) {
-                                        set_priority(PRIORITY_SLAM_ORB);
                                         filter_compute_orb(&sfm, data, *camera_frame);
+                                        set_priority(PRIORITY_SLAM_DBOW);
                                         if (sfm.relocalize) filter_compute_dbow(&sfm, *camera_frame);
                                         if (new_group_created) filter_assign_frame(&sfm, *camera_frame);
                                         return std::move(camera_frame);

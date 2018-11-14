@@ -10,7 +10,7 @@ constexpr int features_mutex_id = 14;
 extern "C" __attribute__((dllexport))
 void fast_detect(const u8 *image, int2 size, int stride, int2 win, int2 win_size,
                  size_t need, fast_tracker::xy *features, size_t &features_size,
-                 unsigned &threshold, u8 *mask, int mask_stride) {
+                 unsigned &threshold, u8 *mask, int mask_stride, int &workers) {
     assert(stride >= size.x && size.x <= MAX_WIDTH && size.y <= MAX_HEIGHT && need > 0);
 
     int x1 = (win.x < PADDING) ? PADDING : win.x;
@@ -73,4 +73,9 @@ void fast_detect(const u8 *image, int2 size, int stride, int2 win, int2 win_size
             }
         }
     }
+    scMutexRequest(features_mutex_id);
+    bool last = --workers == 0;
+    scMutexRelease(features_mutex_id);
+    if (last)
+        std::sort_heap(features, features+features_size, fast_tracker::xy_comp);
 }

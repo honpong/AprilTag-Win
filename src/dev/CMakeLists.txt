@@ -20,7 +20,7 @@ endif()
     
 FILE(GLOB SHAPEFIT_DEV_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB SHAPEFIT_DEV_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h*" )
-add_executable(shapefit-dev
+add_executable(d4xx-dev
     ${SHAPEFIT_DEV_SRC}
     ${SHAPEFIT_DEV_HDR}
     ${JSON_SRC}

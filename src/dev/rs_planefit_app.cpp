@@ -43,8 +43,8 @@ int main(int argc, char* argv[])
         else if (strcmp(argv[i], "--laser_off") == 0) { laser_option = 0; }
         else if (strcmp(argv[i], "--laser_on") == 0) { laser_option = 1; }
         else {
-            printf("usages:\n shapefit-dev [--cbox|--box|--plane][--live|--replay][--path PATH][--capture][--num_frame NUM] \n");
-            printf("                       [--hd|--qhd|--vga][--laser_off|--laser_on] \n");
+            printf("usages:\n d4xx-dev [--cbox|--box|--plane][--live|--replay][--path PATH][--capture][--num_frame NUM] \n");
+            printf("                   [--hd|--qhd|--vga][--laser_off|--laser_on] \n");
             return 0;
         }
     }

@@ -87,8 +87,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             static const int _stream_to_byte_per_pixel[RS_SF_STREAM_COUNT] = { 0,2,3,1,1 };
             sensor_index  = _f.get_profile().stream_index();
             sensor_type   = (rs_sf_sensor_t)(_f.get_profile().stream_type());
-            timestamp_us  = _f.supports_frame_metadata(RS2_FRAME_METADATA_TIME_OF_ARRIVAL) ? _f.get_frame_metadata(RS2_FRAME_METADATA_TIME_OF_ARRIVAL) : _f.get_timestamp();
-            //timestamp_us  = _f.get_timestamp();
+            //timestamp_us  = _f.supports_frame_metadata(RS2_FRAME_METADATA_TIME_OF_ARRIVAL) ? _f.get_frame_metadata(RS2_FRAME_METADATA_TIME_OF_ARRIVAL) : _f.get_timestamp();
+            timestamp_us  = _f.get_timestamp();
             serial_number = new_serial_number;
             frame_number  = _f.get_frame_number();
             

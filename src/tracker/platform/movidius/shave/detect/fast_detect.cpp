@@ -8,10 +8,11 @@
 constexpr int features_mutex_id = 14;
 
 extern "C" __attribute__((dllexport))
-void fast_detect(const u8 *image, int2 size, int stride, int2 win, int2 win_size,
+void fast_detect(const u8 *image, int2 size, int2 stride_, int2 win, int2 win_size,
                  size_t need, fast_tracker::xy *features, size_t &features_size,
                  unsigned &threshold, u8 *mask, int mask_stride, int &workers) {
-    assert(stride >= size.x && size.x <= MAX_WIDTH && size.y <= MAX_HEIGHT && need > 0);
+    int stride = stride_.x;
+    assert(stride >= size.x && size.x <= MAX_WIDTH && size.y <= MAX_HEIGHT && need >= 0);
 
     int x1 = (win.x < PADDING) ? PADDING : win.x;
     int y1 = (win.y < PADDING) ? PADDING : win.y;

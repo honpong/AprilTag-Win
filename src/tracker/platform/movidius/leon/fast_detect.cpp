@@ -42,12 +42,12 @@ fast_tracker::xy *platform_fast_detect(size_t id, const tracker::image &image, s
     cmx->threshold = fast_detect_threshold;
     cmx->features_size = 0;
     for (int i=0; i< DETECT_SHAVES; ++i) {
-        struct int2 { int x,y; } image_size, win_xy, win_size;
+        struct int2 { int x,y; } image_size, win_xy, win_size, stride;
         Shave::get_handle(fast_detect[i].shave)->start(
-            (u32)fast_detect[i].entry_point, "ivi" "vv" "iii" "iii" "i",
+            (u32)fast_detect[i].entry_point, "ivv" "vv" "iii" "iii" "i",
             image.image,
             &(image_size = (int2) { image.width_px, image.height_px }),
-            image.stride_px,
+            &(stride     = (int2) { image.stride_px, 0              }),
 
             &(win_xy   = (int2) { 0,               i    * image.height_px / DETECT_SHAVES }),
             &(win_size = (int2) { image.width_px, (i+1) * image.height_px / DETECT_SHAVES

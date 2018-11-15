@@ -60,7 +60,9 @@ int state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t 
 void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt) const
 {
     int i = 0;
+#ifndef MYRIAD2
     i = project_motion_covariance<4>(dst, src, dt, i);
+#endif
     i = project_motion_covariance<1>(dst, src, dt, i);
 }
 

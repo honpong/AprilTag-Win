@@ -55,6 +55,7 @@ list(APPEND CMAKE_PREFIX_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/../../sp/win
 )
 
+set(BUILD_SHARED_LIB_SHAPEFIT OFF CACHE BOOL "")
 add_subdirectory(api)
 
 ############################################################################################################

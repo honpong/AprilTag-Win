@@ -1,6 +1,8 @@
 [submodule "src/thirdparty/librealsense/librealsense"]
 	path = src/thirdparty/librealsense/librealsense
-	url = https://github.com/honpong/librealsense.git
+	url  = https://github.com/honpong/librealsense.git
+#       url  = git@github.com:honpong/librealsense.git
 [submodule "src/thirdparty/tracker"]
 	path = src/thirdparty/tracker
-url=https://github.com/honpong/tracker.git
+        url  = https://github.com/honpong/tracker.git
+#       url  = git@github.com:honpong/tracker.git

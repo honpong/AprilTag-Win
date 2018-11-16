@@ -69,6 +69,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
     set(BUILD_GRAPHICAL_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(BUILD_SHARED_LIBS        OFF CACHE BOOL "" FORCE)
     set(BUILD_UNIT_TESTS         OFF CACHE BOOL "" FORCE)
+    set(ENFORACE_METADATA        ON  CACHE BOOL "" FORCE)
     
     if(WIN32)
         add_subdirectory(thirdparty/glfw)

@@ -104,12 +104,12 @@ void rs_sf_device_manager::print_calibrations() const
         "fx :" << stream.intrinsics.fx    << ", fy :" << stream.intrinsics.fy     << std::endl <<
         "px :" << stream.intrinsics.ppx   << ", py :" << stream.intrinsics.ppy    << std::endl <<
         "w  :" << stream.intrinsics.width << ", h  :" << stream.intrinsics.height << std::endl;
-        for (int t=0; t<num_streams(); ++t){
-            std::cout << "    extrinsics to " << (rs2_stream)_streams[t].type << ", index " << _streams[t].index;
+        for (int s=0; s<num_streams(); ++s){
+            std::cout << "    extrinsics to " << (rs2_stream)_streams[s].type << ", index " << _streams[s].index;
             std::cout << " rotation: ";
-            for(auto& r : stream.extrinsics[t].rotation){ std::cout << r << " "; }
+            for(auto& r : stream.extrinsics[s].rotation){ std::cout << r << " "; }
             std::cout << " translation: ";
-            for(auto& t : stream.extrinsics[t].translation){ std::cout << t << " ";}
+            for(auto& t : stream.extrinsics[s].translation){ std::cout << t << " ";}
             std::cout << std::endl;
         }
         std::cout << "--------------------------------------------------------" << std::endl;

@@ -32,7 +32,7 @@ protected:
     rs2::device                      _device;
     std::vector<rs_sf_stream_select> _streams;
     
-    int  num_streams() const { return _streams.size(); }
+    int  num_streams() const { return (int)_streams.size(); }
     bool search_device_name(const std::string& device_name);
     std::string get_device_name() const;
     void add_stream_request(const rs_sf_stream_select& stream_request);

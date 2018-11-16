@@ -7,6 +7,7 @@ add_executable(spec
   transformation_cov.cpp
   estimate_horn.cpp
   estimate_epnp.cpp
+  estimate_five_point.cpp
   matrix.cpp
   remapper.cpp
   utils.cpp

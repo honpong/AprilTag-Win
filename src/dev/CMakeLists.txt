@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
-set(PROJECT_NAME shapefit-dev)
+set(PROJECT_NAME d435i-dev)
 project(${PROJECT_NAME})
 
 ############################################################################################################
@@ -20,7 +20,7 @@ endif()
     
 FILE(GLOB SHAPEFIT_DEV_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
 FILE(GLOB SHAPEFIT_DEV_HDR "${CMAKE_CURRENT_SOURCE_DIR}/*.h*" )
-add_executable(shapefit-dev
+add_executable(${PROJECT_NAME}
     ${SHAPEFIT_DEV_SRC}
     ${SHAPEFIT_DEV_HDR}
     ${JSON_SRC}

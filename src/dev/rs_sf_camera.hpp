@@ -29,6 +29,8 @@ struct rs_sf_stream_info
 {
     rs_sf_sensor_t                type;
     rs_sf_uint16_t                index;
+    int                           fps;
+    int                           format;
     union intrinsics_t {
         rs_sf_intrinsics          cam_intrinsics;
         rs_sf_imu_intrinsics      imu_intrinsics;

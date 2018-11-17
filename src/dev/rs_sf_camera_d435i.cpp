@@ -308,6 +308,8 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
             Json::Value cam;
             cam["sensor_type"]  = info.type;
             cam["sensor_index"] = info.index;
+            cam["sensor_fps"]   = info.fps;
+            cam["data_format"]  = info.format;
             cam["intrinsics"]   = write_intrinsics(info.type, info.intrinsics);
             for(int s=0; s<stream_info.size(); ++s)
             {
@@ -444,6 +446,8 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             
             _streams[s].type       = (rs_sf_sensor_t)info["sensor_type"].asInt();
             _streams[s].index      = (rs_sf_uint16_t)info["sensor_index"].asInt();
+            _streams[s].format     = info["data_format"].asInt();
+            _streams[s].fps        = info["fps"].asInt();
             _streams[s].intrinsics = read_intrinsics(_streams[s].type, info["intrinsics"]);
             _streams[s].extrinsics.resize(_num_streams);
             for(int ss=0; ss<_num_streams; ++ss){

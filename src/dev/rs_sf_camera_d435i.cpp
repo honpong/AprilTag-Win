@@ -43,7 +43,9 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     {
         for(auto s : {0,3,4}){
             if(_streams[s].sensor){
+                _pipeline_streaming[s] = false;
                 _streams[s].sensor.stop();
+                std::lock_guard<std::mutex> lk(_pipeline_mutex[s]);
                 _streams[s].sensor.close();
                 _streams[s].sensor = nullptr;
                 _streams[s].profile = {};
@@ -130,6 +132,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         rs2::frame _f;
     };
     
+    std::vector<bool>       _pipeline_streaming;
     std::vector<std::mutex> _pipeline_mutex;
     rs_sf_dataset           _pipeline_buffer;
     bool start()
@@ -137,11 +140,14 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         if(!_pipeline_buffer.empty()) return false;
         
         _pipeline_buffer.resize(num_streams());
+        _pipeline_streaming.resize(num_streams());
         std::vector<std::mutex> mutexes(num_streams());
         _pipeline_mutex.swap(mutexes);
         
         // stereo depth sensors
+        _pipeline_streaming[0] = _pipeline_streaming[1] = _pipeline_streaming[2] = true;
         _streams[0].sensor.start([this](rs2::frame f){
+            if(!_pipeline_streaming[0]){ return; }
             for(int s : {0,1,2}){
                 if(f.get_profile().stream_type() ==_streams[s].type &&
                    f.get_profile().stream_index()==_streams[s].index){
@@ -152,13 +158,17 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         });
         
         // color sensor
+        _pipeline_streaming[3] = true;
         _streams[3].sensor.start([this](rs2::frame f){
+            if(!_pipeline_streaming[3]){ return; }
             std::lock_guard<std::mutex> lk(_pipeline_mutex[3]);
             _pipeline_buffer[3].emplace_back(std::make_shared<rs_sf_data_auto>(f,_streams[3],generate_serial_number()));
         });
         
         // imu motion sensor
+        _pipeline_streaming[4] = _pipeline_streaming[5] = true;
         if(_streams[4].profile && _streams[5].profile){
+            if(!_pipeline_streaming[4]){ return; }
             _streams[4].sensor.start([this](rs2::frame f){
                 for(int s : {4,5}){
                     if(f.get_profile().stream_index()==_streams[s].index){

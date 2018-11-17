@@ -61,7 +61,9 @@ void rs_sf_device_manager::extract_stream_calibrations()
     for(auto& stream : _streams){
         if(!stream.profile){ continue; }
         if(stream.profile.is<rs2::motion_stream_profile>()){
-            stream.imu_intriniscs = stream.profile.as<rs2::motion_stream_profile>().get_motion_intrinsics();
+            try {
+                stream.imu_intriniscs = stream.profile.as<rs2::motion_stream_profile>().get_motion_intrinsics();
+            }catch(...){ std::cout << "WARNING: error getting imu intrsincis " << (rs2_stream)stream.profile.stream_type() << " " << stream.profile.stream_index(); }
         } else if(stream.profile.is<rs2::video_stream_profile>()){
             stream.cam_intrinsics = stream.profile.as<rs2::video_stream_profile>().get_intrinsics();
         }
@@ -80,15 +82,15 @@ void rs_sf_device_manager::print_requested_streams() const
     for(auto& stream : _streams){
         if(!stream.profile){ continue; }
         auto& s = stream.profile;
-        std::cout << "stream name  : " << s.stream_name() << std::endl;
-        std::cout << "stream type  : " << rs2_stream_to_string(s.stream_type()) << std::endl;
-        std::cout << "stream index : " << s.stream_index() << std::endl;
-        std::cout << "stream id    : " << s.unique_id() << std::endl;
-        std::cout << "stream fps   : " << s.fps() << "Hz " << std::endl;
-        std::cout << "stream format: " << rs2_format_to_string(s.format()) << std::endl;
+        std::cout << "stream name   : " << s.stream_name() << std::endl;
+        std::cout << "stream type   : " << rs2_stream_to_string(s.stream_type()) << std::endl;
+        std::cout << "stream index  : " << s.stream_index() << std::endl;
+        std::cout << "stream id     : " << s.unique_id() << std::endl;
+        std::cout << "stream fps    : " << s.fps() << "Hz " << std::endl;
+        std::cout << "stream format : " << rs2_format_to_string(s.format()) << std::endl;
         if(s.is<rs2::video_stream_profile>()){
             auto ss = s.as<rs2::video_stream_profile>();
-            std::cout << "stream w,h   : " << ss.width() << "," << ss.height() << std::endl;
+            std::cout << "stream w,h    : " << ss.width() << "," << ss.height() << std::endl;
         }
         std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
     }

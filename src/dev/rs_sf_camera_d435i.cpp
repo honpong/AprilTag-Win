@@ -78,12 +78,14 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 case 1: _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1);            break;
                 case 2: _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 1); break;
             }
-        }catch(...){}
+        }catch(...){ printf("WARNING: error setting laser option %d!\n", laser_option); }
 
-        _laser_option = _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ENABLED);
-        if(laser_option==2 && _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED)){
-            _laser_option=2;
-        }
+        try{
+            _laser_option = _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ENABLED);
+            if(laser_option==2 && _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED)){
+                _laser_option=2;
+            }
+        }catch(...){ printf("WARNING: error getting laser option %d!\n",_laser_option); }
         
         // open the color camera stream
         _streams[3].sensor.open(_streams[3].profile);

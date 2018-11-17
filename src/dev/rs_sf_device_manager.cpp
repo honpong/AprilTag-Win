@@ -80,14 +80,15 @@ void rs_sf_device_manager::print_requested_streams() const
     for(auto& stream : _streams){
         if(!stream.profile){ continue; }
         auto& s = stream.profile;
-        std::cout << "stream name  :" << s.stream_name() << std::endl;
-        std::cout << "stream type  :" << rs2_stream_to_string(s.stream_type()) << std::endl;
-        std::cout << "stream index :" << s.stream_index() << std::endl;
-        std::cout << "stream id    :" << s.unique_id() << std::endl;
-        std::cout << "stream format:" << rs2_format_to_string(s.format()) << std::endl;
+        std::cout << "stream name  : " << s.stream_name() << std::endl;
+        std::cout << "stream type  : " << rs2_stream_to_string(s.stream_type()) << std::endl;
+        std::cout << "stream index : " << s.stream_index() << std::endl;
+        std::cout << "stream id    : " << s.unique_id() << std::endl;
+        std::cout << "stream fps   : " << s.fps() << "Hz " << std::endl;
+        std::cout << "stream format: " << rs2_format_to_string(s.format()) << std::endl;
         if(s.is<rs2::video_stream_profile>()){
             auto ss = s.as<rs2::video_stream_profile>();
-            std::cout << "stream w,h  :" << ss.width() << "," << ss.height() << std::endl;
+            std::cout << "stream w,h   : " << ss.width() << "," << ss.height() << std::endl;
         }
         std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
     }
@@ -101,11 +102,10 @@ void rs_sf_device_manager::print_calibrations() const
     for(auto& stream : _streams){
         if(!stream.profile){ continue; }
         auto& s = stream.profile;
-        std::cout << std::setprecision(3);
-        std::cout << "stream " << (rs2_stream)s.stream_type() << " index " << s.stream_index() << std::endl <<
-        "fx :" << stream.cam_intrinsics.fx    << ", fy :" << stream.cam_intrinsics.fy     << std::endl <<
-        "px :" << stream.cam_intrinsics.ppx   << ", py :" << stream.cam_intrinsics.ppy    << std::endl <<
-        "w  :" << stream.cam_intrinsics.width << ", h  :" << stream.cam_intrinsics.height << std::endl;
+        std::cout << std::setprecision(3) << (rs2_stream)s.stream_type() << " stream " << s.stream_index() << std::endl <<
+        "fx : " << stream.cam_intrinsics.fx    << ", fy : " << stream.cam_intrinsics.fy     << std::endl <<
+        "px : " << stream.cam_intrinsics.ppx   << ", py : " << stream.cam_intrinsics.ppy    << std::endl <<
+        "w  : " << stream.cam_intrinsics.width << ", h  : " << stream.cam_intrinsics.height << std::endl;
         for (int s=0; s<num_streams(); ++s){
             std::cout << "    extrinsics to " << (rs2_stream)_streams[s].type << ", index " << _streams[s].index;
             std::cout << " rotation: ";

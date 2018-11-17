@@ -883,7 +883,7 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
     for(auto depth : cal.depths)
         rc_configureCamera(tracker, id++, rc_FORMAT_DEPTH16, &depth.extrinsics, &depth.intrinsics);
 
-    if (cal.coordinates.first)
+    if ((true)/*cal.coordinates.first*/)
         rc_configureWorld(tracker, cal.coordinates.second.world_up, cal.coordinates.second.world_initial_forward, cal.coordinates.second.body_forward);
 
     return true;

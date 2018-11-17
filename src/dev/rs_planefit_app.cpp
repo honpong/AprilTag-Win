@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
         }
     }
     if (path.back() != '\\' && path.back() != '/'){ path.push_back(PATH_SEPARATER); }
-    if (is_capture) capture_frames2(path, num_frames, capture_size.data(), laser_option);
+    if (is_capture){ capture_frames2(path, num_frames, capture_size.data(), laser_option); return 0; }
     if (is_live) return run_shapefit_live(sf_option, capture_size.data());
     return run_shapefit_offline(path, sf_option);
 }

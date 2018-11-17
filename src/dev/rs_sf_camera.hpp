@@ -44,7 +44,7 @@ struct rs_sf_data_stream
     virtual std::string     get_device_name() = 0;
     virtual std::string     get_device_info() = 0;
     virtual stream_info_vec get_stream_info() = 0;
-    virtual float           get_depth_unit() = 0;
+    virtual float           get_depth_unit()  = 0;
     virtual ~rs_sf_data_stream() {}
 };
 

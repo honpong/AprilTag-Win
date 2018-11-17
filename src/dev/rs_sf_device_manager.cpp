@@ -60,8 +60,10 @@ void rs_sf_device_manager::extract_stream_calibrations()
     // set up calibrations
     for(auto& stream : _streams){
         if(!stream.profile){ continue; }
-        if(stream.profile.is<rs2::video_stream_profile>()){
-            stream.intrinsics = stream.profile.as<rs2::video_stream_profile>().get_intrinsics();
+        if(stream.profile.is<rs2::motion_stream_profile>()){
+            stream.imu_intriniscs = stream.profile.as<rs2::motion_stream_profile>().get_motion_intrinsics();
+        } else if(stream.profile.is<rs2::video_stream_profile>()){
+            stream.cam_intrinsics = stream.profile.as<rs2::video_stream_profile>().get_intrinsics();
         }
         stream.extrinsics.resize(num_streams());
         for( int t=0; t<num_streams(); ++t){
@@ -101,9 +103,9 @@ void rs_sf_device_manager::print_calibrations() const
         auto& s = stream.profile;
         std::cout << std::setprecision(3);
         std::cout << "stream " << (rs2_stream)s.stream_type() << " index " << s.stream_index() << std::endl <<
-        "fx :" << stream.intrinsics.fx    << ", fy :" << stream.intrinsics.fy     << std::endl <<
-        "px :" << stream.intrinsics.ppx   << ", py :" << stream.intrinsics.ppy    << std::endl <<
-        "w  :" << stream.intrinsics.width << ", h  :" << stream.intrinsics.height << std::endl;
+        "fx :" << stream.cam_intrinsics.fx    << ", fy :" << stream.cam_intrinsics.fy     << std::endl <<
+        "px :" << stream.cam_intrinsics.ppx   << ", py :" << stream.cam_intrinsics.ppy    << std::endl <<
+        "w  :" << stream.cam_intrinsics.width << ", h  :" << stream.cam_intrinsics.height << std::endl;
         for (int s=0; s<num_streams(); ++s){
             std::cout << "    extrinsics to " << (rs2_stream)_streams[s].type << ", index " << _streams[s].index;
             std::cout << " rotation: ";

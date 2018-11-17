@@ -14,6 +14,7 @@ const static auto RS_SF_FORMAT_Z16 = RS2_FORMAT_Z16;
 const static auto RS_SF_FORMAT_Y8 = RS2_FORMAT_Y8;
 const static auto RS_SF_FORMAT_RGB8 = RS2_FORMAT_RGB8;
 const static auto RS_SF_FORMAT_BGR8 = RS2_FORMAT_BGR8;
+const static int  RS_SF_CALIBRATION_FILE_VERSION = 3;
 
 #include <list>
 struct rs_sf_data_buf : public rs_sf_data { virtual ~rs_sf_data_buf(){} };
@@ -28,15 +29,20 @@ struct rs_sf_stream_info
 {
     rs_sf_sensor_t                type;
     rs_sf_uint16_t                index;
-    rs_sf_intrinsics              intrinsics;
+    union intrinsics_t {
+        rs_sf_intrinsics          cam_intrinsics;
+        rs_sf_imu_intrinsics      imu_intrinsics;
+    } intrinsics;
     std::vector<rs_sf_extrinsics> extrinsics;
 };
+typedef rs_sf_stream_info::intrinsics_t rs_sf_stream_intrinsics;
 
 struct rs_sf_data_stream
 {
     typedef std::vector<rs_sf_stream_info> stream_info_vec;
     virtual rs_sf_dataset   wait_for_data(const std::chrono::milliseconds& wait_time_us = std::chrono::milliseconds(34)) = 0;
     virtual std::string     get_device_name() = 0;
+    virtual std::string     get_device_info() = 0;
     virtual stream_info_vec get_stream_info() = 0;
     virtual float           get_depth_unit() = 0;
     virtual ~rs_sf_data_stream() {}

@@ -73,22 +73,43 @@ struct rs_sf_file_io
         return json_data;
     }
     
-    static rs_sf_intrinsics read_intrinsics(const Json::Value json_intr)
+    static rs_sf_stream_intrinsics read_intrinsics(const rs_sf_sensor_t& type, const Json::Value& json_intr)
     {
-        rs_sf_intrinsics intrinsics = {};
-        intrinsics.fx    = json_intr["fx"].asFloat();
-        intrinsics.fy    = json_intr["fy"].asFloat();
-        intrinsics.ppx   = json_intr["ppx"].asFloat();
-        intrinsics.ppy   = json_intr["ppy"].asFloat();
-        intrinsics.width = json_intr["width"].asInt();
-        intrinsics.height= json_intr["height"].asInt();
-        intrinsics.model = (rs_sf_distortion)json_intr["model"].asInt();
-        for (int c = 0; c < json_intr["coeff"].size(); ++c)
-            intrinsics.coeffs[c] = json_intr["coeff"][c].asFloat();
+        rs_sf_stream_intrinsics intr = {};
+        
+        switch(type){
+            case RS_SF_SENSOR_ACCEL:
+            case RS_SF_SENSOR_GYRO:
+                for(auto& r : {0,1,2})
+                    for(auto& c : {0,1,2,3})
+                        intr.imu_intrinsics.data[r][c] = json_intr["data"][r][c].asFloat();
+                for(auto& n : {0,1,2})
+                    intr.imu_intrinsics.noise_variances[n] = json_intr["noise_variances"][n].asFloat();
+                for(auto& b : {0,2,3})
+                    intr.imu_intrinsics.bias_variances[b] = json_intr["bias_variances"][b].asFloat();
+                break;
+            default:
+                intr.cam_intrinsics.fx    = json_intr["fx"].asFloat();
+                intr.cam_intrinsics.fy    = json_intr["fy"].asFloat();
+                intr.cam_intrinsics.ppx   = json_intr["ppx"].asFloat();
+                intr.cam_intrinsics.ppy   = json_intr["ppy"].asFloat();
+                intr.cam_intrinsics.width = json_intr["width"].asInt();
+                intr.cam_intrinsics.height= json_intr["height"].asInt();
+                intr.cam_intrinsics.model = (rs_sf_distortion)json_intr["model"].asInt();
+                for (int c = 0; c < json_intr["coeff"].size(); ++c)
+                    intr.cam_intrinsics.coeffs[c] = json_intr["coeff"][c].asFloat();
+                break;
+        }
+        return intr;
+    }
+    
+    static rs_sf_imu_intrinsics read_imu_intrinsics(const Json::Value& json_intr)
+    {
+        rs_sf_imu_intrinsics intrinsics;
         return intrinsics;
     }
     
-    static rs_sf_extrinsics read_extrinsics(const Json::Value json_extr)
+    static rs_sf_extrinsics read_extrinsics(const Json::Value& json_extr)
     {
         rs_sf_extrinsics extrinsics = {};
         for(int r = 0; r < json_extr["rotation"].size(); ++r)
@@ -98,18 +119,34 @@ struct rs_sf_file_io
         return extrinsics;
     }
     
-    static Json::Value write_intrinsics(const rs_sf_intrinsics& intr)
+    static Json::Value write_intrinsics(const rs_sf_sensor_t& type, const rs_sf_stream_intrinsics& intr)
     {
         Json::Value json_intr;
-        json_intr["fx"]     = intr.fx;
-        json_intr["fy"]     = intr.fy;
-        json_intr["ppx"]    = intr.ppx;
-        json_intr["ppy"]    = intr.ppy;
-        json_intr["height"] = intr.height;
-        json_intr["width"]  = intr.width;
-        json_intr["model"]  = intr.model;
-        for (const auto& c : intr.coeffs)
-            json_intr["coeff"].append(c);
+
+        switch(type){
+            case RS_SF_SENSOR_GYRO:
+            case RS_SF_SENSOR_ACCEL:
+                for(auto& r : {0,1,2}){
+                    for(auto& c : intr.imu_intrinsics.data[r]){
+                        json_intr["data"][r].append(c); }
+                }
+                for(auto& noise : intr.imu_intrinsics.noise_variances){
+                    json_intr["noise_variances"].append(noise); }
+                for(auto& bias : intr.imu_intrinsics.bias_variances){
+                    json_intr["bias_variances"].append(bias); }
+            break;
+            default:
+                json_intr["fx"]     = intr.cam_intrinsics.fx;
+                json_intr["fy"]     = intr.cam_intrinsics.fy;
+                json_intr["ppx"]    = intr.cam_intrinsics.ppx;
+                json_intr["ppy"]    = intr.cam_intrinsics.ppy;
+                json_intr["height"] = intr.cam_intrinsics.height;
+                json_intr["width"]  = intr.cam_intrinsics.width;
+                json_intr["model"]  = intr.cam_intrinsics.model;
+                for (const auto& c : intr.cam_intrinsics.coeffs){
+                    json_intr["coeff"].append(c); }
+            break;
+        }
         return json_intr;
     }
     

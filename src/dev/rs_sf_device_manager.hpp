@@ -21,7 +21,10 @@ struct rs_sf_stream_select
     
     rs2::sensor                 sensor;
     rs2::stream_profile         profile;
-    rs2_intrinsics              intrinsics;
+    union {
+        rs2_intrinsics              cam_intrinsics;
+        rs2_motion_device_intrinsic imu_intriniscs;
+    };
     std::vector<rs2_extrinsics> extrinsics;
 };
 

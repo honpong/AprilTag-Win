@@ -38,9 +38,21 @@ extern "C"
 #endif
 
     typedef enum rs_sf_distortion { MODEL_COUNT = 5 } rs_sf_distortion;
-    typedef unsigned long long rs_sf_timestamp;
+    typedef double             rs_sf_timestamp;
     typedef unsigned long long rs_sf_serial_number;
     typedef unsigned short     rs_sf_uint16_t;
+    
+    struct rs_sf_imu_intrinsics
+    {
+        /* \internal
+         * Scale X       cross axis  cross axis  Bias X \n
+         * cross axis    Scale Y     cross axis  Bias Y \n
+         * cross axis    cross axis  Scale Z     Bias Z */
+        float data[3][4];          /**< Interpret data array values */
+        
+        float noise_variances[3];  /**< Variance of noise for X, Y, and Z axis */
+        float bias_variances[3];   /**< Variance of bias for X, Y, and Z axis */
+    };
     
     struct rs_sf_intrinsics
     {

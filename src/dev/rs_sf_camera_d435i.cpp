@@ -11,6 +11,7 @@
 #include <thread>
 #include <mutex>
 #include <atomic>
+#include <iomanip>
 
 struct rs_sf_d435i_writer;
 struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
@@ -54,6 +55,16 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     rs_sf_serial_number generate_serial_number()   { return _data_packet_count++; }
     std::string         get_device_name() override { return rs_sf_device_manager::get_device_name(); }
     float               get_depth_unit()  override { return 0.001f; }
+    std::string         get_device_info() override {
+        switch(_laser_option)
+        {
+            case -1: return rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=UNKNOWN");
+            case  0: return rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=0");
+            case  1: return rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=1");
+            case  2: return rs2_option_to_string(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED) + std::string("=1");
+        }
+        return "";
+    }
     
     int _laser_option = -1;
     void open(int laser_option)
@@ -63,11 +74,16 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         try{
             switch(laser_option)
             {
-                case 0: _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0);            _laser_option=0; break;
-                case 1: _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1);            _laser_option=1; break;
-                case 2: _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 1); _laser_option=2; break;
+                case 0: _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0);            break;
+                case 1: _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1);            break;
+                case 2: _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 1); break;
             }
         }catch(...){}
+
+        _laser_option = _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ENABLED);
+        if(laser_option==2 && _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED)){
+            _laser_option=2;
+        }
         
         // open the color camera stream
         _streams[3].sensor.open(_streams[3].profile);
@@ -98,7 +114,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 image.frame_id       = frame_number;
                 image.img_h          = _f.as<rs2::video_frame>().get_height();
                 image.img_w          = _f.as<rs2::video_frame>().get_width();
-                image.intrinsics     = (rs_sf_intrinsics*)&stream.intrinsics;
+                image.intrinsics     = (rs_sf_intrinsics*)&stream.cam_intrinsics;
                 
                 if(_f.supports_frame_metadata(RS2_FRAME_METADATA_FRAME_LASER_POWER_MODE) &&
                    _f.get_frame_metadata(RS2_FRAME_METADATA_FRAME_LASER_POWER_MODE)==0){
@@ -185,7 +201,16 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 rs_sf_stream_info info;
                 info.type  = (rs_sf_sensor_t)stream.type;
                 info.index = stream.index;
-                info.intrinsics = *(rs_sf_intrinsics*)&stream.intrinsics;
+                switch(info.type){
+                    case RS_SF_SENSOR_GYRO:
+                    case RS_SF_SENSOR_ACCEL:
+                        info.intrinsics.imu_intrinsics = *(rs_sf_imu_intrinsics*)&stream.imu_intriniscs;
+                        break;
+                    default:
+                        info.intrinsics.cam_intrinsics = *(rs_sf_intrinsics*)&stream.cam_intrinsics;
+                        break;
+                }
+                
                 info.extrinsics.reserve(num_streams());
                 for(int ss=0; ss<num_streams(); ++ss)
                 {
@@ -247,7 +272,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
         
         if(index_file.is_open()){
             std::stringstream os; os
-            << dataset_number     << sep
+            << dataset_number     << sep << std::setprecision(17)
             << data.timestamp_us  << sep
             << data.serial_number << sep
             << data.frame_number  << sep
@@ -265,8 +290,9 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
     bool write_calibrations() const
     {
         Json::Value json_root;
-        json_root["calibration_file_version"] = 2;
+        json_root["calibration_file_version"] = RS_SF_CALIBRATION_FILE_VERSION;
         json_root["device_name"] = _src->get_device_name();
+        json_root["device_info"] = _src->get_device_info();
 
         auto stream_info = _src->get_stream_info();
         for(auto& info : stream_info)
@@ -280,7 +306,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
             Json::Value cam;
             cam["sensor_type"]  = info.type;
             cam["sensor_index"] = info.index;
-            cam["intrinsics"]   = write_intrinsics(info.intrinsics);
+            cam["intrinsics"]   = write_intrinsics(info.type, info.intrinsics);
             for(int s=0; s<stream_info.size(); ++s)
             {
                 cam["extrinsics"][json_root["sensor_name"][s].asString()]=write_extrinsics(info.extrinsics[s]);
@@ -372,6 +398,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     
     int                                          _num_streams;
     std::string                                  _device_name;
+    std::string                                  _device_info;
     std::vector<std::string>                     _stream_name;
     std::vector<rs_sf_stream_info>               _streams;
     std::deque<std::shared_ptr<rs_sf_data_auto>> _data_buffer;
@@ -395,25 +422,27 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     float           get_depth_unit() override { return 0.001f; }
     stream_info_vec get_stream_info() override { return _streams; }
     std::string     get_device_name() override { return _device_name; }
+    std::string     get_device_info() override { return _device_info; }
     
     void read_calibrations()
     {
-        auto device_info = read_json(get_calibration_filepath());
-        auto stream_names = device_info["sensor_name"];
+        auto device_json = read_json(get_calibration_filepath());
+        auto stream_names = device_json["sensor_name"];
         
-        _device_name = device_info["device_name"].asString();
+        _device_name = device_json["device_name"].asString();
+        _device_info = device_json["device_info"].asString();
         _num_streams = stream_names.size();
         _streams.resize(_num_streams);
         _stream_name.resize(_num_streams);
         
         for(int s=0; s<_num_streams; ++s)
         {
-            _stream_name[s] = device_info["sensor_name"][s].asString();
-            auto info       = device_info["sensor"][_stream_name[s]];
+            _stream_name[s] = device_json["sensor_name"][s].asString();
+            auto info       = device_json["sensor"][_stream_name[s]];
             
             _streams[s].type       = (rs_sf_sensor_t)info["sensor_type"].asInt();
             _streams[s].index      = (rs_sf_uint16_t)info["sensor_index"].asInt();
-            _streams[s].intrinsics = read_intrinsics(info["intrinsics"]);
+            _streams[s].intrinsics = read_intrinsics(_streams[s].type, info["intrinsics"]);
             _streams[s].extrinsics.resize(_num_streams);
             for(int ss=0; ss<_num_streams; ++ss){
                 _streams[s].extrinsics[ss] = read_extrinsics(info["extrinsics"][stream_names[ss].asString()]);

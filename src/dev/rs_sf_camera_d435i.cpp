@@ -168,8 +168,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         // imu motion sensor
         _pipeline_streaming[4] = _pipeline_streaming[5] = true;
         if(_streams[4].profile && _streams[5].profile){
-            if(!_pipeline_streaming[4]){ return; }
             _streams[4].sensor.start([this](rs2::frame f){
+                if(!_pipeline_streaming[4]){ return; }
                 for(int s : {4,5}){
                     if(f.get_profile().stream_index()==_streams[s].index){
                         std::lock_guard<std::mutex> lk(_pipeline_mutex[s]);

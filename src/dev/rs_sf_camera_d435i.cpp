@@ -342,6 +342,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
     }
     
     std::atomic<rs_sf_serial_number> _dataset_count = {0};
+    std::mutex _write_mutex;
     bool write(rs_sf_dataset& data) override
     {
         auto my_data_set_number = _dataset_count++;
@@ -353,6 +354,8 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
             }
         }
         std::sort(items.begin(), items.end(), [](const rs_sf_data*& a, const rs_sf_data*& b){ return a->timestamp_us < b->timestamp_us; });
+        
+        std::lock_guard<std::mutex> lk(_write_mutex);
         for(auto& item : items){
             auto filename = generate_data_filename(*item);
             if(!write_header(filename, *item, my_data_set_number)){ return false; }

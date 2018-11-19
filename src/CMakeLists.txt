@@ -69,7 +69,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
     set(BUILD_GRAPHICAL_EXAMPLES OFF CACHE BOOL "" FORCE)
     set(BUILD_SHARED_LIBS        OFF CACHE BOOL "" FORCE)
     set(BUILD_UNIT_TESTS         OFF CACHE BOOL "" FORCE)
-    set(ENFORCE_METADATA        ON  CACHE BOOL "" FORCE)
+    set(ENFORCE_METADATA         ON  CACHE BOOL "" FORCE)
     
     if(WIN32)
         add_subdirectory(thirdparty/glfw)
@@ -121,6 +121,11 @@ if(BUILD_SHAPEFIT_DEV_APP)
     
     add_subdirectory(${LIBRS_DIR})
     add_subdirectory(dev)
+
+    set(ENABLE_MEASURE  OFF CACHE BOOL "")
+    add_subdirectory(thirdparty/tracker)
+    add_subdirectory(d435i-demo)
+
 
     if(MSVC)
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT shapefit-dev)

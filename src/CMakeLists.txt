@@ -122,10 +122,12 @@ if(BUILD_SHAPEFIT_DEV_APP)
     add_subdirectory(${LIBRS_DIR})
     add_subdirectory(dev)
 
-    set(ENABLE_MEASURE  OFF CACHE BOOL "")
-    add_subdirectory(thirdparty/tracker)
-    add_subdirectory(d435i-demo)
-
+    option(BUILD_D435I_DEMO "Build 435i Demo" OFF)
+    if(BUILD_D435I_DEMO)
+        set(ENABLE_MEASURE  OFF CACHE BOOL "")
+        add_subdirectory(thirdparty/tracker)
+        add_subdirectory(d435i-demo)
+    endif()
 
     if(MSVC)
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT shapefit-dev)

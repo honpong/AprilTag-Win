@@ -27,8 +27,8 @@ bool rc_setCalibrationTM2(rc_Tracker *tracker, const void *calibration, size_t s
 
     memcpy(&tm2, calibration, sizeof(tm2));
 
-    if (tm2.header.table_major == 4 && tm2.header.table_minor == 0)
-        rc_configureWorld(tracker, rc_Vector{{0,0,1}}, rc_Vector{{0,1,0}}, rc_Vector{{0,0,1}}); // Old non-Oculus coordinates
+    if (tm2.header.table_major == QS_CAL_MAJOR_VR && tm2.header.table_minor < QS_CAL_MINOR_VR)
+        rc_configureWorld(tracker, rc_Vector{{0,0,1}}, rc_Vector{{0,1,0}}, rc_Vector{{0,0,1}}); // Old non-VR coordinates
 
     {
         int i=0;

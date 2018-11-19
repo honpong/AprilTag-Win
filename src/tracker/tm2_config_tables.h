@@ -26,6 +26,8 @@ typedef struct {
 
 #define QS_CAL_MAJOR 4
 #define QS_CAL_MINOR 0
+#define QS_CAL_MAJOR_VR 4
+#define QS_CAL_MINOR_VR 1
 
 #define MAC_ADDRESS_LENGTH 6
 #define BYTES_LENGTH_PER_CONTROLLER 12

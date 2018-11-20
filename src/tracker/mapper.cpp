@@ -158,11 +158,6 @@ bool mapper::feature_in_map(featureid id, nodeid* nid) const {
     return false;
 }
 
-void mapper::remove_node_features(nodeid id) {
-    for(auto& f : nodes->at(id).features)
-        features_dbow->erase(f.first);
-}
-
 void map_node::add_feature(std::shared_ptr<fast_tracker::fast_feature<DESCRIPTOR>> feature,
                            std::shared_ptr<log_depth> v, f_t v_var, const feature_type type) {
     auto fid = feature->id;
@@ -352,7 +347,7 @@ void mapper::remove_node(nodeid id)
     if(neighbors.size() > 1) {
         auto searched_neighbors = neighbors;
         // distance # edges traversed
-        auto distance = [](const map_edge& edge) { return 1; };
+        auto distance = [](const map_edge&) { return 1; };
         // select node if it is one of the searched nodes
         auto is_node_searched = [&searched_neighbors](const node_path& path) {
             auto it = searched_neighbors.find(path.id);
@@ -363,7 +358,7 @@ void mapper::remove_node(nodeid id)
                 return false;
         };
         // finish search when all searched nodes are found
-        auto finish_search = [&searched_neighbors](const node_path& path) { return searched_neighbors.empty(); };
+        auto finish_search = [&searched_neighbors](const node_path&) { return searched_neighbors.empty(); };
 
         std::set<nodeid> connected_neighbors;
         while (connected_neighbors.size() < neighbors.size()) {
@@ -422,7 +417,7 @@ mapper::nodes_path mapper::find_neighbor_nodes(const node_path& start, const uin
           return false;
     };
     // search all graph
-    auto finish_search = [](const node_path& path) { return false; };
+    auto finish_search = [](const node_path&) { return false; };
     START_EVENT(SF_DIJKSTRA, 0);
     nodes_path neighbors = dijkstra_shortest_path(start, distance, is_node_searched, finish_search);
 
@@ -805,7 +800,7 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
                             return false;
                         };
                     // finish search when all covisible nodes are found
-                    auto finish_search = [&covisible_neighbors](const node_path& path) { return covisible_neighbors.empty(); };
+                    auto finish_search = [&covisible_neighbors](const node_path&) { return covisible_neighbors.empty(); };
 
                     G_candidate_neighbors[nid.first] = transformation();
                     for(auto &path : dijkstra_shortest_path(node_path{nid.first, transformation(), 0}, distance, is_node_searched, finish_search))
@@ -962,25 +957,23 @@ map_relocalization_result mapper::relocalize(const camera_frame_t& camera_frame)
 
 bool mapper::link_map(const map_relocalization_edge& edge) {
     const auto source_id = edge.id2;
-    return nodes.critical_section([&, source_id]() {
-        auto it = nodes->find(source_id);
-        if (it != nodes->end()) {
-            auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
-            auto is_node_searched = [](const mapper::node_path& path) { return true; };
-            auto finish_search = [](const mapper::node_path&) { return false; };
-            auto loaded_map_nodes = dijkstra_shortest_path(mapper::node_path{source_id, it->second.global_transformation, 0},
-                                                           distance, is_node_searched, finish_search);
-            if(loaded_map_nodes.size() == nodes->size()) {
-                for(auto& loaded_map_node : loaded_map_nodes) {
-                    if(loaded_map_node.id < this->get_node_id_offset())
-                        nodes->at(loaded_map_node.id).global_transformation = loaded_map_node.G;
-                }
-                unlinked = false;
-                return true;
+    auto it = nodes->find(source_id);
+    if (it != nodes->end()) {
+        auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
+        auto is_node_searched = [](const mapper::node_path&) { return true; };
+        auto finish_search = [](const mapper::node_path&) { return false; };
+        auto loaded_map_nodes = dijkstra_shortest_path(mapper::node_path{source_id, it->second.global_transformation, 0},
+                                                       distance, is_node_searched, finish_search);
+        if(loaded_map_nodes.size() == nodes->size()) {
+            for(auto& loaded_map_node : loaded_map_nodes) {
+                if(loaded_map_node.id < this->get_node_id_offset())
+                    nodes->at(loaded_map_node.id).global_transformation = loaded_map_node.G;
             }
+            unlinked = false;
+            return true;
         }
-        return false;
-    });
+    }
+    return false;
 }
 
 std::unique_ptr<orb_vocabulary> mapper::create_vocabulary_from_map(int branching_factor, int depth_levels) const {
@@ -1155,8 +1148,8 @@ bool mapper::deserialize(rc_LoadCallback func, void *handle, mapper &cur_map) {
 
     if(!cur_map.nodes->empty()) {
         auto distance = [](const map_edge& edge) { return edge.G.T.norm(); };
-        auto is_node_searched = [](const mapper::node_path& path) { return true; };
-        auto finish_search = [](const mapper::node_path& path) { return false; };
+        auto is_node_searched = [](const mapper::node_path&) { return true; };
+        auto finish_search = [](const mapper::node_path&) { return false; };
         auto loaded_map_nodes = cur_map.dijkstra_shortest_path(mapper::node_path{0, transformation(quaternion::Identity(), v3(-10, 0, 0)), 0},
                                                                distance, is_node_searched, finish_search);
         for(auto& loaded_map_node : loaded_map_nodes) {

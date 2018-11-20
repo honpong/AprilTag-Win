@@ -248,8 +248,6 @@ private:
     void add_edge_no_lock(nodeid node_id1, nodeid node_id2, const transformation &G12, edge_type type);
     void add_covisibility_edge_no_lock(nodeid node_id1, nodeid node_id2);
 
-    void remove_node_features(nodeid node_id);
-
  public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     mapper();

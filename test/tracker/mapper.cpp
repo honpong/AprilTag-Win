@@ -48,6 +48,12 @@ static state_vision_intrinsics *get_cam_intrinsics() {
     return &intrinsics;
 }
 
+static state_extrinsics *get_cam_extrinsics() {
+    static state_extrinsics extrinsics("Qc", "Tc", false, false);
+    extrinsics.reset();
+    return &extrinsics;
+}
+
 static const uint32_t orb_block_w = orb_descriptor::orb_half_patch_size * 2 + 1;
 static const uint32_t patch_block_w = patch_descriptor::full_patch_size;
 
@@ -315,6 +321,7 @@ public:
 
     void fill_map(list<transformation> &g_trans) {
         camera_intrinsics.push_back(get_cam_intrinsics());
+        camera_extrinsics.push_back(get_cam_extrinsics());
         list<list<transformation>::iterator> removed;
         nodeid nid = 0;
         transformation edge_tran;

@@ -1,6 +1,7 @@
 #include "world_state.h"
 #include "sensor_fusion.h"
 #include "rc_compat.h"
+#include "rc_internal.h"
 #include "bstream.h"
 #include <array>
 
@@ -273,6 +274,14 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     observe_plot_item(timestamp_us, p, "sdw_y", (float)f->s.dw.v[1]);
     observe_plot_item(timestamp_us, p, "sdw_z", (float)f->s.dw.v[2]);
 
+    if (data->path == rc_DATA_PATH_SLOW) {
+        rc_StorageStats storage = rc_getStorageStats(tracker);
+        p = get_plot_by_name("map size");
+        observe_plot_item(timestamp_us, p, "nodes", storage.nodes);
+        observe_plot_item(timestamp_us, p, "features", storage.features);
+        observe_plot_item(timestamp_us, p, "edges", storage.edges);
+    }
+
     for (size_t i=0; i<f->s.cameras.children.size(); i++) {
         const auto &camera = *f->s.cameras.children[i];
         if (!camera.intrinsics.estimate) continue;
@@ -451,7 +460,7 @@ void world_state::update_plots(rc_Tracker * tracker, const rc_Data * data)
     observe_plot_item(timestamp_us, p, "median-depth-var", (float)f->median_depth_variance);
 
     p = get_plot_by_name("state-size");
-    observe_plot_item(timestamp_us, p, "state size", (float)f->s.statesize);
+    observe_plot_item(timestamp_us, p, "state-size", (float)f->s.statesize);
     int group_storage = f->s.groups.children.size() * 6;;
     int feature_storage = 0;
     for (const auto &g : f->s.groups.children)
@@ -817,6 +826,40 @@ static inline void ellipse_segment(VertexData * v, const Feature & feat, float p
     set_position(v, x, y, 0);
 }
 
+static PolyhedronCoordinates generate_cuboid_coordinates(const v3& L) {
+    return {
+        {
+            {-L[0], -L[1], -L[2]}, {L[0], -L[1], -L[2]}, { L[0],  L[1], -L[2]}, {-L[0], L[1], -L[2]},
+            {-L[0], -L[1],  L[2]}, {L[0], -L[1],  L[2]}, { L[0],  L[1],  L[2]}, {-L[0], L[1],  L[2]}
+        },
+        {0, 1, 2, 3, 0, 4, 5, 6, 7, 4, 5, 1, 2, 6, 7, 3}};
+}
+
+static PolyhedronCoordinates generate_tetrahedron_coordinates(f_t L) {
+    return {
+        { {-L, -L, 0}, {L, -L, 0}, { L, L, 0}, {-L, L, 0}, { 0, 0, L } },
+        {0, 1, 2, 3, 0, 4, 1, 4, 2, 4, 3}};
+}
+
+static PolyhedronCoordinates generate_arrow_coordinates(f_t L) {
+    return {
+        { {0, 0, 0}, {0, 0, L}, {L/4, 0, L/4*3}, {-L/4, 0, L/4*3} },
+        {0, 1, 2, 1, 3}};
+}
+
+template<typename It>
+static void generate_vertices(const transformation& G_world_object, const PolyhedronCoordinates& coordinates, const unsigned char rgba[4], It out_it) {
+    VertexData v;
+    set_color(&v, rgba[0], rgba[1], rgba[2], rgba[3]);
+    for (size_t i = 0; i < coordinates.vertex_indices.size(); ++i) {
+        const v3& obj_vertex = coordinates.vertices[coordinates.vertex_indices[i]];
+        set_position(&v, G_world_object * obj_vertex);
+        *out_it++ = v;
+        if (i > 0 && i + 1 < coordinates.vertex_indices.size())  // replicate last point
+            *out_it++ = v;
+    }
+}
+
 void world_state::generate_feature_ellipse(const Feature & feat, std::vector<VertexData> & feature_ellipse_vertex, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha)
 {
     int ellipse_segments = feature_ellipse_vertex_size/2;
@@ -1110,21 +1153,7 @@ bool world_state::update_vertex_arrays(bool show_only_good)
             set_color(&v, axis_vertex[i].color[0], axis_vertex[i].color[1], axis_vertex[i].color[2], clip_alpha(axis_vertex[i].color[3]));
             virtual_object_vertex.emplace_back(v);
         }
-        if (vo.vertex_indices.size() > 1) {
-            aligned_vector<v3> world_vertices;
-            world_vertices.reserve(vo.vertices.size());
-            for(const v3& v : vo.vertices)
-                world_vertices.emplace_back(vo.pose.g * v);
-            for(size_t i = 0; i < vo.vertex_indices.size(); ++i) {
-                VertexData v;
-                const v3& vertex = world_vertices[vo.vertex_indices[i]];
-                set_position(&v, vertex[0], vertex[1], vertex[2]);
-                set_color(&v, vo.rgba[0], vo.rgba[1], vo.rgba[2], clip_alpha(vo.rgba[3]));
-                virtual_object_vertex.emplace_back(v);
-                if (i > 0 && i + 1 < vo.vertex_indices.size())  // replicate last point
-                    virtual_object_vertex.emplace_back(v);
-            }
-        }
+        generate_vertices(vo.pose.g, vo.coords, vo.rgba, std::back_inserter(virtual_object_vertex));
     }
 
     if(!path_mini.empty() || !path.empty()) {
@@ -1415,29 +1444,20 @@ void world_state::unobserve_virtual_object(const std::string &name) {
 }
 
 _virtual_object _virtual_object::make_cube(f_t side_length) {
-    const f_t L = side_length / 2.;
     struct _virtual_object vo;
-    vo.vertices = {
-        {-L, -L, -L}, {L, -L, -L}, { L,  L, -L}, {-L, L, -L},
-        {-L, -L,  L}, {L, -L,  L}, { L,  L,  L}, {-L, L,  L}
-    };
-    vo.vertex_indices = {0, 1, 2, 3, 0, 4, 5, 6, 7, 4, 5, 1, 2, 6, 7, 3};
+    vo.coords = generate_cuboid_coordinates(v3{1, 1, 1} * (side_length * 0.5f));
     return vo;
 }
 
 _virtual_object _virtual_object::make_tetrahedron(f_t side_length) {
-    const f_t L = side_length / 2.;
     struct _virtual_object vo;
-    vo.vertices = {
-        {-L, -L, 0}, {L, -L, 0}, { L, L, 0}, {-L, L, 0}, { 0, 0, L }
-    };
-    vo.vertex_indices = {0, 1, 2, 3, 0, 4, 1, 4, 2, 4, 3};
+    vo.coords = generate_tetrahedron_coordinates(side_length * 0.5f);
     return vo;
 }
 
 aligned_vector<v2> _virtual_object::project(const transformation& G_camera_world,
                                             const state_vision_intrinsics* intrinsics) const {
-    return project_points(this->vertices, this->vertex_indices, this->bounding_box, G_camera_world * this->pose.g, intrinsics);
+    return project_points(this->coords.vertices, this->coords.vertex_indices, this->bounding_box, G_camera_world * this->pose.g, intrinsics);
 }
 
 aligned_vector<v2> _virtual_object::project_axes(const transformation& G_camera_world,

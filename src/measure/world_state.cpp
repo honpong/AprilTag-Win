@@ -841,6 +841,12 @@ static PolyhedronCoordinates generate_tetrahedron_coordinates(f_t L) {
         {0, 1, 2, 3, 0, 4, 1, 4, 2, 4, 3}};
 }
 
+static PolyhedronCoordinates generate_arrow_coordinates(f_t L) {
+    return {
+        { {0, 0, 0}, {0, 0, L}, {L/4, 0, L/4*3}, {-L/4, 0, L/4*3} },
+        {0, 1, 2, 1, 3}};
+}
+
 template<typename It>
 static void generate_vertices(const transformation& G_world_object, const PolyhedronCoordinates& coordinates, const unsigned char rgba[4], It out_it) {
     VertexData v;

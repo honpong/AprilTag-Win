@@ -285,7 +285,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
         
         if(index_file.is_open()){
             std::stringstream os; os
-            << dataset_number     << sep << std::setprecision(17)
+            << dataset_number     << sep << std::fixed << std::setprecision(17)
             << data.timestamp_us  << sep
             << data.serial_number << sep
             << data.frame_number  << sep

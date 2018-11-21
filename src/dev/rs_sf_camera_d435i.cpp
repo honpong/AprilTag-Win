@@ -42,7 +42,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     virtual ~rs_sf_d435i_camera()
     {
         for(auto s : {0,3,4}){
-            if(_streams[s].sensor){
+            if(_streams[s].sensor && _pipeline_streaming[s]){
                 _pipeline_streaming[s] = false;
                 _streams[s].sensor.stop();
                 std::lock_guard<std::mutex> lk(_pipeline_mutex[s]);
@@ -171,7 +171,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             _streams[4].sensor.start([this](rs2::frame f){
                 if(!_pipeline_streaming[4]){ return; }
                 for(int s : {4,5}){
-                    if(f.get_profile().stream_index()==_streams[s].index){
+                    if(f.get_profile().stream_type() ==_streams[s].type &&
+                       f.get_profile().stream_index()==_streams[s].index){
                         std::lock_guard<std::mutex> lk(_pipeline_mutex[s]);
                         _pipeline_buffer[s].emplace_back(std::make_shared<rs_sf_data_auto>(f,_streams[s],generate_serial_number()));
                     }

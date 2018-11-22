@@ -440,7 +440,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
         rs_sf_timestamp _sum_intervals = 0;
         rs_sf_timestamp _expected_interval, _diff_tolerance;
         
-        rs_sf_virtual_stream_info(const rs_sf_file_io& src, const rs_sf_stream_info& ref, const rs_sf_sensor_t& laser_option, const bool half_fps)
+        rs_sf_virtual_stream_info(const rs_sf_file_io& src, const rs_sf_stream_info& ref, const rs_sf_sensor_t& laser_option = RS_SF_SENSOR_LASER_ON, const bool half_fps = false)
         : rs_sf_stream_info(ref)
         {
             type = rs_sf_sensor_t(ref.type | laser_option);
@@ -576,14 +576,13 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
         
         for(auto& s : _streams)
         {
-            if(s.type!=RS_SF_SENSOR_COLOR){
+            if(s.type==RS_SF_SENSOR_DEPTH||s.type==RS_SF_SENSOR_INFRARED)
+            {
                 _virtual_streams.emplace_back(*this, s, RS_SF_SENSOR_LASER_ON, is_interlaced_ir);
-            }else{
-                _virtual_streams.emplace_back(*this, s, RS_SF_SENSOR_LASER_ON, false);
-            }
-            if(s.type==RS_SF_SENSOR_DEPTH||
-               s.type==RS_SF_SENSOR_INFRARED){
                 _virtual_streams.emplace_back(*this, s, RS_SF_SENSOR_LASER_OFF, is_interlaced_ir);
+            }
+            else{
+                _virtual_streams.emplace_back(*this, s, RS_SF_SENSOR_LASER_ON, false);
             }
         }
     }

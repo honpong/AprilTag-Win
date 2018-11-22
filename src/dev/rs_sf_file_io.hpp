@@ -64,6 +64,11 @@ struct rs_sf_file_io
         return _file_prefix[sensor_type] + (sensor_index>0?std::to_string(sensor_index)+"_":"");
     }
     
+    std::string get_stream_name(const rs_sf_data& data) const
+    {
+        return get_stream_name(data.sensor_type, data.sensor_index);
+    }
+    
     static Json::Value read_json(const std::string& path)
     {
         Json::Value json_data;

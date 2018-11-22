@@ -12,6 +12,7 @@
 #include <mutex>
 #include <atomic>
 #include <iomanip>
+#include <cmath>
 
 struct rs_sf_d435i_writer;
 struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
@@ -214,6 +215,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 rs_sf_stream_info info;
                 info.type  = (rs_sf_sensor_t)stream.type;
                 info.index = stream.index;
+                info.fps   = stream.fps;
+                info.format = stream.format;
                 switch(info.type){
                     case RS_SF_SENSOR_GYRO:
                     case RS_SF_SENSOR_ACCEL:
@@ -379,7 +382,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     {
         virtual ~rs_sf_data_auto() {}
         
-        rs_sf_data_auto(const std::string& index_line, rs_sf_d435i_file_stream* src)
+        rs_sf_data_auto(const std::string& index_line, const rs_sf_d435i_file_stream* src)
         {
             char sep;
             std::stringstream is(index_line); is
@@ -398,10 +401,19 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
                     is >> vec[0] >> vec[1] >> vec[2];
                     break;
                 default:
-                    image = *(_image_ptr = rs_sf_image_read(src->_folder_path + _in_filename, frame_number));
+                    if(src!=nullptr){
+                        image = *(_image_ptr = rs_sf_image_read(src->_folder_path + _in_filename, frame_number));
+                    }
                     break;
             }
         };
+        
+        rs_sf_timestamp time_diff(const rs_sf_data_auto& ref) const { return timestamp_us - ref.timestamp_us; }
+        bool operator==(const rs_sf_data_auto& ref) const { return
+            sensor_type == ref.sensor_type  &&
+            sensor_index== ref.sensor_index &&
+            timestamp_us== ref.timestamp_us;
+        }
         
         rs_sf_serial_number _dataset_number;
         std::string         _in_filename;
@@ -409,21 +421,84 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     };
     
     friend struct rs_sf_data_auto;
+    typedef std::shared_ptr<rs_sf_data_auto> rs_sf_data_ptr;
+    const rs_sf_d435i_file_stream* NO_IMAGE_FILE_READ = nullptr;
     
-    std::ifstream                                _index_file;
-    std::ifstream                                _accel_file;
-    std::ifstream                                _gyro_file;
+    std::ifstream                  _index_file;
+    std::ifstream                  _accel_file;
+    std::ifstream                  _gyro_file;
     
-    int                                          _num_streams;
-    std::string                                  _device_name;
-    std::string                                  _device_info;
-    std::vector<std::string>                     _stream_name;
-    std::vector<rs_sf_stream_info>               _streams;
-    std::deque<std::shared_ptr<rs_sf_data_auto>> _data_buffer;
+    int                            _num_streams;
+    std::string                    _device_name;
+    std::string                    _device_info;
+    std::vector<std::string>       _stream_name;
+    std::vector<rs_sf_stream_info> _streams;
+    std::deque<rs_sf_data_ptr>     _data_buffer;
+    
+    struct rs_sf_virtual_stream_info : public rs_sf_stream_info
+    {
+        std::string     _virtual_stream_name;
+
+        rs_sf_data_ptr _last_data, _first_data;
+        int _num_data = 0;
+        
+        rs_sf_timestamp _min_deviation = std::numeric_limits<rs_sf_timestamp>::max();
+        rs_sf_timestamp _max_deviation = std::numeric_limits<rs_sf_timestamp>::min();
+        rs_sf_timestamp _sum_intervals = 0;
+        rs_sf_timestamp _expected_interval, _diff_tolerance;
+        
+        rs_sf_virtual_stream_info(const rs_sf_file_io& src, const rs_sf_stream_info& ref, const rs_sf_sensor_t& laser_option)
+        : rs_sf_stream_info(ref)
+        {
+            type = rs_sf_sensor_t(ref.type | laser_option);
+            _virtual_stream_name = src.get_stream_name(type, index);
+            
+            _expected_interval = std::chrono::milliseconds(std::chrono::seconds(1)).count()/(double)(fps);
+            _diff_tolerance = _expected_interval * 0.1f;
+        }
+        
+        void init(rs_sf_data_ptr& first_data)
+        {
+            _last_data = _first_data = first_data; _num_data = 1;
+        }
+        
+        void update(rs_sf_data_ptr&& new_data)
+        {
+            if(!_first_data){ init(new_data); }
+            else{
+                auto time_interval = new_data->time_diff(*_last_data);
+                auto time_deviation = time_interval - _expected_interval;
+                
+                _num_data++;
+                _sum_intervals += time_interval;
+                _min_deviation = std::min(std::abs(time_deviation),_min_deviation);
+                _max_deviation = std::max(std::abs(time_deviation),_max_deviation);
+                
+                _last_data = new_data;
+            }
+        }
+        
+        int expected_num_frames() const { return (int)(1 + (!_first_data?0.0:_last_data->time_diff(*_first_data) / _expected_interval)); }
+        int frame_drops() const  { return expected_num_frames() - _num_data; }
+        
+        std::string print() const {
+            if(!_first_data){ return ""; }
+            std::stringstream os; os << std::setprecision(4) << std::fixed <<
+            " Stream       : " << _virtual_stream_name << " | " << _num_data << " frames, (" <<  frame_drops() << " drops) |" <<
+            " timestamp avg: " << _sum_intervals/_num_data << "us |" <<
+            " max deviation: " << _max_deviation           << "us |" <<
+            " min deviation: " << _min_deviation           << "us |";
+            return os.str();
+        }
+    };
+    std::vector<rs_sf_virtual_stream_info> _virtual_streams;
     
     rs_sf_d435i_file_stream(const std::string& path) : rs_sf_file_io(path)
     {
         read_calibrations();
+        
+        init_virtual_streams();
+        check_data();
         
         _index_file.open(get_index_filepath(), std::ios_base::in);
         _index_file.seekg(0);
@@ -461,13 +536,59 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             _streams[s].type       = (rs_sf_sensor_t)info["sensor_type"].asInt();
             _streams[s].index      = (rs_sf_uint16_t)info["sensor_index"].asInt();
             _streams[s].format     = info["data_format"].asInt();
-            _streams[s].fps        = info["fps"].asInt();
+            _streams[s].fps        = info["sensor_fps"].asInt();
             _streams[s].intrinsics = read_intrinsics(_streams[s].type, info["intrinsics"]);
             _streams[s].extrinsics.resize(_num_streams);
             for(int ss=0; ss<_num_streams; ++ss){
                 _streams[s].extrinsics[ss] = read_extrinsics(info["extrinsics"][stream_names[ss].asString()]);
             }
         }
+    }
+    
+    void init_virtual_streams()
+    {
+        for(auto& s : _streams)
+        {
+            _virtual_streams.emplace_back(*this, s, RS_SF_SENSOR_LASER_ON);
+            if(s.type==RS_SF_SENSOR_DEPTH||
+               s.type==RS_SF_SENSOR_INFRARED){
+                _virtual_streams.emplace_back(*this, s, RS_SF_SENSOR_LASER_OFF);
+            }
+        }
+    }
+    
+    rs_sf_virtual_stream_info& virtual_stream_of(const rs_sf_data& data){
+        for(auto& s : _virtual_streams){
+            if(data.sensor_type == s.type &&
+               data.sensor_index == s.index){
+                return s;
+            }
+        }
+        return _virtual_streams[0];
+    }
+    
+    void check_data()
+    {
+        _index_file.open(get_index_filepath(), std::ios_base::in);
+        _index_file.seekg(0);
+        
+        if(!_index_file.is_open()){ throw std::runtime_error("ERROR, unable to read " + _folder_path); }
+        
+        try{
+            for(std::string line; !_index_file.eof(); ){
+                std::getline(_index_file, line);
+                if(line.empty()){ continue; }
+                auto new_data = std::make_shared<rs_sf_data_auto>(line,NO_IMAGE_FILE_READ);
+                virtual_stream_of(*new_data).update(std::move(new_data));
+            }
+        }catch(...){}
+
+        for(auto& s : _virtual_streams)
+        {
+            std::cout << s.print() << "\n";
+        }
+        
+        _index_file.close();
     }
     
     rs_sf_dataset wait_for_data(const std::chrono::milliseconds& wait_time_us) override

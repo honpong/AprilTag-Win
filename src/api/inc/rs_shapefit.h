@@ -160,6 +160,7 @@ extern "C"
         RS_SF_SENSOR_STEREO   = 0xa,
         RS_SF_SENSOR_LASER_ON           = 0x00,
         RS_SF_SENSOR_LASER_OFF          = 0x10,
+        RS_SF_SENSOR_LASER_MASK         = 0xffffff0f,
         RS_SF_SENSOR_DEPTH_LASER_ON     = 0x01,
         RS_SF_SENSOR_DEPTH_LASER_OFF    = 0x11,
         RS_SF_SENSOR_COLOR_LASER_ON     = 0x02,

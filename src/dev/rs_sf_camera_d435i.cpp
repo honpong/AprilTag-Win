@@ -58,15 +58,15 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     rs_sf_serial_number generate_serial_number()   { return _data_packet_count++; }
     std::string         get_device_name() override { return rs_sf_device_manager::get_device_name(); }
     float               get_depth_unit()  override { return 0.001f; }
-    std::string         get_device_info() override {
+    string_vec          get_device_info() override {
         switch(_laser_option)
         {
-            case -1: return rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=UNKNOWN");
-            case  0: return rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=0");
-            case  1: return rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=1");
-            case  2: return rs2_option_to_string(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED) + std::string("=1");
+            case -1: return {rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=UNKNOWN")};
+            case  0: return {rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=0")};
+            case  1: return {rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=1")};
+            case  2: return {rs2_option_to_string(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED) + std::string("=1")};
         }
-        return "";
+        return {""};
     }
     
     int _laser_option = -1;
@@ -85,10 +85,14 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
 
         try{
             _laser_option = _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ENABLED);
-            if(laser_option==2 && _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED)){
+            if(laser_option==2 &&
+               _streams[0].sensor.supports(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED) &&
+               _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED)){
                 _laser_option=2;
             }
-        }catch(...){ printf("WARNING: error getting laser option %d!\n",_laser_option); }
+        }catch(...){
+            printf("WARNING: error getting laser option %d!\n",_laser_option);
+        }
         
         // open the color camera stream
         _streams[3].sensor.open(_streams[3].profile);
@@ -308,8 +312,9 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
         Json::Value json_root;
         json_root["calibration_file_version"] = RS_SF_CALIBRATION_FILE_VERSION;
         json_root["device_name"] = _src->get_device_name();
-        json_root["device_info"] = _src->get_device_info();
-
+        for(auto s : _src->get_device_info())
+            json_root["device_info"].append(s);
+        
         auto stream_info = _src->get_stream_info();
         for(auto& info : stream_info)
         {
@@ -422,35 +427,24 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     
     friend struct rs_sf_data_auto;
     typedef std::shared_ptr<rs_sf_data_auto> rs_sf_data_ptr;
-    const rs_sf_d435i_file_stream* NO_IMAGE_FILE_READ = nullptr;
-    
-    std::ifstream                  _index_file;
-    std::ifstream                  _accel_file;
-    std::ifstream                  _gyro_file;
-    
-    int                            _num_streams;
-    std::string                    _device_name;
-    std::string                    _device_info;
-    std::vector<std::string>       _stream_name;
-    std::vector<rs_sf_stream_info> _streams;
-    std::deque<rs_sf_data_ptr>     _data_buffer;
     
     struct rs_sf_virtual_stream_info : public rs_sf_stream_info
     {
         std::string     _virtual_stream_name;
 
         rs_sf_data_ptr _last_data, _first_data;
-        int _num_data = 0;
+        int             _num_data = 0, _num_problem_frames = 0;
         
         rs_sf_timestamp _min_deviation = std::numeric_limits<rs_sf_timestamp>::max();
         rs_sf_timestamp _max_deviation = std::numeric_limits<rs_sf_timestamp>::min();
         rs_sf_timestamp _sum_intervals = 0;
         rs_sf_timestamp _expected_interval, _diff_tolerance;
         
-        rs_sf_virtual_stream_info(const rs_sf_file_io& src, const rs_sf_stream_info& ref, const rs_sf_sensor_t& laser_option)
+        rs_sf_virtual_stream_info(const rs_sf_file_io& src, const rs_sf_stream_info& ref, const rs_sf_sensor_t& laser_option, const bool half_fps)
         : rs_sf_stream_info(ref)
         {
             type = rs_sf_sensor_t(ref.type | laser_option);
+            fps  = half_fps ? ref.fps/2.0 : ref.fps;
             _virtual_stream_name = src.get_stream_name(type, index);
             
             _expected_interval = std::chrono::milliseconds(std::chrono::seconds(1)).count()/(double)(fps);
@@ -469,6 +463,11 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
                 auto time_interval = new_data->time_diff(*_last_data);
                 auto time_deviation = time_interval - _expected_interval;
                 
+                if(std::abs(time_deviation)>_diff_tolerance){
+                    printf("Incorrect sample of %s stream: %s\n",_virtual_stream_name.c_str(), new_data->_in_filename.c_str());
+                    _num_problem_frames++;
+                }
+                
                 _num_data++;
                 _sum_intervals += time_interval;
                 _min_deviation = std::min(std::abs(time_deviation),_min_deviation);
@@ -484,21 +483,37 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
         std::string print() const {
             if(!_first_data){ return ""; }
             std::stringstream os; os << std::setprecision(4) << std::fixed <<
-            " Stream       : " << _virtual_stream_name << " | " << _num_data << " frames, (" <<  frame_drops() << " drops) |" <<
+            " Stat : "         << _virtual_stream_name << " | " << _num_data <<
+            " frames, ("       <<  frame_drops() << " drops, " << _num_problem_frames << " issues) |" <<
             " timestamp avg: " << _sum_intervals/_num_data << "us |" <<
             " max deviation: " << _max_deviation           << "us |" <<
             " min deviation: " << _min_deviation           << "us |";
             return os.str();
         }
     };
+    
+    const rs_sf_d435i_file_stream* NO_IMAGE_FILE_READ = nullptr;
+    
+    std::ifstream                          _index_file;
+    //std::ifstream                          _accel_file;
+    //std::ifstream                          _gyro_file;
+    
+    bool                                   _init_check_data;
+    int                                    _num_streams;
+    int                                    _garbage_dataset_num;
+    std::string                            _device_name;
+    std::vector<std::string>               _device_info;
+    std::vector<std::string>               _stream_name;
+    std::vector<rs_sf_stream_info>         _streams;
+    std::deque<rs_sf_data_ptr>             _data_buffer;
     std::vector<rs_sf_virtual_stream_info> _virtual_streams;
     
-    rs_sf_d435i_file_stream(const std::string& path) : rs_sf_file_io(path)
+    rs_sf_d435i_file_stream(const std::string& path) : rs_sf_file_io(path), _init_check_data(true), _garbage_dataset_num(10)
     {
         read_calibrations();
         
         init_virtual_streams();
-        check_data();
+        if( _init_check_data){ check_data(); }
         
         _index_file.open(get_index_filepath(), std::ios_base::in);
         _index_file.seekg(0);
@@ -506,7 +521,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     
     ~rs_sf_d435i_file_stream()
     {
-        for(auto s : {&_index_file,&_accel_file,&_gyro_file}){
+        for(auto s : {&_index_file,/*&_accel_file,&_gyro_file*/}){
             if(s->is_open()){ s->close(); }
         }
     }
@@ -515,7 +530,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     float           get_depth_unit() override { return 0.001f; }
     stream_info_vec get_stream_info() override { return _streams; }
     std::string     get_device_name() override { return _device_name; }
-    std::string     get_device_info() override { return _device_info; }
+    string_vec      get_device_info() override { return _device_info; }
     
     void read_calibrations()
     {
@@ -523,7 +538,9 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
         auto stream_names = device_json["sensor_name"];
         
         _device_name = device_json["device_name"].asString();
-        _device_info = device_json["device_info"].asString();
+        for(int s=0; s<device_json["device_info"].size(); ++s)
+            _device_info.emplace_back(device_json["device_info"][s].asString());
+        
         _num_streams = stream_names.size();
         _streams.resize(_num_streams);
         _stream_name.resize(_num_streams);
@@ -536,7 +553,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             _streams[s].type       = (rs_sf_sensor_t)info["sensor_type"].asInt();
             _streams[s].index      = (rs_sf_uint16_t)info["sensor_index"].asInt();
             _streams[s].format     = info["data_format"].asInt();
-            _streams[s].fps        = info["sensor_fps"].asInt();
+            _streams[s].fps        = info["sensor_fps"].asFloat();
             _streams[s].intrinsics = read_intrinsics(_streams[s].type, info["intrinsics"]);
             _streams[s].extrinsics.resize(_num_streams);
             for(int ss=0; ss<_num_streams; ++ss){
@@ -545,14 +562,28 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
         }
     }
     
+    bool is_interlaced_IR_projection() const
+    {
+        for(auto s : _device_info){
+            if(s=="Emitter On And Off Enabled=1"){ return true; }
+        }
+        return false;
+    }
+    
     void init_virtual_streams()
     {
+        bool is_interlaced_ir = is_interlaced_IR_projection();
+        
         for(auto& s : _streams)
         {
-            _virtual_streams.emplace_back(*this, s, RS_SF_SENSOR_LASER_ON);
+            if(s.type!=RS_SF_SENSOR_COLOR){
+                _virtual_streams.emplace_back(*this, s, RS_SF_SENSOR_LASER_ON, is_interlaced_ir);
+            }else{
+                _virtual_streams.emplace_back(*this, s, RS_SF_SENSOR_LASER_ON, false);
+            }
             if(s.type==RS_SF_SENSOR_DEPTH||
                s.type==RS_SF_SENSOR_INFRARED){
-                _virtual_streams.emplace_back(*this, s, RS_SF_SENSOR_LASER_OFF);
+                _virtual_streams.emplace_back(*this, s, RS_SF_SENSOR_LASER_OFF, is_interlaced_ir);
             }
         }
     }
@@ -579,15 +610,19 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
                 std::getline(_index_file, line);
                 if(line.empty()){ continue; }
                 auto new_data = std::make_shared<rs_sf_data_auto>(line,NO_IMAGE_FILE_READ);
-                virtual_stream_of(*new_data).update(std::move(new_data));
+                if(new_data->_dataset_number> _garbage_dataset_num){
+                    virtual_stream_of(*new_data).update(std::move(new_data));
+                }
             }
         }catch(...){}
 
+        std::cout << "--------------------------------------------------------" << std::endl;
         for(auto& s : _virtual_streams)
         {
             std::cout << s.print() << "\n";
         }
-        
+        std::cout << "--------------------------------------------------------" << std::endl;
+
         _index_file.close();
     }
     

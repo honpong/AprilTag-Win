@@ -370,6 +370,7 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     static_assert(global_max_nodes > local_max_nodes, "Global max number of nodes should be bigger than Local max nodes");
     static_assert(local_max_nodes > num_nodes_removed, "Local max number of nodes should be bigger than Num nodes removed");
     if(map && map->get_nodes().size() >= local_max_nodes) {
+        START_EVENT(SF_PRUNE_MAP, map->get_nodes().size());
         auto start = std::chrono::steady_clock::now();
         std::vector<std::pair<nodeid, uint64_t>> removable_nodes;
         removable_nodes.reserve(num_nodes_removed + 1);
@@ -391,6 +392,7 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
             map->remove_node(remove_node.first);
         }
         auto stop = std::chrono::steady_clock::now();
+        END_EVENT(SF_PRUNE_MAP, 0);
         map->map_prune_stats.data(v<1>{ static_cast<float>(std::chrono::duration_cast<std::chrono::microseconds>(stop-start).count()) });
     }
     return p;

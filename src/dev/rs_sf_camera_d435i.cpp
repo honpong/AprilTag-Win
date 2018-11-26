@@ -77,9 +77,18 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         try{
             switch(laser_option)
             {
-                case 0: _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0);            break;
-                case 1: _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1);            break;
-                case 2: _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 1); break;
+                case 0:
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 0);
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0);
+                    break;
+                case 1:
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 0);
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1);
+                    break;
+                case 2:
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1);
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 1);
+                    break;
             }
         }catch(...){ printf("WARNING: error setting laser option %d!\n", laser_option); }
 

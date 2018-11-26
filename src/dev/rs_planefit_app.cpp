@@ -65,7 +65,7 @@ int capture_frames2(const std::string& path, const int image_set_size, const int
     for(auto rs_data_src = rs_sf_create_camera_imu_stream(img_w, img_h, laser_option);;)
     //for(auto rs_data_src = rs_sf_create_camera_imu_stream(path);;)
     {
-        auto buf = rs_data_src->wait_for_data(std::chrono::milliseconds(330));
+        auto buf = *rs_data_src->wait_for_data(std::chrono::milliseconds(330));
         //if(buf.empty()){ recorder.reset(); rs_data_src = rs_sf_create_camera_imu_stream(path); continue;}
         
         if(!recorder){ recorder = rs_sf_create_data_writer(rs_data_src.get(), path);}

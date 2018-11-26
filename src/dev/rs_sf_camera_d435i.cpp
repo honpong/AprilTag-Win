@@ -197,7 +197,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         return false;
     }
     
-    rs_sf_dataset wait_for_data(const std::chrono::milliseconds& wait_time_us) override
+    rs_sf_dataset_ptr wait_for_data(const std::chrono::milliseconds& wait_time_us) override
     {
         static const auto time_inc = std::chrono::microseconds(10);
         rs_sf_dataset dst; dst.resize(num_streams());
@@ -216,7 +216,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             if(!dst[0].empty()&&!dst[1].empty()&&!dst[2].empty()&&!dst[3].empty()){break;}
             std::this_thread::sleep_for(time_inc);
         }
-        return dst;
+        return std::make_shared<rs_sf_dataset>(dst);
     }
     
     stream_info_vec get_stream_info() override
@@ -634,10 +634,10 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
         _index_file.close();
     }
     
-    rs_sf_dataset wait_for_data(const std::chrono::milliseconds& wait_time_us) override
+    rs_sf_dataset_ptr wait_for_data(const std::chrono::milliseconds& wait_time_us) override
     {
         rs_sf_dataset dst;
-        if(!_index_file.is_open()) { return dst; }
+        if(!_index_file.is_open()) { return nullptr; }
 
         try{
             for(std::string line; !_index_file.eof(); )
@@ -689,7 +689,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
         }catch(...){
             printf("error in reading data from %s \n", _folder_path.c_str());
         }
-        return dst;
+        return std::make_shared<rs_sf_dataset>(dst);
     }
 };
 

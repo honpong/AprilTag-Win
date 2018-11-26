@@ -23,7 +23,8 @@ struct rs_sf_data_list : public std::list<rs_sf_data_ptr>
 {
     rs_sf_data_ptr& operator[](int i){ auto it = begin(); std::advance(it, i); return *it; }
 };
-typedef std::vector<rs_sf_data_list> rs_sf_dataset;
+typedef std::vector<rs_sf_data_list>   rs_sf_dataset;
+typedef std::shared_ptr<rs_sf_dataset> rs_sf_dataset_ptr;
 
 struct rs_sf_stream_info
 {
@@ -43,11 +44,11 @@ struct rs_sf_data_stream
 {
     typedef std::vector<rs_sf_stream_info> stream_info_vec;
     typedef std::vector<std::string> string_vec;
-    virtual rs_sf_dataset   wait_for_data(const std::chrono::milliseconds& wait_time_us = std::chrono::milliseconds(34)) = 0;
-    virtual std::string     get_device_name() = 0;
-    virtual string_vec      get_device_info() = 0;
-    virtual stream_info_vec get_stream_info() = 0;
-    virtual float           get_depth_unit()  = 0;
+    virtual rs_sf_dataset_ptr wait_for_data(const std::chrono::milliseconds& wait_time_us = std::chrono::milliseconds(34)) = 0;
+    virtual std::string       get_device_name() = 0;
+    virtual string_vec        get_device_info() = 0;
+    virtual stream_info_vec   get_stream_info() = 0;
+    virtual float             get_depth_unit()  = 0;
     virtual ~rs_sf_data_stream() {}
 };
 

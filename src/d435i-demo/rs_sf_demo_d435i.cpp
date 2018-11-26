@@ -33,22 +33,23 @@ int main(int argc, char* argv[])
     rs_shapefit_capability sf_option = RS_SHAPEFIT_PLANE;
 
     for (int i = 1; i < argc; ++i) {
-        if (strcmp(argv[i], "--cbox") == 0) { sf_option = RS_SHAPEFIT_BOX_COLOR; }
-        else if (strcmp(argv[i], "--box") == 0) { sf_option = RS_SHAPEFIT_BOX; }
-        else if (strcmp(argv[i], "--plane") == 0) { sf_option = RS_SHAPEFIT_PLANE; }
-        else if (strcmp(argv[i], "--live") == 0) { is_live = true; }
-        else if (strcmp(argv[i], "--capture") == 0) { is_capture = true; is_replay = false; }
-        else if (strcmp(argv[i], "--num_frame") == 0) { num_frames = atoi(argv[++i]); }
-        else if (strcmp(argv[i], "--path") == 0) { path = argv[++i]; }
-        else if (strcmp(argv[i], "--replay") == 0) { is_replay = true; }
-        else if (strcmp(argv[i], "--hd") == 0) { capture_size = { 1280,720 }; }
-        else if (strcmp(argv[i], "--qhd") == 0) { capture_size = { 640,360 }; }
-        else if (strcmp(argv[i], "--vga") == 0) { capture_size = { 640,480 }; }
-        else if (strcmp(argv[i], "--laser_off") == 0) { laser_option = 0; }
-        else if (strcmp(argv[i], "--laser_on") == 0) { laser_option = 1; }
+        if (!strcmp(argv[i], "--cbox"))                 { sf_option = RS_SHAPEFIT_BOX_COLOR; }
+        else if (!strcmp(argv[i], "--box"))             { sf_option = RS_SHAPEFIT_BOX; }
+        else if (!strcmp(argv[i], "--plane"))           { sf_option = RS_SHAPEFIT_PLANE; }
+        else if (!strcmp(argv[i], "--live"))            { is_live = true; }
+        else if (!strcmp(argv[i], "--capture"))         { is_capture = true; }
+        else if (!strcmp(argv[i], "--num_frame"))       { num_frames = atoi(argv[++i]); }
+        else if (!strcmp(argv[i], "--path"))            { path = argv[++i]; }
+        else if (!strcmp(argv[i], "--replay"))          { is_replay = true; }
+        else if (!strcmp(argv[i], "--hd"))              { capture_size = { 1280,720 }; }
+        else if (!strcmp(argv[i], "--qhd"))             { capture_size = { 640,360 }; }
+        else if (!strcmp(argv[i], "--vga"))             { capture_size = { 640,480 }; }
+        else if (!strcmp(argv[i], "--laser_off"))       { laser_option = 0; }
+        else if (!strcmp(argv[i], "--laser_on"))        { laser_option = 1; }
+        else if (!strcmp(argv[i], "--laser_interlaced")){ laser_option = 2; }
         else {
             printf("usages:\n d435i-demo [--cbox|--box|--plane][--live|--replay][--path PATH][--capture][--num_frame NUM] \n");
-            printf("                     [--hd|--qhd|--vga][--laser_off|--laser_on] \n");
+            printf("                     [--hd|--qhd|--vga][--laser_off|--laser_on|--laser_interlaced] \n");
             return 0;
         }
     }
@@ -68,8 +69,7 @@ int capture_frames(const std::string& path, const int image_set_size, const int 
  
     for(auto rs_data_src = rs_sf_create_camera_imu_stream(img_w, img_h, laser_option);;)
     {
-        auto buf = rs_data_src->wait_for_data(std::chrono::milliseconds(330));
-        //if(buf.empty()){ recorder.reset(); rs_data_src = rs_sf_create_camera_imu_stream(path); continue;}
+        auto buf = *rs_data_src->wait_for_data(std::chrono::milliseconds(330));
         
         if(!recorder){ recorder = rs_sf_create_data_writer(rs_data_src.get(), path);}
         recorder->write(buf);
@@ -104,7 +104,7 @@ int replay_frames(const std::string& path)
     
     for(rs_sf_gl_context win("replay", img_w*3, img_h*3); ;)
     {
-        auto buf = rs_data_src->wait_for_data();
+        auto buf = *rs_data_src->wait_for_data();
         if(buf.empty()){ rs_data_src = rs_sf_create_camera_imu_stream(path); continue; }
         
         if(!buf[0].empty()&&!buf[1].empty()&&!buf[2].empty()&&!buf[3].empty()){

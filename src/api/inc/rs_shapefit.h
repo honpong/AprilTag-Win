@@ -39,6 +39,7 @@ extern "C"
 
     typedef enum rs_sf_distortion { MODEL_COUNT = 5 } rs_sf_distortion;
     typedef double             rs_sf_timestamp;
+    typedef long long          rs_sf_time_us;
     typedef unsigned long long rs_sf_serial_number;
     typedef unsigned short     rs_sf_uint16_t;
     
@@ -174,12 +175,12 @@ extern "C"
     
     struct rs_sf_data
     {
+        rs_sf_serial_number serial_number;
         rs_sf_uint16_t      sensor_index;
         rs_sf_sensor_t      sensor_type;
-        rs_sf_timestamp     timestamp_us;     /**< Sensor's exposure width. When Auto Exposure (AE) is on the value is controlled by firmware. usec*/
-        rs_sf_timestamp     exposure_time_us; /**< Timestamp of the middle of sensor's exposure calculated by device. usec*/
-        rs_sf_serial_number serial_number;
         rs_sf_serial_number frame_number;
+        rs_sf_timestamp     timestamp_ms;     /**< Sensor's exposure width. When Auto Exposure (AE) is on the value is controlled by firmware. msec*/
+        rs_sf_time_us       exposure_time_us; /**< Timestamp of the middle of sensor's exposure calculated by device. usec*/
         union {
             rs_sf_image image;
             float       vec[3];

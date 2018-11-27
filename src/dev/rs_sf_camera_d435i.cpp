@@ -122,8 +122,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         {
             sensor_index  = _f.get_profile().stream_index();
             sensor_type   = (rs_sf_sensor_t)(_f.get_profile().stream_type());
-            timestamp_us  = _f.get_timestamp();
-            exposure_time_us = -1.0f;
+            timestamp_ms  = _f.get_timestamp();
+            exposure_time_us = -1;
             serial_number = new_serial_number;
             frame_number  = _f.get_frame_number();
             
@@ -145,7 +145,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 }
                 try{
                     if(_f.supports_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE)){
-                        exposure_time_us = _f.get_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE);
+                        exposure_time_us = static_cast<rs_sf_time_us>(_f.get_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE));
                     }
                 }catch(...){}
             }
@@ -313,7 +313,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
         if(index_file.is_open()){
             std::stringstream os; os
             << dataset_number     << sep << std::setprecision(10) << std::fixed
-            << data.timestamp_us  << sep << std::setprecision(2) << std::fixed
+            << data.timestamp_ms  << sep
             << data.exposure_time_us << sep
             << data.serial_number << sep
             << data.frame_number  << sep
@@ -383,7 +383,8 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
                 items.emplace_back(item.get());
             }
         }
-        std::sort(items.begin(), items.end(), [](const rs_sf_data*& a, const rs_sf_data*& b){ return a->timestamp_us < b->timestamp_us; });
+        
+        //std::sort(items.begin(), items.end(), [](const rs_sf_data*& a, const rs_sf_data*& b){ return a->timestamp_ms < b->timestamp_ms; });
         
         std::lock_guard<std::mutex> lk(_write_mutex);
         for(auto& item : items){
@@ -413,7 +414,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             char sep;
             std::stringstream is(index_line); is
             >> _dataset_number   >> sep
-            >> timestamp_us      >> sep
+            >> timestamp_ms      >> sep
             >> exposure_time_us  >> sep
             >> serial_number     >> sep
             >> frame_number      >> sep
@@ -435,11 +436,11 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             }
         };
         
-        rs_sf_timestamp time_diff(const rs_sf_data_auto& ref) const { return timestamp_us - ref.timestamp_us; }
+        rs_sf_timestamp time_diff(const rs_sf_data_auto& ref) const { return timestamp_ms - ref.timestamp_ms; }
         bool operator==(const rs_sf_data_auto& ref) const { return
             sensor_type == ref.sensor_type  &&
             sensor_index== ref.sensor_index &&
-            timestamp_us== ref.timestamp_us;
+            timestamp_ms== ref.timestamp_ms;
         }
         
         rs_sf_serial_number _dataset_number;

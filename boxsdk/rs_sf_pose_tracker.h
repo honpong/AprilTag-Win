@@ -112,7 +112,7 @@ namespace rs2
     
     struct camera_imu_tracker
     {
-        
+        virtual ~camera_imu_tracker() {}
     };
 }
 #endif /* rs_sf_pose_tracker_h */

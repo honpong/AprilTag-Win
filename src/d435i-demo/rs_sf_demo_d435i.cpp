@@ -73,13 +73,18 @@ struct d435i_dataset : public rs_sf_dataset
     d435i_dataset& operator<<(rs_sf_dataset_ptr& data) {
         if(!data){ return *this; }
         
-        for(auto s : {DEPTH,IR_L,IR_R,COLOR}){
+        for(auto s : {DEPTH,IR_L,IR_R}){
             for(auto& d : data->at(s)){
                 at(s)[(d->sensor_type & RS_SF_SENSOR_LASER_OFF)?1:0] = d;
             }
         }
+        for(auto& d : data->at(COLOR)){
+            at(COLOR)[0] = d;
+        }
         for(auto s : {GYRO, ACCEL}){
-            at(s).splice(at(s).end(), data->at(s));
+            if(data->size()>s && !data->at(s).empty()){
+                at(s).splice(at(s).end(), data->at(s));
+            }
         }
         return *this;
     }

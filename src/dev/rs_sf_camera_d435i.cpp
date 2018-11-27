@@ -144,6 +144,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             }
             else if(_f.is<rs2::motion_frame>()){
                 rs_sf_memcpy(vec, _f.get_data(), sizeof(vec));
+                _f = nullptr;
             }
         }
         rs2::frame _f;
@@ -677,10 +678,10 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
                         case RS_SF_SENSOR_COLOR:
                             dst[3].emplace_back(std::move(data));
                             break;
-                        case RS_SF_SENSOR_ACCEL:
+                        case RS_SF_SENSOR_GYRO:
                             dst[4].emplace_back(std::move(data));
                             break;
-                        case RS_SF_SENSOR_GYRO:
+                        case RS_SF_SENSOR_ACCEL:
                             dst[5].emplace_back(std::move(data));
                             break;
                         default:

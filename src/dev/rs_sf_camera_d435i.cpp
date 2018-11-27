@@ -380,7 +380,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
         for(auto& item : items){
             auto filename = generate_data_filename(*item);
             if(!write_header(filename, *item, my_data_set_number)){ return false; }
-            if((item->sensor_type&0xf)<RS_SF_SENSOR_ACCEL){
+            if((item->sensor_type&0xf)<RS_SF_SENSOR_GYRO){
                 std::async(std::launch::async,[this,item=item,filename=filename](){
                     rs_sf_image_write(_folder_path+filename,&item->image);
                 });

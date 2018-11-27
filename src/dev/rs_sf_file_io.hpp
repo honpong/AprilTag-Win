@@ -22,7 +22,7 @@
 #define PATH_SEPARATER '\\'
 #endif
 #else
-#define RS_SF_CLEAR_DIRECTORY(path) {system(("rm -rf " + path + ";mkdir " + path + " 2>/dev/null;").c_str());}
+#define RS_SF_CLEAR_DIRECTORY(path) {auto rtn=system(("rm -rf " + path + ";mkdir " + path + " 2>/dev/null;").c_str());}
 #ifndef PATH_SEPARATER
 #define PATH_SEPARATER '/'
 #endif

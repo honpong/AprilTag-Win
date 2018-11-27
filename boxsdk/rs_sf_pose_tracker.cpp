@@ -172,6 +172,37 @@ void rs_sf_pose_tracking_release()
     SP_release();
 }
 
+#elif defined(RC_TRACKER)
+
+#include <rc_tracker.h>
+
+bool rs_sf_setup_scene_perception(
+                                  float rfx, float rfy, float rpx, float rpy, unsigned int rw, unsigned int rh,
+                                  int& target_width,
+                                  int& target_height,
+                                  rs_sf_pose_track_resolution resolution) {
+    return false;
+}
+
+bool rs_sf_do_scene_perception_tracking(
+                                        unsigned short* depth_data,
+                                        unsigned char* color_data,
+                                        bool& reset_request,
+                                        float cam_pose[12]) {
+    return false;
+}
+
+bool rs_sf_do_scene_perception_ray_casting(
+                                           int image_width,
+                                           int image_height,
+                                           unsigned short* depth_data,
+                                           std::unique_ptr<float[]>& buf) {
+    return false;
+}
+
+void rs_sf_pose_tracking_release() {}
+
+
 #else
 
 bool rs_sf_setup_scene_perception(

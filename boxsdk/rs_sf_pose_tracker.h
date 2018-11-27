@@ -109,5 +109,10 @@ namespace rs2
             dst[11] = r[6] * src[3] + r[7] * src[7] + r[8] * src[11] + t[2];
         }
     };
+    
+    struct camera_imu_tracker
+    {
+        
+    };
 }
 #endif /* rs_sf_pose_tracker_h */

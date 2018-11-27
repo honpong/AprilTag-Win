@@ -126,6 +126,8 @@ if(BUILD_SHAPEFIT_DEV_APP)
     if(BUILD_D435I_DEMO)
         set(ENABLE_MEASURE  OFF CACHE BOOL "")
         add_subdirectory(thirdparty/tracker)
+        add_definitions(-DRC_TRACKER)
+        list(APPEND LIBRS_LIBS tracker)
     endif()
     add_subdirectory(d435i-demo)
 

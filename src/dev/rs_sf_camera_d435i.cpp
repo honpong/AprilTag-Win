@@ -101,7 +101,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 _laser_option=2;
             }
         }catch(...){
-            printf("WARNING: error getting laser option %d!\n",_laser_option);
+            printf("WARNING: error getting laser option %d! set to %d\n",_laser_option, laser_option);
+            _laser_option = laser_option;
         }
         
         // open the color camera stream
@@ -122,6 +123,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             sensor_index  = _f.get_profile().stream_index();
             sensor_type   = (rs_sf_sensor_t)(_f.get_profile().stream_type());
             timestamp_us  = _f.get_timestamp();
+            exposure_time_us = -1.0f;
             serial_number = new_serial_number;
             frame_number  = _f.get_frame_number();
             
@@ -141,6 +143,11 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                         sensor_type = (rs_sf_sensor_t)(sensor_type|RS_SF_SENSOR_LASER_OFF);
                     }
                 }
+                try{
+                    if(_f.supports_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE)){
+                        exposure_time_us = _f.get_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE);
+                    }
+                }catch(...){}
             }
             else if(_f.is<rs2::motion_frame>()){
                 rs_sf_memcpy(vec, _f.get_data(), sizeof(vec));
@@ -305,8 +312,9 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
         
         if(index_file.is_open()){
             std::stringstream os; os
-            << dataset_number     << sep << std::setprecision(17) << std::fixed
-            << data.timestamp_us  << sep
+            << dataset_number     << sep << std::setprecision(10) << std::fixed
+            << data.timestamp_us  << sep << std::setprecision(2) << std::fixed
+            << data.exposure_time_us << sep
             << data.serial_number << sep
             << data.frame_number  << sep
             << data.sensor_type   << sep
@@ -406,6 +414,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             std::stringstream is(index_line); is
             >> _dataset_number   >> sep
             >> timestamp_us      >> sep
+            >> exposure_time_us  >> sep
             >> serial_number     >> sep
             >> frame_number      >> sep
             >> sensor_type       >> sep

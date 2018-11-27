@@ -366,7 +366,7 @@ state_vision_group * state_vision::add_group(const rc_Sensor camera_id, mapper *
     // local number of finished nodes is bigger than 40 (just current session) remove 10 nodes with the lowest number of active frames
     constexpr size_t global_max_nodes = 150;
     constexpr size_t local_max_nodes = 40;
-    constexpr size_t num_nodes_removed = 10;
+    constexpr size_t num_nodes_removed = 3;
     static_assert(global_max_nodes > local_max_nodes, "Global max number of nodes should be bigger than Local max nodes");
     static_assert(local_max_nodes > num_nodes_removed, "Local max number of nodes should be bigger than Num nodes removed");
     if(map && map->get_nodes().size() >= local_max_nodes) {

@@ -28,6 +28,8 @@ struct rs_sf_gl_context
     {
         if (!glfwWindowShouldClose(win))
         {
+            if (num_images<=0){ return true; }
+            
             // Wait for new images
             glfwPollEvents();
 

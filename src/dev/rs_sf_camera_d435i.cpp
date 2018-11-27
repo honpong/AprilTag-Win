@@ -27,8 +27,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         add_stream_request({RS2_STREAM_INFRARED, 1,  30, RS2_FORMAT_Y8 ,            w,  h});
         add_stream_request({RS2_STREAM_INFRARED, 2,  30, RS2_FORMAT_Y8 ,            w,  h});
         add_stream_request({RS2_STREAM_COLOR,   -1,  30, RS2_FORMAT_RGB8,           w,  h});
-        add_stream_request({RS2_STREAM_ACCEL,   -1, 125, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
         add_stream_request({RS2_STREAM_GYRO,    -1, 200, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
+        add_stream_request({RS2_STREAM_ACCEL,   -1, 125, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
         
         find_stream_profiles();
         print_requested_streams();
@@ -74,6 +74,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     {
         // open the depth camera stream
         _streams[0].sensor.open({_streams[0].profile,_streams[1].profile,_streams[2].profile});
+        
         try{
             switch(laser_option)
             {
@@ -90,7 +91,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                     _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 1);
                     break;
             }
-        }catch(...){ printf("WARNING: error setting laser option %d!\n", laser_option); }
+        }catch(...){ printf("WARNING: error setting laser option %d!\n", _laser_option); }
 
         try{
             _laser_option = _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ENABLED);
@@ -116,27 +117,29 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     {
         virtual ~rs_sf_data_auto() {}
         
-        rs_sf_data_auto(rs2::frame f, rs_sf_stream_select& stream, const rs_sf_serial_number& new_serial_number) : _f(f)
+        rs_sf_data_auto(rs2::frame f, rs_sf_stream_select& stream, const rs_sf_serial_number& new_serial_number, int laser_option = -1) : _f(f)
         {
-            static const int _stream_to_byte_per_pixel[RS_SF_STREAM_COUNT] = { 0,2,3,1,1 };
             sensor_index  = _f.get_profile().stream_index();
             sensor_type   = (rs_sf_sensor_t)(_f.get_profile().stream_type());
-            //timestamp_us  = _f.supports_frame_metadata(RS2_FRAME_METADATA_TIME_OF_ARRIVAL) ? _f.get_frame_metadata(RS2_FRAME_METADATA_TIME_OF_ARRIVAL) : _f.get_timestamp();
             timestamp_us  = _f.get_timestamp();
             serial_number = new_serial_number;
             frame_number  = _f.get_frame_number();
             
             if (_f.is<rs2::video_frame>()){
-                image.byte_per_pixel = _stream_to_byte_per_pixel[stream.type];
+                image.byte_per_pixel = _f.as<rs2::video_frame>().get_bytes_per_pixel();
                 image.data           = (unsigned char*)_f.get_data();
                 image.frame_id       = frame_number;
                 image.img_h          = _f.as<rs2::video_frame>().get_height();
                 image.img_w          = _f.as<rs2::video_frame>().get_width();
                 image.intrinsics     = (rs_sf_intrinsics*)&stream.cam_intrinsics;
                 
-                if(_f.supports_frame_metadata(RS2_FRAME_METADATA_FRAME_LASER_POWER_MODE) &&
-                   _f.get_frame_metadata(RS2_FRAME_METADATA_FRAME_LASER_POWER_MODE)==0){
-                    sensor_type = (rs_sf_sensor_t)(sensor_type|RS_SF_SENSOR_LASER_OFF);
+                if(sensor_type == RS_SF_SENSOR_DEPTH ||
+                   sensor_type == RS_SF_SENSOR_INFRARED){
+                    if(laser_option==0 || (laser_option==2 &&
+                                           _f.supports_frame_metadata(RS2_FRAME_METADATA_FRAME_LASER_POWER_MODE) &&
+                                           _f.get_frame_metadata(RS2_FRAME_METADATA_FRAME_LASER_POWER_MODE)==0)){
+                        sensor_type = (rs_sf_sensor_t)(sensor_type|RS_SF_SENSOR_LASER_OFF);
+                    }
                 }
             }
             else if(_f.is<rs2::motion_frame>()){
@@ -166,7 +169,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 if(f.get_profile().stream_type() ==_streams[s].type &&
                    f.get_profile().stream_index()==_streams[s].index){
                     std::lock_guard<std::mutex> lk(_pipeline_mutex[s]);
-                    _pipeline_buffer[s].emplace_back(std::make_shared<rs_sf_data_auto>(f,_streams[s],generate_serial_number()));
+                    _pipeline_buffer[s].emplace_back(std::make_shared<rs_sf_data_auto>(f,_streams[s],generate_serial_number(),_laser_option));
                 }
             }
         });

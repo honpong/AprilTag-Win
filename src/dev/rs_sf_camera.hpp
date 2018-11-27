@@ -22,6 +22,7 @@ typedef std::shared_ptr<rs_sf_data_buf> rs_sf_data_ptr;
 struct rs_sf_data_list : public std::list<rs_sf_data_ptr>
 {
     rs_sf_data_ptr& operator[](int i){ auto it = begin(); std::advance(it, i); return *it; }
+    const rs_sf_data_ptr& operator[](int i) const {auto it = begin(); std::advance(it, i); return *it; }
 };
 typedef std::vector<rs_sf_data_list>   rs_sf_dataset;
 typedef std::shared_ptr<rs_sf_dataset> rs_sf_dataset_ptr;

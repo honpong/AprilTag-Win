@@ -63,7 +63,7 @@ void rs_sf_device_manager::extract_stream_calibrations()
         if(stream.profile.is<rs2::motion_stream_profile>()){
             try {
                 stream.imu_intriniscs = stream.profile.as<rs2::motion_stream_profile>().get_motion_intrinsics();
-            }catch(...){ std::cout << "WARNING: error getting imu intrsincis " << (rs2_stream)stream.profile.stream_type() << " " << stream.profile.stream_index(); }
+            }catch(...){ std::cout << "WARNING: error getting imu intrsincis " << (rs2_stream)stream.profile.stream_type() << " " << stream.profile.stream_index() << std::endl; }
         } else if(stream.profile.is<rs2::video_stream_profile>()){
             stream.cam_intrinsics = stream.profile.as<rs2::video_stream_profile>().get_intrinsics();
         }

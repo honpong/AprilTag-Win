@@ -7,7 +7,6 @@
 
 #include "rs_shapefit.h"
 #include "rs_sf_camera.hpp"
-#include "rs_sf_image_io.hpp"
 #include "rs_sf_gl_context.hpp"
 #include "rs_sf_pose_tracker.h"
 
@@ -59,36 +58,78 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+struct d435i_dataset : public rs_sf_dataset
+{
+    enum stream {DEPTH, IR_L, IR_R, COLOR, GYRO, ACCEL};
+    d435i_dataset()
+    {
+        resize(6);
+        at(DEPTH).resize(2);
+        at(IR_L).resize(2);
+        at(IR_R).resize(2);
+        at(COLOR).resize(1);
+    }
+    
+    d435i_dataset& operator<<(rs_sf_dataset_ptr& data) {
+        if(!data){ return *this; }
+        
+        for(auto s : {DEPTH,IR_L,IR_R,COLOR}){
+            for(auto& d : data->at(s)){
+                at(s)[(d->sensor_type & RS_SF_SENSOR_LASER_OFF)?1:0] = d;
+            }
+        }
+        for(auto s : {GYRO, ACCEL}){
+            at(s).splice(at(s).end(), data->at(s));
+        }
+        return *this;
+    }
+    
+    bool empty() const {
+        if(rs_sf_dataset::empty()){ return true; }
+        for(const auto& d : *this){ if(!d.empty()){ return false; }}
+        return true;
+    }
+    
+    bool full_laser_on_imageset() const {
+        if(at(DEPTH)[0] && at(IR_L)[0] && at(IR_R)[0] && at(COLOR)[0]){ return true; }
+        return false;
+    }
+    
+    bool full_laser_off_imageset() const {
+        if(at(DEPTH)[1] && at(IR_L)[1] && at(IR_R)[1] && at(COLOR)[0]){ return true; }
+        return false;
+    }
+    
+    std::vector<rs_sf_image> images() {
+        std::vector<rs_sf_image> dst;
+        if(full_laser_on_imageset()){
+            for(auto s : {DEPTH,IR_L,IR_R}){dst.emplace_back(at(s)[0]->image);}
+        }
+        if(full_laser_off_imageset()){
+            for(auto s : {DEPTH,IR_L,IR_R}){dst.emplace_back(at(s)[1]->image);}
+        }
+        if(at(COLOR)[0]){ dst.emplace_back(at(COLOR)[0]->image); }
+        return dst;
+    }
+};
+
 int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2], int laser_option)
 {
     const int img_w = 640, img_h = 480;
     rs_sf_gl_context win("capture", img_w * 3, img_h * 3);
     
     std::unique_ptr<rs_sf_data_writer> recorder;
-    rs_sf_data_ptr laser[2][3];
+    d435i_dataset buf;
  
     for(auto rs_data_src = rs_sf_create_camera_imu_stream(img_w, img_h, laser_option);;)
     {
-        auto buf = *rs_data_src->wait_for_data(std::chrono::milliseconds(330));
+        auto new_data = rs_data_src->wait_for_data(std::chrono::milliseconds(330));
         
         if(!recorder){ recorder = rs_sf_create_data_writer(rs_data_src.get(), path);}
-        recorder->write(buf);
+        recorder->write(*new_data);
         
-        if(!buf[0].empty()&&!buf[1].empty()&&!buf[2].empty()&&!buf[3].empty()){
-            for(auto s : {0,1,2}){
-                laser[(buf[s][0]->sensor_type&RS_SF_SENSOR_LASER_OFF)?1:0][s]=buf[s][0];
-            }
-            if(laser[0][0]&&laser[0][1]&&laser[0][2]){
-                std::vector<rs_sf_image> images = {laser[0][0]->image,laser[0][1]->image,laser[0][2]->image};
-                if(laser[1][0]&&laser[1][1]&&laser[1][2]){
-                    images.emplace_back(laser[1][0]->image);
-                    images.emplace_back(laser[1][1]->image);
-                    images.emplace_back(laser[1][2]->image);
-                }
-                images.emplace_back(buf[3][0]->image);
-                if(!win.imshow(images.data(),images.size())){break;}
-            }
-        }
+        auto images = (buf << new_data).images();
+        if(!win.imshow(images.data(),images.size())){break;}
     }
     recorder.reset();
     return 0;
@@ -100,28 +141,15 @@ int replay_frames(const std::string& path)
     const int img_w = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.width;
     const int img_h = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.height;
     
-    rs_sf_data_ptr laser[2][3];
+    d435i_dataset buf;
     
     for(rs_sf_gl_context win("replay", img_w*3, img_h*3); ;)
     {
-        auto buf = *rs_data_src->wait_for_data();
-        if(buf.empty()){ rs_data_src = rs_sf_create_camera_imu_stream(path); continue; }
+        auto new_data = rs_data_src->wait_for_data();
+        if(!new_data || new_data->empty()){ rs_data_src = rs_sf_create_camera_imu_stream(path); continue; }
         
-        if(!buf[0].empty()&&!buf[1].empty()&&!buf[2].empty()&&!buf[3].empty()){
-            for(auto s : {0,1,2}){
-                laser[(buf[s][0]->sensor_type&RS_SF_SENSOR_LASER_OFF)?1:0][s]=buf[s][0];
-            }
-            if(laser[0][0]&&laser[0][1]&&laser[0][2]){
-                std::vector<rs_sf_image> images = {laser[0][0]->image,laser[0][1]->image,laser[0][2]->image};
-                if(laser[1][0]&&laser[1][1]&&laser[1][2]){
-                    images.emplace_back(laser[1][0]->image);
-                    images.emplace_back(laser[1][1]->image);
-                    images.emplace_back(laser[1][2]->image);
-                }
-                images.emplace_back(buf[3][0]->image);
-                if(!win.imshow(images.data(),images.size())){break;}
-            }
-        }
+        auto images = (buf << new_data).images();
+        if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;
 }

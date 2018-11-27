@@ -34,7 +34,7 @@ struct rs_sf_file_io
     const std::string _calibration_filename = "calibration.json";
     
     std::string _folder_path;
-    std::string _file_prefix[RS_SF_SENSOR_TYPE_COUNT] = { "","depth_","color_","ir_","fisheye_","accel_","gyro_"};
+    std::string _file_prefix[RS_SF_SENSOR_TYPE_COUNT] = { "","depth_","color_","ir_","fisheye_","gyro_","accel_"};
     std::string _file_format[RS_SF_SENSOR_TYPE_COUNT] = { "",".pgm",".ppm",".pgm",".pgm","",""};
     
     rs_sf_serial_number _next_frame_num[RS_SF_SENSOR_TYPE_COUNT][3] = {};
@@ -90,7 +90,7 @@ struct rs_sf_file_io
                         intr.imu_intrinsics.data[r][c] = json_intr["data"][r][c].asFloat();
                 for(auto& n : {0,1,2})
                     intr.imu_intrinsics.noise_variances[n] = json_intr["noise_variances"][n].asFloat();
-                for(auto& b : {0,2,3})
+                for(auto& b : {0,1,2})
                     intr.imu_intrinsics.bias_variances[b] = json_intr["bias_variances"][b].asFloat();
                 break;
             default:

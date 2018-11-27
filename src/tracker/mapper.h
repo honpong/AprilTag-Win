@@ -342,6 +342,8 @@ private:
     };
     std::vector<node_feature_track> map_feature_tracks;
     void predict_map_features(const uint64_t camera_id_now, const nodes_path &neighbors, const size_t min_gorup_map_add);
+
+    stdev<1> map_prune_stats;
 };
 
 #endif

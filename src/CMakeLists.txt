@@ -120,7 +120,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
     endif()
     
     add_subdirectory(${LIBRS_DIR})
-    add_subdirectory(dev)
+#add_subdirectory(dev)
 
     option(BUILD_D435I_DEMO "Build 435i Demo" OFF)
     if(BUILD_D435I_DEMO)

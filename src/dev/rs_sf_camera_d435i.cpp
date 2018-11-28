@@ -28,7 +28,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         add_stream_request({RS2_STREAM_INFRARED, 2,  30, RS2_FORMAT_Y8 ,            w,  h});
         add_stream_request({RS2_STREAM_COLOR,   -1,  30, RS2_FORMAT_RGB8,           w,  h});
         add_stream_request({RS2_STREAM_GYRO,    -1, 200, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
-        add_stream_request({RS2_STREAM_ACCEL,   -1,  63, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
+        add_stream_request({RS2_STREAM_ACCEL,   -1, 125, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
         
         find_stream_profiles();
         print_requested_streams();
@@ -122,7 +122,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         {
             sensor_index  = _f.get_profile().stream_index();
             sensor_type   = (rs_sf_sensor_t)(_f.get_profile().stream_type());
-            timestamp_ms  = _f.get_timestamp();
+            timestamp_us  = _f.get_timestamp() * std::chrono::microseconds(std::chrono::milliseconds(1)).count();
             exposure_time_us = -1;
             serial_number = new_serial_number;
             frame_number  = _f.get_frame_number();
@@ -313,7 +313,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
         if(index_file.is_open()){
             std::stringstream os; os
             << dataset_number     << sep << std::setprecision(10) << std::fixed
-            << data.timestamp_ms  << sep
+            << data.timestamp_us  << sep
             << data.exposure_time_us << sep
             << data.serial_number << sep
             << data.frame_number  << sep
@@ -414,7 +414,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             char sep;
             std::stringstream is(index_line); is
             >> _dataset_number   >> sep
-            >> timestamp_ms      >> sep
+            >> timestamp_us      >> sep
             >> exposure_time_us  >> sep
             >> serial_number     >> sep
             >> frame_number      >> sep
@@ -436,11 +436,11 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             }
         };
         
-        rs_sf_timestamp time_diff(const rs_sf_data_auto& ref) const { return timestamp_ms - ref.timestamp_ms; }
+        rs_sf_timestamp time_diff(const rs_sf_data_auto& ref) const { return timestamp_us - ref.timestamp_us; }
         bool operator==(const rs_sf_data_auto& ref) const { return
             sensor_type == ref.sensor_type  &&
             sensor_index== ref.sensor_index &&
-            timestamp_ms== ref.timestamp_ms;
+            timestamp_us== ref.timestamp_us;
         }
         
         rs_sf_serial_number _dataset_number;
@@ -508,9 +508,9 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             std::stringstream os; os << std::setprecision(4) << std::fixed <<
             " Stat : "         << _virtual_stream_name << " | " << _num_data <<
             " frames, ("       <<  frame_drops() << " drops, " << _num_problem_frames << " issues) |" <<
-            " timestamp avg: " << _sum_intervals/_num_data << "us |" <<
-            " max deviation: " << _max_deviation           << "us |" <<
-            " min deviation: " << _min_deviation           << "us |";
+            " timestamp avg: " << 1000 * _sum_intervals/_num_data << "ms |" <<
+            " max deviation: " << 1000 * _max_deviation           << "ms |" <<
+            " min deviation: " << 1000 * _min_deviation           << "ms |";
             return os.str();
         }
     };

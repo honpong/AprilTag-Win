@@ -123,7 +123,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             sensor_index  = _f.get_profile().stream_index();
             sensor_type   = (rs_sf_sensor_t)(_f.get_profile().stream_type());
             timestamp_us  = _f.get_timestamp() * std::chrono::microseconds(std::chrono::milliseconds(1)).count();
-            exposure_time_us = -1.0;
+            exposure_time_us = -0.1;
             serial_number = new_serial_number;
             frame_number  = _f.get_frame_number();
             

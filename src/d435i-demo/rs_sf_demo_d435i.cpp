@@ -126,16 +126,18 @@ int capture_frames(const std::string& path, const int image_set_size, const int 
     std::unique_ptr<rs_sf_data_writer> recorder;
     d435i_dataset buf;
  
-    for(auto rs_data_src = rs_sf_create_camera_imu_stream(img_w, img_h, laser_option);;)
-    {
-        auto new_data = rs_data_src->wait_for_data(std::chrono::milliseconds(330));
+    try {
+        for(auto rs_data_src = rs_sf_create_camera_imu_stream(img_w, img_h, laser_option);;)
+        {
+            auto new_data = rs_data_src->wait_for_data(std::chrono::milliseconds(330));
+            
+            if(!recorder){ recorder = rs_sf_create_data_writer(rs_data_src.get(), path);}
+            recorder->write(*new_data);
         
-        if(!recorder){ recorder = rs_sf_create_data_writer(rs_data_src.get(), path);}
-        recorder->write(*new_data);
-        
-        auto images = (buf << new_data).images();
-        if(!win.imshow(images.data(),images.size())){break;}
-    }
+            auto images = (buf << new_data).images();
+            if(!win.imshow(images.data(),images.size())){break;}
+        }
+    }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); }
     recorder.reset();
     return 0;
 }

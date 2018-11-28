@@ -28,7 +28,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         add_stream_request({RS2_STREAM_INFRARED, 2,  30, RS2_FORMAT_Y8 ,            w,  h});
         add_stream_request({RS2_STREAM_COLOR,   -1,  30, RS2_FORMAT_RGB8,           w,  h});
         add_stream_request({RS2_STREAM_GYRO,    -1, 200, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
-        add_stream_request({RS2_STREAM_ACCEL,   -1, 125, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
+        add_stream_request({RS2_STREAM_ACCEL,   -1,  63, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
         
         find_stream_profiles();
         print_requested_streams();
@@ -384,7 +384,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
             }
         }
         
-        //std::sort(items.begin(), items.end(), [](const rs_sf_data*& a, const rs_sf_data*& b){ return a->timestamp_ms < b->timestamp_ms; });
+        std::sort(items.begin(), items.end(), [](const rs_sf_data*& a, const rs_sf_data*& b){ return a->serial_number < b->serial_number; });
         
         std::lock_guard<std::mutex> lk(_write_mutex);
         for(auto& item : items){

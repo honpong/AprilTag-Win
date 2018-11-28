@@ -212,12 +212,12 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         return false;
     }
     
-    rs_sf_dataset_ptr wait_for_data(const std::chrono::milliseconds& wait_time_us) override
+    rs_sf_dataset_ptr wait_for_data(const std::chrono::milliseconds& wait_time_ms) override
     {
-        static const auto time_inc = std::chrono::microseconds(10);
+        static const auto time_inc = std::chrono::milliseconds(1);
         rs_sf_dataset dst; dst.resize(num_streams());
         
-        for(auto wait_time = std::chrono::microseconds(0); /*wait_time < wait_time_us*/; wait_time+=time_inc)
+        for(auto wait_time = std::chrono::milliseconds(0); wait_time < wait_time_ms; wait_time+=time_inc)
         {
             //look for data in all streams
             for(int s=0; s<num_streams(); ++s){
@@ -653,7 +653,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
         _index_file.close();
     }
     
-    rs_sf_dataset_ptr wait_for_data(const std::chrono::milliseconds& wait_time_us) override
+    rs_sf_dataset_ptr wait_for_data(const std::chrono::milliseconds& wait_time_ms) override
     {
         rs_sf_dataset dst;
         if(!_index_file.is_open()) { return nullptr; }

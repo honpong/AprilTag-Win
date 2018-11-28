@@ -470,7 +470,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             fps  = half_fps ? ref.fps/2.0 : ref.fps;
             _virtual_stream_name = src.get_stream_name(type, index);
             
-            _expected_interval = std::chrono::milliseconds(std::chrono::seconds(1)).count()/(double)(fps);
+            _expected_interval = std::chrono::microseconds(std::chrono::seconds(1)).count()/(double)(fps);
             _diff_tolerance = _expected_interval * 0.1f;
         }
         
@@ -508,9 +508,9 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             std::stringstream os; os << std::setprecision(4) << std::fixed <<
             " Stat : "         << _virtual_stream_name << " | " << _num_data <<
             " frames, ("       <<  frame_drops() << " drops, " << _num_problem_frames << " issues) |" <<
-            " timestamp avg: " << 1000 * _sum_intervals/_num_data << "ms |" <<
-            " max deviation: " << 1000 * _max_deviation           << "ms |" <<
-            " min deviation: " << 1000 * _min_deviation           << "ms |";
+            " timestamp avg: " << 0.001 * _sum_intervals/_num_data << "ms |" <<
+            " max deviation: " << 0.001 * _max_deviation           << "ms |" <<
+            " min deviation: " << 0.001 * _min_deviation           << "ms |";
             return os.str();
         }
     };

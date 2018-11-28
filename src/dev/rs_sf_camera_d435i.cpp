@@ -176,8 +176,9 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             for(int s : {0,1,2}){
                 if(f.get_profile().stream_type() ==_streams[s].type &&
                    f.get_profile().stream_index()==_streams[s].index){
+                    auto new_data = std::make_shared<rs_sf_data_auto>(f,_streams[s],generate_serial_number(),_laser_option);
                     std::lock_guard<std::mutex> lk(_pipeline_mutex[s]);
-                    _pipeline_buffer[s].emplace_back(std::make_shared<rs_sf_data_auto>(f,_streams[s],generate_serial_number(),_laser_option));
+                    _pipeline_buffer[s].emplace_back(new_data);
                 }
             }
         });
@@ -186,8 +187,9 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         _pipeline_streaming[3] = true;
         _streams[3].sensor.start([this](rs2::frame f){
             if(!_pipeline_streaming[3]){ return; }
+            auto new_data = std::make_shared<rs_sf_data_auto>(f,_streams[3],generate_serial_number());
             std::lock_guard<std::mutex> lk(_pipeline_mutex[3]);
-            _pipeline_buffer[3].emplace_back(std::make_shared<rs_sf_data_auto>(f,_streams[3],generate_serial_number()));
+            _pipeline_buffer[3].emplace_back(new_data);
         });
         
         // imu motion sensor
@@ -198,8 +200,9 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 for(int s : {4,5}){
                     if(f.get_profile().stream_type() ==_streams[s].type &&
                        f.get_profile().stream_index()==_streams[s].index){
+                        auto new_data = std::make_shared<rs_sf_data_auto>(f,_streams[s],generate_serial_number());
                         std::lock_guard<std::mutex> lk(_pipeline_mutex[s]);
-                        _pipeline_buffer[s].emplace_back(std::make_shared<rs_sf_data_auto>(f,_streams[s],generate_serial_number()));
+                        _pipeline_buffer[s].emplace_back(new_data);
                     }
                 }
             });
@@ -268,8 +271,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
 struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
 {
     std::ofstream index_file;
-    std::ofstream accel_file;
-    std::ofstream gyro_file;
+    //std::ofstream accel_file;
+    //std::ofstream gyro_file;
     
     rs_sf_data_stream* _src;
     
@@ -289,7 +292,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
     
     ~rs_sf_d435i_writer()
     {
-        for(auto file : {&index_file,&accel_file,&gyro_file})
+        for(auto file : {&index_file,/*&accel_file,&gyro_file*/})
         {
             if(file->is_open()){file->close();}
         }

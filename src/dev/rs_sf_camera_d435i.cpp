@@ -145,7 +145,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 }
                 try{
                     if(_f.supports_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE)){
-                        exposure_time_us = static_cast<rs_sf_time_us>(_f.get_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE));
+                        exposure_time_us = _f.get_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE);
                     }
                 }catch(...){}
             }
@@ -306,20 +306,20 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
         }
     }
     
-    bool write_header(const std::string& out_filename, const rs_sf_data& data, const rs_sf_serial_number& dataset_number)
+    bool write_header(const std::string& out_filename_or_imu_data, const rs_sf_data& data, const rs_sf_serial_number& dataset_number)
     {
         static const std::string sep = ",";
         
         if(index_file.is_open()){
             std::stringstream os; os
-            << dataset_number     << sep << std::setprecision(10) << std::fixed
-            << data.timestamp_us  << sep
-            << data.exposure_time_us << sep
-            << data.serial_number << sep
-            << data.frame_number  << sep
-            << data.sensor_type   << sep
-            << data.sensor_index  << sep
-            << out_filename       << std::endl;
+            << dataset_number           << sep << std::setprecision(10) << std::fixed
+            << data.timestamp_us        << sep << std::setprecision(2)  << std::fixed
+            << data.exposure_time_us    << sep
+            << data.serial_number       << sep
+            << data.frame_number        << sep
+            << data.sensor_type         << sep
+            << data.sensor_index        << sep
+            << out_filename_or_imu_data << std::endl;
             index_file << os.str();
         }else{
             printf("WARNING: fail to write to dataset header!\n");

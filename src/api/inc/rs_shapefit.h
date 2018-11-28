@@ -180,7 +180,7 @@ extern "C"
         rs_sf_sensor_t      sensor_type;
         rs_sf_serial_number frame_number;
         rs_sf_timestamp     timestamp_us;     /**< Sensor's exposure width. When Auto Exposure (AE) is on the value is controlled by firmware. usec*/
-        rs_sf_time_us       exposure_time_us; /**< Timestamp of the middle of sensor's exposure calculated by device. usec*/
+        rs_sf_timestamp     exposure_time_us; /**< Timestamp of the middle of sensor's exposure calculated by device. usec*/
         union {
             rs_sf_image image;
             float       vec[3];

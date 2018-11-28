@@ -1405,6 +1405,9 @@ std::string filter_get_stats(const struct filter *f)
         statstr << "Track " << i->id << "\t (slow): " << i->track_stats << "\n";
         statstr << "MTrack" << i->id << "\t (slow): " << i->map_track_stats << "\n";
     }
+    if(f->map) {
+        statstr << "MapPrune\t (slow): " << f->map->map_prune_stats << "\n";
+    }
     statstr << "Stereo " << "\t (slow): " << f->stereo_stats << "\n";
     statstr << "HPHt   " << "\t (slow): " << f->observations.project_stats << "\n";
     statstr << "GEMM   " << "\t (slow): " << f->observations.multiply_stats << "\n";

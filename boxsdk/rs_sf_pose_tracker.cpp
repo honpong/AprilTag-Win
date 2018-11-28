@@ -172,38 +172,88 @@ void rs_sf_pose_tracking_release()
     SP_release();
 }
 
-#elif defined(RC_TRACKER)
+#else
+
+
+#ifdef RC_TRACKER
 
 #include <rc_tracker.h>
+#include <fstream>
 
-bool rs_sf_setup_scene_perception(
-                                  float rfx, float rfy, float rpx, float rpy, unsigned int rw, unsigned int rh,
-                                  int& target_width,
-                                  int& target_height,
-                                  rs_sf_pose_track_resolution resolution) {
-    return false;
-}
+struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
+{
+    std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)> _tracker;
+    
+    bool init(const std::string& calibration_file) override
+    {
+        if(_tracker!=nullptr){ return false; }
+        _tracker = std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)>(rc_create(), rc_destroy);
+        
+        std::ifstream json_file;
+        json_file.open(calibration_file, std::ios_base::in);
 
-bool rs_sf_do_scene_perception_tracking(
-                                        unsigned short* depth_data,
-                                        unsigned char* color_data,
-                                        bool& reset_request,
-                                        float cam_pose[12]) {
-    return false;
-}
+        if (!json_file.is_open() || !rc_setCalibration(_tracker.get(), (const char *)json_file.rdbuf()))
+        {
+            fprintf(stderr, "Error: failed to load JSON calibration...\n");
+            return false;
+        }
+        
+        json_file.close();
+        return true;
+    }
+    
+    bool process(rs_sf_data& data) override
+    {
+        switch(data.sensor_type)
+        {
+            case RS_SF_SENSOR_DEPTH:
+            case RS_SF_SENSOR_DEPTH_LASER_OFF:
+                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_DEPTH16, data.timestamp_us, 0, data.image.img_w, data.image.img_h, data.image.img_w, data.image.data, nullptr, nullptr);
+                break;
+            case RS_SF_SENSOR_INFRARED:
+                
+                break;
+            case RS_SF_SENSOR_INFRARED_LASER_OFF:
+                
+                break;
+            case RS_SF_SENSOR_COLOR:
+                break;
+            case RS_SF_SENSOR_GYRO:
+                break;
+            case RS_SF_SENSOR_ACCEL:
+                break;
+            default:
+                break;
+        }
+        return true;
+    }
+    
+    void zero_bias()
+    {
+        for (rc_Sensor id = 0; true; id++) {
+            rc_Extrinsics extrinsics;
+            rc_AccelerometerIntrinsics intrinsics;
+            if (!rc_describeAccelerometer(_tracker.get(), id, &extrinsics, &intrinsics))
+                break;
+            for (auto &b : intrinsics.bias_m__s2.v) b = 0;
+            for (auto &b : intrinsics.bias_variance_m2__s4.v) b = 1e-3f;
+            rc_configureAccelerometer(_tracker.get(), id, nullptr, &intrinsics);
+        }
+        for (rc_Sensor id = 0; true; id++) {
+            rc_Extrinsics extrinsics;
+            rc_GyroscopeIntrinsics intrinsics;
+            if (!rc_describeGyroscope(_tracker.get(), id, &extrinsics, &intrinsics))
+                break;
+            for (auto &b : intrinsics.bias_rad__s.v) b = 0;
+            for (auto &b : intrinsics.bias_variance_rad2__s2.v) b = 1e-4f;
+            rc_configureGyroscope(_tracker.get(), id, &extrinsics, &intrinsics);
+        }
+    }
+    
+};
 
-bool rs_sf_do_scene_perception_ray_casting(
-                                           int image_width,
-                                           int image_height,
-                                           unsigned short* depth_data,
-                                           std::unique_ptr<float[]>& buf) {
-    return false;
-}
+#endif
 
-void rs_sf_pose_tracking_release() {}
-
-
-#else
 
 bool rs_sf_setup_scene_perception(
     float rfx, float rfy, float rpx, float rpy, unsigned int rw, unsigned int rh,

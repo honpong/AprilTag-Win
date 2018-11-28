@@ -91,7 +91,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                     _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 1);
                     break;
             }
-        }catch(...){ printf("WARNING: error setting laser option %d!\n", _laser_option); }
+        }catch(...){ fprintf(stderr,"WARNING: error setting laser option %d!\n", _laser_option); }
 
         try{
             _laser_option = _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ENABLED);
@@ -101,7 +101,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 _laser_option=2;
             }
         }catch(...){
-            printf("WARNING: error getting laser option %d! set to %d\n",_laser_option, laser_option);
+            fprintf(stderr,"WARNING: error getting laser option %d! set to %d\n",_laser_option, laser_option);
             _laser_option = laser_option;
         }
         
@@ -280,7 +280,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
     {
         if(dynamic_cast<rs_sf_file_io*>(src)&&dynamic_cast<rs_sf_file_io*>(src)->_folder_path==path){
             _folder_path.append("clone").push_back(PATH_SEPARATER);
-            printf("WARNING: cannot overwrite source directory! Write into %s\n",_folder_path.c_str());
+            fprintf(stderr,"WARNING: cannot overwrite source directory! Write into %s\n",_folder_path.c_str());
         }
         
         RS_SF_CLEAR_DIRECTORY(_folder_path)
@@ -325,7 +325,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
             << out_filename_or_imu_data << std::endl;
             index_file << os.str();
         }else{
-            printf("WARNING: fail to write to dataset header!\n");
+            fprintf(stderr, "WARNING: fail to write to dataset header!\n");
             return false;
         }
         return true;
@@ -368,7 +368,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
             writer.write(outfile, json_root);
         }
         catch (...) {
-            printf("fail to write calibration to %s \n",_folder_path.c_str());
+            fprintf(stderr,"fail to write calibration to %s \n",_folder_path.c_str());
             return false;
         }
         return true;
@@ -490,7 +490,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
                 auto time_deviation = time_interval - _expected_interval;
                 
                 if(std::abs(time_deviation)>_diff_tolerance){
-                    printf("Incorrect sample of %s stream: %s\n",_virtual_stream_name.c_str(), new_data->_in_filename.c_str());
+                    fprintf(stderr,"Incorrect sample of %s stream: %s\n",_virtual_stream_name.c_str(), new_data->_in_filename.c_str());
                     _num_problem_frames++;
                 }
                 
@@ -592,6 +592,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     {
         for(auto s : _device_info){
             if(s=="Emitter On And Off Enabled=1"){ return true; }
+            if(s==rs2_option_to_string(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED)){ return true; }
         }
         return false;
     }

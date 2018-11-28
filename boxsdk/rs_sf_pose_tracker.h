@@ -113,6 +113,8 @@ namespace rs2
     struct camera_imu_tracker
     {
         virtual ~camera_imu_tracker() {}
+        virtual bool init(const std::string& calibration_file) = 0;
+        virtual bool process(rs_sf_data& data) = 0;
     };
 }
 #endif /* rs_sf_pose_tracker_h */

@@ -144,7 +144,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                     }
                 }
                 try{
-                    if(_f.supports_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE)){
+                    if(sensor_type != RS_SF_SENSOR_COLOR && //exposure time from D435x color sensor is known to be garbage
+                       _f.supports_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE)){
                         exposure_time_us = _f.get_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE);
                     }
                 }catch(...){}

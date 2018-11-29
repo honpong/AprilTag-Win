@@ -173,6 +173,8 @@ extern "C"
         RS_SF_SENSOR_TYPE_COUNT         = 0x15
     };
     
+    typedef union { struct { float x,y,z; }; float v[3]; } rs_sf_imu_data;
+    
     struct rs_sf_data
     {
         rs_sf_serial_number serial_number;
@@ -182,9 +184,9 @@ extern "C"
         rs_sf_timestamp     timestamp_us;     /**< Sensor's exposure width. When Auto Exposure (AE) is on the value is controlled by firmware. usec*/
         rs_sf_timestamp     exposure_time_us; /**< Timestamp of the middle of sensor's exposure calculated by device. usec*/
         union {
-            rs_sf_image image;
-            float       vec[3];
-            rs_sf_data* stereo[2];
+            rs_sf_image    image;
+            rs_sf_imu_data imu;
+            rs_sf_data*    stereo[2];
         };
     };
 

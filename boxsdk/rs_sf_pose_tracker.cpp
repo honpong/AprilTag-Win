@@ -183,6 +183,7 @@ void rs_sf_pose_tracking_release()
 struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
 {
     std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)> _tracker;
+    typedef std::shared_ptr<rs_sf_data> data_packet;
     
     bool init(const std::string& calibration_file) override
     {
@@ -202,26 +203,35 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         return true;
     }
     
-    bool process(rs_sf_data& data) override
+    bool process(data_packet& data) override
     {
-        switch(data.sensor_type)
+        switch(data->sensor_type)
         {
             case RS_SF_SENSOR_DEPTH:
             case RS_SF_SENSOR_DEPTH_LASER_OFF:
-                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_DEPTH16, data.timestamp_us, 0, data.image.img_w, data.image.img_h, data.image.img_w, data.image.data, nullptr, nullptr);
+                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_DEPTH16, data->timestamp_us, 0,
+                                data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
+                                [](void* ptr){ ((data_packet*)ptr)->reset(); }, new data_packet(data));
                 break;
             case RS_SF_SENSOR_INFRARED:
-                
                 break;
             case RS_SF_SENSOR_INFRARED_LASER_OFF:
-                
+                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_GRAY8, data->timestamp_us, 0,
+                                data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
+                                [](void* ptr){ ((data_packet*)ptr)->reset(); }, new data_packet(data));
                 break;
             case RS_SF_SENSOR_COLOR:
                 break;
-            case RS_SF_SENSOR_GYRO:
+            case RS_SF_SENSOR_GYRO: {
+                const rc_Vector angular_velocity_rad__s = *(rc_Vector*)&data->imu;
+                rc_receiveGyro(_tracker.get(), 0, data->timestamp_us, angular_velocity_rad__s);
                 break;
-            case RS_SF_SENSOR_ACCEL:
+            }
+            case RS_SF_SENSOR_ACCEL: {
+                const rc_Vector acceleration_m__s2 = *(rc_Vector*)&data->imu;
+                rc_receiveAccelerometer(_tracker.get(), 0, data->timestamp_us, acceleration_m__s2);
                 break;
+            }
             default:
                 break;
         }

@@ -151,7 +151,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 }catch(...){}
             }
             else if(_f.is<rs2::motion_frame>()){
-                rs_sf_memcpy(vec, _f.get_data(), sizeof(vec));
+                rs_sf_memcpy(imu.v, _f.get_data(), sizeof(imu.v));
                 _f = nullptr;
             }
         }
@@ -304,7 +304,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
         switch(item.sensor_type){
             case RS_SF_SENSOR_ACCEL:
             case RS_SF_SENSOR_GYRO:
-                return std::to_string(item.vec[0]) + " " + std::to_string(item.vec[1]) + " " + std::to_string(item.vec[2]);
+                return std::to_string(item.imu.x) + " " + std::to_string(item.imu.y) + " " + std::to_string(item.imu.z);
             default:
                 return get_stream_name(item.sensor_type, item.sensor_index)+ std::to_string(_next_frame_num[item.sensor_type][item.sensor_index]++) + _file_format[item.sensor_type];
         }
@@ -430,7 +430,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
                 case RS_SF_SENSOR_ACCEL:
                 case RS_SF_SENSOR_GYRO:
                     is = std::stringstream(_in_filename);
-                    is >> vec[0] >> vec[1] >> vec[2];
+                    is >> imu.x >> imu.y >> imu.z;
                     break;
                 default:
                     if(src!=nullptr){

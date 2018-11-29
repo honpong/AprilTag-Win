@@ -23,6 +23,7 @@
 
 int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2], int laser_option);
 int replay_frames(const std::string& path);
+int live_demo(const int cap_size[2]);
 
 int main(int argc, char* argv[])
 {
@@ -55,6 +56,7 @@ int main(int argc, char* argv[])
     if (path.back() != '\\' && path.back() != '/'){ path.push_back(PATH_SEPARATER); }
     if (is_capture) capture_frames(path, num_frames, capture_size.data(), laser_option);
     if (is_replay)  replay_frames(path);
+    if (is_live)    live_demo(capture_size.data());
     return 0;
 }
 
@@ -156,6 +158,28 @@ int replay_frames(const std::string& path)
         if(!new_data || new_data->empty()){ rs_data_src = rs_sf_create_camera_imu_stream(path); continue; }
         
         auto images = (buf << new_data).images();
+        if(!win.imshow(images.data(),images.size())){break;}
+    }
+    return 0;
+}
+
+int live_demo(const int cap_size[2])
+{
+    auto rs_data_src = rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],0);
+    const int img_w = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.width;
+    const int img_h = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.height;
+    
+    rs_shapefit_capability cap = rs_shapefit_capability::RS_SHAPEFIT_BOX;
+    auto boxfit = rs_sf_shapefit_ptr(&rs_data_src->get_stream_info()[d435i_dataset::DEPTH].intrinsics.cam_intrinsics,cap,rs_data_src->get_depth_unit());
+    d435i_dataset buf;
+    
+    for(rs_sf_gl_context win("live demo", img_w*3, img_h*3); ;)
+    {
+        auto new_data = rs_data_src->wait_for_data();
+        auto images = (buf << new_data).images();
+        if(!buf.full_laser_off_imageset()){ continue; }
+        rs_shapefit_depth_image(boxfit.get(), images.data());
+        rs_sf_planefit_draw_planes(boxfit.get(), &images[d435i_dataset::COLOR]);
         if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;

@@ -128,6 +128,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             frame_number  = _f.get_frame_number();
             
             if (_f.is<rs2::video_frame>()){
+                image                = {};
                 image.byte_per_pixel = _f.as<rs2::video_frame>().get_bytes_per_pixel();
                 image.data           = (unsigned char*)_f.get_data();
                 image.frame_id       = frame_number;
@@ -369,7 +370,7 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
             writer.write(outfile, json_root);
         }
         catch (...) {
-            fprintf(stderr,"fail to write calibration to %s \n",_folder_path.c_str());
+            fprintf(stderr,"WARNING: fail to write calibration to %s \n",_folder_path.c_str());
             return false;
         }
         return true;
@@ -706,7 +707,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
                 }
             }
         }catch(...){
-            printf("error in reading data from %s \n", _folder_path.c_str());
+            fprintf(stderr, "WARNING: error in reading data from %s \n", _folder_path.c_str());
         }
         return std::make_shared<rs_sf_dataset>(dst);
     }

@@ -182,8 +182,23 @@ void rs_sf_pose_tracking_release()
 
 struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
 {
-    std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)> _tracker;
     typedef std::shared_ptr<rs_sf_data> data_packet;
+    std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)> _tracker {nullptr,nullptr};
+
+    //bool is_realtime{ false }, qvga{ false }, async{ false }, use_depth{ true };
+    //bool fast_path{ false }, to_zero_biases{ false }, use_odometry{ false }, stereo_configured{ false }, dynamic_calibration{ false };
+    
+    bool _async{ false };
+    bool _fast_path{ true };
+    bool _dynamic_calibration{ false };
+    rc_TrackerQueueStrategy _queue_strategy{ rc_QUEUE_MINIMIZE_DROPS };
+    bool _strategy_override{ false };
+    
+    virtual ~rc_imu_camera_tracker()
+    {
+        if(_tracker){ rc_stopTracker(_tracker.get()); }
+        _tracker.reset();
+    }
     
     bool init(const std::string& calibration_file) override
     {
@@ -200,36 +215,60 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         }
         
         json_file.close();
-        return true;
+        return start_tracker();
+    }
+    
+    bool start_tracker()
+    {
+        return reset_tracker();
+    }
+    
+    bool reset_tracker()
+    {
+        if(!_tracker){ return false; }
+        rc_stopTracker(_tracker.get());
+        rc_configureQueueStrategy(_tracker.get(), (_strategy_override) ? _queue_strategy :
+                                  (_async ? rc_QUEUE_MINIMIZE_LATENCY : _queue_strategy));
+        return rc_startTracker(_tracker.get(),
+                               (_async ? rc_RUN_ASYNCHRONOUS : rc_RUN_SYNCHRONOUS) |
+                               (_fast_path ? rc_RUN_FAST_PATH : rc_RUN_NO_FAST_PATH) |
+                               (_dynamic_calibration ? rc_RUN_DYNAMIC_CALIBRATION : rc_RUN_STATIC_CALIBRATION));
     }
     
     bool process(data_packet& data) override
     {
+        if(!_tracker||!data){ return false; }
+        rc_Timestamp timestamp_us = static_cast<rc_Timestamp>(data->timestamp_us);
         switch(data->sensor_type)
         {
             case RS_SF_SENSOR_DEPTH:
             case RS_SF_SENSOR_DEPTH_LASER_OFF:
-                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_DEPTH16, data->timestamp_us, 0,
+                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_DEPTH16, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
                                 [](void* ptr){ ((data_packet*)ptr)->reset(); }, new data_packet(data));
                 break;
             case RS_SF_SENSOR_INFRARED:
                 break;
             case RS_SF_SENSOR_INFRARED_LASER_OFF:
-                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_GRAY8, data->timestamp_us, 0,
+                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_GRAY8, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
                                 [](void* ptr){ ((data_packet*)ptr)->reset(); }, new data_packet(data));
                 break;
             case RS_SF_SENSOR_COLOR:
+                /*
+                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_RGB8, timestamp_us, 0,
+                                data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
+                                [](void* ptr){ ((data_packet*)ptr)->reset(); }, new data_packet(data));
+                 */
                 break;
             case RS_SF_SENSOR_GYRO: {
                 const rc_Vector angular_velocity_rad__s = *(rc_Vector*)&data->imu;
-                rc_receiveGyro(_tracker.get(), 0, data->timestamp_us, angular_velocity_rad__s);
+                rc_receiveGyro(_tracker.get(), 0, timestamp_us, angular_velocity_rad__s);
                 break;
             }
             case RS_SF_SENSOR_ACCEL: {
                 const rc_Vector acceleration_m__s2 = *(rc_Vector*)&data->imu;
-                rc_receiveAccelerometer(_tracker.get(), 0, data->timestamp_us, acceleration_m__s2);
+                rc_receiveAccelerometer(_tracker.get(), 0, timestamp_us, acceleration_m__s2);
                 break;
             }
             default:
@@ -259,9 +298,13 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             rc_configureGyroscope(_tracker.get(), id, &extrinsics, &intrinsics);
         }
     }
-    
 };
 
+std::unique_ptr<rs2::camera_imu_tracker> rs2::camera_imu_tracker::create(){
+    return std::make_unique<rc_imu_camera_tracker>();
+}
+#else
+std::unique_ptr<camera_imu_tracker> rs2::camera_imu_tracker::create(){ return nullptr; }
 #endif
 
 

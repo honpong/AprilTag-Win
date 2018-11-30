@@ -173,7 +173,7 @@ int replay_frames(const std::string& path)
     auto tracker = rs2::camera_imu_tracker::create();
     
     const std::string camera_tracker_calibration_file = "camera.json";
-    if(tracker){ tracker->init(path+camera_tracker_calibration_file); }
+    if(tracker){ tracker->init(path+camera_tracker_calibration_file, false); }
     
     for(rs_sf_gl_context win("replay", img_w*3, img_h*3); ;)
     {

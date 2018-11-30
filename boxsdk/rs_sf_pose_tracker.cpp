@@ -189,7 +189,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     //bool fast_path{ false }, to_zero_biases{ false }, use_odometry{ false }, stereo_configured{ false }, dynamic_calibration{ false };
     
     bool _async{ false };
-    bool _fast_path{ true };
+    bool _fast_path{ false };
     bool _dynamic_calibration{ false };
     rc_TrackerQueueStrategy _queue_strategy{ rc_QUEUE_MINIMIZE_DROPS };
     bool _strategy_override{ false };
@@ -200,22 +200,26 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         _tracker.reset();
     }
     
-    bool init(const std::string& calibration_file) override
+    bool init(const std::string& calibration_file, bool async) override
     {
         std::ifstream json_file;
-        json_file.open(calibration_file, std::ios_base::in);
+        json_file.open(calibration_file, std::ios_base::in|std::ios_base::binary);
         if(!json_file.is_open()){
             fprintf(stderr,"Error: failed to open JSON calibration for camera tracker ... \n");
             return false;
         }
-        
-        auto sts = init((const char*)json_file.rdbuf());
+        json_file.seekg(0, json_file.end);
+        std::vector<char> json_char(json_file.tellg());
+        json_file.seekg(0, json_file.beg);
+        auto* json_buf = json_file.rdbuf();
+        json_buf->sgetn(json_char.data(), json_char.size());
+        auto sts = init(json_char.data(), async);
         
         json_file.close();
         return sts;
     }
     
-    bool init(const char* calibration_data) override
+    bool init(const char* calibration_data, bool async) override
     {
         if(_tracker!=nullptr){ return false; }
         _tracker = std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)>(rc_create(), rc_destroy);

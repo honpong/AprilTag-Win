@@ -180,7 +180,7 @@ int replay_frames(const std::string& path)
     auto boxfit = rs_sf_shapefit_ptr(&rs_data_src->get_stream_info()[d435i_dataset::DEPTH].intrinsics.cam_intrinsics,cap,rs_data_src->get_depth_unit());
     
     auto tracker = rs2::camera_imu_tracker::create();
-    if(!tracker || !tracker->init(path+"camera.json", false)){ return -1; }
+    if(tracker && !tracker->init(path+"camera.json", false)){ return -1; }
     
     d435i_dataset buf;
     for(rs_sf_gl_context win("replay", img_w*3, img_h*3); ;)

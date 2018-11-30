@@ -211,22 +211,13 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     
     bool init(const std::string& calibration_file, bool async) override
     {
-        std::ifstream json_file;
-        json_file.open(calibration_file, std::ios_base::in|std::ios_base::binary);
-        if(!json_file.is_open()){
+        std::ifstream json_file(calibration_file);
+        std::string json_str((std::istreambuf_iterator<char>(json_file)), std::istreambuf_iterator<char>());
+        if (!json_file.is_open() || json_str.empty()) {
             fprintf(stderr,"Error: failed to open JSON calibration for camera tracker ... \n");
             return false;
         }
-        json_file.seekg(0, json_file.end);
-        std::vector<char> json_char(json_file.tellg());
-        json_file.seekg(0, json_file.beg);
-        auto* json_buf = json_file.rdbuf();
-        json_buf->sgetn(json_char.data(), json_char.size());
-        
-        auto sts = init(json_char.data(), async);
-        json_file.close();
-        
-        return sts;
+        return init(json_str.c_str(), async);
     }
     
     bool init(const char* calibration_data, bool async) override

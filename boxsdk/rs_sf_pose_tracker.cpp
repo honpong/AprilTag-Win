@@ -269,13 +269,13 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             case RS_SF_SENSOR_INFRARED:
                 break;
             case RS_SF_SENSOR_INFRARED_LASER_OFF:
-                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_GRAY8, timestamp_us, 0,
+                rc_receiveImage(_tracker.get(), data->sensor_index - 1, rc_FORMAT_GRAY8, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
                                 [](void* ptr){ delete (data_packet*)ptr; }, new data_packet(data));
                 break;
             case RS_SF_SENSOR_COLOR:
                 /*
-                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_RGB8, timestamp_us, 0,
+                rc_receiveImage(_tracker.get(), 2, rc_FORMAT_RGB8, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
                                 [](void* ptr){ ((data_packet*)ptr)->reset(); }, new data_packet(data));
                  */

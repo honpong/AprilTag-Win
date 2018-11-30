@@ -76,7 +76,11 @@ if(MSVC)
     add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     add_compile_options(/sdl)
-    list(APPEND LIBRS_APP_LIBS glfw3)
+    find_package(glfw3 QUIET)
+    if (NOT TARGET glfw)
+      add_subdirectory(${LIBRS_DIR}/third-party/glfw)
+      add_library(glfw ALIAS glfw3)
+    end()
 
 elseif(APPLE)
 
@@ -96,29 +100,7 @@ elseif(APPLE)
         message(FATAL_ERROR "Failed to find libusb-1.0" )
     endif(LIBUSB1_FOUND)
 
-    # Find glfw header
-    find_path(GLFW_INCLUDE_DIR NAMES GLFW/glfw3.h PATHS
-        /usr/X11R6/include
-        /usr/include/X11
-        /opt/graphics/OpenGL/include
-        /opt/graphics/OpenGL/contrib/libglfw
-        /usr/local/include
-        /usr/include/GL
-        /usr/include)
-
-    # Find glfw library
-    find_library(GLFW_LIBRARIES NAMES glfw glfw3 PATHS
-        /usr/lib64
-        /usr/lib
-        /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}
-        /usr/local/lib64
-        /usr/local/lib
-        /usr/local/lib/${CMAKE_LIBRARY_ARCHITECTURE}
-        /usr/X11R6/lib)
-
-    list(APPEND LIBRS_LIBS m ${LIBUSB1_LIBRARIES})
-    list(APPEND LIBRS_LIBS ${GLFW_LIBRARIES})
-    include_directories(${GLFW_INCLUDE_DIR})
+    find_package(glfw3 REQUIRED)
 endif()
 
 #########################################################################
@@ -130,12 +112,10 @@ set(ALGO_LIB algo-core CACHE STRING "")
 
 list(APPEND LIBRS_APP_LIBS json3 ${OPENGL_LIBRARIES})
 list(APPEND LIBRS_LIBS realsense2)
+list(APPEND LIBRS_LIBS glfw)
 
 add_subdirectory(${JSON3_DIR})
 add_subdirectory(${LIBRS_DIR})
-if(NOT TARGET glfw3)
-    add_subdirectory(${LIBRS_DIR}/third-party/glfw)
-endif()
 add_subdirectory(src/api)
 add_subdirectory(boxsdk)
 

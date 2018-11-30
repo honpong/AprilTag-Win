@@ -211,22 +211,13 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     
     bool init(const std::string& calibration_file, bool async) override
     {
-        std::ifstream json_file;
-        json_file.open(calibration_file, std::ios_base::in|std::ios_base::binary);
-        if(!json_file.is_open()){
+        std::ifstream json_file(calibration_file);
+        std::string json_str((std::istreambuf_iterator<char>(json_file)), std::istreambuf_iterator<char>());
+        if (!json_file.is_open() || json_str.empty()) {
             fprintf(stderr,"Error: failed to open JSON calibration for camera tracker ... \n");
             return false;
         }
-        json_file.seekg(0, json_file.end);
-        std::vector<char> json_char(json_file.tellg());
-        json_file.seekg(0, json_file.beg);
-        auto* json_buf = json_file.rdbuf();
-        json_buf->sgetn(json_char.data(), json_char.size());
-        
-        auto sts = init(json_char.data(), async);
-        json_file.close();
-        
-        return sts;
+        return init(json_str.c_str(), async);
     }
     
     bool init(const char* calibration_data, bool async) override
@@ -278,13 +269,13 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             case RS_SF_SENSOR_INFRARED:
                 break;
             case RS_SF_SENSOR_INFRARED_LASER_OFF:
-                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_GRAY8, timestamp_us, 0,
+                rc_receiveImage(_tracker.get(), data->sensor_index - 1, rc_FORMAT_GRAY8, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
                                 [](void* ptr){ delete (data_packet*)ptr; }, new data_packet(data));
                 break;
             case RS_SF_SENSOR_COLOR:
                 /*
-                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_RGB8, timestamp_us, 0,
+                rc_receiveImage(_tracker.get(), 2, rc_FORMAT_RGB8, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
                                 [](void* ptr){ ((data_packet*)ptr)->reset(); }, new data_packet(data));
                  */
@@ -343,10 +334,10 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     bool wait_for_image_pose(std::vector<rs_sf_image>& images) override
     {
         auto _pose = _last_output_pose.load();
+
+        std::cout << _pose._confidence << " pose Q: " << _pose.pose_m.Q.x << " " << _pose.pose_m.Q.y << " " << _pose.pose_m.Q.z << " " << _pose.pose_m.Q.w << ", T:" << _pose.pose_m.T.x << " " << _pose.pose_m.T.y << " " << _pose.pose_m.T.z << std::endl;
+
         if(_pose._confidence == rc_E_CONFIDENCE_NONE){ return false; }
-        
-        std::cout << "pose Q: " << _pose.pose_m.Q.v << ", T:" << _pose.pose_m.T.v << std::endl;
-        
         for(auto& img : images){
             img.cam_pose << _pose.pose_m;
         }

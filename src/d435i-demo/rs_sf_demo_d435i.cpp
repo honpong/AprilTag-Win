@@ -178,7 +178,7 @@ int replay_frames(const std::string& path)
     
     d435i_dataset buf;
     auto tracker = rs2::camera_imu_tracker::create();
-    if(tracker){ tracker->init(path+"camera.json", false); }
+    if(tracker){ if(!tracker->init(path+"camera.json", false)){ return -1; }}
     
     for(rs_sf_gl_context win("replay", img_w*3, img_h*3); ;)
     {

@@ -222,9 +222,11 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         json_file.seekg(0, json_file.beg);
         auto* json_buf = json_file.rdbuf();
         json_buf->sgetn(json_char.data(), json_char.size());
+        
+        auto sts = init(json_char.data(), async);
         json_file.close();
         
-        return init(json_char.data(), async);
+        return sts;
     }
     
     bool init(const char* calibration_data, bool async) override
@@ -330,6 +332,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             case rc_SENSOR_TYPE_GYROSCOPE:
             case rc_SENSOR_TYPE_ACCELEROMETER:
                 _last_output_pose.store(rc_tracker_output(tracker,*data));
+                //std::cout << "pose confidence : " << _last_output_pose.load()._confidence << std::endl;
                 break;
             default:
                 // not used

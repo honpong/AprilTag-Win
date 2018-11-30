@@ -27,7 +27,7 @@ int live_demo(const int cap_size[2]);
 
 int main(int argc, char* argv[])
 {
-    bool is_live = false, is_capture = false, is_replay = false; int laser_option = 2;
+    bool is_live = false, is_capture = false, is_replay = false; int laser_option = 1;
     std::string path = DEFAULT_PATH;
     int num_frames = 200; std::vector<int> capture_size = { 640,480 };
     rs_shapefit_capability sf_option = RS_SHAPEFIT_PLANE;

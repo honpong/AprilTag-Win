@@ -536,12 +536,12 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     std::deque<rs_sf_data_ptr>             _data_buffer;
     std::vector<rs_sf_virtual_stream_info> _virtual_streams;
     
-    rs_sf_d435i_file_stream(const std::string& path) : rs_sf_file_io(path), _init_check_data(true), _garbage_dataset_num(10)
+    rs_sf_d435i_file_stream(const std::string& path, bool request_check_data) : rs_sf_file_io(path), _init_check_data(request_check_data), _garbage_dataset_num(10)
     {
         read_calibrations();
         
         init_virtual_streams();
-        if( _init_check_data){ check_data(); }
+        if(_init_check_data){ check_data(); }
         
         _index_file.open(get_index_filepath(), std::ios_base::in);
         _index_file.seekg(0);
@@ -719,5 +719,5 @@ std::unique_ptr<rs_sf_data_stream> rs_sf_create_camera_imu_stream(int w, int h, 
 std::unique_ptr<rs_sf_data_writer> rs_sf_create_data_writer(rs_sf_data_stream* src, const std::string& path){
     return std::make_unique<rs_sf_d435i_writer>(src, path); }
 
-std::unique_ptr<rs_sf_data_stream> rs_sf_create_camera_imu_stream(const std::string& folder_path){
-    return std::make_unique<rs_sf_d435i_file_stream>(folder_path); }
+std::unique_ptr<rs_sf_data_stream> rs_sf_create_camera_imu_stream(const std::string& folder_path, bool check_data){
+    return std::make_unique<rs_sf_d435i_file_stream>(folder_path, check_data); }

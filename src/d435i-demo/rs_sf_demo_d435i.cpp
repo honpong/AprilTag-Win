@@ -172,7 +172,7 @@ int capture_frames(const std::string& path, const int image_set_size, const int 
 
 int replay_frames(const std::string& path)
 {
-    auto rs_data_src = rs_sf_create_camera_imu_stream(path);
+    auto rs_data_src = rs_sf_create_camera_imu_stream(path,true);
     const int img_w = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.width;
     const int img_h = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.height;
     
@@ -183,7 +183,7 @@ int replay_frames(const std::string& path)
     for(rs_sf_gl_context win("replay", img_w*3, img_h*3); ;)
     {
         auto new_data = rs_data_src->wait_for_data();
-        if(!new_data || new_data->empty()){ rs_data_src = rs_sf_create_camera_imu_stream(path); continue; }
+        if(!new_data || new_data->empty()){ rs_data_src = rs_sf_create_camera_imu_stream(path,false); continue; }
         
         auto images = (buf << new_data).images();
         if(tracker){

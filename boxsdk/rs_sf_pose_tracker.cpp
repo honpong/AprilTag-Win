@@ -178,6 +178,7 @@ void rs_sf_pose_tracking_release()
 #ifdef RC_TRACKER
 
 #include <rc_tracker.h>
+#include <iostream>
 #include <fstream>
 
 static float* operator<<(float* dst, const rc_Pose& src){
@@ -199,7 +200,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     bool _async{ false };
     bool _fast_path{ false };
     bool _dynamic_calibration{ false };
-    rc_TrackerQueueStrategy _queue_strategy{ rc_QUEUE_MINIMIZE_LATENCY };
+    rc_TrackerQueueStrategy _queue_strategy{ rc_QUEUE_MINIMIZE_DROPS /*rc_QUEUE_MINIMIZE_LATENCY*/ };
     bool _strategy_override{ false };
     
     virtual ~rc_imu_camera_tracker()
@@ -328,7 +329,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             case rc_SENSOR_TYPE_IMAGE:
             case rc_SENSOR_TYPE_GYROSCOPE:
             case rc_SENSOR_TYPE_ACCELEROMETER:
-                _last_output_pose = rc_tracker_output(tracker,*data);
+                _last_output_pose.store(rc_tracker_output(tracker,*data));
                 break;
             default:
                 // not used
@@ -336,11 +337,12 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         }
     }
     
-    
     bool wait_for_image_pose(std::vector<rs_sf_image>& images) override
     {
         auto _pose = _last_output_pose.load();
         if(_pose._confidence == rc_E_CONFIDENCE_NONE){ return false; }
+        
+        std::cout << "pose Q: " << _pose.pose_m.Q.v << ", T:" << _pose.pose_m.T.v << std::endl;
         
         for(auto& img : images){
             img.cam_pose << _pose.pose_m;

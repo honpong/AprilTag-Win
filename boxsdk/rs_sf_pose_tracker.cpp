@@ -182,8 +182,8 @@ void rs_sf_pose_tracking_release()
 
 struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
 {
-    typedef std::shared_ptr<rs_sf_data> data_packet;
-    std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)> _tracker {nullptr,nullptr};
+    typedef rs_sf_data_ptr data_packet;
+    std::unique_ptr<rc_Tracker,decltype(&rc_destroy)> _tracker {nullptr,nullptr};
 
     //bool is_realtime{ false }, qvga{ false }, async{ false }, use_depth{ true };
     //bool fast_path{ false }, to_zero_biases{ false }, use_odometry{ false }, stereo_configured{ false }, dynamic_calibration{ false };
@@ -202,19 +202,33 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     
     bool init(const std::string& calibration_file) override
     {
-        if(_tracker!=nullptr){ return false; }
-        _tracker = std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)>(rc_create(), rc_destroy);
-        
         std::ifstream json_file;
         json_file.open(calibration_file, std::ios_base::in);
-
-        if (!json_file.is_open() || !rc_setCalibration(_tracker.get(), (const char *)json_file.rdbuf()))
-        {
-            fprintf(stderr, "Error: failed to load JSON calibration...\n");
+        if(!json_file.is_open()){
+            fprintf(stderr,"Error: failed to open JSON calibration for camera tracker ... \n");
             return false;
         }
         
+        auto sts = init((const char*)json_file.rdbuf());
+        
         json_file.close();
+        return sts;
+    }
+    
+    bool init(const char* calibration_data) override
+    {
+        if(_tracker!=nullptr){ return false; }
+        _tracker = std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)>(rc_create(), rc_destroy);
+        
+        if(!rc_setCalibration(_tracker.get(), calibration_data)){
+            fprintf(stderr, "Error: failed to load JSON calibration into camera tracker ... \n");
+            return false;
+        }
+        
+        // setting data callback from the rc tracker
+        rc_setDataCallback(_tracker.get(), [](void* handle, rc_Tracker* tracker, const rc_Data* data){
+            ((rc_imu_camera_tracker*)handle)->data_callback(tracker,data);}, this);
+        
         return start_tracker();
     }
     
@@ -245,14 +259,14 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             case RS_SF_SENSOR_DEPTH_LASER_OFF:
                 rc_receiveImage(_tracker.get(), 0, rc_FORMAT_DEPTH16, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
-                                [](void* ptr){ ((data_packet*)ptr)->reset(); }, new data_packet(data));
+                                [](void* ptr){ delete (data_packet*)ptr; }, new data_packet(data));
                 break;
             case RS_SF_SENSOR_INFRARED:
                 break;
             case RS_SF_SENSOR_INFRARED_LASER_OFF:
                 rc_receiveImage(_tracker.get(), 0, rc_FORMAT_GRAY8, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
-                                [](void* ptr){ ((data_packet*)ptr)->reset(); }, new data_packet(data));
+                                [](void* ptr){ delete (data_packet*)ptr; }, new data_packet(data));
                 break;
             case RS_SF_SENSOR_COLOR:
                 /*
@@ -274,6 +288,45 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             default:
                 break;
         }
+        return true;
+    }
+    
+    struct rc_tracker_output : public rc_Data, rc_PoseTime
+    {
+        static const rc_DataPath _data_path = rc_DATA_PATH_SLOW;
+
+        rc_TrackerConfidence _confidence;
+        float                _path_length;
+        rc_PoseVelocity      _pose_velocity;
+        rc_PoseAcceleration  _pose_acceleration;
+    
+        rc_tracker_output(rc_Tracker* tracker, const rc_Data& ref)
+        : rc_Data(ref), rc_PoseTime(rc_getPose(tracker, &_pose_velocity, &_pose_acceleration, _data_path))
+        {
+            _confidence  = rc_getConfidence(tracker);
+            _path_length = rc_getPathLength(tracker);
+        }
+    };
+    
+    std::atomic<rc_tracker_output> _last_output_pose;
+    void data_callback(rc_Tracker* tracker, const rc_Data* data)
+    {
+        if(!data){ return; }
+        
+        switch(data->type){
+            case rc_SENSOR_TYPE_IMAGE:
+            case rc_SENSOR_TYPE_GYROSCOPE:
+            case rc_SENSOR_TYPE_ACCELEROMETER:
+                _last_output_pose = rc_tracker_output(tracker,*data);
+                break;
+            default:
+                // not used
+                break;
+        }
+    }
+    
+    bool wait_for_image_pose(std::vector<rs_sf_data_ptr>& dataset) override
+    {
         return true;
     }
     
@@ -304,7 +357,7 @@ std::unique_ptr<rs2::camera_imu_tracker> rs2::camera_imu_tracker::create(){
     return std::make_unique<rc_imu_camera_tracker>();
 }
 #else
-std::unique_ptr<camera_imu_tracker> rs2::camera_imu_tracker::create(){ return nullptr; }
+std::unique_ptr<rs2::camera_imu_tracker> rs2::camera_imu_tracker::create(){ return nullptr; }
 #endif
 
 

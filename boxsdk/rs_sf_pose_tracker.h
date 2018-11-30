@@ -114,7 +114,11 @@ namespace rs2
     {
         virtual ~camera_imu_tracker() {}
         virtual bool init(const std::string& calibration_file) = 0;
-        virtual bool process(std::shared_ptr<rs_sf_data>& data) = 0;
+        virtual bool init(const char* calibration_data) = 0;
+        virtual bool process(rs_sf_data_ptr& data) = 0;
+        inline void process(std::vector<rs_sf_data_ptr>&& dataset) {
+            for(auto& d : dataset){ process(d); }}
+        virtual bool wait_for_image_pose(std::vector<rs_sf_data_ptr>& dataset) = 0;
         
         static std::unique_ptr<camera_imu_tracker> create();
     };

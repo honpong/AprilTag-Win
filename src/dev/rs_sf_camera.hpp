@@ -17,8 +17,6 @@ const static auto RS_SF_FORMAT_BGR8 = RS2_FORMAT_BGR8;
 const static int  RS_SF_CALIBRATION_FILE_VERSION = 3;
 
 #include <list>
-struct rs_sf_data_buf : public rs_sf_data { virtual ~rs_sf_data_buf(){} };
-typedef std::shared_ptr<rs_sf_data_buf> rs_sf_data_ptr;
 struct rs_sf_data_list : public std::list<rs_sf_data_ptr>
 {
     rs_sf_data_ptr& operator[](int i){ auto it=begin(); std::advance(it, i); return *it; }

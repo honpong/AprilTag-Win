@@ -283,6 +283,7 @@ extern "C"
 #include <string.h>
 inline void rs_sf_memcpy(void* dst, const void* src, size_t len) { memcpy(dst, src, len); }
 
+
 struct rs_sf_image_auto : public rs_sf_image
 {
     virtual ~rs_sf_image_auto() {}
@@ -324,6 +325,8 @@ template<int Channel> struct rs_sf_image_impl : public rs_sf_image_auto
     }
 };
 
+struct  rs_sf_data_buf : public rs_sf_data { virtual ~rs_sf_data_buf(){} };
+typedef std::shared_ptr<rs_sf_data_buf> rs_sf_data_ptr;
 typedef std::unique_ptr<rs_sf_image_auto> rs_sf_image_ptr;
 typedef rs_sf_image_impl<1> rs_sf_image_mono;
 typedef rs_sf_image_impl<2> rs_sf_image_depth;

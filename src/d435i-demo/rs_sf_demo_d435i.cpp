@@ -107,7 +107,7 @@ struct d435i_dataset : public rs_sf_dataset
         return false;
     }
     
-    std::vector<rs_sf_image> images() {
+    std::vector<rs_sf_image> images() const {
         std::vector<rs_sf_image> dst;
         if(full_laser_on_imageset()){
             for(auto s : {DEPTH,IR_L,IR_R}){dst.emplace_back(at(s)[0]->image);}
@@ -116,6 +116,25 @@ struct d435i_dataset : public rs_sf_dataset
             for(auto s : {DEPTH,IR_L,IR_R}){dst.emplace_back(at(s)[1]->image);}
         }
         if(at(COLOR)[0]){ dst.emplace_back(at(COLOR)[0]->image); }
+        return dst;
+    }
+    
+    std::vector<rs_sf_data_ptr> laser_off_data() const {
+        std::vector<rs_sf_data_ptr> dst;
+        dst.reserve(size());
+        for(auto& stream : *this){
+            for(auto& data : stream){
+                if(!data){ continue; }
+                switch(data->sensor_type){
+                    case RS_SF_SENSOR_LASER_OFF:
+                    case RS_SF_SENSOR_INFRARED_LASER_OFF:
+                    case RS_SF_SENSOR_GYRO:
+                    case RS_SF_SENSOR_ACCEL:
+                        dst.emplace_back(data);
+                    default: break;
+                }
+            }
+        }
         return dst;
     }
 };
@@ -151,6 +170,10 @@ int replay_frames(const std::string& path)
     const int img_h = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.height;
     
     d435i_dataset buf;
+    auto tracker = rs2::camera_imu_tracker::create();
+    
+    const std::string camera_tracker_calibration_file = "camera.json";
+    if(tracker){ tracker->init(path+camera_tracker_calibration_file); }
     
     for(rs_sf_gl_context win("replay", img_w*3, img_h*3); ;)
     {
@@ -158,6 +181,8 @@ int replay_frames(const std::string& path)
         if(!new_data || new_data->empty()){ rs_data_src = rs_sf_create_camera_imu_stream(path); continue; }
         
         auto images = (buf << new_data).images();
+        if(tracker){ tracker->process(buf.laser_off_data()); }
+        
         if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;

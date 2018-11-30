@@ -76,7 +76,11 @@ if(MSVC)
     add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)
     add_compile_options(/sdl)
-    list(APPEND LIBRS_APP_LIBS glfw3)
+    find_package(glfw3 QUIET)
+    if (NOT TARGET glfw)
+      add_subdirectory(${LIBRS_DIR}/third-party/glfw)
+      add_library(glfw ALIAS glfw3)
+    end()
 
 elseif(APPLE)
 
@@ -95,10 +99,8 @@ elseif(APPLE)
     else()
         message(FATAL_ERROR "Failed to find libusb-1.0" )
     endif(LIBUSB1_FOUND)
-    list(APPEND LIBRS_LIBS m ${LIBUSB1_LIBRARIES})
 
     find_package(glfw3 REQUIRED)
-    list(APPEND LIBRS_LIBS glfw)
 endif()
 
 #########################################################################
@@ -110,12 +112,10 @@ set(ALGO_LIB algo-core CACHE STRING "")
 
 list(APPEND LIBRS_APP_LIBS json3 ${OPENGL_LIBRARIES})
 list(APPEND LIBRS_LIBS realsense2)
+list(APPEND LIBRS_LIBS glfw)
 
 add_subdirectory(${JSON3_DIR})
 add_subdirectory(${LIBRS_DIR})
-if(NOT TARGET glfw3)
-    add_subdirectory(${LIBRS_DIR}/third-party/glfw)
-endif()
 add_subdirectory(src/api)
 add_subdirectory(boxsdk)
 

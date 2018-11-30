@@ -334,10 +334,10 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     bool wait_for_image_pose(std::vector<rs_sf_image>& images) override
     {
         auto _pose = _last_output_pose.load();
+
+        std::cout << _pose._confidence << " pose Q: " << _pose.pose_m.Q.x << " " << _pose.pose_m.Q.y << " " << _pose.pose_m.Q.z << " " << _pose.pose_m.Q.w << ", T:" << _pose.pose_m.T.x << " " << _pose.pose_m.T.y << " " << _pose.pose_m.T.z << std::endl;
+
         if(_pose._confidence == rc_E_CONFIDENCE_NONE){ return false; }
-        
-        std::cout << "pose Q: " << _pose.pose_m.Q.v << ", T:" << _pose.pose_m.T.v << std::endl;
-        
         for(auto& img : images){
             img.cam_pose << _pose.pose_m;
         }

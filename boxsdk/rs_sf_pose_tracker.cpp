@@ -180,6 +180,14 @@ void rs_sf_pose_tracking_release()
 #include <rc_tracker.h>
 #include <fstream>
 
+static float* operator<<(float* dst, const rc_Pose& src){
+    if(!dst){ return dst; }
+    dst[0] = src.R.v[0][0]; dst[1] = src.R.v[0][1]; dst[ 2] = src.R.v[0][2]; dst[ 3] = src.T.x;
+    dst[4] = src.R.v[1][0]; dst[5] = src.R.v[1][1]; dst[ 6] = src.R.v[1][2]; dst[ 7] = src.T.y;
+    dst[8] = src.R.v[2][0]; dst[9] = src.R.v[2][1]; dst[10] = src.R.v[2][2]; dst[11] = src.T.z;
+    return dst;
+}
+
 struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
 {
     typedef rs_sf_data_ptr data_packet;
@@ -191,7 +199,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     bool _async{ false };
     bool _fast_path{ false };
     bool _dynamic_calibration{ false };
-    rc_TrackerQueueStrategy _queue_strategy{ rc_QUEUE_MINIMIZE_DROPS };
+    rc_TrackerQueueStrategy _queue_strategy{ rc_QUEUE_MINIMIZE_LATENCY };
     bool _strategy_override{ false };
     
     virtual ~rc_imu_camera_tracker()
@@ -213,10 +221,9 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         json_file.seekg(0, json_file.beg);
         auto* json_buf = json_file.rdbuf();
         json_buf->sgetn(json_char.data(), json_char.size());
-        auto sts = init(json_char.data(), async);
-        
         json_file.close();
-        return sts;
+        
+        return init(json_char.data(), async);
     }
     
     bool init(const char* calibration_data, bool async) override
@@ -312,7 +319,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         }
     };
     
-    std::atomic<rc_tracker_output> _last_output_pose;
+    std::atomic<rc_tracker_output> _last_output_pose = {};
     void data_callback(rc_Tracker* tracker, const rc_Data* data)
     {
         if(!data){ return; }
@@ -329,8 +336,15 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         }
     }
     
-    bool wait_for_image_pose(std::vector<rs_sf_data_ptr>& dataset) override
+    
+    bool wait_for_image_pose(std::vector<rs_sf_image>& images) override
     {
+        auto _pose = _last_output_pose.load();
+        if(_pose._confidence == rc_E_CONFIDENCE_NONE){ return false; }
+        
+        for(auto& img : images){
+            img.cam_pose << _pose.pose_m;
+        }
         return true;
     }
     

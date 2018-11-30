@@ -61,6 +61,7 @@ add_subdirectory(api)
 option(BUILD_SHAPEFIT_DEV_APP "Build Shapefit Development App" ON)
 if(BUILD_SHAPEFIT_DEV_APP)
     set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/librealsense/librealsense)
+    set(FW_RW_API ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/guoping)
     
     find_package(OpenGL REQUIRED)
     set(LIBRS_LIBS realsense2 ${OPENGL_LIBRARIES})

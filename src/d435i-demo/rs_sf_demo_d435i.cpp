@@ -62,6 +62,13 @@ int main(int argc, char* argv[])
 
 struct d435i_dataset : public rs_sf_dataset
 {
+    struct img_data : public rs_sf_data_buf {
+        img_data(rs_sf_data_ptr& ref) : rs_sf_data_buf(*ref), _src(ref) { image.cam_pose = _pose; }
+        rs_sf_data_ptr _src;
+        float          _pose[12] = {1.0f,0,0,0,0,1.0f,0,0,0,0,1.0f,0};
+    };
+    static rs_sf_data_ptr add_pose_data(rs_sf_data_ptr& ref) { return std::make_shared<img_data>(ref); }
+    
     enum stream {DEPTH, IR_L, IR_R, COLOR, GYRO, ACCEL};
     d435i_dataset()
     {
@@ -77,11 +84,11 @@ struct d435i_dataset : public rs_sf_dataset
         
         for(auto s : {DEPTH,IR_L,IR_R}){
             for(auto& d : data->at(s)){
-                at(s)[(d->sensor_type & RS_SF_SENSOR_LASER_OFF)?1:0] = d;
+                at(s)[(d->sensor_type & RS_SF_SENSOR_LASER_OFF)?1:0] = add_pose_data(d);
             }
         }
         for(auto& d : data->at(COLOR)){
-            at(COLOR)[0] = d;
+            at(COLOR)[0] = add_pose_data(d);
         }
         for(auto s : {GYRO, ACCEL}){
             if(data->size()>s && !data->at(s).empty()){
@@ -171,9 +178,7 @@ int replay_frames(const std::string& path)
     
     d435i_dataset buf;
     auto tracker = rs2::camera_imu_tracker::create();
-    
-    const std::string camera_tracker_calibration_file = "camera.json";
-    if(tracker){ tracker->init(path+camera_tracker_calibration_file, false); }
+    if(tracker){ tracker->init(path+"camera.json", false); }
     
     for(rs_sf_gl_context win("replay", img_w*3, img_h*3); ;)
     {
@@ -181,7 +186,10 @@ int replay_frames(const std::string& path)
         if(!new_data || new_data->empty()){ rs_data_src = rs_sf_create_camera_imu_stream(path); continue; }
         
         auto images = (buf << new_data).images();
-        if(tracker){ tracker->process(buf.laser_off_data()); }
+        if(tracker){
+            tracker->process(buf.laser_off_data());
+            tracker->wait_for_image_pose(images);
+        }
         
         if(!win.imshow(images.data(),images.size())){break;}
     }

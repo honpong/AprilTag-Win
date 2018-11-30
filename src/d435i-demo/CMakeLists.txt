@@ -31,7 +31,7 @@ add_executable(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_sf_pose_tracker.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_sf_pose_tracker.h)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
-target_link_libraries(${PROJECT_NAME} shapefit-core ${LIBRS_LIBS} ${libSP} )
+target_link_libraries(${PROJECT_NAME} shapefit-core ${LIBRS_LIBS} ${libSP})
 target_include_directories(${PROJECT_NAME} PRIVATE shapefit-core ${LIBRS_LIBS} ${libSP}
     ${CMAKE_CURRENT_SOURCE_DIR}/../dev
     ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk

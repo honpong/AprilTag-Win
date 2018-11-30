@@ -118,7 +118,7 @@ namespace rs2
         virtual bool process(rs_sf_data_ptr& data) = 0;
         inline void process(std::vector<rs_sf_data_ptr>&& dataset) {
             for(auto& d : dataset){ process(d); }}
-        virtual bool wait_for_image_pose(std::vector<rs_sf_data_ptr>& dataset) = 0;
+        virtual bool wait_for_image_pose(std::vector<rs_sf_image>& images) = 0;
         
         static std::unique_ptr<camera_imu_tracker> create();
     };

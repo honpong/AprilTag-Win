@@ -4,7 +4,7 @@ INTEL CORPORATION PROPRIETARY INFORMATION
 This software is supplied under the terms of a license agreement or nondisclosure
 agreement with Intel Corporation and may not be copied or disclosed except in
 accordance with the terms of that agreement
-Copyright(c) 2017 Intel Corporation. All Rights Reserved.
+Copyright(c) 2017-2019 Intel Corporation. All Rights Reserved.
 
 *******************************************************************************/
 #include "rs_sf_pose_tracker.h"
@@ -234,6 +234,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         rc_setDataCallback(_tracker.get(), [](void* handle, rc_Tracker* tracker, const rc_Data* data){
             ((rc_imu_camera_tracker*)handle)->data_callback(tracker,data);}, this);
         
+        _async = async;
         return start_tracker();
     }
     
@@ -335,7 +336,8 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     {
         auto _pose = _last_output_pose.load();
 
-        std::cout << _pose._confidence << " pose Q: " << _pose.pose_m.Q.x << " " << _pose.pose_m.Q.y << " " << _pose.pose_m.Q.z << " " << _pose.pose_m.Q.w << ", T:" << _pose.pose_m.T.x << " " << _pose.pose_m.T.y << " " << _pose.pose_m.T.z << std::endl;
+        std::cout << _pose._confidence << " pose Q: " << _pose.pose_m.Q.x << " " << _pose.pose_m.Q.y << " " << _pose.pose_m.Q.z << " " << _pose.pose_m.Q.w
+        << ", T:" << _pose.pose_m.T.x << " " << _pose.pose_m.T.y << " " << _pose.pose_m.T.z << std::endl;
 
         if(_pose._confidence == rc_E_CONFIDENCE_NONE){ return false; }
         for(auto& img : images){

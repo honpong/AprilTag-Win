@@ -176,10 +176,13 @@ int replay_frames(const std::string& path)
     const int img_w = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.width;
     const int img_h = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.height;
     
-    d435i_dataset buf;
-    auto tracker = rs2::camera_imu_tracker::create();
-    if(tracker){ if(!tracker->init(path+"camera.json", false)){ return -1; }}
+    rs_shapefit_capability cap = rs_shapefit_capability::RS_SHAPEFIT_BOX;
+    auto boxfit = rs_sf_shapefit_ptr(&rs_data_src->get_stream_info()[d435i_dataset::DEPTH].intrinsics.cam_intrinsics,cap,rs_data_src->get_depth_unit());
     
+    auto tracker = rs2::camera_imu_tracker::create();
+    if(!tracker || !tracker->init(path+"camera.json", false)){ return -1; }
+    
+    d435i_dataset buf;
     for(rs_sf_gl_context win("replay", img_w*3, img_h*3); ;)
     {
         auto new_data = rs_data_src->wait_for_data();
@@ -190,6 +193,9 @@ int replay_frames(const std::string& path)
             tracker->process(buf.laser_off_data());
             tracker->wait_for_image_pose(images);
         }
+        
+        rs_shapefit_depth_image(boxfit.get(), images.data());
+        rs_sf_planefit_draw_planes(boxfit.get(), &images[d435i_dataset::COLOR]);
         
         if(!win.imshow(images.data(),images.size())){break;}
     }

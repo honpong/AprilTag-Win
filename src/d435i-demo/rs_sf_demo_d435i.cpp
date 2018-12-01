@@ -210,8 +210,11 @@ int replay_frames(const std::string& path)
         
         rs_shapefit_depth_image(boxfit.get(), images.data());
         rs_sf_planefit_draw_planes(boxfit.get(), &images[d435i_dataset::COLOR]);
-        rs_sf_boxfit_draw_boxes(boxfit.get(), &images[d435i_dataset::COLOR]);
         
+        rs_sf_image_rgb boxwire(&images[d435i_dataset::IR_L]);
+        rs_sf_boxfit_draw_boxes(boxfit.get(), &(images[d435i_dataset::IR_R]=boxwire), &images[d435i_dataset::IR_L]);
+        rs_sf_boxfit_draw_boxes(boxfit.get(), &images[d435i_dataset::COLOR]);
+
         if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;
@@ -242,6 +245,9 @@ int live_demo(const int cap_size[2], const std::string& path)
         
         rs_shapefit_depth_image(boxfit.get(), images.data());
         rs_sf_planefit_draw_planes(boxfit.get(), &images[d435i_dataset::COLOR]);
+        
+        rs_sf_image_rgb boxwire(&images[d435i_dataset::IR_L]);
+        rs_sf_boxfit_draw_boxes(boxfit.get(), &(images[d435i_dataset::IR_R]=boxwire), &images[d435i_dataset::IR_L]);
         rs_sf_boxfit_draw_boxes(boxfit.get(), &images[d435i_dataset::COLOR]);
 
         if(!win.imshow(images.data(),images.size())){break;}

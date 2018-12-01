@@ -297,7 +297,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         return true;
     }
     
-    struct rc_tracker_output : public rc_Data, rc_PoseTime
+    struct rc_tracker_output : private rc_Data, public rc_PoseTime
     {
         static const rc_DataPath _data_path = rc_DATA_PATH_SLOW;
 
@@ -312,6 +312,8 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             _confidence  = rc_getConfidence(tracker);
             _path_length = rc_getPathLength(tracker);
         }
+        
+        rc_tracker_output() = default;
     };
     
     std::atomic<rc_tracker_output> _last_output_pose = {};

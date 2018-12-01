@@ -23,7 +23,7 @@
 
 int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2], int laser_option);
 int replay_frames(const std::string& path);
-int live_demo(const int cap_size[2]);
+int live_demo(const int cap_size[2], const std::string& path);
 
 int main(int argc, char* argv[])
 {
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     if (path.back() != '\\' && path.back() != '/'){ path.push_back(PATH_SEPARATER); }
     if (is_capture) capture_frames(path, num_frames, capture_size.data(), laser_option);
     if (is_replay)  replay_frames(path);
-    if (is_live)    live_demo(capture_size.data());
+    if (is_live)    live_demo(capture_size.data(),path);
     return 0;
 }
 
@@ -196,13 +196,14 @@ int replay_frames(const std::string& path)
         
         rs_shapefit_depth_image(boxfit.get(), images.data());
         rs_sf_planefit_draw_planes(boxfit.get(), &images[d435i_dataset::COLOR]);
+        rs_sf_boxfit_draw_boxes(boxfit.get(), &images[d435i_dataset::COLOR]);
         
         if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;
 }
 
-int live_demo(const int cap_size[2])
+int live_demo(const int cap_size[2], const std::string& path)
 {
     auto rs_data_src = rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],0);
     const int img_w = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.width;
@@ -210,15 +211,25 @@ int live_demo(const int cap_size[2])
     
     rs_shapefit_capability cap = rs_shapefit_capability::RS_SHAPEFIT_BOX;
     auto boxfit = rs_sf_shapefit_ptr(&rs_data_src->get_stream_info()[d435i_dataset::DEPTH].intrinsics.cam_intrinsics,cap,rs_data_src->get_depth_unit());
-    d435i_dataset buf;
     
+    auto tracker = rs2::camera_imu_tracker::create();
+    if(tracker && !tracker->init(path+"camera.json", false)){ return -1; }
+    
+    d435i_dataset buf;
     for(rs_sf_gl_context win("live demo", img_w*3, img_h*3); ;)
     {
         auto new_data = rs_data_src->wait_for_data();
+        
         auto images = (buf << new_data).images();
-        if(!buf.full_laser_off_imageset()){ continue; }
+        if(tracker){
+            tracker->process(buf.laser_off_data());
+            tracker->wait_for_image_pose(images);
+        }
+        
         rs_shapefit_depth_image(boxfit.get(), images.data());
         rs_sf_planefit_draw_planes(boxfit.get(), &images[d435i_dataset::COLOR]);
+        rs_sf_boxfit_draw_boxes(boxfit.get(), &images[d435i_dataset::COLOR]);
+
         if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;

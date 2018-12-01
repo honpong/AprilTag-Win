@@ -180,6 +180,7 @@ void rs_sf_pose_tracking_release()
 #include <rc_tracker.h>
 #include <iostream>
 #include <fstream>
+#include <atomic>
 
 static float* operator<<(float* dst, const rc_Pose& src){
     if(!dst){ return dst; }

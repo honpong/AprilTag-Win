@@ -19,6 +19,18 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Intel|GNU|Clang")
     add_compile_options($<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>)
 endif ()
 
+######################################################################
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
+if(COMPILER_SUPPORTS_CXX14)
+   #set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -std=c11")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+else()
+    message(FATAL_ERROR "Compiler does not support C++14!")
+endif()
+
+######################################################################
+
 if(MSVC)
     add_definitions(-D_USE_MATH_DEFINES) # we expect M_PI in math.h / cmath
     add_definitions(-D_CRT_SECURE_NO_WARNINGS)

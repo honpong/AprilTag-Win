@@ -180,7 +180,7 @@ void rs_sf_pose_tracking_release()
 #include <rc_tracker.h>
 #include <iostream>
 #include <fstream>
-#include <atomic>
+#include <mutex>
 
 static float* operator<<(float* dst, const rc_Pose& src){
     if(!dst){ return dst; }
@@ -317,7 +317,8 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         rc_tracker_output() = default;
     };
     
-    std::atomic<rc_tracker_output> _last_output_pose = {};
+    rc_tracker_output _last_output_pose = {};
+    std::mutex last_pose_mutex;
     void data_callback(rc_Tracker* tracker, const rc_Data* data)
     {
         if(!data){ return; }
@@ -325,10 +326,11 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         switch(data->type){
             case rc_SENSOR_TYPE_IMAGE:
             case rc_SENSOR_TYPE_GYROSCOPE:
-            case rc_SENSOR_TYPE_ACCELEROMETER:
-                _last_output_pose.store(rc_tracker_output(tracker,*data));
+            case rc_SENSOR_TYPE_ACCELEROMETER: {
+                std::lock_guard<std::mutex> lk(last_pose_mutex);
+                _last_output_pose = rc_tracker_output(tracker,*data);
                 //std::cout << "pose confidence : " << _last_output_pose.load()._confidence << std::endl;
-                break;
+            }   break;
             default:
                 // not used
                 break;
@@ -337,7 +339,11 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     
     bool wait_for_image_pose(std::vector<rs_sf_image>& images) override
     {
-        auto _pose = _last_output_pose.load();
+        rc_tracker_output _pose;
+        {
+            std::lock_guard<std::mutex> lk(last_pose_mutex);
+            _pose = _last_output_pose;
+        }
 
         std::cout << _pose._confidence << " pose Q: " << _pose.pose_m.Q.x << " " << _pose.pose_m.Q.y << " " << _pose.pose_m.Q.z << " " << _pose.pose_m.Q.w
         << ", T:" << _pose.pose_m.T.x << " " << _pose.pose_m.T.y << " " << _pose.pose_m.T.z << std::endl;

@@ -318,7 +318,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     };
     
     rc_tracker_output _last_output_pose = {};
-    std::mutex last_pose_mutex;
+    std::mutex        _last_pose_mutex;
     void data_callback(rc_Tracker* tracker, const rc_Data* data)
     {
         if(!data){ return; }
@@ -327,7 +327,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             case rc_SENSOR_TYPE_IMAGE:
             case rc_SENSOR_TYPE_GYROSCOPE:
             case rc_SENSOR_TYPE_ACCELEROMETER: {
-                std::lock_guard<std::mutex> lk(last_pose_mutex);
+                std::lock_guard<std::mutex> lk(_last_pose_mutex);
                 _last_output_pose = rc_tracker_output(tracker,*data);
                 //std::cout << "pose confidence : " << _last_output_pose.load()._confidence << std::endl;
             }   break;
@@ -341,7 +341,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     {
         rc_tracker_output _pose;
         {
-            std::lock_guard<std::mutex> lk(last_pose_mutex);
+            std::lock_guard<std::mutex> lk(_last_pose_mutex);
             _pose = _last_output_pose;
         }
 

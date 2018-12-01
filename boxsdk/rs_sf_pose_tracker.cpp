@@ -222,7 +222,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     
     bool init(const char* calibration_data, bool async) override
     {
-        if(_tracker!=nullptr){ return false; }
+        if(_tracker!=nullptr){ reset_tracker(); return false; }
         _tracker = std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)>(rc_create(), rc_destroy);
         
         if(!rc_setCalibration(_tracker.get(), calibration_data)){

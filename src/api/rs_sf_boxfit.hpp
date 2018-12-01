@@ -32,7 +32,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
         float max_box_thickness      = 1.500f; // maximum box thickness in meter
         float max_plane_pt_error     = 0.015f; // max point to box plane error
         float box_state_gain         = 0.100f; // fraction of box update allowed per frame
-        float box_miss_ms            = 500.0f; // milliseconds allowed for a tracked box get lost
+        float box_miss_ms            = 1000.0f; // milliseconds allowed for a tracked box get lost
         float fov_margin             = 2.000f; // extend box length outside fov (0 no extension)
         int   max_box_history        = 11;     // length of box history per tracked box
         bool  refine_box_plane       = false;  // flag to refine box edge

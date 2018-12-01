@@ -170,6 +170,7 @@ int capture_frames(const std::string& path, const int image_set_size, const int 
     return 0;
 }
 
+#include "d435i_default_json.h"
 int replay_frames(const std::string& path)
 {
     auto rs_data_src = rs_sf_create_camera_imu_stream(path,true);
@@ -187,7 +188,9 @@ int replay_frames(const std::string& path)
         boxfit      = rs_sf_shapefit_ptr(&rs_data_src->get_stream_info()[d435i_dataset::DEPTH].intrinsics.cam_intrinsics,cap,rs_data_src->get_depth_unit());
         tracker     = rs2::camera_imu_tracker::create();
         
-        if(tracker && !tracker->init(path+"camera.json", false)){ return -1; }
+        if(tracker && !tracker->init(path+"camera.json", false) &&
+           !tracker->init(default_camera_json, false)) { return -1; }
+        
         return 0;
     };
     

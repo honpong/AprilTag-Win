@@ -14,6 +14,10 @@
 #include <iomanip>
 #include <cmath>
 
+#ifndef RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED
+#define RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED RS2_OPTION_EMITTER_ENABLED
+#endif
+
 struct rs_sf_d435i_writer;
 struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
 {

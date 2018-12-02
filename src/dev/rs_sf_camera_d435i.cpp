@@ -563,6 +563,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     stream_info_vec get_stream_info() override { return _streams; }
     std::string     get_device_name() override { return _device_name; }
     string_vec      get_device_info() override { return _device_info; }
+    bool            is_offline_stream() override { return true; }
     
     void read_calibrations()
     {

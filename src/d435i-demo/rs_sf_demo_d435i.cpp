@@ -201,9 +201,10 @@ struct d435i_demo_pipeline
         
         if(_src.has_imu()){
             _tracker = rs2::camera_imu_tracker::create();
+            
             if(_tracker &&
-               !_tracker->init(_path+"camera.json", false) &&
-               !_tracker->init(default_camera_json, false)) { return -1; }
+               !_tracker->init(_path+"camera.json", !_src.is_offline_stream()) &&
+               !_tracker->init(default_camera_json, !_src.is_offline_stream())) { return -1; }
         }
         return 0;
     }

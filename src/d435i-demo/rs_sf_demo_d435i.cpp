@@ -60,8 +60,10 @@ int main(int argc, char* argv[])
     return 0;
 }
 
+#include <functional>
 enum stream {DEPTH, IR_L, IR_R, COLOR, GYRO, ACCEL};
-struct d435i_buffered_src : public rs_sf_dataset
+typedef std::function<std::unique_ptr<rs_sf_data_stream>()> stream_maker;
+struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
 {
     struct img_data : public rs_sf_data_buf {
         img_data(rs_sf_data_ptr& ref) : rs_sf_data_buf(*ref), _src(ref) { image.cam_pose = _pose; }
@@ -69,33 +71,45 @@ struct d435i_buffered_src : public rs_sf_dataset
         float          _pose[12] = {1.0f,0,0,0,0,1.0f,0,0,0,0,1.0f,0};
     };
     
-    d435i_buffered_src(std::unique_ptr<rs_sf_data_stream>&& src) : _src(std::move(src))
-    {
+    rs_sf_data_ptr add_pose_data(rs_sf_data_ptr& ref, const stream s) {
+        auto data = std::make_shared<img_data>(ref);
+        if(has_imu()){
+            auto* ext = (const float*)(&_stream_info[s].extrinsics[DEPTH]);
+            for(auto s : {0,1,2,4,5,6,8,9,10,3,7,11}){
+                data->image.cam_pose[s] = *ext++;
+            }
+        }else { data->image.cam_pose = nullptr; }
+        data->image.intrinsics = &_stream_info[s].intrinsics.cam_intrinsics;
+        return data;
+    }
+    
+    std::unique_ptr<rs_sf_data_stream> _src;
+    rs_sf_dataset_ptr wait_for_data(const std::chrono::milliseconds& wait_time_ms) override { return _src->wait_for_data(); }
+    std::string       get_device_name() override { return _src->get_device_name(); }
+    string_vec        get_device_info() override { return _src->get_device_info(); }
+    stream_info_vec   get_stream_info() override { return _src->get_stream_info(); }
+    float             get_depth_unit()  override { return _src->get_depth_unit();  }
+    
+    stream_info_vec _stream_info;
+    rs_sf_intrinsics intrinsics(const stream& s) const { return _stream_info[s].intrinsics.cam_intrinsics; }
+    
+    stream_maker _maker;
+    d435i_buffered_stream(stream_maker&& init) : _maker(init) { reset(); }
+    
+    int width()  const { return intrinsics(DEPTH).width; }
+    int height() const { return intrinsics(DEPTH).height;}
+    bool has_imu() const { return _stream_info.size() > 4; }
+    
+    void reset() {
+        _src = _maker();
+        
         resize(6);
         at(DEPTH).resize(2);
         at(IR_L).resize(2);
         at(IR_R).resize(2);
         at(COLOR).resize(1);
         
-        _stream_info = _src->get_stream_info();
-    }
-    
-    std::unique_ptr<rs_sf_data_stream> _src;
-    rs_sf_data_stream* get() { return _src.get(); }
-    
-    std::vector<rs_sf_stream_info> _stream_info;
-    const rs_sf_intrinsics& intrinsics(const stream s=DEPTH) const { return _stream_info[s].intrinsics.cam_intrinsics; }
-    int width( const stream s=DEPTH) const { return intrinsics(s).width; }
-    int height(const stream s=DEPTH) const { return intrinsics(s).height;}
-    
-    rs_sf_data_ptr add_pose_data(rs_sf_data_ptr& ref, const stream s) {
-        auto data = std::make_shared<img_data>(ref);
-        auto* ext = (const float*)(&_stream_info[s].extrinsics[DEPTH]);
-        for(auto s : {0,1,2,4,5,6,8,9,10,3,7,11}){
-            data->image.cam_pose[s] = *ext++;
-        }
-        data->image.intrinsics = &_stream_info[s].intrinsics.cam_intrinsics;
-        return data;
+        _stream_info = get_stream_info();
     }
     
     rs_sf_dataset_ptr wait_and_buffer_data()
@@ -167,26 +181,70 @@ struct d435i_buffered_src : public rs_sf_dataset
         }
         return dst;
     }
+};
+
+#include "d435i_default_json.h"
+struct d435i_demo_pipeline
+{
+    rs_shapefit_capability _cap = RS_SHAPEFIT_BOX_COLOR;
+    std::string            _path;
+    d435i_buffered_stream  _src;
+    rs_sf_shapefit_ptr     _boxfit;
+    std::unique_ptr<rs2::camera_imu_tracker> _tracker;
     
-    rs_sf_shapefit_ptr make_boxfit(const rs_shapefit_capability& cap = RS_SHAPEFIT_BOX_COLOR) const {
-        rs_sf_intrinsics intr[2] = {intrinsics(DEPTH),intrinsics(COLOR)};
-        return rs_sf_shapefit_ptr(intr, cap, _src->get_depth_unit());
+    d435i_demo_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { init(); }
+    
+    int init()
+    {
+        rs_sf_intrinsics intr[2] = {_src.intrinsics(DEPTH),_src.intrinsics(COLOR)};
+        _boxfit  = rs_sf_planefit_ptr(intr, _cap, _src.get_depth_unit());
+        
+        if(_src.has_imu()){
+            _tracker = rs2::camera_imu_tracker::create();
+            if(_tracker &&
+               !_tracker->init(_path+"camera.json", false) &&
+               !_tracker->init(default_camera_json, false)) { return -1; }
+        }
+        return 0;
     }
     
-    rs_sf_image_ptr _boxwire;
-    std::vector<rs_sf_image>& run_boxfit(rs_sf_shapefit_ptr& boxfit, std::vector<rs_sf_image>& images) {
-        rs_sf_image boxfit_images[2] = {images[DEPTH], images[COLOR]};
-        rs_shapefit_depth_image(boxfit.get(), boxfit_images);
-        //rs_sf_planefit_draw_planes(boxfit.get(), &images[d435i_buffered_src::COLOR]);
-        
-        _boxwire = std::make_unique<rs_sf_image_rgb>(&images[IR_L]);
-        rs_sf_boxfit_draw_boxes(boxfit.get(), &(images[IR_R]=*_boxwire), &images[IR_L]);
-        rs_sf_boxfit_draw_boxes(boxfit.get(), &images[COLOR]);
-        
+    int reset()
+    {
+        _src.reset();
+        return init();
+    }
+    
+    std::unique_ptr<rs_sf_image_rgb> _boxwire;
+    std::vector<rs_sf_image> exec()
+    {
+        std::vector<rs_sf_image> images;
+        for(;images.empty();){
+            auto new_data = _src.wait_and_buffer_data();
+            if(!new_data||new_data->empty()){
+                if(reset()<0){ return images;}
+                else         { continue;     }
+            }
+            
+            images = _src.images();
+            if(_tracker){
+                _tracker->process(_src.laser_off_data());
+                _tracker->wait_for_image_pose(images);
+            }
+            
+            rs_sf_image boxfit_images[2] = {images[DEPTH], images[COLOR]};
+            rs_shapefit_depth_image(_boxfit.get(), boxfit_images);
+            
+            images[COLOR].intrinsics = images[IR_L].intrinsics;
+            rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[IR_L]);
+            
+            _boxwire = std::make_unique<rs_sf_image_rgb>(&images[IR_L]);
+            rs_sf_boxfit_draw_boxes(_boxfit.get(), &(images[IR_R]=*_boxwire), &images[IR_L]);
+            rs_sf_boxfit_draw_boxes(_boxfit.get(), &images[COLOR]);
+        }
         return images;
     }
 };
-
+ 
 int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2], int laser_option)
 {
     const int img_w = 640, img_h = 480;
@@ -195,11 +253,11 @@ int capture_frames(const std::string& path, const int image_set_size, const int 
     std::unique_ptr<rs_sf_data_writer> recorder;
  
     try {
-        for(d435i_buffered_src rs_data_src(rs_sf_create_camera_imu_stream(img_w, img_h, laser_option));;)
+        for(d435i_buffered_stream rs_data_src([&](){return rs_sf_create_camera_imu_stream(img_w, img_h, laser_option);});;)
         {
             auto new_data = rs_data_src.wait_and_buffer_data();
             
-            if(!recorder){ recorder = rs_sf_create_data_writer(rs_data_src.get(), path);}
+            if(!recorder){ recorder = rs_sf_create_data_writer(&rs_data_src, path);}
             recorder->write(*new_data);
         
             auto images = rs_data_src.images();
@@ -210,41 +268,12 @@ int capture_frames(const std::string& path, const int image_set_size, const int 
     return 0;
 }
 
-#include "d435i_default_json.h"
 int replay_frames(const std::string& path)
 {
-    d435i_buffered_src rs_data_src(rs_sf_create_camera_imu_stream(path, true));
-    rs_sf_shapefit_ptr boxfit;
-    std::unique_ptr<rs2::camera_imu_tracker> tracker;
-
-    auto reset_entire_system = [&]() -> int
+    d435i_demo_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(path, true);});
+    for(rs_sf_gl_context win("replay", pipe._src.width()*3, pipe._src.height()*3); ;)
     {
-        rs_data_src = d435i_buffered_src(rs_sf_create_camera_imu_stream(path, false));
-        boxfit      = rs_data_src.make_boxfit();
-        tracker     = rs2::camera_imu_tracker::create();
-
-        if(tracker &&
-           !tracker->init(path+"camera.json", false) &&
-           !tracker->init(default_camera_json, false)) { return -1; }
-
-        return 0;
-    };
-    
-    for(rs_sf_gl_context win("replay", rs_data_src.width()*3, rs_data_src.height()*3); ;)
-    {
-        auto new_data = rs_data_src.wait_and_buffer_data();
-        if(!boxfit || !new_data || new_data->empty()){
-            if(reset_entire_system()<0){ return -1; }
-            continue;
-        }
-
-        auto images = rs_data_src.images();
-        if(tracker){
-            tracker->process(rs_data_src.laser_off_data());
-            tracker->wait_for_image_pose(images);
-        }
-
-        images = rs_data_src.run_boxfit(boxfit, images);
+        auto images = pipe.exec();
         if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;
@@ -252,23 +281,10 @@ int replay_frames(const std::string& path)
 
 int live_demo(const int cap_size[2], const std::string& path)
 {
-    auto rs_data_src = d435i_buffered_src(rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],0));
-    
-    auto boxfit  = rs_data_src.make_boxfit();
-    auto tracker = rs2::camera_imu_tracker::create();
-    if(tracker && !tracker->init(path+"camera.json", false)){ return -1; }
-    
-    for(rs_sf_gl_context win("live demo", rs_data_src.width()*3, rs_data_src.height()*3);;)
+    d435i_demo_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],0);});
+    for(rs_sf_gl_context win("live demo", pipe._src.width()*3, pipe._src.height()*3); ;)
     {
-        rs_data_src.wait_and_buffer_data();
-        
-        auto images = rs_data_src.images();
-        if(tracker){
-            tracker->process(rs_data_src.laser_off_data());
-            tracker->wait_for_image_pose(images);
-        }
-        
-        images = rs_data_src.run_boxfit(boxfit, images);
+        auto images = pipe.exec();
         if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;

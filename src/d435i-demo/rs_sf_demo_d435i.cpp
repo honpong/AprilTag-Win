@@ -27,7 +27,7 @@ int live_demo(const int cap_size[2], const std::string& path);
 
 int main(int argc, char* argv[])
 {
-    bool is_live = false, is_capture = false, is_replay = false; int laser_option = 1;
+    bool is_live = true, is_capture = false, is_replay = false; int laser_option = 1;
     std::string path = DEFAULT_PATH;
     int num_frames = 200; std::vector<int> capture_size = { 640,480 };
     rs_shapefit_capability sf_option = RS_SHAPEFIT_PLANE;
@@ -37,10 +37,10 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--box"))             { sf_option = RS_SHAPEFIT_BOX; }
         else if (!strcmp(argv[i], "--plane"))           { sf_option = RS_SHAPEFIT_PLANE; }
         else if (!strcmp(argv[i], "--live"))            { is_live = true; }
-        else if (!strcmp(argv[i], "--capture"))         { is_capture = true; }
+        else if (!strcmp(argv[i], "--capture"))         { is_capture = true; is_live = false; }
         else if (!strcmp(argv[i], "--num_frame"))       { num_frames = atoi(argv[++i]); }
         else if (!strcmp(argv[i], "--path"))            { path = argv[++i]; }
-        else if (!strcmp(argv[i], "--replay"))          { is_replay = true; }
+        else if (!strcmp(argv[i], "--replay"))          { is_replay = true; is_live = false; }
         else if (!strcmp(argv[i], "--hd"))              { capture_size = { 1280,720 }; }
         else if (!strcmp(argv[i], "--qhd"))             { capture_size = { 640,360 }; }
         else if (!strcmp(argv[i], "--vga"))             { capture_size = { 640,480 }; }

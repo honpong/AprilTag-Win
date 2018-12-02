@@ -189,6 +189,46 @@ static float* operator<<(float* dst, const rc_Pose& src){
     dst[8] = src.R.v[2][0]; dst[9] = src.R.v[2][1]; dst[10] = src.R.v[2][2]; dst[11] = src.T.z;
     return dst;
 }
+// dst = r * src + t
+static void transform(float dst[12], const float src[12], const float r[9], const float t[3])
+{
+    // compute dst image pose
+    dst[0] = r[0] * src[0] + r[1] * src[4] + r[2] * src[8];
+    dst[1] = r[0] * src[1] + r[1] * src[5] + r[2] * src[9];
+    dst[2] = r[0] * src[2] + r[1] * src[6] + r[2] * src[10];
+    dst[3] = r[0] * src[3] + r[1] * src[7] + r[2] * src[11] + t[0];
+    dst[4] = r[3] * src[0] + r[4] * src[4] + r[5] * src[8];
+    dst[5] = r[3] * src[1] + r[4] * src[5] + r[5] * src[9];
+    dst[6] = r[3] * src[2] + r[4] * src[6] + r[5] * src[10];
+    dst[7] = r[3] * src[3] + r[4] * src[7] + r[5] * src[11] + t[1];
+    dst[8] = r[6] * src[0] + r[7] * src[4] + r[8] * src[8];
+    dst[9] = r[6] * src[1] + r[7] * src[5] + r[8] * src[9];
+    dst[10] = r[6] * src[2] + r[7] * src[6] + r[8] * src[10];
+    dst[11] = r[6] * src[3] + r[7] * src[7] + r[8] * src[11] + t[2];
+}
+
+static float* operator*=(float dst[12], const rc_Pose& rc_pose)
+{
+    float src[12]; src << rc_pose;
+    float p[12] = {
+        dst[0]*src[0]+dst[1]*src[4]+dst[2]*src[8],
+        dst[0]*src[1]+dst[1]*src[5]+dst[2]*src[9],
+        dst[0]*src[2]+dst[1]*src[6]+dst[2]*src[10],
+        dst[0]*src[3]+dst[1]*src[7]+dst[2]*src[11]+dst[3],
+
+        dst[4]*src[0]+dst[5]*src[4]+dst[6]*src[8],
+        dst[4]*src[1]+dst[5]*src[5]+dst[6]*src[9],
+        dst[4]*src[2]+dst[5]*src[6]+dst[6]*src[10],
+        dst[4]*src[3]+dst[5]*src[7]+dst[6]*src[11]+dst[7],
+        
+        dst[8]*src[0]+dst[9]*src[4]+dst[10]*src[8],
+        dst[8]*src[1]+dst[9]*src[5]+dst[10]*src[9],
+        dst[8]*src[2]+dst[9]*src[6]+dst[10]*src[10],
+        dst[8]*src[3]+dst[9]*src[7]+dst[10]*src[11]+dst[11]
+    };
+    rs_sf_memcpy(dst, p, sizeof(p));
+    return dst;
+}
 
 struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
 {
@@ -350,7 +390,8 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
 
         if(_pose._confidence == rc_E_CONFIDENCE_NONE){ return false; }
         for(auto& img : images){
-            img.cam_pose << _pose.pose_m;
+            img.cam_pose *= _pose.pose_m;
+            //img.cam_pose << _pose.pose_m;
         }
         return true;
     }

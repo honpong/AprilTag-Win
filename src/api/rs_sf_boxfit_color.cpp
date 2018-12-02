@@ -87,6 +87,8 @@ rs_sf_status rs_sf_boxfit_color::refit_boxes(box_scene& view)
             rs_sf_util_draw_boxes(debug.get(), m_box_color_scene.cam_pose, m_intrinsics_color, {pair.new_box->to_rs_sf_box()}, c[axis]);
             cv::Mat color = cv::Mat(debug->img_h, debug->img_w, CV_8UC3, debug->data).clone();
             //cv::imshow("generate_adjusted_box",color);
+            //static int i=0;
+            //cv::imwrite("/Users/hho11/Desktop/temp/debug/debug"+std::to_string(i++)+".png",color);
 #endif
 #endif
         }
@@ -138,11 +140,11 @@ float rs_sf_boxfit_color::box_color_scene::gradient(int i, int j) const
 {
     return
     std::log(std::abs(pixel(i+dx,j,0) - pixel(i-dx,j,0)) +
-             std::abs(pixel(i,j+dy,0) - pixel(i,j-dy,0)))+
+             std::abs(pixel(i,j+dy,0) - pixel(i,j-dy,0))+1)+
     std::log(std::abs(pixel(i+dx,j,1) - pixel(i-dx,j,1)) +
-             std::abs(pixel(i,j+dy,1) - pixel(i,j-dy,1)))+
+             std::abs(pixel(i,j+dy,1) - pixel(i,j-dy,1))+1)+
     std::log(std::abs(pixel(i+dx,j,2) - pixel(i-dx,j,2)) +
-             std::abs(pixel(i,j+dy,2) - pixel(i,j-dy,2)));
+             std::abs(pixel(i,j+dy,2) - pixel(i,j-dy,2))+1);
 }
 
 float rs_sf_boxfit_color::box_color_scene::score_pixel(float u, float v) const

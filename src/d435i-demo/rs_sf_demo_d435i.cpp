@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 }
 
 enum stream {DEPTH, IR_L, IR_R, COLOR, GYRO, ACCEL};
-struct d435i_buffered_src : public rs_sf_dataset, std::unique_ptr<rs_sf_data_stream>
+struct d435i_buffered_src : public rs_sf_dataset
 {
     struct img_data : public rs_sf_data_buf {
         img_data(rs_sf_data_ptr& ref) : rs_sf_data_buf(*ref), _src(ref) { image.cam_pose = _pose; }
@@ -69,7 +69,7 @@ struct d435i_buffered_src : public rs_sf_dataset, std::unique_ptr<rs_sf_data_str
         float          _pose[12] = {1.0f,0,0,0,0,1.0f,0,0,0,0,1.0f,0};
     };
     
-    d435i_buffered_src(std::unique_ptr<rs_sf_data_stream>&& src) : std::unique_ptr<rs_sf_data_stream>(std::move(src))
+    d435i_buffered_src(std::unique_ptr<rs_sf_data_stream>&& src) : _src(std::move(src))
     {
         resize(6);
         at(DEPTH).resize(2);
@@ -77,8 +77,11 @@ struct d435i_buffered_src : public rs_sf_dataset, std::unique_ptr<rs_sf_data_str
         at(IR_R).resize(2);
         at(COLOR).resize(1);
         
-        _stream_info = get()->get_stream_info();
+        _stream_info = _src->get_stream_info();
     }
+    
+    std::unique_ptr<rs_sf_data_stream> _src;
+    rs_sf_data_stream* get() { return _src.get(); }
     
     std::vector<rs_sf_stream_info> _stream_info;
     const rs_sf_intrinsics& intrinsics(const stream s=DEPTH) const { return _stream_info[s].intrinsics.cam_intrinsics; }
@@ -97,9 +100,9 @@ struct d435i_buffered_src : public rs_sf_dataset, std::unique_ptr<rs_sf_data_str
     
     rs_sf_dataset_ptr wait_and_buffer_data()
     {
-        if(!get()){ return nullptr; }
+        if(!_src){ return nullptr; }
         
-        auto data = get()->wait_for_data();
+        auto data = _src->wait_for_data();
         if(!data || data->empty() ){ return nullptr; }
         
         for(auto s : {DEPTH,IR_L,IR_R}){
@@ -167,7 +170,7 @@ struct d435i_buffered_src : public rs_sf_dataset, std::unique_ptr<rs_sf_data_str
     
     rs_sf_shapefit_ptr make_boxfit(const rs_shapefit_capability& cap = RS_SHAPEFIT_BOX_COLOR) const {
         rs_sf_intrinsics intr[2] = {intrinsics(DEPTH),intrinsics(COLOR)};
-        return rs_sf_shapefit_ptr(intr, cap, get()->get_depth_unit());
+        return rs_sf_shapefit_ptr(intr, cap, _src->get_depth_unit());
     }
     
     rs_sf_image_ptr _boxwire;
@@ -250,14 +253,12 @@ int replay_frames(const std::string& path)
 int live_demo(const int cap_size[2], const std::string& path)
 {
     auto rs_data_src = d435i_buffered_src(rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],0));
-    const int img_w = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.width;
-    const int img_h = rs_data_src->get_stream_info()[0].intrinsics.cam_intrinsics.height;
     
     auto boxfit  = rs_data_src.make_boxfit();
     auto tracker = rs2::camera_imu_tracker::create();
     if(tracker && !tracker->init(path+"camera.json", false)){ return -1; }
     
-    for(rs_sf_gl_context win("live demo", img_w*3, img_h*3); ;)
+    for(rs_sf_gl_context win("live demo", rs_data_src.width()*3, rs_data_src.height()*3);;)
     {
         rs_data_src.wait_and_buffer_data();
         

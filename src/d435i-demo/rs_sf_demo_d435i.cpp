@@ -9,12 +9,11 @@
 #include "rs_sf_camera.hpp"
 #include "rs_sf_gl_context.hpp"
 #include "rs_sf_pose_tracker.h"
-
-#include <chrono>
+#include "d435i_default_json.h"
 
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
-#define DEFAULT_PATH "c:\\temp\\shapefit\\b\\"
+#define DEFAULT_PATH "."
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
@@ -23,7 +22,7 @@
 
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option);
 int replay_frames(const std::string& path);
-int live_demo(const int cap_size[2], const std::string& path);
+int live_play(const int cap_size[2], const std::string& path);
 rs_shapefit_capability g_sf_option = RS_SHAPEFIT_BOX_COLOR;
 
 int main(int argc, char* argv[])
@@ -55,10 +54,11 @@ int main(int argc, char* argv[])
     if (path.back() != '\\' && path.back() != '/'){ path.push_back(PATH_SEPARATER); }
     if (is_capture) capture_frames(path, capture_size.data(), laser_option);
     if (is_replay)  replay_frames(path);
-    if (is_live)    live_demo(capture_size.data(),path);
+    if (is_live)    live_play(capture_size.data(),path);
     return 0;
 }
 
+#include <chrono>
 #include <functional>
 enum stream {DEPTH, IR_L, IR_R, COLOR, GYRO, ACCEL};
 typedef std::function<std::unique_ptr<rs_sf_data_stream>()> stream_maker;
@@ -207,17 +207,17 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     }
 };
 
-#include "d435i_default_json.h"
-struct d435i_demo_pipeline
+struct d435i_exec_pipeline
 {
     rs_shapefit_capability _cap;
     std::string            _path;
     d435i_buffered_stream  _src;
     rs_sf_shapefit_ptr     _boxfit;
-    std::unique_ptr<rs2::camera_imu_tracker> _tracker;
     std::chrono::seconds   _drop_time{0};
+    std::unique_ptr<rs_sf_image_rgb>         _boxwire;
+    std::unique_ptr<rs2::camera_imu_tracker> _tracker;
     
-    d435i_demo_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { init_algo_middleware(); }
+    d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { init_algo_middleware(); }
     
     int init_algo_middleware()
     {
@@ -244,8 +244,7 @@ struct d435i_demo_pipeline
         return init_algo_middleware();
     }
     
-    std::unique_ptr<rs_sf_image_rgb> _boxwire;
-    std::vector<rs_sf_image> exec()
+    std::vector<rs_sf_image> exec_once()
     {
         std::vector<rs_sf_image> images;
         for(;images.empty();){
@@ -291,21 +290,21 @@ int capture_frames(const std::string& path, const int cap_size[2], int laser_opt
 int replay_frames(const std::string& path) try
 {
     bool check_data = true;
-    d435i_demo_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(path, check_data);});
+    d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(path, check_data);});
     for(rs_sf_gl_context win("replay", pipe._src.width()*3, pipe._src.height()*3); ;check_data=false)
     {
-        auto images = pipe.exec();
+        auto images = pipe.exec_once();
         if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;
 }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }
 
-int live_demo(const int cap_size[2], const std::string& path) try
+int live_play(const int cap_size[2], const std::string& path) try
 {
-    d435i_demo_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],0);});
+    d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],0);});
     for(rs_sf_gl_context win("live demo", pipe._src.width()*3, pipe._src.height()*3); ;)
     {
-        auto images = pipe.exec();
+        auto images = pipe.exec_once();
         if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;

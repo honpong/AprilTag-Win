@@ -192,12 +192,12 @@ struct d435i_demo_pipeline
     rs_sf_shapefit_ptr     _boxfit;
     std::unique_ptr<rs2::camera_imu_tracker> _tracker;
     
-    d435i_demo_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { init(); }
+    d435i_demo_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { init_algo_middleware(); }
     
-    int init()
+    int init_algo_middleware()
     {
         rs_sf_intrinsics intr[2] = {_src.intrinsics(DEPTH),_src.intrinsics(COLOR)};
-        _boxfit  = rs_sf_planefit_ptr(intr, _cap, _src.get_depth_unit());
+        _boxfit  = rs_sf_shapefit_ptr(intr, _cap, _src.get_depth_unit());
         
         if(_src.has_imu()){
             _tracker = rs2::camera_imu_tracker::create();
@@ -212,7 +212,7 @@ struct d435i_demo_pipeline
     int reset()
     {
         _src.reset();
-        return init();
+        return init_algo_middleware();
     }
     
     std::unique_ptr<rs_sf_image_rgb> _boxwire;
@@ -271,8 +271,9 @@ int capture_frames(const std::string& path, const int image_set_size, const int 
 
 int replay_frames(const std::string& path)
 {
-    d435i_demo_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(path, true);});
-    for(rs_sf_gl_context win("replay", pipe._src.width()*3, pipe._src.height()*3); ;)
+    bool check_data = true;
+    d435i_demo_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(path, check_data);});
+    for(rs_sf_gl_context win("replay", pipe._src.width()*3, pipe._src.height()*3); ;check_data=false)
     {
         auto images = pipe.exec();
         if(!win.imshow(images.data(),images.size())){break;}

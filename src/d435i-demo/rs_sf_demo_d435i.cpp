@@ -21,24 +21,23 @@
 #define DEFAULT_PATH (std::string(getenv("HOME"))+"/Desktop/temp/data/")
 #endif
 
-int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2], int laser_option);
+int capture_frames(const std::string& path, const int cap_size[2], int laser_option);
 int replay_frames(const std::string& path);
 int live_demo(const int cap_size[2], const std::string& path);
+rs_shapefit_capability g_sf_option = RS_SHAPEFIT_BOX_COLOR;
 
 int main(int argc, char* argv[])
 {
-    bool is_live = true, is_capture = false, is_replay = false; int laser_option = 1;
+    bool is_live = true, is_capture = false, is_replay = false; int laser_option = 0;
     std::string path = DEFAULT_PATH;
-    int num_frames = 200; std::vector<int> capture_size = { 640,480 };
-    rs_shapefit_capability sf_option = RS_SHAPEFIT_PLANE;
+    std::vector<int> capture_size = { 640,480 };
 
     for (int i = 1; i < argc; ++i) {
-        if (!strcmp(argv[i], "--cbox"))                 { sf_option = RS_SHAPEFIT_BOX_COLOR; }
-        else if (!strcmp(argv[i], "--box"))             { sf_option = RS_SHAPEFIT_BOX; }
-        else if (!strcmp(argv[i], "--plane"))           { sf_option = RS_SHAPEFIT_PLANE; }
+        if (!strcmp(argv[i], "--cbox"))                 { g_sf_option = RS_SHAPEFIT_BOX_COLOR; }
+        else if (!strcmp(argv[i], "--box"))             { g_sf_option = RS_SHAPEFIT_BOX; }
+        else if (!strcmp(argv[i], "--plane"))           { g_sf_option = RS_SHAPEFIT_PLANE; }
         else if (!strcmp(argv[i], "--live"))            { is_live = true; }
         else if (!strcmp(argv[i], "--capture"))         { is_capture = true; is_live = false; }
-        else if (!strcmp(argv[i], "--num_frame"))       { num_frames = atoi(argv[++i]); }
         else if (!strcmp(argv[i], "--path"))            { path = argv[++i]; }
         else if (!strcmp(argv[i], "--replay"))          { is_replay = true; is_live = false; }
         else if (!strcmp(argv[i], "--hd"))              { capture_size = { 1280,720 }; }
@@ -48,13 +47,13 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--laser_on"))        { laser_option = 1; }
         else if (!strcmp(argv[i], "--laser_interlaced")){ laser_option = 2; }
         else {
-            printf("usages:\n d435i-demo [--cbox|--box|--plane][--live|--replay][--path PATH][--capture][--num_frame NUM] \n");
+            printf("usages:\n d435i-demo [--cbox|--box|--plane][--live|--replay][--capture][--path PATH]\n");
             printf("                     [--hd|--qhd|--vga][--laser_off|--laser_on|--laser_interlaced] \n");
             return 0;
         }
     }
     if (path.back() != '\\' && path.back() != '/'){ path.push_back(PATH_SEPARATER); }
-    if (is_capture) capture_frames(path, num_frames, capture_size.data(), laser_option);
+    if (is_capture) capture_frames(path, capture_size.data(), laser_option);
     if (is_replay)  replay_frames(path);
     if (is_live)    live_demo(capture_size.data(),path);
     return 0;
@@ -211,7 +210,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
 #include "d435i_default_json.h"
 struct d435i_demo_pipeline
 {
-    rs_shapefit_capability _cap = RS_SHAPEFIT_BOX_COLOR;
+    rs_shapefit_capability _cap;
     std::string            _path;
     d435i_buffered_stream  _src;
     rs_sf_shapefit_ptr     _boxfit;
@@ -225,7 +224,7 @@ struct d435i_demo_pipeline
         bool sync = _src.is_offline_stream();
         
         rs_sf_intrinsics intr[2] = {_src.intrinsics(DEPTH),_src.intrinsics(COLOR)};
-        _boxfit  = rs_sf_shapefit_ptr(intr, _cap, _src.get_depth_unit());
+        _boxfit  = rs_sf_shapefit_ptr(intr, _cap = g_sf_option, _src.get_depth_unit());
         if(sync){ rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, -1); }
 
         if(_src.has_imu()){
@@ -276,30 +275,20 @@ struct d435i_demo_pipeline
     }
 };
  
-int capture_frames(const std::string& path, const int image_set_size, const int cap_size[2], int laser_option)
+int capture_frames(const std::string& path, const int cap_size[2], int laser_option) try
 {
-    const int img_w = 640, img_h = 480;
-    rs_sf_gl_context win("capture", img_w * 3, img_h * 3);
-    
-    std::unique_ptr<rs_sf_data_writer> recorder;
- 
-    try {
-        for(d435i_buffered_stream rs_data_src([&](){return rs_sf_create_camera_imu_stream(img_w, img_h, laser_option);});;)
-        {
-            auto new_data = rs_data_src.wait_and_buffer_data();
-            
-            if(!recorder){ recorder = rs_sf_create_data_writer(&rs_data_src, path);}
-            recorder->write(*new_data);
-        
-            auto images = rs_data_src.images();
-            if(!win.imshow(images.data(),images.size())){break;}
-        }
-    }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); }
-    recorder.reset();
+    d435i_buffered_stream src([&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], laser_option);});
+    auto recorder = rs_sf_create_data_writer(&src, path);
+    for(rs_sf_gl_context win("capture", src.width()*3, src.height()*3);;)
+    {
+        recorder->write(*src.wait_and_buffer_data());
+        auto images = src.images();
+        if(!win.imshow(images.data(),images.size())){break;}
+    }
     return 0;
-}
+}catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }
 
-int replay_frames(const std::string& path)
+int replay_frames(const std::string& path) try
 {
     bool check_data = true;
     d435i_demo_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(path, check_data);});
@@ -309,9 +298,9 @@ int replay_frames(const std::string& path)
         if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;
-}
+}catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }
 
-int live_demo(const int cap_size[2], const std::string& path)
+int live_demo(const int cap_size[2], const std::string& path) try
 {
     d435i_demo_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],0);});
     for(rs_sf_gl_context win("live demo", pipe._src.width()*3, pipe._src.height()*3); ;)
@@ -320,4 +309,4 @@ int live_demo(const int cap_size[2], const std::string& path)
         if(!win.imshow(images.data(),images.size())){break;}
     }
     return 0;
-}
+}catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }

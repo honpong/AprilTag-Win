@@ -55,7 +55,7 @@ struct rs_sf_data_stream
 struct rs_sf_data_writer
 {
     virtual ~rs_sf_data_writer() {}
-    virtual bool write(rs_sf_dataset& data) = 0;
+    virtual bool write(const rs_sf_dataset& data) = 0;
 };
 
 struct rs_sf_image_stream

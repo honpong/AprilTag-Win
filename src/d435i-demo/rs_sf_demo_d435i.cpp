@@ -85,10 +85,11 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     
     std::unique_ptr<rs_sf_data_stream> _src;
     rs_sf_dataset_ptr wait_for_data(const std::chrono::milliseconds& wait_time_ms) override { return _src->wait_for_data(); }
-    std::string       get_device_name() override { return _src->get_device_name(); }
-    string_vec        get_device_info() override { return _src->get_device_info(); }
-    stream_info_vec   get_stream_info() override { return _src->get_stream_info(); }
-    float             get_depth_unit()  override { return _src->get_depth_unit();  }
+    std::string       get_device_name()   override { return _src->get_device_name();  }
+    string_vec        get_device_info()   override { return _src->get_device_info();  }
+    stream_info_vec   get_stream_info()   override { return _src->get_stream_info();  }
+    float             get_depth_unit()    override { return _src->get_depth_unit();   }
+    bool              is_offline_stream() override { return _src->is_offline_stream();}
     
     stream_info_vec _stream_info;
     rs_sf_intrinsics intrinsics(const stream& s) const { return _stream_info[s].intrinsics.cam_intrinsics; }
@@ -100,6 +101,8 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     int height() const { return intrinsics(DEPTH).height;}
     bool has_imu() const { return _stream_info.size() > 4; }
     
+    rs_sf_timestamp _first_timestamp = 0;
+    rs_sf_timestamp _last_timestamp  = 0;
     void reset() {
         _src = _maker();
         
@@ -109,6 +112,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         at(IR_R).resize(2);
         at(COLOR).resize(1);
         
+        _first_timestamp = _last_timestamp = 0;
         _stream_info = get_stream_info();
     }
     
@@ -134,7 +138,24 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
                 at(s).insert(at(s).end(), data->at(s).begin(), data->at(s).end());
             }
         }
+        
+        update_timestamp_difference();
         return data;
+    }
+    
+    void update_timestamp_difference() {
+        for(auto& s : *this){
+            for(auto& d : s){
+                if(d){
+                    if(_first_timestamp==0){_first_timestamp=d->timestamp_us;}
+                    if(_last_timestamp < d->timestamp_us){_last_timestamp=d->timestamp_us;}
+                }
+            }
+        }
+    }
+    
+    std::chrono::seconds total_runtime() const {
+        return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::microseconds((unsigned long long)(_last_timestamp-_first_timestamp)));
     }
     
     void reset_imu_buffers() { at(GYRO).clear(); at(ACCEL).clear(); }
@@ -195,20 +216,25 @@ struct d435i_demo_pipeline
     d435i_buffered_stream  _src;
     rs_sf_shapefit_ptr     _boxfit;
     std::unique_ptr<rs2::camera_imu_tracker> _tracker;
+    std::chrono::seconds   _drop_time{0};
     
     d435i_demo_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { init_algo_middleware(); }
     
     int init_algo_middleware()
     {
+        bool sync = _src.is_offline_stream();
+        
         rs_sf_intrinsics intr[2] = {_src.intrinsics(DEPTH),_src.intrinsics(COLOR)};
         _boxfit  = rs_sf_shapefit_ptr(intr, _cap, _src.get_depth_unit());
-        
+        if(sync){ rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, -1); }
+
         if(_src.has_imu()){
+            _drop_time = std::chrono::seconds(sync ? 0 : 3);
             _tracker = rs2::camera_imu_tracker::create();
             
             if(_tracker &&
-               !_tracker->init(_path+"camera.json", !_src.is_offline_stream()) &&
-               !_tracker->init(default_camera_json, !_src.is_offline_stream())) { return -1; }
+               !_tracker->init(_path+"camera.json", !sync) &&
+               !_tracker->init(default_camera_json, !sync)) { return -1; }
         }
         return 0;
     }
@@ -231,7 +257,7 @@ struct d435i_demo_pipeline
             }
             
             images = _src.images();
-            if(_tracker){
+            if(_tracker && _src.total_runtime() >= _drop_time){
                 _tracker->process(_src.laser_off_data());
                 _tracker->wait_for_image_pose(images);
             }

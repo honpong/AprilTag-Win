@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
     std::vector<int> capture_size = { 640,480 };
 
     for (int i = 1; i < argc; ++i) {
-        if (!strcmp(argv[i], "--cbox"))                 { g_sf_option = RS_SHAPEFIT_BOX_COLOR; }
+        if      (!strcmp(argv[i], "--cbox"))            { g_sf_option = RS_SHAPEFIT_BOX_COLOR; }
         else if (!strcmp(argv[i], "--box"))             { g_sf_option = RS_SHAPEFIT_BOX; }
         else if (!strcmp(argv[i], "--plane"))           { g_sf_option = RS_SHAPEFIT_PLANE; }
         else if (!strcmp(argv[i], "--live"))            { is_live = true; }

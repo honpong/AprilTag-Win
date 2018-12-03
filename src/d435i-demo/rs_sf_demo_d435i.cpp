@@ -131,7 +131,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         }
         for(auto s : {GYRO, ACCEL}){
             if(data->size()>s && !data->at(s).empty()){
-                at(s).insert(at(s).end(), data->begin(), data->end());
+                at(s).insert(at(s).end(), data->at(s).begin(), data->at(s).end());
             }
         }
         return data;

@@ -112,8 +112,10 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         _stream_info = get_stream_info();
     }
     
-    rs_sf_dataset_ptr wait_and_buffer_data()
+    rs_sf_dataset_ptr wait_and_buffer_data(bool reset_imu_buffer = true)
     {
+        if(reset_imu_buffer) { reset_imu_buffers(); }
+        
         if(!_src){ return nullptr; }
         
         auto data = _src->wait_for_data();
@@ -129,11 +131,13 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         }
         for(auto s : {GYRO, ACCEL}){
             if(data->size()>s && !data->at(s).empty()){
-                at(s).splice(at(s).end(), data->at(s));
+                at(s).insert(at(s).end(), data->begin(), data->end());
             }
         }
         return data;
     }
+    
+    void reset_imu_buffers() { at(GYRO).clear(); at(ACCEL).clear(); }
     
     bool empty() const {
         if(rs_sf_dataset::empty()){ return true; }

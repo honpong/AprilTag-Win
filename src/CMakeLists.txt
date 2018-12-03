@@ -126,7 +126,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
     add_subdirectory(d435i-demo)
 
     if(MSVC)
-        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT shapefit-demo)
+        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT d435i-demo)
         set(CMAKE_CONFIGURATION_TYPES Release Debug CACHE STRING "" FORCE)
     endif()
 endif()

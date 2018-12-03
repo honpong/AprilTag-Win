@@ -305,7 +305,7 @@ int live_play(const int cap_size[2], const std::string& path) try
     for(rs_sf_gl_context win("live demo", pipe._src.width()*3, pipe._src.height()*3); ;)
     {
         auto images = pipe.exec_once();
-        if(!win.imshow(images.data(),images.size())){break;}
+        if(!win.imshow(&images[3],1)){break;}
     }
     return 0;
 }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }

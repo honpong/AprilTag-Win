@@ -80,7 +80,7 @@ if(MSVC)
     if (NOT TARGET glfw)
       add_subdirectory(${LIBRS_DIR}/third-party/glfw)
       add_library(glfw ALIAS glfw3)
-    end()
+    endif()
 
 elseif(APPLE)
 

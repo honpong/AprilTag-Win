@@ -249,7 +249,7 @@ struct d435i_exec_pipeline
     bool _enable_camera_tracking_when_available = true;
     bool enable_camera_tracking(bool flag) {
         auto tracker_runnable = ((_enable_camera_tracking_when_available=flag) && _tracker);
-        //if(!tracker_runnable){ _src.set_laser(1); }
+        //if(!_enable_camera_tracking_when_available){ _src.set_laser(1); }
         //else { _src.set_laser(0); }
         return tracker_runnable;
     }

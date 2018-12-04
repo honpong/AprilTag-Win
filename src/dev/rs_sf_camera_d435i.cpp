@@ -76,6 +76,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         if(_laser_option==option){ return true; }
         if(_laser_option==2)     { return false;}
         try{
+            //printf("TRY SETTING EMITTOR %d \n",option);
             _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED,option);
             _laser_option = option;
             return true;

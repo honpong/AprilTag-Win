@@ -333,7 +333,7 @@ int capture_frames(const std::string& path, const int cap_size[2], int laser_opt
     {
         recorder->write(*src.wait_and_buffer_data());
         auto images = src.images();
-        if(!win.imshow(images.data(),images.size())){break;}
+        if(!win.imshow(images.data(),(int)images.size())){break;}
     }
     return 0;
 }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }
@@ -345,7 +345,7 @@ int replay_frames(const std::string& path) try
     for(rs_sf_gl_context win("replay", pipe._src.width()*3, pipe._src.height()*3); ;check_data=false)
     {
         auto images = pipe.exec_once();
-        if(!win.imshow(images.data(),images.size())){break;}
+        if(!win.imshow(images.data(),(int)images.size())){break;}
     }
     return 0;
 }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }

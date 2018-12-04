@@ -77,7 +77,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         if(_laser_option==2)     { return false;}
         try{
             //printf("TRY SETTING EMITTOR %d \n",option);
-            _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED,option);
+            _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED,(float)option);
             _laser_option = option;
             return true;
         }catch(...){}
@@ -109,7 +109,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         }catch(...){ fprintf(stderr,"WARNING: error setting laser option %d!\n", _laser_option); }
 
         try{
-            _laser_option = _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ENABLED);
+            _laser_option = (int)_streams[0].sensor.get_option(RS2_OPTION_EMITTER_ENABLED);
             if(laser_option==2 &&
                _streams[0].sensor.supports(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED) &&
                _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED)){
@@ -163,7 +163,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 try{
                     if(sensor_type != RS_SF_SENSOR_COLOR && //exposure time from D435x color sensor is known to be garbage
                        _f.supports_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE)){
-                        exposure_time_us = _f.get_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE);
+                        exposure_time_us = (double)_f.get_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE);
                     }
                 }catch(...){}
             }
@@ -488,7 +488,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
         : rs_sf_stream_info(ref)
         {
             type = rs_sf_sensor_t(ref.type | laser_option);
-            fps  = half_fps ? ref.fps/2.0 : ref.fps;
+            fps  = half_fps ? ref.fps/2.0f : ref.fps;
             _virtual_stream_name = src.get_stream_name(type, index);
             
             _expected_interval = std::chrono::microseconds(std::chrono::seconds(1)).count()/(double)(fps);
@@ -583,7 +583,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
         auto stream_names = device_json["sensor_name"];
         
         _device_name = device_json["device_name"].asString();
-        for(int s=0; s<device_json["device_info"].size(); ++s)
+        for(int s=0; s<(int)device_json["device_info"].size(); ++s)
             _device_info.emplace_back(device_json["device_info"][s].asString());
         
         _num_streams = stream_names.size();

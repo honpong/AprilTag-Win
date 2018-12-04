@@ -89,7 +89,7 @@ void rs_sf_device_manager::find_stream_profiles()
                        ((profile.as<rs2::video_stream_profile>().width()  == stream.width) &&
                         (profile.as<rs2::video_stream_profile>().height() == stream.height))){
                            stream.index   = profile.stream_index();
-                           stream.fps     = profile.fps();
+                           stream.fps     = (float)profile.fps();
                            stream.sensor  = sensor;
                            stream.profile = profile;
                        }

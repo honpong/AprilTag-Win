@@ -101,7 +101,7 @@ struct rs_sf_file_io
                 intr.cam_intrinsics.width = json_intr["width"].asInt();
                 intr.cam_intrinsics.height= json_intr["height"].asInt();
                 intr.cam_intrinsics.model = (rs_sf_distortion)json_intr["model"].asInt();
-                for (int c = 0; c < json_intr["coeff"].size(); ++c)
+                for (int c = 0; c < (int)json_intr["coeff"].size(); ++c)
                     intr.cam_intrinsics.coeffs[c] = json_intr["coeff"][c].asFloat();
                 break;
         }
@@ -117,9 +117,9 @@ struct rs_sf_file_io
     static rs_sf_extrinsics read_extrinsics(const Json::Value& json_extr)
     {
         rs_sf_extrinsics extrinsics = {};
-        for(int r = 0; r < json_extr["rotation"].size(); ++r)
+        for(int r = 0; r < (int)json_extr["rotation"].size(); ++r)
             extrinsics.rotation[r] = json_extr["rotation"][r].asFloat();
-        for(int t = 0; t < json_extr["translation"].size(); ++t)
+        for(int t = 0; t < (int)json_extr["translation"].size(); ++t)
             extrinsics.translation[t] = json_extr["translation"][t].asFloat();
         return extrinsics;
     }
@@ -177,7 +177,7 @@ struct rs_sf_file_io
         }
     }
     
-    static rs_sf_image_ptr rs_sf_image_read(const std::string& filename, const int frame_id)
+    static rs_sf_image_ptr rs_sf_image_read(const std::string& filename, const rs_sf_serial_number& frame_id)
     {
         std::string tmp;
         std::ifstream stream_data;

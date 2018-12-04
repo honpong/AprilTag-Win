@@ -14,7 +14,7 @@ struct rs_sf_stream_select
 {
     rs2_stream  type;
     int         index;
-    int         fps;
+    float       fps;
     rs2_format  format;
     int         width;
     int         height;

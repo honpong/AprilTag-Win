@@ -404,7 +404,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         }
     }
     
-    bool wait_for_image_pose(std::vector<rs_sf_image>& images) override
+    conf wait_for_image_pose(std::vector<rs_sf_image>& images) override
     {
         rc_tracker_output _pose;
         {
@@ -417,12 +417,13 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         << ", T:" << _pose.pose_m.T.x << " " << _pose.pose_m.T.y << " " << _pose.pose_m.T.z << std::endl;
 #endif
         
-        if(_pose._confidence == rc_E_CONFIDENCE_NONE){ return false; }
+        if(_pose._confidence == rc_E_CONFIDENCE_NONE){ return NONE; }
+        if(_pose._confidence == rc_E_CONFIDENCE_LOW) { return LOW; }
         for(auto& img : images){
             img.cam_pose *= _pose.pose_m;
             //img.cam_pose << _pose.pose_m;
         }
-        return true;
+        return (conf)_pose._confidence;
     }
     
     void zero_bias()

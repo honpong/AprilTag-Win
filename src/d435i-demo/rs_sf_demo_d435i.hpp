@@ -338,7 +338,7 @@ public:
         glDisable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
         
-        draw_text(r.x + r.w - 60, r.y + r.h - 20, text ? text : rs2_stream_to_string(stream));
+        draw_text(r.x + r.w - 10 - strlen(text)*8, r.y + r.h - 20, text ? text : rs2_stream_to_string(stream));
     }
     
     void draw_box(const float box_wire_endpt[12][2][2], int app_height, float line_width = -1.0f)
@@ -494,12 +494,12 @@ public:
         glPopMatrix(); glColor4fv(original_color);
     }
     
-    void render_ui(const rs_sf_image* depth_frame, const rs_sf_image* color_frame, bool render_buttons = true)
+    void render_ui(const rs_sf_image* depth_frame, const rs_sf_image* color_frame, bool render_buttons = true, const char* text = "")
     {
         glClearColor(bkg_blue[0] / 255.0f, bkg_blue[1] / 255.0f, bkg_blue[2] / 255.0f, 1);
         
         //_texture_depth.render(depth_frame, win_depth_image(), "");
-        _texture_color.render(color_frame, win_color_image(), _dense ? "" : "bypass");
+        _texture_color.render(color_frame, win_color_image(), _dense ? text : "bypass");
         _texture_realsense_logo.render_middle(0, win_rs_logo());
         
         if (render_buttons)

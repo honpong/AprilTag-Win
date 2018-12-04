@@ -256,6 +256,7 @@ struct d435i_exec_pipeline
     }
     
     
+    std::string _app_hint = "";
     std::shared_ptr<rs_sf_box> _box;
     std::vector<rs_sf_image> exec_once()
     {
@@ -268,12 +269,17 @@ struct d435i_exec_pipeline
             }
             
             images = _src.images();
+            _app_hint = "Move tablet around";
             if(_tracker &&
                _src.total_runtime() >= _drop_time &&
                _enable_camera_tracking_when_available)
             {
                 _tracker->process(_src.laser_off_data());
-                _tracker->wait_for_image_pose(images);
+                switch (_tracker->wait_for_image_pose(images)){
+                    case rs2::camera_imu_tracker::HIGH:   _app_hint="high quality   "; break;
+                    case rs2::camera_imu_tracker::MEDIUM: _app_hint="medium quality "; break;
+                    default:                              _app_hint="reset if needed"; break;
+                }
             }
             
             rs_sf_image boxfit_images[2] = {images[DEPTH], images[COLOR]};
@@ -354,7 +360,7 @@ int live_play(const int cap_size[2], const std::string& path) try
         for(d435i::window app(pipe._src.width()*3/2, pipe._src.height(), (pipe._src.get_device_name()+ " Box Scan Example").c_str()); app;)
         {
             auto images = pipe.exec_once();
-            app.render_ui(&images[DEPTH], &images[3]);
+            app.render_ui(&images[DEPTH], &images[COLOR], true, pipe._app_hint.c_str());
             app.render_box_dim(pipe.box_dim_string());
         
             pipe.enable_camera_tracking(app.dense_request());

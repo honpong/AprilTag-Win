@@ -72,6 +72,16 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         }
         return {""};
     }
+    bool                set_laser(int option) override {
+        if(_laser_option==option){ return true; }
+        if(_laser_option==2)     { return false;}
+        try{
+            _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED,option);
+            _laser_option = option;
+            return true;
+        }catch(...){}
+        return false;
+    }
     
     int _laser_option = -1;
     void open(int laser_option)
@@ -199,8 +209,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         });
         
         // imu motion sensor
-        _pipeline_streaming[4] = _pipeline_streaming[5] = true;
         if(_streams[4].profile && _streams[5].profile){
+            _pipeline_streaming[4] = _pipeline_streaming[5] = true;
             _streams[4].sensor.start([this](rs2::frame f){
                 if(!_pipeline_streaming[4]){ return; }
                 for(int s : {4,5}){

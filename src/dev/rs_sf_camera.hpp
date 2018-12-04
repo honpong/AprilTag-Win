@@ -49,6 +49,7 @@ struct rs_sf_data_stream
     virtual stream_info_vec   get_stream_info() = 0;
     virtual float             get_depth_unit()  = 0;
     virtual bool              is_offline_stream() { return false; }
+    virtual bool              set_laser(int option) { return false; }
     virtual ~rs_sf_data_stream() {}
 };
 

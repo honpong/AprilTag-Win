@@ -73,7 +73,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     
     rs_sf_data_ptr add_pose_data(rs_sf_data_ptr& ref, const stream s) {
         auto data = std::make_shared<img_data>(ref);
-        if(has_imu()){
+        if(has_imu()||s==COLOR){
             auto* ext = (const float*)(&_stream_info[s].extrinsics[DEPTH]);
             for(auto s : {0,1,2,4,5,6,8,9,10,3,7,11}){
                 data->image.cam_pose[s] = *ext++;
@@ -90,6 +90,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     stream_info_vec   get_stream_info()   override { return _src->get_stream_info();  }
     float             get_depth_unit()    override { return _src->get_depth_unit();   }
     bool              is_offline_stream() override { return _src->is_offline_stream();}
+    bool              set_laser(int option) override { return _src->set_laser(option);}
     
     stream_info_vec _stream_info;
     rs_sf_intrinsics intrinsics(const stream& s) const { return _stream_info[s].intrinsics.cam_intrinsics; }
@@ -246,8 +247,15 @@ struct d435i_exec_pipeline
     }
     
     bool _enable_camera_tracking_when_available = true;
-    bool enable_camera_tracking(bool flag) { return (_enable_camera_tracking_when_available=flag) && _tracker; }
+    bool enable_camera_tracking(bool flag) {
+        auto tracker_runnable = ((_enable_camera_tracking_when_available=flag) && _tracker);
+        //if(!tracker_runnable){ _src.set_laser(1); }
+        //else { _src.set_laser(0); }
+        return tracker_runnable;
+    }
     
+    
+    std::shared_ptr<rs_sf_box> _box;
     std::vector<rs_sf_image> exec_once()
     {
         std::vector<rs_sf_image> images;
@@ -270,23 +278,38 @@ struct d435i_exec_pipeline
             rs_sf_image boxfit_images[2] = {images[DEPTH], images[COLOR]};
             rs_shapefit_depth_image(_boxfit.get(), boxfit_images);
             
-            images[COLOR].intrinsics = images[IR_L].intrinsics;
-            rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[IR_L]);
-            
+            if(try_get_box()==false){
+                //images[COLOR].intrinsics = images[IR_L].intrinsics;
+                //rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[IR_L]);
+                rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[COLOR]);
+            }
+                
             _boxwire = std::make_unique<rs_sf_image_rgb>(&images[IR_L]);
             rs_sf_boxfit_draw_boxes(_boxfit.get(), &(images[IR_R]=*_boxwire), &images[IR_L]);
             rs_sf_boxfit_draw_boxes(_boxfit.get(), &images[COLOR]);
+            
         }
         return images;
     }
     
+    bool try_get_box() {
+        rs_sf_box box;
+        if(RS_SF_SUCCESS==rs_sf_boxfit_get_box(_boxfit.get(), 0, &box)){
+            _box = std::make_shared<rs_sf_box>(box);
+        }else{
+            _box = nullptr;
+        }
+        return _box!=nullptr;
+    }
+    
     std::string box_dim_string()
     {
-        rs_sf_box box;
-        if(RS_SF_SUCCESS==rs_sf_boxfit_get_box(_boxfit.get(), 0, &box))
-            return std::to_string((int)(std::sqrt(box.dim_sqr(0))*1000))+"x"+
-            std::to_string((int)(std::sqrt(box.dim_sqr(1))*1000))+"x"+
-            std::to_string((int)(std::sqrt(box.dim_sqr(2))*1000));
+        if(_box){
+            return
+            std::to_string((int)(std::sqrt(_box->dim_sqr(0))*1000))+"x"+
+            std::to_string((int)(std::sqrt(_box->dim_sqr(1))*1000))+"x"+
+            std::to_string((int)(std::sqrt(_box->dim_sqr(2))*1000));
+        }
         return "";
     }
 };

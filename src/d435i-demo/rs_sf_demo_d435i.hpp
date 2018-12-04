@@ -377,7 +377,7 @@ public:
         }
     };
     
-    window(int width, int height, const char* title) : _title(title), _icon_close(get_icon(close), bkg_black), _icon_reset(get_icon(reset), bkg_black), _num_icons(bkg_black)
+    window(int width, int height, const std::string& title) : _title(title), _icon_close(get_icon(close), bkg_black), _icon_reset(get_icon(reset), bkg_black), _num_icons(bkg_black)
     {
         glfwInit();
         reset_screen(false, width, height);
@@ -396,11 +396,11 @@ public:
             glfwWindowHint(GLFW_GREEN_BITS, mode->greenBits);
             glfwWindowHint(GLFW_BLUE_BITS, mode->blueBits);
             glfwWindowHint(GLFW_REFRESH_RATE, mode->refreshRate);
-            win = glfwCreateWindow(_width = mode->width, _height = mode->height, _title, monitor, NULL);
+            win = glfwCreateWindow(_width = mode->width, _height = mode->height, _title.c_str(), monitor, NULL);
         }
         else
         {
-            win = glfwCreateWindow(_width = _win_width = width, _height = _win_height = height, _title, nullptr, nullptr);
+            win = glfwCreateWindow(_width = _win_width = width, _height = _win_height = height, _title.c_str(), nullptr, nullptr);
         }
         glfwMakeContextCurrent(win);
         
@@ -602,7 +602,7 @@ private:
     GLFWwindow* win = nullptr;
     int _width, _height, _win_width, _win_height, _dwin_opt = 0, _high_mismatch_count = 0;
     bool _close = false, _reset = false, _tgscn = false, _fullscreen, _dense = true;
-    const char* _title;
+    std::string _title;
     color_icon _icon_close, _icon_reset;
     texture _texture_realsense_logo, _texture_close_button, _texture_reset_button, _texture_box_msg;
     number_icons _num_icons;

@@ -227,6 +227,7 @@ struct d435i_exec_pipeline
         
         rs_sf_intrinsics intr[2] = {_src.intrinsics(DEPTH),_src.intrinsics(COLOR)};
         _boxfit  = rs_sf_shapefit_ptr(intr, _cap = g_sf_option, _src.get_depth_unit());
+        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_SCAN_MODE, 1);
         if(sync){ rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, -1); }
 
         if(_src.has_imu()){
@@ -269,16 +270,16 @@ struct d435i_exec_pipeline
             }
             
             images = _src.images();
-            _app_hint = "Move tablet around";
+            _app_hint = "Move Tablet Around";
             if(_tracker &&
                _src.total_runtime() >= _drop_time &&
                _enable_camera_tracking_when_available)
             {
                 _tracker->process(_src.laser_off_data());
                 switch (_tracker->wait_for_image_pose(images)){
-                    case rs2::camera_imu_tracker::HIGH:   _app_hint="high quality   "; break;
-                    case rs2::camera_imu_tracker::MEDIUM: _app_hint="medium quality "; break;
-                    default:                              _app_hint="reset if needed"; break;
+                    case rs2::camera_imu_tracker::HIGH:   _app_hint="High Quality   "; break;
+                    case rs2::camera_imu_tracker::MEDIUM: _app_hint="Medium Quality "; break;
+                    default:                              _app_hint="Reset if needed"; break;
                 }
             }
             
@@ -357,7 +358,7 @@ int live_play(const int cap_size[2], const std::string& path) try
         }
     }else{
         d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], 0);});
-        for(d435i::window app(pipe._src.width()*3/2, pipe._src.height(), (pipe._src.get_device_name()+ " Box Scan Example").c_str()); app;)
+        for(d435i::window app(pipe._src.width()*3/2, pipe._src.height(), pipe._src.get_device_name()+" Box Scan Example"); app;)
         {
             auto images = pipe.exec_once();
             app.render_ui(&images[DEPTH], &images[COLOR], true, pipe._app_hint.c_str());

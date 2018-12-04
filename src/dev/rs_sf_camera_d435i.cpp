@@ -125,6 +125,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         
         // open the motion sensor stream
         if(_streams[4].profile && _streams[5].profile){
+            _streams[4].sensor.set_option(RS2_OPTION_ENABLE_MOTION_CORRECTION, 0);
             _streams[4].sensor.open({_streams[4].profile,_streams[5].profile});
         }
     }

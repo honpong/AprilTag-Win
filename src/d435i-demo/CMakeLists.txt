@@ -29,14 +29,20 @@ add_executable(${PROJECT_NAME}
     ${${PROJECT_NAME}_DEMO_HDR}
     ${JSON_SRC}
     ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_sf_pose_tracker.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_sf_pose_tracker.h)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_sf_pose_tracker.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_icon.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_icon.h
+    ${THIRDPARTY_DIR}/fw-rw/rs2-crw/mm/src/custom-mm.cpp
+    ${THIRDPARTY_DIR}/fw-rw/rs2-crw/mm/inc/rs2-custom-calibration-mm.h
+)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
 target_link_libraries(${PROJECT_NAME} shapefit-core ${LIBRS_LIBS} ${libSP})
 target_include_directories(${PROJECT_NAME} PRIVATE shapefit-core ${LIBRS_LIBS} ${libSP}
     ${CMAKE_CURRENT_SOURCE_DIR}/../dev
     ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk
     ${THIRDPARTY_DIR}/LibRealSense/librealsense/third-party
-    ${THIRDPARTY_DIR}/librealsense/librealsense/third-party)
+    ${THIRDPARTY_DIR}/librealsense/librealsense/third-party
+    ${THIRDPARTY_DIR}/fw-rw/rs2-crw/mm/inc)
 
 if(MSVC)
     if(BUILD_SHARED_LIBS)

@@ -6,7 +6,9 @@
 //
 #include "rs_sf_camera.hpp"
 #include "rs_sf_device_manager.hpp"
+#include "rs2-custom-calibration-mm.h"
 #include <librealsense2/rsutil.h>
+#include <librealsense2/rs_advanced_mode.hpp>
 #include <iostream>
 #include <iomanip>
 
@@ -20,11 +22,53 @@ bool rs_sf_device_manager::search_device_name(const std::string& device_name)
     for (auto dev : _ctx.query_devices()){
         _device = dev;
         if(get_device_name()==device_name){
+            read_custom_fw_data();
             return true;
         }
     }
     _device = nullptr;
     return false;
+}
+
+void rs_sf_device_manager::read_custom_fw_data()
+{
+    try {
+        // to use the custom calibration read/write api, the device should be in advanced mode
+        if (_device.is<rs400::advanced_mode>())
+        {
+            rs400::advanced_mode advanced = _device.as<rs400::advanced_mode>();
+            if (!advanced.is_enabled()) {
+                advanced.toggle_advanced_mode(true);
+            }
+            
+            // initialize custom calibration R/W API
+            auto m_dcApi = std::make_unique<crw::MMCalibrationRWAPI>();
+            
+            // mydev should be a pointer to rs2::device from librealsense
+            if (m_dcApi->Initialize(&_device)==DC_MM_SUCCESS)
+            {
+                // the custom data area has DC_MM_CUSTOM_DATA_SIZE (504 bytes) of storage space. User can
+                // define their data own format and write to the device and retrieve it later from
+                // the device
+                
+                // on a new device, the storage is not initialzed, so should write data before perform
+                // read. reading before writing any data will fail.
+                
+                uint8_t mmCustom[DC_MM_CUSTOM_DATA_SIZE];
+                memset((void*)&mmCustom, 0x0, sizeof(mmCustom));
+                
+                // read the custom data back from the device
+                if( m_dcApi->ReadMMCustomData(mmCustom)==DC_MM_SUCCESS ){
+                    std::cout << "Custom FW Data " << sizeof(mmCustom) << " bytes ";
+                    for(int c=0; c<DC_MM_CUSTOM_DATA_SIZE; ++c){
+                        if(c%10==0){ std::cout << std::endl; }
+                        std::cout << (int)mmCustom[c] << ",";
+                    }
+                    std::cout << std::endl;
+                }
+            }
+        }
+    }catch(std::exception& e){ fprintf(stderr,"WARNING: unable to read custom FW data \n%s\n",e.what()); }
 }
 
 void rs_sf_device_manager::add_stream_request(const rs_sf_stream_select& stream_request)

@@ -10,6 +10,7 @@
 #include "rs_sf_gl_context.hpp"
 #include "rs_sf_pose_tracker.h"
 #include "d435i_default_json.h"
+#include "rs_sf_demo_d435i.hpp"
 
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
@@ -238,11 +239,14 @@ struct d435i_exec_pipeline
         return 0;
     }
     
-    int reset()
+    int reset(bool reset_src = true)
     {
-        _src.reset();
+        if(reset_src){ _src.reset(); }
         return init_algo_middleware();
     }
+    
+    bool _enable_camera_tracking_when_available = true;
+    bool enable_camera_tracking(bool flag) { return (_enable_camera_tracking_when_available=flag) && _tracker; }
     
     std::vector<rs_sf_image> exec_once()
     {
@@ -255,7 +259,10 @@ struct d435i_exec_pipeline
             }
             
             images = _src.images();
-            if(_tracker && _src.total_runtime() >= _drop_time){
+            if(_tracker &&
+               _src.total_runtime() >= _drop_time &&
+               _enable_camera_tracking_when_available)
+            {
                 _tracker->process(_src.laser_off_data());
                 _tracker->wait_for_image_pose(images);
             }
@@ -301,11 +308,24 @@ int replay_frames(const std::string& path) try
 
 int live_play(const int cap_size[2], const std::string& path) try
 {
-    d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],0);});
-    for(rs_sf_gl_context win("live demo", pipe._src.width()*3, pipe._src.height()*3); ;)
-    {
-        auto images = pipe.exec_once();
-        if(!win.imshow(&images[3],1)){break;}
+    if(false){
+        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],0);});
+        for(rs_sf_gl_context win("live demo", pipe._src.width()*3, pipe._src.height()*3); ;)
+        {
+            auto images = pipe.exec_once();
+            if(!win.imshow(&images[3],1)){break;}
+        }
+    }else{
+        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], 0);});
+        for(d435i::window app(pipe._src.width()*3/2, pipe._src.height(), (pipe._src.get_device_name()+ "Box Scan Example").c_str()); app;)
+        {
+            auto images = pipe.exec_once();
+            app.render_ui(&images[DEPTH], &images[3]);
+            app.render_box_dim("123x456x789");
+        
+            pipe.enable_camera_tracking(app.dense_request());
+            if(app.reset_request()){ pipe.reset(false); }
+        }
     }
     return 0;
 }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }

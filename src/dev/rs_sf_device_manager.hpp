@@ -45,6 +45,8 @@ protected:
     void print_requested_streams() const;
     void print_calibrations() const;
     
+    void read_custom_fw_data();
+    
     static void print(const rs2::error& e);
 };
 

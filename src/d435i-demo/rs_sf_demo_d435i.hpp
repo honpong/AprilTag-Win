@@ -338,7 +338,7 @@ public:
         glDisable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
         
-        draw_text(r.x + 15, r.y + 20, text ? text : rs2_stream_to_string(stream));
+        draw_text(r.x + r.w - 60, r.y + r.h - 20, text ? text : rs2_stream_to_string(stream));
     }
     
     void draw_box(const float box_wire_endpt[12][2][2], int app_height, float line_width = -1.0f)
@@ -499,7 +499,7 @@ public:
         glClearColor(bkg_blue[0] / 255.0f, bkg_blue[1] / 255.0f, bkg_blue[2] / 255.0f, 1);
         
         //_texture_depth.render(depth_frame, win_depth_image(), "");
-        _texture_color.render(color_frame, win_color_image(), "");
+        _texture_color.render(color_frame, win_color_image(), _dense ? "" : "bypass");
         _texture_realsense_logo.render_middle(0, win_rs_logo());
         
         if (render_buttons)
@@ -516,6 +516,7 @@ public:
     
     void render_box_dim(const std::string& box_dim)
     {
+        if(box_dim.empty()) return;
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _texture_box_msg.render(_num_icons.print(box_dim), _num_icons.width(), _num_icons.height(), win_box_msg(), "", _num_icons.format());

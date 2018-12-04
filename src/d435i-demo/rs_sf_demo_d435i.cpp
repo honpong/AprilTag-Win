@@ -279,6 +279,16 @@ struct d435i_exec_pipeline
         }
         return images;
     }
+    
+    std::string box_dim_string()
+    {
+        rs_sf_box box;
+        if(RS_SF_SUCCESS==rs_sf_boxfit_get_box(_boxfit.get(), 0, &box))
+            return std::to_string((int)(std::sqrt(box.dim_sqr(0))*1000))+"x"+
+            std::to_string((int)(std::sqrt(box.dim_sqr(1))*1000))+"x"+
+            std::to_string((int)(std::sqrt(box.dim_sqr(2))*1000));
+        return "";
+    }
 };
  
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option) try
@@ -317,11 +327,11 @@ int live_play(const int cap_size[2], const std::string& path) try
         }
     }else{
         d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], 0);});
-        for(d435i::window app(pipe._src.width()*3/2, pipe._src.height(), (pipe._src.get_device_name()+ "Box Scan Example").c_str()); app;)
+        for(d435i::window app(pipe._src.width()*3/2, pipe._src.height(), (pipe._src.get_device_name()+ " Box Scan Example").c_str()); app;)
         {
             auto images = pipe.exec_once();
             app.render_ui(&images[DEPTH], &images[3]);
-            app.render_box_dim("123x456x789");
+            app.render_box_dim(pipe.box_dim_string());
         
             pipe.enable_camera_tracking(app.dense_request());
             if(app.reset_request()){ pipe.reset(false); }

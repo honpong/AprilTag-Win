@@ -138,7 +138,9 @@ extern "C"
         RS_SF_OPTION_DEPTH_UNIT = 6,        /**< depth pixel unit in meter, default 0.001f */
         RS_SF_OPTION_BOX_SCAN_MODE = 7,     /**< 0:ORIGINAL, 1:EXTENSION       */
         RS_SF_OPTION_PARAM_PRESET = 8,      /**< 0:DEFAULT                     */
-        RS_SF_OPTION_COUNT = 9,
+        RS_SF_OPTION_MAX_NUM_BOX = 9,       /**< limit the number of returned boxes */
+        RS_SF_OPTION_BOX_BUFFER = 10,       /**< 11:DEFAULT                         */
+        RS_SF_OPTION_COUNT = 11,
         RS_SF_MAX_PLANE_COUNT = 256,        /**< required buffers by rs_sf_planefit_get_planes() */
     };
     

@@ -36,6 +36,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
         float fov_margin             = 2.000f; // extend box length outside fov (0 no extension)
         int   max_box_history        = 11;     // length of box history per tracked box
         bool  refine_box_plane       = false;  // flag to refine box edge
+        int   max_num_output_box     = 255;    // limit the number of output box (get_boxes())
         
         parameter get_preset(rs_sf_param_preset s) const {
             //if (s==RS_SF_PRESET_BOX_S) { return {0.03f,0.05f,0.03f,0.03f,1.10f,0.015f,0.1f,500.0f,fov_margin,11,refine_box_plane}; }
@@ -45,6 +46,7 @@ struct rs_sf_boxfit : public rs_sf_planefit
             parameter dst;
             dst.fov_margin = fov_margin;
             dst.refine_box_plane = refine_box_plane;
+            dst.max_num_output_box = max_num_output_box;
             if (s == RS_SF_PRESET_BOX_S) { dst.min_box_thickness = 0.03f; dst.max_box_thickness = 1.10f; }
             if (s == RS_SF_PRESET_BOX_L) { dst.min_box_thickness = 0.30f; dst.max_box_thickness = 2.00f; dst.max_box_history = 31; }
             return dst;

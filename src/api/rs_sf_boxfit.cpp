@@ -33,6 +33,10 @@ rs_sf_status rs_sf_boxfit::set_option(rs_sf_fit_option option, double value)
             m_param.fov_margin = (value > 0 ? parameter().fov_margin : 0); break;
         case RS_SF_OPTION_PARAM_PRESET:
             m_param = m_param.get_preset((rs_sf_param_preset)(int)value); break;
+        case RS_SF_OPTION_BOX_BUFFER:
+            m_param.max_box_history = (value > 0 ? (int)value : parameter().max_box_history); break;
+        case RS_SF_OPTION_MAX_NUM_BOX:
+            m_param.max_num_output_box = (value > 0? (int)value : parameter().max_num_output_box); break;
         default: break;
     }
     return status;
@@ -79,8 +83,10 @@ std::vector<rs_sf_box> rs_sf_boxfit::get_boxes() const
 {
     std::vector<rs_sf_box> dst;
     dst.reserve(num_detected_boxes());
-    for (const auto& box : m_box_ref_scene.tracked_boxes)
+    for (const auto& box : m_box_ref_scene.tracked_boxes){
         dst.push_back(box.to_rs_sf_box());
+        if(dst.size()>=m_param.max_num_output_box){ break; }
+    }
     return dst;
 }
 

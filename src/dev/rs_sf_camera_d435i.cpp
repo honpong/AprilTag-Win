@@ -21,18 +21,21 @@
 struct rs_sf_d435i_writer;
 struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
 {
-    rs_sf_d435i_camera(int w, int h, int laser)
+    rs_sf_d435i_camera(int w, int h, const rs_sf_stream_request& request)
     {
         if(search_device_name("Intel RealSense D435I")){ printf("Intel RealSense D435I Camera Found\n"); }
         else if(search_device_name("Intel RealSense D435" )){ printf("Intel RealSense D435  Camera Found\n");}
         if(!_device){ throw std::runtime_error("No Intel RealSense D435/D435I Found"); }
 
+		auto GYHZ = request.gyro_fps  > 0 ? (float)request.gyro_fps : 200.0f;
+		auto ACHZ = request.accel_fps > 0 ? (float)request.accel_fps : 63.0f;
+
         add_stream_request({RS2_STREAM_DEPTH,   -1,  30, RS2_FORMAT_Z16,            w,  h});
         add_stream_request({RS2_STREAM_INFRARED, 1,  30, RS2_FORMAT_Y8 ,            w,  h});
         add_stream_request({RS2_STREAM_INFRARED, 2,  30, RS2_FORMAT_Y8 ,            w,  h});
         add_stream_request({RS2_STREAM_COLOR,   -1,  30, RS2_FORMAT_RGB8,           w,  h});
-        add_stream_request({RS2_STREAM_GYRO,    -1, 200, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
-        add_stream_request({RS2_STREAM_ACCEL,   -1,  63, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
+        add_stream_request({RS2_STREAM_GYRO,    -1,GYHZ, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
+        add_stream_request({RS2_STREAM_ACCEL,   -1,ACHZ, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
         
         find_stream_profiles();
         print_requested_streams();
@@ -40,7 +43,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         extract_stream_calibrations();
         print_calibrations();
         
-        open(laser);
+        open(request.laser);
         start();
     }
     
@@ -731,8 +734,8 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     }
 };
 
-std::unique_ptr<rs_sf_data_stream> rs_sf_create_camera_imu_stream(int w, int h, int laser){
-    return std::make_unique<rs_sf_d435i_camera>(w, h, laser); }
+std::unique_ptr<rs_sf_data_stream> rs_sf_create_camera_imu_stream(int w, int h, const rs_sf_stream_request& req){
+    return std::make_unique<rs_sf_d435i_camera>(w, h, req); }
 
 std::unique_ptr<rs_sf_data_writer> rs_sf_create_data_writer(rs_sf_data_stream* src, const std::string& path){
     return std::make_unique<rs_sf_d435i_writer>(src, path); }

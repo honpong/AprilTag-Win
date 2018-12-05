@@ -68,8 +68,15 @@ struct rs_sf_image_stream
     virtual ~rs_sf_image_stream() {}
 };
 
+struct rs_sf_stream_request
+{
+	int laser;
+	int gyro_fps;
+	int accel_fps;
+};
+
 std::unique_ptr<rs_sf_image_stream> rs_sf_create_camera_stream(int w, int h);
-std::unique_ptr<rs_sf_data_stream>  rs_sf_create_camera_imu_stream(int w, int h, int laser);
+std::unique_ptr<rs_sf_data_stream>  rs_sf_create_camera_imu_stream(int w, int h, const rs_sf_stream_request& request);
 std::unique_ptr<rs_sf_data_stream>  rs_sf_create_camera_imu_stream(const std::string& folder_path, bool check_data);
 std::unique_ptr<rs_sf_data_writer>  rs_sf_create_data_writer(rs_sf_data_stream* src, const std::string& path);
 

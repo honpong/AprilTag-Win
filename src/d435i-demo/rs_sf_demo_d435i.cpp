@@ -15,10 +15,12 @@
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
 #define DEFAULT_PATH "."
+#define STREAM_REQUEST(l) (rs_sf_stream_request{l,400,250})
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
 #define DEFAULT_PATH (std::string(getenv("HOME"))+"/Desktop/temp/data/")
+#define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1})
 #endif
 
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option);
@@ -327,7 +329,7 @@ struct d435i_exec_pipeline
  
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option) try
 {
-    d435i_buffered_stream src([&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], laser_option);});
+    d435i_buffered_stream src([&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], STREAM_REQUEST(laser_option));});
     auto recorder = rs_sf_create_data_writer(&src, path);
     for(rs_sf_gl_context win("capture", src.width()*3, src.height()*3);;)
     {
@@ -353,14 +355,14 @@ int replay_frames(const std::string& path) try
 int live_play(const int cap_size[2], const std::string& path) try
 {
     if(false){
-        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],0);});
+        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],STREAM_REQUEST(0));});
         for(rs_sf_gl_context win("live demo", pipe._src.width()*3, pipe._src.height()*3); ;)
         {
             auto images = pipe.exec_once();
             if(!win.imshow(&images[3],1)){break;}
         }
     }else{
-        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], 0);});
+        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1],STREAM_REQUEST(0));});
         for(d435i::window app(pipe._src.width()*3/2, pipe._src.height(), pipe._src.get_device_name()+" Box Scan Example"); app;)
         {
             auto images = pipe.exec_once();

@@ -442,6 +442,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
             >> sensor_type       >> sep
             >> sensor_index      >> sep;
             std::getline(is,_in_filename);
+            if(_in_filename.back()=='\r'){ _in_filename.pop_back(); }
             switch(sensor_type)
             {
                 case RS_SF_SENSOR_ACCEL:

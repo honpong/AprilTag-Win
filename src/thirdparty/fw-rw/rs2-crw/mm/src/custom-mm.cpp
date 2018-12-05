@@ -175,7 +175,7 @@ namespace crw
                 if (rcvBuf[0] != cmd[4])
                     return false;
 
-                int len = (length <= rcvBuf.size() - DS5_CMD_OPCODE_SIZE) ? length : rcvBuf.size() - DS5_CMD_OPCODE_SIZE;
+                int len = (length <= (int)rcvBuf.size() - DS5_CMD_OPCODE_SIZE) ? length : (int)rcvBuf.size() - DS5_CMD_OPCODE_SIZE;
 
                 DS_MEMCPY(data, rcvBuf.data() + DS5_CMD_OPCODE_SIZE, len);
             }

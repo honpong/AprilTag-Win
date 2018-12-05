@@ -83,7 +83,7 @@ void rs_sf_device_manager::find_stream_profiles()
             for(auto profile : sensor.get_stream_profiles()){
                 if((profile.stream_type()==stream.type) &&
                    (profile.stream_index()==stream.index || stream.index<0) &&
-                   (profile.fps()==stream.fps || stream.fps<0) &&
+                   (profile.fps()==(int)stream.fps || stream.fps<0.0f) &&
                    (profile.format()==stream.format)){
                     if(profile.is<rs2::motion_stream_profile>() ||
                        ((profile.as<rs2::video_stream_profile>().width()  == stream.width) &&

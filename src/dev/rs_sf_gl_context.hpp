@@ -51,6 +51,8 @@ struct rs_sf_gl_context
             rs2_format stream_format[] = { RS2_FORMAT_RAW8, RS2_FORMAT_Z16, RS2_FORMAT_RGB8 };
             for (int index = 0; index < num_images; ++index)
             {
+                if(!image[index].data){ continue; }
+                
                 auto col_id = index / tiles;
                 auto row_id = index % tiles;
                 auto& frame = image[index];

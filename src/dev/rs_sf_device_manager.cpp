@@ -21,6 +21,7 @@ bool rs_sf_device_manager::search_device_name(const std::string& device_name)
 {
     for (auto dev : _ctx.query_devices()){
         _device = dev;
+		printf("%s\n", get_device_name().c_str());
         if(get_device_name()==device_name){
             read_custom_fw_data();
             return true;

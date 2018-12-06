@@ -14,7 +14,7 @@
 
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
-#define DEFAULT_PATH "."
+#define DEFAULT_PATH "C:\\temp\\data\\"
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,400,250})
 #else
 #define PATH_SEPARATER '/'

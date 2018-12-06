@@ -17,7 +17,7 @@
 #include <algorithm>
 
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
-#define RS_SF_CLEAR_DIRECTORY(path) {}
+#define RS_SF_CLEAR_DIRECTORY(path) {auto rtn=system(("RMDIR /Q /S " + path + " & MKDIR " + path).c_str());}
 #ifndef PATH_SEPARATER
 #define PATH_SEPARATER '\\'
 #endif

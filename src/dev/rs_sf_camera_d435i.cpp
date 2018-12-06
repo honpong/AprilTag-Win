@@ -24,7 +24,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     rs_sf_d435i_camera(int w, int h, const rs_sf_stream_request& request)
     {
         if(search_device_name("Intel RealSense D435I")){ printf("Intel RealSense D435I Camera Found\n"); }
-        else if(search_device_name("Intel RealSense D435" )){ printf("Intel RealSense D435  Camera Found\n");}
+        else if(search_device_name("Intel RealSense D435" )){ printf("Intel RealSense D435 Camera Found\n");}
         if(!_device){ throw std::runtime_error("No Intel RealSense D435/D435I Found"); }
 
 		auto GYHZ = request.gyro_fps  > 0 ? (float)request.gyro_fps : 200.0f;

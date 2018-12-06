@@ -31,7 +31,7 @@ rs_shapefit_capability g_sf_option = RS_SHAPEFIT_BOX_COLOR;
 int main(int argc, char* argv[])
 {
     bool is_live = true, is_capture = false, is_replay = false; int laser_option = 0;
-    std::string path = DEFAULT_PATH;
+    std::string data_path = DEFAULT_PATH, camera_json_path = "."; //camera.json location
     std::vector<int> capture_size = { 640,480 };
 
     for (int i = 1; i < argc; ++i) {
@@ -40,7 +40,7 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--plane"))           { g_sf_option = RS_SHAPEFIT_PLANE; }
         else if (!strcmp(argv[i], "--live"))            { is_live = true; }
         else if (!strcmp(argv[i], "--capture"))         { is_capture = true; is_live = false; }
-        else if (!strcmp(argv[i], "--path"))            { path = argv[++i]; }
+        else if (!strcmp(argv[i], "--path"))            { data_path = camera_json_path = argv[++i]; }
         else if (!strcmp(argv[i], "--replay"))          { is_replay = true; is_live = false; }
         else if (!strcmp(argv[i], "--hd"))              { capture_size = { 1280,720 }; }
         else if (!strcmp(argv[i], "--qhd"))             { capture_size = { 640,360 }; }
@@ -54,10 +54,11 @@ int main(int argc, char* argv[])
             return 0;
         }
     }
-    if (path.back() != '\\' && path.back() != '/'){ path.push_back(PATH_SEPARATER); }
-    if (is_capture) capture_frames(path, capture_size.data(), laser_option);
-    if (is_replay)  replay_frames(path);
-    if (is_live)    live_play(capture_size.data(),path);
+    if (data_path.back() != '\\' && data_path.back() != '/'){ data_path.push_back(PATH_SEPARATER); }
+    if (camera_json_path.back() != '\\' && camera_json_path.back() != '/'){ camera_json_path.push_back(PATH_SEPARATER); }
+    if (is_capture) capture_frames(data_path, capture_size.data(), laser_option);
+    if (is_replay)  replay_frames(data_path);
+    if (is_live)    live_play(capture_size.data(),camera_json_path);
     return 0;
 }
 

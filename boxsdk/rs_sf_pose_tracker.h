@@ -47,6 +47,24 @@ void rs_sf_pose_tracking_release();
 
 namespace rs2
 {
+    struct camera_imu_tracker
+    {
+        typedef enum confidence { INVALID=-1, NONE=0, LOW=1, MEDIUM=2, HIGH=3, } conf;
+        virtual ~camera_imu_tracker() {}
+        virtual bool init(const char* calibration_data, bool async) { return false; }
+        virtual bool init(const rs_sf_intrinsics* i, int option) { return false; }
+        inline bool init(const std::string& calibration_file, bool async){
+            return init(read_json_file(calibration_file).c_str(), async); }
+        virtual bool process(rs_sf_data_ptr& data) = 0;
+        inline void process(std::vector<rs_sf_data_ptr>&& dataset) {
+            for(auto& d : dataset){ process(d); }}
+        virtual conf wait_for_image_pose(std::vector<rs_sf_image>& images) = 0;
+        
+        static std::unique_ptr<camera_imu_tracker> create();
+        static std::unique_ptr<camera_imu_tracker> create_gpu();
+        static std::string read_json_file(const std::string& file_path);
+    };
+    
     struct camera_tracker
     {
         camera_tracker(const rs2_intrinsics* i, const rs_sf_pose_track_resolution& resolution) :
@@ -108,21 +126,6 @@ namespace rs2
             dst[10] = r[6] * src[2] + r[7] * src[6] + r[8] * src[10];
             dst[11] = r[6] * src[3] + r[7] * src[7] + r[8] * src[11] + t[2];
         }
-    };
-    
-    
-    struct camera_imu_tracker
-    {
-        typedef enum confidence { INVALID=-1, NONE=0, LOW=1, MEDIUM=2, HIGH=3, } conf;
-        virtual ~camera_imu_tracker() {}
-        virtual bool init(const std::string& calibration_file, bool async) = 0;
-        virtual bool init(const char* calibration_data, bool async) = 0;
-        virtual bool process(rs_sf_data_ptr& data) = 0;
-        inline void process(std::vector<rs_sf_data_ptr>&& dataset) {
-            for(auto& d : dataset){ process(d); }}
-        virtual conf wait_for_image_pose(std::vector<rs_sf_image>& images) = 0;
-        
-        static std::unique_ptr<camera_imu_tracker> create();
     };
 }
 #endif /* rs_sf_pose_tracker_h */

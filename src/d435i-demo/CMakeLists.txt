@@ -12,7 +12,7 @@ SET(JSON_SRC "${JSON_SRC_DIR}/jsoncpp.cpp")
 #############################################################################################################
 include_directories(${JSON_INC_DIR})
 
-#find_package(libSP QUIET)
+find_package(libSP QUIET)
 if(libSP_FOUND)
     add_definitions(-DlibSP_FOUND)
     set(libSP libSP)

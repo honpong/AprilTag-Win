@@ -220,7 +220,7 @@ struct d435i_exec_pipeline
     rs_sf_shapefit_ptr     _boxfit;
     std::chrono::seconds   _drop_time{0};
     std::unique_ptr<rs_sf_image_rgb>         _boxwire;
-    std::unique_ptr<rs2::camera_imu_tracker> _tracker;
+    std::unique_ptr<rs2::camera_imu_tracker> _primary_tracker, _backup_tracker;
     
     d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { init_algo_middleware(); }
     
@@ -236,14 +236,25 @@ struct d435i_exec_pipeline
         rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_MAX_NUM_BOX, 1); //output single box
         if(sync){ rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, -1); }
 
+        // assume we are on Windows
+        _primary_tracker = rs2::camera_imu_tracker::create_gpu();
+        if(_primary_tracker){
+            printf("SP Tracker Available \n");
+            _primary_tracker->init(&intr[0], (int)RS_SF_MED_RESOLUTION);
+        }
+        
         if(_src.has_imu()){
             _drop_time = std::chrono::seconds(sync ? 0 : 3);
-            _tracker = rs2::camera_imu_tracker::create();
+            auto imu_tracker = rs2::camera_imu_tracker::create();
             
-            if(_tracker &&
-               !_tracker->init(_path+"camera.json", !sync) &&
-               !_tracker->init(default_camera_json, !sync)) { return -1; }
+            if(imu_tracker &&
+               !imu_tracker->init(_path +"camera.json", !sync) &&
+               !imu_tracker->init(default_camera_json, !sync)) { return -1; }
+            
+            if(_primary_tracker){ _backup_tracker  = std::move(imu_tracker); }
+            else                { _primary_tracker = std::move(imu_tracker); }
         }
+        
         return 0;
     }
     
@@ -255,7 +266,7 @@ struct d435i_exec_pipeline
     
     bool _enable_camera_tracking_when_available = true;
     bool enable_camera_tracking(bool flag) {
-        auto tracker_runnable = ((_enable_camera_tracking_when_available=flag) && _tracker);
+        auto tracker_runnable = ((_enable_camera_tracking_when_available=flag) && _primary_tracker);
         //TODO: not sure why laser ON/OFF not working here.
         //if(!_enable_camera_tracking_when_available){ _src.set_laser(1); }
         //else { _src.set_laser(0); }
@@ -277,18 +288,19 @@ struct d435i_exec_pipeline
             
             images = _src.images();
             _app_hint = "Move Tablet Around";
-            if(_tracker &&
-               _src.total_runtime() >= _drop_time &&
-               _enable_camera_tracking_when_available)
+            if(_src.total_runtime() >= _drop_time)
             {
-                _tracker->process(_src.laser_off_data());
-                switch (_tracker->wait_for_image_pose(images)){
-                    case rs2::camera_imu_tracker::HIGH:   _app_hint="High Quality   "; break;
-                    case rs2::camera_imu_tracker::MEDIUM: _app_hint="Medium Quality "; break;
-                    default:                              _app_hint="Reset if needed"; break;
+                rs2::camera_imu_tracker* tracker = _enable_camera_tracking_when_available ? _primary_tracker.get() : _backup_tracker.get();
+                if( tracker != nullptr ){
+                    tracker->process(_src.laser_off_data());
+                    switch (tracker->wait_for_image_pose(images)){
+                        case rs2::camera_imu_tracker::HIGH:   _app_hint="High Quality   "; break;
+                        case rs2::camera_imu_tracker::MEDIUM: _app_hint="Medium Quality "; break;
+                        default:                              _app_hint="Move Around / Reset"; break;
+                    }
                 }
             }
-            
+                
             rs_sf_image boxfit_images[2] = {images[DEPTH], images[COLOR]};
             rs_shapefit_depth_image(_boxfit.get(), boxfit_images);
             

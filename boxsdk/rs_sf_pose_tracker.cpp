@@ -172,7 +172,85 @@ void rs_sf_pose_tracking_release()
     SP_release();
 }
 
+struct sp_camera_tracker : public rs2::camera_imu_tracker
+{
+    ~sp_camera_tracker() { if(_sp_init){ rs_sf_pose_tracking_release(); }}
+    
+    bool init(const rs_sf_intrinsics* i, int resolution) override {
+        if(i==nullptr && _sp_init){ _reset_request=true; return false; }
+        _sp_init = rs_sf_setup_scene_perception(i->fx, i->fy, i->ppx, i->ppy, i->width, i->height, _acc_w, _acc_h, (rs_sf_pose_track_resolution)resolution);
+        return _sp_init;
+    }
+    
+    bool process(rs_sf_data_ptr& data) override {
+        if(_sp_init){ return false; }
+        switch(data->sensor_type){
+            case RS_SF_SENSOR_COLOR: {_color_buf = data; break;}
+            case RS_SF_SENSOR_DEPTH:
+            case RS_SF_SENSOR_DEPTH_LASER_OFF: {
+                std::lock_guard<std::mutex> lk(_last_pose_mutex);
+                return (_was_tracking = rs_sf_do_scene_perception_tracking((unsigned short*)data->image.data, _color_buf?_color_buf->image.data:nullptr, _reset_request, _last_output_pose.data()));
+            }
+            default:
+                break;
+        }
+        return _was_tracking;
+    }
+    
+    std::mutex           _last_pose_mutex;
+    std::array<float,12> _last_output_pose;
+    conf wait_for_image_pose(std::vector<rs_sf_image>& images) override
+    {
+        if(!_sp_init)     { return INVALID; }
+        if(!_was_tracking){ return NONE; }
+        
+        std::array<float,12> sp_pose;
+        {
+            std::lock_guard<std::mutex> lk(_last_pose_mutex);
+            sp_pose = _last_output_pose;
+        }
+        for(auto& img : images){
+            update_pose(img.cam_pose, sp_pose.data());
+        }
+        return MEDIUM;
+    }
+    
+private:
+    void update_pose(float dst[12], float src[12]) const
+    {
+        float p[12] = {
+            dst[0]*src[0]+dst[1]*src[4]+dst[2]*src[8],
+            dst[0]*src[1]+dst[1]*src[5]+dst[2]*src[9],
+            dst[0]*src[2]+dst[1]*src[6]+dst[2]*src[10],
+            dst[0]*src[3]+dst[1]*src[7]+dst[2]*src[11]+dst[3],
+            
+            dst[4]*src[0]+dst[5]*src[4]+dst[6]*src[8],
+            dst[4]*src[1]+dst[5]*src[5]+dst[6]*src[9],
+            dst[4]*src[2]+dst[5]*src[6]+dst[6]*src[10],
+            dst[4]*src[3]+dst[5]*src[7]+dst[6]*src[11]+dst[7],
+            
+            dst[8]*src[0]+dst[9]*src[4]+dst[10]*src[8],
+            dst[8]*src[1]+dst[9]*src[5]+dst[10]*src[9],
+            dst[8]*src[2]+dst[9]*src[6]+dst[10]*src[10],
+            dst[8]*src[3]+dst[9]*src[7]+dst[10]*src[11]+dst[11]
+        };
+        rs_sf_memcpy(dst, p, sizeof(p));
+    }
+    
+    int _acc_w = 0, _acc_h = 0;
+    bool _sp_init, _was_tracking, _reset_request = false;
+    rs_sf_data_ptr _color_buf;
+};
+
+std::unique_ptr<rs2::camera_imu_tracker> rs2::camera_imu_tracker::create_gpu() {
+    return std::make_unique<sp_camera_tracker>();
+}
+
 #else
+
+std::unique_ptr<rs2::camera_imu_tracker> rs2::camera_imu_tracker::create_gpu() {
+    return nullptr;
+}
 
 bool rs_sf_setup_scene_perception(
     float rfx, float rfy, float rpx, float rpy, unsigned int rw, unsigned int rh,
@@ -257,6 +335,17 @@ static float* operator*=(float dst[12], const rc_Pose& rc_pose)
     return dst;
 }
 
+std::string rs2::camera_imu_tracker::read_json_file(const std::string& src_file_path)
+{
+    std::ifstream src_file(src_file_path);
+    std::string dst_str((std::istreambuf_iterator<char>(src_file)), std::istreambuf_iterator<char>());
+    if (!src_file.is_open() || dst_str.empty()) {
+        fprintf(stderr,"Error: failed to open %s, will try default \n", src_file_path.c_str());
+        return "";
+    }
+    return dst_str;
+}
+
 struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
 {
     typedef rs_sf_data_ptr data_packet;
@@ -277,19 +366,10 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         _tracker.reset();
     }
     
-    bool init(const std::string& calibration_file, bool async) override
-    {
-        std::ifstream json_file(calibration_file);
-        std::string json_str((std::istreambuf_iterator<char>(json_file)), std::istreambuf_iterator<char>());
-        if (!json_file.is_open() || json_str.empty()) {
-            fprintf(stderr,"Error: failed to open JSON calibration for camera tracker ... \n");
-            return false;
-        }
-        return init(json_str.c_str(), async);
-    }
-    
     bool init(const char* calibration_data, bool async) override
     {
+        if(!calibration_data || strlen(calibration_data)<1){ return false; }
+        
         if(_tracker!=nullptr){ reset_tracker(); return false; }
         _tracker = std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)>(rc_create(), rc_destroy);
         

@@ -189,8 +189,9 @@ struct sp_camera_tracker : public rs2::camera_imu_tracker
             case RS_SF_SENSOR_COLOR: {_color_buf = data; break;}
             case RS_SF_SENSOR_DEPTH:
             case RS_SF_SENSOR_DEPTH_LASER_OFF: {
+                if(!_color_buf){ break; }
                 std::lock_guard<std::mutex> lk(_last_pose_mutex);
-                return (_was_tracking = rs_sf_do_scene_perception_tracking((unsigned short*)data->image.data, _color_buf?_color_buf->image.data:nullptr, _reset_request, _last_output_pose.data()));
+                return (_was_tracking = rs_sf_do_scene_perception_tracking((unsigned short*)data->image.data, _color_buf->image.data, _reset_request, _last_output_pose.data()));
             }
             default:
                 break;

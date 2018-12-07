@@ -199,10 +199,11 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
             for(auto& data : stream){
                 if(!data){ continue; }
                 switch(data->sensor_type){
-                    case RS_SF_SENSOR_LASER_OFF:
+                    case RS_SF_SENSOR_DEPTH_LASER_OFF:
                     case RS_SF_SENSOR_INFRARED_LASER_OFF:
                     case RS_SF_SENSOR_GYRO:
                     case RS_SF_SENSOR_ACCEL:
+                    case RS_SF_SENSOR_COLOR:
                         dst.emplace_back(data);
                     default: break;
                 }

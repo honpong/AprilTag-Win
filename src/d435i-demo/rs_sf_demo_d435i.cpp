@@ -222,9 +222,10 @@ struct d435i_exec_pipeline
     rs_sf_shapefit_ptr     _boxfit;
     std::chrono::seconds   _drop_time{0};
     std::unique_ptr<rs_sf_image_rgb>         _boxwire;
-    std::unique_ptr<rs2::camera_imu_tracker> _primary_tracker, _backup_tracker;
+    std::unique_ptr<rs2::camera_imu_tracker> _imu_tracker, _gpu_tracker;
+    rs2::camera_imu_tracker* _tracker = nullptr;
     
-    d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { init_algo_middleware(); }
+    d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { select_camera_tracking(true); }
     
     int init_algo_middleware()
     {
@@ -239,22 +240,19 @@ struct d435i_exec_pipeline
         if(sync){ rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, -1); }
 
         // assume we are on Windows
-        _primary_tracker = rs2::camera_imu_tracker::create_gpu();
-        if(_primary_tracker){
+        _gpu_tracker = rs2::camera_imu_tracker::create_gpu();
+        if(_gpu_tracker){
             printf("SP Tracker Available \n");
-            _primary_tracker->init(&intr[0], (int)RS_SF_MED_RESOLUTION);
+            _gpu_tracker->init(&intr[0], (int)RS_SF_MED_RESOLUTION);
         }
         
         if(_src.has_imu()){
-            _drop_time = std::chrono::seconds(sync ? 0 : 3);
-            auto imu_tracker = rs2::camera_imu_tracker::create();
+            _drop_time   = std::chrono::seconds(sync ? 0 : 3);
+            _imu_tracker = rs2::camera_imu_tracker::create();
             
-            if(imu_tracker &&
-               !imu_tracker->init(_path +"camera.json", !sync) &&
-               !imu_tracker->init(default_camera_json, !sync)) { return -1; }
-            
-            if(!_primary_tracker){ _primary_tracker = std::move(imu_tracker); }
-            else                 { _backup_tracker  = std::move(imu_tracker); }
+            if(_imu_tracker &&
+               !_imu_tracker->init(_path +"camera.json", !sync) &&
+               !_imu_tracker->init(default_camera_json, !sync)) { return -1; }
         }
         
         return 0;
@@ -266,18 +264,20 @@ struct d435i_exec_pipeline
         return init_algo_middleware();
     }
     
-    bool _enable_camera_tracking_when_available = true;
-    bool enable_camera_tracking(bool flag) {
-        if(flag != _enable_camera_tracking_when_available){
-            if(flag){
-                //_src.set_laser( (_primary_tracker && _primary_tracker->require_laser_off()) ? 0 : 1);
-            }else{
-                //_src.set_laser( (_backup_tracker && _backup_tracker->require_laser_off()) ? 0 : 1);
-            }
+    bool _use_primary = false;
+    bool select_camera_tracking(bool use_primary) {
+        if(_use_primary!=use_primary){
             reset(false);
-            _enable_camera_tracking_when_available = flag;
+            if(_use_primary){
+                if(_gpu_tracker){ _tracker = _gpu_tracker.get(); }
+                else            { _tracker = _imu_tracker.get(); }
+            }else{
+                if(_gpu_tracker){ _tracker = _imu_tracker.get(); }
+                else            { _tracker = nullptr;            }
+            }
+            _use_primary = use_primary;
         }
-        return flag;
+        return _use_primary;
     }
     
     
@@ -297,10 +297,9 @@ struct d435i_exec_pipeline
             _app_hint = "Move Tablet Around";
             if(_src.total_runtime() >= _drop_time)
             {
-                rs2::camera_imu_tracker* tracker = _enable_camera_tracking_when_available ? _primary_tracker.get() : _backup_tracker.get();
-                if( tracker != nullptr ){
-                    tracker->process(_src.data_vec(tracker->require_laser_off()));
-                    switch (tracker->wait_for_image_pose(images)){
+                if( _tracker != nullptr ){
+                    _tracker->process(_src.data_vec(_tracker->require_laser_off()));
+                    switch (_tracker->wait_for_image_pose(images)){
                         case rs2::camera_imu_tracker::HIGH:   _app_hint="High Quality   "; break;
                         case rs2::camera_imu_tracker::MEDIUM: _app_hint="Medium Quality "; break;
                         default:                              _app_hint="Move Around / Reset"; break;
@@ -342,9 +341,9 @@ struct d435i_exec_pipeline
     {
         if(_box){
             return
-            std::to_string((int)(std::sqrt(_box->dim_sqr(0))*1000))+"x"+
-            std::to_string((int)(std::sqrt(_box->dim_sqr(1))*1000))+"x"+
-            std::to_string((int)(std::sqrt(_box->dim_sqr(2))*1000));
+            std::to_string((int)(std::sqrt(_box->dim_sqr(0))*100)*5)+"x"+
+            std::to_string((int)(std::sqrt(_box->dim_sqr(1))*100)*5)+"x"+
+            std::to_string((int)(std::sqrt(_box->dim_sqr(2))*100)*5);
         }
         return "";
     }
@@ -392,7 +391,7 @@ int live_play(const int cap_size[2], const std::string& path) try
             app.render_ui(&images[DEPTH], &images[COLOR], true, pipe._app_hint.c_str());
             app.render_box_dim(pipe.box_dim_string());
         
-            pipe.enable_camera_tracking(app.dense_request());
+            pipe.select_camera_tracking(app.dense_request());
             if(app.reset_request()){ pipe.reset(false); }
         }
     }

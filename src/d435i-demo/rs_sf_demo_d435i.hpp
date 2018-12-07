@@ -222,19 +222,33 @@ public:
     
     static const char* get_realsense_icon(int* icon_width, int* icon_height, rs2_format* format)
     {
+        static std::vector<unsigned int> icon;
+        
         *icon_width = get_icon_width(realsense);
         *icon_height = get_icon_height(realsense);
         *format = RS2_FORMAT_BGRA8;
-        return get_icon_data(realsense);
+        if(icon.empty()){
+            icon.resize((*icon_width)*(*icon_height));
+            auto* src = (const unsigned int*)get_icon_data(realsense);
+            for(int p=0; p< (int)icon.size(); ++p){
+                icon[p] = (src[p]==0xffffff?src[p]:0xff000000|src[p]);
+            }
+        }
+        return (const char*)icon.data();
     }
     
     template<typename ICON>
-    void render_middle(ICON icon, const rect& r, const rs2_format& format = RS2_FORMAT_RGB8)
+    void render_middle(ICON icon, const rect& r, bool solid_background)
     {
-        glRectf(r.x, r.y, r.x + r.w, r.y + r.h);
+        if(solid_background){glRectf(r.x, r.y, r.x + r.w, r.y + r.h);}
+        else{
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        }
         
-        static int2 dim; rs2_format fm = format;
-        render(get_realsense_icon(&dim.w, &dim.h, &fm), dim.w, dim.h, rect{ r.x + r.w / 8, r.y, r.w * 3 / 4, r.h }.adjust_ratio({ float(dim.w),float(dim.h) }), "", fm);
+        static int2 dim; rs2_format fm = RS2_FORMAT_RGB8;
+        render(get_realsense_icon(&dim.w, &dim.h, &fm), dim.w, dim.h, rect{ r.x + r.w / 8, r.y, r.w * 3 / 4, r.h }.adjust_ratio({ float(dim.w),float(dim.h) }), "", RS2_FORMAT_BGRA8);
+        if(!solid_background){glDisable(GL_BLEND);}
     }
     
     void render(const rs_sf_image* frame, const rect& r, const char* text = nullptr)
@@ -500,7 +514,7 @@ public:
         
         //_texture_depth.render(depth_frame, win_depth_image(), "");
         _texture_color.render(color_frame, win_color_image(), text);
-        _texture_realsense_logo.render_middle(0, win_rs_logo());
+        _texture_realsense_logo.render_middle(0, win_rs_logo(),_dense);
         
         if (render_buttons)
         {

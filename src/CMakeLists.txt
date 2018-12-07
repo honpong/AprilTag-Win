@@ -95,6 +95,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
 
         if(APPLE)
             add_definitions(-DAPPLE)
+            add_definitions(-DGL_SILENCE_DEPRECATION)
             set(BUILD_WITH_OPENMP OFF CACHE BOOL "" FORCE)
             set(FORCE_LIBUVC ON)
         endif()

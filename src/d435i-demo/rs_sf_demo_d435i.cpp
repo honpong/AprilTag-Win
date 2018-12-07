@@ -190,13 +190,16 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         return dst;
     }
     
-    std::vector<rs_sf_data_ptr> laser_off_data() const {
+    std::vector<rs_sf_data_ptr> data_vec(bool laser_off_only) const {
         std::vector<rs_sf_data_ptr> dst;
         dst.reserve(size());
         for(auto& stream : *this){
             for(auto& data : stream){
                 if(!data){ continue; }
                 switch(data->sensor_type){
+                    case RS_SF_SENSOR_DEPTH_LASER_ON:
+                    case RS_SF_SENSOR_INFRARED_LASER_ON:
+                        if(laser_off_only){ break; }
                     case RS_SF_SENSOR_DEPTH_LASER_OFF:
                     case RS_SF_SENSOR_INFRARED_LASER_OFF:
                     case RS_SF_SENSOR_GYRO:
@@ -266,12 +269,14 @@ struct d435i_exec_pipeline
     bool _enable_camera_tracking_when_available = true;
     bool enable_camera_tracking(bool flag) {
         if(flag != _enable_camera_tracking_when_available){
-            if(flag){ reset(false); }
+            if(flag){
+                _src.set_laser( _primary_tracker->force_laser_off() ? 0 : 1);
+                reset(false);
+            }else{
+                _src.set_laser( _backup_tracker && _backup_tracker->force_laser_off() ? 0 : 1);
+            }
             _enable_camera_tracking_when_available = flag;
         }
-        //TODO: not sure why laser ON/OFF not working here.
-        //if(!_enable_camera_tracking_when_available){ _src.set_laser(1); }
-        //else { _src.set_laser(0); }
         return flag;
     }
     
@@ -294,7 +299,7 @@ struct d435i_exec_pipeline
             {
                 rs2::camera_imu_tracker* tracker = _enable_camera_tracking_when_available ? _primary_tracker.get() : _backup_tracker.get();
                 if( tracker != nullptr ){
-                    tracker->process(_src.laser_off_data());
+                    tracker->process(_src.data_vec(tracker->force_laser_off()));
                     switch (tracker->wait_for_image_pose(images)){
                         case rs2::camera_imu_tracker::HIGH:   _app_hint="High Quality   "; break;
                         case rs2::camera_imu_tracker::MEDIUM: _app_hint="Medium Quality "; break;

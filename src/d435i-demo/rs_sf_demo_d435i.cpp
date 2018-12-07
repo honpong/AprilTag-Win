@@ -76,12 +76,10 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     
     rs_sf_data_ptr add_pose_data(rs_sf_data_ptr& ref, const stream s) {
         auto data = std::make_shared<img_data>(ref);
-        if(has_imu()||s==COLOR){
-            auto* ext = (const float*)(&_stream_info[s].extrinsics[DEPTH]);
-            for(auto s : {0,1,2,4,5,6,8,9,10,3,7,11}){
-                data->image.cam_pose[s] = *ext++;
-            }
-        }else { data->image.cam_pose = nullptr; }
+        auto* ext = (const float*)(&_stream_info[s].extrinsics[DEPTH]);
+        for (auto s : { 0,1,2,4,5,6,8,9,10,3,7,11 }) {
+            data->image.cam_pose[s] = *ext++;
+        }
         data->image.intrinsics = &_stream_info[s].intrinsics.cam_intrinsics;
         return data;
     }
@@ -302,6 +300,9 @@ struct d435i_exec_pipeline
                         case rs2::camera_imu_tracker::MEDIUM: _app_hint="Medium Quality "; break;
                         default:                              _app_hint="Move Around / Reset"; break;
                     }
+                }
+                else {
+                    _app_hint = "bypass";
                 }
             }
                 

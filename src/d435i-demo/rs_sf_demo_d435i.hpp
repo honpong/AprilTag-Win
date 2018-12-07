@@ -499,7 +499,7 @@ public:
         glClearColor(bkg_blue[0] / 255.0f, bkg_blue[1] / 255.0f, bkg_blue[2] / 255.0f, 1);
         
         //_texture_depth.render(depth_frame, win_depth_image(), "");
-        _texture_color.render(color_frame, win_color_image(), _dense ? text : "bypass");
+        _texture_color.render(color_frame, win_color_image(), text);
         _texture_realsense_logo.render_middle(0, win_rs_logo());
         
         if (render_buttons)

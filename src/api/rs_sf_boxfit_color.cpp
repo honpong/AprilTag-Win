@@ -138,13 +138,13 @@ rs_sf_boxfit::box_record rs_sf_boxfit_color::adjust_box(box ref, int axis, int s
 
 float rs_sf_boxfit_color::box_color_scene::gradient(int i, int j) const
 {
-    return
+    return (float)(
     std::log(std::abs(pixel(i+dx,j,0) - pixel(i-dx,j,0)) +
              std::abs(pixel(i,j+dy,0) - pixel(i,j-dy,0))+1)+
     std::log(std::abs(pixel(i+dx,j,1) - pixel(i-dx,j,1)) +
              std::abs(pixel(i,j+dy,1) - pixel(i,j-dy,1))+1)+
     std::log(std::abs(pixel(i+dx,j,2) - pixel(i-dx,j,2)) +
-             std::abs(pixel(i,j+dy,2) - pixel(i,j-dy,2))+1);
+             std::abs(pixel(i,j+dy,2) - pixel(i,j-dy,2))+1));
 }
 
 float rs_sf_boxfit_color::box_color_scene::score_pixel(float u, float v) const

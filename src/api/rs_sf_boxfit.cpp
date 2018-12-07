@@ -550,7 +550,7 @@ rs_sf_boxfit::box_record::box_record(const box& ref, const pose_t& pose, const r
         const auto plane_cen = center + half_dir(a) * sign;
         const bool visible = vis_pl[a][(1 - sign) / 2] =
         to_cam.transform(plane_cen).normalized().dot(to_cam.rotation * axis.col(a) * sign) < 0;
-        return visible ? 1 : 0;
+        return visible ? true : false;
     };
     // check if an image point with fov
     auto out_img_fov = [min_x = margin, max_x = (float)cam.width - margin, min_y = margin, max_y = (float)cam.height - margin](const v2& pt){
@@ -560,7 +560,7 @@ rs_sf_boxfit::box_record::box_record(const box& ref, const pose_t& pose, const r
     auto in_fov = [&to_cam, &cam, &out_img_fov](const v3& pt) {
         const auto pt3d = to_cam.transform(pt);
         const v2 img_pt = { (pt3d.x() * cam.fx) / pt3d.z() + cam.ppx, (pt3d.y() * cam.fy) / pt3d.z() + cam.ppy };
-        return out_img_fov(img_pt) ? 0 : 1;
+        return out_img_fov(img_pt) ? false : true;
     };
     // count number of visible box planes
     for (auto a : { 0, 1, 2 }) {

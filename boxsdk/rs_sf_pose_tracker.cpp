@@ -172,6 +172,7 @@ void rs_sf_pose_tracking_release()
     SP_release();
 }
 
+#include <mutex>
 struct sp_camera_tracker : public rs2::camera_imu_tracker
 {
     ~sp_camera_tracker() { if(_sp_init){ rs_sf_pose_tracking_release(); }}
@@ -183,7 +184,7 @@ struct sp_camera_tracker : public rs2::camera_imu_tracker
     }
     
     bool process(rs_sf_data_ptr& data) override {
-        if(_sp_init){ return false; }
+        if(!_sp_init){ return false; }
         switch(data->sensor_type){
             case RS_SF_SENSOR_COLOR: {_color_buf = data; break;}
             case RS_SF_SENSOR_DEPTH:

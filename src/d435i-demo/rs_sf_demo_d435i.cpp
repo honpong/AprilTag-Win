@@ -268,7 +268,7 @@ struct d435i_exec_pipeline
     bool select_camera_tracking(bool use_primary) {
         if(_use_primary!=use_primary){
             reset(false);
-            if(_use_primary){
+            if(use_primary){
                 if(_gpu_tracker){ _tracker = _gpu_tracker.get(); }
                 else            { _tracker = _imu_tracker.get(); }
             }else{

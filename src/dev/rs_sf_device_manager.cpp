@@ -19,9 +19,11 @@ std::string rs_sf_device_manager::get_device_name() const
 
 bool rs_sf_device_manager::search_device_name(const std::string& device_name)
 {
+    std::cout << "\n\n----------------------------------------" << std::endl;
+    std::cout << "Enumerate RealSense Devices ...             " << std::endl;
     for (auto dev : _ctx.query_devices()){
         _device = dev;
-		printf("%s\n", get_device_name().c_str());
+        printf("%s Plugged In.\n", get_device_name().c_str());
         if(get_device_name()==device_name){
             read_custom_fw_data();
             return true;
@@ -65,7 +67,7 @@ void rs_sf_device_manager::read_custom_fw_data()
                         if(c%10==0){ std::cout << std::endl; }
                         std::cout << (int)mmCustom[c] << ",";
                     }
-                    std::cout << std::endl;
+                    std::cout << "\n----------------------------------------\n" << std::endl;
                 }
             }
         }
@@ -137,7 +139,7 @@ void rs_sf_device_manager::print_requested_streams() const
             auto ss = s.as<rs2::video_stream_profile>();
             std::cout << "stream w,h    : " << ss.width() << "," << ss.height() << std::endl;
         }
-        std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+        std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
     }
 }
 

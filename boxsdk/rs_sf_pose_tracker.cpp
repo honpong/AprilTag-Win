@@ -15,11 +15,16 @@ float get_last_failed_sp_quality(void)
     return g_scene_quality;
 }
 
+//static SP_TRACKING_ACCURACY g_tracking_status = SP_TRACKING_ACCURACY::FAILED;
+static int g_tracking_status = 3;
+int get_last_tracking_status(void)
+{
+    return g_tracking_status;
+}
 
 #ifdef libSP_FOUND
 #include "SP_Core.h"
 static int64_t g_frame_number = 0;
-static SP_TRACKING_ACCURACY g_tracking_status = SP_TRACKING_ACCURACY::FAILED;
 static SP_CameraIntrinsics g_camera_parameters = {};
 static const uint64_t g_timestamp_increment = 33000;
 
@@ -214,7 +219,12 @@ struct sp_camera_tracker : public rs2::camera_imu_tracker
         for(auto& img : images){
             update_pose(img.cam_pose, sp_pose.data());
         }
-        return MEDIUM;
+        switch(get_last_tracking_status()){
+            case 0: return LOW;
+            case 1: return MEDIUM;
+            default: return HIGH;
+        }
+        return HIGH;
     }
     
 private:

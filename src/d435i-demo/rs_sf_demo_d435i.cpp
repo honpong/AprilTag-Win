@@ -268,18 +268,21 @@ struct d435i_exec_pipeline
     bool select_camera_tracking(bool use_primary) {
         if(_use_primary!=use_primary){
             reset(false);
-            if(use_primary){
-                if(_gpu_tracker){ _tracker = _gpu_tracker.get(); }
-                else            { _tracker = _imu_tracker.get(); }
-            }else{
-                if(_gpu_tracker){ _tracker = _imu_tracker.get(); }
-                else            { _tracker = nullptr;            }
-            }
             _use_primary = use_primary;
+            set_camera_tracker_ptr();
         }
         return _use_primary;
     }
     
+    void set_camera_tracker_ptr() {
+        if(_use_primary){
+            if(_gpu_tracker){ _tracker = _gpu_tracker.get(); }
+            else            { _tracker = _imu_tracker.get(); }
+        }else{
+            if(_gpu_tracker){ _tracker = _imu_tracker.get(); }
+            else            { _tracker = nullptr;            }
+        }
+    }
     
     std::string _app_hint = "";
     std::shared_ptr<rs_sf_box> _box;
@@ -290,7 +293,7 @@ struct d435i_exec_pipeline
             auto new_data = _src.wait_and_buffer_data();
             if(!new_data||new_data->empty()){
                 if(reset()<0){ return images;}
-                else         { continue;     }
+                else         { set_camera_tracker_ptr(); continue; }
             }
             
             images = _src.images();

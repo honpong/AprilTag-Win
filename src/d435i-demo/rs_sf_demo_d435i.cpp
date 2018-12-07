@@ -253,8 +253,8 @@ struct d435i_exec_pipeline
                !imu_tracker->init(_path +"camera.json", !sync) &&
                !imu_tracker->init(default_camera_json, !sync)) { return -1; }
             
-            if(_primary_tracker){ _backup_tracker  = std::move(imu_tracker); }
-            else                { _primary_tracker = std::move(imu_tracker); }
+            if(!_primary_tracker){ _primary_tracker = std::move(imu_tracker); }
+            else                 { _backup_tracker  = std::move(imu_tracker); }
         }
         
         return 0;
@@ -270,11 +270,11 @@ struct d435i_exec_pipeline
     bool enable_camera_tracking(bool flag) {
         if(flag != _enable_camera_tracking_when_available){
             if(flag){
-                _src.set_laser( _primary_tracker->force_laser_off() ? 0 : 1);
-                reset(false);
+                //_src.set_laser( (_primary_tracker && _primary_tracker->require_laser_off()) ? 0 : 1);
             }else{
-                _src.set_laser( _backup_tracker && _backup_tracker->force_laser_off() ? 0 : 1);
+                //_src.set_laser( (_backup_tracker && _backup_tracker->require_laser_off()) ? 0 : 1);
             }
+            reset(false);
             _enable_camera_tracking_when_available = flag;
         }
         return flag;
@@ -299,7 +299,7 @@ struct d435i_exec_pipeline
             {
                 rs2::camera_imu_tracker* tracker = _enable_camera_tracking_when_available ? _primary_tracker.get() : _backup_tracker.get();
                 if( tracker != nullptr ){
-                    tracker->process(_src.data_vec(tracker->force_laser_off()));
+                    tracker->process(_src.data_vec(tracker->require_laser_off()));
                     switch (tracker->wait_for_image_pose(images)){
                         case rs2::camera_imu_tracker::HIGH:   _app_hint="High Quality   "; break;
                         case rs2::camera_imu_tracker::MEDIUM: _app_hint="Medium Quality "; break;

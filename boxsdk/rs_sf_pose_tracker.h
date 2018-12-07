@@ -51,6 +51,7 @@ namespace rs2
     {
         typedef enum confidence { INVALID=-1, NONE=0, LOW=1, MEDIUM=2, HIGH=3, } conf;
         virtual ~camera_imu_tracker() {}
+        virtual bool force_laser_off() { return true; }
         virtual bool init(const char* calibration_data, bool async) { return false; }
         virtual bool init(const rs_sf_intrinsics* i, int option) { return false; }
         inline bool init(const std::string& calibration_file, bool async){

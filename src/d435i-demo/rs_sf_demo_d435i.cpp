@@ -267,11 +267,14 @@ struct d435i_exec_pipeline
     
     bool _enable_camera_tracking_when_available = true;
     bool enable_camera_tracking(bool flag) {
-        auto tracker_runnable = ((_enable_camera_tracking_when_available=flag) && _primary_tracker);
+        if(flag != _enable_camera_tracking_when_available){
+            if(flag){ reset(false); }
+            _enable_camera_tracking_when_available = flag;
+        }
         //TODO: not sure why laser ON/OFF not working here.
         //if(!_enable_camera_tracking_when_available){ _src.set_laser(1); }
         //else { _src.set_laser(0); }
-        return tracker_runnable;
+        return flag;
     }
     
     

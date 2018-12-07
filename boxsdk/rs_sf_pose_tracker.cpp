@@ -182,6 +182,8 @@ struct sp_camera_tracker : public rs2::camera_imu_tracker
 {
     ~sp_camera_tracker() { if(_sp_init){ rs_sf_pose_tracking_release(); }}
     
+    bool force_laser_off() override { return false; }
+    
     bool init(const rs_sf_intrinsics* i, int resolution) override {
         if(i==nullptr && _sp_init){ _reset_request=true; return false; }
         _sp_init = rs_sf_setup_scene_perception(i->fx, i->fy, i->ppx, i->ppy, i->width, i->height, _acc_w, _acc_h, (rs_sf_pose_track_resolution)resolution);

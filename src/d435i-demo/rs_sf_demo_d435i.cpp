@@ -254,6 +254,8 @@ struct d435i_exec_pipeline
                !_imu_tracker->init(_path +"camera.json", !sync) &&
                !_imu_tracker->init(default_camera_json, !sync)) { return -1; }
         }
+
+        set_camera_tracker_ptr();
         
         return 0;
     }
@@ -267,9 +269,8 @@ struct d435i_exec_pipeline
     bool _use_primary = false;
     bool select_camera_tracking(bool use_primary) {
         if(_use_primary!=use_primary){
-            reset(false);
             _use_primary = use_primary;
-            set_camera_tracker_ptr();
+            reset(false);
         }
         return _use_primary;
     }
@@ -293,7 +294,7 @@ struct d435i_exec_pipeline
             auto new_data = _src.wait_and_buffer_data();
             if(!new_data||new_data->empty()){
                 if(reset()<0){ return images;}
-                else         { set_camera_tracker_ptr(); continue; }
+                else         { continue; }
             }
             
             images = _src.images();

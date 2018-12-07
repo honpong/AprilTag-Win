@@ -74,7 +74,8 @@ struct rs_sf_file_io
         Json::Value json_data;
         std::ifstream infile;
         infile.open(path, std::ifstream::binary);
-        infile >> json_data;
+        if(infile.is_open()){ infile >> json_data; }
+        else {  fprintf(stderr,"WARNING: unable to read %s\n",path.c_str()); }
         return json_data;
     }
     

@@ -345,9 +345,9 @@ struct d435i_exec_pipeline
     {
         if(_box){
             return
-            std::to_string((int)(std::sqrt(_box->dim_sqr(0))*100)*5)+"x"+
-            std::to_string((int)(std::sqrt(_box->dim_sqr(1))*100)*5)+"x"+
-            std::to_string((int)(std::sqrt(_box->dim_sqr(2))*100)*5);
+            std::to_string((int)(std::sqrt(_box->dim_sqr(0))*1000)/5*5)+"x"+
+            std::to_string((int)(std::sqrt(_box->dim_sqr(1))*1000)/5*5)+"x"+
+            std::to_string((int)(std::sqrt(_box->dim_sqr(2))*1000)/5*5);
         }
         return "";
     }

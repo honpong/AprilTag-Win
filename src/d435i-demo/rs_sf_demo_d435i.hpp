@@ -457,9 +457,14 @@ public:
     inline rect win_close_button() const { return{ win_button_area().x + 1, win_button_area().y, win_button_area().w / 2 - 2, win_button_area().h }; }
     inline rect win_reset_button() const { return{ win_close_button().ex() + 1, win_close_button().y, win_close_button().w, win_close_button().h }; }
     //inline rect win_color_image()  const { return{ win_left_column().ex(), 0, width() - win_left_column().w, height() }; }
-    inline rect win_color_image()  const { return{ 0, 0, width()-1, height()-1 }; }
+    inline bool is_horizontal() const { return _width > _height; }
+    inline rect win_color_image_horizontal()  const { return{ 0, 0, width()-1, height()-1 }; }
+    inline rect win_color_image_vertical() const { return{0,win_rs_logo().ey(),width(),width()*480/640}; }
+    inline rect win_color_image() const { return is_horizontal() ? win_color_image_horizontal() : win_color_image_vertical(); }
     //inline rect win_box_msg()      const { return{ win_left_column().x + win_left_column().w / 10, win_rs_logo().ey() + win_rs_logo().h / 8, win_left_column().w * 4 / 5, win_rs_logo().h * 3 / 8 }; }
-    inline rect win_box_msg() const { return{win_rs_logo().w + (width()-win_left_column().w)/6, win_rs_logo().h/6, (width()-win_left_column().w)*4/6, win_rs_logo().h*4/6};}
+    inline rect win_box_msg_horizontal() const { return{win_rs_logo().w + (width()-win_left_column().w)/6, win_rs_logo().h/6, (width()-win_left_column().w)*4/6, win_rs_logo().h*4/6};}
+    inline rect win_box_msg_vertical() const { return {width()/6,win_color_image().ey()+win_rs_logo().h/6,width()*4/6, win_rs_logo().h*4/6}; }
+    inline rect win_box_msg() const { return is_horizontal() ? win_box_msg_horizontal() : win_box_msg_vertical(); }
     
     operator bool()
     {

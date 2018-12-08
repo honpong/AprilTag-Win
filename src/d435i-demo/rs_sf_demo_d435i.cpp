@@ -389,7 +389,7 @@ int live_play(const int cap_size[2], const std::string& path) try
         }
     }else{
         d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1],STREAM_REQUEST(0));});
-        for(d435i::window app(/*pipe._src.width()*3/2, pipe._src.height(),*/800,1280, pipe._src.get_device_name()+" Box Scan Example"); app;)
+        for(d435i::window app(pipe._src.width()*3/2, pipe._src.height(),/*800,1280,*/ pipe._src.get_device_name()+" Box Scan Example"); app;)
         {
             auto images = pipe.exec_once();
             app.render_ui(&images[DEPTH], &images[COLOR], true, pipe._app_hint.c_str());

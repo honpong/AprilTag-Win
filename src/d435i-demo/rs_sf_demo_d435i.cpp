@@ -16,11 +16,13 @@
 #define PATH_SEPARATER '\\'
 #define DEFAULT_PATH "C:\\temp\\data\\"
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,400,250})
+#define GET_CAPTURE_DISPLAY_IMAGE(src) src.one_image()
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
 #define DEFAULT_PATH (std::string(getenv("HOME"))+"/Desktop/temp/data/")
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1})
+#define GET_CAPTURE_DISPLAY_IMAGE(src) src.images()
 #endif
 
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option);
@@ -188,6 +190,12 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         }
         if(at(COLOR)[0]){ dst.emplace_back(at(COLOR)[0]->image); }
         return dst;
+    }
+
+    std::vector<rs_sf_image> one_image() const {
+        if (at(IR_L)[0]) { return{ at(IR_L)[0]->image }; }
+        if (at(IR_L)[1]) { return{ at(IR_L)[1]->image }; }
+        return{ at(COLOR)[0]->image };
     }
     
     std::vector<rs_sf_data_ptr> data_vec(bool laser_off_only) const {
@@ -357,10 +365,10 @@ int capture_frames(const std::string& path, const int cap_size[2], int laser_opt
 {
     d435i_buffered_stream src([&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], STREAM_REQUEST(laser_option));});
     auto recorder = rs_sf_create_data_writer(&src, path);
-    for(rs_sf_gl_context win("capture", src.width()*3, src.height()*3);;)
+    for(rs_sf_gl_context win("capture", src.width(), src.height());;)
     {
         recorder->write(*src.wait_and_buffer_data());
-        auto images = src.images();
+        auto images = GET_CAPTURE_DISPLAY_IMAGE(src);
         if(!win.imshow(images.data(),(int)images.size())){break;}
     }
     return 0;

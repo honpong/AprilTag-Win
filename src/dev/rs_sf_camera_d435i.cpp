@@ -14,8 +14,8 @@
 #include <iomanip>
 #include <cmath>
 
-#ifndef RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED
-#define RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED RS2_OPTION_EMITTER_ENABLED
+#ifndef RS2_OPTION_EMITTER_ON_OFF
+#define RS2_OPTION_EMITTER_ON_OFF RS2_OPTION_EMITTER_ENABLED
 #endif
 
 struct rs_sf_d435i_writer;
@@ -68,10 +68,10 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     string_vec          get_device_info() override {
         switch(_laser_option)
         {
-            case -1: return {rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=UNKNOWN")};
-            case  0: return {rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=0")};
-            case  1: return {rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)            + std::string("=1")};
-            case  2: return {rs2_option_to_string(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED) + std::string("=1")};
+            case -1: return {rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED) + std::string("=UNKNOWN")};
+            case  0: return {rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED) + std::string("=0")};
+            case  1: return {rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED) + std::string("=1")};
+            case  2: return {rs2_option_to_string(RS2_OPTION_EMITTER_ON_OFF ) + std::string("=1")};
         }
         return {""};
     }
@@ -97,16 +97,16 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             switch(laser_option)
             {
                 case 0:
-                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 0);
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_OFF, 0);
                     _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0);
                     break;
                 case 1:
-                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 0);
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_OFF, 0);
                     _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1);
                     break;
                 case 2:
                     _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1);
-                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED, 1);
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_OFF, 1);
                     break;
             }
         }catch(...){ fprintf(stderr,"WARNING: error setting laser option %d!\n", _laser_option); }
@@ -114,8 +114,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         try{
             _laser_option = (int)_streams[0].sensor.get_option(RS2_OPTION_EMITTER_ENABLED);
             if(laser_option==2 &&
-               _streams[0].sensor.supports(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED) &&
-               _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED)){
+               _streams[0].sensor.supports(RS2_OPTION_EMITTER_ON_OFF) &&
+               _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ON_OFF)){
                 _laser_option=2;
             }
         }catch(...){
@@ -617,7 +617,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     {
         for(auto s : _device_info){
             if(s=="Emitter On And Off Enabled=1"){ return true; }
-            if(s==rs2_option_to_string(RS2_OPTION_EMITTER_ON_AND_OFF_ENABLED)){ return true; }
+            if(s==rs2_option_to_string(RS2_OPTION_EMITTER_ON_OFF)){ return true; }
         }
         return false;
     }

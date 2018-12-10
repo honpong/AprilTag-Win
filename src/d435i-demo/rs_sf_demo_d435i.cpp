@@ -67,6 +67,7 @@ int main(int argc, char* argv[])
 #include <chrono>
 #include <functional>
 enum stream {DEPTH, IR_L, IR_R, COLOR, GYRO, ACCEL};
+enum laser_stream {ANY_BUF=0, ON_BUF=0, OFF_BUF=1};
 typedef std::function<std::unique_ptr<rs_sf_data_stream>()> stream_maker;
 struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
 {
@@ -94,6 +95,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     float             get_depth_unit()    override { return _src->get_depth_unit();   }
     bool              is_offline_stream() override { return _src->is_offline_stream();}
     bool              set_laser(int option) override { return _src->set_laser(option);}
+    int               get_laser()         override { return _src->get_laser(); }
     
     stream_info_vec _stream_info;
     rs_sf_intrinsics intrinsics(const stream& s) const { return _stream_info[s].intrinsics.cam_intrinsics; }
@@ -123,6 +125,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     rs_sf_dataset_ptr wait_and_buffer_data(bool reset_imu_buffer = true)
     {
         if(reset_imu_buffer) { reset_imu_buffers(); }
+        reset_img_buffers();
         
         if(!_src){ return nullptr; }
         
@@ -131,11 +134,11 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         
         for(auto s : {DEPTH,IR_L,IR_R}){
             for(auto& d : data->at(s)){
-                at(s)[(d->sensor_type & RS_SF_SENSOR_LASER_OFF)?1:0] = add_pose_data(d,s);
+                at(s)[(d->sensor_type & RS_SF_SENSOR_LASER_OFF)?OFF_BUF:ON_BUF] = add_pose_data(d,s);
             }
         }
         for(auto& d : data->at(COLOR)){
-            at(COLOR)[0] = add_pose_data(d,COLOR);
+            at(COLOR)[ANY_BUF] = add_pose_data(d,COLOR);
         }
         for(auto s : {GYRO, ACCEL}){
             if(data->size()>s && !data->at(s).empty()){
@@ -171,6 +174,10 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     }
     
     void reset_imu_buffers() { at(GYRO).clear(); at(ACCEL).clear(); }
+    void reset_img_buffers() {
+        if(_src->get_laser()==0){ at(DEPTH)[ON_BUF].reset(); at(IR_L)[ON_BUF].reset(); at(IR_R)[ON_BUF].reset(); }
+        if(_src->get_laser()==1){ at(DEPTH)[OFF_BUF].reset(); at(IR_L)[OFF_BUF].reset(); at(IR_R)[OFF_BUF].reset(); }
+    }
     
     bool empty() const {
         if(rs_sf_dataset::empty()){ return true; }
@@ -178,32 +185,26 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         return true;
     }
     
-    bool full_laser_on_imageset() const {
-        if(at(DEPTH)[0] && at(IR_L)[0] && at(IR_R)[0] && at(COLOR)[0]){ return true; }
-        return false;
-    }
-    
-    bool full_laser_off_imageset() const {
-        if(at(DEPTH)[1] && at(IR_L)[1] && at(IR_R)[1] && at(COLOR)[0]){ return true; }
+    bool laser_images(const laser_stream& lb = ON_BUF) const {
+        if(at(DEPTH)[lb] && at(IR_L)[lb] && at(IR_R)[lb] && at(COLOR)[ANY_BUF]){ return true; }
         return false;
     }
     
     std::vector<rs_sf_image> images() const {
         std::vector<rs_sf_image> dst;
-        if(full_laser_on_imageset()){
-            for(auto s : {DEPTH,IR_L,IR_R}){dst.emplace_back(at(s)[0]->image);}
+        for(auto lb : {ON_BUF, OFF_BUF}){
+            if(laser_images(lb)){
+                for(auto s : {DEPTH,IR_L,IR_R}){dst.emplace_back(at(s)[lb]->image);}
+            }
         }
-        if(full_laser_off_imageset()){
-            for(auto s : {DEPTH,IR_L,IR_R}){dst.emplace_back(at(s)[1]->image);}
-        }
-        if(at(COLOR)[0]){ dst.emplace_back(at(COLOR)[0]->image); }
+        if(at(COLOR)[ANY_BUF]){ dst.emplace_back(at(COLOR)[ANY_BUF]->image); }
         return dst;
     }
 
     std::vector<rs_sf_image> one_image() const {
-        if (at(IR_L)[0]) { return{ at(IR_L)[0]->image }; }
-        if (at(IR_L)[1]) { return{ at(IR_L)[1]->image }; }
-        return{ at(COLOR)[0]->image };
+        if (at(IR_L)[ ON_BUF]) { return{ at(IR_L)[ ON_BUF]->image }; }
+        if (at(IR_L)[OFF_BUF]) { return{ at(IR_L)[OFF_BUF]->image }; }
+        return{ at(COLOR)[ANY_BUF]->image };
     }
     
     std::vector<rs_sf_data_ptr> data_vec(bool laser_off_only) const {
@@ -293,12 +294,13 @@ struct d435i_exec_pipeline
     
     void set_camera_tracker_ptr() {
         if(_use_primary){
-            if(_gpu_tracker){ _tracker = _gpu_tracker.get(); }
-            else            { _tracker = _imu_tracker.get(); }
+            if(_gpu_tracker){ _tracker = _gpu_tracker.get(); _src.set_laser(1); }
+            else            { _tracker = _imu_tracker.get(); _src.set_laser(0); }
         }else{
-            if(_gpu_tracker){ _tracker = _imu_tracker.get(); }
-            else            { _tracker = nullptr;            }
+            if(_gpu_tracker){ _tracker = _imu_tracker.get(); _src.set_laser(0); }
+            else            { _tracker = nullptr;            _src.set_laser(1); }
         }
+        _src.reset_img_buffers();
     }
     
     std::string _app_hint = "";

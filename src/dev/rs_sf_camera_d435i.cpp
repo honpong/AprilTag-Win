@@ -71,6 +71,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         }
         return {""};
     }
+    int                 get_laser() override { return _laser_option; }
     bool                set_laser(int option) override {
         if(_laser_option==option){ return true; }
         if(_laser_option==2)     { return false;}
@@ -561,6 +562,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     std::vector<rs_sf_stream_info>         _streams;
     std::deque<rs_sf_data_ptr>             _data_buffer;
     std::vector<rs_sf_virtual_stream_info> _virtual_streams;
+    int                                    _laser_option;
     
     rs_sf_d435i_file_stream(const std::string& path, bool request_check_data) : rs_sf_file_io(path), _init_check_data(request_check_data), _garbage_dataset_num(10)
     {
@@ -586,6 +588,7 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
     std::string     get_device_name() override { return _device_name; }
     string_vec      get_device_info() override { return _device_info; }
     bool            is_offline_stream() override { return true; }
+    int             get_laser() override { return _laser_option; }
     
     void read_calibrations()
     {
@@ -617,18 +620,29 @@ struct rs_sf_d435i_file_stream : public rs_sf_file_io, rs_sf_data_stream
         }
     }
     
+    int init_laser_option() {
+        _laser_option = -1;
+        for(auto s : _device_info){
+            if(s=="Emitter On And Off Enabled=1"){ _laser_option=2; break; }
+            if(s==(rs2_option_to_string(RS2_OPTION_EMITTER_ON_OFF )+std::string("=1"))){ _laser_option=2; break; }
+            if(s==(rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)+std::string("=1"))){ _laser_option=1; break; }
+            if(s==(rs2_option_to_string(RS2_OPTION_EMITTER_ENABLED)+std::string("=0"))){ _laser_option=0; break; }
+        }
+        return _laser_option;
+    }
+    
     bool is_interlaced_IR_projection() const
     {
         for(auto s : _device_info){
             if(s=="Emitter On And Off Enabled=1"){ return true; }
-            if(s==rs2_option_to_string(RS2_OPTION_EMITTER_ON_OFF)){ return true; }
+            if(s==(rs2_option_to_string(RS2_OPTION_EMITTER_ON_OFF)+std::string("=1"))){ return true; }
         }
         return false;
     }
     
     void init_virtual_streams()
     {
-        bool is_interlaced_ir = is_interlaced_IR_projection();
+        bool is_interlaced_ir = (init_laser_option() == 2);
         
         for(auto& s : _streams)
         {

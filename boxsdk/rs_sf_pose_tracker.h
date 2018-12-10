@@ -52,10 +52,10 @@ namespace rs2
         typedef enum confidence { INVALID=-1, NONE=0, LOW=1, MEDIUM=2, HIGH=3, } conf;
         virtual ~camera_imu_tracker() {}
         virtual bool require_laser_off() { return true; }
-        virtual bool init(const char* calibration_data, bool async) { return false; }
+        virtual bool init(const char* calibration_data, bool async, int decimate_accel, int decimate_gyro) { return false; }
         virtual bool init(const rs_sf_intrinsics* i, int option) { return false; }
-        inline bool init(const std::string& calibration_file, bool async){
-            return init(read_json_file(calibration_file).c_str(), async); }
+        inline bool init(const std::string& calibration_file, bool async, int decimate_accel, int decimate_gyro){
+            return init(read_json_file(calibration_file).c_str(), async, decimate_accel, decimate_gyro); }
         virtual bool process(rs_sf_data_ptr& data) = 0;
         inline void process(std::vector<rs_sf_data_ptr>&& dataset) {
             for(auto& d : dataset){ process(d); }}

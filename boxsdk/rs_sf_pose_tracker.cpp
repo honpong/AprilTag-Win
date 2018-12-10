@@ -374,6 +374,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     bool _dynamic_calibration{ false };
     rc_TrackerQueueStrategy _queue_strategy{ rc_QUEUE_MINIMIZE_DROPS /*rc_QUEUE_MINIMIZE_LATENCY*/ };
     bool _strategy_override{ false };
+    int  _decimate_accel{ 1 }, _decimate_gyro{ 1 };
     
     virtual ~rc_imu_camera_tracker()
     {
@@ -381,7 +382,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         _tracker.reset();
     }
     
-    bool init(const char* calibration_data, bool async) override
+    bool init(const char* calibration_data, bool async, int decimate_accel, int decimate_gyro) override
     {
         if(!calibration_data || strlen(calibration_data)<1){ return false; }
         
@@ -392,6 +393,19 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             fprintf(stderr, "Error: failed to load JSON calibration into camera tracker ... \n");
             return false;
         }
+
+        rc_AccelerometerIntrinsics ai;
+        rc_Extrinsics ae, ge;
+        rc_describeAccelerometer(_tracker.get(), 0, &ae, &ai);
+        ai.decimate_by = _decimate_accel = decimate_accel;
+        rc_configureAccelerometer(_tracker.get(), 0, &ae, &ai);
+
+        rc_GyroscopeIntrinsics gi;
+        rc_describeGyroscope(_tracker.get(), 0, &ge, &gi);
+        gi.decimate_by = _decimate_gyro = decimate_gyro;
+        rc_configureGyroscope(_tracker.get(), 0, &ge, &gi);
+        printf("Decimate accel by %d gyro by %d \n", ai.decimate_by, gi.decimate_by);
+
         
         // setting data callback from the rc tracker
         rc_setDataCallback(_tracker.get(), [](void* handle, rc_Tracker* tracker, const rc_Data* data){

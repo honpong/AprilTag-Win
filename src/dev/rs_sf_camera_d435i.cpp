@@ -23,15 +23,16 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         else if(search_device_name("Intel RealSense D435" )){ printf("Intel RealSense D435 Camera Found\n");}
         if(!_device){ throw std::runtime_error("No Intel RealSense D435/D435I Found"); }
 
-		auto GYHZ = request.gyro_fps  > 0 ? (float)request.gyro_fps : 200.0f;
-		auto ACHZ = request.accel_fps > 0 ? (float)request.accel_fps : 63.0f;
+        auto GYHZ = request.gyro_fps  > 0 ? (float)request.gyro_fps : 200.0f;
+        auto ACHZ = request.accel_fps > 0 ? (float)request.accel_fps : 63.0f;
+        auto TS   = request.ts_domain > 0 ? RS2_TIMESTAMP_DOMAIN_SYSTEM_TIME : RS2_TIMESTAMP_DOMAIN_HARDWARE_CLOCK;
 
-        add_stream_request({RS2_STREAM_DEPTH,   -1,  30, RS2_FORMAT_Z16,            w,  h});
-        add_stream_request({RS2_STREAM_INFRARED, 1,  30, RS2_FORMAT_Y8 ,            w,  h});
-        add_stream_request({RS2_STREAM_INFRARED, 2,  30, RS2_FORMAT_Y8 ,            w,  h});
-        add_stream_request({RS2_STREAM_COLOR,   -1,  30, RS2_FORMAT_RGB8,           w,  h});
-        add_stream_request({RS2_STREAM_GYRO,    -1,GYHZ, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
-        add_stream_request({RS2_STREAM_ACCEL,   -1,ACHZ, RS2_FORMAT_MOTION_XYZ32F, -1, -1});
+        add_stream_request({RS2_STREAM_DEPTH,   -1,  30, RS2_FORMAT_Z16,            w,  h, TS});
+        add_stream_request({RS2_STREAM_INFRARED, 1,  30, RS2_FORMAT_Y8 ,            w,  h, TS});
+        add_stream_request({RS2_STREAM_INFRARED, 2,  30, RS2_FORMAT_Y8 ,            w,  h, TS});
+        add_stream_request({RS2_STREAM_COLOR,   -1,  30, RS2_FORMAT_RGB8,           w,  h, TS});
+        add_stream_request({RS2_STREAM_GYRO,    -1,GYHZ, RS2_FORMAT_MOTION_XYZ32F, -1, -1, TS});
+        add_stream_request({RS2_STREAM_ACCEL,   -1,ACHZ, RS2_FORMAT_MOTION_XYZ32F, -1, -1, TS});
         
         find_stream_profiles();
         print_requested_streams();
@@ -152,6 +153,15 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             exposure_time_us = -0.1;
             serial_number = new_serial_number;
             frame_number  = _f.get_frame_number();
+
+            if (stream.timestamp_domain != RS2_TIMESTAMP_DOMAIN_HARDWARE_CLOCK) {
+                try {
+                    if (_f.supports_frame_metadata(RS2_FRAME_METADATA_SENSOR_TIMESTAMP)) {
+                        timestamp_us = (rs_sf_timestamp)_f.get_frame_metadata(RS2_FRAME_METADATA_SENSOR_TIMESTAMP);
+                    }
+                }
+                catch (...) {}
+            }
             
             if (_f.is<rs2::video_frame>()){
                 image                = {};

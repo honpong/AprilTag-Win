@@ -19,6 +19,7 @@ struct rs_sf_stream_select
     int         width;
     int         height;
     
+    rs2_timestamp_domain        timestamp_domain;
     rs2::sensor                 sensor;
     rs2::stream_profile         profile;
     union {

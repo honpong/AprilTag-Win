@@ -15,14 +15,18 @@
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
 #define DEFAULT_PATH "C:\\temp\\data\\"
-#define STREAM_REQUEST(l) (rs_sf_stream_request{l,400,250})
+#define STREAM_REQUEST(l) (rs_sf_stream_request{l,400,250,1})
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.one_image()
+#define DECIMATE_ACCEL 10
+#define DECIMATE_GYRO  2
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
 #define DEFAULT_PATH (std::string(getenv("HOME"))+"/Desktop/temp/data/")
-#define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1})
+#define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,0})
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.images()
+#define DECIMATE_ACCEL 1
+#define DECIMATE_GYRO  1
 #endif
 
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option);
@@ -241,7 +245,9 @@ struct d435i_exec_pipeline
     std::unique_ptr<rs_sf_image_rgb>         _boxwire;
     std::unique_ptr<rs2::camera_imu_tracker> _imu_tracker, _gpu_tracker;
     rs2::camera_imu_tracker* _tracker = nullptr;
-    
+    int                      _decimate_accel = DECIMATE_ACCEL;
+    int                      _decimate_gyro = DECIMATE_GYRO;
+
     d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { select_camera_tracking(true); }
     
     int init_algo_middleware()
@@ -268,8 +274,8 @@ struct d435i_exec_pipeline
             _imu_tracker = rs2::camera_imu_tracker::create();
             
             if(_imu_tracker &&
-               !_imu_tracker->init(_path +"camera.json", !sync) &&
-               !_imu_tracker->init(default_camera_json, !sync)) { return -1; }
+               !_imu_tracker->init(_path +"camera.json", !sync, _decimate_accel, _decimate_gyro) &&
+               !_imu_tracker->init(default_camera_json, !sync, _decimate_accel, _decimate_gyro)) { return -1; }
         }
 
         set_camera_tracker_ptr();

@@ -15,7 +15,7 @@
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
 #define DEFAULT_PATH "C:\\temp\\data\\"
-#define STREAM_REQUEST(l) (rs_sf_stream_request{l,400,250,1})
+#define STREAM_REQUEST(l) (rs_sf_stream_request{l,400,250,RS2_FRAME_METADATA_TIME_OF_ARRIVAL})
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.one_image()
 #define DECIMATE_ACCEL 10
 #define DECIMATE_GYRO  2
@@ -113,6 +113,9 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     
     rs_sf_timestamp _first_timestamp = 0;
     rs_sf_timestamp _last_timestamp  = 0;
+    rs_sf_serial_number _first_frame_number = -1;
+    rs_sf_serial_number _last_frame_number = -1;
+
     void reset() {
         _src = _maker();
         
@@ -123,6 +126,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         at(COLOR).resize(1);
         
         _first_timestamp = _last_timestamp = 0;
+        _first_frame_number = _last_frame_number = -1;
         _stream_info = get_stream_info();
     }
     
@@ -158,7 +162,9 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         for(auto& s : *this){
             for(auto& d : s){
                 if(d && (d->sensor_type == RS_SF_SENSOR_INFRARED || d->sensor_type == RS_SF_SENSOR_INFRARED_LASER_OFF)){
-                    if(_first_timestamp==0){_first_timestamp=d->timestamp_us;}
+                    if (_first_frame_number == -1) { _first_frame_number = d->frame_number; }
+                    if (_last_frame_number < d->frame_number) { _last_frame_number = d->frame_number; }
+                    if (_first_timestamp == 0) { _first_timestamp = d->timestamp_us; }
                     if(_last_timestamp < d->timestamp_us){_last_timestamp=d->timestamp_us;}
                 }
             }
@@ -174,7 +180,8 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     }
     
     std::chrono::seconds total_runtime() const {
-        return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::microseconds((unsigned long long)(_last_timestamp-_first_timestamp)));
+        //return std::chrono::duration_cast<std::chrono::seconds>(std::chrono::microseconds((unsigned long long)(_last_timestamp-_first_timestamp)));
+        return std::chrono::seconds((unsigned long long)((_last_frame_number - _first_frame_number) * (1.0 / 30.0)));
     }
     
     void reset_imu_buffers() { at(GYRO).clear(); at(ACCEL).clear(); }
@@ -263,19 +270,24 @@ struct d435i_exec_pipeline
         if(sync){ rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, -1); }
 
         // assume we are on Windows
-        _gpu_tracker = rs2::camera_imu_tracker::create_gpu();
-        if(_gpu_tracker){
+        if (!_gpu_tracker) {
+            _gpu_tracker = rs2::camera_imu_tracker::create_gpu();
             printf("SP Tracker Available \n");
             _gpu_tracker->init(&intr[0], (int)RS_SF_MED_RESOLUTION);
         }
+        else {
+            _gpu_tracker->init(nullptr, (int)RS_SF_MED_RESOLUTION);
+        }
         
-        if(_src.has_imu()){
-            _drop_time   = std::chrono::seconds(sync ? 0 : 3);
+        if (_src.has_imu()) {
+            _drop_time = std::chrono::seconds(sync ? 0 : 3);
             _imu_tracker = rs2::camera_imu_tracker::create();
-            
-            if(_imu_tracker &&
-               !_imu_tracker->init(_path +"camera.json", !sync, _decimate_accel, _decimate_gyro) &&
-               !_imu_tracker->init(default_camera_json, !sync, _decimate_accel, _decimate_gyro)) { return -1; }
+
+            if (_imu_tracker &&
+                !_imu_tracker->init(_path + "camera.json", !sync, _decimate_accel, _decimate_gyro) &&
+                !_imu_tracker->init(default_camera_json, !sync, _decimate_accel, _decimate_gyro)) {
+                _imu_tracker = nullptr;
+            }
         }
 
         set_camera_tracker_ptr();

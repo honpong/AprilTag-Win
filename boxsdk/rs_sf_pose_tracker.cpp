@@ -397,12 +397,14 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         rc_AccelerometerIntrinsics ai;
         rc_Extrinsics ae, ge;
         rc_describeAccelerometer(_tracker.get(), 0, &ae, &ai);
-        ai.decimate_by = _decimate_accel = decimate_accel;
+        if (ai.decimate_by == 0) { ai.decimate_by = _decimate_accel = decimate_accel; }
+        else { _decimate_accel = ai.decimate_by; } //use external json file setting
         rc_configureAccelerometer(_tracker.get(), 0, &ae, &ai);
 
         rc_GyroscopeIntrinsics gi;
         rc_describeGyroscope(_tracker.get(), 0, &ge, &gi);
-        gi.decimate_by = _decimate_gyro = decimate_gyro;
+        if (gi.decimate_by == 0) { gi.decimate_by = _decimate_gyro = decimate_gyro; }
+        else { _decimate_gyro = gi.decimate_by; } //use external json file setting
         rc_configureGyroscope(_tracker.get(), 0, &ge, &gi);
         printf("Decimate accel by %d gyro by %d \n", ai.decimate_by, gi.decimate_by);
 

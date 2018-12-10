@@ -155,9 +155,20 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             frame_number  = _f.get_frame_number();
 
             if (stream.timestamp_domain != RS2_TIMESTAMP_DOMAIN_HARDWARE_CLOCK) {
+                auto factor = 1.0;
+                switch (stream.timestamp_domain) {
+                case RS2_FRAME_METADATA_TIME_OF_ARRIVAL:
+                    factor = 1000;
+                case RS2_FRAME_METADATA_FRAME_TIMESTAMP:
+                case RS2_FRAME_METADATA_SENSOR_TIMESTAMP:
+                case RS2_FRAME_METADATA_BACKEND_TIMESTAMP:
+                    break;
+                default:
+                    stream.timestamp_domain = (rs2_timestamp_domain)RS2_FRAME_METADATA_SENSOR_TIMESTAMP;
+                }
                 try {
-                    if (_f.supports_frame_metadata(RS2_FRAME_METADATA_SENSOR_TIMESTAMP)) {
-                        timestamp_us = (rs_sf_timestamp)_f.get_frame_metadata(RS2_FRAME_METADATA_SENSOR_TIMESTAMP);
+                    if (_f.supports_frame_metadata((rs2_frame_metadata_value)stream.timestamp_domain)) {
+                        timestamp_us = (rs_sf_timestamp)_f.get_frame_metadata((rs2_frame_metadata_value)stream.timestamp_domain)*factor;
                     }
                 }
                 catch (...) {}

@@ -289,10 +289,11 @@ struct d435i_exec_pipeline
         // assume we are on Windows
         if (!_gpu_tracker) {
             _gpu_tracker = rs2::camera_imu_tracker::create_gpu();
-            printf("SP Tracker Available \n");
-            _gpu_tracker->init(&intr[0], (int)RS_SF_MED_RESOLUTION);
-        }
-        else {
+            if(_gpu_tracker){
+                printf("SP Tracker Available \n");
+                _gpu_tracker->init(&intr[0], (int)RS_SF_MED_RESOLUTION);
+            }
+        }else {
             _gpu_tracker->init(nullptr, (int)RS_SF_MED_RESOLUTION);
         }
         

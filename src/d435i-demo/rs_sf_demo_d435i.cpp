@@ -150,10 +150,18 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     void update_timestamp_difference() {
         for(auto& s : *this){
             for(auto& d : s){
-                if(d){
+                if(d && (d->sensor_type == RS_SF_SENSOR_INFRARED || d->sensor_type == RS_SF_SENSOR_INFRARED_LASER_OFF)){
                     if(_first_timestamp==0){_first_timestamp=d->timestamp_us;}
                     if(_last_timestamp < d->timestamp_us){_last_timestamp=d->timestamp_us;}
                 }
+            }
+        }
+
+        for (auto s : { GYRO, ACCEL }) {
+            for (auto& imu : at(s)) {
+                if (!imu) { continue; }
+                auto factor = std::max(1.0,_last_timestamp / imu->timestamp_us);
+                imu->timestamp_us *= std::pow(10.0,(int)std::round(std::log10(factor)));
             }
         }
     }

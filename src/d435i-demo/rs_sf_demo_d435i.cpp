@@ -20,6 +20,7 @@
 #define DECIMATE_ACCEL 1
 #define DECIMATE_GYRO  1
 #define IGNORE_IR_TIMESTAMP 0
+#define DEFAULT_CAMERA_JSON camera_no_color_json
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
@@ -29,6 +30,7 @@
 #define DECIMATE_ACCEL 1
 #define DECIMATE_GYRO  1
 #define IGNORE_IR_TIMESTAMP 0
+#define DEFAULT_CAMERA_JSON default_camera_json
 #endif
 
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option);
@@ -308,7 +310,7 @@ struct d435i_exec_pipeline
 
             if (_imu_tracker &&
                 !_imu_tracker->init(_path + "camera.json", !sync, _decimate_accel, _decimate_gyro) &&
-                !_imu_tracker->init(default_camera_json, !sync, _decimate_accel, _decimate_gyro)) {
+                !_imu_tracker->init(DEFAULT_CAMERA_JSON, !sync, _decimate_accel, _decimate_gyro)) {
                 _imu_tracker = nullptr;
             }
         }

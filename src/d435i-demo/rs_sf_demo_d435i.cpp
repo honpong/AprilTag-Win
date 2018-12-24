@@ -454,7 +454,7 @@ int replay_frames(const std::string& path) try
     for(rs_sf_gl_context win("replay", pipe._src.width()*3, pipe._src.height()*3); ;check_data=false)
     {
         auto images = pipe.exec_once();
-        if(!win.imshow(images.data(),(int)images.size())){break;}
+        if(!win.imshow(images.data(),(int)images.size(),pipe._app_hint.c_str())){break;}
     }
     return 0;
 }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }

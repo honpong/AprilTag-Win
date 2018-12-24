@@ -458,6 +458,7 @@ int replay_frames(const std::string& path) try
 {
     bool check_data = true;
     d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(path, check_data);});
+    if(pipe._src.has_imu()){ pipe.select_camera_tracking(pipe._gpu_tracker?false:true); } //force to use rc_tracker at replay
     for(rs_sf_gl_context win("replay", pipe._src.width()*3, pipe._src.height()*3); ;check_data=false)
     {
         auto images = pipe.exec_once();

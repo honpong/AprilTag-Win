@@ -75,6 +75,7 @@ struct rs_sf_stream_request
     int gyro_fps;
     int accel_fps;
     int ts_domain;
+    int replace_color;
 };
 
 std::unique_ptr<rs_sf_image_stream> rs_sf_create_camera_stream(int w, int h);

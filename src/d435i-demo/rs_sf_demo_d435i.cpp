@@ -15,7 +15,7 @@
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
 #define DEFAULT_PATH "C:\\temp\\data\\"
-#define STREAM_REQUEST(l,t) (rs_sf_stream_request{l,-1,-1,t})
+#define STREAM_REQUEST(l,t) (rs_sf_stream_request{l,-1,-1,t,1})
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.one_image()
 #define DECIMATE_ACCEL 1
 #define DECIMATE_GYRO  1
@@ -25,7 +25,7 @@
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
 #define DEFAULT_PATH (std::string(getenv("HOME"))+"/Desktop/temp/data/")
-#define STREAM_REQUEST(l,t) (rs_sf_stream_request{l,-1,-1,t})
+#define STREAM_REQUEST(l,t) (rs_sf_stream_request{l,-1,-1,t,0})
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.images()
 #define DECIMATE_ACCEL 1
 #define DECIMATE_GYRO  1
@@ -112,6 +112,11 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     
     stream_info_vec _stream_info;
     rs_sf_intrinsics intrinsics(const stream& s) const { return _stream_info[s].intrinsics.cam_intrinsics; }
+    bool is_virtual_color_stream() const { return
+        _stream_info[COLOR].extrinsics[IR_L].translation[0] == 0 &&
+        _stream_info[COLOR].extrinsics[IR_L].translation[1] == 0 &&
+        _stream_info[COLOR].extrinsics[IR_L].translation[2] == 0;
+    }
     
     stream_maker _maker;
     d435i_buffered_stream(stream_maker&& init) : _maker(init) { reset(); }
@@ -284,15 +289,8 @@ struct d435i_exec_pipeline
     int init_algo_middleware()
     {
         bool sync = _src.is_offline_stream();
-        
         rs_sf_intrinsics intr[2] = {_src.intrinsics(DEPTH),_src.intrinsics(COLOR)};
-        _boxfit  = rs_sf_shapefit_ptr(intr, _cap = g_sf_option, _src.get_depth_unit());
-        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_SCAN_MODE, 1);
-        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_PLANE_NOISE, 2); //noisy planes
-        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_BUFFER, 21); //more buffering
-        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_MAX_NUM_BOX, 1); //output single box
-        if(sync){ rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, -1); }
-
+        
         // assume we are on Windows
         if (!_gpu_tracker) {
             _gpu_tracker = rs2::camera_imu_tracker::create_gpu();
@@ -316,6 +314,13 @@ struct d435i_exec_pipeline
         }
 
         set_camera_tracker_ptr();
+        
+        _boxfit  = rs_sf_shapefit_ptr(intr, _cap = (_src.is_virtual_color_stream() && _src.get_laser() ? RS_SHAPEFIT_BOX : g_sf_option), _src.get_depth_unit());
+        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_SCAN_MODE, 1);
+        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_PLANE_NOISE, 2); //noisy planes
+        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_BUFFER, 21); //more buffering
+        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_MAX_NUM_BOX, 1); //output single box
+        if(sync){ rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, -1); }
         
         return 0;
     }

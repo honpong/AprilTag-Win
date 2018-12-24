@@ -40,8 +40,9 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         extract_stream_calibrations();
         print_calibrations();
         
-        open(request.laser);
-        start();
+        open_sensors(request.laser);
+        select_streams(request.replace_color);
+        start_streams();
     }
     
     virtual ~rs_sf_d435i_camera()
@@ -86,7 +87,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     }
     
     int _laser_option = -1;
-    void open(int laser_option)
+    void open_sensors(int laser_option)
     {
         // open the depth camera stream
         _streams[0].sensor.open({_streams[0].profile,_streams[1].profile,_streams[2].profile});
@@ -147,6 +148,18 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             _streams[4].sensor.open({_streams[4].profile,_streams[5].profile});
         }
     }
+    
+    void select_streams(int replace_color)
+    {
+        _pipeline_streaming.resize(num_streams());
+        
+        _pipeline_streaming[0] = _pipeline_streaming[1] = _pipeline_streaming[2] = true;
+        _pipeline_streaming[3] = (replace_color ? false : true);
+        _pipeline_streaming[4] = _pipeline_streaming[5] = (_streams[4].profile && _streams[5].profile);
+    }
+    
+    inline bool virtual_color_stream() const { return !_pipeline_streaming[3]; } //virtual color stream
+    inline int vc(int s){ return s!=3? s : (virtual_color_stream()? 1:3); }
     
     struct rs_sf_data_auto : public rs_sf_data_buf
     {
@@ -216,41 +229,41 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     std::vector<bool>       _pipeline_streaming;
     std::vector<std::mutex> _pipeline_mutex;
     rs_sf_dataset           _pipeline_buffer;
-    bool start()
+    bool start_streams()
     {
         if(!_pipeline_buffer.empty()) return false;
         
         _pipeline_buffer.resize(num_streams());
-        _pipeline_streaming.resize(num_streams());
         std::vector<std::mutex> mutexes(num_streams());
         _pipeline_mutex.swap(mutexes);
         
         // stereo depth sensors
-        _pipeline_streaming[0] = _pipeline_streaming[1] = _pipeline_streaming[2] = true;
-        _streams[0].sensor.start([this](rs2::frame f){
-            if(!_pipeline_streaming[0]){ return; }
-            for(int s : {0,1,2}){
-                if(f.get_profile().stream_type() ==_streams[s].type &&
-                   f.get_profile().stream_index()==_streams[s].index){
-                    auto new_data = std::make_shared<rs_sf_data_auto>(f,_streams[s],generate_serial_number(),_laser_option);
-                    std::lock_guard<std::mutex> lk(_pipeline_mutex[s]);
-                    _pipeline_buffer[s].emplace_back(new_data);
+        if(_pipeline_streaming[0] || _pipeline_streaming[1] || _pipeline_streaming[2]){
+            _streams[0].sensor.start([this](rs2::frame f){
+                if(!_pipeline_streaming[0]){ return; }
+                for(int s : {0,1,2}){
+                    if(f.get_profile().stream_type() ==_streams[s].type &&
+                       f.get_profile().stream_index()==_streams[s].index){
+                        auto new_data = std::make_shared<rs_sf_data_auto>(f,_streams[s],generate_serial_number(),_laser_option);
+                        std::lock_guard<std::mutex> lk(_pipeline_mutex[s]);
+                        _pipeline_buffer[s].emplace_back(new_data);
+                    }
                 }
-            }
-        });
+            });
+        }
         
         // color sensor
-        _pipeline_streaming[3] = true;
-        _streams[3].sensor.start([this](rs2::frame f){
-            if(!_pipeline_streaming[3]){ return; }
-            auto new_data = std::make_shared<rs_sf_data_auto>(f,_streams[3],generate_serial_number());
-            std::lock_guard<std::mutex> lk(_pipeline_mutex[3]);
-            _pipeline_buffer[3].emplace_back(new_data);
-        });
+        if(_pipeline_streaming[3]){
+            _streams[3].sensor.start([this](rs2::frame f){
+                if(!_pipeline_streaming[3]){ return; }
+                auto new_data = std::make_shared<rs_sf_data_auto>(f,_streams[3],generate_serial_number());
+                std::lock_guard<std::mutex> lk(_pipeline_mutex[3]);
+                _pipeline_buffer[3].emplace_back(new_data);
+            });
+        }
         
         // imu motion sensor
-        if(_streams[4].profile && _streams[5].profile){
-            _pipeline_streaming[4] = _pipeline_streaming[5] = true;
+        if(_pipeline_streaming[4] || _pipeline_streaming[5]){
             _streams[4].sensor.start([this](rs2::frame f){
                 if(!_pipeline_streaming[4]){ return; }
                 for(int s : {4,5}){
@@ -267,6 +280,21 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         return false;
     }
     
+    struct rs_sf_data_clone : public rs_sf_data_buf
+    {
+        virtual ~rs_sf_data_clone() {}
+        rs_sf_data_clone(const rs_sf_data_buf& src) : rs_sf_data_buf(src) {
+            sensor_type  = RS_SF_SENSOR_COLOR;
+            sensor_index = 0;
+            _image = std::make_unique<rs_sf_image_rgb>(&src.image);
+            image = *_image;
+            for(int p=0; p<image.num_pixel(); ++p){
+                image.data[p*3] = image.data[p*3+1] = image.data[p*3+2] = src.image.data[p];
+            }
+        }
+        rs_sf_image_ptr _image;
+    };
+    
     rs_sf_dataset_ptr wait_for_data(const std::chrono::milliseconds& wait_time_ms) override
     {
         static const auto time_inc = std::chrono::milliseconds(1);
@@ -282,6 +310,11 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                 //_pipeline_buffer[s] should be empty at this point
             }
             
+            // create color stream using IR_L
+            if(virtual_color_stream() && dst[3].empty() && !dst[1].empty()){
+                dst[3].emplace_back(std::make_shared<rs_sf_data_clone>(*dst[1].back()));
+            }
+            
             //send out data if available
             if(!dst[0].empty()&&!dst[1].empty()&&!dst[2].empty()&&!dst[3].empty()){break;}
             std::this_thread::sleep_for(time_inc);
@@ -292,9 +325,10 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     stream_info_vec get_stream_info() override
     {
         stream_info_vec dst; dst.reserve(num_streams());
-        for(auto& stream : _streams)
+        for(const auto& stream : _streams)
         {
             if(stream.profile){
+                auto* stream_src = &stream;
                 rs_sf_stream_info info;
                 info.type  = (rs_sf_sensor_t)stream.type;
                 info.index = stream.index;
@@ -305,16 +339,18 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                     case RS_SF_SENSOR_ACCEL:
                         info.intrinsics.imu_intrinsics = *(rs_sf_imu_intrinsics*)&stream.imu_intriniscs;
                         break;
+                    case RS_SF_SENSOR_COLOR:
+                        if(virtual_color_stream()){ stream_src = &_streams[1]; } //redirect stream src to IR_L
                     default:
-                        info.intrinsics.cam_intrinsics = *(rs_sf_intrinsics*)&stream.cam_intrinsics;
+                        info.intrinsics.cam_intrinsics = *(rs_sf_intrinsics*)&stream_src->cam_intrinsics;
                         break;
                 }
                 
                 info.extrinsics.reserve(num_streams());
                 for(int ss=0; ss<num_streams(); ++ss)
                 {
-                    if(_streams[ss].profile){
-                        info.extrinsics.emplace_back(*(rs_sf_extrinsics*)&stream.extrinsics[ss]);
+                    if(_streams[vc(ss)].profile){
+                        info.extrinsics.emplace_back(*(rs_sf_extrinsics*)&stream_src->extrinsics[vc(ss)]);
                     }
                 }
                 dst.emplace_back(info);

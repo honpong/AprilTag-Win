@@ -259,6 +259,9 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     }
 };
 
+
+#include <deque>
+#include <array>
 struct d435i_exec_pipeline
 {
     rs_shapefit_capability _cap;
@@ -271,6 +274,8 @@ struct d435i_exec_pipeline
     rs2::camera_imu_tracker* _tracker = nullptr;
     int                      _decimate_accel = g_accel_dec;
     int                      _decimate_gyro = g_gyro_dec;
+    std::deque<std::array<float,3>> _box_dimension_queue;
+    const int                       _rolling_average_length = 50000;
 
     d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { select_camera_tracking(true); }
     
@@ -395,14 +400,36 @@ struct d435i_exec_pipeline
         return _box!=nullptr;
     }
     
+    static std::array<float,3> to_array(const rs_sf_box& box){
+        return {
+            std::sqrt(box.dim_sqr(0))*1000.0f,
+            std::sqrt(box.dim_sqr(1))*1000.0f,
+            std::sqrt(box.dim_sqr(2))*1000.0f};
+    }
+    
+    std::string rolling_average_box_dimension() {
+        while(_box_dimension_queue.size()>_rolling_average_length){ _box_dimension_queue.pop_front(); }
+        
+        float box_queue_size = (float)_box_dimension_queue.size();
+        float box_dimension[3] = {0.0f,0.0f,0.0f};
+        for(auto& d : _box_dimension_queue){
+            box_dimension[0] += d[0];
+            box_dimension[1] += d[1];
+            box_dimension[2] += d[2];
+        }
+        return
+        std::to_string((int)std::round(box_dimension[0]/box_queue_size))+"x"+
+        std::to_string((int)std::round(box_dimension[1]/box_queue_size))+"x"+
+        std::to_string((int)std::round(box_dimension[2]/box_queue_size));
+    }
+    
     std::string box_dim_string()
     {
         if(_box){
-            return
-            std::to_string((int)(std::sqrt(_box->dim_sqr(0))*1000)/5*5)+"x"+
-            std::to_string((int)(std::sqrt(_box->dim_sqr(1))*1000)/5*5)+"x"+
-            std::to_string((int)(std::sqrt(_box->dim_sqr(2))*1000)/5*5);
+            _box_dimension_queue.emplace_back(to_array(*_box));
+            return rolling_average_box_dimension();
         }
+        _box_dimension_queue.clear();
         return "";
     }
 };

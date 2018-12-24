@@ -90,6 +90,10 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
     {
         // open the depth camera stream
         _streams[0].sensor.open({_streams[0].profile,_streams[1].profile,_streams[2].profile});
+        if( _streams[0].sensor.supports(RS2_OPTION_AUTO_EXPOSURE_PRIORITY)){
+            _streams[0].sensor.set_option(RS2_OPTION_AUTO_EXPOSURE_PRIORITY,0);
+        }
+        
         auto try_set_laser_interlaced = [&](float flag){
             if(_streams[0].sensor.supports(RS2_OPTION_EMITTER_ON_OFF)){
                 _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, flag);
@@ -131,6 +135,9 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         
         // open the color camera stream
         _streams[3].sensor.open(_streams[3].profile);
+        if(_streams[3].sensor.supports(RS2_OPTION_AUTO_EXPOSURE_PRIORITY)){
+            _streams[3].sensor.set_option(RS2_OPTION_AUTO_EXPOSURE_PRIORITY, 0);
+        }
         
         // open the motion sensor stream
         if(_streams[4].profile && _streams[5].profile){

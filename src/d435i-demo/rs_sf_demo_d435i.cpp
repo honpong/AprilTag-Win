@@ -15,11 +15,11 @@
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
 #define DEFAULT_PATH "C:\\temp\\data\\"
-#define STREAM_REQUEST(l,t) (rs_sf_stream_request{l,400,250,t})
+#define STREAM_REQUEST(l,t) (rs_sf_stream_request{l,-1,-1,t})
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.one_image()
-#define DECIMATE_ACCEL 10
-#define DECIMATE_GYRO  2
-#define IGNORE_IR_TIMESTAMP 1
+#define DECIMATE_ACCEL 1
+#define DECIMATE_GYRO  1
+#define IGNORE_IR_TIMESTAMP 0
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")

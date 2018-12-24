@@ -348,6 +348,11 @@ struct d435i_exec_pipeline
             if(_gpu_tracker){ _tracker = _imu_tracker.get(); _src.set_laser(0); }
             else            { _tracker = nullptr;            _src.set_laser(1); }
         }
+        
+        if(_tracker == nullptr ){                fprintf(stderr, "No camera tracker selected. \n"); }
+        else if(_tracker == _imu_tracker.get()){ fprintf(stderr, "IMU camera tracker selected. \n");}
+        else if(_tracker == _gpu_tracker.get()){ fprintf(stderr, "GPU camera tracker selected. \n");}
+        
         _src.reset_img_buffers();
     }
     

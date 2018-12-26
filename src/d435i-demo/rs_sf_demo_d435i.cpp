@@ -318,10 +318,10 @@ struct d435i_exec_pipeline
         _boxfit  = rs_sf_shapefit_ptr(intr, _cap = (_src.is_virtual_color_stream() && _src.get_laser() ? RS_SHAPEFIT_BOX : g_sf_option), _src.get_depth_unit());
         rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_SCAN_MODE, 1);
         rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_PLANE_NOISE, 2); //noisy planes
-        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_BUFFER, 21); //more buffering
+        //rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_BUFFER, 21); //more buffering
         rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_MAX_NUM_BOX, 1); //output single box
-        if(sync){ rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, -1); }
-        
+        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, sync?-1:0);
+    
         return 0;
     }
     
@@ -393,12 +393,11 @@ struct d435i_exec_pipeline
                 //images[COLOR].intrinsics = images[IR_L].intrinsics;
                 //rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[IR_L]);
                 rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[COLOR]);
+            }else{
+                _boxwire = std::make_unique<rs_sf_image_rgb>(&images[IR_L]);
+                rs_sf_boxfit_draw_boxes(_boxfit.get(), &(images[IR_R]=*_boxwire), &images[IR_L]);
+                rs_sf_boxfit_draw_boxes(_boxfit.get(), &images[COLOR]);
             }
-                
-            _boxwire = std::make_unique<rs_sf_image_rgb>(&images[IR_L]);
-            rs_sf_boxfit_draw_boxes(_boxfit.get(), &(images[IR_R]=*_boxwire), &images[IR_L]);
-            rs_sf_boxfit_draw_boxes(_boxfit.get(), &images[COLOR]);
-            
         }
         return images;
     }

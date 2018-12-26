@@ -280,16 +280,16 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         return false;
     }
     
-    struct rs_sf_data_clone : public rs_sf_data_buf
+    struct rs_sf_data_clone_color : public rs_sf_data_buf
     {
-        virtual ~rs_sf_data_clone() {}
-        rs_sf_data_clone(const rs_sf_data_buf& src) : rs_sf_data_buf(src) {
+        virtual ~rs_sf_data_clone_color() {}
+        rs_sf_data_clone_color(const rs_sf_data_buf& src) : rs_sf_data_buf(src) {
             sensor_type  = RS_SF_SENSOR_COLOR;
             sensor_index = 0;
             _image = std::make_unique<rs_sf_image_rgb>(&src.image);
             image = *_image;
-            for(int p=0; p<image.num_pixel(); ++p){
-                image.data[p*3] = image.data[p*3+1] = image.data[p*3+2] = src.image.data[p];
+            for(int p=image.num_pixel()-1; p>=0; --p){
+                memset(image.data + (p*3), src.image.data[p], 3);
             }
         }
         rs_sf_image_ptr _image;
@@ -312,7 +312,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             
             // create color stream using IR_L
             if(virtual_color_stream() && dst[3].empty() && !dst[1].empty()){
-                dst[3].emplace_back(std::make_shared<rs_sf_data_clone>(*dst[1].back()));
+                dst[3].emplace_back(std::make_shared<rs_sf_data_clone_color>(*dst[1].back()));
             }
             
             //send out data if available

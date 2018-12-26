@@ -27,10 +27,10 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         auto ACHZ = request.accel_fps > 0 ? (float)request.accel_fps : 63.0f;
         auto TS   = request.ts_domain > 0 ? RS2_TIMESTAMP_DOMAIN_SYSTEM_TIME : RS2_TIMESTAMP_DOMAIN_HARDWARE_CLOCK;
 
-        add_stream_request({RS2_STREAM_DEPTH,   -1,  30, RS2_FORMAT_Z16,            w,  h, TS});
-        add_stream_request({RS2_STREAM_INFRARED, 1,  30, RS2_FORMAT_Y8 ,            w,  h, TS});
-        add_stream_request({RS2_STREAM_INFRARED, 2,  30, RS2_FORMAT_Y8 ,            w,  h, TS});
-        add_stream_request({RS2_STREAM_COLOR,   -1,  30, RS2_FORMAT_RGB8,           w,  h, TS});
+        add_stream_request({RS2_STREAM_DEPTH,   -1,  15, RS2_FORMAT_Z16,            w,  h, TS});
+        add_stream_request({RS2_STREAM_INFRARED, 1,  15, RS2_FORMAT_Y8 ,            w,  h, TS});
+        add_stream_request({RS2_STREAM_INFRARED, 2,  15, RS2_FORMAT_Y8 ,            w,  h, TS});
+        add_stream_request({RS2_STREAM_COLOR,   -1,  15, RS2_FORMAT_RGB8,           w,  h, TS});
         add_stream_request({RS2_STREAM_GYRO,    -1,GYHZ, RS2_FORMAT_MOTION_XYZ32F, -1, -1, TS});
         add_stream_request({RS2_STREAM_ACCEL,   -1,ACHZ, RS2_FORMAT_MOTION_XYZ32F, -1, -1, TS});
         

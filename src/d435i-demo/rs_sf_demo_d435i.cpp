@@ -154,7 +154,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         auto data = _src->wait_for_data();
         if(!data || data->empty() ){ return nullptr; }
 
-#ifdef IGNORE_IR_TIMESTAMP
+#if defined(IGNORE_IR_TIMESTAMP) & (IGNORE_IR_TIMESTAMP > 0)
         for (auto dimg : data->at(DEPTH)) {
             for (auto s : { IR_L, IR_R }) {
                 for (auto ir : data->at(s)) {

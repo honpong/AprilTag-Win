@@ -374,10 +374,11 @@ struct d435i_exec_pipeline
             {
                 if( _tracker != nullptr ){
                     _tracker->process(_src.data_vec(_tracker->require_laser_off()));
+                    _app_hint = _tracker->prefix() + " ";
                     switch (_tracker->wait_for_image_pose(images)){
-                        case rs2::camera_imu_tracker::HIGH:   _app_hint="High Quality   "; break;
-                        case rs2::camera_imu_tracker::MEDIUM: _app_hint="Medium Quality "; break;
-                        default:                              _app_hint="Move Around / Reset"; break;
+                        case rs2::camera_imu_tracker::HIGH:   _app_hint+="High Quality   "; break;
+                        case rs2::camera_imu_tracker::MEDIUM: _app_hint+="Medium Quality "; break;
+                        default:                              _app_hint+="Move Around / Reset"; break;
                     }
                 }
                 else {

@@ -60,6 +60,7 @@ namespace rs2
         inline void process(std::vector<rs_sf_data_ptr>&& dataset) {
             for(auto& d : dataset){ process(d); }}
         virtual conf wait_for_image_pose(std::vector<rs_sf_image>& images) = 0;
+        virtual std::string prefix() { return ""; }
         
         static std::unique_ptr<camera_imu_tracker> create();
         static std::unique_ptr<camera_imu_tracker> create_gpu();

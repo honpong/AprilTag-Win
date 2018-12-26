@@ -115,7 +115,7 @@ rs_sf_status rs_sf_planefit_draw_planes(const rs_shapefit * obj, rs_sf_image * r
     rs_sf_image_mono map(rgb);
     const auto status = pf->get_plane_index_map(&map);
     if (status == RS_SF_SUCCESS) {
-        if (bkg) { rs_sf_util_convert_to_rgb_image(rgb, bkg); }
+        if (bkg && (bkg!=rgb)) { rs_sf_util_convert_to_rgb_image(rgb, bkg); }
         rs_sf_util_draw_plane_ids(rgb, &map, bkg == nullptr);
     }
     return status;

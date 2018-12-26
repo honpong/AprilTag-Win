@@ -40,8 +40,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         extract_stream_calibrations();
         print_calibrations();
         
-        open_sensors(request.laser);
         select_streams(request.replace_color);
+        open_sensors(request.laser);
         start_streams();
     }
     
@@ -86,69 +86,15 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         return false;
     }
     
-    int _laser_option = -1;
-    void open_sensors(int laser_option)
-    {
-        // open the depth camera stream
-        _streams[0].sensor.open({_streams[0].profile,_streams[1].profile,_streams[2].profile});
-        if( _streams[0].sensor.supports(RS2_OPTION_AUTO_EXPOSURE_PRIORITY)){
-            _streams[0].sensor.set_option(RS2_OPTION_AUTO_EXPOSURE_PRIORITY,0);
-        }
-        
-        auto try_set_laser_interlaced = [&](float flag){
-            if(_streams[0].sensor.supports(RS2_OPTION_EMITTER_ON_OFF)){
-                _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, flag);
-                _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_OFF,  flag);
-            }else if(flag>0.0f){
-                _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0);
-                fprintf(stderr,"WARNING: interlaced emitter on/off not supported!\n");
-            }
-        };
-        
-        try{
-            switch(laser_option)
-            {
-                case 0:
-                    try_set_laser_interlaced(0.0f);
-                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0);
-                    break;
-                case 1:
-                    try_set_laser_interlaced(0.0f);
-                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1);
-                    break;
-                case 2:
-                    try_set_laser_interlaced(1.0f);
-                    break;
-            }
-        }catch(...){ fprintf(stderr,"WARNING: error setting laser option %d!\n", _laser_option); }
-
-        try{
-            _laser_option = (int)_streams[0].sensor.get_option(RS2_OPTION_EMITTER_ENABLED);
-            if(laser_option==2 &&
-               _streams[0].sensor.supports(RS2_OPTION_EMITTER_ON_OFF) &&
-               _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ON_OFF)){
-                _laser_option=2;
-            }
-        }catch(...){
-            fprintf(stderr,"WARNING: error getting laser option %d! set to %d\n",_laser_option, laser_option);
-            _laser_option = laser_option;
-        }
-        
-        // open the color camera stream
-        _streams[3].sensor.open(_streams[3].profile);
-        if(_streams[3].sensor.supports(RS2_OPTION_AUTO_EXPOSURE_PRIORITY)){
-            _streams[3].sensor.set_option(RS2_OPTION_AUTO_EXPOSURE_PRIORITY, 0);
-        }
-        
-        // open the motion sensor stream
-        if(_streams[4].profile && _streams[5].profile){
-            if(_streams[4].sensor.supports(RS2_OPTION_ENABLE_MOTION_CORRECTION)){
-                _streams[4].sensor.set_option(RS2_OPTION_ENABLE_MOTION_CORRECTION, 0);
-            }
-            _streams[4].sensor.open({_streams[4].profile,_streams[5].profile});
-        }
-    }
+    bool is_stream_depth()          const { return _pipeline_streaming[0]; }
+    bool is_stream_infrared_left()  const { return _pipeline_streaming[1]; }
+    bool is_stream_infrared_right() const { return _pipeline_streaming[2]; }
+    bool is_stream_color()          const { return _pipeline_streaming[3]; }
+    bool is_stream_imu()            const { return _pipeline_streaming[4] && _pipeline_streaming[5]; }
     
+    std::vector<bool>       _pipeline_streaming;
+    std::vector<std::mutex> _pipeline_mutex;
+    rs_sf_dataset           _pipeline_buffer;
     void select_streams(int replace_color)
     {
         _pipeline_streaming.resize(num_streams());
@@ -156,6 +102,79 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         _pipeline_streaming[0] = _pipeline_streaming[1] = _pipeline_streaming[2] = true;
         _pipeline_streaming[3] = (replace_color ? false : true);
         _pipeline_streaming[4] = _pipeline_streaming[5] = (_streams[4].profile && _streams[5].profile);
+    }
+    
+    int _laser_option = -1;
+    void open_sensors(int laser_option)
+    {
+        // open the depth camera stream
+        std::vector<rs2::stream_profile> depth_cam_profiles;
+        if(is_stream_depth())         { depth_cam_profiles.emplace_back(_streams[0].profile); }
+        if(is_stream_infrared_left()) { depth_cam_profiles.emplace_back(_streams[1].profile); }
+        if(is_stream_infrared_right()){ depth_cam_profiles.emplace_back(_streams[2].profile); }
+        
+        if(depth_cam_profiles.size()>0)
+        {
+            _streams[0].sensor.open(depth_cam_profiles);
+            if( _streams[0].sensor.supports(RS2_OPTION_AUTO_EXPOSURE_PRIORITY)){
+                _streams[0].sensor.set_option(RS2_OPTION_AUTO_EXPOSURE_PRIORITY,0);
+            }
+            
+            auto try_set_laser_interlaced = [&](float flag){
+                if(_streams[0].sensor.supports(RS2_OPTION_EMITTER_ON_OFF)){
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, flag);
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ON_OFF,  flag);
+                }else if(flag>0.0f){
+                    _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0);
+                    fprintf(stderr,"WARNING: interlaced emitter on/off not supported!\n");
+                }
+            };
+            
+            try{
+                switch(laser_option)
+                {
+                    case 0:
+                        try_set_laser_interlaced(0.0f);
+                        _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0);
+                        break;
+                    case 1:
+                        try_set_laser_interlaced(0.0f);
+                        _streams[0].sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1);
+                        break;
+                    case 2:
+                        try_set_laser_interlaced(1.0f);
+                        break;
+                }
+            }catch(...){ fprintf(stderr,"WARNING: error setting laser option %d!\n", _laser_option); }
+            
+            try{
+                _laser_option = (int)_streams[0].sensor.get_option(RS2_OPTION_EMITTER_ENABLED);
+                if(laser_option==2 &&
+                   _streams[0].sensor.supports(RS2_OPTION_EMITTER_ON_OFF) &&
+                   _streams[0].sensor.get_option(RS2_OPTION_EMITTER_ON_OFF)){
+                    _laser_option=2;
+                }
+            }catch(...){
+                fprintf(stderr,"WARNING: error getting laser option %d! set to %d\n",_laser_option, laser_option);
+                _laser_option = laser_option;
+            }
+        }
+        
+        // open the color camera stream
+        if(is_stream_color()){
+            _streams[3].sensor.open(_streams[3].profile);
+            if(_streams[3].sensor.supports(RS2_OPTION_AUTO_EXPOSURE_PRIORITY)){
+                _streams[3].sensor.set_option(RS2_OPTION_AUTO_EXPOSURE_PRIORITY, 0);
+            }
+        }
+        
+        // open the motion sensor stream
+        if(is_stream_imu()){
+            if(_streams[4].sensor.supports(RS2_OPTION_ENABLE_MOTION_CORRECTION)){
+                _streams[4].sensor.set_option(RS2_OPTION_ENABLE_MOTION_CORRECTION, 0);
+            }
+            _streams[4].sensor.open({_streams[4].profile,_streams[5].profile});
+        }
     }
     
     inline bool virtual_color_stream() const { return !_pipeline_streaming[3]; } //virtual color stream
@@ -176,7 +195,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
 
             if (stream.timestamp_domain != RS2_TIMESTAMP_DOMAIN_HARDWARE_CLOCK) {
                 auto factor = 1.0;
-                switch (stream.timestamp_domain) {
+                switch ((rs2_frame_metadata_value)stream.timestamp_domain) {
                 case RS2_FRAME_METADATA_TIME_OF_ARRIVAL:
                     factor = 1000;
                 case RS2_FRAME_METADATA_FRAME_TIMESTAMP:
@@ -191,7 +210,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                         timestamp_us = (rs_sf_timestamp)_f.get_frame_metadata((rs2_frame_metadata_value)stream.timestamp_domain)*factor;
                     }
                 }
-                catch (...) {}
+                catch (...) { fprintf(stderr,"Timestamp metadata error, sensor_type %d, index %d \n",sensor_type,sensor_index); }
             }
             
             if (_f.is<rs2::video_frame>()){
@@ -216,7 +235,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
                        _f.supports_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE)){
                         exposure_time_us = (double)_f.get_frame_metadata(RS2_FRAME_METADATA_ACTUAL_EXPOSURE);
                     }
-                }catch(...){}
+                }catch(...){ fprintf(stderr,"Laser option metadata error, sensor_type %d, index %d \n",sensor_type,sensor_index); }
             }
             else if(_f.is<rs2::motion_frame>()){
                 rs_sf_memcpy(imu.v, _f.get_data(), sizeof(imu.v));
@@ -226,9 +245,6 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         rs2::frame _f;
     };
     
-    std::vector<bool>       _pipeline_streaming;
-    std::vector<std::mutex> _pipeline_mutex;
-    rs_sf_dataset           _pipeline_buffer;
     bool start_streams()
     {
         if(!_pipeline_buffer.empty()) return false;
@@ -238,7 +254,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         _pipeline_mutex.swap(mutexes);
         
         // stereo depth sensors
-        if(_pipeline_streaming[0] || _pipeline_streaming[1] || _pipeline_streaming[2]){
+        if(is_stream_depth()||is_stream_infrared_left()||is_stream_infrared_right()){
             _streams[0].sensor.start([this](rs2::frame f){
                 if(!_pipeline_streaming[0]){ return; }
                 for(int s : {0,1,2}){
@@ -253,7 +269,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         }
         
         // color sensor
-        if(_pipeline_streaming[3]){
+        if(is_stream_color()){
             _streams[3].sensor.start([this](rs2::frame f){
                 if(!_pipeline_streaming[3]){ return; }
                 auto new_data = std::make_shared<rs_sf_data_auto>(f,_streams[3],generate_serial_number());
@@ -263,7 +279,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         }
         
         // imu motion sensor
-        if(_pipeline_streaming[4] || _pipeline_streaming[5]){
+        if(is_stream_imu()){
             _streams[4].sensor.start([this](rs2::frame f){
                 if(!_pipeline_streaming[4]){ return; }
                 for(int s : {4,5}){
@@ -277,7 +293,7 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             });
         }
         
-        return false;
+        return true;
     }
     
     struct rs_sf_data_clone_color : public rs_sf_data_buf

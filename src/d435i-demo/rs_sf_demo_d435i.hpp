@@ -379,17 +379,15 @@ public:
     std::function<void(bool)>           on_left_mouse = [this](bool click)
     {
         if (click) {
-            if (_mouse_pos[0] > width() / 3) { _tgscn = true; }
-            else if (_mouse_pos[1] < win_rs_logo().ey()) { _dense = !_dense; }
-            else if (_mouse_pos[1] > win_depth_image().y) {
-                if (_mouse_pos[1] < height() * 7 / 8) { _dwin_opt = (_dwin_opt + 1) % 3; }
-                else {
-                    if (_mouse_pos[0] <= width() / 6) { _close = true; }
-                    else if (_mouse_pos[0] <= width() * 3) { _reset = true; }
-                }
-            }
+            if     (is_mouse_in(win_rs_logo()))     { _dense = !_dense;           }
+            else if(is_mouse_in(win_close_button())){ _close = true;              }
+            else if(is_mouse_in(win_reset_button())){ _reset = true;              }
+            else if(is_mouse_in(win_depth_image())) { _dwin_opt = (_dwin_opt+1)%3;}
+            else if(is_mouse_in(win_color_image())) { _tgscn = true;              }
         }
     };
+    
+    bool is_mouse_in(const rect& r) const { return r.x < _mouse_pos[0] && _mouse_pos[0] < r.ex() && r.y < _mouse_pos[1] && _mouse_pos[1] < r.ey(); }
     
     window(int width, int height, const std::string& title) : _title(title), _icon_close(get_icon(close), bkg_black), _icon_reset(get_icon(reset), bkg_black), _num_icons(bkg_black)
     {
@@ -451,11 +449,16 @@ public:
     float height() const { return float(_height); }
     
     inline rect win_left_column()  const { return{ 0, 0, width() / 3, height() }; }
-    inline rect win_rs_logo()      const { return{ 0, 0, win_left_column().w, win_left_column().h / 6 }; }
-    inline rect win_depth_image()  const { return{ win_left_column().x, win_left_column().y + win_left_column().h * 2 / 7, win_left_column().w, win_left_column().h / 2 }; }
+    inline rect win_rs_logo_horizontal()      const { return{ 0, 0, win_left_column().w, win_left_column().h / 6 }; }
+    inline rect win_rs_logo_vertical()      const { return{ 0, 0, width(), win_left_column().h / 6 }; }
+    inline rect win_rs_logo() const { return is_horizontal() ? win_rs_logo_horizontal() : win_rs_logo_vertical(); }
+    //inline rect win_depth_image()  const { return{ win_left_column().x, win_left_column().y + win_left_column().h * 2 / 7, win_left_column().w, win_left_column().h / 2 }; }
+    inline rect win_depth_image()  const { return{ 0,0,0,0}; }
     inline rect win_button_area()  const { return{ win_left_column().x, win_left_column().y + win_left_column().h * 7 / 8, win_left_column().w, win_left_column().h / 10 }; }
     inline rect win_close_button() const { return{ win_button_area().x + 1, win_button_area().y, win_button_area().w / 2 - 2, win_button_area().h }; }
-    inline rect win_reset_button() const { return{ win_close_button().ex() + 1, win_close_button().y, win_close_button().w, win_close_button().h }; }
+    inline rect win_reset_button_horizontal() const { return{ win_close_button().ex() + 1, win_close_button().y, win_close_button().w, win_close_button().h }; }
+    inline rect win_reset_button_vertical() const { return{ width() - win_close_button().w , win_close_button().y, win_close_button().w, win_close_button().h }; }
+    inline rect win_reset_button() const { return is_horizontal() ? win_reset_button_horizontal() : win_reset_button_vertical(); }
     //inline rect win_color_image()  const { return{ win_left_column().ex(), 0, width() - win_left_column().w, height() }; }
     inline bool is_horizontal() const { return _width > _height; }
     inline rect win_color_image_horizontal()  const { return{ 0, 0, width()-1, height()-1 }; }
@@ -463,7 +466,7 @@ public:
     inline rect win_color_image() const { return is_horizontal() ? win_color_image_horizontal() : win_color_image_vertical(); }
     //inline rect win_box_msg()      const { return{ win_left_column().x + win_left_column().w / 10, win_rs_logo().ey() + win_rs_logo().h / 8, win_left_column().w * 4 / 5, win_rs_logo().h * 3 / 8 }; }
     inline rect win_box_msg_horizontal() const { return{win_rs_logo().w + (width()-win_left_column().w)/6, win_rs_logo().h/6, (width()-win_left_column().w)*4/6, win_rs_logo().h*4/6};}
-    inline rect win_box_msg_vertical() const { return {width()/6,win_color_image().ey()+win_rs_logo().h/6,width()*4/6, win_rs_logo().h*4/6}; }
+    inline rect win_box_msg_vertical() const { return {width()/6,win_color_image().ey()+win_rs_logo().h/3,width()*4/6, win_rs_logo().h*4/6}; }
     inline rect win_box_msg() const { return is_horizontal() ? win_box_msg_horizontal() : win_box_msg_vertical(); }
     
     operator bool()

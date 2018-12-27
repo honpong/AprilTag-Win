@@ -365,7 +365,7 @@ std::string rs2::camera_imu_tracker::read_json_file(const std::string& src_file_
 struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
 {
     typedef rs_sf_data_ptr data_packet;
-    std::unique_ptr<rc_Tracker,decltype(&rc_destroy)> _tracker {nullptr,nullptr};
+    std::unique_ptr<rc_Tracker, decltype(&rc_destroy)> _tracker {nullptr,nullptr};
 
     //bool is_realtime{ false }, qvga{ false }, async{ false }, use_depth{ true };
     //bool fast_path{ false }, to_zero_biases{ false }, use_odometry{ false }, stereo_configured{ false }, dynamic_calibration{ false };
@@ -380,8 +380,13 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     std::string prefix() override { return "RC"; }
 
     static void destory_rc_tracker(rc_Tracker* tracker) {
-        printf("%s\n", rc_getTimingStats(tracker));
+        const bool active = (rc_getState(tracker) == rc_E_RUNNING);
         rc_stopTracker(tracker);
+        if (active) {
+            printf("***************************************************************************************************\n");
+            printf("IMU camera tracker statistics \n\n%s", rc_getTimingStats(tracker));
+            printf("***************************************************************************************************\n");
+        }
         rc_destroy(tracker);
     }
 
@@ -390,7 +395,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         if(!calibration_data || strlen(calibration_data)<1){ return false; }
         
         if(_tracker!=nullptr){ reset_tracker(); return false; }
-        _tracker = std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)>(rc_create(), destory_rc_tracker);
+        _tracker = std::unique_ptr<rc_Tracker, decltype(&rc_destroy)>(rc_create(), destory_rc_tracker);
         
         if(!rc_setCalibration(_tracker.get(), calibration_data)){
             fprintf(stderr, "Error: failed to load JSON calibration into camera tracker ... \n");

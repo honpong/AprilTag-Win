@@ -378,6 +378,8 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
 
 struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
 {
+    const int D435I_WRITER_IMAGE_BUFFER_SIZE{ 1000 };
+
     std::ofstream index_file;
     //std::ofstream accel_file;
     //std::ofstream gyro_file;
@@ -400,6 +402,12 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
     
     ~rs_sf_d435i_writer()
     {
+        while (_img_write_tasks.size() > 0 || _img_write_thread != nullptr) {
+            std::lock_guard<std::mutex> lk(_write_mutex);
+            do_write_tasks();
+            if (_img_write_thread) { _img_write_thread->wait_for(std::chrono::milliseconds(30)); }
+        }
+
         for(auto file : {&index_file,/*&accel_file,&gyro_file*/})
         {
             if(file->is_open()){file->close();}
@@ -484,6 +492,8 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
     
     std::atomic<rs_sf_serial_number> _dataset_count = {0};
     std::mutex _write_mutex;
+    std::unique_ptr<std::future<bool>> _img_write_thread;
+    std::list<std::function<void()>> _img_write_tasks;
     bool write(const rs_sf_dataset& data) override
     {
         auto my_data_set_number = _dataset_count++;
@@ -501,13 +511,31 @@ struct rs_sf_d435i_writer : public rs_sf_file_io, rs_sf_data_writer
         for(auto& item : items){
             auto filename = generate_data_filename(*item);
             if(!write_header(filename, *item, my_data_set_number)){ return false; }
-            if((item->sensor_type&0xf)<RS_SF_SENSOR_GYRO){
-                std::async(std::launch::async,[this,item=item,filename=filename](){
-                    rs_sf_image_write(_folder_path+filename,&item->image);
+            if ((item->sensor_type & 0xf) < RS_SF_SENSOR_GYRO) {
+                auto img = std::shared_ptr<rs_sf_image_auto>(make_image_ptr(&item->image).release());
+                _img_write_tasks.emplace_back([img = img, file = _folder_path + filename]() {
+                    rs_sf_file_io::rs_sf_image_write(file, img.get());
                 });
+
+                auto tsize = (int)_img_write_tasks.size();
+                if (tsize >= D435I_WRITER_IMAGE_BUFFER_SIZE) { do_write_tasks(); }
+                else if (tsize > 0 && tsize % 200 == 0) { printf("d435i_writer: buffered %d images\n", tsize); }
             }
         }
         return true;
+    }
+
+    void do_write_tasks() {
+        if (!_img_write_thread || _img_write_thread->wait_for(std::chrono::milliseconds(0))==std::future_status::ready) {
+            auto tasks = std::make_shared<std::list<std::function<void()>>>();
+            std::swap(*tasks, _img_write_tasks);
+            _img_write_thread = tasks->size() <= 0 ? nullptr : std::make_unique<std::future<bool>>(std::async(std::launch::async,
+                [tasks = tasks]{
+                    printf("d435i_writer: writing %d images ... \n", (int)tasks->size());
+                    while (!tasks->empty()) { tasks->front()(); tasks->pop_front(); }
+                    return tasks->empty();
+                }));
+        }
     }
 };
 

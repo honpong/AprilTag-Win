@@ -377,13 +377,14 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     bool _strategy_override{ false };
     int  _decimate_accel{ 1 }, _decimate_gyro{ 1 };
     
+    std::string prefix() override { return "RC"; }
+
     static void destory_rc_tracker(rc_Tracker* tracker) {
         printf("%s\n", rc_getTimingStats(tracker));
         rc_stopTracker(tracker);
         rc_destroy(tracker);
     }
-    std::string prefix() override { return "RC"; }
-    
+
     bool init(const char* calibration_data, bool async, int decimate_accel, int decimate_gyro) override
     {
         if(!calibration_data || strlen(calibration_data)<1){ return false; }
@@ -410,7 +411,6 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         rc_configureGyroscope(_tracker.get(), 0, &ge, &gi);
         printf("Decimate accel by %d gyro by %d \n", ai.decimate_by, gi.decimate_by);
 
-        
         // setting data callback from the rc tracker
         rc_setDataCallback(_tracker.get(), [](void* handle, rc_Tracker* tracker, const rc_Data* data){
             ((rc_imu_camera_tracker*)handle)->data_callback(tracker,data);}, this);
@@ -446,7 +446,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             case RS_SF_SENSOR_DEPTH:
             case RS_SF_SENSOR_DEPTH_LASER_OFF:
                 rc_receiveImage(_tracker.get(), 0, rc_FORMAT_DEPTH16, timestamp_us, 0,
-                                data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
+                                data->image.img_w, data->image.img_h, data->image.img_w * 2, data->image.data,
                                 [](void* ptr){ delete (data_packet*)ptr; }, new data_packet(data));
                 break;
             case RS_SF_SENSOR_INFRARED:

@@ -377,10 +377,10 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     bool _strategy_override{ false };
     int  _decimate_accel{ 1 }, _decimate_gyro{ 1 };
     
-    virtual ~rc_imu_camera_tracker()
-    {
-        if(_tracker){ rc_stopTracker(_tracker.get()); }
-        _tracker.reset();
+    static void destory_rc_tracker(rc_Tracker* tracker) {
+        printf("%s\n", rc_getTimingStats(tracker));
+        rc_stopTracker(tracker);
+        rc_destroy(tracker);
     }
     std::string prefix() override { return "RC"; }
     
@@ -389,7 +389,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         if(!calibration_data || strlen(calibration_data)<1){ return false; }
         
         if(_tracker!=nullptr){ reset_tracker(); return false; }
-        _tracker = std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)>(rc_create(), rc_destroy);
+        _tracker = std::unique_ptr<rc_Tracker,void(*)(rc_Tracker*)>(rc_create(), destory_rc_tracker);
         
         if(!rc_setCalibration(_tracker.get(), calibration_data)){
             fprintf(stderr, "Error: failed to load JSON calibration into camera tracker ... \n");
@@ -428,6 +428,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     {
         if(!_tracker){ return false; }
         rc_stopTracker(_tracker.get());
+        //rc_reset(_tracker.get(), 0);
         rc_configureQueueStrategy(_tracker.get(), (_strategy_override) ? _queue_strategy :
                                   (_async ? rc_QUEUE_MINIMIZE_LATENCY : _queue_strategy));
         return rc_startTracker(_tracker.get(),

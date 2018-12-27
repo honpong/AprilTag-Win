@@ -128,7 +128,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     rs_sf_timestamp _first_timestamp = 0;
     rs_sf_timestamp _last_timestamp  = 0;
     rs_sf_serial_number _first_frame_number = -1;
-    rs_sf_serial_number _last_frame_number = -1;
+    rs_sf_serial_number _last_frame_number  = -1;
 
     void reset() {
         _src = _maker();
@@ -275,33 +275,100 @@ struct d435i_exec_pipeline
     std::string            _path;
     d435i_buffered_stream  _src;
     rs_sf_shapefit_ptr     _boxfit;
-    std::chrono::seconds   _drop_time{0};
-    std::unique_ptr<rs_sf_image_rgb>         _boxwire;
+    std::chrono::seconds   _drop_time{ 0 };
+    std::unique_ptr<rs_sf_image_rgb>         _boxwire_img;
     std::unique_ptr<rs2::camera_imu_tracker> _imu_tracker, _gpu_tracker;
-    rs2::camera_imu_tracker* _tracker = nullptr;
-    int                      _decimate_accel = g_accel_dec;
-    int                      _decimate_gyro = g_gyro_dec;
-    std::deque<std::array<float,3>> _box_dimension_queue;
-    const int                       _rolling_average_length = 50000;
+    rs2::camera_imu_tracker* _tracker{ nullptr };
+    int                      _decimate_accel{ g_accel_dec };
+    int                      _decimate_gyro{ g_gyro_dec };
 
-    d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { select_camera_tracking(true); }
+    std::deque<std::array<float, 3>> _box_dimension_queue;
+    std::array<float, 3>             _box_dimension_sum{ 0.0f,0.0f,0.0f };
+    std::string                      _box_dimension_string{ "" };
+    const int                        _box_dimension_rolling_length{ 1000 };
     
+    d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { select_camera_tracking(true); }
+    std::string box_dim_string() const { return _box_dimension_string; }
+
+    bool _use_primary = false;
+    void select_camera_tracking(bool use_primary) {
+        if (_use_primary != use_primary) {
+            _use_primary = use_primary;
+            reset(false);
+        }
+    }
+    
+    int reset(bool reset_src = true)
+    {
+        if (reset_src) { _src.reset(); }
+        return init_algo_middleware();
+    }
+
+    std::string _app_hint = "";
+    std::vector<rs_sf_image> exec_once()
+    {
+        std::vector<rs_sf_image> images;
+        for (; images.empty();) {
+            auto new_data = _src.wait_and_buffer_data();
+            if (!new_data || new_data->empty()) {
+                if (reset() < 0) { return images; }
+                else { continue; }
+            }
+
+            images = _src.images();
+            _app_hint = "Move Tablet Around";
+            if (_src.total_runtime() >= _drop_time)
+            {
+                if (_tracker != nullptr) {
+                    _tracker->process(_src.data_vec(_tracker->require_laser_off()));
+                    _app_hint = _tracker->prefix() + " ";
+                    switch (_tracker->wait_for_image_pose(images)) {
+                    case rs2::camera_imu_tracker::HIGH:   _app_hint += "High Quality   "; break;
+                    case rs2::camera_imu_tracker::MEDIUM: _app_hint += "Medium Quality "; break;
+                    default:                              _app_hint += "Move Around / Reset"; break;
+                    }
+                }
+                else {
+                    _app_hint = "bypass";
+                }
+            }
+
+            rs_sf_image boxfit_images[2] = { images[DEPTH], images[COLOR] };
+            rs_shapefit_depth_image(_boxfit.get(), boxfit_images);
+
+            if (try_get_box() == false) {
+                //images[COLOR].intrinsics = images[IR_L].intrinsics;
+                //rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[IR_L]);
+                rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[COLOR]);
+            }
+            else {
+                if (!_boxwire_img) { _boxwire_img = std::make_unique<rs_sf_image_rgb>(&images[IR_L]); }
+                rs_sf_boxfit_draw_boxes(_boxfit.get(), &(images[IR_R] = *_boxwire_img), &images[IR_L]);
+                rs_sf_boxfit_draw_boxes(_boxfit.get(), &images[COLOR]);
+            }
+        }
+        return images;
+    }
+
+protected:
+
     int init_algo_middleware()
     {
         bool sync = _src.is_offline_stream();
-        rs_sf_intrinsics intr[2] = {_src.intrinsics(DEPTH),_src.intrinsics(COLOR)};
-        
+        rs_sf_intrinsics intr[2] = { _src.intrinsics(DEPTH),_src.intrinsics(COLOR) };
+
         // assume we are on Windows
         if (!_gpu_tracker) {
             _gpu_tracker = rs2::camera_imu_tracker::create_gpu();
-            if(_gpu_tracker){
+            if (_gpu_tracker) {
                 printf("SP Tracker Available \n");
                 _gpu_tracker->init(&intr[0], (int)RS_SF_MED_RESOLUTION);
             }
-        }else {
+        }
+        else {
             _gpu_tracker->init(nullptr, (int)RS_SF_MED_RESOLUTION);
         }
-        
+
         if (_src.has_imu()) {
             _drop_time = std::chrono::seconds(sync ? 0 : 3);
             _imu_tracker = rs2::camera_imu_tracker::create();
@@ -314,135 +381,74 @@ struct d435i_exec_pipeline
         }
 
         set_camera_tracker_ptr();
-        
-        _boxfit  = rs_sf_shapefit_ptr(intr, _cap = (_src.is_virtual_color_stream() && _src.get_laser() ? RS_SHAPEFIT_BOX : g_sf_option), _src.get_depth_unit());
+
+        _boxfit = rs_sf_shapefit_ptr(intr, _cap = (_src.is_virtual_color_stream() && _src.get_laser() ? RS_SHAPEFIT_BOX : g_sf_option), _src.get_depth_unit());
         rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_SCAN_MODE, 1);
         rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_PLANE_NOISE, 2); //noisy planes
         //rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_BUFFER, 21); //more buffering
         rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_MAX_NUM_BOX, 1); //output single box
-        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, sync?-1:0);
-    
+        rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, sync ? -1 : 0);
+
         return 0;
     }
-    
-    int reset(bool reset_src = true)
-    {
-        if(reset_src){ _src.reset(); }
-        return init_algo_middleware();
-    }
-    
-    bool _use_primary = false;
-    bool select_camera_tracking(bool use_primary) {
-        if(_use_primary!=use_primary){
-            _use_primary = use_primary;
-            reset(false);
-        }
-        return _use_primary;
-    }
-    
+
     void set_camera_tracker_ptr() {
-        if(_use_primary){
-            if(_gpu_tracker){ _tracker = _gpu_tracker.get(); _src.set_laser(1); }
-            else            { _tracker = _imu_tracker.get(); _src.set_laser(0); }
-        }else{
-            if(_gpu_tracker){ _tracker = _imu_tracker.get(); _src.set_laser(0); }
-            else            { _tracker = nullptr;            _src.set_laser(1); }
+        if (_use_primary) {
+            if (_gpu_tracker) { _tracker = _gpu_tracker.get(); _src.set_laser(1); }
+            else { _tracker = _imu_tracker.get(); _src.set_laser(0); }
         }
-        
-        if(_tracker == nullptr ){                fprintf(stderr, "No camera tracker selected. \n"); }
-        else if(_tracker == _imu_tracker.get()){ fprintf(stderr, "IMU camera tracker selected. \n");}
-        else if(_tracker == _gpu_tracker.get()){ fprintf(stderr, "GPU camera tracker selected. \n");}
-        
+        else {
+            if (_gpu_tracker) { _tracker = _imu_tracker.get(); _src.set_laser(0); }
+            else { _tracker = nullptr;            _src.set_laser(1); }
+        }
+
+        if (_tracker == nullptr) { fprintf(stderr, "No camera tracker selected. \n"); }
+        else if (_tracker == _imu_tracker.get()) { fprintf(stderr, "IMU camera tracker selected. \n"); }
+        else if (_tracker == _gpu_tracker.get()) { fprintf(stderr, "GPU camera tracker selected. \n"); }
+
         _src.reset_img_buffers();
     }
-    
-    std::string _app_hint = "";
-    std::shared_ptr<rs_sf_box> _box;
-    std::vector<rs_sf_image> exec_once()
-    {
-        std::vector<rs_sf_image> images;
-        for(;images.empty();){
-            auto new_data = _src.wait_and_buffer_data();
-            if(!new_data||new_data->empty()){
-                if(reset()<0){ return images;}
-                else         { continue; }
-            }
-            
-            images = _src.images();
-            _app_hint = "Move Tablet Around";
-            if(_src.total_runtime() >= _drop_time)
-            {
-                if( _tracker != nullptr ){
-                    _tracker->process(_src.data_vec(_tracker->require_laser_off()));
-                    _app_hint = _tracker->prefix() + " ";
-                    switch (_tracker->wait_for_image_pose(images)){
-                        case rs2::camera_imu_tracker::HIGH:   _app_hint+="High Quality   "; break;
-                        case rs2::camera_imu_tracker::MEDIUM: _app_hint+="Medium Quality "; break;
-                        default:                              _app_hint+="Move Around / Reset"; break;
-                    }
-                }
-                else {
-                    _app_hint = "bypass";
-                }
-            }
-                
-            rs_sf_image boxfit_images[2] = {images[DEPTH], images[COLOR]};
-            rs_shapefit_depth_image(_boxfit.get(), boxfit_images);
-            
-            if(try_get_box()==false){
-                //images[COLOR].intrinsics = images[IR_L].intrinsics;
-                //rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[IR_L]);
-                rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[COLOR]);
-            }else{
-                _boxwire = std::make_unique<rs_sf_image_rgb>(&images[IR_L]);
-                rs_sf_boxfit_draw_boxes(_boxfit.get(), &(images[IR_R]=*_boxwire), &images[IR_L]);
-                rs_sf_boxfit_draw_boxes(_boxfit.get(), &images[COLOR]);
-            }
-        }
-        return images;
-    }
-    
+
     bool try_get_box() {
         rs_sf_box box;
-        if(RS_SF_SUCCESS==rs_sf_boxfit_get_box(_boxfit.get(), 0, &box)){
-            _box = std::make_shared<rs_sf_box>(box);
-        }else{
-            _box = nullptr;
+        if (RS_SF_SUCCESS == rs_sf_boxfit_get_box(_boxfit.get(), 0, &box)) {
+            return update_box_dim_string(&box);
         }
-        return _box!=nullptr;
+        else { return update_box_dim_string(nullptr); }
     }
-    
-    static std::array<float,3> to_array(const rs_sf_box& box){
+
+    static std::array<float, 3> to_array(const rs_sf_box& box) {
         return {
             std::sqrt(box.dim_sqr(0))*1000.0f,
             std::sqrt(box.dim_sqr(1))*1000.0f,
-            std::sqrt(box.dim_sqr(2))*1000.0f};
+            std::sqrt(box.dim_sqr(2))*1000.0f };
     }
-    
-    std::string rolling_average_box_dimension() {
-        while(_box_dimension_queue.size()>_rolling_average_length){ _box_dimension_queue.pop_front(); }
-        
-        float box_queue_size = (float)_box_dimension_queue.size();
-        float box_dimension[3] = {0.0f,0.0f,0.0f};
-        for(auto& d : _box_dimension_queue){
-            box_dimension[0] += d[0];
-            box_dimension[1] += d[1];
-            box_dimension[2] += d[2];
+
+    bool update_box_dim_string(const rs_sf_box* box) {
+        if (box) {
+            _box_dimension_queue.emplace_back(to_array(*box));
+            _box_dimension_sum[0] += _box_dimension_queue.back()[0];
+            _box_dimension_sum[1] += _box_dimension_queue.back()[1];
+            _box_dimension_sum[2] += _box_dimension_queue.back()[2];
+            while (_box_dimension_queue.size() > _box_dimension_rolling_length) {
+                _box_dimension_sum[0] -= _box_dimension_queue.front()[0];
+                _box_dimension_sum[1] -= _box_dimension_queue.front()[1];
+                _box_dimension_sum[2] -= _box_dimension_queue.front()[2];
+                _box_dimension_queue.pop_front();
+            }
+            const float box_queue_size = (float)_box_dimension_queue.size();
+            _box_dimension_string = 
+                std::to_string((int)std::round(_box_dimension_sum[0] / box_queue_size)) + "x" +
+                std::to_string((int)std::round(_box_dimension_sum[1] / box_queue_size)) + "x" +
+                std::to_string((int)std::round(_box_dimension_sum[2] / box_queue_size));
+            return true;
         }
-        return
-        std::to_string((int)std::round(box_dimension[0]/box_queue_size))+"x"+
-        std::to_string((int)std::round(box_dimension[1]/box_queue_size))+"x"+
-        std::to_string((int)std::round(box_dimension[2]/box_queue_size));
-    }
-    
-    std::string box_dim_string()
-    {
-        if(_box){
-            _box_dimension_queue.emplace_back(to_array(*_box));
-            return rolling_average_box_dimension();
+        else {
+            _box_dimension_sum = { 0.0f,0.0f,0.0f };
+            _box_dimension_queue.clear();
+            _box_dimension_string = "";
+            return false;
         }
-        _box_dimension_queue.clear();
-        return "";
     }
 };
  

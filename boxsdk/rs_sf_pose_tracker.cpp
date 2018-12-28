@@ -9,6 +9,19 @@ Copyright(c) 2017-2019 Intel Corporation. All Rights Reserved.
 *******************************************************************************/
 #include "rs_sf_pose_tracker.h"
 
+#include <iostream>
+#include <fstream>
+std::string rs2::camera_imu_tracker::read_json_file(const std::string& src_file_path)
+{
+    std::ifstream src_file(src_file_path);
+    std::string dst_str((std::istreambuf_iterator<char>(src_file)), std::istreambuf_iterator<char>());
+    if (!src_file.is_open() || dst_str.empty()) {
+        fprintf(stderr,"Error: failed to open %s, will try default \n", src_file_path.c_str());
+        return "";
+    }
+    return dst_str;
+}
+
 static float g_scene_quality = -2.0;
 float get_last_failed_sp_quality(void)
 {
@@ -299,8 +312,6 @@ void rs_sf_pose_tracking_release() {}
 #ifdef RC_TRACKER
 
 #include <rc_tracker.h>
-#include <iostream>
-#include <fstream>
 #include <mutex>
 
 static float* operator<<(float* dst, const rc_Pose& src){
@@ -349,17 +360,6 @@ static float* operator*=(float dst[12], const rc_Pose& rc_pose)
     };
     rs_sf_memcpy(dst, p, sizeof(p));
     return dst;
-}
-
-std::string rs2::camera_imu_tracker::read_json_file(const std::string& src_file_path)
-{
-    std::ifstream src_file(src_file_path);
-    std::string dst_str((std::istreambuf_iterator<char>(src_file)), std::istreambuf_iterator<char>());
-    if (!src_file.is_open() || dst_str.empty()) {
-        fprintf(stderr,"Error: failed to open %s, will try default \n", src_file_path.c_str());
-        return "";
-    }
-    return dst_str;
 }
 
 struct rc_imu_camera_tracker : public rs2::camera_imu_tracker

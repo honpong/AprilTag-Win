@@ -23,16 +23,18 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
         else if(search_device_name("Intel RealSense D435" )){ printf("Intel RealSense D435 Camera Found\n");}
         if(!_device){ throw std::runtime_error("No Intel RealSense D435/D435I Found"); }
 
-        auto GYHZ = request.gyro_fps  > 0 ? (float)request.gyro_fps : 200.0f;
-        auto ACHZ = request.accel_fps > 0 ? (float)request.accel_fps : 63.0f;
-        auto TS   = request.ts_domain > 0 ? RS2_TIMESTAMP_DOMAIN_SYSTEM_TIME : RS2_TIMESTAMP_DOMAIN_HARDWARE_CLOCK;
+        auto GYHz = request.gyro_fps  > 0 ? (float)request.gyro_fps  : 200.0f;
+        auto ACHz = request.accel_fps > 0 ? (float)request.accel_fps : 63.0f;
+        auto IRHz = request.ir_fps    > 0 ? (float)request.ir_fps    : 60.0f;
+        auto CRHz = request.color_fps > 0 ? (float)request.color_fps : std::min(30.0f,IRHz);
+        auto TS   = RS2_TIMESTAMP_DOMAIN_HARDWARE_CLOCK;
 
-        add_stream_request({RS2_STREAM_DEPTH,   -1,  15, RS2_FORMAT_Z16,            w,  h, TS});
-        add_stream_request({RS2_STREAM_INFRARED, 1,  15, RS2_FORMAT_Y8 ,            w,  h, TS});
-        add_stream_request({RS2_STREAM_INFRARED, 2,  15, RS2_FORMAT_Y8 ,            w,  h, TS});
-        add_stream_request({RS2_STREAM_COLOR,   -1,  15, RS2_FORMAT_RGB8,           w,  h, TS});
-        add_stream_request({RS2_STREAM_GYRO,    -1,GYHZ, RS2_FORMAT_MOTION_XYZ32F, -1, -1, TS});
-        add_stream_request({RS2_STREAM_ACCEL,   -1,ACHZ, RS2_FORMAT_MOTION_XYZ32F, -1, -1, TS});
+        add_stream_request({RS2_STREAM_DEPTH,   -1,IRHz, RS2_FORMAT_Z16,            w,  h, TS});
+        add_stream_request({RS2_STREAM_INFRARED, 1,IRHz, RS2_FORMAT_Y8 ,            w,  h, TS});
+        add_stream_request({RS2_STREAM_INFRARED, 2,IRHz, RS2_FORMAT_Y8 ,            w,  h, TS});
+        add_stream_request({RS2_STREAM_COLOR,   -1,CRHz, RS2_FORMAT_RGB8,           w,  h, TS});
+        add_stream_request({RS2_STREAM_GYRO,    -1,GYHz, RS2_FORMAT_MOTION_XYZ32F, -1, -1, TS});
+        add_stream_request({RS2_STREAM_ACCEL,   -1,ACHz, RS2_FORMAT_MOTION_XYZ32F, -1, -1, TS});
         
         find_stream_profiles();
         print_requested_streams();

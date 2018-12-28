@@ -15,31 +15,26 @@
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
 #define DEFAULT_PATH "C:\\temp\\data\\"
-#define STREAM_REQUEST(l,t) (rs_sf_stream_request{l,-1,-1,t,1})
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.one_image()
-#define DECIMATE_ACCEL 1
-#define DECIMATE_GYRO  1
-#define IGNORE_IR_TIMESTAMP 0
-#define DEFAULT_CAMERA_JSON camera_no_color_json
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
 #define DEFAULT_PATH (std::string(getenv("HOME"))+"/Desktop/temp/data/")
-#define STREAM_REQUEST(l,t) (rs_sf_stream_request{l,-1,-1,t,0})
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.images()
-#define DECIMATE_ACCEL 1
-#define DECIMATE_GYRO  1
-#define IGNORE_IR_TIMESTAMP 0
-#define DEFAULT_CAMERA_JSON default_camera_json
 #endif
+#define DEFAULT_CAMERA_JSON default_camera_json
+#define STREAM_REQUEST(l,fps,c) (rs_sf_stream_request{l,-1,-1,fps,-1,c})
+
 
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option);
 int replay_frames(const std::string& path);
 int live_play(const int cap_size[2], const std::string& path);
+
 rs_shapefit_capability g_sf_option = RS_SHAPEFIT_BOX_COLOR;
-int g_ts_option = 0;
-int g_accel_dec = DECIMATE_ACCEL;
-int g_gyro_dec = DECIMATE_GYRO;
+int g_ir_fps        = 60;
+int g_accel_dec     = 1;
+int g_gyro_dec      = 1;
+int g_replace_color = 1;
 
 int main(int argc, char* argv[])
 {
@@ -48,7 +43,8 @@ int main(int argc, char* argv[])
     std::vector<int> capture_size = { 640,480 };
 
     for (int i = 1; i < argc; ++i) {
-        if      (!strcmp(argv[i], "--cbox"))            { g_sf_option = RS_SHAPEFIT_BOX_COLOR; }
+        if      (!strcmp(argv[i], "--color"))           { g_replace_color = 0; }
+        else if (!strcmp(argv[i], "--cbox"))            { g_sf_option = RS_SHAPEFIT_BOX_COLOR; }
         else if (!strcmp(argv[i], "--box"))             { g_sf_option = RS_SHAPEFIT_BOX; }
         else if (!strcmp(argv[i], "--plane"))           { g_sf_option = RS_SHAPEFIT_PLANE; }
         else if (!strcmp(argv[i], "--live"))            { is_live = true; }
@@ -61,11 +57,11 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--laser_off"))       { laser_option = 0; }
         else if (!strcmp(argv[i], "--laser_on"))        { laser_option = 1; }
         else if (!strcmp(argv[i], "--laser_interlaced")){ laser_option = 2; }
-        else if (!strcmp(argv[i], "--ts"))              { g_ts_option = atoi(argv[++i]); }
+        else if (!strcmp(argv[i], "--fps"))             { g_ir_fps = atoi(argv[++i]);}
         else if (!strcmp(argv[i], "--decimate"))        { g_accel_dec = atoi(argv[++i]); g_gyro_dec = atoi(argv[++i]); }
         else {
-            printf("usages:\n d435i-demo [--cbox|--box|--plane][--live|--replay][--capture][--path PATH]\n");
-            printf("                     [--hd|--qhd|--vga][--laser_off|--laser_on|--laser_interlaced][--ts 0,1,2,7,9][--decimate accel gyro] \n");
+            printf("usages:\n d435i-demo [--color][--cbox|--box|--plane][--live|--replay][--capture][--path PATH]\n");
+            printf("                     [--hd|--qhd|--vga][--laser_off|--laser_on|--laser_interlaced][--decimate accel gyro] \n");
             return 0;
         }
     }
@@ -337,8 +333,6 @@ struct d435i_exec_pipeline
             rs_shapefit_depth_image(_boxfit.get(), boxfit_images);
 
             if (try_get_box() == false) {
-                //images[COLOR].intrinsics = images[IR_L].intrinsics;
-                //rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[IR_L]);
                 rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[COLOR]);
             }
             else {
@@ -454,7 +448,7 @@ protected:
  
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option) try
 {
-    d435i_buffered_stream src([&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], STREAM_REQUEST(laser_option,g_ts_option));});
+    d435i_buffered_stream src([&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], STREAM_REQUEST(laser_option,g_ir_fps,g_replace_color));});
     auto recorder = rs_sf_create_data_writer(&src, path);
     for(rs_sf_gl_context win("capture", src.width(), src.height());;)
     {
@@ -481,17 +475,18 @@ int replay_frames(const std::string& path) try
 int live_play(const int cap_size[2], const std::string& path) try
 {
     if(false){
-        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],STREAM_REQUEST(0,g_ts_option));});
+        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],STREAM_REQUEST(0,g_ir_fps,g_replace_color));});
         for(rs_sf_gl_context win("live demo", pipe._src.width()*3, pipe._src.height()*3); ;)
         {
             auto images = pipe.exec_once();
             if(!win.imshow(&images[3],1)){break;}
         }
     }else{
-        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1],STREAM_REQUEST(0,g_ts_option));});
+        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1],STREAM_REQUEST(0,g_ir_fps,g_replace_color));});
         for(d435i::window app(pipe._src.width()*3/2, pipe._src.height(),/*800,1280,*/ pipe._src.get_device_name()+" Box Scan Example"); app;)
         {
             auto images = pipe.exec_once();
+            if(images.size() <= COLOR){ continue; }
             app.render_ui(&images[DEPTH], &images[COLOR], true, pipe._app_hint.c_str());
             app.render_box_dim(pipe.box_dim_string());
         

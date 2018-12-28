@@ -74,7 +74,8 @@ struct rs_sf_stream_request
     int laser;
     int gyro_fps;
     int accel_fps;
-    int ts_domain;
+    int ir_fps;
+    int color_fps;
     int replace_color;
 };
 

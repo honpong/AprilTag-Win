@@ -128,6 +128,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     rs_sf_serial_number _last_frame_number  = -1;
 
     void reset() {
+        _src = nullptr;
         _src = _maker();
         
         resize(6);
@@ -485,7 +486,7 @@ int live_play(const int cap_size[2], const std::string& path) try
         {
             auto images = pipe.exec_once();
             if(images.size() <= COLOR){ continue; }
-            app.render_ui(&images[DEPTH], &images[COLOR], true, pipe._app_hint.c_str());
+            app.render_ui(nullptr, &images[COLOR], true, pipe._app_hint.c_str());
             app.render_box_dim(pipe.box_dim_string());
         
             pipe.select_camera_tracking(app.dense_request());

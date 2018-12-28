@@ -383,6 +383,7 @@ public:
             else if(is_mouse_in(win_close_button())){ _close = true;              }
             else if(is_mouse_in(win_reset_button())){ _reset = true;              }
             else if(is_mouse_in(win_depth_image())) { _dwin_opt = (_dwin_opt+1)%3;}
+            else if(is_mouse_in(win_box_msg()))     { _tgcolor = true;            }
             else if(is_mouse_in(win_color_image())) { _tgscn = true;              }
         }
     };
@@ -600,7 +601,7 @@ public:
         if (_close) std::thread([this]{ std::this_thread::sleep_for(std::chrono::milliseconds(100)); on_key_release('q');}).detach();
         if (_tgscn) reset_screen(!_fullscreen, _win_width, _win_height);
         if (_reset) { _high_mismatch_count = 0; }
-        _close = _reset = false;
+        _close = _reset = _tgcolor = false;
     }
     
     ~window()
@@ -614,6 +615,7 @@ public:
     bool plane_request() const { return _dwin_opt == 1; }
     bool boxca_request() const { return _dwin_opt == 2; }
     bool dense_request() const { return _dense; }
+    bool color_request() const { return _tgcolor; }
     
     double _mouse_pos[2] = {};
     const unsigned char bkg_blue[3] = { 0, 66, 128 };
@@ -623,7 +625,7 @@ public:
 private:
     GLFWwindow* win = nullptr;
     int _width, _height, _win_width, _win_height, _dwin_opt = 0, _high_mismatch_count = 0;
-    bool _close = false, _reset = false, _tgscn = false, _fullscreen, _dense = true;
+    bool _close = false, _reset = false, _tgscn = false, _fullscreen, _dense = true, _tgcolor = false;
     std::string _title;
     color_icon _icon_close, _icon_reset;
     texture _texture_realsense_logo, _texture_close_button, _texture_reset_button, _texture_box_msg;

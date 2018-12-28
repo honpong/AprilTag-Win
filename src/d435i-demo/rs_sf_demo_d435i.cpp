@@ -16,11 +16,14 @@
 #define PATH_SEPARATER '\\'
 #define DEFAULT_PATH "C:\\temp\\data\\"
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.one_image()
+#define COLOR_STREAM_REQUEST {}
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
 #define DEFAULT_PATH (std::string(getenv("HOME"))+"/Desktop/temp/data/")
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.images()
+#define COLOR_STREAM_REQUEST {if(app.color_request()){ g_replace_color = !g_replace_color; pipe.reset(true); }}
+
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
@@ -491,7 +494,7 @@ int live_play(const int cap_size[2], const std::string& path) try
         
             pipe.select_camera_tracking(app.dense_request());
             if(app.reset_request()){ pipe.reset(false); }
-            if(app.color_request()){ g_replace_color = !g_replace_color; pipe.reset(true);  }
+            COLOR_STREAM_REQUEST
         }
     }
     return 0;

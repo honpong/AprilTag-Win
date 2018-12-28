@@ -23,7 +23,7 @@
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.images()
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
-#define STREAM_REQUEST(l,fps,c) (rs_sf_stream_request{l,-1,-1,fps,-1,c})
+#define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
 
 
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option);
@@ -32,6 +32,7 @@ int live_play(const int cap_size[2], const std::string& path);
 
 rs_shapefit_capability g_sf_option = RS_SHAPEFIT_BOX_COLOR;
 int g_ir_fps        = 60;
+int g_color_fps     = 15;
 int g_accel_dec     = 1;
 int g_gyro_dec      = 1;
 int g_replace_color = 1;
@@ -57,11 +58,11 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--laser_off"))       { laser_option = 0; }
         else if (!strcmp(argv[i], "--laser_on"))        { laser_option = 1; }
         else if (!strcmp(argv[i], "--laser_interlaced")){ laser_option = 2; }
-        else if (!strcmp(argv[i], "--fps"))             { g_ir_fps = atoi(argv[++i]);}
+        else if (!strcmp(argv[i], "--fps"))             { g_ir_fps = atoi(argv[++i]); g_color_fps = atoi(argv[++i]); }
         else if (!strcmp(argv[i], "--decimate"))        { g_accel_dec = atoi(argv[++i]); g_gyro_dec = atoi(argv[++i]); }
         else {
             printf("usages:\n d435i-demo [--color][--cbox|--box|--plane][--live|--replay][--capture][--path PATH]\n");
-            printf("                     [--hd|--qhd|--vga][--laser_off|--laser_on|--laser_interlaced][--decimate accel gyro] \n");
+            printf("                     [--fps IR COLOR][--hd|--qhd|--vga][--laser_off|--laser_on|--laser_interlaced][--decimate ACCEL GYRO] \n");
             return 0;
         }
     }
@@ -387,13 +388,10 @@ protected:
     }
 
     void set_camera_tracker_ptr() {
-        if (_use_primary) {
-            if (_gpu_tracker) { _tracker = _gpu_tracker.get(); _src.set_laser(1); }
-            else { _tracker = _imu_tracker.get(); _src.set_laser(0); }
-        }
-        else {
-            if (_gpu_tracker) { _tracker = _imu_tracker.get(); _src.set_laser(0); }
-            else { _tracker = nullptr;            _src.set_laser(1); }
+        if (_use_primary){
+            _tracker = _imu_tracker.get(); _src.set_laser(0);
+        }else{
+            _tracker = _gpu_tracker.get(); _src.set_laser(1);
         }
 
         if (_tracker == nullptr) { fprintf(stderr, "No camera tracker selected. \n"); }
@@ -448,7 +446,7 @@ protected:
  
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option) try
 {
-    d435i_buffered_stream src([&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], STREAM_REQUEST(laser_option,g_ir_fps,g_replace_color));});
+    d435i_buffered_stream src([&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], STREAM_REQUEST(laser_option));});
     auto recorder = rs_sf_create_data_writer(&src, path);
     for(rs_sf_gl_context win("capture", src.width(), src.height());;)
     {
@@ -475,14 +473,14 @@ int replay_frames(const std::string& path) try
 int live_play(const int cap_size[2], const std::string& path) try
 {
     if(false){
-        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],STREAM_REQUEST(0,g_ir_fps,g_replace_color));});
+        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],STREAM_REQUEST(0));});
         for(rs_sf_gl_context win("live demo", pipe._src.width()*3, pipe._src.height()*3); ;)
         {
             auto images = pipe.exec_once();
             if(!win.imshow(&images[3],1)){break;}
         }
     }else{
-        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1],STREAM_REQUEST(0,g_ir_fps,g_replace_color));});
+        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1],STREAM_REQUEST(0));});
         for(d435i::window app(pipe._src.width()*3/2, pipe._src.height(),/*800,1280,*/ pipe._src.get_device_name()+" Box Scan Example"); app;)
         {
             auto images = pipe.exec_once();

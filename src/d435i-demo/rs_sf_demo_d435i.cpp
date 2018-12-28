@@ -491,7 +491,7 @@ int live_play(const int cap_size[2], const std::string& path) try
         
             pipe.select_camera_tracking(app.dense_request());
             if(app.reset_request()){ pipe.reset(false); }
-            if(app.color_request()){ pipe.reset(true);  }
+            if(app.color_request()){ g_replace_color = !g_replace_color; pipe.reset(true);  }
         }
     }
     return 0;

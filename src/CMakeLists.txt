@@ -10,10 +10,6 @@ elseif (CMAKE_CXX_COMPILER_ID MATCHES "Intel|GNU|Clang")
     if (NOT APPLE) # not supported by Apple's linker
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -z relro -z now -z noexecstack -pie")
         list(APPEND CMAKE_CXX_FLAGS " -pthread")
-
-        if(NOT CMAKE_BUILD_TYPE)
-            set(CMAKE_BUILD_TYPE Release CACHE STRING "")
-        endif()
     endif()
     add_definitions(-D_FORTIFY_SOURCE=2)
     add_compile_options(-ffunction-sections)
@@ -33,6 +29,9 @@ else()
     message(FATAL_ERROR "Compiler does not support C++14!")
 endif()
 
+if((UNIX AND (NOT APPLE)) AND (NOT CMAKE_BUILD_TYPE))
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "")
+endif()
 ######################################################################
 
 if(MSVC)

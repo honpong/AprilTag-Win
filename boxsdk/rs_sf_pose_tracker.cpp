@@ -461,6 +461,17 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
                                 data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
                                 [](void* ptr){ delete (data_packet*)ptr; }, new data_packet(data));
                 break;
+            case RS_SF_SENSOR_STEREO:
+                break;
+            case RS_SF_SENSOR_STEREO_LASER_OFF:
+                /*
+                rc_receiveStereo(_tracker.get(), data->sensor_index, rc_FORMAT_GRAY8, timestamp_us, 0,
+                                data->image.img_w, data->image.img_h,
+                                data->stereo[0]->image.img_w, data->stereo[1]->image.img_w,
+                                data->stereo[0]->image.data, data->stereo[1]->image.data,
+                                [](void* ptr) { delete (data_packet*)ptr; }, new data_packet(data));
+                */
+                break;
             case RS_SF_SENSOR_COLOR:
                 /*
                 rc_receiveImage(_tracker.get(), 2, rc_FORMAT_RGB8, timestamp_us, 0,

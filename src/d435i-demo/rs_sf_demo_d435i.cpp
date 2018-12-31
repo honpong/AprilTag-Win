@@ -376,7 +376,8 @@ struct d435i_exec_pipeline
             if (_src.total_runtime() >= _drop_time)
             {
                 if (_tracker != nullptr) {
-                    _tracker->process(_src.data_vec(_tracker->require_laser_off()));
+                    //_tracker->process(_src.data_vec(_tracker->require_laser_off()));
+                    _tracker->process(_src.data_vec_with_stereo(_tracker->require_laser_off()));
                     _app_hint = _tracker->prefix() + " ";
                     switch (_tracker->wait_for_image_pose(images)) {
                     case rs2::camera_imu_tracker::HIGH:   _app_hint += "High Quality   "; break;

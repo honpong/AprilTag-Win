@@ -348,18 +348,19 @@ struct rs_sf_d435i_camera : public rs_sf_data_stream, rs_sf_device_manager
             if(stream.profile){
                 auto* stream_src = &stream;
                 rs_sf_stream_info info;
-                info.type  = (rs_sf_sensor_t)stream.type;
-                info.index = stream.index;
-                info.fps   = stream.fps;
+                info.type   = (rs_sf_sensor_t)stream.type;
+                info.index  = stream.index;
                 info.format = stream.format;
                 switch(info.type){
                     case RS_SF_SENSOR_GYRO:
                     case RS_SF_SENSOR_ACCEL:
+                        info.fps                       = stream.fps;
                         info.intrinsics.imu_intrinsics = *(rs_sf_imu_intrinsics*)&stream.imu_intriniscs;
                         break;
                     case RS_SF_SENSOR_COLOR:
                         if(virtual_color_stream()){ stream_src = &_streams[1]; } //redirect stream src to IR_L
                     default:
+                        info.fps                       = stream_src->fps;
                         info.intrinsics.cam_intrinsics = *(rs_sf_intrinsics*)&stream_src->cam_intrinsics;
                         break;
                 }

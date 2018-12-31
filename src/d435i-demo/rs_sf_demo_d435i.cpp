@@ -89,7 +89,28 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         rs_sf_data_ptr _src;
         float          _pose[12] = {1.0f,0,0,0,0,1.0f,0,0,0,0,1.0f,0};
     };
-    
+
+    struct stereo_data : public rs_sf_data_buf {
+        stereo_data(rs_sf_data_ptr& ir_a, rs_sf_data_ptr& ir_b) : rs_sf_data_buf(*left(ir_a, ir_b)), _ir_l(left(ir_a, ir_b)), _ir_r(right(ir_a, ir_b)) {
+            serial_number = decltype(serial_number)(-1);
+            sensor_type   = (_ir_l.sensor_type & RS_SF_SENSOR_LASER_OFF) ? RS_SF_SENSOR_STEREO_LASER_OFF : RS_SF_SENSOR_STEREO_LASER_ON;
+            sensor_index  = 0;
+            stereo[0]     = &_ir_l;
+            stereo[1]     = &_ir_r;
+        }
+        img_data _ir_l, _ir_r;
+
+        static rs_sf_data_ptr& left( rs_sf_data_ptr& a, rs_sf_data_ptr& b) { return a->sensor_index < b->sensor_index ? a : b; }
+        static rs_sf_data_ptr& right(rs_sf_data_ptr& a, rs_sf_data_ptr& b) { return a->sensor_index < b->sensor_index ? b : a; }
+
+        static bool contains(const rs_sf_data_ptr& stereo, const rs_sf_data_ptr& src) {
+            if (auto* ptr = dynamic_cast<const stereo_data*>(stereo.get())) {
+                if (ptr->_ir_l._src == src || ptr->_ir_r._src == src) { return true; }
+            }
+            return false;
+        }
+    };
+
     rs_sf_data_ptr add_pose_data(rs_sf_data_ptr& ref, const stream s) {
         auto data = std::make_shared<img_data>(ref);
         auto* ext = (const float*)(&_stream_info[s].extrinsics[DEPTH]);
@@ -261,6 +282,40 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
                         dst.emplace_back(data);
                     default: break;
                 }
+            }
+        }
+        return dst;
+    }
+
+    inline std::vector<rs_sf_data_ptr> data_vec_with_stereo(bool laser_off_only, bool keep_original_image = true) const {
+        return pair_stereo_images(data_vec(laser_off_only), keep_original_image);
+    }
+
+    static std::vector<rs_sf_data_ptr> pair_stereo_images(std::vector<rs_sf_data_ptr>&& src, const bool keep_original)  
+    {
+        struct paired_data_list : public std::vector<rs_sf_data_ptr> {
+            bool contains(const rs_sf_data_ptr& src) const {
+                for (auto& d : *this) { if (stereo_data::contains(d, src)) { return true; } }
+                return false;
+            }
+            void emplace_back_stereo(rs_sf_data_ptr& a, rs_sf_data_ptr& b) {
+                emplace_back(std::make_shared<stereo_data>(a, b));
+            }
+        } dst;
+        dst.reserve(src.size());
+        for (auto& d1 : src) {
+            switch (d1->sensor_type) {
+            case RS_SF_SENSOR_INFRARED_LASER_OFF:
+            case RS_SF_SENSOR_INFRARED_LASER_ON:
+                for (auto& d2 : src) {
+                    if (d1->sensor_type == d2->sensor_type && d1->sensor_index != d2->sensor_index && d1->frame_number == d2->frame_number) {
+                        if (!dst.contains(d1)) { dst.emplace_back_stereo(d1, d2); }
+                        break; //pair found 
+                    }
+                } 
+                if (!keep_original && dst.contains(d1)) { break; } //pair found and not keeping original
+            default:
+                dst.emplace_back(d1); break;
             }
         }
         return dst;

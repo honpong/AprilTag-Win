@@ -365,6 +365,8 @@ static float* operator*=(float dst[12], const rc_Pose& rc_pose)
 struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
 {
     typedef rs_sf_data_ptr data_packet;
+    
+    std::mutex        _last_pose_mutex;
     std::unique_ptr<rc_Tracker, decltype(&rc_destroy)> _tracker {nullptr,nullptr};
 
     //bool is_realtime{ false }, qvga{ false }, async{ false }, use_depth{ true };
@@ -512,10 +514,8 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         }
         
         rc_tracker_output() = default;
-    };
+    } _last_output_pose;
     
-    rc_tracker_output _last_output_pose = {};
-    std::mutex        _last_pose_mutex;
     void data_callback(rc_Tracker* tracker, const rc_Data* data)
     {
         if(!data){ return; }

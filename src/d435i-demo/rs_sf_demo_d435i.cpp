@@ -287,7 +287,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         return dst;
     }
 
-    inline std::vector<rs_sf_data_ptr> data_vec_with_stereo(bool laser_off_only, bool keep_original_image = true) const {
+    inline std::vector<rs_sf_data_ptr> data_vec_with_stereo(bool laser_off_only, bool keep_original_image = false) const {
         return pair_stereo_images(data_vec(laser_off_only), keep_original_image);
     }
 

@@ -467,7 +467,7 @@ public:
     inline rect win_color_image() const { return is_horizontal() ? win_color_image_horizontal() : win_color_image_vertical(); }
     //inline rect win_box_msg()      const { return{ win_left_column().x + win_left_column().w / 10, win_rs_logo().ey() + win_rs_logo().h / 8, win_left_column().w * 4 / 5, win_rs_logo().h * 3 / 8 }; }
     inline rect win_box_msg_horizontal() const { return{win_rs_logo().w + (width()-win_left_column().w)/6, win_rs_logo().h/6, (width()-win_left_column().w)*4/6, win_rs_logo().h*4/6};}
-    inline rect win_box_msg_vertical() const { return {width()/6,win_color_image().ey()+win_rs_logo().h/3,width()*4/6, win_rs_logo().h*4/6}; }
+    inline rect win_box_msg_vertical() const { return {width()/6, win_color_image().ey()+(height()-win_color_image().ey())/4,width()*4/6, win_rs_logo().h*4/6}; }
     inline rect win_box_msg() const { return is_horizontal() ? win_box_msg_horizontal() : win_box_msg_vertical(); }
     
     operator bool()
@@ -517,12 +517,12 @@ public:
         glPopMatrix(); glColor4fv(original_color);
     }
     
-    void render_ui(const rs_sf_image* depth_frame, const rs_sf_image* color_frame, bool render_buttons = true, const char* text = "")
+    void render_ui(const rs_sf_image* depth_frame, const rs_sf_image* color_frame, bool render_buttons = true, const char* text = "", const char* version = nullptr)
     {
         glClearColor(bkg_blue[0] / 255.0f, bkg_blue[1] / 255.0f, bkg_blue[2] / 255.0f, 1);
         
         //_texture_depth.render(depth_frame, win_depth_image(), "");
-        _texture_color.render(color_frame, win_color_image(), text);
+        _texture_color.render(color_frame, win_color_image(), is_horizontal() ? text : (draw_text(win_color_image().w - strlen(text)*6-5, win_color_image().ey()+20, text),""));
         _texture_realsense_logo.render_middle(0, win_rs_logo(),_dense);
         
         if (render_buttons)
@@ -535,6 +535,8 @@ public:
             //render_rect(win_reset_button(), !_reset, { 128, 128, 128 });
             glDisable(GL_BLEND);
         }
+        
+        if(version){ draw_version_string(version); }
     }
     
     void render_box_dim(const std::string& box_dim)
@@ -544,6 +546,11 @@ public:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         _texture_box_msg.render(_num_icons.print(box_dim), _num_icons.width(), _num_icons.height(), win_box_msg(), "", _num_icons.format());
         glDisable(GL_BLEND);
+    }
+    
+    void draw_version_string(const char* version)
+    {
+        draw_text(width()/2-strlen(version)*6/2, height()-10, version);
     }
     
     /**

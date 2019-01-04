@@ -393,7 +393,7 @@ struct d435i_exec_pipeline
                     }
                 }
                 else {
-                    _app_hint = "No Camera Tracking";
+                    _app_hint = "Bypass Camera Tracking";
                 }
             }
 

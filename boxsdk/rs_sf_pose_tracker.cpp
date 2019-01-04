@@ -196,7 +196,7 @@ struct sp_camera_tracker : public rs2::camera_imu_tracker
     ~sp_camera_tracker() { if(_sp_init){ rs_sf_pose_tracking_release(); }}
     
     bool require_laser_off() override { return false; }
-	std::string prefix() override { return "SP"; }
+	std::string prefix() override { return "Depth-only"; }
     
     bool init(const rs_sf_intrinsics* i, int resolution) override {
         if(i==nullptr && _sp_init){ _reset_request=true; return false; }
@@ -380,7 +380,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     bool _strategy_override{ false };
     int  _decimate_accel{ 1 }, _decimate_gyro{ 1 };
     
-    std::string prefix() override { return "RC"; }
+    std::string prefix() override { return "Visual+IMU"; }
 
     static void destory_rc_tracker(rc_Tracker* tracker) {
         const bool active = (rc_getState(tracker) == rc_E_RUNNING);

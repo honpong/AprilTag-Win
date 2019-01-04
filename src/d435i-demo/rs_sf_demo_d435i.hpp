@@ -456,9 +456,11 @@ public:
     //inline rect win_depth_image()  const { return{ win_left_column().x, win_left_column().y + win_left_column().h * 2 / 7, win_left_column().w, win_left_column().h / 2 }; }
     inline rect win_depth_image()  const { return{ 0,0,0,0}; }
     inline rect win_button_area()  const { return{ win_left_column().x, win_left_column().y + win_left_column().h * 7 / 8, win_left_column().w, win_left_column().h / 10 }; }
-    inline rect win_close_button() const { return{ win_button_area().x + 1, win_button_area().y, win_button_area().w / 2 - 2, win_button_area().h }; }
+    inline rect win_close_button_vertical()   const { return{ win_button_area().x + 15, win_button_area().y, win_button_area().w / 2 - 2, win_button_area().h }; }
+    inline rect win_close_button_horizontal() const { return{ win_button_area().x + 1, win_button_area().y, win_button_area().w / 2 - 2, win_button_area().h }; }
+    inline rect win_close_button() const { return is_horizontal() ? win_close_button_horizontal() : win_close_button_vertical(); }
     inline rect win_reset_button_horizontal() const { return{ win_close_button().ex() + 1, win_close_button().y, win_close_button().w, win_close_button().h }; }
-    inline rect win_reset_button_vertical() const { return{ width() - win_close_button().w , win_close_button().y, win_close_button().w, win_close_button().h }; }
+    inline rect win_reset_button_vertical() const { return{ width() - win_close_button().w - 15, win_close_button().y, win_close_button().w, win_close_button().h }; }
     inline rect win_reset_button() const { return is_horizontal() ? win_reset_button_horizontal() : win_reset_button_vertical(); }
     //inline rect win_color_image()  const { return{ win_left_column().ex(), 0, width() - win_left_column().w, height() }; }
     inline bool is_horizontal() const { return _width > _height; }

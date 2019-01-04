@@ -352,7 +352,7 @@ public:
         glDisable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
         
-        draw_text(r.x + r.w - 10 - strlen(text)*8, r.y + r.h - 20, text ? text : rs2_stream_to_string(stream));
+        draw_text(r.x + r.w - 10 - strlen(text)*6, r.y + r.h - 20, text ? text : rs2_stream_to_string(stream));
     }
     
     void draw_box(const float box_wire_endpt[12][2][2], int app_height, float line_width = -1.0f)

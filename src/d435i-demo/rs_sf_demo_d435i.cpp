@@ -40,6 +40,8 @@ int g_accel_dec     = 1;
 int g_gyro_dec      = 1;
 int g_replace_color = 1;
 int g_use_sp        = 0;
+int g_force_demo_ui = 0;
+int g_tablet_screen = 0;
 
 int main(int argc, char* argv[])
 {
@@ -65,6 +67,8 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--fps"))             { g_ir_fps = atoi(argv[++i]); g_color_fps = atoi(argv[++i]); }
         else if (!strcmp(argv[i], "--decimate"))        { g_accel_dec = atoi(argv[++i]); g_gyro_dec = atoi(argv[++i]); }
         else if (!strcmp(argv[i], "--sp"))              { g_use_sp = 1; }
+        else if (!strcmp(argv[i], "--demo_ui"))         { g_force_demo_ui = 1; }
+        else if (!strcmp(argv[i], "--tablet"))          { g_tablet_screen = 1; }
         else {
             printf("usages:\n d435i-demo [--color][--cbox|--box|--plane][--live|--replay][--capture][--path PATH]\n");
             printf("                     [--fps IR COLOR][--hd|--qhd|--vga][--laser_off|--laser_on|--laser_interlaced][--decimate ACCEL GYRO] \n");
@@ -520,11 +524,9 @@ int capture_frames(const std::string& path, const int cap_size[2], int laser_opt
     return 0;
 }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }
 
-int replay_frames(const std::string& path) try
+bool check_data = true;
+int run_dev_ui(d435i_exec_pipeline& pipe) try
 {
-    bool check_data = true;
-    d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(path, check_data);});
-    //if(pipe._src.has_imu()){ pipe.select_camera_tracking(pipe._gpu_tracker?false:true); } //force to use sp_tracker at replay
     for(rs_sf_gl_context win("replay", pipe._src.width()*3, pipe._src.height()*3); ;check_data=false)
     {
         auto images = pipe.exec_once();
@@ -533,28 +535,33 @@ int replay_frames(const std::string& path) try
     return 0;
 }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }
 
-int live_play(const int cap_size[2], const std::string& path) try
+int run_demo_ui(d435i_exec_pipeline& pipe) try
 {
-    if(false){
-        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0],cap_size[1],STREAM_REQUEST(0));});
-        for(rs_sf_gl_context win("live demo", pipe._src.width()*3, pipe._src.height()*3); ;)
-        {
-            auto images = pipe.exec_once();
-            if(!win.imshow(&images[3],1)){break;}
-        }
-    }else{
-        d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1],STREAM_REQUEST(0));});
-        for(d435i::window app(pipe._src.width()*3/2, pipe._src.height(),/*800,1280,*/ pipe._src.get_device_name()+" Box Scan Example"); app;)
-        {
-            auto images = pipe.exec_once();
-            if(images.size() <= COLOR){ continue; }
-            app.render_ui(nullptr, &images[COLOR], true, pipe._app_hint.c_str(), VERSION_STRING);
-            app.render_box_dim(pipe.box_dim_string());
+    int app_w = g_tablet_screen ? 800/2 : pipe._src.width()*3/2, app_h = g_tablet_screen ? 1280/2 : pipe._src.height();
+    for(d435i::window app(app_w, app_h, pipe._src.get_device_name()+" Box Scan Example"); app;)
+    {
+        auto images = pipe.exec_once();
+        if(images.size() <= COLOR){ continue; }
+        app.render_ui(nullptr, &images[COLOR], true, pipe._app_hint.c_str(), VERSION_STRING);
+        app.render_box_dim(pipe.box_dim_string());
         
-            pipe.select_camera_tracking(app.dense_request());
-            if(app.reset_request()){ pipe.reset(false); }
-            COLOR_STREAM_REQUEST
-        }
+        pipe.select_camera_tracking(app.dense_request());
+        if(app.reset_request()){ pipe.reset(false); }
+        COLOR_STREAM_REQUEST
     }
     return 0;
 }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }
+
+int replay_frames(const std::string& path)
+{
+    d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(path, check_data);});
+    //if(pipe._src.has_imu()){ pipe.select_camera_tracking(pipe._gpu_tracker?false:true); } //force to use sp_tracker at replay
+    return g_force_demo_ui ? run_demo_ui(pipe) : run_dev_ui(pipe);
+}
+
+int live_play(const int cap_size[2], const std::string& path)
+{
+    d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1],STREAM_REQUEST(0));});
+    //return run_dev_ui(pipe);
+    return run_demo_ui(pipe);
+}

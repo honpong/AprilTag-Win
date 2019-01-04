@@ -372,6 +372,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     //bool is_realtime{ false }, qvga{ false }, async{ false }, use_depth{ true };
     //bool fast_path{ false }, to_zero_biases{ false }, use_odometry{ false }, stereo_configured{ false }, dynamic_calibration{ false };
     
+    bool _use_stereo{ true };
     bool _async{ false };
     bool _fast_path{ false };
     bool _dynamic_calibration{ false };
@@ -459,6 +460,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             case RS_SF_SENSOR_INFRARED:
                 break;
             case RS_SF_SENSOR_INFRARED_LASER_OFF:
+                if(_use_stereo){ break; }
                 rc_receiveImage(_tracker.get(), data->sensor_index - 1, rc_FORMAT_GRAY8, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
                                 [](void* ptr){ delete (data_packet*)ptr; }, new data_packet(data));
@@ -466,6 +468,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             case RS_SF_SENSOR_STEREO:
                 break;
             case RS_SF_SENSOR_STEREO_LASER_OFF:
+                if(!_use_stereo){ break; }
                 rc_receiveStereo(_tracker.get(), data->sensor_index, rc_FORMAT_GRAY8, timestamp_us, 0,
                                 data->stereo[0]->image.img_w, data->stereo[0]->image.img_h,
                                 data->stereo[0]->image.img_w, data->stereo[1]->image.img_w,

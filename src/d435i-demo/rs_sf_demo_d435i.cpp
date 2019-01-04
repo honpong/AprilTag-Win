@@ -382,7 +382,7 @@ struct d435i_exec_pipeline
                     switch (_tracker->wait_for_image_pose(images)) {
                     case rs2::camera_imu_tracker::HIGH:   _app_hint += "High Quality   "; break;
                     case rs2::camera_imu_tracker::MEDIUM: _app_hint += "Medium Quality "; break;
-                    default:                              _app_hint += "Move Around / Reset"; break;
+                    default:                              _app_hint  = "Move Around / Reset"; break;
                     }
                 }
                 else {
@@ -391,13 +391,13 @@ struct d435i_exec_pipeline
             }
 
             rs_sf_image boxfit_images[2] = { images[DEPTH], images[COLOR] };
-            rs_shapefit_depth_image(_boxfit.get(), boxfit_images);
+            auto status = rs_shapefit_depth_image(_boxfit.get(), boxfit_images);
 
-            if (try_get_box() == false) {
+            if (try_get_box(status) == false) {
                 rs_sf_planefit_draw_planes(_boxfit.get(), &images[COLOR], &images[COLOR]);
             }
             else {
-                if (!_boxwire_img) { _boxwire_img = std::make_unique<rs_sf_image_rgb>(&images[IR_L]); }
+                if (!_boxwire_img) { _boxwire_img = std::make_unique<rs_sf_image_rgb>(&images[IR_L]); _boxwire_img->cam_pose = nullptr; }
                 rs_sf_boxfit_draw_boxes(_boxfit.get(), &(images[IR_R] = *_boxwire_img), &images[IR_L]);
                 rs_sf_boxfit_draw_boxes(_boxfit.get(), &images[COLOR]);
             }
@@ -461,10 +461,11 @@ protected:
         _src.reset_img_buffers();
     }
 
-    bool try_get_box() {
+    bool try_get_box(const rs_sf_status& boxfit_status) {
         rs_sf_box box;
         if (RS_SF_SUCCESS == rs_sf_boxfit_get_box(_boxfit.get(), 0, &box)) {
-            return update_box_dim_string(&box);
+            if( boxfit_status == RS_SF_SUCCESS ){ return update_box_dim_string(&box); }
+            else { return true; }
         }
         else { return update_box_dim_string(nullptr); }
     }

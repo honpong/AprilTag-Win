@@ -39,6 +39,7 @@ int g_color_fps     = 15;
 int g_accel_dec     = 1;
 int g_gyro_dec      = 1;
 int g_replace_color = 1;
+int g_use_sp        = 0;
 
 int main(int argc, char* argv[])
 {
@@ -63,6 +64,7 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--laser_interlaced")){ laser_option = 2; }
         else if (!strcmp(argv[i], "--fps"))             { g_ir_fps = atoi(argv[++i]); g_color_fps = atoi(argv[++i]); }
         else if (!strcmp(argv[i], "--decimate"))        { g_accel_dec = atoi(argv[++i]); g_gyro_dec = atoi(argv[++i]); }
+        else if (!strcmp(argv[i], "--sp"))              { g_use_sp = 1; }
         else {
             printf("usages:\n d435i-demo [--color][--cbox|--box|--plane][--live|--replay][--capture][--path PATH]\n");
             printf("                     [--fps IR COLOR][--hd|--qhd|--vga][--laser_off|--laser_on|--laser_interlaced][--decimate ACCEL GYRO] \n");
@@ -123,13 +125,13 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     
     std::unique_ptr<rs_sf_data_stream> _src;
     rs_sf_dataset_ptr wait_for_data(const std::chrono::milliseconds& wait_time_ms) override { return _src->wait_for_data(); }
-    std::string       get_device_name()   override { return _src->get_device_name();  }
-    string_vec        get_device_info()   override { return _src->get_device_info();  }
-    stream_info_vec   get_stream_info()   override { return _src->get_stream_info();  }
-    float             get_depth_unit()    override { return _src->get_depth_unit();   }
-    bool              is_offline_stream() override { return _src->is_offline_stream();}
+    std::string       get_device_name()     override { return _src->get_device_name();  }
+    string_vec        get_device_info()     override { return _src->get_device_info();  }
+    stream_info_vec   get_stream_info()     override { return _src->get_stream_info();  }
+    float             get_depth_unit()      override { return _src->get_depth_unit();   }
+    bool              is_offline_stream()   override { return _src->is_offline_stream();}
     bool              set_laser(int option) override { return _src->set_laser(option);}
-    int               get_laser()         override { return _src->get_laser(); }
+    int               get_laser()           override { return _src->get_laser(); }
     
     stream_info_vec _stream_info;
     rs_sf_intrinsics intrinsics(const stream& s) const { return _stream_info[s].intrinsics.cam_intrinsics; }
@@ -337,6 +339,7 @@ struct d435i_exec_pipeline
     rs2::camera_imu_tracker* _tracker{ nullptr };
     int                      _decimate_accel{ g_accel_dec };
     int                      _decimate_gyro{ g_gyro_dec };
+    int                      _use_sp{ g_use_sp };
 
     std::deque<std::array<float, 3>> _box_dimension_queue;
     std::array<float, 3>             _box_dimension_sum{ 0.0f,0.0f,0.0f };
@@ -378,15 +381,15 @@ struct d435i_exec_pipeline
                 if (_tracker != nullptr) {
                     //_tracker->process(_src.data_vec(_tracker->require_laser_off()));
                     _tracker->process(_src.data_vec_with_stereo(_tracker->require_laser_off()));
-                    _app_hint = _tracker->prefix() + " ";
+                    _app_hint = _tracker->prefix() + ", ";
                     switch (_tracker->wait_for_image_pose(images)) {
-                    case rs2::camera_imu_tracker::HIGH:   _app_hint += "High Quality   "; break;
-                    case rs2::camera_imu_tracker::MEDIUM: _app_hint += "Medium Quality "; break;
+                    case rs2::camera_imu_tracker::HIGH:   _app_hint += "High Conf.  "; break;
+                    case rs2::camera_imu_tracker::MEDIUM: _app_hint += "Medium Conf."; break;
                     default:                              _app_hint  = "Move Around / Reset"; break;
                     }
                 }
                 else {
-                    _app_hint = "bypass";
+                    _app_hint = "No Camera Tracking";
                 }
             }
 
@@ -412,16 +415,15 @@ protected:
         bool sync = _src.is_offline_stream();
         rs_sf_intrinsics intr[2] = { _src.intrinsics(DEPTH),_src.intrinsics(COLOR) };
 
-        // assume we are on Windows
         if (!_gpu_tracker) {
-            _gpu_tracker = rs2::camera_imu_tracker::create_gpu();
+            _gpu_tracker = _use_sp ? rs2::camera_imu_tracker::create_gpu() : nullptr;
             if (_gpu_tracker) {
                 printf("SP Tracker Available \n");
                 _gpu_tracker->init(&intr[0], (int)RS_SF_MED_RESOLUTION);
             }
         }
         else {
-            _gpu_tracker->init(nullptr, (int)RS_SF_MED_RESOLUTION);
+            _gpu_tracker->init(nullptr, (int)RS_SF_MED_RESOLUTION); // reset
         }
 
         if (_src.has_imu()) {

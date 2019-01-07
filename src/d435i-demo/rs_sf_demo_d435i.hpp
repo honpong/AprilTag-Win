@@ -449,10 +449,13 @@ public:
     float width() const { return float(_width); }
     float height() const { return float(_height); }
     
-    inline rect win_left_column()  const { return{ 0, 0, width() / 3, height() }; }
-    inline rect win_rs_logo_horizontal()      const { return{ 0, 0, win_left_column().w, win_left_column().h / 6 }; }
-    inline rect win_rs_logo_vertical()      const { return{ 0, 0, width(), win_left_column().h / 6 }; }
-    inline rect win_rs_logo() const { return is_horizontal() ? win_rs_logo_horizontal() : win_rs_logo_vertical(); }
+    inline rect win_left_column()        const { return{ 0, 0, width() / 3, height() }; }
+    inline rect win_rs_logo_horizontal() const { return{ 0, 0, win_left_column().w, win_left_column().h / 6 }; }
+    inline rect win_rs_logo_vertical()   const { return{ 0, 20, width(), win_left_column().h / 6 }; }
+    inline rect win_rs_logo()            const { return is_horizontal() ? win_rs_logo_horizontal() : win_rs_logo_vertical(); }
+    inline rect win_json_file_vertical()   const { return {0, 0, width(), 20}; }
+    inline rect win_json_file_horizontal() const { return {win_rs_logo_horizontal().x, win_rs_logo_horizontal().ey(), win_rs_logo_horizontal().w, 20}; }
+    inline rect win_json_file()            const { return is_horizontal() ? win_json_file_horizontal() : win_json_file_vertical(); }
     //inline rect win_depth_image()  const { return{ win_left_column().x, win_left_column().y + win_left_column().h * 2 / 7, win_left_column().w, win_left_column().h / 2 }; }
     inline rect win_depth_image()  const { return{ 0,0,0,0}; }
     inline rect win_button_area()  const { return{ win_left_column().x, win_left_column().y + win_left_column().h * 7 / 8, win_left_column().w, win_left_column().h / 10 }; }
@@ -519,12 +522,12 @@ public:
         glPopMatrix(); glColor4fv(original_color);
     }
     
-    void render_ui(const rs_sf_image* depth_frame, const rs_sf_image* color_frame, bool render_buttons = true, const char* text = "", const char* version = nullptr)
+    void render_ui(const rs_sf_image* depth_frame, const rs_sf_image* color_frame, bool render_buttons, const std::vector<std::string>& text, const char* version = nullptr)
     {
         glClearColor(bkg_blue[0] / 255.0f, bkg_blue[1] / 255.0f, bkg_blue[2] / 255.0f, 1);
         
         //_texture_depth.render(depth_frame, win_depth_image(), "");
-        _texture_color.render(color_frame, win_color_image(), is_horizontal() ? text : (draw_text(win_color_image().w - strlen(text)*6-5, win_color_image().ey()+20, text),""));
+        _texture_color.render(color_frame, win_color_image(), is_horizontal() ? text[0].c_str() : (draw_text(win_color_image().w - (int)text[0].length()*6-5, win_color_image().ey()+20, text[0].c_str()),""));
         _texture_realsense_logo.render_middle(0, win_rs_logo(),_dense);
         
         if (render_buttons)
@@ -539,6 +542,7 @@ public:
         }
         
         if(version){ draw_version_string(version); }
+        if(!text[1].empty()){ draw_app_hint(text[1].c_str()); }
     }
     
     void render_box_dim(const std::string& box_dim)
@@ -554,6 +558,16 @@ public:
     {
         draw_text(width()/2-strlen(version)*6/2, height()-10, version);
     }
+    
+    void draw_app_hint(const char* text)
+    {
+        float original_color[4];
+        glGetFloatv(GL_CURRENT_COLOR, original_color);
+        glColor3b(64,64,64);
+        draw_text(win_json_file().x + 5, win_json_file().ey() - 5,text);
+        glColor4fv(original_color);
+    }
+    
     
     /**
     void render_box_on_depth_frame(const rs2::box::wireframe& wireframe, const float line_width = -1.0f)

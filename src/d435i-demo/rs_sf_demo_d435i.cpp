@@ -27,7 +27,7 @@
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
-#define VERSION_STRING "v1.1"
+#define VERSION_STRING "v1.2"
 
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option);
 int replay_frames(const std::string& path);
@@ -344,6 +344,8 @@ struct d435i_exec_pipeline
     int                      _decimate_accel{ g_accel_dec };
     int                      _decimate_gyro{ g_gyro_dec };
     int                      _use_sp{ g_use_sp };
+    std::string _app_hint = "";
+    std::string _tracker_hint = "";
 
     std::deque<std::array<float, 3>> _box_dimension_queue;
     std::array<float, 3>             _box_dimension_sum{ 0.0f,0.0f,0.0f };
@@ -367,7 +369,6 @@ struct d435i_exec_pipeline
         return init_algo_middleware();
     }
 
-    std::string _app_hint = "";
     std::vector<rs_sf_image> exec_once()
     {
         std::vector<rs_sf_image> images;
@@ -379,21 +380,21 @@ struct d435i_exec_pipeline
             }
 
             images = _src.images();
-            _app_hint = "Move Tablet Around";
+            _tracker_hint = "Move Tablet Around";
             if (_src.total_runtime() >= _drop_time)
             {
                 if (_tracker != nullptr) {
                     //_tracker->process(_src.data_vec(_tracker->require_laser_off()));
                     _tracker->process(_src.data_vec_with_stereo(_tracker->require_laser_off()));
-                    _app_hint = _tracker->prefix() + ": ";
+                    _tracker_hint = _tracker->prefix() + ": ";
                     switch (_tracker->wait_for_image_pose(images)) {
-                    case rs2::camera_imu_tracker::HIGH:   _app_hint += "High Confidence"; break;
-                    case rs2::camera_imu_tracker::MEDIUM: _app_hint += "Medium Confidence"; break;
-                    default:                              _app_hint  = "Move Around / Reset"; break;
+                    case rs2::camera_imu_tracker::HIGH:   _tracker_hint += "High Confidence"; break;
+                    case rs2::camera_imu_tracker::MEDIUM: _tracker_hint += "Medium Confidence"; break;
+                    default:                              _tracker_hint  = "Move Around / Reset"; break;
                     }
                 }
                 else {
-                    _app_hint = "Bypass Camera Tracking";
+                    _tracker_hint = "Bypass Camera Tracking";
                 }
             }
 
@@ -434,10 +435,10 @@ protected:
             _drop_time = std::chrono::seconds(sync ? 0 : 3);
             _imu_tracker = rs2::camera_imu_tracker::create();
 
-            if (_imu_tracker &&
-                !_imu_tracker->init(_path + "camera.json", !sync, _decimate_accel, _decimate_gyro) &&
-                !_imu_tracker->init(DEFAULT_CAMERA_JSON, !sync, _decimate_accel, _decimate_gyro)) {
-                _imu_tracker = nullptr;
+            if (_imu_tracker){
+                if(     _imu_tracker->init(_path + "camera.json", !sync, _decimate_accel, _decimate_gyro)){ _app_hint = _path + "camera.json"; }
+                else if(_imu_tracker->init(DEFAULT_CAMERA_JSON, !sync, _decimate_accel, _decimate_gyro)) { _app_hint = ""; }
+                else {  _imu_tracker = nullptr; }
             }
         }
 
@@ -530,7 +531,7 @@ int run_dev_ui(d435i_exec_pipeline& pipe) try
     for(rs_sf_gl_context win("replay", pipe._src.width()*3, pipe._src.height()*3); ;check_data=false)
     {
         auto images = pipe.exec_once();
-        if(!win.imshow(images.data(),(int)images.size(),pipe._app_hint.c_str())){break;}
+        if(!win.imshow(images.data(),(int)images.size(),pipe._tracker_hint.c_str())){break;}
     }
     return 0;
 }catch(std::exception& e){ fprintf(stderr, "%s\n", e.what()); return -1; }
@@ -542,7 +543,7 @@ int run_demo_ui(d435i_exec_pipeline& pipe) try
     {
         auto images = pipe.exec_once();
         if(images.size() <= COLOR){ continue; }
-        app.render_ui(nullptr, &images[COLOR], true, pipe._app_hint.c_str(), VERSION_STRING);
+        app.render_ui(nullptr, &images[COLOR], true, {pipe._tracker_hint, pipe._app_hint}, VERSION_STRING);
         app.render_box_dim(pipe.box_dim_string());
         
         pipe.select_camera_tracking(app.dense_request());

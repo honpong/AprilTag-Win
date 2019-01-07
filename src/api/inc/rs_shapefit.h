@@ -42,6 +42,7 @@ extern "C"
     typedef long long          rs_sf_time_us;
     typedef unsigned long long rs_sf_serial_number;
     typedef unsigned short     rs_sf_uint16_t;
+    typedef const char*        rs_sf_config;
     
     struct rs_sf_imu_intrinsics
     {
@@ -172,7 +173,8 @@ extern "C"
         RS_SF_SENSOR_INFRARED_LASER_OFF = 0x13,
         RS_SF_SENSOR_STEREO_LASER_ON    = 0x0a,
         RS_SF_SENSOR_STEREO_LASER_OFF   = 0x1a,
-        RS_SF_SENSOR_TYPE_COUNT         = 0x15
+        RS_SF_SENSOR_TYPE_COUNT         = 0x15,
+        RS_SF_SENSOR_CONFIG             = 0x100,
     };
     
     typedef union { struct { float x,y,z; }; float v[3]; } rs_sf_imu_data;
@@ -189,6 +191,7 @@ extern "C"
             rs_sf_image    image;
             rs_sf_imu_data imu;
             rs_sf_data*    stereo[2];
+            rs_sf_config   config;
         };
     };
 

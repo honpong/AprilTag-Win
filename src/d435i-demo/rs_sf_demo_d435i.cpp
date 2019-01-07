@@ -343,7 +343,7 @@ struct d435i_exec_pipeline
     rs2::camera_imu_tracker* _tracker{ nullptr };
     int                      _decimate_accel{ g_accel_dec };
     int                      _decimate_gyro{ g_gyro_dec };
-    int                      _use_sp{ g_use_sp };
+    int                      _use_sp{ g_use_sp }, _use_stereo{ 1 };
     std::string _app_hint = "";
     std::string _tracker_hint = "";
 
@@ -385,7 +385,7 @@ struct d435i_exec_pipeline
             {
                 if (_tracker != nullptr) {
                     //_tracker->process(_src.data_vec(_tracker->require_laser_off()));
-                    _tracker->process(_src.data_vec_with_stereo(_tracker->require_laser_off()));
+                    _tracker->process(_src.data_vec_with_stereo(_tracker->require_laser_off(),_use_stereo?false:true));
                     _tracker_hint = _tracker->prefix() + ": ";
                     switch (_tracker->wait_for_image_pose(images)) {
                     case rs2::camera_imu_tracker::HIGH:   _tracker_hint += "High Confidence"; break;
@@ -439,18 +439,22 @@ protected:
                 if(     _imu_tracker->init(_path + "camera.json", !sync, _decimate_accel, _decimate_gyro)){ _app_hint = _path + "camera.json"; }
                 else if(_imu_tracker->init(DEFAULT_CAMERA_JSON, !sync, _decimate_accel, _decimate_gyro)) { _app_hint = ""; }
                 else {  _imu_tracker = nullptr; }
+                
+                if(_imu_tracker){
+                    _imu_tracker->process({rs2::camera_imu_tracker::make_stereo_msg(_use_stereo?true:false)});
+                }
             }
         }
-
+        
         set_camera_tracker_ptr();
-
+        
         _boxfit = rs_sf_shapefit_ptr(intr, _cap = (_src.is_virtual_color_stream() && _src.get_laser() ? RS_SHAPEFIT_BOX : g_sf_option), _src.get_depth_unit());
         rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_SCAN_MODE, 1);
         rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_PLANE_NOISE, 2); //noisy planes
         //rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_BOX_BUFFER, 21); //more buffering
         rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_MAX_NUM_BOX, 1); //output single box
         rs_shapefit_set_option(_boxfit.get(), RS_SF_OPTION_ASYNC_WAIT, sync ? -1 : 0);
-
+        
         return 0;
     }
 
@@ -547,7 +551,8 @@ int run_demo_ui(d435i_exec_pipeline& pipe) try
         app.render_box_dim(pipe.box_dim_string());
         
         pipe.select_camera_tracking(app.dense_request());
-        if(app.reset_request()){ pipe.reset(false); }
+        if(app.stereo_request()){ pipe._use_stereo = 1-pipe._use_stereo; pipe.reset(false); }
+        else if(app.reset_request()){ pipe.reset(false); }
         COLOR_STREAM_REQUEST
     }
     return 0;

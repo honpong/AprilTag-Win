@@ -22,6 +22,17 @@ std::string rs2::camera_imu_tracker::read_json_file(const std::string& src_file_
     return dst_str;
 }
 
+struct rs_sf_config_msg : public rs_sf_data_buf, std::string {
+    rs_sf_config_msg(const std::string& msg): rs_sf_data_buf({}), std::string(msg) {
+        sensor_type = RS_SF_SENSOR_CONFIG;
+        config = c_str();
+    }
+};
+rs_sf_data_ptr rs2::camera_imu_tracker::make_stereo_msg(bool use_stereo)
+{
+    return std::make_shared<rs_sf_config_msg>(use_stereo?"stereo=1":"stereo=0");
+}
+
 static float g_scene_quality = -2.0;
 float get_last_failed_sp_quality(void)
 {

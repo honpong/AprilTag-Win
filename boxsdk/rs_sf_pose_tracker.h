@@ -65,6 +65,7 @@ namespace rs2
         static std::unique_ptr<camera_imu_tracker> create();
         static std::unique_ptr<camera_imu_tracker> create_gpu();
         static std::string read_json_file(const std::string& file_path);
+        static rs_sf_data_ptr make_stereo_msg(bool use_stereo);
     };
     
     struct camera_tracker

@@ -391,7 +391,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     bool _strategy_override{ false };
     int  _decimate_accel{ 1 }, _decimate_gyro{ 1 };
     
-    std::string prefix() override { return "Visual+IMU"; }
+    std::string prefix() override { return _use_stereo ? "Stereo+IMU" : "Visual+IMU"; }
 
     static void destory_rc_tracker(rc_Tracker* tracker) {
         const bool active = (rc_getState(tracker) == rc_E_RUNNING);
@@ -464,50 +464,50 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         {
             case RS_SF_SENSOR_DEPTH:
             case RS_SF_SENSOR_DEPTH_LASER_OFF:
-                rc_receiveImage(_tracker.get(), 0, rc_FORMAT_DEPTH16, timestamp_us, 0,
+                return rc_receiveImage(_tracker.get(), 0, rc_FORMAT_DEPTH16, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w * 2, data->image.data,
                                 [](void* ptr){ delete (data_packet*)ptr; }, new data_packet(data));
-                break;
+                
             case RS_SF_SENSOR_INFRARED:
                 break;
             case RS_SF_SENSOR_INFRARED_LASER_OFF:
                 if(_use_stereo){ break; }
-                rc_receiveImage(_tracker.get(), data->sensor_index - 1, rc_FORMAT_GRAY8, timestamp_us, 0,
+                return rc_receiveImage(_tracker.get(), data->sensor_index - 1, rc_FORMAT_GRAY8, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w, data->image.data,
                                 [](void* ptr){ delete (data_packet*)ptr; }, new data_packet(data));
-                break;
             case RS_SF_SENSOR_STEREO:
                 break;
             case RS_SF_SENSOR_STEREO_LASER_OFF:
                 if(!_use_stereo){ break; }
-                rc_receiveStereo(_tracker.get(), data->sensor_index, rc_FORMAT_GRAY8, timestamp_us, 0,
+                return rc_receiveStereo(_tracker.get(), data->sensor_index, rc_FORMAT_GRAY8, timestamp_us, 0,
                                 data->stereo[0]->image.img_w, data->stereo[0]->image.img_h,
                                 data->stereo[0]->image.img_w, data->stereo[1]->image.img_w,
                                 data->stereo[0]->image.data, data->stereo[1]->image.data,
                                 [](void* ptr) { delete (data_packet*)ptr; }, new data_packet(data));
-                
-                break;
             case RS_SF_SENSOR_COLOR:
                 /*
-                rc_receiveImage(_tracker.get(), 2, rc_FORMAT_RGB8, timestamp_us, 0,
+                return rc_receiveImage(_tracker.get(), 2, rc_FORMAT_RGB8, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w * 3, data->image.data,
                                 [](void* ptr){ delete (data_packet*)ptr; }, new data_packet(data));
                  */
                 break;
             case RS_SF_SENSOR_GYRO: {
                 const rc_Vector angular_velocity_rad__s = *(rc_Vector*)&data->imu;
-                rc_receiveGyro(_tracker.get(), 0, timestamp_us, angular_velocity_rad__s);
-                break;
+                return rc_receiveGyro(_tracker.get(), 0, timestamp_us, angular_velocity_rad__s);
             }
             case RS_SF_SENSOR_ACCEL: {
                 const rc_Vector acceleration_m__s2 = *(rc_Vector*)&data->imu;
-                rc_receiveAccelerometer(_tracker.get(), 0, timestamp_us, acceleration_m__s2);
+                return rc_receiveAccelerometer(_tracker.get(), 0, timestamp_us, acceleration_m__s2);
+            }
+            case RS_SF_SENSOR_CONFIG:{
+                if(     !strcmp(data->config,"stereo=1")){ _use_stereo=true; return true;}
+                else if(!strcmp(data->config,"stereo=0")){ _use_stereo=false;return true;}
                 break;
             }
             default:
                 break;
         }
-        return true;
+        return false;
     }
     
     struct rc_tracker_output : private rc_Data, public rc_PoseTime

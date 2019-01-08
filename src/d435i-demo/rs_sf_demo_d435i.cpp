@@ -134,8 +134,8 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     stream_info_vec   get_stream_info()     override { return _src->get_stream_info();  }
     float             get_depth_unit()      override { return _src->get_depth_unit();   }
     bool              is_offline_stream()   override { return _src->is_offline_stream();}
-    bool              set_laser(int option) override { return _src->set_laser(option);}
-    int               get_laser()           override { return _src->get_laser(); }
+    bool              set_laser(int option) override { return _src->set_laser(option);  }
+    int               get_laser()           override { return _src->get_laser();        }
     
     stream_info_vec _stream_info;
     rs_sf_intrinsics intrinsics(const stream& s) const { return _stream_info[s].intrinsics.cam_intrinsics; }
@@ -148,8 +148,8 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     stream_maker _maker;
     d435i_buffered_stream(stream_maker&& init) : _maker(init) { reset(); }
     
-    int width()  const { return intrinsics(DEPTH).width; }
-    int height() const { return intrinsics(DEPTH).height;}
+    int  width()   const { return intrinsics(DEPTH).width; }
+    int  height()  const { return intrinsics(DEPTH).height;}
     bool has_imu() const { return _stream_info.size() > 4; }
     
     rs_sf_timestamp _first_timestamp = 0;
@@ -167,9 +167,9 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         at(IR_R).resize(2);
         at(COLOR).resize(1);
         
-        _first_timestamp = _last_timestamp = 0;
+        _first_timestamp    = _last_timestamp = 0;
         _first_frame_number = _last_frame_number = -1;
-        _stream_info = get_stream_info();
+        _stream_info        = get_stream_info();
     }
     
     rs_sf_dataset_ptr wait_and_buffer_data(bool reset_imu_buffer = true)
@@ -326,6 +326,41 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
         }
         return dst;
     }
+    
+    std::vector<std::string> data_text(bool is_horizontal_display = false) const {
+        std::vector<std::stringstream> os; os.resize(size());
+        for(int s=0; s<(int)_stream_info.size(); ++s){
+            os[s] << std::setfill(' ') << std::right << std::setw(3) << _stream_info[s].fps << "Hz";
+        }
+        
+        for(auto img : {DEPTH, IR_L, IR_R, COLOR}){
+            for(auto b : {ON_BUF, OFF_BUF}){
+                if(at(img).size() > b && at(img)[b]){ os[img] << std::fixed << std::setprecision(0) << ", " << at(img)[b]->timestamp_us << ", " << std::left << std::setw(23) << (b?" ON":"OFF"); }
+            }
+        }
+        
+        for(auto imu : {ACCEL, GYRO}){
+            if(at(imu).size() > 0 && at(imu).back()){
+                os[imu] << std::fixed << std::setprecision(0) << ", " << at(imu).back()->timestamp_us;
+                for(auto& v : at(imu).back()->imu.v){ os[imu] << ", " << std::setprecision(3) << std::setw(6) << v; }
+            }
+        }
+        
+        if(is_horizontal_display)
+        {
+            for(int s=0; s<(int)_stream_info.size(); ++s){
+                if(at(s).empty()){ continue; }
+                os[s] << " | " << _stream_info[s].type << "," << _stream_info[s].index << "," << _stream_info[s].format;
+                os[s] << std::right << std::setprecision(3);
+                for(auto& t : _stream_info[s].extrinsics[DEPTH].translation){ os[s] << "," << std::setw(6) << t; }
+                for(auto& r : _stream_info[s].extrinsics[DEPTH].rotation){    os[s] << "," << std::setw(6) << r; }
+            }
+        }
+        
+        std::vector<std::string> dst; dst.reserve(os.size());
+        for(auto& s : os){ dst.emplace_back(s.str()); }
+        return dst;
+    }
 };
 
 
@@ -343,9 +378,9 @@ struct d435i_exec_pipeline
     rs2::camera_imu_tracker* _tracker{ nullptr };
     int                      _decimate_accel{ g_accel_dec };
     int                      _decimate_gyro{ g_gyro_dec };
-    int                      _use_sp{ g_use_sp }, _use_stereo{ 1 };
-    std::string _app_hint = "";
-    std::string _tracker_hint = "";
+    int                      _use_sp{ g_use_sp }, _use_stereo{ 1 }, _print_data{ 0 };
+    std::string              _app_hint = "", _tracker_hint = "";
+    std::vector<std::string> _screen_text;
 
     std::deque<std::array<float, 3>> _box_dimension_queue;
     std::array<float, 3>             _box_dimension_sum{ 0.0f,0.0f,0.0f };
@@ -397,7 +432,18 @@ struct d435i_exec_pipeline
                     _tracker_hint = "Bypass Camera Tracking";
                 }
             }
-
+            
+            _screen_text.clear();
+            _screen_text.reserve(8);
+            _screen_text.emplace_back(_tracker_hint);
+            _screen_text.emplace_back(_app_hint);
+            
+            if(_print_data){
+                for(auto& s : _src.data_text(_print_data==1?true:false)){
+                    _screen_text.emplace_back(s);
+                }
+            }
+        
             rs_sf_image boxfit_images[2] = { images[DEPTH], images[COLOR] };
             auto status = rs_shapefit_depth_image(_boxfit.get(), boxfit_images);
 
@@ -437,7 +483,7 @@ protected:
 
             if (_imu_tracker){
                 if(     _imu_tracker->init(_path + "camera.json", !sync, _decimate_accel, _decimate_gyro)){ _app_hint = _path + "camera.json"; }
-                else if(_imu_tracker->init(DEFAULT_CAMERA_JSON, !sync, _decimate_accel, _decimate_gyro)) { _app_hint = ""; }
+                else if(_imu_tracker->init(DEFAULT_CAMERA_JSON,   !sync, _decimate_accel, _decimate_gyro)){ _app_hint = ""; }
                 else {  _imu_tracker = nullptr; }
                 
                 if(_imu_tracker){
@@ -465,9 +511,9 @@ protected:
             _tracker = _gpu_tracker.get(); _src.set_laser(1);
         }
 
-        if (_tracker == nullptr) { fprintf(stderr, "No camera tracker selected. \n"); }
-        else if (_tracker == _imu_tracker.get()) { fprintf(stderr, "IMU camera tracker selected. \n"); }
-        else if (_tracker == _gpu_tracker.get()) { fprintf(stderr, "GPU camera tracker selected. \n"); }
+        if (_tracker == nullptr)                 { fprintf(stderr, "No camera tracker selected. \n"); }
+        else if (_tracker == _imu_tracker.get()) { fprintf(stderr, "IMU camera tracker selected.\n"); }
+        else if (_tracker == _gpu_tracker.get()) { fprintf(stderr, "GPU camera tracker selected.\n"); }
 
         _src.reset_img_buffers();
     }
@@ -547,12 +593,14 @@ int run_demo_ui(d435i_exec_pipeline& pipe) try
     {
         auto images = pipe.exec_once();
         if(images.size() <= COLOR){ continue; }
-        app.render_ui(nullptr, &images[COLOR], true, {pipe._tracker_hint, pipe._app_hint}, VERSION_STRING);
+        app.render_ui(nullptr, &images[COLOR], true, pipe._screen_text, VERSION_STRING);
         app.render_box_dim(pipe.box_dim_string());
         
         pipe.select_camera_tracking(app.dense_request());
         if(app.stereo_request()){ pipe._use_stereo = 1-pipe._use_stereo; pipe.reset(false); }
         else if(app.reset_request()){ pipe.reset(false); }
+        if(app.print_request()){ pipe._print_data = pipe._print_data ? 0 : (app.is_horizontal()?1:2); }
+        else { pipe._print_data = pipe._print_data ? (app.is_horizontal()?1:2) : 0; }
         COLOR_STREAM_REQUEST
     }
     return 0;

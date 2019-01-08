@@ -385,6 +385,7 @@ public:
             else if(is_mouse_in(win_depth_image())) { _dwin_opt = (_dwin_opt+1)%3;}
             else if(is_mouse_in(win_box_msg()))     { _tgcolor = true;            }
             else if(is_mouse_in(_win_tracker_hint)) { _stereo = true;             }
+            else if(is_mouse_in(win_json_file()))   { _print_data = true;         }
             else if(is_mouse_in(win_color_image())) { _tgscn = true;              }
         }
     };
@@ -545,6 +546,7 @@ public:
         if(version){ draw_version_string(version); }
         if(!text[0].empty()){ draw_tracker_hint(text[0].c_str()); }
         if(!text[1].empty()){ draw_app_hint(text[1].c_str()); }
+        if(text.size() > 2){ draw_data_text(text); }
     }
     
     void render_box_dim(const std::string& box_dim)
@@ -579,6 +581,12 @@ public:
         glColor4fv(original_color);
     }
     
+    void draw_data_text(const std::vector<std::string>& text)
+    {
+        for(int t=2; t<(int)text.size(); ++t){
+            draw_text(win_rs_logo().x+5, win_rs_logo().ey() + 15*t, text[t].c_str());
+        }
+    }
     
     /**
     void render_box_on_depth_frame(const rs2::box::wireframe& wireframe, const float line_width = -1.0f)
@@ -635,7 +643,7 @@ public:
         if (_close) std::thread([this]{ std::this_thread::sleep_for(std::chrono::milliseconds(100)); on_key_release('q');}).detach();
         if (_tgscn) reset_screen(!_fullscreen, _win_width, _win_height);
         if (_reset) { _high_mismatch_count = 0; }
-        _close = _reset = _tgcolor = _stereo = false;
+        _close = _reset = _tgcolor = _stereo = _print_data = false;
     }
     
     ~window()
@@ -647,6 +655,7 @@ public:
     operator GLFWwindow*() { return win; }
     bool reset_request()  const { return _reset;         }
     bool stereo_request() const { return _stereo;        }
+    bool print_request()  const { return _print_data;    }
     bool plane_request()  const { return _dwin_opt == 1; }
     bool boxca_request()  const { return _dwin_opt == 2; }
     bool dense_request()  const { return _dense;         }
@@ -660,7 +669,7 @@ public:
 private:
     GLFWwindow* win = nullptr;
     int _width, _height, _win_width, _win_height, _dwin_opt = 0, _high_mismatch_count = 0;
-    bool _close = false, _reset = false, _stereo = false, _tgscn = false, _fullscreen, _dense = true, _tgcolor = false;
+    bool _close = false, _reset = false, _stereo = false, _print_data = false, _tgscn = false, _fullscreen, _dense = true, _tgcolor = false;
     std::string _title;
     color_icon _icon_close, _icon_reset;
     texture _texture_realsense_logo, _texture_close_button, _texture_reset_button, _texture_box_msg;

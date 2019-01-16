@@ -600,7 +600,7 @@ int run_demo_ui(d435i_exec_pipeline& pipe) try
         if(app.stereo_request()){ pipe._use_stereo = 1-pipe._use_stereo; pipe.reset(false); }
         else if(app.reset_request()){ pipe.reset(false); }
         if(app.print_request()){ pipe._print_data = pipe._print_data ? 0 : (app.is_horizontal()?1:2); }
-        else { pipe._print_data = pipe._print_data ? (app.is_horizontal()?1:2) : 0; }
+        else { pipe._print_data = pipe._print_data ? (app.is_horizontal() && app.width() >= 800 ?1:2) : 0; }
         COLOR_STREAM_REQUEST
     }
     return 0;

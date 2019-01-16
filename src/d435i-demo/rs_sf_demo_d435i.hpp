@@ -48,8 +48,362 @@ namespace d435i {
 // Basic Data Types         //
 //////////////////////////////
 
-struct float3 { float x, y, z; };
-struct float2 { float x, y; };
+    class fps_calc
+    {
+    public:
+        fps_calc()
+        : _counter(0),
+        _delta(0),
+        _last_timestamp(0),
+        _num_of_frames(0)
+        {}
+        
+        fps_calc(const fps_calc& other)
+        {
+            std::lock_guard<std::mutex> lock(other._mtx);
+            _counter = other._counter;
+            _delta = other._delta;
+            _num_of_frames = other._num_of_frames;
+            _last_timestamp = other._last_timestamp;
+        }
+        void add_timestamp(double timestamp, unsigned long long frame_counter)
+        {
+            std::lock_guard<std::mutex> lock(_mtx);
+            if (++_counter >= _skip_frames)
+            {
+                if (_last_timestamp != 0)
+                {
+                    _delta = timestamp - _last_timestamp;
+                    _num_of_frames = frame_counter - _last_frame_counter;
+                }
+                
+                _last_frame_counter = frame_counter;
+                _last_timestamp = timestamp;
+                _counter = 0;
+            }
+        }
+        
+        double get_fps() const
+        {
+            std::lock_guard<std::mutex> lock(_mtx);
+            if (_delta == 0)
+                return 0;
+            
+            return (static_cast<double>(_numerator) * _num_of_frames) / _delta;
+        }
+        
+    private:
+        static const int _numerator = 1000;
+        static const int _skip_frames = 5;
+        unsigned long long _num_of_frames;
+        int _counter;
+        double _delta;
+        double _last_timestamp;
+        unsigned long long _last_frame_counter;
+        mutable std::mutex _mtx;
+    };
+    
+    inline float clamp(float x, float min, float max)
+    {
+        return std::max(std::min(max, x), min);
+    }
+    
+    inline float smoothstep(float x, float min, float max)
+    {
+        x = clamp((x - min) / (max - min), 0.0, 1.0);
+        return x*x*(3 - 2 * x);
+    }
+    
+    inline float lerp(float a, float b, float t)
+    {
+        return b * t + a * (1 - t);
+    }
+    
+    struct plane
+    {
+        float a;
+        float b;
+        float c;
+        float d;
+    };
+    inline bool operator==(const plane& lhs, const plane& rhs) { return lhs.a == rhs.a && lhs.b == rhs.b && lhs.c == rhs.c && lhs.d == rhs.d; }
+    
+    struct float3
+    {
+        float x, y, z;
+        
+        float length() const { return sqrt(x*x + y*y + z*z); }
+        
+        float3 normalize() const
+        {
+            return (length() > 0)? float3{ x / length(), y / length(), z / length() }:*this;
+        }
+    };
+    
+    inline float3 cross(const float3& a, const float3& b)
+    {
+        return { a.y * b.z - b.y * a.z, a.x * b.z - b.x * a.z, a.x * b.y - a.y * b.x };
+    }
+    
+    inline float evaluate_plane(const plane& plane, const float3& point)
+    {
+        return plane.a * point.x + plane.b * point.y + plane.c * point.z + plane.d;
+    }
+    
+    inline float3 operator*(const float3& a, float t)
+    {
+        return { a.x * t, a.y * t, a.z * t };
+    }
+    
+    inline float3 operator/(const float3& a, float t)
+    {
+        return { a.x / t, a.y / t, a.z / t };
+    }
+    
+    inline float3 operator+(const float3& a, const float3& b)
+    {
+        return { a.x + b.x, a.y + b.y, a.z + b.z };
+    }
+    
+    inline float3 operator-(const float3& a, const float3& b)
+    {
+        return { a.x - b.x, a.y - b.y, a.z - b.z };
+    }
+    
+    inline float3 lerp(const float3& a, const float3& b, float t)
+    {
+        return b * t + a * (1 - t);
+    }
+    
+    struct float2
+    {
+        float x, y;
+        
+        float length() const { return sqrt(x*x + y*y); }
+        
+        float2 normalize() const
+        {
+            return { x / length(), y / length() };
+        }
+    };
+    
+    inline float3 lerp(const std::array<float3, 4>& rect, const float2& p)
+    {
+        auto v1 = lerp(rect[0], rect[1], p.x);
+        auto v2 = lerp(rect[3], rect[2], p.x);
+        return lerp(v1, v2, p.y);
+    }
+    
+    using plane_3d = std::array<float3, 4>;
+    
+    inline std::vector<plane_3d> subdivide(const plane_3d& rect, int parts = 4)
+    {
+        std::vector<plane_3d> res;
+        res.reserve(parts*parts);
+        for (float i = 0.f; i < parts; i++)
+        {
+            for (float j = 0.f; j < parts; j++)
+            {
+                plane_3d r;
+                r[0] = lerp(rect, { i / parts, j / parts });
+                r[1] = lerp(rect, { i / parts, (j + 1) / parts });
+                r[2] = lerp(rect, { (i + 1) / parts, (j + 1) / parts });
+                r[3] = lerp(rect, { (i + 1) / parts, j / parts });
+                res.push_back(r);
+            }
+        }
+        return res;
+    }
+    
+    inline float operator*(const float3& a, const float3& b)
+    {
+        return a.x*b.x + a.y*b.y + a.z*b.z;
+    }
+    
+    inline bool is_valid(const plane_3d& p)
+    {
+        std::vector<float> angles;
+        angles.reserve(4);
+        for (int i = 0; i < p.size(); i++)
+        {
+            auto p1 = p[i];
+            auto p2 = p[(i+1) % p.size()];
+            if ((p2 - p1).length() < 1e-3) return false;
+            
+            p1 = p1.normalize();
+            p2 = p2.normalize();
+            
+            angles.push_back(acos((p1 * p2) / sqrt(p1.length() * p2.length())));
+        }
+        return std::all_of(angles.begin(), angles.end(), [](float f) { return f > 0; }) ||
+        std::all_of(angles.begin(), angles.end(), [](float f) { return f < 0; });
+    }
+    
+    inline float2 operator-(float2 a, float2 b)
+    {
+        return { a.x - b.x, a.y - b.y };
+    }
+    
+    inline float2 operator*(float a, float2 b)
+    {
+        return { a * b.x, a * b.y };
+    }
+    
+    struct matrix4
+    {
+        float mat[4][4];
+        
+        matrix4()
+        {
+            std::memset(mat, 0, sizeof(mat));
+        }
+        
+        matrix4(float vals[4][4])
+        {
+            std::memcpy(mat,vals,sizeof(mat));
+        }
+        
+        //init rotation matrix from quaternion
+        matrix4(rs2_quaternion q)
+        {
+            mat[0][0] = 1 - 2*q.y*q.y - 2*q.z*q.z; mat[0][1] = 2*q.x*q.y - 2*q.z*q.w;     mat[0][2] = 2*q.x*q.z + 2*q.y*q.w;     mat[0][3] = 0.0f;
+            mat[1][0] = 2*q.x*q.y + 2*q.z*q.w;     mat[1][1] = 1 - 2*q.x*q.x - 2*q.z*q.z; mat[1][2] = 2*q.y*q.z - 2*q.x*q.w;     mat[1][3] = 0.0f;
+            mat[2][0] = 2*q.x*q.z - 2*q.y*q.w;     mat[2][1] = 2*q.y*q.z + 2*q.x*q.w;     mat[2][2] = 1 - 2*q.x*q.x - 2*q.y*q.y; mat[2][3] = 0.0f;
+            mat[3][0] = 0.0f;                      mat[3][1] = 0.0f;                      mat[3][2] = 0.0f;                      mat[3][3] = 1.0f;
+        }
+        
+        //init translation matrix from vector
+        matrix4(rs2_vector t)
+        {
+            mat[0][0] = 1.0f; mat[0][1] = 0.0f; mat[0][2] = 0.0f; mat[0][3] = t.x;
+            mat[1][0] = 0.0f; mat[1][1] = 1.0f; mat[1][2] = 0.0f; mat[1][3] = t.y;
+            mat[2][0] = 0.0f; mat[2][1] = 0.0f; mat[2][2] = 1.0f; mat[2][3] = t.z;
+            mat[3][0] = 0.0f; mat[3][1] = 0.0f; mat[3][2] = 0.0f; mat[3][3] = 1.0f;
+        }
+        
+        rs2_quaternion normalize(rs2_quaternion a)
+        {
+            float norm = sqrtf(a.x*a.x + a.y*a.y + a.z*a.z + a.w*a.w);
+            rs2_quaternion res = a;
+            res.x /= norm;
+            res.y /= norm;
+            res.z /= norm;
+            res.w /= norm;
+            return res;
+        }
+        
+        rs2_quaternion to_quaternion()
+        {
+            float tr[4];
+            rs2_quaternion res;
+            tr[0] = (mat[0][0] + mat[1][1] + mat[2][2]);
+            tr[1] = (mat[0][0] - mat[1][1] - mat[2][2]);
+            tr[2] = (-mat[0][0] + mat[1][1] - mat[2][2]);
+            tr[3] = (-mat[0][0] - mat[1][1] + mat[2][2]);
+            if (tr[0] >= tr[1] && tr[0] >= tr[2] && tr[0] >= tr[3])
+            {
+                float s = 2 * sqrt(tr[0] + 1);
+                res.w = s / 4;
+                res.x = (mat[2][1] - mat[1][2]) / s;
+                res.y = (mat[0][2] - mat[2][0]) / s;
+                res.z = (mat[1][0] - mat[0][1]) / s;
+            }
+            else if (tr[1] >= tr[2] && tr[1] >= tr[3]) {
+                float s = 2 * sqrt(tr[1] + 1);
+                res.w = (mat[2][1] - mat[1][2]) / s;
+                res.x = s / 4;
+                res.y = (mat[1][0] + mat[0][1]) / s;
+                res.z = (mat[2][0] + mat[0][2]) / s;
+            }
+            else if (tr[2] >= tr[3]) {
+                float s = 2 * sqrt(tr[2] + 1);
+                res.w = (mat[0][2] - mat[2][0]) / s;
+                res.x = (mat[1][0] + mat[0][1]) / s;
+                res.y = s / 4;
+                res.z = (mat[1][2] + mat[2][1]) / s;
+            }
+            else {
+                float s = 2 * sqrt(tr[3] + 1);
+                res.w = (mat[1][0] - mat[0][1]) / s;
+                res.x = (mat[0][2] + mat[2][0]) / s;
+                res.y = (mat[1][2] + mat[2][1]) / s;
+                res.z = s / 4;
+            }
+            return normalize(res);
+        }
+        
+        void to_column_major(float column_major[16])
+        {
+            column_major[0] = mat[0][0];
+            column_major[1] = mat[1][0];
+            column_major[2] = mat[2][0];
+            column_major[3] = mat[3][0];
+            column_major[4] = mat[0][1];
+            column_major[5] = mat[1][1];
+            column_major[6] = mat[2][1];
+            column_major[7] = mat[3][1];
+            column_major[8] = mat[0][2];
+            column_major[9] = mat[1][2];
+            column_major[10] = mat[2][2];
+            column_major[11] = mat[3][2];
+            column_major[12] = mat[0][3];
+            column_major[13] = mat[1][3];
+            column_major[14] = mat[2][3];
+            column_major[15] = mat[3][3];
+        }
+    };
+    
+    inline matrix4 operator*(matrix4 a, matrix4 b)
+    {
+        matrix4 res;
+        for (int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                float sum = 0.0f;
+                for (int k = 0; k < 4; k++)
+                {
+                    sum += a.mat[i][k] * b.mat[k][j];
+                }
+                res.mat[i][j] = sum;
+            }
+        }
+        return res;
+    }
+    
+    inline matrix4 tm2_pose_to_world_transformation(const rs2_pose& pose)
+    {
+        matrix4 rotation(pose.rotation);
+        matrix4 translation(pose.translation);
+        matrix4 G_tm2_body_to_tm2_world = translation * rotation;
+        float rotate_180_y[4][4] = { { -1, 0, 0, 0 },
+            { 0, 1, 0, 0 },
+            { 0, 0,-1, 0 },
+            { 0, 0, 0, 1 } };
+        matrix4 G_vr_body_to_tm2_body(rotate_180_y);
+        matrix4 G_vr_body_to_tm2_world = G_tm2_body_to_tm2_world * G_vr_body_to_tm2_body;
+        
+        float rotate_90_x[4][4] = { { 1, 0, 0, 0 },
+            { 0, 0,-1, 0 },
+            { 0, 1, 0, 0 },
+            { 0, 0, 0, 1 } };
+        matrix4 G_tm2_world_to_vr_world(rotate_90_x);
+        matrix4 G_vr_body_to_vr_world = G_tm2_world_to_vr_world * G_vr_body_to_tm2_world;
+        
+        return G_vr_body_to_vr_world;
+    }
+    
+    inline rs2_pose correct_tm2_pose(const rs2_pose& pose)
+    {
+        matrix4 G_vr_body_to_vr_world = tm2_pose_to_world_transformation(pose);
+        rs2_pose res = pose;
+        res.translation.x = G_vr_body_to_vr_world.mat[0][3];
+        res.translation.y = G_vr_body_to_vr_world.mat[1][3];
+        res.translation.z = G_vr_body_to_vr_world.mat[2][3];
+        res.rotation = G_vr_body_to_vr_world.to_quaternion();
+        return res;
+    }
+    
 struct int2 { int w, h; };
 
 struct rect
@@ -209,6 +563,8 @@ inline void draw_box_wire(const int width, const int height, const float box_wir
     glDisable(GL_BLEND);
     glDisable(GL_LINE_SMOOTH);
 }
+    
+    
 
 ////////////////////////
 // Image display code //
@@ -251,6 +607,11 @@ public:
         if(!solid_background){glDisable(GL_BLEND);}
     }
     
+    void render(const rs2_pose& pose, const rect& r, const char* text = nullptr)
+    {
+        render(&pose, r.w, r.h, r, text, RS2_FORMAT_6DOF);
+    }
+    
     void render(const rs_sf_image* frame, const rect& r, const char* text = nullptr)
     {
         if (!frame) return;
@@ -262,7 +623,9 @@ public:
     void render(const void* data, const int width, const int height, const rect& r, const char* text = nullptr, const rs2_format& format = RS2_FORMAT_RGB8)
     {
         upload(data, width, height, format);
-        show(_r = set_adjust_ratio ? r.adjust_ratio({ float(width), float(height) }) : r, text);
+        if(format!=RS2_FORMAT_6DOF){
+            show(_r = set_adjust_ratio ? r.adjust_ratio({ float(width), float(height) }) : r, text);
+        }
     }
     
     std::vector<uint8_t> _rgb;
@@ -289,6 +652,77 @@ public:
                 rgb_image[i * 3 + 2] = 0;
             }
         }
+    }
+    
+    void draw_grid()
+    {
+        glColor4f(0.4f, 0.4f, 0.4f, 0.8f);
+        glLineWidth(1);
+        glBegin(GL_LINES);
+        float step = 0.1f;
+        for (float x = -1.5; x < 1.5; x += step)
+        {
+            for (float y = -1.5; y < 1.5; y += step)
+            {
+                glVertex3f(x, y, 0);
+                glVertex3f(x + step, y, 0);
+                glVertex3f(x + step, y, 0);
+                glVertex3f(x + step, y + step, 0);
+            }
+        }
+        glEnd();
+    }
+    
+    void draw_pose_data(const rs2_pose& pose, int width, int height)
+    {
+        float original_color[4], original_line_width;
+        glGetFloatv(GL_CURRENT_COLOR, original_color);
+        glGetFloatv(GL_LINE_WIDTH, &original_line_width);
+        
+        //TODO: use id if required to keep track of some state
+        //glMatrixMode(GL_PROJECTION);
+        //glPushMatrix();
+        //glMatrixMode(GL_MODELVIEW);
+        //glPushMatrix();
+        
+        glViewport(0, 0, width, height);
+        
+        glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+        
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        
+        draw_grid();
+        draw_axes(0.3f, 2.f);
+        
+        // Drawing pose:
+        matrix4 pose_trans = tm2_pose_to_world_transformation(pose);
+        float model[16];
+        pose_trans.to_column_major(model);
+        
+        // set the pose transformation as the model matrix to draw the axis
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadMatrixf(model);
+        
+        draw_axes(0.3f, 2.f);
+        
+        // remove model matrix from the rest of the render
+        glPopMatrix();
+        
+        const auto canvas_size = 230;
+        const auto vec_threshold = 0.01f;
+        
+        glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, width, height, 0);
+        
+        //glMatrixMode(GL_MODELVIEW);
+        //glPopMatrix();
+        //glMatrixMode(GL_PROJECTION);
+        //glPopMatrix();
+        
+        glColor4fv(original_color);
+        glLineWidth(original_line_width);
     }
 
     void upload(const void* data, const int width, const int height, const rs2_format& format = RS2_FORMAT_RGB8)
@@ -321,18 +755,88 @@ public:
             case RS2_FORMAT_Y8:
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, _width = width, _height = height, 0, GL_LUMINANCE, GL_UNSIGNED_BYTE, data);
                 break;
+            case RS2_FORMAT_6DOF:
+            {
+                rs2_pose pose_data = *(rs2_pose*)data;//pose.get_pose_data();
+                draw_pose_data(pose_data, _width = width, _height = height);
+                break;
+            }
             default:
                 throw std::runtime_error("The requested format is not suported by this demo!");
         }
         
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        if(format == RS2_FORMAT_6DOF){
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+        }else{
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        }
         glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+        glPixelStorei(GL_PACK_ALIGNMENT, 1);
         glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
         glBindTexture(GL_TEXTURE_2D, 0);
     }
+    
+    static void  draw_axes(float axis_size = 1.f, float axisWidth = 4.f)
+    {
+        
+        // Triangles For X axis
+        glBegin(GL_TRIANGLES);
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glVertex3f(axis_size * 1.1f, 0.f, 0.f);
+        glVertex3f(axis_size, -axis_size * 0.05f, 0.f);
+        glVertex3f(axis_size,  axis_size * 0.05f, 0.f);
+        glVertex3f(axis_size * 1.1f, 0.f, 0.f);
+        glVertex3f(axis_size, 0.f, -axis_size * 0.05f);
+        glVertex3f(axis_size, 0.f,  axis_size * 0.05f);
+        glEnd();
+        
+        // Triangles For Y axis
+        glBegin(GL_TRIANGLES);
+        glColor3f(0.f, 1.f, 0.f);
+        glVertex3f(0.f, axis_size * 1.1f, 0.0f);
+        glVertex3f(0.f, axis_size,  0.05f * axis_size);
+        glVertex3f(0.f, axis_size, -0.05f * axis_size);
+        glVertex3f(0.f, axis_size * 1.1f, 0.0f);
+        glVertex3f( 0.05f * axis_size, axis_size, 0.f);
+        glVertex3f(-0.05f * axis_size, axis_size, 0.f);
+        glEnd();
+        
+        // Triangles For Z axis
+        glBegin(GL_TRIANGLES);
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex3f(0.0f, 0.0f, 1.1f * axis_size);
+        glVertex3f(0.0f, 0.05f * axis_size, 1.0f * axis_size);
+        glVertex3f(0.0f, -0.05f * axis_size, 1.0f * axis_size);
+        glVertex3f(0.0f, 0.0f, 1.1f * axis_size);
+        glVertex3f(0.05f * axis_size, 0.f, 1.0f * axis_size);
+        glVertex3f(-0.05f * axis_size, 0.f, 1.0f * axis_size);
+        glEnd();
+        
+        glLineWidth(axisWidth);
+        
+        // Drawing Axis
+        glBegin(GL_LINES);
+        // X axis - Red
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glVertex3f(0.0f, 0.0f, 0.0f);
+        glVertex3f(axis_size, 0.0f, 0.0f);
+        
+        // Y axis - Green
+        glColor3f(0.0f, 1.0f, 0.0f);
+        glVertex3f(0.0f, 0.0f, 0.0f);
+        glVertex3f(0.0f, axis_size, 0.0f);
+        
+        // Z axis - Blue
+        glColor3f(0.0f, 0.0f, 1.0f);
+        glVertex3f(0.0f, 0.0f, 0.0f);
+        glVertex3f(0.0f, 0.0f, axis_size);
+        glEnd();
+    }
+
     
     GLuint get_gl_handle() { return gl_handle; }
     
@@ -340,6 +844,7 @@ public:
     {
         if (!gl_handle)
             return;
+        
         
         glBindTexture(GL_TEXTURE_2D, gl_handle);
         glEnable(GL_TEXTURE_2D);
@@ -352,7 +857,40 @@ public:
         glDisable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, 0);
         
+        
+        //show(r, 1.0f);
+         
         draw_text(r.x + r.w - 10 - strlen(text)*6, r.y + r.h - 20, text ? text : rs2_stream_to_string(stream));
+    }
+    
+    void draw_texture(const rect& s, const rect& t) const
+    {
+        glBegin(GL_QUAD_STRIP);
+        {
+            glTexCoord2f(s.x, s.y + s.h); glVertex2f(t.x, t.y + t.h);
+            glTexCoord2f(s.x, s.y); glVertex2f(t.x, t.y);
+            glTexCoord2f(s.x + s.w, s.y + s.h); glVertex2f(t.x + t.w, t.y + t.h);
+            glTexCoord2f(s.x + s.w, s.y); glVertex2f(t.x + t.w, t.y);
+        }
+        glEnd();
+    }
+    
+    void show(const rect& r, float alpha, const rect& normalized_zoom = rect{0, 0, 1, 1}) const
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+        glBegin(GL_QUADS);
+        glColor4f(1.0f, 1.0f, 1.0f, 1 - alpha);
+        glEnd();
+        
+        glBindTexture(GL_TEXTURE_2D, gl_handle);
+        glEnable(GL_TEXTURE_2D);
+        draw_texture(normalized_zoom, r);
+        
+        glDisable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        
+        glDisable(GL_BLEND);
     }
     
     void draw_box(const float box_wire_endpt[12][2][2], int app_height, float line_width = -1.0f)
@@ -473,14 +1011,18 @@ public:
     inline rect win_color_image_vertical() const { return{0,win_rs_logo().ey(),width(),width()*480/640}; }
     inline rect win_color_image() const { return is_horizontal() ? win_color_image_horizontal() : win_color_image_vertical(); }
     //inline rect win_box_msg()      const { return{ win_left_column().x + win_left_column().w / 10, win_rs_logo().ey() + win_rs_logo().h / 8, win_left_column().w * 4 / 5, win_rs_logo().h * 3 / 8 }; }
-    inline rect win_box_msg_horizontal() const { return{win_rs_logo().w + (width()-win_left_column().w)/6, win_rs_logo().h/6, (width()-win_left_column().w)*4/6, win_rs_logo().h*4/6};}
+    inline rect win_box_msg_horizontal() const { return{  win_pose().ex() + (width()-win_pose().ex())/8, win_rs_logo().h/6, (width()-win_pose().ex())*4/6, win_rs_logo().h*6/8};}
     inline rect win_box_msg_vertical() const { return {width()/6, win_color_image().ey()+(height()-win_color_image().ey())/4,width()*4/6, win_rs_logo().h*4/6}; }
     inline rect win_box_msg() const { return is_horizontal() ? win_box_msg_horizontal() : win_box_msg_vertical(); }
+    
+    inline rect win_pose_horizontal() const { return {win_rs_logo().ex(), win_rs_logo().y, win_rs_logo().h, win_rs_logo().h}; }
+    inline rect win_pose_vertical()   const { return {win_color_image().ex() - win_rs_logo().h, win_color_image().y, win_rs_logo().h, win_rs_logo().h}; }
+    inline rect win_pose()            const { return is_horizontal() ? win_pose_horizontal() : win_pose_vertical(); }
     
     operator bool()
     {
         process_event();
-        
+    
         glPopMatrix();
         glfwSwapBuffers(win);
         
@@ -489,14 +1031,9 @@ public:
         glfwPollEvents();
         glfwGetFramebufferSize(win, &_width, &_height);
         
-        // Clear the framebuffer
-        glClear(GL_COLOR_BUFFER_BIT);
-        glViewport(0, 0, _width, _height);
-        
         // Draw the images
         glPushMatrix();
         glfwGetWindowSize(win, &_width, &_height);
-        glOrtho(0, _width, _height, 0, -1, +1);
         
 #ifdef __APPLE__
         static bool init_moved = false;
@@ -526,8 +1063,22 @@ public:
     
     void render_ui(const rs_sf_image* depth_frame, const rs_sf_image* color_frame, bool render_buttons, const std::vector<std::string>& text, const char* version = nullptr)
     {
+        if(color_frame->cam_pose && (text.size()>2||is_horizontal()))
+        {
+            auto cp = color_frame->cam_pose;
+            float m4[4][4]={ {cp[0],cp[1],cp[2],cp[3]},{cp[4],cp[5],cp[6],cp[7]},{cp[8],cp[9],cp[10],cp[11]},{0,0,0,1}};
+            rs2_pose pose;
+            pose.rotation = matrix4(m4).to_quaternion();
+            pose.translation = {cp[3],cp[7],cp[11]};
+            _texture_pose.upload(&pose, 100, 100, RS2_FORMAT_6DOF);
+        }
+     
         glClearColor(bkg_blue[0] / 255.0f, bkg_blue[1] / 255.0f, bkg_blue[2] / 255.0f, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
         
+        glViewport(0, 0, _width, _height);
+        glOrtho(0, _width, _height, 0, -1, +1);
+            
         //_texture_depth.render(depth_frame, win_depth_image(), "");
         _texture_color.render(color_frame, win_color_image(),"");
         _texture_realsense_logo.render_middle(0, win_rs_logo(),_dense);
@@ -547,6 +1098,7 @@ public:
         if(!text[0].empty()){ draw_tracker_hint(text[0].c_str()); }
         if(!text[1].empty()){ draw_app_hint(text[1].c_str()); }
         if(text.size() > 2){ draw_data_text(text); }
+        if(text.size() > 2 || is_horizontal()){ _texture_pose.show(win_pose(), "");}
     }
     
     void render_box_dim(const std::string& box_dim)
@@ -672,7 +1224,7 @@ private:
     bool _close = false, _reset = false, _stereo = false, _print_data = false, _tgscn = false, _fullscreen, _dense = true, _tgcolor = false;
     std::string _title;
     color_icon _icon_close, _icon_reset;
-    texture _texture_realsense_logo, _texture_close_button, _texture_reset_button, _texture_box_msg;
+    texture _texture_realsense_logo, _texture_close_button, _texture_reset_button, _texture_box_msg, _texture_pose;
     number_icons _num_icons;
     rect _win_tracker_hint = {};
 };

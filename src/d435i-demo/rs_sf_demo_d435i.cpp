@@ -456,7 +456,7 @@ struct d435i_exec_pipeline
                 _screen_text.emplace_back(print_pose(poseinfo, images[0].cam_pose,_print_data));
             }
                                           
-            if(_print_cmd_pose){ printf("%s\n", print_pose(poseinfo, images[0].cam_pose, 6).c_str()); }
+            if(_print_cmd_pose){ printf("%s\n", print_pose(poseinfo, images[0].cam_pose, -1).c_str()); }
             
             if (_bypass_box_detect){ _screen_text[0] += ", Box Detect OFF"; continue; }
         
@@ -585,7 +585,8 @@ protected:
         if(print_mode == 1){
             pose_str << "                       |        " << std::fixed;
             for(int p=0; p<12; ++p){ pose_str << (p!=0? ",":"") << std::setprecision(3) << std::setw(6) << cam_pose[p]; }
-        }else{
+        }
+        if(print_mode == -1){
             pose_str << " | " <<  std::fixed;
             for(int p=0; p<12; ++p){ pose_str << (p!=0? ",":"") << std::setprecision(9) << std::setw(12) << cam_pose[p]; }
         }

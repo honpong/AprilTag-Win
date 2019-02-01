@@ -43,6 +43,7 @@ int g_use_sp        = 0;
 int g_force_demo_ui = 0;
 int g_tablet_screen = 0;
 bool g_bypass_box_detect = false;
+bool g_print_cmd_pose    = false;
 
 int main(int argc, char* argv[])
 {
@@ -71,6 +72,7 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--demo_ui"))         { g_force_demo_ui = 1; }
         else if (!strcmp(argv[i], "--tablet"))          { g_tablet_screen = 1; }
         else if (!strcmp(argv[i], "--box_off"))         { g_bypass_box_detect = true; }
+        else if (!strcmp(argv[i], "--print_pose"))      { g_print_cmd_pose = true; }
         else {
             printf("usages:\n d435i-demo [--color][--cbox|--box|--plane][--live|--replay][--capture][--path PATH]\n");
             printf("                     [--fps IR COLOR][--hd|--qhd|--vga][--laser_off|--laser_on|--laser_interlaced][--decimate ACCEL GYRO] \n");
@@ -354,9 +356,9 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
             for(int s=0; s<(int)_stream_info.size(); ++s){
                 if(at(s).empty()){ continue; }
                 os[s] << " | " << _stream_info[s].type << "," << _stream_info[s].index << "," << _stream_info[s].format;
-                os[s] << std::right << std::setprecision(3);
-                for(auto& t : _stream_info[s].extrinsics[DEPTH].translation){ os[s] << "," << std::setw(6) << t; }
-                for(auto& r : _stream_info[s].extrinsics[DEPTH].rotation){    os[s] << "," << std::setw(6) << r; }
+                os[s] << std::right;
+                for(auto& t : _stream_info[s].extrinsics[DEPTH].translation){ os[s] << "," << std::setprecision(3) << std::setw(6) << t; }
+                for(auto& r : _stream_info[s].extrinsics[DEPTH].rotation){    os[s] << "," << std::setprecision(3) << std::setw(6) << r; }
             }
         }
         
@@ -390,6 +392,7 @@ struct d435i_exec_pipeline
     std::string                      _box_dimension_string{ "" };
     const int                        _box_dimension_rolling_length{ 1000 };
     bool                             _bypass_box_detect{ g_bypass_box_detect };
+    bool                             _print_cmd_pose{ g_print_cmd_pose };
     
     d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { select_camera_tracking(true); }
     std::string box_dim_string() const { return _box_dimension_string; }
@@ -422,13 +425,15 @@ struct d435i_exec_pipeline
 
             images = _src.images();
             _tracker_hint = "Move Tablet Around";
+            rs2::camera_imu_tracker::pose_info poseinfo;
             if (_src.total_runtime() >= _drop_time)
             {
                 if (_tracker != nullptr) {
                     //_tracker->process(_src.data_vec(_tracker->require_laser_off()));
                     _tracker->process(_src.data_vec_with_stereo(_tracker->require_laser_off(),_use_stereo?false:true));
                     _tracker_hint = _tracker->prefix() + ": ";
-                    switch (_tracker->wait_for_image_pose(images)) {
+                    poseinfo = _tracker->wait_for_image_pose(images);
+                    switch(poseinfo._conf) {
                     case rs2::camera_imu_tracker::HIGH:   _tracker_hint += "High Confidence"; break;
                     case rs2::camera_imu_tracker::MEDIUM: _tracker_hint += "Medium Confidence"; break;
                     default:                              _tracker_hint  = "Move Around / Reset"; break;
@@ -448,7 +453,10 @@ struct d435i_exec_pipeline
                 for(auto& s : _src.data_text(_print_data==1?true:false)){
                     _screen_text.emplace_back(s);
                 }
+                _screen_text.emplace_back(print_pose(poseinfo, images[0].cam_pose,_print_data));
             }
+                                          
+            if(_print_cmd_pose){ printf("%s\n", print_pose(poseinfo, images[0].cam_pose, 6).c_str()); }
             
             if (_bypass_box_detect){ _screen_text[0] += ", Box Detect OFF"; continue; }
         
@@ -567,6 +575,21 @@ protected:
             _box_dimension_string = "";
             return false;
         }
+    }
+    
+    std::string print_pose(const rs2::camera_imu_tracker::pose_info& poseinfo, const float cam_pose[12], int print_mode) const
+    {
+        std::stringstream pose_str;
+        pose_str << " pose " << poseinfo._systime << ", " << poseinfo._conf;
+        
+        if(print_mode == 1){
+            pose_str << "                       |        " << std::fixed;
+            for(int p=0; p<12; ++p){ pose_str << (p!=0? ",":"") << std::setprecision(3) << std::setw(6) << cam_pose[p]; }
+        }else{
+            pose_str << " | " <<  std::fixed;
+            for(int p=0; p<12; ++p){ pose_str << (p!=0? ",":"") << std::setprecision(9) << std::setw(12) << cam_pose[p]; }
+        }
+        return pose_str.str();
     }
 };
  

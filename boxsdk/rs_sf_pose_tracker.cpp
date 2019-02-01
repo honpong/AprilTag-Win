@@ -224,6 +224,7 @@ struct sp_camera_tracker : public rs2::camera_imu_tracker
                 if(!_color_buf){ break; }
                 std::lock_guard<std::mutex> lk(_last_pose_mutex);
                 _was_tracking = rs_sf_do_scene_perception_tracking((unsigned short*)data->image.data, _color_buf->image.data, _reset_request, _last_output_pose.data());
+                time(&_last_output_time);
             }
             default:
                 break;
@@ -233,25 +234,27 @@ struct sp_camera_tracker : public rs2::camera_imu_tracker
     
     std::mutex           _last_pose_mutex;
     std::array<float,12> _last_output_pose;
-    conf wait_for_image_pose(std::vector<rs_sf_image>& images) override
+    time_t               _last_output_time;
+    pose_info wait_for_image_pose(std::vector<rs_sf_image>& images) override
     {
-        if(!_sp_init)     { return INVALID; }
-        if(!_was_tracking){ return NONE; }
+        if(!_sp_init)     { return {INVALID,0}; }
+        if(!_was_tracking){ return {NONE,0}; }
         
-        std::array<float,12> sp_pose;
+        std::array<float,12> sp_pose; time_t sp_pose_time;
         {
             std::lock_guard<std::mutex> lk(_last_pose_mutex);
             sp_pose = _last_output_pose;
+            sp_pose_time = _last_output_time;
         }
         for(auto& img : images){
             update_pose(img.cam_pose, sp_pose.data());
         }
         switch(get_last_tracking_status()){
-            case 0: return LOW;
-            case 1: return MEDIUM;
-            default: return HIGH;
+            case 0: return {LOW, sp_pose_time};
+            case 1: return {MEDIUM, sp_pose_time};
+            default: return {HIGH, sp_pose_time};
         }
-        return HIGH;
+        return {HIGH, sp_pose_time};
     }
     
 private:
@@ -518,12 +521,16 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         float                _path_length;
         rc_PoseVelocity      _pose_velocity;
         rc_PoseAcceleration  _pose_acceleration;
+        
+        time_t               _output_system_time;
     
         rc_tracker_output(rc_Tracker* tracker, const rc_Data& ref)
         : rc_Data(ref), rc_PoseTime(rc_getPose(tracker, &_pose_velocity, &_pose_acceleration, _data_path))
         {
             _confidence  = rc_getConfidence(tracker);
             _path_length = rc_getPathLength(tracker);
+            
+            time(&_output_system_time);
         }
         
         rc_tracker_output() = default;
@@ -547,7 +554,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         }
     }
     
-    conf wait_for_image_pose(std::vector<rs_sf_image>& images) override
+    pose_info wait_for_image_pose(std::vector<rs_sf_image>& images) override
     {
         rc_tracker_output _pose;
         {
@@ -560,13 +567,13 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         << ", T:" << _pose.pose_m.T.x << " " << _pose.pose_m.T.y << " " << _pose.pose_m.T.z << std::endl;
 #endif
         
-        if(_pose._confidence == rc_E_CONFIDENCE_NONE){ return NONE; }
-        if(_pose._confidence == rc_E_CONFIDENCE_LOW) { return LOW; }
+        if(_pose._confidence == rc_E_CONFIDENCE_NONE){ return {NONE,_pose._output_system_time}; }
+        if(_pose._confidence == rc_E_CONFIDENCE_LOW) { return {LOW, _pose._output_system_time}; }
         for(auto& img : images){
             img.cam_pose *= _pose.pose_m;
             //img.cam_pose << _pose.pose_m;
         }
-        return (conf)_pose._confidence;
+        return {(conf)_pose._confidence, _pose._output_system_time};
     }
     
     void zero_bias()

@@ -18,6 +18,7 @@
 #define GLFW_INCLUDE_GLU
 #include <GLFW/glfw3.h>
 
+#include <mutex>
 #include <chrono>
 #include <thread>
 #include <string>
@@ -609,7 +610,7 @@ public:
     
     void render(const rs2_pose& pose, const rect& r, const char* text = nullptr)
     {
-        render(&pose, r.w, r.h, r, text, RS2_FORMAT_6DOF);
+        render(&pose, (int)r.w, (int)r.h, r, text, RS2_FORMAT_6DOF);
     }
     
     void render(const rs_sf_image* frame, const rect& r, const char* text = nullptr)
@@ -1121,7 +1122,7 @@ public:
         _win_tracker_hint = is_horizontal() ?
         rect{ win_color_image().ex()-10-strlen(text)*6, win_color_image().ey()-40, static_cast<float>(10+strlen(text)*6),20 } :
         rect{ win_color_image().ex()- 5-strlen(text)*6, win_color_image().ey(),    static_cast<float>( 5+strlen(text)*6),20 };
-        draw_text((int)_win_tracker_hint.x, (int)_win_tracker_hint.y+20, text);
+        draw_text(_win_tracker_hint.x, _win_tracker_hint.y+20, text);
     }
     
     void draw_app_hint(const char* text)

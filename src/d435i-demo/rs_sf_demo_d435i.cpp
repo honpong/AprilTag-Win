@@ -27,7 +27,7 @@
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
-#define VERSION_STRING "v1.2"
+#define VERSION_STRING "v1.3"
 
 int capture_frames(const std::string& path, const int cap_size[2], int laser_option);
 int replay_frames(const std::string& path);

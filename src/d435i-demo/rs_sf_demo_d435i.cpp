@@ -42,6 +42,7 @@ int g_replace_color = 1;
 int g_use_sp        = 0;
 int g_force_demo_ui = 0;
 int g_tablet_screen = 0;
+bool g_bypass_box_detect = false;
 
 int main(int argc, char* argv[])
 {
@@ -69,9 +70,11 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--sp"))              { g_use_sp = 1; }
         else if (!strcmp(argv[i], "--demo_ui"))         { g_force_demo_ui = 1; }
         else if (!strcmp(argv[i], "--tablet"))          { g_tablet_screen = 1; }
+        else if (!strcmp(argv[i], "--box_off"))         { g_bypass_box_detect = true; }
         else {
             printf("usages:\n d435i-demo [--color][--cbox|--box|--plane][--live|--replay][--capture][--path PATH]\n");
             printf("                     [--fps IR COLOR][--hd|--qhd|--vga][--laser_off|--laser_on|--laser_interlaced][--decimate ACCEL GYRO] \n");
+            printf("                     [--demo_ui][--tablet][--box_off] \n");
             return 0;
         }
     }
@@ -386,6 +389,7 @@ struct d435i_exec_pipeline
     std::array<float, 3>             _box_dimension_sum{ 0.0f,0.0f,0.0f };
     std::string                      _box_dimension_string{ "" };
     const int                        _box_dimension_rolling_length{ 1000 };
+    bool                             _bypass_box_detect{ g_bypass_box_detect };
     
     d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { select_camera_tracking(true); }
     std::string box_dim_string() const { return _box_dimension_string; }
@@ -397,6 +401,8 @@ struct d435i_exec_pipeline
             reset(false);
         }
     }
+    
+    void toggle_bypass_box_detect() { _bypass_box_detect = !_bypass_box_detect; }
     
     int reset(bool reset_src = true)
     {
@@ -443,6 +449,8 @@ struct d435i_exec_pipeline
                     _screen_text.emplace_back(s);
                 }
             }
+            
+            if (_bypass_box_detect){ _screen_text[0] += ", Box Detect OFF"; continue; }
         
             rs_sf_image boxfit_images[2] = { images[DEPTH], images[COLOR] };
             auto status = rs_shapefit_depth_image(_boxfit.get(), boxfit_images);
@@ -601,6 +609,7 @@ int run_demo_ui(d435i_exec_pipeline& pipe) try
         else if(app.reset_request()){ pipe.reset(false); }
         if(app.print_request()){ pipe._print_data = pipe._print_data ? 0 : (app.is_horizontal()?1:2); }
         else { pipe._print_data = pipe._print_data ? (app.is_horizontal() && app.width() >= 800 ?1:2) : 0; }
+        if(app.boxde_request()){ pipe.toggle_bypass_box_detect(); }
         COLOR_STREAM_REQUEST
     }
     return 0;

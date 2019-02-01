@@ -914,7 +914,14 @@ public:
     
     std::function<void(double, double)> on_mouse_scroll = [](double, double) {};
     std::function<void(double, double)> on_mouse_move = [this](double x, double y) {_mouse_pos[0] = x; _mouse_pos[1] = y; };
-    std::function<void(int)>            on_key_release = [this](int key) { if (key == 'q' || key == GLFW_KEY_ESCAPE) glfwSetWindowShouldClose(win, GL_TRUE); };
+    std::function<void(int)>            on_key_release = [this](int key)
+    {
+        switch(key){
+            case GLFW_KEY_Q: case GLFW_KEY_ESCAPE: glfwSetWindowShouldClose(win, GL_TRUE); break;
+            case GLFW_KEY_B:                       _tgbox = true;                          break;
+            default: break;
+        }
+    };
     std::function<void(bool)>           on_left_mouse = [this](bool click)
     {
         if (click) {
@@ -1193,10 +1200,10 @@ public:
     
     void process_event()
     {
-        if (_close) std::thread([this]{ std::this_thread::sleep_for(std::chrono::milliseconds(100)); on_key_release('q');}).detach();
+        if (_close) std::thread([this]{ std::this_thread::sleep_for(std::chrono::milliseconds(100)); on_key_release(GLFW_KEY_ESCAPE);}).detach();
         if (_tgscn) reset_screen(!_fullscreen, _win_width, _win_height);
         if (_reset) { _high_mismatch_count = 0; }
-        _close = _reset = _tgcolor = _stereo = _print_data = false;
+        _close = _reset = _tgcolor = _stereo = _print_data = _tgbox = false;
     }
     
     ~window()
@@ -1213,6 +1220,7 @@ public:
     bool boxca_request()  const { return _dwin_opt == 2; }
     bool dense_request()  const { return _dense;         }
     bool color_request()  const { return _tgcolor;       }
+    bool boxde_request()  const { return _tgbox;         }
     
     double _mouse_pos[2] = {};
     const unsigned char bkg_blue[3] = { 0, 66, 128 };
@@ -1222,7 +1230,7 @@ public:
 private:
     GLFWwindow* win = nullptr;
     int _width, _height, _win_width, _win_height, _dwin_opt = 0, _high_mismatch_count = 0;
-    bool _close = false, _reset = false, _stereo = false, _print_data = false, _tgscn = false, _fullscreen, _dense = true, _tgcolor = false;
+    bool _close = false, _reset = false, _stereo = false, _print_data = false, _tgscn = false, _fullscreen, _dense = true, _tgcolor = false, _tgbox = false;
     std::string _title;
     color_icon _icon_close, _icon_reset;
     texture _texture_realsense_logo, _texture_close_button, _texture_reset_button, _texture_box_msg, _texture_pose;

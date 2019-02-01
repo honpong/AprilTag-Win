@@ -919,6 +919,7 @@ public:
         switch(key){
             case GLFW_KEY_Q: case GLFW_KEY_ESCAPE: glfwSetWindowShouldClose(win, GL_TRUE); break;
             case GLFW_KEY_B:                       _tgbox = true;                          break;
+            case GLFW_KEY_P:                       _print_data = true;                     break;
             default: break;
         }
     };

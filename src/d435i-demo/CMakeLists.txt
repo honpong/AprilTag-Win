@@ -17,6 +17,13 @@ if(libSP_FOUND)
     add_definitions(-DlibSP_FOUND)
     set(libSP libSP)
 endif()
+
+find_package(OpenCV QUIET)
+if(OpenCV_FOUND)
+    add_definitions(-DOpenCV_FOUND)
+else()
+    message(WARNING "\n\n OpenCV package is required to write JPEG!\n\n")
+endif()
     
 FILE(GLOB ${PROJECT_NAME}_DEV_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../dev/rs_sf*.cpp")
 FILE(GLOB ${PROJECT_NAME}_DEV_HDR "${CMAKE_CURRENT_SOURCE_DIR}/../dev/*.h*")
@@ -36,8 +43,8 @@ add_executable(${PROJECT_NAME}
     ${THIRDPARTY_DIR}/fw-rw/rs2-crw/mm/inc/rs2-custom-calibration-mm.h
 )
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
-target_link_libraries(${PROJECT_NAME} shapefit-core ${LIBRS_LIBS} ${libSP})
-target_include_directories(${PROJECT_NAME} PRIVATE shapefit-core ${LIBRS_LIBS} ${libSP}
+target_link_libraries(${PROJECT_NAME} shapefit-core ${LIBRS_LIBS} ${libSP} ${OpenCV_LIBS})
+target_include_directories(${PROJECT_NAME} PRIVATE shapefit-core ${LIBRS_LIBS} ${libSP} ${OpenCV_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../dev
     ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk
     ${THIRDPARTY_DIR}/LibRealSense/librealsense/third-party

@@ -45,6 +45,8 @@ int g_tablet_screen = 0;
 bool g_bypass_box_detect = false;
 bool g_print_cmd_pose    = false;
 bool g_replay_once       = false;
+bool g_write_rgb_pose    = false;
+std::string g_pose_path = ".";
 
 int main(int argc, char* argv[])
 {
@@ -75,15 +77,17 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--tablet"))          { g_tablet_screen = 1; }
         else if (!strcmp(argv[i], "--box_off"))         { g_bypass_box_detect = true; }
         else if (!strcmp(argv[i], "--print_pose"))      { g_print_cmd_pose = true; }
+        else if (!strcmp(argv[i], "--write_rgb_pose"))  { g_write_rgb_pose = true; g_pose_path = argv[++i]; }
         else {
             printf("usages:\n d435i-demo [--color][--cbox|--box|--plane][--live|--replay][--capture][--path PATH]\n");
             printf("                     [--fps IR COLOR][--hd|--qhd|--vga][--laser_off|--laser_on|--laser_interlaced][--decimate ACCEL GYRO] \n");
-            printf("                     [--demo_ui][--tablet][--box_off] \n");
+            printf("                     [--demo_ui][--tablet][--box_off][--write_rgb_pose PATH] \n");
             return 0;
         }
     }
     if (data_path.back() != '\\' && data_path.back() != '/'){ data_path.push_back(PATH_SEPARATER); }
     if (camera_json_path.back() != '\\' && camera_json_path.back() != '/'){ camera_json_path.push_back(PATH_SEPARATER); }
+    if (g_pose_path.back() != '\\' && g_pose_path.back() != '/'){ g_pose_path.push_back(PATH_SEPARATER); }
     if (is_capture) capture_frames(data_path, capture_size.data(), laser_option);
     if (is_replay)  replay_frames(data_path);
     if (is_live)    live_play(capture_size.data(),camera_json_path);
@@ -370,6 +374,43 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     }
 };
 
+#if defined(OPENCV_FOUND) | defined(OpenCV_FOUND)
+#include <opencv2/opencv.hpp>
+#define IMG_SUFFIX ".jpg"
+#else
+#define IMG_SUFFIX ".png"
+#endif
+#include "rs_sf_file_io.hpp"
+struct d435i_pose_writer
+{
+    std::string   _path { g_pose_path };
+    std::string   _prefix { "color_" };
+    std::ofstream index_file;
+    d435i_pose_writer()
+    {
+        RS_SF_CLEAR_DIRECTORY(_path);
+        index_file.open(_path + "pose.txt", std::ios_base::out | std::ios_base::trunc);
+    }
+    
+    bool write(const rs_sf_image& rgb)
+    {
+        if(!index_file.is_open()){ return false; }
+        
+        std::string filename = _prefix  + std::to_string(rgb.frame_id) + IMG_SUFFIX;
+        index_file << filename;
+        for(int i=0; i<12; ++i){ index_file << "," << rgb.cam_pose[i]; }
+        index_file << std::endl;
+
+#if defined(OPENCV_FOUND) | defined(OpenCV_FOUND)
+        cv::Mat img(rgb.img_h, rgb.img_w, CV_8UC3, rgb.data);
+        cv::imwrite(_path + filename, img, {CV_IMWRITE_JPEG_QUALITY, 100});
+#else
+        rs_sf_file_io::rs_sf_image_write(_path+filename, &rgb);
+#endif
+        return true;
+    }
+};
+
 
 #include <deque>
 #include <array>
@@ -396,6 +437,8 @@ struct d435i_exec_pipeline
     bool                             _bypass_box_detect{ g_bypass_box_detect };
     bool                             _print_cmd_pose{ g_print_cmd_pose };
     bool                             _replay_once{ g_replay_once };
+    bool                             _write_rgb_pose{ g_write_rgb_pose };
+    std::unique_ptr<d435i_pose_writer> _pose_writer;
     
     d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { select_camera_tracking(true); }
     std::string box_dim_string() const { return _box_dimension_string; }
@@ -412,7 +455,7 @@ struct d435i_exec_pipeline
     
     int reset(bool reset_src = true)
     {
-        if (reset_src) { if(_replay_once){ return -1; } _src.reset(); }
+        if (reset_src) { if(_replay_once){ return -1; } _src.reset(); _pose_writer = nullptr; }
         return init_algo_middleware();
     }
 
@@ -440,6 +483,20 @@ struct d435i_exec_pipeline
                     case rs2::camera_imu_tracker::HIGH:   _tracker_hint += "High Confidence"; break;
                     case rs2::camera_imu_tracker::MEDIUM: _tracker_hint += "Medium Confidence"; break;
                     default:                              _tracker_hint  = "Move Around / Reset"; break;
+                    }
+                    
+                    if(_write_rgb_pose)
+                    {
+                        switch(poseinfo._conf){
+                            case rs2::camera_imu_tracker::HIGH:
+                            case rs2::camera_imu_tracker::MEDIUM:
+                                if(!_pose_writer){ _pose_writer = std::make_unique<d435i_pose_writer>(); }
+                                for(auto i : images){
+                                    if(i.byte_per_pixel==3 && i.cam_pose){ _pose_writer->write(i); }
+                                }
+                                break;
+                            default: break;
+                        }
                     }
                 }
                 else {

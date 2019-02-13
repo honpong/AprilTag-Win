@@ -648,7 +648,7 @@ int replay_frames(const std::string& path)
 
 int live_play(const int cap_size[2], const std::string& path)
 {
-    d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1],STREAM_REQUEST(0));});
+    d435i_exec_pipeline pipe(path, [&](){return rs_sf_create_camera_imu_stream(cap_size[0], cap_size[1], STREAM_REQUEST(0));});
     //return run_dev_ui(pipe);
     return run_demo_ui(pipe);
 }

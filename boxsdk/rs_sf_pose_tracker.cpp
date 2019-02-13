@@ -542,6 +542,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         
         switch(data->type){
             case rc_SENSOR_TYPE_IMAGE:
+            case rc_SENSOR_TYPE_STEREO:
             case rc_SENSOR_TYPE_GYROSCOPE:
             case rc_SENSOR_TYPE_ACCELEROMETER: {
                 std::lock_guard<std::mutex> lk(_last_pose_mutex);

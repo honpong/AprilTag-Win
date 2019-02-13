@@ -383,7 +383,7 @@ struct d435i_exec_pipeline
     rs2::camera_imu_tracker* _tracker{ nullptr };
     int                      _decimate_accel{ g_accel_dec };
     int                      _decimate_gyro{ g_gyro_dec };
-    int                      _use_sp{ g_use_sp }, _use_stereo{ 1 }, _print_data{ 0 };
+    int                      _use_sp{ g_use_sp }, _use_stereo{ 1 }, _print_data{ 0 }, _use_color{ g_replace_color ? 0 : 1 };
     std::string              _app_hint = "", _tracker_hint = "";
     std::vector<std::string> _screen_text;
 
@@ -504,6 +504,7 @@ protected:
                 
                 if(_imu_tracker){
                     _imu_tracker->process({rs2::camera_imu_tracker::make_stereo_msg(_use_stereo?true:false)});
+                    _imu_tracker->process({rs2::camera_imu_tracker::make_color_msg(_use_color?true:false)});
                 }
             }
         }

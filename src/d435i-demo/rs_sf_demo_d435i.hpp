@@ -917,9 +917,9 @@ public:
     std::function<void(int)>            on_key_release = [this](int key)
     {
         switch(key){
-            case GLFW_KEY_Q: case GLFW_KEY_ESCAPE: glfwSetWindowShouldClose(win, GL_TRUE); break;
-            case GLFW_KEY_B:                       _tgbox = true;                          break;
-            case GLFW_KEY_P:                       _print_data = true;                     break;
+            case GLFW_KEY_Q: case GLFW_KEY_ESCAPE: _close = true;      break;
+            case GLFW_KEY_B:                       _tgbox = true;      break;
+            case GLFW_KEY_P:                       _print_data = true; break;
             default: break;
         }
     };
@@ -1201,7 +1201,7 @@ public:
     
     void process_event()
     {
-        if (_close) std::thread([this]{ std::this_thread::sleep_for(std::chrono::milliseconds(100)); on_key_release(GLFW_KEY_ESCAPE);}).detach();
+        if (_close) std::thread([this]{ std::this_thread::sleep_for(std::chrono::milliseconds(100)); glfwSetWindowShouldClose(win, GL_TRUE);}).detach();
         if (_tgscn) reset_screen(!_fullscreen, _win_width, _win_height);
         if (_reset) { _high_mismatch_count = 0; }
         _close = _reset = _tgcolor = _stereo = _print_data = _tgbox = false;

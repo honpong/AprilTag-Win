@@ -33,6 +33,11 @@ rs_sf_data_ptr rs2::camera_imu_tracker::make_stereo_msg(bool use_stereo)
     return std::make_shared<rs_sf_config_msg>(use_stereo?"stereo=1":"stereo=0");
 }
 
+rs_sf_data_ptr rs2::camera_imu_tracker::make_color_msg(bool use_color)
+{
+    return std::make_shared<rs_sf_config_msg>(use_color?"color=1":"color=0");
+}
+
 static float g_scene_quality = -2.0;
 float get_last_failed_sp_quality(void)
 {
@@ -387,6 +392,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
     //bool fast_path{ false }, to_zero_biases{ false }, use_odometry{ false }, stereo_configured{ false }, dynamic_calibration{ false };
     
     bool _use_stereo{ true };
+    bool _use_color{ false };
     bool _async{ false };
     bool _fast_path{ false };
     bool _dynamic_calibration{ false };
@@ -488,12 +494,10 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
                                 data->stereo[0]->image.data, data->stereo[1]->image.data,
                                 [](void* ptr) { delete (data_packet*)ptr; }, new data_packet(data));
             case RS_SF_SENSOR_COLOR:
-                /*
+                if(!_use_color){ break; }
                 return rc_receiveImage(_tracker.get(), 2, rc_FORMAT_RGB8, timestamp_us, 0,
                                 data->image.img_w, data->image.img_h, data->image.img_w * 3, data->image.data,
                                 [](void* ptr){ delete (data_packet*)ptr; }, new data_packet(data));
-                 */
-                break;
             case RS_SF_SENSOR_GYRO: {
                 const rc_Vector angular_velocity_rad__s = *(rc_Vector*)&data->imu;
                 return rc_receiveGyro(_tracker.get(), 0, timestamp_us, angular_velocity_rad__s);
@@ -505,6 +509,8 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
             case RS_SF_SENSOR_CONFIG:{
                 if(     !strcmp(data->config,"stereo=1")){ _use_stereo=true; return true;}
                 else if(!strcmp(data->config,"stereo=0")){ _use_stereo=false;return true;}
+                else if(!strcmp(data->config,"color=1" )){ _use_color =true; return true;}
+                else if(!strcmp(data->config,"color=0" )){ _use_color =false;return true;}
                 break;
             }
             default:

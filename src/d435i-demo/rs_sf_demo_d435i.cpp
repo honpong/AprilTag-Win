@@ -44,6 +44,7 @@ int g_force_demo_ui = 0;
 int g_tablet_screen = 0;
 bool g_bypass_box_detect = false;
 bool g_print_cmd_pose    = false;
+bool g_replay_once       = false;
 
 int main(int argc, char* argv[])
 {
@@ -56,10 +57,11 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--cbox"))            { g_sf_option = RS_SHAPEFIT_BOX_COLOR; }
         else if (!strcmp(argv[i], "--box"))             { g_sf_option = RS_SHAPEFIT_BOX; }
         else if (!strcmp(argv[i], "--plane"))           { g_sf_option = RS_SHAPEFIT_PLANE; }
-        else if (!strcmp(argv[i], "--live"))            { is_live = true; }
+        else if (!strcmp(argv[i], "--live"))            { is_live = true; is_replay = false; g_replay_once = false;}
         else if (!strcmp(argv[i], "--capture"))         { is_capture = true; is_live = false; }
         else if (!strcmp(argv[i], "--path"))            { data_path = camera_json_path = argv[++i]; }
         else if (!strcmp(argv[i], "--replay"))          { is_replay = true; is_live = false; }
+        else if (!strcmp(argv[i], "--replay_once"))     { is_replay = true; is_live = false; g_replay_once = true;}
         else if (!strcmp(argv[i], "--hd"))              { capture_size = { 1280,720 }; }
         else if (!strcmp(argv[i], "--qhd"))             { capture_size = { 640,360 }; }
         else if (!strcmp(argv[i], "--vga"))             { capture_size = { 640,480 }; }
@@ -393,6 +395,7 @@ struct d435i_exec_pipeline
     const int                        _box_dimension_rolling_length{ 1000 };
     bool                             _bypass_box_detect{ g_bypass_box_detect };
     bool                             _print_cmd_pose{ g_print_cmd_pose };
+    bool                             _replay_once{ g_replay_once };
     
     d435i_exec_pipeline(const std::string& path, stream_maker&& maker) : _path(path), _src(std::move(maker)) { select_camera_tracking(true); }
     std::string box_dim_string() const { return _box_dimension_string; }
@@ -409,7 +412,7 @@ struct d435i_exec_pipeline
     
     int reset(bool reset_src = true)
     {
-        if (reset_src) { _src.reset(); }
+        if (reset_src) { if(_replay_once){ return -1; } _src.reset(); }
         return init_algo_middleware();
     }
 
@@ -625,6 +628,7 @@ int run_demo_ui(d435i_exec_pipeline& pipe) try
     for(d435i::window app(app_w, app_h, pipe._src.get_device_name()+" Box Scan Example"); app;)
     {
         auto images = pipe.exec_once();
+        if(g_replay_once && images.size() == 0 ){ break; }
         if(images.size() <= COLOR){ continue; }
         app.render_ui(nullptr, &images[COLOR], true, pipe._screen_text, VERSION_STRING);
         app.render_box_dim(pipe.box_dim_string());

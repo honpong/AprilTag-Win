@@ -404,8 +404,9 @@ struct d435i_pose_writer
         index_file << std::endl;
 
 #if defined(OPENCV_FOUND) | defined(OpenCV_FOUND)
-        cv::Mat img(rgb.img_h, rgb.img_w, CV_8UC3, rgb.data);
-        cv::imwrite(_path + filename, img, {CV_IMWRITE_JPEG_QUALITY, 100});
+        cv::Mat img(rgb.img_h, rgb.img_w, CV_8UC3, rgb.data), bgr;
+        cv::cvtColor(img,bgr, CV_RGB2BGR);
+        cv::imwrite(_path + filename, bgr, {CV_IMWRITE_JPEG_QUALITY, 100});
 #else
         rs_sf_file_io::rs_sf_image_write(_path+filename, &rgb);
 #endif

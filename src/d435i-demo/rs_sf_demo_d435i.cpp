@@ -389,6 +389,8 @@ struct d435i_pose_writer
     d435i_pose_writer()
     {
         RS_SF_CLEAR_DIRECTORY(_path);
+        std::this_thread::yield();
+        
         index_file.open(_path + "pose.txt", std::ios_base::out | std::ios_base::trunc);
     }
     

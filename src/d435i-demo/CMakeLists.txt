@@ -23,6 +23,8 @@ if(OpenCV_FOUND)
     add_definitions(-DOpenCV_FOUND)
 else()
     message(WARNING "\n\n OpenCV package is required to write JPEG!\n\n")
+    set(OpenCV_LIBS "")
+    set(OpenCV_DIR  "")
 endif()
     
 FILE(GLOB ${PROJECT_NAME}_DEV_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../dev/rs_sf*.cpp")

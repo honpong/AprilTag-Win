@@ -385,7 +385,7 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
 {
     typedef rs_sf_data_ptr data_packet;
     
-    std::mutex        _last_pose_mutex;
+    std::mutex        _last_pose_mutex, _last_rgb_mutex;
     std::unique_ptr<rc_Tracker, decltype(&rc_destroy)> _tracker {nullptr,nullptr};
 
     //bool is_realtime{ false }, qvga{ false }, async{ false }, use_depth{ true };
@@ -540,17 +540,21 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         }
         
         rc_tracker_output() = default;
-    } _last_output_pose;
+    } _last_output_pose, _last_rgb_pose;
     
     void data_callback(rc_Tracker* tracker, const rc_Data* data)
     {
         if(!data){ return; }
         
         switch(data->type){
-            case rc_SENSOR_TYPE_IMAGE:
+            case rc_SENSOR_TYPE_IMAGE: {
+                std::lock_guard<std::mutex> lk(_last_rgb_mutex);
+                _last_rgb_pose = rc_tracker_output(tracker,*data);
+            }   break;
             case rc_SENSOR_TYPE_STEREO:
-            case rc_SENSOR_TYPE_GYROSCOPE:
-            case rc_SENSOR_TYPE_ACCELEROMETER: {
+            //case rc_SENSOR_TYPE_GYROSCOPE:
+            //case rc_SENSOR_TYPE_ACCELEROMETER:
+            {
                 std::lock_guard<std::mutex> lk(_last_pose_mutex);
                 _last_output_pose = rc_tracker_output(tracker,*data);
                 //std::cout << "pose confidence : " << _last_output_pose.load()._confidence << std::endl;
@@ -577,7 +581,20 @@ struct rc_imu_camera_tracker : public rs2::camera_imu_tracker
         if(_pose._confidence == rc_E_CONFIDENCE_NONE){ return {NONE,_pose._output_system_time}; }
         if(_pose._confidence == rc_E_CONFIDENCE_LOW) { return {LOW, _pose._output_system_time}; }
         for(auto& img : images){
-            img.cam_pose *= _pose.pose_m;
+            
+            if(img.byte_per_pixel!=3){
+                img.cam_pose *= _pose.pose_m;
+            }
+            else{
+                rc_tracker_output _rgb_pose;
+                {
+                    std::lock_guard<std::mutex> lk(_last_rgb_mutex);
+                    _rgb_pose = _last_rgb_pose;
+                }
+                // force to use stereo pose if rgb pose not good
+                if(_rgb_pose._confidence < rc_E_CONFIDENCE_MEDIUM){ _rgb_pose = _pose; }
+                img.cam_pose *= _rgb_pose.pose_m;
+            }
             //img.cam_pose << _pose.pose_m;
         }
         return {(conf)_pose._confidence, _pose._output_system_time};

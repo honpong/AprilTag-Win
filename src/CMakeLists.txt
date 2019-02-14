@@ -131,6 +131,8 @@ if(BUILD_SHAPEFIT_DEV_APP)
         add_definitions(-DRC_TRACKER)
         list(APPEND LIBRS_LIBS tracker)
     endif()
+
+    add_subdirectory(thirdparty/exif)
     add_subdirectory(d435i-demo)
 
     if(MSVC)

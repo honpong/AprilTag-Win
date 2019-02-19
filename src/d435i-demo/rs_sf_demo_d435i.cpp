@@ -402,7 +402,10 @@ struct d435i_pose_writer
         
         std::string filename = _prefix  + std::to_string(rgb.frame_id) + IMG_SUFFIX;
         index_file << filename;
+        auto bluh = convert(rgb.cam_pose);
+        index_file << "," << bluh.omega << "," << bluh.phi << "," << bluh.kappa;
         for(int i=0; i<12; ++i){ index_file << "," << rgb.cam_pose[i]; }
+        
         index_file << std::endl;
 
 #if defined(OPENCV_FOUND) | defined(OpenCV_FOUND)
@@ -413,6 +416,17 @@ struct d435i_pose_writer
         rs_sf_file_io::rs_sf_image_write(_path+filename, &rgb);
 #endif
         return true;
+    }
+    
+    
+    struct BLUH_angle { float omega, phi, kappa; };
+    static BLUH_angle convert(const float pose[12])
+    {
+        BLUH_angle dst;
+        dst.phi = std::atan2(pose[9], pose[11]); //phi = arctan(R31/R33)
+        dst.omega = std::atan2(-pose[10], std::sqrt(pose[1]*pose[1]+pose[5]*pose[5])); //omega = arctan(-R32/sqrt(R12^2+R22^2))
+        dst.kappa = std::atan2(pose[1],pose[5]);
+        return dst;
     }
 };
 

@@ -380,7 +380,7 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
 
 #define IMG_SUFFIX ".jpg"
 #else
-#define IMG_SUFFIX ".png"
+#define IMG_SUFFIX ".ppm"
 #endif
 #include "rs_sf_file_io.hpp"
 struct d435i_pose_writer

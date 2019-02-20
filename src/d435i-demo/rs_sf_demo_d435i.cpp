@@ -403,6 +403,7 @@ struct d435i_pose_writer
         std::string filename = _prefix  + std::to_string(rgb.frame_id) + IMG_SUFFIX;
         index_file << filename;
         auto bluh = convert(rgb.cam_pose);
+        index_file << "," << rgb.cam_pose[3] << "," << rgb.cam_pose[7] << "," << rgb.cam_pose[11];
         index_file << "," << bluh.omega << "," << bluh.phi << "," << bluh.kappa;
         for(int i=0; i<12; ++i){ index_file << "," << rgb.cam_pose[i]; }
         

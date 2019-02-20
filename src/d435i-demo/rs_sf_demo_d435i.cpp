@@ -418,14 +418,16 @@ struct d435i_pose_writer
         return true;
     }
     
-    
+    // 0 = R11, 1 = R12, 2 = R13, 3 = tx
+    // 4 = R21, 5 = R22, 6 = R23, 7 = ty
+    // 8 = R31, 9 = R32, 10= R33, 11= tz
     struct BLUH_angle { float omega, phi, kappa; };
     static BLUH_angle convert(const float pose[12])
     {
         BLUH_angle dst;
-        dst.phi = std::atan2(pose[9], pose[11]); //phi = arctan(R31/R33)
-        dst.omega = std::atan2(-pose[10], std::sqrt(pose[1]*pose[1]+pose[5]*pose[5])); //omega = arctan(-R32/sqrt(R12^2+R22^2))
-        dst.kappa = std::atan2(pose[1],pose[5]);
+        dst.phi = std::atan2(pose[8], pose[10]); //phi = arctan(R31/R33)
+        dst.omega = std::atan2(-pose[9], std::sqrt(pose[1]*pose[1]+pose[5]*pose[5])); //omega = arctan(-R32/sqrt(R12^2+R22^2))
+        dst.kappa = std::atan2(pose[1],pose[5]); //kappa = arctan(R12/R22)
         return dst;
     }
 };

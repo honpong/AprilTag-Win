@@ -426,9 +426,9 @@ struct d435i_pose_writer
     static BLUH_angle convert(const float pose[12])
     {
         BLUH_angle dst;
-        dst.phi = std::atan2(pose[8], pose[10]); //phi = arctan(R31/R33)
-        dst.omega = std::atan2(-pose[9], std::sqrt(pose[1]*pose[1]+pose[5]*pose[5])); //omega = arctan(-R32/sqrt(R12^2+R22^2))
-        dst.kappa = std::atan2(pose[1],pose[5]); //kappa = arctan(R12/R22)
+        dst.phi = std::atan2(pose[8], pose[10]) * 180 * M_1_PI; //phi = arctan(R31/R33)
+        dst.omega = std::atan2(-pose[9], std::sqrt(pose[1]*pose[1]+pose[5]*pose[5])) * 180 * M_1_PI; //omega = arctan(-R32/sqrt(R12^2+R22^2))
+        dst.kappa = std::atan2(pose[1],pose[5]) * 180 * M_1_PI; //kappa = arctan(R12/R22)
         return dst;
     }
 };

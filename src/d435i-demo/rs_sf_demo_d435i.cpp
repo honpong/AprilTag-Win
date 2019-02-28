@@ -374,9 +374,9 @@ struct d435i_buffered_stream : public rs_sf_data_stream, rs_sf_dataset
     }
 };
 
-#if (defined(OPENCV_FOUND) | defined(OpenCV_FOUND)) & defined(EXIF_FOUND)
+#if (defined(OPENCV_FOUND) | defined(OpenCV_FOUND)) //& defined(EXIF_FOUND)
 #include <opencv2/opencv.hpp>
-#include <libexif/exif-data.h>
+//#include <libexif/exif-data.h>
 
 #define IMG_SUFFIX ".jpg"
 #else

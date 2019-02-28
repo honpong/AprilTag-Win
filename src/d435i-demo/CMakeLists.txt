@@ -18,6 +18,12 @@ if(libSP_FOUND)
     set(libSP libSP)
 endif()
 
+find_package(OpenCV QUIET)
+if(OpenCV_FOUND)
+    add_definitions(-DOpenCV_FOUND)
+    message(STATUS "OpenCV package is added to d435i-demo")
+endif()
+
 FILE(GLOB ${PROJECT_NAME}_DEV_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../dev/rs_sf*.cpp")
 FILE(GLOB ${PROJECT_NAME}_DEV_HDR "${CMAKE_CURRENT_SOURCE_DIR}/../dev/*.h*")
 FILE(GLOB ${PROJECT_NAME}_DEMO_SRC "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp")
@@ -36,8 +42,8 @@ add_executable(${PROJECT_NAME}
     ${THIRDPARTY_DIR}/fw-rw/rs2-crw/mm/inc/rs2-custom-calibration-mm.h
 )
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
-target_link_libraries(${PROJECT_NAME} shapefit-core ${LIBRS_LIBS} ${libSP} ${OpenCV_LIBS} exif_util)
-target_include_directories(${PROJECT_NAME} PRIVATE shapefit-core ${LIBRS_LIBS} ${libSP} ${OpenCV_DIR} exif_util
+target_link_libraries(${PROJECT_NAME} shapefit-core ${LIBRS_LIBS} ${libSP} ${OpenCV_LIBS} )
+target_include_directories(${PROJECT_NAME} PRIVATE shapefit-core ${LIBRS_LIBS} ${libSP} ${OpenCV_DIR} 
     ${CMAKE_CURRENT_SOURCE_DIR}/../dev
     ${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk
     ${THIRDPARTY_DIR}/LibRealSense/librealsense/third-party

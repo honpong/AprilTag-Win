@@ -133,7 +133,10 @@ if(BUILD_SHAPEFIT_DEV_APP)
     endif()
 
     add_subdirectory(thirdparty/exif)
-    add_subdirectory(d435i-demo)
+    #add_subdirectory(d435i-demo)
+
+    list(REMOVE_ITEM LIBRS_LIBS tracker)
+    add_subdirectory(t265-demo)
 
     if(MSVC)
         set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT d435i-demo)

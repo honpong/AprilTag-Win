@@ -11,5 +11,16 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <fstream>
+#include <sstream>
+#include <iomanip>
+#include <opencv2/opencv.hpp>
+
+#include <librealsense2/rs.hpp> // Include RealSense Cross Platform API
+#include <iostream>
+#include <map>
+#include <chrono>
+#include <mutex>
+#include <thread>
 
 #endif /* rs_sf_demo_t265_h */

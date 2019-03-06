@@ -76,6 +76,7 @@ add_subdirectory(api)
 ############################################################################################################
 option(BUILD_SHAPEFIT_DEV_APP "Build Shapefit Development App" ON)
 if(BUILD_SHAPEFIT_DEV_APP)
+  
     set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/librealsense/librealsense)
     set(FW_RW_API ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/guoping)
     
@@ -121,25 +122,28 @@ if(BUILD_SHAPEFIT_DEV_APP)
     endif()
     
     add_subdirectory(${LIBRS_DIR})
+	set(LIBUSB1_LIBRARY_DIRS ${CMAKE_CURRENT_BINARY_DIR}/thirdparty/librealsense/librealsense/libusb_install/lib)
+    message(STATUS "LIBUSB1_LIBRARY_DIRS :"${LIBUSB1_LIBRARY_DIRS})
+    link_directories(${LIBUSB1_LIBRARY_DIRS})
 #add_subdirectory(dev)
 
     option(BUILD_D435I_DEMO "Build 435i Demo" ON)
     if(BUILD_D435I_DEMO)
         set(ENABLE_MEASURE  OFF    CACHE BOOL   "")
         set(RC_BUILD        master CACHE STRING "")
-        add_subdirectory(thirdparty/tracker)
-        add_definitions(-DRC_TRACKER)
+        #add_subdirectory(thirdparty/tracker)
+        #add_definitions(-DRC_TRACKER)
         list(APPEND LIBRS_LIBS tracker)
     endif()
 
-    add_subdirectory(thirdparty/exif)
+    #add_subdirectory(thirdparty/exif)
     #add_subdirectory(d435i-demo)
 
     list(REMOVE_ITEM LIBRS_LIBS tracker)
     add_subdirectory(t265-demo)
 
     if(MSVC)
-        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT d435i-demo)
+        set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT t265-demo)
         set(CMAKE_CONFIGURATION_TYPES Release Debug CACHE STRING "" FORCE)
     endif()
 endif()

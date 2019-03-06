@@ -21,7 +21,7 @@ endif()
 find_package(OpenCV QUIET)
 if(OpenCV_FOUND)
     add_definitions(-DOpenCV_FOUND)
-    message(STATUS "OpenCV package is added to d435i-demo")
+    message(STATUS "OpenCV package is added to t265-demo")
 endif()
 
 #FILE(GLOB ${PROJECT_NAME}_DEV_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../dev/rs_sf*.cpp")
@@ -40,8 +40,8 @@ add_executable(${PROJECT_NAME} MACOSX_BUNDLE
     #${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_icon.h
 )
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
-target_link_libraries(${PROJECT_NAME} ${LIBRS_LIBS} ${libSP} ${OpenCV_LIBS} )
-target_include_directories(${PROJECT_NAME} PRIVATE ${LIBRS_LIBS} ${libSP} ${OpenCV_DIR} 
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRS_LIBS} ${libSP} ${OpenCV_LIBS} usb)
+target_include_directories(${PROJECT_NAME} PRIVATE ${LIBRS_LIBS} ${libSP} ${OpenCV_DIR}
     #${CMAKE_CURRENT_SOURCE_DIR}/../dev
     #${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk
     ${THIRDPARTY_DIR}/LibRealSense/librealsense/third-party
@@ -59,12 +59,16 @@ if(MSVC)
     #if(BUILD_SHARED_LIB_ALGO)
     #    list(APPEND APP_DEPENDENCY "$<TARGET_FILE:shapefit-core>")
     #endif()
-    if(libSP_FOUND)
-        list(APPEND APP_DEPENDENCY "$<TARGET_FILE:libSP>")
-    endif()
+    #if(libSP_FOUND)
+    #    list(APPEND APP_DEPENDENCY "$<TARGET_FILE:libSP>")
+    #endif()
     #if(TARGET tracker)
     #    list(APPEND APP_DEPENDENCY "$<TARGET_FILE:tracker>" "$<TARGET_FILE:vocabulary>")
     #endif()
+
+	if(OpenCV_FOUND)
+	    list(APPEND APP_DEPENDENCY ${OpenCV_LIB_DIR}/../bin/opencv_world310$<$<CONFIG:Debug>:d>.dll)
+	endif()
 
     foreach(var IN LISTS APP_DEPENDENCY)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:${PROJECT_NAME}>")

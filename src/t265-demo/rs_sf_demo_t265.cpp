@@ -14,7 +14,7 @@
 
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
-#define DEFAULT_PATH "C:\\temp\\data\\"
+#define DEFAULT_PATH "C:\\temp\\t265-capture\\"
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.one_image()
 #define COLOR_STREAM_REQUEST {}
 #else
@@ -27,17 +27,11 @@
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
-#define VERSION_STRING "v1.3"
+#define VERSION_STRING "v0.1"
 
-int g_ir_fps        = 60;
-int g_color_fps     = 15;
-int g_accel_dec     = 1;
-int g_gyro_dec      = 1;
-int g_tablet_screen = 0;
-bool g_print_cmd_pose    = false;
-bool g_replay_once       = false;
-bool g_write_rgb_pose    = false;
-std::string g_pose_path = "C:\\temp\\t265-capture\\";
+int g_camera_id = 0;
+std::string g_str_origin = "Origin in WGS84 coordinate: Not provided at command line input.";
+std::string g_pose_path = DEFAULT_PATH;
 
 int scn_width  = 800;
 int scn_height = 600;
@@ -47,9 +41,10 @@ cv::Size size_screen() { return cv::Size(scn_width, scn_height); }
 cv::Size size_button() { return cv::Size(scn_width / 5, scn_height / 10); }
 cv::Rect win_exit() { return cv::Rect(scn_width - size_button().width, scn_height - size_button().height, size_button().width, size_button().height); }
 cv::Rect win_capture() { return cv::Rect(win_exit().x, win_exit().y - size_button().height, size_button().width, size_button().height); }
+cv::Rect win_bat() { return cv::Rect(win_capture().x, win_capture().y - size_button().height, size_button().width, size_button().height); }
+
 cv::Rect win_fisheye() { return cv::Rect(scn_width - size_fisheye.width / 4, 0, size_fisheye.width / 4, size_fisheye.height / 4); }
 cv::Rect win_text() { return cv::Rect(0, 0, scn_width - win_fisheye().width, scn_height); }
-
 std::vector<std::string>& operator<<(std::vector<std::string>& buf, const std::string& msg) { buf.emplace_back(msg); return buf; }
 
 bool g_t265 = true;
@@ -57,25 +52,23 @@ bool g_t265 = true;
 struct app_data {
 	bool exit_request = false;
 	bool capture_request = false;
+	bool bat_request = false;
 } g_app_data;
 
 void run()
 {
-    int camera_id = 0;
-    std::string window_name = "hello camera";
+	int camera_id = g_camera_id;
+	std::string window_name = "T265-RGB Capture App for Insight";
 	cv::namedWindow(window_name);
 
     std::map<int, int> counters;
     std::map<int, std::string> stream_names;
     std::mutex mutex;
 
-	//rs2::context ctx;
-	//auto d = ctx.query_devices();
-	//bool t265_available = (d.size() > 0);
-	//if (t265_available) { printf("device available\n"); }
 	bool t265_available = g_t265;
 	std::string folder_path = g_pose_path;
 	std::ofstream index_file;
+	std::string last_file_written;
 	
     for(g_app_data.exit_request=false; !g_app_data.exit_request; )
 	{
@@ -83,33 +76,20 @@ void run()
 		cap.set(CV_CAP_PROP_FRAME_WIDTH, 3200);
 		cap.set(CV_CAP_PROP_FRAME_HEIGHT, 2400);
         
-        // Define frame callback
-        // The callback is executed on a sensor thread and can be called simultaneously from multiple sensors
-        // Therefore any modification to common memory should be done under lock
-		/*
-        auto callback = [&](const rs2::frame& frame)
-        {
-            std::lock_guard<std::mutex> lock(mutex);
-            if (rs2::frameset fs = frame.as<rs2::frameset>())
-            {
-                // With callbacks, all synchronized stream will arrive in a single frameset
-                for (const rs2::frame& f : fs)
-                    counters[f.get_profile().unique_id()]++;
-            }
-            else
-            {
-                // Stream that bypass synchronization (such as IMU) will produce single frames
-                counters[frame.get_profile().unique_id()]++;
-            }
-        };
-		*/
-        
 		std::unique_ptr<rs2::pipeline> pipe;
-		rs2::pipeline_profile profiles;
 		if (t265_available) 
-		{
+		{			
+			// Declare RealSense pipeline, encapsulating the actual device and sensors
 			pipe = std::make_unique<rs2::pipeline>();
-			profiles = pipe->start();
+			// Create a configuration for configuring the pipeline with a non default profile
+			rs2::config cfg;
+			// Add pose stream
+			cfg.enable_stream(RS2_STREAM_FISHEYE, 0);
+			cfg.enable_stream(RS2_STREAM_FISHEYE, 1);
+			cfg.enable_stream(RS2_STREAM_POSE, RS2_FORMAT_6DOF);
+
+			// Start pipeline with chosen configuration
+			auto profiles = pipe->start();
 			
 			//Collect the enabled streams names
 			for (auto p : profiles.get_streams()) {
@@ -177,7 +157,11 @@ void run()
 					}
 				}
 			}
+			if (!last_file_written.empty()) {
+				scn_msg << "Last write:" + last_file_written;
+			}
 
+			//////////////////////////////////////////////////////////////////////////////////////
 			for (int i = 0; i < (int)scn_msg.size(); ++i) {
 				cv::putText(screen_img, scn_msg[i], cv::Point(win_text().x + 10, win_text().y + 20 * (1+i)), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
 			}
@@ -185,7 +169,10 @@ void run()
 			cv::putText(screen_img, "  EXIT", cv::Point(win_exit().x, win_exit().y + win_exit().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
 			cv::rectangle(screen_img, win_capture(), cv::Scalar(255, 255, 255));
 			cv::putText(screen_img, "  CAPTURE", cv::Point(win_capture().x, win_capture().y + win_capture().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-            cv::imshow(window_name, screen_img);
+			cv::rectangle(screen_img, win_bat(), cv::Scalar(255, 255, 255));
+			cv::putText(screen_img, "  CALL SCRIPT", cv::Point(win_bat().x, win_bat().y + win_bat().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+			
+			cv::imshow(window_name, screen_img);
             switch(cv::waitKey(1))
             {
                 case 'q': case 27: return;
@@ -198,6 +185,7 @@ void run()
                 default: break;
             }
 
+			//////////////////////////////////////////////////////////////////////////////////////
 			if (g_app_data.capture_request)
 			{
 				auto t = std::time(NULL);
@@ -206,11 +194,12 @@ void run()
 				ss << std::put_time(&tm, "%Y_%m_%d_%H_%M_%S");
 
 				std::string filename = "rgb_" + ss.str() + ".jpg";
-				std::cout << "write file :" << filename << std::endl;
-				cv::imwrite(folder_path + filename, img, { CV_IMWRITE_JPEG_QUALITY, 100 });
+				last_file_written = folder_path + filename;
+				cv::imwrite(last_file_written, img, { CV_IMWRITE_JPEG_QUALITY, 100 });
 				
 				if (!index_file.is_open()) {
 					index_file.open(folder_path + "pose.txt", std::ios_base::out | std::ios_base::trunc);
+					index_file << g_str_origin << std::endl;
 				}
 				index_file << filename;
 
@@ -224,14 +213,21 @@ void run()
 				}
 
 				index_file << std::endl;
-				g_app_data.capture_request = false; //handled capture request
+				g_app_data.capture_request = false; //capture request handled
 			}
+			if (g_app_data.bat_request)
+			{
+				system("START \"SCRIPT\" t265-insight.bat ");
+				g_app_data.bat_request = false; //bat process request handled
+			}
+		
 
 			cv::setMouseCallback(window_name, [](int event, int x, int y, int flags, void* userdata) {
 				switch (event) {
 				case cv::EVENT_LBUTTONUP: 
 					if (win_exit().contains(cv::Point(x, y))) { g_app_data.exit_request = true; }
 					if (win_capture().contains(cv::Point(x, y))) { g_app_data.capture_request = true; }
+					if (win_bat().contains(cv::Point(x,y))) { g_app_data.bat_request = true; }
 				default: break;
 				}
 			}, &g_app_data);
@@ -246,17 +242,25 @@ int main(int argc, char* argv[])
     std::vector<int> capture_size = { 640,480 };
 
     for (int i = 1; i < argc; ++i) {
-        if      (!strcmp(argv[i], "--live"))            { is_live = true; is_replay = false; g_replay_once = false;}
-		else if (!strcmp(argv[i], "--no_tm2"))          { g_t265 = false; }
-        else if (!strcmp(argv[i], "--capture"))         { is_capture = true; is_live = false; }
-        else if (!strcmp(argv[i], "--path"))            { data_path = camera_json_path = argv[++i]; }
-        else if (!strcmp(argv[i], "--replay"))          { is_replay = true; is_live = false; }
-        else if (!strcmp(argv[i], "--replay_once"))     { is_replay = true; is_live = false; g_replay_once = true;}
-        else if (!strcmp(argv[i], "--hd"))              { capture_size = { 1280,720 }; }
-        else if (!strcmp(argv[i], "--qhd"))             { capture_size = { 640,360 }; }
-        else if (!strcmp(argv[i], "--vga"))             { capture_size = { 640,480 }; }
+        if      (!strcmp(argv[i], "--live"))            { is_live = true; is_replay = false; }
+		else if (!strcmp(argv[i], "--no_t265"))         { g_t265 = false; }
+		else if (!strcmp(argv[i], "--origin"))          { g_str_origin = argv[++i]; }
+		else if (!strcmp(argv[i], "--path"))            { g_pose_path = argv[++i]; }
+		else if (!strcmp(argv[i], "--cam"))             { g_camera_id = atoi(argv[++i]); }
+        //else if (!strcmp(argv[i], "--capture"))         { is_capture = true; is_live = false; }
+        //else if (!strcmp(argv[i], "--path"))            { data_path = camera_json_path = argv[++i]; }
+        //else if (!strcmp(argv[i], "--replay"))          { is_replay = true; is_live = false; }
+        //else if (!strcmp(argv[i], "--replay_once"))     { is_replay = true; is_live = false; g_replay_once = true;}
+        //else if (!strcmp(argv[i], "--hd"))              { capture_size = { 1280,720 }; }
+        //else if (!strcmp(argv[i], "--qhd"))             { capture_size = { 640,360 }; }
+        //else if (!strcmp(argv[i], "--vga"))             { capture_size = { 640,480 }; }
         else {
-            printf("usages:\n t265-demo \n");
+            printf("usages:\n t265-demo.exe [--no_t265][--origin STR][--cam ID][--path OUTPUT_PATH]\n");
+			printf("\n");
+			printf("--no_tm2: for capture RGB only without t265 connected.\n");
+			printf("--origin: STR will be added to the output pose.txt.   \n");
+			printf("--cam   : ID set the initial camera ID, default 0. Rear-facing tablet cam usually has ID=1\n");
+			printf("--path  : OUTPUT_PATH to the capture files, default C:\\temp\\t265-capture\\ \n");
             return 0;
         }
     }

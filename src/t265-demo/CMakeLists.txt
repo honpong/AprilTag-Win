@@ -73,6 +73,8 @@ if(MSVC)
     foreach(var IN LISTS APP_DEPENDENCY)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
     endforeach(var)
+    
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/t265-insight.bat "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
 
     set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
 endif(MSVC)

@@ -43,6 +43,9 @@ cv::Size size_button() { return cv::Size(scn_width / 5, scn_height / 10); }
 cv::Rect win_exit() { return cv::Rect(scn_width - size_button().width, scn_height - size_button().height, size_button().width, size_button().height); }
 cv::Rect win_capture() { return cv::Rect(win_exit().x, win_exit().y - size_button().height, size_button().width, size_button().height); }
 cv::Rect win_bat() { return cv::Rect(win_capture().x, win_capture().y - size_button().height, size_button().width, size_button().height); }
+cv::Rect win_cam2() { return cv::Rect(win_bat().x, win_bat().y - size_button().height, size_button().width, size_button().height); }
+cv::Rect win_cam1() { return cv::Rect(win_cam2().x, win_cam2().y - size_button().height, size_button().width, size_button().height); }
+cv::Rect win_cam0() { return cv::Rect(win_cam1().x, win_cam1().y - size_button().height, size_button().width, size_button().height); }
 
 cv::Rect win_fisheye() { return cv::Rect(scn_width - size_fisheye.width / 4, 0, size_fisheye.width / 4, size_fisheye.height / 4); }
 cv::Rect win_text() { return cv::Rect(0, 0, scn_width - win_fisheye().width, scn_height); }
@@ -54,6 +57,9 @@ struct app_data {
 	bool exit_request = false;
 	bool capture_request = false;
 	bool bat_request = false;
+	bool cam0_request = false;
+	bool cam1_request = false;
+	bool cam2_request = false;
 } g_app_data;
 
 void run()
@@ -74,8 +80,8 @@ void run()
     for(g_app_data.exit_request=false; !g_app_data.exit_request; )
 	{
         cv::VideoCapture cap(camera_id);
-		cap.set(CV_CAP_PROP_FRAME_WIDTH, 3200);
-		cap.set(CV_CAP_PROP_FRAME_HEIGHT, 2400);
+		cap.set(CV_CAP_PROP_FRAME_WIDTH, 4096);
+		cap.set(CV_CAP_PROP_FRAME_HEIGHT, 2160);
         
 		std::unique_ptr<rs2::pipeline> pipe;
 		if (t265_available) 
@@ -158,6 +164,7 @@ void run()
 					}
 				}
 			}
+			scn_msg << "Script: " + g_script_name;
 			if (!last_file_written.empty()) {
 				scn_msg << "Last write:" + last_file_written;
 			}
@@ -172,7 +179,14 @@ void run()
 			cv::putText(screen_img, "  CAPTURE", cv::Point(win_capture().x, win_capture().y + win_capture().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
 			cv::rectangle(screen_img, win_bat(), cv::Scalar(255, 255, 255));
 			cv::putText(screen_img, "  CALL SCRIPT", cv::Point(win_bat().x, win_bat().y + win_bat().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-			
+			cv::rectangle(screen_img, win_cam2(), cv::Scalar(255, 255, 255));
+			cv::putText(screen_img, "  CAM 2", cv::Point(win_cam2().x, win_cam2().y + win_cam2().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+			cv::rectangle(screen_img, win_cam1(), cv::Scalar(255, 255, 255));
+			cv::putText(screen_img, "  CAM 1", cv::Point(win_cam1().x, win_cam1().y + win_cam1().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+			cv::rectangle(screen_img, win_cam0(), cv::Scalar(255, 255, 255));
+			cv::putText(screen_img, "  CAM 0", cv::Point(win_cam0().x, win_cam0().y + win_cam0().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+
+
 			cv::imshow(window_name, screen_img);
             switch(cv::waitKey(1))
             {
@@ -221,7 +235,13 @@ void run()
 				system(("START \"SCRIPT\" " + g_script_name + " " + folder_path).c_str());
 				g_app_data.bat_request = false; //bat process request handled
 			}
-		
+
+			if (g_app_data.cam0_request && camera_id != 0) { camera_id = 0; switch_request = true; }
+			else if (g_app_data.cam1_request && camera_id != 1) { camera_id = 1; switch_request = true; }
+			else if (g_app_data.cam2_request && camera_id != 2) { camera_id = 2; switch_request = true; }
+			g_app_data.cam0_request = false;
+			g_app_data.cam1_request = false;
+			g_app_data.cam2_request = false;
 
 			cv::setMouseCallback(window_name, [](int event, int x, int y, int flags, void* userdata) {
 				switch (event) {
@@ -229,6 +249,9 @@ void run()
 					if (win_exit().contains(cv::Point(x, y))) { g_app_data.exit_request = true; }
 					if (win_capture().contains(cv::Point(x, y))) { g_app_data.capture_request = true; }
 					if (win_bat().contains(cv::Point(x,y))) { g_app_data.bat_request = true; }
+					if (win_cam0().contains(cv::Point(x, y))) { g_app_data.cam0_request = true; }
+					if (win_cam1().contains(cv::Point(x, y))) { g_app_data.cam1_request = true; }
+					if (win_cam2().contains(cv::Point(x, y))) { g_app_data.cam2_request = true; }
 				default: break;
 				}
 			}, &g_app_data);
@@ -259,11 +282,11 @@ int main(int argc, char* argv[])
         else {
             printf("usages:\n t265-demo.exe [--no_t265][--origin STR][--cam ID][--script FILENAME][--path OUTPUT_PATH]\n");
 			printf("\n");
-			printf("--no_tm2: for capture RGB only without t265 connected.\n");
-			printf("--origin: STR will be added to the output pose.txt.   \n");
+			printf("--no_tm2: Capture RGB only without t265 connected.\n");
+			printf("--origin: STR will be added to the first line of output pose.txt.   \n");
 			printf("--cam   : ID set the initial camera ID, default 0. Rear-facing tablet cam usually has ID=1\n");
-			printf("--script: FILENAME of an external script, default t265-insight.bat \n");
-			printf("--path  : OUTPUT_PATH to the capture files, default is the runtime working directory.\n");
+			printf("--script: FILENAME of an external script, default script is t265-insight.bat \n");
+			printf("--path  : OUTPUT_PATH to the capture files, default is the runtime working directory.\n\n");
             return 0;
         }
     }

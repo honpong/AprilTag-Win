@@ -27,7 +27,7 @@
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
-#define VERSION_STRING "v0.1"
+#define VERSION_STRING "v0.2"
 
 int g_camera_id = 0;
 std::string g_str_origin = "Origin in WGS84 coordinate: Not provided at command line input.";
@@ -75,7 +75,7 @@ struct app_data {
 void run()
 {
 	int camera_id = g_camera_id;
-	std::string window_name = "T265-RGB Capture App for Insight";
+	std::string window_name = "T265-RGB Capture App for Insight " + std::string(VERSION_STRING);
 	cv::namedWindow(window_name);
 
     std::map<int, int> counters;
@@ -97,21 +97,26 @@ void run()
 		if (t265_available) 
 		{			
 			// Declare RealSense pipeline, encapsulating the actual device and sensors
-			pipe = std::make_unique<rs2::pipeline>();
-			// Create a configuration for configuring the pipeline with a non default profile
-			rs2::config cfg;
-			// Add pose stream
-			cfg.enable_stream(RS2_STREAM_FISHEYE, 0);
-			cfg.enable_stream(RS2_STREAM_FISHEYE, 1);
-			cfg.enable_stream(RS2_STREAM_POSE, RS2_FORMAT_6DOF);
+			try {
+				pipe = std::make_unique<rs2::pipeline>();
+				// Create a configuration for configuring the pipeline with a non default profile
+				rs2::config cfg;
+				// Add pose stream
+				cfg.enable_stream(RS2_STREAM_FISHEYE, 0);
+				cfg.enable_stream(RS2_STREAM_FISHEYE, 1);
+				cfg.enable_stream(RS2_STREAM_POSE, RS2_FORMAT_6DOF);
 
-			// Start pipeline with chosen configuration
-			auto profiles = pipe->start();
-			
-			//Collect the enabled streams names
-			for (auto p : profiles.get_streams()) {
-				stream_names[p.unique_id()] = p.stream_name();
-				printf("%s\n", p.stream_name().c_str());
+				// Start pipeline with chosen configuration
+				auto profiles = pipe->start();
+
+				//Collect the enabled streams names
+				for (auto p : profiles.get_streams()) {
+					stream_names[p.unique_id()] = p.stream_name();
+					printf("%s\n", p.stream_name().c_str());
+				}
+			}
+			catch (...) {
+				t265_available = false;
 			}
 		}
         

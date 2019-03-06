@@ -32,6 +32,7 @@
 int g_camera_id = 0;
 std::string g_str_origin = "Origin in WGS84 coordinate: Not provided at command line input.";
 std::string g_pose_path = DEFAULT_PATH;
+std::string g_script_name = "t265-insight.bat";
 
 int scn_width  = 800;
 int scn_height = 600;
@@ -217,7 +218,7 @@ void run()
 			}
 			if (g_app_data.bat_request)
 			{
-				system("START \"SCRIPT\" t265-insight.bat ");
+				system(("START \"SCRIPT\" " + g_script_name + " " + folder_path).c_str());
 				g_app_data.bat_request = false; //bat process request handled
 			}
 		
@@ -247,6 +248,7 @@ int main(int argc, char* argv[])
 		else if (!strcmp(argv[i], "--origin"))          { g_str_origin = argv[++i]; }
 		else if (!strcmp(argv[i], "--path"))            { g_pose_path = argv[++i]; }
 		else if (!strcmp(argv[i], "--cam"))             { g_camera_id = atoi(argv[++i]); }
+		else if (!strcmp(argv[i], "--script"))          { g_script_name = argv[++i]; }
         //else if (!strcmp(argv[i], "--capture"))         { is_capture = true; is_live = false; }
         //else if (!strcmp(argv[i], "--path"))            { data_path = camera_json_path = argv[++i]; }
         //else if (!strcmp(argv[i], "--replay"))          { is_replay = true; is_live = false; }
@@ -255,11 +257,12 @@ int main(int argc, char* argv[])
         //else if (!strcmp(argv[i], "--qhd"))             { capture_size = { 640,360 }; }
         //else if (!strcmp(argv[i], "--vga"))             { capture_size = { 640,480 }; }
         else {
-            printf("usages:\n t265-demo.exe [--no_t265][--origin STR][--cam ID][--path OUTPUT_PATH]\n");
+            printf("usages:\n t265-demo.exe [--no_t265][--origin STR][--cam ID][--script FILENAME][--path OUTPUT_PATH]\n");
 			printf("\n");
 			printf("--no_tm2: for capture RGB only without t265 connected.\n");
 			printf("--origin: STR will be added to the output pose.txt.   \n");
 			printf("--cam   : ID set the initial camera ID, default 0. Rear-facing tablet cam usually has ID=1\n");
+			printf("--script: FILENAME of an external script, default t265-insight.bat \n");
 			printf("--path  : OUTPUT_PATH to the capture files, default C:\\temp\\t265-capture\\ \n");
             return 0;
         }

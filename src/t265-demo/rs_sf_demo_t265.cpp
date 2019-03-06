@@ -56,10 +56,20 @@ bool g_t265 = true;
 struct app_data {
 	bool exit_request = false;
 	bool capture_request = false;
-	bool bat_request = false;
+	bool script_request = false;
 	bool cam0_request = false;
 	bool cam1_request = false;
 	bool cam2_request = false;
+	int highlight_exit_button = 0;
+	int highlight_capture_button = 0;
+	int highlight_script_button = 0;
+
+	void set_exit_request() { exit_request = true; highlight_exit_button = 5; }
+	void set_capture_request() { capture_request = true; highlight_capture_button = 5; }
+	void set_script_request() { script_request = true; highlight_script_button = 5; }
+	bool is_highlight_capture_button() { highlight_capture_button = std::max(0, highlight_capture_button - 1); return highlight_capture_button > 0; }
+	bool is_highlight_script_button() { highlight_script_button = std::max(0, highlight_script_button - 1); return highlight_script_button > 0; }
+	bool is_highlight_exit_button() { highlight_exit_button = std::max(0, highlight_exit_button - 1); return highlight_exit_button > 0; }
 } g_app_data;
 
 void run()
@@ -173,33 +183,20 @@ void run()
 			for (int i = 0; i < (int)scn_msg.size(); ++i) {
 				cv::putText(screen_img, scn_msg[i], cv::Point(win_text().x + 10, win_text().y + 20 * (1+i)), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
 			}
-			cv::rectangle(screen_img, win_exit(), cv::Scalar(255, 255, 255));
+
+			cv::rectangle(screen_img, win_exit(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_exit_button() ? 3 : 1);
 			cv::putText(screen_img, "  EXIT", cv::Point(win_exit().x, win_exit().y + win_exit().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-			cv::rectangle(screen_img, win_capture(), cv::Scalar(255, 255, 255));
+			cv::rectangle(screen_img, win_capture(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_capture_button() ? 3 : 1);
 			cv::putText(screen_img, "  CAPTURE", cv::Point(win_capture().x, win_capture().y + win_capture().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-			cv::rectangle(screen_img, win_bat(), cv::Scalar(255, 255, 255));
+			cv::rectangle(screen_img, win_bat(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_script_button() ? 3 : 1);
 			cv::putText(screen_img, "  CALL SCRIPT", cv::Point(win_bat().x, win_bat().y + win_bat().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-			cv::rectangle(screen_img, win_cam2(), cv::Scalar(255, 255, 255));
+			cv::rectangle(screen_img, win_cam2(), cv::Scalar(255, 255, 255), camera_id == 2 ? 3 : 1);
 			cv::putText(screen_img, "  CAM 2", cv::Point(win_cam2().x, win_cam2().y + win_cam2().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-			cv::rectangle(screen_img, win_cam1(), cv::Scalar(255, 255, 255));
+			cv::rectangle(screen_img, win_cam1(), cv::Scalar(255, 255, 255), camera_id == 1 ? 3 : 1);
 			cv::putText(screen_img, "  CAM 1", cv::Point(win_cam1().x, win_cam1().y + win_cam1().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-			cv::rectangle(screen_img, win_cam0(), cv::Scalar(255, 255, 255));
+			cv::rectangle(screen_img, win_cam0(), cv::Scalar(255, 255, 255), camera_id == 0 ? 3 : 1);
 			cv::putText(screen_img, "  CAM 0", cv::Point(win_cam0().x, win_cam0().y + win_cam0().height / 2), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-
-
-			cv::imshow(window_name, screen_img);
-            switch(cv::waitKey(1))
-            {
-                case 'q': case 27: return;
-				case '0': if (camera_id != 0) { camera_id = 0; switch_request = true; break; }
-				case '1': if (camera_id != 1) { camera_id = 1; switch_request = true; break; }
-				case '2': if (camera_id != 2) { camera_id = 2; switch_request = true; break; }
-				case '3': if (camera_id != 3) { camera_id = 3; switch_request = true; break; }
-				case '4': if (camera_id != 4) { camera_id = 4; switch_request = true; break; }
-				case '5': if (camera_id != 5) { camera_id = 5; switch_request = true; break; }
-                default: break;
-            }
-
+			
 			//////////////////////////////////////////////////////////////////////////////////////
 			if (g_app_data.capture_request)
 			{
@@ -230,10 +227,10 @@ void run()
 				index_file << std::endl;
 				g_app_data.capture_request = false; //capture request handled
 			}
-			if (g_app_data.bat_request)
+			if (g_app_data.script_request)
 			{
 				system(("START \"SCRIPT\" " + g_script_name + " " + folder_path).c_str());
-				g_app_data.bat_request = false; //bat process request handled
+				g_app_data.script_request = false; //bat process request handled
 			}
 
 			if (g_app_data.cam0_request && camera_id != 0) { camera_id = 0; switch_request = true; }
@@ -243,18 +240,32 @@ void run()
 			g_app_data.cam1_request = false;
 			g_app_data.cam2_request = false;
 
+			cv::imshow(window_name, screen_img.clone());
+			switch (cv::waitKey(1))
+			{
+			case 'q': case 27: return;
+			case '0': if (camera_id != 0) { camera_id = 0; switch_request = true; break; }
+			case '1': if (camera_id != 1) { camera_id = 1; switch_request = true; break; }
+			case '2': if (camera_id != 2) { camera_id = 2; switch_request = true; break; }
+			case '3': if (camera_id != 3) { camera_id = 3; switch_request = true; break; }
+			case '4': if (camera_id != 4) { camera_id = 4; switch_request = true; break; }
+			case '5': if (camera_id != 5) { camera_id = 5; switch_request = true; break; }
+			default: break;
+			}
+
 			cv::setMouseCallback(window_name, [](int event, int x, int y, int flags, void* userdata) {
 				switch (event) {
-				case cv::EVENT_LBUTTONUP: 
-					if (win_exit().contains(cv::Point(x, y))) { g_app_data.exit_request = true; }
-					if (win_capture().contains(cv::Point(x, y))) { g_app_data.capture_request = true; }
-					if (win_bat().contains(cv::Point(x,y))) { g_app_data.bat_request = true; }
+				case cv::EVENT_LBUTTONUP:
+					if (win_exit().contains(cv::Point(x, y))) { g_app_data.set_exit_request(); };
+					if (win_capture().contains(cv::Point(x, y))) { g_app_data.set_capture_request(); }
+					if (win_bat().contains(cv::Point(x, y))) { g_app_data.set_script_request(); }
 					if (win_cam0().contains(cv::Point(x, y))) { g_app_data.cam0_request = true; }
 					if (win_cam1().contains(cv::Point(x, y))) { g_app_data.cam1_request = true; }
 					if (win_cam2().contains(cv::Point(x, y))) { g_app_data.cam2_request = true; }
 				default: break;
 				}
 			}, &g_app_data);
+
         }
     }
 }

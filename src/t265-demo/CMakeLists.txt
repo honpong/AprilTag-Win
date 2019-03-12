@@ -42,7 +42,7 @@ add_executable(${PROJECT_NAME} MACOSX_BUNDLE
     #${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk/rs_icon.h
 )
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 14)
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRS_LIBS} ${libSP} ${OpenCV_LIBS} usb)
+target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRS_LIBS} ${libSP} ${OpenCV_LIBS})
 target_include_directories(${PROJECT_NAME} PRIVATE ${LIBRS_LIBS} ${libSP} ${OpenCV_DIR}
     #${CMAKE_CURRENT_SOURCE_DIR}/../dev
     #${CMAKE_CURRENT_SOURCE_DIR}/../../boxsdk

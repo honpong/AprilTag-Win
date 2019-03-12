@@ -136,7 +136,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
         list(APPEND LIBRS_LIBS tracker)
     endif()
 
-    #add_subdirectory(thirdparty/exif)
+    add_subdirectory(thirdparty/exif)
     #add_subdirectory(d435i-demo)
 
     list(REMOVE_ITEM LIBRS_LIBS tracker)

@@ -22,5 +22,6 @@
 #include <chrono>
 #include <mutex>
 #include <thread>
+#include <future>
 
 #endif /* rs_sf_demo_t265_h */

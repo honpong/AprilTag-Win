@@ -82,10 +82,7 @@ struct app_data {
 
 void run()
 {
-    int camera_id = g_camera_id;
-    std::string window_name = "T265-RGB Capture App for Insight " + std::string(VERSION_STRING);
-    cv::namedWindow(window_name);
-    
+    int camera_id = g_camera_id;    
     std::map<int, int> counters;
     std::map<int, std::string> stream_names;
     std::mutex mutex;
@@ -94,7 +91,10 @@ void run()
     std::string folder_path = g_pose_path;
     std::ofstream index_file;
     std::string last_file_written;
-    
+
+    std::string window_name = "T265-RGB Capture App for Insight " + std::string(VERSION_STRING) + " @ " + folder_path;
+    cv::namedWindow(window_name);
+
     for(g_app_data.exit_request=false; !g_app_data.exit_request; )
     {
         cv::VideoCapture cap(camera_id);
@@ -147,10 +147,7 @@ void run()
         for(bool switch_request=false; !switch_request && !g_app_data.exit_request;)
         {
             cv::Mat img, screen_img, cvIr;
-            rs2::frame p;
-
             std::vector<std::string> scn_msg;
-            scn_msg << "Path: " + folder_path;
             
             if(cap.isOpened()){
                 scn_height = (int)((scn_width - size_win_fisheye.width)* cap_height / cap_width);
@@ -164,8 +161,8 @@ void run()
                 screen_img.create(size_screen(), CV_8UC3);
                 screen_img.setTo(0);
             }
-            scn_msg << "press 0-5 to switch RGB cam";
             
+            rs2::frame p;
             if (t265_available) {
                 try {
                     rs2::frameset fs = pipe->wait_for_frames();

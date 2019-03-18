@@ -50,11 +50,13 @@ inline cv::Rect win_buttons() { return cv::Rect(win_fisheye().x, win_fisheye().h
 
 inline cv::Size size_button() { return cv::Size(win_fisheye().width, (scn_height - win_fisheye().height) / num_buttons); }
 inline cv::Rect win_exit() { return cv::Rect(scn_width - size_button().width, scn_height - size_button().height, size_button().width, size_button().height); }
-inline cv::Rect win_capture() { return cv::Rect(win_exit().x, win_exit().y - size_button().height, size_button().width, size_button().height); }
-inline cv::Rect win_bat() { return cv::Rect(win_capture().x, win_capture().y - size_button().height, size_button().width, size_button().height); }
-inline cv::Rect win_cam2() { return cv::Rect(win_bat().x, win_bat().y - size_button().height, size_button().width, size_button().height); }
-inline cv::Rect win_cam1() { return cv::Rect(win_cam2().x, win_cam2().y - size_button().height, size_button().width, size_button().height); }
-inline cv::Rect win_cam0() { return cv::Rect(win_cam1().x, win_cam1().y - size_button().height, size_button().width, size_button().height); }
+inline cv::Rect win_bat() { return cv::Rect(win_exit().x, win_exit().y - size_button().height, size_button().width, size_button().height); }
+inline cv::Rect win_capture() { return cv::Rect(win_bat().x, win_bat().y - size_button().height, size_button().width, size_button().height); }
+inline cv::Rect win_init() { return cv::Rect(win_capture().x, win_capture().y - size_button().height, size_button().width, size_button().height); }
+inline cv::Rect win_cam2() { return cv::Rect(win_init().x, win_init().y - size_button().height, size_button().width/2, size_button().height); }
+inline cv::Rect win_cam3() { return cv::Rect(win_cam2().x+win_cam2().width,win_cam2().y, win_cam2().width, win_cam2().height); }
+inline cv::Rect win_cam0() { return cv::Rect(win_cam2().x, win_cam2().y - win_cam2().height, win_cam2().width, win_cam2().height); }
+inline cv::Rect win_cam1() { return cv::Rect(win_cam3().x, win_cam3().y - win_cam2().height, win_cam2().width, win_cam2().height); }
 
 inline cv::Point label(const cv::Rect& rect) { return cv::Point(rect.x, rect.y + rect.height * 2 / 3); }
 std::vector<std::string>& operator<<(std::vector<std::string>& buf, const std::string& msg) { buf.emplace_back(msg); return buf; }
@@ -63,21 +65,28 @@ bool g_t265 = true;
 
 struct app_data {
     bool exit_request = false;
-    bool capture_request = false;
     bool script_request = false;
+    bool capture_request = false;
+    bool init_request = false;
     bool cam0_request = false;
     bool cam1_request = false;
     bool cam2_request = false;
+    bool cam3_request = false;
     int highlight_exit_button = 0;
-    int highlight_capture_button = 0;
     int highlight_script_button = 0;
+    int highlight_capture_button = 0;
+    int highlight_init_button = 0;
     
     void set_exit_request() { exit_request = true; highlight_exit_button = 5; }
-    void set_capture_request() { capture_request = true; highlight_capture_button = 5; }
     void set_script_request() { script_request = true; highlight_script_button = 5; }
-    bool is_highlight_capture_button() { highlight_capture_button = std::max(0, highlight_capture_button - 1); return highlight_capture_button > 0; }
-    bool is_highlight_script_button() { highlight_script_button = std::max(0, highlight_script_button - 1); return highlight_script_button > 0; }
+    void set_capture_request() { capture_request = true; highlight_capture_button = 5; }
+    void set_init_request() { init_request = true; highlight_init_button = 5; }
+    
     bool is_highlight_exit_button() { highlight_exit_button = std::max(0, highlight_exit_button - 1); return highlight_exit_button > 0; }
+    bool is_highlight_script_button() { highlight_script_button = std::max(0, highlight_script_button - 1); return highlight_script_button > 0; }
+    bool is_highlight_capture_button() { highlight_capture_button = std::max(0, highlight_capture_button - 1); return highlight_capture_button > 0; }
+    bool is_highlight_init_button() { highlight_init_button = std::max(0, highlight_init_button - 1); return highlight_init_button > 0; }
+
 } g_app_data;
 
 void run()
@@ -105,8 +114,8 @@ void run()
 		auto cap_height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 
         std::unique_ptr<rs2::pipeline> pipe;
-        if (t265_available)
-        {
+
+        auto start_t265_pipe = [&](){
             // Declare RealSense pipeline, encapsulating the actual device and sensors
             try {
                 pipe = std::make_unique<rs2::pipeline>();
@@ -116,16 +125,16 @@ void run()
                 cfg.enable_stream(RS2_STREAM_FISHEYE, 0);
                 cfg.enable_stream(RS2_STREAM_FISHEYE, 1);
                 cfg.enable_stream(RS2_STREAM_POSE, RS2_FORMAT_6DOF);
-                
+
                 // Start pipeline with chosen configuration
                 auto profiles = pipe->start();
                 auto _streams = profiles.get_streams();
-                
+
                 //Collect the enabled streams names
                 for (auto p : profiles.get_streams()) {
                     stream_names[p.unique_id()] = p.stream_name();
                     printf("%s\n", p.stream_name().c_str());
-                    
+
                     /**
                      auto vp = p.as<rs2::video_stream_profile>();
                      if (vp) {
@@ -142,7 +151,7 @@ void run()
             catch (...) {
                 t265_available = false;
             }
-        }
+        };
         
         for(bool switch_request=false; !switch_request && !g_app_data.exit_request;)
         {
@@ -164,6 +173,12 @@ void run()
             
             rs2::frame p;
             if (t265_available) {
+
+                if (!pipe)
+                {
+                    start_t265_pipe();
+                }
+
                 try {
                     rs2::frameset fs = pipe->wait_for_frames();
 
@@ -220,10 +235,14 @@ void run()
             
             cv::rectangle(screen_img, win_exit(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_exit_button() ? 3 : 1);
             cv::putText(screen_img, "  EXIT", label(win_exit()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-            cv::rectangle(screen_img, win_capture(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_capture_button() ? 3 : 1);
-            cv::putText(screen_img, "  CAPTURE",  label(win_capture()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
             cv::rectangle(screen_img, win_bat(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_script_button() ? 3 : 1);
             cv::putText(screen_img, "  CALL SCRIPT", label(win_bat()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::rectangle(screen_img, win_capture(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_capture_button() ? 3 : 1);
+            cv::putText(screen_img, "  CAPTURE",  label(win_capture()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::rectangle(screen_img, win_init(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_init_button() ? 3 : 1);
+            cv::putText(screen_img, "  INIT NORTH",  label(win_init()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::rectangle(screen_img, win_cam3(), cv::Scalar(255, 255, 255), camera_id == 3 ? 3 : 1);
+            cv::putText(screen_img, "  CAM 3", label(win_cam3()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
             cv::rectangle(screen_img, win_cam2(), cv::Scalar(255, 255, 255), camera_id == 2 ? 3 : 1);
             cv::putText(screen_img, "  CAM 2", label(win_cam2()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
             cv::rectangle(screen_img, win_cam1(), cv::Scalar(255, 255, 255), camera_id == 1 ? 3 : 1);
@@ -232,6 +251,11 @@ void run()
             cv::putText(screen_img, "  CAM 0", label(win_cam0()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
             
             //////////////////////////////////////////////////////////////////////////////////////
+            if (g_app_data.init_request)
+            {
+                pipe = nullptr;
+                g_app_data.init_request = false;
+            }
             if (g_app_data.capture_request)
             {
                 auto t = std::time(NULL);
@@ -273,9 +297,11 @@ void run()
             if (g_app_data.cam0_request && camera_id != 0) { camera_id = 0; switch_request = true; }
             else if (g_app_data.cam1_request && camera_id != 1) { camera_id = 1; switch_request = true; }
             else if (g_app_data.cam2_request && camera_id != 2) { camera_id = 2; switch_request = true; }
+            else if (g_app_data.cam3_request && camera_id != 3) { camera_id = 3; switch_request = true; }
             g_app_data.cam0_request = false;
             g_app_data.cam1_request = false;
             g_app_data.cam2_request = false;
+            g_app_data.cam3_request = false;
             
             cv::imshow(window_name, screen_img.clone());
             switch (cv::waitKey(1))
@@ -294,11 +320,13 @@ void run()
                 switch (event) {
                     case cv::EVENT_LBUTTONUP:
                         if (win_exit().contains(cv::Point(x, y))) { g_app_data.set_exit_request(); };
-                        if (win_capture().contains(cv::Point(x, y))) { g_app_data.set_capture_request(); }
                         if (win_bat().contains(cv::Point(x, y))) { g_app_data.set_script_request(); }
+                        if (win_capture().contains(cv::Point(x, y))) { g_app_data.set_capture_request(); }
+                        if (win_init().contains(cv::Point(x, y))) { g_app_data.set_init_request(); }
                         if (win_cam0().contains(cv::Point(x, y))) { g_app_data.cam0_request = true; }
                         if (win_cam1().contains(cv::Point(x, y))) { g_app_data.cam1_request = true; }
                         if (win_cam2().contains(cv::Point(x, y))) { g_app_data.cam2_request = true; }
+                        if (win_cam3().contains(cv::Point(x, y))) { g_app_data.cam3_request = true; }
                     default: break;
                 }
             }, &g_app_data);

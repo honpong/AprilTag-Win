@@ -95,7 +95,11 @@ def conv_xyzcsv_llhcsv(Input_csv):
             writeCSV = csv.writer(csv_write_file, delimiter=',') #set up to write
             singleRow = [] #variable for holding a single row of data
             # For every row, store the row data and then run the EXIFWrite subroutine.
+            firstline = True
             for row in readCSV: 
+                if firstline:
+                    firstline = False
+                    continue
                 singleRow = row
                 print (singleRow[0])
                 writeCSV.writerow([singleRow[0]] + conv_xyz_llh(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])))

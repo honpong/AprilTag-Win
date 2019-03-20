@@ -14,7 +14,7 @@
 
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
-#define DEFAULT_PATH "." //"C:\\temp\\t265-capture\\"
+#define DEFAULT_PATH ".\\capture\\" //"C:\\temp\\t265-capture\\"
 #define GET_CAPTURE_DISPLAY_IMAGE(src) src.one_image()
 #define COLOR_STREAM_REQUEST {}
 #else
@@ -361,7 +361,7 @@ int main(int argc, char* argv[])
             printf("--origin: STR will be added to the first line of output pose.txt.   \n");
             printf("--cam   : ID set the initial camera ID, default 0. Rear-facing tablet cam usually has ID=1\n");
             printf("--script: FILENAME of an external script, default script is t265-insight.bat \n");
-            printf("--path  : OUTPUT_PATH to the capture files, default is the runtime working directory.\n\n");
+            printf("--path  : OUTPUT_PATH to the capture files, default is the .\\capture\\.\n\n");
             return 0;
         }
     }

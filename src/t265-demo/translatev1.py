@@ -10,6 +10,7 @@
 # import piexif # https://piexif.readthedocs.io
 import csv
 import math
+import os
 
 ###### DEFINITIONS
 # convert an x,y,z coord from the InSense orientation into lat long height
@@ -101,11 +102,11 @@ def conv_xyzcsv_llhcsv(Input_csv):
                     firstline = False
                     continue
                 singleRow = row
-                print (singleRow[0])
+                print ("translatev1.py: reading " + singleRow[0])
                 writeCSV.writerow([singleRow[0]] + conv_xyz_llh(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])))
 
 #test call
-conv_xyzcsv_llhcsv('pose.txt')
+conv_xyzcsv_llhcsv(os.path.join(sys.argv[1], 'pose.txt'))
 
 
 # #test call

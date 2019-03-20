@@ -9,13 +9,15 @@ import io
 from PIL import Image # https://pillow.readthedocs.io/en/stable/
 import piexif # https://piexif.readthedocs.io
 import csv
+import os
 
 ###### DEFINITIONS
 
-def singleFileEXIFWrite(dataToWrite):
+def singleFileEXIFWrite(src_dir, dataToWrite):
     # extracting a thumbnail to embed
     o = io.BytesIO()
-    thumb_im = Image.open(str(dataToWrite[0])) #load image
+    src_image_path = os.path.join(src_dir, str(dataToWrite[0]))
+    thumb_im = Image.open(src_image_path) #load image
     thumb_im.thumbnail((50, 50), Image.ANTIALIAS) #convert it into a thumbnail
     thumb_im.save(o, "jpeg") # save that thumbnail as a jpeg style
     thumbnail = o.getvalue() # convert that into bytes to attach to the exif
@@ -42,11 +44,11 @@ def singleFileEXIFWrite(dataToWrite):
 
     exif_dict = {"0th":zeroth_ifd, "Exif":exif_ifd, "GPS":gps_ifd, "1st":first_ifd, "thumbnail":thumbnail}
     exif_bytes = piexif.dump(exif_dict)
-    im = Image.open(str(dataToWrite[0]))
+    im = Image.open(src_image_path)
     # im.thumbnail((100, 100), Image.ANTIALIAS) # blocked out just in case it's useful later.  This tries to resize the image. 
-    im.save("output/" + str(dataToWrite[0]) + "-out.jpg", exif=exif_bytes)   #store the file into an output subdirectory.
+    im.save("output/" + "tagged_" + str(dataToWrite[0]), exif=exif_bytes)   #store the file into an output subdirectory.
 
-def csv_to_exif(Input_csv):
+def csv_to_exif(src_dir, Input_csv):
     # function for writing one CSV row to the exif of a file. Note: Does not check to see if the file is valid
     # Open the CSV file
     with open(Input_csv) as csvfile:  # open the file for parsing
@@ -55,7 +57,7 @@ def csv_to_exif(Input_csv):
         # For every row, store the row data and then run the EXIFWrite subroutine.
         for row in readCSV: 
             singleImageData = row
-            print (singleImageData[0])
-            singleFileEXIFWrite(singleImageData)
+            print ("csvrwv1.py: writing output/" + "tagged_" + singleImageData[0])
+            singleFileEXIFWrite(src_dir, singleImageData)
 
-csv_to_exif('outputllh.csv')
+csv_to_exif(sys.argv[1], 'outputllh.csv')

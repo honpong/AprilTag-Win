@@ -10,6 +10,7 @@ from PIL import Image # https://pillow.readthedocs.io/en/stable/
 import piexif # https://piexif.readthedocs.io
 import csv
 import os
+import sys
 
 ###### DEFINITIONS
 
@@ -22,10 +23,19 @@ def singleFileEXIFWrite(src_dir, dataToWrite):
     thumb_im.save(o, "jpeg") # save that thumbnail as a jpeg style
     thumbnail = o.getvalue() # convert that into bytes to attach to the exif
 
-    zeroth_ifd = {piexif.ImageIFD.Make: u"Intel InSense", 
-                piexif.ImageIFD.Model: u"TinyCam",
+    str_cap_datestamp = str(dataToWrite[0]).split("_")
+    str_cap_year   = str_cap_datestamp[1];
+    str_cap_month  = str_cap_datestamp[2];
+    str_cap_day    = str_cap_datestamp[3];
+    str_cap_hour   = str_cap_datestamp[4];
+    str_cap_min    = str_cap_datestamp[5];
+    str_cap_second = str_cap_datestamp[6];
+
+    zeroth_ifd = {piexif.ImageIFD.Make: u"Intel", 
+                  piexif.ImageIFD.Model: u"InSense",                  
                 }
-    exif_ifd = {piexif.ExifIFD.DateTimeOriginal: u"2019:03:08 01:02:03",
+    exif_ifd = {#piexif.ExifIFD.DateTimeOriginal: u"2019:03:08 01:02:03",
+	            piexif.ExifIFD.DateTimeOriginal: (str_cap_year + ":" + str_cap_month + ":" + str_cap_day + " " + str_cap_hour + ":" + str_cap_min + ":" + str_cap_second),
                 }
     gps_ifd = {piexif.GPSIFD.GPSVersionID: (2, 3, 0, 0),
                 piexif.GPSIFD.GPSLongitudeRef: bytes(dataToWrite[6], 'utf-8'),
@@ -34,7 +44,8 @@ def singleFileEXIFWrite(src_dir, dataToWrite):
                 piexif.GPSIFD.GPSLatitude: ((int(dataToWrite[2]), 1), (int(dataToWrite[3]), 1), (int(dataToWrite[4]), int(dataToWrite[5]))), # last number eg. 10000 is the divisor
                 piexif.GPSIFD.GPSAltitudeRef: 0,
                 piexif.GPSIFD.GPSAltitude: (int(dataToWrite[11]),int(dataToWrite[12])), # <Altitude in meters>, <divisor> i.e. 432,2 = 43.2
-                #piexif.GPSIFD.GPSDateStamp: u"1999:99:99 99:99:99",
+                piexif.GPSIFD.GPSDateStamp: (str_cap_year + ":" + str_cap_month + ":" + str_cap_day + " " + str_cap_hour + ":" + str_cap_min + ":" + str_cap_second),
+                piexif.GPSIFD.GPSMapDatum: u"WGS-84",
                 }
     first_ifd = {#piexif.ImageIFD.Make: u"Canon",
                 #piexif.ImageIFD.XResolution: (40, 1),

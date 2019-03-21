@@ -11,6 +11,7 @@
 import csv
 import math
 import os
+import sys
 
 ###### DEFINITIONS
 # convert an x,y,z coord from the InSense orientation into lat long height

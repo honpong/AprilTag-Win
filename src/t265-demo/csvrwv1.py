@@ -57,7 +57,7 @@ def singleFileEXIFWrite(src_dir, dataToWrite):
     exif_bytes = piexif.dump(exif_dict)
     im = Image.open(src_image_path)
     # im.thumbnail((100, 100), Image.ANTIALIAS) # blocked out just in case it's useful later.  This tries to resize the image. 
-    im.save("output/" + "tagged_" + str(dataToWrite[0]), exif=exif_bytes)   #store the file into an output subdirectory.
+    im.save(os.path.join("output" , "tagged_" + str(dataToWrite[0])), exif=exif_bytes)   #store the file into an output subdirectory.
 
 def csv_to_exif(src_dir, Input_csv):
     # function for writing one CSV row to the exif of a file. Note: Does not check to see if the file is valid
@@ -68,7 +68,7 @@ def csv_to_exif(src_dir, Input_csv):
         # For every row, store the row data and then run the EXIFWrite subroutine.
         for row in readCSV: 
             singleImageData = row
-            print ("csvrwv1.py: writing output/" + "tagged_" + singleImageData[0])
+            print ("csvrwv1.py: writing " + os.path.join("output", "tagged_" + singleImageData[0]))
             singleFileEXIFWrite(src_dir, singleImageData)
 
 csv_to_exif(sys.argv[1], 'outputllh.csv')

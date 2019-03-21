@@ -254,6 +254,7 @@ void run()
             if (g_app_data.init_request)
             {
                 pipe = nullptr;
+                if (index_file.is_open()) { index_file.close(); }
                 g_app_data.init_request = false;
             }
             if (g_app_data.capture_request)

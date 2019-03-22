@@ -1,5 +1,10 @@
-cmake_minimum_required(VERSION 3.7.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
+project(t265-insight C CXX)
+add_subdirectory(src)
+return()
+
+#####################################################################
 project(measure C CXX)
 
 list(APPEND CMAKE_MODULE_PATH 

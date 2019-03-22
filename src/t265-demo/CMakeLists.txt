@@ -77,13 +77,16 @@ if(MSVC)
     foreach(var IN LISTS APP_DEPENDENCY)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
     endforeach(var)
+
+	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/capture")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/py")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/t265-insight.bat "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
     
 	foreach(python_script translatev1 csvrwv1)
+	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/${python_script}.py "$<TARGET_FILE_DIR:${PROJECT_NAME}>/py")
 	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND pyinstaller --noconfirm --onefile --distpath ${CMAKE_CURRENT_BINARY_DIR}/python_binary --workpath ${CMAKE_CURRENT_BINARY_DIR}/python_temp ${CMAKE_CURRENT_SOURCE_DIR}/${python_script}.py)
 	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/python_binary/${python_script}.exe "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
 	endforeach(python_script)
-	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/capture")
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/t265-insight.bat "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
 
     set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
 endif(MSVC)

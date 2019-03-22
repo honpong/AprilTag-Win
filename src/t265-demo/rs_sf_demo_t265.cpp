@@ -27,7 +27,7 @@
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
-#define VERSION_STRING "v0.4"
+#define VERSION_STRING "v0.5"
 
 int g_camera_id = 0;
 std::string g_str_origin = "[filename,tx,ty,tz,rw,rx,ry,rz] | Origin in WGS84 coordinate: Not provided at command line input.";

@@ -15,14 +15,15 @@
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
 #define DEFAULT_PATH ".\\capture\\" //"C:\\temp\\t265-capture\\"
-#define GET_CAPTURE_DISPLAY_IMAGE(src) src.one_image()
-#define COLOR_STREAM_REQUEST {}
+#define DEFAULT_SCRIPT "t265-insight.bat"
+#define SCRIPT_COMMAND ("START \"SCRIPT\" /SEPARATE /B " + g_script_name + " " + folder_path).c_str()
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
-#define DEFAULT_PATH (std::string(getenv("HOME"))+"/Desktop/temp/data/")
-#define GET_CAPTURE_DISPLAY_IMAGE(src) src.images()
-#define COLOR_STREAM_REQUEST {if(app.color_request()){ g_replace_color = !g_replace_color; pipe.reset(true); }}
+//#define DEFAULT_PATH (std::string(getenv("HOME"))+"/Desktop/temp/data/")
+#define DEFAULT_PATH "./"
+#define DEFAULT_SCRIPT "t265-insight.sh"
+#define SCRIPT_COMMAND ("./" + g_script_name + " " + folder_path).c_str()
 
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
@@ -32,7 +33,7 @@
 int g_camera_id = 0;
 std::string g_str_origin = "[filename,tx,ty,tz,rw,rx,ry,rz] | Origin in WGS84 coordinate: Not provided at command line input.";
 std::string g_pose_path = DEFAULT_PATH;
-std::string g_script_name = "t265-insight.bat";
+std::string g_script_name = DEFAULT_SCRIPT;
 
 cv::Size size_win_fisheye(848 / 4, 800 / 4);
 
@@ -289,7 +290,7 @@ void run()
             if (g_app_data.script_request)
             {
                 std::async(std::launch::async, [&]() {
-                    return system(("START \"SCRIPT\" /SEPARATE /B " + g_script_name + " " + folder_path).c_str());
+                    return system(SCRIPT_COMMAND);
                 //system(("CALL " + g_script_name + " " + folder_path).c_str());
                 });
                 g_app_data.script_request = false; //bat process request handled

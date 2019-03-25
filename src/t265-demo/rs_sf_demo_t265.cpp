@@ -16,7 +16,8 @@
 #define PATH_SEPARATER '\\'
 #define DEFAULT_PATH ".\\capture\\" //"C:\\temp\\t265-capture\\"
 #define DEFAULT_SCRIPT "t265-insight.bat"
-#define SCRIPT_COMMAND ("START \"SCRIPT\" /SEPARATE /B " + g_script_name + " " + folder_path).c_str()
+#define BIN_COMMAND ("START \"SCRIPT\" /SEPARATE /B " + g_script_name + " " + folder_path).c_str()
+#define SCRIPT_COMMAND ("START \"SCRIPT\" /SEPARATE /B " + g_script_name + " " + folder_path + " PYTHON").c_str()
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
@@ -24,6 +25,7 @@
 #define DEFAULT_PATH "./"
 #define DEFAULT_SCRIPT "t265-insight.sh"
 #define SCRIPT_COMMAND ("./" + g_script_name + " " + folder_path).c_str()
+#define BIN_COMMAND SCRIPT_COMMAND
 
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
@@ -51,7 +53,10 @@ inline cv::Rect win_buttons() { return cv::Rect(win_fisheye().x, win_fisheye().h
 
 inline cv::Size size_button() { return cv::Size(win_fisheye().width, (scn_height - win_fisheye().height) / num_buttons); }
 inline cv::Rect win_exit() { return cv::Rect(scn_width - size_button().width, scn_height - size_button().height, size_button().width, size_button().height); }
+inline cv::Rect win_bin() { return cv::Rect(win_exit().x, win_exit().y - win_exit().height, size_button().width / 2, size_button().height); }
+inline cv::Rect win_script() { return cv::Rect(win_bin().x + win_bin().width, win_bin().y, win_bin().width, win_bin().height); }
 inline cv::Rect win_bat() { return cv::Rect(win_exit().x, win_exit().y - size_button().height, size_button().width, size_button().height); }
+
 inline cv::Rect win_capture() { return cv::Rect(win_bat().x, win_bat().y - size_button().height, size_button().width, size_button().height); }
 inline cv::Rect win_init() { return cv::Rect(win_capture().x, win_capture().y - size_button().height, size_button().width, size_button().height); }
 inline cv::Rect win_cam2() { return cv::Rect(win_init().x, win_init().y - size_button().height, size_button().width/2, size_button().height); }
@@ -66,6 +71,7 @@ bool g_t265 = true;
 
 struct app_data {
     bool exit_request = false;
+	bool bin_request = false;
     bool script_request = false;
     bool capture_request = false;
     bool init_request = false;
@@ -74,18 +80,21 @@ struct app_data {
     bool cam2_request = false;
     bool cam3_request = false;
     int highlight_exit_button = 0;
+	int highlight_bin_button = 0;
     int highlight_script_button = 0;
     int highlight_capture_button = 0;
     int highlight_init_button = 0;
     
     void set_exit_request() { exit_request = true; highlight_exit_button = 5; }
+	void set_bin_request() { bin_request = true; highlight_bin_button = 5; }
     void set_script_request() { script_request = true; highlight_script_button = 5; }
     void set_capture_request() { capture_request = true; highlight_capture_button = 5; }
     void set_init_request() { init_request = true; highlight_init_button = 5; }
     
     bool is_highlight_exit_button() { highlight_exit_button = std::max(0, highlight_exit_button - 1); return highlight_exit_button > 0; }
-    bool is_highlight_script_button() { highlight_script_button = std::max(0, highlight_script_button - 1); return highlight_script_button > 0; }
-    bool is_highlight_capture_button() { highlight_capture_button = std::max(0, highlight_capture_button - 1); return highlight_capture_button > 0; }
+	bool is_highlight_bin_button() { highlight_bin_button = std::max(0, highlight_bin_button - 1); return highlight_bin_button > 0; }
+	bool is_highlight_script_button() { highlight_script_button = std::max(0, highlight_script_button - 1); return highlight_script_button > 0; }
+	bool is_highlight_capture_button() { highlight_capture_button = std::max(0, highlight_capture_button - 1); return highlight_capture_button > 0; }
     bool is_highlight_init_button() { highlight_init_button = std::max(0, highlight_init_button - 1); return highlight_init_button > 0; }
 
 } g_app_data;
@@ -236,8 +245,10 @@ void run()
             
             cv::rectangle(screen_img, win_exit(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_exit_button() ? 3 : 1);
             cv::putText(screen_img, "  EXIT", label(win_exit()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-            cv::rectangle(screen_img, win_bat(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_script_button() ? 3 : 1);
-            cv::putText(screen_img, "  CALL SCRIPT", label(win_bat()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::rectangle(screen_img, win_bin(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_bin_button() ? 3 : 1);
+			cv::putText(screen_img, "  CALL EXE", label(win_bin()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+			cv::rectangle(screen_img, win_script(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_script_button() ? 3 : 1);
+            cv::putText(screen_img, " CALL SCRIPT", label(win_script()), CV_FONT_HERSHEY_DUPLEX, 0.45, cv::Scalar(255, 255, 255));
             cv::rectangle(screen_img, win_capture(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_capture_button() ? 3 : 1);
             cv::putText(screen_img, "  CAPTURE",  label(win_capture()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
             cv::rectangle(screen_img, win_init(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_init_button() ? 3 : 1);
@@ -289,12 +300,18 @@ void run()
             }
             if (g_app_data.script_request)
             {
-                std::async(std::launch::async, [&]() {
+				std::async(std::launch::async, [&]() {
                     return system(SCRIPT_COMMAND);
-                //system(("CALL " + g_script_name + " " + folder_path).c_str());
-                });
-                g_app_data.script_request = false; //bat process request handled
+				});
+                g_app_data.script_request = false; //script process request handled
             }
+			if (g_app_data.bin_request) {
+				std::async(std::launch::async, [&]() {
+					return system(BIN_COMMAND);
+				});
+				g_app_data.bin_request = false; // exe/bin process request handled
+			}
+
             
             if (g_app_data.cam0_request && camera_id != 0) { camera_id = 0; switch_request = true; }
             else if (g_app_data.cam1_request && camera_id != 1) { camera_id = 1; switch_request = true; }
@@ -322,7 +339,8 @@ void run()
                 switch (event) {
                     case cv::EVENT_LBUTTONUP:
                         if (win_exit().contains(cv::Point(x, y))) { g_app_data.set_exit_request(); };
-                        if (win_bat().contains(cv::Point(x, y))) { g_app_data.set_script_request(); }
+						if (win_bin().contains(cv::Point(x, y))) { g_app_data.set_bin_request(); }
+                        if (win_script().contains(cv::Point(x, y))) { g_app_data.set_script_request(); }
                         if (win_capture().contains(cv::Point(x, y))) { g_app_data.set_capture_request(); }
                         if (win_init().contains(cv::Point(x, y))) { g_app_data.set_init_request(); }
                         if (win_cam0().contains(cv::Point(x, y))) { g_app_data.cam0_request = true; }
@@ -349,13 +367,6 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--path"))            { g_pose_path = argv[++i]; }
         else if (!strcmp(argv[i], "--cam"))             { g_camera_id = atoi(argv[++i]); }
         else if (!strcmp(argv[i], "--script"))          { g_script_name = argv[++i]; }
-        //else if (!strcmp(argv[i], "--capture"))         { is_capture = true; is_live = false; }
-        //else if (!strcmp(argv[i], "--path"))            { data_path = camera_json_path = argv[++i]; }
-        //else if (!strcmp(argv[i], "--replay"))          { is_replay = true; is_live = false; }
-        //else if (!strcmp(argv[i], "--replay_once"))     { is_replay = true; is_live = false; g_replay_once = true;}
-        //else if (!strcmp(argv[i], "--hd"))              { capture_size = { 1280,720 }; }
-        //else if (!strcmp(argv[i], "--qhd"))             { capture_size = { 640,360 }; }
-        //else if (!strcmp(argv[i], "--vga"))             { capture_size = { 640,480 }; }
         else {
             printf("usages:\n t265-demo.exe [--no_t265][--origin STR][--cam ID][--script FILENAME][--path OUTPUT_PATH]\n");
             printf("\n");

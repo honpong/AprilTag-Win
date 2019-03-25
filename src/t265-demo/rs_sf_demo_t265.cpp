@@ -22,9 +22,9 @@
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/Desktop/temp/data/")
-#define DEFAULT_PATH "./"
+#define DEFAULT_PATH "./capture/"
 #define DEFAULT_SCRIPT "t265-insight.sh"
-#define SCRIPT_COMMAND ("./" + g_script_name + " " + folder_path).c_str()
+#define SCRIPT_COMMAND ("chmod +x " + g_script_name + ";./" + g_script_name + " " + folder_path).c_str()
 #define BIN_COMMAND SCRIPT_COMMAND
 
 #endif

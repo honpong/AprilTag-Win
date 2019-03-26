@@ -12,3 +12,9 @@
 [submodule "src/thirdparty/exempi"]
 	path = src/thirdparty/exempi
 	url = https://github.com/honpong/exempi.git
+[submodule "src/thirdparty/expat"]
+	path = src/thirdparty/expat
+	url = https://github.com/honpong/libexpat.git
+[submodule "src/thirdparty/zlib"]
+	path = src/thirdparty/zlib
+	url = https://github.com/honpong/zlib.git

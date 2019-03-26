@@ -93,6 +93,7 @@ if(MSVC)
 
 	if(OpenCV_FOUND)
 	    list(APPEND APP_DEPENDENCY ${OpenCV_LIB_DIR}/../bin/opencv_world310$<$<CONFIG:Debug>:d>.dll)
+		list(APPEND APP_DEPENDENCY ${OpenCV_LIB_DIR}/../bin/exempi.dll)
 	endif()
 
     foreach(var IN LISTS APP_DEPENDENCY)

@@ -11,6 +11,7 @@ import piexif # https://piexif.readthedocs.io
 import csv
 import os
 import sys
+from libxmp import XMPFiles, consts
 
 ###### DEFINITIONS
 
@@ -18,6 +19,7 @@ def singleFileEXIFWrite(src_dir, dataToWrite):
     # extracting a thumbnail to embed
     o = io.BytesIO()
     src_image_path = os.path.join(src_dir, str(dataToWrite[0]))
+    dst_image_path = os.path.join("output" , "tagged_" + str(dataToWrite[0]));
     thumb_im = Image.open(src_image_path) #load image
     thumb_im.thumbnail((50, 50), Image.ANTIALIAS) #convert it into a thumbnail
     thumb_im.save(o, "jpeg") # save that thumbnail as a jpeg style
@@ -57,7 +59,17 @@ def singleFileEXIFWrite(src_dir, dataToWrite):
     exif_bytes = piexif.dump(exif_dict)
     im = Image.open(src_image_path)
     # im.thumbnail((100, 100), Image.ANTIALIAS) # blocked out just in case it's useful later.  This tries to resize the image. 
-    im.save(os.path.join("output" , "tagged_" + str(dataToWrite[0])), exif=exif_bytes)   #store the file into an output subdirectory.
+    print("csvrwv1.py: writing " + dst_image_path + "... ", end='')
+    im.save(dst_image_path, exif=exif_bytes)   #store the file into an output subdirectory.
+    
+    xmpfile = XMPFiles( file_path=dst_image_path, open_forupdate=True )
+    xmp = xmpfile.get_xmp()    
+    xmp.set_property(consts.XMP_NS_DC, u'format', u'application/vnd.adobe.illustrator' )
+    print("xmp format: " + str(xmp.get_property(consts.XMP_NS_DC, 'format' )))
+	
+    xmpfile.can_put_xmp(xmp)
+    xmpfile.put_xmp(xmp)
+    xmpfile.close_file()
 
 def csv_to_exif(src_dir, Input_csv):
     # function for writing one CSV row to the exif of a file. Note: Does not check to see if the file is valid
@@ -68,7 +80,6 @@ def csv_to_exif(src_dir, Input_csv):
         # For every row, store the row data and then run the EXIFWrite subroutine.
         for row in readCSV: 
             singleImageData = row
-            print ("csvrwv1.py: writing " + os.path.join("output", "tagged_" + singleImageData[0]))
             singleFileEXIFWrite(src_dir, singleImageData)
 
 csv_to_exif(sys.argv[1], 'outputllh.csv')

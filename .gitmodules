@@ -9,3 +9,6 @@
 [submodule "src/thirdparty/exif"]
 	path = src/thirdparty/exif
 	url = https://github.com/honpong/exif.git
+[submodule "src/thirdparty/exempi"]
+	path = src/thirdparty/exempi
+	url = https://github.com/honpong/exempi

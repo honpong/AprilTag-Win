@@ -11,4 +11,4 @@
 	url = https://github.com/honpong/exif.git
 [submodule "src/thirdparty/exempi"]
 	path = src/thirdparty/exempi
-	url = https://github.com/honpong/exempi
+	url = https://github.com/honpong/exempi.git

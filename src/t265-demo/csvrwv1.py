@@ -1,5 +1,5 @@
 ##########
-# csvreadandwrite.py 
+# csvreadandwrite.py
 # Rowland Marshall 10 Mar 2019
 # importing data from a CSV and write it into the exif
 ##########
@@ -33,8 +33,8 @@ def singleFileEXIFWrite(src_dir, dataToWrite):
     str_cap_min    = str_cap_datestamp[5];
     str_cap_second = str_cap_datestamp[6];
 
-    zeroth_ifd = {piexif.ImageIFD.Make: u"Intel", 
-                  piexif.ImageIFD.Model: u"InSense",                  
+    zeroth_ifd = {piexif.ImageIFD.Make: u"Intel",
+                  piexif.ImageIFD.Model: u"InSense Logitech",
                 }
     exif_ifd = {#piexif.ExifIFD.DateTimeOriginal: u"2019:03:08 01:02:03",
 	            piexif.ExifIFD.DateTimeOriginal: (str_cap_year + ":" + str_cap_month + ":" + str_cap_day + " " + str_cap_hour + ":" + str_cap_min + ":" + str_cap_second),
@@ -58,16 +58,19 @@ def singleFileEXIFWrite(src_dir, dataToWrite):
     exif_dict = {"0th":zeroth_ifd, "Exif":exif_ifd, "GPS":gps_ifd, "1st":first_ifd, "thumbnail":thumbnail}
     exif_bytes = piexif.dump(exif_dict)
     im = Image.open(src_image_path)
-    # im.thumbnail((100, 100), Image.ANTIALIAS) # blocked out just in case it's useful later.  This tries to resize the image. 
+    # im.thumbnail((100, 100), Image.ANTIALIAS) # blocked out just in case it's useful later.  This tries to resize the image.
     print("csvrwv1.py: writing " + dst_image_path + "... ", end='')
     im.save(dst_image_path, exif=exif_bytes)   #store the file into an output subdirectory.
-    
+
     xmpfile = XMPFiles( file_path=dst_image_path, open_forupdate=True )
-    xmp = xmpfile.get_xmp()    
-    xmp.set_property(consts.XMP_NS_DC, u'format', u'application/vnd.adobe.illustrator' )
-    print("xmp format: " + str(xmp.get_property(consts.XMP_NS_DC, 'format' )))
-	
-    xmpfile.can_put_xmp(xmp)
+    xmp = xmpfile.get_xmp()
+
+    xmp.register_namespace(u'http://pix4d.com/camera/1.0/', u'Camera')
+
+    xmp.set_property('http://pix4d.com/camera/1.0/', u'ModelType', u"perspective" )
+    xmp.set_property('http://pix4d.com/camera/1.0/', u'PrincipalPoint', u"2083.811, 1169.033" )
+    xmp.set_property('http://pix4d.com/camera/1.0/', u'PerspectiveDistortion', u"0.1976732, -0.5061321, 0.3403559" )
+
     xmpfile.put_xmp(xmp)
     xmpfile.close_file()
 
@@ -78,7 +81,7 @@ def csv_to_exif(src_dir, Input_csv):
         readCSV = csv.reader(csvfile, delimiter=',') #parse file into a csv object
         singleImageData = [] #variable for holding a single row of data
         # For every row, store the row data and then run the EXIFWrite subroutine.
-        for row in readCSV: 
+        for row in readCSV:
             singleImageData = row
             singleFileEXIFWrite(src_dir, singleImageData)
 

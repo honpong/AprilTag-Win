@@ -17,7 +17,7 @@
 #define DEFAULT_PATH ".\\capture\\" //"C:\\temp\\t265-capture\\"
 #define DEFAULT_SCRIPT "t265-insight.bat"
 #define BIN_COMMAND ("START \"SCRIPT\" /SEPARATE /B " + g_script_name + " " + folder_path).c_str()
-#define SCRIPT_COMMAND ("START \"SCRIPT\" /SEPARATE /B " + g_script_name + " " + folder_path + " PYTHON").c_str()
+#define SCRIPT_COMMAND ("START \"SCRIPT\" /SEPARATE /B " + g_script_name + " " + folder_path + " py").c_str()
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")

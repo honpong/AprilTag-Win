@@ -16,10 +16,17 @@ from libxmp import XMPFiles, consts
 ###### DEFINITIONS
 
 def singleFileEXIFWrite(src_dir, dataToWrite):
-    # extracting a thumbnail to embed
-    o = io.BytesIO()
+    
     src_image_path = os.path.join(src_dir, str(dataToWrite[0]))
     dst_image_path = os.path.join("output" , "tagged_" + str(dataToWrite[0]));
+
+    xmp_namespace_url          = u'http://pix4d.com/camera/1.0/'
+    xmp_model_type             = u"perspective"
+    xmp_principal_point        = u"2083.811, 1169.033"
+    xmp_perspective_distortion = u"0.1976732, -0.5061321, 0.3403559"
+
+	# extracting a thumbnail to embed
+    o = io.BytesIO()
     thumb_im = Image.open(src_image_path) #load image
     thumb_im.thumbnail((50, 50), Image.ANTIALIAS) #convert it into a thumbnail
     thumb_im.save(o, "jpeg") # save that thumbnail as a jpeg style
@@ -65,14 +72,15 @@ def singleFileEXIFWrite(src_dir, dataToWrite):
     xmpfile = XMPFiles( file_path=dst_image_path, open_forupdate=True )
     xmp = xmpfile.get_xmp()
 
-    xmp.register_namespace(u'http://pix4d.com/camera/1.0/', u'Camera')
-
-    xmp.set_property('http://pix4d.com/camera/1.0/', u'ModelType', u"perspective" )
-    xmp.set_property('http://pix4d.com/camera/1.0/', u'PrincipalPoint', u"2083.811, 1169.033" )
-    xmp.set_property('http://pix4d.com/camera/1.0/', u'PerspectiveDistortion', u"0.1976732, -0.5061321, 0.3403559" )
+    xmp.register_namespace(xmp_namespace_url, u'Camera')
+    xmp.set_property(xmp_namespace_url, u'ModelType', xmp_model_type )
+    xmp.set_property(xmp_namespace_url, u'PrincipalPoint', xmp_principal_point )
+    xmp.set_property(xmp_namespace_url, u'PerspectiveDistortion', xmp_perspective_distortion )
 
     xmpfile.put_xmp(xmp)
     xmpfile.close_file()
+
+    print(" xmp " + xmp_model_type + " pp:" + xmp_principal_point + " pdist:" + xmp_perspective_distortion)
 
 def csv_to_exif(src_dir, Input_csv):
     # function for writing one CSV row to the exif of a file. Note: Does not check to see if the file is valid

@@ -32,7 +32,9 @@
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
 #define VERSION_STRING "v0.6"
 
-int g_camera_id = 0;
+bool        g_t265 = true;
+int         g_camera_id = 0;
+int         g_auto_capture_interval_s = 2;
 std::string g_str_origin = "[filename,tx,ty,tz,rw,rx,ry,rz] | Origin in WGS84 coordinate: Not provided at command line input.";
 std::string g_pose_path = DEFAULT_PATH;
 std::string g_script_name = DEFAULT_SCRIPT;
@@ -55,10 +57,10 @@ inline cv::Size size_button() { return cv::Size(win_fisheye().width, (scn_height
 inline cv::Rect win_exit() { return cv::Rect(scn_width - size_button().width, scn_height - size_button().height, size_button().width, size_button().height); }
 inline cv::Rect win_bin() { return cv::Rect(win_exit().x, win_exit().y - win_exit().height, size_button().width / 2, size_button().height); }
 inline cv::Rect win_script() { return cv::Rect(win_bin().x + win_bin().width, win_bin().y, win_bin().width, win_bin().height); }
-inline cv::Rect win_bat() { return cv::Rect(win_exit().x, win_exit().y - size_button().height, size_button().width, size_button().height); }
 
-inline cv::Rect win_capture() { return cv::Rect(win_bat().x, win_bat().y - size_button().height, size_button().width, size_button().height); }
-inline cv::Rect win_init() { return cv::Rect(win_capture().x, win_capture().y - size_button().height, size_button().width, size_button().height); }
+inline cv::Rect win_capture() { return cv::Rect(win_bin().x, win_bin().y - size_button().height, size_button().width, size_button().height); }
+inline cv::Rect win_init() { return cv::Rect(win_capture().x, win_capture().y - size_button().height, size_button().width /2, size_button().height); }
+inline cv::Rect win_auto() { return cv::Rect(win_script().x, win_init().y, win_init().width, win_init().height); }
 inline cv::Rect win_cam2() { return cv::Rect(win_init().x, win_init().y - size_button().height, size_button().width/2, size_button().height); }
 inline cv::Rect win_cam3() { return cv::Rect(win_cam2().x+win_cam2().width,win_cam2().y, win_cam2().width, win_cam2().height); }
 inline cv::Rect win_cam0() { return cv::Rect(win_cam2().x, win_cam2().y - win_cam2().height, win_cam2().width, win_cam2().height); }
@@ -67,14 +69,13 @@ inline cv::Rect win_cam1() { return cv::Rect(win_cam3().x, win_cam3().y - win_ca
 inline cv::Point label(const cv::Rect& rect) { return cv::Point(rect.x, rect.y + rect.height * 2 / 3); }
 std::vector<std::string>& operator<<(std::vector<std::string>& buf, const std::string& msg) { buf.emplace_back(msg); return buf; }
 
-bool g_t265 = true;
-
 struct app_data {
     bool exit_request = false;
 	bool bin_request = false;
     bool script_request = false;
     bool capture_request = false;
     bool init_request = false;
+    bool auto_request = false;
     bool cam0_request = false;
     bool cam1_request = false;
     bool cam2_request = false;
@@ -84,19 +85,25 @@ struct app_data {
     int highlight_script_button = 0;
     int highlight_capture_button = 0;
     int highlight_init_button = 0;
-    
+
+    std::time_t last_capture_time = {};
+    std::unique_ptr<std::future<int>> system_thread;
+
     void set_exit_request() { exit_request = true; highlight_exit_button = 5; }
 	void set_bin_request() { bin_request = true; highlight_bin_button = 5; }
     void set_script_request() { script_request = true; highlight_script_button = 5; }
     void set_capture_request() { capture_request = true; highlight_capture_button = 5; }
     void set_init_request() { init_request = true; highlight_init_button = 5; }
+    void set_auto_request() { auto_request = !auto_request; }
     
     bool is_highlight_exit_button() { highlight_exit_button = std::max(0, highlight_exit_button - 1); return highlight_exit_button > 0; }
 	bool is_highlight_bin_button() { highlight_bin_button = std::max(0, highlight_bin_button - 1); return highlight_bin_button > 0; }
 	bool is_highlight_script_button() { highlight_script_button = std::max(0, highlight_script_button - 1); return highlight_script_button > 0; }
 	bool is_highlight_capture_button() { highlight_capture_button = std::max(0, highlight_capture_button - 1); return highlight_capture_button > 0; }
     bool is_highlight_init_button() { highlight_init_button = std::max(0, highlight_init_button - 1); return highlight_init_button > 0; }
+    bool is_highlight_auto_button() { return auto_request; }
 
+    bool is_system_run() { return (bool)system_thread && !system_thread->valid(); }
 } g_app_data;
 
 void run()
@@ -246,13 +253,15 @@ void run()
             cv::rectangle(screen_img, win_exit(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_exit_button() ? 3 : 1);
             cv::putText(screen_img, "  EXIT", label(win_exit()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
             cv::rectangle(screen_img, win_bin(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_bin_button() ? 3 : 1);
-			cv::putText(screen_img, "  CALL EXE", label(win_bin()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::putText(screen_img, "  CALL EXE", label(win_bin()), CV_FONT_HERSHEY_DUPLEX, 0.5, g_app_data.is_system_run() ? cv::Scalar(64, 64, 64) : cv::Scalar(255, 255, 255));
 			cv::rectangle(screen_img, win_script(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_script_button() ? 3 : 1);
-            cv::putText(screen_img, " CALL SCRIPT", label(win_script()), CV_FONT_HERSHEY_DUPLEX, 0.45, cv::Scalar(255, 255, 255));
+            cv::putText(screen_img, " CALL SCRIPT", label(win_script()), CV_FONT_HERSHEY_DUPLEX, 0.45, g_app_data.is_system_run() ? cv::Scalar(64, 64, 64) : cv::Scalar(255, 255, 255));
             cv::rectangle(screen_img, win_capture(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_capture_button() ? 3 : 1);
-            cv::putText(screen_img, "  CAPTURE",  label(win_capture()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::putText(screen_img, "  CAPTURE", label(win_capture()), CV_FONT_HERSHEY_DUPLEX, 0.5, g_app_data.auto_request ? cv::Scalar(64, 64, 64) : cv::Scalar(255, 255, 255));
             cv::rectangle(screen_img, win_init(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_init_button() ? 3 : 1);
-            cv::putText(screen_img, "  INIT NORTH",  label(win_init()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::putText(screen_img, " INIT NORTH",  label(win_init()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::rectangle(screen_img, win_auto(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_auto_button() ? 3 : 1);
+            cv::putText(screen_img, "  AUTO " + std::to_string(g_auto_capture_interval_s) + "s", label(win_auto()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
             cv::rectangle(screen_img, win_cam3(), cv::Scalar(255, 255, 255), camera_id == 3 ? 3 : 1);
             cv::putText(screen_img, "  CAM 3", label(win_cam3()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
             cv::rectangle(screen_img, win_cam2(), cv::Scalar(255, 255, 255), camera_id == 2 ? 3 : 1);
@@ -269,9 +278,20 @@ void run()
                 if (index_file.is_open()) { index_file.close(); }
                 g_app_data.init_request = false;
             }
+
+            auto t = std::time(NULL);
+            if (g_app_data.auto_request)
+            {
+                auto current_time = std::chrono::system_clock::from_time_t(t);
+                auto last_time = std::chrono::system_clock::from_time_t(g_app_data.last_capture_time);
+                if (std::chrono::duration_cast<std::chrono::milliseconds>(current_time - last_time).count() >= g_auto_capture_interval_s * 1000)
+                {
+                    g_app_data.set_capture_request();
+                }
+            }
             if (g_app_data.capture_request)
             {
-                auto t = std::time(NULL);
+                g_app_data.last_capture_time = t;
                 auto tm = *std::localtime(&t);
                 std::stringstream ss;
                 ss << std::put_time(&tm, "%Y_%m_%d_%H_%M_%S");
@@ -300,19 +320,20 @@ void run()
             }
             if (g_app_data.script_request)
             {
-				std::async(std::launch::async, [&]() {
+				g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, [&]() {
                     return system(SCRIPT_COMMAND);
-				});
+                }));
+                g_app_data.auto_request = false;
                 g_app_data.script_request = false; //script process request handled
             }
 			if (g_app_data.bin_request) {
-				std::async(std::launch::async, [&]() {
+                g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, [&]() {
 					return system(BIN_COMMAND);
-				});
+                }));
+                g_app_data.auto_request = false;
 				g_app_data.bin_request = false; // exe/bin process request handled
 			}
 
-            
             if (g_app_data.cam0_request && camera_id != 0) { camera_id = 0; switch_request = true; }
             else if (g_app_data.cam1_request && camera_id != 1) { camera_id = 1; switch_request = true; }
             else if (g_app_data.cam2_request && camera_id != 2) { camera_id = 2; switch_request = true; }
@@ -339,10 +360,11 @@ void run()
                 switch (event) {
                     case cv::EVENT_LBUTTONUP:
                         if (win_exit().contains(cv::Point(x, y))) { g_app_data.set_exit_request(); };
-						if (win_bin().contains(cv::Point(x, y))) { g_app_data.set_bin_request(); }
-                        if (win_script().contains(cv::Point(x, y))) { g_app_data.set_script_request(); }
-                        if (win_capture().contains(cv::Point(x, y))) { g_app_data.set_capture_request(); }
+                        if (win_bin().contains(cv::Point(x, y))) { if (!g_app_data.is_system_run()) { g_app_data.set_bin_request(); } }
+                        if (win_script().contains(cv::Point(x, y))) { if (!g_app_data.is_system_run()) { g_app_data.set_script_request(); } }
+                        if (win_capture().contains(cv::Point(x, y))) { if (!g_app_data.auto_request) { g_app_data.set_capture_request(); } }
                         if (win_init().contains(cv::Point(x, y))) { g_app_data.set_init_request(); }
+                        if (win_auto().contains(cv::Point(x, y))) { g_app_data.set_auto_request(); }
                         if (win_cam0().contains(cv::Point(x, y))) { g_app_data.cam0_request = true; }
                         if (win_cam1().contains(cv::Point(x, y))) { g_app_data.cam1_request = true; }
                         if (win_cam2().contains(cv::Point(x, y))) { g_app_data.cam2_request = true; }
@@ -367,14 +389,16 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--path"))            { g_pose_path = argv[++i]; }
         else if (!strcmp(argv[i], "--cam"))             { g_camera_id = atoi(argv[++i]); }
         else if (!strcmp(argv[i], "--script"))          { g_script_name = argv[++i]; }
+        else if (!strcmp(argv[i], "--interval"))        { g_auto_capture_interval_s = atoi(argv[++i]); }
         else {
-            printf("usages:\n t265-demo.exe [--no_t265][--origin STR][--cam ID][--script FILENAME][--path OUTPUT_PATH]\n");
+            printf("usages:\n t265-demo.exe [--no_t265][--origin STR][--cam ID][--interval SEC][--script FILENAME][--path OUTPUT_PATH]\n");
             printf("\n");
-            printf("--no_tm2: Capture RGB only without t265 connected.\n");
-            printf("--origin: STR will be added to the first line of output pose.txt.   \n");
-            printf("--cam   : ID set the initial camera ID, default 0. Rear-facing tablet cam usually has ID=1\n");
-            printf("--script: FILENAME of an external script, default script is t265-insight.bat \n");
-            printf("--path  : OUTPUT_PATH to the capture files, default is the .\\capture\\.\n\n");
+            printf("--no_tm2  : Capture RGB only without t265 connected.\n");
+            printf("--origin  : STR will be added to the first line of output pose.txt.   \n");
+            printf("--cam     : ID set the initial camera ID, default 0. Rear-facing tablet cam usually has ID=1\n");
+            printf("--interval: SEC number of seconds per auto captured image, default is 2 seconds. \n");
+            printf("--script  : FILENAME of an external script, default script is t265-insight.bat \n");
+            printf("--path    : OUTPUT_PATH to the capture files, default is the .\\capture\\.\n\n");
             return 0;
         }
     }

@@ -12,6 +12,7 @@ import csv
 import os
 import sys
 from libxmp import XMPFiles, consts
+import calibration_make as calibration_io
 
 ###### DEFINITIONS
 
@@ -20,10 +21,16 @@ def singleFileEXIFWrite(src_dir, dataToWrite):
     src_image_path = os.path.join(src_dir, str(dataToWrite[0]))
     dst_image_path = os.path.join("output" , "tagged_" + str(dataToWrite[0]));
 
-    xmp_namespace_url          = u'http://pix4d.com/camera/1.0/'
-    xmp_model_type             = u"perspective"
-    xmp_principal_point        = u"2083.811, 1169.033"
-    xmp_perspective_distortion = u"0.1976732, -0.5061321, 0.3403559"
+    #xmp_namespace_url          = u'http://pix4d.com/camera/1.0/'
+    #xmp_model_type             = u"perspective"
+    #xmp_principal_point        = u"2083.811, 1169.033"
+    #xmp_perspective_distortion = u"0.1976732, -0.5061321, 0.3403559"
+
+    cam = calibration_io.read_json_calibration(path=src_dir)
+    xmp_namespace_url          = cam["xmp"]["namespace_url"]
+    xmp_model_type             = cam["xmp"]["model_type"]
+    xmp_principal_point        = cam["xmp"]["principal_point"]
+    xmp_perspective_distortion = cam["xmp"]["perspective_distortion"]
 
 	# extracting a thumbnail to embed
     o = io.BytesIO()

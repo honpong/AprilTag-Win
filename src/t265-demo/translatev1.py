@@ -1,8 +1,10 @@
 ##########
-# translateV1.py 
-# Github
-# Rowland Marshall 13 Mar 2019
+# translateV2.py 
+# Rowland Marshall 1 April 2019
 # importing data from a CSV, translating it from local to GPS, and writing to another CSV
+# pose information is stored in a file called "pose.txt" in the called source directory.
+# translated information will be written into a file called "outputllh.csv" in the called source directory.
+# V2 - made it system callable
 ##########
 
 ###### IMPORTS
@@ -90,10 +92,10 @@ def conv_xyz_llh(x, y, z):
     return row
 
 # Open a source CSV file with the format [filename, tx, ty, tz, rw, rx, ry, rz] and convert it to the exif format in lat long height
-def conv_xyzcsv_llhcsv(Input_csv):
+def conv_xyzcsv_llhcsv(src_dir, src_posefile):
     # Open the CSV file
-    with open(Input_csv) as csv_read_file:  # open the file for parsing
-        with open('outputllh.csv', 'w', newline='') as csv_write_file: # open file to write to
+    with open(os.path.join(src_dir, src_posefile)) as csv_read_file:  # open the file for parsing
+        with open(os.path.join(src_dir, 'outputllh.csv'), 'w', newline='') as csv_write_file: # open file to write to
             readCSV = csv.reader(csv_read_file, delimiter=',') #parse file into a csv object
             writeCSV = csv.writer(csv_write_file, delimiter=',') #set up to write
             singleRow = [] #variable for holding a single row of data
@@ -104,11 +106,10 @@ def conv_xyzcsv_llhcsv(Input_csv):
                     firstline = False
                     continue
                 singleRow = row
-                print ("translatev1.py: reading " + singleRow[0])
+                print ("translatev2.py: reading " + singleRow[0])
                 writeCSV.writerow([singleRow[0]] + conv_xyz_llh(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])))
-
 #test call
-conv_xyzcsv_llhcsv(os.path.join(sys.argv[1], 'pose.txt'))
+conv_xyzcsv_llhcsv(sys.argv[1], 'pose.txt')
 
 
 # #test call

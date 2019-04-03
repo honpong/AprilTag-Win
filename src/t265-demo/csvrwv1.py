@@ -36,7 +36,7 @@ def singleFileEXIFWrite(src_dir, des_dir, dataToWrite):
     o = io.BytesIO()
     thumb_im = Image.open(src_image_path) #load image
     thumb_im.thumbnail((50, 50), Image.ANTIALIAS) #convert it into a thumbnail
-    thumb_im.save(o, "jpeg") # save that thumbnail as a jpeg style
+    thumb_im.save(o, "jpeg", quality=100) # save that thumbnail as a jpeg style
     thumbnail = o.getvalue() # convert that into bytes to attach to the exif
     
     zeroth_ifd = {piexif.ImageIFD.Make: u"Intel InSense", 

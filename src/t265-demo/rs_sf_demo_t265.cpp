@@ -30,11 +30,13 @@
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
-#define VERSION_STRING "v0.9"
+#define VERSION_STRING "v0.10"
 
 bool        g_t265 = true;
 int         g_camera_id = 0;
 int         g_auto_capture_interval_s = 2;
+float       g_cam_velocity_thr = 0.2f;
+float       g_cam_prev_dist_thr = 0.5f;
 std::string g_str_origin = "[filename,tx,ty,tz,rw,rx,ry,rz] | Origin in WGS84 coordinate: Not provided at command line input.";
 std::string g_pose_path = DEFAULT_PATH;
 std::string g_script_name = DEFAULT_SCRIPT;
@@ -130,11 +132,25 @@ void run()
 		auto cap_width = cap.get(CV_CAP_PROP_FRAME_WIDTH);
 		auto cap_height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 
+        struct pose_rec : public rs2_pose {
+            void update(const rs2_pose& ref) { *(rs2_pose*)this = ref; }
+            void record_capture() { _prev_cap_pose = std::make_shared<pose_rec>(*this); _prev_cap_pose->_prev_cap_pose.reset(); }
+            double distance_prev_capture() const {
+                return (_prev_cap_pose ? cv::norm(pos() - _prev_cap_pose->pos(), cv::NORM_L2) : -1.0);
+            }
+            cv::Vec3f pos() const { return cv::Vec3f(translation.x, translation.y, translation.z); }
+            cv::Vec3f vel() const { return cv::Vec3f(velocity.x, velocity.y, velocity.z); }
+            double speed() const { return cv::norm(vel(), cv::NORM_L2); }
+            std::shared_ptr<pose_rec> _prev_cap_pose;
+        } current_pose;
+
         std::unique_ptr<rs2::pipeline> pipe;
 
         auto start_t265_pipe = [&](){
             // Declare RealSense pipeline, encapsulating the actual device and sensors
             try {
+                current_pose = {};
+
                 pipe = std::make_unique<rs2::pipeline>();
                 // Create a configuration for configuring the pipeline with a non default profile
                 rs2::config cfg;
@@ -173,8 +189,8 @@ void run()
         for(bool switch_request=false; !switch_request && !g_app_data.exit_request;)
         {
             cv::Mat img, screen_img, cvIr;
-            std::vector<std::string> scn_msg;
-            
+            std::vector<std::string> scn_msg, scn_warn;
+
             if(cap.isOpened()){
                 scn_height = (int)((scn_width - size_win_fisheye.width)* cap_height / cap_width);
                 screen_img.create(size_screen(), CV_8UC3);
@@ -187,6 +203,8 @@ void run()
                 screen_img.create(size_screen(), CV_8UC3);
                 screen_img.setTo(0);
             }
+
+            scn_msg << "Script: " + g_script_name;
             
             rs2::frame p;
             if (t265_available) {
@@ -215,7 +233,8 @@ void run()
                             auto pf = p.as<rs2::pose_frame>();
                             if (pf)
                             {
-                                const auto print = [&scn_msg](const std::string& conf, const rs2_pose& p) {
+                                const auto print = [&scn_msg, &scn_warn, &current_pose](const std::string& conf, const rs2_pose& p) {
+                                    current_pose.update(p);
                                     std::stringstream ss;
                                     scn_msg << "T265 Confidence: " + conf;
                                     ss << std::fixed << std::right << std::setprecision(3) << std::setw(6);
@@ -225,6 +244,14 @@ void run()
                                     sr << std::fixed << std::right << std::setprecision(3) << std::setw(6);
                                     sr << p.rotation.w << "," << p.rotation.x << "," << p.rotation.y << "," << p.rotation.z;
                                     scn_msg << "Rotation: " + sr.str();
+                                    std::stringstream sv;
+                                    sv << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                                    sv << current_pose.speed();
+                                    if (current_pose._prev_cap_pose) { sv << ",  " << current_pose.distance_prev_capture() << " meter away last capture"; }
+                                    scn_msg << "Velocity: " + sv.str();
+
+                                    scn_warn << (current_pose.speed() > g_cam_velocity_thr ? " SLOW DOWN !!!" : "");
+                                    scn_warn << (current_pose.distance_prev_capture() > g_cam_prev_dist_thr ? " TOO FAR FROM LAST CAPTURE !!!" : "");
                                 };
 
                                 auto pd = pf.get_pose_data();
@@ -240,7 +267,6 @@ void run()
                 }
                 catch (...) { t265_available = false; }
             }
-            scn_msg << "Script: " + g_script_name;
             if (!last_file_written.empty()) {
                 scn_msg << "Last write:" + last_file_written;
             }
@@ -248,6 +274,10 @@ void run()
             //////////////////////////////////////////////////////////////////////////////////////
             for (int i = 0; i < (int)scn_msg.size(); ++i) {
                 cv::putText(screen_img, scn_msg[i], cv::Point(win_text().x + 10, win_text().y + 20 * (1+i)), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            }
+
+            for (int j = 0; j < (int)scn_warn.size(); ++j) {
+                cv::putText(screen_img, scn_warn[j], cv::Point(win_rgb().x + 50, win_rgb().y + win_rgb().height / 2 + 50 * j), CV_FONT_HERSHEY_DUPLEX, 1.25, cv::Scalar(0, 255, 255), 2);
             }
             
             cv::rectangle(screen_img, win_exit(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_exit_button() ? 3 : 1);
@@ -292,6 +322,7 @@ void run()
             if (g_app_data.capture_request)
             {
                 g_app_data.last_capture_time = t;
+                current_pose.record_capture();
                 auto tm = *std::localtime(&t);
                 std::stringstream ss;
                 ss << std::put_time(&tm, "%Y_%m_%d_%H_%M_%S");

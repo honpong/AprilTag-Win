@@ -33,7 +33,7 @@
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
-#define VERSION_STRING "v0.11"
+#define VERSION_STRING "v0.12"
 
 bool        g_t265 = true;
 int         g_camera_id = 0;
@@ -283,18 +283,20 @@ void run()
                 cv::putText(screen_img, scn_warn[j], cv::Point(win_rgb().x + 50, win_rgb().y + win_rgb().height / 2 + 50 * j), CV_FONT_HERSHEY_DUPLEX, 1.25, cv::Scalar(0, 255, 255), 2);
             }
             
+            auto label_color = [](bool flag) { return flag ? cv::Scalar(255, 255, 255) : cv::Scalar(64, 64, 64); };
+            auto is_button_on = [&]() { return !g_app_data.is_system_run(); };
             cv::rectangle(screen_img, win_exit(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_exit_button() ? 3 : 1);
-            cv::putText(screen_img, "  EXIT", label(win_exit()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::putText(screen_img, "  EXIT", label(win_exit()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
             cv::rectangle(screen_img, win_bin(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_bin_button() ? 3 : 1);
-            cv::putText(screen_img, "  CALL EXE", label(win_bin()), CV_FONT_HERSHEY_DUPLEX, 0.5, g_app_data.is_system_run() ? cv::Scalar(64, 64, 64) : cv::Scalar(255, 255, 255));
+            cv::putText(screen_img, "  CALL EXE", label(win_bin()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
 			cv::rectangle(screen_img, win_script(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_script_button() ? 3 : 1);
-            cv::putText(screen_img, " CALL SCRIPT", label(win_script()), CV_FONT_HERSHEY_DUPLEX, 0.45, g_app_data.is_system_run() ? cv::Scalar(64, 64, 64) : cv::Scalar(255, 255, 255));
+            cv::putText(screen_img, " CALL SCRIPT", label(win_script()), CV_FONT_HERSHEY_DUPLEX, 0.45, label_color(is_button_on()));
             cv::rectangle(screen_img, win_capture(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_capture_button() ? 3 : 1);
-            cv::putText(screen_img, "  CAPTURE", label(win_capture()), CV_FONT_HERSHEY_DUPLEX, 0.5, g_app_data.auto_request ? cv::Scalar(64, 64, 64) : cv::Scalar(255, 255, 255));
+            cv::putText(screen_img, "  CAPTURE", label(win_capture()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(!g_app_data.auto_request && is_button_on()));
             cv::rectangle(screen_img, win_init(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_init_button() ? 3 : 1);
-            cv::putText(screen_img, " INIT NORTH",  label(win_init()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::putText(screen_img, " INIT NORTH", label(win_init()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
             cv::rectangle(screen_img, win_auto(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_auto_button() ? 3 : 1);
-            cv::putText(screen_img, "  AUTO " + std::to_string(g_auto_capture_interval_s) + "s", label(win_auto()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::putText(screen_img, "  AUTO " + std::to_string(g_auto_capture_interval_s) + "s", label(win_auto()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
             cv::rectangle(screen_img, win_cam3(), cv::Scalar(255, 255, 255), camera_id == 3 ? 3 : 1);
             cv::putText(screen_img, "  CAM 3", label(win_cam3()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
             cv::rectangle(screen_img, win_cam2(), cv::Scalar(255, 255, 255), camera_id == 2 ? 3 : 1);
@@ -395,14 +397,15 @@ void run()
             }
             
             cv::setMouseCallback(window_name, [](int event, int x, int y, int flags, void* userdata) {
+                auto is_button_on = [&]() { return !g_app_data.is_system_run(); };
                 switch (event) {
                     case cv::EVENT_LBUTTONUP:
-                        if (win_exit().contains(cv::Point(x, y))) { g_app_data.set_exit_request(); };
-                        if (win_bin().contains(cv::Point(x, y))) { if (!g_app_data.is_system_run()) { g_app_data.set_bin_request(); } }
-                        if (win_script().contains(cv::Point(x, y))) { if (!g_app_data.is_system_run()) { g_app_data.set_script_request(); } }
-                        if (win_capture().contains(cv::Point(x, y))) { if (!g_app_data.auto_request) { g_app_data.set_capture_request(); } }
-                        if (win_init().contains(cv::Point(x, y))) { g_app_data.set_init_request(); }
-                        if (win_auto().contains(cv::Point(x, y))) { g_app_data.set_auto_request(); }
+                        if (win_exit().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_exit_request(); } }
+                        if (win_bin().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_bin_request(); } }
+                        if (win_script().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_script_request(); } }
+                        if (win_capture().contains(cv::Point(x, y))) { if (is_button_on() && !g_app_data.auto_request ) { g_app_data.set_capture_request(); } }
+                        if (win_init().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_init_request(); } }
+                        if (win_auto().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_auto_request(); } }
                         if (win_cam0().contains(cv::Point(x, y))) { g_app_data.cam0_request = true; }
                         if (win_cam1().contains(cv::Point(x, y))) { g_app_data.cam1_request = true; }
                         if (win_cam2().contains(cv::Point(x, y))) { g_app_data.cam2_request = true; }

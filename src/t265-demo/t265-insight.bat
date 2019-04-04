@@ -20,6 +20,7 @@ MKDIR %DST%
 if %PY%==0 (CALL csvrwv1.exe %SRC% %DST%) else (python %2\csvrwv1.py %SRC% %DST%)
 
 DEL /F /Q %SRC%\outputllh.csv
+DEL /F /Q %SRC%\outputllh_short.csv
 
 :: remind output directory
 MSG * "SOURCE JPEGS FROM %SRC%, TAGGED JPEGS TO FOLDER %cd%\%DST%"

@@ -22,7 +22,7 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     
     # define file sources and destinations
     src_image_path = os.path.join(src_dir, str(dataToWrite[0]))
-    dst_image_path = os.path.join(src_dir, des_dir_name , "tagged_" + str(dataToWrite[0]));
+    dst_image_path = os.path.join(des_dir_name , "tagged_" + str(dataToWrite[0]));
     
     # Set up the calibration 
     cam = calibration_io.read_json_calibration(path=src_dir)
@@ -106,9 +106,9 @@ def csv_to_exif(src_dir, des_dir_name, Input_csv):
     
     #create output directory
     try:
-        os.mkdir(os.path.join(src_dir, des_dir_name))
+        os.mkdir(des_dir_name)
     except:
-        print(os.path.join(src_dir, des_dir_name) + " exists.")
+        print(des_dir_name + " exists.")
     
     # Open the CSV file
     with open(os.path.join(src_dir, Input_csv)) as csvfile:  # open the file for parsing

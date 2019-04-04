@@ -1,9 +1,11 @@
 ##########
-# translateV3.py 
-# Rowland Marshall 2 April 2019
+# translateV1.py 
+# Rowland Marshall 4 April 2019
 # importing data from a CSV, translating it from local to GPS, and writing to another CSV
 # pose information is stored in a file called "pose.txt" in the called source directory.
 # translated information will be written into a file called "outputllh.csv" in the called source directory.
+# V4 - corrected Geocentric to Geodetic radius
+#    - corrected factor of 2 error in lat long
 # V3 add in export before breakup to create a second csv for comparison
 # V2 - made it system callable
 ##########
@@ -29,7 +31,8 @@ def conv_xyz_llh(x, y, z):
     GPS_LON0 = -111.93072923 #Longitude in degrees, +tive is East
 
     # Geo constants
-    APPROX_RAD_GPS_0 = 6371665.588 #Earth approx radius at GPS_0 location
+    # Error - this was Geocentric.  I needed Geodetic APPROX_RAD_GPS_0 = 6371665.588 #Earth approx radius at GPS_0 location
+    APPROX_GEODETIC_RAD_GPS_0 = 6371726.054 # Earth Geodetic approx radius at GPS_0 location
 
     ####### VARIABLES
     InSense_x = x
@@ -61,8 +64,8 @@ def conv_xyz_llh(x, y, z):
 
     # test out the conversion
     InSense_h = GPS_H0 + InSense_y
-    InSense_lat = math.asin(((-InSense_z) / 2) / (InSense_h + APPROX_RAD_GPS_0)) * 180 / math.pi + GPS_LAT0
-    InSense_lon = math.asin((InSense_x / 2) / (InSense_h + APPROX_RAD_GPS_0)) * 180 / math.pi + GPS_LON0
+    InSense_lat = math.asin(((-InSense_z) / 2) / (InSense_h + APPROX_GEODETIC_RAD_GPS_0)) * 180 / math.pi * 2 + GPS_LAT0
+    InSense_lon = math.asin((InSense_x / 2) / (InSense_h + APPROX_GEODETIC_RAD_GPS_0)) * 180 / math.pi * 2 + GPS_LON0
 
     # debug prints
     # print(InSense_h)
@@ -103,7 +106,8 @@ def conv_xyz_llh_short(x, y, z):
     GPS_LON0 = -111.93072923 #Longitude in degrees, +tive is East
 
     # Geo constants
-    APPROX_RAD_GPS_0 = 6371665.588 #Earth approx radius at GPS_0 location
+    # Error - this was Geocentric.  I needed Geodetic APPROX_RAD_GPS_0 = 6371665.588 #Earth approx radius at GPS_0 location
+    APPROX_GEODETIC_RAD_GPS_0 = 6371726.054 # Earth Geodetic approx radius at GPS_0 location
 
     ####### VARIABLES
     InSense_x = x
@@ -135,8 +139,8 @@ def conv_xyz_llh_short(x, y, z):
 
     # test out the conversion
     InSense_h = GPS_H0 + InSense_y
-    InSense_lat = math.asin(((-InSense_z) / 2) / (InSense_h + APPROX_RAD_GPS_0)) * 180 / math.pi + GPS_LAT0
-    InSense_lon = math.asin((InSense_x / 2) / (InSense_h + APPROX_RAD_GPS_0)) * 180 / math.pi + GPS_LON0
+    InSense_lat = math.asin(((-InSense_z) / 2) / (InSense_h + APPROX_GEODETIC_RAD_GPS_0)) * 180 / math.pi * 2 + GPS_LAT0
+    InSense_lon = math.asin((InSense_x / 2) / (InSense_h + APPROX_GEODETIC_RAD_GPS_0)) * 180 / math.pi * 2 + GPS_LON0
 
     row = [InSense_lat, InSense_lon, InSense_h]
     return row
@@ -174,7 +178,7 @@ def conv_xyzcsv_llhcsv_short(src_dir, src_posefile):
                     firstline = False
                     continue
                 singleRow = row
-                print ("translatev3.py (SHORT): reading " + singleRow[0])
+                print ("translatev1.py (SHORT): reading " + singleRow[0])
                 writeCSV.writerow([singleRow[0]] + conv_xyz_llh_short(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])))
 
             

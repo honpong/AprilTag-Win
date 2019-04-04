@@ -145,7 +145,7 @@ def conv_xyz_llh_short(x, y, z):
 def conv_xyzcsv_llhcsv(src_dir, src_posefile):
     # Open the CSV file to write the long form
     with open(os.path.join(src_dir, src_posefile)) as csv_read_file:  # open the file for parsing
-        with open(os.path.join(src_dir, 'outputllh.csv'), 'w', newline='') as csv_write_file: # open file to write to
+        with open(os.path.join(sys.argv[1], 'outputllh.csv'), 'w', newline='') as csv_write_file: # open file to write to
             readCSV = csv.reader(csv_read_file, delimiter=',') #parse file into a csv object
             writeCSV = csv.writer(csv_write_file, delimiter=',') #set up to write
             singleRow = [] #variable for holding a single row of data
@@ -156,7 +156,7 @@ def conv_xyzcsv_llhcsv(src_dir, src_posefile):
                     firstline = False
                     continue
                 singleRow = row
-                print ("translatev1.py: reading " + singleRow[0])
+                print ("translatev3.py: reading " + singleRow[0])
                 writeCSV.writerow([singleRow[0]] + conv_xyz_llh(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])))
 
 # Open a source CSV file with the format [filename, tx, ty, tz, rw, rx, ry, rz] and convert it to the exif format in lat long height

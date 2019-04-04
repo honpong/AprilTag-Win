@@ -1,9 +1,10 @@
 ##########
-# translateV3.py 
+# translateV4.py - INCOMPLETE
 # Rowland Marshall 2 April 2019
 # importing data from a CSV, translating it from local to GPS, and writing to another CSV
 # pose information is stored in a file called "pose.txt" in the called source directory.
 # translated information will be written into a file called "outputllh.csv" in the called source directory.
+# V3.01 include rotations.
 # V3 add in export before breakup to create a second csv for comparison
 # V2 - made it system callable
 ##########
@@ -16,6 +17,7 @@ import csv
 import math
 import os
 import sys
+import transforms3d #http://matthew-brett.github.io/transforms3d/reference/transforms3d.taitbryan.html?highlight=pitch#transforms3d.taitbryan.quat2euler
 
 ###### DEFINITIONS
 # convert an x,y,z coord from the InSense orientation into lat long height
@@ -145,7 +147,7 @@ def conv_xyz_llh_short(x, y, z):
 def conv_xyzcsv_llhcsv(src_dir, src_posefile):
     # Open the CSV file to write the long form
     with open(os.path.join(src_dir, src_posefile)) as csv_read_file:  # open the file for parsing
-        with open(os.path.join(src_dir, 'outputllh.csv'), 'w', newline='') as csv_write_file: # open file to write to
+        with open(os.path.join(sys.argv[1], 'outputllh.csv'), 'w', newline='') as csv_write_file: # open file to write to
             readCSV = csv.reader(csv_read_file, delimiter=',') #parse file into a csv object
             writeCSV = csv.writer(csv_write_file, delimiter=',') #set up to write
             singleRow = [] #variable for holding a single row of data
@@ -156,7 +158,7 @@ def conv_xyzcsv_llhcsv(src_dir, src_posefile):
                     firstline = False
                     continue
                 singleRow = row
-                print ("translatev1.py: reading " + singleRow[0])
+                print ("translatev3.py: reading " + singleRow[0])
                 writeCSV.writerow([singleRow[0]] + conv_xyz_llh(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])))
 
 # Open a source CSV file with the format [filename, tx, ty, tz, rw, rx, ry, rz] and convert it to the exif format in lat long height

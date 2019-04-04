@@ -1,6 +1,7 @@
 #############################################
 # Handle RGB camera calibration parameters
 # for csvrwv1.py
+# v2 3 April 2019 Rowland Marshall - updated xmp_principal_point to latest value
 #############################################
 
 import io
@@ -9,16 +10,26 @@ import sys
 import json
 
 def make_default_json():
+
+    #in original csvrwv1.py
+    #xmp_namespace_url          = u'http://pix4d.com/camera/1.0/'
+    #xmp_model_type             = u"perspective"
+    #xmp_principal_point        = u"2083.811, 1169.033"
+    #xmp_perspective_distortion = u"0.1976732, -0.5061321, 0.3403559"
+
+    #in csvrwv3.py
     xmp_namespace_url          = u'http://pix4d.com/camera/1.0/'
     xmp_model_type             = u"perspective"
-    xmp_principal_point        = u"2083.811, 1169.033"
-    xmp_perspective_distortion = u"0.1976732, -0.5061321, 0.3403559"
+    xmp_principal_point        = u"12.9221,7.24935"
+    xmp_perspective_focal      = u"18.5779"
+    xmp_perspective_distortion = u"0.1976732, -0.5061321, 0.3403559, 0, 0"
     
     json_obj = { 
         "xmp" : {
             "namespace_url"   : xmp_namespace_url,
             "model_type"      : xmp_model_type,
             "principal_point" : xmp_principal_point,
+            "perspective_focal"      : xmp_perspective_focal,
             "perspective_distortion" : xmp_perspective_distortion,
         }
     }

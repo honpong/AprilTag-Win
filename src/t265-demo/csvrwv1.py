@@ -1,6 +1,6 @@
 ##########
 # csvrwv1.py 
-# Rowland Marshall 2 Apr 2019
+# Rowland Marshall 3 Apr 2019
 # importing data from a CSV and write it into the exif
 # v4 corrected the principle point
 # v3 make it sys callable, include xmp
@@ -13,21 +13,24 @@ import piexif # https://piexif.readthedocs.io
 import csv
 import os
 import sys
+import calibration_make as calibration_io
 from libxmp import XMPFiles, consts
 
 ###### DEFINITIONS
 
-def singleFileEXIFWrite(src_dir, des_dir, dataToWrite):
+def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     
     # define file sources and destinations
     src_image_path = os.path.join(src_dir, str(dataToWrite[0]))
-    dst_image_path = os.path.join(src_dir, des_dir , "tagged_" + str(dataToWrite[0]));
+    dst_image_path = os.path.join(src_dir, des_dir_name , "tagged_" + str(dataToWrite[0]));
     
-    #BLOCK TEMPORARILYcam = calibration_io.read_json_calibration(path=src_dir)
-    # xmp_namespace_url          = cam["xmp"]["namespace_url"]
-    # xmp_model_type             = cam["xmp"]["model_type"]
-    # xmp_principal_point        = cam["xmp"]["principal_point"]
-    # xmp_perspective_distortion = cam["xmp"]["perspective_distortion"]
+    # Set up the calibration 
+    cam = calibration_io.read_json_calibration(path=src_dir)
+    xmp_namespace_url          = cam["xmp"]["namespace_url"]
+    xmp_model_type             = cam["xmp"]["model_type"]
+    xmp_perspective_focal      = cam["xmp"]["perspective_focal"]
+    xmp_principal_point        = cam["xmp"]["principal_point"]
+    xmp_perspective_distortion = cam["xmp"]["perspective_distortion"]
 
     # Write exif part
     # extracting a thumbnail to embed
@@ -77,11 +80,12 @@ def singleFileEXIFWrite(src_dir, des_dir, dataToWrite):
     xmpfile = XMPFiles( file_path=dst_image_path, open_forupdate=True )
     xmp = xmpfile.get_xmp()
     
-    xmp_namespace_url          = u'http://pix4d.com/camera/1.0/'
-    xmp_model_type             = u"perspective"
-    xmp_principal_point        = u"12.9221,7.24935"
-    xmp_perspective_focal      = u'18.5779'
-    xmp_perspective_distortion = u"0.1976732, -0.5061321, 0.3403559, 0, 0"
+    # Hard coded camera parameters (if not using external reference file)
+    # xmp_namespace_url          = u'http://pix4d.com/camera/1.0/'
+    # xmp_model_type             = u"perspective"
+    # xmp_principal_point        = u"12.9221,7.24935"
+    # xmp_perspective_focal      = u'18.5779'
+    # xmp_perspective_distortion = u"0.1976732, -0.5061321, 0.3403559, 0, 0"
 
     xmp.register_namespace(xmp_namespace_url, u'Camera')
     xmp.set_property(xmp_namespace_url, u'ModelType', xmp_model_type )
@@ -97,14 +101,14 @@ def singleFileEXIFWrite(src_dir, des_dir, dataToWrite):
 ##### PROGRAM
 
 # function for writing one CSV row to the exif of a file. Note: Does not check to see if the file is valid
-def csv_to_exif(src_dir, des_dir, Input_csv):
+def csv_to_exif(src_dir, des_dir_name, Input_csv):
     # function for writing one CSV row to the exif of a file. Note: Does not check to see if the file is valid
     
     #create output directory
     try:
-        os.mkdir(os.path.join(src_dir, des_dir))
+        os.mkdir(os.path.join(src_dir, des_dir_name))
     except:
-        print(os.path.join(src_dir, des_dir) + " exists.")
+        print(os.path.join(src_dir, des_dir_name) + " exists.")
     
     # Open the CSV file
     with open(os.path.join(src_dir, Input_csv)) as csvfile:  # open the file for parsing
@@ -113,6 +117,6 @@ def csv_to_exif(src_dir, des_dir, Input_csv):
         # For every row, store the row data and then run the EXIFWrite subroutine.
         for row in readCSV:
             singleImageData = row
-            singleFileEXIFWrite(src_dir, des_dir, singleImageData)
+            singleFileEXIFWrite(src_dir, des_dir_name, singleImageData)
 
 csv_to_exif(sys.argv[1], sys.argv[2], 'outputllh.csv')

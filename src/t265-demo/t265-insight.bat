@@ -12,16 +12,16 @@ if %PY%==0 (ECHO "Use executables.") else (ECHO "Use python scripts in py\.")
 if %PY%==0 (CALL translatev1.exe %SRC%) else (python %2\translatev1.py %SRC%)
 
 :: make output directory
-RMDIR /S /Q output 2> NUL
-MKDIR output
+set DST=tagged_capture
+RMDIR /S /Q %DST% 2> NUL
+MKDIR %DST%
 
 :: call second script
-if %PY%==0 (CALL csvrwv1.exe %SRC%) else (python %2\csvrwv1.py %SRC%)
+if %PY%==0 (CALL csvrwv1.exe %SRC% %DST%) else (python %2\csvrwv1.py %SRC% %DST%)
 
-DEL /F /Q outputllh.csv
+DEL /F /Q %SRC%\outputllh.csv
 
 :: remind output directory
-SET DST=%cd%
-MSG * "SOURCE JPEGS FROM %SRC%, TAGGED JPEGS TO FOLDER %DST%\output"
+MSG * "SOURCE JPEGS FROM %SRC%, TAGGED JPEGS TO FOLDER %cd%\%DST%"
 
 EXIT 0

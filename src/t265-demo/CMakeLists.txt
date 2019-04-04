@@ -111,8 +111,9 @@ if(MSVC)
 	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/python_binary/${python_script}.exe "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
 	endforeach(python_script)
 
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND calibration_make.exe ../python_temp WORKING_DIRECTORY  ${CMAKE_CURRENT_BINARY_DIR}/python_binary)
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/python_temp/calibration.txt "$<TARGET_FILE_DIR:${PROJECT_NAME}>/capture")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND calibration_make.exe ../python_temp WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/python_binary)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/python_temp/calibration.txt "$<TARGET_FILE_DIR:${PROJECT_NAME}>/capture")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_CURRENT_BINARY_DIR}/python_temp/calibration.txt)
 
     set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
 endif(MSVC)

@@ -16,8 +16,11 @@
 #define PATH_SEPARATER '\\'
 #define DEFAULT_PATH ".\\capture\\" //"C:\\temp\\t265-capture\\"
 #define DEFAULT_SCRIPT "t265-insight.bat"
-#define BIN_COMMAND ("START \"SCRIPT\" /B /WAIT " + g_script_name + " " + folder_path).c_str()
-#define SCRIPT_COMMAND ("START \"SCRIPT\" /B /WAIT " + g_script_name + " " + folder_path + " py").c_str()
+//#define BIN_COMMAND ("START \"SCRIPT\" /WAIT /B " + g_script_name + " " + folder_path).c_str()
+//#define SCRIPT_COMMAND ("START \"SCRIPT\" /WAIT /B " + g_script_name + " " + folder_path + " py").c_str()
+#define BIN_COMMAND ("CALL " + g_script_name + " " + folder_path).c_str()
+#define SCRIPT_COMMAND ("CALL " + g_script_name + " " + folder_path + " py").c_str()
+
 #else
 #define PATH_SEPARATER '/'
 //#define DEFAULT_PATH (std::string(getenv("HOME"))+"/temp/shapefit/1/")
@@ -105,7 +108,7 @@ struct app_data {
     bool is_highlight_init_button() { highlight_init_button = std::max(0, highlight_init_button - 1); return highlight_init_button > 0; }
     bool is_highlight_auto_button() { return auto_request; }
 
-    bool is_system_run() { return (bool)system_thread && !system_thread->valid(); }
+    bool is_system_run() { return (bool)system_thread; }
 } g_app_data;
 
 void run()
@@ -349,17 +352,21 @@ void run()
                 index_file << std::endl;
                 g_app_data.capture_request = false; //capture request handled
             }
-            if (g_app_data.script_request)
+            if (g_app_data.script_request && !g_app_data.is_system_run())
             {
-				g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, [&]() {
-                    return system(SCRIPT_COMMAND);
+				g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, [&]() -> int {
+                    auto rtn = system(SCRIPT_COMMAND);  
+                    g_app_data.system_thread.reset();
+                    return rtn;
                 }));
                 g_app_data.auto_request = false;
                 g_app_data.script_request = false; //script process request handled
             }
-			if (g_app_data.bin_request) {
-                g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, [&]() {
-					return system(BIN_COMMAND);
+			if (g_app_data.bin_request && !g_app_data.is_system_run()) {
+                g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, [&]() -> int {
+                    auto rtn = system(BIN_COMMAND);
+                    g_app_data.system_thread.reset();
+                    return rtn;
                 }));
                 g_app_data.auto_request = false;
 				g_app_data.bin_request = false; // exe/bin process request handled

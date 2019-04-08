@@ -33,11 +33,12 @@
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
-#define VERSION_STRING "v0.12"
+#define VERSION_STRING "v0.13"
 
 bool        g_t265 = true;
 int         g_camera_id = 0;
 int         g_auto_capture_interval_s = 5; //seconds
+int         g_cam_fisheye = 3;
 float       g_cam_velocity_thr = 0.2f;
 float       g_cam_prev_dist_thr = 0.5f;
 std::string g_str_origin = "[filename,tx,ty,tz,rw,rx,ry,rz] | Origin in WGS84 coordinate: Not provided at command line input.";
@@ -81,6 +82,7 @@ struct app_data {
     bool capture_request = false;
     bool init_request = false;
     bool auto_request = false;
+    bool fisheye_0_request = false;
     bool cam0_request = false;
     bool cam1_request = false;
     bool cam2_request = false;
@@ -100,6 +102,7 @@ struct app_data {
     void set_capture_request() { capture_request = true; highlight_capture_button = 5; }
     void set_init_request() { init_request = true; highlight_init_button = 5; }
     void set_auto_request() { auto_request = !auto_request; }
+    void set_fisheye_request() { g_cam_fisheye = 3 - g_cam_fisheye; }
     
     bool is_highlight_exit_button() { highlight_exit_button = std::max(0, highlight_exit_button - 1); return highlight_exit_button > 0; }
 	bool is_highlight_bin_button() { highlight_bin_button = std::max(0, highlight_bin_button - 1); return highlight_bin_button > 0; }
@@ -110,6 +113,8 @@ struct app_data {
 
     bool is_system_run() { return (bool)system_thread; }
 } g_app_data;
+
+bool is_record_fisheye() { return g_cam_fisheye > 0; }
 
 void run()
 {
@@ -191,7 +196,7 @@ void run()
         
         for(bool switch_request=false; !switch_request && !g_app_data.exit_request;)
         {
-            cv::Mat img, screen_img, cvIr;
+            cv::Mat img, screen_img, cvIr, cvFe0;
             std::vector<std::string> scn_msg, scn_warn;
 
             if(cap.isOpened()){
@@ -202,7 +207,7 @@ void run()
                 cv::resize(img, screen_img(win_rgb()), size_rgb(), 0, 0, CV_INTER_NN);
                 scn_msg << "RGB cam id:" + std::to_string(camera_id) + "  w:" + std::to_string(img.cols) + " h:" + std::to_string(img.rows);
             }
-            else{
+            else {
                 screen_img.create(size_screen(), CV_8UC3);
                 screen_img.setTo(0);
             }
@@ -210,60 +215,64 @@ void run()
             scn_msg << "Script: " + g_script_name;
             
             rs2::frame p;
+            rs2::frameset fs;
+
+            auto get_fisheye = [](rs2::frameset& fs, int lens) -> cv::Mat {
+                if (fs) {
+                    auto f = fs.first_or_default(RS2_STREAM_FISHEYE);
+                    if (f) {
+                        auto vf = f.as<rs2::video_frame>();
+                        return cv::Mat(vf.get_height(), vf.get_width(), CV_8UC1, (void*)vf.get_data());
+                    }
+                }
+                return cv::Mat();
+            };
+
             if (t265_available) {
 
-                if (!pipe)
-                {
-                    start_t265_pipe();
-                }
+                if (!pipe) { start_t265_pipe(); }
 
                 try {
-                    rs2::frameset fs = pipe->wait_for_frames();
-
-                    if (fs) {
-                        auto f = fs.first_or_default(RS2_STREAM_FISHEYE);
+                    fs = pipe->wait_for_frames();
+                    cv::Mat cvvf = get_fisheye(fs, 0);
+                    if (!cvvf.empty()) {
                         cv::Mat simg;
-                        if (f) {
-                            auto vf = f.as<rs2::video_frame>();
-                            cv::Mat cvvf(vf.get_height(), vf.get_width(), CV_8UC1, (void*)vf.get_data());
-                            cv::resize(cvvf, simg, cv::Size(), 0.25, 0.25, CV_INTER_NN);
-                            cv::cvtColor(simg, screen_img(win_fisheye()), CV_GRAY2RGB, 3);
-                        }
-
-                        p = fs.first_or_default(RS2_STREAM_POSE);
-                        if (p)
+                        cv::resize(cvvf, simg, cv::Size(), 0.25, 0.25, CV_INTER_NN);
+                        cv::cvtColor(is_record_fisheye() ? simg : simg * 0.5 + 128, screen_img(win_fisheye()), CV_GRAY2RGB, 3);
+                    }
+                    p = fs.first_or_default(RS2_STREAM_POSE);
+                    if (p)
+                    {
+                        auto pf = p.as<rs2::pose_frame>();
+                        if (pf)
                         {
-                            auto pf = p.as<rs2::pose_frame>();
-                            if (pf)
-                            {
-                                const auto print = [&scn_msg, &scn_warn, &current_pose](const std::string& conf, const rs2_pose& p) {
-                                    current_pose.update(p);
-                                    std::stringstream ss;
-                                    scn_msg << "T265 Confidence: " + conf;
-                                    ss << std::fixed << std::right << std::setprecision(3) << std::setw(6);
-                                    ss << p.translation.x << "," << p.translation.y << "," << p.translation.z;
-                                    scn_msg << "Translation: " + ss.str();
-                                    std::stringstream sr;
-                                    sr << std::fixed << std::right << std::setprecision(3) << std::setw(6);
-                                    sr << p.rotation.w << "," << p.rotation.x << "," << p.rotation.y << "," << p.rotation.z;
-                                    scn_msg << "Rotation: " + sr.str();
-                                    std::stringstream sv;
-                                    sv << std::fixed << std::right << std::setprecision(3) << std::setw(6);
-                                    sv << current_pose.speed();
-                                    if (current_pose._prev_cap_pose) { sv << ",  " << current_pose.distance_prev_capture() << " meter away last capture"; }
-                                    scn_msg << "Velocity: " + sv.str();
+                            const auto print = [&scn_msg, &scn_warn, &current_pose](const std::string& conf, const rs2_pose& p) {
+                                current_pose.update(p);
+                                std::stringstream ss;
+                                scn_msg << "T265 Confidence: " + conf + ", Fisheye Capture: " + (is_record_fisheye() ? "ON" : "OFF");
+                                ss << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                                ss << p.translation.x << "," << p.translation.y << "," << p.translation.z;
+                                scn_msg << "Translation: " + ss.str();
+                                std::stringstream sr;
+                                sr << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                                sr << p.rotation.w << "," << p.rotation.x << "," << p.rotation.y << "," << p.rotation.z;
+                                scn_msg << "Rotation: " + sr.str();
+                                std::stringstream sv;
+                                sv << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                                sv << current_pose.speed();
+                                if (current_pose._prev_cap_pose) { sv << ",  " << current_pose.distance_prev_capture() << " meter away last capture"; }
+                                scn_msg << "Velocity: " + sv.str();
 
-                                    scn_warn << (current_pose.speed() > g_cam_velocity_thr ? " SLOW DOWN !!!" : "");
-                                    scn_warn << (current_pose.distance_prev_capture() > g_cam_prev_dist_thr ? " TOO FAR FROM LAST CAPTURE !!!" : "");
-                                };
+                                scn_warn << (current_pose.speed() > g_cam_velocity_thr ? " SLOW DOWN !!!" : "");
+                                scn_warn << (current_pose.distance_prev_capture() > g_cam_prev_dist_thr ? " TOO FAR FROM LAST CAPTURE !!!" : "");
+                            };
 
-                                auto pd = pf.get_pose_data();
-                                switch (pd.tracker_confidence) {
-                                case 1: print("Low", pd); break;
-                                case 2: print("Medium", pd); break;
-                                case 3: print("High", pd); break;
-                                default: scn_msg << "T265 Tracking Failed";
-                                }
+                            auto pd = pf.get_pose_data();
+                            switch (pd.tracker_confidence) {
+                            case 1: print("Low", pd); break;
+                            case 2: print("Medium", pd); break;
+                            case 3: print("High", pd); break;
+                            default: scn_msg << "T265 Tracking Failed";
                             }
                         }
                     }
@@ -350,6 +359,13 @@ void run()
                         index_file << "," << pd.rotation.w << "," << pd.rotation.x << "," << pd.rotation.y << "," << pd.rotation.z;
                     }
                 }
+
+                if (fs && is_record_fisheye()) {
+                    std::string fisheye_0_filename = "fe0_" + ss.str() + ".jpg";
+                    index_file << "," << fisheye_0_filename;
+                    cv::imwrite(folder_path + fisheye_0_filename, get_fisheye(fs, 0), { CV_IMWRITE_JPEG_QUALITY, 100 });
+                    last_file_written = folder_path + "fe0_+" + filename;
+                }
                 
                 index_file << std::endl;
                 g_app_data.capture_request = false; //capture request handled
@@ -406,6 +422,7 @@ void run()
                         if (win_capture().contains(cv::Point(x, y))) { if (is_button_on() && !g_app_data.auto_request ) { g_app_data.set_capture_request(); } }
                         if (win_init().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_init_request(); } }
                         if (win_auto().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_auto_request(); } }
+                        if (win_fisheye().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_fisheye_request(); }}
                         if (win_cam0().contains(cv::Point(x, y))) { g_app_data.cam0_request = true; }
                         if (win_cam1().contains(cv::Point(x, y))) { g_app_data.cam1_request = true; }
                         if (win_cam2().contains(cv::Point(x, y))) { g_app_data.cam2_request = true; }
@@ -431,6 +448,7 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--cam"))             { g_camera_id = atoi(argv[++i]); }
         else if (!strcmp(argv[i], "--script"))          { g_script_name = argv[++i]; }
         else if (!strcmp(argv[i], "--interval"))        { g_auto_capture_interval_s = atoi(argv[++i]); }
+        else if (!strcmp(argv[i], "--fisheye"))         { g_cam_fisheye = 3; }
         else {
             printf("usages:\n t265-demo.exe [--no_t265][--origin STR][--cam ID][--interval SEC][--script FILENAME][--path OUTPUT_PATH]\n");
             printf("\n");

@@ -24,4 +24,6 @@
 #include <thread>
 #include <future>
 
+#include "json/json.h"
+
 #endif /* rs_sf_demo_t265_h */

@@ -125,7 +125,7 @@ void run()
     
     bool t265_available = g_t265;
     std::string folder_path = g_pose_path;
-    std::ofstream index_file;
+    std::ofstream index_file, fisheye_calibration_file;
     std::string last_file_written;
 
     std::string window_name = "T265-RGB Capture App for Insight " + std::string(VERSION_STRING) + " @ " + folder_path;
@@ -177,16 +177,16 @@ void run()
                     printf("%s\n", p.stream_name().c_str());
 
                     /**
-                     auto vp = p.as<rs2::video_stream_profile>();
-                     if (vp) {
-                     auto fi = vp.get_intrinsics();
-                     printf("fisheye fx %.3f fy %.3f, px %.3f py %.3f, size %d %d,", fi.fx, fi.fy, fi.ppx, fi.ppy, fi.width, fi.height);
-                     for (auto m : fi.coeffs) {
-                     printf("%.3f ", m);
-                     }
-                     printf("\n");
-                     }
-                     */
+                    auto vp = p.as<rs2::video_stream_profile>();
+                    if (vp) {
+                        auto fi = vp.get_intrinsics();
+                        printf("fisheye fx %.3f fy %.3f, px %.3f py %.3f, size %d %d,", fi.fx, fi.fy, fi.ppx, fi.ppy, fi.width, fi.height);
+                        for (auto m : fi.coeffs) {
+                            printf("%.3f ", m);
+                        }
+                        printf("\n");
+                    }
+                    **/
                 }
             }
             catch (...) {
@@ -365,6 +365,36 @@ void run()
                     index_file << "," << fisheye_0_filename;
                     cv::imwrite(folder_path + fisheye_0_filename, get_fisheye(fs, 0), { CV_IMWRITE_JPEG_QUALITY, 100 });
                     last_file_written = folder_path + "fe0_+" + filename;
+
+                    if (!fisheye_calibration_file.is_open())
+                    {
+                        auto profile = fs.first_or_default(RS2_STREAM_FISHEYE).get_profile().as<rs2::video_stream_profile>();
+                        auto intr = profile.get_intrinsics();
+
+                        Json::Value json_intr;
+                        json_intr["fx"] = intr.fx;
+                        json_intr["fy"] = intr.fy;
+                        json_intr["ppx"] = intr.ppx;
+                        json_intr["ppy"] = intr.ppy;
+                        json_intr["height"] = intr.height;
+                        json_intr["width"] = intr.width;
+                        json_intr["model"] = intr.model;
+                        for (const auto& c : intr.coeffs) {
+                            json_intr["coeff"].append(c);
+                        }
+                        Json::Value json_root;
+                        json_root["device"]["serial_numer"] = pipe->get_active_profile().get_device().get_info(RS2_CAMERA_INFO_SERIAL_NUMBER);
+                        json_root["fisheye"][0]["intrinsics"] = json_intr;
+
+                        try {
+                            fisheye_calibration_file.open(folder_path + "fisheye_calibration.txt", std::ios_base::out | std::ios_base::trunc);
+                            Json::StyledStreamWriter writer;
+                            writer.write(fisheye_calibration_file, json_root);
+                        }
+                        catch (...) {
+                            printf("wARNING: error in writing fisheye calibration file.");
+                        }
+                    }
                 }
                 
                 index_file << std::endl;

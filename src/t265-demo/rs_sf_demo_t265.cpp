@@ -379,6 +379,7 @@ void run()
                         json_intr["height"] = intr.height;
                         json_intr["width"] = intr.width;
                         json_intr["model"] = intr.model;
+                        json_intr["model_name"] = rs2_distortion_to_string(intr.model);
                         for (const auto& c : intr.coeffs) {
                             json_intr["coeff"].append(c);
                         }

@@ -59,6 +59,8 @@ inline cv::Rect win_fisheye() { return cv::Rect(win_rgb().width, 0, size_win_fis
 inline cv::Rect win_text() { return cv::Rect(0, 0, scn_width - win_fisheye().width, scn_height); }
 inline cv::Rect win_buttons() { return cv::Rect(win_fisheye().x, win_fisheye().height, win_fisheye().width, win_rgb().height - win_fisheye().height); }
 
+inline cv::Rect win_annotate() { return cv::Rect(0, win_rgb().height * 7 / 8, win_rgb().width / 8, win_rgb().height / 8); }
+
 inline cv::Size size_button() { return cv::Size(win_fisheye().width, (scn_height - win_fisheye().height) / num_buttons); }
 inline cv::Rect win_exit() { return cv::Rect(scn_width - size_button().width, scn_height - size_button().height, size_button().width, size_button().height); }
 inline cv::Rect win_bin() { return cv::Rect(win_exit().x, win_exit().y - win_exit().height, size_button().width / 2, size_button().height); }
@@ -75,6 +77,8 @@ inline cv::Rect win_cam1() { return cv::Rect(win_cam3().x, win_cam3().y - win_ca
 inline cv::Point label(const cv::Rect& rect) { return cv::Point(rect.x, rect.y + rect.height * 2 / 3); }
 std::vector<std::string>& operator<<(std::vector<std::string>& buf, const std::string& msg) { buf.emplace_back(msg); return buf; }
 
+const cv::Scalar white(255, 255, 255), dark_gray(64, 64, 64), yellow(0, 255, 255);
+
 struct app_data {
     bool exit_request = false;
 	bool bin_request = false;
@@ -87,6 +91,7 @@ struct app_data {
     bool cam1_request = false;
     bool cam2_request = false;
     bool cam3_request = false;
+    bool annotate_mode = false;
     int highlight_exit_button = 0;
 	int highlight_bin_button = 0;
     int highlight_script_button = 0;
@@ -96,6 +101,10 @@ struct app_data {
     std::time_t last_capture_time = {};
     std::unique_ptr<std::future<int>> system_thread;
 
+    cv::Mat last_rgb_capture, last_rgb_thumbnail, last_rgb_annotate;
+    std::deque<cv::Point> last_annotate_clicks;
+    std::function<void()> task_record_annotation;
+
     void set_exit_request() { exit_request = true; highlight_exit_button = 5; }
 	void set_bin_request() { bin_request = true; highlight_bin_button = 5; }
     void set_script_request() { script_request = true; highlight_script_button = 5; }
@@ -103,6 +112,7 @@ struct app_data {
     void set_init_request() { init_request = true; highlight_init_button = 5; }
     void set_auto_request() { auto_request = !auto_request; }
     void set_fisheye_request() { g_cam_fisheye = 3 - g_cam_fisheye; }
+    void set_annotate_request(int x, int y) { last_annotate_clicks.emplace_back(cv::Point(x, y)); }
     
     bool is_highlight_exit_button() { highlight_exit_button = std::max(0, highlight_exit_button - 1); return highlight_exit_button > 0; }
 	bool is_highlight_bin_button() { highlight_bin_button = std::max(0, highlight_bin_button - 1); return highlight_bin_button > 0; }
@@ -111,7 +121,19 @@ struct app_data {
     bool is_highlight_init_button() { highlight_init_button = std::max(0, highlight_init_button - 1); return highlight_init_button > 0; }
     bool is_highlight_auto_button() { return auto_request; }
 
-    bool is_system_run() { return (bool)system_thread; }
+    bool is_annotate() { return annotate_mode && !last_rgb_capture.empty(); }
+    bool is_system_run() { return (bool)system_thread || is_annotate(); }
+
+    void annotation_record() {
+        if (task_record_annotation) {
+            task_record_annotation();
+            task_record_annotation = nullptr;
+        }
+    }
+    void annotation_clear() {
+        last_annotate_clicks.clear(); last_rgb_annotate = cv::Mat();
+    }
+
 } g_app_data;
 
 bool is_record_fisheye() { return g_cam_fisheye > 0; }
@@ -125,13 +147,13 @@ void run()
     
     bool t265_available = g_t265;
     std::string folder_path = g_pose_path;
-    std::ofstream index_file, fisheye_calibration_file;
+    std::ofstream index_file, fisheye_calibration_file, annotation_file;
     std::string last_file_written;
 
     std::string window_name = "T265-RGB Capture App for Insight " + std::string(VERSION_STRING) + " @ " + folder_path;
     cv::namedWindow(window_name);
 
-    for(g_app_data.exit_request=false; !g_app_data.exit_request; )
+    for(g_app_data.exit_request=false; !g_app_data.exit_request; g_app_data.annotation_record() )
     {
         cv::VideoCapture cap(camera_id);
         cap.set(CV_CAP_PROP_FRAME_WIDTH, 4096);
@@ -194,26 +216,38 @@ void run()
             }
         };
         
-        for(bool switch_request=false; !switch_request && !g_app_data.exit_request;)
+        for (bool switch_request = false; !switch_request && !g_app_data.exit_request;)
         {
-            cv::Mat img, screen_img, cvIr, cvFe0;
+            cv::Mat img, screen_img, cvFe0;
             std::vector<std::string> scn_msg, scn_warn;
 
-            if(cap.isOpened()){
+            if (cap.isOpened()) {
                 scn_height = (int)((scn_width - size_win_fisheye.width)* cap_height / cap_width);
                 screen_img.create(size_screen(), CV_8UC3);
                 screen_img(win_buttons()).setTo(0);
                 cap >> img;
-                cv::resize(img, screen_img(win_rgb()), size_rgb(), 0, 0, CV_INTER_NN);
-                scn_msg << "RGB cam id:" + std::to_string(camera_id) + "  w:" + std::to_string(img.cols) + " h:" + std::to_string(img.rows);
+
+                if (!g_app_data.is_annotate()) {
+                    cv::resize(img, screen_img(win_rgb()), size_rgb(), 0, 0, CV_INTER_NN);
+                    scn_msg << "RGB cam id:" + std::to_string(camera_id) + "  w:" + std::to_string(img.cols) + " h:" + std::to_string(img.rows);
+                }
             }
             else {
                 screen_img.create(size_screen(), CV_8UC3);
                 screen_img.setTo(0);
             }
 
+            // handle annotation thumbnail
+            if (!g_app_data.is_annotate()) {
+                if (!g_app_data.last_rgb_thumbnail.empty()) {
+                    g_app_data.last_rgb_thumbnail.copyTo(screen_img(win_annotate()));
+                }
+            }
+            else {
+                cv::resize(g_app_data.last_rgb_capture, screen_img(win_rgb()), size_rgb(), 0, 0, CV_INTER_NN);
+            }
             scn_msg << "Script: " + g_script_name;
-            
+
             rs2::frame p;
             rs2::frameset fs;
 
@@ -282,44 +316,83 @@ void run()
             if (!last_file_written.empty()) {
                 scn_msg << "Last write:" + last_file_written;
             }
-            
-            //////////////////////////////////////////////////////////////////////////////////////
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////////
+            if (g_app_data.is_annotate()) {
+                scn_msg.clear();
+                scn_msg << "Annotation Mode";
+                scn_warn.clear();
+
+                for (auto click : g_app_data.last_annotate_clicks) {
+                    cv::circle(screen_img, click, 25, yellow, 2);
+                }
+                cv::resize(screen_img(win_rgb()), g_app_data.last_rgb_annotate, cv::Size(), 1, 1, CV_INTER_NN);
+
+               cv::rectangle(screen_img, win_annotate(), white, 1);
+               cv::putText(screen_img, "   DONE", label(win_annotate()), CV_FONT_HERSHEY_DUPLEX, 0.5, white, 2);
+            }
+            else {
+                if (!g_app_data.last_rgb_annotate.empty()) {
+                    std::stringstream ss;
+                    ss << std::put_time(std::localtime(&g_app_data.last_capture_time), "%Y_%m_%d_%H_%M_%S");
+                    std::string filename = "rgb_annotated_" + ss.str() + ".jpg";
+                    std::string path = folder_path + filename;
+
+                    g_app_data.task_record_annotation = [&, filename = filename, path = path, img = g_app_data.last_rgb_annotate.clone(), clicks = g_app_data.last_annotate_clicks](){
+                        cv::imwrite(path, img, { CV_IMWRITE_JPEG_QUALITY, 100 });
+
+                        if (!annotation_file.is_open()) {
+                            annotation_file.open(folder_path + "annotation.txt", std::ios_base::out | std::ios_base::trunc);
+                        }
+                        for (auto click : clicks){
+                            annotation_file << filename << "," << "center" << "," << click.x << "," << click.y << "," << "radius" << "," << 25 << std::endl;
+                        }
+                    };
+
+                    g_app_data.last_rgb_annotate = cv::Mat();
+                }
+            }
+            //////////////////////////////////////////////////////////////////////////////////////////////////////
+
             for (int i = 0; i < (int)scn_msg.size(); ++i) {
-                cv::putText(screen_img, scn_msg[i], cv::Point(win_text().x + 10, win_text().y + 20 * (1+i)), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+                cv::putText(screen_img, scn_msg[i], cv::Point(win_text().x + 10, win_text().y + 20 * (1 + i)), CV_FONT_HERSHEY_DUPLEX, 0.5, white);
             }
 
             for (int j = 0; j < (int)scn_warn.size(); ++j) {
-                cv::putText(screen_img, scn_warn[j], cv::Point(win_rgb().x + 50, win_rgb().y + win_rgb().height / 2 + 50 * j), CV_FONT_HERSHEY_DUPLEX, 1.25, cv::Scalar(0, 255, 255), 2);
+                cv::putText(screen_img, scn_warn[j], cv::Point(win_rgb().x + 50, win_rgb().y + win_rgb().height / 2 + 50 * j), CV_FONT_HERSHEY_DUPLEX, 1.25, yellow, 2);
             }
             
-            auto label_color = [](bool flag) { return flag ? cv::Scalar(255, 255, 255) : cv::Scalar(64, 64, 64); };
+            auto label_color = [](bool flag) { return flag ? white : dark_gray; };
             auto is_button_on = [&]() { return !g_app_data.is_system_run(); };
-            cv::rectangle(screen_img, win_exit(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_exit_button() ? 3 : 1);
+            cv::rectangle(screen_img, win_exit(), white, g_app_data.is_highlight_exit_button() ? 3 : 1);
             cv::putText(screen_img, "  EXIT", label(win_exit()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
-            cv::rectangle(screen_img, win_bin(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_bin_button() ? 3 : 1);
+            cv::rectangle(screen_img, win_bin(), white, g_app_data.is_highlight_bin_button() ? 3 : 1);
             cv::putText(screen_img, "  CALL EXE", label(win_bin()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
-			cv::rectangle(screen_img, win_script(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_script_button() ? 3 : 1);
+			cv::rectangle(screen_img, win_script(), white, g_app_data.is_highlight_script_button() ? 3 : 1);
             cv::putText(screen_img, " CALL SCRIPT", label(win_script()), CV_FONT_HERSHEY_DUPLEX, 0.45, label_color(is_button_on()));
-            cv::rectangle(screen_img, win_capture(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_capture_button() ? 3 : 1);
+            cv::rectangle(screen_img, win_capture(), white, g_app_data.is_highlight_capture_button() ? 3 : 1);
             cv::putText(screen_img, "  CAPTURE", label(win_capture()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(!g_app_data.auto_request && is_button_on()));
-            cv::rectangle(screen_img, win_init(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_init_button() ? 3 : 1);
+            cv::rectangle(screen_img, win_init(), white, g_app_data.is_highlight_init_button() ? 3 : 1);
             cv::putText(screen_img, " INIT NORTH", label(win_init()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
-            cv::rectangle(screen_img, win_auto(), cv::Scalar(255, 255, 255), g_app_data.is_highlight_auto_button() ? 3 : 1);
+            cv::rectangle(screen_img, win_auto(), white, g_app_data.is_highlight_auto_button() ? 3 : 1);
             cv::putText(screen_img, "  AUTO " + std::to_string(g_auto_capture_interval_s) + "s", label(win_auto()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
-            cv::rectangle(screen_img, win_cam3(), cv::Scalar(255, 255, 255), camera_id == 3 ? 3 : 1);
-            cv::putText(screen_img, "  CAM 3", label(win_cam3()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-            cv::rectangle(screen_img, win_cam2(), cv::Scalar(255, 255, 255), camera_id == 2 ? 3 : 1);
-            cv::putText(screen_img, "  CAM 2", label(win_cam2()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-            cv::rectangle(screen_img, win_cam1(), cv::Scalar(255, 255, 255), camera_id == 1 ? 3 : 1);
-            cv::putText(screen_img, "  CAM 1", label(win_cam1()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
-            cv::rectangle(screen_img, win_cam0(), cv::Scalar(255, 255, 255), camera_id == 0 ? 3 : 1);
-            cv::putText(screen_img, "  CAM 0", label(win_cam0()), CV_FONT_HERSHEY_DUPLEX, 0.5, cv::Scalar(255, 255, 255));
+            cv::rectangle(screen_img, win_cam3(), white, camera_id == 3 ? 3 : 1);
+            cv::putText(screen_img, "  CAM 3", label(win_cam3()), CV_FONT_HERSHEY_DUPLEX, 0.5, white);
+            cv::rectangle(screen_img, win_cam2(), white, camera_id == 2 ? 3 : 1);
+            cv::putText(screen_img, "  CAM 2", label(win_cam2()), CV_FONT_HERSHEY_DUPLEX, 0.5, white);
+            cv::rectangle(screen_img, win_cam1(), white, camera_id == 1 ? 3 : 1);
+            cv::putText(screen_img, "  CAM 1", label(win_cam1()), CV_FONT_HERSHEY_DUPLEX, 0.5, white);
+            cv::rectangle(screen_img, win_cam0(), white, camera_id == 0 ? 3 : 1);
+            cv::putText(screen_img, "  CAM 0", label(win_cam0()), CV_FONT_HERSHEY_DUPLEX, 0.5, white);
             
             //////////////////////////////////////////////////////////////////////////////////////
             if (g_app_data.init_request)
             {
+                g_app_data.annotation_record();
+
                 pipe = nullptr;
                 if (index_file.is_open()) { index_file.close(); }
+                if (annotation_file.is_open()) { annotation_file.close(); }
                 g_app_data.init_request = false;
             }
 
@@ -335,6 +408,8 @@ void run()
             }
             if (g_app_data.capture_request)
             {
+                g_app_data.annotation_record();
+
                 g_app_data.last_capture_time = t;
                 current_pose.record_capture();
                 auto tm = *std::localtime(&t);
@@ -343,7 +418,10 @@ void run()
                 
                 std::string filename = "rgb_" + ss.str() + ".jpg";
                 last_file_written = folder_path + filename;
-                cv::imwrite(last_file_written, img, { CV_IMWRITE_JPEG_QUALITY, 100 });
+
+                cv::Mat& capture_img = (g_app_data.last_rgb_capture = img.clone());
+                cv::imwrite(last_file_written, capture_img, { CV_IMWRITE_JPEG_QUALITY, 100 });
+                cv::resize(capture_img, g_app_data.last_rgb_thumbnail, win_annotate().size(), 0, 0, CV_INTER_NN);
                 
                 if (!index_file.is_open()) {
                     index_file.open(folder_path + "pose.txt", std::ios_base::out | std::ios_base::trunc);
@@ -399,12 +477,15 @@ void run()
                 }
                 
                 index_file << std::endl;
+                g_app_data.last_annotate_clicks.clear();
                 g_app_data.capture_request = false; //capture request handled
             }
-            if (g_app_data.script_request && !g_app_data.is_system_run())
-            {
-				g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, [&]() -> int {
-                    auto rtn = system(SCRIPT_COMMAND);  
+            if (g_app_data.script_request && !g_app_data.is_system_run()) {
+                g_app_data.annotation_record();
+                g_app_data.annotation_clear();
+
+                g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, [&]() -> int {
+                    auto rtn = system(SCRIPT_COMMAND);
                     g_app_data.system_thread.reset();
                     return rtn;
                 }));
@@ -412,6 +493,9 @@ void run()
                 g_app_data.script_request = false; //script process request handled
             }
 			if (g_app_data.bin_request && !g_app_data.is_system_run()) {
+                g_app_data.annotation_record();
+                g_app_data.annotation_clear();
+
                 g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, [&]() -> int {
                     auto rtn = system(BIN_COMMAND);
                     g_app_data.system_thread.reset();
@@ -447,17 +531,25 @@ void run()
                 auto is_button_on = [&]() { return !g_app_data.is_system_run(); };
                 switch (event) {
                     case cv::EVENT_LBUTTONUP:
-                        if (win_exit().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_exit_request(); } }
-                        if (win_bin().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_bin_request(); } }
-                        if (win_script().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_script_request(); } }
-                        if (win_capture().contains(cv::Point(x, y))) { if (is_button_on() && !g_app_data.auto_request ) { g_app_data.set_capture_request(); } }
-                        if (win_init().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_init_request(); } }
-                        if (win_auto().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_auto_request(); } }
-                        if (win_fisheye().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_fisheye_request(); }}
-                        if (win_cam0().contains(cv::Point(x, y))) { g_app_data.cam0_request = true; }
-                        if (win_cam1().contains(cv::Point(x, y))) { g_app_data.cam1_request = true; }
-                        if (win_cam2().contains(cv::Point(x, y))) { g_app_data.cam2_request = true; }
-                        if (win_cam3().contains(cv::Point(x, y))) { g_app_data.cam3_request = true; }
+                        if (win_annotate().contains(cv::Point(x, y))) { g_app_data.annotate_mode = !g_app_data.annotate_mode; }
+                        else {
+                            if (g_app_data.is_annotate()) {
+                                g_app_data.set_annotate_request(x, y);
+                            }
+                            else {
+                                if (win_exit().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_exit_request(); } }
+                                if (win_bin().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_bin_request(); } }
+                                if (win_script().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_script_request(); } }
+                                if (win_capture().contains(cv::Point(x, y))) { if (is_button_on() && !g_app_data.auto_request) { g_app_data.set_capture_request(); } }
+                                if (win_init().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_init_request(); } }
+                                if (win_auto().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_auto_request(); } }
+                                if (win_fisheye().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_fisheye_request(); } }
+                                if (win_cam0().contains(cv::Point(x, y))) { g_app_data.cam0_request = true; }
+                                if (win_cam1().contains(cv::Point(x, y))) { g_app_data.cam1_request = true; }
+                                if (win_cam2().contains(cv::Point(x, y))) { g_app_data.cam2_request = true; }
+                                if (win_cam3().contains(cv::Point(x, y))) { g_app_data.cam3_request = true; }
+                            }
+                        }
                     default: break;
                 }
             }, &g_app_data);

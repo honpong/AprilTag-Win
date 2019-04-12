@@ -22,6 +22,8 @@ find_package(OpenCV QUIET)
 if(OpenCV_FOUND)
     add_definitions(-DOpenCV_FOUND)
     message(STATUS "OpenCV package is added to t265-demo")
+
+    set(InsightSDK_DIR ${OpenCV_DIR}/../../InsightSDK/)
 endif()
 
 #FILE(GLOB ${PROJECT_NAME}_DEV_SRC "${CMAKE_CURRENT_SOURCE_DIR}/../dev/rs_sf*.cpp")
@@ -105,6 +107,7 @@ if(MSVC)
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/capture")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/py")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/t265-insight.bat "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${InsightSDK_DIR}/jar/InsightService-1.0-SNAPSHOT-shaded-realsense.jar "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
     
 	foreach(python_script calibration_make translatev1 csvrwv1 )
 	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/${python_script}.py "$<TARGET_FILE_DIR:${PROJECT_NAME}>/py")

@@ -19,7 +19,7 @@ MKDIR %DST%
 :: call second script
 if %PY%==0 (csvrwv1.exe %SRC% %DST%) else (python %2\csvrwv1.py %SRC% %DST%)
 
-java -jar InsightService-1.0-SNAPSHOT-shaded-realsense.jar --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name RealSightInSensePOC
+java -jar InsightService-1.0-SNAPSHOT-20190412.jar --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name RealSightInSensePOC
 
 DEL /F /Q %SRC%\outputllh.csv
 DEL /F /Q %SRC%\outputllh_short.csv

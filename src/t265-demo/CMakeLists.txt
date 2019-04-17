@@ -98,7 +98,6 @@ if(MSVC)
 	    list(APPEND APP_DEPENDENCY ${OpenCV_LIB_DIR}/../bin/opencv_world310$<$<CONFIG:Debug>:d>.dll)
 	endif()
 
-    list(APPEND APP_DEPENDENCY ${THIRDPARTY_DIR}/exempi/build/vc14/x64/exempi.dll)
 
     foreach(var IN LISTS APP_DEPENDENCY)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
@@ -106,13 +105,19 @@ if(MSVC)
 
 	add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/capture")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/py")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/InsightSDK")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/t265-insight.bat "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${InsightSDK_DIR}/jar/InsightService-1.0-SNAPSHOT-20190412.jar "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${THIRDPARTY_DIR}/exempi/build/vc14/x64/exempi.dll "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${THIRDPARTY_DIR}/exempi/build/vc14/x64/exempi.dll "$<TARGET_FILE_DIR:${PROJECT_NAME}>/py")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${InsightSDK_DIR}/jar/InsightService-1.0-SNAPSHOT-20190412.jar "$<TARGET_FILE_DIR:${PROJECT_NAME}>/InsightSDK/")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory    ${InsightSDK_DIR}/jar/jdk-11.0.2 "$<TARGET_FILE_DIR:${PROJECT_NAME}>/InsightSDK/jdk-11.0.2")
+
     
+
 	foreach(python_script calibration_make translatev1 csvrwv1 )
 	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/${python_script}.py "$<TARGET_FILE_DIR:${PROJECT_NAME}>/py")
 	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND pyinstaller --noconfirm --onefile --distpath ${CMAKE_CURRENT_BINARY_DIR}/python_binary --workpath ${CMAKE_CURRENT_BINARY_DIR}/python_temp ${CMAKE_CURRENT_SOURCE_DIR}/${python_script}.py)
-	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/python_binary/${python_script}.exe "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/python_binary/${python_script}.exe "$<TARGET_FILE_DIR:${PROJECT_NAME}>/py")
 	endforeach(python_script)
 
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND calibration_make.exe ../python_temp WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/python_binary)

@@ -19,7 +19,7 @@ MKDIR %DST%
 :: call second script
 if %PY%==0 (csvrwv1.exe %SRC% %DST%) else (python %2\csvrwv1.py %SRC% %DST%)
 
-java -jar InsightService-1.0-SNAPSHOT-20190412.jar --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name RealSightInSensePOC
+CMD /C jdk-11.0.2\bin\java.exe -DsocksProxyHost=proxy-us.intel.com -DsocksProxyPort=1080 -jar InsightService-1.0-SNAPSHOT-20190412.jar --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name From_RS_POC_App
 
 DEL /F /Q %SRC%\outputllh.csv
 DEL /F /Q %SRC%\outputllh_short.csv

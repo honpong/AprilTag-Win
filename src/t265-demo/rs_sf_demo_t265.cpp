@@ -33,7 +33,7 @@
 #endif
 #define DEFAULT_CAMERA_JSON default_camera_json
 #define STREAM_REQUEST(l) (rs_sf_stream_request{l,-1,-1,g_ir_fps,g_color_fps,g_replace_color})
-#define VERSION_STRING "v0.13"
+#define VERSION_STRING "v0.14"
 
 bool        g_t265 = true;
 int         g_camera_id = 0;
@@ -332,6 +332,7 @@ void run()
                cv::putText(screen_img, "   DONE", label(win_annotate()), CV_FONT_HERSHEY_DUPLEX, 0.5, white, 2);
             }
             else {
+                // complete previous annotations
                 if (!g_app_data.last_rgb_annotate.empty()) {
                     std::stringstream ss;
                     ss << std::put_time(std::localtime(&g_app_data.last_capture_time), "%Y_%m_%d_%H_%M_%S");
@@ -350,6 +351,10 @@ void run()
                     };
 
                     g_app_data.last_rgb_annotate = cv::Mat();
+                }
+
+                if (g_app_data.is_system_run()) { //while not is_annotate()
+                    scn_warn << "Tagging/Uploading ... Please wait";
                 }
             }
             //////////////////////////////////////////////////////////////////////////////////////////////////////

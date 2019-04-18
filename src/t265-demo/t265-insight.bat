@@ -2,6 +2,9 @@
 :: %1 is the folder path of captured dataset
 ECHO %1
 
+:: set survey name
+set SURVEY_NAME=From_RS_POC_App
+
 :: set default path
 if [%1]==[] (SET SRC=".\capture") else (SET SRC=%1) 
 if [%2]==[] (SET PY=0) else (SET PY=%2)
@@ -16,10 +19,16 @@ set DST=tagged_capture
 RMDIR /S /Q %DST% 2> NUL
 MKDIR %DST%
 
+:: copy annotation
+COPY /Y %SRC%\*.json %DST%\
+
 :: call second script
 if %PY%==0 (py\csvrwv1.exe %SRC% %DST%) else (python %2\csvrwv1.py %SRC% %DST%)
 
-CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -DsocksProxyHost=proxy-us.intel.com -DsocksProxyPort=1080 -jar InsightSDK\InsightService-1.0-SNAPSHOT-20190412.jar --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name From_RS_POC_App
+:: Use Intel Proxy
+CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -DsocksProxyHost=proxy-us.intel.com -DsocksProxyPort=1080 -jar InsightSDK\InsightService-1.0-SNAPSHOT-20190412.jar --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME%
+:: Not Using Proxy
+::CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -jar InsightSDK\InsightService-1.0-SNAPSHOT-20190412.jar --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME%
 
 DEL /F /Q %SRC%\outputllh.csv
 DEL /F /Q %SRC%\outputllh_short.csv
@@ -30,6 +39,6 @@ DEL /F /Q %SRC%\outputllh_short.csv
  ECHO SOURCE JPEGS: %SRC% &^
  ECHO TAGGED JPEGS: %cd%\%DST% &^
  ECHO UPLOADED TO: "https://dev.ixstack.net/app/browse/projects" &^
- ECHO PROJECT NAME: %PROJECT_NAME%) | MSG *
+ ECHO SURVEY NAME: %SURVEY_NAME%) | MSG *
 
 EXIT 0

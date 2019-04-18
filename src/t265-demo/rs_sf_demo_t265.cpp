@@ -147,7 +147,7 @@ void run()
     
     bool t265_available = g_t265;
     std::string folder_path = g_pose_path;
-    std::ofstream index_file, fisheye_calibration_file, annotation_file;
+    std::ofstream index_file, fisheye_calibration_file;
     std::string last_file_written;
 
     std::string window_name = "T265-RGB Capture App for Insight " + std::string(VERSION_STRING) + " @ " + folder_path;
@@ -324,7 +324,10 @@ void run()
                 scn_warn.clear();
 
                 for (auto click : g_app_data.last_annotate_clicks) {
-                    cv::circle(screen_img, click, 25, yellow, 2);
+                    //cv::circle(screen_img, click, 30, dark_gray, 2);
+                    std::vector<cv::Point> pts;
+                    cv::ellipse2Poly(click, cv::Size(25, 25), 0, 0, 360, (int)std::max(1.0,180 * M_1_PI / 25.0), pts);
+                    cv::polylines(screen_img, pts, true, yellow, 2);
                 }
                 cv::resize(screen_img(win_rgb()), g_app_data.last_rgb_annotate, cv::Size(), 1, 1, CV_INTER_NN);
 
@@ -336,17 +339,46 @@ void run()
                 if (!g_app_data.last_rgb_annotate.empty()) {
                     std::stringstream ss;
                     ss << std::put_time(std::localtime(&g_app_data.last_capture_time), "%Y_%m_%d_%H_%M_%S");
-                    std::string filename = "rgb_annotated_" + ss.str() + ".jpg";
-                    std::string path = folder_path + filename;
 
-                    g_app_data.task_record_annotation = [&, filename = filename, path = path, img = g_app_data.last_rgb_annotate.clone(), clicks = g_app_data.last_annotate_clicks](){
-                        cv::imwrite(path, img, { CV_IMWRITE_JPEG_QUALITY, 100 });
+                    g_app_data.task_record_annotation = [&, time_str = ss.str(), img = g_app_data.last_rgb_annotate.clone(), clicks = g_app_data.last_annotate_clicks](){
+                        
+                        std::string original_filename = "rgb_" + time_str;
+                        std::string annotated_filename = "rgb_annotated_" + time_str;
+                        cv::imwrite(folder_path + annotated_filename + ".jpg", img, { CV_IMWRITE_JPEG_QUALITY, 100 });
 
-                        if (!annotation_file.is_open()) {
-                            annotation_file.open(folder_path + "annotation.txt", std::ios_base::out | std::ios_base::trunc);
+                        double xfactor = (double)cap_width / img.cols;
+                        double yfactor = (double)cap_height / img.rows;
+
+                        Json::Value json_root, coord;
+                        json_root["type"] = "Feature";
+                        json_root["geometry"]["type"] = "MultiPolygon";
+
+                        for (int c = 0, r = 25; c < (int)clicks.size(); ++c) {
+                            std::vector<cv::Point> pts;
+                            cv::ellipse2Poly(clicks[c], cv::Size(r, r), 0, 0, 360, (int)std::max(1.0, 180.0 * M_1_PI / r), pts);
+                            for (int p = 0; p < (int)pts.size(); ++p) {
+                                if (pts[p].x < img.cols && pts[p].y < img.rows) {
+                                    coord[c][p][0] = pts[p].x * xfactor;
+                                    coord[c][p][1] = pts[p].y * yfactor;
+                                }
+                            }
                         }
-                        for (auto click : clicks){
-                            annotation_file << filename << "," << "center" << "," << click.x << "," << click.y << "," << "radius" << "," << 25 << std::endl;
+                        json_root["geometry"]["coordinates"] = coord;
+                        json_root["properties"]["comment"] = "From RealSight/Insight POC " VERSION_STRING;
+                        json_root["properties"]["image"] = (original_filename + ".jpg").c_str();
+                        json_root["properties"]["name"] = "circle";
+                        json_root["properties"]["color"][0] = (int)yellow[0];
+                        json_root["properties"]["color"][1] = (int)yellow[1];
+                        json_root["properties"]["color"][2] = (int)yellow[2];
+
+                        try {
+                            std::ofstream annotation_file;
+                            annotation_file.open(folder_path + original_filename + ".json", std::ios_base::out | std::ios_base::trunc);
+                            Json::StyledStreamWriter writer;
+                            writer.write(annotation_file, json_root);                            
+                        }
+                        catch (...) {
+                            printf("WARNING: error in writing geojson file.");
                         }
                     };
 
@@ -397,7 +429,6 @@ void run()
 
                 pipe = nullptr;
                 if (index_file.is_open()) { index_file.close(); }
-                if (annotation_file.is_open()) { annotation_file.close(); }
                 g_app_data.init_request = false;
             }
 
@@ -476,7 +507,7 @@ void run()
                             writer.write(fisheye_calibration_file, json_root);
                         }
                         catch (...) {
-                            printf("wARNING: error in writing fisheye calibration file.");
+                            printf("WARNING: error in writing fisheye calibration file.");
                         }
                     }
                 }

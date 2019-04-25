@@ -140,6 +140,8 @@ if(BUILD_SHAPEFIT_DEV_APP)
     #add_subdirectory(d435i-demo)
 
     list(REMOVE_ITEM LIBRS_LIBS tracker)
+    add_subdirectory(thirdparty/apriltag)
+    list(APPEND LIBRS_LIBS APRILTAG_LIBRARY PTHREADS_LIBRARY)
     add_subdirectory(t265-demo)
 
     if(MSVC)

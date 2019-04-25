@@ -350,10 +350,12 @@ void run()
                 t265_available = false;
             }
         };
+
+        apriltag atag;
         
         for (bool switch_request = false; !switch_request && !g_app_data.exit_request;)
         {
-            cv::Mat img, screen_img, cvFe0;
+            cv::Mat img, screen_img, cvFe0, tag_gray;
             std::vector<std::string> scn_msg, scn_warn;
 
             if (cap.isOpened()) {
@@ -364,7 +366,10 @@ void run()
 
                 if (!g_app_data.is_annotate()) {
                     cv::resize(img, screen_img(win_rgb()), size_rgb(), 0, 0, CV_INTER_NN);
-                    scn_msg << "RGB cam id:" + std::to_string(camera_id) + "  w:" + std::to_string(img.cols) + " h:" + std::to_string(img.rows);
+                    cv::cvtColor(screen_img(win_rgb()), tag_gray, CV_RGB2GRAY);
+                    std::string num_tag_msg = atag.find(screen_img(win_rgb()), tag_gray);
+                    scn_msg << "RGB cam id:" + std::to_string(camera_id) + "  w:" + std::to_string(img.cols) + " h:" + std::to_string(img.rows)
+                        + " " + num_tag_msg;
                 }
             }
             else {

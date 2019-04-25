@@ -466,7 +466,7 @@ void run()
                 for (auto click : g_app_data.last_annotate_clicks) {
                     //cv::circle(screen_img, click, 30, dark_gray, 2);
                     std::vector<cv::Point> pts;
-                    cv::ellipse2Poly(click, cv::Size(25, 25), 0, 0, 360, (int)std::max(1.0,180 * M_1_PI / 25.0), pts);
+                    cv::ellipse2Poly(click, cv::Size(25, 25), 0, 0, 360, (int)(max(1.0,180 * M_1_PI / 25.0)), pts);
                     cv::polylines(screen_img, pts, true, yellow, 2);
                 }
                 cv::resize(screen_img(win_rgb()), g_app_data.last_rgb_annotate, cv::Size(), 1, 1, CV_INTER_NN);
@@ -495,7 +495,7 @@ void run()
 
                         for (int c = 0, r = 25; c < (int)clicks.size(); ++c) {
                             std::vector<cv::Point> pts;
-                            cv::ellipse2Poly(clicks[c], cv::Size(r, r), 0, 0, 360, (int)std::max(1.0, 180.0 * M_1_PI / r), pts);
+                            cv::ellipse2Poly(clicks[c], cv::Size(r, r), 0, 0, 360, (int)(max(1.0, 180.0 * M_1_PI / r)), pts);
                             for (int p = 0; p < (int)pts.size(); ++p) {
                                 if (pts[p].x < img.cols && pts[p].y < img.rows) {
                                     coord[c][p][0] = pts[p].x * xfactor;

@@ -39,12 +39,13 @@ foreach(cpp ${test_cpp})
     set(APP_DEPENDENCY ${OpenCV_LIB_DIR}/../bin/opencv_world310$<$<CONFIG:Debug>:d>.dll)
     add_custom_command(TARGET ${target} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${APP_DEPENDENCY} "$<TARGET_FILE_DIR:${target}>")
 
-    set(APP_DEPENDENCY $<TARGET_FILE:PTHREADS_LIBRARY>)
-    add_custom_command(TARGET ${target} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${APP_DEPENDENCY} "$<TARGET_FILE_DIR:${target}>")
-
   else()
     target_link_libraries(${target} APRILTAG_LIBRARY)
   endif()
+
+  set(APP_DEPENDENCY $<TARGET_FILE:PTHREADS_LIBRARY>)
+  add_custom_command(TARGET ${target} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${APP_DEPENDENCY} "$<TARGET_FILE_DIR:${target}>")
+
 endforeach()
 
 enable_testing()

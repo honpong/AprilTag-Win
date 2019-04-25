@@ -138,6 +138,141 @@ struct app_data {
 
 bool is_record_fisheye() { return g_cam_fisheye > 0; }
 
+#include "apriltag.h"
+#include "tag36h11.h"
+#include "tag36h10.h"
+#include "tag36artoolkit.h"
+#include "tag25h9.h"
+#include "tag25h7.h"
+#include "common/getopt.h"
+
+struct apriltag
+{
+    apriltag() { init(); }
+    ~apriltag() { destory(); }
+
+    getopt_t *getopt = nullptr;
+    const char* famname = nullptr;
+    apriltag_family_t *tf = nullptr;
+    apriltag_detector_t *td = nullptr;
+
+    void destory()
+    {
+        apriltag_detector_destroy(td);
+        if (!strcmp(famname, "tag36h11"))
+            tag36h11_destroy(tf);
+        else if (!strcmp(famname, "tag36h10"))
+            tag36h10_destroy(tf);
+        else if (!strcmp(famname, "tag36artoolkit"))
+            tag36artoolkit_destroy(tf);
+        else if (!strcmp(famname, "tag25h9"))
+            tag25h9_destroy(tf);
+        else if (!strcmp(famname, "tag25h7"))
+            tag25h7_destroy(tf);
+        getopt_destroy(getopt);
+
+        getopt = nullptr;
+        famname = nullptr;
+        tf = nullptr;
+        td = nullptr;
+    }
+
+    void init() 
+    {
+        getopt = getopt_create();
+
+        getopt_add_bool(getopt, 'h', "help", 0, "Show this help");
+        getopt_add_bool(getopt, 'd', "debug", 0, "Enable debugging output (slow)");
+        getopt_add_bool(getopt, 'q', "quiet", 0, "Reduce output");
+        getopt_add_string(getopt, 'f', "family", "tag36h11", "Tag family to use");
+        getopt_add_int(getopt, '\0', "border", "1", "Set tag family border size");
+        getopt_add_int(getopt, 't', "threads", "4", "Use this many CPU threads");
+        getopt_add_double(getopt, 'x', "decimate", "1.0", "Decimate input image by this factor");
+        getopt_add_double(getopt, 'b', "blur", "0.0", "Apply low-pass blur to input");
+        getopt_add_bool(getopt, '0', "refine-edges", 1, "Spend more time trying to align edges of tags");
+        getopt_add_bool(getopt, '1', "refine-decode", 0, "Spend more time trying to decode tags");
+        getopt_add_bool(getopt, '2', "refine-pose", 0, "Spend more time trying to precisely localize tags");
+
+        // Initialize tag detector with options
+        famname = getopt_get_string(getopt, "family");
+        if (!strcmp(famname, "tag36h11"))
+            tf = tag36h11_create();
+        else if (!strcmp(famname, "tag36h10"))
+            tf = tag36h10_create();
+        else if (!strcmp(famname, "tag36artoolkit"))
+            tf = tag36artoolkit_create();
+        else if (!strcmp(famname, "tag25h9"))
+            tf = tag25h9_create();
+        else if (!strcmp(famname, "tag25h7"))
+            tf = tag25h7_create();
+        else {
+            printf("Unrecognized tag family name. Use e.g. \"tag36h11\".\n");
+            exit(-1);
+        }
+        tf->black_border = getopt_get_int(getopt, "border");
+
+        td = apriltag_detector_create();
+        apriltag_detector_add_family(td, tf);
+        td->quad_decimate = (float)getopt_get_double(getopt, "decimate");
+        td->quad_sigma = (float)getopt_get_double(getopt, "blur");
+        td->nthreads = getopt_get_int(getopt, "threads");
+        td->debug = getopt_get_bool(getopt, "debug");
+        td->refine_edges = getopt_get_bool(getopt, "refine-edges");
+        td->refine_decode = getopt_get_bool(getopt, "refine-decode");
+        td->refine_pose = getopt_get_bool(getopt, "refine-pose");
+    }
+
+    std::string find(cv::Mat& frame, cv::Mat& gray)
+    {
+        // Make an image_u8_t header for the Mat data
+#ifdef _MSC_VER
+        image_u8_t im{ gray.cols, gray.rows, gray.cols, gray.data };
+#else
+        image_u8_t im = { .width = gray.cols,
+            .height = gray.rows,
+            .stride = gray.cols,
+            .buf = gray.data
+        };
+#endif
+
+        zarray_t *detections = apriltag_detector_detect(td, &im);
+        
+        int num_tag_detected = zarray_size(detections);
+        // Draw detection outlines
+        for (int i = 0; i < num_tag_detected; i++) {
+            apriltag_detection_t *det;
+            zarray_get(detections, i, &det);
+            cv::line(frame, cv::Point2d(det->p[0][0], det->p[0][1]),
+                cv::Point2d(det->p[1][0], det->p[1][1]),
+                cv::Scalar(0, 0xff, 0), 2);
+            cv::line(frame, cv::Point2d(det->p[0][0], det->p[0][1]),
+                cv::Point2d(det->p[3][0], det->p[3][1]),
+                cv::Scalar(0, 0, 0xff), 2);
+            cv::line(frame, cv::Point2d(det->p[1][0], det->p[1][1]),
+                cv::Point2d(det->p[2][0], det->p[2][1]),
+                cv::Scalar(0xff, 0, 0), 2);
+            cv::line(frame, cv::Point2d(det->p[2][0], det->p[2][1]),
+                cv::Point2d(det->p[3][0], det->p[3][1]),
+                cv::Scalar(0xff, 0, 0), 2);
+
+            std::stringstream ss;
+            ss << det->id;
+            cv::String text = ss.str();
+            int fontface = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
+            double fontscale = 1.0;
+            int baseline;
+            cv::Size textsize = getTextSize(text, fontface, fontscale, 2,
+                &baseline);
+            cv::putText(frame, text, cv::Point2d(det->c[0] - textsize.width / 2,
+                det->c[1] + textsize.height / 2),
+                fontface, fontscale, cv::Scalar(0xff, 0x99, 0), 2);
+        }
+        zarray_destroy(detections);
+
+        return std::to_string(num_tag_detected) + " tags detected";
+    }
+};
+
 void run()
 {
     int camera_id = g_camera_id;    

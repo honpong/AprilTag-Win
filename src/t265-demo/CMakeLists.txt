@@ -98,6 +98,9 @@ if(MSVC)
 	    list(APPEND APP_DEPENDENCY ${OpenCV_LIB_DIR}/../bin/opencv_world310$<$<CONFIG:Debug>:d>.dll)
 	endif()
 
+    if(TARGET PTHREADS_LIBRARY)
+        list(APPEND APP_DEPENDENCY $<TARGET_FILE:PTHREADS_LIBRARY>)
+    endif()
 
     foreach(var IN LISTS APP_DEPENDENCY)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:${PROJECT_NAME}>")

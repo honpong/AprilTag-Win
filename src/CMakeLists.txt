@@ -123,7 +123,7 @@ if(BUILD_SHAPEFIT_DEV_APP)
     
     add_subdirectory(${LIBRS_DIR})
 	set(LIBUSB1_LIBRARY_DIRS ${CMAKE_CURRENT_BINARY_DIR}/thirdparty/librealsense/librealsense/libusb_install/lib)
-    message(STATUS "LIBUSB1_LIBRARY_DIRS :"${LIBUSB1_LIBRARY_DIRS})
+    message(STATUS "LIBUSB1_LIBRARY_DIRS :${LIBUSB1_LIBRARY_DIRS}")
     link_directories(${LIBUSB1_LIBRARY_DIRS})
 #add_subdirectory(dev)
 

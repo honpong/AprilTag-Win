@@ -43,7 +43,7 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     zeroth_ifd = {piexif.ImageIFD.Make: u"Intel InSense", 
                 piexif.ImageIFD.Model: u"InSense Logitech",
                 }
-    exif_ifd = {piexif.ExifIFD.DateTimeOriginal: u"2019:03:08 01:02:03",
+    exif_ifd = {piexif.ExifIFD.DateTimeOriginal: u"2019:04:27 01:02:03",
                 piexif.ExifIFD.FocalPlaneResolutionUnit: 4, #2 = inch  3 = cm  4 = mm
                 piexif.ExifIFD.FocalPlaneXResolution: (16126,100),
                 piexif.ExifIFD.FocalPlaneYResolution: (16126,100),
@@ -56,7 +56,7 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
                 piexif.GPSIFD.GPSLatitude: ((int(dataToWrite[2]), 1), (int(dataToWrite[3]), 1), (int(dataToWrite[4]), int(dataToWrite[5]))), # last number eg. 10000 is the divisor
                 piexif.GPSIFD.GPSAltitudeRef: 0,
                 piexif.GPSIFD.GPSAltitude: (int(dataToWrite[11]),int(dataToWrite[12])), # <Altitude in meters>, <divisor> i.e. 432,2 = 43.2
-                piexif.GPSIFD.GPSDateStamp: u"1999:99:99 99:99:99",
+                piexif.GPSIFD.GPSDateStamp: u"2019:04:27 01:02:03",
                 piexif.GPSIFD.GPSMapDatum: u"WGS-84",
                 }
     first_ifd = {#piexif.ImageIFD.Make: u"Canon",

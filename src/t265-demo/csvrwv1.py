@@ -32,6 +32,9 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     xmp_principal_point        = cam["xmp"]["principal_point"]
     xmp_perspective_distortion = cam["xmp"]["perspective_distortion"]
 
+    exif_make = cam["exif"]["make"]
+    exif_model = cam["exif"]["model"]
+
     # Write exif part
     # extracting a thumbnail to embed
     o = io.BytesIO()
@@ -40,8 +43,8 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     thumb_im.save(o, "jpeg") # save that thumbnail as a jpeg style
     thumbnail = o.getvalue() # convert that into bytes to attach to the exif
     
-    zeroth_ifd = {piexif.ImageIFD.Make: u"Intel InSense", 
-                piexif.ImageIFD.Model: u"InSense Logitech",
+    zeroth_ifd = {piexif.ImageIFD.Make: exif_make, #u"Intel InSense", 
+                  piexif.ImageIFD.Model: exif_model, #u"InSense Logitech",
                 }
     exif_ifd = {piexif.ExifIFD.DateTimeOriginal: u"2019:04:27 01:02:03",
                 piexif.ExifIFD.FocalPlaneResolutionUnit: 4, #2 = inch  3 = cm  4 = mm

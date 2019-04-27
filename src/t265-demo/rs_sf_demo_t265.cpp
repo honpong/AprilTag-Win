@@ -508,14 +508,14 @@ void run()
                     std::stringstream ss;
                     ss << std::put_time(std::localtime(&g_app_data.last_capture_time), "%Y_%m_%d_%H_%M_%S");
 
-                    g_app_data.task_record_annotation = [&, time_str = ss.str(), img = g_app_data.last_rgb_annotate.clone(), clicks = g_app_data.last_annotate_clicks](){
+                    g_app_data.task_record_annotation = [&, time_str = ss.str(), annotate_img = g_app_data.last_rgb_annotate.clone(), clicks = g_app_data.last_annotate_clicks](){
                         
                         std::string original_filename = "rgb_" + time_str;
                         std::string annotated_filename = "rgb_annotated_" + time_str;
-                        cv::imwrite(folder_path + annotated_filename + ".jpg", img, { CV_IMWRITE_JPEG_QUALITY, 100 });
+                        cv::imwrite(folder_path + annotated_filename + ".jpg", annotate_img, { CV_IMWRITE_JPEG_QUALITY, 100 });
 
-                        double xfactor = (double)cap_width / img.cols;
-                        double yfactor = (double)cap_height / img.rows;
+                        double xfactor = (double)cap_width / annotate_img.cols;
+                        double yfactor = (double)cap_height / annotate_img.rows;
 
                         Json::Value json_root, coord;
                         json_root["type"] = "Feature";
@@ -525,7 +525,7 @@ void run()
                             std::vector<cv::Point> pts;
                             cv::ellipse2Poly(clicks[c], cv::Size(r, r), 0, 0, 360, (int)(max(1.0, 180.0 * M_1_PI / r)), pts);
                             for (int p = 0; p < (int)pts.size(); ++p) {
-                                if (pts[p].x < img.cols && pts[p].y < img.rows) {
+                                if (pts[p].x < annotate_img.cols && pts[p].y < annotate_img.rows) {
                                     coord[c][p][0] = pts[p].x * xfactor;
                                     coord[c][p][1] = pts[p].y * yfactor;
                                 }

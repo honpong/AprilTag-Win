@@ -539,9 +539,13 @@ void run()
                         json_root["properties"]["color"][1] = (int)yellow[1];
                         json_root["properties"]["color"][2] = (int)yellow[2];
 
+                        std::stringstream timestr; 
+                        timestr << std::put_time(std::localtime(&g_app_data.last_capture_time), "%Y-%m-%dT:%H:%M:%S.000Z");
+                        json_root["properties"]["created"] = timestr.str();
+
                         try {
                             std::ofstream annotation_file;
-                            annotation_file.open(folder_path + original_filename + ".json", std::ios_base::out | std::ios_base::trunc);
+                            annotation_file.open(folder_path + original_filename + ".geojson", std::ios_base::out | std::ios_base::trunc);
                             Json::StyledStreamWriter writer;
                             writer.write(annotation_file, json_root);                            
                         }

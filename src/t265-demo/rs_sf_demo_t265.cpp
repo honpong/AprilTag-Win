@@ -92,6 +92,7 @@ struct app_data {
     bool cam2_request = false;
     bool cam3_request = false;
     bool annotate_mode = false;
+    bool apriltag_mode = false;
     int highlight_exit_button = 0;
 	int highlight_bin_button = 0;
     int highlight_script_button = 0;
@@ -366,9 +367,13 @@ void run()
 
                 if (!g_app_data.is_annotate()) {
                     cv::resize(img, screen_img(win_rgb()), size_rgb(), 0, 0, CV_INTER_NN);
-                    cv::cvtColor(screen_img(win_rgb()), tag_gray, CV_RGB2GRAY);
-                    std::string num_tag_msg = atag.find(screen_img(win_rgb()), tag_gray);
-                    scn_msg << "RGB cam id:" + std::to_string(camera_id) + "  w:" + std::to_string(img.cols) + " h:" + std::to_string(img.rows)
+
+                    std::string num_tag_msg = "Press `a` for apriltag";
+                    if (g_app_data.apriltag_mode) {
+                        cv::cvtColor(screen_img(win_rgb()), tag_gray, CV_RGB2GRAY);
+                        num_tag_msg = atag.find(screen_img(win_rgb()), tag_gray);
+                    }
+                    scn_msg << "RGB " + cap->name() + "  w:" + std::to_string(img.cols) + " h:" + std::to_string(img.rows)
                         + " " + num_tag_msg;
                 }
             }
@@ -694,6 +699,7 @@ void run()
             switch (cv::waitKey(1))
             {
                 case 'q': case 27: return;
+                case 'a': g_app_data.apriltag_mode = !g_app_data.apriltag_mode; break;
                 case '0': if (camera_id != 0) { camera_id = 0; switch_request = true; break; }
                 case '1': if (camera_id != 1) { camera_id = 1; switch_request = true; break; }
                 case '2': if (camera_id != 2) { camera_id = 2; switch_request = true; break; }
@@ -748,6 +754,7 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--script"))          { g_script_name = argv[++i]; }
         else if (!strcmp(argv[i], "--interval"))        { g_auto_capture_interval_s = atoi(argv[++i]); }
         else if (!strcmp(argv[i], "--fisheye"))         { g_cam_fisheye = 3; }
+        else if (!strcmp(argv[i], "--apriltag"))        { g_app_data.apriltag_mode = true; }
         else {
             printf("usages:\n t265-demo.exe [--no_t265][--origin STR][--cam ID][--interval SEC][--script FILENAME][--path OUTPUT_PATH]\n");
             printf("\n");

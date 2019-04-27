@@ -23,6 +23,10 @@ def make_default_json():
     xmp_principal_point        = u"12.9221,7.24935"
     xmp_perspective_focal      = u"18.5779"
     xmp_perspective_distortion = u"0.1976732, -0.5061321, 0.3403559, 0, 0"
+
+    #new for exif
+    exif_make    = u"Intel InSense"
+    exif_model   = u"InSense Blackfly S" #u"InSense Logitech"  
     
     json_obj = { 
         "xmp" : {
@@ -31,6 +35,10 @@ def make_default_json():
             "principal_point" : xmp_principal_point,
             "perspective_focal"      : xmp_perspective_focal,
             "perspective_distortion" : xmp_perspective_distortion,
+        },
+        "exif" : {
+            "make"  :  exif_make,
+            "model" :  exif_model,
         }
     }
     return json.dumps(json_obj, indent=4, separators=(", "," : "))

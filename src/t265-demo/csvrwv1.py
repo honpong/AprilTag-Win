@@ -22,7 +22,7 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     
     # define file sources and destinations
     src_image_path = os.path.join(src_dir, str(dataToWrite[0]))
-    dst_image_path = os.path.join(des_dir_name , "tagged_" + str(dataToWrite[0]));
+    dst_image_path = os.path.join(des_dir_name , "tagged_" + str(dataToWrite[0]))
     
     # Set up the calibration 
     cam = calibration_io.read_json_calibration(path=src_dir)

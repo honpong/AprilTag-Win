@@ -291,12 +291,27 @@ void run()
 
     for(g_app_data.exit_request=false; !g_app_data.exit_request; g_app_data.annotation_record() )
     {
-        cv::VideoCapture cap(camera_id);
-        cap.set(CV_CAP_PROP_FRAME_WIDTH, 4096);
-        cap.set(CV_CAP_PROP_FRAME_HEIGHT, 2160);
+        struct cv_cam : public rgb_cam, private cv::VideoCapture
+        {
+            cv_cam(int camera_id) : cv::VideoCapture(camera_id), m_camera_id(camera_id){
+                set(CV_CAP_PROP_FRAME_WIDTH, 4096);
+                set(CV_CAP_PROP_FRAME_HEIGHT, 2160);
 
-		auto cap_width = cap.get(CV_CAP_PROP_FRAME_WIDTH);
-		auto cap_height = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+                auto cap_width = get(CV_CAP_PROP_FRAME_WIDTH);
+                auto cap_height = get(CV_CAP_PROP_FRAME_HEIGHT);
+            }
+            bool isOpened() override { return cv::VideoCapture::isOpened(); }
+            bool get_image(cv::Mat& dst) override {
+                try { *this >> dst; }
+                catch (...) { return false; }
+                return true;
+            }
+            std::string name() override { return "cam id " + std::to_string(m_camera_id); }
+            int m_camera_id = -1;
+        };
+
+        std::unique_ptr<rgb_cam> cap = rgb_cam::create();
+        if (!cap->isOpened()) { cap = std::make_unique<cv_cam>(camera_id); }
 
         struct pose_rec : public rs2_pose {
             void update(const rs2_pose& ref) { *(rs2_pose*)this = ref; }
@@ -353,17 +368,26 @@ void run()
         };
 
         apriltag atag;
-        
+
+        double cap_width = -1;  //cap.get(CV_CAP_PROP_FRAME_WIDTH);
+        double cap_height = -1;  //cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+
+        cv::Mat img, screen_img, cvFe0, tag_gray;
+        screen_img.create(size_screen(), CV_8UC3);
+
         for (bool switch_request = false; !switch_request && !g_app_data.exit_request;)
         {
-            cv::Mat img, screen_img, cvFe0, tag_gray;
             std::vector<std::string> scn_msg, scn_warn;
 
-            if (cap.isOpened()) {
+            if (cap->isOpened()) {
+
+                cap->get_image(img);
+               
+                cap_width = img.cols;
+                cap_height = img.rows;
+                
                 scn_height = (int)((scn_width - size_win_fisheye.width)* cap_height / cap_width);
-                screen_img.create(size_screen(), CV_8UC3);
                 screen_img(win_buttons()).setTo(0);
-                cap >> img;
 
                 if (!g_app_data.is_annotate()) {
                     cv::resize(img, screen_img(win_rgb()), size_rgb(), 0, 0, CV_INTER_NN);
@@ -378,7 +402,6 @@ void run()
                 }
             }
             else {
-                screen_img.create(size_screen(), CV_8UC3);
                 screen_img.setTo(0);
             }
 

@@ -35,10 +35,12 @@
  *  programming with callbacks and events, and SaveToAvi exhibits video creation.
  */
 
+
 #include "Spinnaker.h"
 #include "SpinGenApi/SpinnakerGenApi.h"
 #include <iostream>
 #include <sstream> 
+#include "rs_sf_demo_t265.hpp"
 
 using namespace Spinnaker;
 using namespace Spinnaker::GenApi;
@@ -408,7 +410,7 @@ int RunSingleCamera(CameraPtr pCam)
 
 // Example entry point; please see Enumeration example for more in-depth 
 // comments on preparing and cleaning up the system.
-int main(int /*argc*/, char** /*argv*/)
+int main2(int /*argc*/, char** /*argv*/)
 {
     // Since this application saves images in the current folder
     // we must ensure that we have permission to write to this folder.
@@ -514,4 +516,269 @@ int main(int /*argc*/, char** /*argv*/)
     getchar();
 
     return result;
+}
+
+
+struct spinnaker_cam : public rgb_cam
+{
+    std::string name() override { return "BlackFly S 20MP "; }
+    bool isOpened() override { return pCam && m_cam_init; }
+    bool get_image(cv::Mat& dst) override
+    {
+        if (pCam == nullptr) { dst = cv::Mat(); return false; }
+
+        try
+        { 
+            //
+            // Begin acquiring images
+            //
+            // *** NOTES ***
+            // What happens when the camera begins acquiring images depends on the
+            // acquisition mode. Single frame captures only a single image, multi 
+            // frame captures a set number of images, and continuous captures a 
+            // continuous stream of images. Because the example calls for the 
+            // retrieval of 10 images, continuous mode has been set.
+            // 
+            // *** LATER ***
+            // Image acquisition must be ended when no more images are needed.
+            //
+            if (!m_cam_begin_acquire) 
+            {
+                pCam->BeginAcquisition();
+                m_cam_begin_acquire = true;
+                std::cout << "Acquiring images..." << std::endl;
+            }
+
+            //
+            // Retrieve next received image
+            //
+            // *** NOTES ***
+            // Capturing an image houses images on the camera buffer. Trying
+            // to capture an image that does not exist will hang the camera.
+            //
+            // *** LATER ***
+            // Once an image from the buffer is saved and/or no longer 
+            // needed, the image must be released in order to keep the 
+            // buffer from filling up.
+            //
+            ImagePtr pResultImage = pCam->GetNextImage();
+
+            //
+            // Ensure image completion
+            //
+            // *** NOTES ***
+            // Images can easily be checked for completion. This should be
+            // done whenever a complete image is expected or required.
+            // Further, check image status for a little more insight into
+            // why an image is incomplete.
+            //
+            if (pResultImage->IsIncomplete())
+            {
+                // Retreive and print the image status description
+                std::cout << "Image incomplete: "
+                    << Image::GetImageStatusDescription(pResultImage->GetImageStatus())
+                    << "..." << std::endl << std::endl;
+
+                dst = cv::Mat();
+                return false;
+            }
+            else
+            {
+                //
+                // Print image information; height and width recorded in pixels
+                //
+                // *** NOTES ***
+                // Images have quite a bit of available metadata including
+                // things such as CRC, image status, and offset values, to
+                // name a few.
+                //
+                size_t width = pResultImage->GetWidth();
+                size_t height = pResultImage->GetHeight();
+
+                auto original_format = pResultImage->GetPixelFormat();
+                if (original_format != PixelFormat_BGR8) {
+                    ImagePtr convertedImage = pResultImage->Convert(PixelFormat_BGR8, DEFAULT);
+                    // no need to release converted Image, only release image from the capture
+                    pResultImage->Release();
+                    cv::Mat((int)height, (int)width, CV_8UC3, convertedImage->GetData()).copyTo(dst);
+                }
+                else {
+                    cv::Mat((int)height, (int)width, CV_8UC3, pResultImage->GetData()).copyTo(dst);
+                    pResultImage->Release();
+                }
+            }
+        }
+        catch (Spinnaker::Exception &e)
+        {
+            std::cout << "Error: " << e.what() << std::endl;
+            return false;
+        }
+
+        return true;
+    }
+
+    virtual ~spinnaker_cam() override
+    {
+        printf("spinnaker_cam delete\n");
+        if (pCam) { 
+            if (m_cam_begin_acquire) { 
+                printf("spinnaker_cam end acquisition\n");
+                pCam->EndAcquisition();
+            }
+            if (m_cam_init) {
+                printf("spinnaker_cam deinit\n");
+                pCam->DeInit();
+            }
+            pCam = nullptr;
+        }
+        if (pSystem && pSystem.IsValid()) {
+            printf("spinnaker_cam system release\n");
+            pSystem->ReleaseInstance();
+            pSystem = nullptr;
+        }
+        printf("spinnaker_cam done\n");
+    }
+
+    Spinnaker::CameraPtr pCam = nullptr;
+    Spinnaker::SystemPtr pSystem;
+
+    bool m_cam_init = false;
+    bool m_cam_begin_acquire = false;
+
+    spinnaker_cam()
+    {
+        // Retrieve singleton reference to system object
+        pSystem = System::GetInstance();
+
+        // Print out current library version
+        const LibraryVersion spinnakerLibraryVersion = pSystem->GetLibraryVersion();
+        std::cout << "Spinnaker library version: "
+            << spinnakerLibraryVersion.major << "."
+            << spinnakerLibraryVersion.minor << "."
+            << spinnakerLibraryVersion.type << "."
+            << spinnakerLibraryVersion.build << endl << endl;
+
+        // Retrieve list of cameras from the system
+        CameraList camList = pSystem->GetCameras();
+
+        unsigned int numCameras = camList.GetSize();
+
+        std::cout << "Number of cameras detected: " << numCameras << std::endl << std::endl;
+
+        // Finish if there are no cameras
+        if (numCameras == 0) { camList.Clear(); return; }
+
+        int result = 0;
+        try
+        {
+            pCam = camList.GetByIndex(0);
+
+            if (pCam == nullptr) { return; }
+
+            // Retrieve TL device nodemap and print device information
+            INodeMap & nodeMapTLDevice = pCam->GetTLDeviceNodeMap();
+
+            result = PrintDeviceInfo(nodeMapTLDevice);
+
+            // Initialize camera
+            pCam->Init();
+            m_cam_init = true;
+
+            // Retrieve GenICam nodemap
+            INodeMap & nodeMap = pCam->GetNodeMap();
+
+            std::cout << std::endl << "*** IMAGE ACQUISITION ***" << std::endl << std::endl;
+
+            //
+            // Set acquisition mode to continuous
+            //
+            // *** NOTES ***
+            // Because the example acquires and saves 10 images, setting acquisition 
+            // mode to continuous lets the example finish. If set to single frame
+            // or multiframe (at a lower number of images), the example would just
+            // hang. This would happen because the example has been written to
+            // acquire 10 images while the camera would have been programmed to 
+            // retrieve less than that.
+            // 
+            // Setting the value of an enumeration node is slightly more complicated
+            // than other node types. Two nodes must be retrieved: first, the 
+            // enumeration node is retrieved from the nodemap; and second, the entry
+            // node is retrieved from the enumeration node. The integer value of the
+            // entry node is then set as the new value of the enumeration node.
+            //
+            // Notice that both the enumeration and the entry nodes are checked for
+            // availability and readability/writability. Enumeration nodes are
+            // generally readable and writable whereas their entry nodes are only
+            // ever readable.
+            // 
+            // Retrieve enumeration node from nodemap
+            CEnumerationPtr ptrAcquisitionMode = nodeMap.GetNode("AcquisitionMode");
+            if (!IsAvailable(ptrAcquisitionMode) || !IsWritable(ptrAcquisitionMode))
+            {
+                std::cout << "Unable to set acquisition mode to continuous (enum retrieval). Aborting..." << std::endl << std::endl;
+                return;
+            }
+
+            // Retrieve entry node from enumeration node
+            CEnumEntryPtr ptrAcquisitionModeContinuous = ptrAcquisitionMode->GetEntryByName("Continuous");
+            if (!IsAvailable(ptrAcquisitionModeContinuous) || !IsReadable(ptrAcquisitionModeContinuous))
+            {
+                std::cout << "Unable to set acquisition mode to continuous (entry retrieval). Aborting..." << std::endl << std::endl;
+                return;
+            }
+
+            // Retrieve integer value from entry node
+            int64_t acquisitionModeContinuous = ptrAcquisitionModeContinuous->GetValue();
+
+            // Set integer value from entry node as new value of enumeration node
+            ptrAcquisitionMode->SetIntValue(acquisitionModeContinuous);
+
+            std::cout << "Acquisition mode set to continuous..." << std::endl;
+
+            pCam->ExposureAuto.SetValue(Spinnaker::ExposureAutoEnums::ExposureAuto_Continuous);
+            //pCam->AutoExposureExposureTimeUpperLimit.SetValue(20000.0);
+
+            std::cout << "ExposureAuto set to continuous..." << std::endl;
+
+
+#ifdef _DEBUG
+            std::cout << std::endl << std::endl << "*** DEBUG ***" << std::endl << std::endl;
+
+            // If using a GEV camera and debugging, should disable heartbeat first to prevent further issues
+            if (DisableHeartbeat(pCam, nodeMap, nodeMapTLDevice) != 0)
+            {
+                return -1;
+            }
+
+            std::cout << std::endl << std::endl << "*** END OF DEBUG ***" << std::endl << std::endl;
+#endif
+
+            //
+            // Retrieve device serial number for filename
+            //
+            // *** NOTES ***
+            // The device serial number is retrieved in order to keep cameras from 
+            // overwriting one another. Grabbing image IDs could also accomplish
+            // this.
+            //
+            gcstring deviceSerialNumber("");
+            CStringPtr ptrStringSerial = nodeMapTLDevice.GetNode("DeviceSerialNumber");
+            if (IsAvailable(ptrStringSerial) && IsReadable(ptrStringSerial))
+            {
+                deviceSerialNumber = ptrStringSerial->GetValue();
+
+                std::cout << "Device serial number retrieved as " << deviceSerialNumber << "..." << std::endl;
+            }
+            std::cout << std::endl;
+        }
+        catch (Spinnaker::Exception &e)
+        {
+            std::cout << "Error: " << e.what() << std::endl;
+            result = -1;
+        }
+    }
+};
+
+std::unique_ptr<rgb_cam> rgb_cam::create() {
+    return std::make_unique<spinnaker_cam>();
 }

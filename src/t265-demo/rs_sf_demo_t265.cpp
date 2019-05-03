@@ -47,11 +47,11 @@ std::string g_script_name = DEFAULT_SCRIPT;
 
 cv::Size size_win_fisheye(848 / 4, 800 / 4);
 
-int scn_width = 800 + size_win_fisheye.width;
-int scn_height = 600;
+int scn_width = 684 + size_win_fisheye.width;
+int scn_height = 456;
 const int num_buttons = 6;
 
-inline cv::Size size_rgb() { return cv::Size(800, scn_height); }
+inline cv::Size size_rgb() { return cv::Size(scn_width - size_win_fisheye.width, scn_height); }
 inline cv::Size size_screen() { return cv::Size(scn_width, scn_height); }
 
 inline cv::Rect win_rgb() { return cv::Rect(0, 0, size_rgb().width, size_rgb().height); }

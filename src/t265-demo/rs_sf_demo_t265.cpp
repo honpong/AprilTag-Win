@@ -783,8 +783,35 @@ void run()
     }
 }
 
+
+void spinnaker_test()
+{
+	auto cap = rgb_cam::create();
+
+	cv::Mat src, display;
+	int w, h;
+	for (;cap->isOpened();)
+	{
+		if (cap->get_image(w, h, display, nullptr))
+		{
+			//cv::resize(src, display, cv::Size(), 0.1, 0.1, CV_INTER_NN);
+			cv::imshow("test", display);
+		}
+		switch (cv::waitKey(1)) {
+		case 'q': case 27: return;
+		}
+	}
+}
+
+
 int main(int argc, char* argv[])
 {
+	if (false)
+	{
+		spinnaker_test();
+		return 0;
+	}
+
     bool is_live = true, is_capture = false, is_replay = false; int laser_option = 0;
     std::string data_path = DEFAULT_PATH, camera_json_path = "."; //camera.json location
     std::vector<int> capture_size = { 640,480 };

@@ -769,7 +769,7 @@ struct spinnaker_cam : public rgb_cam
             // If using a GEV camera and debugging, should disable heartbeat first to prevent further issues
             if (DisableHeartbeat(pCam, nodeMap, nodeMapTLDevice) != 0)
             {
-                return -1;
+                return;
             }
 
             std::cout << std::endl << std::endl << "*** END OF DEBUG ***" << std::endl << std::endl;

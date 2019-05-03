@@ -29,7 +29,7 @@
 struct rgb_cam
 {
     virtual bool isOpened() { return false; }
-    virtual bool get_image(cv::Mat& dst) = 0;
+    virtual bool get_image(int& w, int& h, cv::Mat& preview, cv::Mat* original) = 0;
     virtual std::string name() { return "cam id unknown"; }
     virtual ~rgb_cam() {}
     static std::unique_ptr<rgb_cam> create();

@@ -102,7 +102,8 @@ struct app_data {
     std::time_t last_capture_time = {};
     std::unique_ptr<std::future<int>> system_thread;
 
-    cv::Mat last_rgb_capture, last_rgb_thumbnail, last_rgb_annotate;
+	cv::Mat last_rgb_capture, last_rgb_thumbnail, last_rgb_annotate;
+	cv::Mat new_rgb_capture;
     std::deque<cv::Point> last_annotate_clicks;
     std::function<void()> task_record_annotation;
 
@@ -301,8 +302,12 @@ void run()
                 auto cap_height = get(CV_CAP_PROP_FRAME_HEIGHT);
             }
             bool isOpened() override { return cv::VideoCapture::isOpened(); }
-            bool get_image(cv::Mat& dst) override {
-                try { *this >> dst; }
+            bool get_image(int& w, int& h, cv::Mat& preview, cv::Mat* original) override {
+				try {
+					*this >> preview; 
+					w = preview.cols; h = preview.rows;
+					if (original) { *original = preview; }
+				}
                 catch (...) { return false; }
                 return true;
             }
@@ -369,10 +374,10 @@ void run()
 
         apriltag atag;
 
-        double cap_width = -1;  //cap.get(CV_CAP_PROP_FRAME_WIDTH);
-        double cap_height = -1;  //cap.get(CV_CAP_PROP_FRAME_HEIGHT);
+        int cap_width = -1;  //cap.get(CV_CAP_PROP_FRAME_WIDTH);
+        int cap_height = -1;  //cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 
-        cv::Mat img, screen_img, cvFe0, tag_gray;
+        cv::Mat preview_img, screen_img, cvFe0, tag_gray;
         screen_img.create(size_screen(), CV_8UC3);
 
         for (bool switch_request = false; !switch_request && !g_app_data.exit_request;)
@@ -381,23 +386,24 @@ void run()
 
             if (cap->isOpened()) {
 
-                cap->get_image(img);
+				cv::Mat* original_img_ptr = nullptr;
+				if (g_app_data.capture_request && g_app_data.new_rgb_capture.empty()) {
+					original_img_ptr = &g_app_data.new_rgb_capture;
+				}
+                cap->get_image(cap_width, cap_height, preview_img, original_img_ptr);
                
-                cap_width = img.cols;
-                cap_height = img.rows;
-                
-                scn_height = (int)((scn_width - size_win_fisheye.width)* cap_height / cap_width);
+                scn_height = (int)((scn_width - size_win_fisheye.width)* preview_img.rows / preview_img.cols);
                 screen_img(win_buttons()).setTo(0);
 
                 if (!g_app_data.is_annotate()) {
-                    cv::resize(img, screen_img(win_rgb()), size_rgb(), 0, 0, CV_INTER_NN);
+                    cv::resize(preview_img, screen_img(win_rgb()), size_rgb(), 0, 0, CV_INTER_NN);
 
                     std::string num_tag_msg = "Press `a` for apriltag";
                     if (g_app_data.apriltag_mode) {
                         cv::cvtColor(screen_img(win_rgb()), tag_gray, CV_RGB2GRAY);
                         num_tag_msg = atag.find(screen_img(win_rgb()), tag_gray);
                     }
-                    scn_msg << "RGB " + cap->name() + "  w:" + std::to_string(img.cols) + " h:" + std::to_string(img.rows)
+                    scn_msg << "RGB " + cap->name() + "  w:" + std::to_string(cap_width) + " h:" + std::to_string(cap_height)
                         + " " + num_tag_msg;
                 }
             }
@@ -605,7 +611,7 @@ void run()
             }
 
             auto t = std::time(NULL);
-            if (g_app_data.auto_request)
+            if (g_app_data.auto_request && g_app_data.new_rgb_capture.empty())
             {
                 auto current_time = std::chrono::system_clock::from_time_t(t);
                 auto last_time = std::chrono::system_clock::from_time_t(g_app_data.last_capture_time);
@@ -614,7 +620,7 @@ void run()
                     g_app_data.set_capture_request();
                 }
             }
-            if (g_app_data.capture_request)
+            if (g_app_data.capture_request && !g_app_data.new_rgb_capture.empty())
             {
                 g_app_data.annotation_record();
 
@@ -627,9 +633,15 @@ void run()
                 std::string filename = "rgb_" + ss.str() + ".jpg";
                 last_file_written = folder_path + filename;
 
-                cv::Mat& capture_img = (g_app_data.last_rgb_capture = img.clone());
-                cv::imwrite(last_file_written, capture_img, { CV_IMWRITE_JPEG_QUALITY, 100 });
-                cv::resize(capture_img, g_app_data.last_rgb_thumbnail, win_annotate().size(), 0, 0, CV_INTER_NN);
+				if (g_app_data.new_rgb_capture.channels() == 1) {
+					cv::cvtColor(g_app_data.new_rgb_capture, g_app_data.last_rgb_capture, CV_BayerBG2BGR, 3);
+				}
+				else {
+					g_app_data.last_rgb_capture = g_app_data.new_rgb_capture.clone();
+				}
+
+                cv::imwrite(last_file_written, g_app_data.last_rgb_capture, { CV_IMWRITE_JPEG_QUALITY, 100 });
+                cv::resize(g_app_data.last_rgb_capture, g_app_data.last_rgb_thumbnail, win_annotate().size(), 0, 0, CV_INTER_NN);
                 
                 if (!index_file.is_open()) {
                     index_file.open(folder_path + "pose.txt", std::ios_base::out | std::ios_base::trunc);
@@ -686,6 +698,7 @@ void run()
                 
                 index_file << std::endl;
                 g_app_data.last_annotate_clicks.clear();
+				g_app_data.new_rgb_capture = cv::Mat();
                 g_app_data.capture_request = false; //capture request handled
             }
             if (g_app_data.script_request && !g_app_data.is_system_run()) {

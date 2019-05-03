@@ -523,9 +523,9 @@ struct spinnaker_cam : public rgb_cam
 {
     std::string name() override { return "BlackFly S 20MP "; }
     bool isOpened() override { return pCam && m_cam_init; }
-    bool get_image(cv::Mat& dst) override
+    bool get_image(int& w, int& h, cv::Mat& preview, cv::Mat* original) override
     {
-        if (pCam == nullptr) { dst = cv::Mat(); return false; }
+		if (pCam == nullptr) { preview = cv::Mat(); w = h = 0; return false; }
 
         try
         { 
@@ -579,7 +579,8 @@ struct spinnaker_cam : public rgb_cam
                     << Image::GetImageStatusDescription(pResultImage->GetImageStatus())
                     << "..." << std::endl << std::endl;
 
-                dst = cv::Mat();
+                preview = cv::Mat();
+				w = h = 0;
                 return false;
             }
             else
@@ -592,20 +593,41 @@ struct spinnaker_cam : public rgb_cam
                 // things such as CRC, image status, and offset values, to
                 // name a few.
                 //
-                size_t width = pResultImage->GetWidth();
-                size_t height = pResultImage->GetHeight();
+                int width = w = (int)pResultImage->GetWidth();
+                int height = h = (int)pResultImage->GetHeight();
 
                 auto original_format = pResultImage->GetPixelFormat();
-                if (original_format != PixelFormat_BGR8) {
-                    ImagePtr convertedImage = pResultImage->Convert(PixelFormat_BGR8, DEFAULT);
-                    // no need to release converted Image, only release image from the capture
-                    pResultImage->Release();
-                    cv::Mat((int)height, (int)width, CV_8UC3, convertedImage->GetData()).copyTo(dst);
-                }
-                else {
-                    cv::Mat((int)height, (int)width, CV_8UC3, pResultImage->GetData()).copyTo(dst);
-                    pResultImage->Release();
-                }
+				cv::Mat original_cv_image(height,width, CV_8UC1, pResultImage->GetData());
+
+				if(original_format == PixelFormat_BayerRG8)
+				{	
+					int new_w = width / 8;
+					int new_h = height / 8;
+					int w_1 = width + 1, w8 = width * 8;
+					preview.create(new_h, new_w, CV_8UC3);
+					unsigned char* new_data = (unsigned char*)preview.data;
+					unsigned char* old_data = (unsigned char*)original_cv_image.data;
+					for (int y = 0, yw = 0, p = 0; y < height; y += 8, yw += w8) 
+					{
+						for (int x = 0, ywx = yw; x < width; x += 8, ywx += 8)
+						{
+							new_data[p++] = old_data[ywx + w_1];
+							new_data[p++] = old_data[ywx + 1];
+							new_data[p++] = old_data[ywx];
+						}
+					}
+				}
+				else {
+					// fallback strategy
+					auto convertedImage = pResultImage->Convert(PixelFormat_BGR8, NEAREST_NEIGHBOR);
+					preview = cv::Mat(height, width, CV_8UC3, convertedImage->GetData()).clone();
+				}
+
+				// no need to release converted Image, only release image from the capture
+				if (original) {
+					*original = original_cv_image.clone();
+				}
+				pResultImage->Release();
             }
         }
         catch (Spinnaker::Exception &e)

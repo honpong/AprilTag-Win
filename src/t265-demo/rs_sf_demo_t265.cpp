@@ -442,48 +442,52 @@ void run()
 
                 try {
                     fs = pipe->wait_for_frames();
-                    cv::Mat cvvf = get_fisheye(fs, 0);
-                    if (!cvvf.empty()) {
-                        cv::Mat simg;
-                        cv::resize(cvvf, simg, cv::Size(), 0.25, 0.25, CV_INTER_NN);
-                        cv::cvtColor(is_record_fisheye() ? simg : simg * 0.5 + 128, screen_img(win_fisheye()), CV_GRAY2RGB, 3);
-                    }
-                    p = fs.first_or_default(RS2_STREAM_POSE);
-                    if (p)
-                    {
-                        auto pf = p.as<rs2::pose_frame>();
-                        if (pf)
-                        {
-                            const auto print = [&scn_msg, &scn_warn, &current_pose](const std::string& conf, const rs2_pose& p) {
-                                current_pose.update(p);
-                                std::stringstream ss;
-                                scn_msg << "T265 Confidence: " + conf + ", Fisheye Capture: " + (is_record_fisheye() ? "ON" : "OFF");
-                                ss << std::fixed << std::right << std::setprecision(3) << std::setw(6);
-                                ss << p.translation.x << "," << p.translation.y << "," << p.translation.z;
-                                scn_msg << "Translation: " + ss.str();
-                                std::stringstream sr;
-                                sr << std::fixed << std::right << std::setprecision(3) << std::setw(6);
-                                sr << p.rotation.w << "," << p.rotation.x << "," << p.rotation.y << "," << p.rotation.z;
-                                scn_msg << "Rotation: " + sr.str();
-                                std::stringstream sv;
-                                sv << std::fixed << std::right << std::setprecision(3) << std::setw(6);
-                                sv << current_pose.speed();
-                                if (current_pose._prev_cap_pose) { sv << ",  " << current_pose.distance_prev_capture() << " meter away last capture"; }
-                                scn_msg << "Velocity: " + sv.str();
+					//if (pipe->poll_for_frames(&fs))
+					if(fs)
+					{
+						cv::Mat cvvf = get_fisheye(fs, 0);
+						if (!cvvf.empty()) {
+							cv::Mat simg;
+							cv::resize(cvvf, simg, cv::Size(), 0.25, 0.25, CV_INTER_NN);
+							cv::cvtColor(is_record_fisheye() ? simg : simg * 0.5 + 128, screen_img(win_fisheye()), CV_GRAY2RGB, 3);
+						}
+						p = fs.first_or_default(RS2_STREAM_POSE);
+						if (p)
+						{
+							auto pf = p.as<rs2::pose_frame>();
+							if (pf)
+							{
+								const auto print = [&scn_msg, &scn_warn, &current_pose](const std::string& conf, const rs2_pose& p) {
+									current_pose.update(p);
+									std::stringstream ss;
+									scn_msg << "T265 Confidence: " + conf + ", Fisheye Capture: " + (is_record_fisheye() ? "ON" : "OFF");
+									ss << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+									ss << p.translation.x << "," << p.translation.y << "," << p.translation.z;
+									scn_msg << "Translation: " + ss.str();
+									std::stringstream sr;
+									sr << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+									sr << p.rotation.w << "," << p.rotation.x << "," << p.rotation.y << "," << p.rotation.z;
+									scn_msg << "Rotation: " + sr.str();
+									std::stringstream sv;
+									sv << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+									sv << current_pose.speed();
+									if (current_pose._prev_cap_pose) { sv << ",  " << current_pose.distance_prev_capture() << " meter away last capture"; }
+									scn_msg << "Velocity: " + sv.str();
 
-                                scn_warn << (current_pose.speed() > g_cam_velocity_thr ? " SLOW DOWN !!!" : "");
-                                scn_warn << (current_pose.distance_prev_capture() > g_cam_prev_dist_thr ? " TOO FAR FROM LAST CAPTURE !!!" : "");
-                            };
+									scn_warn << (current_pose.speed() > g_cam_velocity_thr ? " SLOW DOWN !!!" : "");
+									scn_warn << (current_pose.distance_prev_capture() > g_cam_prev_dist_thr ? " TOO FAR FROM LAST CAPTURE !!!" : "");
+								};
 
-                            auto pd = pf.get_pose_data();
-                            switch (pd.tracker_confidence) {
-                            case 1: print("Low", pd); break;
-                            case 2: print("Medium", pd); break;
-                            case 3: print("High", pd); break;
-                            default: scn_msg << "T265 Tracking Failed";
-                            }
-                        }
-                    }
+								auto pd = pf.get_pose_data();
+								switch (pd.tracker_confidence) {
+								case 1: print("Low", pd); break;
+								case 2: print("Medium", pd); break;
+								case 3: print("High", pd); break;
+								default: scn_msg << "T265 Tracking Failed";
+								}
+							}
+						}
+					}
                 }
                 catch (...) { t265_available = false; }
             }

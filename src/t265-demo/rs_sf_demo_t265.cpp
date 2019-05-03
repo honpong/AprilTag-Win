@@ -37,7 +37,7 @@
 
 bool        g_t265 = true;
 int         g_camera_id = 0;
-int         g_auto_capture_interval_s = 5; //seconds
+int         g_auto_capture_interval_s = 2; //seconds
 int         g_cam_fisheye = 3;
 float       g_cam_velocity_thr = 0.2f;
 float       g_cam_prev_dist_thr = 0.5f;

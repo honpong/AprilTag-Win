@@ -37,7 +37,7 @@
 
 bool        g_t265 = true;
 int         g_camera_id = 0;
-int         g_auto_capture_interval_s = 2; //seconds
+int         g_auto_capture_interval_s = 1; //seconds
 int         g_cam_fisheye = 3;
 float       g_cam_velocity_thr = 0.2f;
 float       g_cam_prev_dist_thr = 0.5f;
@@ -126,12 +126,12 @@ struct app_data {
     bool is_annotate() { return annotate_mode && !last_rgb_capture.empty(); }
     bool is_system_run() { return (bool)system_thread || is_annotate(); }
 
-    void annotation_record() {
-        if (task_record_annotation) {
-            task_record_annotation();
-            task_record_annotation = nullptr;
-        }
-    }
+	void annotation_record() {
+		if (task_record_annotation) {
+			std::async(std::launch::async, [task = task_record_annotation]() { task(); });
+			task_record_annotation = nullptr;
+		}
+	}
     void annotation_clear() {
         last_annotate_clicks.clear(); last_rgb_annotate = cv::Mat();
     }
@@ -331,11 +331,13 @@ void run()
         } current_pose;
 
         std::unique_ptr<rs2::pipeline> pipe;
+		std::deque<rs2_intrinsics> intr;
 
         auto start_t265_pipe = [&](){
             // Declare RealSense pipeline, encapsulating the actual device and sensors
             try {
                 current_pose = {};
+				intr.clear();
 
                 pipe = std::make_unique<rs2::pipeline>();
                 // Create a configuration for configuring the pipeline with a non default profile
@@ -354,18 +356,17 @@ void run()
                     stream_names[p.unique_id()] = p.stream_name();
                     printf("%s\n", p.stream_name().c_str());
 
-                    /**
                     auto vp = p.as<rs2::video_stream_profile>();
                     if (vp) {
-                        auto fi = vp.get_intrinsics();
+						intr.emplace_back(vp.get_intrinsics());
+						auto fi = intr.back();
                         printf("fisheye fx %.3f fy %.3f, px %.3f py %.3f, size %d %d,", fi.fx, fi.fy, fi.ppx, fi.ppy, fi.width, fi.height);
                         for (auto m : fi.coeffs) {
                             printf("%.3f ", m);
                         }
                         printf("\n");
-                    }
-                    **/
-                }
+                    }    
+				}
             }
             catch (...) {
                 t265_available = false;
@@ -512,65 +513,67 @@ void run()
                cv::rectangle(screen_img, win_annotate(), white, 1);
                cv::putText(screen_img, "   DONE", label(win_annotate()), CV_FONT_HERSHEY_DUPLEX, 0.5, white, 2);
             }
-            else {
-                // complete previous annotations
-                if (!g_app_data.last_rgb_annotate.empty()) {
-                    std::stringstream ss;
-                    ss << std::put_time(std::localtime(&g_app_data.last_capture_time), "%Y_%m_%d_%H_%M_%S");
+			else {
+				// complete previous annotations
+				if (!g_app_data.last_rgb_annotate.empty()) {
+					std::stringstream ss;
+					ss << std::put_time(std::localtime(&g_app_data.last_capture_time), "%Y_%m_%d_%H_%M_%S");
 
-                    g_app_data.task_record_annotation = [&, time_str = ss.str(), annotate_img = g_app_data.last_rgb_annotate.clone(), clicks = g_app_data.last_annotate_clicks](){
-                        
-                        std::string original_filename = "rgb_" + time_str;
-                        std::string annotated_filename = "rgb_annotated_" + time_str;
-                        cv::imwrite(folder_path + annotated_filename + ".jpg", annotate_img, { CV_IMWRITE_JPEG_QUALITY, 100 });
+					g_app_data.task_record_annotation = [&, time_str = ss.str(), annotate_img = g_app_data.last_rgb_annotate.clone(), clicks = g_app_data.last_annotate_clicks](){
 
-                        double xfactor = (double)cap_width / annotate_img.cols;
-                        double yfactor = (double)cap_height / annotate_img.rows;
+						std::string original_filename = "rgb_" + time_str;
+						std::string annotated_filename = "rgb_annotated_" + time_str;
+						cv::imwrite(folder_path + annotated_filename + ".jpg", annotate_img, { CV_IMWRITE_JPEG_QUALITY, 100 });
 
-                        Json::Value json_root, coord;
-                        json_root["type"] = "Feature";
-                        json_root["geometry"]["type"] = "MultiPolygon";
+						double xfactor = (double)cap_width / annotate_img.cols;
+						double yfactor = (double)cap_height / annotate_img.rows;
 
-                        for (int c = 0, r = 25; c < (int)clicks.size(); ++c) {
-                            std::vector<cv::Point> pts;
-                            cv::ellipse2Poly(clicks[c], cv::Size(r, r), 0, 0, 360, (int)(max(1.0, 180.0 * M_1_PI / r)), pts);
-                            for (int p = 0; p < (int)pts.size(); ++p) {
-                                if (pts[p].x < annotate_img.cols && pts[p].y < annotate_img.rows) {
-                                    coord[c][p][0] = pts[p].x * xfactor;
-                                    coord[c][p][1] = pts[p].y * yfactor;
-                                }
-                            }
-                        }
-                        json_root["geometry"]["coordinates"] = coord;
-                        json_root["properties"]["comment"] = "From RealSight/Insight POC " VERSION_STRING;
-                        json_root["properties"]["image"] = (original_filename + ".jpg").c_str();
-                        json_root["properties"]["name"] = "circle";
-                        json_root["properties"]["color"][0] = (int)yellow[0];
-                        json_root["properties"]["color"][1] = (int)yellow[1];
-                        json_root["properties"]["color"][2] = (int)yellow[2];
+						Json::Value json_root, coord;
+						json_root["type"] = "Feature";
+						json_root["geometry"]["type"] = "MultiPolygon";
 
-                        std::stringstream timestr; 
-                        timestr << std::put_time(std::localtime(&g_app_data.last_capture_time), "%Y-%m-%dT:%H:%M:%S.000Z");
-                        json_root["properties"]["created"] = timestr.str();
+						for (int c = 0, r = 25; c < (int)clicks.size(); ++c) {
+							std::vector<cv::Point> pts;
+							cv::ellipse2Poly(clicks[c], cv::Size(r, r), 0, 0, 360, (int)(max(1.0, 180.0 * M_1_PI / r)), pts);
+							for (int p = 0; p < (int)pts.size(); ++p) {
+								if (pts[p].x < annotate_img.cols && pts[p].y < annotate_img.rows) {
+									coord[c][p][0] = pts[p].x * xfactor;
+									coord[c][p][1] = pts[p].y * yfactor;
+								}
+							}
+						}
+						json_root["geometry"]["coordinates"] = coord;
+						json_root["properties"]["comment"] = "From RealSight/Insight POC " VERSION_STRING;
+						json_root["properties"]["image"] = (original_filename + ".jpg").c_str();
+						json_root["properties"]["name"] = "circle";
+						json_root["properties"]["color"][0] = (int)yellow[0];
+						json_root["properties"]["color"][1] = (int)yellow[1];
+						json_root["properties"]["color"][2] = (int)yellow[2];
 
-                        try {
-                            std::ofstream annotation_file;
-                            annotation_file.open(folder_path + original_filename + ".geojson", std::ios_base::out | std::ios_base::trunc);
-                            Json::StyledStreamWriter writer;
-                            writer.write(annotation_file, json_root);                            
-                        }
-                        catch (...) {
-                            printf("WARNING: error in writing geojson file.");
-                        }
-                    };
+						std::stringstream timestr;
+						timestr << std::put_time(std::localtime(&g_app_data.last_capture_time), "%Y-%m-%dT:%H:%M:%S.000Z");
+						json_root["properties"]["created"] = timestr.str();
 
-                    g_app_data.last_rgb_annotate = cv::Mat();
-                }
+						try {
+							std::ofstream annotation_file;
+							annotation_file.open(folder_path + original_filename + ".geojson", std::ios_base::out | std::ios_base::trunc);
+							Json::StyledStreamWriter writer;
+							writer.write(annotation_file, json_root);
+						}
+						catch (...) {
+							printf("WARNING: error in writing geojson file.");
+						}
+					};
 
-                if (g_app_data.is_system_run()) { //while not is_annotate()
-                    scn_warn << "Tagging/Uploading ... Please wait";
-                }
-            }
+					g_app_data.last_annotate_clicks.clear();
+					g_app_data.last_rgb_annotate = cv::Mat();
+				}
+
+				if (g_app_data.is_system_run() && !g_app_data.capture_request && g_app_data.new_rgb_capture.empty()) { //while not is_annotate()
+					scn_warn << "Tagging/Uploading ... ";
+					scn_warn << "           Please wait";
+				}
+			}
             //////////////////////////////////////////////////////////////////////////////////////////////////////
 
             for (int i = 0; i < (int)scn_msg.size(); ++i) {
@@ -578,7 +581,7 @@ void run()
             }
 
             for (int j = 0; j < (int)scn_warn.size(); ++j) {
-                cv::putText(screen_img, scn_warn[j], cv::Point(win_rgb().x + 50, win_rgb().y + win_rgb().height / 2 + 50 * j), CV_FONT_HERSHEY_DUPLEX, 1.25, yellow, 2);
+                cv::putText(screen_img, scn_warn[j], cv::Point(win_rgb().x + 50, win_rgb().y + win_rgb().height / 3 + 50 * j), CV_FONT_HERSHEY_DUPLEX, 1.25, yellow, 2);
             }
             
             auto label_color = [](bool flag) { return flag ? white : dark_gray; };
@@ -594,7 +597,7 @@ void run()
             cv::rectangle(screen_img, win_init(), white, g_app_data.is_highlight_init_button() ? 3 : 1);
             cv::putText(screen_img, " INIT NORTH", label(win_init()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
             cv::rectangle(screen_img, win_auto(), white, g_app_data.is_highlight_auto_button() ? 3 : 1);
-            cv::putText(screen_img, "  AUTO " + std::to_string(g_auto_capture_interval_s) + "s", label(win_auto()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
+            cv::putText(screen_img, "  AUTO " + std::to_string(g_auto_capture_interval_s) + "s", label(win_auto()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()||g_app_data.auto_request));
             cv::rectangle(screen_img, win_cam3(), white, camera_id == 3 ? 3 : 1);
             cv::putText(screen_img, "  CAM 3", label(win_cam3()), CV_FONT_HERSHEY_DUPLEX, 0.5, white);
             cv::rectangle(screen_img, win_cam2(), white, camera_id == 2 ? 3 : 1);
@@ -624,90 +627,95 @@ void run()
                     g_app_data.set_capture_request();
                 }
             }
-            if (g_app_data.capture_request && !g_app_data.new_rgb_capture.empty())
-            {
-                g_app_data.annotation_record();
+            if (g_app_data.capture_request && !g_app_data.is_system_run() && !g_app_data.new_rgb_capture.empty())
+			{
+				g_app_data.annotation_record();
 
-                g_app_data.last_capture_time = t;
-                current_pose.record_capture();
-                auto tm = *std::localtime(&t);
-                std::stringstream ss;
-                ss << std::put_time(&tm, "%Y_%m_%d_%H_%M_%S");
-                
-                std::string filename = "rgb_" + ss.str() + ".jpg";
-                last_file_written = folder_path + filename;
+				g_app_data.last_capture_time = t;
+				current_pose.record_capture();
 
-				if (g_app_data.new_rgb_capture.channels() == 1) {
-					cv::cvtColor(g_app_data.new_rgb_capture, g_app_data.last_rgb_capture, CV_BayerBG2BGR, 3);
-				}
-				else {
-					g_app_data.last_rgb_capture = g_app_data.new_rgb_capture.clone();
-				}
+				g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, 
+					[&, cp = current_pose, is_pose_available = (fs && p), cvfisheye = get_fisheye(fs,0).clone(), intr0 = intr[0]]() -> int 
+				{
+					auto tm = *std::localtime(&g_app_data.last_capture_time);
+					std::stringstream ss;
+					ss << std::put_time(&tm, "%Y_%m_%d_%H_%M_%S");
 
-                cv::imwrite(last_file_written, g_app_data.last_rgb_capture, { CV_IMWRITE_JPEG_QUALITY, 100 });
-                cv::resize(g_app_data.last_rgb_capture, g_app_data.last_rgb_thumbnail, win_annotate().size(), 0, 0, CV_INTER_NN);
-                
-                if (!index_file.is_open()) {
-                    index_file.open(folder_path + "pose.txt", std::ios_base::out | std::ios_base::trunc);
-                    index_file << g_str_origin << std::endl;
-                }
-                index_file << filename;
-                
-                if (p) {
-                    auto pf = p.as<rs2::pose_frame>();
-                    if (pf) {
-                        auto pd = pf.get_pose_data();
-                        index_file << "," << pd.translation.x << "," << pd.translation.y << "," << pd.translation.z;
-                        index_file << "," << pd.rotation.w << "," << pd.rotation.x << "," << pd.rotation.y << "," << pd.rotation.z;
-                    }
-                }
+					std::string filename = "rgb_" + ss.str() + ".jpg";
+					last_file_written = folder_path + filename;
 
-                if (fs && is_record_fisheye()) {
-                    std::string fisheye_0_filename = "fe0_" + ss.str() + ".jpg";
-                    index_file << "," << fisheye_0_filename;
-                    cv::imwrite(folder_path + fisheye_0_filename, get_fisheye(fs, 0), { CV_IMWRITE_JPEG_QUALITY, 100 });
-                    last_file_written = folder_path + "fe0_+" + filename;
+					if (g_app_data.new_rgb_capture.channels() == 1) {
+						cv::cvtColor(g_app_data.new_rgb_capture, g_app_data.last_rgb_capture, CV_BayerBG2BGR, 3);
+					}
+					else {
+						g_app_data.last_rgb_capture = g_app_data.new_rgb_capture.clone();
+					}
 
-                    if (!fisheye_calibration_file.is_open())
-                    {
-                        auto profile = fs.first_or_default(RS2_STREAM_FISHEYE).get_profile().as<rs2::video_stream_profile>();
-                        auto intr = profile.get_intrinsics();
+					cv::imwrite(last_file_written, g_app_data.last_rgb_capture, { CV_IMWRITE_JPEG_QUALITY, 100 });
+					cv::resize(g_app_data.last_rgb_capture, g_app_data.last_rgb_thumbnail, win_annotate().size(), 0, 0, CV_INTER_NN);
 
-                        Json::Value json_intr;
-                        json_intr["fx"] = intr.fx;
-                        json_intr["fy"] = intr.fy;
-                        json_intr["ppx"] = intr.ppx;
-                        json_intr["ppy"] = intr.ppy;
-                        json_intr["height"] = intr.height;
-                        json_intr["width"] = intr.width;
-                        json_intr["model"] = intr.model;
-                        json_intr["model_name"] = rs2_distortion_to_string(intr.model);
-                        for (const auto& c : intr.coeffs) {
-                            json_intr["coeff"].append(c);
-                        }
-                        Json::Value json_root;
-                        json_root["device"]["serial_numer"] = pipe->get_active_profile().get_device().get_info(RS2_CAMERA_INFO_SERIAL_NUMBER);
-                        json_root["fisheye"][0]["intrinsics"] = json_intr;
+					if (!index_file.is_open()) {
+						index_file.open(folder_path + "pose.txt", std::ios_base::out | std::ios_base::trunc);
+						index_file << g_str_origin << std::endl;
+					}
 
-                        try {
-                            fisheye_calibration_file.open(folder_path + "fisheye_calibration.txt", std::ios_base::out | std::ios_base::trunc);
-                            Json::StyledStreamWriter writer;
-                            writer.write(fisheye_calibration_file, json_root);
-                        }
-                        catch (...) {
-                            printf("WARNING: error in writing fisheye calibration file.");
-                        }
-                    }
-                }
-                
-                index_file << std::endl;
-                g_app_data.last_annotate_clicks.clear();
-				g_app_data.new_rgb_capture = cv::Mat();
-                g_app_data.capture_request = false; //capture request handled
+					index_file << filename;
+
+					if (is_pose_available) {
+						index_file << "," << cp.translation.x << "," << cp.translation.y << "," << cp.translation.z;
+						index_file << "," << cp.rotation.w << "," << cp.rotation.x << "," << cp.rotation.y << "," << cp.rotation.z;
+
+						if (is_record_fisheye()) {
+
+							std::string fisheye_0_filename = "fe0_" + ss.str() + ".jpg";
+							index_file << "," << fisheye_0_filename;
+							cv::imwrite(folder_path + fisheye_0_filename, cvfisheye, { CV_IMWRITE_JPEG_QUALITY, 100 });
+							last_file_written = folder_path + "fe0_+" + filename;
+
+							if (!fisheye_calibration_file.is_open())
+							{
+								Json::Value json_intr;
+								json_intr["fx"] = intr0.fx;
+								json_intr["fy"] = intr0.fy;
+								json_intr["ppx"] = intr0.ppx;
+								json_intr["ppy"] = intr0.ppy;
+								json_intr["height"] = intr0.height;
+								json_intr["width"] = intr0.width;
+								json_intr["model"] = intr0.model;
+								json_intr["model_name"] = rs2_distortion_to_string(intr0.model);
+								for (const auto& c : intr0.coeffs) {
+									json_intr["coeff"].append(c);
+								}
+								Json::Value json_root;
+								json_root["device"]["serial_numer"] = pipe->get_active_profile().get_device().get_info(RS2_CAMERA_INFO_SERIAL_NUMBER);
+								json_root["fisheye"][0]["intrinsics"] = json_intr;
+
+								try {
+									printf("INFO: writing fisheye calibration file");
+									fisheye_calibration_file.open(folder_path + "fisheye_calibration.txt", std::ios_base::out | std::ios_base::trunc);
+									Json::StyledStreamWriter writer;
+									writer.write(fisheye_calibration_file, json_root);
+								}
+								catch (...) {
+									printf("WARNING: error in writing fisheye calibration file.");
+								}
+							}
+						}
+					}
+
+					index_file << std::endl;
+					g_app_data.new_rgb_capture = cv::Mat();
+					g_app_data.capture_request = false; //capture request handled
+					g_app_data.system_thread.reset();
+
+					return 0;
+				}));
             }
             if (g_app_data.script_request && !g_app_data.is_system_run()) {
-                g_app_data.annotation_record();
-                g_app_data.annotation_clear();
+
+				g_app_data.auto_request = g_app_data.capture_request = false;
+				g_app_data.new_rgb_capture = cv::Mat();
+				g_app_data.annotation_record();
 
                 g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, [&]() -> int {
                     auto rtn = system(SCRIPT_COMMAND);
@@ -718,8 +726,10 @@ void run()
                 g_app_data.script_request = false; //script process request handled
             }
 			if (g_app_data.bin_request && !g_app_data.is_system_run()) {
-                g_app_data.annotation_record();
-                g_app_data.annotation_clear();
+
+				g_app_data.auto_request = g_app_data.capture_request = false;
+				g_app_data.new_rgb_capture = cv::Mat(); 
+				g_app_data.annotation_record();
 
                 g_app_data.system_thread = std::make_unique<std::future<int>>(std::async(std::launch::async, [&]() -> int {
                     auto rtn = system(BIN_COMMAND);
@@ -768,7 +778,7 @@ void run()
                                 if (win_script().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_script_request(); } }
                                 if (win_capture().contains(cv::Point(x, y))) { if (is_button_on() && !g_app_data.auto_request) { g_app_data.set_capture_request(); } }
                                 if (win_init().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_init_request(); } }
-                                if (win_auto().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_auto_request(); } }
+                                if (win_auto().contains(cv::Point(x, y))) { if (is_button_on()||g_app_data.auto_request) { g_app_data.set_auto_request(); } }
                                 if (win_fisheye().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_fisheye_request(); } }
                                 if (win_cam0().contains(cv::Point(x, y))) { g_app_data.cam0_request = true; }
                                 if (win_cam1().contains(cv::Point(x, y))) { g_app_data.cam1_request = true; }

@@ -348,11 +348,13 @@ void run()
             // Declare RealSense pipeline, encapsulating the actual device and sensors
             try {
 
+				/**
 				rs2::context ctx;
 				if (ctx.query_devices().size() == 0) {
 					t265_available = false;
 					return;
 				}
+				*/
 
                 current_pose = {};
 				intr.clear();

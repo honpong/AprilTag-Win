@@ -40,5 +40,3 @@ DEL /F /Q %SRC%\outputllh_short.csv
  ECHO TAGGED JPEGS: %cd%\%DST% &^
  ECHO UPLOADED TO: "https://dev.ixstack.net/app/browse/projects" &^
  ECHO SURVEY NAME: %SURVEY_NAME%) | MSG *
-
-EXIT 0

@@ -32,8 +32,12 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     xmp_principal_point        = cam["xmp"]["principal_point"]
     xmp_perspective_distortion = cam["xmp"]["perspective_distortion"]
 
-    exif_make = cam["exif"]["make"]
-    exif_model = cam["exif"]["model"]
+    exif_make                       = cam["exif"]["make"]
+    exif_model                      = cam["exif"]["model"]
+    exif_focalplane_x_resolution    = cam["exif"]["focalplane_x_resolution"]
+    exif_focalplane_y_resolution    = cam["exif"]["focalplane_y_resolution"]
+    exif_focal_length               = cam["exif"]["focal_length"]
+    exif_focalplane_resolution_unit = cam["exif"]["focalplane_resolution_unit"]
 
     # Write exif part
     # extracting a thumbnail to embed
@@ -46,11 +50,11 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     zeroth_ifd = {piexif.ImageIFD.Make: exif_make, #u"Intel InSense", 
                   piexif.ImageIFD.Model: exif_model, #u"InSense Logitech",
                 }
-    exif_ifd = {piexif.ExifIFD.DateTimeOriginal: u"2019:04:27 01:02:03",
-                piexif.ExifIFD.FocalPlaneResolutionUnit: 4, #2 = inch  3 = cm  4 = mm
-                piexif.ExifIFD.FocalPlaneXResolution: (16126,100),
-                piexif.ExifIFD.FocalPlaneYResolution: (16126,100),
-                piexif.ExifIFD.FocalLength: (185779,10000) # length, rational, in mm
+    exif_ifd = {piexif.ExifIFD.DateTimeOriginal: u"2019:05:08 01:02:03",
+                piexif.ExifIFD.FocalPlaneResolutionUnit: exif_focalplane_resolution_unit, #2 = inch  3 = cm  4 = mm
+                piexif.ExifIFD.FocalPlaneXResolution: exif_focalplane_x_resolution,
+                piexif.ExifIFD.FocalPlaneYResolution: exif_focalplane_y_resolution,
+                piexif.ExifIFD.FocalLength: exif_focal_length # length, rational, in mm
                 }
     gps_ifd = {piexif.GPSIFD.GPSVersionID: (2, 3, 0, 0),
                 piexif.GPSIFD.GPSLongitudeRef: bytes(dataToWrite[6], 'utf-8'),
@@ -99,7 +103,7 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     xmpfile.put_xmp(xmp)
     xmpfile.close_file()
 
-    print(" xmp " + xmp_model_type + " pp:" + xmp_principal_point + " pdist:" + xmp_perspective_distortion)
+    print(" xmp " + xmp_model_type + " pp:" + xmp_principal_point + " pf:" + xmp_perspective_focal + " pdist:" + xmp_perspective_distortion)
 
 ##### PROGRAM
 

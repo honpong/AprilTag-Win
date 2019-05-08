@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: python-delairstack
+Version: 1.0.0
+Summary: High-level Python interface to Delair-Stack API
+Home-page: http://srvdev.delair.local/delair-stack/python-delairstack
+Author: Mathieu Dhainaut
+Author-email: mathieu.dhainaut@delair.aero
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN

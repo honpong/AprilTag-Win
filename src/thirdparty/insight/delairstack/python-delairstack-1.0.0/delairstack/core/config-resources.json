@@ -1,0 +1,28 @@
+{
+  "resources": {
+    "projects": {
+      "class": "ProjectsImpl",
+      "module": "delairstack.apis.client.projectmngt.projectsimpl"
+    },
+    "missions": {
+      "class": "MissionsImpl",
+      "module": "delairstack.apis.client.projectmngt.missionsimpl"
+    },
+    "deliverables": {
+      "class": "DeliverablesImpl",
+      "module": "delairstack.apis.client.projectmngt.deliverablesimpl"
+    },
+    "dxobjects": {
+      "class": "DXObjectsImpl",
+      "module": "delairstack.apis.client.projectmngt.dxobjectsimpl"
+    },
+    "annotations": {
+      "class": "AnnotationsImpl",
+      "module": "delairstack.apis.client.projectmngt.annotationsimpl"
+    },
+    "photos": {
+      "class": "PhotosImpl",
+      "module": "delairstack.apis.client.projectmngt.photosimpl"
+    }
+  }
+}

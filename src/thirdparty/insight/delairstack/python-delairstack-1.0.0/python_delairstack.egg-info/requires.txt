@@ -1,0 +1,11 @@
+urllib3
+requests-futures
+
+[coverage]
+coverage>=4.4
+
+[development]
+pycodestyle
+
+[documentation]
+sphinx

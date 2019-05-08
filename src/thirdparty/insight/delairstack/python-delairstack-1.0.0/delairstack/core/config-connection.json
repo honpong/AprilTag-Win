@@ -1,0 +1,10 @@
+{
+  "user": "",
+  "password": "",
+  "secret": "",
+  "url": "https://staging.dxstack.net",
+  "connection": {
+    "max_retries": 1,
+    "disable_ssl_certificate": true
+  }
+}

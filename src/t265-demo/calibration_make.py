@@ -36,8 +36,8 @@ def make_default_json():
 
     #exif_make                       = u"Intel InSense"
     #exif_model                      = u"InSense Blackfly S" #u"InSense Logitech"  
-    #exif_focalplane_x_resolution    = (16126,100)
-    #exif_focalplane_y_resolution    = (16126,100)
+    #exif_focalplane_x_resolution    = (416666667,1000000)
+    #exif_focalplane_y_resolution    = (416666667,1000000)
     #exif_focal_length               = (79711776,1000000)
     #exif_focalplane_resolution_unit = 4  #2 = inch  3 = cm  4 = mm
 
@@ -50,8 +50,8 @@ def make_default_json():
 
     exif_make                       = u"Intel InSense"
     exif_model                      = u"InSense Blackfly S" #u"InSense Logitech"  
-    exif_focalplane_x_resolution    = (16126,100)
-    exif_focalplane_y_resolution    = (16126,100)
+    exif_focalplane_x_resolution    = (416666667,1000000)
+    exif_focalplane_y_resolution    = (416666667,1000000)
     exif_focal_length               = (12397926,1000000)
     exif_focalplane_resolution_unit = 4  #2 = inch  3 = cm  4 = mm
 

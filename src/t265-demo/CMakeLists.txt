@@ -44,8 +44,7 @@ set(SPINNAKER_LIB_DIR "${SPINNAKER_DIR}/lib${PLATFORM_SUFFIX}/vs2015"
                       "${SPINNAKER_DIR}/lib${PLATFORM_SUFFIX}"
                       )
 set(SPINNAKER_LIB     Spinnaker$<$<CONFIG:Debug>:d>_v140)
-set(SPINNAKER_BIN_DIR "${SPINNAKER_DIR}/bin{PLATFORM_SUFFIX}/vs2015")
-set(SPINNAKER_BIN     ${SPINNAKER_LIB}.dll)
+set(SPINNAKER_BIN_DIR "${SPINNAKER_DIR}/bin${PLATFORM_SUFFIX}/vs2015")
 set(SPINNAKER_DEP_DIR "${SPINNAKER_DIR}/dependencies/GenICam_v3_0/bin/${DEP_FOLDER}/msvc2015")
 message(STATUS "SPINNAKER_LIB_DIR ${SPINNAKER_LIB_DIR}")
 message(STATUS "SPINNAKER_DEP_DIR ${SPINNAKER_DEP_DIR}")
@@ -133,6 +132,8 @@ if(MSVC)
 
     if(SPINNAKER_DIR)
         FILE(GLOB SPINNAKER_DEP_LIB "${SPINNAKER_DEP_DIR}/*.dll")
+        FILE(GLOB SPINNAKER_BIN "${SPINNAKER_BIN_DIR}/*.dll")
+        message(STATUS "SPINNAKER_BIN ${SPINNAKER_BIN_DIR}")
         foreach(dll IN LISTS SPINNAKER_DEP_LIB)
             add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${dll} "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
         endforeach(dll)

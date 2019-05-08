@@ -3,7 +3,7 @@
 ECHO %1
 
 :: set survey name
-set SURVEY_NAME=InSense_%date%_%time%
+set SURVEY_NAME=InSense_%date:~10,4%_%date:~4,2%_%date:~7,2%_%time:~0,2%_%time:~3,2%_%time:~6,2%_%time:~9,2%
 
 :: set default path
 if [%1]==[] (SET SRC=".\capture") else (SET SRC=%1) 

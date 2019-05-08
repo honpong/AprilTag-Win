@@ -762,6 +762,10 @@ struct spinnaker_cam : public rgb_cam
 
             std::cout << "ExposureAuto set to continuous..." << std::endl;
 
+            pCam->BalanceWhiteAuto.SetValue(Spinnaker::BalanceWhiteAutoEnums::BalanceWhiteAuto_Continuous);
+
+            std::cout << "BalanceWhiteAuto set to continuous..." << std::endl;
+
 
 #ifdef _DEBUG
             std::cout << std::endl << std::endl << "*** DEBUG ***" << std::endl << std::endl;

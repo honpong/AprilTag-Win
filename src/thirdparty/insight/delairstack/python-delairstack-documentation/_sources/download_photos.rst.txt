@@ -1,0 +1,62 @@
+Download photos
+===============
+
+This mini how-to explains how to download photos and make some
+processing.
+
+Using a `DelairStackSDK` instance (see `First Steps <first_steps.html>`__), get the resource managers::
+
+    photos = sdk.resources('photos')
+    missions = sdk.resources('missions')
+    projects = sdk.resources('projects')
+    annotations = sdk.resources('annotations')
+
+
+Photos are attached to missions, and missions to projects::
+
+    # searches the project given a project name
+    result_projects = projects.search(name='Unit Project')
+
+    # gets the first one of the list (arbitrary choice in this example)
+    project = result_projects[0]
+
+    # gets the list of mission depending of the project
+    missions = missions.search(project=project)
+
+    # gets the first one of the list (arbitrary choice in this example)
+    mission = mission=missions[0]
+
+    # gets the photos contained in the mission
+    result_photos = photos.search(mission=mission)
+
+Now, let's run a process that detect features in the photo, for
+example find all trucks, and create annotations for the detected
+features::
+
+    def find_truck(picture):
+        # Do some stuff...
+        return {
+            "type": "Feature",
+            "geometry": {"type": "Polygon", "coordinates": [
+                [[1845.2376359468326, 1752.0800077242748], [1470.2184659226866, 1632.6471510286867],
+                 [1577.7080369487157, 1264.793952406276], [1790.2985218668623, 1166.859009915894],
+                 [2215.479491703155, 1233.7414096654231], [2117.544549212773, 1644.5904366982456],
+                 [2002.8890067850086, 1744.9140363225395], [1845.2376359468326, 1752.0800077242748]]]},
+            "properties": {
+                "name": "Truck",
+                "comment": "Description name",
+                "color": [8, 99, 247],
+                "text": "Some annotation comments"
+                }
+            }
+    for photo in result_photos:
+        # find the trucks contained inside this picture
+        truck_geojson = find_truck(photo)
+
+        # annotate the photo by sending the annotation to the server
+        annotation = annotations.create(project=project, photo=result_photos[0], geojson=truck_geojson)
+
+
+
+
+

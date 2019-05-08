@@ -1,0 +1,159 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Download photos &#8212; delairstack  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CRUD" href="crud.html" />
+    <link rel="prev" title="First Steps" href="first_steps.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="download-photos">
+<h1>Download photos<a class="headerlink" href="#download-photos" title="Permalink to this headline">¶</a></h1>
+<p>This mini how-to explains how to download photos and make some
+processing.</p>
+<p>Using a <cite>DelairStackSDK</cite> instance (see <a class="reference external" href="first_steps.html">First Steps</a>), get the resource managers:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">photos</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">resources</span><span class="p">(</span><span class="s1">&#39;photos&#39;</span><span class="p">)</span>
+<span class="n">missions</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">resources</span><span class="p">(</span><span class="s1">&#39;missions&#39;</span><span class="p">)</span>
+<span class="n">projects</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">resources</span><span class="p">(</span><span class="s1">&#39;projects&#39;</span><span class="p">)</span>
+<span class="n">annotations</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">resources</span><span class="p">(</span><span class="s1">&#39;annotations&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Photos are attached to missions, and missions to projects:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># searches the project given a project name</span>
+<span class="n">result_projects</span> <span class="o">=</span> <span class="n">projects</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Unit Project&#39;</span><span class="p">)</span>
+
+<span class="c1"># gets the first one of the list (arbitrary choice in this example)</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">result_projects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># gets the list of mission depending of the project</span>
+<span class="n">missions</span> <span class="o">=</span> <span class="n">missions</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">)</span>
+
+<span class="c1"># gets the first one of the list (arbitrary choice in this example)</span>
+<span class="n">mission</span> <span class="o">=</span> <span class="n">mission</span><span class="o">=</span><span class="n">missions</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># gets the photos contained in the mission</span>
+<span class="n">result_photos</span> <span class="o">=</span> <span class="n">photos</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">mission</span><span class="o">=</span><span class="n">mission</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now, let’s run a process that detect features in the photo, for
+example find all trucks, and create annotations for the detected
+features:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">find_truck</span><span class="p">(</span><span class="n">picture</span><span class="p">):</span>
+    <span class="c1"># Do some stuff...</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Feature&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">[[</span><span class="mf">1845.2376359468326</span><span class="p">,</span> <span class="mf">1752.0800077242748</span><span class="p">],</span> <span class="p">[</span><span class="mf">1470.2184659226866</span><span class="p">,</span> <span class="mf">1632.6471510286867</span><span class="p">],</span>
+             <span class="p">[</span><span class="mf">1577.7080369487157</span><span class="p">,</span> <span class="mf">1264.793952406276</span><span class="p">],</span> <span class="p">[</span><span class="mf">1790.2985218668623</span><span class="p">,</span> <span class="mf">1166.859009915894</span><span class="p">],</span>
+             <span class="p">[</span><span class="mf">2215.479491703155</span><span class="p">,</span> <span class="mf">1233.7414096654231</span><span class="p">],</span> <span class="p">[</span><span class="mf">2117.544549212773</span><span class="p">,</span> <span class="mf">1644.5904366982456</span><span class="p">],</span>
+             <span class="p">[</span><span class="mf">2002.8890067850086</span><span class="p">,</span> <span class="mf">1744.9140363225395</span><span class="p">],</span> <span class="p">[</span><span class="mf">1845.2376359468326</span><span class="p">,</span> <span class="mf">1752.0800077242748</span><span class="p">]]]},</span>
+        <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Truck&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Description name&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">247</span><span class="p">],</span>
+            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="s2">&quot;Some annotation comments&quot;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+<span class="k">for</span> <span class="n">photo</span> <span class="ow">in</span> <span class="n">result_photos</span><span class="p">:</span>
+    <span class="c1"># find the trucks contained inside this picture</span>
+    <span class="n">truck_geojson</span> <span class="o">=</span> <span class="n">find_truck</span><span class="p">(</span><span class="n">photo</span><span class="p">)</span>
+
+    <span class="c1"># annotate the photo by sending the annotation to the server</span>
+    <span class="n">annotation</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">project</span><span class="p">,</span> <span class="n">photo</span><span class="o">=</span><span class="n">result_photos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">geojson</span><span class="o">=</span><span class="n">truck_geojson</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">delairstack</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="first_steps.html">First Steps</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Download photos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crud.html">CRUD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="first_steps.html" title="previous chapter">First Steps</a></li>
+      <li>Next: <a href="crud.html" title="next chapter">CRUD</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Delair.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/download_photos.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,21 @@
+Welcome to DelairStack Python SDK documentation!
+================================================
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contents:
+
+   first_steps
+   download_photos
+   crud
+   reference
+
+The Python SDK offers users a high-level Python interface to
+Delair-Stack APIs.
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

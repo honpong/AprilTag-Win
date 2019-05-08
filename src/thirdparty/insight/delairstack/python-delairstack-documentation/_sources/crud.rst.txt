@@ -1,0 +1,93 @@
+CRUD
+====
+
+The SDK supports the usual CRUD actions through resources managers.
+Resource manager instances have methods `create()`, `get()`, `delete()`,
+`update()` and `search()`.
+
+Let's illustrate those methods with an example using the annotations
+resources manager.
+
+Create
+------
+
+Let's create an annotation on project::
+
+    # gets the resource manager
+    annotations = sdk.resources(resource_name='annotations')
+
+    # gets a project
+    projects = sdk.resources(resource_name='projects')
+    project = projects[0]
+
+    # creates a GeoJSON
+    xmin = 4.387072438909058
+    xmax = 8.034533376409058
+    ymin = 44.48207258784539
+    ymax = 47.26550167777244
+
+    geojson_polygon = {
+        'type': 'Feature',
+        'geometry': {
+            'type': 'Polygon',
+            'coordinates': [[[xmin, ymax], [xmax, ymax], [xmax, ymin], [xmin, ymin], [xmin, ymax]]]
+            },
+        'properties': {
+            'name': 'My Polygon',
+            'comment': 'Test a polygon annotation'
+            }
+        }
+
+    # creates an annotation using the resource manager
+    my_annotation = annotations.create(project=last_project, geojson=geojson_polygon, target='2d')
+
+
+Update
+------
+
+Let's update the previously created annotation::
+
+    # add a color
+    color = {
+        'color': [8, 99, 247]
+    }
+
+    # changes features attribute
+    my_annotation.feature['properties'].update(color)
+
+    # update the object
+    annotations.update(resource=my_annotation)
+
+Delete
+------
+
+Now we can delete this annotation::
+
+    # delete annotation
+    annotations.delete(resource=my_annotation)
+
+
+Get
+---
+
+We can directly get an object if we know its id. In that example,
+suppose that there exists an annotation with the `id` equal to 123456789::
+
+    # gets the annotation
+    my_annotation = annotations.get(id='123456789')
+
+Search
+------
+
+You can search annotation by project id::
+
+    filtered_annotations = annotations.search(project=<some_project_resource>)
+
+For example, if you want to find an annotation given its name::
+
+    filtered_annotation = annotations.search(project=my_project)
+    for annotation in filtered_annotation:
+        if annotation.feature['properties']['name'] == '<annotation_name>':
+            """
+                Do some stuff
+            """

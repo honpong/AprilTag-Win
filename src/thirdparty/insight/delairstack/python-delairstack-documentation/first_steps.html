@@ -1,0 +1,200 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>First Steps &#8212; delairstack  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Download photos" href="download_photos.html" />
+    <link rel="prev" title="Welcome to DelairStack Python SDK documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="first-steps">
+<h1>First Steps<a class="headerlink" href="#first-steps" title="Permalink to this headline">¶</a></h1>
+<dl class="docutils">
+<dt>The DelairStack Python SDK provides:</dt>
+<dd><ul class="first last simple">
+<li>Access to some services resources</li>
+<li>Access to common operations on services resources</li>
+<li>Handles requests authentication tokens</li>
+</ul>
+</dd>
+</dl>
+<div class="section" id="create-a-configuration-file">
+<h2>Create a configuration file<a class="headerlink" href="#create-a-configuration-file" title="Permalink to this headline">¶</a></h2>
+<p>The configuration file contains your credential details. For example
+create the file <cite>config.json</cite> in your working directory, with the
+following content:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;EMAIL&gt;&quot;</span><span class="p">,</span>
+  <span class="s2">&quot;password&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;PASSWORD&gt;&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-delairstacksdk-instance">
+<h2>Create <code class="docutils literal notranslate"><span class="pre">DelairStackSDK</span></code> instance<a class="headerlink" href="#create-delairstacksdk-instance" title="Permalink to this headline">¶</a></h2>
+<p>All usage starts with the creation of a <cite>DelairStackSDK</cite> instance:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">delairstack</span> <span class="k">import</span> <span class="n">DelairStackSDK</span>
+<span class="n">sdk</span> <span class="o">=</span> <span class="n">DelairStackSDK</span><span class="p">(</span><span class="s1">&#39;./config.json&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get-a-project">
+<h2>Get a project<a class="headerlink" href="#get-a-project" title="Permalink to this headline">¶</a></h2>
+<p>First get the resource manager dedicated to projects using the <cite>resources</cite> method:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">projects</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">resources</span><span class="p">(</span><span class="s1">&#39;projects&#39;</span><span class="p">)</span>
+
+<span class="c1"># gets list of matching projects</span>
+<span class="n">result_projects</span> <span class="o">=</span> <span class="n">projects</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Test project&#39;</span><span class="p">)</span>
+
+<span class="c1"># gets the last one</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">result_projects</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-a-deliverable">
+<h2>Create a deliverable<a class="headerlink" href="#create-a-deliverable" title="Permalink to this headline">¶</a></h2>
+<p>You can now use the resource manager for deliverables, it allows all CRUD actions on the resource:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">deliverables</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">resources</span><span class="p">(</span><span class="s1">&#39;deliverables&#39;</span><span class="p">)</span>
+
+<span class="n">my_deliverable</span> <span class="o">=</span> <span class="n">deliverables</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s1">&#39;&lt;some name&gt;&#39;</span><span class="p">,,</span>
+                    <span class="n">product_type</span><span class="o">=</span><span class="n">ProductDefinition</span><span class="o">.</span><span class="n">VECTOR</span><span class="p">,</span>
+                    <span class="n">project</span><span class="o">=</span><span class="n">my_project</span><span class="p">)</span>
+<span class="c1"># upload a file</span>
+<span class="n">deliverables</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">deliverable</span><span class="o">=</span><span class="n">my_deliverable</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&lt;some absolute path file&gt;&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="find-an-existing-deliverable">
+<h2>Find an existing deliverable<a class="headerlink" href="#find-an-existing-deliverable" title="Permalink to this headline">¶</a></h2>
+<p>A project is a container of missions; And deliverables are attached to
+missions. The following code snippet shows how to iterate through all
+deliverables attached to the missions of a given project:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># gets missions associated to a project</span>
+<span class="n">filtered_missions</span> <span class="o">=</span> <span class="n">missions</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">my_project</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">mission</span> <span class="ow">in</span> <span class="n">filtered_missions</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">deliverable</span> <span class="ow">in</span> <span class="n">mission</span><span class="o">.</span><span class="n">deliverables</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">deliverable</span><span class="p">[</span><span class="s1">&#39;displayName&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&lt;deliverable_name&gt;&#39;</span><span class="p">:</span>
+            <span class="c1"># Do some stuff with the deliverable</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="download-files">
+<h2>Download files<a class="headerlink" href="#download-files" title="Permalink to this headline">¶</a></h2>
+<p>Files attached to a deliverable have their metadata gathered on a
+resource called <cite>dxobject</cite>. What’s more it describes the location of
+the file data on the cloud storage. So to download a file, one must
+fetch that resource then call the <cite>download()</cite> method:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dxobjects</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sdk</span><span class="o">.</span><span class="n">resources</span><span class="p">(</span><span class="n">resource_name</span><span class="o">=</span><span class="s2">&quot;dxobjects&quot;</span><span class="p">)</span>
+
+<span class="c1"># gets the dxobject resource using its corresponding resource manager</span>
+<span class="n">my_dxobject</span> <span class="o">=</span> <span class="n">dxobjects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">deliverable</span><span class="o">=</span><span class="n">my_deliverable</span><span class="p">)</span>
+
+<span class="c1"># downloads the file</span>
+<span class="n">dxobjects</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">dxobject</span><span class="o">=</span><span class="n">my_dxobject</span><span class="p">,</span> <span class="n">destination_directory_path</span><span class="o">=</span><span class="s2">&quot;&lt;some local destination directory&gt;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="upload-a-deliverable">
+<h2>Upload a deliverable<a class="headerlink" href="#upload-a-deliverable" title="Permalink to this headline">¶</a></h2>
+<p>The resource manager for deliverables allows to upload a list of files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">deliverables</span><span class="o">.</span><span class="n">upload</span><span class="p">(</span><span class="n">deliverable</span><span class="o">=</span><span class="n">my_deliverable</span><span class="p">,</span> <span class="n">files</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;&lt;some_file_path&gt;&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">delairstack</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">First Steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download_photos.html">Download photos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crud.html">CRUD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to DelairStack Python SDK documentation!</a></li>
+      <li>Next: <a href="download_photos.html" title="next chapter">Download photos</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Delair.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/first_steps.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

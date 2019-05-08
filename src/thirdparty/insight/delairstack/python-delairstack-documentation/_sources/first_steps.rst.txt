@@ -1,0 +1,101 @@
+First Steps
+===========
+
+The DelairStack Python SDK provides:
+  * Access to some services resources
+  * Access to common operations on services resources
+  * Handles requests authentication tokens
+
+Create a configuration file
+---------------------------
+
+The configuration file contains your credential details. For example
+create the file `config.json` in your working directory, with the
+following content::
+
+   {
+     "user": "<EMAIL>",
+     "password": "<PASSWORD>"
+   }
+
+
+Create ``DelairStackSDK`` instance
+----------------------------------
+
+All usage starts with the creation of a `DelairStackSDK` instance::
+
+    from delairstack import DelairStackSDK
+    sdk = DelairStackSDK('./config.json')
+
+
+Get a project
+--------------
+
+First get the resource manager dedicated to projects using the `resources` method::
+
+        projects = sdk.resources('projects')
+
+        # gets list of matching projects
+        result_projects = projects.search(name='Test project')
+
+        # gets the last one
+        project = result_projects.pop()
+
+
+Create a deliverable
+--------------------
+
+You can now use the resource manager for deliverables, it allows all CRUD actions on the resource::
+
+    deliverables = sdk.resources('deliverables')
+
+    my_deliverable = deliverables.create(
+                        name='<some name>',,
+                        product_type=ProductDefinition.VECTOR,
+                        project=my_project)
+    # upload a file
+    deliverables.upload(deliverable=my_deliverable, files=['<some absolute path file>'])
+
+
+Find an existing deliverable
+----------------------------
+
+A project is a container of missions; And deliverables are attached to
+missions. The following code snippet shows how to iterate through all
+deliverables attached to the missions of a given project::
+
+    # gets missions associated to a project
+    filtered_missions = missions.search(project=my_project)
+
+    for mission in filtered_missions:
+        for deliverable in mission.deliverables:
+            if deliverable['displayName'] == '<deliverable_name>':
+                # Do some stuff with the deliverable
+
+
+Download files
+--------------
+
+Files attached to a deliverable have their metadata gathered on a
+resource called `dxobject`. What's more it describes the location of
+the file data on the cloud storage. So to download a file, one must
+fetch that resource then call the `download()` method::
+
+    dxobjects = self.sdk.resources(resource_name="dxobjects")
+
+    # gets the dxobject resource using its corresponding resource manager
+    my_dxobject = dxobjects.get(deliverable=my_deliverable)
+
+    # downloads the file
+    dxobjects.download(dxobject=my_dxobject, destination_directory_path="<some local destination directory>")
+
+
+Upload a deliverable
+--------------------
+
+The resource manager for deliverables allows to upload a list of files::
+
+    deliverables.upload(deliverable=my_deliverable, files=['<some_file_path>'])
+
+
+

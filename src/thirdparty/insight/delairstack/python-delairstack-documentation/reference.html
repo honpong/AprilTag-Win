@@ -1,0 +1,766 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Reference &#8212; delairstack  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="CRUD" href="crud.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-delairstack.sdk">
+<span id="reference"></span><h1>Reference<a class="headerlink" href="#module-delairstack.sdk" title="Permalink to this headline">¶</a></h1>
+<p>Base SDK module to get the resources.</p>
+<dl class="class">
+<dt id="delairstack.sdk.DelairStackSDK">
+<em class="property">class </em><code class="descclassname">delairstack.sdk.</code><code class="descname">DelairStackSDK</code><span class="sig-paren">(</span><em>config_path=None</em>, <em>*</em>, <em>resources_config_path=None</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.sdk.DelairStackSDK" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class providing a single resource accessor to get the resource manager objects.</p>
+<dl class="method">
+<dt id="delairstack.sdk.DelairStackSDK.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.sdk.DelairStackSDK.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close connections stream if any</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.sdk.DelairStackSDK.resources">
+<code class="descname">resources</code><span class="sig-paren">(</span><em>resource_name: str</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.sdk.DelairStackSDK.resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a resource manager corresponding to the name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource_name</strong> – the name of the project manager to
+instantiate:’projects’|’annotations’|’deliverables’|’dxobjects’|’missions’</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: ResourceManagerBase</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-delairstack.core.resources.resources_manager_base"></span><p>Module in charge of handling CRUD actions of a Resource.</p>
+<dl class="class">
+<dt id="delairstack.core.resources.resources_manager_base.ResourcesManagerBase">
+<em class="property">class </em><code class="descclassname">delairstack.core.resources.resources_manager_base.</code><code class="descname">ResourcesManagerBase</code><span class="sig-paren">(</span><em>*</em>, <em>provider: delairstack.apis.provider.Provider</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.core.resources.resources_manager_base.ResourcesManagerBase" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class implements CRUD for any Resource.</p>
+<dl class="method">
+<dt id="delairstack.core.resources.resources_manager_base.ResourcesManagerBase.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.core.resources.resources_manager_base.ResourcesManagerBase.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> – </td>
+</tr>
+</tbody>
+</table>
+<p>Returns: Resource</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.core.resources.resources_manager_base.ResourcesManagerBase.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>*</em>, <em>resource: delairstack.core.resources.resource.Resource</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.core.resources.resources_manager_base.ResourcesManagerBase.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource</strong> – the resource to delete</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: True</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.core.resources.resources_manager_base.ResourcesManagerBase.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>*</em>, <em>id: str</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.core.resources.resources_manager_base.ResourcesManagerBase.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get an object by its id.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>id</strong> – the id</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: Resource</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.core.resources.resources_manager_base.ResourcesManagerBase.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>*</em>, <em>query</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.core.resources.resources_manager_base.ResourcesManagerBase.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search objects matching with the query defining the criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> – criteria to search the object</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: [Resource]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.core.resources.resources_manager_base.ResourcesManagerBase.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>*</em>, <em>resource: delairstack.core.resources.resource.Resource</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.core.resources.resources_manager_base.ResourcesManagerBase.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource</strong> – the resource to update</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: Resource</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-delairstack.apis.client.projectmngt.annotationsimpl"></span><p>Module dedicated to the annotation resource management</p>
+<dl class="class">
+<dt id="delairstack.apis.client.projectmngt.annotationsimpl.AnnotationsImpl">
+<em class="property">class </em><code class="descclassname">delairstack.apis.client.projectmngt.annotationsimpl.</code><code class="descname">AnnotationsImpl</code><span class="sig-paren">(</span><em>project_manager_api</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.annotationsimpl.AnnotationsImpl" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class represents an accessor to handle annotation objects and actions</p>
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.annotationsimpl.AnnotationsImpl.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>project: delairstack.core.resources.resource.Resource</em>, <em>geojson: dict</em>, <em>photo: delairstack.core.resources.resource.Resource = None</em>, <em>target: str = '2d'</em>, <em>properties: dict = None</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.annotationsimpl.AnnotationsImpl.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an Annotation object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> (<em>Resource</em>) – the project used to associate the annotation</li>
+<li><strong>geojson</strong> (<em>dict</em>) – <p>the geojson defining the features</p>
+<p>Examples:</p>
+<dl class="docutils">
+<dt>json_polygon = {</dt>
+<dd>‘type’: ‘Feature’,
+‘geometry’: {<blockquote>
+<div>’type’: ‘Polygon’,
+‘coordinates’: [<blockquote>
+<div><dl class="docutils">
+<dt>[</dt>
+<dd>[xmin, ymax],
+[xmax, ymax],
+[xmax, ymin],
+[xmin, ymin],
+[xmin, ymax]</dd>
+</dl>
+<p>]</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+‘properties’: {</p>
+<blockquote>
+<div>’name’: ‘My Polygon’,
+‘comment’: ‘Test a polygon annotation’</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<dl class="docutils">
+<dt>geojson_point = {</dt>
+<dd>“type”: “Feature”,
+“geometry”: {<blockquote>
+<div>”type”: “Point”,
+“coordinates”: [<blockquote>
+<div>x,
+y</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+“properties”: {</p>
+<blockquote>
+<div>”name”: “My Point”,
+“comment”: “Test a point annotation”</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+<dl class="docutils">
+<dt>geojson_linestring = {</dt>
+<dd>“type”: “Feature”,
+“geometry”: {<blockquote>
+<div>”type”: “LineString”,
+“coordinates”: [<blockquote>
+<div><dl class="docutils">
+<dt>[</dt>
+<dd>x1,
+y1</dd>
+</dl>
+<p>],
+[</p>
+<blockquote>
+<div>x2,
+y2</div></blockquote>
+<p>],
+[</p>
+<blockquote>
+<div>x3,
+y3</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>]</p>
+</div></blockquote>
+<p>},
+“properties”: {</p>
+<blockquote>
+<div>”name”: “My Linestring”,
+“comment”: “Test a point annotation”</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<p>}</p>
+</li>
+<li><strong>photo</strong> (<em>Resource</em>) – the photo</li>
+<li><strong>target</strong> (<em>str</em>) – target of the annotation: ‘2d’ | ‘3d’</li>
+<li><strong>properties</strong> (<em>dict</em>) – <p>extra feature properties</p>
+<dl class="docutils">
+<dt>{</dt>
+<dd>‘color’ : [R,G,B]</dd>
+</dl>
+<p>}</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the annotation</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Resource</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.annotationsimpl.AnnotationsImpl.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>*</em>, <em>project: delairstack.core.resources.resource.Resource</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.annotationsimpl.AnnotationsImpl.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all annotations corresponding to a specific project.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>project</strong> (<em>Resource</em>) – the project</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of annotations matching with the search criteria</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">[Resource]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.annotationsimpl.AnnotationsImpl.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>*</em>, <em>resource: delairstack.core.resources.resource.Resource</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.annotationsimpl.AnnotationsImpl.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource</strong> (<em>Resource</em>) – the annotation to update</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the annotation</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-delairstack.apis.client.projectmngt.deliverablesimpl"></span><p>Module dedicated to the deliverable resource management</p>
+<dl class="class">
+<dt id="delairstack.apis.client.projectmngt.deliverablesimpl.DeliverablesImpl">
+<em class="property">class </em><code class="descclassname">delairstack.apis.client.projectmngt.deliverablesimpl.</code><code class="descname">DeliverablesImpl</code><span class="sig-paren">(</span><em>project_manager_api: delairstack.apis.provider.ProjectManagerAPI</em>, <em>data_store_api: delairstack.apis.provider.DataStoreAPI</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.deliverablesimpl.DeliverablesImpl" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class represents an accessor to handle deliverable objects and actions</p>
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.deliverablesimpl.DeliverablesImpl.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>*</em>, <em>mission: delairstack.core.resources.resource.Resource = None</em>, <em>project: delairstack.core.resources.resource.Resource</em>, <em>name: str</em>, <em>product_type: delairstack.core.resources.products.ProductDefinition</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.deliverablesimpl.DeliverablesImpl.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a Deliverable which will be associated to the project.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>mission</strong> (<em>Resource</em>) – the associated mission, optional</li>
+<li><strong>project</strong> (<em>Resource</em>) – the associated project</li>
+<li><strong>name</strong> (<em>str</em>) – the name of the deliverable</li>
+<li><strong>product_type</strong> (<em>ProductDefinition</em>) – the product type</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the object representing a deliverable</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">Resource</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.deliverablesimpl.DeliverablesImpl.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.deliverablesimpl.DeliverablesImpl.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search objects matching with the query defining the criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> – criteria to search the object</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: [Resource]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.deliverablesimpl.DeliverablesImpl.upload">
+<code class="descname">upload</code><span class="sig-paren">(</span><em>*, deliverable: delairstack.core.resources.resource.Resource, files: [&lt;class 'str'&gt;]</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.deliverablesimpl.DeliverablesImpl.upload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Upload list of files into a deliverable.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>deliverable</strong> (<em>Resource</em>) – the deliverable</li>
+<li><strong>[</strong><strong>str</strong><strong>]</strong> (<em>files</em>) – the list of files to upload. It must contains either a list of relative or/and absolute path</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-delairstack.apis.client.projectmngt.dxobjectsimpl"></span><p>Module dedicated to the dxobject resource management.</p>
+<dl class="class">
+<dt id="delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl">
+<em class="property">class </em><code class="descclassname">delairstack.apis.client.projectmngt.dxobjectsimpl.</code><code class="descname">DXObjectsImpl</code><span class="sig-paren">(</span><em>project_manager_api: delairstack.apis.provider.ProjectManagerAPI</em>, <em>data_store_api: delairstack.apis.provider.DataStoreAPI</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class represents an accessor to handle dxobject objects and actions.</p>
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> – </td>
+</tr>
+</tbody>
+</table>
+<p>Returns: Resource</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.download">
+<code class="descname">download</code><span class="sig-paren">(</span><em>*</em>, <em>dxobject: delairstack.core.resources.resource.Resource</em>, <em>destination_directory_path: str</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download a file attached to the dxobject resource. The final destination name will be as
+&lt;destination_directory_path&gt;/&lt;name&gt;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dxobject</strong> (<em>Resource</em>) – the DXObject</li>
+<li><strong>destination_directory_path</strong> (<em>str</em>) – the destination directory</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>*</em>, <em>deliverable: delairstack.core.resources.resource.Resource = None</em>, <em>id: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read a resource. If a deliverable object is passed as argument, this will return the dxobject contained
+into it. Otherwise will get object given its id.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>id</strong> (<em>str</em>) – id of the dxobject to search</li>
+<li><strong>deliverable</strong> (<em>Resource</em>) – the deliverable holding a DXObject</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">an dxobject</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">Resource</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal notranslate"><span class="pre">ArgumentOperationError</span></code> – if the deliverable resource and the id are None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Search objects matching with the query defining the criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>query</strong> – criteria to search the object</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: [Resource]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>*</em>, <em>resource: delairstack.core.resources.resource.Resource</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the dxobject.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource</strong> (<em>Resource</em>) – the dxobject</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a new DXObject</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Resource</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.upload">
+<code class="descname">upload</code><span class="sig-paren">(</span><em>*</em>, <em>dxobject: delairstack.core.resources.resource.Resource = None</em>, <em>file_src_path: str = None</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.dxobjectsimpl.DXObjectsImpl.upload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a file to the DXObject and upload the file to the server.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dxobject</strong> (<em>Resource</em>) – the DXObject</li>
+<li><strong>file_src_path</strong> (<em>str</em>) – the file source path to upload and to associate</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-delairstack.apis.client.projectmngt.missionsimpl"></span><p>Module dedicated to the mission resource management.</p>
+<dl class="class">
+<dt id="delairstack.apis.client.projectmngt.missionsimpl.MissionsImpl">
+<em class="property">class </em><code class="descclassname">delairstack.apis.client.projectmngt.missionsimpl.</code><code class="descname">MissionsImpl</code><span class="sig-paren">(</span><em>project_manager_api: delairstack.apis.provider.ProjectManagerAPI</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.missionsimpl.MissionsImpl" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class represents an accessor to handle mission objects and actions.</p>
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.missionsimpl.MissionsImpl.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.missionsimpl.MissionsImpl.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> – </td>
+</tr>
+</tbody>
+</table>
+<p>Returns: Resource</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.missionsimpl.MissionsImpl.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.missionsimpl.MissionsImpl.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource</strong> – the resource to delete</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: True</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.missionsimpl.MissionsImpl.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>*</em>, <em>project: delairstack.core.resources.resource.Resource</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.missionsimpl.MissionsImpl.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all missions contained in a project.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>project</strong> (<em>Resource</em>) – the project</li>
+<li><strong>id</strong> (<em>str</em>) – the id of the mission</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A list of missions contained in the project</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">[Resource]</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.missionsimpl.MissionsImpl.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.missionsimpl.MissionsImpl.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource</strong> – the resource to update</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: Resource</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-delairstack.apis.client.projectmngt.photosimpl"></span><p>Module dedicated to the photos resource management.</p>
+<dl class="class">
+<dt id="delairstack.apis.client.projectmngt.photosimpl.PhotosImpl">
+<em class="property">class </em><code class="descclassname">delairstack.apis.client.projectmngt.photosimpl.</code><code class="descname">PhotosImpl</code><span class="sig-paren">(</span><em>project_manager_api: delairstack.apis.provider.ProjectManagerAPI</em>, <em>data_store_api: delairstack.apis.provider.DataStoreAPI</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.photosimpl.PhotosImpl" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class represents an accessor to handle photo objects and actions.</p>
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.photosimpl.PhotosImpl.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.photosimpl.PhotosImpl.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> – </td>
+</tr>
+</tbody>
+</table>
+<p>Returns: Resource</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.photosimpl.PhotosImpl.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.photosimpl.PhotosImpl.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete the resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource</strong> – the resource to delete</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: True</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.photosimpl.PhotosImpl.download">
+<code class="descname">download</code><span class="sig-paren">(</span><em>photo: delairstack.core.resources.resource.Resource</em>, <em>destination_directory_path: str</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.photosimpl.PhotosImpl.download" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download a file attached to the dxobject resource. The final destination name will be as
+&lt;destination_directory_path&gt;/&lt;id&gt;.&lt;type&gt;</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>photo</strong> (<em>Resource</em>) – the DXObject</li>
+<li><strong>destination_directory_path</strong> (<em>str</em>) – the destination directory</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.photosimpl.PhotosImpl.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>*</em>, <em>mission: delairstack.core.resources.resource.Resource</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.photosimpl.PhotosImpl.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get all photos contained in a mission.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mission</strong> (<em>Resource</em>) – the mission</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of photos matching with the search criteria</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">[Resource]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.photosimpl.PhotosImpl.update">
+<code class="descname">update</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.photosimpl.PhotosImpl.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the resource.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource</strong> – the resource to update</td>
+</tr>
+</tbody>
+</table>
+<p>Returns: Resource</p>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="module-delairstack.apis.client.projectmngt.projectsimpl"></span><p>Module dedicated to the projects resource management.</p>
+<dl class="class">
+<dt id="delairstack.apis.client.projectmngt.projectsimpl.ProjectsImpl">
+<em class="property">class </em><code class="descclassname">delairstack.apis.client.projectmngt.projectsimpl.</code><code class="descname">ProjectsImpl</code><span class="sig-paren">(</span><em>project_manager_api: delairstack.apis.provider.ProjectManagerAPI</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.projectsimpl.ProjectsImpl" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class represents an accessor to handle project objects and actions.</p>
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.projectsimpl.ProjectsImpl.create">
+<code class="descname">create</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.projectsimpl.ProjectsImpl.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>**kwargs</strong> – </td>
+</tr>
+</tbody>
+</table>
+<p>Returns: Resource</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="delairstack.apis.client.projectmngt.projectsimpl.ProjectsImpl.search">
+<code class="descname">search</code><span class="sig-paren">(</span><em>*</em>, <em>name: str</em><span class="sig-paren">)</span><a class="headerlink" href="#delairstack.apis.client.projectmngt.projectsimpl.ProjectsImpl.search" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all projects given a name.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str</em>) – the project name / mission name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of projects matching with the search criteria</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">[Resource]</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><code class="xref py py-exc docutils literal notranslate"><span class="pre">QueryError</span></code> – if the response is not consistent</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">delairstack</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="first_steps.html">First Steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download_photos.html">Download photos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="crud.html">CRUD</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="crud.html" title="previous chapter">CRUD</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Delair.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/reference.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

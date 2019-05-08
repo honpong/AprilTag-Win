@@ -1,0 +1,193 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>CRUD &#8212; delairstack  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Reference" href="reference.html" />
+    <link rel="prev" title="Download photos" href="download_photos.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="crud">
+<h1>CRUD<a class="headerlink" href="#crud" title="Permalink to this headline">¶</a></h1>
+<p>The SDK supports the usual CRUD actions through resources managers.
+Resource manager instances have methods <cite>create()</cite>, <cite>get()</cite>, <cite>delete()</cite>,
+<cite>update()</cite> and <cite>search()</cite>.</p>
+<p>Let’s illustrate those methods with an example using the annotations
+resources manager.</p>
+<div class="section" id="create">
+<h2>Create<a class="headerlink" href="#create" title="Permalink to this headline">¶</a></h2>
+<p>Let’s create an annotation on project:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># gets the resource manager</span>
+<span class="n">annotations</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">resources</span><span class="p">(</span><span class="n">resource_name</span><span class="o">=</span><span class="s1">&#39;annotations&#39;</span><span class="p">)</span>
+
+<span class="c1"># gets a project</span>
+<span class="n">projects</span> <span class="o">=</span> <span class="n">sdk</span><span class="o">.</span><span class="n">resources</span><span class="p">(</span><span class="n">resource_name</span><span class="o">=</span><span class="s1">&#39;projects&#39;</span><span class="p">)</span>
+<span class="n">project</span> <span class="o">=</span> <span class="n">projects</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># creates a GeoJSON</span>
+<span class="n">xmin</span> <span class="o">=</span> <span class="mf">4.387072438909058</span>
+<span class="n">xmax</span> <span class="o">=</span> <span class="mf">8.034533376409058</span>
+<span class="n">ymin</span> <span class="o">=</span> <span class="mf">44.48207258784539</span>
+<span class="n">ymax</span> <span class="o">=</span> <span class="mf">47.26550167777244</span>
+
+<span class="n">geojson_polygon</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;Feature&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;geometry&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;Polygon&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;coordinates&#39;</span><span class="p">:</span> <span class="p">[[[</span><span class="n">xmin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">],</span> <span class="p">[</span><span class="n">xmax</span><span class="p">,</span> <span class="n">ymax</span><span class="p">],</span> <span class="p">[</span><span class="n">xmax</span><span class="p">,</span> <span class="n">ymin</span><span class="p">],</span> <span class="p">[</span><span class="n">xmin</span><span class="p">,</span> <span class="n">ymin</span><span class="p">],</span> <span class="p">[</span><span class="n">xmin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">]]]</span>
+        <span class="p">},</span>
+    <span class="s1">&#39;properties&#39;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;My Polygon&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;comment&#39;</span><span class="p">:</span> <span class="s1">&#39;Test a polygon annotation&#39;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="c1"># creates an annotation using the resource manager</span>
+<span class="n">my_annotation</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">last_project</span><span class="p">,</span> <span class="n">geojson</span><span class="o">=</span><span class="n">geojson_polygon</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;2d&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="update">
+<h2>Update<a class="headerlink" href="#update" title="Permalink to this headline">¶</a></h2>
+<p>Let’s update the previously created annotation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># add a color</span>
+<span class="n">color</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">99</span><span class="p">,</span> <span class="mi">247</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="c1"># changes features attribute</span>
+<span class="n">my_annotation</span><span class="o">.</span><span class="n">feature</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+
+<span class="c1"># update the object</span>
+<span class="n">annotations</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">resource</span><span class="o">=</span><span class="n">my_annotation</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="delete">
+<h2>Delete<a class="headerlink" href="#delete" title="Permalink to this headline">¶</a></h2>
+<p>Now we can delete this annotation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># delete annotation</span>
+<span class="n">annotations</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">resource</span><span class="o">=</span><span class="n">my_annotation</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="get">
+<h2>Get<a class="headerlink" href="#get" title="Permalink to this headline">¶</a></h2>
+<p>We can directly get an object if we know its id. In that example,
+suppose that there exists an annotation with the <cite>id</cite> equal to 123456789:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># gets the annotation</span>
+<span class="n">my_annotation</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s1">&#39;123456789&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="search">
+<h2>Search<a class="headerlink" href="#search" title="Permalink to this headline">¶</a></h2>
+<p>You can search annotation by project id:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">filtered_annotations</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">project</span><span class="o">=&lt;</span><span class="n">some_project_resource</span><span class="o">&gt;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For example, if you want to find an annotation given its name:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">filtered_annotation</span> <span class="o">=</span> <span class="n">annotations</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">project</span><span class="o">=</span><span class="n">my_project</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">annotation</span> <span class="ow">in</span> <span class="n">filtered_annotation</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">annotation</span><span class="o">.</span><span class="n">feature</span><span class="p">[</span><span class="s1">&#39;properties&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&lt;annotation_name&gt;&#39;</span><span class="p">:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Do some stuff</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">delairstack</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="first_steps.html">First Steps</a></li>
+<li class="toctree-l1"><a class="reference internal" href="download_photos.html">Download photos</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">CRUD</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="download_photos.html" title="previous chapter">Download photos</a></li>
+      <li>Next: <a href="reference.html" title="next chapter">Reference</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Delair.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.11</a>
+      
+      |
+      <a href="_sources/crud.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

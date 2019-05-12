@@ -414,7 +414,9 @@ void run()
                 cap->get_image(cap_width, cap_height, preview_img, original_img_ptr);
                
                 scn_height = (int)((scn_width - size_win_fisheye.width)* preview_img.rows / preview_img.cols);
-                screen_img(win_buttons()).setTo(0);
+
+				if (screen_img.rows < scn_height) { screen_img.create(size_screen(), CV_8UC3); }
+				screen_img(win_buttons()).setTo(0);
 
                 if (!g_app_data.is_annotate()) {
                     cv::resize(preview_img, screen_img(win_rgb()), size_rgb(), 0, 0, CV_INTER_NN);

@@ -25,13 +25,13 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     dst_image_path = os.path.join(des_dir_name , "tagged_" + str(dataToWrite[0]))
 
     #extract date time
-    str_cap_datestamp = str(dataToWrite[0]).split("_")
-    cap_year   = str_cap_datestamp[1];
-    cap_month  = str_cap_datestamp[2];
-    cap_day    = str_cap_datestamp[3];
-    cap_hour   = str_cap_datestamp[4];
-    cap_min    = str_cap_datestamp[5];
-    cap_second = str_cap_datestamp[6];
+    str_cap_datestamp = str(dataToWrite[0]).split(".")[0].split("_")
+    cap_year   = str_cap_datestamp[1]
+    cap_month  = str_cap_datestamp[2]
+    cap_day    = str_cap_datestamp[3]
+    cap_hour   = str_cap_datestamp[4]
+    cap_min    = str_cap_datestamp[5]
+    cap_second = str_cap_datestamp[6]
     
     # Set up the calibration 
     cam = calibration_io.read_json_calibration(path=src_dir)

@@ -498,7 +498,7 @@ void run()
 									scn_msg << "Velocity: " + sv.str();
 
 									scn_warn << (current_pose.speed() > g_cam_velocity_thr ? " SLOW DOWN !!!" : "");
-									scn_warn << (current_pose.distance_prev_capture() > g_cam_prev_dist_thr ? " TOO FAR FROM LAST CAPTURE !!!" : "");
+									scn_warn << (current_pose.distance_prev_capture() > g_cam_prev_dist_thr ? "TOO FAR FROM LAST CAPTURE!" : "");
 								};
 
 								auto pd = pf.get_pose_data();
@@ -624,7 +624,7 @@ void run()
             }
 
             for (int j = 0; j < (int)scn_warn.size(); ++j) {
-                cv::putText(screen_img, scn_warn[j], cv::Point(win_rgb().x + 50, win_rgb().y + win_rgb().height / 3 + 50 * j), CV_FONT_HERSHEY_DUPLEX, 1.25, yellow, 2);
+                cv::putText(screen_img, scn_warn[j], cv::Point(win_rgb().x + 50, win_rgb().y + win_rgb().height / 2 + 50 * j), CV_FONT_HERSHEY_DUPLEX, 1.25, yellow, 2);
             }
             
             auto label_color = [](bool flag) { return flag ? white : dark_gray; };

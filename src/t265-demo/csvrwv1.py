@@ -23,6 +23,15 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     # define file sources and destinations
     src_image_path = os.path.join(src_dir, str(dataToWrite[0]))
     dst_image_path = os.path.join(des_dir_name , "tagged_" + str(dataToWrite[0]))
+
+    #extract date time
+    str_cap_datestamp = str(dataToWrite[0]).split("_")
+    cap_year   = str_cap_datestamp[1];
+    cap_month  = str_cap_datestamp[2];
+    cap_day    = str_cap_datestamp[3];
+    cap_hour   = str_cap_datestamp[4];
+    cap_min    = str_cap_datestamp[5];
+    cap_second = str_cap_datestamp[6];
     
     # Set up the calibration 
     cam = calibration_io.read_json_calibration(path=src_dir)
@@ -39,6 +48,8 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     exif_focal_length               = cam["exif"]["focal_length"]
     exif_focalplane_resolution_unit = cam["exif"]["focalplane_resolution_unit"]
 
+    exif_date_time_original = cap_year + ":" + cap_month + ":" + cap_day + " " + cap_hour + ":" + cap_min + ":" + cap_second
+
     # Write exif part
     # extracting a thumbnail to embed
     o = io.BytesIO()
@@ -50,7 +61,7 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     zeroth_ifd = {piexif.ImageIFD.Make: exif_make, #u"Intel InSense", 
                   piexif.ImageIFD.Model: exif_model, #u"InSense Logitech",
                 }
-    exif_ifd = {piexif.ExifIFD.DateTimeOriginal: u"2019:05:08 01:02:03",
+    exif_ifd = {piexif.ExifIFD.DateTimeOriginal: exif_date_time_original, #u"2019:05:08 01:02:03",
                 piexif.ExifIFD.FocalPlaneResolutionUnit: exif_focalplane_resolution_unit, #2 = inch  3 = cm  4 = mm
                 piexif.ExifIFD.FocalPlaneXResolution: exif_focalplane_x_resolution,
                 piexif.ExifIFD.FocalPlaneYResolution: exif_focalplane_y_resolution,
@@ -63,7 +74,7 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
                 piexif.GPSIFD.GPSLatitude: ((int(dataToWrite[2]), 1), (int(dataToWrite[3]), 1), (int(dataToWrite[4]), int(dataToWrite[5]))), # last number eg. 10000 is the divisor
                 piexif.GPSIFD.GPSAltitudeRef: 0,
                 piexif.GPSIFD.GPSAltitude: (int(dataToWrite[11]),int(dataToWrite[12])), # <Altitude in meters>, <divisor> i.e. 432,2 = 43.2
-                piexif.GPSIFD.GPSDateStamp: u"2019:04:27 01:02:03",
+                piexif.GPSIFD.GPSDateStamp: exif_date_time_original,  # u"2019:04:27 01:02:03",
                 piexif.GPSIFD.GPSMapDatum: u"WGS-84",
                 }
     first_ifd = {#piexif.ImageIFD.Make: u"Canon",
@@ -103,6 +114,7 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     xmpfile.put_xmp(xmp)
     xmpfile.close_file()
 
+    print(" DateTimeOriginal :" + exif_date_time_original )
     print(" xmp " + xmp_model_type + " pp:" + xmp_principal_point + " pf:" + xmp_perspective_focal + " pdist:" + xmp_perspective_distortion)
 
 ##### PROGRAM

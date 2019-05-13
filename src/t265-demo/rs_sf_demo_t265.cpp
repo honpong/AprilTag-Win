@@ -41,7 +41,7 @@ int         g_auto_capture_interval_s = 1; //seconds
 int         g_cam_fisheye = 3;
 float       g_cam_velocity_thr = 0.2f;
 float       g_cam_prev_dist_thr = 0.5f;
-std::string g_str_origin = "[filename,tx,ty,tz,rw,rx,ry,rz] | Origin in WGS84 coordinate: Not provided at command line input.";
+std::string g_str_origin = "[filename,tx,ty,tz,rw,rx,ry,rz,blur_r,blur_g,blur_b] | Origin in WGS84 coordinate: Not provided at command line input.";
 std::string g_pose_path = DEFAULT_PATH;
 std::string g_script_name = DEFAULT_SCRIPT;
 
@@ -93,6 +93,7 @@ struct app_data {
     bool cam3_request = false;
     bool annotate_mode = false;
     bool apriltag_mode = false;
+    bool estimate_blur = true;
     int highlight_exit_button = 0;
 	int highlight_bin_button = 0;
     int highlight_script_button = 0;
@@ -748,6 +749,22 @@ void run()
 						}
 					}
 
+                    // blur metric
+                    if (g_app_data.estimate_blur) {
+                        cv::Mat temp_mat;
+                        std::vector<cv::Mat> RGB_mats;
+                        cv::split(g_app_data.last_rgb_capture, RGB_mats);
+                        double blur_estimates[3];
+                        for (int c = 0; c < 3; ++c) {
+                            cv::Laplacian(RGB_mats[c], temp_mat, CV_64F); //going to cause allocation
+                            cv::Scalar mean, std;
+                            cv::meanStdDev(temp_mat, mean, std);
+                            blur_estimates[c] = std.val[0];
+                        }
+
+                        index_file << "," << blur_estimates[0] << "," << blur_estimates[1] << "," << blur_estimates[2];
+                    }
+
 					index_file << std::endl;
 					g_app_data.new_rgb_capture = cv::Mat();
 					g_app_data.capture_request = false; //capture request handled
@@ -884,6 +901,7 @@ int main(int argc, char* argv[])
         else if (!strcmp(argv[i], "--interval"))        { g_auto_capture_interval_s = atoi(argv[++i]); }
         else if (!strcmp(argv[i], "--fisheye"))         { g_cam_fisheye = 3; }
         else if (!strcmp(argv[i], "--apriltag"))        { g_app_data.apriltag_mode = true; }
+        else if (!strcmp(argv[i], "--no_blur_est"))     { g_app_data.estimate_blur = false; }
         else {
             printf("usages:\n t265-demo.exe [--no_t265][--origin STR][--cam ID][--interval SEC][--script FILENAME][--path OUTPUT_PATH]\n");
             printf("\n");

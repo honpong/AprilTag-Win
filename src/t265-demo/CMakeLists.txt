@@ -164,5 +164,10 @@ if(MSVC)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/python_temp/calibration.txt "$<TARGET_FILE_DIR:${PROJECT_NAME}>/capture")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_CURRENT_BINARY_DIR}/python_temp/calibration.txt)
 
-    set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir) ")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND POWERSHELL rm -Force "$<TARGET_FILE_DIR:${PROJECT_NAME}>/*_MD$<$<CONFIG:Release>:d>_*.dll")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND POWERSHELL rm -Force "$<TARGET_FILE_DIR:${PROJECT_NAME}>/CLSer*$<$<CONFIG:Release>:d>.dll")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND POWERSHELL rm -Force "$<TARGET_FILE_DIR:${PROJECT_NAME}>/${PROJECT_NAME}.lib")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND POWERSHELL rm -Force "$<TARGET_FILE_DIR:${PROJECT_NAME}>/${PROJECT_NAME}.exp")
+
+    set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$(TargetDir)")
 endif(MSVC)

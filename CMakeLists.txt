@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.5.0 FATAL_ERROR)
 
 project(t265-insight C CXX)
 add_subdirectory(src)
+if(MSVC)
+    set_property(DIRECTORY PROPERTY VS_STARTUP_PROJECT t265-demo)
+endif()
 return()
 
 #####################################################################

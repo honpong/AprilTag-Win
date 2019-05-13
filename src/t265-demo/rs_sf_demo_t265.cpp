@@ -105,6 +105,7 @@ struct app_data {
 
 	cv::Mat last_rgb_capture, last_rgb_thumbnail, last_rgb_annotate;
 	cv::Mat new_rgb_capture;
+    double last_blur_estimate[3];
 
     std::function<void()> task_record_annotation;
 
@@ -297,7 +298,7 @@ void run()
     bool t265_available = g_t265;
     std::string folder_path = g_pose_path;
     std::ofstream index_file, fisheye_calibration_file;
-    std::string last_file_written;
+    std::string last_file_written, last_blur_estimate_str;
 
     std::string window_name = "T265-Insight POC App " + std::string(VERSION_STRING) + " @ " + folder_path;
     cv::namedWindow(window_name);
@@ -521,6 +522,7 @@ void run()
             }
             if (!last_file_written.empty()) {
                 scn_msg << "Last write:" + last_file_written;
+                if (g_app_data.estimate_blur) { scn_msg << "Blur Est: " + last_blur_estimate_str; }
             }
 
             //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -753,16 +755,22 @@ void run()
                     if (g_app_data.estimate_blur) {
                         cv::Mat temp_mat;
                         std::vector<cv::Mat> RGB_mats;
-                        cv::split(g_app_data.last_rgb_capture, RGB_mats);
-                        double blur_estimates[3];
+                        cv::split(g_app_data.last_rgb_capture, RGB_mats);                       
+                        double blur_estimate[3];
                         for (int c = 0; c < 3; ++c) {
                             cv::Laplacian(RGB_mats[c], temp_mat, CV_64F); //going to cause allocation
                             cv::Scalar mean, std;
                             cv::meanStdDev(temp_mat, mean, std);
-                            blur_estimates[c] = std.val[0];
+                            g_app_data.last_blur_estimate[c] = blur_estimate[c] = std.val[0];
                         }
+                        index_file << "," << blur_estimate[0] << "," << blur_estimate[1] << "," << blur_estimate[2];
 
-                        index_file << "," << blur_estimates[0] << "," << blur_estimates[1] << "," << blur_estimates[2];
+                        std::stringstream ss;
+                        ss << std::fixed << std::left << std::setprecision(1) <<
+                            g_app_data.last_blur_estimate[0] << ", " <<
+                            g_app_data.last_blur_estimate[1] << ", " <<
+                            g_app_data.last_blur_estimate[2];
+                        last_blur_estimate_str = ss.str();
                     }
 
 					index_file << std::endl;

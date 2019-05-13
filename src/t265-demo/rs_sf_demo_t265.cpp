@@ -849,7 +849,8 @@ void run()
                                 if (win_exit().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_exit_request(); } }
                                 if (win_bin().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_bin_request(); } }
                                 if (win_script().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_script_request(); } }
-                                if (win_capture().contains(cv::Point(x, y))) { if (is_button_on() && !g_app_data.auto_request) { g_app_data.set_capture_request(); } }
+                                if (win_rgb().contains(cv::Point(x,y)) || 
+                                    win_capture().contains(cv::Point(x, y))) { if (is_button_on() && !g_app_data.auto_request) { g_app_data.set_capture_request(); } }
                                 if (win_init().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_init_request(); } }
                                 if (win_auto().contains(cv::Point(x, y))) { if (is_auto_on()) { g_app_data.set_auto_request(); } }
                                 if (win_fisheye().contains(cv::Point(x, y))) { if (is_button_on()) { g_app_data.set_fisheye_request(); } }

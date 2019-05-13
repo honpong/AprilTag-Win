@@ -298,7 +298,7 @@ void run()
     std::ofstream index_file, fisheye_calibration_file;
     std::string last_file_written;
 
-    std::string window_name = "T265-RGB Capture App for Insight " + std::string(VERSION_STRING) + " @ " + folder_path;
+    std::string window_name = "T265-Insight POC App " + std::string(VERSION_STRING) + " @ " + folder_path;
     cv::namedWindow(window_name);
 
     for(g_app_data.exit_request=false; !g_app_data.exit_request; g_app_data.annotation_record() )
@@ -632,7 +632,7 @@ void run()
             cv::rectangle(screen_img, win_exit(), white, g_app_data.is_highlight_exit_button() ? 3 : 1);
             cv::putText(screen_img, "  EXIT", label(win_exit()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
             cv::rectangle(screen_img, win_bin(), white, g_app_data.is_highlight_bin_button() ? 3 : 1);
-            cv::putText(screen_img, "  CALL EXE", label(win_bin()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
+            cv::putText(screen_img, "  UPLOAD", label(win_bin()), CV_FONT_HERSHEY_DUPLEX, 0.5, label_color(is_button_on()));
 			cv::rectangle(screen_img, win_script(), white, g_app_data.is_highlight_script_button() ? 3 : 1);
             cv::putText(screen_img, " CALL SCRIPT", label(win_script()), CV_FONT_HERSHEY_DUPLEX, 0.45, label_color(is_button_on()));
             cv::rectangle(screen_img, win_capture(), white, g_app_data.is_highlight_capture_button() ? 3 : 1);

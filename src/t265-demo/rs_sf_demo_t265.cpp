@@ -562,7 +562,7 @@ void run()
 
 						Json::Value json_root, coord;
 						json_root["type"] = "Feature";
-						json_root["geometry"]["type"] = "MultiPolygon";
+						json_root["geometry"]["type"] = "Polygon";
 
 						std::vector<cv::Point> pts; pts.reserve(200);
 						for (int c = 0, r = 25; c < (int)clicks.size(); ++c) {
@@ -570,19 +570,19 @@ void run()
 							auto delta = (int)(max(1.0, 180.0 * M_1_PI / r));
 							cv::ellipse2Poly(clicks[c], cv::Size(r, r), 0, 0, 360, delta, pts);
 							for (int p = 0; p < (int)pts.size(); ++p) {
-								if (pts[p].x < annotate_img.cols && pts[p].y < annotate_img.rows) {
-									coord[c][p][0] = pts[p].x * xfactor;
-									coord[c][p][1] = pts[p].y * yfactor;
-								}
+                                if (pts[p].x < annotate_img.cols && pts[p].y < annotate_img.rows) {
+                                    coord[c][p][0] = pts[p].x * xfactor;
+                                    coord[c][p][1] = (annotate_img.rows - pts[p].y) * yfactor;
+                                }
 							}
 						}
 						json_root["geometry"]["coordinates"] = coord;
 						json_root["properties"]["comment"] = "From RealSight/Insight POC " VERSION_STRING;
 						json_root["properties"]["image"] = (original_filename + ".jpg").c_str();
-						json_root["properties"]["name"] = "circle";
-						json_root["properties"]["color"][0] = (int)yellow[0];
+						json_root["properties"]["name"] = "circle(s)";
+						json_root["properties"]["color"][0] = (int)yellow[2];
 						json_root["properties"]["color"][1] = (int)yellow[1];
-						json_root["properties"]["color"][2] = (int)yellow[2];
+						json_root["properties"]["color"][2] = (int)yellow[0];
 
 						std::stringstream timestr;
 						timestr << std::put_time(std::localtime(&last_cap_time), "%Y-%m-%dT:%H:%M:%S.000Z");

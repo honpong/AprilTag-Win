@@ -13,6 +13,7 @@ import piexif # https://piexif.readthedocs.io
 import csv
 import os
 import sys
+import shutil
 import calibration_make as calibration_io
 from libxmp import XMPFiles, consts
 
@@ -22,7 +23,18 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     
     # define file sources and destinations
     src_image_path = os.path.join(src_dir, str(dataToWrite[0]))
-    dst_image_path = os.path.join(des_dir_name , "tagged_" + str(dataToWrite[0]))
+    dst_image_path = os.path.join(des_dir_name, "tagged_" + str(dataToWrite[0]))
+    src_geojson_path = os.path.join(src_dir, str(dataToWrite[0]).split(".")[0] + ".geojson")
+    dst_geojson_path = os.path.join(des_dir_name, str(dataToWrite[0]).split(".")[0] + ".geojson")
+
+    geojson_exists = os.path.isfile(src_geojson_path)
+    if geojson_exists:
+        try:
+            shutil.copy2(src_geojson_path, dst_geojson_path)
+            print("Annotation copied: " + dst_geojson_path)
+        except FileNotFoundError: 
+            pass
+
 
     #extract date time
     str_cap_datestamp = str(dataToWrite[0]).split(".")[0].split("_")

@@ -21,7 +21,7 @@ RMDIR /S /Q %DST% 2> NUL
 MKDIR %DST%
 
 :: copy annotation
-COPY /Y %SRC%\*.geojson %DST%\
+::COPY /Y %SRC%\*.geojson %DST%\
 
 :: call second script
 if %PY%==0 (py\csvrwv1.exe %SRC% %DST%) else (python %2\csvrwv1.py %SRC% %DST%)

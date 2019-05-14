@@ -2,6 +2,9 @@
 :: %1 is the folder path of captured dataset
 ECHO %1
 
+:: path to insight uploader client
+set INSIGHT_CLIENT_PATH=InsightSDK\InsightService-1.0-SNAPSHOT-20190514.jar
+
 :: set survey name
 set CURRENT_TIME=%time: =0%
 set SURVEY_NAME=InSense_%date:~10,4%_%date:~4,2%_%date:~7,2%_%CURRENT_TIME:~0,2%_%CURRENT_TIME:~3,2%_%CURRENT_TIME:~6,2%_%CURRENT_TIME:~9,2%
@@ -27,9 +30,9 @@ MKDIR %DST%
 if %PY%==0 (py\csvrwv1.exe %SRC% %DST%) else (python %2\csvrwv1.py %SRC% %DST%)
 
 :: Use Intel Proxy
-CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -DsocksProxyHost=proxy-us.intel.com -DsocksProxyPort=1080 -jar InsightSDK\InsightService-1.0-SNAPSHOT-20190412.jar --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME%
+CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -DsocksProxyHost=proxy-us.intel.com -DsocksProxyPort=1080 -jar %INSIGHT_CLIENT_PATH% --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME%
 :: Not Using Proxy
-::CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -jar InsightSDK\InsightService-1.0-SNAPSHOT-20190412.jar --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME%
+::CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -jar %INSIGHT_CLIENT_PATH% --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME%
 
 DEL /F /Q %SRC%\outputllh.csv
 DEL /F /Q %SRC%\outputllh_short.csv

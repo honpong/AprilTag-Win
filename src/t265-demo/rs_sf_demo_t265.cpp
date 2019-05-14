@@ -708,9 +708,15 @@ void run()
 
 					index_file << filename;
 
-					if (is_pose_available) {
-						index_file << "," << cp.translation.x << "," << cp.translation.y << "," << cp.translation.z;
-						index_file << "," << cp.rotation.w << "," << cp.rotation.x << "," << cp.rotation.y << "," << cp.rotation.z;
+                    if (!is_pose_available) 
+                    {
+                        index_file << "," << tm.tm_sec/60.0f << "," << tm.tm_min/60.0f << "," << 0;
+                        index_file << "," << 0 << "," << 0 << "," << 0 << "," << 0;
+                    }
+                    else
+                    {
+                        index_file << "," << cp.translation.x << "," << cp.translation.y << "," << cp.translation.z;
+                        index_file << "," << cp.rotation.w << "," << cp.rotation.x << "," << cp.rotation.y << "," << cp.rotation.z;
 
 						if (is_record_fisheye() && !cvfisheye.empty()) {
 

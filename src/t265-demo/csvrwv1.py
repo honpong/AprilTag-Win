@@ -31,12 +31,21 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     xmp_cam_roll               = dataToWrite[13]
     xmp_cam_pitch              = dataToWrite[14]
     xmp_cam_yaw                = dataToWrite[15]
-    xmp_cam_gps_xy_accuracy    = 0.02
-    xmp_cam_gps_z_accuracy     = 0.02
-    xmp_cam_gyro_rate          = 0.005
-    xmp_cam_imu_pitch_accuracy = 0.2
-    xmp_cam_imu_roll_accuracy  = 0.2
-    xmp_cam_imu_yaw_accuracy   = 0.2
+
+    try:
+        xmp_cam_gps_xy_accuracy    = cam["xmp"]["gps_xy_accuracy"]     
+        xmp_cam_gps_z_accuracy     = cam["xmp"]["gps_z_accuracy"]
+        xmp_cam_gyro_rate          = cam["xmp"]["gyro_rate"]
+        xmp_cam_imu_pitch_accuracy = cam["xmp"]["imu_pitch_accuracy"]    
+        xmp_cam_imu_roll_accuracy  = cam["xmp"]["imu_roll_accuracy"]
+        xmp_cam_imu_yaw_accuracy   = cam["xmp"]["imu_yaw_accuracy"]
+    except:
+        xmp_cam_gps_xy_accuracy    = u'0.02'
+        xmp_cam_gps_z_accuracy     = u'0.02'
+        xmp_cam_gyro_rate          = u'0.005'
+        xmp_cam_imu_pitch_accuracy = u'0.2'
+        xmp_cam_imu_roll_accuracy  = u'0.2'
+        xmp_cam_imu_yaw_accuracy   = u'0.2'
 
     # annotation text file copy
     geojson_exists = os.path.isfile(src_geojson_path)

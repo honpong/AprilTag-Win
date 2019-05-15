@@ -148,20 +148,20 @@ def conv_xyz_llh_short(x, y, z):
     row = [InSense_lat, InSense_lon, InSense_h]
     return row
 
-def quaternion_to_yaw_pitch_roll(rw, rx, ry, rz):
+def quaternion_to_roll_pitch_yaw(rw, rx, ry, rz):
     
     H_aeroRef_T265Ref   = numpy.array([[0,0,-1,0],[1,0,0,0],[0,-1,0,0],[0,0,0,1]])
     H_T265body_aeroBody = numpy.linalg.inv(H_aeroRef_T265Ref)
 
-    H_T265Ref_T265body = transformations.quaternion_matrix([data.rotation.w, data.rotation.x,data.rotation.y,data.rotation.z]) # in transformations, Quaternions w+ix+jy+kz are represented as [w, x, y, z]!
+    H_T265Ref_T265body = transformations.quaternion_matrix([rw, rx, ry, rz]) # in transformations, Quaternions w+ix+jy+kz are represented as [w, x, y, z]!
 
     # transform to aeronautic coordinates (body AND reference frame!)
     H_aeroRef_aeroBody = H_aeroRef_T265Ref.dot( H_T265Ref_T265body.dot( H_T265body_aeroBody ))
     
-    rpy_rad = numpy.array( transformations.euler_from_matrix(H_aeroRef_aeroBody, 'rxyz') )
-    rpy_deg = rpy_rad*180/math.pi
-
-    print("RPY [deg]: {}".format(rpy_rad*180/math.pi))    
+    rpy_rad = transformations.euler_from_matrix(H_aeroRef_aeroBody, 'rxyz')
+    rpy_deg = [rpy_rad[0]*180/math.pi, rpy_rad[1]*180/math.pi, rpy_rad[2]*180/math.pi]
+   
+    print("Roll Pitch Yaw [deg]: {}".format(rpy_deg))
     return rpy_deg
 
 # Open a source CSV file with the format [filename, tx, ty, tz, rw, rx, ry, rz] and convert it to the exif format in lat long height
@@ -180,7 +180,7 @@ def conv_xyzcsv_llhcsv(src_dir, src_posefile):
                     continue
                 singleRow = row
                 print ("translatev1.py: reading " + singleRow[0])
-                writeCSV.writerow([singleRow[0]] + conv_xyz_llh(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])) + quaternion_to_yaw_pitch_roll(float(singleRow[4]), float(singleRow[5]), float(singleRow[6]), float(singleRow[7])))
+                writeCSV.writerow([singleRow[0]] + conv_xyz_llh(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])) + quaternion_to_roll_pitch_yaw(float(singleRow[4]), float(singleRow[5]), float(singleRow[6]), float(singleRow[7])))
 
 # Open a source CSV file with the format [filename, tx, ty, tz, rw, rx, ry, rz] and convert it to the exif format in lat long height
 def conv_xyzcsv_llhcsv_short(src_dir, src_posefile):
@@ -198,7 +198,7 @@ def conv_xyzcsv_llhcsv_short(src_dir, src_posefile):
                     continue
                 singleRow = row
                 print ("translatev1.py (SHORT): reading " + singleRow[0])
-                writeCSV.writerow([singleRow[0]] + conv_xyz_llh_short(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])) + quaternion_to_yaw_pitch_roll(float(singleRow[4]), float(singleRow[5]), float(singleRow[6]), float(singleRow[7])))
+                writeCSV.writerow([singleRow[0]] + conv_xyz_llh_short(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])) + quaternion_to_roll_pitch_yaw(float(singleRow[4]), float(singleRow[5]), float(singleRow[6]), float(singleRow[7])))
 
             
 #test call

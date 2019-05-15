@@ -47,6 +47,12 @@ def make_default_json():
     xmp_principal_point         = u"6.5483904, 4.3386432"
     xmp_perspective_focal       = u"12.397925999999998"
     xmp_perspective_distortion  = u"-0.1002249, 0.1182915, 0.09997253, 0., 0."
+    xmp_cam_gps_xy_accuracy     = u"0.02"
+    xmp_cam_gps_z_accuracy      = u"0.02"
+    xmp_cam_gyro_rate           = u"0.005"
+    xmp_cam_imu_pitch_accuracy  = u"0.2"
+    xmp_cam_imu_roll_accuracy   = u"0.2"
+    xmp_cam_imu_yaw_accuracy    = u"0.2"
 
     exif_make                       = u"Intel InSense"
     exif_model                      = u"InSense Blackfly S" #u"InSense Logitech"  
@@ -63,6 +69,12 @@ def make_default_json():
             "principal_point"        : xmp_principal_point,
             "perspective_focal"      : xmp_perspective_focal,
             "perspective_distortion" : xmp_perspective_distortion,
+            "gps_xy_accuracy"        : xmp_cam_gps_xy_accuracy,
+            "gps_z_accuracy"         : xmp_cam_gps_z_accuracy,
+            "gyro_rate"              : xmp_cam_gyro_rate,
+            "imu_pitch_accuracy"     : xmp_cam_imu_pitch_accuracy,
+            "imu_roll_accuracy"      : xmp_cam_imu_roll_accuracy,
+            "imu_yaw_accuracy"       : xmp_cam_imu_yaw_accuracy,
         },
         "exif" : {
             "make"                       : exif_make,

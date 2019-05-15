@@ -28,9 +28,9 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     dst_geojson_path = os.path.join(des_dir_name, str(dataToWrite[0]).split(".")[0] + ".geojson")
 
     # extract orientation
-    xmp_cam_yaw                = dataToWrite[13]
+    xmp_cam_roll               = dataToWrite[13]
     xmp_cam_pitch              = dataToWrite[14]
-    xmp_cam_roll               = dataToWrite[15]
+    xmp_cam_yaw                = dataToWrite[15]
     xmp_cam_gps_xy_accuracy    = 0.02
     xmp_cam_gps_z_accuracy     = 0.02
     xmp_cam_gyro_rate          = 0.005

@@ -18,7 +18,7 @@ if(libSP_FOUND)
     set(libSP libSP)
 endif()
 
-find_package(OpenCV QUIET)
+find_package(OpenCV REQUIRED)
 if(OpenCV_FOUND)
     add_definitions(-DOpenCV_FOUND)
     message(STATUS "OpenCV package is added to t265-demo")

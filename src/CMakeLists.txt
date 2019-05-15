@@ -69,6 +69,7 @@ list(APPEND CMAKE_MODULE_PATH
 list(APPEND CMAKE_PREFIX_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/sp/win
     ${CMAKE_CURRENT_SOURCE_DIR}/../../sp/win
+	$ENV{HOMEDRIVE}/Users/$ENV{USERNAME}/Desktop/Github/build/opencv310/build
 )
 
 add_subdirectory(api)

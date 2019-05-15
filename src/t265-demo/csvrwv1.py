@@ -27,6 +27,18 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     src_geojson_path = os.path.join(src_dir, str(dataToWrite[0]).split(".")[0] + ".geojson")
     dst_geojson_path = os.path.join(des_dir_name, str(dataToWrite[0]).split(".")[0] + ".geojson")
 
+    # extract orientation
+    xmp_cam_yaw                = dataToWrite[13]
+    xmp_cam_pitch              = dataToWrite[14]
+    xmp_cam_roll               = dataToWrite[15]
+    xmp_cam_gps_xy_accuracy    = 0.02
+    xmp_cam_gps_z_accuracy     = 0.02
+    xmp_cam_gyro_rate          = 0.005
+    xmp_cam_imu_pitch_accuracy = 0.2
+    xmp_cam_imu_roll_accuracy  = 0.2
+    xmp_cam_imu_yaw_accuracy   = 0.2
+
+    # annotation text file copy
     geojson_exists = os.path.isfile(src_geojson_path)
     if geojson_exists:
         try:
@@ -34,7 +46,6 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
             print("Annotation copied: " + dst_geojson_path)
         except FileNotFoundError: 
             pass
-
 
     #extract date time
     str_cap_datestamp = str(dataToWrite[0]).split(".")[0].split("_")
@@ -118,10 +129,20 @@ def singleFileEXIFWrite(src_dir, des_dir_name, dataToWrite):
     # xmp_perspective_distortion = u"0.1976732, -0.5061321, 0.3403559, 0, 0"
 
     xmp.register_namespace(xmp_namespace_url, u'Camera')
-    xmp.set_property(xmp_namespace_url, u'ModelType', xmp_model_type )
-    xmp.set_property(xmp_namespace_url, u'PrincipalPoint', xmp_principal_point )
+    xmp.set_property(xmp_namespace_url, u'ModelType',              xmp_model_type )
+    xmp.set_property(xmp_namespace_url, u'PrincipalPoint',         xmp_principal_point )
     xmp.set_property(xmp_namespace_url, u'PerspectiveFocalLength', xmp_perspective_focal)
-    xmp.set_property(xmp_namespace_url, u'PerspectiveDistortion', xmp_perspective_distortion )
+    xmp.set_property(xmp_namespace_url, u'PerspectiveDistortion',  xmp_perspective_distortion )
+    xmp.set_property(xmp_namespace_url, u'Yaw',                    xmp_cam_yaw)
+    xmp.set_property(xmp_namespace_url, u'Pitch',                  xmp_cam_pitch)
+    xmp.set_property(xmp_namespace_url, u'Roll',                   xmp_cam_roll)
+    xmp.set_property(xmp_namespace_url, u'GPSXYAccuracy',          xmp_cam_gps_xy_accuracy)
+    xmp.set_property(xmp_namespace_url, u'GPSZAccuracy',           xmp_cam_gps_z_accuracy)
+    xmp.set_property(xmp_namespace_url, u'GyroRate',               xmp_cam_gyro_rate)
+    xmp.set_property(xmp_namespace_url, u'IMUPitchAccuracy',       xmp_cam_imu_pitch_accuracy)
+    xmp.set_property(xmp_namespace_url, u'IMURollAccuracy',        xmp_cam_imu_roll_accuracy)
+    xmp.set_property(xmp_namespace_url, u'IMUYawAccuracy',         xmp_cam_imu_yaw_accuracy)
+
 
     xmpfile.put_xmp(xmp)
     xmpfile.close_file()

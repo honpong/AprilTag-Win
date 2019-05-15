@@ -134,7 +134,7 @@ def conv_xyz_llh_short(x, y, z):
     # `[filename, tx, ty, tz, rw, rx, ry, rz]` where
     # • `[tx, ty, tz]` is translation (same as before).
     # • `[rw, rx, ry, rz]` is a 4x1 quaternion of rotation.
-    # These values are coming strict from librealsense API without modification.
+    # These values are coming straight from librealsense API without modification.
     #####
 
     # test out the conversion
@@ -143,6 +143,12 @@ def conv_xyz_llh_short(x, y, z):
     InSense_lon = math.asin((InSense_x / 2) / (InSense_h + APPROX_GEODETIC_RAD_GPS_0)) * 180 / math.pi * 2 + GPS_LON0
 
     row = [InSense_lat, InSense_lon, InSense_h]
+    return row
+
+def quaternion_to_yaw_pitch_raw(rw, rx, ry, rz):
+
+    # to be replace with correct formula
+    row = [rx, ry, rz]
     return row
 
 # Open a source CSV file with the format [filename, tx, ty, tz, rw, rx, ry, rz] and convert it to the exif format in lat long height
@@ -161,7 +167,7 @@ def conv_xyzcsv_llhcsv(src_dir, src_posefile):
                     continue
                 singleRow = row
                 print ("translatev1.py: reading " + singleRow[0])
-                writeCSV.writerow([singleRow[0]] + conv_xyz_llh(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])))
+                writeCSV.writerow([singleRow[0]] + conv_xyz_llh(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])) + quaternion_to_yaw_pitch_raw(float(singleRow[4]), float(singleRow[5]), float(singleRow[6])), float(singleRow[7]))
 
 # Open a source CSV file with the format [filename, tx, ty, tz, rw, rx, ry, rz] and convert it to the exif format in lat long height
 def conv_xyzcsv_llhcsv_short(src_dir, src_posefile):
@@ -179,7 +185,7 @@ def conv_xyzcsv_llhcsv_short(src_dir, src_posefile):
                     continue
                 singleRow = row
                 print ("translatev1.py (SHORT): reading " + singleRow[0])
-                writeCSV.writerow([singleRow[0]] + conv_xyz_llh_short(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])))
+                writeCSV.writerow([singleRow[0]] + conv_xyz_llh_short(float(singleRow[1]), float(singleRow[2]), float(singleRow[3])) + quaternion_to_yaw_pitch_raw(float(singleRow[4]), float(singleRow[5]), float(singleRow[6])), float(singleRow[7]))
 
             
 #test call

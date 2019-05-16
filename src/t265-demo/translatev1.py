@@ -150,16 +150,15 @@ def conv_xyz_llh_short(x, y, z):
 
 def quaternion_to_roll_pitch_yaw(rw, rx, ry, rz):
     
-    H_aeroRef_T265Ref   = numpy.array([[0,0,-1,0],[1,0,0,0],[0,-1,0,0],[0,0,0,1]])
-    H_T265body_aeroBody = numpy.linalg.inv(H_aeroRef_T265Ref)
-
-    H_T265Ref_T265body = transformations.quaternion_matrix([rw, rx, ry, rz]) # in transformations, Quaternions w+ix+jy+kz are represented as [w, x, y, z]!
+    #H_aeroRef_T265Ref   = numpy.array([[0,0,-1,0],[1,0,0,0],[0,-1,0,0],[0,0,0,1]])
+    #H_T265body_aeroBody = numpy.linalg.inv(H_aeroRef_T265Ref)
+    #H_T265Ref_T265body = transformations.quaternion_matrix([rw, rx, ry, rz]) # in transformations, Quaternions w+ix+jy+kz are represented as [w, x, y, z]!
 
     # transform to aeronautic coordinates (body AND reference frame!)
-    H_aeroRef_aeroBody = H_aeroRef_T265Ref.dot( H_T265Ref_T265body.dot( H_T265body_aeroBody ))
+    #H_aeroRef_aeroBody = H_aeroRef_T265Ref.dot( H_T265Ref_T265body.dot( H_T265body_aeroBody ))
     
-    rpy_rad = transformations.euler_from_matrix(H_aeroRef_aeroBody, 'rxyz')
-    rpy_deg = [rpy_rad[0]*180/math.pi, rpy_rad[1]*180/math.pi, rpy_rad[2]*180/math.pi]
+    #rpy_rad = transformations.euler_from_matrix(H_aeroRef_aeroBody, 'sxyz')
+    #rpy_deg = [rpy_rad[0]*180/math.pi, rpy_rad[1]*180/math.pi, rpy_rad[2]*180/math.pi]
    
     #R_frd_rub = {{0,0,-1},{1,0,0},{0,-1,0}}
     #R_nue_ned = {{1,0,0},{0,0,-1},{0,1,0}}
@@ -169,10 +168,10 @@ def quaternion_to_roll_pitch_yaw(rw, rx, ry, rz):
     pitch = math.asin(-2*(ry*rz - rw*rx))                              #theta
     roll  = math.atan2(-2*(rx*ry + rw*rz), 1 - 2*(rx*rx + rz*rz))      #phi
     yaw   = math.atan2(-(1 - 2*(rx*rx + ry*ry)), 2*(rx*rz + rw*ry))    #psi
-    rpy_deg_jim = [roll*180/math.pi, pitch*180/math.pi, yaw*180/math.pi]
+    rpy_deg = [roll*180/math.pi, pitch*180/math.pi, yaw*180/math.pi]
 
-    print("Roll Pitch Yaw [deg]: {} vs {}".format(rpy_deg, rpy_deg_jim))
-    return rpy_deg_jim
+    print("Roll Pitch Yaw [deg]: {}".format(rpy_deg))
+    return rpy_deg
 
 # Open a source CSV file with the format [filename, tx, ty, tz, rw, rx, ry, rz] and convert it to the exif format in lat long height
 def conv_xyzcsv_llhcsv(src_dir, src_posefile):

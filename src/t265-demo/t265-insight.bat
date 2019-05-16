@@ -3,7 +3,7 @@
 ECHO %1
 
 :: path to insight uploader client
-set INSIGHT_CLIENT_PATH=InsightSDK\InsightService-1.0-SNAPSHOT-20190514.jar
+set INSIGHT_CLIENT_PATH=InsightSDK\InsightService-1.0-SNAPSHOT-20190515.jar
 
 :: set survey name
 set CURRENT_TIME=%time: =0%

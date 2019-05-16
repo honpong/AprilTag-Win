@@ -4,6 +4,9 @@ ECHO %1
 
 :: path to insight uploader client
 set INSIGHT_CLIENT_PATH=InsightSDK\InsightService-1.0-SNAPSHOT-20190516.jar
+set INSIGHT_PIX4D_CONFIG=InsightSDK\photogrammetry_config.json
+set INSIGHT_ENGINE=bentleyProcessing 
+::set INSIGHT_ENGINE=pix4DProcessing 
 
 :: set survey name
 set CURRENT_TIME=%time: =0%
@@ -23,16 +26,18 @@ set DST=tagged_capture
 RMDIR /S /Q %DST% 2> NUL
 MKDIR %DST%
 
-:: copy annotation
-::COPY /Y %SRC%\*.geojson %DST%\
+::copy pix4DProcessing configuration
+if %INSIGHT_ENGINE%==pix4DProcessing (COPY /Y %INSIGHT_PIX4D_CONFIG% %DST%\)
 
 :: call second script
 if %PY%==0 (py\csvrwv1.exe %SRC% %DST%) else (python %2\csvrwv1.py %SRC% %DST%)
 
-:: Use Intel Proxy, processing is not started automatically, you need to add -p or --pix4DProcessing or -b --bentleyProcessing
-CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -DsocksProxyHost=proxy-us.intel.com -DsocksProxyPort=1080 -jar %INSIGHT_CLIENT_PATH% --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME% -b
-:: Not Using Proxy, processing is not started automatically, you need to add -p or --pix4DProcessing or -b --bentleyProcessing
-::CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -jar %INSIGHT_CLIENT_PATH% --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME% -b
+:: Use Intel Proxy, -i or --intel-proxy or (before -jar) -DsocksProxyHost=proxy-us.intel.com -DsocksProxyPort=1080
+:: processing is not started automatically, you need to add -p or --pix4DProcessing or -b --bentleyProcessing
+CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -jar %INSIGHT_CLIENT_PATH% --intel-proxy --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME% --%INSIGHT_ENGINE%
+:: Not Using Proxy
+:: processing is not started automatically, you need to add -p or --pix4DProcessing or -b --bentleyProcessing
+::CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -jar %INSIGHT_CLIENT_PATH% --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME% --%INSIGHT_ENGINE%
 
 DEL /F /Q %SRC%\outputllh.csv
 DEL /F /Q %SRC%\outputllh_short.csv

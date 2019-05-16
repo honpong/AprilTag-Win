@@ -172,7 +172,7 @@ def quaternion_to_roll_pitch_yaw(rw, rx, ry, rz):
     rpy_deg_jim = [roll*180/math.pi, pitch*180/math.pi, yaw*180/math.pi]
 
     print("Roll Pitch Yaw [deg]: {} vs {}".format(rpy_deg, rpy_deg_jim))
-    return rpy_deg
+    return rpy_deg_jim
 
 # Open a source CSV file with the format [filename, tx, ty, tz, rw, rx, ry, rz] and convert it to the exif format in lat long height
 def conv_xyzcsv_llhcsv(src_dir, src_posefile):

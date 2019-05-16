@@ -3,7 +3,7 @@
 ECHO %1
 
 :: path to insight uploader client
-set INSIGHT_CLIENT_PATH=InsightSDK\InsightService-1.0-SNAPSHOT-20190515.jar
+set INSIGHT_CLIENT_PATH=InsightSDK\InsightService-1.0-SNAPSHOT-20190516.jar
 
 :: set survey name
 set CURRENT_TIME=%time: =0%
@@ -29,10 +29,10 @@ MKDIR %DST%
 :: call second script
 if %PY%==0 (py\csvrwv1.exe %SRC% %DST%) else (python %2\csvrwv1.py %SRC% %DST%)
 
-:: Use Intel Proxy
-CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -DsocksProxyHost=proxy-us.intel.com -DsocksProxyPort=1080 -jar %INSIGHT_CLIENT_PATH% --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME%
-:: Not Using Proxy
-::CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -jar %INSIGHT_CLIENT_PATH% --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME%
+:: Use Intel Proxy, processing is not started automatically, you need to add -p or --pix4DProcessing or -b --bentleyProcessing
+CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -DsocksProxyHost=proxy-us.intel.com -DsocksProxyPort=1080 -jar %INSIGHT_CLIENT_PATH% --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME% -b
+:: Not Using Proxy, processing is not started automatically, you need to add -p or --pix4DProcessing or -b --bentleyProcessing
+::CMD /C InsightSDK\jdk-11.0.2\bin\java.exe -jar %INSIGHT_CLIENT_PATH% --user-name hon.pong.ho@intel.com --password rea!sight1 --folder-name %DST% --survey-name %SURVEY_NAME% -b
 
 DEL /F /Q %SRC%\outputllh.csv
 DEL /F /Q %SRC%\outputllh_short.csv

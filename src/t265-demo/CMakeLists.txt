@@ -150,6 +150,7 @@ if(MSVC)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${THIRDPARTY_DIR}/exempi/build/vc14/x64/exempi.dll "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${THIRDPARTY_DIR}/exempi/build/vc14/x64/exempi.dll "$<TARGET_FILE_DIR:${PROJECT_NAME}>/py")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${InsightSDK_DIR}/jar/InsightService-1.0-SNAPSHOT-20190514.jar "$<TARGET_FILE_DIR:${PROJECT_NAME}>/InsightSDK/")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/photogrammetry_config.json "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory    ${InsightSDK_DIR}/jar/jdk-11.0.2 "$<TARGET_FILE_DIR:${PROJECT_NAME}>/InsightSDK/jdk-11.0.2")
 
     

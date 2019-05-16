@@ -161,7 +161,17 @@ def quaternion_to_roll_pitch_yaw(rw, rx, ry, rz):
     rpy_rad = transformations.euler_from_matrix(H_aeroRef_aeroBody, 'rxyz')
     rpy_deg = [rpy_rad[0]*180/math.pi, rpy_rad[1]*180/math.pi, rpy_rad[2]*180/math.pi]
    
-    print("Roll Pitch Yaw [deg]: {}".format(rpy_deg))
+    #R_frd_rub = {{0,0,-1},{1,0,0},{0,-1,0}}
+    #R_nue_ned = {{1,0,0},{0,0,-1},{0,1,0}}
+    #R_nue_rub = R_nue_ned * R_ned_frd * R_frd_rub
+
+    # jim version
+    pitch = math.asin(-2*(ry*rz - rw*rx))                              #theta
+    roll  = math.atan2(-2*(rx*ry + rw*rz), 1 - 2*(rx*rx + rz*rz))      #phi
+    yaw   = math.atan2(-(1 - 2*(rx*rx + ry*ry)), 2*(rx*rz + rw*ry))    #psi
+    rpy_deg_jim = [roll*180/math.pi, pitch*180/math.pi, yaw*180/math.pi]
+
+    print("Roll Pitch Yaw [deg]: {} vs {}".format(rpy_deg, rpy_deg_jim))
     return rpy_deg
 
 # Open a source CSV file with the format [filename, tx, ty, tz, rw, rx, ry, rz] and convert it to the exif format in lat long height

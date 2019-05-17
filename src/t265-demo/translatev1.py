@@ -152,16 +152,19 @@ def quaternion_to_roll_pitch_yaw(rw, rx, ry, rz):
 
     # T265Body is RUB (right,  up,   back for x,y,z) with the camera coordiantes RDF
     # AeroBody is FRD (forward,right,down for x,y,z) with the camera coordiantes RBD
-    H_T265bodyCamera_aeroBodyCamera = np.array([[0,1,0,0],[1,0,0,0],[0,0,-1,0],[0,0,0,1]])
-    H_aeroRef_T265Ref = np.array([[0,0,-1,0],[1,0,0,0],[0,-1,0,0],[0,0,0,1]])
+    H_T265bodyCamera_aeroBodyCamera = numpy.array([[0,1,0,0],[1,0,0,0],[0,0,-1,0],[0,0,0,1]])
+    H_aeroRef_T265Ref = numpy.array([[0,0,-1,0],[1,0,0,0],[0,-1,0,0],[0,0,0,1]])
 
-    H_T265Ref_T265body = tf.quaternion_matrix([data.rotation.w, data.rotation.x,data.rotation.y,data.rotation.z])
+    H_T265Ref_T265body = transformations.quaternion_matrix([rw, rx, ry, rz])
     H_aeroRef_aeroBody = H_aeroRef_T265Ref.dot( H_T265Ref_T265body.dot( H_T265bodyCamera_aeroBodyCamera ))
-    rpy_rad = np.array( tf.euler_from_matrix(H_aeroRef_aeroBody, 'sxyz') )
-    
+    rpy_rad = transformations.euler_from_matrix(H_aeroRef_aeroBody, 'sxyz')
+    rpy_deg = [rpy_rad[0]*180/math.pi, rpy_rad[1]*180/math.pi, rpy_rad[2]*180/math.pi]
+
+    print("Roll Pitch Yaw [deg]: {}".format(rpy_deg))
     return rpy_deg
     
-def quaternion_to_roll_pitch_yaw_old(rw, rx, ry, rz)
+def quaternion_to_roll_pitch_yaw_old(rw, rx, ry, rz):
+
     #H_aeroRef_T265Ref   = numpy.array([[0,0,-1,0],[1,0,0,0],[0,-1,0,0],[0,0,0,1]])
     #H_T265body_aeroBody = numpy.linalg.inv(H_aeroRef_T265Ref)
     #H_T265Ref_T265body = transformations.quaternion_matrix([rw, rx, ry, rz]) # in transformations, Quaternions w+ix+jy+kz are represented as [w, x, y, z]!

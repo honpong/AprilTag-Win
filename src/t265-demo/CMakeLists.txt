@@ -153,7 +153,6 @@ if(MSVC)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/photogrammetry_config.json "$<TARGET_FILE_DIR:${PROJECT_NAME}>/InsightSDK/")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory    ${InsightSDK_DIR}/jar/jdk-11.0.2 "$<TARGET_FILE_DIR:${PROJECT_NAME}>/InsightSDK/jdk-11.0.2")
 
-    
 
 	foreach(python_script calibration_make translatev1 csvrwv1 )
 	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/${python_script}.py "$<TARGET_FILE_DIR:${PROJECT_NAME}>/py")
@@ -161,8 +160,15 @@ if(MSVC)
 	    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_BINARY_DIR}/python_binary/${python_script}.exe "$<TARGET_FILE_DIR:${PROJECT_NAME}>/py")
 	endforeach(python_script)
 
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/cam")
+    FILE(GLOB KNOWN_CAMERA ${CMAKE_CURRENT_SOURCE_DIR}/calibration*.txt)
+    foreach(txt IN LISTS KNOWN_CAMERA)
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${txt} "$<TARGET_FILE_DIR:${PROJECT_NAME}>/cam")
+    endforeach(txt)
+
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND calibration_make.exe ../python_temp WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/python_binary)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/python_temp/calibration.txt "$<TARGET_FILE_DIR:${PROJECT_NAME}>/capture")
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/python_temp/calibration.txt "$<TARGET_FILE_DIR:${PROJECT_NAME}>/cam")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_CURRENT_BINARY_DIR}/python_temp/calibration.txt)
 
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND POWERSHELL rm -Force "$<TARGET_FILE_DIR:${PROJECT_NAME}>/*_MD$<$<CONFIG:Release>:d>_*.dll")

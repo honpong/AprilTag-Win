@@ -1,0 +1,32 @@
+{
+    "xmp" : {
+        "namespace_url" : "http://pix4d.com/camera/1.0/", 
+        "model_type" : "perspective", 
+        "principal_point" : "12.9221, 7.24935", 
+        "perspective_focal" : "18.5779", 
+        "perspective_distortion" : "0.1976732, -0.5061321, 0.3403559, 0, 0",
+        "gps_xy_accuracy" : "0.02", 
+        "gps_z_accuracy" : "0.02", 
+        "gyro_rate" : "0.005", 
+        "imu_pitch_accuracy" : "0.2", 
+        "imu_roll_accuracy" : "0.2", 
+        "imu_yaw_accuracy" : "0.2"
+    }, 
+    "exif" : {
+        "make" : "Intel InSense", 
+        "model" : "InSense Logitech", 
+        "focalplane_resolution_unit" : 4, 
+        "focalplane_x_resolution" : [
+            16126,
+            100
+        ],
+        "focalplane_y_resolution" : [
+            16126,
+            100
+        ], 
+        "focal_length" : [
+            185779,
+            10000
+        ]
+    }
+}

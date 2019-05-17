@@ -1,0 +1,32 @@
+{
+    "xmp" : {
+        "namespace_url" : "http://pix4d.com/camera/1.0/", 
+        "model_type" : "perspective", 
+        "principal_point" : "6.6517344, 4.5154752", 
+        "perspective_focal" : "7.9711776", 
+        "perspective_distortion" : "-0.01549026,-0.03786489, 0.00995892, 0., 0.",
+        "gps_xy_accuracy" : "0.02", 
+        "gps_z_accuracy" : "0.02", 
+        "gyro_rate" : "0.005", 
+        "imu_pitch_accuracy" : "0.2", 
+        "imu_roll_accuracy" : "0.2", 
+        "imu_yaw_accuracy" : "0.2"
+    }, 
+    "exif" : {
+        "make" : "Intel InSense", 
+        "model" : "InSense Blackfly S", 
+        "focalplane_resolution_unit" : 4, 
+        "focalplane_x_resolution" : [
+            416666667,
+            1000000
+        ], 
+        "focalplane_y_resolution" : [
+            416666667,
+            1000000
+        ], 
+        "focal_length" : [
+            79711776, 
+            10000000
+        ]
+    }
+}

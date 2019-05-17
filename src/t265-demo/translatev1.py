@@ -149,11 +149,23 @@ def conv_xyz_llh_short(x, y, z):
     return row
 
 def quaternion_to_roll_pitch_yaw(rw, rx, ry, rz):
+
+    # T265Body is RUB (right,  up,   back for x,y,z) with the camera coordiantes RDF
+    # AeroBody is FRD (forward,right,down for x,y,z) with the camera coordiantes RBD
+    H_T265bodyCamera_aeroBodyCamera = np.array([[0,1,0,0],[1,0,0,0],[0,0,-1,0],[0,0,0,1]])
+    H_aeroRef_T265Ref = np.array([[0,0,-1,0],[1,0,0,0],[0,-1,0,0],[0,0,0,1]])
+
+    H_T265Ref_T265body = tf.quaternion_matrix([data.rotation.w, data.rotation.x,data.rotation.y,data.rotation.z])
+    H_aeroRef_aeroBody = H_aeroRef_T265Ref.dot( H_T265Ref_T265body.dot( H_T265bodyCamera_aeroBodyCamera ))
+    rpy_rad = np.array( tf.euler_from_matrix(H_aeroRef_aeroBody, 'sxyz') )
     
+    return rpy_deg
+    
+def quaternion_to_roll_pitch_yaw_old(rw, rx, ry, rz)
     #H_aeroRef_T265Ref   = numpy.array([[0,0,-1,0],[1,0,0,0],[0,-1,0,0],[0,0,0,1]])
     #H_T265body_aeroBody = numpy.linalg.inv(H_aeroRef_T265Ref)
     #H_T265Ref_T265body = transformations.quaternion_matrix([rw, rx, ry, rz]) # in transformations, Quaternions w+ix+jy+kz are represented as [w, x, y, z]!
-
+    
     # transform to aeronautic coordinates (body AND reference frame!)
     #H_aeroRef_aeroBody = H_aeroRef_T265Ref.dot( H_T265Ref_T265body.dot( H_T265body_aeroBody ))
     
@@ -164,7 +176,7 @@ def quaternion_to_roll_pitch_yaw(rw, rx, ry, rz):
     #R_nue_ned = {{1,0,0},{0,0,-1},{0,1,0}}
     #R_nue_rub = R_nue_ned * R_ned_frd * R_frd_rub
 
-    # jim version
+    # jim version 2
     pitch = math.asin(-2*(ry*rz - rw*rx))                              #theta
     roll  = math.atan2(-2*(rx*ry + rw*rz), 1 - 2*(rx*rx + rz*rz))      #phi
     yaw   = math.atan2(-(1 - 2*(rx*rx + ry*ry)), 2*(rx*rz + rw*ry))    #psi

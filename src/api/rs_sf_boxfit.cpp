@@ -504,7 +504,7 @@ void rs_sf_boxfit::draw_box(const std::string& name, const box & src, const box_
     auto pt0 = proj(src.origin());
     for (int a = 0; a < 3; ++a) {
         auto pt1 = proj(src.dimension[a] * src.axis.col(a) + src.origin());
-        cv::line(map, pt0, pt1, cv::Scalar(70 * (a + 1)), 2, CV_AA);
+        cv::line(map, pt0, pt1, cv::Scalar(70 * (a + 1)), 2, cv::LINE_AA);
     }
     
     if (p0 && p1)

@@ -21,3 +21,6 @@
 [submodule "src/thirdparty/apriltag"]
 	path = src/thirdparty/apriltag
 	url = https://github.com/honpong/AprilTag-Win.git
+[submodule "src/thirdparty/apriltag3"]
+	path = src/thirdparty/apriltag3
+	url = https://github.com/honpong/apriltag.git

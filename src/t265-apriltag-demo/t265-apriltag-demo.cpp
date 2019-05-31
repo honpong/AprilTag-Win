@@ -8,7 +8,7 @@
 
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
-#define DEFAULT_PATH ".\\capture\\" //"C:\\temp\\t265-capture\\"
+#define DEFAULT_PATH ".\\" //capture\\" //"C:\\temp\\t265-capture\\"
 #define DEFAULT_SCRIPT "t265-insight.bat"
 //#define BIN_COMMAND ("START \"SCRIPT\" /WAIT /B " + g_script_name + " " + folder_path).c_str()
 //#define SCRIPT_COMMAND ("START \"SCRIPT\" /WAIT /B " + g_script_name + " " + folder_path + " py").c_str()
@@ -194,6 +194,7 @@ void run(const std::string& data_path)
         
         cv::Mat src(height,width, CV_8UC3, (void*)color_frame.get_data());
         cv::cvtColor(src, rgb, cv::COLOR_RGB2BGR);
+        cv::resize(rgb, rgb, cv::Size(), 0.5, 0.5);
         cv::hconcat(rgb, rgb, disp);
         cv::imshow("record-playback", disp);
         
@@ -218,7 +219,8 @@ void run(const std::string& data_path)
         {
             auto color_frame = frames.get_color_frame();
             cv::Mat src(height,width, CV_8UC3, (void*)color_frame.get_data());
-            cv::cvtColor(src, disp(cv::Rect(width,0,width,height)), cv::COLOR_RGB2BGR);
+            cv::resize(src, rgb, cv::Size(), 0.5, 0.5);
+            cv::cvtColor(rgb, disp(cv::Rect(rgb.cols,0,rgb.cols,rgb.rows)), cv::COLOR_RGB2BGR);
             cv::imshow("record-playback", disp);
             
             switch(cv::waitKey(1))

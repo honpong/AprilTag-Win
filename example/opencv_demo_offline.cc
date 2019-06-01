@@ -38,10 +38,10 @@ either expressed or implied, of the Regents of The University of Michigan.
 
 #include "apriltag.h"
 #include "tag36h11.h"
-#include "tag36h10.h"
-#include "tag36artoolkit.h"
+//#include "tag36h10.h"
+//#include "tag36artoolkit.h"
 #include "tag25h9.h"
-#include "tag25h7.h"
+//#include "tag25h7.h"
 #include "common/getopt.h"
 
 using namespace std;
@@ -84,19 +84,19 @@ int main(int argc, char *argv[])
     const char *famname = getopt_get_string(getopt, "family");
     if (!strcmp(famname, "tag36h11"))
         tf = tag36h11_create();
-    else if (!strcmp(famname, "tag36h10"))
-        tf = tag36h10_create();
-    else if (!strcmp(famname, "tag36artoolkit"))
-        tf = tag36artoolkit_create();
+    //else if (!strcmp(famname, "tag36h10"))
+    //    tf = tag36h10_create();
+    //else if (!strcmp(famname, "tag36artoolkit"))
+    //    tf = tag36artoolkit_create();
     else if (!strcmp(famname, "tag25h9"))
         tf = tag25h9_create();
-    else if (!strcmp(famname, "tag25h7"))
-        tf = tag25h7_create();
+    //else if (!strcmp(famname, "tag25h7"))
+    //    tf = tag25h7_create();
     else {
         printf("Unrecognized tag family name. Use e.g. \"tag36h11\".\n");
         exit(-1);
     }
-    tf->black_border = getopt_get_int(getopt, "border");
+    //tf->black_border = getopt_get_int(getopt, "border");
 
     apriltag_detector_t *td = apriltag_detector_create();
     apriltag_detector_add_family(td, tf);
@@ -105,8 +105,8 @@ int main(int argc, char *argv[])
     td->nthreads = getopt_get_int(getopt, "threads");
     td->debug = getopt_get_bool(getopt, "debug");
     td->refine_edges = getopt_get_bool(getopt, "refine-edges");
-    td->refine_decode = getopt_get_bool(getopt, "refine-decode");
-    td->refine_pose = getopt_get_bool(getopt, "refine-pose");
+    //td->refine_decode = getopt_get_bool(getopt, "refine-decode");
+    //td->refine_pose = getopt_get_bool(getopt, "refine-pose");
 
     // Make an image_u8_t header for the Mat data
 #ifdef _MSC_VER
@@ -159,14 +159,14 @@ int main(int argc, char *argv[])
     apriltag_detector_destroy(td);
     if (!strcmp(famname, "tag36h11"))
         tag36h11_destroy(tf);
-    else if (!strcmp(famname, "tag36h10"))
-        tag36h10_destroy(tf);
-    else if (!strcmp(famname, "tag36artoolkit"))
-        tag36artoolkit_destroy(tf);
+    //else if (!strcmp(famname, "tag36h10"))
+    //    tag36h10_destroy(tf);
+    //else if (!strcmp(famname, "tag36artoolkit"))
+    //    tag36artoolkit_destroy(tf);
     else if (!strcmp(famname, "tag25h9"))
         tag25h9_destroy(tf);
-    else if (!strcmp(famname, "tag25h7"))
-        tag25h7_destroy(tf);
+    //else if (!strcmp(famname, "tag25h7"))
+    //    tag25h7_destroy(tf);
     getopt_destroy(getopt);
 
     return 0;

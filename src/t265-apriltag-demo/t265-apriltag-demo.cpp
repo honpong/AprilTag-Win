@@ -5,6 +5,7 @@
 //
 
 #include "t265-apriltag-demo.hpp"
+#include "t265-apriltag.hpp"
 
 #if defined(WIN32) | defined(WIN64) | defined(_WIN32) | defined(_WIN64)
 #define PATH_SEPARATER '\\'
@@ -28,6 +29,7 @@ struct app_data_t
     bool is_replay  = true;
     bool is_ui      = true;
     bool exit_request = false;
+    bool is_tag_detect = true;
 
     const int fisheye_sensor_idx = 1;
     const std::string app_name = std::string("t265-apriltag-demo ") + VERSION_STRING;
@@ -58,143 +60,6 @@ struct app_data_t
     bool is_exit() const { return exit_request; }
 
 } g_app_data;
-
-/**
-#include "apriltag.h"
-#include "tag36h11.h"
-#include "tag36h10.h"
-#include "tag36artoolkit.h"
-#include "tag25h9.h"
-#include "tag25h7.h"
-#include "common/getopt.h"
-
-struct apriltag
-{
-    apriltag() { init(); }
-    ~apriltag() { destory(); }
-
-    getopt_t *getopt = nullptr;
-    const char* famname = nullptr;
-    apriltag_family_t *tf = nullptr;
-    apriltag_detector_t *td = nullptr;
-
-    void destory()
-    {
-        apriltag_detector_destroy(td);
-        if (!strcmp(famname, "tag36h11"))
-            tag36h11_destroy(tf);
-        else if (!strcmp(famname, "tag36h10"))
-            tag36h10_destroy(tf);
-        else if (!strcmp(famname, "tag36artoolkit"))
-            tag36artoolkit_destroy(tf);
-        else if (!strcmp(famname, "tag25h9"))
-            tag25h9_destroy(tf);
-        else if (!strcmp(famname, "tag25h7"))
-            tag25h7_destroy(tf);
-        getopt_destroy(getopt);
-
-        getopt = nullptr;
-        famname = nullptr;
-        tf = nullptr;
-        td = nullptr;
-    }
-
-    void init() 
-    {
-        getopt = getopt_create();
-
-        getopt_add_bool(getopt, 'h', "help", 0, "Show this help");
-        getopt_add_bool(getopt, 'd', "debug", 0, "Enable debugging output (slow)");
-        getopt_add_bool(getopt, 'q', "quiet", 0, "Reduce output");
-        getopt_add_string(getopt, 'f', "family", "tag36h11", "Tag family to use");
-        getopt_add_int(getopt, '\0', "border", "1", "Set tag family border size");
-        getopt_add_int(getopt, 't', "threads", "4", "Use this many CPU threads");
-        getopt_add_double(getopt, 'x', "decimate", "1.0", "Decimate input image by this factor");
-        getopt_add_double(getopt, 'b', "blur", "0.0", "Apply low-pass blur to input");
-        getopt_add_bool(getopt, '0', "refine-edges", 1, "Spend more time trying to align edges of tags");
-        getopt_add_bool(getopt, '1', "refine-decode", 0, "Spend more time trying to decode tags");
-        getopt_add_bool(getopt, '2', "refine-pose", 0, "Spend more time trying to precisely localize tags");
-
-        // Initialize tag detector with options
-        famname = getopt_get_string(getopt, "family");
-        if (!strcmp(famname, "tag36h11"))
-            tf = tag36h11_create();
-        else if (!strcmp(famname, "tag36h10"))
-            tf = tag36h10_create();
-        else if (!strcmp(famname, "tag36artoolkit"))
-            tf = tag36artoolkit_create();
-        else if (!strcmp(famname, "tag25h9"))
-            tf = tag25h9_create();
-        else if (!strcmp(famname, "tag25h7"))
-            tf = tag25h7_create();
-        else {
-            printf("Unrecognized tag family name. Use e.g. \"tag36h11\".\n");
-            exit(-1);
-        }
-        tf->black_border = getopt_get_int(getopt, "border");
-
-        td = apriltag_detector_create();
-        apriltag_detector_add_family(td, tf);
-        td->quad_decimate = (float)getopt_get_double(getopt, "decimate");
-        td->quad_sigma = (float)getopt_get_double(getopt, "blur");
-        td->nthreads = getopt_get_int(getopt, "threads");
-        td->debug = getopt_get_bool(getopt, "debug");
-        td->refine_edges = getopt_get_bool(getopt, "refine-edges");
-        td->refine_decode = getopt_get_bool(getopt, "refine-decode");
-        td->refine_pose = getopt_get_bool(getopt, "refine-pose");
-    }
-
-    std::string find(cv::Mat& frame, cv::Mat& gray)
-    {
-        // Make an image_u8_t header for the Mat data
-#ifdef _MSC_VER
-        image_u8_t im{ gray.cols, gray.rows, gray.cols, gray.data };
-#else
-        image_u8_t im = { .width = gray.cols,
-            .height = gray.rows,
-            .stride = gray.cols,
-            .buf = gray.data
-        };
-#endif
-
-        zarray_t *detections = apriltag_detector_detect(td, &im);
-        
-        int num_tag_detected = zarray_size(detections);
-        // Draw detection outlines
-        for (int i = 0; i < num_tag_detected; i++) {
-            apriltag_detection_t *det;
-            zarray_get(detections, i, &det);
-            cv::line(frame, cv::Point2d(det->p[0][0], det->p[0][1]),
-                cv::Point2d(det->p[1][0], det->p[1][1]),
-                cv::Scalar(0, 0xff, 0), 2);
-            cv::line(frame, cv::Point2d(det->p[0][0], det->p[0][1]),
-                cv::Point2d(det->p[3][0], det->p[3][1]),
-                cv::Scalar(0, 0, 0xff), 2);
-            cv::line(frame, cv::Point2d(det->p[1][0], det->p[1][1]),
-                cv::Point2d(det->p[2][0], det->p[2][1]),
-                cv::Scalar(0xff, 0, 0), 2);
-            cv::line(frame, cv::Point2d(det->p[2][0], det->p[2][1]),
-                cv::Point2d(det->p[3][0], det->p[3][1]),
-                cv::Scalar(0xff, 0, 0), 2);
-
-            std::stringstream ss;
-            ss << det->id;
-            cv::String text = ss.str();
-            int fontface = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
-            double fontscale = 1.0;
-            int baseline;
-            cv::Size textsize = getTextSize(text, fontface, fontscale, 2,
-                &baseline);
-            cv::putText(frame, text, cv::Point2d(det->c[0] - textsize.width / 2,
-                det->c[1] + textsize.height / 2),
-                fontface, fontscale, cv::Scalar(0xff, 0x99, 0), 2);
-        }
-        zarray_destroy(detections);
-
-        return std::to_string(num_tag_detected) + " tags detected";
-    }
-};
-*/
 
 void print(const rs2_intrinsics& intr, const rs2_extrinsics& extr)
 {
@@ -277,22 +142,36 @@ calibration_info read_calibration(const std::string& calibration_path)
 
 int run_detection(std::shared_ptr<rs2::pipeline>& pipe, rs2_intrinsics& intr, rs2_extrinsics& extr)
 {
-    rs2::frameset frames; 
+    std::unique_ptr<apriltag> at;
+    cv::Mat display;
+
+    rs2::frameset frames;
     int fisheye_width = intr.width;
     int fisheye_height = intr.height;
-
+    
     auto device = pipe->get_active_profile().get_device();
 
     for (g_app_data.set_exit(false); !g_app_data.is_exit(); )
     {
-        if (frames = pipe->wait_for_frames())
+        if ((bool)(frames = pipe->wait_for_frames()))
         {
             auto fisheye_frame = frames.get_fisheye_frame(g_app_data.fisheye_sensor_idx);
 
             if (g_app_data.is_ui)
             {
                 cv::Mat src(fisheye_height, fisheye_width, CV_8UC1, (void*)fisheye_frame.get_data());
-                cv::imshow(g_app_data.app_name, src.clone());
+                cv::cvtColor(src, display, cv::COLOR_GRAY2RGB);
+                
+                if(g_app_data.is_tag_detect){
+                    if(!at){ at = std::make_unique<apriltag>(); }
+                    auto tags = at->detect(src, intr);
+                    tags->draw_detections(display);
+                    
+                    //cv::Mat undistort_img;
+                    //cv::cvtColor(at->undistort(src, intr),undistort_img, cv::COLOR_GRAY2RGB);
+                    //cv::hconcat(display, undistort_img, display);
+                }
+                cv::imshow(g_app_data.app_name, display);
 
                 switch (cv::waitKey(1)) {
                 case 'q': case 27: g_app_data.set_exit(); break;
@@ -349,7 +228,7 @@ int run()
         run_detection(pipe, intrinsics_live, extrinsics_live);
         pipe->stop();
     }
-
+    
     if (g_app_data.is_replay)
     {
         rs2::config cfg;

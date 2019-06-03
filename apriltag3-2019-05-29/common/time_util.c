@@ -69,11 +69,13 @@ void utime_to_timeval(int64_t v, struct timeval *tv)
     tv->tv_usec = (suseconds_t) utime_get_useconds(v);
 }
 
+#ifndef UNIX
 void utime_to_timespec(int64_t v, struct timespec *ts)
 {
     ts->tv_sec  = (time_t) utime_get_seconds(v);
     ts->tv_nsec = (suseconds_t) utime_get_useconds(v)*1000;
 }
+#endif
 
 int32_t timeutil_usleep(int64_t useconds)
 {

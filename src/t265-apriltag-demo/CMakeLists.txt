@@ -12,6 +12,7 @@ SET(JSON_SRC "${JSON_SRC_DIR}/jsoncpp.cpp")
 #############################################################################################################
 include_directories(${JSON_INC_DIR})
 
+list(APPEND LIBRS_LIBS APRILTAG_LIBRARY)
 
 find_package(OpenCV REQUIRED)
 if(OpenCV_FOUND)
@@ -58,10 +59,12 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${LIBRS_LIBS} ${libSP} ${Open
 )
 
 if(MSVC)
-	if(OpenCV_FOUND)
-	    list(APPEND APP_DEPENDENCY ${OpenCV_LIB_DIR}/../bin/opencv_world310$<$<CONFIG:Debug>:d>.dll)
-	endif()
-    
+    list(APPEND APP_DEPENDENCY $<TARGET_FILE:PTHREADS_LIBRARY>)
+
+    if(OpenCV_FOUND)
+        list(APPEND APP_DEPENDENCY ${OpenCV_LIB_DIR}/../bin/opencv_world310$<$<CONFIG:Debug>:d>.dll)
+    endif()
+
     foreach(var IN LISTS APP_DEPENDENCY)
         add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_if_different ${var} "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
     endforeach(var)

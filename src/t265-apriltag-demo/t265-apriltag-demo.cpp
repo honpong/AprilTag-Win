@@ -30,6 +30,7 @@ struct app_data_t
     bool is_ui      = true;
     bool exit_request = false;
     bool is_tag_detect = true;
+    bool is_playback_loop = true;
 
     const int fisheye_sensor_idx = 1;
     const std::string app_name = std::string("t265-apriltag-demo ") + VERSION_STRING;
@@ -42,12 +43,16 @@ struct app_data_t
             else if (!strcmp(argv[i], "--no_ui"))  { is_ui     = false;     }
             else if (!strcmp(argv[i], "--path"  )) { data_path = argv[++i]; }
             else if (!strcmp(argv[i], "--json"  )) { json_path = argv[++i]; }
+            else if (!strcmp(argv[i], "--no_tag")) { is_tag_detect = false; }
+            else if (!strcmp(argv[i], "--once"  )) { is_playback_loop = false; }
             else {
                 printf("usages:\n t265-apriltag-demo \n");
-                printf("  [--record][--replay][--no_ui][--path PATH_TO_BAG_FILE][--json PATH_TO_JSON]\n\n");
+                printf("  [--record][--replay][--once][--no_ui][--no_tag][--path PATH_TO_BAG_FILE][--json PATH_TO_JSON]\n\n");
                 printf("--record : enable recording.                                          \n");
                 printf("--replay : replay a recorded T265 .bag file with .json calibration.   \n");
+                printf("--once   : replay only once.                                          \n");
                 printf("--no_ui  : do not display UI.                                         \n");
+                printf("--no_tag : do not start Apriltag detection.                           \n");
                 printf("--path   : path to T265 .bag file.                                    \n");
                 printf("--json   : json to custom .json calibration file from this program.   \n");
                 return false;
@@ -160,30 +165,39 @@ int run_detection(std::shared_ptr<rs2::pipeline>& pipe, rs2_intrinsics& intr, rs
             auto src = cv::Mat(fisheye_height, fisheye_width, CV_8UC1, (void*)fisheye_frame.get_data()).clone();
             fisheye_frame = rs2::frame();
             frames = {};
-
+            
+            std::shared_ptr<apriltag_detection_array> tags;
+            
+            if(g_app_data.is_tag_detect)
+            {
+                if(!at){ at = std::make_unique<apriltag>(); }
+                tags = at->detect(src, intr);
+            }
+            
             if (g_app_data.is_ui)
             {
                 cv::cvtColor(src, display, cv::COLOR_GRAY2RGB);
                 
-                if(g_app_data.is_tag_detect){
-                    if(!at){ at = std::make_unique<apriltag>(); }
-                    auto tags = at->detect(src, intr);
+                if(tags)
+                {
                     tags->draw_detections(display);
-                    
+            
                     cv::Mat undistort_img;
                     cv::cvtColor(at->undistort(src, intr),undistort_img, cv::COLOR_GRAY2RGB);
                     cv::hconcat(display, undistort_img, display);
                 }
                 cv::imshow(g_app_data.app_name, display);
-
-                switch (cv::waitKey(1)) {
+            }
+            
+            switch (cv::waitKey(1)) {
                 case 'q': case 27: g_app_data.set_exit(); break;
-                }
+                case 'a': case 'A': g_app_data.is_tag_detect = !g_app_data.is_tag_detect; break;
+                case 'u': case 'U': g_app_data.is_ui = !g_app_data.is_ui; break;
             }
         }
         else { g_app_data.set_exit(); }
 
-        if (device.as<rs2::playback>())
+        if (device.as<rs2::playback>() && !g_app_data.is_playback_loop)
         {
             const auto total_playback_time = device.as<rs2::playback>().get_duration();
             const auto current_playback_time = std::chrono::nanoseconds(device.as<rs2::playback>().get_position());

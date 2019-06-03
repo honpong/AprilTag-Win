@@ -275,6 +275,8 @@ void apriltag_detections_destroy(zarray_t *detections);
 // Caller is responsible for calling image_u8_destroy on the image
 image_u8_t *apriltag_to_image(apriltag_family_t *fam, int idx);
 
+matd_t* homography_compute2(double c[4][4]);
+
 #ifdef __cplusplus
 }
 #endif

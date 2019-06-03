@@ -93,20 +93,20 @@ struct apriltag_detection_array
         // Draw detection outlines
         for (int i = 0; i < num_tag_detected; i++) {
             apriltag_detection_t *det = get_detection(i);
-            
+
             cv::line(frame, cv::Point2d(det->p[0][0], det->p[0][1]),
-                     cv::Point2d(det->p[1][0], det->p[1][1]),
-                     cv::Scalar(0, 0xff, 0), 2);
+                cv::Point2d(det->p[1][0], det->p[1][1]),
+                cv::Scalar(0, 0xff, 0), 2);
             cv::line(frame, cv::Point2d(det->p[0][0], det->p[0][1]),
-                     cv::Point2d(det->p[3][0], det->p[3][1]),
-                     cv::Scalar(0, 0, 0xff), 2);
+                cv::Point2d(det->p[3][0], det->p[3][1]),
+                cv::Scalar(0, 0, 0xff), 2);
             cv::line(frame, cv::Point2d(det->p[1][0], det->p[1][1]),
-                     cv::Point2d(det->p[2][0], det->p[2][1]),
-                     cv::Scalar(0xff, 0, 0), 2);
+                cv::Point2d(det->p[2][0], det->p[2][1]),
+                cv::Scalar(0xff, 0, 0), 2);
             cv::line(frame, cv::Point2d(det->p[2][0], det->p[2][1]),
-                     cv::Point2d(det->p[3][0], det->p[3][1]),
-                     cv::Scalar(0xff, 0, 0), 2);
-            
+                cv::Point2d(det->p[3][0], det->p[3][1]),
+                cv::Scalar(0xff, 0, 0), 2);
+
             std::stringstream ss;
             ss << det->id;
             cv::String text = ss.str();
@@ -114,17 +114,19 @@ struct apriltag_detection_array
             double fontscale = 1.0;
             int baseline;
             cv::Size textsize = cv::getTextSize(text, fontface, fontscale, 2,
-                                                &baseline);
+                &baseline);
             cv::putText(frame, text, cv::Point2d(det->c[0] - textsize.width / 2,
-                                                 det->c[1] + textsize.height / 2),
-                        fontface, fontscale, cv::Scalar(0xff, 0x99, 0), 2);
-            
-            std::stringstream pss; pss << "t:";
-            pss << matd_get(tag_poses[i].t,0,0) <<
-            "," << matd_get(tag_poses[i].t,1,0) <<
-            "," << matd_get(tag_poses[i].t,2,0);
-            
-            cv::putText(frame, pss.str(), cv::Point(30,30), fontface, fontscale, cv::Scalar(255,255,0),1);
+                det->c[1] + textsize.height / 2),
+                fontface, fontscale, cv::Scalar(0xff, 0x99, 0), 2);
+
+            if (tag_poses.size() > i) {
+                std::stringstream pss; pss << "t:";
+                pss << matd_get(tag_poses[i].t, 0, 0) <<
+                    "," << matd_get(tag_poses[i].t, 1, 0) <<
+                    "," << matd_get(tag_poses[i].t, 2, 0);
+
+                cv::putText(frame, pss.str(), cv::Point(30, 30), fontface, fontscale, cv::Scalar(255, 255, 0), 1);
+            }
         }
     }
     

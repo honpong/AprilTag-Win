@@ -25,8 +25,8 @@ struct app_data_t
     std::string data_path = std::string(DEFAULT_FOLDER) + PATH_SEPARATER + DEFAULT_FILE;
     std::string json_path = std::string(DEFAULT_FOLDER) + PATH_SEPARATER + DEFAULT_JSON;
     bool is_live    = true;
-    bool is_record  = true;
-    bool is_replay  = true;
+    bool is_record  = false;
+    bool is_replay  = false;
     bool is_ui      = true;
     bool exit_request = false;
     bool is_tag_detect = true;
@@ -155,11 +155,14 @@ int run_detection(std::shared_ptr<rs2::pipeline>& pipe, rs2_intrinsics& intr, rs
     {
         if ((bool)(frames = pipe->wait_for_frames()))
         {
+            
             auto fisheye_frame = frames.get_fisheye_frame(g_app_data.fisheye_sensor_idx);
+            auto src = cv::Mat(fisheye_height, fisheye_width, CV_8UC1, (void*)fisheye_frame.get_data()).clone();
+            fisheye_frame = rs2::frame();
+            frames = {};
 
             if (g_app_data.is_ui)
             {
-                cv::Mat src(fisheye_height, fisheye_width, CV_8UC1, (void*)fisheye_frame.get_data());
                 cv::cvtColor(src, display, cv::COLOR_GRAY2RGB);
                 
                 if(g_app_data.is_tag_detect){
@@ -167,9 +170,9 @@ int run_detection(std::shared_ptr<rs2::pipeline>& pipe, rs2_intrinsics& intr, rs
                     auto tags = at->detect(src, intr);
                     tags->draw_detections(display);
                     
-                    //cv::Mat undistort_img;
-                    //cv::cvtColor(at->undistort(src, intr),undistort_img, cv::COLOR_GRAY2RGB);
-                    //cv::hconcat(display, undistort_img, display);
+                    cv::Mat undistort_img;
+                    cv::cvtColor(at->undistort(src, intr),undistort_img, cv::COLOR_GRAY2RGB);
+                    cv::hconcat(display, undistort_img, display);
                 }
                 cv::imshow(g_app_data.app_name, display);
 

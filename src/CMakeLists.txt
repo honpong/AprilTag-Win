@@ -69,17 +69,17 @@ list(APPEND CMAKE_MODULE_PATH
 list(APPEND CMAKE_PREFIX_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/sp/win
     ${CMAKE_CURRENT_SOURCE_DIR}/../../sp/win
-	$ENV{HOMEDRIVE}/Users/$ENV{USERNAME}/Desktop/Github/build/opencv310/build
+    $ENV{HOMEDRIVE}/Users/$ENV{USERNAME}/Desktop/Github/build/opencv310/build
 )
 
-add_subdirectory(api)
+#add_subdirectory(api)
 
 ############################################################################################################
-option(BUILD_SHAPEFIT_DEV_APP "Build Shapefit Development App" ON)
-if(BUILD_SHAPEFIT_DEV_APP)
+#option(BUILD_SHAPEFIT_DEV_APP "Build Shapefit Development App" ON)
+if(1)
   
     set(LIBRS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/librealsense/librealsense)
-    set(FW_RW_API ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/guoping)
+    #set(FW_RW_API ${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/guoping)
     
     find_package(OpenGL REQUIRED)
     set(LIBRS_LIBS realsense2 ${OPENGL_LIBRARIES})
@@ -127,6 +127,10 @@ if(BUILD_SHAPEFIT_DEV_APP)
     message(STATUS "LIBUSB1_LIBRARY_DIRS :${LIBUSB1_LIBRARY_DIRS}")
     link_directories(${LIBUSB1_LIBRARY_DIRS})
     
+    if(WIN32)
+        add_subdirectory(thirdparty/apriltag/pthreads-win32)
+    endif()
+    add_subdirectory(thirdparty/apriltag/apriltag3-2019-05-29)
     add_subdirectory(t265-apriltag-demo)
     
     

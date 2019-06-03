@@ -45,11 +45,7 @@ extern "C" {
 typedef struct
 {
     unsigned int nrows, ncols;
-#ifdef _MSC_VER
-    double *data;
-#else
     double data[];
-#endif
 } matd_t;
 
 #define MATD_ALLOC(name, nrows, ncols) double name ## _storage [nrows*ncols]; matd_t name = { .nrows = nrows, .ncols = ncols, .data = &name ## _storage };

@@ -69,7 +69,7 @@ void utime_to_timeval(int64_t v, struct timeval *tv)
     tv->tv_usec = (suseconds_t) utime_get_useconds(v);
 }
 
-#ifndef UNIX
+#ifdef _WIN32
 void utime_to_timespec(int64_t v, struct timespec *ts)
 {
     ts->tv_sec  = (time_t) utime_get_seconds(v);

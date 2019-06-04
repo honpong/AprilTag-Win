@@ -45,13 +45,14 @@ struct apriltag_detection_undistorted_t : public apriltag_detection_t
         this->H = homography_compute2(corr_arr);
         return *this;
     }
+    
 };
 
 struct apriltag_detection_array
 {
     zarray_t *detections = nullptr;
     std::vector<apriltag_detection_undistorted_t> detections_undistorted;
-    std::vector<apriltag_pose_t> tag_poses;
+    std::vector<apriltag_pose_t> tag_poses, tag_undistorted_poses;
     rs2_intrinsics intr;
     
     apriltag_detection_array(apriltag_detector_t* td, cv::Mat& gray, rs2_intrinsics& _intr)
@@ -89,7 +90,14 @@ struct apriltag_detection_array
         return det;
     }
     
-    void draw_detections(cv::Mat& frame) const
+    cv::Point2f normalized_undistort(float mx, float my, int display_w, int display_h) const
+    {
+        float normalized_ux = 0.25f * (mx) + 0.5f;
+        float normalized_uy = 0.25f * (my) + 0.5f;
+        return cv::Point2f(normalized_ux * display_w, normalized_uy * display_h);
+    }
+    
+    void draw_detections(cv::Mat& frame, cv::Mat* undistorted_frame = nullptr)  const
     {
         int num_tag_detected = num_detections();
         // Draw detection outlines
@@ -112,9 +120,8 @@ struct apriltag_detection_array
             std::stringstream ss;
             ss << det->id;
             cv::String text = ss.str();
-            int fontface = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
+            int fontface = cv::FONT_HERSHEY_SCRIPT_SIMPLEX, baseline;
             double fontscale = 1.0;
-            int baseline;
             cv::Size textsize = cv::getTextSize(text, fontface, fontscale, 2,
                 &baseline);
             cv::putText(frame, text, cv::Point2d(det->c[0] - textsize.width / 2,
@@ -122,12 +129,67 @@ struct apriltag_detection_array
                 fontface, fontscale, cv::Scalar(0xff, 0x99, 0), 2);
 
             if (tag_poses.size() > i) {
-                std::stringstream pss; pss << "t:";
-                pss << matd_get(tag_poses[i].t, 0, 0) <<
-                    "," << matd_get(tag_poses[i].t, 1, 0) <<
-                    "," << matd_get(tag_poses[i].t, 2, 0);
-
+                fontscale = 1.5;
+                baseline = 20;
+                fontface = cv::FONT_HERSHEY_PLAIN;
+                
+                std::stringstream pss; pss << "tag t:" << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                pss << matd_get(tag_poses[i].t, 0, 0) << "," << matd_get(tag_poses[i].t, 1, 0) << "," << matd_get(tag_poses[i].t, 2, 0);
                 cv::putText(frame, pss.str(), cv::Point(30, 30), fontface, fontscale, cv::Scalar(255, 255, 0), 1);
+                
+                pss.str(""); pss << "    R:" << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                pss << matd_get(tag_poses[i].R, 0, 0) << "," << matd_get(tag_poses[i].R, 0, 1) << "," << matd_get(tag_poses[i].R, 0, 2);
+                cv::putText(frame, pss.str(), cv::Point(30, 30 + 1*baseline), fontface, fontscale, cv::Scalar(255, 255, 0), 1);
+
+                pss.str(""); pss << "     " << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                pss << matd_get(tag_poses[i].R, 1, 0) << "," << matd_get(tag_poses[i].R, 1, 1) << "," << matd_get(tag_poses[i].R, 1, 2);
+                cv::putText(frame, pss.str(), cv::Point(30, 30 + 2*baseline), fontface, fontscale, cv::Scalar(255, 255, 0), 1);
+
+                pss.str(""); pss << "     " << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                pss << matd_get(tag_poses[i].R, 2, 0) << "," << matd_get(tag_poses[i].R, 2, 1) << "," << matd_get(tag_poses[i].R, 2, 2);
+                cv::putText(frame, pss.str(), cv::Point(30, 30 + 3*baseline), fontface, fontscale, cv::Scalar(255, 255, 0), 1);
+            }
+            
+            if(undistorted_frame && detections_undistorted.size() > i)
+            {
+                const apriltag_detection_t *det = &detections_undistorted[i];
+                const int dw = undistorted_frame->cols, dh = undistorted_frame->rows;
+                
+                cv::line(*undistorted_frame, normalized_undistort(det->p[0][0], det->p[0][1], dw, dh),
+                         normalized_undistort(det->p[1][0], det->p[1][1],dw , dh),
+                         cv::Scalar(0, 0xff, 0), 2);
+                cv::line(*undistorted_frame, normalized_undistort(det->p[0][0], det->p[0][1], dw, dh),
+                         normalized_undistort(det->p[3][0], det->p[3][1], dw, dh),
+                         cv::Scalar(0, 0, 0xff), 2);
+                cv::line(*undistorted_frame, normalized_undistort(det->p[1][0], det->p[1][1], dw, dh),
+                         normalized_undistort(det->p[2][0], det->p[2][1], dw, dh),
+                         cv::Scalar(0xff, 0, 0), 2);
+                cv::line(*undistorted_frame, normalized_undistort(det->p[2][0], det->p[2][1], dw, dh),
+                         normalized_undistort(det->p[3][0], det->p[3][1], dw, dh),
+                         cv::Scalar(0xff, 0, 0), 2);
+                
+                if( tag_undistorted_poses.size() > i )
+                {
+                    fontscale = 1.5;
+                    baseline = 20;
+                    fontface = cv::FONT_HERSHEY_PLAIN;
+                    
+                    std::stringstream pss; pss << "tag t:" << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                    pss << matd_get(tag_undistorted_poses[i].t, 0, 0) << "," << matd_get(tag_undistorted_poses[i].t, 1, 0) << "," << matd_get(tag_undistorted_poses[i].t, 2, 0);
+                    cv::putText(*undistorted_frame, pss.str(), cv::Point(30, 30), fontface, fontscale, cv::Scalar(255, 255, 0), 1);
+                    
+                    pss.str(""); pss << "    R:" << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                    pss << matd_get(tag_undistorted_poses[i].R, 0, 0) << "," << matd_get(tag_undistorted_poses[i].R, 0, 1) << "," << matd_get(tag_undistorted_poses[i].R, 0, 2);
+                    cv::putText(*undistorted_frame, pss.str(), cv::Point(30, 30 + 1*baseline), fontface, fontscale, cv::Scalar(255, 255, 0), 1);
+                    
+                    pss.str(""); pss << "     " << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                    pss << matd_get(tag_undistorted_poses[i].R, 1, 0) << "," << matd_get(tag_undistorted_poses[i].R, 1, 1) << "," << matd_get(tag_undistorted_poses[i].R, 1, 2);
+                    cv::putText(*undistorted_frame, pss.str(), cv::Point(30, 30 + 2*baseline), fontface, fontscale, cv::Scalar(255, 255, 0), 1);
+                    
+                    pss.str(""); pss << "     " << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+                    pss << matd_get(tag_undistorted_poses[i].R, 2, 0) << "," << matd_get(tag_undistorted_poses[i].R, 2, 1) << "," << matd_get(tag_undistorted_poses[i].R, 2, 2);
+                    cv::putText(*undistorted_frame, pss.str(), cv::Point(30, 30 + 3*baseline), fontface, fontscale, cv::Scalar(255, 255, 0), 1);
+                }
             }
         }
     }
@@ -159,6 +221,20 @@ struct apriltag_detection_array
             
             // Then call estimate_tag_pose.
             double err = estimate_tag_pose(&info, &tag_poses[i]);
+        }
+        
+        if( detections_undistorted.size() > 0)
+        {
+            tag_undistorted_poses.resize(num_tag_detected);
+            info.fx = 1;
+            info.fy = 1;
+            info.cx = 0;
+            info.cy = 0;
+            
+            for(int i=0; i < num_tag_detected; ++i){
+                info.det = &detections_undistorted[i];
+                estimate_tag_pose(&info, &tag_undistorted_poses[i]);
+            }
         }
     }
 };
@@ -280,17 +356,6 @@ struct apriltag
     }
     
     cv::Mat map_x, map_y;
-    cv::Point2f undistort(float mx, float my) const
-    {
-        float normalized_ux = 0.25f * (mx - map_x.at<float>(cv::Point(map_x.cols/2,map_x.rows/2))) + 0.5f;
-        float normalized_uy = 0.25f * (my - map_y.at<float>(cv::Point(map_y.cols/2,map_y.rows/2))) + 0.5f;
-        return cv::Point2f(normalized_ux, normalized_uy);
-    }
-    
-    cv::Point2f undistort(int x, int y) const {
-        return undistort(map_x.at<float>(cv::Point(x,y)), map_y.at<float>(cv::Point(x,y)));
-    }
-    
     cv::Mat undistort(cv::Mat& fisheye_frame, rs2_intrinsics& intr)
     {
         float pt[3], px[2];
@@ -304,8 +369,8 @@ struct apriltag
                 {
                     px[0] = x, px[1] = y;
                     rs2_deproject_pixel_to_point(pt, &intr, px, 1);
-                    map_x.at<float>(cv::Point(x,y)) = pt[0];
-                    map_y.at<float>(cv::Point(x,y)) = pt[1];
+                    map_x.at<float>(cv::Point(x,y)) = 0.25f * pt[0] + 0.5f;
+                    map_y.at<float>(cv::Point(x,y)) = 0.25f * pt[1] + 0.5f;
                 }
             }
             
@@ -322,9 +387,9 @@ struct apriltag
         
         for(int y=h/10, ny=h*9/10; y<ny; ++y){
             for(int x=w/10, nx=w*9/10; x<nx; ++x){
-                auto u = undistort(x,y);
-                float ux = u.x * uw;
-                float uy = u.y * uh;
+               
+                float ux = map_x.at<float>(cv::Point(x,y)) * uw;
+                float uy = map_y.at<float>(cv::Point(x,y)) * uh;
                 if(std::isnan(ux) || std::isnan(uy)){ continue; }
                 
                 if(fov(ux,uy,uw,uh)){
@@ -337,13 +402,14 @@ struct apriltag
         
         for(int y=h/10, ny=h*9/10; y<ny; ++y){
             for(int x=w/10, nx=w*9/10; x<nx; ++x){
-                auto u = undistort(x,y);
-                float ux = u.x * uw;
-                float uy = u.y * uh;
+                
+                float ux = map_x.at<float>(cv::Point(x,y)) * uw;
+                float uy = map_y.at<float>(cv::Point(x,y)) * uh;
                 if(std::isnan(ux) || std::isnan(uy)){ continue; }
                 
                 for(int yy=-1;yy<=1; ++yy){
                     for(int xx=-1; xx<=1; ++xx){
+                        if(xx==0 && yy==0){ continue; }
                         float pu[2] = {ux+xx, uy+yy};
                         if(fov(pu[0],pu[1],uw,uh)){
                             auto& src_color = fisheye_frame.at<unsigned char>(cv::Point(x,y));

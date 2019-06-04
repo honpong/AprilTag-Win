@@ -66,7 +66,48 @@ struct app_data_t
 
 } g_app_data;
 
-int run_detection(std::shared_ptr<rs2::pipeline>& pipe, rs2_intrinsics& intr, rs2_extrinsics& extr)
+
+std::string print(cv_tag_pose& tagpose)
+{
+    std::stringstream ss;
+    ss << "tag " << tagpose.id << ", pose t:" << std::fixed << std::right << std::setprecision(3) << std::setw(6)
+    << tagpose.translation[0] << "," << tagpose.translation[1] << "," << tagpose.translation[2] << "," << "| R:"
+    << tagpose.rotation(0,0) << "," << tagpose.rotation(0,1) << "," << tagpose.rotation(0,2) << ","
+    << tagpose.rotation(1,0) << "," << tagpose.rotation(1,1) << "," << tagpose.rotation(1,2) << ","
+    << tagpose.rotation(2,0) << "," << tagpose.rotation(2,1) << "," << tagpose.rotation(2,2);
+    return ss.str();
+}
+
+std::string print(const rs2_pose& t265_pose)
+{
+    std::stringstream ss; ss << std::fixed << std::right << std::setprecision(3) << std::setw(6);
+    ss << "t265 pose: " << t265_pose.translation.x << "," << t265_pose.translation.y << "," << t265_pose.translation.z << "|"
+    << t265_pose.rotation.w << "," << t265_pose.rotation.x << "," << t265_pose.rotation.y << "," << t265_pose.rotation.z;
+    return ss.str();
+}
+
+void detection_callback(std::shared_ptr<apriltag_detection_array> tags, rs2_pose& t265_pose)
+{
+    if(!g_app_data.is_ui)
+    {
+        //1. print t265 pose output
+        std::cout << print(t265_pose) << std::endl;
+        
+        for(int t=0, nt = tags->num_detections(); t<nt; ++t)
+        {
+            //2. print tag detection from fisheye and tag pose from distorted corners
+            auto cvpose = tags->get_tag_pose(t);
+            if(cvpose.id >= 0){ std::cout << "  distorted " << print(cvpose) << std::endl; }
+            
+            //3. print tag detection from fisheye, undistorted corners to a undistorted image, and tag pose from undistorted corners
+            cvpose = tags->get_tag_undistorted_pose(t);
+            if(cvpose.id >= 0){ std::cout << "undistorted " << print(cvpose) << std::endl; }
+        }
+        std::cout << "-------------------------------------------------------------------------------------------------" << std::endl;
+    }
+}
+
+int run_detection_loop(std::shared_ptr<rs2::pipeline>& pipe, rs2_intrinsics& intr, rs2_extrinsics& extr)
 {
     std::unique_ptr<apriltag> apt;
     std::shared_ptr<apriltag_detection_array> tags;
@@ -83,6 +124,7 @@ int run_detection(std::shared_ptr<rs2::pipeline>& pipe, rs2_intrinsics& intr, rs
         if ((bool)(frames = pipe->wait_for_frames()))
         {
             auto fisheye_frame = frames.get_fisheye_frame(g_app_data.fisheye_sensor_idx);
+            auto t265_pose = frames.get_pose_frame().get_pose_data();
             cv::Mat(fisheye_height, fisheye_width, CV_8UC1, (void*)fisheye_frame.get_data()).copyTo(src);
            
             fisheye_frame = rs2::frame();
@@ -93,6 +135,7 @@ int run_detection(std::shared_ptr<rs2::pipeline>& pipe, rs2_intrinsics& intr, rs
             {
                 if(!apt){ apt = std::make_unique<apriltag>(); }
                 tags = apt->detect(src, intr);
+                detection_callback(tags, t265_pose);
             }
             
             if (g_app_data.is_ui)
@@ -164,7 +207,7 @@ int run()
             std::cout << "Calibration file written to :" << g_app_data.json_path << std::endl;
         }
 
-        run_detection(pipe, intrinsics_live, extrinsics_live);
+        run_detection_loop(pipe, intrinsics_live, extrinsics_live);
         pipe->stop();
     }
     
@@ -187,7 +230,7 @@ int run()
         std::cout << "CALIBRATION FROM FILE : " << g_app_data.json_path << std::endl;
         print(fisheye_calibration.intr, fisheye_calibration.f2p);
 
-        run_detection(pipe, fisheye_calibration.intr, fisheye_calibration.f2p);
+        run_detection_loop(pipe, fisheye_calibration.intr, fisheye_calibration.f2p);
         pipe->stop();
     }
     return 0;

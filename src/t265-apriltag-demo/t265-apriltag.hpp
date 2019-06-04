@@ -48,6 +48,13 @@ struct apriltag_detection_undistorted_t : public apriltag_detection_t
     
 };
 
+struct cv_tag_pose
+{
+    cv::Vec3d   translation;
+    cv::Matx33d rotation;
+    int id = -1;
+};
+
 struct apriltag_detection_array
 {
     zarray_t *detections = nullptr;
@@ -88,6 +95,33 @@ struct apriltag_detection_array
         apriltag_detection_t *det;
         zarray_get(detections, i, &det);
         return det;
+    }
+    
+    static cv_tag_pose to_cv_pose(const apriltag_pose_t& src, int id)
+    {
+        cv_tag_pose dst;
+        dst.translation = cv::Vec3d(matd_get(src.t, 0, 0), matd_get(src.t, 1, 0), matd_get(src.t, 2, 0));
+        dst.rotation(0,0) = matd_get(src.R,0,0);
+        dst.rotation(0,1) = matd_get(src.R,0,1);
+        dst.rotation(0,2) = matd_get(src.R,0,2);
+        dst.rotation(1,0) = matd_get(src.R,1,0);
+        dst.rotation(1,1) = matd_get(src.R,1,1);
+        dst.rotation(1,2) = matd_get(src.R,1,2);
+        dst.rotation(2,0) = matd_get(src.R,2,0);
+        dst.rotation(2,1) = matd_get(src.R,2,1);
+        dst.rotation(2,2) = matd_get(src.R,2,2);
+        dst.id = id;
+        return dst;
+    }
+    
+    cv_tag_pose get_tag_pose(int i) const {
+        if(tag_poses.size()>i) return to_cv_pose(tag_poses[i], get_detection(i)->id);
+        return cv_tag_pose();
+    }
+    
+    cv_tag_pose get_tag_undistorted_pose(int i) const {
+        if(tag_undistorted_poses.size()>i) return to_cv_pose(tag_undistorted_poses[i], get_detection(i)->id);
+        return cv_tag_pose();
     }
     
     cv::Point2f normalized_undistort(float mx, float my, int display_w, int display_h) const
@@ -167,6 +201,11 @@ struct apriltag_detection_array
                 cv::line(*undistorted_frame, normalized_undistort(det->p[2][0], det->p[2][1], dw, dh),
                          normalized_undistort(det->p[3][0], det->p[3][1], dw, dh),
                          cv::Scalar(0xff, 0, 0), 2);
+                
+                cv::Point2f tag_undistorted_center = normalized_undistort(det->c[0], det->c[1], dw, dh);
+                cv::putText(*undistorted_frame,text, cv::Point2f(tag_undistorted_center.x - textsize.width / 2,
+                                                     tag_undistorted_center.y + textsize.height / 2),
+                            fontface, fontscale, cv::Scalar(0xff, 0x99, 0), 2);
                 
                 if( tag_undistorted_poses.size() > i )
                 {

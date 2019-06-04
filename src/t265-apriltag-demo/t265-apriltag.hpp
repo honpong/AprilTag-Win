@@ -196,6 +196,7 @@ struct apriltag
     
     void init()
     {
+        /**
         getopt = getopt_create();
         
         getopt_add_bool(getopt, 'h', "help", 0, "Show this help");
@@ -237,6 +238,17 @@ struct apriltag
         td->refine_edges = getopt_get_bool(getopt, "refine-edges");
         //td->refine_decode = getopt_get_bool(getopt, "refine-decode");
         //td->refine_pose = getopt_get_bool(getopt, "refine-pose");
+         */
+        
+        tf = tag36h11_create();
+        td = apriltag_detector_create();
+        apriltag_detector_add_family(td, tf);
+
+        td->quad_decimate = 1.0;
+        td->quad_sigma = 0.0;
+        td->nthreads = 1;
+        td->debug = 0;
+        td->refine_edges = 1;
     }
     
     std::shared_ptr<apriltag_detection_array> detect(cv::Mat& gray, rs2_intrinsics& intr)

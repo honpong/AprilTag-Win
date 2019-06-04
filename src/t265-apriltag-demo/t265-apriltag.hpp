@@ -71,7 +71,9 @@ struct apriltag_detection_array
         
         detections = apriltag_detector_detect(td, &im);
         undistort_all();
+#ifndef _WIN32
         estimate_tag_poses();
+#endif
     }
     
     virtual ~apriltag_detection_array()

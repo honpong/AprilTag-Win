@@ -35,7 +35,7 @@ __attribute__((optimize("O0")))
 *tag36h11_create()
 {
    apriltag_family_t *tf = calloc(1, sizeof(apriltag_family_t));
-   tf->name = strdup("tag36h11");
+   tf->name = "tag36h11"; //strdup("tag36h11");
    tf->h = 11;
    tf->ncodes = 587;
    tf->codes = calloc(587, sizeof(uint64_t));
@@ -712,6 +712,6 @@ void tag36h11_destroy(apriltag_family_t *tf)
    free(tf->codes);
    free(tf->bit_x);
    free(tf->bit_y);
-   free(tf->name);
+   //free(tf->name);
    free(tf);
 }

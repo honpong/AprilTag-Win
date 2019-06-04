@@ -178,6 +178,9 @@ struct apriltag
     void destory()
     {
         apriltag_detector_destroy(td);
+        tag36h11_destroy(tf);
+        
+        /**
         if (!strcmp(famname, "tag36h11"))
             tag36h11_destroy(tf);
         //else if (!strcmp(famname, "tag36h10"))
@@ -189,6 +192,8 @@ struct apriltag
         //else if (!strcmp(famname, "tag25h7"))
         //    tag25h7_destroy(tf);
         getopt_destroy(getopt);
+        */
+        
         
         getopt = nullptr;
         famname = nullptr;

@@ -169,7 +169,6 @@ int run_detection_loop(std::shared_ptr<rs2::pipeline>& pipe, rs2_intrinsics& int
             if (current_playback_time >= total_playback_time) { g_app_data.set_exit(); }
         }
     }
-
     return 0;
 }
 

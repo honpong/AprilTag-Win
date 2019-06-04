@@ -280,14 +280,14 @@ struct apriltag_detection_array
 
 struct apriltag
 {
-    apriltag() { init(); }
+    apriltag(double _tag_size) : tag_size(_tag_size) { init(); }
     ~apriltag() { destory(); }
     
     getopt_t *getopt = nullptr;
     const char* famname = nullptr;
     apriltag_family_t *tf = nullptr;
     apriltag_detector_t *td = nullptr;
-    double tag_size = 0.05; //meter
+    double tag_size; //meter
     double fx, fy, ppx, ppy;
     
     void destory()

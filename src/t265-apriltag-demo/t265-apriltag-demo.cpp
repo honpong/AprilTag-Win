@@ -32,29 +32,32 @@ struct app_data_t
     bool is_tag_detect = true;
     bool is_playback_loop = true;
 
+    double tag_size = 0.38;
     const int fisheye_sensor_idx = 1;
     const std::string app_name = std::string("t265-apriltag-demo ") + VERSION_STRING;
 
     bool init(int argc, char* argv[])
     {
         for (int i = 1; i < argc; ++i) {
-            if (!strcmp(argv[i],      "--record")) { is_record = is_live = true; }
-            else if (!strcmp(argv[i], "--replay")) { is_replay = true; is_live = is_record = false; }
-            else if (!strcmp(argv[i], "--no_ui"))  { is_ui     = false;     }
-            else if (!strcmp(argv[i], "--path"  )) { data_path = argv[++i]; }
-            else if (!strcmp(argv[i], "--json"  )) { json_path = argv[++i]; }
-            else if (!strcmp(argv[i], "--no_tag")) { is_tag_detect = false; }
-            else if (!strcmp(argv[i], "--once"  )) { is_playback_loop = false; }
+            if (!strcmp(argv[i],      "--record" )) { is_record = is_live = true; }
+            else if (!strcmp(argv[i], "--replay" )) { is_replay = true; is_live = is_record = false; }
+            else if (!strcmp(argv[i], "--no_ui"  ))  { is_ui     = false;     }
+            else if (!strcmp(argv[i], "--path"   )) { data_path = argv[++i]; }
+            else if (!strcmp(argv[i], "--json"   )) { json_path = argv[++i]; }
+            else if (!strcmp(argv[i], "--no_tag" )) { is_tag_detect = false; }
+            else if (!strcmp(argv[i], "--once"   )) { is_playback_loop = false; }
+            else if (!strcmp(argv[i], "--tagsize")) { tag_size = atof(argv[++i]); }
             else {
                 printf("usages:\n t265-apriltag-demo \n");
-                printf("  [--record][--replay][--once][--no_ui][--no_tag][--path PATH_TO_BAG_FILE][--json PATH_TO_JSON]\n\n");
-                printf("--record : enable recording.                                          \n");
-                printf("--replay : replay a recorded T265 .bag file with .json calibration.   \n");
-                printf("--once   : replay only once.                                          \n");
-                printf("--no_ui  : do not display UI.                                         \n");
-                printf("--no_tag : do not start Apriltag detection.                           \n");
-                printf("--path   : path to T265 .bag file.                                    \n");
-                printf("--json   : json to custom .json calibration file from this program.   \n");
+                printf("  [--record][--replay][--once][--tagsize METER][--no_ui][--no_tag][--path PATH_TO_BAG_FILE][--json PATH_TO_JSON]\n\n");
+                printf("--record  : enable recording.                                          \n");
+                printf("--replay  : replay a recorded T265 .bag file with .json calibration.   \n");
+                printf("--once    : replay only once.                                          \n");
+                printf("--tagsize : tag size in meter, default: 0.38m                          \n");
+                printf("--no_ui   : do not display UI.                                         \n");
+                printf("--no_tag  : do not start Apriltag detection.                           \n");
+                printf("--path    : path to T265 .bag file.                                    \n");
+                printf("--json    : json to custom .json calibration file from this program.   \n");
                 return false;
             }
         }    
@@ -133,7 +136,10 @@ int run_detection_loop(std::shared_ptr<rs2::pipeline>& pipe, rs2_intrinsics& int
             
             if(g_app_data.is_tag_detect)
             {
-                if(!apt){ apt = std::make_unique<apriltag>(); }
+                if(!apt){
+                    apt = std::make_unique<apriltag>(g_app_data.tag_size);
+                    printf( "\napriltag detector created, expected tag size : %.3fm\n", g_app_data.tag_size );
+                }
                 tags = apt->detect(src, intr);
                 detection_callback(tags, t265_pose);
             }

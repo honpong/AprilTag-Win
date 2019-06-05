@@ -59,7 +59,15 @@ void estimate_tag_pose_orthogonal_iteration(
         double* err2,
         apriltag_pose_t* pose2,
         int nIters);
-
+void estimate_tag_pose_orthogonal_iteration2(
+        apriltag_detection_info_t* info,
+        double* err1,
+        apriltag_pose_t* pose1,
+        double* err2,
+        apriltag_pose_t* pose2,
+        int nIters,
+        FILE* err_msg);
+    
 /**
  * Estimate tag pose.
  * This method is an easier to use interface to estimate_tag_pose_orthogonal_iteration.
@@ -68,6 +76,7 @@ void estimate_tag_pose_orthogonal_iteration(
  * @return Object-space error of returned pose.
  */
 double estimate_tag_pose(apriltag_detection_info_t* info, apriltag_pose_t* pose);
+double estimate_tag_pose2(apriltag_detection_info_t* info, apriltag_pose_t* pose, FILE* err_msg);
 
 #ifdef __cplusplus
 }

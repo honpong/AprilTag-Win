@@ -403,6 +403,7 @@ struct quad_decode_task
     zarray_t *detections;
 
     image_u8_t *im_samples;
+    FILE* err_msg;
 };
 
 struct evaluate_quad_ret
@@ -415,7 +416,7 @@ struct evaluate_quad_ret
     struct quick_decode_entry e;
 };
 
-matd_t* homography_compute2(double c[4][4]) {
+matd_t* homography_compute2(double c[4][4], FILE* err_msg) {
     double A[] =  {
             c[0][0], c[0][1], 1,       0,       0, 0, -c[0][0]*c[0][2], -c[0][1]*c[0][2], c[0][2],
                   0,       0, 0, c[0][0], c[0][1], 1, -c[0][0]*c[0][3], -c[0][1]*c[0][3], c[0][3],
@@ -443,7 +444,7 @@ matd_t* homography_compute2(double c[4][4]) {
         }
 
         if (max_val < epsilon) {
-            fprintf(stderr, "WRN: Matrix is singular.\n");
+            if(err_msg) { fprintf(err_msg, "WRN: Matrix is singular.\n"); }
         }
 
         // Swap to get best row.
@@ -477,7 +478,7 @@ matd_t* homography_compute2(double c[4][4]) {
 }
 
 // returns non-zero if an error occurs (i.e., H has no inverse)
-int quad_update_homographies(struct quad *quad)
+int quad_update_homographies(struct quad *quad, FILE* err_msg)
 {
     //zarray_t *correspondences = zarray_create(sizeof(float[4]));
 
@@ -496,7 +497,7 @@ int quad_update_homographies(struct quad *quad)
         matd_destroy(quad->Hinv);
 
     // XXX Tunable
-    quad->H = homography_compute2(corr_arr);
+    quad->H = homography_compute2(corr_arr, err_msg);
 
     quad->Hinv = matd_inverse(quad->H);
 
@@ -888,7 +889,7 @@ static void quad_decode_task(void *_u)
         }
 
         // make sure the homographies are computed...
-        if (quad_update_homographies(quad_original))
+        if (quad_update_homographies(quad_original, task->err_msg))
             continue;
 
         for (int famidx = 0; famidx < zarray_size(td->tag_families); famidx++) {
@@ -982,6 +983,11 @@ int prefer_smaller(int pref, double q0, double q1)
 }
 
 zarray_t *apriltag_detector_detect(apriltag_detector_t *td, image_u8_t *im_orig)
+{
+    return apriltag_detector_detect2(td, im_orig, stderr);
+}
+
+zarray_t *apriltag_detector_detect2(apriltag_detector_t *td, image_u8_t *im_orig, FILE* err_msg)
 {
     if (zarray_size(td->tag_families) == 0) {
         zarray_t *s = zarray_create(sizeof(apriltag_detection_t*));
@@ -1130,6 +1136,7 @@ zarray_t *apriltag_detector_detect(apriltag_detector_t *td, image_u8_t *im_orig)
             tasks[ntasks].detections = detections;
 
             tasks[ntasks].im_samples = im_samples;
+            tasks[ntasks].err_msg = err_msg;
 
             workerpool_add_task(td->wp, quad_decode_task, &tasks[ntasks]);
             ntasks++;

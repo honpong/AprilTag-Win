@@ -264,7 +264,8 @@ void apriltag_detector_destroy(apriltag_detector_t *td);
 // free the array and the detections it contains, or call
 // _detection_destroy and zarray_destroy yourself.
 zarray_t *apriltag_detector_detect(apriltag_detector_t *td, image_u8_t *im_orig);
-
+zarray_t *apriltag_detector_detect2(apriltag_detector_t *td, image_u8_t *im_orig, FILE* err_msg);
+    
 // Call this method on each of the tags returned by apriltag_detector_detect
 void apriltag_detection_destroy(apriltag_detection_t *det);
 
@@ -275,7 +276,7 @@ void apriltag_detections_destroy(zarray_t *detections);
 // Caller is responsible for calling image_u8_destroy on the image
 image_u8_t *apriltag_to_image(apriltag_family_t *fam, int idx);
 
-matd_t* homography_compute2(double c[4][4]);
+matd_t* homography_compute2(double c[4][4], FILE* err_msg);
 
 #ifdef __cplusplus
 }
